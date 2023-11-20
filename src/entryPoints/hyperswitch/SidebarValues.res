@@ -138,7 +138,7 @@ let analytics = isAnalyticsEnabled =>
         name: "Analytics",
         icon: "analytics",
         showSection: true,
-        links: [paymentAnalytcis, refundAnalytics],
+        links: [paymentAnalytcis, refundAnalytics, userJourneyAnalytics],
       })
     : emptyComponent
 

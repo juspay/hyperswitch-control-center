@@ -292,11 +292,11 @@ let make = (~paymentId, ~createdAt) => {
             eventDict->getString("source", "")->sourceMapper->Js.Json.string,
           )
           eventDict->Js.Dict.set(
-            "sdk_platform",
+            "checkout_platform",
             eventDict->getString("component", "")->Js.Json.string,
           )
           eventDict->Js.Dict.set(
-            "user_platform",
+            "customer_device",
             eventDict->getString("platform", "")->Js.Json.string,
           )
           eventDict->Js.Dict.set("sdk_version", eventDict->getString("version", "")->Js.Json.string)

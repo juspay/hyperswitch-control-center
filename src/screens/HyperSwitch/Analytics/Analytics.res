@@ -437,8 +437,8 @@ module TabDetails = {
     | USER_JOURNEY =>
       [
         ("browser_name", "browser"),
-        ("component", "sdk_platform"),
-        ("platform", "user_platform"),
+        ("component", "checkout_platform"),
+        ("platform", "customer_device"),
       ]->Js.Dict.fromArray
     | _ => Js.Dict.empty()
     }
