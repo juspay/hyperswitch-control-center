@@ -50,7 +50,7 @@ Follow these simple steps to set up Hyperswitch on your local machine.
     npm run re:start
     ```
 
-6. Start the development server:
+6. In another terminal window, start the development server:
 
     ```bash
     npm run start
