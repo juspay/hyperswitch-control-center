@@ -1,0 +1,72 @@
+open ProviderTypes
+
+let defaultIntegrationValue = Js.Dict.empty()->Js.Json.object_->ProviderHelper.getIntegrationDetails
+let defaultValue = {
+  showFeedbackModal: false,
+  setShowFeedbackModal: _ => (),
+  showProdIntentForm: false,
+  setShowProdIntentForm: _ => (),
+  integrationDetails: defaultIntegrationValue,
+  setIntegrationDetails: _ => (),
+  tabIndexForDevelopers: 0,
+  setTabIndexForDevelopers: _ => (),
+  dashboardPageState: #DEFAULT,
+  setDashboardPageState: _ => (),
+  permissionInfo: [],
+  setPermissionInfo: _ => (),
+  isProdIntentCompleted: true,
+  setIsProdIntentCompleted: _ => (),
+  quickStartPageState: QuickStartTypes.ConnectProcessor(LANDING),
+  setQuickStartPageState: _ => (),
+}
+
+let defaultContext = React.createContext(defaultValue)
+
+module Provider = {
+  let makeProps = (~value, ~children, ()) =>
+    {
+      "value": value,
+      "children": children,
+    }
+  let make = React.Context.provider(defaultContext)
+}
+
+@react.component
+let make = (~children) => {
+  let (showFeedbackModal, setShowFeedbackModal) = React.useState(_ => false)
+  let (showProdIntentForm, setShowProdIntentForm) = React.useState(_ => false)
+  let (tabIndexForDevelopers, setTabIndexForDevelopers) = React.useState(_ => 0)
+  let (dashboardPageState, setDashboardPageState) = React.useState(_ => #DEFAULT)
+  let (permissionInfo, setPermissionInfo) = React.useState(_ => [])
+  let (isProdIntentCompleted, setIsProdIntentCompleted) = React.useState(_ => true)
+  let (
+    quickStartPageState,
+    setQuickStartPageState,
+  ) = React.useState(_ => QuickStartTypes.ConnectProcessor(LANDING))
+
+  let (integrationDetails, setIntegrationDetails) = React.useState(_ =>
+    Js.Dict.empty()->Js.Json.object_->ProviderHelper.getIntegrationDetails
+  )
+
+  <Provider
+    value={
+      showFeedbackModal,
+      setShowFeedbackModal,
+      setIntegrationDetails,
+      integrationDetails,
+      showProdIntentForm,
+      setShowProdIntentForm,
+      tabIndexForDevelopers,
+      setTabIndexForDevelopers,
+      dashboardPageState,
+      setDashboardPageState,
+      permissionInfo,
+      setPermissionInfo,
+      isProdIntentCompleted,
+      setIsProdIntentCompleted,
+      quickStartPageState,
+      setQuickStartPageState,
+    }>
+    children
+  </Provider>
+}

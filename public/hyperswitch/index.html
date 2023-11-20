@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Loading...</title>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1X38KQVJ1S"></script>
+  <script src="/env-config.js"></script>
+
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag("js", new Date());
+
+    gtag("config", "G-1X38KQVJ1S");
+  </script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <link rel="shortcut icon" type="image/x-icon" href="/HyperswitchFavicon.png" />
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <style>
+    html,
+    body {
+      font-family: "Inter", sans-serif;
+      font-weight: 400;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .list-item {
+      background-color: rgba(255, 255, 255, 1);
+      padding: 10px;
+      transition: background-color 0.2s;
+    }
+
+    .list-item:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .clickable {
+      cursor: pointer;
+    }
+
+    .react-pdf__Page__annotations {
+      height: auto !important;
+      width: 0 !important;
+    }
+
+    .linkAnnotation {
+      width: 20% !important;
+    }
+
+    .linkAnnotation {
+      position: absolute;
+    }
+
+    .linkAnnotation a {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        color: rgba(229, 231, 235, 1);
+        background-color: rgba(15, 16, 17, 1);
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="/app.css" />
+
+  <script>
+    function clearCookiesWithURLs() {
+      document.cookie.split(";").forEach(function (c) {
+        c = c.trim();
+        cookie_name = c.split("=")[0];
+        cookie_value = c.split("=")[1];
+        cookie_value = decodeURIComponent(cookie_value);
+        if (
+          cookie_value.indexOf("https://") > -1 ||
+          cookie_value.indexOf("http://") > -1
+        ) {
+          document.cookie =
+            cookie_name + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+        }
+      });
+    }
+  </script>
+  <script src="//in.fw-cdn.com/31228579/578575.js" chat="true"></script>
+</head>
+
+<body>
+  <!-- SDK Loader Manager (noscript) -->
+  <script>
+    (function (w, d) {
+      //http://localhost:9090/dist/HyperLoader.js
+      // var host = w.location.hostname;
+      var src = "https://dev.hyperswitch.io/v1/HyperLoader.js";
+      if (w && w["_env_"] && w["_env_"]["sdkBaseUrl"]) {
+        src = w["_env_"]["sdkBaseUrl"]
+      }
+      var s = d.createElement("script");
+      s.setAttribute("src", src);
+      d.body.appendChild(s);
+      console.log(window._env_.API_URL)
+    })(window, document);
+  </script>
+
+  <script type="module" src="/wasm/euclid.js"></script>
+  <script src="/module.js"></script>
+  <div id="app"></div>
+  <script onload="clearCookiesWithURLs()" src="/app.js"></script>
+</body>
+
+</html>

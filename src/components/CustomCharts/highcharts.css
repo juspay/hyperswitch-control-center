@@ -1,0 +1,6 @@
+.highcharts-data-label-connector {
+    stroke-dasharray: 2, 2;
+    stroke: #151A1F;
+    opacity: 0.3;
+    stroke-width: 2px;
+}

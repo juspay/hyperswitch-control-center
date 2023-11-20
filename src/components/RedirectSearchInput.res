@@ -1,0 +1,61 @@
+external inputAsString: ReactEvent.Form.t => string = "%identity"
+external stringToForm: string => ReactEvent.Form.t = "%identity"
+external toReactForm: Js.Json.t => ReactEvent.Form.t = "%identity"
+
+module SearchInput = {
+  @react.component
+  let make = (
+    ~input,
+    ~isDisabled=false,
+    ~type_="text",
+    ~inputMode="text",
+    ~autoComplete=?,
+    ~inputStyle="",
+    ~placeholder,
+    ~redirectUrl: string,
+    ~customStyle="",
+    ~widthMatchwithPlaceholderLength=None,
+  ) => {
+    let urlParam = RescriptReactRouter.useUrl().search
+    let handleKeyUp = React.useCallback1(ev => {
+      let key = ev->ReactEvent.Keyboard.key
+      let keyCode = ev->ReactEvent.Keyboard.keyCode
+      if key === "Enter" || keyCode === 13 {
+        let value = {ev->ReactEvent.Keyboard.target}["value"]->inputAsString->Js.String2.trim
+        if value !== "" {
+          RescriptReactRouter.push(`${redirectUrl}${value}`)
+        }
+      }
+    }, [urlParam])
+
+    let search_class = "text-gray-400 dark:text-gray-600"
+    let iconName = "search"
+    let iconClass = search_class
+
+    <TextInput
+      input
+      placeholder
+      isDisabled
+      type_
+      inputMode
+      ?autoComplete
+      leftIcon={<Icon size=16 className=iconClass name=iconName />}
+      autoFocus=true
+      inputStyle
+      onKeyUp=handleKeyUp
+      customStyle={`!h-10 ${customStyle}`}
+      widthMatchwithPlaceholderLength
+    />
+  }
+}
+
+let redirectSearchInput = (
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder,
+  ~redirectUrl,
+  ~widthMatchwithPlaceholderLength=None,
+  ~customStyle="",
+  (),
+) => {
+  <SearchInput input placeholder redirectUrl widthMatchwithPlaceholderLength customStyle />
+}

@@ -1,0 +1,4 @@
+/api/ec/*         https://dashboard.expresscheckout.juspay.in/api/ec/:splat  200
+/api-proxy/*  https://api.juspay.in/:splat  200
+/api/*        https://api.yesbank.upi.juspay.in/api/:splat  200
+/*            /index.html  200

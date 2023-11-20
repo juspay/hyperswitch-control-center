@@ -1,0 +1,116 @@
+open QuickStartTypes
+
+@react.component
+let make = (~integrateAppValue: integrateApp) => {
+  open QuickStartUtils
+  let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
+  let typedValueOfEnum = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
+  let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
+  let {quickStartPageState, setQuickStartPageState, setDashboardPageState} = React.useContext(
+    GlobalProvider.defaultContext,
+  )
+  let (choiceState, setChoiceState) = React.useState(_ =>
+    typedValueOfEnum.integrationMethod.integration_type->textToVariantMapper
+  )
+
+  let onClickBackHandler = () => {
+    setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
+  }
+  let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
+  let landingButtonGroup = {
+    <div className="flex flex-col gap-4 w-full">
+      <Button
+        text="I want to integrate Hyperswitch into my app"
+        buttonType={Primary}
+        onClick={_ => setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))}
+      />
+      <Button
+        text="Go to Home"
+        buttonType={Secondary}
+        onClick={_ => {
+          setDashboardPageState(_ => #HOME)
+          RescriptReactRouter.replace("/home")
+        }}
+      />
+    </div>
+  }
+
+  let handleIntegration = async () => {
+    try {
+      setButtonState(_ => Loading)
+      let integartionValue: QuickStartTypes.integrationMethod = {
+        integration_type: (choiceState: QuickStartTypes.choiceStateTypes :> string),
+      }
+      let enumVariant = quickStartPageState->variantToEnumMapper
+      let _resp = await IntegrationMethod(integartionValue)->usePostEnumDetails(enumVariant)
+      setQuickStartPageState(_ => IntegrateApp(CUSTOM_INTEGRATION))
+      setButtonState(_ => Normal)
+    } catch {
+    | _ => setButtonState(_ => Normal)
+    }
+  }
+
+  let handleMarkAsDone = async () => {
+    try {
+      let enumVariant = quickStartPageState->variantToEnumMapper
+      let _resp = await Boolean(true)->usePostEnumDetails(enumVariant)
+      setQuickStartPageState(_ => GoLive(LANDING))
+    } catch {
+    | _ => ()
+    }
+  }
+
+  <>
+    {switch integrateAppValue {
+    | LANDING =>
+      <div className="h-full flex-1 flex flex-col items-center justify-center">
+        <QuickStartUIUtils.StepCompletedPage
+          headerText="Configuration is complete. You can now start integrating with us!"
+          buttonGroup={landingButtonGroup}
+        />
+      </div>
+    | CHOOSE_INTEGRATION =>
+      <div className="flex h-full">
+        <HSSelfServeSidebar
+          heading="Integrate your app"
+          sidebarOptions={enumDetails->getSidebarOptionsForIntegrateYourApp(quickStartPageState)}
+        />
+        <div className="flex-1 flex flex-col items-center justify-center">
+          <QuickStartUIUtils.LandingPageChoice
+            choiceState
+            setChoiceState
+            headerText="How would you like to integrate?"
+            isVerticalTile=true
+            listChoices={integrateYourAppArray}
+            nextButton={<Button
+              buttonType=Primary
+              text="Proceed"
+              buttonState
+              onClick={_ => {
+                handleIntegration()->ignore
+              }}
+              buttonSize=Small
+            />}
+          />
+        </div>
+      </div>
+    | CUSTOM_INTEGRATION =>
+      <div className="flex h-full">
+        <HSSelfServeSidebar
+          heading="Integrate your app"
+          sidebarOptions={enumDetails->getSidebarOptionsForIntegrateYourApp(quickStartPageState)}
+        />
+        <div className="flex-1 flex flex-col items-center justify-center">
+          <div
+            className="w-fixedPageWidth h-45-rem bg-white rounded-md flex flex-col gap-6 shadow-boxShadowMultiple overflow-scroll ">
+            <CustomIntegrationPage
+              currentRoute={typedValueOfEnum.integrationMethod.integration_type->textToVariantMapperForBuildHS}
+              markAsDone={_ => handleMarkAsDone()}
+              onClickBackHandler
+            />
+          </div>
+        </div>
+      </div>
+    }}
+  </>
+}

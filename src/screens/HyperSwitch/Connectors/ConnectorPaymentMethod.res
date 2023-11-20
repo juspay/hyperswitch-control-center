@@ -1,0 +1,121 @@
+@react.component
+let make = (
+  ~currentStep,
+  ~setCurrentStep,
+  ~connector,
+  ~setInitialValues,
+  ~initialValues,
+  ~isUpdateFlow,
+  ~isPayoutFlow,
+) => {
+  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
+  open ConnectorUtils
+  open APIUtils
+  open PageLoaderWrapper
+  open LogicUtils
+  let url = RescriptReactRouter.useUrl()
+  let _showAdvancedConfiguration = false
+  let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
+    Js.Dict.empty()->Js.Json.object_->getPaymentMethodEnabled
+  )
+  let (metaData, setMetaData) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
+  let showToast = ToastState.useShowToast()
+  let connectorID = initialValues->getDictFromJsonObject->getOptionString("merchant_connector_id")
+  let (screenState, setScreenState) = React.useState(_ => Loading)
+  let updateAPIHook = useUpdateMethod()
+
+  let updateDetails = value => {
+    setPaymentMethods(_ => value->Js.Array2.copy)
+  }
+
+  React.useEffect1(() => {
+    setScreenState(_ => Loading)
+    initialValues
+    ->ConnectorUtils.getConnectorPaymentMethodDetails(
+      setPaymentMethods,
+      setMetaData,
+      setScreenState,
+      isUpdateFlow,
+      isPayoutFlow,
+      connector,
+      updateDetails,
+    )
+    ->ignore
+    None
+  }, [connector])
+
+  let onSubmit = async () => {
+    try {
+      setScreenState(_ => Loading)
+      let obj: ConnectorTypes.wasmRequest = {
+        connector,
+        payment_methods_enabled: paymentMethodsEnabled,
+        metadata: metaData,
+      }
+      let body =
+        constructConnectorRequestBody(obj, initialValues)->ignoreFields(
+          connectorID->Belt.Option.getWithDefault(""),
+          ConnectorUtils.connectorIgnoredField,
+        )
+      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID, ())
+      let response = await updateAPIHook(connectorUrl, body, Post)
+      getMixpanelForConnectorOnSubmit(
+        ~connectorName=connector,
+        ~currentStep,
+        ~isUpdateFlow,
+        ~url,
+        ~hyperswitchMixPanel,
+      )
+      setInitialValues(_ => response)
+      setScreenState(_ => Success)
+      setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
+      showToast(
+        ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
+        ~toastType=ToastSuccess,
+        (),
+      )
+    } catch {
+    | Js.Exn.Error(e) => {
+        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+        setScreenState(_ => PageLoaderWrapper.Error(err))
+      }
+    }
+  }
+
+  <PageLoaderWrapper screenState>
+    <div className="flex flex-col gap-8">
+      <div className="flex justify-between border-b py-2">
+        <div className="flex gap-2 items-center">
+          <GatewayIcon
+            gateway={connector->Js.String2.toUpperCase} className="w-14 h-14 rounded-full"
+          />
+          <h2 className="text-xl font-semibold">
+            {connector->LogicUtils.capitalizeString->React.string}
+          </h2>
+        </div>
+        <div className="justify-self-end">
+          <Button text="Proceed" buttonType={Primary} onClick={_ => onSubmit()->ignore} />
+        </div>
+      </div>
+      <div className="grid grid-cols-4 flex-1 mx-12">
+        <div className="flex flex-col gap-6 col-span-3">
+          <h1 className="text-orange-950 bg-orange-100 border w-full p-2 rounded-md ">
+            <span className="text-orange-950 font-bold text-fs-14 mx-2">
+              {"NOTE:"->React.string}
+            </span>
+            {"Please verify if the payment methods are turned on at the processor end as well."->React.string}
+          </h1>
+          <PaymentMethod.PaymentMethodsRender
+            _showAdvancedConfiguration
+            connector
+            paymentMethodsEnabled
+            updateDetails
+            metaData
+            setMetaData
+            isPayoutFlow
+          />
+        </div>
+      </div>
+    </div>
+  </PageLoaderWrapper>
+}
