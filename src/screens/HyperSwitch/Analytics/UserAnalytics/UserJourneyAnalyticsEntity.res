@@ -136,7 +136,7 @@ let getStatData = (
 ) => {
   switch colType {
   | SdkRenderedCount => {
-      title: "Checkout Page Impressions",
+      title: "Checkout Page Renders",
       tooltipText: "Total SDK Renders",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.sdk_rendered_count->Belt.Int.toFloat,
@@ -300,16 +300,8 @@ let userMetricsConfig: array<LineChartUtils.metricsConfig> = [
 
 let userJourneyMetricsConfig: array<LineChartUtils.metricsConfig> = [
   {
-    metric_name_db: "sdk_initiated_count",
-    metric_label: "Checkout Page Initiates",
-    metric_type: Volume,
-    thresholdVal: None,
-    step_up_threshold: None,
-    legendOption: (Average, Overall),
-  },
-  {
     metric_name_db: "sdk_rendered_count",
-    metric_label: "Checkout Page Renders",
+    metric_label: "Checkout Page Rendered",
     metric_type: Volume,
     thresholdVal: None,
     step_up_threshold: None,
@@ -341,7 +333,7 @@ let userJourneyMetricsConfig: array<LineChartUtils.metricsConfig> = [
   },
   {
     metric_name_db: "payment_attempts",
-    metric_label: "Payment Attempts",
+    metric_label: "Payment Attempted",
     metric_type: Volume,
     thresholdVal: None,
     step_up_threshold: None,

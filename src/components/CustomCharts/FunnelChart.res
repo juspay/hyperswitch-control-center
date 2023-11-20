@@ -17,6 +17,22 @@ let make = (
     ->LogicUtils.getDictFromJsonObject
   let (hoverIndex, setHoverIndex) = React.useState(_ => -1.)
   let length = metrics->Js.Array2.length->Belt.Float.fromInt
+  let widths = metrics->Array.mapWithIndex((metric, i) => {
+    let previousMetric = metrics->Belt.Array.get(i - 1)
+    let previousMetric = switch previousMetric {
+    | Some(prevMetric) => prevMetric.metric_name_db
+    | None => ""
+    }
+    let currentVol = funnelData->LogicUtils.getInt(metric.metric_name_db, 0)->Belt.Float.fromInt
+    let previousVol =
+      funnelData
+      ->LogicUtils.getInt(previousMetric, currentVol->Belt.Float.toInt)
+      ->Belt.Float.fromInt
+    Js.Math.log10(currentVol *. 100. /. previousVol) /. 2.0
+  })
+
+  let fixedWidth = ref(size *. 70.)
+
   let someData =
     funnelData
     ->Js.Dict.entries
@@ -40,55 +56,40 @@ let make = (
       <div className={`flex ${flexDirectionClass} gap-6 my-10 delay-75 animate-slideUp`}>
         <div className={`flex flex-col items-center my-auto ${widthClass}`}>
           {metrics
-          ->Js.Array2.mapi((metric, i) => {
+          ->Array.mapWithIndex((_metric, i) => {
             let i = i->Belt.Float.fromInt
             let opacity = (i +. 1.) /. length
             let borderTop = `${(size *. 14.)
                 ->Belt.Float.toString}rem solid rgb(0,109,249,${opacity->Belt.Float.toString})`
-            let borderRadius =
-              i === 0.
-                ? `${(size *. 2.5)->Belt.Float.toString}rem ${(size *. 2.5)
-                      ->Belt.Float.toString}rem 0 0`
-                : i === length -. 1.
-                ? `0 0 ${(size *. 2.5)->Belt.Float.toString}rem ${(size *. 2.5)
-                    ->Belt.Float.toString}rem`
-                : ``
-            let borderX =
-              i !== length -. 1.
-                ? `${(size *. 14. *. Js.Math.pow_float(~base=0.7, ~exp=i))
-                      ->Belt.Float.toString}rem solid transparent`
-                : `${size->Belt.Float.toString}rem`
-            let width =
-              i !== length -. 1.
-                ? `${(70. *. size *. Js.Math.pow_float(~base=0.7, ~exp=i))->Belt.Float.toString}rem`
-                : `${(70. *. size *. Js.Math.pow_float(~base=0.7, ~exp=i -. 1.))
-                      ->Belt.Float.toString}rem`
+
+            let currentWidthRatio = switch widths->Belt.Array.get(i->Belt.Float.toInt) {
+            | Some(width) => width
+            | None => size *. 70.
+            }
+
+            let nextWidthRatio = switch widths->Belt.Array.get(i->Belt.Float.toInt + 1) {
+            | Some(width) => width
+            | None =>
+              widths->Belt.Array.get(i->Belt.Float.toInt)->Belt.Option.getWithDefault(size *. 70.)
+            }
+
+            fixedWidth := currentWidthRatio *. fixedWidth.contents
+            let borderXFloat = (1. -. nextWidthRatio) *. fixedWidth.contents /. 2.
+            let borderX = `${borderXFloat->Belt.Float.toString}rem solid transparent`
+
+            let width = `${fixedWidth.contents->Belt.Float.toString}rem`
+
             let marginBottom = `${(size *. 1.4)->Belt.Float.toString}rem`
-            let boxSizing = `content-box`
-            let previousMetric = metrics->Belt.Array.get(i->Belt.Float.toInt - 1)
-            let _previousMetricLabel = switch previousMetric {
-            | Some(prevMetric) => prevMetric.metric_label
-            | None => ""
-            }
-            let previousMetric = switch previousMetric {
-            | Some(prevMetric) => prevMetric.metric_name_db
-            | None => ""
-            }
-            let _previousVol = funnelData->LogicUtils.getInt(previousMetric, 0)->Belt.Float.fromInt
-            let _currentVol =
-              funnelData->LogicUtils.getInt(metric.metric_name_db, 0)->Belt.Float.fromInt
             let funnelElement =
               <div
                 key={`${i->Belt.Float.toString}funnelStage`}
                 className="flex hover:cursor-pointer transition ease-in-out hover:scale-110 duration-300"
                 style={ReactDOMStyle.make(
                   ~borderTop,
-                  ~borderRadius,
                   ~borderLeft=borderX,
                   ~borderRight=borderX,
                   ~width,
                   ~marginBottom,
-                  ~boxSizing,
                   (),
                 )}
                 onMouseOver={_ => setHoverIndex(_ => i)}
@@ -103,7 +104,7 @@ let make = (
             {
               open LogicUtils
               metrics
-              ->Js.Array2.mapi((metric, i) => {
+              ->Array.mapWithIndex((metric, i) => {
                 let marginBottom = `${(size *. 1.4)->Belt.Float.toString}rem`
                 let paddingTop = `${(size *. 4.2)->Belt.Float.toString}rem`
                 <div
@@ -129,7 +130,7 @@ let make = (
           </div>
           <div className="flex flex-col items-start">
             {metrics
-            ->Js.Array2.mapi((metric, i) => {
+            ->Array.mapWithIndex((metric, i) => {
               let marginBottom = `${(size *. 2.1)->Belt.Float.toString}rem`
               let paddingTop = `${(size *. 3.4 *. 1.4)->Belt.Float.toString}rem`
               <div
