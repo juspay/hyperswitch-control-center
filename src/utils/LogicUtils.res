@@ -951,17 +951,17 @@ let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?, ()) => {
     } else {
       ""
     }
-    let sec_disp = if seconds > 0 {
-      `${Js.String2.make(seconds)}S `
-    } else {
-      ""
-    }
     let millisec_disp = if (
       (labelValue < 1.0 ||
         (includeMilliseconds->Belt.Option.getWithDefault(false) && labelValue < 60.0)) &&
         labelValue > 0.0
     ) {
-      `${Js.String2.make(mod((labelValue *. 1000.0)->Belt.Int.fromFloat, 1000))}MS`
+      `.${Js.String2.make(mod((labelValue *. 1000.0)->Belt.Int.fromFloat, 1000))}`
+    } else {
+      ""
+    }
+    let sec_disp = if seconds > 0 {
+      `${Js.String2.make(seconds)}${millisec_disp}S `
     } else {
       ""
     }
@@ -969,7 +969,7 @@ let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?, ()) => {
     if days > 0 {
       year_disp ++ month_disp ++ day_disp
     } else {
-      year_disp ++ month_disp ++ day_disp ++ hr_disp ++ min_disp ++ sec_disp ++ millisec_disp
+      year_disp ++ month_disp ++ day_disp ++ hr_disp ++ min_disp ++ sec_disp
     }
   } else {
     "0"
