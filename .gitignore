@@ -17,3 +17,5 @@ lib/
 env-config.js
 yarn.lock
 package-lock.json
+user_data.sh
+*.pem

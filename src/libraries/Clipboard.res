@@ -1,5 +1,42 @@
+type styleObj
+@get external style: Dom.element => styleObj = "style"
+
 @val @scope(("navigator", "clipboard"))
-external writeText: string => unit = "writeText"
+external writeTextDoc: string => unit = "writeText"
+
+@val external document: 'a = "document"
+@set external setPosition: (styleObj, string) => unit = "position"
+@set external setLeft: (styleObj, string) => unit = "left"
+@send external select: (Dom.element, unit) => unit = "select"
+@send external remove: (Dom.element, unit) => unit = "remove"
+@val @scope(("window", "document", "body"))
+external prepend: 'a => unit = "prepend"
+
+@val @scope("document")
+external execCommand: string => unit = "execCommand"
+
+@val @scope("window")
+external isSecureContext: bool = "isSecureContext"
+
+let writeText = (str: string) => {
+  try {
+    if isSecureContext {
+      writeTextDoc(str)
+    } else {
+      let textArea = document->DOMUtils.createElement("textarea")
+      textArea->Webapi.Dom.Element.setInnerHTML(str)
+      textArea->style->setPosition("absolute")
+      textArea->style->setPosition("absolute")
+      textArea->style->setLeft("-99999999px")
+      textArea->prepend
+      textArea->select()
+      execCommand("copy")
+      textArea->remove()
+    }
+  } catch {
+  | _ => ()
+  }
+}
 
 module Copy = {
   @react.component
