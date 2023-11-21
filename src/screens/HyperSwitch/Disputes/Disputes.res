@@ -58,35 +58,49 @@ let make = () => {
 
   let customUI =
     <HelperComponents.BluredTableComponent
-      infoText="No disputes as of now." moduleName="Disputes" showRedirectCTA=false
+      infoText="No disputes as of now." moduleName=" " showRedirectCTA=false
     />
 
-  <PageLoaderWrapper screenState customUI>
-    <div className="flex flex-col gap-4">
-      <PageUtils.PageHeading title="Disputes" />
-      <LoadedTableWithCustomColumns
-        title=""
-        actualData=filteredDisputesData
-        entity={DisputesEntity.disputesEntity}
-        resultsPerPage=10
-        filters={<TableSearchFilter
-          data={disputesData}
-          filterLogic
-          placeholder="Search payment id or dispute id"
-          searchVal=searchText
-          setSearchVal=setSearchText
-        />}
-        showSerialNumber=true
-        totalResults={filteredDisputesData->Js.Array2.length}
-        offset
-        setOffset
-        currrentFetchCount={filteredDisputesData->Js.Array2.length}
-        defaultColumns={DisputesEntity.defaultColumns}
-        customColumnMapper={DisputesEntity.disputesMapDefaultCols}
-        showSerialNumberInCustomizeColumns=false
-        sortingBasedOnDisabled=false
-        hideTitle=true
-      />
+  let {generateReport} =
+    HyperswitchAtom.featureFlagAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->LogicUtils.safeParse
+    ->FeatureFlagUtils.featureFlagType
+
+  <div>
+    <PageUtils.PageHeading title="Disputes" />
+    <div className="flex w-full justify-end pb-3 gap-3">
+      <UIUtils.RenderIf condition={generateReport}>
+        <GenerateReport entityName={DISPUTE_REPORT} />
+      </UIUtils.RenderIf>
     </div>
-  </PageLoaderWrapper>
+    <PageLoaderWrapper screenState customUI>
+      <div className="flex flex-col gap-4">
+        <PageUtils.PageHeading title="Disputes" />
+        <LoadedTableWithCustomColumns
+          title=""
+          actualData=filteredDisputesData
+          entity={DisputesEntity.disputesEntity}
+          resultsPerPage=10
+          filters={<TableSearchFilter
+            data={disputesData}
+            filterLogic
+            placeholder="Search payment id or dispute id"
+            searchVal=searchText
+            setSearchVal=setSearchText
+          />}
+          showSerialNumber=true
+          totalResults={filteredDisputesData->Js.Array2.length}
+          offset
+          setOffset
+          currrentFetchCount={filteredDisputesData->Js.Array2.length}
+          defaultColumns={DisputesEntity.defaultColumns}
+          customColumnMapper={DisputesEntity.disputesMapDefaultCols}
+          showSerialNumberInCustomizeColumns=false
+          sortingBasedOnDisabled=false
+          hideTitle=true
+        />
+      </div>
+    </PageLoaderWrapper>
+  </div>
 }

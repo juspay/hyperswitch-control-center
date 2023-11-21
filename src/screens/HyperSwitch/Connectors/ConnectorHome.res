@@ -4,18 +4,42 @@ module ConnectorCurrentStepIndicator = {
     let cols = stepsArr->Js.Array2.length->Belt.Int.toString
     let currIndex = stepsArr->Js.Array2.findIndex(item => item === currentStep)
     <div className=" w-full md:w-2/3">
-      <div className={`grid grid-cols-${cols} relative`}>
-        <div className={`h-0.5 bg-gray-200 ${borderWidth} absolute top-1/4`} />
+      <div className={`grid grid-cols-${cols} relative gap-2`}>
         {stepsArr
         ->Array.mapWithIndex((step, i) => {
           let isStepCompleted = i <= currIndex
-          let stepNumberIndicator = isStepCompleted ? "bg-black text-white" : "bg-white"
-          let stepNameIndicator = isStepCompleted ? "text-black" : "text-jp-gray-700"
+          let isPreviousStepCompleted = i < currIndex
+          let isCurrentStep = i == currIndex
 
-          <div key={i->Belt.Int.toString} className="z-10 flex flex-col gap-2 font-semibold">
-            <div
-              className={`w-min px-5 py-3 border rounded-full ${stepNumberIndicator} border-gray-300`}>
-              {(i + 1)->string_of_int->React.string}
+          let stepNumberIndicator = if isPreviousStepCompleted {
+            "border-black bg-white"
+          } else if isCurrentStep {
+            "bg-black"
+          } else {
+            "border-gray-300 bg-white"
+          }
+
+          let stepNameIndicator = isStepCompleted
+            ? "text-black break-all"
+            : "text-jp-gray-700 break-all"
+
+          let textColor = isCurrentStep ? "text-white" : "text-grey-700"
+
+          let stepLineIndicator = isPreviousStepCompleted ? "bg-gray-700" : "bg-gray-200"
+
+          <div key={i->Belt.Int.toString} className="flex flex-col gap-2 font-semibold ">
+            <div className="flex items-center w-full">
+              <div
+                className={`h-8 w-8 flex items-center justify-center border rounded-full ${stepNumberIndicator}`}>
+                {if isPreviousStepCompleted {
+                  <Icon name="check-black" size=20 />
+                } else {
+                  <p className=textColor> {(i + 1)->string_of_int->React.string} </p>
+                }}
+              </div>
+              <UIUtils.RenderIf condition={i !== stepsArr->Js.Array2.length - 1}>
+                <div className={`h-0.5 ${stepLineIndicator} ml-2 flex-1`} />
+              </UIUtils.RenderIf>
             </div>
             <div className={stepNameIndicator}>
               {step->ConnectorUtils.getStepName->React.string}
@@ -104,7 +128,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let borderWidth = isPayoutFlow ? "w-8/12" : "w-9/12"
 
   <PageLoaderWrapper screenState>
-    <div className="flex flex-col gap-8 overflow-scroll h-full w-full">
+    <div className="flex flex-col gap-10 overflow-scroll h-full w-full">
       <UIUtils.RenderIf condition={showBreadCrumb}>
         <BreadCrumbNavigation
           path=[
@@ -126,7 +150,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       <UIUtils.RenderIf condition={currentStep !== Preview && showStepIndicator}>
         <ConnectorCurrentStepIndicator currentStep stepsArr borderWidth />
       </UIUtils.RenderIf>
-      <div className="bg-white rounded border h-3/4 p-2 md:p-6 overflow-scroll">
+      <div className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple">
         {switch currentStep {
         | IntegFields =>
           <ConnectorAccountDetails

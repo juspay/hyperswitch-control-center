@@ -110,10 +110,10 @@ let statementTypeMapper = dict => {
 }
 
 let conditionTypeMapper = (statementArr: array<Js.Json.t>) => {
-  let statements = statementArr->Array.reduceWithIndex([], (acc, statementJson, index) => {
+  let statements = statementArr->Array.reduce([], (acc, statementJson) => {
     let conditionArray = statementJson->getDictFromJsonObject->getArrayFromDict("condition", [])
 
-    let arr = conditionArray->Js.Array2.map(conditionJson => {
+    let arr = conditionArray->Js.Array2.mapi((conditionJson, index) => {
       let statementDict = conditionJson->getDictFromJsonObject
       {
         lhs: statementDict->getString("lhs", ""),

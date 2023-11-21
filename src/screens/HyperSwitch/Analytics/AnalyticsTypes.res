@@ -124,6 +124,7 @@ type paymentColType =
   | ProcessedAmount
   | AvgTicketSize
   | Connector
+  | PaymentErrorMessage
   | PaymentMethod
   | PaymentMethodType
   | Currency
@@ -147,6 +148,7 @@ let allPaymentColumns = [
   Count,
   SuccessCount,
   ProcessedAmount,
+  PaymentErrorMessage,
   AvgTicketSize,
 ]
 type paymentsSingleState = {
@@ -170,6 +172,7 @@ type paymentTableType = {
   payment_count: float,
   payment_success_count: float,
   payment_processed_amount: float,
+  payment_error_message: string,
   avg_ticket_size: float,
   connector: string,
   payment_method: string,

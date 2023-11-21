@@ -61,7 +61,12 @@ module StepCompletedPage = {
 module VerticalChoiceTile = {
   open QuickStartTypes
   @react.component
-  let make = (~listChoices: array<landingChoiceType>, ~choiceState, ~setChoiceState) => {
+  let make = (
+    ~listChoices: array<landingChoiceType>,
+    ~choiceState,
+    ~setChoiceState,
+    ~customLayoutCss,
+  ) => {
     let getBlockColor = value =>
       choiceState === value ? "border border-blue-700 bg-blue-700 bg-opacity-10 " : "border"
     let headerTextStyle = `${HSwitchUtils.getTextClass(
@@ -75,7 +80,7 @@ module VerticalChoiceTile = {
         (),
       )} text-grey-700 text-opacity-50`
 
-    <div className={`grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-4`}>
+    <div className={`grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-4 ${customLayoutCss}`}>
       {listChoices
       ->Array.mapWithIndex((items, index) => {
         <div
@@ -122,7 +127,12 @@ module VerticalChoiceTile = {
 module HorizontalChoiceTile = {
   open QuickStartTypes
   @react.component
-  let make = (~listChoices: array<landingChoiceType>, ~choiceState, ~setChoiceState) => {
+  let make = (
+    ~listChoices: array<landingChoiceType>,
+    ~choiceState,
+    ~setChoiceState,
+    ~customLayoutCss,
+  ) => {
     let getBlockColor = value =>
       choiceState === value ? "border border-blue-700 bg-blue-700 bg-opacity-10 " : "border"
     let headerTextStyle = `${HSwitchUtils.getTextClass(
@@ -136,7 +146,7 @@ module HorizontalChoiceTile = {
         (),
       )} text-grey-700 text-opacity-50`
 
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
+    <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8 ${customLayoutCss}`}>
       {listChoices
       ->Array.mapWithIndex((items, index) => {
         <div
@@ -180,6 +190,7 @@ module LandingPageChoice = {
     ~isHeaderLeftIcon=true,
     ~customIcon=React.null,
     ~isVerticalTile=false,
+    ~customLayoutCss="",
   ) => {
     React.useEffect0(() => {
       let defaultValue =
@@ -197,9 +208,9 @@ module LandingPageChoice = {
       nextButton
       backButton>
       {if isVerticalTile {
-        <VerticalChoiceTile listChoices choiceState setChoiceState />
+        <VerticalChoiceTile listChoices choiceState setChoiceState customLayoutCss />
       } else {
-        <HorizontalChoiceTile listChoices choiceState setChoiceState />
+        <HorizontalChoiceTile listChoices choiceState setChoiceState customLayoutCss />
       }}
     </BaseComponent>
   }

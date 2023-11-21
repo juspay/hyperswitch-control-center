@@ -83,8 +83,8 @@ let make = (
   }
 
   <PageLoaderWrapper screenState>
-    <div className="flex flex-col gap-8">
-      <div className="flex justify-between border-b py-2">
+    <div className="flex flex-col">
+      <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
           <GatewayIcon
             gateway={connector->Js.String2.toUpperCase} className="w-14 h-14 rounded-full"
@@ -93,11 +93,11 @@ let make = (
             {connector->LogicUtils.capitalizeString->React.string}
           </h2>
         </div>
-        <div className="justify-self-end">
+        <div className="self-center">
           <Button text="Proceed" buttonType={Primary} onClick={_ => onSubmit()->ignore} />
         </div>
       </div>
-      <div className="grid grid-cols-4 flex-1 mx-12">
+      <div className="grid grid-cols-4 flex-1 p-2 md:p-10">
         <div className="flex flex-col gap-6 col-span-3">
           <h1 className="text-orange-950 bg-orange-100 border w-full p-2 rounded-md ">
             <span className="text-orange-950 font-bold text-fs-14 mx-2">

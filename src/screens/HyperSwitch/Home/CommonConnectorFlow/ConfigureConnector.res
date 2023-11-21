@@ -171,7 +171,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
     | CONFIGURE_PRIMARY | CONFIGURE_SECONDARY =>
       <div className="flex h-full">
         <HSSelfServeSidebar
-          heading="Setup Stripe Plus Paypal"
+          heading="Configure Control Centre"
           sidebarOptions={enumDetails->getSidebarOptionsForConnectProcessor(quickStartPageState)}
         />
         <div className="flex-1 flex flex-col items-center justify-center ml-12">
@@ -191,7 +191,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
     | CONFIGURE_SMART_ROUTING =>
       <div className="flex h-full">
         <HSSelfServeSidebar
-          heading="Setup Stripe Plus Paypal"
+          heading="Configure Control Centre"
           sidebarOptions={enumDetails->getSidebarOptionsForConnectProcessor(quickStartPageState)}
         />
         <div className="flex-1 flex flex-col items-center justify-center ml-12">
@@ -216,7 +216,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
     | CHECKOUT =>
       <div className="flex h-full">
         <HSSelfServeSidebar
-          heading="Setup Stripe Plus Paypal"
+          heading="Configure Control Centre"
           sidebarOptions={enumDetails->getSidebarOptionsForConnectProcessor(quickStartPageState)}
         />
         <div className="flex-1 flex flex-col items-center justify-center">

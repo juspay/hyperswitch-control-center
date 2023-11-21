@@ -147,8 +147,9 @@ let getURL = (
       }
     | _ => ""
     }
-  | ANALYTICS_PAYMENT_REPORT =>
-    `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/payments`
+  | PAYMENT_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/payments`
+  | REFUND_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/refunds`
+  | DISPUTE_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/dispute`
   | PROD_VERIFY =>
     switch methodType {
     | Put

@@ -126,8 +126,8 @@ module ConnectorSummaryGrid = {
     let (_, connectorAccountFields, _, _, _) = ConnectorUtils.getConnectorFields(connectorDetails)
     let webhooksUrl = ConnectorUtils.getWebhooksUrl(~connectorName=connector, ~merchantId)
 
-    <div>
-      <div className="grid grid-cols-2 w-1/2 m-12">
+    <div className="p-2 md:px-10">
+      <div className="grid grid-cols-2 w-1/2 my-12">
         <h4 className="text-lg font-semibold"> {"Processor Mode"->React.string} </h4>
         <div>
           {if connectorInfo.test_mode {
@@ -141,11 +141,11 @@ module ConnectorSummaryGrid = {
           }}
         </div>
       </div>
-      <div className="grid grid-cols-2 w-1/2 m-12">
+      <div className="grid grid-cols-2 w-1/2 my-12">
         <h4 className="text-lg font-semibold"> {"Profile Id"->React.string} </h4>
         <div> {connectorInfo.profile_id->React.string} </div>
       </div>
-      <div className="grid grid-cols-2 w-1/2 m-12">
+      <div className="grid grid-cols-2 w-1/2 my-12">
         <h4 className="text-lg font-semibold"> {"API Keys"->React.string} </h4>
         <div className="flex flex-col gap-6">
           {connectorAccountFields
@@ -162,7 +162,7 @@ module ConnectorSummaryGrid = {
           ->React.array}
         </div>
       </div>
-      <div className="grid grid-cols-4 w-full ml-12">
+      <div className="grid grid-cols-4 w-full my-12">
         <h4 className="text-lg font-semibold"> {"Webhooks"->React.string} </h4>
         <div className="flex flex-col col-span-3">
           <div className="flex">
@@ -184,7 +184,7 @@ module ConnectorSummaryGrid = {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-2 w-1/2 m-12">
+      <div className="grid grid-cols-2 w-1/2 my-12">
         <h4 className="text-lg font-semibold"> {"PMTs"->React.string} </h4>
         <div className="flex flex-col gap-6">
           {connectorInfo.payment_methods_enabled
@@ -267,7 +267,7 @@ let make = (
 
   <PageLoaderWrapper screenState>
     <div>
-      <div className="flex justify-between border-b py-2">
+      <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
           <GatewayIcon
             gateway={connectorInfo.connector_name->Js.String2.toUpperCase}
@@ -277,39 +277,41 @@ let make = (
             {connectorInfo.connector_name->LogicUtils.capitalizeString->React.string}
           </h2>
         </div>
-        {switch currentStep {
-        | Preview =>
-          <div className="flex gap-6 items-center">
-            <p
-              className={`text-fs-13 font-bold ${isConnectorDisabled
-                  ? "text-red-800"
-                  : "text-green-700"}`}>
-              {(isConnectorDisabled ? "INACTIVE" : "ACTIVE")->React.string}
-            </p>
-            <UIUtils.RenderIf condition={showMenuOption}>
-              <MenuOption setCurrentStep disableConnector isConnectorDisabled connectorInfo />
-            </UIUtils.RenderIf>
-          </div>
+        <div className="self-center">
+          {switch currentStep {
+          | Preview =>
+            <div className="flex gap-6 items-center">
+              <p
+                className={`text-fs-13 font-bold ${isConnectorDisabled
+                    ? "text-red-800"
+                    : "text-green-700"}`}>
+                {(isConnectorDisabled ? "INACTIVE" : "ACTIVE")->React.string}
+              </p>
+              <UIUtils.RenderIf condition={showMenuOption}>
+                <MenuOption setCurrentStep disableConnector isConnectorDisabled connectorInfo />
+              </UIUtils.RenderIf>
+            </div>
 
-        | _ =>
-          <Button
-            onClick={_ => {
-              ConnectorUtils.getMixpanelForConnectorOnSubmit(
-                ~connectorName=connectorInfo.connector_name,
-                ~currentStep,
-                ~isUpdateFlow,
-                ~url,
-                ~hyperswitchMixPanel,
-              )
-              if isFeedbackModalToBeOpen {
-                setShowFeedbackModal(_ => true)
-              }
-              RescriptReactRouter.push(redirectPath)
-            }}
-            text="Done"
-            buttonType={Primary}
-          />
-        }}
+          | _ =>
+            <Button
+              onClick={_ => {
+                ConnectorUtils.getMixpanelForConnectorOnSubmit(
+                  ~connectorName=connectorInfo.connector_name,
+                  ~currentStep,
+                  ~isUpdateFlow,
+                  ~url,
+                  ~hyperswitchMixPanel,
+                )
+                if isFeedbackModalToBeOpen {
+                  setShowFeedbackModal(_ => true)
+                }
+                RescriptReactRouter.push(redirectPath)
+              }}
+              text="Done"
+              buttonType={Primary}
+            />
+          }}
+        </div>
       </div>
       <ConnectorSummaryGrid connectorInfo connector isPayoutFlow setScreenState />
     </div>

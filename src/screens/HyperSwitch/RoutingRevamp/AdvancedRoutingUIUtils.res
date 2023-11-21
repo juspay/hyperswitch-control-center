@@ -141,30 +141,6 @@ module ValueInp = {
       None
     }, [valueField.value])
 
-    let textInput: ReactFinalForm.fieldRenderPropsInput = {
-      name: "string",
-      onBlur: _ev => {
-        let value = valueField.value
-        let val = value->LogicUtils.getStringFromJson("")
-        let valSplit = Js.String2.split(val, ",")
-        let arrStr = valSplit->Js.Array2.map(item => {
-          Js.String2.trim(item)
-        })
-        let finalVal = Js.Array2.joinWith(arrStr, ",")->Js.Json.string
-
-        valueField.onChange(finalVal->toForm)
-      },
-      onChange: ev => {
-        let target = ReactEvent.Form.target(ev)
-        let value = target["value"]
-
-        valueField.onChange(value->toForm)
-      },
-      onFocus: _ev => (),
-      value: valueField.value,
-      checked: true,
-    }
-
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ev => (),
@@ -199,8 +175,7 @@ module ValueInp = {
         />
       }
 
-    | EQUAL_TO | LESS_THAN | GREATER_THAN =>
-      <TextInput placeholder={"Enter Value"} input=textInput />
+    | EQUAL_TO | LESS_THAN | GREATER_THAN => <NumericTextInput placeholder={"Enter Value"} input />
     | _ => React.null
     }
   }

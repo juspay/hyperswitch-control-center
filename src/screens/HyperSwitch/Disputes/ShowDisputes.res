@@ -1,5 +1,38 @@
 open DisputesEntity
 
+module DisputesNoteComponent = {
+  open ConnectorUtils
+  @react.component
+  let make = (~disputesData: DisputesEntity.disputes) => {
+    let dashboardLink = {
+      switch disputesData.connector->getConnectorNameTypeFromString {
+      | BLUESNAP | STRIPE =>
+        <span
+          className="underline underline-offset-2 cursor-pointer"
+          onClick={_ => {
+            let link = switch disputesData.connector->getConnectorNameTypeFromString {
+            | BLUESNAP => "https://cp.bluesnap.com/jsp/developer_login.jsp"
+            | STRIPE | _ => " https://dashboard.stripe.com/disputes"
+            }
+            link->Window._open
+          }}>
+          {"dashboard."->React.string}
+        </span>
+      | _ => <span> {"dashboard."->React.string} </span>
+      }
+    }
+
+    <div
+      className="flex border items-start border-blue-800 text-sm rounded-md gap-2 px-4 py-3 mt-5">
+      <Icon name="info-vacent" className="text-blue-900 mt-1" size=18 />
+      <span>
+        {"Coming soon! You would soon be able to upload evidences against disputes directly from your Hyperswitch dashboard. Until then, please use Hyperswitch dashboard to track any changes in dispute status while uploading evidences from your relevant connector "->React.string}
+        {dashboardLink}
+      </span>
+    </div>
+  }
+}
+
 module DisputesInfo = {
   module Details = {
     @react.component
@@ -57,11 +90,7 @@ module DisputesInfo = {
         {"Summary"->React.string}
       </div>
       <Details data=disputesData getHeading getCell detailsFields=allColumns />
-      <div
-        className="flex border items-start border-blue-800 text-sm rounded-md gap-2 px-4 py-3 mt-5">
-        <Icon name="info-vacent" className="text-blue-900 mt-1" size=18 />
-        {"Coming soon! You would soon be able to upload evidences against disputes directly from your Hyperswitch dashboard. Until then, please use Hyperswitch dashboard to track any changes in dispute status while uploading evidences from your relevant connector dashboard."->React.string}
-      </div>
+      <DisputesNoteComponent disputesData />
     </>
   }
 }

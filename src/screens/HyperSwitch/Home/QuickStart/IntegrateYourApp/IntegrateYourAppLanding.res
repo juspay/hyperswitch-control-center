@@ -73,7 +73,10 @@ let make = (~integrateAppValue: integrateApp) => {
       <div className="flex h-full">
         <HSSelfServeSidebar
           heading="Integrate your app"
-          sidebarOptions={enumDetails->getSidebarOptionsForIntegrateYourApp(quickStartPageState)}
+          sidebarOptions={enumDetails->getSidebarOptionsForIntegrateYourApp(
+            quickStartPageState,
+            choiceState,
+          )}
         />
         <div className="flex-1 flex flex-col items-center justify-center">
           <QuickStartUIUtils.LandingPageChoice
@@ -98,7 +101,10 @@ let make = (~integrateAppValue: integrateApp) => {
       <div className="flex h-full">
         <HSSelfServeSidebar
           heading="Integrate your app"
-          sidebarOptions={enumDetails->getSidebarOptionsForIntegrateYourApp(quickStartPageState)}
+          sidebarOptions={enumDetails->getSidebarOptionsForIntegrateYourApp(
+            quickStartPageState,
+            choiceState,
+          )}
         />
         <div className="flex-1 flex flex-col items-center justify-center">
           <div

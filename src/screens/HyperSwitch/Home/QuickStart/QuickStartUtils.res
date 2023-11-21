@@ -45,17 +45,15 @@ let defaultChoiceStateValue: landingChoiceType = {
 }
 
 let connectorChoiceArray: array<landingChoiceType> = [
-   {
-    displayText: "Fallback routing (active - passive)",
-    description: "Fallback to the secondary processor in case your primary processor couldn't process the transactions",
-    variantType: #DefaultFallback,
-    imageLink: "/assets/FallbackRoutingImage.svg",
+  {
+    displayText: "Single Payment Processor",
+    description: "Connect any one processor and test a payment with Hyperswitch Checkout",
+    variantType: #SinglePaymentProcessor,
   },
   {
-    displayText: "Volume based routing (active - active)",
-    description: "Split & route your transaction volume via more than one processor. Default is 50-50, this can be updated later",
-    variantType: #VolumeBasedRouting,
-    imageLink: "/assets/VolumeBasedRoutingImage.svg",
+    displayText: "Multiple processors with Smart Routing",
+    description: "Connect a primary and secondary processor, define smart routing rules and test a payment with Hyperswitch Checkout",
+    variantType: #MultipleProcessorWithSmartRouting,
   },
 ]
 
@@ -86,13 +84,15 @@ let getTypeOfConfigurationArray: ConnectorTypes.connectorName => array<
 let getSmartRoutingConfigurationText: array<landingChoiceType> = [
   {
     displayText: "Fallback routing (active - passive)",
-    description: "Your payments will be attempted through the primary processor. We fallback to the secondary processor if primary processor is down or could not process the payment.",
+    description: "Fallback to the secondary processor in case your primary processor couldn't process the transactions",
     variantType: #DefaultFallback,
+    imageLink: "/assets/FallbackRoutingImage.svg",
   },
   {
     displayText: "Volume based routing (active - active)",
-    description: "Your payments will be processed with 50-50 volume distribution between the primary and secondary processors. You can change the volume distribution later.",
+    description: "Split & route your transaction volume via more than one processor. Default is 50-50, this can be updated later",
     variantType: #VolumeBasedRouting,
+    imageLink: "/assets/VolumeBasedRoutingImage.svg",
   },
 ]
 
@@ -231,11 +231,19 @@ let getStatusValue = (comparator: valueType, enumVariant, dashboardPageState) =>
     boolValue ? COMPLETED : dashboardPageState === enumVariant ? ONGOING : PENDING
   }
 }
+let sidebarTextBasedOnVariant = choiceState =>
+  switch choiceState {
+  | #MigrateFromStripe => "Migrate from stripe"
+  | #StandardIntegration => "Standard integration"
+  | #WooCommercePlugin => "Woocommerce plugin"
+  | _ => "Migrate from stripe"
+  }
 
 let getSidebarOptionsForIntegrateYourApp: (
   string,
   quickStartType,
-) => array<HSSelfServeSidebar.sidebarOption> = (enumDetails, quickStartPageState) => {
+  choiceStateTypes,
+) => array<HSSelfServeSidebar.sidebarOption> = (enumDetails, quickStartPageState, choiceState) => {
   // TODO:Refactor code to more dynamic cases
 
   let currentPageStateEnum = quickStartPageState->variantToEnumMapper
@@ -253,7 +261,7 @@ let getSidebarOptionsForIntegrateYourApp: (
       link: "/",
     },
     {
-      title: "Standard integration",
+      title: choiceState->sidebarTextBasedOnVariant,
       status: Boolean(enumValue.integrationCompleted)->getStatusValue(
         #IntegrationCompleted,
         currentPageStateEnum,

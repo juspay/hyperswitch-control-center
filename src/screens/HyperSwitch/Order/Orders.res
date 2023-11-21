@@ -5,9 +5,6 @@ let make = (~previewOnly=false) => {
   open HSwitchUtils
   open OrderUIUtils
   let updateDetails = useUpdateMethod()
-  let url = RescriptReactRouter.useUrl()
-  let (reportModal, setReportModal) = React.useState(_ => false)
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -92,22 +89,10 @@ let make = (~previewOnly=false) => {
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
       <PageUtils.PageHeading title="Payment Operations" customTitleStyle />
-      <div className="flex w-full justify-end pb-3">
+      <div className="flex w-full justify-end pb-3 gap-3">
         <GenerateSampleDataButton previewOnly getOrdersList={fetchOrders} />
         <UIUtils.RenderIf condition={generateReport}>
-          <Button
-            text="Generate Reports"
-            buttonType={Primary}
-            buttonSize={Small}
-            customButtonStyle="!p-2"
-            onClick={_ => {
-              hyperswitchMixPanel(
-                ~eventName=Some(`${url.path->LogicUtils.getListHead}_generate_reports`),
-                (),
-              )
-              setReportModal(_ => true)
-            }}
-          />
+          <GenerateReport entityName={PAYMENT_REPORT} />
         </UIUtils.RenderIf>
       </div>
       <UIUtils.RenderIf condition={!previewOnly}>
@@ -145,8 +130,5 @@ let make = (~previewOnly=false) => {
         />
       </PageLoaderWrapper>
     </div>
-    <UIUtils.RenderIf condition={reportModal}>
-      <DownloadReportModal reportModal setReportModal />
-    </UIUtils.RenderIf>
   </ErrorBoundary>
 }

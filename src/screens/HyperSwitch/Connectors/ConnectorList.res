@@ -163,7 +163,6 @@ let make = (~isPayoutFlow=false) => {
     ->Recoil.useRecoilValueFromAtom
     ->LogicUtils.safeParse
     ->FeatureFlagUtils.featureFlagType
-
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])

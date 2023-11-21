@@ -116,6 +116,7 @@ module TableWrapper = {
     ~tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, Js.Json.t) => array<Js.Nullable.t<'t>>>,
     ~moduleName,
     ~weeklyTableMetricsCols,
+    ~distributionArray=None,
   ) => {
     let customFilter = Recoil.useRecoilValueFromAtom(AnalyticsAtoms.customFilterAtom)
     let getAllFilter = UrlUtils.useGetFilterDictFromUrl("")
@@ -279,7 +280,7 @@ module TableWrapper = {
           ~currenltySelectedTab=activeTab,
           ~deltaMetrics,
           ~isIndustry=false,
-          ~distributionArray=None,
+          ~distributionArray,
           ~deltaPrefixArr=deltaArray,
           ~tableMetrics=[],
           ~mode=None,
@@ -405,6 +406,7 @@ module TabDetails = {
     ~defaultSort: string,
     ~getTable: Js.Json.t => array<'t>,
     ~colMapper: 'colType => string,
+    ~distributionArray,
     ~tableEntity: option<EntityType.entityType<'colType, 't>>,
     ~deltaMetrics: array<string>,
     ~deltaArray: array<string>,
@@ -472,6 +474,7 @@ module TabDetails = {
             tableGlobalFilter
             moduleName
             weeklyTableMetricsCols
+            distributionArray
           />
         | None => React.null
         }}
@@ -511,6 +514,7 @@ let make = (
   ~tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, Js.Json.t) => array<Js.Nullable.t<'t>>>=?,
   ~moduleName: string,
   ~weeklyTableMetricsCols=?,
+  ~distributionArray=None,
 ) => {
   let {generateReport} =
     HyperswitchAtom.featureFlagAtom
@@ -523,15 +527,12 @@ let make = (
   )
   let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
   let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
-  let (reportModal, setReportModal) = React.useState(_ => false)
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
-
   let (_filterAtom, setFilterAtom) = Recoil.useRecoilState(AnalyticsAtoms.customFilterAtom)
   React.useEffect0(() => {
     setFilterAtom(._ => "")
     None
   })
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let (filteredTabKeys, filteredTabVales) = (tabKeys, tabValues)
   let chartEntity1 = chartEntity.default // User Journey - SemiDonut (Payment Metrics), Others - Default Chart Entity
   let pieChartEntity = chartEntity.userPieChart // SemiDonut (User Metrics)
@@ -715,18 +716,7 @@ let make = (
         <div className="flex items-center justify-between">
           <PageUtils.PageHeading title=pageTitle subTitle=pageSubTitle />
           <UIUtils.RenderIf condition={generateReport}>
-            <Button
-              text="Generate Reports"
-              buttonType={Primary}
-              customButtonStyle="!p-2"
-              onClick={_ => {
-                hyperswitchMixPanel(
-                  ~eventName=Some(`${url.path->LogicUtils.getListHead}_generate_reports`),
-                  (),
-                )
-                setReportModal(_ => true)
-              }}
-            />
+            <GenerateReport entityName={PAYMENT_REPORT} />
           </UIUtils.RenderIf>
         </div>
         <div className="mt-2 -ml-1"> topFilterUi </div>
@@ -757,6 +747,7 @@ let make = (
                       activeTab={None}
                       defaultSort
                       getTable
+                      distributionArray
                       colMapper
                       tableEntity
                       deltaMetrics
@@ -780,6 +771,7 @@ let make = (
                       colMapper
                       tableEntity
                       deltaMetrics
+                      distributionArray
                       deltaArray
                       tableUpdatedHeading
                       tableGlobalFilter
@@ -797,6 +789,7 @@ let make = (
                       getTable
                       colMapper
                       tableEntity
+                      distributionArray
                       deltaMetrics
                       deltaArray
                       tableUpdatedHeading
@@ -817,6 +810,7 @@ let make = (
                       getTable
                       colMapper
                       tableEntity
+                      distributionArray
                       deltaMetrics
                       deltaArray
                       tableUpdatedHeading
@@ -834,6 +828,7 @@ let make = (
                       defaultSort
                       getTable
                       colMapper
+                      distributionArray
                       tableEntity
                       deltaMetrics
                       deltaArray
@@ -868,6 +863,7 @@ let make = (
                   chartEntity
                   activeTab
                   defaultSort
+                  distributionArray
                   getTable
                   colMapper
                   tableEntity
@@ -889,8 +885,5 @@ let make = (
       </div>
     | _ => React.null
     }}
-    <UIUtils.RenderIf condition={reportModal}>
-      <DownloadReportModal reportModal setReportModal />
-    </UIUtils.RenderIf>
   </UIUtils.RenderIf>
 }
