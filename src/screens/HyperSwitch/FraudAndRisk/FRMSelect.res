@@ -111,11 +111,7 @@ module FRMProPackageInfo = {
 let make = () => {
   open FRMInfo
   open UIUtils
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let featureFlagDetails = FeatureFlagUtils.featureFlagObject
   let url = RescriptReactRouter.useUrl()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchDetails = APIUtils.useGetMethod()

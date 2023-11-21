@@ -92,6 +92,7 @@ let make = () => {
       initialFilters=initialFilterFields
       initialFixedFilters=initialFixedFilterFields
       weeklyTableMetricsCols
+      distributionArray={[distribution]->Some}
     />
   </PageLoaderWrapper>
 }

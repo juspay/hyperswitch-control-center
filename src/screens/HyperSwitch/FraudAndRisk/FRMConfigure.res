@@ -5,11 +5,7 @@ let make = () => {
   open ConnectorTypes
   open LogicUtils
   open FRMInfo
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let featureFlagDetails = FeatureFlagUtils.featureFlagObject
   let url = RescriptReactRouter.useUrl()
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let fetchDetails = useGetMethod()

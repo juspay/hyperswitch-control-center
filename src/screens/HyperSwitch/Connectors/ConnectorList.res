@@ -158,12 +158,7 @@ let make = (~isPayoutFlow=false) => {
   open ConnectorUtils
   let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
-
+  let featureFlagDetails = FeatureFlagUtils.featureFlagObject
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])

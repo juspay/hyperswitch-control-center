@@ -198,11 +198,7 @@ let make = (
   let fetchApi = useUpdateMethod()
   let url = RescriptReactRouter.useUrl()
   let frmName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let featureFlagDetails = FeatureFlagUtils.featureFlagObject
 
   let (pageState, setPageState) = React.useState(_ => PageLoaderWrapper.Success)
 

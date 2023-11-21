@@ -56,3 +56,9 @@ let featureFlagType = (featureFlags: Js.Json.t) => {
   }
   typedFeatureFlag
 }
+
+let featureFlagObject =
+  HyperswitchAtom.featureFlagAtom
+  ->Recoil.useRecoilValueFromAtom
+  ->LogicUtils.safeParse
+  ->featureFlagType
