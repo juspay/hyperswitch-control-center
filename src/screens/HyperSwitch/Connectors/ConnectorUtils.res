@@ -16,10 +16,10 @@ let payoutStepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
 
 let getStepName = step => {
   switch step {
-  | IntegFields => "Integration Fields"
+  | IntegFields => "Credentials"
   | Webhooks => "Webhooks"
   | PaymentMethods => "Payment Methods"
-  | SummaryAndTest => "Summary And Test"
+  | SummaryAndTest => "Summary"
   | Preview => "Preview"
   }
 }
@@ -199,6 +199,7 @@ let connectorListForLive: array<connectorName> = [
   PAYME,
   PAYPAL,
   CRYPTOPAY,
+  IATAPAY,
 ]
 
 let getPaymentMethodFromString = paymentMethod => {

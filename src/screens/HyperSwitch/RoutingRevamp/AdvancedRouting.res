@@ -504,8 +504,6 @@ let make = (~routingRuleId, ~isActive) => {
     None
   }, [routingRuleId])
 
-  // let modalValue = getModalObj(ADVANCED, "advance")
-
   let validate = (values: Js.Json.t) => {
     let dict = values->LogicUtils.getDictFromJsonObject
     let convertedObject = values->AdvancedRoutingUtils.getRoutingTypesFromJson
