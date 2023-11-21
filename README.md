@@ -36,7 +36,7 @@ Follow these simple steps to set up Hyperswitch on your local machine.
 3. Install project dependencies:
 
    ```bash
-   npm install
+   npm install --force
    ```
 
 4. Update the .env file in the root directory.
@@ -86,7 +86,7 @@ The `feedback` feature flag enables the ability for users to provide direct prod
 
 #### Test Processors
 
-The `test_processors` feature flag allows enabling sandbox/test payment processors for testing purposes. When enabled, developers and testers can add test payment processors like Stripe Test or PayPal Test to trial payments flows without touching live transactions or making processor API calls
+The `test_processors` feature flag allows enabling sandbox/test payment processors for testing purposes. When enabled, developers and testers can add test payment processors like Stripe Test or PayPal Test to trial payments flows without touching live transactions or making processor API calls.
 
 #### User Management
 
@@ -134,7 +134,7 @@ The `test_live_mode` feature flag enables displaying the current mode - test or 
 
 #### Magic Link
 
-The `magic_Link` feature flag enables user sign-in and sign-up using magic links instead of passwords. When enabled, users can request a magic link via email that logs them into their account or creates a new account if they are signing up.
+The `magic_link` feature flag enables user sign-in and sign-up using magic links instead of passwords. When enabled, users can request a magic link via email that logs them into their account or creates a new account if they are signing up.
 
 #### Production Access
 
@@ -142,7 +142,7 @@ The `production_access` feature flag enables a flow for users to request live pr
 
 #### Quick Start
 
-The `quick_start` feature flag enables the simplified onboarding flow for new users, where he connects to processors, configure payment routing and testing a payment, all in one flow
+The `quick_start` feature flag enables the simplified onboarding flow for new users, where he connects to processors, configure payment routing and testing a payment, all in one flow.
 
 #### Stripe plus paypal
 
@@ -150,7 +150,7 @@ The `stripe_plus_paypal` feature flag enables access to simplified multi-process
 
 #### Woocommerce
 
-The `woocommerce` feature flag controls the visibility of WooCommerce integration with Hyperswitch flow within the dashboard. When enabled, users will have access to the step-by-step guide to integrate the woocommerce plugin for hyperswitch
+The `woocommerce` feature flag controls the visibility of WooCommerce integration with Hyperswitch flow within the dashboard. When enabled, users will have access to the step-by-step guide to integrate the woocommerce plugin for hyperswitch.
 
 #### Open SDK
 
@@ -161,6 +161,109 @@ The `open_sdk` feature flag enables access to the Checkout Page web SDK from wit
 ## Deployment
 
 You can deploy the application to a hosting platform like Netlify, Vercel, or Firebase Hosting. Configure the deployment settings as needed for your chosen platform.
+
+### Deploy on AWS cloud
+
+What you need to get started
+
+- An AWS account
+
+> P.S. You can directly start fron Step 3 if you have installed and configured AWS CLI.
+
+#### Step 1 - Install or update the AWS CLI
+
+> For more information, [click here](<[url](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)>)
+
+**For Linux x86 (64-bit)**
+
+1. Run the following command on your terminal
+
+```
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+```
+
+2. Confirm the installation with the following command
+
+```
+aws --version
+```
+
+3. Expected Response: aws-cli/2.10.0 Python/3.11.2 Linux/4.14.133-113.105.amzn2.x86_64 botocore/2.4.5
+
+**For Linux ARM**
+
+1. Run the following command on your terminal
+
+```
+curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+```
+
+2. Confirm the installation with the following command
+
+```
+aws --version
+```
+
+3. Expected Response: aws-cli/2.10.0 Python/3.11.2 Linux/4.14.133-113.105.amzn2.x86_64 botocore/2.4.5
+
+**For MacOS**
+
+1. Run the following command on your terminal
+
+```
+curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
+sudo installer -pkg AWSCLIV2.pkg -target /
+```
+
+2. To verify that the shell can find and run the aws command in your $PATH, use the following commands
+
+```
+which aws
+```
+
+3. Expected Response: /usr/local/bin/aws
+
+#### Step 2 - Configure the AWS CLI
+
+For this step you would need the following from you AWS account
+
+- Access key ID
+- Secret Access Key
+
+You can create or manage your access keys from the Security Credentials tab inside your AWS Console. For more information, [click here](<[url](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey)>)
+
+![image](https://github.com/juspay/hyperswitch-control-center/assets/126671331/eda911ec-ae09-49be-99ca-3b32f262be9b)
+
+Once you have the keys run the below command
+
+```
+export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+export AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+```
+
+#### Step 3 - Setup Hyperswitch
+
+You can now deploy the hyperswitch application by running the below command in the same terminal session.
+
+```
+curl https://raw.githubusercontent.com/juspay/hyperswitch/main/aws/hyperswitch_control_center_aws_setup.sh | bash
+```
+
+> This step takes around 10-15min
+
+Once the script is executed, you will receive a Public IP as the response (e.g. http://34.207.75.225). This IP is the base URL for accessing the application's APIs
+
+#### Clean Up
+
+If you want to delete the application from your account simply run the below clean up script. Ypu need to install JQ for this. For more information, [click here](<[url](https://jqlang.github.io/jq/download/)>)
+
+```
+curl https://raw.githubusercontent.com/juspay/hyperswitch/main/aws/hyperswitch_control_center_cleanup_setup.sh | bash
+```
 
 ---
 
