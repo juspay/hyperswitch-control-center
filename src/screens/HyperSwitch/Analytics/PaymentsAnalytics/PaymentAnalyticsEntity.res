@@ -14,6 +14,7 @@ let colMapper = (col: paymentColType) => {
   | SuccessRate => "payment_success_rate"
   | Count => "payment_count"
   | SuccessCount => "payment_success_count"
+  | PaymentErrorMessage => "payment_error_message"
   | ProcessedAmount => "payment_processed_amount"
   | AvgTicketSize => "avg_ticket_size"
   | Connector => "connector"
@@ -63,6 +64,14 @@ let getWeeklySR = dict => {
   }
 }
 
+let distribution =
+  [
+    ("distributionFor", "payment_error_message"->Js.Json.string),
+    ("distributionCardinality", "TOP_5"->Js.Json.string),
+  ]
+  ->Js.Dict.fromArray
+  ->Js.Json.object_
+
 let tableItemToObjMapper: 'a => paymentTableType = dict => {
   {
     payment_success_rate: dict->getFloat(SuccessRate->colMapper, 0.0),
@@ -81,6 +90,7 @@ let tableItemToObjMapper: 'a => paymentTableType = dict => {
     authentication_type: dict->getString(AuthType->colMapper, "OTHER")->Js.String2.toUpperCase,
     refund_status: dict->getString(Status->colMapper, "OTHER")->Js.String2.toUpperCase,
     weekly_payment_success_rate: dict->getWeeklySR->Js.String2.toUpperCase,
+    payment_error_message: dict->getString(PaymentErrorMessage->colMapper, ""),
   }
 }
 
@@ -116,6 +126,14 @@ let getUpdatedHeading = (
         ~key,
         ~title="Payment Processed Amount",
         ~dataType=NumericType,
+        ~showSort=false,
+        (),
+      )
+    | PaymentErrorMessage =>
+      Table.makeHeaderInfo(
+        ~key,
+        ~title="Top 5 Error Reasons",
+        ~dataType=TextType,
         ~showSort=false,
         (),
       )
@@ -176,6 +194,8 @@ let getCell = (paymentTable, colType): Table.cell => {
   | AuthType => Text(paymentTable.authentication_type)
   | Status => Text(paymentTable.refund_status)
   | WeeklySuccessRate => Text(paymentTable.weekly_payment_success_rate)
+  | PaymentErrorMessage =>
+    Table.CustomCell(<ErrorReasons errorMessage={paymentTable.payment_error_message} />, "NA")
   | NoCol => Text("")
   }
 }

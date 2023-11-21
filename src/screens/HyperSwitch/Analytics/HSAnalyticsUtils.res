@@ -154,7 +154,7 @@ let initialFixedFilterFields = _json => {
             ~predefinedDays=[Today, Yesterday, Day(2.0), Day(7.0), Day(30.0), ThisMonth, LastMonth],
             ~numMonths=2,
             ~disableApply=false,
-            ~dateRangeLimit=60,
+            ~dateRangeLimit=180,
             ~optFieldKey=optFilterKey,
             (),
           ),
@@ -194,4 +194,131 @@ module NoData = {
       </NoDataFound>
     </div>
   }
+}
+
+let generateTablePayload = (
+  ~startTimeFromUrl: string,
+  ~endTimeFromUrl: string,
+  ~filterValueFromUrl: option<Js.Json.t>,
+  ~currenltySelectedTab: option<array<string>>,
+  ~tableMetrics: array<string>,
+  ~distributionArray: option<array<Js.Json.t>>,
+  ~deltaMetrics: array<string>,
+  ~deltaPrefixArr: array<string>,
+  ~isIndustry: bool,
+  ~mode: option<string>,
+  ~customFilter,
+  ~showDeltaMetrics=false,
+  ~moduleName as _: string,
+  ~source: string="BATCH",
+  (),
+) => {
+  open AnalyticsUtils
+  let metrics = tableMetrics
+  let startTime = startTimeFromUrl
+  let endTime = endTimeFromUrl
+
+  let deltaDateArr =
+    {deltaMetrics->Js.Array2.length === 0}
+      ? []
+      : generateDateArray(~startTime, ~endTime, ~deltaPrefixArr)
+
+  let deltaPayload = generatedeltaTablePayload(
+    ~deltaDateArr,
+    ~metrics=deltaMetrics,
+    ~groupByNames=currenltySelectedTab,
+    ~source,
+    ~mode,
+    ~deltaPrefixArr,
+    ~filters=filterValueFromUrl,
+    ~customFilter,
+    ~showDeltaMetrics,
+  )
+
+  let tableBodyWithNonDeltaMetrix = if metrics->Js.Array2.length > 0 {
+    [
+      getFilterRequestBody(
+        ~groupByNames=currenltySelectedTab,
+        ~filter=filterValueFromUrl,
+        ~metrics=Some(metrics),
+        ~delta=showDeltaMetrics,
+        ~mode,
+        ~startDateTime=startTime,
+        ~endDateTime=endTime,
+        ~customFilter,
+        ~source,
+        (),
+      ),
+    ]
+  } else {
+    []
+  }
+
+  let tableBodyWithDeltaMetrix = if deltaMetrics->Js.Array2.length > 0 {
+    switch distributionArray {
+    | Some(distributionArray) =>
+      distributionArray->Belt.Array.map(arr =>
+        getFilterRequestBody(
+          ~groupByNames=currenltySelectedTab,
+          ~filter=filterValueFromUrl,
+          ~metrics=Some(deltaMetrics),
+          ~delta=showDeltaMetrics,
+          ~mode,
+          ~startDateTime=startTime,
+          ~distributionValues=Some(arr),
+          ~endDateTime=endTime,
+          ~customFilter,
+          ~source,
+          (),
+        )
+      )
+    | None => [
+        getFilterRequestBody(
+          ~groupByNames=currenltySelectedTab,
+          ~filter=filterValueFromUrl,
+          ~metrics=Some(deltaMetrics),
+          ~delta=showDeltaMetrics,
+          ~mode,
+          ~startDateTime=startTime,
+          ~endDateTime=endTime,
+          ~customFilter,
+          ~source,
+          (),
+        ),
+      ]
+    }
+  } else {
+    []
+  }
+
+  let tableIndustryPayload = if isIndustry {
+    [
+      getFilterRequestBody(
+        ~groupByNames=currenltySelectedTab,
+        ~filter=filterValueFromUrl,
+        ~metrics=Some(deltaMetrics),
+        ~delta=showDeltaMetrics,
+        ~mode,
+        ~prefix=Some("industry"),
+        ~startDateTime=startTime,
+        ~endDateTime=endTime,
+        ~customFilter,
+        ~source,
+        (),
+      ),
+    ]
+  } else {
+    []
+  }
+  let tableBodyValues = Belt.Array.concatMany([
+    tableBodyWithNonDeltaMetrix,
+    tableBodyWithDeltaMetrix,
+    tableIndustryPayload,
+  ])
+
+  let tableBody =
+    Belt.Array.concatMany([tableBodyValues, deltaPayload])
+    ->Belt.Array.map(Js.Json.object_)
+    ->Js.Json.array
+  tableBody
 }

@@ -17,7 +17,7 @@ type startAndEndTime = {
 type timeRange = {timeRange: startAndEndTime, dimensions: array<string>}
 
 @react.component
-let make = (~reportModal, ~setReportModal) => {
+let make = (~reportModal, ~setReportModal, ~entityName) => {
   open APIUtils
   let showToast = ToastState.useShowToast()
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
@@ -26,7 +26,7 @@ let make = (~reportModal, ~setReportModal) => {
 
   let downloadReport = async body => {
     try {
-      let url = getURL(~entityName=ANALYTICS_PAYMENT_REPORT, ~methodType=Post, ())
+      let url = getURL(~entityName, ~methodType=Post, ())
       let _res = await updateDetails(url, body, Post)
       setReportModal(_ => false)
       showToast(~message="Email Sent", ~toastType=ToastSuccess, ())
@@ -87,7 +87,7 @@ let make = (~reportModal, ~setReportModal) => {
     showModal=reportModal
     modalHeadingDescriptionElement={<div
       className="text-md font-medium leading-7 opacity-50 mt-1 w-full">
-      {"The date range is in UTC, and reports will be emailed to you."->React.string}
+      {"The generated reports will be emailed to you."->React.string}
     </div>}
     setShowModal=setReportModal
     modalClass="w-1/4 m-auto">
@@ -104,7 +104,7 @@ let make = (~reportModal, ~setReportModal) => {
             ~disableFutureDates={true},
             ~predefinedDays=[Today, Yesterday, ThisMonth, LastMonth],
             ~numMonths=2,
-            ~dateRangeLimit=90,
+            ~dateRangeLimit=400,
             ~disableApply=false,
             ~optFieldKey="filters.dateCreated.opt",
             ~isTooltipVisible=false,

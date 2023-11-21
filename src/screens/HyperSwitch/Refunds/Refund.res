@@ -53,11 +53,11 @@ let make = () => {
   <ErrorBoundary>
     <div className="flex flex-col overflow-y-auto min-h-[50vh]">
       <PageUtils.PageHeading title="Refunds" />
-      // <div className="flex w-full justify-end pb-3 gap-3">
-      //   <UIUtils.RenderIf condition={generateReport}>
-      //     <GenerateReport entityName={REFUND_REPORT} />
-      //   </UIUtils.RenderIf>
-      // </div>
+      <div className="flex w-full justify-end pb-3 gap-3">
+        <UIUtils.RenderIf condition={generateReport}>
+          <GenerateReport entityName={REFUND_REPORT} />
+        </UIUtils.RenderIf>
+      </div>
       <RemoteTableFilters
         placeholder="Search payment id"
         setSearchVal=setSearchText
