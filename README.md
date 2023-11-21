@@ -64,6 +64,12 @@ Follow these simple steps to set up Hyperswitch on your local machine.
 
 ## Feature Flags
 
+Feature flags allows the users to enable or disable certain functionalities or flows in the control center.
+
+### Using feature flags
+The FeatureFlag.json file can be found under config/FeatueFlag.json. By default, all the feature flags is turned off (`False` value). 
+
+### Feature flag descriptions
 #### Generate report
 
 The `generate_report` feature flag controls the ability to generate detailed reports on payments, refunds, and disputes. When enabled, this allows users to pull reports covering the previous 6 months of transaction data. The reports can provide insights into trends, identify issues, and inform business decisions.
@@ -172,7 +178,7 @@ What you need to get started
 
 #### Step 1 - Install or update the AWS CLI
 
-> For more information, [click here](<[url](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)>)
+> For more information, [click here](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 
 **For Linux x86 (64-bit)**
 
@@ -234,7 +240,7 @@ For this step you would need the following from you AWS account
 - Access key ID
 - Secret Access Key
 
-You can create or manage your access keys from the Security Credentials tab inside your AWS Console. For more information, [click here](<[url](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey)>)
+You can create or manage your access keys from the Security Credentials tab inside your AWS Console. For more information, [click here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_CreateAccessKey)
 
 ![image](https://github.com/juspay/hyperswitch-control-center/assets/126671331/eda911ec-ae09-49be-99ca-3b32f262be9b)
 
@@ -258,8 +264,7 @@ curl https://raw.githubusercontent.com/juspay/hyperswitch/main/aws/hyperswitch_c
 Once the script is executed, you will receive a Public IP as the response (e.g. http://34.207.75.225). This IP is the base URL for accessing the application's APIs
 
 #### Clean Up
-
-If you want to delete the application from your account simply run the below clean up script. Ypu need to install JQ for this. For more information, [click here](<[url](https://jqlang.github.io/jq/download/)>)
+If you want to delete the application from your account simply run the below clean up script. Ypu need to install JQ for this. For more information, [click here](https://jqlang.github.io/jq/download/)
 
 ```
 curl https://raw.githubusercontent.com/juspay/hyperswitch/main/aws/hyperswitch_control_center_cleanup_setup.sh | bash
