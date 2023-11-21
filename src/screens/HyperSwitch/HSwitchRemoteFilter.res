@@ -196,7 +196,7 @@ module SearchBarFilter = {
       checked: true,
     }
 
-    <div className="w-1/4 flex gap-2">
+    <div className="w-1/4 flex">
       {InputFields.textInput(~input=inputSearch, ~placeholder, ~customStyle=`!h-10 w-full`, ())}
       <Button
         leftIcon={FontAwesome("search")}
