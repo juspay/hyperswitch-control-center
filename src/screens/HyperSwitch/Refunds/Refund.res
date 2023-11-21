@@ -48,7 +48,11 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let {generateReport} = FeatureFlagUtils.featureFlagObject
+  let {generateReport} =
+    HyperswitchAtom.featureFlagAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->LogicUtils.safeParse
+    ->FeatureFlagUtils.featureFlagType
 
   <ErrorBoundary>
     <div className="flex flex-col overflow-y-auto min-h-[50vh]">

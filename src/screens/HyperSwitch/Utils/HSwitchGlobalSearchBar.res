@@ -83,7 +83,11 @@ let make = () => {
   let (showModal, setShowModal) = React.useState(_ => false)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (arr, setArr) = React.useState(_ => [])
-  let featureFlagDetails = FeatureFlagUtils.featureFlagObject
+  let featureFlagDetails =
+    HyperswitchAtom.featureFlagAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->LogicUtils.safeParse
+    ->FeatureFlagUtils.featureFlagType
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
   let isReconEnabled =
     (merchentDetails->HSwitchMerchantAccountUtils.getMerchantDetails).recon_status === Active

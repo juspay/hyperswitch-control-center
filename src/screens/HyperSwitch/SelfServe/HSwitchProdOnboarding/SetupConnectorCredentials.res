@@ -75,7 +75,11 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   open ConnectorUtils
   open APIUtils
   let showToast = ToastState.useShowToast()
-  let featureFlagDetails = FeatureFlagUtils.featureFlagObject
+  let featureFlagDetails =
+    HyperswitchAtom.featureFlagAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->LogicUtils.safeParse
+    ->FeatureFlagUtils.featureFlagType
   let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (isCheckboxSelected, setIsCheckboxSelected) = React.useState(_ => false)

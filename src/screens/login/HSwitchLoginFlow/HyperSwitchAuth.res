@@ -15,7 +15,11 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (email, setEmail) = React.useState(_ => "")
-  let {magicLink: isMagicLinkEnabled} = FeatureFlagUtils.featureFlagObject
+  let {magicLink: isMagicLinkEnabled} =
+    HyperswitchAtom.featureFlagAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->LogicUtils.safeParse
+    ->FeatureFlagUtils.featureFlagType
 
   let handleAuthError = e => {
     let error = e->parseErrorMessage

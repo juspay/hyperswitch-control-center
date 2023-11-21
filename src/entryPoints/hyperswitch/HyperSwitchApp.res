@@ -41,7 +41,11 @@ let make = () => {
     ->LogicUtils.safeParse
     ->QuickStartUtils.getTypedValueFromDict
 
-  let featureFlagDetails = FeatureFlagUtils.featureFlagObject
+  let featureFlagDetails =
+    HyperswitchAtom.featureFlagAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->LogicUtils.safeParse
+    ->FeatureFlagUtils.featureFlagType
 
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let verificationDays = getFromMerchantDetails("verification")->LogicUtils.getIntFromString(-1)
