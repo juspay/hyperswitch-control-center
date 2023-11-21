@@ -512,11 +512,7 @@ let make = (
   ~moduleName: string,
   ~weeklyTableMetricsCols=?,
 ) => {
-  let {generateReport} =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let {generateReport} = FeatureFlagUtils.featureFlagObject
   let analyticsType = moduleName->getAnalyticsType
   let {filterValue, updateExistingKeys} = React.useContext(
     AnalyticsUrlUpdaterContext.urlUpdaterContext,

@@ -221,11 +221,7 @@ let make = (
   ~isPayoutFlow,
   ~showMenuOption=true,
 ) => {
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let featureFlagDetails = FeatureFlagUtils.featureFlagObject
   open APIUtils
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
