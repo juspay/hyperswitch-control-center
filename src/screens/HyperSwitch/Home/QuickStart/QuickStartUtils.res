@@ -45,7 +45,7 @@ let defaultChoiceStateValue: landingChoiceType = {
 }
 
 let connectorChoiceArray: array<landingChoiceType> = [
-   {
+  {
     displayText: "Fallback routing (active - passive)",
     description: "Fallback to the secondary processor in case your primary processor couldn't process the transactions",
     variantType: #DefaultFallback,
@@ -231,11 +231,19 @@ let getStatusValue = (comparator: valueType, enumVariant, dashboardPageState) =>
     boolValue ? COMPLETED : dashboardPageState === enumVariant ? ONGOING : PENDING
   }
 }
+let sidebarTextBasedOnVariant = choiceState =>
+  switch choiceState {
+  | #MigrateFromStripe => "Migrate from stripe"
+  | #StandardIntegration => "Standard integration"
+  | #WooCommercePlugin => "Woocommerce plugin"
+  | _ => "Migrate from stripe"
+  }
 
 let getSidebarOptionsForIntegrateYourApp: (
   string,
   quickStartType,
-) => array<HSSelfServeSidebar.sidebarOption> = (enumDetails, quickStartPageState) => {
+  choiceStateTypes,
+) => array<HSSelfServeSidebar.sidebarOption> = (enumDetails, quickStartPageState, choiceState) => {
   // TODO:Refactor code to more dynamic cases
 
   let currentPageStateEnum = quickStartPageState->variantToEnumMapper
@@ -253,7 +261,7 @@ let getSidebarOptionsForIntegrateYourApp: (
       link: "/",
     },
     {
-      title: "Standard integration",
+      title: choiceState->sidebarTextBasedOnVariant,
       status: Boolean(enumValue.integrationCompleted)->getStatusValue(
         #IntegrationCompleted,
         currentPageStateEnum,
