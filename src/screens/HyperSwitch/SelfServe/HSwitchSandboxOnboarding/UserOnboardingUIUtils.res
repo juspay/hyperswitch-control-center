@@ -128,15 +128,25 @@ module DownloadAPIKeyButton = {
 module DownloadAPIKey = {
   @react.component
   let make = (~currentRoute, ~currentTabName) => {
-    <div
-      className="bg-white p-7 flex flex-col gap-6 border !shadow-hyperswitch_box_shadow rounded-md">
-      <div className="border border-orange-border_orange bg-orange-warning_background_orange p-4">
-        <p className="text-base text-orange-warning_text_orange"> {"Warning:"->React.string} </p>
+    <div className="flex flex-col gap-10">
+      <div
+        className="border-2 border-orange-border_orange bg-orange-warning_background_orange p-4 flex items-center gap-2 rounded">
+        <Icon name="badge-warning" />
         <p className="text-base">
-          {"We request you to store your Test API keys safely. Once lost it cannot be restored; You can re-generate a new key from Dashboard > Developers."->React.string}
+          {"API key once misplaced cannot be restored. If misplaced, please re-generate a new key from Dashboard > Developers."->React.string}
         </p>
       </div>
-      <DownloadAPIKeyButton buttonText="Download API key" currentRoute currentTabName />
+      <div className="p-10 bg-gray-50 border rounded flex flex-col gap-6">
+        <div className="flex flex-col gap-2.5">
+          <div className="text-base text-grey-900 font-medium">
+            {"Test API Key"->React.string}
+          </div>
+          <p className="text-sm text-grey-50">
+            {"Use this key to authenticate all API requests from your application’s server"->React.string}
+          </p>
+        </div>
+        <DownloadAPIKeyButton buttonText="Download API key" currentRoute currentTabName />
+      </div>
     </div>
   }
 }
@@ -168,20 +178,19 @@ module TabsContentWrapper = {
     </div>
   }
 }
-module HeaderCompoentView = {
+module HeaderComponentView = {
   @react.component
   let make = (~value, ~headerText, ~langauge: languages, ~currentRoute, ~currentTabName) => {
     let showToast = ToastState.useShowToast()
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let url = RescriptReactRouter.useUrl()
-    <div className="flex flex-row justify-between my-4 items-center flex-wrap">
-      <p className="text-lg text-grey-700 font-semibold"> {headerText->React.string} </p>
+    <div
+      className="flex flex-row justify-between items-center flex-wrap border-b px-4 py-6 text-gray-900">
+      <p className="font-medium text-base"> {headerText->React.string} </p>
       <div className="flex gap-2">
         <div className="py-1 px-4 border rounded-md flex gap-2 items-center">
-          <Icon name={`${(langauge :> string)->Js.String2.toLowerCase}`} size=20 />
-          <p className="text-lg text-semibold text-grey-700 opacity-50">
-            {(langauge :> string)->React.string}
-          </p>
+          <Icon name={`${(langauge :> string)->Js.String2.toLowerCase}`} size=16 />
+          <p> {(langauge :> string)->React.string} </p>
         </div>
         <div
           className="py-1 px-4 border rounded-md flex gap-2 items-center cursor-pointer"
@@ -196,7 +205,7 @@ module HeaderCompoentView = {
             )
           }}>
           <img src={`/assets/CopyToClipboard.svg`} />
-          <p className="text-lg text-semibold text-grey-700 opacity-50"> {"Copy"->React.string} </p>
+          <p> {"Copy"->React.string} </p>
         </div>
       </div>
     </div>
@@ -224,7 +233,7 @@ module ShowCodeEditor = {
         readOnly=true
         minimap=false
         showCopy=false
-        headerComponent={<HeaderCompoentView
+        headerComponent={<HeaderComponentView
           value headerText langauge currentRoute currentTabName
         />}
       />
@@ -239,44 +248,18 @@ module DiffCodeEditor = {
     ~currentRoute,
     ~currentTabName,
   ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let showToast = ToastState.useShowToast()
     let oldValue = valueToShow.from
     let newValue = valueToShow.to
-    let url = RescriptReactRouter.useUrl()
     <div
-      className="flex flex-col gap-6 border p-6 bg-white overflow-x-scroll w-full !shadow-hyperswitch_box_shadow rounded-md">
-      <div className="flex justify-between">
-        <p className="font-semibold text-xl text-grey-700"> {"Replace"->React.string} </p>
-        <div className="flex gap-2">
-          <div className="py-1 px-4 border rounded-md flex gap-2 items-center">
-            <Icon name={`${(langauge :> string)->Js.String2.toLowerCase}`} size=20 />
-            <p className="text-lg text-semibold text-grey-700 opacity-50">
-              {(langauge :> string)->React.string}
-            </p>
-          </div>
-          <div
-            className="py-1 px-4 border rounded-md flex gap-2 items-center cursor-pointer"
-            onClick={_ => {
-              Clipboard.writeText(newValue)
-              showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
-              hyperswitchMixPanel(
-                ~pageName=`${url.path->LogicUtils.getListHead}`,
-                ~contextName=`${currentRoute->variantToTextMapperForBuildHS}_${currentTabName}`,
-                ~actionName=`${(langauge :> string)}_diffcodecopied`,
-                (),
-              )
-            }}>
-            <img src={`/assets/CopyToClipboard.svg`} />
-            <p className="text-lg text-semibold text-grey-700 opacity-50">
-              {"Copy"->React.string}
-            </p>
-          </div>
-        </div>
-      </div>
-      <ReactDiffViewer
-        oldValue newValue splitView={true} hideLineNumbers={false} useDarkTheme=false
+      className="flex flex-col gap-6 border bg-white overflow-x-scroll w-full !shadow-hyperswitch_box_shadow rounded-md">
+      <HeaderComponentView
+        value=newValue headerText="Replace" langauge currentRoute currentTabName
       />
+      <div className="p-4">
+        <ReactDiffViewer
+          oldValue newValue splitView={true} hideLineNumbers={false} useDarkTheme=false
+        />
+      </div>
     </div>
   }
 }
