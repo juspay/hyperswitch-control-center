@@ -13,10 +13,10 @@ let make = (~integrateAppValue: integrateApp) => {
     typedValueOfEnum.integrationMethod.integration_type->textToVariantMapper
   )
 
-  let onClickBackHandler = () => {
-    setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
-  }
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
+  let currentRoute =
+    typedValueOfEnum.integrationMethod.integration_type->textToVariantMapperForBuildHS
+
   let landingButtonGroup = {
     <div className="flex flex-col gap-4 w-full">
       <Button
@@ -54,10 +54,10 @@ let make = (~integrateAppValue: integrateApp) => {
     try {
       let enumVariant = quickStartPageState->variantToEnumMapper
       let _resp = await Boolean(true)->usePostEnumDetails(enumVariant)
-      setQuickStartPageState(_ => GoLive(LANDING))
     } catch {
     | _ => ()
     }
+    setQuickStartPageState(_ => GoLive(LANDING))
   }
 
   <>
@@ -75,7 +75,7 @@ let make = (~integrateAppValue: integrateApp) => {
           heading="Integrate your app"
           sidebarOptions={enumDetails->getSidebarOptionsForIntegrateYourApp(
             quickStartPageState,
-            choiceState,
+            currentRoute,
           )}
         />
         <div className="flex-1 flex flex-col items-center justify-center">
@@ -103,18 +103,11 @@ let make = (~integrateAppValue: integrateApp) => {
           heading="Integrate your app"
           sidebarOptions={enumDetails->getSidebarOptionsForIntegrateYourApp(
             quickStartPageState,
-            choiceState,
+            currentRoute,
           )}
         />
-        <div className="flex-1 flex flex-col items-center justify-center">
-          <div
-            className="w-fixedPageWidth h-45-rem bg-white rounded-md flex flex-col gap-6 shadow-boxShadowMultiple overflow-scroll ">
-            <CustomIntegrationPage
-              currentRoute={typedValueOfEnum.integrationMethod.integration_type->textToVariantMapperForBuildHS}
-              markAsDone={_ => handleMarkAsDone()}
-              onClickBackHandler
-            />
-          </div>
+        <div className="flex-1 flex flex-col items-center justify-center ml-12">
+          <CustomIntegrationPage currentRoute markAsDone={handleMarkAsDone} />
         </div>
       </div>
     }}
