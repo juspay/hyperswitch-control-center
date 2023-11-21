@@ -101,20 +101,29 @@ module CardRenderer = {
       | _ => true
       }
     }
+    let p2RegularTextStyle = `${HSwitchUtils.getTextClass(
+        ~textVariant=P2,
+        ~paragraphTextVariant=Medium,
+        (),
+      )} text-grey-700 opacity-50`
 
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 border rounded-md p-6">
       <div>
         <UIUtils.RenderIf
           condition={paymentMethod->getPaymentMethodFromString->isNotVerifiablePaymentMethod}>
-          <div className="flex items-center border-b gap-2 py-2 break-all">
-            <UIUtils.RenderIf condition={paymentMethod->getPaymentMethodFromString !== Wallet}>
-              <div onClick={e => updateSelectAll(paymentMethod, selectedAll)}>
-                <CheckBoxIcon isSelected={selectedAll} />
-              </div>
-            </UIUtils.RenderIf>
-            <p className="font-semibold text-bold text-fs-18">
+          <div className="flex items-center border-b gap-2 py-2 break-all justify-between">
+            <p className="font-semibold text-bold text-lg">
               {React.string(paymentMethod->snakeToTitle)}
             </p>
+            <div className="flex gap-2 items-center">
+              <BoolInput.BaseComponent
+                isSelected={selectedAll}
+                setIsSelected={_ => updateSelectAll(paymentMethod, selectedAll)}
+                isDisabled=false
+                boolCustomClass="rounded-lg"
+              />
+              <p className=p2RegularTextStyle> {"Select all"->React.string} </p>
+            </div>
           </div>
         </UIUtils.RenderIf>
       </div>
@@ -126,8 +135,7 @@ module CardRenderer = {
           {"Zen doesn't support Googlepay and Applepay in sandbox."->React.string}
         </div>
       </UIUtils.RenderIf>
-      <div
-        className={`grid ${_showAdvancedConfiguration ? "grid-cols-2" : "grid-cols-4"} gap-4 mx-6`}>
+      <div className={`grid ${_showAdvancedConfiguration ? "grid-cols-2" : "grid-cols-4"} gap-4`}>
         {provider
         ->Array.mapWithIndex((value, i) => {
           <div key={i->string_of_int}>
@@ -135,7 +143,7 @@ module CardRenderer = {
               <div onClick={_e => removeOrAddMethods(value)}>
                 <CheckBoxIcon isSelected={isSelected(value)} />
               </div>
-              {React.string(value->snakeToTitle)}
+              <p className=p2RegularTextStyle> {React.string(value->snakeToTitle)} </p>
             </div>
           </div>
         })

@@ -54,8 +54,8 @@ let make = (~connectorName, ~setCurrentStep, ~currentStep, ~isUpdateFlow) => {
   let url = RescriptReactRouter.useUrl()
   let copyValue = ConnectorUtils.getWebhooksUrl(~connectorName, ~merchantId)
 
-  <div className="flex flex-col gap-8">
-    <div className="flex justify-between border-b py-2">
+  <div className="flex flex-col ">
+    <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
       <div className="flex gap-2 items-center">
         <GatewayIcon
           gateway={connectorName->Js.String2.toUpperCase} className="w-14 h-14 rounded-full"
@@ -64,7 +64,7 @@ let make = (~connectorName, ~setCurrentStep, ~currentStep, ~isUpdateFlow) => {
           {connectorName->LogicUtils.capitalizeString->React.string}
         </h2>
       </div>
-      <div className="justify-self-end">
+      <div className="self-center">
         <Button
           text="Proceed"
           buttonType={Primary}
@@ -81,7 +81,7 @@ let make = (~connectorName, ~setCurrentStep, ~currentStep, ~isUpdateFlow) => {
         />
       </div>
     </div>
-    <div className="flex flex-col gap-8 p-11 ">
+    <div className="flex flex-col gap-8 p-2 md:p-10">
       <div className="flex flex-col gap-2 ">
         <p className=headerTextStyle>
           {`Setup Webhook on ${connectorName->LogicUtils.capitalizeString}`->React.string}

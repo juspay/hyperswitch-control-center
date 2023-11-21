@@ -887,7 +887,7 @@ let make = (
   } else {
     tableActionBorder
   }
-  let filterBottomPadding = !isMobileView ? "" : "pb-3"
+  let filterBottomPadding = isMobileView ? "" : "pb-3"
   let filtersOuterMargin = if hideTitle {
     ""
   } else {
