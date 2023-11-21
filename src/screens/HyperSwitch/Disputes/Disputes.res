@@ -61,7 +61,11 @@ let make = () => {
       infoText="No disputes as of now." moduleName=" " showRedirectCTA=false
     />
 
-  let {generateReport} = FeatureFlagUtils.featureFlagObject
+  let {generateReport} =
+    HyperswitchAtom.featureFlagAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->LogicUtils.safeParse
+    ->FeatureFlagUtils.featureFlagType
 
   <div>
     <PageUtils.PageHeading title="Disputes" />
