@@ -89,12 +89,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
 
               <div
                 className={`flex gap-1 items-center pl-6 py-2 rounded-md my-1 ${subBackground} ${subFont}`}>
-                <Icon
-                  className="col-start-3 col-end-2"
-                  name=subIcon
-                  customIconColor=subIconColor
-                  customHeight="14"
-                />
+                <Icon name=subIcon customIconColor=subIconColor customHeight="14" />
                 <span className="flex-1"> {subOption.title->React.string} </span>
               </div>
             })

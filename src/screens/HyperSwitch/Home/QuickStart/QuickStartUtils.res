@@ -111,13 +111,13 @@ let integrateYourAppArray: array<landingChoiceType> = [
     footerTags: ["Code required", "Supports all platforms"],
     leftIcon: "hyperswitch-logo-short",
   },
-  {
-    displayText: "Woocommerce plugin",
-    description: "Use our Woocommerce plugin for accepting payments",
-    variantType: #WooCommercePlugin,
-    footerTags: ["No code", "Web only"],
-    leftIcon: "woocommerce",
-  },
+  // {
+  //   displayText: "Woocommerce plugin",
+  //   description: "Use our Woocommerce plugin for accepting payments",
+  //   variantType: #WooCommercePlugin,
+  //   footerTags: ["No code", "Web only"],
+  //   leftIcon: "woocommerce",
+  // },
 ]
 
 let getProcessorType: Js.Dict.t<'a> => processorType = value => {
