@@ -1,5 +1,3 @@
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
-
 module NewAccountCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal, ~fetchMerchantIDs) => {
@@ -95,7 +93,6 @@ module ExternalUser = {
   let make = (~switchMerchant) => {
     open APIUtils
     let fetchDetails = useGetMethod()
-    let merchantCreationOptionValue = "new-merchant"
     let (selectedMerchantID, setSelectedMerchantID) = React.useState(_ => "")
     let (showModal, setShowModal) = React.useState(_ => false)
     let (options, setOptions) = React.useState(_ => [])
@@ -104,14 +101,7 @@ module ExternalUser = {
       let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Get, ())
       try {
         let res = await fetchDetails(url)
-        let merchantIdsArray = res->LogicUtils.getStrArryFromJson->SelectBox.makeOptions
-        merchantIdsArray
-        ->Array.push({
-          label: "Create Account",
-          value: merchantCreationOptionValue,
-          icon: Euler("plus"),
-        })
-        ->ignore
+        let merchantIdsArray = res->LogicUtils.getStrArryFromJson
         setOptions(_ => merchantIdsArray)
       } catch {
       | _ => ()
@@ -125,24 +115,84 @@ module ExternalUser = {
       None
     })
 
-    let handleMerchantSwitchSelection = ev => {
-      let optionValueString = ev->formEventToStr
-      if optionValueString === merchantCreationOptionValue {
-        setShowModal(_ => true)
-      } else {
-        switchMerchant(optionValueString)->ignore
-      }
-    }
-
+    open HeadlessUI
     <>
-      <CustomInputSelectBox
-        customButtonStyle="rounded-full !p-2"
-        deselectDisable={true}
-        onChange={handleMerchantSwitchSelection}
-        value={selectedMerchantID->Js.Json.string}
-        buttonText={selectedMerchantID}
-        options={options}
-      />
+      <Menu \"as"="div" className="relative inline-block text-left">
+        {menuProps =>
+          <div>
+            <Menu.Button
+              className="inline-flex whitespace-pre leading-5 justify-center text-sm font-medium px-4 py-3 font-medium rounded-md  hover:bg-opacity-80 bg-white border">
+              {buttonProps => {
+                <>
+                  {selectedMerchantID->React.string}
+                  <Icon className="rotate-180 ml-1 mt-1" name="arrow-without-tail" size=15 />
+                </>
+              }}
+            </Menu.Button>
+            <Transition
+              \"as"="span"
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95">
+              {<Menu.Items
+                className="absolute right-0 z-50 w-fit mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                {props => <>
+                  <div className="px-1 py-1 ">
+                    {options
+                    ->Js.Array2.map(option =>
+                      <Menu.Item>
+                        {props =>
+                          <div className="relative">
+                            <button
+                              onClick={_ => option->switchMerchant->ignore}
+                              className={
+                                let activeClasses = if props["active"] {
+                                  "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+                                } else {
+                                  "group flex rounded-md items-center w-full px-2 py-2 text-sm"
+                                }
+                                `${activeClasses} font-medium`
+                              }>
+                              <div className="mr-5"> {option->React.string} </div>
+                            </button>
+                            <UIUtils.RenderIf condition={selectedMerchantID === option}>
+                              <Icon
+                                className="absolute top-2 right-2 text-blue-900"
+                                name="check"
+                                size=15
+                              />
+                            </UIUtils.RenderIf>
+                          </div>}
+                      </Menu.Item>
+                    )
+                    ->React.array}
+                  </div>
+                  <div className="px-1 py-1 ">
+                    <Menu.Item>
+                      {props =>
+                        <button
+                          onClick={_ => setShowModal(_ => true)}
+                          className={
+                            let activeClasses = if props["active"] {
+                              "group flex rounded-md items-center px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+                            } else {
+                              "group flex rounded-md items-center px-2 py-2 text-sm"
+                            }
+                            `${activeClasses} text-blue-900 flex gap-2 font-medium w-56`
+                          }>
+                          <Icon name="plus-circle" size=15 />
+                          {"Add a new Merchant"->React.string}
+                        </button>}
+                    </Menu.Item>
+                  </div>
+                </>}
+              </Menu.Items>}
+            </Transition>
+          </div>}
+      </Menu>
       <UIUtils.RenderIf condition={showModal}>
         <NewAccountCreationModal setShowModal showModal fetchMerchantIDs />
       </UIUtils.RenderIf>
