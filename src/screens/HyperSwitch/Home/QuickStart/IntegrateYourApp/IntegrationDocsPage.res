@@ -7,8 +7,7 @@ module RequestPage = {
 
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let requestedValue =
-      requestedPlatform->Belt.Option.getWithDefault("")->LogicUtils.capitalizeString
+    let requestedValue = requestedPlatform->LogicUtils.capitalizeString
     let (isSubmitButtonEnabled, setIsSubmitButtonEnabled) = React.useState(_ => true)
 
     let handleSubmitRequest = async () => {
@@ -56,6 +55,7 @@ module RequestPage = {
       | _ => handleSubmitRequest()->ignore
       }
     }
+
     let buttonText = () => {
       switch currentRoute {
       | MigrateFromStripe =>
@@ -66,6 +66,7 @@ module RequestPage = {
       | _ => "I'm Interested"
       }
     }
+
     let subText = () => {
       switch currentRoute {
       | MigrateFromStripe =>
@@ -79,7 +80,7 @@ module RequestPage = {
     }
 
     <div
-      className="border bg-jp-gray-light_gray_bg h-full rounded-md p-6 overflow-scroll flex flex-col justify-center items-center gap-6">
+      className="border bg-jp-gray-light_gray_bg rounded-md p-6 overflow-scroll flex flex-col justify-center items-center gap-6">
       <Icon name={requestedValue->Js.String2.toLowerCase} size=180 className="!scale-200" />
       <div className="flex flex-col gap-2 items-center justify-center">
         <p className="text-2xl font-semibold text-grey-700">
@@ -103,14 +104,12 @@ module RequestPage = {
 let make = (
   ~currentRoute,
   ~isFromOnboardingChecklist=false,
-  ~markAsDone=?,
+  ~markAsDone,
   ~languageSelection=true,
 ) => {
   open UserOnboardingUtils
   open UserOnboardingTypes
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let url = RescriptReactRouter.useUrl()
-  let (tabIndex, setTabIndex) = React.useState(_ => 0)
+
   let (frontEndLang, setFrontEndLang) = React.useState(_ =>
     currentRoute === SampleProjects ? #ChooseLanguage : #ReactJs
   )
@@ -128,54 +127,33 @@ let make = (
   | Light => "light"
   }
 
-  open Tabs
-  let defaultNames = {
-    title: "",
-    renderContent: () => React.null,
-  }
-  let tabs = UserOnboardingUIUtils.getTabsForIntegration(
+  let _ = UserOnboardingUIUtils.getTabsForIntegration(
     ~currentRoute,
-    ~tabIndex,
+    ~tabIndex=0,
     ~frontEndLang,
     ~theme,
     ~backEndLang,
     ~publishablekeyMerchant,
   )
-  let currentTabName = currentIndex =>
-    (tabs->Belt.Array.get(currentIndex)->Belt.Option.getWithDefault(defaultNames)).title
 
-  let handleMarkAsDone = () => {
-    let contextName = `${currentRoute->variantToTextMapperForBuildHS}_${tabIndex->currentTabName}`
-    hyperswitchMixPanel(
-      ~pageName=`${url.path->LogicUtils.getListHead}`,
-      ~contextName,
-      ~actionName="markasdone",
-      (),
-    )
-    switch markAsDone {
-    | Some(fun) => fun()->ignore
-    | _ => ()->ignore
-    }
-  }
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let handleDeveloperDocs = () => {
-    let contextName = `${currentRoute->variantToTextMapperForBuildHS}_${tabIndex->currentTabName}`
-    hyperswitchMixPanel(
-      ~pageName=`${url.path->LogicUtils.getListHead}`,
-      ~contextName,
-      ~actionName="developerdocs",
-      (),
-    )
-    switch currentRoute {
-    | MigrateFromStripe => Window._open("https://hyperswitch.io/docs/migrateFromStripe")
-    | IntegrateFromScratch => Window._open("https://hyperswitch.io/docs/quickstart")
-    | WooCommercePlugin =>
-      Window._open(
-        "https://hyperswitch.io/docs/sdkIntegrations/wooCommercePlugin/wooCommercePluginSetup",
-      )
-    | _ => Window._open("https://hyperswitch.io/docs/")
-    }
-  }
+  // let handleDeveloperDocs = () => {
+  //   let contextName = `${currentRoute->variantToTextMapperForBuildHS}_${tabIndex->currentTabName}`
+  //   hyperswitchMixPanel(
+  //     ~pageName=`${url.path->LogicUtils.getListHead}`,
+  //     ~contextName,
+  //     ~actionName="developerdocs",
+  //     (),
+  //   )
+  //   switch currentRoute {
+  //   | MigrateFromStripe => Window._open("https://hyperswitch.io/docs/migrateFromStripe")
+  //   | IntegrateFromScratch => Window._open("https://hyperswitch.io/docs/quickstart")
+  //   | WooCommercePlugin =>
+  //     Window._open(
+  //       "https://hyperswitch.io/docs/sdkIntegrations/wooCommercePlugin/wooCommercePluginSetup",
+  //     )
+  //   | _ => Window._open("https://hyperswitch.io/docs/")
+  //   }
+  // }
   let getRequestedPlatforms = () => {
     if requestOnlyPlatforms->Js.Array2.includes(platform) {
       Some((platform :> string))
@@ -186,101 +164,43 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
-    hyperswitchMixPanel(
-      ~pageName=`${url.path->LogicUtils.getListHead}`,
-      ~contextName={tabIndex->currentTabName},
-      ~actionName="tabclicked",
-      (),
-    )
-    None
-  }, [tabIndex])
-  let buttonStyle =
-    tabIndex === tabs->Js.Array2.length - 1
-      ? "!border !border-blue-700 !rounded-md bg-white !text-blue-700"
-      : "!rounded-md"
   let requestedPlatform = getRequestedPlatforms()
-  <div className="w-full h-full flex flex-col bg-white">
-    <UserOnboardingUIUtils.ProgressBar tabs tabIndex />
-    <div className="flex flex-col w-full h-full p-6 gap-4 ">
-      <div
-        className={`flex ${languageSelection ? "justify-between" : "justify-end"} flex-wrap gap-2`}>
-        <UIUtils.RenderIf condition=languageSelection>
-          <UserOnboardingUIUtils.BackendFrontendPlatformLangDropDown
-            frontEndLang
-            setFrontEndLang
-            backEndLang
-            setBackEndLang
-            currentRoute
-            platform
-            setPlatform
-          />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!isFromOnboardingChecklist}>
-          <Button
-            text={"Mark as complete"}
-            customButtonStyle=buttonStyle
-            buttonType={Secondary}
-            buttonSize={Small}
-            buttonState={tabIndex === tabs->Js.Array2.length - 1 ? Normal : Disabled}
-            onClick={_ => handleMarkAsDone()}
-          />
-        </UIUtils.RenderIf>
+
+  {
+    switch requestedPlatform {
+    | Some(platformStr) =>
+      <div className="flex flex-col gap-2">
+        <UserOnboardingUIUtils.BackendFrontendPlatformLangDropDown
+          frontEndLang setFrontEndLang backEndLang setBackEndLang currentRoute platform setPlatform
+        />
+        <RequestPage requestedPlatform=platformStr currentRoute />
       </div>
-      {if requestedPlatform->Belt.Option.isSome {
-        <RequestPage requestedPlatform currentRoute />
-      } else {
-        <div className="flex flex-col my-4">
-          <Tabs
-            initialIndex={tabIndex}
-            tabs
-            showBorder=false
-            includeMargin=false
-            lightThemeColor="black"
-            renderedTabClassName="!h-full"
-            gapBetweenTabs="gap-0"
-            borderSelectionStyle="border-l-1 border-r-1 border-t-1 !p-4 !border-grey-600 !w-full"
-            borderDefaultStyle="border-b-1 !p-4 !border-grey-600 "
-            showBottomBorder=false
-            defaultClasses="w-max flex flex-auto flex-row items-center justify-center px-6  font-semibold text-body"
-            onTitleClick={indx => {
-              setTabIndex(_ => indx)
-            }}
-          />
-          <UIUtils.RenderIf condition={tabIndex !== tabs->Js.Array2.length - 1}>
-            <div className="flex my-4 w-full justify-end">
-              <Button
-                text={"Next Step"}
-                customButtonStyle=buttonStyle
-                rightIcon={CustomIcon(
-                  <Icon
-                    name="arrow-right"
-                    size=15
-                    className="mr-1 jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
-                  />,
-                )}
-                buttonType={Secondary}
-                buttonSize={Small}
-                onClick={_ => {
-                  setTabIndex(indx => indx + 1)
-                }}
-              />
-            </div>
-          </UIUtils.RenderIf>
-          <div className="flex gap-1 flex-wrap pb-5 justify-between ">
-            <div className="flex gap-2">
-              <p className="text-base font-normal text-grey-700">
-                {"Explore our detailed developer documentation on our"->React.string}
-              </p>
-              <p
-                className="text-base font-semibold text-blue-700 cursor-pointer underline"
-                onClick={_ => handleDeveloperDocs()}>
-                {"Developer Docs"->React.string}
-              </p>
-            </div>
-          </div>
-        </div>
-      }}
-    </div>
-  </div>
+    | None =>
+      switch currentRoute {
+      | MigrateFromStripe =>
+        <MigrateFromStripe
+          currentRoute
+          frontEndLang
+          setFrontEndLang
+          backEndLang
+          setBackEndLang
+          platform
+          setPlatform
+          markAsDone
+        />
+      | IntegrateFromScratch =>
+        <IntegrateFromScratch
+          currentRoute
+          frontEndLang
+          setFrontEndLang
+          backEndLang
+          setBackEndLang
+          platform
+          setPlatform
+          markAsDone
+        />
+      | _ => <> </>
+      }
+    }
+  }
 }

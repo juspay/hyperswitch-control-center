@@ -1,23 +1,14 @@
 @react.component
-let make = (~currentRoute, ~markAsDone, ~onClickBackHandler=?) => {
+let make = (~currentRoute, ~markAsDone) => {
   open UserOnboardingTypes
-  <>
+  <div className="w-full h-full flex items-center justify-center">
     {switch currentRoute {
     | MigrateFromStripe
     | IntegrateFromScratch
     | SampleProjects =>
-      switch onClickBackHandler {
-      | Some(_) => <IntegrationDocsPage currentRoute markAsDone />
-      | None => <IntegrationDocsPage currentRoute markAsDone />
-      }
-
-    | WooCommercePlugin =>
-      switch onClickBackHandler {
-      | Some(_) => <IntegrationDocsPage currentRoute markAsDone languageSelection=false />
-      | None => <IntegrationDocsPage currentRoute markAsDone languageSelection=false />
-      }
-
+      <IntegrationDocsPage currentRoute markAsDone />
+    | WooCommercePlugin => <IntegrationDocsPage currentRoute markAsDone languageSelection=false />
     | _ => React.null
     }}
-  </>
+  </div>
 }

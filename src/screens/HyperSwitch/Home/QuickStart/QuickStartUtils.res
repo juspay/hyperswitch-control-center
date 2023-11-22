@@ -111,13 +111,13 @@ let integrateYourAppArray: array<landingChoiceType> = [
     footerTags: ["Code required", "Supports all platforms"],
     leftIcon: "hyperswitch-logo-short",
   },
-  {
-    displayText: "Woocommerce plugin",
-    description: "Use our Woocommerce plugin for accepting payments",
-    variantType: #WooCommercePlugin,
-    footerTags: ["No code", "Web only"],
-    leftIcon: "woocommerce",
-  },
+  // {
+  //   displayText: "Woocommerce plugin",
+  //   description: "Use our Woocommerce plugin for accepting payments",
+  //   variantType: #WooCommercePlugin,
+  //   footerTags: ["No code", "Web only"],
+  //   leftIcon: "woocommerce",
+  // },
 ]
 
 let getProcessorType: Js.Dict.t<'a> => processorType = value => {
@@ -242,8 +242,8 @@ let sidebarTextBasedOnVariant = choiceState =>
 let getSidebarOptionsForIntegrateYourApp: (
   string,
   quickStartType,
-  choiceStateTypes,
-) => array<HSSelfServeSidebar.sidebarOption> = (enumDetails, quickStartPageState, choiceState) => {
+  UserOnboardingTypes.buildHyperswitchTypes,
+) => array<HSSelfServeSidebar.sidebarOption> = (enumDetails, quickStartPageState, currentRoute) => {
   // TODO:Refactor code to more dynamic cases
 
   let currentPageStateEnum = quickStartPageState->variantToEnumMapper
@@ -251,7 +251,7 @@ let getSidebarOptionsForIntegrateYourApp: (
   open LogicUtils
   let enumValue = enumDetails->safeParse->getTypedValueFromDict
 
-  [
+  let migrateFromStripeSidebar: array<HSSelfServeSidebar.sidebarOption> = [
     {
       title: "Choose integration method",
       status: String(enumValue.integrationMethod.integration_type)->getStatusValue(
@@ -261,14 +261,78 @@ let getSidebarOptionsForIntegrateYourApp: (
       link: "/",
     },
     {
-      title: choiceState->sidebarTextBasedOnVariant,
+      title: "Hyperswitch For Stripe Users",
       status: Boolean(enumValue.integrationCompleted)->getStatusValue(
         #IntegrationCompleted,
         currentPageStateEnum,
       ),
       link: "/",
+      subOptions: [
+        {
+          title: "Download Test API Keys",
+          status: PENDING,
+        },
+        {
+          title: "Install Dependencies",
+          status: PENDING,
+        },
+        {
+          title: "Replace API keys",
+          status: PENDING,
+        },
+        {
+          title: "Reconfigure Checkout Form",
+          status: PENDING,
+        },
+        {
+          title: "Load Hyperswitch Checkout",
+          status: PENDING,
+        },
+      ],
     },
   ]
+
+  let standardIntegrationSidebar: array<HSSelfServeSidebar.sidebarOption> = [
+    {
+      title: "Choose integration method",
+      status: String(enumValue.integrationMethod.integration_type)->getStatusValue(
+        #IntegrationMethod,
+        currentPageStateEnum,
+      ),
+      link: "/",
+    },
+    {
+      title: "Standard integration",
+      status: Boolean(enumValue.integrationCompleted)->getStatusValue(
+        #IntegrationCompleted,
+        currentPageStateEnum,
+      ),
+      link: "/",
+      subOptions: [
+        {
+          title: "Download Test API Key",
+          status: PENDING,
+        },
+        {
+          title: "Create a Payment",
+          status: PENDING,
+        },
+        {
+          title: "Display Hyperswitch Checkout",
+          status: PENDING,
+        },
+        {
+          title: "Display Payment Confirmation",
+          status: PENDING,
+        },
+      ],
+    },
+  ]
+
+  switch currentRoute {
+  | MigrateFromStripe => migrateFromStripeSidebar
+  | IntegrateFromScratch | _ => standardIntegrationSidebar
+  }
 }
 
 let getSidebarOptionsForConnectProcessor: (

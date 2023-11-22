@@ -83,19 +83,14 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
             ->Js.Array2.map(subOption => {
               let (subIcon, subIconColor, subBackground, subFont) = switch subOption.status {
               | COMPLETED => ("check", "green", "", "text-gray-600")
-              | PENDING => ("circle-outline", "text-gray-100", "", "text-gray-400")
-              | ONGOING => ("circle-outline", "", "bg-gray-100", "font-semibold")
+              | PENDING => ("nonselected", "text-gray-100", "", "text-gray-400")
+              | ONGOING => ("nonselected", "", "bg-gray-100", "font-semibold")
               }
 
               <div
-                className={`grid grid-cols-12 items-center px-6 py-2 rounded-md my-1 ${subBackground} ${subFont}`}>
-                <Icon
-                  className="col-start-3 col-end-2"
-                  name=subIcon
-                  customIconColor=subIconColor
-                  customHeight="12"
-                />
-                <span className="col-span-10"> {subOption.title->React.string} </span>
+                className={`flex gap-1 items-center pl-6 py-2 rounded-md my-1 ${subBackground} ${subFont}`}>
+                <Icon name=subIcon customIconColor=subIconColor customHeight="14" />
+                <span className="flex-1"> {subOption.title->React.string} </span>
               </div>
             })
             ->React.array}
