@@ -425,11 +425,9 @@ let make = (
 
   let heightClass = customHeightClass->Belt.Option.getWithDefault({
     switch buttonSize {
-    | XSmall => "py-2 h-fit"
-
-    | Small => "py-2 h-fit"
-
-    | Medium | Large => "py-2 h-fit"
+    | XSmall => "h-fit"
+    | Small => "h-fit"
+    | Medium | Large => "h-fit"
     }
   })
 
@@ -441,24 +439,24 @@ let make = (
 
   let paddingClass = customPaddingClass->Belt.Option.getWithDefault(
     switch buttonSize {
-    | XSmall => "px-6"
+    | XSmall => "py-3 px-4"
     | Small =>
       switch buttonType {
-      | Pagination => "px-2 mr-1"
-      | Dropdown => "px-2"
-      | _ => "px-8"
+      | Pagination => "py-3 px-4 mr-1"
+      | Dropdown => "py-3 px-4"
+      | _ => "py-3 px-4"
       }
-    | Medium => buttonType == Pagination ? "px-2 mr-1" : "px-10"
-    | Large => "px-14"
+    | Medium => buttonType == Pagination ? "py-3 px-4 mr-1" : "py-3 px-4"
+    | Large => "py-3 px-4"
     },
   )
 
   let textPaddingClass = customTextPaddingClass->Belt.Option.getWithDefault(
     switch buttonSize {
-    | XSmall => "px-2"
-    | Small => "px-2"
-    | Medium => "px-2"
-    | Large => "px-2"
+    | XSmall => "px-1"
+    | Small => "px-1"
+    | Medium => "px-1"
+    | Large => "px-1"
     },
   )
 
@@ -546,7 +544,7 @@ let make = (
     (),
   )
 
-  let defaultRoundedClass = "rounded-sm"
+  let defaultRoundedClass = "rounded"
 
   let {isFirst, isLast} = React.useContext(ButtonGroupContext.buttonGroupContext)
   let roundedClass = {
