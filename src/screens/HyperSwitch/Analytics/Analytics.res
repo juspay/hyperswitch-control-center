@@ -273,7 +273,7 @@ module TableWrapper = {
     React.useEffect3(() => {
       setShowTable(_ => false)
       if startTimeFromUrl !== "" && endTimeFromUrl !== "" {
-        let tableReqBody = AnalyticsUtils.generateTablePayload(
+        let tableReqBody = HSAnalyticsUtils.generateTablePayload(
           ~startTimeFromUrl,
           ~endTimeFromUrl,
           ~filterValueFromUrl,
@@ -372,11 +372,13 @@ module TableWrapper = {
 
     showTable
       ? <>
-          <div
-            className="flex border items-start border-blue-800 text-sm rounded-md gap-2 px-4 py-3 mt-7">
-            <Icon name="info-vacent" className="text-blue-900 mt-1" size=18 />
-            {"'Other' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
-          </div>
+          <UIUtils.RenderIf condition={tableData->Js.Array2.length > 0}>
+            <div
+              className="flex border items-start border-blue-800 text-sm rounded-md gap-2 px-4 py-3 mt-7">
+              <Icon name="info-vacent" className="text-blue-900 mt-1" size=18 />
+              {"'Other' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
+            </div>
+          </UIUtils.RenderIf>
           <div className="h-full -mx-4 overflow-scroll">
             <Form>
               <BaseTableComponent
@@ -659,7 +661,7 @@ let make = (
   | Some(filterData) => {
       let filterData = switch analyticsType {
       | USER_JOURNEY => {
-          let filteredDims = ["payment_method", "payment_experience"]
+          let filteredDims = ["payment_method", "payment_experience", "source"]
           let queryData =
             filterData
             ->getDictFromJsonObject
