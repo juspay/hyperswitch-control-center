@@ -12,6 +12,7 @@ let make = (
   ~markAsDone,
 ) => {
   let (currentStep, setCurrentStep) = React.useState(_ => DownloadAPIKey)
+  let isLastStep = currentStep === LoadCheckout
 
   let theme = switch ThemeProvider.useTheme() {
   | Dark => "vs-dark"
@@ -30,9 +31,9 @@ let make = (
   let nextButton =
     <Button
       buttonType={Primary}
-      text="Proceed"
+      text={isLastStep ? "Complete" : "Proceed"}
       onClick={_ => {
-        if currentStep === LoadCheckout {
+        if isLastStep {
           markAsDone()->ignore
         } else {
           setCurrentStep(_ =>
