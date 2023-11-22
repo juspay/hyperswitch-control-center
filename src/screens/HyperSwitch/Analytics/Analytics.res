@@ -273,7 +273,7 @@ module TableWrapper = {
     React.useEffect3(() => {
       setShowTable(_ => false)
       if startTimeFromUrl !== "" && endTimeFromUrl !== "" {
-        let tableReqBody = AnalyticsUtils.generateTablePayload(
+        let tableReqBody = HSAnalyticsUtils.generateTablePayload(
           ~startTimeFromUrl,
           ~endTimeFromUrl,
           ~filterValueFromUrl,
@@ -735,7 +735,6 @@ let make = (
               statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(
                 Js.Dict.empty(),
               )}
-              wrapperClass="grid grid-cols-3 gap-3"
             />
           </div>
           <div className="flex flex-row">
