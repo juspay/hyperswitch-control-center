@@ -37,7 +37,6 @@ let useSendEvent = () => {
     ->FeatureFlagUtils.featureFlagType
 
   let environment = switch HSwitchGlobalVars.hostType {
-  | Integ => "staging"
   | Live => "production"
   | Sandbox => "sandbox"
   | Netlify => "netlify"

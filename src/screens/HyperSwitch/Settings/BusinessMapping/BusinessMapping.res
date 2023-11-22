@@ -112,7 +112,7 @@ let make = (
   ~isFromSettings=true,
   ~showModalFromOtherScreen=false,
   ~setShowModalFromOtherScreen=_bool => (),
-  ~showLink=false,
+  ~isFromWebhooks=false,
 ) => {
   open APIUtils
   open BusinessMappingUtils
@@ -156,18 +156,19 @@ let make = (
     updateMerchantDetails(values)->ignore
     Js.Nullable.null
   }
+  let tableHeaderText = isFromWebhooks ? "Webhooks" : "Business profiles"
 
   <PageLoaderWrapper screenState>
     <UIUtils.RenderIf condition=isFromSettings>
       <div className="relative h-full">
         <div className="flex flex-col-reverse md:flex-col">
-          <div className="font-semibold text-fs-20"> {"Business profiles"->React.string} </div>
+          <div className="font-semibold text-fs-20"> {tableHeaderText->React.string} </div>
           <LoadedTable
             title="Business profiles"
             hideTitle=true
             resultsPerPage=7
             visibleColumns
-            entity={businessProfileTabelEntity(showLink)}
+            entity={businessProfileTabelEntity(isFromWebhooks)}
             showSerialNumber=true
             actualData={businessProfileValues->Js.Array2.map(Js.Nullable.return)}
             totalResults={businessProfileValues->Js.Array2.length}

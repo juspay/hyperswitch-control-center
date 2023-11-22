@@ -800,6 +800,7 @@ let generateInitialValuesDict = (
   )
   dict->Js.Dict.set("disabled", dict->getBool("disabled", false)->Js.Json.boolean)
   dict->Js.Dict.set("test_mode", (isLiveMode ? false : true)->Js.Json.boolean)
+  dict->Js.Dict.set("connector_label", dict->getString("connector_label", "")->Js.Json.string)
   dict->Js.Json.object_
 }
 
@@ -1141,7 +1142,11 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: Js.Json.
     test_mode: dict->getBool("test_mode", false),
   }
   let values = Window.getRequestPayload(wasmRequest, payLoadDetails)
-  let dict = Js.Dict.fromArray([("connector_account_details", connectorAccountDetails)])
+
+  let dict = Js.Dict.fromArray([
+    ("connector_account_details", connectorAccountDetails),
+    ("connector_label", dict->getString("connector_label", "")->Js.Json.string),
+  ])
   values
   ->getDictFromJsonObject
   ->Js.Dict.entries

@@ -414,6 +414,7 @@ fields: {
           returnUrl
           isConfigureConnector
           amount
+          setClientSecret
         />
       | None => React.null
       }}

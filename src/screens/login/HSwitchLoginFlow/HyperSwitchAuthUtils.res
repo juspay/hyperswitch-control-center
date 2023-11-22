@@ -229,14 +229,12 @@ module ToggleLiveTestMode = {
     | Live | Sandbox => liveURL
     | Local => localURL
     | Netlify => netlifyUrl
-    | Integ => sandboxURL
     }
 
     let testButtonRedirectUrl = switch hostType {
     | Live | Sandbox => sandboxURL
     | Local => localURL
     | Netlify => netlifyUrl
-    | Integ => integURL
     }
 
     <>

@@ -135,6 +135,7 @@ let make = (
             returnUrl
             isConfigureConnector={true}
             amount
+            setClientSecret
           />
         </div>
         <TestCredentials />
