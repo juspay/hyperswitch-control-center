@@ -3,12 +3,11 @@
 let mixpanelToken = "773ae99db494f9e23d86ab7a160bc21b"
 let tag_ID = "G-KW7THEZCZ2"
 
-type hostType = Integ | Live | Sandbox | Local | Netlify
+type hostType = Live | Sandbox | Local | Netlify
 
 let hostName = Window.Location.hostname
 
 let hostType = switch hostName {
-| "integ.hyperswitch.io" => Integ
 | "live.hyperswitch.io" => Live
 | "app.hyperswitch.io" => Sandbox
 | _ => hostName->Js.String2.includes("netlify") ? Netlify : Local
@@ -16,7 +15,6 @@ let hostType = switch hostName {
 
 let getHostURLFromVariant = (host: hostType) => {
   switch host {
-  | Integ => "https://integ.hyperswitch.io"
   | Live => "https://live.hyperswitch.io"
   | Sandbox => "https://app.hyperswitch.io"
   | Netlify => `https://${hostName}`
@@ -24,7 +22,6 @@ let getHostURLFromVariant = (host: hostType) => {
   }
 }
 
-let integURL = Integ->getHostURLFromVariant
 let liveURL = Live->getHostURLFromVariant
 let sandboxURL = Sandbox->getHostURLFromVariant
 let localURL = Local->getHostURLFromVariant
@@ -36,12 +33,10 @@ let hyperSwitchApiPrefix = Window.env.apiBaseUrl->Belt.Option.getWithDefault("/a
 
 let dashboardUrl = switch hostType {
 | Live => Live->getHostURLFromVariant
-| Sandbox => Sandbox->getHostURLFromVariant
-| Integ | Netlify | Local => Integ->getHostURLFromVariant
+| Sandbox | Local | Netlify => Sandbox->getHostURLFromVariant
 }
 
 let hyperSwitchFEPrefix = switch hostType {
-| Integ => integURL
 | Live => liveURL
 | Sandbox => sandboxURL
 | Local => localURL
@@ -54,14 +49,12 @@ let playgroundUserEmail = "dummyuser@dummymerchant.com"
 let playgroundUserPassword = "Dummy@1234"
 
 let urlFordownloadingAgreementMapper = switch hostType {
-| Integ => "https://integ.hyperswitch.io/agreement/MerchantAgreement.pdf"
 | Sandbox => "https://app.hyperswitch.io/agreement/tc-hyperswitch-aug-23.pdf"
 | Live => "https://live.hyperswitch.io/agreement/tc-hyperswitch-aug-23.pdf"
-| _ => ""
+| _ => "https://app.hyperswitch.io/agreement/tc-hyperswitch-aug-23.pdf"
 }
 
 let urlToDownloadApplePayCertificate = switch hostType {
-| Integ => "https://integ.hyperswitch.io/applepay-domain/apple-developer-merchantid-domain-association"
 | Sandbox => "https://app.hyperswitch.io/applepay-domain/apple-developer-merchantid-domain-association"
 | Live => "https://live.hyperswitch.io/applepay-domain/apple-developer-merchantid-domain-association"
 | _ => "/apple-developer-merchantid-domain-association"

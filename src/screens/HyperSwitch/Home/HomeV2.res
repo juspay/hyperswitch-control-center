@@ -286,7 +286,7 @@ module Resources = {
       {
         id: "tryTheDemo",
         icon: "docs.svg",
-        headerText: "Try a Demo",
+        headerText: "Try a test payment",
         subText: "Experience the Hyperswitch Unified checkout using test credentials",
         redirectLink: "",
       },

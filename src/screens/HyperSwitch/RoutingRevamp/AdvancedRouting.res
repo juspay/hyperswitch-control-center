@@ -243,93 +243,9 @@ module Wrapper = {
   }
 }
 
-module AddDefaultGateway = {
-  @react.component
-  let make = (
-    ~gatewayOptions,
-    ~dropDownbuttonText="Default Gateways",
-    ~dropDownSidetext="Default Gateways",
-  ) => {
-    let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-    let connectorList = React.useMemo0(() => {
-      connectorListJson->safeParse->ConnectorTableUtils.getArrayOfConnectorListPayloadType
-    })
-
-    let input = ReactFinalForm.useField(`algorithm.data.defaultSelection.data`).input
-    let typeInput = ReactFinalForm.useField(`algorithm.data.defaultSelection.type`).input
-
-    React.useEffect1(() => {
-      typeInput.onChange("priority"->toForm)
-      None
-    }, [input.value])
-
-    let isMobileView = MatchMedia.useMobileChecker()
-
-    let selected = input.value->getStrArryFromJson
-
-    let length = selected->Js.Array2.length
-
-    let buttonText =
-      length === 0
-        ? dropDownbuttonText
-        : `${length->string_of_int} ${isMobileView ? "" : dropDownbuttonText} Selected`
-
-    <div
-      className="flex flex-col p-4 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
-      <div
-        className={`flex flex-row items-center gap-2 md:gap-6 mt-2 
-        ${isMobileView ? "justify-between" : "justify-start"}`}>
-        <div className={`flex flex-row items-center gap-2`}>
-          <Icon
-            name="arrow-rotate"
-            size=14
-            className="cursor-pointer text-jp-gray-700 dark:text-jp-gray-700"
-            onClick={ev => ()}
-          />
-          <div className="text-jp-gray-700 dark:text-jp-gray-700">
-            {React.string(dropDownSidetext)}
-            <span className="text-red-500"> {React.string(" *")} </span>
-          </div>
-        </div>
-        <SelectBox.BaseDropdown
-          allowMultiSelect=true
-          buttonText
-          buttonType=Button.SecondaryFilled
-          hideMultiSelectButtons=true
-          input
-          options={gatewayOptions}
-          searchable=true
-          fixedDropDownDirection=SelectBox.TopRight
-          defaultLeftIcon={FontAwesome("plus")}
-        />
-      </div>
-      <div className="flex flex-wrap items-center gap-4 mt-4">
-        {selected
-        ->Array.mapWithIndex((op, i) => {
-          <div className="flex flex-row items-center gap-2 my-1" key={string_of_int(i)}>
-            <div
-              className="px-2 rounded-full bg-jp-gray-300 dark:bg-jp-gray-800 text-jp-gray-800 dark:text-white font-semibold text-sm md:text-md">
-              {React.string(string_of_int(i + 1))}
-            </div>
-            <div>
-              {React.string(
-                (connectorList->ConnectorTableUtils.getConnectorNameViaId(op)).connector_label,
-              )}
-            </div>
-            <UIUtils.RenderIf condition={i !== length - 1}>
-              <Icon name="chevron-right" size=14 className="text-jp-gray-800" />
-            </UIUtils.RenderIf>
-          </div>
-        })
-        ->React.array}
-      </div>
-    </div>
-  }
-}
-
 module RuleBasedUI = {
   @react.component
-  let make = (~gatewayOptions, ~wasm, ~initialRule, ~pageState) => {
+  let make = (~gatewayOptions, ~wasm, ~initialRule, ~pageState, ~setCurrentRouting) => {
     let rulesJsonPath = `algorithm.data.rules`
     let ruleInput = ReactFinalForm.useField(rulesJsonPath).input
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
@@ -400,11 +316,6 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
               ->React.array
             }
           }
-          <AddDefaultGateway
-            gatewayOptions
-            dropDownbuttonText="Default Processors"
-            dropDownSidetext="Default Processors"
-          />
         </>
 
       | Preview =>
@@ -414,12 +325,25 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
         }
       | _ => React.null
       }}
+      <div className="bg-white rounded-md flex gap-2 p-4 border-2">
+        <p className="text-jp-gray-700 dark:text-jp-gray-700">
+          {"In case the above rule fails, the routing will follow fallback routing. You can configure it"->React.string}
+        </p>
+        <p
+          className="text-blue-700 cursor-pointer"
+          onClick={_ => {
+            setCurrentRouting(_ => RoutingTypes.DEFAULTFALLBACK)
+            RescriptReactRouter.push("/routing/default")
+          }}>
+          {"here"->React.string}
+        </p>
+      </div>
     </div>
   }
 }
 
 @react.component
-let make = (~routingRuleId, ~isActive) => {
+let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let url = RescriptReactRouter.useUrl()
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
@@ -789,7 +713,9 @@ let make = (~routingRuleId, ~isActive) => {
                 />
                 <UIUtils.RenderIf condition={formState != CreateConfig}>
                   <div className="mb-5">
-                    <RuleBasedUI gatewayOptions=connectorOptions wasm initialRule pageState />
+                    <RuleBasedUI
+                      gatewayOptions=connectorOptions wasm initialRule pageState setCurrentRouting
+                    />
                     {switch pageState {
                     | Preview =>
                       <div className="flex flex-col md:flex-row gap-4 my-5">

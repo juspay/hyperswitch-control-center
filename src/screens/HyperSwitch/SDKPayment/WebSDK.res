@@ -38,6 +38,7 @@ module CheckoutForm = {
     ~publishableKey,
     ~isSpaceAccordion=false,
     ~amount,
+    ~setClientSecret,
   ) => {
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let url = RescriptReactRouter.useUrl()
@@ -205,6 +206,7 @@ module CheckoutForm = {
 
         | _ => ()
         }
+        setClientSecret(_ => None)
 
         setError(_ => errorMsg)
         setBtnState(_ => Button.Normal)
@@ -303,6 +305,7 @@ let make = (
   ~saveViewToSdk=false,
   ~isSpaceAccordion=false,
   ~amount=65400,
+  ~setClientSecret,
 ) => {
   let hyperPromise = Js.Promise.make((~resolve, ~reject as _) => {
     resolve(. Window.loadHyper(publishableKey))
@@ -330,6 +333,7 @@ let make = (
         publishableKey
         isSpaceAccordion
         amount
+        setClientSecret
       />
     </Elements>
   </div>

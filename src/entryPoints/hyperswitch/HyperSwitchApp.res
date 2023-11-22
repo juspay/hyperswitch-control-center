@@ -208,7 +208,7 @@ let make = () => {
                   <div className="w-full max-w-fixedPageWidth px-9">
                     <Navbar
                       headerActions={<div className="relative flex items-center gap-4 my-2 ">
-                        <HSwitchGlobalSearchBar />
+                        // <HSwitchGlobalSearchBar />
                         <RenderIf condition={featureFlagDetails.switchMerchant}>
                           <SwitchMerchant userRole={userRole} />
                         </RenderIf>
@@ -322,7 +322,7 @@ let make = () => {
                         <EntityScaffold
                           entityName="WebHooks"
                           remainingPath
-                          renderList={() => <BusinessMapping showLink=true />}
+                          renderList={() => <BusinessMapping isFromWebhooks=true />}
                           renderShow={profileId =>
                             <Webhooks webhookOnly=false showFormOnly=false />}
                         />

@@ -33,7 +33,7 @@ let make = (~routingType) => {
       {switch currentRouting {
       | PRIORITY => <PriorityRouting routingRuleId=id isActive />
       | VOLUME_SPLIT => <VolumeSplitRouting routingRuleId=id isActive />
-      | ADVANCED => <AdvancedRouting routingRuleId=id isActive />
+      | ADVANCED => <AdvancedRouting routingRuleId=id isActive setCurrentRouting />
       | DEFAULTFALLBACK => <DefaultRouting />
       | _ => <> </>
       }}
