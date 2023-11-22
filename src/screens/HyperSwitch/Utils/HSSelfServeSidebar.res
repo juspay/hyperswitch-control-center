@@ -60,6 +60,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
           RescriptReactRouter.replace(sidebarOption.link)
         }
       }
+      let subOptionsArray = sidebarOption.subOptions->Belt.Option.getWithDefault([])
 
       <div className={`p-6 border-y border-gray-200 cursor-pointer ${background}`} onClick>
         <div
@@ -75,11 +76,9 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
           </div>
         </div>
         <UIUtils.RenderIf
-          condition={sidebarOption.status === ONGOING &&
-            sidebarOption.subOptions->Belt.Option.isSome}>
+          condition={sidebarOption.status === ONGOING && subOptionsArray->Array.length > 0}>
           <div className="my-4">
-            {sidebarOption.subOptions
-            ->Belt.Option.getWithDefault([])
+            {subOptionsArray
             ->Js.Array2.map(subOption => {
               let (subIcon, subIconColor, subBackground, subFont) = switch subOption.status {
               | COMPLETED => ("check", "green", "", "text-gray-600")

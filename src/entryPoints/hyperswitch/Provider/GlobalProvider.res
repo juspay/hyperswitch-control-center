@@ -14,7 +14,7 @@ let defaultValue = {
   setDashboardPageState: _ => (),
   permissionInfo: [],
   setPermissionInfo: _ => (),
-  isProdIntentCompleted: true,
+  isProdIntentCompleted: false,
   setIsProdIntentCompleted: _ => (),
   quickStartPageState: QuickStartTypes.ConnectProcessor(LANDING),
   setQuickStartPageState: _ => (),
@@ -38,7 +38,7 @@ let make = (~children) => {
   let (tabIndexForDevelopers, setTabIndexForDevelopers) = React.useState(_ => 0)
   let (dashboardPageState, setDashboardPageState) = React.useState(_ => #DEFAULT)
   let (permissionInfo, setPermissionInfo) = React.useState(_ => [])
-  let (isProdIntentCompleted, setIsProdIntentCompleted) = React.useState(_ => true)
+  let (isProdIntentCompleted, setIsProdIntentCompleted) = React.useState(_ => false)
   let (
     quickStartPageState,
     setQuickStartPageState,

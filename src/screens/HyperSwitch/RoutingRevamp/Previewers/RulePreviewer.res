@@ -31,8 +31,6 @@ module GatewayView = {
 let make = (~ruleInfo: algorithmData, ~isfrom3ds=false) => {
   open LogicUtils
 
-  let defaultConnectors =
-    ruleInfo.defaultSelection.data->Belt.Option.getWithDefault([])->getGatewaysArrayFromValueData
   <div
     className=" bg-white border border-jp-gray-600 flex flex-col divide-y  divide-jp-gray-600  border-jp-gray-600 ">
     <AddDataAttributes attributes=[("data-component", "rulePreviewer")]>
@@ -115,38 +113,6 @@ let make = (~ruleInfo: algorithmData, ~isfrom3ds=false) => {
           })
           ->React.array}
         </div>
-        <UIUtils.RenderIf condition={!isfrom3ds}>
-          <div
-            className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6 mx-6 my-2 text-jp-gray-700">
-            <div className="flex flex-row items-center gap-2 mt-4 md:mt-0">
-              <Icon name="arrow-rotate" size=14 className="cursor-pointer text-jp-gray-700" />
-              <div>
-                {React.string("Default Processors")}
-                <span className="text-red-500"> {React.string(" *")} </span>
-              </div>
-            </div>
-            <div className="flex flex-wrap items-center gap-4">
-              {defaultConnectors
-              ->Array.mapWithIndex((gateway, index) => {
-                <div
-                  key={Belt.Int.toString(index)}
-                  className="flex flex-row items-center gap-2 my-2 md:my-4 text-jp-gray-700">
-                  <div
-                    className="px-1.5 md:px-2 rounded-full bg-jp-gray-300 dark:bg-jp-gray-900 text-jp-gray-700 dark:text-jp-gray-600 font-semibold text-sm md:text-md">
-                    {React.string(string_of_int(index + 1))}
-                  </div>
-                  <div> {gateway.connector->React.string} </div>
-                  <UIUtils.RenderIf condition={index !== defaultConnectors->Js.Array2.length - 1}>
-                    <Icon
-                      name="chevron-right" size=14 className="cursor-pointer text-jp-gray-700"
-                    />
-                  </UIUtils.RenderIf>
-                </div>
-              })
-              ->React.array}
-            </div>
-          </div>
-        </UIUtils.RenderIf>
       </div>
     </AddDataAttributes>
   </div>

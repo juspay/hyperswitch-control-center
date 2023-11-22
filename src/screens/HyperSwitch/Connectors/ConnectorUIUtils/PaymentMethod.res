@@ -115,15 +115,17 @@ module CardRenderer = {
             <p className="font-semibold text-bold text-lg">
               {React.string(paymentMethod->snakeToTitle)}
             </p>
-            <div className="flex gap-2 items-center">
-              <BoolInput.BaseComponent
-                isSelected={selectedAll}
-                setIsSelected={_ => updateSelectAll(paymentMethod, selectedAll)}
-                isDisabled=false
-                boolCustomClass="rounded-lg"
-              />
-              <p className=p2RegularTextStyle> {"Select all"->React.string} </p>
-            </div>
+            <UIUtils.RenderIf condition={paymentMethod->getPaymentMethodFromString !== Wallet}>
+              <div className="flex gap-2 items-center">
+                <BoolInput.BaseComponent
+                  isSelected={selectedAll}
+                  setIsSelected={_ => updateSelectAll(paymentMethod, selectedAll)}
+                  isDisabled=false
+                  boolCustomClass="rounded-lg"
+                />
+                <p className=p2RegularTextStyle> {"Select all"->React.string} </p>
+              </div>
+            </UIUtils.RenderIf>
           </div>
         </UIUtils.RenderIf>
       </div>

@@ -72,6 +72,7 @@ type connectorName =
   | STAX
   | GOCARDLESS
   | VOLT
+  | PROPHETPAY
   | UnknownConnector(string)
 
 type paymentMethod =

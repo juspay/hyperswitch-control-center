@@ -178,6 +178,7 @@ let connectorList: array<connectorName> = [
   PAYME,
   PAYU,
   POWERTRANZ,
+  PROPHETPAY,
   RAPYD,
   SHIFT4,
   STAX,
@@ -450,6 +451,9 @@ let staxInfo = {
 let voltInfo = {
   description: "A secure and versatile payment processor that facilitates seamless electronic transactions for businesses and individuals, offering a wide range of payment options and robust fraud protection.",
 }
+let prophetpayInfo = {
+  description: "A secure, affordable, and easy-to-use credit card processing platform for any business.",
+}
 
 let unknownConnectorInfo = {
   description: "unkown connector",
@@ -505,6 +509,7 @@ let getConnectorNameString = connector => {
   | STAX => "stax"
   | GOCARDLESS => "gocardless"
   | VOLT => "volt"
+  | PROPHETPAY => "prophetpay"
   | UnknownConnector(str) => str
   }
 }
@@ -559,6 +564,7 @@ let getConnectorNameTypeFromString = connector => {
   | "cryptopay" => CRYPTOPAY
   | "gocardless" => GOCARDLESS
   | "volt" => VOLT
+  | "prophetpay" => PROPHETPAY
   | _ => UnknownConnector("Not known")
   }
 }
@@ -613,6 +619,7 @@ let getConnectorInfo = (connector: connectorName) => {
   | PAYPAL_TEST => paypalTestInfo
   | STAX => staxInfo
   | VOLT => voltInfo
+  | PROPHETPAY => prophetpayInfo
   | UnknownConnector(_) => unknownConnectorInfo
   }
 }
@@ -793,6 +800,7 @@ let generateInitialValuesDict = (
   )
   dict->Js.Dict.set("disabled", dict->getBool("disabled", false)->Js.Json.boolean)
   dict->Js.Dict.set("test_mode", (isLiveMode ? false : true)->Js.Json.boolean)
+  dict->Js.Dict.set("connector_label", dict->getString("connector_label", "")->Js.Json.string)
   dict->Js.Json.object_
 }
 
@@ -1134,7 +1142,11 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: Js.Json.
     test_mode: dict->getBool("test_mode", false),
   }
   let values = Window.getRequestPayload(wasmRequest, payLoadDetails)
-  let dict = Js.Dict.fromArray([("connector_account_details", connectorAccountDetails)])
+
+  let dict = Js.Dict.fromArray([
+    ("connector_account_details", connectorAccountDetails),
+    ("connector_label", dict->getString("connector_label", "")->Js.Json.string),
+  ])
   values
   ->getDictFromJsonObject
   ->Js.Dict.entries

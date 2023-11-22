@@ -31,11 +31,20 @@ let currencyField = (
     (),
   )
 
-let inputField = (~name, ~field, ~label, ~connector, ~getPlaceholder, ~checkRequiredFields, ()) =>
+let inputField = (
+  ~name,
+  ~field,
+  ~label,
+  ~connector,
+  ~getPlaceholder,
+  ~checkRequiredFields,
+  ~disabled,
+  (),
+) =>
   FormRenderer.makeFieldInfo(
     ~label,
     ~name,
-    ~customInput=InputFields.textInput(),
+    ~customInput=InputFields.textInput(~isDisabled=disabled, ()),
     ~placeholder=switch getPlaceholder {
     | Some(fun) => fun(connector, field, label)
     | None => `Enter ${label->LogicUtils.snakeToTitle}`
@@ -82,6 +91,8 @@ module RenderConnectorInputFields = {
     ~keysToIgnore: array<string>=[],
     ~checkRequiredFields=?,
     ~getPlaceholder=?,
+    ~isLabelNested=true,
+    ~disabled=false,
   ) => {
     let featureFlagDetails =
       HyperswitchAtom.featureFlagAtom
@@ -95,31 +106,32 @@ module RenderConnectorInputFields = {
     keys
     ->Array.mapWithIndex((field, index) => {
       let label = details->getString(field, "")
+      let formName = isLabelNested ? `${name}.${field}` : name
       <UIUtils.RenderIf condition={label->Js.String2.length > 0}>
         <div key={index->string_of_int}>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
             field={switch (connector, field) {
-            | (BRAINTREE, "merchant_config_currency") =>
-              currencyField(~name={`${name}.${field}`}, ())
+            | (BRAINTREE, "merchant_config_currency") => currencyField(~name=formName, ())
             | _ =>
               inputField(
-                ~name={`${name}.${field}`},
+                ~name=formName,
                 ~field,
                 ~label,
                 ~connector,
                 ~checkRequiredFields,
                 ~getPlaceholder,
+                ~disabled,
                 (),
               )
             }}
           />
           <ErrorValidation
-            fieldName={`${name}.${field}`}
+            fieldName=formName
             validate={validate(
               ~selectedConnector,
               ~dict=details,
-              ~fieldName={`${name}.${field}`},
+              ~fieldName=formName,
               ~isLiveMode={featureFlagDetails.testLiveMode},
             )}
           />
@@ -176,8 +188,10 @@ module ConnectorConfigurationFields = {
     ~connectorMetaDataFields,
     ~connectorWebHookDetails,
     ~bodyType: string,
+    ~isUpdateFlow=false,
   ) => {
     open ConnectorUtils
+    let dict = Js.Dict.fromArray([("connector_label", "Connector label"->Js.Json.string)])
     <div className="flex flex-col">
       {if bodyType->mapAuthType == #CurrencyAuthKey {
         let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
@@ -191,6 +205,16 @@ module ConnectorConfigurationFields = {
           selectedConnector
         />
       }}
+      <RenderConnectorInputFields
+        details={dict}
+        name={"connector_label"}
+        keysToIgnore=metaDataInputKeysToIgnore
+        checkRequiredFields={getMetaDataRequiredFields}
+        connector
+        selectedConnector
+        isLabelNested=false
+        disabled={isUpdateFlow ? true : false}
+      />
       <RenderConnectorInputFields
         details={connectorMetaDataFields}
         name={"metadata"}

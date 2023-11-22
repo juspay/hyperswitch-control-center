@@ -118,9 +118,6 @@ let make = () => {
   let setUpDashboard = async () => {
     try {
       let _wasmResult = await Window.connectorWasmInit()
-      if featureFlagDetails.quickStart {
-        let _initalEnums = await fetchInitialEnums()
-      }
       let _profileDetails = await fetchBusinessProfiles()
       let _connectorList = await fetchConnectorListResponse()
       let _merchantDetails = await fetchMerchantAccountDetails()
@@ -134,6 +131,7 @@ let make = () => {
     } catch {
     | _ =>
       setDashboardPageState(_ => #HOME)
+
       setScreenState(_ => PageLoaderWrapper.Error(""))
     }
   }
@@ -142,6 +140,13 @@ let make = () => {
     setUpDashboard()->ignore
     None
   })
+
+  React.useEffect1(() => {
+    if featureFlagDetails.quickStart {
+      fetchInitialEnums()->ignore
+    }
+    None
+  }, [featureFlagDetails.quickStart])
 
   let setPageState = (pageState: ProviderTypes.dashboardPageStateTypes) => {
     setDashboardPageState(_ => pageState)
@@ -203,7 +208,7 @@ let make = () => {
                   <div className="w-full max-w-fixedPageWidth px-9">
                     <Navbar
                       headerActions={<div className="relative flex items-center gap-4 my-2 ">
-                        <HSwitchGlobalSearchBar />
+                        // <HSwitchGlobalSearchBar />
                         <RenderIf condition={featureFlagDetails.switchMerchant}>
                           <SwitchMerchant userRole={userRole} />
                         </RenderIf>
@@ -317,7 +322,7 @@ let make = () => {
                         <EntityScaffold
                           entityName="WebHooks"
                           remainingPath
-                          renderList={() => <BusinessMapping showLink=true />}
+                          renderList={() => <BusinessMapping isFromWebhooks=true />}
                           renderShow={profileId =>
                             <Webhooks webhookOnly=false showFormOnly=false />}
                         />
