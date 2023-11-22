@@ -27,6 +27,9 @@ let make = (~connectProcessorValue: connectProcessor) => {
       : #SinglePaymentProcessor
   )
   let (smartRoutingChoiceState, setSmartRoutingChoiceState) = React.useState(_ => #DefaultFallback)
+  let (choiceStateForTestConnector, setChoiceStateForTestConnector) = React.useState(_ =>
+    #TestApiKeys
+  )
 
   let (connectorArray, setConnectorArray) = React.useState(_ =>
     typedEnumValue->getInitialValueForConnector
@@ -172,7 +175,11 @@ let make = (~connectProcessorValue: connectProcessor) => {
       <div className="flex h-full">
         <HSSelfServeSidebar
           heading="Configure Control Centre"
-          sidebarOptions={enumDetails->getSidebarOptionsForConnectProcessor(quickStartPageState)}
+          sidebarOptions={enumDetails->getSidebarOptionsForConnectProcessor(
+            quickStartPageState,
+            connectorConfigureState,
+            choiceStateForTestConnector,
+          )}
         />
         <div className="flex-1 flex flex-col items-center justify-center ml-12">
           <QuickStartConnectorFlow
@@ -184,6 +191,8 @@ let make = (~connectProcessorValue: connectProcessor) => {
             initialValues
             connectorArray
             setConnectorArray
+            choiceStateForTestConnector
+            setChoiceStateForTestConnector
           />
         </div>
       </div>
@@ -192,7 +201,11 @@ let make = (~connectProcessorValue: connectProcessor) => {
       <div className="flex h-full">
         <HSSelfServeSidebar
           heading="Configure Control Centre"
-          sidebarOptions={enumDetails->getSidebarOptionsForConnectProcessor(quickStartPageState)}
+          sidebarOptions={enumDetails->getSidebarOptionsForConnectProcessor(
+            quickStartPageState,
+            connectorConfigureState,
+            choiceStateForTestConnector,
+          )}
         />
         <div className="flex-1 flex flex-col items-center justify-center ml-12">
           <QuickStartUIUtils.LandingPageChoice
@@ -217,7 +230,11 @@ let make = (~connectProcessorValue: connectProcessor) => {
       <div className="flex h-full">
         <HSSelfServeSidebar
           heading="Configure Control Centre"
-          sidebarOptions={enumDetails->getSidebarOptionsForConnectProcessor(quickStartPageState)}
+          sidebarOptions={enumDetails->getSidebarOptionsForConnectProcessor(
+            quickStartPageState,
+            connectorConfigureState,
+            choiceStateForTestConnector,
+          )}
         />
         <div className="flex-1 flex flex-col items-center justify-center">
           <QuickStartUIUtils.BaseComponent

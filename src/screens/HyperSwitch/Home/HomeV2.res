@@ -81,13 +81,13 @@ module QuickStart = {
       HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->LogicUtils.safeParse
     let initalEnums =
       HyperswitchAtom.enumVariantAtom->Recoil.useRecoilValueFromAtom->LogicUtils.safeParse
+    let typedValueOfEnum = initalEnums->QuickStartUtils.getTypedValueFromDict
 
     let setEnumsForPreviouslyConnectedConnectors = async () => {
       open ConnectorTableUtils
       try {
         setConfigureButtonState(_ => Button.Loading)
         let typedConnectorValue = connectorList->getArrayOfConnectorListPayloadType
-        let typedValueOfEnum = initalEnums->QuickStartUtils.getTypedValueFromDict
 
         if (
           !typedValueOfEnum.isMultipleConfiguration &&
@@ -163,6 +163,14 @@ module QuickStart = {
       }
     }
 
+    let buttonText = if !(typedValueOfEnum.testPayment.payment_id->Js.String2.length > 0) {
+      "Configure (Test mode)"
+    } else if !typedValueOfEnum.integrationCompleted {
+      "Start Integration on app"
+    } else {
+      "Get Production access"
+    }
+
     <div className="flex flex-col md:flex-row pt-10 border rounded-md bg-white gap-4">
       <div className="flex flex-col justify-evenly gap-8 pl-10 pb-10 pr-2 md:pr-0">
         <div className="flex flex-col gap-2">
@@ -174,7 +182,7 @@ module QuickStart = {
         <HomePageHorizontalStepper stepperItemsArray=HomeUtils.homepageStepperItems />
         <Button
           buttonState={configureButtonState}
-          text="Configure (Test mode)"
+          text=buttonText
           buttonType={Primary}
           customButtonStyle="group w-1/5"
           rightIcon={CustomIcon(

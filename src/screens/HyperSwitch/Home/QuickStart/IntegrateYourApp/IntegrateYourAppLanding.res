@@ -76,6 +76,7 @@ let make = (~integrateAppValue: integrateApp) => {
           sidebarOptions={enumDetails->getSidebarOptionsForIntegrateYourApp(
             quickStartPageState,
             currentRoute,
+            choiceState,
           )}
         />
         <div className="flex-1 flex flex-col items-center justify-center">
@@ -104,6 +105,7 @@ let make = (~integrateAppValue: integrateApp) => {
           sidebarOptions={enumDetails->getSidebarOptionsForIntegrateYourApp(
             quickStartPageState,
             currentRoute,
+            choiceState,
           )}
         />
         <div className="flex-1 flex flex-col items-center justify-center ml-12">
