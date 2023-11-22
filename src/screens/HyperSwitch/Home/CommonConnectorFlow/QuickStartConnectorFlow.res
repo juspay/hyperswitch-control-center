@@ -8,6 +8,8 @@ let make = (
   ~initialValues,
   ~connectorArray,
   ~setConnectorArray,
+  ~choiceStateForTestConnector,
+  ~setChoiceStateForTestConnector,
 ) => {
   open QuickStartUtils
   open APIUtils
@@ -16,7 +18,6 @@ let make = (
 
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
-  let (choiceState, setChoiceState) = React.useState(_ => #TestApiKeys)
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
   let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
@@ -48,6 +49,7 @@ let make = (
       setConnectorConfigureState(_ => Select_processor)
       setQuickStartPageState(_ => ConnectProcessor(CONFIGURE_SECONDARY))
     }
+    setChoiceStateForTestConnector(_ => #TestApiKeys)
   }
   let updateEnumForTestConnector = async connectorResponse => {
     open LogicUtils
@@ -98,7 +100,7 @@ let make = (
   }
 
   let handleConnectorSubmit = () => {
-    if choiceState === #TestApiKeys {
+    if choiceStateForTestConnector === #TestApiKeys {
       handleTestConnector()->ignore
     } else {
       setConnectorConfigureState(_ => Configure_keys)
@@ -122,8 +124,8 @@ let make = (
       />
     | Select_configuration_type =>
       <QuickStartUIUtils.LandingPageChoice
-        choiceState
-        setChoiceState
+        choiceState={choiceStateForTestConnector}
+        setChoiceState={setChoiceStateForTestConnector}
         listChoices={selectedConnector->getTypeOfConfigurationArray}
         headerText={`Connect ${connectorName->LogicUtils.capitalizeString}`}
         isHeaderLeftIcon=false

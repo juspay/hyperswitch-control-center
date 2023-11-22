@@ -50,7 +50,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
         <BreadCrumbNavigation
           path=[
             {
-              title: "Weebhooks",
+              title: "Webhooks",
               link: "/webhooks",
             },
           ]

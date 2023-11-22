@@ -233,17 +233,23 @@ let getStatusValue = (comparator: valueType, enumVariant, dashboardPageState) =>
 }
 let sidebarTextBasedOnVariant = choiceState =>
   switch choiceState {
-  | #MigrateFromStripe => "Migrate from stripe"
+  | #MigrateFromStripe => "Hyperswitch For Stripe Users"
   | #StandardIntegration => "Standard integration"
   | #WooCommercePlugin => "Woocommerce plugin"
-  | _ => "Migrate from stripe"
+  | _ => "Hyperswitch For Stripe Users"
   }
 
 let getSidebarOptionsForIntegrateYourApp: (
   string,
   quickStartType,
   UserOnboardingTypes.buildHyperswitchTypes,
-) => array<HSSelfServeSidebar.sidebarOption> = (enumDetails, quickStartPageState, currentRoute) => {
+  choiceStateTypes,
+) => array<HSSelfServeSidebar.sidebarOption> = (
+  enumDetails,
+  quickStartPageState,
+  currentRoute,
+  choiceState,
+) => {
   // TODO:Refactor code to more dynamic cases
 
   let currentPageStateEnum = quickStartPageState->variantToEnumMapper
@@ -261,7 +267,7 @@ let getSidebarOptionsForIntegrateYourApp: (
       link: "/",
     },
     {
-      title: "Hyperswitch For Stripe Users",
+      title: choiceState->sidebarTextBasedOnVariant,
       status: Boolean(enumValue.integrationCompleted)->getStatusValue(
         #IntegrationCompleted,
         currentPageStateEnum,
@@ -302,7 +308,7 @@ let getSidebarOptionsForIntegrateYourApp: (
       link: "/",
     },
     {
-      title: "Standard integration",
+      title: choiceState->sidebarTextBasedOnVariant,
       status: Boolean(enumValue.integrationCompleted)->getStatusValue(
         #IntegrationCompleted,
         currentPageStateEnum,
@@ -335,10 +341,61 @@ let getSidebarOptionsForIntegrateYourApp: (
   }
 }
 
+let getConnectorStatus = (enumValueToCheck, connectorConfigureState, checkValue, currentEnum) => {
+  open HSSelfServeSidebar
+  let isConnectorConnected = enumValueToCheck->Js.String2.length > 0
+  if isConnectorConnected || connectorConfigureState === checkValue {
+    COMPLETED
+  } else if connectorConfigureState == currentEnum {
+    ONGOING
+  } else {
+    PENDING
+  }
+}
+
+let getConnectorSubOptions = (
+  choiceStateForTestConnector,
+  valueToCheck,
+  connectorConfigureState,
+) => {
+  if choiceStateForTestConnector === #TestApiKeys {
+    []
+  } else {
+    let conectorSubOptions: array<HSSelfServeSidebar.subOption> = [
+      {
+        title: "Setup Sandbox Credentials",
+        status: getConnectorStatus(
+          valueToCheck.processorID,
+          connectorConfigureState,
+          Setup_payment_methods,
+          Configure_keys,
+        ),
+      },
+      {
+        title: "Setup Payment Methods",
+        status: getConnectorStatus(
+          valueToCheck.processorID,
+          connectorConfigureState,
+          Summary,
+          Setup_payment_methods,
+        ),
+      },
+    ]
+    conectorSubOptions
+  }
+}
+
 let getSidebarOptionsForConnectProcessor: (
   string,
   quickStartType,
-) => array<HSSelfServeSidebar.sidebarOption> = (enumDetails, quickStartPageState) => {
+  configureProcessorTypes,
+  choiceStateTypes,
+) => array<HSSelfServeSidebar.sidebarOption> = (
+  enumDetails,
+  quickStartPageState,
+  connectorConfigureState,
+  choiceStateForTestConnector,
+) => {
   // TODO:Refactor code to more dynamic cases
 
   open LogicUtils
@@ -352,6 +409,10 @@ let getSidebarOptionsForConnectProcessor: (
           #FirstProcessorConnected,
           currentPageStateEnum,
         ),
+        subOptions: choiceStateForTestConnector->getConnectorSubOptions(
+          enumValue.firstProcessorConnected,
+          connectorConfigureState,
+        ),
         link: "/quick-start",
       },
       {
@@ -359,6 +420,10 @@ let getSidebarOptionsForConnectProcessor: (
         status: String(enumValue.secondProcessorConnected.processorID)->getStatusValue(
           #SecondProcessorConnected,
           currentPageStateEnum,
+        ),
+        subOptions: choiceStateForTestConnector->getConnectorSubOptions(
+          enumValue.secondProcessorConnected,
+          connectorConfigureState,
         ),
         link: "/quick-start",
       },
@@ -386,6 +451,10 @@ let getSidebarOptionsForConnectProcessor: (
         status: String(enumValue.firstProcessorConnected.processorID)->getStatusValue(
           #FirstProcessorConnected,
           currentPageStateEnum,
+        ),
+        subOptions: choiceStateForTestConnector->getConnectorSubOptions(
+          enumValue.firstProcessorConnected,
+          connectorConfigureState,
         ),
         link: "/quick-start",
       },
