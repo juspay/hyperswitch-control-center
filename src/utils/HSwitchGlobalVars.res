@@ -1,7 +1,6 @@
 @val external appVersion: string = "appVersion"
 
-let mixpanelToken = "773ae99db494f9e23d86ab7a160bc21b"
-let tag_ID = "G-KW7THEZCZ2"
+let mixpanelToken = "" // add your mixpanel token here
 
 type hostType = Live | Sandbox | Local | Netlify
 

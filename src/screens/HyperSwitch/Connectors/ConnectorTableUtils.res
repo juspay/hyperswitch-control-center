@@ -1,8 +1,18 @@
 open ConnectorTypes
 
-type colType = Name | TestMode | Status | Actions | ProfileId | ProfileName | PaymentMethods
+type colType =
+  Name | TestMode | Status | Actions | ProfileId | ProfileName | ConnectorLabel | PaymentMethods
 
-let defaultColumns = [Name, ProfileId, ProfileName, Status, TestMode, Actions, PaymentMethods]
+let defaultColumns = [
+  Name,
+  ProfileId,
+  ProfileName,
+  ConnectorLabel,
+  Status,
+  TestMode,
+  Actions,
+  PaymentMethods,
+]
 
 module ConnectorActions = {
   @react.component
@@ -174,6 +184,8 @@ let getHeading = colType => {
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=false, ())
   | ProfileName =>
     Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=false, ())
+  | ConnectorLabel =>
+    Table.makeHeaderInfo(~key="connector_label", ~title="Label", ~showSort=false, ())
   | PaymentMethods =>
     Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods", ~showSort=false, ())
   }
@@ -194,6 +206,8 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
       <HSwitchMerchantAccountUtils.BusinessProfile profile_id={connector.profile_id} />,
       "",
     )
+  | ConnectorLabel => Text(connector.connector_label)
+
   // | Actions =>
   //   Table.CustomCell(<ConnectorActions connector_id={connector.merchant_connector_id} />, "")
   | Actions => Table.CustomCell(<div />, "")

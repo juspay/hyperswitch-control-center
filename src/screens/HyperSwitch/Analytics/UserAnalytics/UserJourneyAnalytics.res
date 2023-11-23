@@ -56,7 +56,7 @@ let make = () => {
     a
   })
 
-  <div className="mx-auto">
+  <div className="flex flex-col flex-1 overflow-scroll">
     <PageLoaderWrapper screenState customUI={<NoData />}>
       <Analytics
         pageTitle="Know your users"
