@@ -120,14 +120,19 @@ let make = (~connectProcessorValue: connectProcessor) => {
       setButtonState(_ => Loading)
       if choiceState === #MultipleProcessorWithSmartRouting {
         let _ = await updateEnumForMultipleConfigurationType(true)
+        setQuickStartPageState(_ =>
+          typedEnumValue.firstProcessorConnected.processorID->Js.String2.length > 0
+            ? ConnectProcessor(CONFIGURE_SECONDARY)
+            : ConnectProcessor(CONFIGURE_PRIMARY)
+        )
       } else {
         let _ = await updateEnumForMultipleConfigurationType(false)
+        setQuickStartPageState(_ =>
+          typedEnumValue.firstProcessorConnected.processorID->Js.String2.length > 0
+            ? ConnectProcessor(CHECKOUT)
+            : ConnectProcessor(CONFIGURE_PRIMARY)
+        )
       }
-      setQuickStartPageState(_ =>
-        typedEnumValue.firstProcessorConnected.processorID->Js.String2.length > 0
-          ? ConnectProcessor(CONFIGURE_SECONDARY)
-          : ConnectProcessor(CONFIGURE_PRIMARY)
-      )
       setButtonState(_ => Normal)
     } catch {
     | _ => setButtonState(_ => Normal)
