@@ -12,6 +12,7 @@ let make = (
   ~markAsDone,
 ) => {
   let (currentStep, setCurrentStep) = React.useState(_ => DownloadTestAPIKey)
+  let {setQuickStartPageState} = React.useContext(GlobalProvider.defaultContext)
   let isLastStep = currentStep === DisplayPaymentConfirmation
 
   let theme = switch ThemeProvider.useTheme() {
@@ -21,10 +22,13 @@ let make = (
 
   let backButton =
     <Button
-      buttonState={currentStep === DownloadTestAPIKey ? Disabled : Normal}
+      buttonState={Normal}
       buttonType={PrimaryOutline}
       text="Back"
-      onClick={_ => setCurrentStep(_ => getNavigationStepForStandardIntegration(~currentStep, ()))}
+      onClick={_ =>
+        currentStep === DownloadTestAPIKey
+          ? setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
+          : setCurrentStep(_ => getNavigationStepForStandardIntegration(~currentStep, ()))}
       buttonSize=Small
     />
 

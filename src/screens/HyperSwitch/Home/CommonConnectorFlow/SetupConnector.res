@@ -9,6 +9,8 @@ module SelectProcessor = {
   ) => {
     let url = RescriptReactRouter.useUrl()
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
+    let {setQuickStartPageState} = React.useContext(GlobalProvider.defaultContext)
+
     <QuickStartUIUtils.BaseComponent
       headerText="Select Processor"
       customCss="show-scrollbar"
@@ -24,6 +26,15 @@ module SelectProcessor = {
           RescriptReactRouter.replace(`/${url.path->LogicUtils.getListHead}?name=${connectorName}`)
         }}
         buttonSize=Small
+      />}
+      backButton={<Button
+        buttonType={PrimaryOutline}
+        buttonState={Button.Normal}
+        text="Back"
+        buttonSize=Small
+        onClick={_ => {
+          setQuickStartPageState(_ => ConnectProcessor(LANDING))
+        }}
       />}>
       <QuickStartUIUtils.SelectConnectorGrid
         selectedConnector
