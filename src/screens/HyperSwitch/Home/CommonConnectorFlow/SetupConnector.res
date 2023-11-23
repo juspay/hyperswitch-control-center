@@ -71,6 +71,7 @@ module ConfigureProcessor = {
       connectorMetaDataFields,
       _,
       connectorWebHookDetails,
+      connectorLabelDetailField,
     ) = getConnectorFields(connectorDetails)
 
     let onSubmit = async (values, _) => {
@@ -103,6 +104,7 @@ module ConfigureProcessor = {
         connectorMetaDataFields,
         connectorWebHookDetails,
         errors->Js.Json.object_,
+        connectorLabelDetailField,
       )
     }
     let backButton = isBackButtonVisible
