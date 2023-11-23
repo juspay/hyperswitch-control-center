@@ -67,7 +67,7 @@ type routingType = {routing_id: string}
 type paymentType = {payment_id: string}
 
 type integrationMethod = {integration_type: string}
-type connectorChoice = {@as("IsMultipleConfiguration") isMultipleConfiguration: bool}
+type connectorChoice = {isMultipleConfiguration: bool}
 
 type responseType = {
   productionAgreement: bool,
