@@ -80,7 +80,7 @@ module GenerateSampleDataButton = {
 
 module NoData = {
   @react.component
-  let make = (~isConfigureConnector, ~merchantDetailsValue, ~paymentModal, ~setPaymentModal) => {
+  let make = (~isConfigureConnector, ~paymentModal, ~setPaymentModal) => {
     let {testLiveMode} =
       HyperswitchAtom.featureFlagAtom
       ->Recoil.useRecoilValueFromAtom
@@ -101,13 +101,10 @@ module NoData = {
         ? "paymentops_makeapayment"
         : "payemntops_connectaconnector"}
       onClickUrl={isConfigureConnector ? "" : `${HSwitchGlobalVars.hyperSwitchFEPrefix}/connectors`}
-      onClickElement={<HomeUtils.SDKOverlay
-        overlayPaymentModal=paymentModal
-        setOverlayPaymentModal=setPaymentModal
-        merchantDetailsValue
-        isConfigureConnector
-        customBackButtonRoute="payments"
-      />}
+      onClickElement={
+        RescriptReactRouter.replace("/sdk")
+        React.null
+      }
     />
   }
 }

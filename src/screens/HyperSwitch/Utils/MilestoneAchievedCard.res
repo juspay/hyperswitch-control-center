@@ -1,5 +1,4 @@
 open LottieFiles
-open HSwitchUtils
 let confettiJson = "successConfetti.json"
 @react.component
 let make = (
@@ -12,9 +11,7 @@ let make = (
   let url = RescriptReactRouter.useUrl()
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let currentPageName = url.path->LogicUtils.getListHead
-  let (paymentModal, setPaymentModal) = React.useState(_ => false)
-  let isConfigureConnector = ListHooks.useListCount(~entityName=CONNECTOR) > 0
-  let merchantDetailsValue = useMerchantDetailsValue()
+  let (_paymentModal, setPaymentModal) = React.useState(_ => false)
 
   <div
     className="relative flex flex-row border-l-4 border-milestone_card_border bg-white gap-4 rounded-md px-8  pt-4 pb-8 w-10/12 lg:w-successCardWidth h-fit my-6 items-center">
@@ -54,15 +51,6 @@ let make = (
             />
           | None => React.null
           }}
-          <UIUtils.RenderIf condition={paymentModal}>
-            <HomeUtils.SDKOverlay
-              overlayPaymentModal=paymentModal
-              setOverlayPaymentModal=setPaymentModal
-              merchantDetailsValue
-              isConfigureConnector
-              customBackButtonRoute
-            />
-          </UIUtils.RenderIf>
         </div>
       </div>
     </div>

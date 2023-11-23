@@ -14,10 +14,13 @@ module.exports = {
         desktop: "118.75rem",
       },
       width: {
+        58: "14.6875rem",
         94: "26.5rem",
         100: "25rem",
         120: "27rem",
+        128: "31.25rem",
         133: "35rem",
+        135: "35.625rem",
         "1.1-rem": "1.125rem",
         "45-vw": "45vw",
         "77-rem": "77rem",
@@ -65,6 +68,11 @@ module.exports = {
       },
       maxWidth: {
         fixedPageWidth: "85rem",
+      },
+      padding: {
+        1: "4px",
+        3.75: "15px",
+        11.25: "45px",
       },
       animation: {
         "spin-slow": "spin 3s linear infinite",
@@ -320,7 +328,7 @@ module.exports = {
           400: "#DAECFF",
           500: "#BED4F0",
           550: "#BED4F0",
-          600: "#BED4F0",
+          600: "#006DF9CC",
           650: "#BED4F0",
           700: "#006DF9",
           750: "#006DF9",
@@ -479,6 +487,7 @@ module.exports = {
           divider_gray: "#B7B7B7",
           border_gray: "#E8E8E8",
           secondary_hover: "#EEEEEE",
+          test_credentials_bg: "#D9D9D959"
         },
         hyperswitch_dark_bg: "#212E46",
         hyperswitch_blue_bg: "#212E46",

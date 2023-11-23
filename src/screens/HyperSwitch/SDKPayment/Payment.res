@@ -240,7 +240,7 @@ fields: {
 }
     `)
 
-  let returnUrl = `${hyperSwitchFEPrefix}/home`
+  let returnUrl = `${hyperSwitchFEPrefix}/sdk`
 
   let paymentElementOptions = getOptionReturnUrl(returnUrl)
 
@@ -300,124 +300,114 @@ fields: {
     }
     None
   })
-  <div className="flex gap-10 flex-col-reverse md:flex-row">
-    <TestCredentials />
-    <div
-      className="flex-1 px-[15px] md:px-[45px] py-5 md:py-10 border-x-[1px] border-y-[1px] rounded">
-      {switch paymentStatus {
-      | SUCCESS =>
-        <>
-          <div className="flex flex-col items-center gap-5 md:gap-10 md:my-14">
-            <Icon className="text-green-700" name="check-circle" size=100 />
-            <div className="text-xl w-96 text-center">
-              {"Your payment has been completed."->React.string}
-            </div>
-            <div>
-              <div>
-                <Button
-                  text={showTestMode
-                    ? "Configure a connector to view Payment Details"
-                    : "View Payments List"}
-                  buttonType=Primary
-                  customButtonStyle="p-1 mt-2 w-full"
-                  onClick={_ => {
-                    if showTestMode {
-                      setOnboardingModal(_ => false)
-                      RescriptReactRouter.push("/connectors")
-                    } else {
-                      setOnboardingModal(_ => false)
-                      RescriptReactRouter.push(`/payments/${currentPaymentId}`)
-                    }
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </>
-      | FAILED(err) =>
-        <div className="flex flex-col items-center gap-10 my-14">
-          <Icon className="text-red-700" name="times-circle" size=100 />
-          <div className="text-xl w-96 text-center">
-            {showTestMode
-              ? "For Payments to work you need to configure your first connector"->React.string
-              : "Your payment has been failed"->React.string}
-          </div>
-          <div className="w-full break-all"> {`Error Message - ${err}`->React.string} </div>
+  <div className="flex-1 px-3.75 md:px-11.25 py-5 md:py-10 border-x-1 border-y-1 rounded">
+    {switch paymentStatus {
+    | SUCCESS =>
+      <div className="flex flex-col items-center gap-5 md:gap-10 md:my-14">
+        <Icon className="text-green-700" name="check-circle" size=100 />
+        <div className="text-xl w-96 text-center">
+          {"Your payment has been completed."->React.string}
         </div>
-      | PROCESSING =>
-        <div className="flex flex-col items-center gap-10 my-14">
-          <Icon name="processing" size=100 />
-          <div className="text-xl w-96 text-center">
-            {"Your Payment is still pending."->React.string}
-          </div>
-          <Button
-            text={"View Payments List"}
-            buttonType=Primary
-            customButtonStyle="p-1 mt-2 w-full"
-            onClick={_ => {
-              RescriptReactRouter.push(`/payments/${currentPaymentId}`)
-            }}
-          />
-        </div>
-      | CHECKCONFIGURATION =>
-        <div className="flex flex-col items-center gap-10 my-14">
-          <Icon className="text-red-700" name="times-circle" size=100 />
-          <div className="text-xl w-96 text-center">
-            {"Please check your Configurations."->React.string}
-          </div>
-          <Button
-            text={"Go to Connectors"}
-            buttonType=Primary
-            customButtonStyle="p-1 mt-2 w-full"
-            onClick={_ => {
-              RescriptReactRouter.push("/connectors")
-            }}
-          />
-        </div>
-      | CUSTOMSTATE =>
-        <div className="flex flex-col items-center gap-10 my-14">
-          <Icon name="processing" size=100 />
+        <div>
           <div>
-            <p className="text-xl text-center font-bold">
-              {"Something Went Wrong."->React.string}
-            </p>
-            <p className="text-md text-center text-gray-400 mt-2">
-              {"Issue in Connector Configurations"->React.string}
-            </p>
-          </div>
-          <div className="flex flex-1 flex-col">
             <Button
-              text={"Contact Our Support team"}
-              buttonType={Secondary}
+              text={showTestMode ? "Configure a connector to view Payment Details" : "View Payment"}
+              buttonType=Primary
               customButtonStyle="p-1 mt-2 w-full"
-              leftIcon={CustomIcon(<Icon name="slack" size=30 />)}
-              buttonSize={Small}
               onClick={_ => {
-                Window._open("https://hyperswitch-io.slack.com/ssb/redirect")
+                if showTestMode {
+                  setOnboardingModal(_ => false)
+                  RescriptReactRouter.push("/connectors")
+                } else {
+                  setOnboardingModal(_ => false)
+                  RescriptReactRouter.push(`/payments/${currentPaymentId}`)
+                }
               }}
             />
           </div>
         </div>
-      | _ => React.null
-      }}
-      {switch clientSecret {
-      | Some(val) =>
-        <WebSDK
-          clientSecret=val
-          publishableKey
-          sdkType=ELEMENT
-          paymentStatus
-          currency
-          setPaymentStatus
-          elementOptions
-          paymentElementOptions
-          returnUrl
-          isConfigureConnector
-          amount
-          setClientSecret
+      </div>
+    | FAILED(err) =>
+      <div className="flex flex-col items-center gap-10 my-14">
+        <Icon className="text-red-700" name="times-circle" size=100 />
+        <div className="text-xl w-96 text-center">
+          {showTestMode
+            ? "For Payments to work you need to configure your first connector"->React.string
+            : "Your payment has been failed"->React.string}
+        </div>
+        <div className="w-full break-all"> {`Error Message - ${err}`->React.string} </div>
+      </div>
+    | PROCESSING =>
+      <div className="flex flex-col items-center gap-10 my-14">
+        <Icon name="processing" size=100 />
+        <div className="text-xl w-96 text-center">
+          {"Your Payment is still pending."->React.string}
+        </div>
+        <Button
+          text={"View Payments List"}
+          buttonType=Primary
+          customButtonStyle="p-1 mt-2 w-full"
+          onClick={_ => {
+            RescriptReactRouter.push(`/payments/${currentPaymentId}`)
+          }}
         />
-      | None => React.null
-      }}
-    </div>
+      </div>
+    | CHECKCONFIGURATION =>
+      <div className="flex flex-col items-center gap-10 my-14">
+        <Icon className="text-red-700" name="times-circle" size=100 />
+        <div className="text-xl w-96 text-center">
+          {"Please check your Configurations."->React.string}
+        </div>
+        <Button
+          text={"Go to Connectors"}
+          buttonType=Primary
+          customButtonStyle="p-1 mt-2 w-full"
+          onClick={_ => {
+            RescriptReactRouter.push("/connectors")
+          }}
+        />
+      </div>
+    | CUSTOMSTATE =>
+      <div className="flex flex-col items-center gap-10 my-14">
+        <Icon name="processing" size=100 />
+        <div>
+          <p className="text-xl text-center font-bold"> {"Something Went Wrong."->React.string} </p>
+          <p className="text-md text-center text-gray-400 mt-2">
+            {"Issue in Connector Configurations"->React.string}
+          </p>
+        </div>
+        <div className="flex flex-1 flex-col">
+          <Button
+            text={"Contact Our Support team"}
+            buttonType={Secondary}
+            customButtonStyle="p-1 mt-2 w-full"
+            leftIcon={CustomIcon(<Icon name="slack" size=30 />)}
+            buttonSize={Small}
+            onClick={_ => {
+              Window._open("https://hyperswitch-io.slack.com/ssb/redirect")
+            }}
+          />
+        </div>
+      </div>
+    | _ => React.null
+    }}
+    {switch clientSecret {
+    | Some(val) =>
+      <WebSDK
+        clientSecret=val
+        publishableKey
+        sdkType=ELEMENT
+        paymentStatus
+        currency
+        setPaymentStatus
+        elementOptions
+        paymentElementOptions
+        returnUrl
+        isConfigureConnector
+        amount
+        setClientSecret
+      />
+    | None => React.null
+    }}
   </div>
 }

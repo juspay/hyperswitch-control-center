@@ -164,7 +164,7 @@ module MerchantAuthInfo = {
 
 module InputText = {
   @react.component
-  let make = (~setAmount, ~isSDKOpen) => {
+  let make = (~setAmount) => {
     let (value, setValue) = React.useState(_ => "100")
     let showPopUp = PopUpState.useShowPopUp()
     let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -194,239 +194,20 @@ module InputText = {
     <TextInput
       input
       placeholder={"Enter amount"}
-      isDisabled={isSDKOpen}
       onDisabledStyle="bg-jp-gray-300 dark:bg-gray-800 dark:bg-opacity-10"
-      onHoverCss={isSDKOpen ? "bg-jp-gray-300 dark:bg-gray-800 dark:bg-opacity-10" : ""}
     />
-  }
-}
-
-module SDKOverlay = {
-  @react.component
-  let make = (
-    ~merchantDetailsValue,
-    ~overlayPaymentModal,
-    ~setOverlayPaymentModal,
-    ~isConfigureConnector,
-    ~customBackButtonRoute="home",
-  ) => {
-    open HSwitchMerchantAccountUtils
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
-    let urlHeaderName = url.path->LogicUtils.getListHead
-    let filtersFromUrl = url.search->LogicUtils.getDictFromUrlSearchParams
-    let (currency, setCurrency) = React.useState(() => "US,USD")
-    let (isSDKOpen, setIsSDKOpen) = React.useState(_ => false)
-
-    let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-    let defaultBusinessProfile = businessProfiles->getValueFromBusinessProfile
-    let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
-
-    let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
-    let (amount, setAmount) = React.useState(() => 10000)
-    let isSmallDevice = MatchMedia.useMatchMedia("(max-width: 800px)")
-
-    let dropDownOptions = countries->Js.Array2.map((item): SelectBox.dropdownOption => {
-      {
-        label: `${item.countryName} (${item.currency})`,
-        value: `${item.isoAlpha2},${item.currency}`,
-      }
-    })
-
-    let inputCurrency: ReactFinalForm.fieldRenderPropsInput = {
-      name: `input`,
-      onBlur: _ev => (),
-      onChange: ev => {
-        let value = ev->formEventToStr
-        setCurrency(_ => value)
-      },
-      onFocus: _ev => (),
-      value: {currency->Js.Json.string},
-      checked: true,
-    }
-
-    let inputProfileId: ReactFinalForm.fieldRenderPropsInput = {
-      name: `input`,
-      onBlur: _ev => (),
-      onChange: ev => {
-        let value = ev->formEventToStr
-        setProfile(_ => value)
-      },
-      onFocus: _ev => (),
-      value: {profile->Js.Json.string},
-      checked: true,
-    }
-
-    let inputProfileName: ReactFinalForm.fieldRenderPropsInput = {
-      name: `input`,
-      onBlur: _ev => (),
-      onChange: ev => {
-        let value = ev->formEventToStr
-        setProfile(_ => value)
-      },
-      onFocus: _ev => (),
-      value: {profile->Js.Json.string},
-      checked: true,
-    }
-
-    let disableSelectionForProfile = arrayOfBusinessProfile->isDefaultBusinessProfile
-
-    let rightHeadingComponent =
-      <div className="m-10">
-        <div className="flex flex-col md:flex-row items-start md:items-end gap-10">
-          <div className="flex flex-col justify-start gap-5">
-            <div className="flex items-center gap-10">
-              <div className="font-medium text-base text-gray-500 dark:text-gray-300 w-32">
-                {"Select Profile"->React.string}
-              </div>
-              <SelectBox
-                options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
-                input=inputProfileName
-                deselectDisable=true
-                searchable=true
-                buttonText="Profile Name"
-                disableSelect={isSDKOpen || disableSelectionForProfile}
-                customButtonStyle={isSmallDevice ? "!w-[50vw]" : "!w-[16vw]"}
-                textStyle={isSmallDevice ? "w-[40vw]" : "w-[14vw]"}
-                allowButtonTextMinWidth=false
-                ellipsisOnly=true
-              />
-            </div>
-            <div className="flex items-center gap-10">
-              <div className="font-medium text-base text-gray-500 dark:text-gray-300 w-32">
-                {"Select Profile Id"->React.string}
-              </div>
-              <SelectBox
-                options={arrayOfBusinessProfile->businessProfileIdDropDownOption}
-                input=inputProfileId
-                deselectDisable=true
-                searchable=true
-                buttonText="Profile Id"
-                disableSelect={isSDKOpen || disableSelectionForProfile}
-                customButtonStyle={isSmallDevice ? "!w-[50vw]" : "!w-[16vw]"}
-                textStyle={isSmallDevice ? "w-[40vw]" : "w-[14vw]"}
-                allowButtonTextMinWidth=false
-                ellipsisOnly=true
-              />
-            </div>
-          </div>
-          <div className="flex flex-col justify-start gap-5">
-            <div className="flex items-center gap-10">
-              <div className="font-medium text-base text-gray-500 dark:text-gray-300 w-32">
-                {"Select Currency"->React.string}
-              </div>
-              <SelectBox
-                options={dropDownOptions}
-                input=inputCurrency
-                deselectDisable=true
-                searchable=true
-                buttonText="United States (US)"
-                disableSelect={isSDKOpen}
-                customButtonStyle={isSmallDevice ? "!w-[50vw]" : "!w-[16vw]"}
-                textStyle={isSmallDevice ? "w-[40vw]" : "w-[14vw]"}
-                allowButtonTextMinWidth=false
-                ellipsisOnly=true
-              />
-            </div>
-            <div className="flex items-center gap-10">
-              <div className="font-medium text-base text-gray-500 dark:text-gray-300 w-32">
-                {"Enter amount"->React.string}
-              </div>
-              <InputText setAmount isSDKOpen />
-            </div>
-          </div>
-          <Button
-            text="Proceed"
-            buttonType={Primary}
-            buttonSize={Small}
-            customButtonStyle="w-[70%]"
-            buttonState={amount <= 0 || isSDKOpen ? Disabled : Normal}
-            onClick={_ => {
-              setIsSDKOpen(_ => true)
-              hyperswitchMixPanel(
-                ~pageName=url.path->LogicUtils.getListHead,
-                ~contextName="sdk",
-                ~actionName="proceed",
-                (),
-              )
-            }}
-          />
-        </div>
-      </div>
-
-    React.useEffect1(() => {
-      let paymentIntentOptional = filtersFromUrl->Js.Dict.get("payment_intent_client_secret")
-      if paymentIntentOptional->Belt.Option.isSome {
-        setOverlayPaymentModal(_ => true)
-        setIsSDKOpen(_ => true)
-      }
-      None
-    }, [filtersFromUrl])
-
-    React.useEffect1(() => {
-      if !overlayPaymentModal {
-        setIsSDKOpen(_ => false)
-      }
-      None
-    }, [overlayPaymentModal])
-
-    <UIUtils.RenderIf condition={overlayPaymentModal}>
-      <Modal
-        modalHeading={isConfigureConnector ? "Explore Checkout" : "Interactive Demo"}
-        modalHeadingDescription=""
-        showCloseIcon={!isSmallDevice}
-        modalParentHeadingClass="flex flex-row"
-        headerAlignmentClass={isSmallDevice ? "flex-col" : "flex-row"}
-        showBackIcon=true
-        onBackClick={() => {
-          setOverlayPaymentModal(_ => false)
-          RescriptReactRouter.push(`/${customBackButtonRoute}`)
-        }}
-        rightHeading={isSDKOpen || isSmallDevice ? React.null : rightHeadingComponent}
-        headingClass="!bg-transparent dark:!bg-jp-gray-lightgray_background border-b-2 border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 rounded-xl"
-        headerTextClass="flex flex-col md:flex-row !text-2xl font-semibold justify-between h-fit border-b-2"
-        showModal={overlayPaymentModal}
-        customHeight="!h-full"
-        childClass={`flex flex-col md:flex-row justify-center items-center ${isSmallDevice
-            ? ""
-            : "my-10"} w-full ${isSDKOpen ? isSmallDevice ? "" : "h-3/4" : "h-3/4"}`}
-        closeOnOutsideClick=true
-        setShowModal={setOverlayPaymentModal}
-        onCloseClickCustomFun={_ => {
-          if urlHeaderName->pathToVariantMapper === PAYMENTS {
-            RescriptReactRouter.push("/payments")
-            Window.Location.reload()
-          } else {
-            RescriptReactRouter.push("/home")
-          }
-        }}
-        paddingClass="!p-0"
-        modalClass="w-full h-full dark:!bg-jp-gray-lightgray_background overflow-scroll">
-        <UIUtils.RenderIf condition={isSDKOpen}>
-          <Payment
-            isConfigureConnector
-            setOnboardingModal={setIsSDKOpen}
-            countryCurrency=currency
-            profile_id=profile
-            merchantDetailsValue
-            amount
-          />
-        </UIUtils.RenderIf>
-      </Modal>
-    </UIUtils.RenderIf>
   }
 }
 
 module CheckoutCard = {
   @react.component
-  let make = (~merchantDetailsValue) => {
+  let make = () => {
     let url = RescriptReactRouter.useUrl()
     let fetchApi = AuthHooks.useApiFetcher()
     let showPopUp = PopUpState.useShowPopUp()
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-    let (overlayPaymentModal, setOverlayPaymentModal) = React.useState(_ => false)
     let isConfigureConnector = ListHooks.useListCount(~entityName=CONNECTOR) > 0
     let urlPath = url.path->Belt.List.toArray->Js.Array2.joinWith("_")
 
@@ -456,7 +237,7 @@ module CheckoutCard = {
           ~actionName="tryitout",
           (),
         )
-        setOverlayPaymentModal(_ => true)
+        RescriptReactRouter.replace("/sdk")
       }
     }
 
@@ -478,9 +259,6 @@ module CheckoutCard = {
           text="Try it out" buttonType={Secondary} buttonSize={Small} onClick={handleOnClick}
         />
       </CardFooter>
-      <SDKOverlay
-        merchantDetailsValue overlayPaymentModal setOverlayPaymentModal isConfigureConnector
-      />
     </CardLayout>
   }
 }
@@ -565,7 +343,7 @@ module ControlCenter = {
         </CardLayout>
       </div>
       <UIUtils.RenderIf condition={!testLiveMode}>
-        <CheckoutCard merchantDetailsValue />
+        <CheckoutCard />
       </UIUtils.RenderIf>
     </div>
   }

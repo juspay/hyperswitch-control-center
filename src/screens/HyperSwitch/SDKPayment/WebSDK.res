@@ -241,7 +241,7 @@ module CheckoutForm = {
       | LOADING => <Loader />
       | INCOMPLETE =>
         <div className="grid grid-row-2 gap-5">
-          <div className="row-span-1">
+          <div className="row-span-1 bg-white rounded-lg py-6 px-10 flex-1">
             {switch sdkType {
             | ELEMENT => <PaymentElement id="payment-element" options={paymentElementOptions} />
             | WIDGET => <CardWidget id="card-widget" options={paymentElementOptions} />
@@ -251,7 +251,7 @@ module CheckoutForm = {
               loadingText="Please wait..."
               buttonState=btnState
               buttonType={Primary}
-              customButtonStyle={`p-1 mt-2 w-full rounded-full ${primaryColor}`}
+              customButtonStyle={`p-1 mt-2 w-full rounded-md ${primaryColor}`}
               onClick={_ => {
                 setBtnState(_ => Button.Loading)
                 {isConfigureConnector ? handleSubmit() : defaultHandleSubmit()}

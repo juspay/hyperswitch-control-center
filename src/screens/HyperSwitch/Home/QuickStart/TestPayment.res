@@ -10,6 +10,12 @@ let make = (
   ~currency="USD",
   ~onProceed: (~paymentId: string) => promise<unit>,
   ~profileId=?,
+  ~sdkWidth="w-[60%]",
+  ~isTestCredsNeeded=true,
+  ~customTryAgain=?,
+  ~customWidth="w-full md:w-1/2",
+  ~paymentStatusStyles="p-11",
+  ~successButtonText="Proceed",
 ) => {
   open APIUtils
   open LogicUtils
@@ -77,15 +83,25 @@ let make = (
     getClientSecret()->ignore
   }
 
-  <div className="flex flex-col gap-12 p-11 h-full">
+  let buttonOnClick = _ =>
+    if customTryAgain->Belt.Option.isSome {
+      switch customTryAgain {
+      | Some(fun) => fun()
+      | None => ()
+      }
+    } else {
+      tryPaymentAgain()
+    }
+
+  <div className={`flex flex-col gap-12 h-full ${paymentStatusStyles}`}>
     {switch paymentStatus {
     | SUCCESS =>
       <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
         iconName="account-setup-completed"
         statusText="Payment Successful"
-        buttonText="Proceed"
+        buttonText=successButtonText
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
-        customWidth="w-full md:w-1/2"
+        customWidth
         bgColor="bg-green-success_page_bg"
       />
 
@@ -94,8 +110,8 @@ let make = (
         iconName="account-setup-failed"
         statusText="Payment Failed"
         buttonText="Try Again"
-        buttonOnClick={_ => tryPaymentAgain()}
-        customWidth="w-full md:w-1/2"
+        buttonOnClick
+        customWidth
         bgColor="bg-red-failed_page_bg"
       />
     | CHECKCONFIGURATION =>
@@ -103,8 +119,8 @@ let make = (
         iconName="processing"
         statusText="Check your Configurations"
         buttonText="Try Again"
-        buttonOnClick={_ => tryPaymentAgain()}
-        customWidth="w-full md:w-1/2"
+        buttonOnClick
+        customWidth
         bgColor="bg-yellow-pending_page_bg"
       />
 
@@ -113,33 +129,52 @@ let make = (
         iconName="processing"
         statusText="Payment Pending"
         buttonText="Try Again"
-        buttonOnClick={_ => tryPaymentAgain()}
-        customWidth="w-full md:w-1/2"
+        buttonOnClick
+        customWidth
         bgColor="bg-yellow-pending_page_bg"
       />
     | _ => React.null
     }}
     {switch clientSecret {
     | Some(val) =>
-      <div className="flex gap-8">
-        <div className="w-[60%]">
-          <WebSDK
-            clientSecret=val
-            publishableKey
-            sdkType=ELEMENT
-            paymentStatus
-            currency
-            setPaymentStatus
-            elementOptions
-            paymentElementOptions
-            returnUrl
-            isConfigureConnector={true}
-            amount
-            setClientSecret
-          />
+      if isTestCredsNeeded {
+        <div className="flex gap-8 bg-blue-600">
+          <div className=sdkWidth>
+            <WebSDK
+              clientSecret=val
+              publishableKey
+              sdkType=ELEMENT
+              paymentStatus
+              currency
+              setPaymentStatus
+              elementOptions
+              paymentElementOptions
+              returnUrl
+              isConfigureConnector={true}
+              amount
+              setClientSecret
+              bgColor="bg-blue-600"
+            />
+          </div>
+          <TestCredentials />
         </div>
-        <TestCredentials />
-      </div>
+      } else {
+        <WebSDK
+          clientSecret=val
+          publishableKey
+          sdkType=ELEMENT
+          paymentStatus
+          currency
+          setPaymentStatus
+          elementOptions
+          paymentElementOptions
+          returnUrl
+          isConfigureConnector={true}
+          amount
+          setClientSecret
+          bgColor="bg-blue-600"
+        />
+      }
     | None => React.null
     }}
   </div>

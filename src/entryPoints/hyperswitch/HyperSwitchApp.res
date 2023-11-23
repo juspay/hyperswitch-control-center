@@ -330,6 +330,7 @@ let make = () => {
                       | list{"profile"} => <HSwitchProfileSettings />
                       | list{"settings", "profile"} => <HSwitchProfileSettings />
                       | list{"recon"} => <Recon />
+                      | list{"sdk"} => <SDKPage />
                       | list{"3ds"} => <HSwitchThreeDS />
                       | list{"quick-start"} => determineQuickStartPageState()
                       | list{"woocommerce"} => determineWooCommerce()
