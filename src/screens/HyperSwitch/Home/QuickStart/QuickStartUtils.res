@@ -565,6 +565,10 @@ let generateBodyBasedOnType = (parentVariant: sectionHeadingVariant, value: requ
         ]->getJsonFromArrayOfJson,
       ),
     ]->getJsonFromArrayOfJson
+  | ConnectorChoice(selectedChoice) =>
+    [
+      ((parentVariant :> string), selectedChoice.isMultipleConfiguration->Js.Json.boolean),
+    ]->getJsonFromArrayOfJson
 
   | Boolean(_) => (parentVariant :> string)->Js.Json.string
   }
