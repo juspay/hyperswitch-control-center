@@ -550,7 +550,7 @@ let make = (
                 {singleStateArr
                 ->Array.mapWithIndex((element, index) => {
                   if index < 4 || showStats {
-                    <div className="w-1/2"> element </div>
+                    <div className="w-full md:w-1/2"> element </div>
                   } else {
                     React.null
                   }
