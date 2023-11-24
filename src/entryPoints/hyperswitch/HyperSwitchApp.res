@@ -50,7 +50,6 @@ let make = () => {
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let verificationDays = getFromMerchantDetails("verification")->LogicUtils.getIntFromString(-1)
   let userRole = getFromUserDetails("user_role")
-
   let modeText = featureFlagDetails.testLiveMode ? "Live Mode" : "Test Mode"
   let titleComingSoonMessage = "Coming Soon!"
   let subtitleComingSoonMessage = "We are currently working on this page."
@@ -65,6 +64,7 @@ let make = () => {
   let hyperSwitchAppSidebars = SidebarValues.getHyperSwitchAppSidebars(
     ~isReconEnabled,
     ~featureFlagDetails,
+    ~userRole,
     (),
   )
 
@@ -315,9 +315,11 @@ let make = () => {
                       | list{"monitoring"} => comingSoonPage
                       | list{"developer-api-keys"} => <KeyManagement.KeysManagement />
                       | list{"developer-system-metrics"} =>
-                        <AnalyticsUrlUpdaterContext key="SystemMetrics">
-                          <SystemMetricsAnalytics />
-                        </AnalyticsUrlUpdaterContext>
+                        <UIUtils.RenderIf condition={userRole->Js.String2.includes("internal_")}>
+                          <AnalyticsUrlUpdaterContext key="SystemMetrics">
+                            <SystemMetricsAnalytics />
+                          </AnalyticsUrlUpdaterContext>
+                        </UIUtils.RenderIf>
                       | list{"webhooks", ...remainingPath} =>
                         <EntityScaffold
                           entityName="WebHooks"
