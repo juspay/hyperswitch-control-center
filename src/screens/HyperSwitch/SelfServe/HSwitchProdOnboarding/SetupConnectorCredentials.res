@@ -23,6 +23,7 @@ module ConnectorDetailsForm = {
       connectorMetaDataFields,
       _,
       connectorWebHookDetails,
+      _,
     ) = getConnectorFields(connectorDetails)
     let connectorVariant = connectorName->getConnectorNameTypeFromString
 
@@ -110,6 +111,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     connectorMetaDataFields,
     isVerifyConnector,
     connectorWebHookDetails,
+    connectorLabelDetailField,
   ) = getConnectorFields(connectorDetails)
 
   let (suggestedAction, suggestedActionExists) = getSuggestedAction(
@@ -221,6 +223,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       connectorAccountFields,
       connectorMetaDataFields,
       connectorWebHookDetails,
+      connectorLabelDetailField,
       errors->Js.Json.object_,
     )
   }

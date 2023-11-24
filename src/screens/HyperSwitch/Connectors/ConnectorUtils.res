@@ -877,6 +877,7 @@ let validateConnectorRequiredFields = (
   connectorAccountFields,
   connectorMetaDataFields,
   connectorWebHookDetails,
+  connectorLabelDetailField,
   errors,
 ) => {
   open LogicUtils
@@ -935,6 +936,15 @@ let validateConnectorRequiredFields = (
       Js.Dict.set(newDict, key, `Please enter ${errorKey}`->Js.Json.string)
     }
   })
+  connectorLabelDetailField
+  ->Js.Dict.keys
+  ->Js.Array2.forEach(fieldName => {
+    let errorKey = connectorLabelDetailField->LogicUtils.getString(fieldName, "")
+    let value = valuesFlattenJson->LogicUtils.getString(fieldName, "")
+    if value->Js.String2.length === 0 {
+      Js.Dict.set(newDict, fieldName, `Please enter ${errorKey}`->Js.Json.string)
+    }
+  })
   newDict->Js.Json.object_
 }
 
@@ -990,12 +1000,16 @@ let getConnectorFields = connectorDetails => {
     connectorDetails
     ->LogicUtils.getDictFromJsonObject
     ->LogicUtils.getDictfromDict("connector_webhook_details")
+  let connectorLabelDetailField = Js.Dict.fromArray([
+    ("connector_label", "Connector label"->Js.Json.string),
+  ])
   (
     bodyType,
     connectorAccountFields,
     connectorMetaDataFields,
     isVerifyConnector,
     connectorWebHookDetails,
+    connectorLabelDetailField,
   )
 }
 
