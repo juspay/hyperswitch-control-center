@@ -199,6 +199,7 @@ let make = (
           setPlatform
           markAsDone
         />
+      | WooCommercePlugin => <WooCommercePlugin />
       | _ => <> </>
       }
     }

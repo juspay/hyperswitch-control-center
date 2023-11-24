@@ -111,13 +111,13 @@ let integrateYourAppArray: array<landingChoiceType> = [
     footerTags: ["Code required", "Supports all platforms"],
     leftIcon: "hyperswitch-logo-short",
   },
-  // {
-  //   displayText: "Woocommerce plugin",
-  //   description: "Use our Woocommerce plugin for accepting payments",
-  //   variantType: #WooCommercePlugin,
-  //   footerTags: ["No code", "Web only"],
-  //   leftIcon: "woocommerce",
-  // },
+  {
+    displayText: "Woocommerce plugin",
+    description: "Use our Woocommerce plugin for accepting payments",
+    variantType: #WooCommercePlugin,
+    footerTags: ["No code", "Web only"],
+    leftIcon: "woocommerce",
+  },
 ]
 
 let getProcessorType: Js.Dict.t<'a> => processorType = value => {
@@ -257,7 +257,7 @@ let getSidebarOptionsForIntegrateYourApp: (
   open LogicUtils
   let enumValue = enumDetails->safeParse->getTypedValueFromDict
 
-  let migrateFromStripeSidebar: array<HSSelfServeSidebar.sidebarOption> = [
+  let firstStepChooseIntegration: array<HSSelfServeSidebar.sidebarOption> = [
     {
       title: "Choose integration method",
       status: String(enumValue.integrationMethod.integration_type)->getStatusValue(
@@ -266,6 +266,9 @@ let getSidebarOptionsForIntegrateYourApp: (
       ),
       link: "/",
     },
+  ]
+
+  let migrateFromStripeSidebar: array<HSSelfServeSidebar.sidebarOption> = [
     {
       title: choiceState->sidebarTextBasedOnVariant,
       status: Boolean(enumValue.integrationCompleted)->getStatusValue(
@@ -300,13 +303,34 @@ let getSidebarOptionsForIntegrateYourApp: (
 
   let standardIntegrationSidebar: array<HSSelfServeSidebar.sidebarOption> = [
     {
-      title: "Choose integration method",
-      status: String(enumValue.integrationMethod.integration_type)->getStatusValue(
-        #IntegrationMethod,
+      title: choiceState->sidebarTextBasedOnVariant,
+      status: Boolean(enumValue.integrationCompleted)->getStatusValue(
+        #IntegrationCompleted,
         currentPageStateEnum,
       ),
       link: "/",
+      subOptions: [
+        {
+          title: "Download Test API Key",
+          status: PENDING,
+        },
+        {
+          title: "Create a Payment",
+          status: PENDING,
+        },
+        {
+          title: "Display Hyperswitch Checkout",
+          status: PENDING,
+        },
+        {
+          title: "Display Payment Confirmation",
+          status: PENDING,
+        },
+      ],
     },
+  ]
+
+  let woocommerceIntegrationSidebar: array<HSSelfServeSidebar.sidebarOption> = [
     {
       title: choiceState->sidebarTextBasedOnVariant,
       status: Boolean(enumValue.integrationCompleted)->getStatusValue(
@@ -335,10 +359,14 @@ let getSidebarOptionsForIntegrateYourApp: (
     },
   ]
 
-  switch currentRoute {
+  let specificSteps = switch currentRoute {
   | MigrateFromStripe => migrateFromStripeSidebar
-  | IntegrateFromScratch | _ => standardIntegrationSidebar
+  | IntegrateFromScratch => standardIntegrationSidebar
+  | WooCommercePlugin => woocommerceIntegrationSidebar
+  | _ => []
   }
+
+  firstStepChooseIntegration->Js.Array2.concat(specificSteps)
 }
 
 let getConnectorStatus = (enumValueToCheck, connectorConfigureState, checkValue, currentEnum) => {
