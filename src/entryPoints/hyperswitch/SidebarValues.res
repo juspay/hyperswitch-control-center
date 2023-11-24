@@ -210,15 +210,18 @@ let webhooks = SubLevelLink({
   searchOptions: [("View Webhooks", "")],
 })
 
-let developers = isDevelopersEnabled =>
+let developers = (isDevelopersEnabled, ~userRole) => {
+  let isInternalUser = userRole->Js.String2.includes("internal_")
+
   isDevelopersEnabled
     ? Section({
         name: "Developers",
         icon: "developer",
         showSection: true,
-        links: [apiKeys, webhooks, systemMetrics],
+        links: isInternalUser ? [apiKeys, webhooks, systemMetrics] : [apiKeys, webhooks],
       })
     : emptyComponent
+}
 
 // *  PRO Features
 
@@ -276,6 +279,7 @@ let reconTag = (recon, isReconEnabled) =>
 let getHyperSwitchAppSidebars = (
   ~isReconEnabled=false,
   ~featureFlagDetails: FeatureFlagUtils.featureFlag,
+  ~userRole,
   (),
 ) => {
   let {productionAccess, frm, payOut, recon, default, userManagement} = featureFlagDetails
@@ -286,7 +290,7 @@ let getHyperSwitchAppSidebars = (
     default->analytics,
     default->connectors,
     default->workflow,
-    default->developers,
+    default->developers(~userRole),
     default->settings,
     [frm, payOut, recon]->Js.Array2.includes(true)->proFeatures,
     frm->fraudAndRisk,
