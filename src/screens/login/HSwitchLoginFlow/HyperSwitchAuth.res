@@ -35,21 +35,14 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     }
   }
 
-  let getUserWithEmail = async (body, email) => {
+  let getUserWithEmail = async body => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#SIGNIN, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post)
-
       let valuesDict = res->getDictFromJsonObject
-      let token = valuesDict->LogicUtils.getString("token", "")
       let magicLinkSent = valuesDict->LogicUtils.getBool("is_email_sent", false)
 
-      // home
-      if !(token->HSwitchUtils.isEmptyString) {
-        let token = parseResponseJson(~json=res, ~email)
-        setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
-      } else if magicLinkSent {
-        // magic link
+      if magicLinkSent {
         setAuthType(_ => MagicLinkEmailSent)
       } else {
         showToast(~message="Failed to send an email, Try again", ~toastType=ToastError, ())
@@ -64,11 +57,14 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     try {
       let url = getURL(~entityName=USERS, ~userType=#SIGNIN, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post)
-
       let token = parseResponseJson(~json=res, ~email)
+
+      // home
       if !(token->HSwitchUtils.isEmptyString) {
+        let token = parseResponseJson(~json=res, ~email)
         setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
       } else {
+        showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())
         setAuthStatus(LoggedOut)
       }
     } catch {
@@ -156,7 +152,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     | (true, SignUP) | (true, LoginWithEmail) => {
         let body = getEmailBody(email, ~country, ())
 
-        getUserWithEmail(body, email)
+        getUserWithEmail(body)
       }
     | (true, ForgetPassword) =>
       let body = email->getEmailBody()
@@ -194,7 +190,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let resendEmail = () => {
     let body = email->getEmailBody()
     switch authType {
-    | MagicLinkEmailSent => getUserWithEmail(body, email)->ignore
+    | MagicLinkEmailSent => getUserWithEmail(body)->ignore
     | ForgetPasswordEmailSent => setForgetPassword(body)->ignore
     | ResendVerifyEmailSent => resendVerifyEmail(body)->ignore
     | _ => ()
