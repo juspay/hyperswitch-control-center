@@ -123,7 +123,9 @@ module ConnectorSummaryGrid = {
         }
       }
     }, [connector])
-    let (_, connectorAccountFields, _, _, _) = ConnectorUtils.getConnectorFields(connectorDetails)
+    let (_, connectorAccountFields, _, _, _, _) = ConnectorUtils.getConnectorFields(
+      connectorDetails,
+    )
     let webhooksUrl = ConnectorUtils.getWebhooksUrl(~connectorName=connector, ~merchantId)
 
     <div className="p-2 md:px-10">
