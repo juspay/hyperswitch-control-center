@@ -180,46 +180,55 @@ let validateForm = (values: Js.Json.t, keys: array<string>) => {
 }
 
 let note = (authType, setAuthType, isMagicLinkEnabled) => {
-  let getFooterLinkComponent = (~prefix, ~authType, ~path, ~linkText, ~suffix) => {
-    <div>
-      {prefix->React.string}
-      <span
-        onClick={_ => {
-          setAuthType(_ => authType)
-          path->RescriptReactRouter.push
-        }}
-        className="font-semibold underline cursor-pointer">
-        {linkText->React.string}
-      </span>
-      {suffix->React.string}
+  let getFooterLinkComponent = (~btnText, ~authType, ~path) => {
+    <div
+      onClick={_ => {
+        setAuthType(_ => authType)
+        path->RescriptReactRouter.push
+      }}
+      className="text-sm text-center text-blue-900 cursor-pointer hover:underline underline-offset-2">
+      {btnText->React.string}
     </div>
   }
 
   switch authType {
   | LoginWithEmail =>
     getFooterLinkComponent(
-      ~prefix="We'll be emailing you a magic link for a password-free experience, you can choose to ",
+      ~btnText="or sign in using password",
       ~authType=LoginWithPassword,
       ~path="/login",
-      ~linkText="login with password",
-      ~suffix=" instead.",
     )
   | LoginWithPassword =>
     <UIUtils.RenderIf condition={isMagicLinkEnabled}>
       {getFooterLinkComponent(
-        ~prefix="Try a password-free experience with our ",
+        ~btnText="or sign in with an email",
         ~authType=LoginWithEmail,
         ~path="/login",
-        ~linkText="magic link",
-        ~suffix=" sent to your email address.",
       )}
     </UIUtils.RenderIf>
-  | SignUP | _ =>
+  | SignUP =>
     <UIUtils.RenderIf condition={isMagicLinkEnabled}>
-      <p>
+      <p className="text-center">
         {"We'll be emailing you a magic link for a password-free experience, you can always choose to setup a password later."->React.string}
       </p>
     </UIUtils.RenderIf>
+  | ForgetPassword | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
+    <div className="w-full flex justify-center">
+      <div
+        onClick={_ => {
+          let backState = switch authType {
+          | MagicLinkEmailSent => SignUP
+          | ForgetPasswordEmailSent => ForgetPassword
+          | ResendVerifyEmailSent => ResendVerifyEmail
+          | ForgetPassword | _ => LoginWithPassword
+          }
+          setAuthType(_ => backState)
+        }}
+        className="text-sm text-center text-blue-900 hover:underline underline-offset-2 cursor-pointer w-fit">
+        {"Cancel"->React.string}
+      </div>
+    </div>
+  | _ => React.null
   }
 }
 
@@ -364,18 +373,19 @@ module Header = {
     let headerStyle = switch authType {
     | MagicLinkEmailSent
     | ForgetPasswordEmailSent
+    | ForgetPassword
     | ResendVerifyEmailSent => "flex flex-col justify-center items-center"
     | _ => "flex flex-col"
     }
 
     let cardHeaderText = switch authType {
-    | LoginWithPassword | LoginWithEmail => "Welcome Back"
+    | LoginWithPassword | LoginWithEmail => "Hey there, Welcome back!"
     | SignUP => "Welcome to Hyperswitch"
     | MagicLinkEmailSent
     | ForgetPasswordEmailSent
     | ResendVerifyEmailSent => "Please check your inbox"
     | ResetPassword => "Reset Password"
-    | ForgetPassword => "Forgot Password? It's ok"
+    | ForgetPassword => "Forgot Password?"
     | ResendVerifyEmail => "Resend Verify Email"
     | _ => ""
     }
@@ -405,7 +415,26 @@ module Header = {
       </div>
     }
 
-    <FramerMotion.Motion.Div layoutId="header" className={`${headerStyle} gap-2`}>
+    let showInfoIcon = switch authType {
+    | MagicLinkEmailSent
+    | ForgetPassword
+    | ForgetPasswordEmailSent
+    | ResendVerifyEmailSent
+    | ResendVerifyEmail => true
+    | _ => false
+    }
+
+    <div className={`${headerStyle} gap-2 h-fit mb-7`}>
+      <UIUtils.RenderIf condition={showInfoIcon}>
+        <div className="flex justify-center my-5">
+          {switch authType {
+          | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
+            <img className="w-48" src={`/assets/mail.svg`} />
+          | ForgetPassword => <img className="w-24" src={`/assets/key-password.svg`} />
+          | _ => React.null
+          }}
+        </div>
+      </UIUtils.RenderIf>
       <h1 className="font-semibold text-xl md:text-2xl"> {cardHeaderText->React.string} </h1>
       {switch authType {
       | LoginWithPassword | LoginWithEmail =>
@@ -417,13 +446,13 @@ module Header = {
         )
       | SignUP =>
         getHeaderLink(
-          ~prefix="Already have an account?",
+          ~prefix="Already using Hyperswitch?",
           ~authType=isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword,
           ~path="/login",
           ~sufix="Sign in",
         )
       | ForgetPassword =>
-        <div className="text-md text-grey-650 w-full max-w-md">
+        <div className="text-md text-center text-grey-650 w-full max-w-md">
           {"Enter your email address associated with your account, and we'll send you a link to reset your password."->React.string}
         </div>
       | MagicLinkEmailSent => "A magic link has been sent to "->getNoteUI
@@ -431,7 +460,7 @@ module Header = {
       | ResendVerifyEmailSent => "A verify email link has been sent to "->getNoteUI
       | _ => React.null
       }}
-    </FramerMotion.Motion.Div>
+    </div>
   }
 }
 
