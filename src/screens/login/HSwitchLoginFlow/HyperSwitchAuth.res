@@ -265,22 +265,6 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
             | _ => React.null
             }}
           </div>
-          <div className="text-center text-sm">
-            {"By continuing, you agree to our "->React.string}
-            <a
-              className="font-medium text-grey-900"
-              href="https://hyperswitch.io/terms-of-services"
-              target="__blank">
-              {"Terms of Service "->React.string}
-            </a>
-            {" & "->React.string}
-            <a
-              className="font-medium text-grey-900"
-              href="https://hyperswitch.io/privacyPolicy"
-              target="__blank">
-              {"Privacy Policy"->React.string}
-            </a>
-          </div>
         </form>
       </>
     }}

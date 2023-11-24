@@ -1,6 +1,28 @@
 open HyperSwitchAuthTypes
 external formEventToStr: ReactEvent.Form.t => string = "%identity"
 
+module TermsAndCondition = {
+  @react.component
+  let make = () => {
+    <div className="text-center text-sm text-infra-gray-300">
+      {"By continuing, you agree to our "->React.string}
+      <a
+        className="underline cursor-pointer"
+        href="https://hyperswitch.io/terms-of-services"
+        target="__blank">
+        {"Terms of Service "->React.string}
+      </a>
+      {" & "->React.string}
+      <a
+        className="underline cursor-pointer"
+        href="https://hyperswitch.io/privacyPolicy"
+        target="__blank">
+        {"Privacy Policy"->React.string}
+      </a>
+    </div>
+  }
+}
+
 let emailField = FormRenderer.makeFieldInfo(
   ~label="Email",
   ~name="email",
