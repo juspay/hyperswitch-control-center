@@ -234,7 +234,6 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     onSubmit
     render={({handleSubmit}) => {
       <>
-        <InfoWithBack authType setAuthType />
         <Header authType setAuthType email />
         <form
           onSubmit={handleSubmit}
