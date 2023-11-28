@@ -189,7 +189,7 @@ let make = () => {
           acc->Js.Array2.concat(matchedSearchValues)
         }
 
-      | Heading(_) | CustomComponent(_) => []
+      | Heading(_) | CustomComponent(_) => acc->Js.Array2.concat([])
       }
     })
     setArr(_ => matchedList)
