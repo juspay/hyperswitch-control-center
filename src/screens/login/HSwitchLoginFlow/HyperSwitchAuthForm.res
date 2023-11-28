@@ -4,7 +4,7 @@ let labelClass = "!text-black !font-medium"
 module EmailPasswordForm = {
   @react.component
   let make = (~setAuthType, ~isMagicLinkEnabled) => {
-    <div className="flex flex-col gap-3 md:gap-8">
+    <div className="flex flex-col gap-3">
       <FormRenderer.FieldRenderer field=emailField labelClass fieldWrapperClass />
       <div className="flex flex-col gap-3">
         <FormRenderer.FieldRenderer field=passwordField labelClass fieldWrapperClass />

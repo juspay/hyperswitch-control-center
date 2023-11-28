@@ -257,7 +257,11 @@ module BackgroundImageWrapper = {
     <UIUtils.RenderIf condition={children->Belt.Option.isSome}>
       <div
         className={`bg-no-repeat bg-center bg-hyperswitch_dark_bg bg-fixed ${customPageCss} ${heightWidthCss}`}
-        style={ReactDOMStyle.make(~backgroundImage=`url(${backgroundImageUrl})`, ())}>
+        style={ReactDOMStyle.make(
+          ~backgroundImage=`url(${backgroundImageUrl})`,
+          ~backgroundSize=`cover`,
+          (),
+        )}>
         {children->Belt.Option.getWithDefault(React.null)}
       </div>
     </UIUtils.RenderIf>
