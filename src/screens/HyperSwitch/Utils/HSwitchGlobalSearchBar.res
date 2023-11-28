@@ -89,12 +89,14 @@ let make = () => {
     ->LogicUtils.safeParse
     ->FeatureFlagUtils.featureFlagType
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
+  let userRole = HSLocalStorage.getFromUserDetails("user_role")
   let isReconEnabled =
     (merchentDetails->HSwitchMerchantAccountUtils.getMerchantDetails).recon_status === Active
 
   let hswitchTabs = SidebarValues.getHyperSwitchAppSidebars(
     ~isReconEnabled,
     ~featureFlagDetails,
+    ~userRole,
     (),
   )
   let url = RescriptReactRouter.useUrl()
@@ -187,7 +189,7 @@ let make = () => {
           acc->Js.Array2.concat(matchedSearchValues)
         }
 
-      | Heading(_) | CustomComponent(_) => []
+      | Heading(_) | CustomComponent(_) => acc->Js.Array2.concat([])
       }
     })
     setArr(_ => matchedList)
