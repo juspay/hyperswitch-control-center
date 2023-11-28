@@ -67,6 +67,7 @@ type routingType = {routing_id: string}
 type paymentType = {payment_id: string}
 
 type integrationMethod = {integration_type: string}
+type connectorChoice = {isMultipleConfiguration: bool}
 
 type responseType = {
   productionAgreement: bool,
@@ -90,6 +91,7 @@ type requestObjectType =
   | RoutingType(routingType)
   | PaymentType(paymentType)
   | IntegrationMethod(integrationMethod)
+  | ConnectorChoice(connectorChoice)
   | Boolean(bool)
 
 type valueType = String(string) | Boolean(bool)

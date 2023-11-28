@@ -66,7 +66,11 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
       let res = await updateDetails(url, body, Post)
 
       let token = parseResponseJson(~json=res, ~email)
-      setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
+      if !(token->HSwitchUtils.isEmptyString) {
+        setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
+      } else {
+        setAuthStatus(LoggedOut)
+      }
     } catch {
     | Js.Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
     }

@@ -31,6 +31,7 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
     ~values=[
       ("profile_id", profileId->Js.Json.string),
       ("connector_account_details", connectorAccountDetails),
+      ("connector_label", `${connectorName}_default`->Js.Json.string),
     ]
     ->Js.Dict.fromArray
     ->Js.Json.object_,

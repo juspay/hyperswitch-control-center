@@ -151,6 +151,7 @@ let connectorList: array<connectorName> = [
   ADYEN,
   AIRWALLEX,
   AUTHORIZEDOTNET,
+  BANKOFAMERICA,
   BAMBORA,
   BITPAY,
   BLUESNAP,
@@ -459,6 +460,10 @@ let unknownConnectorInfo = {
   description: "unkown connector",
 }
 
+let bankOfAmericaInfo = {
+  description: "A top financial firm offering banking, investing, and risk solutions to individuals and businesses.",
+}
+
 let getConnectorNameString = connector => {
   switch connector {
   | ADYEN => "adyen"
@@ -510,6 +515,7 @@ let getConnectorNameString = connector => {
   | GOCARDLESS => "gocardless"
   | VOLT => "volt"
   | PROPHETPAY => "prophetpay"
+  | BANKOFAMERICA => "bankofamerica"
   | UnknownConnector(str) => str
   }
 }
@@ -564,6 +570,7 @@ let getConnectorNameTypeFromString = connector => {
   | "cryptopay" => CRYPTOPAY
   | "gocardless" => GOCARDLESS
   | "volt" => VOLT
+  | "bankofamerica" => BANKOFAMERICA
   | "prophetpay" => PROPHETPAY
   | _ => UnknownConnector("Not known")
   }
@@ -620,6 +627,7 @@ let getConnectorInfo = (connector: connectorName) => {
   | STAX => staxInfo
   | VOLT => voltInfo
   | PROPHETPAY => prophetpayInfo
+  | BANKOFAMERICA => bankOfAmericaInfo
   | UnknownConnector(_) => unknownConnectorInfo
   }
 }
@@ -877,8 +885,8 @@ let validateConnectorRequiredFields = (
   connectorAccountFields,
   connectorMetaDataFields,
   connectorWebHookDetails,
-  errors,
   connectorLabelDetailField,
+  errors,
 ) => {
   open LogicUtils
   let newDict = getDictFromJsonObject(errors)
@@ -936,7 +944,6 @@ let validateConnectorRequiredFields = (
       Js.Dict.set(newDict, key, `Please enter ${errorKey}`->Js.Json.string)
     }
   })
-
   connectorLabelDetailField
   ->Js.Dict.keys
   ->Js.Array2.forEach(fieldName => {

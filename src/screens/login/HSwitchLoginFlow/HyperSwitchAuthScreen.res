@@ -54,7 +54,13 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
   let authInitState = isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword
   let (authType, setAuthType) = React.useState(_ => authInitState)
 
-  React.useEffect0(() => {
+  React.useEffect1(() => {
+    let authInitState = isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword
+    setAuthType(_ => authInitState)
+    None
+  }, [isMagicLinkEnabled])
+
+  React.useEffect1(() => {
     switch url.path {
     | list{"user", "verify_email"} => setAuthType(_ => EmailVerify)
     | list{"user", "login"} =>
@@ -63,12 +69,6 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
     | list{"register", ..._remainingPath} => setAuthType(_ => SignUP)
     | _ => ()
     }
-    None
-  })
-
-  React.useEffect1(() => {
-    let authInitState = isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword
-    setAuthType(_ => authInitState)
     None
   }, [isMagicLinkEnabled])
 
@@ -102,7 +102,6 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
     }
     None
   }, [authType])
-
   switch authType {
   | EmailVerify | MagicLinkVerify =>
     <HyperSwitchEmailVerifyScreen setAuthType setAuthStatus authType />

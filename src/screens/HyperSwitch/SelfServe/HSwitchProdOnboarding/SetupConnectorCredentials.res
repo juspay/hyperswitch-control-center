@@ -224,8 +224,8 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       connectorAccountFields,
       connectorMetaDataFields,
       connectorWebHookDetails,
-      errors->Js.Json.object_,
       connectorLabelDetailField,
+      errors->Js.Json.object_,
     )
   }
 

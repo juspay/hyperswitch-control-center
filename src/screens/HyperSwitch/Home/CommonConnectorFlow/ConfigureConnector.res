@@ -102,10 +102,12 @@ let make = (~connectProcessorValue: connectProcessor) => {
     }
   }
 
-  let updateEnumForMultipleConfigurationType = async _ => {
+  let updateEnumForMultipleConfigurationType = async isMultipleConfigSelected => {
     try {
       let isMultipleConfigurationType = #IsMultipleConfiguration
-      let _resp = await Boolean(true)->usePostEnumDetails(isMultipleConfigurationType)
+      let _resp = await ConnectorChoice({
+        isMultipleConfiguration: isMultipleConfigSelected,
+      })->usePostEnumDetails(isMultipleConfigurationType)
     } catch {
     | Js.Exn.Error(e) => {
         let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to update!")
@@ -117,13 +119,20 @@ let make = (~connectProcessorValue: connectProcessor) => {
     try {
       setButtonState(_ => Loading)
       if choiceState === #MultipleProcessorWithSmartRouting {
-        let _ = await updateEnumForMultipleConfigurationType()
+        let _ = await updateEnumForMultipleConfigurationType(true)
+        setQuickStartPageState(_ =>
+          typedEnumValue.firstProcessorConnected.processorID->Js.String2.length > 0
+            ? ConnectProcessor(CONFIGURE_SECONDARY)
+            : ConnectProcessor(CONFIGURE_PRIMARY)
+        )
+      } else {
+        let _ = await updateEnumForMultipleConfigurationType(false)
+        setQuickStartPageState(_ =>
+          typedEnumValue.firstProcessorConnected.processorID->Js.String2.length > 0
+            ? ConnectProcessor(CHECKOUT)
+            : ConnectProcessor(CONFIGURE_PRIMARY)
+        )
       }
-      setQuickStartPageState(_ =>
-        typedEnumValue.firstProcessorConnected.processorID->Js.String2.length > 0
-          ? ConnectProcessor(CONFIGURE_SECONDARY)
-          : ConnectProcessor(CONFIGURE_PRIMARY)
-      )
       setButtonState(_ => Normal)
     } catch {
     | _ => setButtonState(_ => Normal)

@@ -1,5 +1,3 @@
-GoogleAnalytics.initialize(HSwitchGlobalVars.tag_ID)
-
 module HyperSwitchEntryComponent = {
   @react.component
   let make = () => {

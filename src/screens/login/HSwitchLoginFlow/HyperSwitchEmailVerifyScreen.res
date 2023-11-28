@@ -19,7 +19,6 @@ let make = (~setAuthType, ~setAuthStatus, ~authType) => {
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
-
   let emailVerifyUpdate = async body => {
     try {
       let userType =

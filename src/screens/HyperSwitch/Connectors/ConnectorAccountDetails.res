@@ -441,8 +441,8 @@ let make = (
       connectorAccountFields,
       connectorMetaDataFields,
       connectorWebHookDetails,
-      errors->Js.Json.object_,
       connectorLabelDetailField,
+      errors->Js.Json.object_,
     )
   }
 

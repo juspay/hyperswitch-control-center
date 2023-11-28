@@ -192,7 +192,6 @@ module ConnectorConfigurationFields = {
     ~connectorLabelDetailField,
   ) => {
     open ConnectorUtils
-
     <div className="flex flex-col">
       {if bodyType->mapAuthType == #CurrencyAuthKey {
         let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields

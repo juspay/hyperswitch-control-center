@@ -27,6 +27,7 @@ type connectorName =
   | ADYEN
   | CHECKOUT
   | BRAINTREE
+  | BANKOFAMERICA
   | AUTHORIZEDOTNET
   | STRIPE
   | KLARNA
