@@ -505,7 +505,7 @@ let getStatData = (
     }
   | RetriesAmountProcessed => {
       title: `Smart retries savings`,
-      tooltipText: "Total number of retries that were attempted after a failed payment attempt",
+      tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.retries_amount_processe /. 100.00,
         deltaTimestampData.currentSr,
