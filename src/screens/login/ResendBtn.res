@@ -18,7 +18,7 @@ let make = (~callBackFun) => {
     Some(cleanup)
   })
 
-  <div className="flex w-full justify-center text-md font-medium">
+  <div className="flex w-full justify-center text-sm font-medium">
     <div className="text-dark_black opacity-80 mr-1">
       {"Didn't receive the mail?"->React.string}
     </div>
