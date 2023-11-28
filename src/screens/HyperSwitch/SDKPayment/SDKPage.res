@@ -117,10 +117,6 @@ let make = () => {
     RescriptReactRouter.replace(`/payments/${id}`)
   }
 
-  let customTryAgain = () => {
-    RescriptReactRouter.replace("/sdk")
-    setIsSDKOpen(_ => false)
-  }
   let onSubmit = (values, _) => {
     open LogicUtils
     let valueDict = values->getDictFromJsonObject

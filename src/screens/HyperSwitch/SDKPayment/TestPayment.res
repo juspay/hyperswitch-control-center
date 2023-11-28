@@ -123,7 +123,7 @@ let make = (
     {switch clientSecret {
     | Some(val) =>
       if isTestCredsNeeded {
-        <div className="flex gap-8 bg-blue-600">
+        <div className="flex gap-8">
           <div className=sdkWidth>
             <WebSDK
               clientSecret=val

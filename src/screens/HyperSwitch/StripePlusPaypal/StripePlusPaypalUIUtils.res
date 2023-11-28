@@ -170,7 +170,8 @@ module TestPayment = {
         amount=100
         returnUrl={`${HSwitchGlobalVars.hyperSwitchFEPrefix}/stripe-plus-paypal`}
         onProceed={sptestPaymentProceed}
-        keyValue=""
+        keyValue={Js.Date.now()->Js.Float.toString}
+        sdkWidth="w-full"
       />
     </QuickStartUIUtils.BaseComponent>
   }
