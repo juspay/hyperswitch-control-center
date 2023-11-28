@@ -15,7 +15,7 @@ lib/
 !.yarn/versions.DS_Store
 /public/env-config.js
 env-config.js
-yarn.lock
+# yarn.lock
 package-lock.json
 user_data.sh
 *.pem
