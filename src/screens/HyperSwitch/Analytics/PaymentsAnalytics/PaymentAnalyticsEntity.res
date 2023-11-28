@@ -225,7 +225,10 @@ let paymentTableEntity = EntityType.makeEntity(
 let singleStateInitialValue = {
   payment_success_rate: 0.0,
   payment_count: 0,
+  retries_count: 0,
+  retries_amount_processe: 0.0,
   payment_success_count: 0,
+  connector_success_rate: 0.0,
   payment_processed_amount: 0.0,
   payment_avg_ticket_size: 0.0,
 }
@@ -233,9 +236,12 @@ let singleStateInitialValue = {
 let singleStateSeriesInitialValue = {
   payment_success_rate: 0.0,
   payment_count: 0,
+  retries_count: 0,
+  retries_amount_processe: 0.0,
   payment_success_count: 0,
   time_series: "",
   payment_processed_amount: 0.0,
+  connector_success_rate: 0.0,
   payment_avg_ticket_size: 0.0,
 }
 
@@ -249,6 +255,9 @@ let singleStateItemToObjMapper = json => {
     payment_success_count: dict->getInt("payment_success_count", 0),
     payment_processed_amount: dict->getFloat("payment_processed_amount", 0.0),
     payment_avg_ticket_size: dict->getFloat("avg_ticket_size", 0.0),
+    retries_count: dict->getInt("retries_count", 0),
+    retries_amount_processe: dict->getFloat("retries_amount_processed", 0.0),
+    connector_success_rate: dict->getFloat("connector_success_rate", 0.0),
   })
   ->Belt.Option.getWithDefault({
     singleStateInitialValue
@@ -266,6 +275,9 @@ let singleStateSeriesItemToObjMapper = json => {
     time_series: dict->getString("time_bucket", ""),
     payment_processed_amount: dict->getFloat("payment_processed_amount", 0.0)->setPrecision(),
     payment_avg_ticket_size: dict->getFloat("avg_ticket_size", 0.0)->setPrecision(),
+    retries_count: dict->getInt("retries_count", 0),
+    retries_amount_processe: dict->getFloat("retries_amount_processed", 0.0),
+    connector_success_rate: dict->getFloat("connector_success_rate", 0.0),
   })
   ->getWithDefault({
     singleStateSeriesInitialValue
@@ -289,11 +301,23 @@ type colT =
   | SuccessCount
   | ProcessedAmount
   | AvgTicketSize
+  | RetriesCount
+  | RetriesAmountProcessed
+  | ConnectorSuccessRate
 
 let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
   {
     sectionName: "",
-    columns: [SuccessRate, Count, SuccessCount, ProcessedAmount, AvgTicketSize],
+    columns: [
+      SuccessRate,
+      Count,
+      SuccessCount,
+      ProcessedAmount,
+      AvgTicketSize,
+      RetriesCount,
+      RetriesAmountProcessed,
+      ConnectorSuccessRate,
+    ],
   },
 ]
 
@@ -345,6 +369,22 @@ let constructData = (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.payment_avg_ticket_size /. 100.00,
     ))
+    ->Js.Array2.sortInPlaceWith(compareLogic)
+  | "retries_count" =>
+    singlestatTimeseriesData->Js.Array2.map(ob => (
+      ob.time_series->DateTimeUtils.parseAsFloat,
+      ob.retries_count->Belt.Int.toFloat,
+    ))
+  | "retries_amount_processed" =>
+    singlestatTimeseriesData
+    ->Js.Array2.map(ob => (
+      ob.time_series->DateTimeUtils.parseAsFloat,
+      ob.retries_amount_processe /. 100.00,
+    ))
+    ->Js.Array2.sortInPlaceWith(compareLogic)
+  | "connector_success_rate" =>
+    singlestatTimeseriesData
+    ->Js.Array2.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.connector_success_rate))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | _ => []
   }
@@ -446,6 +486,56 @@ let getStatData = (
       },
       data: constructData("payment_avg_ticket_size", timeSeriesData),
       statType: "Volume",
+      showDelta: false,
+    }
+  | RetriesCount => {
+      title: "Smart Retries made",
+      tooltipText: "Total number of retries that were attempted after a failed payment attempt",
+      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+        singleStatData.retries_count->Belt.Int.toFloat,
+        deltaTimestampData.currentSr,
+      ),
+      value: singleStatData.retries_count->Belt.Int.toFloat,
+      delta: {
+        singleStatData.retries_count->Belt.Int.toFloat
+      },
+      data: constructData("retries_count", timeSeriesData),
+      statType: "Volume",
+      showDelta: false,
+    }
+  | RetriesAmountProcessed => {
+      title: `Smart retries savings`,
+      tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor",
+      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+        singleStatData.retries_amount_processe /. 100.00,
+        deltaTimestampData.currentSr,
+      ),
+      value: singleStatData.retries_amount_processe /. 100.00,
+      delta: {
+        Js.Float.fromString(
+          Js.Float.toFixedWithPrecision(
+            singleStatData.retries_amount_processe /. 100.00,
+            ~digits=2,
+          ),
+        )
+      },
+      data: constructData("retries_amount_processe", timeSeriesData),
+      statType: "Amount",
+      showDelta: false,
+    }
+  | ConnectorSuccessRate => {
+      title: "Payment success rate",
+      tooltipText: "Total successful payments processed out of all user confirmed payments",
+      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+        singleStatData.connector_success_rate,
+        deltaTimestampData.currentSr,
+      ),
+      value: singleStatData.connector_success_rate,
+      delta: {
+        singleStatData.connector_success_rate
+      },
+      data: constructData("connector_success_rate", timeSeriesData),
+      statType: "Rate",
       showDelta: false,
     }
   }
