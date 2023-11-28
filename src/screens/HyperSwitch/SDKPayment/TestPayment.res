@@ -12,7 +12,6 @@ let make = (
   ~profileId=?,
   ~sdkWidth="w-[60%]",
   ~isTestCredsNeeded=true,
-  ~customTryAgain=?,
   ~customWidth="w-full md:w-1/2",
   ~paymentStatusStyles="p-11",
   ~successButtonText="Proceed",
@@ -79,21 +78,6 @@ let make = (
     None
   }, [keyValue])
 
-  let tryPaymentAgain = () => {
-    RescriptReactRouter.replace("/quick-start")
-    getClientSecret()->ignore
-  }
-
-  let buttonOnClick = _ =>
-    if customTryAgain->Belt.Option.isSome {
-      switch customTryAgain {
-      | Some(fun) => fun()
-      | None => ()
-      }
-    } else {
-      tryPaymentAgain()
-    }
-
   <div className={`flex flex-col gap-12 h-full ${paymentStatusStyles}`}>
     {switch paymentStatus {
     | SUCCESS =>
@@ -110,8 +94,8 @@ let make = (
       <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
         iconName="account-setup-failed"
         statusText="Payment Failed"
-        buttonText="Try Again"
-        buttonOnClick
+        buttonText=successButtonText
+        buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-red-failed_page_bg"
       />
@@ -119,8 +103,8 @@ let make = (
       <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
         iconName="processing"
         statusText="Check your Configurations"
-        buttonText="Try Again"
-        buttonOnClick
+        buttonText=successButtonText
+        buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-yellow-pending_page_bg"
       />
@@ -129,8 +113,8 @@ let make = (
       <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
         iconName="processing"
         statusText="Payment Pending"
-        buttonText="Try Again"
-        buttonOnClick
+        buttonText=successButtonText
+        buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-yellow-pending_page_bg"
       />

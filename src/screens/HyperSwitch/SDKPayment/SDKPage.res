@@ -44,7 +44,7 @@ module SDKConfifiguarationFields = {
       (),
     )
     let selectCurrencyField = FormRenderer.makeFieldInfo(
-      ~name="currency",
+      ~name="Currency",
       ~placeholder="",
       ~customInput=InputFields.selectInput(
         ~options=dropDownOptions,
@@ -174,7 +174,6 @@ let make = () => {
               profileId=profile
               sdkWidth="!w-[100%]"
               isTestCredsNeeded=false
-              customTryAgain
               customWidth="!w-full !h-full"
               paymentStatusStyles=""
               successButtonText="Go to Payment"
