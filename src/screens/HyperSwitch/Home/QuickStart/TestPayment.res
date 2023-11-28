@@ -16,6 +16,7 @@ let make = (
   ~customWidth="w-full md:w-1/2",
   ~paymentStatusStyles="p-11",
   ~successButtonText="Proceed",
+  ~keyValue,
 ) => {
   open APIUtils
   open LogicUtils
@@ -60,7 +61,7 @@ let make = (
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect1(() => {
     let status =
       filtersFromUrl->Js.Dict.get("status")->Belt.Option.getWithDefault("")->Js.String2.toLowerCase
     if status === "succeeded" {
@@ -72,11 +73,11 @@ let make = (
     } else {
       setPaymentStatus(_ => INCOMPLETE)
     }
-    if status->Js.String2.length <= 0 {
+    if status->Js.String2.length <= 0 && keyValue->Js.String2.length > 0 {
       getClientSecret()->ignore
     }
     None
-  })
+  }, [keyValue])
 
   let tryPaymentAgain = () => {
     RescriptReactRouter.replace("/quick-start")
@@ -153,7 +154,6 @@ let make = (
               isConfigureConnector={true}
               amount
               setClientSecret
-              bgColor="bg-blue-600"
             />
           </div>
           <TestCredentials />
@@ -172,7 +172,6 @@ let make = (
           isConfigureConnector={true}
           amount
           setClientSecret
-          bgColor="bg-blue-600"
         />
       }
     | None => React.null

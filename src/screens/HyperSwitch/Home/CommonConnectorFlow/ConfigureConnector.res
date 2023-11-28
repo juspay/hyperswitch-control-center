@@ -259,6 +259,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
               amount=100
               returnUrl={`${HSwitchGlobalVars.hyperSwitchFEPrefix}/quick-start`}
               onProceed={updateTestPaymentEnum}
+              keyValue=""
             />
           </QuickStartUIUtils.BaseComponent>
         </div>

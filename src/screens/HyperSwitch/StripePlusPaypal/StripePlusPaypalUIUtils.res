@@ -69,12 +69,7 @@ module SelectPaymentMethods = {
           metadata: metaData,
         }
         let body = ConnectorUtils.constructConnectorRequestBody(obj, initialValues)
-        let connectorUrl = APIUtils.getURL(
-          ~entityName=CONNECTOR,
-          ~methodType=Post,
-          ~id=None,
-          (),
-        )
+        let connectorUrl = APIUtils.getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
 
         let response = await updateAPIHook(connectorUrl, body, Post)
         let _updatedConnectorList = await fetchUpdatedConnectorList()
@@ -175,6 +170,7 @@ module TestPayment = {
         amount=100
         returnUrl={`${HSwitchGlobalVars.hyperSwitchFEPrefix}/stripe-plus-paypal`}
         onProceed={sptestPaymentProceed}
+        keyValue=""
       />
     </QuickStartUIUtils.BaseComponent>
   }
