@@ -7,10 +7,13 @@ const errorHandler = (res) => {
   res.end("Internal Server Error");
 };
 
-const configHandler = (_req, res, is_deployed = false, configPath = "dist/server/config/FeatureFlag.json") => {
-  let configFile = is_deployed
-    ? configPath
-    : "config/FeatureFlag.json";
+const configHandler = (
+  _req,
+  res,
+  is_deployed = false,
+  configPath = "dist/server/config/FeatureFlag.json",
+) => {
+  let configFile = is_deployed ? configPath : "config/FeatureFlag.json";
 
   try {
     Fs.readFile(configFile, { encoding: "utf8" }, (err, data) => {

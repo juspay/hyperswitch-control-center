@@ -7,11 +7,11 @@ const { execSync } = require("child_process");
 
 process.env["NODE_ENV"] = "production";
 
-var currentBranch = "hyperswitch"
+var currentBranch = "hyperswitch";
 
 const mergeProd = (dashboardAppName, env) => {
   console.log("Building", dashboardAppName);
-  const publicPath = "auto"
+  const publicPath = "auto";
   let isProduction = process.env["APP_ENV"] === "production";
   return merge([
     common(dashboardAppName, publicPath),
@@ -43,7 +43,6 @@ module.exports = (env, _argv) => {
   var webpackConfigs = [serverConfig];
 
   console.log("currentBranch", currentBranch);
-
 
   if (currentBranch.search(/hyperswitch/) != -1) {
     webpackConfigs.push(mergeProd("hyperswitch", env));

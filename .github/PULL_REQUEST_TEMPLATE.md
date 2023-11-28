@@ -1,4 +1,5 @@
 ## Type of Change
+
 <!-- Put an `x` in the boxes that apply -->
 
 - [ ] Bugfix
@@ -10,10 +11,11 @@
 - [ ] CI/CD
 
 ## Description
+
 <!-- Describe your changes in detail -->
 
-
 ## Motivation and Context
+
 <!--
 Why is this change required? What problem does it solve?
 If it fixes an open issue, please link to the issue here.
@@ -23,15 +25,15 @@ can focus on the implementation (unless its an obvious bug or documentation fix
 that will have little conversation).
 -->
 
-
 ## How did you test it?
+
 <!--
 Did you write an integration/unit/API test to verify the code changes?
 Or did you test this change manually (provide relevant screenshots)?
 -->
 
-
 ## Checklist
+
 <!-- Put an `x` in the boxes that apply -->
 
 - [ ] I ran `npm run re:build`

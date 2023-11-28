@@ -120,7 +120,7 @@ let make = (~goLive) => {
       {switch goLive {
       | LANDING =>
         <QuickStartUIUtils.StepCompletedPage
-       headerText="You have successfully completed Integration (Test Mode)"
+          headerText="You have successfully completed Integration (Test Mode)"
           buttonGroup={landingButtonGroup}
         />
       | GO_LIVE =>
