@@ -289,9 +289,7 @@ module ToggleLiveTestMode = {
                     setAuthType(_ => LoginWithEmail)
                     Window.Location.replace(testButtonRedirectUrl)
                   }}>
-                  <span className={`${testModeStyles}`}>
-                    {`${testLiveToggle ? "Integ" : "Test Mode"}`->React.string}
-                  </span>
+                  <span className={`${testModeStyles}`}> {"Test Mode"->React.string} </span>
                 </div>
                 <div
                   className={`!shadow-none text-white text-start text-fs-16 font-semibold cursor-pointer flex justify-center`}
@@ -300,9 +298,7 @@ module ToggleLiveTestMode = {
                     setAuthType(_ => LoginWithEmail)
                     Window.Location.replace(liveButtonRedirectUrl)
                   }}>
-                  <span className={`${liveModeStyles}`}>
-                    {`${testLiveToggle ? "Sandbox" : "Live Mode"}`->React.string}
-                  </span>
+                  <span className={`${liveModeStyles}`}> {"Live Mode"->React.string} </span>
                 </div>
               </div>
             </div>
