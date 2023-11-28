@@ -173,6 +173,7 @@ let make = () => {
         {if isSDKOpen {
           <div className="p-7 h-full bg-sidebar-blue">
             <TestPayment
+              key
               amount
               returnUrl={`${HSwitchGlobalVars.hyperSwitchFEPrefix}/sdk`}
               currency
