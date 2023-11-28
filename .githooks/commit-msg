@@ -11,11 +11,11 @@ npx prettier --write .
 npm run re:format
 
 # Define your commit message convention (e.g., starts with "feature:", "fix:", etc.)
-commit_regex="^(feature|bugfix|chore|docs|style|refactor|test|enhancement).+"
+commit_regex="^(merge-commit|feature|bugfix|chore|docs|style|refactor|test|enhancement).+"
 
 if ! echo "$commit_msg" | grep -E "$commit_regex" ; then
     echo "Aborting commit. Your commit message does not follow the conventional format."
-    echo "Example - <mergecommit|feature|bugfix|chore|docs|style|refactor|test|enhancement>: (<scope>) - <description>"
+    echo "Example - <merge-commit|feature|bugfix|chore|docs|style|refactor|test|enhancement>: (<scope>) - <description>"
     exit 1
 fi
 
