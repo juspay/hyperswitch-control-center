@@ -33,7 +33,6 @@ module CheckoutForm = {
     ~layout="",
     ~methodsOrder=[],
     ~returnUrl,
-    ~isConfigureConnector,
     ~saveViewToSdk=false,
     ~publishableKey,
     ~isSpaceAccordion=false,
@@ -215,12 +214,6 @@ module CheckoutForm = {
       })
       ->ignore
     }
-    let defaultHandleSubmit = () => {
-      setPaymentStatus(_ => LOADING)
-      Js.Global.setTimeout(() => {
-        setPaymentStatus(_ => SUCCESS)
-      }, 1000)->ignore
-    }
     React.useEffect1(() => {
       let id = Js.String2.split(clientSecret, "_secret_")[0]->Belt.Option.getWithDefault("")
       switch Some(id) {
@@ -254,7 +247,7 @@ module CheckoutForm = {
               customButtonStyle={`p-1 mt-2 w-full rounded-md ${primaryColor}`}
               onClick={_ => {
                 setBtnState(_ => Button.Loading)
-                {isConfigureConnector ? handleSubmit() : defaultHandleSubmit()}
+                handleSubmit()
                 hyperswitchMixPanel(
                   ~pageName=`${url.path->LogicUtils.getListHead}`,
                   ~contextName="sdk",
@@ -298,7 +291,6 @@ let make = (
   ~fontFamily="",
   ~fontSizeBase="",
   ~paymentElementOptions,
-  ~isConfigureConnector,
   ~returnUrl,
   ~layout="",
   ~methodsOrder=[],
@@ -328,7 +320,6 @@ let make = (
         methodsOrder
         layout
         returnUrl
-        isConfigureConnector
         saveViewToSdk
         publishableKey
         isSpaceAccordion

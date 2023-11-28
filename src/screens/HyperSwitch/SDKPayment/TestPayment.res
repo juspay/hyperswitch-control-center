@@ -135,7 +135,6 @@ let make = (
               elementOptions
               paymentElementOptions
               returnUrl
-              isConfigureConnector={true}
               amount
               setClientSecret
             />
@@ -153,7 +152,6 @@ let make = (
           elementOptions
           paymentElementOptions
           returnUrl
-          isConfigureConnector={true}
           amount
           setClientSecret
         />
