@@ -19,9 +19,6 @@ jobs:
       - name: "Setup yarn"
         run: corepack enable
 
-      - name: "Previous Lockfile Removal"
-        run: rm -rf yarn.lock
-
       - name: "Install dependencies"
         run: yarn install
 
