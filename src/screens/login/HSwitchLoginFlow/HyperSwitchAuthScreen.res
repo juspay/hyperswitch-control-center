@@ -5,7 +5,7 @@ module AuthPage = {
   open HyperSwitchAuth
   @react.component
   let make = (~authType, ~setAuthType, ~setAuthStatus, ~mode, ~setMode) => {
-    let {testLiveToggle, magicLink: isMagicLinkEnabled} =
+    let {testLiveToggle} =
       HyperswitchAtom.featureFlagAtom
       ->Recoil.useRecoilValueFromAtom
       ->LogicUtils.safeParse
@@ -14,21 +14,22 @@ module AuthPage = {
       <div
         className="h-full flex flex-col items-center justify-between overflow-scoll text-grey-0 w-full mobile:w-30-rem">
         <div className="flex flex-col items-center gap-6 flex-1 mt-4 mobile:my-20">
-          <Div layoutId="logo">
-            <HyperSwitchLogo logoHeight="h-6" theme={Dark} />
-          </Div>
           <UIUtils.RenderIf condition={testLiveToggle}>
             <ToggleLiveTestMode authType mode setMode setAuthType />
           </UIUtils.RenderIf>
-          <Div
-            layoutId="form"
-            className="bg-white text-black mobile:border p-9 rounded-lg flex flex-col justify-between gap-5 mobile:gap-8">
-            <HyperSwitchAuth setAuthStatus authType setAuthType />
+          <Div layoutId="form" className="bg-white w-full text-black mobile:border rounded-lg">
+            <div className="px-7 py-6">
+              <HyperSwitchLogo logoHeight="h-8" theme={Dark} />
+            </div>
+            <div className="border-b w-full" />
+            <div className="p-7">
+              <HyperSwitchAuth setAuthStatus authType setAuthType />
+            </div>
           </Div>
           <Div
             layoutId="footer-links"
             className="justify-center text-sm mobile:text-base flex flex-col mobile:flex-row mobile:gap-3 items-center w-full max-w-xl text-center">
-            {note(authType, setAuthType, isMagicLinkEnabled)}
+            <TermsAndCondition />
           </Div>
         </div>
         <PageFooterSection />
