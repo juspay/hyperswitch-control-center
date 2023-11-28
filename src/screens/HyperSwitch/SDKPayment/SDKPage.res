@@ -70,7 +70,6 @@ module SDKConfifiguarationFields = {
       <FormRenderer.FieldRenderer field=selectCurrencyField fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=enterAmountField fieldWrapperClass="!w-full" />
       <FormRenderer.SubmitButton text="Show preview" />
-      <FormValuesSpy />
     </>
   }
 }
