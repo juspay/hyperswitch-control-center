@@ -6,7 +6,6 @@
   "license": "MIT",
   "scripts": {
     "pre-commit": "git config core.hooksPath .githooks && chmod +x .githooks/commit-msg && bash .githooks/commit-msg",
-    "pre-push": "git config core.hooksPath .githooks && chmod +x .githooks/pre-push && bash .githooks/pre-push",
     "start": "chmod +x ./replace_env.sh && ./replace_env.sh && cp env-config.js ./public/hyperswitch && APP_VERSION=$npm_package_version && appName=hyperswitch webpack serve --config webpack.dev.js",
     "start:server_compiler": "webpack --config webpack.server.js --watch",
     "prod:start": "webpack serve --config webpack.dev.js",
@@ -27,8 +26,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run pre-commit",
-      "pre-push": "npm run pre-push"
+      "pre-commit": "npm run pre-commit"
     }
   },
   "devDependencies": {
