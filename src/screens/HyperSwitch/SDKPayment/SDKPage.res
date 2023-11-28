@@ -11,7 +11,7 @@ module SDKConfifiguarationFields = {
     let dropDownOptions = HomeUtils.countries->Js.Array2.map((item): SelectBox.dropdownOption => {
       {
         label: `${item.countryName} (${item.currency})`,
-        value: item.currency,
+        value: `${item.countryName}-${item.currency}`,
       }
     })
 
@@ -44,7 +44,8 @@ module SDKConfifiguarationFields = {
       (),
     )
     let selectCurrencyField = FormRenderer.makeFieldInfo(
-      ~name="Currency",
+      ~label="Currency",
+      ~name="currency",
       ~placeholder="",
       ~customInput=InputFields.selectInput(
         ~options=dropDownOptions,
@@ -69,6 +70,7 @@ module SDKConfifiguarationFields = {
       <FormRenderer.FieldRenderer field=selectCurrencyField fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=enterAmountField fieldWrapperClass="!w-full" />
       <FormRenderer.SubmitButton text="Show preview" />
+      <FormValuesSpy />
     </>
   }
 }
@@ -87,7 +89,7 @@ let make = () => {
 
   let initialDict =
     [
-      ("currency", "USD"->Js.Json.string),
+      ("currency", "United States-USD"->Js.Json.string),
       ("amount", "100"->Js.Json.string),
       ("profile_id", defaultBusinessProfile.profile_id->Js.Json.string),
     ]->Js.Dict.fromArray
@@ -121,7 +123,15 @@ let make = () => {
     open LogicUtils
     let valueDict = values->getDictFromJsonObject
     setKey(_ => Js.Date.now()->Js.Float.toString)
-    setCurrency(_ => valueDict->getString("currency", "USD"))
+
+    let currencyValue =
+      valueDict
+      ->getString("currency", "United States-USD")
+      ->Js.String2.split("-")
+      ->Belt.Array.get(1)
+      ->Belt.Option.getWithDefault("USD")
+      ->Js.String2.trim
+    setCurrency(_ => currencyValue)
     setAmount(_ =>
       valueDict->getString("amount", "")->Belt.Int.fromString->Belt.Option.getWithDefault(100) * 100
     )
