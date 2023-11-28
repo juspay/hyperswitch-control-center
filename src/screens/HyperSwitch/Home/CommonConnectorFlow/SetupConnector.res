@@ -82,6 +82,7 @@ module ConfigureProcessor = {
       connectorMetaDataFields,
       _,
       connectorWebHookDetails,
+      connectorLabelDetailField,
     ) = getConnectorFields(connectorDetails)
 
     let onSubmit = async (values, _) => {
@@ -113,6 +114,7 @@ module ConfigureProcessor = {
         connectorAccountFields,
         connectorMetaDataFields,
         connectorWebHookDetails,
+        connectorLabelDetailField,
         errors->Js.Json.object_,
       )
     }

@@ -310,6 +310,7 @@ let make = (
     connectorMetaDataFields,
     isVerifyConnector,
     connectorWebHookDetails,
+    connectorLabelDetailField,
   ) = getConnectorFields(connectorDetails)
 
   let (showModal, setShowModal) = React.useState(_ => false)
@@ -440,6 +441,7 @@ let make = (
       connectorAccountFields,
       connectorMetaDataFields,
       connectorWebHookDetails,
+      connectorLabelDetailField,
       errors->Js.Json.object_,
     )
   }
