@@ -11,7 +11,6 @@ let make = (
   let url = RescriptReactRouter.useUrl()
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let currentPageName = url.path->LogicUtils.getListHead
-  let (_paymentModal, setPaymentModal) = React.useState(_ => false)
 
   <div
     className="relative flex flex-row border-l-4 border-milestone_card_border bg-white gap-4 rounded-md px-8  pt-4 pb-8 w-10/12 lg:w-successCardWidth h-fit my-6 items-center">
@@ -34,18 +33,15 @@ let make = (
               onClick={_ => {
                 if Js.String.startsWith("https", customBackButtonRoute) {
                   Window._open(customBackButtonRoute)
-                } else {
-                  setPaymentModal(_ => true)
-                  if currentPageName->Js.String2.length > 0 {
-                    [currentPageName, "global"]->Js.Array2.forEach(ele =>
-                      hyperswitchMixPanel(
-                        ~pageName=ele,
-                        ~contextName="milestoneachieved",
-                        ~actionName="makeapayment",
-                        (),
-                      )
+                } else if currentPageName->Js.String2.length > 0 {
+                  [currentPageName, "global"]->Js.Array2.forEach(ele =>
+                    hyperswitchMixPanel(
+                      ~pageName=ele,
+                      ~contextName="milestoneachieved",
+                      ~actionName="makeapayment",
+                      (),
                     )
-                  }
+                  )
                 }
               }}
             />
