@@ -12,11 +12,13 @@ on:
     types:
       - opened
       - edited
+      - reopened
+      - ready_for_review
       - synchronize
 
-  # merge_group:
-  #   types:
-  #     - checks_requested
+  merge_group:
+    types:
+      - checks_requested
 
 permissions:
   # Reference: https://github.com/cli/cli/issues/6274
