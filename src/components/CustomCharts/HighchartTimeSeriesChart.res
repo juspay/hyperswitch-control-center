@@ -5,7 +5,7 @@ open DictionaryUtils
 
 external toJson: 'a => Js.Json.t = "%identity"
 
-type ele = {childElementCount: int}
+type ele
 external toElement: Dom.element => ele = "%identity"
 
 @send
