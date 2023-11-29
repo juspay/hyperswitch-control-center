@@ -13,7 +13,6 @@ on:
       - opened
       - edited
       - reopened
-      - ready_for_review
       - synchronize
 
   merge_group:
