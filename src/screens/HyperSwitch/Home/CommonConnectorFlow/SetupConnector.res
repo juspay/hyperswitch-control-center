@@ -174,7 +174,6 @@ module SelectPaymentMethods = {
     let showToast = ToastState.useShowToast()
     let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
-    let fetchUpdatedConnectorList = ConnectorUtils.useFetchConnectorList()
 
     let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
       Js.Dict.empty()->Js.Json.object_->ConnectorUtils.getPaymentMethodEnabled
@@ -211,7 +210,7 @@ module SelectPaymentMethods = {
         let connectorUrl = APIUtils.getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
 
         let response = await updateAPIHook(connectorUrl, body, Post)
-        let _updatedConnectorList = await fetchUpdatedConnectorList()
+
         setInitialValues(_ => response)
         connectorArray->Array.push(connectorName)
         setConnectorArray(_ => connectorArray)

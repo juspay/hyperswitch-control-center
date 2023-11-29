@@ -538,6 +538,7 @@ let make = (
               connectorWebHookDetails
               bodyType
               isUpdateFlow
+              connectorLabelDetailField
             />
           </div>
           <IntegrationHelp.Render connector setShowModal showModal />

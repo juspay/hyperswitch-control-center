@@ -140,12 +140,13 @@ module QuickStart = {
               processorName: firstConnectorValue.connector_name,
             }
 
-            let _isMultipleConnectorSetup =
-              await Boolean(true)->usePostEnumDetails(#IsMultipleConfiguration)
+            let _isMultipleConnectorSetup = await ConnectorChoice({
+              isMultipleConfiguration: true,
+            })->usePostEnumDetails(#IsMultipleConfiguration)
             let _firstEnumSetupValues =
               await ProcesorType(bodyOfFirstConnector)->usePostEnumDetails(#FirstProcessorConnected)
             let _res = updateEnumInRecoil([
-              (Boolean(true), #IsMultipleConfiguration),
+              (ConnectorChoice({isMultipleConfiguration: true}), #IsMultipleConfiguration),
               (ProcesorType(bodyOfFirstConnector), #FirstProcessorConnected),
             ])
             setQuickStartPageState(_ => ConnectProcessor(CONFIGURE_SECONDARY))
@@ -274,14 +275,6 @@ module RecipesAndPlugins = {
 module Resources = {
   @react.component
   let make = () => {
-    let merchantDetailsValue = useMerchantDetailsValue()
-    let (overlayPaymentModal, setOverlayPaymentModal) = React.useState(_ => false)
-    let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-    let isConfigureConnector =
-      connectorListJson
-      ->LogicUtils.safeParse
-      ->ConnectorTableUtils.getArrayOfConnectorListPayloadType
-      ->Js.Array2.length > 0
     let elements: array<HomeUtils.resourcesTypes> = [
       {
         id: "tryTheDemo",
@@ -320,7 +313,7 @@ module Resources = {
                 } else if item.id === "developerdocs" {
                   "https://hyperswitch.io/docs"->Window._open
                 } else if item.id === "tryTheDemo" {
-                  setOverlayPaymentModal(_ => true)
+                  RescriptReactRouter.replace("/sdk")
                 }
               }}>
               <img src={`/icons/${item.icon}`} className="h-6 w-6" />
@@ -338,9 +331,6 @@ module Resources = {
           ->React.array}
         </div>
       </div>
-      <HomeUtils.SDKOverlay
-        merchantDetailsValue overlayPaymentModal setOverlayPaymentModal isConfigureConnector
-      />
     </>
   }
 }

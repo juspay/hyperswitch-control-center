@@ -18,7 +18,6 @@ module SelectPaymentMethods = {
     let showToast = ToastState.useShowToast()
     let postEnumDetails = EnumVariantHook.usePostEnumDetails()
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
-    let fetchUpdatedConnectorList = ConnectorUtils.useFetchConnectorList()
 
     let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
       Js.Dict.empty()->Js.Json.object_->ConnectorUtils.getPaymentMethodEnabled
@@ -72,7 +71,6 @@ module SelectPaymentMethods = {
         let connectorUrl = APIUtils.getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
 
         let response = await updateAPIHook(connectorUrl, body, Post)
-        let _updatedConnectorList = await fetchUpdatedConnectorList()
         setInitialValues(_ => response)
         response->LogicUtils.getDictFromJsonObject->updateEnumForConnector->ignore
         setConnectorConfigureState(_ => Summary)
@@ -140,6 +138,10 @@ module TestPayment = {
   @react.component
   let make = (~setStepInView) => {
     let postEnumDetails = EnumVariantHook.usePostEnumDetails()
+    let (key, setKey) = React.useState(_ => "")
+    let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
+    let defaultBusinessProfile =
+      businessProfiles->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
 
     let updateTestPaymentEnum = async _ => {
       try {
@@ -153,6 +155,10 @@ module TestPayment = {
       setStepInView(_ => COMPLETED_STRIPE_PAYPAL)
       updateTestPaymentEnum()->ignore
     }
+    React.useEffect0(() => {
+      setKey(_ => Js.Date.now()->Js.Float.toString)
+      None
+    })
 
     <QuickStartUIUtils.BaseComponent
       headerText="Preview Checkout page"
@@ -167,9 +173,12 @@ module TestPayment = {
         }}
       />}>
       <TestPayment
-        amount=100
+        initialValues={defaultBusinessProfile.profile_id->SDKPaymentUtils.initialValueForForm}
         returnUrl={`${HSwitchGlobalVars.hyperSwitchFEPrefix}/stripe-plus-paypal`}
         onProceed={sptestPaymentProceed}
+        keyValue={key}
+        sdkWidth="w-full"
+        paymentStatusStyles="p-0"
       />
     </QuickStartUIUtils.BaseComponent>
   }

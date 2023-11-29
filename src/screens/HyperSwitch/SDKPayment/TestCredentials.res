@@ -2,11 +2,11 @@
 let make = () => {
   let initialValues = Js.Dict.empty()
   Js.Dict.set(initialValues, "dummy_card_number", "4242 4242 4242 4242"->Js.Json.string)
-  <div className="p-6 bg-[#E6F0FE40] w-full md:w-1/3 h-fit">
+  <div className="p-6 bg-jp-gray-test_credentials_bg w-full h-fit">
     <div className="mb-4">
       <div className="flex items-center gap-4">
-        <p className="text-lg">
-          {"Use below card details for testing Stripe and test processors"->React.string}
+        <p className="text-sm font-semibold">
+          {"For Testing Stripe & Dummy Connectors"->React.string}
         </p>
       </div>
       <div className="border-b border-[#c5d7f1] pb-4 mb-4">
@@ -46,11 +46,11 @@ let make = () => {
       </div>
     </div>
     <div className="flex items-center gap-4">
-      <p className="text-lg"> {"For Testing Apple Pay"->React.string} </p>
+      <p className="text-sm font-semibold"> {"For Testing Apple Pay"->React.string} </p>
       <img src={`/Gateway/APPLE_PAY.svg`} className="w-10 h-10" />
     </div>
     <div className="flex flex-row w-full mb-4 text-sm">
-      <p className="text-[#151A1F80] leading-5">
+      <p className="text-grey-700 opacity-50 leading-5">
         <p className="inline">
           {"Apple Pay cannot be tested from the dashboard as it is registered with merchant domain name and not app.hyperswitch. Please test using merchant SDK - refer the "->React.string}
         </p>
