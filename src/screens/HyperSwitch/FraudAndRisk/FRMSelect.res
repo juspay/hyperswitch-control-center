@@ -135,6 +135,7 @@ let make = () => {
       onClickElement={React.null}
       onClickUrl="connectors"
       moduleName="Fraud & Risk Management"
+      moduleSubtitle="Connect and configure processors to screen transactions and mitigate fraud"
       mixPanelEventName={`${url.path->LogicUtils.getListHead}_take_me_to_connectors`}
     />
 
@@ -190,6 +191,10 @@ let make = () => {
 
   <PageLoaderWrapper screenState customUI>
     <div className="flex flex-col gap-10 ">
+      <PageUtils.PageHeading
+        title="Fraud & Risk Management"
+        subTitle="Connect and configure processors to screen transactions and mitigate fraud"
+      />
       <RenderIf condition={featureFlagDetails.frm}>
         <FRMProPackageInfo />
       </RenderIf>

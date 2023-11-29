@@ -478,10 +478,13 @@ let make = () => {
 
   let tabKeys = getStringListFromArrayDict(dimensions)
 
-  <PageLoaderWrapper screenState customUI={<NoData />}>
+  let title = "System Metrics"
+  let subTitle = "Gain Insights, monitor performance and make Informed Decisions with System Metrics."
+
+  <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
     <SystemMetricsAnalytics
-      pageTitle="System Metrics"
-      pageSubTitle="Gain Insights, monitor performance and make Informed Decisions with System Metrics."
+      pageTitle=title
+      pageSubTitle=subTitle
       filterUri={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/filters/${domain}`}
       key="SystemMetrics"
       moduleName="SystemMetrics"

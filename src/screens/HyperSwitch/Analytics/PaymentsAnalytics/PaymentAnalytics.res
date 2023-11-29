@@ -58,10 +58,13 @@ let make = () => {
     a
   })
 
-  <PageLoaderWrapper screenState customUI={<NoData />}>
+  let title = "Payments Analytics"
+  let subTitle = "Gain Insights, monitor performance and make Informed Decisions with Payment Analytics."
+
+  <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
     <Analytics
-      pageTitle="Payments Analytics"
-      pageSubTitle="Gain Insights, monitor performance and make Informed Decisions with Payment Analytics."
+      pageTitle=title
+      pageSubTitle=subTitle
       filterUri={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/filters/${domain}`}
       key="PaymentsAnalytics"
       moduleName="Payments"

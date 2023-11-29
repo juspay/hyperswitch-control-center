@@ -68,7 +68,7 @@ let make = () => {
     ->FeatureFlagUtils.featureFlagType
 
   <div>
-    <PageUtils.PageHeading title="Disputes" />
+    <PageUtils.PageHeading title="Disputes" subTitle="View and manage all disputes" />
     <div className="flex w-full justify-end pb-3 gap-3">
       <UIUtils.RenderIf condition={generateReport}>
         <GenerateReport entityName={DISPUTE_REPORT} />
