@@ -8,7 +8,7 @@ on:
   # Since we only label pull requests, do not have a checkout step in this
   # workflow, and restrict permissions on the token, this is an acceptable
   # use of this trigger.
-  pull_request:
+  pull_request_target:
     types:
       - opened
       - edited
@@ -51,6 +51,7 @@ jobs:
 
       - name: Verify PR title follows conventional commit standards
         id: pr_title_check
+        if: ${{ github.event_name == 'pull_request_target' }}
         shell: bash
         env:
           TITLE: ${{ github.event.pull_request.title }}
@@ -67,7 +68,7 @@ jobs:
 
         # GitHub CLI returns a successful error code even if the PR has the label already attached
       - name: Attach 'S-conventions-not-followed' label if PR title check failed
-        if: ${{ steps.pr_title_check.outcome == 'failure' }}
+        if: ${{ github.event_name == 'pull_request_target' && steps.pr_title_check.outcome == 'failure' }}
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -78,7 +79,7 @@ jobs:
 
         # GitHub CLI returns a successful error code even if the PR does not have the label attached
       - name: Remove 'S-conventions-not-followed' label if PR title check succeeded
-        if: ${{ steps.pr_title_check.outcome == 'success' }}
+        if: ${{ github.event_name == 'pull_request_target' && steps.pr_title_check.outcome == 'success' }}
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
