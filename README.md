@@ -258,7 +258,7 @@ export AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 You can now deploy the hyperswitch application by running the below command in the same terminal session.
 
 ```
-curl https://raw.githubusercontent.com/juspay/hyperswitch/main/aws/hyperswitch_control_center_aws_setup.sh | bash
+curl https://raw.githubusercontent.com/juspay/hyperswitch-control-center/main/aws/hyperswitch_control_center_aws_setup.sh | bash
 ```
 
 > This step takes around 10-15min
@@ -270,7 +270,7 @@ Once the script is executed, you will receive a Public IP as the response (e.g. 
 If you want to delete the application from your account simply run the below clean up script. Ypu need to install JQ for this. For more information, [click here](https://jqlang.github.io/jq/download/)
 
 ```
-curl https://raw.githubusercontent.com/juspay/hyperswitch/main/aws/hyperswitch_control_center_cleanup_setup.sh | bash
+curl https://raw.githubusercontent.com/juspay/hyperswitch-control-center/main/aws/hyperswitch_control_center_cleanup_setup.sh | bash
 ```
 
 ---
