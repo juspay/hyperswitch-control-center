@@ -5,17 +5,15 @@ let highlightedText = "text-base font-normal text-blue-700 underline"
 
 @react.component
 let make = (
-  ~amount=100,
   ~returnUrl,
-  ~currency="USD",
   ~onProceed: (~paymentId: string) => promise<unit>,
-  ~profileId=?,
   ~sdkWidth="w-[60%]",
   ~isTestCredsNeeded=true,
   ~customWidth="w-full md:w-1/2",
   ~paymentStatusStyles="p-11",
   ~successButtonText="Proceed",
   ~keyValue,
+  ~initialValues: SDKPaymentTypes.paymentType,
 ) => {
   open APIUtils
   open LogicUtils
@@ -32,23 +30,21 @@ let make = (
   let url = RescriptReactRouter.useUrl()
   let searchParams = url.search
   let filtersFromUrl = getDictFromUrlSearchParams(searchParams)
-  let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-  let defaultBusinessProfile =
-    businessProfiles->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
 
   let getClientSecret = async () => {
     try {
       let url = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments`
       let body =
         Js.Dict.fromArray([
-          ("currency", currency->Js.Json.string),
-          ("amount", amount->Belt.Int.toFloat->Js.Json.number),
+          ("currency", initialValues.currency->SDKPaymentUtils.getCurrencyValue->Js.Json.string),
           (
-            "profile_id",
-            profileId
-            ->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)
-            ->Js.Json.string,
+            "amount",
+            initialValues.amount
+            ->SDKPaymentUtils.convertAmountToCents
+            ->Belt.Int.toFloat
+            ->Js.Json.number,
           ),
+          ("profile_id", initialValues.profile_id->Js.Json.string),
         ])->Js.Json.object_
       let response = await updateDetails(url, body, Post)
       let clientSecret = response->getDictFromJsonObject->getOptionString("client_secret")
@@ -130,12 +126,12 @@ let make = (
               publishableKey
               sdkType=ELEMENT
               paymentStatus
-              currency
+              currency={initialValues.currency->SDKPaymentUtils.getCurrencyValue}
               setPaymentStatus
               elementOptions
               paymentElementOptions
               returnUrl
-              amount
+              amount={initialValues.amount->SDKPaymentUtils.convertAmountToCents}
               setClientSecret
             />
           </div>
@@ -147,12 +143,12 @@ let make = (
           publishableKey
           sdkType=ELEMENT
           paymentStatus
-          currency
+          currency={initialValues.currency->SDKPaymentUtils.getCurrencyValue}
           setPaymentStatus
           elementOptions
           paymentElementOptions
           returnUrl
-          amount
+          amount={initialValues.amount->SDKPaymentUtils.convertAmountToCents}
           setClientSecret
         />
       }

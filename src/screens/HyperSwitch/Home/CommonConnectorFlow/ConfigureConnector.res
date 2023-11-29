@@ -11,6 +11,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
   let {quickStartPageState, setQuickStartPageState, setDashboardPageState} = React.useContext(
     GlobalProvider.defaultContext,
   )
+  let (key, setKey) = React.useState(_ => "")
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let typedEnumValue = enumDetails->LogicUtils.safeParse->getTypedValueFromDict
   let activeBusinessProfile =
@@ -152,6 +153,11 @@ let make = (~connectProcessorValue: connectProcessor) => {
     }
   }
 
+  React.useEffect0(() => {
+    setKey(_ => Js.Date.now()->Js.Float.toString)
+    None
+  })
+
   <>
     {switch connectProcessorValue {
     | LANDING =>
@@ -256,11 +262,12 @@ let make = (~connectProcessorValue: connectProcessor) => {
               onClick={_ => updateTestPaymentEnum(~paymentId="pay_default")->ignore}
             />}>
             <TestPayment
-              amount=100
+              initialValues={activeBusinessProfile.profile_id->SDKPaymentUtils.initialValueForForm}
               returnUrl={`${HSwitchGlobalVars.hyperSwitchFEPrefix}/quick-start`}
               onProceed={updateTestPaymentEnum}
-              keyValue={Js.Date.now()->Js.Float.toString}
+              keyValue=key
               sdkWidth="w-full"
+              paymentStatusStyles="p-0"
             />
           </QuickStartUIUtils.BaseComponent>
         </div>

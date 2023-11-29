@@ -140,6 +140,10 @@ module TestPayment = {
   @react.component
   let make = (~setStepInView) => {
     let postEnumDetails = EnumVariantHook.usePostEnumDetails()
+    let (key, setKey) = React.useState(_ => "")
+    let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
+    let defaultBusinessProfile =
+      businessProfiles->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
 
     let updateTestPaymentEnum = async _ => {
       try {
@@ -153,6 +157,10 @@ module TestPayment = {
       setStepInView(_ => COMPLETED_STRIPE_PAYPAL)
       updateTestPaymentEnum()->ignore
     }
+    React.useEffect0(() => {
+      setKey(_ => Js.Date.now()->Js.Float.toString)
+      None
+    })
 
     <QuickStartUIUtils.BaseComponent
       headerText="Preview Checkout page"
@@ -167,11 +175,12 @@ module TestPayment = {
         }}
       />}>
       <TestPayment
-        amount=100
+        initialValues={defaultBusinessProfile.profile_id->SDKPaymentUtils.initialValueForForm}
         returnUrl={`${HSwitchGlobalVars.hyperSwitchFEPrefix}/stripe-plus-paypal`}
         onProceed={sptestPaymentProceed}
-        keyValue={Js.Date.now()->Js.Float.toString}
+        keyValue={key}
         sdkWidth="w-full"
+        paymentStatusStyles="p-0"
       />
     </QuickStartUIUtils.BaseComponent>
   }

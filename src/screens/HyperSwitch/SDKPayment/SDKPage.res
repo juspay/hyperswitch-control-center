@@ -1,4 +1,5 @@
 let h3Leading2Style = HSwitchUtils.getTextClass(~textVariant=H3, ~h3TextVariant=Leading_2, ())
+external toJson: 'a => Js.Json.t = "%identity"
 
 module SDKConfifiguarationFields = {
   open HSwitchMerchantAccountUtils
@@ -80,22 +81,13 @@ let make = () => {
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let filtersFromUrl = url.search->LogicUtils.getDictFromUrlSearchParams
-  let (currency, setCurrency) = React.useState(() => "USD")
   let (isSDKOpen, setIsSDKOpen) = React.useState(_ => false)
   let (key, setKey) = React.useState(_ => "")
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->getValueFromBusinessProfile
-
-  let initialDict =
-    [
-      ("currency", "United States-USD"->Js.Json.string),
-      ("amount", "100"->Js.Json.string),
-      ("profile_id", defaultBusinessProfile.profile_id->Js.Json.string),
-    ]->Js.Dict.fromArray
-
-  let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
-  let (amount, setAmount) = React.useState(() => 10000)
-
+  let (initialValues, setInitialValues) = React.useState(_ =>
+    defaultBusinessProfile.profile_id->SDKPaymentUtils.initialValueForForm
+  )
   React.useEffect1(() => {
     let paymentIntentOptional = filtersFromUrl->Js.Dict.get("payment_intent_client_secret")
     if paymentIntentOptional->Belt.Option.isSome {
@@ -119,22 +111,8 @@ let make = () => {
   }
 
   let onSubmit = (values, _) => {
-    open LogicUtils
-    let valueDict = values->getDictFromJsonObject
     setKey(_ => Js.Date.now()->Js.Float.toString)
-
-    let currencyValue =
-      valueDict
-      ->getString("currency", "United States-USD")
-      ->Js.String2.split("-")
-      ->Belt.Array.get(1)
-      ->Belt.Option.getWithDefault("USD")
-      ->Js.String2.trim
-    setCurrency(_ => currencyValue)
-    setAmount(_ =>
-      valueDict->getString("amount", "")->Belt.Int.fromString->Belt.Option.getWithDefault(100) * 100
-    )
-    setProfile(_ => valueDict->getString("profile_id", ""))
+    setInitialValues(_ => values->SDKPaymentUtils.getTypedValueForPayment)
     setIsSDKOpen(_ => true)
     RescriptReactRouter.push("/sdk")
     hyperswitchMixPanel(
@@ -157,7 +135,7 @@ let make = () => {
         </div>
         <div className="p-7 flex flex-col justify-between h-5/6 gap-16">
           <Form
-            initialValues={initialDict->Js.Json.object_}
+            initialValues={initialValues->toJson}
             formClass="grid grid-cols-2 gap-x-8 gap-y-4"
             onSubmit>
             <SDKConfifiguarationFields />
@@ -173,17 +151,15 @@ let make = () => {
           <div className="p-7 h-full bg-sidebar-blue">
             <TestPayment
               key
-              amount
               returnUrl={`${HSwitchGlobalVars.hyperSwitchFEPrefix}/sdk`}
-              currency
               onProceed
-              profileId=profile
               sdkWidth="!w-[100%]"
               isTestCredsNeeded=false
               customWidth="!w-full !h-full"
               paymentStatusStyles=""
               successButtonText="Go to Payment"
               keyValue={key}
+              initialValues
             />
           </div>
         } else {
