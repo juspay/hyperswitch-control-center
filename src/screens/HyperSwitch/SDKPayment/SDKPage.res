@@ -61,7 +61,7 @@ module SDKConfifiguarationFields = {
       ~label="Enter amount",
       ~name="amount",
       ~placeholder="Enter amount",
-      ~customInput=InputFields.textInput(~isDisabled=false, ~customStyle="w-full", ()),
+      ~customInput=InputFields.numericTextInput(~isDisabled=false, ~customStyle="w-full", ()),
       (),
     )
 
