@@ -4,9 +4,7 @@
     "version": 4,
     "mode": "classic"
   },
-  "bsc-flags": [
-    "-bs-super-errors"
-  ],
+  "bsc-flags": ["-bs-super-errors"],
   "sources": [
     {
       "dir": "../src",
@@ -25,9 +23,7 @@
     "module": "commonjs",
     "in-source": true
   },
-  "bs-dev-dependencies": [
-    "@glennsl/rescript-jest"
-  ],
+  "bs-dev-dependencies": ["@glennsl/rescript-jest"],
   "bs-dependencies": [
     "@rescript/react",
     "rescript-webapi",

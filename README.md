@@ -67,9 +67,11 @@ Follow these simple steps to set up Hyperswitch on your local machine.
 Feature flags allows the users to enable or disable certain functionalities or flows in the control center.
 
 ### Using feature flags
-The FeatureFlag.json file can be found under config/FeatueFlag.json. By default, all the feature flags is turned off (`False` value). 
+
+The FeatureFlag.json file can be found under config/FeatueFlag.json. By default, all the feature flags is turned off (`False` value).
 
 ### Feature flag descriptions
+
 #### Generate report
 
 The `generate_report` feature flag controls the ability to generate detailed reports on payments, refunds, and disputes. When enabled, this allows users to pull reports covering the previous 6 months of transaction data. The reports can provide insights into trends, identify issues, and inform business decisions.
@@ -264,6 +266,7 @@ curl https://raw.githubusercontent.com/juspay/hyperswitch/main/aws/hyperswitch_c
 Once the script is executed, you will receive a Public IP as the response (e.g. http://34.207.75.225). This IP is the base URL for accessing the application's APIs
 
 #### Clean Up
+
 If you want to delete the application from your account simply run the below clean up script. Ypu need to install JQ for this. For more information, [click here](https://jqlang.github.io/jq/download/)
 
 ```

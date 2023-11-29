@@ -1,0 +1,24 @@
+#!/bin/sh
+
+echo "~~~~**** Commit hook started ****~~~~"
+
+commit_msg_file=$1
+commit_msg=$(cat "$commit_msg_file")
+
+
+# For formatting your code
+npx prettier --write .
+npm run re:format
+
+# Define your commit message convention (e.g., starts with "feature:", "fix:", etc.)
+commit_regex="^(merge-commit|feature|bugfix|chore|docs|style|refactor|test|enhancement).+"
+
+if ! echo "$commit_msg" | grep -E "$commit_regex" ; then
+    echo "Aborting commit. Your commit message does not follow the conventional format."
+    echo "Example - <feature>: <subject> - <description>"
+    exit 1
+fi
+
+# If the commit message matches the convention, the script exits successfully.
+echo "~~~~**** Commit hook completed ****~~~~"
+exit 0

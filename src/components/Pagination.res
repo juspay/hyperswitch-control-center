@@ -74,37 +74,31 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
           customButtonStyle="!h-10"
           onClick={_evt => paginate(Js.Math.max_int(1, currentPage - 1))}
         />
-        {
-         
-          pageNumbers
-          ->Js.Array2.filter(nonEmpty)
-          ->Js.Array2.mapi((number, idx) => {
-            let isSelected = number == currentPage
+        {pageNumbers
+        ->Js.Array2.filter(nonEmpty)
+        ->Js.Array2.mapi((number, idx) => {
+          let isSelected = number == currentPage
 
-            <Button
-              key={idx->string_of_int}
-              text={number->string_of_int}
-              onClick={_evt => paginate(number)}
-              buttonType
-              customButtonStyle="!h-10 border-left-1 border-right-1"
-              buttonState={if isSelected {
-                NoHover
-              } else {
-                Normal
-              }}
-            />
-          })
-          ->React.array
-        }
+          <Button
+            key={idx->string_of_int}
+            text={number->string_of_int}
+            onClick={_evt => paginate(number)}
+            buttonType
+            customButtonStyle="!h-10 border-left-1 border-right-1"
+            buttonState={if isSelected {
+              NoHover
+            } else {
+              Normal
+            }}
+          />
+        })
+        ->React.array}
         <Button
           rightIcon
           buttonType
           onClick={_evt => paginate(currentPage + 1)}
           customButtonStyle="!h-10"
-          buttonState={
-            if (
-            currentPage < Belt.Array.length(pageNumbers) 
-          ) {
+          buttonState={if currentPage < Belt.Array.length(pageNumbers) {
             Normal
           } else {
             Disabled

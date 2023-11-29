@@ -69,7 +69,7 @@ module.exports = {
         xsm: "350px",
         xmd: "430px",
         xxl: "2146px",
-        xxxl: "2560px"
+        xxxl: "2560px",
       },
       minWidth: {
         "1/3": "33.33%",
@@ -575,9 +575,9 @@ module.exports = {
         blue:
           appName == "hyperswitch"
             ? {
-              ...defaultBlueColor,
-              ...hyperSwitchBlueColor,
-            }
+                ...defaultBlueColor,
+                ...hyperSwitchBlueColor,
+              }
             : defaultBlueColor,
         "custom-blue": "#E2F4FF",
         transparent: "rgba(255, 255, 255, 0.00)",
@@ -1164,7 +1164,7 @@ module.exports = {
         3: "0.03",
         12: "0.12",
         65: "0.65",
-        80: "0.80"
+        80: "0.80",
       },
       borderWidth: {
         0.5: "0.5px",
@@ -1596,7 +1596,6 @@ module.exports = {
           fontStyle: "italic",
           fontWeight: "500",
           lineHeight: "normal",
-
         },
         ".text-fs-10": {
           fontSize: "10px",
@@ -1683,7 +1682,8 @@ module.exports = {
             "var(--primaryGradient, linear-gradient(177deg, #050D12 0%, #0E3666 107.89%))",
         },
         ".blur-gradient": {
-          background: "linear-gradient(90deg, rgba(255, 255, 255, 0.00) 0%, #FFF 110.3%)",
+          background:
+            "linear-gradient(90deg, rgba(255, 255, 255, 0.00) 0%, #FFF 110.3%)",
         },
         ".banner-gradient": {
           background:

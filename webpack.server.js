@@ -22,7 +22,7 @@ module.exports = {
     new webpack.DefinePlugin({
       GIT_COMMIT_HASH: JSON.stringify(currentCommitHash),
       IS_SCOPING_MODULE_ACTIVE: JSON.stringify(
-        process.env.IS_SCOPING_MODULE_ACTIVE || "true"
+        process.env.IS_SCOPING_MODULE_ACTIVE || "true",
       ),
     }),
     new CopyWebpackPlugin({

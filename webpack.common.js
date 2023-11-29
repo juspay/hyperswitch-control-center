@@ -47,7 +47,7 @@ module.exports = (appName = "hyperswitch", publicPath = "auto") => {
                       tailwindcss(
                         appName == "hyperswitch"
                           ? "./tailwindHyperSwitch.config.js"
-                          : "./tailwindMain.config.js"
+                          : "./tailwindMain.config.js",
                       ),
                     ],
                   ],

@@ -15,12 +15,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      
-      - name: "Setup yarn"
-        run: corepack enable
 
       - name: "Install dependencies"
-        run: yarn install
+        run: npm install  --legacy-peer-deps
 
       - name: "Build"
         run: npm run re:build
