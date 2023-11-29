@@ -5,11 +5,15 @@ let highlightedText = "text-base font-normal text-blue-700 underline"
 
 @react.component
 let make = (
-  ~amount=100,
   ~returnUrl,
-  ~currency="USD",
   ~onProceed: (~paymentId: string) => promise<unit>,
-  ~profileId=?,
+  ~sdkWidth="w-[60%]",
+  ~isTestCredsNeeded=true,
+  ~customWidth="w-full md:w-1/2",
+  ~paymentStatusStyles="p-11",
+  ~successButtonText="Proceed",
+  ~keyValue,
+  ~initialValues: SDKPaymentTypes.paymentType,
 ) => {
   open APIUtils
   open LogicUtils
@@ -26,23 +30,21 @@ let make = (
   let url = RescriptReactRouter.useUrl()
   let searchParams = url.search
   let filtersFromUrl = getDictFromUrlSearchParams(searchParams)
-  let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-  let defaultBusinessProfile =
-    businessProfiles->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
 
   let getClientSecret = async () => {
     try {
       let url = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments`
       let body =
         Js.Dict.fromArray([
-          ("currency", currency->Js.Json.string),
-          ("amount", amount->Belt.Int.toFloat->Js.Json.number),
+          ("currency", initialValues.currency->SDKPaymentUtils.getCurrencyValue->Js.Json.string),
           (
-            "profile_id",
-            profileId
-            ->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)
-            ->Js.Json.string,
+            "amount",
+            initialValues.amount
+            ->SDKPaymentUtils.convertAmountToCents
+            ->Belt.Int.toFloat
+            ->Js.Json.number,
           ),
+          ("profile_id", initialValues.profile_id->Js.Json.string),
         ])->Js.Json.object_
       let response = await updateDetails(url, body, Post)
       let clientSecret = response->getDictFromJsonObject->getOptionString("client_secret")
@@ -54,7 +56,7 @@ let make = (
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect1(() => {
     let status =
       filtersFromUrl->Js.Dict.get("status")->Belt.Option.getWithDefault("")->Js.String2.toLowerCase
     if status === "succeeded" {
@@ -66,26 +68,21 @@ let make = (
     } else {
       setPaymentStatus(_ => INCOMPLETE)
     }
-    if status->Js.String2.length <= 0 {
+    if status->Js.String2.length <= 0 && keyValue->Js.String2.length > 0 {
       getClientSecret()->ignore
     }
     None
-  })
+  }, [keyValue])
 
-  let tryPaymentAgain = () => {
-    RescriptReactRouter.replace("/quick-start")
-    getClientSecret()->ignore
-  }
-
-  <div className="flex flex-col gap-12 p-11 h-full">
+  <div className={`flex flex-col gap-12 h-full ${paymentStatusStyles}`}>
     {switch paymentStatus {
     | SUCCESS =>
       <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
         iconName="account-setup-completed"
         statusText="Payment Successful"
-        buttonText="Proceed"
+        buttonText=successButtonText
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
-        customWidth="w-full md:w-1/2"
+        customWidth
         bgColor="bg-green-success_page_bg"
       />
 
@@ -93,18 +90,18 @@ let make = (
       <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
         iconName="account-setup-failed"
         statusText="Payment Failed"
-        buttonText="Try Again"
-        buttonOnClick={_ => tryPaymentAgain()}
-        customWidth="w-full md:w-1/2"
+        buttonText=successButtonText
+        buttonOnClick={_ => onProceed(~paymentId)->ignore}
+        customWidth
         bgColor="bg-red-failed_page_bg"
       />
     | CHECKCONFIGURATION =>
       <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
         iconName="processing"
         statusText="Check your Configurations"
-        buttonText="Try Again"
-        buttonOnClick={_ => tryPaymentAgain()}
-        customWidth="w-full md:w-1/2"
+        buttonText=successButtonText
+        buttonOnClick={_ => onProceed(~paymentId)->ignore}
+        customWidth
         bgColor="bg-yellow-pending_page_bg"
       />
 
@@ -112,34 +109,49 @@ let make = (
       <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
         iconName="processing"
         statusText="Payment Pending"
-        buttonText="Try Again"
-        buttonOnClick={_ => tryPaymentAgain()}
-        customWidth="w-full md:w-1/2"
+        buttonText=successButtonText
+        buttonOnClick={_ => onProceed(~paymentId)->ignore}
+        customWidth
         bgColor="bg-yellow-pending_page_bg"
       />
     | _ => React.null
     }}
     {switch clientSecret {
     | Some(val) =>
-      <div className="flex gap-8">
-        <div className="w-[60%]">
-          <WebSDK
-            clientSecret=val
-            publishableKey
-            sdkType=ELEMENT
-            paymentStatus
-            currency
-            setPaymentStatus
-            elementOptions
-            paymentElementOptions
-            returnUrl
-            isConfigureConnector={true}
-            amount
-            setClientSecret
-          />
+      if isTestCredsNeeded {
+        <div className="flex gap-8">
+          <div className=sdkWidth>
+            <WebSDK
+              clientSecret=val
+              publishableKey
+              sdkType=ELEMENT
+              paymentStatus
+              currency={initialValues.currency->SDKPaymentUtils.getCurrencyValue}
+              setPaymentStatus
+              elementOptions
+              paymentElementOptions
+              returnUrl
+              amount={initialValues.amount->SDKPaymentUtils.convertAmountToCents}
+              setClientSecret
+            />
+          </div>
+          <TestCredentials />
         </div>
-        <TestCredentials />
-      </div>
+      } else {
+        <WebSDK
+          clientSecret=val
+          publishableKey
+          sdkType=ELEMENT
+          paymentStatus
+          currency={initialValues.currency->SDKPaymentUtils.getCurrencyValue}
+          setPaymentStatus
+          elementOptions
+          paymentElementOptions
+          returnUrl
+          amount={initialValues.amount->SDKPaymentUtils.convertAmountToCents}
+          setClientSecret
+        />
+      }
     | None => React.null
     }}
   </div>

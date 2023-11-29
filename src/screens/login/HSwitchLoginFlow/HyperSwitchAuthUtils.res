@@ -251,11 +251,6 @@ module ToggleLiveTestMode = {
   open HSwitchGlobalVars
   @react.component
   let make = (~authType, ~mode, ~setMode, ~setAuthType, ~customClass="") => {
-    let {testLiveToggle} =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
     let liveButtonRedirectUrl = switch hostType {
     | Live | Sandbox => liveURL
     | Local => localURL

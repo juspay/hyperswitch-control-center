@@ -23,7 +23,7 @@ module ConnectorDetailsForm = {
       connectorMetaDataFields,
       _,
       connectorWebHookDetails,
-      _,
+      connectorLabelDetailField,
     ) = getConnectorFields(connectorDetails)
     let connectorVariant = connectorName->getConnectorNameTypeFromString
 
@@ -44,6 +44,7 @@ module ConnectorDetailsForm = {
         connectorMetaDataFields
         connectorWebHookDetails
         bodyType
+        connectorLabelDetailField
       />
       <ConnectorAccountDetails.VerifyConnectoModal
         showVerifyModal

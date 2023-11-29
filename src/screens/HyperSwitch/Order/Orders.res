@@ -12,7 +12,6 @@ let make = (~previewOnly=false) => {
   let (filters, setFilters) = React.useState(_ => None)
   let (paymentModal, setPaymentModal) = React.useState(_ => false)
   let isConfigureConnector = ListHooks.useListCount(~entityName=CONNECTOR) > 0
-  let merchantDetailsValue = useMerchantDetailsValue()
 
   let (widthClass, heightClass) = React.useMemo1(() => {
     previewOnly ? ("w-full", "max-h-96") : ("w-full", "")
@@ -84,7 +83,7 @@ let make = (~previewOnly=false) => {
 
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
 
-  let customUI = <NoData isConfigureConnector merchantDetailsValue paymentModal setPaymentModal />
+  let customUI = <NoData isConfigureConnector paymentModal setPaymentModal />
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
