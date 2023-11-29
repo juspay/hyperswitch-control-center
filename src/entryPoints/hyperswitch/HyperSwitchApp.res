@@ -213,7 +213,7 @@ let make = () => {
                           <SwitchMerchant userRole={userRole} />
                         </RenderIf>
                         <div
-                          className={`px-4 py-2 rounded-full whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
+                          className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
                           {modeText->React.string}
                         </div>
                       </div>}

@@ -25,23 +25,6 @@ let make = (
   let (showModal, setShowModal) = React.useState(_ => false)
 
   let onSubmit = (values, form: ReactFinalForm.formApi) => {
-    let _otherQueries = switch values->Js.Json.decodeObject {
-    | Some(dict) =>
-      dict
-      ->Js.Dict.entries
-      ->Belt.Array.keepMap(entry => {
-        let (key, value) = entry
-        let stringVal = LogicUtils.getStringFromJson(value, "")
-        if stringVal !== "" {
-          Some(`${key}=${stringVal}`)
-        } else {
-          None
-        }
-      })
-      ->Js.Array2.joinWith("&")
-    | _ => ""
-    }
-
     open Promise
 
     fetchApi(url, ~bodyStr=Js.Json.stringify(values), ~method_=Fetch.Post, ())

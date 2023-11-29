@@ -8,10 +8,6 @@ let exitCheckBox = "uncheckbox.json"
 let enterSearchCross = "enterCross.json"
 let exitSearchCross = "exitCross.json"
 
-//mettle
-let enterCheckBoxPurple = "checkboxPurple.json"
-let exitCheckBoxPurple = "uncheckboxPurple.json"
-
 let lottieDict: Js.Dict.t<lottieFileJson> = Js.Dict.empty()
 
 let useLottieJson = lottieFileName => {

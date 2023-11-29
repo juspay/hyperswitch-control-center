@@ -16,12 +16,6 @@ type browserDetailsObject = {
 
 let feedbackModalOpenCountForConnectors = 4
 
-let feedbackModalOpenCountForRouting = 2
-
-let milestoneShowingCardCountForConnectors = 3
-
-let milestoneShowingCardCountForRouting = 2
-
 external objToJson: {..} => Js.Json.t = "%identity"
 let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
 
