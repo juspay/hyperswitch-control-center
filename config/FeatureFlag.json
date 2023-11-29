@@ -1,7 +1,7 @@
 {
   "test_live_toggle": false,
   "test_live_mode": false,
-  "magic_link": false,
+  "magic_link": true,
   "production_access": false,
   "quick_start": false,
   "stripe_plus_paypal": false,

@@ -4,6 +4,17 @@ type migrateFromStripeSteps =
 type standardIntegrationSteps =
   DownloadTestAPIKey | CreatePayment | DisplayCheckout | DisplayPaymentConfirmation
 
+type pluginSteps =
+  | InstallPlugin
+  | ConfigurePlugin
+  | SetUpWebhook
+type processorSteps =
+  | SetupSBXCredentials
+  | SetupWebhookSelf
+  | SetupPaymentMethod
+
+type woocommerceIntegrationSteps = SetUpPlugin(pluginSteps) | SetupProcessor(processorSteps)
+
 let getCurrentMigrateFromStripeStepHeading = (step: migrateFromStripeSteps) => {
   switch step {
   | DownloadAPIKey => "Download Test API Key"
@@ -30,6 +41,23 @@ let getCurrentStandardIntegrationStepHeading = (step: standardIntegrationSteps) 
   | CreatePayment => "Create A Payment"
   | DisplayCheckout => "Display Hyperswitch Checkout Page"
   | DisplayPaymentConfirmation => "Display Payment Confirmation Page"
+  }
+}
+
+let getCurrentWooCommerceIntegrationStepHeading = (step: woocommerceIntegrationSteps) => {
+  switch step {
+  | SetUpPlugin(subStep) =>
+    switch subStep {
+    | InstallPlugin => "Download Test API Key"
+    | ConfigurePlugin => "Configure Plugin"
+    | SetUpWebhook => "Setup Webhook and Save Changes"
+    }
+  | SetupProcessor(subStep) =>
+    switch subStep {
+    | SetupSBXCredentials => "Choose a primary processor, setup more later"
+    | SetupWebhookSelf => "Setup Webhook"
+    | SetupPaymentMethod => "Choose Payment Methods"
+    }
   }
 }
 

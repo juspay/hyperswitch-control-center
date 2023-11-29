@@ -199,7 +199,7 @@ let make = (
           setPlatform
           markAsDone
         />
-      | WooCommercePlugin => <WooCommercePlugin />
+      | WooCommercePlugin => <WooCommercePlugin currentRoute markAsDone />
       | _ => <> </>
       }
     }

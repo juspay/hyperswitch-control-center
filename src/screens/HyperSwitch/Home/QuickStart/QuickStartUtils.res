@@ -235,7 +235,7 @@ let sidebarTextBasedOnVariant = choiceState =>
   switch choiceState {
   | #MigrateFromStripe => "Hyperswitch For Stripe Users"
   | #StandardIntegration => "Standard integration"
-  | #WooCommercePlugin => "Woocommerce plugin"
+  | #WooCommercePlugin => "Setup Woocommerce plugin"
   | _ => "Hyperswitch For Stripe Users"
   }
 
@@ -340,19 +340,41 @@ let getSidebarOptionsForIntegrateYourApp: (
       link: "/",
       subOptions: [
         {
-          title: "Download Test API Key",
+          title: "Download and Install Plugin",
           status: PENDING,
         },
         {
-          title: "Create a Payment",
+          title: "Configure Plugin",
           status: PENDING,
         },
         {
-          title: "Display Hyperswitch Checkout",
+          title: "Setup Webhook",
+          status: PENDING,
+        },
+      ],
+    },
+    {
+      title: "Setup a Processor",
+      status: Boolean(enumValue.integrationCompleted)->getStatusValue(
+        #IntegrationCompleted,
+        currentPageStateEnum,
+      ),
+      link: "/",
+      subOptions: [
+        {
+          title: "Setup Sandbox Credentials",
           status: PENDING,
         },
         {
-          title: "Display Payment Confirmation",
+          title: "Setup Webhook on your end",
+          status: PENDING,
+        },
+        {
+          title: "Setup Payment Methods",
+          status: PENDING,
+        },
+        {
+          title: "Summary",
           status: PENDING,
         },
       ],
