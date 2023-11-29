@@ -487,7 +487,7 @@ module.exports = {
           divider_gray: "#B7B7B7",
           border_gray: "#E8E8E8",
           secondary_hover: "#EEEEEE",
-          test_credentials_bg: "#D9D9D959"
+          test_credentials_bg: "#D9D9D959",
         },
         hyperswitch_dark_bg: "#212E46",
         hyperswitch_blue_bg: "#212E46",
