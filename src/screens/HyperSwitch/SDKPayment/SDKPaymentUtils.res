@@ -2,6 +2,7 @@ let initialValueForForm: string => SDKPaymentTypes.paymentType = profileId => {
   amount: 100,
   currency: "United States-USD",
   profile_id: profileId,
+  customer_id: "hyperswitch_sdk_demo_id",
 }
 
 let getTypedValueForPayment: Js.Json.t => SDKPaymentTypes.paymentType = values => {
@@ -11,6 +12,7 @@ let getTypedValueForPayment: Js.Json.t => SDKPaymentTypes.paymentType = values =
     amount: dictOfValues->getInt("amount", 100),
     currency: dictOfValues->getString("currency", "United States-USD"),
     profile_id: dictOfValues->getString("profile_id", ""),
+    customer_id: dictOfValues->getString("customer_id", ""),
   }
 }
 
