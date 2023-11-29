@@ -15,7 +15,7 @@ commit_regex="^(Merge branch|feat|fix|chore|docs|style|refactor|test|enhancement
 
 if ! echo "$commit_msg" | grep -Ei "$commit_regex" ; then
     echo "Aborting commit. Your commit message does not follow the conventional format."
-    echo "Example - <feature>: <subject> - <description>"
+    echo "Example - <feat>: <subject> - <description>"
     exit 1
 fi
 
