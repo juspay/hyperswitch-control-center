@@ -5,14 +5,14 @@
 # changelog header
 header = """
 # Changelog\n
-All notable changes to HyperSwitch will be documented here.\n
+All notable changes to Hyperswitch Control Center will be documented here.\n
 """
 # template for the changelog body
 # https://tera.netlify.app/docs/#introduction
 body = """
 {% set newline = "\n" -%}
-{% set commit_base_url = "https://github.com/juspay/hyperswitch/commit/" -%}
-{% set compare_base_url = "https://github.com/juspay/hyperswitch/compare/" -%}
+{% set commit_base_url = "https://github.com/juspay/hyperswitch-control-center/commit/" -%}
+{% set compare_base_url = "https://github.com/juspay/hyperswitch-control-center/compare/" -%}
 {% if version -%}
     ## {{ version | trim_start_matches(pat="v") }} ({{ timestamp | date(format="%Y-%m-%d") }})
 {% else -%}
@@ -54,7 +54,7 @@ split_commits = false
 commit_preprocessors = [
     { pattern = "^ +", replace = "" }, # remove spaces at the beginning of the message
     { pattern = " +", replace = " " }, # replace multiple spaces with a single space
-    { pattern = "\\(#([0-9]+)\\)", replace = "([#${1}](https://github.com/juspay/hyperswitch/pull/${1}))" }, # replace PR numbers with links
+    { pattern = "\\(#([0-9]+)\\)", replace = "([#${1}](https://github.com/juspay/hyperswitch-control-center/pull/${1}))" }, # replace PR numbers with links
     { pattern = "(\\n?Co-authored-by: .+ <.+@.+>\\n?)+", replace = "" }, # remove co-author information
     { pattern = "(\\n?Signed-off-by: .+ <.+@.+>\\n?)+", replace = "" }, # remove sign-off information
 ]
