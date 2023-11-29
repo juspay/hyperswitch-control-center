@@ -135,7 +135,7 @@ module IntegrationFieldsForm = {
             <AdvanceSettings isUpdateFlow frmName renderCountrySelector />
             {selectedFRMInfo.connectorFields
             ->Array.mapWithIndex((field, index) => {
-              let parse = field.encodeToBase64 ? base64Parse : Parsers.leadingSpaceStrParser
+              let parse = field.encodeToBase64 ? base64Parse : leadingSpaceStrParser
               let format = field.encodeToBase64 ? Some(base64Format) : None
 
               <div key={index->Belt.Int.toString}>

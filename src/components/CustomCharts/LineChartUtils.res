@@ -257,14 +257,6 @@ let appendToDictValue = (dict, key, value) => {
   dict->Js.Dict.set(key, updatedValue)
 }
 
-let addToDictValueInt = (dict, key, value) => {
-  let updatedValue = switch dict->Js.Dict.get(key) {
-  | Some(val) => val + value
-  | None => value
-  }
-  dict->Js.Dict.set(key, updatedValue)
-}
-
 let addToDictValueFloat = (dict, key, value) => {
   let updatedValue = switch dict->Js.Dict.get(key) {
   | Some(val) => val +. value
