@@ -96,7 +96,7 @@ The `feedback` feature flag enables the ability for users to provide direct prod
 
 The `test_processors` feature flag allows enabling sandbox/test payment processors for testing purposes. When enabled, developers and testers can add test payment processors like Stripe Test or PayPal Test to trial payments flows without touching live transactions or making processor API calls.
 
-#### User Management
+#### User Management / Team
 
 The `user_management` feature flag enables user administration capabilities. When enabled, administrators can add, edit, and remove user accounts from the organization. They can also manage user roles and permissions that control access to different features and data.
 

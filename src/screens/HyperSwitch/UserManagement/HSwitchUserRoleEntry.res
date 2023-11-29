@@ -118,7 +118,7 @@ let make = () => {
   <div className="flex flex-col overflow-y-scroll">
     {<>
       <PageUtils.PageHeading
-        title={"User management"}
+        title={"Team management"}
         subTitle="Manage user roles and invite members of your organisation"
       />
       <div className="relative">

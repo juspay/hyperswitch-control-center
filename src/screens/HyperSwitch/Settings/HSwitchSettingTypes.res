@@ -131,23 +131,6 @@ type personalSettings = {
   redirectUrl?: string,
   isApiCall?: bool,
 }
-type pageType = Business | Units | Notifications | Mandate | LandingPage
-let typeMapper = (pageType: string) => {
-  switch pageType {
-  | "business" => Business
-  | "units" => Units
-  | "mandate" => Mandate
-  | _ => LandingPage
-  }
-}
-let headingTypeMapper = (pageTypeValue: pageType) => {
-  switch pageTypeValue {
-  | Business => "Business Settings"
-  | Units => "Business Units"
-  | Mandate => "Mandate Settings"
-  | _ => ""
-  }
-}
 
 type profileEntity = {
   merchant_id: string,

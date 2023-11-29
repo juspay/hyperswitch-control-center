@@ -73,25 +73,13 @@ let disputes = SubLevelLink({
   searchOptions: [("View dispute operations", "")],
 })
 
-let userManagement = SubLevelLink({
-  name: "Users",
-  link: `/users`,
-  access: ReadWrite,
-  searchOptions: [("View user management", "")],
-})
-
-let operations = (isOperationsEnabled, isUserManagementEnabled) => {
-  let linksArray = if isUserManagementEnabled {
-    [payments, refunds, disputes, userManagement]
-  } else {
-    [payments, refunds, disputes]
-  }
+let operations = isOperationsEnabled => {
   isOperationsEnabled
     ? Section({
         name: "Operations",
         icon: "hswitch-operations",
         showSection: true,
-        links: linksArray,
+        links: [payments, refunds, disputes],
       })
     : emptyComponent
 }
@@ -171,22 +159,69 @@ let workflow = isWorkflowEnabled =>
       })
     : emptyComponent
 
-let settings = isSettingsEnabled =>
+let userManagement = SubLevelLink({
+  name: "Team",
+  link: `/users`,
+  access: ReadWrite,
+  searchOptions: [("View team management", "")],
+})
+
+let accountSettings = SubLevelLink({
+  name: "Account Settings",
+  link: `/account-settings`,
+  access: ReadWrite,
+  searchOptions: [
+    ("View profile", "/profile"),
+    ("Change password", "/profile"),
+    ("Manage your personal profile and preferences", "/profile"),
+  ],
+})
+
+let businessDetails = SubLevelLink({
+  name: "Business Details",
+  link: `/business-details`,
+  access: ReadWrite,
+  searchOptions: [("Configure business details", "")],
+})
+
+let businessProfiles = SubLevelLink({
+  name: "Business Profiles",
+  link: `/business-profiles`,
+  access: ReadWrite,
+  searchOptions: [("Configure business profiles", "")],
+})
+
+let settings = (
+  ~isSettingsEnabled,
+  ~isSampleDataEnabled,
+  ~isUserManagementEnabled,
+  ~isBusinessDetailsEnabled,
+  ~isBusinessProfileEnabled,
+) => {
+  let settingsLinkArray = []
+
+  if isBusinessDetailsEnabled {
+    settingsLinkArray->Js.Array2.push(businessDetails)->ignore
+  }
+  if isBusinessProfileEnabled {
+    settingsLinkArray->Js.Array2.push(businessProfiles)->ignore
+  }
+  if isSampleDataEnabled {
+    settingsLinkArray->Js.Array2.push(accountSettings)->ignore
+  }
+  if isUserManagementEnabled {
+    settingsLinkArray->Js.Array2.push(userManagement)->ignore
+  }
+
   isSettingsEnabled
-    ? Link({
+    ? Section({
         name: "Settings",
         icon: "hswitch-settings",
-        link: `/settings`,
-        access: ReadWrite,
-        searchOptions: [
-          ("Configure business units ", "?type=units"),
-          ("Configure business settings", "?type=business"),
-          ("View profile ", "/profile"),
-          ("Change password", "/profile"),
-          ("Manage your personal profile and preferences", "/profile"),
-        ],
+        showSection: true,
+        links: settingsLinkArray,
       })
     : emptyComponent
+}
 
 let apiKeys = SubLevelLink({
   name: "API Keys",
@@ -282,16 +317,33 @@ let getHyperSwitchAppSidebars = (
   ~userRole,
   (),
 ) => {
-  let {productionAccess, frm, payOut, recon, default, userManagement} = featureFlagDetails
+  let {
+    productionAccess,
+    frm,
+    payOut,
+    recon,
+    default,
+    userManagement,
+    sampleData,
+    businessDetails,
+    businessProfile,
+  } = featureFlagDetails
+
   let sidebar = [
     productionAccess->productionAccessComponent,
     default->home,
-    default->operations(userManagement),
+    default->operations,
     default->analytics,
     default->connectors,
     default->workflow,
     default->developers(~userRole),
-    default->settings,
+    settings(
+      ~isSettingsEnabled=default,
+      ~isUserManagementEnabled=userManagement,
+      ~isBusinessDetailsEnabled=businessDetails,
+      ~isBusinessProfileEnabled=businessProfile,
+      ~isSampleDataEnabled=sampleData,
+    ),
     [frm, payOut, recon]->Js.Array2.includes(true)->proFeatures,
     frm->fraudAndRisk,
     payOut->payoutConnectors,

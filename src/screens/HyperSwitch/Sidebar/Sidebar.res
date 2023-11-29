@@ -672,7 +672,7 @@ let make = (
                         <MenuOption
                           onClick={_ => {
                             RescriptReactRouter.replace(
-                              `${HSwitchGlobalVars.hyperSwitchFEPrefix}/settings/profile`,
+                              `${HSwitchGlobalVars.hyperSwitchFEPrefix}/account-settings/profile`,
                             )
                           }}
                           text="Profile"
