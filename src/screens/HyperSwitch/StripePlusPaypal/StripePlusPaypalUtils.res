@@ -48,7 +48,7 @@ let getSidebarOptionsForStripePayalIntegration: (
       link: "",
     },
     {
-      title: "Test a Payment",
+      title: "Try Hyperswitch checkout",
       status: Boolean(enumValue.sPTestPayment)->getStatusValue(
         #sPTestPayment,
         currentPageStateEnum,

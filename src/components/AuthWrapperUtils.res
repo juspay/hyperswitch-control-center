@@ -1,4 +1,4 @@
-type parent = {postMessage: (. string, string) => unit}
+type parent
 
 @val external window: 'a = "window"
 @val @scope("window") external parent: parent = "parent"
