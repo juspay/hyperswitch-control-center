@@ -133,7 +133,7 @@ let make = () => {
         <div className="p-6 border-b-1 border-[#E6E6E6]">
           <p className=h3Leading2Style> {"Setup test checkout"->React.string} </p>
         </div>
-        <div className="p-7 flex flex-col justify-between h-5/6 gap-16">
+        <div className="p-7 flex flex-col gap-16">
           <Form
             initialValues={initialValues->toJson}
             formClass="grid grid-cols-2 gap-x-8 gap-y-4"
