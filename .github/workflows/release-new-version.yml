@@ -1,4 +1,4 @@
-name: Release a new version
+name: Release a new hyperswitch version
 
 # on:
 #   schedule:
