@@ -43,14 +43,7 @@ let useSendEvent = () => {
   | Local => "localhost"
   }
 
-  let trackApi = async (
-    ~email,
-    ~merchantId,
-    ~description: option<string>=None,
-    ~requestId,
-    ~statusCode,
-    ~event,
-  ) => {
+  let trackApi = async (~email, ~merchantId, ~description, ~requestId, ~statusCode, ~event) => {
     let body = {
       "event": event,
       "properties": {
