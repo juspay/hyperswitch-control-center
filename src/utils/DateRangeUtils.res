@@ -186,12 +186,3 @@ let changeTimeFormat = (~customTimezoneToISOString, ~date, ~time, ~format) => {
   )
   TimeZoneHook.formattedISOString(dateTimeCheck, format)
 }
-
-let daysBetween2dates = (~firstDate, ~secondDate) => {
-  let timeleft = secondDate -. firstDate
-  let days =
-    Js.Math.ceil_float(
-      Js.Math.ceil_float(Js.Math.ceil_float(timeleft /. 1000.) /. 60.) /. 60.,
-    ) /. 24.
-  days
-}
