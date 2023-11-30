@@ -429,14 +429,18 @@ module Header = {
       <h1 className="font-semibold text-xl md:text-2xl"> {cardHeaderText->React.string} </h1>
       {switch authType {
       | LoginWithPassword | LoginWithEmail =>
-        !(testLiveMode->Belt.Option.getWithDefault(false))
-          ? getHeaderLink(
-              ~prefix="New to Hyperswitch?",
-              ~authType=SignUP,
-              ~path="/register",
-              ~sufix="Sign up",
-            )
-          : React.null
+        switch testLiveMode {
+        | Some(val) =>
+          !val
+            ? getHeaderLink(
+                ~prefix="New to Hyperswitch?",
+                ~authType=SignUP,
+                ~path="/register",
+                ~sufix="Sign up",
+              )
+            : React.null
+        | _ => React.null
+        }
 
       | SignUP =>
         getHeaderLink(
