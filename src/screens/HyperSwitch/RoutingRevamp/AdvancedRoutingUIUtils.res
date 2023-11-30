@@ -156,11 +156,8 @@ module ValueInp = {
       checked: true,
     }
 
-    switch (
-      opField.value->LogicUtils.getStringFromJson("")->operatorMapper,
-      keyType->variantTypeMapper,
-    ) {
-    | (CONTAINS, _) | (NOT_CONTAINS, _) =>
+    switch opField.value->LogicUtils.getStringFromJson("")->operatorMapper {
+    | CONTAINS | NOT_CONTAINS =>
       <SelectBox.BaseDropdown
         allowMultiSelect=true
         buttonText="Select Value"
@@ -169,7 +166,7 @@ module ValueInp = {
         hideMultiSelectButtons=true
         showSelectionAsChips={false}
       />
-    | (IS, _) | (IS_NOT, _) => {
+    | IS | IS_NOT => {
         let val = valueField.value->LogicUtils.getStringFromJson("")
         <SelectBox.BaseDropdown
           allowMultiSelect=false
@@ -180,9 +177,14 @@ module ValueInp = {
           fixedDropDownDirection=SelectBox.TopRight
         />
       }
-    | (EQUAL_TO, String_value) | (NOT_EQUAL_TO, _) => <TextInput input placeholder="Enter value" />
-    | (EQUAL_TO, _) | (LESS_THAN, _) | (GREATER_THAN, _) =>
-      <NumericTextInput placeholder={"Enter value"} input />
+    | EQUAL_TO =>
+      switch keyType->variantTypeMapper {
+      | String_value => <TextInput input placeholder="Enter value" />
+      | _ => <NumericTextInput placeholder={"Enter value"} input />
+      }
+
+    | NOT_EQUAL_TO => <TextInput input placeholder="Enter value" />
+    | LESS_THAN | GREATER_THAN => <NumericTextInput placeholder={"Enter value"} input />
 
     | _ => React.null
     }
