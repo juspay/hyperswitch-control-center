@@ -2,23 +2,6 @@ let fetchRequestIdFromAPI = res => {
   Fetch.Headers.get("x-request-id")(res->Fetch.Response.headers)->Belt.Option.getWithDefault("")
 }
 
-//to remove
-let getErrorStringifiedJson = (json, key) => {
-  json
-  ->Js.Json.decodeObject
-  ->Belt.Option.getWithDefault(Js.Dict.empty())
-  ->LogicUtils.getJsonObjectFromDict(key)
-  ->Js.Json.stringifyAny
-  ->Belt.Option.getWithDefault("")
-}
-
-let parseErrorJson = json => {
-  open LogicUtils
-  let valuesDict = json->getDictFromJsonObject
-  let errorDict = valuesDict->getObj("error", Js.Dict.empty())
-  errorDict->getString("message", "")
-}
-
 let getMixpanelRouteName = (pageTitle, url: RescriptReactRouter.url) => {
   switch (url.path, url.search) {
   | (list{"payments", ""}, _)

@@ -306,52 +306,6 @@ module ToggleLiveTestMode = {
   }
 }
 
-module InfoWithBack = {
-  @react.component
-  let make = (~authType, ~setAuthType) => {
-    let showInfoWithBack = switch authType {
-    | MagicLinkEmailSent
-    | ForgetPassword
-    | ForgetPasswordEmailSent
-    | ResendVerifyEmailSent
-    | ResendVerifyEmail => true
-    | _ => false
-    }
-
-    <UIUtils.RenderIf condition={showInfoWithBack}>
-      <FramerMotion.Motion.Div
-        initial={{y: -30, opacity: 0}}
-        animate={{y: 0, opacity: 1}}
-        transition={{duration: 0.3}}
-        layoutId="top-section">
-        <UIUtils.RenderIf condition={showInfoWithBack}>
-          <div
-            className="flex gap-2 px-5 py-3 rounded-lg cursor-pointer opacity-50 hover:bg-gray-200 w-fit"
-            onClick={_ => {
-              let backState = switch authType {
-              | MagicLinkEmailSent => SignUP
-              | ForgetPasswordEmailSent => ForgetPassword
-              | ResendVerifyEmailSent => ResendVerifyEmail
-              | ForgetPassword | _ => LoginWithPassword
-              }
-              setAuthType(_ => backState)
-            }}>
-            <Icon name="angle-left" size=14 />
-            <div> {"Back"->React.string} </div>
-          </div>
-        </UIUtils.RenderIf>
-        {switch authType {
-        | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
-          <div className="flex justify-center">
-            <img className="w-48" src={`/assets/mail.svg`} />
-          </div>
-        | _ => React.null
-        }}
-      </FramerMotion.Motion.Div>
-    </UIUtils.RenderIf>
-  }
-}
-
 module Header = {
   @react.component
   let make = (~authType, ~setAuthType, ~email) => {

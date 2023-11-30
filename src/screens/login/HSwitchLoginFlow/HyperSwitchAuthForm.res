@@ -36,20 +36,3 @@ module ResetPasswordForm = {
     </>
   }
 }
-
-module ResendVerifyEmailForm = {
-  @react.component
-  let make = (~disableBtn) => {
-    <div className="h-5-rem">
-      <FormRenderer.FieldRenderer
-        field={FormRenderer.makeFieldInfo(
-          ~name="email",
-          ~label="Email",
-          ~customInput=InputFields.textInput(~isDisabled=disableBtn, ~autoComplete="off", ()),
-          (),
-        )}
-        labelClass
-      />
-    </div>
-  }
-}
