@@ -158,11 +158,6 @@ let make = (~isPayoutFlow=false) => {
   open ConnectorUtils
   let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
@@ -235,9 +230,6 @@ let make = (~isPayoutFlow=false) => {
         />
       </UIUtils.RenderIf>
       <div className="flex flex-col gap-10">
-        <RenderIf condition={isPayoutFlow && featureFlagDetails.frm}>
-          <FRMSelect.FRMProPackageInfo />
-        </RenderIf>
         <RenderIf condition={showConnectorIcons}>
           <NewProcessorCards configuredConnectors showIcons={showConnectorIcons} isPayoutFlow />
         </RenderIf>

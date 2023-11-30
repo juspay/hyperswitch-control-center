@@ -108,9 +108,6 @@ let make = () => {
       <UIUtils.RenderIf condition={currentStep !== Preview}>
         <ConnectorHome.ConnectorCurrentStepIndicator currentStep stepsArr />
       </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={featureFlagDetails.frm}>
-        <FRMSelect.FRMProPackageInfo />
-      </UIUtils.RenderIf>
       <div className="bg-white rounded border h-3/4 p-2 md:p-6 overflow-scroll">
         {switch currentStep {
         | IntegFields =>
