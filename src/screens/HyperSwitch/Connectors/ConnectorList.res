@@ -10,9 +10,14 @@ module NewProcessorCards = {
       ->Recoil.useRecoilValueFromAtom
       ->LogicUtils.safeParse
       ->FeatureFlagUtils.featureFlagType
-    let connectorsAvailableForIntegration = isPayoutFlow
-      ? ConnectorUtils.payoutConnectorList
-      : ConnectorUtils.connectorList
+
+    let connectorsAvailableForIntegration =
+      featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false)
+        ? ConnectorUtils.connectorListForLive
+        : isPayoutFlow
+        ? ConnectorUtils.payoutConnectorList
+        : ConnectorUtils.connectorList
+
     let unConfiguredConnectors =
       connectorsAvailableForIntegration->Js.Array2.filter(total =>
         configuredConnectors->Js.Array2.find(item => item === total)->Belt.Option.isNone

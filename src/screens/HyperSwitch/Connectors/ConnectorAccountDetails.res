@@ -339,7 +339,7 @@ let make = (
         ~connector,
         ~bodyType,
         ~isPayoutFlow,
-        ~isLiveMode={featureFlagDetails.testLiveMode},
+        ~isLiveMode={featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false)},
         (),
       )
       setScreenState(_ => Loading)
@@ -392,7 +392,7 @@ let make = (
           ~connector,
           ~bodyType,
           ~isPayoutFlow,
-          ~isLiveMode={featureFlagDetails.testLiveMode},
+          ~isLiveMode={featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false)},
           (),
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
