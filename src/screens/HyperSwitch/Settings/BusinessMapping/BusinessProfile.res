@@ -164,7 +164,9 @@ let make = (
         <div className="flex flex-col-reverse md:flex-col">
           <PageUtils.PageHeading
             title=tableHeaderText
-            subTitle="Add and manage profiles to represent different businesses across countries."
+            subTitle={isFromWebhooks
+              ? "Set up and monitor transaction webhooks for real-time notifications."
+              : "Add and manage profiles to represent different businesses across countries."}
           />
           <LoadedTable
             title="Business profiles"
