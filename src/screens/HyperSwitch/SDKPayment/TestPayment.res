@@ -45,6 +45,7 @@ let make = (
             ->Js.Json.number,
           ),
           ("profile_id", initialValues.profile_id->Js.Json.string),
+          ("customer_id", "hyperswitch_sdk_demo_id"->Js.Json.string),
         ])->Js.Json.object_
       let response = await updateDetails(url, body, Post)
       let clientSecret = response->getDictFromJsonObject->getOptionString("client_secret")
