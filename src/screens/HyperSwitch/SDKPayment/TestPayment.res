@@ -1,3 +1,4 @@
+external toJson: 'a => Js.Json.t = "%identity"
 let headerTextStyle = "text-xl font-semibold text-grey-700"
 let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
 let dividerColor = "bg-grey-700 bg-opacity-20 h-px w-full"
@@ -46,6 +47,7 @@ let make = (
           ),
           ("profile_id", initialValues.profile_id->Js.Json.string),
           ("customer_id", "hyperswitch_sdk_demo_id"->Js.Json.string),
+          ("description", initialValues.description->Js.Json.string),
         ])->Js.Json.object_
       let response = await updateDetails(url, body, Post)
       let clientSecret = response->getDictFromJsonObject->getOptionString("client_secret")

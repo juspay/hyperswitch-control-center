@@ -262,7 +262,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
               onClick={_ => updateTestPaymentEnum(~paymentId="pay_default")->ignore}
             />}>
             <TestPayment
-              initialValues={activeBusinessProfile.profile_id->SDKPaymentUtils.initialValueForForm}
+              initialValues={activeBusinessProfile->SDKPaymentUtils.initialValueForForm}
               returnUrl={`${HSwitchGlobalVars.hyperSwitchFEPrefix}/quick-start`}
               onProceed={updateTestPaymentEnum}
               keyValue=key
