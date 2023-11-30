@@ -160,6 +160,8 @@ module PersonalSettings = {
       ->FeatureFlagUtils.featureFlagType
     let personalSettings = if featureFlagDetails.sampleData {
       [businessSettings, businessUnits, deleteSampleData]
+    } else if featureFlagDetails.businessProfile {
+      [businessSettings, businessUnits]
     } else {
       [businessSettings]
     }
