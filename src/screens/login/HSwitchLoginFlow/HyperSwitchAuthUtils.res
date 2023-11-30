@@ -356,7 +356,7 @@ module Header = {
   @react.component
   let make = (~authType, ~setAuthType, ~email) => {
     let form = ReactFinalForm.useForm()
-    let {magicLink: isMagicLinkEnabled} =
+    let {magicLink: isMagicLinkEnabled, testLiveMode} =
       HyperswitchAtom.featureFlagAtom
       ->Recoil.useRecoilValueFromAtom
       ->LogicUtils.safeParse
@@ -429,12 +429,15 @@ module Header = {
       <h1 className="font-semibold text-xl md:text-2xl"> {cardHeaderText->React.string} </h1>
       {switch authType {
       | LoginWithPassword | LoginWithEmail =>
-        getHeaderLink(
-          ~prefix="New to Hyperswitch?",
-          ~authType=SignUP,
-          ~path="/register",
-          ~sufix="Sign up",
-        )
+        !(testLiveMode->Belt.Option.getWithDefault(false))
+          ? getHeaderLink(
+              ~prefix="New to Hyperswitch?",
+              ~authType=SignUP,
+              ~path="/register",
+              ~sufix="Sign up",
+            )
+          : React.null
+
       | SignUP =>
         getHeaderLink(
           ~prefix="Already using Hyperswitch?",
