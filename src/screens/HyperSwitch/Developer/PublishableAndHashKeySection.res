@@ -3,7 +3,9 @@ let make = () => {
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = APIUtils.useGetMethod()
-  let (merchantInfo, setMerchantInfo) = React.useState(() => Js.Dict.empty())
+  let (merchantInfo, setMerchantInfo) = React.useState(() =>
+    Js.Json.null->HSwitchMerchantAccountUtils.getMerchantDetails
+  )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let getMerchantDetails = async () => {
@@ -12,9 +14,7 @@ let make = () => {
       let accountUrl = APIUtils.getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get, ())
       let merchantDetails = await fetchDetails(accountUrl)
       let merchantInfo = merchantDetails->HSwitchMerchantAccountUtils.getMerchantDetails
-
-      setMerchantInfo(_ => merchantInfo->HSwitchMerchantAccountUtils.parseMerchantJson)
-
+      setMerchantInfo(_ => merchantInfo)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
@@ -29,7 +29,7 @@ let make = () => {
     None
   })
 
-  let paymentResponsHashKey = merchantInfo->LogicUtils.getString("payment_response_hash_key", "")
+  let paymentResponsHashKey = merchantInfo.payment_response_hash_key->Belt.Option.getWithDefault("")
 
   <PageLoaderWrapper screenState sectionHeight="h-40-vh">
     <div className="mt-10">
@@ -66,7 +66,7 @@ let make = () => {
               </div>
             </div>
             <HelperComponents.CopyTextCustomComp
-              displayValue={merchantInfo->LogicUtils.getString("publishable_key", "")}
+              displayValue={merchantInfo.publishable_key}
               customTextCss="break-all text-sm font-semibold text-jp-gray-800 text-opacity-75"
               customParentClass="flex items-center gap-5"
               customOnCopyClick={() => {
