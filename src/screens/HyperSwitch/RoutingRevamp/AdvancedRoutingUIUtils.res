@@ -67,6 +67,7 @@ module OperatorInp = {
       | Enum_variant => ["IS", "CONTAINS", "IS_NOT", "NOT_CONTAINS"]
       | Number => ["EQUAL TO", "GREATER THAN", "LESS THAN"]
       | Metadata_value => ["EQUAL TO"]
+      | String_value => ["EQUAL TO", "NOT EQUAL_TO"]
       | _ => []
       }
 
@@ -128,6 +129,8 @@ module ValueInp = {
       typeField.onChange(
         if keyType->variantTypeMapper === Metadata_value {
           "metadata_variant"
+        } else if keyType->variantTypeMapper === String_value {
+          "str_value"
         } else {
           switch opField.value->LogicUtils.getStringFromJson("")->operatorMapper {
           | IS
@@ -153,8 +156,11 @@ module ValueInp = {
       checked: true,
     }
 
-    switch opField.value->LogicUtils.getStringFromJson("")->operatorMapper {
-    | CONTAINS | NOT_CONTAINS =>
+    switch (
+      opField.value->LogicUtils.getStringFromJson("")->operatorMapper,
+      keyType->variantTypeMapper,
+    ) {
+    | (CONTAINS, _) | (NOT_CONTAINS, _) =>
       <SelectBox.BaseDropdown
         allowMultiSelect=true
         buttonText="Select Value"
@@ -163,7 +169,7 @@ module ValueInp = {
         hideMultiSelectButtons=true
         showSelectionAsChips={false}
       />
-    | IS | IS_NOT => {
+    | (IS, _) | (IS_NOT, _) => {
         let val = valueField.value->LogicUtils.getStringFromJson("")
         <SelectBox.BaseDropdown
           allowMultiSelect=false
@@ -174,8 +180,10 @@ module ValueInp = {
           fixedDropDownDirection=SelectBox.TopRight
         />
       }
+    | (EQUAL_TO, String_value) | (NOT_EQUAL_TO, _) => <TextInput input placeholder="Enter value" />
+    | (EQUAL_TO, _) | (LESS_THAN, _) | (GREATER_THAN, _) =>
+      <NumericTextInput placeholder={"Enter value"} input />
 
-    | EQUAL_TO | LESS_THAN | GREATER_THAN => <NumericTextInput placeholder={"Enter Value"} input />
     | _ => React.null
     }
   }
