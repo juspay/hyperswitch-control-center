@@ -38,6 +38,7 @@ let operatorMapper = value => {
   | "GREATER THAN" => GREATER_THAN
   | "LESS THAN" => LESS_THAN
   | "EQUAL TO" => EQUAL_TO
+  | "NOT EQUAL_TO" => NOT_EQUAL_TO
   | _ => UnknownOperator("")
   }
 }
@@ -47,6 +48,7 @@ let variantTypeMapper = variantType => {
   | "number" => Number
   | "enum_variant" => Enum_variant
   | "metadata_value" => Metadata_value
+  | "str_value" => String_value
   | _ => UnknownVariant("")
   }
 }
@@ -99,6 +101,7 @@ let operatorTypeToStringMapper = operator => {
   | GREATER_THAN => "GREATER THAN"
   | LESS_THAN => "LESS THAN"
   | EQUAL_TO => "EQUAL TO"
+  | NOT_EQUAL_TO => "NOT EQUAL_TO"
   | UnknownOperator(str) => str
   }
 }
@@ -210,6 +213,7 @@ let advanceRoutingConditionMapper = (dict, wasm) => {
     | EQUAL_TO => "equal"
     | GREATER_THAN => "greater_than"
     | LESS_THAN => "less_than"
+    | NOT_EQUAL_TO => "not_equal"
     | UnknownOperator(str) => str
     },
     value: {
@@ -224,6 +228,7 @@ let advanceRoutingConditionMapper = (dict, wasm) => {
         | _ => ""
         }
       | Metadata_value => "metadata_variant"
+      | String_value => "str_value"
       | _ => ""
       }->Js.Json.string,
       "value": switch variantType->variantTypeMapper {
@@ -243,6 +248,7 @@ let advanceRoutingConditionMapper = (dict, wasm) => {
           let value = dict->getString("value", "")->Js.String2.trim->Js.Json.string
           Js.Dict.fromArray([("key", key), ("value", value)])->Js.Json.object_
         }
+      | String_value => dict->getString("value", "")->Js.Json.string
       | _ => ""->Js.Json.string
       },
     },
