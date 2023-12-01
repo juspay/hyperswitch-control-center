@@ -195,7 +195,7 @@ let apiKeys = SubLevelLink({
   searchOptions: [("View API Keys", "")],
 })
 
-let systemMetrics = SubLevelLink({
+let systemMetric = SubLevelLink({
   name: "System Metrics",
   link: `/developer-system-metrics`,
   access: ReadWrite,
@@ -210,7 +210,7 @@ let webhooks = SubLevelLink({
   searchOptions: [("View Webhooks", "")],
 })
 
-let developers = (isDevelopersEnabled, ~userRole) => {
+let developers = (isDevelopersEnabled, userRole, systemMetrics) => {
   let isInternalUser = userRole->Js.String2.includes("internal_")
 
   isDevelopersEnabled
@@ -218,7 +218,9 @@ let developers = (isDevelopersEnabled, ~userRole) => {
         name: "Developers",
         icon: "developer",
         showSection: true,
-        links: isInternalUser ? [apiKeys, webhooks, systemMetrics] : [apiKeys, webhooks],
+        links: isInternalUser && systemMetrics
+          ? [apiKeys, webhooks, systemMetric]
+          : [apiKeys, webhooks],
       })
     : emptyComponent
 }
@@ -282,7 +284,15 @@ let getHyperSwitchAppSidebars = (
   ~userRole,
   (),
 ) => {
-  let {productionAccess, frm, payOut, recon, default, userManagement} = featureFlagDetails
+  let {
+    productionAccess,
+    frm,
+    payOut,
+    recon,
+    default,
+    userManagement,
+    systemMetrics,
+  } = featureFlagDetails
   let sidebar = [
     productionAccess->productionAccessComponent,
     default->home,
@@ -290,7 +300,7 @@ let getHyperSwitchAppSidebars = (
     default->analytics,
     default->connectors,
     default->workflow,
-    default->developers(~userRole),
+    default->developers(userRole, systemMetrics),
     default->settings,
     [frm, payOut, recon]->Js.Array2.includes(true)->proFeatures,
     frm->fraudAndRisk,
