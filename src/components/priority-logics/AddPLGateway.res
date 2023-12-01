@@ -231,6 +231,7 @@ let make = (
                 fixedDropDownDirection=SelectBox.TopRight
                 searchable=true
                 defaultLeftIcon={FontAwesome("plus")}
+                maxHeight="max-h-full sm:max-h-64"
               />
               <span className="text-lg text-red-500 ml-1"> {React.string("*")} </span>
             </div>

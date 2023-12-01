@@ -1,37 +1,12 @@
-let regex = (a, searchString) => {
-  let searchStringNew =
-    searchString
-    ->Js.String2.replaceByRe(%re("/[<>\[\]';|?*\\]/g"), "")
-    ->Js.String2.replaceByRe(%re("/\(/g"), "\\(")
-    ->Js.String2.replaceByRe(%re("/\+/g"), "\\+")
-    ->Js.String2.replaceByRe(%re("/\)/g"), "\\)")
-  Js.Re.fromStringWithFlags("(.*)(" ++ a ++ "" ++ searchStringNew ++ ")(.*)", ~flags="i")
-}
-
-let shouldDisplay = (~globalSearchList, ~searchText) => {
-  let isMatch = switch Js.String2.match_(globalSearchList, regex("\\b", searchText)) {
-  | Some(_) => true
-  | None => Js.String2.match_(globalSearchList, regex("_", searchText))->Belt.Option.isSome
-  }
-  isMatch && searchText->Js.String2.length > 0
-}
-let listText = (text, searchText) => {
-  switch Js.String2.match_(text, regex("\\b", searchText)) {
-  | Some(r) => r->Array.sliceToEnd(~start=1)->Belt.Array.keepMap(x => x)
-  | None =>
-    switch Js.String2.match_(text, regex("_", searchText)) {
-    | Some(a) => a->Array.sliceToEnd(~start=1)->Belt.Array.keepMap(x => x)
-    | None => [text]
-    }
-  }
-}
 let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName="", ()) => {
+  open LogicUtils
+
   let valueReturned =
     searchOptions
     ->Belt.Option.getWithDefault([])
     ->Js.Array2.filter(item => {
       let (searchKey, _redirection) = item
-      shouldDisplay(~globalSearchList=searchKey, ~searchText)
+      checkStringStartsWithSubstring(~itemToCheck=searchKey, ~searchText)
     })
     ->Js.Array2.map(item => {
       let (searchKey, redirection) = item
@@ -54,7 +29,9 @@ let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName="
 module RenderedComponent = {
   @react.component
   let make = (~ele, ~searchText) => {
-    listText(ele, searchText)
+    open LogicUtils
+
+    listOfMatchedText(ele, searchText)
     ->Array.mapWithIndex((item, i) => {
       if (
         Js.String2.toLowerCase(item) == Js.String2.toLowerCase(searchText) &&
@@ -80,6 +57,8 @@ module RenderedComponent = {
 @react.component
 let make = () => {
   open HeadlessUI
+  open LogicUtils
+
   let (showModal, setShowModal) = React.useState(_ => false)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (arr, setArr) = React.useState(_ => [])
@@ -108,7 +87,7 @@ let make = () => {
       switch item {
       | Link(obj)
       | RemoteLink(obj) => {
-          if shouldDisplay(~globalSearchList=obj.name, ~searchText) {
+          if checkStringStartsWithSubstring(~itemToCheck=obj.name, ~searchText) {
             let matchedEle =
               [
                 ("elements", [""->Js.Json.string, obj.name->Js.Json.string]->Js.Json.array),
@@ -136,8 +115,8 @@ let make = () => {
               | SubLevelLink(obj)
               | SubLevelRemoteLink(obj) => {
                   if (
-                    shouldDisplay(~globalSearchList=sectionObj.name, ~searchText) ||
-                    shouldDisplay(~globalSearchList=obj.name, ~searchText)
+                    checkStringStartsWithSubstring(~itemToCheck=sectionObj.name, ~searchText) ||
+                    checkStringStartsWithSubstring(~itemToCheck=obj.name, ~searchText)
                   ) {
                     let matchedEle =
                       [
@@ -169,7 +148,7 @@ let make = () => {
         }
 
       | LinkWithTag(obj) => {
-          if shouldDisplay(~globalSearchList=obj.name, ~searchText) {
+          if checkStringStartsWithSubstring(~itemToCheck=obj.name, ~searchText) {
             let matchedEle =
               [
                 ("elements", [obj.name->Js.Json.string]->Js.Json.array),

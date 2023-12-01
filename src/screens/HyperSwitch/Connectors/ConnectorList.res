@@ -1,3 +1,6 @@
+external formEventToStr: ReactEvent.Form.t => string = "%identity"
+
+let p1MediumTextStyle = HSwitchUtils.getTextClass(~textVariant=P1, ~paragraphTextVariant=Medium, ())
 module NewProcessorCards = {
   @react.component
   let make = (
@@ -24,6 +27,7 @@ module NewProcessorCards = {
       )
 
     let (showModal, setShowModal) = React.useState(_ => false)
+    let (searchedConnector, setSearchedConnector) = React.useState(_ => "")
 
     let urlPrefix = isPayoutFlow ? "payoutconnectors/new" : "connectors/new"
     let handleClick = connectorName => {
@@ -31,7 +35,25 @@ module NewProcessorCards = {
     }
     let unConfiguredConnectorsCount = unConfiguredConnectors->Js.Array2.length
 
-    let descriptedConnectors = (connectorList, heading, showRequestConnectorBtn) => {
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      name: "string",
+      onBlur: _ev => (),
+      onChange: ev => {
+        let value = {ev->ReactEvent.Form.target}["value"]
+        setSearchedConnector(_ => value)
+      },
+      onFocus: _ev => (),
+      value: searchedConnector->Js.Json.string,
+      checked: true,
+    }
+
+    let descriptedConnectors = (
+      connectorList,
+      heading,
+      showRequestConnectorBtn,
+      ~showSearch=true,
+      (),
+    ) => {
       <>
         <div className="flex w-full justify-between">
           <h2
@@ -46,89 +68,132 @@ module NewProcessorCards = {
             </div>
           </UIUtils.RenderIf>
         </div>
-        <div className="grid gap-4 lg:grid-cols-4 md:grid-cols-2 grid-cols-1 mb-5">
-          {connectorList
-          ->Array.mapWithIndex((connector, i) => {
-            let connectorName = connector->ConnectorUtils.getConnectorNameString
-            let connectorInfo = connector->ConnectorUtils.getConnectorInfo
-            let size = switch connectorName->ConnectorUtils.getConnectorNameTypeFromString {
-            | PHONYPAY | PRETENDPAY | FAUXPAY => "w-8 h-8"
-            | _ => "w-14 h-14 rounded-full"
-            }
+        <UIUtils.RenderIf condition={showSearch}>
+          <TextInput
+            input
+            placeholder="Search for a processor"
+            customWidth="w-1/3"
+            leftIcon={<Icon size=16 className="text-jp-2-light-gray-1000" name="search" />}
+          />
+        </UIUtils.RenderIf>
+        <UIUtils.RenderIf condition={connectorList->Js.Array2.length > 0}>
+          <div className="grid gap-x-5 gap-y-6 lg:grid-cols-4 md:grid-cols-2 grid-cols-1 mb-5">
+            {connectorList
+            ->Array.mapWithIndex((connector, i) => {
+              let connectorName = connector->ConnectorUtils.getConnectorNameString
+              let connectorInfo = connector->ConnectorUtils.getConnectorInfo
+              let size = "w-14 h-14 rounded-sm"
 
+              <div
+                key={i->string_of_int}
+                className="border p-6 gap-4 bg-white rounded flex flex-col justify-between">
+                <div className="flex flex-col gap-3 items-start">
+                  <GatewayIcon gateway={connectorName->Js.String2.toUpperCase} className=size />
+                  <p className={`${p1MediumTextStyle} break-all`}>
+                    {connectorName->LogicUtils.capitalizeString->React.string}
+                  </p>
+                </div>
+                <div className="overflow-hidden text-gray-400 flex-1">
+                  {connectorInfo.description->React.string}
+                </div>
+                <Button
+                  text="+ Connect"
+                  buttonType={Transparent}
+                  buttonSize={Small}
+                  onClick={_ => handleClick(connectorName)}
+                  textStyle="text-jp-gray-900"
+                />
+              </div>
+            })
+            ->React.array}
+          </div>
+        </UIUtils.RenderIf>
+        <UIUtils.RenderIf condition={connectorList->Js.Array2.length === 0}>
+          <p className="flex items-center justify-center w-full jp-grey-700 opacity-50">
+            {"No processor found !!"->React.string}
+          </p>
+        </UIUtils.RenderIf>
+      </>
+    }
+
+    let iconsConnectors = (
+      connectorList,
+      heading,
+      showRequestConnectorBtn,
+      ~showSearch=true,
+      (),
+    ) => {
+      <>
+        <div className="flex w-full justify-between">
+          <h2
+            className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+            {heading->React.string}
+          </h2>
+          <UIUtils.RenderIf condition={showRequestConnectorBtn}>
             <div
-              key={i->string_of_int}
-              className="border p-8 gap-4 bg-white rounded flex flex-col justify-between">
-              <div className="flex gap-2 items-center">
-                <GatewayIcon gateway={connectorName->Js.String2.toUpperCase} className=size />
-                <h1 className="text-xl font-semibold break-all">
-                  {connectorName->LogicUtils.capitalizeString->React.string}
-                </h1>
-              </div>
-              <div className="overflow-hidden text-gray-400 flex-1 mb-6">
-                {connectorInfo.description->React.string}
-              </div>
-              <Button
-                text="+ Connect"
-                buttonType={Secondary}
-                buttonSize={Small}
-                onClick={_ => handleClick(connectorName)}
+              onClick={_ => setShowModal(_ => true)}
+              className="text-blue-900 cursor-pointer underline underline-offset-4 font-medium">
+              {"Can't find the connector of you're choice?"->React.string}
+            </div>
+          </UIUtils.RenderIf>
+        </div>
+        <UIUtils.RenderIf condition={showSearch}>
+          <TextInput
+            input
+            placeholder="Search for a processor"
+            customWidth="w-1/3"
+            leftIcon={<Icon size=16 className="text-jp-2-light-gray-1000" name="search" />}
+          />
+        </UIUtils.RenderIf>
+        <div className="bg-white rounded-md flex gap-2 flex-wrap p-4 border">
+          <UIUtils.RenderIf condition={connectorList->Js.Array2.length > 0}>
+            {connectorList
+            ->Array.mapWithIndex((connector, i) => {
+              let connectorName = connector->ConnectorUtils.getConnectorNameString
+              let size = "w-14 h-14 rounded-sm"
+              <ToolTip
+                key={i->string_of_int}
+                description={connectorName->LogicUtils.capitalizeString}
+                toolTipFor={<div
+                  className="p-2 cursor-pointer" onClick={_ => handleClick(connectorName)}>
+                  <GatewayIcon gateway={connectorName->Js.String2.toUpperCase} className=size />
+                </div>}
+                toolTipPosition={Top}
+                tooltipWidthClass="w-30"
               />
-            </div>
-          })
-          ->React.array}
-        </div>
-      </>
-    }
-
-    let iconsConnectors = (connectorList, heading, showRequestConnectorBtn) => {
-      <>
-        <div className="flex w-full justify-between">
-          <h2
-            className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
-            {heading->React.string}
-          </h2>
-          <UIUtils.RenderIf condition={showRequestConnectorBtn}>
-            <div
-              onClick={_ => setShowModal(_ => true)}
-              className="text-blue-900 cursor-pointer underline underline-offset-4 font-medium">
-              {"Can't find the connector of you're choice?"->React.string}
-            </div>
+            })
+            ->React.array}
+          </UIUtils.RenderIf>
+          <UIUtils.RenderIf condition={connectorList->Js.Array2.length === 0}>
+            <p className="flex items-center justify-center w-full jp-grey-700 opacity-50">
+              {"No processor found !!"->React.string}
+            </p>
           </UIUtils.RenderIf>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          {connectorList
-          ->Array.mapWithIndex((connector, i) => {
-            let connectorName = connector->ConnectorUtils.getConnectorNameString
-            let size = switch connectorName->ConnectorUtils.getConnectorNameTypeFromString {
-            | PHONYPAY | PRETENDPAY | FAUXPAY => "w-8 h-8"
-            | _ => "w-14 h-14 rounded-full"
-            }
-            <ToolTip
-              key={i->string_of_int}
-              description={connectorName->LogicUtils.capitalizeString}
-              toolTipFor={<div
-                className="bg-white p-2 cursor-pointer" onClick={_ => handleClick(connectorName)}>
-                <GatewayIcon gateway={connectorName->Js.String2.toUpperCase} className=size />
-              </div>}
-              toolTipPosition={Top}
-              tooltipWidthClass="w-30"
-            />
-          })
-          ->React.array}
-        </div>
       </>
     }
 
+    let connectorListFiltered = {
+      if searchedConnector->Js.String2.length > 0 {
+        connectorsAvailableForIntegration->Js.Array2.filter(item =>
+          LogicUtils.checkStringStartsWithSubstring(
+            ~itemToCheck=item->ConnectorUtils.getConnectorNameString,
+            ~searchText=searchedConnector->Js.String2.toLowerCase,
+          )
+        )
+      } else {
+        connectorsAvailableForIntegration
+      }
+    }
     <UIUtils.RenderIf condition={unConfiguredConnectorsCount > 0}>
       <div className="flex flex-col gap-4">
         {if showIcons {
           <>
-            {connectorsAvailableForIntegration->iconsConnectors("Connect a new connector", true)}
+            {connectorListFiltered->iconsConnectors("Connect a new connector", true, ())}
             {<UIUtils.RenderIf condition={featureFlagDetails.testProcessors && !isPayoutFlow}>
               {featureFlagDetails.testProcessors
               ->ConnectorUtils.dummyConnectorList
-              ->iconsConnectors("Connect a test connector", false)}
+              ->iconsConnectors("Connect a test connector", false, ~showSearch=false, ())}
             </UIUtils.RenderIf>}
           </>
         } else {
@@ -136,12 +201,9 @@ module NewProcessorCards = {
             <UIUtils.RenderIf condition={featureFlagDetails.testProcessors && !isPayoutFlow}>
               {featureFlagDetails.testProcessors
               ->ConnectorUtils.dummyConnectorList
-              ->descriptedConnectors("Connect a test connector", false)}
+              ->descriptedConnectors("Connect a test connector", false, ~showSearch=false, ())}
             </UIUtils.RenderIf>
-            {connectorsAvailableForIntegration->descriptedConnectors(
-              "Connect a new connector",
-              true,
-            )}
+            {connectorListFiltered->descriptedConnectors("Connect a new connector", true, ())}
           </>
         }}
       </div>
