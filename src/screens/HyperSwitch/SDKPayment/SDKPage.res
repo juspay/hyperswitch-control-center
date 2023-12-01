@@ -1,10 +1,10 @@
 let h3Leading2Style = HSwitchUtils.getTextClass(~textVariant=H3, ~h3TextVariant=Leading_2, ())
 external toJson: 'a => Js.Json.t = "%identity"
 
-module SDKConfifiguarationFields = {
+module SDKConfiguarationFields = {
   open HSwitchMerchantAccountUtils
   @react.component
-  let make = () => {
+  let make = (~initialValues: SDKPaymentTypes.paymentType) => {
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
     let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
     let disableSelectionForProfile = arrayOfBusinessProfile->HomeUtils.isDefaultBusinessProfile
@@ -70,7 +70,9 @@ module SDKConfifiguarationFields = {
       <FormRenderer.FieldRenderer field=selectProfileId fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=selectCurrencyField fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=enterAmountField fieldWrapperClass="!w-full" />
-      <FormRenderer.SubmitButton text="Show preview" />
+      <FormRenderer.SubmitButton
+        text="Show preview" disabledParamter={!(initialValues.profile_id->Js.String2.length > 0)}
+      />
     </>
   }
 }
@@ -86,7 +88,7 @@ let make = () => {
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->getValueFromBusinessProfile
   let (initialValues, setInitialValues) = React.useState(_ =>
-    defaultBusinessProfile.profile_id->SDKPaymentUtils.initialValueForForm
+    defaultBusinessProfile->SDKPaymentUtils.initialValueForForm
   )
   React.useEffect1(() => {
     let paymentIntentOptional = filtersFromUrl->Js.Dict.get("payment_intent_client_secret")
@@ -95,6 +97,11 @@ let make = () => {
     }
     None
   }, [filtersFromUrl])
+
+  React.useEffect1(() => {
+    setInitialValues(_ => defaultBusinessProfile->SDKPaymentUtils.initialValueForForm)
+    None
+  }, [defaultBusinessProfile.profile_id->Js.String2.length])
 
   let onProceed = async (~paymentId as _) => {
     let paymentId =
@@ -138,7 +145,7 @@ let make = () => {
             initialValues={initialValues->toJson}
             formClass="grid grid-cols-2 gap-x-8 gap-y-4"
             onSubmit>
-            <SDKConfifiguarationFields />
+            <SDKConfiguarationFields initialValues />
           </Form>
           <TestCredentials />
         </div>
