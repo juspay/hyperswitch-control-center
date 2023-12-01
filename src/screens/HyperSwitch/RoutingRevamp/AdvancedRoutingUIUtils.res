@@ -67,6 +67,7 @@ module OperatorInp = {
       | Enum_variant => ["IS", "CONTAINS", "IS_NOT", "NOT_CONTAINS"]
       | Number => ["EQUAL TO", "GREATER THAN", "LESS THAN"]
       | Metadata_value => ["EQUAL TO"]
+      | String_value => ["EQUAL TO", "NOT EQUAL_TO"]
       | _ => []
       }
 
@@ -128,6 +129,8 @@ module ValueInp = {
       typeField.onChange(
         if keyType->variantTypeMapper === Metadata_value {
           "metadata_variant"
+        } else if keyType->variantTypeMapper === String_value {
+          "str_value"
         } else {
           switch opField.value->LogicUtils.getStringFromJson("")->operatorMapper {
           | IS
@@ -174,8 +177,15 @@ module ValueInp = {
           fixedDropDownDirection=SelectBox.TopRight
         />
       }
+    | EQUAL_TO =>
+      switch keyType->variantTypeMapper {
+      | String_value => <TextInput input placeholder="Enter value" />
+      | _ => <NumericTextInput placeholder={"Enter value"} input />
+      }
 
-    | EQUAL_TO | LESS_THAN | GREATER_THAN => <NumericTextInput placeholder={"Enter Value"} input />
+    | NOT_EQUAL_TO => <TextInput input placeholder="Enter value" />
+    | LESS_THAN | GREATER_THAN => <NumericTextInput placeholder={"Enter value"} input />
+
     | _ => React.null
     }
   }
