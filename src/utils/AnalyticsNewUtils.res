@@ -41,21 +41,6 @@ let calculateHistoricTime = (
   }
 }
 
-let calculateDelta = (
-  ~currentValue: float,
-  ~previousValue: float,
-  ~statType: AnalyticsTypesUtils.metricsType,
-) => {
-  let delta = switch statType {
-  | Volume | Latency | Amount =>
-    ((currentValue -. previousValue) /. previousValue *. 100.)
-      ->Js.Float.toFixedWithPrecision(~digits=2)
-  | Rate | NegativeRate => (currentValue -. previousValue)->Js.Float.toFixedWithPrecision(~digits=2)
-  }
-
-  Js.Float.fromString(delta)
-}
-
 let makeFilters = (~filters: Js.Json.t, ~cardinalityArr) => {
   let decodeFilter = filters->getDictFromJsonObject
 
@@ -527,28 +512,4 @@ let apiBodyMaker = (
   finalBody->Js.Dict.set("domain", domain->Js.Json.string)
   finalBody->Js.Dict.set("interval", timeObj->Js.Json.object_)
   finalBody->Js.Json.object_
-}
-
-let domainFromModeValue = modeValue =>
-  if modeValue === "ORDER" {
-    "orders"
-  } else {
-    "txns"
-  }
-
-let getModeName = mode => {
-  if mode === "txns" {
-    "Transactions"
-  } else {
-    "Orders"
-  }
-}
-
-let filterAddButtonFn = showDropDown => {
-  <div
-    className={`text-jp-2-light-primary-600 text-fs-12 font-medium p-2 rounded cursor-pointer hover:bg-jp-2-light-primary-200 ${showDropDown
-        ? "bg-jp-2-light-primary-200 focus:outline-none shadow-jp-2-sm-primary-focus"
-        : ""}`}>
-    {React.string("+Add")}
-  </div>
 }
