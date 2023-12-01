@@ -173,7 +173,7 @@ module TestPayment = {
         }}
       />}>
       <TestPayment
-        initialValues={defaultBusinessProfile.profile_id->SDKPaymentUtils.initialValueForForm}
+        initialValues={defaultBusinessProfile->SDKPaymentUtils.initialValueForForm}
         returnUrl={`${HSwitchGlobalVars.hyperSwitchFEPrefix}/stripe-plus-paypal`}
         onProceed={sptestPaymentProceed}
         keyValue={key}
