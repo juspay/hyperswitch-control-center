@@ -191,12 +191,7 @@ let businessProfiles = SubLevelLink({
   searchOptions: [("Configure business profiles", "")],
 })
 
-let settings = (
-  ~isSettingsEnabled,
-  ~isSampleDataEnabled,
-  ~isUserManagementEnabled,
-  ~isBusinessProfileEnabled,
-) => {
+let settings = (~isSampleDataEnabled, ~isUserManagementEnabled, ~isBusinessProfileEnabled) => {
   let settingsLinkArray = [businessDetails]
 
   if isBusinessProfileEnabled {
@@ -209,14 +204,12 @@ let settings = (
     settingsLinkArray->Js.Array2.push(userManagement)->ignore
   }
 
-  isSettingsEnabled
-    ? Section({
-        name: "Settings",
-        icon: "hswitch-settings",
-        showSection: true,
-        links: settingsLinkArray,
-      })
-    : emptyComponent
+  Section({
+    name: "Settings",
+    icon: "hswitch-settings",
+    showSection: true,
+    links: settingsLinkArray,
+  })
 }
 
 let apiKeys = SubLevelLink({
@@ -335,7 +328,6 @@ let getHyperSwitchAppSidebars = (
     default->workflow,
     default->developers(userRole, systemMetrics),
     settings(
-      ~isSettingsEnabled=default,
       ~isUserManagementEnabled=userManagement,
       ~isBusinessProfileEnabled=businessProfile,
       ~isSampleDataEnabled=sampleData,
