@@ -27,6 +27,7 @@ let operatorMapper: string => AdvancedRoutingTypes.operator = value => {
   | "GREATER THAN" => GREATER_THAN
   | "LESS THAN" => LESS_THAN
   | "EQUAL TO" => EQUAL_TO
+  | "NOT EQUAL_TO" => NOT_EQUAL_TO
   | _ => UnknownOperator("")
   }
 }
@@ -91,6 +92,7 @@ let variantTypeMapper: string => AdvancedRoutingTypes.variantType = variantType 
   | "number" => Number
   | "enum_variant" => Enum_variant
   | "metadata_value" => Metadata_value
+  | "str_value" => String_value
   | _ => UnknownVariant("")
   }
 }
@@ -228,12 +230,14 @@ let getOperatorFromComparisonType = (comparison, variantType) => {
     switch variantType {
     | "enum_variant" => "IS"
     | "enum_variant_array" => "CONTAINS"
+    | "str_value" => "EQUAL_TO"
     | _ => "IS"
     }
   | "not_equal" =>
     switch variantType {
     | "enum_variant_array" => "NOT_CONTAINS"
     | "enum_variant" => "IS_NOT"
+    | "str_value" => "NOT EQUAL_TO"
     | _ => "IS_NOT"
     }
   | "greater_than" => "GREATER_THAN"

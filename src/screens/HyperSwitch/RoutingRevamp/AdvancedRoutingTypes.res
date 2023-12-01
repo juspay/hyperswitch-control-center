@@ -1,5 +1,5 @@
 type routing = SINGLE | PRIORITY | VOLUME_SPLIT | ADVANCED | COST | DEFAULTFALLBACK | NO_ROUTING
-type variantType = Number | Enum_variant | Metadata_value | UnknownVariant(string)
+type variantType = Number | Enum_variant | Metadata_value | String_value | UnknownVariant(string)
 type pageState = Preview | Create | Edit
 type formState = CreateConfig | EditConfig | EditReplica | ViewConfig
 
@@ -11,6 +11,7 @@ type operator =
   | EQUAL_TO
   | CONTAINS
   | NOT_CONTAINS
+  | NOT_EQUAL_TO
   | UnknownOperator(string)
 
 type connector = {
