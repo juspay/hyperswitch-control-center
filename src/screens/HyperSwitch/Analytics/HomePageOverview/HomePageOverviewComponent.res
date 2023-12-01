@@ -245,12 +245,20 @@ module OverviewInfo = {
 
 @react.component
 let make = () => {
+  let {systemMetrics} =
+    HyperswitchAtom.featureFlagAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->LogicUtils.safeParse
+    ->FeatureFlagUtils.featureFlagType
+
   <div className="flex flex-col gap-4">
     <p className=headingStyle> {"Overview"->React.string} </p>
     <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-4">
       <ConnectorOverview />
       <PaymentOverview />
-      <SystemMetricsInsights />
+      <UIUtils.RenderIf condition={systemMetrics}>
+        <SystemMetricsInsights />
+      </UIUtils.RenderIf>
     </div>
     <OverviewInfo />
   </div>
