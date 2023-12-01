@@ -18,10 +18,10 @@ module PrettyPrintJson = {
 
     let parseJsonValue = () => {
       try {
-        let parsedValue = Window.getParsedJson(jsonToDisplay)->Js.Json.stringifyWithSpace(3)
+        let parsedValue = jsonToDisplay->Js.Json.parseExn->Js.Json.stringifyWithSpace(3)
         setParsedJson(_ => parsedValue)
       } catch {
-      | _ => setParsedJson(_ => "")
+      | _ => setParsedJson(_ => jsonToDisplay)
       }
     }
     React.useEffect1(() => {
