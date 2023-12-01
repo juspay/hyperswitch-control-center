@@ -18,10 +18,10 @@ module PrettyPrintJson = {
 
     let parseJsonValue = () => {
       try {
-        let parsedValue = Window.getParsedJson(jsonToDisplay)->Js.Json.stringifyWithSpace(3)
+        let parsedValue = jsonToDisplay->Js.Json.parseExn->Js.Json.stringifyWithSpace(3)
         setParsedJson(_ => parsedValue)
       } catch {
-      | _ => setParsedJson(_ => "")
+      | _ => setParsedJson(_ => jsonToDisplay)
       }
     }
     React.useEffect1(() => {
@@ -97,7 +97,7 @@ module ApiDetailsComponent = {
     let headerStyle = "text-fs-13 font-medium text-grey-700 break-all"
     let logType = paymentDetailsValue->Js.Dict.get("request_id")->Belt.Option.isSome ? Payment : Sdk
     let apiName = switch logType {
-    | Payment => paymentDetailsValue->getString("api_name", "default value")
+    | Payment => paymentDetailsValue->getString("api_flow", "default value")->camelCaseToTitle
     | Sdk => paymentDetailsValue->getString("event_name", "default value")
     }->PaymentUtils.nameToURLMapper(~payment_id=paymentId, ())
     let createdTime = paymentDetailsValue->getString("created_at", "00000")

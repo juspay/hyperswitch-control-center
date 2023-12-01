@@ -323,7 +323,9 @@ let make = () => {
                       | list{"monitoring"} => comingSoonPage
                       | list{"developer-api-keys"} => <KeyManagement.KeysManagement />
                       | list{"developer-system-metrics"} =>
-                        <UIUtils.RenderIf condition={userRole->Js.String2.includes("internal_")}>
+                        <UIUtils.RenderIf
+                          condition={userRole->Js.String2.includes("internal_") &&
+                            featureFlagDetails.systemMetrics}>
                           <AnalyticsUrlUpdaterContext key="SystemMetrics">
                             <SystemMetricsAnalytics />
                           </AnalyticsUrlUpdaterContext>
