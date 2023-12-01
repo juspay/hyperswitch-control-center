@@ -197,11 +197,8 @@ let settings = (
   ~isUserManagementEnabled,
   ~isBusinessProfileEnabled,
 ) => {
-  let settingsLinkArray = []
+  let settingsLinkArray = [businessDetails]
 
-  if isSettingsEnabled {
-    settingsLinkArray->Js.Array2.push(businessDetails)->ignore
-  }
   if isBusinessProfileEnabled {
     settingsLinkArray->Js.Array2.push(businessProfiles)->ignore
   }
