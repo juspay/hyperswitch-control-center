@@ -480,7 +480,8 @@ module CardLoader = {
 
 let checkStripePlusPayPal = (enumDetails: QuickStartTypes.responseType) => {
   enumDetails.stripeConnected.processorID->Js.String2.length > 0 &&
-    enumDetails.paypalConnected.processorID->Js.String2.length > 0
+  enumDetails.paypalConnected.processorID->Js.String2.length > 0 &&
+  enumDetails.sPTestPayment
     ? true
     : false
 }

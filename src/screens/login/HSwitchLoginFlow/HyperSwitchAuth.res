@@ -15,7 +15,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (email, setEmail) = React.useState(_ => "")
-  let {magicLink: isMagicLinkEnabled} =
+  let {magicLink: isMagicLinkEnabled, forgetPassword} =
     HyperswitchAtom.featureFlagAtom
     ->Recoil.useRecoilValueFromAtom
     ->LogicUtils.safeParse
@@ -139,9 +139,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     }
   }
 
-  let onSubmit = (values, _) => {
-    open Promise
-
+  let onSubmit = async (values, _) => {
     let valuesDict = values->getDictFromJsonObject
     let email = valuesDict->getString("email", "")
     setEmail(_ => email)
@@ -151,39 +149,44 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     | (true, SignUP) | (true, LoginWithEmail) => {
         let body = getEmailBody(email, ~country, ())
 
-        getUserWithEmail(body)
+        getUserWithEmail(body)->ignore
       }
-    | (true, ForgetPassword) =>
-      let body = email->getEmailBody()
-
-      setForgetPassword(body)
 
     | (true, ResendVerifyEmail) =>
       let body = email->getEmailBody()
-      resendVerifyEmail(body)
+      resendVerifyEmail(body)->ignore
 
     | (false, SignUP) => {
         let password = getString(valuesDict, "password", "")
         let body = getEmailPasswordBody(email, password, country)
 
-        getUserWithEmailPassword(body, email)
+        getUserWithEmailPassword(body, email)->ignore
       }
     | (_, LoginWithPassword) => {
         let password = getString(valuesDict, "password", "")
         let body = getEmailPasswordBody(email, password, country)
 
-        getUserWithEmailPassword(body, email)
+        getUserWithEmailPassword(body, email)->ignore
       }
     | (_, ResetPassword) => {
         let queryDict = url.search->getDictFromUrlSearchParams
         let password_reset_token = queryDict->Js.Dict.get("token")->Belt.Option.getWithDefault("")
         let password = getString(valuesDict, "create_password", "")
         let body = getResetpasswordBodyJson(password, password_reset_token)
-        setResetPassword(body)
+        setResetPassword(body)->ignore
       }
 
-    | _ => Js.Nullable.null->resolve
+    | _ => ()
     }
+
+    switch (forgetPassword, authType) {
+    | (true, ForgetPassword) =>
+      let body = email->getEmailBody()
+
+      setForgetPassword(body)->ignore
+    | _ => ()
+    }
+    Js.Nullable.null
   }
 
   let resendEmail = () => {
@@ -234,14 +237,13 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
           onSubmit={handleSubmit}
           className={`flex flex-col justify-evenly gap-5 h-full w-full !overflow-visible text-grey-600`}>
           {switch authType {
-          | LoginWithPassword => <EmailPasswordForm setAuthType isMagicLinkEnabled />
+          | LoginWithPassword => <EmailPasswordForm setAuthType forgetPassword />
           | LoginWithEmail
-          | ForgetPassword
+          | ForgetPassword =>
+            forgetPassword ? <EmailForm /> : React.null
           | ResendVerifyEmail
           | SignUP =>
-            isMagicLinkEnabled
-              ? <EmailForm />
-              : <EmailPasswordForm setAuthType isMagicLinkEnabled />
+            isMagicLinkEnabled ? <EmailForm /> : <EmailPasswordForm setAuthType forgetPassword />
           | ResetPassword => <ResetPasswordForm />
           | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
             <ResendBtn callBackFun={resendEmail} />

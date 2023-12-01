@@ -228,7 +228,11 @@ let make = (
       }
 
     | None =>
-      generateInitialValuesDict(~selectedFRMInfo, ~isLiveMode={featureFlagDetails.testLiveMode}, ())
+      generateInitialValuesDict(
+        ~selectedFRMInfo,
+        ~isLiveMode={featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false)},
+        (),
+      )
     }
   }, [retrivedValues])
 

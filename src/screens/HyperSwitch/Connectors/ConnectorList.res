@@ -11,11 +11,12 @@ module NewProcessorCards = {
       ->LogicUtils.safeParse
       ->FeatureFlagUtils.featureFlagType
 
-    let connectorsAvailableForIntegration = featureFlagDetails.testLiveMode
-      ? ConnectorUtils.connectorListForLive
-      : isPayoutFlow
-      ? ConnectorUtils.payoutConnectorList
-      : ConnectorUtils.connectorList
+    let connectorsAvailableForIntegration =
+      featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false)
+        ? ConnectorUtils.connectorListForLive
+        : isPayoutFlow
+        ? ConnectorUtils.payoutConnectorList
+        : ConnectorUtils.connectorList
 
     let unConfiguredConnectors =
       connectorsAvailableForIntegration->Js.Array2.filter(total =>

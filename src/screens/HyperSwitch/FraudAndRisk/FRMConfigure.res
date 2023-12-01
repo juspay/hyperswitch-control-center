@@ -32,7 +32,7 @@ let make = () => {
     setInitialValues(_ => {
       generateInitialValuesDict(
         ~selectedFRMInfo=frmInfo,
-        ~isLiveMode=featureFlagDetails.testLiveMode,
+        ~isLiveMode=featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false),
         (),
       )
     })
