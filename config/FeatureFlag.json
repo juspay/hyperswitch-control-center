@@ -8,7 +8,7 @@
   "woocommerce": false,
   "open_sdk": false,
   "switch_merchant": false,
-  "audit_trail": true,
+  "audit_trail": false,
   "system_metrics": false,
   "sample_data": false,
   "frm": false,
