@@ -20,8 +20,9 @@ type operator =
   | EQUAL_TO
   | CONTAINS
   | NOT_CONTAINS
+  | NOT_EQUAL_TO
   | UnknownOperator(string)
-type variantType = Number | Enum_variant | Metadata_value | UnknownVariant(string)
+type variantType = Number | Enum_variant | Metadata_value | String_value | UnknownVariant(string)
 type logicalOperator = AND | OR | UnknownLogicalOperator(string)
 type val = StringArray(array<string>) | String(string) | Int(int)
 type logic = {

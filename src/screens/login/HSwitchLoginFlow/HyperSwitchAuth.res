@@ -238,9 +238,8 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
           className={`flex flex-col justify-evenly gap-5 h-full w-full !overflow-visible text-grey-600`}>
           {switch authType {
           | LoginWithPassword => <EmailPasswordForm setAuthType forgetPassword />
+          | ForgetPassword => forgetPassword ? <EmailForm /> : React.null
           | LoginWithEmail
-          | ForgetPassword =>
-            forgetPassword ? <EmailForm /> : React.null
           | ResendVerifyEmail
           | SignUP =>
             isMagicLinkEnabled ? <EmailForm /> : <EmailPasswordForm setAuthType forgetPassword />

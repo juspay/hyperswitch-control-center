@@ -598,7 +598,8 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
               | EQUAL_TO
               | CONTAINS => "equal"
               | IS_NOT
-              | NOT_CONTAINS => "not_equal"
+              | NOT_CONTAINS
+              | NOT_EQUAL_TO => "not_equal"
               | GREATER_THAN => "greater_than"
               | LESS_THAN => "less_than"
               | UnknownOperator(str) => str
