@@ -1,9 +1,5 @@
 type promisifyable
-
-type execResponse = {
-  stdout: string,
-  stderr: string,
-}
+type execResponse
 type promiseableExecFile = (. string, array<string>) => Promise.t<execResponse>
 
 module Util = {
