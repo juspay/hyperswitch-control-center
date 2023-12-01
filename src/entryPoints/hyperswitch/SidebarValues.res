@@ -195,12 +195,11 @@ let settings = (
   ~isSettingsEnabled,
   ~isSampleDataEnabled,
   ~isUserManagementEnabled,
-  ~isBusinessDetailsEnabled,
   ~isBusinessProfileEnabled,
 ) => {
   let settingsLinkArray = []
 
-  if isBusinessDetailsEnabled {
+  if isSettingsEnabled {
     settingsLinkArray->Js.Array2.push(businessDetails)->ignore
   }
   if isBusinessProfileEnabled {
@@ -325,7 +324,6 @@ let getHyperSwitchAppSidebars = (
     default,
     userManagement,
     sampleData,
-    businessDetails,
     businessProfile,
   } = featureFlagDetails
 
@@ -340,7 +338,6 @@ let getHyperSwitchAppSidebars = (
     settings(
       ~isSettingsEnabled=default,
       ~isUserManagementEnabled=userManagement,
-      ~isBusinessDetailsEnabled=businessDetails,
       ~isBusinessProfileEnabled=businessProfile,
       ~isSampleDataEnabled=sampleData,
     ),

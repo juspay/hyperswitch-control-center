@@ -345,7 +345,7 @@ let make = () => {
                         </FeatureFlagEnabledComponent>
                       | list{"account-settings", "profile"} => <HSwitchProfileSettings />
                       | list{"business-details"} =>
-                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.businessDetails>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.default>
                           <BusinessDetails />
                         </FeatureFlagEnabledComponent>
                       | list{"business-profiles"} =>

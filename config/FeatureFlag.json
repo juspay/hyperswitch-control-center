@@ -21,6 +21,5 @@
   "mixpanel": false,
   "business_profile": false,
   "generate_report": false,
-  "business_details": false,
   "forgot_password": false
 }

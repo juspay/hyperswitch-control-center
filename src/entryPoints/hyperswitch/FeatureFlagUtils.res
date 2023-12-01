@@ -22,7 +22,6 @@ type featureFlag = {
   businessProfile: bool,
   mixPanel: bool,
   verifyConnector: bool,
-  businessDetails: bool,
   forgetPassword: bool,
 }
 
@@ -51,7 +50,6 @@ let featureFlagType = (featureFlags: Js.Json.t) => {
     feedback: dict->getBool("feedback", false),
     generateReport: dict->getBool("generate_report", false),
     businessProfile: dict->getBool("business_profile", false),
-    businessDetails: dict->getBool("business_details", false),
     mixPanel: dict->getBool("mixpanel", false),
     verifyConnector: dict->getBool("verify_connector", false),
     forgetPassword: dict->getBool("forgot_password", false),
