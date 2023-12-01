@@ -434,11 +434,11 @@ let phonypayInfo = {
 }
 
 let stripeTestInfo = {
-  description: "A stripe test connector to test payments and refunds without real world consequences.",
+  description: "A stripe test processor to test payments and refunds without real world consequences.",
 }
 
 let paypalTestInfo = {
-  description: "A paypal test connector to simulate payment flows and experience hyperswitch checkout.",
+  description: "A paypal test processor to simulate payment flows and experience hyperswitch checkout.",
 }
 
 let wiseInfo = {

@@ -42,7 +42,7 @@ module NewProcessorCards = {
             <div
               onClick={_ => setShowModal(_ => true)}
               className="text-blue-900 cursor-pointer underline underline-offset-4 font-medium">
-              {"Can't find the connector of you're choice?"->React.string}
+              {"Can't find the processor of you're choice?"->React.string}
             </div>
           </UIUtils.RenderIf>
         </div>
@@ -92,7 +92,7 @@ module NewProcessorCards = {
             <div
               onClick={_ => setShowModal(_ => true)}
               className="text-blue-900 cursor-pointer underline underline-offset-4 font-medium">
-              {"Can't find the connector of you're choice?"->React.string}
+              {"Can't find the processor of you're choice?"->React.string}
             </div>
           </UIUtils.RenderIf>
         </div>
@@ -124,11 +124,11 @@ module NewProcessorCards = {
       <div className="flex flex-col gap-4">
         {if showIcons {
           <>
-            {connectorsAvailableForIntegration->iconsConnectors("Connect a new connector", true)}
+            {connectorsAvailableForIntegration->iconsConnectors("Connect a new processor", true)}
             {<UIUtils.RenderIf condition={featureFlagDetails.testProcessors && !isPayoutFlow}>
               {featureFlagDetails.testProcessors
               ->ConnectorUtils.dummyConnectorList
-              ->iconsConnectors("Connect a test connector", false)}
+              ->iconsConnectors("Connect a test processor", false)}
             </UIUtils.RenderIf>}
           </>
         } else {
@@ -136,10 +136,10 @@ module NewProcessorCards = {
             <UIUtils.RenderIf condition={featureFlagDetails.testProcessors && !isPayoutFlow}>
               {featureFlagDetails.testProcessors
               ->ConnectorUtils.dummyConnectorList
-              ->descriptedConnectors("Connect a test connector", false)}
+              ->descriptedConnectors("Connect a test processor", false)}
             </UIUtils.RenderIf>
             {connectorsAvailableForIntegration->descriptedConnectors(
-              "Connect a new connector",
+              "Connect a new processor",
               true,
             )}
           </>
@@ -163,11 +163,6 @@ let make = (~isPayoutFlow=false) => {
   open ConnectorUtils
   let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
@@ -224,6 +219,12 @@ let make = (~isPayoutFlow=false) => {
   let entityPrefix = isPayoutFlow ? "payout" : ""
 
   <div className="overflow-scroll">
+    <PageUtils.PageHeading
+      title={isPayoutFlow ? "Payout Processors" : `Processors`}
+      subTitle={isPayoutFlow
+        ? "Connect and manage payout processors for disbursements and settlements"
+        : "Connect and manage payment processors to enable payment acceptance"}
+    />
     <PageLoaderWrapper screenState>
       <UIUtils.RenderIf condition={showFeedbackModal}>
         <HSwitchFeedBackModal
@@ -234,9 +235,6 @@ let make = (~isPayoutFlow=false) => {
         />
       </UIUtils.RenderIf>
       <div className="flex flex-col gap-10">
-        <RenderIf condition={isPayoutFlow && featureFlagDetails.frm}>
-          <FRMSelect.FRMProPackageInfo />
-        </RenderIf>
         <RenderIf condition={showConnectorIcons}>
           <NewProcessorCards configuredConnectors showIcons={showConnectorIcons} isPayoutFlow />
         </RenderIf>

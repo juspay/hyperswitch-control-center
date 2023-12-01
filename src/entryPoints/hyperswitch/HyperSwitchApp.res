@@ -334,16 +334,26 @@ let make = () => {
                         <EntityScaffold
                           entityName="WebHooks"
                           remainingPath
-                          renderList={() => <BusinessMapping isFromWebhooks=true />}
+                          renderList={() => <BusinessProfile isFromWebhooks=true />}
                           renderShow={profileId =>
                             <Webhooks webhookOnly=false showFormOnly=false />}
                         />
-                      | list{"settings"} => <HSwitchSettings />
-                      | list{"profile"} => <HSwitchProfileSettings />
-                      | list{"settings", "profile"} => <HSwitchProfileSettings />
                       | list{"recon"} => <Recon />
                       | list{"sdk"} => <SDKPage />
                       | list{"3ds"} => <HSwitchThreeDS />
+                      | list{"account-settings"} =>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.sampleData>
+                          <HSwitchSettings />
+                        </FeatureFlagEnabledComponent>
+                      | list{"account-settings", "profile"} => <HSwitchProfileSettings />
+                      | list{"business-details"} =>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.default>
+                          <BusinessDetails />
+                        </FeatureFlagEnabledComponent>
+                      | list{"business-profiles"} =>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.businessProfile>
+                          <BusinessProfile />
+                        </FeatureFlagEnabledComponent>
                       | list{"quick-start"} => determineQuickStartPageState()
                       | list{"woocommerce"} => determineWooCommerce()
                       | list{"stripe-plus-paypal"} => determineStripePlusPayPal()

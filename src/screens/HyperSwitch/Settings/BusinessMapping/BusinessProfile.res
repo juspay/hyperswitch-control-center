@@ -156,13 +156,18 @@ let make = (
     updateMerchantDetails(values)->ignore
     Js.Nullable.null
   }
-  let tableHeaderText = isFromWebhooks ? "Webhooks" : "Business profiles"
+  let tableHeaderText = isFromWebhooks ? "Webhooks" : "Business Profiles"
 
   <PageLoaderWrapper screenState>
     <UIUtils.RenderIf condition=isFromSettings>
       <div className="relative h-full">
         <div className="flex flex-col-reverse md:flex-col">
-          <div className="font-semibold text-fs-20"> {tableHeaderText->React.string} </div>
+          <PageUtils.PageHeading
+            title=tableHeaderText
+            subTitle={isFromWebhooks
+              ? "Set up and monitor transaction webhooks for real-time notifications."
+              : "Add and manage profiles to represent different businesses across countries."}
+          />
           <LoadedTable
             title="Business profiles"
             hideTitle=true
