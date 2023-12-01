@@ -215,16 +215,11 @@ module CheckoutForm = {
       ->ignore
     }
     React.useEffect1(() => {
-      let id = Js.String2.split(clientSecret, "_secret_")[0]->Belt.Option.getWithDefault("")
-      switch Some(id) {
-      | None | Some("") => ()
-      | Some(id) =>
-        hyper.retrievePaymentIntent(id)
-        ->then(_ => {
-          resolve()
-        })
-        ->ignore
-      }
+      hyper.retrievePaymentIntent(clientSecret)
+      ->then(_ => {
+        resolve()
+      })
+      ->ignore
 
       None
     }, [hyper])

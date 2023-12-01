@@ -7,7 +7,6 @@
   "stripe_plus_paypal": false,
   "woocommerce": false,
   "open_sdk": false,
-  "home_page": false,
   "switch_merchant": false,
   "audit_trail": false,
   "system_metrics": false,
@@ -21,5 +20,6 @@
   "verify_connector": false,
   "mixpanel": false,
   "business_profile": false,
-  "generate_report": false
+  "generate_report": false,
+  "forgot_password": false
 }
