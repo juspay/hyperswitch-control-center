@@ -12,7 +12,7 @@ let make = (~previewOnly=false) => {
   let (filters, setFilters) = React.useState(_ => None)
   let (paymentModal, setPaymentModal) = React.useState(_ => false)
   let isConfigureConnector = ListHooks.useListCount(~entityName=CONNECTOR) > 0
-
+  let {index} = React.useContext(FilterContext.filterContext)
   let (widthClass, heightClass) = React.useMemo1(() => {
     previewOnly ? ("w-full", "max-h-96") : ("w-full", "")
   }, [previewOnly])
@@ -98,6 +98,7 @@ let make = (~previewOnly=false) => {
       </div>
       <UIUtils.RenderIf condition={!previewOnly}>
         <RemoteTableFilters
+          index
           placeholder="Search payment id"
           setSearchVal=setSearchText
           searchVal=searchText

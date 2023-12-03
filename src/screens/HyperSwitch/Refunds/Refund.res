@@ -10,7 +10,7 @@ let make = () => {
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
-
+  let {index} = React.useContext(FilterContext.filterContext)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Js.Dict.get("Refunds")->Belt.Option.getWithDefault(defaultValue)
@@ -63,6 +63,7 @@ let make = () => {
         </UIUtils.RenderIf>
       </div>
       <RemoteTableFilters
+        index
         placeholder="Search payment id"
         setSearchVal=setSearchText
         searchVal=searchText

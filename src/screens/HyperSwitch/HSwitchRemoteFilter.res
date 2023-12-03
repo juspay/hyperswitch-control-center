@@ -6,7 +6,7 @@ type filterBody = {
 let isStringNonEmpty = str => str->Js.String2.length > 0
 
 let getDateValue = (key, ~getModuleFilters) => {
-  getModuleFilters->LogicUtils.getString(key, "")
+  getModuleFilters->Js.Dict.get(key)->Belt.Option.getWithDefault("")
 }
 
 let formateDateString = date => {
@@ -115,17 +115,16 @@ let useSetInitialFilters = (
   }
 }
 
-let useGetFiltersData = () => {
+let useGetFiltersData = (~index) => {
   open APIUtils
   open Promise
-  open LogicUtils
 
   let (filterData, setFilterData) = React.useState(_ => None)
   let updateDetails = useUpdateMethod()
-
-  let timeFilters = UrlUtils.useGetFilterDictFromUrl("")
-  let startTimeVal = timeFilters->getString("start_time", "")
-  let endTimeVal = timeFilters->getString("end_time", "")
+  open FilterUtils
+  let timeFilters = useFiltersValue(~index)->parseUrl
+  let startTimeVal = timeFilters->Js.Dict.get("start_time")->Belt.Option.getWithDefault("")
+  let endTimeVal = timeFilters->Js.Dict.get("end_time")->Belt.Option.getWithDefault("")
 
   (url, body) => {
     React.useEffect1(() => {
@@ -202,6 +201,7 @@ module RemoteTableFilters = {
   open LogicUtils
   @react.component
   let make = (
+    ~index,
     ~filterUrl,
     ~setFilters,
     ~endTimeFilterKey,
@@ -215,10 +215,10 @@ module RemoteTableFilters = {
     (),
   ) => {
     let defaultFilters = {""->Js.Json.string}
-    let url = RescriptReactRouter.useUrl()
-    let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
-    let getFilterData = useGetFiltersData()
-    let updateComponentPrefrences = UrlUtils.useUpdateUrlWith(~prefix="")
+    open FilterUtils
+    let getModuleFilters = useFiltersValue(~index)->parseUrl
+    let getFilterData = useGetFiltersData(~index)
+    let updateComponentPrefrences = useUpdateFilterObject(~index)
     let {index, filterValue, updateExistingKeys, filterValueJson, removeKeys} =
       FilterContext.filterContext->React.useContext
     let setInitialFilters = useSetInitialFilters(
@@ -249,12 +249,13 @@ module RemoteTableFilters = {
     let filterDataJson = filterUrl->getFilterData(filterBody)
     let filterData = filterDataJson->Belt.Option.getWithDefault(Js.Dict.empty()->Js.Json.object_)
 
+    let filterValueString = useFiltersValue(~index)
     React.useEffect1(() => {
-      if url.search->HSwitchUtils.isEmptyString {
+      if filterValueString->HSwitchUtils.isEmptyString {
         updateComponentPrefrences(~dict=filterValue)
       }
       None
-    }, [url])
+    }, [filterValueString])
 
     React.useEffect1(() => {
       updateComponentPrefrences(~dict=filterValue)
