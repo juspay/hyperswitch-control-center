@@ -604,13 +604,13 @@ let make = (
     None
   })
 
-  let url = RescriptReactRouter.useUrl()
+  let filterValueString = FilterUtils.useFiltersValue(~index)
   React.useEffect1(() => {
-    if url.search->HSwitchUtils.isEmptyString {
+    if filterValueString->HSwitchUtils.isEmptyString {
       updateComponentPrefrences(~dict=filterValue)
     }
     None
-  }, [url])
+  }, [filterValueString])
 
   React.useEffect1(() => {
     updateComponentPrefrences(~dict=filterValue)
