@@ -1,4 +1,4 @@
-type urlUpdater = {
+type filterUpdater = {
   index: string,
   filterValue: Js.Dict.t<string>,
   updateExistingKeys: Js.Dict.t<string> => unit,
@@ -7,7 +7,7 @@ type urlUpdater = {
   reset: unit => unit,
 }
 
-let urlUpdater = {
+let filterUpdater = {
   index: "",
   filterValue: Js.Dict.empty(),
   updateExistingKeys: _dict => (),
@@ -16,7 +16,7 @@ let urlUpdater = {
   reset: () => (),
 }
 
-let filterContext = React.createContext(urlUpdater)
+let filterContext = React.createContext(filterUpdater)
 
 module Provider = {
   let make = React.Context.provider(filterContext)
@@ -24,23 +24,14 @@ module Provider = {
 
 @react.component
 let make = (~index, ~children) => {
-  let url = RescriptReactRouter.useUrl()
-  let searcParamsToDict =
-    url.search
-    ->Js.Global.decodeURI
-    ->Js.String2.split("&")
-    ->Belt.Array.keepMap(str => {
-      let arr = str->Js.String2.split("=")
-      let key = arr->Belt.Array.get(0)->Belt.Option.getWithDefault("-")
-      let val = arr->Belt.Array.sliceToEnd(1)->Js.Array2.joinWith("=")
-      key === "" || val === "" ? None : Some((key, val))
-    })
-    ->Js.Dict.fromArray
+  open FilterUtils
+  let filterString = useFiltersValue(~index)
+  let searcParamsToDict = filterString->parseUrl
 
-  let (urlDict, setUrlDict) = React.useState(_ => searcParamsToDict)
-  let updateUrl = React.useMemo2(() => {
-    let updateUrl = (dict: Js.Dict.t<string>) => {
-      setUrlDict(prev => {
+  let (filterDict, setfilterDict) = React.useState(_ => searcParamsToDict)
+  let updateFilter = React.useMemo2(() => {
+    let updateFilter = (dict: Js.Dict.t<string>) => {
+      setfilterDict(prev => {
         let prevDictArr =
           prev
           ->Js.Dict.entries
@@ -73,11 +64,11 @@ let make = (~index, ~children) => {
     }
 
     let reset = () => {
-      setUrlDict(_ => Js.Dict.empty())
+      setfilterDict(_ => Js.Dict.empty())
     }
 
     let removeKeys = (arr: array<string>) => {
-      setUrlDict(prev => {
+      setfilterDict(prev => {
         let updatedDict =
           prev->Js.Dict.entries->Js.Array2.copy->Js.Dict.fromArray->DictionaryUtils.deleteKeys(arr)
         if DictionaryUtils.equalDicts(updatedDict, prev) {
@@ -89,10 +80,10 @@ let make = (~index, ~children) => {
     }
     {
       index,
-      filterValue: urlDict,
-      updateExistingKeys: updateUrl,
+      filterValue: filterDict,
+      updateExistingKeys: updateFilter,
       removeKeys,
-      filterValueJson: urlDict
+      filterValueJson: filterDict
       ->Js.Dict.entries
       ->Js.Array2.map(item => {
         let (key, value) = item
@@ -101,7 +92,7 @@ let make = (~index, ~children) => {
       ->Js.Dict.fromArray,
       reset,
     }
-  }, (urlDict, setUrlDict))
+  }, (filterDict, setfilterDict))
 
-  <Provider value={updateUrl}> children </Provider>
+  <Provider value={updateFilter}> children </Provider>
 }
