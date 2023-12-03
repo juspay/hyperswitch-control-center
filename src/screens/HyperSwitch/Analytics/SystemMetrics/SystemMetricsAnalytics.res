@@ -347,7 +347,7 @@ module SystemMetricsAnalytics = {
     let startTimeVal = getModuleFilters->getString(startTimeFilterKey, "")
     let endTimeVal = getModuleFilters->getString(endTimeFilterKey, "")
     let updateComponentPrefrences = UrlUtils.useUpdateUrlWith(~prefix="")
-    let {filterValue, updateExistingKeys} = FilterContext.filterContext->React.useContext
+    let {index, filterValue, updateExistingKeys} = FilterContext.filterContext->React.useContext
     let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
     let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
 
@@ -358,6 +358,7 @@ module SystemMetricsAnalytics = {
     }
 
     let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
+      ~index,
       ~updateComponentPrefrences,
       ~updateExistingKeys,
       ~startTimeFilterKey,

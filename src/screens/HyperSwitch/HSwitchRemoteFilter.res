@@ -9,19 +9,6 @@ let getDateValue = (key, ~getModuleFilters) => {
   getModuleFilters->LogicUtils.getString(key, "")
 }
 
-let parseUrl = url => {
-  url
-  ->Js.Global.decodeURI
-  ->Js.String2.split("&")
-  ->Belt.Array.keepMap(str => {
-    let arr = str->Js.String2.split("=")
-    let key = arr->Belt.Array.get(0)->Belt.Option.getWithDefault("-")
-    let val = arr->Belt.Array.sliceToEnd(1)->Js.Array2.joinWith("=")
-    key === "" || val === "" ? None : Some((key, val))
-  })
-  ->Js.Dict.fromArray
-}
-
 let formateDateString = date => {
   date->Js.Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]")
 }
@@ -96,17 +83,17 @@ let getFilterFields: Js.Json.t => array<EntityType.optionType<'t>> = json => {
 }
 
 let useSetInitialFilters = (
+  ~index,
   ~updateComponentPrefrences,
   ~updateExistingKeys,
   ~startTimeFilterKey,
   ~endTimeFilterKey,
 ) => {
-  let url = RescriptReactRouter.useUrl()
-
+  let filterValue = FilterUtils.useFiltersValue(~index)
   let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {
-    let inititalSearchParam = url.search->parseUrl
+    let inititalSearchParam = filterValue->FilterUtils.parseUrl
 
     let defaultDate = getDateFilteredObject()
 
@@ -232,9 +219,10 @@ module RemoteTableFilters = {
     let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
     let getFilterData = useGetFiltersData()
     let updateComponentPrefrences = UrlUtils.useUpdateUrlWith(~prefix="")
-    let {filterValue, updateExistingKeys, filterValueJson, removeKeys} =
+    let {index, filterValue, updateExistingKeys, filterValueJson, removeKeys} =
       FilterContext.filterContext->React.useContext
     let setInitialFilters = useSetInitialFilters(
+      ~index,
       ~updateComponentPrefrences,
       ~updateExistingKeys,
       ~startTimeFilterKey,

@@ -524,7 +524,7 @@ let make = (
     ->LogicUtils.safeParse
     ->FeatureFlagUtils.featureFlagType
   let analyticsType = moduleName->getAnalyticsType
-  let {filterValue, updateExistingKeys} = React.useContext(FilterContext.filterContext)
+  let {index, filterValue, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
   let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
@@ -556,8 +556,6 @@ let make = (
   let startTimeVal = getModuleFilters->getString(startTimeFilterKey, "")
 
   let endTimeVal = getModuleFilters->getString(endTimeFilterKey, "")
-
-  let updateComponentPrefrences = UrlUtils.useUpdateUrlWith(~prefix="")
 
   let updateUrlWithPrefix = React.useMemo1(() => {
     (chartType: string) => {
@@ -592,7 +590,9 @@ let make = (
     }
   }, [updateExistingKeys])
 
+  let updateComponentPrefrences = FilterUtils.useUpdateFilterObject(~index)
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
+    ~index,
     ~updateComponentPrefrences,
     ~updateExistingKeys,
     ~startTimeFilterKey,
