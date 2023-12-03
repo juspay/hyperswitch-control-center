@@ -350,7 +350,6 @@ module SystemMetricsAnalytics = {
     let {filterValue, updateExistingKeys} = FilterContext.filterContext->React.useContext
     let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
     let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
-    let (_filterAtom, setFilterAtom) = Recoil.useRecoilState(AnalyticsAtoms.customFilterAtom)
 
     let chartEntity1 = chartEntity.default
     let chartEntity1 = switch chartEntity1 {
@@ -366,7 +365,6 @@ module SystemMetricsAnalytics = {
     )
 
     React.useEffect0(() => {
-      setFilterAtom(._ => "")
       setInitialFilters()
       None
     })

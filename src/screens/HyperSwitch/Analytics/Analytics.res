@@ -528,11 +528,6 @@ let make = (
   let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
   let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
-  let (_filterAtom, setFilterAtom) = Recoil.useRecoilState(AnalyticsAtoms.customFilterAtom)
-  React.useEffect0(() => {
-    setFilterAtom(._ => "")
-    None
-  })
   let (filteredTabKeys, filteredTabVales) = (tabKeys, tabValues)
   let chartEntity1 = chartEntity.default // User Journey - SemiDonut (Payment Metrics), Others - Default Chart Entity
   let pieChartEntity = chartEntity.userPieChart // SemiDonut (User Metrics)
