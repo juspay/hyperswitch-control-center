@@ -92,7 +92,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let (bottomChartDataLegendData, setBottomChartDataLegendData) = React.useState(_ => Loading)
 
   let getGranularity = LineChartUtils.getGranularityNewStr
-  let {filterValue} = React.useContext(AnalyticsUrlUpdaterContext.urlUpdaterContext)
+  let {filterValue} = React.useContext(FilterContext.filterContext)
   let (currentTopMatrix, currentBottomMetrix) = chartEntity.currentMetrics
   let (startTimeFilterKey, endTimeFilterKey) = chartEntity.dateFilterKeys
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
@@ -615,7 +615,7 @@ module SDKAnalyticsChartContext = {
     let bottomChartDataLegendData = Loading
 
     let getGranularity = LineChartUtils.getGranularityNewStr
-    let {filterValue} = React.useContext(AnalyticsUrlUpdaterContext.urlUpdaterContext)
+    let {filterValue} = React.useContext(FilterContext.filterContext)
     let (currentTopMatrix, currentBottomMetrix) = chartEntity.currentMetrics
     let (startTimeFilterKey, endTimeFilterKey) = chartEntity.dateFilterKeys
     let defaultFilters = [startTimeFilterKey, endTimeFilterKey]

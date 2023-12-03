@@ -312,7 +312,7 @@ let useFilterUrlUpdater = (~addParam="", ~getDateCreatedObject=getDateCreatedObj
   let addParamValue = addParamKeyValueMode->Belt.Array.get(1)->Belt.Option.getWithDefault("")
 
   let url = RescriptReactRouter.useUrl()
-  let {updateExistingKeys} = React.useContext(AnalyticsUrlUpdaterContext.urlUpdaterContext)
+  let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let searchString = url.search
 
   React.useEffect0(() => {
@@ -2441,7 +2441,7 @@ let useGetFilters = (
   ~customFilterKey: string="",
   (),
 ) => {
-  let {filterValue} = React.useContext(AnalyticsUrlUpdaterContext.urlUpdaterContext)
+  let {filterValue} = React.useContext(FilterContext.filterContext)
   let getAllFilter =
     filterValue
     ->Js.Dict.entries

@@ -347,8 +347,7 @@ module SystemMetricsAnalytics = {
     let startTimeVal = getModuleFilters->getString(startTimeFilterKey, "")
     let endTimeVal = getModuleFilters->getString(endTimeFilterKey, "")
     let updateComponentPrefrences = UrlUtils.useUpdateUrlWith(~prefix="")
-    let {filterValue, updateExistingKeys} =
-      AnalyticsUrlUpdaterContext.urlUpdaterContext->React.useContext
+    let {filterValue, updateExistingKeys} = FilterContext.filterContext->React.useContext
     let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
     let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
     let (_filterAtom, setFilterAtom) = Recoil.useRecoilState(AnalyticsAtoms.customFilterAtom)

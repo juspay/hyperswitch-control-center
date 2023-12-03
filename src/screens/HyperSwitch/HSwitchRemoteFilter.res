@@ -103,7 +103,7 @@ let useSetInitialFilters = (
 ) => {
   let url = RescriptReactRouter.useUrl()
 
-  let {filterValueJson} = AnalyticsUrlUpdaterContext.urlUpdaterContext->React.useContext
+  let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {
     let inititalSearchParam = url.search->parseUrl
@@ -233,7 +233,7 @@ module RemoteTableFilters = {
     let getFilterData = useGetFiltersData()
     let updateComponentPrefrences = UrlUtils.useUpdateUrlWith(~prefix="")
     let {filterValue, updateExistingKeys, filterValueJson, removeKeys} =
-      AnalyticsUrlUpdaterContext.urlUpdaterContext->React.useContext
+      FilterContext.filterContext->React.useContext
     let setInitialFilters = useSetInitialFilters(
       ~updateComponentPrefrences,
       ~updateExistingKeys,

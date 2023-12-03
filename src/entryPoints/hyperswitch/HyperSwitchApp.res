@@ -265,7 +265,7 @@ let make = () => {
                           renderShow={_ => <ConnectorHome isPayoutFlow=true />}
                         />
                       | list{"payments", ...remainingPath} =>
-                        <AnalyticsUrlUpdaterContext key="payments">
+                        <FilterContext key="payments" index="payments">
                           <EntityScaffold
                             entityName="Payments"
                             remainingPath
@@ -273,9 +273,9 @@ let make = () => {
                             renderList={() => <Orders />}
                             renderShow={id => <ShowOrder id />}
                           />
-                        </AnalyticsUrlUpdaterContext>
+                        </FilterContext>
                       | list{"refunds", ...remainingPath} =>
-                        <AnalyticsUrlUpdaterContext key="refunds">
+                        <FilterContext key="refunds" index="refunds">
                           <EntityScaffold
                             entityName="Refunds"
                             remainingPath
@@ -283,7 +283,7 @@ let make = () => {
                             renderList={() => <Refund />}
                             renderShow={id => <ShowRefund id />}
                           />
-                        </AnalyticsUrlUpdaterContext>
+                        </FilterContext>
                       | list{"disputes", ...remainingPath} =>
                         <EntityScaffold
                           entityName="Disputes"
@@ -309,26 +309,26 @@ let make = () => {
                           renderShow={id => <HSwitchUserRoleShowData id />}
                         />
                       | list{"analytics-payments"} =>
-                        <AnalyticsUrlUpdaterContext key="PaymentsAnalytics">
+                        <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
                           <PaymentAnalytics />
-                        </AnalyticsUrlUpdaterContext>
+                        </FilterContext>
                       | list{"analytics-refunds"} =>
-                        <AnalyticsUrlUpdaterContext key="PaymentsRefunds">
+                        <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
                           <RefundsAnalytics />
-                        </AnalyticsUrlUpdaterContext>
+                        </FilterContext>
                       | list{"analytics-user-journey"} =>
-                        <AnalyticsUrlUpdaterContext key="UserJourneyAnalytics">
+                        <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                           <UserJourneyAnalytics />
-                        </AnalyticsUrlUpdaterContext>
+                        </FilterContext>
                       | list{"monitoring"} => comingSoonPage
                       | list{"developer-api-keys"} => <KeyManagement.KeysManagement />
                       | list{"developer-system-metrics"} =>
                         <UIUtils.RenderIf
                           condition={userRole->Js.String2.includes("internal_") &&
                             featureFlagDetails.systemMetrics}>
-                          <AnalyticsUrlUpdaterContext key="SystemMetrics">
+                          <FilterContext key="SystemMetrics" index="SystemMetrics">
                             <SystemMetricsAnalytics />
-                          </AnalyticsUrlUpdaterContext>
+                          </FilterContext>
                         </UIUtils.RenderIf>
                       | list{"webhooks", ...remainingPath} =>
                         <EntityScaffold

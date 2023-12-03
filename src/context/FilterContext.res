@@ -1,9 +1,5 @@
-let defaultValue: Js.Dict.t<string> = Js.Dict.empty()
-let setDefaultValue: Js.Dict.t<string> => unit = _dict => ()
-let nameSpace: string = ""
-let setDefaultNameSpace: string => unit = _ => ()
-
 type urlUpdater = {
+  index: string,
   filterValue: Js.Dict.t<string>,
   updateExistingKeys: Js.Dict.t<string> => unit,
   removeKeys: array<string> => unit,
@@ -12,6 +8,7 @@ type urlUpdater = {
 }
 
 let urlUpdater = {
+  index: "",
   filterValue: Js.Dict.empty(),
   updateExistingKeys: _dict => (),
   removeKeys: _arr => (),
@@ -19,14 +16,14 @@ let urlUpdater = {
   reset: () => (),
 }
 
-let urlUpdaterContext = React.createContext(urlUpdater)
+let filterContext = React.createContext(urlUpdater)
 
 module Provider = {
-  let make = React.Context.provider(urlUpdaterContext)
+  let make = React.Context.provider(filterContext)
 }
 
 @react.component
-let make = (~children) => {
+let make = (~index, ~children) => {
   let url = RescriptReactRouter.useUrl()
   let searcParamsToDict =
     url.search
@@ -91,6 +88,7 @@ let make = (~children) => {
       })
     }
     {
+      index,
       filterValue: urlDict,
       updateExistingKeys: updateUrl,
       removeKeys,

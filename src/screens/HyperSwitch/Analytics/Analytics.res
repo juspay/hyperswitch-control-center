@@ -524,9 +524,7 @@ let make = (
     ->LogicUtils.safeParse
     ->FeatureFlagUtils.featureFlagType
   let analyticsType = moduleName->getAnalyticsType
-  let {filterValue, updateExistingKeys} = React.useContext(
-    AnalyticsUrlUpdaterContext.urlUpdaterContext,
-  )
+  let {filterValue, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
   let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
