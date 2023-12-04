@@ -202,6 +202,7 @@ let connectorListForLive: array<connectorName> = [
   PAYPAL,
   CRYPTOPAY,
   IATAPAY,
+  BANKOFAMERICA,
 ]
 
 let getPaymentMethodFromString = paymentMethod => {
