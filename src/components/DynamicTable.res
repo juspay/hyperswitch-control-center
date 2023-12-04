@@ -20,6 +20,7 @@ let useRemoteFilter = (~searchParams, ~remoteFilters, ~remoteOptions, ~mandatory
 
 @react.component
 let make = (
+  ~index,
   ~entity: EntityType.entityType<'colType, 't>,
   ~title,
   ~titleSize: NewThemeUtils.headingSize=Large,
@@ -375,6 +376,7 @@ let make = (
           <UIUtils.RenderIf condition=showRemoteFilter>
             <LabelVisibilityContext showLabel=false>
               <RemoteFilter
+                index
                 defaultFilters=entity.defaultFilters
                 requiredSearchFieldsList=entity.requiredSearchFieldsList
                 setOffset

@@ -295,6 +295,7 @@ module RemoteTableFilters = {
     switch filterDataJson {
     | Some(_) =>
       <RemoteFilter
+        index
         key="0"
         customViewTop
         defaultFilters
@@ -316,6 +317,7 @@ module RemoteTableFilters = {
       />
     | _ =>
       <RemoteFilter
+        index
         key="1"
         customViewTop
         defaultFilters

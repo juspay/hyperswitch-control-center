@@ -146,6 +146,7 @@ module CustomFilters = {
 
 @react.component
 let make = (
+  ~index: string,
   ~initialFilters: array<EntityType.initialFilters<'t>>,
   ~options: array<EntityType.optionType<'t>>,
   ~popupFilterFields,
@@ -217,6 +218,7 @@ let make = (
 
   <div className="flex-1 ml-1">
     <RemoteFilter
+      index
       defaultFilters
       fixedFilters=initialFixedFilters
       requiredSearchFieldsList=[]

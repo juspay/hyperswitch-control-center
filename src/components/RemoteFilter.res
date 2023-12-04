@@ -110,8 +110,10 @@ module ModalUI = {
 }
 
 module ClearFilters = {
+  open FilterUtils
   @react.component
   let make = (
+    ~index,
     ~filterButtonStyle,
     ~defaultFilterKeys=[],
     ~clearFilters=?,
@@ -119,7 +121,7 @@ module ClearFilters = {
     ~isCountRequired=true,
     ~outsidefilter=false,
   ) => {
-    let url = RescriptReactRouter.useUrl()
+    let setFilters = useAddFilters(~index)
     let isMobileView = MatchMedia.useMobileChecker()
     let outerClass = if isMobileView {
       "flex items-center justify-end"
@@ -162,8 +164,7 @@ module ClearFilters = {
           })
           ->Js.Array2.joinWith("&")
 
-        let path = url.path->Belt.List.toArray->Js.Array2.joinWith("/")
-        RescriptReactRouter.replace(`/${path}?${searchStr}`)
+        setFilters(searchStr)
       }
     }
 
@@ -197,9 +198,10 @@ module ClearFilters = {
 }
 
 module AnalyticsClearFilters = {
+  open FilterUtils
   @react.component
-  let make = (~defaultFilterKeys=[], ~clearFilters=?, ~outsidefilter=false) => {
-    let url = RescriptReactRouter.useUrl()
+  let make = (~index, ~defaultFilterKeys=[], ~clearFilters=?, ~outsidefilter=false) => {
+    let setFilters = useAddFilters(~index)
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values", "initialValues"])->Js.Nullable.return,
     )
@@ -233,8 +235,7 @@ module AnalyticsClearFilters = {
           })
           ->Js.Array2.joinWith("&")
 
-        let path = url.path->Belt.List.toArray->Js.Array2.joinWith("/")
-        RescriptReactRouter.replace(`/${path}?${searchStr}`)
+        setFilters(searchStr)
       }
     }
 
@@ -521,6 +522,7 @@ module FilterModal = {
 
 @react.component
 let make = (
+  ~index,
   ~defaultFilters,
   ~fixedFilters: array<EntityType.initialFilters<'t>>=[],
   ~requiredSearchFieldsList,
@@ -590,17 +592,15 @@ let make = (
   }, [updatedSelectedList->Js.Json.stringify])
 
   let getNewQuery = DateRefreshHooks.useConstructQueryOnBasisOfOpt()
-  let url = RescriptReactRouter.useUrl()
   let (isButtonDisabled, setIsButtonDisabled) = React.useState(_ => false)
-  let queryStr = url.search
+  let queryStr = FilterUtils.useFiltersValue(~index)
 
   let totalFilters = selectedFiltersList->Js.Array2.length + localOptions->Js.Array2.length
   let (checkedFilters, setCheckedFilters) = React.useState(_ => [])
   let (clearFilterAfterRefresh, setClearFilterAfterRefresh) = React.useState(_ => false)
   let (count, setCount) = React.useState(_ => initalCount)
 
-  let url = RescriptReactRouter.useUrl()
-  let searchParams = disableURIdecode ? url.search : url.search->Js.Global.decodeURI
+  let searchParams = disableURIdecode ? queryStr : queryStr->Js.Global.decodeURI
 
   let isMobileView = MatchMedia.useMobileChecker()
 
@@ -918,6 +918,7 @@ let make = (
       <UIUtils.RenderIf
         condition={!hideFilters && fixedFilters->Js.Array2.length === 0 && showClearFilter}>
         <ClearFilters
+          index
           filterButtonStyle
           defaultFilterKeys
           ?clearFilters
@@ -1011,7 +1012,7 @@ let make = (
                       />
                       <UIUtils.RenderIf condition={count > 0 && filterHovered}>
                         <AnalyticsClearFilters
-                          defaultFilterKeys ?clearFilters outsidefilter={initalCount > 0}
+                          index defaultFilterKeys ?clearFilters outsidefilter={initalCount > 0}
                         />
                       </UIUtils.RenderIf>
                     </div>
@@ -1062,6 +1063,7 @@ let make = (
             }}
             {if !clearFilterAfterRefresh && hideFilters && count > 0 && !revampedFilter {
               <ClearFilters
+                index
                 filterButtonStyle
                 defaultFilterKeys
                 ?clearFilters
@@ -1135,6 +1137,7 @@ let make = (
                   />
                   {if showClearFilterButton && !hideFilters && count > 0 {
                     <ClearFilters
+                      index
                       filterButtonStyle
                       defaultFilterKeys
                       ?clearFilters

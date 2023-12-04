@@ -410,6 +410,7 @@ module SystemMetricsAnalytics = {
           <HeadingTile pageTitle pageSubTitle />
           <div className="mt-2 -ml-1">
             <DynamicFilter
+              index
               initialFilters=[]
               options=[]
               popupFilterFields=[]
