@@ -1,22 +1,10 @@
 open HSwitchSettingTypes
-let titleClass = "md:font-bold font-semibold md:text-fs-16 text-fs-13 text-jp-gray-900 text-opacity-75 dark:text-white  dark:text-opacity-75"
-
-let paymentsEvents = ["succeeded", "failed", "processing", "action_required"]
-let refundsEvents = ["succeeded", "failed"]
-let disputesEvents = ["opened", "expired", "accepted", "cancelled", "challenged", "won", "lost"]
-
-let webhookEventsDict =
-  [
-    ("payment", paymentsEvents->Js.Array2.map(Js.Json.string)->Js.Json.array),
-    ("refund", refundsEvents->Js.Array2.map(Js.Json.string)->Js.Json.array),
-    ("dispute", disputesEvents->Js.Array2.map(Js.Json.string)->Js.Json.array),
-  ]->Js.Dict.fromArray
 
 let validateAPIKeyForm = (
   values: Js.Json.t,
   ~setIsDisabled=_ => (),
   keys: array<string>,
-  ~setShowCustomDate=_ => (),
+  ~setShowCustomDate,
   (),
 ) => {
   let errors = Js.Dict.empty()
@@ -81,7 +69,6 @@ let getRecordTypeFromString = value => {
 
 type apiKey = {
   key_id: string,
-  merchant_id: string,
   name: string,
   description: string,
   prefix: string,
@@ -93,7 +80,6 @@ type apiKey = {
 let itemToObjMapper = dict => {
   open LogicUtils
   {
-    merchant_id: getString(dict, "merchant_id", ""),
     key_id: getString(dict, "key_id", ""),
     name: getString(dict, "name", ""),
     description: getString(dict, "description", ""),

@@ -174,10 +174,6 @@ let getStringListFromArrayDict = metrics => {
   metrics->Js.Array2.map(item => item->getDictFromJsonObject->getString("name", ""))
 }
 
-let getCustomFormattedFloatDate = (floatDate, format) => {
-  floatDate->Js.Date.fromFloat->Js.Date.toISOString->Table.dateFormat(format)
-}
-
 module NoData = {
   @react.component
   let make = (~title, ~subTitle) => {
@@ -209,7 +205,7 @@ let generateTablePayload = (
   ~isIndustry: bool,
   ~mode: option<string>,
   ~customFilter,
-  ~showDeltaMetrics=false,
+  ~showDeltaMetrics,
   ~moduleName as _: string,
   ~source: string="BATCH",
   (),
