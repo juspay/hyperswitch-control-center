@@ -317,7 +317,7 @@ let getSidebarOptionsForIntegrateYourApp: (
       subOptions: [
         {
           title: "Download Test API Key",
-          status: PENDING,
+          status: COMPLETED,
         },
         {
           title: "Create a Payment",

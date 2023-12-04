@@ -1,9 +1,9 @@
 {
   "test_live_toggle": false,
   "test_live_mode": false,
-  "magic_link": false,
+  "magic_link": true,
   "production_access": false,
-  "quick_start": false,
+  "quick_start": true,
   "stripe_plus_paypal": false,
   "woocommerce": false,
   "open_sdk": false,
