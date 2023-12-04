@@ -1,3 +1,15 @@
+module InfoViewForWebhooks = {
+  @react.component
+  let make = (~heading, ~subHeading) => {
+    <div className={`flex flex-col gap-2 m-2 md:m-4 w-1/2`}>
+      <p className="font-semibold text-fs-15"> {heading->React.string} </p>
+      <p className="font-medium text-fs-14 text-black opacity-50 break-words">
+        {subHeading->React.string}
+      </p>
+    </div>
+  }
+}
+
 @react.component
 let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open DeveloperUtils
@@ -17,6 +29,10 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
   let fetchBusinessProfiles = HSwitchMerchantAccountUtils.useFetchBusinessProfiles()
+
+  let initialValues = React.useMemo1(() => {
+    businessProfileDetails->parseBussinessProfileJson->Js.Json.object_
+  }, [businessProfileDetails])
 
   let onSubmit = async (values, _) => {
     try {
@@ -65,7 +81,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
               : "border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass} `}>
           <ReactFinalForm.Form
             key="merchantAccount"
-            initialValues={profileInfo->parseBussinessProfileJson->Js.Json.object_}
+            initialValues
             subscription=ReactFinalForm.subscribeToValues
             validate={values => {
               open HSwitchSettingTypes
@@ -87,6 +103,25 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 className={`${showFormOnly
                     ? ""
                     : "px-2 py-4"} flex flex-col gap-7 overflow-hidden`}>
+                <div className="flex items-center">
+                  <InfoViewForWebhooks
+                    heading="Profile ID" subHeading=businessProfileDetails.profile_id
+                  />
+                  <InfoViewForWebhooks
+                    heading="Profile Name" subHeading=businessProfileDetails.profile_name
+                  />
+                </div>
+                <div className="flex items-center">
+                  <InfoViewForWebhooks
+                    heading="Merchant ID" subHeading={businessProfileDetails.merchant_id}
+                  />
+                  <InfoViewForWebhooks
+                    heading="Payment Response Hash Key"
+                    subHeading={businessProfileDetails.payment_response_hash_key->Belt.Option.getWithDefault(
+                      "NA",
+                    )}
+                  />
+                </div>
                 <FormRenderer.DesktopRow>
                   {[webhookUrl, returnUrl]
                   ->Js.Array2.filter(urlField => urlField.label === "Webhook URL" || !webhookOnly)
@@ -112,6 +147,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </div>
                 </FormRenderer.DesktopRow>
+                <FormValuesSpy />
               </form>
             }}
           />

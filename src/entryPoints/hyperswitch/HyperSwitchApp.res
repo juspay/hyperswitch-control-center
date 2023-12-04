@@ -334,7 +334,7 @@ let make = () => {
                         <EntityScaffold
                           entityName="WebHooks"
                           remainingPath
-                          renderList={() => <BusinessProfile isFromWebhooks=true />}
+                          renderList={() => <WebhookList />}
                           renderShow={profileId =>
                             <Webhooks webhookOnly=false showFormOnly=false />}
                         />
