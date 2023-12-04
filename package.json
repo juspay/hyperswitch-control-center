@@ -1,6 +1,6 @@
 {
   "name": "hyperswitch-dashboard",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": "index.js",
   "author": "Shiva Nandan <shiva.nandan@juspay.in>",
   "license": "MIT",
