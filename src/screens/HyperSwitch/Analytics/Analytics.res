@@ -518,6 +518,7 @@ let make = (
   ~weeklyTableMetricsCols=?,
   ~distributionArray=None,
 ) => {
+  open FilterUtils
   let {generateReport} =
     HyperswitchAtom.featureFlagAtom
     ->Recoil.useRecoilValueFromAtom
@@ -525,7 +526,8 @@ let make = (
     ->FeatureFlagUtils.featureFlagType
   let analyticsType = moduleName->getAnalyticsType
   let {index, filterValue, updateExistingKeys} = React.useContext(FilterContext.filterContext)
-  let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
+  let filterValueString = useFiltersValue(~index)
+  let getModuleFilters = filterValueString->parseUrl
   let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
   let (filteredTabKeys, filteredTabVales) = (tabKeys, tabValues)
@@ -552,9 +554,7 @@ let make = (
     }
   }, [setActiveTab])
 
-  let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
   let startTimeVal = getModuleFilters->getString(startTimeFilterKey, "")
-
   let endTimeVal = getModuleFilters->getString(endTimeFilterKey, "")
 
   let updateUrlWithPrefix = React.useMemo1(() => {
