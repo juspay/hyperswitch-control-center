@@ -227,18 +227,6 @@ let getBrowswerDetails = () => {
   }
 }
 
-let getLabelToCountryMapper = primary_business_details => {
-  primary_business_details->Array.reduce(Js.Dict.empty(), (
-    acc,
-    currentDetail: HSwitchSettingTypes.businessEntity,
-  ) => {
-    let labelsYet = acc->Js.Dict.get(currentDetail.country)->Belt.Option.getWithDefault([])
-    labelsYet->Array.push(currentDetail.business)
-    acc->Js.Dict.set(currentDetail.country, labelsYet)
-    acc
-  })
-}
-
 module BackgroundImageWrapper = {
   @react.component
   let make = (

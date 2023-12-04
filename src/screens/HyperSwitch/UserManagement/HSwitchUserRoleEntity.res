@@ -31,10 +31,6 @@ type roleColTypes =
   | Description
   | ActiveUsers
 
-let defaultColumnsForRole = [Role, Description, CreatedBy, CreatedOn, ActiveUsers]
-
-let allColumnsForRole = [Role, Description, CreatedBy, CreatedOn, ActiveUsers]
-
 let itemToObjMapperForUser = dict => {
   {
     user_id: getString(dict, "user_id", ""),
@@ -71,18 +67,6 @@ let itemToObjMapperForRole = dict => {
   {
     permissions: dict->getStrArray("permissions"),
     role_id: dict->getString("role_id", ""),
-  }
-}
-
-let getHeadingForRole = colType => {
-  switch colType {
-  | Role => Table.makeHeaderInfo(~key="role", ~title="Role name", ~showSort=true, ())
-  | Description =>
-    Table.makeHeaderInfo(~key="description", ~title="Description", ~showSort=true, ())
-  | CreatedBy => Table.makeHeaderInfo(~key="created_by", ~title="Created By", ~showSort=true, ())
-  | CreatedOn => Table.makeHeaderInfo(~key="created_on", ~title="Created On", ~showSort=true, ())
-  | ActiveUsers =>
-    Table.makeHeaderInfo(~key="activeUsers", ~title="Active Users", ~showSort=true, ())
   }
 }
 
@@ -149,30 +133,8 @@ let getCellForUser = (data: userTableTypes, colType: userColTypes): Table.cell =
   }
 }
 
-let getCellForRole = (data: roleTableTypes, colType: roleColTypes): Table.cell => {
-  let role = data.role_id->roleToVariantMapper
-  switch colType {
-  | Role =>
-    CustomCell(
-      <div
-        className={`w-fit font-semibold text-sm px-3 py-1 rounded-full border-1 ${role->getCssMapperForRole}`}>
-        {data.role_id->Js.String2.toUpperCase->React.string}
-      </div>,
-      "",
-    )
-  | Description => Text(data.role_id)
-  | CreatedBy => Text(data.role_id)
-  | CreatedOn => Date(data.role_id)
-  | ActiveUsers => Text(data.role_id)
-  }
-}
-
 let getUserData: Js.Json.t => array<userTableTypes> = json => {
   getArrayDataFromJson(json, itemToObjMapperForUser)
-}
-
-let getRoleData: Js.Json.t => array<roleTableTypes> = json => {
-  getArrayDataFromJson(json, itemToObjMapperForRole)
 }
 
 let userEntity = EntityType.makeEntity(
@@ -186,15 +148,3 @@ let userEntity = EntityType.makeEntity(
   ~getShowLink={userId => `/users/${userId.user_id}?state=user`},
   (),
 )
-
-// let roleEntity = EntityType.makeEntity(
-//   ~uri="",
-//   ~getObjects=getRoleData,
-//   ~defaultColumns=defaultColumnsForRole,
-//   ~allColumns=allColumnsForRole,
-//   ~getHeading=getHeadingForRole,
-//   ~getCell=getCellForRole,
-//   ~dataKey="",
-//   ~getShowLink={roleId => `/users/${roleId.role_id}?state=role`},
-//   (),
-// )
