@@ -62,51 +62,6 @@ module AddEntryBtn = {
   }
 }
 
-module BusinessUnitText = {
-  @react.component
-  let make = () => {
-    <div className="mt-10 border-2 p-8 bg-white bg-opacity-50">
-      <div className="text-black font-semibold text-fs-20 mb-3">
-        {"How this works?"->React.string}
-      </div>
-      <ol className="list-decimal flex flex-col gap-5 text-md text-black opacity-50">
-        <p>
-          {"If you have multiple business units, add them here by providing the country and a label for each unit. We have created a default business unit during your sign up"->React.string}
-        </p>
-        <p>
-          {"For Eg: If you have clothing and shoe business units in both US & GB and the 'US clothing' unit has to be your default business unit, then create the following units:"->React.string}
-        </p>
-        <ul className="list-disc list-inside">
-          <li> {"Country = US, label = default"->React.string} </li>
-          <li> {"Country = US, label = shoe"->React.string} </li>
-          <li> {"Country = GB, label = clothing"->React.string} </li>
-          <li> {"Country = GB, label = shoe"->React.string} </li>
-        </ul>
-        <p className="font-semibold"> {"Note: "->React.string} </p>
-        <ul className="list-disc list-inside">
-          <li>
-            {"When creating a connector, you need to attach it to a business unit."->React.string}
-          </li>
-          <li>
-            <span>
-              {"If you have more than one business unit, you need to send the business_country & business_label fields during"->React.string}
-            </span>
-            <span
-              className="ml-1 cursor-pointer text-blue-800"
-              onClick={_ =>
-                Window._open(
-                  "https://api-reference.hyperswitch.io/docs/hyperswitch-api-reference/60bae82472db8-payments-create",
-                )}
-              target="_blank">
-              {"payments/create API request"->React.string}
-            </span>
-          </li>
-        </ul>
-      </ol>
-    </div>
-  }
-}
-
 @react.component
 let make = (
   ~isFromSettings=true,
@@ -182,9 +137,13 @@ let make = (
             currrentFetchCount={businessProfileValues->Js.Array2.length}
           />
           // <BusinessUnitText />
-          <div className="absolute right-0 -top-3">
-            <AddEntryBtn onSubmit modalState showModal setShowModal list={businessProfileValues} />
-          </div>
+          <UIUtils.RenderIf condition={!isFromWebhooks}>
+            <div className="absolute right-0 -top-3">
+              <AddEntryBtn
+                onSubmit modalState showModal setShowModal list={businessProfileValues}
+              />
+            </div>
+          </UIUtils.RenderIf>
         </div>
       </div>
     </UIUtils.RenderIf>

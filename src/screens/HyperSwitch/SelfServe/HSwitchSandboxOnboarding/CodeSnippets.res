@@ -699,8 +699,6 @@ npm install @juspay-tech/hyperswitch-node
 `
 let nodeMigrateFromStripeDXForHTML = `npm install @juspay-tech/hyperswitch-node`
 
-let reactCreateAPayment: string = `npm install @juspay-tech/hyperswitch-node`
-
 let nodeCreateAPayment: string = `const express = require("express");
 const app = express();
 
@@ -735,18 +733,6 @@ app.post("/create-payment", async (req, res) => {
 });
 
 app.listen(4242, () => console.log("Node server listening on port 4242!"));`
-
-let reactInstallationDisplayCheckout: string = `npm install @juspay-tech/hyper-js
-npm install @juspay-tech/react-hyper-js`
-
-let reactImportDisplayCheckout: string = `import React, { useState, useEffect } from "react";
-import { loadHyper } from "@juspay-tech/hyper-js";
-import { HyperElements } from "@juspay-tech/react-hyper-js";`
-
-let nodeDisplayCheckout: string = `const hyperPromise = loadHyper("YOUR_PUBLISHABLE_KEY");
-const [clientSecret, setClientSecret] = useState("");
-// store a reference to hyper 
-const hyper = useHyper();`
 
 let reactDisplayPaymentConfirmation: string = `const handleSubmit = async (e) => {
   e.preventDefault();
