@@ -28,9 +28,7 @@ module MerchantDetailsSection = {
         setMerchantInfo(_ => requiredInfo)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | Js.Exn.Error(e) =>
-        let _err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
-        setScreenState(_ => PageLoaderWrapper.Custom)
+      | Js.Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Custom)
       }
     }
     React.useEffect0(() => {
