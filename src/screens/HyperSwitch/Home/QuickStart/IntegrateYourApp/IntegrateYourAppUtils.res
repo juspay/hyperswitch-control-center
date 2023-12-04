@@ -45,3 +45,14 @@ let getNavigationStepForStandardIntegration = (
   | DisplayPaymentConfirmation => forward ? DisplayPaymentConfirmation : DisplayCheckout
   }
 }
+
+let getPolyMorphicVariantOfIntegrationSubStep: standardIntegrationSteps => QuickStartTypes.sectionHeadingVariant = (
+  currentStep: standardIntegrationSteps,
+) => {
+  switch currentStep {
+  | DownloadTestAPIKey => #DownloadTestAPIKey
+  | CreatePayment => #CreatePayment
+  | DisplayCheckout => #DisplayCheckout
+  | DisplayPaymentConfirmation => #DisplayPaymentConfirmation
+  }
+}

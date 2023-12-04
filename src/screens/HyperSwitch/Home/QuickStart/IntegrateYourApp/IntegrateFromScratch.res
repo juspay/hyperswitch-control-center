@@ -14,6 +14,7 @@ let make = (
   let (currentStep, setCurrentStep) = React.useState(_ => DownloadTestAPIKey)
   let {setQuickStartPageState} = React.useContext(GlobalProvider.defaultContext)
   let isLastStep = currentStep === DisplayPaymentConfirmation
+  let updateEnumInRecoil = EnumVariantHook.useUpdateEnumInRecoil()
 
   let theme = switch ThemeProvider.useTheme() {
   | Dark => "vs-dark"
@@ -40,6 +41,9 @@ let make = (
         if isLastStep {
           markAsDone()->ignore
         } else {
+          let _res = updateEnumInRecoil([
+            (Boolean(true), currentStep->getPolyMorphicVariantOfIntegrationSubStep),
+          ])
           setCurrentStep(_ =>
             getNavigationStepForStandardIntegration(~currentStep, ~forward=true, ())
           )

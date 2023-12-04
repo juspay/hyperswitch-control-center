@@ -169,6 +169,13 @@ let getTypedValueFromDict = valueString => {
     ->getDictfromDict(#IntegrationMethod->getStringFromVariant)
     ->getIntegrationType,
     integrationCompleted: value->getBool(#IntegrationCompleted->getStringFromVariant, false),
+    downloadTestAPIKey: value->getBool(#DownloadTestAPIKey->getStringFromVariant, false),
+    createPayment: value->getBool(#CreatePayment->getStringFromVariant, false),
+    displayCheckout: value->getBool(#DisplayCheckout->getStringFromVariant, false),
+    displayPaymentConfirmation: value->getBool(
+      #DisplayPaymentConfirmation->getStringFromVariant,
+      false,
+    ),
     stripeConnected: value
     ->getDictfromDict(#StripeConnected->getStringFromVariant)
     ->getProcessorType,
@@ -317,19 +324,31 @@ let getSidebarOptionsForIntegrateYourApp: (
       subOptions: [
         {
           title: "Download Test API Key",
-          status: COMPLETED,
+          status: Boolean(enumValue.downloadTestAPIKey)->getStatusValue(
+            #ConfiguredRouting,
+            currentPageStateEnum,
+          ),
         },
         {
           title: "Create a Payment",
-          status: PENDING,
+          status: Boolean(enumValue.createPayment)->getStatusValue(
+            #ConfiguredRouting,
+            currentPageStateEnum,
+          ),
         },
         {
           title: "Display Hyperswitch Checkout",
-          status: PENDING,
+          status: Boolean(enumValue.displayCheckout)->getStatusValue(
+            #ConfiguredRouting,
+            currentPageStateEnum,
+          ),
         },
         {
           title: "Display Payment Confirmation",
-          status: PENDING,
+          status: Boolean(enumValue.displayPaymentConfirmation)->getStatusValue(
+            #ConfiguredRouting,
+            currentPageStateEnum,
+          ),
         },
       ],
     },
