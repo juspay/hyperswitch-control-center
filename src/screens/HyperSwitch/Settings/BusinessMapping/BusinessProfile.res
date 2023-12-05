@@ -80,9 +80,9 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
   let businessProfileValues =
-    Recoil.useRecoilValueFromAtom(
-      HyperswitchAtom.businessProfilesAtom,
-    )->HSwitchMerchantAccountUtils.getArrayOfBusinessProfile
+    HyperswitchAtom.businessProfilesAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->HSwitchMerchantAccountUtils.getArrayOfBusinessProfile
 
   let fetchBusinessProfiles = HSwitchMerchantAccountUtils.useFetchBusinessProfiles()
 

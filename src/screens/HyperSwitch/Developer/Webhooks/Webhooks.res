@@ -1,11 +1,27 @@
 module InfoViewForWebhooks = {
   @react.component
-  let make = (~heading, ~subHeading) => {
+  let make = (~heading, ~subHeading, ~isCopy=false) => {
+    let showToast = ToastState.useShowToast()
+    let onCopyClick = ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      Clipboard.writeText(subHeading)
+      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+    }
+
     <div className={`flex flex-col gap-2 m-2 md:m-4 w-1/2`}>
       <p className="font-semibold text-fs-15"> {heading->React.string} </p>
-      <p className="font-medium text-fs-14 text-black opacity-50 break-words">
-        {subHeading->React.string}
-      </p>
+      <div className="flex gap-2 break-all w-full">
+        <p className="font-medium text-fs-14 text-black opacity-50"> {subHeading->React.string} </p>
+        <UIUtils.RenderIf condition={isCopy}>
+          <img
+            src={`/assets/CopyToClipboard.svg`}
+            className="cursor-pointer"
+            onClick={ev => {
+              onCopyClick(ev)
+            }}
+          />
+        </UIUtils.RenderIf>
+      </div>
     </div>
   }
 }
@@ -105,7 +121,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     : "px-2 py-4"} flex flex-col gap-7 overflow-hidden`}>
                 <div className="flex items-center">
                   <InfoViewForWebhooks
-                    heading="Profile ID" subHeading=businessProfileDetails.profile_id
+                    heading="Profile ID" subHeading=businessProfileDetails.profile_id isCopy=true
                   />
                   <InfoViewForWebhooks
                     heading="Profile Name" subHeading=businessProfileDetails.profile_name
@@ -120,6 +136,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     subHeading={businessProfileDetails.payment_response_hash_key->Belt.Option.getWithDefault(
                       "NA",
                     )}
+                    isCopy=true
                   />
                 </div>
                 <FormRenderer.DesktopRow>

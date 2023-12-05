@@ -6,45 +6,33 @@ let make = (
 ) => {
   open WebhookListEntity
   let (offset, setOffset) = React.useState(_ => 0)
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
   let businessProfileValues =
-    Recoil.useRecoilValueFromAtom(
-      HyperswitchAtom.businessProfilesAtom,
-    )->HSwitchMerchantAccountUtils.getArrayOfBusinessProfile
-
-  React.useEffect1(() => {
-    if businessProfileValues->Js.Array2.length === 0 {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-    } else {
-      setScreenState(_ => PageLoaderWrapper.Success)
-    }
-    None
-  }, [businessProfileValues->Js.Array2.length])
+    HyperswitchAtom.businessProfilesAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->HSwitchMerchantAccountUtils.getArrayOfBusinessProfile
 
   <UIUtils.RenderIf condition=isFromSettings>
-    <PageLoaderWrapper screenState>
-      <div className="relative h-full">
-        <div className="flex flex-col-reverse md:flex-col">
-          <PageUtils.PageHeading
-            title="Webhooks"
-            subTitle="Set up and monitor transaction webhooks for real-time notifications."
-          />
-          <LoadedTable
-            title="Webhooks"
-            hideTitle=true
-            resultsPerPage=7
-            visibleColumns
-            entity={businessProfileTabelEntity()}
-            showSerialNumber=true
-            actualData={businessProfileValues->Js.Array2.map(Js.Nullable.return)}
-            totalResults={businessProfileValues->Js.Array2.length}
-            offset
-            setOffset
-            currrentFetchCount={businessProfileValues->Js.Array2.length}
-          />
-        </div>
+    <div className="relative h-full">
+      <div className="flex flex-col-reverse md:flex-col">
+        <PageUtils.PageHeading
+          title="Webhooks"
+          subTitle="Set up and monitor transaction webhooks for real-time notifications."
+        />
+        <LoadedTable
+          title="Webhooks"
+          hideTitle=true
+          resultsPerPage=7
+          visibleColumns
+          entity={businessProfileTabelEntity()}
+          showSerialNumber=true
+          actualData={businessProfileValues->Js.Array2.map(Js.Nullable.return)}
+          totalResults={businessProfileValues->Js.Array2.length}
+          offset
+          setOffset
+          currrentFetchCount={businessProfileValues->Js.Array2.length}
+        />
       </div>
-    </PageLoaderWrapper>
+    </div>
   </UIUtils.RenderIf>
 }
