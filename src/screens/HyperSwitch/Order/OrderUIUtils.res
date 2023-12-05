@@ -88,7 +88,7 @@ module NoData = {
       ->FeatureFlagUtils.featureFlagType
     <HelperComponents.BluredTableComponent
       infoText={isConfigureConnector
-        ? testLiveMode->Belt.Option.getWithDefault(false)
+        ? testLiveMode
             ? "There are no payments as of now."
             : "There are no payments as of now. Try making a test payment and visualise the checkout experience."
         : "Connect to a connector like Stripe, Adyen or Hyperswitch provided test connector to make your first payment."}
@@ -96,7 +96,7 @@ module NoData = {
       moduleName=""
       paymentModal
       setPaymentModal
-      showRedirectCTA={!(testLiveMode->Belt.Option.getWithDefault(false))}
+      showRedirectCTA={!testLiveMode}
       mixPanelEventName={isConfigureConnector
         ? "paymentops_makeapayment"
         : "payemntops_connectaconnector"}

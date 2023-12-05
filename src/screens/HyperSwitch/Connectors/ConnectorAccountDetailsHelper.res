@@ -132,7 +132,7 @@ module RenderConnectorInputFields = {
               ~selectedConnector,
               ~dict=details,
               ~fieldName=formName,
-              ~isLiveMode={featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false)},
+              ~isLiveMode={featureFlagDetails.testLiveMode},
             )}
           />
         </div>
