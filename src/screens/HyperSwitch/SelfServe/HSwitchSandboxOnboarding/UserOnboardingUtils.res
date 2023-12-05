@@ -195,15 +195,6 @@ let getCreateAPayment = (lang: languages): string => {
   }
 }
 
-let getDisplayPaymentConfirmation = (lang: languages): string => {
-  open CodeSnippets
-  switch lang {
-  | #ReactJs => reactDisplayPaymentConfirmation
-  | #Node => nodeDisplayPaymentConfirmation
-  | _ => ""
-  }
-}
-
 let getMainPageText = currentRoute =>
   switch currentRoute {
   | MigrateFromStripe => "Migrate from Stripe"
@@ -218,14 +209,6 @@ let getLanguages = currentRoute =>
   | IntegrateFromScratch => (integrateFromScratchfrontEndLang, integrateFromScratchBackEndlang)
   | SampleProjects => (integrateFromScratchfrontEndLang, integrateFromScratchBackEndlang)
   | _ => ([], [])
-  }
-
-let getHeadingTextForRequestOnlyPlat = platform =>
-  switch platform {
-  | #BigCommerce => "Big Commerce"
-  | #Android => "Android"
-  | #IOS => "IOS"
-  | _ => ""
   }
 
 // To be refactored

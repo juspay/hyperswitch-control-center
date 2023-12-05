@@ -3,14 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
-## 1.1.0 (2023-11-29)
+## 1.0.4 (2023-12-04)
 
-### Features
+### Bug Fixes
 
-- Add-release-new-version-action ([`880a10e`](https://github.com/juspay/hyperswitch-control-center/commit/880a10e0695284bb76a6e4cf156774a8a6e0fb01))
-- Add change log template ([`9475c4a`](https://github.com/juspay/hyperswitch-control-center/commit/9475c4a2863c12110a4f8bf2826fa68cdba7ab09))
+- Dead code removal ([#52](https://github.com/juspay/hyperswitch-control-center/pull/52)) ([`eebee65`](https://github.com/juspay/hyperswitch-control-center/commit/eebee659a8326aa32ebcbe2d06c21e8487bea377))
+- Remove CHANGELOG.md ([#53](https://github.com/juspay/hyperswitch-control-center/pull/53)) ([`6978bf6`](https://github.com/juspay/hyperswitch-control-center/commit/6978bf6814fb856c67a0fe409638982239c1af80))
 
-**Full Changelog:** [`v1.0.2...v1.1.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.0.2...v1.1.0)
+### Miscellaneous Tasks
+
+- Remove dead code ([#50](https://github.com/juspay/hyperswitch-control-center/pull/50)) ([`0133ff1`](https://github.com/juspay/hyperswitch-control-center/commit/0133ff13a7e915c4c796bd98fbaf92400690531a))
+
+**Full Changelog:** [`v1.0.3...v1.0.4`](https://github.com/juspay/hyperswitch-control-center/compare/v1.0.3...v1.0.4)
 
 - - -
 

@@ -39,6 +39,21 @@ external getConnectorConfig: string => Js.Json.t = "getConnectorConfig"
 external getPayoutConnectorConfig: string => Js.Json.t = "getPayoutConnectorConfig"
 
 @val @scope("window")
+external getThreeDsKeys: unit => array<string> = "getThreeDsKeys"
+
+@val @scope("window")
+external getAllKeys: unit => array<string> = "getAllKeys"
+
+@val @scope("window")
+external getKeyType: string => string = "getKeyType"
+
+@val @scope("window")
+external getAllConnectors: unit => array<string> = "getAllConnectors"
+
+@val @scope("window")
+external getVariantValues: string => array<string> = "getVariantValues"
+
+@val @scope("window")
 open ConnectorTypes
 external getRequestPayload: (wasmRequest, wasmExtraPayload) => Js.Json.t = "getRequestPayload"
 

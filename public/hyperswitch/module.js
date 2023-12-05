@@ -62,3 +62,43 @@ function getParsedJson(str) {
     throw e;
   }
 }
+
+function getThreeDsKeys() {
+  if (wasm) {
+    return wasm.getThreeDsKeys();
+  } else {
+    return [];
+  }
+}
+
+function getAllKeys() {
+  if (wasm) {
+    return wasm.getAllKeys();
+  } else {
+    return [];
+  }
+}
+
+function getKeyType(str) {
+  if (wasm) {
+    return wasm.getKeyType(str);
+  } else {
+    return "";
+  }
+}
+
+function getAllConnectors() {
+  if (wasm) {
+    return wasm.getAllConnectors();
+  } else {
+    return [];
+  }
+}
+
+function getVariantValues(str) {
+  if (wasm) {
+    return wasm.getVariantValues(str);
+  } else {
+    return [];
+  }
+}

@@ -184,7 +184,7 @@ module ExternalUser = {
                             `${activeClasses} text-blue-900 flex gap-2 font-medium w-56`
                           }>
                           <Icon name="plus-circle" size=15 />
-                          {"Add a new Merchant"->React.string}
+                          {"Add a new merchant"->React.string}
                         </button>}
                     </Menu.Item>
                   </div>

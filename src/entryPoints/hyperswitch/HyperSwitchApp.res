@@ -229,7 +229,7 @@ let make = () => {
                   </div>
                 </div>
                 <div
-                  className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll ">
+                  className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
                   <div
                     className="w-full h-full max-w-fixedPageWidth p-6 md:px-16 md:pb-16 pt-[3rem] overflow-scroll md:overflow-y-scroll md:overflow-x-hidden flex flex-col gap-10">
                     <ErrorBoundary>
@@ -323,7 +323,9 @@ let make = () => {
                       | list{"monitoring"} => comingSoonPage
                       | list{"developer-api-keys"} => <KeyManagement.KeysManagement />
                       | list{"developer-system-metrics"} =>
-                        <UIUtils.RenderIf condition={userRole->Js.String2.includes("internal_")}>
+                        <UIUtils.RenderIf
+                          condition={userRole->Js.String2.includes("internal_") &&
+                            featureFlagDetails.systemMetrics}>
                           <AnalyticsUrlUpdaterContext key="SystemMetrics">
                             <SystemMetricsAnalytics />
                           </AnalyticsUrlUpdaterContext>
@@ -332,16 +334,32 @@ let make = () => {
                         <EntityScaffold
                           entityName="WebHooks"
                           remainingPath
-                          renderList={() => <BusinessMapping isFromWebhooks=true />}
+                          renderList={() => <BusinessProfile isFromWebhooks=true />}
                           renderShow={profileId =>
                             <Webhooks webhookOnly=false showFormOnly=false />}
                         />
-                      | list{"settings"} => <HSwitchSettings />
-                      | list{"profile"} => <HSwitchProfileSettings />
-                      | list{"settings", "profile"} => <HSwitchProfileSettings />
-                      | list{"recon"} => <Recon />
-                      | list{"sdk"} => <SDKPage />
+                      | list{"recon"} =>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.recon>
+                          <Recon />
+                        </FeatureFlagEnabledComponent>
+                      | list{"sdk"} =>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.openSDK>
+                          <SDKPage />
+                        </FeatureFlagEnabledComponent>
                       | list{"3ds"} => <HSwitchThreeDS />
+                      | list{"account-settings"} =>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.sampleData>
+                          <HSwitchSettings />
+                        </FeatureFlagEnabledComponent>
+                      | list{"account-settings", "profile"} => <HSwitchProfileSettings />
+                      | list{"business-details"} =>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.default>
+                          <BusinessDetails />
+                        </FeatureFlagEnabledComponent>
+                      | list{"business-profiles"} =>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.businessProfile>
+                          <BusinessProfile />
+                        </FeatureFlagEnabledComponent>
                       | list{"quick-start"} => determineQuickStartPageState()
                       | list{"woocommerce"} => determineWooCommerce()
                       | list{"stripe-plus-paypal"} => determineStripePlusPayPal()

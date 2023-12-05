@@ -688,6 +688,29 @@ let validateNameAndDescription = (~dict, ~errors) => {
   })
 }
 
+let checkIfValuePresent = dict => {
+  let valueFromObject = dict->getDictfromDict("value")
+
+  valueFromObject
+  ->getArrayFromDict("value", [])
+  ->Js.Array2.filter(ele => {
+    ele != ""->Js.Json.string
+  })
+  ->Js.Array2.length > 0 ||
+  valueFromObject->getString("value", "") !== "" ||
+  valueFromObject->getFloat("value", -1.0) !== -1.0 ||
+  valueFromObject->getString("comparison", "") == "IS NULL" ||
+  valueFromObject->getString("comparison", "") == "IS NOT NULL"
+}
+let validateConditionJsonFor3ds = json => {
+  switch json->Js.Json.decodeObject {
+  | Some(dict) =>
+    ["comparison", "lhs"]->Js.Array2.every(key => dict->Js.Dict.get(key)->Belt.Option.isSome) &&
+      dict->checkIfValuePresent
+  | None => false
+  }
+}
+
 let validateConditions = dict => {
   dict
   ->LogicUtils.getArrayFromDict("conditions", [])
@@ -695,11 +718,11 @@ let validateConditions = dict => {
 }
 
 let validateConditionsEvenIfOneExists = dict => {
-  let conditionsArray = dict->LogicUtils.getArrayFromDict("conditions", [])
+  let conditionsArray = dict->LogicUtils.getArrayFromDict("statements", [])
   let vector = Js.Vector.make(conditionsArray->Js.Array2.length, false)
 
   conditionsArray->Array.forEachWithIndex((value, index) => {
-    let res = value->MakeRuleFieldComponent.validateConditionJson
+    let res = value->validateConditionJsonFor3ds
     vector->Js.Vector.set(index, res)
   })
 

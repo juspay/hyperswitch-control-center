@@ -94,28 +94,10 @@ module NewProcessorCards = {
   }
 }
 
-module FRMProPackageInfo = {
-  @react.component
-  let make = () => {
-    <div
-      className="border-2 border-orange-900 bg-orange-100 py-4 px-5 flex gap-4 items-center rounded-md">
-      <img className="mb-1 h-7" src="/icons/premiumIcon.svg" />
-      <div className="font-medium text-md text-orange-900">
-        {"This feature is a part of the \"Pro\" plan. You can explore the feature on sandbox, however you will have to subscribe to \"Pro\" plan for using on production"->React.string}
-      </div>
-    </div>
-  }
-}
-
 @react.component
 let make = () => {
   open FRMInfo
   open UIUtils
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
   let url = RescriptReactRouter.useUrl()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchDetails = APIUtils.useGetMethod()
@@ -135,6 +117,7 @@ let make = () => {
       onClickElement={React.null}
       onClickUrl="connectors"
       moduleName="Fraud & Risk Management"
+      moduleSubtitle="Connect and configure processors to screen transactions and mitigate fraud"
       mixPanelEventName={`${url.path->LogicUtils.getListHead}_take_me_to_connectors`}
     />
 
@@ -190,9 +173,10 @@ let make = () => {
 
   <PageLoaderWrapper screenState customUI>
     <div className="flex flex-col gap-10 ">
-      <RenderIf condition={featureFlagDetails.frm}>
-        <FRMProPackageInfo />
-      </RenderIf>
+      <PageUtils.PageHeading
+        title="Fraud & Risk Management"
+        subTitle="Connect and configure processors to screen transactions and mitigate fraud"
+      />
       <RenderIf condition={showFRMIcons}>
         <NewProcessorCards configuredFRMs showIcons={showFRMIcons} />
       </RenderIf>

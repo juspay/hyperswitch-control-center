@@ -699,8 +699,6 @@ npm install @juspay-tech/hyperswitch-node
 `
 let nodeMigrateFromStripeDXForHTML = `npm install @juspay-tech/hyperswitch-node`
 
-let reactCreateAPayment: string = `npm install @juspay-tech/hyperswitch-node`
-
 let nodeCreateAPayment: string = `const express = require("express");
 const app = express();
 
@@ -735,67 +733,3 @@ app.post("/create-payment", async (req, res) => {
 });
 
 app.listen(4242, () => console.log("Node server listening on port 4242!"));`
-
-let reactInstallationDisplayCheckout: string = `npm install @juspay-tech/hyper-js
-npm install @juspay-tech/react-hyper-js`
-
-let reactImportDisplayCheckout: string = `import React, { useState, useEffect } from "react";
-import { loadHyper } from "@juspay-tech/hyper-js";
-import { HyperElements } from "@juspay-tech/react-hyper-js";`
-
-let nodeDisplayCheckout: string = `const hyperPromise = loadHyper("YOUR_PUBLISHABLE_KEY");
-const [clientSecret, setClientSecret] = useState("");
-// store a reference to hyper 
-const hyper = useHyper();`
-
-let reactDisplayPaymentConfirmation: string = `const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!hyper || !widgets) {
-    // hyper-js has not yet loaded.
-    // Make sure to disable form submission until hyper-js has loaded.
-    return;
-  }
-  setIsLoading(true);
-  const { error } = await hyper.confirmPayment({
-    widgets,
-    confirmParams: {
-      // Make sure to change this to your payment completion page
-      return_url: "https://example.com/complete",
-    },
-  });
-  // This point will only be reached if there is an immediate error occurring while confirming the payment. Otherwise, your customer will be redirected to your "return_url"
-  // For some payment flows such as Sofort, iDEAL, your customer will be redirected to an intermediate page to complete authorization of the payment, and then redirected to the "return_url".
-  if (error.type === "validation_error") {
-    setMessage(error.message);
-  } else {
-    setMessage("An unexpected error occurred.");
-  }
-  setIsLoading(false);
-};`
-
-let nodeDisplayPaymentConfirmation: string = `//Look for a parameter called "payment_intent_client_secret" in the url which gives a payment ID, which is then used to retrieve the status of the payment
-
-const paymentID = new URLSearchParams(window.location.search).get(
-  "payment_intent_client_secret"
-);
-
-if (!paymentID) {
-  return;
-}
-
-hyper.retrievePaymentIntent(paymentID).then(({ paymentIntent }) => {
-  switch (paymentIntent.status) {
-    case "succeeded":
-      setMessage("Payment succeeded!");
-      break;
-    case "processing":
-      setMessage("Your payment is processing.");
-      break;
-    case "requires_payment_method":
-      setMessage("Your payment was not successful, please try again.");
-      break;
-    default:
-      setMessage("Something went wrong.");
-      break;
-  }
-});`

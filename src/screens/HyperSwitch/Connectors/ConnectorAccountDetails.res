@@ -29,13 +29,13 @@ let mixpanelEventWrapper = (
 module BusinessProfileRender = {
   @react.component
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
-    open HSwitchMerchantAccountUtils
     let url = RescriptReactRouter.useUrl()
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
 
-    let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
+    let arrayOfBusinessProfile =
+      businessProfiles->HSwitchMerchantAccountUtils.getArrayOfBusinessProfile
 
     let (showModalFromOtherScreen, setShowModalFromOtherScreen) = React.useState(_ => false)
 
@@ -82,7 +82,9 @@ module BusinessProfileRender = {
                 ~deselectDisable=true,
                 ~disableSelect=isUpdateFlow,
                 ~customStyle="max-h-48",
-                ~options={arrayOfBusinessProfile->businessProfileNameDropDownOption},
+                ~options={
+                  arrayOfBusinessProfile->HSwitchMerchantAccountUtils.businessProfileNameDropDownOption
+                },
                 ~buttonText="Select Country",
                 ~placeholder="",
                 (),
@@ -112,7 +114,9 @@ module BusinessProfileRender = {
                     }
                   },
                 },
-                ~options={arrayOfBusinessProfile->businessProfileIdDropDownOption},
+                ~options={
+                  arrayOfBusinessProfile->HSwitchMerchantAccountUtils.businessProfileIdDropDownOption
+                },
                 ~buttonText="Select Option",
                 ~deselectDisable=true,
                 ~disableSelect=isUpdateFlow,
@@ -134,13 +138,13 @@ module BusinessProfileRender = {
             className={`ml-1 ${hereTextStyle}`}
             onClick={_ => {
               setDashboardPageState(_ => #HOME)
-              RescriptReactRouter.push("/settings?type=units")
+              RescriptReactRouter.push("/business-profiles")
             }}>
             {React.string("here.")}
           </span>
         </div>
       </UIUtils.RenderIf>
-      <BusinessMapping isFromSettings=false showModalFromOtherScreen setShowModalFromOtherScreen />
+      <BusinessProfile isFromSettings=false showModalFromOtherScreen setShowModalFromOtherScreen />
     </>
   }
 }

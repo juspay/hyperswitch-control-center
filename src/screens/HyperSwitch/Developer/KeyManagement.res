@@ -421,8 +421,10 @@ module ApiKeysTable = {
 module KeysManagement = {
   @react.component
   let make = () => {
-    <div className="py-4 md:py-10 h-full">
-      <PageUtils.PageHeading title="API Keys" />
+    <div className="h-full">
+      <PageUtils.PageHeading
+        title="Keys" subTitle="Manage API keys and credentials for integrated payment services"
+      />
       <ApiKeysTable />
       <PublishableAndHashKeySection />
     </div>

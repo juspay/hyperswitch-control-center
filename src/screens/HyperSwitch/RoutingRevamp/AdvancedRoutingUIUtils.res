@@ -318,9 +318,8 @@ module FieldInp = {
 
 module RuleFieldBase = {
   @react.component
-  let make = (~isFirst, ~id, ~isExpanded, ~onClick, ~wasm) => {
+  let make = (~isFirst, ~id, ~isExpanded, ~onClick, ~wasm, ~isFrom3ds) => {
     let (hover, setHover) = React.useState(_ => false)
-    let (paymentMethod, setpaymentMethod) = React.useState(_ => [])
     let (keyType, setKeyType) = React.useState(_ => "")
     let (variantValues, setVariantValues) = React.useState(_ => [])
     let field = ReactFinalForm.useField(`${id}.lhs`).input
@@ -339,20 +338,19 @@ module RuleFieldBase = {
       setKeyTypeAndVariants(wasm, value)
     }
 
-    React.useEffect0(() => {
-      let methodKeys = switch wasm {
-      | Some(res) => res.getAllKeys()
-      | None => []
-      }
+    let methodKeys = React.useMemo0(() => {
       let value = field.value->LogicUtils.getStringFromJson("")
       if value->Js.String2.length > 0 {
         setKeyTypeAndVariants(wasm, value)
       }
-      setpaymentMethod(_ => methodKeys)
-      None
+      if isFrom3ds {
+        Window.getThreeDsKeys()
+      } else {
+        Window.getAllKeys()
+      }
     })
 
-    <UIUtils.RenderIf condition={paymentMethod->Js.Array2.length > 0}>
+    <UIUtils.RenderIf condition={methodKeys->Js.Array2.length > 0}>
       {if isExpanded {
         <div
           className={`flex flex-wrap items-center px-1 ${hover
@@ -363,7 +361,7 @@ module RuleFieldBase = {
           </UIUtils.RenderIf>
           <div className="-mt-5 p-1">
             <FieldWrapper label="">
-              <FieldInp ops=paymentMethod prefix=id onChangeMethod />
+              <FieldInp ops=methodKeys prefix=id onChangeMethod />
             </FieldWrapper>
           </div>
           <div className="-mt-5">
@@ -394,7 +392,7 @@ module RuleFieldBase = {
 
 module MakeRuleField = {
   @react.component
-  let make = (~id, ~isExpanded, ~wasm) => {
+  let make = (~id, ~isExpanded, ~wasm, ~isFrom3ds) => {
     let ruleJsonPath = `${id}.statements`
     let conditionsInput = ReactFinalForm.useField(ruleJsonPath).input
     let fields = conditionsInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
@@ -419,6 +417,7 @@ module MakeRuleField = {
           id={`${ruleJsonPath}[${i->Belt.Int.toString}]`}
           isExpanded
           wasm
+          isFrom3ds
         />
       )->React.array}
       {if isExpanded {
