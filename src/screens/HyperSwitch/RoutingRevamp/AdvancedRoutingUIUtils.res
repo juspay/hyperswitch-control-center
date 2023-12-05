@@ -340,9 +340,10 @@ module RuleFieldBase = {
     }
 
     React.useEffect0(() => {
-      let methodKeys = switch wasm {
-      | Some(res) => isFrom3ds ? Window.getThreeDsKeys() : res.getAllKeys()
-      | None => []
+      let methodKeys = if isFrom3ds {
+        Window.getThreeDsKeys()
+      } else {
+        Window.getAllKeys()
       }
       let value = field.value->LogicUtils.getStringFromJson("")
       if value->Js.String2.length > 0 {
