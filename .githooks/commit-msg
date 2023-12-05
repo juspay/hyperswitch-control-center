@@ -14,7 +14,7 @@ npm run re:format
 commit_regex="^(Merge branch|(feat|fix|chore|refactor|docs|test|style|enhancement):).+"
 
 
-if git log -1 --show-signature &> /dev/null; then
+if git log --show-signature -n 1 | grep -q 'gpg:'; then
     if ! echo "$commit_msg" | grep -Ei "$commit_regex" ; then
         echo "Aborting commit. Your commit message does not follow the conventional format."
         echo "The commit message should begin with one of the following keywords followed by a colon: 'feat', 'fix', 'chore', 'refactor', 'docs', 'test' or 'style'. For example, it should be formatted like this: 'feat: <subject> - <description>'"

@@ -46,10 +46,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
   let fetchBusinessProfiles = HSwitchMerchantAccountUtils.useFetchBusinessProfiles()
 
-  let initialValues = React.useMemo1(() => {
-    businessProfileDetails->parseBussinessProfileJson->Js.Json.object_
-  }, [businessProfileDetails])
-
   let onSubmit = async (values, _) => {
     try {
       hyperswitchMixPanel(
@@ -97,7 +93,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
               : "border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass} `}>
           <ReactFinalForm.Form
             key="merchantAccount"
-            initialValues
+            initialValues={businessProfileDetails->parseBussinessProfileJson->Js.Json.object_}
             subscription=ReactFinalForm.subscribeToValues
             validate={values => {
               open HSwitchSettingTypes
