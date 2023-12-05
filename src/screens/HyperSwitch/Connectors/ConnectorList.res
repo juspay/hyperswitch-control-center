@@ -133,7 +133,7 @@ module NewProcessorCards = {
             <div
               onClick={_ => setShowModal(_ => true)}
               className="text-blue-900 cursor-pointer underline underline-offset-4 font-medium">
-              {"Can't find the connector of you're choice?"->React.string}
+              {"Can't find the processor of you're choice?"->React.string}
             </div>
           </UIUtils.RenderIf>
         </div>
@@ -209,7 +209,7 @@ module NewProcessorCards = {
       </div>
       <UIUtils.RenderIf condition={showModal}>
         <HSwitchFeedBackModal
-          modalHeading="Request a connector"
+          modalHeading="Request a processor"
           setShowModal
           showModal
           modalType={RequestConnectorModal}
