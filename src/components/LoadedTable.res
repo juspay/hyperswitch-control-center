@@ -185,7 +185,7 @@ let make = (
   ~tableheadingClass="",
   ~tableBorderClass="",
   ~tableDataBorderClass="",
-  ~collapseTabelRow=false,
+  ~collapseTableRow=false,
   ~getRowDetails=?,
   ~onMouseEnter=?,
   ~onMouseLeave=?,
@@ -798,7 +798,7 @@ let make = (
                 tableBorderClass
                 tableDataBorderClass
                 enableEqualWidthCol
-                collapseTabelRow
+                collapseTableRow
                 ?getRowDetails
                 ?onExpandClickData
                 actualData

@@ -256,7 +256,7 @@ let make = (~isPayoutFlow=false) => {
             setOffset
             entity={ConnectorTableUtils.connectorEntity(`${entityPrefix}connectors`)}
             currrentFetchCount={filteredConnectorData->Js.Array2.length}
-            collapseTabelRow=false
+            collapseTableRow=false
           />
         </RenderIf>
         <RenderIf condition={!showConnectorIcons}>
