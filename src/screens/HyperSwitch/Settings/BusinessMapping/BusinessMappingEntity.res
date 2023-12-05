@@ -5,11 +5,11 @@ type columns =
   | ProfileName
   | ProfileId
 
-let visibleColumns = [ProfileName, ProfileId]
+let visibleColumns = [ProfileId, ProfileName]
 
-let defaultColumns = [ProfileName, ProfileId]
+let defaultColumns = [ProfileId, ProfileName]
 
-let allColumns = [ProfileName, ProfileId]
+let allColumns = [ProfileId, ProfileName]
 
 let getHeading = colType => {
   switch colType {
