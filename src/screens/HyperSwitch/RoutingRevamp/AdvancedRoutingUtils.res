@@ -339,16 +339,15 @@ let generateStatements = statements => {
       },
     ],
     (acc, statement) => {
-      let statementDict = statement->LogicUtils.getDictFromJsonObject
-      let logicalOperator =
-        statementDict->LogicUtils.getString("logical", "")->Js.String2.toLowerCase
+      let statementDict = statement->getDictFromJsonObject
+      let logicalOperator = statementDict->getString("logical", "")->Js.String2.toLowerCase
 
       let lastItem =
         acc->Belt.Array.get(acc->Js.Array2.length - 1)->Belt.Option.getWithDefault({condition: []})
 
       let condition = {
-        lhs: statementDict->LogicUtils.getString("lhs", ""),
-        comparison: switch statementDict->LogicUtils.getString("comparison", "")->operatorMapper {
+        lhs: statementDict->getString("lhs", ""),
+        comparison: switch statementDict->getString("comparison", "")->operatorMapper {
         | IS
         | EQUAL_TO
         | CONTAINS => "equal"
@@ -359,8 +358,8 @@ let generateStatements = statements => {
         | LESS_THAN => "less_than"
         | UnknownOperator(str) => str
         },
-        value: statementDict->LogicUtils.getDictfromDict("value")->getStatementValue,
-        metadata: statementDict->LogicUtils.getJsonObjectFromDict("metadata"),
+        value: statementDict->getDictfromDict("value")->getStatementValue,
+        metadata: statementDict->getJsonObjectFromDict("metadata"),
       }
 
       let newAcc = if logicalOperator === "or" {
@@ -383,14 +382,14 @@ let generateStatements = statements => {
 
 let generateRule = rulesDict => {
   let modifiedRules = rulesDict->Js.Array2.map(ruleJson => {
-    let ruleDict = ruleJson->LogicUtils.getDictFromJsonObject
-    let statements = ruleDict->LogicUtils.getArrayFromDict("statements", [])
+    let ruleDict = ruleJson->getDictFromJsonObject
+    let statements = ruleDict->getArrayFromDict("statements", [])
 
     let modifiedStatements = statements->generateStatements
 
     {
-      "name": ruleDict->LogicUtils.getString("name", ""),
-      "connectorSelection": ruleDict->LogicUtils.getJsonObjectFromDict("connectorSelection"),
+      "name": ruleDict->getString("name", ""),
+      "connectorSelection": ruleDict->getJsonObjectFromDict("connectorSelection"),
       "statements": modifiedStatements->Js.Array2.map(toJson)->Js.Json.array,
     }
   })

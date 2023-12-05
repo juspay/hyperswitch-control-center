@@ -688,26 +688,25 @@ let validateNameAndDescription = (~dict, ~errors) => {
   })
 }
 
+let checkIfValuePresent = dict => {
+  let valueFromObject = dict->getDictfromDict("value")
+
+  valueFromObject
+  ->getArrayFromDict("value", [])
+  ->Js.Array2.filter(ele => {
+    ele != ""->Js.Json.string
+  })
+  ->Js.Array2.length > 0 ||
+  valueFromObject->getString("value", "") !== "" ||
+  valueFromObject->getFloat("value", -1.0) !== -1.0 ||
+  valueFromObject->getString("comparison", "") == "IS NULL" ||
+  valueFromObject->getString("comparison", "") == "IS NOT NULL"
+}
 let validateConditionJsonFor3ds = json => {
-  let checkValue = dict => {
-    let valueFromObject = dict->getDictfromDict("value")
-
-    valueFromObject
-    ->getArrayFromDict("value", [])
-    ->Js.Array2.filter(ele => {
-      ele != ""->Js.Json.string
-    })
-    ->Js.Array2.length > 0 ||
-    valueFromObject->getString("value", "") !== "" ||
-    valueFromObject->getFloat("value", -1.0) !== -1.0 ||
-    valueFromObject->getString("comparison", "") == "IS NULL" ||
-    valueFromObject->getString("comparison", "") == "IS NOT NULL"
-  }
-
   switch json->Js.Json.decodeObject {
   | Some(dict) =>
     ["comparison", "lhs"]->Js.Array2.every(key => dict->Js.Dict.get(key)->Belt.Option.isSome) &&
-      dict->checkValue
+      dict->checkIfValuePresent
   | None => false
   }
 }
