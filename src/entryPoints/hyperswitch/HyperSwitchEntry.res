@@ -75,9 +75,7 @@ module HyperSwitchEntryComponent = {
           (await postDetails(url, Js.Dict.empty()->Js.Json.object_, Post))->Js.Json.stringify
         setFeatureFlag(._ => stringifiedResponse)
       } catch {
-      | Js.Exn.Error(e) => {
-          let _err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
-        }
+      | _ => ()
       }
     }
 

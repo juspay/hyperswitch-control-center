@@ -152,14 +152,6 @@ The `production_access` feature flag enables a flow for users to request live pr
 
 The `quick_start` feature flag enables the simplified onboarding flow for new users, where he connects to processors, configure payment routing and testing a payment, all in one flow.
 
-#### Stripe plus paypal
-
-The `stripe_plus_paypal` feature flag enables access to simplified multi-processor connectivity through Stripe and PayPal. When turned on, users are guided through a streamlined setup flow to connect both Stripe and PayPal accounts and experience it in a checkout page.
-
-#### Woocommerce
-
-The `woocommerce` feature flag controls the visibility of WooCommerce integration with Hyperswitch flow within the dashboard. When enabled, users will have access to the step-by-step guide to integrate the woocommerce plugin for hyperswitch.
-
 #### Open SDK
 
 The `open_sdk` feature flag enables access to the Checkout Page web SDK from within the dashboard. When enabled, developers can preview the SDK from within the dashboard and make payments.

@@ -396,7 +396,7 @@ let validateCustom = (key, errors, value) => {
 let validateMerchantAccountForm = (
   ~values: Js.Json.t,
   ~fieldsToValidate: array<validationFields>,
-  ~setIsDisabled=?,
+  ~setIsDisabled,
   ~initialData,
 ) => {
   let errors = Js.Dict.empty()
