@@ -25,20 +25,19 @@ let make = (
       <div className={`${animationType} mb-10`}>
         <Icon name="spinner" size customIconColor=customSpinnerIconColor />
       </div>
-      {React.string(loadingText)}
       {children}
     </div>
 
   <div className="flex flex-col">
     <div className="w-full flex justify-center py-10">
       <div className="w-20 h-16">
-        <div className="scale-400 pt-px">
-          <React.Suspense fallback={loader}>
-            <ErrorBoundary>
+        <React.Suspense fallback={loader}>
+          <ErrorBoundary>
+            <div className="scale-400 pt-px">
               <Lottie animationData={loaderLottieFile} autoplay=true loop=true />
-            </ErrorBoundary>
-          </React.Suspense>
-        </div>
+            </div>
+          </ErrorBoundary>
+        </React.Suspense>
       </div>
     </div>
   </div>
