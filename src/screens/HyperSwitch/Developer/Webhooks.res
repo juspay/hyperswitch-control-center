@@ -71,7 +71,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
               open HSwitchSettingTypes
               HSwitchMerchantAccountUtils.validateMerchantAccountForm(
                 ~values,
-                ~setIsDisabled,
+                ~setIsDisabled=Some(setIsDisabled),
                 ~fieldsToValidate={
                   [WebhookUrl, ReturnUrl]->Js.Array2.filter(urlField =>
                     urlField === WebhookUrl || !webhookOnly

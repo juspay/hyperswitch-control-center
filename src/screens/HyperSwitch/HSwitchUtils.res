@@ -92,110 +92,12 @@ module ConnectorCustomCell = {
     }
   }
 }
-module HelpDeskSection = {
-  @react.component
-  let make = (~helpdeskModal, ~setHelpdeskModal) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
-    let textStyle = "font-medium text-fs-14"
-    let {setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
-    let handleMixpanelEvents = eventName => {
-      [url.path->LogicUtils.getListHead, `global`]->Js.Array2.forEach(ele =>
-        hyperswitchMixPanel(~pageName=ele, ~contextName="helpdesk", ~actionName=eventName, ())
-      )
-    }
-    let handleFeedbackClicked = _ => {
-      setShowFeedbackModal(_ => true)
-      "submitfeedback"->handleMixpanelEvents
-    }
-
-    let hoverEffectStyle = "flex gap-3 cursor-pointer hover:border hover:border-blue-700 hover:rounded-md hover:!shadow-[0_0_4px_2px_rgba(0,_112,_255,_0.15)] p-3 border border-transparent"
-    <>
-      <UIUtils.RenderIf condition={helpdeskModal}>
-        <FramerMotion.Motion.Div
-          initial={{scale: 0.0}}
-          animate={{scale: 1.0}}
-          exit={{scale: 0.0}}
-          transition={{duration: 0.3}}
-          style={transformOrigin: "top"}
-          className="absolute top-14 right-0 bg-white p-4 border shadow-[-22px_-8px_41px_-15px_rgba(0,0,0,_0.25)] w-60 flex flex-col gap-2.5 z-10 rounded-md">
-          <div className=hoverEffectStyle onClick={_ => handleFeedbackClicked()}>
-            <Icon name="feedback" size=16 />
-            <p className=textStyle> {"Submit feedback"->React.string} </p>
-          </div>
-          <div
-            className=hoverEffectStyle
-            onClick={_ => {
-              "contactonslack"->handleMixpanelEvents
-              Window._open("https://hyperswitch-io.slack.com/ssb/redirect")
-            }}>
-            <Icon size=16 name="slack" />
-            <p className=textStyle> {"Connect on Slack"->React.string} </p>
-          </div>
-          <div
-            className=hoverEffectStyle
-            onClick={_ => {
-              "joindiscord"->handleMixpanelEvents
-              Window._open("https://discord.gg/an7gRdWkhw")
-            }}>
-            <Icon size=16 name="discord" />
-            <p className=textStyle> {"Join Discord"->React.string} </p>
-          </div>
-        </FramerMotion.Motion.Div>
-      </UIUtils.RenderIf>
-      <Icon
-        className="cursor-pointer ml-auto"
-        name="help-desk"
-        size=30
-        onClick={ev => {
-          open ReactEvent.Mouse
-          ev->stopPropagation
-          setHelpdeskModal(prevValue => {
-            let globalEventText = !prevValue ? "global_helpdesk_open" : "global_helpdesk_close"
-            let localEventText = !prevValue ? "helpdesk_open" : "helpdesk_close"
-            let currentPath = url.path->LogicUtils.getListHead
-
-            [`${currentPath}_${localEventText}`, globalEventText]->Js.Array2.forEach(ele =>
-              hyperswitchMixPanel(~eventName=Some(ele), ())
-            )
-            !prevValue
-          })
-        }}
-      />
-    </>
-  }
-}
-
-let pathToVariantMapper = routeName => {
-  switch routeName {
-  | "home" => HOME
-  | "payments" => PAYMENTS
-  | "refunds" => REFUNDS
-  | "disputes" => DISPUTES
-  | "connectors" => CONNECTOR
-  | "routing" => ROUTING
-  | "analytics-payments" => ANALYTICS_PAYMENTS
-  | "analytics-refunds" => ANALYTICS_REFUNDS
-  | "settings" => SETTINGS
-  | "developers" => DEVELOPERS
-  | _ => HOME
-  }
-}
 
 let isValidEmail = value =>
   !Js.Re.test_(
     %re(`/^(([^<>()[\]\.,;:\s@"]+(\.[^<>()[\]\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`),
     value,
   )
-
-let isUserJourneyAnalyticsAccessAvailable = email => email->Js.String2.includes("juspay")
-
-let convertJsonArrayToArrayOfString = (. val) => {
-  val
-  ->Js.Json.decodeArray
-  ->Belt.Option.getWithDefault([])
-  ->Js.Array2.map(ele => ele->Js.Json.decodeString->Belt.Option.getWithDefault(""))
-}
 
 let useMerchantDetailsValue = () =>
   Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)->safeParse
@@ -382,48 +284,8 @@ let constructOnboardingBody = (
     ("account_activation", copyOfIntegrationDetails.account_activation->returnIntegrationJson),
   ])->Js.Json.object_
 }
-module OnboardingChecklistTile = {
-  @react.component
-  let make = (~setShowOnboardingModal) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
-    <div
-      className="absolute bottom-0 right-0 cursor-pointer px-5 py-2 bg-white h-20 w-[26rem] flex justify-between items-center !shadow-checklistShadow"
-      onClick={_ => {
-        setShowOnboardingModal(_ => true)
-
-        [url.path->LogicUtils.getListHead, "global"]->Js.Array2.forEach(ele =>
-          hyperswitchMixPanel(~eventName=Some(`${ele}_onboarding_checklist`), ())
-        )
-      }}>
-      <div className="w-full flex nowrap items-center gap-2">
-        <div className="font-semibold text-xl"> {"Onboarding Checklist"->React.string} </div>
-        <span className="relative flex h-3 w-3">
-          <span
-            className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"
-          />
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-sky-500" />
-        </span>
-      </div>
-      <Icon name="arrow-without-tail" />
-    </div>
-  }
-}
 
 let isEmptyString = str => str->Js.String2.length <= 0
-
-let parseUrl = url => {
-  url
-  ->Js.Global.decodeURI
-  ->Js.String2.split("&")
-  ->Belt.Array.keepMap(str => {
-    let arr = str->Js.String2.split("=")
-    let key = arr->Belt.Array.get(0)->Belt.Option.getWithDefault("-")
-    let val = arr->Belt.Array.sliceToEnd(1)->Js.Array2.joinWith("=")
-    key === "" || val === "" ? None : Some((key, val))
-  })
-  ->Js.Dict.fromArray
-}
 
 type textVariantType =
   | H1
@@ -450,19 +312,6 @@ let getTextClass = (~textVariant, ~h3TextVariant=Leading_1, ~paragraphTextVarian
 
   | (P3, _, Regular) => "text-xs font-normal leading-4"
   | (P3, _, Medium) => "text-xs font-medium leading-4"
-  }
-}
-
-module CardLoader = {
-  @react.component
-  let make = () => {
-    <div className="w-full h-full flex justify-center items-center">
-      <div className="w-24 h-24 scale-[0.5]">
-        <div className="-mt-5 -ml-12">
-          <Loader />
-        </div>
-      </div>
-    </div>
   }
 }
 
