@@ -1,4 +1,3 @@
-open LogicUtils
 external toJson: 'a => Js.Json.t = "%identity"
 
 let getCurrentDetailedUTCTime = () => {
@@ -45,6 +44,7 @@ let getRoutingTypeName = (routingType: AdvancedRoutingTypes.routing) => {
 }
 
 let getRoutingNameString = (~routingType) => {
+  open LogicUtils
   let routingText = routingType->getRoutingTypeName
   `${routingText->capitalizeString} Based Routing-${getCurrentShortUTCTime()}`
 }
@@ -98,6 +98,7 @@ let variantTypeMapper: string => AdvancedRoutingTypes.variantType = variantType 
 }
 
 let getStatementValue: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.value = valueDict => {
+  open LogicUtils
   {
     \"type": valueDict->getString("type", ""),
     value: valueDict->getJsonObjectFromDict("value"),
@@ -105,13 +106,17 @@ let getStatementValue: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.value = valu
 }
 
 let statementTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.statement = dict => {
-  lhs: dict->getString("lhs", ""),
-  comparison: dict->getString("comparison", ""),
-  value: getStatementValue(dict->getDictfromDict("value")),
-  logical: dict->getString("logical", ""),
+  open LogicUtils
+  {
+    lhs: dict->getString("lhs", ""),
+    comparison: dict->getString("comparison", ""),
+    value: getStatementValue(dict->getDictfromDict("value")),
+    logical: dict->getString("logical", ""),
+  }
 }
 
 let conditionTypeMapper = (statementArr: array<Js.Json.t>) => {
+  open LogicUtils
   let statements = statementArr->Array.reduce([], (acc, statementJson) => {
     let conditionArray = statementJson->getDictFromJsonObject->getArrayFromDict("condition", [])
 
@@ -143,6 +148,7 @@ let routingTypeMapper = (str: string) => {
 let volumeSplitConnectorSelectionDataMapper: Js.Dict.t<
   Js.Json.t,
 > => AdvancedRoutingTypes.volumeSplitConnectorSelectionData = dict => {
+  open LogicUtils
   {
     split: dict->getInt("split", 0),
     connector: {
@@ -157,6 +163,7 @@ let volumeSplitConnectorSelectionDataMapper: Js.Dict.t<
 let priorityConnectorSelectionDataMapper: Js.Dict.t<
   Js.Json.t,
 > => AdvancedRoutingTypes.connector = dict => {
+  open LogicUtils
   {
     connector: dict->getString("connector", ""),
     merchant_connector_id: dict->getString("merchant_connector_id", ""),
@@ -164,6 +171,7 @@ let priorityConnectorSelectionDataMapper: Js.Dict.t<
 }
 
 let connectorSelectionDataMapperFromJson: Js.Json.t => AdvancedRoutingTypes.connectorSelectionData = json => {
+  open LogicUtils
   let split = json->getDictFromJsonObject->getOptionInt("split")
   let dict = json->getDictFromJsonObject
   switch split {
@@ -175,6 +183,7 @@ let connectorSelectionDataMapperFromJson: Js.Json.t => AdvancedRoutingTypes.conn
 let getDefaultSelection: Js.Dict.t<
   Js.Json.t,
 > => AdvancedRoutingTypes.connectorSelection = defaultSelection => {
+  open LogicUtils
   let override3dsValue = defaultSelection->getString("override_3ds", "")
 
   if override3dsValue->Js.String2.length > 0 {
@@ -214,6 +223,7 @@ let getSplitFromConnectorSelectionData = connectorSelectionData => {
 }
 
 let ruleInfoTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithmData = json => {
+  open LogicUtils
   let rulesArray = json->getArrayFromDict("rules", [])
 
   let defaultSelection = json->getDictfromDict("defaultSelection")
@@ -319,6 +329,7 @@ let isStatementMandatoryFieldsPresent = (statement: AdvancedRoutingTypes.stateme
 }
 
 let algorithmTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithm = values => {
+  open LogicUtils
   {
     data: values->getDictfromDict("data")->ruleInfoTypeMapper,
     \"type": values->getString("type", ""),
@@ -326,6 +337,7 @@ let algorithmTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithm 
 }
 
 let getRoutingTypesFromJson: Js.Json.t => AdvancedRoutingTypes.advancedRouting = values => {
+  open LogicUtils
   let valuesDict = values->getDictFromJsonObject
 
   {
@@ -344,6 +356,7 @@ let initialValueForStatement: AdvancedRoutingTypes.statementSendType = {
 }
 
 let generateStatements = statements => {
+  open LogicUtils
   statements->Array.reduce([initialValueForStatement], (acc, statement) => {
     let statementDict = statement->getDictFromJsonObject
     let logicalOperator = statementDict->getString("logical", "")->Js.String2.toLowerCase
@@ -387,6 +400,7 @@ let generateStatements = statements => {
 
 let generateRule = rulesDict => {
   let modifiedRules = rulesDict->Js.Array2.map(ruleJson => {
+    open LogicUtils
     let ruleDict = ruleJson->getDictFromJsonObject
     let statements = ruleDict->getArrayFromDict("statements", [])
 
