@@ -64,7 +64,7 @@ module Copy = {
       }}>
       <div onClick={onCopyClick}>
         <ToolTip
-          tooltipWidthClass="w-[60px]"
+          tooltipWidthClass="w-fit"
           bgColor={tooltipText == "copy" ? "" : "bg-green-950 text-white"}
           arrowBgClass={tooltipText == "copy" ? "" : "#36AF47"}
           description=tooltipText

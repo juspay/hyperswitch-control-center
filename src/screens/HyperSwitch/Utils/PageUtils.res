@@ -14,7 +14,6 @@ module PageHeading = {
     <div className="py-2">
       {switch leftIcon {
       | Some(icon) => <Icon name={icon} size=56 />
-
       | None => React.null
       }}
       <div className="flex items-center gap-4">
@@ -28,7 +27,9 @@ module PageHeading = {
       </div>
       {switch subTitle {
       | Some(text) =>
-        <div className={`opacity-50 mt-2 ${customSubTitleStyle}`}> {text->React.string} </div>
+        <UIUtils.RenderIf condition={text->Js.String2.length > 0}>
+          <div className={`opacity-50 mt-2 ${customSubTitleStyle}`}> {text->React.string} </div>
+        </UIUtils.RenderIf>
       | None => React.null
       }}
     </div>

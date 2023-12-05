@@ -87,7 +87,9 @@ let make = (~previewOnly=false) => {
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
-      <PageUtils.PageHeading title="Payment Operations" customTitleStyle />
+      <PageUtils.PageHeading
+        title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
+      />
       <div className="flex w-full justify-end pb-3 gap-3">
         <GenerateSampleDataButton previewOnly getOrdersList={fetchOrders} />
         <UIUtils.RenderIf condition={generateReport}>

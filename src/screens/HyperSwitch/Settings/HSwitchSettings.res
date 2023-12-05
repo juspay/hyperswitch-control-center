@@ -1,20 +1,5 @@
 open HSwitchSettingTypes
 
-let businessSettings = {
-  heading: "Business Settings",
-  subHeading: "Add and manage primary or secondary contact and general details about your business.",
-  redirect: "business",
-  cardName: #BUSINESS_SETTINGS,
-}
-
-let businessUnits = {
-  heading: "Business Profile Configuration",
-  subHeading: "Add and manage labels to represent different businesses across countries.",
-  redirect: "units",
-  buttonText: "Add Configuration",
-  cardName: #BUSINESS_UNITS,
-}
-
 let deleteSampleData = {
   heading: "Delete Sample Data",
   subHeading: "Delete all the generated sample data.",
@@ -22,16 +7,6 @@ let deleteSampleData = {
   isApiCall: true,
   cardName: #DELETE_SAMPLE_DATA,
 }
-
-let moduleLevelSettings = [
-  {
-    heading: "Mandate Settings",
-    subHeading: "Add and manage mandate related details for all connector configurations.",
-    redirect: "mandate",
-    isComingSoon: true,
-    cardName: #MANDATE_SETTINGS,
-  },
-]
 
 module TileComponent = {
   @react.component
@@ -159,98 +134,38 @@ module PersonalSettings = {
       ->LogicUtils.safeParse
       ->FeatureFlagUtils.featureFlagType
     let personalSettings = if featureFlagDetails.sampleData {
-      [businessSettings, businessUnits, deleteSampleData]
-    } else if featureFlagDetails.businessProfile {
-      [businessSettings, businessUnits]
+      [deleteSampleData]
     } else {
-      [businessSettings]
+      []
     }
 
-    <div className="flex flex-col gap-5 ">
-      <div className={HSwitchUtils.getTextClass(~textVariant=H3, ~h3TextVariant=Leading_1, ())}>
-        {React.string("Personal Settings ")}
-        <p className="font-medium text-fs-14 text-black opacity-50">
-          {"Set your defaults on module level, profile level, and platform level. This module is editable only by admins and view only for other members."->React.string}
-        </p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8">
-        {personalSettings
-        ->Array.mapWithIndex((sections, index) =>
-          <TileComponent
-            key={string_of_int(index)}
-            heading={sections.heading}
-            subHeading={sections.subHeading}
-            redirect={sections.redirect->Belt.Option.getWithDefault("")}
-            isComingSoon={sections.isComingSoon->Belt.Option.getWithDefault(false)}
-            buttonText={sections.buttonText->Belt.Option.getWithDefault("Add Details")}
-            redirectUrl={sections.redirectUrl}
-            isApiCall={sections.isApiCall->Belt.Option.getWithDefault(false)}
-            cardName={sections.cardName}
-          />
-        )
-        ->React.array}
-      </div>
-    </div>
-  }
-}
-module ModuleSettings = {
-  @react.component
-  let make = () => {
-    <div className="flex flex-col gap-5">
-      <div className={HSwitchUtils.getTextClass(~textVariant=H3, ~h3TextVariant=Leading_1, ())}>
-        {React.string("Module Level Settings")}
-        <p className=" font-medium text-fs-14 text-black opacity-50">
-          {"Set your defaults on module level, profile level, and platform level. This module is editable only by admins and view only for other members."->React.string}
-        </p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8">
-        {moduleLevelSettings
-        ->Array.mapWithIndex((sections, index) =>
-          <TileComponent
-            key={string_of_int(index)}
-            heading={sections.heading}
-            subHeading={sections.subHeading}
-            redirect={sections.redirect->Belt.Option.getWithDefault("")}
-            isComingSoon={sections.isComingSoon->Belt.Option.getWithDefault(false)}
-            redirectUrl={sections.redirectUrl}
-            cardName={sections.cardName}
-          />
-        )
-        ->React.array}
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-8">
+      {personalSettings
+      ->Array.mapWithIndex((sections, index) =>
+        <TileComponent
+          key={string_of_int(index)}
+          heading={sections.heading}
+          subHeading={sections.subHeading}
+          redirect={sections.redirect->Belt.Option.getWithDefault("")}
+          isComingSoon={sections.isComingSoon->Belt.Option.getWithDefault(false)}
+          buttonText={sections.buttonText->Belt.Option.getWithDefault("Add Details")}
+          redirectUrl={sections.redirectUrl}
+          isApiCall={sections.isApiCall->Belt.Option.getWithDefault(false)}
+          cardName={sections.cardName}
+        />
+      )
+      ->React.array}
     </div>
   }
 }
 
 @react.component
 let make = () => {
-  let (currentPage, setCurrentPage) = React.useState(() => LandingPage)
-
-  let url = RescriptReactRouter.useUrl()
-  React.useEffect1(() => {
-    let searchParams = url.search
-    let filtersFromUrl =
-      LogicUtils.getDictFromUrlSearchParams(searchParams)
-      ->Js.Dict.get("type")
-      ->Belt.Option.getWithDefault("")
-    setCurrentPage(_ => filtersFromUrl->typeMapper)
-    None
-  }, [url.search])
-
-  <div className="h-full overflow-scroll flex flex-col gap-10">
-    {switch currentPage {
-    | Business =>
-      <History.BreadCrumbWrapper
-        pageTitle={currentPage->headingTypeMapper} baseLink={"/settings"} title="Settings">
-        <BusinessSettings />
-      </History.BreadCrumbWrapper>
-    | Units =>
-      <History.BreadCrumbWrapper
-        pageTitle={currentPage->headingTypeMapper} baseLink={"/settings"} title="Settings">
-        <BusinessMapping />
-      </History.BreadCrumbWrapper>
-    | LandingPage => <PersonalSettings />
-    | _ => React.null
-    }}
-  </div>
+  <>
+    <PageUtils.PageHeading
+      title="Account Settings"
+      subTitle="Manage payment account configuration and dashboard settings"
+    />
+    <PersonalSettings />
+  </>
 }

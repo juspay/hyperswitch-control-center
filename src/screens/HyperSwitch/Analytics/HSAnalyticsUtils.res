@@ -180,8 +180,9 @@ let getCustomFormattedFloatDate = (floatDate, format) => {
 
 module NoData = {
   @react.component
-  let make = () => {
+  let make = (~title, ~subTitle) => {
     <div className="p-5">
+      <PageUtils.PageHeading title subTitle />
       <NoDataFound message="No Data Available" renderType=Painting>
         <Button
           text={"Make a Payment"}

@@ -73,10 +73,17 @@ let make = () => {
 
   let getRoleForUser = async () => {
     try {
+      // TODO - Temp fix - Backend fix awaited
       let url = getURL(
         ~entityName=USER_MANAGEMENT,
         ~userRoleTypes=ROLE_ID,
-        ~id=Some(currentSelectedUser.role_id),
+        ~id={
+          Some(
+            currentSelectedUser.role_id === "org_admin"
+              ? "merchant_admin"
+              : currentSelectedUser.role_id,
+          )
+        },
         ~methodType=Get,
         (),
       )

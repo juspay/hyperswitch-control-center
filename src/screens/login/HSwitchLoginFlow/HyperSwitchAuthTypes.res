@@ -9,10 +9,6 @@ type authInfo = {
 type authStatus = LoggedOut | LoggedIn(authInfo) | CheckingAuthStatus
 open LogicUtils
 
-let getBoolFromSideBarConfig = dict => {
-  dict->getDictfromDict("sideBarConfig")
-}
-
 let getAuthInfo = (json, str) => {
   let dict = json->JsonFlattenUtils.flattenObject(false)
   let emailKey = "email"
