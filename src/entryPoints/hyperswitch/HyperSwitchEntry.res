@@ -43,10 +43,9 @@ module HyperSwitchEntryComponent = {
 
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle
-      let title =
-        featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false)
-          ? `${page} - Dashboard`
-          : `${page} - Dashboard [Test]`
+      let title = featureFlagDetails.testLiveMode
+        ? `${page} - Dashboard`
+        : `${page} - Dashboard [Test]`
       DOMUtils.document.title = title
       GoogleAnalytics.send({hitType: "pageview", page})
       hyperswitchMixPanel(

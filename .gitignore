@@ -19,4 +19,3 @@ yarn.lock
 #package-lock.json
 user_data.sh
 *.pem
-.bsb.lock

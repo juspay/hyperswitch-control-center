@@ -99,7 +99,7 @@ let make = () => {
               entity={userEntity}
               currrentFetchCount={usersFilterData->Js.Array2.length}
               showSerialNumber=true
-              collapseTabelRow=false
+              collapseTableRow=false
               rowHeightClass="h-20"
               tableheadingClass="h-16"
             />

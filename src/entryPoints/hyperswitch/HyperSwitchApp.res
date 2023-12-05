@@ -50,14 +50,12 @@ let make = () => {
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let verificationDays = getFromMerchantDetails("verification")->LogicUtils.getIntFromString(-1)
   let userRole = getFromUserDetails("user_role")
-  let modeText =
-    featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false) ? "Live Mode" : "Test Mode"
+  let modeText = featureFlagDetails.testLiveMode ? "Live Mode" : "Test Mode"
   let titleComingSoonMessage = "Coming Soon!"
   let subtitleComingSoonMessage = "We are currently working on this page."
-  let modeStyles =
-    featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false)
-      ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
-      : "bg-orange-600/80 border-orange-500 text-grey-700"
+  let modeStyles = featureFlagDetails.testLiveMode
+    ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
+    : "bg-orange-600/80 border-orange-500 text-grey-700"
 
   let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
   let isReconEnabled =
@@ -127,15 +125,12 @@ let make = () => {
         let _featureFlag = await fetchInitialEnums()
       }
 
-      switch featureFlagDetails.testLiveMode {
-      | Some(val) =>
-        if val {
-          getAgreementEnum()->ignore
-        } else {
-          setDashboardPageState(_ => #HOME)
-        }
-      | None => ()
+      if featureFlagDetails.testLiveMode {
+        getAgreementEnum()->ignore
+      } else {
+        setDashboardPageState(_ => #HOME)
       }
+
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ =>

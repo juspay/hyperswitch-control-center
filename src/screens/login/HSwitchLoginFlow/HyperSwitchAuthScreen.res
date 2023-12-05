@@ -74,7 +74,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
   }, [isMagicLinkEnabled])
 
   React.useEffect1(() => {
-    if testLiveMode->Belt.Option.getWithDefault(false) {
+    if testLiveMode {
       setMode(_ => LiveButtonMode)
     } else {
       setMode(_ => TestButtonMode)

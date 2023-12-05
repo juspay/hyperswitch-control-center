@@ -48,7 +48,7 @@ let getItems: Js.Json.t => array<profileEntity> = json => {
   LogicUtils.getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let webhookProfileTabelEntity = EntityType.makeEntity(
+let webhookProfileTableEntity = EntityType.makeEntity(
   ~uri="",
   ~getObjects=getItems,
   ~defaultColumns,

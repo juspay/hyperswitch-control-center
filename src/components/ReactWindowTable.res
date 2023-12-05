@@ -62,7 +62,7 @@ module NewCell = {
     ~removeVerticalLines,
     ~highlightEnabledFieldsArray,
     ~tableDataBorderClass="",
-    ~collapseTabelRow=false,
+    ~collapseTableRow=false,
     ~expandedRow: _ => React.element,
     ~onMouseEnter,
     ~onMouseLeave,
@@ -171,9 +171,9 @@ module NewCell = {
             className={`${cellWidth} ${overflowStyle}  h-auto align-top ${borderClass}  ${highlightCell
                 ? "hover:font-bold"
                 : ""} ${tableDataBorderClass} 
-                ${collapseTabelRow ? cursorI : ""}`}
+                ${collapseTableRow ? cursorI : ""}`}
             onClick={_ => {
-              if collapseTabelRow && cellIndex == 0 {
+              if collapseTableRow && cellIndex == 0 {
                 handleExpand(rowIndex, true)
                 if !isCurrentRowExpanded {
                   setExpandedIndexArr(prev => {
@@ -187,7 +187,7 @@ module NewCell = {
               }
             }}>
             <div className={`${cellWidth} h-full box-border pl-4 ${paddingClass}`}>
-              {if collapseTabelRow {
+              {if collapseTableRow {
                 <div className="flex flex-row gap-4 items-center">
                   {if cellIndex === 0 {
                     <Icon name={isCurrentRowExpanded ? "caret-down" : "caret-right"} size=14 />
@@ -228,7 +228,7 @@ module ReactWindowTableComponent = {
     ~tableheadingClass="",
     ~tableBorderClass="",
     ~tableDataBorderClass="",
-    ~collapseTabelRow=false,
+    ~collapseTableRow=false,
     ~getRowDetails=?,
     ~getIndex=?,
     ~rowItemHeight=100,
@@ -480,7 +480,7 @@ module ReactWindowTableComponent = {
                 removeVerticalLines
                 highlightEnabledFieldsArray
                 tableDataBorderClass
-                collapseTabelRow
+                collapseTableRow
                 expandedRow={_ => getRowDetails(rowIndex)}
                 onMouseEnter
                 onMouseLeave
@@ -654,7 +654,7 @@ let make = (
   ~tableheadingClass="",
   ~tableBorderClass="",
   ~tableDataBorderClass="",
-  ~collapseTabelRow=false,
+  ~collapseTableRow=false,
   ~getRowDetails=?,
   ~getIndex=?,
   ~rowItemHeight=100,
@@ -1156,7 +1156,7 @@ let make = (
                 tableheadingClass
                 tableBorderClass
                 tableDataBorderClass
-                collapseTabelRow
+                collapseTableRow
                 ?getRowDetails
                 ?getIndex
                 rowItemHeight

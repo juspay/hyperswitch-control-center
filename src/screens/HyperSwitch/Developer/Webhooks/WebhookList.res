@@ -24,7 +24,7 @@ let make = (
           hideTitle=true
           resultsPerPage=7
           visibleColumns
-          entity={webhookProfileTabelEntity}
+          entity={webhookProfileTableEntity}
           showSerialNumber=true
           actualData={businessProfileValues->Js.Array2.map(Js.Nullable.return)}
           totalResults={businessProfileValues->Js.Array2.length}

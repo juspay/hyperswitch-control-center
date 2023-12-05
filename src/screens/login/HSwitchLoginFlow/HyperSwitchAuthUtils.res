@@ -383,18 +383,14 @@ module Header = {
       <h1 className="font-semibold text-xl md:text-2xl"> {cardHeaderText->React.string} </h1>
       {switch authType {
       | LoginWithPassword | LoginWithEmail =>
-        switch testLiveMode {
-        | Some(val) =>
-          !val
-            ? getHeaderLink(
-                ~prefix="New to Hyperswitch?",
-                ~authType=SignUP,
-                ~path="/register",
-                ~sufix="Sign up",
-              )
-            : React.null
-        | _ => React.null
-        }
+        !testLiveMode
+          ? getHeaderLink(
+              ~prefix="New to Hyperswitch?",
+              ~authType=SignUP,
+              ~path="/register",
+              ~sufix="Sign up",
+            )
+          : React.null
 
       | SignUP =>
         getHeaderLink(
