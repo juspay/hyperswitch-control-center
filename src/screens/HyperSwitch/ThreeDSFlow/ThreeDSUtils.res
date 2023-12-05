@@ -68,14 +68,16 @@ let constuctAlgorithmValue = rules => {
 }
 
 let buildThreeDsPayloadBody = values => {
-  let valuesDict = values->LogicUtils.getDictFromJsonObject
-  let dataDict = valuesDict->LogicUtils.getDictfromDict("algorithm")
-  let rulesDict = dataDict->LogicUtils.getArrayFromDict("rules", [])
+  open LogicUtils
+
+  let valuesDict = values->getDictFromJsonObject
+  let dataDict = valuesDict->getDictfromDict("algorithm")
+  let rulesDict = dataDict->getArrayFromDict("rules", [])
 
   let modifiedRules = rulesDict->AdvancedRoutingUtils.generateRule
 
   let threeDsPayload = {
-    "name": valuesDict->LogicUtils.getString("name", ""),
+    "name": valuesDict->getString("name", ""),
     "algorithm": {
       "defaultSelection": {
         "override_3ds": null,
