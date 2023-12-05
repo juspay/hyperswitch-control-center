@@ -194,6 +194,8 @@ let getURL = (
       | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
       }
     | #CREATE_MERCHANT => `${userUrl}/create_merchant`
+    | #OSSSIGNIN => `${userUrl}/signin`
+    | #OSSSIGNUP => `${userUrl}/signup`
     | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
     }
   | RECON =>
