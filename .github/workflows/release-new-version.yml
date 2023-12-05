@@ -1,19 +1,19 @@
 name: Release a new hyperswitch version
 
-# on:
-#   schedule:
-#     - cron: "30 14 * * 0-4" # Run workflow at 8 PM IST every Sunday-Thursday
-
-#   workflow_dispatch:
-
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.ref }}
-#   cancel-in-progress: true
-
 on:
-  pull_request_target:
-    types:
-      - closed
+  schedule:
+    - cron: "30 14 * * 0-4" # Run workflow at 8 PM IST every Sunday-Thursday
+
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# on:
+#   pull_request_target:
+#     types:
+#       - closed
 
 env:
   # Allow more retries for network requests in cargo (downloading crates) and
