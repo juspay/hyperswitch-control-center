@@ -695,7 +695,7 @@ let validateConditions = dict => {
 }
 
 let validateConditionsEvenIfOneExists = dict => {
-  let conditionsArray = dict->LogicUtils.getArrayFromDict("conditions", [])
+  let conditionsArray = dict->LogicUtils.getArrayFromDict("statements", [])
   let vector = Js.Vector.make(conditionsArray->Js.Array2.length, false)
 
   conditionsArray->Array.forEachWithIndex((value, index) => {

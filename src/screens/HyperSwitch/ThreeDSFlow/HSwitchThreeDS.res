@@ -206,7 +206,7 @@ let make = () => {
 
     RoutingUtils.validateNameAndDescription(~dict, ~errors)
 
-    switch dict->Js.Dict.get("json")->Belt.Option.flatMap(Js.Json.decodeObject) {
+    switch dict->Js.Dict.get("algorithm")->Belt.Option.flatMap(Js.Json.decodeObject) {
     | Some(jsonDict) => {
         let index = 1
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
