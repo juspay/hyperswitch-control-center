@@ -1,6 +1,3 @@
-let headerTextCss = "font-semibold text-grey-700 text-xl"
-let subTextCss = "font-normal text-grey-700 opacity-50 text-base"
-
 let buildHyperswitch: array<UserOnboardingTypes.sectionContentType> = [
   {
     headerIcon: "migrate-from-stripe",

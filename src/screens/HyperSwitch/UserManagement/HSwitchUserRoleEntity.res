@@ -7,7 +7,6 @@ type userStatus = Active | InviteSent | None
 type userTableTypes = {
   user_id: string,
   email: string,
-  last_modified_at: string,
   name: string,
   role_id: string,
   role_name: string,
@@ -39,17 +38,10 @@ let itemToObjMapperForUser = dict => {
     role_id: getString(dict, "role_id", ""),
     role_name: getString(dict, "role_name", ""),
     status: getString(dict, "status", ""),
-    last_modified_at: getString(dict, "last_modified_at", ""),
   }
 }
 
-type roleTableTypes = {
-  permissions: array<string>,
-  role_id: string,
-}
-
 type roleListResponse = {
-  permissions: array<string>,
   role_id: string,
   role_name: string,
 }
@@ -60,13 +52,6 @@ let getHeadingForUser = (colType: userColTypes) => {
   | Email => Table.makeHeaderInfo(~key="email", ~title="Email", ~showSort=true, ())
   | Role => Table.makeHeaderInfo(~key="role", ~title="Role", ~showSort=true, ())
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~showSort=true, ())
-  }
-}
-
-let itemToObjMapperForRole = dict => {
-  {
-    permissions: dict->getStrArray("permissions"),
-    role_id: dict->getString("role_id", ""),
   }
 }
 

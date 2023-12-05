@@ -303,7 +303,7 @@ let reconTag = (recon, isReconEnabled) =>
     : emptyComponent
 
 let getHyperSwitchAppSidebars = (
-  ~isReconEnabled=false,
+  ~isReconEnabled: bool,
   ~featureFlagDetails: FeatureFlagUtils.featureFlag,
   ~userRole,
   (),

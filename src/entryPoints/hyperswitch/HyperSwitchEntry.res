@@ -9,6 +9,7 @@ module HyperSwitchEntryComponent = {
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let featureFlagDetails =
       HyperswitchAtom.featureFlagAtom
       ->Recoil.useRecoilValueFromAtom
@@ -42,10 +43,9 @@ module HyperSwitchEntryComponent = {
 
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle
-      let title =
-        featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false)
-          ? `${page} - Dashboard`
-          : `${page} - Dashboard [Test]`
+      let title = featureFlagDetails.testLiveMode
+        ? `${page} - Dashboard`
+        : `${page} - Dashboard [Test]`
       DOMUtils.document.title = title
       GoogleAnalytics.send({hitType: "pageview", page})
       hyperswitchMixPanel(
@@ -74,10 +74,11 @@ module HyperSwitchEntryComponent = {
         let stringifiedResponse =
           (await postDetails(url, Js.Dict.empty()->Js.Json.object_, Post))->Js.Json.stringify
         setFeatureFlag(._ => stringifiedResponse)
+        setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | Js.Exn.Error(e) => {
-          let _err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
-        }
+      | Js.Exn.Error(e) =>
+        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong!")
+        setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }
 
@@ -86,13 +87,15 @@ module HyperSwitchEntryComponent = {
       None
     })
 
-    <div className="text-black">
-      <HyperSwitchAuthWrapper>
-        <GlobalProvider>
-          <HyperSwitchApp />
-        </GlobalProvider>
-      </HyperSwitchAuthWrapper>
-    </div>
+    <PageLoaderWrapper screenState sectionHeight="h-screen">
+      <div className="text-black">
+        <HyperSwitchAuthWrapper>
+          <GlobalProvider>
+            <HyperSwitchApp />
+          </GlobalProvider>
+        </HyperSwitchAuthWrapper>
+      </div>
+    </PageLoaderWrapper>
   }
 }
 
