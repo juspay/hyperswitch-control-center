@@ -66,7 +66,7 @@ module Add3DSCondition = {
               ~customInput=InputFields.selectInput(
                 ~options,
                 ~buttonText="Select Field",
-                ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md `,
+                ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
                 ~deselectDisable=true,
                 (),
               ),
