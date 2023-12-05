@@ -11,13 +11,13 @@ npx prettier --write .
 npm run re:format
 
 # Define your commit message convention (e.g., starts with "feat:", "fix:", etc.)
-commit_regex="^(Merge branch|(feat|fix|chore|refactor|enhancement):).+"
+commit_regex="^(Merge branch|(feat|fix|chore|refactor|docs|test|style|enhancement):).+"
 
 
 if git log -1 --show-signature &> /dev/null; then
     if ! echo "$commit_msg" | grep -Ei "$commit_regex" ; then
         echo "Aborting commit. Your commit message does not follow the conventional format."
-        echo "The commit message should begin with one of the following keywords followed by a colon: 'feat', 'fix', 'chore', or 'refactor'. For example, it should be formatted like this: 'feat: <subject> - <description>'"
+        echo "The commit message should begin with one of the following keywords followed by a colon: 'feat', 'fix', 'chore', 'refactor', 'docs', 'test' or 'style'. For example, it should be formatted like this: 'feat: <subject> - <description>'"
         exit 1
     fi
 else
