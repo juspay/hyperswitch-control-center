@@ -338,8 +338,14 @@ let make = () => {
                           renderShow={profileId =>
                             <Webhooks webhookOnly=false showFormOnly=false />}
                         />
-                      | list{"recon"} => <Recon />
-                      | list{"sdk"} => <SDKPage />
+                      | list{"recon"} =>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.recon>
+                          <Recon />
+                        </FeatureFlagEnabledComponent>
+                      | list{"sdk"} =>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.openSDK>
+                          <SDKPage />
+                        </FeatureFlagEnabledComponent>
                       | list{"3ds"} => <HSwitchThreeDS />
                       | list{"account-settings"} =>
                         <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.sampleData>
