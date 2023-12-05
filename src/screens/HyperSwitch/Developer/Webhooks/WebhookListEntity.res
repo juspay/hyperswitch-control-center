@@ -3,7 +3,6 @@ open BusinessMappingUtils
 
 type columns =
   | ProfileName
-
   | ReturnUrl
   | WebhookUrl
 
