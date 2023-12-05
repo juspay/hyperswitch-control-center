@@ -10,12 +10,20 @@ commit_msg=$(cat "$commit_msg_file")
 npx prettier --write .
 npm run re:format
 
-# Define your commit message convention (e.g., starts with "feature:", "fix:", etc.)
-commit_regex="^(Merge branch|feat|fix|chore|docs|style|refactor|test|enhancement):.+"
+# Define your commit message convention (e.g., starts with "feat:", "fix:", etc.)
+commit_regex="^(Merge branch|(feat|fix|chore|refactor|docs|test|style|enhancement):).+"
 
-if ! echo "$commit_msg" | grep -Ei "$commit_regex" ; then
-    echo "Aborting commit. Your commit message does not follow the conventional format."
-    echo "Example - <feat>: <subject> - <description>"
+
+if git log -1 --show-signature &> /dev/null; then
+    if ! echo "$commit_msg" | grep -Ei "$commit_regex" ; then
+        echo "Aborting commit. Your commit message does not follow the conventional format."
+        echo "The commit message should begin with one of the following keywords followed by a colon: 'feat', 'fix', 'chore', 'refactor', 'docs', 'test' or 'style'. For example, it should be formatted like this: 'feat: <subject> - <description>'"
+        exit 1
+    fi
+else
+    echo "~~~~**** Error: Commit Signature Missing. ****~~~~"
+    echo "Please make sure to sign your commits. You can sign your commit by using the '-S' option with 'git commit'."
+    echo "Example: git commit -S -m 'Your commit message'"
     exit 1
 fi
 
