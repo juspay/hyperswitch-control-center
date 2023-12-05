@@ -1,12 +1,11 @@
 open LogicUtils
-open AdvancedRoutingTypes
 external toJson: 'a => Js.Json.t = "%identity"
 
 let getCurrentDetailedUTCTime = () => {
   Js.Date.fromFloat(Js.Date.now())->Js.Date.toUTCString
 }
 
-let defaultThreeDsObjectValue = {
+let defaultThreeDsObjectValue: AdvancedRoutingTypes.connectorSelection = {
   override_3ds: "three_ds",
 }
 
@@ -98,14 +97,14 @@ let variantTypeMapper: string => AdvancedRoutingTypes.variantType = variantType 
   }
 }
 
-let getStatementValue = valueDict => {
+let getStatementValue: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.value = valueDict => {
   {
     \"type": valueDict->getString("type", ""),
     value: valueDict->getJsonObjectFromDict("value"),
   }
 }
 
-let statementTypeMapper = dict => {
+let statementTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.statement = dict => {
   lhs: dict->getString("lhs", ""),
   comparison: dict->getString("comparison", ""),
   value: getStatementValue(dict->getDictfromDict("value")),
@@ -118,12 +117,13 @@ let conditionTypeMapper = (statementArr: array<Js.Json.t>) => {
 
     let arr = conditionArray->Js.Array2.mapi((conditionJson, index) => {
       let statementDict = conditionJson->getDictFromJsonObject
-      {
+      let returnValue: AdvancedRoutingTypes.statement = {
         lhs: statementDict->getString("lhs", ""),
         comparison: statementDict->getString("comparison", ""),
         logical: index === 0 ? "OR" : "AND",
         value: getStatementValue(statementDict->getDictfromDict("value")),
       }
+      returnValue
     })
     acc->Js.Array2.concat(arr)
   })
@@ -132,6 +132,7 @@ let conditionTypeMapper = (statementArr: array<Js.Json.t>) => {
 }
 
 let routingTypeMapper = (str: string) => {
+  open AdvancedRoutingTypes
   switch str->Js.String2.toLowerCase {
   | "priority" => PRIORITY
   | "volume_split" => VOLUME_SPLIT
@@ -139,7 +140,9 @@ let routingTypeMapper = (str: string) => {
   }
 }
 
-let volumeSplitConnectorSelectionDataMapper = dict => {
+let volumeSplitConnectorSelectionDataMapper: Js.Dict.t<
+  Js.Json.t,
+> => AdvancedRoutingTypes.volumeSplitConnectorSelectionData = dict => {
   {
     split: dict->getInt("split", 0),
     connector: {
@@ -151,14 +154,16 @@ let volumeSplitConnectorSelectionDataMapper = dict => {
   }
 }
 
-let priorityConnectorSelectionDataMapper = dict => {
+let priorityConnectorSelectionDataMapper: Js.Dict.t<
+  Js.Json.t,
+> => AdvancedRoutingTypes.connector = dict => {
   {
     connector: dict->getString("connector", ""),
     merchant_connector_id: dict->getString("merchant_connector_id", ""),
   }
 }
 
-let connectorSelectionDataMapperFromJson: Js.Json.t => connectorSelectionData = json => {
+let connectorSelectionDataMapperFromJson: Js.Json.t => AdvancedRoutingTypes.connectorSelectionData = json => {
   let split = json->getDictFromJsonObject->getOptionInt("split")
   let dict = json->getDictFromJsonObject
   switch split {
@@ -187,6 +192,7 @@ let getDefaultSelection: Js.Dict.t<
 }
 
 let getConnectorStringFromConnectorSelectionData = connectorSelectionData => {
+  open AdvancedRoutingTypes
   switch connectorSelectionData {
   | VolumeObject(obj) => {
       merchant_connector_id: obj.connector.merchant_connector_id,
@@ -200,13 +206,14 @@ let getConnectorStringFromConnectorSelectionData = connectorSelectionData => {
 }
 
 let getSplitFromConnectorSelectionData = connectorSelectionData => {
+  open AdvancedRoutingTypes
   switch connectorSelectionData {
   | VolumeObject(obj) => obj.split
   | _ => 0
   }
 }
 
-let ruleInfoTypeMapper = json => {
+let ruleInfoTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithmData = json => {
   let rulesArray = json->getArrayFromDict("rules", [])
 
   let defaultSelection = json->getDictfromDict("defaultSelection")
@@ -260,6 +267,7 @@ let getGatewaysArrayFromValueData = data => {
 }
 
 let getModalObj = (routingType, text) => {
+  open AdvancedRoutingTypes
   switch routingType {
   | ADVANCED => {
       conType: "Activate current configured configuration?",
@@ -310,14 +318,14 @@ let isStatementMandatoryFieldsPresent = (statement: AdvancedRoutingTypes.stateme
     statementValue)
 }
 
-let algorithmTypeMapper = values => {
+let algorithmTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithm = values => {
   {
     data: values->getDictfromDict("data")->ruleInfoTypeMapper,
     \"type": values->getString("type", ""),
   }
 }
 
-let getRoutingTypesFromJson = (values: Js.Json.t) => {
+let getRoutingTypesFromJson: Js.Json.t => AdvancedRoutingTypes.advancedRouting = values => {
   let valuesDict = values->getDictFromJsonObject
 
   {
@@ -331,53 +339,50 @@ let validateStatements = statementsArray => {
   statementsArray->Js.Array2.every(isStatementMandatoryFieldsPresent)
 }
 
+let initialValueForStatement: AdvancedRoutingTypes.statementSendType = {
+  condition: [],
+}
+
 let generateStatements = statements => {
-  statements->Array.reduce(
-    [
-      {
-        condition: [],
+  statements->Array.reduce([initialValueForStatement], (acc, statement) => {
+    let statementDict = statement->getDictFromJsonObject
+    let logicalOperator = statementDict->getString("logical", "")->Js.String2.toLowerCase
+
+    let lastItem =
+      acc->Belt.Array.get(acc->Js.Array2.length - 1)->Belt.Option.getWithDefault({condition: []})
+
+    let condition: AdvancedRoutingTypes.statement = {
+      lhs: statementDict->getString("lhs", ""),
+      comparison: switch statementDict->getString("comparison", "")->operatorMapper {
+      | IS
+      | EQUAL_TO
+      | CONTAINS => "equal"
+      | IS_NOT
+      | NOT_CONTAINS
+      | NOT_EQUAL_TO => "not_equal"
+      | GREATER_THAN => "greater_than"
+      | LESS_THAN => "less_than"
+      | UnknownOperator(str) => str
       },
-    ],
-    (acc, statement) => {
-      let statementDict = statement->getDictFromJsonObject
-      let logicalOperator = statementDict->getString("logical", "")->Js.String2.toLowerCase
+      value: statementDict->getDictfromDict("value")->getStatementValue,
+      metadata: statementDict->getJsonObjectFromDict("metadata"),
+    }
 
-      let lastItem =
-        acc->Belt.Array.get(acc->Js.Array2.length - 1)->Belt.Option.getWithDefault({condition: []})
-
-      let condition = {
-        lhs: statementDict->getString("lhs", ""),
-        comparison: switch statementDict->getString("comparison", "")->operatorMapper {
-        | IS
-        | EQUAL_TO
-        | CONTAINS => "equal"
-        | IS_NOT
-        | NOT_CONTAINS
-        | NOT_EQUAL_TO => "not_equal"
-        | GREATER_THAN => "greater_than"
-        | LESS_THAN => "less_than"
-        | UnknownOperator(str) => str
+    let newAcc = if logicalOperator === "or" {
+      acc->Js.Array2.concat([
+        {
+          condition: [condition],
         },
-        value: statementDict->getDictfromDict("value")->getStatementValue,
-        metadata: statementDict->getJsonObjectFromDict("metadata"),
-      }
+      ])
+    } else {
+      lastItem.condition->Array.push(condition)
+      let filteredArr = acc->Array.filterWithIndex((_, i) => i !== acc->Js.Array2.length - 1)
+      filteredArr->Array.push(lastItem)
+      filteredArr
+    }
 
-      let newAcc = if logicalOperator === "or" {
-        acc->Js.Array2.concat([
-          {
-            condition: [condition],
-          },
-        ])
-      } else {
-        lastItem.condition->Array.push(condition)
-        let filteredArr = acc->Array.filterWithIndex((_, i) => i !== acc->Js.Array2.length - 1)
-        filteredArr->Array.push(lastItem)
-        filteredArr
-      }
-
-      newAcc
-    },
-  )
+    newAcc
+  })
 }
 
 let generateRule = rulesDict => {
