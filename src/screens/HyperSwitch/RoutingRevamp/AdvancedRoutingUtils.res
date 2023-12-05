@@ -1,5 +1,6 @@
 open LogicUtils
 open AdvancedRoutingTypes
+external toJson: 'a => Js.Json.t = "%identity"
 
 let getCurrentDetailedUTCTime = () => {
   Js.Date.fromFloat(Js.Date.now())->Js.Date.toUTCString
@@ -169,11 +170,19 @@ let connectorSelectionDataMapperFromJson: Js.Json.t => connectorSelectionData = 
 let getDefaultSelection: Js.Dict.t<
   Js.Json.t,
 > => AdvancedRoutingTypes.connectorSelection = defaultSelection => {
-  {
-    \"type": defaultSelection->getString("type", ""),
-    data: defaultSelection
-    ->getArrayFromDict("data", [])
-    ->Js.Array2.map(ele => ele->connectorSelectionDataMapperFromJson),
+  let override3dsValue = defaultSelection->getString("override_3ds", "")
+
+  if override3dsValue->Js.String2.length > 0 {
+    {
+      override_3ds: override3dsValue,
+    }
+  } else {
+    {
+      \"type": defaultSelection->getString("type", ""),
+      data: defaultSelection
+      ->getArrayFromDict("data", [])
+      ->Js.Array2.map(ele => ele->connectorSelectionDataMapperFromJson),
+    }
   }
 }
 
@@ -320,4 +329,70 @@ let getRoutingTypesFromJson = (values: Js.Json.t) => {
 
 let validateStatements = statementsArray => {
   statementsArray->Js.Array2.every(isStatementMandatoryFieldsPresent)
+}
+
+let generateStatements = statements => {
+  statements->Array.reduce(
+    [
+      {
+        condition: [],
+      },
+    ],
+    (acc, statement) => {
+      let statementDict = statement->LogicUtils.getDictFromJsonObject
+      let logicalOperator =
+        statementDict->LogicUtils.getString("logical", "")->Js.String2.toLowerCase
+
+      let lastItem =
+        acc->Belt.Array.get(acc->Js.Array2.length - 1)->Belt.Option.getWithDefault({condition: []})
+
+      let condition = {
+        lhs: statementDict->LogicUtils.getString("lhs", ""),
+        comparison: switch statementDict->LogicUtils.getString("comparison", "")->operatorMapper {
+        | IS
+        | EQUAL_TO
+        | CONTAINS => "equal"
+        | IS_NOT
+        | NOT_CONTAINS
+        | NOT_EQUAL_TO => "not_equal"
+        | GREATER_THAN => "greater_than"
+        | LESS_THAN => "less_than"
+        | UnknownOperator(str) => str
+        },
+        value: statementDict->LogicUtils.getDictfromDict("value")->getStatementValue,
+        metadata: statementDict->LogicUtils.getJsonObjectFromDict("metadata"),
+      }
+
+      let newAcc = if logicalOperator === "or" {
+        acc->Js.Array2.concat([
+          {
+            condition: [condition],
+          },
+        ])
+      } else {
+        lastItem.condition->Array.push(condition)
+        let filteredArr = acc->Array.filterWithIndex((_, i) => i !== acc->Js.Array2.length - 1)
+        filteredArr->Array.push(lastItem)
+        filteredArr
+      }
+
+      newAcc
+    },
+  )
+}
+
+let generateRule = rulesDict => {
+  let modifiedRules = rulesDict->Js.Array2.map(ruleJson => {
+    let ruleDict = ruleJson->LogicUtils.getDictFromJsonObject
+    let statements = ruleDict->LogicUtils.getArrayFromDict("statements", [])
+
+    let modifiedStatements = statements->generateStatements
+
+    {
+      "name": ruleDict->LogicUtils.getString("name", ""),
+      "connectorSelection": ruleDict->LogicUtils.getJsonObjectFromDict("connectorSelection"),
+      "statements": modifiedStatements->Js.Array2.map(toJson)->Js.Json.array,
+    }
+  })
+  modifiedRules
 }
