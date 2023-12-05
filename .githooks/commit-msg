@@ -11,7 +11,7 @@ npx prettier --write .
 npm run re:format
 
 # Define your commit message convention (e.g., starts with "feat:", "fix:", etc.)
-commit_regex="^(Merge branch|feat|fix|chore|refactor|enhancement):.+"
+commit_regex="^(Merge branch|(feat|fix|chore|refactor|enhancement):).+"
 
 
 if git log -1 --show-signature &> /dev/null; then
