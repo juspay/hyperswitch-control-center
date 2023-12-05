@@ -2,24 +2,22 @@ external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
 let validateConditionJson = json => {
   open LogicUtils
   let checkValue = dict => {
-    let valueFromObject = dict->getDictfromDict("value")
-
-    valueFromObject
+    dict
     ->getArrayFromDict("value", [])
     ->Js.Array2.filter(ele => {
       ele != ""->Js.Json.string
     })
     ->Js.Array2.length > 0 ||
-    valueFromObject->getString("value", "") !== "" ||
-    valueFromObject->getFloat("value", -1.0) !== -1.0 ||
-    valueFromObject->getString("comparison", "") == "IS NULL" ||
-    valueFromObject->getString("comparison", "") == "IS NOT NULL"
+    dict->getString("value", "") !== "" ||
+    dict->getFloat("value", -1.0) !== -1.0 ||
+    dict->getString("operator", "") == "IS NULL" ||
+    dict->getString("operator", "") == "IS NOT NULL"
   }
-
   switch json->Js.Json.decodeObject {
   | Some(dict) =>
-    ["comparison", "lhs"]->Js.Array2.every(key => dict->Js.Dict.get(key)->Belt.Option.isSome) &&
-      dict->checkValue
+    ["operator", "real_field"]->Js.Array2.every(key =>
+      dict->Js.Dict.get(key)->Belt.Option.isSome
+    ) && dict->checkValue
   | None => false
   }
 }

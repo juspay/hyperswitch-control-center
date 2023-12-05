@@ -62,3 +62,11 @@ function getParsedJson(str) {
     throw e;
   }
 }
+
+function getThreeDsKeys() {
+  if (wasm) {
+    return wasm.getThreeDsKeys();
+  } else {
+    return [];
+  }
+}

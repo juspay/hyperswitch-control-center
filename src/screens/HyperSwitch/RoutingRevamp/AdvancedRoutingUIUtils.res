@@ -318,7 +318,7 @@ module FieldInp = {
 
 module RuleFieldBase = {
   @react.component
-  let make = (~isFirst, ~id, ~isExpanded, ~onClick, ~wasm) => {
+  let make = (~isFirst, ~id, ~isExpanded, ~onClick, ~wasm, ~isFrom3ds) => {
     let (hover, setHover) = React.useState(_ => false)
     let (paymentMethod, setpaymentMethod) = React.useState(_ => [])
     let (keyType, setKeyType) = React.useState(_ => "")
@@ -341,7 +341,7 @@ module RuleFieldBase = {
 
     React.useEffect0(() => {
       let methodKeys = switch wasm {
-      | Some(res) => res.getAllKeys()
+      | Some(res) => isFrom3ds ? Window.getThreeDsKeys() : res.getAllKeys()
       | None => []
       }
       let value = field.value->LogicUtils.getStringFromJson("")
@@ -394,7 +394,7 @@ module RuleFieldBase = {
 
 module MakeRuleField = {
   @react.component
-  let make = (~id, ~isExpanded, ~wasm) => {
+  let make = (~id, ~isExpanded, ~wasm, ~isFrom3ds) => {
     let ruleJsonPath = `${id}.statements`
     let conditionsInput = ReactFinalForm.useField(ruleJsonPath).input
     let fields = conditionsInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
@@ -419,6 +419,7 @@ module MakeRuleField = {
           id={`${ruleJsonPath}[${i->Belt.Int.toString}]`}
           isExpanded
           wasm
+          isFrom3ds
         />
       )->React.array}
       {if isExpanded {

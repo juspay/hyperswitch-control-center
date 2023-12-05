@@ -91,7 +91,7 @@ module Wrapper = {
     ~notFirstRule=true,
     ~isDragging=false,
     ~wasm,
-    ~isfrom3ds=false,
+    ~isFrom3ds=false,
   ) => {
     let showToast = ToastState.useShowToast()
     let isMobileView = MatchMedia.useMobileChecker()
@@ -221,12 +221,12 @@ module Wrapper = {
             ${border} 
             border-blue-700`}>
         <UIUtils.RenderIf condition={!isFirst}>
-          <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm />
+          <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm isFrom3ds />
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!isfrom3ds}>
+        <UIUtils.RenderIf condition={!isFrom3ds}>
           <AddRuleGateway id gatewayOptions isExpanded isFirst />
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={isfrom3ds}>
+        <UIUtils.RenderIf condition={isFrom3ds}>
           <Add3DSCondition isFirst id />
         </UIUtils.RenderIf>
       </div>

@@ -75,7 +75,7 @@ module Configure3DSRule = {
             notFirstRule
             isDragging
             wasm
-            isfrom3ds=true
+            isFrom3ds=true
           />
         }
         if notFirstRule {
