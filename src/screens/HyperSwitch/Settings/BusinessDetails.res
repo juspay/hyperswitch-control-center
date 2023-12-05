@@ -133,7 +133,7 @@ let make = () => {
           validateMerchantAccountForm(
             ~values,
             ~fieldsToValidate=[PrimaryPhone, PrimaryEmail, Website, SecondaryEmail, SecondaryPhone],
-            ~setIsDisabled,
+            ~setIsDisabled=Some(setIsDisabled),
             ~initialData={merchantInfo->Js.Json.object_},
           )
         }}>

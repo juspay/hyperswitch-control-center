@@ -229,7 +229,7 @@ let make = () => {
                   </div>
                 </div>
                 <div
-                  className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll ">
+                  className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
                   <div
                     className="w-full h-full max-w-fixedPageWidth p-6 md:px-16 md:pb-16 pt-[3rem] overflow-scroll md:overflow-y-scroll md:overflow-x-hidden flex flex-col gap-10">
                     <ErrorBoundary>

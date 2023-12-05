@@ -4,8 +4,6 @@
   "magic_link": false,
   "production_access": false,
   "quick_start": false,
-  "stripe_plus_paypal": false,
-  "woocommerce": false,
   "open_sdk": false,
   "switch_merchant": false,
   "audit_trail": false,

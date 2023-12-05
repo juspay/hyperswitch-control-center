@@ -51,17 +51,6 @@ let getItems: Js.Json.t => array<profileEntity> = json => {
   LogicUtils.getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let apiKeysTableEntity = EntityType.makeEntity(
-  ~uri="",
-  ~getObjects=getItems,
-  ~defaultColumns,
-  ~allColumns,
-  ~getHeading,
-  ~dataKey="",
-  ~getCell,
-  (),
-)
-
 let businessProfileTabelEntity = showLink =>
   EntityType.makeEntity(
     ~uri="",
