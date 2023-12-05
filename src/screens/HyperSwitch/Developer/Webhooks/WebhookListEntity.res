@@ -3,26 +3,29 @@ open BusinessMappingUtils
 
 type columns =
   | ProfileName
-  | ProfileId
+  | ReturnUrl
+  | WebhookUrl
 
-let visibleColumns = [ProfileId, ProfileName]
+let visibleColumns = [WebhookUrl, ReturnUrl, ProfileName]
 
-let defaultColumns = [ProfileId, ProfileName]
+let defaultColumns = [ProfileName, ReturnUrl, WebhookUrl]
 
-let allColumns = [ProfileId, ProfileName]
+let allColumns = [ProfileName, ReturnUrl, WebhookUrl]
 
 let getHeading = colType => {
   switch colType {
-  | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=true, ())
   | ProfileName =>
     Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=true, ())
+  | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return URL", ~showSort=true, ())
+  | WebhookUrl => Table.makeHeaderInfo(~key="webhook_url", ~title="Webhook URL", ~showSort=true, ())
   }
 }
 
 let getCell = (item: profileEntity, colType): Table.cell => {
   switch colType {
-  | ProfileId => Text(item.profile_id)
   | ProfileName => Text(item.profile_name)
+  | ReturnUrl => Text(item.return_url->Belt.Option.getWithDefault(""))
+  | WebhookUrl => Text(item.webhook_details.webhook_url->Belt.Option.getWithDefault(""))
   }
 }
 
@@ -45,7 +48,7 @@ let getItems: Js.Json.t => array<profileEntity> = json => {
   LogicUtils.getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let businessProfileTabelEntity = EntityType.makeEntity(
+let webhookProfileTabelEntity = EntityType.makeEntity(
   ~uri="",
   ~getObjects=getItems,
   ~defaultColumns,

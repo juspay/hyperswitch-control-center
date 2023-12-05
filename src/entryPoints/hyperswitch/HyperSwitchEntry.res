@@ -9,6 +9,7 @@ module HyperSwitchEntryComponent = {
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let featureFlagDetails =
       HyperswitchAtom.featureFlagAtom
       ->Recoil.useRecoilValueFromAtom
@@ -74,8 +75,11 @@ module HyperSwitchEntryComponent = {
         let stringifiedResponse =
           (await postDetails(url, Js.Dict.empty()->Js.Json.object_, Post))->Js.Json.stringify
         setFeatureFlag(._ => stringifiedResponse)
+        setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | _ => ()
+      | Js.Exn.Error(e) =>
+        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong!")
+        setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }
 
@@ -84,13 +88,15 @@ module HyperSwitchEntryComponent = {
       None
     })
 
-    <div className="text-black">
-      <HyperSwitchAuthWrapper>
-        <GlobalProvider>
-          <HyperSwitchApp />
-        </GlobalProvider>
-      </HyperSwitchAuthWrapper>
-    </div>
+    <PageLoaderWrapper screenState sectionHeight="h-screen">
+      <div className="text-black">
+        <HyperSwitchAuthWrapper>
+          <GlobalProvider>
+            <HyperSwitchApp />
+          </GlobalProvider>
+        </HyperSwitchAuthWrapper>
+      </div>
+    </PageLoaderWrapper>
   }
 }
 

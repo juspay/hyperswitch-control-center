@@ -67,7 +67,6 @@ let make = (
   ~isFromSettings=true,
   ~showModalFromOtherScreen=false,
   ~setShowModalFromOtherScreen=_bool => (),
-  ~isFromWebhooks=false,
 ) => {
   open APIUtils
   open BusinessMappingUtils
@@ -81,9 +80,9 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
 
   let businessProfileValues =
-    Recoil.useRecoilValueFromAtom(
-      HyperswitchAtom.businessProfilesAtom,
-    )->HSwitchMerchantAccountUtils.getArrayOfBusinessProfile
+    HyperswitchAtom.businessProfilesAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->HSwitchMerchantAccountUtils.getArrayOfBusinessProfile
 
   let fetchBusinessProfiles = HSwitchMerchantAccountUtils.useFetchBusinessProfiles()
 
@@ -111,24 +110,21 @@ let make = (
     updateMerchantDetails(values)->ignore
     Js.Nullable.null
   }
-  let tableHeaderText = isFromWebhooks ? "Webhooks" : "Business Profiles"
 
   <PageLoaderWrapper screenState>
     <UIUtils.RenderIf condition=isFromSettings>
       <div className="relative h-full">
         <div className="flex flex-col-reverse md:flex-col">
           <PageUtils.PageHeading
-            title=tableHeaderText
-            subTitle={isFromWebhooks
-              ? "Set up and monitor transaction webhooks for real-time notifications."
-              : "Add and manage profiles to represent different businesses across countries."}
+            title="Business Profiles"
+            subTitle="Add and manage profiles to represent different businesses across countries."
           />
           <LoadedTable
             title="Business profiles"
             hideTitle=true
             resultsPerPage=7
             visibleColumns
-            entity={businessProfileTabelEntity(isFromWebhooks)}
+            entity={businessProfileTabelEntity}
             showSerialNumber=true
             actualData={businessProfileValues->Js.Array2.map(Js.Nullable.return)}
             totalResults={businessProfileValues->Js.Array2.length}
@@ -136,14 +132,9 @@ let make = (
             setOffset
             currrentFetchCount={businessProfileValues->Js.Array2.length}
           />
-          // <BusinessUnitText />
-          <UIUtils.RenderIf condition={!isFromWebhooks}>
-            <div className="absolute right-0 -top-3">
-              <AddEntryBtn
-                onSubmit modalState showModal setShowModal list={businessProfileValues}
-              />
-            </div>
-          </UIUtils.RenderIf>
+          <div className="absolute right-0 -top-3">
+            <AddEntryBtn onSubmit modalState showModal setShowModal list={businessProfileValues} />
+          </div>
         </div>
       </div>
     </UIUtils.RenderIf>

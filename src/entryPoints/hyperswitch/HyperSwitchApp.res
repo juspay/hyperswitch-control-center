@@ -93,7 +93,6 @@ let make = () => {
       } else {
         setDashboardPageState(_ => #AGREEMENT_SIGNATURE)
       }
-      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ =>
       setDashboardPageState(_ => #HOME)
@@ -123,6 +122,21 @@ let make = () => {
       let _profileDetails = await fetchBusinessProfiles()
       let _connectorList = await fetchConnectorListResponse()
       let _merchantDetails = await fetchMerchantAccountDetails()
+
+      if featureFlagDetails.quickStart {
+        let _featureFlag = await fetchInitialEnums()
+      }
+
+      switch featureFlagDetails.testLiveMode {
+      | Some(val) =>
+        if val {
+          getAgreementEnum()->ignore
+        } else {
+          setDashboardPageState(_ => #HOME)
+        }
+      | None => ()
+      }
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ =>
       setDashboardPageState(_ => #HOME)
@@ -134,27 +148,6 @@ let make = () => {
     setUpDashboard()->ignore
     None
   })
-
-  React.useEffect1(() => {
-    switch featureFlagDetails.testLiveMode {
-    | Some(val) =>
-      if val {
-        getAgreementEnum()->ignore
-      } else {
-        setDashboardPageState(_ => #HOME)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      }
-    | None => ()
-    }
-    None
-  }, [featureFlagDetails.testLiveMode])
-
-  React.useEffect1(() => {
-    if featureFlagDetails.quickStart {
-      fetchInitialEnums()->ignore
-    }
-    None
-  }, [featureFlagDetails.quickStart])
 
   let setPageState = (pageState: ProviderTypes.dashboardPageStateTypes) => {
     setDashboardPageState(_ => pageState)
@@ -192,16 +185,16 @@ let make = () => {
     }
   }
 
-  <div>
-    {switch dashboardPageState {
-    | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
-    | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
-    | #INTEGRATION_DOC => <UserOnboarding />
-    | #AGREEMENT_SIGNATURE => <HSwitchAgreementScreen />
-    | #PROD_ONBOARDING => <ProdOnboardingLanding />
-    | #QUICK_START => <ConfigureControlCenter />
-    | #HOME =>
-      <PageLoaderWrapper screenState={screenState} customStyleForDefaultLandingPage="!h-screen">
+  <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen">
+    <div>
+      {switch dashboardPageState {
+      | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
+      | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
+      | #INTEGRATION_DOC => <UserOnboarding />
+      | #AGREEMENT_SIGNATURE => <HSwitchAgreementScreen />
+      | #PROD_ONBOARDING => <ProdOnboardingLanding />
+      | #QUICK_START => <ConfigureControlCenter />
+      | #HOME =>
         <div className="relative">
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative overflow-auto h-screen ">
@@ -334,7 +327,7 @@ let make = () => {
                         <EntityScaffold
                           entityName="WebHooks"
                           remainingPath
-                          renderList={() => <BusinessProfile isFromWebhooks=true />}
+                          renderList={() => <WebhookList />}
                           renderShow={profileId =>
                             <Webhooks webhookOnly=false showFormOnly=false />}
                         />
@@ -385,13 +378,13 @@ let make = () => {
             </RenderIf>
           </div>
         </div>
-      </PageLoaderWrapper>
-    | #WOOCOMMERCE_FLOW => <WooCommerce />
-    | #DEFAULT =>
-      <div className="h-screen flex justify-center items-center">
-        <Loader />
-      </div>
-    | #STRIPE_PLUS_PAYPAL => <StripePlusPaypal />
-    }}
-  </div>
+      | #WOOCOMMERCE_FLOW => <WooCommerce />
+      | #DEFAULT =>
+        <div className="h-screen flex justify-center items-center">
+          <Loader />
+        </div>
+      | #STRIPE_PLUS_PAYPAL => <StripePlusPaypal />
+      }}
+    </div>
+  </PageLoaderWrapper>
 }
