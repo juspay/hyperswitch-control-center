@@ -698,9 +698,7 @@ let checkIfValuePresent = dict => {
   })
   ->Js.Array2.length > 0 ||
   valueFromObject->getString("value", "") !== "" ||
-  valueFromObject->getFloat("value", -1.0) !== -1.0 ||
-  valueFromObject->getString("comparison", "") == "IS NULL" ||
-  valueFromObject->getString("comparison", "") == "IS NOT NULL"
+  valueFromObject->getFloat("value", -1.0) !== -1.0
 }
 let validateConditionJsonFor3ds = json => {
   switch json->Js.Json.decodeObject {
