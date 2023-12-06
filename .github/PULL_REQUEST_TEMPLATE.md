@@ -39,4 +39,3 @@ Or did you test this change manually (provide relevant screenshots)?
 - [ ] I ran `npm run re:build`
 - [ ] I reviewed submitted code
 - [ ] I added unit tests for my changes where possible
-- [ ] I added a [CHANGELOG](/CHANGELOG.md) entry if applicable
