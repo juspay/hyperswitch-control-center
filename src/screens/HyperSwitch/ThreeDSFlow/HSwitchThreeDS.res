@@ -215,9 +215,9 @@ let make = () => {
         } else {
           rules->Array.forEachWithIndex((rule, i) => {
             let ruleDict = rule->LogicUtils.getDictFromJsonObject
-            if RoutingUtils.validateConditionsEvenIfOneExists(ruleDict)->Js.Array2.length == 0 {
+            if !RoutingUtils.validateConditionsFor3ds(ruleDict) {
               errors->Js.Dict.set(
-                `Rule ${(i + index)->string_of_int} - Condition`,
+                `Rule ${(i + 1)->string_of_int} - Condition`,
                 `Invalid`->Js.Json.string,
               )
             }

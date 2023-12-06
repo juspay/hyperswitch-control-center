@@ -697,8 +697,10 @@ let checkIfValuePresent = dict => {
     ele != ""->Js.Json.string
   })
   ->Js.Array2.length > 0 ||
-  valueFromObject->getString("value", "") !== "" ||
-  valueFromObject->getFloat("value", -1.0) !== -1.0
+  valueFromObject->getString("value", "")->Js.String2.length > 0 ||
+  valueFromObject->getFloat("value", -1.0) !== -1.0 ||
+  (valueFromObject->getDictfromDict("value")->getString("key", "")->Js.String2.length > 0 &&
+    valueFromObject->getDictfromDict("value")->getString("value", "")->Js.String2.length > 0)
 }
 let validateConditionJsonFor3ds = json => {
   switch json->Js.Json.decodeObject {
@@ -715,17 +717,12 @@ let validateConditions = dict => {
   ->Js.Array2.every(MakeRuleFieldComponent.validateConditionJson)
 }
 
-let validateConditionsEvenIfOneExists = dict => {
+let validateConditionsFor3ds = dict => {
   let conditionsArray = dict->LogicUtils.getArrayFromDict("statements", [])
-  let vector = Js.Vector.make(conditionsArray->Js.Array2.length, false)
 
-  conditionsArray->Array.forEachWithIndex((value, index) => {
-    let res = value->validateConditionJsonFor3ds
-    vector->Js.Vector.set(index, res)
+  conditionsArray->Array.every(value => {
+    value->validateConditionJsonFor3ds
   })
-
-  let _result = Js.Vector.filterInPlace((. val) => val == true, vector)
-  vector
 }
 
 let filterEmptyValues = (arr: array<RoutingTypes.condition>) => {
