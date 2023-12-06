@@ -47,7 +47,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
   open HyperSwitchAuthTypes
   let url = RescriptReactRouter.useUrl()
   let (mode, setMode) = React.useState(_ => TestButtonMode)
-  let {testLiveMode, magicLink: isMagicLinkEnabled} =
+  let {isLiveMode, magicLink: isMagicLinkEnabled} =
     HyperswitchAtom.featureFlagAtom
     ->Recoil.useRecoilValueFromAtom
     ->LogicUtils.safeParse
@@ -74,7 +74,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
   }, [isMagicLinkEnabled])
 
   React.useEffect1(() => {
-    if testLiveMode {
+    if isLiveMode {
       setMode(_ => LiveButtonMode)
     } else {
       setMode(_ => TestButtonMode)
