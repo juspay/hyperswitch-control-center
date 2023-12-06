@@ -609,14 +609,17 @@ let getTitle = name => {
 }
 
 // Regex to check if a string contains a substring
-let regex = (a, searchString) => {
+let regex = (positionToCheckFrom, searchString) => {
   let searchStringNew =
     searchString
     ->Js.String2.replaceByRe(%re("/[<>\[\]';|?*\\]/g"), "")
     ->Js.String2.replaceByRe(%re("/\(/g"), "\\(")
     ->Js.String2.replaceByRe(%re("/\+/g"), "\\+")
     ->Js.String2.replaceByRe(%re("/\)/g"), "\\)")
-  Js.Re.fromStringWithFlags("(.*)(" ++ a ++ "" ++ searchStringNew ++ ")(.*)", ~flags="i")
+  Js.Re.fromStringWithFlags(
+    "(.*)(" ++ positionToCheckFrom ++ "" ++ searchStringNew ++ ")(.*)",
+    ~flags="i",
+  )
 }
 
 let checkStringStartsWithSubstring = (~itemToCheck, ~searchText) => {

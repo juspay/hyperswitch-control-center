@@ -27,6 +27,7 @@ module NewProcessorCards = {
 
     let (showModal, setShowModal) = React.useState(_ => false)
     let (searchedConnector, setSearchedConnector) = React.useState(_ => "")
+    let searchRef = React.useRef(Js.Nullable.null)
 
     let urlPrefix = isPayoutFlow ? "payoutconnectors/new" : "connectors/new"
     let handleClick = connectorName => {
@@ -34,16 +35,9 @@ module NewProcessorCards = {
     }
     let unConfiguredConnectorsCount = unConfiguredConnectors->Js.Array2.length
 
-    let input: ReactFinalForm.fieldRenderPropsInput = {
-      name: "string",
-      onBlur: _ev => (),
-      onChange: ev => {
-        let value = {ev->ReactEvent.Form.target}["value"]
-        setSearchedConnector(_ => value)
-      },
-      onFocus: _ev => (),
-      value: searchedConnector->Js.Json.string,
-      checked: true,
+    let handleSearch = event => {
+      let val = ref(ReactEvent.Form.currentTarget(event)["value"])
+      setSearchedConnector(_ => val.contents)
     }
 
     let descriptedConnectors = (
@@ -68,11 +62,13 @@ module NewProcessorCards = {
           </UIUtils.RenderIf>
         </div>
         <UIUtils.RenderIf condition={showSearch}>
-          <TextInput
-            input
-            placeholder="Search for a processor"
-            customWidth="w-1/3"
-            leftIcon={<Icon size=16 className="text-jp-2-light-gray-1000" name="search" />}
+          <input
+            ref={searchRef->ReactDOM.Ref.domRef}
+            type_="text"
+            value=searchedConnector
+            onChange=handleSearch
+            placeholder="Search processor"
+            className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
           />
         </UIUtils.RenderIf>
         <UIUtils.RenderIf condition={connectorList->Js.Array2.length > 0}>
@@ -137,11 +133,13 @@ module NewProcessorCards = {
           </UIUtils.RenderIf>
         </div>
         <UIUtils.RenderIf condition={showSearch}>
-          <TextInput
-            input
-            placeholder="Search for a processor"
-            customWidth="w-1/3"
-            leftIcon={<Icon size=16 className="text-jp-2-light-gray-1000" name="search" />}
+          <input
+            ref={searchRef->ReactDOM.Ref.domRef}
+            type_="text"
+            value=searchedConnector
+            onChange=handleSearch
+            placeholder="Search processor"
+            className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
           />
         </UIUtils.RenderIf>
         <div className="bg-white rounded-md flex gap-2 flex-wrap p-4 border">
@@ -175,10 +173,9 @@ module NewProcessorCards = {
     let connectorListFiltered = {
       if searchedConnector->Js.String2.length > 0 {
         connectorsAvailableForIntegration->Js.Array2.filter(item =>
-          LogicUtils.checkStringStartsWithSubstring(
-            ~itemToCheck=item->ConnectorUtils.getConnectorNameString,
-            ~searchText=searchedConnector->Js.String2.toLowerCase,
-          )
+          item
+          ->ConnectorUtils.getConnectorNameString
+          ->Js.String2.includes(searchedConnector->Js.String2.toLowerCase)
         )
       } else {
         connectorsAvailableForIntegration
