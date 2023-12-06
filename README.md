@@ -267,9 +267,9 @@ curl https://raw.githubusercontent.com/juspay/hyperswitch-control-center/main/aw
 
 ---
 
-## Changelog
+## Versioning
 
-For a detailed list of changes made in each version, please refer to the [Changelog](./CHANGELOG.md) file.
+For a detailed list of changes made in each version, please refer to the [CHANGELOG](./CHANGELOG.md) file.
 
 ---
 
