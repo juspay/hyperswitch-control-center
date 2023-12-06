@@ -19,6 +19,11 @@
     "re:format": "rescript format -all",
     "postinstall": "git config core.hooksPath .githooks && chmod +x .githooks/commit-msg"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run pre-commit"
+    }
+  },
   "devDependencies": {
     "@glennsl/rescript-jest": "^0.10.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.1",
