@@ -91,7 +91,7 @@ module ConfigureProcessor = {
         ~connector=connectorName,
         ~bodyType,
         ~isPayoutFlow=false,
-        ~isLiveMode={featureFlagDetails.testLiveMode},
+        ~isLiveMode={featureFlagDetails.isLiveMode},
         (),
       )
       setInitialValues(_ => body)

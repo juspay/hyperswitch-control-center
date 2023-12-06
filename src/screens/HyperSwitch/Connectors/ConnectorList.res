@@ -11,7 +11,7 @@ module NewProcessorCards = {
       ->LogicUtils.safeParse
       ->FeatureFlagUtils.featureFlagType
 
-    let connectorsAvailableForIntegration = featureFlagDetails.testLiveMode
+    let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
       ? ConnectorUtils.connectorListForLive
       : isPayoutFlow
       ? ConnectorUtils.payoutConnectorList
