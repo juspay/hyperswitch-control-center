@@ -137,20 +137,23 @@ module BasicAccountSetupSuccessfulPage = {
     ~customWidth="w-full",
     ~bgColor="bg-green-success_page_bg",
     ~buttonState=Button.Normal,
+    ~isButtonVisible=true,
   ) => {
     <div className={`flex flex-col gap-4 p-9 h-full ${customWidth} justify-between rounded shadow`}>
       <div className={`p-4 h-5/6 ${bgColor} flex flex-col justify-center items-center gap-8`}>
         <Icon name=iconName size=120 />
         <p className=headerTextStyle> {statusText->React.string} </p>
       </div>
-      <Button
-        text=buttonText
-        buttonSize={Small}
-        buttonType={Primary}
-        customButtonStyle="!rounded-md"
-        onClick={_ => buttonOnClick()}
-        buttonState
-      />
+      <UIUtils.RenderIf condition={isButtonVisible}>
+        <Button
+          text=buttonText
+          buttonSize={Small}
+          buttonType={Primary}
+          customButtonStyle="!rounded-md"
+          onClick={_ => buttonOnClick()}
+          buttonState
+        />
+      </UIUtils.RenderIf>
     </div>
   }
 }
