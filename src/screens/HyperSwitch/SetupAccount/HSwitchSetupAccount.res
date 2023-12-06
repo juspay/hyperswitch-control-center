@@ -77,7 +77,7 @@ let make = () => {
         ->getDictFromJsonObject
         ->getOptionString("id")
       let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-      let _res = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
       setStepCounter(_ => #ROUTING_ENABLED)
 
       // *GENERATE_SAMPLE_DATA
@@ -100,7 +100,7 @@ let make = () => {
         (),
       )
       let integrationUrl = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
-      let _res = await updateDetails(integrationUrl, body, Post)
+      let _ = await updateDetails(integrationUrl, body, Post)
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       setDashboardPageState(_ => #INTEGRATION_DOC)
     } catch {

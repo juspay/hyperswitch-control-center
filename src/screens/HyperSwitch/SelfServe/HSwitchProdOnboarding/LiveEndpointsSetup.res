@@ -170,7 +170,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
     try {
       let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
       let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#ConfigureEndpoint, ())
-      let _response = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setPageView(_ => pageView->ProdOnboardingUtils.getPageView)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess, ())
       setButtonState(_ => Normal)

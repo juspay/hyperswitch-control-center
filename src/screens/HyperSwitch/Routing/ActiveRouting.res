@@ -45,7 +45,7 @@ module ActionButtons = {
 
         let body = requestBody->HSwitchUtils.getBodyForFeedBack()
         let feedbackUrl = APIUtils.getURL(~entityName=FEEDBACK, ~methodType=Post, ())
-        let _res = await updateDetails(feedbackUrl, body->Js.Json.object_, Post)
+        let _ = await updateDetails(feedbackUrl, body->Js.Json.object_, Post)
         showToast(
           ~toastType=ToastSuccess,
           ~message="Request submitted successfully!",

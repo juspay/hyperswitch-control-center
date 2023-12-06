@@ -42,7 +42,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
         routing_id: routingId,
       }
       let enumVariant = quickStartPageState->variantToEnumMapper
-      let _res = await RoutingType(routingVal)->usePostEnumDetails(enumVariant)
+      let _ = await RoutingType(routingVal)->usePostEnumDetails(enumVariant)
       setQuickStartPageState(_ => ConnectProcessor(CHECKOUT))
     } catch {
     | Js.Exn.Error(e) => {
@@ -78,7 +78,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
         ~id=Some(activatingId),
         (),
       )
-      let _res = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
       let _ = await updateEnumForRouting(activatingId)
       setButtonState(_ => Normal)
     } catch {
@@ -106,7 +106,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
   let updateEnumForMultipleConfigurationType = async isMultipleConfigSelected => {
     try {
       let isMultipleConfigurationType = #IsMultipleConfiguration
-      let _resp = await ConnectorChoice({
+      let _ = await ConnectorChoice({
         isMultipleConfiguration: isMultipleConfigSelected,
       })->usePostEnumDetails(isMultipleConfigurationType)
     } catch {
@@ -145,7 +145,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
       let paymentBody: paymentType = {
         payment_id: paymentId,
       }
-      let _resp = await PaymentType(paymentBody)->usePostEnumDetails(#TestPayment)
+      let _ = await PaymentType(paymentBody)->usePostEnumDetails(#TestPayment)
       setQuickStartPageState(_ => IntegrateApp(LANDING))
       RescriptReactRouter.replace("/quick-start")
     } catch {

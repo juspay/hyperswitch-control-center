@@ -1,5 +1,4 @@
 let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
-let highlightedText = "text-base font-normal text-blue-700 underline"
 let headerTextStyle = "text-xl font-semibold text-grey-700"
 
 module WarningBlock = {
@@ -13,16 +12,6 @@ module WarningBlock = {
       className="flex gap-2 bg-orange-200 w-fit p-4 border rounded-md border-orange-500 items-center">
       <Icon name="warning-outlined" size=25 />
       {warningSection}
-    </div>
-  }
-}
-module NoteBlock = {
-  @react.component
-  let make = (~noteText) => {
-    <div
-      className="flex gap-2 bg-blue-200 w-fit p-4 border rounded-md border-blue-500 items-center">
-      <Icon name="info-outlined" size=25 />
-      <p className={`${subTextStyle} !opacity-100`}> {noteText->React.string} </p>
     </div>
   }
 }

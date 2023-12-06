@@ -276,7 +276,7 @@ let make = (
       ->Js.Json.object_
     let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ())
     try {
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
     } catch {
     | _ => ()
     }

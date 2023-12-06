@@ -225,7 +225,7 @@ module CheckoutCard = {
               _ => {
                 hyperswitchMixPanel(~eventName=Some(`${urlPath}_tryplayground_register`), ())
                 hyperswitchMixPanel(~eventName=Some(`global_tryplayground_register`), ())
-                let _res = APIUtils.handleLogout(~fetchApi, ~setAuthStatus)
+                let _ = APIUtils.handleLogout(~fetchApi, ~setAuthStatus)
               }
             },
           },

@@ -120,7 +120,7 @@ let make = () => {
         ~metadata=metaDataDict,
         (),
       )
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
     } catch {
     | _ => ()
@@ -146,7 +146,7 @@ let make = () => {
         ->Js.Json.object_,
         (),
       )
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       setDashboardPageState(_ => #HOME)
     } catch {

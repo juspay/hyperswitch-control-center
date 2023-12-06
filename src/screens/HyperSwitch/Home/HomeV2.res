@@ -124,7 +124,7 @@ module QuickStart = {
               await ProcesorType(bodyOfSecondConnector)->usePostEnumDetails(
                 #SecondProcessorConnected,
               )
-            let _res = updateEnumInRecoil([
+            let _ = updateEnumInRecoil([
               (Boolean(true), #IsMultipleConfiguration),
               (ProcesorType(bodyOfFirstConnector), #FirstProcessorConnected),
               (ProcesorType(bodyOfSecondConnector), #SecondProcessorConnected),
@@ -146,7 +146,7 @@ module QuickStart = {
             })->usePostEnumDetails(#IsMultipleConfiguration)
             let _firstEnumSetupValues =
               await ProcesorType(bodyOfFirstConnector)->usePostEnumDetails(#FirstProcessorConnected)
-            let _res = updateEnumInRecoil([
+            let _ = updateEnumInRecoil([
               (ConnectorChoice({isMultipleConfiguration: true}), #IsMultipleConfiguration),
               (ProcesorType(bodyOfFirstConnector), #FirstProcessorConnected),
             ])

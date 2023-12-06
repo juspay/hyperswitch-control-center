@@ -9,8 +9,8 @@ module NewAccountCreationModal = {
       try {
         let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Fetch.Post, ())
         let body = values
-        let _res = await updateDetails(url, body, Post)
-        let _merchantIds = await fetchMerchantIDs()
+        let _ = await updateDetails(url, body, Post)
+        let _ = await fetchMerchantIDs()
         showToast(
           ~toastType=ToastSuccess,
           ~message="Account Created Successfully!",
