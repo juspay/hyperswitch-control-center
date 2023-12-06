@@ -194,14 +194,15 @@ let connectorList: array<connectorName> = [
 let connectorListForLive: array<connectorName> = [
   STRIPE,
   ADYEN,
-  CHECKOUT,
-  ZEN,
-  BLUESNAP,
-  TRUSTPAY,
-  PAYME,
   PAYPAL,
+  BANKOFAMERICA,
+  BLUESNAP,
+  CHECKOUT,
   CRYPTOPAY,
   IATAPAY,
+  PAYME,
+  TRUSTPAY,
+  ZEN,
 ]
 
 let getPaymentMethodFromString = paymentMethod => {
