@@ -20,6 +20,7 @@ type featureFlag = {
   mixPanel: bool,
   verifyConnector: bool,
   forgetPassword: bool,
+  ossBuild: bool,
 }
 
 let featureFlagType = (featureFlags: Js.Json.t) => {
@@ -47,6 +48,7 @@ let featureFlagType = (featureFlags: Js.Json.t) => {
     mixPanel: dict->getBool("mixpanel", false),
     verifyConnector: dict->getBool("verify_connector", false),
     forgetPassword: dict->getBool("forgot_password", false),
+    ossBuild: dict->getBool("oss_build", false),
   }
   typedFeatureFlag
 }

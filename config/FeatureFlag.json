@@ -18,5 +18,6 @@
   "mixpanel": false,
   "business_profile": false,
   "generate_report": false,
-  "forgot_password": false
+  "forgot_password": false,
+  "oss_build": true
 }
