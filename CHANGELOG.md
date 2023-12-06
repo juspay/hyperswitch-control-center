@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.2.0 (2023-12-06)
+
+### Features
+
+- Bankofamerica addition in prod ([#69](https://github.com/juspay/hyperswitch-control-center/pull/69)) ([`bf6bde8`](https://github.com/juspay/hyperswitch-control-center/commit/bf6bde89eaaf3c443e07c191b42d2a9293377130))
+- Support oss auth flow ([#64](https://github.com/juspay/hyperswitch-control-center/pull/64)) ([`59601ec`](https://github.com/juspay/hyperswitch-control-center/commit/59601ec4449505ff4fcd1e048d6ced78997062a9))
+
+### Bug Fixes
+
+- 3ds code refactor and bugfixes ([#61](https://github.com/juspay/hyperswitch-control-center/pull/61)) ([`9d4f503`](https://github.com/juspay/hyperswitch-control-center/commit/9d4f5036b458b671f4f1899619d891f74e936b8f))
+- Commit-msg file changes & README.md file updated. ([#65](https://github.com/juspay/hyperswitch-control-center/pull/65)) ([`96a81e0`](https://github.com/juspay/hyperswitch-control-center/commit/96a81e0363ade432fb288cc59a5dfb64ad029e48))
+- Update README.md ([#66](https://github.com/juspay/hyperswitch-control-center/pull/66)) ([`1930bd2`](https://github.com/juspay/hyperswitch-control-center/commit/1930bd294de22a962304c4389426b741429fd1dc))
+- Live Mode SDK Fixes. ([#67](https://github.com/juspay/hyperswitch-control-center/pull/67)) ([`844920b`](https://github.com/juspay/hyperswitch-control-center/commit/844920b6fd09aa07edbf33ba83ff2aaa394c7a78))
+
+**Full Changelog:** [`v1.1.0...v1.2.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.1.0...v1.2.0)
+
+- - -
+
+
 ## 1.1.0 (2023-12-05)
 
 ### Features

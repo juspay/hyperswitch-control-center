@@ -269,7 +269,7 @@ module ControlCenter = {
     let url = RescriptReactRouter.useUrl()
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let merchantDetailsValue = useMerchantDetailsValue()
-    let {testLiveMode} =
+    let {isLiveMode} =
       HyperswitchAtom.featureFlagAtom
       ->Recoil.useRecoilValueFromAtom
       ->LogicUtils.safeParse
@@ -277,13 +277,13 @@ module ControlCenter = {
 
     let pageName = url.path->getPageNameFromUrl
 
-    let isLiveModeEnabledStyles = testLiveMode
+    let isLiveModeEnabledStyles = isLiveMode
       ? "flex flex-col md:flex-row gap-5 w-full"
       : "flex flex-col gap-5 md:w-1/2 w-full"
 
     <div className="flex flex-col gap-5 md:flex-row">
       <div className=isLiveModeEnabledStyles>
-        <CardLayout width="w-full" customStyle={testLiveMode ? "" : "h-3/6"}>
+        <CardLayout width="w-full" customStyle={isLiveMode ? "" : "h-3/6"}>
           <CardHeader
             heading="Integrate a connector"
             subHeading="Give a headstart to the control centre by connecting with more than 20+ gateways, payment methods, and networks."
@@ -313,7 +313,7 @@ module ControlCenter = {
             />
           </CardFooter>
         </CardLayout>
-        <CardLayout width="w-full" customStyle={testLiveMode ? "" : "h-4/6"}>
+        <CardLayout width="w-full" customStyle={isLiveMode ? "" : "h-4/6"}>
           <CardHeader
             heading="Credentials and Keys"
             subHeading="Your secret credentials to start integrating hyperswitch."
@@ -342,7 +342,7 @@ module ControlCenter = {
           </CardFooter>
         </CardLayout>
       </div>
-      <UIUtils.RenderIf condition={!testLiveMode}>
+      <UIUtils.RenderIf condition={!isLiveMode}>
         <CheckoutCard />
       </UIUtils.RenderIf>
     </div>

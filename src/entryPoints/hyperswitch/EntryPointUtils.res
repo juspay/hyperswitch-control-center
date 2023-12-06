@@ -37,7 +37,7 @@ module ContextWrapper = {
   }
 }
 
-let renderDashboardApp = (~uiConfig=UIConfig.defaultUIConfig, children) => {
+let renderDashboardApp = (~uiConfig, children) => {
   switch ReactDOM.querySelector("#app") {
   | Some(container) =>
     open ReactDOM.Client

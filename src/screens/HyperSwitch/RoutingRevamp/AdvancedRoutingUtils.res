@@ -351,12 +351,13 @@ let validateStatements = statementsArray => {
   statementsArray->Js.Array2.every(isStatementMandatoryFieldsPresent)
 }
 
-let initialValueForStatement: AdvancedRoutingTypes.statementSendType = {
-  condition: [],
-}
-
 let generateStatements = statements => {
   open LogicUtils
+
+  let initialValueForStatement: AdvancedRoutingTypes.statementSendType = {
+    condition: [],
+  }
+
   statements->Array.reduce([initialValueForStatement], (acc, statement) => {
     let statementDict = statement->getDictFromJsonObject
     let logicalOperator = statementDict->getString("logical", "")->Js.String2.toLowerCase
