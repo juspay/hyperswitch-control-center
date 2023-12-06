@@ -28,7 +28,7 @@ module GatewayView = {
 }
 
 @react.component
-let make = (~ruleInfo: algorithmData, ~isfrom3ds=false) => {
+let make = (~ruleInfo: algorithmData, ~isFrom3ds=false) => {
   open LogicUtils
 
   <div
@@ -69,6 +69,7 @@ let make = (~ruleInfo: algorithmData, ~isfrom3ds=false) => {
                     let value = switch statement.value.value->Js.Json.classify {
                     | JSONArray(arr) => arr->Js.Array2.joinWith(", ")
                     | JSONString(str) => str
+                    | JSONNumber(num) => num->Belt.Float.toString
                     | _ => ""
                     }
 
@@ -97,13 +98,13 @@ let make = (~ruleInfo: algorithmData, ~isfrom3ds=false) => {
                 <UIUtils.RenderIf condition={rule.statements->Js.Array2.length > 0}>
                   <Icon size=14 name="arrow-right" className="mx-4 text-jp-gray-700" />
                 </UIUtils.RenderIf>
-                <UIUtils.RenderIf condition={isfrom3ds}>
+                <UIUtils.RenderIf condition={isFrom3ds}>
                   <div
                     className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium text-blue-800 hover:text-blue-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1">
                     {threeDsType->LogicUtils.capitalizeString->React.string}
                   </div>
                 </UIUtils.RenderIf>
-                <UIUtils.RenderIf condition={!isfrom3ds}>
+                <UIUtils.RenderIf condition={!isFrom3ds}>
                   <GatewayView
                     gateways={rule.connectorSelection.data->Belt.Option.getWithDefault([])}
                   />

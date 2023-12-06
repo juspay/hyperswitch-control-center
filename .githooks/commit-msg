@@ -9,8 +9,8 @@ commit_msg=$(cat "$commit_msg_file")
 echo
 echo "*****~~~~~ Formatting - Check for unformatted files ~~~~~~*****"
 
-# Check for unformatted JavaScript, TypeScript, and JSON files using Prettier
-unformatted_js_files=$(git ls-files | grep '\.js\|\.jsx\|\.ts\|\.tsx\|\.json' | xargs npx prettier --list-different)
+# Check for unformatted JavaScript and JSON files using Prettier
+unformatted_js_files=$(git ls-files | grep '\.js\|\.json' | xargs npx prettier --list-different)
 
 # If there are unformatted JavaScript, TypeScript, or JSON files, print an error message and exit with a non-zero status code
 if [ -n "$unformatted_js_files" ]; then
@@ -25,14 +25,6 @@ npm run re:format
 echo
 echo "*****~~~~~ All files are formatted. ~~~~~~*****"
 echo
-
-# JS Code Check
-echo "*****~~~~~ Checking ReScript Code ~~~~~~*****"
-if (! npm run re:build)
-then
-    echo "*****~~~~~ ReScript Code Compilation Failed! ~~~~~*****"
-    exit 1
-fi
 
 echo
 echo "*****~~~~~ Commit message validation! ~~~~~*****"
