@@ -43,9 +43,12 @@ else
     echo "~~~~**** Error: Commit Signature Missing. ****~~~~"
     echo "Please make sure to sign your commits. You can sign your commit by using the '-S' option with 'git commit'."
     echo "Example: git commit -S -m 'Your commit message'"
+    echo "Signing commits is crucial for verifying contributions. Consult GitHub's documentation on commit signature verification for guidance: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits"
     exit 1
 fi
 
 # If the commit message matches the convention, the script exits successfully.
+echo
 echo "*****~~~~~ Commit hook completed ~~~~~~*****"
+echo
 exit 0

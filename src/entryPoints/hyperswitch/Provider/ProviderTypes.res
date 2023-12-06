@@ -38,8 +38,6 @@ type contextType = {
   setShowFeedbackModal: (bool => bool) => unit,
   showProdIntentForm: bool,
   setShowProdIntentForm: (bool => bool) => unit,
-  tabIndexForDevelopers: int,
-  setTabIndexForDevelopers: (int => int) => unit,
   dashboardPageState: dashboardPageStateTypes,
   setDashboardPageState: (dashboardPageStateTypes => dashboardPageStateTypes) => unit,
   integrationDetails: integrationDetailsType,
