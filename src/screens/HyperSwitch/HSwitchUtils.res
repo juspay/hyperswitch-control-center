@@ -154,7 +154,7 @@ module BackgroundImageWrapper = {
 
 type processors = FRMPlayer | Connector | PayoutConnector
 
-let filterList = (items, ~removeFromList=FRMPlayer, ()) => {
+let filterList = (items, ~removeFromList) => {
   items->Js.Array2.filter(dict => {
     let connectorType = dict->getString("connector_type", "")
     let isPayoutConnector = connectorType == "payout_processor"
@@ -169,7 +169,7 @@ let filterList = (items, ~removeFromList=FRMPlayer, ()) => {
 }
 
 let getProcessorsListFromJson = (json, ~removeFromList=FRMPlayer, ()) => {
-  json->getArrayFromJson([])->Js.Array2.map(getDictFromJsonObject)->filterList(~removeFromList, ())
+  json->getArrayFromJson([])->Js.Array2.map(getDictFromJsonObject)->filterList(~removeFromList)
 }
 
 let getPageNameFromUrl = url => {
