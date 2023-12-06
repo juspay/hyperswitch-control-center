@@ -78,6 +78,7 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-green-success_page_bg"
+        isButtonVisible={paymentId->Js.String2.length > 0}
       />
 
     | FAILED(_err) =>

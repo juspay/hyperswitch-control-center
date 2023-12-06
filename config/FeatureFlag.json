@@ -1,10 +1,9 @@
 {
   "test_live_toggle": false,
-  "test_live_mode": false,
+  "is_live_mode": false,
   "magic_link": false,
   "production_access": false,
   "quick_start": false,
-  "open_sdk": false,
   "switch_merchant": false,
   "audit_trail": false,
   "system_metrics": false,

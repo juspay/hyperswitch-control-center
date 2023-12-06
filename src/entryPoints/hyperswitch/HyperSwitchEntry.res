@@ -43,7 +43,7 @@ module HyperSwitchEntryComponent = {
 
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle
-      let title = featureFlagDetails.testLiveMode
+      let title = featureFlagDetails.isLiveMode
         ? `${page} - Dashboard`
         : `${page} - Dashboard [Test]`
       DOMUtils.document.title = title

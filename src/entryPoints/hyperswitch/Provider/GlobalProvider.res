@@ -8,8 +8,6 @@ let defaultValue = {
   setShowProdIntentForm: _ => (),
   integrationDetails: defaultIntegrationValue,
   setIntegrationDetails: _ => (),
-  tabIndexForDevelopers: 0,
-  setTabIndexForDevelopers: _ => (),
   dashboardPageState: #DEFAULT,
   setDashboardPageState: _ => (),
   permissionInfo: [],
@@ -23,11 +21,6 @@ let defaultValue = {
 let defaultContext = React.createContext(defaultValue)
 
 module Provider = {
-  let makeProps = (~value, ~children, ()) =>
-    {
-      "value": value,
-      "children": children,
-    }
   let make = React.Context.provider(defaultContext)
 }
 
@@ -35,7 +28,6 @@ module Provider = {
 let make = (~children) => {
   let (showFeedbackModal, setShowFeedbackModal) = React.useState(_ => false)
   let (showProdIntentForm, setShowProdIntentForm) = React.useState(_ => false)
-  let (tabIndexForDevelopers, setTabIndexForDevelopers) = React.useState(_ => 0)
   let (dashboardPageState, setDashboardPageState) = React.useState(_ => #DEFAULT)
   let (permissionInfo, setPermissionInfo) = React.useState(_ => [])
   let (isProdIntentCompleted, setIsProdIntentCompleted) = React.useState(_ => false)
@@ -56,8 +48,6 @@ let make = (~children) => {
       integrationDetails,
       showProdIntentForm,
       setShowProdIntentForm,
-      tabIndexForDevelopers,
-      setTabIndexForDevelopers,
       dashboardPageState,
       setDashboardPageState,
       permissionInfo,

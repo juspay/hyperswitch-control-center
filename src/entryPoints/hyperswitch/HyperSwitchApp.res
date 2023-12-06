@@ -50,10 +50,10 @@ let make = () => {
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let verificationDays = getFromMerchantDetails("verification")->LogicUtils.getIntFromString(-1)
   let userRole = getFromUserDetails("user_role")
-  let modeText = featureFlagDetails.testLiveMode ? "Live Mode" : "Test Mode"
+  let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let titleComingSoonMessage = "Coming Soon!"
   let subtitleComingSoonMessage = "We are currently working on this page."
-  let modeStyles = featureFlagDetails.testLiveMode
+  let modeStyles = featureFlagDetails.isLiveMode
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
     : "bg-orange-600/80 border-orange-500 text-grey-700"
 
@@ -125,7 +125,7 @@ let make = () => {
         let _featureFlag = await fetchInitialEnums()
       }
 
-      if featureFlagDetails.testLiveMode {
+      if featureFlagDetails.isLiveMode {
         getAgreementEnum()->ignore
       } else {
         setDashboardPageState(_ => #HOME)
@@ -331,7 +331,7 @@ let make = () => {
                           <Recon />
                         </FeatureFlagEnabledComponent>
                       | list{"sdk"} =>
-                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.openSDK>
+                        <FeatureFlagEnabledComponent isEnabled={!featureFlagDetails.isLiveMode}>
                           <SDKPage />
                         </FeatureFlagEnabledComponent>
                       | list{"3ds"} => <HSwitchThreeDS />
