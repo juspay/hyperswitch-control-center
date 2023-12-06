@@ -3,18 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
-## 1.0.4 (2023-12-04)
+## 1.1.0 (2023-12-05)
+
+### Features
+
+- Business profile UI changes ([#51](https://github.com/juspay/hyperswitch-control-center/pull/51)) ([`7d2a443`](https://github.com/juspay/hyperswitch-control-center/commit/7d2a4430980539977a8e8ddfd9d959547549258a))
 
 ### Bug Fixes
 
-- Dead code removal ([#52](https://github.com/juspay/hyperswitch-control-center/pull/52)) ([`eebee65`](https://github.com/juspay/hyperswitch-control-center/commit/eebee659a8326aa32ebcbe2d06c21e8487bea377))
-- Remove CHANGELOG.md ([#53](https://github.com/juspay/hyperswitch-control-center/pull/53)) ([`6978bf6`](https://github.com/juspay/hyperswitch-control-center/commit/6978bf6814fb856c67a0fe409638982239c1af80))
+- Warning icon added ([#59](https://github.com/juspay/hyperswitch-control-center/pull/59)) ([`4fbaee4`](https://github.com/juspay/hyperswitch-control-center/commit/4fbaee4bf0b1b65b08513bd9208e49f154911ae0))
+- Optional test live mode removal & typo fix ([#63](https://github.com/juspay/hyperswitch-control-center/pull/63)) ([`9466057`](https://github.com/juspay/hyperswitch-control-center/commit/94660575566729f1b6a8013e9d09e1a4bc8cff20))
 
 ### Miscellaneous Tasks
 
-- Remove dead code ([#50](https://github.com/juspay/hyperswitch-control-center/pull/50)) ([`0133ff1`](https://github.com/juspay/hyperswitch-control-center/commit/0133ff13a7e915c4c796bd98fbaf92400690531a))
+- Signed commit added. ([#62](https://github.com/juspay/hyperswitch-control-center/pull/62)) ([`4f69afe`](https://github.com/juspay/hyperswitch-control-center/commit/4f69afe1946bd431fb6e8a31ee621358ff28ad12))
+- Cleanup Configs ([#48](https://github.com/juspay/hyperswitch-control-center/pull/48)) ([`5bfae97`](https://github.com/juspay/hyperswitch-control-center/commit/5bfae972ac4cd2f367d26317c203b2c9d425535d))
+- Dead code removal ([#55](https://github.com/juspay/hyperswitch-control-center/pull/55)) ([`b220415`](https://github.com/juspay/hyperswitch-control-center/commit/b220415bc390a5129e82e1b59dc6115a35cb6f84))
 
-**Full Changelog:** [`v1.0.3...v1.0.4`](https://github.com/juspay/hyperswitch-control-center/compare/v1.0.3...v1.0.4)
+**Full Changelog:** [`v1.0.5...v1.1.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.0.5...v1.1.0)
 
 - - -
 

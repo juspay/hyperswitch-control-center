@@ -42,7 +42,7 @@ let make: (
   ~mandatoryRemoteKeys: array<string>=?,
   ~isSearchKeyArray: bool=?,
   ~forcePreventConcatData: bool=?,
-  ~collapseTabelRow: bool=?,
+  ~collapseTableRow: bool=?,
   ~showRefreshFilter: bool=?,
   ~showRemoteOptions: bool=?,
   ~filterButtonStyle: string=?,

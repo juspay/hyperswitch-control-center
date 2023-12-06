@@ -66,7 +66,7 @@ let make: (
   ~tableheadingClass: string=?,
   ~tableBorderClass: string=?,
   ~tableDataBorderClass: string=?,
-  ~collapseTabelRow: bool=?,
+  ~collapseTableRow: bool=?,
   ~getRowDetails: Js.Nullable.t<'t> => React.element=?,
   ~onMouseEnter: 't => unit=?,
   ~onMouseLeave: 't => unit=?,

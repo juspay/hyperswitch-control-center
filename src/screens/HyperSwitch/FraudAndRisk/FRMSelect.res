@@ -199,7 +199,7 @@ let make = () => {
           setOffset
           entity={FRMTableUtils.connectorEntity("fraud-risk-management")}
           currrentFetchCount={filteredFRMData->Js.Array2.length}
-          collapseTabelRow=false
+          collapseTableRow=false
         />
       </RenderIf>
       <RenderIf condition={!showFRMIcons}>

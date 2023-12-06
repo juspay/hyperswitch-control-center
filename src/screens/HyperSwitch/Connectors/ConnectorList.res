@@ -14,12 +14,11 @@ module NewProcessorCards = {
       ->LogicUtils.safeParse
       ->FeatureFlagUtils.featureFlagType
 
-    let connectorsAvailableForIntegration =
-      featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false)
-        ? ConnectorUtils.connectorListForLive
-        : isPayoutFlow
-        ? ConnectorUtils.payoutConnectorList
-        : ConnectorUtils.connectorList
+    let connectorsAvailableForIntegration = featureFlagDetails.testLiveMode
+      ? ConnectorUtils.connectorListForLive
+      : isPayoutFlow
+      ? ConnectorUtils.payoutConnectorList
+      : ConnectorUtils.connectorList
 
     let unConfiguredConnectors =
       connectorsAvailableForIntegration->Js.Array2.filter(total =>
@@ -319,7 +318,7 @@ let make = (~isPayoutFlow=false) => {
             setOffset
             entity={ConnectorTableUtils.connectorEntity(`${entityPrefix}connectors`)}
             currrentFetchCount={filteredConnectorData->Js.Array2.length}
-            collapseTabelRow=false
+            collapseTableRow=false
           />
         </RenderIf>
         <RenderIf condition={!showConnectorIcons}>
