@@ -32,6 +32,15 @@ let make = (
   let searchParams = url.search
   let filtersFromUrl = getDictFromUrlSearchParams(searchParams)
 
+  let getClientSecretFromPaymentId = (~paymentIntentClientSecret) => {
+    let paymentClientSecretSplitArray = paymentIntentClientSecret->Js.String2.split("_")
+    `${paymentClientSecretSplitArray
+      ->Belt.Array.get(0)
+      ->Belt.Option.getWithDefault("")}_${paymentClientSecretSplitArray
+      ->Belt.Array.get(1)
+      ->Belt.Option.getWithDefault("")}`
+  }
+
   let getClientSecret = async () => {
     open SDKPaymentUtils
     try {
@@ -55,6 +64,13 @@ let make = (
       filtersFromUrl->Js.Dict.get("status")->Belt.Option.getWithDefault("")->Js.String2.toLowerCase
     if status === "succeeded" {
       setPaymentStatus(_ => SUCCESS)
+      let paymentIdFromPaymemtIntentClientSecret = getClientSecretFromPaymentId(
+        ~paymentIntentClientSecret=url.search
+        ->LogicUtils.getDictFromUrlSearchParams
+        ->Js.Dict.get("payment_intent_client_secret")
+        ->Belt.Option.getWithDefault(""),
+      )
+      setPaymentId(_ => paymentIdFromPaymemtIntentClientSecret)
     } else if status === "failed" {
       setPaymentStatus(_ => FAILED(""))
     } else if status === "processing" {
