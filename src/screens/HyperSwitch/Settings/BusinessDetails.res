@@ -1,5 +1,5 @@
 open HSwitchSettingTypes
-open HSwitchMerchantAccountUtils
+open MerchantAccountUtils
 open APIUtils
 open SettingsFieldsInfo
 

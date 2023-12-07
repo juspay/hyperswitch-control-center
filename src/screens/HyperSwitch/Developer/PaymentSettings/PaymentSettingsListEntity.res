@@ -31,7 +31,7 @@ let getCell = (item: profileEntity, colType): Table.cell => {
 
 let itemToObjMapper = dict => {
   open LogicUtils
-  open HSwitchMerchantAccountUtils
+  open MerchantAccountUtils
   {
     profile_id: getString(dict, "profile_id", ""),
     profile_name: getString(dict, ProfileName->getStringFromVariant, ""),
@@ -57,7 +57,7 @@ let webhookProfileTableEntity = EntityType.makeEntity(
   ~dataKey="",
   ~getCell,
   ~getShowLink={
-    profile => `/webhooks/${profile.profile_id}`
+    profile => `/payment-settings/${profile.profile_id}`
   },
   (),
 )

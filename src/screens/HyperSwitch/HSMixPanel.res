@@ -69,7 +69,7 @@ let useSendEvent = () => {
     }
 
     try {
-      let _res = await fetchApi(
+      let _ = await fetchApi(
         `${dashboardUrl}/mixpanel/track`,
         ~method_=Fetch.Post,
         ~bodyStr=`data=${body

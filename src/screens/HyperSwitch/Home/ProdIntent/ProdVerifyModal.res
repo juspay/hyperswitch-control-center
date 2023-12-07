@@ -26,7 +26,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Js.Dict.empty(), ~getProdV
         ~is_done=true,
         (),
       )
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
     } catch {
     | _ => ()
@@ -37,7 +37,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Js.Dict.empty(), ~getProdV
     try {
       let url = getURL(~entityName=PROD_VERIFY, ~methodType=Fetch.Post, ())
       let body = values->getBody->Js.Json.object_
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       showToast(
         ~toastType=ToastSuccess,
         ~message="Successfully sent for verification!",

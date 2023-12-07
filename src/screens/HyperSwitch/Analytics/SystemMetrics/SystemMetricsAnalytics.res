@@ -397,14 +397,6 @@ module SystemMetricsAnalytics = {
     let filterDataOrig = getFilterData(filterUri, Fetch.Post, filterBody)
     let filterData = filterDataOrig->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty()))
 
-    let _hideFiltersDefaultValue =
-      filterValue
-      ->Js.Dict.keys
-      ->Js.Array2.filter(item =>
-        filteredTabKeys->Js.Array2.find(key => key == item)->Belt.Option.isSome
-      )
-      ->Js.Array2.length < 1
-
     <UIUtils.RenderIf condition={getModuleFilters->Js.Dict.entries->Js.Array2.length > 0}>
       {switch chartEntity1 {
       | Some(chartEntity) =>

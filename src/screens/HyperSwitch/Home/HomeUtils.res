@@ -128,7 +128,7 @@ let isDefaultBusinessProfile = details => details->Js.Array2.length === 1
 module MerchantAuthInfo = {
   @react.component
   let make = (~merchantDetailsValue) => {
-    let detail = merchantDetailsValue->HSwitchMerchantAccountUtils.getMerchantDetails
+    let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
     let dataDict =
       [
         ("merchant_id", detail.merchant_id->Js.Json.string),
@@ -225,7 +225,7 @@ module CheckoutCard = {
               _ => {
                 hyperswitchMixPanel(~eventName=Some(`${urlPath}_tryplayground_register`), ())
                 hyperswitchMixPanel(~eventName=Some(`global_tryplayground_register`), ())
-                let _res = APIUtils.handleLogout(~fetchApi, ~setAuthStatus)
+                let _ = APIUtils.handleLogout(~fetchApi, ~setAuthStatus)
               }
             },
           },

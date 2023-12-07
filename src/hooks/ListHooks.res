@@ -14,12 +14,12 @@ let useListCount = (~entityName) => {
       | CONNECTOR =>
         response
         ->getObjectArrayFromJson
-        ->HSwitchUtils.filterList(~removeFromList=FRMPlayer, ())
+        ->HSwitchUtils.filterList(~removeFromList=FRMPlayer)
         ->Js.Array2.length
       | FRAUD_RISK_MANAGEMENT =>
         response
         ->getObjectArrayFromJson
-        ->HSwitchUtils.filterList(~removeFromList=Connector, ())
+        ->HSwitchUtils.filterList(~removeFromList=Connector)
         ->Js.Array2.length
       | _ => response->getArrayFromJson([])->Js.Array2.length
       }

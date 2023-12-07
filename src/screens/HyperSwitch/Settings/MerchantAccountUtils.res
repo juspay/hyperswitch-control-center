@@ -492,7 +492,7 @@ module BusinessProfile = {
 let businessProfileNameDropDownOption = arrBusinessProfile =>
   arrBusinessProfile->Js.Array2.map(ele => {
     let obj: SelectBox.dropdownOption = {
-      label: ele.profile_name,
+      label: {`${ele.profile_name} (${ele.profile_id})`},
       value: ele.profile_id,
     }
     obj

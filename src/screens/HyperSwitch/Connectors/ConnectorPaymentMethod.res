@@ -86,9 +86,7 @@ let make = (
     <div className="flex flex-col">
       <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
-          <GatewayIcon
-            gateway={connector->Js.String2.toUpperCase} className="w-14 h-14 rounded-full"
-          />
+          <GatewayIcon gateway={connector->Js.String2.toUpperCase} />
           <h2 className="text-xl font-semibold">
             {connector->LogicUtils.capitalizeString->React.string}
           </h2>

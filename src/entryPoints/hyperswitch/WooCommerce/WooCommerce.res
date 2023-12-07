@@ -139,8 +139,7 @@ module ConfigureWebHook = {
   @react.component
   let make = (~handleNavigation, ~title, ~description) => {
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-    let defaultBusinessProfile =
-      businessProfiles->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
     <BaseComponent handleNavigation>
       <WooCommerceStepWrapper title={title} description={description}>
         <div className="p-8 flex flex-col gap-6">
@@ -184,7 +183,7 @@ module ConfigureWebHook = {
                     {"Use this key to authenticate all API requests from your application's server"->React.string}
                   </div>
                 </div>
-                <Webhooks
+                <PaymentSettings
                   webhookOnly=true showFormOnly=true profileId={defaultBusinessProfile.profile_id}
                 />
               </div>
@@ -233,7 +232,7 @@ let make = () => {
   let activeBusinessProfile =
     HyperswitchAtom.businessProfilesAtom
     ->Recoil.useRecoilValueFromAtom
-    ->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    ->MerchantAccountUtils.getValueFromBusinessProfile
 
   let naviagteToHome = _ => {
     setDashboardPageState(_ => #HOME)
@@ -247,7 +246,7 @@ let make = () => {
     try {
       if forward && !(stepInView->enumToValueMapper(enums)) {
         let currentStepVariant = stepInView->variantToEnumMapper
-        let _resp = await Boolean(true)->usePostEnumDetails(currentStepVariant)
+        let _ = await Boolean(true)->usePostEnumDetails(currentStepVariant)
       }
     } catch {
     | _ => ()

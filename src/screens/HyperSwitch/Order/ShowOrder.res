@@ -689,7 +689,7 @@ let make = (~id) => {
         ~queryParamerters=Some("force_sync=true"),
         (),
       )
-      let _res = await fetchDetails(getRefreshStatusUrl)
+      let _ = await fetchDetails(getRefreshStatusUrl)
       showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
       refetch()
     } catch {

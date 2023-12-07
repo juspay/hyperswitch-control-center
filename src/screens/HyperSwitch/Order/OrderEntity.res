@@ -654,10 +654,7 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
   | CardBrand => Text(order.card_brand)
   | ProfileId => Text(order.profile_id)
   | ProfileName =>
-    Table.CustomCell(
-      <HSwitchMerchantAccountUtils.BusinessProfile profile_id={order.profile_id} />,
-      "",
-    )
+    Table.CustomCell(<MerchantAccountUtils.BusinessProfile profile_id={order.profile_id} />, "")
   | CaptureMethod => Text(order.capture_method)
   }
 }
