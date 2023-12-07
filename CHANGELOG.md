@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.3.1 (2023-12-07)
+
+### Bug Fixes
+
+- Euclid wasm minimum amount ([#78](https://github.com/juspay/hyperswitch-control-center/pull/78)) ([`2f730e0`](https://github.com/juspay/hyperswitch-control-center/commit/2f730e0602e49dd11a8e0790df91941b91e1577b))
+- Update wasm file to fix minimum amount ([`ea1b8fe`](https://github.com/juspay/hyperswitch-control-center/commit/ea1b8fefdf83a583d115467e78e10c68b4a1145e))
+
+**Full Changelog:** [`v1.3.0...v1.3.1`](https://github.com/juspay/hyperswitch-control-center/compare/v1.3.0...v1.3.1)
+
+- - -
+
+
 ## 1.3.0 (2023-12-07)
 
 ### Features
