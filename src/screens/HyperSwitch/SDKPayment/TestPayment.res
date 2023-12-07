@@ -3,7 +3,7 @@ external toJson: 'a => Js.Json.t = "%identity"
 @react.component
 let make = (
   ~returnUrl,
-  ~onProceed: (~paymentId: string) => promise<unit>,
+  ~onProceed: (~paymentId: option<string>) => promise<unit>,
   ~sdkWidth="w-[60%]",
   ~isTestCredsNeeded=true,
   ~customWidth="w-full md:w-1/2",
@@ -19,7 +19,7 @@ let make = (
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (clientSecret, setClientSecret) = React.useState(_ => None)
   let (paymentStatus, setPaymentStatus) = React.useState(_ => INCOMPLETE)
-  let (paymentId, setPaymentId) = React.useState(_ => "")
+  let (paymentId, setPaymentId) = React.useState(_ => None)
   let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
   let publishableKey = merchantDetailsValue->getDictFromJsonObject->getString("publishable_key", "")
   let paymentElementOptions = CheckoutHelper.getOptionReturnUrl(returnUrl)
@@ -29,11 +29,18 @@ let make = (
   let filtersFromUrl = getDictFromUrlSearchParams(searchParams)
 
   let getClientSecretFromPaymentId = (~paymentIntentClientSecret) => {
-    let paymentClientSecretSplitArray = paymentIntentClientSecret->Js.String2.split("_")
-    `${paymentClientSecretSplitArray->LogicUtils.getValueFromArray(
-        0,
-        "",
-      )}_${paymentClientSecretSplitArray->LogicUtils.getValueFromArray(1, "")}`
+    switch paymentIntentClientSecret {
+    | Some(paymentIdFromClientSecret) =>
+      let paymentClientSecretSplitArray = paymentIdFromClientSecret->Js.String2.split("_")
+      Some(
+        `${paymentClientSecretSplitArray->LogicUtils.getValueFromArray(
+            0,
+            "",
+          )}_${paymentClientSecretSplitArray->LogicUtils.getValueFromArray(1, "")}`,
+      )
+
+    | None => None
+    }
   }
 
   let getClientSecret = async () => {
@@ -45,7 +52,7 @@ let make = (
       let body = paymentData->toJson
       let response = await updateDetails(url, body, Post)
       let clientSecret = response->getDictFromJsonObject->getOptionString("client_secret")
-      setPaymentId(_ => response->getDictFromJsonObject->getString("payment_id", ""))
+      setPaymentId(_ => response->getDictFromJsonObject->getOptionString("payment_id"))
       setClientSecret(_ => clientSecret)
       setPaymentStatus(_ => INCOMPLETE)
     } catch {
@@ -59,8 +66,7 @@ let make = (
     let paymentIdFromPaymemtIntentClientSecret = getClientSecretFromPaymentId(
       ~paymentIntentClientSecret=url.search
       ->LogicUtils.getDictFromUrlSearchParams
-      ->Js.Dict.get("payment_intent_client_secret")
-      ->Belt.Option.getWithDefault(""),
+      ->Js.Dict.get("payment_intent_client_secret"),
     )
     if status === "succeeded" {
       setPaymentStatus(_ => SUCCESS)
@@ -89,6 +95,7 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-green-success_page_bg"
+        isButtonVisible={paymentId->Belt.Option.isSome}
       />
 
     | FAILED(_err) =>
@@ -99,6 +106,7 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-red-failed_page_bg"
+        isButtonVisible={paymentId->Belt.Option.isSome}
       />
     | CHECKCONFIGURATION =>
       <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage

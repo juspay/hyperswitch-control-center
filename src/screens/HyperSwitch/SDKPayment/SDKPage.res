@@ -109,7 +109,10 @@ let make = () => {
   }, [defaultBusinessProfile.profile_id->Js.String2.length])
 
   let onProceed = async (~paymentId) => {
-    RescriptReactRouter.replace(`/payments/${paymentId}`)
+    switch paymentId {
+    | Some(val) => RescriptReactRouter.replace(`/payments/${val}`)
+    | None => ()
+    }
   }
 
   let onSubmit = (values, _) => {

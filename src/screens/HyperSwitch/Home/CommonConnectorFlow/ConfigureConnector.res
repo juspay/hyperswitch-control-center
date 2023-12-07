@@ -142,7 +142,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
   let updateTestPaymentEnum = async (~paymentId) => {
     try {
       let paymentBody: paymentType = {
-        payment_id: paymentId,
+        payment_id: paymentId->Belt.Option.getWithDefault("pay_default"),
       }
       let _ = await PaymentType(paymentBody)->usePostEnumDetails(#TestPayment)
       setQuickStartPageState(_ => IntegrateApp(LANDING))
@@ -258,7 +258,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
               buttonSize={Small}
               buttonType={PrimaryOutline}
               customButtonStyle="!rounded-md"
-              onClick={_ => updateTestPaymentEnum(~paymentId="pay_default")->ignore}
+              onClick={_ => updateTestPaymentEnum(~paymentId=None)->ignore}
             />}>
             <TestPayment
               initialValues={activeBusinessProfile->SDKPaymentUtils.initialValueForForm}
