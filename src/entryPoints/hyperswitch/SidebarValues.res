@@ -231,7 +231,7 @@ let paymentSettings = SubLevelLink({
   name: "Payment Settings",
   link: `/payment-settings`,
   access: ReadWrite,
-  searchOptions: [("View payment settings", "")],
+  searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
 })
 
 let developers = (isDevelopersEnabled, userRole, systemMetrics) => {
