@@ -46,7 +46,6 @@ let make = (
     try {
       let url = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments`
       let paymentData = initialValues->toJson->Js.Json.stringify->safeParse->getTypedValueForPayment
-      paymentData.amount = paymentData.amount->convertAmountToCents
       paymentData.currency = paymentData.currency->getCurrencyValue
       let body = paymentData->toJson
       let response = await updateDetails(url, body, Post)
@@ -142,7 +141,7 @@ let make = (
               elementOptions
               paymentElementOptions
               returnUrl
-              amount={initialValues.amount->SDKPaymentUtils.convertAmountToCents}
+              amount={initialValues.amount}
               setClientSecret
             />
           </div>
@@ -159,7 +158,7 @@ let make = (
           elementOptions
           paymentElementOptions
           returnUrl
-          amount={initialValues.amount->SDKPaymentUtils.convertAmountToCents}
+          amount={initialValues.amount}
           setClientSecret
         />
       }

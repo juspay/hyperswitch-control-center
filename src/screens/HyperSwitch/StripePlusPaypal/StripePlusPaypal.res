@@ -20,7 +20,7 @@ let make = () => {
   let activeBusinessProfile =
     HyperswitchAtom.businessProfilesAtom
     ->Recoil.useRecoilValueFromAtom
-    ->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    ->MerchantAccountUtils.getValueFromBusinessProfile
 
   let naviagteToHome = _ => {
     setDashboardPageState(_ => #HOME)

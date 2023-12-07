@@ -32,8 +32,8 @@ let make = () => {
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
-  let fetchBusinessProfiles = HSwitchMerchantAccountUtils.useFetchBusinessProfiles()
-  let fetchMerchantAccountDetails = HSwitchMerchantAccountUtils.useFetchMerchantDetails()
+  let fetchBusinessProfiles = MerchantAccountUtils.useFetchBusinessProfiles()
+  let fetchMerchantAccountDetails = MerchantAccountUtils.useFetchMerchantDetails()
   let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
   let enumDetails =
     HyperswitchAtom.enumVariantAtom
@@ -59,7 +59,7 @@ let make = () => {
 
   let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
   let isReconEnabled =
-    (merchantDetailsValue->HSwitchMerchantAccountUtils.getMerchantDetails).recon_status === Active
+    (merchantDetailsValue->MerchantAccountUtils.getMerchantDetails).recon_status === Active
 
   let hyperSwitchAppSidebars = SidebarValues.getHyperSwitchAppSidebars(
     ~isReconEnabled,

@@ -33,7 +33,7 @@ module AdvanceSettings = {
     let businessProfileValue =
       Recoil.useRecoilValueFromAtom(
         HyperswitchAtom.businessProfilesAtom,
-      )->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+      )->MerchantAccountUtils.getValueFromBusinessProfile
 
     React.useEffect1(() => {
       if !isUpdateFlow {

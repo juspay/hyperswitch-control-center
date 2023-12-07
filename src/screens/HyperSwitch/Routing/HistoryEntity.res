@@ -40,7 +40,7 @@ let getTableCell = activeRoutingIds => {
     | ProfileId => Text(historyData.profile_id)
     | ProfileName =>
       Table.CustomCell(
-        <HSwitchMerchantAccountUtils.BusinessProfile profile_id={historyData.profile_id} />,
+        <MerchantAccountUtils.BusinessProfile profile_id={historyData.profile_id} />,
         "",
       )
     | Description => Text(historyData.description)

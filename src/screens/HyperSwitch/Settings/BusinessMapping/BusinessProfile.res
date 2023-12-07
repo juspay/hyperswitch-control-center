@@ -82,9 +82,9 @@ let make = (
   let businessProfileValues =
     HyperswitchAtom.businessProfilesAtom
     ->Recoil.useRecoilValueFromAtom
-    ->HSwitchMerchantAccountUtils.getArrayOfBusinessProfile
+    ->MerchantAccountUtils.getArrayOfBusinessProfile
 
-  let fetchBusinessProfiles = HSwitchMerchantAccountUtils.useFetchBusinessProfiles()
+  let fetchBusinessProfiles = MerchantAccountUtils.useFetchBusinessProfiles()
 
   let updateMerchantDetails = async body => {
     try {

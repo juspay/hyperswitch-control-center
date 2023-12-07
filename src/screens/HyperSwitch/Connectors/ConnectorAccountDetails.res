@@ -34,8 +34,7 @@ module BusinessProfileRender = {
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
 
-    let arrayOfBusinessProfile =
-      businessProfiles->HSwitchMerchantAccountUtils.getArrayOfBusinessProfile
+    let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
 
     let (showModalFromOtherScreen, setShowModalFromOtherScreen) = React.useState(_ => false)
 
@@ -56,83 +55,43 @@ module BusinessProfileRender = {
     }
 
     <>
-      <div className="flex items-center gap-5">
-        <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-black"
-          field={FormRenderer.makeFieldInfo(
-            ~label="Profile Name",
-            ~isRequired=true,
-            ~name="profile_id",
-            ~customInput=(~input, ~placeholder as _) =>
-              InputFields.selectInput(
-                ~input={
-                  ...input,
-                  onChange: {
-                    ev => {
-                      input.onChange(ev)
-                      mixpanelEventWrapper(
-                        ~url,
-                        ~selectedConnector,
-                        ~actionName=`settings_choose_country`,
-                        ~hyperswitchMixPanel,
-                      )
-                    }
-                  },
+      <FormRenderer.FieldRenderer
+        labelClass="font-semibold !text-black"
+        field={FormRenderer.makeFieldInfo(
+          ~label="Profile",
+          ~isRequired=true,
+          ~name="profile_id",
+          ~customInput=(~input, ~placeholder as _) =>
+            InputFields.selectInput(
+              ~input={
+                ...input,
+                onChange: {
+                  ev => {
+                    input.onChange(ev)
+                    mixpanelEventWrapper(
+                      ~url,
+                      ~selectedConnector,
+                      ~actionName=`settings_choose_country`,
+                      ~hyperswitchMixPanel,
+                    )
+                  }
                 },
-                ~deselectDisable=true,
-                ~disableSelect=isUpdateFlow,
-                ~customStyle="max-h-48",
-                ~options={
-                  arrayOfBusinessProfile->HSwitchMerchantAccountUtils.businessProfileNameDropDownOption
-                },
-                ~buttonText="Select Country",
-                ~placeholder="",
-                (),
-              ),
-            (),
-          )}
-        />
-        <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-black"
-          field={FormRenderer.makeFieldInfo(
-            ~label="Profile Id",
-            ~isRequired=true,
-            ~name="profile_id",
-            ~customInput=(~input, ~placeholder as _) =>
-              InputFields.selectInput(
-                ~input={
-                  ...input,
-                  onChange: {
-                    ev => {
-                      input.onChange(ev)
-                      mixpanelEventWrapper(
-                        ~url,
-                        ~selectedConnector,
-                        ~actionName=`settings_choose_label`,
-                        ~hyperswitchMixPanel,
-                      )
-                    }
-                  },
-                },
-                ~options={
-                  arrayOfBusinessProfile->HSwitchMerchantAccountUtils.businessProfileIdDropDownOption
-                },
-                ~buttonText="Select Option",
-                ~deselectDisable=true,
-                ~disableSelect=isUpdateFlow,
-                ~placeholder="",
-                (),
-              ),
-            (),
-          )}
-        />
-      </div>
+              },
+              ~deselectDisable=true,
+              ~disableSelect=isUpdateFlow,
+              ~customStyle="max-h-48",
+              ~options={
+                arrayOfBusinessProfile->MerchantAccountUtils.businessProfileNameDropDownOption
+              },
+              ~buttonText="Select Country",
+              ~placeholder="",
+              (),
+            ),
+          (),
+        )}
+      />
       <UIUtils.RenderIf condition={!isUpdateFlow}>
         <div className="text-gray-400 text-sm mt-3">
-          // <span> {"Add new configuration"->React.string} </span>
-          // <span className={`ml-1 mr-1 ${hereTextStyle}`} onClick={_ => onClickHandler("country")}>
-          //   {React.string("here.")}
-          // </span>
           <span> {"Manage your list of business units"->React.string} </span>
           <span
             className={`ml-1 ${hereTextStyle}`}
@@ -264,7 +223,7 @@ let make = (
   let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
 
   let activeBusinessProfile =
-    defaultBusinessProfile->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
 
   React.useEffect1(() => {
     mixpanelEventWrapper(

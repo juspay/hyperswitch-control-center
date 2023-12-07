@@ -1,6 +1,6 @@
 open APIUtils
 open APIUtilsTypes
-open HSwitchMerchantAccountUtils
+open MerchantAccountUtils
 
 @react.component
 let make = () => {
@@ -10,8 +10,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showPopUp = PopUpState.useShowPopUp()
   let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
-  let defaultBusinessProfile =
-    businessProfiles->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+  let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -102,22 +101,12 @@ let make = () => {
   <div>
     <Form initialValues={Js.Dict.empty()->Js.Json.object_}>
       <div className="w-full flex justify-between">
-        <div className="w-full">
-          <div className="flex flex-row w-full">
-            <BasicDetailsForm.BusinessProfileInp
-              setProfile={setProfile}
-              profile={profile}
-              options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
-              label="Profile Name"
-            />
-            <BasicDetailsForm.BusinessProfileInp
-              setProfile={setProfile}
-              profile={profile}
-              options={arrayOfBusinessProfile->businessProfileIdDropDownOption}
-              label="Profile Id"
-            />
-          </div>
-        </div>
+        <BasicDetailsForm.BusinessProfileInp
+          setProfile={setProfile}
+          profile={profile}
+          options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
+          label="Profile"
+        />
       </div>
     </Form>
     <PageLoaderWrapper

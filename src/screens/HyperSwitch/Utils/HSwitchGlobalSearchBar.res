@@ -91,7 +91,7 @@ let make = () => {
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
   let userRole = HSLocalStorage.getFromUserDetails("user_role")
   let isReconEnabled =
-    (merchentDetails->HSwitchMerchantAccountUtils.getMerchantDetails).recon_status === Active
+    (merchentDetails->MerchantAccountUtils.getMerchantDetails).recon_status === Active
 
   let hswitchTabs = SidebarValues.getHyperSwitchAppSidebars(
     ~isReconEnabled,

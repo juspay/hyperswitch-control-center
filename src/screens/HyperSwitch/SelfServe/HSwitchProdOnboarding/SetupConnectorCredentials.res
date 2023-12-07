@@ -123,7 +123,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   let {profile_id} =
     HyperswitchAtom.businessProfilesAtom
     ->Recoil.useRecoilValueFromAtom
-    ->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    ->MerchantAccountUtils.getValueFromBusinessProfile
 
   let updateSetupConnectorCredentials = async connectorId => {
     try {
