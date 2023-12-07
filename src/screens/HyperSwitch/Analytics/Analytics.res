@@ -527,7 +527,6 @@ let make = (
   let analyticsType = moduleName->getAnalyticsType
   let {index, filterValue, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let filterValueString = useFiltersValue(~index)
-  let getModuleFilters = filterValueString->parseUrl
   let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
   let (filteredTabKeys, filteredTabVales) = (tabKeys, tabValues)
@@ -540,10 +539,20 @@ let make = (
   | None => None
   }
 
+  let filterValueDict =
+    filterValueString
+    ->parseUrl
+    ->Js.Dict.entries
+    ->Js.Array2.map(item => {
+      let (key, value) = item
+      (key, value->Js.Json.string)
+    })
+    ->Js.Dict.fromArray
+
   let getFilterData = AnalyticsHooks.useGetFiltersData()
 
   let (activeTav, setActiveTab) = React.useState(_ =>
-    getModuleFilters->getStrArrayFromDict(
+    filterValueDict->getStrArrayFromDict(
       `${moduleName}.tabName`,
       [filteredTabKeys->Belt.Array.get(0)->Belt.Option.getWithDefault("")],
     )
@@ -554,8 +563,8 @@ let make = (
     }
   }, [setActiveTab])
 
-  let startTimeVal = getModuleFilters->getString(startTimeFilterKey, "")
-  let endTimeVal = getModuleFilters->getString(endTimeFilterKey, "")
+  let startTimeVal = filterValueDict->getString(startTimeFilterKey, "")
+  let endTimeVal = filterValueDict->getString(endTimeFilterKey, "")
 
   let updateUrlWithPrefix = React.useMemo1(() => {
     (chartType: string) => {
@@ -632,11 +641,11 @@ let make = (
 
   let activeTab = React.useMemo1(() => {
     Some(
-      getModuleFilters
+      filterValueDict
       ->getStrArrayFromDict(`${moduleName}.tabName`, activeTav)
       ->Js.Array2.filter(item => item !== ""),
     )
-  }, [getModuleFilters])
+  }, [filterValueDict])
 
   let isMobileView = MatchMedia.useMobileChecker()
 
@@ -706,7 +715,7 @@ let make = (
     </div>
   }
 
-  <UIUtils.RenderIf condition={getModuleFilters->Js.Dict.entries->Js.Array2.length > 0}>
+  <UIUtils.RenderIf condition={filterValueDict->Js.Dict.entries->Js.Array2.length > 0}>
     {switch chartEntity1 {
     | Some(chartEntity) =>
       <div className="flex flex-col flex-1 overflow-scroll">
