@@ -385,7 +385,7 @@ module ApplyFilterButton = {
       selectedFiltersList
       ->Js.Array2.map(filter => {
         let inputFieldsArr = filter.inputFields
-        let inputField = inputFieldsArr->LogicUtils.getValueFromArr(0, defaultinputField)
+        let inputField = inputFieldsArr->LogicUtils.getValueFromArray(0, defaultinputField)
         (inputField.name, inputField)
       })
       ->Js.Dict.fromArray

@@ -114,8 +114,8 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
 
           if number < 0 {
             let input = number === -1 ? pageInput1 : pageInput2
-            let prevValue = pageN->LogicUtils.getValueFromArr(idx - 1, 0)
-            let nextValue = pageN->LogicUtils.getValueFromArr(idx + 1, 0)
+            let prevValue = pageN->LogicUtils.getValueFromArray(idx - 1, 0)
+            let nextValue = pageN->LogicUtils.getValueFromArray(idx + 1, 0)
             let dropDownOptions =
               Belt.Array.range(prevValue + 1, nextValue - 1)
               ->Js.Array2.map(int => int->Belt.Int.toString)

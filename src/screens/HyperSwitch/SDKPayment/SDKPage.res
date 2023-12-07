@@ -73,7 +73,6 @@ module SDKConfiguarationFields = {
       <FormRenderer.FieldRenderer field=selectProfileField fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=selectCurrencyField fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=enterAmountField fieldWrapperClass="!w-full" />
-      <FormValuesSpy />
       <FormRenderer.SubmitButton
         text="Show preview"
         disabledParamter={!(initialValues.profile_id->Js.String2.length > 0)}
@@ -109,18 +108,11 @@ let make = () => {
     None
   }, [defaultBusinessProfile.profile_id->Js.String2.length])
 
-  let onProceed = async (~paymentId as _) => {
-    let paymentId =
-      filtersFromUrl
-      ->Js.Dict.get("payment_intent_client_secret")
-      ->Belt.Option.getWithDefault("")
-      ->Js.String2.split("_")
-
-    let id = `${paymentId->Belt.Array.get(0)->Belt.Option.getWithDefault("")}_${paymentId
-      ->Belt.Array.get(1)
-      ->Belt.Option.getWithDefault("")}`
-
-    RescriptReactRouter.replace(`/payments/${id}`)
+  let onProceed = async (~paymentId) => {
+    switch paymentId {
+    | Some(val) => RescriptReactRouter.replace(`/payments/${val}`)
+    | None => ()
+    }
   }
 
   let onSubmit = (values, _) => {
