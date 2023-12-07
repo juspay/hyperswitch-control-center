@@ -4,7 +4,7 @@ let make = (
   ~showModalFromOtherScreen=false,
   ~setShowModalFromOtherScreen=_bool => (),
 ) => {
-  open WebhookListEntity
+  open PaymentSettingsListEntity
   let (offset, setOffset) = React.useState(_ => 0)
 
   let businessProfileValues =

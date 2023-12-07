@@ -183,7 +183,7 @@ module ConfigureWebHook = {
                     {"Use this key to authenticate all API requests from your application's server"->React.string}
                   </div>
                 </div>
-                <Webhooks
+                <PaymentSettings
                   webhookOnly=true showFormOnly=true profileId={defaultBusinessProfile.profile_id}
                 />
               </div>
