@@ -83,14 +83,13 @@ let getFilterFields: Js.Json.t => array<EntityType.optionType<'t>> = json => {
 }
 
 let useSetInitialFilters = (
-  ~index,
   ~updateComponentPrefrences,
   ~updateExistingKeys,
   ~startTimeFilterKey,
   ~endTimeFilterKey,
 ) => {
+  let {index, filterValueJson} = FilterContext.filterContext->React.useContext
   let filterValue = FilterUtils.useFiltersValue(~index)
-  let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {
     let inititalSearchParam = filterValue->FilterUtils.parseUrl
@@ -222,7 +221,6 @@ module RemoteTableFilters = {
     let {index, filterValue, updateExistingKeys, filterValueJson, removeKeys} =
       FilterContext.filterContext->React.useContext
     let setInitialFilters = useSetInitialFilters(
-      ~index,
       ~updateComponentPrefrences,
       ~updateExistingKeys,
       ~startTimeFilterKey,

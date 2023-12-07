@@ -595,7 +595,6 @@ let make = (
 
   let updateComponentPrefrences = useUpdateFilterObject(~index)
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~index,
     ~updateComponentPrefrences,
     ~updateExistingKeys,
     ~startTimeFilterKey,
