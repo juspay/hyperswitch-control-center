@@ -48,14 +48,14 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
   errors->Js.Json.object_
 }
 
-let roleListDataMapper: HSwitchUserRoleEntity.roleListResponse => SelectBox.dropdownOption = ele => {
+let roleListDataMapper: UserRoleEntity.roleListResponse => SelectBox.dropdownOption = ele => {
   {
     label: ele.role_name,
     value: ele.role_id,
   }
 }
 
-let roleOptions: array<HSwitchUserRoleEntity.roleListResponse> => array<
+let roleOptions: array<UserRoleEntity.roleListResponse> => array<
   SelectBox.dropdownOption,
 > = roleListData => roleListData->Js.Array2.map(roleListDataMapper)
 
@@ -151,9 +151,7 @@ module RolePermissionValueRenderer = {
   }
 }
 
-let roleListResponseMapper: Js.Dict.t<
-  Js.Json.t,
-> => HSwitchUserRoleEntity.roleListResponse = dict => {
+let roleListResponseMapper: Js.Dict.t<Js.Json.t> => UserRoleEntity.roleListResponse = dict => {
   open LogicUtils
   {
     role_id: dict->getString("role_id", ""),

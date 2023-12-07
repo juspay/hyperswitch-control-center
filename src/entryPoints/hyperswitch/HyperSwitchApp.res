@@ -287,14 +287,14 @@ let make = () => {
                           renderList={() => <RoutingStack remainingPath />}
                           renderShow={routingType => <RoutingConfigure routingType />}
                         />
-                      | list{"users", "invite-users"} => <HSwitchInviteUsers />
+                      | list{"users", "invite-users"} => <InviteUsers />
                       | list{"users", ...remainingPath} =>
                         <EntityScaffold
                           entityName="UserManagement"
                           remainingPath
                           access=ReadWrite
-                          renderList={() => <HSwitchUserRoleEntry />}
-                          renderShow={id => <HSwitchUserRoleShowData id />}
+                          renderList={() => <UserRoleEntry />}
+                          renderShow={_ => <UserRoleShowData />}
                         />
                       | list{"analytics-payments"} =>
                         <AnalyticsUrlUpdaterContext key="PaymentsAnalytics">

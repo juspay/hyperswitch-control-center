@@ -1,5 +1,5 @@
 type roles = Users | Roles
-open HSwitchUserRoleEntity
+open UserRoleEntity
 
 @react.component
 let make = () => {
