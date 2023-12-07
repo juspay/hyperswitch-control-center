@@ -171,7 +171,6 @@ module ConnectorLatency = {
     let dateDict = HSwitchRemoteFilter.getDateFilteredObject()
 
     <DynamicSingleStat
-      index
       entity={singleStatEntity}
       startTimeFilterKey
       endTimeFilterKey
@@ -420,7 +419,6 @@ module SystemMetricsAnalytics = {
           </div>
           <APITableInfo />
           <DynamicSingleStat
-            index
             entity=singleStatEntity
             startTimeFilterKey
             endTimeFilterKey

@@ -15,7 +15,6 @@ let make = (~index) => {
   let dateDict = HSwitchRemoteFilter.getDateFilteredObject()
 
   <DynamicSingleStat
-    index
     entity={singleStatEntity}
     startTimeFilterKey
     endTimeFilterKey

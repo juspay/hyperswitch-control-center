@@ -183,7 +183,6 @@ module SystemMetricsInsights = {
     let dateDict = HSwitchRemoteFilter.getDateFilteredObject()
 
     <DynamicSingleStat
-      index
       entity={singleStatEntity}
       startTimeFilterKey
       endTimeFilterKey

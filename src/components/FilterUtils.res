@@ -67,19 +67,6 @@ let parseUrl = url => {
   ->Js.Dict.fromArray
 }
 
-let parseUrlString = url => {
-  url
-  ->Js.Global.decodeURI
-  ->Js.String2.split("&")
-  ->Belt.Array.keepMap(str => {
-    let arr = str->Js.String2.split("=")
-    let key = arr->Belt.Array.get(0)->Belt.Option.getWithDefault("-")
-    let val = arr->Belt.Array.sliceToEnd(1)->Js.Array2.joinWith("=")
-    key === "" || val === "" ? None : Some((key, val->Js.Json.string))
-  })
-  ->Js.Dict.fromArray
-}
-
 let useUpdateFilterObject = (~index: string) => {
   let filters = useFiltersValue(~index)
   let setFilters = useAddFilters(~index)

@@ -119,11 +119,8 @@ module TableWrapper = {
     ~distributionArray=None,
   ) => {
     let customFilter = Recoil.useRecoilValueFromAtom(AnalyticsAtoms.customFilterAtom)
-    let {index} = React.useContext(FilterContext.filterContext)
-    open FilterUtils
-    let filterValueString = useFiltersValue(~index)
-    let filterValueDict = filterValueString->parseUrlString
-    let filterValueDict = filterValueDict
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let filterValueDict = filterValueJson
     let fetchDetails = APIUtils.useUpdateMethod()
     let (_, setDefaultFilter) = Recoil.useRecoilState(AnalyticsHooks.defaultFilter)
     let (showTable, setShowTable) = React.useState(_ => false)
@@ -529,7 +526,9 @@ let make = (
     ->LogicUtils.safeParse
     ->FeatureFlagUtils.featureFlagType
   let analyticsType = moduleName->getAnalyticsType
-  let {index, filterValue, updateExistingKeys} = React.useContext(FilterContext.filterContext)
+  let {index, filterValue, updateExistingKeys, filterValueJson} = React.useContext(
+    FilterContext.filterContext,
+  )
   let filterValueString = useFiltersValue(~index)
   let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
@@ -543,7 +542,7 @@ let make = (
   | None => None
   }
 
-  let filterValueDict = filterValueString->parseUrlString
+  let filterValueDict = filterValueJson
   let getFilterData = AnalyticsHooks.useGetFiltersData(~index)
 
   let (activeTav, setActiveTab) = React.useState(_ =>
@@ -721,7 +720,6 @@ let make = (
         <div>
           <div className="mt-5">
             <DynamicSingleStat
-              index
               entity=singleStatEntity
               startTimeFilterKey
               endTimeFilterKey
