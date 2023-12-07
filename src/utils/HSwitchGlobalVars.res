@@ -59,5 +59,4 @@ let urlToDownloadApplePayCertificate = switch hostType {
 | _ => "/apple-developer-merchantid-domain-association"
 }
 
-let recoEmail = "biz@hyperswitch.io"
 let agreementVersion = "1.1.0"

@@ -507,7 +507,7 @@ module LandingPageTileForIntegrateDocs = {
           ~metadata=metaDataDict,
           (),
         )
-        let _res = await updateDetails(url, body, Post)
+        let _ = await updateDetails(url, body, Post)
         setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       } catch {
       | _ => ()
@@ -1028,7 +1028,7 @@ let getTabsForIntegration = (
                 ~metadata=metaDataDict,
                 (),
               )
-              let _res = await updateDetails(url, body, Post)
+              let _ = await updateDetails(url, body, Post)
               setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
             } catch {
             | _ => ()

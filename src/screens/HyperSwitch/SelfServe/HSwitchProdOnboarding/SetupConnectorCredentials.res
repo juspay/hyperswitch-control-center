@@ -133,7 +133,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         ~connectorId,
         (),
       )
-      let _response = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setPageView(_ => pageView->ProdOnboardingUtils.getPageView)
     } catch {
     | _ => ()
@@ -243,7 +243,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connectorName), ())
-      let _response = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setShowVerifyModal(_ => false)
       onSubmitMain(values)->ignore
       setIsLoading(_ => false)

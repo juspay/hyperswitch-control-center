@@ -67,7 +67,7 @@ let usePostEnumDetails = () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
       let bodyValForApi = enumVariant->QuickStartUtils.generateBodyBasedOnType(body)
-      let _response = await updateDetails(url, bodyValForApi, Post)
+      let _ = await updateDetails(url, bodyValForApi, Post)
 
       let updatedRecoilValueDict = updateEnumInRecoil([(body, enumVariant)])
       Js.Nullable.return(updatedRecoilValueDict)

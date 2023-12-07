@@ -59,7 +59,7 @@ let make = (
         processorName: connectorResponse->getString("connector_name", ""),
       }
       let enumVariant = quickStartPageState->variantToEnumMapper
-      let _resp = await ProcesorType(processorVal)->usePostEnumDetails(enumVariant)
+      let _ = await ProcesorType(processorVal)->usePostEnumDetails(enumVariant)
       setButtonState(_ => Normal)
     } catch {
     | _ =>

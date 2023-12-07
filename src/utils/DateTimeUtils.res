@@ -36,14 +36,6 @@ let getStartOfWeek = (dayJs: Js.Date.t, startOfday: days) => {
   ->DayJs.getDayJsForJsDate
 }
 
-let utcTimeToIST = timeStr => {
-  if !(timeStr->Js.String.endsWith("Z") || timeStr->Js.String.endsWith("z")) {
-    `${timeStr}Z`
-  } else {
-    timeStr
-  }
-}
-
 let utcToIST = timeStr => {
   let isEU = false
   let updatedHour = Js.Date.getHours(timeStr) +. 5.0
@@ -68,21 +60,6 @@ let utcToISTDate = timeStr => {
   } else {
     Js.Date.fromFloat(istTime)
   }
-}
-
-let lastDate = (date: float) => {
-  Js.Date.setDate(
-    Js.Date.setMonthD(
-      date->Js.Date.fromFloat,
-      ~month=Js.Date.getMonth(date->Js.Date.fromFloat) +. 1.,
-      ~date=1.,
-      (),
-    )->Js.Date.fromFloat,
-    0.,
-  )
-}
-let firstDate = (date: float) => {
-  Js.Date.setDate(date->Js.Date.fromFloat, 1.)
 }
 
 let parseAsFloat = (dateStr: string) => {
