@@ -1,8 +1,4 @@
 external toJson: 'a => Js.Json.t = "%identity"
-let headerTextStyle = "text-xl font-semibold text-grey-700"
-let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
-let dividerColor = "bg-grey-700 bg-opacity-20 h-px w-full"
-let highlightedText = "text-base font-normal text-blue-700 underline"
 
 @react.component
 let make = (
@@ -37,7 +33,6 @@ let make = (
     try {
       let url = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments`
       let paymentData = initialValues->toJson->Js.Json.stringify->safeParse->getTypedValueForPayment
-      paymentData.amount = paymentData.amount->convertAmountToCents
       paymentData.currency = paymentData.currency->getCurrencyValue
       let body = paymentData->toJson
       let response = await updateDetails(url, body, Post)
@@ -126,7 +121,7 @@ let make = (
               elementOptions
               paymentElementOptions
               returnUrl
-              amount={initialValues.amount->SDKPaymentUtils.convertAmountToCents}
+              amount={initialValues.amount}
               setClientSecret
             />
           </div>
@@ -143,7 +138,7 @@ let make = (
           elementOptions
           paymentElementOptions
           returnUrl
-          amount={initialValues.amount->SDKPaymentUtils.convertAmountToCents}
+          amount={initialValues.amount}
           setClientSecret
         />
       }

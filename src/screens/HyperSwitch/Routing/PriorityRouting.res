@@ -36,7 +36,7 @@ module SimpleRoutingView = {
 
         let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
 
-        let _res = await updateDetails(
+        let _ = await updateDetails(
           activateRuleURL,
           getRoutingPayload(
             data,
@@ -65,7 +65,7 @@ module SimpleRoutingView = {
       try {
         setScreenState(_ => Loading)
         let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=routingId, ())
-        let _res = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
+        let _ = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
         showToast(
           ~message="Successfully Activated Selected Configuration !",
           ~toastType=ToastState.ToastSuccess,

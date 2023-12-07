@@ -1,8 +1,10 @@
 let h3Leading2Style = HSwitchUtils.getTextClass(~textVariant=H3, ~h3TextVariant=Leading_2, ())
 external toJson: 'a => Js.Json.t = "%identity"
+external formEventToStr: ReactEvent.Form.t => string = "%identity"
+external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
 
 module SDKConfiguarationFields = {
-  open HSwitchMerchantAccountUtils
+  open MerchantAccountUtils
   @react.component
   let make = (~initialValues: SDKPaymentTypes.paymentType) => {
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
@@ -17,27 +19,13 @@ module SDKConfiguarationFields = {
     })
 
     let selectProfileField = FormRenderer.makeFieldInfo(
-      ~label="Business profile",
+      ~label="Profile",
       ~name="profile_id",
       ~placeholder="",
       ~customInput=InputFields.selectInput(
         ~deselectDisable=true,
         ~options={arrayOfBusinessProfile->businessProfileNameDropDownOption},
         ~buttonText="Select Profile",
-        ~disableSelect=disableSelectionForProfile,
-        ~fullLength=true,
-        (),
-      ),
-      (),
-    )
-    let selectProfileId = FormRenderer.makeFieldInfo(
-      ~label="Profile Id",
-      ~name="profile_id",
-      ~placeholder="",
-      ~customInput=InputFields.selectInput(
-        ~deselectDisable=true,
-        ~options=arrayOfBusinessProfile->businessProfileIdDropDownOption,
-        ~buttonText="Select Profile Id",
         ~disableSelect=disableSelectionForProfile,
         ~fullLength=true,
         (),
@@ -60,26 +48,44 @@ module SDKConfiguarationFields = {
     let enterAmountField = FormRenderer.makeFieldInfo(
       ~label="Enter amount",
       ~name="amount",
-      ~placeholder="Enter amount",
-      ~customInput=InputFields.numericTextInput(~isDisabled=false, ~customStyle="w-full", ()),
+      ~customInput=(~input, ~placeholder as _) =>
+        InputFields.numericTextInput(
+          ~input={
+            ...input,
+            value: (initialValues.amount / 100)->string_of_int->Js.Json.string,
+            onChange: {
+              ev => {
+                let eventValueToInt = ev->formEventToStr->LogicUtils.getIntFromString(0)
+                let valInCents = (eventValueToInt * 100)->string_of_int->strToFormEvent
+                input.onChange(valInCents)
+              }
+            },
+          },
+          ~isDisabled=false,
+          ~customStyle="w-full",
+          ~placeholder="Enter amount",
+          (),
+        ),
       (),
     )
 
-    <>
+    <div className="w-full">
       <FormRenderer.FieldRenderer field=selectProfileField fieldWrapperClass="!w-full" />
-      <FormRenderer.FieldRenderer field=selectProfileId fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=selectCurrencyField fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=enterAmountField fieldWrapperClass="!w-full" />
+      <FormValuesSpy />
       <FormRenderer.SubmitButton
-        text="Show preview" disabledParamter={!(initialValues.profile_id->Js.String2.length > 0)}
+        text="Show preview"
+        disabledParamter={!(initialValues.profile_id->Js.String2.length > 0)}
+        customSumbitButtonStyle="!mt-5"
       />
-    </>
+    </div>
   }
 }
 
 @react.component
 let make = () => {
-  open HSwitchMerchantAccountUtils
+  open MerchantAccountUtils
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let filtersFromUrl = url.search->LogicUtils.getDictFromUrlSearchParams

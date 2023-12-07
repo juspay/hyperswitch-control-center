@@ -52,7 +52,7 @@ let make = (~goLive) => {
         ~is_done=true,
         (),
       )
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       setQuickStartPageState(_ => FinalLandingPage)
     } catch {
@@ -83,7 +83,7 @@ let make = (~goLive) => {
     try {
       let url = getURL(~entityName=PROD_VERIFY, ~methodType=Fetch.Post, ())
       let body = values->getBody->Js.Json.object_
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       getProdVerifyDetails()->ignore
       markAsDone()->ignore
     } catch {

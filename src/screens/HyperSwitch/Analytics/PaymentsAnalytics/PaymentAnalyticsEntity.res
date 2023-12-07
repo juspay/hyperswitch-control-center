@@ -72,7 +72,21 @@ let distribution =
   ->Js.Dict.fromArray
   ->Js.Json.object_
 
-let tableItemToObjMapper: 'a => paymentTableType = dict => {
+let tableItemToObjMapper: Js.Dict.t<Js.Json.t> => paymentTableType = dict => {
+  let parseErrorReasons = dict => {
+    dict
+    ->getArrayFromDict(PaymentErrorMessage->colMapper, [])
+    ->Js.Array2.map(errorJson => {
+      let dict = errorJson->getDictFromJsonObject
+
+      {
+        reason: dict->getString("reason", ""),
+        count: dict->getInt("count", 0),
+        percentage: dict->getFloat("percentage", 0.0),
+      }
+    })
+  }
+
   {
     payment_success_rate: dict->getFloat(SuccessRate->colMapper, 0.0),
     payment_count: dict->getFloat(Count->colMapper, 0.0),
@@ -90,7 +104,7 @@ let tableItemToObjMapper: 'a => paymentTableType = dict => {
     authentication_type: dict->getString(AuthType->colMapper, "OTHER")->Js.String2.toUpperCase,
     refund_status: dict->getString(Status->colMapper, "OTHER")->Js.String2.toUpperCase,
     weekly_payment_success_rate: dict->getWeeklySR->Js.String2.toUpperCase,
-    payment_error_message: dict->getString(PaymentErrorMessage->colMapper, ""),
+    payment_error_message: dict->parseErrorReasons,
   }
 }
 
@@ -195,7 +209,7 @@ let getCell = (paymentTable, colType): Table.cell => {
   | Status => Text(paymentTable.refund_status)
   | WeeklySuccessRate => Text(paymentTable.weekly_payment_success_rate)
   | PaymentErrorMessage =>
-    Table.CustomCell(<ErrorReasons errorMessage={paymentTable.payment_error_message} />, "NA")
+    Table.CustomCell(<ErrorReasons errors={paymentTable.payment_error_message} />, "NA")
   | NoCol => Text("")
   }
 }

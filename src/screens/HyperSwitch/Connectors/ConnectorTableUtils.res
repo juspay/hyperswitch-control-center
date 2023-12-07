@@ -202,10 +202,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
     })
   | ProfileId => Text(connector.profile_id)
   | ProfileName =>
-    Table.CustomCell(
-      <HSwitchMerchantAccountUtils.BusinessProfile profile_id={connector.profile_id} />,
-      "",
-    )
+    Table.CustomCell(<MerchantAccountUtils.BusinessProfile profile_id={connector.profile_id} />, "")
   | ConnectorLabel => Text(connector.connector_label)
 
   // | Actions =>

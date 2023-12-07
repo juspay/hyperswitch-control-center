@@ -26,7 +26,7 @@ let make = (~isFromMilestoneCard=false) => {
         ~is_done=true,
         (),
       )
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
     } catch {
     | _ => ()

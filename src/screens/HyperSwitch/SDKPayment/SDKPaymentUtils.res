@@ -1,6 +1,6 @@
 let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.paymentType = defaultBusinessProfile => {
   {
-    amount: 100,
+    amount: 10000,
     currency: "United States-USD",
     profile_id: defaultBusinessProfile.profile_id,
     description: "Default value",
@@ -53,11 +53,8 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
     },
     capture_method: "automatic",
     amount_to_capture: 100,
+    return_url: `${Window.Location.origin}${Window.Location.pathName}`,
   }
-}
-
-let convertAmountToCents = (amount: int) => {
-  amount * 100
 }
 
 let getCurrencyValue = (countryCurrency: string) => {
@@ -81,7 +78,7 @@ let getTypedValueForPayment: Js.Json.t => SDKPaymentTypes.paymentType = values =
     values->getDictFromJsonObject->getDictfromDict("shipping")->getDictfromDict("phone")
   let metaData =
     values->getDictFromJsonObject->getDictfromDict("metadata")->getDictfromDict("order_details")
-  let cents = dictOfValues->getInt("amount", 100)->convertAmountToCents
+
   {
     amount: dictOfValues->getInt("amount", 100),
     currency: dictOfValues->getString("currency", "United States-USD"),
@@ -131,10 +128,11 @@ let getTypedValueForPayment: Js.Json.t => SDKPaymentTypes.paymentType = values =
       order_details: {
         product_name: metaData->getString("product_name", ""),
         quantity: 1,
-        amount: cents,
+        amount: dictOfValues->getInt("amount", 100),
       },
     },
     capture_method: "automatic",
-    amount_to_capture: cents,
+    amount_to_capture: dictOfValues->getInt("amount", 100),
+    return_url: dictOfValues->getString("return_url", ""),
   }
 }

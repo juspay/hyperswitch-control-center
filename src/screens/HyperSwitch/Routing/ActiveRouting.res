@@ -45,7 +45,7 @@ module ActionButtons = {
 
         let body = requestBody->HSwitchUtils.getBodyForFeedBack()
         let feedbackUrl = APIUtils.getURL(~entityName=FEEDBACK, ~methodType=Post, ())
-        let _res = await updateDetails(feedbackUrl, body->Js.Json.object_, Post)
+        let _ = await updateDetails(feedbackUrl, body->Js.Json.object_, Post)
         showToast(
           ~toastType=ToastSuccess,
           ~message="Request submitted successfully!",
@@ -154,7 +154,7 @@ module ActiveSection = {
           </div>
           <UIUtils.RenderIf condition={profileId->Js.String2.length > 0}>
             <div className="flex gap-2">
-              <HSwitchMerchantAccountUtils.BusinessProfile
+              <MerchantAccountUtils.BusinessProfile
                 profile_id={profileId}
                 className="text-lightgray_background text-base opacity-50 text-sm"
               />
