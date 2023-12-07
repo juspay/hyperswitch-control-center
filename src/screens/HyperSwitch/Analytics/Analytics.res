@@ -594,7 +594,7 @@ let make = (
     }
   }, [updateExistingKeys])
 
-  let updateComponentPrefrences = FilterUtils.useUpdateFilterObject(~index)
+  let updateComponentPrefrences = useUpdateFilterObject(~index)
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
     ~index,
     ~updateComponentPrefrences,
@@ -608,7 +608,6 @@ let make = (
     None
   })
 
-  let filterValueString = FilterUtils.useFiltersValue(~index)
   React.useEffect1(() => {
     if filterValueString->HSwitchUtils.isEmptyString {
       updateComponentPrefrences(~dict=filterValue)
