@@ -607,3 +607,36 @@ let getTitle = name => {
   ->Js.Array2.map(capitalizeString)
   ->Js.Array2.joinWith(" ")
 }
+
+// Regex to check if a string contains a substring
+let regex = (positionToCheckFrom, searchString) => {
+  let searchStringNew =
+    searchString
+    ->Js.String2.replaceByRe(%re("/[<>\[\]';|?*\\]/g"), "")
+    ->Js.String2.replaceByRe(%re("/\(/g"), "\\(")
+    ->Js.String2.replaceByRe(%re("/\+/g"), "\\+")
+    ->Js.String2.replaceByRe(%re("/\)/g"), "\\)")
+  Js.Re.fromStringWithFlags(
+    "(.*)(" ++ positionToCheckFrom ++ "" ++ searchStringNew ++ ")(.*)",
+    ~flags="i",
+  )
+}
+
+let checkStringStartsWithSubstring = (~itemToCheck, ~searchText) => {
+  let isMatch = switch Js.String2.match_(itemToCheck, regex("\\b", searchText)) {
+  | Some(_) => true
+  | None => Js.String2.match_(itemToCheck, regex("_", searchText))->Belt.Option.isSome
+  }
+  isMatch && searchText->Js.String2.length > 0
+}
+
+let listOfMatchedText = (text, searchText) => {
+  switch Js.String2.match_(text, regex("\\b", searchText)) {
+  | Some(r) => r->Array.sliceToEnd(~start=1)->Belt.Array.keepMap(x => x)
+  | None =>
+    switch Js.String2.match_(text, regex("_", searchText)) {
+    | Some(a) => a->Array.sliceToEnd(~start=1)->Belt.Array.keepMap(x => x)
+    | None => [text]
+    }
+  }
+}
