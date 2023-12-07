@@ -135,7 +135,6 @@ module FiltersComponent = {
     | Some(filterData) =>
       <div className={`flex flex-row ${iframe_padding}`}>
         <DynamicFilter
-          index
           initialFilters={initialFilters(filterData)}
           options={filterDropDownOptions(filterData)}
           popupFilterFields={filterDropDownOptions(filterData)}
@@ -155,7 +154,6 @@ module FiltersComponent = {
     | None =>
       <div className={`flex flex-row ${iframe_padding}`}>
         <DynamicFilter
-          index
           initialFilters=[]
           options=[]
           popupFilterFields=[]
@@ -298,7 +296,6 @@ module FiltersComponentNew = {
 
     <div className={`flex flex-row ${iframe_padding}`}>
       <DynamicFilter
-        index
         initialFilters={initialFilters(initialFilterVals->Js.Json.object_, buttonOnClick)}
         options=[]
         popupFilterFields=[]

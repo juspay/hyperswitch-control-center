@@ -674,7 +674,6 @@ let make = (
       }
       <div className="flex flex-row">
         <DynamicFilter
-          index
           initialFilters={initialFilters(filterData)}
           options=[]
           popupFilterFields={options(filterData)}
@@ -693,7 +692,6 @@ let make = (
   | None =>
     <div className="flex flex-row">
       <DynamicFilter
-        index
         initialFilters=[]
         options=[]
         popupFilterFields=[]

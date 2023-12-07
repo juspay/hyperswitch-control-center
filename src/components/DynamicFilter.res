@@ -146,7 +146,6 @@ module CustomFilters = {
 
 @react.component
 let make = (
-  ~index: string,
   ~initialFilters: array<EntityType.initialFilters<'t>>,
   ~options: array<EntityType.optionType<'t>>,
   ~popupFilterFields,
@@ -171,7 +170,9 @@ let make = (
   let defaultFilters = ""->Js.Json.string
   let (showModal, setShowModal) = React.useState(_ => false)
 
-  let {updateExistingKeys, filterValue, removeKeys} = React.useContext(FilterContext.filterContext)
+  let {index, updateExistingKeys, filterValue, removeKeys} = React.useContext(
+    FilterContext.filterContext,
+  )
 
   let currentCustomFilterValue =
     filterValue->Js.Dict.get(customFilterKey)->Belt.Option.getWithDefault("")
