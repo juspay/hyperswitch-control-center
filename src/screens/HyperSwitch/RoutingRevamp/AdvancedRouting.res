@@ -338,8 +338,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let url = RescriptReactRouter.useUrl()
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-  let defaultBusinessProfile =
-    businessProfiles->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+  let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
   let (initialValues, setInitialValues) = React.useState(_ => initialValues->toJson)
   let (initialRule, setInitialRule) = React.useState(() => None)

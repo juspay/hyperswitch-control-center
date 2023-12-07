@@ -10,7 +10,7 @@ let make = (
   let businessProfileValues =
     HyperswitchAtom.businessProfilesAtom
     ->Recoil.useRecoilValueFromAtom
-    ->HSwitchMerchantAccountUtils.getArrayOfBusinessProfile
+    ->MerchantAccountUtils.getArrayOfBusinessProfile
 
   <UIUtils.RenderIf condition=isFromSettings>
     <div className="relative h-full">

@@ -12,7 +12,7 @@ let make = () => {
   let activeBusinessProfile =
     HyperswitchAtom.businessProfilesAtom
     ->Recoil.useRecoilValueFromAtom
-    ->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    ->MerchantAccountUtils.getValueFromBusinessProfile
 
   let indexOfStepCounterVal = listOfStepCounter->Js.Array2.indexOf(stepCounter)
   let {

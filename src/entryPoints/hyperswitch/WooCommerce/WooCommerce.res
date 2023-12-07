@@ -139,8 +139,7 @@ module ConfigureWebHook = {
   @react.component
   let make = (~handleNavigation, ~title, ~description) => {
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-    let defaultBusinessProfile =
-      businessProfiles->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
     <BaseComponent handleNavigation>
       <WooCommerceStepWrapper title={title} description={description}>
         <div className="p-8 flex flex-col gap-6">
@@ -233,7 +232,7 @@ let make = () => {
   let activeBusinessProfile =
     HyperswitchAtom.businessProfilesAtom
     ->Recoil.useRecoilValueFromAtom
-    ->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    ->MerchantAccountUtils.getValueFromBusinessProfile
 
   let naviagteToHome = _ => {
     setDashboardPageState(_ => #HOME)

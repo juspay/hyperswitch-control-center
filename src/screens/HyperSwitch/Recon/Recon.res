@@ -1,7 +1,7 @@
 @react.component
 let make = () => {
   open APIUtils
-  open HSwitchMerchantAccountUtils
+  open MerchantAccountUtils
   let (redirectToken, setRedirecToken) = React.useState(_ => "")
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()

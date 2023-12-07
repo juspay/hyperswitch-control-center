@@ -123,7 +123,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   let {profile_id} =
     HyperswitchAtom.businessProfilesAtom
     ->Recoil.useRecoilValueFromAtom
-    ->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    ->MerchantAccountUtils.getValueFromBusinessProfile
 
   let updateSetupConnectorCredentials = async connectorId => {
     try {
@@ -173,7 +173,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         ~values,
         ~connector=connectorName,
         ~bodyType,
-        ~isLiveMode={featureFlagDetails.testLiveMode},
+        ~isLiveMode={featureFlagDetails.isLiveMode},
         (),
       )
 
@@ -238,7 +238,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
           ~connector={connectorName},
           ~bodyType,
           ~isPayoutFlow=false,
-          ~isLiveMode={featureFlagDetails.testLiveMode},
+          ~isLiveMode={featureFlagDetails.isLiveMode},
           (),
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 

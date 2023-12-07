@@ -140,8 +140,7 @@ module TestPayment = {
     let postEnumDetails = EnumVariantHook.usePostEnumDetails()
     let (key, setKey) = React.useState(_ => "")
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-    let defaultBusinessProfile =
-      businessProfiles->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
 
     let updateTestPaymentEnum = async _ => {
       try {

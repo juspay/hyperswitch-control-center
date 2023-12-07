@@ -32,8 +32,8 @@ let make = () => {
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
-  let fetchBusinessProfiles = HSwitchMerchantAccountUtils.useFetchBusinessProfiles()
-  let fetchMerchantAccountDetails = HSwitchMerchantAccountUtils.useFetchMerchantDetails()
+  let fetchBusinessProfiles = MerchantAccountUtils.useFetchBusinessProfiles()
+  let fetchMerchantAccountDetails = MerchantAccountUtils.useFetchMerchantDetails()
   let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
   let enumDetails =
     HyperswitchAtom.enumVariantAtom
@@ -50,16 +50,16 @@ let make = () => {
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let verificationDays = getFromMerchantDetails("verification")->LogicUtils.getIntFromString(-1)
   let userRole = getFromUserDetails("user_role")
-  let modeText = featureFlagDetails.testLiveMode ? "Live Mode" : "Test Mode"
+  let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let titleComingSoonMessage = "Coming Soon!"
   let subtitleComingSoonMessage = "We are currently working on this page."
-  let modeStyles = featureFlagDetails.testLiveMode
+  let modeStyles = featureFlagDetails.isLiveMode
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
     : "bg-orange-600/80 border-orange-500 text-grey-700"
 
   let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
   let isReconEnabled =
-    (merchantDetailsValue->HSwitchMerchantAccountUtils.getMerchantDetails).recon_status === Active
+    (merchantDetailsValue->MerchantAccountUtils.getMerchantDetails).recon_status === Active
 
   let hyperSwitchAppSidebars = SidebarValues.getHyperSwitchAppSidebars(
     ~isReconEnabled,
@@ -125,7 +125,7 @@ let make = () => {
         let _featureFlag = await fetchInitialEnums()
       }
 
-      if featureFlagDetails.testLiveMode {
+      if featureFlagDetails.isLiveMode {
         getAgreementEnum()->ignore
       } else {
         setDashboardPageState(_ => #HOME)
@@ -331,7 +331,7 @@ let make = () => {
                           <Recon />
                         </FeatureFlagEnabledComponent>
                       | list{"sdk"} =>
-                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.openSDK>
+                        <FeatureFlagEnabledComponent isEnabled={!featureFlagDetails.isLiveMode}>
                           <SDKPage />
                         </FeatureFlagEnabledComponent>
                       | list{"3ds"} => <HSwitchThreeDS />

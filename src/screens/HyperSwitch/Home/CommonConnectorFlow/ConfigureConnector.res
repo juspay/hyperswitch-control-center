@@ -6,7 +6,6 @@ let make = (~connectProcessorValue: connectProcessor) => {
   open QuickStartUtils
   open APIUtils
   let updateDetails = useUpdateMethod()
-
   let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
   let {quickStartPageState, setQuickStartPageState, setDashboardPageState} = React.useContext(
     GlobalProvider.defaultContext,
@@ -17,7 +16,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
   let activeBusinessProfile =
     HyperswitchAtom.businessProfilesAtom
     ->Recoil.useRecoilValueFromAtom
-    ->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    ->MerchantAccountUtils.getValueFromBusinessProfile
 
   let (selectedConnector, setSelectedConnector) = React.useState(_ => UnknownConnector(""))
   let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)

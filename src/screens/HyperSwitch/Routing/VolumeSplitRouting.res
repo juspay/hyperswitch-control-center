@@ -337,8 +337,7 @@ module VolumeRoutingView = {
 @react.component
 let make = (~routingRuleId, ~isActive) => {
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-  let defaultBusinessProfile =
-    businessProfiles->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+  let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
   let (formState, setFormState) = React.useState(_ => AdvancedRoutingTypes.EditReplica)
   let (initialRule, setInitialRule) = React.useState(() => None)

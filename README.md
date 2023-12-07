@@ -136,9 +136,9 @@ The `home_page` feature flag controls whether the dashboard home page is enabled
 
 The `test_live_toggle` feature flag enables users to toggle between test and live modes when signing in. When enabled, users will see an option during sign-in to actively switch between test and live environments.
 
-#### Test Live Mode
+#### Is Live Mode
 
-The `test_live_mode` feature flag enables displaying the current mode - test or live - that the user is accessing. When enabled, it will show a visual indicator within the dashboard signaling whether the user is currently in a test environment or live production environment.
+The `is_live_mode` feature flag enables the live mode - that the user is accessing. When enabled, it will show a visual indicator within the dashboard signaling whether the user is currently in a test environment or live production environment.
 
 #### Magic Link
 
@@ -151,10 +151,6 @@ The `production_access` feature flag enables a flow for users to request live pr
 #### Quick Start
 
 The `quick_start` feature flag enables the simplified onboarding flow for new users, where he connects to processors, configure payment routing and testing a payment, all in one flow.
-
-#### Open SDK
-
-The `open_sdk` feature flag enables access to the Checkout Page web SDK from within the dashboard. When enabled, developers can preview the SDK from within the dashboard and make payments.
 
 ---
 

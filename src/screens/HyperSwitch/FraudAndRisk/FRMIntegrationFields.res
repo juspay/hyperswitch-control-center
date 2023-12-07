@@ -33,7 +33,7 @@ module AdvanceSettings = {
     let businessProfileValue =
       Recoil.useRecoilValueFromAtom(
         HyperswitchAtom.businessProfilesAtom,
-      )->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+      )->MerchantAccountUtils.getValueFromBusinessProfile
 
     React.useEffect1(() => {
       if !isUpdateFlow {
@@ -228,7 +228,7 @@ let make = (
       }
 
     | None =>
-      generateInitialValuesDict(~selectedFRMInfo, ~isLiveMode={featureFlagDetails.testLiveMode}, ())
+      generateInitialValuesDict(~selectedFRMInfo, ~isLiveMode={featureFlagDetails.isLiveMode}, ())
     }
   }, [retrivedValues])
 

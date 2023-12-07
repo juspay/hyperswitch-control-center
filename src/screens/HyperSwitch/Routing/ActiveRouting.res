@@ -154,7 +154,7 @@ module ActiveSection = {
           </div>
           <UIUtils.RenderIf condition={profileId->Js.String2.length > 0}>
             <div className="flex gap-2">
-              <HSwitchMerchantAccountUtils.BusinessProfile
+              <MerchantAccountUtils.BusinessProfile
                 profile_id={profileId}
                 className="text-lightgray_background text-base opacity-50 text-sm"
               />

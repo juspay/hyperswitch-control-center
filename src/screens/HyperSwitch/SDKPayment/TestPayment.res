@@ -29,22 +29,12 @@ let make = (
   let filtersFromUrl = getDictFromUrlSearchParams(searchParams)
 
   let getClientSecret = async () => {
+    open SDKPaymentUtils
     try {
       let url = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments`
-      let body =
-        Js.Dict.fromArray([
-          ("currency", initialValues.currency->SDKPaymentUtils.getCurrencyValue->Js.Json.string),
-          (
-            "amount",
-            initialValues.amount
-            ->SDKPaymentUtils.convertAmountToCents
-            ->Belt.Int.toFloat
-            ->Js.Json.number,
-          ),
-          ("profile_id", initialValues.profile_id->Js.Json.string),
-          ("customer_id", "hyperswitch_sdk_demo_id"->Js.Json.string),
-          ("description", initialValues.description->Js.Json.string),
-        ])->Js.Json.object_
+      let paymentData = initialValues->toJson->Js.Json.stringify->safeParse->getTypedValueForPayment
+      paymentData.currency = paymentData.currency->getCurrencyValue
+      let body = paymentData->toJson
       let response = await updateDetails(url, body, Post)
       let clientSecret = response->getDictFromJsonObject->getOptionString("client_secret")
       setPaymentId(_ => response->getDictFromJsonObject->getString("payment_id", ""))
@@ -83,6 +73,7 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-green-success_page_bg"
+        isButtonVisible={paymentId->Js.String2.length > 0}
       />
 
     | FAILED(_err) =>
@@ -130,7 +121,7 @@ let make = (
               elementOptions
               paymentElementOptions
               returnUrl
-              amount={initialValues.amount->SDKPaymentUtils.convertAmountToCents}
+              amount={initialValues.amount}
               setClientSecret
             />
           </div>
@@ -147,7 +138,7 @@ let make = (
           elementOptions
           paymentElementOptions
           returnUrl
-          amount={initialValues.amount->SDKPaymentUtils.convertAmountToCents}
+          amount={initialValues.amount}
           setClientSecret
         />
       }

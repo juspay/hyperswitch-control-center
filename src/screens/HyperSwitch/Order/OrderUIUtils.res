@@ -81,14 +81,14 @@ module GenerateSampleDataButton = {
 module NoData = {
   @react.component
   let make = (~isConfigureConnector, ~paymentModal, ~setPaymentModal) => {
-    let {testLiveMode} =
+    let {isLiveMode} =
       HyperswitchAtom.featureFlagAtom
       ->Recoil.useRecoilValueFromAtom
       ->LogicUtils.safeParse
       ->FeatureFlagUtils.featureFlagType
     <HelperComponents.BluredTableComponent
       infoText={isConfigureConnector
-        ? testLiveMode
+        ? isLiveMode
             ? "There are no payments as of now."
             : "There are no payments as of now. Try making a test payment and visualise the checkout experience."
         : "Connect to a connector like Stripe, Adyen or Hyperswitch provided test connector to make your first payment."}
@@ -96,7 +96,7 @@ module NoData = {
       moduleName=""
       paymentModal
       setPaymentModal
-      showRedirectCTA={!testLiveMode}
+      showRedirectCTA={!isLiveMode}
       mixPanelEventName={isConfigureConnector
         ? "paymentops_makeapayment"
         : "payemntops_connectaconnector"}
