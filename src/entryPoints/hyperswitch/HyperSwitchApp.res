@@ -294,7 +294,7 @@ let make = () => {
                           remainingPath
                           access=ReadWrite
                           renderList={() => <UserRoleEntry />}
-                          renderShow={id => <UserRoleShowData id />}
+                          renderShow={_ => <UserRoleShowData />}
                         />
                       | list{"analytics-payments"} =>
                         <AnalyticsUrlUpdaterContext key="PaymentsAnalytics">

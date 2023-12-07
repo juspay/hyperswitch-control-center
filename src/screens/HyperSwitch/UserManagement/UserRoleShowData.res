@@ -1,5 +1,5 @@
 @react.component
-let make = (~id as _) => {
+let make = () => {
   let url = RescriptReactRouter.useUrl()
   let stateName = url.search->Js.String2.split("=")->LogicUtils.getValueFromArray(1, "")
 
