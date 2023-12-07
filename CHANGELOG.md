@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.3.0 (2023-12-07)
+
+### Features
+
+- Profile id and profile name concat ([#73](https://github.com/juspay/hyperswitch-control-center/pull/73)) ([`8266a95`](https://github.com/juspay/hyperswitch-control-center/commit/8266a95ede73e2b66677d7d1046c4271c8fbd526))
+- New connector Icons and  Searchbar for connector ([#46](https://github.com/juspay/hyperswitch-control-center/pull/46)) ([`2717c0d`](https://github.com/juspay/hyperswitch-control-center/commit/2717c0d3f09807022f53929ddd244aed3c28034d))
+
+### Bug Fixes
+
+- Default card layout ([#70](https://github.com/juspay/hyperswitch-control-center/pull/70)) ([`b7690bc`](https://github.com/juspay/hyperswitch-control-center/commit/b7690bc569895ce0d92425314bcfc783f8d3365f))
+- Top 5 errors fix ([#60](https://github.com/juspay/hyperswitch-control-center/pull/60)) ([`d5b19d6`](https://github.com/juspay/hyperswitch-control-center/commit/d5b19d67ea6cc7e07153b0bfb58ca4beedf1a594))
+- SDK code refactoring and return URL addition ([#72](https://github.com/juspay/hyperswitch-control-center/pull/72)) ([`d77b875`](https://github.com/juspay/hyperswitch-control-center/commit/d77b875b9e1c872985678975d4651f6cc90ac364))
+- SDK Go to payment fix in Success Status ([#74](https://github.com/juspay/hyperswitch-control-center/pull/74)) ([`66ea60b`](https://github.com/juspay/hyperswitch-control-center/commit/66ea60b321bdd3efd7980a99e007135f29998951))
+- Payment settings added under developers ([#77](https://github.com/juspay/hyperswitch-control-center/pull/77)) ([`592ce41`](https://github.com/juspay/hyperswitch-control-center/commit/592ce413fb529847c1428197f18420e6f2a28d66))
+
+### Miscellaneous Tasks
+
+- Response warnings removed ([#68](https://github.com/juspay/hyperswitch-control-center/pull/68)) ([`7427f10`](https://github.com/juspay/hyperswitch-control-center/commit/7427f1051dc6e88258699a90cef3453f66fe5f98))
+- User Management File Changes ([#76](https://github.com/juspay/hyperswitch-control-center/pull/76)) ([`8807933`](https://github.com/juspay/hyperswitch-control-center/commit/8807933a676f8041eab5cbc5b833ed06e17a76eb))
+
+**Full Changelog:** [`v1.2.0...v1.3.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.2.0...v1.3.0)
+
+- - -
+
+
 ## 1.2.0 (2023-12-06)
 
 ### Features
