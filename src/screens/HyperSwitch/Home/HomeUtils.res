@@ -128,7 +128,7 @@ let isDefaultBusinessProfile = details => details->Js.Array2.length === 1
 module MerchantAuthInfo = {
   @react.component
   let make = (~merchantDetailsValue) => {
-    let detail = merchantDetailsValue->HSwitchMerchantAccountUtils.getMerchantDetails
+    let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
     let dataDict =
       [
         ("merchant_id", detail.merchant_id->Js.Json.string),

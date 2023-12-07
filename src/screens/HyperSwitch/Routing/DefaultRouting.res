@@ -1,6 +1,6 @@
 open APIUtils
 open APIUtilsTypes
-open HSwitchMerchantAccountUtils
+open MerchantAccountUtils
 
 @react.component
 let make = () => {
@@ -10,8 +10,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let showPopUp = PopUpState.useShowPopUp()
   let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
-  let defaultBusinessProfile =
-    businessProfiles->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+  let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

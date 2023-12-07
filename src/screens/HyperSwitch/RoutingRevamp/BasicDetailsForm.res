@@ -72,7 +72,7 @@ let make = (
   ~profile=?,
   ~setProfile=?,
 ) => {
-  open HSwitchMerchantAccountUtils
+  open MerchantAccountUtils
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let ip1 = ReactFinalForm.useField(`name`).input
   let ip2 = ReactFinalForm.useField(`description`).input
@@ -150,7 +150,7 @@ let make = (
                 </span>
                 <AddDataAttributes attributes=[("data-text", getStringFromJson(ip3.value, ""))]>
                   <span className="font-semibold">
-                    <HSwitchMerchantAccountUtils.BusinessProfile
+                    <MerchantAccountUtils.BusinessProfile
                       profile_id={profile->Belt.Option.getWithDefault(
                         defaultBusinessProfile.profile_id,
                       )}

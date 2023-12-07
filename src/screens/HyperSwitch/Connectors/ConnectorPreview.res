@@ -103,10 +103,8 @@ module ConnectorSummaryGrid = {
     let showToast = ToastState.useShowToast()
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
-    let defaultBusinessProfile =
-      businessProfiles->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
-    let arrayOfBusinessProfile =
-      businessProfiles->HSwitchMerchantAccountUtils.getArrayOfBusinessProfile
+    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
+    let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
     let currentProfileName =
       arrayOfBusinessProfile
       ->Js.Array2.find((ele: HSwitchSettingTypes.profileEntity) =>

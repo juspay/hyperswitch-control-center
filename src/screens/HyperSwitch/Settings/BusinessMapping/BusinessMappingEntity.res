@@ -28,7 +28,7 @@ let getCell = (item: profileEntity, colType): Table.cell => {
 
 let itemToObjMapper = dict => {
   open LogicUtils
-  open HSwitchMerchantAccountUtils
+  open MerchantAccountUtils
   {
     profile_id: getString(dict, "profile_id", ""),
     profile_name: getString(dict, ProfileName->getStringFromVariant, ""),

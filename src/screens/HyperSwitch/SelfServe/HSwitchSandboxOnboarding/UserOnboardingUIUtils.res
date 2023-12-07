@@ -24,7 +24,7 @@ module PublishableKeyArea = {
   @react.component
   let make = (~currentRoute) => {
     let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
-    let detail = merchantDetailsValue->HSwitchMerchantAccountUtils.getMerchantDetails
+    let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
     let contextName = `${currentRoute->variantToTextMapperForBuildHS}_5.loadhyperswitchcheckout`
 
     <HelperComponents.KeyAndCopyArea
@@ -37,7 +37,7 @@ module PaymentResponseHashKeyArea = {
   @react.component
   let make = (~currentRoute) => {
     let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
-    let detail = merchantDetailsValue->HSwitchMerchantAccountUtils.getMerchantDetails
+    let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
     let contextName = `${currentRoute->variantToTextMapperForBuildHS}_5.loadhyperswitchcheckout`
 
     <HelperComponents.KeyAndCopyArea

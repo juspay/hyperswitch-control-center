@@ -2,7 +2,7 @@ let h3Leading2Style = HSwitchUtils.getTextClass(~textVariant=H3, ~h3TextVariant=
 external toJson: 'a => Js.Json.t = "%identity"
 
 module SDKConfiguarationFields = {
-  open HSwitchMerchantAccountUtils
+  open MerchantAccountUtils
   @react.component
   let make = (~initialValues: SDKPaymentTypes.paymentType) => {
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
@@ -66,7 +66,7 @@ module SDKConfiguarationFields = {
 
 @react.component
 let make = () => {
-  open HSwitchMerchantAccountUtils
+  open MerchantAccountUtils
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let filtersFromUrl = url.search->LogicUtils.getDictFromUrlSearchParams

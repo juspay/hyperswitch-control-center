@@ -34,8 +34,7 @@ module BusinessProfileRender = {
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
 
-    let arrayOfBusinessProfile =
-      businessProfiles->HSwitchMerchantAccountUtils.getArrayOfBusinessProfile
+    let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
 
     let (showModalFromOtherScreen, setShowModalFromOtherScreen) = React.useState(_ => false)
 
@@ -83,7 +82,7 @@ module BusinessProfileRender = {
                 ~disableSelect=isUpdateFlow,
                 ~customStyle="max-h-48",
                 ~options={
-                  arrayOfBusinessProfile->HSwitchMerchantAccountUtils.businessProfileNameDropDownOption(
+                  arrayOfBusinessProfile->MerchantAccountUtils.businessProfileNameDropDownOption(
                     ~isFromConnectors=true,
                     (),
                   )
@@ -118,7 +117,7 @@ module BusinessProfileRender = {
                   },
                 },
                 ~options={
-                  arrayOfBusinessProfile->HSwitchMerchantAccountUtils.businessProfileIdDropDownOption
+                  arrayOfBusinessProfile->MerchantAccountUtils.businessProfileIdDropDownOption
                 },
                 ~buttonText="Select Option",
                 ~deselectDisable=true,
@@ -263,7 +262,7 @@ let make = (
   let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
 
   let activeBusinessProfile =
-    defaultBusinessProfile->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
 
   React.useEffect1(() => {
     mixpanelEventWrapper(

@@ -163,10 +163,10 @@ let validateForm = (values: Js.Json.t, keys: array<string>) => {
     }
 
     // password check
-    HSwitchMerchantAccountUtils.passwordKeyValidation(value, key, "create_password", errors)
+    MerchantAccountUtils.passwordKeyValidation(value, key, "create_password", errors)
 
     // confirm password check
-    HSwitchMerchantAccountUtils.confirmPasswordCheck(
+    MerchantAccountUtils.confirmPasswordCheck(
       value,
       key,
       "comfirm_password",
