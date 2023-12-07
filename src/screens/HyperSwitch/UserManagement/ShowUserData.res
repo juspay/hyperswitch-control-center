@@ -1,16 +1,16 @@
-open HSwitchUserManagementUtils
+open UserManagementUtils
 
-external typeConversion: array<Js.Nullable.t<HSwitchUserRoleEntity.userTableTypes>> => array<
-  HSwitchUserRoleEntity.userTableTypes,
+external typeConversion: array<Js.Nullable.t<UserRoleEntity.userTableTypes>> => array<
+  UserRoleEntity.userTableTypes,
 > = "%identity"
 
 module UserHeading = {
   @react.component
-  let make = (~infoValue: HSwitchUserRoleEntity.userTableTypes, ~userId) => {
+  let make = (~infoValue: UserRoleEntity.userTableTypes, ~userId) => {
     open APIUtils
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
-    let status = infoValue.status->HSwitchUserRoleEntity.statusToVariantMapper
+    let status = infoValue.status->UserRoleEntity.statusToVariantMapper
 
     let resendInvite = async () => {
       try {
@@ -64,7 +64,7 @@ let make = () => {
   let currentSelectedUser = React.useMemo1(() => {
     usersList
     ->typeConversion
-    ->Array.reduce(Js.Dict.empty()->HSwitchUserRoleEntity.itemToObjMapperForUser, (acc, ele) => {
+    ->Array.reduce(Js.Dict.empty()->UserRoleEntity.itemToObjMapperForUser, (acc, ele) => {
       url.path->Belt.List.toArray->Js.Array2.joinWith("/")->Js.String2.includes(ele.user_id)
         ? ele
         : acc
@@ -122,8 +122,7 @@ let make = () => {
         (),
       )
       let res = await fetchDetails(userDataURL)
-      let userData =
-        res->LogicUtils.getArrayDataFromJson(HSwitchUserRoleEntity.itemToObjMapperForUser)
+      let userData = res->LogicUtils.getArrayDataFromJson(UserRoleEntity.itemToObjMapperForUser)
       setUsersList(_ => userData->Js.Array2.map(Js.Nullable.return))
     } catch {
     | _ => ()

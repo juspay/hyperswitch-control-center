@@ -227,11 +227,11 @@ let systemMetric = SubLevelLink({
   searchOptions: [("View System Metrics", "")],
 })
 
-let webhooks = SubLevelLink({
-  name: "Webhooks",
-  link: `/webhooks`,
+let paymentSettings = SubLevelLink({
+  name: "Payment Settings",
+  link: `/payment-settings`,
   access: ReadWrite,
-  searchOptions: [("View Webhooks", "")],
+  searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
 })
 
 let developers = (isDevelopersEnabled, userRole, systemMetrics) => {
@@ -243,8 +243,8 @@ let developers = (isDevelopersEnabled, userRole, systemMetrics) => {
         icon: "developer",
         showSection: true,
         links: isInternalUser && systemMetrics
-          ? [apiKeys, webhooks, systemMetric]
-          : [apiKeys, webhooks],
+          ? [apiKeys, paymentSettings, systemMetric]
+          : [apiKeys, paymentSettings],
       })
     : emptyComponent
 }
