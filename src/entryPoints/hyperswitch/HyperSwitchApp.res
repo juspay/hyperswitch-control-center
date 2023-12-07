@@ -318,7 +318,7 @@ let make = () => {
                             <SystemMetricsAnalytics />
                           </AnalyticsUrlUpdaterContext>
                         </UIUtils.RenderIf>
-                      | list{"webhooks", ...remainingPath} =>
+                      | list{"payment-settings", ...remainingPath} =>
                         <EntityScaffold
                           entityName="WebHooks"
                           remainingPath

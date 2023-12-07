@@ -78,8 +78,8 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
         <BreadCrumbNavigation
           path=[
             {
-              title: "Webhooks",
-              link: "/webhooks",
+              title: "Payment Settings",
+              link: "/payment-settings",
             },
           ]
           currentPageTitle={businessProfileDetails.profile_name}

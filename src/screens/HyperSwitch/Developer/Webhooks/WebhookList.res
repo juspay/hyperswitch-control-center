@@ -16,11 +16,11 @@ let make = (
     <div className="relative h-full">
       <div className="flex flex-col-reverse md:flex-col">
         <PageUtils.PageHeading
-          title="Webhooks"
+          title="Payment settings"
           subTitle="Set up and monitor transaction webhooks for real-time notifications."
         />
         <LoadedTable
-          title="Webhooks"
+          title="Payment settings"
           hideTitle=true
           resultsPerPage=7
           visibleColumns

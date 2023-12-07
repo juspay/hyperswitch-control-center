@@ -53,8 +53,5 @@ let businessProfileTableEntity = EntityType.makeEntity(
   ~getHeading,
   ~dataKey="",
   ~getCell,
-  ~getShowLink={
-    profile => `/webhooks/${profile.profile_id}`
-  },
   (),
 )
