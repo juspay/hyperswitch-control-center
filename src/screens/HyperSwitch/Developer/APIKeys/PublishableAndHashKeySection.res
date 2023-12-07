@@ -4,7 +4,7 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = APIUtils.useGetMethod()
   let (merchantInfo, setMerchantInfo) = React.useState(() =>
-    Js.Json.null->HSwitchMerchantAccountUtils.getMerchantDetails
+    Js.Json.null->MerchantAccountUtils.getMerchantDetails
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
@@ -13,7 +13,7 @@ let make = () => {
     try {
       let accountUrl = APIUtils.getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get, ())
       let merchantDetails = await fetchDetails(accountUrl)
-      let merchantInfo = merchantDetails->HSwitchMerchantAccountUtils.getMerchantDetails
+      let merchantInfo = merchantDetails->MerchantAccountUtils.getMerchantDetails
       setMerchantInfo(_ => merchantInfo)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

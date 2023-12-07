@@ -102,6 +102,15 @@ module ConnectorSummaryGrid = {
     let url = RescriptReactRouter.useUrl()
     let showToast = ToastState.useShowToast()
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
+    let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
+    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
+    let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
+    let currentProfileName =
+      arrayOfBusinessProfile
+      ->Js.Array2.find((ele: HSwitchSettingTypes.profileEntity) =>
+        ele.profile_id === connectorInfo.profile_id
+      )
+      ->Belt.Option.getWithDefault(defaultBusinessProfile)
     let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
     let connectorDetails = React.useMemo1(() => {
       try {
@@ -144,8 +153,10 @@ module ConnectorSummaryGrid = {
         </div>
       </div>
       <div className="grid grid-cols-4 my-12">
-        <h4 className="text-lg font-semibold"> {"Profile Id"->React.string} </h4>
-        <div className="col-span-3"> {connectorInfo.profile_id->React.string} </div>
+        <h4 className="text-lg font-semibold"> {"Profile"->React.string} </h4>
+        <div className="col-span-3">
+          {`${currentProfileName.profile_name} - ${connectorInfo.profile_id}`->React.string}
+        </div>
       </div>
       <div className="grid grid-cols-4  my-12">
         <h4 className="text-lg font-semibold"> {"API Keys"->React.string} </h4>
@@ -166,7 +177,6 @@ module ConnectorSummaryGrid = {
       </div>
       <div className="grid grid-cols-4 my-12">
         <h4 className="text-lg font-semibold"> {"Webhooks"->React.string} </h4>
-        // <div className="flex flex-col ">
         <div className="flex col-span-3">
           <div> {webhooksUrl->React.string} </div>
           <img
@@ -182,7 +192,6 @@ module ConnectorSummaryGrid = {
               )
             }}
           />
-          // </div>
         </div>
       </div>
       <div className="grid grid-cols-4  my-12">

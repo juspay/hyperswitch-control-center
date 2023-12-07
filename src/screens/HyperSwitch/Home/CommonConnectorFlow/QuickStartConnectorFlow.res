@@ -29,7 +29,7 @@ let make = (
   let activeBusinessProfile =
     HyperswitchAtom.businessProfilesAtom
     ->Recoil.useRecoilValueFromAtom
-    ->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    ->MerchantAccountUtils.getValueFromBusinessProfile
   let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
 
   // TO determine if the connector connected are multiple

@@ -184,7 +184,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
       setButtonState(_ => Loading)
       let mercahantUpdateBody =
         [("webhook_url", webhookEndpoint->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
-      let body = mercahantUpdateBody->HSwitchMerchantAccountUtils.getSettingsPayload(merchantId)
+      let body = mercahantUpdateBody->MerchantAccountUtils.getSettingsPayload(merchantId)
       let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ())
       let merchantInfo = await updateDetails(url, body, Post)
       setMerchantDetailsValue(._ => merchantInfo->Js.Json.stringify)

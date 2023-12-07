@@ -89,9 +89,9 @@ let make = () => {
     </div>
     <PageLoaderWrapper screenState customUI>
       <div className="flex flex-col gap-4">
-        <PageUtils.PageHeading title="Disputes" />
         <LoadedTableWithCustomColumns
-          title=""
+          title=" "
+          hideTitle=true
           actualData=filteredDisputesData
           entity={DisputesEntity.disputesEntity}
           resultsPerPage=10
@@ -111,7 +111,6 @@ let make = () => {
           customColumnMapper={DisputesEntity.disputesMapDefaultCols}
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
-          hideTitle=true
         />
       </div>
     </PageLoaderWrapper>

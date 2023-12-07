@@ -4,7 +4,7 @@ external formEventToStr: ReactEvent.Form.t => string = "%identity"
 external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
 
 module SDKConfiguarationFields = {
-  open HSwitchMerchantAccountUtils
+  open MerchantAccountUtils
   @react.component
   let make = (~initialValues: SDKPaymentTypes.paymentType) => {
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
@@ -19,27 +19,13 @@ module SDKConfiguarationFields = {
     })
 
     let selectProfileField = FormRenderer.makeFieldInfo(
-      ~label="Business profile",
+      ~label="Profile",
       ~name="profile_id",
       ~placeholder="",
       ~customInput=InputFields.selectInput(
         ~deselectDisable=true,
         ~options={arrayOfBusinessProfile->businessProfileNameDropDownOption},
         ~buttonText="Select Profile",
-        ~disableSelect=disableSelectionForProfile,
-        ~fullLength=true,
-        (),
-      ),
-      (),
-    )
-    let selectProfileId = FormRenderer.makeFieldInfo(
-      ~label="Profile Id",
-      ~name="profile_id",
-      ~placeholder="",
-      ~customInput=InputFields.selectInput(
-        ~deselectDisable=true,
-        ~options=arrayOfBusinessProfile->businessProfileIdDropDownOption,
-        ~buttonText="Select Profile Id",
         ~disableSelect=disableSelectionForProfile,
         ~fullLength=true,
         (),
@@ -83,22 +69,23 @@ module SDKConfiguarationFields = {
       (),
     )
 
-    <>
+    <div className="w-full">
       <FormRenderer.FieldRenderer field=selectProfileField fieldWrapperClass="!w-full" />
-      <FormRenderer.FieldRenderer field=selectProfileId fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=selectCurrencyField fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=enterAmountField fieldWrapperClass="!w-full" />
       <FormValuesSpy />
       <FormRenderer.SubmitButton
-        text="Show preview" disabledParamter={!(initialValues.profile_id->Js.String2.length > 0)}
+        text="Show preview"
+        disabledParamter={!(initialValues.profile_id->Js.String2.length > 0)}
+        customSumbitButtonStyle="!mt-5"
       />
-    </>
+    </div>
   }
 }
 
 @react.component
 let make = () => {
-  open HSwitchMerchantAccountUtils
+  open MerchantAccountUtils
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let filtersFromUrl = url.search->LogicUtils.getDictFromUrlSearchParams

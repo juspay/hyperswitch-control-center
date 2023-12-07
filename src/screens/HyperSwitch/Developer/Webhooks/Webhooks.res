@@ -31,7 +31,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open DeveloperUtils
   open APIUtils
   open HSwitchUtils
-  open HSwitchMerchantAccountUtils
+  open MerchantAccountUtils
   let url = RescriptReactRouter.useUrl()
   let id = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault(profileId)
   let businessProfileDetails = useGetBusinessProflile(id)
@@ -44,7 +44,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
-  let fetchBusinessProfiles = HSwitchMerchantAccountUtils.useFetchBusinessProfiles()
+  let fetchBusinessProfiles = MerchantAccountUtils.useFetchBusinessProfiles()
 
   let onSubmit = async (values, _) => {
     try {
@@ -82,7 +82,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
               link: "/webhooks",
             },
           ]
-          currentPageTitle={businessProfileDetails.profile_name->LogicUtils.capitalizeString}
+          currentPageTitle={businessProfileDetails.profile_name}
           cursorStyle="cursor-pointer"
         />
       </UIUtils.RenderIf>
@@ -97,7 +97,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
             subscription=ReactFinalForm.subscribeToValues
             validate={values => {
               open HSwitchSettingTypes
-              HSwitchMerchantAccountUtils.validateMerchantAccountForm(
+              MerchantAccountUtils.validateMerchantAccountForm(
                 ~values,
                 ~setIsDisabled=Some(setIsDisabled),
                 ~fieldsToValidate={
