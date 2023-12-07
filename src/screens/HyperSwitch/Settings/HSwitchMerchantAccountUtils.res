@@ -489,10 +489,10 @@ module BusinessProfile = {
   }
 }
 
-let businessProfileNameDropDownOption = arrBusinessProfile =>
+let businessProfileNameDropDownOption = (arrBusinessProfile, ~isFromConnectors=false, ()) =>
   arrBusinessProfile->Js.Array2.map(ele => {
     let obj: SelectBox.dropdownOption = {
-      label: ele.profile_name,
+      label: {isFromConnectors ? ele.profile_name : `${ele.profile_name} - ${ele.profile_id}`},
       value: ele.profile_id,
     }
     obj

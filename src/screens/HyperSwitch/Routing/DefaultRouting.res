@@ -102,22 +102,12 @@ let make = () => {
   <div>
     <Form initialValues={Js.Dict.empty()->Js.Json.object_}>
       <div className="w-full flex justify-between">
-        <div className="w-full">
-          <div className="flex flex-row w-full">
-            <BasicDetailsForm.BusinessProfileInp
-              setProfile={setProfile}
-              profile={profile}
-              options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
-              label="Profile Name"
-            />
-            <BasicDetailsForm.BusinessProfileInp
-              setProfile={setProfile}
-              profile={profile}
-              options={arrayOfBusinessProfile->businessProfileIdDropDownOption}
-              label="Profile Id"
-            />
-          </div>
-        </div>
+        <BasicDetailsForm.BusinessProfileInp
+          setProfile={setProfile}
+          profile={profile}
+          options={arrayOfBusinessProfile->businessProfileNameDropDownOption()}
+          label="Profile Name"
+        />
       </div>
     </Form>
     <PageLoaderWrapper

@@ -167,20 +167,12 @@ let make = (
         <div className="flex">
           <div className="w-full md:w-1/2 lg:w-1/3">
             <UIUtils.RenderIf condition={!isThreeDs}>
-              <div className="flex flex-row w-full">
-                <BusinessProfileInp
-                  setProfile={setProfile->Belt.Option.getWithDefault(_ => ())}
-                  profile={profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)}
-                  options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
-                  label="Profile Name"
-                />
-                <BusinessProfileInp
-                  setProfile={setProfile->Belt.Option.getWithDefault(_ => ())}
-                  profile={profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)}
-                  options={arrayOfBusinessProfile->businessProfileIdDropDownOption}
-                  label="Profile Id"
-                />
-              </div>
+              <BusinessProfileInp
+                setProfile={setProfile->Belt.Option.getWithDefault(_ => ())}
+                profile={profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)}
+                options={arrayOfBusinessProfile->businessProfileNameDropDownOption()}
+                label="Profile Name"
+              />
             </UIUtils.RenderIf>
             <FieldRenderer field=configurationNameInput />
             <FieldRenderer field=descriptionInput />

@@ -22,22 +22,8 @@ module SDKConfiguarationFields = {
       ~placeholder="",
       ~customInput=InputFields.selectInput(
         ~deselectDisable=true,
-        ~options={arrayOfBusinessProfile->businessProfileNameDropDownOption},
+        ~options={arrayOfBusinessProfile->businessProfileNameDropDownOption()},
         ~buttonText="Select Profile",
-        ~disableSelect=disableSelectionForProfile,
-        ~fullLength=true,
-        (),
-      ),
-      (),
-    )
-    let selectProfileId = FormRenderer.makeFieldInfo(
-      ~label="Profile Id",
-      ~name="profile_id",
-      ~placeholder="",
-      ~customInput=InputFields.selectInput(
-        ~deselectDisable=true,
-        ~options=arrayOfBusinessProfile->businessProfileIdDropDownOption,
-        ~buttonText="Select Profile Id",
         ~disableSelect=disableSelectionForProfile,
         ~fullLength=true,
         (),
@@ -65,15 +51,16 @@ module SDKConfiguarationFields = {
       (),
     )
 
-    <>
+    <div className="w-full">
       <FormRenderer.FieldRenderer field=selectProfileField fieldWrapperClass="!w-full" />
-      <FormRenderer.FieldRenderer field=selectProfileId fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=selectCurrencyField fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=enterAmountField fieldWrapperClass="!w-full" />
       <FormRenderer.SubmitButton
-        text="Show preview" disabledParamter={!(initialValues.profile_id->Js.String2.length > 0)}
+        text="Show preview"
+        disabledParamter={!(initialValues.profile_id->Js.String2.length > 0)}
+        customSumbitButtonStyle="!mt-5"
       />
-    </>
+    </div>
   }
 }
 

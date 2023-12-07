@@ -83,7 +83,10 @@ module BusinessProfileRender = {
                 ~disableSelect=isUpdateFlow,
                 ~customStyle="max-h-48",
                 ~options={
-                  arrayOfBusinessProfile->HSwitchMerchantAccountUtils.businessProfileNameDropDownOption
+                  arrayOfBusinessProfile->HSwitchMerchantAccountUtils.businessProfileNameDropDownOption(
+                    ~isFromConnectors=true,
+                    (),
+                  )
                 },
                 ~buttonText="Select Country",
                 ~placeholder="",
@@ -129,10 +132,6 @@ module BusinessProfileRender = {
       </div>
       <UIUtils.RenderIf condition={!isUpdateFlow}>
         <div className="text-gray-400 text-sm mt-3">
-          // <span> {"Add new configuration"->React.string} </span>
-          // <span className={`ml-1 mr-1 ${hereTextStyle}`} onClick={_ => onClickHandler("country")}>
-          //   {React.string("here.")}
-          // </span>
           <span> {"Manage your list of business units"->React.string} </span>
           <span
             className={`ml-1 ${hereTextStyle}`}
