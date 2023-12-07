@@ -17,12 +17,12 @@ module SDKConfiguarationFields = {
     })
 
     let selectProfileField = FormRenderer.makeFieldInfo(
-      ~label="Business profile",
+      ~label="Profile",
       ~name="profile_id",
       ~placeholder="",
       ~customInput=InputFields.selectInput(
         ~deselectDisable=true,
-        ~options={arrayOfBusinessProfile->businessProfileNameDropDownOption()},
+        ~options={arrayOfBusinessProfile->businessProfileNameDropDownOption},
         ~buttonText="Select Profile",
         ~disableSelect=disableSelectionForProfile,
         ~fullLength=true,

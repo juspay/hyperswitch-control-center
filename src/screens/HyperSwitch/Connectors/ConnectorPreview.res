@@ -153,7 +153,7 @@ module ConnectorSummaryGrid = {
         </div>
       </div>
       <div className="grid grid-cols-4 my-12">
-        <h4 className="text-lg font-semibold"> {"Profile Name"->React.string} </h4>
+        <h4 className="text-lg font-semibold"> {"Profile"->React.string} </h4>
         <div className="col-span-3">
           {`${currentProfileName.profile_name} - ${connectorInfo.profile_id}`->React.string}
         </div>

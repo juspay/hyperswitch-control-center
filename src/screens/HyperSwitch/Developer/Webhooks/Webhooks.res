@@ -82,7 +82,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
               link: "/webhooks",
             },
           ]
-          currentPageTitle={businessProfileDetails.profile_name->LogicUtils.capitalizeString}
+          currentPageTitle={businessProfileDetails.profile_name}
           cursorStyle="cursor-pointer"
         />
       </UIUtils.RenderIf>

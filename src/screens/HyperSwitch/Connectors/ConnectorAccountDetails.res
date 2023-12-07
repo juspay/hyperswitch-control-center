@@ -55,80 +55,41 @@ module BusinessProfileRender = {
     }
 
     <>
-      <div className="flex items-center gap-5">
-        <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-black"
-          field={FormRenderer.makeFieldInfo(
-            ~label="Profile Name",
-            ~isRequired=true,
-            ~name="profile_id",
-            ~customInput=(~input, ~placeholder as _) =>
-              InputFields.selectInput(
-                ~input={
-                  ...input,
-                  onChange: {
-                    ev => {
-                      input.onChange(ev)
-                      mixpanelEventWrapper(
-                        ~url,
-                        ~selectedConnector,
-                        ~actionName=`settings_choose_country`,
-                        ~hyperswitchMixPanel,
-                      )
-                    }
-                  },
+      <FormRenderer.FieldRenderer
+        labelClass="font-semibold !text-black"
+        field={FormRenderer.makeFieldInfo(
+          ~label="Profile",
+          ~isRequired=true,
+          ~name="profile_id",
+          ~customInput=(~input, ~placeholder as _) =>
+            InputFields.selectInput(
+              ~input={
+                ...input,
+                onChange: {
+                  ev => {
+                    input.onChange(ev)
+                    mixpanelEventWrapper(
+                      ~url,
+                      ~selectedConnector,
+                      ~actionName=`settings_choose_country`,
+                      ~hyperswitchMixPanel,
+                    )
+                  }
                 },
-                ~deselectDisable=true,
-                ~disableSelect=isUpdateFlow,
-                ~customStyle="max-h-48",
-                ~options={
-                  arrayOfBusinessProfile->MerchantAccountUtils.businessProfileNameDropDownOption(
-                    ~isFromConnectors=true,
-                    (),
-                  )
-                },
-                ~buttonText="Select Country",
-                ~placeholder="",
-                (),
-              ),
-            (),
-          )}
-        />
-        <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-black"
-          field={FormRenderer.makeFieldInfo(
-            ~label="Profile Id",
-            ~isRequired=true,
-            ~name="profile_id",
-            ~customInput=(~input, ~placeholder as _) =>
-              InputFields.selectInput(
-                ~input={
-                  ...input,
-                  onChange: {
-                    ev => {
-                      input.onChange(ev)
-                      mixpanelEventWrapper(
-                        ~url,
-                        ~selectedConnector,
-                        ~actionName=`settings_choose_label`,
-                        ~hyperswitchMixPanel,
-                      )
-                    }
-                  },
-                },
-                ~options={
-                  arrayOfBusinessProfile->MerchantAccountUtils.businessProfileIdDropDownOption
-                },
-                ~buttonText="Select Option",
-                ~deselectDisable=true,
-                ~disableSelect=isUpdateFlow,
-                ~placeholder="",
-                (),
-              ),
-            (),
-          )}
-        />
-      </div>
+              },
+              ~deselectDisable=true,
+              ~disableSelect=isUpdateFlow,
+              ~customStyle="max-h-48",
+              ~options={
+                arrayOfBusinessProfile->MerchantAccountUtils.businessProfileNameDropDownOption
+              },
+              ~buttonText="Select Country",
+              ~placeholder="",
+              (),
+            ),
+          (),
+        )}
+      />
       <UIUtils.RenderIf condition={!isUpdateFlow}>
         <div className="text-gray-400 text-sm mt-3">
           <span> {"Manage your list of business units"->React.string} </span>

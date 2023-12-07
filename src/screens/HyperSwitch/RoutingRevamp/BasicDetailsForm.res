@@ -146,7 +146,7 @@ let make = (
             <AddDataAttributes attributes=[("data-field", "Profile Id")]>
               <div className="flex flex-col gap-2 items-start justify-between py-2">
                 <span className="text-gray-500 dark:text-gray-400">
-                  {React.string("Profile Name")}
+                  {React.string("Profile")}
                 </span>
                 <AddDataAttributes attributes=[("data-text", getStringFromJson(ip3.value, ""))]>
                   <span className="font-semibold">
@@ -170,8 +170,8 @@ let make = (
               <BusinessProfileInp
                 setProfile={setProfile->Belt.Option.getWithDefault(_ => ())}
                 profile={profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)}
-                options={arrayOfBusinessProfile->businessProfileNameDropDownOption()}
-                label="Profile Name"
+                options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
+                label="Profile"
               />
             </UIUtils.RenderIf>
             <FieldRenderer field=configurationNameInput />

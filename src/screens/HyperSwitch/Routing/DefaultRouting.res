@@ -104,8 +104,8 @@ let make = () => {
         <BasicDetailsForm.BusinessProfileInp
           setProfile={setProfile}
           profile={profile}
-          options={arrayOfBusinessProfile->businessProfileNameDropDownOption()}
-          label="Profile Name"
+          options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
+          label="Profile"
         />
       </div>
     </Form>
