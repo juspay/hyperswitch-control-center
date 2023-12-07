@@ -9,6 +9,7 @@ let make = (
   ~customIconColor="",
   ~customWidth=?,
   ~customHeight=?,
+  ~id=?,
 ) => {
   let urlPrefix = ""
 
@@ -31,6 +32,7 @@ let make = (
       | None => "flex flex-col justify-center"
       }}>
       <svg
+        ?id
         onClick=handleClick
         fill=customIconColor
         className={`fill-current ${otherClasses}`}

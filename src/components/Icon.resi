@@ -9,4 +9,5 @@ let make: (
   ~customIconColor: string=?,
   ~customWidth: string=?,
   ~customHeight: string=?,
+  ~id: string=?,
 ) => React.element

@@ -76,6 +76,7 @@ module.exports = {
       },
       animation: {
         "spin-slow": "spin 3s linear infinite",
+        spin: "spin 1s linear infinite",
         slideUp: "slideUp 200ms ease-out forwards",
         fade: "fadeOut 1s ease-in-out forwards",
         secondsOnes: "secondsOnes 10s 0s 18 reverse", // format keyframe, duration, delay, iteration-count, direction
@@ -92,6 +93,7 @@ module.exports = {
         ripple: "ripple 10s ease-in-out",
         horizontalShaking: "horizontalShaking 0.5s 1s",
         horizontalShakingDelay: "horizontalShaking 0.5s 4s",
+        shimmerMove: "shimmerMove 3s infinite ease",
       },
       transitionDelay: {
         12: "12000ms",
@@ -314,6 +316,17 @@ module.exports = {
           },
           "100%": { transform: "translateX(0%)" },
         },
+        spin: {
+          "100%": { transform: "rotate(1turn)" },
+        },
+        shimmerMove: {
+          "0%": {
+            transform: "translateX(calc(150%*-1));",
+          },
+          "100%": {
+            transform: "translateX(150%)",
+          },
+        },
       }),
       fontSize: {
         body: "1rem",
@@ -358,6 +371,7 @@ module.exports = {
           850: "#151A1F",
           900: "#333333",
           950: "#212830",
+          mobile_frame: "#404040c9",
         },
         green: {
           50: "#EFF4EF",
@@ -544,6 +558,29 @@ module.exports = {
         "ardra-purple": "#7984E6",
         statusArdra: "#E6A779",
         statusCreated: "#5C6073",
+        "jb-black": {
+          DEFAULT: "#000000",
+          50: "#F3F3F3",
+          100: "#DADADA",
+          200: "#C0C0C0",
+          300: "#A8A8A8",
+          400: "#909090",
+          500: "#787878",
+          600: "#626262",
+          700: "#4C4C4C",
+          800: "#373737",
+          900: "#242424",
+        },
+        default_theme_button_shimmer:
+          "linear-gradient(to_right,rgba(0,109,249,0)_0%,rgb(43,136,255)_50%,rgba(0,109,249,0)_100%)",
+        brutal_theme_button_shimmer:
+          "linear-gradient(to_right,rgba(245,251,31,0)_0%,rgb(251,252,198)_50%,rgba(245,251,31,0)_100%)",
+        midnight_theme_button_shimmer:
+          "linear-gradient(to_right,rgba(133,217,150,0)_0%,rgb(176,222,185)_50%,rgba(133,217,150,0)_100%)",
+        soft_theme_button_shimmer:
+          "linear-gradient(to_right,rgba(62,62,62,0)_0%,rgb(70,70,70)_50%,rgba(62,62,62,0)_100%)",
+        charcoal_theme_button_shimmer:
+          "linear-gradient(to_right,rgba(0,0,0,0)_0%,rgb(70,70,70)_50%,rgba(0,0,0,0)_100%)",
       },
       fontSize: {
         "fs-10": "10px",
@@ -575,6 +612,38 @@ module.exports = {
         boxShadowMultiple:
           "2px -2px 24px 0px rgba(0, 0, 0, 0.04), -2px 2px 24px 0px rgba(0, 0, 0, 0.02)",
         homePageBoxShadow: "0px 2px 16px 2px rgba(51, 51, 51, 0.16)",
+        websiteShadow:
+          "0 20px 44px rgba(50, 50, 93, .12), 0 -1px 32px rgba(50, 50, 93, .06), 0 3px 12px rgba(0, 0, 0, .08)",
+        mobileHeaderShadow: "0 0 2px rgba(10, 37, 64, .1)",
+        mobileFrameShadow:
+          "0 20px 44px rgba(50, 50, 93, .12), 0 -1px 32px rgba(50, 50, 93, .06), 0 3px 12px rgba(0, 0, 0, .08), inset 0 -2px 5px rgba(10, 37, 64, .35)",
+        testCardsShadow:
+          "0 2px 5px rgba(60, 66, 87, .12), 0 1px 1px rgba(0, 0, 0, .08)",
+        filterDropdownShadow:
+          "0 0 0 1px rgba(136, 152, 170, .1), 0 15px 35px 0 rgba(49, 49, 93, .1), 0 5px 15px 0 rgba(0, 0, 0, .08)",
+        filterExtraShadow: "rgb(227, 232, 238) 0px 1px 0px 0px inset",
+        websiteHeaderShadow: "0 0.5px 0 #ecf2f7",
+        modalShadow:
+          "rgba(0,0,0,0.2)_0px_40px_100px_0px,rgba(0,0,0,0.03)_0px_6px_12px_0px",
+        defaultBoxShadowClassForSDKShadow: "rgba(0,0,0,0.18)_15px_0px_30px_0px",
+        midnightBoxShadowClassForSDKShadow:
+          "rgba(0,0,0,0.82)_15px_0px_30px_0px",
+        defaultModalInputShadow:
+          "rgb(224,224,224)_0px_0px_0px_1px,rgba(0,0,0,0.07)_0px_2px_4px_0px,rgba(0,0,0,0.05)_0px_1px_1.5px_0px",
+        defaultModalInputFocusShadow: "#006df94c_0px_0px_0px_3px",
+        brutalModalInputShadow: "0.12em_0.12em",
+        brutalModalInputFocusShadow: "0.02em_0.02em",
+        midnightModalInputShadow:
+          "0px_2px_4px_rgb(0,0,0,0.5),0px_1px_6px_rgba(0,0,0,0.25)",
+        midnightModalInputFocusShadow: "#85d9964c_0px_0p_0px_3px",
+        softModalInputShadow:
+          "inset_4px_4px_5px_#353637,inset_-4px_-3px_7px_#434445",
+        charcoalModalInputShadow:
+          "rgb(224,224,224)_0px_0px_0px_1px,rgba(0,0,0,0.07)_0px_2px_4px_0px,rgba(0,0,0,0.05)_0px_1px_1.5px_0px",
+        charcoalModalInputFocusShadow: "#0000004c_0px_0px_0px_3px",
+        brutalButtonShadow: "0.15em_0.15em",
+        brutalButtonActiveShadow: "0.02em_0.02em",
+        softButtonShadow: "4px_4px_5px_#353637,-4px_-4px_5px_#434445",
       },
       gridTemplateColumns: {
         6: "repeat(6, minmax(0, 1fr))",

@@ -221,3 +221,23 @@ type boundingClient = {x: int, y: int, width: int, height: int}
 type env = {apiBaseUrl?: string, sdkBaseUrl?: string}
 @val @scope("window")
 external env: env = "_env_"
+
+type searchParams = {set: (. string, string) => unit, get: (. string) => Js.Json.t}
+type url = {searchParams: searchParams, href: string}
+@new external urlSearch: string => url = "URL"
+
+@val @scope("document") external createElement: string => Dom.element = "createElement"
+
+type location = {replace: (. string) => unit, href: string}
+@val @scope("window") external location: location = "location"
+
+@set external elementSrc: (Dom.element, string) => unit = "src"
+@set external elementOnload: (Dom.element, unit => unit) => unit = "onload"
+@set external elementOnerror: (Dom.element, exn => unit) => unit = "onerror"
+
+type body
+
+@val @scope("document")
+external body: body = "body"
+
+@send external appendChild: (body, Dom.element) => unit = "appendChild"

@@ -42,10 +42,14 @@ let renderDashboardApp = (~uiConfig, children) => {
   | Some(container) =>
     open ReactDOM.Client
     open ReactDOM.Client.Root
+    open Window
 
     let root = createRoot(container)
+    let windowUrl = urlSearch(location.href)
+    let isDemoStore = windowUrl.href->Js.String2.includes("demo-store")
+    let demoStoreClass = isDemoStore ? "overflow-scroll bg-[#f6f8fb]" : "overflow-hidden"
     root->render(
-      <div className={`h-screen overflow-hidden flex flex-col font-inter-style`}>
+      <div className={`h-screen ${demoStoreClass} flex flex-col font-inter-style`}>
         <ContextWrapper uiConfig> children </ContextWrapper>
       </div>,
     )
