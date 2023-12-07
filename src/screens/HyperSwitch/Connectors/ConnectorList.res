@@ -1,6 +1,27 @@
 external formEventToStr: ReactEvent.Form.t => string = "%identity"
 
 let p1MediumTextStyle = HSwitchUtils.getTextClass(~textVariant=P1, ~paragraphTextVariant=Medium, ())
+
+module RequestAConnector = {
+  @react.component
+  let make = (~connectorList, ~setShowModal) => {
+    <UIUtils.RenderIf condition={connectorList->Js.Array2.length === 0}>
+      <div
+        className="flex flex-col gap-6 items-center justify-center w-full bg-white rounded-lg border p-8">
+        <div className="mb-8 mt-4 max-w-full h-auto">
+          <img src={`${LogicUtils.useUrlPrefix()}/notfound.svg`} />
+        </div>
+        <p className="jp-grey-700 opacity-50">
+          {"Uh-oh! Looks like we couldn't find the processor you were searching for."->React.string}
+        </p>
+        <Button
+          text={"Request a processor"} buttonType=Primary onClick={_ => setShowModal(_ => true)}
+        />
+      </div>
+    </UIUtils.RenderIf>
+  }
+}
+
 module NewProcessorCards = {
   @react.component
   let make = (
@@ -48,11 +69,21 @@ module NewProcessorCards = {
       (),
     ) => {
       <>
+        <h2
+          className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+          {heading->React.string}
+        </h2>
         <div className="flex w-full justify-between">
-          <h2
-            className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
-            {heading->React.string}
-          </h2>
+          <UIUtils.RenderIf condition={showSearch}>
+            <input
+              ref={searchRef->ReactDOM.Ref.domRef}
+              type_="text"
+              value=searchedConnector
+              onChange=handleSearch
+              placeholder="Search a processor"
+              className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
+            />
+          </UIUtils.RenderIf>
           <UIUtils.RenderIf condition={showRequestConnectorBtn}>
             <div
               onClick={_ => setShowModal(_ => true)}
@@ -61,16 +92,6 @@ module NewProcessorCards = {
             </div>
           </UIUtils.RenderIf>
         </div>
-        <UIUtils.RenderIf condition={showSearch}>
-          <input
-            ref={searchRef->ReactDOM.Ref.domRef}
-            type_="text"
-            value=searchedConnector
-            onChange=handleSearch
-            placeholder="Search processor"
-            className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
-          />
-        </UIUtils.RenderIf>
         <UIUtils.RenderIf condition={connectorList->Js.Array2.length > 0}>
           <div className="grid gap-x-5 gap-y-6 lg:grid-cols-4 md:grid-cols-2 grid-cols-1 mb-5">
             {connectorList
@@ -103,11 +124,7 @@ module NewProcessorCards = {
             ->React.array}
           </div>
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={connectorList->Js.Array2.length === 0}>
-          <p className="flex items-center justify-center w-full jp-grey-700 opacity-50">
-            {"No processor found !!"->React.string}
-          </p>
-        </UIUtils.RenderIf>
+        <RequestAConnector connectorList setShowModal />
       </>
     }
 
@@ -119,11 +136,21 @@ module NewProcessorCards = {
       (),
     ) => {
       <>
+        <h2
+          className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+          {heading->React.string}
+        </h2>
         <div className="flex w-full justify-between">
-          <h2
-            className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
-            {heading->React.string}
-          </h2>
+          <UIUtils.RenderIf condition={showSearch}>
+            <input
+              ref={searchRef->ReactDOM.Ref.domRef}
+              type_="text"
+              value=searchedConnector
+              onChange=handleSearch
+              placeholder="Search a processor"
+              className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
+            />
+          </UIUtils.RenderIf>
           <UIUtils.RenderIf condition={showRequestConnectorBtn}>
             <div
               onClick={_ => setShowModal(_ => true)}
@@ -132,18 +159,8 @@ module NewProcessorCards = {
             </div>
           </UIUtils.RenderIf>
         </div>
-        <UIUtils.RenderIf condition={showSearch}>
-          <input
-            ref={searchRef->ReactDOM.Ref.domRef}
-            type_="text"
-            value=searchedConnector
-            onChange=handleSearch
-            placeholder="Search processor"
-            className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
-          />
-        </UIUtils.RenderIf>
-        <div className="bg-white rounded-md flex gap-2 flex-wrap p-4 border">
-          <UIUtils.RenderIf condition={connectorList->Js.Array2.length > 0}>
+        <UIUtils.RenderIf condition={connectorList->Js.Array2.length > 0}>
+          <div className="bg-white rounded-md flex gap-2 flex-wrap p-4 border">
             {connectorList
             ->Array.mapWithIndex((connector, i) => {
               let connectorName = connector->ConnectorUtils.getConnectorNameString
@@ -160,13 +177,9 @@ module NewProcessorCards = {
               />
             })
             ->React.array}
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={connectorList->Js.Array2.length === 0}>
-            <p className="flex items-center justify-center w-full jp-grey-700 opacity-50">
-              {"No processor found !!"->React.string}
-            </p>
-          </UIUtils.RenderIf>
-        </div>
+          </div>
+        </UIUtils.RenderIf>
+        <RequestAConnector connectorList setShowModal />
       </>
     }
 
