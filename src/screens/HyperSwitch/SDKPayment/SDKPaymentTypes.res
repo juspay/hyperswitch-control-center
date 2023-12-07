@@ -32,7 +32,7 @@ type orderDetails = {
 type metadata = {order_details: orderDetails}
 
 type paymentType = {
-  mutable amount: int,
+  amount: int,
   mutable currency: string,
   profile_id: string,
   customer_id: string,
@@ -47,4 +47,5 @@ type paymentType = {
   shipping: shipping,
   billing: billing,
   metadata: metadata,
+  return_url: string,
 }

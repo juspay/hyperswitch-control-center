@@ -112,7 +112,6 @@ fields: {
         radios: true,
         spacedAccordionItems: false,
       },
-    showCardFormByDefault: false,
     wallets: {
         walletReturnUrl: returnUrl,
         applePay: "auto",
