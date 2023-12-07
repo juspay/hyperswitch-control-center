@@ -27,7 +27,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   let downloadReport = async body => {
     try {
       let url = getURL(~entityName, ~methodType=Post, ())
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setReportModal(_ => false)
       showToast(~message="Email Sent", ~toastType=ToastSuccess, ())
     } catch {

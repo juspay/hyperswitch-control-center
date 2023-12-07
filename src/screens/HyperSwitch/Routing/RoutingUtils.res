@@ -623,7 +623,7 @@ module SaveAndActivateButton = {
           onSubmitResponse->Js.Nullable.toOption->Belt.Option.getWithDefault(Js.Json.null)
         let currentActivatedId =
           currentActivatedFromJson->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
-        let _response = await handleActivateConfiguration(Some(currentActivatedId))
+        let _ = await handleActivateConfiguration(Some(currentActivatedId))
       } catch {
       | Js.Exn.Error(e) =>
         let _err =

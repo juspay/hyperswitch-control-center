@@ -365,7 +365,7 @@ let make = (
         ~connector=Some(connector),
         (),
       )
-      let _response = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setShowVerifyModal(_ => false)
       onSubmitMain(values)->ignore
     } catch {

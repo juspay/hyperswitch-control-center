@@ -214,7 +214,7 @@ module OverviewInfo = {
     let generateSampleData = async () => {
       try {
         let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
-        let _generateSampleData = await updateDetails(
+        let _ = await updateDetails(
           generateSampleDataUrl,
           [("record", 50.0->Js.Json.number)]->Js.Dict.fromArray->Js.Json.object_,
           Post,

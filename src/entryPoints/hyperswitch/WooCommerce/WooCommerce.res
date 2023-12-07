@@ -246,7 +246,7 @@ let make = () => {
     try {
       if forward && !(stepInView->enumToValueMapper(enums)) {
         let currentStepVariant = stepInView->variantToEnumMapper
-        let _resp = await Boolean(true)->usePostEnumDetails(currentStepVariant)
+        let _ = await Boolean(true)->usePostEnumDetails(currentStepVariant)
       }
     } catch {
     | _ => ()
