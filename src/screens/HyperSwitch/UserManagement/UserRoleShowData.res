@@ -5,10 +5,10 @@ let make = (~id as _) => {
 
   <div className="flex flex-col overflow-scroll">
     {switch stateName->Js.String2.toLowerCase {
-    | "user" => <HSwitchShowUserData />
+    | "user" => <ShowUserData />
     | _ => {
         RescriptReactRouter.replace("?state=user")
-        <HSwitchShowUserData />
+        <ShowUserData />
       }
     }}
   </div>

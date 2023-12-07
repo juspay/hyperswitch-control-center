@@ -1,5 +1,5 @@
 module InviteEmailForm = {
-  open HSwitchUserManagementUtils
+  open UserManagementUtils
   @react.component
   let make = (~setRoleTypeValue) => {
     open LogicUtils
@@ -24,7 +24,7 @@ module InviteEmailForm = {
           (),
         )
         let response = await fetchDetails(roleListUrl)
-        let typedResponse: array<HSwitchUserRoleEntity.roleListResponse> =
+        let typedResponse: array<UserRoleEntity.roleListResponse> =
           response->LogicUtils.getArrayDataFromJson(roleListResponseMapper)
         setRoleListData(_ => typedResponse)
       } catch {
@@ -68,7 +68,7 @@ module InviteEmailForm = {
 
 @react.component
 let make = () => {
-  open HSwitchUserManagementUtils
+  open UserManagementUtils
   open APIUtils
   open LogicUtils
   let fetchDetails = useGetMethod()
