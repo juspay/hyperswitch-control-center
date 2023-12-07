@@ -36,7 +36,7 @@ let make = (
   ~tableheadingClass="",
   ~tableBorderClass="",
   ~tableDataBorderClass="",
-  ~collapseTabelRow=false,
+  ~collapseTableRow=false,
   ~getRowDetails=_ => React.null,
   ~onMouseEnter=?,
   ~onMouseLeave=?,
@@ -132,7 +132,7 @@ let make = (
     ?renderCard
     ?defaultSort
     tableLocalFilter
-    collapseTabelRow
+    collapseTableRow
     ?frozenUpto
     ?heightHeadingClass
     getRowDetails

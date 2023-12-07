@@ -45,21 +45,6 @@ module Add3DSCondition = {
   @react.component
   let make = (~isFirst, ~id) => {
     let classStyle = "flex justify-center relative py-2 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border-2 border-border_gray border-opacity-50 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
-    let (dropdownval, setDropdownval) = React.useState(_ => "three_ds")
-    let field = ReactFinalForm.useField(`${id}.routingOutput.override_3ds`).input
-
-    let input: ReactFinalForm.fieldRenderPropsInput = {
-      name: `${id}.routingOutput.override_3ds`,
-      onBlur: _ev => (),
-      onChange: ev => {
-        let value = ev->AdvancedRoutingUIUtils.formEventToStr
-        field.onChange(value->toForm)
-        setDropdownval(_ => value)
-      },
-      onFocus: _ev => (),
-      value: dropdownval->Js.Json.string,
-      checked: true,
-    }
 
     let options: array<SelectBox.dropdownOption> = [
       {value: "three_ds", label: "3DS"},
@@ -74,13 +59,19 @@ module Add3DSCondition = {
         <div className="flex flex-wrap gap-4 -mt-2">
           <div className=classStyle> {"Auth type"->React.string} </div>
           <div className=classStyle> {"= is Equal to"->React.string} </div>
-          <SelectBox.BaseDropdown
-            allowMultiSelect=false
-            buttonText="Select Field"
-            input
-            options
-            hideMultiSelectButtons=true
-            deselectDisable=true
+          <FormRenderer.FieldRenderer
+            field={FormRenderer.makeFieldInfo(
+              ~label="",
+              ~name=`${id}.connectorSelection.override_3ds`,
+              ~customInput=InputFields.selectInput(
+                ~options,
+                ~buttonText="Select Field",
+                ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
+                ~deselectDisable=true,
+                (),
+              ),
+              (),
+            )}
           />
         </div>
       </div>
@@ -100,7 +91,7 @@ module Wrapper = {
     ~notFirstRule=true,
     ~isDragging=false,
     ~wasm,
-    ~isfrom3ds=false,
+    ~isFrom3ds=false,
   ) => {
     let showToast = ToastState.useShowToast()
     let isMobileView = MatchMedia.useMobileChecker()
@@ -230,12 +221,12 @@ module Wrapper = {
             ${border} 
             border-blue-700`}>
         <UIUtils.RenderIf condition={!isFirst}>
-          <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm />
+          <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm isFrom3ds />
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!isfrom3ds}>
+        <UIUtils.RenderIf condition={!isFrom3ds}>
           <AddRuleGateway id gatewayOptions isExpanded isFirst />
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={isfrom3ds}>
+        <UIUtils.RenderIf condition={isFrom3ds}>
           <Add3DSCondition isFirst id />
         </UIUtils.RenderIf>
       </div>
@@ -572,65 +563,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
       let rulesDict = dataDict->getArrayFromDict("rules", [])
 
-      let modifiedRules = rulesDict->Js.Array2.map(ruleJson => {
-        let ruleDict = ruleJson->getDictFromJsonObject
-        let statements = ruleDict->getArrayFromDict("statements", [])
-
-        let modifiedStatements = statements->Array.reduce(
-          [
-            {
-              condition: [],
-            },
-          ],
-          (acc, statement) => {
-            let statementDict = statement->getDictFromJsonObject
-            let logicalOperator = statementDict->getString("logical", "")->Js.String2.toLowerCase
-
-            let lastItem =
-              acc
-              ->Belt.Array.get(acc->Js.Array2.length - 1)
-              ->Belt.Option.getWithDefault({condition: []})
-
-            let condition = {
-              lhs: statementDict->getString("lhs", ""),
-              comparison: switch statementDict->getString("comparison", "")->operatorMapper {
-              | IS
-              | EQUAL_TO
-              | CONTAINS => "equal"
-              | IS_NOT
-              | NOT_CONTAINS
-              | NOT_EQUAL_TO => "not_equal"
-              | GREATER_THAN => "greater_than"
-              | LESS_THAN => "less_than"
-              | UnknownOperator(str) => str
-              },
-              value: statementDict->getDictfromDict("value")->getStatementValue,
-              metadata: statementDict->getJsonObjectFromDict("metadata"),
-            }
-
-            let newAcc = if logicalOperator === "or" {
-              acc->Js.Array2.concat([
-                {
-                  condition: [condition],
-                },
-              ])
-            } else {
-              lastItem.condition->Array.push(condition)
-              let filteredArr =
-                acc->Array.filterWithIndex((_, i) => i !== acc->Js.Array2.length - 1)
-              filteredArr->Array.push(lastItem)
-              filteredArr
-            }
-
-            newAcc
-          },
-        )
-        {
-          "name": ruleDict->getString("name", ""),
-          "connectorSelection": ruleDict->getJsonObjectFromDict("connectorSelection"),
-          "statements": modifiedStatements->Js.Array2.map(toJson)->Js.Json.array,
-        }
-      })
+      let modifiedRules = rulesDict->generateRule
 
       let defaultSelection =
         dataDict

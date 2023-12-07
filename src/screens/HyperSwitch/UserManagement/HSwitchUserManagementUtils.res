@@ -156,7 +156,6 @@ let roleListResponseMapper: Js.Dict.t<
 > => HSwitchUserRoleEntity.roleListResponse = dict => {
   open LogicUtils
   {
-    permissions: dict->getStrArray("permissions"),
     role_id: dict->getString("role_id", ""),
     role_name: dict->getString("role_name", ""),
   }

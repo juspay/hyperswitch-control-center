@@ -50,14 +50,12 @@ let make = () => {
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let verificationDays = getFromMerchantDetails("verification")->LogicUtils.getIntFromString(-1)
   let userRole = getFromUserDetails("user_role")
-  let modeText =
-    featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false) ? "Live Mode" : "Test Mode"
+  let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let titleComingSoonMessage = "Coming Soon!"
   let subtitleComingSoonMessage = "We are currently working on this page."
-  let modeStyles =
-    featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false)
-      ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
-      : "bg-orange-600/80 border-orange-500 text-grey-700"
+  let modeStyles = featureFlagDetails.isLiveMode
+    ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
+    : "bg-orange-600/80 border-orange-500 text-grey-700"
 
   let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
   let isReconEnabled =
@@ -93,7 +91,6 @@ let make = () => {
       } else {
         setDashboardPageState(_ => #AGREEMENT_SIGNATURE)
       }
-      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ =>
       setDashboardPageState(_ => #HOME)
@@ -123,6 +120,18 @@ let make = () => {
       let _profileDetails = await fetchBusinessProfiles()
       let _connectorList = await fetchConnectorListResponse()
       let _merchantDetails = await fetchMerchantAccountDetails()
+
+      if featureFlagDetails.quickStart {
+        let _featureFlag = await fetchInitialEnums()
+      }
+
+      if featureFlagDetails.isLiveMode {
+        getAgreementEnum()->ignore
+      } else {
+        setDashboardPageState(_ => #HOME)
+      }
+
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ =>
       setDashboardPageState(_ => #HOME)
@@ -134,27 +143,6 @@ let make = () => {
     setUpDashboard()->ignore
     None
   })
-
-  React.useEffect1(() => {
-    switch featureFlagDetails.testLiveMode {
-    | Some(val) =>
-      if val {
-        getAgreementEnum()->ignore
-      } else {
-        setDashboardPageState(_ => #HOME)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      }
-    | None => ()
-    }
-    None
-  }, [featureFlagDetails.testLiveMode])
-
-  React.useEffect1(() => {
-    if featureFlagDetails.quickStart {
-      fetchInitialEnums()->ignore
-    }
-    None
-  }, [featureFlagDetails.quickStart])
 
   let setPageState = (pageState: ProviderTypes.dashboardPageStateTypes) => {
     setDashboardPageState(_ => pageState)
@@ -192,16 +180,16 @@ let make = () => {
     }
   }
 
-  <div>
-    {switch dashboardPageState {
-    | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
-    | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
-    | #INTEGRATION_DOC => <UserOnboarding />
-    | #AGREEMENT_SIGNATURE => <HSwitchAgreementScreen />
-    | #PROD_ONBOARDING => <ProdOnboardingLanding />
-    | #QUICK_START => <ConfigureControlCenter />
-    | #HOME =>
-      <PageLoaderWrapper screenState={screenState} customStyleForDefaultLandingPage="!h-screen">
+  <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen">
+    <div>
+      {switch dashboardPageState {
+      | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
+      | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
+      | #INTEGRATION_DOC => <UserOnboarding />
+      | #AGREEMENT_SIGNATURE => <HSwitchAgreementScreen />
+      | #PROD_ONBOARDING => <ProdOnboardingLanding />
+      | #QUICK_START => <ConfigureControlCenter />
+      | #HOME =>
         <div className="relative">
           <div className={`h-screen flex flex-col`}>
             <div className="flex relative overflow-auto h-screen ">
@@ -229,7 +217,7 @@ let make = () => {
                   </div>
                 </div>
                 <div
-                  className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll ">
+                  className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
                   <div
                     className="w-full h-full max-w-fixedPageWidth p-6 md:px-16 md:pb-16 pt-[3rem] overflow-scroll md:overflow-y-scroll md:overflow-x-hidden flex flex-col gap-10">
                     <ErrorBoundary>
@@ -334,7 +322,7 @@ let make = () => {
                         <EntityScaffold
                           entityName="WebHooks"
                           remainingPath
-                          renderList={() => <BusinessProfile isFromWebhooks=true />}
+                          renderList={() => <WebhookList />}
                           renderShow={profileId =>
                             <Webhooks webhookOnly=false showFormOnly=false />}
                         />
@@ -343,7 +331,7 @@ let make = () => {
                           <Recon />
                         </FeatureFlagEnabledComponent>
                       | list{"sdk"} =>
-                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.openSDK>
+                        <FeatureFlagEnabledComponent isEnabled={!featureFlagDetails.isLiveMode}>
                           <SDKPage />
                         </FeatureFlagEnabledComponent>
                       | list{"3ds"} => <HSwitchThreeDS />
@@ -385,13 +373,13 @@ let make = () => {
             </RenderIf>
           </div>
         </div>
-      </PageLoaderWrapper>
-    | #WOOCOMMERCE_FLOW => <WooCommerce />
-    | #DEFAULT =>
-      <div className="h-screen flex justify-center items-center">
-        <Loader />
-      </div>
-    | #STRIPE_PLUS_PAYPAL => <StripePlusPaypal />
-    }}
-  </div>
+      | #WOOCOMMERCE_FLOW => <WooCommerce />
+      | #DEFAULT =>
+        <div className="h-screen flex justify-center items-center">
+          <Loader />
+        </div>
+      | #STRIPE_PLUS_PAYPAL => <StripePlusPaypal />
+      }}
+    </div>
+  </PageLoaderWrapper>
 }

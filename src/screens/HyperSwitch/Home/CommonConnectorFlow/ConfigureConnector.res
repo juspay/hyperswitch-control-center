@@ -6,7 +6,6 @@ let make = (~connectProcessorValue: connectProcessor) => {
   open QuickStartUtils
   open APIUtils
   let updateDetails = useUpdateMethod()
-
   let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
   let {quickStartPageState, setQuickStartPageState, setDashboardPageState} = React.useContext(
     GlobalProvider.defaultContext,
