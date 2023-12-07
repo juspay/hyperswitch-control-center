@@ -318,13 +318,13 @@ let make = () => {
                             <SystemMetricsAnalytics />
                           </AnalyticsUrlUpdaterContext>
                         </UIUtils.RenderIf>
-                      | list{"webhooks", ...remainingPath} =>
+                      | list{"payment-settings", ...remainingPath} =>
                         <EntityScaffold
-                          entityName="WebHooks"
+                          entityName="PaymentSettings"
                           remainingPath
-                          renderList={() => <WebhookList />}
+                          renderList={() => <PaymentSettingsList />}
                           renderShow={profileId =>
-                            <Webhooks webhookOnly=false showFormOnly=false />}
+                            <PaymentSettings webhookOnly=false showFormOnly=false />}
                         />
                       | list{"recon"} =>
                         <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.recon>

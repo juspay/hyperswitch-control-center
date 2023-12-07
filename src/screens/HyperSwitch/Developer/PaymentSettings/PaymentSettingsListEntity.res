@@ -57,7 +57,7 @@ let webhookProfileTableEntity = EntityType.makeEntity(
   ~dataKey="",
   ~getCell,
   ~getShowLink={
-    profile => `/webhooks/${profile.profile_id}`
+    profile => `/payment-settings/${profile.profile_id}`
   },
   (),
 )
