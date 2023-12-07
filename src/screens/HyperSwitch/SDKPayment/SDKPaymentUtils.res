@@ -53,7 +53,7 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
     },
     capture_method: "automatic",
     amount_to_capture: 100,
-    return_url: Window.Location.href,
+    return_url: `${Window.Location.origin}${Window.Location.pathName}`,
   }
 }
 
@@ -78,7 +78,7 @@ let getTypedValueForPayment: Js.Json.t => SDKPaymentTypes.paymentType = values =
     values->getDictFromJsonObject->getDictfromDict("shipping")->getDictfromDict("phone")
   let metaData =
     values->getDictFromJsonObject->getDictfromDict("metadata")->getDictfromDict("order_details")
-  // let cents = dictOfValues->getInt("amount", 100)
+
   {
     amount: dictOfValues->getInt("amount", 100),
     currency: dictOfValues->getString("currency", "United States-USD"),
