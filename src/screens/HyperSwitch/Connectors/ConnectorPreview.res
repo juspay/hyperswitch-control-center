@@ -280,8 +280,7 @@ let make = (
       <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
           <GatewayIcon
-            gateway={connectorInfo.connector_name->Js.String2.toUpperCase}
-            className="w-14 h-14 rounded-full"
+            gateway={connectorInfo.connector_name->Js.String2.toUpperCase} className="w-14 h-14"
           />
           <h2 className="text-xl font-semibold">
             {connectorInfo.connector_name->LogicUtils.capitalizeString->React.string}
