@@ -57,13 +57,12 @@ module SavedViewTable = {
 module FiltersComponent = {
   @react.component
   let make = (
-    ~index,
     ~filterEntity: AnalyticsUtils.filterEntity<'t>,
     ~downloadDataButtonUi: React.element=React.null,
   ) => {
     open AnalyticsUtils
     let iframe_padding = parent !== window ? "px-5" : ""
-    let getFilterData = AnalyticsHooks.useGetFiltersData(~index)
+    let getFilterData = AnalyticsHooks.useGetFiltersData()
     let {updateExistingKeys, filterValue} = React.useContext(FilterContext.filterContext)
 
     let {
@@ -177,7 +176,6 @@ module FiltersComponent = {
 module FiltersComponentNew = {
   @react.component
   let make = (
-    ~index,
     ~filterEntity: AnalyticsUtils.filterEntityNew<'t>,
     ~downloadDataButtonUi: React.element=React.null,
     ~domain="txns",

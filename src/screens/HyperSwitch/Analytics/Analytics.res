@@ -543,7 +543,7 @@ let make = (
   }
 
   let filterValueDict = filterValueJson
-  let getFilterData = AnalyticsHooks.useGetFiltersData(~index)
+  let getFilterData = AnalyticsHooks.useGetFiltersData()
 
   let (activeTav, setActiveTab) = React.useState(_ =>
     filterValueDict->getStrArrayFromDict(

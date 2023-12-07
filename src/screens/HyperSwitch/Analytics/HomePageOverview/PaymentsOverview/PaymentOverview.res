@@ -1,5 +1,5 @@
 @react.component
-let make = (~index) => {
+let make = () => {
   open HSAnalyticsUtils
   let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
 

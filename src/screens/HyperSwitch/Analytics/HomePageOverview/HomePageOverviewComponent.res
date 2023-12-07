@@ -92,7 +92,7 @@ module SystemMetricsInsights = {
   open HSAnalyticsUtils
   open AnalyticsTypes
   @react.component
-  let make = (~index) => {
+  let make = () => {
     let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
 
     let getStatData = (
@@ -255,9 +255,9 @@ let make = () => {
     <p className=headingStyle> {"Overview"->React.string} </p>
     <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-4">
       <ConnectorOverview />
-      <PaymentOverview index="PaymentOverview" />
+      <PaymentOverview />
       <UIUtils.RenderIf condition={systemMetrics}>
-        <SystemMetricsInsights index="SystemMetricsInsights" />
+        <SystemMetricsInsights />
       </UIUtils.RenderIf>
     </div>
     <OverviewInfo />
