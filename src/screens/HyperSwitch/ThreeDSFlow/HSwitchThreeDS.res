@@ -9,7 +9,12 @@ module ActiveRulePreview = {
     let ruleInfo = initialRule->Belt.Option.getWithDefault(Js.Dict.empty())
     let name = ruleInfo->getString("name", "")
     let description = ruleInfo->getString("description", "")
-    let ruleInfo = ruleInfo->getJsonObjectFromDict("rules")->RoutingUtils.ruleInfoTypeMapper
+
+    let ruleInfo =
+      ruleInfo
+      ->getJsonObjectFromDict("algorithm")
+      ->getDictFromJsonObject
+      ->AdvancedRoutingUtils.ruleInfoTypeMapper
 
     <UIUtils.RenderIf condition={initialRule->Belt.Option.isSome}>
       <div className="relative flex flex-col gap-6 w-full border p-6 bg-white rounded-md">
@@ -25,7 +30,7 @@ module ActiveRulePreview = {
             {description->React.string}
           </p>
         </div>
-        <RoutingPreviewer.RulePreviewer ruleInfo isFrom3ds=true />
+        <RulePreviewer ruleInfo isFrom3ds=true />
       </div>
     </UIUtils.RenderIf>
   }
@@ -34,7 +39,7 @@ module ActiveRulePreview = {
 module Configure3DSRule = {
   @react.component
   let make = (~wasm) => {
-    let ruleInput = ReactFinalForm.useField("json.rules").input
+    let ruleInput = ReactFinalForm.useField("algorithm.rules").input
     let (rules, setRules) = React.useState(_ => ruleInput.value->LogicUtils.getArrayFromJson([]))
     React.useEffect1(() => {
       ruleInput.onChange(rules->arrToFormEvent)
@@ -58,7 +63,7 @@ module Configure3DSRule = {
         let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Js.Array2.length > 1
         let rule = ruleInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
         let keyExtractor = (index, _rule, isDragging) => {
-          let id = {`json.rules[${string_of_int(index)}]`}
+          let id = {`algorithm.rules[${string_of_int(index)}]`}
           let i = 1
           <AdvancedRouting.Wrapper
             id
@@ -70,7 +75,7 @@ module Configure3DSRule = {
             notFirstRule
             isDragging
             wasm
-            isfrom3ds=true
+            isFrom3ds=true
           />
         }
         if notFirstRule {
@@ -98,9 +103,7 @@ let make = () => {
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (wasm, setWasm) = React.useState(_ => None)
-  let (initialValues, _setInitialValues) = React.useState(_ =>
-    buildInitial3DSValue->Js.Json.object_
-  )
+  let (initialValues, _setInitialValues) = React.useState(_ => buildInitial3DSValue->toJson)
   let (initialRule, setInitialRule) = React.useState(() => None)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (pageView, setPageView) = React.useState(_ => NEW)
@@ -123,18 +126,14 @@ let make = () => {
     try {
       let threeDsUrl = getURL(~entityName=THREE_DS, ~methodType=Get, ())
       let threeDsRuleDetail = await fetchDetails(threeDsUrl)
-      let schemaValue =
-        threeDsRuleDetail
-        ->getDictFromJsonObject
-        ->getObj("program", Js.Dict.empty())
-        ->getObj("metadata", Js.Dict.empty())
-        ->getObj("schema", Js.Dict.empty())
+      let responseDict = threeDsRuleDetail->getDictFromJsonObject
+      let programValue = responseDict->getObj("program", Js.Dict.empty())
 
       let intitialValue =
         [
-          ("name", schemaValue->LogicUtils.getString("name", "")->Js.Json.string),
-          ("description", schemaValue->LogicUtils.getString("description", "")->Js.Json.string),
-          ("rules", schemaValue->LogicUtils.getObj("json", Js.Dict.empty())->Js.Json.object_),
+          ("name", responseDict->LogicUtils.getString("name", "")->Js.Json.string),
+          ("description", responseDict->LogicUtils.getString("description", "")->Js.Json.string),
+          ("algorithm", programValue->Js.Json.object_),
         ]->Js.Dict.fromArray
 
       setInitialRule(_ => Some(intitialValue))
@@ -183,24 +182,10 @@ let make = () => {
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => Loading)
-      let dict = values->LogicUtils.getDictFromJsonObject
-
-      let json = dict->LogicUtils.getJsonObjectFromDict("json")->LogicUtils.getDictFromJsonObject
-
-      let description = dict->LogicUtils.getString("description", "")
-      let name = dict->LogicUtils.getString("name", "")
-
-      let metadata =
-        [
-          ("name", name->Js.Json.string),
-          ("description", description->Js.Json.string),
-          ("schema", dict->Js.Json.object_),
-        ]->Js.Dict.fromArray
-
-      let threeDsPayload = buildThreeDsPayloadBody(json, wasm, metadata, name)
+      let threeDsPayload = values->buildThreeDsPayloadBody
 
       let getActivateUrl = getURL(~entityName=THREE_DS, ~methodType=Put, ())
-      let _response = await updateDetails(getActivateUrl, threeDsPayload->Js.Json.object_, Put)
+      let _response = await updateDetails(getActivateUrl, threeDsPayload->toJson, Put)
       fetchDetails()->ignore
       setShowWarning(_ => true)
       RescriptReactRouter.replace(`/3ds`)
@@ -221,7 +206,7 @@ let make = () => {
 
     RoutingUtils.validateNameAndDescription(~dict, ~errors)
 
-    switch dict->Js.Dict.get("json")->Belt.Option.flatMap(Js.Json.decodeObject) {
+    switch dict->Js.Dict.get("algorithm")->Belt.Option.flatMap(Js.Json.decodeObject) {
     | Some(jsonDict) => {
         let index = 1
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
@@ -230,9 +215,9 @@ let make = () => {
         } else {
           rules->Array.forEachWithIndex((rule, i) => {
             let ruleDict = rule->LogicUtils.getDictFromJsonObject
-            if RoutingUtils.validateConditionsEvenIfOneExists(ruleDict)->Js.Array2.length == 0 {
+            if !RoutingUtils.validateConditionsFor3ds(ruleDict) {
               errors->Js.Dict.set(
-                `Rule ${(i + index)->string_of_int} - Condition`,
+                `Rule ${(i + 1)->string_of_int} - Condition`,
                 `Invalid`->Js.Json.string,
               )
             }

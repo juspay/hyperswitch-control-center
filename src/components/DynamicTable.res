@@ -57,7 +57,7 @@ let make = (
   ~mandatoryRemoteKeys=[],
   ~isSearchKeyArray=false,
   ~forcePreventConcatData=false,
-  ~collapseTabelRow=false,
+  ~collapseTableRow=false,
   ~showRefreshFilter=true,
   ~showRemoteOptions=false,
   ~filterButtonStyle="",
@@ -550,7 +550,7 @@ let make = (
             ?bottomActions
             ?defaultSort
             tableLocalFilter
-            collapseTabelRow
+            collapseTableRow
             getRowDetails
             ?onMouseEnter
             ?onMouseLeave
@@ -592,7 +592,7 @@ let make = (
             ?renderCard
             ?defaultSort
             tableLocalFilter
-            collapseTabelRow
+            collapseTableRow
             ?frozenUpto
             ?heightHeadingClass
             getRowDetails

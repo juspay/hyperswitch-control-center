@@ -4,11 +4,8 @@ type featureFlag = {
   testLiveToggle: bool,
   magicLink: bool,
   quickStart: bool,
-  stripePlusPayPal: bool,
-  wooCommerce: bool,
-  openSDK: bool,
   switchMerchant: bool,
-  testLiveMode: option<bool>,
+  isLiveMode: bool,
   auditTrail: bool,
   systemMetrics: bool,
   sampleData: bool,
@@ -23,6 +20,7 @@ type featureFlag = {
   mixPanel: bool,
   verifyConnector: bool,
   forgetPassword: bool,
+  ossBuild: bool,
 }
 
 let featureFlagType = (featureFlags: Js.Json.t) => {
@@ -34,11 +32,8 @@ let featureFlagType = (featureFlags: Js.Json.t) => {
     testLiveToggle: dict->getBool("test_live_toggle", false),
     magicLink: dict->getBool("magic_link", false),
     quickStart: dict->getBool("quick_start", false),
-    stripePlusPayPal: dict->getBool("stripe_plus_paypal", false),
-    wooCommerce: dict->getBool("woocommerce", false),
-    openSDK: dict->getBool("open_sdk", false),
     switchMerchant: dict->getBool("switch_merchant", false),
-    testLiveMode: dict->getOptionBool("test_live_mode"),
+    isLiveMode: dict->getBool("is_live_mode", false),
     auditTrail: dict->getBool("audit_trail", false),
     systemMetrics: dict->getBool("system_metrics", false),
     sampleData: dict->getBool("sample_data", false),
@@ -53,6 +48,7 @@ let featureFlagType = (featureFlags: Js.Json.t) => {
     mixPanel: dict->getBool("mixpanel", false),
     verifyConnector: dict->getBool("verify_connector", false),
     forgetPassword: dict->getBool("forgot_password", false),
+    ossBuild: dict->getBool("oss_build", false),
   }
   typedFeatureFlag
 }

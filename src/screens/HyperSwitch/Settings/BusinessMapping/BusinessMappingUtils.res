@@ -1,6 +1,4 @@
 open HSwitchSettingTypes
-open CountryUtils
-let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
 
 type modalFields = ProfileName
 
@@ -8,13 +6,6 @@ let getStringFromVariant = key => {
   switch key {
   | ProfileName => "profile_name"
   }
-}
-
-let defaultCountry = "UnitedStatesOfAmerica"
-let defaultLabel = "default"
-
-let getFormatedCountryName = countryCode => {
-  countryCode->getCountryCodeFromString->getCountryFromCountryCode->splitCountryNameWithSpace
 }
 
 let labelField = FormRenderer.makeFieldInfo(
