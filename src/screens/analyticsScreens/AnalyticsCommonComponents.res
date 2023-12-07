@@ -63,7 +63,7 @@ module FiltersComponent = {
   ) => {
     open AnalyticsUtils
     let iframe_padding = parent !== window ? "px-5" : ""
-    let getFilterData = AnalyticsHooks.useGetFiltersData()
+    let getFilterData = AnalyticsHooks.useGetFiltersData(~index)
     let {updateExistingKeys, filterValue} = React.useContext(FilterContext.filterContext)
 
     let {

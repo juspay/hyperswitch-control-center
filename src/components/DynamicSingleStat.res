@@ -109,6 +109,7 @@ let deltaTimeRangeMapper: array<Js.Json.t> => deltaRange = (arrJson: array<Js.Js
 // till here
 @react.component
 let make = (
+  ~index,
   ~entity: entityType<'colType, 't, 't2>,
   ~modeKey=?,
   ~filterKeys,
@@ -126,8 +127,9 @@ let make = (
   ~statThreshold=?,
   ~wrapperClass=?,
 ) => {
+  open FilterUtils
   let fetchApi = AuthHooks.useApiFetcher()
-  let getAllFilter = UrlUtils.useGetFilterDictFromUrl("")
+  let getAllFilter = useFiltersValue(~index)->parseUrlString
   let isMobileView = MatchMedia.useMobileChecker()
   let (showStats, setShowStats) = React.useState(_ => false)
 

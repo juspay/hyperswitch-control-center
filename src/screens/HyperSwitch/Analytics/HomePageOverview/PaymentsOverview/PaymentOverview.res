@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~index) => {
   open HSAnalyticsUtils
   let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
 
@@ -15,6 +15,7 @@ let make = () => {
   let dateDict = HSwitchRemoteFilter.getDateFilteredObject()
 
   <DynamicSingleStat
+    index
     entity={singleStatEntity}
     startTimeFilterKey
     endTimeFilterKey

@@ -92,7 +92,7 @@ module SystemMetricsInsights = {
   open HSAnalyticsUtils
   open AnalyticsTypes
   @react.component
-  let make = () => {
+  let make = (~index) => {
     let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
 
     let getStatData = (
@@ -183,6 +183,7 @@ module SystemMetricsInsights = {
     let dateDict = HSwitchRemoteFilter.getDateFilteredObject()
 
     <DynamicSingleStat
+      index
       entity={singleStatEntity}
       startTimeFilterKey
       endTimeFilterKey
@@ -255,9 +256,9 @@ let make = () => {
     <p className=headingStyle> {"Overview"->React.string} </p>
     <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-4">
       <ConnectorOverview />
-      <PaymentOverview />
+      <PaymentOverview index="PaymentOverview" />
       <UIUtils.RenderIf condition={systemMetrics}>
-        <SystemMetricsInsights />
+        <SystemMetricsInsights index="SystemMetricsInsights" />
       </UIUtils.RenderIf>
     </div>
     <OverviewInfo />

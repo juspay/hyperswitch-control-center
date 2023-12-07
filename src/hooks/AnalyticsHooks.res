@@ -64,12 +64,12 @@ let useGetCalendarTime = () => {
   calendarTime
 }
 
-let useGetFiltersData = () => {
+let useGetFiltersData = (~index) => {
   let (filterData, setFilterData) = React.useState(_ => None)
-  let timeFilters = UrlUtils.useGetFilterDictFromUrl("")
-  let startTimeVal = timeFilters->LogicUtils.getString("startTime", "")
-
-  let endTimeVal = timeFilters->LogicUtils.getString("endTime", "")
+  open FilterUtils
+  let timeFilters = useFiltersValue(~index)->parseUrl
+  let startTimeVal = timeFilters->Js.Dict.get("startTime")->Belt.Option.getWithDefault("")
+  let endTimeVal = timeFilters->Js.Dict.get("endTime")->Belt.Option.getWithDefault("")
   let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetch()
 
   let fetchApi = AuthHooks.useApiFetcher()

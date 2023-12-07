@@ -119,7 +119,11 @@ module TableWrapper = {
     ~distributionArray=None,
   ) => {
     let customFilter = Recoil.useRecoilValueFromAtom(AnalyticsAtoms.customFilterAtom)
-    let getAllFilter = UrlUtils.useGetFilterDictFromUrl("")
+    let {index} = React.useContext(FilterContext.filterContext)
+    open FilterUtils
+    let filterValueString = useFiltersValue(~index)
+    let filterValueDict = filterValueString->parseUrlString
+    let filterValueDict = filterValueDict
     let fetchDetails = APIUtils.useUpdateMethod()
     let (_, setDefaultFilter) = Recoil.useRecoilState(AnalyticsHooks.defaultFilter)
     let (showTable, setShowTable) = React.useState(_ => false)
@@ -130,7 +134,7 @@ module TableWrapper = {
     let (tableData, setTableData) = React.useState(_ => []->Js.Array2.map(Js.Nullable.return))
 
     let getTopLevelFilter = React.useMemo1(() => {
-      getAllFilter
+      filterValueDict
       ->Js.Dict.entries
       ->Belt.Array.keepMap(item => {
         let (key, value) = item
@@ -143,7 +147,7 @@ module TableWrapper = {
         }
       })
       ->Js.Dict.fromArray
-    }, [getAllFilter])
+    }, [filterValueDict])
 
     let allColumns = allColumns->Belt.Option.getWithDefault([])
     let allFilterKeys = Js.Array2.concat([startTimeFilterKey, endTimeFilterKey], filterKeys)
@@ -539,17 +543,8 @@ let make = (
   | None => None
   }
 
-  let filterValueDict =
-    filterValueString
-    ->parseUrl
-    ->Js.Dict.entries
-    ->Js.Array2.map(item => {
-      let (key, value) = item
-      (key, value->Js.Json.string)
-    })
-    ->Js.Dict.fromArray
-
-  let getFilterData = AnalyticsHooks.useGetFiltersData()
+  let filterValueDict = filterValueString->parseUrlString
+  let getFilterData = AnalyticsHooks.useGetFiltersData(~index)
 
   let (activeTav, setActiveTab) = React.useState(_ =>
     filterValueDict->getStrArrayFromDict(
@@ -729,6 +724,7 @@ let make = (
         <div>
           <div className="mt-5">
             <DynamicSingleStat
+              index
               entity=singleStatEntity
               startTimeFilterKey
               endTimeFilterKey

@@ -80,7 +80,7 @@ module ConnectorLatency = {
   open HSAnalyticsUtils
   open AnalyticsTypes
   @react.component
-  let make = () => {
+  let make = (~index) => {
     let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
 
     let getStatData = (
@@ -171,6 +171,7 @@ module ConnectorLatency = {
     let dateDict = HSwitchRemoteFilter.getDateFilteredObject()
 
     <DynamicSingleStat
+      index
       entity={singleStatEntity}
       startTimeFilterKey
       endTimeFilterKey
@@ -329,6 +330,7 @@ module SystemMetricsAnalytics = {
   open LogicUtils
   @react.component
   let make = (
+    ~index,
     ~pageTitle="",
     ~pageSubTitle="",
     ~startTimeFilterKey: string,
@@ -342,7 +344,7 @@ module SystemMetricsAnalytics = {
   ) => {
     let url = RescriptReactRouter.useUrl()
 
-    let getFilterData = AnalyticsHooks.useGetFiltersData()
+    let getFilterData = AnalyticsHooks.useGetFiltersData(~index)
     let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
     let startTimeVal = getModuleFilters->getString(startTimeFilterKey, "")
     let endTimeVal = getModuleFilters->getString(endTimeFilterKey, "")
@@ -427,6 +429,7 @@ module SystemMetricsAnalytics = {
           </div>
           <APITableInfo />
           <DynamicSingleStat
+            index
             entity=singleStatEntity
             startTimeFilterKey
             endTimeFilterKey
@@ -476,12 +479,13 @@ let make = () => {
   })
 
   let tabKeys = getStringListFromArrayDict(dimensions)
-
+  let index = "SystemMetrics"
   let title = "System Metrics"
   let subTitle = "Gain Insights, monitor performance and make Informed Decisions with System Metrics."
 
   <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
     <SystemMetricsAnalytics
+      index
       pageTitle=title
       pageSubTitle=subTitle
       filterUri={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/filters/${domain}`}
