@@ -510,7 +510,7 @@ let getDictfromDict = (dict, key) => {
 
 let checkLeapYear = year => (mod(year, 4) === 0 && mod(year, 100) !== 0) || mod(year, 400) === 0
 
-let getValueFromArr = (arr, index, default) =>
+let getValueFromArray = (arr, index, default) =>
   arr->Belt.Array.get(index)->Belt.Option.getWithDefault(default)
 
 let isEqualStringArr = (arr1, arr2) => {

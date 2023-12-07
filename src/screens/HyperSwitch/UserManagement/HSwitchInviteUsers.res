@@ -12,7 +12,7 @@ module InviteEmailForm = {
     let role =
       `roleType`
       ->getArrayFromForm
-      ->LogicUtils.getValueFromArr(0, ""->Js.Json.string)
+      ->LogicUtils.getValueFromArray(0, ""->Js.Json.string)
       ->getStringFromJson("")
 
     let getRolesList = async () => {
@@ -99,7 +99,7 @@ let make = () => {
 
   let inviteListOfUsers = async values => {
     let valDict = values->getDictFromJsonObject
-    let role = valDict->getStrArray("roleType")->LogicUtils.getValueFromArr(0, "")
+    let role = valDict->getStrArray("roleType")->LogicUtils.getValueFromArray(0, "")
 
     valDict
     ->getStrArray("emailList")

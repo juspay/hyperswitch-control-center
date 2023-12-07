@@ -117,7 +117,7 @@ module RolePermissionValueRenderer = {
     ~readWriteValues: array<ProviderTypes.permissions>,
   ) => {
     let getReadWriteValue = index => {
-      readWriteValues->LogicUtils.getValueFromArr(index, ProviderHelper.getDefaultValueOfEnum)
+      readWriteValues->LogicUtils.getValueFromArray(index, ProviderHelper.getDefaultValueOfEnum)
     }
     let readValue = getReadWriteValue(0).description
     let writeValue = getReadWriteValue(1).description

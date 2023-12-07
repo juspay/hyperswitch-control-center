@@ -30,11 +30,10 @@ let make = (
 
   let getClientSecretFromPaymentId = (~paymentIntentClientSecret) => {
     let paymentClientSecretSplitArray = paymentIntentClientSecret->Js.String2.split("_")
-    `${paymentClientSecretSplitArray
-      ->Belt.Array.get(0)
-      ->Belt.Option.getWithDefault("")}_${paymentClientSecretSplitArray
-      ->Belt.Array.get(1)
-      ->Belt.Option.getWithDefault("")}`
+    `${paymentClientSecretSplitArray->LogicUtils.getValueFromArray(
+        0,
+        "",
+      )}_${paymentClientSecretSplitArray->LogicUtils.getValueFromArray(1, "")}`
   }
 
   let getClientSecret = async () => {
@@ -57,17 +56,18 @@ let make = (
   React.useEffect1(() => {
     let status =
       filtersFromUrl->Js.Dict.get("status")->Belt.Option.getWithDefault("")->Js.String2.toLowerCase
+    let paymentIdFromPaymemtIntentClientSecret = getClientSecretFromPaymentId(
+      ~paymentIntentClientSecret=url.search
+      ->LogicUtils.getDictFromUrlSearchParams
+      ->Js.Dict.get("payment_intent_client_secret")
+      ->Belt.Option.getWithDefault(""),
+    )
     if status === "succeeded" {
       setPaymentStatus(_ => SUCCESS)
-      let paymentIdFromPaymemtIntentClientSecret = getClientSecretFromPaymentId(
-        ~paymentIntentClientSecret=url.search
-        ->LogicUtils.getDictFromUrlSearchParams
-        ->Js.Dict.get("payment_intent_client_secret")
-        ->Belt.Option.getWithDefault(""),
-      )
       setPaymentId(_ => paymentIdFromPaymemtIntentClientSecret)
     } else if status === "failed" {
       setPaymentStatus(_ => FAILED(""))
+      setPaymentId(_ => paymentIdFromPaymemtIntentClientSecret)
     } else if status === "processing" {
       setPaymentStatus(_ => PROCESSING)
     } else {
@@ -89,7 +89,6 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-green-success_page_bg"
-        isButtonVisible={paymentId->Js.String2.length > 0}
       />
 
     | FAILED(_err) =>
