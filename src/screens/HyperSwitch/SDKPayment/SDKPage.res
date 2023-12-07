@@ -1,5 +1,7 @@
 let h3Leading2Style = HSwitchUtils.getTextClass(~textVariant=H3, ~h3TextVariant=Leading_2, ())
 external toJson: 'a => Js.Json.t = "%identity"
+external formEventToStr: ReactEvent.Form.t => string = "%identity"
+external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
 
 module SDKConfiguarationFields = {
   open HSwitchMerchantAccountUtils
@@ -60,8 +62,24 @@ module SDKConfiguarationFields = {
     let enterAmountField = FormRenderer.makeFieldInfo(
       ~label="Enter amount",
       ~name="amount",
-      ~placeholder="Enter amount",
-      ~customInput=InputFields.numericTextInput(~isDisabled=false, ~customStyle="w-full", ()),
+      ~customInput=(~input, ~placeholder as _) =>
+        InputFields.numericTextInput(
+          ~input={
+            ...input,
+            value: (initialValues.amount / 100)->string_of_int->Js.Json.string,
+            onChange: {
+              ev => {
+                let eventValueToInt = ev->formEventToStr->LogicUtils.getIntFromString(0)
+                let valInCents = (eventValueToInt * 100)->string_of_int->strToFormEvent
+                input.onChange(valInCents)
+              }
+            },
+          },
+          ~isDisabled=false,
+          ~customStyle="w-full",
+          ~placeholder="Enter amount",
+          (),
+        ),
       (),
     )
 
@@ -70,6 +88,7 @@ module SDKConfiguarationFields = {
       <FormRenderer.FieldRenderer field=selectProfileId fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=selectCurrencyField fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=enterAmountField fieldWrapperClass="!w-full" />
+      <FormValuesSpy />
       <FormRenderer.SubmitButton
         text="Show preview" disabledParamter={!(initialValues.profile_id->Js.String2.length > 0)}
       />
