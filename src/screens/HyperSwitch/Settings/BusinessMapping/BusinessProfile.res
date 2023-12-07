@@ -90,7 +90,7 @@ let make = (
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ())
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       fetchBusinessProfiles()->ignore
       showToast(~message="Your Entry added successfully", ~toastType=ToastState.ToastSuccess, ())
       if !isFromSettings {

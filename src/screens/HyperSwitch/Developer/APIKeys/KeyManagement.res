@@ -105,7 +105,7 @@ module ApiEditModal = {
           }
         }
 
-        let _res = getAPIKeyDetails()
+        let _ = getAPIKeyDetails()
       } catch {
       | Js.Exn.Error(e) =>
         switch Js.Exn.message(e) {
