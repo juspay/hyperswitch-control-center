@@ -2,7 +2,7 @@ external formEventToStr: ReactEvent.Form.t => string = "%identity"
 
 let p1MediumTextStyle = HSwitchUtils.getTextClass(~textVariant=P1, ~paragraphTextVariant=Medium, ())
 
-module RequestAConnector = {
+module RequestConnector = {
   @react.component
   let make = (~connectorList, ~setShowModal) => {
     <UIUtils.RenderIf condition={connectorList->Js.Array2.length === 0}>
@@ -88,7 +88,7 @@ module NewProcessorCards = {
             <div
               onClick={_ => setShowModal(_ => true)}
               className="text-blue-900 cursor-pointer underline underline-offset-4 font-medium">
-              {"Can't find the processor of you're choice?"->React.string}
+              {"Can't find the processor of your choice?"->React.string}
             </div>
           </UIUtils.RenderIf>
         </div>
@@ -124,7 +124,7 @@ module NewProcessorCards = {
             ->React.array}
           </div>
         </UIUtils.RenderIf>
-        <RequestAConnector connectorList setShowModal />
+        <RequestConnector connectorList setShowModal />
       </>
     }
 
@@ -155,7 +155,7 @@ module NewProcessorCards = {
             <div
               onClick={_ => setShowModal(_ => true)}
               className="text-blue-900 cursor-pointer underline underline-offset-4 font-medium">
-              {"Can't find the processor of you're choice?"->React.string}
+              {"Can't find the processor of your choice?"->React.string}
             </div>
           </UIUtils.RenderIf>
         </div>
@@ -179,7 +179,7 @@ module NewProcessorCards = {
             ->React.array}
           </div>
         </UIUtils.RenderIf>
-        <RequestAConnector connectorList setShowModal />
+        <RequestConnector connectorList setShowModal />
       </>
     }
 
