@@ -66,7 +66,8 @@ module Provider = {
 
 @react.component
 let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultFilter=?) => {
-  let getAllFilter = UrlUtils.useGetFilterDictFromUrl("")
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let getAllFilter = filterValueJson
   let (activeTab, activeTabStr) = React.useMemo1(() => {
     let activeTabOptionalArr =
       getAllFilter->getOptionStrArrayFromDict(`${chartEntity.moduleName}.tabName`)

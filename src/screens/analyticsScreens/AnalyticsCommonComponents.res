@@ -90,7 +90,9 @@ module FiltersComponent = {
     let filterKeys = filterKeys
     let filteredTabKeys = filterKeys
 
-    let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+
+    let getModuleFilters = filterValueJson
     let startTimeVal = getModuleFilters->getString(startTimeFilterKey, "")
 
     let endTimeVal = getModuleFilters->getString(endTimeFilterKey, "")
@@ -213,7 +215,9 @@ module FiltersComponentNew = {
 
     let filteredTabKeys = filterKeys
 
-    let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+
+    let getModuleFilters = filterValueJson
     let startTimeVal = getModuleFilters->getString(startTimeFilterKey, "")
     let fetchApi = AuthHooks.useApiFetcher(~betaEndpointConfig=?betaEndPointConfig, ())
     let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetchNew()
@@ -411,7 +415,9 @@ module DownloadRawData = {
     let isMobileView = MatchMedia.useMobileChecker()
 
     let (isCheckboxSelected, setIsCheckboxSelected) = React.useState(_ => false)
-    let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+
+    let getModuleFilters = filterValueJson
 
     let parentToken = AuthWrapperUtils.useTokenParent(Original)
     let downloadDataUrl = downloadDataEntity.uri
@@ -1286,7 +1292,9 @@ let useTableSankeyWrapper = (
   ~analyticsTableEntity: AnalyticsUtils.analyticsTableEntity<'colType, 't>,
   ~text,
 ) => {
-  let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+
+  let getModuleFilters = filterValueJson
   let parentToken = AuthWrapperUtils.useTokenParent(Original)
 
   let activeTab = React.useMemo1(() => {
@@ -1331,7 +1339,8 @@ let useTableSankeyWrapper = (
   let (startTimeFilterKey, endTimeFilterKey) = (startTimeKey, endTimeKey)
   let (showDelta, setShowDelta) = React.useState(_ => false)
   // with prefix will be specific for the component level filter but without prefix will be at the overall level filters
-  let getAllFilter = UrlUtils.useGetFilterDictFromUrl("")
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let getAllFilter = filterValueJson
   let showDeltaInput: ReactFinalForm.fieldRenderPropsInput = {
     name: "showDelta",
     onBlur: _ev => (),
@@ -1853,7 +1862,9 @@ module ParentAnalyticsComponentV1 = {
     let {filterValue} = React.useContext(FilterContext.filterContext)
     let isMobileView = MatchMedia.useMobileChecker()
 
-    let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+
+    let getModuleFilters = filterValueJson
 
     let {parentAuthInfo} = React.useContext(TokenContextProvider.tokenContext)
 
@@ -1890,7 +1901,9 @@ module ParentAnalyticsComponentNew = {
     let {filterValue} = React.useContext(FilterContext.filterContext)
     let isMobileView = MatchMedia.useMobileChecker()
 
-    let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+
+    let getModuleFilters = filterValueJson
 
     let {parentAuthInfo} = React.useContext(TokenContextProvider.tokenContext)
 

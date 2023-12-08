@@ -260,7 +260,8 @@ type tabsetHookType = {
 
 let useTabHooks = (~moduleName, ~segmentsOptions) => {
   let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
-  let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let getModuleFilters = filterValueJson
   let (activeTav, setActiveTab) = React.useState(_ =>
     getModuleFilters->getStrArrayFromDict(
       `${moduleName}.tabName`,

@@ -343,7 +343,9 @@ module SystemMetricsAnalytics = {
     let url = RescriptReactRouter.useUrl()
 
     let getFilterData = AnalyticsHooks.useGetFiltersData()
-    let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+
+    let getModuleFilters = filterValueJson
     let startTimeVal = getModuleFilters->getString(startTimeFilterKey, "")
     let endTimeVal = getModuleFilters->getString(endTimeFilterKey, "")
     let updateComponentPrefrences = UrlUtils.useUpdateUrlWith(~prefix="")
