@@ -1,9 +1,21 @@
 module AddEntryBtn = {
   @react.component
-  let make = (~onSubmit, ~modalState, ~showModal, ~setShowModal, ~list, ~isFromSettings=true) => {
+  let make = (
+    ~onSubmit,
+    ~modalState,
+    ~showModal,
+    ~setShowModal,
+    ~list,
+    ~isFromSettings=true,
+    ~updatedProfileId,
+    ~setModalState,
+  ) => {
     open HSwitchUtils
     open BusinessMappingUtils
-    let initialValues = [("profile_name", "Default"->Js.Json.string)]->Js.Dict.fromArray
+    let initialValues =
+      [
+        ("profile_name", `default${list->Js.Array2.length->string_of_int}`->Js.Json.string),
+      ]->Js.Dict.fromArray
     let modalBody =
       <div>
         {switch modalState {
@@ -37,8 +49,30 @@ module AddEntryBtn = {
               </div>
             </LabelVisibilityContext>
           </Form>
+        | Successful =>
+          <div className="flex flex-col gap-6 justify-center items-end">
+            <p className="text-grey-700 opacity-50 ">
+              {"Business profile successfully created! Set up the return URL and webhooks for the newly created business profile."->React.string}
+            </p>
+            <Button
+              text={"Configure return url"}
+              buttonType=Primary
+              onClick={_ => {
+                if updatedProfileId->Js.String2.length > 0 {
+                  RescriptReactRouter.replace(`/payment-settings/${updatedProfileId}`)
+                  setModalState(_ => Edit)
+                }
+              }}
+              customButtonStyle="!w-1/3"
+            />
+          </div>
         }}
       </div>
+
+    let modalHeaderText = switch modalState {
+    | Edit | Loading => "Add Business Profile Name"
+    | Successful => "Configure webhooks and return url"
+    }
 
     <div>
       <UIUtils.RenderIf condition=isFromSettings>
@@ -52,7 +86,7 @@ module AddEntryBtn = {
       </UIUtils.RenderIf>
       <Modal
         showModal
-        modalHeading="Add Business Profile Name"
+        modalHeading=modalHeaderText
         setShowModal
         closeOnOutsideClick=true
         modalClass="w-full max-w-2xl m-auto !bg-white dark:!bg-jp-gray-lightgray_background">
@@ -78,6 +112,7 @@ let make = (
   let (showModal, setShowModal) = React.useState(_ => false)
   let (modalState, setModalState) = React.useState(_ => Edit)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (updatedProfileId, setUpdatedProfileId) = React.useState(_ => "")
 
   let businessProfileValues =
     HyperswitchAtom.businessProfilesAtom
@@ -90,7 +125,10 @@ let make = (
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ())
-      let _ = await updateDetails(url, body, Post)
+      let response = await updateDetails(url, body, Post)
+      setUpdatedProfileId(_ =>
+        response->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
+      )
       fetchBusinessProfiles()->ignore
       showToast(~message="Your Entry added successfully", ~toastType=ToastState.ToastSuccess, ())
       if !isFromSettings {
@@ -100,9 +138,12 @@ let make = (
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }
-    isFromSettings ? setShowModal(_ => false) : setShowModalFromOtherScreen(_ => false)
-    setModalState(_ => Edit)
-    setShowModal(_ => false)
+
+    if !isFromSettings {
+      setShowModalFromOtherScreen(_ => false)
+    }
+    setModalState(_ => Successful)
+
     Js.Nullable.null
   }
 
@@ -133,7 +174,15 @@ let make = (
             currrentFetchCount={businessProfileValues->Js.Array2.length}
           />
           <div className="absolute right-0 -top-3">
-            <AddEntryBtn onSubmit modalState showModal setShowModal list={businessProfileValues} />
+            <AddEntryBtn
+              onSubmit
+              modalState
+              showModal
+              setShowModal
+              list={businessProfileValues}
+              updatedProfileId
+              setModalState
+            />
           </div>
         </div>
       </div>
@@ -146,6 +195,8 @@ let make = (
         showModal={showModalFromOtherScreen}
         setShowModal={setShowModalFromOtherScreen}
         list={businessProfileValues}
+        updatedProfileId
+        setModalState
       />
     </UIUtils.RenderIf>
   </PageLoaderWrapper>
