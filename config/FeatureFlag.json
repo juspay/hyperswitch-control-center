@@ -19,6 +19,5 @@
   "business_profile": false,
   "generate_report": false,
   "forgot_password": false,
-  "oss_build": true,
-  "connector_success_rate": true
+  "oss_build": true
 }

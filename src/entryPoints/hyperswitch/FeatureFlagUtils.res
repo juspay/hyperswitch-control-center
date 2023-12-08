@@ -21,7 +21,6 @@ type featureFlag = {
   verifyConnector: bool,
   forgetPassword: bool,
   ossBuild: bool,
-  connector_success_rate: bool,
 }
 
 let featureFlagType = (featureFlags: Js.Json.t) => {
@@ -50,7 +49,6 @@ let featureFlagType = (featureFlags: Js.Json.t) => {
     verifyConnector: dict->getBool("verify_connector", false),
     forgetPassword: dict->getBool("forgot_password", false),
     ossBuild: dict->getBool("oss_build", false),
-    connector_success_rate: dict->getBool("connector_success_rate", false),
   }
   typedFeatureFlag
 }

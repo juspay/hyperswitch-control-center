@@ -8,7 +8,7 @@ let make = () => {
   let (metrics, setMetrics) = React.useState(_ => [])
   let (dimensions, setDimensions) = React.useState(_ => [])
   let fetchDetails = useGetMethod()
-  let {connector_success_rate} =
+  let {isLiveMode} =
     HyperswitchAtom.featureFlagAtom
     ->Recoil.useRecoilValueFromAtom
     ->LogicUtils.safeParse
@@ -78,7 +78,7 @@ let make = () => {
       tabKeys
       tabValues
       options
-      singleStatEntity={getSingleStatEntity(metrics, connector_success_rate)}
+      singleStatEntity={getSingleStatEntity(metrics, !isLiveMode)}
       getTable={getPaymentTable}
       colMapper
       tableEntity={paymentTableEntity}
