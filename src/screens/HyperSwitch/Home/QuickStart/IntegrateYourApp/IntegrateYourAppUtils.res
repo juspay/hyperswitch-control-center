@@ -56,3 +56,15 @@ let getPolyMorphicVariantOfIntegrationSubStep: standardIntegrationSteps => Quick
   | DisplayPaymentConfirmation => #DisplayPaymentConfirmation
   }
 }
+
+let getPolyMorphicVariantOfMigrateFromStripe: migrateFromStripeSteps => QuickStartTypes.sectionHeadingVariant = (
+  currentStep: migrateFromStripeSteps,
+) => {
+  switch currentStep {
+  | DownloadAPIKey => #DownloadTestAPIKeyStripe
+  | InstallDeps => #InstallDeps
+  | ReplaceAPIKeys => #ReplaceAPIKeys
+  | ReconfigureCheckout => #ReconfigureCheckout
+  | LoadCheckout => #LoadCheckout
+  }
+}

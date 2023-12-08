@@ -48,11 +48,16 @@ let useUpdateEnumInRecoil = () => {
           let booleanDict = [((enumVariant :> string), true->Js.Json.boolean)]->Js.Dict.fromArray
           enumDictsArray->Array.push(booleanDict)
         }
+      | String(str) => {
+          let stringDict = [((enumVariant :> string), str->Js.Json.string)]->Js.Dict.fromArray
+          enumDictsArray->Array.push(stringDict)
+        }
       | _ => enumDictsArray->Array.push(bodyValForApi->getDictFromJsonObject)
       }
     })
 
     let updatedRecoilValueDict = DictionaryUtils.mergeDicts(enumDictsArray)
+    Js.log2("lokiiiiii", enumDictsArray)
     setEnumVariantValues(._ => updatedRecoilValueDict->Js.Json.object_->Js.Json.stringify)
     updatedRecoilValueDict
   }

@@ -60,6 +60,11 @@ type sectionHeadingVariant = [
   | #SetupWoocomWebhook
   | #IsMultipleConfiguration
   | #GoLive
+  | #DownloadTestAPIKeyStripe
+  | #InstallDeps
+  | #ReplaceAPIKeys
+  | #ReconfigureCheckout
+  | #LoadCheckout
 ]
 
 type processorType = {
@@ -93,6 +98,11 @@ type responseType = {
   configureWoocom: bool,
   setupWoocomWebhook: bool,
   isMultipleConfiguration: bool,
+  downloadTestAPIKeyStripe: string,
+  installDeps: string,
+  replaceAPIKeys: string,
+  reconfigureCheckout: string,
+  loadCheckout: string,
 }
 
 type requestObjectType =
@@ -102,5 +112,6 @@ type requestObjectType =
   | IntegrationMethod(integrationMethod)
   | ConnectorChoice(connectorChoice)
   | Boolean(bool)
+  | String(string)
 
 type valueType = String(string) | Boolean(bool)

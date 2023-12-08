@@ -190,6 +190,11 @@ let getTypedValueFromDict = valueString => {
     configureWoocom: value->getBool(#ConfigureWoocom->getStringFromVariant, false),
     setupWoocomWebhook: value->getBool(#SetupWoocomWebhook->getStringFromVariant, false),
     isMultipleConfiguration: value->getBool(#IsMultipleConfiguration->getStringFromVariant, false),
+    downloadTestAPIKeyStripe: value->getString(#DownloadTestAPIKeyStripe->getStringFromVariant, ""),
+    installDeps: value->getString(#InstallDeps->getStringFromVariant, ""),
+    replaceAPIKeys: value->getString(#ReplaceAPIKeys->getStringFromVariant, ""),
+    reconfigureCheckout: value->getString(#ReconfigureCheckout->getStringFromVariant, ""),
+    loadCheckout: value->getString(#LoadCheckout->getStringFromVariant, ""),
   }
   typedValue
 }
@@ -238,6 +243,17 @@ let getStatusValue = (comparator: valueType, enumVariant, dashboardPageState) =>
     boolValue ? COMPLETED : dashboardPageState === enumVariant ? ONGOING : PENDING
   }
 }
+
+let getStatusFromString = statusString => {
+  open HSSelfServeSidebar
+  switch statusString->Js.String2.toUpperCase {
+  | "PENDING" => PENDING
+  | "COMPLETED" => COMPLETED
+  | "ONGOING" => ONGOING
+  | _ => PENDING
+  }
+}
+
 let sidebarTextBasedOnVariant = choiceState =>
   switch choiceState {
   | #MigrateFromStripe => "Hyperswitch For Stripe Users"
@@ -263,7 +279,7 @@ let getSidebarOptionsForIntegrateYourApp: (
 
   open LogicUtils
   let enumValue = enumDetails->safeParse->getTypedValueFromDict
-
+  Js.log2("updated lokii", enumValue)
   let migrateFromStripeSidebar: array<HSSelfServeSidebar.sidebarOption> = [
     {
       title: "Choose integration method",
@@ -283,23 +299,23 @@ let getSidebarOptionsForIntegrateYourApp: (
       subOptions: [
         {
           title: "Download Test API Keys",
-          status: PENDING,
+          status: enumValue.downloadTestAPIKeyStripe->getStatusFromString,
         },
         {
           title: "Install Dependencies",
-          status: PENDING,
+          status: enumValue.installDeps->getStatusFromString,
         },
         {
           title: "Replace API keys",
-          status: PENDING,
+          status: enumValue.replaceAPIKeys->getStatusFromString,
         },
         {
           title: "Reconfigure Checkout Form",
-          status: PENDING,
+          status: enumValue.reconfigureCheckout->getStatusFromString,
         },
         {
           title: "Load Hyperswitch Checkout",
-          status: PENDING,
+          status: enumValue.loadCheckout->getStatusFromString,
         },
       ],
     },
@@ -590,6 +606,7 @@ let generateBodyBasedOnType = (parentVariant: sectionHeadingVariant, value: requ
     ]->getJsonFromArrayOfJson
 
   | Boolean(_) => (parentVariant :> string)->Js.Json.string
+  | String(str) => str->Js.Json.string
   }
 }
 
