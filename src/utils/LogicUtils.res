@@ -510,7 +510,7 @@ let getDictfromDict = (dict, key) => {
 
 let checkLeapYear = year => (mod(year, 4) === 0 && mod(year, 100) !== 0) || mod(year, 400) === 0
 
-let getValueFromArr = (arr, index, default) =>
+let getValueFromArray = (arr, index, default) =>
   arr->Belt.Array.get(index)->Belt.Option.getWithDefault(default)
 
 let isEqualStringArr = (arr1, arr2) => {
@@ -606,4 +606,37 @@ let getTitle = name => {
   ->Js.String2.split("_")
   ->Js.Array2.map(capitalizeString)
   ->Js.Array2.joinWith(" ")
+}
+
+// Regex to check if a string contains a substring
+let regex = (positionToCheckFrom, searchString) => {
+  let searchStringNew =
+    searchString
+    ->Js.String2.replaceByRe(%re("/[<>\[\]';|?*\\]/g"), "")
+    ->Js.String2.replaceByRe(%re("/\(/g"), "\\(")
+    ->Js.String2.replaceByRe(%re("/\+/g"), "\\+")
+    ->Js.String2.replaceByRe(%re("/\)/g"), "\\)")
+  Js.Re.fromStringWithFlags(
+    "(.*)(" ++ positionToCheckFrom ++ "" ++ searchStringNew ++ ")(.*)",
+    ~flags="i",
+  )
+}
+
+let checkStringStartsWithSubstring = (~itemToCheck, ~searchText) => {
+  let isMatch = switch Js.String2.match_(itemToCheck, regex("\\b", searchText)) {
+  | Some(_) => true
+  | None => Js.String2.match_(itemToCheck, regex("_", searchText))->Belt.Option.isSome
+  }
+  isMatch && searchText->Js.String2.length > 0
+}
+
+let listOfMatchedText = (text, searchText) => {
+  switch Js.String2.match_(text, regex("\\b", searchText)) {
+  | Some(r) => r->Array.sliceToEnd(~start=1)->Belt.Array.keepMap(x => x)
+  | None =>
+    switch Js.String2.match_(text, regex("_", searchText)) {
+    | Some(a) => a->Array.sliceToEnd(~start=1)->Belt.Array.keepMap(x => x)
+    | None => [text]
+    }
+  }
 }

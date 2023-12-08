@@ -1,13 +1,9 @@
 external toJson: 'a => Js.Json.t = "%identity"
-let headerTextStyle = "text-xl font-semibold text-grey-700"
-let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
-let dividerColor = "bg-grey-700 bg-opacity-20 h-px w-full"
-let highlightedText = "text-base font-normal text-blue-700 underline"
 
 @react.component
 let make = (
   ~returnUrl,
-  ~onProceed: (~paymentId: string) => promise<unit>,
+  ~onProceed: (~paymentId: option<string>) => promise<unit>,
   ~sdkWidth="w-[60%]",
   ~isTestCredsNeeded=true,
   ~customWidth="w-full md:w-1/2",
@@ -23,7 +19,7 @@ let make = (
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (clientSecret, setClientSecret) = React.useState(_ => None)
   let (paymentStatus, setPaymentStatus) = React.useState(_ => INCOMPLETE)
-  let (paymentId, setPaymentId) = React.useState(_ => "")
+  let (paymentId, setPaymentId) = React.useState(_ => None)
   let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
   let publishableKey = merchantDetailsValue->getDictFromJsonObject->getString("publishable_key", "")
   let paymentElementOptions = CheckoutHelper.getOptionReturnUrl(returnUrl)
@@ -32,26 +28,31 @@ let make = (
   let searchParams = url.search
   let filtersFromUrl = getDictFromUrlSearchParams(searchParams)
 
+  let getClientSecretFromPaymentId = (~paymentIntentClientSecret) => {
+    switch paymentIntentClientSecret {
+    | Some(paymentIdFromClientSecret) =>
+      let paymentClientSecretSplitArray = paymentIdFromClientSecret->Js.String2.split("_")
+      Some(
+        `${paymentClientSecretSplitArray->LogicUtils.getValueFromArray(
+            0,
+            "",
+          )}_${paymentClientSecretSplitArray->LogicUtils.getValueFromArray(1, "")}`,
+      )
+
+    | None => None
+    }
+  }
+
   let getClientSecret = async () => {
+    open SDKPaymentUtils
     try {
       let url = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments`
-      let body =
-        Js.Dict.fromArray([
-          ("currency", initialValues.currency->SDKPaymentUtils.getCurrencyValue->Js.Json.string),
-          (
-            "amount",
-            initialValues.amount
-            ->SDKPaymentUtils.convertAmountToCents
-            ->Belt.Int.toFloat
-            ->Js.Json.number,
-          ),
-          ("profile_id", initialValues.profile_id->Js.Json.string),
-          ("customer_id", "hyperswitch_sdk_demo_id"->Js.Json.string),
-          ("description", initialValues.description->Js.Json.string),
-        ])->Js.Json.object_
+      let paymentData = initialValues->toJson->Js.Json.stringify->safeParse->getTypedValueForPayment
+      paymentData.currency = paymentData.currency->getCurrencyValue
+      let body = paymentData->toJson
       let response = await updateDetails(url, body, Post)
       let clientSecret = response->getDictFromJsonObject->getOptionString("client_secret")
-      setPaymentId(_ => response->getDictFromJsonObject->getString("payment_id", ""))
+      setPaymentId(_ => response->getDictFromJsonObject->getOptionString("payment_id"))
       setClientSecret(_ => clientSecret)
       setPaymentStatus(_ => INCOMPLETE)
     } catch {
@@ -62,10 +63,17 @@ let make = (
   React.useEffect1(() => {
     let status =
       filtersFromUrl->Js.Dict.get("status")->Belt.Option.getWithDefault("")->Js.String2.toLowerCase
+    let paymentIdFromPaymemtIntentClientSecret = getClientSecretFromPaymentId(
+      ~paymentIntentClientSecret=url.search
+      ->LogicUtils.getDictFromUrlSearchParams
+      ->Js.Dict.get("payment_intent_client_secret"),
+    )
     if status === "succeeded" {
       setPaymentStatus(_ => SUCCESS)
+      setPaymentId(_ => paymentIdFromPaymemtIntentClientSecret)
     } else if status === "failed" {
       setPaymentStatus(_ => FAILED(""))
+      setPaymentId(_ => paymentIdFromPaymemtIntentClientSecret)
     } else if status === "processing" {
       setPaymentStatus(_ => PROCESSING)
     } else {
@@ -87,6 +95,7 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-green-success_page_bg"
+        isButtonVisible={paymentId->Belt.Option.isSome}
       />
 
     | FAILED(_err) =>
@@ -97,6 +106,7 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-red-failed_page_bg"
+        isButtonVisible={paymentId->Belt.Option.isSome}
       />
     | CHECKCONFIGURATION =>
       <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
@@ -134,7 +144,7 @@ let make = (
               elementOptions
               paymentElementOptions
               returnUrl
-              amount={initialValues.amount->SDKPaymentUtils.convertAmountToCents}
+              amount={initialValues.amount}
               setClientSecret
             />
           </div>
@@ -151,7 +161,7 @@ let make = (
           elementOptions
           paymentElementOptions
           returnUrl
-          amount={initialValues.amount->SDKPaymentUtils.convertAmountToCents}
+          amount={initialValues.amount}
           setClientSecret
         />
       }

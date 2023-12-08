@@ -1,5 +1,5 @@
 module InviteEmailForm = {
-  open HSwitchUserManagementUtils
+  open UserManagementUtils
   @react.component
   let make = (~setRoleTypeValue) => {
     open LogicUtils
@@ -12,7 +12,7 @@ module InviteEmailForm = {
     let role =
       `roleType`
       ->getArrayFromForm
-      ->LogicUtils.getValueFromArr(0, ""->Js.Json.string)
+      ->LogicUtils.getValueFromArray(0, ""->Js.Json.string)
       ->getStringFromJson("")
 
     let getRolesList = async () => {
@@ -24,7 +24,7 @@ module InviteEmailForm = {
           (),
         )
         let response = await fetchDetails(roleListUrl)
-        let typedResponse: array<HSwitchUserRoleEntity.roleListResponse> =
+        let typedResponse: array<UserRoleEntity.roleListResponse> =
           response->LogicUtils.getArrayDataFromJson(roleListResponseMapper)
         setRoleListData(_ => typedResponse)
       } catch {
@@ -68,7 +68,7 @@ module InviteEmailForm = {
 
 @react.component
 let make = () => {
-  open HSwitchUserManagementUtils
+  open UserManagementUtils
   open APIUtils
   open LogicUtils
   let fetchDetails = useGetMethod()
@@ -88,7 +88,7 @@ let make = () => {
   let inviteUserReq = async (body, index) => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#INVITE, ~methodType=Post, ())
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       if index === 0 {
         showToast(~message=`Invite(s) sent successfully via Email`, ~toastType=ToastSuccess, ())
       }
@@ -99,7 +99,7 @@ let make = () => {
 
   let inviteListOfUsers = async values => {
     let valDict = values->getDictFromJsonObject
-    let role = valDict->getStrArray("roleType")->LogicUtils.getValueFromArr(0, "")
+    let role = valDict->getStrArray("roleType")->LogicUtils.getValueFromArray(0, "")
 
     valDict
     ->getStrArray("emailList")
@@ -112,7 +112,7 @@ let make = () => {
         ]
         ->Js.Dict.fromArray
         ->Js.Json.object_
-      let _res = inviteUserReq(body, index)
+      let _ = inviteUserReq(body, index)
     })
     await HyperSwitchUtils.delay(400)
     RescriptReactRouter.push("/users")

@@ -163,10 +163,10 @@ let validateForm = (values: Js.Json.t, keys: array<string>) => {
     }
 
     // password check
-    HSwitchMerchantAccountUtils.passwordKeyValidation(value, key, "create_password", errors)
+    MerchantAccountUtils.passwordKeyValidation(value, key, "create_password", errors)
 
     // confirm password check
-    HSwitchMerchantAccountUtils.confirmPasswordCheck(
+    MerchantAccountUtils.confirmPasswordCheck(
       value,
       key,
       "comfirm_password",
@@ -310,7 +310,7 @@ module Header = {
   @react.component
   let make = (~authType, ~setAuthType, ~email) => {
     let form = ReactFinalForm.useForm()
-    let {magicLink: isMagicLinkEnabled, testLiveMode} =
+    let {magicLink: isMagicLinkEnabled, isLiveMode} =
       HyperswitchAtom.featureFlagAtom
       ->Recoil.useRecoilValueFromAtom
       ->LogicUtils.safeParse
@@ -383,18 +383,14 @@ module Header = {
       <h1 className="font-semibold text-xl md:text-2xl"> {cardHeaderText->React.string} </h1>
       {switch authType {
       | LoginWithPassword | LoginWithEmail =>
-        switch testLiveMode {
-        | Some(val) =>
-          !val
-            ? getHeaderLink(
-                ~prefix="New to Hyperswitch?",
-                ~authType=SignUP,
-                ~path="/register",
-                ~sufix="Sign up",
-              )
-            : React.null
-        | _ => React.null
-        }
+        !isLiveMode
+          ? getHeaderLink(
+              ~prefix="New to Hyperswitch?",
+              ~authType=SignUP,
+              ~path="/register",
+              ~sufix="Sign up",
+            )
+          : React.null
 
       | SignUP =>
         getHeaderLink(

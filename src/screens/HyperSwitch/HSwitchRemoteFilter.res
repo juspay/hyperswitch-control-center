@@ -201,7 +201,7 @@ module SearchBarFilter = {
       <Button
         leftIcon={FontAwesome("search")}
         buttonType={Secondary}
-        customButtonStyle="px-2 py-3 mt-1"
+        customButtonStyle="px-2 py-3 mt-2"
         customIconSize=13
         onClick={_ => {
           setSearchVal(_ => searchValBase)

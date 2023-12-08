@@ -63,7 +63,7 @@ module TableRow = {
     ~evenVertivalLines,
     ~highlightEnabledFieldsArray,
     ~tableDataBorderClass="",
-    ~collapseTabelRow=false,
+    ~collapseTableRow=false,
     ~expandedRow: _ => React.element,
     ~onMouseEnter,
     ~onMouseLeave,
@@ -178,7 +178,7 @@ module TableRow = {
           } else {
             `${borderTop} border-r ${borderColor}`
           }
-          let cursorI = cellIndex == 0 && collapseTabelRow ? "cursor-pointer" : ""
+          let cursorI = cellIndex == 0 && collapseTableRow ? "cursor-pointer" : ""
           let isLast = cellIndex === colsLen - 1
           let lastColProp =
             isLast && fixLastCol ? "border-l h-full !py-0 flex flex-col justify-center" : ""
@@ -203,13 +203,13 @@ module TableRow = {
               className={`${tableRowBorderClass} ${customColorCell}`}
               style={ReactDOMStyle.make(~width=fixedWidthClass, ())}
               onClick={_ => {
-                if collapseTabelRow && cellIndex == 0 {
+                if collapseTableRow && cellIndex == 0 {
                   setIsCurrentRowExpanded(prev => !prev)
                   setExpandedData(_ => expandedRow())
                 }
               }}>
               <div className=tableRowPaddingClass>
-                {if collapseTabelRow {
+                {if collapseTableRow {
                   <div className="flex flex-row gap-4 items-center">
                     {if cellIndex === 0 {
                       <Icon name={isCurrentRowExpanded ? "caret-down" : "caret-right"} size=14 />
@@ -622,7 +622,7 @@ let make = (
   ~tableheadingClass="",
   ~tableBorderClass="",
   ~tableDataBorderClass="",
-  ~collapseTabelRow=false,
+  ~collapseTableRow=false,
   ~getRowDetails=?,
   ~actualData=?,
   ~onExpandClickData as _=?,
@@ -725,7 +725,7 @@ let make = (
         evenVertivalLines
         highlightEnabledFieldsArray
         tableDataBorderClass
-        collapseTabelRow
+        collapseTableRow
         expandedRow={_ => getRowDetails(offset + rowIndex)}
         onMouseEnter
         onMouseLeave

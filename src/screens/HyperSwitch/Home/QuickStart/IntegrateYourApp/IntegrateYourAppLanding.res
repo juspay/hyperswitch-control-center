@@ -42,7 +42,7 @@ let make = (~integrateAppValue: integrateApp) => {
         integration_type: (choiceState: QuickStartTypes.choiceStateTypes :> string),
       }
       let enumVariant = quickStartPageState->variantToEnumMapper
-      let _resp = await IntegrationMethod(integartionValue)->usePostEnumDetails(enumVariant)
+      let _ = await IntegrationMethod(integartionValue)->usePostEnumDetails(enumVariant)
       setQuickStartPageState(_ => IntegrateApp(CUSTOM_INTEGRATION))
       setButtonState(_ => Normal)
     } catch {
@@ -53,7 +53,7 @@ let make = (~integrateAppValue: integrateApp) => {
   let handleMarkAsDone = async () => {
     try {
       let enumVariant = quickStartPageState->variantToEnumMapper
-      let _resp = await Boolean(true)->usePostEnumDetails(enumVariant)
+      let _ = await Boolean(true)->usePostEnumDetails(enumVariant)
     } catch {
     | _ => ()
     }

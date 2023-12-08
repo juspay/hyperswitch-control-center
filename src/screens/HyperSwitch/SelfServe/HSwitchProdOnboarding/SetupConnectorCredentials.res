@@ -121,9 +121,9 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   )
 
   let {profile_id} =
-    Recoil.useRecoilValueFromAtom(
-      HyperswitchAtom.businessProfilesAtom,
-    )->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    HyperswitchAtom.businessProfilesAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->MerchantAccountUtils.getValueFromBusinessProfile
 
   let updateSetupConnectorCredentials = async connectorId => {
     try {
@@ -133,7 +133,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         ~connectorId,
         (),
       )
-      let _response = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setPageView(_ => pageView->ProdOnboardingUtils.getPageView)
     } catch {
     | _ => ()
@@ -173,7 +173,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         ~values,
         ~connector=connectorName,
         ~bodyType,
-        ~isLiveMode={featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false)},
+        ~isLiveMode={featureFlagDetails.isLiveMode},
         (),
       )
 
@@ -238,12 +238,12 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
           ~connector={connectorName},
           ~bodyType,
           ~isPayoutFlow=false,
-          ~isLiveMode={featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false)},
+          ~isLiveMode={featureFlagDetails.isLiveMode},
           (),
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connectorName), ())
-      let _response = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setShowVerifyModal(_ => false)
       onSubmitMain(values)->ignore
       setIsLoading(_ => false)

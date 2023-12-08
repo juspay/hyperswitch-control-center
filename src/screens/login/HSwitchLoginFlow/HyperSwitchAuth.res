@@ -15,7 +15,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (email, setEmail) = React.useState(_ => "")
-  let {magicLink: isMagicLinkEnabled, forgetPassword} =
+  let {magicLink: isMagicLinkEnabled, forgetPassword, ossBuild: isOssBuild} =
     HyperswitchAtom.featureFlagAtom
     ->Recoil.useRecoilValueFromAtom
     ->LogicUtils.safeParse
@@ -53,9 +53,9 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     Js.Nullable.null
   }
 
-  let getUserWithEmailPassword = async (body, email) => {
+  let getUserWithEmailPassword = async (body, email, userType) => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#SIGNIN, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post)
       let token = parseResponseJson(~json=res, ~email)
 
@@ -75,14 +75,14 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let openPlayground = _ => {
     hyperswitchMixPanel(~eventName=Some("try_playground"), ~email=playgroundUserEmail, ())
     let body = getEmailPasswordBody(playgroundUserEmail, playgroundUserPassword, country)
-    getUserWithEmailPassword(body, playgroundUserEmail)->ignore
+    getUserWithEmailPassword(body, playgroundUserEmail, #SIGNIN)->ignore
     HSLocalStorage.setIsPlaygroundInLocalStorage(true)
   }
 
   let setResetPassword = async body => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#RESET_PASSWORD, ~methodType=Post, ())
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       RescriptReactRouter.push("/")
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
       setAuthType(_ => LoginWithEmail)
@@ -96,7 +96,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let setForgetPassword = async body => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#FORGOT_PASSWORD, ~methodType=Post, ())
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setAuthType(_ => ForgetPasswordEmailSent)
       showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
     } catch {
@@ -108,7 +108,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let resendVerifyEmail = async body => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#VERIFY_EMAIL_REQUEST, ~methodType=Post, ())
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setAuthType(_ => ResendVerifyEmailSent)
       showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
     } catch {
@@ -159,14 +159,20 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     | (false, SignUP) => {
         let password = getString(valuesDict, "password", "")
         let body = getEmailPasswordBody(email, password, country)
-
-        getUserWithEmailPassword(body, email)->ignore
+        if isOssBuild {
+          getUserWithEmailPassword(body, email, #OSSSIGNUP)->ignore
+        } else {
+          getUserWithEmailPassword(body, email, #SIGNIN)->ignore
+        }
       }
     | (_, LoginWithPassword) => {
         let password = getString(valuesDict, "password", "")
         let body = getEmailPasswordBody(email, password, country)
-
-        getUserWithEmailPassword(body, email)->ignore
+        if isOssBuild {
+          getUserWithEmailPassword(body, email, #OSSSIGNIN)->ignore
+        } else {
+          getUserWithEmailPassword(body, email, #SIGNIN)->ignore
+        }
       }
     | (_, ResetPassword) => {
         let queryDict = url.search->getDictFromUrlSearchParams

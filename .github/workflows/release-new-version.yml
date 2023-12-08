@@ -1,19 +1,19 @@
 name: Release a new hyperswitch version
 
-# on:
-#   schedule:
-#     - cron: "30 14 * * 0-4" # Run workflow at 8 PM IST every Sunday-Thursday
-
-#   workflow_dispatch:
-
-# concurrency:
-#   group: ${{ github.workflow }}-${{ github.ref }}
-#   cancel-in-progress: true
-
 on:
-  pull_request_target:
-    types:
-      - closed
+  schedule:
+    - cron: "30 14 * * 0-4" # Run workflow at 8 PM IST every Sunday-Thursday
+
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# on:
+#   pull_request_target:
+#     types:
+#       - closed
 
 env:
   # Allow more retries for network requests in cargo (downloading crates) and
@@ -30,9 +30,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        # with:
-        #   fetch-depth: 0
-        #   token: ${{ secrets.AUTO_RELEASE_PAT }}
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.AUTO_RELEASE_PAT }}
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master

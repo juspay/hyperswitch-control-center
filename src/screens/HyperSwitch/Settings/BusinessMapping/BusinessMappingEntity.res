@@ -4,22 +4,18 @@ open BusinessMappingUtils
 type columns =
   | ProfileName
   | ProfileId
-  | ReturnUrl
-  | WebhookUrl
 
-let visibleColumns = [ProfileName, ProfileId, ReturnUrl, WebhookUrl]
+let visibleColumns = [ProfileId, ProfileName]
 
-let defaultColumns = [ProfileName, ProfileId, ReturnUrl, WebhookUrl]
+let defaultColumns = [ProfileId, ProfileName]
 
-let allColumns = [ProfileName, ProfileId, ReturnUrl, WebhookUrl]
+let allColumns = [ProfileId, ProfileName]
 
 let getHeading = colType => {
   switch colType {
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=true, ())
   | ProfileName =>
     Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=true, ())
-  | ReturnUrl => Table.makeHeaderInfo(~key="return_url", ~title="Return URL", ~showSort=true, ())
-  | WebhookUrl => Table.makeHeaderInfo(~key="webhook_url", ~title="Webhook URL", ~showSort=true, ())
   }
 }
 
@@ -27,14 +23,12 @@ let getCell = (item: profileEntity, colType): Table.cell => {
   switch colType {
   | ProfileId => Text(item.profile_id)
   | ProfileName => Text(item.profile_name)
-  | ReturnUrl => Text(item.return_url->Belt.Option.getWithDefault(""))
-  | WebhookUrl => Text(item.webhook_details.webhook_url->Belt.Option.getWithDefault(""))
   }
 }
 
 let itemToObjMapper = dict => {
   open LogicUtils
-  open HSwitchMerchantAccountUtils
+  open MerchantAccountUtils
   {
     profile_id: getString(dict, "profile_id", ""),
     profile_name: getString(dict, ProfileName->getStringFromVariant, ""),
@@ -51,7 +45,7 @@ let getItems: Js.Json.t => array<profileEntity> = json => {
   LogicUtils.getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let apiKeysTableEntity = EntityType.makeEntity(
+let businessProfileTableEntity = EntityType.makeEntity(
   ~uri="",
   ~getObjects=getItems,
   ~defaultColumns,
@@ -61,18 +55,3 @@ let apiKeysTableEntity = EntityType.makeEntity(
   ~getCell,
   (),
 )
-
-let businessProfileTabelEntity = showLink =>
-  EntityType.makeEntity(
-    ~uri="",
-    ~getObjects=getItems,
-    ~defaultColumns,
-    ~allColumns,
-    ~getHeading,
-    ~dataKey="",
-    ~getCell,
-    ~getShowLink={
-      profile => showLink ? `/webhooks/${profile.profile_id}` : ""
-    },
-    (),
-  )

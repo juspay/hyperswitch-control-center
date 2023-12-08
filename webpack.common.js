@@ -6,23 +6,10 @@ const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin"
 const tailwindcss = require("tailwindcss");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 
-const appEntryPoint = {
-  hyperswitch: "hyperswitch/HyperSwitchEntry",
-};
-
-function getAppEntryPoint(appName) {
-  const path = appEntryPoint[appName];
-  if (path) {
-    return `./src/entryPoints/${path}.bs.js`;
-  } else {
-    return undefined;
-  }
-}
-
 module.exports = (appName = "hyperswitch", publicPath = "auto") => {
   const isDevelopment = process.env.NODE_ENV !== "production";
   let entryObj = {
-    app: getAppEntryPoint(appName),
+    app: `./src/entryPoints/hyperswitch/HyperSwitchEntry.bs.js`,
   };
   return {
     entry: entryObj,

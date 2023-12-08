@@ -72,7 +72,7 @@ let make = (
   ~profile=?,
   ~setProfile=?,
 ) => {
-  open HSwitchMerchantAccountUtils
+  open MerchantAccountUtils
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let ip1 = ReactFinalForm.useField(`name`).input
   let ip2 = ReactFinalForm.useField(`description`).input
@@ -146,11 +146,11 @@ let make = (
             <AddDataAttributes attributes=[("data-field", "Profile Id")]>
               <div className="flex flex-col gap-2 items-start justify-between py-2">
                 <span className="text-gray-500 dark:text-gray-400">
-                  {React.string("Profile Name")}
+                  {React.string("Profile")}
                 </span>
                 <AddDataAttributes attributes=[("data-text", getStringFromJson(ip3.value, ""))]>
                   <span className="font-semibold">
-                    <HSwitchMerchantAccountUtils.BusinessProfile
+                    <MerchantAccountUtils.BusinessProfile
                       profile_id={profile->Belt.Option.getWithDefault(
                         defaultBusinessProfile.profile_id,
                       )}
@@ -167,20 +167,12 @@ let make = (
         <div className="flex">
           <div className="w-full md:w-1/2 lg:w-1/3">
             <UIUtils.RenderIf condition={!isThreeDs}>
-              <div className="flex flex-row w-full">
-                <BusinessProfileInp
-                  setProfile={setProfile->Belt.Option.getWithDefault(_ => ())}
-                  profile={profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)}
-                  options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
-                  label="Profile Name"
-                />
-                <BusinessProfileInp
-                  setProfile={setProfile->Belt.Option.getWithDefault(_ => ())}
-                  profile={profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)}
-                  options={arrayOfBusinessProfile->businessProfileIdDropDownOption}
-                  label="Profile Id"
-                />
-              </div>
+              <BusinessProfileInp
+                setProfile={setProfile->Belt.Option.getWithDefault(_ => ())}
+                profile={profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)}
+                options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
+                label="Profile"
+              />
             </UIUtils.RenderIf>
             <FieldRenderer field=configurationNameInput />
             <FieldRenderer field=descriptionInput />

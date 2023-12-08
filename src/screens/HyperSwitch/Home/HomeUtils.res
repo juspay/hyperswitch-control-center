@@ -128,7 +128,7 @@ let isDefaultBusinessProfile = details => details->Js.Array2.length === 1
 module MerchantAuthInfo = {
   @react.component
   let make = (~merchantDetailsValue) => {
-    let detail = merchantDetailsValue->HSwitchMerchantAccountUtils.getMerchantDetails
+    let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
     let dataDict =
       [
         ("merchant_id", detail.merchant_id->Js.Json.string),
@@ -225,7 +225,7 @@ module CheckoutCard = {
               _ => {
                 hyperswitchMixPanel(~eventName=Some(`${urlPath}_tryplayground_register`), ())
                 hyperswitchMixPanel(~eventName=Some(`global_tryplayground_register`), ())
-                let _res = APIUtils.handleLogout(~fetchApi, ~setAuthStatus)
+                let _ = APIUtils.handleLogout(~fetchApi, ~setAuthStatus)
               }
             },
           },
@@ -269,7 +269,7 @@ module ControlCenter = {
     let url = RescriptReactRouter.useUrl()
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let merchantDetailsValue = useMerchantDetailsValue()
-    let {testLiveMode} =
+    let {isLiveMode} =
       HyperswitchAtom.featureFlagAtom
       ->Recoil.useRecoilValueFromAtom
       ->LogicUtils.safeParse
@@ -277,16 +277,13 @@ module ControlCenter = {
 
     let pageName = url.path->getPageNameFromUrl
 
-    let isLiveModeEnabledStyles =
-      testLiveMode->Belt.Option.getWithDefault(false)
-        ? "flex flex-col md:flex-row gap-5 w-full"
-        : "flex flex-col gap-5 md:w-1/2 w-full"
+    let isLiveModeEnabledStyles = isLiveMode
+      ? "flex flex-col md:flex-row gap-5 w-full"
+      : "flex flex-col gap-5 md:w-1/2 w-full"
 
     <div className="flex flex-col gap-5 md:flex-row">
       <div className=isLiveModeEnabledStyles>
-        <CardLayout
-          width="w-full"
-          customStyle={testLiveMode->Belt.Option.getWithDefault(false) ? "" : "h-3/6"}>
+        <CardLayout width="w-full" customStyle={isLiveMode ? "" : "h-3/6"}>
           <CardHeader
             heading="Integrate a connector"
             subHeading="Give a headstart to the control centre by connecting with more than 20+ gateways, payment methods, and networks."
@@ -316,9 +313,7 @@ module ControlCenter = {
             />
           </CardFooter>
         </CardLayout>
-        <CardLayout
-          width="w-full"
-          customStyle={testLiveMode->Belt.Option.getWithDefault(false) ? "" : "h-4/6"}>
+        <CardLayout width="w-full" customStyle={isLiveMode ? "" : "h-4/6"}>
           <CardHeader
             heading="Credentials and Keys"
             subHeading="Your secret credentials to start integrating hyperswitch."
@@ -347,7 +342,7 @@ module ControlCenter = {
           </CardFooter>
         </CardLayout>
       </div>
-      <UIUtils.RenderIf condition={!(testLiveMode->Belt.Option.getWithDefault(false))}>
+      <UIUtils.RenderIf condition={!isLiveMode}>
         <CheckoutCard />
       </UIUtils.RenderIf>
     </div>

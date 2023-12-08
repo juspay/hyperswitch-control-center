@@ -34,8 +34,7 @@ module BusinessProfileRender = {
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
 
-    let arrayOfBusinessProfile =
-      businessProfiles->HSwitchMerchantAccountUtils.getArrayOfBusinessProfile
+    let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
 
     let (showModalFromOtherScreen, setShowModalFromOtherScreen) = React.useState(_ => false)
 
@@ -56,83 +55,43 @@ module BusinessProfileRender = {
     }
 
     <>
-      <div className="flex items-center gap-5">
-        <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-black"
-          field={FormRenderer.makeFieldInfo(
-            ~label="Profile Name",
-            ~isRequired=true,
-            ~name="profile_id",
-            ~customInput=(~input, ~placeholder as _) =>
-              InputFields.selectInput(
-                ~input={
-                  ...input,
-                  onChange: {
-                    ev => {
-                      input.onChange(ev)
-                      mixpanelEventWrapper(
-                        ~url,
-                        ~selectedConnector,
-                        ~actionName=`settings_choose_country`,
-                        ~hyperswitchMixPanel,
-                      )
-                    }
-                  },
+      <FormRenderer.FieldRenderer
+        labelClass="font-semibold !text-black"
+        field={FormRenderer.makeFieldInfo(
+          ~label="Profile",
+          ~isRequired=true,
+          ~name="profile_id",
+          ~customInput=(~input, ~placeholder as _) =>
+            InputFields.selectInput(
+              ~input={
+                ...input,
+                onChange: {
+                  ev => {
+                    input.onChange(ev)
+                    mixpanelEventWrapper(
+                      ~url,
+                      ~selectedConnector,
+                      ~actionName=`settings_choose_country`,
+                      ~hyperswitchMixPanel,
+                    )
+                  }
                 },
-                ~deselectDisable=true,
-                ~disableSelect=isUpdateFlow,
-                ~customStyle="max-h-48",
-                ~options={
-                  arrayOfBusinessProfile->HSwitchMerchantAccountUtils.businessProfileNameDropDownOption
-                },
-                ~buttonText="Select Country",
-                ~placeholder="",
-                (),
-              ),
-            (),
-          )}
-        />
-        <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-black"
-          field={FormRenderer.makeFieldInfo(
-            ~label="Profile Id",
-            ~isRequired=true,
-            ~name="profile_id",
-            ~customInput=(~input, ~placeholder as _) =>
-              InputFields.selectInput(
-                ~input={
-                  ...input,
-                  onChange: {
-                    ev => {
-                      input.onChange(ev)
-                      mixpanelEventWrapper(
-                        ~url,
-                        ~selectedConnector,
-                        ~actionName=`settings_choose_label`,
-                        ~hyperswitchMixPanel,
-                      )
-                    }
-                  },
-                },
-                ~options={
-                  arrayOfBusinessProfile->HSwitchMerchantAccountUtils.businessProfileIdDropDownOption
-                },
-                ~buttonText="Select Option",
-                ~deselectDisable=true,
-                ~disableSelect=isUpdateFlow,
-                ~placeholder="",
-                (),
-              ),
-            (),
-          )}
-        />
-      </div>
+              },
+              ~deselectDisable=true,
+              ~disableSelect=isUpdateFlow,
+              ~customStyle="max-h-48",
+              ~options={
+                arrayOfBusinessProfile->MerchantAccountUtils.businessProfileNameDropDownOption
+              },
+              ~buttonText="Select Country",
+              ~placeholder="",
+              (),
+            ),
+          (),
+        )}
+      />
       <UIUtils.RenderIf condition={!isUpdateFlow}>
         <div className="text-gray-400 text-sm mt-3">
-          // <span> {"Add new configuration"->React.string} </span>
-          // <span className={`ml-1 mr-1 ${hereTextStyle}`} onClick={_ => onClickHandler("country")}>
-          //   {React.string("here.")}
-          // </span>
           <span> {"Manage your list of business units"->React.string} </span>
           <span
             className={`ml-1 ${hereTextStyle}`}
@@ -264,7 +223,7 @@ let make = (
   let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
 
   let activeBusinessProfile =
-    defaultBusinessProfile->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
 
   React.useEffect1(() => {
     mixpanelEventWrapper(
@@ -343,7 +302,7 @@ let make = (
         ~connector,
         ~bodyType,
         ~isPayoutFlow,
-        ~isLiveMode={featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false)},
+        ~isLiveMode={featureFlagDetails.isLiveMode},
         (),
       )
       setScreenState(_ => Loading)
@@ -396,7 +355,7 @@ let make = (
           ~connector,
           ~bodyType,
           ~isPayoutFlow,
-          ~isLiveMode={featureFlagDetails.testLiveMode->Belt.Option.getWithDefault(false)},
+          ~isLiveMode={featureFlagDetails.isLiveMode},
           (),
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
@@ -406,7 +365,7 @@ let make = (
         ~connector=Some(connector),
         (),
       )
-      let _response = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setShowVerifyModal(_ => false)
       onSubmitMain(values)->ignore
     } catch {
@@ -485,9 +444,7 @@ let make = (
       formClass="flex flex-col ">
       <div className="flex items-center justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
-          <GatewayIcon
-            gateway={connector->Js.String2.toUpperCase} className="w-14 h-14 rounded-full"
-          />
+          <GatewayIcon gateway={connector->Js.String2.toUpperCase} />
           <h2 className="text-xl font-semibold">
             {connector->LogicUtils.capitalizeString->React.string}
           </h2>

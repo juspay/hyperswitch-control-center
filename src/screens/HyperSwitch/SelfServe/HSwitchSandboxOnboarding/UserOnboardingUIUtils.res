@@ -24,7 +24,7 @@ module PublishableKeyArea = {
   @react.component
   let make = (~currentRoute) => {
     let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
-    let detail = merchantDetailsValue->HSwitchMerchantAccountUtils.getMerchantDetails
+    let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
     let contextName = `${currentRoute->variantToTextMapperForBuildHS}_5.loadhyperswitchcheckout`
 
     <HelperComponents.KeyAndCopyArea
@@ -37,7 +37,7 @@ module PaymentResponseHashKeyArea = {
   @react.component
   let make = (~currentRoute) => {
     let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
-    let detail = merchantDetailsValue->HSwitchMerchantAccountUtils.getMerchantDetails
+    let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
     let contextName = `${currentRoute->variantToTextMapperForBuildHS}_5.loadhyperswitchcheckout`
 
     <HelperComponents.KeyAndCopyArea
@@ -507,7 +507,7 @@ module LandingPageTileForIntegrateDocs = {
           ~metadata=metaDataDict,
           (),
         )
-        let _res = await updateDetails(url, body, Post)
+        let _ = await updateDetails(url, body, Post)
         setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       } catch {
       | _ => ()
@@ -984,7 +984,7 @@ let getTabsForIntegration = (
                   src="https://hyperswitch.io/img/site/wordpress_hyperswitch_settings.png"
                 />
               </div>
-              <Webhooks webhookOnly=true />
+              <PaymentSettings webhookOnly=true />
             </TabsContentWrapper>
             <TabsContentWrapper currentRoute tabIndex={6}>
               <div
@@ -1028,7 +1028,7 @@ let getTabsForIntegration = (
                 ~metadata=metaDataDict,
                 (),
               )
-              let _res = await updateDetails(url, body, Post)
+              let _ = await updateDetails(url, body, Post)
               setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
             } catch {
             | _ => ()

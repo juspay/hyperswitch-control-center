@@ -170,7 +170,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
     try {
       let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
       let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#ConfigureEndpoint, ())
-      let _response = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setPageView(_ => pageView->ProdOnboardingUtils.getPageView)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess, ())
       setButtonState(_ => Normal)
@@ -184,7 +184,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
       setButtonState(_ => Loading)
       let mercahantUpdateBody =
         [("webhook_url", webhookEndpoint->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
-      let body = mercahantUpdateBody->HSwitchMerchantAccountUtils.getSettingsPayload(merchantId)
+      let body = mercahantUpdateBody->MerchantAccountUtils.getSettingsPayload(merchantId)
       let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ())
       let merchantInfo = await updateDetails(url, body, Post)
       setMerchantDetailsValue(._ => merchantInfo->Js.Json.stringify)

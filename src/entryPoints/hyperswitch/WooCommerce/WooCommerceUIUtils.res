@@ -79,16 +79,16 @@ module SelectPaymentMethods = {
         let enumRecoilUpdateArr = []
 
         if enums.firstProcessorConnected.processorID->Js.String2.length === 0 {
-          let _fPCResp = await body->postEnumDetails(#FirstProcessorConnected)
+          let _ = await body->postEnumDetails(#FirstProcessorConnected)
           enumRecoilUpdateArr->Array.push((body, #FirstProcessorConnected))
         }
 
         if !enums.isMultipleConfiguration {
-          let _mCResp = await Boolean(true)->postEnumDetails(#IsMultipleConfiguration)
+          let _ = await Boolean(true)->postEnumDetails(#IsMultipleConfiguration)
           enumRecoilUpdateArr->Array.push((Boolean(true), #IsMultipleConfiguration))
         }
 
-        let _res = updateEnumInRecoil(enumRecoilUpdateArr)
+        let _ = updateEnumInRecoil(enumRecoilUpdateArr)
       } catch {
       | _ => setButtonState(_ => Button.Normal)
       }
