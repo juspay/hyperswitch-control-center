@@ -86,10 +86,6 @@ type responseType = {
   testPayment: paymentType,
   integrationMethod: integrationMethod,
   integrationCompleted: bool,
-  downloadTestAPIKey: bool,
-  createPayment: bool,
-  displayCheckout: bool,
-  displayPaymentConfirmation: bool,
   stripeConnected: processorType,
   paypalConnected: processorType,
   sPRoutingConfigured: routingType,
@@ -103,6 +99,10 @@ type responseType = {
   replaceAPIKeys: string,
   reconfigureCheckout: string,
   loadCheckout: string,
+  downloadTestAPIKey: string,
+  createPayment: string,
+  displayCheckout: string,
+  displayPaymentConfirmation: string,
 }
 
 type requestObjectType =

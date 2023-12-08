@@ -169,12 +169,12 @@ let getTypedValueFromDict = valueString => {
     ->getDictfromDict(#IntegrationMethod->getStringFromVariant)
     ->getIntegrationType,
     integrationCompleted: value->getBool(#IntegrationCompleted->getStringFromVariant, false),
-    downloadTestAPIKey: value->getBool(#DownloadTestAPIKey->getStringFromVariant, false),
-    createPayment: value->getBool(#CreatePayment->getStringFromVariant, false),
-    displayCheckout: value->getBool(#DisplayCheckout->getStringFromVariant, false),
-    displayPaymentConfirmation: value->getBool(
+    downloadTestAPIKey: value->getString(#DownloadTestAPIKey->getStringFromVariant, ""),
+    createPayment: value->getString(#CreatePayment->getStringFromVariant, ""),
+    displayCheckout: value->getString(#DisplayCheckout->getStringFromVariant, ""),
+    displayPaymentConfirmation: value->getString(
       #DisplayPaymentConfirmation->getStringFromVariant,
-      false,
+      "",
     ),
     stripeConnected: value
     ->getDictfromDict(#StripeConnected->getStringFromVariant)
@@ -340,31 +340,19 @@ let getSidebarOptionsForIntegrateYourApp: (
       subOptions: [
         {
           title: "Download Test API Key",
-          status: Boolean(enumValue.downloadTestAPIKey)->getStatusValue(
-            #ConfiguredRouting,
-            currentPageStateEnum,
-          ),
+          status: enumValue.downloadTestAPIKey->getStatusFromString,
         },
         {
           title: "Create a Payment",
-          status: Boolean(enumValue.createPayment)->getStatusValue(
-            #ConfiguredRouting,
-            currentPageStateEnum,
-          ),
+          status: enumValue.createPayment->getStatusFromString,
         },
         {
           title: "Display Hyperswitch Checkout",
-          status: Boolean(enumValue.displayCheckout)->getStatusValue(
-            #ConfiguredRouting,
-            currentPageStateEnum,
-          ),
+          status: enumValue.displayCheckout->getStatusFromString,
         },
         {
           title: "Display Payment Confirmation",
-          status: Boolean(enumValue.displayPaymentConfirmation)->getStatusValue(
-            #ConfiguredRouting,
-            currentPageStateEnum,
-          ),
+          status: enumValue.displayPaymentConfirmation->getStatusFromString,
         },
       ],
     },

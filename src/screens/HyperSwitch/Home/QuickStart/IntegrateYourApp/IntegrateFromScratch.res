@@ -26,10 +26,18 @@ let make = (
       buttonState={Normal}
       buttonType={PrimaryOutline}
       text="Back"
-      onClick={_ =>
-        currentStep === DownloadTestAPIKey
-          ? setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
-          : setCurrentStep(_ => getNavigationStepForStandardIntegration(~currentStep, ()))}
+      onClick={_ => {
+        let prevStep = getNavigationStepForStandardIntegration(~currentStep, ())
+        if currentStep === DownloadTestAPIKey {
+          setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
+        } else {
+          let _res = updateEnumInRecoil([
+            (String("pending"), currentStep->getPolyMorphicVariantOfIntegrationSubStep),
+            (String("ongoing"), prevStep->getPolyMorphicVariantOfIntegrationSubStep),
+          ])
+          setCurrentStep(_ => prevStep)
+        }
+      }}
       buttonSize=Small
     />
 
@@ -41,12 +49,13 @@ let make = (
         if isLastStep {
           markAsDone()->ignore
         } else {
+          let nextStep = getNavigationStepForStandardIntegration(~currentStep, ~forward=true, ())
           let _res = updateEnumInRecoil([
-            (Boolean(true), currentStep->getPolyMorphicVariantOfIntegrationSubStep),
+            (String("completed"), currentStep->getPolyMorphicVariantOfIntegrationSubStep),
+            (String("ongoing"), nextStep->getPolyMorphicVariantOfIntegrationSubStep),
           ])
-          setCurrentStep(_ =>
-            getNavigationStepForStandardIntegration(~currentStep, ~forward=true, ())
-          )
+
+          setCurrentStep(_ => nextStep)
         }
       }}
       buttonSize=Small
