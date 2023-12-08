@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.4.0 (2023-12-08)
+
+### Features
+
+- New connector addition Helcim ([#80](https://github.com/juspay/hyperswitch-control-center/pull/80)) ([`0e59c4a`](https://github.com/juspay/hyperswitch-control-center/commit/0e59c4a6e80fe9d03c8f289810f7796e3da23cb1))
+
+### Bug Fixes
+
+- Hide connector sr ([#81](https://github.com/juspay/hyperswitch-control-center/pull/81)) ([`0880fd8`](https://github.com/juspay/hyperswitch-control-center/commit/0880fd8757f46236caff8783eb3154ec88b286c2))
+
+**Full Changelog:** [`v1.3.1...v1.4.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.3.1...v1.4.0)
+
+- - -
+
+
 ## 1.3.1 (2023-12-07)
 
 ### Bug Fixes
