@@ -74,6 +74,7 @@ type connectorName =
   | GOCARDLESS
   | VOLT
   | PROPHETPAY
+  | HELCIM
   | UnknownConnector(string)
 
 type paymentMethod =
