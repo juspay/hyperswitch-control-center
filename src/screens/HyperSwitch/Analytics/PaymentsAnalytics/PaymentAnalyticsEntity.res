@@ -423,7 +423,7 @@ let getStatData = (
 ) => {
   switch colType {
   | SuccessRate => {
-      title: "Overall conversion rate",
+      title: "Overall Conversion Rate",
       tooltipText: "Total successful payments processed out of total payments created (This includes user dropouts at shopping cart and checkout page)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.payment_success_rate,
@@ -514,7 +514,7 @@ let getStatData = (
     }
   | RetriesCount => {
       title: "Smart Retries made",
-      tooltipText: "Total number of retries that were attempted after a failed payment attempt",
+      tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supoorted currently)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.retries_count->Belt.Int.toFloat,
         deltaTimestampData.currentSr,
@@ -528,8 +528,8 @@ let getStatData = (
       showDelta: false,
     }
   | RetriesAmountProcessed => {
-      title: `Smart retries savings`,
-      tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor",
+      title: `Smart Retries Savings`,
+      tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor (Note: Only date range filters are supoorted currently)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.retries_amount_processe /. 100.00,
         deltaTimestampData.currentSr,
@@ -548,7 +548,7 @@ let getStatData = (
       showDelta: false,
     }
   | ConnectorSuccessRate => {
-      title: "Payment success rate",
+      title: "Payment Success Rate",
       tooltipText: "Total successful payments processed out of all user confirmed payments",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.connector_success_rate,
