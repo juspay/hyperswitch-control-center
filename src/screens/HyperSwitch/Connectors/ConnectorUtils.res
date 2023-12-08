@@ -167,6 +167,7 @@ let connectorList: array<connectorName> = [
   GLOBALPAY,
   GLOBEPAY,
   GOCARDLESS,
+  HELCIM,
   IATAPAY,
   KLARNA,
   MOLLIE,
@@ -457,6 +458,10 @@ let prophetpayInfo = {
   description: "A secure, affordable, and easy-to-use credit card processing platform for any business.",
 }
 
+let helcimInfo = {
+  description: "Helcim is the easy and affordable solution for small businesses accepting credit card payments.",
+}
+
 let unknownConnectorInfo = {
   description: "unkown connector",
 }
@@ -517,6 +522,7 @@ let getConnectorNameString = connector => {
   | VOLT => "volt"
   | PROPHETPAY => "prophetpay"
   | BANKOFAMERICA => "bankofamerica"
+  | HELCIM => "helcim"
   | UnknownConnector(str) => str
   }
 }
@@ -573,6 +579,7 @@ let getConnectorNameTypeFromString = connector => {
   | "volt" => VOLT
   | "bankofamerica" => BANKOFAMERICA
   | "prophetpay" => PROPHETPAY
+  | "helcim" => HELCIM
   | _ => UnknownConnector("Not known")
   }
 }
@@ -629,6 +636,7 @@ let getConnectorInfo = (connector: connectorName) => {
   | VOLT => voltInfo
   | PROPHETPAY => prophetpayInfo
   | BANKOFAMERICA => bankOfAmericaInfo
+  | HELCIM => helcimInfo
   | UnknownConnector(_) => unknownConnectorInfo
   }
 }
