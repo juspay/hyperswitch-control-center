@@ -319,19 +319,29 @@ type colT =
   | RetriesAmountProcessed
   | ConnectorSuccessRate
 
-let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
+let getColumns: bool => array<DynamicSingleStat.columns<colT>> = connector_success_rate => [
   {
     sectionName: "",
-    columns: [
-      SuccessRate,
-      Count,
-      SuccessCount,
-      ProcessedAmount,
-      AvgTicketSize,
-      RetriesCount,
-      RetriesAmountProcessed,
-      ConnectorSuccessRate,
-    ],
+    columns: connector_success_rate
+      ? [
+          SuccessRate,
+          Count,
+          SuccessCount,
+          ProcessedAmount,
+          AvgTicketSize,
+          RetriesCount,
+          RetriesAmountProcessed,
+          ConnectorSuccessRate,
+        ]
+      : [
+          SuccessRate,
+          Count,
+          SuccessCount,
+          ProcessedAmount,
+          AvgTicketSize,
+          RetriesCount,
+          RetriesAmountProcessed,
+        ],
   },
 ]
 
@@ -555,7 +565,7 @@ let getStatData = (
   }
 }
 
-let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {
+let getSingleStatEntity = (metrics, connector_success_rate) => {
   urlConfig: [
     {
       uri: `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
@@ -564,7 +574,7 @@ let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> =
   ],
   getObjects: itemToObjMapper,
   getTimeSeriesObject: timeSeriesObjMapper,
-  defaultColumns,
+  defaultColumns: getColumns(connector_success_rate),
   getData: getStatData,
   totalVolumeCol: None,
   matrixUriMapper: _ => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
