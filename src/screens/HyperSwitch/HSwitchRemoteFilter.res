@@ -304,7 +304,7 @@ module RemoteTableFilters = {
         localOptions=[]
         remoteOptions
         remoteFilters
-        autoApply=true
+        autoApply=false
         showExtraFiltersInline=true
         showClearFilterButton=true
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
@@ -326,7 +326,7 @@ module RemoteTableFilters = {
         localOptions=[]
         remoteOptions=[]
         remoteFilters=[]
-        autoApply=true
+        autoApply=false
         showExtraFiltersInline=true
         showClearFilterButton=true
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
