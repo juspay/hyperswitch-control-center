@@ -201,7 +201,6 @@ module RemoteTableFilters = {
   open LogicUtils
   @react.component
   let make = (
-    ~index,
     ~filterUrl,
     ~setFilters,
     ~endTimeFilterKey,
@@ -214,13 +213,13 @@ module RemoteTableFilters = {
     ~setOffset,
     (),
   ) => {
+    let {index, filterValue, updateExistingKeys, filterValueJson, removeKeys} =
+      FilterContext.filterContext->React.useContext
     let defaultFilters = {""->Js.Json.string}
     open FilterUtils
     let getModuleFilters = useFiltersValue(~index)->parseFilterString
     let getFilterData = useGetFiltersData(~index)
     let updateComponentPrefrences = useUpdateFilterObject(~index)
-    let {index, filterValue, updateExistingKeys, filterValueJson, removeKeys} =
-      FilterContext.filterContext->React.useContext
     let setInitialFilters = useSetInitialFilters(
       ~updateComponentPrefrences,
       ~updateExistingKeys,
