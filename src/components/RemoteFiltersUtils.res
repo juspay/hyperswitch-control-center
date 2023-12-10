@@ -281,28 +281,6 @@ let getStrFromJson = (key, val) => {
   }
 }
 
-let getTableNamesFromURL = () => {
-  let url = RescriptReactRouter.useUrl().search
-  if url->Js.String2.length > 0 {
-    url
-    ->Js.String2.split("&")
-    ->Js.Array2.map(key => {
-      key
-      ->Js.String2.split("=")
-      ->Belt.Array.get(0)
-      ->Belt.Option.getWithDefault("")
-      ->Js.String2.split("-")
-      ->Js.Array2.slice(~start=0, ~end_=-1)
-      ->Js.Array2.map(word => {
-        word->Js.String2.charAt(0)->Js.String2.toUpperCase ++ word->Js.String2.sliceToEnd(~from=1)
-      })
-      ->Js.Array2.joinWith(" ")
-    })
-  } else {
-    []
-  }
-}
-
 let getInitialValuesFromUrl = (
   ~searchParams,
   ~initialFilters: array<EntityType.initialFilters<'t>>,
