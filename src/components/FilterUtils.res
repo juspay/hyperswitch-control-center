@@ -31,8 +31,8 @@ let useAddFilters = (~index) => {
   }
 }
 
-let parseUrl = url => {
-  url
+let parseFilterString = queryString => {
+  queryString
   ->Js.Global.decodeURI
   ->Js.String2.split("&")
   ->Belt.Array.keepMap(str => {
@@ -49,7 +49,7 @@ let useUpdateFilterObject = (~index: string) => {
   let setFilters = useAddFilters(~index)
 
   let updateFilter = (~dict: Js.Dict.t<string>) => {
-    let currentSearchParamsDict = filters->parseUrl
+    let currentSearchParamsDict = filters->parseFilterString
 
     let searchParam =
       dict

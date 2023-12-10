@@ -88,11 +88,12 @@ let useSetInitialFilters = (
   ~startTimeFilterKey,
   ~endTimeFilterKey,
 ) => {
+  open FilterUtils
   let {index, filterValueJson} = FilterContext.filterContext->React.useContext
-  let filterValue = FilterUtils.useFiltersValue(~index)
+  let filterValue = useFiltersValue(~index)
 
   () => {
-    let inititalSearchParam = filterValue->FilterUtils.parseUrl
+    let inititalSearchParam = filterValue->parseFilterString
 
     let defaultDate = getDateFilteredObject()
 
@@ -121,7 +122,7 @@ let useGetFiltersData = (~index) => {
   let (filterData, setFilterData) = React.useState(_ => None)
   let updateDetails = useUpdateMethod()
   open FilterUtils
-  let timeFilters = useFiltersValue(~index)->parseUrl
+  let timeFilters = useFiltersValue(~index)->parseFilterString
   let startTimeVal = timeFilters->Js.Dict.get("start_time")->Belt.Option.getWithDefault("")
   let endTimeVal = timeFilters->Js.Dict.get("end_time")->Belt.Option.getWithDefault("")
 
@@ -215,7 +216,7 @@ module RemoteTableFilters = {
   ) => {
     let defaultFilters = {""->Js.Json.string}
     open FilterUtils
-    let getModuleFilters = useFiltersValue(~index)->parseUrl
+    let getModuleFilters = useFiltersValue(~index)->parseFilterString
     let getFilterData = useGetFiltersData(~index)
     let updateComponentPrefrences = useUpdateFilterObject(~index)
     let {index, filterValue, updateExistingKeys, filterValueJson, removeKeys} =

@@ -26,7 +26,7 @@ module Provider = {
 let make = (~index, ~children) => {
   open FilterUtils
   let filterString = useFiltersValue(~index)
-  let searcParamsToDict = filterString->parseUrl
+  let searcParamsToDict = filterString->parseFilterString
 
   let (filterDict, setfilterDict) = React.useState(_ => searcParamsToDict)
   let updateFilter = React.useMemo2(() => {
