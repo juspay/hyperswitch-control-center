@@ -64,7 +64,7 @@ let make = () => {
         </UIUtils.RenderIf>
       </div>
       <RemoteTableFilters
-        placeholder="Search payment id"
+        placeholder="Search payment id or refund id"
         setSearchVal=setSearchText
         searchVal=searchText
         filterUrl={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds/filter`}
