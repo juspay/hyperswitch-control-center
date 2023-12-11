@@ -12,6 +12,7 @@ let getURL = (
   ~userRoleTypes: userRoleTypes=NONE,
   ~reconType: reconType=#NONE,
   ~queryParamerters: option<string>=None,
+  ~isOssBuild: bool=false,
   (),
 ) => {
   let merchantId = getFromMerchantDetails("merchant_id")
@@ -180,9 +181,18 @@ let getURL = (
     switch userType {
     | #NONE => ""
     | #VERIFY_MAGIC_LINK => `${userUrl}/v2/signin/verify`
-    | #SIGNIN
+    | #SIGNUP =>
+      isOssBuild
+        ? `${userUrl}/signup`
+        : `${userUrl}/v2/${(userType :> string)->Js.String2.toLowerCase}`
+    | #SIGNIN =>
+      isOssBuild
+        ? `${userUrl}/signin`
+        : `${userUrl}/v2/${(userType :> string)->Js.String2.toLowerCase}`
     | #VERIFY_EMAIL =>
-      `${userUrl}/v2/${(userType :> string)->Js.String2.toLowerCase}`
+      isOssBuild
+        ? `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
+        : `${userUrl}/v2/${(userType :> string)->Js.String2.toLowerCase}`
     | #USER_DATA => `${userUrl}/data`
     | #MERCHANT_DATA => `${userUrl}/data/merchant`
     | #INVITE
@@ -194,16 +204,21 @@ let getURL = (
       | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
       }
     | #CREATE_MERCHANT => `${userUrl}/create_merchant`
-    | #OSSSIGNIN => `${userUrl}/signin`
-    | #OSSSIGNUP => `${userUrl}/signup`
+
     | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
     }
   | RECON =>
     `${HSwitchGlobalVars.hyperSwitchApiPrefix}/recon/${(reconType :> string)->Js.String2.toLowerCase}`
   | GENERATE_SAMPLE_DATA =>
     switch methodType {
-    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/sample_data/generate`
-    | Delete => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/sample_data/delete`
+    | Post =>
+      isOssBuild
+        ? `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data/generate`
+        : `${HSwitchGlobalVars.hyperSwitchApiPrefix}/sample_data/generate`
+    | Delete =>
+      isOssBuild
+        ? `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data/delete`
+        : `${HSwitchGlobalVars.hyperSwitchApiPrefix}/sample_data/delete`
     | _ => ""
     }
   | INTEGRATION_DETAILS =>

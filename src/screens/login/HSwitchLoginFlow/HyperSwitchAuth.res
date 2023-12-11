@@ -55,7 +55,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
 
   let getUserWithEmailPassword = async (body, email, userType) => {
     try {
-      let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ~isOssBuild, ())
       let res = await updateDetails(url, body, Post)
       let token = parseResponseJson(~json=res, ~email)
 
@@ -159,20 +159,12 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     | (false, SignUP) => {
         let password = getString(valuesDict, "password", "")
         let body = getEmailPasswordBody(email, password, country)
-        if isOssBuild {
-          getUserWithEmailPassword(body, email, #OSSSIGNUP)->ignore
-        } else {
-          getUserWithEmailPassword(body, email, #SIGNIN)->ignore
-        }
+        getUserWithEmailPassword(body, email, #SIGNUP)->ignore
       }
     | (_, LoginWithPassword) => {
         let password = getString(valuesDict, "password", "")
         let body = getEmailPasswordBody(email, password, country)
-        if isOssBuild {
-          getUserWithEmailPassword(body, email, #OSSSIGNIN)->ignore
-        } else {
-          getUserWithEmailPassword(body, email, #SIGNIN)->ignore
-        }
+        getUserWithEmailPassword(body, email, #SIGNIN)->ignore
       }
     | (_, ResetPassword) => {
         let queryDict = url.search->getDictFromUrlSearchParams

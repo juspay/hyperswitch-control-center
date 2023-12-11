@@ -38,6 +38,7 @@ type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 type reconType = [#TOKEN | #REQUEST | #NONE]
 
 type userType = [
+  | #SIGNUP
   | #SIGNIN
   | #SIGNOUT
   | #FORGOT_PASSWORD
