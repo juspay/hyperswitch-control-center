@@ -6,6 +6,9 @@ let connectorListAtom: Recoil.recoilAtom<string> = Recoil.atom(. "connectorListA
 
 let enumVariantAtom = Recoil.atom(. "enumVariantDetails", "")
 
-let featureFlagAtom = Recoil.atom(. "featureFlag", "")
-
 let filtersAtom = Recoil.atom(. "filters", "")
+
+let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.atom(.
+  "featureFlag",
+  Js.Json.null->FeatureFlagUtils.featureFlagType,
+)

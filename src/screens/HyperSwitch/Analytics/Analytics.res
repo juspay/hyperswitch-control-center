@@ -520,11 +520,7 @@ let make = (
   ~distributionArray=None,
 ) => {
   open FilterUtils
-  let {generateReport} =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let analyticsType = moduleName->getAnalyticsType
   let {index, filterValue, updateExistingKeys, filterValueJson} = React.useContext(
     FilterContext.filterContext,

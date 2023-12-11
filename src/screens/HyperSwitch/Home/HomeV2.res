@@ -47,7 +47,7 @@ module HomePageHorizontalStepper = {
     <div className="flex w-full gap-2 justify-evenly">
       {stepperItemsArray
       ->Array.mapWithIndex((value, index) => {
-        <div className="flex flex-col gap-2.5 w-full">
+        <div className="flex flex-col gap-2.5 w-full" key={index->string_of_int}>
           <div className="flex items-center gap-2">
             <span
               className={`h-6 w-6 flex items-center justify-center border-2 rounded-md font-semibold ${index->getStepperStyle} ${getTextStyle}`}>

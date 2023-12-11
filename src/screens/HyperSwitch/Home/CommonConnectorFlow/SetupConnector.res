@@ -56,11 +56,7 @@ module ConfigureProcessor = {
     ~setConnectorConfigureState,
     ~isBackButtonVisible=true,
   ) => {
-    let featureFlagDetails =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     open ConnectorUtils
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
 
