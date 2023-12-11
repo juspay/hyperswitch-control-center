@@ -67,25 +67,6 @@ let inputFieldForConnectorLabel = (
   ~checkRequiredFields,
   ~disabled,
 ) => {
-  open MerchantAccountUtils
-  let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
-  let defaultBusinessProfile = businessProfiles->getValueFromBusinessProfile
-  let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
-  let connectorName = connector->ConnectorUtils.getConnectorNameString
-  let profileId =
-    ReactFinalForm.useField(`profile_id`).input.value->LogicUtils.getStringFromJson("")
-  let profileName = (
-    arrayOfBusinessProfile
-    ->Js.Array2.find((ele: HSwitchSettingTypes.profileEntity) => ele.profile_id === profileId)
-    ->Belt.Option.getWithDefault(defaultBusinessProfile)
-  ).profile_name
-  let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
-
-  React.useEffect1(() => {
-    connectorLabelOnChange(`${connectorName}_${profileName}`->strToFormEvent)
-    None
-  }, [profileId])
-
   FormRenderer.makeFieldInfo(
     ~label,
     ~isRequired=switch checkRequiredFields {

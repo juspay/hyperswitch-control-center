@@ -1,5 +1,6 @@
 external formEventToBool: ReactEvent.Form.t => bool = "%identity"
 external formEventToStr: ReactEvent.Form.t => string = "%identity"
+external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
 
 let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorName> = [
   ADYEN,
@@ -33,8 +34,9 @@ module BusinessProfileRender = {
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-
     let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
+    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
+    let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
 
     let (showModalFromOtherScreen, setShowModalFromOtherScreen) = React.useState(_ => false)
 
@@ -67,6 +69,14 @@ module BusinessProfileRender = {
                 ...input,
                 onChange: {
                   ev => {
+                    let profileName = (
+                      arrayOfBusinessProfile
+                      ->Js.Array2.find((ele: HSwitchSettingTypes.profileEntity) =>
+                        ele.profile_id === ev->formEventToStr
+                      )
+                      ->Belt.Option.getWithDefault(defaultBusinessProfile)
+                    ).profile_name
+                    connectorLabelOnChange(`${selectedConnector}_${profileName}`->strToFormEvent)
                     input.onChange(ev)
                     mixpanelEventWrapper(
                       ~url,
@@ -280,10 +290,12 @@ let make = (
 
   let updatedInitialVal = React.useMemo1(() => {
     let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
-    initialValuesToDict->Js.Dict.set(
-      "connector_label",
-      `${connector}_${activeBusinessProfile.profile_name}`->Js.Json.string,
-    )
+    if !isUpdateFlow {
+      initialValuesToDict->Js.Dict.set(
+        "connector_label",
+        `${connector}_${activeBusinessProfile.profile_name}`->Js.Json.string,
+      )
+    }
     if (
       connector
       ->getConnectorNameTypeFromString
