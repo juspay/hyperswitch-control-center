@@ -92,7 +92,11 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
         | list{"register", ..._},
       ) => () // to prevent duplicate push
     | (LoginWithPassword | LoginWithEmail, _) =>
-      `${HSwitchGlobalVars.hyperSwitchFEPrefix}/login`->RescriptReactRouter.replace
+      let loginUrl = HSwitchGlobalVars.hyperSwitchFEPrefix->Js.String2.concat("/login")
+
+      (
+        url.search === "" ? loginUrl : loginUrl->Js.String2.concat(`?${url.search}`)
+      )->RescriptReactRouter.replace
     | (SignUP, list{"register", ..._}) => () // to prevent duplicate push
     | (SignUP, _) => "register"->RescriptReactRouter.push
     | (ForgetPassword | ForgetPasswordEmailSent, list{"forget-password", ..._}) => () // to prevent duplicate push

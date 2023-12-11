@@ -37,10 +37,11 @@ let make = (~children) => {
 
   <div className="font-inter-style">
     <AuthInfoProvider value={(currentAuthState, setAuthStatus)}>
-      {switch currentAuthState {
-      | LoggedOut => <HyperSwitchAuthScreen setAuthStatus />
-      | LoggedIn(_token) => children
-      | CheckingAuthStatus => <Loader />
+      {switch (currentAuthState, url.path) {
+      | (_, list{"demo-store"}) => <UniversalHyperswitchSDK />
+      | (LoggedOut, _) => <HyperSwitchAuthScreen setAuthStatus />
+      | (LoggedIn(_token), _) => children
+      | (CheckingAuthStatus, _) => <Loader />
       }}
     </AuthInfoProvider>
   </div>
