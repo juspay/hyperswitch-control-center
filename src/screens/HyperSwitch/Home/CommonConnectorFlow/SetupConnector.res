@@ -133,9 +133,11 @@ module ConfigureProcessor = {
         nextButton={<FormRenderer.SubmitButton
           loadingText="Processing..." text="Proceed" buttonSize={Small}
         />}>
-        <ConnectorAccountDetails.BusinessProfileRender
-          isUpdateFlow=false selectedConnector={connectorName}
-        />
+        <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
+          <ConnectorAccountDetails.BusinessProfileRender
+            isUpdateFlow=false selectedConnector={connectorName}
+          />
+        </UIUtils.RenderIf>
         <SetupConnectorCredentials.ConnectorDetailsForm
           connectorName
           connectorDetails
