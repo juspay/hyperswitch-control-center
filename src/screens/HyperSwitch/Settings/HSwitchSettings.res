@@ -128,11 +128,7 @@ module TileComponent = {
 module PersonalSettings = {
   @react.component
   let make = () => {
-    let featureFlagDetails =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let personalSettings = if featureFlagDetails.sampleData {
       [deleteSampleData]
     } else {

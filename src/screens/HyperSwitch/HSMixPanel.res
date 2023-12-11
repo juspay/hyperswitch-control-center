@@ -30,11 +30,7 @@ let useSendEvent = () => {
     email->Js.String.length == 0 ? getFromMerchantDetails("email") : email
   }
 
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let environment = switch HSwitchGlobalVars.hostType {
   | Live => "production"

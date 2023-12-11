@@ -29,11 +29,7 @@ module NewProcessorCards = {
     ~showIcons: bool,
     ~isPayoutFlow: bool,
   ) => {
-    let featureFlagDetails =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
       ? ConnectorUtils.connectorListForLive
