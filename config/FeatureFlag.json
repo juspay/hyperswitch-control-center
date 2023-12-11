@@ -1,13 +1,13 @@
 {
   "test_live_toggle": false,
   "is_live_mode": false,
-  "magic_link": false,
+  "magic_link": true,
   "production_access": false,
-  "quick_start": false,
+  "quick_start": true,
   "switch_merchant": false,
   "audit_trail": false,
   "system_metrics": false,
-  "sample_data": false,
+  "sample_data": true,
   "frm": false,
   "payout": false,
   "recon": false,
@@ -18,6 +18,5 @@
   "mixpanel": false,
   "business_profile": false,
   "generate_report": false,
-  "forgot_password": false,
-  "oss_build": true
+  "forgot_password": false
 }

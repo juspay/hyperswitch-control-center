@@ -15,7 +15,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (email, setEmail) = React.useState(_ => "")
-  let {magicLink: isMagicLinkEnabled, forgetPassword, ossBuild: isOssBuild} =
+  let {magicLink: isMagicLinkEnabled, forgetPassword} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let handleAuthError = e => {
@@ -34,7 +34,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
 
   let getUserWithEmail = async body => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#SIGNIN, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#CONNECT_ACCOUNT, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post)
       let valuesDict = res->getDictFromJsonObject
       let magicLinkSent = valuesDict->LogicUtils.getBool("is_email_sent", false)
@@ -52,7 +52,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
 
   let getUserWithEmailPassword = async (body, email, userType) => {
     try {
-      let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ~isOssBuild, ())
+      let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post)
       let token = parseResponseJson(~json=res, ~email)
 

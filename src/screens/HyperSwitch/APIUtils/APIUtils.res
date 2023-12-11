@@ -12,7 +12,6 @@ let getURL = (
   ~userRoleTypes: userRoleTypes=NONE,
   ~reconType: reconType=#NONE,
   ~queryParamerters: option<string>=None,
-  ~isOssBuild: bool=false,
   (),
 ) => {
   let merchantId = getFromMerchantDetails("merchant_id")
@@ -180,19 +179,14 @@ let getURL = (
     let userUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user`
     switch userType {
     | #NONE => ""
-    | #VERIFY_MAGIC_LINK => `${userUrl}/v2/signin/verify`
-    | #SIGNUP =>
-      isOssBuild
-        ? `${userUrl}/signup`
-        : `${userUrl}/v2/${(userType :> string)->Js.String2.toLowerCase}`
-    | #SIGNIN =>
-      isOssBuild
-        ? `${userUrl}/signin`
-        : `${userUrl}/v2/${(userType :> string)->Js.String2.toLowerCase}`
-    | #VERIFY_EMAIL =>
-      isOssBuild
-        ? `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
-        : `${userUrl}/v2/${(userType :> string)->Js.String2.toLowerCase}`
+    | #CONNECT_ACCOUNT => `${userUrl}/connect_account`
+    | #VERIFY_MAGIC_LINK => `${userUrl}/signin/verify`
+    | #SIGNUP => `${userUrl}/signup`
+
+    | #SIGNIN => `${userUrl}/signin`
+
+    | #VERIFY_EMAIL => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
+
     | #USER_DATA => `${userUrl}/data`
     | #MERCHANT_DATA => `${userUrl}/data/merchant`
     | #INVITE
@@ -211,14 +205,10 @@ let getURL = (
     `${HSwitchGlobalVars.hyperSwitchApiPrefix}/recon/${(reconType :> string)->Js.String2.toLowerCase}`
   | GENERATE_SAMPLE_DATA =>
     switch methodType {
-    | Post =>
-      isOssBuild
-        ? `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data/generate`
-        : `${HSwitchGlobalVars.hyperSwitchApiPrefix}/sample_data/generate`
-    | Delete =>
-      isOssBuild
-        ? `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data/delete`
-        : `${HSwitchGlobalVars.hyperSwitchApiPrefix}/sample_data/delete`
+    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data/generate`
+
+    | Delete => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data/delete`
+
     | _ => ""
     }
   | INTEGRATION_DETAILS =>
