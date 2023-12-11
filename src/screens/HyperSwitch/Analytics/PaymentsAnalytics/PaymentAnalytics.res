@@ -8,6 +8,11 @@ let make = () => {
   let (metrics, setMetrics) = React.useState(_ => [])
   let (dimensions, setDimensions) = React.useState(_ => [])
   let fetchDetails = useGetMethod()
+  let {isLiveMode} =
+    HyperswitchAtom.featureFlagAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->LogicUtils.safeParse
+    ->FeatureFlagUtils.featureFlagType
 
   let loadInfo = async () => {
     open LogicUtils
@@ -73,7 +78,7 @@ let make = () => {
       tabKeys
       tabValues
       options
-      singleStatEntity={getSingleStatEntity(metrics)}
+      singleStatEntity={getSingleStatEntity(metrics, !isLiveMode)}
       getTable={getPaymentTable}
       colMapper
       tableEntity={paymentTableEntity}
