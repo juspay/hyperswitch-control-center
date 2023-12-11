@@ -1,6 +1,5 @@
 open RoutingTypes
 external toWasm: Js.Dict.t<Js.Json.t> => wasmModule = "%identity"
-external arrToFormEvent: array<'a> => ReactEvent.Form.t = "%identity"
 
 module ActiveRulePreview = {
   open LogicUtils
@@ -42,20 +41,20 @@ module Configure3DSRule = {
     let ruleInput = ReactFinalForm.useField("algorithm.rules").input
     let (rules, setRules) = React.useState(_ => ruleInput.value->LogicUtils.getArrayFromJson([]))
     React.useEffect1(() => {
-      ruleInput.onChange(rules->arrToFormEvent)
+      ruleInput.onChange(rules->Identity.arrayOfGenericTypeToFormReactEvent)
       None
     }, [rules])
     let addRule = (index, _copy) => {
       let existingRules = ruleInput.value->LogicUtils.getArrayFromJson([])
       let newRule = existingRules[index]->Belt.Option.getWithDefault(Js.Json.null)
       let newRules = existingRules->Js.Array2.concat([newRule])
-      ruleInput.onChange(newRules->arrToFormEvent)
+      ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
     let removeRule = index => {
       let existingRules = ruleInput.value->LogicUtils.getArrayFromJson([])
       let newRules = existingRules->Array.filterWithIndex((_, i) => i !== index)
-      ruleInput.onChange(newRules->arrToFormEvent)
+      ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
     <div>

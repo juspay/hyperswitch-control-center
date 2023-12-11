@@ -1,12 +1,6 @@
 type t
-
 type formData
-external formDataToStr: t => string = "%identity"
-
-external toString: 't => string = "%identity"
-external toRef: 'a => 't = "%identity"
 @new external formData: unit => t = "FormData"
-
 @send external append: (t, string, 'a) => unit = "append"
 @send external delete: (t, string) => unit = "delete"
 @send external get: (t, string) => 'k = "get"

@@ -1,8 +1,3 @@
-external toString: option<Js.Json.t> => string = "%identity"
-external convertToStrDict: 't => Js.Json.t = "%identity"
-external objToJson: {..} => Js.Json.t = "%identity"
-external toJson: exn => Js.Json.t = "%identity"
-external toRespJson: Fetch.Response.t => Js.Json.t = "%identity"
 @get external keyCode: 'a => int = "keyCode"
 
 type window
@@ -887,7 +882,7 @@ module FiltersComponent = {
               filteredTabKeys->Js.Array2.includes(dimension)
             })
             ->Js.Json.array,
-          }->LineChartUtils.objToJson,
+          }->Identity.genericObjectOrRecordToJson,
         )
       | None => None
       }
@@ -1090,7 +1085,7 @@ module DownloadCsv = {
     let actualDataOrig =
       tableData
       ->Belt.Array.keepMap(item => item->Js.Nullable.toOption)
-      ->Js.Array2.map(convertToStrDict)
+      ->Js.Array2.map(Identity.genericTypeToJson)
 
     let headerNames = visibleColumns->Belt.Array.keepMap(head => {
       let item = head->getHeading
@@ -1512,7 +1507,7 @@ module ErrorModalContent = {
         "credits": {
           "enabled": false,
         },
-      }->objToJson
+      }->Identity.genericObjectOrRecordToJson
     }, (chartData, categoryData, colName, theme))
     if showModalBarChart == "Table" {
       <div className="-mt-6">

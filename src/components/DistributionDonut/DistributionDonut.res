@@ -1,5 +1,3 @@
-external objToJson: {..} => Js.Json.t = "%identity"
-
 type dataPoint = {y: int, name: string}
 
 module LegendField = {
@@ -50,6 +48,7 @@ let make = (
   ~data: array<Js.Json.t>,
   ~getGroupBasedData: (array<Js.Json.t>, string) => array<dataPoint>,
 ) => {
+  open Identity
   let (groupBy, setGroupBy) = React.useState(_ => "")
   let (groupBasedData, setGroupBasedData) = React.useState((_): array<dataPoint> => [])
   let getDonutOptions = (_): Js.Json.t => {
@@ -58,37 +57,37 @@ let make = (
         "text": Js.Json.null,
         "align": "center",
         "margin": 0,
-      }->objToJson,
+      }->genericObjectOrRecordToJson,
       "colors": colors,
       "credits": {
         "enabled": false,
-      }->objToJson,
+      }->genericObjectOrRecordToJson,
       "subtitle": {
         "useHTML": true,
         "text": getSubtilteHtml(groupBasedData),
         "floating": true,
         "verticalAlign": "middle",
         "y": 10,
-      }->objToJson,
+      }->genericObjectOrRecordToJson,
       "legend": {
         "enabled": false,
-      }->objToJson,
+      }->genericObjectOrRecordToJson,
       "chart": {
         "backgroundColor": Js.Json.null,
         "className": "h-60",
         "height": 260,
         "width": 260,
         "borderColor": Js.Json.null,
-      }->objToJson,
+      }->genericObjectOrRecordToJson,
       "tooltip": {
         "valueDecimals": 0,
         "valueSuffix": "",
-      }->objToJson,
+      }->genericObjectOrRecordToJson,
       "plotOptions": {
         "series": {
           "animation": {
             "duration": 0,
-          }->objToJson,
+          }->genericObjectOrRecordToJson,
           "borderWidth": 5,
           "colorByPoint": true,
           "type": "pie",
@@ -101,23 +100,23 @@ let make = (
             "style": {
               "fontWeight": "bold",
               "fontSize": "16px",
-            }->objToJson,
+            }->genericObjectOrRecordToJson,
             "connectorWidth": 0,
-          }->objToJson,
-        }->objToJson,
-      }->objToJson,
+          }->genericObjectOrRecordToJson,
+        }->genericObjectOrRecordToJson,
+      }->genericObjectOrRecordToJson,
       "series": [
         {
           "color": "black",
           "type": "pie",
           "name": tooltipTitle,
           "data": Js.Array.map(
-            (d: dataPoint): Js.Json.t => {"y": d.y, "name": d.name}->objToJson,
+            (d: dataPoint): Js.Json.t => {"y": d.y, "name": d.name}->genericObjectOrRecordToJson,
             groupBasedData,
           ),
-        }->objToJson,
+        }->genericObjectOrRecordToJson,
       ],
-    }->objToJson
+    }->genericObjectOrRecordToJson
   }
   React.useEffect1(() => {
     setGroupBy(_ =>

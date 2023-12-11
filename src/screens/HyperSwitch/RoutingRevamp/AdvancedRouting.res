@@ -3,7 +3,6 @@ open AdvancedRoutingTypes
 open AdvancedRoutingUtils
 open LogicUtils
 
-external arrToFormEvent: array<'a> => ReactEvent.Form.t = "%identity"
 external toWasm: Js.Dict.t<Js.Json.t> => RoutingTypes.wasmModule = "%identity"
 
 let defaultRule = {
@@ -240,7 +239,7 @@ module RuleBasedUI = {
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
 
     React.useEffect1(() => {
-      ruleInput.onChange(rules->arrToFormEvent)
+      ruleInput.onChange(rules->Identity.arrayOfGenericTypeToFormReactEvent)
       None
     }, [rules])
 
@@ -250,13 +249,13 @@ module RuleBasedUI = {
         ? existingRules[index]->Belt.Option.getWithDefault(defaultRule->Identity.genericTypeToJson)
         : defaultRule->Identity.genericTypeToJson
       let newRules = existingRules->Js.Array2.concat([newRule])
-      ruleInput.onChange(newRules->arrToFormEvent)
+      ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
     let removeRule = index => {
       let existingRules = ruleInput.value->getArrayFromJson([])
       let newRules = existingRules->Array.filterWithIndex((_, i) => i !== index)
-      ruleInput.onChange(newRules->arrToFormEvent)
+      ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
     <div className="flex flex-col my-5">

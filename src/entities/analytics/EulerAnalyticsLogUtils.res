@@ -2,7 +2,6 @@
 external location: {..} = "location"
 external toJson: exn => Js.Json.t = "%identity"
 external toExn: string => exn = "%identity"
-external objToJson: {..} => Js.Json.t = "%identity"
 
 let useAddLogsAroundFetch = () => {
   let addLogsAroundFetch = (~setStatusDict=?, ~logTitle, fetchPromise) => {
