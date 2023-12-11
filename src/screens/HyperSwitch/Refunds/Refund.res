@@ -24,6 +24,7 @@ let make = () => {
       filters->Js.Dict.set("offset", offset->Belt.Int.toFloat->Js.Json.number)
       if !(searchText->isEmptyString) {
         filters->Js.Dict.set("payment_id", searchText->Js.Json.string)
+        filters->Js.Dict.set("refund_id", searchText->Js.Json.string)
       }
 
       dict
@@ -63,7 +64,7 @@ let make = () => {
         </UIUtils.RenderIf>
       </div>
       <RemoteTableFilters
-        placeholder="Search payment id"
+        placeholder="Search payment id or refund id"
         setSearchVal=setSearchText
         searchVal=searchText
         filterUrl={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds/filter`}
