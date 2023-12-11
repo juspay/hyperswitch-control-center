@@ -12,7 +12,6 @@ type comboCustomInputRecord = {
 }
 
 module DOBPicker = {
-  external jsonToForm: Js.Json.t => ReactEvent.Form.t = "%identity"
   @react.component
   let make = (
     ~input: ReactFinalForm.fieldRenderPropsInput,
@@ -154,7 +153,6 @@ module DOBPicker = {
   }
 }
 module NumericArrayInput = {
-  external jsonToForm: Js.Json.t => ReactEvent.Form.t = "%identity"
   @react.component
   let make = (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
     let (localValue, setLocalValue) = React.useState(() => input.value)
@@ -173,7 +171,7 @@ module NumericArrayInput = {
             value->Js.Json.string
           }
           setLocalValue(_ => value)
-          input.onChange(value->jsonToForm)
+          input.onChange(value->Identity.jsonToFormReactEvent)
         },
       }
     }, (input, localValue, setLocalValue))

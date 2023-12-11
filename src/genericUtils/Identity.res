@@ -10,3 +10,7 @@ external formReactEventToBool: ReactEvent.Form.t => bool = "%identity"
 external genericObjectOrRecordToJson: {..} => Js.Json.t = "%identity"
 external genericTypeToDictOfJson: 't => Js.Dict.t<Js.Json.t> = "%identity"
 external formReactEventToArrayOfString: ReactEvent.Form.t => array<string> = "%identity"
+external jsonToFormReactEvent: Js.Json.t => ReactEvent.Form.t = "%identity"
+external arrayOfGenericTypeToFormReactEvent: array<'a> => ReactEvent.Form.t = "%identity"
+external webAPIFocusEventToReactEventFocus: Webapi.Dom.FocusEvent.t => ReactEvent.Focus.t =
+  "%identity"

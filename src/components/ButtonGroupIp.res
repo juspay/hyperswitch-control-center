@@ -1,4 +1,3 @@
-external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
 open SelectBox
 @react.component
 let make = (
@@ -9,7 +8,7 @@ let make = (
   ~isSeparate=false,
   ~buttonSize=?,
 ) => {
-  let onChange = str => input.onChange(str->strToFormEvent)
+  let onChange = str => input.onChange(str->Identity.stringToFormReactEvent)
   let buttonState = {isDisabled ? Button.Disabled : Button.Normal}
 
   let buttons =

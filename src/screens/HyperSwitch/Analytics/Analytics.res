@@ -1,6 +1,3 @@
-external toString: option<Js.Json.t> => string = "%identity"
-external convertToStrDict: 't => Js.Json.t = "%identity"
-external sankeyTest: string => SankeyCharts.sankeyEntity = "%identity"
 @get external keyCode: 'a => int = "keyCode"
 type window
 @val external window: window = "window"

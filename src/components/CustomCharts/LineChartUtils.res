@@ -1,8 +1,8 @@
 external legendItemAsBool: Highcharts.legendItem => Highcharts.element = "%identity"
-external objToJson: {..} => Js.Json.t = "%identity"
 
 open LogicUtils
 open Highcharts
+open Identity
 let defaultColor = "#7cb5ec"
 let legendColor = [
   defaultColor,
@@ -804,7 +804,7 @@ let legendItemStyle = (theme: ThemeProvider.theme, legendFontFamilyClass, legend
       "fontWeight": "500",
       "fontFamily": legendFontFamilyClass,
       "fontStyle": "normal",
-    }->objToJson
+    }->genericObjectOrRecordToJson
   | Light =>
     {
       "color": "rgba(53, 64, 82, 0.8)",
@@ -813,7 +813,7 @@ let legendItemStyle = (theme: ThemeProvider.theme, legendFontFamilyClass, legend
       "fontWeight": "500",
       "fontFamily": legendFontFamilyClass,
       "fontStyle": "normal",
-    }->objToJson
+    }->genericObjectOrRecordToJson
   }
 }
 
@@ -831,7 +831,7 @@ let legendHiddenStyle = (
       "fontWeight": "500",
       "fontFamily": legendFontFamilyClass,
       "fontStyle": "normal",
-    }->objToJson
+    }->genericObjectOrRecordToJson
   | Light =>
     {
       "color": "rgba(53, 64, 82, 0.2)",
@@ -840,7 +840,7 @@ let legendHiddenStyle = (
       "fontWeight": "500",
       "fontFamily": legendFontFamilyClass,
       "fontStyle": "normal",
-    }->objToJson
+    }->genericObjectOrRecordToJson
   }
 }
 
@@ -853,7 +853,7 @@ let chartTitleStyle = (theme: ThemeProvider.theme) => {
       "fontWeight": "500",
       "fontFamily": "IBM Plex Sans",
       "fontStyle": "normal",
-    }->objToJson
+    }->genericObjectOrRecordToJson
   | Light =>
     {
       "color": "#354052",
@@ -861,7 +861,7 @@ let chartTitleStyle = (theme: ThemeProvider.theme) => {
       "fontWeight": "500",
       "fontFamily": "IBM Plex Sans",
       "fontStyle": "normal",
-    }->objToJson
+    }->genericObjectOrRecordToJson
   }
 }
 
