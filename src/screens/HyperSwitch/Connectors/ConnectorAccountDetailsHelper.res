@@ -84,7 +84,7 @@ let inputFieldForConnectorLabel = (
   React.useEffect1(() => {
     connectorLabelOnChange(`${connectorName}_${profileName}`->strToFormEvent)
     None
-  }, [profileName])
+  }, [profileId])
 
   FormRenderer.makeFieldInfo(
     ~label,

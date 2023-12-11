@@ -279,12 +279,16 @@ let make = (
   let (showModal, setShowModal) = React.useState(_ => false)
 
   let updatedInitialVal = React.useMemo1(() => {
+    let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
+    initialValuesToDict->Js.Dict.set(
+      "connector_label",
+      `${connector}_${activeBusinessProfile.profile_name}`->Js.Json.string,
+    )
     if (
       connector
       ->getConnectorNameTypeFromString
       ->checkIsDummyConnector(featureFlagDetails.testProcessors) && !isUpdateFlow
     ) {
-      let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
       let apiKeyDict = [("api_key", "test_key"->Js.Json.string)]->Js.Dict.fromArray
       initialValuesToDict->Js.Dict.set("connector_account_details", apiKeyDict->Js.Json.object_)
 
