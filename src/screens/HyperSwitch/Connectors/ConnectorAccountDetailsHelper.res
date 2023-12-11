@@ -1,3 +1,5 @@
+external formEventToStr: ReactEvent.Form.t => string = "%identity"
+external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
 let metaDataInputKeysToIgnore = ["google_pay", "apple_pay", "zen_apple_pay"]
 
 let getCurrencyOption: CurrencyUtils.currencyCode => SelectBox.dropdownOption = currencyType => {
@@ -55,6 +57,63 @@ let inputField = (
     },
     (),
   )
+
+let inputFieldForConnectorLabel = (
+  ~name,
+  ~field,
+  ~label,
+  ~connector: ConnectorTypes.connectorName,
+  ~getPlaceholder,
+  ~checkRequiredFields,
+  ~disabled,
+) => {
+  open MerchantAccountUtils
+  let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
+  let defaultBusinessProfile = businessProfiles->getValueFromBusinessProfile
+  let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
+  let connectorName = connector->ConnectorUtils.getConnectorNameString
+  let profileId =
+    ReactFinalForm.useField(`profile_id`).input.value->LogicUtils.getStringFromJson("")
+  let profileName = (
+    arrayOfBusinessProfile
+    ->Js.Array2.find((ele: HSwitchSettingTypes.profileEntity) => ele.profile_id === profileId)
+    ->Belt.Option.getWithDefault(defaultBusinessProfile)
+  ).profile_name
+  let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
+
+  React.useEffect1(() => {
+    connectorLabelOnChange(`${connectorName}_${profileName}`->strToFormEvent)
+    None
+  }, [profileName])
+
+  FormRenderer.makeFieldInfo(
+    ~label,
+    ~isRequired=switch checkRequiredFields {
+    | Some(fun) => fun(connector, field)
+    | None => true
+    },
+    ~name,
+    ~customInput=(~input, ~placeholder as _) =>
+      InputFields.textInput(
+        ~input={
+          ...input,
+          value: input.value,
+          onChange: {
+            ev => {
+              input.onChange(ev)
+            }
+          },
+        },
+        ~isDisabled=disabled,
+        ~placeholder=switch getPlaceholder {
+        | Some(fun) => fun(connector, field, label)
+        | None => `Enter ${label->LogicUtils.snakeToTitle}`
+        },
+        (),
+      ),
+    (),
+  )
+}
 
 module ErrorValidation = {
   @react.component
@@ -142,6 +201,63 @@ module RenderConnectorInputFields = {
   }
 }
 
+module RenderConnectorLabel = {
+  open ConnectorTypes
+  @react.component
+  let make = (
+    ~connector: connectorName,
+    ~selectedConnector,
+    ~details,
+    ~name,
+    ~keysToIgnore: array<string>=[],
+    ~checkRequiredFields=?,
+    ~getPlaceholder=?,
+    ~isLabelNested=true,
+    ~disabled=false,
+  ) => {
+    open ConnectorUtils
+    open LogicUtils
+    let featureFlagDetails =
+      HyperswitchAtom.featureFlagAtom
+      ->Recoil.useRecoilValueFromAtom
+      ->LogicUtils.safeParse
+      ->FeatureFlagUtils.featureFlagType
+    let keys =
+      details->Js.Dict.keys->Js.Array2.filter(ele => !Js.Array2.includes(keysToIgnore, ele))
+    keys
+    ->Array.mapWithIndex((field, index) => {
+      let label = details->getString(field, "")
+      let formName = isLabelNested ? `${name}.${field}` : name
+      <UIUtils.RenderIf condition={label->Js.String2.length > 0}>
+        <div key={index->string_of_int}>
+          <FormRenderer.FieldRenderer
+            labelClass="font-semibold !text-hyperswitch_black"
+            field={inputFieldForConnectorLabel(
+              ~name=formName,
+              ~field,
+              ~label,
+              ~connector,
+              ~checkRequiredFields,
+              ~getPlaceholder,
+              ~disabled,
+            )}
+          />
+          <ErrorValidation
+            fieldName=formName
+            validate={validate(
+              ~selectedConnector,
+              ~dict=details,
+              ~fieldName=formName,
+              ~isLiveMode={featureFlagDetails.isLiveMode},
+            )}
+          />
+        </div>
+      </UIUtils.RenderIf>
+    })
+    ->React.array
+  }
+}
+
 module CurrencyAuthKey = {
   @react.component
   let make = (~dict, ~connector, ~selectedConnector: ConnectorTypes.integrationFields) => {
@@ -205,7 +321,7 @@ module ConnectorConfigurationFields = {
           selectedConnector
         />
       }}
-      <RenderConnectorInputFields
+      <RenderConnectorLabel
         details={connectorLabelDetailField}
         name={"connector_label"}
         keysToIgnore=metaDataInputKeysToIgnore

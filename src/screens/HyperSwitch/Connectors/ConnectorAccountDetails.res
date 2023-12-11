@@ -92,7 +92,7 @@ module BusinessProfileRender = {
       />
       <UIUtils.RenderIf condition={!isUpdateFlow}>
         <div className="text-gray-400 text-sm mt-3">
-          <span> {"Manage your list of business units"->React.string} </span>
+          <span> {"Manage your list of profiles."->React.string} </span>
           <span
             className={`ml-1 ${hereTextStyle}`}
             onClick={_ => {

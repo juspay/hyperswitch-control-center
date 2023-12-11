@@ -257,11 +257,15 @@ let handleLogout = async (
   ) => Promise.t<Fetch.Response.t>,
   ~setAuthStatus,
 ) => {
-  let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
-  let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
-  setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
-  LocalStorage.clear()
-  RescriptReactRouter.push("/register")
+  try {
+    let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
+    let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
+    setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
+    LocalStorage.clear()
+    RescriptReactRouter.push("/register")
+  } catch {
+  | _ => ()
+  }
 }
 
 let responseHandler = async (
