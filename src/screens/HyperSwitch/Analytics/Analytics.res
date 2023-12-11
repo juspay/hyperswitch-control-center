@@ -518,11 +518,7 @@ let make = (
   ~weeklyTableMetricsCols=?,
   ~distributionArray=None,
 ) => {
-  let {generateReport} =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let analyticsType = moduleName->getAnalyticsType
   let {filterValue, updateExistingKeys} = React.useContext(
     AnalyticsUrlUpdaterContext.urlUpdaterContext,
