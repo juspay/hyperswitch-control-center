@@ -26,7 +26,6 @@ type selectAllSubmitActions = {
   disableParam: disableField,
 }
 type hideItem = {key: string, value: string}
-external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
 external jsonToStr: Js.Json.t => string = "%identity"
 type textAlign = Left | Right
 type fontBold = bool

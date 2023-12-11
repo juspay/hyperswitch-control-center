@@ -1,5 +1,3 @@
-external toJson: 'a => Js.Json.t = "%identity"
-
 @react.component
 let make = (
   ~returnUrl,
@@ -47,9 +45,14 @@ let make = (
     open SDKPaymentUtils
     try {
       let url = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments`
-      let paymentData = initialValues->toJson->Js.Json.stringify->safeParse->getTypedValueForPayment
+      let paymentData =
+        initialValues
+        ->Identity.genericTypeToJson
+        ->Js.Json.stringify
+        ->safeParse
+        ->getTypedValueForPayment
       paymentData.currency = paymentData.currency->getCurrencyValue
-      let body = paymentData->toJson
+      let body = paymentData->Identity.genericTypeToJson
       let response = await updateDetails(url, body, Post)
       let clientSecret = response->getDictFromJsonObject->getOptionString("client_secret")
       setPaymentId(_ => response->getDictFromJsonObject->getOptionString("payment_id"))

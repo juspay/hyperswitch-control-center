@@ -1,5 +1,3 @@
-external formEventToBool: ReactEvent.Form.t => bool = "%identity"
-
 module AdvanceSettings = {
   @react.component
   let make = (~isUpdateFlow, ~frmName, ~renderCountrySelector) => {
@@ -14,7 +12,7 @@ module AdvanceSettings = {
       name: `input`,
       onBlur: _ev => (),
       onChange: ev => {
-        let value = ev->formEventToBool
+        let value = ev->Identity.formReactEventToBool
         setIsFRMSettings(_ => value)
         [frmName, "global"]->Js.Array2.forEach(ele =>
           hyperswitchMixPanel(

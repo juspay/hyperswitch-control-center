@@ -14,7 +14,6 @@ type sessionStorage = {
 
 external dictToObj: Js.Dict.t<'a> => {..} = "%identity"
 @val external atob: string => string = "atob"
-external toJson: 'a => Js.Json.t = "%identity"
 let getAgentId = _ => {
   switch LocalStorage.getItem("agentId")->Js.Nullable.toOption {
   | Some(str) => str
@@ -74,7 +73,7 @@ let getHeadersJson = (
         key
         ->Js.String2.replace("-----BEGIN PUBLIC KEY-----\n", "")
         ->Js.String2.replace("\n-----END PUBLIC KEY-----", "")
-        ->toJson,
+        ->Identity.genericTypeToJson,
       )
     } else {
       Js.Dict.set(headerObj, "X-RequestId", requestId->Js.Json.string)
@@ -94,7 +93,7 @@ let getHeadersJson = (
           key
           ->Js.String2.replace("-----BEGIN PUBLIC KEY-----\n", "")
           ->Js.String2.replace("\n-----END PUBLIC KEY-----", "")
-          ->toJson,
+          ->Identity.genericTypeToJson,
         )
       }
     }
@@ -110,11 +109,12 @@ let getHeadersJson = (
           key
           ->Js.String2.replace("-----BEGIN PUBLIC KEY-----\n", "")
           ->Js.String2.replace("\n-----END PUBLIC KEY-----", "")
-          ->toJson,
+          ->Identity.genericTypeToJson,
         )
       }
     }
   }
+
   headerObj->Js.Json.object_
 }
 

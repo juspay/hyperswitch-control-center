@@ -75,7 +75,6 @@ type hideItem = {
   value: string,
 }
 
-external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
 external jsonToStr: Js.Json.t => string = "%identity"
 
 type textAlign = Left | Right
