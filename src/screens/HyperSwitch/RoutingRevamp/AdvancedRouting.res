@@ -3,7 +3,6 @@ open AdvancedRoutingTypes
 open AdvancedRoutingUtils
 open LogicUtils
 
-external toJson: 'a => Js.Json.t = "%identity"
 external arrToFormEvent: array<'a> => ReactEvent.Form.t = "%identity"
 external toWasm: Js.Dict.t<Js.Json.t> => RoutingTypes.wasmModule = "%identity"
 
@@ -248,8 +247,8 @@ module RuleBasedUI = {
     let addRule = (index, copy) => {
       let existingRules = ruleInput.value->getArrayFromJson([])
       let newRule = copy
-        ? existingRules[index]->Belt.Option.getWithDefault(defaultRule->toJson)
-        : defaultRule->toJson
+        ? existingRules[index]->Belt.Option.getWithDefault(defaultRule->Identity.genericTypeToJson)
+        : defaultRule->Identity.genericTypeToJson
       let newRules = existingRules->Js.Array2.concat([newRule])
       ruleInput.onChange(newRules->arrToFormEvent)
     }
@@ -339,7 +338,9 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
-  let (initialValues, setInitialValues) = React.useState(_ => initialValues->toJson)
+  let (initialValues, setInitialValues) = React.useState(_ =>
+    initialValues->Identity.genericTypeToJson
+  )
   let (initialRule, setInitialRule) = React.useState(() => None)
   let showToast = ToastState.useShowToast()
   let fetchDetails = useGetMethod()
@@ -593,7 +594,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       }
 
       let getActivateUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
-      let response = await updateDetails(getActivateUrl, payload->toJson, Post)
+      let response = await updateDetails(getActivateUrl, payload->Identity.genericTypeToJson, Post)
 
       showToast(
         ~message="Successfully Created a new Configuration !",

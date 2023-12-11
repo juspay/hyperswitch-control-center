@@ -1,8 +1,6 @@
 type val =
   StringArray(array<string>) | String(string) | IntArray(array<int>) | Int(int) | Bool(bool)
 
-external tojsonObjTest: 'a => Js.Json.t = "%identity"
-
 type gateway = {
   gateway_name: string,
   distribution: int,

@@ -1,4 +1,3 @@
-external objToJson: 'a => Js.Json.t = "%identity"
 %%raw(`require("./highcharts.css")`)
 module RawPieChart = {
   @react.component
@@ -106,7 +105,7 @@ let make = (
         backgroundColor: theme === Dark ? "#202124" : "white",
       },
     }
-    defaultOptions->objToJson
+    defaultOptions->Identity.genericTypeToJson
   }, (pieSeriesData, theme))
 
   <RawPieChart options=barOption />

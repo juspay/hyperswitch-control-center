@@ -1,5 +1,3 @@
-external convertToJsonDict: 't => Js.Dict.t<Js.Json.t> = "%identity"
-
 module RadioSection = {
   open ConnectorTypes
   open FRMTypes
@@ -344,7 +342,7 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
       ->parseFRMConfig
       ->Js.Array2.filter(config => config.payment_methods->Js.Array2.length > 0)
 
-    valuesDict->Js.Dict.set("frm_configs", filteredArray->toJson)
+    valuesDict->Js.Dict.set("frm_configs", filteredArray->Identity.genericTypeToJson)
     setInitialValues(_ => valuesDict->Js.Json.object_)
     setCurrentStep(prev => prev->getNextStep)
 

@@ -4,7 +4,6 @@ open FormRenderer
 
 external arrToFormEvent: array<'a> => ReactEvent.Form.t = "%identity"
 external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
-external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
 
 module LogicalOps = {
   @react.component
@@ -146,7 +145,7 @@ module ValueInp = {
       name: "string",
       onBlur: _ev => (),
       onChange: ev => {
-        let value = ev->formEventToStrArr
+        let value = ev->Identity.formReactEventToArrayOfString
         valueField.onChange(value->Identity.anyTypeToReactEvent)
       },
       onFocus: _ev => (),
