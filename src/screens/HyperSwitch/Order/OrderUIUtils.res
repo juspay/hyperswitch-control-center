@@ -17,11 +17,7 @@ module EventLogMobileView = {
 module PaymentLogs = {
   @react.component
   let make = (~id, ~createdAt) => {
-    let {auditTrail} =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let {auditTrail} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let isSmallDevice = MatchMedia.useMatchMedia("(max-width: 700px)")
     let showPaymentLogsComp = auditTrail
 
@@ -45,11 +41,7 @@ module GenerateSampleDataButton = {
   let make = (~previewOnly, ~getOrdersList) => {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let {sampleData} =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let generateSampleData = async () => {
       try {
@@ -81,11 +73,8 @@ module GenerateSampleDataButton = {
 module NoData = {
   @react.component
   let make = (~isConfigureConnector, ~paymentModal, ~setPaymentModal) => {
-    let {isLiveMode} =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
     <HelperComponents.BluredTableComponent
       infoText={isConfigureConnector
         ? isLiveMode
