@@ -68,7 +68,7 @@ module BusinessProfileRender = {
                     mixpanelEventWrapper(
                       ~url,
                       ~selectedConnector,
-                      ~actionName=`settings_choose_country`,
+                      ~actionName=`settings_choose_profile`,
                       ~hyperswitchMixPanel,
                     )
                   }
@@ -80,7 +80,7 @@ module BusinessProfileRender = {
               ~options={
                 arrayOfBusinessProfile->MerchantAccountUtils.businessProfileNameDropDownOption
               },
-              ~buttonText="Select Country",
+              ~buttonText="Select Profile",
               ~placeholder="",
               (),
             ),
