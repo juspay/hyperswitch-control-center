@@ -48,7 +48,6 @@ let customUI =
 
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
 
-external toDict: 't => Js.Dict.t<Js.Json.t> = "%identity"
 let filterByData = (txnArr, value) => {
   open LogicUtils
   let searchText = value->getStringFromJson("")
@@ -58,7 +57,7 @@ let filterByData = (txnArr, value) => {
   ->Belt.Array.keepMap(data => {
     let valueArr =
       data
-      ->toDict
+      ->Identity.genericTypeToDictOfJson
       ->Js.Dict.entries
       ->Js.Array2.map(item => {
         let (_, value) = item

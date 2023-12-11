@@ -1,5 +1,3 @@
-external jsonToForm: Js.Json.t => ReactEvent.Form.t = "%identity"
-
 @react.component
 let make = (
   ~input: ReactFinalForm.fieldRenderPropsInput,

@@ -1,5 +1,3 @@
-external toReactForm: Js.Json.t => ReactEvent.Form.t = "%identity"
-
 module SearchInput = {
   @react.component
   let make = (

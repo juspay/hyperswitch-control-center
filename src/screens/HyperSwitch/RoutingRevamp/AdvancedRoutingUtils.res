@@ -1,5 +1,3 @@
-external toJson: 'a => Js.Json.t = "%identity"
-
 let getCurrentDetailedUTCTime = () => {
   Js.Date.fromFloat(Js.Date.now())->Js.Date.toUTCString
 }
@@ -410,7 +408,7 @@ let generateRule = rulesDict => {
     {
       "name": ruleDict->getString("name", ""),
       "connectorSelection": ruleDict->getJsonObjectFromDict("connectorSelection"),
-      "statements": modifiedStatements->Js.Array2.map(toJson)->Js.Json.array,
+      "statements": modifiedStatements->Js.Array2.map(Identity.genericTypeToJson)->Js.Json.array,
     }
   })
   modifiedRules

@@ -1,15 +1,9 @@
-external toString: option<Js.Json.t> => string = "%identity"
-external convertToStrDict: 't => Js.Json.t = "%identity"
-external objToJson: {..} => Js.Json.t = "%identity"
-external toJson: exn => Js.Json.t = "%identity"
-external toRespJson: Fetch.Response.t => Js.Json.t = "%identity"
 @get external keyCode: 'a => int = "keyCode"
 
 type window
 @val external window: window = "window"
 @scope("window") @val external parent: window = "parent"
 
-external formEventToBoolean: ReactEvent.Form.t => bool = "%identity"
 open LogicUtils
 open Promise
 type modalView = SavedList | SaveNew
@@ -888,7 +882,7 @@ module FiltersComponent = {
               filteredTabKeys->Js.Array2.includes(dimension)
             })
             ->Js.Json.array,
-          }->LineChartUtils.objToJson,
+          }->Identity.genericObjectOrRecordToJson,
         )
       | None => None
       }
@@ -1091,7 +1085,7 @@ module DownloadCsv = {
     let actualDataOrig =
       tableData
       ->Belt.Array.keepMap(item => item->Js.Nullable.toOption)
-      ->Js.Array2.map(convertToStrDict)
+      ->Js.Array2.map(Identity.genericTypeToJson)
 
     let headerNames = visibleColumns->Belt.Array.keepMap(head => {
       let item = head->getHeading
@@ -1513,7 +1507,7 @@ module ErrorModalContent = {
         "credits": {
           "enabled": false,
         },
-      }->objToJson
+      }->Identity.genericObjectOrRecordToJson
     }, (chartData, categoryData, colName, theme))
     if showModalBarChart == "Table" {
       <div className="-mt-6">
@@ -2099,7 +2093,7 @@ let useTableSankeyWrapper = (
   let showDeltaInput: ReactFinalForm.fieldRenderPropsInput = {
     name: "showDelta",
     onBlur: _ev => (),
-    onChange: ev => setShowDelta(_ => ev->formEventToBoolean),
+    onChange: ev => setShowDelta(_ => ev->Identity.formReactEventToBool),
     onFocus: _ev => (),
     value: showDelta->Js.Json.boolean,
     checked: false,

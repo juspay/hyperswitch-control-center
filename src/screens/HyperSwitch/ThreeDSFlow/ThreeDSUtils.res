@@ -1,5 +1,3 @@
-external toJson: 'a => Js.Json.t = "%identity"
-
 type pageState = NEW | LANDING
 
 let statementObject: array<AdvancedRoutingTypes.statement> = [

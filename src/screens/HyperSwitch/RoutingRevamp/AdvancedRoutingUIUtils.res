@@ -2,9 +2,7 @@ open AdvancedRoutingTypes
 open AdvancedRoutingUtils
 open FormRenderer
 
-external arrToFormEvent: array<'a> => ReactEvent.Form.t = "%identity"
 external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
-external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
 
 module LogicalOps = {
   @react.component
@@ -146,7 +144,7 @@ module ValueInp = {
       name: "string",
       onBlur: _ev => (),
       onChange: ev => {
-        let value = ev->formEventToStrArr
+        let value = ev->Identity.formReactEventToArrayOfString
         valueField.onChange(value->Identity.anyTypeToReactEvent)
       },
       onFocus: _ev => (),
@@ -399,12 +397,21 @@ module MakeRuleField = {
     let onPlusClick = _ => {
       if plusBtnEnabled {
         let toAdd = Js.Dict.empty()
-        conditionsInput.onChange(Js.Array2.concat(fields, [toAdd->Js.Json.object_])->arrToFormEvent)
+        conditionsInput.onChange(
+          Js.Array2.concat(
+            fields,
+            [toAdd->Js.Json.object_],
+          )->Identity.arrayOfGenericTypeToFormReactEvent,
+        )
       }
     }
 
     let onCrossClick = index => {
-      conditionsInput.onChange(fields->Array.filterWithIndex((_, i) => index !== i)->arrToFormEvent)
+      conditionsInput.onChange(
+        fields
+        ->Array.filterWithIndex((_, i) => index !== i)
+        ->Identity.arrayOfGenericTypeToFormReactEvent,
+      )
     }
 
     <div className="flex flex-wrap items-center">

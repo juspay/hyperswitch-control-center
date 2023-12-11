@@ -1,7 +1,5 @@
 module CustomViewSection = {
   external formEventToInt: ReactEvent.Form.t => int = "%identity"
-  external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
-  external arrToFormEvent: array<'a> => ReactEvent.Form.t = "%identity"
   external jsonArrToa: array<Js.Json.t> => array<'a> = "%identity"
 
   @react.component
@@ -52,7 +50,7 @@ module CustomViewSection = {
               ->ignore
             }
           } else {
-            let evArr = ev->formEventToStrArr
+            let evArr = ev->Identity.formReactEventToArrayOfString
             for i in 0 to evArr->Js.Array2.length - 1 {
               valueArrReversed
               ->Js.Array2.find(x => keyExtractor(x) == evArr[i]->Belt.Option.getWithDefault(""))
@@ -61,7 +59,7 @@ module CustomViewSection = {
               ->ignore
             }
           }
-          onChange(finalArr->arrToFormEvent)
+          onChange(finalArr->Identity.arrayOfGenericTypeToFormReactEvent)
         },
       }
       input
