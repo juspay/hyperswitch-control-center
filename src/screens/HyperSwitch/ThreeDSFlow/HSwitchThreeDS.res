@@ -103,7 +103,9 @@ let make = () => {
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (wasm, setWasm) = React.useState(_ => None)
-  let (initialValues, _setInitialValues) = React.useState(_ => buildInitial3DSValue->toJson)
+  let (initialValues, _setInitialValues) = React.useState(_ =>
+    buildInitial3DSValue->Identity.genericTypeToJson
+  )
   let (initialRule, setInitialRule) = React.useState(() => None)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (pageView, setPageView) = React.useState(_ => NEW)
@@ -185,7 +187,7 @@ let make = () => {
       let threeDsPayload = values->buildThreeDsPayloadBody
 
       let getActivateUrl = getURL(~entityName=THREE_DS, ~methodType=Put, ())
-      let _ = await updateDetails(getActivateUrl, threeDsPayload->toJson, Put)
+      let _ = await updateDetails(getActivateUrl, threeDsPayload->Identity.genericTypeToJson, Put)
       fetchDetails()->ignore
       setShowWarning(_ => true)
       RescriptReactRouter.replace(`/3ds`)

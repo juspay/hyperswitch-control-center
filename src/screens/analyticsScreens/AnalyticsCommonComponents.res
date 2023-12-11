@@ -9,7 +9,6 @@ type window
 @val external window: window = "window"
 @scope("window") @val external parent: window = "parent"
 
-external formEventToBoolean: ReactEvent.Form.t => bool = "%identity"
 open LogicUtils
 open Promise
 type modalView = SavedList | SaveNew
@@ -2099,7 +2098,7 @@ let useTableSankeyWrapper = (
   let showDeltaInput: ReactFinalForm.fieldRenderPropsInput = {
     name: "showDelta",
     onBlur: _ev => (),
-    onChange: ev => setShowDelta(_ => ev->formEventToBoolean),
+    onChange: ev => setShowDelta(_ => ev->Identity.formReactEventToBool),
     onFocus: _ev => (),
     value: showDelta->Js.Json.boolean,
     checked: false,

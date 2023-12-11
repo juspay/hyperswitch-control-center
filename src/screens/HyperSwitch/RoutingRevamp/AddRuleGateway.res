@@ -1,5 +1,3 @@
-external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
-external toJson: 'a => Js.Json.t = "%identity"
 external anyToEnum: 'a => AdvancedRoutingTypes.connectorSelectionData = "%identity"
 
 @react.component
@@ -36,7 +34,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
     name: "gateways",
     onBlur: _ev => (),
     onChange: ev => {
-      let newSelectedOptions = ev->formEventToStrArr
+      let newSelectedOptions = ev->Identity.formReactEventToArrayOfString
 
       if newSelectedOptions->Js.Array2.length === 0 {
         gateWaysInput.onChange([]->Identity.anyTypeToReactEvent)
@@ -54,14 +52,14 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
                 merchant_connector_id: item,
               },
               split: sharePercent,
-            }->toJson
+            }->Identity.genericTypeToJson
           } else {
             {
               connector: (
                 connectorList->ConnectorTableUtils.getConnectorNameViaId(item)
               ).connector_name,
               merchant_connector_id: item,
-            }->toJson
+            }->Identity.genericTypeToJson
           }
         })
         gateWaysInput.onChange(gatewaysArr->Identity.anyTypeToReactEvent)
@@ -98,9 +96,9 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
             merchant_connector_id: obj.merchant_connector_id,
           },
           split: sharePercent,
-        }->toJson
+        }->Identity.genericTypeToJson
 
-      | VolumeObject(obj) => obj.connector->toJson
+      | VolumeObject(obj) => obj.connector->Identity.genericTypeToJson
       }
     })
     gateWaysInput.onChange(gatewaysArr->Identity.anyTypeToReactEvent)
@@ -118,7 +116,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
     if value < 100 {
       let newList = selectedOptions->Js.Array2.map(option => {
         switch option {
-        | PriorityObject(obj) => obj.connector->toJson
+        | PriorityObject(obj) => obj.connector->Identity.genericTypeToJson
         | VolumeObject(obj) =>
           {
             ...obj,
@@ -128,7 +126,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
               ).merchant_connector_id
               ? value
               : obj.split,
-          }->toJson
+          }->Identity.genericTypeToJson
         }
       })
       gateWaysInput.onChange(newList->Identity.anyTypeToReactEvent)
