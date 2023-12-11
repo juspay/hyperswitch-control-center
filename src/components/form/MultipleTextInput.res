@@ -1,4 +1,3 @@
-external inputAsString: ReactEvent.Form.t => string = "%identity"
 external stringToFormEvent: string => ReactEvent.Form.t = "%identity"
 
 module Tag = {

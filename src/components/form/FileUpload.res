@@ -1,4 +1,3 @@
-external toReactEvent: 'a => ReactEvent.Form.t = "%identity"
 external arrToReactEvent: array<string> => ReactEvent.Form.t = "%identity"
 external strToReactEvent: string => ReactEvent.Form.t = "%identity"
 
@@ -30,13 +29,13 @@ let make = (
   let showToast = ToastState.useShowToast()
 
   React.useEffect1(() => {
-    fileNameInput.onChange(fileName->toReactEvent)
+    fileNameInput.onChange(fileName->Identity.anyTypeToReactEvent)
     None
   }, [fileName])
 
   let clearData = _ev => {
     setFilename(_ => "")
-    input.onChange(""->Js.Json.string->toReactEvent)
+    input.onChange(""->Js.Json.string->Identity.anyTypeToReactEvent)
     setKey(prev => prev + 1)
   }
 
@@ -67,7 +66,7 @@ let make = (
         | _ => true
         }
         if !isCorrectFileFormat {
-          input.onChange(toReactEvent(""))
+          input.onChange(Identity.anyTypeToReactEvent(""))
           toast("Invalid file format", ToastError)
         } else if isValid {
           switch rowsLimit {
@@ -75,7 +74,7 @@ let make = (
             let rows = Js.String2.split(file, "\n")->Js.Array2.length
             if value !== "" && rows - 1 < val {
               setFilename(_ => filename)
-              input.onChange(toReactEvent(value))
+              input.onChange(Identity.anyTypeToReactEvent(value))
               if showUploadtoast {
                 toast("File Uploaded Successfully", ToastSuccess)
               }
@@ -85,7 +84,7 @@ let make = (
           | None =>
             if value !== "" {
               setFilename(_ => filename)
-              input.onChange(toReactEvent(value))
+              input.onChange(Identity.anyTypeToReactEvent(value))
 
               if showUploadtoast {
                 toast("File Uploaded Successfully", ToastSuccess)

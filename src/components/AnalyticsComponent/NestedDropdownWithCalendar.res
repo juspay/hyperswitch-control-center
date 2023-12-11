@@ -25,7 +25,7 @@ let make = (
         endDateArr->Belt.Array.get(i)->Belt.Option.getWithDefault(x),
       ))
 
-    input.onChange(newArr->NestedDropdown.formToArray)
+    input.onChange(newArr->Identity.anyTypeToReactEvent)
   }
 
   let showCalendars = React.useMemo1(() => {

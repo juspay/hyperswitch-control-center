@@ -1,5 +1,4 @@
 type modeType = LiveModeDropDown | TestModeDropDown
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
 open UIUtils
 open HSwitchUtils
 open HSLocalStorage

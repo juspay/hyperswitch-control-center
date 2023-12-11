@@ -1,6 +1,6 @@
 external strToForm: string => ReactEvent.Form.t = "%identity"
 external jsonToForm: Js.Json.t => ReactEvent.Form.t = "%identity"
-external formEvAsString: ReactEvent.Form.t => string = "%identity"
+
 @react.component
 let make = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
@@ -167,7 +167,7 @@ let make = (
     name: "string",
     onBlur: _ev => (),
     onChange: timeValEv => {
-      let timeVal = timeValEv->formEvAsString
+      let timeVal = timeValEv->Identity.formReactEventToString
       if selectedDate !== "" {
         let todayDayJsObj = Js.Date.make()->Js.Date.toString->DayJs.getDayJsForString
         let todayTime = todayDayJsObj.format(. "HH:mm:ss")

@@ -1,7 +1,6 @@
 module CustomViewSection = {
   external formEventToInt: ReactEvent.Form.t => int = "%identity"
   external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
-  external formEventToStr: ReactEvent.Form.t => string = "%identity"
   external arrToFormEvent: array<'a> => ReactEvent.Form.t = "%identity"
   external jsonArrToa: array<Js.Json.t> => array<'a> = "%identity"
 
@@ -48,7 +47,7 @@ module CustomViewSection = {
           if !allowMultiSelect {
             for _ in 1 to ev->formEventToInt {
               Js.Array2.pop(valueArrReversed)
-              ->Belt.Option.getWithDefault(getDefaultObj(ev->formEventToStr))
+              ->Belt.Option.getWithDefault(getDefaultObj(ev->Identity.formReactEventToString))
               ->Js.Array.push(finalArr)
               ->ignore
             }

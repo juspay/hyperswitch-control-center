@@ -1,5 +1,4 @@
 external strToForm: string => ReactEvent.Form.t = "%identity"
-external formEvAsString: ReactEvent.Form.t => string = "%identity"
 
 let defaultCellHighlighter = (_): Calendar.highlighter => {
   {
@@ -458,7 +457,7 @@ module Base = {
       name: "string",
       onBlur: _ev => (),
       onChange: timeValEv => {
-        let startTimeVal = timeValEv->formEvAsString
+        let startTimeVal = timeValEv->Identity.formReactEventToString
         let endTime = localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)
 
         if localStartDate !== "" {
@@ -481,7 +480,7 @@ module Base = {
       name: "string",
       onBlur: _ev => (),
       onChange: timeValEv => {
-        let endTimeVal = timeValEv->formEvAsString
+        let endTimeVal = timeValEv->Identity.formReactEventToString
         let startTime = localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)
         if localEndDate !== "" {
           if disableFutureDates && selectedEndDate == todayDate && endTimeVal > todayTime {

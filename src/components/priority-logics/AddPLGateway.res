@@ -1,7 +1,5 @@
 external arrToReactEvent: array<string> => ReactEvent.Form.t = "%identity"
-external toReactEvent: 'a => ReactEvent.Form.t = "%identity"
 external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
 type gateway = PriorityLogicUtils.gateway
 
 module GatewayView = {
@@ -110,7 +108,7 @@ let make = (
     onChange: ev => {
       let newSelectedOptions = ev->formEventToStrArr
       if newSelectedOptions->Js.Array2.length === 0 {
-        gateWaysInput.onChange([]->toReactEvent)
+        gateWaysInput.onChange([]->Identity.anyTypeToReactEvent)
       } else {
         let sharePercent = isDistribute ? 100 / newSelectedOptions->Js.Array2.length : 100
         let gatewaysArr = newSelectedOptions->Array.mapWithIndex((item, i) => {
@@ -126,7 +124,7 @@ let make = (
           }
           obj
         })
-        gateWaysInput.onChange(gatewaysArr->toReactEvent)
+        gateWaysInput.onChange(gatewaysArr->Identity.anyTypeToReactEvent)
       }
     },
     onFocus: _ev => (),
@@ -149,7 +147,7 @@ let make = (
           disableFallback: newDistributeValue ? item.disableFallback : false,
         }
       })
-      gateWaysInput.onChange(gatewaysArr->toReactEvent)
+      gateWaysInput.onChange(gatewaysArr->Identity.anyTypeToReactEvent)
     }
   }
 
@@ -157,7 +155,7 @@ let make = (
     if isDistribute {
       selectedOptions
       ->Js.Array2.map(item => {...item, disableFallback: newFallbackValue})
-      ->toReactEvent
+      ->Identity.anyTypeToReactEvent
       ->gateWaysInput.onChange
     }
   }
@@ -177,7 +175,7 @@ let make = (
           option
         }
       })
-      gateWaysInput.onChange(newList->toReactEvent)
+      gateWaysInput.onChange(newList->Identity.anyTypeToReactEvent)
     }
   }
 
@@ -189,7 +187,7 @@ let make = (
         option
       }
     })
-    gateWaysInput.onChange(newList->toReactEvent)
+    gateWaysInput.onChange(newList->Identity.anyTypeToReactEvent)
   }
 
   let removeItem = index => {
@@ -197,7 +195,7 @@ let make = (
       selectedOptions
       ->Js.Array2.map(i => i.gateway_name)
       ->Array.filterWithIndex((_, i) => i !== index)
-      ->toReactEvent,
+      ->Identity.anyTypeToReactEvent,
     )
   }
 
@@ -306,7 +304,7 @@ let make = (
                     <CheckBoxIcon
                       isSelected=isEnforceGatewayPriority
                       setIsSelected={v => {
-                        enforceGatewayPriorityInput.onChange(v->toReactEvent)
+                        enforceGatewayPriorityInput.onChange(v->Identity.anyTypeToReactEvent)
                       }}
                       isDisabled=false
                     />
@@ -324,7 +322,7 @@ let make = (
                     <CheckBoxIcon
                       isSelected=isDistribute
                       setIsSelected={v => {
-                        isDistributeInput.onChange(v->toReactEvent)
+                        isDistributeInput.onChange(v->Identity.anyTypeToReactEvent)
                         onClickDistribute(v)
                       }}
                       isDisabled=false

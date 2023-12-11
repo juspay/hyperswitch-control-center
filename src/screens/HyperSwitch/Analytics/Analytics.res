@@ -1,10 +1,8 @@
 external toString: option<Js.Json.t> => string = "%identity"
 external convertToStrDict: 't => Js.Json.t = "%identity"
-external evToString: ReactEvent.Form.t => string = "%identity"
 external asJson: 'a => Js.Json.t = "%identity"
 external sankeyTest: string => SankeyCharts.sankeyEntity = "%identity"
 @get external keyCode: 'a => int = "keyCode"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
 type window
 @val external window: window = "window"
 @scope("window") @val external parent: window = "parent"

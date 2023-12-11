@@ -1,6 +1,5 @@
 open DateTimeUtils
 external strToForm: string => ReactEvent.Form.t = "%identity"
-external formEvAsString: ReactEvent.Form.t => string = "%identity"
 
 let defaultCellHighlighter = (_): NewCalendar.highlighter => {
   {

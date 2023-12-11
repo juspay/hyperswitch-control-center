@@ -1,5 +1,4 @@
 open HyperSwitchAuthTypes
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
 
 module TermsAndCondition = {
   @react.component
