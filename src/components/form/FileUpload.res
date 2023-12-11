@@ -1,6 +1,3 @@
-external arrToReactEvent: array<string> => ReactEvent.Form.t = "%identity"
-external strToReactEvent: string => ReactEvent.Form.t = "%identity"
-
 @val external atob: string => string = "atob"
 @send external focus: Dom.element => unit = "focus"
 @react.component

@@ -1,4 +1,3 @@
-external arrToReactEvent: array<string> => ReactEvent.Form.t = "%identity"
 external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
 type gateway = PriorityLogicUtils.gateway
 

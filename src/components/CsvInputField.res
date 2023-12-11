@@ -1,6 +1,4 @@
 external jsonToarr: Js.Json.t => array<'a> = "%identity"
-external arrToReactEvent: array<string> => ReactEvent.Form.t = "%identity"
-external strToReactEvent: string => ReactEvent.Form.t = "%identity"
 
 module FilenameSaver = {
   @react.component
@@ -109,12 +107,12 @@ let make = (
   let clearCsv = _evt => {
     setFilename(_ => "")
     setKey(pre => pre + 1)
-    input.onChange(arrToReactEvent([]))
+    input.onChange(Identity.arrofStringToReactEvent([]))
   }
   let clearData = _ev => {
     setFilename(_ => "")
     setKey(pre => pre + 1)
-    input.onChange(strToReactEvent(""))
+    input.onChange(Identity.stringToFormReactEvent(""))
   }
 
   let toast = (message, toastType) => {

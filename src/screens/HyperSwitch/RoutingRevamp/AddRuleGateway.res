@@ -1,4 +1,3 @@
-external arrToReactEvent: array<string> => ReactEvent.Form.t = "%identity"
 external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
 external toJson: 'a => Js.Json.t = "%identity"
 external anyToEnum: 'a => AdvancedRoutingTypes.connectorSelectionData = "%identity"

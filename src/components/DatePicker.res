@@ -1,4 +1,3 @@
-external strToForm: string => ReactEvent.Form.t = "%identity"
 external jsonToForm: Js.Json.t => ReactEvent.Form.t = "%identity"
 
 @react.component
@@ -92,7 +91,7 @@ let make = (
       currentDateSecondsFormat,
     )
     setDate(_ => currentDateTimeCheck)
-    input.onChange(currentDateTimeCheck->strToForm)
+    input.onChange(currentDateTimeCheck->Identity.stringToFormReactEvent)
   }
   React.useEffect1(() => {
     if input.value == ""->Js.Json.string {
@@ -198,7 +197,7 @@ let make = (
         )
         let timestamp = TimeZoneHook.formattedISOString(dateTimeCheck, format)
         setDate(_ => timestamp)
-        input.onChange(timestamp->Table.dateFormat(format)->strToForm)
+        input.onChange(timestamp->Table.dateFormat(format)->Identity.stringToFormReactEvent)
       }
     },
     onFocus: _ev => (),

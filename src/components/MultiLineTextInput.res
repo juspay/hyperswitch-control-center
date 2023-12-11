@@ -1,5 +1,3 @@
-external stringToFormEvent: string => ReactEvent.Form.t = "%identity"
-
 @react.component
 let make = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
@@ -33,7 +31,7 @@ let make = (
         val
         ->Js.String2.replace("<script>", "")
         ->Js.String2.replace("</script>", "")
-        ->stringToFormEvent,
+        ->Identity.stringToFormReactEvent,
       )
     }
     None

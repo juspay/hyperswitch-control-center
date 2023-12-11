@@ -292,8 +292,6 @@ let useChartFetch = (~setStatusDict) => {
   fetchChartData
 }
 
-external tofloat: string => float = "%identity"
-
 let granularityMapper = (granularity: granularity) => {
   switch granularity {
   | G_ONEDAY => "G_ONEDAY"

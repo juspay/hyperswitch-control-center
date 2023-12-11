@@ -3,7 +3,6 @@ open AdvancedRoutingTypes
 open AdvancedRoutingUtils
 open LogicUtils
 
-external toForm: string => ReactEvent.Form.t = "%identity"
 external toJson: 'a => Js.Json.t = "%identity"
 external arrToFormEvent: array<'a> => ReactEvent.Form.t = "%identity"
 external toWasm: Js.Dict.t<Js.Json.t> => RoutingTypes.wasmModule = "%identity"
@@ -124,7 +123,7 @@ module Wrapper = {
     }
 
     React.useEffect0(() => {
-      name.onChange(heading->Js.String2.toLowerCase->titleToSnake->toForm)
+      name.onChange(heading->Js.String2.toLowerCase->titleToSnake->Identity.stringToFormReactEvent)
 
       let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Js.Array2.length > 0
 

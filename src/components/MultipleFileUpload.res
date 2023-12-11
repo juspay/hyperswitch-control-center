@@ -1,5 +1,3 @@
-external arrToReactEvent: array<string> => ReactEvent.Form.t = "%identity"
-external strToReactEvent: string => ReactEvent.Form.t = "%identity"
 type dataTransfer
 @get external dataTransfer: ReactEvent.Mouse.t => 'a = "dataTransfer"
 @get external files: dataTransfer => 'a = "files"

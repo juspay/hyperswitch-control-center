@@ -1,5 +1,3 @@
-external stringToFormEvent: string => ReactEvent.Form.t = "%identity"
-
 module Tag = {
   @react.component
   let make = (~text, ~remove, ~customButtonStyle=?, ~disabled=false) => {

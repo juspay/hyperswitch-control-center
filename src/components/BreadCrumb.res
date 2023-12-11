@@ -1,5 +1,3 @@
-external jsonToarr: Js.Json.t => array<'a> = "%identity"
-
 type status = Active | Disabled | Completed
 
 type breadCrumb_options = {

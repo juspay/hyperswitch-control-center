@@ -5,7 +5,6 @@ type customInputFn = (
 type comboCustomInputFn = array<ReactFinalForm.fieldRenderProps> => React.element
 type comboCustomInputRecord = {fn: comboCustomInputFn, names: array<string>}
 module DOBPicker: {
-  external strToForm: string => ReactEvent.Form.t = "%identity"
   external jsonToForm: Js.Json.t => ReactEvent.Form.t = "%identity"
   @react.component
   let make: (

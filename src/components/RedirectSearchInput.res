@@ -1,4 +1,3 @@
-external stringToForm: string => ReactEvent.Form.t = "%identity"
 external toReactForm: Js.Json.t => ReactEvent.Form.t = "%identity"
 
 module SearchInput = {

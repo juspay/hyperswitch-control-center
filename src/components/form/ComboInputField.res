@@ -1,5 +1,4 @@
 external inputAsArray: ReactEvent.Form.t => array<Js.Json.t> = "%identity"
-external stringToForm: string => ReactEvent.Form.t = "%identity"
 
 open LogicUtils
 
@@ -82,7 +81,7 @@ module BaseComponent = {
           {ev->ReactEvent.Keyboard.target}["value"]
           ->Identity.formReactEventToString
           ->Js.String2.trim
-        input.onChange(value->stringToForm)
+        input.onChange(value->Identity.stringToFormReactEvent)
       } else {
         let key = ev->ReactEvent.Keyboard.key
         let keyCode = ev->ReactEvent.Keyboard.keyCode
@@ -95,7 +94,7 @@ module BaseComponent = {
           | Some(fn) => fn(input, value)
           | None =>
             if value !== "" {
-              input.onChange(value->stringToForm)
+              input.onChange(value->Identity.stringToFormReactEvent)
             }
           }
         }
@@ -103,7 +102,7 @@ module BaseComponent = {
     }, [selectedMode])
 
     let onClick = (_: ReactEvent.Mouse.t) => {
-      fieldInput.onChange(""->stringToForm)
+      fieldInput.onChange(""->Identity.stringToFormReactEvent)
       setComboVal(_ => "")
     }
 

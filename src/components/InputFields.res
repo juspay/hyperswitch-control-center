@@ -12,7 +12,6 @@ type comboCustomInputRecord = {
 }
 
 module DOBPicker = {
-  external strToForm: string => ReactEvent.Form.t = "%identity"
   external jsonToForm: Js.Json.t => ReactEvent.Form.t = "%identity"
   @react.component
   let make = (
@@ -47,7 +46,7 @@ module DOBPicker = {
         val := Js.String.concat("-", val.contents)
       }
       setSelectedDate(_ => val.contents)
-      input.onChange(val.contents->strToForm)
+      input.onChange(val.contents->Identity.stringToFormReactEvent)
     }
     let dropdownRef = React.useRef(Js.Nullable.null)
     let (isExpanded, setIsExpanded) = React.useState(_ => false)
@@ -64,10 +63,10 @@ module DOBPicker = {
       setIsExpanded(p => !p)
       if format == "DD-MM-YYYY" {
         setSelectedDate(_ => changeDOBFormat(str))
-        input.onChange(changeDOBFormat(str)->strToForm)
+        input.onChange(changeDOBFormat(str)->Identity.stringToFormReactEvent)
       } else {
         setSelectedDate(_ => str)
-        input.onChange(str->strToForm)
+        input.onChange(str->Identity.stringToFormReactEvent)
       }
     }
     React.useEffect1(() => {
