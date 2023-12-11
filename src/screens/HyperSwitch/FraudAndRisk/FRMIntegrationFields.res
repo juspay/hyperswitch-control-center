@@ -2,7 +2,7 @@ module AdvanceSettings = {
   @react.component
   let make = (~isUpdateFlow, ~frmName, ~renderCountrySelector) => {
     let (isFRMSettings, setIsFRMSettings) = React.useState(_ => isUpdateFlow)
-
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let form = ReactFinalForm.useForm()
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let url = RescriptReactRouter.useUrl()
@@ -40,7 +40,7 @@ module AdvanceSettings = {
       None
     }, [businessProfileValue.profile_id])
 
-    <>
+    <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
       <div className="flex gap-2 items-center p-2">
         <BoolInput input={inputLabel} isDisabled={isUpdateFlow} boolCustomClass="rounded-full" />
         <p className="font-semibold !text-black opacity-50 ">
@@ -50,7 +50,7 @@ module AdvanceSettings = {
       <UIUtils.RenderIf condition={renderCountrySelector && isFRMSettings}>
         <ConnectorAccountDetails.BusinessProfileRender isUpdateFlow selectedConnector={frmName} />
       </UIUtils.RenderIf>
-    </>
+    </UIUtils.RenderIf>
   }
 }
 
