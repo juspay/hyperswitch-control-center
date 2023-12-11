@@ -50,12 +50,12 @@ module AddEntryBtn = {
             </LabelVisibilityContext>
           </Form>
         | Successful =>
-          <div className="flex flex-col gap-6 justify-center items-end">
+          <div className="flex flex-col gap-6 justify-center items-end mx-4">
             <p className="text-grey-700 opacity-50 ">
-              {"Business profile successfully created! Set up the return URL and webhooks for the newly created business profile."->React.string}
+              {"Business Profile successfully created! Set up your payments settings like webhooks, return url for your new profile before trying a payment."->React.string}
             </p>
             <Button
-              text={"Configure return url"}
+              text={"Configure payment settings"}
               buttonType=Primary
               onClick={_ => {
                 if updatedProfileId->Js.String2.length > 0 {
@@ -71,7 +71,7 @@ module AddEntryBtn = {
 
     let modalHeaderText = switch modalState {
     | Edit | Loading => "Add Business Profile Name"
-    | Successful => "Configure webhooks and return url"
+    | Successful => "Configure payment settings"
     }
 
     <div>
