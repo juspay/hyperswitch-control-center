@@ -131,7 +131,7 @@ let useGetFiltersData = () => {
         }
       }
       None
-    }, [body])
+    }, [startTimeVal, endTimeVal, body->Js.Json.object_->Js.Json.stringify])
     filterData
   }
 }

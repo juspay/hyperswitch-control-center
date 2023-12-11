@@ -80,6 +80,21 @@ let make = (~previewOnly=false) => {
 
   let customUI = <NoData isConfigureConnector paymentModal setPaymentModal />
 
+  let filtersUI = React.useMemo1(() => {
+    <RemoteTableFilters
+      placeholder="Search payment id"
+      setSearchVal=setSearchText
+      searchVal=searchText
+      filterUrl
+      setFilters
+      endTimeFilterKey
+      startTimeFilterKey
+      initialFilters
+      initialFixedFilter
+      setOffset
+    />
+  }, [])
+
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
       <PageUtils.PageHeading
@@ -91,20 +106,7 @@ let make = (~previewOnly=false) => {
           <GenerateReport entityName={PAYMENT_REPORT} />
         </UIUtils.RenderIf>
       </div>
-      <UIUtils.RenderIf condition={!previewOnly}>
-        <RemoteTableFilters
-          placeholder="Search payment id"
-          setSearchVal=setSearchText
-          searchVal=searchText
-          filterUrl
-          setFilters
-          endTimeFilterKey
-          startTimeFilterKey
-          initialFilters
-          initialFixedFilter
-          setOffset
-        />
-      </UIUtils.RenderIf>
+      <UIUtils.RenderIf condition={!previewOnly}> {filtersUI} </UIUtils.RenderIf>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns
           title="Orders"
