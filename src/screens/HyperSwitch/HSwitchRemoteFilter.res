@@ -225,8 +225,6 @@ module RemoteTableFilters = {
     let endTimeVal = filterValueJson->getString(endTimeFilterKey, "")
     let startTimeVal = filterValueJson->getString(startTimeFilterKey, "")
 
-    Js.log3(">>", endTimeVal, startTimeVal)
-
     let filterBody = React.useMemo3(() => {
       [
         (startTimeFilterKey, startTimeVal->Js.Json.string),

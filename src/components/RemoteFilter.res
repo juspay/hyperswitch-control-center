@@ -119,7 +119,7 @@ module ClearFilters = {
     ~isCountRequired=true,
     ~outsidefilter=false,
   ) => {
-    let {setQuery} = React.useContext(FilterContext.filterContext)
+    let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
     let isMobileView = MatchMedia.useMobileChecker()
     let outerClass = if isMobileView {
       "flex items-center justify-end"
@@ -162,7 +162,7 @@ module ClearFilters = {
           })
           ->Js.Array2.joinWith("&")
 
-        setQuery(searchStr)
+        searchStr->FilterUtils.parseFilterString->updateExistingKeys
       }
     }
 
@@ -198,7 +198,7 @@ module ClearFilters = {
 module AnalyticsClearFilters = {
   @react.component
   let make = (~defaultFilterKeys=[], ~clearFilters=?, ~outsidefilter=false) => {
-    let {setQuery} = React.useContext(FilterContext.filterContext)
+    let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values", "initialValues"])->Js.Nullable.return,
     )
@@ -232,7 +232,7 @@ module AnalyticsClearFilters = {
           })
           ->Js.Array2.joinWith("&")
 
-        setQuery(searchStr)
+        searchStr->FilterUtils.parseFilterString->updateExistingKeys
       }
     }
 

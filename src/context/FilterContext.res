@@ -1,6 +1,5 @@
 type filterUpdater = {
   query: string,
-  setQuery: string => unit,
   filterValue: Js.Dict.t<string>,
   updateExistingKeys: Js.Dict.t<string> => unit,
   removeKeys: array<string> => unit,
@@ -10,7 +9,6 @@ type filterUpdater = {
 
 let filterUpdater = {
   query: "",
-  setQuery: _ => (),
   filterValue: Js.Dict.empty(),
   updateExistingKeys: _dict => (),
   removeKeys: _arr => (),
@@ -30,10 +28,6 @@ let make = (~children) => {
   let (query, setQuery) = React.useState(_ => "")
   let searcParamsToDict = query->parseFilterString
   let (filterDict, setfilterDict) = React.useState(_ => searcParamsToDict)
-
-  let setQuery = value => {
-    setQuery(_ => value)
-  }
 
   let updateFilter = React.useMemo2(() => {
     let updateFilter = (dict: Js.Dict.t<string>) => {
@@ -61,11 +55,14 @@ let make = (~children) => {
           )
 
         let updatedDict = Js.Array2.concat(prevDictArr, currentDictArr)->Js.Dict.fromArray
-        if DictionaryUtils.equalDicts(updatedDict, prev) {
+        let dict = if DictionaryUtils.equalDicts(updatedDict, prev) {
           prev
         } else {
           updatedDict
         }
+        setQuery(_ => dict->FilterUtils.parseFilterDict)
+
+        dict
       })
     }
 
@@ -85,8 +82,7 @@ let make = (~children) => {
       })
     }
     {
-      query: "",
-      setQuery,
+      query,
       filterValue: filterDict,
       updateExistingKeys: updateFilter,
       removeKeys,

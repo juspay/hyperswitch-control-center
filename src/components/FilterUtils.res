@@ -10,3 +10,16 @@ let parseFilterString = queryString => {
   })
   ->Js.Dict.fromArray
 }
+
+let parseFilterDict = dict => {
+  let searchParam =
+    dict
+    ->Js.Dict.entries
+    ->Js.Array2.map(item => {
+      let (key, value) = item
+      `${key}=${value}`
+    })
+    ->Js.Array2.joinWith("&")
+
+  searchParam
+}
