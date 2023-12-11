@@ -327,7 +327,6 @@ module HSiwtchPaymentConfirmLatency = {
 module SystemMetricsAnalytics = {
   open AnalyticsTypes
   open LogicUtils
-  open FilterUtils
   @react.component
   let make = (
     ~pageTitle="",
@@ -342,13 +341,11 @@ module SystemMetricsAnalytics = {
     ~moduleName: string,
   ) => {
     let getFilterData = AnalyticsHooks.useGetFiltersData()
-    let {index, filterValueJson} = React.useContext(FilterContext.filterContext)
-    let filterValueString = useFiltersValue(~index)
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let getModuleFilters = filterValueJson
     let startTimeVal = getModuleFilters->getString(startTimeFilterKey, "")
     let endTimeVal = getModuleFilters->getString(endTimeFilterKey, "")
-    let updateComponentPrefrences = useUpdateFilterObject(~index)
-    let {filterValue, updateExistingKeys} = FilterContext.filterContext->React.useContext
+    let {updateExistingKeys} = FilterContext.filterContext->React.useContext
     let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
     let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
 
@@ -359,7 +356,6 @@ module SystemMetricsAnalytics = {
     }
 
     let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-      ~updateComponentPrefrences,
       ~updateExistingKeys,
       ~startTimeFilterKey,
       ~endTimeFilterKey,
@@ -369,18 +365,6 @@ module SystemMetricsAnalytics = {
       setInitialFilters()
       None
     })
-
-    React.useEffect1(() => {
-      if filterValueString->HSwitchUtils.isEmptyString {
-        updateComponentPrefrences(~dict=filterValue)
-      }
-      None
-    }, [filterValueString])
-
-    React.useEffect1(() => {
-      updateComponentPrefrences(~dict=filterValue)
-      None
-    }, [filterValue])
 
     let filterBody = React.useMemo3(() => {
       let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {

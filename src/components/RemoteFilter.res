@@ -110,10 +110,8 @@ module ModalUI = {
 }
 
 module ClearFilters = {
-  open FilterUtils
   @react.component
   let make = (
-    ~index,
     ~filterButtonStyle,
     ~defaultFilterKeys=[],
     ~clearFilters=?,
@@ -121,7 +119,7 @@ module ClearFilters = {
     ~isCountRequired=true,
     ~outsidefilter=false,
   ) => {
-    let setFilters = useAddFilters(~index)
+    let {setQuery} = React.useContext(FilterContext.filterContext)
     let isMobileView = MatchMedia.useMobileChecker()
     let outerClass = if isMobileView {
       "flex items-center justify-end"
@@ -164,7 +162,7 @@ module ClearFilters = {
           })
           ->Js.Array2.joinWith("&")
 
-        setFilters(searchStr)
+        setQuery(searchStr)
       }
     }
 
@@ -198,10 +196,9 @@ module ClearFilters = {
 }
 
 module AnalyticsClearFilters = {
-  open FilterUtils
   @react.component
-  let make = (~index, ~defaultFilterKeys=[], ~clearFilters=?, ~outsidefilter=false) => {
-    let setFilters = useAddFilters(~index)
+  let make = (~defaultFilterKeys=[], ~clearFilters=?, ~outsidefilter=false) => {
+    let {setQuery} = React.useContext(FilterContext.filterContext)
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values", "initialValues"])->Js.Nullable.return,
     )
@@ -235,7 +232,7 @@ module AnalyticsClearFilters = {
           })
           ->Js.Array2.joinWith("&")
 
-        setFilters(searchStr)
+        setQuery(searchStr)
       }
     }
 
@@ -522,7 +519,6 @@ module FilterModal = {
 
 @react.component
 let make = (
-  ~index,
   ~defaultFilters,
   ~fixedFilters: array<EntityType.initialFilters<'t>>=[],
   ~requiredSearchFieldsList,
@@ -558,6 +554,7 @@ let make = (
   ~disableURIdecode=false,
   ~revampedFilter=false,
 ) => {
+  let {query} = React.useContext(FilterContext.filterContext)
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let alreadySelectedFiltersUserpref = `remote_filters_selected_keys_${tableName->Belt.Option.getWithDefault(
       "",
@@ -593,14 +590,13 @@ let make = (
 
   let getNewQuery = DateRefreshHooks.useConstructQueryOnBasisOfOpt()
   let (isButtonDisabled, setIsButtonDisabled) = React.useState(_ => false)
-  let queryStr = FilterUtils.useFiltersValue(~index)
 
   let totalFilters = selectedFiltersList->Js.Array2.length + localOptions->Js.Array2.length
   let (checkedFilters, setCheckedFilters) = React.useState(_ => [])
   let (clearFilterAfterRefresh, setClearFilterAfterRefresh) = React.useState(_ => false)
   let (count, setCount) = React.useState(_ => initalCount)
 
-  let searchParams = disableURIdecode ? queryStr : queryStr->Js.Global.decodeURI
+  let searchParams = disableURIdecode ? query : query->Js.Global.decodeURI
 
   let isMobileView = MatchMedia.useMobileChecker()
 
@@ -842,7 +838,7 @@ let make = (
 
   let handleRefresh = _ => {
     let newQueryStr = getNewQuery(
-      ~queryString=queryStr,
+      ~queryString=query,
       ~disableFutureDates=true,
       ~disablePastDates=false,
       ~startKey="startTime",
@@ -918,7 +914,6 @@ let make = (
       <UIUtils.RenderIf
         condition={!hideFilters && fixedFilters->Js.Array2.length === 0 && showClearFilter}>
         <ClearFilters
-          index
           filterButtonStyle
           defaultFilterKeys
           ?clearFilters
@@ -1012,7 +1007,7 @@ let make = (
                       />
                       <UIUtils.RenderIf condition={count > 0 && filterHovered}>
                         <AnalyticsClearFilters
-                          index defaultFilterKeys ?clearFilters outsidefilter={initalCount > 0}
+                          defaultFilterKeys ?clearFilters outsidefilter={initalCount > 0}
                         />
                       </UIUtils.RenderIf>
                     </div>
@@ -1063,7 +1058,6 @@ let make = (
             }}
             {if !clearFilterAfterRefresh && hideFilters && count > 0 && !revampedFilter {
               <ClearFilters
-                index
                 filterButtonStyle
                 defaultFilterKeys
                 ?clearFilters
@@ -1137,7 +1131,6 @@ let make = (
                   />
                   {if showClearFilterButton && !hideFilters && count > 0 {
                     <ClearFilters
-                      index
                       filterButtonStyle
                       defaultFilterKeys
                       ?clearFilters

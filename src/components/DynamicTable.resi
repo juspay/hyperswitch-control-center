@@ -6,7 +6,6 @@ let useRemoteFilter: (
 ) => Js.Json.t
 @react.component
 let make: (
-  ~index: string,
   ~entity: EntityType.entityType<'colType, 't>,
   ~title: Js.String.t,
   ~titleSize: NewThemeUtils.headingSize=?,

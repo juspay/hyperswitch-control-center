@@ -519,13 +519,12 @@ let make = (
   ~weeklyTableMetricsCols=?,
   ~distributionArray=None,
 ) => {
-  open FilterUtils
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let analyticsType = moduleName->getAnalyticsType
-  let {index, filterValue, updateExistingKeys, filterValueJson} = React.useContext(
+  let {filterValue, updateExistingKeys, filterValueJson} = React.useContext(
     FilterContext.filterContext,
   )
-  let filterValueString = useFiltersValue(~index)
+
   let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
   let (filteredTabKeys, filteredTabVales) = (tabKeys, tabValues)
@@ -589,9 +588,7 @@ let make = (
     }
   }, [updateExistingKeys])
 
-  let updateComponentPrefrences = useUpdateFilterObject(~index)
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateComponentPrefrences,
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
@@ -601,18 +598,6 @@ let make = (
     setInitialFilters()
     None
   })
-
-  React.useEffect1(() => {
-    if filterValueString->HSwitchUtils.isEmptyString {
-      updateComponentPrefrences(~dict=filterValue)
-    }
-    None
-  }, [filterValueString])
-
-  React.useEffect1(() => {
-    updateComponentPrefrences(~dict=filterValue)
-    None
-  }, [filterValue])
 
   let filterBody = React.useMemo3(() => {
     let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {

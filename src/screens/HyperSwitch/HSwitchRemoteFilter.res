@@ -82,18 +82,12 @@ let getFilterFields: Js.Json.t => array<EntityType.optionType<'t>> = json => {
   })
 }
 
-let useSetInitialFilters = (
-  ~updateComponentPrefrences,
-  ~updateExistingKeys,
-  ~startTimeFilterKey,
-  ~endTimeFilterKey,
-) => {
+let useSetInitialFilters = (~updateExistingKeys, ~startTimeFilterKey, ~endTimeFilterKey) => {
   open FilterUtils
-  let {index, filterValueJson} = FilterContext.filterContext->React.useContext
-  let filterValue = useFiltersValue(~index)
+  let {query, filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {
-    let inititalSearchParam = filterValue->parseFilterString
+    let inititalSearchParam = query->parseFilterString
 
     let defaultDate = getDateFilteredObject()
 
@@ -110,21 +104,19 @@ let useSetInitialFilters = (
       })
 
       inititalSearchParam->updateExistingKeys
-      updateComponentPrefrences(~dict=inititalSearchParam)
     }
   }
 }
 
-let useGetFiltersData = (~index) => {
+let useGetFiltersData = () => {
   open APIUtils
   open Promise
-
+  open LogicUtils
   let (filterData, setFilterData) = React.useState(_ => None)
   let updateDetails = useUpdateMethod()
-  open FilterUtils
-  let timeFilters = useFiltersValue(~index)->parseFilterString
-  let startTimeVal = timeFilters->Js.Dict.get("start_time")->Belt.Option.getWithDefault("")
-  let endTimeVal = timeFilters->Js.Dict.get("end_time")->Belt.Option.getWithDefault("")
+  let {filterValueJson} = FilterContext.filterContext->React.useContext
+  let startTimeVal = filterValueJson->getString("start_time", "")
+  let endTimeVal = filterValueJson->getString("end_time", "")
 
   (url, body) => {
     React.useEffect1(() => {
@@ -213,15 +205,13 @@ module RemoteTableFilters = {
     ~setOffset,
     (),
   ) => {
-    let {index, filterValue, updateExistingKeys, filterValueJson, removeKeys} =
+    let {query, filterValue, updateExistingKeys, filterValueJson, removeKeys} =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->Js.Json.string}
     open FilterUtils
-    let getModuleFilters = useFiltersValue(~index)->parseFilterString
-    let getFilterData = useGetFiltersData(~index)
-    let updateComponentPrefrences = useUpdateFilterObject(~index)
+    let getModuleFilters = query->parseFilterString
+    let getFilterData = useGetFiltersData()
     let setInitialFilters = useSetInitialFilters(
-      ~updateComponentPrefrences,
       ~updateExistingKeys,
       ~startTimeFilterKey,
       ~endTimeFilterKey,
@@ -247,16 +237,7 @@ module RemoteTableFilters = {
     let filterDataJson = filterUrl->getFilterData(filterBody)
     let filterData = filterDataJson->Belt.Option.getWithDefault(Js.Dict.empty()->Js.Json.object_)
 
-    let filterValueString = useFiltersValue(~index)
     React.useEffect1(() => {
-      if filterValueString->HSwitchUtils.isEmptyString {
-        updateComponentPrefrences(~dict=filterValue)
-      }
-      None
-    }, [filterValueString])
-
-    React.useEffect1(() => {
-      updateComponentPrefrences(~dict=filterValue)
       if filterValueJson->Js.Dict.keys->Js.Array2.length > 0 {
         setFilters(_ => filterValueJson->Some)
         setOffset(_ => 0)
@@ -293,7 +274,6 @@ module RemoteTableFilters = {
     switch filterDataJson {
     | Some(_) =>
       <RemoteFilter
-        index
         key="0"
         customViewTop
         defaultFilters
@@ -315,7 +295,6 @@ module RemoteTableFilters = {
       />
     | _ =>
       <RemoteFilter
-        index
         key="1"
         customViewTop
         defaultFilters

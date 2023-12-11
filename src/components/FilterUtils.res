@@ -1,36 +1,3 @@
-let useFiltersObject = () => {
-  open HyperswitchAtom
-  filtersAtom
-  ->Recoil.useRecoilValueFromAtom
-  ->LogicUtils.safeParse
-  ->Js.Json.decodeObject
-  ->Belt.Option.getWithDefault(Js.Dict.empty())
-}
-
-let useFiltersValue = (~index) => {
-  open LogicUtils
-  open HyperswitchAtom
-  filtersAtom
-  ->Recoil.useRecoilValueFromAtom
-  ->safeParse
-  ->Js.Json.decodeObject
-  ->Belt.Option.getWithDefault(Js.Dict.empty())
-  ->Js.Dict.get(index)
-  ->Belt.Option.getWithDefault(""->Js.Json.string)
-  ->getStringFromJson("")
-}
-
-let useAddFilters = (~index) => {
-  open HyperswitchAtom
-  let filters = useFiltersObject()
-  let setFilters = filtersAtom->Recoil.useSetRecoilState
-
-  value => {
-    filters->Js.Dict.set(index, value->Js.Json.string)
-    setFilters(._ => filters->Js.Json.object_->Js.Json.stringify)
-  }
-}
-
 let parseFilterString = queryString => {
   queryString
   ->Js.Global.decodeURI
@@ -42,27 +9,4 @@ let parseFilterString = queryString => {
     key === "" || val === "" ? None : Some((key, val))
   })
   ->Js.Dict.fromArray
-}
-
-let useUpdateFilterObject = (~index: string) => {
-  let filters = useFiltersValue(~index)
-  let setFilters = useAddFilters(~index)
-
-  let updateFilter = (~dict: Js.Dict.t<string>) => {
-    let currentSearchParamsDict = filters->parseFilterString
-
-    let searchParam =
-      dict
-      ->Js.Dict.entries
-      ->Js.Array2.map(item => {
-        let (key, value) = item
-        `${key}=${value}`
-      })
-      ->Js.Array2.joinWith("&")
-
-    if !DictionaryUtils.equalDicts(currentSearchParamsDict, dict) {
-      setFilters(searchParam)
-    }
-  }
-  updateFilter
 }

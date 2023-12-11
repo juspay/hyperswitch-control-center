@@ -170,9 +170,7 @@ let make = (
   let defaultFilters = ""->Js.Json.string
   let (showModal, setShowModal) = React.useState(_ => false)
 
-  let {index, updateExistingKeys, filterValue, removeKeys} = React.useContext(
-    FilterContext.filterContext,
-  )
+  let {updateExistingKeys, filterValue, removeKeys} = React.useContext(FilterContext.filterContext)
 
   let currentCustomFilterValue =
     filterValue->Js.Dict.get(customFilterKey)->Belt.Option.getWithDefault("")
@@ -219,7 +217,6 @@ let make = (
 
   <div className="flex-1 ml-1">
     <RemoteFilter
-      index
       defaultFilters
       fixedFilters=initialFixedFilters
       requiredSearchFieldsList=[]
