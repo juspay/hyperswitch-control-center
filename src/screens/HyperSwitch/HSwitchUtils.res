@@ -16,7 +16,6 @@ type browserDetailsObject = {
 
 let feedbackModalOpenCountForConnectors = 4
 
-external objToJson: {..} => Js.Json.t = "%identity"
 let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
 
 type pageLevelVariant =

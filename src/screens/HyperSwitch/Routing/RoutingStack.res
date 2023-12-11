@@ -1,5 +1,4 @@
 open APIUtils
-external toJson: 'a => Js.Json.t = "%identity"
 @react.component
 let make = (~remainingPath, ~previewOnly=false) => {
   let fetchDetails = useGetMethod()

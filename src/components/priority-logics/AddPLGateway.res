@@ -1,4 +1,3 @@
-external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
 type gateway = PriorityLogicUtils.gateway
 
 module GatewayView = {
@@ -105,7 +104,7 @@ let make = (
     name: "gateways",
     onBlur: _ev => (),
     onChange: ev => {
-      let newSelectedOptions = ev->formEventToStrArr
+      let newSelectedOptions = ev->Identity.formReactEventToArrayOfString
       if newSelectedOptions->Js.Array2.length === 0 {
         gateWaysInput.onChange([]->Identity.anyTypeToReactEvent)
       } else {

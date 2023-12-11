@@ -64,7 +64,7 @@ let make = (
                 {
                   key: string_of_int(i),
                   options: obj.options,
-                  selected: ev->formEventToStrArr,
+                  selected: ev->Identity.formReactEventToArrayOfString,
                 }
               } else {
                 obj
