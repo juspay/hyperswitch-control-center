@@ -67,18 +67,23 @@ let make = (~children) => {
     }
 
     let reset = () => {
-      setfilterDict(_ => Js.Dict.empty())
+      let dict = Js.Dict.empty()
+      setfilterDict(_ => dict)
+      setQuery(_ => dict->FilterUtils.parseFilterDict)
     }
 
     let removeKeys = (arr: array<string>) => {
       setfilterDict(prev => {
         let updatedDict =
           prev->Js.Dict.entries->Js.Array2.copy->Js.Dict.fromArray->DictionaryUtils.deleteKeys(arr)
-        if DictionaryUtils.equalDicts(updatedDict, prev) {
+        let dict = if DictionaryUtils.equalDicts(updatedDict, prev) {
           prev
         } else {
           updatedDict
         }
+
+        setQuery(_ => dict->FilterUtils.parseFilterDict)
+        dict
       })
     }
     {
