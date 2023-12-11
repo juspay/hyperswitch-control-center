@@ -83,11 +83,10 @@ let getFilterFields: Js.Json.t => array<EntityType.optionType<'t>> = json => {
 }
 
 let useSetInitialFilters = (~updateExistingKeys, ~startTimeFilterKey, ~endTimeFilterKey) => {
-  open FilterUtils
-  let {query, filterValueJson} = FilterContext.filterContext->React.useContext
+  let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {
-    let inititalSearchParam = query->parseFilterString
+    let inititalSearchParam = Js.Dict.empty()
 
     let defaultDate = getDateFilteredObject()
 
@@ -205,11 +204,10 @@ module RemoteTableFilters = {
     ~setOffset,
     (),
   ) => {
-    let {query, filterValue, updateExistingKeys, filterValueJson, removeKeys} =
+    let {filterValue, updateExistingKeys, filterValueJson, removeKeys} =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->Js.Json.string}
-    open FilterUtils
-    let getModuleFilters = query->parseFilterString
+
     let getFilterData = useGetFiltersData()
     let setInitialFilters = useSetInitialFilters(
       ~updateExistingKeys,
@@ -224,8 +222,10 @@ module RemoteTableFilters = {
       None
     })
 
-    let endTimeVal = endTimeFilterKey->getDateValue(~getModuleFilters)
-    let startTimeVal = startTimeFilterKey->getDateValue(~getModuleFilters)
+    let endTimeVal = filterValueJson->getString(endTimeFilterKey, "")
+    let startTimeVal = filterValueJson->getString(startTimeFilterKey, "")
+
+    Js.log3(">>", endTimeVal, startTimeVal)
 
     let filterBody = React.useMemo3(() => {
       [
