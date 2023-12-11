@@ -1,3 +1,12 @@
+module WarningArea = {
+  @react.component
+  let make = (~warningText) => {
+    <h1 className="text-orange-950 bg-orange-100 border w-full py-2 px-4 rounded-md ">
+      <span className="text-orange-950 font-bold text-fs-14 mr-2"> {"NOTE:"->React.string} </span>
+      {warningText->React.string}
+    </h1>
+  }
+}
 module AddEntryBtn = {
   @react.component
   let make = (
@@ -51,7 +60,10 @@ module AddEntryBtn = {
           </Form>
         | Successful =>
           <div className="flex flex-col gap-6 justify-center items-end mx-4">
-            <p className="text-grey-700 opacity-50 ">
+            <WarningArea
+              warningText="Warning! Now that you've configured more than one profile, you must mandatorily pass 'profile_id' in payments API request every time"
+            />
+            <p className="text-grey-700">
               {"Business Profile successfully created! Set up your payments settings like webhooks, return url for your new profile before trying a payment."->React.string}
             </p>
             <Button
@@ -63,7 +75,7 @@ module AddEntryBtn = {
                   setModalState(_ => Edit)
                 }
               }}
-              customButtonStyle="!w-1/3"
+              customButtonStyle="!w-1/3 mt-6"
             />
           </div>
         }}
@@ -155,11 +167,16 @@ let make = (
   <PageLoaderWrapper screenState>
     <UIUtils.RenderIf condition=isFromSettings>
       <div className="relative h-full">
-        <div className="flex flex-col-reverse md:flex-col">
+        <div className="flex flex-col-reverse md:flex-col gap-2">
           <PageUtils.PageHeading
             title="Business Profiles"
             subTitle="Add and manage profiles to represent different businesses across countries."
           />
+          <UIUtils.RenderIf condition={businessProfileValues->Js.Array2.length > 1}>
+            <WarningArea
+              warningText="Warning! Now that you've configured more than one profile, you must mandatorily pass 'profile_id' in payments API request every time"
+            />
+          </UIUtils.RenderIf>
           <LoadedTable
             title="Business profiles"
             hideTitle=true
