@@ -68,7 +68,6 @@ module IntegrationFieldsForm = {
     ~frmName,
     ~isUpdateFlow,
   ) => {
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let buttonText = switch pageState {
     | Error("") => "Try Again"
     | Loading => "Loading..."
