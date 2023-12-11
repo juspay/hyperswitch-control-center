@@ -308,7 +308,7 @@ let make = (
         ~url,
         ~hyperswitchMixPanel,
       )
-      setCurrentStep(_ => isPayoutFlow ? PaymentMethods : Webhooks)
+      setCurrentStep(_ => PaymentMethods)
       setScreenState(_ => Success)
       setInitialValues(_ => body)
     } catch {

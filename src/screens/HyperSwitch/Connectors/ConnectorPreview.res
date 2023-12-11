@@ -12,6 +12,26 @@ module InfoField = {
   }
 }
 
+module KeyAndCopyArea = {
+  @react.component
+  let make = (~copyValue) => {
+    let showToast = ToastState.useShowToast()
+    <div className={`flex flex-col md:flex-row gap-2 items-start`}>
+      <p className="text-base text-grey-700 opacity-70 break-all overflow-scroll">
+        {copyValue->React.string}
+      </p>
+      <div
+        className="cursor-pointer h-20 w-20 pt-1"
+        onClick={_ => {
+          Clipboard.writeText(copyValue)
+          showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+        }}>
+        <img src={`/assets/CopyToClipboard.svg`} />
+      </div>
+    </div>
+  }
+}
+
 module MenuOption = {
   open HeadlessUI
   @react.component
@@ -99,9 +119,6 @@ module ConnectorSummaryGrid = {
     ~isPayoutFlow,
     ~setScreenState,
   ) => {
-    let url = RescriptReactRouter.useUrl()
-    let showToast = ToastState.useShowToast()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
     let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
     let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
@@ -112,6 +129,10 @@ module ConnectorSummaryGrid = {
       )
       ->Belt.Option.getWithDefault(defaultBusinessProfile)
     let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
+    let copyValueOfWebhookEndpoint = ConnectorUtils.getWebhooksUrl(
+      ~connectorName={connectorInfo.merchant_connector_id},
+      ~merchantId,
+    )
     let connectorDetails = React.useMemo1(() => {
       try {
         if connector->Js.String2.length > 0 {
@@ -135,21 +156,21 @@ module ConnectorSummaryGrid = {
     let (_, connectorAccountFields, _, _, _, _) = ConnectorUtils.getConnectorFields(
       connectorDetails,
     )
-    let webhooksUrl = ConnectorUtils.getWebhooksUrl(~connectorName=connector, ~merchantId)
 
     <div className="p-2 md:px-10">
       <div className="grid grid-cols-4 my-12">
-        <h4 className="text-lg font-semibold"> {"Processor Mode"->React.string} </h4>
+        <div className="flex items-start">
+          <h4 className="text-lg font-semibold"> {"Webhook Endpoint"->React.string} </h4>
+          <ToolTip
+            height=""
+            description="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
+            toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
+            toolTipPosition=Top
+            tooltipWidthClass="w-fit"
+          />
+        </div>
         <div className="col-span-3">
-          {if connectorInfo.test_mode {
-            <span className="font-semibold p-2 px-3 bg-orange-200 rounded-full">
-              {"TEST MODE"->React.string}
-            </span>
-          } else {
-            <span className="font-semibold p-2 px-3 bg-blue-200 rounded-full">
-              {"LIVE MODE"->React.string}
-            </span>
-          }}
+          <KeyAndCopyArea copyValue={copyValueOfWebhookEndpoint} />
         </div>
       </div>
       <div className="grid grid-cols-4 my-12">
@@ -173,25 +194,6 @@ module ConnectorSummaryGrid = {
             />
           })
           ->React.array}
-        </div>
-      </div>
-      <div className="grid grid-cols-4 my-12">
-        <h4 className="text-lg font-semibold"> {"Webhooks"->React.string} </h4>
-        <div className="flex col-span-3">
-          <div> {webhooksUrl->React.string} </div>
-          <img
-            src={`/assets/CopyToClipboard.svg`}
-            onClick={_ => {
-              Clipboard.writeText(webhooksUrl)
-              showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
-              hyperswitchMixPanel(
-                ~pageName=`${url.path->LogicUtils.getListHead}`,
-                ~contextName="webhook_processor",
-                ~actionName="hs_webhookcopied",
-                (),
-              )
-            }}
-          />
         </div>
       </div>
       <div className="grid grid-cols-4  my-12">
