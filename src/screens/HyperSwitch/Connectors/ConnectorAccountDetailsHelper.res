@@ -1,5 +1,3 @@
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
-external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
 let metaDataInputKeysToIgnore = ["google_pay", "apple_pay", "zen_apple_pay"]
 
 let getCurrencyOption: CurrencyUtils.currencyCode => SelectBox.dropdownOption = currencyType => {
