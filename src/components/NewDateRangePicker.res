@@ -1,6 +1,4 @@
 open DateTimeUtils
-external strToForm: string => ReactEvent.Form.t = "%identity"
-external formEvAsString: ReactEvent.Form.t => string = "%identity"
 
 let defaultCellHighlighter = (_): NewCalendar.highlighter => {
   {
@@ -293,7 +291,7 @@ module Base = {
         setStartDateVal(_ => localStartDate)
         setEndDateVal(_ => localEndDate)
         switch optInput {
-        | Some(ip) => ip.onChange(localOpt->strToForm)
+        | Some(ip) => ip.onChange(localOpt->Identity.stringToFormReactEvent)
         | None => ()
         }
       }
@@ -303,19 +301,6 @@ module Base = {
       setLocalEndDate(_ => endDateVal)
       setLocalOpt(_ => optInputVal)
     }
-
-    // OutsideClick.useOutsideClick(
-    //   ~refs=ArrayOfRef([dateRangeRef, dropdownRef]),
-    //   ~isActive=isDropdownExpanded || calendarVisibility,
-    //   ~callback=() => {
-    //     setIsDropdownExpanded(_ => false)
-    //     setCalendarVisibility(p => !p)
-    //     if isDropdownExpandedActual && isCustomSelected {
-    //       resetToInitalValues()
-    //     }
-    //   },
-    //   (),
-    // )
 
     let changeEndDate = (ele, isFromCustomInput, time) => {
       if disableApply {
@@ -435,7 +420,7 @@ module Base = {
       setIsDropdownExpanded(_ => false)
       saveDates()
       switch optInput {
-      | Some(ip) => ip.onChange("custom_range"->strToForm)
+      | Some(ip) => ip.onChange("custom_range"->Identity.stringToFormReactEvent)
       | None => ()
       }
     }
@@ -804,14 +789,12 @@ module Base = {
   }
 }
 
-external asFormEvent: string => ReactEvent.Form.t = "%identity"
-
 let useStateForInput = (input: ReactFinalForm.fieldRenderPropsInput) => {
   React.useMemo1(() => {
     let val = input.value->Js.Json.decodeString->Belt.Option.getWithDefault("")
     let onChange = fn => {
       let newVal = fn(val)
-      input.onChange(newVal->asFormEvent)
+      input.onChange(newVal->Identity.stringToFormReactEvent)
     }
 
     (val, onChange)

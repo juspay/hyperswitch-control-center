@@ -1,4 +1,3 @@
-external strToForm: string => ReactEvent.Form.t = "%identity"
 external intToFormEvent: int => ReactEvent.Form.t = "%identity"
 
 open TimeRangeInputUtils

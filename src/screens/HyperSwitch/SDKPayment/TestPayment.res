@@ -70,15 +70,14 @@ let make = (
     )
     if status === "succeeded" {
       setPaymentStatus(_ => SUCCESS)
-      setPaymentId(_ => paymentIdFromPaymemtIntentClientSecret)
     } else if status === "failed" {
       setPaymentStatus(_ => FAILED(""))
-      setPaymentId(_ => paymentIdFromPaymemtIntentClientSecret)
     } else if status === "processing" {
       setPaymentStatus(_ => PROCESSING)
     } else {
       setPaymentStatus(_ => INCOMPLETE)
     }
+    setPaymentId(_ => paymentIdFromPaymemtIntentClientSecret)
     if status->Js.String2.length <= 0 && keyValue->Js.String2.length > 0 {
       getClientSecret()->ignore
     }
@@ -116,6 +115,7 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-yellow-pending_page_bg"
+        isButtonVisible={paymentId->Belt.Option.isSome}
       />
 
     | PROCESSING =>
@@ -126,6 +126,7 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-yellow-pending_page_bg"
+        isButtonVisible={paymentId->Belt.Option.isSome}
       />
     | _ => React.null
     }}

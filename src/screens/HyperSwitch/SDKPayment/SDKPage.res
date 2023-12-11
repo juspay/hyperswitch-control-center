@@ -1,6 +1,5 @@
 let h3Leading2Style = HSwitchUtils.getTextClass(~textVariant=H3, ~h3TextVariant=Leading_2, ())
 external toJson: 'a => Js.Json.t = "%identity"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
 external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
 
 module SDKConfiguarationFields = {
@@ -55,7 +54,8 @@ module SDKConfiguarationFields = {
             value: (initialValues.amount / 100)->string_of_int->Js.Json.string,
             onChange: {
               ev => {
-                let eventValueToInt = ev->formEventToStr->LogicUtils.getIntFromString(0)
+                let eventValueToInt =
+                  ev->Identity.formReactEventToString->LogicUtils.getIntFromString(0)
                 let valInCents = (eventValueToInt * 100)->string_of_int->strToFormEvent
                 input.onChange(valInCents)
               }

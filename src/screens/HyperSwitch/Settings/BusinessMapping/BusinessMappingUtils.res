@@ -17,7 +17,7 @@ let labelField = FormRenderer.makeFieldInfo(
   (),
 )
 
-type modalState = Loading | Edit
+type modalState = Loading | Edit | Successful
 
 let validateEmptyValue = (key, errors) => {
   switch key {

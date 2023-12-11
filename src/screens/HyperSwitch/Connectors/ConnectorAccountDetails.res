@@ -1,6 +1,4 @@
 external formEventToBool: ReactEvent.Form.t => bool = "%identity"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
-external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
 
 let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorName> = [
   ADYEN,
@@ -72,11 +70,13 @@ module BusinessProfileRender = {
                     let profileName = (
                       arrayOfBusinessProfile
                       ->Js.Array2.find((ele: HSwitchSettingTypes.profileEntity) =>
-                        ele.profile_id === ev->formEventToStr
+                        ele.profile_id === ev->Identity.formReactEventToString
                       )
                       ->Belt.Option.getWithDefault(defaultBusinessProfile)
                     ).profile_name
-                    connectorLabelOnChange(`${selectedConnector}_${profileName}`->strToFormEvent)
+                    connectorLabelOnChange(
+                      `${selectedConnector}_${profileName}`->Identity.stringToFormReactEvent,
+                    )
                     input.onChange(ev)
                     mixpanelEventWrapper(
                       ~url,

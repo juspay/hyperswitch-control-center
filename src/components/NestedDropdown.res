@@ -3,7 +3,6 @@ type rec options = {
   value: string,
   options?: array<options>,
 }
-external formToArray: 'a => ReactEvent.Form.t = "%identity"
 
 module RenderOption = {
   @react.component
@@ -38,7 +37,7 @@ module RenderOption = {
         }
         setSelectedData(_ => data)
         setSelectedDataVal(_ => dataN)
-        input.onChange(data->formToArray)
+        input.onChange(data->Identity.anyTypeToReactEvent)
       }
       if selectedInd != index {
         setSelectedInd(_ => index)
@@ -134,7 +133,7 @@ module RenderOptionList = {
     | None => false
     }
     let onClick = _ => {
-      input.onChange(selectedData->formToArray)
+      input.onChange(selectedData->Identity.anyTypeToReactEvent)
     }
     <>
       <div

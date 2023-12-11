@@ -1,5 +1,4 @@
 external objToJson: {..} => Js.Json.t = "%identity"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
 
 type dataPoint = {y: int, name: string}
 
@@ -160,7 +159,7 @@ let make = (
           let filterInput: ReactFinalForm.fieldRenderPropsInput = {
             name: "Get By",
             onBlur: _ev => (),
-            onChange: ev => {setGroupBy(_ => ev->formEventToStr)},
+            onChange: ev => {setGroupBy(_ => ev->Identity.formReactEventToString)},
             onFocus: _ev => (),
             value: groupBy->Js.Json.string,
             checked: true,
