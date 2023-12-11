@@ -163,11 +163,11 @@ module RenderConnectorInputFields = {
     let keys =
       details->Js.Dict.keys->Js.Array2.filter(ele => !Js.Array2.includes(keysToIgnore, ele))
     keys
-    ->Array.mapWithIndex((field, index) => {
+    ->Array.map(field => {
       let label = details->getString(field, "")
       let formName = isLabelNested ? `${name}.${field}` : name
       <UIUtils.RenderIf condition={label->Js.String2.length > 0}>
-        <div key={index->string_of_int}>
+        <div key={label}>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
             field={switch (connector, field) {
@@ -225,11 +225,11 @@ module RenderConnectorLabel = {
     let keys =
       details->Js.Dict.keys->Js.Array2.filter(ele => !Js.Array2.includes(keysToIgnore, ele))
     keys
-    ->Array.mapWithIndex((field, index) => {
+    ->Array.map(field => {
       let label = details->getString(field, "")
       let formName = isLabelNested ? `${name}.${field}` : name
       <UIUtils.RenderIf condition={label->Js.String2.length > 0}>
-        <div key={index->string_of_int}>
+        <div key={label}>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
             field={inputFieldForConnectorLabel(
