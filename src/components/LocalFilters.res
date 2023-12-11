@@ -1,8 +1,6 @@
 let makeFieldInfo = FormRenderer.makeFieldInfo
 
 external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
-external jsonToStr: Js.Json.t => array<string> = "%identity"
-external typesToFormEvent: string => ReactEvent.Form.t = "%identity"
 
 module CheckLocalFilters = {
   @react.component

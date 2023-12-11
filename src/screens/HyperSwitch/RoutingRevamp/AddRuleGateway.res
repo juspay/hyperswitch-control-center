@@ -1,7 +1,4 @@
-external arrToReactEvent: array<string> => ReactEvent.Form.t = "%identity"
-external toReactEvent: 'a => ReactEvent.Form.t = "%identity"
 external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
 external toJson: 'a => Js.Json.t = "%identity"
 external anyToEnum: 'a => AdvancedRoutingTypes.connectorSelectionData = "%identity"
 
@@ -22,7 +19,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
     } else {
       "priority"
     }
-    gateWaysType.onChange(typeString->toReactEvent)
+    gateWaysType.onChange(typeString->Identity.anyTypeToReactEvent)
     None
   }, [isDistributeInput.value])
 
@@ -42,7 +39,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
       let newSelectedOptions = ev->formEventToStrArr
 
       if newSelectedOptions->Js.Array2.length === 0 {
-        gateWaysInput.onChange([]->toReactEvent)
+        gateWaysInput.onChange([]->Identity.anyTypeToReactEvent)
       } else {
         let gatewaysArr = newSelectedOptions->Js.Array2.map(item => {
           open AdvancedRoutingTypes
@@ -67,7 +64,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
             }->toJson
           }
         })
-        gateWaysInput.onChange(gatewaysArr->toReactEvent)
+        gateWaysInput.onChange(gatewaysArr->Identity.anyTypeToReactEvent)
       }
     },
     onFocus: _ev => (),
@@ -106,7 +103,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
       | VolumeObject(obj) => obj.connector->toJson
       }
     })
-    gateWaysInput.onChange(gatewaysArr->toReactEvent)
+    gateWaysInput.onChange(gatewaysArr->Identity.anyTypeToReactEvent)
   }
 
   let updatePercentage = (item: AdvancedRoutingTypes.connectorSelectionData, value) => {
@@ -134,7 +131,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
           }->toJson
         }
       })
-      gateWaysInput.onChange(newList->toReactEvent)
+      gateWaysInput.onChange(newList->Identity.anyTypeToReactEvent)
     }
   }
 
@@ -145,7 +142,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
         AdvancedRoutingUtils.getConnectorStringFromConnectorSelectionData(i).merchant_connector_id
       )
       ->Array.filterWithIndex((_, i) => i !== index)
-      ->toReactEvent,
+      ->Identity.anyTypeToReactEvent,
     )
   }
 
@@ -234,7 +231,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
             <CheckBoxIcon
               isSelected=isDistribute
               setIsSelected={v => {
-                isDistributeInput.onChange(v->toReactEvent)
+                isDistributeInput.onChange(v->Identity.anyTypeToReactEvent)
                 onClickDistribute(v)
               }}
               isDisabled=false

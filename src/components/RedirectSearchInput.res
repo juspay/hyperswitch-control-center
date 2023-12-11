@@ -1,5 +1,3 @@
-external inputAsString: ReactEvent.Form.t => string = "%identity"
-external stringToForm: string => ReactEvent.Form.t = "%identity"
 external toReactForm: Js.Json.t => ReactEvent.Form.t = "%identity"
 
 module SearchInput = {
@@ -21,7 +19,10 @@ module SearchInput = {
       let key = ev->ReactEvent.Keyboard.key
       let keyCode = ev->ReactEvent.Keyboard.keyCode
       if key === "Enter" || keyCode === 13 {
-        let value = {ev->ReactEvent.Keyboard.target}["value"]->inputAsString->Js.String2.trim
+        let value =
+          {ev->ReactEvent.Keyboard.target}["value"]
+          ->Identity.formReactEventToString
+          ->Js.String2.trim
         if value !== "" {
           RescriptReactRouter.push(`${redirectUrl}${value}`)
         }

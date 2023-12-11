@@ -1,11 +1,10 @@
 external toString: option<Js.Json.t> => string = "%identity"
 external convertToStrDict: 't => Js.Json.t = "%identity"
-external evToString: ReactEvent.Form.t => string = "%identity"
 external objToJson: {..} => Js.Json.t = "%identity"
 external toJson: exn => Js.Json.t = "%identity"
 external toRespJson: Fetch.Response.t => Js.Json.t = "%identity"
 @get external keyCode: 'a => int = "keyCode"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
+
 type window
 @val external window: window = "window"
 @scope("window") @val external parent: window = "parent"
@@ -348,7 +347,7 @@ module AnalyticsSaveViewNew = {
       name: "savedView",
       onBlur: _ev => (),
       onChange: ev => {
-        let appliedVal = ev->formEventToStr
+        let appliedVal = ev->Identity.formReactEventToString
         if appliedVal === "baseView" {
           updateExistingKeys(defaultSearchDict)
           setAppliedSaveView(_ => SaveViewEntity.defaultSaveView)
@@ -1305,7 +1304,7 @@ module SankeyWithDropDown = {
       onBlur: _ev => (),
       onChange: ev => {
         setSankeyCardinality(_ => {
-          ev->formEventToStr->Belt.Int.fromString->Belt.Option.getWithDefault(5)
+          ev->Identity.formReactEventToString->Belt.Int.fromString->Belt.Option.getWithDefault(5)
         })
       },
       onFocus: _ev => (),
@@ -1651,7 +1650,7 @@ module ErrorOnCellClick = {
     let modalInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "modalInput",
       onBlur: _ev => (),
-      onChange: ev => renderModalChart(ev->evToString),
+      onChange: ev => renderModalChart(ev->Identity.formReactEventToString),
       onFocus: _ev => (),
       value: ""->Js.Json.string,
       checked: true,

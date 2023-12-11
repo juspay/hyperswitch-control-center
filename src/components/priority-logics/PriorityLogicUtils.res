@@ -1,5 +1,3 @@
-external toReactEvent: 'a => ReactEvent.Form.t = "%identity"
-
 type val =
   StringArray(array<string>) | String(string) | IntArray(array<int>) | Int(int) | Bool(bool)
 

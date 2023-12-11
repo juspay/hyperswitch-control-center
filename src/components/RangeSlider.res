@@ -1,4 +1,3 @@
-external toReactEvent: 'a => ReactEvent.Form.t = "%identity"
 @react.component
 let make = (
   ~max="5000",
@@ -148,7 +147,7 @@ let make = (
               maxSlide.value->Js.Json.decodeNumber->Belt.Option.getWithDefault(0.)
             if minVal >= min && minVal < maxSliderValue {
               setHasError(((_, max)) => (false, max))
-              minSlide.onChange(ev->toReactEvent)
+              minSlide.onChange(ev->Identity.anyTypeToReactEvent)
             } else {
               setHasError(((_, max)) => (true, max))
             }
@@ -166,7 +165,7 @@ let make = (
                 maxSlide.value->Js.Json.decodeNumber->Belt.Option.getWithDefault(0.)
               if minVal >= min && minVal <= maxSliderValue {
                 setHasError(((_, max)) => (false, max))
-                minSlide.onChange(ev->toReactEvent)
+                minSlide.onChange(ev->Identity.anyTypeToReactEvent)
               } else {
                 setHasError(((_, max)) => (true, max))
               }
@@ -188,7 +187,7 @@ let make = (
               minSlide.value->Js.Json.decodeNumber->Belt.Option.getWithDefault(0.)
             if maxVal <= max && maxVal > minSliderValue {
               setHasError(((min, _)) => (min, false))
-              maxSlide.onChange(ev->toReactEvent)
+              maxSlide.onChange(ev->Identity.anyTypeToReactEvent)
             } else {
               setHasError(((min, _)) => (min, true))
             }
@@ -207,7 +206,7 @@ let make = (
             if key === "Enter" || keyCode === 13 {
               if maxVal <= max && maxVal >= minSliderValue {
                 setHasError(((min, _)) => (min, false))
-                maxSlide.onChange(ev->toReactEvent)
+                maxSlide.onChange(ev->Identity.anyTypeToReactEvent)
               } else {
                 setHasError(((min, _)) => (min, true))
               }

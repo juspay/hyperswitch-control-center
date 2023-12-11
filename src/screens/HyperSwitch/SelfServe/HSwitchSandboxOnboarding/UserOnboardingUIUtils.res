@@ -1,4 +1,3 @@
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
 open UserOnboardingTypes
 open UserOnboardingUtils
 
@@ -284,7 +283,7 @@ module BackendFrontendPlatformLangDropDown = {
       name: "Platform Selecr",
       onBlur: _ev => (),
       onChange: ev => {
-        let val = ev->formEventToStr->getPlatform
+        let val = ev->Identity.formReactEventToString->getPlatform
         setPlatform(_ => val)
         hyperswitchMixPanel(~pageName=urlHead, ~contextName, ~actionName={(val :> string)}, ())
       },
@@ -300,7 +299,7 @@ module BackendFrontendPlatformLangDropDown = {
       name: "BackEnd",
       onBlur: _ev => (),
       onChange: ev => {
-        let val = ev->formEventToStr->getLangauge
+        let val = ev->Identity.formReactEventToString->getLangauge
         setBackEndLang(_ => val)
         hyperswitchMixPanel(~pageName=urlHead, ~contextName, ~actionName={(val :> string)}, ())
       },
@@ -312,7 +311,7 @@ module BackendFrontendPlatformLangDropDown = {
       name: "FrontEnd",
       onBlur: _ev => (),
       onChange: ev => {
-        let val = ev->formEventToStr->getLangauge
+        let val = ev->Identity.formReactEventToString->getLangauge
         setFrontEndLang(_ => val)
         hyperswitchMixPanel(~pageName=urlHead, ~contextName, ~actionName={(val :> string)}, ())
       },

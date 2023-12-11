@@ -16,13 +16,11 @@ external event: string => event = "Event"
 @val @scope(("window", "location")) external windowOrigin: string = "origin"
 external toString: option<Js.Json.t> => string = "%identity"
 external convertToStrDict: 't => Js.Json.t = "%identity"
-external evToString: ReactEvent.Form.t => string = "%identity"
 external objToJson: {..} => Js.Json.t = "%identity"
 
 external toJson: exn => Js.Json.t = "%identity"
 external toRespJson: Fetch.Response.t => Js.Json.t = "%identity"
 @get external keyCode: 'a => int = "keyCode"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
 
 external formEventToBoolean: ReactEvent.Form.t => bool = "%identity"
 @send external querySelectorAll: (document, string) => array<Dom.element> = "querySelectorAll"

@@ -1,5 +1,4 @@
 external formEventToBool: ReactEvent.Form.t => bool = "%identity"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
 
 let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorName> = [
   ADYEN,
