@@ -1,7 +1,5 @@
 let makeFieldInfo = FormRenderer.makeFieldInfo
 
-external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
-
 @val @scope(("window", "location"))
 external reload: unit => unit = "reload"
 @val @scope(("window", "location"))
@@ -288,7 +286,7 @@ module CheckCustomFilters = {
     let values = formState.values
 
     let onChangeSelect = ev => {
-      let fieldNameArr = ev->formEventToStrArr
+      let fieldNameArr = ev->Identity.formReactEventToArrayOfString
       let newlyAdded = Js.Array2.filter(fieldNameArr, newVal =>
         !Js.Array2.includes(checkedFilters, newVal)
       )

@@ -3,10 +3,7 @@ open AdvancedRoutingUtils
 open FormRenderer
 
 external arrToFormEvent: array<'a> => ReactEvent.Form.t = "%identity"
-external toForm: 'a => ReactEvent.Form.t = "%identity"
 external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
-external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
 
 module LogicalOps = {
   @react.component
@@ -55,8 +52,8 @@ module OperatorInp = {
       name: "string",
       onBlur: _ev => (),
       onChange: ev => {
-        let value = ev->formEventToStr
-        operator.onChange(value->toForm)
+        let value = ev->Identity.formReactEventToString
+        operator.onChange(value->Identity.anyTypeToReactEvent)
       },
       onFocus: _ev => (),
       value: operator.value,
@@ -74,7 +71,7 @@ module OperatorInp = {
       setOpVals(_ => operatorVals)
 
       if operator.value->Js.Json.decodeString->Belt.Option.isNone {
-        operator.onChange(operatorVals[0]->toForm)
+        operator.onChange(operatorVals[0]->Identity.anyTypeToReactEvent)
       }
       None
     }, (field.value, valInp.value))
@@ -139,7 +136,7 @@ module ValueInp = {
           | NOT_CONTAINS => "enum_variant_array"
           | _ => "number"
           }
-        }->toForm,
+        }->Identity.anyTypeToReactEvent,
       )
       None
     }, [valueField.value])
@@ -148,8 +145,8 @@ module ValueInp = {
       name: "string",
       onBlur: _ev => (),
       onChange: ev => {
-        let value = ev->formEventToStrArr
-        valueField.onChange(value->toForm)
+        let value = ev->Identity.formReactEventToArrayOfString
+        valueField.onChange(value->Identity.anyTypeToReactEvent)
       },
       onFocus: _ev => (),
       value: valueField.value,
@@ -209,12 +206,12 @@ module MetadataInp = {
         })
         let finalVal = Js.Array2.joinWith(arrStr, ",")->Js.Json.string
 
-        valueField.onChange(finalVal->toForm)
+        valueField.onChange(finalVal->Identity.anyTypeToReactEvent)
       },
       onChange: ev => {
         let target = ReactEvent.Form.target(ev)
         let value = target["value"]
-        valueField.onChange(value->toForm)
+        valueField.onChange(value->Identity.anyTypeToReactEvent)
       },
       onFocus: _ev => (),
       value: valueField.value,
@@ -295,11 +292,11 @@ module FieldInp = {
       name: "string",
       onBlur: _ev => (),
       onChange: ev => {
-        let value = ev->formEventToStr
+        let value = ev->Identity.formReactEventToString
         onChangeMethod(value)
-        field.onChange(value->toForm)
-        op.onChange(""->toForm)
-        val.onChange(""->toForm)
+        field.onChange(value->Identity.anyTypeToReactEvent)
+        op.onChange(""->Identity.anyTypeToReactEvent)
+        val.onChange(""->Identity.anyTypeToReactEvent)
       },
       onFocus: _ev => (),
       value: field.value,

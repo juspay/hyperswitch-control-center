@@ -26,8 +26,6 @@ module OptionVals = {
   }
 }
 
-external asFormEvent: 'a => ReactEvent.Form.t = "%identity"
-
 @react.component
 let make = (
   ~label=?,
@@ -70,7 +68,11 @@ let make = (
     let arr = [hourVal, minuteVal, secondsVal]
     Belt.Array.set(arr, index, newVal)->ignore
 
-    arr->Js.Array2.map(padNum)->Js.Array2.joinWith(":")->asFormEvent->input.onChange
+    arr
+    ->Js.Array2.map(padNum)
+    ->Js.Array2.joinWith(":")
+    ->Identity.anyTypeToReactEvent
+    ->input.onChange
   }, (hourVal, minuteVal, secondsVal, input.onChange))
   let onHourChange = React.useCallback1(changeVal(0), [changeVal])
   let onMinuteChange = React.useCallback1(changeVal(1), [changeVal])

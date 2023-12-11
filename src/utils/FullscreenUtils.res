@@ -1,5 +1,3 @@
-external toBool: 'a => bool = "%identity"
-
 type elem = {
   requestFullscreen: (. unit) => unit,
   mozRequestFullScreen: (. unit) => unit,
@@ -19,26 +17,28 @@ type document = {
 @val external document: document = "document"
 
 let enableFullscreen = () => {
+  open Identity
   let elem = document.documentElement
-  if elem.requestFullscreen->toBool {
+  if elem.requestFullscreen->genericTypeToBool {
     elem.requestFullscreen(.)
-  } else if elem.mozRequestFullScreen->toBool {
+  } else if elem.mozRequestFullScreen->genericTypeToBool {
     elem.mozRequestFullScreen(.) // Firefox
-  } else if elem.webkitRequestFullscreen->toBool {
+  } else if elem.webkitRequestFullscreen->genericTypeToBool {
     elem.webkitRequestFullscreen(.) // Chrome, Safari, and Opera
-  } else if elem.msRequestFullscreen->toBool {
+  } else if elem.msRequestFullscreen->genericTypeToBool {
     elem.msRequestFullscreen(.) // Internet Explorer/Edge
   }
 }
 
 let exitFullscreen = () => {
-  if document.exitFullscreen->toBool {
+  open Identity
+  if document.exitFullscreen->genericTypeToBool {
     document.exitFullscreen(.)
-  } else if document.mozCancelFullScreen->toBool {
+  } else if document.mozCancelFullScreen->genericTypeToBool {
     document.mozCancelFullScreen(.) // Firefox
-  } else if document.msExitFullscreen->toBool {
+  } else if document.msExitFullscreen->genericTypeToBool {
     document.msExitFullscreen(.) // Internet Explorer/Edge
-  } else if document.webkitExitFullscreen->toBool {
+  } else if document.webkitExitFullscreen->genericTypeToBool {
     document.webkitExitFullscreen(.) // Chrome, Safari, and Opera
   }
 }

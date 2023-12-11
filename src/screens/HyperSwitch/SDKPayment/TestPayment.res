@@ -1,5 +1,3 @@
-external toJson: 'a => Js.Json.t = "%identity"
-
 @react.component
 let make = (
   ~returnUrl,
@@ -47,9 +45,14 @@ let make = (
     open SDKPaymentUtils
     try {
       let url = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments`
-      let paymentData = initialValues->toJson->Js.Json.stringify->safeParse->getTypedValueForPayment
+      let paymentData =
+        initialValues
+        ->Identity.genericTypeToJson
+        ->Js.Json.stringify
+        ->safeParse
+        ->getTypedValueForPayment
       paymentData.currency = paymentData.currency->getCurrencyValue
-      let body = paymentData->toJson
+      let body = paymentData->Identity.genericTypeToJson
       let response = await updateDetails(url, body, Post)
       let clientSecret = response->getDictFromJsonObject->getOptionString("client_secret")
       setPaymentId(_ => response->getDictFromJsonObject->getOptionString("payment_id"))
@@ -70,15 +73,14 @@ let make = (
     )
     if status === "succeeded" {
       setPaymentStatus(_ => SUCCESS)
-      setPaymentId(_ => paymentIdFromPaymemtIntentClientSecret)
     } else if status === "failed" {
       setPaymentStatus(_ => FAILED(""))
-      setPaymentId(_ => paymentIdFromPaymemtIntentClientSecret)
     } else if status === "processing" {
       setPaymentStatus(_ => PROCESSING)
     } else {
       setPaymentStatus(_ => INCOMPLETE)
     }
+    setPaymentId(_ => paymentIdFromPaymemtIntentClientSecret)
     if status->Js.String2.length <= 0 && keyValue->Js.String2.length > 0 {
       getClientSecret()->ignore
     }
@@ -116,6 +118,7 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-yellow-pending_page_bg"
+        isButtonVisible={paymentId->Belt.Option.isSome}
       />
 
     | PROCESSING =>
@@ -126,6 +129,7 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-yellow-pending_page_bg"
+        isButtonVisible={paymentId->Belt.Option.isSome}
       />
     | _ => React.null
     }}

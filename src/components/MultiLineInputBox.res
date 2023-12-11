@@ -1,4 +1,3 @@
-external toReactFormEvent: 'a => ReactEvent.Form.t = "%identity"
 @react.component
 let make = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
@@ -24,7 +23,7 @@ let make = (
   }
 
   let handleRemove = _ => {
-    input.onChange(""->toReactFormEvent)
+    input.onChange(""->Identity.stringToFormReactEvent)
     setError(_ => None)
     setFocus(_ => false)
     handleRemove()
@@ -51,7 +50,7 @@ let make = (
 
     if value === "" || error->Belt.Option.isNone {
       setFocus(_ => false)
-      input.onChange(value->toReactFormEvent)
+      input.onChange(value->Identity.stringToFormReactEvent)
       setShow(_ => false)
     } else {
       setError(_ => error)

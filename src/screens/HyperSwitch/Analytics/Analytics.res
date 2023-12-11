@@ -1,10 +1,7 @@
 external toString: option<Js.Json.t> => string = "%identity"
 external convertToStrDict: 't => Js.Json.t = "%identity"
-external evToString: ReactEvent.Form.t => string = "%identity"
-external asJson: 'a => Js.Json.t = "%identity"
 external sankeyTest: string => SankeyCharts.sankeyEntity = "%identity"
 @get external keyCode: 'a => int = "keyCode"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
 type window
 @val external window: window = "window"
 @scope("window") @val external parent: window = "parent"
@@ -518,11 +515,7 @@ let make = (
   ~weeklyTableMetricsCols=?,
   ~distributionArray=None,
 ) => {
-  let {generateReport} =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let analyticsType = moduleName->getAnalyticsType
   let {filterValue, updateExistingKeys} = React.useContext(
     AnalyticsUrlUpdaterContext.urlUpdaterContext,

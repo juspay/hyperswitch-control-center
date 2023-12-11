@@ -1,9 +1,5 @@
 let makeFieldInfo = FormRenderer.makeFieldInfo
 
-external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
-external jsonToStr: Js.Json.t => array<string> = "%identity"
-external typesToFormEvent: string => ReactEvent.Form.t = "%identity"
-
 module CheckLocalFilters = {
   @react.component
   let make = (
@@ -33,7 +29,7 @@ module CheckLocalFilters = {
       None
     }, [values])
     let onChangeSelect = ev => {
-      let fieldNameArr = ev->formEventToStrArr
+      let fieldNameArr = ev->Identity.formReactEventToArrayOfString
       let newlyAdded = Js.Array2.filter(fieldNameArr, newVal =>
         !Js.Array2.includes(checkedFilters, newVal)
       )

@@ -1,5 +1,3 @@
-external toNullable: Js.Json.t => Js.Nullable.t<Js.Json.t> = "%identity"
-
 let rec flattenObject = (obj, addIndicatorForObject) => {
   let newDict = Js.Dict.empty()
   switch obj->Js.Json.decodeObject {
@@ -9,7 +7,7 @@ let rec flattenObject = (obj, addIndicatorForObject) => {
     ->Js.Array2.forEach(entry => {
       let (key, value) = entry
 
-      if value->toNullable->Js.Nullable.isNullable {
+      if value->Identity.jsonToNullableJson->Js.Nullable.isNullable {
         Js.Dict.set(newDict, key, value)
       } else {
         switch value->Js.Json.decodeObject {

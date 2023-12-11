@@ -1,4 +1,3 @@
-external toReactEvent: 'a => ReactEvent.Form.t = "%identity"
 type t
 
 type formData
@@ -28,7 +27,7 @@ let make = (
     setFilenameVal(_ => "")
     onFileUpload(None)
 
-    input.onChange(""->toReactEvent)
+    input.onChange(""->Identity.stringToFormReactEvent)
   }
 
   let onChange = evt => {

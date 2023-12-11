@@ -1,5 +1,3 @@
-external strToForm: string => ReactEvent.Form.t = "%identity"
-
 let useErroryValueResetter = (
   input: ReactFinalForm.fieldRenderPropsInput,
   isoStringToCustomTimeZone,
@@ -14,7 +12,7 @@ let useErroryValueResetter = (
       }
     }
     if input.value->isErroryTimeValue {
-      input.onChange(""->strToForm)
+      input.onChange(""->Identity.stringToFormReactEvent)
     }
 
     None
@@ -327,7 +325,9 @@ let make = (
       sec,
     )
     setStartTime(_ => `${hour}:${min}:${sec}`)
-    startInput.onChange(TimeZoneHook.formattedISOString(startDateTimeCheck, format)->strToForm)
+    startInput.onChange(
+      TimeZoneHook.formattedISOString(startDateTimeCheck, format)->Identity.stringToFormReactEvent,
+    )
   }
 
   let changeEndDate = (~hour="23", ~min="59", ~sec="59", ~ele, ()) => {
@@ -345,7 +345,9 @@ let make = (
       sec,
     )
     setEndTime(_ => `${hour}:${min}:${sec}`)
-    endInput.onChange(TimeZoneHook.formattedISOString(endDateTimeCheck, format)->strToForm)
+    endInput.onChange(
+      TimeZoneHook.formattedISOString(endDateTimeCheck, format)->Identity.stringToFormReactEvent,
+    )
   }
 
   let processDate = x => {

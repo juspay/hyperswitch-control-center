@@ -468,7 +468,8 @@ module ReactWindowTableComponent = {
 
             let item = rowInfo->Belt.Array.get(rowIndex)->Belt.Option.getWithDefault([])
 
-            let style = index->LogicUtils.getJsonObjectFromDict("style")->toReactDOMStyle
+            let style =
+              index->LogicUtils.getJsonObjectFromDict("style")->Identity.jsonToReactDOMStyle
 
             <>
               <NewCell
