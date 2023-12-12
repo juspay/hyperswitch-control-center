@@ -25,6 +25,8 @@ jobs:
 
       - name: Run (adjust the command as per your project)
         run: npm run serve
+        env:
+          CI: true
 
       # - name: Wait for server to start
       #   run: |
