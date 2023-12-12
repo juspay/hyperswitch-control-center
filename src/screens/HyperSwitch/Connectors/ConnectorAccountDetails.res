@@ -30,8 +30,9 @@ module BusinessProfileRender = {
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-
     let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
+    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
+    let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
 
     let (showModalFromOtherScreen, setShowModalFromOtherScreen) = React.useState(_ => false)
 
@@ -64,6 +65,16 @@ module BusinessProfileRender = {
                 ...input,
                 onChange: {
                   ev => {
+                    let profileName = (
+                      arrayOfBusinessProfile
+                      ->Js.Array2.find((ele: HSwitchSettingTypes.profileEntity) =>
+                        ele.profile_id === ev->Identity.formReactEventToString
+                      )
+                      ->Belt.Option.getWithDefault(defaultBusinessProfile)
+                    ).profile_name
+                    connectorLabelOnChange(
+                      `${selectedConnector}_${profileName}`->Identity.stringToFormReactEvent,
+                    )
                     input.onChange(ev)
                     mixpanelEventWrapper(
                       ~url,
@@ -89,7 +100,7 @@ module BusinessProfileRender = {
       />
       <UIUtils.RenderIf condition={!isUpdateFlow}>
         <div className="text-gray-400 text-sm mt-3">
-          <span> {"Manage your list of business units"->React.string} </span>
+          <span> {"Manage your list of profiles."->React.string} </span>
           <span
             className={`ml-1 ${hereTextStyle}`}
             onClick={_ => {
@@ -272,12 +283,18 @@ let make = (
   let (showModal, setShowModal) = React.useState(_ => false)
 
   let updatedInitialVal = React.useMemo1(() => {
+    let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
+    if !isUpdateFlow {
+      initialValuesToDict->Js.Dict.set(
+        "connector_label",
+        `${connector}_${activeBusinessProfile.profile_name}`->Js.Json.string,
+      )
+    }
     if (
       connector
       ->getConnectorNameTypeFromString
       ->checkIsDummyConnector(featureFlagDetails.testProcessors) && !isUpdateFlow
     ) {
-      let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
       let apiKeyDict = [("api_key", "test_key"->Js.Json.string)]->Js.Dict.fromArray
       initialValuesToDict->Js.Dict.set("connector_account_details", apiKeyDict->Js.Json.object_)
 
