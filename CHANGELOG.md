@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.6.0 (2023-12-12)
+
+### Features
+
+- Identity file changes ([#91](https://github.com/juspay/hyperswitch-control-center/pull/91)) ([`706a414`](https://github.com/juspay/hyperswitch-control-center/commit/706a414e4e3f455ebdc9a0cbf792b240e6f1b384))
+- Routing back to Integration Fields if Connector Label already exist. ([#93](https://github.com/juspay/hyperswitch-control-center/pull/93)) ([`ff1b90b`](https://github.com/juspay/hyperswitch-control-center/commit/ff1b90b87f0188d7fca96cf9288465226317df9f))
+- Sub steps ([#56](https://github.com/juspay/hyperswitch-control-center/pull/56)) ([`16a3e18`](https://github.com/juspay/hyperswitch-control-center/commit/16a3e1850a658e397dc8f924f1bc07443e73ace5))
+- Default id for connector label ([#84](https://github.com/juspay/hyperswitch-control-center/pull/84)) ([`cc09ab5`](https://github.com/juspay/hyperswitch-control-center/commit/cc09ab534f8bc87ae71a117b965a5f1201cc5a35))
+
+### Refactors
+
+- Dead code removal. ([#92](https://github.com/juspay/hyperswitch-control-center/pull/92)) ([`6c3f3cf`](https://github.com/juspay/hyperswitch-control-center/commit/6c3f3cf326c31b3bd2aa8931c169c86238d9ad88))
+
+**Full Changelog:** [`v1.5.0...v1.6.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.5.0...v1.6.0)
+
+- - -
+
+
 ## 1.5.0 (2023-12-11)
 
 ### Features
