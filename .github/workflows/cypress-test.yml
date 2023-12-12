@@ -21,7 +21,7 @@ jobs:
         run: npm install
 
       - name: Start server (adjust the command as per your project)
-        run: npm start &
+        run: npm run start
         background: true
 
       - name: Wait for server to start
@@ -30,7 +30,7 @@ jobs:
           sleep 5
 
       - name: Run Cypress tests
-        run: npm test
+        run: npm run cy:run
         
       - name: Stop server (adjust the command as per your project)
         run: kill $(lsof -t -i:3000) || true
