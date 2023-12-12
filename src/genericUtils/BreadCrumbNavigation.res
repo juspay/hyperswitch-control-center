@@ -10,8 +10,6 @@ let arrowDivider =
     <Icon className="align-middle  text-jp-gray-930" size=8 name="chevron-right" />
   </span>
 
-let slashDivider = <Icon size=16 name="slash" className="text-jp-2-gray-40" />
-
 @react.component
 let make = (
   ~path: array<breadcrumb>=[],

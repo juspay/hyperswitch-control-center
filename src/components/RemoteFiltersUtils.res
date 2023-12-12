@@ -1,69 +1,15 @@
 type urlKEyType = Boolean | Float | Int
 
-let getQueryParamsDict = searchParams => {
-  let dict = Js.Dict.empty()
-
-  if searchParams->Js.String2.includes("=") {
-    searchParams
-    ->Js.String2.split("&")
-    ->Js.Array2.forEach(paramStr => {
-      let keyValArr = Js.String2.split(paramStr, "=")
-      let key = keyValArr[0]->Belt.Option.getWithDefault("")
-      let value = if keyValArr->Js.Array2.length > 0 {
-        keyValArr[1]->Belt.Option.getWithDefault("")
-      } else {
-        ""
-      }
-      Js.Dict.set(dict, key, value)
-    })
-  }
-  dict
-}
-
-let getQueryFinalUrl = (uri, searchParams, offset, limit) => {
-  let splitUri = Js.String2.split(uri, "?")
-  if searchParams === "" {
-    uri
-  } else {
-    let queryParamsDict = getQueryParamsDict(searchParams)
-    queryParamsDict->Js.Dict.set("offset", offset->Belt.Int.toString)
-    queryParamsDict->Js.Dict.set("limit", limit->Belt.Int.toString)
-
-    let queryParams =
-      queryParamsDict
-      ->Js.Dict.entries
-      ->Js.Array2.map(entry => {
-        let (key, value) = entry
-        let modifiedValue = switch key {
-        | "offset" => {
-            let floatValue = switch value->Belt.Float.fromString {
-            | Some(val) => val
-            | _ => 0.
-            }
-            let pageNo = (floatValue /. limit->Belt.Float.fromInt)->Js.Math.floor_int
-            (pageNo * limit)->string_of_int
-          }
-        | _ => value
-        }
-        `${key}=${modifiedValue}`
-      })
-      ->Js.Array2.joinWith("&")
-      ->LogicUtils.stringReplaceAll("%20", " ")
-
-    `${splitUri[0]->Belt.Option.getWithDefault("")}?${queryParams}`
-  }
-}
-
 let getFinalDict = (
   ~filterJson,
   ~filtersFromUrl,
-  ~options: array<EntityType.optionType<'t>>=[],
-  ~isEulerOrderEntity=false,
-  ~dropdownSearchKeyValueNames=[],
-  ~searchkeysDict=Js.Dict.empty(),
-  ~isSearchKeyArray=false,
+  ~options: array<EntityType.optionType<'t>>,
+  ~isEulerOrderEntity,
+  ~dropdownSearchKeyValueNames,
+  ~searchkeysDict,
+  ~isSearchKeyArray,
   ~defaultKeysAllowed=["offset", "order", "orderType", "merchantId"],
-  ~urlKeyTypeDict=Js.Dict.empty(),
+  ~urlKeyTypeDict,
   (),
 ) => {
   let unflattenDict = filtersFromUrl->JsonFlattenUtils.unflattenObject
@@ -211,95 +157,12 @@ let getFinalDict = (
   }
 }
 
-let updateUrlWith = (
-  url: RescriptReactRouter.url,
-  dict: Js.Dict.t<string>,
-  tableName: option<Js.String.t>,
-) => {
-  let path = url.path->Belt.List.toArray->Js.Array2.joinWith("/")
-  let tableName = tableName->Belt.Option.getWithDefault("")
-  let keys = Js.Dict.keys(dict)
-  let values = Js.Dict.values(dict)
-  let urlKeys =
-    url.search
-    ->Js.String2.split("&")
-    ->Js.Array2.map(item => {Js.String.split("=", item)[0]->Belt.Option.getWithDefault("")})
-
-  let queryParamsString = keys->Js.Array2.reducei((acc, key, idx) => {
-    let tableKey = Js.String.length(tableName) > 0 ? Js.String.concat(`-${key}`, tableName) : key
-    let keyIndex = tableKey->Js.Array.indexOf(urlKeys)
-    if keyIndex !== -1 {
-      let oldValue =
-        Js.String.split(
-          "=",
-          Js.String.split("&", acc)[keyIndex]->Belt.Option.getWithDefault(""),
-        )[1]->Belt.Option.getWithDefault("")
-      let acc =
-        acc->Js.String2.replace(
-          `${tableKey}=${oldValue}`,
-          `${tableKey}=${values[idx]->Belt.Option.getWithDefault("")}`,
-        )
-      acc
-    } else {
-      let acc = Js.String.length(acc) > 0 ? Js.String.concat(`&`, acc) : acc
-      let acc = Js.String.concat(`${tableKey}=${values[idx]->Belt.Option.getWithDefault("")}`, acc)
-      Js.Array.push(tableKey, urlKeys)->ignore
-      acc
-    }
-  }, url.search)
-
-  RescriptReactRouter.push(`/${path}?${queryParamsString}`)
-}
-
-let getOffsetFromUrl = (searchParams, defaultOffset, ~tableName=?, ()) => {
-  let tableKey = switch tableName {
-  | Some(tn) => tn->Js.String.length > 0 ? Js.String.concat(`-offset`, tn) : "offset"
-  | None => "offset"
-  }
-
-  if searchParams->Js.String.length > 0 {
-    let optionalOffsetValue =
-      searchParams
-      ->getQueryParamsDict
-      ->Js.Dict.get(tableKey)
-      ->Belt.Option.flatMap(Belt.Int.fromString)
-    switch optionalOffsetValue {
-    | Some(intNum) => intNum
-    | None => defaultOffset
-    }
-  } else {
-    defaultOffset
-  }
-}
-
 let getStrFromJson = (key, val) => {
   switch val->Js.Json.classify {
   | JSONString(str) => str
   | JSONArray(array) => array->Js.Array2.length > 0 ? `[${array->Js.Array2.joinWith(",")}]` : ""
   | JSONNumber(num) => key === "offset" ? "0" : num->Belt.Float.toInt->string_of_int
   | _ => ""
-  }
-}
-
-let getTableNamesFromURL = () => {
-  let url = RescriptReactRouter.useUrl().search
-  if url->Js.String2.length > 0 {
-    url
-    ->Js.String2.split("&")
-    ->Js.Array2.map(key => {
-      key
-      ->Js.String2.split("=")
-      ->Belt.Array.get(0)
-      ->Belt.Option.getWithDefault("")
-      ->Js.String2.split("-")
-      ->Js.Array2.slice(~start=0, ~end_=-1)
-      ->Js.Array2.map(word => {
-        word->Js.String2.charAt(0)->Js.String2.toUpperCase ++ word->Js.String2.sliceToEnd(~from=1)
-      })
-      ->Js.Array2.joinWith(" ")
-    })
-  } else {
-    []
   }
 }
 
@@ -367,8 +230,8 @@ let getLocalFiltersData = (
   ~resArr: Js.Array2.t<Js.Nullable.t<'t>>,
   ~searchParams,
   ~initialFilters: array<EntityType.initialFilters<'t>>,
-  ~dateRangeFilterDict: Js.Dict.t<Js.Json.t>=Js.Dict.empty(),
-  ~options: array<EntityType.optionType<'t>>=[],
+  ~dateRangeFilterDict: Js.Dict.t<Js.Json.t>,
+  ~options: array<EntityType.optionType<'t>>,
   (),
 ) => {
   let res = ref(resArr)
@@ -566,19 +429,4 @@ let applyFilters = (
     | None => RescriptReactRouter.push(finalCompleteUrl)
     }
   }
-}
-
-let updateUrlWithSort = (url: RescriptReactRouter.url, sortKey: string, sortValue: string) => {
-  let path = url.path->Belt.List.toArray->Js.Array2.joinWith("/")
-
-  let filters =
-    url.search
-    ->Js.String2.split("&")
-    ->Js.Array2.filter(item => !(item->Js.String2.includes("sortBy_")) && item != "")
-
-  filters->Js.Array2.push(`${sortKey}=${sortValue}`)->ignore
-
-  let queryParamsString = filters->Js.Array2.joinWith("&")
-
-  RescriptReactRouter.push(`/${path}?${queryParamsString}`)
 }
