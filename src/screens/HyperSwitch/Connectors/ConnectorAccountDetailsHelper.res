@@ -39,11 +39,15 @@ let inputField = (
   ~getPlaceholder,
   ~checkRequiredFields,
   ~disabled,
+  ~description="",
+  ~toolTipPosition: ToolTip.toolTipPosition=ToolTip.Right,
   (),
 ) =>
   FormRenderer.makeFieldInfo(
     ~label,
     ~name,
+    ~description,
+    ~toolTipPosition,
     ~customInput=InputFields.textInput(~isDisabled=disabled, ()),
     ~placeholder=switch getPlaceholder {
     | Some(fun) => fun(connector, field, label)
@@ -55,46 +59,6 @@ let inputField = (
     },
     (),
   )
-
-let inputFieldForConnectorLabel = (
-  ~name,
-  ~field,
-  ~label,
-  ~connector: ConnectorTypes.connectorName,
-  ~getPlaceholder,
-  ~checkRequiredFields,
-  ~disabled,
-) => {
-  FormRenderer.makeFieldInfo(
-    ~label,
-    ~isRequired=switch checkRequiredFields {
-    | Some(fun) => fun(connector, field)
-    | None => true
-    },
-    ~name,
-    ~description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'",
-    ~toolTipPosition=Right,
-    ~customInput=(~input, ~placeholder as _) =>
-      InputFields.textInput(
-        ~input={
-          ...input,
-          value: input.value,
-          onChange: {
-            ev => {
-              input.onChange(ev)
-            }
-          },
-        },
-        ~isDisabled=disabled,
-        ~placeholder=switch getPlaceholder {
-        | Some(fun) => fun(connector, field, label)
-        | None => `Enter ${label->LogicUtils.snakeToTitle}`
-        },
-        (),
-      ),
-    (),
-  )
-}
 
 module ErrorValidation = {
   @react.component
@@ -205,7 +169,7 @@ module RenderConnectorLabel = {
         <div key={label}>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
-            field={inputFieldForConnectorLabel(
+            field={inputField(
               ~name=formName,
               ~field,
               ~label,
@@ -213,6 +177,8 @@ module RenderConnectorLabel = {
               ~checkRequiredFields,
               ~getPlaceholder,
               ~disabled,
+              ~description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'",
+              (),
             )}
           />
           <ErrorValidation
