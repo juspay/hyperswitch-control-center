@@ -36,17 +36,24 @@ let make = (~isFromMilestoneCard=false) => {
   let getProdVerifyDetails = async () => {
     open LogicUtils
     try {
-      let url = getURL(~entityName=PROD_VERIFY, ~methodType=Fetch.Get, ())
+      let url = `${getURL(
+          ~entityName=USERS,
+          ~userType=#USER_DATA,
+          ~methodType=Get,
+          (),
+        )}?keys=ProdIntent`
       let res = await fetchDetails(url)
-      let valueDict = res->getDictFromJsonObject->getDictfromDict("response")
-      let hideHeader = valueDict->getBool(IsCompleted->getStringFromVariant, false)
+      let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, Js.Json.null)
+      let valueForProdIntent =
+        firstValueFromArray->getDictFromJsonObject->getDictfromDict("ProdIntent")
+      let hideHeader = valueForProdIntent->getBool(IsCompleted->getStringFromVariant, false)
       setIsProdIntentCompleted(_ => hideHeader)
       if !hideHeader {
-        valueDict->Js.Dict.set(POCemail->getStringFromVariant, email->Js.Json.string)
+        valueForProdIntent->Js.Dict.set(POCemail->getStringFromVariant, email->Js.Json.string)
       } else if !integrationDetails.account_activation.is_done {
         markAsDone()->ignore
       }
-      setInitialValues(_ => valueDict)
+      setInitialValues(_ => valueForProdIntent)
     } catch {
     | _ => ()
     }

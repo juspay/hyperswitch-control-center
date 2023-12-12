@@ -150,19 +150,6 @@ let getURL = (
   | PAYMENT_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/payments`
   | REFUND_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/refunds`
   | DISPUTE_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/dispute`
-  | PROD_VERIFY =>
-    switch methodType {
-    | Put
-    | Post
-    | Get =>
-      `${HSwitchGlobalVars.hyperSwitchApiPrefix}/prodintent`
-    | _ => ""
-    }
-  | FEEDBACK =>
-    switch methodType {
-    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/feedback`
-    | _ => ""
-    }
   | PAYMENT_LOGS =>
     switch methodType {
     | Get =>
@@ -180,7 +167,7 @@ let getURL = (
     switch userType {
     | #NONE => ""
     | #CONNECT_ACCOUNT => `${userUrl}/connect_account`
-    | #VERIFY_MAGIC_LINK => `${userUrl}/signin/verify`
+    | #VERIFY_MAGIC_LINK => `${userUrl}/verify_email`
     | #SIGNUP => `${userUrl}/signup`
 
     | #SIGNIN => `${userUrl}/signin`
@@ -188,7 +175,7 @@ let getURL = (
     | #VERIFY_EMAIL => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
 
     | #USER_DATA => `${userUrl}/data`
-    | #MERCHANT_DATA => `${userUrl}/data/merchant`
+    | #MERCHANT_DATA => `${userUrl}/data`
     | #INVITE
     | #RESEND_INVITE =>
       `${userUrl}/user/${(userType :> string)->Js.String2.toLowerCase}`

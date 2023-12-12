@@ -35,8 +35,9 @@ let make = (~showModal, ~setShowModal, ~initialValues=Js.Dict.empty(), ~getProdV
 
   let updateProdDetails = async values => {
     try {
-      let url = getURL(~entityName=PROD_VERIFY, ~methodType=Fetch.Post, ())
-      let body = values->getBody->Js.Json.object_
+      let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
+      let bodyValues = values->getBody->Js.Json.object_
+      let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
       showToast(
         ~toastType=ToastSuccess,
