@@ -1,5 +1,5 @@
 type roles = Users | Roles
-open HSwitchUserRoleEntity
+open UserRoleEntity
 
 @react.component
 let make = () => {
@@ -99,7 +99,7 @@ let make = () => {
               entity={userEntity}
               currrentFetchCount={usersFilterData->Js.Array2.length}
               showSerialNumber=true
-              collapseTabelRow=false
+              collapseTableRow=false
               rowHeightClass="h-20"
               tableheadingClass="h-16"
             />
@@ -118,7 +118,7 @@ let make = () => {
   <div className="flex flex-col overflow-y-scroll">
     {<>
       <PageUtils.PageHeading
-        title={"User management"}
+        title={"Team management"}
         subTitle="Manage user roles and invite members of your organisation"
       />
       <div className="relative">

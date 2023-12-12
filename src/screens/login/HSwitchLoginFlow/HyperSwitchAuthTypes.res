@@ -1,6 +1,4 @@
 type authInfo = {
-  email: string,
-  name: string,
   token: string,
   merchantId: string,
   username: string,
@@ -9,23 +7,13 @@ type authInfo = {
 type authStatus = LoggedOut | LoggedIn(authInfo) | CheckingAuthStatus
 open LogicUtils
 
-let getBoolFromSideBarConfig = dict => {
-  dict->getDictfromDict("sideBarConfig")
-}
-
 let getAuthInfo = (json, str) => {
   let dict = json->JsonFlattenUtils.flattenObject(false)
-  let emailKey = "email"
-
   let tokenKey = "token"
-
-  let name = "name"
   let merchantIdKey = "merchantId"
   let userNameKey = "username"
 
   let authInfo = {
-    name: getString(dict, name, ""),
-    email: getString(dict, emailKey, ""),
     token: getString(dict, tokenKey, str),
     merchantId: getString(dict, merchantIdKey, str),
     username: getString(dict, userNameKey, ""),
@@ -36,8 +24,6 @@ let getAuthInfo = (json, str) => {
 
 let getDummyAuthInfoForToken = token => {
   let authInfo = {
-    name: "",
-    email: "",
     token,
     merchantId: "",
     username: "",

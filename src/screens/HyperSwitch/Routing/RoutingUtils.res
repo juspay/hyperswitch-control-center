@@ -38,6 +38,7 @@ let operatorMapper = value => {
   | "GREATER THAN" => GREATER_THAN
   | "LESS THAN" => LESS_THAN
   | "EQUAL TO" => EQUAL_TO
+  | "NOT EQUAL_TO" => NOT_EQUAL_TO
   | _ => UnknownOperator("")
   }
 }
@@ -47,6 +48,7 @@ let variantTypeMapper = variantType => {
   | "number" => Number
   | "enum_variant" => Enum_variant
   | "metadata_value" => Metadata_value
+  | "str_value" => String_value
   | _ => UnknownVariant("")
   }
 }
@@ -99,6 +101,7 @@ let operatorTypeToStringMapper = operator => {
   | GREATER_THAN => "GREATER THAN"
   | LESS_THAN => "LESS THAN"
   | EQUAL_TO => "EQUAL TO"
+  | NOT_EQUAL_TO => "NOT EQUAL_TO"
   | UnknownOperator(str) => str
   }
 }
@@ -210,6 +213,7 @@ let advanceRoutingConditionMapper = (dict, wasm) => {
     | EQUAL_TO => "equal"
     | GREATER_THAN => "greater_than"
     | LESS_THAN => "less_than"
+    | NOT_EQUAL_TO => "not_equal"
     | UnknownOperator(str) => str
     },
     value: {
@@ -224,6 +228,7 @@ let advanceRoutingConditionMapper = (dict, wasm) => {
         | _ => ""
         }
       | Metadata_value => "metadata_variant"
+      | String_value => "str_value"
       | _ => ""
       }->Js.Json.string,
       "value": switch variantType->variantTypeMapper {
@@ -243,6 +248,7 @@ let advanceRoutingConditionMapper = (dict, wasm) => {
           let value = dict->getString("value", "")->Js.String2.trim->Js.Json.string
           Js.Dict.fromArray([("key", key), ("value", value)])->Js.Json.object_
         }
+      | String_value => dict->getString("value", "")->Js.Json.string
       | _ => ""->Js.Json.string
       },
     },
@@ -617,7 +623,7 @@ module SaveAndActivateButton = {
           onSubmitResponse->Js.Nullable.toOption->Belt.Option.getWithDefault(Js.Json.null)
         let currentActivatedId =
           currentActivatedFromJson->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
-        let _response = await handleActivateConfiguration(Some(currentActivatedId))
+        let _ = await handleActivateConfiguration(Some(currentActivatedId))
       } catch {
       | Js.Exn.Error(e) =>
         let _err =
@@ -682,23 +688,41 @@ let validateNameAndDescription = (~dict, ~errors) => {
   })
 }
 
+let checkIfValuePresent = dict => {
+  let valueFromObject = dict->getDictfromDict("value")
+
+  valueFromObject
+  ->getArrayFromDict("value", [])
+  ->Js.Array2.filter(ele => {
+    ele != ""->Js.Json.string
+  })
+  ->Js.Array2.length > 0 ||
+  valueFromObject->getString("value", "")->Js.String2.length > 0 ||
+  valueFromObject->getFloat("value", -1.0) !== -1.0 ||
+  (valueFromObject->getDictfromDict("value")->getString("key", "")->Js.String2.length > 0 &&
+    valueFromObject->getDictfromDict("value")->getString("value", "")->Js.String2.length > 0)
+}
+let validateConditionJsonFor3ds = json => {
+  switch json->Js.Json.decodeObject {
+  | Some(dict) =>
+    ["comparison", "lhs"]->Js.Array2.every(key => dict->Js.Dict.get(key)->Belt.Option.isSome) &&
+      dict->checkIfValuePresent
+  | None => false
+  }
+}
+
 let validateConditions = dict => {
   dict
   ->LogicUtils.getArrayFromDict("conditions", [])
   ->Js.Array2.every(MakeRuleFieldComponent.validateConditionJson)
 }
 
-let validateConditionsEvenIfOneExists = dict => {
-  let conditionsArray = dict->LogicUtils.getArrayFromDict("conditions", [])
-  let vector = Js.Vector.make(conditionsArray->Js.Array2.length, false)
+let validateConditionsFor3ds = dict => {
+  let conditionsArray = dict->LogicUtils.getArrayFromDict("statements", [])
 
-  conditionsArray->Array.forEachWithIndex((value, index) => {
-    let res = value->MakeRuleFieldComponent.validateConditionJson
-    vector->Js.Vector.set(index, res)
+  conditionsArray->Array.every(value => {
+    value->validateConditionJsonFor3ds
   })
-
-  let _result = Js.Vector.filterInPlace((. val) => val == true, vector)
-  vector
 }
 
 let filterEmptyValues = (arr: array<RoutingTypes.condition>) => {

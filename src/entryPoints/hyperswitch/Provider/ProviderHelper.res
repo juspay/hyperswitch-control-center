@@ -47,18 +47,6 @@ let itemToObjMapperForGetInfo = dict => {
   }
 }
 
-let getDefaultValueOfGetInfo = {
-  module_: "",
-  description: "",
-  permissions: [
-    {
-      enum_name: "",
-      description: "",
-      isPermissionAllowed: false,
-    },
-  ],
-}
-
 let getDefaultValueOfEnum = {
   {
     enum_name: "",

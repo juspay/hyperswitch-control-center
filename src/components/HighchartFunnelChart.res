@@ -1,6 +1,5 @@
 open Highcharts
 open LogicUtils
-external objToJson: {..} => Js.Json.t = "%identity"
 type options = {x: int}
 type tooltipPoints = {
   name: string,
@@ -50,7 +49,7 @@ let make = (
             ->Belt.Array.get(0)
             ->Belt.Option.getWithDefault("")}${opacity}`,
           "color": `${chartColors->Belt.Array.get(0)->Belt.Option.getWithDefault("")}`,
-        }->LineChartUtils.objToJson
+        }->Identity.genericObjectOrRecordToJson
       }),
       "area",
     )
@@ -70,7 +69,7 @@ let make = (
         {
           "name": key,
           "y": item->Js.Nullable.return,
-        }->LineChartUtils.objToJson
+        }->Identity.genericObjectOrRecordToJson
       })
       let values = {
         "name": key,
@@ -78,7 +77,7 @@ let make = (
         "color": chartColors->Belt.Array.get(chartItemIndex),
         "pointPlacement": "on",
         "legendIndex": chartItemIndex,
-      }->LineChartUtils.objToJson
+      }->Identity.genericObjectOrRecordToJson
       if zonesFor1D->Js.Array2.length !== 0 {
         Js.Array2.concat(
           values->getDictFromJsonObject->Js.Dict.entries,
@@ -102,12 +101,12 @@ let make = (
           "backgroundColor": Js.Nullable.null,
           "events": None,
           "marginBottom": 50,
-        }->objToJson,
+        }->Identity.genericObjectOrRecordToJson,
       ),
       title: {
         "text": "",
         "style": Js.Json.object_(Js.Dict.empty()),
-      }->objToJson,
+      }->Identity.genericObjectOrRecordToJson,
       credits: {
         "enabled": false,
       },
@@ -129,13 +128,13 @@ let make = (
         "style": {
           "color": theme === Light ? "rgba(246, 248, 249, 1)" : "rgba(25, 26, 26, 1)",
         },
-      }->objToJson,
+      }->Identity.genericObjectOrRecordToJson,
       plotOptions: Some(
         {
           "area": {
             "inverted": true,
             "lineWidth": 2,
-          }->objToJson,
+          }->Identity.genericObjectOrRecordToJson,
           "boxplot": {
             "visible": false,
           },
@@ -153,12 +152,12 @@ let make = (
               "legendItemClick": None,
               "mouseOver": Some(""),
             }),
-          }->objToJson,
-        }->objToJson,
+          }->Identity.genericObjectOrRecordToJson,
+        }->Identity.genericObjectOrRecordToJson,
       ),
       legend: {
         "enabled": false,
-      }->objToJson,
+      }->Identity.genericObjectOrRecordToJson,
       xAxis: {
         "visible": true,
         "lineWidth": 0,
@@ -175,7 +174,7 @@ let make = (
           },
         },
         "categories": categories,
-      }->objToJson,
+      }->Identity.genericObjectOrRecordToJson,
       yAxis: {
         "title": "",
         "max": maxValueForTheDataSet,
@@ -195,8 +194,8 @@ let make = (
             "letterSpacing": "1px",
             "color": theme === Light ? "#4B5468" : "rgba(246, 248, 249, 0.25)",
           },
-        }->objToJson,
-      }->objToJson,
+        }->Identity.genericObjectOrRecordToJson,
+      }->Identity.genericObjectOrRecordToJson,
       series: chartData,
     }
   }, (dataSet, categories, formatter))

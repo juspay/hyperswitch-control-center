@@ -6,7 +6,6 @@ let make = (~connectProcessorValue: connectProcessor) => {
   open QuickStartUtils
   open APIUtils
   let updateDetails = useUpdateMethod()
-
   let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
   let {quickStartPageState, setQuickStartPageState, setDashboardPageState} = React.useContext(
     GlobalProvider.defaultContext,
@@ -17,7 +16,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
   let activeBusinessProfile =
     HyperswitchAtom.businessProfilesAtom
     ->Recoil.useRecoilValueFromAtom
-    ->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    ->MerchantAccountUtils.getValueFromBusinessProfile
 
   let (selectedConnector, setSelectedConnector) = React.useState(_ => UnknownConnector(""))
   let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
@@ -42,7 +41,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
         routing_id: routingId,
       }
       let enumVariant = quickStartPageState->variantToEnumMapper
-      let _res = await RoutingType(routingVal)->usePostEnumDetails(enumVariant)
+      let _ = await RoutingType(routingVal)->usePostEnumDetails(enumVariant)
       setQuickStartPageState(_ => ConnectProcessor(CHECKOUT))
     } catch {
     | Js.Exn.Error(e) => {
@@ -78,7 +77,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
         ~id=Some(activatingId),
         (),
       )
-      let _res = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
       let _ = await updateEnumForRouting(activatingId)
       setButtonState(_ => Normal)
     } catch {
@@ -106,7 +105,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
   let updateEnumForMultipleConfigurationType = async isMultipleConfigSelected => {
     try {
       let isMultipleConfigurationType = #IsMultipleConfiguration
-      let _resp = await ConnectorChoice({
+      let _ = await ConnectorChoice({
         isMultipleConfiguration: isMultipleConfigSelected,
       })->usePostEnumDetails(isMultipleConfigurationType)
     } catch {
@@ -143,9 +142,9 @@ let make = (~connectProcessorValue: connectProcessor) => {
   let updateTestPaymentEnum = async (~paymentId) => {
     try {
       let paymentBody: paymentType = {
-        payment_id: paymentId,
+        payment_id: paymentId->Belt.Option.getWithDefault("pay_default"),
       }
-      let _resp = await PaymentType(paymentBody)->usePostEnumDetails(#TestPayment)
+      let _ = await PaymentType(paymentBody)->usePostEnumDetails(#TestPayment)
       setQuickStartPageState(_ => IntegrateApp(LANDING))
       RescriptReactRouter.replace("/quick-start")
     } catch {
@@ -259,10 +258,10 @@ let make = (~connectProcessorValue: connectProcessor) => {
               buttonSize={Small}
               buttonType={PrimaryOutline}
               customButtonStyle="!rounded-md"
-              onClick={_ => updateTestPaymentEnum(~paymentId="pay_default")->ignore}
+              onClick={_ => updateTestPaymentEnum(~paymentId=None)->ignore}
             />}>
             <TestPayment
-              initialValues={activeBusinessProfile.profile_id->SDKPaymentUtils.initialValueForForm}
+              initialValues={activeBusinessProfile->SDKPaymentUtils.initialValueForForm}
               returnUrl={`${HSwitchGlobalVars.hyperSwitchFEPrefix}/quick-start`}
               onProceed={updateTestPaymentEnum}
               keyValue=key

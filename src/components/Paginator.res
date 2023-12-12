@@ -1,5 +1,3 @@
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
-
 @react.component
 let make = (
   ~totalResults,
@@ -50,7 +48,7 @@ let make = (
     onBlur: _ev => (),
     onChange: ev => {
       setResultsPerPage(_ => {
-        ev->formEventToStr->Belt.Int.fromString->Belt.Option.getWithDefault(15)
+        ev->Identity.formReactEventToString->Belt.Int.fromString->Belt.Option.getWithDefault(15)
       })
     },
     onFocus: _ev => (),
@@ -67,12 +65,10 @@ let make = (
     setOffset(_ => newOffset)
   }, (setOffset, resultsPerPage, currrentFetchCount, url.search, totalResults))
 
-  let borderClass = !isMobileView ? "border-b border-x border-jp-2-light-gray-300 rounded-b-lg" : ""
   let marginClass = "mt-4 md:mr-0"
 
   if totalResults >= resultsPerPage {
-    <div
-      className={`flex ${flexDirection}  justify-between ${marginClass} ${paginationClass} ${borderClass}`}>
+    <div className={`flex ${flexDirection} justify-between ${marginClass} ${paginationClass} `}>
       <div className={`flex flex-row w-full ${justify}`}>
         <UIUtils.RenderIf condition={!isMobileView && showResultsPerPageSelector}>
           <div

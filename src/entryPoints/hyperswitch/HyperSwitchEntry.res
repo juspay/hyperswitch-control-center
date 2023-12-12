@@ -9,11 +9,8 @@ module HyperSwitchEntryComponent = {
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
-    let featureFlagDetails =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     React.useEffect0(() => {
       HSiwtchTimeZoneUtils.getUserTimeZone()->setZone
       None
@@ -42,7 +39,7 @@ module HyperSwitchEntryComponent = {
 
     let setPageName = pageTitle => {
       let page = pageTitle->LogicUtils.snakeToTitle
-      let title = featureFlagDetails.testLiveMode
+      let title = featureFlagDetails.isLiveMode
         ? `${page} - Dashboard`
         : `${page} - Dashboard [Test]`
       DOMUtils.document.title = title
@@ -70,13 +67,16 @@ module HyperSwitchEntryComponent = {
     let fetchFeatureFlags = async () => {
       try {
         let url = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/config/merchant-access`
-        let stringifiedResponse =
-          (await postDetails(url, Js.Dict.empty()->Js.Json.object_, Post))->Js.Json.stringify
-        setFeatureFlag(._ => stringifiedResponse)
+        let typedResponse =
+          (
+            await postDetails(url, Js.Dict.empty()->Js.Json.object_, Post)
+          )->FeatureFlagUtils.featureFlagType
+        setFeatureFlag(._ => typedResponse)
+        setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | Js.Exn.Error(e) => {
-          let _err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
-        }
+      | Js.Exn.Error(e) =>
+        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong!")
+        setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }
 
@@ -85,13 +85,15 @@ module HyperSwitchEntryComponent = {
       None
     })
 
-    <div className="text-black">
-      <HyperSwitchAuthWrapper>
-        <GlobalProvider>
-          <HyperSwitchApp />
-        </GlobalProvider>
-      </HyperSwitchAuthWrapper>
-    </div>
+    <PageLoaderWrapper screenState sectionHeight="h-screen">
+      <div className="text-black">
+        <HyperSwitchAuthWrapper>
+          <GlobalProvider>
+            <HyperSwitchApp />
+          </GlobalProvider>
+        </HyperSwitchAuthWrapper>
+      </div>
+    </PageLoaderWrapper>
   }
 }
 

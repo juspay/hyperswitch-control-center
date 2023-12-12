@@ -1,9 +1,30 @@
+module WarningArea = {
+  @react.component
+  let make = (~warningText) => {
+    <h1 className="text-orange-950 bg-orange-100 border w-full py-2 px-4 rounded-md ">
+      <span className="text-orange-950 font-bold text-fs-14 mr-2"> {"NOTE:"->React.string} </span>
+      {warningText->React.string}
+    </h1>
+  }
+}
 module AddEntryBtn = {
   @react.component
-  let make = (~onSubmit, ~modalState, ~showModal, ~setShowModal, ~list, ~isFromSettings=true) => {
+  let make = (
+    ~onSubmit,
+    ~modalState,
+    ~showModal,
+    ~setShowModal,
+    ~list,
+    ~isFromSettings=true,
+    ~updatedProfileId,
+    ~setModalState,
+  ) => {
     open HSwitchUtils
     open BusinessMappingUtils
-    let initialValues = [("profile_name", "Default"->Js.Json.string)]->Js.Dict.fromArray
+    let initialValues =
+      [
+        ("profile_name", `default${list->Js.Array2.length->string_of_int}`->Js.Json.string),
+      ]->Js.Dict.fromArray
     let modalBody =
       <div>
         {switch modalState {
@@ -37,8 +58,33 @@ module AddEntryBtn = {
               </div>
             </LabelVisibilityContext>
           </Form>
+        | Successful =>
+          <div className="flex flex-col gap-6 justify-center items-end mx-4">
+            <WarningArea
+              warningText="Warning! Now that you've configured more than one profile, you must mandatorily pass 'profile_id' in payments API request every time"
+            />
+            <p className="text-grey-700">
+              {"Business Profile successfully created! Set up your payments settings like webhooks, return url for your new profile before trying a payment."->React.string}
+            </p>
+            <Button
+              text={"Configure payment settings"}
+              buttonType=Primary
+              onClick={_ => {
+                if updatedProfileId->Js.String2.length > 0 {
+                  RescriptReactRouter.replace(`/payment-settings/${updatedProfileId}`)
+                  setModalState(_ => Edit)
+                }
+              }}
+              customButtonStyle="!w-1/3 mt-6"
+            />
+          </div>
         }}
       </div>
+
+    let modalHeaderText = switch modalState {
+    | Edit | Loading => "Add Business Profile Name"
+    | Successful => "Configure payment settings"
+    }
 
     <div>
       <UIUtils.RenderIf condition=isFromSettings>
@@ -52,7 +98,7 @@ module AddEntryBtn = {
       </UIUtils.RenderIf>
       <Modal
         showModal
-        modalHeading="Add Business Profile Name"
+        modalHeading=modalHeaderText
         setShowModal
         closeOnOutsideClick=true
         modalClass="w-full max-w-2xl m-auto !bg-white dark:!bg-jp-gray-lightgray_background">
@@ -62,57 +108,11 @@ module AddEntryBtn = {
   }
 }
 
-module BusinessUnitText = {
-  @react.component
-  let make = () => {
-    <div className="mt-10 border-2 p-8 bg-white bg-opacity-50">
-      <div className="text-black font-semibold text-fs-20 mb-3">
-        {"How this works?"->React.string}
-      </div>
-      <ol className="list-decimal flex flex-col gap-5 text-md text-black opacity-50">
-        <p>
-          {"If you have multiple business units, add them here by providing the country and a label for each unit. We have created a default business unit during your sign up"->React.string}
-        </p>
-        <p>
-          {"For Eg: If you have clothing and shoe business units in both US & GB and the 'US clothing' unit has to be your default business unit, then create the following units:"->React.string}
-        </p>
-        <ul className="list-disc list-inside">
-          <li> {"Country = US, label = default"->React.string} </li>
-          <li> {"Country = US, label = shoe"->React.string} </li>
-          <li> {"Country = GB, label = clothing"->React.string} </li>
-          <li> {"Country = GB, label = shoe"->React.string} </li>
-        </ul>
-        <p className="font-semibold"> {"Note: "->React.string} </p>
-        <ul className="list-disc list-inside">
-          <li>
-            {"When creating a connector, you need to attach it to a business unit."->React.string}
-          </li>
-          <li>
-            <span>
-              {"If you have more than one business unit, you need to send the business_country & business_label fields during"->React.string}
-            </span>
-            <span
-              className="ml-1 cursor-pointer text-blue-800"
-              onClick={_ =>
-                Window._open(
-                  "https://api-reference.hyperswitch.io/docs/hyperswitch-api-reference/60bae82472db8-payments-create",
-                )}
-              target="_blank">
-              {"payments/create API request"->React.string}
-            </span>
-          </li>
-        </ul>
-      </ol>
-    </div>
-  }
-}
-
 @react.component
 let make = (
   ~isFromSettings=true,
   ~showModalFromOtherScreen=false,
   ~setShowModalFromOtherScreen=_bool => (),
-  ~isFromWebhooks=false,
 ) => {
   open APIUtils
   open BusinessMappingUtils
@@ -124,19 +124,23 @@ let make = (
   let (showModal, setShowModal) = React.useState(_ => false)
   let (modalState, setModalState) = React.useState(_ => Edit)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (updatedProfileId, setUpdatedProfileId) = React.useState(_ => "")
 
   let businessProfileValues =
-    Recoil.useRecoilValueFromAtom(
-      HyperswitchAtom.businessProfilesAtom,
-    )->HSwitchMerchantAccountUtils.getArrayOfBusinessProfile
+    HyperswitchAtom.businessProfilesAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->MerchantAccountUtils.getArrayOfBusinessProfile
 
-  let fetchBusinessProfiles = HSwitchMerchantAccountUtils.useFetchBusinessProfiles()
+  let fetchBusinessProfiles = MerchantAccountUtils.useFetchBusinessProfiles()
 
   let updateMerchantDetails = async body => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ())
-      let _res = await updateDetails(url, body, Post)
+      let response = await updateDetails(url, body, Post)
+      setUpdatedProfileId(_ =>
+        response->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
+      )
       fetchBusinessProfiles()->ignore
       showToast(~message="Your Entry added successfully", ~toastType=ToastState.ToastSuccess, ())
       if !isFromSettings {
@@ -146,9 +150,12 @@ let make = (
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }
-    isFromSettings ? setShowModal(_ => false) : setShowModalFromOtherScreen(_ => false)
-    setModalState(_ => Edit)
-    setShowModal(_ => false)
+
+    if !isFromSettings {
+      setShowModalFromOtherScreen(_ => false)
+    }
+    setModalState(_ => Successful)
+
     Js.Nullable.null
   }
 
@@ -156,19 +163,26 @@ let make = (
     updateMerchantDetails(values)->ignore
     Js.Nullable.null
   }
-  let tableHeaderText = isFromWebhooks ? "Webhooks" : "Business profiles"
 
   <PageLoaderWrapper screenState>
     <UIUtils.RenderIf condition=isFromSettings>
       <div className="relative h-full">
-        <div className="flex flex-col-reverse md:flex-col">
-          <div className="font-semibold text-fs-20"> {tableHeaderText->React.string} </div>
+        <div className="flex flex-col-reverse md:flex-col gap-2">
+          <PageUtils.PageHeading
+            title="Business Profiles"
+            subTitle="Add and manage profiles to represent different businesses across countries."
+          />
+          <UIUtils.RenderIf condition={businessProfileValues->Js.Array2.length > 1}>
+            <WarningArea
+              warningText="Warning! Now that you've configured more than one profile, you must mandatorily pass 'profile_id' in payments API request every time"
+            />
+          </UIUtils.RenderIf>
           <LoadedTable
             title="Business profiles"
             hideTitle=true
             resultsPerPage=7
             visibleColumns
-            entity={businessProfileTabelEntity(isFromWebhooks)}
+            entity={businessProfileTableEntity}
             showSerialNumber=true
             actualData={businessProfileValues->Js.Array2.map(Js.Nullable.return)}
             totalResults={businessProfileValues->Js.Array2.length}
@@ -176,9 +190,16 @@ let make = (
             setOffset
             currrentFetchCount={businessProfileValues->Js.Array2.length}
           />
-          // <BusinessUnitText />
           <div className="absolute right-0 -top-3">
-            <AddEntryBtn onSubmit modalState showModal setShowModal list={businessProfileValues} />
+            <AddEntryBtn
+              onSubmit
+              modalState
+              showModal
+              setShowModal
+              list={businessProfileValues}
+              updatedProfileId
+              setModalState
+            />
           </div>
         </div>
       </div>
@@ -191,6 +212,8 @@ let make = (
         showModal={showModalFromOtherScreen}
         setShowModal={setShowModalFromOtherScreen}
         list={businessProfileValues}
+        updatedProfileId
+        setModalState
       />
     </UIUtils.RenderIf>
   </PageLoaderWrapper>

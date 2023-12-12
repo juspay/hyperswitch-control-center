@@ -61,7 +61,6 @@ let options: Js.Json.t => array<EntityType.optionType<'t>> = json => {
   ->Belt.Option.getWithDefault([])
 }
 
-external toDict: 't => Js.Dict.t<Js.Json.t> = "%identity"
 let filterByData = (txnArr, value) => {
   let searchText = LogicUtils.getStringFromJson(value, "")
 
@@ -70,7 +69,7 @@ let filterByData = (txnArr, value) => {
   ->Belt.Array.keepMap((data: 't) => {
     let valueArr =
       data
-      ->toDict
+      ->Identity.genericTypeToDictOfJson
       ->Js.Dict.entries
       ->Js.Array2.map(item => {
         let (_, value) = item
@@ -174,14 +173,11 @@ let getStringListFromArrayDict = metrics => {
   metrics->Js.Array2.map(item => item->getDictFromJsonObject->getString("name", ""))
 }
 
-let getCustomFormattedFloatDate = (floatDate, format) => {
-  floatDate->Js.Date.fromFloat->Js.Date.toISOString->Table.dateFormat(format)
-}
-
 module NoData = {
   @react.component
-  let make = () => {
+  let make = (~title, ~subTitle) => {
     <div className="p-5">
+      <PageUtils.PageHeading title subTitle />
       <NoDataFound message="No Data Available" renderType=Painting>
         <Button
           text={"Make a Payment"}
@@ -208,7 +204,7 @@ let generateTablePayload = (
   ~isIndustry: bool,
   ~mode: option<string>,
   ~customFilter,
-  ~showDeltaMetrics=false,
+  ~showDeltaMetrics,
   ~moduleName as _: string,
   ~source: string="BATCH",
   (),

@@ -96,7 +96,7 @@ The `feedback` feature flag enables the ability for users to provide direct prod
 
 The `test_processors` feature flag allows enabling sandbox/test payment processors for testing purposes. When enabled, developers and testers can add test payment processors like Stripe Test or PayPal Test to trial payments flows without touching live transactions or making processor API calls.
 
-#### User Management
+#### User Management / Team
 
 The `user_management` feature flag enables user administration capabilities. When enabled, administrators can add, edit, and remove user accounts from the organization. They can also manage user roles and permissions that control access to different features and data.
 
@@ -136,9 +136,9 @@ The `home_page` feature flag controls whether the dashboard home page is enabled
 
 The `test_live_toggle` feature flag enables users to toggle between test and live modes when signing in. When enabled, users will see an option during sign-in to actively switch between test and live environments.
 
-#### Test Live Mode
+#### Is Live Mode
 
-The `test_live_mode` feature flag enables displaying the current mode - test or live - that the user is accessing. When enabled, it will show a visual indicator within the dashboard signaling whether the user is currently in a test environment or live production environment.
+The `is_live_mode` feature flag enables the live mode - that the user is accessing. When enabled, it will show a visual indicator within the dashboard signaling whether the user is currently in a test environment or live production environment.
 
 #### Magic Link
 
@@ -151,18 +151,6 @@ The `production_access` feature flag enables a flow for users to request live pr
 #### Quick Start
 
 The `quick_start` feature flag enables the simplified onboarding flow for new users, where he connects to processors, configure payment routing and testing a payment, all in one flow.
-
-#### Stripe plus paypal
-
-The `stripe_plus_paypal` feature flag enables access to simplified multi-processor connectivity through Stripe and PayPal. When turned on, users are guided through a streamlined setup flow to connect both Stripe and PayPal accounts and experience it in a checkout page.
-
-#### Woocommerce
-
-The `woocommerce` feature flag controls the visibility of WooCommerce integration with Hyperswitch flow within the dashboard. When enabled, users will have access to the step-by-step guide to integrate the woocommerce plugin for hyperswitch.
-
-#### Open SDK
-
-The `open_sdk` feature flag enables access to the Checkout Page web SDK from within the dashboard. When enabled, developers can preview the SDK from within the dashboard and make payments.
 
 ---
 
@@ -275,9 +263,81 @@ curl https://raw.githubusercontent.com/juspay/hyperswitch-control-center/main/aw
 
 ---
 
+## Versioning
+
+For a detailed list of changes made in each version, please refer to the [CHANGELOG](./CHANGELOG.md) file.
+
+---
+
 ## Contributing
 
 We welcome contributions from the community! If you would like to contribute to Hyperswitch, please follow our contribution guidelines.
+
+### Commit Conventions
+
+We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification for our commit messages. Each commit message should have a structured format:
+
+`<type>(<subject>): <description>`
+
+The commit message should begin with one of the following keywords followed by a colon: 'feat', 'fix', 'chore', 'refactor', 'docs', 'test' or 'style'. For example, it should be formatted like this: `feat: <subject> - <description>`
+
+### Signing Commits
+
+All commits should be signed to verify the authenticity of contributors. Follow the steps below to sign your commits:
+
+1.  Generate a GPG key if you haven't already:
+
+    ```bash
+    gpg --gen-key
+    ```
+
+2.  List your GPG keys and copy the GPG key ID::
+
+    ```bash
+    gpg --list-secret-keys --keyid-format LONG
+    ```
+
+    #### Identify the GPG key you want to add to your GitHub account.
+
+    a. Run the following command to export your GPG public key in ASCII-armored format:
+
+    ```bash
+      gpg --armor --export <GPG_KEY_ID>
+      Replace <GPG_KEY_ID> with the actual key ID.
+    ```
+
+    b. Copy the entire output, including the lines that start with "-----BEGIN PGP PUBLIC KEY BLOCK-----" and "-----END PGP PUBLIC KEY BLOCK-----".
+
+    c. Go to your GitHub Settings.
+
+    d. Click on "SSH and GPG keys" in the left sidebar.
+
+    e. Click the "New GPG key" button.
+
+    f. Paste your GPG public key into the provided text box.
+
+    g. Click the "Add GPG key" button.
+
+    h. Now your GPG public key is associated with your GitHub account, and you can sign your commits for added security.
+
+3.  Configure Git to use your GPG key:
+
+    ```bash
+    git config --global user.signingkey <GPG_KEY_ID>
+    ```
+
+4.  Set Git to sign all your commits by default:
+
+    ```bash
+    git config --global commit.gpgSign true
+    ```
+
+5.  Commit your changes with the -S option to sign the commit:
+    ```bash
+    git commit -S -m "your commit message"
+    ```
+
+For further assistance, please refer to the [GitHub documentation on signing commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits).
 
 ---
 

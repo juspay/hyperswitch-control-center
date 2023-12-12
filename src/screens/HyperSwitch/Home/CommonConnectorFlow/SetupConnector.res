@@ -56,11 +56,7 @@ module ConfigureProcessor = {
     ~setConnectorConfigureState,
     ~isBackButtonVisible=true,
   ) => {
-    let featureFlagDetails =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     open ConnectorUtils
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
 
@@ -91,7 +87,7 @@ module ConfigureProcessor = {
         ~connector=connectorName,
         ~bodyType,
         ~isPayoutFlow=false,
-        ~isLiveMode={featureFlagDetails.testLiveMode},
+        ~isLiveMode={featureFlagDetails.isLiveMode},
         (),
       )
       setInitialValues(_ => body)
@@ -137,9 +133,11 @@ module ConfigureProcessor = {
         nextButton={<FormRenderer.SubmitButton
           loadingText="Processing..." text="Proceed" buttonSize={Small}
         />}>
-        <ConnectorAccountDetails.BusinessProfileRender
-          isUpdateFlow=false selectedConnector={connectorName}
-        />
+        <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
+          <ConnectorAccountDetails.BusinessProfileRender
+            isUpdateFlow=false selectedConnector={connectorName}
+          />
+        </UIUtils.RenderIf>
         <SetupConnectorCredentials.ConnectorDetailsForm
           connectorName
           connectorDetails
@@ -192,7 +190,7 @@ module SelectPaymentMethods = {
           processorName: connectorResponse->getString("connector_name", ""),
         }
         let enumVariant = quickStartPageState->variantToEnumMapper
-        let _resp = await ProcesorType(processorVal)->usePostEnumDetails(enumVariant)
+        let _ = await ProcesorType(processorVal)->usePostEnumDetails(enumVariant)
       } catch {
       | _ => setButtonState(_ => Button.Normal)
       }

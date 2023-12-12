@@ -1,6 +1,3 @@
-external convertToJsonDict: 't => Js.Dict.t<Js.Json.t> = "%identity"
-external asJson: 'a => ReactEvent.Form.t = "%identity"
-
 module RadioSection = {
   open ConnectorTypes
   open FRMTypes
@@ -26,7 +23,7 @@ module RadioSection = {
       | ActionType => paymentMethodTypeInfo.action = option
       }
 
-      setConfigJson(frmConfigs->asJson)
+      setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
     }
 
     <div>
@@ -147,7 +144,7 @@ module CheckBoxRenderer = {
             _ => {
               frmConfigInfo.payment_methods = []
               setIsOpen(_ => !isOpen)
-              setConfigJson(frmConfigs->asJson)
+              setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
             }
           },
         },
@@ -166,7 +163,7 @@ module CheckBoxRenderer = {
           switch connectorPaymentMethods {
           | Some(paymentMethods) => {
               frmConfigInfo.payment_methods = paymentMethods->generateFRMPaymentMethodsConfig
-              setConfigJson(frmConfigs->asJson)
+              setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
             }
           | _ => ()
           }
@@ -176,7 +173,7 @@ module CheckBoxRenderer = {
             showConfitmation()
           } else {
             frmConfigInfo.payment_methods = []
-            setConfigJson(frmConfigs->asJson)
+            setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
             setIsOpen(_ => !isOpen)
           }
         }
@@ -188,7 +185,7 @@ module CheckBoxRenderer = {
         switch connectorPaymentMethods {
         | Some(paymentMethods) => {
             frmConfigInfo.payment_methods = paymentMethods->generateFRMPaymentMethodsConfig
-            setConfigJson(frmConfigs->asJson)
+            setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
           }
         | _ => ()
         }
@@ -298,7 +295,7 @@ module PaymentMethodsRenderer = {
           })
 
         setConnectorConfig(_ => connectorsConfig)
-        setConfigJson(updateFRMConfig->asJson)
+        setConfigJson(updateFRMConfig->Identity.anyTypeToReactEvent)
         setPageState(_ => Success)
       } catch {
       | _ => setPageState(_ => Error("Failed to fetch"))
@@ -345,7 +342,7 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
       ->parseFRMConfig
       ->Js.Array2.filter(config => config.payment_methods->Js.Array2.length > 0)
 
-    valuesDict->Js.Dict.set("frm_configs", filteredArray->toJson)
+    valuesDict->Js.Dict.set("frm_configs", filteredArray->Identity.genericTypeToJson)
     setInitialValues(_ => valuesDict->Js.Json.object_)
     setCurrentStep(prev => prev->getNextStep)
 

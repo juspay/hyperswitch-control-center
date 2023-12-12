@@ -29,14 +29,6 @@ let appnedDataToKey = (dict, key, value) => {
   dict->Js.Dict.set(key, updatedValue)
 }
 
-let appnedArrDataToKey = (dict, key, value) => {
-  let updatedValue = switch dict->Js.Dict.get(key) {
-  | Some(val) => Belt.Array.concat(val, value)
-  | None => value
-  }
-  dict->Js.Dict.set(key, updatedValue)
-}
-
 let mergeDicts = (arrDict: array<Js.Dict.t<'a>>) => {
   arrDict->Js.Array2.reduce((acc, dict) => {
     acc->Js.Array2.concat(dict->Js.Dict.entries)
@@ -61,19 +53,7 @@ let equalDicts = (dictionary1, dictionary2) => {
     ->Belt.Option.isNone
 }
 
-let updateDict = (dict, key, value) => {
-  let updatedValue = switch dict->Js.Dict.get(key) {
-  | Some(val) => {
-      let _ = val->Js.Array2.push(value)
-      val
-    }
-
-  | None => [value]
-  }
-  dict->Js.Dict.set(key, updatedValue)
-}
-
-let checkEqualJsonDicts = (~checkKeys=[], ~ignoreKeys=[], dictionary1, dictionary2) => {
+let checkEqualJsonDicts = (~checkKeys, ~ignoreKeys, dictionary1, dictionary2) => {
   let dictionary1 = dictionary1->Js.Json.object_->JsonFlattenUtils.flattenObject(false)
   let dictionary2 = dictionary2->Js.Json.object_->JsonFlattenUtils.flattenObject(false)
 
@@ -124,26 +104,4 @@ let checkEqualJsonDicts = (~checkKeys=[], ~ignoreKeys=[], dictionary1, dictionar
 
 let copyOfDict = dict => {
   dict->Js.Dict.entries->Js.Array2.copy->Js.Dict.fromArray
-}
-
-let sortKeysByAlphaOrder = dict => {
-  dict
-  ->Js.Dict.entries
-  ->Js.Array2.sortInPlaceWith((item1, item2) => {
-    let (key1, _) = item1
-    let (key2, _) = item2
-
-    key1 <= key2 ? -1 : 1
-  })
-  ->Js.Dict.fromArray
-}
-
-let filterDictFromArray = (dict, array) => {
-  dict
-  ->Js.Dict.entries
-  ->Js.Array2.filter(item => {
-    let (key, _) = item
-    !(array->Js.Array2.includes(key))
-  })
-  ->Js.Dict.fromArray
 }

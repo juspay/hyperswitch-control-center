@@ -1,10 +1,9 @@
 let h3Leading2Style = HSwitchUtils.getTextClass(~textVariant=H3, ~h3TextVariant=Leading_2, ())
-external toJson: 'a => Js.Json.t = "%identity"
 
-module SDKConfifiguarationFields = {
-  open HSwitchMerchantAccountUtils
+module SDKConfiguarationFields = {
+  open MerchantAccountUtils
   @react.component
-  let make = () => {
+  let make = (~initialValues: SDKPaymentTypes.paymentType) => {
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
     let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
     let disableSelectionForProfile = arrayOfBusinessProfile->HomeUtils.isDefaultBusinessProfile
@@ -17,27 +16,13 @@ module SDKConfifiguarationFields = {
     })
 
     let selectProfileField = FormRenderer.makeFieldInfo(
-      ~label="Business profile",
+      ~label="Profile",
       ~name="profile_id",
       ~placeholder="",
       ~customInput=InputFields.selectInput(
         ~deselectDisable=true,
         ~options={arrayOfBusinessProfile->businessProfileNameDropDownOption},
         ~buttonText="Select Profile",
-        ~disableSelect=disableSelectionForProfile,
-        ~fullLength=true,
-        (),
-      ),
-      (),
-    )
-    let selectProfileId = FormRenderer.makeFieldInfo(
-      ~label="Profile Id",
-      ~name="profile_id",
-      ~placeholder="",
-      ~customInput=InputFields.selectInput(
-        ~deselectDisable=true,
-        ~options=arrayOfBusinessProfile->businessProfileIdDropDownOption,
-        ~buttonText="Select Profile Id",
         ~disableSelect=disableSelectionForProfile,
         ~fullLength=true,
         (),
@@ -60,24 +45,45 @@ module SDKConfifiguarationFields = {
     let enterAmountField = FormRenderer.makeFieldInfo(
       ~label="Enter amount",
       ~name="amount",
-      ~placeholder="Enter amount",
-      ~customInput=InputFields.numericTextInput(~isDisabled=false, ~customStyle="w-full", ()),
+      ~customInput=(~input, ~placeholder as _) =>
+        InputFields.numericTextInput(
+          ~input={
+            ...input,
+            value: (initialValues.amount / 100)->string_of_int->Js.Json.string,
+            onChange: {
+              ev => {
+                let eventValueToInt =
+                  ev->Identity.formReactEventToString->LogicUtils.getIntFromString(0)
+                let valInCents =
+                  (eventValueToInt * 100)->string_of_int->Identity.stringToFormReactEvent
+                input.onChange(valInCents)
+              }
+            },
+          },
+          ~isDisabled=false,
+          ~customStyle="w-full",
+          ~placeholder="Enter amount",
+          (),
+        ),
       (),
     )
 
-    <>
+    <div className="w-full">
       <FormRenderer.FieldRenderer field=selectProfileField fieldWrapperClass="!w-full" />
-      <FormRenderer.FieldRenderer field=selectProfileId fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=selectCurrencyField fieldWrapperClass="!w-full" />
       <FormRenderer.FieldRenderer field=enterAmountField fieldWrapperClass="!w-full" />
-      <FormRenderer.SubmitButton text="Show preview" />
-    </>
+      <FormRenderer.SubmitButton
+        text="Show preview"
+        disabledParamter={!(initialValues.profile_id->Js.String2.length > 0)}
+        customSumbitButtonStyle="!mt-5"
+      />
+    </div>
   }
 }
 
 @react.component
 let make = () => {
-  open HSwitchMerchantAccountUtils
+  open MerchantAccountUtils
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let filtersFromUrl = url.search->LogicUtils.getDictFromUrlSearchParams
@@ -86,7 +92,7 @@ let make = () => {
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->getValueFromBusinessProfile
   let (initialValues, setInitialValues) = React.useState(_ =>
-    defaultBusinessProfile.profile_id->SDKPaymentUtils.initialValueForForm
+    defaultBusinessProfile->SDKPaymentUtils.initialValueForForm
   )
   React.useEffect1(() => {
     let paymentIntentOptional = filtersFromUrl->Js.Dict.get("payment_intent_client_secret")
@@ -96,18 +102,16 @@ let make = () => {
     None
   }, [filtersFromUrl])
 
-  let onProceed = async (~paymentId as _) => {
-    let paymentId =
-      filtersFromUrl
-      ->Js.Dict.get("payment_intent_client_secret")
-      ->Belt.Option.getWithDefault("")
-      ->Js.String2.split("_")
+  React.useEffect1(() => {
+    setInitialValues(_ => defaultBusinessProfile->SDKPaymentUtils.initialValueForForm)
+    None
+  }, [defaultBusinessProfile.profile_id->Js.String2.length])
 
-    let id = `${paymentId->Belt.Array.get(0)->Belt.Option.getWithDefault("")}_${paymentId
-      ->Belt.Array.get(1)
-      ->Belt.Option.getWithDefault("")}`
-
-    RescriptReactRouter.replace(`/payments/${id}`)
+  let onProceed = async (~paymentId) => {
+    switch paymentId {
+    | Some(val) => RescriptReactRouter.replace(`/payments/${val}`)
+    | None => ()
+    }
   }
 
   let onSubmit = (values, _) => {
@@ -135,10 +139,10 @@ let make = () => {
         </div>
         <div className="p-7 flex flex-col gap-16">
           <Form
-            initialValues={initialValues->toJson}
+            initialValues={initialValues->Identity.genericTypeToJson}
             formClass="grid grid-cols-2 gap-x-8 gap-y-4"
             onSubmit>
-            <SDKConfifiguarationFields />
+            <SDKConfiguarationFields initialValues />
           </Form>
           <TestCredentials />
         </div>

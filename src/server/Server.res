@@ -31,22 +31,11 @@ module ServerHandler = {
   external handler: (Http.request, Http.response, options) => Promise.t<unit> = "serve-handler"
 }
 
-let execFile = Util.promisify(ChildProcess.execFile)
-
-let optionalReplace = (mainStr, from, optionalReplacement) => {
-  switch optionalReplacement {
-  | Some(replacementText) => mainStr->Js.String2.replace(from, replacementText)
-  | None => mainStr
-  }
-}
-
 if appName === Some("hyperswitch") {
   let htmlInFs = Fs.readFileSync("dist/hyperswitch/index.html", {"encoding": "utf8"})
 
   Fs.writeFileSync("dist/hyperswitch/hyperswitch.html", htmlInFs)
 }
-
-external asJson: {..} => Js.Json.t = "%identity"
 
 type encodeType = {encoding: string}
 

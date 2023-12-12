@@ -41,10 +41,10 @@ module SelectPaymentMethods = {
 
         let enumRecoilUpdateArr = []
         if enums.firstProcessorConnected.processorID->Js.String2.length === 0 {
-          let _resp = await body->postEnumDetails(#FirstProcessorConnected)
+          let _ = await body->postEnumDetails(#FirstProcessorConnected)
           enumRecoilUpdateArr->Array.push((body, #FirstProcessorConnected))
         } else if enums.secondProcessorConnected.processorID->Js.String2.length === 0 {
-          let _resp = await body->postEnumDetails(#SecondProcessorConnected)
+          let _ = await body->postEnumDetails(#SecondProcessorConnected)
           enumRecoilUpdateArr->Array.push((body, #SecondProcessorConnected))
         }
 
@@ -53,7 +53,7 @@ module SelectPaymentMethods = {
         } else if selectedConnector === PAYPAL {
           enumRecoilUpdateArr->Array.push((body, #PaypalConnected))
         }
-        let _res = updateEnumInRecoil(enumRecoilUpdateArr)
+        let _ = updateEnumInRecoil(enumRecoilUpdateArr)
       } catch {
       | _ => setButtonState(_ => Button.Normal)
       }
@@ -140,12 +140,11 @@ module TestPayment = {
     let postEnumDetails = EnumVariantHook.usePostEnumDetails()
     let (key, setKey) = React.useState(_ => "")
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-    let defaultBusinessProfile =
-      businessProfiles->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
 
     let updateTestPaymentEnum = async _ => {
       try {
-        let _resp = await Boolean(true)->postEnumDetails(#SPTestPayment)
+        let _ = await Boolean(true)->postEnumDetails(#SPTestPayment)
       } catch {
       | _ => ()
       }
@@ -173,7 +172,7 @@ module TestPayment = {
         }}
       />}>
       <TestPayment
-        initialValues={defaultBusinessProfile.profile_id->SDKPaymentUtils.initialValueForForm}
+        initialValues={defaultBusinessProfile->SDKPaymentUtils.initialValueForForm}
         returnUrl={`${HSwitchGlobalVars.hyperSwitchFEPrefix}/stripe-plus-paypal`}
         onProceed={sptestPaymentProceed}
         keyValue={key}

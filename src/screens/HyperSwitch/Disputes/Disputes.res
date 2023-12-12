@@ -57,18 +57,27 @@ let make = () => {
   }, ~wait=200)
 
   let customUI =
-    <HelperComponents.BluredTableComponent
-      infoText="No disputes as of now." moduleName=" " showRedirectCTA=false
-    />
+    <>
+      <div
+        className="flex border items-start border-blue-800 text-sm rounded-md gap-2 px-4 py-3 mt-5">
+        <Icon name="info-vacent" className="text-blue-900 mt-1" size=18 />
+        <p>
+          {"Missing disputes? Disputes might not be supported for your payment processor or might not yet have been integrated with hyperswitch. Please check the"->React.string}
+          <a href="https://hyperswitch.io/pm-list" target="_blank" className="text-blue-900">
+            {" feature matrix "->React.string}
+          </a>
+          {"for your processor."->React.string}
+        </p>
+      </div>
+      <HelperComponents.BluredTableComponent
+        infoText="No disputes as of now." moduleName=" " showRedirectCTA=false
+      />
+    </>
 
-  let {generateReport} =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <div>
-    <PageUtils.PageHeading title="Disputes" />
+    <PageUtils.PageHeading title="Disputes" subTitle="View and manage all disputes" />
     <div className="flex w-full justify-end pb-3 gap-3">
       <UIUtils.RenderIf condition={generateReport}>
         <GenerateReport entityName={DISPUTE_REPORT} />
@@ -76,9 +85,9 @@ let make = () => {
     </div>
     <PageLoaderWrapper screenState customUI>
       <div className="flex flex-col gap-4">
-        <PageUtils.PageHeading title="Disputes" />
         <LoadedTableWithCustomColumns
-          title=""
+          title=" "
+          hideTitle=true
           actualData=filteredDisputesData
           entity={DisputesEntity.disputesEntity}
           resultsPerPage=10
@@ -98,7 +107,6 @@ let make = () => {
           customColumnMapper={DisputesEntity.disputesMapDefaultCols}
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false
-          hideTitle=true
         />
       </div>
     </PageLoaderWrapper>

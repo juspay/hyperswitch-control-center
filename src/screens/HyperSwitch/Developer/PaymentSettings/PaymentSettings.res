@@ -1,9 +1,37 @@
+module InfoViewForWebhooks = {
+  @react.component
+  let make = (~heading, ~subHeading, ~isCopy=false) => {
+    let showToast = ToastState.useShowToast()
+    let onCopyClick = ev => {
+      ev->ReactEvent.Mouse.stopPropagation
+      Clipboard.writeText(subHeading)
+      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+    }
+
+    <div className={`flex flex-col gap-2 m-2 md:m-4 w-1/2`}>
+      <p className="font-semibold text-fs-15"> {heading->React.string} </p>
+      <div className="flex gap-2 break-all w-full items-start">
+        <p className="font-medium text-fs-14 text-black opacity-50"> {subHeading->React.string} </p>
+        <UIUtils.RenderIf condition={isCopy}>
+          <img
+            src={`/assets/CopyToClipboard.svg`}
+            className="cursor-pointer"
+            onClick={ev => {
+              onCopyClick(ev)
+            }}
+          />
+        </UIUtils.RenderIf>
+      </div>
+    </div>
+  }
+}
+
 @react.component
 let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open DeveloperUtils
   open APIUtils
   open HSwitchUtils
-  open HSwitchMerchantAccountUtils
+  open MerchantAccountUtils
   let url = RescriptReactRouter.useUrl()
   let id = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault(profileId)
   let businessProfileDetails = useGetBusinessProflile(id)
@@ -16,7 +44,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
-  let fetchBusinessProfiles = HSwitchMerchantAccountUtils.useFetchBusinessProfiles()
+  let fetchBusinessProfiles = MerchantAccountUtils.useFetchBusinessProfiles()
 
   let onSubmit = async (values, _) => {
     try {
@@ -50,11 +78,11 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
         <BreadCrumbNavigation
           path=[
             {
-              title: "Webhooks",
-              link: "/webhooks",
+              title: "Payment Settings",
+              link: "/payment-settings",
             },
           ]
-          currentPageTitle={businessProfileDetails.profile_name->LogicUtils.capitalizeString}
+          currentPageTitle={businessProfileDetails.profile_name}
           cursorStyle="cursor-pointer"
         />
       </UIUtils.RenderIf>
@@ -65,13 +93,13 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
               : "border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass} `}>
           <ReactFinalForm.Form
             key="merchantAccount"
-            initialValues={profileInfo->parseBussinessProfileJson->Js.Json.object_}
+            initialValues={businessProfileDetails->parseBussinessProfileJson->Js.Json.object_}
             subscription=ReactFinalForm.subscribeToValues
             validate={values => {
               open HSwitchSettingTypes
-              HSwitchMerchantAccountUtils.validateMerchantAccountForm(
+              MerchantAccountUtils.validateMerchantAccountForm(
                 ~values,
-                ~setIsDisabled,
+                ~setIsDisabled=Some(setIsDisabled),
                 ~fieldsToValidate={
                   [WebhookUrl, ReturnUrl]->Js.Array2.filter(urlField =>
                     urlField === WebhookUrl || !webhookOnly
@@ -87,6 +115,26 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 className={`${showFormOnly
                     ? ""
                     : "px-2 py-4"} flex flex-col gap-7 overflow-hidden`}>
+                <div className="flex items-center">
+                  <InfoViewForWebhooks
+                    heading="Profile ID" subHeading=businessProfileDetails.profile_id isCopy=true
+                  />
+                  <InfoViewForWebhooks
+                    heading="Profile Name" subHeading=businessProfileDetails.profile_name
+                  />
+                </div>
+                <div className="flex items-center">
+                  <InfoViewForWebhooks
+                    heading="Merchant ID" subHeading={businessProfileDetails.merchant_id}
+                  />
+                  <InfoViewForWebhooks
+                    heading="Payment Response Hash Key"
+                    subHeading={businessProfileDetails.payment_response_hash_key->Belt.Option.getWithDefault(
+                      "NA",
+                    )}
+                    isCopy=true
+                  />
+                </div>
                 <FormRenderer.DesktopRow>
                   {[webhookUrl, returnUrl]
                   ->Js.Array2.filter(urlField => urlField.label === "Webhook URL" || !webhookOnly)
@@ -112,6 +160,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     />
                   </div>
                 </FormRenderer.DesktopRow>
+                <FormValuesSpy />
               </form>
             }}
           />

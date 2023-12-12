@@ -24,6 +24,7 @@ let make = () => {
       filters->Js.Dict.set("offset", offset->Belt.Int.toFloat->Js.Json.number)
       if !(searchText->isEmptyString) {
         filters->Js.Dict.set("payment_id", searchText->Js.Json.string)
+        filters->Js.Dict.set("refund_id", searchText->Js.Json.string)
       }
 
       dict
@@ -48,22 +49,18 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let {generateReport} =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <ErrorBoundary>
     <div className="flex flex-col overflow-y-auto min-h-[50vh]">
-      <PageUtils.PageHeading title="Refunds" />
+      <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
       <div className="flex w-full justify-end pb-3 gap-3">
         <UIUtils.RenderIf condition={generateReport}>
           <GenerateReport entityName={REFUND_REPORT} />
         </UIUtils.RenderIf>
       </div>
       <RemoteTableFilters
-        placeholder="Search payment id"
+        placeholder="Search payment id or refund id"
         setSearchVal=setSearchText
         searchVal=searchText
         filterUrl={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds/filter`}

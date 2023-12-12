@@ -15,11 +15,8 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (email, setEmail) = React.useState(_ => "")
-  let {magicLink: isMagicLinkEnabled} =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let {magicLink: isMagicLinkEnabled, forgetPassword, ossBuild: isOssBuild} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let handleAuthError = e => {
     let error = e->parseErrorMessage
@@ -53,9 +50,9 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     Js.Nullable.null
   }
 
-  let getUserWithEmailPassword = async (body, email) => {
+  let getUserWithEmailPassword = async (body, email, userType) => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#SIGNIN, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post)
       let token = parseResponseJson(~json=res, ~email)
 
@@ -75,14 +72,14 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let openPlayground = _ => {
     hyperswitchMixPanel(~eventName=Some("try_playground"), ~email=playgroundUserEmail, ())
     let body = getEmailPasswordBody(playgroundUserEmail, playgroundUserPassword, country)
-    getUserWithEmailPassword(body, playgroundUserEmail)->ignore
+    getUserWithEmailPassword(body, playgroundUserEmail, #SIGNIN)->ignore
     HSLocalStorage.setIsPlaygroundInLocalStorage(true)
   }
 
   let setResetPassword = async body => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#RESET_PASSWORD, ~methodType=Post, ())
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       RescriptReactRouter.push("/")
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
       setAuthType(_ => LoginWithEmail)
@@ -96,7 +93,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let setForgetPassword = async body => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#FORGOT_PASSWORD, ~methodType=Post, ())
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setAuthType(_ => ForgetPasswordEmailSent)
       showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
     } catch {
@@ -108,7 +105,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let resendVerifyEmail = async body => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#VERIFY_EMAIL_REQUEST, ~methodType=Post, ())
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setAuthType(_ => ResendVerifyEmailSent)
       showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
     } catch {
@@ -139,9 +136,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     }
   }
 
-  let onSubmit = (values, _) => {
-    open Promise
-
+  let onSubmit = async (values, _) => {
     let valuesDict = values->getDictFromJsonObject
     let email = valuesDict->getString("email", "")
     setEmail(_ => email)
@@ -151,39 +146,50 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     | (true, SignUP) | (true, LoginWithEmail) => {
         let body = getEmailBody(email, ~country, ())
 
-        getUserWithEmail(body)
+        getUserWithEmail(body)->ignore
       }
-    | (true, ForgetPassword) =>
-      let body = email->getEmailBody()
-
-      setForgetPassword(body)
 
     | (true, ResendVerifyEmail) =>
       let body = email->getEmailBody()
-      resendVerifyEmail(body)
+      resendVerifyEmail(body)->ignore
 
     | (false, SignUP) => {
         let password = getString(valuesDict, "password", "")
         let body = getEmailPasswordBody(email, password, country)
-
-        getUserWithEmailPassword(body, email)
+        if isOssBuild {
+          getUserWithEmailPassword(body, email, #OSSSIGNUP)->ignore
+        } else {
+          getUserWithEmailPassword(body, email, #SIGNIN)->ignore
+        }
       }
     | (_, LoginWithPassword) => {
         let password = getString(valuesDict, "password", "")
         let body = getEmailPasswordBody(email, password, country)
-
-        getUserWithEmailPassword(body, email)
+        if isOssBuild {
+          getUserWithEmailPassword(body, email, #OSSSIGNIN)->ignore
+        } else {
+          getUserWithEmailPassword(body, email, #SIGNIN)->ignore
+        }
       }
     | (_, ResetPassword) => {
         let queryDict = url.search->getDictFromUrlSearchParams
         let password_reset_token = queryDict->Js.Dict.get("token")->Belt.Option.getWithDefault("")
         let password = getString(valuesDict, "create_password", "")
         let body = getResetpasswordBodyJson(password, password_reset_token)
-        setResetPassword(body)
+        setResetPassword(body)->ignore
       }
 
-    | _ => Js.Nullable.null->resolve
+    | _ => ()
     }
+
+    switch (forgetPassword, authType) {
+    | (true, ForgetPassword) =>
+      let body = email->getEmailBody()
+
+      setForgetPassword(body)->ignore
+    | _ => ()
+    }
+    Js.Nullable.null
   }
 
   let resendEmail = () => {
@@ -234,14 +240,12 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
           onSubmit={handleSubmit}
           className={`flex flex-col justify-evenly gap-5 h-full w-full !overflow-visible text-grey-600`}>
           {switch authType {
-          | LoginWithPassword => <EmailPasswordForm setAuthType isMagicLinkEnabled />
+          | LoginWithPassword => <EmailPasswordForm setAuthType forgetPassword />
+          | ForgetPassword => forgetPassword ? <EmailForm /> : React.null
           | LoginWithEmail
-          | ForgetPassword
           | ResendVerifyEmail
           | SignUP =>
-            isMagicLinkEnabled
-              ? <EmailForm />
-              : <EmailPasswordForm setAuthType isMagicLinkEnabled />
+            isMagicLinkEnabled ? <EmailForm /> : <EmailPasswordForm setAuthType forgetPassword />
           | ResetPassword => <ResetPasswordForm />
           | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
             <ResendBtn callBackFun={resendEmail} />

@@ -28,9 +28,7 @@ module MerchantDetailsSection = {
         setMerchantInfo(_ => requiredInfo)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | Js.Exn.Error(e) =>
-        let _err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
-        setScreenState(_ => PageLoaderWrapper.Custom)
+      | Js.Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Custom)
       }
     }
     React.useEffect0(() => {
@@ -75,7 +73,7 @@ module ResetPassword = {
       setIsLoading(_ => true)
       try {
         let url = getURL(~entityName=USERS, ~userType=#FORGOT_PASSWORD, ~methodType=Post, ())
-        let _res = await updateDetails(url, body, Post)
+        let _ = await updateDetails(url, body, Post)
         showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
         setIsLoading(_ => false)
       } catch {

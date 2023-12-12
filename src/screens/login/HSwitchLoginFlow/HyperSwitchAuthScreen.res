@@ -5,11 +5,7 @@ module AuthPage = {
   open HyperSwitchAuth
   @react.component
   let make = (~authType, ~setAuthType, ~setAuthStatus, ~mode, ~setMode) => {
-    let {testLiveToggle} =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let {testLiveToggle} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let screen =
       <div
         className="h-full flex flex-col items-center justify-between overflow-scoll text-grey-0 w-full mobile:w-30-rem">
@@ -47,11 +43,9 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
   open HyperSwitchAuthTypes
   let url = RescriptReactRouter.useUrl()
   let (mode, setMode) = React.useState(_ => TestButtonMode)
-  let {testLiveMode, magicLink: isMagicLinkEnabled} =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let {isLiveMode, magicLink: isMagicLinkEnabled} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
   let authInitState = isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword
   let (authType, setAuthType) = React.useState(_ => authInitState)
 
@@ -74,7 +68,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
   }, [isMagicLinkEnabled])
 
   React.useEffect1(() => {
-    if testLiveMode {
+    if isLiveMode {
       setMode(_ => LiveButtonMode)
     } else {
       setMode(_ => TestButtonMode)

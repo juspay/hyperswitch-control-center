@@ -1,4 +1,3 @@
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
 open UserOnboardingTypes
 open UserOnboardingUtils
 
@@ -24,7 +23,7 @@ module PublishableKeyArea = {
   @react.component
   let make = (~currentRoute) => {
     let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
-    let detail = merchantDetailsValue->HSwitchMerchantAccountUtils.getMerchantDetails
+    let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
     let contextName = `${currentRoute->variantToTextMapperForBuildHS}_5.loadhyperswitchcheckout`
 
     <HelperComponents.KeyAndCopyArea
@@ -37,7 +36,7 @@ module PaymentResponseHashKeyArea = {
   @react.component
   let make = (~currentRoute) => {
     let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
-    let detail = merchantDetailsValue->HSwitchMerchantAccountUtils.getMerchantDetails
+    let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
     let contextName = `${currentRoute->variantToTextMapperForBuildHS}_5.loadhyperswitchcheckout`
 
     <HelperComponents.KeyAndCopyArea
@@ -284,7 +283,7 @@ module BackendFrontendPlatformLangDropDown = {
       name: "Platform Selecr",
       onBlur: _ev => (),
       onChange: ev => {
-        let val = ev->formEventToStr->getPlatform
+        let val = ev->Identity.formReactEventToString->getPlatform
         setPlatform(_ => val)
         hyperswitchMixPanel(~pageName=urlHead, ~contextName, ~actionName={(val :> string)}, ())
       },
@@ -300,7 +299,7 @@ module BackendFrontendPlatformLangDropDown = {
       name: "BackEnd",
       onBlur: _ev => (),
       onChange: ev => {
-        let val = ev->formEventToStr->getLangauge
+        let val = ev->Identity.formReactEventToString->getLangauge
         setBackEndLang(_ => val)
         hyperswitchMixPanel(~pageName=urlHead, ~contextName, ~actionName={(val :> string)}, ())
       },
@@ -312,7 +311,7 @@ module BackendFrontendPlatformLangDropDown = {
       name: "FrontEnd",
       onBlur: _ev => (),
       onChange: ev => {
-        let val = ev->formEventToStr->getLangauge
+        let val = ev->Identity.formReactEventToString->getLangauge
         setFrontEndLang(_ => val)
         hyperswitchMixPanel(~pageName=urlHead, ~contextName, ~actionName={(val :> string)}, ())
       },
@@ -507,7 +506,7 @@ module LandingPageTileForIntegrateDocs = {
           ~metadata=metaDataDict,
           (),
         )
-        let _res = await updateDetails(url, body, Post)
+        let _ = await updateDetails(url, body, Post)
         setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       } catch {
       | _ => ()
@@ -984,7 +983,7 @@ let getTabsForIntegration = (
                   src="https://hyperswitch.io/img/site/wordpress_hyperswitch_settings.png"
                 />
               </div>
-              <Webhooks webhookOnly=true />
+              <PaymentSettings webhookOnly=true />
             </TabsContentWrapper>
             <TabsContentWrapper currentRoute tabIndex={6}>
               <div
@@ -1028,7 +1027,7 @@ let getTabsForIntegration = (
                 ~metadata=metaDataDict,
                 (),
               )
-              let _res = await updateDetails(url, body, Post)
+              let _ = await updateDetails(url, body, Post)
               setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
             } catch {
             | _ => ()
@@ -1072,110 +1071,5 @@ let getTabsForIntegration = (
       },
     ]
   | _ => []
-  }
-}
-
-module GitHubLanguageFilters = {
-  @react.component
-  let make = (
-    ~frontEndLang: languages,
-    ~setFrontEndLang,
-    ~backEndLang: languages,
-    ~setBackEndLang,
-    ~isFromOnboardingChecklist=false,
-  ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
-    let urlHead = url.path->LogicUtils.getListHead
-
-    let backendLangInput: ReactFinalForm.fieldRenderPropsInput = {
-      name: "Backend",
-      onBlur: _ev => (),
-      onChange: ev => {
-        let val = ev->formEventToStr->getLangauge
-        setBackEndLang(_ => val)
-        hyperswitchMixPanel(~eventName=Some(`${urlHead}_${(val :> string)}`), ())
-      },
-      onFocus: _ev => (),
-      value: (backEndLang :> string)->Js.Json.string,
-      checked: true,
-    }
-    let frontendLangInput: ReactFinalForm.fieldRenderPropsInput = {
-      name: "Frontend",
-      onBlur: _ev => (),
-      onChange: ev => {
-        let val = ev->formEventToStr->getLangauge
-        setFrontEndLang(_ => val)
-        hyperswitchMixPanel(~eventName=Some(`${urlHead}_${(val :> string)}`), ())
-      },
-      onFocus: _ev => (),
-      value: (frontEndLang :> string)->Js.Json.string,
-      checked: true,
-    }
-
-    let frontendDropdownText = {
-      frontEndLang === #ChooseLanguage ? "Choose Frontend" : (frontEndLang :> string)
-    }
-    let backendDropdownText = {
-      backEndLang === #ChooseLanguage ? "Choose Backend" : (backEndLang :> string)
-    }
-
-    <Form initialValues={Js.Dict.empty()->Js.Json.object_}>
-      <div className="flex flex-row gap-4 flex-wrap">
-        <SelectBox.BaseDropdown
-          allowMultiSelect=false
-          buttonText="Select Frontend"
-          input={frontendLangInput}
-          options={frontendLangForGithub->Js.Array2.map((lang): SelectBox.dropdownOption => {
-            {value: (lang :> string), label: (lang :> string)}
-          })}
-          customButtonStyle="!rounded-md"
-          hideMultiSelectButtons=true
-          buttonClickFn={e => {
-            hyperswitchMixPanel(~eventName=Some(`${urlHead}_${e->Js.String2.replace(" ", "")}`), ())
-          }}
-          autoApply=false
-          customStyle="!rounded-md"
-          baseComponent={<Button
-            text=frontendDropdownText
-            buttonSize=Button.Small
-            leftIcon={Button.CustomIcon(
-              frontEndLang === #ChooseLanguage
-                ? React.null
-                : <Icon size=20 name={`${(frontEndLang :> string)->Js.String2.toLowerCase}`} />,
-            )}
-            rightIcon=Button.CustomIcon(<Icon className="pl-2" size=20 name="chevron-down" />)
-            ellipsisOnly=true
-            customButtonStyle="!bg-white !border !rounded-md !py-2 !px-4"
-          />}
-        />
-        <SelectBox.BaseDropdown
-          allowMultiSelect=false
-          dropdownCustomWidth="w-full md:max-w-md min-w-[5rem]"
-          buttonText="Select Backend"
-          input={backendLangInput}
-          customButtonStyle="!rounded-md"
-          options={backendLangForGithub->Js.Array2.map((lang): SelectBox.dropdownOption => {
-            {value: (lang :> string), label: (lang :> string)}
-          })}
-          hideMultiSelectButtons=true
-          buttonClickFn={e => {
-            hyperswitchMixPanel(~eventName=Some(`${urlHead}_${e->Js.String2.replace(" ", "")}`), ())
-          }}
-          baseComponent={<Button
-            text=backendDropdownText
-            buttonSize=Button.Small
-            leftIcon={Button.CustomIcon(
-              frontEndLang === #ChooseLanguage
-                ? React.null
-                : <Icon size=20 name={`${(backEndLang :> string)->Js.String2.toLowerCase}`} />,
-            )}
-            rightIcon=Button.CustomIcon(<Icon className="pl-2" size=20 name="chevron-down" />)
-            ellipsisOnly=true
-            customButtonStyle="!bg-white !border !rounded-md !py-2 !px-4"
-          />}
-        />
-      </div>
-    </Form>
   }
 }

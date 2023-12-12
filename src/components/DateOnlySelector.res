@@ -1,4 +1,3 @@
-external strToForm: string => ReactEvent.Form.t = "%identity"
 module DateCalendar = {
   open Calendar
   @react.component
@@ -55,7 +54,7 @@ let make = (~input: ReactFinalForm.fieldRenderPropsInput) => {
     let currentDateSplit = Js.String2.split(str, "-")
     let currentDateDay = currentDateSplit[2]->Belt.Option.getWithDefault("")
     setSelectedDate(_ => currentDateDay)
-    input.onChange(currentDateDay->strToForm)
+    input.onChange(currentDateDay->Identity.stringToFormReactEvent)
   }
   OutsideClick.useOutsideClick(
     ~refs=ArrayOfRef([dropdownRef]),

@@ -142,7 +142,7 @@ module VolumeRoutingView = {
       try {
         setScreenState(_ => Loading)
         let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-        let _res = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
+        let _ = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
         showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(`/routing?`)
         setScreenState(_ => Success)
@@ -172,7 +172,7 @@ module VolumeRoutingView = {
         setScreenState(_ => Loading)
         let deactivateRoutingURL = `${getURL(~entityName=ROUTING, ~methodType=Post, ())}/deactivate`
         let body = [("profile_id", profile->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
-        let _res = await updateDetails(deactivateRoutingURL, body, Post)
+        let _ = await updateDetails(deactivateRoutingURL, body, Post)
         showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(`/routing?`)
         setScreenState(_ => Success)
@@ -337,8 +337,7 @@ module VolumeRoutingView = {
 @react.component
 let make = (~routingRuleId, ~isActive) => {
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-  let defaultBusinessProfile =
-    businessProfiles->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+  let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
   let (formState, setFormState) = React.useState(_ => AdvancedRoutingTypes.EditReplica)
   let (initialRule, setInitialRule) = React.useState(() => None)

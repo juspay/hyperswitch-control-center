@@ -9,8 +9,8 @@ module NewAccountCreationModal = {
       try {
         let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Fetch.Post, ())
         let body = values
-        let _res = await updateDetails(url, body, Post)
-        let _merchantIds = await fetchMerchantIDs()
+        let _ = await updateDetails(url, body, Post)
+        let _ = await fetchMerchantIDs()
         showToast(
           ~toastType=ToastSuccess,
           ~message="Account Created Successfully!",
@@ -184,7 +184,7 @@ module ExternalUser = {
                             `${activeClasses} text-blue-900 flex gap-2 font-medium w-56`
                           }>
                           <Icon name="plus-circle" size=15 />
-                          {"Add a new Merchant"->React.string}
+                          {"Add a new merchant"->React.string}
                         </button>}
                     </Menu.Item>
                   </div>

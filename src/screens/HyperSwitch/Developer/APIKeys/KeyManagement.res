@@ -105,7 +105,7 @@ module ApiEditModal = {
           }
         }
 
-        let _res = getAPIKeyDetails()
+        let _ = getAPIKeyDetails()
       } catch {
       | Js.Exn.Error(e) =>
         switch Js.Exn.message(e) {
@@ -421,8 +421,10 @@ module ApiKeysTable = {
 module KeysManagement = {
   @react.component
   let make = () => {
-    <div className="py-4 md:py-10 h-full">
-      <PageUtils.PageHeading title="API Keys" />
+    <div className="h-full">
+      <PageUtils.PageHeading
+        title="Keys" subTitle="Manage API keys and credentials for integrated payment services"
+      />
       <ApiKeysTable />
       <PublishableAndHashKeySection />
     </div>

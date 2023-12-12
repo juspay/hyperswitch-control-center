@@ -79,7 +79,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep, ~isUpdateFlow) => {
       let frmID = initialValues->getDictFromJsonObject->getString("merchant_connector_id", "")
       let disableFRMPayload = initialValues->FRMTypes.getDisableConnectorPayload(isFRMDisabled)
       let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ~id=Some(frmID), ())
-      let _res = await updateDetails(url, disableFRMPayload->Js.Json.object_, Post)
+      let _ = await updateDetails(url, disableFRMPayload->Js.Json.object_, Post)
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
       RescriptReactRouter.push("/fraud-risk-management")
     } catch {
@@ -130,20 +130,6 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep, ~isUpdateFlow) => {
       }}
     </div>
     <div>
-      <div className="grid grid-cols-2 md:w-1/2 m-12">
-        <h4 className="text-lg font-semibold"> {"Processor Mode"->React.string} </h4>
-        <div>
-          {if frmInfo.test_mode {
-            <span className="font-semibold p-2 px-3 bg-orange-200 rounded-full">
-              {"TEST MODE"->React.string}
-            </span>
-          } else {
-            <span className="font-semibold p-2 px-3 bg-blue-200 rounded-full">
-              {"LIVE MODE"->React.string}
-            </span>
-          }}
-        </div>
-      </div>
       <div className="grid grid-cols-2 md:w-1/2 m-12">
         <h4 className="text-lg font-semibold"> {"Profile id"->React.string} </h4>
         <div> {frmInfo.profile_id->React.string} </div>

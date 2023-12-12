@@ -72,7 +72,21 @@ let distribution =
   ->Js.Dict.fromArray
   ->Js.Json.object_
 
-let tableItemToObjMapper: 'a => paymentTableType = dict => {
+let tableItemToObjMapper: Js.Dict.t<Js.Json.t> => paymentTableType = dict => {
+  let parseErrorReasons = dict => {
+    dict
+    ->getArrayFromDict(PaymentErrorMessage->colMapper, [])
+    ->Js.Array2.map(errorJson => {
+      let dict = errorJson->getDictFromJsonObject
+
+      {
+        reason: dict->getString("reason", ""),
+        count: dict->getInt("count", 0),
+        percentage: dict->getFloat("percentage", 0.0),
+      }
+    })
+  }
+
   {
     payment_success_rate: dict->getFloat(SuccessRate->colMapper, 0.0),
     payment_count: dict->getFloat(Count->colMapper, 0.0),
@@ -90,7 +104,7 @@ let tableItemToObjMapper: 'a => paymentTableType = dict => {
     authentication_type: dict->getString(AuthType->colMapper, "OTHER")->Js.String2.toUpperCase,
     refund_status: dict->getString(Status->colMapper, "OTHER")->Js.String2.toUpperCase,
     weekly_payment_success_rate: dict->getWeeklySR->Js.String2.toUpperCase,
-    payment_error_message: dict->getString(PaymentErrorMessage->colMapper, ""),
+    payment_error_message: dict->parseErrorReasons,
   }
 }
 
@@ -195,7 +209,7 @@ let getCell = (paymentTable, colType): Table.cell => {
   | Status => Text(paymentTable.refund_status)
   | WeeklySuccessRate => Text(paymentTable.weekly_payment_success_rate)
   | PaymentErrorMessage =>
-    Table.CustomCell(<ErrorReasons errorMessage={paymentTable.payment_error_message} />, "NA")
+    Table.CustomCell(<ErrorReasons errors={paymentTable.payment_error_message} />, "NA")
   | NoCol => Text("")
   }
 }
@@ -305,19 +319,29 @@ type colT =
   | RetriesAmountProcessed
   | ConnectorSuccessRate
 
-let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
+let getColumns: bool => array<DynamicSingleStat.columns<colT>> = connector_success_rate => [
   {
     sectionName: "",
-    columns: [
-      SuccessRate,
-      Count,
-      SuccessCount,
-      ProcessedAmount,
-      AvgTicketSize,
-      RetriesCount,
-      RetriesAmountProcessed,
-      ConnectorSuccessRate,
-    ],
+    columns: connector_success_rate
+      ? [
+          SuccessRate,
+          Count,
+          SuccessCount,
+          ProcessedAmount,
+          AvgTicketSize,
+          RetriesCount,
+          RetriesAmountProcessed,
+          ConnectorSuccessRate,
+        ]
+      : [
+          SuccessRate,
+          Count,
+          SuccessCount,
+          ProcessedAmount,
+          AvgTicketSize,
+          RetriesCount,
+          RetriesAmountProcessed,
+        ],
   },
 ]
 
@@ -399,7 +423,7 @@ let getStatData = (
 ) => {
   switch colType {
   | SuccessRate => {
-      title: "Overall conversion rate",
+      title: "Overall Conversion Rate",
       tooltipText: "Total successful payments processed out of total payments created (This includes user dropouts at shopping cart and checkout page)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.payment_success_rate,
@@ -490,7 +514,7 @@ let getStatData = (
     }
   | RetriesCount => {
       title: "Smart Retries made",
-      tooltipText: "Total number of retries that were attempted after a failed payment attempt",
+      tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supoorted currently)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.retries_count->Belt.Int.toFloat,
         deltaTimestampData.currentSr,
@@ -504,8 +528,8 @@ let getStatData = (
       showDelta: false,
     }
   | RetriesAmountProcessed => {
-      title: `Smart retries savings`,
-      tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor",
+      title: `Smart Retries Savings`,
+      tooltipText: "Total savings in amount terms from retrying failed payments again through a second processor (Note: Only date range filters are supoorted currently)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.retries_amount_processe /. 100.00,
         deltaTimestampData.currentSr,
@@ -524,7 +548,7 @@ let getStatData = (
       showDelta: false,
     }
   | ConnectorSuccessRate => {
-      title: "Payment success rate",
+      title: "Payment Success Rate",
       tooltipText: "Total successful payments processed out of all user confirmed payments",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.connector_success_rate,
@@ -541,7 +565,7 @@ let getStatData = (
   }
 }
 
-let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {
+let getSingleStatEntity = (metrics, connector_success_rate) => {
   urlConfig: [
     {
       uri: `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
@@ -550,7 +574,7 @@ let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> =
   ],
   getObjects: itemToObjMapper,
   getTimeSeriesObject: timeSeriesObjMapper,
-  defaultColumns,
+  defaultColumns: getColumns(connector_success_rate),
   getData: getStatData,
   totalVolumeCol: None,
   matrixUriMapper: _ => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,

@@ -203,18 +203,14 @@ module OverviewInfo = {
   open APIUtils
   @react.component
   let make = () => {
-    let {sampleData} =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
 
     let generateSampleData = async () => {
       try {
         let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
-        let _generateSampleData = await updateDetails(
+        let _ = await updateDetails(
           generateSampleDataUrl,
           [("record", 50.0->Js.Json.number)]->Js.Dict.fromArray->Js.Json.object_,
           Post,
@@ -245,12 +241,16 @@ module OverviewInfo = {
 
 @react.component
 let make = () => {
+  let {systemMetrics} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
   <div className="flex flex-col gap-4">
     <p className=headingStyle> {"Overview"->React.string} </p>
     <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-4">
       <ConnectorOverview />
       <PaymentOverview />
-      <SystemMetricsInsights />
+      <UIUtils.RenderIf condition={systemMetrics}>
+        <SystemMetricsInsights />
+      </UIUtils.RenderIf>
     </div>
     <OverviewInfo />
   </div>

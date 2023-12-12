@@ -1,6 +1,3 @@
-external toReactEvent: 'a => ReactEvent.Form.t = "%identity"
-external arrToReactEvent: array<string> => ReactEvent.Form.t = "%identity"
-external strToReactEvent: string => ReactEvent.Form.t = "%identity"
 type dataTransfer
 @get external dataTransfer: ReactEvent.Mouse.t => 'a = "dataTransfer"
 @get external files: dataTransfer => 'a = "files"
@@ -48,8 +45,8 @@ let make = (
   let showToast = ToastState.useShowToast()
 
   React.useEffect2(() => {
-    fileNamesInput.onChange(fileNames->toReactEvent)
-    fileTypeInput.onChange(fileTypes->toReactEvent)
+    fileNamesInput.onChange(fileNames->Identity.anyTypeToReactEvent)
+    fileTypeInput.onChange(fileTypes->Identity.anyTypeToReactEvent)
     None
   }, (fileNames, fileTypes))
 
@@ -61,7 +58,7 @@ let make = (
       ->getArrayFromJson([])
       ->Js.Array2.filteri((_, i) => indx != i)
       ->Js.Json.array
-      ->toReactEvent,
+      ->Identity.anyTypeToReactEvent,
     )
     setKey(prev => prev + 1)
   }
@@ -130,7 +127,7 @@ let make = (
               }
 
               if !isCorrectFileFormat {
-                input.onChange(toReactEvent(""))
+                input.onChange(Identity.stringToFormReactEvent(""))
                 toast("Invalid file format", ToastError)
               } else if isValid {
                 switch sizeLimit {
@@ -180,7 +177,7 @@ let make = (
       } else {
         break := true
       }
-      input.onChange(toReactEvent(files))
+      input.onChange(Identity.anyTypeToReactEvent(files))
     }
   }
 
@@ -226,7 +223,7 @@ let make = (
             setFilenames(prev => prev->Js.Array2.concat(filename))
             setFileTypes(prev => prev->Js.Array2.concat(mimeType))
             input.onChange(
-              toReactEvent(
+              Identity.anyTypeToReactEvent(
                 input.value->getArrayFromJson([])->Js.Array2.concat([file->Js.Json.string]),
               ),
             )

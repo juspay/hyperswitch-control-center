@@ -47,7 +47,7 @@ module HomePageHorizontalStepper = {
     <div className="flex w-full gap-2 justify-evenly">
       {stepperItemsArray
       ->Array.mapWithIndex((value, index) => {
-        <div className="flex flex-col gap-2.5 w-full">
+        <div className="flex flex-col gap-2.5 w-full" key={index->string_of_int}>
           <div className="flex items-center gap-2">
             <span
               className={`h-6 w-6 flex items-center justify-center border-2 rounded-md font-semibold ${index->getStepperStyle} ${getTextStyle}`}>
@@ -124,7 +124,7 @@ module QuickStart = {
               await ProcesorType(bodyOfSecondConnector)->usePostEnumDetails(
                 #SecondProcessorConnected,
               )
-            let _res = updateEnumInRecoil([
+            let _ = updateEnumInRecoil([
               (Boolean(true), #IsMultipleConfiguration),
               (ProcesorType(bodyOfFirstConnector), #FirstProcessorConnected),
               (ProcesorType(bodyOfSecondConnector), #SecondProcessorConnected),
@@ -146,7 +146,7 @@ module QuickStart = {
             })->usePostEnumDetails(#IsMultipleConfiguration)
             let _firstEnumSetupValues =
               await ProcesorType(bodyOfFirstConnector)->usePostEnumDetails(#FirstProcessorConnected)
-            let _res = updateEnumInRecoil([
+            let _ = updateEnumInRecoil([
               (ConnectorChoice({isMultipleConfiguration: true}), #IsMultipleConfiguration),
               (ProcesorType(bodyOfFirstConnector), #FirstProcessorConnected),
             ])
@@ -338,6 +338,7 @@ module Resources = {
 
 @react.component
 let make = () => {
+  let greeting = HomeUtils.getGreeting()
   let isMobileView = MatchMedia.useMobileChecker()
   let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
@@ -349,13 +350,19 @@ let make = () => {
     isProdIntentCompleted,
   ]
 
-  <div className="w-full flex flex-col gap-14">
-    {if checkingConditions->Js.Array2.includes(false) {
-      <QuickStart isMobileView />
-    } else {
-      <HomePageOverviewComponent />
-    }}
-    <RecipesAndPlugins />
-    <Resources />
-  </div>
+  <>
+    <PageUtils.PageHeading
+      title={`${greeting}, it's great to see you!`}
+      subTitle="Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments."
+    />
+    <div className="w-full flex flex-col gap-14">
+      {if checkingConditions->Js.Array2.includes(false) {
+        <QuickStart isMobileView />
+      } else {
+        <HomePageOverviewComponent />
+      }}
+      <RecipesAndPlugins />
+      <Resources />
+    </div>
+  </>
 }

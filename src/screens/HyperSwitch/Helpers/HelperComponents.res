@@ -47,6 +47,7 @@ module BluredTableComponent = {
     ~paymentModal=false,
     ~setPaymentModal=_ => (),
     ~moduleName,
+    ~moduleSubtitle=?,
     ~mixPanelEventName=?,
     ~showRedirectCTA=true,
     ~headerRightButton=React.null,
@@ -63,9 +64,12 @@ module BluredTableComponent = {
 
     let dummyTableValue = Belt.Array.make(5, dummyTableValueDict)
 
+    let subTitle =
+      moduleSubtitle->Belt.Option.isSome ? moduleSubtitle->Belt.Option.getWithDefault("") : ""
+
     <div className="relative flex flex-col gap-8">
       <div className="flex items-center justify-between ">
-        <PageUtils.PageHeading title=moduleName />
+        <PageUtils.PageHeading title=moduleName subTitle />
         <div> {headerRightButton} </div>
       </div>
       <div className="blur bg-white p-8">

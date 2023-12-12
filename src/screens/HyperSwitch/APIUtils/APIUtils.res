@@ -194,6 +194,8 @@ let getURL = (
       | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
       }
     | #CREATE_MERCHANT => `${userUrl}/create_merchant`
+    | #OSSSIGNIN => `${userUrl}/signin`
+    | #OSSSIGNUP => `${userUrl}/signup`
     | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
     }
   | RECON =>
@@ -256,7 +258,7 @@ let handleLogout = async (
   ~setAuthStatus,
 ) => {
   let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
-  let _res = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
+  let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
   setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
   LocalStorage.clear()
   RescriptReactRouter.push("/register")
@@ -399,7 +401,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
           _ => {
             hyperswitchMixPanel(~eventName=Some(`${urlPath}_tryplayground_register`), ())
             hyperswitchMixPanel(~eventName=Some(`global_tryplayground_register`), ())
-            let _res = handleLogout(~fetchApi, ~setAuthStatus)
+            let _ = handleLogout(~fetchApi, ~setAuthStatus)
           }
         },
       },
@@ -460,7 +462,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
           _ => {
             hyperswitchMixPanel(~eventName=Some(`${urlPath}_tryplayground_register`), ())
             hyperswitchMixPanel(~eventName=Some(`global_tryplayground_register`), ())
-            let _res = handleLogout(~fetchApi, ~setAuthStatus)
+            let _ = handleLogout(~fetchApi, ~setAuthStatus)
           }
         },
       },

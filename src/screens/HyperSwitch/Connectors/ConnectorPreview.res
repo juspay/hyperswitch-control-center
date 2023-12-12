@@ -6,9 +6,29 @@ module InfoField = {
     <UIUtils.RenderIf condition={str->Js.String2.length > 0}>
       <div>
         <h2 className="text-lg font-semibold"> {label->React.string} </h2>
-        <h3 className="truncate"> {str->React.string} </h3>
+        <h3 className=" break-words"> {str->React.string} </h3>
       </div>
     </UIUtils.RenderIf>
+  }
+}
+
+module KeyAndCopyArea = {
+  @react.component
+  let make = (~copyValue) => {
+    let showToast = ToastState.useShowToast()
+    <div className={`flex flex-col md:flex-row gap-2 items-start`}>
+      <p className="text-base text-grey-700 opacity-70 break-all overflow-scroll">
+        {copyValue->React.string}
+      </p>
+      <div
+        className="cursor-pointer h-20 w-20 pt-1"
+        onClick={_ => {
+          Clipboard.writeText(copyValue)
+          showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+        }}>
+        <img src={`/assets/CopyToClipboard.svg`} />
+      </div>
+    </div>
   }
 }
 
@@ -99,10 +119,20 @@ module ConnectorSummaryGrid = {
     ~isPayoutFlow,
     ~setScreenState,
   ) => {
-    let url = RescriptReactRouter.useUrl()
-    let showToast = ToastState.useShowToast()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
+    let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
+    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
+    let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
+    let currentProfileName =
+      arrayOfBusinessProfile
+      ->Js.Array2.find((ele: HSwitchSettingTypes.profileEntity) =>
+        ele.profile_id === connectorInfo.profile_id
+      )
+      ->Belt.Option.getWithDefault(defaultBusinessProfile)
     let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
+    let copyValueOfWebhookEndpoint = ConnectorUtils.getWebhooksUrl(
+      ~connectorName={connectorInfo.merchant_connector_id},
+      ~merchantId,
+    )
     let connectorDetails = React.useMemo1(() => {
       try {
         if connector->Js.String2.length > 0 {
@@ -126,30 +156,32 @@ module ConnectorSummaryGrid = {
     let (_, connectorAccountFields, _, _, _, _) = ConnectorUtils.getConnectorFields(
       connectorDetails,
     )
-    let webhooksUrl = ConnectorUtils.getWebhooksUrl(~connectorName=connector, ~merchantId)
 
     <div className="p-2 md:px-10">
-      <div className="grid grid-cols-2 w-1/2 my-12">
-        <h4 className="text-lg font-semibold"> {"Processor Mode"->React.string} </h4>
-        <div>
-          {if connectorInfo.test_mode {
-            <span className="font-semibold p-2 px-3 bg-orange-200 rounded-full">
-              {"TEST MODE"->React.string}
-            </span>
-          } else {
-            <span className="font-semibold p-2 px-3 bg-blue-200 rounded-full">
-              {"LIVE MODE"->React.string}
-            </span>
-          }}
+      <div className="grid grid-cols-4 my-12">
+        <div className="flex items-start">
+          <h4 className="text-lg font-semibold"> {"Webhook Endpoint"->React.string} </h4>
+          <ToolTip
+            height=""
+            description="Configure this endpoint in the processors dashboard under webhook settings for us to receive events from the processor"
+            toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
+            toolTipPosition=Top
+            tooltipWidthClass="w-fit"
+          />
+        </div>
+        <div className="col-span-3">
+          <KeyAndCopyArea copyValue={copyValueOfWebhookEndpoint} />
         </div>
       </div>
-      <div className="grid grid-cols-2 w-1/2 my-12">
-        <h4 className="text-lg font-semibold"> {"Profile Id"->React.string} </h4>
-        <div> {connectorInfo.profile_id->React.string} </div>
+      <div className="grid grid-cols-4 my-12">
+        <h4 className="text-lg font-semibold"> {"Profile"->React.string} </h4>
+        <div className="col-span-3">
+          {`${currentProfileName.profile_name} - ${connectorInfo.profile_id}`->React.string}
+        </div>
       </div>
-      <div className="grid grid-cols-2 w-1/2 my-12">
+      <div className="grid grid-cols-4  my-12">
         <h4 className="text-lg font-semibold"> {"API Keys"->React.string} </h4>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 col-span-3">
           {connectorAccountFields
           ->Js.Dict.keys
           ->Array.mapWithIndex((field, index) => {
@@ -164,31 +196,9 @@ module ConnectorSummaryGrid = {
           ->React.array}
         </div>
       </div>
-      <div className="grid grid-cols-4 w-full my-12">
-        <h4 className="text-lg font-semibold"> {"Webhooks"->React.string} </h4>
-        <div className="flex flex-col col-span-3">
-          <div className="flex">
-            <div> {webhooksUrl->React.string} </div>
-            <div
-              className="px-4 flex gap-2 items-center cursor-pointer"
-              onClick={_ => {
-                Clipboard.writeText(webhooksUrl)
-                showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
-                hyperswitchMixPanel(
-                  ~pageName=`${url.path->LogicUtils.getListHead}`,
-                  ~contextName="webhook_processor",
-                  ~actionName="hs_webhookcopied",
-                  (),
-                )
-              }}>
-              <img src={`/assets/CopyToClipboard.svg`} />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="grid grid-cols-2 w-1/2 my-12">
+      <div className="grid grid-cols-4  my-12">
         <h4 className="text-lg font-semibold"> {"PMTs"->React.string} </h4>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 col-span-3">
           {connectorInfo.payment_methods_enabled
           ->Array.mapWithIndex((field, index) => {
             <InfoField
@@ -223,11 +233,7 @@ let make = (
   ~isPayoutFlow,
   ~showMenuOption=true,
 ) => {
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   open APIUtils
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
@@ -257,7 +263,7 @@ let make = (
         isConnectorDisabled,
       )
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
-      let _res = await updateDetails(url, disableConnectorPayload->Js.Json.object_, Post)
+      let _ = await updateDetails(url, disableConnectorPayload->Js.Json.object_, Post)
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
       RescriptReactRouter.push("/connectors")
     } catch {
@@ -272,8 +278,7 @@ let make = (
       <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
           <GatewayIcon
-            gateway={connectorInfo.connector_name->Js.String2.toUpperCase}
-            className="w-14 h-14 rounded-full"
+            gateway={connectorInfo.connector_name->Js.String2.toUpperCase} className="w-14 h-14"
           />
           <h2 className="text-xl font-semibold">
             {connectorInfo.connector_name->LogicUtils.capitalizeString->React.string}

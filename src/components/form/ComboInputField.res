@@ -1,7 +1,4 @@
-external inputAsString: ReactEvent.Form.t => string = "%identity"
 external inputAsArray: ReactEvent.Form.t => array<Js.Json.t> = "%identity"
-external stringToForm: string => ReactEvent.Form.t = "%identity"
-external toReactForm: 'a => ReactEvent.Form.t = "%identity"
 
 open LogicUtils
 
@@ -42,7 +39,11 @@ module BaseComponent = {
           switch fieldType {
           | String => val
           | Array =>
-            val->inputAsString->Js.String2.split(",")->Js.Array2.filter(x => x !== "")->toReactForm
+            val
+            ->Identity.formReactEventToString
+            ->Js.String2.split(",")
+            ->Js.Array2.filter(x => x !== "")
+            ->Identity.anyTypeToReactEvent
           },
         )
       },
@@ -76,18 +77,24 @@ module BaseComponent = {
 
     let handleKeyUp = React.useCallback1(ev => {
       if !submitOnEnter {
-        let value = {ev->ReactEvent.Keyboard.target}["value"]->inputAsString->Js.String2.trim
-        input.onChange(value->stringToForm)
+        let value =
+          {ev->ReactEvent.Keyboard.target}["value"]
+          ->Identity.formReactEventToString
+          ->Js.String2.trim
+        input.onChange(value->Identity.stringToFormReactEvent)
       } else {
         let key = ev->ReactEvent.Keyboard.key
         let keyCode = ev->ReactEvent.Keyboard.keyCode
         if key === "Enter" || keyCode === 13 {
-          let value = {ev->ReactEvent.Keyboard.target}["value"]->inputAsString->Js.String2.trim
+          let value =
+            {ev->ReactEvent.Keyboard.target}["value"]
+            ->Identity.formReactEventToString
+            ->Js.String2.trim
           switch customSubmitFunction {
           | Some(fn) => fn(input, value)
           | None =>
             if value !== "" {
-              input.onChange(value->stringToForm)
+              input.onChange(value->Identity.stringToFormReactEvent)
             }
           }
         }
@@ -95,7 +102,7 @@ module BaseComponent = {
     }, [selectedMode])
 
     let onClick = (_: ReactEvent.Mouse.t) => {
-      fieldInput.onChange(""->stringToForm)
+      fieldInput.onChange(""->Identity.stringToFormReactEvent)
       setComboVal(_ => "")
     }
 
@@ -200,7 +207,7 @@ let make = (
       onBlur: _ev => (),
       onChange: ev => {
         setComboVal(_ => "")
-        let value = ev->inputAsString
+        let value = ev->Identity.formReactEventToString
         form.change(selectedMode, Js.Json.null)
         setSelectedMode(_ => value)
       },

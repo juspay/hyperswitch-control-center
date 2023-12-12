@@ -5,11 +5,7 @@ let make = () => {
   open ConnectorTypes
   open LogicUtils
   open FRMInfo
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let url = RescriptReactRouter.useUrl()
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let fetchDetails = useGetMethod()
@@ -32,7 +28,7 @@ let make = () => {
     setInitialValues(_ => {
       generateInitialValuesDict(
         ~selectedFRMInfo=frmInfo,
-        ~isLiveMode=featureFlagDetails.testLiveMode,
+        ~isLiveMode=featureFlagDetails.isLiveMode,
         (),
       )
     })
@@ -108,9 +104,6 @@ let make = () => {
       <UIUtils.RenderIf condition={currentStep !== Preview}>
         <ConnectorHome.ConnectorCurrentStepIndicator currentStep stepsArr />
       </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={featureFlagDetails.frm}>
-        <FRMSelect.FRMProPackageInfo />
-      </UIUtils.RenderIf>
       <div className="bg-white rounded border h-3/4 p-2 md:p-6 overflow-scroll">
         {switch currentStep {
         | IntegFields =>
@@ -127,8 +120,7 @@ let make = () => {
             setCurrentStep retrivedValues=Some(initialValues) setInitialValues isUpdateFlow
           />
         | SummaryAndTest
-        | Preview
-        | _ =>
+        | Preview =>
           <FRMSummary initialValues currentStep setCurrentStep isUpdateFlow />
         }}
       </div>

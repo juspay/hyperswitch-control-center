@@ -22,10 +22,6 @@ type filterDataType = TableUtils.filterDataType =
   | Float(float, float)
   | String
   | DateTime
-
-external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
-external formEventToString: ReactEvent.Form.t => string = "%identity"
-external toReactDOMStyle: Js.Json.t => ReactDOM.style = "%identity"
 external jsonToStr: Js.Json.t => string = "%identity"
 type textAlign = TableUtils.textAlign = Left | Right
 type fontBold = bool
@@ -147,7 +143,7 @@ module TableRow: {
     ~evenVertivalLines: bool,
     ~highlightEnabledFieldsArray: Js.Array2.t<int>,
     ~tableDataBorderClass: string=?,
-    ~collapseTabelRow: bool=?,
+    ~collapseTableRow: bool=?,
     ~expandedRow: unit => React.element,
     ~onMouseEnter: option<int => unit>,
     ~onMouseLeave: option<int => unit>,
@@ -263,7 +259,7 @@ let make: (
   ~tableheadingClass: string=?,
   ~tableBorderClass: string=?,
   ~tableDataBorderClass: string=?,
-  ~collapseTabelRow: bool=?,
+  ~collapseTableRow: bool=?,
   ~getRowDetails: Js.Nullable.t<'b> => React.element=?,
   ~actualData: Js.Array2.t<Js.Nullable.t<'b>>=?,
   ~onExpandClickData: 'onExpandClickData=?,

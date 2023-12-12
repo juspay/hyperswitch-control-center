@@ -2,11 +2,7 @@ open AdvancedRoutingTypes
 open AdvancedRoutingUtils
 open FormRenderer
 
-external arrToFormEvent: array<'a> => ReactEvent.Form.t = "%identity"
-external toForm: 'a => ReactEvent.Form.t = "%identity"
 external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
-external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
 
 module LogicalOps = {
   @react.component
@@ -55,8 +51,8 @@ module OperatorInp = {
       name: "string",
       onBlur: _ev => (),
       onChange: ev => {
-        let value = ev->formEventToStr
-        operator.onChange(value->toForm)
+        let value = ev->Identity.formReactEventToString
+        operator.onChange(value->Identity.anyTypeToReactEvent)
       },
       onFocus: _ev => (),
       value: operator.value,
@@ -67,13 +63,14 @@ module OperatorInp = {
       | Enum_variant => ["IS", "CONTAINS", "IS_NOT", "NOT_CONTAINS"]
       | Number => ["EQUAL TO", "GREATER THAN", "LESS THAN"]
       | Metadata_value => ["EQUAL TO"]
+      | String_value => ["EQUAL TO", "NOT EQUAL_TO"]
       | _ => []
       }
 
       setOpVals(_ => operatorVals)
 
       if operator.value->Js.Json.decodeString->Belt.Option.isNone {
-        operator.onChange(operatorVals[0]->toForm)
+        operator.onChange(operatorVals[0]->Identity.anyTypeToReactEvent)
       }
       None
     }, (field.value, valInp.value))
@@ -128,6 +125,8 @@ module ValueInp = {
       typeField.onChange(
         if keyType->variantTypeMapper === Metadata_value {
           "metadata_variant"
+        } else if keyType->variantTypeMapper === String_value {
+          "str_value"
         } else {
           switch opField.value->LogicUtils.getStringFromJson("")->operatorMapper {
           | IS
@@ -136,7 +135,7 @@ module ValueInp = {
           | NOT_CONTAINS => "enum_variant_array"
           | _ => "number"
           }
-        }->toForm,
+        }->Identity.anyTypeToReactEvent,
       )
       None
     }, [valueField.value])
@@ -145,8 +144,8 @@ module ValueInp = {
       name: "string",
       onBlur: _ev => (),
       onChange: ev => {
-        let value = ev->formEventToStrArr
-        valueField.onChange(value->toForm)
+        let value = ev->Identity.formReactEventToArrayOfString
+        valueField.onChange(value->Identity.anyTypeToReactEvent)
       },
       onFocus: _ev => (),
       value: valueField.value,
@@ -174,8 +173,15 @@ module ValueInp = {
           fixedDropDownDirection=SelectBox.TopRight
         />
       }
+    | EQUAL_TO =>
+      switch keyType->variantTypeMapper {
+      | String_value => <TextInput input placeholder="Enter value" />
+      | _ => <NumericTextInput placeholder={"Enter value"} input />
+      }
 
-    | EQUAL_TO | LESS_THAN | GREATER_THAN => <NumericTextInput placeholder={"Enter Value"} input />
+    | NOT_EQUAL_TO => <TextInput input placeholder="Enter value" />
+    | LESS_THAN | GREATER_THAN => <NumericTextInput placeholder={"Enter value"} input />
+
     | _ => React.null
     }
   }
@@ -199,12 +205,12 @@ module MetadataInp = {
         })
         let finalVal = Js.Array2.joinWith(arrStr, ",")->Js.Json.string
 
-        valueField.onChange(finalVal->toForm)
+        valueField.onChange(finalVal->Identity.anyTypeToReactEvent)
       },
       onChange: ev => {
         let target = ReactEvent.Form.target(ev)
         let value = target["value"]
-        valueField.onChange(value->toForm)
+        valueField.onChange(value->Identity.anyTypeToReactEvent)
       },
       onFocus: _ev => (),
       value: valueField.value,
@@ -285,11 +291,11 @@ module FieldInp = {
       name: "string",
       onBlur: _ev => (),
       onChange: ev => {
-        let value = ev->formEventToStr
+        let value = ev->Identity.formReactEventToString
         onChangeMethod(value)
-        field.onChange(value->toForm)
-        op.onChange(""->toForm)
-        val.onChange(""->toForm)
+        field.onChange(value->Identity.anyTypeToReactEvent)
+        op.onChange(""->Identity.anyTypeToReactEvent)
+        val.onChange(""->Identity.anyTypeToReactEvent)
       },
       onFocus: _ev => (),
       value: field.value,
@@ -308,9 +314,8 @@ module FieldInp = {
 
 module RuleFieldBase = {
   @react.component
-  let make = (~isFirst, ~id, ~isExpanded, ~onClick, ~wasm) => {
+  let make = (~isFirst, ~id, ~isExpanded, ~onClick, ~wasm, ~isFrom3ds) => {
     let (hover, setHover) = React.useState(_ => false)
-    let (paymentMethod, setpaymentMethod) = React.useState(_ => [])
     let (keyType, setKeyType) = React.useState(_ => "")
     let (variantValues, setVariantValues) = React.useState(_ => [])
     let field = ReactFinalForm.useField(`${id}.lhs`).input
@@ -329,20 +334,19 @@ module RuleFieldBase = {
       setKeyTypeAndVariants(wasm, value)
     }
 
-    React.useEffect0(() => {
-      let methodKeys = switch wasm {
-      | Some(res) => res.getAllKeys()
-      | None => []
-      }
+    let methodKeys = React.useMemo0(() => {
       let value = field.value->LogicUtils.getStringFromJson("")
       if value->Js.String2.length > 0 {
         setKeyTypeAndVariants(wasm, value)
       }
-      setpaymentMethod(_ => methodKeys)
-      None
+      if isFrom3ds {
+        Window.getThreeDsKeys()
+      } else {
+        Window.getAllKeys()
+      }
     })
 
-    <UIUtils.RenderIf condition={paymentMethod->Js.Array2.length > 0}>
+    <UIUtils.RenderIf condition={methodKeys->Js.Array2.length > 0}>
       {if isExpanded {
         <div
           className={`flex flex-wrap items-center px-1 ${hover
@@ -353,7 +357,7 @@ module RuleFieldBase = {
           </UIUtils.RenderIf>
           <div className="-mt-5 p-1">
             <FieldWrapper label="">
-              <FieldInp ops=paymentMethod prefix=id onChangeMethod />
+              <FieldInp ops=methodKeys prefix=id onChangeMethod />
             </FieldWrapper>
           </div>
           <div className="-mt-5">
@@ -384,7 +388,7 @@ module RuleFieldBase = {
 
 module MakeRuleField = {
   @react.component
-  let make = (~id, ~isExpanded, ~wasm) => {
+  let make = (~id, ~isExpanded, ~wasm, ~isFrom3ds) => {
     let ruleJsonPath = `${id}.statements`
     let conditionsInput = ReactFinalForm.useField(ruleJsonPath).input
     let fields = conditionsInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
@@ -393,12 +397,21 @@ module MakeRuleField = {
     let onPlusClick = _ => {
       if plusBtnEnabled {
         let toAdd = Js.Dict.empty()
-        conditionsInput.onChange(Js.Array2.concat(fields, [toAdd->Js.Json.object_])->arrToFormEvent)
+        conditionsInput.onChange(
+          Js.Array2.concat(
+            fields,
+            [toAdd->Js.Json.object_],
+          )->Identity.arrayOfGenericTypeToFormReactEvent,
+        )
       }
     }
 
     let onCrossClick = index => {
-      conditionsInput.onChange(fields->Array.filterWithIndex((_, i) => index !== i)->arrToFormEvent)
+      conditionsInput.onChange(
+        fields
+        ->Array.filterWithIndex((_, i) => index !== i)
+        ->Identity.arrayOfGenericTypeToFormReactEvent,
+      )
     }
 
     <div className="flex flex-wrap items-center">
@@ -409,6 +422,7 @@ module MakeRuleField = {
           id={`${ruleJsonPath}[${i->Belt.Int.toString}]`}
           isExpanded
           wasm
+          isFrom3ds
         />
       )->React.array}
       {if isExpanded {

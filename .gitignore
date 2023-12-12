@@ -20,4 +20,3 @@ yarn.lock
 user_data.sh
 *.pem
 .bsb.lock
-CHANGELOG.md

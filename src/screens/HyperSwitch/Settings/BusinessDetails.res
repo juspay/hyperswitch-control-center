@@ -1,5 +1,5 @@
 open HSwitchSettingTypes
-open HSwitchMerchantAccountUtils
+open MerchantAccountUtils
 open APIUtils
 open SettingsFieldsInfo
 
@@ -121,12 +121,10 @@ let make = () => {
 
   <PageLoaderWrapper screenState={fetchState}>
     <div className="flex flex-col gap-6">
-      <div className="font-semibold text-fs-20 ">
-        {React.string("Business Settings")}
-        <p className="font-medium text-fs-14 text-black opacity-50">
-          {"Manage contact details about your business. You may also add different business entities in order to connect with right processors."->React.string}
-        </p>
-      </div>
+      <PageUtils.PageHeading
+        title="Business Details"
+        subTitle="Manage core business information associated with the payment account."
+      />
       <Form
         onSubmit
         initialValues={merchantInfo->Js.Json.object_}
@@ -135,7 +133,7 @@ let make = () => {
           validateMerchantAccountForm(
             ~values,
             ~fieldsToValidate=[PrimaryPhone, PrimaryEmail, Website, SecondaryEmail, SecondaryPhone],
-            ~setIsDisabled,
+            ~setIsDisabled=Some(setIsDisabled),
             ~initialData={merchantInfo->Js.Json.object_},
           )
         }}>

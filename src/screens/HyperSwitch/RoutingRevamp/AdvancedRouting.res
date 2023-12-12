@@ -3,9 +3,6 @@ open AdvancedRoutingTypes
 open AdvancedRoutingUtils
 open LogicUtils
 
-external toForm: string => ReactEvent.Form.t = "%identity"
-external toJson: 'a => Js.Json.t = "%identity"
-external arrToFormEvent: array<'a> => ReactEvent.Form.t = "%identity"
 external toWasm: Js.Dict.t<Js.Json.t> => RoutingTypes.wasmModule = "%identity"
 
 let defaultRule = {
@@ -45,21 +42,6 @@ module Add3DSCondition = {
   @react.component
   let make = (~isFirst, ~id) => {
     let classStyle = "flex justify-center relative py-2 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border-2 border-border_gray border-opacity-50 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
-    let (dropdownval, setDropdownval) = React.useState(_ => "three_ds")
-    let field = ReactFinalForm.useField(`${id}.routingOutput.override_3ds`).input
-
-    let input: ReactFinalForm.fieldRenderPropsInput = {
-      name: `${id}.routingOutput.override_3ds`,
-      onBlur: _ev => (),
-      onChange: ev => {
-        let value = ev->AdvancedRoutingUIUtils.formEventToStr
-        field.onChange(value->toForm)
-        setDropdownval(_ => value)
-      },
-      onFocus: _ev => (),
-      value: dropdownval->Js.Json.string,
-      checked: true,
-    }
 
     let options: array<SelectBox.dropdownOption> = [
       {value: "three_ds", label: "3DS"},
@@ -74,13 +56,19 @@ module Add3DSCondition = {
         <div className="flex flex-wrap gap-4 -mt-2">
           <div className=classStyle> {"Auth type"->React.string} </div>
           <div className=classStyle> {"= is Equal to"->React.string} </div>
-          <SelectBox.BaseDropdown
-            allowMultiSelect=false
-            buttonText="Select Field"
-            input
-            options
-            hideMultiSelectButtons=true
-            deselectDisable=true
+          <FormRenderer.FieldRenderer
+            field={FormRenderer.makeFieldInfo(
+              ~label="",
+              ~name=`${id}.connectorSelection.override_3ds`,
+              ~customInput=InputFields.selectInput(
+                ~options,
+                ~buttonText="Select Field",
+                ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
+                ~deselectDisable=true,
+                (),
+              ),
+              (),
+            )}
           />
         </div>
       </div>
@@ -100,7 +88,7 @@ module Wrapper = {
     ~notFirstRule=true,
     ~isDragging=false,
     ~wasm,
-    ~isfrom3ds=false,
+    ~isFrom3ds=false,
   ) => {
     let showToast = ToastState.useShowToast()
     let isMobileView = MatchMedia.useMobileChecker()
@@ -133,7 +121,7 @@ module Wrapper = {
     }
 
     React.useEffect0(() => {
-      name.onChange(heading->Js.String2.toLowerCase->titleToSnake->toForm)
+      name.onChange(heading->Js.String2.toLowerCase->titleToSnake->Identity.stringToFormReactEvent)
 
       let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Js.Array2.length > 0
 
@@ -230,12 +218,12 @@ module Wrapper = {
             ${border} 
             border-blue-700`}>
         <UIUtils.RenderIf condition={!isFirst}>
-          <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm />
+          <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm isFrom3ds />
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!isfrom3ds}>
+        <UIUtils.RenderIf condition={!isFrom3ds}>
           <AddRuleGateway id gatewayOptions isExpanded isFirst />
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={isfrom3ds}>
+        <UIUtils.RenderIf condition={isFrom3ds}>
           <Add3DSCondition isFirst id />
         </UIUtils.RenderIf>
       </div>
@@ -251,23 +239,23 @@ module RuleBasedUI = {
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
 
     React.useEffect1(() => {
-      ruleInput.onChange(rules->arrToFormEvent)
+      ruleInput.onChange(rules->Identity.arrayOfGenericTypeToFormReactEvent)
       None
     }, [rules])
 
     let addRule = (index, copy) => {
       let existingRules = ruleInput.value->getArrayFromJson([])
       let newRule = copy
-        ? existingRules[index]->Belt.Option.getWithDefault(defaultRule->toJson)
-        : defaultRule->toJson
+        ? existingRules[index]->Belt.Option.getWithDefault(defaultRule->Identity.genericTypeToJson)
+        : defaultRule->Identity.genericTypeToJson
       let newRules = existingRules->Js.Array2.concat([newRule])
-      ruleInput.onChange(newRules->arrToFormEvent)
+      ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
     let removeRule = index => {
       let existingRules = ruleInput.value->getArrayFromJson([])
       let newRules = existingRules->Array.filterWithIndex((_, i) => i !== index)
-      ruleInput.onChange(newRules->arrToFormEvent)
+      ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
     <div className="flex flex-col my-5">
@@ -347,10 +335,11 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let url = RescriptReactRouter.useUrl()
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-  let defaultBusinessProfile =
-    businessProfiles->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+  let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
-  let (initialValues, setInitialValues) = React.useState(_ => initialValues->toJson)
+  let (initialValues, setInitialValues) = React.useState(_ =>
+    initialValues->Identity.genericTypeToJson
+  )
   let (initialRule, setInitialRule) = React.useState(() => None)
   let showToast = ToastState.useShowToast()
   let fetchDetails = useGetMethod()
@@ -508,7 +497,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     try {
       setScreenState(_ => Loading)
       let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-      let _res = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
       showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
       RescriptReactRouter.replace(`/routing?`)
       setScreenState(_ => Success)
@@ -537,7 +526,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       setScreenState(_ => Loading)
       let deactivateRoutingURL = `${getURL(~entityName=ROUTING, ~methodType=Post, ())}/deactivate`
       let body = [("profile_id", profile->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
-      let _res = await updateDetails(deactivateRoutingURL, body, Post)
+      let _ = await updateDetails(deactivateRoutingURL, body, Post)
       showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
       RescriptReactRouter.replace(`/routing?`)
       setScreenState(_ => Success)
@@ -572,64 +561,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
       let rulesDict = dataDict->getArrayFromDict("rules", [])
 
-      let modifiedRules = rulesDict->Js.Array2.map(ruleJson => {
-        let ruleDict = ruleJson->getDictFromJsonObject
-        let statements = ruleDict->getArrayFromDict("statements", [])
-
-        let modifiedStatements = statements->Array.reduce(
-          [
-            {
-              condition: [],
-            },
-          ],
-          (acc, statement) => {
-            let statementDict = statement->getDictFromJsonObject
-            let logicalOperator = statementDict->getString("logical", "")->Js.String2.toLowerCase
-
-            let lastItem =
-              acc
-              ->Belt.Array.get(acc->Js.Array2.length - 1)
-              ->Belt.Option.getWithDefault({condition: []})
-
-            let condition = {
-              lhs: statementDict->getString("lhs", ""),
-              comparison: switch statementDict->getString("comparison", "")->operatorMapper {
-              | IS
-              | EQUAL_TO
-              | CONTAINS => "equal"
-              | IS_NOT
-              | NOT_CONTAINS => "not_equal"
-              | GREATER_THAN => "greater_than"
-              | LESS_THAN => "less_than"
-              | UnknownOperator(str) => str
-              },
-              value: statementDict->getDictfromDict("value")->getStatementValue,
-              metadata: statementDict->getJsonObjectFromDict("metadata"),
-            }
-
-            let newAcc = if logicalOperator === "or" {
-              acc->Js.Array2.concat([
-                {
-                  condition: [condition],
-                },
-              ])
-            } else {
-              lastItem.condition->Array.push(condition)
-              let filteredArr =
-                acc->Array.filterWithIndex((_, i) => i !== acc->Js.Array2.length - 1)
-              filteredArr->Array.push(lastItem)
-              filteredArr
-            }
-
-            newAcc
-          },
-        )
-        {
-          "name": ruleDict->getString("name", ""),
-          "connectorSelection": ruleDict->getJsonObjectFromDict("connectorSelection"),
-          "statements": modifiedStatements->Js.Array2.map(toJson)->Js.Json.array,
-        }
-      })
+      let modifiedRules = rulesDict->generateRule
 
       let defaultSelection =
         dataDict
@@ -661,7 +593,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       }
 
       let getActivateUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
-      let response = await updateDetails(getActivateUrl, payload->toJson, Post)
+      let response = await updateDetails(getActivateUrl, payload->Identity.genericTypeToJson, Post)
 
       showToast(
         ~message="Successfully Created a new Configuration !",

@@ -1,7 +1,6 @@
 open HyperSwitch
 open HyperSwitchTypes
 open Promise
-external objToJson: 'a => Js.Json.t = "%identity"
 
 @val external window: 'a = "window"
 @val @scope("window") external parent: 'a = "parent"
@@ -135,11 +134,11 @@ module CheckoutForm = {
               "padding": "15px 32px",
               "borderRadius": "5px",
               "fontWeight": "700",
-            }->objToJson,
-          }->objToJson,
+            }->Identity.genericTypeToJson,
+          }->Identity.genericTypeToJson,
           theme,
         },
-      }->objToJson
+      }->Identity.genericTypeToJson
       setAppearanceElem(_ => appearanceVal)
       elements.update(appearanceVal)
       None
@@ -157,7 +156,7 @@ module CheckoutForm = {
             spacedAccordionItems: isSpaceAccordion,
           },
           "paymentMethodOrder": methodsOrder,
-        }->objToJson
+        }->Identity.genericTypeToJson
         setPaymentElem(_ => paymentVal)
         ele.update(paymentVal)
       | None => ()
@@ -215,16 +214,11 @@ module CheckoutForm = {
       ->ignore
     }
     React.useEffect1(() => {
-      let id = Js.String2.split(clientSecret, "_secret_")[0]->Belt.Option.getWithDefault("")
-      switch Some(id) {
-      | None | Some("") => ()
-      | Some(id) =>
-        hyper.retrievePaymentIntent(id)
-        ->then(_ => {
-          resolve()
-        })
-        ->ignore
-      }
+      hyper.retrievePaymentIntent(clientSecret)
+      ->then(_ => {
+        resolve()
+      })
+      ->ignore
 
       None
     }, [hyper])

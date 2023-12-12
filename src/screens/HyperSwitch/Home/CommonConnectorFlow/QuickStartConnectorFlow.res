@@ -29,7 +29,7 @@ let make = (
   let activeBusinessProfile =
     HyperswitchAtom.businessProfilesAtom
     ->Recoil.useRecoilValueFromAtom
-    ->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    ->MerchantAccountUtils.getValueFromBusinessProfile
   let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
 
   // TO determine if the connector connected are multiple
@@ -59,7 +59,7 @@ let make = (
         processorName: connectorResponse->getString("connector_name", ""),
       }
       let enumVariant = quickStartPageState->variantToEnumMapper
-      let _resp = await ProcesorType(processorVal)->usePostEnumDetails(enumVariant)
+      let _ = await ProcesorType(processorVal)->usePostEnumDetails(enumVariant)
       setButtonState(_ => Normal)
     } catch {
     | _ =>

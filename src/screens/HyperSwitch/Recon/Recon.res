@@ -1,20 +1,7 @@
-module ReconProPackageInfo = {
-  @react.component
-  let make = () => {
-    <div
-      className="border-2 border-orange-900 bg-orange-100 py-4 px-5 flex gap-4 items-center rounded-md">
-      <img className="mb-1 h-7" src="/icons/premiumIcon.svg" />
-      <div className="font-medium text-md text-orange-900">
-        {"This feature is a part of the \"Pro\" plan. You have to subscribe to \"Pro\" plan to use this feature"->React.string}
-      </div>
-    </div>
-  }
-}
-
 @react.component
 let make = () => {
   open APIUtils
-  open HSwitchMerchantAccountUtils
+  open MerchantAccountUtils
   let (redirectToken, setRedirecToken) = React.useState(_ => "")
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
@@ -29,7 +16,7 @@ let make = () => {
   let onClickForReconRequest = async () => {
     try {
       let url = getURL(~entityName=RECON, ~reconType=#REQUEST, ~methodType=Get, ())
-      let _res = await updateDetails(url, Js.Json.null, Post)
+      let _ = await updateDetails(url, Js.Json.null, Post)
       let _merchantDetails = await fetchMerchantAccountDetails()
       showToast(
         ~message=`Thank you for your interest in our reconciliation module. We are currently reviewing your request for access. We will follow up with you soon regarding next steps.`,
@@ -79,9 +66,6 @@ let make = () => {
 
   <PageLoaderWrapper screenState>
     <div className="h-screen overflow-scroll flex flex-col w-full ">
-      <UIUtils.RenderIf condition=isReconEnabled>
-        <ReconProPackageInfo />
-      </UIUtils.RenderIf>
       <div className="flex flex-col overflow-scroll h-full gap-6">
         <PageUtils.PageHeading
           title={isReconEnabled ? "Reconciliation" : "Activate Reconciliation"}

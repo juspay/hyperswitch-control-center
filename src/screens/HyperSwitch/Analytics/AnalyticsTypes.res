@@ -173,12 +173,19 @@ type paymentsSingleStateSeries = {
   payment_processed_amount: float,
   payment_avg_ticket_size: float,
 }
+
+type error_message_type = {
+  reason: string,
+  count: int,
+  percentage: float,
+}
+
 type paymentTableType = {
   payment_success_rate: float,
   payment_count: float,
   payment_success_count: float,
   payment_processed_amount: float,
-  payment_error_message: string,
+  payment_error_message: array<error_message_type>,
   avg_ticket_size: float,
   connector: string,
   payment_method: string,

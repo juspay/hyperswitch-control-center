@@ -1,10 +1,8 @@
-external formEventToBool: ReactEvent.Form.t => bool = "%identity"
-
 module AdvanceSettings = {
   @react.component
   let make = (~isUpdateFlow, ~frmName, ~renderCountrySelector) => {
     let (isFRMSettings, setIsFRMSettings) = React.useState(_ => isUpdateFlow)
-
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let form = ReactFinalForm.useForm()
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let url = RescriptReactRouter.useUrl()
@@ -14,7 +12,7 @@ module AdvanceSettings = {
       name: `input`,
       onBlur: _ev => (),
       onChange: ev => {
-        let value = ev->formEventToBool
+        let value = ev->Identity.formReactEventToBool
         setIsFRMSettings(_ => value)
         [frmName, "global"]->Js.Array2.forEach(ele =>
           hyperswitchMixPanel(
@@ -33,7 +31,7 @@ module AdvanceSettings = {
     let businessProfileValue =
       Recoil.useRecoilValueFromAtom(
         HyperswitchAtom.businessProfilesAtom,
-      )->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+      )->MerchantAccountUtils.getValueFromBusinessProfile
 
     React.useEffect1(() => {
       if !isUpdateFlow {
@@ -42,7 +40,7 @@ module AdvanceSettings = {
       None
     }, [businessProfileValue.profile_id])
 
-    <>
+    <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
       <div className="flex gap-2 items-center p-2">
         <BoolInput input={inputLabel} isDisabled={isUpdateFlow} boolCustomClass="rounded-full" />
         <p className="font-semibold !text-black opacity-50 ">
@@ -52,7 +50,7 @@ module AdvanceSettings = {
       <UIUtils.RenderIf condition={renderCountrySelector && isFRMSettings}>
         <ConnectorAccountDetails.BusinessProfileRender isUpdateFlow selectedConnector={frmName} />
       </UIUtils.RenderIf>
-    </>
+    </UIUtils.RenderIf>
   }
 }
 
@@ -198,11 +196,7 @@ let make = (
   let fetchApi = useUpdateMethod()
   let url = RescriptReactRouter.useUrl()
   let frmName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let (pageState, setPageState) = React.useState(_ => PageLoaderWrapper.Success)
 
@@ -228,7 +222,7 @@ let make = (
       }
 
     | None =>
-      generateInitialValuesDict(~selectedFRMInfo, ~isLiveMode={featureFlagDetails.testLiveMode}, ())
+      generateInitialValuesDict(~selectedFRMInfo, ~isLiveMode={featureFlagDetails.isLiveMode}, ())
     }
   }, [retrivedValues])
 
@@ -276,7 +270,7 @@ let make = (
       ->Js.Json.object_
     let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ())
     try {
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
     } catch {
     | _ => ()
     }

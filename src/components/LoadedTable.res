@@ -185,7 +185,7 @@ let make = (
   ~tableheadingClass="",
   ~tableBorderClass="",
   ~tableDataBorderClass="",
-  ~collapseTabelRow=false,
+  ~collapseTableRow=false,
   ~getRowDetails=?,
   ~onMouseEnter=?,
   ~onMouseLeave=?,
@@ -774,7 +774,7 @@ let make = (
         ? ""
         : `${isMinHeightRequired ? noScrollbar ? "" : "overflow-x-scroll" : "overflow-scroll"}`
     let loadedTable =
-      <div className={`no-scrollbar ${scrollBarClass} no-scrollbar`}>
+      <div className={`no-scrollbar ${scrollBarClass}`}>
         {switch dataView {
         | Table => {
             let children =
@@ -798,7 +798,7 @@ let make = (
                 tableBorderClass
                 tableDataBorderClass
                 enableEqualWidthCol
-                collapseTabelRow
+                collapseTableRow
                 ?getRowDetails
                 ?onExpandClickData
                 actualData

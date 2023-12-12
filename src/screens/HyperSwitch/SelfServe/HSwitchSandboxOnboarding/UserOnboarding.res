@@ -1,6 +1,3 @@
-let headerTextCss = "font-semibold text-grey-700 text-xl"
-let subTextCss = "font-normal text-grey-700 opacity-50 text-base"
-
 let buildHyperswitch: array<UserOnboardingTypes.sectionContentType> = [
   {
     headerIcon: "migrate-from-stripe",
@@ -123,7 +120,7 @@ let make = () => {
         ~metadata=metaDataDict,
         (),
       )
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
     } catch {
     | _ => ()
@@ -149,7 +146,7 @@ let make = () => {
         ->Js.Json.object_,
         (),
       )
-      let _res = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       setDashboardPageState(_ => #HOME)
     } catch {

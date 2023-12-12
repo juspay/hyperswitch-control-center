@@ -10,14 +10,13 @@ external changeType: Js.Json.t => 't = "%identity"
 type object = {fromEntries: (. map) => Js.Json.t}
 external object: object = "Object"
 
-let stepsArr = [IntegFields, Webhooks, PaymentMethods, SummaryAndTest]
+let stepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
 
 let payoutStepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
 
 let getStepName = step => {
   switch step {
   | IntegFields => "Credentials"
-  | Webhooks => "Webhooks"
   | PaymentMethods => "Payment Methods"
   | SummaryAndTest => "Summary"
   | Preview => "Preview"
@@ -167,6 +166,7 @@ let connectorList: array<connectorName> = [
   GLOBALPAY,
   GLOBEPAY,
   GOCARDLESS,
+  HELCIM,
   IATAPAY,
   KLARNA,
   MOLLIE,
@@ -194,14 +194,15 @@ let connectorList: array<connectorName> = [
 let connectorListForLive: array<connectorName> = [
   STRIPE,
   ADYEN,
-  CHECKOUT,
-  ZEN,
-  BLUESNAP,
-  TRUSTPAY,
-  PAYME,
   PAYPAL,
+  BANKOFAMERICA,
+  BLUESNAP,
+  CHECKOUT,
   CRYPTOPAY,
   IATAPAY,
+  PAYME,
+  TRUSTPAY,
+  ZEN,
 ]
 
 let getPaymentMethodFromString = paymentMethod => {
@@ -434,11 +435,11 @@ let phonypayInfo = {
 }
 
 let stripeTestInfo = {
-  description: "A stripe test connector to test payments and refunds without real world consequences.",
+  description: "A stripe test processor to test payments and refunds without real world consequences.",
 }
 
 let paypalTestInfo = {
-  description: "A paypal test connector to simulate payment flows and experience hyperswitch checkout.",
+  description: "A paypal test processor to simulate payment flows and experience hyperswitch checkout.",
 }
 
 let wiseInfo = {
@@ -454,6 +455,10 @@ let voltInfo = {
 }
 let prophetpayInfo = {
   description: "A secure, affordable, and easy-to-use credit card processing platform for any business.",
+}
+
+let helcimInfo = {
+  description: "Helcim is the easy and affordable solution for small businesses accepting credit card payments.",
 }
 
 let unknownConnectorInfo = {
@@ -516,6 +521,7 @@ let getConnectorNameString = connector => {
   | VOLT => "volt"
   | PROPHETPAY => "prophetpay"
   | BANKOFAMERICA => "bankofamerica"
+  | HELCIM => "helcim"
   | UnknownConnector(str) => str
   }
 }
@@ -572,6 +578,7 @@ let getConnectorNameTypeFromString = connector => {
   | "volt" => VOLT
   | "bankofamerica" => BANKOFAMERICA
   | "prophetpay" => PROPHETPAY
+  | "helcim" => HELCIM
   | _ => UnknownConnector("Not known")
   }
 }
@@ -628,6 +635,7 @@ let getConnectorInfo = (connector: connectorName) => {
   | VOLT => voltInfo
   | PROPHETPAY => prophetpayInfo
   | BANKOFAMERICA => bankOfAmericaInfo
+  | HELCIM => helcimInfo
   | UnknownConnector(_) => unknownConnectorInfo
   }
 }

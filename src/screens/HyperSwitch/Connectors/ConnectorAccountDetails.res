@@ -1,6 +1,3 @@
-external formEventToBool: ReactEvent.Form.t => bool = "%identity"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
-
 let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorName> = [
   ADYEN,
   CHECKOUT,
@@ -29,13 +26,13 @@ let mixpanelEventWrapper = (
 module BusinessProfileRender = {
   @react.component
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
-    open HSwitchMerchantAccountUtils
     let url = RescriptReactRouter.useUrl()
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-
-    let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
+    let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
+    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
+    let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
 
     let (showModalFromOtherScreen, setShowModalFromOtherScreen) = React.useState(_ => false)
 
@@ -56,91 +53,65 @@ module BusinessProfileRender = {
     }
 
     <>
-      <div className="flex items-center gap-5">
-        <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-black"
-          field={FormRenderer.makeFieldInfo(
-            ~label="Profile Name",
-            ~isRequired=true,
-            ~name="profile_id",
-            ~customInput=(~input, ~placeholder as _) =>
-              InputFields.selectInput(
-                ~input={
-                  ...input,
-                  onChange: {
-                    ev => {
-                      input.onChange(ev)
-                      mixpanelEventWrapper(
-                        ~url,
-                        ~selectedConnector,
-                        ~actionName=`settings_choose_country`,
-                        ~hyperswitchMixPanel,
+      <FormRenderer.FieldRenderer
+        labelClass="font-semibold !text-black"
+        field={FormRenderer.makeFieldInfo(
+          ~label="Profile",
+          ~isRequired=true,
+          ~name="profile_id",
+          ~customInput=(~input, ~placeholder as _) =>
+            InputFields.selectInput(
+              ~input={
+                ...input,
+                onChange: {
+                  ev => {
+                    let profileName = (
+                      arrayOfBusinessProfile
+                      ->Js.Array2.find((ele: HSwitchSettingTypes.profileEntity) =>
+                        ele.profile_id === ev->Identity.formReactEventToString
                       )
-                    }
-                  },
+                      ->Belt.Option.getWithDefault(defaultBusinessProfile)
+                    ).profile_name
+                    connectorLabelOnChange(
+                      `${selectedConnector}_${profileName}`->Identity.stringToFormReactEvent,
+                    )
+                    input.onChange(ev)
+                    mixpanelEventWrapper(
+                      ~url,
+                      ~selectedConnector,
+                      ~actionName=`settings_choose_profile`,
+                      ~hyperswitchMixPanel,
+                    )
+                  }
                 },
-                ~deselectDisable=true,
-                ~disableSelect=isUpdateFlow,
-                ~customStyle="max-h-48",
-                ~options={arrayOfBusinessProfile->businessProfileNameDropDownOption},
-                ~buttonText="Select Country",
-                ~placeholder="",
-                (),
-              ),
-            (),
-          )}
-        />
-        <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-black"
-          field={FormRenderer.makeFieldInfo(
-            ~label="Profile Id",
-            ~isRequired=true,
-            ~name="profile_id",
-            ~customInput=(~input, ~placeholder as _) =>
-              InputFields.selectInput(
-                ~input={
-                  ...input,
-                  onChange: {
-                    ev => {
-                      input.onChange(ev)
-                      mixpanelEventWrapper(
-                        ~url,
-                        ~selectedConnector,
-                        ~actionName=`settings_choose_label`,
-                        ~hyperswitchMixPanel,
-                      )
-                    }
-                  },
-                },
-                ~options={arrayOfBusinessProfile->businessProfileIdDropDownOption},
-                ~buttonText="Select Option",
-                ~deselectDisable=true,
-                ~disableSelect=isUpdateFlow,
-                ~placeholder="",
-                (),
-              ),
-            (),
-          )}
-        />
-      </div>
+              },
+              ~deselectDisable=true,
+              ~disableSelect=isUpdateFlow,
+              ~customStyle="max-h-48",
+              ~options={
+                arrayOfBusinessProfile->MerchantAccountUtils.businessProfileNameDropDownOption
+              },
+              ~buttonText="Select Profile",
+              ~placeholder="",
+              (),
+            ),
+          (),
+        )}
+      />
       <UIUtils.RenderIf condition={!isUpdateFlow}>
         <div className="text-gray-400 text-sm mt-3">
-          // <span> {"Add new configuration"->React.string} </span>
-          // <span className={`ml-1 mr-1 ${hereTextStyle}`} onClick={_ => onClickHandler("country")}>
-          //   {React.string("here.")}
-          // </span>
-          <span> {"Manage your list of business units"->React.string} </span>
+          <span> {"Manage your list of profiles."->React.string} </span>
           <span
             className={`ml-1 ${hereTextStyle}`}
             onClick={_ => {
               setDashboardPageState(_ => #HOME)
-              RescriptReactRouter.push("/settings?type=units")
+              RescriptReactRouter.push("/business-profiles")
             }}>
             {React.string("here.")}
           </span>
         </div>
       </UIUtils.RenderIf>
-      <BusinessMapping isFromSettings=false showModalFromOtherScreen setShowModalFromOtherScreen />
+      <BusinessProfile isFromSettings=false showModalFromOtherScreen setShowModalFromOtherScreen />
     </>
   }
 }
@@ -241,11 +212,7 @@ let make = (
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
 
@@ -260,7 +227,7 @@ let make = (
   let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
 
   let activeBusinessProfile =
-    defaultBusinessProfile->HSwitchMerchantAccountUtils.getValueFromBusinessProfile
+    defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
 
   React.useEffect1(() => {
     mixpanelEventWrapper(
@@ -316,12 +283,18 @@ let make = (
   let (showModal, setShowModal) = React.useState(_ => false)
 
   let updatedInitialVal = React.useMemo1(() => {
+    let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
+    if !isUpdateFlow {
+      initialValuesToDict->Js.Dict.set(
+        "connector_label",
+        `${connector}_${activeBusinessProfile.profile_name}`->Js.Json.string,
+      )
+    }
     if (
       connector
       ->getConnectorNameTypeFromString
       ->checkIsDummyConnector(featureFlagDetails.testProcessors) && !isUpdateFlow
     ) {
-      let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
       let apiKeyDict = [("api_key", "test_key"->Js.Json.string)]->Js.Dict.fromArray
       initialValuesToDict->Js.Dict.set("connector_account_details", apiKeyDict->Js.Json.object_)
 
@@ -339,7 +312,7 @@ let make = (
         ~connector,
         ~bodyType,
         ~isPayoutFlow,
-        ~isLiveMode={featureFlagDetails.testLiveMode},
+        ~isLiveMode={featureFlagDetails.isLiveMode},
         (),
       )
       setScreenState(_ => Loading)
@@ -350,7 +323,7 @@ let make = (
         ~url,
         ~hyperswitchMixPanel,
       )
-      setCurrentStep(_ => isPayoutFlow ? PaymentMethods : Webhooks)
+      setCurrentStep(_ => PaymentMethods)
       setScreenState(_ => Success)
       setInitialValues(_ => body)
     } catch {
@@ -392,7 +365,7 @@ let make = (
           ~connector,
           ~bodyType,
           ~isPayoutFlow,
-          ~isLiveMode={featureFlagDetails.testLiveMode},
+          ~isLiveMode={featureFlagDetails.isLiveMode},
           (),
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
@@ -402,7 +375,7 @@ let make = (
         ~connector=Some(connector),
         (),
       )
-      let _response = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post)
       setShowVerifyModal(_ => false)
       onSubmitMain(values)->ignore
     } catch {
@@ -481,9 +454,7 @@ let make = (
       formClass="flex flex-col ">
       <div className="flex items-center justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
-          <GatewayIcon
-            gateway={connector->Js.String2.toUpperCase} className="w-14 h-14 rounded-full"
-          />
+          <GatewayIcon gateway={connector->Js.String2.toUpperCase} />
           <h2 className="text-xl font-semibold">
             {connector->LogicUtils.capitalizeString->React.string}
           </h2>

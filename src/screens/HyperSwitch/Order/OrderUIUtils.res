@@ -17,11 +17,7 @@ module EventLogMobileView = {
 module PaymentLogs = {
   @react.component
   let make = (~id, ~createdAt) => {
-    let {auditTrail} =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let {auditTrail} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let isSmallDevice = MatchMedia.useMatchMedia("(max-width: 700px)")
     let showPaymentLogsComp = auditTrail
 
@@ -45,11 +41,7 @@ module GenerateSampleDataButton = {
   let make = (~previewOnly, ~getOrdersList) => {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let {sampleData} =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let generateSampleData = async () => {
       try {
@@ -81,14 +73,11 @@ module GenerateSampleDataButton = {
 module NoData = {
   @react.component
   let make = (~isConfigureConnector, ~paymentModal, ~setPaymentModal) => {
-    let {testLiveMode} =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
     <HelperComponents.BluredTableComponent
       infoText={isConfigureConnector
-        ? testLiveMode
+        ? isLiveMode
             ? "There are no payments as of now."
             : "There are no payments as of now. Try making a test payment and visualise the checkout experience."
         : "Connect to a connector like Stripe, Adyen or Hyperswitch provided test connector to make your first payment."}
@@ -96,7 +85,7 @@ module NoData = {
       moduleName=""
       paymentModal
       setPaymentModal
-      showRedirectCTA={!testLiveMode}
+      showRedirectCTA={!isLiveMode}
       mixPanelEventName={isConfigureConnector
         ? "paymentops_makeapayment"
         : "payemntops_connectaconnector"}
@@ -111,7 +100,6 @@ let filterUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/filter`
 
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
 
-external toDict: 't => Js.Dict.t<Js.Json.t> = "%identity"
 let filterByData = (txnArr, value) => {
   open LogicUtils
   let searchText = value->getStringFromJson("")
@@ -121,7 +109,7 @@ let filterByData = (txnArr, value) => {
   ->Belt.Array.keepMap(data => {
     let valueArr =
       data
-      ->toDict
+      ->Identity.genericTypeToDictOfJson
       ->Js.Dict.entries
       ->Js.Array2.map(item => {
         let (_, value) = item
