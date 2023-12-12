@@ -8,11 +8,11 @@ let make = (
   ~isUpdateFlow,
   ~isPayoutFlow,
 ) => {
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   open ConnectorUtils
   open APIUtils
   open PageLoaderWrapper
   open LogicUtils
+  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let _showAdvancedConfiguration = false
   let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
@@ -22,7 +22,7 @@ let make = (
   let showToast = ToastState.useShowToast()
   let connectorID = initialValues->getDictFromJsonObject->getOptionString("merchant_connector_id")
   let (screenState, setScreenState) = React.useState(_ => Loading)
-  let updateAPIHook = useUpdateMethod()
+  let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
 
   let updateDetails = value => {
     setPaymentMethods(_ => value->Js.Array2.copy)
@@ -77,7 +77,16 @@ let make = (
     } catch {
     | Js.Exn.Error(e) => {
         let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
-        setScreenState(_ => PageLoaderWrapper.Error(err))
+        let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+        let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
+
+        if errorCode === "HE_01" {
+          showToast(~message="Connector label already exist!", ~toastType=ToastError, ())
+          setCurrentStep(_ => ConnectorTypes.IntegFields)
+        } else {
+          showToast(~message=errorMessage, ~toastType=ToastError, ())
+          setScreenState(_ => PageLoaderWrapper.Error(err))
+        }
       }
     }
   }
