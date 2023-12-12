@@ -13,7 +13,7 @@ jobs:
           token: ${{ secrets.AUTO_RELEASE_PAT }}
 
       - name: Cypress run
-        uses: cypress-io/github-action@v3
+        uses: cypress-io/github-action@v3 do npm install --force
         with:
           project: ./hyperswitch-control-center
           browser: chrome
