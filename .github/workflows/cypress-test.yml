@@ -13,8 +13,8 @@ jobs:
           token: ${{ secrets.AUTO_RELEASE_PAT }}
 
       - name: Install dependencies
-      run: |
-        npm install --force
+        run: |
+          npm install --force
 
       - name: Cypress run
         uses: cypress-io/github-action@v3
