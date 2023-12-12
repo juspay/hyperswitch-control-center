@@ -5,39 +5,6 @@ type nodeConfigs = {
   total_vol_metrix: string,
 }
 
-let sankeyConfig: nodeConfigs = {
-  success_vol_metrix: "success_volume",
-  total_vol_metrix: "total_volume",
-}
-
-let sankeyAlphabeticalSortFn = (e1, e2) => {
-  let (a1, b1, _) = e1
-  let (a2, b2, _) = e2
-  if a1 > a2 {
-    1
-  } else if a1 < a2 {
-    -1
-  } else if b1 > b2 {
-    1
-  } else if b1 < b2 {
-    -1
-  } else {
-    0
-  }
-}
-
-let sankeyvolSortFn = (e1, e2) => {
-  let (_, _, v1) = e1
-  let (_, _, v2) = e2
-  if v1 < v2 {
-    1
-  } else if v1 > v2 {
-    -1
-  } else {
-    0
-  }
-}
-
 let numericArraySortComperator = (a, b) => {
   let (_, val1) = a
   let (_, val2) = b
@@ -51,9 +18,9 @@ let numericArraySortComperator = (a, b) => {
 }
 
 let convertToSankeyFormat = (
-  ~lastStageAdd=true,
+  ~lastStageAdd,
   ~arr: array<Js.Json.t>,
-  ~sankeyConfig: nodeConfigs=sankeyConfig,
+  ~sankeyConfig: nodeConfigs,
   ~snakeyActiveTab: array<string>,
   ~topN: int,
 ) => {

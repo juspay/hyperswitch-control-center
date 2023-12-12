@@ -131,20 +131,6 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep, ~isUpdateFlow) => {
     </div>
     <div>
       <div className="grid grid-cols-2 md:w-1/2 m-12">
-        <h4 className="text-lg font-semibold"> {"Processor Mode"->React.string} </h4>
-        <div>
-          {if frmInfo.test_mode {
-            <span className="font-semibold p-2 px-3 bg-orange-200 rounded-full">
-              {"TEST MODE"->React.string}
-            </span>
-          } else {
-            <span className="font-semibold p-2 px-3 bg-blue-200 rounded-full">
-              {"LIVE MODE"->React.string}
-            </span>
-          }}
-        </div>
-      </div>
-      <div className="grid grid-cols-2 md:w-1/2 m-12">
         <h4 className="text-lg font-semibold"> {"Profile id"->React.string} </h4>
         <div> {frmInfo.profile_id->React.string} </div>
       </div>

@@ -1,5 +1,3 @@
-external inputAsString: ReactEvent.Form.t => string = "%identity"
-
 type passwordCheck = {
   number: bool,
   lowercase: bool,

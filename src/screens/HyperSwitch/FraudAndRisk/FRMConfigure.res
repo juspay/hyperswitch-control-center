@@ -5,11 +5,7 @@ let make = () => {
   open ConnectorTypes
   open LogicUtils
   open FRMInfo
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let url = RescriptReactRouter.useUrl()
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let fetchDetails = useGetMethod()
@@ -124,8 +120,7 @@ let make = () => {
             setCurrentStep retrivedValues=Some(initialValues) setInitialValues isUpdateFlow
           />
         | SummaryAndTest
-        | Preview
-        | _ =>
+        | Preview =>
           <FRMSummary initialValues currentStep setCurrentStep isUpdateFlow />
         }}
       </div>

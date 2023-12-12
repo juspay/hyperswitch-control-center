@@ -1,4 +1,3 @@
-external toReactDOMStyle: Js.Json.t => ReactDOM.style = "%identity"
 open DateTimeUtils
 type highlighter = {
   highlightSelf: bool,
@@ -495,7 +494,7 @@ let make = (
     }
     let rowInfo = Js.Array2.mapi(dummyRow, rowMapper)
 
-    <div style={index->LogicUtils.getJsonObjectFromDict("style")->toReactDOMStyle}>
+    <div style={index->LogicUtils.getJsonObjectFromDict("style")->Identity.jsonToReactDOMStyle}>
       <div className={`font-normal text-fs-16 text-[#344054] leading-6 mt-5`}>
         {React.string(`${updatedMonth->getMonthInStr} ${newYear->Belt.Int.toString}`)}
       </div>

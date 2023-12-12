@@ -1,4 +1,3 @@
-external toDict: 'a => Js.Dict.t<Js.Json.t> = "%identity"
 let domain = "integrations"
 
 open LogicUtils

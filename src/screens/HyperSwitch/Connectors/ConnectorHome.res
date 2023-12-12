@@ -150,14 +150,13 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       <UIUtils.RenderIf condition={currentStep !== Preview && showStepIndicator}>
         <ConnectorCurrentStepIndicator currentStep stepsArr borderWidth />
       </UIUtils.RenderIf>
-      <div className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple">
+      <div
+        className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">
         {switch currentStep {
         | IntegFields =>
           <ConnectorAccountDetails
             currentStep setCurrentStep setInitialValues initialValues isUpdateFlow isPayoutFlow
           />
-        | Webhooks =>
-          <ConnectorWebhooks connectorName={connector} setCurrentStep currentStep isUpdateFlow />
         | PaymentMethods =>
           <ConnectorPaymentMethod
             currentStep

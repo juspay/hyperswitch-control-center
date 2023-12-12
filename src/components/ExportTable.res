@@ -1,4 +1,3 @@
-external convertToStrDict: 't => Js.Json.t = "%identity"
 @react.component
 let make = (
   ~title: string,
@@ -11,7 +10,7 @@ let make = (
   let actualDataOrig =
     tableData
     ->Belt.Array.keepMap(item => item->Js.Nullable.toOption)
-    ->Js.Array2.map(convertToStrDict)
+    ->Js.Array2.map(Identity.genericTypeToJson)
 
   let headerNames = visibleColumns->Belt.Array.keepMap(head => {
     let item = head->getHeading

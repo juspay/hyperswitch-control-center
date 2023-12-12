@@ -1,4 +1,3 @@
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
 open CardUtils
 open PageUtils
 open HSwitchUtils
@@ -269,11 +268,7 @@ module ControlCenter = {
     let url = RescriptReactRouter.useUrl()
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let merchantDetailsValue = useMerchantDetailsValue()
-    let {isLiveMode} =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let pageName = url.path->getPageNameFromUrl
 

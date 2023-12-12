@@ -1,4 +1,3 @@
-external toReactFormEvent: 'a => ReactEvent.Form.t = "%identity"
 let getFloat = strJson => strJson->Js.Json.decodeString->Belt.Option.flatMap(Belt.Float.fromString)
 
 @react.component
@@ -94,10 +93,10 @@ let make = (
         setLocalStrValue(_ => finalVal->Js.Json.string)
 
         switch finalVal->Js.Json.string->getFloat {
-        | Some(num) => input.onChange(num->toReactFormEvent)
+        | Some(num) => input.onChange(num->Identity.anyTypeToReactEvent)
         | None =>
           if value === "" {
-            input.onChange(Js.Json.null->toReactFormEvent)
+            input.onChange(Js.Json.null->Identity.anyTypeToReactEvent)
           }
         }
       },

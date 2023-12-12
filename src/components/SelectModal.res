@@ -1,5 +1,3 @@
-external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
-
 @react.component
 let make = (
   ~modalHeading="Select Options",
@@ -66,7 +64,7 @@ let make = (
     name: "cutomixedColumnsInput",
     onBlur: _ev => (),
     onChange: ev => {
-      let target = ev->formEventToStrArr
+      let target = ev->Identity.formReactEventToArrayOfString
       Js.log2("ppp", target)
       maxLengthArray(target, setValues)
     },

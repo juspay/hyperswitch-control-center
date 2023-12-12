@@ -1,6 +1,3 @@
-external inputAsString: ReactEvent.Form.t => string = "%identity"
-external stringToFormEvent: string => ReactEvent.Form.t = "%identity"
-
 module Tag = {
   @react.component
   let make = (~text, ~remove, ~customButtonStyle=?, ~disabled=false) => {
@@ -30,7 +27,7 @@ module Tag = {
     }
   }
 }
-external toForm: Js.Array2.t<string> => ReactEvent.Form.t = "%identity"
+
 @react.component
 let make = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
@@ -52,7 +49,7 @@ let make = (
   }, [input.value])
 
   let setTags = tags => {
-    tags->toForm->input.onChange
+    tags->Identity.arrayOfGenericTypeToFormReactEvent->input.onChange
   }
 
   let (text, setText) = React.useState(_ => "")

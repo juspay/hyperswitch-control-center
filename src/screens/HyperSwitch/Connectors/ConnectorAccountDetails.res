@@ -1,6 +1,3 @@
-external formEventToBool: ReactEvent.Form.t => bool = "%identity"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
-
 let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorName> = [
   ADYEN,
   CHECKOUT,
@@ -71,7 +68,7 @@ module BusinessProfileRender = {
                     mixpanelEventWrapper(
                       ~url,
                       ~selectedConnector,
-                      ~actionName=`settings_choose_country`,
+                      ~actionName=`settings_choose_profile`,
                       ~hyperswitchMixPanel,
                     )
                   }
@@ -83,7 +80,7 @@ module BusinessProfileRender = {
               ~options={
                 arrayOfBusinessProfile->MerchantAccountUtils.businessProfileNameDropDownOption
               },
-              ~buttonText="Select Country",
+              ~buttonText="Select Profile",
               ~placeholder="",
               (),
             ),
@@ -204,11 +201,7 @@ let make = (
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
 
@@ -313,7 +306,7 @@ let make = (
         ~url,
         ~hyperswitchMixPanel,
       )
-      setCurrentStep(_ => isPayoutFlow ? PaymentMethods : Webhooks)
+      setCurrentStep(_ => PaymentMethods)
       setScreenState(_ => Success)
       setInitialValues(_ => body)
     } catch {

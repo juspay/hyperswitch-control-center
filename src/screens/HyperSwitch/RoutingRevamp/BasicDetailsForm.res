@@ -2,9 +2,6 @@ open FormRenderer
 open LogicUtils
 open AdvancedRoutingTypes
 
-external fromFormEvent: ReactEvent.Form.t => 'a = "%identity"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
-
 let configurationNameInput = makeFieldInfo(
   ~label="Configuration Name",
   ~name="name",
@@ -43,7 +40,7 @@ module BusinessProfileInp = {
               value: profile->Js.Json.string,
               onChange: {
                 ev => {
-                  setProfile(_ => ev->formEventToStr)
+                  setProfile(_ => ev->Identity.formReactEventToString)
                   input.onChange(ev)
                 }
               },

@@ -17,6 +17,7 @@ let make = (
   ~statThreshold: Js.Dict.t<float>=Js.Dict.empty(),
   ~isHomePage=false,
 ) => {
+  open Identity
   let (updateKey, setUpdateKey) = React.useState(_ => false)
 
   let sortedData = React.useMemo1(() => {
@@ -85,21 +86,21 @@ let make = (
           "height": (isHomePage ? "80" : "50")->Some,
           "width": isHomePage ? None : Some("105"),
           "events": None,
-        }->LineChartUtils.objToJson,
+        }->genericObjectOrRecordToJson,
       ),
       title: {
         "text": "",
         "style": Js.Json.object_(Js.Dict.empty()),
-      }->LineChartUtils.objToJson,
+      }->genericObjectOrRecordToJson,
       credits: {
         "enabled": false,
       },
       legend: {
         "enabled": false,
-      }->LineChartUtils.objToJson,
+      }->genericObjectOrRecordToJson,
       tooltip: {
         "enabled": false,
-      }->LineChartUtils.objToJson,
+      }->genericObjectOrRecordToJson,
       plotOptions: Some(
         {
           "area": {
@@ -114,7 +115,7 @@ let make = (
               },
             },
             "lineWidth": 3,
-          }->LineChartUtils.objToJson,
+          }->genericObjectOrRecordToJson,
           "boxplot": {
             "visible": false,
           },
@@ -129,21 +130,24 @@ let make = (
               "legendItemClick": None,
               "mouseOver": Some(""),
             }),
-          }->LineChartUtils.objToJson,
-        }->LineChartUtils.objToJson,
+          }->genericObjectOrRecordToJson,
+        }->genericObjectOrRecordToJson,
       ),
       xAxis: {
         "type": "datetime",
         "zoomEnabled": false,
-      }->LineChartUtils.objToJson,
+      }->genericObjectOrRecordToJson,
       yAxis: {
         "tickPositioner": None,
         "plotLines": None,
         "visible": false,
-        "title": {"text": "", "style": Js.Json.object_(Js.Dict.empty())}->LineChartUtils.objToJson,
+        "title": {
+          "text": "",
+          "style": Js.Json.object_(Js.Dict.empty()),
+        }->genericObjectOrRecordToJson,
         "labels": {"formatter": None, "enabled": false, "useHTML": false}->Some,
         "zoomEnabled": false,
-      }->LineChartUtils.objToJson,
+      }->genericObjectOrRecordToJson,
       series: [
         {
           color: Some(strokeColor),

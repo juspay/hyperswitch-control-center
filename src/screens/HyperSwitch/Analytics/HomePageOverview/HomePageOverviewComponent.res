@@ -203,11 +203,7 @@ module OverviewInfo = {
   open APIUtils
   @react.component
   let make = () => {
-    let {sampleData} =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
 
@@ -245,11 +241,7 @@ module OverviewInfo = {
 
 @react.component
 let make = () => {
-  let {systemMetrics} =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let {systemMetrics} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <div className="flex flex-col gap-4">
     <p className=headingStyle> {"Overview"->React.string} </p>

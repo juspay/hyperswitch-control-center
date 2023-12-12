@@ -205,9 +205,9 @@ let init = (data: array<(string, string, int, int, int)>, nodes) => {
             "fontStyle": "normal",
             "fontWeight": 600,
           },
-        }->LineChartUtils.objToJson,
+        }->Identity.genericObjectOrRecordToJson,
         "connectEnds": false,
-      }->LineChartUtils.objToJson,
+      }->Identity.genericObjectOrRecordToJson,
     ],
     "chart": {
       "height": 698,
@@ -225,7 +225,7 @@ let init = (data: array<(string, string, int, int, int)>, nodes) => {
       "valueDecimals": 2,
       "backgroundColor": theme === Dark ? "white" : "black",
     },
-  }->LineChartUtils.objToJson
+  }->Identity.genericObjectOrRecordToJson
   options
 }
 
