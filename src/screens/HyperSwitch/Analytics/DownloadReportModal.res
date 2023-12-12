@@ -1,5 +1,3 @@
-external toJson: 'a => Js.Json.t = "%identity"
-
 type lteGte = {
   gte: Js.Json.t,
   lte: Js.Json.t,
@@ -62,7 +60,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
         endTime: lte,
       },
       dimensions: [],
-    }->toJson
+    }->Identity.genericTypeToJson
     downloadReport(body)
   }
 
@@ -80,7 +78,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
         lte: Js.Date.now()->Js.Date.fromFloat->Js.Date.toISOString->Js.Json.string,
       },
     },
-  }->toJson
+  }->Identity.genericTypeToJson
 
   <Modal
     modalHeading="Generate Reports"

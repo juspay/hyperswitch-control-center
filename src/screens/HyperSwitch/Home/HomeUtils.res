@@ -1,4 +1,3 @@
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
 open CardUtils
 open PageUtils
 open HSwitchUtils

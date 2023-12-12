@@ -177,7 +177,6 @@ module TabInfo = {
   }
 }
 
-external syntheticEventAsStr: ReactEvent.Form.t => string = "%identity"
 module IndicationArrow = {
   @react.component
   let make = (~iconName, ~side, ~refElement: React.ref<Js.nullable<Dom.element>>, ~isVisible) => {

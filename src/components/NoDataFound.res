@@ -1,4 +1,4 @@
-type renderType = InfoBox | Painting | NotFound | Locked | LoadError | UPINoDataFoundPage
+type renderType = InfoBox | Painting | NotFound | Locked | LoadError
 
 @react.component
 let make = (
@@ -19,7 +19,6 @@ let make = (
     | Locked => "mt-32 p-16"
     | LoadError => "mt-32 p-16"
     | InfoBox => ""
-    | UPINoDataFoundPage => "mt-32 p-16"
     }
     isMobileView ? "" : marginPaddingClass
   }
@@ -92,17 +91,6 @@ let make = (
               <img src={`/icons/LoadError.svg`} />
             </div>
             <div className="px-3 text-base"> {React.string(message)} </div>
-            <div>
-              {switch children {
-              | Some(child) => child
-              | None => React.null
-              }}
-            </div>
-          </div>
-        | UPINoDataFoundPage =>
-          <div className={`${containerClass}`}>
-            <img className="w-1/2" src={`icons/upilogo2.svg`} />
-            <div className="p-2 mt-8 text-black text-2xl text-bold"> {React.string(message)} </div>
             <div>
               {switch children {
               | Some(child) => child

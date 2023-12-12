@@ -1,5 +1,3 @@
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
-
 let p1MediumTextStyle = HSwitchUtils.getTextClass(~textVariant=P1, ~paragraphTextVariant=Medium, ())
 
 module RequestConnector = {

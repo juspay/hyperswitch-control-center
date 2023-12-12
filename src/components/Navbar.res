@@ -1,6 +1,4 @@
-type appType = UPI | EULER
 let bgClass = "bg-white hover:bg-jp-gray-100"
-@val @scope(("window", "location")) external pathName: string = "pathname"
 
 module MenuOption = {
   @react.component
@@ -16,104 +14,6 @@ module MenuOption = {
       | None => React.null
       }}
     </button>
-  }
-}
-
-module NameIcon = {
-  @react.component
-  let make = (~name, ~onClick=?) => {
-    let words =
-      name
-      ->Js.String2.toUpperCase
-      ->Js.String2.replaceByRe(%re("/_/g"), " ")
-      ->Js.String2.split(" ")
-      ->Js.Array2.filter(x => x !== "")
-    let firstLetters =
-      words->Js.Array2.map(word => Js.String2.charAt(word, 0))->Js.Array2.joinWith("")
-    <div ?onClick className="flex items-center justify-center h-8 w-8 rounded-full bg-gray-200">
-      {firstLetters->Js.String2.slice(~from=0, ~to_=2)->React.string}
-    </div>
-  }
-}
-
-module FeedbackModal = {
-  @react.component
-  let make = (~setShowModal, ~showModal) => {
-    let makeFieldInfo = FormRenderer.makeFieldInfo
-    let field = makeFieldInfo(
-      ~label="",
-      ~name="feedbacks",
-      ~placeholder="Please provide your feedback/suggestions here ...",
-      ~customInput=InputFields.multiLineTextInput(
-        ~isDisabled=false,
-        ~rows=Some(6),
-        ~cols=Some(4),
-        (),
-      ),
-      (),
-    )
-
-    let selectBetween = makeFieldInfo(
-      ~name="category",
-      ~label="",
-      ~customInput=InputFields.radioInput(
-        ~options=["Suggestion", "Bugs", "Other"]->SelectBox.makeOptions,
-        ~buttonText="options",
-        ~isHorizontal=true,
-        (),
-      ),
-      (),
-    )
-
-    let validate = values => {
-      let errors = Js.Dict.empty()
-      let values = values->LogicUtils.getDictFromJsonObject
-      if values->LogicUtils.getString("feedbacks", "") === "" {
-        errors->Js.Dict.set("feedbacks", "Please give the feedback"->Js.Json.string)
-      }
-      if values->LogicUtils.getString("category", "") === "" {
-        errors->Js.Dict.set("category", "Please select the category"->Js.Json.string)
-      }
-      if values->LogicUtils.getInt("rating", -1) === -1 {
-        errors->Js.Dict.set("rating", "Please rate"->Js.Json.string)
-      }
-      errors->Js.Json.object_
-    }
-
-    let onSubmit = (_, _) => {
-      setShowModal(_ => false)
-      Js.Nullable.null->Js.Promise.resolve
-    }
-
-    <Modal
-      modalHeading="Send Us Your Feedback"
-      modalHeadingDescription="Tell us what you liked most and if you have a suggestion or found some bug, let us know in the field below"
-      headingClass="!bg-transparent"
-      showModal
-      setShowModal
-      borderBottom=true
-      closeOnOutsideClick=true
-      modalClass="md:w-2/5 mx-auto my-8 p-4 pb-8">
-      <ReactFinalForm.Form
-        subscription=ReactFinalForm.subscribeToValues
-        onSubmit
-        validate
-        render={({handleSubmit}) => {
-          <form onSubmit={handleSubmit}>
-            <div className="flex flex-col justify-center mb-2">
-              <RatingOptions
-                icons=["angry", "frown", "smile", "smile-beam", "grin-hearts"] size=45
-              />
-              <FormRenderer.FieldRenderer field />
-              <FormRenderer.FieldRenderer field=selectBetween />
-              <div className="flex justify-end p-1 mt-4">
-                <FormRenderer.SubmitButton text="Send Feedback" />
-              </div>
-            </div>
-          </form>
-        }}
-      />
-    </Modal>
   }
 }
 

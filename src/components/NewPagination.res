@@ -1,10 +1,3 @@
-module PaginationButton = {
-  @react.component
-  let make = (~onClick, ~text) => {
-    <button onClick> {text->React.string} </button>
-  }
-}
-
 @react.component
 let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4) => {
   let pageNumbers = []

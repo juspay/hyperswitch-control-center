@@ -1,4 +1,3 @@
-external strToForm: string => ReactEvent.Form.t = "%identity"
 @send external focus: Dom.element => unit = "focus"
 type focusElement = From | To
 

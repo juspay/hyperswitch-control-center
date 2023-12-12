@@ -1,5 +1,4 @@
 external formEventToJsonArr: ReactEvent.Form.t => array<Js.Json.t> = "%identity"
-external inputAsString: ReactEvent.Form.t => string = "%identity"
 
 module RangeSliderLocalFilter = {
   @react.component

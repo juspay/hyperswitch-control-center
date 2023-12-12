@@ -1,4 +1,3 @@
-external toReactEvent: 'a => ReactEvent.Form.t = "%identity"
 external strToDomImg: string => Webapi.Dom.Image.t = "%identity"
 @send external drawImage: (Webapi.Canvas.Canvas2d.t, 'a, int, int) => unit = "drawImage"
 @send external toDataURL: 'a => string = "toDataURL"
@@ -57,7 +56,7 @@ let make = (
   )
   let clearImage = _evt => {
     setFilename(_ => "")
-    input.onChange(""->toReactEvent)
+    input.onChange(""->Identity.stringToFormReactEvent)
   }
   let onChange = evt => {
     let target = ReactEvent.Form.target(evt)
@@ -76,7 +75,7 @@ let make = (
         let target = ReactEvent.Form.target(e)
         let data = target["result"]
         setIsNewUpload(_ => true)
-        input.onChange(toReactEvent(data))
+        input.onChange(data->Identity.anyTypeToReactEvent)
       }
     }
   }
@@ -106,7 +105,7 @@ let make = (
       context->drawImage(img, 0, 0)
       toDataURL(canvas)
     }
-    input.onChange(a->toReactEvent)
+    input.onChange(a->Identity.stringToFormReactEvent)
   }
   <div
     onDragOver={ev => {
@@ -129,7 +128,7 @@ let make = (
             let target = ReactEvent.Form.target(e)
             let data = target["result"]
             setIsNewUpload(_ => true)
-            input.onChange(toReactEvent(data))
+            input.onChange(data->Identity.anyTypeToReactEvent)
           }
         }
       }
