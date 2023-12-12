@@ -1,4 +1,3 @@
-type modeType = LiveModeDropDown | TestModeDropDown
 open UIUtils
 open HSwitchUtils
 open HSLocalStorage
@@ -111,13 +110,13 @@ let make = () => {
 
   let setUpDashboard = async () => {
     try {
-      let _wasmResult = await Window.connectorWasmInit()
-      let _profileDetails = await fetchBusinessProfiles()
-      let _connectorList = await fetchConnectorListResponse()
-      let _merchantDetails = await fetchMerchantAccountDetails()
+      let _ = await Window.connectorWasmInit()
+      let _ = await fetchBusinessProfiles()
+      let _ = await fetchConnectorListResponse()
+      let _ = await fetchMerchantAccountDetails()
 
       if featureFlagDetails.quickStart {
-        let _featureFlag = await fetchInitialEnums()
+        let _ = await fetchInitialEnums()
       }
 
       if featureFlagDetails.isLiveMode {
