@@ -47,14 +47,3 @@ module SearchInput = {
     />
   }
 }
-
-let redirectSearchInput = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder,
-  ~redirectUrl,
-  ~widthMatchwithPlaceholderLength=None,
-  ~customStyle="",
-  (),
-) => {
-  <SearchInput input placeholder redirectUrl widthMatchwithPlaceholderLength customStyle />
-}

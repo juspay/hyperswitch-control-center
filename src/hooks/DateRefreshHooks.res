@@ -25,7 +25,7 @@ let useConstructQueryOnBasisOfOpt = () => {
         | "next_month" => NextMonth
         | st => {
             let arr = st->Js.String2.split("_")
-            let _future = arr[0]->Belt.Option.getWithDefault("") == "next"
+            let _ = arr[0]->Belt.Option.getWithDefault("") == "next"
             let anchor = arr[2]->Belt.Option.getWithDefault("")
             let val = arr[1]->Belt.Option.getWithDefault("")
             switch anchor {
