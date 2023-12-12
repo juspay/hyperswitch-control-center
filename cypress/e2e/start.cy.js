@@ -1,6 +1,6 @@
 describe("template spec", () => {
   it("passes", () => {
-    cy.visit("http://localhost:9000");
+    cy.visit("https://app.hyperswitch.io");
     cy.contains("Hey there,").should("be.visible");
   });
 });

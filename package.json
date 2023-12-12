@@ -17,7 +17,9 @@
     "re:clean": "rescript clean",
     "re:start": "rescript build -w",
     "re:format": "rescript format -all",
-    "postinstall": "git config core.hooksPath .githooks && chmod +x .githooks/commit-msg"
+    "postinstall": "git config core.hooksPath .githooks && chmod +x .githooks/commit-msg",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run"
   },
   "husky": {
     "hooks": {
