@@ -1,9 +1,3 @@
-module PaginationButton = {
-  @react.component
-  let make = (~onClick, ~text) => {
-    <button onClick> {text->React.string} </button>
-  }
-}
 external formEventToInt: ReactEvent.Form.t => int = "%identity"
 
 @react.component

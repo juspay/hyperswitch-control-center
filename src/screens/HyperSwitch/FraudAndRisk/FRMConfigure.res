@@ -120,8 +120,7 @@ let make = () => {
             setCurrentStep retrivedValues=Some(initialValues) setInitialValues isUpdateFlow
           />
         | SummaryAndTest
-        | Preview
-        | _ =>
+        | Preview =>
           <FRMSummary initialValues currentStep setCurrentStep isUpdateFlow />
         }}
       </div>

@@ -1,6 +1,5 @@
 module CustomViewSection = {
   external formEventToInt: ReactEvent.Form.t => int = "%identity"
-  external arrToFormEvent: array<'a> => ReactEvent.Form.t = "%identity"
   external jsonArrToa: array<Js.Json.t> => array<'a> = "%identity"
 
   @react.component
@@ -60,7 +59,7 @@ module CustomViewSection = {
               ->ignore
             }
           }
-          onChange(finalArr->arrToFormEvent)
+          onChange(finalArr->Identity.arrayOfGenericTypeToFormReactEvent)
         },
       }
       input

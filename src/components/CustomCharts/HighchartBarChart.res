@@ -1,5 +1,3 @@
-external objToJson: {..} => Js.Json.t = "%identity"
-
 module RawBarChart = {
   @react.component
   let make = (~options: Js.Json.t) => {
@@ -59,7 +57,7 @@ module HighBarChart1D = {
         },
         "series": barSeries,
         "legend": {"enabled": false},
-      }->objToJson
+      }->Identity.genericObjectOrRecordToJson
       barOption
     }, (barSeries, gridLineColor))
     if barSeries->Js.Array2.length > 0 {

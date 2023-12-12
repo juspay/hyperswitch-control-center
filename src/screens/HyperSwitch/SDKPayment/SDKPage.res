@@ -1,5 +1,4 @@
 let h3Leading2Style = HSwitchUtils.getTextClass(~textVariant=H3, ~h3TextVariant=Leading_2, ())
-external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
 
 module SDKConfiguarationFields = {
   open MerchantAccountUtils
@@ -55,7 +54,8 @@ module SDKConfiguarationFields = {
               ev => {
                 let eventValueToInt =
                   ev->Identity.formReactEventToString->LogicUtils.getIntFromString(0)
-                let valInCents = (eventValueToInt * 100)->string_of_int->strToFormEvent
+                let valInCents =
+                  (eventValueToInt * 100)->string_of_int->Identity.stringToFormReactEvent
                 input.onChange(valInCents)
               }
             },

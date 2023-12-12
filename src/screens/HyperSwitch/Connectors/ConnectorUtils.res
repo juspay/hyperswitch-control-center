@@ -10,14 +10,13 @@ external changeType: Js.Json.t => 't = "%identity"
 type object = {fromEntries: (. map) => Js.Json.t}
 external object: object = "Object"
 
-let stepsArr = [IntegFields, Webhooks, PaymentMethods, SummaryAndTest]
+let stepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
 
 let payoutStepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
 
 let getStepName = step => {
   switch step {
   | IntegFields => "Credentials"
-  | Webhooks => "Webhooks"
   | PaymentMethods => "Payment Methods"
   | SummaryAndTest => "Summary"
   | Preview => "Preview"

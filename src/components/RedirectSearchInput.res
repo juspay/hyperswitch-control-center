@@ -1,5 +1,3 @@
-external toReactForm: Js.Json.t => ReactEvent.Form.t = "%identity"
-
 module SearchInput = {
   @react.component
   let make = (
@@ -48,15 +46,4 @@ module SearchInput = {
       widthMatchwithPlaceholderLength
     />
   }
-}
-
-let redirectSearchInput = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder,
-  ~redirectUrl,
-  ~widthMatchwithPlaceholderLength=None,
-  ~customStyle="",
-  (),
-) => {
-  <SearchInput input placeholder redirectUrl widthMatchwithPlaceholderLength customStyle />
 }

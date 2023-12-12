@@ -37,21 +37,6 @@ let make = (
 ) => {
   let _ = position
   let _ = icon
-  let {isFirst, isLast} = React.useContext(ButtonGroupContext.buttonGroupContext)
-  let cursorClass = if isDisabled {
-    "cursor-not-allowed"
-  } else {
-    ""
-  }
-  let roundingClass = if isFirst && isLast {
-    "rounded-md"
-  } else if isFirst {
-    "rounded-l-md"
-  } else if isLast {
-    "rounded-r-md"
-  } else {
-    ""
-  }
   let value = switch input.value->Js.Json.decodeString {
   | Some(str) => str
   | None => ""
@@ -77,8 +62,6 @@ let make = (
   let onHourChange = React.useCallback1(changeVal(0), [changeVal])
   let onMinuteChange = React.useCallback1(changeVal(1), [changeVal])
   let onSecondsChange = React.useCallback1(changeVal(2), [changeVal])
-
-  let _className = `${roundingClass} ${cursorClass} border border-jp-gray-lightmode_steelgray border-opacity-75 h-8 w-48 font-semibold pl-3 pt-3 pb-3 text-jp-gray-900 text-lg text-opacity-75 placeholder-jp-gray-900 placeholder-opacity-25 hover:bg-jp-gray-lightmode_steelgray hover:bg-opacity-20 hover:border-jp-gray-900 hover:border-opacity-20 focus:text-opacity-100 focus:outline-none focus:border-blue-800 focus:border-opacity-100 dark:text-jp-gray-text_darktheme dark:text-opacity-75 dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:hover:bg-jp-gray-970 dark:bg-jp-gray-lightgray_background dark:placeholder-jp-gray-text_darktheme dark:placeholder-opacity-25 dark:focus:text-opacity-100 dark:focus:border-blue-800 `
 
   <div className="h-8 max-w-min flex flex-row gap-1 text-sm">
     {switch label {
