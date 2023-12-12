@@ -279,7 +279,7 @@ let getSidebarOptionsForIntegrateYourApp: (
 
   open LogicUtils
   let enumValue = enumDetails->safeParse->getTypedValueFromDict
-  Js.log2("updated lokii", enumValue)
+
   let migrateFromStripeSidebar: array<HSSelfServeSidebar.sidebarOption> = [
     {
       title: "Choose integration method",

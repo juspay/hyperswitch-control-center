@@ -31,7 +31,7 @@ let make = (
         if currentStep === DownloadTestAPIKey {
           setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
         } else {
-          let _res = updateEnumInRecoil([
+          let _ = updateEnumInRecoil([
             (String("pending"), currentStep->getPolyMorphicVariantOfIntegrationSubStep),
             (String("ongoing"), prevStep->getPolyMorphicVariantOfIntegrationSubStep),
           ])
@@ -50,7 +50,7 @@ let make = (
           markAsDone()->ignore
         } else {
           let nextStep = getNavigationStepForStandardIntegration(~currentStep, ~forward=true, ())
-          let _res = updateEnumInRecoil([
+          let _ = updateEnumInRecoil([
             (String("completed"), currentStep->getPolyMorphicVariantOfIntegrationSubStep),
             (String("ongoing"), nextStep->getPolyMorphicVariantOfIntegrationSubStep),
           ])

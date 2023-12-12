@@ -57,7 +57,6 @@ let useUpdateEnumInRecoil = () => {
     })
 
     let updatedRecoilValueDict = DictionaryUtils.mergeDicts(enumDictsArray)
-    Js.log2("lokiiiiii", enumDictsArray)
     setEnumVariantValues(._ => updatedRecoilValueDict->Js.Json.object_->Js.Json.stringify)
     updatedRecoilValueDict
   }

@@ -31,7 +31,7 @@ let make = (
         if currentStep === DownloadAPIKey {
           setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
         } else {
-          let _res = updateEnumInRecoil([
+          let _ = updateEnumInRecoil([
             (String("pending"), currentStep->getPolyMorphicVariantOfMigrateFromStripe),
             (String("ongoing"), prevStep->getPolyMorphicVariantOfMigrateFromStripe),
           ])
@@ -50,7 +50,7 @@ let make = (
           markAsDone()->ignore
         } else {
           let nextStep = getNavigationStepForMigrateFromStripe(~currentStep, ~forward=true, ())
-          let _res = updateEnumInRecoil([
+          let _ = updateEnumInRecoil([
             (String("completed"), currentStep->getPolyMorphicVariantOfMigrateFromStripe),
             (String("ongoing"), nextStep->getPolyMorphicVariantOfMigrateFromStripe),
           ])
