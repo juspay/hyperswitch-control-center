@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        with: 
+        with:
           fetch-depth: 0
           token: ${{ secrets.AUTO_RELEASE_PAT }}
       - name: Set up Node.js
@@ -22,7 +22,7 @@ jobs:
 
       - name: Build (adjust the command as per your project)
         run: npm run build:prod
-      
+
       - name: Run (adjust the command as per your project)
         run: npm run serve
 
@@ -33,6 +33,6 @@ jobs:
 
       - name: Run Cypress tests
         run: npm run cy:run --headless
-        
+
       - name: Stop server (adjust the command as per your project)
         run: kill $(lsof -t -i:9000) || true
