@@ -4,34 +4,12 @@ let make = (~isFromMilestoneCard=false) => {
   open ProdVerifyModalUtils
 
   let fetchDetails = useGetMethod()
-  let updateDetails = useUpdateMethod()
 
   let email = HSLocalStorage.getFromMerchantDetails("email")
-  let {
-    showProdIntentForm,
-    setShowProdIntentForm,
-    dashboardPageState,
-    integrationDetails,
-    setIntegrationDetails,
-    setIsProdIntentCompleted,
-  } = React.useContext(GlobalProvider.defaultContext)
+  let {showProdIntentForm, setShowProdIntentForm, setIsProdIntentCompleted} = React.useContext(
+    GlobalProvider.defaultContext,
+  )
   let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty())
-
-  let markAsDone = async () => {
-    try {
-      let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
-      let body = HSwitchUtils.constructOnboardingBody(
-        ~dashboardPageState,
-        ~integrationDetails,
-        ~is_done=true,
-        (),
-      )
-      let _ = await updateDetails(url, body, Post)
-      setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
-    } catch {
-    | _ => ()
-    }
-  }
 
   let getProdVerifyDetails = async () => {
     open LogicUtils
@@ -50,8 +28,6 @@ let make = (~isFromMilestoneCard=false) => {
       setIsProdIntentCompleted(_ => hideHeader)
       if !hideHeader {
         valueForProdIntent->Js.Dict.set(POCemail->getStringFromVariant, email->Js.Json.string)
-      } else if !integrationDetails.account_activation.is_done {
-        markAsDone()->ignore
       }
       setInitialValues(_ => valueForProdIntent)
     } catch {

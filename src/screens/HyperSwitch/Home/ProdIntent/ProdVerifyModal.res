@@ -10,28 +10,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Js.Dict.empty(), ~getProdV
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (isSubmitBtnDisabled, setIsSubmitBtnDisabled) = React.useState(_ => false)
-  let {
-    dashboardPageState,
-    integrationDetails,
-    setIntegrationDetails,
-    setShowProdIntentForm,
-  } = React.useContext(GlobalProvider.defaultContext)
-
-  let markAsDone = async () => {
-    try {
-      let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
-      let body = HSwitchUtils.constructOnboardingBody(
-        ~dashboardPageState,
-        ~integrationDetails,
-        ~is_done=true,
-        (),
-      )
-      let _ = await updateDetails(url, body, Post)
-      setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
-    } catch {
-    | _ => ()
-    }
-  }
+  let {setShowProdIntentForm} = React.useContext(GlobalProvider.defaultContext)
 
   let updateProdDetails = async values => {
     try {
@@ -47,7 +26,6 @@ let make = (~showModal, ~setShowModal, ~initialValues=Js.Dict.empty(), ~getProdV
       )
       setScreenState(_ => Success)
       getProdVerifyDetails()->ignore
-      markAsDone()->ignore
       setShowProdIntentForm(_ => false)
     } catch {
     | _ => setShowModal(_ => false)

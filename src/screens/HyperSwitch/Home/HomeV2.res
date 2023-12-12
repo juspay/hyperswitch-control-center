@@ -71,6 +71,7 @@ module HomePageHorizontalStepper = {
 module QuickStart = {
   @react.component
   let make = (~isMobileView) => {
+    open QuickStartUtils
     let {setDashboardPageState, setQuickStartPageState} = React.useContext(
       GlobalProvider.defaultContext,
     )
@@ -90,7 +91,7 @@ module QuickStart = {
         let typedConnectorValue = connectorList->getArrayOfConnectorListPayloadType
 
         if (
-          !typedValueOfEnum.isMultipleConfiguration &&
+          typedValueOfEnum.configurationType->Js.String2.length === 0 &&
           typedValueOfEnum.firstProcessorConnected.processorID->Js.String2.length === 0 &&
           typedValueOfEnum.secondProcessorConnected.processorID->Js.String2.length === 0
         ) {
@@ -115,9 +116,11 @@ module QuickStart = {
               processorName: secondConnectorValue.connector_name,
             }
 
-            let _isMultipleConnectorSetup = await ConnectorChoice({
-              isMultipleConfiguration: true,
-            })->usePostEnumDetails(#IsMultipleConfiguration)
+            let _connectorChoiceSetup =
+              await StringEnumType(
+                #MultipleProcessorWithSmartRouting->connectorChoiceVariantToString,
+              )->usePostEnumDetails(#ConfigurationType)
+
             let _firstEnumSetupValues =
               await ProcesorType(bodyOfFirstConnector)->usePostEnumDetails(#FirstProcessorConnected)
             let _secondEnumSetupValues =
@@ -125,7 +128,10 @@ module QuickStart = {
                 #SecondProcessorConnected,
               )
             let _ = updateEnumInRecoil([
-              (Boolean(true), #IsMultipleConfiguration),
+              (
+                StringEnumType(#MultipleProcessorWithSmartRouting->connectorChoiceVariantToString),
+                #ConfigurationType,
+              ),
               (ProcesorType(bodyOfFirstConnector), #FirstProcessorConnected),
               (ProcesorType(bodyOfSecondConnector), #SecondProcessorConnected),
             ])
@@ -141,13 +147,17 @@ module QuickStart = {
               processorName: firstConnectorValue.connector_name,
             }
 
-            let _isMultipleConnectorSetup = await ConnectorChoice({
-              isMultipleConfiguration: true,
-            })->usePostEnumDetails(#IsMultipleConfiguration)
+            let _connectorChoiceSetup =
+              await StringEnumType(
+                #MultipleProcessorWithSmartRouting->connectorChoiceVariantToString,
+              )->usePostEnumDetails(#ConfigurationType)
             let _firstEnumSetupValues =
               await ProcesorType(bodyOfFirstConnector)->usePostEnumDetails(#FirstProcessorConnected)
             let _ = updateEnumInRecoil([
-              (ConnectorChoice({isMultipleConfiguration: true}), #IsMultipleConfiguration),
+              (
+                StringEnumType(#MultipleProcessorWithSmartRouting->connectorChoiceVariantToString),
+                #ConfigurationType,
+              ),
               (ProcesorType(bodyOfFirstConnector), #FirstProcessorConnected),
             ])
             setQuickStartPageState(_ => ConnectProcessor(CONFIGURE_SECONDARY))

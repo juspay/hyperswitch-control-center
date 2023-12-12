@@ -34,31 +34,9 @@ let make = (~goLive) => {
   let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty())
   let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
   let (isSubmitBtnDisabled, setIsSubmitBtnDisabled) = React.useState(_ => false)
-  let {
-    dashboardPageState,
-    integrationDetails,
-    setIntegrationDetails,
-    setIsProdIntentCompleted,
-    setQuickStartPageState,
-    setDashboardPageState,
-  } = React.useContext(GlobalProvider.defaultContext)
-
-  let markAsDone = async () => {
-    try {
-      let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
-      let body = HSwitchUtils.constructOnboardingBody(
-        ~dashboardPageState,
-        ~integrationDetails,
-        ~is_done=true,
-        (),
-      )
-      let _ = await updateDetails(url, body, Post)
-      setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
-      setQuickStartPageState(_ => FinalLandingPage)
-    } catch {
-    | _ => ()
-    }
-  }
+  let {setIsProdIntentCompleted, setQuickStartPageState, setDashboardPageState} = React.useContext(
+    GlobalProvider.defaultContext,
+  )
 
   let getProdVerifyDetails = async () => {
     open LogicUtils
@@ -78,9 +56,8 @@ let make = (~goLive) => {
       setIsProdIntentCompleted(_ => hideHeader)
       if !hideHeader {
         valueForProdIntent->Js.Dict.set(POCemail->getStringFromVariant, email->Js.Json.string)
-      } else if !integrationDetails.account_activation.is_done {
-        markAsDone()->ignore
       }
+      setQuickStartPageState(_ => FinalLandingPage)
       setInitialValues(_ => valueForProdIntent)
     } catch {
     | _ => ()
@@ -95,7 +72,6 @@ let make = (~goLive) => {
       let _ = await updateDetails(url, body, Post)
 
       getProdVerifyDetails()->ignore
-      markAsDone()->ignore
     } catch {
     | _ => ()
     }
