@@ -1,24 +1,37 @@
-name: E2E on Chrome
+name: Cypress Tests
 
 on: [push]
 
 jobs:
-  install:
+  cypress-tests:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+     - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.AUTO_RELEASE_PAT }}
 
-      - name: Install dependencies
-        run: |
-          npm install --force
-          npm run build:prod
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 14
 
-      - name: Cypress run
-        with:
-          browser: chrome
-          start: npm run start
-          wait-on: "http://localhost:9000"
+    - name: Install dependencies
+      run: npm install --force
+
+    - name: Start server (adjust the command as per your project)
+      run: npm run start &
+      background: true
+
+    - name: Wait for server to start
+      run: |
+        npx wait-on http://localhost:9000
+        sleep 5
+
+    - name: Run Cypress tests
+      run: npm test
+
+    - name: Stop server (adjust the command as per your project)
+      run: kill $(lsof -t -i:9000) || true
