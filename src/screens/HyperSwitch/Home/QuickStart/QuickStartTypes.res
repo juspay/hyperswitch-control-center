@@ -47,6 +47,10 @@ type sectionHeadingVariant = [
   | #TestPayment
   | #IntegrationMethod
   | #IntegrationCompleted
+  | #DownloadTestAPIKey
+  | #CreatePayment
+  | #DisplayCheckout
+  | #DisplayPaymentConfirmation
   | #StripeConnected
   | #PaypalConnected
   | #SPRoutingConfigured
@@ -56,6 +60,11 @@ type sectionHeadingVariant = [
   | #SetupWoocomWebhook
   | #IsMultipleConfiguration
   | #GoLive
+  | #DownloadTestAPIKeyStripe
+  | #InstallDeps
+  | #ReplaceAPIKeys
+  | #ReconfigureCheckout
+  | #LoadCheckout
 ]
 
 type processorType = {
@@ -85,7 +94,17 @@ type responseType = {
   configureWoocom: bool,
   setupWoocomWebhook: bool,
   isMultipleConfiguration: bool,
+  downloadTestAPIKeyStripe: string,
+  installDeps: string,
+  replaceAPIKeys: string,
+  reconfigureCheckout: string,
+  loadCheckout: string,
+  downloadTestAPIKey: string,
+  createPayment: string,
+  displayCheckout: string,
+  displayPaymentConfirmation: string,
 }
+
 type requestObjectType =
   | ProcesorType(processorType)
   | RoutingType(routingType)
@@ -93,5 +112,6 @@ type requestObjectType =
   | IntegrationMethod(integrationMethod)
   | ConnectorChoice(connectorChoice)
   | Boolean(bool)
+  | String(string)
 
 type valueType = String(string) | Boolean(bool)
