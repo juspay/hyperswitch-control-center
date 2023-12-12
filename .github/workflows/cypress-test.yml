@@ -20,16 +20,19 @@ jobs:
       - name: Install dependencies
         run: npm install --force
 
-      - name: Start server (adjust the command as per your project)
-        run: npm run start
+      - name: Build (adjust the command as per your project)
+        run: npm run build:prod
+      
+      - name: Run (adjust the command as per your project)
+        run: npm run serve
 
       - name: Wait for server to start
         run: |
-          npx wait-on http://localhost:3000
+          npx wait-on http://localhost:9000
           sleep 5
 
       - name: Run Cypress tests
-        run: npm run cy:run
+        run: npm run cy:run --headless
         
       - name: Stop server (adjust the command as per your project)
-        run: kill $(lsof -t -i:3000) || true
+        run: kill $(lsof -t -i:9000) || true
