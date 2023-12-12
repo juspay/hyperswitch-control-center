@@ -6,8 +6,11 @@ jobs:
   install:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.AUTO_RELEASE_PAT }}
 
       - name: Cypress run
         uses: cypress-io/github-action@v3
