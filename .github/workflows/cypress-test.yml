@@ -15,12 +15,10 @@ jobs:
       - name: Install dependencies
         run: |
           npm install --force
+          npm run build:prod
 
       - name: Cypress run
-        uses: cypress-io/github-action@v3
         with:
-          project: ./hyperswitch-control-center
           browser: chrome
-          build: npm run build:prod
           start: npm run start
           wait-on: "http://localhost:9000"
