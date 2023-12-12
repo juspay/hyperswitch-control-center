@@ -97,6 +97,7 @@ module RenderConnectorInputFields = {
     ~getPlaceholder=?,
     ~isLabelNested=true,
     ~disabled=false,
+    ~description="",
   ) => {
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     open ConnectorUtils
@@ -122,64 +123,10 @@ module RenderConnectorInputFields = {
                 ~checkRequiredFields,
                 ~getPlaceholder,
                 ~disabled,
+                ~description,
                 (),
               )
             }}
-          />
-          <ErrorValidation
-            fieldName=formName
-            validate={validate(
-              ~selectedConnector,
-              ~dict=details,
-              ~fieldName=formName,
-              ~isLiveMode={featureFlagDetails.isLiveMode},
-            )}
-          />
-        </div>
-      </UIUtils.RenderIf>
-    })
-    ->React.array
-  }
-}
-
-module RenderConnectorLabel = {
-  open ConnectorTypes
-  @react.component
-  let make = (
-    ~connector: connectorName,
-    ~selectedConnector,
-    ~details,
-    ~name,
-    ~keysToIgnore: array<string>=[],
-    ~checkRequiredFields=?,
-    ~getPlaceholder=?,
-    ~isLabelNested=true,
-    ~disabled=false,
-  ) => {
-    open ConnectorUtils
-    open LogicUtils
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let keys =
-      details->Js.Dict.keys->Js.Array2.filter(ele => !Js.Array2.includes(keysToIgnore, ele))
-    keys
-    ->Array.map(field => {
-      let label = details->getString(field, "")
-      let formName = isLabelNested ? `${name}.${field}` : name
-      <UIUtils.RenderIf condition={label->Js.String2.length > 0}>
-        <div key={label}>
-          <FormRenderer.FieldRenderer
-            labelClass="font-semibold !text-hyperswitch_black"
-            field={inputField(
-              ~name=formName,
-              ~field,
-              ~label,
-              ~connector,
-              ~checkRequiredFields,
-              ~getPlaceholder,
-              ~disabled,
-              ~description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'",
-              (),
-            )}
           />
           <ErrorValidation
             fieldName=formName
@@ -260,7 +207,7 @@ module ConnectorConfigurationFields = {
           selectedConnector
         />
       }}
-      <RenderConnectorLabel
+      <RenderConnectorInputFields
         details={connectorLabelDetailField}
         name={"connector_label"}
         keysToIgnore=metaDataInputKeysToIgnore
@@ -269,6 +216,7 @@ module ConnectorConfigurationFields = {
         selectedConnector
         isLabelNested=false
         disabled={isUpdateFlow ? true : false}
+        description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
       />
       <RenderConnectorInputFields
         details={connectorMetaDataFields}
