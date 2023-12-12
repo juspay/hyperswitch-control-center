@@ -15,7 +15,6 @@ jobs:
         with: 
           fetch-depth: 0
           token: ${{ secrets.AUTO_RELEASE_PAT }}
-
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
