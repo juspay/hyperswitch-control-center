@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.7.0 (2023-12-13)
+
+### Features
+
+- Refund enable for Partially Captured Payments ([#94](https://github.com/juspay/hyperswitch-control-center/pull/94)) ([`5634990`](https://github.com/juspay/hyperswitch-control-center/commit/5634990a6c0e5952f65e6c435f546314347acaac))
+
+### Bug Fixes
+
+- Connector label  and profile id default value fix ([#95](https://github.com/juspay/hyperswitch-control-center/pull/95)) ([`9822972`](https://github.com/juspay/hyperswitch-control-center/commit/9822972f9ed6724f365ee36d5d27f14458e1f960))
+
+**Full Changelog:** [`v1.6.0...v1.7.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.6.0...v1.7.0)
+
+- - -
+
+
 ## 1.6.0 (2023-12-12)
 
 ### Features
