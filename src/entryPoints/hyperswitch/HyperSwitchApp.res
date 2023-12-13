@@ -75,21 +75,22 @@ let make = () => {
   sessionExpired := false
 
   let getAgreementEnum = async () => {
-    open LogicUtils
-    try {
-      let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl
-      let response = await fetchDetails(url)
+    // open LogicUtils
+    // try {
+    //   let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl
+    //   let response = await fetchDetails(url)
 
-      if response->getDictFromJsonObject->getBool("ProductionAgreement", false) {
-        setDashboardPageState(_ => #PROD_ONBOARDING)
-      } else {
-        setDashboardPageState(_ => #AGREEMENT_SIGNATURE)
-      }
-    } catch {
-    | _ =>
-      setDashboardPageState(_ => #HOME)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    }
+    //   if response->getDictFromJsonObject->getBool("ProductionAgreement", false) {
+    //     setDashboardPageState(_ => #PROD_ONBOARDING)
+    //   } else {
+    //     setDashboardPageState(_ => #AGREEMENT_SIGNATURE)
+    //   }
+    // } catch {
+    // | _ =>
+    //   setDashboardPageState(_ => #HOME)
+    //   setScreenState(_ => PageLoaderWrapper.Success)
+    // }
+    setDashboardPageState(_ => #PROD_ONBOARDING)
   }
 
   let fetchInitialEnums = async () => {
@@ -362,7 +363,8 @@ let make = () => {
                 setShowModal={setShowFeedbackModal}
               />
             </RenderIf>
-            <RenderIf condition={featureFlagDetails.productionAccess}>
+            <RenderIf
+              condition={featureFlagDetails.productionAccess || featureFlagDetails.quickStart}>
               <ProdIntentForm />
             </RenderIf>
           </div>

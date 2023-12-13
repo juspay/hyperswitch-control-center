@@ -634,24 +634,48 @@ let checkString = (dict, variant) => {
 }
 
 let getCurrentStep = dict => {
-  Js.log2("dictdict", dict)
   if (
-    // 1.IsMultipleConfiguration false
+    // 1.ConfigurationType is empty
     // 2.FirstProcessorConnected dict is empty
-
     dict->checkString(#ConfigurationType)->Js.String2.length === 0 &&
       dict->checkEmptyDict(#FirstProcessorConnected)
   ) {
     #ConfigurationType
   } else if (
-    // 1.IsMultipleConfiguration true
+    // 1.ConfigurationType is Single
+    // 2.FirstProcessorConnected dict is empty
+    dict->checkString(#ConfigurationType)->connectorChoiceStringVariantMapper ===
+      #SinglePaymentProcessor && dict->checkEmptyDict(#FirstProcessorConnected)
+  ) {
+    #FirstProcessorConnected
+  } else if (
+    // 1.ConfigurationType is Single
+    // 2.FirstProcessorConnected dict is not empty
+    dict->checkString(#ConfigurationType)->connectorChoiceStringVariantMapper ===
+      #SinglePaymentProcessor &&
+    !(dict->checkEmptyDict(#FirstProcessorConnected)) &&
+    dict->checkEmptyDict(#TestPayment) === true
+  ) {
+    #TestPayment
+  } else if (
+    // 1.ConfigurationType is Single
+    // 2.FirstProcessorConnected dict is not empty
+    // 3.IntegrationMethod dict is empty
+    dict->checkString(#ConfigurationType)->connectorChoiceStringVariantMapper ===
+      #SinglePaymentProcessor &&
+    !(dict->checkEmptyDict(#FirstProcessorConnected)) &&
+    dict->checkEmptyDict(#IntegrationMethod) === true
+  ) {
+    #IntegrationMethod
+  } else if (
+    // 1.ConfigurationType is Multiple
     // 2.FirstProcessorConnected dict is empty
     dict->checkString(#ConfigurationType)->connectorChoiceStringVariantMapper ===
       #MultipleProcessorWithSmartRouting && dict->checkEmptyDict(#FirstProcessorConnected)
   ) {
     #FirstProcessorConnected
   } else if (
-    // 1.IsMultipleConfiguration true
+    // 1.ConfigurationType is Multiple
     // 2.FirstProcessorConnected dict is not empty
     // 3.SecondProcessorConnected dict is empty
     dict->checkString(#ConfigurationType)->connectorChoiceStringVariantMapper ===
@@ -661,7 +685,7 @@ let getCurrentStep = dict => {
   ) {
     #SecondProcessorConnected
   } else if (
-    // 1.IsMultipleConfiguration true
+    // 1.ConfigurationType is Multiple
     // 2.FirstProcessorConnected dict is not empty
     // 3.SecondProcessorConnected dict is not empty
     // 4.ConfiguredRouting dict is empty
@@ -673,7 +697,7 @@ let getCurrentStep = dict => {
   ) {
     #ConfiguredRouting
   } else if (
-    // 1.IsMultipleConfiguration true
+    // 1.ConfigurationType is Multiple
     // 2.FirstProcessorConnected dict is not empty
     // 3.SecondProcessorConnected dict is not empty
     // 4.ConfigureRouting dict is not empty
@@ -687,7 +711,7 @@ let getCurrentStep = dict => {
   ) {
     #TestPayment
   } else if (
-    // 1.IsMultipleConfiguration true
+    // 1.ConfigurationType is Multiple
     // 2.FirstProcessorConnected dict is not empty
     // 3.SecondProcessorConnected dict is not empty
     // 4.ConfiguredRouting dict is not empty
@@ -698,25 +722,6 @@ let getCurrentStep = dict => {
     !(dict->checkEmptyDict(#SecondProcessorConnected)) &&
     !(dict->checkEmptyDict(#ConfiguredRouting)) &&
     dict->checkEmptyDict(#IntegrationMethod)
-  ) {
-    #IntegrationMethod
-  } else if (
-    // 1.IsMultipleConfiguration false
-    // 2.FirstProcessorConnected dict is not empty
-    dict->checkString(#ConfigurationType)->connectorChoiceStringVariantMapper ===
-      #SinglePaymentProcessor &&
-    !(dict->checkEmptyDict(#FirstProcessorConnected)) &&
-    dict->checkEmptyDict(#TestPayment) === true
-  ) {
-    #TestPayment
-  } else if (
-    // 1.IsMultipleConfiguration false
-    // 2.FirstProcessorConnected dict is not empty
-    // 3.IntegrationMethod dict is empty
-    dict->checkString(#ConfigurationType)->connectorChoiceStringVariantMapper ===
-      #SinglePaymentProcessor &&
-    !(dict->checkEmptyDict(#FirstProcessorConnected)) &&
-    dict->checkEmptyDict(#IntegrationMethod) === true
   ) {
     #IntegrationMethod
   } else if (
