@@ -192,9 +192,9 @@ let getURL = (
     `${HSwitchGlobalVars.hyperSwitchApiPrefix}/recon/${(reconType :> string)->Js.String2.toLowerCase}`
   | GENERATE_SAMPLE_DATA =>
     switch methodType {
-    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data/generate`
+    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data`
 
-    | Delete => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data/delete`
+    | Delete => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data`
 
     | _ => ""
     }
