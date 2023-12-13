@@ -148,6 +148,7 @@ module ConfigureProcessor = {
           checkboxText=""
         />
       </QuickStartUIUtils.BaseComponent>
+      <FormValuesSpy />
     </Form>
   }
 }

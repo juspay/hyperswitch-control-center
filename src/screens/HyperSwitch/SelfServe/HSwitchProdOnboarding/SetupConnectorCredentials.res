@@ -15,6 +15,7 @@ module ConnectorDetailsForm = {
     ~verifyErrorMessage,
     ~checkboxText,
   ) => {
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
 
     let (
@@ -37,6 +38,11 @@ module ConnectorDetailsForm = {
     )
 
     <div className="flex flex-col gap-6">
+      <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
+        <ConnectorAccountDetails.BusinessProfileRender
+          isUpdateFlow=false selectedConnector={connectorName}
+        />
+      </UIUtils.RenderIf>
       <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
         connectorAccountFields
         connector={connectorName->getConnectorNameTypeFromString}
@@ -86,6 +92,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   let (connectorDetails, setConnectorDetails) = React.useState(_ => Js.Json.null)
   let (isLoading, setIsLoading) = React.useState(_ => false)
   let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
+  let (initialValues, setInitialValues) = React.useState(_ => Js.Json.null)
 
   let getDetails = async () => {
     let _wasmResult = await Window.connectorWasmInit()
@@ -110,11 +117,27 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     connectorWebHookDetails,
     connectorLabelDetailField,
   ) = getConnectorFields(connectorDetails)
+  let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
+  let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
 
   let (suggestedAction, suggestedActionExists) = getSuggestedAction(
     ~verifyErrorMessage,
     ~connector={connectorName},
   )
+
+  React.useEffect1(() => {
+    setInitialValues(prevJson => {
+      let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
+      prevJsonDict->Js.Dict.set(
+        "connector_label",
+        `${selectedConnector->ConnectorUtils.getConnectorNameString}_${defaultBusinessProfile.profile_name}`->Js.Json.string,
+      )
+      prevJsonDict->Js.Dict.set("profile_id", defaultBusinessProfile.profile_id->Js.Json.string)
+      prevJsonDict->Js.Json.object_
+    })
+
+    None
+  }, [selectedConnector])
 
   let {profile_id} =
     HyperswitchAtom.businessProfilesAtom
@@ -349,10 +372,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   }
 
   <PageLoaderWrapper screenState>
-    <Form
-      initialValues={Js.Dict.empty()->Js.Json.object_}
-      onSubmit={handleSubmit}
-      validate={validateMandatoryField}>
+    <Form initialValues onSubmit={handleSubmit} validate={validateMandatoryField}>
       <div className="flex flex-col h-full w-full ">
         <div className="flex justify-between px-11 py-8 flex-wrap gap-4">
           <div className="flex gap-4 items-center">
@@ -396,6 +416,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         suggestedAction
         setVerifyDone
       />
+      <FormValuesSpy />
     </Form>
   </PageLoaderWrapper>
 }
