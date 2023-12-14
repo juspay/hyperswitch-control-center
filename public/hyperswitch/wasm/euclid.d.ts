@@ -59,6 +59,14 @@ export function getAllKeys(): any;
 */
 export function getKeyType(key: string): string;
 /**
+* @returns {any}
+*/
+export function getThreeDsKeys(): any;
+/**
+* @returns {any}
+*/
+export function getSurchargeKeys(): any;
+/**
 * @param {string} val
 * @returns {string}
 */
@@ -75,9 +83,31 @@ export function getVariantValues(key: string): any;
 */
 export function addTwo(n1: bigint, n2: bigint): bigint;
 /**
+* @param {string} key
 * @returns {any}
 */
-export function getDescriptionCategory(): any;
+export function getConnectorConfig(key: string): any;
+/**
+* @param {string} key
+* @returns {any}
+*/
+export function getPayoutConnectorConfig(key: string): any;
+/**
+* @param {any} input
+* @param {any} response
+* @returns {any}
+*/
+export function getRequestPayload(input: any, response: any): any;
+/**
+* @param {any} input
+* @returns {any}
+*/
+export function getResponsePayload(input: any): any;
+/**
+* @param {string} key
+* @returns {any}
+*/
+export function getDescriptionCategory(key: string): any;
 /**
 *
 * Function exposed as `wasm` function in js `parse`. Allowing use to extend the functionality and
@@ -100,9 +130,15 @@ export interface InitOutput {
   readonly getAllConnectors: (a: number) => void;
   readonly getAllKeys: (a: number) => void;
   readonly getKeyType: (a: number, b: number, c: number) => void;
+  readonly getThreeDsKeys: (a: number) => void;
+  readonly getSurchargeKeys: (a: number) => void;
   readonly getVariantValues: (a: number, b: number, c: number) => void;
   readonly addTwo: (a: number, b: number) => number;
-  readonly getDescriptionCategory: (a: number) => void;
+  readonly getConnectorConfig: (a: number, b: number, c: number) => void;
+  readonly getPayoutConnectorConfig: (a: number, b: number, c: number) => void;
+  readonly getRequestPayload: (a: number, b: number, c: number) => void;
+  readonly getResponsePayload: (a: number, b: number) => void;
+  readonly getDescriptionCategory: (a: number, b: number, c: number) => void;
   readonly parse: (a: number, b: number, c: number) => void;
   readonly parseToString: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_0: (a: number, b: number) => number;
