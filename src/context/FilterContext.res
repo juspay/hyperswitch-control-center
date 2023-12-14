@@ -1,3 +1,11 @@
+type sessionStorage = {
+  getItem: (. string) => Js.Nullable.t<string>,
+  setItem: (. string, string) => unit,
+  removeItem: (. string) => unit,
+}
+
+@val external sessionStorage: sessionStorage = "sessionStorage"
+
 type filterUpdater = {
   query: string,
   filterValue: Js.Dict.t<string>,
@@ -23,7 +31,7 @@ module Provider = {
 }
 
 @react.component
-let make = (~children) => {
+let make = (~index: string, ~children) => {
   open FilterUtils
   let (query, setQuery) = React.useState(_ => "")
   let searcParamsToDict = query->parseFilterString
@@ -101,6 +109,21 @@ let make = (~children) => {
       reset,
     }
   }, (filterDict, setfilterDict))
+
+  React.useEffect0(() => {
+    switch sessionStorage.getItem(. index)->Js.Nullable.toOption {
+    | Some(value) => value->FilterUtils.parseFilterString->updateFilter.updateExistingKeys
+    | None => ()
+    }
+    None
+  })
+
+  React.useEffect1(() => {
+    if !(query->Js.String2.length < 1) {
+      sessionStorage.setItem(. index, query)
+    }
+    None
+  }, [query])
 
   <Provider value={updateFilter}> children </Provider>
 }

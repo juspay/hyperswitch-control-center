@@ -247,7 +247,7 @@ let make = () => {
                           renderShow={_ => <ConnectorHome isPayoutFlow=true />}
                         />
                       | list{"payments", ...remainingPath} =>
-                        <FilterContext key="payments">
+                        <FilterContext key="payments" index="payments">
                           <EntityScaffold
                             entityName="Payments"
                             remainingPath
@@ -257,7 +257,7 @@ let make = () => {
                           />
                         </FilterContext>
                       | list{"refunds", ...remainingPath} =>
-                        <FilterContext key="refunds">
+                        <FilterContext key="refunds" index="refunds">
                           <EntityScaffold
                             entityName="Refunds"
                             remainingPath
@@ -291,15 +291,15 @@ let make = () => {
                           renderShow={_ => <UserRoleShowData />}
                         />
                       | list{"analytics-payments"} =>
-                        <FilterContext key="PaymentsAnalytics">
+                        <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
                           <PaymentAnalytics />
                         </FilterContext>
                       | list{"analytics-refunds"} =>
-                        <FilterContext key="PaymentsRefunds">
+                        <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
                           <RefundsAnalytics />
                         </FilterContext>
                       | list{"analytics-user-journey"} =>
-                        <FilterContext key="UserJourneyAnalytics">
+                        <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                           <UserJourneyAnalytics />
                         </FilterContext>
                       | list{"monitoring"} => comingSoonPage
@@ -308,7 +308,7 @@ let make = () => {
                         <UIUtils.RenderIf
                           condition={userRole->Js.String2.includes("internal_") &&
                             featureFlagDetails.systemMetrics}>
-                          <FilterContext key="SystemMetrics">
+                          <FilterContext key="SystemMetrics" index="SystemMetrics">
                             <SystemMetricsAnalytics />
                           </FilterContext>
                         </UIUtils.RenderIf>
