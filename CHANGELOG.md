@@ -3,6 +3,62 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.7.0 (2023-12-13)
+
+### Features
+
+- Refund enable for Partially Captured Payments ([#94](https://github.com/juspay/hyperswitch-control-center/pull/94)) ([`5634990`](https://github.com/juspay/hyperswitch-control-center/commit/5634990a6c0e5952f65e6c435f546314347acaac))
+
+### Bug Fixes
+
+- Connector label  and profile id default value fix ([#95](https://github.com/juspay/hyperswitch-control-center/pull/95)) ([`9822972`](https://github.com/juspay/hyperswitch-control-center/commit/9822972f9ed6724f365ee36d5d27f14458e1f960))
+
+**Full Changelog:** [`v1.6.0...v1.7.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.6.0...v1.7.0)
+
+- - -
+
+
+## 1.6.0 (2023-12-12)
+
+### Features
+
+- Identity file changes ([#91](https://github.com/juspay/hyperswitch-control-center/pull/91)) ([`706a414`](https://github.com/juspay/hyperswitch-control-center/commit/706a414e4e3f455ebdc9a0cbf792b240e6f1b384))
+- Routing back to Integration Fields if Connector Label already exist. ([#93](https://github.com/juspay/hyperswitch-control-center/pull/93)) ([`ff1b90b`](https://github.com/juspay/hyperswitch-control-center/commit/ff1b90b87f0188d7fca96cf9288465226317df9f))
+- Sub steps ([#56](https://github.com/juspay/hyperswitch-control-center/pull/56)) ([`16a3e18`](https://github.com/juspay/hyperswitch-control-center/commit/16a3e1850a658e397dc8f924f1bc07443e73ace5))
+- Default id for connector label ([#84](https://github.com/juspay/hyperswitch-control-center/pull/84)) ([`cc09ab5`](https://github.com/juspay/hyperswitch-control-center/commit/cc09ab534f8bc87ae71a117b965a5f1201cc5a35))
+
+### Refactors
+
+- Dead code removal. ([#92](https://github.com/juspay/hyperswitch-control-center/pull/92)) ([`6c3f3cf`](https://github.com/juspay/hyperswitch-control-center/commit/6c3f3cf326c31b3bd2aa8931c169c86238d9ad88))
+
+**Full Changelog:** [`v1.5.0...v1.6.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.5.0...v1.6.0)
+
+- - -
+
+
+## 1.5.0 (2023-12-11)
+
+### Features
+
+- Refunds search based on refunds id ([#83](https://github.com/juspay/hyperswitch-control-center/pull/83)) ([`f5363b4`](https://github.com/juspay/hyperswitch-control-center/commit/f5363b4ac3547232bd637884bd8a9fad85056608))
+- Identity file changes in Codebase. ([#89](https://github.com/juspay/hyperswitch-control-center/pull/89)) ([`9e3aec7`](https://github.com/juspay/hyperswitch-control-center/commit/9e3aec7f7434cf4610db50a716653e73693aec94))
+- Webhook Section Update - In Connector Preview ([#90](https://github.com/juspay/hyperswitch-control-center/pull/90)) ([`07a2cf1`](https://github.com/juspay/hyperswitch-control-center/commit/07a2cf1d5f36541e69dcf701c38fce33697f0df0))
+
+### Bug Fixes
+
+- Recoil value for feature flag updated ([#85](https://github.com/juspay/hyperswitch-control-center/pull/85)) ([`d7bb46e`](https://github.com/juspay/hyperswitch-control-center/commit/d7bb46e26c766ab8b43488ff42c6a0ad4eb21864))
+- Added configure return url after business profile ([#82](https://github.com/juspay/hyperswitch-control-center/pull/82)) ([`ade63aa`](https://github.com/juspay/hyperswitch-control-center/commit/ade63aa8177d6269e02ac0db4f6e63867511b661))
+- SDK Processing - Go to payments not working fix ([#88](https://github.com/juspay/hyperswitch-control-center/pull/88)) ([`f45d8dd`](https://github.com/juspay/hyperswitch-control-center/commit/f45d8dd6016f859b76013364c83c0758e5a42114))
+
+### Refactors
+
+- Common file for all identity functions ([#86](https://github.com/juspay/hyperswitch-control-center/pull/86)) ([`6ad715f`](https://github.com/juspay/hyperswitch-control-center/commit/6ad715fb11da557f4f07ff35e8f616b69684ff0c))
+
+**Full Changelog:** [`v1.4.0...v1.5.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.4.0...v1.5.0)
+
+- - -
+
+
 ## 1.4.0 (2023-12-08)
 
 ### Features

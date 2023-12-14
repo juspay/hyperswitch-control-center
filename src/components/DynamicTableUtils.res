@@ -2,8 +2,7 @@ let tableHeadingClass = "font-bold text-xl text-black text-opacity-75 dark:text-
 type view = Table | Card
 @val @scope(("window", "location"))
 external reload: unit => unit = "reload"
-external convertToJsonDict: 't => Js.Dict.t<Js.Json.t> = "%identity"
-external formEventToJsonArr: ReactEvent.Form.t => array<string> = "%identity"
+
 let visibilityColFunc = (
   ~dateFormatConvertor: string => option<Js.Json.t>,
   ~jsonVal: option<Js.Json.t>,
@@ -54,7 +53,7 @@ let filteredData = (
       switch item->Js.Nullable.toOption {
       | Some(row) =>
         // either to take this row or not if any filter is present then take row or else drop
-        let rowDict = row->convertToJsonDict
+        let rowDict = row->Identity.genericTypeToDictOfJson
         let anyMatch = selectedFiltersKeys->Js.Array2.find(keys => {
           // Selected fitler
           switch Js.Dict.get(columnFilter, keys) {

@@ -1,5 +1,3 @@
-external toReactEvent: 'a => ReactEvent.Form.t = "%identity"
-
 @react.component
 let make = (~icons, ~size) => {
   let (isActive, setIsActive) = React.useState(_ => false)
@@ -7,7 +5,7 @@ let make = (~icons, ~size) => {
   let rating = ratingInput.value->LogicUtils.getIntFromJson(1)
 
   let handleClick = ratingNumber => {
-    ratingInput.onChange(ratingNumber->toReactEvent)
+    ratingInput.onChange(ratingNumber->Identity.anyTypeToReactEvent)
     setIsActive(_ => true)
   }
 

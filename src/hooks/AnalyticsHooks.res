@@ -3,18 +3,6 @@ type response = Error(option<string>) | Success
 type timeType = {startTime: string, endTime: string}
 let defaultFilter = Recoil.atom(. "defaultFilter", "")
 
-let filterToKeyMapper = json => {
-  let arrjson =
-    json
-    ->getDictFromJsonObject
-    ->getArrayFromDict("queryData", [])
-    ->Belt.Array.keepMap(item => {
-      let strr = item->getDictFromJsonObject->getString("dimension", "")
-      strr == "" ? None : Some(strr)
-    })
-  arrjson
-}
-
 let handleError = (json: Js.Json.t) => {
   switch Js.Json.decodeObject(json) {
   | Some(jsonDict) => {

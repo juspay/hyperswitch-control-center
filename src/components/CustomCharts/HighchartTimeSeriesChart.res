@@ -3,8 +3,6 @@ type domElement
 open LogicUtils
 open DictionaryUtils
 
-external toJson: 'a => Js.Json.t = "%identity"
-
 type ele
 external toElement: Dom.element => ele = "%identity"
 
@@ -43,6 +41,7 @@ module TooltipString = {
 
 type legendType = Table | Points
 module LineChart1D = {
+  open Identity
   @react.component
   let make = (
     ~class: string="",
@@ -455,14 +454,14 @@ module LineChart1D = {
       | Table =>
         {
           "enabled": {isMobileView ? false : showLegend},
-        }->DOMUtils.objToJson
+        }->genericObjectOrRecordToJson
       | Points =>
         {
           "enabled": !isMultiDimensional,
           "itemStyle": legendItemStyle(theme, "IBM Plex Sans", "12px"),
           "itemHiddenStyle": legendHiddenStyle(theme),
           "itemHoverStyle": legendItemStyle(theme),
-        }->DOMUtils.objToJson
+        }->genericObjectOrRecordToJson
       }
 
       let a: options<Js.Json.t> = {
@@ -489,13 +488,13 @@ module LineChart1D = {
                           tick.gridLine.attr(.
                             {
                               "stroke-width": "0",
-                            }->DOMUtils.objToJson,
+                            }->genericObjectOrRecordToJson,
                           )
                         } else {
                           tick.gridLine.attr(.
                             {
                               "stroke": strokeColor,
-                            }->DOMUtils.objToJson,
+                            }->genericObjectOrRecordToJson,
                           )
                         }
                       })
@@ -504,13 +503,13 @@ module LineChart1D = {
                   }
                 )->Some,
               }->Some,
-            }->DOMUtils.objToJson,
+            }->genericObjectOrRecordToJson,
           )
         },
         title: {
           "text": chartTitle ? chartTitleText : "",
           "style": chartTitleStyle,
-        }->DOMUtils.objToJson,
+        }->genericObjectOrRecordToJson,
         credits: {
           "enabled": false,
         },
@@ -529,7 +528,7 @@ module LineChart1D = {
           "style": {
             "color": theme === Light ? "rgba(246, 248, 249, 1)" : "rgba(25, 26, 26, 1)",
           },
-        }->DOMUtils.objToJson,
+        }->genericObjectOrRecordToJson,
         plotOptions: Some(
           {
             "area": {
@@ -543,7 +542,7 @@ module LineChart1D = {
               },
               "lineWidth": 1.2,
               "threshold": Js.Nullable.null,
-            }->DOMUtils.objToJson,
+            }->genericObjectOrRecordToJson,
             "line": {
               "pointStart": None,
               "fillColor": None,
@@ -555,7 +554,7 @@ module LineChart1D = {
               },
               "lineWidth": 1.2,
               "threshold": Js.Nullable.null,
-            }->DOMUtils.objToJson,
+            }->genericObjectOrRecordToJson,
             "boxplot": {
               "visible": false,
             },
@@ -582,20 +581,20 @@ module LineChart1D = {
                 ),
                 "mouseOver": None,
               }),
-            }->DOMUtils.objToJson,
-          }->DOMUtils.objToJson,
+            }->genericObjectOrRecordToJson,
+          }->genericObjectOrRecordToJson,
         ),
         xAxis: {
           let defaultValue = {
             "type": "datetime",
-          }->DOMUtils.objToJson
+          }->genericObjectOrRecordToJson
           let defaultValue = if (
             ["run_date", "run_month", "run_week"]->Js.Array2.includes(groupKey)
           ) {
             {
               "type": "category",
               "tickWidth": 0,
-            }->DOMUtils.objToJson
+            }->genericObjectOrRecordToJson
           } else {
             defaultValue
           }
@@ -662,7 +661,7 @@ module LineChart1D = {
           "title": {
             "text": "",
             "style": chartTitleStyle,
-          }->DOMUtils.objToJson,
+          }->genericObjectOrRecordToJson,
           "labels": {
             let labelsValue = {
               "formatter": Some(
@@ -680,11 +679,11 @@ module LineChart1D = {
                 "letterSpacing": "1px",
                 "color": theme === Light ? "#4B5468" : "rgba(246, 248, 249, 0.25)",
               },
-            }->DOMUtils.objToJson
+            }->genericObjectOrRecordToJson
 
             labelsValue->getDictFromJsonObject->deleteKey("style")->Js.Json.object_
           },
-        }->DOMUtils.objToJson,
+        }->genericObjectOrRecordToJson,
         series: chartData,
       }
       a

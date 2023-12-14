@@ -1,5 +1,3 @@
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
-
 @react.component
 let make = (
   ~totalResults,
@@ -50,7 +48,7 @@ let make = (
     onBlur: _ev => (),
     onChange: ev => {
       setResultsPerPage(_ => {
-        ev->formEventToStr->Belt.Int.fromString->Belt.Option.getWithDefault(15)
+        ev->Identity.formReactEventToString->Belt.Int.fromString->Belt.Option.getWithDefault(15)
       })
     },
     onFocus: _ev => (),

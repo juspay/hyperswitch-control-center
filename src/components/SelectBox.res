@@ -434,7 +434,6 @@ let makeOptions = (options: array<string>): array<dropdownOption> => {
 }
 
 module BaseSelect = {
-  external toReactFocusEv: Webapi.Dom.FocusEvent.t => ReactEvent.Focus.t = "%identity"
   @react.component
   let make = (
     ~showSelectAll=true,
@@ -554,7 +553,8 @@ module BaseSelect = {
         }
         onSelect(data)
         switch onBlur {
-        | Some(fn) => "blur"->Webapi.Dom.FocusEvent.make->toReactFocusEv->fn
+        | Some(fn) =>
+          "blur"->Webapi.Dom.FocusEvent.make->Identity.webAPIFocusEventToReactEventFocus->fn
         | None => ()
         }
       }
@@ -577,7 +577,8 @@ module BaseSelect = {
 
       onSelect(newValues)
       switch onBlur {
-      | Some(fn) => "blur"->Webapi.Dom.FocusEvent.make->toReactFocusEv->fn
+      | Some(fn) =>
+        "blur"->Webapi.Dom.FocusEvent.make->Identity.webAPIFocusEventToReactEventFocus->fn
       | None => ()
       }
     }
@@ -942,8 +943,6 @@ module BaseSelect = {
 }
 
 module BaseSelectButton = {
-  external toReactFocusEv: Webapi.Dom.FocusEvent.t => ReactEvent.Focus.t = "%identity"
-
   @react.component
   let make = (
     ~showDropDown=false,
@@ -985,7 +984,8 @@ module BaseSelectButton = {
         setAssignButtonState(_ => true)
 
         switch onBlur {
-        | Some(fn) => "blur"->Webapi.Dom.FocusEvent.make->toReactFocusEv->fn
+        | Some(fn) =>
+          "blur"->Webapi.Dom.FocusEvent.make->Identity.webAPIFocusEventToReactEventFocus->fn
         | None => ()
         }
       }
@@ -1105,8 +1105,6 @@ module BaseSelectButton = {
   }
 }
 module BaseRadio = {
-  external toReactFocusEv: Webapi.Dom.FocusEvent.t => ReactEvent.Focus.t = "%identity"
-
   @react.component
   let make = (
     ~showDropDown=false,
@@ -1184,7 +1182,8 @@ module BaseRadio = {
         }
         setSearchString(_ => "")
         switch onBlur {
-        | Some(fn) => "blur"->Webapi.Dom.FocusEvent.make->toReactFocusEv->fn
+        | Some(fn) =>
+          "blur"->Webapi.Dom.FocusEvent.make->Identity.webAPIFocusEventToReactEventFocus->fn
         | None => ()
         }
       }
@@ -1362,8 +1361,6 @@ module BaseRadio = {
 }
 
 module CustomUISearchOptionUI = {
-  external toReactFocusEv: Webapi.Dom.FocusEvent.t => ReactEvent.Focus.t = "%identity"
-
   @react.component
   let make = (
     ~showDropDown=false,
@@ -1415,7 +1412,8 @@ module CustomUISearchOptionUI = {
         }
         setSearchString(_ => "")
         switch onBlur {
-        | Some(fn) => "blur"->Webapi.Dom.FocusEvent.make->toReactFocusEv->fn
+        | Some(fn) =>
+          "blur"->Webapi.Dom.FocusEvent.make->Identity.webAPIFocusEventToReactEventFocus->fn
         | None => ()
         }
       }
@@ -2115,8 +2113,6 @@ module BaseDropdown = {
 }
 
 module InfraSelectBox = {
-  external toReactFocusEv: Webapi.Dom.FocusEvent.t => ReactEvent.Focus.t = "%identity"
-
   @react.component
   let make = (
     ~options: array<dropdownOption>,
@@ -2186,8 +2182,6 @@ module InfraSelectBox = {
 }
 
 module ChipFilterSelectBox = {
-  external toReactFocusEv: Webapi.Dom.FocusEvent.t => ReactEvent.Focus.t = "%identity"
-
   @react.component
   let make = (
     ~options: array<dropdownOption>,

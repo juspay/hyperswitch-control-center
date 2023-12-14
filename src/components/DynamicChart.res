@@ -292,9 +292,6 @@ let useChartFetch = (~setStatusDict) => {
   fetchChartData
 }
 
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
-external tofloat: string => float = "%identity"
-
 let granularityMapper = (granularity: granularity) => {
   switch granularity {
   | G_ONEDAY => "G_ONEDAY"
@@ -862,7 +859,9 @@ let make = (
   let _inputChart: ReactFinalForm.fieldRenderPropsInput = {
     name: "inputChart",
     onChange: ev => {
-      updateChartCompFilters(Js.Dict.fromArray([("chartType", ev->formEventToStr)]))
+      updateChartCompFilters(
+        Js.Dict.fromArray([("chartType", ev->Identity.formReactEventToString)]),
+      )
     },
     value: chartTypeFromUrl->Js.Json.string,
     onBlur: _ev => (),
@@ -872,7 +871,9 @@ let make = (
   let inputMetricTop: ReactFinalForm.fieldRenderPropsInput = {
     name: "inputMetricTop",
     onChange: ev => {
-      updateChartCompFilters(Js.Dict.fromArray([("chartTopMetric", ev->formEventToStr)]))
+      updateChartCompFilters(
+        Js.Dict.fromArray([("chartTopMetric", ev->Identity.formReactEventToString)]),
+      )
     },
     value: chartTopMetricFromUrl->Js.Json.string,
     onBlur: _ev => (),
@@ -882,7 +883,9 @@ let make = (
   let inputMetricBottom: ReactFinalForm.fieldRenderPropsInput = {
     name: "inputMetricBottom",
     onChange: ev => {
-      updateChartCompFilters(Js.Dict.fromArray([("chartBottomMetric", ev->formEventToStr)]))
+      updateChartCompFilters(
+        Js.Dict.fromArray([("chartBottomMetric", ev->Identity.formReactEventToString)]),
+      )
     },
     value: chartBottomMetricFromUrl->Js.Json.string,
     onBlur: _ev => (),

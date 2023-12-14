@@ -185,7 +185,7 @@ let getHeading = colType => {
   | ProfileName =>
     Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=false, ())
   | ConnectorLabel =>
-    Table.makeHeaderInfo(~key="connector_label", ~title="Label", ~showSort=false, ())
+    Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label", ~showSort=false, ())
   | PaymentMethods =>
     Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods", ~showSort=false, ())
   }

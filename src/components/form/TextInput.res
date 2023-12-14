@@ -1,6 +1,5 @@
 @send external focus: Dom.element => unit = "focus"
 @send @return(nullable) external closest: (Dom.element, string) => option<Dom.element> = "closest"
-external stringToFormEvent: string => ReactEvent.Form.t = "%identity"
 
 @react.component
 let make = (
@@ -98,7 +97,7 @@ let make = (
         val
         ->Js.String2.replace("<script>", "")
         ->Js.String2.replace("</script>", "")
-        ->stringToFormEvent,
+        ->Identity.stringToFormReactEvent,
       )
     }
     None

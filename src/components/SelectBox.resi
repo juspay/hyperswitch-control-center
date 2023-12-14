@@ -76,7 +76,6 @@ type opt = {name_: string}
 let makeUpdatedOptions: (array<string>, array<string>) => array<dropdownOption>
 let makeOptions: array<string> => array<dropdownOption>
 module BaseSelect: {
-  external toReactFocusEv: Webapi.Dom.FocusEvent.t => ReactEvent.Focus.t = "%identity"
   @react.component
   let make: (
     ~showSelectAll: bool=?,
@@ -133,7 +132,6 @@ module BaseSelect: {
   ) => React.element
 }
 module BaseSelectButton: {
-  external toReactFocusEv: Webapi.Dom.FocusEvent.t => ReactEvent.Focus.t = "%identity"
   @react.component
   let make: (
     ~showDropDown: bool=?,
@@ -158,7 +156,6 @@ module BaseSelectButton: {
   ) => React.element
 }
 module BaseRadio: {
-  external toReactFocusEv: Webapi.Dom.FocusEvent.t => ReactEvent.Focus.t = "%identity"
   @react.component
   let make: (
     ~showDropDown: bool=?,
@@ -197,7 +194,6 @@ module BaseRadio: {
   ) => React.element
 }
 module CustomUISearchOptionUI: {
-  external toReactFocusEv: Webapi.Dom.FocusEvent.t => ReactEvent.Focus.t = "%identity"
   @react.component
   let make: (
     ~showDropDown: bool=?,
@@ -298,7 +294,6 @@ module BaseDropdown: {
   ) => React.element
 }
 module InfraSelectBox: {
-  external toReactFocusEv: Webapi.Dom.FocusEvent.t => ReactEvent.Focus.t = "%identity"
   @react.component
   let make: (
     ~options: array<dropdownOption>,
@@ -312,7 +307,6 @@ module InfraSelectBox: {
   ) => React.element
 }
 module ChipFilterSelectBox: {
-  external toReactFocusEv: Webapi.Dom.FocusEvent.t => ReactEvent.Focus.t = "%identity"
   @react.component
   let make: (
     ~options: array<dropdownOption>,
