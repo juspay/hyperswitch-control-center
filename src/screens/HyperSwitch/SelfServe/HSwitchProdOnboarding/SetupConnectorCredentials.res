@@ -14,6 +14,10 @@ module ConnectorDetailsForm = {
     ~setVerifyDone,
     ~verifyErrorMessage,
     ~checkboxText,
+    ~setInitialValues,
+    ~handleConnectorConnected,
+    ~initialValues,
+    ~handleStateToNextPage,
   ) => {
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
@@ -38,21 +42,46 @@ module ConnectorDetailsForm = {
     )
 
     <div className="flex flex-col gap-6">
-      <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
-        <ConnectorAccountDetails.BusinessProfileRender
-          isUpdateFlow=false selectedConnector={connectorName}
+      {switch (connectorName->getConnectorNameTypeFromString, featureFlagDetails.isLiveMode) {
+      | (PAYPAL, false) =>
+        <ConnectPayPal
+          connector={connectorName}
+          selectedConnector
+          connectorMetaDataFields
+          connectorWebHookDetails
+          connectorAccountFields
+          isUpdateFlow=false
+          setInitialValues
+          handleConnectorConnected
+          initialValues
+          setShowModal={_ => ()}
+          showVerifyModal
+          setShowVerifyModal
+          verifyErrorMessage
+          setVerifyDone
+          handleStateToNextPage
+          connectorLabelDetailField
         />
-      </UIUtils.RenderIf>
-      <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
-        connectorAccountFields
-        connector={connectorName->getConnectorNameTypeFromString}
-        selectedConnector
-        connectorMetaDataFields
-        connectorWebHookDetails
-        bodyType
-        connectorLabelDetailField
-      />
-      <ConnectorAccountDetails.VerifyConnectoModal
+
+      | (_, _) =>
+        <>
+          <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
+            <ConnectorAccountDetailsHelper.BusinessProfileRender
+              isUpdateFlow=false selectedConnector={connectorName}
+            />
+          </UIUtils.RenderIf>
+          <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
+            connectorAccountFields
+            connector={connectorName->getConnectorNameTypeFromString}
+            selectedConnector
+            connectorMetaDataFields
+            connectorWebHookDetails
+            bodyType
+            connectorLabelDetailField
+          />
+        </>
+      }}
+      <ConnectorAccountDetailsHelper.VerifyConnectoModal
         showVerifyModal
         setShowVerifyModal
         connector={connectorName}
@@ -322,6 +351,10 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
           setVerifyDone
           verifyErrorMessage
           checkboxText
+          handleConnectorConnected={_ => ()}
+          setInitialValues={_ => ()}
+          initialValues={Js.Json.null}
+          handleStateToNextPage={_ => ()}
         />
       </>
     | SETUP_WEBHOOK_PROCESSOR =>
@@ -407,7 +440,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
           {getComponentToRender()}
         </div>
       </div>
-      <ConnectorAccountDetails.VerifyConnectoModal
+      <ConnectorAccountDetailsHelper.VerifyConnectoModal
         showVerifyModal
         setShowVerifyModal
         connector={connectorName}

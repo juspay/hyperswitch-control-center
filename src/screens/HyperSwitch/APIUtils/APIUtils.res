@@ -174,7 +174,6 @@ let getURL = (
     | _ => ""
     }
   | SDK_EVENT_LOGS => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/sdk_event_logs`
-
   | USERS =>
     let userUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user`
     switch userType {
@@ -235,6 +234,7 @@ let getURL = (
     }
 
   | VERIFY_APPLE_PAY => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/verify/apple_pay`
+  | PAYPAL_ONBOARDING => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/connector_onboarding`
   | _ => ""
   }
 }

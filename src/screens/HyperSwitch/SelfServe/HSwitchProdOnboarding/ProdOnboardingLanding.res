@@ -276,6 +276,7 @@ let make = () => {
                   isUpdateFlow=true
                   isPayoutFlow=false
                   showMenuOption=false
+                  setInitialValues
                 />
               </div>
             | LIVE_ENDPOINTS_PREVIEW => <LiveEndpointsSetup pageView setPageView previewState />
@@ -289,7 +290,7 @@ let make = () => {
               <SetupConnectorCredentials selectedConnector pageView setPageView setConnectorID />
             | REPLACE_API_KEYS | SETUP_WEBHOOK_USER =>
               <LiveEndpointsSetup pageView setPageView previewState />
-            // | TEST_LIVE_PAYMENT => <TestLivePayment pageView setPageView setPaymentId />
+            // | TEST_LIVE_PAYMENT => <TestLivePayment pageView setPageView setPaymentId />s
             | SETUP_COMPLETED =>
               <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
                 iconName="account-setup-completed"

@@ -147,6 +147,7 @@ let getProcessorPayloadType = dict => {
     profile_id: dict->getString("profile_id", ""),
     merchant_connector_id: dict->getString("merchant_connector_id", ""),
     frm_configs: dict->getArrayFromDict("frm_configs", [])->convertFRMConfigJsonToObj,
+    status: dict->getString("status", "inactive"),
   }
 }
 

@@ -232,9 +232,11 @@ let make = (
   ~isUpdateFlow,
   ~isPayoutFlow,
   ~showMenuOption=true,
+  ~setInitialValues,
 ) => {
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   open APIUtils
+  open ConnectorUtils
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
@@ -244,6 +246,10 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let connectorInfo =
     connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorTableUtils.getProcessorPayloadType
+  let setSetupAccountStatus = Recoil.useSetRecoilState(
+    SimpleConnectorFlowUtils.paypalAccountStatusAtom,
+  )
+
   let isFeedbackModalToBeOpen =
     featureFlagDetails.feedback &&
     !isUpdateFlow &&
@@ -273,6 +279,40 @@ let make = (
     }
   }
 
+  let handleStateToNextPage = () => {
+    setCurrentStep(_ => ConnectorTypes.PaymentMethods)
+  }
+  let getStatus = async () => {
+    open SimpleConnectorFlowUtils
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+
+      let responseValue = await paypalAPICall(
+        ~updateDetails,
+        ~connectorId={connectorInfo.merchant_connector_id},
+        ~profileId={connectorInfo.profile_id},
+      )
+      switch responseValue->Js.Json.classify {
+      | JSONString(str) => {
+          setCurrentStep(_ => IntegFields)
+          setSetupAccountStatus(._ => str->ConnectorUtils.stringToVariantMapper)
+        }
+      | JSONObject(dict) =>
+        handleObjectResponse(
+          ~dict,
+          ~setSetupAccountStatus,
+          ~setInitialValues,
+          ~connector,
+          ~handleStateToNextPage,
+        )
+      | _ => ()
+      }
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
+    }
+  }
+
   <PageLoaderWrapper screenState>
     <div>
       <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
@@ -285,8 +325,10 @@ let make = (
           </h2>
         </div>
         <div className="self-center">
-          {switch currentStep {
-          | Preview =>
+          {switch (currentStep, connector->getConnectorNameTypeFromString, connectorInfo.status) {
+          | (Preview, PAYPAL, "inactive") =>
+            <Button text="Sync" buttonType={Primary} onClick={_ => getStatus()->ignore} />
+          | (Preview, _, _) =>
             <div className="flex gap-6 items-center">
               <p
                 className={`text-fs-13 font-bold ${isConnectorDisabled

@@ -95,6 +95,13 @@ module ConfigureProcessor = {
       Js.Nullable.null
     }
 
+    let handleConnectorConnected = values => {
+      onSubmit(values, "dummyValue")->ignore
+    }
+    let handleStateToNextPage = () => {
+      setConnectorConfigureState(_ => Setup_payment_methods)
+    }
+
     let validateMandatoryField = values => {
       let errors = Js.Dict.empty()
       let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
@@ -123,33 +130,66 @@ module ConfigureProcessor = {
         />
       : React.null
 
-    <Form initialValues onSubmit validate={validateMandatoryField}>
-      <QuickStartUIUtils.BaseComponent
-        headerText={`Connect ${connectorName->LogicUtils.capitalizeString}`}
-        customIcon={<GatewayIcon
-          gateway={connectorName->Js.String2.toUpperCase} className="w-6 h-6 rounded-md"
-        />}
-        backButton
-        nextButton={<FormRenderer.SubmitButton
-          loadingText="Processing..." text="Proceed" buttonSize={Small}
-        />}>
-        <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
-          <ConnectorAccountDetails.BusinessProfileRender
-            isUpdateFlow=false selectedConnector={connectorName}
+    {
+      switch connectorName->ConnectorUtils.getConnectorNameTypeFromString {
+      | PAYPAL =>
+        <div
+          className="w-standardPageWidth h-45-rem bg-white rounded-md flex flex-col gap-6 shadow-boxShadowMultiple overflow-scroll p-6">
+          <ConnectPayPal
+            connector={connectorName}
+            connectorAccountFields
+            selectedConnector={connectorName
+            ->ConnectorUtils.getConnectorNameTypeFromString
+            ->ConnectorUtils.getConnectorInfo}
+            connectorMetaDataFields
+            connectorWebHookDetails
+            isUpdateFlow=false
+            setInitialValues
+            handleConnectorConnected
+            initialValues
+            setShowModal={_ => ()}
+            showVerifyModal=false
+            setShowVerifyModal={_ => ()}
+            verifyErrorMessage=Some("")
+            setVerifyDone={_ => ()}
+            handleStateToNextPage
+            connectorLabelDetailField
           />
-        </UIUtils.RenderIf>
-        <SetupConnectorCredentials.ConnectorDetailsForm
-          connectorName
-          connectorDetails
-          isCheckboxSelected=false
-          setIsCheckboxSelected={_ => ()}
-          setVerifyDone={_ => ()}
-          verifyErrorMessage=None
-          checkboxText=""
-        />
-      </QuickStartUIUtils.BaseComponent>
-      <FormValuesSpy />
-    </Form>
+        </div>
+      | _ =>
+        <Form initialValues onSubmit validate={validateMandatoryField}>
+          <QuickStartUIUtils.BaseComponent
+            headerText={`Connect ${connectorName->LogicUtils.capitalizeString}`}
+            customIcon={<GatewayIcon
+              gateway={connectorName->Js.String2.toUpperCase} className="w-6 h-6 rounded-md"
+            />}
+            backButton
+            nextButton={<FormRenderer.SubmitButton
+              loadingText="Processing..." text="Proceed" buttonSize={Small}
+            />}>
+            // <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
+            //   <ConnectorAccountDetailsHelper.BusinessProfileRender
+            //     isUpdateFlow=false selectedConnector={connectorName}
+            //   />
+            // </UIUtils.RenderIf>
+            <SetupConnectorCredentials.ConnectorDetailsForm
+              connectorName
+              connectorDetails
+              isCheckboxSelected=false
+              setIsCheckboxSelected={_ => ()}
+              setVerifyDone={_ => ()}
+              verifyErrorMessage=None
+              checkboxText=""
+              setInitialValues
+              handleConnectorConnected
+              initialValues
+              handleStateToNextPage
+            />
+          </QuickStartUIUtils.BaseComponent>
+          <FormValuesSpy />
+        </Form>
+      }
+    }
   }
 }
 

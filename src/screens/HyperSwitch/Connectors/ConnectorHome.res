@@ -170,7 +170,12 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         | SummaryAndTest
         | Preview =>
           <ConnectorPreview
-            connectorInfo={initialValues} currentStep setCurrentStep isUpdateFlow isPayoutFlow
+            connectorInfo={initialValues}
+            currentStep
+            setCurrentStep
+            isUpdateFlow
+            isPayoutFlow
+            setInitialValues
           />
         }}
       </div>

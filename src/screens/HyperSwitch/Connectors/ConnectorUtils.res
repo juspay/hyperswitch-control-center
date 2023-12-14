@@ -1282,3 +1282,80 @@ let getConnectorPaymentMethodDetails = async (
     }
   }
 }
+
+let listChoices: array<choiceDetailsType> = [
+  {
+    displayText: "No, I don't",
+    choiceDescription: "Don't worry, easily create & activate your PayPal account in minutes.",
+    variantType: Automatic,
+  },
+  {
+    displayText: "Yes, I have",
+    choiceDescription: "Simply login to your PayPal account and leave the rest to us. Or enter credentials manually.",
+    variantType: Manual,
+  },
+]
+
+let getPageDetailsForAutomatic: (
+  ConnectorTypes.setupAccountStatus,
+  int,
+) => ConnectorTypes.errorPageInfoType = (setupAccountStatus, retryDays) => {
+  switch setupAccountStatus {
+  | Payments_not_receivable => {
+      headerText: "You currently cannot receive payments due to restriction on your PayPal account",
+      subText: "An email has been sent to you explaining the issue. Please reach out to PayPal Customer Support for more information.",
+      refreshStatusText: "Issue Resolved?",
+    }
+  | Ppcp_custom_denied => {
+      headerText: "Your application has been denied by PayPal",
+      subText: "PayPal denied your application to use Advanced Credit and Debit Card Payments.",
+      additionalInformation: `You can retry in ${retryDays->string_of_int} days, on 14th November 2023 on paypal.com.`,
+      refreshStatusText: "Try again?",
+    }
+  | More_permissions_needed => {
+      headerText: "PayPal requires you to grant all permissions",
+      subText: "You need to grant all the permissions to create and receive payments. Please click on the Signup to PayPal button and grant the permissions.",
+      buttonText: "Complete Signing up",
+      refreshStatusText: "Already granted all permissions?",
+    }
+
+  | Email_not_verified => {
+      headerText: "Your email is yet to be confirmed!",
+      subText: "Please confirm your email address on https://www.paypal.com/businessprofile/settings in order to receive payments.",
+      refreshStatusText: "Email already confirmed?",
+    }
+  | _ => {
+      headerText: "",
+      subText: "",
+    }
+  }
+}
+
+let stringToVariantMapper = strValue =>
+  switch strValue {
+  | "account_not_found" => Account_not_found
+  | "payments_not_receivables" => Payments_not_receivable
+  | "ppcp_custom_denied" => Ppcp_custom_denied
+  | "more_permissions_needed" => More_permissions_needed
+  | "email_not_verified" => Email_not_verified
+  | "connector_integrated" => Connector_integrated
+  | _ => Account_not_found
+  }
+
+let mixpanelEventWrapper = (
+  ~url: RescriptReactRouter.url,
+  ~selectedConnector,
+  ~actionName,
+  ~hyperswitchMixPanel: HSMixPanel.functionType,
+) => {
+  if selectedConnector->Js.String2.length > 0 {
+    [selectedConnector, "global"]->Js.Array2.forEach(ele =>
+      hyperswitchMixPanel(
+        ~pageName=url.path->LogicUtils.getListHead,
+        ~contextName=ele,
+        ~actionName,
+        (),
+      )
+    )
+  }
+}

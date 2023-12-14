@@ -48,7 +48,9 @@ module AdvanceSettings = {
         </p>
       </div>
       <UIUtils.RenderIf condition={renderCountrySelector && isFRMSettings}>
-        <ConnectorAccountDetails.BusinessProfileRender isUpdateFlow selectedConnector={frmName} />
+        <ConnectorAccountDetailsHelper.BusinessProfileRender
+          isUpdateFlow selectedConnector={frmName}
+        />
       </UIUtils.RenderIf>
     </UIUtils.RenderIf>
   }
@@ -240,9 +242,8 @@ let make = (
 
   let updateDetails = useUpdateMethod()
 
-  open ConnectorAccountDetails
   React.useEffect1(() => {
-    mixpanelEventWrapper(
+    ConnectorUtils.mixpanelEventWrapper(
       ~url,
       ~selectedConnector=frmName,
       ~actionName=`${isUpdateFlow ? "settings_entry_updateflow" : "settings_entry"}`,

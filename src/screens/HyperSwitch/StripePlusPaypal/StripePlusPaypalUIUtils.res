@@ -68,7 +68,17 @@ module SelectPaymentMethods = {
           metadata: metaData,
         }
         let body = ConnectorUtils.constructConnectorRequestBody(obj, initialValues)
-        let connectorUrl = APIUtils.getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
+        let connectorId =
+          initialValues
+          ->LogicUtils.getDictFromJsonObject
+          ->LogicUtils.getString("merchant_connector_id", "")
+
+        let connectorUrl = APIUtils.getURL(
+          ~entityName=CONNECTOR,
+          ~methodType=Post,
+          ~id={connectorId->Js.String2.length > 0 ? Some(connectorId) : None},
+          (),
+        )
 
         let response = await updateAPIHook(connectorUrl, body, Post)
         setInitialValues(_ => response)
