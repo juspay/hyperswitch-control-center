@@ -45,3 +45,26 @@ let getNavigationStepForStandardIntegration = (
   | DisplayPaymentConfirmation => forward ? DisplayPaymentConfirmation : DisplayCheckout
   }
 }
+
+let getPolyMorphicVariantOfIntegrationSubStep: standardIntegrationSteps => QuickStartTypes.sectionHeadingVariant = (
+  currentStep: standardIntegrationSteps,
+) => {
+  switch currentStep {
+  | DownloadTestAPIKey => #DownloadTestAPIKey
+  | CreatePayment => #CreatePayment
+  | DisplayCheckout => #DisplayCheckout
+  | DisplayPaymentConfirmation => #DisplayPaymentConfirmation
+  }
+}
+
+let getPolyMorphicVariantOfMigrateFromStripe: migrateFromStripeSteps => QuickStartTypes.sectionHeadingVariant = (
+  currentStep: migrateFromStripeSteps,
+) => {
+  switch currentStep {
+  | DownloadAPIKey => #DownloadTestAPIKeyStripe
+  | InstallDeps => #InstallDeps
+  | ReplaceAPIKeys => #ReplaceAPIKeys
+  | ReconfigureCheckout => #ReconfigureCheckout
+  | LoadCheckout => #LoadCheckout
+  }
+}

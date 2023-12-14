@@ -1,5 +1,3 @@
-external inputAsString: ReactEvent.Form.t => string = "%identity"
-
 type regexTest = {
   regex: Js.Re.t,
   weight: float,

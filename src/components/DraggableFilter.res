@@ -4,8 +4,6 @@ type rec options = {
   options: option<array<options>>,
 }
 
-external formToArray: 'a => ReactEvent.Form.t = "%identity"
-
 module TypeText = {
   @react.component
   let make = () => {
@@ -429,7 +427,7 @@ let make = (
   }
 
   React.useEffect1(() => {
-    input.onChange(dataSelectedBase->formToArray)
+    input.onChange(dataSelectedBase->Identity.anyTypeToReactEvent)
     None
   }, [dataSelectedBase])
   let keyExtractor = (index, data, isDragging) => {

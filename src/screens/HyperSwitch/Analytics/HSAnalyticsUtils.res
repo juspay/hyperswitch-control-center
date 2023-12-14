@@ -61,7 +61,6 @@ let options: Js.Json.t => array<EntityType.optionType<'t>> = json => {
   ->Belt.Option.getWithDefault([])
 }
 
-external toDict: 't => Js.Dict.t<Js.Json.t> = "%identity"
 let filterByData = (txnArr, value) => {
   let searchText = LogicUtils.getStringFromJson(value, "")
 
@@ -70,7 +69,7 @@ let filterByData = (txnArr, value) => {
   ->Belt.Array.keepMap((data: 't) => {
     let valueArr =
       data
-      ->toDict
+      ->Identity.genericTypeToDictOfJson
       ->Js.Dict.entries
       ->Js.Array2.map(item => {
         let (_, value) = item

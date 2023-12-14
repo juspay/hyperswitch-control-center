@@ -22,10 +22,6 @@ type filterDataType = TableUtils.filterDataType =
   | Float(float, float)
   | String
   | DateTime
-
-external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
-external formEventToString: ReactEvent.Form.t => string = "%identity"
-external toReactDOMStyle: Js.Json.t => ReactDOM.style = "%identity"
 external jsonToStr: Js.Json.t => string = "%identity"
 type textAlign = TableUtils.textAlign = Left | Right
 type fontBold = bool

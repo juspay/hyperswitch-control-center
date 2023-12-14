@@ -169,6 +169,13 @@ let getTypedValueFromDict = valueString => {
     ->getDictfromDict(#IntegrationMethod->getStringFromVariant)
     ->getIntegrationType,
     integrationCompleted: value->getBool(#IntegrationCompleted->getStringFromVariant, false),
+    downloadTestAPIKey: value->getString(#DownloadTestAPIKey->getStringFromVariant, ""),
+    createPayment: value->getString(#CreatePayment->getStringFromVariant, ""),
+    displayCheckout: value->getString(#DisplayCheckout->getStringFromVariant, ""),
+    displayPaymentConfirmation: value->getString(
+      #DisplayPaymentConfirmation->getStringFromVariant,
+      "",
+    ),
     stripeConnected: value
     ->getDictfromDict(#StripeConnected->getStringFromVariant)
     ->getProcessorType,
@@ -183,6 +190,11 @@ let getTypedValueFromDict = valueString => {
     configureWoocom: value->getBool(#ConfigureWoocom->getStringFromVariant, false),
     setupWoocomWebhook: value->getBool(#SetupWoocomWebhook->getStringFromVariant, false),
     isMultipleConfiguration: value->getBool(#IsMultipleConfiguration->getStringFromVariant, false),
+    downloadTestAPIKeyStripe: value->getString(#DownloadTestAPIKeyStripe->getStringFromVariant, ""),
+    installDeps: value->getString(#InstallDeps->getStringFromVariant, ""),
+    replaceAPIKeys: value->getString(#ReplaceAPIKeys->getStringFromVariant, ""),
+    reconfigureCheckout: value->getString(#ReconfigureCheckout->getStringFromVariant, ""),
+    loadCheckout: value->getString(#LoadCheckout->getStringFromVariant, ""),
   }
   typedValue
 }
@@ -231,6 +243,17 @@ let getStatusValue = (comparator: valueType, enumVariant, dashboardPageState) =>
     boolValue ? COMPLETED : dashboardPageState === enumVariant ? ONGOING : PENDING
   }
 }
+
+let getStatusFromString = statusString => {
+  open HSSelfServeSidebar
+  switch statusString->Js.String2.toUpperCase {
+  | "PENDING" => PENDING
+  | "COMPLETED" => COMPLETED
+  | "ONGOING" => ONGOING
+  | _ => PENDING
+  }
+}
+
 let sidebarTextBasedOnVariant = choiceState =>
   switch choiceState {
   | #MigrateFromStripe => "Hyperswitch For Stripe Users"
@@ -276,23 +299,23 @@ let getSidebarOptionsForIntegrateYourApp: (
       subOptions: [
         {
           title: "Download Test API Keys",
-          status: PENDING,
+          status: enumValue.downloadTestAPIKeyStripe->getStatusFromString,
         },
         {
           title: "Install Dependencies",
-          status: PENDING,
+          status: enumValue.installDeps->getStatusFromString,
         },
         {
           title: "Replace API keys",
-          status: PENDING,
+          status: enumValue.replaceAPIKeys->getStatusFromString,
         },
         {
           title: "Reconfigure Checkout Form",
-          status: PENDING,
+          status: enumValue.reconfigureCheckout->getStatusFromString,
         },
         {
           title: "Load Hyperswitch Checkout",
-          status: PENDING,
+          status: enumValue.loadCheckout->getStatusFromString,
         },
       ],
     },
@@ -317,19 +340,19 @@ let getSidebarOptionsForIntegrateYourApp: (
       subOptions: [
         {
           title: "Download Test API Key",
-          status: PENDING,
+          status: enumValue.downloadTestAPIKey->getStatusFromString,
         },
         {
           title: "Create a Payment",
-          status: PENDING,
+          status: enumValue.createPayment->getStatusFromString,
         },
         {
           title: "Display Hyperswitch Checkout",
-          status: PENDING,
+          status: enumValue.displayCheckout->getStatusFromString,
         },
         {
           title: "Display Payment Confirmation",
-          status: PENDING,
+          status: enumValue.displayPaymentConfirmation->getStatusFromString,
         },
       ],
     },
@@ -571,6 +594,7 @@ let generateBodyBasedOnType = (parentVariant: sectionHeadingVariant, value: requ
     ]->getJsonFromArrayOfJson
 
   | Boolean(_) => (parentVariant :> string)->Js.Json.string
+  | String(str) => str->Js.Json.string
   }
 }
 

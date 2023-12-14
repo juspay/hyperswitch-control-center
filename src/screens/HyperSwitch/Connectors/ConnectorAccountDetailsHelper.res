@@ -39,11 +39,15 @@ let inputField = (
   ~getPlaceholder,
   ~checkRequiredFields,
   ~disabled,
+  ~description="",
+  ~toolTipPosition: ToolTip.toolTipPosition=ToolTip.Right,
   (),
 ) =>
   FormRenderer.makeFieldInfo(
     ~label,
     ~name,
+    ~description,
+    ~toolTipPosition,
     ~customInput=InputFields.textInput(~isDisabled=disabled, ()),
     ~placeholder=switch getPlaceholder {
     | Some(fun) => fun(connector, field, label)
@@ -93,6 +97,7 @@ module RenderConnectorInputFields = {
     ~getPlaceholder=?,
     ~isLabelNested=true,
     ~disabled=false,
+    ~description="",
   ) => {
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     open ConnectorUtils
@@ -100,11 +105,11 @@ module RenderConnectorInputFields = {
     let keys =
       details->Js.Dict.keys->Js.Array2.filter(ele => !Js.Array2.includes(keysToIgnore, ele))
     keys
-    ->Array.mapWithIndex((field, index) => {
+    ->Array.map(field => {
       let label = details->getString(field, "")
       let formName = isLabelNested ? `${name}.${field}` : name
       <UIUtils.RenderIf condition={label->Js.String2.length > 0}>
-        <div key={index->string_of_int}>
+        <div key={label}>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
             field={switch (connector, field) {
@@ -118,6 +123,7 @@ module RenderConnectorInputFields = {
                 ~checkRequiredFields,
                 ~getPlaceholder,
                 ~disabled,
+                ~description,
                 (),
               )
             }}
@@ -210,6 +216,7 @@ module ConnectorConfigurationFields = {
         selectedConnector
         isLabelNested=false
         disabled={isUpdateFlow ? true : false}
+        description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
       />
       <RenderConnectorInputFields
         details={connectorMetaDataFields}

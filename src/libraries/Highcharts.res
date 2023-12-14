@@ -50,8 +50,6 @@ external makeSomethingSeries: (~\"type": string, ~something: (float, int, string
 let x = makeAreaSeries(~\"type"="hello", ~something=false)
 let y = makeSomethingSeries(~\"type"="hello", ~something=(2., 1, "heloo"))
 
-external makeAttribute: {..} => Js.Json.t = "%identity"
-
 type gridLine = {attr: (. Js.Json.t) => unit}
 type pos
 type tick = {

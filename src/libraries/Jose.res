@@ -75,7 +75,7 @@ external generateKeyPairs: 'a = "generateKeyPair"
 @module("jose") external importPKCS8: ('a, string) => Js.Promise.t<key> = "importPKCS8"
 @module("jose") external compactDecrypt: ('a, key) => Js.Promise.t<Js.Json.t> = "compactDecrypt"
 @module("jose") external compactVerify: ('a, key) => Js.Promise.t<bool> = "compactVerify"
-external toJson: 'a => Js.Json.t = "%identity"
+
 let getKey = keyType => {
   switch LocalStorage.getItem(keyType)->Js.Nullable.toOption {
   | Some(str) => str

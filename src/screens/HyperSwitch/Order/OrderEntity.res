@@ -53,7 +53,9 @@ let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.ce
     Label({
       title: refunds.status->Js.String2.toUpperCase,
       color: switch refunds.status->HSwitchOrderUtils.statusVariantMapper {
-      | Succeeded => LabelGreen
+      | Succeeded
+      | PartiallyCaptured =>
+        LabelGreen
       | Failed => LabelRed
       | Processing => LabelOrange
       | Cancelled => LabelRed
@@ -488,7 +490,8 @@ let getStatus = order => {
   let orderStatusLabel = order.status->Js.String2.toUpperCase
   let fixedStatusCss = "text-sm text-white font-bold px-3 py-2 rounded-md"
   switch order.status->HSwitchOrderUtils.statusVariantMapper {
-  | Succeeded =>
+  | Succeeded
+  | PartiallyCaptured =>
     <div className={`${fixedStatusCss} bg-hyperswitch_green dark:bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
@@ -706,7 +709,9 @@ let getCell = (order, colType: colType): Table.cell => {
     Label({
       title: order.status->Js.String2.toUpperCase,
       color: switch orderStatus {
-      | Succeeded => LabelGreen
+      | Succeeded
+      | PartiallyCaptured =>
+        LabelGreen
       | Failed
       | Cancelled =>
         LabelRed

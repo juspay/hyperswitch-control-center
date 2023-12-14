@@ -14,6 +14,7 @@ let make = (
   let (currentStep, setCurrentStep) = React.useState(_ => DownloadAPIKey)
   let {setQuickStartPageState} = React.useContext(GlobalProvider.defaultContext)
   let isLastStep = currentStep === LoadCheckout
+  let updateEnumInRecoil = EnumVariantHook.useUpdateEnumInRecoil()
 
   let theme = switch ThemeProvider.useTheme() {
   | Dark => "vs-dark"
@@ -25,10 +26,18 @@ let make = (
       buttonState={Normal}
       buttonType={PrimaryOutline}
       text="Back"
-      onClick={_ =>
-        currentStep === DownloadAPIKey
-          ? setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
-          : setCurrentStep(_ => getNavigationStepForMigrateFromStripe(~currentStep, ()))}
+      onClick={_ => {
+        let prevStep = getNavigationStepForMigrateFromStripe(~currentStep, ())
+        if currentStep === DownloadAPIKey {
+          setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
+        } else {
+          let _ = updateEnumInRecoil([
+            (String("pending"), currentStep->getPolyMorphicVariantOfMigrateFromStripe),
+            (String("ongoing"), prevStep->getPolyMorphicVariantOfMigrateFromStripe),
+          ])
+          setCurrentStep(_ => prevStep)
+        }
+      }}
       buttonSize=Small
     />
 
@@ -40,9 +49,12 @@ let make = (
         if isLastStep {
           markAsDone()->ignore
         } else {
-          setCurrentStep(_ =>
-            getNavigationStepForMigrateFromStripe(~currentStep, ~forward=true, ())
-          )
+          let nextStep = getNavigationStepForMigrateFromStripe(~currentStep, ~forward=true, ())
+          let _ = updateEnumInRecoil([
+            (String("completed"), currentStep->getPolyMorphicVariantOfMigrateFromStripe),
+            (String("ongoing"), nextStep->getPolyMorphicVariantOfMigrateFromStripe),
+          ])
+          setCurrentStep(_ => nextStep)
         }
       }}
       buttonSize=Small

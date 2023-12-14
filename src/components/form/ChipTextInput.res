@@ -1,4 +1,3 @@
-external toForm: string => ReactEvent.Form.t = "%identity"
 @react.component
 let make = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
@@ -53,7 +52,7 @@ let make = (
       ->Js.Array2.map(Js.String2.trim)
       ->Js.Array2.filter(x => x !== value)
       ->Js.Array2.joinWith(", ")
-      ->toForm,
+      ->Identity.stringToFormReactEvent,
     )
   }
   <div className="flex flex-col items-end justify-center">
