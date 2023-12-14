@@ -54,6 +54,9 @@ external getAllConnectors: unit => array<string> = "getAllConnectors"
 external getVariantValues: string => array<string> = "getVariantValues"
 
 @val @scope("window")
+external getDescriptionCategory: unit => Js.Json.t = "getDescriptionCategory"
+
+@val @scope("window")
 open ConnectorTypes
 external getRequestPayload: (wasmRequest, wasmExtraPayload) => Js.Json.t = "getRequestPayload"
 
