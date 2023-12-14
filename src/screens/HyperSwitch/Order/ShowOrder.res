@@ -25,6 +25,7 @@ module OrderInfo = {
       ~paymentId,
     ) => {
       let hyperswitchMixPanel = HSMixPanel.useSendEvent()
+      let typedPaymentStatus = paymentStatus->statusVariantMapper
       <Section
         customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5 h-full`}>
         <UIUtils.RenderIf condition=isButtonEnabled>
@@ -46,7 +47,7 @@ module OrderInfo = {
               }}
               buttonType={Secondary}
               buttonState={!isNonRefundConnector &&
-              paymentStatus->statusVariantMapper === Succeeded &&
+              (typedPaymentStatus === Succeeded || typedPaymentStatus === PartiallyCaptured) &&
               !(paymentId->isTestPayment)
                 ? Normal
                 : Disabled}

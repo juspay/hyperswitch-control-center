@@ -4,12 +4,6 @@ type data = {code?: string, message?: string, type_?: string}
 @scope("JSON") @val
 external parseIntoMyData: string => data = "parse"
 
-type rec map = {entries: (. unit) => map}
-external changeType: Js.Json.t => 't = "%identity"
-@new external create: 't => map = "Map"
-type object = {fromEntries: (. map) => Js.Json.t}
-external object: object = "Object"
-
 let stepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
 
 let payoutStepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
@@ -867,12 +861,10 @@ let getMetaDataRequiredFields = (connector: connectorName, fieldName: string) =>
 
 let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
   open LogicUtils
+  open MapTypes
   let authKeyMap =
     connectorAccountFields->getDictfromDict("auth_key_map")->Js.Json.object_->changeType
-  let map = create(authKeyMap)
-  let mapIterator = map.entries(.)
-  let dict = object.fromEntries(. mapIterator)->getDictFromJsonObject
-  dict
+  convertMapObjectToDict(authKeyMap)
 }
 
 let checkInnerField = (valuesFlattenJson, dict, country: string): bool => {

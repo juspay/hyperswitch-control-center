@@ -119,7 +119,7 @@ module Wallets = {
     }
     <div>
       {switch (method->getPaymentMethodTypeFromString, connector->getConnectorNameTypeFromString) {
-      | (ApplePay, STRIPE) =>
+      | (ApplePay, STRIPE) | (ApplePay, BANKOFAMERICA) =>
         <ApplePayWalletIntegration metadataInputs update metaData setShowWalletConfigurationModal />
       | _ =>
         <Form initialValues={metaData} onSubmit validate>
