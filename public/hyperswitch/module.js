@@ -26,6 +26,14 @@ function getPayoutConnectorConfig(connectorName) {
   }
 }
 
+function getDescriptionCategory() {
+  if (wasm) {
+    return wasm.getDescriptionCategory();
+  } else {
+    return {};
+  }
+}
+
 function getPaymentMethodConfig(connectorName) {
   if (wasm) {
     return wasm.getPaymentMethodConfig(connectorName);

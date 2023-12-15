@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.8.0 (2023-12-14)
+
+### Features
+
+- GetDescriptionCategory function added. ([#96](https://github.com/juspay/hyperswitch-control-center/pull/96)) ([`5c32afb`](https://github.com/juspay/hyperswitch-control-center/commit/5c32afbb0257abd44d9937ac7604e972a882ff35))
+- Cypress integration ([#39](https://github.com/juspay/hyperswitch-control-center/pull/39)) ([`ca6cacd`](https://github.com/juspay/hyperswitch-control-center/commit/ca6cacdcbd6d2c57898a6bdf21b29d1d36abe374))
+
+**Full Changelog:** [`v1.7.0...v1.8.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.7.0...v1.8.0)
+
+- - -
+
+
 ## 1.7.0 (2023-12-13)
 
 ### Features

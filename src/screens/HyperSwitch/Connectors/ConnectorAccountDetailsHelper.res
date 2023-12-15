@@ -105,10 +105,10 @@ module RenderConnectorInputFields = {
     let keys =
       details->Js.Dict.keys->Js.Array2.filter(ele => !Js.Array2.includes(keysToIgnore, ele))
     keys
-    ->Array.map(field => {
+    ->Array.mapWithIndex((field, i) => {
       let label = details->getString(field, "")
       let formName = isLabelNested ? `${name}.${field}` : name
-      <UIUtils.RenderIf condition={label->Js.String2.length > 0}>
+      <UIUtils.RenderIf condition={label->Js.String2.length > 0} key={i->string_of_int}>
         <div key={label}>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
