@@ -2587,6 +2587,8 @@ let make = (
       ?maxHeight
       ?searchInputPlaceHolder
       showSearchIcon
+      descriptionOnHover
+      showToolTipOptions
     />
   }
 }
