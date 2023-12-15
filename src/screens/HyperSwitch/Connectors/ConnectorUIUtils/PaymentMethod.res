@@ -195,8 +195,8 @@ module PaymentMethodsRender = {
     let pmts = React.useMemo1(() => {
       (
         isPayoutFlow
-          ? Window.getPayoutConnectorConfig(connector)
-          : Window.getConnectorConfig(connector)
+          ? Window.getPayoutConnectorConfig(connector->Js.String2.toLowerCase)
+          : Window.getConnectorConfig(connector->Js.String2.toLowerCase)
       )->getDictFromJsonObject
     }, [connector])
     let keys =

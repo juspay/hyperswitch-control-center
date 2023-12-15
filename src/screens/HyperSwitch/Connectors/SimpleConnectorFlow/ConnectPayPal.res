@@ -279,7 +279,7 @@ let make = (
     ->Belt.Option.getWithDefault("")
     ->LogicUtils.getBoolFromString(false)
 
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuartionType, setConfigurationType) = React.useState(_ => ConnectorTypes.NotSelected)
 
   let (retryTime, setRetryTime) = React.useState(_ => 0)
@@ -297,6 +297,7 @@ let make = (
     open ConnectorUtils
     open SimpleConnectorFlowUtils
     try {
+      setScreenState(_ => Loading)
       let profileIdValue =
         values->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
       let body = generateConnectorPayloadPayPal(
@@ -319,14 +320,14 @@ let make = (
       )
       let res = await updateDetails(url, body, Post)
 
-      setScreenState(_ => Success)
       setInitialValues(_ => res)
       let connectorId =
         res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("merchant_connector_id", "")
       if !isUpdateFlow {
-        RescriptReactRouter.push(`/connectors/new?name=paypal&connectorId=${connectorId}`)
+        RescriptReactRouter.push(`/connectors/new?name=payPal&connectorId=${connectorId}`)
       }
       setConnectorId(_ => connectorId)
+      setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
         setShowVerifyModal(_ => false)
@@ -415,80 +416,91 @@ let make = (
     switch setupAccountStatus {
     | Account_not_found =>
       switch configuartionType {
-      | Manual => setSetupAccountStatus(._ => Manual_setup_flow)
+      | Manual
+      | NotSelected =>
+        setSetupAccountStatus(._ => Manual_setup_flow)
+
       | Automatic => handleConnector(values)->ignore
       }
-    | Manual_setup_flow => handleConnectorConnected(values)
+    | Manual_setup_flow => {
+        let dictOfInitialValues = values->LogicUtils.getDictFromJsonObject
+        dictOfInitialValues->Js.Dict.set("disabled", false->Js.Json.boolean)
+        dictOfInitialValues->Js.Dict.set("status", "active"->Js.Json.string)
+        setInitialValues(_ => dictOfInitialValues->Js.Json.object_)
+        handleConnectorConnected(dictOfInitialValues->Js.Json.object_)
+      }
     | _ => ()
     }
     Js.Nullable.null->Js.Promise.resolve
   }
 
   <div className="w-full h-full flex flex-col gap-8 justify-between">
-    <Form
-      initialValues
-      validate={validateMandatoryFieldForPaypal}
-      formClass="flex flex-col gap-8"
-      onSubmit={handleOnSubmit}>
-      <div className="flex flex-col gap-8">
-        <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
-          connector
-          headerButton={<FormRenderer.SubmitButton
-            loadingText="Processing..."
-            text="Proceed"
-            disabledParamter={configuartionType === NotSelected ? true : false}
-          />}
-          setShowModal>
-          <div className="mx-12">
-            {switch setupAccountStatus {
-            | Account_not_found =>
-              <div className="flex flex-col gap-4">
-                // <UIUtils.RenderIf condition={!HSwitchGlobalVars.isLiveHyperSwitchDashboard}>
-                <ConnectorAccountDetailsHelper.BusinessProfileRender
-                  isUpdateFlow selectedConnector={connector}
+    <PageLoaderWrapper screenState>
+      <Form
+        initialValues
+        validate={validateMandatoryFieldForPaypal}
+        formClass="flex flex-col gap-8"
+        onSubmit={handleOnSubmit}>
+        <div className="flex flex-col gap-8">
+          <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
+            connector
+            headerButton={<FormRenderer.SubmitButton
+              loadingText="Processing..."
+              text="Proceed"
+              disabledParamter={configuartionType === NotSelected ? true : false}
+            />}
+            setShowModal>
+            <div className="mx-12">
+              {switch setupAccountStatus {
+              | Account_not_found =>
+                <div className="flex flex-col gap-4">
+                  // <UIUtils.RenderIf condition={!HSwitchGlobalVars.isLiveHyperSwitchDashboard}>
+                  <ConnectorAccountDetailsHelper.BusinessProfileRender
+                    isUpdateFlow selectedConnector={connector}
+                  />
+                  // </UIUtils.RenderIf>
+                  <LandingScreen configuartionType setConfigurationType />
+                </div>
+              | Redirecting_to_paypal =>
+                <RedirectionToPayPalFlow actionUrl setActionUrl connectorId getStatus />
+              | Manual_setup_flow =>
+                <ManualSetupScreen
+                  connector
+                  connectorAccountFields
+                  selectedConnector
+                  connectorMetaDataFields
+                  connectorWebHookDetails
+                  isUpdateFlow
+                  configuartionType
+                  connectorLabelDetailField
                 />
-                // </UIUtils.RenderIf>
-                <LandingScreen configuartionType setConfigurationType />
-              </div>
-            | Redirecting_to_paypal =>
-              <RedirectionToPayPalFlow actionUrl setActionUrl connectorId getStatus />
-            | Manual_setup_flow =>
-              <ManualSetupScreen
-                connector
-                connectorAccountFields
-                selectedConnector
-                connectorMetaDataFields
-                connectorWebHookDetails
-                isUpdateFlow
-                configuartionType
-                connectorLabelDetailField
-              />
-            | Payments_not_receivable
-            | Ppcp_custom_denied
-            | More_permissions_needed
-            | Email_not_verified =>
-              <ErrorPage setupAccountStatus retryTime actionUrl getStatus />
-            | _ => React.null
-            }}
-          </div>
-          <FormValuesSpy />
-        </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
-        <ConnectorAccountDetailsHelper.VerifyConnectoModal
-          showVerifyModal
-          setShowVerifyModal
-          connector
-          verifyErrorMessage
-          suggestedActionExists
-          suggestedAction
-          setVerifyDone
-        />
+              | Payments_not_receivable
+              | Ppcp_custom_denied
+              | More_permissions_needed
+              | Email_not_verified =>
+                <ErrorPage setupAccountStatus retryTime actionUrl getStatus />
+              | _ => React.null
+              }}
+            </div>
+            <FormValuesSpy />
+          </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
+          <ConnectorAccountDetailsHelper.VerifyConnectoModal
+            showVerifyModal
+            setShowVerifyModal
+            connector
+            verifyErrorMessage
+            suggestedActionExists
+            suggestedAction
+            setVerifyDone
+          />
+        </div>
+      </Form>
+      <div className="border-t-2 flex py-2 px-6 gap-4 items-center">
+        <img src="/assets/PayPalFullLogo.svg" />
+        <p className=p2RedularTextClass>
+          {"| Hyperswitch is PayPal's trusted partner, your credentials are secure & never stored with us."->React.string}
+        </p>
       </div>
-    </Form>
-    <div className="border-t-2 flex py-2 px-6 gap-4 items-center">
-      <img src="/assets/PayPalFullLogo.svg" />
-      <p className=p2RedularTextClass>
-        {"| Hyperswitch is PayPal's trusted partner, your credentials are secure & never stored with us."->React.string}
-      </p>
-    </div>
+    </PageLoaderWrapper>
   </div>
 }

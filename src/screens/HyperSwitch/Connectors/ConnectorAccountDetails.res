@@ -58,8 +58,8 @@ let make = (
     try {
       if connector->Js.String2.length > 0 {
         let dict = isPayoutFlow
-          ? Window.getPayoutConnectorConfig(connector)
-          : Window.getConnectorConfig(connector)
+          ? Window.getPayoutConnectorConfig(connector->Js.String2.toLowerCase)
+          : Window.getConnectorConfig(connector->Js.String2.toLowerCase)
         setScreenState(_ => Success)
         dict
       } else {

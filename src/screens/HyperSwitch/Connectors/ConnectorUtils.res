@@ -433,7 +433,7 @@ let stripeTestInfo = {
 }
 
 let paypalTestInfo = {
-  description: "A paypal test processor to simulate payment flows and experience hyperswitch checkout.",
+  description: "A payPal test processor to simulate payment flows and experience hyperswitch checkout.",
 }
 
 let wiseInfo = {
@@ -489,7 +489,7 @@ let getConnectorNameString = connector => {
   | MOLLIE => "mollie"
   | TRUSTPAY => "trustpay"
   | ZEN => "zen"
-  | PAYPAL => "paypal"
+  | PAYPAL => "payPal"
   | COINBASE => "coinbase"
   | OPENNODE => "opennode"
   | NMI => "nmi"
@@ -508,7 +508,7 @@ let getConnectorNameString = connector => {
   | TSYS => "tsys"
   | NOON => "noon"
   | STRIPE_TEST => "stripe_test"
-  | PAYPAL_TEST => "paypal_test"
+  | PAYPAL_TEST => "payPal_test"
   | WISE => "wise"
   | STAX => "stax"
   | GOCARDLESS => "gocardless"
@@ -546,7 +546,7 @@ let getConnectorNameTypeFromString = connector => {
   | "mollie" => MOLLIE
   | "trustpay" => TRUSTPAY
   | "zen" => ZEN
-  | "paypal" => PAYPAL
+  | "payPal" | "paypal" => PAYPAL
   | "coinbase" => COINBASE
   | "opennode" => OPENNODE
   | "nmi" => NMI
@@ -558,7 +558,7 @@ let getConnectorNameTypeFromString = connector => {
   | "fauxpay" => FAUXPAY
   | "pretendpay" => PRETENDPAY
   | "stripe_test" => STRIPE_TEST
-  | "paypal_test" => PAYPAL_TEST
+  | "payPal_test" => PAYPAL_TEST
   | "cashtocode" => CASHTOCODE
   | "payme" => PAYME
   | "globepay" => GLOBEPAY
@@ -803,7 +803,7 @@ let generateInitialValuesDict = (
 
   dict->Js.Dict.set("connector_account_details", connectorAccountDetails->Js.Json.object_)
 
-  dict->Js.Dict.set("connector_name", connector->Js.Json.string)
+  dict->Js.Dict.set("connector_name", connector->Js.String2.toLowerCase->Js.Json.string)
   dict->Js.Dict.set(
     "connector_type",
     getConnectorType(connector->getConnectorNameTypeFromString, ~isPayoutFlow, ())->Js.Json.string,
@@ -1168,6 +1168,7 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: Js.Json.
   let dict = Js.Dict.fromArray([
     ("connector_account_details", connectorAccountDetails),
     ("connector_label", dict->getString("connector_label", "")->Js.Json.string),
+    ("status", dict->getString("status", "active")->Js.Json.string),
   ])
   values
   ->getDictFromJsonObject
@@ -1210,8 +1211,8 @@ let defaultSelectAllCards = (
     let config =
       (
         isPayoutFlow
-          ? Window.getPayoutConnectorConfig(connector)
-          : Window.getConnectorConfig(connector)
+          ? Window.getPayoutConnectorConfig(connector->Js.String.toLowerCase)
+          : Window.getConnectorConfig(connector->Js.String.toLowerCase)
       )->getDictFromJsonObject
     pmts->Js.Array2.forEach(val => {
       switch val.payment_method->getPaymentMethodFromString {

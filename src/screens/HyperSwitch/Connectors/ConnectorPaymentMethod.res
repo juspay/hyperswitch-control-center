@@ -48,7 +48,7 @@ let make = (
     try {
       setScreenState(_ => Loading)
       let obj: ConnectorTypes.wasmRequest = {
-        connector,
+        connector: connector->Js.String2.toLowerCase,
         payment_methods_enabled: paymentMethodsEnabled,
         metadata: metaData,
       }
