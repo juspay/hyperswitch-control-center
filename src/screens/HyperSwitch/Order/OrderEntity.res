@@ -1,35 +1,6 @@
 open OrderTypes
 open LogicUtils
 
-let getDateCreatedObject = () => {
-  let currentDate = Js.Date.now()
-  let filterCreatedDict = Js.Dict.empty()
-  let currentTimestamp = currentDate->Js.Date.fromFloat->Js.Date.toISOString
-  Js.Dict.set(
-    filterCreatedDict,
-    "lte",
-    Js.Json.string(currentTimestamp->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]")),
-  )
-
-  let prevMins = {
-    let presentDayInString = Js.Date.fromFloat(currentDate)
-    let prevDateInFloat = Js.Date.getMinutes(presentDayInString) -. 30.0
-    Js.Date.setMinutes(presentDayInString, prevDateInFloat)
-  }
-
-  Js.Dict.set(
-    filterCreatedDict,
-    "gte",
-    Js.Json.string(
-      prevMins
-      ->Js.Date.fromFloat
-      ->Js.Date.toISOString
-      ->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]"),
-    ),
-  )
-
-  Js.Json.object_(filterCreatedDict)
-}
 module CurrencyCell = {
   @react.component
   let make = (~amount, ~currency) => {
@@ -785,38 +756,7 @@ let getCell = (order, colType: colType): Table.cell => {
   }
 }
 
-let ordersDefaultCols = Recoil.atom(. "hyperSwitchOrderDefaultCols", defaultColumns)
-
-let getOptionsArr = optionObjArr => {
-  optionObjArr->Js.Array2.map(item => {
-    let temp: EntityType.optionType<'t> = {
-      urlKey: item.urlKey,
-      field: FormRenderer.makeFieldInfo(
-        ~label=item.label,
-        ~name=item.urlKey,
-        ~customInput=InputFields.textInput(),
-        (),
-      ),
-      parser: val => {
-        val
-      },
-      localFilter: None,
-    }
-    temp
-  })
-}
-
-// let options: array<EntityType.optionType<'t>> = getOptionsArr(optionObj)
-
-let getDefaultFilters = dateCreatedObject => {
-  let dict = Js.Dict.empty()
-  let filtersDict = Js.Dict.empty()
-  Js.Dict.set(filtersDict, "dateCreated", dateCreatedObject)
-  Js.Dict.set(dict, "offset", Js.Json.number(0.0))
-  Js.Dict.set(dict, "filters", Js.Json.object_(filtersDict))
-
-  Js.Json.object_(dict)
-}
+let _ = Recoil.atom(. "hyperSwitchOrderDefaultCols", defaultColumns)
 
 let itemToObjMapperForFRMDetails = dict => {
   {
@@ -887,58 +827,6 @@ let itemToObjMapper = dict => {
     merchant_decision: dict->getString("merchant_decision", ""),
   }
 }
-
-let datePickerField = (~limit) => {
-  FormRenderer.makeMultiInputFieldInfo(
-    ~label="Date Range",
-    ~comboCustomInput=InputFields.dateRangeField(
-      ~startKey="filters.dateCreated.gte",
-      ~endKey="filters.dateCreated.lte",
-      ~format="YYYY-MM-DDTHH:mm:ss[Z]",
-      ~showTime=true,
-      ~disablePastDates={false},
-      ~disableFutureDates={true},
-      ~predefinedDays=[
-        Hour(0.5),
-        Hour(1.0),
-        Hour(6.0),
-        Today,
-        Yesterday,
-        Day(2.0),
-        Day(7.0),
-        Day(30.0),
-        ThisMonth,
-        LastMonth,
-      ],
-      ~numMonths=2,
-      ~disableApply=false,
-      ~dateRangeLimit=limit,
-      ~optFieldKey="filters.dateCreated.opt",
-      (),
-    ),
-    ~inputFields=[],
-    ~isRequired=true,
-    (),
-  )
-}
-
-/* let initialFilterFields: array<EntityType.initialFilters<'t>> = [
-  {
-    field: makeFieldInfo(
-      ~label="Customer Id",
-      ~name="customer_id",
-      ~customInput=orderFilterInput(),
-      ~parse=Parsers.arrayParser,
-      ~format=Formatter.numericArrayStringFormat,
-      (),
-    ),
-    localFilter: None,
-  },
-  {
-    localFilter: None,
-    field: datePickerField(~limit=7),
-  },
-] */
 
 let getOrders: Js.Json.t => array<order> = json => {
   getArrayDataFromJson(json, itemToObjMapper)

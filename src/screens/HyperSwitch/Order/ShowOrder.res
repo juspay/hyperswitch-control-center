@@ -147,17 +147,6 @@ module OrderInfo = {
           </div>
         </div>
       </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={isMetadata && !(order.metadata->LogicUtils.isEmptyDict)}>
-        <div className="mb-10">
-          <div className="bg-white p-5 border rounded-md">
-            <PaymentLogs.PrettyPrintJson
-              jsonToDisplay={order.metadata->Js.Json.stringifyAny->Belt.Option.getWithDefault("")}
-              headerText="Payment Metadata"
-              overrideBackgroundColor="bg-white"
-            />
-          </div>
-        </div>
-      </UIUtils.RenderIf>
       <UIUtils.RenderIf condition={isMetadata}>
         <div className="mb-10">
           <Details
@@ -808,7 +797,37 @@ let make = (~id) => {
           />
         </div>
         <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
-          <OrderUIUtils.PaymentLogs id createdAt />
+          <RenderAccordian
+            accordion={[
+              {
+                title: "Events and logs",
+                renderContent: () => {
+                  <OrderUIUtils.PaymentLogs id createdAt />
+                },
+                renderContentOnTop: None,
+              },
+            ]}
+          />
+        </UIUtils.RenderIf>
+        <UIUtils.RenderIf condition={!(order.metadata->LogicUtils.isEmptyDict)}>
+          <RenderAccordian
+            accordion={[
+              {
+                title: "Payment Metadata",
+                renderContent: () => {
+                  <div className="bg-white p-2">
+                    <PaymentLogs.PrettyPrintJson
+                      jsonToDisplay={order.metadata
+                      ->Js.Json.stringifyAny
+                      ->Belt.Option.getWithDefault("")}
+                      overrideBackgroundColor="bg-white"
+                    />
+                  </div>
+                },
+                renderContentOnTop: None,
+              },
+            ]}
+          />
         </UIUtils.RenderIf>
         <RenderAccordian
           accordion={[

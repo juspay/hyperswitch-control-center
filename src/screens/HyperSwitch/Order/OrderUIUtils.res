@@ -19,16 +19,12 @@ module PaymentLogs = {
   let make = (~id, ~createdAt) => {
     let {auditTrail} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let isSmallDevice = MatchMedia.useMatchMedia("(max-width: 700px)")
-    let showPaymentLogsComp = auditTrail
 
     <div className="overflow-x-scroll">
-      <UIUtils.RenderIf condition={!isSmallDevice && showPaymentLogsComp}>
-        {HSwitchOrderUtils.eventLogHeader}
-      </UIUtils.RenderIf>
       <UIUtils.RenderIf condition={isSmallDevice}>
         <EventLogMobileView />
       </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={!isSmallDevice && showPaymentLogsComp}>
+      <UIUtils.RenderIf condition={!isSmallDevice && auditTrail}>
         <PaymentLogs paymentId=id createdAt />
       </UIUtils.RenderIf>
     </div>
