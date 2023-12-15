@@ -15,6 +15,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (email, setEmail) = React.useState(_ => "")
+  let (isLoading, setIsLoading) = React.useState(_ => false)
   let {magicLink: isMagicLinkEnabled, forgetPassword, ossBuild: isOssBuild} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -47,6 +48,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     } catch {
     | Js.Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
     }
+    setIsLoading(_ => false)
     Js.Nullable.null
   }
 
@@ -66,6 +68,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     } catch {
     | Js.Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
     }
+    setIsLoading(_ => false)
     Js.Nullable.null
   }
 
@@ -87,6 +90,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     } catch {
     | _ => showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError, ())
     }
+    setIsLoading(_ => false)
     Js.Nullable.null
   }
 
@@ -99,6 +103,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     } catch {
     | _ => showToast(~message="Forgot Password Failed, Try again", ~toastType=ToastError, ())
     }
+    setIsLoading(_ => false)
     Js.Nullable.null
   }
 
@@ -111,6 +116,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     } catch {
     | _ => showToast(~message="Resend mail failed, Try again", ~toastType=ToastError, ())
     }
+    setIsLoading(_ => false)
     Js.Nullable.null
   }
 
@@ -137,6 +143,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   }
 
   let onSubmit = async (values, _) => {
+    setIsLoading(_ => true)
     let valuesDict = values->getDictFromJsonObject
     let email = valuesDict->getString("email", "")
     setEmail(_ => email)
@@ -264,7 +271,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
                 text=submitBtnText
                 userInteractionRequired=true
                 showToolTip=false
-                loadingText="Please wait..."
+                isLoading
               />
             | _ => React.null
             }}

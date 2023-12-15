@@ -655,6 +655,7 @@ module SubmitButton = {
     ~customPaddingClass=?,
     ~textStyle=?,
     ~textWeight=?,
+    ~isLoading=false,
     ~customHeightClass=?,
   ) => {
     let url = RescriptReactRouter.useUrl()
@@ -737,17 +738,21 @@ module SubmitButton = {
         ?textWeight
       />
 
+    let buttonState: Button.buttonState = isLoading
+      ? Loading
+      : loadingText !== "" && submitting
+      ? Loading
+      : !avoidDisable && disabled
+      ? Disabled
+      : Normal
+
     let submitBtn =
       <>
         <button type_="submit" className="hidden" />
         <Button
           text
           buttonType
-          buttonState={loadingText !== "" && submitting
-            ? Loading
-            : !avoidDisable && disabled
-            ? Disabled
-            : Normal}
+          buttonState
           loadingText
           onClick={_ev => {
             let filterKeys =
