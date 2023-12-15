@@ -62,7 +62,10 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
       }
       let subOptionsArray = sidebarOption.subOptions->Belt.Option.getWithDefault([])
 
-      <div className={`p-6 border-y border-gray-200 cursor-pointer ${background}`} onClick>
+      <div
+        key={i->string_of_int}
+        className={`p-6 border-y border-gray-200 cursor-pointer ${background}`}
+        onClick>
         <div
           key={i->Belt.Int.toString}
           className={`grid grid-cols-12 items-center  ${textColor} font-medium gap-5`}>
@@ -79,7 +82,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
           condition={sidebarOption.status === ONGOING && subOptionsArray->Array.length > 0}>
           <div className="my-4">
             {subOptionsArray
-            ->Js.Array2.map(subOption => {
+            ->Js.Array2.mapi((subOption, i) => {
               let (subIcon, subIconColor, subBackground, subFont) = switch subOption.status {
               | COMPLETED => ("check", "green", "", "text-gray-600")
               | PENDING => ("nonselected", "text-gray-100", "", "text-gray-400")
@@ -87,6 +90,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
               }
 
               <div
+                key={i->string_of_int}
                 className={`flex gap-1 items-center pl-6 py-2 rounded-md my-1 ${subBackground} ${subFont}`}>
                 <Icon name=subIcon customIconColor=subIconColor customHeight="14" />
                 <span className="flex-1"> {subOption.title->React.string} </span>

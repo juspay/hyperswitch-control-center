@@ -19,9 +19,10 @@ module LogicalOps = {
 
     <ButtonGroup wrapperClass="flex flex-row mr-2 ml-1">
       {["AND", "OR"]
-      ->Js.Array2.map(text => {
+      ->Array.mapWithIndex((text, i) => {
         let active = logicalOpsInput.value->LogicUtils.getStringFromJson("") === text
         <Button
+          key={i->string_of_int}
           text
           onClick={_ => onChange(text)}
           textStyle={active ? "text-blue-800" : ""}
@@ -417,6 +418,7 @@ module MakeRuleField = {
     <div className="flex flex-wrap items-center">
       {Array.mapWithIndex(fields, (_, i) =>
         <RuleFieldBase
+          key={i->string_of_int}
           onClick={_ => onCrossClick(i)}
           isFirst={i === 0}
           id={`${ruleJsonPath}[${i->Belt.Int.toString}]`}
