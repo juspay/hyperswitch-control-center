@@ -51,6 +51,19 @@ let make = (~connectProcessorValue: connectProcessor) => {
     }
   }
 
+  React.useEffect2(() => {
+    setInitialValues(prevJson => {
+      let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
+      prevJsonDict->Js.Dict.set(
+        "connector_label",
+        `${selectedConnector->ConnectorUtils.getConnectorNameString}_${activeBusinessProfile.profile_name}`->Js.Json.string,
+      )
+      prevJsonDict->Js.Json.object_
+    })
+
+    None
+  }, (selectedConnector, activeBusinessProfile.profile_name))
+
   let volumeBasedRoutingAPICall = async () => {
     try {
       open LogicUtils

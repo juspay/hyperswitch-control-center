@@ -6,6 +6,7 @@ type status =
   | RequiresCustomerAction
   | RequiresPaymentMethod
   | RequiresConfirmation
+  | PartiallyCaptured
   | None
 
 type paymentAttemptStatus = [
@@ -44,6 +45,7 @@ let statusVariantMapper: string => status = statusLabel =>
   | "REQUIRES_CUSTOMER_ACTION" => RequiresCustomerAction
   | "REQUIRES_PAYMENT_METHOD" => RequiresPaymentMethod
   | "REQUIRES_CONFIRMATION" => RequiresConfirmation
+  | "PARTIALLY_CAPTURED" => PartiallyCaptured
   | _ => None
   }
 

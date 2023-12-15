@@ -65,6 +65,7 @@ module Configure3DSRule = {
           let id = {`algorithm.rules[${string_of_int(index)}]`}
           let i = 1
           <AdvancedRouting.Wrapper
+            key={index->string_of_int}
             id
             heading={`Rule ${string_of_int(index + i)}`}
             onClickAdd={_ => addRule(index, false)}

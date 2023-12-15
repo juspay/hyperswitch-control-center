@@ -62,6 +62,14 @@ let getDictFromJsonObject = json => {
   }
 }
 
+let convertMapObjectToDict = genericTypeMapVal => {
+  open MapTypes
+  let map = create(genericTypeMapVal)
+  let mapIterator = map.entries(.)
+  let dict = object.fromEntries(. mapIterator)->getDictFromJsonObject
+  dict
+}
+
 let removeDuplicate = (arr: array<string>) => {
   arr->Js.Array2.filteri((item, i) => {
     arr->Js.Array2.indexOf(item) === i
