@@ -281,6 +281,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
               let id = {`${rulesJsonPath}[${string_of_int(index)}]`}
 
               <Wrapper
+                key={index->string_of_int}
                 id
                 heading={`Rule ${string_of_int(index + 1)}`}
                 onClickAdd={_ => addRule(index, false)}
