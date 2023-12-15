@@ -25,18 +25,18 @@ module ConfigInfo = {
   @react.component
   let make = (~frmConfigs) => {
     frmConfigs
-    ->Js.Array2.map(config => {
-      <div className="grid grid-cols-2 md:w-1/2 ml-12 my-12">
+    ->Js.Array2.mapi((config, i) => {
+      <div className="grid grid-cols-2 md:w-1/2 ml-12 my-12" key={i->string_of_int}>
         <h4 className="text-lg font-semibold"> {config.gateway->snakeToTitle->React.string} </h4>
         <div>
           {config.payment_methods
-          ->Js.Array2.map(paymentMethod => {
-            <div>
+          ->Js.Array2.mapi((paymentMethod, ind) => {
+            <div key={ind->string_of_int}>
               {paymentMethod.payment_method_types
               ->Array.mapWithIndex(
-                (paymentMethodType, i) => {
+                (paymentMethodType, index) => {
                   <InfoField
-                    key={i->string_of_int}
+                    key={index->string_of_int}
                     label={paymentMethodType.payment_method_type}
                     flowTypeValue={paymentMethodType.flow}
                     actionTypeValue={paymentMethodType.action}
