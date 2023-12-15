@@ -212,11 +212,12 @@ module CheckBoxRenderer = {
         </div>
       </div>
       {frmConfigInfo.payment_methods
-      ->Js.Array2.map(paymentMethodInfo => {
-        <UIUtils.RenderIf condition={isOpen}>
+      ->Js.Array2.mapi((paymentMethodInfo, index) => {
+        <UIUtils.RenderIf condition={isOpen} key={index->string_of_int}>
           {paymentMethodInfo.payment_method_types
-          ->Js.Array2.map(paymentMethodTypeInfo => {
+          ->Js.Array2.mapi((paymentMethodTypeInfo, i) => {
             <Accordion
+              key={i->string_of_int}
               initialExpandedArray=[0]
               accordion={[
                 {
@@ -310,8 +311,9 @@ module PaymentMethodsRenderer = {
     <PageLoaderWrapper screenState={pageState}>
       <div className="flex flex-col gap-4">
         {frmConfigs
-        ->Js.Array2.map(configInfo => {
+        ->Js.Array2.mapi((configInfo, i) => {
           <CheckBoxRenderer
+            key={i->string_of_int}
             frmConfigInfo={configInfo}
             frmConfigs
             connectorPaymentMethods={connectorConfig->Js.Dict.get(configInfo.gateway)}

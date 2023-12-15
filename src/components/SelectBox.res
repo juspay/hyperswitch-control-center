@@ -252,7 +252,8 @@ module ListItem = {
                         Js.String2.toLowerCase("_" ++ searchString)) &&
                       Js.String2.length(searchString) > 0
                   ) {
-                    <AddDataAttributes attributes=[("data-searched-text", item)]>
+                    <AddDataAttributes
+                      key={i->string_of_int} attributes=[("data-searched-text", item)]>
                       <mark
                         key={i->string_of_int} className={`${searchMatchTextColor} bg-transparent`}>
                         {item->React.string}
@@ -268,7 +269,8 @@ module ListItem = {
                     }
 
                     let selectOptions =
-                      <AddDataAttributes attributes=[("data-text", labelText)]>
+                      <AddDataAttributes
+                        attributes=[("data-text", labelText)] key={i->string_of_int}>
                         <span key={i->string_of_int} className=textClass value=labelText>
                           {item->React.string}
                         </span>
@@ -277,6 +279,7 @@ module ListItem = {
                     {
                       if showToolTipOptions {
                         <ToolTip
+                          key={i->string_of_int}
                           description=item
                           toolTipFor=selectOptions
                           contentAlign=Default

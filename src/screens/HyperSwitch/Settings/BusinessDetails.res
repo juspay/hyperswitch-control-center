@@ -141,7 +141,9 @@ let make = () => {
           className="flex flex-col md:flex-row justify-between bg-white p-7 gap-8 rounded-sm border border-jp-gray-border_gray">
           <div className="w-full flex flex-col gap-5 md:gap-10">
             {renderingArray
-            ->Js.Array2.map(details => <DetailsSection details formState merchantInfo />)
+            ->Js.Array2.mapi((details, i) =>
+              <DetailsSection key={i->string_of_int} details formState merchantInfo />
+            )
             ->React.array}
           </div>
           {switch formState {

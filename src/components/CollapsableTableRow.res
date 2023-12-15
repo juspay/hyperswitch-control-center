@@ -45,7 +45,8 @@ let make = (
           let cursorI = cellIndex == 0 ? "cursor-pointer" : ""
           let location = `${title}_tr${(rowIndex + 1)->Belt.Int.toString}_td${(cellIndex + 1)
               ->Belt.Int.toString}`
-          <AddDataAttributes attributes=[("data-table-location", location)]>
+          <AddDataAttributes
+            key={cellIndex->string_of_int} attributes=[("data-table-location", location)]>
             <td
               key={string_of_int(cellIndex)}
               className={`h-full p-0 align-top ${borderClass} ${hCell} ${cursorI}`}
@@ -81,7 +82,7 @@ let make = (
         {item
         ->Js.Array2.mapi((obj, index) => {
           let heading = headingArray->Belt.Array.get(index)->Belt.Option.getWithDefault("")
-          <UIUtils.RenderIf condition={index !== 0}>
+          <UIUtils.RenderIf condition={index !== 0} key={index->string_of_int}>
             <div className="flex mb-5 justify-between">
               <div className="text-jp-gray-900 opacity-50 font-medium">
                 {React.string(heading)}
