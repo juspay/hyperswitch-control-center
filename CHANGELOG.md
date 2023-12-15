@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.9.0 (2023-12-15)
+
+### Features
+
+- Show Orders Enhancements & sidebar value changes ([#103](https://github.com/juspay/hyperswitch-control-center/pull/103)) ([`a1631f3`](https://github.com/juspay/hyperswitch-control-center/commit/a1631f3b1f3e6021053cae934146ca09368ab333))
+
+### Refactors
+
+- Refactoring key errors ([#98](https://github.com/juspay/hyperswitch-control-center/pull/98)) ([`50b86b9`](https://github.com/juspay/hyperswitch-control-center/commit/50b86b9670ecec63ddc6ed8221e55b9ae593e20a))
+- Refactoring key errors ([#100](https://github.com/juspay/hyperswitch-control-center/pull/100)) ([`1ddbe68`](https://github.com/juspay/hyperswitch-control-center/commit/1ddbe6874c93dccee2cfc1d73281ba6ce9008323))
+
+**Full Changelog:** [`v1.8.0...v1.9.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.8.0...v1.9.0)
+
+- - -
+
+
 ## 1.8.0 (2023-12-14)
 
 ### Features
