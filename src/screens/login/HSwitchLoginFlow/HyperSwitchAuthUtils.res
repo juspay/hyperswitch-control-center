@@ -190,45 +190,47 @@ let note = (authType, setAuthType, isMagicLinkEnabled) => {
     </div>
   }
 
-  switch authType {
-  | LoginWithEmail =>
-    getFooterLinkComponent(
-      ~btnText="or sign in using password",
-      ~authType=LoginWithPassword,
-      ~path="/login",
-    )
-  | LoginWithPassword =>
-    <UIUtils.RenderIf condition={isMagicLinkEnabled}>
-      {getFooterLinkComponent(
-        ~btnText="or sign in with an email",
-        ~authType=LoginWithEmail,
+  <div className="w-96">
+    {switch authType {
+    | LoginWithEmail =>
+      getFooterLinkComponent(
+        ~btnText="or sign in using password",
+        ~authType=LoginWithPassword,
         ~path="/login",
-      )}
-    </UIUtils.RenderIf>
-  | SignUP =>
-    <UIUtils.RenderIf condition={isMagicLinkEnabled}>
-      <p className="text-center">
-        {"We'll be emailing you a magic link for a password-free experience, you can always choose to setup a password later."->React.string}
-      </p>
-    </UIUtils.RenderIf>
-  | ForgetPassword | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
-    <div className="w-full flex justify-center">
-      <div
-        onClick={_ => {
-          let backState = switch authType {
-          | MagicLinkEmailSent => SignUP
-          | ForgetPasswordEmailSent => ForgetPassword
-          | ResendVerifyEmailSent => ResendVerifyEmail
-          | ForgetPassword | _ => LoginWithPassword
-          }
-          setAuthType(_ => backState)
-        }}
-        className="text-sm text-center text-blue-900 hover:underline underline-offset-2 cursor-pointer w-fit">
-        {"Cancel"->React.string}
+      )
+    | LoginWithPassword =>
+      <UIUtils.RenderIf condition={isMagicLinkEnabled}>
+        {getFooterLinkComponent(
+          ~btnText="or sign in with an email",
+          ~authType=LoginWithEmail,
+          ~path="/login",
+        )}
+      </UIUtils.RenderIf>
+    | SignUP =>
+      <UIUtils.RenderIf condition={isMagicLinkEnabled}>
+        <p className="text-center text-sm">
+          {"We'll be emailing you a magic link for a password-free experience, you can always choose to setup a password later."->React.string}
+        </p>
+      </UIUtils.RenderIf>
+    | ForgetPassword | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
+      <div className="w-full flex justify-center">
+        <div
+          onClick={_ => {
+            let backState = switch authType {
+            | MagicLinkEmailSent => SignUP
+            | ForgetPasswordEmailSent => ForgetPassword
+            | ResendVerifyEmailSent => ResendVerifyEmail
+            | ForgetPassword | _ => LoginWithPassword
+            }
+            setAuthType(_ => backState)
+          }}
+          className="text-sm text-center text-blue-900 hover:underline underline-offset-2 cursor-pointer w-fit">
+          {"Cancel"->React.string}
+        </div>
       </div>
-    </div>
-  | _ => React.null
-  }
+    | _ => React.null
+    }}
+  </div>
 }
 
 module PageFooterSection = {
@@ -365,7 +367,7 @@ module Header = {
     | _ => false
     }
 
-    <div className={`${headerStyle} gap-2 h-fit mb-7`}>
+    <div className={`${headerStyle} gap-2 h-fit mb-7 w-96`}>
       <UIUtils.RenderIf condition={showInfoIcon}>
         <div className="flex justify-center my-5">
           {switch authType {
