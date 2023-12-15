@@ -142,8 +142,8 @@ module ExternalUser = {
                 {props => <>
                   <div className="px-1 py-1 ">
                     {options
-                    ->Js.Array2.map(option =>
-                      <Menu.Item>
+                    ->Js.Array2.mapi((option, i) =>
+                      <Menu.Item key={i->string_of_int}>
                         {props =>
                           <div className="relative">
                             <button
