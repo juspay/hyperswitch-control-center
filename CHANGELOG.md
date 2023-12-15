@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.10.0 (2023-12-15)
+
+### Features
+
+- Show Details Paymentb Enhancement ([#104](https://github.com/juspay/hyperswitch-control-center/pull/104)) ([`134d470`](https://github.com/juspay/hyperswitch-control-center/commit/134d470ceadef14e02c5ca6b31d1475b25212d0d))
+
+**Full Changelog:** [`v1.9.0...v1.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.9.0...v1.10.0)
+
+- - -
+
+
 ## 1.9.0 (2023-12-15)
 
 ### Features
