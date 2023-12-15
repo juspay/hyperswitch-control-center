@@ -107,8 +107,9 @@ let make = (
                 let fontWeight = "font-bold"
                 let fontSize = "text-sm"
                 let paddingClass = "px-4 py-3"
-                <AddDataAttributes attributes=[("data-table-heading", item.title)]>
-                  <th key={string_of_int(i)} className="p-0">
+                <AddDataAttributes
+                  attributes=[("data-table-heading", item.title)] key={i->string_of_int}>
+                  <th className="p-0">
                     <div
                       className={`flex flex-row ${borderClass} justify-between items-center ${paddingClass} ${bgColor} ${headerTextClass} whitespace-pre ${roundedClass}`}>
                       <div className={`${fontWeight} ${fontSize}`}>
