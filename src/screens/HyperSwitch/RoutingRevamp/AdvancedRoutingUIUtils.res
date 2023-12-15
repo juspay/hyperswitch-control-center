@@ -417,6 +417,7 @@ module MakeRuleField = {
     <div className="flex flex-wrap items-center">
       {Array.mapWithIndex(fields, (_, i) =>
         <RuleFieldBase
+          key={i->string_of_int}
           onClick={_ => onCrossClick(i)}
           isFirst={i === 0}
           id={`${ruleJsonPath}[${i->Belt.Int.toString}]`}
