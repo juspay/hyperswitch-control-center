@@ -13,10 +13,11 @@ let make = (
 
   let buttons =
     options
-    ->Js.Array2.map(op => {
+    ->Array.mapWithIndex((op, i) => {
       let active = input.value->LogicUtils.getStringFromJson("") === op.value
       if isSeparate {
         <Button
+          key={i->string_of_int}
           text={op.label}
           onClick={_ => onChange(op.value)}
           buttonType={active ? Primary : SecondaryFilled}
@@ -26,6 +27,7 @@ let make = (
         />
       } else {
         <Button
+          key={i->string_of_int}
           text={op.label}
           onClick={_ => onChange(op.value)}
           textStyle={active ? "text-blue-800" : ""}

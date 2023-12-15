@@ -466,6 +466,7 @@ let make = (
               )
 
               <HSwitchSingleStatWidget
+                key={singleStatArrIndex->string_of_int}
                 title=info.title
                 tooltipText=info.tooltipText
                 deltaTooltipComponent={info.deltaTooltipComponent(info.statType)}
@@ -485,6 +486,7 @@ let make = (
 
           | None =>
             <HSwitchSingleStatWidget
+              key={singleStatArrIndex->string_of_int}
               title=""
               tooltipText=""
               deltaTooltipComponent=React.null
@@ -520,16 +522,15 @@ let make = (
       }
     })
 
-    <AddDataAttributes attributes=[("data-dynamic-single-stats", "dynamic stats")]>
-      <div key={index->Belt.Int.toString}>
-        {if sectionName === "" {
-          React.null
-        } else {
+    <AddDataAttributes
+      attributes=[("data-dynamic-single-stats", "dynamic stats")] key={index->string_of_int}>
+      <div>
+        <UIUtils.RenderIf condition={sectionName !== ""}>
           <div
             className="mb-5 block pl-5 pt-5 not-italic font-bold text-fs-18 text-black dark:text-white">
             {sectionName->React.string}
           </div>
-        }}
+        </UIUtils.RenderIf>
         {switch urlConfig.sectionInfo {
         | Some(info) =>
           <div
@@ -549,11 +550,9 @@ let make = (
               <div className="flex flex-wrap w-full">
                 {singleStateArr
                 ->Array.mapWithIndex((element, index) => {
-                  if index < 4 || showStats {
+                  <UIUtils.RenderIf condition={index < 4 || showStats} key={index->string_of_int}>
                     <div className="w-full md:w-1/2"> element </div>
-                  } else {
-                    React.null
-                  }
+                  </UIUtils.RenderIf>
                 })
                 ->React.array}
               </div>
