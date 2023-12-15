@@ -23,15 +23,23 @@ module OrderInfo = {
       ~paymentStatus,
       ~openRefundModal,
       ~paymentId,
+      ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
     ) => {
       let hyperswitchMixPanel = HSMixPanel.useSendEvent()
       let typedPaymentStatus = paymentStatus->statusVariantMapper
-      <Section
-        customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5 h-full`}>
+      <Section customCssClass={`${border} ${bgColor} rounded-md p-5 h-full`}>
         <UIUtils.RenderIf condition=isButtonEnabled>
           <div className="flex items-center flex-wrap gap-3 m-3">
-            <div className="md:text-5xl font-bold">
-              {`${(data.amount /. 100.00)->Belt.Float.toString} ${data.currency} `->React.string}
+            <div className="flex items-start">
+              <div className="md:text-5xl font-bold">
+                {`${(data.amount /. 100.00)->Belt.Float.toString} ${data.currency} `->React.string}
+              </div>
+              <ToolTip
+                description="Original amount that was authorized for the payment"
+                toolTipFor={<Icon name="tooltip_info" className={`mt-1 ml-1`} />}
+                toolTipPosition=Top
+                tooltipWidthClass="w-fit"
+              />
             </div>
             {getStatus(data)}
             <Button
@@ -99,11 +107,11 @@ module OrderInfo = {
               detailsFields=[
                 Created,
                 LastUpdated,
+                AmountReceived,
                 PaymentId,
                 Currency,
                 ConnectorTransactionID,
                 ClientSecret,
-                ErrorCode,
                 ErrorMessage,
               ]
               isButtonEnabled=true
@@ -152,7 +160,6 @@ module OrderInfo = {
       </UIUtils.RenderIf>
       <UIUtils.RenderIf condition={isMetadata}>
         <div className="mb-10">
-          <div className={`${headingStyles}`}> {"More Payment Details"->React.string} </div>
           <Details
             data=order
             getHeading=getHeadingForOtherDetails
@@ -167,7 +174,7 @@ module OrderInfo = {
               Shipping,
               Billing,
               AmountCapturable,
-              AmountReceived,
+              ErrorCode,
               MandateData,
               MerchantId,
               ReturnUrl,
@@ -188,6 +195,7 @@ module OrderInfo = {
             openRefundModal
             widthClass="md:w-1/4 w-full"
             paymentId
+            border=""
           />
         </div>
       </UIUtils.RenderIf>
@@ -257,7 +265,7 @@ module DisputesSection = {
 module Refunds = {
   open OrderEntity
   @react.component
-  let make = (~refundDict, ~isNonRefundConnector) => {
+  let make = (~refundData) => {
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
     let heading = refundColumns->Js.Array2.map(getRefundHeading)
@@ -291,8 +299,6 @@ module Refunds = {
       }
     }
 
-    let refundData =
-      refundDict->getArrayFromDict("refunds", [])->Js.Json.array->OrderEntity.getRefunds
     let rows = refundData->Js.Array2.map(item => {
       refundColumns->Js.Array2.map(colType => getRefundCell(item, colType))
     })
@@ -304,26 +310,15 @@ module Refunds = {
       }
     }
 
-    <div className="flex flex-col gap-4">
-      <p className="font-bold text-fs-16 text-jp-gray-900"> {"Refunds"->React.string} </p>
-      <CustomExpandableTable
-        title="Refunds"
-        heading
-        rows
-        onExpandIconClick
-        expandedRowIndexArray
-        getRowDetails
-        showSerial=true
-      />
-      {!isNonRefundConnector && rows->Js.Array2.length === 0
-        ? <NoDataFound message="No Refund data available" />
-        : React.null}
-      {isNonRefundConnector
-        ? <NoDataFound
-            message="Coming soon! - We are currently working on the Refund Integration with this Connector."
-          />
-        : React.null}
-    </div>
+    <CustomExpandableTable
+      title="Refunds"
+      heading
+      rows
+      onExpandIconClick
+      expandedRowIndexArray
+      getRowDetails
+      showSerial=true
+    />
   }
 }
 
@@ -438,7 +433,6 @@ module Disputes = {
       }
     }
 
-    let disputesData = disputesData->getArrayFromDict("disputes", [])->Js.Json.array->getDisputes
     let rows = disputesData->Js.Array2.map(item => {
       columnsInPaymentPage->Js.Array2.map(colType => getCell(item, colType))
     })
@@ -450,21 +444,15 @@ module Disputes = {
       }
     }
 
-    <div className="flex flex-col gap-4">
-      <p className="font-bold text-fs-16 text-jp-gray-900"> {"Disputes"->React.string} </p>
-      <CustomExpandableTable
-        title="Disputes"
-        heading
-        rows
-        onExpandIconClick
-        expandedRowIndexArray
-        getRowDetails
-        showSerial=true
-      />
-      <UIUtils.RenderIf condition={rows->Js.Array2.length === 0}>
-        <NoDataFound message="No Disputes available" />
-      </UIUtils.RenderIf>
-    </div>
+    <CustomExpandableTable
+      title="Disputes"
+      heading
+      rows
+      onExpandIconClick
+      expandedRowIndexArray
+      getRowDetails
+      showSerial=true
+    />
   }
 }
 
@@ -561,7 +549,7 @@ module FraudRiskBannerDetails = {
     }
 
     <div
-      className="w-full border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 bg-white dark:bg-jp-gray-lightgray_background rounded-md p-5 h-full">
+      className="w-full bg-white dark:bg-jp-gray-lightgray_background rounded-md px-4 pb-5 h-full">
       <div
         className={`flex flex-wrap dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
         {frmColumns
@@ -633,6 +621,20 @@ module FraudRiskBanner = {
   }
 }
 
+module RenderAccordian = {
+  @react.component
+  let make = (~initialExpandedArray=[], ~accordion) => {
+    <Accordion
+      initialExpandedArray
+      accordion
+      accordianTopContainerCss="border"
+      accordianBottomContainerCss="p-5"
+      contentExpandCss="px-4 py-3 !border-t-0"
+      titleStyle="font-semibold text-bold text-md"
+    />
+  }
+}
+
 @react.component
 let make = (~id) => {
   open APIUtils
@@ -649,6 +651,24 @@ let make = (~id) => {
 
   let orderData = OrderHooks.getOrdersData(id, refetchCounter, setScreenState)
   let order = OrderEntity.itemToObjMapper(orderData->getDictFromJsonObject)
+
+  let refundData =
+    orderData
+    ->getDictFromJsonObject
+    ->getArrayFromDict("refunds", [])
+    ->Js.Json.array
+    ->OrderEntity.getRefunds
+
+  let isRefundDataAvailable = refundData->Js.Array2.length !== 0
+
+  let disputesData =
+    orderData
+    ->getDictFromJsonObject
+    ->getArrayFromDict("disputes", [])
+    ->Js.Json.array
+    ->DisputesEntity.getDisputes
+
+  let isDisputeDataVisible = disputesData->Js.Array2.length !== 0
 
   let createdAt = React.useMemo1(() => {
     orderData->getDictFromJsonObject->getString("created", "")
@@ -730,7 +750,7 @@ let make = (~id) => {
       customUI={<NoDataFound
         message="Payment does not exists in out record" renderType=NotFound
       />}>
-      <div className="flex flex-col gap-14">
+      <div className="flex flex-col gap-8">
         <OrderInfo
           paymentId=id
           orderDict={orderData->getDictFromJsonObject}
@@ -740,28 +760,72 @@ let make = (~id) => {
         <div className="overflow-scroll">
           <Attempts orderDict={orderData->getDictFromJsonObject} />
         </div>
+        <UIUtils.RenderIf condition={isRefundDataAvailable}>
+          <div className="overflow-scroll">
+            <RenderAccordian
+              initialExpandedArray={isRefundDataAvailable ? [0] : []}
+              accordion={[
+                {
+                  title: "Refunds",
+                  renderContent: () => {
+                    <Refunds refundData />
+                  },
+                  renderContentOnTop: None,
+                },
+              ]}
+            />
+          </div>
+        </UIUtils.RenderIf>
+        <UIUtils.RenderIf condition={isDisputeDataVisible}>
+          <div className="overflow-scroll">
+            <RenderAccordian
+              initialExpandedArray={isDisputeDataVisible ? [0] : []}
+              accordion={[
+                {
+                  title: "Disputes",
+                  renderContent: () => {
+                    <Disputes disputesData />
+                  },
+                  renderContentOnTop: None,
+                },
+              ]}
+            />
+          </div>
+        </UIUtils.RenderIf>
         <div className="overflow-scroll">
-          <Refunds
-            refundDict={orderData->getDictFromJsonObject}
-            isNonRefundConnector={isNonRefundConnector(orderData)}
+          <RenderAccordian
+            accordion={[
+              {
+                title: "FRM Details",
+                renderContent: () => {
+                  <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
+                    <FraudRiskBannerDetails order refetch />
+                  </div>
+                },
+                renderContentOnTop: None,
+              },
+            ]}
           />
-        </div>
-        <div className="overflow-scroll">
-          <Disputes disputesData={orderData->getDictFromJsonObject} />
-        </div>
-        <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
-          <div className={`font-bold text-lg mb-5`}> {"FRM Details"->React.string} </div>
-          <FraudRiskBannerDetails order refetch />
         </div>
         <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
           <OrderUIUtils.PaymentLogs id createdAt />
         </UIUtils.RenderIf>
-        <OrderInfo
-          paymentId=id
-          orderDict={orderData->getDictFromJsonObject}
-          openRefundModal
-          isNonRefundConnector={isNonRefundConnector(orderData)}
-          isMetadata=true
+        <RenderAccordian
+          accordion={[
+            {
+              title: "More Payment Details",
+              renderContent: () => {
+                <OrderInfo
+                  paymentId=id
+                  orderDict={orderData->getDictFromJsonObject}
+                  openRefundModal
+                  isNonRefundConnector={isNonRefundConnector(orderData)}
+                  isMetadata=true
+                />
+              },
+              renderContentOnTop: None,
+            },
+          ]}
         />
       </div>
     </PageLoaderWrapper>

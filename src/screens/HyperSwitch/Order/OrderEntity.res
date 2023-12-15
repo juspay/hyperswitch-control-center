@@ -521,7 +521,14 @@ let getHeadingForSummary = summaryColType => {
     Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated", ~showSort=true, ())
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID", ~showSort=true, ())
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency", ~showSort=true, ())
-  | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code", ~showSort=true, ())
+  | AmountReceived =>
+    Table.makeHeaderInfo(
+      ~key="amount_received",
+      ~title="Amount Received",
+      ~description="Amount captured by the payment processor for this payment.",
+      ~showSort=true,
+      (),
+    )
   | ClientSecret =>
     Table.makeHeaderInfo(~key="client_secret", ~title="Client Secret", ~showSort=true, ())
   | ConnectorTransactionID =>
@@ -612,8 +619,7 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | Billing => Table.makeHeaderInfo(~key="billing", ~title="Billing Address", ~showSort=true, ())
   | AmountCapturable =>
     Table.makeHeaderInfo(~key="amount_capturable", ~title="AmountCapturable", ~showSort=true, ())
-  | AmountReceived =>
-    Table.makeHeaderInfo(~key="amount_received", ~title="Amount Received", ~showSort=true, ())
+  | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code", ~showSort=true, ())
   | MandateData =>
     Table.makeHeaderInfo(~key="mandate_data", ~title="Mandate Data", ~showSort=true, ())
   | FRMName => Table.makeHeaderInfo(~key="frm_name", ~title="FRM Tag", ~showSort=true, ())
@@ -635,7 +641,13 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   | LastUpdated => Date(order.last_updated)
   | PaymentId => CustomCell(<CopyTextCustomComp displayValue=order.payment_id />, "")
   | Currency => Text(order.currency)
-  | ErrorCode => Text(order.error_code)
+  | AmountReceived =>
+    CustomCell(
+      <CurrencyCell
+        amount={(order.amount_received /. 100.0)->Belt.Float.toString} currency={order.currency}
+      />,
+      "",
+    )
   | ClientSecret => Text(order.client_secret)
   | OrderQuantity => Text(order.order_quantity)
   | ProductName => Text(order.product_name)
@@ -690,7 +702,7 @@ let getCellForOtherDetails = (order, aboutPaymentColType): Table.cell => {
   | Shipping => Text(order.shipping)
   | Billing => Text(order.billing)
   | AmountCapturable => Currency(order.amount_capturable /. 100.0, order.currency)
-  | AmountReceived => Currency(order.amount_received /. 100.0, order.currency)
+  | ErrorCode => Text(order.error_code)
   | MandateData => Text(order.mandate_data)
   | FRMName => Text(order.frm_message.frm_name)
   | FRMTransactionType => Text(order.frm_message.frm_transaction_type)
