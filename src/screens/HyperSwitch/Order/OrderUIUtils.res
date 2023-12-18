@@ -19,16 +19,12 @@ module PaymentLogs = {
   let make = (~id, ~createdAt) => {
     let {auditTrail} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let isSmallDevice = MatchMedia.useMatchMedia("(max-width: 700px)")
-    let showPaymentLogsComp = auditTrail
 
     <div className="overflow-x-scroll">
-      <UIUtils.RenderIf condition={!isSmallDevice && showPaymentLogsComp}>
-        {HSwitchOrderUtils.eventLogHeader}
-      </UIUtils.RenderIf>
       <UIUtils.RenderIf condition={isSmallDevice}>
         <EventLogMobileView />
       </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={!isSmallDevice && showPaymentLogsComp}>
+      <UIUtils.RenderIf condition={!isSmallDevice && auditTrail}>
         <PaymentLogs paymentId=id createdAt />
       </UIUtils.RenderIf>
     </div>
@@ -46,7 +42,7 @@ module GenerateSampleDataButton = {
     let generateSampleData = async () => {
       try {
         let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
-        let _generateSampleData = await updateDetails(
+        let _ = await updateDetails(
           generateSampleDataUrl,
           [("record", 50.0->Js.Json.number)]->Js.Dict.fromArray->Js.Json.object_,
           Post,

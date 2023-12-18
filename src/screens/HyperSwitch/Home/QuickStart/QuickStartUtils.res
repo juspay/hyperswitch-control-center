@@ -1,7 +1,5 @@
 open QuickStartTypes
 
-let testConnectors = [ConnectorTypes.STRIPE, ConnectorTypes.PAYPAL]
-
 let getTestConnectorName = (connector, quickStartPageState) => {
   open ConnectorUtils
   open QuickStartTypes
@@ -31,13 +29,7 @@ let quickStartEnumIntialArray: array<sectionHeadingVariant> = [
   #PaypalConnected,
   #SPTestPayment,
 ]
-let getInitalEnumArray: bool => array<sectionHeadingVariant> = isMultipleConfiguration => {
-  if isMultipleConfiguration {
-    quickStartEnumIntialArray
-  } else {
-    [#FirstProcessorConnected, #TestPayment, #IntegrationMethod, #IntegrationCompleted]
-  }
-}
+
 let defaultChoiceStateValue: landingChoiceType = {
   displayText: "Not Selected",
   description: "Not Selected",
@@ -508,27 +500,6 @@ let textToVariantMapperForBuildHS = str => {
   | "StandardIntegration" => IntegrateFromScratch
   | "WooCommercePlugin" => WooCommercePlugin
   | _ => MigrateFromStripe
-  }
-}
-
-let getBackButtonState = quickStartPageState => {
-  switch quickStartPageState {
-  | ConnectProcessor(connect_processor) =>
-    switch connect_processor {
-    | CONFIGURE_PRIMARY => ConnectProcessor(LANDING)
-    | CONFIGURE_SECONDARY => ConnectProcessor(CONFIGURE_PRIMARY)
-    | CONFIGURE_SMART_ROUTING => ConnectProcessor(CONFIGURE_SECONDARY)
-    | CHECKOUT => ConnectProcessor(CONFIGURE_SMART_ROUTING)
-    | _ => ConnectProcessor(LANDING)
-    }
-  | IntegrateApp(integrate_app) =>
-    switch integrate_app {
-    | CHOOSE_INTEGRATION => ConnectProcessor(CHECKOUT)
-    | CUSTOM_INTEGRATION => IntegrateApp(CHOOSE_INTEGRATION)
-    | _ => IntegrateApp(LANDING)
-    }
-  | GoLive(_) => IntegrateApp(CUSTOM_INTEGRATION)
-  | FinalLandingPage => GoLive(GO_LIVE)
   }
 }
 
