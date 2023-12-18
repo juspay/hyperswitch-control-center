@@ -20,121 +20,6 @@ let getStepName = step => {
 let toLCase = str => str->Js.String2.toLowerCase
 let len = arr => arr->Js.Array2.length
 
-let subLabelOptions: array<SelectBox.dropdownOption> = [
-  {
-    label: "AIBMS",
-    value: "aibms",
-  },
-  {
-    label: "American Express Brighton",
-    value: "amex_brighton",
-  },
-  {
-    label: "American Express Direct",
-    value: "amex_direct",
-  },
-  {
-    label: "Asia-Mideast Processing",
-    value: "asia_mideast",
-  },
-  {
-    label: "Barclays",
-    value: "barclays",
-  },
-  {
-    label: "CCS (CAFIS)",
-    value: "ccs",
-  },
-  {
-    label: "Chase Paymentech Solutions",
-    value: "chase",
-  },
-  {
-    label: "Citibank",
-    value: "citi",
-  },
-  {
-    label: "Comercio Latino",
-    value: "comercio_latino",
-  },
-  {
-    label: "CyberSource ACH Service",
-    value: "cybs_ach",
-  },
-  {
-    label: "Visa Platform Connect",
-    value: "visa",
-  },
-  {
-    label: "FDC Compass",
-    value: "fdc_compass",
-  },
-  {
-    label: "FDC Nashville Global",
-    value: "fdc_nashville",
-  },
-  {
-    label: "FDMS Nashville",
-    value: "fdms_nashville",
-  },
-  {
-    label: "FDMS South",
-    value: "fdms_south",
-  },
-  {
-    label: "Ingenico ePayments",
-    value: "ingenico",
-  },
-  {
-    label: "GPN",
-    value: "gpn",
-  },
-  {
-    label: "HSBC",
-    value: "hsbc",
-  },
-  {
-    label: "Litle",
-    value: "litle",
-  },
-  {
-    label: "LloydsTSB Cardnet",
-    value: "lloyds",
-  },
-  {
-    label: "Moneris",
-    value: "moneris",
-  },
-  {
-    label: "Omnipay Direct",
-    value: "omnipay",
-  },
-  {
-    label: "OmniPay-Ireland",
-    value: "omnipay_ireland",
-  },
-  {
-    label: "RBS WorldPay Atlanta",
-    value: "rbs_worldpay",
-  },
-  {
-    label: "Streamline",
-    value: "streamline",
-  },
-  {
-    label: "SIX",
-    value: "six",
-  },
-  {
-    label: "TeleCheck",
-    value: "telecheck",
-  },
-  {
-    label: "TSYS Acquiring Solutions",
-    value: "tsys",
-  },
-]
-
 let payoutConnectorList: array<connectorName> = [ADYEN, WISE]
 
 let connectorList: array<connectorName> = [
@@ -649,13 +534,6 @@ let getPaymentMethodEnabled: Js.Json.t => array<paymentMethodEnabled> = json => 
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let getMetaData = json => {
-  open LogicUtils
-  let val = json->Js.Json.decodeObject->Belt.Option.getWithDefault(Js.Dict.empty())
-  let _apple_pay = val->getJsonObjectFromDict("apple_pay")
-  let _goole_pay = val->getJsonObjectFromDict("apple_pay")
-}
-
 let connectorIgnoredField = [
   "business_country",
   "business_label",
@@ -699,14 +577,6 @@ let ignoreFields = (json, id, fields) => {
   }
 }
 
-let getPayoutConnectorAuthType = connector => {
-  switch connector {
-  | ADYEN => (#SignatureKey: authType :> string)
-  | WISE => (#BodyKey: authType :> string)
-  | _ => (#Nokey: authType :> string)
-  }
-}
-
 let mapAuthType = (authType: string) => {
   switch authType->toLCase {
   | "bodykey" => #BodyKey
@@ -718,7 +588,7 @@ let mapAuthType = (authType: string) => {
   }
 }
 
-let getConnectorType = (connector, ~isPayoutFlow=false, ()) => {
+let getConnectorType = (connector, ~isPayoutFlow, ()) => {
   isPayoutFlow
     ? "payout_processor"
     : switch connector {
@@ -954,26 +824,6 @@ let validateConnectorRequiredFields = (
     }
   })
   newDict->Js.Json.object_
-}
-
-let getFirstLabelViaCountryKey = (dict, country) => {
-  dict
-  ->Js.Dict.get(country)
-  ->Belt.Option.getWithDefault([])
-  ->Belt.Array.get(0)
-  ->Belt.Option.getWithDefault("")
-}
-
-let getDefaultCountryAndLabel = dict => {
-  let defaultCountry = dict->Js.Dict.keys->Belt.Array.get(0)->Belt.Option.getWithDefault("")
-
-  let defaultLabel =
-    dict
-    ->Js.Dict.get(defaultCountry)
-    ->Belt.Option.getWithDefault([])
-    ->Belt.Array.get(0)
-    ->Belt.Option.getWithDefault("")
-  (defaultCountry, defaultLabel)
 }
 
 let getPlaceHolder = (connector: connectorName, fieldName, label) => {

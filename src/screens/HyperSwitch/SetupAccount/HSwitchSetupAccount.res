@@ -82,11 +82,7 @@ let make = () => {
 
       // *GENERATE_SAMPLE_DATA
       let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
-      let _generateSampleData = await updateDetails(
-        generateSampleDataUrl,
-        Js.Dict.empty()->Js.Json.object_,
-        Post,
-      )
+      let _ = await updateDetails(generateSampleDataUrl, Js.Dict.empty()->Js.Json.object_, Post)
       setStepCounter(_ => #GENERATE_SAMPLE_DATA)
       await delay(delayTime)
       setStepCounter(_ => #COMPLETED)

@@ -16,19 +16,6 @@ module HomePageHorizontalStepper = {
       2
     }
 
-    // let step = if !(typedValueOfEnum.firstProcessorConnected.processorID->Js.String2.length > 0) {
-    //   0
-    // } else if (
-    //   typedValueOfEnum.isMultipleConfiguration &&
-    //   !(typedValueOfEnum.configuredRouting.routing_id->Js.String2.length > 0)
-    // ) {
-    //   0
-    // } else if !typedValueOfEnum.integrationCompleted {
-    //   1
-    // } else {
-    //   2
-    // }
-
     let getStepperStyle = index => {
       index <= step ? "bg-blue-700 text-white border-transparent" : "border-blue-700 text-blue-700 "
     }
@@ -115,12 +102,12 @@ module QuickStart = {
               processorName: secondConnectorValue.connector_name,
             }
 
-            let _isMultipleConnectorSetup = await ConnectorChoice({
+            let _ = await ConnectorChoice({
               isMultipleConfiguration: true,
             })->usePostEnumDetails(#IsMultipleConfiguration)
-            let _firstEnumSetupValues =
+            let _ =
               await ProcesorType(bodyOfFirstConnector)->usePostEnumDetails(#FirstProcessorConnected)
-            let _secondEnumSetupValues =
+            let _ =
               await ProcesorType(bodyOfSecondConnector)->usePostEnumDetails(
                 #SecondProcessorConnected,
               )
@@ -141,10 +128,10 @@ module QuickStart = {
               processorName: firstConnectorValue.connector_name,
             }
 
-            let _isMultipleConnectorSetup = await ConnectorChoice({
+            let _ = await ConnectorChoice({
               isMultipleConfiguration: true,
             })->usePostEnumDetails(#IsMultipleConfiguration)
-            let _firstEnumSetupValues =
+            let _ =
               await ProcesorType(bodyOfFirstConnector)->usePostEnumDetails(#FirstProcessorConnected)
             let _ = updateEnumInRecoil([
               (ConnectorChoice({isMultipleConfiguration: true}), #IsMultipleConfiguration),

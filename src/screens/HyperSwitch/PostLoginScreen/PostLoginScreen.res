@@ -111,7 +111,7 @@ let make = () => {
         (),
       )
 
-      let _responseJson = await updateDetails(
+      let _ = await updateDetails(
         postLoginSurveyUrl,
         values->generateSurveyJson->Js.Json.object_,
         Post,
