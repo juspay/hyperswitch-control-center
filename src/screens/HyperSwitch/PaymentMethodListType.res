@@ -28,19 +28,6 @@ type methods = {
   payment_method_types: array<paymentMethodTypes>,
 }
 
-type list = {
-  redirect_url: string,
-  payment_methods: array<methods>,
-}
-
-let defaultList = {
-  redirect_url: "",
-  payment_methods: [],
-}
-let defaultBankNames = {
-  bank_name: [],
-  eligible_connectors: [],
-}
 let getMethod = str => {
   switch str {
   | "card" => Cards
@@ -54,19 +41,6 @@ let getMethod = str => {
   }
 }
 
-let getPaymentMethodType = str => {
-  switch str {
-  | "afterpay_clearpay" => AfterPay
-  | "klarna" => Klarna
-  | "affirm" => Affirm
-  | "apple_pay" => ApplePay
-  | "google_pay" => Gpay
-  | "credit" => Card(Credit)
-  | "debit" => Card(Debit)
-  | "crypto_currency" => CryptoCurrency
-  | _ => NONE
-  }
-}
 let getPaymentExperienceType = str => {
   switch str {
   | "redirect_to_url" => RedirectToURL
@@ -145,48 +119,4 @@ let getMethodsArr = (dict, str) => {
       payment_method_types: getPaymentMethodTypes(json, "payment_method_types"),
     }
   })
-}
-
-let itemToObjMapper = dict => {
-  {
-    redirect_url: getString(dict, "redirect_url", ""),
-    payment_methods: getMethodsArr(dict, "payment_methods"),
-  }
-}
-
-let paymentListLookup = (arr: array<methods>, ~order) => {
-  let (otherPaymentList, walletsList) = arr->Array.reduce(([], []), (
-    (otherPaymentList, walletsList),
-    method,
-  ) => {
-    switch method.payment_method {
-    | Cards => otherPaymentList->Array.push("card")
-    | Wallets =>
-      method.payment_method_types
-      ->Js.Array2.map(item => walletsList->Array.push(item.payment_method_type))
-      ->ignore
-    | PayLater =>
-      method.payment_method_types
-      ->Js.Array2.map(item => otherPaymentList->Array.push(item.payment_method_type))
-      ->ignore
-    | BankDebit
-    | BankTransfer
-    | BankRedirect =>
-      method.payment_method_types
-      ->Js.Array2.map(item => otherPaymentList->Array.push(item.payment_method_type))
-      ->ignore
-    | Crypto =>
-      method.payment_method_types
-      ->Js.Array2.map(item => otherPaymentList->Array.push(item.payment_method_type))
-      ->ignore
-    | NONE => ()
-    }
-    (otherPaymentList, walletsList)
-  })
-
-  (
-    walletsList->LogicUtils.removeDuplicate->LogicUtils.sortBasedOnPriority(order),
-    otherPaymentList->LogicUtils.removeDuplicate->LogicUtils.sortBasedOnPriority(order),
-    // ["card", "bank_transfer"],
-  )
 }

@@ -1,5 +1,4 @@
 let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
-let selectedClass = "bg-green-900 text-white font-semibold"
 
 type prodFormColumnType =
   | POCemail
@@ -20,28 +19,6 @@ let getStringFromVariant = key => {
   | POCName => "poc_name"
   | BusinessTAN => "comments"
   }
-}
-
-let getVarientFromString = stringVal => {
-  switch stringVal {
-  | "poc_email" => POCemail
-  | "legal_business_name" => BusinessName
-  | "business_location" => Country
-  | "business_website" => Website
-  | "poc_name" => POCName
-  | "comments" => BusinessTAN
-  | _ => IsCompleted
-  }
-}
-
-type prodFieldsObjType = {
-  poc_email: string,
-  comments: string,
-  legal_business_name: string,
-  business_location: string,
-  is_complated: bool,
-  business_website: string,
-  poc_name: string,
 }
 
 let businessName = FormRenderer.makeFieldInfo(

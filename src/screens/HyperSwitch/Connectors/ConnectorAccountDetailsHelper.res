@@ -39,7 +39,7 @@ let inputField = (
   ~getPlaceholder,
   ~checkRequiredFields,
   ~disabled,
-  ~description="",
+  ~description,
   ~toolTipPosition: ToolTip.toolTipPosition=ToolTip.Right,
   (),
 ) =>
