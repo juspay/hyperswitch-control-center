@@ -258,7 +258,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
             <ResendBtn callBackFun={resendEmail} />
           | _ => React.null
           }}
-          <div className="flex flex-col gap-2">
+          <div id="auth-submit-btn" className="flex flex-col gap-2">
             {switch authType {
             | LoginWithPassword
             | LoginWithEmail
