@@ -100,7 +100,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let getDetails = async () => {
     try {
       setScreenState(_ => Loading)
-      let _wasmResult = await Window.connectorWasmInit()
+      let _ = await Window.connectorWasmInit()
       if isUpdateFlow {
         await getConnectorDetails()
       }

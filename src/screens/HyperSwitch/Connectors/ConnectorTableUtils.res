@@ -14,34 +14,6 @@ let defaultColumns = [
   PaymentMethods,
 ]
 
-module ConnectorActions = {
-  @react.component
-  let make = () => {
-    let onClick = e => {
-      e->ReactEvent.Mouse.stopPropagation
-    }
-
-    <div>
-      <div className="invisible cursor-pointer group-hover:visible flex">
-        <div className="mr-5">
-          <ToolTip
-            tooltipWidthClass="w-fit"
-            description="Delete"
-            toolTipFor={<Icon
-              name="delete"
-              size=15
-              className="text-jp-gray-700 dark:hover:text-white hover:text-jp-gray-900 "
-              onClick
-            />}
-            toolTipPosition=Left
-            tooltipPositioning=#absolute
-          />
-        </div>
-      </div>
-    </div>
-  }
-}
-
 let parsePaymentMethodType = paymentMethodType => {
   open LogicUtils
 

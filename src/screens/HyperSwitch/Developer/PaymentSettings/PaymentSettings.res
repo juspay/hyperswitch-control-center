@@ -165,53 +165,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
             }}
           />
         </div>
-        /*
-        <UIUtils.RenderIf
-          condition={businessProfileDetails.webhook_details.webhook_url
-          ->Belt.Option.getWithDefault("")
-          ->Js.String2.length > 0 && !webhookOnly}>
-          <SectionAccordion title="Webhook Events" hideHeaderWeb={true}>
-            {<div className="w-full mt-5 md:mt-10 ">
-              <h2
-                className="font-bold text-xl pb-3 text-black text-opacity-75 dark:text-white dark:text-opacity-75">
-                {"Configured Webhook Events"->React.string}
-              </h2>
-              <div
-                className="flex flex-col md:flex-row border border-jp-gray-500 dark:border-jp-gray-960 bg-white dark:bg-jp-gray-lightgray_background rounded-md p-4 md:p-7">
-                {webhookEventsDict
-                ->Js.Dict.entries
-                ->Js.Array2.map(webhookSection => {
-                  let (heading, events) = webhookSection
-                  <div
-                    className="flex flex-col w-full md:w-1/3 m-2 border border-jp-gray-500 dark:border-jp-gray-960 bg-white dark:bg-jp-gray-lightgray_background rounded-md">
-                    <div className="flex m-2 font-semibold items-center p-4">
-                      {React.string((heading ++ " Events")->LogicUtils.snakeToTitle)}
-                    </div>
-                    <div className="w-full md:border-b dark:opacity-20 " />
-                    <div className="m-6 flex flex-col">
-                      {events
-                      ->LogicUtils.getArrayFromJson([])
-                      ->Js.Array2.map(event => {
-                        <div className="flex my-2 cursor-not-allowed">
-                          <CheckBoxIcon isSelected=true isDisabled=true />
-                          <span className="font-medium ml-2">
-                            {event
-                            ->LogicUtils.getStringFromJson("")
-                            ->LogicUtils.snakeToTitle
-                            ->React.string}
-                          </span>
-                        </div>
-                      })
-                      ->React.array}
-                    </div>
-                  </div>
-                })
-                ->React.array}
-              </div>
-            </div>}
-          </SectionAccordion>
-        </UIUtils.RenderIf>
- */
       </div>
     </div>
   </PageLoaderWrapper>

@@ -498,15 +498,6 @@ let businessProfileNameDropDownOption = arrBusinessProfile =>
     obj
   })
 
-let businessProfileIdDropDownOption = arrBusinessProfile =>
-  arrBusinessProfile->Js.Array2.map(ele => {
-    let obj: SelectBox.dropdownOption = {
-      label: ele.profile_id,
-      value: ele.profile_id,
-    }
-    obj
-  })
-
 let useFetchBusinessProfiles = () => {
   open APIUtils
   let fetchDetails = useGetMethod()
