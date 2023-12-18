@@ -681,6 +681,17 @@ let generateInitialValuesDict = (
   dict->Js.Dict.set("disabled", dict->getBool("disabled", false)->Js.Json.boolean)
   dict->Js.Dict.set("test_mode", (isLiveMode ? false : true)->Js.Json.boolean)
   dict->Js.Dict.set("connector_label", dict->getString("connector_label", "")->Js.Json.string)
+
+  let connectorWebHookDetails =
+    dict->getJsonObjectFromDict("connector_webhook_details")->getDictFromJsonObject
+
+  dict->Js.Dict.set(
+    "connector_webhook_details",
+    connectorWebHookDetails->getOptionString("merchant_secret")->Belt.Option.isSome
+      ? connectorWebHookDetails->Js.Json.object_
+      : Js.Json.null,
+  )
+
   dict->Js.Json.object_
 }
 
