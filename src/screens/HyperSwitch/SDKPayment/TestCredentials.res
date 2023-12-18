@@ -38,7 +38,9 @@ let make = () => {
         <div
           className="flex items-center cursor-pointer text-blue-600 dark:text-blue-500 hover:underline"
           onClick={_ => {
-            Window._open("https://hyperswitch.io/docs/paymentMethods/testCredentials")
+            Window._open(
+              "https://docs.hyperswitch.io/hyperswitch-cloud/connectors/test-a-payment-with-connector",
+            )
           }}>
           {"Test creds for other connectors here"->React.string}
           <img src={`/icons/open-new-tab.svg`} />
