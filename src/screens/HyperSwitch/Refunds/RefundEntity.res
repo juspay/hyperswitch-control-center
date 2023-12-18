@@ -2,11 +2,6 @@ open LogicUtils
 open HelperComponents
 open HSwitchOrderUtils
 
-type refundMetaData = {
-  udf1: string,
-  new_customer: string,
-  login_date: string,
-}
 type refunds = {
   refund_id: string,
   payment_id: string,
@@ -35,21 +30,6 @@ type refundsColType =
   | LastUpdated
   | MetaData
   | ConnectorName
-
-let refunditemToObjMapper = dict => {
-  amount: getFloat(dict, "amount", 0.0),
-  created_at: getString(dict, "created_at", ""),
-  currency: getString(dict, "currency", ""),
-  error_message: getString(dict, "error_message", ""),
-  metadata: getString(dict, "metadata", ""),
-  payment_id: getString(dict, "payment_id", ""),
-  reason: getString(dict, "reason", ""),
-  refund_id: getString(dict, "refund_id", ""),
-  status: getString(dict, "status", ""),
-  updated_at: getString(dict, "updated_at", ""),
-  error_code: getString(dict, "error_code", ""),
-  connector: getString(dict, "connector", ""),
-}
 
 let defaultColumns = [RefundId, Amount, RefundStatus, PaymentId, Created]
 
@@ -166,8 +146,6 @@ let getCell = (refundData, colType): Table.cell => {
     CustomCell(<HSwitchUtils.ConnectorCustomCell connectorName=refundData.connector />, "")
   }
 }
-
-let refundDefaultCols = Recoil.atom(. "hyperSwitchRefundDefaultCols", defaultColumns)
 
 let itemToObjMapper = dict => {
   {

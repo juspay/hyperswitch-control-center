@@ -1,7 +1,6 @@
 let headerTextStyle = "text-xl font-semibold text-grey-700"
 let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
 let dividerColor = "bg-grey-700 bg-opacity-20 h-px w-full"
-let highlightedText = "text-base font-normal text-blue-700 underline"
 
 module ConnectorDetailsForm = {
   open ConnectorUtils
@@ -95,10 +94,16 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   let (initialValues, setInitialValues) = React.useState(_ => Js.Json.null)
 
   let getDetails = async () => {
-    let _wasmResult = await Window.connectorWasmInit()
-    let val = connectorName->Window.getConnectorConfig
-    setConnectorDetails(_ => val)
-    setScreenState(_ => Success)
+    try {
+      let _ = await Window.connectorWasmInit()
+      let val = connectorName->Window.getConnectorConfig
+      setConnectorDetails(_ => val)
+      setScreenState(_ => Success)
+    } catch {
+    | Js.Exn.Error(e) =>
+      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong!")
+      setScreenState(_ => PageLoaderWrapper.Error(err))
+    }
   }
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())

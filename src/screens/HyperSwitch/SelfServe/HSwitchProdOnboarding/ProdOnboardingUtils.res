@@ -27,7 +27,6 @@ let getPageView = index => {
   | SETUP_WEBHOOK_PROCESSOR => REPLACE_API_KEYS
   | REPLACE_API_KEYS => SETUP_WEBHOOK_USER
   | SETUP_WEBHOOK_USER => SETUP_COMPLETED
-  // | TEST_LIVE_PAYMENT => SETUP_COMPLETED
   | _ => SETUP_COMPLETED
   }
 }
@@ -39,8 +38,6 @@ let getBackPageView = index => {
   | SETUP_WEBHOOK_PROCESSOR => SETUP_CREDS
   | REPLACE_API_KEYS => SETUP_WEBHOOK_PROCESSOR
   | SETUP_WEBHOOK_USER => REPLACE_API_KEYS
-  // | TEST_LIVE_PAYMENT => SETUP_WEBHOOK_USER
-  // | SETUP_COMPLETED => TEST_LIVE_PAYMENT
   | _ => SETUP_COMPLETED
   }
 }
@@ -138,16 +135,6 @@ let getWarningBlockForConnector = connectorName => {
   }
 }
 
-let getFirstSubVariant = (parentVariant: ProdOnboardingTypes.sectionHeadingVariant) => {
-  open ProdOnboardingTypes
-  switch parentVariant {
-  | #SetupProcessor => SELECT_PROCESSOR
-  | #ConfigureEndpoint => REPLACE_API_KEYS
-  | #SetupComplete => SETUP_COMPLETED
-  | #ProductionAgreement => SELECT_PROCESSOR
-  }
-}
-
 let getProdApiBody = (
   ~parentVariant: ProdOnboardingTypes.sectionHeadingVariant,
   ~connectorId="",
@@ -176,15 +163,6 @@ let getProdApiBody = (
     ]
     ->Js.Dict.fromArray
     ->Js.Json.object_
-  // | #SetupComplete =>
-  //   [
-  //     (
-  //       (parentVariant :> string),
-  //       [("paymentId", paymentId->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_,
-  //     ),
-  //   ]
-  //   ->Js.Dict.fromArray
-  //   ->Js.Json.object_
   | _ => (parentVariant :> string)->Js.Json.string
   }
 }

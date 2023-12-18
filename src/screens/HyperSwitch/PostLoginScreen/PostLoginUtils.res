@@ -8,7 +8,6 @@ let defaultValueForQuestions: questionsType = {
   options: [],
   key: "",
 }
-let userName = HSLocalStorage.getFromUserDetails("name")
 let userRoleQuestions: questionsType = {
   question: `What role fits you well?`,
   options: [
