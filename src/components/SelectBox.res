@@ -1178,16 +1178,14 @@ module RenderListItemInBaseRadio = {
         | Some(str) =>
           <div key={i->string_of_int} className="flex flex-row">
             listItemComponent
-            {if isHorizontal {
-              React.null
-            } else {
+            <UIUtils.RenderIf condition={!isHorizontal}>
               <ToolTip
                 description={str}
                 toolTipFor={<div className="py-4 px-4">
                   <Icon size=12 name="info-circle" />
                 </div>}
               />
-            }}
+            </UIUtils.RenderIf>
           </div>
         | None => listItemComponent
         }
