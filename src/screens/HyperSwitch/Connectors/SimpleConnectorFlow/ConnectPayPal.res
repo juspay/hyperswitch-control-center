@@ -434,14 +434,10 @@ let make = (
     Js.Nullable.null->Js.Promise.resolve
   }
 
-  <div className="w-full h-full flex flex-col gap-8 justify-between">
+  <div className="w-full h-full flex flex-col justify-between">
     <PageLoaderWrapper screenState>
-      <Form
-        initialValues
-        validate={validateMandatoryFieldForPaypal}
-        formClass="flex flex-col gap-8"
-        onSubmit={handleOnSubmit}>
-        <div className="flex flex-col gap-8">
+      <Form initialValues validate={validateMandatoryFieldForPaypal} onSubmit={handleOnSubmit}>
+        <div className="">
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector
             headerButton={<FormRenderer.SubmitButton
@@ -450,7 +446,7 @@ let make = (
               disabledParamter={configuartionType === NotSelected ? true : false}
             />}
             setShowModal>
-            <div className="mx-12">
+            <div className="flex flex-col gap-2 p-2 md:p-10">
               {switch setupAccountStatus {
               | Account_not_found =>
                 <div className="flex flex-col gap-4">
@@ -495,7 +491,7 @@ let make = (
           />
         </div>
       </Form>
-      <div className="border-t-2 flex py-2 px-6 gap-4 items-center">
+      <div className="bg-jp-gray-light_gray_bg flex py-4 px-10 gap-2">
         <img src="/assets/PayPalFullLogo.svg" />
         <p className=p2RedularTextClass>
           {"| Hyperswitch is PayPal's trusted partner, your credentials are secure & never stored with us."->React.string}
