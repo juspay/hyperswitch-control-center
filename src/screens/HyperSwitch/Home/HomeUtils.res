@@ -16,7 +16,7 @@ let subtextStyle = `${getTextClass(
   )} text-grey-700 opacity-50`
 let cardHeaderText = `${getTextClass(~textVariant=H3, ~h3TextVariant=Leading_2, ())} `
 let hoverStyle = "cursor-pointer group-hover:shadow hover:shadow-homePageBoxShadow group"
-let boxCssHover = (~ishoverStyleRequired=true, ()) =>
+let boxCssHover = (~ishoverStyleRequired, ()) =>
   `flex flex-col  bg-white border rounded-md pt-10 pl-10 gap-2 h-12.5-rem ${ishoverStyleRequired
       ? hoverStyle
       : ""}`
@@ -158,43 +158,6 @@ module MerchantAuthInfo = {
         </div>
       </div>
     </Form>
-  }
-}
-
-module InputText = {
-  @react.component
-  let make = (~setAmount) => {
-    let (value, setValue) = React.useState(_ => "100")
-    let showPopUp = PopUpState.useShowPopUp()
-    let input: ReactFinalForm.fieldRenderPropsInput = {
-      name: "-",
-      onBlur: _ev => (),
-      onChange: ev => {
-        let value = {ev->ReactEvent.Form.target}["value"]
-        if value->Js.String2.includes("<script>") || value->Js.String2.includes("</script>") {
-          showPopUp({
-            popUpType: (Warning, WithIcon),
-            heading: `Script Tags are not allowed`,
-            description: React.string(`Input cannot contain <script>, </script> tags`),
-            handleConfirm: {text: "OK"},
-          })
-        }
-        let value = value->Js.String2.replace("<script>", "")->Js.String2.replace("</script>", "")
-        if Js.Re.test_(%re("/^[0-9]*$/"), value) && value->Js.String2.length <= 8 {
-          setValue(_ => value)
-          setAmount(_ => value->Belt.Int.fromString->Belt.Option.getWithDefault(100) * 100)
-        }
-      },
-      onFocus: _ev => (),
-      value: Js.Json.string(value),
-      checked: false,
-    }
-
-    <TextInput
-      input
-      placeholder={"Enter amount"}
-      onDisabledStyle="bg-jp-gray-300 dark:bg-gray-800 dark:bg-opacity-10"
-    />
   }
 }
 
@@ -477,7 +440,7 @@ let responseDataMapper = (res: Js.Json.t) => {
   let arrayFromJson = res->getArrayFromJson([])
   let resDict = Js.Dict.empty()
 
-  let _a = arrayFromJson->Js.Array2.map(value => {
+  arrayFromJson->Js.Array2.forEach(value => {
     let value1 = value->getDictFromJsonObject
     let key = value1->Js.Dict.keys->Belt.Array.get(0)->Belt.Option.getWithDefault("")
     resDict->Js.Dict.set(key, value1->getValueMapped(key))

@@ -267,8 +267,7 @@ let make = (
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
       RescriptReactRouter.push("/connectors")
     } catch {
-    | Js.Exn.Error(e) =>
-      let _err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Disable connector!")
+    | Js.Exn.Error(_) =>
       showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError, ())
     }
   }

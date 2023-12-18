@@ -260,12 +260,9 @@ let proFeatures = isProFeaturesEnabled =>
 
 let fraudAndRisk = isfraudAndRiskEnabled =>
   isfraudAndRiskEnabled
-    ? LinkWithTag({
+    ? Link({
         name: "Fraud & Risk",
         icon: "shield-alt",
-        iconTag: "sidebar-lock",
-        iconStyles: "w-15 h-15",
-        iconSize: 15,
         link: `/fraud-risk-management`,
         access: isfraudAndRiskEnabled ? ReadWrite : NoAccess,
         searchOptions: [],
@@ -274,13 +271,10 @@ let fraudAndRisk = isfraudAndRiskEnabled =>
 
 let payoutConnectors = isPayoutConnectorsEnabled =>
   isPayoutConnectorsEnabled
-    ? LinkWithTag({
+    ? Link({
         name: "Payout Processors",
         link: `/payoutconnectors`,
         icon: "connectors",
-        iconTag: "sidebar-lock",
-        iconStyles: "w-15 h-15",
-        iconSize: 15,
         access: ReadWrite,
         searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
           ~processorList=ConnectorUtils.payoutConnectorList,
@@ -291,12 +285,9 @@ let payoutConnectors = isPayoutConnectorsEnabled =>
 
 let reconTag = (recon, isReconEnabled) =>
   recon
-    ? LinkWithTag({
+    ? Link({
         name: "Reconcilation",
         icon: isReconEnabled ? "recon" : "recon-lock",
-        iconTag: "sidebar-lock",
-        iconStyles: "w-15 h-15",
-        iconSize: 15,
         link: `/recon`,
         access: ReadWrite,
       })
@@ -326,16 +317,15 @@ let getHyperSwitchAppSidebars = (
     default->analytics,
     default->connectors,
     default->workflow,
+    frm->fraudAndRisk,
+    payOut->payoutConnectors,
+    recon->reconTag(isReconEnabled),
     default->developers(userRole, systemMetrics),
     settings(
       ~isUserManagementEnabled=userManagement,
       ~isBusinessProfileEnabled=businessProfile,
       ~isSampleDataEnabled=sampleData,
     ),
-    [frm, payOut, recon]->Js.Array2.includes(true)->proFeatures,
-    frm->fraudAndRisk,
-    payOut->payoutConnectors,
-    recon->reconTag(isReconEnabled),
   ]
   sidebar
 }

@@ -3,6 +3,75 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.11.0 (2023-12-18)
+
+### Features
+
+- Enable apple pay cybersource ([#109](https://github.com/juspay/hyperswitch-control-center/pull/109)) ([`c800865`](https://github.com/juspay/hyperswitch-control-center/commit/c8008650f7b4b426523f6ac30a83afac922cbe1a))
+
+### Refactors
+
+- Dead Code Removal ([#107](https://github.com/juspay/hyperswitch-control-center/pull/107)) ([`5859497`](https://github.com/juspay/hyperswitch-control-center/commit/585949773178633ad022abb443b69c50e884ef86))
+
+**Full Changelog:** [`v1.10.0...v1.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.10.0...v1.11.0)
+
+- - -
+
+
+## 1.10.0 (2023-12-15)
+
+### Features
+
+- Show Details Paymentb Enhancement ([#104](https://github.com/juspay/hyperswitch-control-center/pull/104)) ([`134d470`](https://github.com/juspay/hyperswitch-control-center/commit/134d470ceadef14e02c5ca6b31d1475b25212d0d))
+
+**Full Changelog:** [`v1.9.0...v1.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.9.0...v1.10.0)
+
+- - -
+
+
+## 1.9.0 (2023-12-15)
+
+### Features
+
+- Show Orders Enhancements & sidebar value changes ([#103](https://github.com/juspay/hyperswitch-control-center/pull/103)) ([`a1631f3`](https://github.com/juspay/hyperswitch-control-center/commit/a1631f3b1f3e6021053cae934146ca09368ab333))
+
+### Refactors
+
+- Refactoring key errors ([#98](https://github.com/juspay/hyperswitch-control-center/pull/98)) ([`50b86b9`](https://github.com/juspay/hyperswitch-control-center/commit/50b86b9670ecec63ddc6ed8221e55b9ae593e20a))
+- Refactoring key errors ([#100](https://github.com/juspay/hyperswitch-control-center/pull/100)) ([`1ddbe68`](https://github.com/juspay/hyperswitch-control-center/commit/1ddbe6874c93dccee2cfc1d73281ba6ce9008323))
+
+**Full Changelog:** [`v1.8.0...v1.9.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.8.0...v1.9.0)
+
+- - -
+
+
+## 1.8.0 (2023-12-14)
+
+### Features
+
+- GetDescriptionCategory function added. ([#96](https://github.com/juspay/hyperswitch-control-center/pull/96)) ([`5c32afb`](https://github.com/juspay/hyperswitch-control-center/commit/5c32afbb0257abd44d9937ac7604e972a882ff35))
+- Cypress integration ([#39](https://github.com/juspay/hyperswitch-control-center/pull/39)) ([`ca6cacd`](https://github.com/juspay/hyperswitch-control-center/commit/ca6cacdcbd6d2c57898a6bdf21b29d1d36abe374))
+
+**Full Changelog:** [`v1.7.0...v1.8.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.7.0...v1.8.0)
+
+- - -
+
+
+## 1.7.0 (2023-12-13)
+
+### Features
+
+- Refund enable for Partially Captured Payments ([#94](https://github.com/juspay/hyperswitch-control-center/pull/94)) ([`5634990`](https://github.com/juspay/hyperswitch-control-center/commit/5634990a6c0e5952f65e6c435f546314347acaac))
+
+### Bug Fixes
+
+- Connector label  and profile id default value fix ([#95](https://github.com/juspay/hyperswitch-control-center/pull/95)) ([`9822972`](https://github.com/juspay/hyperswitch-control-center/commit/9822972f9ed6724f365ee36d5d27f14458e1f960))
+
+**Full Changelog:** [`v1.6.0...v1.7.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.6.0...v1.7.0)
+
+- - -
+
+
 ## 1.6.0 (2023-12-12)
 
 ### Features

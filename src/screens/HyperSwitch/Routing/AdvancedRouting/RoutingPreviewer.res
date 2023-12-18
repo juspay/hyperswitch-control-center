@@ -4,7 +4,7 @@ open RoutingUtils
 module SimplePreview = {
   @react.component
   let make = (~gateways) => {
-    if gateways->Js.Array2.length > 0 {
+    <UIUtils.RenderIf condition={gateways->Js.Array2.length > 0}>
       <div
         className="w-full mb-6 p-4 px-6 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
         <div
@@ -23,9 +23,7 @@ module SimplePreview = {
           ->React.array}
         </div>
       </div>
-    } else {
-      React.null
-    }
+    </UIUtils.RenderIf>
   }
 }
 module GatewayView = {
@@ -189,16 +187,15 @@ module RulePreviewer = {
                       {React.string(string_of_int(index + 1))}
                     </div>
                     <div> {gateway->React.string} </div>
-                    {if index !== ruleInfo.default_gateways->Js.Array2.length - 1 {
+                    <UIUtils.RenderIf
+                      condition={index !== ruleInfo.default_gateways->Js.Array2.length - 1}>
                       <Icon
                         name="chevron-right"
                         size=14
                         className="cursor-pointer text-jp-gray-700"
                         onClick={ev => ()}
                       />
-                    } else {
-                      React.null
-                    }}
+                    </UIUtils.RenderIf>
                   </div>
                 })
                 ->React.array}
