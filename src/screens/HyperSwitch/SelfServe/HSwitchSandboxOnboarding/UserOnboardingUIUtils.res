@@ -1034,7 +1034,7 @@ let getTabsForIntegration = (
             }
           }
           let skipOnboarding = async path => {
-            let _skipOnboarding = await skipAndContinue()
+            let _ = await skipAndContinue()
             Window._open(path)
           }
           <div>

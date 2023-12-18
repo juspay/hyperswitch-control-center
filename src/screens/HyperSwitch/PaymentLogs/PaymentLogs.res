@@ -350,7 +350,7 @@ let make = (~paymentId, ~createdAt) => {
   }
   let getDetails = async () => {
     try {
-      let _wasmResult = await Window.connectorWasmInit()
+      let _ = await Window.connectorWasmInit()
       if !(paymentId->HSwitchOrderUtils.isTestPayment) {
         fetchPaymentLogsData()->ignore
         fetchSdkLogsData()->ignore
