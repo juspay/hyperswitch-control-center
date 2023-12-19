@@ -367,10 +367,12 @@ type dropdownOptionWithoutOptional = {
   description: option<string>,
   iconStroke: string,
   textColor: string,
+  optGroup: string,
 }
 type dropdownOption = {
   label: string,
   value: string,
+  optGroup?: string,
   isDisabled?: bool,
   icon?: Button.iconType,
   description?: string,
@@ -387,6 +389,7 @@ let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOpt
     description: dropdownOption.description,
     iconStroke: dropdownOption.iconStroke->Belt.Option.getWithDefault(""),
     textColor: dropdownOption.textColor->Belt.Option.getWithDefault(""),
+    optGroup: dropdownOption.optGroup->Belt.Option.getWithDefault("-"),
   }
 }
 
@@ -1107,6 +1110,121 @@ module BaseSelectButton = {
     </div>
   }
 }
+
+module RenderListItemInBaseRadio = {
+  @react.component
+  let make = (
+    ~newOptions: Js.Array2.t<dropdownOptionWithoutOptional>,
+    ~value,
+    ~descriptionOnHover,
+    ~isDropDown,
+    ~textIconPresent,
+    ~searchString,
+    ~optionSize,
+    ~isSelectedStateMinus,
+    ~onItemClick,
+    ~fill,
+    ~customStyle,
+    ~isMobileView,
+    ~listFlexDirection,
+    ~customSelectStyle,
+    ~textOverflowClass,
+    ~showToolTipOptions,
+    ~textEllipsisForDropDownOptions,
+    ~isHorizontal,
+    ~customMarginStyleOfListItem="mx-3 py-2 gap-2",
+  ) => {
+    newOptions
+    ->Js.Array2.mapi((option, i) => {
+      let isSelected = switch value->Js.Json.decodeString {
+      | Some(str) => option.value === str
+      | None => false
+      }
+
+      let description = descriptionOnHover ? option.description : None
+      let leftVacennt = isDropDown && textIconPresent && option.icon === NoIcon
+      let listItemComponent =
+        <ListItem
+          key={string_of_int(i)}
+          isDropDown
+          isSelected
+          fill
+          searchString
+          onClick={onItemClick(option.value, option.isDisabled)}
+          text=option.label
+          optionSize
+          isSelectedStateMinus
+          labelValue=option.label
+          multiSelect=false
+          icon=option.icon
+          leftVacennt
+          isDisabled=option.isDisabled
+          isMobileView
+          description
+          listFlexDirection
+          customStyle
+          customSelectStyle
+          ?textOverflowClass
+          dataId=i
+          iconStroke=option.iconStroke
+          showToolTipOptions
+          textEllipsisForDropDownOptions
+          textColorClass={option.textColor}
+          customMarginStyle=customMarginStyleOfListItem
+        />
+
+      if !descriptionOnHover {
+        switch option.description {
+        | Some(str) =>
+          <div key={i->string_of_int} className="flex flex-row">
+            listItemComponent
+            <UIUtils.RenderIf condition={!isHorizontal}>
+              <ToolTip
+                description={str}
+                toolTipFor={<div className="py-4 px-4">
+                  <Icon size=12 name="info-circle" />
+                </div>}
+              />
+            </UIUtils.RenderIf>
+          </div>
+        | None => listItemComponent
+        }
+      } else {
+        listItemComponent
+      }
+    })
+    ->React.array
+  }
+}
+
+let getHashMappedOptionValues = (options: array<dropdownOptionWithoutOptional>) => {
+  let hashMappedOptions = options->Array.reduce(Js.Dict.empty(), (
+    acc,
+    ele: dropdownOptionWithoutOptional,
+  ) => {
+    if acc->Dict.get(ele.optGroup)->Option.isNone {
+      acc->Js.Dict.set(ele.optGroup, [ele])
+    } else {
+      acc->Dict.get(ele.optGroup)->Option.getWithDefault([])->Array.push(ele)->ignore
+    }
+    acc
+  })
+
+  hashMappedOptions
+}
+
+let getSortedKeys = hashMappedOptions => {
+  hashMappedOptions
+  ->Dict.keysToArray
+  ->Js.Array2.sortInPlaceWith((a, b) => {
+    switch (a, b) {
+    | ("-", _) => 1
+    | (_, "-") => -1
+    | (_, _) => String.compare(a, b)->Belt.Float.toInt
+    }
+  })
+}
+
 module BaseRadio = {
   @react.component
   let make = (
@@ -1147,7 +1265,14 @@ module BaseRadio = {
     let options = React.useMemo1(() => {
       options->Js.Array2.map(makeNonOptional)
     }, [options])
-    // to set width of dropdown,
+
+    let hashMappedOptions = getHashMappedOptionValues(options)
+
+    let isNonGrouped =
+      hashMappedOptions->Dict.get("-")->Option.getWithDefault([])->Array.length ===
+        options->Array.length
+
+    let (optgroupKeys, setOptgroupKeys) = React.useState(_ => getSortedKeys(hashMappedOptions))
 
     let (searchString, setSearchString) = React.useState(() => "")
     React.useEffect1(() => {
@@ -1238,7 +1363,7 @@ module BaseRadio = {
       } else {
         options
       }
-      if searchString != "" {
+      if searchString->Js.String2.length != 0 {
         let options = options->Js.Array2.filter(option => {
           shouldDisplay(option)
         })
@@ -1246,11 +1371,19 @@ module BaseRadio = {
           addDynamicValue &&
           !(options->Js.Array2.map(item => item.value)->Js.Array2.includes(searchString))
         ) {
-          options->Js.Array2.concat([searchString]->makeOptions->Js.Array2.map(makeNonOptional))
+          if isNonGrouped {
+            options->Js.Array2.concat([searchString]->makeOptions->Js.Array2.map(makeNonOptional))
+          } else {
+            options
+          }
         } else {
+          let hashMappedSearchedOptions = getHashMappedOptionValues(options)
+          let optgroupKeysForSearch = getSortedKeys(hashMappedSearchedOptions)
+          setOptgroupKeys(_ => optgroupKeysForSearch)
           options
         }
       } else {
+        setOptgroupKeys(_ => getSortedKeys(hashMappedOptions))
         options
       }
     }, (searchString, options, selectedString))
@@ -1274,18 +1407,12 @@ module BaseRadio = {
           ? "animate-textTransition transition duration-400"
           : "animate-textTransitionOff transition duration-400"}`}>
       {switch searchable {
-      | Some(val) =>
-        if val {
-          searchInputUI
-        } else {
-          React.null
-        }
+      | Some(val) => <UIUtils.RenderIf condition={val}> searchInputUI </UIUtils.RenderIf>
       | None =>
-        if isDropDown && (options->Js.Array2.length > 5 || addDynamicValue) {
+        <UIUtils.RenderIf
+          condition={isDropDown && (options->Js.Array2.length > 5 || addDynamicValue)}>
           searchInputUI
-        } else {
-          React.null
-        }
+        </UIUtils.RenderIf>
       }}
       <div
         className={`${maxHeight} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle}`}>
@@ -1293,67 +1420,57 @@ module BaseRadio = {
           <div className="flex justify-center items-center m-4">
             {React.string("No matching records found")}
           </div>
+        } else if isNonGrouped {
+          <RenderListItemInBaseRadio
+            newOptions
+            value
+            descriptionOnHover
+            isDropDown
+            textIconPresent
+            searchString
+            optionSize
+            isSelectedStateMinus
+            onItemClick
+            fill
+            customStyle
+            isMobileView
+            listFlexDirection
+            customSelectStyle
+            textOverflowClass
+            showToolTipOptions
+            textEllipsisForDropDownOptions
+            isHorizontal
+          />
         } else {
           {
-            newOptions
-            ->Js.Array2.mapi((option, i) => {
-              let isSelected = switch value->Js.Json.decodeString {
-              | Some(str) => option.value === str
-              | None => false
-              }
-
-              let description = descriptionOnHover ? option.description : None
-              let leftVacennt = isDropDown && textIconPresent && option.icon === NoIcon
-              let listItemComponent =
-                <ListItem
-                  key={string_of_int(i)}
+            optgroupKeys
+            ->Array.mapWithIndex((ele, index) => {
+              <React.Fragment key={index->string_of_int}>
+                <h2 className="p-3 font-bold"> {ele->React.string} </h2>
+                <RenderListItemInBaseRadio
+                  newOptions={getHashMappedOptionValues(newOptions)
+                  ->Dict.get(ele)
+                  ->Option.getWithDefault([])}
+                  value
+                  descriptionOnHover
                   isDropDown
-                  isSelected
-                  fill
+                  textIconPresent
                   searchString
-                  onClick={onItemClick(option.value, option.isDisabled)}
-                  text=option.label
                   optionSize
                   isSelectedStateMinus
-                  labelValue=option.label
-                  multiSelect=false
-                  icon=option.icon
-                  leftVacennt
-                  isDisabled=option.isDisabled
-                  isMobileView
-                  description
-                  listFlexDirection
+                  onItemClick
+                  fill
                   customStyle
+                  isMobileView
+                  listFlexDirection
                   customSelectStyle
-                  ?textOverflowClass
-                  dataId=i
-                  iconStroke=option.iconStroke
+                  textOverflowClass
                   showToolTipOptions
                   textEllipsisForDropDownOptions
-                  textColorClass={option.textColor}
+                  isHorizontal
+                  customMarginStyleOfListItem="ml-8 mx-3 py-2 gap-2"
                 />
-
-              if !descriptionOnHover {
-                switch option.description {
-                | Some(str) =>
-                  <div className="flex flex-row ">
-                    listItemComponent
-                    {if isHorizontal {
-                      React.null
-                    } else {
-                      <ToolTip
-                        description={str}
-                        toolTipFor={<div className="py-4 px-4">
-                          <Icon size=12 name="info-circle" />
-                        </div>}
-                      />
-                    }}
-                  </div>
-                | None => listItemComponent
-                }
-              } else {
-                listItemComponent
-              }
+              </React.Fragment>
             })
             ->React.array
           }
@@ -2471,6 +2588,8 @@ let make = (
       ?maxHeight
       ?searchInputPlaceHolder
       showSearchIcon
+      descriptionOnHover
+      showToolTipOptions
     />
   }
 }
