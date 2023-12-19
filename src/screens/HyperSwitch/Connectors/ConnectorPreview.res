@@ -246,9 +246,7 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let connectorInfo =
     connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorTableUtils.getProcessorPayloadType
-  let setSetupAccountStatus = Recoil.useSetRecoilState(
-    SimpleConnectorFlowUtils.paypalAccountStatusAtom,
-  )
+  let setSetupAccountStatus = Recoil.useSetRecoilState(PayPalFlowUtils.paypalAccountStatusAtom)
 
   let isFeedbackModalToBeOpen =
     featureFlagDetails.feedback &&
@@ -282,7 +280,7 @@ let make = (
     setCurrentStep(_ => ConnectorTypes.PaymentMethods)
   }
   let getStatus = async () => {
-    open SimpleConnectorFlowUtils
+    open PayPalFlowUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
 

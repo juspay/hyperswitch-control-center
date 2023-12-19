@@ -59,11 +59,8 @@ module ManualSetupScreen = {
     ~configuartionType,
     ~connectorLabelDetailField,
   ) => {
-    let setupAccountStatus = Recoil.useRecoilValueFromAtom(
-      SimpleConnectorFlowUtils.paypalAccountStatusAtom,
-    )
-    let bodyType =
-      isUpdateFlow->SimpleConnectorFlowUtils.getBodyType(configuartionType, setupAccountStatus)
+    let setupAccountStatus = Recoil.useRecoilValueFromAtom(PayPalFlowUtils.paypalAccountStatusAtom)
+    let bodyType = isUpdateFlow->PayPalFlowUtils.getBodyType(configuartionType, setupAccountStatus)
 
     <div className="flex flex-col gap-8">
       <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
@@ -286,7 +283,7 @@ let make = (
   let (actionUrl, setActionUrl) = React.useState(_ => "")
 
   let (setupAccountStatus, setSetupAccountStatus) = Recoil.useRecoilState(
-    SimpleConnectorFlowUtils.paypalAccountStatusAtom,
+    PayPalFlowUtils.paypalAccountStatusAtom,
   )
   let (suggestedAction, suggestedActionExists) = ConnectorUtils.getSuggestedAction(
     ~verifyErrorMessage,
@@ -295,7 +292,7 @@ let make = (
 
   let onSubmitMain = async values => {
     open ConnectorUtils
-    open SimpleConnectorFlowUtils
+    open PayPalFlowUtils
     try {
       setScreenState(_ => Loading)
       let profileIdValue =
@@ -361,7 +358,7 @@ let make = (
   }
 
   let getStatus = async () => {
-    open SimpleConnectorFlowUtils
+    open PayPalFlowUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let profileId =
