@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.11.0 (2023-12-18)
+
+### Features
+
+- Enable apple pay cybersource ([#109](https://github.com/juspay/hyperswitch-control-center/pull/109)) ([`c800865`](https://github.com/juspay/hyperswitch-control-center/commit/c8008650f7b4b426523f6ac30a83afac922cbe1a))
+
+### Refactors
+
+- Dead Code Removal ([#107](https://github.com/juspay/hyperswitch-control-center/pull/107)) ([`5859497`](https://github.com/juspay/hyperswitch-control-center/commit/585949773178633ad022abb443b69c50e884ef86))
+
+**Full Changelog:** [`v1.10.0...v1.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.10.0...v1.11.0)
+
+- - -
+
+
 ## 1.10.0 (2023-12-15)
 
 ### Features
