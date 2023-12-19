@@ -130,11 +130,6 @@ module ApiDetailsComponent = {
         let (key, _) = entry
         filteredKeys->Js.Array2.includes(key)->not
       })
-      // ->Js.Array2.sortInPlaceWith((e1, e2) => {
-      //   let (key1, _) = e1
-      //   let (key2, _) = e2
-      //   key1 > key2 ? 1 : key1 === key2 ? 0 : -1
-      // })
       ->Js.Dict.fromArray
       ->Js.Json.object_
       ->Js.Json.stringify
@@ -149,8 +144,18 @@ module ApiDetailsComponent = {
     }
 
     let statusCode = switch logType {
-    | Payment => paymentDetailsValue->getString("status_code", "200")
+    | Payment => paymentDetailsValue->getInt("status_code", 200)->Belt.Int.toString
     | Sdk => paymentDetailsValue->getString("log_type", "INFO")
+    }
+
+    let method = switch logType {
+    | Payment => paymentDetailsValue->getString("http_method", "")
+    | Sdk => ""
+    }
+
+    let apiPath = switch logType {
+    | Payment => paymentDetailsValue->getString("url_path", "")
+    | Sdk => ""
     }
 
     let background_color = switch (logType, statusCode) {
@@ -190,7 +195,16 @@ module ApiDetailsComponent = {
         <div className="flex flex-col gap-1">
           <div className=" flex gap-2">
             <p className={`text-${background_color} font-bold `}> {statusCode->React.string} </p>
-            <p className=headerStyle> {apiName->React.string} </p>
+            {switch logType {
+            | Sdk => <p className=headerStyle> {apiName->React.string} </p>
+            | Payment =>
+              <p className=headerStyle>
+                <span className="font-bold mr-2">
+                  {method->Js.String2.toUpperCase->React.string}
+                </span>
+                <span> {apiPath->React.string} </span>
+              </p>
+            }}
           </div>
           <div className={`${headerStyle} opacity-50`}>
             {createdTime->Js.Date.fromString->Js.Date.toUTCString->React.string}
