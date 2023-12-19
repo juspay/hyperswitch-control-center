@@ -283,7 +283,7 @@ let metaInput = (id, keyType) =>
 
 module FieldInp = {
   @react.component
-  let make = (~prefix, ~onChangeMethod) => {
+  let make = (~methodKeys, ~prefix, ~onChangeMethod) => {
     let field = ReactFinalForm.useField(`${prefix}.lhs`).input
     let op = ReactFinalForm.useField(`${prefix}.comparison`).input
     let val = ReactFinalForm.useField(`${prefix}.value.value`).input
@@ -311,13 +311,16 @@ module FieldInp = {
                 ->Option.getWithDefault(""->Js.Json.string)
                 ->getStringFromJson("")
 
-              let generatedSelectBoxOptionType: SelectBox.dropdownOption = {
-                label: extractValueFromDict("kind"),
-                value: extractValueFromDict("kind"),
-                description: extractValueFromDict("description"),
-                optGroup: ele,
+              let kindValue = extractValueFromDict("kind")
+              if methodKeys->Js.Array2.includes(kindValue) {
+                let generatedSelectBoxOptionType: SelectBox.dropdownOption = {
+                  label: kindValue,
+                  value: kindValue,
+                  description: extractValueFromDict("description"),
+                  optGroup: ele,
+                }
+                acc->Js.Array2.push(generatedSelectBoxOptionType)->ignore
               }
-              acc->Js.Array2.push(generatedSelectBoxOptionType)->ignore
             },
           )
           acc
@@ -391,7 +394,7 @@ module RuleFieldBase = {
           </UIUtils.RenderIf>
           <div className="-mt-5 p-1">
             <FieldWrapper label="">
-              <FieldInp prefix=id onChangeMethod />
+              <FieldInp methodKeys prefix=id onChangeMethod />
             </FieldWrapper>
           </div>
           <div className="-mt-5">
