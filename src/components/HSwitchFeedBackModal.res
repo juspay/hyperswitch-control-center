@@ -7,44 +7,38 @@ let make = (
   ~modalType: HSwitchFeedBackModalUtils.modalType=FeedBackModal,
 ) => {
   open HSwitchFeedBackModalUtils
+  open APIUtils
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
-  let fetchApi = APIUtils.useUpdateMethod()
   let showToast = ToastState.useShowToast()
+  let updateDetails = useUpdateMethod()
 
-  let onSubmit = (values, _) => {
-    let body = values->HSwitchUtils.getBodyForFeedBack(~modalType, ())
-
+  let onSubmit = async (values, _) => {
     let mixPanelAction = switch modalType {
     | FeedBackModal => "givefeedback"
     | RequestConnectorModal => "request_connector"
     }
-
     ["global", url.path->LogicUtils.getListHead]->Js.Array2.forEach(ele =>
       hyperswitchMixPanel(~pageName=ele, ~contextName=feedbackVia, ~actionName=mixPanelAction, ())
     )
 
-    open Promise
-
-    fetchApi(
-      APIUtils.getURL(~entityName=FEEDBACK, ~methodType=Post, ()),
-      body->Js.Json.object_,
-      Fetch.Post,
-    )
-    ->thenResolve(_ => {
+    try {
+      let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
+      let body =
+        [
+          ("Feedback", values->HSwitchUtils.getBodyForFeedBack(~modalType, ())->Js.Json.object_),
+        ]->LogicUtils.getJsonFromArrayOfJson
+      let _res = await updateDetails(url, body, Post)
       let successMessage = switch modalType {
       | FeedBackModal => "Thanks for feedback"
       | RequestConnectorModal => "Request submitted succesfully"
       }
       showToast(~toastType=ToastSuccess, ~message=successMessage, ~autoClose=false, ())
-    })
-    ->catch(_ => {
-      resolve()
-    })
-    ->ignore
-
+    } catch {
+    | _ => ()
+    }
     setShowModal(_ => false)
-    Js.Nullable.null->resolve
+    Js.Nullable.null
   }
 
   let showLabel = switch modalType {
