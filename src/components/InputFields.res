@@ -218,6 +218,7 @@ let selectInput = (
   ~ellipsisOnly=false,
   ~showBtnTextToolTip=false,
   ~dropdownClassName="",
+  ~descriptionOnHover=false,
   (),
 ) => {
   let accessHook = useGetAccessLevel()
@@ -252,6 +253,7 @@ let selectInput = (
     ellipsisOnly
     showBtnTextToolTip
     dropdownClassName
+    descriptionOnHover
   />
 }
 
