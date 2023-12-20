@@ -398,7 +398,9 @@ let make = (
     if isRedirectedFromPaypalModal {
       getStatus()->ignore
     }
-    RescriptReactRouter.replace("/connectors/new?name=paypal")
+    if !isUpdateFlow {
+      RescriptReactRouter.replace("/connectors/new?name=paypal")
+    }
     setSetupAccountStatus(._ => Account_not_found)
     None
   })
