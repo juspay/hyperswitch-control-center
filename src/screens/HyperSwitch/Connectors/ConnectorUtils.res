@@ -1029,6 +1029,7 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: Js.Json.
   let dict = Js.Dict.fromArray([
     ("connector_account_details", connectorAccountDetails),
     ("connector_label", dict->getString("connector_label", "")->Js.Json.string),
+    ("status", dict->getString("status", "active")->Js.Json.string),
   ])
   values
   ->getDictFromJsonObject
@@ -1133,5 +1134,23 @@ let getConnectorPaymentMethodDetails = async (
       let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
+  }
+}
+
+let mixpanelEventWrapper = (
+  ~url: RescriptReactRouter.url,
+  ~selectedConnector,
+  ~actionName,
+  ~hyperswitchMixPanel: HSMixPanel.functionType,
+) => {
+  if selectedConnector->Js.String2.length > 0 {
+    [selectedConnector, "global"]->Js.Array2.forEach(ele =>
+      hyperswitchMixPanel(
+        ~pageName=url.path->LogicUtils.getListHead,
+        ~contextName=ele,
+        ~actionName,
+        (),
+      )
+    )
   }
 }
