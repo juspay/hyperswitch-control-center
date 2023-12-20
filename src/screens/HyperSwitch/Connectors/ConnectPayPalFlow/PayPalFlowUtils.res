@@ -152,7 +152,7 @@ let generateConnectorPayloadPayPal = (
   let initialValues =
     [
       ("profile_id", profileId->Js.Json.string),
-      ("connector_name", connector->Js.String2.toLowerCase->Js.Json.string),
+      ("connector_name", connector->Js.Json.string),
       ("connector_type", "payment_processor"->Js.Json.string),
       ("disabled", true->Js.Json.boolean),
       ("test_mode", true->Js.Json.boolean),

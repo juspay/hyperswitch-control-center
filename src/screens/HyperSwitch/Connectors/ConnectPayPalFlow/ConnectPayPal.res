@@ -27,9 +27,21 @@ let preRequisiteList = [
 
 module PayPalCreateNewAccountModal = {
   @react.component
-  let make = (~butttonDisplayText, ~actionUrl) => {
+  let make = (~butttonDisplayText, ~actionUrl, ~setScreenState) => {
+    let initializePayPalWindow = () => {
+      try {
+        Window.payPalCreateAccountWindow()
+      } catch {
+      | Js.Exn.Error(e) =>
+        switch Js.Exn.message(e) {
+        | Some(message) => setScreenState(_ => PageLoaderWrapper.Error(message))
+        | None => setScreenState(_ => PageLoaderWrapper.Error("Failed to load paypal window!"))
+        }
+      }
+    }
+
     React.useEffect0(() => {
-      Window.payPalCreateAccountWindow()
+      initializePayPalWindow()
       None
     })
 
@@ -173,7 +185,9 @@ module RedirectionToPayPalFlow = {
           ->React.array}
         </div>
         <div className="flex gap-4 items-center">
-          <PayPalCreateNewAccountModal actionUrl butttonDisplayText="Sign in / Sign up on PayPal" />
+          <PayPalCreateNewAccountModal
+            actionUrl butttonDisplayText="Sign in / Sign up on PayPal" setScreenState
+          />
           <p
             className={`${p1RegularTextClass} !text-blue-700 !opacity-80 cursor-pointer`}
             onClick={_ => getStatus()->ignore}>
@@ -187,7 +201,7 @@ module RedirectionToPayPalFlow = {
 
 module ErrorPage = {
   @react.component
-  let make = (~setupAccountStatus, ~actionUrl, ~getStatus) => {
+  let make = (~setupAccountStatus, ~actionUrl, ~getStatus, ~setScreenState) => {
     let errorPageDetails = setupAccountStatus->PayPalFlowUtils.getPageDetailsForAutomatic
 
     <div className="flex flex-col gap-6">
@@ -207,6 +221,7 @@ module ErrorPage = {
           <PayPalCreateNewAccountModal
             butttonDisplayText={errorPageDetails.buttonText->Belt.Option.getWithDefault("")}
             actionUrl
+            setScreenState
           />
         </UIUtils.RenderIf>
         <UIUtils.RenderIf condition={errorPageDetails.additionalInformation->Belt.Option.isSome}>
@@ -318,7 +333,7 @@ let make = (
       let connectorId =
         res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("merchant_connector_id", "")
       if !isUpdateFlow {
-        RescriptReactRouter.push(`/connectors/new?name=payPal&connectorId=${connectorId}`)
+        RescriptReactRouter.push(`/connectors/new?name=paypal&connectorId=${connectorId}`)
       }
       setConnectorId(_ => connectorId)
       setScreenState(_ => Success)
@@ -383,6 +398,7 @@ let make = (
     if isRedirectedFromPaypalModal {
       getStatus()->ignore
     }
+    RescriptReactRouter.replace("/connectors/new?name=paypal")
     setSetupAccountStatus(._ => Account_not_found)
     None
   })
@@ -468,7 +484,7 @@ let make = (
               | Ppcp_custom_denied
               | More_permissions_needed
               | Email_not_verified =>
-                <ErrorPage setupAccountStatus actionUrl getStatus />
+                <ErrorPage setupAccountStatus actionUrl getStatus setScreenState />
               | _ => React.null
               }}
             </div>
