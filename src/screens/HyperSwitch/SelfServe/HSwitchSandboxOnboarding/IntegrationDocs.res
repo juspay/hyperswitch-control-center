@@ -3,29 +3,29 @@ module RequestPage = {
   let make = (~requestedPlatform, ~currentRoute) => {
     open UserOnboardingTypes
     open UserOnboardingUtils
+    open APIUtils
+
     let requestedValue =
       requestedPlatform->Belt.Option.getWithDefault("")->LogicUtils.capitalizeString
     let (isSubmitButtonEnabled, setIsSubmitButtonEnabled) = React.useState(_ => true)
-    let fetchApi = APIUtils.useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let handleSubmitRequest = () => {
-      open Promise
-      let requestBody =
-        [
-          ("rating", 5.0->Js.Json.number),
-          ("category", "Platform Request"->Js.Json.string),
-          ("feedbacks", `Request for ${requestedValue}`->Js.Json.string),
-        ]
-        ->Js.Dict.fromArray
-        ->Js.Json.object_
+    let updateDetails = useUpdateMethod()
 
-      let body = requestBody->HSwitchUtils.getBodyForFeedBack()
-      fetchApi(
-        APIUtils.getURL(~entityName=FEEDBACK, ~methodType=Post, ()),
-        body->Js.Json.object_,
-        Fetch.Post,
-      )
-      ->thenResolve(_ => {
+    let handleSubmitRequest = async () => {
+      try {
+        let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
+        let requestedBody =
+          [
+            ("rating", 5.0->Js.Json.number),
+            ("category", "Platform Request"->Js.Json.string),
+            ("feedbacks", `Request for ${requestedValue}`->Js.Json.string),
+          ]
+          ->LogicUtils.getJsonFromArrayOfJson
+          ->HSwitchUtils.getBodyForFeedBack()
+          ->Js.Json.object_
+
+        let body = [("Feedback", requestedBody)]->LogicUtils.getJsonFromArrayOfJson
+        let _res = await updateDetails(url, body, Post)
         showToast(
           ~toastType=ToastSuccess,
           ~message="Request submitted successfully!",
@@ -33,12 +33,11 @@ module RequestPage = {
           (),
         )
         setIsSubmitButtonEnabled(_ => false)
-      })
-      ->catch(_ => {
-        resolve()
-      })
-      ->ignore
+      } catch {
+      | _ => ()
+      }
     }
+
     React.useEffect1(() => {
       setIsSubmitButtonEnabled(_ => true)
       None
@@ -53,9 +52,9 @@ module RequestPage = {
           Window._open("https://hyperswitch.io/docs/migrateFromStripe/migrateFromStripeAndroid")
         | #ReactNative =>
           Window._open("https://hyperswitch.io/docs/migrateFromStripe/migrateFromStripeRN")
-        | _ => handleSubmitRequest()
+        | _ => handleSubmitRequest()->ignore
         }
-      | _ => handleSubmitRequest()
+      | _ => handleSubmitRequest()->ignore
       }
     }
     let buttonText = () => {

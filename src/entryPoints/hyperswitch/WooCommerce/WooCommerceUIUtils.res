@@ -49,6 +49,7 @@ module SelectPaymentMethods = {
     ~setButtonState: (Button.buttonState => Button.buttonState) => unit,
     ~buttonState,
   ) => {
+    open QuickStartUtils
     let updateEnumInRecoil = EnumVariantHook.useUpdateEnumInRecoil()
     let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
     let updateAPIHook = APIUtils.useUpdateMethod()
@@ -83,9 +84,15 @@ module SelectPaymentMethods = {
           enumRecoilUpdateArr->Array.push((body, #FirstProcessorConnected))
         }
 
-        if !enums.isMultipleConfiguration {
-          let _ = await Boolean(true)->postEnumDetails(#IsMultipleConfiguration)
-          enumRecoilUpdateArr->Array.push((Boolean(true), #IsMultipleConfiguration))
+        if enums.configurationType->Js.String2.length === 0 {
+          let _ =
+            await StringEnumType(
+              #MultipleProcessorWithSmartRouting->connectorChoiceVariantToString,
+            )->postEnumDetails(#ConfigurationType)
+          enumRecoilUpdateArr->Array.push((
+            StringEnumType(#MultipleProcessorWithSmartRouting->connectorChoiceVariantToString),
+            #ConfigurationType,
+          ))
         }
 
         let _ = updateEnumInRecoil(enumRecoilUpdateArr)
