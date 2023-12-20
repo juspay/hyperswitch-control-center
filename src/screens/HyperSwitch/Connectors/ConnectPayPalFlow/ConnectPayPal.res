@@ -474,7 +474,7 @@ let make = (
             </div>
             <FormValuesSpy />
           </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
-          <ConnectorAccountDetailsHelper.VerifyConnectoModal
+          <ConnectorAccountDetailsHelper.VerifyConnectorModal
             showVerifyModal
             setShowVerifyModal
             connector

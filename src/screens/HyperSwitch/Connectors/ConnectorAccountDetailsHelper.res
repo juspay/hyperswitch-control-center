@@ -1,5 +1,12 @@
 let metaDataInputKeysToIgnore = ["google_pay", "apple_pay", "zen_apple_pay"]
 
+let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorName> = [
+  ADYEN,
+  CHECKOUT,
+  STRIPE,
+  PAYPAL,
+]
+
 let getCurrencyOption: CurrencyUtils.currencyCode => SelectBox.dropdownOption = currencyType => {
   open CurrencyUtils
   {
@@ -330,7 +337,7 @@ module BusinessProfileRender = {
   }
 }
 
-module VerifyConnectoModal = {
+module VerifyConnectorModal = {
   @react.component
   let make = (
     ~showVerifyModal,
@@ -407,13 +414,6 @@ module VerifyConnectoModal = {
     </Modal>
   }
 }
-
-let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorName> = [
-  ADYEN,
-  CHECKOUT,
-  STRIPE,
-  PAYPAL,
-]
 
 // Wraps the component with Connector Icon + ConnectorName + InetgrationSteps
 module ConnectorHeaderWrapper = {

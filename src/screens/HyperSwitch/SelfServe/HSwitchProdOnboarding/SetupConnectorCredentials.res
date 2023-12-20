@@ -80,7 +80,7 @@ module ConnectorDetailsForm = {
           />
         </>
       }}
-      <ConnectorAccountDetailsHelper.VerifyConnectoModal
+      <ConnectorAccountDetailsHelper.VerifyConnectorModal
         showVerifyModal
         setShowVerifyModal
         connector={connectorName}
@@ -445,7 +445,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
           {getComponentToRender()}
         </div>
       </div>
-      <ConnectorAccountDetailsHelper.VerifyConnectoModal
+      <ConnectorAccountDetailsHelper.VerifyConnectorModal
         showVerifyModal
         setShowVerifyModal
         connector={connectorName}

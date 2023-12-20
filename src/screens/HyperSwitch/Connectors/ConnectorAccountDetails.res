@@ -320,7 +320,7 @@ let make = (
           </div>
           <FormValuesSpy />
         </ConnectorHeaderWrapper>
-        <VerifyConnectoModal
+        <VerifyConnectorModal
           showVerifyModal
           setShowVerifyModal
           connector
