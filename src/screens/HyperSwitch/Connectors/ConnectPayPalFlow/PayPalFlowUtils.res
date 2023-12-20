@@ -63,14 +63,12 @@ let paypalAPICall = async (~updateDetails, ~connectorId, ~profileId) => {
         ("connector", "paypal"->Js.Json.string),
         ("connector_id", connectorId->Js.Json.string),
         ("profile_id", profileId->Js.Json.string),
-      ]
-      ->Js.Dict.fromArray
-      ->Js.Json.object_
+      ]->LogicUtils.getJsonFromArrayOfJson
+
     let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/sync`
     let response = await updateDetails(url, paypalBody, Fetch.Post)
-    let responseValue =
-      response->LogicUtils.getDictFromJsonObject->LogicUtils.getJsonObjectFromDict("paypal")
-    responseValue
+
+    response->LogicUtils.getDictFromJsonObject->LogicUtils.getJsonObjectFromDict("paypal")
   } catch {
   | _ => Js.Json.null
   }
@@ -128,7 +126,7 @@ let handleObjectResponse = (
 
 let getBodyType = (isUpdateFlow, configuartionType, setupAccountStatus) => {
   open PayPalFlowTypes
-  let bodyType = switch (isUpdateFlow, setupAccountStatus) {
+  switch (isUpdateFlow, setupAccountStatus) {
   | (false, _) | (true, Account_not_found) => "TemporaryAuth"
   | (true, _) =>
     switch configuartionType {
@@ -136,7 +134,6 @@ let getBodyType = (isUpdateFlow, configuartionType, setupAccountStatus) => {
     | Automatic | NotSelected => "SignatureKey"
     }
   }
-  bodyType
 }
 
 let generateConnectorPayloadPayPal = (
@@ -158,17 +155,13 @@ let generateConnectorPayloadPayPal = (
       ("test_mode", true->Js.Json.boolean),
       ("status", "inactive"->Js.Json.string),
       ("connector_label", connectorLabel->Js.Json.string),
-    ]
-    ->Js.Dict.fromArray
-    ->Js.Json.object_
+    ]->LogicUtils.getJsonFromArrayOfJson
 
-  let body =
-    generateInitialValuesDict(
-      ~values={initialValues},
-      ~connector,
-      ~bodyType=getBodyType(isUpdateFlow, configuartionType, setupAccountStatus),
-      ~isPayoutFlow=false,
-      (),
-    )->ignoreFields(connectorId, connectorIgnoredField)
-  body
+  generateInitialValuesDict(
+    ~values={initialValues},
+    ~connector,
+    ~bodyType=getBodyType(isUpdateFlow, configuartionType, setupAccountStatus),
+    ~isPayoutFlow=false,
+    (),
+  )->ignoreFields(connectorId, connectorIgnoredField)
 }
