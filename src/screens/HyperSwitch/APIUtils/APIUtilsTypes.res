@@ -51,8 +51,8 @@ type userType = [
   | #MERCHANT_DATA
   | #USER_DATA
   | #INVITE
-  | #RESEND_INVITE
-  | #CREATE_MERCHANT
+  | // | #RESEND_INVITE
+  #CREATE_MERCHANT
   | #OSSSIGNIN
   | #OSSSIGNUP
   | #NONE

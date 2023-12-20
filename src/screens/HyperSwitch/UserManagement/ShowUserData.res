@@ -6,22 +6,22 @@ external typeConversion: array<Js.Nullable.t<UserRoleEntity.userTableTypes>> => 
 
 module UserHeading = {
   @react.component
-  let make = (~infoValue: UserRoleEntity.userTableTypes, ~userId) => {
-    open APIUtils
-    let showToast = ToastState.useShowToast()
-    let updateDetails = useUpdateMethod()
+  let make = (~infoValue: UserRoleEntity.userTableTypes, ~userId as _) => {
+    // open APIUtils
+    // let showToast = ToastState.useShowToast()
+    // let updateDetails = useUpdateMethod()
     let status = infoValue.status->UserRoleEntity.statusToVariantMapper
 
-    let resendInvite = async () => {
-      try {
-        let url = getURL(~entityName=USERS, ~userType=#RESEND_INVITE, ~methodType=Post, ())
-        let body = [("user_id", userId->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
-        let _ = await updateDetails(url, body, Post)
-        showToast(~message=`Invite resend. Please check your email.`, ~toastType=ToastSuccess, ())
-      } catch {
-      | _ => ()
-      }
-    }
+    // let resendInvite = async () => {
+    //   try {
+    //     let url = getURL(~entityName=USERS, ~userType=#RESEND_INVITE, ~methodType=Post, ())
+    //     let body = [("user_id", userId->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
+    //     let _ = await updateDetails(url, body, Post)
+    //     showToast(~message=`Invite resend. Please check your email.`, ~toastType=ToastSuccess, ())
+    //   } catch {
+    //   | _ => ()
+    //   }
+    // }
 
     <div className="flex justify-between flex-wrap">
       <PageUtils.PageHeading
@@ -38,14 +38,14 @@ module UserHeading = {
           | _ => infoValue.status->Js.String2.toUpperCase->React.string
           }}
         </div>
-        <UIUtils.RenderIf condition={status !== Active}>
-          <Button
-            text="Resend Invite"
-            buttonType={SecondaryFilled}
-            customButtonStyle="!px-2"
-            onClick={_ => resendInvite()->ignore}
-          />
-        </UIUtils.RenderIf>
+        // <UIUtils.RenderIf condition={status !== Active}>
+        //   <Button
+        //     text="Resend Invite"
+        //     buttonType={SecondaryFilled}
+        //     customButtonStyle="!px-2"
+        //     onClick={_ => resendInvite()->ignore}
+        //   />
+        // </UIUtils.RenderIf>
       </div>
     </div>
   }
