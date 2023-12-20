@@ -32,10 +32,23 @@ type connectorSelectionData =
 
 type value = {\"type": string, value: Js.Json.t}
 
+type surchargeDetailsSurchargePropertyValueType = {percentage?: float, amount?: float}
+
+type surchargeDetailsSurchargePropertyType = {
+  \"type": string,
+  value: surchargeDetailsSurchargePropertyValueType,
+}
+
+type surchargeDetailsType = {
+  surcharge: surchargeDetailsSurchargePropertyType,
+  tax_on_surcharge: surchargeDetailsSurchargePropertyValueType,
+}
+
 type connectorSelection = {
   \"type"?: string,
   data?: array<connectorSelectionData>,
   override_3ds?: string,
+  surcharge_details?: Js.nullable<surchargeDetailsType>,
 }
 
 type statement = {
