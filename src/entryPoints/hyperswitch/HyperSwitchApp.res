@@ -364,7 +364,8 @@ let make = () => {
                 setShowModal={setShowFeedbackModal}
               />
             </RenderIf>
-            <RenderIf condition={featureFlagDetails.productionAccess}>
+            <RenderIf
+              condition={featureFlagDetails.productionAccess || featureFlagDetails.quickStart}>
               <ProdIntentForm />
             </RenderIf>
           </div>
