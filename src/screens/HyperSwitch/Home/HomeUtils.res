@@ -423,11 +423,11 @@ let getValueMapped = (value, key) => {
   | #ConfigureWoocom
   | #SetupWoocomWebhook =>
     value->getBool(key, false)->Js.Json.boolean
+  | #ConfigurationType => value->getString(key, "")->Js.Json.string
   | #FirstProcessorConnected
   | #SecondProcessorConnected
   | #StripeConnected
   | #PaypalConnected
-  | #IsMultipleConfiguration
   | #IntegrationMethod =>
     value->getJsonObjectFromDict(key)
   | #TestPayment => value->getJsonObjectFromDict(key)

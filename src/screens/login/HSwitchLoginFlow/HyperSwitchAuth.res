@@ -16,7 +16,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (email, setEmail) = React.useState(_ => "")
   let (isLoading, setIsLoading) = React.useState(_ => false)
-  let {magicLink: isMagicLinkEnabled, forgetPassword, ossBuild: isOssBuild} =
+  let {magicLink: isMagicLinkEnabled, forgetPassword} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let handleAuthError = e => {
@@ -35,7 +35,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
 
   let getUserWithEmail = async body => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#SIGNIN, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#CONNECT_ACCOUNT, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post)
       let valuesDict = res->getDictFromJsonObject
       let magicLinkSent = valuesDict->LogicUtils.getBool("is_email_sent", false)
@@ -163,20 +163,12 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     | (false, SignUP) => {
         let password = getString(valuesDict, "password", "")
         let body = getEmailPasswordBody(email, password, country)
-        if isOssBuild {
-          getUserWithEmailPassword(body, email, #OSSSIGNUP)->ignore
-        } else {
-          getUserWithEmailPassword(body, email, #SIGNIN)->ignore
-        }
+        getUserWithEmailPassword(body, email, #SIGNUP)->ignore
       }
     | (_, LoginWithPassword) => {
         let password = getString(valuesDict, "password", "")
         let body = getEmailPasswordBody(email, password, country)
-        if isOssBuild {
-          getUserWithEmailPassword(body, email, #OSSSIGNIN)->ignore
-        } else {
-          getUserWithEmailPassword(body, email, #SIGNIN)->ignore
-        }
+        getUserWithEmailPassword(body, email, #SIGNIN)->ignore
       }
     | (_, ResetPassword) => {
         let queryDict = url.search->getDictFromUrlSearchParams

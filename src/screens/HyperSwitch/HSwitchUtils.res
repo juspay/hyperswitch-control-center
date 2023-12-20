@@ -180,13 +180,8 @@ let getBodyForFeedBack = (values, ~modalType=HSwitchFeedBackModalUtils.FeedBackM
   let email = getFromMerchantDetails("email")
   let valueDict = values->getDictFromJsonObject
   let rating = valueDict->getInt("rating", 1)
-  let timestamp =
-    Js.Date.now()
-    ->Js.Date.fromFloat
-    ->Js.Date.toISOString
-    ->TimeZoneHook.formattedISOString("YYYY-MM-DD hh:mm:ss")
 
-  let bodyFields = [("created_at", timestamp->Js.Json.string), ("email", email->Js.Json.string)]
+  let bodyFields = [("email", email->Js.Json.string)]
 
   switch modalType {
   | FeedBackModal =>
