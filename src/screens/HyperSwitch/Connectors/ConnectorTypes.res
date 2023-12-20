@@ -208,4 +208,5 @@ type connectorPayload = {
   metadata?: Js.Json.t,
   merchant_connector_id: string,
   frm_configs?: array<frm_config>,
+  status: string,
 }

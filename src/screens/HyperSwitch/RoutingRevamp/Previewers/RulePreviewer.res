@@ -70,6 +70,12 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false) => {
                     | JSONArray(arr) => arr->Js.Array2.joinWith(", ")
                     | JSONString(str) => str
                     | JSONNumber(num) => num->Belt.Float.toString
+                    | JSONObject(obj) => obj->LogicUtils.getString("value", "")
+                    | _ => ""
+                    }
+
+                    let metadataKeyValue = switch statement.value.value->Js.Json.classify {
+                    | JSONObject(obj) => obj->LogicUtils.getString("key", "")
                     | _ => ""
                     }
 
@@ -82,6 +88,9 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false) => {
                         />
                       </UIUtils.RenderIf>
                       <MakeRuleFieldComponent.TextView str=field />
+                      <UIUtils.RenderIf condition={typeString == "metadata_variant"}>
+                        <MakeRuleFieldComponent.TextView str=metadataKeyValue />
+                      </UIUtils.RenderIf>
                       <UIUtils.RenderIf condition={metadataKey->Belt.Option.isSome}>
                         <MakeRuleFieldComponent.TextView
                           str={metadataKey->Belt.Option.getWithDefault("")}

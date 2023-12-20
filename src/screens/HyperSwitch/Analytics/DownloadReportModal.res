@@ -80,8 +80,15 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
     },
   }->Identity.genericTypeToJson
 
+  let category = switch entityName {
+  | PAYMENT_REPORT => "Payment"
+  | REFUND_REPORT => "Refund"
+  | DISPUTE_REPORT => "Dispute"
+  | _ => ""
+  }
+
   <Modal
-    modalHeading="Generate Reports"
+    modalHeading={`Generate ${category} Reports`}
     showModal=reportModal
     modalHeadingDescriptionElement={<div
       className="text-md font-medium leading-7 opacity-50 mt-1 w-full">

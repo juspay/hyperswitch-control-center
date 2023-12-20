@@ -88,6 +88,7 @@ let make = () => {
       initialFixedFilters=initialFixedFilterFields
       weeklyTableMetricsCols
       distributionArray={[distribution]->Some}
+      generateReportType={PAYMENT_REPORT}
     />
   </PageLoaderWrapper>
 }

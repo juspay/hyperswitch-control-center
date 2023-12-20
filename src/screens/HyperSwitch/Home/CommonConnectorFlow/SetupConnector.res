@@ -134,7 +134,7 @@ module ConfigureProcessor = {
           loadingText="Processing..." text="Proceed" buttonSize={Small}
         />}>
         <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
-          <ConnectorAccountDetails.BusinessProfileRender
+          <ConnectorAccountDetailsHelper.BusinessProfileRender
             isUpdateFlow=false selectedConnector={connectorName}
           />
         </UIUtils.RenderIf>
