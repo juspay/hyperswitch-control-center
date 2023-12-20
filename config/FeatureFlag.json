@@ -1,7 +1,7 @@
 {
   "test_live_toggle": false,
   "is_live_mode": false,
-  "magic_link": true,
+  "magic_link": false,
   "production_access": false,
   "quick_start": false,
   "switch_merchant": false,
@@ -16,7 +16,7 @@
   "feedback": false,
   "verify_connector": false,
   "mixpanel": false,
-  "business_profile": true,
+  "business_profile": false,
   "generate_report": false,
   "forgot_password": false,
   "oss_build": true
