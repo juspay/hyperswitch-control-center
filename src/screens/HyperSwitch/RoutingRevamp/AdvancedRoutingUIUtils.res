@@ -283,10 +283,39 @@ let metaInput = (id, keyType) =>
 
 module FieldInp = {
   @react.component
-  let make = (~ops, ~prefix, ~onChangeMethod) => {
+  let make = (~methodKeys, ~prefix, ~onChangeMethod) => {
     let field = ReactFinalForm.useField(`${prefix}.lhs`).input
     let op = ReactFinalForm.useField(`${prefix}.comparison`).input
     let val = ReactFinalForm.useField(`${prefix}.value.value`).input
+
+    let convertedValue = React.useMemo0(() => {
+      let keyDescriptionMapper = Window.getDescriptionCategory()->MapTypes.changeType
+      keyDescriptionMapper->LogicUtils.convertMapObjectToDict
+    })
+
+    let options = React.useMemo0(() =>
+      convertedValue->Js.Dict.keys->Js.Array2.reduce((acc, ele) => {
+        open LogicUtils
+        convertedValue
+        ->getArrayFromDict(ele, [])
+        ->Js.Array2.forEach(
+          value => {
+            let dictValue = value->LogicUtils.getDictFromJsonObject
+            let kindValue = dictValue->getString("kind", "")
+            if methodKeys->Js.Array2.includes(kindValue) {
+              let generatedSelectBoxOptionType: SelectBox.dropdownOption = {
+                label: kindValue,
+                value: kindValue,
+                description: dictValue->getString("description", ""),
+                optGroup: ele,
+              }
+              acc->Js.Array2.push(generatedSelectBoxOptionType)->ignore
+            }
+          },
+        )
+        acc
+      }, [])
+    )
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
@@ -302,10 +331,6 @@ module FieldInp = {
       value: field.value,
       checked: true,
     }
-
-    let options = ops->Js.Array2.map((op): SelectBox.dropdownOption => {
-      {value: op, label: op}
-    })
 
     <SelectBox.BaseDropdown
       allowMultiSelect=false buttonText="Select Field" input options hideMultiSelectButtons=true
@@ -358,7 +383,7 @@ module RuleFieldBase = {
           </UIUtils.RenderIf>
           <div className="-mt-5 p-1">
             <FieldWrapper label="">
-              <FieldInp ops=methodKeys prefix=id onChangeMethod />
+              <FieldInp methodKeys prefix=id onChangeMethod />
             </FieldWrapper>
           </div>
           <div className="-mt-5">
