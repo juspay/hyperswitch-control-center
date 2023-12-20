@@ -525,7 +525,7 @@ let make = (
   let transformClass = "transform md:translate-x-0 transition"
 
   let handleLogout = _ => {
-    let _ = APIUtils.handleLogout(~fetchApi, ~setAuthStatus)
+    let _ = APIUtils.handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
   }
 
   <div className={`bg-sidebar-blue flex group border-r border-jp-gray-500 relative`}>
