@@ -178,7 +178,6 @@ module HorizontalChoiceTile = {
 }
 
 module LandingPageChoice = {
-  open QuickStartTypes
   @react.component
   let make = (
     ~choiceState,
@@ -193,11 +192,7 @@ module LandingPageChoice = {
     ~customLayoutCss="",
   ) => {
     React.useEffect0(() => {
-      let defaultValue =
-        listChoices
-        ->Belt.Array.get(0)
-        ->Belt.Option.getWithDefault(QuickStartUtils.defaultChoiceStateValue)
-      setChoiceState(_ => defaultValue.variantType)
+      setChoiceState(_ => #NotSelected)
       None
     })
 
