@@ -177,9 +177,10 @@ let getURL = (
     | #USER_DATA => `${userUrl}/data`
     | #MERCHANT_DATA => `${userUrl}/data`
     | #INVITE
-    | // | #RESEND_INVITE =>
-    //   `${userUrl}/user/${(userType :> string)->Js.String2.toLowerCase}`
-    #SWITCH_MERCHANT =>
+    | #RESEND_INVITE =>
+      `${userUrl}/user/${(userType :> string)->Js.String2.toLowerCase}`
+
+    | #SWITCH_MERCHANT =>
       switch methodType {
       | Get => `${userUrl}/switch/list`
       | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
