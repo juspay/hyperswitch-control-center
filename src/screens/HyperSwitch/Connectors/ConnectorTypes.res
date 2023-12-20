@@ -21,31 +21,6 @@ type integrationFields = {
   inputFieldDescription?: string,
 }
 
-type configurationTypes = Manual | Automatic | NotSelected
-
-type setupAccountStatus =
-  | Redirecting_to_paypal
-  | Manual_setup_flow
-  | Account_not_found
-  | Payments_not_receivable
-  | Ppcp_custom_denied
-  | More_permissions_needed
-  | Email_not_verified
-  | Connector_integrated
-
-type choiceDetailsType = {
-  displayText: string,
-  choiceDescription: string,
-  variantType: configurationTypes,
-}
-type errorPageInfoType = {
-  headerText: string,
-  subText: string,
-  buttonText?: string,
-  additionalInformation?: string,
-  refreshStatusText?: string,
-}
-
 type verifyResponse = Success | Failure | NoAttempt | Loading
 type authType = [#HeaderKey | #BodyKey | #SignatureKey | #MultiAuthKey | #CurrencyAuthKey | #Nokey]
 type connectorName =

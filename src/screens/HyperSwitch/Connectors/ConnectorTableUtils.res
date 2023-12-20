@@ -105,10 +105,7 @@ let getProcessorPayloadType = dict => {
   open LogicUtils
   {
     connector_type: dict->getString("connector_type", ""),
-    connector_name: dict
-    ->getString("connector_name", "")
-    ->ConnectorUtils.getConnectorNameTypeFromString
-    ->ConnectorUtils.getConnectorNameString,
+    connector_name: dict->getString("connector_name", ""),
     connector_label: dict->getString("connector_label", ""),
     connector_account_details: dict
     ->getObj("connector_account_details", Js.Dict.empty())

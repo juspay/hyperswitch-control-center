@@ -88,7 +88,7 @@ module LandingScreen = {
           {"Do you have a PayPal business account?"->React.string}
         </p>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
-          {ConnectorUtils.listChoices
+          {PayPalFlowUtils.listChoices
           ->Js.Array2.mapi((items, index) => {
             <div
               key={index->string_of_int}
@@ -187,8 +187,8 @@ module RedirectionToPayPalFlow = {
 
 module ErrorPage = {
   @react.component
-  let make = (~setupAccountStatus, ~retryTime, ~actionUrl, ~getStatus) => {
-    let errorPageDetails = setupAccountStatus->ConnectorUtils.getPageDetailsForAutomatic(retryTime)
+  let make = (~setupAccountStatus, ~actionUrl, ~getStatus) => {
+    let errorPageDetails = setupAccountStatus->PayPalFlowUtils.getPageDetailsForAutomatic
 
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-6 p-8 bg-jp-gray-light_gray_bg">
@@ -254,7 +254,6 @@ let make = (
   ~handleStateToNextPage,
   ~connectorLabelDetailField,
 ) => {
-  open ConnectorTypes
   open APIUtils
 
   let url = RescriptReactRouter.useUrl()
@@ -277,9 +276,7 @@ let make = (
     ->LogicUtils.getBoolFromString(false)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let (configuartionType, setConfigurationType) = React.useState(_ => ConnectorTypes.NotSelected)
-
-  let (retryTime, setRetryTime) = React.useState(_ => 0)
+  let (configuartionType, setConfigurationType) = React.useState(_ => PayPalFlowTypes.NotSelected)
   let (actionUrl, setActionUrl) = React.useState(_ => "")
 
   let (setupAccountStatus, setSetupAccountStatus) = Recoil.useRecoilState(
@@ -365,7 +362,7 @@ let make = (
         initialValues->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
       let responseValue = await paypalAPICall(~updateDetails, ~connectorId, ~profileId)
       switch responseValue->Js.Json.classify {
-      | JSONString(str) => setSetupAccountStatus(._ => str->ConnectorUtils.stringToVariantMapper)
+      | JSONString(str) => setSetupAccountStatus(._ => str->PayPalFlowUtils.stringToVariantMapper)
       | JSONObject(dict) =>
         handleObjectResponse(
           ~dict,
@@ -471,7 +468,7 @@ let make = (
               | Ppcp_custom_denied
               | More_permissions_needed
               | Email_not_verified =>
-                <ErrorPage setupAccountStatus retryTime actionUrl getStatus />
+                <ErrorPage setupAccountStatus actionUrl getStatus />
               | _ => React.null
               }}
             </div>

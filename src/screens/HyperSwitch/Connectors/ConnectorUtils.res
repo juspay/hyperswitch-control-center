@@ -318,7 +318,7 @@ let stripeTestInfo = {
 }
 
 let paypalTestInfo = {
-  description: "A payPal test processor to simulate payment flows and experience hyperswitch checkout.",
+  description: "A paypal test processor to simulate payment flows and experience hyperswitch checkout.",
 }
 
 let wiseInfo = {
@@ -374,7 +374,7 @@ let getConnectorNameString = connector => {
   | MOLLIE => "mollie"
   | TRUSTPAY => "trustpay"
   | ZEN => "zen"
-  | PAYPAL => "payPal"
+  | PAYPAL => "paypal"
   | COINBASE => "coinbase"
   | OPENNODE => "opennode"
   | NMI => "nmi"
@@ -393,7 +393,7 @@ let getConnectorNameString = connector => {
   | TSYS => "tsys"
   | NOON => "noon"
   | STRIPE_TEST => "stripe_test"
-  | PAYPAL_TEST => "payPal_test"
+  | PAYPAL_TEST => "paypal_test"
   | WISE => "wise"
   | STAX => "stax"
   | GOCARDLESS => "gocardless"
@@ -431,7 +431,7 @@ let getConnectorNameTypeFromString = connector => {
   | "mollie" => MOLLIE
   | "trustpay" => TRUSTPAY
   | "zen" => ZEN
-  | "payPal" | "paypal" => PAYPAL
+  | "paypal" => PAYPAL
   | "coinbase" => COINBASE
   | "opennode" => OPENNODE
   | "nmi" => NMI
@@ -443,7 +443,7 @@ let getConnectorNameTypeFromString = connector => {
   | "fauxpay" => FAUXPAY
   | "pretendpay" => PRETENDPAY
   | "stripe_test" => STRIPE_TEST
-  | "payPal_test" => PAYPAL_TEST
+  | "paypal_test" => PAYPAL_TEST
   | "cashtocode" => CASHTOCODE
   | "payme" => PAYME
   | "globepay" => GLOBEPAY
@@ -673,7 +673,7 @@ let generateInitialValuesDict = (
 
   dict->Js.Dict.set("connector_account_details", connectorAccountDetails->Js.Json.object_)
 
-  dict->Js.Dict.set("connector_name", connector->Js.String2.toLowerCase->Js.Json.string)
+  dict->Js.Dict.set("connector_name", connector->Js.Json.string)
   dict->Js.Dict.set(
     "connector_type",
     getConnectorType(connector->getConnectorNameTypeFromString, ~isPayoutFlow, ())->Js.Json.string,
@@ -1136,65 +1136,6 @@ let getConnectorPaymentMethodDetails = async (
     }
   }
 }
-
-let listChoices: array<choiceDetailsType> = [
-  {
-    displayText: "No, I don't",
-    choiceDescription: "Don't worry, easily create & activate your PayPal account in minutes.",
-    variantType: Automatic,
-  },
-  {
-    displayText: "Yes, I have",
-    choiceDescription: "Simply login to your PayPal account and leave the rest to us. Or enter credentials manually.",
-    variantType: Manual,
-  },
-]
-
-let getPageDetailsForAutomatic: (
-  ConnectorTypes.setupAccountStatus,
-  int,
-) => ConnectorTypes.errorPageInfoType = (setupAccountStatus, retryDays) => {
-  switch setupAccountStatus {
-  | Payments_not_receivable => {
-      headerText: "You currently cannot receive payments due to restriction on your PayPal account",
-      subText: "An email has been sent to you explaining the issue. Please reach out to PayPal Customer Support for more information.",
-      refreshStatusText: "Issue Resolved?",
-    }
-  | Ppcp_custom_denied => {
-      headerText: "Your application has been denied by PayPal",
-      subText: "PayPal denied your application to use Advanced Credit and Debit Card Payments.",
-      additionalInformation: `You can retry in ${retryDays->string_of_int} days, on 14th November 2023 on paypal.com.`,
-      refreshStatusText: "Try again?",
-    }
-  | More_permissions_needed => {
-      headerText: "PayPal requires you to grant all permissions",
-      subText: "You need to grant all the permissions to create and receive payments. Please click on the Signup to PayPal button and grant the permissions.",
-      buttonText: "Complete Signing up",
-      refreshStatusText: "Already granted all permissions?",
-    }
-
-  | Email_not_verified => {
-      headerText: "Your email is yet to be confirmed!",
-      subText: "Please confirm your email address on https://www.paypal.com/businessprofile/settings in order to receive payments.",
-      refreshStatusText: "Email already confirmed?",
-    }
-  | _ => {
-      headerText: "",
-      subText: "",
-    }
-  }
-}
-
-let stringToVariantMapper = strValue =>
-  switch strValue {
-  | "account_not_found" => Account_not_found
-  | "payments_not_receivables" => Payments_not_receivable
-  | "ppcp_custom_denied" => Ppcp_custom_denied
-  | "more_permissions_needed" => More_permissions_needed
-  | "email_not_verified" => Email_not_verified
-  | "connector_integrated" => Connector_integrated
-  | _ => Account_not_found
-  }
 
 let mixpanelEventWrapper = (
   ~url: RescriptReactRouter.url,
