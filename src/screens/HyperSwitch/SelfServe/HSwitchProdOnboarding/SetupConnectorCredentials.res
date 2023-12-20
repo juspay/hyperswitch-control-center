@@ -38,7 +38,7 @@ module ConnectorDetailsForm = {
 
     <div className="flex flex-col gap-6">
       <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
-        <ConnectorAccountDetails.BusinessProfileRender
+        <ConnectorAccountDetailsHelper.BusinessProfileRender
           isUpdateFlow=false selectedConnector={connectorName}
         />
       </UIUtils.RenderIf>
@@ -51,7 +51,7 @@ module ConnectorDetailsForm = {
         bodyType
         connectorLabelDetailField
       />
-      <ConnectorAccountDetails.VerifyConnectoModal
+      <ConnectorAccountDetailsHelper.VerifyConnectorModal
         showVerifyModal
         setShowVerifyModal
         connector={connectorName}
@@ -412,7 +412,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
           {getComponentToRender()}
         </div>
       </div>
-      <ConnectorAccountDetails.VerifyConnectoModal
+      <ConnectorAccountDetailsHelper.VerifyConnectorModal
         showVerifyModal
         setShowVerifyModal
         connector={connectorName}

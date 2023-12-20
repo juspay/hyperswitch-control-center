@@ -234,7 +234,7 @@ let getURL = (
 let sessionExpired = ref(false)
 
 let handleLogout = async (
-  ~fetchApi: (
+  ~fetchApi as _: (
     Js.String2.t,
     ~bodyStr: string=?,
     ~headers: Js.Dict.t<Js.String2.t>=?,
@@ -248,10 +248,12 @@ let handleLogout = async (
     unit,
   ) => Promise.t<Fetch.Response.t>,
   ~setAuthStatus,
+  ~setIsSidebarExpanded,
 ) => {
-  let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
-  let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
+  // let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
+  // let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
   setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
+  setIsSidebarExpanded(_ => false)
   LocalStorage.clear()
   RescriptReactRouter.push("/register")
 }
@@ -376,6 +378,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+  let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
   let url = RescriptReactRouter.useUrl()
   let urlPath = url.path->Belt.List.toArray->Js.Array2.joinWith("_")
@@ -393,7 +396,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
           _ => {
             hyperswitchMixPanel(~eventName=Some(`${urlPath}_tryplayground_register`), ())
             hyperswitchMixPanel(~eventName=Some(`global_tryplayground_register`), ())
-            let _ = handleLogout(~fetchApi, ~setAuthStatus)
+            let _ = handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
           }
         },
       },
@@ -440,6 +443,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
   let url = RescriptReactRouter.useUrl()
   let urlPath = url.path->Belt.List.toArray->Js.Array2.joinWith("_")
+  let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
   let popUpCallBack = () =>
     showPopUp({
@@ -454,7 +458,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
           _ => {
             hyperswitchMixPanel(~eventName=Some(`${urlPath}_tryplayground_register`), ())
             hyperswitchMixPanel(~eventName=Some(`global_tryplayground_register`), ())
-            let _ = handleLogout(~fetchApi, ~setAuthStatus)
+            let _ = handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
           }
         },
       },
