@@ -287,45 +287,34 @@ module FieldInp = {
     let field = ReactFinalForm.useField(`${prefix}.lhs`).input
     let op = ReactFinalForm.useField(`${prefix}.comparison`).input
     let val = ReactFinalForm.useField(`${prefix}.value.value`).input
-    let descriptionCategory = Window.getDescriptionCategory()
 
-    let convertedValue = React.useMemo1(() => {
-      let keyDescriptionMapper = descriptionCategory->MapTypes.changeType
+    let convertedValue = React.useMemo0(() => {
+      let keyDescriptionMapper = Window.getDescriptionCategory()->MapTypes.changeType
       keyDescriptionMapper->LogicUtils.convertMapObjectToDict
-    }, [descriptionCategory])
+    })
 
-    let options = React.useMemo1(
-      () => convertedValue->Js.Dict.keys->Js.Array2.reduce((acc, ele) => {
-          open LogicUtils
-          convertedValue
-          ->Js.Dict.get(ele)
-          ->Belt.Option.getWithDefault([]->Js.Json.array)
-          ->Js.Json.decodeArray
-          ->Belt.Option.getWithDefault([])
-          ->Js.Array2.forEach(
-            value => {
-              let dictValue = value->LogicUtils.getDictFromJsonObject
-              let extractValueFromDict = key =>
-                dictValue
-                ->Js.Dict.get(key)
-                ->Option.getWithDefault(""->Js.Json.string)
-                ->getStringFromJson("")
-
-              let kindValue = extractValueFromDict("kind")
-              if methodKeys->Js.Array2.includes(kindValue) {
-                let generatedSelectBoxOptionType: SelectBox.dropdownOption = {
-                  label: kindValue,
-                  value: kindValue,
-                  description: extractValueFromDict("description"),
-                  optGroup: ele,
-                }
-                acc->Js.Array2.push(generatedSelectBoxOptionType)->ignore
+    let options = React.useMemo0(() =>
+      convertedValue->Js.Dict.keys->Js.Array2.reduce((acc, ele) => {
+        open LogicUtils
+        convertedValue
+        ->getArrayFromDict(ele, [])
+        ->Js.Array2.forEach(
+          value => {
+            let dictValue = value->LogicUtils.getDictFromJsonObject
+            let kindValue = dictValue->getString("kind", "")
+            if methodKeys->Js.Array2.includes(kindValue) {
+              let generatedSelectBoxOptionType: SelectBox.dropdownOption = {
+                label: kindValue,
+                value: kindValue,
+                description: dictValue->getString("description", ""),
+                optGroup: ele,
               }
-            },
-          )
-          acc
-        }, []),
-      [convertedValue],
+              acc->Js.Array2.push(generatedSelectBoxOptionType)->ignore
+            }
+          },
+        )
+        acc
+      }, [])
     )
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
