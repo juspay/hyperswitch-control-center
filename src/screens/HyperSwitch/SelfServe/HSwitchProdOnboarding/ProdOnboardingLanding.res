@@ -2,7 +2,6 @@ let unselectedNormalText = "text-base font-normal text-grey-700 opacity-50"
 let selectedNormalText = "text-base font-medium text-grey-700 "
 let dividerColor = "bg-grey-700 bg-opacity-20 h-px w-full"
 let unselectedSubHeading = "text-lg font-normal text-grey-700 "
-let selectedSubHeading = "text-lg font-normal text-blue-700 "
 
 module CheckListSection = {
   open ProdOnboardingUtils
