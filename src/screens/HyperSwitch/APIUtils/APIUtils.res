@@ -234,7 +234,7 @@ let getURL = (
 let sessionExpired = ref(false)
 
 let handleLogout = async (
-  ~fetchApi: (
+  ~fetchApi as _: (
     Js.String2.t,
     ~bodyStr: string=?,
     ~headers: Js.Dict.t<Js.String2.t>=?,
@@ -249,8 +249,8 @@ let handleLogout = async (
   ) => Promise.t<Fetch.Response.t>,
   ~setAuthStatus,
 ) => {
-  let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
-  let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
+  // let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
+  // let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
   setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
   LocalStorage.clear()
   RescriptReactRouter.push("/register")
