@@ -169,6 +169,7 @@ module CheckoutCard = {
     let showPopUp = PopUpState.useShowPopUp()
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+    let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
     let isConfigureConnector = ListHooks.useListCount(~entityName=CONNECTOR) > 0
     let urlPath = url.path->Belt.List.toArray->Js.Array2.joinWith("_")
@@ -187,7 +188,7 @@ module CheckoutCard = {
               _ => {
                 hyperswitchMixPanel(~eventName=Some(`${urlPath}_tryplayground_register`), ())
                 hyperswitchMixPanel(~eventName=Some(`global_tryplayground_register`), ())
-                let _ = APIUtils.handleLogout(~fetchApi, ~setAuthStatus)
+                let _ = APIUtils.handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
               }
             },
           },
