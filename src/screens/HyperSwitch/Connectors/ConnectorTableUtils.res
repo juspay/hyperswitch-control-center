@@ -1,7 +1,15 @@
 open ConnectorTypes
 
 type colType =
-  Name | TestMode | Status | Actions | ProfileId | ProfileName | ConnectorLabel | PaymentMethods
+  | Name
+  | TestMode
+  | Status
+  | Disabled
+  | Actions
+  | ProfileId
+  | ProfileName
+  | ConnectorLabel
+  | PaymentMethods
 
 let defaultColumns = [
   Name,
@@ -9,6 +17,7 @@ let defaultColumns = [
   ProfileName,
   ConnectorLabel,
   Status,
+  Disabled,
   TestMode,
   Actions,
   PaymentMethods,
@@ -119,6 +128,7 @@ let getProcessorPayloadType = dict => {
     profile_id: dict->getString("profile_id", ""),
     merchant_connector_id: dict->getString("merchant_connector_id", ""),
     frm_configs: dict->getArrayFromDict("frm_configs", [])->convertFRMConfigJsonToObj,
+    status: dict->getString("status", "inactive"),
   }
 }
 
@@ -151,7 +161,8 @@ let getHeading = colType => {
   switch colType {
   | Name => Table.makeHeaderInfo(~key="connector_name", ~title="Processor", ~showSort=false, ())
   | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode", ~showSort=false, ())
-  | Status => Table.makeHeaderInfo(~key="disabled", ~title="Status", ~showSort=false, ())
+  | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~showSort=false, ())
+  | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled", ~showSort=false, ())
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="", ~showSort=false, ())
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=false, ())
   | ProfileName =>
@@ -167,10 +178,11 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
   switch colType {
   | Name => Text(connector.connector_name->LogicUtils.getTitle)
   | TestMode => Text(connector.test_mode ? "True" : "False")
+  | Disabled => Text(connector.disabled ? "True" : "False")
   | Status =>
     Label({
-      title: (connector.disabled ? "Disabled" : "Enabled")->Js.String2.toUpperCase,
-      color: connector.disabled ? LabelRed : LabelGreen,
+      title: connector.status->Js.String2.toUpperCase,
+      color: connector.status === "inactive" ? LabelRed : LabelGreen,
     })
   | ProfileId => Text(connector.profile_id)
   | ProfileName =>
