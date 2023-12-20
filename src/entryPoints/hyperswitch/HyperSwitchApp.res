@@ -214,7 +214,7 @@ let make = () => {
                   className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
                   <div
                     className="w-full h-full p-6 md:px-16 md:pb-16 pt-[3rem] overflow-scroll md:overflow-y-scroll md:overflow-x-hidden flex flex-col gap-10 show-scrollbar">
-                    <div className="max-w-fixedPageWidth">
+                    <div className="h-full w-full max-w-fixedPageWidth">
                       <ErrorBoundary>
                         {switch url.path {
                         | list{"home"} =>
