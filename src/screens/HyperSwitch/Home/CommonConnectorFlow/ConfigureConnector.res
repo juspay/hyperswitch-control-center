@@ -21,11 +21,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
   let (selectedConnector, setSelectedConnector) = React.useState(_ => UnknownConnector(""))
   let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
   let (connectorConfigureState, setConnectorConfigureState) = React.useState(_ => Select_processor)
-  let (choiceState, setChoiceState) = React.useState(_ =>
-    typedEnumValue.isMultipleConfiguration
-      ? #MultipleProcessorWithSmartRouting
-      : #SinglePaymentProcessor
-  )
+  let (choiceState, setChoiceState) = React.useState(_ => #NotSelected)
   let (smartRoutingChoiceState, setSmartRoutingChoiceState) = React.useState(_ => #DefaultFallback)
   let (choiceStateForTestConnector, setChoiceStateForTestConnector) = React.useState(_ =>
     #TestApiKeys
@@ -115,12 +111,10 @@ let make = (~connectProcessorValue: connectProcessor) => {
     }
   }
 
-  let updateEnumForMultipleConfigurationType = async isMultipleConfigSelected => {
+  let updateEnumForMultipleConfigurationType = async connectorChoiceValue => {
     try {
-      let isMultipleConfigurationType = #IsMultipleConfiguration
-      let _ = await ConnectorChoice({
-        isMultipleConfiguration: isMultipleConfigSelected,
-      })->usePostEnumDetails(isMultipleConfigurationType)
+      let configurationType = #ConfigurationType
+      let _ = await StringEnumType(connectorChoiceValue)->usePostEnumDetails(configurationType)
     } catch {
     | Js.Exn.Error(e) => {
         let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to update!")
@@ -132,14 +126,18 @@ let make = (~connectProcessorValue: connectProcessor) => {
     try {
       setButtonState(_ => Loading)
       if choiceState === #MultipleProcessorWithSmartRouting {
-        let _ = await updateEnumForMultipleConfigurationType(true)
+        let _ = await updateEnumForMultipleConfigurationType(
+          #MultipleProcessorWithSmartRouting->connectorChoiceVariantToString,
+        )
         setQuickStartPageState(_ =>
           typedEnumValue.firstProcessorConnected.processorID->Js.String2.length > 0
             ? ConnectProcessor(CONFIGURE_SECONDARY)
             : ConnectProcessor(CONFIGURE_PRIMARY)
         )
       } else {
-        let _ = await updateEnumForMultipleConfigurationType(false)
+        let _ = await updateEnumForMultipleConfigurationType(
+          #SinglePaymentProcessor->connectorChoiceVariantToString,
+        )
         setQuickStartPageState(_ =>
           typedEnumValue.firstProcessorConnected.processorID->Js.String2.length > 0
             ? ConnectProcessor(CHECKOUT)

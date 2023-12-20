@@ -169,7 +169,7 @@ let getProdApiBody = (
 
 let getProdOnboardingUrl = (enum: ProdOnboardingTypes.sectionHeadingVariant) => {
   open APIUtils
-  `${getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Get, ())}/${(enum :> string)}`
+  `${getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Get, ())}?keys=${(enum :> string)}`
 }
 
 let getPreviewState = headerVariant => {

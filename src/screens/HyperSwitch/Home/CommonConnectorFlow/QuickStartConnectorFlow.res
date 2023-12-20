@@ -38,10 +38,14 @@ let make = (
   let handleSummaryProceed = () => {
     if (
       connectorArray->Js.Array2.length === multipleConfigurationArrayLength &&
-        typedEnumValue.isMultipleConfiguration
+        typedEnumValue.configurationType->connectorChoiceStringVariantMapper ===
+          #MultipleProcessorWithSmartRouting
     ) {
       setQuickStartPageState(_ => ConnectProcessor(CONFIGURE_SMART_ROUTING))
-    } else if !typedEnumValue.isMultipleConfiguration {
+    } else if (
+      typedEnumValue.configurationType->connectorChoiceStringVariantMapper ===
+        #SinglePaymentProcessor
+    ) {
       setQuickStartPageState(_ => QuickStartTypes.ConnectProcessor(QuickStartTypes.CHECKOUT))
     } else {
       setSelectedConnector(_ => UnknownConnector(""))

@@ -58,7 +58,7 @@ type sectionHeadingVariant = [
   | #DownloadWoocom
   | #ConfigureWoocom
   | #SetupWoocomWebhook
-  | #IsMultipleConfiguration
+  | #ConfigurationType
   | #GoLive
   | #DownloadTestAPIKeyStripe
   | #InstallDeps
@@ -76,7 +76,6 @@ type routingType = {routing_id: string}
 type paymentType = {payment_id: string}
 
 type integrationMethod = {integration_type: string}
-type connectorChoice = {isMultipleConfiguration: bool}
 
 type responseType = {
   productionAgreement: bool,
@@ -93,7 +92,6 @@ type responseType = {
   downloadWoocom: bool,
   configureWoocom: bool,
   setupWoocomWebhook: bool,
-  isMultipleConfiguration: bool,
   downloadTestAPIKeyStripe: string,
   installDeps: string,
   replaceAPIKeys: string,
@@ -103,6 +101,7 @@ type responseType = {
   createPayment: string,
   displayCheckout: string,
   displayPaymentConfirmation: string,
+  configurationType: string,
 }
 
 type requestObjectType =
@@ -110,8 +109,8 @@ type requestObjectType =
   | RoutingType(routingType)
   | PaymentType(paymentType)
   | IntegrationMethod(integrationMethod)
-  | ConnectorChoice(connectorChoice)
   | Boolean(bool)
   | String(string)
+  | StringEnumType(string)
 
 type valueType = String(string) | Boolean(bool)
