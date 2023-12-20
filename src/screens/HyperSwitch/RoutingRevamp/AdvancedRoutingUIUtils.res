@@ -176,7 +176,7 @@ module ValueInp = {
       }
     | EQUAL_TO =>
       switch keyType->variantTypeMapper {
-      | String_value => <TextInput input placeholder="Enter value" />
+      | String_value | Metadata_value => <TextInput input placeholder="Enter value" />
       | _ => <NumericTextInput placeholder={"Enter value"} input />
       }
 
