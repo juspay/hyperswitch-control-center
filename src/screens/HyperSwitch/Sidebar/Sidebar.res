@@ -524,25 +524,8 @@ let make = (
 
   let transformClass = "transform md:translate-x-0 transition"
 
-  let handleLogout = _ev => {
-    open Promise
-    fetchApi(
-      APIUtils.getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ()),
-      ~bodyStr=Js.Json.stringify(Js.Json.object_(Js.Dict.empty())),
-      ~method_=Fetch.Post,
-      (),
-    )
-    ->then(Fetch.Response.text)
-    ->then(_ => {
-      setIsSidebarExpanded(_ => false)
-      LocalStorage.clear()
-      setAuthStatus(LoggedOut)
-      resolve()
-    })
-    ->catch(_err => {
-      resolve()
-    })
-    ->ignore
+  let handleLogout = _ => {
+    let _ = APIUtils.handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
   }
 
   <div className={`bg-sidebar-blue flex group border-r border-jp-gray-500 relative`}>
