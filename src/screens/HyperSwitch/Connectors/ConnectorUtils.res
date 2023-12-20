@@ -1072,8 +1072,8 @@ let defaultSelectAllCards = (
     let config =
       (
         isPayoutFlow
-          ? Window.getPayoutConnectorConfig(connector->Js.String.toLowerCase)
-          : Window.getConnectorConfig(connector->Js.String.toLowerCase)
+          ? Window.getPayoutConnectorConfig(connector)
+          : Window.getConnectorConfig(connector)
       )->getDictFromJsonObject
     pmts->Js.Array2.forEach(val => {
       switch val.payment_method->getPaymentMethodFromString {
