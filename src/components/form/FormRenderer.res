@@ -655,7 +655,6 @@ module SubmitButton = {
     ~customPaddingClass=?,
     ~textStyle=?,
     ~textWeight=?,
-    ~isLoading=false,
     ~customHeightClass=?,
   ) => {
     let url = RescriptReactRouter.useUrl()
@@ -738,13 +737,8 @@ module SubmitButton = {
         ?textWeight
       />
 
-    let buttonState: Button.buttonState = isLoading
-      ? Loading
-      : loadingText !== "" && submitting
-      ? Loading
-      : !avoidDisable && disabled
-      ? Disabled
-      : Normal
+    let buttonState: Button.buttonState =
+      loadingText !== "" && submitting ? Loading : !avoidDisable && disabled ? Disabled : Normal
 
     let submitBtn =
       <>
