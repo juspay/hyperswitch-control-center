@@ -519,13 +519,24 @@ let getConnectorInfo = (connector: connectorName) => {
   }
 }
 
+let itemPorivderMapper = dict => {
+  open LogicUtils
+  {
+    payment_method_type: dict->getString("payment_method", ""),
+    accepted_currencies: Some(dict->getJsonObjectFromDict("accepted_currencies")),
+    accepted_countries: Some(dict->getJsonObjectFromDict("accepted_countries")),
+  }
+}
 let itemToObjMapper = dict => {
   open LogicUtils
   {
     payment_method: dict->getString("payment_method", ""),
     payment_method_type: dict->getString("payment_method_type", ""),
     provider: dict->getStrArrayFromDict("provider", []),
-    card_provider: dict->getStrArrayFromDict("card_provider", []),
+    // card_provider: dict->getArrayFromDict("card_provider", []),
+    card_provider: dict
+    ->getJsonObjectFromDict("card_provider")
+    ->getArrayDataFromJson(itemPorivderMapper),
   }
 }
 
@@ -615,12 +626,13 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
         val.card_provider->Belt.Option.getWithDefault([])->Array.push(method)
       }
     })
-  | _ =>
-    pmt->Js.Array2.forEach(val => {
-      if val.payment_method_type->toLCase === paymentMethod->toLCase {
-        val.provider->Belt.Option.getWithDefault([])->Array.push(method)
-      }
-    })
+  // | _ =>
+  //   pmt->Js.Array2.forEach(val => {
+  //     if val.payment_method_type->toLCase === paymentMethod->toLCase {
+  //       val.provider->Belt.Option.getWithDefault([])->Array.push(method)
+  //     }
+  //   })
+  | _ => ()
   }
   pmt
 }
@@ -639,18 +651,19 @@ let removeMethod = (paymentMethodsEnabled, paymentMethod, method) => {
         ->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
       }
     })
+  | _ => ()
 
-  | _ =>
-    pmt->Js.Array2.forEach(val => {
-      if val.payment_method_type->toLCase === paymentMethod->toLCase {
-        let indexOfRemovalItem =
-          val.provider->Belt.Option.getWithDefault([])->Js.Array2.indexOf(method)
+  // | _ =>
+  //   pmt->Js.Array2.forEach(val => {
+  //     if val.payment_method_type->toLCase === paymentMethod->toLCase {
+  //       let indexOfRemovalItem =
+  //         val.provider->Belt.Option.getWithDefault([])->Js.Array2.indexOf(method)
 
-        val.provider
-        ->Belt.Option.getWithDefault([])
-        ->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
-      }
-    })
+  //       val.provider
+  //       ->Belt.Option.getWithDefault([])
+  //       ->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
+  //     }
+  //   })
   }
   pmt
 }
@@ -1060,45 +1073,53 @@ let useFetchConnectorList = () => {
   }
 }
 
-let defaultSelectAllCards = (
-  pmts: array<ConnectorTypes.paymentMethodEnabled>,
-  isUpdateFlow,
-  isPayoutFlow,
-  connector,
-  updateDetails,
-) => {
-  open LogicUtils
-  if !isUpdateFlow {
-    let config =
-      (
-        isPayoutFlow
-          ? Window.getPayoutConnectorConfig(connector)
-          : Window.getConnectorConfig(connector)
-      )->getDictFromJsonObject
-    pmts->Js.Array2.forEach(val => {
-      switch val.payment_method->getPaymentMethodFromString {
-      | Card => {
-          let arr = config->getStrArrayFromDict(val.payment_method_type, [])
-          let length = val.card_provider->Belt.Option.getWithDefault([])->len
-          val.card_provider
-          ->Belt.Option.getWithDefault([])
-          ->Array.splice(~start=0, ~remove=length, ~insert=arr)
-        }
+// let defaultSelectAllCards = (
+//   pmts: array<ConnectorTypes.paymentMethodEnabled>,
+//   isUpdateFlow,
+//   isPayoutFlow,
+//   connector,
+//   updateDetails,
+// ) => {
+//   open LogicUtils
+//   if !isUpdateFlow {
+//     let config =
+//       (
+//         isPayoutFlow
+//           ? Window.getPayoutConnectorConfig(connector)
+//           : Window.getConnectorConfig(connector)
+//       )->getDictFromJsonObject
+//     // pmts->Js.Array2.forEach(val => {
+//     //   switch val.payment_method->getPaymentMethodFromString {
+//     //   | Card => {
+//     //       let arr = config->getStrArrayFromDict(val.payment_method_type, [])
+//     //       let length = val.card_provider->Belt.Option.getWithDefault([])->len
+//     //       val.card_provider
+//     //       ->Belt.Option.getWithDefault([])
+//     //       ->Array.splice(~start=0, ~remove=length, ~insert=arr)
+//     //     }
 
-      | BankTransfer | BankRedirect => {
-          let arr = config->getStrArrayFromDict(val.payment_method_type, [])
-          let length = val.provider->Belt.Option.getWithDefault([])->len
-          val.provider
-          ->Belt.Option.getWithDefault([])
-          ->Array.splice(~start=0, ~remove=length, ~insert=arr)
-        }
+//     //   | BankTransfer | BankRedirect => {
+//     //       let arr = config->getStrArrayFromDict(val.payment_method_type, [])
+//     //       let length = val.provider->Belt.Option.getWithDefault([])->len
+//     //       val.provider
+//     //       ->Belt.Option.getWithDefault([])
+//     //       ->Array.splice(~start=0, ~remove=length, ~insert=arr)
+//     //     }
 
-      | _ => ()
-      }
-    })
-    updateDetails(pmts)
-  }
-}
+//     //   | _ => ()
+//     //   }
+//     // })
+
+//     // pmts->Js.Array2.forEach(val => {
+//     //   switch val.payment_method->getPaymentMethodFromString{
+//     //     | Card=>{
+
+//     //     }
+//     //   }
+//     // })
+//     // updateDetails(pmts)
+//   }
+// }
 
 let getConnectorPaymentMethodDetails = async (
   initialValues,
@@ -1113,6 +1134,7 @@ let getConnectorPaymentMethodDetails = async (
   open LogicUtils
   try {
     let json = Window.getResponsePayload(initialValues)
+    Js.log(json)
     let metaData = json->getDictFromJsonObject->getJsonObjectFromDict("metadata")
     let paymentMethodEnabled =
       json
@@ -1122,13 +1144,13 @@ let getConnectorPaymentMethodDetails = async (
     setPaymentMethods(_ => paymentMethodEnabled)
     setMetaData(_ => metaData)
     setScreenState(_ => PageLoaderWrapper.Success)
-    defaultSelectAllCards(
-      paymentMethodEnabled,
-      isUpdateFlow,
-      isPayoutFlow,
-      connector,
-      updateDetails,
-    )
+    // defaultSelectAllCards(
+    //   paymentMethodEnabled,
+    //   isUpdateFlow,
+    //   isPayoutFlow,
+    //   connector,
+    //   updateDetails,
+    // )
   } catch {
   | Js.Exn.Error(e) => {
       let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")

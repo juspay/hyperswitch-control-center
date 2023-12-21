@@ -94,11 +94,17 @@ type paymentMethodTypes =
   | ApplePay
   | UnknownPaymentMethodType(string)
 
+type cardProvider = {
+  payment_method_type: string,
+  accepted_currencies: option<Js.Json.t>,
+  accepted_countries: option<Js.Json.t>,
+}
+
 type paymentMethodEnabled = {
   payment_method: string,
   payment_method_type: string,
   provider?: array<string>,
-  card_provider?: array<string>,
+  card_provider?: array<cardProvider>,
 }
 
 type applePay = {

@@ -43,7 +43,7 @@ let make = (
     ->ignore
     None
   }, [connector])
-
+  Js.log2(paymentMethodsEnabled, "paymentMethodsEnabled")
   let onSubmit = async () => {
     try {
       setScreenState(_ => Loading)

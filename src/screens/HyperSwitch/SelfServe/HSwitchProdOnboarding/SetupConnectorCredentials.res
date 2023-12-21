@@ -169,21 +169,21 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       setIsLoading(_ => true)
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ())
       let json = Window.getConnectorConfig(connectorName)
-      let creditCardNetworkArray = json->getDictFromJsonObject->getStrArrayFromDict("credit", [])
-      let debitCardNetworkArray = json->getDictFromJsonObject->getStrArrayFromDict("debit", [])
+      // let creditCardNetworkArray = json->getDictFromJsonObject->getStrArrayFromDict("credit", [])
+      // let debitCardNetworkArray = json->getDictFromJsonObject->getStrArrayFromDict("debit", [])Wallet.res
 
       let paymentMethodsEnabledArray: array<ConnectorTypes.paymentMethodEnabled> = [
         {
           payment_method: "card",
           payment_method_type: "credit",
           provider: [],
-          card_provider: creditCardNetworkArray,
+          // card_provider: [],
         },
         {
           payment_method: "card",
           payment_method_type: "debit",
           provider: [],
-          card_provider: debitCardNetworkArray,
+          // card_provider: [],
         },
       ]
 

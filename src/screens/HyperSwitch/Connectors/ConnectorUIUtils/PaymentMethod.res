@@ -22,12 +22,13 @@ module CardRenderer = {
     ~updateDetails,
     ~paymentMethodsEnabled: array<paymentMethodEnabled>,
     ~paymentMethod,
-    ~provider,
+    ~provider: array<cardProvider>,
     ~_showAdvancedConfiguration,
     ~metaData,
     ~setMetaData,
     ~connector,
   ) => {
+    Js.log2(provider, "provider provider providervalue")
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (selectedWallet, setSelectedWallet) = React.useState(_ => "")
     let selectedAll = isSelectedAll(paymentMethodsEnabled, provider, paymentMethod)
@@ -46,10 +47,10 @@ module CardRenderer = {
         }
 
       | _ =>
-        if standardProviders->Js.Array2.includes(method) {
+        if standardProviders->Js.Array2.includes(method.payment_method_type) {
           paymentMethodsEnabled->removeMethod(paymentMethod, method)->updateDetails
         } else {
-          let methodVariant = method->getPaymentMethodTypeFromString
+          let methodVariant = method.payment_method_type->getPaymentMethodTypeFromString
           if (
             (methodVariant === GooglePay || methodVariant === ApplePay) &&
               (connector->getConnectorNameTypeFromString !== TRUSTPAY &&
@@ -57,7 +58,7 @@ module CardRenderer = {
               connector->getConnectorNameTypeFromString !== STRIPE_TEST)
           ) {
             setShowWalletConfigurationModal(_ => !showWalletConfigurationModal)
-            setSelectedWallet(_ => method)
+            setSelectedWallet(_ => method.payment_method_type)
           } else {
             paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
           }
@@ -65,35 +66,35 @@ module CardRenderer = {
       }
     }
 
-    let updateSelectAll = (paymentMethod, isSelectedAll) => {
-      let arr = isSelectedAll ? [] : provider->LogicUtils.getUniqueArray
-      paymentMethodsEnabled->Js.Array2.forEach(val => {
-        if val.payment_method_type === paymentMethod {
-          switch paymentMethod->getPaymentMethodTypeFromString {
-          | Credit | Debit =>
-            let length = val.card_provider->Belt.Option.getWithDefault([])->len
-            val.card_provider
-            ->Belt.Option.getWithDefault([])
-            ->Array.splice(~start=0, ~remove=length, ~insert=arr)
-            ->ignore
-          | _ =>
-            let length = val.provider->Belt.Option.getWithDefault([])->len
+    // let updateSelectAll = (paymentMethod, isSelectedAll) => {
+    //   let arr = isSelectedAll ? [] : provider->LogicUtils.getUniqueArray
+    //   paymentMethodsEnabled->Js.Array2.forEach(val => {
+    //     if val.payment_method_type === paymentMethod {
+    //       switch paymentMethod->getPaymentMethodTypeFromString {
+    //       | Credit | Debit =>
+    //         let length = val.card_provider->Belt.Option.getWithDefault([])->len
+    //         val.card_provider
+    //         ->Belt.Option.getWithDefault([])
+    //         ->Array.splice(~start=0, ~remove=length, ~insert=arr)
+    //         ->ignore
+    //       | _ =>
+    //         let length = val.provider->Belt.Option.getWithDefault([])->len
 
-            val.provider
-            ->Belt.Option.getWithDefault([])
-            ->Array.splice(~start=0, ~remove=length, ~insert=arr)
-            ->ignore
-          }
-        }
-      })
-      updateDetails(paymentMethodsEnabled)
-    }
+    //         val.provider
+    //         ->Belt.Option.getWithDefault([])
+    //         ->Array.splice(~start=0, ~remove=length, ~insert=arr)
+    //         ->ignore
+    //       }
+    //     }
+    //   })
+    //   updateDetails(paymentMethodsEnabled)
+    // }
 
-    let isSelected = value => {
-      standardProviders->Js.Array2.includes(value) || cardProviders->Js.Array2.includes(value)
-        ? true
-        : false
-    }
+    // let isSelected = value => {
+    //   standardProviders->Js.Array2.includes(value) || cardProviders->Js.Array2.includes(value)
+    //     ? true
+    //     : false
+    // }
 
     let isNotVerifiablePaymentMethod = paymentMethodVariant => {
       switch paymentMethodVariant {
@@ -118,8 +119,10 @@ module CardRenderer = {
             <UIUtils.RenderIf condition={paymentMethod->getPaymentMethodFromString !== Wallet}>
               <div className="flex gap-2 items-center">
                 <BoolInput.BaseComponent
-                  isSelected={selectedAll}
-                  setIsSelected={_ => updateSelectAll(paymentMethod, selectedAll)}
+                  // isSelected={selectedAll}
+                  // setIsSelected={_ => updateSelectAll(paymentMethod, selectedAll)}
+                  isSelected={false}
+                  setIsSelected={_e => ()}
                   isDisabled=false
                   boolCustomClass="rounded-lg"
                 />
@@ -143,36 +146,39 @@ module CardRenderer = {
           <div key={i->string_of_int}>
             <div className="flex items-center gap-2 break-words">
               <div onClick={_e => removeOrAddMethods(value)}>
-                <CheckBoxIcon isSelected={isSelected(value)} />
+                // <CheckBoxIcon isSelected={isSelected(value)} />
+                <CheckBoxIcon isSelected={false} />
               </div>
-              <p className=p2RegularTextStyle> {React.string(value->snakeToTitle)} </p>
+              <p className=p2RegularTextStyle>
+                {React.string(value.payment_method_type->snakeToTitle)}
+              </p>
             </div>
           </div>
         })
         ->React.array}
-        <UIUtils.RenderIf
-          condition={selectedWallet->getPaymentMethodTypeFromString === ApplePay ||
-            selectedWallet->getPaymentMethodTypeFromString === GooglePay}>
-          <Modal
-            modalHeading={`Additional Details to enable ${selectedWallet->LogicUtils.snakeToTitle}`}
-            headerTextClass="text-blue-800 font-bold text-xl"
-            showModal={showWalletConfigurationModal}
-            setShowModal={setShowWalletConfigurationModal}
-            paddingClass=""
-            revealFrom=Reveal.Right
-            modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
-            childClass={""}>
-            <Wallets
-              method={selectedWallet}
-              metaData
-              setMetaData
-              setShowWalletConfigurationModal
-              updateDetails
-              paymentMethodsEnabled
-              paymentMethod
-            />
-          </Modal>
-        </UIUtils.RenderIf>
+        // <UIUtils.RenderIf
+        //   condition={selectedWallet->getPaymentMethodTypeFromString === ApplePay ||
+        //     selectedWallet->getPaymentMethodTypeFromString === GooglePay}>
+        //   <Modal
+        //     modalHeading={`Additional Details to enable ${selectedWallet->LogicUtils.snakeToTitle}`}
+        //     headerTextClass="text-blue-800 font-bold text-xl"
+        //     showModal={showWalletConfigurationModal}
+        //     setShowModal={setShowWalletConfigurationModal}
+        //     paddingClass=""
+        //     revealFrom=Reveal.Right
+        //     modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
+        //     childClass={""}>
+        //     <Wallets
+        //       method={selectedWallet}
+        //       metaData
+        //       setMetaData
+        //       setShowWalletConfigurationModal
+        //       updateDetails
+        //       paymentMethodsEnabled
+        //       paymentMethod
+        //     />
+        //   </Modal>
+        // </UIUtils.RenderIf>
       </div>
     </div>
   }
@@ -201,11 +207,19 @@ module PaymentMethodsRender = {
     }, [connector])
     let keys =
       pmts->Js.Dict.keys->Js.Array2.filter(val => !Js.Array2.includes(configKeysToIgnore, val))
+    Js.log2(keys, "keys")
+    Js.log2(pmts, "pmts pmts pmts")
 
+    // Js.log2(pmts->getDictfromDict("credit"), "keyskeyskeyskeyskeyskeys")
+    let er = pmts->getArrayFromDict("credit", [])
+    Js.log2(er, "errrrrrrrrr")
     <div className="flex flex-col gap-12">
       {keys
       ->Array.mapWithIndex((value, i) => {
-        let provider = pmts->getStrArray(value)
+        let r = pmts->getDictfromDict(value)
+        Js.log4(r, value, i, "log provider provider")
+        let provider =
+          pmts->getDictfromDict(value)->Js.Json.object_->getArrayDataFromJson(itemPorivderMapper)
         switch value->getPaymentMethodTypeFromString {
         | Credit | Debit =>
           <div key={i->string_of_int}>
@@ -222,16 +236,16 @@ module PaymentMethodsRender = {
           </div>
         | _ =>
           <div key={i->string_of_int}>
-            <CardRenderer
-              updateDetails
-              paymentMethodsEnabled
-              paymentMethod={value}
-              provider={pmts->getStrArray(value)}
-              _showAdvancedConfiguration=false
-              metaData
-              setMetaData
-              connector
-            />
+            // <CardRenderer
+            //   updateDetails
+            //   paymentMethodsEnabled
+            //   paymentMethod={value}
+            //   provider={pmts->getStrArray(value)}
+            //   _showAdvancedConfiguration=false
+            //   metaData
+            //   setMetaData
+            //   connector
+            // />
           </div>
         }
       })
