@@ -139,9 +139,6 @@ let getURL = (
       }
     | _ => ""
     }
-  | PAYMENT_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/payments`
-  | REFUND_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/refunds`
-  | DISPUTE_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/dispute`
   | PAYMENT_LOGS =>
     switch methodType {
     | Get =>
@@ -181,20 +178,6 @@ let getURL = (
     }
   | RECON =>
     `${HSwitchGlobalVars.hyperSwitchApiPrefix}/recon/${(reconType :> string)->Js.String2.toLowerCase}`
-  | GENERATE_SAMPLE_DATA =>
-    switch methodType {
-    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data`
-
-    | Delete => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data`
-
-    | _ => ""
-    }
-  | INTEGRATION_DETAILS =>
-    switch methodType {
-    | Get => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/get_sandbox_integration_details`
-    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/set_sandbox_integration_details`
-    | _ => ""
-    }
   | USER_MANAGEMENT => {
       let userUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user`
       switch userRoleTypes {
