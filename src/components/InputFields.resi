@@ -31,7 +31,7 @@ let selectInput: (
   ~customButtonStyle: Js.String2.t=?,
   ~textStyle: string=?,
   ~marginTop: string=?,
-  ~customStyle: string=?,
+  ~customStyle: Js.String2.t=?,
   ~searchable: bool=?,
   ~showBorder: bool=?,
   ~showToolTipOptions: bool=?,
@@ -43,16 +43,16 @@ let selectInput: (
   ~fixedDropDownDirection: SelectBox.direction=?,
   ~customButton: React.element=?,
   ~buttonType: Button.buttonType=?,
-  ~dropdownCustomWidth: string=?,
+  ~dropdownCustomWidth: Js.String2.t=?,
   ~allowButtonTextMinWidth: bool=?,
-  ~setExtSearchString: (string => string) => unit=?,
-  ~textStyleClass: string=?,
+  ~setExtSearchString: ('b => string) => unit=?,
+  ~textStyleClass: Js.String2.t=?,
   ~ellipsisOnly: bool=?,
   ~showBtnTextToolTip: bool=?,
   ~dropdownClassName: string=?,
+  ~descriptionOnHover: bool=?,
   unit,
 ) => React.element
-
 let asyncSelectInput: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~url: Js.String2.t=?,
@@ -123,7 +123,7 @@ let multiSelectInput: (
   ~searchable: bool=?,
   ~showBorder: bool=?,
   ~optionRigthElement: React.element=?,
-  ~customStyle: string=?,
+  ~customStyle: Js.String2.t=?,
   ~customMargin: string=?,
   ~customButtonStyle: Js.String2.t=?,
   ~hideBorder: bool=?,
@@ -135,7 +135,7 @@ let multiSelectInput: (
   ~isHorizontal: bool=?,
   ~fullLength: bool=?,
   ~fixedDropDownDirection: SelectBox.direction=?,
-  ~dropdownCustomWidth: string=?,
+  ~dropdownCustomWidth: Js.String2.t=?,
   ~customMarginStyle: string=?,
   ~buttonTextWeight: string=?,
   ~marginTop: string=?,
@@ -154,13 +154,12 @@ let multiSelectInput: (
   ~leftIcon: Button.iconType=?,
   ~customBackColor: string=?,
   ~customSelectAllStyle: string=?,
-  ~onItemSelect: (ReactEvent.Mouse.t, string) => unit=?,
+  ~onItemSelect: (JsxEvent.Mouse.t, Js_string.t) => unit=?,
   ~wrapBasis: string=?,
   ~dropdownClassName: string=?,
   ~baseComponentMethod: bool => React.element=?,
   unit,
 ) => React.element
-
 let btnGroupInput: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<SelectBox.dropdownOption>,
@@ -180,11 +179,11 @@ let radioInput: (
   ~optionSize: CheckBoxIcon.size=?,
   ~isHorizontal: bool=?,
   ~deselectDisable: bool=?,
-  ~customStyle: string=?,
+  ~customStyle: Js.String2.t=?,
   ~baseComponentCustomStyle: string=?,
   ~customSelectStyle: string=?,
   ~fill: string=?,
-  ~maxHeight: string=?,
+  ~maxHeight: Js.String2.t=?,
   unit,
 ) => React.element
 let checkboxInput: (
@@ -196,14 +195,14 @@ let checkboxInput: (
   ~disableSelect: bool=?,
   ~buttonText: Js.String2.t=?,
   ~placeholder: 'a,
-  ~maxHeight: string=?,
+  ~maxHeight: Js.String2.t=?,
   ~searchable: bool=?,
   ~searchInputPlaceHolder: string=?,
-  ~dropdownCustomWidth: string=?,
+  ~dropdownCustomWidth: Js.String2.t=?,
   ~customSearchStyle: string=?,
   ~customLabelStyle: string=?,
   ~customMarginStyle: string=?,
-  ~customStyle: string=?,
+  ~customStyle: Js.String2.t=?,
   ~checkboxDimension: string=?,
   ~wrapBasis: string=?,
   unit,
@@ -320,7 +319,6 @@ let multipleFileInput: (
   ~pointerDisable: bool=?,
   unit,
 ) => React.element
-
 let csvFileUploadInput: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder: 'a,
@@ -329,7 +327,6 @@ let csvFileUploadInput: (
   ~messageId: string,
   unit,
 ) => React.element
-
 let imageInput: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder: 'a,
@@ -394,7 +391,6 @@ let datePickerInput: (
   ~format: string=?,
   unit,
 ) => React.element
-
 let singleDatePickerInput: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder: 'a,
@@ -406,7 +402,7 @@ let singleDatePickerInput: (
   ~currentDateMinuteFormat: Js.String2.t=?,
   ~currentDateSecondsFormat: Js.String2.t=?,
   ~customButtonStyle: Js.String2.t=?,
-  ~newThemeCustomButtonStyle: Js.String2.t=?,
+  ~newThemeCustomButtonStyle: string=?,
   ~calendarContaierStyle: string=?,
   ~buttonSize: Button.buttonSize=?,
   ~showTime: bool=?,
@@ -559,7 +555,6 @@ let multiLineTextInput: (
   ~maxLength: int=?,
   unit,
 ) => React.element
-
 let fieldWithMessage: (
   (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element,
   ~input: ReactFinalForm.fieldRenderPropsInput,
@@ -581,7 +576,7 @@ let passwordCreateField: (
   ~leftIcon: React.element=?,
   unit,
 ) => React.element
-let passwordFieldWithCheckChips: (
+let passwordFieldWithCheckWindow: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder: string,
   ~leftIcon: React.element=?,
@@ -589,11 +584,11 @@ let passwordFieldWithCheckChips: (
   ~customStyle: string=?,
   ~customPaddingClass: string=?,
   ~customTextStyle: string=?,
-  ~specialCharatersInfoText: Js.String2.t=?,
+  ~specialCharatersInfoText: string=?,
   ~customDashboardClass: string=?,
   unit,
 ) => React.element
-let passwordFieldWithCheckWindow: (
+let passwordFieldWithCheckChips: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder: string,
   ~leftIcon: React.element=?,

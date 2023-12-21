@@ -12,7 +12,7 @@ module UserHeading = {
     let updateDetails = useUpdateMethod()
     let status = infoValue.status->UserRoleEntity.statusToVariantMapper
 
-    let resendInvite = async () => {
+    let _resendInvite = async () => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#RESEND_INVITE, ~methodType=Post, ())
         let body = [("user_id", userId->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
@@ -38,14 +38,14 @@ module UserHeading = {
           | _ => infoValue.status->Js.String2.toUpperCase->React.string
           }}
         </div>
-        <UIUtils.RenderIf condition={status !== Active}>
-          <Button
-            text="Resend Invite"
-            buttonType={SecondaryFilled}
-            customButtonStyle="!px-2"
-            onClick={_ => resendInvite()->ignore}
-          />
-        </UIUtils.RenderIf>
+        // <UIUtils.RenderIf condition={status !== Active}>
+        //   <Button
+        //     text="Resend Invite"
+        //     buttonType={SecondaryFilled}
+        //     customButtonStyle="!px-2"
+        //     onClick={_ => resendInvite()->ignore}
+        //   />
+        // </UIUtils.RenderIf>
       </div>
     </div>
   }

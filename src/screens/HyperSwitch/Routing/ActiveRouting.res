@@ -34,18 +34,24 @@ module ActionButtons = {
 
     let handleSubmitRequest = async _ => {
       try {
-        let requestBody =
+        let requestedBody =
           [
             ("rating", 5.0->Js.Json.number),
             ("category", "Routing request"->Js.Json.string),
             ("feedbacks", `Request for Cost based Routing`->Js.Json.string),
           ]
-          ->Js.Dict.fromArray
+          ->LogicUtils.getJsonFromArrayOfJson
+          ->HSwitchUtils.getBodyForFeedBack()
           ->Js.Json.object_
 
-        let body = requestBody->HSwitchUtils.getBodyForFeedBack()
-        let feedbackUrl = APIUtils.getURL(~entityName=FEEDBACK, ~methodType=Post, ())
-        let _ = await updateDetails(feedbackUrl, body->Js.Json.object_, Post)
+        let feedbackUrl = APIUtils.getURL(
+          ~entityName=USERS,
+          ~userType=#USER_DATA,
+          ~methodType=Post,
+          (),
+        )
+        let body = [("Feedback", requestedBody)]->LogicUtils.getJsonFromArrayOfJson
+        let _ = await updateDetails(feedbackUrl, body, Post)
         showToast(
           ~toastType=ToastSuccess,
           ~message="Request submitted successfully!",

@@ -3,6 +3,45 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.13.0 (2023-12-20)
+
+### Features
+
+- New wasm changes ([#114](https://github.com/juspay/hyperswitch-control-center/pull/114)) ([`758f80d`](https://github.com/juspay/hyperswitch-control-center/commit/758f80d945bd558f7059b8ec40b2b373aaa2e77a))
+- Dropdown grouping added in routing ([#102](https://github.com/juspay/hyperswitch-control-center/pull/102)) ([`52933b4`](https://github.com/juspay/hyperswitch-control-center/commit/52933b434dd6920e821a465b51c5bbb46ced68cd))
+- Resend Invite Removal ([#121](https://github.com/juspay/hyperswitch-control-center/pull/121)) ([`3551622`](https://github.com/juspay/hyperswitch-control-center/commit/35516226ad3e784626812e4a3be09dcb165a867d))
+
+### Bug Fixes
+
+- Connector UI Issue. ([#113](https://github.com/juspay/hyperswitch-control-center/pull/113)) ([`ad28e1c`](https://github.com/juspay/hyperswitch-control-center/commit/ad28e1ca72f3d57407cb679a451e43ccd94ae2de))
+- Signout API removed. ([#116](https://github.com/juspay/hyperswitch-control-center/pull/116)) ([`af13892`](https://github.com/juspay/hyperswitch-control-center/commit/af13892017a5ca1e4bac8dcbe26d837a87467634))
+- Connector files changes for paypal onboarding ([#115](https://github.com/juspay/hyperswitch-control-center/pull/115)) ([`74f327c`](https://github.com/juspay/hyperswitch-control-center/commit/74f327c5067a17d44313492e0032422a70d8aa9d))
+- Metadata field issue fix ([#117](https://github.com/juspay/hyperswitch-control-center/pull/117)) ([`585674a`](https://github.com/juspay/hyperswitch-control-center/commit/585674a5fe324492c290c1e6ec32fd8b71822402))
+- Typos in readme - fix typos in Readme.md ([#105](https://github.com/juspay/hyperswitch-control-center/pull/105)) ([`c88dcd2`](https://github.com/juspay/hyperswitch-control-center/commit/c88dcd23a8c291fd538ba6c4631a15cdf28c502d))
+- Refunds reports end point change ([#119](https://github.com/juspay/hyperswitch-control-center/pull/119)) ([`ffc819e`](https://github.com/juspay/hyperswitch-control-center/commit/ffc819ef39c33f7a58e560cd3d1a1e7184ef4eba))
+
+**Full Changelog:** [`v1.12.0...v1.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.12.0...v1.13.0)
+
+- - -
+
+
+## 1.12.0 (2023-12-19)
+
+### Features
+
+- Group-drop-down-component-changes ([#97](https://github.com/juspay/hyperswitch-control-center/pull/97)) ([`adcd89e`](https://github.com/juspay/hyperswitch-control-center/commit/adcd89e58542a7b0e0a7941e8dd4bb8abbd620eb))
+- Add scrollbar and white space scrollable ([#111](https://github.com/juspay/hyperswitch-control-center/pull/111)) ([`a3bb4fe`](https://github.com/juspay/hyperswitch-control-center/commit/a3bb4feedb12fc6d3dcbc2cf845e90bb26fef7dd))
+- Added path and api method in audit logs ([#112](https://github.com/juspay/hyperswitch-control-center/pull/112)) ([`1005cc7`](https://github.com/juspay/hyperswitch-control-center/commit/1005cc7099bf4ed6d6fdadd9f843c1937b733fe2))
+
+### Bug Fixes
+
+- Oss build url change ([#87](https://github.com/juspay/hyperswitch-control-center/pull/87)) ([`82f5272`](https://github.com/juspay/hyperswitch-control-center/commit/82f5272aff3453afbbc5fcf7b0e3aee4eed32cb2))
+
+**Full Changelog:** [`v1.11.0...v1.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.11.0...v1.12.0)
+
+- - -
+
+
 ## 1.11.0 (2023-12-18)
 
 ### Features
