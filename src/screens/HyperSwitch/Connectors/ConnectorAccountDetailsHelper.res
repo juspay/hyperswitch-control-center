@@ -6,6 +6,9 @@ let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorName> = [
   STRIPE,
   PAYPAL,
 ]
+external toMouseEvent: JsxEvent.synthetic<ReactEvent.Keyboard.tag> => JsxEvent.synthetic<
+  JsxEvent.Mouse.tag,
+> = "%identity"
 
 let getCurrencyOption: CurrencyUtils.currencyCode => SelectBox.dropdownOption = currencyType => {
   open CurrencyUtils
@@ -150,7 +153,66 @@ module RenderConnectorInputFields = {
     ->React.array
   }
 }
+type cashToCodeMthd = [#Classic | #Evoucher]
 
+module CashToCodeSelectBox = {
+  external formEventToStr: ReactEvent.Form.t => string = "%identity"
+  @react.component
+  let make = (~opts: array<string>) => {
+    let (endSelected, setEndSelected) = React.useState(_ => [])
+    <div onClick={ev => Js.log("")}>
+      <SelectBox.BaseSelect
+        value={endSelected->Js.Json.stringArray}
+        isDropDown=false
+        showSelectAll=false
+        options={opts->Js.Array2.map(x => {
+          let a: SelectBox.dropdownOption = {
+            label: x,
+            value: x,
+          }
+          a
+        })}
+        onSelect={arr => {
+          setEndSelected(_ => arr)
+        }}
+        // onItemSelect={(toMouseEvent, "") => Js.log("came inside")}
+      />
+    </div>
+  }
+}
+
+module CashToCodeMethods = {
+  @react.component
+  let make = (~connectorAccountFields, ~selectedConnector, ~connector) => {
+    open ConnectorUtils
+    let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
+    let (selectedCashToCodeMthd, setCashToCodeMthd) = React.useState(_ => #Classic)
+    let tabList: array<Tabs.tab> = [
+      {
+        title: "Classic",
+        renderContent: () =>
+          <div className="mt-5">
+            <CashToCodeSelectBox opts={dict->Js.Dict.keys} />
+          </div>,
+      },
+      {
+        title: "Evoucher",
+        renderContent: () =>
+          <div className="mt-5">
+            <CashToCodeSelectBox opts={dict->Js.Dict.keys} />
+          </div>,
+      },
+    ]
+    <Tabs
+      tabs=tabList
+      disableIndicationArrow=true
+      showBorder=false
+      includeMargin=false
+      lightThemeColor="black"
+      defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
+    />
+  }
+}
 module CurrencyAuthKey = {
   @react.component
   let make = (~dict, ~connector, ~selectedConnector: ConnectorTypes.integrationFields) => {
@@ -203,8 +265,11 @@ module ConnectorConfigurationFields = {
     open ConnectorUtils
     <div className="flex flex-col">
       {if bodyType->mapAuthType == #CurrencyAuthKey {
-        let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
-        <CurrencyAuthKey dict connector selectedConnector />
+        <div>
+          <div className="mb-6">
+            <CashToCodeMethods connectorAccountFields connector selectedConnector />
+          </div>
+        </div>
       } else {
         <RenderConnectorInputFields
           details={connectorAccountFields}
