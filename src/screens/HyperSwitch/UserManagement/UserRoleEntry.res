@@ -122,14 +122,14 @@ let make = () => {
         subTitle="Manage user roles and invite members of your organisation"
       />
       <div className="relative">
-        <div className="absolute right-0 top-5">
-          <Button
-            text={"Invite users"}
-            buttonType=Primary
-            onClick={_ => RescriptReactRouter.push("/users/invite-users")}
-            customButtonStyle="w-48"
-          />
-        </div>
+      //  <div className="absolute right-0 top-5">
+      //    <Button
+      //      text={"Invite users"}
+      //      buttonType=Primary
+      //      onClick={_ => RescriptReactRouter.push("/users/invite-users")}
+      //      customButtonStyle="w-48"
+      //    />
+      //  </div>
         <Tabs
           tabs=tabList
           disableIndicationArrow=true
