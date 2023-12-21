@@ -31,7 +31,7 @@ module Provider = {
 }
 
 @react.component
-let make = (~index: string, ~children) => {
+let make = (~index: string, ~children, ~disableSessionStorage=false) => {
   open FilterUtils
   let (query, setQuery) = React.useState(_ => "")
   let searcParamsToDict = query->parseFilterString
@@ -112,14 +112,17 @@ let make = (~index: string, ~children) => {
 
   React.useEffect0(() => {
     switch sessionStorage.getItem(. index)->Js.Nullable.toOption {
-    | Some(value) => value->FilterUtils.parseFilterString->updateFilter.updateExistingKeys
+    | Some(value) =>
+      !disableSessionStorage
+        ? value->FilterUtils.parseFilterString->updateFilter.updateExistingKeys
+        : ()
     | None => ()
     }
     None
   })
 
   React.useEffect1(() => {
-    if !(query->Js.String2.length < 1) {
+    if !(query->Js.String2.length < 1) && !disableSessionStorage {
       sessionStorage.setItem(. index, query)
     }
     None

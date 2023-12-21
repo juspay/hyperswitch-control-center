@@ -248,7 +248,7 @@ let make = () => {
                             renderShow={_ => <ConnectorHome isPayoutFlow=true />}
                           />
                         | list{"payments", ...remainingPath} =>
-                          <FilterContext key="payments" index="payments">
+                          <FilterContext key="payments" index="payments" disableSessionStorage=true>
                             <EntityScaffold
                               entityName="Payments"
                               remainingPath
@@ -258,7 +258,7 @@ let make = () => {
                             />
                           </FilterContext>
                         | list{"refunds", ...remainingPath} =>
-                          <FilterContext key="refunds" index="refunds">
+                          <FilterContext key="refunds" index="refunds" disableSessionStorage=true>
                             <EntityScaffold
                               entityName="Refunds"
                               remainingPath
