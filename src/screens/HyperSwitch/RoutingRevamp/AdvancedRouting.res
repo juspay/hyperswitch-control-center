@@ -79,9 +79,10 @@ module Add3DSCondition = {
 module AddSurchargeCondition = {
   let classStyle = "flex justify-center relative py-2 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border-2 border-border_gray border-opacity-50 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
 
+  //keep the rate only for now.
   let options: array<SelectBox.dropdownOption> = [
     {value: "rate", label: "Rate"},
-    {value: "amount", label: "Amount"},
+    // {value: "amount", label: "Amount"},
   ]
 
   @react.component

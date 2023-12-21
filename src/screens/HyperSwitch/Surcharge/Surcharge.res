@@ -223,7 +223,6 @@ let make = () => {
   }
 
   let redirectToNewRule = () => {
-    Js.log("lokiiiii redirecting")
     setPageView(_ => NEW)
   }
 

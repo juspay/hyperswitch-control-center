@@ -42,10 +42,9 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
             let headingText = `Rule ${string_of_int(index + 1)}`
             let marginStyle = index === ruleInfo.rules->Js.Array2.length - 1 ? "mt-2" : "my-2"
             let threeDsType = rule.connectorSelection.override_3ds->Belt.Option.getWithDefault("")
-            Js.log2("lokiii before", rule)
+
             let surchargeType =
               rule.connectorSelection.surcharge_details->SurchargeUtils.getDefaultSurchargeType
-            Js.log2("lokii", surchargeType)
             <div
               key={Belt.Int.toString(index)}
               className="flex flex-col items-center w-full px-4 pb-6">
