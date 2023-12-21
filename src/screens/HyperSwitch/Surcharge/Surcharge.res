@@ -5,15 +5,16 @@ module ActiveRulePreview = {
   open LogicUtils
   @react.component
   let make = (~initialRule) => {
-    let ruleInfo = initialRule->Belt.Option.getWithDefault(Js.Dict.empty())
-    let name = ruleInfo->getString("name", "")
-    let description = ruleInfo->getString("description", "")
+    let rule = initialRule->Belt.Option.getWithDefault(Js.Dict.empty())
+
+    let name = rule->getString("name", "")
+    let description = rule->getString("description", "")
 
     let ruleInfo =
-      ruleInfo
+      rule
       ->getJsonObjectFromDict("algorithm")
       ->getDictFromJsonObject
-      ->AdvancedRoutingUtils.ruleInfoTypeMapper
+      ->SurchargeUtils.ruleInfoTypeMapper
 
     <UIUtils.RenderIf condition={initialRule->Belt.Option.isSome}>
       <div className="relative flex flex-col gap-6 w-full border p-6 bg-white rounded-md">
@@ -29,7 +30,7 @@ module ActiveRulePreview = {
             {description->React.string}
           </p>
         </div>
-        <RulePreviewer ruleInfo isFrom3ds=true />
+        <RulePreviewer ruleInfo isFromSurcharge=true />
       </div>
     </UIUtils.RenderIf>
   }
@@ -99,7 +100,7 @@ let make = () => {
   open APIUtils
   open ThreeDSUtils
   open SurchargeUtils
-
+  let showToast = ToastState.useShowToast()
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (wasm, setWasm) = React.useState(_ => None)
@@ -108,7 +109,7 @@ let make = () => {
   )
   let (initialRule, setInitialRule) = React.useState(() => None)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (pageView, setPageView) = React.useState(_ => NEW)
+  let (pageView, setPageView) = React.useState(_ => LANDING)
   let (formState, setFormState) = React.useState(_ => AdvancedRoutingTypes.EditReplica)
   let showPopUp = PopUpState.useShowPopUp()
   let (showWarning, setShowWarning) = React.useState(_ => true)
@@ -129,7 +130,7 @@ let make = () => {
       let surchargeUrl = getURL(~entityName=SURCHARGE, ~methodType=Get, ())
       let surchargeRuleDetail = await fetchDetails(surchargeUrl)
       let responseDict = surchargeRuleDetail->getDictFromJsonObject
-      let programValue = responseDict->getObj("program", Js.Dict.empty())
+      let programValue = responseDict->getObj("algorithm", Js.Dict.empty())
 
       let intitialValue =
         [
@@ -173,20 +174,18 @@ let make = () => {
 
   let onSubmit = async (values, _) => {
     try {
-      // setScreenState(_ => Loading)
       let surchargePayload = values->buildSurchargePayloadBody
-      Js.log2("lokiiiii", surchargePayload)
       let getActivateUrl = getURL(~entityName=SURCHARGE, ~methodType=Put, ())
-      //   let _ = await updateDetails(getActivateUrl, surchargePayload->Identity.genericTypeToJson, Put)
-      //   fetchDetails()->ignore
-      //   setShowWarning(_ => true)
-      //   RescriptReactRouter.replace(`/surcharge`)
-      //   setPageView(_ => LANDING)
-      //   setScreenState(_ => Success)
+      let _ = await updateDetails(getActivateUrl, surchargePayload->Identity.genericTypeToJson, Put)
+      fetchDetails()->ignore
+      setShowWarning(_ => true)
+      RescriptReactRouter.replace(`/surcharge`)
+      setPageView(_ => LANDING)
+      setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) =>
       let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
-      setScreenState(_ => Error(err))
+      showToast(~message=err, ~toastType=ToastError, ())
     }
     Js.Nullable.null
   }
@@ -224,6 +223,7 @@ let make = () => {
   }
 
   let redirectToNewRule = () => {
+    Js.log("lokiiiii redirecting")
     setPageView(_ => NEW)
   }
 
@@ -232,7 +232,7 @@ let make = () => {
       showPopUp({
         popUpType: (Warning, WithIcon),
         heading: "Heads up!",
-        description: "This will override the existing 3DS configuration. Please confirm to proceed"->React.string,
+        description: "This will override the existing surcharge configuration. Please confirm to proceed"->React.string,
         handleConfirm: {
           text: "Confirm",
           onClick: {
@@ -264,7 +264,7 @@ let make = () => {
                 buttonType=Secondary
                 onClick={_ => {
                   setPageView(_ => LANDING)
-                  RescriptReactRouter.replace(`/3ds`)
+                  RescriptReactRouter.replace(`/surcharge`)
                 }}
               />
               <FormRenderer.SubmitButton

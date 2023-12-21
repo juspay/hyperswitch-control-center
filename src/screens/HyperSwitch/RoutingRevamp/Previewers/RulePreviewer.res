@@ -28,7 +28,7 @@ module GatewayView = {
 }
 
 @react.component
-let make = (~ruleInfo: algorithmData, ~isFrom3ds=false) => {
+let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) => {
   open LogicUtils
 
   <div
@@ -42,7 +42,10 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false) => {
             let headingText = `Rule ${string_of_int(index + 1)}`
             let marginStyle = index === ruleInfo.rules->Js.Array2.length - 1 ? "mt-2" : "my-2"
             let threeDsType = rule.connectorSelection.override_3ds->Belt.Option.getWithDefault("")
-
+            Js.log2("lokiii before", rule)
+            let surchargeType =
+              rule.connectorSelection.surcharge_details->SurchargeUtils.getDefaultSurchargeType
+            Js.log2("lokii", surchargeType)
             <div
               key={Belt.Int.toString(index)}
               className="flex flex-col items-center w-full px-4 pb-6">
@@ -108,6 +111,18 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false) => {
                   <GatewayView
                     gateways={rule.connectorSelection.data->Belt.Option.getWithDefault([])}
                   />
+                </UIUtils.RenderIf>
+                <UIUtils.RenderIf condition={isFromSurcharge}>
+                  <div
+                    className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium text-blue-800 hover:text-blue-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1">
+                    {`${surchargeType.surcharge.\"type"} -> ${surchargeType.surcharge.value.percentage
+                      ->Option.getWithDefault(0.0)
+                      ->Belt.Float.toString} | Tax on Surcharge -> ${surchargeType.tax_on_surcharge.percentage
+                      ->Option.getWithDefault(0.0)
+                      ->Belt.Float.toString}`
+                    ->LogicUtils.capitalizeString
+                    ->React.string}
+                  </div>
                 </UIUtils.RenderIf>
               </div>
             </div>
