@@ -14,8 +14,6 @@ let getHeaders = (~uri, ~headers, ()) => {
   let hyperSwitchToken = LocalStorage.getItem("login")->Js.Nullable.toOption
   let isMixpanel = uri->Js.String2.includes("mixpanel")
 
-  Js.log2(uri, "uri")
-
   if isMixpanel {
     let headerObj = {
       "Content-Type": "application/x-www-form-urlencoded",
