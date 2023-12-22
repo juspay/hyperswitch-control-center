@@ -161,10 +161,18 @@ let make = () => {
   let urlPush = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/prod-onboarding?${routerUrl.search}`
 
   let getSetupCompleteEnum = async () => {
+    open LogicUtils
     try {
       let url = #SetupComplete->ProdOnboardingUtils.getProdOnboardingUrl
       let response = await fetchDetails(url)
-      if response->LogicUtils.getDictFromJsonObject->LogicUtils.getBool("SetupComplete", false) {
+      let setupCompleteResponse =
+        response
+        ->getArrayFromJson([])
+        ->Array.find(ele => {
+          ele->getDictFromJsonObject->getBool("SetupComplete", false)
+        })
+        ->Option.getWithDefault(Js.Json.null)
+      if setupCompleteResponse->getDictFromJsonObject->getBool("SetupComplete", false) {
         setDashboardPageState(_ => #HOME)
         let baseUrlPath = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${routerUrl.path
           ->Belt.List.toArray
@@ -183,12 +191,19 @@ let make = () => {
   }
 
   let getConfigureEndpointEnum = async () => {
+    open LogicUtils
     try {
       let url = #ConfigureEndpoint->ProdOnboardingUtils.getProdOnboardingUrl
       let response = await fetchDetails(url)
-      if (
-        response->LogicUtils.getDictFromJsonObject->LogicUtils.getBool("ConfigureEndpoint", false)
-      ) {
+      let configureEndpointResponse =
+        response
+        ->getArrayFromJson([])
+        ->Array.find(ele => {
+          ele->getDictFromJsonObject->getBool("ConfigureEndpoint", false)
+        })
+        ->Option.getWithDefault(Js.Json.null)
+
+      if configureEndpointResponse->getDictFromJsonObject->getBool("ConfigureEndpoint", false) {
         getSetupCompleteEnum()->ignore
       } else {
         RescriptReactRouter.push(urlPush)
@@ -208,11 +223,17 @@ let make = () => {
       let setupProcessorEnum =
         response
         ->getArrayFromJson([])
-        ->Js.Array2.find(ele => {
-          ele->getDictFromJsonObject->getBool("SetupProcessor", false)
+        ->Array.find(ele => {
+          ele->getDictFromJsonObject->getDictfromDict("SetupProcessor") != Js.Dict.empty()
         })
         ->Option.getWithDefault(Js.Json.null)
-      let connectorId = setupProcessorEnum->getDictFromJsonObject->getString("connector_id", "")
+
+      let connectorId =
+        setupProcessorEnum
+        ->getDictFromJsonObject
+        ->getDictfromDict("SetupProcessor")
+        ->getString("connector_id", "")
+
       if connectorId->Js.String2.length > 0 {
         setConnectorID(_ => connectorId)
         getConfigureEndpointEnum()->ignore
