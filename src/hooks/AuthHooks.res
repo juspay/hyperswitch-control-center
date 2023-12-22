@@ -61,11 +61,21 @@ let getHeaders = (~uri, ~headers, ()) => {
         }
 
       | None =>
-        let headerObj = {
-          "Content-Type": "application/json",
-          "x-feature": "hyperswitch-custom",
+        if (
+          uri->Js.String2.includes("lottie-files") ||
+            uri->Js.String2.includes("config/merchant-access")
+        ) {
+          let headerObj = {
+            "Content-Type": "application/json",
+          }
+          Fetch.HeadersInit.make(headerObj)
+        } else {
+          let headerObj = {
+            "Content-Type": "application/json",
+            "x-feature": "hyperswitch-custom",
+          }
+          Fetch.HeadersInit.make(headerObj)
         }
-        Fetch.HeadersInit.make(headerObj)
       }
     }
   }
