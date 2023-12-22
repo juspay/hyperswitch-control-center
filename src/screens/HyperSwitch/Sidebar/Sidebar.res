@@ -364,6 +364,15 @@ module SidebarNestedSection = {
       None
     }, (isSectionExpanded, isSideBarExpanded))
 
+    React.useEffect2(() => {
+      if isSideBarExpanded {
+        setIsSectionExpanded(_ => isAnySubItemSelected)
+      } else {
+        setIsSectionExpanded(_ => false)
+      }
+      None
+    }, (isSideBarExpanded, isAnySubItemSelected))
+
     let toggleSectionExpansion = React.useCallback4(_ev => {
       if !isSideBarExpanded {
         setIsSidebarExpanded(_ => true)
