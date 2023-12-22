@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.13.1 (2023-12-21)
+
+### Bug Fixes
+
+- Disable-user-invite-button ([#124](https://github.com/juspay/hyperswitch-control-center/pull/124)) ([`36177c7`](https://github.com/juspay/hyperswitch-control-center/commit/36177c71ae369b1b82c16b6ed59d298a646efc3a))
+
+**Full Changelog:** [`v1.13.0...v1.13.1`](https://github.com/juspay/hyperswitch-control-center/compare/v1.13.0...v1.13.1)
+
+- - -
+
+
 ## 1.13.0 (2023-12-20)
 
 ### Features
