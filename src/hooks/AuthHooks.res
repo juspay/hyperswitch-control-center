@@ -38,6 +38,7 @@ let getHeaders = (~uri, ~headers, ()) => {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${hyperSwitchToken->Belt.Option.getWithDefault("")}`,
             "api-key": "hyperswitch",
+            "x-feature": "hyperswitch-custom",
           }
 
           Fetch.HeadersInit.make(headerObj)
