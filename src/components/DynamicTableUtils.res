@@ -211,20 +211,6 @@ module TableHeading = {
   }
 }
 
-module TableLoadingIndicator = {
-  @react.component
-  let make = (~title) => {
-    <div className="flex flex-col">
-      <TableHeading title />
-      <div className="flex flex-col py-16 text-center items-center">
-        <div className="animate-spin mb-10">
-          <Icon name="spinner" />
-        </div>
-        {React.string("Loading...")}
-      </div>
-    </div>
-  }
-}
 module TableLoadingErrorIndicator = {
   @react.component
   let make = (
@@ -284,26 +270,6 @@ module TableDataLoadingIndicator = {
   }
 }
 
-module BaseDropDown = {
-  @react.component
-  let make = (~showDropDown, ~setShowDropDown) => {
-    React.useEffect1(() => {
-      setShowDropDown(_ => showDropDown)
-      None
-    }, [showDropDown])
-
-    <ToolTip
-      description="Customize Column"
-      tooltipWidthClass="w-fit"
-      toolTipFor={<div
-        className={`flex p-1 justify-center items-center gap-10 rounded hover:bg-jp-2-light-gray-400 ${showDropDown
-            ? "shadow-jp-2-sm-gray-focus bg-jp-2-light-gray-400 !fill-jp-2-light-gray-2000  !text-jp-2-light-gray-2000"
-            : "bg-jp-2-light-gray-300 fill-jp-2-light-gray-1200 text-jp-2-light-gray-1200"} cursor-pointer`}>
-        <Icon name="new-plus-icon" size=12 />
-      </div>}
-    />
-  }
-}
 module ChooseColumns = {
   @react.component
   let make = (
