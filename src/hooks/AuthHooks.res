@@ -14,6 +14,8 @@ let getHeaders = (~uri, ~headers, ()) => {
   let hyperSwitchToken = LocalStorage.getItem("login")->Js.Nullable.toOption
   let isMixpanel = uri->Js.String2.includes("mixpanel")
 
+  Js.log2(uri, "uri")
+
   if isMixpanel {
     let headerObj = {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -34,14 +36,26 @@ let getHeaders = (~uri, ~headers, ()) => {
       switch hyperSwitchToken {
       | Some(token) =>
         if token !== "" {
-          let headerObj = {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${hyperSwitchToken->Belt.Option.getWithDefault("")}`,
-            "api-key": "hyperswitch",
-            "x-feature": "hyperswitch-custom",
+          if (
+            uri->Js.String2.includes("lottie-files") ||
+              uri->Js.String2.includes("config/merchant-access")
+          ) {
+            let headerObj = {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${hyperSwitchToken->Belt.Option.getWithDefault("")}`,
+              "api-key": "hyperswitch",
+            }
+            Js.log2(headerObj, "headerObjheaderObjheaderObjheaderObj")
+            Fetch.HeadersInit.make(headerObj)
+          } else {
+            let headerObj = {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${hyperSwitchToken->Belt.Option.getWithDefault("")}`,
+              "api-key": "hyperswitch",
+              "x-feature": "hyperswitch-custom",
+            }
+            Fetch.HeadersInit.make(headerObj)
           }
-
-          Fetch.HeadersInit.make(headerObj)
         } else {
           let headerObj = {
             "Content-Type": "application/json",
