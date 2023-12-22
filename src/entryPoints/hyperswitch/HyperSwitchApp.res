@@ -80,7 +80,15 @@ let make = () => {
       let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl
       let response = await fetchDetails(url)
 
-      if response->getDictFromJsonObject->getBool("ProductionAgreement", false) {
+      let productionAgreementResponse =
+        response
+        ->getArrayFromJson([])
+        ->Js.Array2.find(ele => {
+          ele->getDictFromJsonObject->getBool("ProductionAgreement", false)
+        })
+        ->Option.getWithDefault(Js.Json.null)
+
+      if productionAgreementResponse->getDictFromJsonObject->getBool("ProductionAgreement", false) {
         setDashboardPageState(_ => #PROD_ONBOARDING)
       } else {
         setDashboardPageState(_ => #AGREEMENT_SIGNATURE)

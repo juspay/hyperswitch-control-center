@@ -205,12 +205,14 @@ let make = () => {
     try {
       let url = #SetupProcessor->ProdOnboardingUtils.getProdOnboardingUrl
       let response = await fetchDetails(url)
-      let connectorId =
+      let setupProcessorEnum =
         response
-        ->getDictFromJsonObject
-        ->getJsonObjectFromDict("SetupProcessor")
-        ->getDictFromJsonObject
-        ->getString("connector_id", "")
+        ->getArrayFromJson([])
+        ->Js.Array2.find(ele => {
+          ele->getDictFromJsonObject->getBool("SetupProcessor", false)
+        })
+        ->Option.getWithDefault(Js.Json.null)
+      let connectorId = setupProcessorEnum->getDictFromJsonObject->getString("connector_id", "")
       if connectorId->Js.String2.length > 0 {
         setConnectorID(_ => connectorId)
         getConfigureEndpointEnum()->ignore
