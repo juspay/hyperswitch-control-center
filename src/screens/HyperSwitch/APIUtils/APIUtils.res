@@ -225,7 +225,7 @@ let handleLogout = async (
   setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
   setIsSidebarExpanded(_ => false)
   LocalStorage.clear()
-  RescriptReactRouter.push("/register")
+  RescriptReactRouter.push("/login")
 }
 
 let responseHandler = async (

@@ -27,9 +27,7 @@ type nestedOption = {
   iconSize?: int,
 }
 
-type subLevelItem =
-  | SubLevelRemoteLink(nestedOption)
-  | SubLevelLink(nestedOption)
+type subLevelItem = SubLevelLink(nestedOption)
 
 type sectionType = {
   name: string,
