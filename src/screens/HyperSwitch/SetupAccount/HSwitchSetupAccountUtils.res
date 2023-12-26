@@ -18,6 +18,7 @@ let listOfStepCounter: array<stepCounterTypes> = [
 
 let constructBody = (~connectorName, ~json, ~profileId) => {
   open LogicUtils
+  open ConnectorUtils
   let connectorAccountDict = json->getDictFromJsonObject->getDictfromDict("connector_auth")
   let bodyType =
     connectorAccountDict->Js.Dict.keys->Belt.Array.get(0)->Belt.Option.getWithDefault("")
@@ -40,35 +41,55 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
     (),
   )
 
-  let creditCardNetworkArray = json->getDictFromJsonObject->getStrArrayFromDict("credit", [])
-  let debitCardNetworkArray = json->getDictFromJsonObject->getStrArrayFromDict("debit", [])
+  let creditCardNetworkArray =
+    json
+    ->getDictFromJsonObject
+    ->getArrayFromDict("credit", [])
+    ->Js.Json.array
+    ->getPaymentMethodMapper
+  let debitCardNetworkArray =
+    json
+    ->getDictFromJsonObject
+    ->getArrayFromDict("debit", [])
+    ->Js.Json.array
+    ->getPaymentMethodMapper
 
-  let payLaterArray = json->getDictFromJsonObject->getStrArrayFromDict("pay_later", [])
-  let walletArray = json->getDictFromJsonObject->getStrArrayFromDict("wallet", [])
+  let payLaterArray =
+    json
+    ->getDictFromJsonObject
+    ->getArrayFromDict("pay_later", [])
+    ->Js.Json.array
+    ->getPaymentMethodMapper
+  let walletArray =
+    json
+    ->getDictFromJsonObject
+    ->getArrayFromDict("wallet", [])
+    ->Js.Json.array
+    ->getPaymentMethodMapper
 
   let paymentMethodsEnabledArray: array<ConnectorTypes.paymentMethodEnabled> = [
     {
       payment_method: "card",
       payment_method_type: "credit",
       provider: [],
-      card_provider: [],
+      card_provider: creditCardNetworkArray,
     },
     {
       payment_method: "card",
       payment_method_type: "debit",
       provider: [],
-      card_provider: [],
+      card_provider: debitCardNetworkArray,
     },
     {
       payment_method: "pay_later",
       payment_method_type: "pay_later",
-      provider: [],
+      provider: payLaterArray,
       card_provider: [],
     },
     {
       payment_method: "wallet",
       payment_method_type: "wallet",
-      provider: [],
+      provider: walletArray,
       card_provider: [],
     },
   ]

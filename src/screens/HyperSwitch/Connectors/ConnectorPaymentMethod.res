@@ -59,7 +59,6 @@ let make = (
           connectorID->Belt.Option.getWithDefault(""),
           ConnectorUtils.connectorIgnoredField,
         )
-      Js.log2(body, "body")
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID, ())
       let response = await updateAPIHook(connectorUrl, body, Post)
       getMixpanelForConnectorOnSubmit(

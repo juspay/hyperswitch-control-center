@@ -1121,7 +1121,6 @@ let defaultSelectAllCards = (
           : Window.getConnectorConfig(connector)
       )->getDictFromJsonObject
     pmts->Js.Array2.forEach(val => {
-      Js.log(val)
       switch val.payment_method->getPaymentMethodFromString {
       | Card => {
           let arr =
