@@ -67,7 +67,7 @@ module.exports = {
         "25-rem": "25rem",
       },
       maxWidth: {
-        fixedPageWidth: "85rem",
+        fixedPageWidth: "82.75rem",
       },
       padding: {
         1: "4px",
@@ -588,28 +588,7 @@ module.exports = {
   variants: {},
   plugins: [
     plugin(function ({ addUtilities }) {
-      const newUtilities = {
-        "*::-webkit-scrollbar": {
-          display: "none", // chrome and other
-        },
-        "*": {
-          scrollbarWidth: "none", // firefox
-        },
-        ".show-scrollbar::-webkit-scrollbar": {
-          display: "block",
-          overflow: "scroll",
-          height: "4px",
-          width: "8px",
-        },
-        ".show-scrollbar::-webkit-scrollbar-thumb": {
-          display: "block",
-          borderRadius: "20rem",
-          backgroundColor: "#8A8C8F",
-        },
-        ".show-scrollbar::-webkit-scrollbar-track": {
-          backgroundColor: "#FFFFFFF",
-        },
-      };
+      const newUtilities = {};
       addUtilities(newUtilities);
     }),
   ],

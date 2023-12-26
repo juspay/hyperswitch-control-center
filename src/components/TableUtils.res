@@ -518,17 +518,10 @@ module DateCell = {
     <AddDataAttributes attributes=[("data-date", timestamp->getFormattedDate(dateFormat))]>
       <div className={`${wrapperClass} whitespace-nowrap`}>
         {hideTime
-          ? {
-              React.string(
-                timestamp->getFormattedDate(dateFormat)->Js.String2.slice(~from=0, ~to_=12),
-              )
-            }
-          : <>
-              {React.string(timestamp->getFormattedDate(dateFormat))}
-              <span className={`text-xs text-jp-gray-700`}>
-                {React.string(` ${selectedTimeZoneAlias}`)}
-              </span>
-            </>}
+          ? React.string(
+              timestamp->getFormattedDate(dateFormat)->Js.String2.slice(~from=0, ~to_=12),
+            )
+          : {React.string(`${timestamp->getFormattedDate(dateFormat)} ${selectedTimeZoneAlias}`)}}
       </div>
     </AddDataAttributes>
   }

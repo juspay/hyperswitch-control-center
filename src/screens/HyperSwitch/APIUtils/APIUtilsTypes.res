@@ -55,7 +55,5 @@ type userType = [
   | #INVITE
   | #RESEND_INVITE
   | #CREATE_MERCHANT
-  | #OSSSIGNIN
-  | #OSSSIGNUP
   | #NONE
 ]
