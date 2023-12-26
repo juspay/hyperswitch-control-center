@@ -82,7 +82,7 @@ module ConnectorCustomCell = {
     }
 
     if connectorName->Js.String2.length > 0 {
-      <div className="flex items-center flex-wrap break-all">
+      <div className="flex items-center flex-nowrap break-all whitespace-nowrap">
         <GatewayIcon gateway={connectorName->Js.String2.toUpperCase} className={`${size} mr-1`} />
         <div className="capitalize"> {connectorName->React.string} </div>
       </div>

@@ -643,10 +643,6 @@ let make = (
                           text="Profile"
                         />
                         <MenuOption onClick={handleLogout} text="Sign out" />
-                        <div className="border-b border-border-light-grey w-[90%] mx-auto my-2" />
-                        <div className="text-sm text-offset_white px-4 py-3">
-                          {HSwitchGlobalVars.hyperSwitchversion->React.string}
-                        </div>
                       </div>
                     }}
                   </Popover.Panel>
