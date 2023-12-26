@@ -1109,27 +1109,40 @@ let defaultSelectAllCards = (
           ? Window.getPayoutConnectorConfig(connector)
           : Window.getConnectorConfig(connector)
       )->getDictFromJsonObject
-    // pmts->Js.Array2.forEach(val => {
-    //   switch val.payment_method->getPaymentMethodFromString {
-    //   | Card => {
-    //       let arr = config->getStrArrayFromDict(val.payment_method_type, [])
-    //       let length = val.card_provider->Belt.Option.getWithDefault([])->len
-    //       val.card_provider
-    //       ->Belt.Option.getWithDefault([])
-    //       ->Array.splice(~start=0, ~remove=length, ~insert=arr)
-    //     }
+    pmts->Js.Array2.forEach(val => {
+      Js.log(val)
+      switch val.payment_method->getPaymentMethodFromString {
+      | Card => {
+          let arr =
+            config
+            ->getArrayFromDict(val.payment_method_type, [])
+            ->Js.Json.array
+            ->getPaymentMethodMapper
 
-    //   | BankTransfer | BankRedirect => {
-    //       let arr = config->getStrArrayFromDict(val.payment_method_type, [])
-    //       let length = val.provider->Belt.Option.getWithDefault([])->len
-    //       val.provider
-    //       ->Belt.Option.getWithDefault([])
-    //       ->Array.splice(~start=0, ~remove=length, ~insert=arr)
-    //     }
+          let length =
+            val.card_provider
+            ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+            ->len
+          val.card_provider
+          ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+          ->Array.splice(~start=0, ~remove=length, ~insert=arr)
+        }
+      | BankTransfer | BankRedirect => {
+          let arr =
+            config
+            ->getArrayFromDict(val.payment_method_type, [])
+            ->Js.Json.array
+            ->getPaymentMethodMapper
 
-    //   | _ => ()
-    //   }
-    // })
+          let length =
+            val.provider->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)->len
+          val.provider
+          ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+          ->Array.splice(~start=0, ~remove=length, ~insert=arr)
+        }
+      | _ => ()
+      }
+    })
     updateDetails(pmts)
   }
 }
