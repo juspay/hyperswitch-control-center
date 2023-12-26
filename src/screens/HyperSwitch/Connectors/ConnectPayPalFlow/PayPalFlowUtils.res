@@ -57,27 +57,23 @@ let stringToVariantMapper = strValue => {
 
 let paypalAPICall = async (~updateDetails, ~connectorId, ~profileId) => {
   open APIUtils
+  open LogicUtils
   try {
     let paypalBody =
       [
         ("connector", "paypal"->Js.Json.string),
         ("connector_id", connectorId->Js.Json.string),
         ("profile_id", profileId->Js.Json.string),
-      ]->LogicUtils.getJsonFromArrayOfJson
+      ]->getJsonFromArrayOfJson
 
     let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/sync`
     let response = await updateDetails(url, paypalBody, Fetch.Post)
 
-    response->LogicUtils.getDictFromJsonObject->LogicUtils.getJsonObjectFromDict("paypal")
+    response->getDictFromJsonObject->getJsonObjectFromDict("paypal")
   } catch {
   | _ => Js.Json.null
   }
 }
-
-let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatus> = Recoil.atom(.
-  "paypalAccountStatusAtom",
-  PayPalFlowTypes.Account_not_found,
-)
 
 let handleConnectorIntegrated = (
   ~dictValue,
@@ -85,12 +81,14 @@ let handleConnectorIntegrated = (
   ~connector,
   ~handleStateToNextPage,
 ) => {
-  let values = dictValue->LogicUtils.getJsonObjectFromDict("connector_integrated")
+  open LogicUtils
+
+  let values = dictValue->getJsonObjectFromDict("connector_integrated")
   let bodyTypeValue =
     dictValue
-    ->LogicUtils.getDictfromDict("connector_integrated")
-    ->LogicUtils.getDictfromDict("connector_account_details")
-    ->LogicUtils.getString("auth_type", "")
+    ->getDictfromDict("connector_integrated")
+    ->getDictfromDict("connector_account_details")
+    ->getString("auth_type", "")
   let body = ConnectorUtils.generateInitialValuesDict(
     ~values,
     ~connector,
@@ -109,7 +107,7 @@ let handleObjectResponse = (
   ~connector,
   ~handleStateToNextPage,
 ) => {
-  let dictkey = dict->Js.Dict.keys->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+  let dictkey = dict->Js.Dict.keys->LogicUtils.getValueFromArray(0, "")
 
   switch dictkey->stringToVariantMapper {
   | Ppcp_custom_denied => setSetupAccountStatus(._ => dictkey->stringToVariantMapper)
