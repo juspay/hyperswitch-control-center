@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.14.0 (2023-12-24)
+
+### Features
+
+- Sidebar expansion close ([#126](https://github.com/juspay/hyperswitch-control-center/pull/126)) ([`ea91fba`](https://github.com/juspay/hyperswitch-control-center/commit/ea91fba4505fc8b64e0bc161ca41d1395fb83af2))
+
+**Full Changelog:** [`v1.13.1...v1.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.13.1...v1.14.0)
+
+- - -
+
+
 ## 1.13.1 (2023-12-21)
 
 ### Bug Fixes
