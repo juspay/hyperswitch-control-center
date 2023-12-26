@@ -179,6 +179,7 @@ let getURL = (
     | #INVITE
     | #RESEND_INVITE =>
       `${userUrl}/user/${(userType :> string)->Js.String2.toLowerCase}`
+
     | #SWITCH_MERCHANT =>
       switch methodType {
       | Get => `${userUrl}/switch/list`
