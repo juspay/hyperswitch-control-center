@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.15.1 (2023-12-26)
+
+### Bug Fixes
+
+- Warnings removed ([#130](https://github.com/juspay/hyperswitch-control-center/pull/130)) ([`5a7f0c7`](https://github.com/juspay/hyperswitch-control-center/commit/5a7f0c7b02b36dc868bc734b081d415e669dae38))
+
+**Full Changelog:** [`v1.15.0...v1.15.1`](https://github.com/juspay/hyperswitch-control-center/compare/v1.15.0...v1.15.1)
+
+- - -
+
+
 ## 1.15.0 (2023-12-26)
 
 ### Features
