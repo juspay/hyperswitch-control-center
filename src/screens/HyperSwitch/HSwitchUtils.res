@@ -77,8 +77,8 @@ module ConnectorCustomCell = {
   @react.component
   let make = (~connectorName) => {
     if connectorName->Js.String2.length > 0 {
-      <div className="flex items-center flex-nowrap break-all whitespace-nowrap">
-        <GatewayIcon gateway={connectorName->Js.String2.toUpperCase} className="w-8 h-8 mr-1" />
+      <div className="flex items-center flex-nowrap break-all whitespace-nowrap mr-6">
+        <GatewayIcon gateway={connectorName->Js.String2.toUpperCase} className="w-6 h-6 mr-2" />
         <div className="capitalize"> {connectorName->React.string} </div>
       </div>
     } else {
