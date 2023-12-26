@@ -1,5 +1,3 @@
-open LogicUtils
-
 type customInputFn = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder: string,
@@ -10,175 +8,6 @@ type comboCustomInputRecord = {
   fn: comboCustomInputFn,
   names: array<string>,
 }
-
-module DOBPicker = {
-  @react.component
-  let make = (
-    ~input: ReactFinalForm.fieldRenderPropsInput,
-    ~disablePastDates=true,
-    ~disableFutureDates=false,
-    ~format="YYYY-MM-DD",
-    ~disableCalender=false,
-  ) => {
-    let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
-    let _ = format
-    let (selectedDate, setSelectedDate) = React.useState(_ =>
-      input.value
-      ->Js.Json.decodeString
-      ->Belt.Option.getWithDefault("")
-      ->DateRangePicker.getDateStringForValue(isoStringToCustomTimeZone)
-    )
-
-    let onHandleChange = event => {
-      let val = ref(ReactEvent.Form.currentTarget(event)["value"])
-      let oldValLength = selectedDate->Js.String2.length
-      let newValLength = val.contents->Js.String2.length
-      let backpressed = !(
-        (newValLength == 5 && oldValLength == 6) ||
-        newValLength == 2 && oldValLength == 3 ||
-        newValLength == oldValLength
-      )
-      if (
-        (val.contents->Js.String2.length == 2 || val.contents->Js.String2.length == 5) &&
-          backpressed
-      ) {
-        val := Js.String.concat("-", val.contents)
-      }
-      setSelectedDate(_ => val.contents)
-      input.onChange(val.contents->Identity.stringToFormReactEvent)
-    }
-    let dropdownRef = React.useRef(Js.Nullable.null)
-    let (isExpanded, setIsExpanded) = React.useState(_ => false)
-    let dropdownVisibilityClass = if isExpanded {
-      "inline-block z-100"
-    } else {
-      "hidden"
-    }
-    let changeDOBFormat = str => {
-      str->Js.String2.split("-")->Js.Array2.reverseInPlace->Js.Array2.joinWith("-")
-    }
-
-    let onDateClick = str => {
-      setIsExpanded(p => !p)
-      if format == "DD-MM-YYYY" {
-        setSelectedDate(_ => changeDOBFormat(str))
-        input.onChange(changeDOBFormat(str)->Identity.stringToFormReactEvent)
-      } else {
-        setSelectedDate(_ => str)
-        input.onChange(str->Identity.stringToFormReactEvent)
-      }
-    }
-    React.useEffect1(() => {
-      if input.value == ""->Js.Json.string {
-        setSelectedDate(_ => "")
-      }
-
-      None
-    }, [input.value])
-
-    let defaultCellHighlighter = currDate => {
-      let highlighter: Calendar.highlighter = {
-        highlightSelf: currDate === selectedDate,
-        highlightLeft: false,
-        highlightRight: false,
-      }
-      highlighter
-    }
-    OutsideClick.useOutsideClick(
-      ~refs=ArrayOfRef([dropdownRef]),
-      ~isActive=isExpanded,
-      ~callback=() => {
-        setIsExpanded(p => !p)
-      },
-      (),
-    )
-    let changeVisibility = _ev => {
-      setIsExpanded(p => !p)
-    }
-
-    let buttonText = {
-      let startDateStr =
-        selectedDate === ""
-          ? input.value->Js.Json.decodeString->Belt.Option.getWithDefault("")
-          : selectedDate
-      startDateStr
-    }
-
-    {
-      switch disableCalender {
-      | true =>
-        <input
-          type_="text"
-          className="w-full border border-jp-gray-lightmode_steelgray border-opacity-75 pl-2 h-10 text-jp-gray-900 text-sm text-opacity-75 placeholder-jp-gray-900 placeholder-opacity-25 hover:bg-jp-gray-lightmode_steelgray hover:bg-opacity-20 hover:border-jp-gray-900 hover:border-opacity-20 focus:text-opacity-100 focus:outline-none focus:border-blue-800 focus:border-opacity-100 dark:text-jp-gray-text_darktheme dark:text-opacity-75 dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:hover:bg-jp-gray-970 dark:bg-jp-gray-darkgray_background dark:placeholder-jp-gray-text_darktheme dark:placeholder-opacity-25 dark:focus:text-opacity-100 dark:focus:border-blue-800 rounded-md "
-          onChange=onHandleChange
-          onBlur=input.onBlur
-          onFocus=input.onFocus
-          maxLength=10
-          value={buttonText}
-          placeholder="DD-MM-YYYY"
-        />
-      | false =>
-        <div className="flex flex-row relative">
-          <input
-            type_="text"
-            className="w-full border border-jp-gray-lightmode_steelgray border-opacity-75 pl-2 h-10 text-jp-gray-900 text-sm text-opacity-75 placeholder-jp-gray-900 placeholder-opacity-25 hover:bg-jp-gray-lightmode_steelgray hover:bg-opacity-20 hover:border-jp-gray-900 hover:border-opacity-20 focus:text-opacity-100 focus:outline-none focus:border-blue-800 focus:border-opacity-100 dark:text-jp-gray-text_darktheme dark:text-opacity-75 dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:hover:bg-jp-gray-970 dark:bg-jp-gray-darkgray_background dark:placeholder-jp-gray-text_darktheme dark:placeholder-opacity-25 dark:focus:text-opacity-100 dark:focus:border-blue-800 rounded-md "
-            onChange=onHandleChange
-            onBlur=input.onBlur
-            onFocus=input.onFocus
-            maxLength=10
-            value={buttonText}
-            placeholder="DD-MM-YYYY"
-          />
-          <Icon
-            className="cursor-pointer opacity-75 -ml-8 my-auto"
-            name="calendar-regular"
-            onClick={changeVisibility}
-          />
-          <div ref={dropdownRef->ReactDOM.Ref.domRef} className="relative">
-            <div className=dropdownVisibilityClass>
-              <div className="-right-[11px] top-[45px] absolute flex flex-row w-max z-10">
-                <CalendarList
-                  count=1
-                  cellHighlighter=defaultCellHighlighter
-                  onDateClick
-                  disablePastDates
-                  disableFutureDates
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      }
-    }
-  }
-}
-module NumericArrayInput = {
-  @react.component
-  let make = (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
-    let (localValue, setLocalValue) = React.useState(() => input.value)
-    let newInput = React.useMemo3(() => {
-      {
-        ...input,
-        value: localValue,
-        onChange: ev => {
-          let value = ReactEvent.Form.target(ev)["value"]
-          let value = if (
-            !Js.Re.test_(%re("/^[0-9]{0,2}(,[0-9]{0,2})*$/"), value) ||
-            value->Js.String2.includes(",,")
-          ) {
-            value->Js.String.slice(~from=0, ~to_=-1)->Js.Json.string
-          } else {
-            value->Js.Json.string
-          }
-          setLocalValue(_ => value)
-          input.onChange(value->Identity.jsonToFormReactEvent)
-        },
-      }
-    }, (input, localValue, setLocalValue))
-    <TextInput input=newInput placeholder />
-  }
-}
-////////
 
 let useGetAccessLevel = () => {
   let accessLevel = React.useContext(FormAuthContext.formAuthContext)
@@ -279,15 +108,6 @@ let infraSelectInput = (
     showTickMark
     allowMultiSelect
   />
-}
-let chipFilterSelectBox = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~options: array<SelectBox.dropdownOption>,
-  ~placeholder as _,
-  ~deselectDisable=false,
-  (),
-) => {
-  <SelectBox.ChipFilterSelectBox input options deselectDisable />
 }
 
 let multiSelectInput = (
@@ -395,18 +215,6 @@ let multiSelectInput = (
   />
 }
 
-let btnGroupInput = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~options: array<SelectBox.dropdownOption>,
-  ~isDisabled=false,
-  ~buttonClass="",
-  ~placeholder as _,
-  ~isSeparate=false,
-  ~buttonSize=?,
-  (),
-) => {
-  <ButtonGroupIp input options buttonClass isDisabled isSeparate ?buttonSize />
-}
 let radioInput = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<SelectBox.dropdownOption>,
@@ -440,89 +248,7 @@ let radioInput = (
     ?maxHeight
   />
 }
-let checkboxInput = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~isHorizontal=false,
-  ~options: array<SelectBox.dropdownOption>,
-  ~optionSize: CheckBoxIcon.size=Small,
-  ~isSelectedStateMinus=false,
-  ~disableSelect=false,
-  ~buttonText="",
-  ~placeholder as _,
-  ~maxHeight=?,
-  ~searchable=?,
-  ~searchInputPlaceHolder=?,
-  ~dropdownCustomWidth=?,
-  ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
-  ~customLabelStyle=?,
-  ~customMarginStyle="mx-3 py-2 gap-2",
-  ~customStyle="",
-  ~checkboxDimension="",
-  ~wrapBasis="",
-  (),
-) => {
-  <SelectBox
-    input
-    options
-    optionSize
-    isSelectedStateMinus
-    disableSelect
-    allowMultiSelect=true
-    isDropDown=false
-    showSelectAll=false
-    buttonText
-    isHorizontal
-    ?maxHeight
-    ?searchable
-    ?searchInputPlaceHolder
-    ?dropdownCustomWidth
-    customSearchStyle
-    ?customLabelStyle
-    customMarginStyle
-    customStyle
-    checkboxDimension
-    wrapBasis
-  />
-}
 
-let rangeInput = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder,
-  ~isDisabled=false,
-  ~inputMode="range",
-  ~min=?,
-  ~max=?,
-  (),
-) => {
-  <RangeInput input placeholder isDisabled inputMode ?min ?max />
-}
-let nestedDropdown = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder as _,
-  ~options,
-  ~title,
-) => {
-  <NestedDropdown input options title />
-}
-let draggableFilters = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder as _,
-  ~options,
-  ~title,
-) => {
-  <DraggableFilter input options title />
-}
-let nestedDropdownWithCalendar = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder as _,
-  ~options,
-  ~dateRangeLimit=60,
-  ~addMore=true,
-  ~title,
-  (),
-) => {
-  <NestedDropdownWithCalendar input options title dateRangeLimit addMore />
-}
 let textInput = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder,
@@ -585,14 +311,6 @@ let textInput = (
   />
 }
 
-let yesNoRadioInput = (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _, ()) => {
-  <YesNoRadioInput input />
-}
-
-let numericArrayInput = (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
-  <NumericArrayInput input placeholder />
-}
-
 let textTagInput = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder,
@@ -607,20 +325,6 @@ let textTagInput = (
   <MultipleTextInput
     input name disabled seperateByComma seperateBySpace ?customStyle ?customButtonStyle placeholder
   />
-}
-
-let fileInput = (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder as _,
-  ~fileType,
-  ~buttonElement=React.null,
-  ~buttonText="Browse",
-  ~leftIcon=React.null,
-  ~widthClass,
-  ~outerWidthClass="",
-  (),
-) => {
-  <CsvInputField input fileType buttonText buttonElement outerWidthClass widthClass leftIcon />
 }
 
 let numericTextInput = (
