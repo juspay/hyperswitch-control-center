@@ -52,7 +52,6 @@ let make = (
         payment_methods_enabled: paymentMethodsEnabled,
         metadata: metaData,
       }
-      Js.log2(obj, "obj")
 
       let body =
         constructConnectorRequestBody(obj, initialValues)->ignoreFields(

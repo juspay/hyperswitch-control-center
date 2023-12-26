@@ -1070,7 +1070,6 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: Js.Json.
     test_mode: dict->getBool("test_mode", false),
   }
   let values = Window.getRequestPayload(wasmRequest, payLoadDetails)
-  Js.log2(values, "wasm request payload values")
   let dict = Js.Dict.fromArray([
     ("connector_account_details", connectorAccountDetails),
     ("connector_label", dict->getString("connector_label", "")->Js.Json.string),
