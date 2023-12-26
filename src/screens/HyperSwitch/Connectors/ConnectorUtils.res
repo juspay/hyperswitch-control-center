@@ -519,13 +519,28 @@ let getConnectorInfo = (connector: connectorName) => {
   }
 }
 
+let itemProviderMapper = dict => {
+  open LogicUtils
+  {
+    payment_method_type: dict->getString("payment_method_type", ""),
+  }
+}
+
+let getPaymentMethodMapper: Js.Json.t => array<provider> = json => {
+  open LogicUtils
+  getArrayDataFromJson(json, itemProviderMapper)
+}
+
 let itemToObjMapper = dict => {
   open LogicUtils
   {
     payment_method: dict->getString("payment_method", ""),
     payment_method_type: dict->getString("payment_method_type", ""),
-    provider: dict->getStrArrayFromDict("provider", []),
-    card_provider: dict->getStrArrayFromDict("card_provider", []),
+    provider: dict->getArrayFromDict("provider", [])->Js.Json.array->getPaymentMethodMapper,
+    card_provider: dict
+    ->getArrayFromDict("card_provider", [])
+    ->Js.Json.array
+    ->getPaymentMethodMapper,
   }
 }
 
@@ -607,52 +622,71 @@ let getSelectedPaymentObj = (paymentMethodsEnabled: array<paymentMethodEnabled>,
 }
 
 let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
-  let pmt = paymentMethodsEnabled->Js.Array2.copy
+  let pmts = paymentMethodsEnabled->Js.Array2.copy
   switch paymentMethod->getPaymentMethodFromString {
   | Card =>
-    pmt->Js.Array2.forEach((val: paymentMethodEnabled) => {
+    pmts->Js.Array2.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->toLCase === paymentMethod->toLCase {
-        val.card_provider->Belt.Option.getWithDefault([])->Array.push(method)
+        val.card_provider
+        ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+        ->Array.push(method)
       }
     })
   | _ =>
-    pmt->Js.Array2.forEach(val => {
+    pmts->Js.Array2.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->toLCase === paymentMethod->toLCase {
-        val.provider->Belt.Option.getWithDefault([])->Array.push(method)
+        val.provider
+        ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+        ->Array.push(method)
       }
     })
   }
-  pmt
+  pmts
 }
 
-let removeMethod = (paymentMethodsEnabled, paymentMethod, method) => {
-  let pmt = paymentMethodsEnabled->Js.Array2.copy
+let removeMethod = (paymentMethodsEnabled, paymentMethod, method: provider) => {
+  let pmts = paymentMethodsEnabled->Js.Array2.copy
   switch paymentMethod->getPaymentMethodFromString {
   | Card =>
-    pmt->Js.Array2.forEach((val: paymentMethodEnabled) => {
+    pmts->Js.Array2.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->toLCase === paymentMethod->toLCase {
         let indexOfRemovalItem =
-          val.card_provider->Belt.Option.getWithDefault([])->Js.Array2.indexOf(method)
+          val.card_provider
+          ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+          ->Js.Array2.map(ele => ele.payment_method_type)
+          ->Js.Array2.indexOf(method.payment_method_type)
 
         val.card_provider
-        ->Belt.Option.getWithDefault([])
-        ->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
+        ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+        ->Array.splice(
+          ~start=indexOfRemovalItem,
+          ~remove=1,
+          ~insert=[]->Js.Json.array->getPaymentMethodMapper,
+        )
       }
     })
 
   | _ =>
-    pmt->Js.Array2.forEach(val => {
+    pmts->Js.Array2.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->toLCase === paymentMethod->toLCase {
         let indexOfRemovalItem =
-          val.provider->Belt.Option.getWithDefault([])->Js.Array2.indexOf(method)
+          val.provider
+          ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+          ->Js.Array2.map(ele => ele.payment_method_type)
+          ->Js.Array2.indexOf(method.payment_method_type)
 
         val.provider
-        ->Belt.Option.getWithDefault([])
-        ->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
+        ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+        ->Array.splice(
+          ~start=indexOfRemovalItem,
+          ~remove=1,
+          ~insert=[]->Js.Json.array->getPaymentMethodMapper,
+        )
       }
     })
   }
-  pmt
+
+  pmts
 }
 
 let generateInitialValuesDict = (
@@ -1025,7 +1059,7 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: Js.Json.
     test_mode: dict->getBool("test_mode", false),
   }
   let values = Window.getRequestPayload(wasmRequest, payLoadDetails)
-
+  Js.log2(values, "wasm request payload values")
   let dict = Js.Dict.fromArray([
     ("connector_account_details", connectorAccountDetails),
     ("connector_label", dict->getString("connector_label", "")->Js.Json.string),
@@ -1075,27 +1109,27 @@ let defaultSelectAllCards = (
           ? Window.getPayoutConnectorConfig(connector)
           : Window.getConnectorConfig(connector)
       )->getDictFromJsonObject
-    pmts->Js.Array2.forEach(val => {
-      switch val.payment_method->getPaymentMethodFromString {
-      | Card => {
-          let arr = config->getStrArrayFromDict(val.payment_method_type, [])
-          let length = val.card_provider->Belt.Option.getWithDefault([])->len
-          val.card_provider
-          ->Belt.Option.getWithDefault([])
-          ->Array.splice(~start=0, ~remove=length, ~insert=arr)
-        }
+    // pmts->Js.Array2.forEach(val => {
+    //   switch val.payment_method->getPaymentMethodFromString {
+    //   | Card => {
+    //       let arr = config->getStrArrayFromDict(val.payment_method_type, [])
+    //       let length = val.card_provider->Belt.Option.getWithDefault([])->len
+    //       val.card_provider
+    //       ->Belt.Option.getWithDefault([])
+    //       ->Array.splice(~start=0, ~remove=length, ~insert=arr)
+    //     }
 
-      | BankTransfer | BankRedirect => {
-          let arr = config->getStrArrayFromDict(val.payment_method_type, [])
-          let length = val.provider->Belt.Option.getWithDefault([])->len
-          val.provider
-          ->Belt.Option.getWithDefault([])
-          ->Array.splice(~start=0, ~remove=length, ~insert=arr)
-        }
+    //   | BankTransfer | BankRedirect => {
+    //       let arr = config->getStrArrayFromDict(val.payment_method_type, [])
+    //       let length = val.provider->Belt.Option.getWithDefault([])->len
+    //       val.provider
+    //       ->Belt.Option.getWithDefault([])
+    //       ->Array.splice(~start=0, ~remove=length, ~insert=arr)
+    //     }
 
-      | _ => ()
-      }
-    })
+    //   | _ => ()
+    //   }
+    // })
     updateDetails(pmts)
   }
 }

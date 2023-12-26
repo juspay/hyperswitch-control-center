@@ -52,13 +52,16 @@ let make = (
         payment_methods_enabled: paymentMethodsEnabled,
         metadata: metaData,
       }
+      Js.log2(obj, "obj")
+
       let body =
         constructConnectorRequestBody(obj, initialValues)->ignoreFields(
           connectorID->Belt.Option.getWithDefault(""),
           ConnectorUtils.connectorIgnoredField,
         )
+      Js.log2(body, "body")
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID, ())
-      let response = await updateAPIHook(connectorUrl, body, Post)
+      // let response = await updateAPIHook(connectorUrl, body, Post)
       getMixpanelForConnectorOnSubmit(
         ~connectorName=connector,
         ~currentStep,
@@ -66,7 +69,7 @@ let make = (
         ~url,
         ~hyperswitchMixPanel,
       )
-      setInitialValues(_ => response)
+      // setInitialValues(_ => response)
       setScreenState(_ => Success)
       setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
       showToast(

@@ -51,24 +51,24 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
       payment_method: "card",
       payment_method_type: "credit",
       provider: [],
-      card_provider: creditCardNetworkArray,
+      card_provider: [],
     },
     {
       payment_method: "card",
       payment_method_type: "debit",
       provider: [],
-      card_provider: debitCardNetworkArray,
+      card_provider: [],
     },
     {
       payment_method: "pay_later",
       payment_method_type: "pay_later",
-      provider: payLaterArray,
+      provider: [],
       card_provider: [],
     },
     {
       payment_method: "wallet",
       payment_method_type: "wallet",
-      provider: walletArray,
+      provider: [],
       card_provider: [],
     },
   ]

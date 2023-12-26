@@ -93,12 +93,12 @@ type paymentMethodTypes =
   | GooglePay
   | ApplePay
   | UnknownPaymentMethodType(string)
-
+type provider = {payment_method_type: string}
 type paymentMethodEnabled = {
   payment_method: string,
   payment_method_type: string,
-  provider?: array<string>,
-  card_provider?: array<string>,
+  provider?: array<provider>,
+  card_provider?: array<provider>,
 }
 
 type applePay = {

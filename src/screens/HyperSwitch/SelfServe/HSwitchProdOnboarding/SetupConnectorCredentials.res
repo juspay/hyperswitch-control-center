@@ -177,13 +177,13 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
           payment_method: "card",
           payment_method_type: "credit",
           provider: [],
-          card_provider: creditCardNetworkArray,
+          card_provider: [],
         },
         {
           payment_method: "card",
           payment_method_type: "debit",
           provider: [],
-          card_provider: debitCardNetworkArray,
+          card_provider: [],
         },
       ]
 
