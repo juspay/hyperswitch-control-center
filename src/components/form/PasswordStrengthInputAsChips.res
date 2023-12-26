@@ -33,58 +33,6 @@ module PasswordChip = {
   }
 }
 
-module PasswordCheckModal = {
-  @react.component
-  let make = (~passwordChips: array<chipType>, ~passwordChecks, ~modalRef) => {
-    let getDetails = chipType =>
-      switch chipType {
-      | Number => "4. Numbers (123)"
-      | Lowercase => "2. Lowercase (abc)"
-      | Uppercase => "1. Uppercase (ABC)"
-      | SpecialChar => "3. Symbols ($#%&*)"
-      | MinEightChars => "5. Minimum 8 characters"
-      }
-    let isCheckPassed = chipType =>
-      switch chipType {
-      | Number => passwordChecks.number
-      | Lowercase => passwordChecks.lowercase
-      | Uppercase => passwordChecks.uppercase
-      | SpecialChar => passwordChecks.specialChar
-      | MinEightChars => passwordChecks.minEightChars
-      }
-    <div
-      ref={modalRef->ReactDOM.Ref.domRef}
-      className="absolute z-40 right-0 mt-3 w-fit flex flex-col gap-1.5 p-4 bg-white border border-jp-2-light-gray-600 rounded-lg">
-      <span className="text-jp-2-gray-700 font-semibold text-fs-12 whitespace-nowrap">
-        {"Must have at least 8 characters"->React.string}
-      </span>
-      <div className="flex items-center justify-between gap-1.5">
-        {passwordChips
-        ->Js.Array2.mapi((chip, index) => {
-          let barClass = isCheckPassed(chip)
-            ? "w-10 h-0.5 bg-jp-2-green-200 rounded-sm"
-            : "w-10 h-0.5 bg-jp-2-light-gray-600 rounded-sm"
-
-          <div key={`${index->Belt.Int.toString} chip`} className=barClass />
-        })
-        ->React.array}
-      </div>
-      <span className="text-jp-2-gray-300 font-medium text-fs-10-lh-18">
-        {"Password should contain:"->React.string}
-      </span>
-      {passwordChips
-      ->Js.Array2.mapi((chip, index) => {
-        let textClass = isCheckPassed(chip) ? "line-through opacity-50" : ""
-        let detailText = getDetails(chip)
-        <span key={`${index->Belt.Int.toString} info`} className=textClass>
-          {detailText->React.string}
-        </span>
-      })
-      ->React.array}
-    </div>
-  }
-}
-
 @react.component
 let make = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
