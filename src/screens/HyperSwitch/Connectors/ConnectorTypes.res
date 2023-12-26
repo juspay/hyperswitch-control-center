@@ -93,7 +93,16 @@ type paymentMethodTypes =
   | GooglePay
   | ApplePay
   | UnknownPaymentMethodType(string)
-type provider = {payment_method_type: string}
+
+type advancedConfigurationList = {
+  @as("type") type_: string,
+  list: array<string>,
+}
+type provider = {
+  payment_method_type: string,
+  accepted_countries: option<advancedConfigurationList>,
+  accepted_currencies: option<advancedConfigurationList>,
+}
 type paymentMethodEnabled = {
   payment_method: string,
   payment_method_type: string,
@@ -152,11 +161,6 @@ type connectorAccountDetails = {
   api_key?: string,
   key1?: string,
   key2?: string,
-}
-
-type advancedConfigurationList = {
-  @as("type") type_: string,
-  list: array<string>,
 }
 
 type advancedConfiguration = {options: advancedConfigurationList}

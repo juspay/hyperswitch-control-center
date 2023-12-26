@@ -79,6 +79,7 @@ let make = (
       )
     } catch {
     | Js.Exn.Error(e) => {
+        Js.log(e)
         let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")

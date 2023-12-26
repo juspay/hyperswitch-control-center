@@ -519,10 +519,21 @@ let getConnectorInfo = (connector: connectorName) => {
   }
 }
 
+let acceptedValues = dict => {
+  open LogicUtils
+  let values = {
+    type_: dict->getString("type", "enable_only"),
+    list: dict->getStrArray("list"),
+  }
+  values.list->Js.Array2.length > 0 ? Some(values) : None
+}
+
 let itemProviderMapper = dict => {
   open LogicUtils
   {
     payment_method_type: dict->getString("payment_method_type", ""),
+    accepted_countries: dict->getDictfromDict("accepted_countries")->acceptedValues,
+    accepted_currencies: dict->getDictfromDict("accepted_currencies")->acceptedValues,
   }
 }
 
