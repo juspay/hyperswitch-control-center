@@ -15,21 +15,23 @@ let getURL = (
   (),
 ) => {
   let merchantId = getFromMerchantDetails("merchant_id")
-  let connectorBaseURL = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/account/${merchantId}/connectors`
+  let connectorBaseURL = `account/${merchantId}/connectors`
 
-  switch entityName {
-  | MERCHANT_ACCOUNT =>
-    switch methodType {
-    | Get
-    | Post =>
-      `${HSwitchGlobalVars.hyperSwitchApiPrefix}/accounts/${merchantId}`
-    | _ => ""
-    }
-  | ONBOARDING =>
-    switch methodType {
-    | Get => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/onboarding`
-    | _ => ""
-    }
+  let endpoint = switch entityName {
+  | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
+  | DEFAULT_FALLBACK => `routing/default`
+  | CHANGE_PASSWORD => `user/change_password`
+  | MERCHANT_ACCOUNT => `accounts/${merchantId}`
+  | ONBOARDING => `onboarding`
+  | PAYMENT_REPORT => `analytics/v1/report/payments`
+  | REFUND_REPORT => `analytics/v1/report/refunds`
+  | DISPUTE_REPORT => `analytics/v1/report/dispute`
+  | SDK_EVENT_LOGS => `analytics/v1/sdk_event_logs`
+  | GENERATE_SAMPLE_DATA => `sample_data/delete`
+  | TEST_LIVE_PAYMENT => `test_payment`
+  | THREE_DS => `routing/decision`
+  | VERIFY_APPLE_PAY => `verify/apple_pay`
+  | SURCHARGE => `routing/decision/surcharge`
   | FRAUD_RISK_MANAGEMENT | CONNECTOR =>
     switch methodType {
     | Get =>
@@ -39,7 +41,7 @@ let getURL = (
       }
     | Post =>
       switch connector {
-      | Some(_con) => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/account/connectors/verify`
+      | Some(_con) => `account/connectors/verify`
       | None =>
         switch id {
         | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
@@ -52,36 +54,30 @@ let getURL = (
     switch methodType {
     | Get =>
       switch id {
-      | Some(routingId) => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/routing/${routingId}`
-      | _ => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/routing`
+      | Some(routingId) => `routing/${routingId}`
+      | _ => `routing`
       }
     | Post =>
       switch id {
-      | Some(routing_id) =>
-        `${HSwitchGlobalVars.hyperSwitchApiPrefix}/routing/${routing_id}/activate `
-      | _ => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/routing`
+      | Some(routing_id) => `routing/${routing_id}/activate `
+      | _ => `routing`
       }
-
     | Put =>
       switch id {
-      | Some(routing_id) => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/routing/${routing_id}`
-      | _ => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/routing `
+      | Some(routing_id) => `routing/${routing_id}`
+      | _ => `routing `
       }
-
     | _ => ""
     }
   | API_KEYS =>
     switch methodType {
-    | Get => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/api_keys/${merchantId}/list`
+    | Get => `api_keys/${merchantId}/list`
     | Post =>
       switch id {
-      | Some(key_id) => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/api_keys/${merchantId}/${key_id}`
-      | None => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/api_keys/${merchantId}`
+      | Some(key_id) => `api_keys/${merchantId}/${key_id}`
+      | None => `api_keys/${merchantId}`
       }
-    | Delete =>
-      `${HSwitchGlobalVars.hyperSwitchApiPrefix}/api_keys/${merchantId}/${id->Belt.Option.getWithDefault(
-          "",
-        )}`
+    | Delete => `api_keys/${merchantId}/${id->Belt.Option.getWithDefault("")}`
     | _ => ""
     }
   | ORDERS =>
@@ -90,31 +86,29 @@ let getURL = (
       switch id {
       | Some(key_id) =>
         switch queryParamerters {
-        | Some(queryParams) =>
-          `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/${key_id}?${queryParams}`
-        | None => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/${key_id}`
+        | Some(queryParams) => `payments/${key_id}?${queryParams}`
+        | None => `payments/${key_id}`
         }
       | None =>
         switch queryParamerters {
-        | Some(queryParams) =>
-          `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/list?${queryParams}`
-        | None => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/list?limit=100`
+        | Some(queryParams) => `payments/list?${queryParams}`
+        | None => `payments/list?limit=100`
         }
       }
-    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/list`
+    | Post => `payments/list`
     | _ => ""
     }
   | REFUNDS =>
     switch methodType {
     | Get =>
       switch id {
-      | Some(key_id) => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds/${key_id}`
+      | Some(key_id) => `refunds/${key_id}`
       | None => ""
       }
     | Post =>
       switch id {
-      | Some(_keyid) => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds/list`
-      | None => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds`
+      | Some(_keyid) => `refunds/list`
+      | None => `refunds`
       }
     | _ => ""
     }
@@ -122,60 +116,39 @@ let getURL = (
     switch methodType {
     | Get =>
       switch id {
-      | Some(dispute_id) => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/disputes/${dispute_id}`
-      | None => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/disputes/list?limit=100`
+      | Some(dispute_id) => `disputes/${dispute_id}`
+      | None => `disputes/list?limit=100`
       }
-    | _ => ""
-    }
-  | DEFAULT_FALLBACK =>
-    switch methodType {
-    | Get
-    | _ =>
-      `${HSwitchGlobalVars.hyperSwitchApiPrefix}/routing/default`
-    }
-  | CHANGE_PASSWORD =>
-    switch methodType {
-    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/change_password`
     | _ => ""
     }
   | ANALYTICS_REFUNDS | ANALYTICS_PAYMENTS | ANALYTICS_USER_JOURNEY | ANALYTICS_SYSTEM_METRICS =>
     switch methodType {
     | Get =>
       switch id {
-      | Some(domain) => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/${domain}/info`
+      | Some(domain) => `analytics/v1/${domain}/info`
       | _ => ""
       }
     | _ => ""
     }
-  | PAYMENT_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/payments`
-  | REFUND_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/refunds`
-  | DISPUTE_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/dispute`
   | PAYMENT_LOGS =>
     switch methodType {
     | Get =>
       switch id {
-      | Some(payment_id) =>
-        `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/api_event_logs?type=Payment&payment_id=${payment_id}`
-      | None => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/event-logs`
+      | Some(payment_id) => `analytics/v1/api_event_logs?type=Payment&payment_id=${payment_id}`
+      | None => `analytics/v1/event-logs`
       }
     | _ => ""
     }
-  | SDK_EVENT_LOGS => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/sdk_event_logs`
-
   | USERS =>
-    let userUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user`
+    let userUrl = `user`
     switch userType {
     | #NONE => ""
-    | #CONNECT_ACCOUNT => `${userUrl}/connect_account`
-    | #VERIFY_MAGIC_LINK => `${userUrl}/verify_email`
-    | #SIGNUP => `${userUrl}/signup`
-
-    | #SIGNIN => `${userUrl}/signin`
-
-    | #VERIFY_EMAIL => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
-
+    | #VERIFY_MAGIC_LINK => `${userUrl}/v2/signin/verify`
+    | #SIGNIN
+    | #VERIFY_EMAIL =>
+      `${userUrl}/v2/${(userType :> string)->Js.String2.toLowerCase}`
     | #USER_DATA => `${userUrl}/data`
-    | #MERCHANT_DATA => `${userUrl}/data`
+    | #MERCHANT_DATA => `${userUrl}/data/merchant`
     | #INVITE
     | #RESEND_INVITE =>
       `${userUrl}/user/${(userType :> string)->Js.String2.toLowerCase}`
@@ -186,27 +159,13 @@ let getURL = (
       | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
       }
     | #CREATE_MERCHANT => `${userUrl}/create_merchant`
-
+    | #OSSSIGNIN => `${userUrl}/signin`
+    | #OSSSIGNUP => `${userUrl}/signup`
     | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
     }
-  | RECON =>
-    `${HSwitchGlobalVars.hyperSwitchApiPrefix}/recon/${(reconType :> string)->Js.String2.toLowerCase}`
-  | GENERATE_SAMPLE_DATA =>
-    switch methodType {
-    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data`
-
-    | Delete => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data`
-
-    | _ => ""
-    }
-  | INTEGRATION_DETAILS =>
-    switch methodType {
-    | Get => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/get_sandbox_integration_details`
-    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/set_sandbox_integration_details`
-    | _ => ""
-    }
+  | RECON => `recon/${(reconType :> string)->Js.String2.toLowerCase}`
   | USER_MANAGEMENT => {
-      let userUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user`
+      let userUrl = `user`
       switch userRoleTypes {
       | USER_LIST => `${userUrl}/user/list`
       | ROLE_LIST => `${userUrl}/role/list`
@@ -218,18 +177,15 @@ let getURL = (
       | NONE => ""
       }
     }
-  | TEST_LIVE_PAYMENT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/test_payment`
-  | THREE_DS => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/routing/decision`
   | BUSINESS_PROFILE =>
     switch id {
-    | Some(id) =>
-      `${HSwitchGlobalVars.hyperSwitchApiPrefix}/account/${merchantId}/business_profile/${id}`
-    | None => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/account/${merchantId}/business_profile`
+    | Some(id) => `account/${merchantId}/business_profile/${id}`
+    | None => `account/${merchantId}/business_profile`
     }
-
-  | VERIFY_APPLE_PAY => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/verify/apple_pay`
-  | _ => ""
+  | PAYMENT | SETTINGS => ""
   }
+
+  `${HSwitchGlobalVars.hyperSwitchApiPrefix}/${endpoint}`
 }
 
 let sessionExpired = ref(false)
