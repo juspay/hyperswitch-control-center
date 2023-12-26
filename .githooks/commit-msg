@@ -33,17 +33,10 @@ echo
 commit_regex="^(Merge branch|(feat|fix|chore|refactor|docs|test|style|enhancement):).+"
 
 
-if git log --show-signature -n 1 | grep -q 'gpg:'; then
-    if ! echo "$commit_msg" | grep -Ei "$commit_regex" ; then
-        echo "Aborting commit. Your commit message does not follow the conventional format."
-        echo "The commit message should begin with one of the following keywords followed by a colon: 'feat', 'fix', 'chore', 'refactor', 'docs', 'test' or 'style'. For example, it should be formatted like this: 'feat: <subject> - <description>'"
-        exit 1
-    fi
-else
-    echo "~~~~**** Error: Commit Signature Missing. ****~~~~"
-    echo "Please make sure to sign your commits. You can sign your commit by using the '-S' option with 'git commit'."
-    echo "Example: git commit -S -m 'Your commit message'"
-    echo "Signing commits is crucial for verifying contributions. Consult GitHub's documentation on commit signature verification for guidance: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits"
+
+if ! echo "$commit_msg" | grep -Ei "$commit_regex" ; then
+    echo "Aborting commit. Your commit message does not follow the conventional format."
+    echo "The commit message should begin with one of the following keywords followed by a colon: 'feat', 'fix', 'chore', 'refactor', 'docs', 'test' or 'style'. For example, it should be formatted like this: 'feat: <subject> - <description>'"
     exit 1
 fi
 

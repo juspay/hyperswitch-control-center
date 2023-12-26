@@ -184,7 +184,7 @@ type summaryColType =
   | LastUpdated
   | PaymentId
   | Currency
-  | ErrorCode
+  | AmountReceived
   | ClientSecret
   | OrderQuantity
   | ProductName
@@ -206,7 +206,7 @@ type aboutPaymentColType =
 type otherDetailsColType =
   | MandateData
   | AmountCapturable
-  | AmountReceived
+  | ErrorCode
   | Shipping
   | Billing
   | Email

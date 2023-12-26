@@ -7,7 +7,7 @@ Hyperswitch control center is an open source dashboard to easily view, manage an
 1. Connect to multiple payment processors like Stripe, Braintree, Adyen etc. in a few clicks
 2. View and manage payments (payments, refunds, disputes) processed through multiple processors
 3. Easily configure routing rules (volume-based, rule-based) to intelligently route your payments
-4. Advanced analytics to make sense of your payments data
+4. Advanced analytics to make sense of your payment data
 
 ---
 
@@ -64,11 +64,11 @@ Follow these simple steps to set up Hyperswitch on your local machine.
 
 ## Feature Flags
 
-Feature flags allows the users to enable or disable certain functionalities or flows in the control center.
+Feature flags allow the users to enable or disable certain functionalities or flows in the control center.
 
 ### Using feature flags
 
-The FeatureFlag.json file can be found under config/FeatueFlag.json. By default, all the feature flags is turned off (`False` value).
+The FeatureFlag.json file can be found under config/FeatueFlag.json. By default, all the feature flags are turned off (`False` value).
 
 ### Feature flag descriptions
 
@@ -94,7 +94,7 @@ The `feedback` feature flag enables the ability for users to provide direct prod
 
 #### Test Processors
 
-The `test_processors` feature flag allows enabling sandbox/test payment processors for testing purposes. When enabled, developers and testers can add test payment processors like Stripe Test or PayPal Test to trial payments flows without touching live transactions or making processor API calls.
+The `test_processors` feature flag allows enabling sandbox/test payment processors for testing purposes. When enabled, developers and testers can add test payment processors like Stripe Test or PayPal Test to trial payment flows without touching live transactions or making processor API calls.
 
 #### User Management / Team
 
@@ -106,7 +106,7 @@ The `recon` feature flag enables access to reconciliation capabilities in the Hy
 
 #### Payout
 
-The `payout` feature flag enables the payouts functionality in the dashboard. When enabled, this allows users to configure payout profiles, manage recipient details, schedule disbursements, and process payout batches to pay out funds to third parties.
+The `payout` feature flag enables the payout functionality in the dashboard. When enabled, this allows users to configure payout profiles, manage recipient details, schedule disbursements, and process payout batches to pay out funds to third parties.
 
 #### FRM
 
@@ -150,7 +150,7 @@ The `production_access` feature flag enables a flow for users to request live pr
 
 #### Quick Start
 
-The `quick_start` feature flag enables the simplified onboarding flow for new users, where he connects to processors, configure payment routing and testing a payment, all in one flow.
+The `quick_start` feature flag enables the simplified onboarding flow for new users, where they connect to processors, configure payment routing and test a payment, all in one flow.
 
 ---
 
@@ -164,7 +164,7 @@ What you need to get started
 
 - An AWS account
 
-> P.S. You can directly start fron Step 3 if you have installed and configured AWS CLI.
+> P.S. You can directly start from Step 3 if you have installed and configured AWS CLI.
 
 #### Step 1 - Install or update the AWS CLI
 
@@ -225,7 +225,7 @@ which aws
 
 #### Step 2 - Configure the AWS CLI
 
-For this step you would need the following from you AWS account
+For this step you would need the following from your AWS account
 
 - Access key ID
 - Secret Access Key
@@ -255,7 +255,7 @@ Once the script is executed, you will receive a Public IP as the response (e.g. 
 
 #### Clean Up
 
-If you want to delete the application from your account simply run the below clean up script. Ypu need to install JQ for this. For more information, [click here](https://jqlang.github.io/jq/download/)
+If you want to delete the application from your account simply run the below clean up script. You need to install JQ for this. For more information, [click here](https://jqlang.github.io/jq/download/)
 
 ```
 curl https://raw.githubusercontent.com/juspay/hyperswitch-control-center/main/aws/hyperswitch_control_center_cleanup_setup.sh | bash

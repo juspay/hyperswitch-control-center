@@ -12,8 +12,8 @@ module RequestPage = {
 
     let handleSubmitRequest = async () => {
       try {
-        let url = getURL(~entityName=FEEDBACK, ~methodType=Post, ())
-        let body =
+        let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
+        let requestedBody =
           [
             ("rating", 5.0->Js.Json.number),
             ("category", "Platform Request"->Js.Json.string),
@@ -23,6 +23,7 @@ module RequestPage = {
           ->HSwitchUtils.getBodyForFeedBack()
           ->Js.Json.object_
 
+        let body = [("Feedback", requestedBody)]->LogicUtils.getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post)
         showToast(
           ~toastType=ToastSuccess,

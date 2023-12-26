@@ -1,6 +1,3 @@
-external strToForm: string => ReactEvent.Form.t = "%identity"
-external formEvAsString: ReactEvent.Form.t => string = "%identity"
-
 let defaultCellHighlighter = (_): Calendar.highlighter => {
   {
     highlightSelf: false,
@@ -277,7 +274,7 @@ module Base = {
         setStartDateVal(_ => localStartDate)
         setEndDateVal(_ => localEndDate)
         switch optInput {
-        | Some(ip) => ip.onChange(localOpt->strToForm)
+        | Some(ip) => ip.onChange(localOpt->Identity.stringToFormReactEvent)
         | None => ()
         }
       }
@@ -418,7 +415,7 @@ module Base = {
       setIsDropdownExpanded(_ => false)
       saveDates()
       switch optInput {
-      | Some(ip) => ip.onChange("custom_range"->strToForm)
+      | Some(ip) => ip.onChange("custom_range"->Identity.stringToFormReactEvent)
       | None => ()
       }
     }
@@ -458,7 +455,7 @@ module Base = {
       name: "string",
       onBlur: _ev => (),
       onChange: timeValEv => {
-        let startTimeVal = timeValEv->formEvAsString
+        let startTimeVal = timeValEv->Identity.formReactEventToString
         let endTime = localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)
 
         if localStartDate !== "" {
@@ -481,7 +478,7 @@ module Base = {
       name: "string",
       onBlur: _ev => (),
       onChange: timeValEv => {
-        let endTimeVal = timeValEv->formEvAsString
+        let endTimeVal = timeValEv->Identity.formReactEventToString
         let startTime = localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)
         if localEndDate !== "" {
           if disableFutureDates && selectedEndDate == todayDate && endTimeVal > todayTime {
@@ -885,14 +882,12 @@ module Base = {
   }
 }
 
-external asFormEvent: string => ReactEvent.Form.t = "%identity"
-
 let useStateForInput = (input: ReactFinalForm.fieldRenderPropsInput) => {
   React.useMemo1(() => {
     let val = input.value->Js.Json.decodeString->Belt.Option.getWithDefault("")
     let onChange = fn => {
       let newVal = fn(val)
-      input.onChange(newVal->asFormEvent)
+      input.onChange(newVal->Identity.stringToFormReactEvent)
     }
 
     (val, onChange)

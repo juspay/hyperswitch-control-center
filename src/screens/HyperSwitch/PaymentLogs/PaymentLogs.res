@@ -6,7 +6,7 @@ module PrettyPrintJson = {
   @react.component
   let make = (
     ~jsonToDisplay,
-    ~headerText,
+    ~headerText=None,
     ~maxHeightClass="max-h-25-rem",
     ~overrideBackgroundColor="bg-hyperswitch_background",
   ) => {
@@ -34,30 +34,37 @@ module PrettyPrintJson = {
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
       hyperswitchMixPanel(
         ~pageName=`${url.path->getListHead}`,
-        ~contextName=`${headerText->toCamelCase}`,
+        ~contextName=`${headerText->Belt.Option.getWithDefault("")->toCamelCase}`,
         ~actionName="copied",
         (),
       )
     }
 
+    let copyParsedJson =
+      <div onClick={_ => handleOnClickCopy(~parsedValue=parsedJson)} className="cursor-pointer">
+        <img src={`/assets/CopyToClipboard.svg`} />
+      </div>
+
     <div className="flex flex-col gap-2  my-2">
       <UIUtils.RenderIf condition={parsedJson->Js.String2.length > 0}>
         {<>
-          <div className="flex justify-between items-center">
-            <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
-              {headerText->React.string}
-            </p>
-            <div
-              onClick={_ => handleOnClickCopy(~parsedValue=parsedJson)} className="cursor-pointer">
-              <img src={`/assets/CopyToClipboard.svg`} />
+          <UIUtils.RenderIf condition={headerText->Belt.Option.isSome}>
+            <div className="flex justify-between items-center">
+              <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
+                {headerText->Belt.Option.getWithDefault("")->React.string}
+              </p>
+              {copyParsedJson}
             </div>
+          </UIUtils.RenderIf>
+          <div className="flex items-start justify-between">
+            <pre
+              className={`${overrideBackgroundColor} p-3 text-jp-gray-900 dark:bg-jp-gray-950 dark:bg-opacity-100 ${isTextVisible
+                  ? "overflow-visible "
+                  : `overflow-clip  h-fit ${maxHeightClass}`} text-fs-13 text font-medium`}>
+              {parsedJson->React.string}
+            </pre>
+            {copyParsedJson}
           </div>
-          <pre
-            className={`${overrideBackgroundColor} p-3 text-jp-gray-900 dark:bg-jp-gray-950 dark:bg-opacity-100 ${isTextVisible
-                ? "overflow-visible "
-                : `overflow-clip  h-fit ${maxHeightClass}`} text-fs-13 text font-medium`}>
-            {parsedJson->React.string}
-          </pre>
           <Button
             text={isTextVisible ? "Hide" : "See more"}
             customButtonStyle="h-6 w-8 flex flex-1 justify-center m-1"
@@ -68,7 +75,7 @@ module PrettyPrintJson = {
       <UIUtils.RenderIf condition={parsedJson->Js.String2.length === 0}>
         <div className="flex flex-col justify-start items-start gap-2 h-25-rem">
           <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
-            {headerText->React.string}
+            {headerText->Belt.Option.getWithDefault("")->React.string}
           </p>
           <p className="font-normal text-fs-14 text-jp-gray-900 text-opacity-50">
             {"Failed to load!"->React.string}
@@ -123,11 +130,6 @@ module ApiDetailsComponent = {
         let (key, _) = entry
         filteredKeys->Js.Array2.includes(key)->not
       })
-      // ->Js.Array2.sortInPlaceWith((e1, e2) => {
-      //   let (key1, _) = e1
-      //   let (key2, _) = e2
-      //   key1 > key2 ? 1 : key1 === key2 ? 0 : -1
-      // })
       ->Js.Dict.fromArray
       ->Js.Json.object_
       ->Js.Json.stringify
@@ -142,8 +144,18 @@ module ApiDetailsComponent = {
     }
 
     let statusCode = switch logType {
-    | Payment => paymentDetailsValue->getString("status_code", "200")
+    | Payment => paymentDetailsValue->getInt("status_code", 200)->Belt.Int.toString
     | Sdk => paymentDetailsValue->getString("log_type", "INFO")
+    }
+
+    let method = switch logType {
+    | Payment => paymentDetailsValue->getString("http_method", "")
+    | Sdk => ""
+    }
+
+    let apiPath = switch logType {
+    | Payment => paymentDetailsValue->getString("url_path", "")
+    | Sdk => ""
     }
 
     let background_color = switch (logType, statusCode) {
@@ -183,7 +195,16 @@ module ApiDetailsComponent = {
         <div className="flex flex-col gap-1">
           <div className=" flex gap-2">
             <p className={`text-${background_color} font-bold `}> {statusCode->React.string} </p>
-            <p className=headerStyle> {apiName->React.string} </p>
+            {switch logType {
+            | Sdk => <p className=headerStyle> {apiName->React.string} </p>
+            | Payment =>
+              <p className=headerStyle>
+                <span className="font-bold mr-2">
+                  {method->Js.String2.toUpperCase->React.string}
+                </span>
+                <span> {apiPath->React.string} </span>
+              </p>
+            }}
           </div>
           <div className={`${headerStyle} opacity-50`}>
             {createdTime->Js.Date.fromString->Js.Date.toUTCString->React.string}
@@ -343,7 +364,7 @@ let make = (~paymentId, ~createdAt) => {
   }
   let getDetails = async () => {
     try {
-      let _wasmResult = await Window.connectorWasmInit()
+      let _ = await Window.connectorWasmInit()
       if !(paymentId->HSwitchOrderUtils.isTestPayment) {
         fetchPaymentLogsData()->ignore
         fetchSdkLogsData()->ignore
@@ -405,7 +426,7 @@ let make = (~paymentId, ~createdAt) => {
       </div>
     } else {
       <Section
-        customCssClass={`border border-jp-gray-940 border-opacity-75 bg-white dark:bg-jp-gray-lightgray_background rounded-md p-10 flex gap-16 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] overflow-scroll`}>
+        customCssClass={`bg-white dark:bg-jp-gray-lightgray_background rounded-md pt-2 pb-4 px-10 flex gap-16 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] overflow-scroll`}>
         <div className="flex flex-col w-1/2 gap-12 overflow-y-scroll">
           <p className="text-lightgray_background font-semibold text-fs-16">
             {"Audit Trail"->React.string}
@@ -436,14 +457,14 @@ let make = (~paymentId, ~createdAt) => {
             <UIUtils.RenderIf condition={requestObject->Js.String2.length > 0}>
               <PrettyPrintJson
                 jsonToDisplay=requestObject
-                headerText={currentSelectedType === Payment ? "Request body" : "Event"}
+                headerText={Some(currentSelectedType === Payment ? "Request body" : "Event")}
                 maxHeightClass={responseObject->Js.String2.length > 0 ? "max-h-25-rem" : ""}
               />
             </UIUtils.RenderIf>
             <UIUtils.RenderIf condition={responseObject->Js.String2.length > 0}>
               <PrettyPrintJson
                 jsonToDisplay=responseObject
-                headerText={currentSelectedType === Payment ? "Response body" : "Metadata"}
+                headerText={Some(currentSelectedType === Payment ? "Response body" : "Metadata")}
               />
             </UIUtils.RenderIf>
           </div>

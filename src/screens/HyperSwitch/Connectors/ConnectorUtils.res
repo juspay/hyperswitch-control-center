@@ -4,20 +4,13 @@ type data = {code?: string, message?: string, type_?: string}
 @scope("JSON") @val
 external parseIntoMyData: string => data = "parse"
 
-type rec map = {entries: (. unit) => map}
-external changeType: Js.Json.t => 't = "%identity"
-@new external create: 't => map = "Map"
-type object = {fromEntries: (. map) => Js.Json.t}
-external object: object = "Object"
-
-let stepsArr = [IntegFields, Webhooks, PaymentMethods, SummaryAndTest]
+let stepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
 
 let payoutStepsArr = [IntegFields, PaymentMethods, SummaryAndTest]
 
 let getStepName = step => {
   switch step {
   | IntegFields => "Credentials"
-  | Webhooks => "Webhooks"
   | PaymentMethods => "Payment Methods"
   | SummaryAndTest => "Summary"
   | Preview => "Preview"
@@ -26,121 +19,6 @@ let getStepName = step => {
 
 let toLCase = str => str->Js.String2.toLowerCase
 let len = arr => arr->Js.Array2.length
-
-let subLabelOptions: array<SelectBox.dropdownOption> = [
-  {
-    label: "AIBMS",
-    value: "aibms",
-  },
-  {
-    label: "American Express Brighton",
-    value: "amex_brighton",
-  },
-  {
-    label: "American Express Direct",
-    value: "amex_direct",
-  },
-  {
-    label: "Asia-Mideast Processing",
-    value: "asia_mideast",
-  },
-  {
-    label: "Barclays",
-    value: "barclays",
-  },
-  {
-    label: "CCS (CAFIS)",
-    value: "ccs",
-  },
-  {
-    label: "Chase Paymentech Solutions",
-    value: "chase",
-  },
-  {
-    label: "Citibank",
-    value: "citi",
-  },
-  {
-    label: "Comercio Latino",
-    value: "comercio_latino",
-  },
-  {
-    label: "CyberSource ACH Service",
-    value: "cybs_ach",
-  },
-  {
-    label: "Visa Platform Connect",
-    value: "visa",
-  },
-  {
-    label: "FDC Compass",
-    value: "fdc_compass",
-  },
-  {
-    label: "FDC Nashville Global",
-    value: "fdc_nashville",
-  },
-  {
-    label: "FDMS Nashville",
-    value: "fdms_nashville",
-  },
-  {
-    label: "FDMS South",
-    value: "fdms_south",
-  },
-  {
-    label: "Ingenico ePayments",
-    value: "ingenico",
-  },
-  {
-    label: "GPN",
-    value: "gpn",
-  },
-  {
-    label: "HSBC",
-    value: "hsbc",
-  },
-  {
-    label: "Litle",
-    value: "litle",
-  },
-  {
-    label: "LloydsTSB Cardnet",
-    value: "lloyds",
-  },
-  {
-    label: "Moneris",
-    value: "moneris",
-  },
-  {
-    label: "Omnipay Direct",
-    value: "omnipay",
-  },
-  {
-    label: "OmniPay-Ireland",
-    value: "omnipay_ireland",
-  },
-  {
-    label: "RBS WorldPay Atlanta",
-    value: "rbs_worldpay",
-  },
-  {
-    label: "Streamline",
-    value: "streamline",
-  },
-  {
-    label: "SIX",
-    value: "six",
-  },
-  {
-    label: "TeleCheck",
-    value: "telecheck",
-  },
-  {
-    label: "TSYS Acquiring Solutions",
-    value: "tsys",
-  },
-]
 
 let payoutConnectorList: array<connectorName> = [ADYEN, WISE]
 
@@ -167,6 +45,7 @@ let connectorList: array<connectorName> = [
   GLOBALPAY,
   GLOBEPAY,
   GOCARDLESS,
+  HELCIM,
   IATAPAY,
   KLARNA,
   MOLLIE,
@@ -457,6 +336,10 @@ let prophetpayInfo = {
   description: "A secure, affordable, and easy-to-use credit card processing platform for any business.",
 }
 
+let helcimInfo = {
+  description: "Helcim is the easy and affordable solution for small businesses accepting credit card payments.",
+}
+
 let unknownConnectorInfo = {
   description: "unkown connector",
 }
@@ -517,6 +400,7 @@ let getConnectorNameString = connector => {
   | VOLT => "volt"
   | PROPHETPAY => "prophetpay"
   | BANKOFAMERICA => "bankofamerica"
+  | HELCIM => "helcim"
   | UnknownConnector(str) => str
   }
 }
@@ -573,6 +457,7 @@ let getConnectorNameTypeFromString = connector => {
   | "volt" => VOLT
   | "bankofamerica" => BANKOFAMERICA
   | "prophetpay" => PROPHETPAY
+  | "helcim" => HELCIM
   | _ => UnknownConnector("Not known")
   }
 }
@@ -629,6 +514,7 @@ let getConnectorInfo = (connector: connectorName) => {
   | VOLT => voltInfo
   | PROPHETPAY => prophetpayInfo
   | BANKOFAMERICA => bankOfAmericaInfo
+  | HELCIM => helcimInfo
   | UnknownConnector(_) => unknownConnectorInfo
   }
 }
@@ -646,13 +532,6 @@ let itemToObjMapper = dict => {
 let getPaymentMethodEnabled: Js.Json.t => array<paymentMethodEnabled> = json => {
   open LogicUtils
   getArrayDataFromJson(json, itemToObjMapper)
-}
-
-let getMetaData = json => {
-  open LogicUtils
-  let val = json->Js.Json.decodeObject->Belt.Option.getWithDefault(Js.Dict.empty())
-  let _apple_pay = val->getJsonObjectFromDict("apple_pay")
-  let _goole_pay = val->getJsonObjectFromDict("apple_pay")
 }
 
 let connectorIgnoredField = [
@@ -698,14 +577,6 @@ let ignoreFields = (json, id, fields) => {
   }
 }
 
-let getPayoutConnectorAuthType = connector => {
-  switch connector {
-  | ADYEN => (#SignatureKey: authType :> string)
-  | WISE => (#BodyKey: authType :> string)
-  | _ => (#Nokey: authType :> string)
-  }
-}
-
 let mapAuthType = (authType: string) => {
   switch authType->toLCase {
   | "bodykey" => #BodyKey
@@ -717,7 +588,7 @@ let mapAuthType = (authType: string) => {
   }
 }
 
-let getConnectorType = (connector, ~isPayoutFlow=false, ()) => {
+let getConnectorType = (connector, ~isPayoutFlow, ()) => {
   isPayoutFlow
     ? "payout_processor"
     : switch connector {
@@ -810,6 +681,17 @@ let generateInitialValuesDict = (
   dict->Js.Dict.set("disabled", dict->getBool("disabled", false)->Js.Json.boolean)
   dict->Js.Dict.set("test_mode", (isLiveMode ? false : true)->Js.Json.boolean)
   dict->Js.Dict.set("connector_label", dict->getString("connector_label", "")->Js.Json.string)
+
+  let connectorWebHookDetails =
+    dict->getJsonObjectFromDict("connector_webhook_details")->getDictFromJsonObject
+
+  dict->Js.Dict.set(
+    "connector_webhook_details",
+    connectorWebHookDetails->getOptionString("merchant_secret")->Belt.Option.isSome
+      ? connectorWebHookDetails->Js.Json.object_
+      : Js.Json.null,
+  )
+
   dict->Js.Json.object_
 }
 
@@ -860,12 +742,10 @@ let getMetaDataRequiredFields = (connector: connectorName, fieldName: string) =>
 
 let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
   open LogicUtils
+  open MapTypes
   let authKeyMap =
     connectorAccountFields->getDictfromDict("auth_key_map")->Js.Json.object_->changeType
-  let map = create(authKeyMap)
-  let mapIterator = map.entries(.)
-  let dict = object.fromEntries(. mapIterator)->getDictFromJsonObject
-  dict
+  convertMapObjectToDict(authKeyMap)
 }
 
 let checkInnerField = (valuesFlattenJson, dict, country: string): bool => {
@@ -955,26 +835,6 @@ let validateConnectorRequiredFields = (
     }
   })
   newDict->Js.Json.object_
-}
-
-let getFirstLabelViaCountryKey = (dict, country) => {
-  dict
-  ->Js.Dict.get(country)
-  ->Belt.Option.getWithDefault([])
-  ->Belt.Array.get(0)
-  ->Belt.Option.getWithDefault("")
-}
-
-let getDefaultCountryAndLabel = dict => {
-  let defaultCountry = dict->Js.Dict.keys->Belt.Array.get(0)->Belt.Option.getWithDefault("")
-
-  let defaultLabel =
-    dict
-    ->Js.Dict.get(defaultCountry)
-    ->Belt.Option.getWithDefault([])
-    ->Belt.Array.get(0)
-    ->Belt.Option.getWithDefault("")
-  (defaultCountry, defaultLabel)
 }
 
 let getPlaceHolder = (connector: connectorName, fieldName, label) => {
@@ -1169,6 +1029,7 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: Js.Json.
   let dict = Js.Dict.fromArray([
     ("connector_account_details", connectorAccountDetails),
     ("connector_label", dict->getString("connector_label", "")->Js.Json.string),
+    ("status", dict->getString("status", "active")->Js.Json.string),
   ])
   values
   ->getDictFromJsonObject
@@ -1273,5 +1134,23 @@ let getConnectorPaymentMethodDetails = async (
       let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
+  }
+}
+
+let mixpanelEventWrapper = (
+  ~url: RescriptReactRouter.url,
+  ~selectedConnector,
+  ~actionName,
+  ~hyperswitchMixPanel: HSMixPanel.functionType,
+) => {
+  if selectedConnector->Js.String2.length > 0 {
+    [selectedConnector, "global"]->Js.Array2.forEach(ele =>
+      hyperswitchMixPanel(
+        ~pageName=url.path->LogicUtils.getListHead,
+        ~contextName=ele,
+        ~actionName,
+        (),
+      )
+    )
   }
 }

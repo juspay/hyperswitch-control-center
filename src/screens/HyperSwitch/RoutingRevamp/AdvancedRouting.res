@@ -3,9 +3,6 @@ open AdvancedRoutingTypes
 open AdvancedRoutingUtils
 open LogicUtils
 
-external toForm: string => ReactEvent.Form.t = "%identity"
-external toJson: 'a => Js.Json.t = "%identity"
-external arrToFormEvent: array<'a> => ReactEvent.Form.t = "%identity"
 external toWasm: Js.Dict.t<Js.Json.t> => RoutingTypes.wasmModule = "%identity"
 
 let defaultRule = {
@@ -124,7 +121,7 @@ module Wrapper = {
     }
 
     React.useEffect0(() => {
-      name.onChange(heading->Js.String2.toLowerCase->titleToSnake->toForm)
+      name.onChange(heading->Js.String2.toLowerCase->titleToSnake->Identity.stringToFormReactEvent)
 
       let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Js.Array2.length > 0
 
@@ -242,23 +239,23 @@ module RuleBasedUI = {
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
 
     React.useEffect1(() => {
-      ruleInput.onChange(rules->arrToFormEvent)
+      ruleInput.onChange(rules->Identity.arrayOfGenericTypeToFormReactEvent)
       None
     }, [rules])
 
     let addRule = (index, copy) => {
       let existingRules = ruleInput.value->getArrayFromJson([])
       let newRule = copy
-        ? existingRules[index]->Belt.Option.getWithDefault(defaultRule->toJson)
-        : defaultRule->toJson
+        ? existingRules[index]->Belt.Option.getWithDefault(defaultRule->Identity.genericTypeToJson)
+        : defaultRule->Identity.genericTypeToJson
       let newRules = existingRules->Js.Array2.concat([newRule])
-      ruleInput.onChange(newRules->arrToFormEvent)
+      ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
     let removeRule = index => {
       let existingRules = ruleInput.value->getArrayFromJson([])
       let newRules = existingRules->Array.filterWithIndex((_, i) => i !== index)
-      ruleInput.onChange(newRules->arrToFormEvent)
+      ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
     <div className="flex flex-col my-5">
@@ -284,6 +281,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
               let id = {`${rulesJsonPath}[${string_of_int(index)}]`}
 
               <Wrapper
+                key={index->string_of_int}
                 id
                 heading={`Rule ${string_of_int(index + 1)}`}
                 onClickAdd={_ => addRule(index, false)}
@@ -340,7 +338,9 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
-  let (initialValues, setInitialValues) = React.useState(_ => initialValues->toJson)
+  let (initialValues, setInitialValues) = React.useState(_ =>
+    initialValues->Identity.genericTypeToJson
+  )
   let (initialRule, setInitialRule) = React.useState(() => None)
   let showToast = ToastState.useShowToast()
   let fetchDetails = useGetMethod()
@@ -594,7 +594,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       }
 
       let getActivateUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
-      let response = await updateDetails(getActivateUrl, payload->toJson, Post)
+      let response = await updateDetails(getActivateUrl, payload->Identity.genericTypeToJson, Post)
 
       showToast(
         ~message="Successfully Created a new Configuration !",

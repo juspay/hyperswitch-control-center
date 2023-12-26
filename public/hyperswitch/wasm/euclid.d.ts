@@ -104,10 +104,9 @@ export function getRequestPayload(input: any, response: any): any;
 */
 export function getResponsePayload(input: any): any;
 /**
-* @param {string} key
 * @returns {any}
 */
-export function getDescriptionCategory(key: string): any;
+export function getDescriptionCategory(): any;
 /**
 *
 * Function exposed as `wasm` function in js `parse`. Allowing use to extend the functionality and
@@ -138,7 +137,7 @@ export interface InitOutput {
   readonly getPayoutConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getRequestPayload: (a: number, b: number, c: number) => void;
   readonly getResponsePayload: (a: number, b: number) => void;
-  readonly getDescriptionCategory: (a: number, b: number, c: number) => void;
+  readonly getDescriptionCategory: (a: number) => void;
   readonly parse: (a: number, b: number, c: number) => void;
   readonly parseToString: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_0: (a: number, b: number) => number;

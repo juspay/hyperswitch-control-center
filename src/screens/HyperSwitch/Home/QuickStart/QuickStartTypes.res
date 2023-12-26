@@ -47,6 +47,10 @@ type sectionHeadingVariant = [
   | #TestPayment
   | #IntegrationMethod
   | #IntegrationCompleted
+  | #DownloadTestAPIKey
+  | #CreatePayment
+  | #DisplayCheckout
+  | #DisplayPaymentConfirmation
   | #StripeConnected
   | #PaypalConnected
   | #SPRoutingConfigured
@@ -54,8 +58,13 @@ type sectionHeadingVariant = [
   | #DownloadWoocom
   | #ConfigureWoocom
   | #SetupWoocomWebhook
-  | #IsMultipleConfiguration
+  | #ConfigurationType
   | #GoLive
+  | #DownloadTestAPIKeyStripe
+  | #InstallDeps
+  | #ReplaceAPIKeys
+  | #ReconfigureCheckout
+  | #LoadCheckout
 ]
 
 type processorType = {
@@ -67,7 +76,6 @@ type routingType = {routing_id: string}
 type paymentType = {payment_id: string}
 
 type integrationMethod = {integration_type: string}
-type connectorChoice = {isMultipleConfiguration: bool}
 
 type responseType = {
   productionAgreement: bool,
@@ -84,14 +92,25 @@ type responseType = {
   downloadWoocom: bool,
   configureWoocom: bool,
   setupWoocomWebhook: bool,
-  isMultipleConfiguration: bool,
+  downloadTestAPIKeyStripe: string,
+  installDeps: string,
+  replaceAPIKeys: string,
+  reconfigureCheckout: string,
+  loadCheckout: string,
+  downloadTestAPIKey: string,
+  createPayment: string,
+  displayCheckout: string,
+  displayPaymentConfirmation: string,
+  configurationType: string,
 }
+
 type requestObjectType =
   | ProcesorType(processorType)
   | RoutingType(routingType)
   | PaymentType(paymentType)
   | IntegrationMethod(integrationMethod)
-  | ConnectorChoice(connectorChoice)
   | Boolean(bool)
+  | String(string)
+  | StringEnumType(string)
 
 type valueType = String(string) | Boolean(bool)

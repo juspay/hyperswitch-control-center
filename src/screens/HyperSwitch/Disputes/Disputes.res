@@ -74,11 +74,7 @@ let make = () => {
       />
     </>
 
-  let {generateReport} =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <div>
     <PageUtils.PageHeading title="Disputes" subTitle="View and manage all disputes" />

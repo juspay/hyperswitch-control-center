@@ -37,8 +37,6 @@ if appName === Some("hyperswitch") {
   Fs.writeFileSync("dist/hyperswitch/hyperswitch.html", htmlInFs)
 }
 
-external asJson: {..} => Js.Json.t = "%identity"
-
 type encodeType = {encoding: string}
 
 @module("child_process")

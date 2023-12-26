@@ -1,7 +1,4 @@
 let h3Leading2Style = HSwitchUtils.getTextClass(~textVariant=H3, ~h3TextVariant=Leading_2, ())
-external toJson: 'a => Js.Json.t = "%identity"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
-external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
 
 module SDKConfiguarationFields = {
   open MerchantAccountUtils
@@ -55,8 +52,10 @@ module SDKConfiguarationFields = {
             value: (initialValues.amount / 100)->string_of_int->Js.Json.string,
             onChange: {
               ev => {
-                let eventValueToInt = ev->formEventToStr->LogicUtils.getIntFromString(0)
-                let valInCents = (eventValueToInt * 100)->string_of_int->strToFormEvent
+                let eventValueToInt =
+                  ev->Identity.formReactEventToString->LogicUtils.getIntFromString(0)
+                let valInCents =
+                  (eventValueToInt * 100)->string_of_int->Identity.stringToFormReactEvent
                 input.onChange(valInCents)
               }
             },
@@ -140,7 +139,7 @@ let make = () => {
         </div>
         <div className="p-7 flex flex-col gap-16">
           <Form
-            initialValues={initialValues->toJson}
+            initialValues={initialValues->Identity.genericTypeToJson}
             formClass="grid grid-cols-2 gap-x-8 gap-y-4"
             onSubmit>
             <SDKConfiguarationFields initialValues />

@@ -10,11 +10,7 @@ module HyperSwitchEntryComponent = {
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-    let featureFlagDetails =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     React.useEffect0(() => {
       HSiwtchTimeZoneUtils.getUserTimeZone()->setZone
       None
@@ -71,9 +67,11 @@ module HyperSwitchEntryComponent = {
     let fetchFeatureFlags = async () => {
       try {
         let url = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/config/merchant-access`
-        let stringifiedResponse =
-          (await postDetails(url, Js.Dict.empty()->Js.Json.object_, Post))->Js.Json.stringify
-        setFeatureFlag(._ => stringifiedResponse)
+        let typedResponse =
+          (
+            await postDetails(url, Js.Dict.empty()->Js.Json.object_, Post)
+          )->FeatureFlagUtils.featureFlagType
+        setFeatureFlag(._ => typedResponse)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | Js.Exn.Error(e) =>

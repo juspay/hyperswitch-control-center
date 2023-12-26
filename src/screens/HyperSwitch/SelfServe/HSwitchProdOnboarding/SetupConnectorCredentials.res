@@ -1,7 +1,6 @@
 let headerTextStyle = "text-xl font-semibold text-grey-700"
 let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
 let dividerColor = "bg-grey-700 bg-opacity-20 h-px w-full"
-let highlightedText = "text-base font-normal text-blue-700 underline"
 
 module ConnectorDetailsForm = {
   open ConnectorUtils
@@ -15,6 +14,7 @@ module ConnectorDetailsForm = {
     ~verifyErrorMessage,
     ~checkboxText,
   ) => {
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
 
     let (
@@ -37,6 +37,11 @@ module ConnectorDetailsForm = {
     )
 
     <div className="flex flex-col gap-6">
+      <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
+        <ConnectorAccountDetailsHelper.BusinessProfileRender
+          isUpdateFlow=false selectedConnector={connectorName}
+        />
+      </UIUtils.RenderIf>
       <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
         connectorAccountFields
         connector={connectorName->getConnectorNameTypeFromString}
@@ -46,7 +51,7 @@ module ConnectorDetailsForm = {
         bodyType
         connectorLabelDetailField
       />
-      <ConnectorAccountDetails.VerifyConnectoModal
+      <ConnectorAccountDetailsHelper.VerifyConnectorModal
         showVerifyModal
         setShowVerifyModal
         connector={connectorName}
@@ -77,11 +82,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   open ConnectorUtils
   open APIUtils
   let showToast = ToastState.useShowToast()
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (isCheckboxSelected, setIsCheckboxSelected) = React.useState(_ => false)
@@ -90,12 +91,19 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   let (connectorDetails, setConnectorDetails) = React.useState(_ => Js.Json.null)
   let (isLoading, setIsLoading) = React.useState(_ => false)
   let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
+  let (initialValues, setInitialValues) = React.useState(_ => Js.Json.null)
 
   let getDetails = async () => {
-    let _wasmResult = await Window.connectorWasmInit()
-    let val = connectorName->Window.getConnectorConfig
-    setConnectorDetails(_ => val)
-    setScreenState(_ => Success)
+    try {
+      let _ = await Window.connectorWasmInit()
+      let val = connectorName->Window.getConnectorConfig
+      setConnectorDetails(_ => val)
+      setScreenState(_ => Success)
+    } catch {
+    | Js.Exn.Error(e) =>
+      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong!")
+      setScreenState(_ => PageLoaderWrapper.Error(err))
+    }
   }
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
@@ -114,11 +122,27 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     connectorWebHookDetails,
     connectorLabelDetailField,
   ) = getConnectorFields(connectorDetails)
+  let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
+  let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
 
   let (suggestedAction, suggestedActionExists) = getSuggestedAction(
     ~verifyErrorMessage,
     ~connector={connectorName},
   )
+
+  React.useEffect1(() => {
+    setInitialValues(prevJson => {
+      let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
+      prevJsonDict->Js.Dict.set(
+        "connector_label",
+        `${selectedConnector->ConnectorUtils.getConnectorNameString}_${defaultBusinessProfile.profile_name}`->Js.Json.string,
+      )
+      prevJsonDict->Js.Dict.set("profile_id", defaultBusinessProfile.profile_id->Js.Json.string)
+      prevJsonDict->Js.Json.object_
+    })
+
+    None
+  }, [selectedConnector])
 
   let {profile_id} =
     HyperswitchAtom.businessProfilesAtom
@@ -353,10 +377,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   }
 
   <PageLoaderWrapper screenState>
-    <Form
-      initialValues={Js.Dict.empty()->Js.Json.object_}
-      onSubmit={handleSubmit}
-      validate={validateMandatoryField}>
+    <Form initialValues onSubmit={handleSubmit} validate={validateMandatoryField}>
       <div className="flex flex-col h-full w-full ">
         <div className="flex justify-between px-11 py-8 flex-wrap gap-4">
           <div className="flex gap-4 items-center">
@@ -391,7 +412,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
           {getComponentToRender()}
         </div>
       </div>
-      <ConnectorAccountDetails.VerifyConnectoModal
+      <ConnectorAccountDetailsHelper.VerifyConnectorModal
         showVerifyModal
         setShowVerifyModal
         connector={connectorName}
@@ -400,6 +421,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         suggestedAction
         setVerifyDone
       />
+      <FormValuesSpy />
     </Form>
   </PageLoaderWrapper>
 }

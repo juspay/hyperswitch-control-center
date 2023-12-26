@@ -1,4 +1,3 @@
-external toReactEvent: 'a => ReactEvent.Form.t = "%identity"
 @react.component
 let make = (~input: ReactFinalForm.fieldRenderPropsInput) => {
   let (color, setColor) = React.useState(_ =>
@@ -11,7 +10,7 @@ let make = (~input: ReactFinalForm.fieldRenderPropsInput) => {
   let onChangeComplete = color => {
     let hex = color->LogicUtils.getDictFromJsonObject->LogicUtils.getString("hex", "")
     setColor(_ => hex)
-    input.onChange(hex->toReactEvent)
+    input.onChange(hex->Identity.anyTypeToReactEvent)
   }
 
   OutsideClick.useOutsideClick(

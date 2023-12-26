@@ -2,11 +2,7 @@ open AdvancedRoutingTypes
 open AdvancedRoutingUtils
 open FormRenderer
 
-external arrToFormEvent: array<'a> => ReactEvent.Form.t = "%identity"
-external toForm: 'a => ReactEvent.Form.t = "%identity"
 external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
-external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
 
 module LogicalOps = {
   @react.component
@@ -23,9 +19,10 @@ module LogicalOps = {
 
     <ButtonGroup wrapperClass="flex flex-row mr-2 ml-1">
       {["AND", "OR"]
-      ->Js.Array2.map(text => {
+      ->Array.mapWithIndex((text, i) => {
         let active = logicalOpsInput.value->LogicUtils.getStringFromJson("") === text
         <Button
+          key={i->string_of_int}
           text
           onClick={_ => onChange(text)}
           textStyle={active ? "text-blue-800" : ""}
@@ -55,8 +52,8 @@ module OperatorInp = {
       name: "string",
       onBlur: _ev => (),
       onChange: ev => {
-        let value = ev->formEventToStr
-        operator.onChange(value->toForm)
+        let value = ev->Identity.formReactEventToString
+        operator.onChange(value->Identity.anyTypeToReactEvent)
       },
       onFocus: _ev => (),
       value: operator.value,
@@ -74,7 +71,7 @@ module OperatorInp = {
       setOpVals(_ => operatorVals)
 
       if operator.value->Js.Json.decodeString->Belt.Option.isNone {
-        operator.onChange(operatorVals[0]->toForm)
+        operator.onChange(operatorVals[0]->Identity.anyTypeToReactEvent)
       }
       None
     }, (field.value, valInp.value))
@@ -139,7 +136,7 @@ module ValueInp = {
           | NOT_CONTAINS => "enum_variant_array"
           | _ => "number"
           }
-        }->toForm,
+        }->Identity.anyTypeToReactEvent,
       )
       None
     }, [valueField.value])
@@ -148,8 +145,8 @@ module ValueInp = {
       name: "string",
       onBlur: _ev => (),
       onChange: ev => {
-        let value = ev->formEventToStrArr
-        valueField.onChange(value->toForm)
+        let value = ev->Identity.formReactEventToArrayOfString
+        valueField.onChange(value->Identity.anyTypeToReactEvent)
       },
       onFocus: _ev => (),
       value: valueField.value,
@@ -179,7 +176,7 @@ module ValueInp = {
       }
     | EQUAL_TO =>
       switch keyType->variantTypeMapper {
-      | String_value => <TextInput input placeholder="Enter value" />
+      | String_value | Metadata_value => <TextInput input placeholder="Enter value" />
       | _ => <NumericTextInput placeholder={"Enter value"} input />
       }
 
@@ -209,12 +206,12 @@ module MetadataInp = {
         })
         let finalVal = Js.Array2.joinWith(arrStr, ",")->Js.Json.string
 
-        valueField.onChange(finalVal->toForm)
+        valueField.onChange(finalVal->Identity.anyTypeToReactEvent)
       },
       onChange: ev => {
         let target = ReactEvent.Form.target(ev)
         let value = target["value"]
-        valueField.onChange(value->toForm)
+        valueField.onChange(value->Identity.anyTypeToReactEvent)
       },
       onFocus: _ev => (),
       value: valueField.value,
@@ -286,29 +283,54 @@ let metaInput = (id, keyType) =>
 
 module FieldInp = {
   @react.component
-  let make = (~ops, ~prefix, ~onChangeMethod) => {
+  let make = (~methodKeys, ~prefix, ~onChangeMethod) => {
     let field = ReactFinalForm.useField(`${prefix}.lhs`).input
     let op = ReactFinalForm.useField(`${prefix}.comparison`).input
     let val = ReactFinalForm.useField(`${prefix}.value.value`).input
+
+    let convertedValue = React.useMemo0(() => {
+      let keyDescriptionMapper = Window.getDescriptionCategory()->MapTypes.changeType
+      keyDescriptionMapper->LogicUtils.convertMapObjectToDict
+    })
+
+    let options = React.useMemo0(() =>
+      convertedValue->Js.Dict.keys->Js.Array2.reduce((acc, ele) => {
+        open LogicUtils
+        convertedValue
+        ->getArrayFromDict(ele, [])
+        ->Js.Array2.forEach(
+          value => {
+            let dictValue = value->LogicUtils.getDictFromJsonObject
+            let kindValue = dictValue->getString("kind", "")
+            if methodKeys->Js.Array2.includes(kindValue) {
+              let generatedSelectBoxOptionType: SelectBox.dropdownOption = {
+                label: kindValue,
+                value: kindValue,
+                description: dictValue->getString("description", ""),
+                optGroup: ele,
+              }
+              acc->Js.Array2.push(generatedSelectBoxOptionType)->ignore
+            }
+          },
+        )
+        acc
+      }, [])
+    )
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
       onBlur: _ev => (),
       onChange: ev => {
-        let value = ev->formEventToStr
+        let value = ev->Identity.formReactEventToString
         onChangeMethod(value)
-        field.onChange(value->toForm)
-        op.onChange(""->toForm)
-        val.onChange(""->toForm)
+        field.onChange(value->Identity.anyTypeToReactEvent)
+        op.onChange(""->Identity.anyTypeToReactEvent)
+        val.onChange(""->Identity.anyTypeToReactEvent)
       },
       onFocus: _ev => (),
       value: field.value,
       checked: true,
     }
-
-    let options = ops->Js.Array2.map((op): SelectBox.dropdownOption => {
-      {value: op, label: op}
-    })
 
     <SelectBox.BaseDropdown
       allowMultiSelect=false buttonText="Select Field" input options hideMultiSelectButtons=true
@@ -361,7 +383,7 @@ module RuleFieldBase = {
           </UIUtils.RenderIf>
           <div className="-mt-5 p-1">
             <FieldWrapper label="">
-              <FieldInp ops=methodKeys prefix=id onChangeMethod />
+              <FieldInp methodKeys prefix=id onChangeMethod />
             </FieldWrapper>
           </div>
           <div className="-mt-5">
@@ -401,17 +423,27 @@ module MakeRuleField = {
     let onPlusClick = _ => {
       if plusBtnEnabled {
         let toAdd = Js.Dict.empty()
-        conditionsInput.onChange(Js.Array2.concat(fields, [toAdd->Js.Json.object_])->arrToFormEvent)
+        conditionsInput.onChange(
+          Js.Array2.concat(
+            fields,
+            [toAdd->Js.Json.object_],
+          )->Identity.arrayOfGenericTypeToFormReactEvent,
+        )
       }
     }
 
     let onCrossClick = index => {
-      conditionsInput.onChange(fields->Array.filterWithIndex((_, i) => index !== i)->arrToFormEvent)
+      conditionsInput.onChange(
+        fields
+        ->Array.filterWithIndex((_, i) => index !== i)
+        ->Identity.arrayOfGenericTypeToFormReactEvent,
+      )
     }
 
     <div className="flex flex-wrap items-center">
       {Array.mapWithIndex(fields, (_, i) =>
         <RuleFieldBase
+          key={i->string_of_int}
           onClick={_ => onCrossClick(i)}
           isFirst={i === 0}
           id={`${ruleJsonPath}[${i->Belt.Int.toString}]`}

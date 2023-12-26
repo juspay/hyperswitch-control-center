@@ -1,4 +1,4 @@
-type steps = IntegFields | PaymentMethods | SummaryAndTest | Preview | Webhooks
+type steps = IntegFields | PaymentMethods | SummaryAndTest | Preview
 type connectorIntegrationField = {
   placeholder?: string,
   label?: string,
@@ -74,6 +74,7 @@ type connectorName =
   | GOCARDLESS
   | VOLT
   | PROPHETPAY
+  | HELCIM
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -207,4 +208,5 @@ type connectorPayload = {
   metadata?: Js.Json.t,
   merchant_connector_id: string,
   frm_configs?: array<frm_config>,
+  status: string,
 }

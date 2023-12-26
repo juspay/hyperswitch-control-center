@@ -580,15 +580,12 @@ export function getResponsePayload(input) {
 }
 
 /**
-* @param {string} key
 * @returns {any}
 */
-export function getDescriptionCategory(key) {
+export function getDescriptionCategory() {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        const ptr0 = passStringToWasm0(key, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-        const len0 = WASM_VECTOR_LEN;
-        wasm.getDescriptionCategory(retptr, ptr0, len0);
+        wasm.getDescriptionCategory(retptr);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         var r2 = getInt32Memory0()[retptr / 4 + 2];

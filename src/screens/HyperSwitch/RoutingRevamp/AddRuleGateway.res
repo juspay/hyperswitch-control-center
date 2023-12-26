@@ -1,8 +1,3 @@
-external arrToReactEvent: array<string> => ReactEvent.Form.t = "%identity"
-external toReactEvent: 'a => ReactEvent.Form.t = "%identity"
-external formEventToStrArr: ReactEvent.Form.t => array<string> = "%identity"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
-external toJson: 'a => Js.Json.t = "%identity"
 external anyToEnum: 'a => AdvancedRoutingTypes.connectorSelectionData = "%identity"
 
 @react.component
@@ -22,7 +17,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
     } else {
       "priority"
     }
-    gateWaysType.onChange(typeString->toReactEvent)
+    gateWaysType.onChange(typeString->Identity.anyTypeToReactEvent)
     None
   }, [isDistributeInput.value])
 
@@ -39,10 +34,10 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
     name: "gateways",
     onBlur: _ev => (),
     onChange: ev => {
-      let newSelectedOptions = ev->formEventToStrArr
+      let newSelectedOptions = ev->Identity.formReactEventToArrayOfString
 
       if newSelectedOptions->Js.Array2.length === 0 {
-        gateWaysInput.onChange([]->toReactEvent)
+        gateWaysInput.onChange([]->Identity.anyTypeToReactEvent)
       } else {
         let gatewaysArr = newSelectedOptions->Js.Array2.map(item => {
           open AdvancedRoutingTypes
@@ -57,17 +52,17 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
                 merchant_connector_id: item,
               },
               split: sharePercent,
-            }->toJson
+            }->Identity.genericTypeToJson
           } else {
             {
               connector: (
                 connectorList->ConnectorTableUtils.getConnectorNameViaId(item)
               ).connector_name,
               merchant_connector_id: item,
-            }->toJson
+            }->Identity.genericTypeToJson
           }
         })
-        gateWaysInput.onChange(gatewaysArr->toReactEvent)
+        gateWaysInput.onChange(gatewaysArr->Identity.anyTypeToReactEvent)
       }
     },
     onFocus: _ev => (),
@@ -101,12 +96,12 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
             merchant_connector_id: obj.merchant_connector_id,
           },
           split: sharePercent,
-        }->toJson
+        }->Identity.genericTypeToJson
 
-      | VolumeObject(obj) => obj.connector->toJson
+      | VolumeObject(obj) => obj.connector->Identity.genericTypeToJson
       }
     })
-    gateWaysInput.onChange(gatewaysArr->toReactEvent)
+    gateWaysInput.onChange(gatewaysArr->Identity.anyTypeToReactEvent)
   }
 
   let updatePercentage = (item: AdvancedRoutingTypes.connectorSelectionData, value) => {
@@ -121,7 +116,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
     if value < 100 {
       let newList = selectedOptions->Js.Array2.map(option => {
         switch option {
-        | PriorityObject(obj) => obj.connector->toJson
+        | PriorityObject(obj) => obj.connector->Identity.genericTypeToJson
         | VolumeObject(obj) =>
           {
             ...obj,
@@ -131,10 +126,10 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
               ).merchant_connector_id
               ? value
               : obj.split,
-          }->toJson
+          }->Identity.genericTypeToJson
         }
       })
-      gateWaysInput.onChange(newList->toReactEvent)
+      gateWaysInput.onChange(newList->Identity.anyTypeToReactEvent)
     }
   }
 
@@ -145,7 +140,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
         AdvancedRoutingUtils.getConnectorStringFromConnectorSelectionData(i).merchant_connector_id
       )
       ->Array.filterWithIndex((_, i) => i !== index)
-      ->toReactEvent,
+      ->Identity.anyTypeToReactEvent,
     )
   }
 
@@ -174,7 +169,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
         {selectedOptions
         ->Array.mapWithIndex((item, i) => {
           let key = string_of_int(i + 1)
-          <div className="flex flex-row">
+          <div key className="flex flex-row">
             <div
               className="w-min flex flex-row items-center justify-around gap-2 h-10 rounded-md  border border-jp-gray-500 dark:border-jp-gray-960
                text-jp-gray-900 text-opacity-75 hover:text-opacity-100 dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme
@@ -234,7 +229,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
             <CheckBoxIcon
               isSelected=isDistribute
               setIsSelected={v => {
-                isDistributeInput.onChange(v->toReactEvent)
+                isDistributeInput.onChange(v->Identity.anyTypeToReactEvent)
                 onClickDistribute(v)
               }}
               isDisabled=false

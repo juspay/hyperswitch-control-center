@@ -56,11 +56,7 @@ module ConfigureProcessor = {
     ~setConnectorConfigureState,
     ~isBackButtonVisible=true,
   ) => {
-    let featureFlagDetails =
-      HyperswitchAtom.featureFlagAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->FeatureFlagUtils.featureFlagType
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     open ConnectorUtils
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
 
@@ -137,9 +133,11 @@ module ConfigureProcessor = {
         nextButton={<FormRenderer.SubmitButton
           loadingText="Processing..." text="Proceed" buttonSize={Small}
         />}>
-        <ConnectorAccountDetails.BusinessProfileRender
-          isUpdateFlow=false selectedConnector={connectorName}
-        />
+        <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
+          <ConnectorAccountDetailsHelper.BusinessProfileRender
+            isUpdateFlow=false selectedConnector={connectorName}
+          />
+        </UIUtils.RenderIf>
         <SetupConnectorCredentials.ConnectorDetailsForm
           connectorName
           connectorDetails
@@ -150,6 +148,7 @@ module ConfigureProcessor = {
           checkboxText=""
         />
       </QuickStartUIUtils.BaseComponent>
+      <FormValuesSpy />
     </Form>
   }
 }

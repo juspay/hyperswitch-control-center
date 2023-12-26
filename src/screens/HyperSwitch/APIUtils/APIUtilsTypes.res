@@ -14,8 +14,6 @@ type entityName =
   | ORDERS
   | DEFAULT_FALLBACK
   | CHANGE_PASSWORD
-  | PROD_VERIFY
-  | FEEDBACK
   | ANALYTICS_SYSTEM_METRICS
   | PAYMENT_LOGS
   | SDK_EVENT_LOGS
@@ -38,6 +36,8 @@ type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 type reconType = [#TOKEN | #REQUEST | #NONE]
 
 type userType = [
+  | #CONNECT_ACCOUNT
+  | #SIGNUP
   | #SIGNIN
   | #SIGNOUT
   | #FORGOT_PASSWORD

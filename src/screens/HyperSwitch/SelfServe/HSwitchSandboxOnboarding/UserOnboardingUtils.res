@@ -16,8 +16,6 @@ let integrateFromScratchBackEndlang: array<languages> = [
 
 let platforms: array<platforms> = [#Web, #IOS, #Android, #BigCommerce, #ReactNative]
 let requestOnlyPlatforms: array<platforms> = [#BigCommerce, #IOS, #Android, #ReactNative]
-let frontendLangForGithub: array<languages> = [#ReactJs, #HTML, #Next]
-let backendLangForGithub: array<languages> = [#Node, #Ruby, #Java, #Python, #Net, #Php]
 
 let getContentBasedOnIndex = (~currentRoute, ~tabIndex) =>
   switch currentRoute {

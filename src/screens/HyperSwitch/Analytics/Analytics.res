@@ -1,10 +1,4 @@
-external toString: option<Js.Json.t> => string = "%identity"
-external convertToStrDict: 't => Js.Json.t = "%identity"
-external evToString: ReactEvent.Form.t => string = "%identity"
-external asJson: 'a => Js.Json.t = "%identity"
-external sankeyTest: string => SankeyCharts.sankeyEntity = "%identity"
 @get external keyCode: 'a => int = "keyCode"
-external formEventToStr: ReactEvent.Form.t => string = "%identity"
 type window
 @val external window: window = "window"
 @scope("window") @val external parent: window = "parent"
@@ -517,12 +511,9 @@ let make = (
   ~moduleName: string,
   ~weeklyTableMetricsCols=?,
   ~distributionArray=None,
+  ~generateReportType: option<APIUtilsTypes.entityName>=?,
 ) => {
-  let {generateReport} =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let analyticsType = moduleName->getAnalyticsType
   let {filterValue, updateExistingKeys} = React.useContext(
     AnalyticsUrlUpdaterContext.urlUpdaterContext,
@@ -718,7 +709,10 @@ let make = (
         <div className="flex items-center justify-between">
           <PageUtils.PageHeading title=pageTitle subTitle=pageSubTitle />
           <UIUtils.RenderIf condition={generateReport}>
-            <GenerateReport entityName={PAYMENT_REPORT} />
+            {switch generateReportType {
+            | Some(entityName) => <GenerateReport entityName />
+            | None => React.null
+            }}
           </UIUtils.RenderIf>
         </div>
         <div className="mt-2 -ml-1"> topFilterUi </div>

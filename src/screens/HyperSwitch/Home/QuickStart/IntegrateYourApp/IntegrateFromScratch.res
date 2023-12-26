@@ -14,6 +14,7 @@ let make = (
   let (currentStep, setCurrentStep) = React.useState(_ => DownloadTestAPIKey)
   let {setQuickStartPageState} = React.useContext(GlobalProvider.defaultContext)
   let isLastStep = currentStep === DisplayPaymentConfirmation
+  let updateEnumInRecoil = EnumVariantHook.useUpdateEnumInRecoil()
 
   let theme = switch ThemeProvider.useTheme() {
   | Dark => "vs-dark"
@@ -25,10 +26,18 @@ let make = (
       buttonState={Normal}
       buttonType={PrimaryOutline}
       text="Back"
-      onClick={_ =>
-        currentStep === DownloadTestAPIKey
-          ? setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
-          : setCurrentStep(_ => getNavigationStepForStandardIntegration(~currentStep, ()))}
+      onClick={_ => {
+        let prevStep = getNavigationStepForStandardIntegration(~currentStep, ())
+        if currentStep === DownloadTestAPIKey {
+          setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
+        } else {
+          let _ = updateEnumInRecoil([
+            (String("pending"), currentStep->getPolyMorphicVariantOfIntegrationSubStep),
+            (String("ongoing"), prevStep->getPolyMorphicVariantOfIntegrationSubStep),
+          ])
+          setCurrentStep(_ => prevStep)
+        }
+      }}
       buttonSize=Small
     />
 
@@ -40,9 +49,13 @@ let make = (
         if isLastStep {
           markAsDone()->ignore
         } else {
-          setCurrentStep(_ =>
-            getNavigationStepForStandardIntegration(~currentStep, ~forward=true, ())
-          )
+          let nextStep = getNavigationStepForStandardIntegration(~currentStep, ~forward=true, ())
+          let _ = updateEnumInRecoil([
+            (String("completed"), currentStep->getPolyMorphicVariantOfIntegrationSubStep),
+            (String("ongoing"), nextStep->getPolyMorphicVariantOfIntegrationSubStep),
+          ])
+
+          setCurrentStep(_ => nextStep)
         }
       }}
       buttonSize=Small

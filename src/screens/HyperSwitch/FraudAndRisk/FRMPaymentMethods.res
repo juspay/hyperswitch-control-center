@@ -1,6 +1,3 @@
-external convertToJsonDict: 't => Js.Dict.t<Js.Json.t> = "%identity"
-external asJson: 'a => ReactEvent.Form.t = "%identity"
-
 module RadioSection = {
   open ConnectorTypes
   open FRMTypes
@@ -26,7 +23,7 @@ module RadioSection = {
       | ActionType => paymentMethodTypeInfo.action = option
       }
 
-      setConfigJson(frmConfigs->asJson)
+      setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
     }
 
     <div>
@@ -147,7 +144,7 @@ module CheckBoxRenderer = {
             _ => {
               frmConfigInfo.payment_methods = []
               setIsOpen(_ => !isOpen)
-              setConfigJson(frmConfigs->asJson)
+              setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
             }
           },
         },
@@ -166,7 +163,7 @@ module CheckBoxRenderer = {
           switch connectorPaymentMethods {
           | Some(paymentMethods) => {
               frmConfigInfo.payment_methods = paymentMethods->generateFRMPaymentMethodsConfig
-              setConfigJson(frmConfigs->asJson)
+              setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
             }
           | _ => ()
           }
@@ -176,7 +173,7 @@ module CheckBoxRenderer = {
             showConfitmation()
           } else {
             frmConfigInfo.payment_methods = []
-            setConfigJson(frmConfigs->asJson)
+            setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
             setIsOpen(_ => !isOpen)
           }
         }
@@ -188,7 +185,7 @@ module CheckBoxRenderer = {
         switch connectorPaymentMethods {
         | Some(paymentMethods) => {
             frmConfigInfo.payment_methods = paymentMethods->generateFRMPaymentMethodsConfig
-            setConfigJson(frmConfigs->asJson)
+            setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
           }
         | _ => ()
         }
@@ -215,11 +212,12 @@ module CheckBoxRenderer = {
         </div>
       </div>
       {frmConfigInfo.payment_methods
-      ->Js.Array2.map(paymentMethodInfo => {
-        <UIUtils.RenderIf condition={isOpen}>
+      ->Js.Array2.mapi((paymentMethodInfo, index) => {
+        <UIUtils.RenderIf condition={isOpen} key={index->string_of_int}>
           {paymentMethodInfo.payment_method_types
-          ->Js.Array2.map(paymentMethodTypeInfo => {
+          ->Js.Array2.mapi((paymentMethodTypeInfo, i) => {
             <Accordion
+              key={i->string_of_int}
               initialExpandedArray=[0]
               accordion={[
                 {
@@ -298,7 +296,7 @@ module PaymentMethodsRenderer = {
           })
 
         setConnectorConfig(_ => connectorsConfig)
-        setConfigJson(updateFRMConfig->asJson)
+        setConfigJson(updateFRMConfig->Identity.anyTypeToReactEvent)
         setPageState(_ => Success)
       } catch {
       | _ => setPageState(_ => Error("Failed to fetch"))
@@ -313,8 +311,9 @@ module PaymentMethodsRenderer = {
     <PageLoaderWrapper screenState={pageState}>
       <div className="flex flex-col gap-4">
         {frmConfigs
-        ->Js.Array2.map(configInfo => {
+        ->Js.Array2.mapi((configInfo, i) => {
           <CheckBoxRenderer
+            key={i->string_of_int}
             frmConfigInfo={configInfo}
             frmConfigs
             connectorPaymentMethods={connectorConfig->Js.Dict.get(configInfo.gateway)}
@@ -345,7 +344,7 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
       ->parseFRMConfig
       ->Js.Array2.filter(config => config.payment_methods->Js.Array2.length > 0)
 
-    valuesDict->Js.Dict.set("frm_configs", filteredArray->toJson)
+    valuesDict->Js.Dict.set("frm_configs", filteredArray->Identity.genericTypeToJson)
     setInitialValues(_ => valuesDict->Js.Json.object_)
     setCurrentStep(prev => prev->getNextStep)
 

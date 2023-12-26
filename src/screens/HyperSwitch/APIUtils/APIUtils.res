@@ -150,19 +150,6 @@ let getURL = (
   | PAYMENT_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/payments`
   | REFUND_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/refunds`
   | DISPUTE_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/dispute`
-  | PROD_VERIFY =>
-    switch methodType {
-    | Put
-    | Post
-    | Get =>
-      `${HSwitchGlobalVars.hyperSwitchApiPrefix}/prodintent`
-    | _ => ""
-    }
-  | FEEDBACK =>
-    switch methodType {
-    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/feedback`
-    | _ => ""
-    }
   | PAYMENT_LOGS =>
     switch methodType {
     | Get =>
@@ -179,31 +166,37 @@ let getURL = (
     let userUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user`
     switch userType {
     | #NONE => ""
-    | #VERIFY_MAGIC_LINK => `${userUrl}/v2/signin/verify`
-    | #SIGNIN
-    | #VERIFY_EMAIL =>
-      `${userUrl}/v2/${(userType :> string)->Js.String2.toLowerCase}`
+    | #CONNECT_ACCOUNT => `${userUrl}/connect_account`
+    | #VERIFY_MAGIC_LINK => `${userUrl}/verify_email`
+    | #SIGNUP => `${userUrl}/signup`
+
+    | #SIGNIN => `${userUrl}/signin`
+
+    | #VERIFY_EMAIL => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
+
     | #USER_DATA => `${userUrl}/data`
-    | #MERCHANT_DATA => `${userUrl}/data/merchant`
+    | #MERCHANT_DATA => `${userUrl}/data`
     | #INVITE
     | #RESEND_INVITE =>
       `${userUrl}/user/${(userType :> string)->Js.String2.toLowerCase}`
+
     | #SWITCH_MERCHANT =>
       switch methodType {
       | Get => `${userUrl}/switch/list`
       | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
       }
     | #CREATE_MERCHANT => `${userUrl}/create_merchant`
-    | #OSSSIGNIN => `${userUrl}/signin`
-    | #OSSSIGNUP => `${userUrl}/signup`
+
     | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
     }
   | RECON =>
     `${HSwitchGlobalVars.hyperSwitchApiPrefix}/recon/${(reconType :> string)->Js.String2.toLowerCase}`
   | GENERATE_SAMPLE_DATA =>
     switch methodType {
-    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/sample_data/generate`
-    | Delete => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/sample_data/delete`
+    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data`
+
+    | Delete => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data`
+
     | _ => ""
     }
   | INTEGRATION_DETAILS =>
@@ -242,7 +235,7 @@ let getURL = (
 let sessionExpired = ref(false)
 
 let handleLogout = async (
-  ~fetchApi: (
+  ~fetchApi as _: (
     Js.String2.t,
     ~bodyStr: string=?,
     ~headers: Js.Dict.t<Js.String2.t>=?,
@@ -256,10 +249,12 @@ let handleLogout = async (
     unit,
   ) => Promise.t<Fetch.Response.t>,
   ~setAuthStatus,
+  ~setIsSidebarExpanded,
 ) => {
-  let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
-  let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
+  // let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
+  // let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
   setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
+  setIsSidebarExpanded(_ => false)
   LocalStorage.clear()
   RescriptReactRouter.push("/register")
 }
@@ -384,6 +379,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+  let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
   let url = RescriptReactRouter.useUrl()
   let urlPath = url.path->Belt.List.toArray->Js.Array2.joinWith("_")
@@ -401,7 +397,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
           _ => {
             hyperswitchMixPanel(~eventName=Some(`${urlPath}_tryplayground_register`), ())
             hyperswitchMixPanel(~eventName=Some(`global_tryplayground_register`), ())
-            let _ = handleLogout(~fetchApi, ~setAuthStatus)
+            let _ = handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
           }
         },
       },
@@ -448,6 +444,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
   let url = RescriptReactRouter.useUrl()
   let urlPath = url.path->Belt.List.toArray->Js.Array2.joinWith("_")
+  let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
   let popUpCallBack = () =>
     showPopUp({
@@ -462,7 +459,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
           _ => {
             hyperswitchMixPanel(~eventName=Some(`${urlPath}_tryplayground_register`), ())
             hyperswitchMixPanel(~eventName=Some(`global_tryplayground_register`), ())
-            let _ = handleLogout(~fetchApi, ~setAuthStatus)
+            let _ = handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
           }
         },
       },

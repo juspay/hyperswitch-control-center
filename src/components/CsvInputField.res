@@ -1,13 +1,10 @@
-external toReactEvent: 'a => ReactEvent.Form.t = "%identity"
 external jsonToarr: Js.Json.t => array<'a> = "%identity"
-external arrToReactEvent: array<string> => ReactEvent.Form.t = "%identity"
-external strToReactEvent: string => ReactEvent.Form.t = "%identity"
 
 module FilenameSaver = {
   @react.component
   let make = (~input: ReactFinalForm.fieldRenderPropsInput, ~fileName) => {
     React.useEffect1(() => {
-      let reactEvFilename = fileName->toReactEvent
+      let reactEvFilename = fileName->Identity.anyTypeToReactEvent
       input.onChange(reactEvFilename)
       None
     }, [fileName])
@@ -110,12 +107,12 @@ let make = (
   let clearCsv = _evt => {
     setFilename(_ => "")
     setKey(pre => pre + 1)
-    input.onChange(arrToReactEvent([]))
+    input.onChange(Identity.arrofStringToReactEvent([]))
   }
   let clearData = _ev => {
     setFilename(_ => "")
     setKey(pre => pre + 1)
-    input.onChange(strToReactEvent(""))
+    input.onChange(Identity.stringToFormReactEvent(""))
   }
 
   let toast = (message, toastType) => {
@@ -164,7 +161,7 @@ let make = (
                 })
 
                 if errorLines->Js.Array2.length === 0 {
-                  input.onChange(toReactEvent(res))
+                  input.onChange(res->Identity.anyTypeToReactEvent)
                   toast("File Uploaded Successfully", ToastSuccess)
                 }
 
@@ -175,7 +172,7 @@ let make = (
               }
 
             | None => {
-                input.onChange(toReactEvent(res))
+                input.onChange(res->Identity.anyTypeToReactEvent)
                 toast("File Uploaded Successfully", ToastSuccess)
               }
             }
@@ -188,7 +185,7 @@ let make = (
           }
         | _ =>
           setIsNewUpload(_ => true)
-          input.onChange(toReactEvent(csv))
+          input.onChange(csv->Identity.anyTypeToReactEvent)
           toast("File Uploaded Successfully", ToastSuccess)
         }
       }

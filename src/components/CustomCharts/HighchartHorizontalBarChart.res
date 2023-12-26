@@ -1,4 +1,3 @@
-external objToJson: 'a => Js.Json.t = "%identity"
 module RawHBarChart = {
   @react.component
   let make = (~options: Js.Json.t) => {
@@ -159,7 +158,7 @@ let make = (
         enabled: false,
       },
     }
-    defaultOptions->objToJson
+    defaultOptions->Identity.genericTypeToJson
   }, (barChartData, theme))
 
   <RawHBarChart options=barOption />

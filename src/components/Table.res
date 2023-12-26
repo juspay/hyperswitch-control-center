@@ -197,7 +197,8 @@ module TableRow = {
           }
           let location = `${title}_tr${(rowIndex + 1)->Belt.Int.toString}_td${(cellIndex + 1)
               ->Belt.Int.toString}`
-          <AddDataAttributes attributes=[("data-table-location", location)]>
+          <AddDataAttributes
+            key={cellIndex->string_of_int} attributes=[("data-table-location", location)]>
             <td
               key={string_of_int(cellIndex)}
               className={`${tableRowBorderClass} ${customColorCell}`}
@@ -333,7 +334,7 @@ module TableHeadingCell = {
               ? {
                   key: string_of_int(i),
                   options: obj.options,
-                  selected: ev->formEventToStrArr,
+                  selected: ev->Identity.formReactEventToArrayOfString,
                 }
               : obj
           })

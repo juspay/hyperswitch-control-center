@@ -1,29 +1,25 @@
-let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName="", ()) => {
+let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName, ()) => {
   open LogicUtils
-
-  let valueReturned =
-    searchOptions
-    ->Belt.Option.getWithDefault([])
-    ->Js.Array2.filter(item => {
-      let (searchKey, _redirection) = item
-      checkStringStartsWithSubstring(~itemToCheck=searchKey, ~searchText)
-    })
-    ->Js.Array2.map(item => {
-      let (searchKey, redirection) = item
-      [
-        (
-          "elements",
-          [
-            sectionName->Js.Json.string,
-            name->Js.Json.string,
-            searchKey->Js.Json.string,
-          ]->Js.Json.array,
-        ),
-        ("redirect_link", `${link}${redirection}`->Js.Json.string),
-      ]->Js.Dict.fromArray
-    })
-
-  valueReturned
+  searchOptions
+  ->Belt.Option.getWithDefault([])
+  ->Js.Array2.filter(item => {
+    let (searchKey, _redirection) = item
+    checkStringStartsWithSubstring(~itemToCheck=searchKey, ~searchText)
+  })
+  ->Js.Array2.map(item => {
+    let (searchKey, redirection) = item
+    [
+      (
+        "elements",
+        [
+          sectionName->Js.Json.string,
+          name->Js.Json.string,
+          searchKey->Js.Json.string,
+        ]->Js.Json.array,
+      ),
+      ("redirect_link", `${link}${redirection}`->Js.Json.string),
+    ]->Js.Dict.fromArray
+  })
 }
 
 module RenderedComponent = {
@@ -62,11 +58,7 @@ let make = () => {
   let (showModal, setShowModal) = React.useState(_ => false)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (arr, setArr) = React.useState(_ => [])
-  let featureFlagDetails =
-    HyperswitchAtom.featureFlagAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->FeatureFlagUtils.featureFlagType
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
   let userRole = HSLocalStorage.getFromUserDetails("user_role")
   let isReconEnabled =
