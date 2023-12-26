@@ -10,47 +10,7 @@ external ffInputToSelectInput: ReactFinalForm.fieldRenderPropsInput => ReactFina
 external ffInputToRadioInput: ReactFinalForm.fieldRenderPropsInput => ReactFinalForm.fieldRenderPropsCustomInput<
   string,
 > = "%identity"
-let regex: (string, Js.String2.t) => Js.Re.t
-module ListItem: {
-  @react.component
-  let make: (
-    ~isDropDown: bool,
-    ~searchString: Js.String2.t,
-    ~multiSelect: bool,
-    ~optionSize: CheckBoxIcon.size=?,
-    ~isSelectedStateMinus: bool=?,
-    ~isSelected: bool,
-    ~isPrevSelected: bool=?,
-    ~isNextSelected: bool=?,
-    ~onClick: JsxEvent.Mouse.t => unit,
-    ~text: Js.String2.t,
-    ~fill: string=?,
-    ~labelValue: Js.String2.t=?,
-    ~isDisabled: bool=?,
-    ~icon: Button.iconType,
-    ~leftVacennt: bool=?,
-    ~showToggle: bool=?,
-    ~customStyle: Js.String2.t=?,
-    ~serialNumber: option<string>=?,
-    ~isMobileView: bool=?,
-    ~description: option<Js.String2.t>=?,
-    ~customLabelStyle: option<string>=?,
-    ~customMarginStyle: string=?,
-    ~listFlexDirection: string=?,
-    ~customSelectStyle: string=?,
-    ~textOverflowClass: string=?,
-    ~dataId: int,
-    ~showDescriptionAsTool: bool=?,
-    ~optionClass: string=?,
-    ~selectClass: string=?,
-    ~toggleProps: string=?,
-    ~checkboxDimension: string=?,
-    ~iconStroke: string=?,
-    ~showToolTipOptions: bool=?,
-    ~textEllipsisForDropDownOptions: bool=?,
-    ~textColorClass: Js.String2.t=?,
-  ) => React.element
-}
+
 type dropdownOptionWithoutOptional = {
   label: string,
   value: string,
@@ -71,11 +31,9 @@ type dropdownOption = {
   iconStroke?: string,
   textColor?: string,
 }
-let makeNonOptional: dropdownOption => dropdownOptionWithoutOptional
 let useTransformed: Js.Array2.t<dropdownOption> => Js.Array2.t<dropdownOptionWithoutOptional>
 type allSelectType = Icon | Text
 type opt = {name_: string}
-let makeUpdatedOptions: (array<string>, array<string>) => array<dropdownOption>
 let makeOptions: array<string> => array<dropdownOption>
 module BaseSelect: {
   @react.component
@@ -133,58 +91,7 @@ module BaseSelect: {
     ~preservedAppliedOptions: Js.Array2.t<Js_string.t>=?,
   ) => React.element
 }
-module BaseSelectButton: {
-  @react.component
-  let make: (
-    ~showDropDown: bool=?,
-    ~isDropDown: bool=?,
-    ~isHorizontal: bool=?,
-    ~options: array<dropdownOption>,
-    ~optionSize: CheckBoxIcon.size=?,
-    ~isSelectedStateMinus: bool=?,
-    ~onSelect: string => unit,
-    ~value: Js.Json.t,
-    ~deselectDisable: bool=?,
-    ~onBlur: ReactEvent.Focus.t => unit=?,
-    ~setShowDropDown: ('a => bool) => unit=?,
-    ~onAssignClick: string => unit=?,
-    ~customSearchStyle: string,
-    ~disableSelect: bool=?,
-    ~isMobileView: bool=?,
-    ~hideAssignBtn: bool=?,
-    ~searchInputPlaceHolder: string=?,
-    ~showSearchIcon: bool=?,
-    ~allowButtonTextMinWidth: bool=?,
-  ) => React.element
-}
-module RenderListItemInBaseRadio: {
-  @react.component
-  let make: (
-    ~newOptions: Js.Array2.t<dropdownOptionWithoutOptional>,
-    ~value: Js.Json.t,
-    ~descriptionOnHover: bool,
-    ~isDropDown: bool,
-    ~textIconPresent: bool,
-    ~searchString: Js.String2.t,
-    ~optionSize: CheckBoxIcon.size,
-    ~isSelectedStateMinus: bool,
-    ~onItemClick: (string, bool, JsxEvent.Mouse.t) => unit,
-    ~fill: string,
-    ~customStyle: Js.String2.t,
-    ~isMobileView: bool,
-    ~listFlexDirection: string,
-    ~customSelectStyle: string,
-    ~textOverflowClass: option<string>,
-    ~showToolTipOptions: bool,
-    ~textEllipsisForDropDownOptions: bool,
-    ~isHorizontal: bool,
-    ~customMarginStyleOfListItem: string=?,
-  ) => React.element
-}
-let getHashMappedOptionValues: array<dropdownOptionWithoutOptional> => Js.Dict.t<
-  array<dropdownOptionWithoutOptional>,
->
-let getSortedKeys: RescriptCore.Dict.t<'a> => Js.Array2.t<string>
+
 module BaseRadio: {
   @react.component
   let make: (
@@ -223,33 +130,7 @@ module BaseRadio: {
     ~textEllipsisForDropDownOptions: bool=?,
   ) => React.element
 }
-module CustomUISearchOptionUI: {
-  @react.component
-  let make: (
-    ~showDropDown: bool=?,
-    ~isDropDown: bool=?,
-    ~isHorizontal: bool=?,
-    ~options: array<dropdownOption>,
-    ~onSelect: string => unit,
-    ~value: Js.Json.t,
-    ~deselectDisable: bool=?,
-    ~onBlur: ReactEvent.Focus.t => unit=?,
-    ~fill: string=?,
-    ~customStyle: string=?,
-    ~searchable: bool=?,
-    ~isMobileView: bool=?,
-    ~customSearchStyle: string=?,
-    ~descriptionOnHover: bool=?,
-    ~addDynamicValue: bool=?,
-    ~dropdownCustomWidth: string=?,
-    ~dropdownRef: React.ref<Js.Nullable.t<Dom.element>>=?,
-    ~showMatchingRecordsText: bool=?,
-    ~fullLength: bool=?,
-    ~searchString: Js.String2.t,
-    ~setSearchString: ('a => Js.String2.t) => unit,
-    ~searchPlaceholder: string=?,
-  ) => React.element
-}
+
 type direction = BottomLeft | BottomMiddle | BottomRight | TopLeft | TopMiddle | TopRight
 module BaseDropdown: {
   @react.component
