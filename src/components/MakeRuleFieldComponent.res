@@ -81,37 +81,3 @@ module CompressedView = {
     }
   }
 }
-
-module LogiacalOps = {
-  @react.component
-  let make = (~id) => {
-    open LogicUtils
-    let logicalOperatorInput = "[\"logical.operator\"]"
-
-    let logicalOpsInput = ReactFinalForm.useField(`${id}.${logicalOperatorInput}`).input
-
-    React.useEffect0(() => {
-      if logicalOpsInput.value->getStringFromJson("") === "" {
-        logicalOpsInput.onChange("AND"->strToFormEvent)
-      }
-      None
-    })
-    let onChange = str => logicalOpsInput.onChange(str->strToFormEvent)
-
-    <ButtonGroup wrapperClass="flex flex-row mr-2 ml-1">
-      {["AND", "OR"]
-      ->Js.Array2.map(text => {
-        let active = logicalOpsInput.value->getStringFromJson("") === text
-        <Button
-          text
-          onClick={_ => onChange(text)}
-          textStyle={active ? "text-blue-800" : ""}
-          textWeight={active ? "font-semibold" : "font-medium"}
-          customButtonStyle={active ? "shadow-inner px-0" : "px-0"}
-          buttonType={active ? SecondaryFilled : Secondary}
-        />
-      })
-      ->React.array}
-    </ButtonGroup>
-  }
-}
