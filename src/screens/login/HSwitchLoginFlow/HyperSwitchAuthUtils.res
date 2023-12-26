@@ -3,7 +3,7 @@ open HyperSwitchAuthTypes
 module TermsAndCondition = {
   @react.component
   let make = () => {
-    <div className="text-center text-sm text-infra-gray-300">
+    <div id="tc-text" className="text-center text-sm text-infra-gray-300">
       {"By continuing, you agree to our "->React.string}
       <a
         className="underline cursor-pointer"
@@ -190,45 +190,47 @@ let note = (authType, setAuthType, isMagicLinkEnabled) => {
     </div>
   }
 
-  switch authType {
-  | LoginWithEmail =>
-    getFooterLinkComponent(
-      ~btnText="or sign in using password",
-      ~authType=LoginWithPassword,
-      ~path="/login",
-    )
-  | LoginWithPassword =>
-    <UIUtils.RenderIf condition={isMagicLinkEnabled}>
-      {getFooterLinkComponent(
-        ~btnText="or sign in with an email",
-        ~authType=LoginWithEmail,
+  <div className="w-96">
+    {switch authType {
+    | LoginWithEmail =>
+      getFooterLinkComponent(
+        ~btnText="or sign in using password",
+        ~authType=LoginWithPassword,
         ~path="/login",
-      )}
-    </UIUtils.RenderIf>
-  | SignUP =>
-    <UIUtils.RenderIf condition={isMagicLinkEnabled}>
-      <p className="text-center">
-        {"We'll be emailing you a magic link for a password-free experience, you can always choose to setup a password later."->React.string}
-      </p>
-    </UIUtils.RenderIf>
-  | ForgetPassword | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
-    <div className="w-full flex justify-center">
-      <div
-        onClick={_ => {
-          let backState = switch authType {
-          | MagicLinkEmailSent => SignUP
-          | ForgetPasswordEmailSent => ForgetPassword
-          | ResendVerifyEmailSent => ResendVerifyEmail
-          | ForgetPassword | _ => LoginWithPassword
-          }
-          setAuthType(_ => backState)
-        }}
-        className="text-sm text-center text-blue-900 hover:underline underline-offset-2 cursor-pointer w-fit">
-        {"Cancel"->React.string}
+      )
+    | LoginWithPassword =>
+      <UIUtils.RenderIf condition={isMagicLinkEnabled}>
+        {getFooterLinkComponent(
+          ~btnText="or sign in with an email",
+          ~authType=LoginWithEmail,
+          ~path="/login",
+        )}
+      </UIUtils.RenderIf>
+    | SignUP =>
+      <UIUtils.RenderIf condition={isMagicLinkEnabled}>
+        <p className="text-center text-sm">
+          {"We'll be emailing you a magic link for a password-free experience, you can always choose to setup a password later."->React.string}
+        </p>
+      </UIUtils.RenderIf>
+    | ForgetPassword | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
+      <div className="w-full flex justify-center">
+        <div
+          onClick={_ => {
+            let backState = switch authType {
+            | MagicLinkEmailSent => SignUP
+            | ForgetPasswordEmailSent => ForgetPassword
+            | ResendVerifyEmailSent => ResendVerifyEmail
+            | ForgetPassword | _ => LoginWithPassword
+            }
+            setAuthType(_ => backState)
+          }}
+          className="text-sm text-center text-blue-900 hover:underline underline-offset-2 cursor-pointer w-fit">
+          {"Cancel"->React.string}
+        </div>
       </div>
-    </div>
-  | _ => React.null
-  }
+    | _ => React.null
+    }}
+  </div>
 }
 
 module PageFooterSection = {
@@ -236,7 +238,7 @@ module PageFooterSection = {
   let make = () => {
     <div
       className="justify-center text-base flex flex-col md:flex-row md:gap-3 items-center py-5 md:py-7">
-      <div className="flex items-center gap-2">
+      <div id="footer" className="flex items-center gap-2">
         {"An open-source initiative by "->React.string}
         <a href="https://juspay.in/" target="__blank">
           <img src={`/icons/juspay-logo-dark.svg`} className="h-3" />
@@ -350,6 +352,7 @@ module Header = {
             setAuthType(_ => authType)
             path->RescriptReactRouter.push
           }}
+          id="card-subtitle"
           className="font-semibold text-blue-900 cursor-pointer">
           {sufix->React.string}
         </div>
@@ -365,7 +368,7 @@ module Header = {
     | _ => false
     }
 
-    <div className={`${headerStyle} gap-2 h-fit mb-7`}>
+    <div className={`${headerStyle} gap-2 h-fit mb-7 w-96`}>
       <UIUtils.RenderIf condition={showInfoIcon}>
         <div className="flex justify-center my-5">
           {switch authType {
@@ -376,7 +379,9 @@ module Header = {
           }}
         </div>
       </UIUtils.RenderIf>
-      <h1 className="font-semibold text-xl md:text-2xl"> {cardHeaderText->React.string} </h1>
+      <h1 id="card-header" className="font-semibold text-xl md:text-2xl">
+        {cardHeaderText->React.string}
+      </h1>
       {switch authType {
       | LoginWithPassword | LoginWithEmail =>
         !isLiveMode
