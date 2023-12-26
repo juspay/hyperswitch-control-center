@@ -15,9 +15,11 @@ module AuthPage = {
           </UIUtils.RenderIf>
           <Div layoutId="form" className="bg-white w-full text-black mobile:border rounded-lg">
             <div className="px-7 py-6">
-              <HyperSwitchLogo logoHeight="h-8" theme={Dark} />
+              <Div layoutId="logo">
+                <HyperSwitchLogo logoHeight="h-8" theme={Dark} />
+              </Div>
             </div>
-            <div className="border-b w-full" />
+            <Div layoutId="border" className="border-b w-full" />
             <div className="p-7">
               <HyperSwitchAuth setAuthStatus authType setAuthType />
             </div>

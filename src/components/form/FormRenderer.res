@@ -737,17 +737,16 @@ module SubmitButton = {
         ?textWeight
       />
 
+    let buttonState: Button.buttonState =
+      loadingText !== "" && submitting ? Loading : !avoidDisable && disabled ? Disabled : Normal
+
     let submitBtn =
       <>
         <button type_="submit" className="hidden" />
         <Button
           text
           buttonType
-          buttonState={loadingText !== "" && submitting
-            ? Loading
-            : !avoidDisable && disabled
-            ? Disabled
-            : Normal}
+          buttonState
           loadingText
           onClick={_ev => {
             let filterKeys =
