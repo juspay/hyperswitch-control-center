@@ -31,16 +31,6 @@ module UnauthorizedPage = {
   }
 }
 
-module SwitchUserPage = {
-  @react.component
-  let make = (~entityName) => {
-    <div className="h-full w-fit flex flex-col m-12">
-      <div className="text-2xl text-gray-500 pb-4"> {React.string(entityName)} </div>
-      <div> {React.string("Please Switch to another User to View Data")} </div>
-    </div>
-  }
-}
-
 @react.component
 let make = (
   ~entityName="",
