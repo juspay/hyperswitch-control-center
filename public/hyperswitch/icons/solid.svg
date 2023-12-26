@@ -8227,27 +8227,26 @@ License)
       />
     </g>
   </symbol>
-  <symbol id="nonselected" viewBox="0 0 12 12">
-    <path
-      d="M12 6C12 9.31371 9.31371 12 6 12C2.68629 12 0 9.31371 0 6C0 2.68629 2.68629 0 6 0C9.31371 0 12 2.68629 12 6ZM1.68 6C1.68 8.38587 3.61413 10.32 6 10.32C8.38587 10.32 10.32 8.38587 10.32 6C10.32 3.61413 8.38587 1.68 6 1.68C3.61413 1.68 1.68 3.61413 1.68 6Z"
-      fill="#CCCCCC"
-    />
-  </symbol>
   <symbol
-    id="selected"
+    id="nonselected"
+    width="20"
+    height="20"
     viewBox="0 0 20 20"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path
-      d="M10 16.875C13.797 16.875 16.875 13.797 16.875 10C16.875 6.20304 13.797 3.125 10 3.125C6.20304 3.125 3.125 6.20304 3.125 10C3.125 13.797 6.20304 16.875 10 16.875Z"
-      stroke="#006DF9"
-      stroke-width="1.5"
-    />
-    <path
-      d="M10.0026 14.1693C12.3038 14.1693 14.1693 12.3038 14.1693 10.0026C14.1693 7.70142 12.3038 5.83594 10.0026 5.83594C7.70142 5.83594 5.83594 7.70142 5.83594 10.0026C5.83594 12.3038 7.70142 14.1693 10.0026 14.1693Z"
-      fill="#006DF9"
-    />
+    <circle cx="10" cy="10" r="6.75" stroke="#B3B3B3" stroke-width="1.5" />
+  </symbol>
+  <symbol
+    id="selected"
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="10" cy="10" r="6.75" stroke="#006DF9" stroke-width="1.5" />
+    <circle cx="10" cy="10" r="4" fill="#006DF9" />
   </symbol>
   <symbol
     id="warning-outlined"
