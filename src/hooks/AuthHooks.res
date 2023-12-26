@@ -34,13 +34,25 @@ let getHeaders = (~uri, ~headers, ()) => {
       switch hyperSwitchToken {
       | Some(token) =>
         if token !== "" {
-          let headerObj = {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${hyperSwitchToken->Belt.Option.getWithDefault("")}`,
-            "api-key": "hyperswitch",
+          if (
+            uri->Js.String2.includes("lottie-files") ||
+              uri->Js.String2.includes("config/merchant-access")
+          ) {
+            let headerObj = {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${hyperSwitchToken->Belt.Option.getWithDefault("")}`,
+              "api-key": "hyperswitch",
+            }
+            Fetch.HeadersInit.make(headerObj)
+          } else {
+            let headerObj = {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${hyperSwitchToken->Belt.Option.getWithDefault("")}`,
+              "api-key": "hyperswitch",
+              "x-feature": "hyperswitch-custom",
+            }
+            Fetch.HeadersInit.make(headerObj)
           }
-
-          Fetch.HeadersInit.make(headerObj)
         } else {
           let headerObj = {
             "Content-Type": "application/json",
@@ -49,10 +61,21 @@ let getHeaders = (~uri, ~headers, ()) => {
         }
 
       | None =>
-        let headerObj = {
-          "Content-Type": "application/json",
+        if (
+          uri->Js.String2.includes("lottie-files") ||
+            uri->Js.String2.includes("config/merchant-access")
+        ) {
+          let headerObj = {
+            "Content-Type": "application/json",
+          }
+          Fetch.HeadersInit.make(headerObj)
+        } else {
+          let headerObj = {
+            "Content-Type": "application/json",
+            "x-feature": "hyperswitch-custom",
+          }
+          Fetch.HeadersInit.make(headerObj)
         }
-        Fetch.HeadersInit.make(headerObj)
       }
     }
   }
