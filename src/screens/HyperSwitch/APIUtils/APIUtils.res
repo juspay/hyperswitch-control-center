@@ -27,7 +27,12 @@ let getURL = (
   | REFUND_REPORT => `analytics/v1/report/refunds`
   | DISPUTE_REPORT => `analytics/v1/report/dispute`
   | SDK_EVENT_LOGS => `analytics/v1/sdk_event_logs`
-  | GENERATE_SAMPLE_DATA => `sample_data/delete`
+  | GENERATE_SAMPLE_DATA =>
+    switch methodType {
+    | Post => `user/sample_data`
+    | Delete => `user/sample_data`
+    | _ => ""
+    }
   | TEST_LIVE_PAYMENT => `test_payment`
   | THREE_DS => `routing/decision`
   | VERIFY_APPLE_PAY => `verify/apple_pay`
@@ -145,22 +150,21 @@ let getURL = (
     | #NONE => ""
     | #VERIFY_MAGIC_LINK => `${userUrl}/v2/signin/verify`
     | #SIGNIN
+    | #SIGNUP
     | #VERIFY_EMAIL =>
-      `${userUrl}/v2/${(userType :> string)->Js.String2.toLowerCase}`
+      `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
     | #USER_DATA => `${userUrl}/data`
     | #MERCHANT_DATA => `${userUrl}/data/merchant`
     | #INVITE
     | #RESEND_INVITE =>
       `${userUrl}/user/${(userType :> string)->Js.String2.toLowerCase}`
-
+    | #CONNECT_ACCOUNT => `${userUrl}/connect_account`
     | #SWITCH_MERCHANT =>
       switch methodType {
       | Get => `${userUrl}/switch/list`
       | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
       }
     | #CREATE_MERCHANT => `${userUrl}/create_merchant`
-    | #OSSSIGNIN => `${userUrl}/signin`
-    | #OSSSIGNUP => `${userUrl}/signup`
     | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
     }
   | RECON => `recon/${(reconType :> string)->Js.String2.toLowerCase}`
