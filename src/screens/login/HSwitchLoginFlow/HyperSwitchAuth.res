@@ -137,49 +137,53 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   }
 
   let onSubmit = async (values, _) => {
-    let valuesDict = values->getDictFromJsonObject
-    let email = valuesDict->getString("email", "")
-    setEmail(_ => email)
-    logMixpanelEvents(email)
+    try {
+      let valuesDict = values->getDictFromJsonObject
+      let email = valuesDict->getString("email", "")
+      setEmail(_ => email)
+      logMixpanelEvents(email)
 
-    switch (isMagicLinkEnabled, authType) {
-    | (true, SignUP) | (true, LoginWithEmail) => {
-        let body = getEmailBody(email, ~country, ())
+      let _ = await (
+        switch (isMagicLinkEnabled, authType) {
+        | (true, SignUP) | (true, LoginWithEmail) => {
+            let body = getEmailBody(email, ~country, ())
+            getUserWithEmail(body)
+          }
 
-        getUserWithEmail(body)->ignore
-      }
+        | (true, ResendVerifyEmail) =>
+          let body = email->getEmailBody()
+          resendVerifyEmail(body)
 
-    | (true, ResendVerifyEmail) =>
-      let body = email->getEmailBody()
-      resendVerifyEmail(body)->ignore
+        | (false, SignUP) => {
+            let password = getString(valuesDict, "password", "")
+            let body = getEmailPasswordBody(email, password, country)
+            getUserWithEmailPassword(body, email, #SIGNUP)
+          }
+        | (_, LoginWithPassword) => {
+            let password = getString(valuesDict, "password", "")
+            let body = getEmailPasswordBody(email, password, country)
+            getUserWithEmailPassword(body, email, #SIGNIN)
+          }
+        | (_, ResetPassword) => {
+            let queryDict = url.search->getDictFromUrlSearchParams
+            let password_reset_token =
+              queryDict->Js.Dict.get("token")->Belt.Option.getWithDefault("")
+            let password = getString(valuesDict, "create_password", "")
+            let body = getResetpasswordBodyJson(password, password_reset_token)
+            setResetPassword(body)
+          }
+        | _ =>
+          switch (forgetPassword, authType) {
+          | (true, ForgetPassword) =>
+            let body = email->getEmailBody()
 
-    | (false, SignUP) => {
-        let password = getString(valuesDict, "password", "")
-        let body = getEmailPasswordBody(email, password, country)
-        getUserWithEmailPassword(body, email, #SIGNUP)->ignore
-      }
-    | (_, LoginWithPassword) => {
-        let password = getString(valuesDict, "password", "")
-        let body = getEmailPasswordBody(email, password, country)
-        getUserWithEmailPassword(body, email, #SIGNIN)->ignore
-      }
-    | (_, ResetPassword) => {
-        let queryDict = url.search->getDictFromUrlSearchParams
-        let password_reset_token = queryDict->Js.Dict.get("token")->Belt.Option.getWithDefault("")
-        let password = getString(valuesDict, "create_password", "")
-        let body = getResetpasswordBodyJson(password, password_reset_token)
-        setResetPassword(body)->ignore
-      }
-
-    | _ => ()
-    }
-
-    switch (forgetPassword, authType) {
-    | (true, ForgetPassword) =>
-      let body = email->getEmailBody()
-
-      setForgetPassword(body)->ignore
-    | _ => ()
+            setForgetPassword(body)
+          | _ => Js.Promise.make((~resolve, ~reject as _: _) => resolve(. Js.Nullable.null))
+          }
+        }
+      )
+    } catch {
+    | _ => showToast(~message="Something went wrong, Try again", ~toastType=ToastError, ())
     }
     Js.Nullable.null
   }
@@ -243,7 +247,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
             <ResendBtn callBackFun={resendEmail} />
           | _ => React.null
           }}
-          <div className="flex flex-col gap-2">
+          <div id="auth-submit-btn" className="flex flex-col gap-2">
             {switch authType {
             | LoginWithPassword
             | LoginWithEmail
@@ -256,7 +260,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
                 text=submitBtnText
                 userInteractionRequired=true
                 showToolTip=false
-                loadingText="Please wait..."
+                loadingText="Loading..."
               />
             | _ => React.null
             }}
