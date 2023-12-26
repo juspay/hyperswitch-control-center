@@ -1,20 +1,22 @@
 open ThreeDSUtils
 open AdvancedRoutingTypes
 
+let defaultSurcharge = {
+  surcharge: {
+    \"type": "rate",
+    value: {
+      percentage: 0.0,
+    },
+  },
+  tax_on_surcharge: {
+    percentage: 0.0,
+  },
+}
+
 let surchargeRules: AdvancedRoutingTypes.rule = {
   name: "rule_1",
   connectorSelection: {
-    surcharge_details: {
-      surcharge: {
-        \"type": "rate",
-        value: {
-          percentage: 10.0,
-        },
-      },
-      tax_on_surcharge: {
-        percentage: 10.0,
-      },
-    }->Js.Nullable.return,
+    surcharge_details: defaultSurcharge->Js.Nullable.return,
   },
   statements: statementObject,
 }
@@ -85,15 +87,13 @@ let getDefaultSurchargeType = surchargeType => {
   surchargeType
   ->Option.getWithDefault(Js.Nullable.null)
   ->Js.Nullable.toOption
-  ->Option.getWithDefault({
-    surcharge: {
-      \"type": "rate",
-      value: {
-        percentage: 0.0,
-      },
-    },
-    tax_on_surcharge: {
-      percentage: 0.0,
-    },
+  ->Option.getWithDefault(defaultSurcharge)
+}
+
+let validateConditionsForSurcharge = dict => {
+  let conditionsArray = dict->LogicUtils.getArrayFromDict("statements", [])
+
+  conditionsArray->Array.every(value => {
+    value->RoutingUtils.validateConditionJson(["comparison", "lhs"])
   })
 }
