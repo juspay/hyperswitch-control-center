@@ -14,7 +14,6 @@ let useErroryValueResetter = (
   React.useEffect0(() => {
     let isErroryTimeValue = value => {
       try {
-        let _checkEnd = value->isoStringToCustomTimeZone
         false
       } catch {
       | _error => true

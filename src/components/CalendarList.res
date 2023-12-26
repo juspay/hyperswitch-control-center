@@ -1,18 +1,6 @@
 external ffInputToSelectInput: ReactFinalForm.fieldRenderPropsInput => ReactFinalForm.fieldRenderPropsCustomInput<
   array<string>,
 > = "%identity"
-let getStrArray = jsonArr => {
-  jsonArr->Js.Array2.reduce((acc, jsonElement) => {
-    switch jsonElement->Js.Json.decodeString {
-    | Some(str) => {
-        let _ = Js.Array2.push(acc, str)
-      }
-
-    | None => ()
-    }
-    acc
-  }, [])
-}
 
 open Calendar
 @react.component

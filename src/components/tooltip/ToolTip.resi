@@ -3,7 +3,6 @@ type contentPosition = Left | Right | Middle | Default
 type toolTipSize = Large | Medium | Small | XSmall
 
 type tooltipPositioning = [#absolute | #fixed | #static]
-let toolTipArrowBorder: int
 @react.component
 let make: (
   ~description: Js.String2.t=?,

@@ -54,37 +54,3 @@ type showSnackbarFn = (
   ~onClose: unit => unit=?,
   unit,
 ) => unit
-
-let useHideSnackbar = () => {
-  let setOpenSnackBar = Recoil.useSetRecoilState(openSnackbar)
-
-  React.useCallback1(key => {
-    setOpenSnackBar(.prevArr => {
-      Js.Array2.filter(
-        prevArr,
-        (snackbarProps: snackbarProps) => {
-          snackbarProps.body !== key
-        },
-      )
-    })
-  }, [setOpenSnackBar])
-}
-
-let useShowSnackbar = (): showSnackbarFn => {
-  let setOpenSnackbar = Recoil.useSetRecoilState(openSnackbar)
-  React.useMemo1(
-    ((), ~heading, ~body, ~snackbarType, ~actionElement=React.null, ~onClose=?, ()) => {
-      let snackbarProps = makeSnackbarProps(
-        ~heading,
-        ~body,
-        ~snackbarType,
-        ~actionElement,
-        ~onClose?,
-        (),
-      )
-
-      setOpenSnackbar(.prevArr => prevArr->Js.Array2.concat([snackbarProps]))
-    },
-    [setOpenSnackbar],
-  )
-}

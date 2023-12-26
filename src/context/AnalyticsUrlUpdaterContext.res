@@ -1,8 +1,3 @@
-let defaultValue: Js.Dict.t<string> = Js.Dict.empty()
-let setDefaultValue: Js.Dict.t<string> => unit = _dict => ()
-let nameSpace: string = ""
-let setDefaultNameSpace: string => unit = _ => ()
-
 type urlUpdater = {
   filterValue: Js.Dict.t<string>,
   updateExistingKeys: Js.Dict.t<string> => unit,
