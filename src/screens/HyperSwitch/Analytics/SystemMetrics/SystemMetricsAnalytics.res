@@ -150,7 +150,7 @@ module SystemMetricsAnalytics = {
     <UIUtils.RenderIf condition={getModuleFilters->Js.Dict.entries->Js.Array2.length > 0}>
       {switch chartEntity1 {
       | Some(chartEntity) =>
-        <div className="flex flex-col flex-1 overflow-scroll h-75-vh">
+        <div className="h-75-vh">
           <HeadingTile pageTitle pageSubTitle />
           <div className="mt-2 -ml-1">
             <DynamicFilter

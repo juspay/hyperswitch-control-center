@@ -705,7 +705,7 @@ let make = (
   <UIUtils.RenderIf condition={getModuleFilters->Js.Dict.entries->Js.Array2.length > 0}>
     {switch chartEntity1 {
     | Some(chartEntity) =>
-      <div className="flex flex-col flex-1 overflow-scroll">
+      <div>
         <div className="flex items-center justify-between">
           <PageUtils.PageHeading title=pageTitle subTitle=pageSubTitle />
           <UIUtils.RenderIf condition={generateReport}>
