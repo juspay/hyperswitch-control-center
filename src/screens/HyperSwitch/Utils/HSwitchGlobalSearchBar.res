@@ -104,8 +104,7 @@ let make = () => {
             [],
             (insideAcc, item) => {
               switch item {
-              | SubLevelLink(obj)
-              | SubLevelRemoteLink(obj) => {
+              | SubLevelLink(obj) => {
                   if (
                     checkStringStartsWithSubstring(~itemToCheck=sectionObj.name, ~searchText) ||
                     checkStringStartsWithSubstring(~itemToCheck=obj.name, ~searchText)

@@ -20,9 +20,8 @@ let make = (
     }
   | Error(_err) =>
     <DefaultLandingPage
-      height=sectionHeight
       title="Oops, we hit a little bump on the road!"
-      customStyle={`py-16 !m-0 ${customStyleForDefaultLandingPage}`}
+      customStyle={`py-16 !m-0 ${customStyleForDefaultLandingPage} ${sectionHeight}`}
       overriddingStylesTitle="text-2xl font-semibold"
       buttonText="Refresh"
       overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
