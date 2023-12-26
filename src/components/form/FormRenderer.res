@@ -276,40 +276,6 @@ module FieldWrapper = {
   }
 }
 
-module MaxWidthFieldWrapper = {
-  @react.component
-  let make = (
-    ~label,
-    ~description=?,
-    ~isRequired=false,
-    ~padded=true,
-    ~fieldWrapperClass="",
-    ~children,
-  ) => {
-    <div className={`w-full flex flex-col ${fieldWrapperClass} ${padded ? "p-0 md:p-4" : ""}`}>
-      <label
-        className=" pb-1 font-semibold text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
-        {React.string(label)}
-        {if isRequired {
-          <span className="text-red-950"> {React.string(" *")} </span>
-        } else {
-          React.null
-        }}
-      </label>
-      {switch description {
-      | Some(description) =>
-        <div
-          className="pb-4 text-sm text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-40 text-opacity-40 font-medium">
-          {React.string(description)}
-        </div>
-
-      | None => React.null
-      }}
-      children
-    </div>
-  }
-}
-
 module FieldError = {
   @react.component
   let make = (
@@ -552,35 +518,6 @@ module FieldRenderer = {
     } else {
       React.null
     }
-  }
-}
-
-module MaxWidthFieldRenderer = {
-  @react.component
-  let make = (~field: fieldInfoType, ~fieldWrapperClass="") => {
-    <ErrorBoundary>
-      <MaxWidthFieldWrapper
-        label=field.label
-        description=?field.description
-        isRequired=field.isRequired
-        fieldWrapperClass>
-        {if field.inputFields->Js.Array2.length === 1 {
-          let field =
-            field.inputFields[0]->Belt.Option.getWithDefault(makeInputFieldInfo(~name="", ()))
-
-          <ErrorBoundary>
-            <FieldInputRenderer field />
-          </ErrorBoundary>
-        } else {
-          switch field.comboCustomInput {
-          | Some(renderInputs) =>
-            <ComboFieldsRenderer3 renderInputs inputFields=field.inputFields />
-
-          | None => <ComboFieldsRenderer field />
-          }
-        }}
-      </MaxWidthFieldWrapper>
-    </ErrorBoundary>
   }
 }
 
