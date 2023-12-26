@@ -216,25 +216,6 @@ module NestedSidebarItem = {
             </Link>
           </UIUtils.RenderIf>
         }
-
-      | SubLevelRemoteLink(tabOption) => {
-          let {name, link, access, ?remoteIcon} = tabOption
-          let (remoteUi, link) = if remoteIcon->Belt.Option.getWithDefault(false) {
-            (<Icon name="external-link-alt" size=14 className="ml-3" />, link)
-          } else {
-            (React.null, `${link}${getSearchParamByLink(link)}`)
-          }
-          <UIUtils.RenderIf condition={access !== NoAccess}>
-            <a
-              ref={nestedSidebarItemRef->ReactDOM.Ref.domRef}
-              href={link}
-              target="_blank"
-              className={`${textColor} relative overflow-hidden flex flex-row items-center cursor-pointer ${paddingClass} ${selectedClass} `}>
-              <SidebarSubOption name isSectionExpanded isSelected isSideBarExpanded />
-              remoteUi
-            </a>
-          </UIUtils.RenderIf>
-        }
       }}
     </UIUtils.RenderIf>
   }
@@ -308,23 +289,18 @@ module NestedSectionItem = {
         </UIUtils.RenderIf>
       </div>
       <UIUtils.RenderIf condition={isElementShown}>
-        {
-          let subSectionsArr =
-            section.links
-            ->Array.mapWithIndex((subLevelItem, index) => {
-              let isSelected = subLevelItem->isSubLevelItemSelected
-              <NestedSidebarItem
-                key={string_of_int(index)}
-                isSelected
-                isSideBarExpanded
-                isSectionExpanded
-                tabInfo=subLevelItem
-              />
-            })
-            ->React.array
-
-          subSectionsArr
-        }
+        {section.links
+        ->Array.mapWithIndex((subLevelItem, index) => {
+          let isSelected = subLevelItem->isSubLevelItemSelected
+          <NestedSidebarItem
+            key={string_of_int(index)}
+            isSelected
+            isSideBarExpanded
+            isSectionExpanded
+            tabInfo=subLevelItem
+          />
+        })
+        ->React.array}
       </UIUtils.RenderIf>
     </div>
   }
@@ -341,9 +317,7 @@ module SidebarNestedSection = {
   ) => {
     let isSubLevelItemSelected = tabInfo => {
       switch tabInfo {
-      | SubLevelRemoteLink(item)
-      | SubLevelLink(item) =>
-        linkSelectionCheck(firstPart, item.link)
+      | SubLevelLink(item) => linkSelectionCheck(firstPart, item.link)
       }
     }
 
@@ -410,7 +384,6 @@ module SidebarNestedSection = {
       acc &&
       switch subLevelItem {
       | SubLevelLink({access}) => access === NoAccess
-      | SubLevelRemoteLink({access}) => access === NoAccess
       }
     })
     <UIUtils.RenderIf condition={!areAllSubLevelsHidden}>
