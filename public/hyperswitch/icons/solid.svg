@@ -8812,4 +8812,22 @@ License)
       d="M5.46332 4H6.52896V4.96657H5.46332V4ZM5 8.20669H5.20077C5.30888 8.20669 5.3861 8.17933 5.43243 8.12462C5.47876 8.06383 5.50193 7.97264 5.50193 7.85106V6.79939C5.50193 6.66565 5.48134 6.56839 5.44015 6.5076C5.40412 6.44681 5.32947 6.41641 5.21622 6.41641H5V5.6231H6.51351V7.8693C6.51351 7.9848 6.53411 8.06991 6.57529 8.12462C6.62162 8.17933 6.69627 8.20669 6.79923 8.20669H7V9H5V8.20669Z"
     ></path>
   </symbol>
+  <symbol id="LeftPagination" width="12" height="13" viewBox="0 0 9 9">
+    <path
+      fill-rule="evenodd"
+      clip-rule="evenodd"
+      d="M7 0L0 5.0005L7 10V0Z"
+      fill="#CCD2E2"
+      fill-opacity="0.75"
+    ></path>
+  </symbol>
+  <symbol id="RightPagination" width="12" height="13" viewBox="0 0 9 9">
+    <path
+      fill-rule="evenodd"
+      clip-rule="evenodd"
+      d="M0 0L7 5.0005L0 10V0Z"
+      fill="#CCD2E2"
+      fill-opacity="0.75"
+    ></path>
+  </symbol>
 </svg>
