@@ -147,7 +147,6 @@ let calculateOpacity = (~length, ~originalOpacity) => {
   Js.Math.max_float(reducedOpacity, 0.0)->Js.Float.toString
 }
 
-
 type dropDownMetricType = Latency | Volume | Rate | Amount | Traffic // traffic string can be any column which is of type Volume, Amount
 type chartLegendStatsType =
   | GroupBY
@@ -493,7 +492,6 @@ let getLegendDataForCurrentMetrix = (
 }
 
 let barChartDataMaker = (~yAxis: string, ~rawData: array<Js.Json.t>, ~activeTab: string) => {
-
   let value = rawData->Belt.Array.keepMap(item => {
     let dict = item->getDictFromJsonObject
 

@@ -1,4 +1,3 @@
-open Promise
 type encKeyProp = {
   modulusLength: int,
   extractable: bool,
@@ -75,45 +74,3 @@ external generateKeyPairs: 'a = "generateKeyPair"
 @module("jose") external importPKCS8: ('a, string) => Js.Promise.t<key> = "importPKCS8"
 @module("jose") external compactDecrypt: ('a, key) => Js.Promise.t<Js.Json.t> = "compactDecrypt"
 @module("jose") external compactVerify: ('a, key) => Js.Promise.t<bool> = "compactVerify"
-
-let getKey = keyType => {
-  switch LocalStorage.getItem(keyType)->Js.Nullable.toOption {
-  | Some(str) => str
-  | None => "__failed"
-  }
-}
-let keyExport = (key, keyType, ~setLocalStorage: bool) => {
-  if keyType === "public" {
-    if getKey("k1") == "__failed" || setLocalStorage == false {
-      exportSPKI(key)->then(json => {
-        let keywithoutPem =
-          json
-          ->Js.Json.decodeString
-          ->Belt.Option.getWithDefault("")
-          ->Js.String2.replace("-----BEGIN PUBLIC KEY-----\n", "")
-          ->Js.String2.replace("\n-----END PUBLIC KEY-----", "")
-        if setLocalStorage {
-          localStorage.setItem(. "k1", keywithoutPem)
-        }
-        resolve(keywithoutPem)
-      })
-    } else {
-      resolve(getKey("k1"))
-    }
-  } else if getKey("k2") == "__failed" || setLocalStorage == false {
-    exportPKCS8(key)->then(json => {
-      let keywithoutPem =
-        json
-        ->Js.Json.decodeString
-        ->Belt.Option.getWithDefault("")
-        ->Js.String2.replace("-----BEGIN PRIVATE KEY-----\n", "")
-        ->Js.String2.replace("\n-----END PRIVATE KEY-----", "")
-      if setLocalStorage {
-        localStorage.setItem(. "k2", keywithoutPem)
-      }
-      resolve(keywithoutPem)
-    })
-  } else {
-    resolve(getKey("k2"))
-  }
-}

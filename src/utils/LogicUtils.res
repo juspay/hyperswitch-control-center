@@ -557,40 +557,6 @@ let getListHead = (~default="", list) => {
   list->Belt.List.head->Belt.Option.getWithDefault(default)
 }
 
-let dataMerge = (~dataArr: array<array<Js.Json.t>>, ~dictKey: array<string>) => {
-  let finalData = Js.Dict.empty()
-  dataArr->Js.Array2.forEach(jsonArr => {
-    jsonArr->Js.Array2.forEach(jsonObj => {
-      let dict = jsonObj->getDictFromJsonObject
-      let dictKey =
-        dictKey
-        ->Js.Array2.map(
-          ele => {
-            dict->getString(ele, "")
-          },
-        )
-        ->Js.Array2.joinWith("-")
-      let existingData = finalData->getObj(dictKey, Js.Dict.empty())->Js.Dict.entries
-      let data = dict->Js.Dict.entries
-
-      finalData->Js.Dict.set(
-        dictKey,
-        existingData->Js.Array2.concat(data)->Js.Dict.fromArray->Js.Json.object_,
-      )
-    })
-  })
-
-  finalData->Js.Dict.values
-}
-
-let getJsonFromStr = data => {
-  if data !== "" {
-    Js.Json.stringifyWithSpace(safeParse(data), 2)
-  } else {
-    data
-  }
-}
-
 //Extract Exn to Dict
 external toExnJson: exn => Js.Json.t = "%identity"
 

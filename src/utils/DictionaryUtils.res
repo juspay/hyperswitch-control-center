@@ -21,14 +21,6 @@ let deleteKeys = (dictionary: Js.Dict.t<'a>, keys: array<string>) => {
   updatedDict
 }
 
-let appnedDataToKey = (dict, key, value) => {
-  let updatedValue = switch dict->Js.Dict.get(key) {
-  | Some(val) => Belt.Array.concat(val, [value])
-  | None => [value]
-  }
-  dict->Js.Dict.set(key, updatedValue)
-}
-
 let mergeDicts = (arrDict: array<Js.Dict.t<'a>>) => {
   arrDict->Js.Array2.reduce((acc, dict) => {
     acc->Js.Array2.concat(dict->Js.Dict.entries)

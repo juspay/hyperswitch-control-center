@@ -260,18 +260,6 @@ module BusinessProfileRender = {
     let hereTextStyle = isUpdateFlow
       ? "text-grey-700 opacity-50 cursor-not-allowed"
       : "text-blue-900  cursor-pointer"
-    let _onClickHandler = countryOrLabel => {
-      if !isUpdateFlow {
-        setShowModalFromOtherScreen(_ => true)
-        ConnectorUtils.mixpanelEventWrapper(
-          ~url,
-          ~selectedConnector,
-          ~actionName=`add_new_${countryOrLabel}`,
-          ~hyperswitchMixPanel,
-        )
-      }
-      setDashboardPageState(_ => #HOME)
-    }
 
     <>
       <FormRenderer.FieldRenderer

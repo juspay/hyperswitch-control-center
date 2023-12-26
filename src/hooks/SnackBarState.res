@@ -14,34 +14,6 @@ type snackbarProps = {
   onClose?: unit => unit,
 }
 
-let randomString = (length, chars) => {
-  Belt.Array.make(length, 0)->Js.Array2.reduce((acc, _) => {
-    let charIndex = Js.Math.random_int(0, chars->Js.String2.length)
-    let newChar = chars->Js.String2.charAt(charIndex)
-    acc ++ newChar
-  }, "")
-}
-
-let makeSnackbarProps = (
-  ~heading,
-  ~body,
-  ~snackbarType,
-  ~actionElement=React.null,
-  ~onClose=?,
-  (),
-) => {
-  let rString = randomString(32, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-  {
-    snackbarKey: rString,
-    heading,
-    body,
-    snackbarType,
-    actionElement,
-    ?onClose,
-  }
-}
-
 let defaultOpenSnackbar: array<snackbarProps> = []
 
 let openSnackbar = Recoil.atom(. "openSnackbar", defaultOpenSnackbar)
