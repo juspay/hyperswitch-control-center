@@ -71,6 +71,9 @@ external getParsedJson: string => Js.Json.t = "getParsedJson"
 
 @val @scope("window") external globalUrlPrefix: option<string> = "urlPrefix"
 
+@val @scope("window")
+external payPalCreateAccountWindow: unit => unit = "payPalCreateAccountWindow"
+
 module MatchMedia = {
   type matchEvent = {
     matches: bool,

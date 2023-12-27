@@ -3,6 +3,27 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.16.0 (2023-12-26)
+
+### Features
+
+- README.md PR title changes ([#134](https://github.com/juspay/hyperswitch-control-center/pull/134)) ([`66ef342`](https://github.com/juspay/hyperswitch-control-center/commit/66ef342d46095bac4a2901daac198b60d647d2c6))
+
+### Bug Fixes
+
+- FixedPageWidth Changes ([#132](https://github.com/juspay/hyperswitch-control-center/pull/132)) ([`921eab4`](https://github.com/juspay/hyperswitch-control-center/commit/921eab4629e0a921b6f29bc286a9009173180570))
+- APIUtils changes ([#135](https://github.com/juspay/hyperswitch-control-center/pull/135)) ([`9ec16e8`](https://github.com/juspay/hyperswitch-control-center/commit/9ec16e87f32e7564d363f6bbc9d0c323e816aa4f))
+- API fix and radio icon changes ([#136](https://github.com/juspay/hyperswitch-control-center/pull/136)) ([`2ee3bf2`](https://github.com/juspay/hyperswitch-control-center/commit/2ee3bf2f7fb10491ffe036a30c009da853e62366))
+
+### Refactors
+
+- ApiUtils file to use the apiPrefix once only ([#122](https://github.com/juspay/hyperswitch-control-center/pull/122)) ([`dc4e644`](https://github.com/juspay/hyperswitch-control-center/commit/dc4e644a9a7825bf74d47c5d225c71efb5b31369))
+
+**Full Changelog:** [`v1.15.1...v1.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.15.1...v1.16.0)
+
+- - -
+
+
 ## 1.14.0 (2023-12-24)
 
 ### Features
