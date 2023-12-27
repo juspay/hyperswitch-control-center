@@ -143,3 +143,20 @@ let generateConnectorPayloadPayPal = (
     (),
   )->ignoreFields(connectorId, connectorIgnoredField)
 }
+
+let generatePayPalBody = (~returnUrl=None, ~connectorId, ~profileId=None, ()) => {
+  switch returnUrl {
+  | Some(returnURL) =>
+    [
+      ("connector", "paypal"->Js.Json.string),
+      ("return_url", returnURL->Js.Json.string),
+      ("connector_id", connectorId->Js.Json.string),
+    ]->LogicUtils.getJsonFromArrayOfJson
+  | _ =>
+    [
+      ("connector", "paypal"->Js.Json.string),
+      ("connector_id", connectorId->Js.Json.string),
+      ("profile_id", profileId->Belt.Option.getWithDefault("")->Js.Json.string),
+    ]->LogicUtils.getJsonFromArrayOfJson
+  }
+}

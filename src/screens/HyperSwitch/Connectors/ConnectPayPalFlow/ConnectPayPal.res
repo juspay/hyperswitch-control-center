@@ -142,15 +142,12 @@ module RedirectionToPayPalFlow = {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let returnURL = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${path}?${url.search}&is_back=true`
-        Js.log2("returnURLreturnURL", returnURL)
-        let body =
-          [
-            ("connector", "paypal"->Js.Json.string),
-            ("return_url", returnURL->Js.Json.string),
-            ("connector_id", connectorId->Js.Json.string),
-          ]
-          ->Js.Dict.fromArray
-          ->Js.Json.object_
+
+        let body = PayPalFlowUtils.generatePayPalBody(
+          ~connectorId={connectorId},
+          ~returnUrl=Some(returnURL),
+          (),
+        )
         let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/action_url`
 
         let response = await updateDetails(url, body, Post)
@@ -369,12 +366,11 @@ let make = (
       setScreenState(_ => PageLoaderWrapper.Loading)
       let profileId =
         initialValues->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
-      let paypalBody =
-        [
-          ("connector", "paypal"->Js.Json.string),
-          ("connector_id", connectorId->Js.Json.string),
-          ("profile_id", profileId->Js.Json.string),
-        ]->getJsonFromArrayOfJson
+      let paypalBody = PayPalFlowUtils.generatePayPalBody(
+        ~connectorId={connectorId},
+        ~profileId=Some(profileId),
+        (),
+      )
       let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/sync`
       let responseValue = await updateDetails(url, paypalBody, Fetch.Post)
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")

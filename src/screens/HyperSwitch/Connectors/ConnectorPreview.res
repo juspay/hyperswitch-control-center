@@ -284,12 +284,11 @@ let make = (
     open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let paypalBody =
-        [
-          ("connector", "paypal"->Js.Json.string),
-          ("connector_id", connectorInfo.merchant_connector_id->Js.Json.string),
-          ("profile_id", connectorInfo.profile_id->Js.Json.string),
-        ]->getJsonFromArrayOfJson
+      let paypalBody = PayPalFlowUtils.generatePayPalBody(
+        ~connectorId={connectorInfo.merchant_connector_id},
+        ~profileId=Some(connectorInfo.profile_id),
+        (),
+      )
       let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/sync`
       let responseValue = await updateDetails(url, paypalBody, Fetch.Post)
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
