@@ -32,7 +32,6 @@ let make = (
 
   let activeBusinessProfile =
     defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
-
   React.useEffect1(() => {
     mixpanelEventWrapper(
       ~url,
@@ -53,9 +52,9 @@ let make = (
     }
     None
   }, [activeBusinessProfile.profile_id])
-
   let connectorDetails = React.useMemo1(() => {
     try {
+      Js.log(window)
       if connector->Js.String2.length > 0 {
         let dict = isPayoutFlow
           ? Window.getPayoutConnectorConfig(connector)

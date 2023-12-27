@@ -37,6 +37,7 @@ let connectorList: array<connectorName> = [
   CASHTOCODE,
   CHECKOUT,
   COINBASE,
+  CREDITBANCO,
   CRYPTOPAY,
   CYBERSOURCE,
   DLOCAL,
@@ -127,6 +128,9 @@ let stripeInfo = {
   ],
 }
 
+let creditbancoInfo = {
+  description: "CreditBanco is a payment processor that allows businesses to accept credit card payments securely and conveniently.",
+}
 let goCardLessInfo = {
   description: "Simplify payment collection with a single, hassle-free integration across 30+ countries for Direct Debit payments.",
 }
@@ -350,6 +354,7 @@ let bankOfAmericaInfo = {
 
 let getConnectorNameString = connector => {
   switch connector {
+  | CREDITBANCO => "creditbanco"
   | ADYEN => "adyen"
   | CHECKOUT => "checkout"
   | BRAINTREE => "braintree"
@@ -407,6 +412,7 @@ let getConnectorNameString = connector => {
 
 let getConnectorNameTypeFromString = connector => {
   switch connector {
+  | "creditbanco" => CREDITBANCO
   | "adyen" => ADYEN
   | "checkout" => CHECKOUT
   | "braintree" => BRAINTREE
@@ -464,6 +470,7 @@ let getConnectorNameTypeFromString = connector => {
 
 let getConnectorInfo = (connector: connectorName) => {
   switch connector {
+  | CREDITBANCO => creditbancoInfo
   | STRIPE => stripeInfo
   | ADYEN => adyenInfo
   | GOCARDLESS => goCardLessInfo

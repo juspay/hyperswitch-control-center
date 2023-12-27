@@ -24,6 +24,7 @@ type integrationFields = {
 type verifyResponse = Success | Failure | NoAttempt | Loading
 type authType = [#HeaderKey | #BodyKey | #SignatureKey | #MultiAuthKey | #CurrencyAuthKey | #Nokey]
 type connectorName =
+  | CREDITBANCO
   | ADYEN
   | CHECKOUT
   | BRAINTREE

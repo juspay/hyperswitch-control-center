@@ -49,6 +49,12 @@ let trackRedictMixPanelEvents = (
 
 let countries: array<HyperSwitchTypes.country> = [
   {
+    isoAlpha3: "COL",
+    currency: "COP",
+    countryName: "Columbia",
+    isoAlpha2: "CO",
+  },
+  {
     isoAlpha3: "USA",
     currency: "USD",
     countryName: "United States",

@@ -1,8 +1,8 @@
 let wasm;
 async function init() {
   try {
-    wasm = await import("/wasm/euclid.js");
-    await wasm.default("/wasm/euclid_bg.wasm");
+    wasm = await import("/wasm/euclid_wasm.js");
+    await wasm.default("/wasm/euclid_wasm_bg.wasm");
     return { status: true, wasm };
   } catch (e) {
     console.error(e, "FAILED TO LOAD WASM CONFIG");
