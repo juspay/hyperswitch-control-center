@@ -87,7 +87,8 @@ module NewProcessorCards = {
           </UIUtils.RenderIf>
         </div>
         <UIUtils.RenderIf condition={connectorList->Js.Array2.length > 0}>
-          <div className="grid gap-x-5 gap-y-6 lg:grid-cols-4 md:grid-cols-2 grid-cols-1 mb-5">
+          <div
+            className="grid gap-x-5 gap-y-6 2xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 mb-5">
             {connectorList
             ->Array.mapWithIndex((connector, i) => {
               let connectorName = connector->ConnectorUtils.getConnectorNameString
@@ -103,9 +104,9 @@ module NewProcessorCards = {
                     {connectorName->LogicUtils.capitalizeString->React.string}
                   </p>
                 </div>
-                <div className="overflow-hidden text-gray-400 flex-1">
+                <p className="overflow-hidden text-gray-400 flex-1 line-clamp-3">
                   {connectorInfo.description->React.string}
-                </div>
+                </p>
                 <Button
                   text="+ Connect"
                   buttonType={Transparent}
@@ -283,7 +284,7 @@ let make = (~isPayoutFlow=false) => {
 
   let entityPrefix = isPayoutFlow ? "payout" : ""
 
-  <div className="overflow-scroll">
+  <div>
     <PageUtils.PageHeading
       title={isPayoutFlow ? "Payout Processors" : `Processors`}
       subTitle={isPayoutFlow
