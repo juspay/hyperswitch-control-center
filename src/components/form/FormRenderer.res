@@ -367,18 +367,14 @@ module ComboFieldsRenderer = {
       <ButtonGroup wrapperClass="flex flex-row items-center">
         {field.inputFields
         ->Js.Array2.mapi((field, i) => {
-          <ErrorBoundary key={string_of_int(i)}>
-            <FieldInputRenderer field showError=false />
-          </ErrorBoundary>
+          <FieldInputRenderer field showError=false key={string_of_int(i)} />
         })
         ->React.array}
       </ButtonGroup>
       <div>
         {field.inputFields
         ->Js.Array2.mapi((field, i) => {
-          <ErrorBoundary key={string_of_int(i)}>
-            <FieldErrorRenderer field />
-          </ErrorBoundary>
+          <FieldErrorRenderer field key={string_of_int(i)} />
         })
         ->React.array}
       </div>
@@ -479,40 +475,36 @@ module FieldRenderer = {
 
       <Portal to=portalKey>
         <AddDataAttributes attributes=[("data-component", "fieldRenderer")]>
-          <ErrorBoundary>
-            <FieldWrapper
-              label=field.label
-              customLabelIcon=?field.customLabelIcon
-              labelClass
-              labelTextStyleClass
-              labelPadding
-              subHeading=?field.subHeading
-              subHeadingIcon=?field.subHeadingIcon
-              subText=?field.subText
-              description=?field.description
-              descriptionComponent=?field.descriptionComponent
-              isRequired=field.isRequired
-              toolTipPosition=?field.toolTipPosition
-              fieldWrapperClass
-              subTextClass
-              subHeadingClass
-              dataId=names>
-              {if field.inputFields->Js.Array2.length === 1 {
-                let field =
-                  field.inputFields[0]->Belt.Option.getWithDefault(makeInputFieldInfo(~name="", ()))
+          <FieldWrapper
+            label=field.label
+            customLabelIcon=?field.customLabelIcon
+            labelClass
+            labelTextStyleClass
+            labelPadding
+            subHeading=?field.subHeading
+            subHeadingIcon=?field.subHeadingIcon
+            subText=?field.subText
+            description=?field.description
+            descriptionComponent=?field.descriptionComponent
+            isRequired=field.isRequired
+            toolTipPosition=?field.toolTipPosition
+            fieldWrapperClass
+            subTextClass
+            subHeadingClass
+            dataId=names>
+            {if field.inputFields->Js.Array2.length === 1 {
+              let field =
+                field.inputFields[0]->Belt.Option.getWithDefault(makeInputFieldInfo(~name="", ()))
 
-                <ErrorBoundary>
-                  <FieldInputRenderer field errorClass showErrorOnChange />
-                </ErrorBoundary>
-              } else {
-                switch field.comboCustomInput {
-                | Some(renderInputs) =>
-                  <ComboFieldsRenderer3 inputFields=field.inputFields renderInputs />
-                | None => <ComboFieldsRenderer field />
-                }
-              }}
-            </FieldWrapper>
-          </ErrorBoundary>
+              <FieldInputRenderer field errorClass showErrorOnChange />
+            } else {
+              switch field.comboCustomInput {
+              | Some(renderInputs) =>
+                <ComboFieldsRenderer3 inputFields=field.inputFields renderInputs />
+              | None => <ComboFieldsRenderer field />
+              }
+            }}
+          </FieldWrapper>
         </AddDataAttributes>
       </Portal>
     } else {

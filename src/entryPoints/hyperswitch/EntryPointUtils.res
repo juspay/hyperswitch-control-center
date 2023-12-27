@@ -3,34 +3,30 @@ module ContextWrapper = {
   @react.component
   let make = (~children, ~uiConfig) => {
     let loader =
-      <div className="flex flex-col py-16 text-center items-center">
-        <div className="animate-spin mb-10">
-          <Icon name="spinner" size=20 />
-        </div>
-        {React.string("Loading")}
+      <div className={`h-screen w-scrren flex justify-center items-center`}>
+        <Loader />
       </div>
+
     <React.Suspense fallback={loader}>
-      <ErrorBoundary renderFallback={_ => <div> {React.string("Error")} </div>}>
+      <ErrorBoundary>
         <Recoil.RecoilRoot>
-          <ErrorBoundary>
-            <ThemeProvider>
-              <PopUpContainer>
-                <SnackBarContainer>
-                  <ToastContainer>
-                    <TokenContextProvider>
-                      <UserTimeZoneProvider>
-                        <SidebarProvider>
-                          <ModalContainer>
-                            <ConfigContext value=uiConfig> children </ConfigContext>
-                          </ModalContainer>
-                        </SidebarProvider>
-                      </UserTimeZoneProvider>
-                    </TokenContextProvider>
-                  </ToastContainer>
-                </SnackBarContainer>
-              </PopUpContainer>
-            </ThemeProvider>
-          </ErrorBoundary>
+          <ThemeProvider>
+            <PopUpContainer>
+              <SnackBarContainer>
+                <ToastContainer>
+                  <TokenContextProvider>
+                    <UserTimeZoneProvider>
+                      <SidebarProvider>
+                        <ModalContainer>
+                          <ConfigContext value=uiConfig> children </ConfigContext>
+                        </ModalContainer>
+                      </SidebarProvider>
+                    </UserTimeZoneProvider>
+                  </TokenContextProvider>
+                </ToastContainer>
+              </SnackBarContainer>
+            </PopUpContainer>
+          </ThemeProvider>
         </Recoil.RecoilRoot>
       </ErrorBoundary>
     </React.Suspense>
