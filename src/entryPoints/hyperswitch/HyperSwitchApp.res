@@ -295,10 +295,7 @@ let make = () => {
                           <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
                             <PaymentAnalytics />
                           </FilterContext>
-                          <FilterContext
-                            key="SmartRetriesAnalytics"
-                            index="SmartRetriesAnalytics"
-                            disableSessionStorage=true>
+                          <FilterContext key="SmartRetriesAnalytics" index="SmartRetriesAnalytics">
                             <SmartRetriesAnalytics />
                           </FilterContext>
                         </>
