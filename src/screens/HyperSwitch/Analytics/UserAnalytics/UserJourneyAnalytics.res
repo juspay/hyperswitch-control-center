@@ -59,7 +59,7 @@ let make = () => {
   let title = "Know your users"
   let subTitle = "User analytics is a level deeper into payment analytics and aims at providing you a wholesome understanding of the end users and their usage patterns."
 
-  <div className="flex flex-col flex-1 overflow-scroll">
+  <div>
     <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
       <Analytics
         pageTitle=title

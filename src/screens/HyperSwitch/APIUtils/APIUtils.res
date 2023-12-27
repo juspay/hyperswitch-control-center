@@ -154,7 +154,7 @@ let getURL = (
     | #VERIFY_EMAIL =>
       `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
     | #USER_DATA => `${userUrl}/data`
-    | #MERCHANT_DATA => `${userUrl}/data/merchant`
+    | #MERCHANT_DATA => `${userUrl}/data`
     | #INVITE
     | #RESEND_INVITE =>
       `${userUrl}/user/${(userType :> string)->Js.String2.toLowerCase}`
