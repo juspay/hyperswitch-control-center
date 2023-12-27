@@ -8,25 +8,27 @@ module ContextWrapper = {
       </div>
 
     <React.Suspense fallback={loader}>
-      <ErrorBoundary>
+      <ErrorBoundary renderFallback={<div> {React.string("Error")} </div>}>
         <Recoil.RecoilRoot>
-          <ThemeProvider>
-            <PopUpContainer>
-              <SnackBarContainer>
-                <ToastContainer>
-                  <TokenContextProvider>
-                    <UserTimeZoneProvider>
-                      <SidebarProvider>
-                        <ModalContainer>
-                          <ConfigContext value=uiConfig> children </ConfigContext>
-                        </ModalContainer>
-                      </SidebarProvider>
-                    </UserTimeZoneProvider>
-                  </TokenContextProvider>
-                </ToastContainer>
-              </SnackBarContainer>
-            </PopUpContainer>
-          </ThemeProvider>
+          <ErrorBoundary>
+            <ThemeProvider>
+              <PopUpContainer>
+                <SnackBarContainer>
+                  <ToastContainer>
+                    <TokenContextProvider>
+                      <UserTimeZoneProvider>
+                        <SidebarProvider>
+                          <ModalContainer>
+                            <ConfigContext value=uiConfig> children </ConfigContext>
+                          </ModalContainer>
+                        </SidebarProvider>
+                      </UserTimeZoneProvider>
+                    </TokenContextProvider>
+                  </ToastContainer>
+                </SnackBarContainer>
+              </PopUpContainer>
+            </ThemeProvider>
+          </ErrorBoundary>
         </Recoil.RecoilRoot>
       </ErrorBoundary>
     </React.Suspense>
