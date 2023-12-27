@@ -8,7 +8,7 @@ module ContextWrapper = {
       </div>
 
     <React.Suspense fallback={loader}>
-      <ErrorBoundary renderFallback={<div> {React.string("Error")} </div>}>
+      <ErrorBoundary renderFallback={params => <div> {React.string("Error")} </div>}>
         <Recoil.RecoilRoot>
           <ErrorBoundary>
             <ThemeProvider>
