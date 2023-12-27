@@ -14,6 +14,7 @@ module SelectPaymentMethods = {
   ) => {
     let updateEnumInRecoil = EnumVariantHook.useUpdateEnumInRecoil()
     let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
+    let enums = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
     let updateAPIHook = APIUtils.useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let postEnumDetails = EnumVariantHook.usePostEnumDetails()
@@ -26,6 +27,18 @@ module SelectPaymentMethods = {
 
     let updateDetails = value => {
       setPaymentMethods(_ => value->Js.Array2.copy)
+    }
+
+    let updateEnumForMultipleConfigurationType = async connectorChoiceValue => {
+      try {
+        let configurationType = #ConfigurationType
+        let _ = await StringEnumType(connectorChoiceValue)->postEnumDetails(configurationType)
+      } catch {
+      | Js.Exn.Error(e) => {
+          let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to update!")
+          Js.Exn.raiseError(err)
+        }
+      }
     }
 
     let updateEnumForConnector = async connectorResponse => {
@@ -69,7 +82,11 @@ module SelectPaymentMethods = {
         }
         let body = ConnectorUtils.constructConnectorRequestBody(obj, initialValues)
         let connectorUrl = APIUtils.getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
-
+        if enums.configurationType->Js.String2.length === 0 && connectorName === "stripe" {
+          let _ = await updateEnumForMultipleConfigurationType(
+            #MultipleProcessorWithSmartRouting->QuickStartUtils.connectorChoiceVariantToString,
+          )
+        }
         let response = await updateAPIHook(connectorUrl, body, Post)
         setInitialValues(_ => response)
         response->LogicUtils.getDictFromJsonObject->updateEnumForConnector->ignore

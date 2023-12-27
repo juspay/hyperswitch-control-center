@@ -38,9 +38,11 @@ module ConnectorDetailsForm = {
 
     <div className="flex flex-col gap-6">
       <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
-        <ConnectorAccountDetailsHelper.BusinessProfileRender
-          isUpdateFlow=false selectedConnector={connectorName}
-        />
+        <div>
+          <ConnectorAccountDetailsHelper.BusinessProfileRender
+            isUpdateFlow=false selectedConnector={connectorName}
+          />
+        </div>
       </UIUtils.RenderIf>
       <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
         connectorAccountFields
