@@ -216,70 +216,71 @@ let make = (
   let stickyHeader = showStickyHeader
     ? `top-0 height-50 sticky bg-white border-b dark:bg-black border-jp-gray-500 dark:border-jp-gray-960`
     : ""
-
-  <div className={`flex flex-col ${contentHeight}`}>
-    <div className={`py-0 ${stickyHeader}`}>
-      <div
-        className="overflow-x-auto no-scrollbar overflow-y-hidden"
-        ref={scrollRef->ReactDOM.Ref.domRef}
-        onScroll>
+  <ErrorBoundary>
+    <div className={`flex flex-col ${contentHeight}`}>
+      <div className={`py-0 ${stickyHeader}`}>
         <div
-          className={`flex flex-row ${topMargin} pr-8 ${tabOuterClass}
+          className="overflow-x-auto no-scrollbar overflow-y-hidden"
+          ref={scrollRef->ReactDOM.Ref.domRef}
+          onScroll>
+          <div
+            className={`flex flex-row ${topMargin} pr-8 ${tabOuterClass}
           ${showBorder && includeMargin ? "ml-5" : ""}  ${tabContainerClass}`}>
-          {tabs
-          ->Js.Array2.mapi((tab, i) => {
-            let ref = if i == 0 {
-              firstTabRef->ReactDOM.Ref.domRef->Some
-            } else if i == numberOfTabs - 1 {
-              lastTabRef->ReactDOM.Ref.domRef->Some
-            } else {
-              None
-            }
-            <div className=tabClass ?ref key={string_of_int(i)}>
-              <TabInfo
-                title={tab.title}
-                tabElement=tab.tabElement
-                isSelected={selectedIndex === i}
-                index={i}
-                tabsCustomClass
-                handleSelectedIndex
-                borderBottomStyle
-                isScrollIntoViewRequired
-                textStyle
-                lightThemeColor
-                darkThemeColor
-                backgroundStyle
-                disabledTab
-                isDisabled
-                tabView
-                borderSelectionStyle
-                borderDefaultStyle
-                showBottomBorder
-                onTabSelection=?{tab.onTabSelection}
-              />
-            </div>
-          })
-          ->React.array}
+            {tabs
+            ->Js.Array2.mapi((tab, i) => {
+              let ref = if i == 0 {
+                firstTabRef->ReactDOM.Ref.domRef->Some
+              } else if i == numberOfTabs - 1 {
+                lastTabRef->ReactDOM.Ref.domRef->Some
+              } else {
+                None
+              }
+              <div className=tabClass ?ref key={string_of_int(i)}>
+                <TabInfo
+                  title={tab.title}
+                  tabElement=tab.tabElement
+                  isSelected={selectedIndex === i}
+                  index={i}
+                  tabsCustomClass
+                  handleSelectedIndex
+                  borderBottomStyle
+                  isScrollIntoViewRequired
+                  textStyle
+                  lightThemeColor
+                  darkThemeColor
+                  backgroundStyle
+                  disabledTab
+                  isDisabled
+                  tabView
+                  borderSelectionStyle
+                  borderDefaultStyle
+                  showBottomBorder
+                  onTabSelection=?{tab.onTabSelection}
+                />
+              </div>
+            })
+            ->React.array}
+          </div>
         </div>
       </div>
-    </div>
-    <UIUtils.RenderIf condition={!showStickyHeader && showBorder}>
-      <div className=bottomBorderClass />
-    </UIUtils.RenderIf>
-    <div className=renderedTabClassName>
-      <ErrorBoundary key={string_of_int(selectedIndex)}>
-        {switch tabs->Belt.Array.get(selectedIndex) {
-        | Some(selectedTab) => {
-            let component = selectedTab.renderContent()
-            <FramerMotion.TransitionComponent
-              id={string_of_int(selectedIndex)} className=contentHeight>
-              {component}
-            </FramerMotion.TransitionComponent>
-          }
+      <UIUtils.RenderIf condition={!showStickyHeader && showBorder}>
+        <div className=bottomBorderClass />
+      </UIUtils.RenderIf>
+      <div className=renderedTabClassName>
+        <ErrorBoundary key={string_of_int(selectedIndex)}>
+          {switch tabs->Belt.Array.get(selectedIndex) {
+          | Some(selectedTab) => {
+              let component = selectedTab.renderContent()
+              <FramerMotion.TransitionComponent
+                id={string_of_int(selectedIndex)} className=contentHeight>
+                {component}
+              </FramerMotion.TransitionComponent>
+            }
 
-        | None => React.string("No tabs found")
-        }}
-      </ErrorBoundary>
+          | None => React.string("No tabs found")
+          }}
+        </ErrorBoundary>
+      </div>
     </div>
-  </div>
+  </ErrorBoundary>
 }
