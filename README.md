@@ -303,8 +303,9 @@ All commits should be signed to verify the authenticity of contributors. Follow 
 
     ```bash
       gpg --armor --export <GPG_KEY_ID>
-      Replace <GPG_KEY_ID> with the actual key ID.
     ```
+
+    Replace <GPG_KEY_ID> with the actual key ID.
 
     b. Copy the entire output, including the lines that start with "-----BEGIN PGP PUBLIC KEY BLOCK-----" and "-----END PGP PUBLIC KEY BLOCK-----".
 
@@ -340,6 +341,57 @@ All commits should be signed to verify the authenticity of contributors. Follow 
 For further assistance, please refer to the [GitHub documentation on signing commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits).
 
 ---
+
+## Standard Process for Raising a Pull Request (PR) from a Branch
+
+### Introduction
+
+Welcome to the standard process for raising a Pull Request (PR) directly from a branch in our project! Please follow these guidelines to ensure that your contributions align with our project's goals and standards.
+
+### Steps to Raise a PR from a Branch
+
+1. **Clone the Repository**:
+
+   - Clone the main repository to your local machine using the following command:
+     ```bash
+     git clone https://github.com/juspay/hyperswitch-control-center.git
+     ```
+
+2. **Create a New Branch**:
+
+   - Create a new branch for your changes directly in the main repository. Please ensure the branch name is descriptive and relates to the feature or bug you're addressing.
+     ```bash
+     git checkout -b feature/your-feature-name
+     ```
+
+3. **Make Changes**:
+
+   - Make the necessary changes in the codebase, ensuring that you follow the project's coding guidelines and standards.
+
+4. **Commit Changes**:
+
+   - Commit your changes with a clear and descriptive commit message. Please follow conventional commit [guidelines](https://www.conventionalcommits.org/).
+
+5. **Push Changes**:
+
+   - Push your changes to the branch in the main repository.
+     ```bash
+     git push origin feature/your-feature-name
+     ```
+
+6. **Create a Pull Request**:
+
+   - Navigate to the main repository on GitHub and create a new PR from your branch. Provide a detailed description of the changes, along with any relevant context or screenshots.
+
+7. **Respond to Feedback**:
+
+   - Be responsive to feedback from reviewers. Address any comments or suggestions promptly and make the necessary changes as required.
+
+### Additional Notes
+
+- Ensure your PR adheres to our coding guidelines, style conventions, and documentation standards.
+- Include relevant tests, documentation updates, or screenshots, if applicable.
+- Collaborate and communicate effectively with other contributors and maintainers throughout the review process.
 
 ## License
 
