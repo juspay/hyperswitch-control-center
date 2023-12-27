@@ -534,10 +534,16 @@ let itemProviderMapper = dict => {
     payment_method_type: dict->getString("payment_method_type", ""),
     accepted_countries: dict->getDictfromDict("accepted_countries")->acceptedValues,
     accepted_currencies: dict->getDictfromDict("accepted_currencies")->acceptedValues,
+    minimum_amount: dict->getOptionInt("minimum_amount"),
+    maximum_amount: dict->getOptionInt("maximum_amount"),
+    recurring_enabled: dict->getOptionBool("recurring_enabled"),
+    installment_payment_enabled: dict->getOptionBool("installment_payment_enabled"),
+    payment_experience: dict->getOptionString("payment_method_type"),
+    card_networks: dict->getStrArrayFromDict("card_networks", []),
   }
 }
 
-let getPaymentMethodMapper: Js.Json.t => array<provider> = json => {
+let getPaymentMethodMapper: Js.Json.t => array<paymentMethodConfigType> = json => {
   open LogicUtils
   getArrayDataFromJson(json, itemProviderMapper)
 }
@@ -655,7 +661,7 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
   pmts
 }
 
-let removeMethod = (paymentMethodsEnabled, paymentMethod, method: provider) => {
+let removeMethod = (paymentMethodsEnabled, paymentMethod, method: paymentMethodConfigType) => {
   let pmts = paymentMethodsEnabled->Js.Array2.copy
   switch paymentMethod->getPaymentMethodFromString {
   | Card =>

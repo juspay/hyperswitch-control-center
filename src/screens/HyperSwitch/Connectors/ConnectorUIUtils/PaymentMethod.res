@@ -22,7 +22,7 @@ module CardRenderer = {
     ~updateDetails,
     ~paymentMethodsEnabled: array<paymentMethodEnabled>,
     ~paymentMethod,
-    ~provider: array<provider>,
+    ~provider: array<paymentMethodConfigType>,
     ~_showAdvancedConfiguration,
     ~metaData,
     ~setMetaData,
@@ -42,10 +42,12 @@ module CardRenderer = {
         []->Js.Json.array->getPaymentMethodMapper,
       )
 
-    let checkPaymentMethodType = (obj: provider, selectedMethod: provider) =>
-      obj.payment_method_type == selectedMethod.payment_method_type
+    let checkPaymentMethodType = (
+      obj: paymentMethodConfigType,
+      selectedMethod: paymentMethodConfigType,
+    ) => obj.payment_method_type == selectedMethod.payment_method_type
 
-    let removeOrAddMethods = (method: provider) => {
+    let removeOrAddMethods = (method: paymentMethodConfigType) => {
       switch paymentMethod->getPaymentMethodFromString {
       | Card =>
         if cardProviders->Js.Array2.some(obj => checkPaymentMethodType(obj, method)) {

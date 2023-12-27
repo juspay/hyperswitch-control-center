@@ -52,7 +52,6 @@ let make = (
         payment_methods_enabled: paymentMethodsEnabled,
         metadata: metaData,
       }
-
       let body =
         constructConnectorRequestBody(obj, initialValues)->ignoreFields(
           connectorID->Belt.Option.getWithDefault(""),
