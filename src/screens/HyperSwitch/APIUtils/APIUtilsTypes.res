@@ -30,6 +30,7 @@ type entityName =
   | PAYMENT_REPORT
   | REFUND_REPORT
   | DISPUTE_REPORT
+  | SURCHARGE
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 
@@ -53,7 +54,5 @@ type userType = [
   | #INVITE
   | #RESEND_INVITE
   | #CREATE_MERCHANT
-  | #OSSSIGNIN
-  | #OSSSIGNUP
   | #NONE
 ]
