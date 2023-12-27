@@ -120,13 +120,15 @@ let userJourneyAnalytics = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
-let analytics = isAnalyticsEnabled =>
+let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag) =>
   isAnalyticsEnabled
     ? Section({
         name: "Analytics",
         icon: "analytics",
         showSection: true,
-        links: [paymentAnalytcis, refundAnalytics, userJourneyAnalytics],
+        links: userJourneyAnalyticsFlag
+          ? [paymentAnalytcis, refundAnalytics, userJourneyAnalytics]
+          : [paymentAnalytcis, refundAnalytics],
       })
     : emptyComponent
 
@@ -309,12 +311,13 @@ let getHyperSwitchAppSidebars = (
     sampleData,
     businessProfile,
     systemMetrics,
+    userJourneyAnalytics: userJourneyAnalyticsFlag,
   } = featureFlagDetails
   let sidebar = [
     productionAccess->productionAccessComponent,
     default->home,
     default->operations,
-    default->analytics,
+    default->analytics(userJourneyAnalyticsFlag),
     default->connectors,
     default->workflow,
     frm->fraudAndRisk,

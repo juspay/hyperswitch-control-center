@@ -308,9 +308,12 @@ let make = () => {
                             <RefundsAnalytics />
                           </AnalyticsUrlUpdaterContext>
                         | list{"analytics-user-journey"} =>
-                          <AnalyticsUrlUpdaterContext key="UserJourneyAnalytics">
-                            <UserJourneyAnalytics />
-                          </AnalyticsUrlUpdaterContext>
+                          <FeatureFlagEnabledComponent
+                            isEnabled=featureFlagDetails.userJourneyAnalytics>
+                            <AnalyticsUrlUpdaterContext key="UserJourneyAnalytics">
+                              <UserJourneyAnalytics />
+                            </AnalyticsUrlUpdaterContext>
+                          </FeatureFlagEnabledComponent>
                         | list{"monitoring"} => comingSoonPage
                         | list{"developer-api-keys"} => <KeyManagement.KeysManagement />
                         | list{"developer-system-metrics"} =>
