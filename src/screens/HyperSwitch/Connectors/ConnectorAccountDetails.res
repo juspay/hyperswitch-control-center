@@ -249,7 +249,7 @@ let make = (
       ~hyperswitchMixPanel,
       ~path={url.path},
       ~isVerifyConnectorFeatureEnabled=featureFlagDetails.verifyConnector,
-    )->ignore
+    )
   }
   let handleStateToNextPage = () => {
     setCurrentStep(_ => PaymentMethods)
@@ -279,18 +279,7 @@ let make = (
     | _ =>
       <Form
         initialValues={updatedInitialVal}
-        onSubmit={(values, _) =>
-          ConnectorUtils.onSubmit(
-            ~values,
-            ~onSubmitVerify,
-            ~onSubmitMain,
-            ~setVerifyDone,
-            ~verifyDone,
-            ~isVerifyConnector,
-            ~hyperswitchMixPanel,
-            ~path={url.path},
-            ~isVerifyConnectorFeatureEnabled=featureFlagDetails.verifyConnector,
-          )}
+        onSubmit={(values, _) => values->handleConnectorConnected}
         validate={validateMandatoryField}
         formClass="flex flex-col ">
         <ConnectorHeaderWrapper

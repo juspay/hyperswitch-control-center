@@ -438,7 +438,7 @@ let make = (
         dictOfInitialValues->Js.Dict.set("disabled", false->Js.Json.boolean)
         dictOfInitialValues->Js.Dict.set("status", "active"->Js.Json.string)
         setInitialValues(_ => dictOfInitialValues->Js.Json.object_)
-        handleConnectorConnected(dictOfInitialValues->Js.Json.object_)
+        handleConnectorConnected(dictOfInitialValues->Js.Json.object_)->ignore
       }
     | _ => ()
     }
