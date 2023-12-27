@@ -159,25 +159,30 @@ module CashToCodeSelectBox = {
   external formEventToStr: ReactEvent.Form.t => string = "%identity"
   @react.component
   let make = (~opts: array<string>) => {
-    let (endSelected, setEndSelected) = React.useState(_ => [])
-    <div onClick={ev => Js.log("")}>
-      <SelectBox.BaseSelect
-        value={endSelected->Js.Json.stringArray}
-        isDropDown=false
-        showSelectAll=false
-        options={opts->Js.Array2.map(x => {
-          let a: SelectBox.dropdownOption = {
-            label: x,
-            value: x,
-          }
-          a
-        })}
-        onSelect={arr => {
-          setEndSelected(_ => arr)
-        }}
-        // onItemSelect={(toMouseEvent, "") => Js.log("came inside")}
-      />
-    </div>
+    open LogicUtils
+    let p2RegularTextStyle = `${HSwitchUtils.getTextClass(
+        ~textVariant=P2,
+        ~paragraphTextVariant=Medium,
+        (),
+      )} text-grey-700 opacity-50`
+
+    {
+      opts
+      ->Js.Array2.map(value => {
+        <div className="flex items-center gap-2 break-words">
+          <div
+          // onClick={_e => removeOrAddMethods(value)}
+          >
+            <CheckBoxIcon
+              // isSelected={isSelected(value)}
+              isSelected={true}
+            />
+          </div>
+          <p className=p2RegularTextStyle> {React.string(value->snakeToTitle)} </p>
+        </div>
+      })
+      ->React.array
+    }
   }
 }
 
@@ -186,6 +191,7 @@ module CashToCodeMethods = {
   let make = (~connectorAccountFields, ~selectedConnector, ~connector) => {
     open ConnectorUtils
     let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
+    Js.log2(dict, "dict")
     let (selectedCashToCodeMthd, setCashToCodeMthd) = React.useState(_ => #Classic)
     let tabList: array<Tabs.tab> = [
       {
