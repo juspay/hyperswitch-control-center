@@ -27,30 +27,37 @@ module SmartRetries = {
     let headerTextStyle = HSwitchUtils.getTextClass(~textVariant=H1, ())
 
     <UIUtils.RenderIf condition={filterValueJson->Js.Dict.entries->Js.Array2.length > 0}>
-      <div className={`${headerTextStyle} pt-2`}> {pageTitle->React.string} </div>
-      <DynamicFilter
-        initialFilters=[]
-        options=[]
-        popupFilterFields=[]
-        initialFixedFilters={initialFixedFilters(Js.Json.object_(Js.Dict.empty()))}
-        defaultFilterKeys=defaultFilters
-        tabNames=tabKeys
-        updateUrlWith=updateExistingKeys //
-        key="1"
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
-        showCustomFilter=false
-        refreshFilters=false
-      />
-      <DynamicSingleStat
-        entity=singleStatEntity
-        startTimeFilterKey
-        endTimeFilterKey
-        filterKeys=[]
-        moduleName
-        setTotalVolume
-        showPercentage=false
-        statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(Js.Dict.empty())}
-      />
+      <div className="flex flex-col gap-0 mb-10">
+        <div className={`${headerTextStyle} pt-2`}> {pageTitle->React.string} </div>
+        <div className="mt-2 -ml-1">
+          <DynamicFilter
+            initialFilters=[]
+            options=[]
+            popupFilterFields=[]
+            initialFixedFilters={initialFixedFilters(Js.Json.object_(Js.Dict.empty()))}
+            defaultFilterKeys=defaultFilters
+            tabNames=tabKeys
+            updateUrlWith=updateExistingKeys //
+            key="1"
+            filtersDisplayOption=false
+            filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+            showCustomFilter=false
+            refreshFilters=false
+          />
+        </div>
+        <DynamicSingleStat
+          entity=singleStatEntity
+          startTimeFilterKey
+          endTimeFilterKey
+          filterKeys=[]
+          moduleName
+          setTotalVolume
+          showPercentage=false
+          statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(
+            Js.Dict.empty(),
+          )}
+        />
+      </div>
     </UIUtils.RenderIf>
   }
 }

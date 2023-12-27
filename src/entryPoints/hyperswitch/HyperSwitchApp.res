@@ -292,14 +292,14 @@ let make = () => {
                         />
                       | list{"analytics-payments"} =>
                         <>
+                          <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
+                            <PaymentAnalytics />
+                          </FilterContext>
                           <FilterContext
                             key="SmartRetriesAnalytics"
                             index="SmartRetriesAnalytics"
                             disableSessionStorage=true>
                             <SmartRetriesAnalytics />
-                          </FilterContext>
-                          <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
-                            <PaymentAnalytics />
                           </FilterContext>
                         </>
                       | list{"analytics-refunds"} =>
