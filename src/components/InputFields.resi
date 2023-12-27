@@ -4,21 +4,7 @@ type customInputFn = (
 ) => React.element
 type comboCustomInputFn = array<ReactFinalForm.fieldRenderProps> => React.element
 type comboCustomInputRecord = {fn: comboCustomInputFn, names: array<string>}
-module DOBPicker: {
-  @react.component
-  let make: (
-    ~input: ReactFinalForm.fieldRenderPropsInput,
-    ~disablePastDates: bool=?,
-    ~disableFutureDates: bool=?,
-    ~format: string=?,
-    ~disableCalender: bool=?,
-  ) => React.element
-}
-module NumericArrayInput: {
-  @react.component
-  let make: (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: string) => React.element
-}
-let useGetAccessLevel: (unit, unit) => AuthTypes.authorization
+
 let selectInput: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<SelectBox.dropdownOption>,
@@ -53,43 +39,6 @@ let selectInput: (
   ~descriptionOnHover: bool=?,
   unit,
 ) => React.element
-let asyncSelectInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~url: Js.String2.t=?,
-  ~body: string=?,
-  ~method: Fetch.requestMethod=?,
-  ~dataKey: Js.Dict.key=?,
-  ~placeholder: 'a,
-  ~buttonText: Js.String2.t,
-  ~disableSelect: bool=?,
-  ~allowMultiSelect: bool=?,
-  unit,
-) => React.element
-let textChipInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: string,
-  ~isDisabled: bool=?,
-  ~type_: string=?,
-  ~inputMode: string=?,
-  ~pattern: string=?,
-  ~autoComplete: string=?,
-  ~showButton: bool=?,
-  ~converterFn: Js.String2.t => Js.String2.t=?,
-  unit,
-) => React.element
-module CellWithInput: {
-  @react.component
-  let make: (~defValue: string=?, ~displayVal: string) => React.element
-}
-let cellRenderer: option<Js.String2.t> => React.element
-let calendarInputHighlighted: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  ~count: int,
-  ~cellHighlighter: string => Calendar.highlighter,
-  ~start_time: Js.Json.t,
-  ~end_time: Js.Json.t,
-) => React.element
 let infraSelectInput: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<SelectBox.dropdownOption>,
@@ -100,13 +49,6 @@ let infraSelectInput: (
   ~nonSelectedClass: string=?,
   ~showTickMark: bool=?,
   ~allowMultiSelect: bool=?,
-  unit,
-) => React.element
-let chipFilterSelectBox: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~options: array<SelectBox.dropdownOption>,
-  ~placeholder: 'a,
-  ~deselectDisable: bool=?,
   unit,
 ) => React.element
 let multiSelectInput: (
@@ -160,16 +102,6 @@ let multiSelectInput: (
   ~baseComponentMethod: bool => React.element=?,
   unit,
 ) => React.element
-let btnGroupInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~options: array<SelectBox.dropdownOption>,
-  ~isDisabled: bool=?,
-  ~buttonClass: string=?,
-  ~placeholder: 'a,
-  ~isSeparate: bool=?,
-  ~buttonSize: Button.buttonSize=?,
-  unit,
-) => React.element
 let radioInput: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<SelectBox.dropdownOption>,
@@ -184,57 +116,6 @@ let radioInput: (
   ~customSelectStyle: string=?,
   ~fill: string=?,
   ~maxHeight: Js.String2.t=?,
-  unit,
-) => React.element
-let checkboxInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~isHorizontal: bool=?,
-  ~options: array<SelectBox.dropdownOption>,
-  ~optionSize: CheckBoxIcon.size=?,
-  ~isSelectedStateMinus: bool=?,
-  ~disableSelect: bool=?,
-  ~buttonText: Js.String2.t=?,
-  ~placeholder: 'a,
-  ~maxHeight: Js.String2.t=?,
-  ~searchable: bool=?,
-  ~searchInputPlaceHolder: string=?,
-  ~dropdownCustomWidth: Js.String2.t=?,
-  ~customSearchStyle: string=?,
-  ~customLabelStyle: string=?,
-  ~customMarginStyle: string=?,
-  ~customStyle: Js.String2.t=?,
-  ~checkboxDimension: string=?,
-  ~wrapBasis: string=?,
-  unit,
-) => React.element
-let rangeInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: string,
-  ~isDisabled: bool=?,
-  ~inputMode: string=?,
-  ~min: string=?,
-  ~max: string=?,
-  unit,
-) => React.element
-let nestedDropdown: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  ~options: array<NestedDropdown.options>,
-  ~title: string,
-) => React.element
-let draggableFilters: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  ~options: array<DraggableFilter.options>,
-  ~title: string,
-) => React.element
-let nestedDropdownWithCalendar: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  ~options: array<NestedDropdown.options>,
-  ~dateRangeLimit: int=?,
-  ~addMore: bool=?,
-  ~title: string,
   unit,
 ) => React.element
 let textInput: (
@@ -267,15 +148,6 @@ let textInput: (
   ~widthMatchwithPlaceholderLength: option<int>=?,
   unit,
 ) => React.element
-let yesNoRadioInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  unit,
-) => React.element
-let numericArrayInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: string,
-) => React.element
 let textTagInput: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder: string,
@@ -285,81 +157,6 @@ let textTagInput: (
   ~seperateByComma: bool=?,
   ~seperateBySpace: bool=?,
   ~customButtonStyle: string=?,
-  unit,
-) => React.element
-let fileInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  ~fileType: string,
-  ~buttonElement: React.element=?,
-  ~buttonText: string=?,
-  ~leftIcon: React.element=?,
-  ~widthClass: string,
-  ~outerWidthClass: string=?,
-  unit,
-) => React.element
-let multipleFileInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~widthClass: string=?,
-  ~heightClass: string=?,
-  ~buttonHeightClass: string=?,
-  ~displayClass: string=?,
-  ~parentDisplayClass: string=?,
-  ~buttonElement: React.element=?,
-  ~fileType: Js.String2.t=?,
-  ~shouldParse: bool=?,
-  ~shouldEncodeBase64: bool=?,
-  ~showUploadtoast: bool=?,
-  ~placeholder: 'a,
-  ~allowMultiFileSelect: bool=?,
-  ~fileOnClick: (int, Js_string.t) => unit=?,
-  ~customDownload: bool=?,
-  ~sizeLimit: int=?,
-  ~isDisabled: bool=?,
-  ~pointerDisable: bool=?,
-  unit,
-) => React.element
-let csvFileUploadInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  ~customButtonStyle: string=?,
-  ~buttonText: string,
-  ~messageId: string,
-  unit,
-) => React.element
-let imageInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  ~customButtonStyle: string=?,
-  ~customFileStyle: string=?,
-  ~showImage: bool=?,
-  ~buttonText: string,
-  unit,
-) => React.element
-let colorPickerInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  unit,
-) => React.element
-let customFileInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~widthClass: string=?,
-  ~leftIcon: React.element=?,
-  ~fileType: Js.String2.t=?,
-  ~shouldParse: bool=?,
-  ~showUploadtoast: bool=?,
-  ~placeholder: 'a,
-  unit,
-) => React.element
-let customFileInputCsv: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  ~downloadFilename: string=?,
-  ~heading: Js.String2.t=?,
-  ~fileType: Js.String2.t=?,
-  ~sampleFileContent: string=?,
-  ~rowsLimit: int,
-  ~removeSampleDataAfterUpload: bool=?,
   unit,
 ) => React.element
 let numericTextInput: (
@@ -378,19 +175,6 @@ let numericTextInput: (
   ~leftIconCustomStyle: string=?,
   unit,
 ) => React.element
-let datePickerInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  ~disablePastDates: bool=?,
-  ~customButtonStyle: Js.String2.t=?,
-  ~buttonType: Button.buttonType=?,
-  ~buttonSize: Button.buttonSize=?,
-  ~leftIcon: Button.iconType=?,
-  ~rightIcon: Button.iconType=?,
-  ~disableFutureDates: bool=?,
-  ~format: string=?,
-  unit,
-) => React.element
 let singleDatePickerInput: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder: 'a,
@@ -407,20 +191,6 @@ let singleDatePickerInput: (
   ~buttonSize: Button.buttonSize=?,
   ~showTime: bool=?,
   ~fullLength: bool=?,
-  unit,
-) => React.element
-let dobPickerInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  ~format: string=?,
-  ~disableCalender: bool=?,
-  ~disableFutureDates: bool=?,
-  ~disablePastDates: bool=?,
-  unit,
-) => React.element
-let datePickInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
   unit,
 ) => React.element
 let dateRangeField: (
@@ -443,107 +213,6 @@ let dateRangeField: (
   ~isTooltipVisible: bool=?,
   unit,
 ) => comboCustomInputRecord
-let newDateRangeField: (
-  ~startKey: string,
-  ~endKey: string,
-  ~format: string,
-  ~disablePastDates: bool=?,
-  ~disableFutureDates: bool=?,
-  ~showTime: bool=?,
-  ~predefinedDays: Js.Array2.t<DateRangeUtils.customDateRange>=?,
-  ~disableApply: bool=?,
-  ~numMonths: int=?,
-  ~dateRangeLimit: int=?,
-  ~removeFilterOption: bool=?,
-  ~optFieldKey: string=?,
-  ~showSeconds: bool=?,
-  ~hideDate: bool=?,
-  ~selectStandardTime: bool=?,
-  ~customButtonStyle: Js.String2.t=?,
-  unit,
-) => comboCustomInputRecord
-let dateTimeRangeField: (
-  ~startKey: string,
-  ~endKey: string,
-  ~disablePastDates: bool=?,
-  ~showTime: bool=?,
-  ~disableFutureDates: bool=?,
-  ~predefinedDays: Js.Array2.t<DateRangeUtils.customDateRange>=?,
-  ~format: string,
-  'a,
-) => React.element
-let infraDateRangeField: (
-  array<ReactFinalForm.fieldRenderPropsInput>,
-  ~disablePastDates: bool=?,
-  ~disableFutureDates: bool=?,
-  ~showTime: bool=?,
-  ~format: string,
-) => React.element
-let tabularInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  ~tableHeadings: Js.Array2.t<string>,
-  ~fields: Js.Array2.t<ReactFinalForm.fieldRenderPropsInput => React.element>,
-) => React.element
-let buttonInput: (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
-let iconButtonInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-) => React.element
-let buttonUnsetInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-) => React.element
-let boolButtonInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~trueLabel: string=?,
-  ~falseLabel: string=?,
-  ~isDisabled: bool=?,
-  ~customWidthCss: string=?,
-  ~placeholder: 'a,
-  ~enableNewTheme: bool=?,
-  unit,
-) => React.element
-let boolInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  ~isDisabled: bool,
-) => React.element
-let boolCheckInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  ~isCheckBox: bool=?,
-  ~isDisabled: bool,
-) => React.element
-let boolCustomInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  ~boolCustomClass: string=?,
-  ~isDisabled: bool,
-) => React.element
-let revBoolInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  ~isDisabled: bool,
-) => React.element
-let csvInput: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~heading: string,
-  ~subHeading: string=?,
-  ~placeholder: 'a,
-  ~downloadFilename: string,
-  ~downloadSampleFileClass: string=?,
-  ~mainClassStyle: string=?,
-  ~buttonDivClass: string=?,
-  ~widthClass: string=?,
-  ~sampleFileContent: string,
-  ~fileNameKey: string=?,
-  ~regex: string=?,
-  ~ignoreEmptySpace: bool=?,
-  ~validateData: Js.Json.t => bool=?,
-  ~removeSampleDataAfterUpload: bool=?,
-  unit,
-) => React.element
 let multiLineTextInput: (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder: string,
@@ -555,49 +224,11 @@ let multiLineTextInput: (
   ~maxLength: int=?,
   unit,
 ) => React.element
-let fieldWithMessage: (
-  (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element,
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: 'a,
-  ~getMessage: Js.Json.t => option<string>,
-  ~messageClass: string=?,
-  unit,
-) => React.element
 let iconFieldWithMessageDes: (
   (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element,
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~placeholder: 'a,
   ~description: string=?,
-  unit,
-) => React.element
-let passwordCreateField: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: string,
-  ~leftIcon: React.element=?,
-  unit,
-) => React.element
-let passwordFieldWithCheckWindow: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: string,
-  ~leftIcon: React.element=?,
-  ~autoComplete: string=?,
-  ~customStyle: string=?,
-  ~customPaddingClass: string=?,
-  ~customTextStyle: string=?,
-  ~specialCharatersInfoText: string=?,
-  ~customDashboardClass: string=?,
-  unit,
-) => React.element
-let passwordFieldWithCheckChips: (
-  ~input: ReactFinalForm.fieldRenderPropsInput,
-  ~placeholder: string,
-  ~leftIcon: React.element=?,
-  ~autoComplete: string=?,
-  ~customStyle: string=?,
-  ~customPaddingClass: string=?,
-  ~customTextStyle: string=?,
-  ~specialCharatersInfoText: Js.String2.t=?,
-  ~customDashboardClass: string=?,
   unit,
 ) => React.element
 let passwordMatchField: (

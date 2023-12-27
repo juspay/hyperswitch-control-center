@@ -3,6 +3,49 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.15.1 (2023-12-26)
+
+### Bug Fixes
+
+- Warnings removed ([#130](https://github.com/juspay/hyperswitch-control-center/pull/130)) ([`5a7f0c7`](https://github.com/juspay/hyperswitch-control-center/commit/5a7f0c7b02b36dc868bc734b081d415e669dae38))
+
+**Full Changelog:** [`v1.15.0...v1.15.1`](https://github.com/juspay/hyperswitch-control-center/compare/v1.15.0...v1.15.1)
+
+- - -
+
+
+## 1.15.0 (2023-12-26)
+
+### Features
+
+- X-feature added for hyperswitch-custom ([`f62b87a`](https://github.com/juspay/hyperswitch-control-center/commit/f62b87ae15437e59d4e294c9bd57da2710d48120))
+- Table wrap changes & sidebar version removed ([#129](https://github.com/juspay/hyperswitch-control-center/pull/129)) ([`eb787e8`](https://github.com/juspay/hyperswitch-control-center/commit/eb787e8e619ce03c78b2216bcc9fd58f15e57f9c))
+
+### Bug Fixes
+
+- Formatting ([`f079b96`](https://github.com/juspay/hyperswitch-control-center/commit/f079b965419f2faec0be4d07ccc0f1eb3522a0fb))
+- X-feature ([`8ae2fce`](https://github.com/juspay/hyperswitch-control-center/commit/8ae2fce38952f61c7430557aa6800c8139e9feb7))
+- Enums ([`a56f7bc`](https://github.com/juspay/hyperswitch-control-center/commit/a56f7bc76e941b737a2f846a1581bbb56ed23c46))
+- Prod Enum Changes ([`1d0d68b`](https://github.com/juspay/hyperswitch-control-center/commit/1d0d68bf9d2fe6f2e01ae138d2bda8e4db94f37c))
+- Log removal ([`2a0ff85`](https://github.com/juspay/hyperswitch-control-center/commit/2a0ff8556e8d421f5111c54c06c7c18f393f727d))
+- X-feature for None case ([`a64ec05`](https://github.com/juspay/hyperswitch-control-center/commit/a64ec0518ac82b413df54eaba9f1469747926ad1))
+- Handlelogout changes ([`822b34e`](https://github.com/juspay/hyperswitch-control-center/commit/822b34edccabff1bff996b999803eabacff162aa))
+- Prod-enum-changes ([`cb2f282`](https://github.com/juspay/hyperswitch-control-center/commit/cb2f282906b522100a49cd03dca7af823d092b13))
+- Removed Sublevel remote link type & Pageloader CSS fixes. ([#120](https://github.com/juspay/hyperswitch-control-center/pull/120)) ([`aeb4927`](https://github.com/juspay/hyperswitch-control-center/commit/aeb49279fde5fdf290b5662b6a2a99b322516d81))
+
+### Refactors
+
+- Remove dead code ([#125](https://github.com/juspay/hyperswitch-control-center/pull/125)) ([`4dd6103`](https://github.com/juspay/hyperswitch-control-center/commit/4dd610326a02d237ed7df1e819af06085e72e613))
+
+### Miscellaneous Tasks
+
+- Auth page UI changes ([#101](https://github.com/juspay/hyperswitch-control-center/pull/101)) ([`3873c1b`](https://github.com/juspay/hyperswitch-control-center/commit/3873c1bda4157ec8f12a266c6edb8917fdc6cdbf))
+
+**Full Changelog:** [`v1.14.0...v1.15.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.14.0...v1.15.0)
+
+- - -
+
+
 ## 1.14.0 (2023-12-24)
 
 ### Features
