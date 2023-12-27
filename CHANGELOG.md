@@ -3,6 +3,38 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.17.0 (2023-12-27)
+
+### Features
+
+- X-feature added for hyperswitch-custom ([`f62b87a`](https://github.com/juspay/hyperswitch-control-center/commit/f62b87ae15437e59d4e294c9bd57da2710d48120))
+
+### Bug Fixes
+
+- Formatting ([`f079b96`](https://github.com/juspay/hyperswitch-control-center/commit/f079b965419f2faec0be4d07ccc0f1eb3522a0fb))
+- X-feature ([`8ae2fce`](https://github.com/juspay/hyperswitch-control-center/commit/8ae2fce38952f61c7430557aa6800c8139e9feb7))
+- Enums ([`a56f7bc`](https://github.com/juspay/hyperswitch-control-center/commit/a56f7bc76e941b737a2f846a1581bbb56ed23c46))
+- Prod Enum Changes ([`1d0d68b`](https://github.com/juspay/hyperswitch-control-center/commit/1d0d68bf9d2fe6f2e01ae138d2bda8e4db94f37c))
+- Log removal ([`2a0ff85`](https://github.com/juspay/hyperswitch-control-center/commit/2a0ff8556e8d421f5111c54c06c7c18f393f727d))
+- X-feature for None case ([`a64ec05`](https://github.com/juspay/hyperswitch-control-center/commit/a64ec0518ac82b413df54eaba9f1469747926ad1))
+- Handlelogout changes ([`822b34e`](https://github.com/juspay/hyperswitch-control-center/commit/822b34edccabff1bff996b999803eabacff162aa))
+- Prod-enum-changes ([`cb2f282`](https://github.com/juspay/hyperswitch-control-center/commit/cb2f282906b522100a49cd03dca7af823d092b13))
+- Page scroll issue fix and connector card css fix ([#137](https://github.com/juspay/hyperswitch-control-center/pull/137)) ([`cabd0af`](https://github.com/juspay/hyperswitch-control-center/commit/cabd0afb138cea5c0a9045db476dcc6a8caa37db))
+- Stripe Paypal Profile Issue ([#139](https://github.com/juspay/hyperswitch-control-center/pull/139)) ([`3182b31`](https://github.com/juspay/hyperswitch-control-center/commit/3182b31e641573b0654713fcabec961d38765766))
+- Add new user journey feature flag ([`5a1a49e`](https://github.com/juspay/hyperswitch-control-center/commit/5a1a49e64256b6b52e2351564cdcfbde53fccdae))
+
+### Miscellaneous Tasks
+
+- **version:**
+  - V1.15.0 ([`4286880`](https://github.com/juspay/hyperswitch-control-center/commit/4286880dc06442960488e022e83857c486c7015a))
+  - V1.15.1 ([`00c37dd`](https://github.com/juspay/hyperswitch-control-center/commit/00c37dd32a26c6aafe6ff088ec0f4e5c009cbb83))
+- Independent files addition for paypal ([#118](https://github.com/juspay/hyperswitch-control-center/pull/118)) ([`6f43d4d`](https://github.com/juspay/hyperswitch-control-center/commit/6f43d4de71a69fb08d518ebe640bf85d3a9ca723))
+
+**Full Changelog:** [`v1.16.0...v1.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.16.0...v1.17.0)
+
+- - -
+
+
 ## 1.16.0 (2023-12-26)
 
 ### Features
