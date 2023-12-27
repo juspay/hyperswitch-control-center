@@ -52,7 +52,7 @@ let make = () => {
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <ErrorBoundary>
-    <div className="flex flex-col overflow-y-auto min-h-[50vh]">
+    <div className="min-h-[50vh]">
       <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
       <div className="flex w-full justify-end pb-3 gap-3">
         <UIUtils.RenderIf condition={generateReport}>
