@@ -4,7 +4,7 @@ open LogicUtils
 module CurrencyCell = {
   @react.component
   let make = (~amount, ~currency) => {
-    <p> {`${amount} ${currency}`->React.string} </p>
+    <p className="whitespace-nowrap"> {`${amount} ${currency}`->React.string} </p>
   }
 }
 

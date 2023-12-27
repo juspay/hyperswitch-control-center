@@ -246,7 +246,7 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let connectorInfo =
     connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorTableUtils.getProcessorPayloadType
-  let setSetupAccountStatus = Recoil.useSetRecoilState(PayPalFlowUtils.paypalAccountStatusAtom)
+  let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
 
   let isFeedbackModalToBeOpen =
     featureFlagDetails.feedback &&
@@ -281,15 +281,19 @@ let make = (
   }
   let getStatus = async () => {
     open PayPalFlowUtils
+    open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-
-      let responseValue = await paypalAPICall(
-        ~updateDetails,
-        ~connectorId={connectorInfo.merchant_connector_id},
-        ~profileId={connectorInfo.profile_id},
-      )
-      switch responseValue->Js.Json.classify {
+      let paypalBody =
+        [
+          ("connector", "paypal"->Js.Json.string),
+          ("connector_id", connectorInfo.merchant_connector_id->Js.Json.string),
+          ("profile_id", connectorInfo.profile_id->Js.Json.string),
+        ]->getJsonFromArrayOfJson
+      let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/sync`
+      let responseValue = await updateDetails(url, paypalBody, Fetch.Post)
+      let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
+      switch paypalDict->Js.Json.classify {
       | JSONString(str) => {
           setCurrentStep(_ => IntegFields)
           setSetupAccountStatus(._ => str->PayPalFlowUtils.stringToVariantMapper)

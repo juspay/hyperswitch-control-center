@@ -71,7 +71,7 @@ module ManualSetupScreen = {
     ~configuartionType,
     ~connectorLabelDetailField,
   ) => {
-    let setupAccountStatus = Recoil.useRecoilValueFromAtom(PayPalFlowUtils.paypalAccountStatusAtom)
+    let setupAccountStatus = Recoil.useRecoilValueFromAtom(HyperswitchAtom.paypalAccountStatusAtom)
     let bodyType = isUpdateFlow->PayPalFlowUtils.getBodyType(configuartionType, setupAccountStatus)
 
     <div className="flex flex-col gap-8">
@@ -224,13 +224,6 @@ module ErrorPage = {
             setScreenState
           />
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={errorPageDetails.additionalInformation->Belt.Option.isSome}>
-          <p className={`${p1RegularTextClass} !opacity-100`}>
-            {`->  ${errorPageDetails.additionalInformation->Belt.Option.getWithDefault(
-                "",
-              )}`->React.string}
-          </p>
-        </UIUtils.RenderIf>
       </div>
       <UIUtils.RenderIf condition={errorPageDetails.refreshStatusText->Belt.Option.isSome}>
         <div className="flex gap-2">
@@ -295,7 +288,7 @@ let make = (
   let (actionUrl, setActionUrl) = React.useState(_ => "")
 
   let (setupAccountStatus, setSetupAccountStatus) = Recoil.useRecoilState(
-    PayPalFlowUtils.paypalAccountStatusAtom,
+    HyperswitchAtom.paypalAccountStatusAtom,
   )
   let (suggestedAction, suggestedActionExists) = ConnectorUtils.getSuggestedAction(
     ~verifyErrorMessage,
@@ -371,12 +364,22 @@ let make = (
 
   let getStatus = async () => {
     open PayPalFlowUtils
+    open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let profileId =
         initialValues->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
-      let responseValue = await paypalAPICall(~updateDetails, ~connectorId, ~profileId)
-      switch responseValue->Js.Json.classify {
+      let paypalBody =
+        [
+          ("connector", "paypal"->Js.Json.string),
+          ("connector_id", connectorId->Js.Json.string),
+          ("profile_id", profileId->Js.Json.string),
+        ]->getJsonFromArrayOfJson
+      let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/sync`
+      let responseValue = await updateDetails(url, paypalBody, Fetch.Post)
+      let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
+
+      switch paypalDict->Js.Json.classify {
       | JSONString(str) => setSetupAccountStatus(._ => str->PayPalFlowUtils.stringToVariantMapper)
       | JSONObject(dict) =>
         handleObjectResponse(

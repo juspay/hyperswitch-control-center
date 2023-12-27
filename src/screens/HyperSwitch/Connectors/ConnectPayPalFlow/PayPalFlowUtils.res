@@ -55,44 +55,20 @@ let stringToVariantMapper = strValue => {
   }
 }
 
-let paypalAPICall = async (~updateDetails, ~connectorId, ~profileId) => {
-  open APIUtils
-  try {
-    let paypalBody =
-      [
-        ("connector", "paypal"->Js.Json.string),
-        ("connector_id", connectorId->Js.Json.string),
-        ("profile_id", profileId->Js.Json.string),
-      ]
-      ->Js.Dict.fromArray
-      ->Js.Json.object_
-    let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/sync`
-    let response = await updateDetails(url, paypalBody, Fetch.Post)
-    let responseValue =
-      response->LogicUtils.getDictFromJsonObject->LogicUtils.getJsonObjectFromDict("paypal")
-    responseValue
-  } catch {
-  | _ => Js.Json.null
-  }
-}
-
-let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatus> = Recoil.atom(.
-  "paypalAccountStatusAtom",
-  PayPalFlowTypes.Account_not_found,
-)
-
 let handleConnectorIntegrated = (
   ~dictValue,
   ~setInitialValues,
   ~connector,
   ~handleStateToNextPage,
 ) => {
-  let values = dictValue->LogicUtils.getJsonObjectFromDict("connector_integrated")
+  open LogicUtils
+
+  let values = dictValue->getJsonObjectFromDict("connector_integrated")
   let bodyTypeValue =
     dictValue
-    ->LogicUtils.getDictfromDict("connector_integrated")
-    ->LogicUtils.getDictfromDict("connector_account_details")
-    ->LogicUtils.getString("auth_type", "")
+    ->getDictfromDict("connector_integrated")
+    ->getDictfromDict("connector_account_details")
+    ->getString("auth_type", "")
   let body = ConnectorUtils.generateInitialValuesDict(
     ~values,
     ~connector,
@@ -111,7 +87,7 @@ let handleObjectResponse = (
   ~connector,
   ~handleStateToNextPage,
 ) => {
-  let dictkey = dict->Js.Dict.keys->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+  let dictkey = dict->Js.Dict.keys->LogicUtils.getValueFromArray(0, "")
 
   switch dictkey->stringToVariantMapper {
   | Ppcp_custom_denied => setSetupAccountStatus(._ => dictkey->stringToVariantMapper)
@@ -128,7 +104,7 @@ let handleObjectResponse = (
 
 let getBodyType = (isUpdateFlow, configuartionType, setupAccountStatus) => {
   open PayPalFlowTypes
-  let bodyType = switch (isUpdateFlow, setupAccountStatus) {
+  switch (isUpdateFlow, setupAccountStatus) {
   | (false, _) | (true, Account_not_found) => "TemporaryAuth"
   | (true, _) =>
     switch configuartionType {
@@ -136,7 +112,6 @@ let getBodyType = (isUpdateFlow, configuartionType, setupAccountStatus) => {
     | Automatic | NotSelected => "SignatureKey"
     }
   }
-  bodyType
 }
 
 let generateConnectorPayloadPayPal = (
@@ -152,23 +127,19 @@ let generateConnectorPayloadPayPal = (
   let initialValues =
     [
       ("profile_id", profileId->Js.Json.string),
-      ("connector_name", connector->Js.Json.string),
+      ("connector_name", connector->Js.String2.toLowerCase->Js.Json.string),
       ("connector_type", "payment_processor"->Js.Json.string),
       ("disabled", true->Js.Json.boolean),
       ("test_mode", true->Js.Json.boolean),
       ("status", "inactive"->Js.Json.string),
       ("connector_label", connectorLabel->Js.Json.string),
-    ]
-    ->Js.Dict.fromArray
-    ->Js.Json.object_
+    ]->LogicUtils.getJsonFromArrayOfJson
 
-  let body =
-    generateInitialValuesDict(
-      ~values={initialValues},
-      ~connector,
-      ~bodyType=getBodyType(isUpdateFlow, configuartionType, setupAccountStatus),
-      ~isPayoutFlow=false,
-      (),
-    )->ignoreFields(connectorId, connectorIgnoredField)
-  body
+  generateInitialValuesDict(
+    ~values={initialValues},
+    ~connector,
+    ~bodyType=getBodyType(isUpdateFlow, configuartionType, setupAccountStatus),
+    ~isPayoutFlow=false,
+    (),
+  )->ignoreFields(connectorId, connectorIgnoredField)
 }

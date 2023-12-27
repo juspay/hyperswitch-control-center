@@ -516,19 +516,12 @@ module DateCell = {
       : `dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${textAlignClass} ${fontStyle}`
 
     <AddDataAttributes attributes=[("data-date", timestamp->getFormattedDate(dateFormat))]>
-      <div className=wrapperClass>
+      <div className={`${wrapperClass} whitespace-nowrap`}>
         {hideTime
-          ? {
-              React.string(
-                timestamp->getFormattedDate(dateFormat)->Js.String2.slice(~from=0, ~to_=12),
-              )
-            }
-          : <>
-              {React.string(timestamp->getFormattedDate(dateFormat))}
-              <span className={`text-xs text-jp-gray-700`}>
-                {React.string(selectedTimeZoneAlias)}
-              </span>
-            </>}
+          ? React.string(
+              timestamp->getFormattedDate(dateFormat)->Js.String2.slice(~from=0, ~to_=12),
+            )
+          : {React.string(`${timestamp->getFormattedDate(dateFormat)} ${selectedTimeZoneAlias}`)}}
       </div>
     </AddDataAttributes>
   }
@@ -700,7 +693,7 @@ module TableCell = {
     | Text(x) | DropDown(x) => {
         let x = x === "" ? "NA" : x
         <AddDataAttributes attributes=[("data-desc", x)]>
-          <div> {highlightedText(x, highlightText)} </div>
+          <div className={"whitespace-nowrap"}> {highlightedText(x, highlightText)} </div>
         </AddDataAttributes>
       }
 
