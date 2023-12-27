@@ -55,26 +55,6 @@ let stringToVariantMapper = strValue => {
   }
 }
 
-let paypalAPICall = async (~updateDetails, ~connectorId, ~profileId) => {
-  open APIUtils
-  open LogicUtils
-  try {
-    let paypalBody =
-      [
-        ("connector", "paypal"->Js.Json.string),
-        ("connector_id", connectorId->Js.Json.string),
-        ("profile_id", profileId->Js.Json.string),
-      ]->getJsonFromArrayOfJson
-
-    let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/sync`
-    let response = await updateDetails(url, paypalBody, Fetch.Post)
-
-    response->getDictFromJsonObject->getJsonObjectFromDict("paypal")
-  } catch {
-  | _ => Js.Json.null
-  }
-}
-
 let handleConnectorIntegrated = (
   ~dictValue,
   ~setInitialValues,
