@@ -291,9 +291,17 @@ let make = () => {
                           renderShow={_ => <UserRoleShowData />}
                         />
                       | list{"analytics-payments"} =>
-                        <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
-                          <PaymentAnalytics />
-                        </FilterContext>
+                        <>
+                          <FilterContext
+                            key="SmartRetriesAnalytics"
+                            index="SmartRetriesAnalytics"
+                            disableSessionStorage=true>
+                            <SmartRetriesAnalytics />
+                          </FilterContext>
+                          <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
+                            <PaymentAnalytics />
+                          </FilterContext>
+                        </>
                       | list{"analytics-refunds"} =>
                         <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
                           <RefundsAnalytics />

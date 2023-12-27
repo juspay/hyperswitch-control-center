@@ -151,6 +151,18 @@ let allPaymentColumns = [
   PaymentErrorMessage,
   AvgTicketSize,
 ]
+
+type smartRetrySingleState = {
+  retries_count: int,
+  retries_amount_processe: float,
+}
+
+type smartRetrySingleStateSeries = {
+  retries_count: int,
+  retries_amount_processe: float,
+  time_series: string,
+}
+
 type paymentsSingleState = {
   payment_success_rate: float,
   payment_count: int,
