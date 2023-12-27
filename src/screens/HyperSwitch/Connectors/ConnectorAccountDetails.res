@@ -238,87 +238,88 @@ let make = (
     ~verifyErrorMessage,
     ~connector,
   )
+  let handleConnectorConnected = values => {
+    ConnectorUtils.onSubmit(
+      ~values,
+      ~onSubmitVerify,
+      ~onSubmitMain,
+      ~setVerifyDone,
+      ~verifyDone,
+      ~isVerifyConnector,
+      ~hyperswitchMixPanel,
+      ~path={url.path},
+      ~isVerifyConnectorFeatureEnabled=featureFlagDetails.verifyConnector,
+    )->ignore
+  }
+  let handleStateToNextPage = () => {
+    setCurrentStep(_ => PaymentMethods)
+  }
 
   <PageLoaderWrapper screenState>
-    <Form
-      initialValues={updatedInitialVal}
-      onSubmit={(values, _) =>
-        ConnectorUtils.onSubmit(
-          ~values,
-          ~onSubmitVerify,
-          ~onSubmitMain,
-          ~setVerifyDone,
-          ~verifyDone,
-          ~isVerifyConnector,
-          ~hyperswitchMixPanel,
-          ~path={url.path},
-          ~isVerifyConnectorFeatureEnabled=featureFlagDetails.verifyConnector,
-        )}
-      validate={validateMandatoryField}
-      formClass="flex flex-col ">
-      <div className="flex items-center justify-between border-b p-2 md:px-10 md:py-6">
-        <div className="flex gap-2 items-center">
-          <GatewayIcon gateway={connector->Js.String2.toUpperCase} />
-          <h2 className="text-xl font-semibold">
-            {connector->LogicUtils.capitalizeString->React.string}
-          </h2>
-        </div>
-        <div className="flex flex-row mt-6 md:mt-0 md:justify-self-end h-min">
-          <UIUtils.RenderIf
-            condition={connectorsWithIntegrationSteps->Js.Array2.includes(
-              connector->getConnectorNameTypeFromString,
-            )}>
-            <a
-              className={`flex cursor-pointer px-4 py-3 flex text-sm text-blue-900 items-center mx-4`}
-              target="_blank"
-              onClick={_ => {
-                hyperswitchMixPanel(
-                  ~pageName=url.path->LogicUtils.getListHead,
-                  ~contextName="integration_steps",
-                  ~actionName="modal_open",
-                  (),
-                )
-                setShowModal(_ => true)
-              }}>
-              {React.string("View integration steps")}
-              <Icon name="external-link-alt" size=14 className="ml-2" />
-            </a>
+    {switch connector->getConnectorNameTypeFromString {
+    | PAYPAL =>
+      <ConnectPayPal
+        connector
+        connectorAccountFields
+        selectedConnector
+        connectorMetaDataFields
+        connectorWebHookDetails
+        isUpdateFlow
+        setInitialValues
+        handleConnectorConnected
+        initialValues
+        setShowModal
+        showVerifyModal
+        setShowVerifyModal
+        verifyErrorMessage
+        setVerifyDone
+        handleStateToNextPage
+        connectorLabelDetailField
+      />
+    | _ =>
+      <Form
+        initialValues={updatedInitialVal}
+        onSubmit={(values, _) =>
+          ConnectorUtils.onSubmit(
+            ~values,
+            ~onSubmitVerify,
+            ~onSubmitMain,
+            ~setVerifyDone,
+            ~verifyDone,
+            ~isVerifyConnector,
+            ~hyperswitchMixPanel,
+            ~path={url.path},
+            ~isVerifyConnectorFeatureEnabled=featureFlagDetails.verifyConnector,
+          )}
+        validate={validateMandatoryField}
+        formClass="flex flex-col ">
+        <ConnectorHeaderWrapper
+          connector
+          headerButton={<FormRenderer.SubmitButton loadingText="Processing..." text=buttonText />}
+          setShowModal>
+          <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
+            <div className="flex flex-col gap-2 p-2 md:p-10">
+              <ConnectorAccountDetailsHelper.BusinessProfileRender
+                isUpdateFlow selectedConnector={connector}
+              />
+            </div>
           </UIUtils.RenderIf>
-          <FormRenderer.SubmitButton loadingText="Processing..." text=buttonText />
-        </div>
-      </div>
-      <div className="flex flex-col gap-2 p-2 md:p-10">
-        <UIUtils.RenderIf condition={connector->getConnectorNameTypeFromString === BRAINTREE}>
-          <h1
-            className="flex items-center leading-6 text-orange-950 bg-orange-100 border w-fit p-2 rounded-md ">
-            <div className="flex items-center text-orange-950 font-bold text-fs-14 mx-2">
-              <Icon name="hswitch-warning" size=18 className="mr-2" />
-              {"Disclaimer:"->React.string}
+          <div className="flex flex-col gap-2 p-2 md:p-10">
+            <div className="grid grid-cols-2 flex-1">
+              <ConnectorConfigurationFields
+                connector={connector->getConnectorNameTypeFromString}
+                connectorAccountFields
+                selectedConnector
+                connectorMetaDataFields
+                connectorWebHookDetails
+                bodyType
+                connectorLabelDetailField
+              />
             </div>
-            <div>
-              {"Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."->React.string}
-            </div>
-          </h1>
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
-          <BusinessProfileRender isUpdateFlow selectedConnector={connector} />
-        </UIUtils.RenderIf>
-        <div className="flex ">
-          <div className="grid grid-cols-2 flex-1">
-            <ConnectorConfigurationFields
-              connector={connector->getConnectorNameTypeFromString}
-              connectorAccountFields
-              selectedConnector
-              connectorMetaDataFields
-              connectorWebHookDetails
-              bodyType
-              isUpdateFlow
-              connectorLabelDetailField
-            />
+            <IntegrationHelp.Render connector setShowModal showModal />
           </div>
-          <IntegrationHelp.Render connector setShowModal showModal />
-        </div>
-        <FormValuesSpy />
+          <FormValuesSpy />
+        </ConnectorHeaderWrapper>
         <VerifyConnectorModal
           showVerifyModal
           setShowVerifyModal
@@ -328,7 +329,7 @@ let make = (
           suggestedAction
           setVerifyDone
         />
-      </div>
-    </Form>
+      </Form>
+    }}
   </PageLoaderWrapper>
 }

@@ -275,6 +275,7 @@ let make = () => {
                   isUpdateFlow=true
                   isPayoutFlow=false
                   showMenuOption=false
+                  setInitialValues
                 />
               </div>
             | LIVE_ENDPOINTS_PREVIEW => <LiveEndpointsSetup pageView setPageView previewState />
