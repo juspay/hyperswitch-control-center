@@ -53,6 +53,13 @@ let buildSurchargePayloadBody = values => {
   }
 }
 
+let getTypedSurchargeConnectorSelection = ruleDict => {
+  open LogicUtils
+  let connectorsDict = ruleDict->getDictfromDict("connectorSelection")
+
+  AdvancedRoutingUtils.getDefaultSelection(connectorsDict)
+}
+
 let ruleInfoTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithmData = json => {
   open LogicUtils
   let rulesArray = json->getArrayFromDict("rules", [])
@@ -61,9 +68,8 @@ let ruleInfoTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithmDa
 
   let rulesModifiedArray = rulesArray->Js.Array2.map(rule => {
     let ruleDict = rule->getDictFromJsonObject
-    let connectorsDict = ruleDict->getDictfromDict("connectorSelection")
 
-    let connectorSelection = AdvancedRoutingUtils.getDefaultSelection(connectorsDict)
+    let connectorSelection = getTypedSurchargeConnectorSelection(ruleDict)
     let ruleName = ruleDict->getString("name", "")
 
     let eachRule: AdvancedRoutingTypes.rule = {
@@ -90,10 +96,25 @@ let getDefaultSurchargeType = surchargeType => {
   ->Option.getWithDefault(defaultSurcharge)
 }
 
+let validateSurchargeRate = ruleDict => {
+  let connectorSelection = ruleDict->getTypedSurchargeConnectorSelection
+
+  let surchargeType = getDefaultSurchargeType(connectorSelection.surcharge_details)
+  let surchargeValue = surchargeType.surcharge.value.percentage->Option.getWithDefault(0.0)
+  let taxOnSurcharge = surchargeType.tax_on_surcharge.percentage->Option.getWithDefault(0.0)
+
+  !(
+    surchargeValue == 0.0 ||
+    surchargeValue > 100.0 ||
+    taxOnSurcharge == 0.0 ||
+    taxOnSurcharge > 100.0
+  )
+}
+
 let validateConditionsForSurcharge = dict => {
   let conditionsArray = dict->LogicUtils.getArrayFromDict("statements", [])
 
   conditionsArray->Array.every(value => {
     value->RoutingUtils.validateConditionJson(["comparison", "lhs"])
-  })
+  }) && validateSurchargeRate(dict)
 }

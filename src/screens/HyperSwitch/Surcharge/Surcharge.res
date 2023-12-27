@@ -199,14 +199,14 @@ let make = () => {
 
     switch dict->Js.Dict.get("algorithm")->Belt.Option.flatMap(Js.Json.decodeObject) {
     | Some(jsonDict) => {
-        let index = 1
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
-        if index === 1 && rules->Js.Array2.length === 0 {
+        if rules->Js.Array2.length === 0 {
           errors->Js.Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
         } else {
           rules->Array.forEachWithIndex((rule, i) => {
             let ruleDict = rule->LogicUtils.getDictFromJsonObject
-            if !SurchargeUtils.validateConditionsForSurcharge(ruleDict) {
+
+            if !validateConditionsForSurcharge(ruleDict) {
               errors->Js.Dict.set(
                 `Rule ${(i + 1)->string_of_int} - Condition`,
                 `Invalid`->Js.Json.string,
