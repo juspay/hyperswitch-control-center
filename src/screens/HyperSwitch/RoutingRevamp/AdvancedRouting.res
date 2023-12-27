@@ -280,7 +280,7 @@ module Wrapper = {
             ${border} 
             border-blue-700`}>
         <UIUtils.RenderIf condition={!isFirst}>
-          <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm isFrom3ds />
+          <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm isFrom3ds isFromSurcharge />
         </UIUtils.RenderIf>
         <UIUtils.RenderIf condition={!isFrom3ds && !isFromSurcharge}>
           <AddRuleGateway id gatewayOptions isExpanded isFirst />
