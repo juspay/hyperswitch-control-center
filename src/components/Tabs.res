@@ -267,17 +267,19 @@ let make = (
       <div className=bottomBorderClass />
     </UIUtils.RenderIf>
     <div className=renderedTabClassName>
-      {switch tabs->Belt.Array.get(selectedIndex) {
-      | Some(selectedTab) => {
-          let component = selectedTab.renderContent()
-          <FramerMotion.TransitionComponent
-            id={string_of_int(selectedIndex)} className=contentHeight>
-            {component}
-          </FramerMotion.TransitionComponent>
-        }
+      <ErrorBoundary key={string_of_int(selectedIndex)}>
+        {switch tabs->Belt.Array.get(selectedIndex) {
+        | Some(selectedTab) => {
+            let component = selectedTab.renderContent()
+            <FramerMotion.TransitionComponent
+              id={string_of_int(selectedIndex)} className=contentHeight>
+              {component}
+            </FramerMotion.TransitionComponent>
+          }
 
-      | None => React.string("No tabs found")
-      }}
+        | None => React.string("No tabs found")
+        }}
+      </ErrorBoundary>
     </div>
   </div>
 }

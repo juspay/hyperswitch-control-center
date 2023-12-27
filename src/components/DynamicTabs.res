@@ -560,97 +560,102 @@ let make = (
   let addBtnTextStyle = "text-md text-black !px-0 mx-0"
   let headerTextClass = None
   <div className={isMobileView ? `sticky top-0 z-15 ${bgClass}` : ""}>
-    <div className="py-0 flex flex-row">
-      <UIUtils.RenderIf condition={!isMobileView}>
-        <IndicationArrow
-          iconName="caret-left" side="left" refElement=firstTabRef isVisible=isLeftArrowVisible
-        />
-      </UIUtils.RenderIf>
-      <div
-        className={`overflow-x-auto no-scrollbar overflow-y-hidden ${outerAllignmentClass}`}
-        ref={scrollRef->ReactDOM.Ref.domRef}
-        onScroll>
-        <div className="flex flex-row">
-          <div
-            className={`flex flex-row mt-5 ${tabOuterClass}
-            ${wrapperStyle}  ${tabContainerClass}`}>
-            {collapsibleTabs
-            ->Js.Array2.mapi((tab, i) => {
-              let ref = if i == 0 {
-                firstTabRef->ReactDOM.Ref.domRef->Some
-              } else {
-                Js.Global.setTimeout(_ => {
-                  setTabScroll(
-                    firstTabRef,
-                    lastTabRef,
-                    scrollRef,
-                    setIsLeftArrowVisible,
-                    setIsRightArrowVisible,
-                    getBoundingRectInfo,
-                  )
-                }, 200)->ignore
-                lastTabRef->ReactDOM.Ref.domRef->Some
-              }
-              <div ?ref key={string_of_int(i)}>
-                <TabInfo
-                  title={tab.title}
-                  isSelected={selectedIndex === i}
-                  index={i}
-                  isRemovable={tab.isRemovable}
-                  setCollapsibleTabs
-                  selectedIndex
-                  tabNames=collapsibleTabs
-                  handleSelectedTab
-                  tabStacksnames
-                  setTabStacksnames
-                  description=?{tab.description}
-                />
-              </div>
-            })
-            ->React.array}
-          </div>
-          <div className={disableIndicationArrow ? "hidden" : "block"} />
-        </div>
-      </div>
-      <div className="flex flex-row">
+    <ErrorBoundary>
+      <div className="py-0 flex flex-row">
         <UIUtils.RenderIf condition={!isMobileView}>
           <IndicationArrow
-            iconName="caret-right" side="right" refElement=lastTabRef isVisible=isRightArrowVisible
+            iconName="caret-left" side="left" refElement=firstTabRef isVisible=isLeftArrowVisible
           />
         </UIUtils.RenderIf>
         <div
-          className="flex flex-row"
-          style={ReactDOMStyle.make(~marginTop="20px", ~marginLeft="7px", ())}>
-          <ToolTip
-            description=toolTipDescription
-            toolTipFor={<Button
-              text="+"
-              buttonType={NonFilled}
-              buttonSize=Small
-              customButtonStyle=addBtnStyle
-              textStyle=addBtnTextStyle
-              onClick={_ev => setShowModal(_ => true)}
-            />}
-            toolTipPosition=Top
-            tooltipWidthClass="w-fit"
-          />
+          className={`overflow-x-auto no-scrollbar overflow-y-hidden ${outerAllignmentClass}`}
+          ref={scrollRef->ReactDOM.Ref.domRef}
+          onScroll>
+          <div className="flex flex-row">
+            <div
+              className={`flex flex-row mt-5 ${tabOuterClass}
+            ${wrapperStyle}  ${tabContainerClass}`}>
+              {collapsibleTabs
+              ->Js.Array2.mapi((tab, i) => {
+                let ref = if i == 0 {
+                  firstTabRef->ReactDOM.Ref.domRef->Some
+                } else {
+                  Js.Global.setTimeout(_ => {
+                    setTabScroll(
+                      firstTabRef,
+                      lastTabRef,
+                      scrollRef,
+                      setIsLeftArrowVisible,
+                      setIsRightArrowVisible,
+                      getBoundingRectInfo,
+                    )
+                  }, 200)->ignore
+                  lastTabRef->ReactDOM.Ref.domRef->Some
+                }
+                <div ?ref key={string_of_int(i)}>
+                  <TabInfo
+                    title={tab.title}
+                    isSelected={selectedIndex === i}
+                    index={i}
+                    isRemovable={tab.isRemovable}
+                    setCollapsibleTabs
+                    selectedIndex
+                    tabNames=collapsibleTabs
+                    handleSelectedTab
+                    tabStacksnames
+                    setTabStacksnames
+                    description=?{tab.description}
+                  />
+                </div>
+              })
+              ->React.array}
+            </div>
+            <div className={disableIndicationArrow ? "hidden" : "block"} />
+          </div>
+        </div>
+        <div className="flex flex-row">
+          <UIUtils.RenderIf condition={!isMobileView}>
+            <IndicationArrow
+              iconName="caret-right"
+              side="right"
+              refElement=lastTabRef
+              isVisible=isRightArrowVisible
+            />
+          </UIUtils.RenderIf>
+          <div
+            className="flex flex-row"
+            style={ReactDOMStyle.make(~marginTop="20px", ~marginLeft="7px", ())}>
+            <ToolTip
+              description=toolTipDescription
+              toolTipFor={<Button
+                text="+"
+                buttonType={NonFilled}
+                buttonSize=Small
+                customButtonStyle=addBtnStyle
+                textStyle=addBtnTextStyle
+                onClick={_ev => setShowModal(_ => true)}
+              />}
+              toolTipPosition=Top
+              tooltipWidthClass="w-fit"
+            />
+          </div>
         </div>
       </div>
-    </div>
-    <SelectModal
-      modalHeading="Add Segments"
-      modalHeadingDescription={`You can choose upto maximum of ${maxSelection->Belt.Int.toString} segments`}
-      ?headerTextClass
-      showModal
-      setShowModal
-      onSubmit
-      initialValues=[]
-      options=formattedOptions
-      submitButtonText="Add Segments"
-      showSelectAll=false
-      showDeSelectAll=true
-      maxSelection
-    />
-    <div className=bottomBorderClass />
+      <SelectModal
+        modalHeading="Add Segments"
+        modalHeadingDescription={`You can choose upto maximum of ${maxSelection->Belt.Int.toString} segments`}
+        ?headerTextClass
+        showModal
+        setShowModal
+        onSubmit
+        initialValues=[]
+        options=formattedOptions
+        submitButtonText="Add Segments"
+        showSelectAll=false
+        showDeSelectAll=true
+        maxSelection
+      />
+      <div className=bottomBorderClass />
+    </ErrorBoundary>
   </div>
 }

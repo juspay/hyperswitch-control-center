@@ -32,9 +32,11 @@ let make = (
     <div className="w-full flex justify-center py-10">
       <div className="w-20 h-16">
         <React.Suspense fallback={loader}>
-          <div className="scale-400 pt-px">
-            <Lottie animationData={loaderLottieFile} autoplay=true loop=true />
-          </div>
+          <ErrorBoundary>
+            <div className="scale-400 pt-px">
+              <Lottie animationData={loaderLottieFile} autoplay=true loop=true />
+            </div>
+          </ErrorBoundary>
         </React.Suspense>
       </div>
     </div>

@@ -51,43 +51,45 @@ let make = () => {
 
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  <div className="min-h-[50vh]">
-    <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
-    <div className="flex w-full justify-end pb-3 gap-3">
-      <UIUtils.RenderIf condition={generateReport}>
-        <GenerateReport entityName={REFUND_REPORT} />
-      </UIUtils.RenderIf>
-    </div>
-    <RemoteTableFilters
-      placeholder="Search payment id or refund id"
-      setSearchVal=setSearchText
-      searchVal=searchText
-      filterUrl={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds/filter`}
-      setFilters
-      endTimeFilterKey
-      startTimeFilterKey
-      initialFilters
-      initialFixedFilter
-      setOffset
-    />
-    <PageLoaderWrapper screenState customUI>
-      <LoadedTableWithCustomColumns
-        hideTitle=true
-        title="Refunds"
-        actualData=refundData
-        entity={RefundEntity.refundEntity}
-        resultsPerPage=10
-        showSerialNumber=true
-        totalResults={totalCount}
-        offset
+  <ErrorBoundary>
+    <div className="min-h-[50vh]">
+      <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
+      <div className="flex w-full justify-end pb-3 gap-3">
+        <UIUtils.RenderIf condition={generateReport}>
+          <GenerateReport entityName={REFUND_REPORT} />
+        </UIUtils.RenderIf>
+      </div>
+      <RemoteTableFilters
+        placeholder="Search payment id or refund id"
+        setSearchVal=setSearchText
+        searchVal=searchText
+        filterUrl={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds/filter`}
+        setFilters
+        endTimeFilterKey
+        startTimeFilterKey
+        initialFilters
+        initialFixedFilter
         setOffset
-        currrentFetchCount={refundData->Js.Array2.length}
-        defaultColumns={RefundEntity.defaultColumns}
-        customColumnMapper=RefundEntity.refundsMapDefaultCols
-        showSerialNumberInCustomizeColumns=false
-        sortingBasedOnDisabled=false
-        showResultsPerPageSelector=false
       />
-    </PageLoaderWrapper>
-  </div>
+      <PageLoaderWrapper screenState customUI>
+        <LoadedTableWithCustomColumns
+          hideTitle=true
+          title="Refunds"
+          actualData=refundData
+          entity={RefundEntity.refundEntity}
+          resultsPerPage=10
+          showSerialNumber=true
+          totalResults={totalCount}
+          offset
+          setOffset
+          currrentFetchCount={refundData->Js.Array2.length}
+          defaultColumns={RefundEntity.defaultColumns}
+          customColumnMapper=RefundEntity.refundsMapDefaultCols
+          showSerialNumberInCustomizeColumns=false
+          sortingBasedOnDisabled=false
+          showResultsPerPageSelector=false
+        />
+      </PageLoaderWrapper>
+    </div>
+  </ErrorBoundary>
 }

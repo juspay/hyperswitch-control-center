@@ -81,49 +81,51 @@ let make = (~previewOnly=false) => {
 
   let customUI = <NoData isConfigureConnector paymentModal setPaymentModal />
 
-  <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
-    <PageUtils.PageHeading
-      title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
-    />
-    <div className="flex w-full justify-end pb-3 gap-3">
-      <GenerateSampleDataButton previewOnly getOrdersList={fetchOrders} />
-      <UIUtils.RenderIf condition={generateReport}>
-        <GenerateReport entityName={PAYMENT_REPORT} />
+  <ErrorBoundary>
+    <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
+      <PageUtils.PageHeading
+        title="Payment Operations" subTitle="View and manage all payments" customTitleStyle
+      />
+      <div className="flex w-full justify-end pb-3 gap-3">
+        <GenerateSampleDataButton previewOnly getOrdersList={fetchOrders} />
+        <UIUtils.RenderIf condition={generateReport}>
+          <GenerateReport entityName={PAYMENT_REPORT} />
+        </UIUtils.RenderIf>
+      </div>
+      <UIUtils.RenderIf condition={!previewOnly}>
+        <RemoteTableFilters
+          placeholder="Search payment id"
+          setSearchVal=setSearchText
+          searchVal=searchText
+          filterUrl
+          setFilters
+          endTimeFilterKey
+          startTimeFilterKey
+          initialFilters
+          initialFixedFilter
+          setOffset
+        />
       </UIUtils.RenderIf>
+      <PageLoaderWrapper screenState customUI>
+        <LoadedTableWithCustomColumns
+          title="Orders"
+          actualData=orderData
+          entity={OrderEntity.orderEntity}
+          resultsPerPage=10
+          showSerialNumber=true
+          totalResults={previewOnly ? orderData->Js.Array2.length : totalCount}
+          offset
+          setOffset
+          currrentFetchCount={orderData->Js.Array2.length}
+          customColumnMapper=OrderEntity.ordersMapDefaultCols
+          defaultColumns={OrderEntity.defaultColumns}
+          showSerialNumberInCustomizeColumns=false
+          sortingBasedOnDisabled=false
+          hideTitle=true
+          previewOnly
+          showResultsPerPageSelector=false
+        />
+      </PageLoaderWrapper>
     </div>
-    <UIUtils.RenderIf condition={!previewOnly}>
-      <RemoteTableFilters
-        placeholder="Search payment id"
-        setSearchVal=setSearchText
-        searchVal=searchText
-        filterUrl
-        setFilters
-        endTimeFilterKey
-        startTimeFilterKey
-        initialFilters
-        initialFixedFilter
-        setOffset
-      />
-    </UIUtils.RenderIf>
-    <PageLoaderWrapper screenState customUI>
-      <LoadedTableWithCustomColumns
-        title="Orders"
-        actualData=orderData
-        entity={OrderEntity.orderEntity}
-        resultsPerPage=10
-        showSerialNumber=true
-        totalResults={previewOnly ? orderData->Js.Array2.length : totalCount}
-        offset
-        setOffset
-        currrentFetchCount={orderData->Js.Array2.length}
-        customColumnMapper=OrderEntity.ordersMapDefaultCols
-        defaultColumns={OrderEntity.defaultColumns}
-        showSerialNumberInCustomizeColumns=false
-        sortingBasedOnDisabled=false
-        hideTitle=true
-        previewOnly
-        showResultsPerPageSelector=false
-      />
-    </PageLoaderWrapper>
-  </div>
+  </ErrorBoundary>
 }
