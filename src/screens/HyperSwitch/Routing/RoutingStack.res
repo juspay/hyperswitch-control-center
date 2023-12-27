@@ -121,7 +121,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let getTabName = index => index == 0 ? "active" : "history"
 
   <PageLoaderWrapper screenState>
-    <div className={`flex flex-col overflow-scroll ${widthClass} ${marginClass} gap-2.5`}>
+    <div className={`${widthClass} ${marginClass} gap-2.5`}>
       <div className="flex flex-col gap-6">
         <PageUtils.PageHeading
           title="Smart routing configuration"
