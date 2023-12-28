@@ -158,31 +158,78 @@ type cashToCodeMthd = [#Classic | #Evoucher]
 module CashToCodeSelectBox = {
   external formEventToStr: ReactEvent.Form.t => string = "%identity"
   @react.component
-  let make = (~opts: array<string>) => {
+  let make = (
+    ~opts: array<string>,
+    ~dict,
+    ~selectedCashToCodeMthd: cashToCodeMthd,
+    ~connector,
+    ~selectedConnector,
+  ) => {
     open LogicUtils
     let p2RegularTextStyle = `${HSwitchUtils.getTextClass(
         ~textVariant=P2,
         ~paragraphTextVariant=Medium,
         (),
       )} text-grey-700 opacity-50`
+    let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
+    let (country, setSelectedCountry) = React.useState(_ => "")
+    let selectedCountry = country => {
+      setShowWalletConfigurationModal(_ => !showWalletConfigurationModal)
+      setSelectedCountry(_ => country)
+    }
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+    )
+    let values = formState.values
+    Js.log2(values, "values")
 
-    {
-      opts
-      ->Js.Array2.map(value => {
+    let isSelected = value => {
+      Js.log2(value, "value value value")
+      let v =
+        formState.values
+        ->getDictFromJsonObject
+        ->getDictfromDict("connector_account_details")
+        ->getDictfromDict("auth_key_map")
+        ->getDictfromDict(value)
+      Js.log(v)
+      true
+    }
+
+    <div>
+      {opts
+      ->Js.Array2.map(country => {
         <div className="flex items-center gap-2 break-words">
-          <div
-          // onClick={_e => removeOrAddMethods(value)}
-          >
+          <div onClick={_e => selectedCountry(country)}>
             <CheckBoxIcon
-              // isSelected={isSelected(value)}
-              isSelected={true}
+              isSelected={country->isSelected}
+              // isSelected={true}
             />
           </div>
-          <p className=p2RegularTextStyle> {React.string(value->snakeToTitle)} </p>
+          <p className=p2RegularTextStyle> {React.string(country->snakeToTitle)} </p>
         </div>
       })
-      ->React.array
-    }
+      ->React.array}
+      <Modal
+        modalHeading={`Additional Details to enable`}
+        headerTextClass="text-blue-800 font-bold text-xl"
+        showModal={showWalletConfigurationModal}
+        setShowModal={setShowWalletConfigurationModal}
+        paddingClass=""
+        revealFrom=Reveal.Right
+        modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
+        childClass={""}>
+        <RenderConnectorInputFields
+          details={dict
+          ->getDictfromDict(country)
+          ->getDictfromDict(
+            (selectedCashToCodeMthd: cashToCodeMthd :> string)->Js.String2.toLowerCase,
+          )}
+          name={`connector_account_details.auth_key_map.${country}`}
+          connector
+          selectedConnector
+        />
+      </Modal>
+    </div>
   }
 }
 
@@ -191,24 +238,25 @@ module CashToCodeMethods = {
   let make = (~connectorAccountFields, ~selectedConnector, ~connector) => {
     open ConnectorUtils
     let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
-    Js.log2(dict, "dict")
     let (selectedCashToCodeMthd, setCashToCodeMthd) = React.useState(_ => #Classic)
-    let tabList: array<Tabs.tab> = [
-      {
-        title: "Classic",
+    let tabs = [#Classic, #Evoucher]
+
+    let tabList: array<Tabs.tab> = tabs->Js.Array2.map(tab => {
+      let t: Tabs.tab = {
+        title: (tab: cashToCodeMthd :> string),
         renderContent: () =>
           <div className="mt-5">
-            <CashToCodeSelectBox opts={dict->Js.Dict.keys} />
+            <CashToCodeSelectBox
+              opts={dict->Js.Dict.keys}
+              dict={dict}
+              selectedCashToCodeMthd
+              connector
+              selectedConnector
+            />
           </div>,
-      },
-      {
-        title: "Evoucher",
-        renderContent: () =>
-          <div className="mt-5">
-            <CashToCodeSelectBox opts={dict->Js.Dict.keys} />
-          </div>,
-      },
-    ]
+      }
+      t
+    })
     <Tabs
       tabs=tabList
       disableIndicationArrow=true
@@ -216,6 +264,9 @@ module CashToCodeMethods = {
       includeMargin=false
       lightThemeColor="black"
       defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
+      onTitleClick={tabIndex => {
+        setCashToCodeMthd(_ => tabs->Belt.Array.get(tabIndex)->Belt.Option.getWithDefault(#Classic))
+      }}
     />
   }
 }
