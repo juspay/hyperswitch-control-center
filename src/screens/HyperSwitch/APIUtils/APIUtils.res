@@ -36,6 +36,7 @@ let getURL = (
   | TEST_LIVE_PAYMENT => `test_payment`
   | THREE_DS => `routing/decision`
   | VERIFY_APPLE_PAY => `verify/apple_pay`
+  | PAYPAL_ONBOARDING => `connector_onboarding`
   | SURCHARGE => `routing/decision/surcharge`
   | FRAUD_RISK_MANAGEMENT | CONNECTOR =>
     switch methodType {
