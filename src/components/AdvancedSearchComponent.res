@@ -73,7 +73,6 @@ let make = (
     if keys->Js.Array2.length === 0 {
       Js.Dict.set(errors, "Please Choose One of the fields", ""->Js.Json.string)
     }
-    Js.log3("values", values, errors)
     errors->Js.Json.object_
   }
   <div className="mr-2">

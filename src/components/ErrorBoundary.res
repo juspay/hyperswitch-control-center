@@ -1,11 +1,14 @@
-let defaultFallback = ({resetError}: Sentry.ErrorBoundary.fallbackArg) => {
+/*
+ ? Reference - https://github.com/rescript-lang/rescript-react/blob/master/src/RescriptReactErrorBoundary.res
+ */
+
+let defaultFallback = _ =>
   <div className="text-red-600 font-bold text-center flex flex-col items-center">
     {"An error occured"->React.string}
-    <Button text="reset" buttonType=Primary onClick={_ev => resetError()} />
+    <Button text="reset" buttonType=Primary onClick={_ => Window.Location.reload()} />
   </div>
-}
 
 @react.component
 let make = (~children, ~renderFallback=defaultFallback) => {
-  <Sentry.ErrorBoundary fallback=renderFallback> children </Sentry.ErrorBoundary>
+  <RescriptReactErrorBoundary fallback={renderFallback}> {children} </RescriptReactErrorBoundary>
 }
