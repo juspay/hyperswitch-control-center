@@ -30,7 +30,7 @@ let make = (~previewOnly=false) => {
 
         filters->Js.Dict.set("offset", offset->Belt.Int.toFloat->Js.Json.number)
         if !(searchText->isEmptyString) {
-          filters->Js.Dict.set("payment_id", searchText->Js.Json.string)
+          filters->Js.Dict.set("payment_id", searchText->Js.String2.trim->Js.Json.string)
         }
 
         dict
@@ -80,7 +80,7 @@ let make = (~previewOnly=false) => {
 
   let customUI = <NoData isConfigureConnector paymentModal setPaymentModal />
 
-  let filtersUI = React.useMemo1(() => {
+  let filtersUI = React.useMemo0(() => {
     <RemoteTableFilters
       placeholder="Search payment id"
       setSearchVal=setSearchText
@@ -93,7 +93,7 @@ let make = (~previewOnly=false) => {
       initialFixedFilter
       setOffset
     />
-  }, [])
+  })
 
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>

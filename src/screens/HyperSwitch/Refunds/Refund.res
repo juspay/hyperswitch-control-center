@@ -22,8 +22,8 @@ let make = () => {
 
       filters->Js.Dict.set("offset", offset->Belt.Int.toFloat->Js.Json.number)
       if !(searchText->isEmptyString) {
-        filters->Js.Dict.set("payment_id", searchText->Js.Json.string)
-        filters->Js.Dict.set("refund_id", searchText->Js.Json.string)
+        filters->Js.Dict.set("payment_id", searchText->Js.String2.trim->Js.Json.string)
+        filters->Js.Dict.set("refund_id", searchText->Js.String2.trim->Js.Json.string)
       }
 
       dict

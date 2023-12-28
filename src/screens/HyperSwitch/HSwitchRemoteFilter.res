@@ -118,7 +118,7 @@ let useGetFiltersData = () => {
   let endTimeVal = filterValueJson->getString("end_time", "")
 
   (url, body) => {
-    React.useEffect1(() => {
+    React.useEffect3(() => {
       setFilterData(_ => None)
       if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
         try {
@@ -131,7 +131,7 @@ let useGetFiltersData = () => {
         }
       }
       None
-    }, [startTimeVal, endTimeVal, body->Js.Json.object_->Js.Json.stringify])
+    }, (startTimeVal, endTimeVal, body->Js.Json.object_->Js.Json.stringify))
     filterData
   }
 }

@@ -33,8 +33,9 @@ module Provider = {
 @react.component
 let make = (~index: string, ~children, ~disableSessionStorage=false) => {
   open FilterUtils
-  let temp = React.useMemo0(() => {ref("")})
-  let searcParamsToDict = temp.contents->parseFilterString
+  open HSwitchUtils
+  let query = React.useMemo0(() => {ref("")})
+  let searcParamsToDict = query.contents->parseFilterString
   let (filterDict, setfilterDict) = React.useState(_ => searcParamsToDict)
 
   let updateFilter = React.useMemo2(() => {
@@ -48,7 +49,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
               let (key, value) = item
               switch dict->Js.Dict.get(key) {
               | Some(_) => None
-              | None => value !== "" ? Some(item) : None
+              | None => !(value->isEmptyString) ? Some(item) : None
               }
             },
           )
@@ -58,7 +59,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
           ->Js.Array2.filter(
             item => {
               let (_, value) = item
-              value !== ""
+              !(value->isEmptyString)
             },
           )
 
@@ -68,7 +69,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
         } else {
           updatedDict
         }
-        temp := dict->FilterUtils.parseFilterDict
+        query := dict->FilterUtils.parseFilterDict
         dict
       })
     }
@@ -76,7 +77,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
     let reset = () => {
       let dict = Js.Dict.empty()
       setfilterDict(_ => dict)
-      temp := dict->FilterUtils.parseFilterDict
+      query := dict->FilterUtils.parseFilterDict
     }
 
     let removeKeys = (arr: array<string>) => {
@@ -88,12 +89,12 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
         } else {
           updatedDict
         }
-        temp := dict->FilterUtils.parseFilterDict
+        query := dict->FilterUtils.parseFilterDict
         dict
       })
     }
     {
-      query: temp.contents,
+      query: query.contents,
       filterValue: filterDict,
       updateExistingKeys: updateFilter,
       removeKeys,
@@ -120,11 +121,11 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
   })
 
   React.useEffect1(() => {
-    if !(temp.contents->Js.String2.length < 1) && !disableSessionStorage {
-      sessionStorage.setItem(. index, temp.contents)
+    if !(query.contents->Js.String2.length < 1) && !disableSessionStorage {
+      sessionStorage.setItem(. index, query.contents)
     }
     None
-  }, [temp.contents])
+  }, [query.contents])
 
   <Provider value={updateFilter}> children </Provider>
 }
