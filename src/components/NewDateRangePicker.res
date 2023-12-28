@@ -162,7 +162,7 @@ module CalendarTabs = {
         onTitleClick={i => {
           switch routeTabs->Belt.Array.get(i) {
           | Some(routeTab) =>
-            if !(disabledTab->Js.Array2.includes(routeTab.title) && isDisabled) {
+            if !(disabledTab->Array.includes(routeTab.title) && isDisabled) {
               setSelectedTab(_ => routeTab.title)
             }
           | None => ()
@@ -520,7 +520,7 @@ module Base = {
         DateRangeUtils.datetext(value, disableFutureDates)
         ->Js.String2.toLowerCase
         ->Js.String2.split(" ")
-        ->Js.Array2.joinWith("_")
+        ->Array.joinWith("_")
       )
       changeStartDate(stDate, false, true, Some(stTime))
       changeEndDate(enDate, false, Some(enTime))

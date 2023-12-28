@@ -3,7 +3,7 @@ open APIUtils
 let make = (~remainingPath, ~previewOnly=false) => {
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
-  let pathVar = url.path->Belt.List.toArray->Js.Array2.joinWith("/")
+  let pathVar = url.path->Belt.List.toArray->Array.joinWith("/")
 
   let (records, setRecords) = React.useState(_ => [])
   let (activeRoutingIds, setActiveRoutingIds) = React.useState(_ => [])
@@ -61,9 +61,9 @@ let make = (~remainingPath, ~previewOnly=false) => {
       let sortedHistoryRecords =
         recordsData
         ->Js.Array2.sortInPlaceWith((item1, item2) => {
-          if activeIds->Js.Array2.includes(item1.id) {
+          if activeIds->Array.includes(item1.id) {
             -1
-          } else if activeIds->Js.Array2.includes(item2.id) {
+          } else if activeIds->Array.includes(item2.id) {
             1
           } else {
             0
@@ -93,7 +93,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
       if routingArr->Array.length > 0 {
         let currentActiveIds = []
-        routingArr->Js.Array2.forEach(ele => {
+        routingArr->Array.forEach(ele => {
           let id = ele->getDictFromJsonObject->getString("id", "")
           currentActiveIds->Array.push(id)
         })

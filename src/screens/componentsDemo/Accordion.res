@@ -181,7 +181,7 @@ let make = (
           accordianTopContainerCss
           accordianBottomContainerCss
           contentExpandCss
-          expanded={initialExpandedArray->Js.Array2.includes(i)}
+          expanded={initialExpandedArray->Array.includes(i)}
           titleStyle
         />
       })

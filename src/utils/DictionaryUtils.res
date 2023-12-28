@@ -14,7 +14,7 @@ let deleteKeys = (dictionary: Js.Dict.t<'a>, keys: array<string>) => {
     ->Js.Dict.entries
     ->Belt.Array.keepMap(entry => {
       let (filterKey, _) = entry
-      keys->Js.Array2.includes(filterKey) ? None : Some(entry)
+      keys->Array.includes(filterKey) ? None : Some(entry)
     })
     ->Js.Dict.fromArray
 
@@ -31,7 +31,7 @@ let appnedDataToKey = (dict, key, value) => {
 
 let mergeDicts = (arrDict: array<Js.Dict.t<'a>>) => {
   arrDict->Js.Array2.reduce((acc, dict) => {
-    acc->Js.Array2.concat(dict->Js.Dict.entries)
+    acc->Array.concat(dict->Js.Dict.entries)
   }, [])->Js.Dict.fromArray
 }
 
@@ -62,8 +62,8 @@ let checkEqualJsonDicts = (~checkKeys, ~ignoreKeys, dictionary1, dictionary2) =>
   ->Array.find(item => {
     let (key, value) = item
     if (
-      (checkKeys->Js.Array2.includes(key) || checkKeys->Array.length === 0) &&
-        !(ignoreKeys->Js.Array2.includes(key))
+      (checkKeys->Array.includes(key) || checkKeys->Array.length === 0) &&
+        !(ignoreKeys->Array.includes(key))
     ) {
       switch value->Js.Json.classify {
       | JSONArray(array) => {
@@ -84,7 +84,7 @@ let checkEqualJsonDicts = (~checkKeys, ~ignoreKeys, dictionary1, dictionary2) =>
     ->Js.Dict.entries
     ->Array.find(item => {
       let (key, value) = item
-      if checkKeys->Js.Array2.includes(key) && !(ignoreKeys->Js.Array2.includes(key)) {
+      if checkKeys->Array.includes(key) && !(ignoreKeys->Array.includes(key)) {
         switch value->Js.Json.classify {
         | JSONArray(array) => {
             let arr1 = array->LogicUtils.getStrArrayFromJsonArray
@@ -103,5 +103,5 @@ let checkEqualJsonDicts = (~checkKeys, ~ignoreKeys, dictionary1, dictionary2) =>
 }
 
 let copyOfDict = dict => {
-  dict->Js.Dict.entries->Js.Array2.copy->Js.Dict.fromArray
+  dict->Js.Dict.entries->Array.copy->Js.Dict.fromArray
 }

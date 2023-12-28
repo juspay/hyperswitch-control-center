@@ -257,7 +257,7 @@ let make = (~userRole) => {
 
   let handleKeyUp = event => {
     if event->ReactEvent.Keyboard.keyCode === 13 {
-      [`${url.path->LogicUtils.getListHead}`, `global`]->Js.Array2.forEach(ele =>
+      [`${url.path->LogicUtils.getListHead}`, `global`]->Array.forEach(ele =>
         hyperswitchMixPanel(~eventName=Some(`${ele}_switch_merchant`), ())
       )
       switchMerchant(value)->ignore

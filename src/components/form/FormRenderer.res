@@ -105,7 +105,7 @@ let makeMultiInputFieldInfo = (
   let inputNames =
     comboCustomInput
     ->Belt.Option.mapWithDefault([], x => x.names)
-    ->Js.Array2.concat(inputFields->Array.map(x => x.name))
+    ->Array.concat(inputFields->Array.map(x => x.name))
   {
     label,
     customLabelIcon,
@@ -475,7 +475,7 @@ module FieldRenderer = {
     let isVisible = true
 
     if isVisible {
-      let names = field.inputNames->Js.Array2.joinWith("-")
+      let names = field.inputNames->Array.joinWith("-")
 
       <Portal to=portalKey>
         <AddDataAttributes attributes=[("data-component", "fieldRenderer")]>
@@ -603,7 +603,7 @@ module SubmitButton = {
       "errors",
       "submitErrors",
       "submitting",
-    ]->Js.Array2.forEach(item => {
+    ]->Array.forEach(item => {
       Js.Dict.set(dict, item, Js.Json.boolean(true))
     })
 
@@ -691,7 +691,7 @@ module SubmitButton = {
               ->LogicUtils.getDictFromJsonObject
               ->Js.Dict.keys
               ->Array.filter(key => {
-                ["startTime", "endTime"]->Js.Array2.includes(key)->not
+                ["startTime", "endTime"]->Array.includes(key)->not
               })
               ->Js.Json.stringifyAny
             form.submit()->ignore
@@ -724,7 +724,7 @@ module SubmitButton = {
 
           `${key->LogicUtils.snakeToTitle}: ${value}`
         })
-        ->Js.Array2.joinWith("\n")
+        ->Array.joinWith("\n")
       let tooltipStyle = hasError ? "bg-infra-red-900" : ""
       if showToolTip && !avoidDisable {
         <ToolTip

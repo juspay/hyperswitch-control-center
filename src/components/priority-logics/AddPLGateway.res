@@ -61,7 +61,7 @@ let make = (
     !(
       gateWaysInput.value
       ->LogicUtils.getArrayFromJson([])
-      ->Js.Array2.some(ele =>
+      ->Array.some(ele =>
         ele->LogicUtils.getDictFromJsonObject->LogicUtils.getFloat("distribution", 0.0) === 100.0
       )
     )
@@ -69,7 +69,7 @@ let make = (
   let isEnforceGatewayPriority =
     enforceGatewayPriorityInput.value->Js.Json.decodeBoolean->Belt.Option.getWithDefault(false)
   let isDisableFallback =
-    gatewaysJsonArr->Js.Array2.some(json =>
+    gatewaysJsonArr->Array.some(json =>
       json
       ->Js.Json.decodeObject
       ->Belt.Option.flatMap(Js.Dict.get(_, "disableFallback"))

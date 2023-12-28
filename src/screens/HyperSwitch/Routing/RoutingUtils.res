@@ -273,7 +273,7 @@ let getVolumeSplit = (
 ) => {
   dict_arr->Array.reduce([], (acc, routingObj) => {
     let value = [routingObj->getDictFromJsonObject->objMapper(connectorList)->Js.Json.object_]
-    acc->Js.Array2.concat(value)->Array.map(value => value)
+    acc->Array.concat(value)->Array.map(value => value)
   })
 }
 
@@ -530,7 +530,7 @@ let valueTypeMapper = dict => {
 
 let conditionTypeMapper = (conditionArr: array<Js.Json.t>) => {
   let conditionArray = []
-  conditionArr->Js.Array2.forEach(value => {
+  conditionArr->Array.forEach(value => {
     let val = value->getDictFromJsonObject
     let tempval = {
       field: val->getString("field", ""),
@@ -681,7 +681,7 @@ module ConfigureRuleButton = {
 }
 
 let validateNameAndDescription = (~dict, ~errors) => {
-  ["name", "description"]->Js.Array2.forEach(field => {
+  ["name", "description"]->Array.forEach(field => {
     if dict->LogicUtils.getString(field, "")->Js.String2.trim === "" {
       errors->Js.Dict.set(field, `Please provide ${field} field`->Js.Json.string)
     }

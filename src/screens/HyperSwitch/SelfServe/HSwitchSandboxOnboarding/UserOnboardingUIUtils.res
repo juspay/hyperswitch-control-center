@@ -359,7 +359,7 @@ module BackendFrontendPlatformLangDropDown = {
             />}
           />
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!(requestOnlyPlatforms->Js.Array2.includes(platform))}>
+        <UIUtils.RenderIf condition={!(requestOnlyPlatforms->Array.includes(platform))}>
           <SelectBox.BaseDropdown
             allowMultiSelect=false
             buttonText="Select Frontend"

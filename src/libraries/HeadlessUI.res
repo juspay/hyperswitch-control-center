@@ -477,7 +477,7 @@ module SelectBoxHeadlessUI = {
                   ->Array.mapWithIndex((option, index) => {
                     let selected = switch value {
                     | String(v) => v === option.value
-                    | Array(arr) => arr->Js.Array2.includes(option.value)
+                    | Array(arr) => arr->Array.includes(option.value)
                     }
 
                     <Menu.Item key={index->Js.Int.toString}>

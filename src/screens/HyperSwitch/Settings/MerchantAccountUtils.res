@@ -29,7 +29,7 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
         Js.Dict.set(
           errors,
           key,
-          `Your password is not strong enough. A good password must contain atleast ${mustHave->Js.Array2.joinWith(
+          `Your password is not strong enough. A good password must contain atleast ${mustHave->Array.joinWith(
               ",",
             )} character`->Js.Json.string,
         )
@@ -403,7 +403,7 @@ let validateMerchantAccountForm = (
   let initialDict = initialData->LogicUtils.getDictFromJsonObject
   let valuesDict = values->LogicUtils.getDictFromJsonObject
 
-  fieldsToValidate->Js.Array2.forEach(key => {
+  fieldsToValidate->Array.forEach(key => {
     let value = LogicUtils.getString(valuesDict, key->validationFieldsMapper, "")
 
     value->Js.String2.length <= 0

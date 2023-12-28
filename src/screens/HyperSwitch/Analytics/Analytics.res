@@ -118,7 +118,7 @@ module TableWrapper = {
     let (_, setDefaultFilter) = Recoil.useRecoilState(AnalyticsHooks.defaultFilter)
     let (showTable, setShowTable) = React.useState(_ => false)
     let {getHeading, allColumns, defaultColumns} = tableEntity
-    let activeTabStr = activeTab->Belt.Option.getWithDefault([])->Js.Array2.joinWith("-")
+    let activeTabStr = activeTab->Belt.Option.getWithDefault([])->Array.joinWith("-")
     let (startTimeFilterKey, endTimeFilterKey) = dateKeys
     let (tableDataLoading, setTableDataLoading) = React.useState(_ => true)
     let (tableData, setTableData) = React.useState(_ => []->Array.map(Js.Nullable.return))
@@ -140,7 +140,7 @@ module TableWrapper = {
     }, [getAllFilter])
 
     let allColumns = allColumns->Belt.Option.getWithDefault([])
-    let allFilterKeys = Js.Array2.concat([startTimeFilterKey, endTimeFilterKey], filterKeys)
+    let allFilterKeys = Array.concat([startTimeFilterKey, endTimeFilterKey], filterKeys)
 
     let topFiltersToSearchParam = React.useMemo1(() => {
       let filterSearchParam =
@@ -148,7 +148,7 @@ module TableWrapper = {
         ->Js.Dict.entries
         ->Belt.Array.keepMap(entry => {
           let (key, value) = entry
-          if allFilterKeys->Js.Array2.includes(key) {
+          if allFilterKeys->Array.includes(key) {
             switch value->Js.Json.classify {
             | JSONString(str) => `${key}=${str}`->Some
             | JSONNumber(num) => `${key}=${num->Js.String.make}`->Some
@@ -159,7 +159,7 @@ module TableWrapper = {
             None
           }
         })
-        ->Js.Array2.joinWith("&")
+        ->Array.joinWith("&")
 
       filterSearchParam
     }, [getTopLevelFilter])
@@ -169,7 +169,7 @@ module TableWrapper = {
       ->Js.Dict.entries
       ->Belt.Array.keepMap(entries => {
         let (key, value) = entries
-        filterKeys->Js.Array2.includes(key) ? Some((key, value)) : None
+        filterKeys->Array.includes(key) ? Some((key, value)) : None
       })
       ->Js.Dict.fromArray
       ->Js.Json.object_
@@ -195,7 +195,7 @@ module TableWrapper = {
       ->Array.map(key => {
         dict->Js.Dict.get(key)
       })
-      ->Js.Array2.joinWith("")
+      ->Array.joinWith("")
     }
 
     open AnalyticsTypes
@@ -208,12 +208,12 @@ module TableWrapper = {
         let dataDict = item->getDictFromJsonObject
         let dataKey = activeTab->generateIDFromKeys(dataDict)
 
-        weeklyArr->Js.Array2.forEach(newItem => {
+        weeklyArr->Array.forEach(newItem => {
           let weekklyDataDict = newItem->getDictFromJsonObject
           let weekklyDataKey = activeTab->generateIDFromKeys(weekklyDataDict)
 
           if dataKey === weekklyDataKey {
-            cols->Js.Array2.forEach(
+            cols->Array.forEach(
               obj => {
                 switch weekklyDataDict->Js.Dict.get(obj.refKey) {
                 | Some(val) => dataDict->Js.Dict.set(obj.newKey, val)
@@ -327,7 +327,7 @@ module TableWrapper = {
       defaultColumns
       ->Belt.Array.keepMap(item => {
         let val = item->getHeading
-        activeTab->Belt.Option.getWithDefault([])->Js.Array2.includes(val.key) ? Some(item) : None
+        activeTab->Belt.Option.getWithDefault([])->Array.includes(val.key) ? Some(item) : None
       })
       ->Belt.Array.concat(allColumns)
     }, [activeTabStr])
@@ -582,7 +582,7 @@ let make = (
             }
           })
 
-        updateExistingKeys(Js.Array2.concat(prevDictArr, currentDict)->Js.Dict.fromArray)
+        updateExistingKeys(Array.concat(prevDictArr, currentDict)->Js.Dict.fromArray)
       }
     }
   }, [updateExistingKeys])
@@ -620,7 +620,7 @@ let make = (
       source: "BATCH",
     }
     AnalyticsUtils.filterBody(filterBodyEntity)
-  }, (startTimeVal, endTimeVal, filteredTabKeys->Js.Array2.joinWith(",")))
+  }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
 
   let filterDataOrig = getFilterData(filterUri, Fetch.Post, filterBody)
   let filterData = filterDataOrig->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty()))
@@ -657,7 +657,7 @@ let make = (
             ->getArrayFromJson([])
             ->Array.filter(dimension => {
               let dim = dimension->getDictFromJsonObject->getString("dimension", "")
-              filteredDims->Js.Array2.includes(dim)->not
+              filteredDims->Array.includes(dim)->not
             })
             ->Js.Json.array
           [("queryData", queryData)]->Js.Dict.fromArray->Js.Json.object_

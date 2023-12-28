@@ -136,11 +136,11 @@ let make = (
   let showToast = ToastState.useShowToast()
 
   let localOptions =
-    Js.Array2.concat(options, popupFilterFields)->Array.filter(item =>
+    Array.concat(options, popupFilterFields)->Array.filter(item =>
       item.localFilter->Js.Option.isSome
     )
   let remoteOptions =
-    Js.Array2.concat(options, popupFilterFields)->Array.filter(item =>
+    Array.concat(options, popupFilterFields)->Array.filter(item =>
       item.localFilter->Js.Option.isNone
     )
   let remoteFiltersFromUrl = useRemoteFilter(
@@ -164,7 +164,7 @@ let make = (
     let remoteFilterDict = RemoteFiltersUtils.getFinalDict(
       ~filterJson=defaultFilters,
       ~filtersFromUrl=remoteFiltersFromUrl,
-      ~options=remoteOptions->Js.Array2.concat(popupFilterFields),
+      ~options=remoteOptions->Array.concat(popupFilterFields),
       ~isEulerOrderEntity,
       ~dropdownSearchKeyValueNames,
       ~searchkeysDict,
@@ -202,7 +202,7 @@ let make = (
       }
 
       setData(prevData => {
-        let newData = prevData->Belt.Option.getWithDefault([])->Js.Array2.concat(sampleRes)
+        let newData = prevData->Belt.Option.getWithDefault([])->Array.concat(sampleRes)
         Some(newData)
       })
     }
@@ -232,7 +232,7 @@ let make = (
 
         urii
       })
-      let uri = uri ++ "?" ++ uriList->Array.filter(val => val !== "")->Js.Array2.joinWith("&")
+      let uri = uri ++ "?" ++ uriList->Array.filter(val => val !== "")->Array.joinWith("&")
       uri
     }
 

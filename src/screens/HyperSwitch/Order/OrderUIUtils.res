@@ -197,7 +197,7 @@ let setData = (
 
     let orderData =
       arr
-      ->Js.Array2.concat(orderDataDictArr)
+      ->Array.concat(orderDataDictArr)
       ->Array.map(OrderEntity.itemToObjMapper)
       ->Array.filterWithIndex((_, i) => {
         !previewOnly || i <= 2

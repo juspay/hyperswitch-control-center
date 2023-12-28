@@ -68,7 +68,7 @@ let useConstructQueryOnBasisOfOpt = () => {
             x
           }
         )
-        updatedArr->Js.Array2.joinWith("&")
+        updatedArr->Array.joinWith("&")
       } catch {
       | _error => queryString
       }

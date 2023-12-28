@@ -109,7 +109,7 @@ module RenderConnectorInputFields = {
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     open ConnectorUtils
     open LogicUtils
-    let keys = details->Js.Dict.keys->Array.filter(ele => !Js.Array2.includes(keysToIgnore, ele))
+    let keys = details->Js.Dict.keys->Array.filter(ele => !Array.includes(keysToIgnore, ele))
     keys
     ->Array.mapWithIndex((field, i) => {
       let label = details->getString(field, "")

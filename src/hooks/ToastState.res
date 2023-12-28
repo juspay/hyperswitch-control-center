@@ -87,7 +87,7 @@ let useShowToast = (): showToastFn => {
         (),
       )
 
-      setOpenToasts(.prevArr => prevArr->Js.Array2.concat([toastProps]))
+      setOpenToasts(.prevArr => prevArr->Array.concat([toastProps]))
     },
     [setOpenToasts],
   )

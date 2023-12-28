@@ -92,10 +92,8 @@ module TabInfo = {
 
           setTabStacksnames(prev => {
             let updatedStackAfterRemovingTab =
-              prev
-              ->Js.Array2.copy
-              ->Array.filter(item => item !== getValueFromArrayTab(tabNames, index))
-            updatedStackAfterRemovingTab->Js.Array2.filteri((item, index) =>
+              prev->Array.copy->Array.filter(item => item !== getValueFromArrayTab(tabNames, index))
+            updatedStackAfterRemovingTab->Array.filterWithIndex((item, index) =>
               index === 0
                 ? true
                 : item !==
@@ -105,7 +103,7 @@ module TabInfo = {
             )
           })
 
-          let updatedTabNames = tabNames->Js.Array2.copy->Js.Array2.filteri((_, i) => i !== index)
+          let updatedTabNames = tabNames->Array.copy->Array.filterWithIndex((_, i) => i !== index)
           setCollapsibleTabs(_ => updatedTabNames)
           if selectedIndex === index {
             // if selected index is removed then url will be updated and to the previous tab in the tabstack or else just the removal of the current tab would do
@@ -157,7 +155,7 @@ module TabInfo = {
             ->Js.String2.split("+")
             ->Array.map(Js.String2.trim)
             ->Array.map(LogicUtils.snakeToTitle)
-            ->Js.Array2.joinWith(" + "),
+            ->Array.joinWith(" + "),
           )}
           crossIcon
         </div>
@@ -243,7 +241,7 @@ let make = (
   let isMobileView = MatchMedia.useMobileChecker()
   let defaultTabs =
     defaultTabs->Belt.Option.getWithDefault(
-      tabs->Js.Array2.copy->Array.filter(item => !item.isRemovable),
+      tabs->Array.copy->Array.filter(item => !item.isRemovable),
     )
 
   let tabOuterClass = `gap-1.5`
@@ -269,7 +267,7 @@ let make = (
     ).title
   }
 
-  let (tabsDetails, setTabDetails) = React.useState(_ => tabs->Js.Array2.copy)
+  let (tabsDetails, setTabDetails) = React.useState(_ => tabs->Array.copy)
 
   let (initialIndex, updatedCollapsableTabs) = React.useMemo0(() => {
     let defautTabValues = defaultTabs->Array.map(item => item.value)
@@ -278,7 +276,7 @@ let make = (
         let tabsFromPreference =
           jsonVal
           ->LogicUtils.getStrArryFromJson
-          ->Array.filter(item => !(defautTabValues->Js.Array2.includes(item)))
+          ->Array.filter(item => !(defautTabValues->Array.includes(item)))
 
         let tabsFromPreference =
           Belt.Array.concat(defautTabValues, tabsFromPreference)->Array.map(item =>
@@ -291,19 +289,19 @@ let make = (
             tabName
             ->Array.filter(
               item => {
-                tabs->Array.map(item => item.value)->Js.Array2.includes(item) === false
+                tabs->Array.map(item => item.value)->Array.includes(item) === false
               },
             )
             ->Array.length === 0
 
-          let concatinatedTabNames = tabName->Array.map(getTitle)->Js.Array2.joinWith(" + ")
+          let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
           if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
             let newTab = {
               title: concatinatedTabNames,
-              value: tabName->Js.Array2.joinWith(","),
+              value: tabName->Array.joinWith(","),
               description: switch tabs->Array.find(
                 item => {
-                  item.value === tabName->Js.Array2.joinWith(",")
+                  item.value === tabName->Array.joinWith(",")
                 },
               ) {
               | Some(tabValue) =>
@@ -312,7 +310,7 @@ let make = (
               },
               isRemovable: switch tabs->Array.find(
                 item => {
-                  item.value === tabName->Js.Array2.joinWith(",")
+                  item.value === tabName->Array.joinWith(",")
                 },
               ) {
               | Some(tabValue) => tabValue.isRemovable
@@ -339,27 +337,27 @@ let make = (
     let validated =
       tabName
       ->Array.filter(item => {
-        tabs->Array.map(item => item.value)->Js.Array2.includes(item) === false
+        tabs->Array.map(item => item.value)->Array.includes(item) === false
       })
       ->Array.length === 0
 
-    let concatinatedTabNames = tabName->Array.map(getTitle)->Js.Array2.joinWith(" + ")
+    let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
 
     if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
       let concatinatedTabIndex =
-        collapsibleTabs->Array.map(item => item.title)->Js.Array2.indexOf(concatinatedTabNames)
+        collapsibleTabs->Array.map(item => item.title)->Array.indexOf(concatinatedTabNames)
 
       if concatinatedTabIndex === -1 {
         let newTab = [
           {
             title: concatinatedTabNames,
-            value: tabName->Js.Array2.joinWith(","),
+            value: tabName->Array.joinWith(","),
             isRemovable: true,
           },
         ]
-        let updatedColllapsableTab = Js.Array2.concat(collapsibleTabs, newTab)
+        let updatedColllapsableTab = Array.concat(collapsibleTabs, newTab)
 
-        setTabDetails(_ => Js.Array2.concat(tabsDetails, newTab))
+        setTabDetails(_ => Array.concat(tabsDetails, newTab))
         setActiveTab(getValueFromArrayTab(updatedColllapsableTab, Array.length(collapsibleTabs)))
         updateTabNameWith(
           Js.Dict.fromArray([
@@ -443,16 +441,13 @@ let make = (
           ->Belt.Option.getWithDefault("")
       ) {
         setTabStacksnames(prev => {
-          Js.Array2.concat(prev, [tabValue])
+          Array.concat(prev, [tabValue])
         })
       }
       updateTabNameWith(Js.Dict.fromArray([("tabName", `[${tabValue}]`)]))
       setActiveTab(tabValue)
       setSelectedIndex(_ =>
-        Js.Math.max_int(
-          0,
-          collapsibleTabs->Array.map(item => item.value)->Js.Array2.indexOf(tabValue),
-        )
+        Js.Math.max_int(0, collapsibleTabs->Array.map(item => item.value)->Array.indexOf(tabValue))
       )
     } else {
       updateTabNameWith(
@@ -476,7 +471,7 @@ let make = (
           0,
           collapsibleTabs
           ->Array.map(item => item.value)
-          ->Js.Array2.indexOf(
+          ->Array.indexOf(
             tabStacksnames
             ->Belt.Array.get(tabStacksnames->Array.length - 1)
             ->Belt.Option.getWithDefault(""),
@@ -487,9 +482,9 @@ let make = (
   }
 
   let onSubmit = values => {
-    let tabName = values->Array.map(getTitle)->Js.Array2.joinWith(" + ")
-    let tabValue = values->Js.Array2.joinWith(",")
-    if !Js.Array2.includes(collapsibleTabs->Array.map(item => item.title), tabName) {
+    let tabName = values->Array.map(getTitle)->Array.joinWith(" + ")
+    let tabValue = values->Array.joinWith(",")
+    if !Array.includes(collapsibleTabs->Array.map(item => item.title), tabName) {
       let newTab = [
         {
           title: tabName,
@@ -497,12 +492,12 @@ let make = (
           isRemovable: true,
         },
       ]
-      let updatedCollapsableTabs = Js.Array2.concat(collapsibleTabs, newTab)
+      let updatedCollapsableTabs = Array.concat(collapsibleTabs, newTab)
 
       setCollapsibleTabs(_ => updatedCollapsableTabs)
-      setTabDetails(_ => Js.Array2.concat(tabsDetails, newTab))
+      setTabDetails(_ => Array.concat(tabsDetails, newTab))
       setSelectedIndex(_ => Array.length(updatedCollapsableTabs) - 1)
-      setTabStacksnames(prev => Js.Array2.concat(prev, [getValueFromArrayTab(newTab, 0)]))
+      setTabStacksnames(prev => Array.concat(prev, [getValueFromArrayTab(newTab, 0)]))
       updateTabNameWith(Js.Dict.fromArray([("tabName", `[${getValueFromArrayTab(newTab, 0)}]`)]))
       setActiveTab(getValueFromArrayTab(newTab, 0))
 
@@ -514,11 +509,9 @@ let make = (
         )
       }, 200)->ignore
     } else {
-      setSelectedIndex(_ =>
-        Js.Array2.indexOf(collapsibleTabs->Array.map(item => item.value), tabValue)
-      )
-      updateTabNameWith(Js.Dict.fromArray([("tabName", `[${values->Js.Array2.joinWith(",")}]`)]))
-      setActiveTab(values->Js.Array2.joinWith(","))
+      setSelectedIndex(_ => Array.indexOf(collapsibleTabs->Array.map(item => item.value), tabValue))
+      updateTabNameWith(Js.Dict.fromArray([("tabName", `[${values->Array.joinWith(",")}]`)]))
+      setActiveTab(values->Array.joinWith(","))
     }
     setShowModal(_ => false)
   }

@@ -4,7 +4,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
   let total = Js.Math.ceil(Belt.Int.toFloat(totalResults) /. Belt.Int.toFloat(resultsPerPage))
 
   for x in 1 to total {
-    Js.Array2.push(pageNumbers, x)->ignore
+    Array.push(pageNumbers, x)->ignore
   }
 
   let pageToLeft =

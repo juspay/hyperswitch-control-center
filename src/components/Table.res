@@ -165,7 +165,7 @@ module TableRow = {
 
           let customColorCell = coloredRow ? customCellColor : ""
 
-          let highlightCell = highlightEnabledFieldsArray->Js.Array2.includes(cellIndex)
+          let highlightCell = highlightEnabledFieldsArray->Array.includes(cellIndex)
           let highlightClass = highlightCell ? "hover:font-bold" : ""
           let borderColor = "border-jp-gray-light_table_border_color dark:border-jp-gray-960"
           let borderTop = showBorderTop ? "border-t" : "border-t-0"
@@ -692,7 +692,7 @@ let make = (
 
   let highlightEnabledFieldsArray = heading->Js.Array2.reducei((acc, item, index) => {
     if item.highlightCellOnHover {
-      let _ = Js.Array2.push(acc, index)
+      let _ = Array.push(acc, index)
     }
     acc
   }, [])

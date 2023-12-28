@@ -142,7 +142,7 @@ module SystemMetricsAnalytics = {
         source: "BATCH",
       }
       AnalyticsUtils.filterBody(filterBodyEntity)
-    }, (startTimeVal, endTimeVal, filteredTabKeys->Js.Array2.joinWith(",")))
+    }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
 
     let filterDataOrig = getFilterData(filterUri, Fetch.Post, filterBody)
     let filterData = filterDataOrig->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty()))

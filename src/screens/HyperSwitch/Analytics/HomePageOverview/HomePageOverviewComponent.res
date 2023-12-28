@@ -49,7 +49,7 @@ module ConnectorOverview = {
 
       let icons =
         configuredConnectors->Array.length > 3
-          ? icons->Js.Array2.concat([
+          ? icons->Array.concat([
               <div
                 className={`w-12 h-12 flex items-center justify-center text-white font-medium rounded-full border-3 border-white -ml-3 z-0 bg-blue-900`}>
                 {`+${(configuredConnectors->Array.length - 3)->Js.Int.toString}`->React.string}

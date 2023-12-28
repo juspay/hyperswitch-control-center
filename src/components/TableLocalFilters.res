@@ -94,7 +94,7 @@ module FilterDropDown = {
     let dummyDict = Js.Dict.empty()
     arr
     ->LogicUtils.getStrArrayFromJsonArray
-    ->Js.Array2.forEach(item => Js.Dict.set(dummyDict, item, ""))
+    ->Array.forEach(item => Js.Dict.set(dummyDict, item, ""))
     let options = dummyDict->Js.Dict.keys->Array.filter(item => item != "")->SelectBox.makeOptions
 
     let selectedValue = Js.Dict.get(lclFiltrState, val)->Belt.Option.getWithDefault([])

@@ -69,7 +69,7 @@ let getFilterDict = (~url, ~prefix, ~excludeKeys=[], ~includeKeys=[], ()) => {
     ->Array.map(str => {
       let arr = str->Js.String2.split("=")
       let key = arr->Belt.Array.get(0)->Belt.Option.getWithDefault("-")
-      let val = arr->Belt.Array.sliceToEnd(1)->Js.Array2.joinWith("=")
+      let val = arr->Belt.Array.sliceToEnd(1)->Array.joinWith("=")
       (key, val->UrlFetchUtils.getFilterValue) // it will return the Json string, Json array
     })
     ->Belt.Array.keepMap(entry => {
@@ -84,13 +84,10 @@ let getFilterDict = (~url, ~prefix, ~excludeKeys=[], ~includeKeys=[], ()) => {
       | JSONArray(array) => `[${array->Js.Array2.toString}]`
       }
       if (
-        (prefix === "" && !(excludeKeys->Js.Array2.includes(key))) ||
-          includeKeys->Js.Array2.includes(key)
+        (prefix === "" && !(excludeKeys->Array.includes(key))) || includeKeys->Array.includes(key)
       ) {
         (key, val)->Some
-      } else if (
-        key->Js.String2.indexOf(`${prefix}.`) === 0 && !(excludeKeys->Js.Array2.includes(key))
-      ) {
+      } else if key->Js.String2.indexOf(`${prefix}.`) === 0 && !(excludeKeys->Array.includes(key)) {
         let transformedKey = key->Js.String2.replace(`${prefix}.`, "")
         (transformedKey, val)->Some
       } else {
@@ -244,9 +241,7 @@ module Actions = {
       })
     <div className="flex gap-5 items-center justify-center">
       <Clipboard.Copy
-        data={`${urlOrigin}/${url.path
-          ->Belt.List.toArray
-          ->Js.Array2.joinWith("/")}?${saveView.url}`}
+        data={`${urlOrigin}/${url.path->Belt.List.toArray->Array.joinWith("/")}?${saveView.url}`}
         iconSize=14
       />
       <Icon

@@ -34,7 +34,7 @@ module AdvanceSearch = {
             None
           }
         })
-        ->Js.Array2.joinWith("&")
+        ->Array.joinWith("&")
       | _ => ""
       }
       let finalUrl = otherQueries->Js.String2.length > 0 ? `${url}?${otherQueries}` : url
@@ -89,19 +89,19 @@ module AdvanceSearch = {
       | None => Js.Dict.empty()
       }
       let errors = Js.Dict.empty()
-      requiredSearchFieldsList->Js.Array2.forEach(key => {
+      requiredSearchFieldsList->Array.forEach(key => {
         if Js.Dict.get(valuesDict, key)->Js.Option.isNone {
           Js.Dict.set(errors, key, "Required"->Js.Json.string)
         }
       })
-      let isSubmitEnabled = optionalSearchFieldsList->Js.Array2.some(key => {
+      let isSubmitEnabled = optionalSearchFieldsList->Array.some(key => {
         Js.Dict.get(valuesDict, key)->Js.Option.isSome
       })
 
       if !isSubmitEnabled {
         Js.Dict.set(
           errors,
-          optionalSearchFieldsList->Js.Array2.joinWith(","),
+          optionalSearchFieldsList->Array.joinWith(","),
           "Atleast One of Optional fields is Required"->Js.Json.string,
         )
       }

@@ -5,7 +5,7 @@ let getStrArray = jsonArr => {
   jsonArr->Js.Array2.reduce((acc, jsonElement) => {
     switch jsonElement->Js.Json.decodeString {
     | Some(str) => {
-        let _ = Js.Array2.push(acc, str)
+        let _ = Array.push(acc, str)
       }
 
     | None => ()
@@ -45,7 +45,7 @@ let make = (
     months[valueInt]->Belt.Option.getWithDefault(Jan)
   }
   let getMonthInFloat = mon => {
-    Js.Array2.indexOf(months, mon)->Belt.Float.fromInt
+    Array.indexOf(months, mon)->Belt.Float.fromInt
   }
   let getMonthInStr = mon => {
     switch mon {

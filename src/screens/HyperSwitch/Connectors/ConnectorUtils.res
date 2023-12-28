@@ -112,7 +112,7 @@ let dummyConnectorList = isTestProcessorsEnabled =>
   isTestProcessorsEnabled ? [STRIPE_TEST, PAYPAL_TEST, FAUXPAY, PRETENDPAY] : []
 
 let checkIsDummyConnector = (connectorName, isTestProcessorsEnabled) =>
-  isTestProcessorsEnabled->dummyConnectorList->Js.Array2.includes(connectorName)
+  isTestProcessorsEnabled->dummyConnectorList->Array.includes(connectorName)
 
 let stripeInfo = {
   description: "Versatile processor supporting credit cards, digital wallets, and bank transfers.",
@@ -570,7 +570,7 @@ let ignoreFields = (json, id, fields) => {
     ->Js.Dict.entries
     ->Array.filter(entry => {
       let (key, _val) = entry
-      !(fields->Js.Array2.includes(key))
+      !(fields->Array.includes(key))
     })
     ->Js.Dict.fromArray
     ->Js.Json.object_
@@ -607,16 +607,16 @@ let getSelectedPaymentObj = (paymentMethodsEnabled: array<paymentMethodEnabled>,
 }
 
 let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
-  let pmt = paymentMethodsEnabled->Js.Array2.copy
+  let pmt = paymentMethodsEnabled->Array.copy
   switch paymentMethod->getPaymentMethodFromString {
   | Card =>
-    pmt->Js.Array2.forEach((val: paymentMethodEnabled) => {
+    pmt->Array.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->toLCase === paymentMethod->toLCase {
         val.card_provider->Belt.Option.getWithDefault([])->Array.push(method)
       }
     })
   | _ =>
-    pmt->Js.Array2.forEach(val => {
+    pmt->Array.forEach(val => {
       if val.payment_method_type->toLCase === paymentMethod->toLCase {
         val.provider->Belt.Option.getWithDefault([])->Array.push(method)
       }
@@ -626,13 +626,13 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
 }
 
 let removeMethod = (paymentMethodsEnabled, paymentMethod, method) => {
-  let pmt = paymentMethodsEnabled->Js.Array2.copy
+  let pmt = paymentMethodsEnabled->Array.copy
   switch paymentMethod->getPaymentMethodFromString {
   | Card =>
-    pmt->Js.Array2.forEach((val: paymentMethodEnabled) => {
+    pmt->Array.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->toLCase === paymentMethod->toLCase {
         let indexOfRemovalItem =
-          val.card_provider->Belt.Option.getWithDefault([])->Js.Array2.indexOf(method)
+          val.card_provider->Belt.Option.getWithDefault([])->Array.indexOf(method)
 
         val.card_provider
         ->Belt.Option.getWithDefault([])
@@ -641,10 +641,9 @@ let removeMethod = (paymentMethodsEnabled, paymentMethod, method) => {
     })
 
   | _ =>
-    pmt->Js.Array2.forEach(val => {
+    pmt->Array.forEach(val => {
       if val.payment_method_type->toLCase === paymentMethod->toLCase {
-        let indexOfRemovalItem =
-          val.provider->Belt.Option.getWithDefault([])->Js.Array2.indexOf(method)
+        let indexOfRemovalItem = val.provider->Belt.Option.getWithDefault([])->Array.indexOf(method)
 
         val.provider
         ->Belt.Option.getWithDefault([])
@@ -713,7 +712,7 @@ let getMixpanelForConnectorOnSubmit = (
   let currentStepName = currentStep->getStepName->LogicUtils.stringReplaceAll(" ", "")
   if selectedConnectorNameString !== "Unknown Connector" {
     //* Generic Name 'global' given for mixpanel events for calculating total
-    [connectorName, "global"]->Js.Array2.forEach(ele =>
+    [connectorName, "global"]->Array.forEach(ele =>
       hyperswitchMixPanel(
         ~pageName=url.path->LogicUtils.getListHead,
         ~contextName=ele,
@@ -791,7 +790,7 @@ let validateConnectorRequiredFields = (
   } else {
     connectorAccountFields
     ->Js.Dict.keys
-    ->Js.Array2.forEach(value => {
+    ->Array.forEach(value => {
       let key = `connector_account_details.${value}`
       let errorKey = connectorAccountFields->getString(value, "")
       let value = valuesFlattenJson->getString(`connector_account_details.${value}`, "")
@@ -802,7 +801,7 @@ let validateConnectorRequiredFields = (
   }
   connectorMetaDataFields
   ->Js.Dict.keys
-  ->Js.Array2.forEach(fieldName => {
+  ->Array.forEach(fieldName => {
     let walletType = fieldName->getPaymentMethodTypeFromString
     if walletType !== GooglePay && walletType !== ApplePay {
       let key = `metadata.${fieldName}`
@@ -816,7 +815,7 @@ let validateConnectorRequiredFields = (
 
   connectorWebHookDetails
   ->Js.Dict.keys
-  ->Js.Array2.forEach(fieldName => {
+  ->Array.forEach(fieldName => {
     let key = `connector_webhook_details.${fieldName}`
     let errorKey = connectorWebHookDetails->LogicUtils.getString(fieldName, "")
     let value =
@@ -827,7 +826,7 @@ let validateConnectorRequiredFields = (
   })
   connectorLabelDetailField
   ->Js.Dict.keys
-  ->Js.Array2.forEach(fieldName => {
+  ->Array.forEach(fieldName => {
     let errorKey = connectorLabelDetailField->LogicUtils.getString(fieldName, "")
     let value = valuesFlattenJson->LogicUtils.getString(fieldName, "")
     if value->Js.String2.length === 0 {
@@ -887,7 +886,7 @@ let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {
   let newDict = getDictFromJsonObject(errors)
   dict
   ->Js.Dict.keys
-  ->Js.Array2.forEach(_value => {
+  ->Array.forEach(_value => {
     let lastItem = fieldName->Js.String2.split(".")->Js.Array2.pop->Belt.Option.getWithDefault("")
     let errorKey = dict->getString(lastItem, "")
     let value = valuesFlattenJson->getString(`${fieldName}`, "")
@@ -1034,7 +1033,7 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: Js.Json.
   values
   ->getDictFromJsonObject
   ->Js.Dict.entries
-  ->Js.Array2.concat(dict->Js.Dict.entries)
+  ->Array.concat(dict->Js.Dict.entries)
   ->Js.Dict.fromArray
   ->Js.Json.object_
 }
@@ -1075,7 +1074,7 @@ let defaultSelectAllCards = (
           ? Window.getPayoutConnectorConfig(connector)
           : Window.getConnectorConfig(connector)
       )->getDictFromJsonObject
-    pmts->Js.Array2.forEach(val => {
+    pmts->Array.forEach(val => {
       switch val.payment_method->getPaymentMethodFromString {
       | Card => {
           let arr = config->getStrArrayFromDict(val.payment_method_type, [])
@@ -1144,7 +1143,7 @@ let mixpanelEventWrapper = (
   ~hyperswitchMixPanel: HSMixPanel.functionType,
 ) => {
   if selectedConnector->Js.String2.length > 0 {
-    [selectedConnector, "global"]->Js.Array2.forEach(ele =>
+    [selectedConnector, "global"]->Array.forEach(ele =>
       hyperswitchMixPanel(
         ~pageName=url.path->LogicUtils.getListHead,
         ~contextName=ele,

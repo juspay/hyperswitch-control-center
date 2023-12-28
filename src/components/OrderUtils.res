@@ -145,7 +145,7 @@ module Details = {
               className={`${flexClass} ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
               {detailsFields
               ->Array.mapWithIndex((colType, i) => {
-                if !(excludeColKeys->Js.Array2.includes(colType)) {
+                if !(excludeColKeys->Array.includes(colType)) {
                   <div className=widthClass key={Belt.Int.toString(i)}>
                     <DisplayKeyValueParams
                       heading={getHeading(colType)}

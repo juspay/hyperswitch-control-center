@@ -164,7 +164,7 @@ let make = (
   | {customFilterKey} => customFilterKey
   | _ => ""
   }
-  let allFilterKeys = Js.Array2.concat(
+  let allFilterKeys = Array.concat(
     [startTimeFilterKey, endTimeFilterKey, mode->Belt.Option.getWithDefault("")],
     filterKeys,
   )
@@ -184,7 +184,7 @@ let make = (
       ->Js.Dict.entries
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
-        if allFilterKeys->Js.Array2.includes(key) {
+        if allFilterKeys->Array.includes(key) {
           switch value->Js.Json.classify {
           | JSONString(str) => `${key}=${str}`->Some
           | JSONNumber(num) => `${key}=${num->Js.String.make}`->Some
@@ -195,7 +195,7 @@ let make = (
           None
         }
       })
-      ->Js.Array2.joinWith("&")
+      ->Array.joinWith("&")
 
     (filterSearchParam, getTopLevelFilter->LogicUtils.getString(customFilterKey, ""))
   }, [getTopLevelFilter])
@@ -205,7 +205,7 @@ let make = (
     ->Js.Dict.entries
     ->Belt.Array.keepMap(entries => {
       let (key, value) = entries
-      filterKeys->Js.Array2.includes(key) ? Some((key, value)) : None
+      filterKeys->Array.includes(key) ? Some((key, value)) : None
     })
     ->Js.Dict.fromArray
     ->Js.Json.object_

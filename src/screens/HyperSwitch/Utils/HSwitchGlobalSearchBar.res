@@ -96,7 +96,7 @@ let make = () => {
             (),
           )
 
-          acc->Js.Array2.concat(matchedSearchValues)
+          acc->Array.concat(matchedSearchValues)
         }
 
       | Section(sectionObj) => {
@@ -130,12 +130,12 @@ let make = () => {
                     ~sectionName=sectionObj.name,
                     (),
                   )
-                  insideAcc->Js.Array2.concat(matchedSearchValues)
+                  insideAcc->Array.concat(matchedSearchValues)
                 }
               }
             },
           )
-          acc->Js.Array2.concat(sectionSearchedValues)
+          acc->Array.concat(sectionSearchedValues)
         }
 
       | LinkWithTag(obj) => {
@@ -156,10 +156,10 @@ let make = () => {
             ~sectionName="",
             (),
           )
-          acc->Js.Array2.concat(matchedSearchValues)
+          acc->Array.concat(matchedSearchValues)
         }
 
-      | Heading(_) | CustomComponent(_) => acc->Js.Array2.concat([])
+      | Heading(_) | CustomComponent(_) => acc->Array.concat([])
       }
     })
     setArr(_ => matchedList)

@@ -55,7 +55,7 @@ let makeFilters = (~filters: Js.Json.t, ~cardinalityArr) => {
         ("val", value),
       ])
     })
-  let expressionArr = Js.Array2.concat(cardinalityArr, expressionArr)
+  let expressionArr = Array.concat(cardinalityArr, expressionArr)
   if expressionArr->Array.length === 1 {
     expressionArr->Belt.Array.get(0)
   } else if expressionArr->Array.length > 1 {
@@ -67,9 +67,8 @@ let makeFilters = (~filters: Js.Json.t, ~cardinalityArr) => {
     let complexFilterDict = Js.Dict.fromArray([
       ("and", Js.Dict.fromArray([("left", leftInitial), ("right", rightInitial)])->Js.Json.object_),
     ])
-    expressionArr->Js.Array2.forEach(item => {
-      let complextFilterDictCopy =
-        complexFilterDict->Js.Dict.entries->Js.Array2.copy->Js.Dict.fromArray
+    expressionArr->Array.forEach(item => {
+      let complextFilterDictCopy = complexFilterDict->Js.Dict.entries->Array.copy->Js.Dict.fromArray
       complexFilterDict->Js.Dict.set(
         "and",
         Js.Dict.fromArray([
@@ -99,7 +98,7 @@ let getFilterBody = (
       let strAr = ["or", "and"]
 
       let andAndOr = Js.String2.split(customFilterValue, " ")->Array.filter(item => {
-        strAr->Js.Array2.includes(item->Js.String.toLocaleLowerCase)
+        strAr->Array.includes(item->Js.String.toLocaleLowerCase)
       })
 
       let filterValueArr =
@@ -332,12 +331,12 @@ let getFilterBody = (
             ])->Js.Json.object_,
           ),
         ])
-        let filterValueArr = Js.Array2.sliceFrom(filterValueArr->Js.Array2.copy, 2)
-        let andAndOr = Js.Array2.sliceFrom(andAndOr->Js.Array2.copy, 1)
+        let filterValueArr = Js.Array2.sliceFrom(filterValueArr->Array.copy, 2)
+        let andAndOr = Js.Array2.sliceFrom(andAndOr->Array.copy, 1)
 
         filterValueArr->Js.Array2.forEachi((item, index) => {
           let complextFilterDictCopy =
-            complexFilterDict->Js.Dict.entries->Js.Array2.copy->Js.Dict.fromArray
+            complexFilterDict->Js.Dict.entries->Array.copy->Js.Dict.fromArray
           complexFilterDict->Js.Dict.set(
             andAndOr->Belt.Array.get(index)->Belt.Option.getWithDefault("and"),
             Js.Dict.fromArray([
@@ -486,7 +485,7 @@ let apiBodyMaker = (
 
       finalBody->Js.Dict.set(
         "dimensions",
-        Js.Array2.concat(activeTabArr, [granularityDimension->Js.Json.object_])->Js.Json.array,
+        Array.concat(activeTabArr, [granularityDimension->Js.Json.object_])->Js.Json.array,
       )
     }
 

@@ -51,12 +51,12 @@ let make = (
   }, (fileNames, fileTypes))
 
   let clearData = indx => {
-    setFilenames(prev => prev->Js.Array2.filteri((_, i) => indx !== i))
-    setFileTypes(prev => prev->Js.Array2.filteri((_, i) => indx !== i))
+    setFilenames(prev => prev->Array.filterWithIndex((_, i) => indx !== i))
+    setFileTypes(prev => prev->Array.filterWithIndex((_, i) => indx !== i))
     input.onChange(
       input.value
       ->getArrayFromJson([])
-      ->Js.Array2.filteri((_, i) => indx != i)
+      ->Array.filterWithIndex((_, i) => indx != i)
       ->Js.Json.array
       ->Identity.anyTypeToReactEvent,
     )
@@ -70,15 +70,15 @@ let make = (
   let fileEmptyCheckUpload = (~value, ~files, ~filename, ~mimeType) => {
     if value !== "" {
       setFilenames(prev => {
-        let fileArr = prev->Js.Array2.copy->Js.Array2.concat(filename)
+        let fileArr = prev->Array.copy->Array.concat(filename)
         fileArr
       })
       setFileTypes(prev => {
-        let mimeArr = prev->Js.Array2.copy->Js.Array2.concat(mimeType)
+        let mimeArr = prev->Array.copy->Array.concat(mimeType)
         mimeArr
       })
 
-      files->Js.Array2.push(value->Js.Json.string)->ignore
+      files->Array.push(value->Js.Json.string)->ignore
       if showUploadtoast {
         toast("File Uploaded Successfully", ToastSuccess)
       }
@@ -107,7 +107,7 @@ let make = (
             )
             let fileTypeArr = fileType->Js.String2.split(",")
             let isCorrectFileFormat =
-              fileTypeArr->Js.Array2.includes(fileFormat) || fileTypeArr->Js.Array2.includes("*")
+              fileTypeArr->Array.includes(fileFormat) || fileTypeArr->Array.includes("*")
             let fileReader = FileReader.reader
             let _file = if filename->Js.String2.includes("p12") {
               fileReader.readAsBinaryString(. value)
@@ -145,15 +145,15 @@ let make = (
                       let rows = Js.String2.split(file, "\n")->Array.length
                       if value !== "" && rows - 1 < val {
                         setFilenames(prev => {
-                          let fileArr = prev->Js.Array2.copy->Js.Array2.concat(filename)
+                          let fileArr = prev->Array.copy->Array.concat(filename)
                           fileArr
                         })
                         setFileTypes(prev => {
-                          let mimeArr = prev->Js.Array2.copy->Js.Array2.concat(mimeType)
+                          let mimeArr = prev->Array.copy->Array.concat(mimeType)
                           mimeArr
                         })
 
-                        files->Js.Array2.push(value->Js.Json.string)->ignore
+                        files->Array.push(value->Js.Json.string)->ignore
 
                         if showUploadtoast {
                           toast("File Uploaded Successfully", ToastSuccess)
@@ -220,11 +220,11 @@ let make = (
             let file = files["0"]
             let filename = file["name"]
             let mimeType = file["type"]
-            setFilenames(prev => prev->Js.Array2.concat(filename))
-            setFileTypes(prev => prev->Js.Array2.concat(mimeType))
+            setFilenames(prev => prev->Array.concat(filename))
+            setFileTypes(prev => prev->Array.concat(mimeType))
             input.onChange(
               Identity.anyTypeToReactEvent(
-                input.value->getArrayFromJson([])->Js.Array2.concat([file->Js.Json.string]),
+                input.value->getArrayFromJson([])->Array.concat([file->Js.Json.string]),
               ),
             )
           }

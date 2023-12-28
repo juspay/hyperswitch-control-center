@@ -52,7 +52,7 @@ module TabInfo = {
 
     let roundedClass = "rounded-t-md"
 
-    let defaultClasses = if isDisabled && disabledTab->Js.Array2.includes(title) {
+    let defaultClasses = if isDisabled && disabledTab->Array.includes(title) {
       `cursor-not-allowed ${fontClass} w-max flex flex-auto flex-row items-center justify-center ${roundedClass} ${tabTextPadding} ${backgroundStyle} ${tabDisabledStyle} ${defaultBorderClass} font-semibold dark:text-jp-gray-text_darktheme dark:text-opacity-50 text-opacity-50 hover:text-opacity-50 dark:hover:text-opacity-50`
     } else {
       `${fontClass} w-max flex flex-auto flex-row items-center justify-center ${tabTextPadding} ${roundedClass} ${defaultBorderClass}  font-semibold text-body`
@@ -64,7 +64,7 @@ module TabInfo = {
       `text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-75 text-opacity-50 hover:text-opacity-75 dark:hover:text-opacity-100  ${borderDefaultStyle}`
     }
     let handleClick = React.useCallback2(_ev => {
-      if isDisabled && disabledTab->Js.Array2.includes(title) {
+      if isDisabled && disabledTab->Array.includes(title) {
         ()
       } else {
         handleSelectedIndex(index)

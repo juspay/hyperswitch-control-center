@@ -4,7 +4,7 @@ let rec flattenObject = (obj, addIndicatorForObject) => {
   | Some(obj) =>
     obj
     ->Js.Dict.entries
-    ->Js.Array2.forEach(entry => {
+    ->Array.forEach(entry => {
       let (key, value) = entry
 
       if value->Identity.jsonToNullableJson->Js.Nullable.isNullable {
@@ -20,7 +20,7 @@ let rec flattenObject = (obj, addIndicatorForObject) => {
 
             flattenedSubObj
             ->Js.Dict.entries
-            ->Js.Array2.forEach(subEntry => {
+            ->Array.forEach(subEntry => {
               let (subKey, subValue) = subEntry
               Js.Dict.set(newDict, `${key}.${subKey}`, subValue)
             })
@@ -66,7 +66,7 @@ let unflattenObject = obj => {
   | Some(dict) =>
     dict
     ->Js.Dict.entries
-    ->Js.Array2.forEach(entry => {
+    ->Array.forEach(entry => {
       let (key, value) = entry
       setNested(newDict, key->Js.String2.split("."), value)
     })

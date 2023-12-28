@@ -208,12 +208,12 @@ module ConnectorSummaryGrid = {
                 field.payment_method_types
                 ->Array.map(item => item.payment_method_type->LogicUtils.snakeToTitle)
                 ->Array.reduce([], (acc, curr) => {
-                  if !(acc->Js.Array2.includes(curr)) {
+                  if !(acc->Array.includes(curr)) {
                     acc->Array.push(curr)
                   }
                   acc
                 })
-                ->Js.Array2.joinWith(", "),
+                ->Array.joinWith(", "),
               )}
             />
           })

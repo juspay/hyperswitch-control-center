@@ -25,7 +25,7 @@ let make = (
   let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
 
   let updateDetails = value => {
-    setPaymentMethods(_ => value->Js.Array2.copy)
+    setPaymentMethods(_ => value->Array.copy)
   }
 
   React.useEffect1(() => {

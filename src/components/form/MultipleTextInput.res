@@ -79,35 +79,35 @@ let make = (
         if seperateByComma {
           let arr = text->Js.String2.split(",")
           let newArr = []
-          arr->Js.Array2.forEach(ele => {
+          arr->Array.forEach(ele => {
             if (
-              !(newArr->Js.Array2.includes(ele->Js.String2.trim)) &&
-              !(currentTags->Js.Array2.includes(ele->Js.String2.trim))
+              !(newArr->Array.includes(ele->Js.String2.trim)) &&
+              !(currentTags->Array.includes(ele->Js.String2.trim))
             ) {
               if ele->Js.String2.trim != "" {
-                newArr->Js.Array2.push(ele->Js.String2.trim)->ignore
+                newArr->Array.push(ele->Js.String2.trim)->ignore
               }
             }
           })
 
-          setTags(currentTags->Js.Array2.concat(newArr))
+          setTags(currentTags->Array.concat(newArr))
         } else if seperateBySpace {
           let arr = text->Js.String2.split(" ")
           let newArr = []
-          arr->Js.Array2.forEach(ele => {
+          arr->Array.forEach(ele => {
             if (
-              !(newArr->Js.Array2.includes(ele->Js.String2.trim)) &&
-              !(currentTags->Js.Array2.includes(ele->Js.String2.trim))
+              !(newArr->Array.includes(ele->Js.String2.trim)) &&
+              !(currentTags->Array.includes(ele->Js.String2.trim))
             ) {
               if ele->Js.String2.trim != "" {
-                newArr->Js.Array2.push(ele->Js.String2.trim)->ignore
+                newArr->Array.push(ele->Js.String2.trim)->ignore
               }
             }
           })
 
-          setTags(currentTags->Js.Array2.concat(newArr))
-        } else if !(currentTags->Js.Array2.includes(text->Js.String2.trim)) {
-          setTags(currentTags->Js.Array2.concat([text->Js.String2.trim]))
+          setTags(currentTags->Array.concat(newArr))
+        } else if !(currentTags->Array.includes(text->Js.String2.trim)) {
+          setTags(currentTags->Array.concat([text->Js.String2.trim]))
         }
         setText(_ => "")
       }

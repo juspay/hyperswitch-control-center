@@ -147,7 +147,7 @@ module ClearFilters = {
           ->Js.Dict.entries
           ->Belt.Array.keepMap(entry => {
             let (key, value) = entry
-            switch defaultFilterKeys->Js.Array2.includes(key) {
+            switch defaultFilterKeys->Array.includes(key) {
             | true =>
               switch value->Js.Json.classify {
               | JSONString(str) => `${key}=${str}`->Some
@@ -158,9 +158,9 @@ module ClearFilters = {
             | false => None
             }
           })
-          ->Js.Array2.joinWith("&")
+          ->Array.joinWith("&")
 
-        let path = url.path->Belt.List.toArray->Js.Array2.joinWith("/")
+        let path = url.path->Belt.List.toArray->Array.joinWith("/")
         RescriptReactRouter.replace(`/${path}?${searchStr}`)
       }
     }
@@ -179,7 +179,7 @@ module ClearFilters = {
         | _ => false
         }
 
-        !(defaultFilterKeys->Js.Array2.includes(key)) && !isEmptyValue
+        !(defaultFilterKeys->Array.includes(key)) && !isEmptyValue
       })
       ->Array.length > 0
     }, (formState.initialValues, defaultFilterKeys))
@@ -218,7 +218,7 @@ module AnalyticsClearFilters = {
           ->Js.Dict.entries
           ->Belt.Array.keepMap(entry => {
             let (key, value) = entry
-            switch defaultFilterKeys->Js.Array2.includes(key) {
+            switch defaultFilterKeys->Array.includes(key) {
             | true =>
               switch value->Js.Json.classify {
               | JSONString(str) => `${key}=${str}`->Some
@@ -229,9 +229,9 @@ module AnalyticsClearFilters = {
             | false => None
             }
           })
-          ->Js.Array2.joinWith("&")
+          ->Array.joinWith("&")
 
-        let path = url.path->Belt.List.toArray->Js.Array2.joinWith("/")
+        let path = url.path->Belt.List.toArray->Array.joinWith("/")
         RescriptReactRouter.replace(`/${path}?${searchStr}`)
       }
     }
@@ -250,7 +250,7 @@ module AnalyticsClearFilters = {
         | _ => false
         }
 
-        !(defaultFilterKeys->Js.Array2.includes(key)) && !isEmptyValue
+        !(defaultFilterKeys->Array.includes(key)) && !isEmptyValue
       })
       ->Array.length > 0
     }, (formState.initialValues, defaultFilterKeys))
@@ -287,9 +287,7 @@ module CheckCustomFilters = {
 
     let onChangeSelect = ev => {
       let fieldNameArr = ev->Identity.formReactEventToArrayOfString
-      let newlyAdded = Array.filter(fieldNameArr, newVal =>
-        !Js.Array2.includes(checkedFilters, newVal)
-      )
+      let newlyAdded = Array.filter(fieldNameArr, newVal => !Array.includes(checkedFilters, newVal))
 
       if Array.length(newlyAdded) > 0 {
         addFilters(newlyAdded)
@@ -342,7 +340,7 @@ module AutoSubmitter = {
 
     React.useEffect1(() => {
       if formState.dirty {
-        let defaultFieldsHaveChanged = defaultFilterKeys->Js.Array2.some(key => {
+        let defaultFieldsHaveChanged = defaultFilterKeys->Array.some(key => {
           formState.dirtyFields->Js.Dict.get(key)->Belt.Option.getWithDefault(false)
         })
 
@@ -362,7 +360,7 @@ module AutoSubmitter = {
 let getStrFromJson = (key, val) => {
   switch val->Js.Json.classify {
   | JSONString(str) => str
-  | JSONArray(array) => array->Array.length > 0 ? `[${array->Js.Array2.joinWith(",")}]` : ""
+  | JSONArray(array) => array->Array.length > 0 ? `[${array->Array.joinWith(",")}]` : ""
   | JSONNumber(num) => key === "offset" ? "0" : num->Belt.Float.toInt->string_of_int
   | _ => ""
   }
@@ -478,10 +476,10 @@ module FilterModal = {
         selectedNo !== "0"
       })
       let selectedFiltersListWithoutVal = selectedFiltersList->Array.filter(item => {
-        !(selectedFiltersListWithVal->Js.Array2.includes(item))
+        !(selectedFiltersListWithVal->Array.includes(item))
       })
 
-      selectedFiltersListWithVal->Js.Array2.concat(selectedFiltersListWithoutVal)
+      selectedFiltersListWithVal->Array.concat(selectedFiltersListWithoutVal)
     }, selectedFiltersList)
 
     <div className="flex flex-col gap-4.5">
@@ -674,7 +672,7 @@ let make = (
 
         dict
         ->Js.Dict.entries
-        ->Js.Array2.forEach(entry => {
+        ->Array.forEach(entry => {
           let (key, _value) = entry
           let keyIdx = checkedFilters->Js.Array2.findIndex(item => item === key)
           if keyIdx === -1 {
@@ -690,7 +688,7 @@ let make = (
               let optionObj =
                 remoteOptions[optionObjIdx]->Belt.Option.getWithDefault(defaultEntityOptionType)
               let optionObjUrlKey = optionObj.urlKey
-              if !(popupUrlKeyArr->Js.Array2.includes(optionObjUrlKey)) {
+              if !(popupUrlKeyArr->Array.includes(optionObjUrlKey)) {
                 Js.Array.push(optionObj.field, localSelectedFiltersList)->ignore
                 Js.Array.push(key, localCheckedFilters)->ignore
               }
@@ -758,14 +756,14 @@ let make = (
     let localSelectedFiltersList = Array.map(selectedFiltersList, filter => {
       filter
     })
-    newlyAdded->Js.Array2.forEach(value => {
+    newlyAdded->Array.forEach(value => {
       let optionObjArry = remoteOptions->Array.filter(option => option.urlKey === value)
       let defaultEntityOptionType: EntityType.optionType<
         't,
       > = EntityType.getDefaultEntityOptionType()
       let optionObj = optionObjArry[0]->Belt.Option.getWithDefault(defaultEntityOptionType)
-      let _ = Js.Array2.push(localSelectedFiltersList, optionObj.field)
-      let _a = Js.Array2.push(localCheckedFilters, value)
+      let _ = Array.push(localSelectedFiltersList, optionObj.field)
+      let _a = Array.push(localCheckedFilters, value)
     })
     setCheckedFilters(_prev => localCheckedFilters)
     setSelectedFiltersList(_prev => localSelectedFiltersList)
@@ -778,10 +776,10 @@ let make = (
     | Some(dict) =>
       dict
       ->Js.Dict.entries
-      ->Js.Array2.forEach(entry => {
+      ->Array.forEach(entry => {
         let (key, _val) = entry
 
-        if toBeRemoved->Js.Array2.includes(key) {
+        if toBeRemoved->Array.includes(key) {
           dict->Js.Dict.set(key, Js.Json.string(""))
         }
       })
@@ -791,11 +789,11 @@ let make = (
     let finalFieldList = selectedFiltersList->Array.filter(val => {
       val.inputNames
       ->Belt.Array.get(0)
-      ->Belt.Option.map(name => !Js.Array2.includes(toBeRemoved, name))
+      ->Belt.Option.map(name => !Array.includes(toBeRemoved, name))
       ->Belt.Option.getWithDefault(false)
     })
     let filtersAfterRemoving =
-      checkedFilters->Array.filter(val => !Js.Array2.includes(toBeRemoved, val))
+      checkedFilters->Array.filter(val => !Array.includes(toBeRemoved, val))
 
     let newValueJson =
       initialValueJson
@@ -804,7 +802,7 @@ let make = (
       ->Belt.Option.getWithDefault([])
       ->Array.filter(entry => {
         let (key, _value) = entry
-        !Js.Array2.includes(toBeRemoved, key)
+        !Array.includes(toBeRemoved, key)
       })
       ->Js.Dict.fromArray
       ->Js.Json.object_
@@ -818,7 +816,7 @@ let make = (
     let valuesDict = values->JsonFlattenUtils.flattenObject(false)
     let errors = Js.Dict.empty()
 
-    requiredSearchFieldsList->Js.Array2.forEach(key => {
+    requiredSearchFieldsList->Array.forEach(key => {
       if Js.Dict.get(valuesDict, key)->Js.Option.isNone {
         let key = if key == "filters.dateCreated.lte" || key == "filters.dateCreated.gte" {
           "Date Range"

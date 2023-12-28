@@ -9,7 +9,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
   let total = Js.Math.ceil(Belt.Int.toFloat(totalResults) /. Belt.Int.toFloat(resultsPerPage))
 
   for x in 1 to total {
-    Js.Array2.push(pageNumbers, x)->ignore
+    Array.push(pageNumbers, x)->ignore
   }
 
   let pageToLeft =
@@ -19,27 +19,27 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
 
   let arr = []
   for x in 1 to totalResults {
-    arr->Js.Array2.push(x)->ignore
+    arr->Array.push(x)->ignore
   }
   let rangeNum =
     arr
     ->Array.map(ele => {
-      mod(ele, 10) === 0 ? Js.Array2.indexOf(arr, ele + 1) : 0
+      mod(ele, 10) === 0 ? Array.indexOf(arr, ele + 1) : 0
     })
     ->Array.filter(i => i !== 0)
 
   let ranges = []
 
-  rangeNum->Js.Array2.forEach(ele => {
-    ranges->Js.Array2.push((ele - 9)->Belt.Int.toString ++ "-" ++ ele->Belt.Int.toString)->ignore
+  rangeNum->Array.forEach(ele => {
+    ranges->Array.push((ele - 9)->Belt.Int.toString ++ "-" ++ ele->Belt.Int.toString)->ignore
   })
   let lastNum = rangeNum->Belt.Array.get(Array.length(rangeNum) - 1)->Belt.Option.getWithDefault(0)
   if totalResults > lastNum {
     let start = lastNum + (totalResults - lastNum)
     start === totalResults
-      ? ranges->Js.Array2.push(start->Belt.Int.toString)->ignore
+      ? ranges->Array.push(start->Belt.Int.toString)->ignore
       : ranges
-        ->Js.Array2.push(start->Belt.Int.toString ++ "-" ++ totalResults->Belt.Int.toString)
+        ->Array.push(start->Belt.Int.toString ++ "-" ++ totalResults->Belt.Int.toString)
         ->ignore
   }
 

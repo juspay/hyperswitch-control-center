@@ -477,7 +477,7 @@ module BaseSelect = {
     , [values])
 
     let initialSelectedOptions = React.useMemo0(() => {
-      options->Array.filter(item => saneValue->Js.Array2.includes(item.value))
+      options->Array.filter(item => saneValue->Array.includes(item.value))
     })
 
     let options = options->Js.Array2.sortInPlaceWith((item1, item2) => {
@@ -515,7 +515,7 @@ module BaseSelect = {
 
     let onItemClick = (itemDataValue, isDisabled, e) => {
       if !isDisabled {
-        let data = if Js.Array2.includes(saneValue, itemDataValue) {
+        let data = if Array.includes(saneValue, itemDataValue) {
           let values =
             deselectDisable->Belt.Option.getWithDefault(false)
               ? saneValue
@@ -523,7 +523,7 @@ module BaseSelect = {
           onItemSelect(e, itemDataValue)->ignore
           values
         } else {
-          Js.Array2.concat(saneValue, [itemDataValue])
+          Array.concat(saneValue, [itemDataValue])
         }
         onSelect(data)
         switch onBlur {
@@ -542,9 +542,9 @@ module BaseSelect = {
       let newValues = if select {
         let newVal =
           filteredOptions
-          ->Array.filter(x => !x.isDisabled && !(saneValue->Js.Array2.includes(x.value)))
+          ->Array.filter(x => !x.isDisabled && !(saneValue->Array.includes(x.value)))
           ->Array.map(x => x.value)
-        Js.Array2.concat(saneValue, newVal)
+        Array.concat(saneValue, newVal)
       } else {
         []
       }
@@ -578,7 +578,7 @@ module BaseSelect = {
       `${minWidth} ${dropdownCustomWidth}`
     }
     let textIconPresent =
-      options->Js.Array2.some(op => op.icon->Belt.Option.getWithDefault(NoIcon) !== NoIcon)
+      options->Array.some(op => op.icon->Belt.Option.getWithDefault(NoIcon) !== NoIcon)
 
     let _ = if sortingBasedOnDisabled {
       options->Js.Array2.sortInPlaceWith((m1, m2) => {
@@ -600,7 +600,7 @@ module BaseSelect = {
     let applyBtnDisabled =
       noOfSelected === preservedAppliedOptions->Array.length &&
         saneValue->Js.Array2.reduce((acc, val) => {
-          preservedAppliedOptions->Js.Array2.includes(val) && acc
+          preservedAppliedOptions->Array.includes(val) && acc
         }, true)
 
     let searchRef = React.useRef(Js.Nullable.null)
@@ -975,7 +975,7 @@ module BaseSelectButton = {
     let width = isHorizontal ? "w-auto" : "w-full md:w-72"
     let inlineClass = isHorizontal ? "inline-flex" : ""
 
-    let textIconPresent = options->Js.Array2.some(op => op.icon !== NoIcon)
+    let textIconPresent = options->Array.some(op => op.icon !== NoIcon)
 
     let onButtonClick = itemdata => {
       switch onAssignClick {
@@ -1262,8 +1262,7 @@ module BaseRadio = {
           onSelect("")
         } else {
           if (
-            addDynamicValue &&
-            !(options->Array.map(item => item.value)->Js.Array2.includes(itemData))
+            addDynamicValue && !(options->Array.map(item => item.value)->Array.includes(itemData))
           ) {
             setSelectedString(_ => itemData)
           } else if selectedString !== "" {
@@ -1299,7 +1298,7 @@ module BaseRadio = {
 
     let inlineClass = isHorizontal ? "inline-flex" : ""
 
-    let textIconPresent = options->Js.Array2.some(op => op.icon !== NoIcon)
+    let textIconPresent = options->Array.some(op => op.icon !== NoIcon)
 
     React.useEffect2(() => {
       searchRef.current->Js.Nullable.toOption->Belt.Option.forEach(input => input->focus)
@@ -1323,7 +1322,7 @@ module BaseRadio = {
 
     let newOptions = React.useMemo3(() => {
       let options = if selectedString !== "" {
-        options->Js.Array2.concat([selectedString]->makeOptions->Array.map(makeNonOptional))
+        options->Array.concat([selectedString]->makeOptions->Array.map(makeNonOptional))
       } else {
         options
       }
@@ -1332,11 +1331,10 @@ module BaseRadio = {
           shouldDisplay(option)
         })
         if (
-          addDynamicValue &&
-          !(options->Array.map(item => item.value)->Js.Array2.includes(searchString))
+          addDynamicValue && !(options->Array.map(item => item.value)->Array.includes(searchString))
         ) {
           if isNonGrouped {
-            options->Js.Array2.concat([searchString]->makeOptions->Array.map(makeNonOptional))
+            options->Array.concat([searchString]->makeOptions->Array.map(makeNonOptional))
           } else {
             options
           }
@@ -1679,7 +1677,7 @@ module BaseDropdown = {
       ->Belt.Array.keepMap(str => {
         transformedOptions->Array.find(x => x.value == str)->map(x => x.label)
       })
-      ->Js.Array2.joinWith(", ")
+      ->Array.joinWith(", ")
       ->LogicUtils.getNonEmptyString
       ->getWithDefault(buttonText)
     }, (transformedOptions, newInputSelect.value))
@@ -1881,7 +1879,7 @@ module BaseDropdown = {
                         ? `Select ${LogicUtils.snakeToTitle(newInputSelect.name)}`
                         : newInputSelect.value
                           ->LogicUtils.getStrArryFromJson
-                          ->Js.Array2.joinWith(",\n")}
+                          ->Array.joinWith(",\n")}
                       toolTipFor=selectButton
                       toolTipPosition=Bottom
                       tooltipWidthClass=""
@@ -1998,14 +1996,14 @@ module InfraSelectBox = {
     let onItemClick = (itemDataValue, isDisabled) => {
       if !isDisabled {
         if allowMultiSelect {
-          let data = if Js.Array2.includes(saneValue, itemDataValue) {
+          let data = if Array.includes(saneValue, itemDataValue) {
             if deselectDisable {
               saneValue
             } else {
               saneValue->Array.filter(x => x !== itemDataValue)
             }
           } else {
-            Js.Array2.concat(saneValue, [itemDataValue])
+            Array.concat(saneValue, [itemDataValue])
           }
           newInputSelect.onChange(data)
         } else {
@@ -2017,7 +2015,7 @@ module InfraSelectBox = {
     <div className={`md:max-h-72 overflow-auto font-medium flex flex-wrap gap-y-4 gap-x-2.5`}>
       {transformedOptions
       ->Array.mapWithIndex((option, i) => {
-        let isSelected = saneValue->Js.Array2.includes(option.value)
+        let isSelected = saneValue->Array.includes(option.value)
         let selectedClass = isSelected ? selectedClass : nonSelectedClass
 
         <div
@@ -2064,14 +2062,14 @@ module ChipFilterSelectBox = {
     let onItemClick = (itemDataValue, isDisabled) => {
       if !isDisabled {
         if allowMultiSelect {
-          let data = if Js.Array2.includes(saneValue, itemDataValue) {
+          let data = if Array.includes(saneValue, itemDataValue) {
             if deselectDisable {
               saneValue
             } else {
               saneValue->Array.filter(x => x !== itemDataValue)
             }
           } else {
-            Js.Array2.concat(saneValue, [itemDataValue])
+            Array.concat(saneValue, [itemDataValue])
           }
           newInputSelect.onChange(data)
         } else {
@@ -2083,7 +2081,7 @@ module ChipFilterSelectBox = {
     <div className={`md:max-h-72 overflow-auto font-medium flex flex-wrap gap-4 `}>
       {transformedOptions
       ->Array.mapWithIndex((option, i) => {
-        let isSelected = saneValue->Js.Array2.includes(option.value)
+        let isSelected = saneValue->Array.includes(option.value)
         let selectedClass = isSelected ? passedClassName : initalClassName
         let chipsCss = customStyleForChips == "" ? selectedClass : customStyleForChips
 

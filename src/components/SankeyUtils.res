@@ -44,7 +44,7 @@ let convertToSankeyFormat = (
       (key, value->AnalyticsUtils.sumOfArr)
     })
     ->Js.Array2.sortInPlaceWith(numericArraySortComperator)
-    ->Js.Array2.filteri((_, index) => index < topN)
+    ->Array.filterWithIndex((_, index) => index < topN)
     ->Belt.Array.forEachWithIndex((_, item) => {
       let (key, _) = item
       topNDicts->appendToDictValue(groupBy, key)
@@ -64,7 +64,7 @@ let convertToSankeyFormat = (
         let levelName = levelName === "" ? "NA" : levelName
 
         let totalVolFromStartToLevel = sankeyDict->getInt(sankeyConfig.total_vol_metrix, 0)
-        topNMetrix->Js.Array2.includes(levelName)
+        topNMetrix->Array.includes(levelName)
           ? currentSelectedTabDict->appendToDictValue(levelName, totalVolFromStartToLevel)
           : currentSelectedTabDict->appendToDictValue("Others", totalVolFromStartToLevel)
       })
@@ -91,7 +91,7 @@ let convertToSankeyFormat = (
       ->Belt.Array.forEach(item => {
         let (key, value) = item
         sankeyArr
-        ->Js.Array2.push((
+        ->Array.push((
           "Start",
           `${key}( +++ )${snakeyActiveTab[index]->Belt.Option.getWithDefault("")}`,
           value,
@@ -101,7 +101,7 @@ let convertToSankeyFormat = (
         ->ignore
 
         nodeArr
-        ->Js.Array2.push({
+        ->Array.push({
           let value: SankeyHighcharts.node = {
             id: `${key}( +++ )${snakeyActiveTab[index]->Belt.Option.getWithDefault("")}`,
             color: "#c59144",
@@ -113,7 +113,7 @@ let convertToSankeyFormat = (
         ->ignore
       })
       nodeArr
-      ->Js.Array2.push({
+      ->Array.push({
         let value: SankeyHighcharts.node = {
           id: "Start",
           color: "#4097f7",
@@ -137,8 +137,7 @@ let convertToSankeyFormat = (
         let levelNamePrev = levelNamePrev === "" ? "NA" : levelNamePrev
 
         let totalVolFromStartToLevel = sankeyDict->getInt(sankeyConfig.total_vol_metrix, 0)
-        let levelNamePrev =
-          topNMetrixPrev->Js.Array2.includes(levelNamePrev) ? levelNamePrev : "Others"
+        let levelNamePrev = topNMetrixPrev->Array.includes(levelNamePrev) ? levelNamePrev : "Others"
         currentSelectedTabDict1St->appendToDictValue(levelNamePrev, totalVolFromStartToLevel)
       })
       let currentSelectedTabDict1St =
@@ -158,10 +157,9 @@ let convertToSankeyFormat = (
         let levelNameCurrent = sankeyDict->getString(dimsCurrent, "")
         let levelNameCurrent = levelNameCurrent === "" ? "NA" : levelNameCurrent
 
-        let levelNamePrev =
-          topNMetrixPrev->Js.Array2.includes(levelNamePrev) ? levelNamePrev : "Others"
+        let levelNamePrev = topNMetrixPrev->Array.includes(levelNamePrev) ? levelNamePrev : "Others"
         let levelNameCurrent =
-          topNMetrixCurr->Js.Array2.includes(levelNameCurrent) ? levelNameCurrent : "Others"
+          topNMetrixCurr->Array.includes(levelNameCurrent) ? levelNameCurrent : "Others"
         let totalVolFromStartToLevel = sankeyDict->getInt(sankeyConfig.total_vol_metrix, 0)
 
         currentSelectedTabDict->appendToDictValue(
@@ -188,7 +186,7 @@ let convertToSankeyFormat = (
         let currentLevel = keyArr->Belt.Array.get(1)->Belt.Option.getWithDefault("")
         let currentLevel = currentLevel === "" ? "NA" : currentLevel
         sankeyArr
-        ->Js.Array2.push((
+        ->Array.push((
           `${prevLevel}( +++ )${dimsPrev}`,
           `${currentLevel}( +++ )${dimsCurrent}`,
           totalSum,
@@ -200,7 +198,7 @@ let convertToSankeyFormat = (
         ->ignore
 
         nodeArr
-        ->Js.Array2.push({
+        ->Array.push({
           let value: SankeyHighcharts.node = {
             id: `${prevLevel}( +++ )${dimsPrev}`,
             color: "#c59144",
@@ -212,7 +210,7 @@ let convertToSankeyFormat = (
         ->ignore
 
         nodeArr
-        ->Js.Array2.push({
+        ->Array.push({
           let value: SankeyHighcharts.node = {
             id: `${currentLevel}( +++ )${dimsCurrent}`,
             color: "#c59144",
@@ -239,7 +237,7 @@ let convertToSankeyFormat = (
         let levelName = levelName === "" ? "NA" : levelName
         let totalVolFromStartToLevel = sankeyDict->getInt(sankeyConfig.total_vol_metrix, 0)
         let successVol = sankeyDict->getInt(sankeyConfig.success_vol_metrix, 0)
-        let levelName = topNMetrixCurr->Js.Array2.includes(levelName) ? levelName : "Others"
+        let levelName = topNMetrixCurr->Array.includes(levelName) ? levelName : "Others"
         currentSelectedTabDictlast->appendToDictValue(
           levelName,
           (totalVolFromStartToLevel, successVol),
@@ -277,7 +275,7 @@ let convertToSankeyFormat = (
         let (key, twoSUms) = item
         let (totalSum, successSum) = twoSUms
         sankeyArr
-        ->Js.Array2.push((
+        ->Array.push((
           `${key}( +++ )${snakeyActiveTab[index]->Belt.Option.getWithDefault("")}`,
           "Success",
           successSum,
@@ -286,7 +284,7 @@ let convertToSankeyFormat = (
         ))
         ->ignore
         sankeyArr
-        ->Js.Array2.push((
+        ->Array.push((
           `${key}( +++ )${snakeyActiveTab[index]->Belt.Option.getWithDefault("")}`,
           "Failure",
           totalSum - successSum,
@@ -296,7 +294,7 @@ let convertToSankeyFormat = (
         ->ignore
 
         nodeArr
-        ->Js.Array2.push({
+        ->Array.push({
           let value: SankeyHighcharts.node = {
             id: `${key}( +++ )${snakeyActiveTab[index]->Belt.Option.getWithDefault("")}`,
             color: "#c59144",

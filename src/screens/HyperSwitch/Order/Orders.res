@@ -36,7 +36,7 @@ let make = (~previewOnly=false) => {
 
         dict
         ->Js.Dict.entries
-        ->Js.Array2.forEach(item => {
+        ->Array.forEach(item => {
           let (key, value) = item
           filters->Js.Dict.set(key, value)
         })

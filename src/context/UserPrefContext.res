@@ -50,7 +50,7 @@ let make = (~children) => {
   let urlPathConcationation = `/${url.path
     ->LogicUtils.stripV4
     ->Belt.List.toArray
-    ->Js.Array2.joinWith("/")}`
+    ->Array.joinWith("/")}`
   // UPDATE THE LAST VISITED TAB
   React.useEffect2(() => {
     if urlPathConcationation !== "/" {
@@ -105,7 +105,7 @@ let make = (~children) => {
             `${key}=${value}`
           },
         )
-        ->Js.Array2.joinWith("&")
+        ->Array.joinWith("&")
       let isMarketplaceApp = urlPathConcationation == "/marketplace"
       moduleWisePref->Js.Dict.set(
         urlPathConcationation,

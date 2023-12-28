@@ -65,7 +65,7 @@ let parseConnectorConfig = dict => {
   open LogicUtils
   let pmDict = Js.Dict.empty()
   let connectorPaymentMethods = dict->getArrayFromDict("payment_methods_enabled", [])
-  connectorPaymentMethods->Js.Array2.forEach(item => {
+  connectorPaymentMethods->Array.forEach(item => {
     let (pmName, pmTypes) = item->getPaymentMethod
     pmDict->Js.Dict.set(pmName, pmTypes)
   })
@@ -77,7 +77,7 @@ let updatePaymentMethodsDict = (prevPaymentMethodsDict, pmName, currentPmTypes) 
   open LogicUtils
   switch prevPaymentMethodsDict->Js.Dict.get(pmName) {
   | Some(prevPmTypes) => {
-      let pmTypesArr = prevPmTypes->Js.Array2.concat(currentPmTypes)
+      let pmTypesArr = prevPmTypes->Array.concat(currentPmTypes)
       prevPaymentMethodsDict->Js.Dict.set(pmName, pmTypesArr->getUniqueArray)
     }
 
@@ -90,7 +90,7 @@ let updateConfigDict = (configDict, connectorName, paymentMethodsDict) => {
   | Some(prevPaymentMethodsDict) =>
     paymentMethodsDict
     ->Js.Dict.keys
-    ->Js.Array2.forEach(pmName =>
+    ->Array.forEach(pmName =>
       updatePaymentMethodsDict(
         prevPaymentMethodsDict,
         pmName,
@@ -105,7 +105,7 @@ let updateConfigDict = (configDict, connectorName, paymentMethodsDict) => {
 let getConnectorConfig = connectors => {
   let configDict = Js.Dict.empty()
 
-  connectors->Js.Array2.forEach(connector => {
+  connectors->Array.forEach(connector => {
     let (connectorName, paymentMethodsDict) = connector->parseConnectorConfig
     updateConfigDict(configDict, connectorName, paymentMethodsDict)
   })
@@ -165,7 +165,7 @@ let ignoreFields = json => {
   ->Js.Dict.entries
   ->Array.filter(entry => {
     let (key, _val) = entry
-    !(ignoredField->Js.Array2.includes(key))
+    !(ignoredField->Array.includes(key))
   })
   ->Js.Dict.fromArray
   ->Js.Json.object_
@@ -182,7 +182,7 @@ let getMixpanelForFRMOnSubmit = (
     currentStep->ConnectorUtils.getStepName->LogicUtils.stringReplaceAll(" ", "")
   if frmName->getFRMNameTypeFromString !== UnknownFRM("Not known") {
     //* Generic Name 'global' given for mixpanel events for calculating total
-    [frmName, "global"]->Js.Array2.forEach(item =>
+    [frmName, "global"]->Array.forEach(item =>
       hyperswitchMixPanel(
         ~pageName=url.path->LogicUtils.getListHead,
         ~contextName=item,

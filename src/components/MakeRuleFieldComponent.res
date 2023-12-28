@@ -75,7 +75,7 @@ module CompressedView = {
         | None => React.null
         }}
         <TextView str=operator fontColor="text-red-500" fontWeight="font-semibold" />
-        <TextView str={value->Array.filter(ele => ele != "")->Js.Array2.joinWith(", ")} />
+        <TextView str={value->Array.filter(ele => ele != "")->Array.joinWith(", ")} />
       </div>
     | None => React.null
     }

@@ -98,7 +98,7 @@ let getEmailBody = (email, ~country=?, ()) => {
   let fields = [("email", email->Js.Json.string)]
 
   switch country {
-  | Some(value) => fields->Js.Array2.push(("country", value->Js.Json.string))->ignore
+  | Some(value) => fields->Array.push(("country", value->Js.Json.string))->ignore
   | _ => ()
   }
 
@@ -136,7 +136,7 @@ let validateForm = (values: Js.Json.t, keys: array<string>) => {
   let valuesDict = values->LogicUtils.getDictFromJsonObject
 
   let errors = Js.Dict.empty()
-  keys->Js.Array2.forEach(key => {
+  keys->Array.forEach(key => {
     let value = LogicUtils.getString(valuesDict, key, "")
 
     // empty check

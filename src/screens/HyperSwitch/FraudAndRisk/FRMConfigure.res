@@ -41,7 +41,7 @@ let make = () => {
       frmName->Js.String2.length > 0 &&
         frmName->getFRMNameTypeFromString !== UnknownFRM("Not known")
     ) {
-      [frmName, "global"]->Js.Array2.forEach(ele =>
+      [frmName, "global"]->Array.forEach(ele =>
         hyperswitchMixPanel(
           ~pageName=url.path->LogicUtils.getListHead,
           ~contextName=ele,

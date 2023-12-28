@@ -56,7 +56,7 @@ let make = (
                     ->Array.mapWithIndex((option, index) => {
                       let selected = switch value {
                       | String(v) => v === option.value
-                      | Array(arr) => arr->Js.Array2.includes(option.value)
+                      | Array(arr) => arr->Array.includes(option.value)
                       }
                       let disabledClass = option.isDisabled ? "disabled cursor-not-allowed" : ""
 
@@ -140,7 +140,7 @@ let make = (
                   ->Array.mapWithIndex((option, index) => {
                     let selected = switch value {
                     | String(v) => v === option.value
-                    | Array(arr) => arr->Js.Array2.includes(option.value)
+                    | Array(arr) => arr->Array.includes(option.value)
                     }
 
                     let disabledClass = option.isDisabled ? "disabled cursor-not-allowed" : ""

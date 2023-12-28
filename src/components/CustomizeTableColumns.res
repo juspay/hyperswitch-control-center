@@ -38,7 +38,7 @@ let make = (
   let defaultColumnsString = defaultColumns->Array.map(head => getHeading(head).title)
   let initalHeadingData = heading->Array.map(head => {
     let columnName = getHeading(head).title
-    let isDisabled = defaultColumnsString->Js.Array2.includes(columnName)
+    let isDisabled = defaultColumnsString->Array.includes(columnName)
     let options: SelectBox.dropdownOption = {
       label: columnName,
       value: columnName,
@@ -50,13 +50,13 @@ let make = (
 
   let onSubmit = values => {
     let getHeadingCol = text => {
-      let index = heading->Array.map(head => getHeading(head).title)->Js.Array2.indexOf(text)
+      let index = heading->Array.map(head => getHeading(head).title)->Array.indexOf(text)
       heading[index]
     }
 
     let headers = values->Belt.Array.keepMap(getHeadingCol)
     let headers = orderdColumnBasedOnDefaultCol
-      ? headers->Js.Array2.copy->Js.Array2.sortInPlaceWith(sortByOrderOderedArr)
+      ? headers->Array.copy->Js.Array2.sortInPlaceWith(sortByOrderOderedArr)
       : headers
 
     setColumns(_ => headers)

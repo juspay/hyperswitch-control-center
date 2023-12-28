@@ -75,7 +75,7 @@ let make = (
 
   let (topFiltersToSearchParam, customFilter, modeValue) = React.useMemo1(() => {
     let modeValue = Some(getTopLevelSingleStatFilter->LogicUtils.getString(modeKey, ""))
-    let allFilterKeys = Js.Array2.concat(
+    let allFilterKeys = Array.concat(
       [startTimeFilterKey, endTimeFilterKey, modeValue->Belt.Option.getWithDefault("")],
       filterKeys,
     )
@@ -84,7 +84,7 @@ let make = (
       ->Js.Dict.entries
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
-        if allFilterKeys->Js.Array2.includes(key) {
+        if allFilterKeys->Array.includes(key) {
           switch value->Js.Json.classify {
           | JSONString(str) => `${key}=${str}`->Some
           | JSONNumber(num) => `${key}=${num->Js.String.make}`->Some
@@ -95,7 +95,7 @@ let make = (
           None
         }
       })
-      ->Js.Array2.joinWith("&")
+      ->Array.joinWith("&")
 
     (
       filterSearchParam,
@@ -109,7 +109,7 @@ let make = (
     ->Js.Dict.entries
     ->Belt.Array.keepMap(entries => {
       let (key, value) = entries
-      filterKeys->Js.Array2.includes(key) ? Some((key, value)) : None
+      filterKeys->Array.includes(key) ? Some((key, value)) : None
     })
     ->Js.Dict.fromArray
     ->Js.Json.object_

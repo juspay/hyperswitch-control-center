@@ -248,7 +248,7 @@ module RuleBasedUI = {
       let newRule = copy
         ? existingRules[index]->Belt.Option.getWithDefault(defaultRule->Identity.genericTypeToJson)
         : defaultRule->Identity.genericTypeToJson
-      let newRules = existingRules->Js.Array2.concat([newRule])
+      let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
@@ -444,11 +444,11 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
             )
 
           let hasZero =
-            connectorData->Js.Array2.some(ele =>
+            connectorData->Array.some(ele =>
               ele->AdvancedRoutingUtils.getSplitFromConnectorSelectionData === 0
             )
           let isDistributeChecked = !(
-            connectorData->Js.Array2.some(ele => {
+            connectorData->Array.some(ele => {
               ele->AdvancedRoutingUtils.getSplitFromConnectorSelectionData === 100
             })
           )

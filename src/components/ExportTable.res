@@ -23,7 +23,7 @@ let make = (
   })
 
   let handleDownloadClick = _ev => {
-    let header = headerNames->Js.Array2.joinWith(",")
+    let header = headerNames->Array.joinWith(",")
 
     let csv =
       actualDataOrig
@@ -52,9 +52,9 @@ let make = (
           }
           newStr
         })
-        ->Js.Array2.joinWith(",")
+        ->Array.joinWith(",")
       })
-      ->Js.Array2.joinWith("\n")
+      ->Array.joinWith("\n")
     let finalCsv = header ++ "\n" ++ csv
     let currentTime = Js.Date.now()->Js.Float.toString
     DownloadUtils.downloadOld(~fileName=`${title}_${currentTime}.csv`, ~content=finalCsv)

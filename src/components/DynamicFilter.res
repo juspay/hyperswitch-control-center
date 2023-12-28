@@ -38,7 +38,7 @@ module CustomFilters = {
         Js.String2.replaceByRe(localData, %re("/ AND /gi"), "@@")
         ->Js.String2.replaceByRe(%re("/ OR /gi"), "@@")
         ->Js.String2.split("@@")
-      validatorArr->Js.Array2.forEach(ele => {
+      validatorArr->Array.forEach(ele => {
         let mArr =
           Js.String2.replaceByRe(ele, %re("/ != /gi"), "@@")
           ->Js.String2.replaceByRe(%re("/ > /gi"), "@@")
@@ -54,7 +54,7 @@ module CustomFilters = {
         let firstEle = Belt.Array.get(mArr, 0)->Belt.Option.getWithDefault("")
         if (
           firstEle != "" &&
-            tabNames->Js.Array2.indexOf(firstEle->Js.String.trim->Js.String.toLowerCase) < 0
+            tabNames->Array.indexOf(firstEle->Js.String.trim->Js.String.toLowerCase) < 0
         ) {
           setErrMessage(str => `${str} ${firstEle} is not a valid dimension.`)
         }
@@ -213,7 +213,7 @@ let make = (
   }
 
   let clearFilters = () => {
-    let clearFilterKeys = [customFilterKey]->Js.Array2.concat(tabNames)
+    let clearFilterKeys = [customFilterKey]->Array.concat(tabNames)
     removeKeys(clearFilterKeys)
   }
 

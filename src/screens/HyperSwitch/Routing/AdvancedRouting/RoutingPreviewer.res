@@ -35,7 +35,7 @@ module GatewayView = {
       | None => name
       }
     }
-    let isDisableFallback = gateways->Js.Array2.some(ruleGateway => ruleGateway.disableFallback)
+    let isDisableFallback = gateways->Array.some(ruleGateway => ruleGateway.disableFallback)
     <div className="flex flex-wrap gap-4 items-center">
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {
@@ -114,7 +114,7 @@ module RulePreviewer = {
                       let field = condition.field->Js.String2.length > 0 ? condition.field : ""
 
                       let value = switch condition.value {
-                      | StringArray(arr) => arr->Js.Array2.joinWith(", ")
+                      | StringArray(arr) => arr->Array.joinWith(", ")
                       | String(str) => str
                       | Int(int) => int->Belt.Int.toString
                       }

@@ -26,7 +26,7 @@ let make = (
   let filterPresent = heading->Array.find(head => head.showFilter)->Js.Option.isSome
   let highlightEnabledFieldsArray = heading->Js.Array2.reducei((acc, item, index) => {
     if item.highlightCellOnHover {
-      let _ = Js.Array2.push(acc, index)
+      let _ = Array.push(acc, index)
     }
     acc
   }, [])

@@ -506,7 +506,7 @@ let timeSeriesObjMapper = json => {
       })
     })
 
-  timeSeriesArr->Js.Array2.forEach(item => {
+  timeSeriesArr->Array.forEach(item => {
     let data = item->Js.Array2.reduce((finalData, item) => {
       let dict = singlestatTimeseriesItemToObjMapper(item)
       {
@@ -519,7 +519,7 @@ let timeSeriesObjMapper = json => {
         timeSeries: dict.timeSeries,
       }
     }, singlestatTimeseriesInitialValue)
-    finalArr->Js.Array2.push(data)->ignore
+    finalArr->Array.push(data)->ignore
   })
 
   finalArr

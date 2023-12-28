@@ -353,7 +353,7 @@ let make = () => {
       subTitle="Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments."
     />
     <div className="w-full flex flex-col gap-14">
-      {if checkingConditions->Js.Array2.includes(false) {
+      {if checkingConditions->Array.includes(false) {
         <QuickStart isMobileView />
       } else {
         <HomePageOverviewComponent />

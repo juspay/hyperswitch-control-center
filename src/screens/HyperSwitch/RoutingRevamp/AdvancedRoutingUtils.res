@@ -128,7 +128,7 @@ let conditionTypeMapper = (statementArr: array<Js.Json.t>) => {
       }
       returnValue
     })
-    acc->Js.Array2.concat(arr)
+    acc->Array.concat(arr)
   })
 
   statements
@@ -381,7 +381,7 @@ let generateStatements = statements => {
     }
 
     let newAcc = if logicalOperator === "or" {
-      acc->Js.Array2.concat([
+      acc->Array.concat([
         {
           condition: [condition],
         },

@@ -164,7 +164,7 @@ type chartData<'a> = {
 let removeDuplicates = (arr: array<chartData<'a>>) => {
   let uniqueItemsMap = Js.Dict.empty()
 
-  arr->Js.Array2.forEach(item => {
+  arr->Array.forEach(item => {
     let value = item.name
     if uniqueItemsMap->Js.Dict.get(value)->Belt.Option.isNone {
       uniqueItemsMap->Js.Dict.set(value, item)
@@ -296,9 +296,9 @@ let sortBasedOnTimeLegend = (a: (string, float), b: (string, float)) => {
 
 let sortBasedOnArr = arr => {
   let func = (a: legendTableData, b: legendTableData) => {
-    if arr->Js.Array2.indexOf(a.groupByName) < arr->Js.Array2.indexOf(b.groupByName) {
+    if arr->Array.indexOf(a.groupByName) < arr->Array.indexOf(b.groupByName) {
       -1
-    } else if arr->Js.Array2.indexOf(a.groupByName) > arr->Js.Array2.indexOf(b.groupByName) {
+    } else if arr->Array.indexOf(a.groupByName) > arr->Array.indexOf(b.groupByName) {
       1
     } else {
       0
@@ -348,7 +348,7 @@ let timeSeriesDataMaker = (
         ->Js.Json.stringify,
       )
     let xAxisDataPoint =
-      dict->getString(xAxis, "")->Js.String2.split(" ")->Js.Array2.joinWith("T") ++ "Z" // right now it is time string
+      dict->getString(xAxis, "")->Js.String2.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
     let yAxisDataPoint = dict->getFloat(yAxis, 0.)
 
     let secondryAxisPoint = switch secondryMetrics {
@@ -608,7 +608,7 @@ let legendClickItem = (s: Highcharts.legendItem, e, setState) => {
     if x === legendItemAsBool(s) {
       setState(prev => {
         let value =
-          prev->Js.Array2.includes(x)
+          prev->Array.includes(x)
             ? prev->Array.filter(item => item !== x)
             : Belt.Array.concat(prev, [x])
 
@@ -623,7 +623,7 @@ let legendClickItem = (s: Highcharts.legendItem, e, setState) => {
           Belt.Array.forEach(
             s.chart.series,
             y => {
-              value->Js.Array2.includes(y) ? y->Highcharts.show : y->Highcharts.hide
+              value->Array.includes(y) ? y->Highcharts.show : y->Highcharts.hide
             },
           )
         }
@@ -767,7 +767,7 @@ let tooltipFormatter = (
     let points = points->getDictFromJsonObject
     let series = points->getJsonObjectFromDict("series")->getDictFromJsonObject
 
-    let dataArr = if ["run_date", "run_month", "run_week"]->Js.Array2.includes(groupKey) {
+    let dataArr = if ["run_date", "run_month", "run_week"]->Array.includes(groupKey) {
       let x = points->getString("name", "")
       xAxisMapInfo->Js.Dict.get(x)->Belt.Option.getWithDefault([])
     } else {
@@ -781,7 +781,7 @@ let tooltipFormatter = (
       ->Array.map(data => {
         getTooltipHTML(metrics, data, onCursorName)
       })
-      ->Js.Array2.joinWith("")
+      ->Array.joinWith("")
     `<table>${htmlStr}</table>`
   }
 

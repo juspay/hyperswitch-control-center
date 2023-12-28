@@ -17,7 +17,7 @@ let checkList: array<ProdOnboardingTypes.checkListType> = [
   },
 ]
 
-let updatedCheckList = [defaultValueOfCheckList]->Js.Array2.concat(checkList)
+let updatedCheckList = [defaultValueOfCheckList]->Array.concat(checkList)
 
 let getPageView = index => {
   open ProdOnboardingTypes

@@ -152,7 +152,7 @@ let getConnectorNameViaId = (
 
 let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledType>) => {
   let paymentMethods = paymentMethodsArray->Array.reduce([], (acc, item) => {
-    acc->Js.Array2.concat([item.payment_method->LogicUtils.capitalizeString])
+    acc->Array.concat([item.payment_method->LogicUtils.capitalizeString])
   })
   paymentMethods
 }
@@ -197,7 +197,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
       <div>
         {connector.payment_methods_enabled
         ->getAllPaymentMethods
-        ->Js.Array2.joinWith(", ")
+        ->Array.joinWith(", ")
         ->React.string}
       </div>,
       "",

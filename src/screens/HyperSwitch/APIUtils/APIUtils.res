@@ -343,7 +343,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
   let url = RescriptReactRouter.useUrl()
-  let urlPath = url.path->Belt.List.toArray->Js.Array2.joinWith("_")
+  let urlPath = url.path->Belt.List.toArray->Array.joinWith("_")
 
   let popUpCallBack = () =>
     showPopUp({
@@ -404,7 +404,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
   let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
   let url = RescriptReactRouter.useUrl()
-  let urlPath = url.path->Belt.List.toArray->Js.Array2.joinWith("_")
+  let urlPath = url.path->Belt.List.toArray->Array.joinWith("_")
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
   let popUpCallBack = () =>

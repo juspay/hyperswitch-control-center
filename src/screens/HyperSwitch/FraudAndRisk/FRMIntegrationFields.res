@@ -14,7 +14,7 @@ module AdvanceSettings = {
       onChange: ev => {
         let value = ev->Identity.formReactEventToBool
         setIsFRMSettings(_ => value)
-        [frmName, "global"]->Js.Array2.forEach(ele =>
+        [frmName, "global"]->Array.forEach(ele =>
           hyperswitchMixPanel(
             ~pageName,
             ~contextName=ele,
@@ -81,7 +81,7 @@ module IntegrationFieldsForm = {
       ~fields: array<frmIntegrationField>,
       ~errors,
     ) => {
-      fields->Js.Array2.forEach(field => {
+      fields->Array.forEach(field => {
         let key = field.name
         let value =
           valuesFlattenJson

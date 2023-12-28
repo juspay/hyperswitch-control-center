@@ -383,7 +383,7 @@ let make = (
   let heading = ["Sun", "Mon", "Tue", "Wed", "Thr", "Fri", "Sat"]
 
   let isMobileView = MatchMedia.useMobileChecker()
-  let getMonthInFloat = mon => Js.Array2.indexOf(months, mon)->Belt.Float.fromInt
+  let getMonthInFloat = mon => Array.indexOf(months, mon)->Belt.Float.fromInt
   let totalMonths = disablePastDates
     ? 1
     : (year - 1970) * 12 + getMonthInFloat(month)->Belt.Float.toInt + 1

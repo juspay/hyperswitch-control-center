@@ -88,7 +88,7 @@ module NewCell = {
     }, (onRowClick, rowIndex))
 
     let isCurrentRowExpanded = React.useMemo1(() => {
-      expandedIndexArr->Js.Array2.includes(rowIndex)
+      expandedIndexArr->Array.includes(rowIndex)
     }, [expandedIndexArr])
 
     let onMouseEnter = React.useCallback2(_ev => {
@@ -111,11 +111,11 @@ module NewCell = {
       item
       ->Array.map((obj: cell) => {
         switch obj {
-        | CustomCell(_, x) => x->Js.String2.split(",")->Js.Array2.includes("true")
+        | CustomCell(_, x) => x->Js.String2.split(",")->Array.includes("true")
         | _ => false
         }
       })
-      ->Js.Array2.includes(true)
+      ->Array.includes(true)
 
     let customcellColouredCell =
       customcellColouredCellCheck && customCellColor !== ""
@@ -157,7 +157,7 @@ module NewCell = {
           | _ => "py-3"
           }
 
-          let highlightCell = highlightEnabledFieldsArray->Js.Array2.includes(cellIndex)
+          let highlightCell = highlightEnabledFieldsArray->Array.includes(cellIndex)
 
           let borderClass = if isLast || removeVerticalLines {
             `border-jp-gray-light_table_border_color dark:border-jp-gray-960`
@@ -177,7 +177,7 @@ module NewCell = {
                 handleExpand(rowIndex, true)
                 if !isCurrentRowExpanded {
                   setExpandedIndexArr(prev => {
-                    prev->Js.Array2.concat([rowIndex])
+                    prev->Array.concat([rowIndex])
                   })
                 } else {
                   setExpandedIndexArr(prev => {
@@ -292,12 +292,12 @@ module ReactWindowTableComponent = {
     let filterPresent = heading->Array.find(head => head.showFilter)->Js.Option.isSome
     let highlightEnabledFieldsArray = heading->Js.Array2.reducei((acc, item, index) => {
       if item.highlightCellOnHover {
-        let _ = Js.Array2.push(acc, index)
+        let _ = Array.push(acc, index)
       }
       acc
     }, [])
     let colFilt = columnFilterRow->Belt.Option.getWithDefault([])
-    let colFilter = showCheckBox ? [TextFilter("")]->Js.Array2.concat(colFilt) : colFilt
+    let colFilter = showCheckBox ? [TextFilter("")]->Array.concat(colFilt) : colFilt
     let arr = switch columnWidth {
     | Some(arr) => arr
     | _ =>
@@ -501,7 +501,7 @@ module ReactWindowTableComponent = {
     }
 
     let getHeight = index => {
-      if expandedIndexArr->Js.Array2.includes(index) {
+      if expandedIndexArr->Array.includes(index) {
         500
       } else {
         rowItemHeight
@@ -875,7 +875,7 @@ let make = (
 
       Some(
         showSerialNumber && tableLocalFilter
-          ? Js.Array2.concat(
+          ? Array.concat(
               [Table.Range("s_no", 0., actualData->Array.length->Belt.Int.toFloat)],
               columnFilterRow,
             )
@@ -969,7 +969,7 @@ let make = (
       }
       let setIsSelected = isSelected => {
         if isSelected {
-          checkBoxProps.setSelectedData(prev => prev->Js.Array2.concat([nullableItem->toJson]))
+          checkBoxProps.setSelectedData(prev => prev->Array.concat([nullableItem->toJson]))
         } else {
           checkBoxProps.setSelectedData(prev =>
             if filterWithIdOnly {
@@ -1037,7 +1037,7 @@ let make = (
       showSort: head.showSort &&
       dataExists && (
         totalResults == Array.length(rows)
-          ? rows->Js.Array2.some(row => getValue(row) !== default)
+          ? rows->Array.some(row => getValue(row) !== default)
           : true
       ),
     }

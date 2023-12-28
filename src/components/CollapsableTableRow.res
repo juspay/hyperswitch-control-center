@@ -10,12 +10,12 @@ let make = (
   ~heading,
   ~title,
 ) => {
-  let isCurrentRowExpanded = expandedRowIndexArray->Js.Array2.includes(rowIndex)
+  let isCurrentRowExpanded = expandedRowIndexArray->Array.includes(rowIndex)
 
   let headingArray = []
 
-  heading->Js.Array2.forEach((item: TableUtils.header) => {
-    headingArray->Js.Array2.push(item.title)->ignore
+  heading->Array.forEach((item: TableUtils.header) => {
+    headingArray->Array.push(item.title)->ignore
   })
   let textColor = "text-jp-gray-900 dark:text-jp-gray-text_darktheme text-opacity-75 dark:text-opacity-75"
   let fontStyle = "font-fira-code"
@@ -38,7 +38,7 @@ let make = (
           | _ => "py-3"
           }
 
-          let highlightCell = highlightEnabledFieldsArray->Js.Array2.includes(cellIndex)
+          let highlightCell = highlightEnabledFieldsArray->Array.includes(cellIndex)
           let borderTop = showBorderTop ? "border-t" : "border-t-0"
           let borderClass = `${borderTop} border-jp-gray-500 dark:border-jp-gray-960`
           let hCell = highlightCell ? "hover:font-bold" : ""

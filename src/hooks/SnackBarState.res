@@ -83,7 +83,7 @@ let useShowSnackbar = (): showSnackbarFn => {
         (),
       )
 
-      setOpenSnackbar(.prevArr => prevArr->Js.Array2.concat([snackbarProps]))
+      setOpenSnackbar(.prevArr => prevArr->Array.concat([snackbarProps]))
     },
     [setOpenSnackbar],
   )

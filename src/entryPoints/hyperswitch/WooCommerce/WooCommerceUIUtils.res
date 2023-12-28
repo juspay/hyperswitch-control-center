@@ -29,7 +29,7 @@ module SelectProcessor = {
         selectedConnector
         setSelectedConnector
         connectorList={ConnectorUtils.connectorList->Array.filter(value =>
-          !(connectorArray->Js.Array2.includes(value->ConnectorUtils.getConnectorNameString))
+          !(connectorArray->Array.includes(value->ConnectorUtils.getConnectorNameString))
         )}
       />
     </QuickStartUIUtils.BaseComponent>
@@ -63,7 +63,7 @@ module SelectPaymentMethods = {
     let (metaData, setMetaData) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
 
     let updateDetails = value => {
-      setPaymentMethods(_ => value->Js.Array2.copy)
+      setPaymentMethods(_ => value->Array.copy)
     }
 
     let updateEnumForConnector = async connectorResponse => {

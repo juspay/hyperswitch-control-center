@@ -172,7 +172,7 @@ module CheckoutCard = {
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
     let isConfigureConnector = ListHooks.useListCount(~entityName=CONNECTOR) > 0
-    let urlPath = url.path->Belt.List.toArray->Js.Array2.joinWith("_")
+    let urlPath = url.path->Belt.List.toArray->Array.joinWith("_")
 
     let handleOnClick = _ => {
       if isPlayground {
@@ -441,7 +441,7 @@ let responseDataMapper = (res: Js.Json.t) => {
   let arrayFromJson = res->getArrayFromJson([])
   let resDict = Js.Dict.empty()
 
-  arrayFromJson->Js.Array2.forEach(value => {
+  arrayFromJson->Array.forEach(value => {
     let value1 = value->getDictFromJsonObject
     let key = value1->Js.Dict.keys->Belt.Array.get(0)->Belt.Option.getWithDefault("")
     resDict->Js.Dict.set(key, value1->getValueMapped(key))

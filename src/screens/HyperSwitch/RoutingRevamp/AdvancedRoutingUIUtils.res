@@ -204,7 +204,7 @@ module MetadataInp = {
         let arrStr = valSplit->Array.map(item => {
           Js.String2.trim(item)
         })
-        let finalVal = Js.Array2.joinWith(arrStr, ",")->Js.Json.string
+        let finalVal = Array.joinWith(arrStr, ",")->Js.Json.string
 
         valueField.onChange(finalVal->Identity.anyTypeToReactEvent)
       },
@@ -298,18 +298,18 @@ module FieldInp = {
         open LogicUtils
         convertedValue
         ->getArrayFromDict(ele, [])
-        ->Js.Array2.forEach(
+        ->Array.forEach(
           value => {
             let dictValue = value->LogicUtils.getDictFromJsonObject
             let kindValue = dictValue->getString("kind", "")
-            if methodKeys->Js.Array2.includes(kindValue) {
+            if methodKeys->Array.includes(kindValue) {
               let generatedSelectBoxOptionType: SelectBox.dropdownOption = {
                 label: kindValue,
                 value: kindValue,
                 description: dictValue->getString("description", ""),
                 optGroup: ele,
               }
-              acc->Js.Array2.push(generatedSelectBoxOptionType)->ignore
+              acc->Array.push(generatedSelectBoxOptionType)->ignore
             }
           },
         )
@@ -424,7 +424,7 @@ module MakeRuleField = {
       if plusBtnEnabled {
         let toAdd = Js.Dict.empty()
         conditionsInput.onChange(
-          Js.Array2.concat(
+          Array.concat(
             fields,
             [toAdd->Js.Json.object_],
           )->Identity.arrayOfGenericTypeToFormReactEvent,

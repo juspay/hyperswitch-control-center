@@ -49,7 +49,7 @@ let validateForm = (
   let errors = Js.Dict.empty()
   let valuesDict = values->LogicUtils.getDictFromJsonObject
 
-  fieldsToValidate->Js.Array2.forEach(key => {
+  fieldsToValidate->Array.forEach(key => {
     let value = valuesDict->LogicUtils.getString(key->getStringFromVariant, "")
 
     value->Js.String2.length <= 0

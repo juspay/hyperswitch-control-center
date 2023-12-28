@@ -67,7 +67,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false) => {
                       ->getDictFromJsonObject
 
                     let value = switch statement.value.value->Js.Json.classify {
-                    | JSONArray(arr) => arr->Js.Array2.joinWith(", ")
+                    | JSONArray(arr) => arr->Array.joinWith(", ")
                     | JSONString(str) => str
                     | JSONNumber(num) => num->Belt.Float.toString
                     | JSONObject(obj) => obj->LogicUtils.getString("value", "")

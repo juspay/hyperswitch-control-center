@@ -11,7 +11,7 @@ let validateAPIKeyForm = (
 
   let valuesDict = values->LogicUtils.getDictFromJsonObject
 
-  keys->Js.Array2.forEach(key => {
+  keys->Array.forEach(key => {
     let value = LogicUtils.getString(valuesDict, key, "")
 
     if value == "" {

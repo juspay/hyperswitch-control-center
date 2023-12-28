@@ -348,7 +348,7 @@ let cardinalityMapper = (cardinality: cardinality) => {
 }
 
 let validateAndUpdateUri = (~updateUri, ~updatedFilter, ~validationArr, ~valueFromUrl) => {
-  validationArr->Js.Array2.includes(valueFromUrl)
+  validationArr->Array.includes(valueFromUrl)
     ? ()
     : updateUri(~dict=Js.Dict.fromArray([updatedFilter]))
 }
@@ -446,7 +446,7 @@ let make = (
   let enableLoaders = entity.enableLoaders->Belt.Option.getWithDefault(true)
 
   let entityAllMetrics = uriConfig->Array.reduce([], (acc, item) =>
-    Js.Array2.concat(
+    Array.concat(
       acc,
       {
         item.metrics
@@ -472,9 +472,9 @@ let make = (
     let dict = Js.Dict.empty()
     let chartMatrixArr = entityAllMetrics->Belt.Array.map(item => item.metric_label)
 
-    if cardinalityArr->Js.Array2.includes(cardinality) {
+    if cardinalityArr->Array.includes(cardinality) {
       dict->Js.Dict.set("cardinality", cardinality)
-    } else if cardinalityArr->Js.Array2.includes("TOP_5") {
+    } else if cardinalityArr->Array.includes("TOP_5") {
       dict->Js.Dict.set("cardinality", "TOP_5")
     } else {
       dict->Js.Dict.set(
@@ -482,13 +482,13 @@ let make = (
         cardinalityArr->Belt.Array.get(0)->Belt.Option.getWithDefault(""),
       )
     }
-    chartTypeArr->Js.Array2.includes(chartType)
+    chartTypeArr->Array.includes(chartType)
       ? dict->Js.Dict.set("chartType", chartType)
       : dict->Js.Dict.set("chartType", "Line chart")
 
-    if chartMatrixArr->Js.Array2.includes(chartTopMetric) {
+    if chartMatrixArr->Array.includes(chartTopMetric) {
       dict->Js.Dict.set("chartTopMetric", chartTopMetric)
-    } else if chartMatrixArr->Js.Array2.includes(currentTopMatrix) {
+    } else if chartMatrixArr->Array.includes(currentTopMatrix) {
       dict->Js.Dict.set("chartTopMetric", currentTopMatrix)
     } else {
       dict->Js.Dict.set(
@@ -497,9 +497,9 @@ let make = (
       )
     }
 
-    if chartMatrixArr->Js.Array2.includes(chartBottomMetric) {
+    if chartMatrixArr->Array.includes(chartBottomMetric) {
       dict->Js.Dict.set("chartBottomMetric", chartBottomMetric)
-    } else if chartMatrixArr->Js.Array2.includes(currentBottomMetrix) {
+    } else if chartMatrixArr->Array.includes(currentBottomMetrix) {
       dict->Js.Dict.set("chartBottomMetric", currentBottomMetrix)
     } else {
       dict->Js.Dict.set(
@@ -546,7 +546,7 @@ let make = (
   | None => [startTimeFilterKey, endTimeFilterKey]
   }
 
-  let allFilterKeys = Js.Array2.concat(defaultFilters, allFilterDimension)
+  let allFilterKeys = Array.concat(defaultFilters, allFilterDimension)
 
   let (topFiltersToSearchParam, customFilter) = React.useMemo1(() => {
     let filterSearchParam =
@@ -554,7 +554,7 @@ let make = (
       ->Js.Dict.entries
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
-        if allFilterKeys->Js.Array2.includes(key) {
+        if allFilterKeys->Array.includes(key) {
           switch value->Js.Json.classify {
           | JSONString(str) => `${key}=${str}`->Some
           | JSONNumber(num) => `${key}=${num->Js.String.make}`->Some
@@ -565,7 +565,7 @@ let make = (
           None
         }
       })
-      ->Js.Array2.joinWith("&")
+      ->Array.joinWith("&")
 
     (filterSearchParam, getTopLevelFilter->LogicUtils.getString(customFilterKey, ""))
   }, [getTopLevelFilter])
@@ -608,7 +608,7 @@ let make = (
         | _ => None
         }
       })
-      ->Js.Array2.joinWith("&")
+      ->Array.joinWith("&")
 
     filterSearchParam
   }, [topFiltersToSearchParam])
@@ -621,25 +621,25 @@ let make = (
 
   React.useEffect2(() => {
     setGranularity(prev => {
-      current_granularity->Js.Array2.includes(prev->Belt.Option.getWithDefault(""))
+      current_granularity->Array.includes(prev->Belt.Option.getWithDefault(""))
         ? prev
         : current_granularity->Belt.Array.get(0)
     })
     None
   }, (startTimeFromUrl, endTimeFromUrl))
-  let selectedTabStr = selectedTab->Belt.Option.getWithDefault([])->Js.Array2.joinWith("")
+  let selectedTabStr = selectedTab->Belt.Option.getWithDefault([])->Array.joinWith("")
 
   let updatedChartConfigArr = React.useMemo7(() => {
     uriConfig->Array.map(item => {
       let filterKeys =
-        item.filterKeys->Array.filter(item => allFilterDimension->Js.Array2.includes(item))
+        item.filterKeys->Array.filter(item => allFilterDimension->Array.includes(item))
       let filterValue =
         getTopLevelFilter
         ->Js.Dict.entries
         ->Belt.Array.keepMap(
           entries => {
             let (key, value) = entries
-            filterKeys->Js.Array2.includes(key) ? Some((key, value)) : None
+            filterKeys->Array.includes(key) ? Some((key, value)) : None
           },
         )
         ->Js.Dict.fromArray
@@ -758,7 +758,7 @@ let make = (
 
         selectedTab
         ->Belt.Option.getWithDefault([])
-        ->Js.Array2.forEach(
+        ->Array.forEach(
           tabName => {
             let metric =
               Js.Dict.get(dict, tabName)
@@ -769,7 +769,7 @@ let make = (
 
             Js.Dict.set(dict, tabName, label->Js.Json.string)
 
-            Js.Dict.keys(dict)->Js.Array2.forEach(
+            Js.Dict.keys(dict)->Array.forEach(
               key => {
                 if key->Js.String2.includes("amount") {
                   let amount =
@@ -831,7 +831,7 @@ let make = (
       startTimeFromUrl !== "" &&
       endTimeFilterKey !== "" &&
       (granularity->Belt.Option.isSome || chartType !== "Line Chart") &&
-      current_granularity->Js.Array2.includes(granularity->Belt.Option.getWithDefault(""))
+      current_granularity->Array.includes(granularity->Belt.Option.getWithDefault(""))
     ) {
       setChartLoading(_ => enableLoaders)
       fetchChartData(updatedChartBody, setRawChartData)
@@ -902,11 +902,11 @@ let make = (
   }, (entityAllMetrics, isMobileView))
 
   let metricPickerdisplayClass =
-    [SemiDonut, HorizontalBar, Funnel]->Js.Array2.includes(chartTypeFromUrl->chartReverseMappers)
+    [SemiDonut, HorizontalBar, Funnel]->Array.includes(chartTypeFromUrl->chartReverseMappers)
       ? "hidden"
       : ""
 
-  if statusDict->Js.Dict.values->Js.Array2.includes(504) {
+  if statusDict->Js.Dict.values->Array.includes(504) {
     <AnalyticsUtils.NoDataFoundPage />
   } else {
     <div>
@@ -976,7 +976,7 @@ let make = (
                     let metricsUri = uriConfig->Array.find(uriMetrics => {
                       uriMetrics.metrics
                       ->Array.map(item => {item.metric_label})
-                      ->Js.Array2.includes(selectedMetrics.metric_label)
+                      ->Array.includes(selectedMetrics.metric_label)
                     })
                     let (data, legendData, timeCol) = switch metricsUri {
                     | Some(val) =>
@@ -1072,7 +1072,7 @@ let make = (
           let metricsUri = uriConfig->Array.find(uriMetrics => {
             uriMetrics.metrics
             ->Array.map(item => {item.metric_label})
-            ->Js.Array2.includes(selectedMetrics.metric_label)
+            ->Array.includes(selectedMetrics.metric_label)
           })
           let (data, legendData, timeCol) = switch metricsUri {
           | Some(val) =>

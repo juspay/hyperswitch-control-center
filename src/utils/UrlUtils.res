@@ -11,7 +11,7 @@ let useGetFilterDictFromUrl = prefix => {
         ->Array.map(str => {
           let arr = str->Js.String2.split("=")
           let key = arr->Belt.Array.get(0)->Belt.Option.getWithDefault("-")
-          let val = arr->Belt.Array.sliceToEnd(1)->Js.Array2.joinWith("=")
+          let val = arr->Belt.Array.sliceToEnd(1)->Array.joinWith("=")
 
           (key, val->UrlFetchUtils.getFilterValue) // it will return the Json string, Json array
         })
@@ -46,11 +46,11 @@ let useUpdateUrlWith = (~prefix as _: string) => {
       ->Belt.Array.keepMap(str => {
         let arr = str->Js.String2.split("=")
         let key = arr->Belt.Array.get(0)->Belt.Option.getWithDefault("-")
-        let val = arr->Belt.Array.sliceToEnd(1)->Js.Array2.joinWith("=")
+        let val = arr->Belt.Array.sliceToEnd(1)->Array.joinWith("=")
         key === "" || val === "" ? None : Some((key, val))
       })
       ->Js.Dict.fromArray
-    let path = url.path->Belt.List.toArray->Js.Array2.joinWith("/")
+    let path = url.path->Belt.List.toArray->Array.joinWith("/")
 
     let searchParam =
       dict
@@ -59,7 +59,7 @@ let useUpdateUrlWith = (~prefix as _: string) => {
         let (key, value) = item
         `${key}=${value}`
       })
-      ->Js.Array2.joinWith("&")
+      ->Array.joinWith("&")
 
     if !DictionaryUtils.equalDicts(currentSearchParamsDict, dict) {
       RescriptReactRouter.push(`/${path}?${searchParam}`)

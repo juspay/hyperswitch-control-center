@@ -35,7 +35,7 @@ let make = (~children) => {
     ->Belt.Array.keepMap(str => {
       let arr = str->Js.String2.split("=")
       let key = arr->Belt.Array.get(0)->Belt.Option.getWithDefault("-")
-      let val = arr->Belt.Array.sliceToEnd(1)->Js.Array2.joinWith("=")
+      let val = arr->Belt.Array.sliceToEnd(1)->Array.joinWith("=")
       key === "" || val === "" ? None : Some((key, val))
     })
     ->Js.Dict.fromArray
@@ -66,7 +66,7 @@ let make = (~children) => {
             },
           )
 
-        let updatedDict = Js.Array2.concat(prevDictArr, currentDictArr)->Js.Dict.fromArray
+        let updatedDict = Array.concat(prevDictArr, currentDictArr)->Js.Dict.fromArray
         if DictionaryUtils.equalDicts(updatedDict, prev) {
           prev
         } else {
@@ -82,7 +82,7 @@ let make = (~children) => {
     let removeKeys = (arr: array<string>) => {
       setUrlDict(prev => {
         let updatedDict =
-          prev->Js.Dict.entries->Js.Array2.copy->Js.Dict.fromArray->DictionaryUtils.deleteKeys(arr)
+          prev->Js.Dict.entries->Array.copy->Js.Dict.fromArray->DictionaryUtils.deleteKeys(arr)
         if DictionaryUtils.equalDicts(updatedDict, prev) {
           prev
         } else {

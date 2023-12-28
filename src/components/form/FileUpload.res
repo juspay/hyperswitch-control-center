@@ -46,8 +46,7 @@ let make = (
     if target["files"]->Array.length > 0 {
       let filename = value["name"]
       let fileTypeArr = fileType->Js.String2.split(",")
-      let isCorrectFileFormat =
-        fileTypeArr->Js.Array2.some(item => fileTypeArr->Js.Array2.includes(item))
+      let isCorrectFileFormat = fileTypeArr->Array.some(item => fileTypeArr->Array.includes(item))
       let fileReader = FileReader.reader
       let _file =
         filename->Js.String2.includes("p12")

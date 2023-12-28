@@ -128,7 +128,7 @@ module ApiDetailsComponent = {
       ->Js.Dict.entries
       ->Array.filter(entry => {
         let (key, _) = entry
-        filteredKeys->Js.Array2.includes(key)->not
+        filteredKeys->Array.includes(key)->not
       })
       ->Js.Dict.fromArray
       ->Js.Json.object_
@@ -338,7 +338,7 @@ let make = (~paymentId, ~createdAt) => {
           let eventDict = sdkLog->getDictFromJsonObject
           let eventName = eventDict->getString("event_name", "")
           let filteredEventNames = ["StripeElementsCalled"]
-          filteredEventNames->Js.Array2.includes(eventName)->not
+          filteredEventNames->Array.includes(eventName)->not
         })
       )
 

@@ -89,7 +89,7 @@ module LineChart1D = {
     let setClickedRowNames = React.useMemo1(() => {
       (legendData: LineChartUtils.legendTableData) => {
         setClickedRowNamesOrig(prev => {
-          prev->Js.Array2.includes(legendData.groupByName)
+          prev->Array.includes(legendData.groupByName)
             ? prev->Array.filter(item => item !== legendData.groupByName)
             : [legendData.groupByName]
         })
@@ -108,8 +108,7 @@ module LineChart1D = {
         (),
       )->Belt.Array.keepMap(item => {
         if (
-          ["run_date", "run_month", "run_week"]->Js.Array2.includes(groupKey) &&
-            item.name === "Others"
+          ["run_date", "run_month", "run_week"]->Array.includes(groupKey) && item.name === "Others"
         ) {
           None
         } else {
@@ -159,17 +158,17 @@ module LineChart1D = {
         chartdata->Array.filter(item => data.name == item.name)
       | None =>
         clickedRowNames->Array.length > 0
-          ? chartdata->Array.filter(item => clickedRowNames->Js.Array2.includes(item.name))
+          ? chartdata->Array.filter(item => clickedRowNames->Array.includes(item.name))
           : chartdata
       }
 
       let xAxisMapInfo = Js.Dict.empty()
-      selectedChartData->Js.Array2.forEach(item => {
-        item.data->Js.Array2.forEach(
+      selectedChartData->Array.forEach(item => {
+        item.data->Array.forEach(
           axes => {
             let (x, y, secondryMetrics) = axes
             xAxisMapInfo->LineChartUtils.appendToDictValue(
-              ["run_date", "run_month", "run_week"]->Js.Array2.includes(groupKey)
+              ["run_date", "run_month", "run_week"]->Array.includes(groupKey)
                 ? x->Js.Json.decodeString->Belt.Option.getWithDefault("")
                 : x->Js.Json.stringify,
               (
@@ -229,7 +228,7 @@ module LineChart1D = {
         let (fillColor, color) = (chartDataItem.fillColor, chartDataItem.color) // normal
         //always uses same color for same entity Upi live mode
         let val: option<seriesLine<Js.Json.t>> = if (
-          !(clickedRowNames->Js.Array2.includes(chartDataItem.name)) &&
+          !(clickedRowNames->Array.includes(chartDataItem.name)) &&
           clickedRowNames->Array.length > 0
         ) {
           None
@@ -269,7 +268,7 @@ module LineChart1D = {
         ~activeTab=groupKey,
       )->Belt.Array.keepMap(item => {
         if (
-          ["run_date", "run_month", "run_week"]->Js.Array2.includes(groupKey) &&
+          ["run_date", "run_month", "run_week"]->Array.includes(groupKey) &&
             item.groupByName === "Others"
         ) {
           None
@@ -317,7 +316,7 @@ module LineChart1D = {
       }
       let (nonSelectedClass, backgroundColor) =
         clickedRowNames->Array.length === 0 ||
-          clickedRowNames->Js.Array2.includes(transactionTable.groupByName)
+          clickedRowNames->Array.includes(transactionTable.groupByName)
           ? ("", `${color}`)
           : ("opacity-40", `${color}50`)
 
@@ -588,9 +587,7 @@ module LineChart1D = {
           let defaultValue = {
             "type": "datetime",
           }->genericObjectOrRecordToJson
-          let defaultValue = if (
-            ["run_date", "run_month", "run_week"]->Js.Array2.includes(groupKey)
-          ) {
+          let defaultValue = if ["run_date", "run_month", "run_week"]->Array.includes(groupKey) {
             {
               "type": "category",
               "tickWidth": 0,
@@ -907,7 +904,7 @@ module LineChart2D = {
     let (groupBy1, groupBy2) = (groupBy2, groupBy1)
 
     let chartDictData = Js.Dict.empty()
-    rawChartData->Js.Array2.forEach(item => {
+    rawChartData->Array.forEach(item => {
       let dict = item->getDictFromJsonObject
       let groupBy = dict->getString(groupBy1, "")
       let groupBy = groupBy === "" ? "NA" : groupBy
@@ -953,7 +950,7 @@ module LineChart3D = {
     let (groupBy1, groupBy2, groupby3) = (groupBy2, groupby3, groupBy1)
 
     let chartDictData = Js.Dict.empty()
-    rawChartData->Js.Array2.forEach(item => {
+    rawChartData->Array.forEach(item => {
       let dict = item->getDictFromJsonObject
       let groupBy1 = dict->getString(groupBy1, "")
       let groupBy1 = groupBy1 === "" ? "NA" : groupBy1

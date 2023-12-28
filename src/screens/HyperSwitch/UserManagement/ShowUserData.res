@@ -65,9 +65,7 @@ let make = () => {
     usersList
     ->typeConversion
     ->Array.reduce(Js.Dict.empty()->UserRoleEntity.itemToObjMapperForUser, (acc, ele) => {
-      url.path->Belt.List.toArray->Js.Array2.joinWith("/")->Js.String2.includes(ele.user_id)
-        ? ele
-        : acc
+      url.path->Belt.List.toArray->Array.joinWith("/")->Js.String2.includes(ele.user_id) ? ele : acc
     })
   }, [usersList])
 

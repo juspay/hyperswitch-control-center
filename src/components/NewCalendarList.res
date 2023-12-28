@@ -123,7 +123,7 @@ let make = (
     months->Belt.Array.get(valueInt)->Belt.Option.getWithDefault(Jan)
   }
   let getMonthInFloat = mon => {
-    Js.Array2.indexOf(months, mon)->Belt.Float.fromInt
+    Array.indexOf(months, mon)->Belt.Float.fromInt
   }
 
   let startMonth = switch month {

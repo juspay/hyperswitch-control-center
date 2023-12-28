@@ -31,12 +31,12 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
 
-  fieldsToValidate->Js.Array2.forEach(key => {
+  fieldsToValidate->Array.forEach(key => {
     let value = LogicUtils.getArrayFromDict(valuesDict, key, [])
     if value->Array.length === 0 {
       key->validateEmptyValue(errors)
     } else {
-      value->Js.Array2.forEach(ele => {
+      value->Array.forEach(ele => {
         if ele->Js.Json.decodeString->Belt.Option.getWithDefault("")->HSwitchUtils.isValidEmail {
           errors->Js.Dict.set("email", "Please enter a valid email"->Js.Json.string)
         }
@@ -81,15 +81,15 @@ let getArrayOfPermissionData = json => {
 }
 
 let updatePresentInInfoList = (infoData, permissionsData) => {
-  let copyOfInfoData = infoData->Js.Array2.copy
-  let copyOfPermissionsData = permissionsData->Js.Array2.copy
+  let copyOfInfoData = infoData->Array.copy
+  let copyOfPermissionsData = permissionsData->Array.copy
 
   copyOfInfoData->Array.map((infoValItem: ProviderTypes.getInfoType) => {
     infoValItem.permissions->Array.forEachWithIndex((
       enumValue: ProviderTypes.permissions,
       index,
     ) => {
-      if copyOfPermissionsData->Js.Array2.includes(enumValue.enum_name) {
+      if copyOfPermissionsData->Array.includes(enumValue.enum_name) {
         enumValue.isPermissionAllowed = true
       }
       infoValItem.permissions[index] = enumValue
@@ -99,10 +99,10 @@ let updatePresentInInfoList = (infoData, permissionsData) => {
 }
 
 let defaultPresentInInfoList = infoData => {
-  let copyOfInfoData = infoData->Js.Array2.copy
+  let copyOfInfoData = infoData->Array.copy
 
   copyOfInfoData->Array.map((infoValItem: ProviderTypes.getInfoType) => {
-    infoValItem.permissions->Js.Array2.forEach((enumValue: ProviderTypes.permissions) => {
+    infoValItem.permissions->Array.forEach((enumValue: ProviderTypes.permissions) => {
       enumValue.isPermissionAllowed = false
     })
     infoValItem

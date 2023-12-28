@@ -97,9 +97,9 @@ module ShowItemView = {
         switch opt.options {
         | Some(arr) =>
           arr
-          ->Array.filter(x => endSelected->Js.Array2.includes(x.value))
+          ->Array.filter(x => endSelected->Array.includes(x.value))
           ->Array.map(x => x.title)
-          ->Js.Array2.joinWith(", ")
+          ->Array.joinWith(", ")
         | None => ""
         }
       | None => ""
@@ -284,7 +284,7 @@ module RenderOption = {
 
     let style = isDragging ? "border rounded-md bg-jp-gray-100 dark:bg-jp-gray-950" : ""
     let onClickCross = _ => {
-      setData(p => p->Js.Array2.filteri((_v, i) => i !== index))
+      setData(p => p->Array.filterWithIndex((_v, i) => i !== index))
     }
     let onFilter = _ => setAddView(_ => true)
     switch selectedOption {
@@ -385,7 +385,7 @@ module RenderOption = {
                             relation: "IS",
                             values: [],
                           }
-                          Js.Array2.concat(x.values, [initOb])
+                          Array.concat(x.values, [initOb])
                         },
                       }
                       newOb
@@ -456,7 +456,7 @@ let make = (
                   relation: "AND",
                   values: [],
                 }
-                setData(old => Js.Array2.concat(old, [initData]))
+                setData(old => Array.concat(old, [initData]))
 
                 setSideOpt(_ => false)
               }}>

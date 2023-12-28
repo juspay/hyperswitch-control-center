@@ -18,7 +18,7 @@ let make = (
     | FeedBackModal => "givefeedback"
     | RequestConnectorModal => "request_connector"
     }
-    ["global", url.path->LogicUtils.getListHead]->Js.Array2.forEach(ele =>
+    ["global", url.path->LogicUtils.getListHead]->Array.forEach(ele =>
       hyperswitchMixPanel(~pageName=ele, ~contextName=feedbackVia, ~actionName=mixPanelAction, ())
     )
 

@@ -140,7 +140,7 @@ let validateForm = (values, ~fieldsToValidate: array<prodFormColumnType>, ~setIs
   let errors = Js.Dict.empty()
   let valuesDict = values->getDictFromJsonObject
 
-  fieldsToValidate->Js.Array2.forEach(key => {
+  fieldsToValidate->Array.forEach(key => {
     let value = LogicUtils.getString(valuesDict, key->getStringFromVariant, "")
 
     value->Js.String2.length < 1

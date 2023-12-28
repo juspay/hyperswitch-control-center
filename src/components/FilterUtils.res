@@ -11,7 +11,7 @@ let generateDefaultUrl = dict => {
       None
     }
   })
-  ->Js.Array2.joinWith("&")
+  ->Array.joinWith("&")
 }
 
 let updateURLWithDefaultFilter = (~path, ~filterParam, ~filterString) => {

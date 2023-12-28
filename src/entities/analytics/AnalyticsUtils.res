@@ -323,7 +323,7 @@ let useFilterUrlUpdater = (~addParam="", ~getDateCreatedObject=getDateCreatedObj
       ->Belt.Array.keepMap(item => {
         let searchParam = item->Js.String2.split("=")
         let key = searchParam->Belt.Array.get(0)->Belt.Option.getWithDefault("")
-        let value = searchParam->Belt.Array.sliceToEnd(1)->Js.Array2.joinWith("=")
+        let value = searchParam->Belt.Array.sliceToEnd(1)->Array.joinWith("=")
 
         if key !== "" && value !== "" {
           Some((key, value))
@@ -468,7 +468,7 @@ module TableErrorModalContent = {
       ])
       if parentToken->Belt.Option.isSome {
         fetchApi(
-          `${summayTableEntity.uri}?query-type=tableSampleApi&metrics=${metrics}&groupBy=${groupBy->Js.Array2.joinWith(
+          `${summayTableEntity.uri}?query-type=tableSampleApi&metrics=${metrics}&groupBy=${groupBy->Array.joinWith(
               ",",
             )}`,
           ~method_=Post,
@@ -2303,7 +2303,7 @@ module RedirectToOrderTableModal = {
         ->Array.map(val => {
           val->Js.String2.toLowerCase->Js.String2.includes(searchText)
         })
-        ->Js.Array2.includes(true)
+        ->Array.includes(true)
 
       if isMatched {
         data->Js.Nullable.return->Some
@@ -2468,7 +2468,7 @@ let useGetFilters = (
 
   let (topFiltersToSearchParam, _customFilter, _modeValue) = React.useMemo1(() => {
     let modeValue = Some(getTopLevelSingleStatFilter->LogicUtils.getString(modeKey, ""))
-    let allFilterKeys = Js.Array2.concat(
+    let allFilterKeys = Array.concat(
       [startTimeFilterKey, endTimeFilterKey, modeValue->Belt.Option.getWithDefault("")],
       filterKeys,
     )
@@ -2477,7 +2477,7 @@ let useGetFilters = (
       ->Js.Dict.entries
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
-        if allFilterKeys->Js.Array2.includes(key) {
+        if allFilterKeys->Array.includes(key) {
           switch value->Js.Json.classify {
           | JSONString(str) => `${key}=${str}`->Some
           | JSONNumber(num) => `${key}=${num->Js.String.make}`->Some
@@ -2488,7 +2488,7 @@ let useGetFilters = (
           None
         }
       })
-      ->Js.Array2.joinWith("&")
+      ->Array.joinWith("&")
 
     (
       filterSearchParam,
@@ -2501,7 +2501,7 @@ let useGetFilters = (
     ->Js.Dict.entries
     ->Belt.Array.keepMap(entries => {
       let (key, value) = entries
-      filterKeys->Js.Array2.includes(key) ? Some((key, value)) : None
+      filterKeys->Array.includes(key) ? Some((key, value)) : None
     })
     ->Js.Dict.fromArray
     ->Js.Json.object_

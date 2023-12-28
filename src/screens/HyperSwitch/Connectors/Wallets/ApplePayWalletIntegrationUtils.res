@@ -24,7 +24,7 @@ let validate = (
   open LogicUtils
   let dict = values->getSessionTokenDict(integrationType)
   let errorDict = Js.Dict.empty()
-  mandateKeys->Js.Array2.forEach(key => {
+  mandateKeys->Array.forEach(key => {
     let value = dict->getString(key, "")
     if value === "" {
       errorDict->Js.Dict.set(key, `${key} cannot be empty!`->Js.Json.string)

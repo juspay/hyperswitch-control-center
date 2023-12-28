@@ -96,7 +96,7 @@ let filteredData = (
                       | (Some(transformed), _) => transformed->Js.String.make->Js.String.toLowerCase
                       | (None, _) => ""
                       }
-                      !(selectedArr->Js.Array2.includes(currVal))
+                      !(selectedArr->Array.includes(currVal))
                     }
 
                   | LabelType | TextType => {

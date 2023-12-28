@@ -194,7 +194,7 @@ let make = (
   let _ = highLightList
   let months = [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
   let heading = ["S", "M", "T", "W", "T", "F", "S"]
-  let getMonthInFloat = mon => Js.Array2.indexOf(months, mon)->Belt.Float.fromInt
+  let getMonthInFloat = mon => Array.indexOf(months, mon)->Belt.Float.fromInt
   let getMonthInStr = mon => {
     switch mon {
     | Jan => "January, "

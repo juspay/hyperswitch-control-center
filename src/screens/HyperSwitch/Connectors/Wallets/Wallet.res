@@ -76,7 +76,7 @@ module Wallets = {
       let dict = values->getDictFromJsonObject->getConfigurationFields(method, connector)
       let mandateKyes = configurationFields->Js.Dict.keys->getUniqueArray
       let errorDict = Js.Dict.empty()
-      mandateKyes->Js.Array2.forEach(key => {
+      mandateKyes->Array.forEach(key => {
         if dict->getString(key, "") === "" {
           errorDict->Js.Dict.set(key, `${key} cannot be empty!`->Js.Json.string)
         }

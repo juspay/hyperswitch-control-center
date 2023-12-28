@@ -18,7 +18,7 @@ let make = (
   let showToast = ToastState.useShowToast()
   let notShowRefundReasonList = ["adyen"]
   let showRefundReason = !(
-    notShowRefundReasonList->Js.Array2.includes(order.connector->Js.String2.toLowerCase)
+    notShowRefundReasonList->Array.includes(order.connector->Js.String2.toLowerCase)
   )
 
   let initiateValue = Js.Dict.empty()
@@ -84,7 +84,7 @@ let make = (
         }
       })
       ->Js.Dict.fromArray
-    ["amount"]->Js.Array2.forEach(key => {
+    ["amount"]->Array.forEach(key => {
       if Js.Dict.get(valuesDict, key)->Js.Option.isNone {
         Js.Dict.set(errors, key, "Required"->Js.Json.string)
       }

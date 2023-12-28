@@ -74,7 +74,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
 
   React.useEffect1(() => {
     if connector->Js.String2.length > 0 && connector !== "Unknown Connector" {
-      [connector, "global"]->Js.Array2.forEach(ele =>
+      [connector, "global"]->Array.forEach(ele =>
         hyperswitchMixPanel(
           ~pageName=url.path->LogicUtils.getListHead,
           ~contextName=ele,

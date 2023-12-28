@@ -279,7 +279,7 @@ let make = (
     setFirstRender(_ => false)
     setOffset(_ => pageDetail.offset)
     None
-  }, [url.path->Belt.List.toArray->Js.Array2.joinWith("/")])
+  }, [url.path->Belt.List.toArray->Array.joinWith("/")])
 
   React.useEffect1(_ => {
     if pageDetail.offset !== offset && !firstRender {
@@ -450,7 +450,7 @@ let make = (
           let columnFilterCopy = columnFilter->DictionaryUtils.deleteKey(key)
 
           let actualData =
-            columnFilter->Js.Dict.keys->Js.Array2.includes(headingEntity.key)
+            columnFilter->Js.Dict.keys->Array.includes(headingEntity.key)
               ? originalActualData
               : actualData
 
@@ -477,7 +477,7 @@ let make = (
                 | StartEndDate(_) | InputField(_) | TrimmedText(_) | DropDown(_) =>
                   convertStrCellToFloat(dataType, "")
                 }
-                filterValueArray->Js.Array2.push(value)->ignore
+                filterValueArray->Array.push(value)->ignore
               | None => ()
               }
             },
@@ -503,7 +503,7 @@ let make = (
 
       Some(
         showSerialNumber && tableLocalFilter
-          ? Js.Array2.concat(
+          ? Array.concat(
               [Table.Range("s_no", 0., actualData->Array.length->Belt.Int.toFloat)],
               columnFilterRow,
             )
@@ -589,7 +589,7 @@ let make = (
 
     let setIsSelected = isSelected => {
       if isSelected {
-        checkBoxProps.setSelectedData(prev => prev->Js.Array2.concat([nullableItem->toJson]))
+        checkBoxProps.setSelectedData(prev => prev->Array.concat([nullableItem->toJson]))
       } else {
         checkBoxProps.setSelectedData(prev =>
           prev->Array.filter(item => item !== nullableItem->toJson)
@@ -653,7 +653,7 @@ let make = (
       showSort: head.showSort &&
       dataExists && (
         totalResults == Array.length(rows)
-          ? rows->Js.Array2.some(row => getValue(row) !== default)
+          ? rows->Array.some(row => getValue(row) !== default)
           : true
       ),
     }

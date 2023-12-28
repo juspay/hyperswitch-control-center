@@ -69,7 +69,7 @@ let make = (
         ->Belt.Array.get(0)
         ->Belt.Option.flatMap(Js.Json.decodeObject)
         ->Belt.Option.map(obj => {
-          let computedHeading = obj->Js.Dict.keys->Js.Array2.joinWith(",")
+          let computedHeading = obj->Js.Dict.keys->Array.joinWith(",")
           //if existing keys match heading
           computedHeading === heading
         })
@@ -95,7 +95,7 @@ let make = (
             }
             itemCheck
           })
-          Js.Array2.includes(valCheck, true)
+          Array.includes(valCheck, true)
         }
 
       | _ => false
@@ -153,9 +153,9 @@ let make = (
                 jsonToarr(res)->Js.Array2.forEachi((item, i) => {
                   item
                   ->Js.Dict.values
-                  ->Js.Array2.forEach(value => {
+                  ->Array.forEach(value => {
                     if Js.Re.test_(regex, value) {
-                      let _ = Js.Array2.push(errorLines, i)
+                      let _ = Array.push(errorLines, i)
                     }
                   })
                 })

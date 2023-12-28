@@ -48,7 +48,7 @@ let make = (
       ->Js.String2.split(",")
       ->Array.map(Js.String2.trim)
       ->Array.filter(x => x !== value)
-      ->Js.Array2.joinWith(", ")
+      ->Array.joinWith(", ")
       ->Identity.stringToFormReactEvent,
     )
   }

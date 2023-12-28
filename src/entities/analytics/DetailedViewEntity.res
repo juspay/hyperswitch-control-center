@@ -302,7 +302,7 @@ let getCell = (detailedTable, colType): Table.cell => {
     })
   | Category => Text(detailedTable.category)
   | Stage => Text(detailedTable.stage)
-  | Sample_sessions => Text(detailedTable.sample_sessions->Js.Array2.joinWith(", "))
+  | Sample_sessions => Text(detailedTable.sample_sessions->Array.joinWith(", "))
   | Priority => Text(detailedTable.priority)
   | Tooltip => Text(detailedTable.tooltip)
   | Header => Text(detailedTable.header)
@@ -317,7 +317,7 @@ let getErrCell = (errorTable: errorTable, errColType): Table.cell => {
   | Actionable => Text(errorTable.actionable)
   | Error_message => Text(errorTable.error_message)
   | Error_count => Numeric(errorTable.error_count->Belt.Int.toFloat, indianShortNum)
-  | Sample_sessions => Text(errorTable.sample_sessions->Js.Array2.joinWith(", "))
+  | Sample_sessions => Text(errorTable.sample_sessions->Array.joinWith(", "))
   }
 }
 

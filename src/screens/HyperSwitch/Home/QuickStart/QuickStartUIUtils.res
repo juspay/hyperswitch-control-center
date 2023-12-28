@@ -226,13 +226,13 @@ module SelectConnectorGrid = {
         ->ConnectorUtils.getConnectorNameTypeFromString
       )
     let popularConnectorList = [STRIPE, PAYPAL, ADYEN, CHECKOUT]->Array.filter(connector => {
-      !(typedConnectedConnectorList->Js.Array2.includes(connector))
+      !(typedConnectedConnectorList->Array.includes(connector))
     })
     let remainingConnectorList =
       connectorList->Array.filter(value =>
         !(
-          popularConnectorList->Js.Array2.includes(value) ||
-            typedConnectedConnectorList->Js.Array2.includes(value)
+          popularConnectorList->Array.includes(value) ||
+            typedConnectedConnectorList->Array.includes(value)
         )
       )
 

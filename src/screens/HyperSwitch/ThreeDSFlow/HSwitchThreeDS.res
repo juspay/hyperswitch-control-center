@@ -47,7 +47,7 @@ module Configure3DSRule = {
     let addRule = (index, _copy) => {
       let existingRules = ruleInput.value->LogicUtils.getArrayFromJson([])
       let newRule = existingRules[index]->Belt.Option.getWithDefault(Js.Json.null)
-      let newRules = existingRules->Js.Array2.concat([newRule])
+      let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 

@@ -14,7 +14,7 @@ let make = () => {
     ->Recoil.useRecoilValueFromAtom
     ->MerchantAccountUtils.getValueFromBusinessProfile
 
-  let indexOfStepCounterVal = listOfStepCounter->Js.Array2.indexOf(stepCounter)
+  let indexOfStepCounterVal = listOfStepCounter->Array.indexOf(stepCounter)
   let {
     dashboardPageState,
     setDashboardPageState,

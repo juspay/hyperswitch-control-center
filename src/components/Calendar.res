@@ -315,7 +315,7 @@ let make = (
   let months = [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
   let heading = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
   let isMobileView = MatchMedia.useMobileChecker()
-  let getMonthInFloat = mon => Js.Array2.indexOf(months, mon)->Belt.Float.fromInt
+  let getMonthInFloat = mon => Array.indexOf(months, mon)->Belt.Float.fromInt
   let getMonthInStr = mon => {
     switch mon {
     | Jan => "January, "

@@ -39,14 +39,14 @@ module CardRenderer = {
     let removeOrAddMethods = method => {
       switch paymentMethod->getPaymentMethodFromString {
       | Card =>
-        if cardProviders->Js.Array2.includes(method) {
+        if cardProviders->Array.includes(method) {
           paymentMethodsEnabled->removeMethod(paymentMethod, method)->updateDetails
         } else {
           paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
         }
 
       | _ =>
-        if standardProviders->Js.Array2.includes(method) {
+        if standardProviders->Array.includes(method) {
           paymentMethodsEnabled->removeMethod(paymentMethod, method)->updateDetails
         } else {
           let methodVariant = method->getPaymentMethodTypeFromString
@@ -67,7 +67,7 @@ module CardRenderer = {
 
     let updateSelectAll = (paymentMethod, isSelectedAll) => {
       let arr = isSelectedAll ? [] : provider->LogicUtils.getUniqueArray
-      paymentMethodsEnabled->Js.Array2.forEach(val => {
+      paymentMethodsEnabled->Array.forEach(val => {
         if val.payment_method_type === paymentMethod {
           switch paymentMethod->getPaymentMethodTypeFromString {
           | Credit | Debit =>
@@ -90,7 +90,7 @@ module CardRenderer = {
     }
 
     let isSelected = value => {
-      standardProviders->Js.Array2.includes(value) || cardProviders->Js.Array2.includes(value)
+      standardProviders->Array.includes(value) || cardProviders->Array.includes(value)
         ? true
         : false
     }
@@ -199,7 +199,7 @@ module PaymentMethodsRender = {
           : Window.getConnectorConfig(connector)
       )->getDictFromJsonObject
     }, [connector])
-    let keys = pmts->Js.Dict.keys->Array.filter(val => !Js.Array2.includes(configKeysToIgnore, val))
+    let keys = pmts->Js.Dict.keys->Array.filter(val => !Array.includes(configKeysToIgnore, val))
 
     <div className="flex flex-col gap-12">
       {keys

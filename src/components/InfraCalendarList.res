@@ -6,7 +6,7 @@ let getStrArray = jsonArr => {
   jsonArr->Js.Array2.reduce((acc, jsonElement) => {
     switch jsonElement->Js.Json.decodeString {
     | Some(str) => {
-        let _ = Js.Array2.push(acc, str)
+        let _ = Array.push(acc, str)
       }
 
     | None => ()
@@ -18,7 +18,7 @@ let getStrArray = jsonArr => {
 let startYear = ref(2016)
 let years = []
 while Js.Date.make()->Js.Date.getFullYear->Belt.Float.toInt >= startYear.contents {
-  years->Js.Array2.push(startYear.contents)->ignore
+  years->Array.push(startYear.contents)->ignore
   startYear := startYear.contents + 1
 }
 years->Js.Array2.reverseInPlace->ignore
@@ -60,7 +60,7 @@ let getMonthFromFloat = value => {
   months[valueInt]->Belt.Option.getWithDefault(Jan)
 }
 let getMonthInFloat = (mon: InfraCalendar.month) => {
-  Js.Array2.indexOf(months, mon)->Belt.Float.fromInt
+  Array.indexOf(months, mon)->Belt.Float.fromInt
 }
 
 module YearItem = {

@@ -54,7 +54,7 @@ let useOutsideClick = (
       }
 
       Js.Global.setTimeout(() => {
-        events->Js.Array2.forEach(
+        events->Array.forEach(
           event => {
             Webapi.Dom.window->Webapi.Dom.Window.addEventListener(event, handleClick)
           },
@@ -63,7 +63,7 @@ let useOutsideClick = (
 
       Some(
         () => {
-          events->Js.Array2.forEach(event =>
+          events->Array.forEach(event =>
             Webapi.Dom.window->Webapi.Dom.Window.removeEventListener(event, handleClick)
           )
         },

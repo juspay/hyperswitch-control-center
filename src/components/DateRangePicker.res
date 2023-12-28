@@ -572,7 +572,7 @@ module Base = {
         DateRangeUtils.datetext(value, disableFutureDates)
         ->Js.String2.toLowerCase
         ->Js.String2.split(" ")
-        ->Js.Array2.joinWith("_")
+        ->Array.joinWith("_")
       )
       changeStartDate(stDate, false, Some(stTime))
       changeEndDate(enDate, false, Some(enTime))

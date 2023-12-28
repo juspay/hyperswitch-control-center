@@ -14,8 +14,8 @@ module InternalStorage = {
   type listener = unit => unit
   let listeners: array<listener> = []
   let addEventListener = fn => {
-    if !{listeners->Js.Array2.includes(fn)} {
-      listeners->Js.Array2.push(fn)->ignore
+    if !{listeners->Array.includes(fn)} {
+      listeners->Array.push(fn)->ignore
     }
   }
   let removeEventListener = fn => {
@@ -26,7 +26,7 @@ module InternalStorage = {
   }
 
   let sendEvents = () => {
-    listeners->Js.Array2.forEach(fn => fn())
+    listeners->Array.forEach(fn => fn())
   }
 }
 

@@ -265,7 +265,7 @@ let make = (
         </div>
         <div className="flex flex-row mt-6 md:mt-0 md:justify-self-end h-min">
           <UIUtils.RenderIf
-            condition={connectorsWithIntegrationSteps->Js.Array2.includes(
+            condition={connectorsWithIntegrationSteps->Array.includes(
               connector->getConnectorNameTypeFromString,
             )}>
             <a

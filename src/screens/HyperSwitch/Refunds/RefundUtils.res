@@ -23,8 +23,7 @@ let getRefundsList = async (
 
     if total > 0 {
       let refundDataDictArr = data->Belt.Array.keepMap(Js.Json.decodeObject)
-      let refundData =
-        arr->Js.Array2.concat(refundDataDictArr)->Array.map(RefundEntity.itemToObjMapper)
+      let refundData = arr->Array.concat(refundDataDictArr)->Array.map(RefundEntity.itemToObjMapper)
       let list = refundData->Array.map(Js.Nullable.return)
       setRefundsData(_ => list)
       setTotalCount(_ => total)

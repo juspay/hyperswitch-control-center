@@ -71,15 +71,15 @@ let convertMapObjectToDict = genericTypeMapVal => {
 }
 
 let removeDuplicate = (arr: array<string>) => {
-  arr->Js.Array2.filteri((item, i) => {
-    arr->Js.Array2.indexOf(item) === i
+  arr->Array.filterWithIndex((item, i) => {
+    arr->Array.indexOf(item) === i
   })
 }
 
 let sortBasedOnPriority = (sortArr: array<string>, priorityArr: array<string>) => {
-  let finalPriorityArr = priorityArr->Array.filter(val => sortArr->Js.Array2.includes(val))
-  let filteredArr = sortArr->Array.filter(item => !(finalPriorityArr->Js.Array2.includes(item)))
-  finalPriorityArr->Js.Array2.concat(filteredArr)
+  let finalPriorityArr = priorityArr->Array.filter(val => sortArr->Array.includes(val))
+  let filteredArr = sortArr->Array.filter(item => !(finalPriorityArr->Array.includes(item)))
+  finalPriorityArr->Array.concat(filteredArr)
 }
 let toCamelCase = str => {
   let strArr = str->Js.String2.replaceByRe(%re("/[-_]+/g"), " ")->Js.String2.split(" ")
@@ -94,7 +94,7 @@ let toCamelCase = str => {
     }
     item->Js.String2.unsafeReplaceBy3(%re("/(?:^\w|[A-Z]|\b\w)/g"), matchFn)
   })
-  ->Js.Array2.joinWith("")
+  ->Array.joinWith("")
 }
 let getNameFromEmail = email => {
   email
@@ -108,7 +108,7 @@ let getNameFromEmail = email => {
       name->Js.String2.get(0)->Js.String2.toUpperCase ++ name->Js.String2.sliceToEnd(~from=1)
     }
   })
-  ->Js.Array2.joinWith(" ")
+  ->Array.joinWith(" ")
 }
 
 let getOptionString = (dict, key) => {
@@ -344,7 +344,7 @@ let snakeToCamel = str => {
   str
   ->Js.String2.split("_")
   ->Array.mapWithIndex((x, i) => i == 0 ? x : capitalizeString(x))
-  ->Js.Array2.joinWith("")
+  ->Array.joinWith("")
 }
 
 let camelToSnake = str => {
@@ -370,11 +370,11 @@ let snakeToTitle = str => {
     let second = x->Js.String2.substringToEnd(~from=1)
     first ++ second
   })
-  ->Js.Array2.joinWith(" ")
+  ->Array.joinWith(" ")
 }
 
 let titleToSnake = str => {
-  str->Js.String2.split(" ")->Array.map(Js.String2.toLowerCase)->Js.Array2.joinWith("_")
+  str->Js.String2.split(" ")->Array.map(Js.String2.toLowerCase)->Array.joinWith("_")
 }
 
 let getIntFromString = (str, default) => {
@@ -497,7 +497,7 @@ let isEmptyDict = dict => {
   dict->Js.Dict.keys->Array.length === 0
 }
 let stringReplaceAll = (str, old, new) => {
-  str->Js.String2.split(old)->Js.Array2.joinWith(new)
+  str->Js.String2.split(old)->Array.joinWith(new)
 }
 
 let getUniqueArray = (arr: array<'t>) => {
@@ -509,7 +509,7 @@ let getFirstLetterCaps = (str, ~splitBy="-", ()) => {
   ->Js.String2.toLowerCase
   ->Js.String2.split(splitBy)
   ->Array.map(capitalizeString)
-  ->Js.Array2.joinWith(" ")
+  ->Array.joinWith(" ")
 }
 
 let getDictfromDict = (dict, key) => {
@@ -526,7 +526,7 @@ let isEqualStringArr = (arr1, arr2) => {
   let arr2 = arr2->getUniqueArray
   let lengthEqual = arr1->Array.length === arr2->Array.length
   let isContainsAll = arr1->Js.Array2.reduce((acc, str) => {
-    arr2->Js.Array2.includes(str) && acc
+    arr2->Array.includes(str) && acc
   }, true)
   lengthEqual && isContainsAll
 }
@@ -559,8 +559,8 @@ let getListHead = (~default="", list) => {
 
 let dataMerge = (~dataArr: array<array<Js.Json.t>>, ~dictKey: array<string>) => {
   let finalData = Js.Dict.empty()
-  dataArr->Js.Array2.forEach(jsonArr => {
-    jsonArr->Js.Array2.forEach(jsonObj => {
+  dataArr->Array.forEach(jsonArr => {
+    jsonArr->Array.forEach(jsonObj => {
       let dict = jsonObj->getDictFromJsonObject
       let dictKey =
         dictKey
@@ -569,13 +569,13 @@ let dataMerge = (~dataArr: array<array<Js.Json.t>>, ~dictKey: array<string>) => 
             dict->getString(ele, "")
           },
         )
-        ->Js.Array2.joinWith("-")
+        ->Array.joinWith("-")
       let existingData = finalData->getObj(dictKey, Js.Dict.empty())->Js.Dict.entries
       let data = dict->Js.Dict.entries
 
       finalData->Js.Dict.set(
         dictKey,
-        existingData->Js.Array2.concat(data)->Js.Dict.fromArray->Js.Json.object_,
+        existingData->Array.concat(data)->Js.Dict.fromArray->Js.Json.object_,
       )
     })
   })
@@ -613,7 +613,7 @@ let getTitle = name => {
   ->Js.String2.toLowerCase
   ->Js.String2.split("_")
   ->Array.map(capitalizeString)
-  ->Js.Array2.joinWith(" ")
+  ->Array.joinWith(" ")
 }
 
 // Regex to check if a string contains a substring
