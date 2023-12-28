@@ -205,7 +205,7 @@ module CashToCodeSelectBox = {
     <div>
       {opts
       ->Js.Array2.map(country => {
-        <div className="flex items-center gap-2 break-words">
+        <div className="flex items-center gap-2 break-words p-2">
           <div onClick={_e => selectedCountry(country)}>
             <CheckBoxIcon isSelected={country->isSelected} />
           </div>
@@ -220,18 +220,27 @@ module CashToCodeSelectBox = {
         setShowModal={setShowWalletConfigurationModal}
         paddingClass=""
         revealFrom=Reveal.Right
-        modalClass="w-full md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
+        modalClass="w-full p-4 md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
         childClass={""}>
-        <RenderConnectorInputFields
-          details={dict
-          ->getDictfromDict(country)
-          ->getDictfromDict(
-            (selectedCashToCodeMthd: cashToCodeMthd :> string)->Js.String2.toLowerCase,
-          )}
-          name={`connector_account_details.auth_key_map.${country}`}
-          connector
-          selectedConnector
-        />
+        <div>
+          <RenderConnectorInputFields
+            details={dict
+            ->getDictfromDict(country)
+            ->getDictfromDict(
+              (selectedCashToCodeMthd: cashToCodeMthd :> string)->Js.String2.toLowerCase,
+            )}
+            name={`connector_account_details.auth_key_map.${country}`}
+            connector
+            selectedConnector
+          />
+          <div className="flex flex-col justify-center mt-4">
+            <Button
+              text={"Proceed"}
+              buttonType=Primary
+              onClick={_ => setShowWalletConfigurationModal(_ => false)}
+            />
+          </div>
+        </div>
       </Modal>
     </div>
   }
@@ -249,15 +258,11 @@ module CashToCodeMethods = {
       let t: Tabs.tab = {
         title: (tab: cashToCodeMthd :> string),
         renderContent: () =>
-          <div className="mt-5">
-            <CashToCodeSelectBox
-              opts={dict->Js.Dict.keys}
-              dict={dict}
-              selectedCashToCodeMthd
-              connector
-              selectedConnector
-            />
-          </div>,
+          // <div className="p-6">
+          <CashToCodeSelectBox
+            opts={dict->Js.Dict.keys} dict={dict} selectedCashToCodeMthd connector selectedConnector
+          />,
+        // </div>,
       }
       t
     })
@@ -325,11 +330,11 @@ module ConnectorConfigurationFields = {
     open ConnectorUtils
     <div className="flex flex-col">
       {if connector === CASHTOCODE {
-        <div>
-          <div className="mb-6">
-            <CashToCodeMethods connectorAccountFields connector selectedConnector />
-          </div>
-        </div>
+        // <div>
+        // <div className="p-6">
+        <CashToCodeMethods connectorAccountFields connector selectedConnector />
+        // </div>
+        // </div>
       } else {
         <RenderConnectorInputFields
           details={connectorAccountFields}
