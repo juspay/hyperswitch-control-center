@@ -506,6 +506,7 @@ let make = (
 
       | None =>
         <HSwitchSingleStatWidget
+          key={singleStatArrIndex->string_of_int}
           title=""
           tooltipText=""
           deltaTooltipComponent=React.null
