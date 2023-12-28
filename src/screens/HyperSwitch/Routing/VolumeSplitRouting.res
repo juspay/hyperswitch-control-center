@@ -12,12 +12,14 @@ module VolumeRoutingView = {
     ~setScreenState,
     ~routingId,
     ~pageState,
+    ~setPageState,
     ~connectors: array<ConnectorTypes.connectorPayload>,
     ~isActive,
     ~currentTabName,
     ~initialValues,
     ~isConfigButtonEnabled,
     ~profile,
+    ~setFormState,
   ) => {
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let url = RescriptReactRouter.useUrl()
@@ -274,22 +276,16 @@ module VolumeRoutingView = {
               />
             </div>
             <div className="flex flex-col md:flex-row gap-4">
-              // <Button
-              //   text={"Duplicate & Edit Configuration"}
-              //   buttonType={Secondary}
-              //   onClick={_ => {
-              //     setFormState(_ => AdvancedRoutingTypes.EditConfig)
-              //     setInitialValues(_ => VOLUME_SPLIT->RoutingUtils.constructNameDescription)
-              //     setPageState(_ => Create)
-              //     hyperswitchMixPanel(
-              //       ~pageName=`${url.path->LogicUtils.getListHead}_${currentTabName}`,
-              //       ~contextName="previewrule",
-              //       ~actionName="duplicatevolumeconfiguration",
-              //       (),
-              //     )
-              //   }}
-              //   customButtonStyle="w-1/5 rounded-sm"
-              // />
+              <Button
+                text={"Duplicate & Edit Configuration"}
+                buttonType={Secondary}
+                onClick={_ => {
+                  setFormState(_ => AdvancedRoutingTypes.EditConfig)
+                  // setInitialValues(_ => VOLUME_SPLIT->RoutingUtils.constructNameDescription)
+                  setPageState(_ => Create)
+                }}
+                customButtonStyle="w-1/5 rounded-sm"
+              />
               <UIUtils.RenderIf condition={!isActive}>
                 <Button
                   text={"Activate Configuration"}
@@ -444,6 +440,7 @@ let make = (~routingRuleId, ~isActive) => {
           initialRule
           setScreenState
           pageState
+          setPageState
           connectors
           routingId={routingRuleId}
           isActive
@@ -451,6 +448,7 @@ let make = (~routingRuleId, ~isActive) => {
           initialValues
           isConfigButtonEnabled
           profile
+          setFormState
         />
       </UIUtils.RenderIf>
     </PageLoaderWrapper>
