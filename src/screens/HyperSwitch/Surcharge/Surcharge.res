@@ -7,11 +7,7 @@ module ActiveRulePreview = {
     let name = rule->getString("name", "")
     let description = rule->getString("description", "")
 
-    let ruleInfo =
-      rule
-      ->getJsonObjectFromDict("algorithm")
-      ->getDictFromJsonObject
-      ->SurchargeUtils.ruleInfoTypeMapper
+    let ruleInfo = rule->getDictfromDict("algorithm")->SurchargeUtils.ruleInfoTypeMapper
 
     <UIUtils.RenderIf condition={initialRule->Belt.Option.isSome}>
       <div className="relative flex flex-col gap-6 w-full border p-6 bg-white rounded-md">
