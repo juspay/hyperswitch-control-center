@@ -75,7 +75,7 @@ let countryField = FormRenderer.makeFieldInfo(
     ~fullLength=true,
     ~customStyle="max-h-48",
     ~customButtonStyle="pr-3",
-    ~options=CountryUtils.countriesList->Js.Array2.map(CountryUtils.getCountryOption),
+    ~options=CountryUtils.countriesList->Array.map(CountryUtils.getCountryOption),
     ~buttonText="Select Country",
     (),
   ),
@@ -148,7 +148,7 @@ let validateForm = (values, ~fieldsToValidate: array<prodFormColumnType>, ~setIs
       : key->validateCustom(errors, value)
   })
 
-  errors->Js.Dict.keys->Js.Array2.length > 0 ? setIsDisabled(_ => true) : setIsDisabled(_ => false)
+  errors->Js.Dict.keys->Array.length > 0 ? setIsDisabled(_ => true) : setIsDisabled(_ => false)
 
   errors->Js.Json.object_
 }

@@ -47,7 +47,7 @@ let makeFilters = (~filters: Js.Json.t, ~cardinalityArr) => {
   let expressionArr =
     decodeFilter
     ->Js.Dict.entries
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let (key, value) = item
       Js.Dict.fromArray([
         ("field", key->Js.Json.string),
@@ -56,9 +56,9 @@ let makeFilters = (~filters: Js.Json.t, ~cardinalityArr) => {
       ])
     })
   let expressionArr = Js.Array2.concat(cardinalityArr, expressionArr)
-  if expressionArr->Js.Array2.length === 1 {
+  if expressionArr->Array.length === 1 {
     expressionArr->Belt.Array.get(0)
-  } else if expressionArr->Js.Array2.length > 1 {
+  } else if expressionArr->Array.length > 1 {
     let leftInitial =
       Js.Array2.pop(expressionArr)->Belt.Option.getWithDefault(Js.Dict.empty())->Js.Json.object_
     let rightInitial =
@@ -98,19 +98,19 @@ let getFilterBody = (
         ->Js.String2.split("@@")
       let strAr = ["or", "and"]
 
-      let andAndOr = Js.String2.split(customFilterValue, " ")->Js.Array2.filter(item => {
+      let andAndOr = Js.String2.split(customFilterValue, " ")->Array.filter(item => {
         strAr->Js.Array2.includes(item->Js.String.toLocaleLowerCase)
       })
 
       let filterValueArr =
         value
-        ->Js.Array2.mapi((item, _index) => {
+        ->Array.mapWithIndex((item, _index) => {
           if Js.String.match_(%re("/ != /gi"), item)->Belt.Option.isSome {
             let value =
               Js.String2.replaceByRe(item, %re("/ != /gi"), "@@")
               ->Js.String2.split("@@")
-              ->Js.Array2.map(item => item->Js.String.trim)
-            if value->Js.Array2.length >= 2 {
+              ->Array.map(item => item->Js.String.trim)
+            if value->Array.length >= 2 {
               Some(
                 Js.Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
@@ -131,8 +131,8 @@ let getFilterBody = (
             let value =
               Js.String2.replaceByRe(item, %re("/ > /gi"), "@@")
               ->Js.String2.split("@@")
-              ->Js.Array2.map(item => item->Js.String.trim)
-            if value->Js.Array2.length >= 2 {
+              ->Array.map(item => item->Js.String.trim)
+            if value->Array.length >= 2 {
               Some(
                 Js.Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
@@ -153,8 +153,8 @@ let getFilterBody = (
             let value =
               Js.String2.replaceByRe(item, %re("/ < /gi"), "@@")
               ->Js.String2.split("@@")
-              ->Js.Array2.map(item => item->Js.String.trim)
-            if value->Js.Array2.length >= 2 {
+              ->Array.map(item => item->Js.String.trim)
+            if value->Array.length >= 2 {
               Some(
                 Js.Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
@@ -175,8 +175,8 @@ let getFilterBody = (
             let value =
               Js.String2.replaceByRe(item, %re("/ >= /gi"), "@@")
               ->Js.String2.split("@@")
-              ->Js.Array2.map(item => item->Js.String.trim)
-            if value->Js.Array2.length >= 2 {
+              ->Array.map(item => item->Js.String.trim)
+            if value->Array.length >= 2 {
               Some(
                 Js.Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
@@ -197,8 +197,8 @@ let getFilterBody = (
             let value =
               Js.String2.replaceByRe(item, %re("/ <= /gi"), "@@")
               ->Js.String2.split("@@")
-              ->Js.Array2.map(item => item->Js.String.trim)
-            if value->Js.Array2.length >= 2 {
+              ->Array.map(item => item->Js.String.trim)
+            if value->Array.length >= 2 {
               Some(
                 Js.Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
@@ -219,8 +219,8 @@ let getFilterBody = (
             let value =
               Js.String2.replaceByRe(item, %re("/ = /gi"), "@@")
               ->Js.String2.split("@@")
-              ->Js.Array2.map(item => item->Js.String.trim)
-            if value->Js.Array2.length >= 2 {
+              ->Array.map(item => item->Js.String.trim)
+            if value->Array.length >= 2 {
               Some(
                 Js.Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
@@ -241,8 +241,8 @@ let getFilterBody = (
             let value =
               Js.String2.replaceByRe(item, %re("/ IN /gi"), "@@")
               ->Js.String2.split("@@")
-              ->Js.Array2.map(item => item->Js.String.trim)
-            if value->Js.Array2.length >= 2 {
+              ->Array.map(item => item->Js.String.trim)
+            if value->Array.length >= 2 {
               Some(
                 Js.Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
@@ -255,7 +255,7 @@ let getFilterBody = (
                     ->Js.String2.replaceByRe(%re("/\(/g"), "")
                     ->Js.String2.replaceByRe(%re("/\)/g"), "")
                     ->Js.String2.split(",")
-                    ->Js.Array2.map(item => item->Js.String.trim)
+                    ->Array.map(item => item->Js.String.trim)
                     ->Js.Json.stringArray,
                   ),
                 ]),
@@ -267,8 +267,8 @@ let getFilterBody = (
             let value =
               Js.String2.replaceByRe(item, %re("/ NOT IN /gi"), "@@")
               ->Js.String2.split("@@")
-              ->Js.Array2.map(item => item->Js.String.trim)
-            if value->Js.Array2.length >= 2 {
+              ->Array.map(item => item->Js.String.trim)
+            if value->Array.length >= 2 {
               Some(
                 Js.Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
@@ -281,7 +281,7 @@ let getFilterBody = (
                     ->Js.String2.replaceByRe(%re("/\(/g"), "")
                     ->Js.String2.replaceByRe(%re("/\)/g"), "")
                     ->Js.String2.split(",")
-                    ->Js.Array2.map(item => item->Js.String.trim)
+                    ->Array.map(item => item->Js.String.trim)
                     ->Js.Json.stringArray,
                   ),
                 ]),
@@ -293,8 +293,8 @@ let getFilterBody = (
             let value =
               Js.String2.replaceByRe(item, %re("/ LIKE /gi"), "@@")
               ->Js.String2.split("@@")
-              ->Js.Array2.map(item => item->Js.String.trim)
-            if value->Js.Array2.length >= 2 {
+              ->Array.map(item => item->Js.String.trim)
+            if value->Array.length >= 2 {
               Some(
                 Js.Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
@@ -317,9 +317,9 @@ let getFilterBody = (
         })
         ->Belt.Array.keepMap(item => item)
 
-      if filterValueArr->Js.Array2.length === 1 {
+      if filterValueArr->Array.length === 1 {
         filterValueArr->Belt.Array.get(0)
-      } else if filterValueArr->Js.Array2.length >= 2 {
+      } else if filterValueArr->Array.length >= 2 {
         let leftInitial = filterValueArr[0]->Belt.Option.getWithDefault(Js.Dict.empty())
         let rightInitial = filterValueArr[1]->Belt.Option.getWithDefault(Js.Dict.empty())
         let conditionInitital = andAndOr->Belt.Array.get(0)->Belt.Option.getWithDefault("and")
@@ -386,7 +386,7 @@ let getFilterBody = (
 
   switch jsonFormattedFilter {
   | Some(jsonFormattedFilter) =>
-    switch filterValue->Js.Dict.entries->Js.Array2.length > 0 {
+    switch filterValue->Js.Dict.entries->Array.length > 0 {
     | true =>
       Js.Dict.fromArray([
         (
@@ -438,7 +438,7 @@ let apiBodyMaker = (
 
   let cardinalityArrFilter = switch (cardinality, groupBy) {
   | (Some(cardinality), Some(groupBy)) =>
-    groupBy->Js.Array2.map(item => {
+    groupBy->Array.map(item => {
       Js.Dict.fromArray([
         ("field", item->Js.Json.string),
         ("condition", "In"->Js.Json.string),
@@ -460,7 +460,7 @@ let apiBodyMaker = (
   | _ => []
   }
 
-  let activeTabArr = groupBy->Belt.Option.getWithDefault([])->Js.Array2.map(Js.Json.string)
+  let activeTabArr = groupBy->Belt.Option.getWithDefault([])->Array.map(Js.Json.string)
   finalBody->Js.Dict.set("metric", metric->Js.Json.string)
   let filterVal = getFilterBody(
     filterValueFromUrl,
@@ -469,7 +469,7 @@ let apiBodyMaker = (
     cardinalityArrFilter,
   )
 
-  if filterVal->Js.Dict.entries->Js.Array2.length !== 0 {
+  if filterVal->Js.Dict.entries->Array.length !== 0 {
     finalBody->Js.Dict.set("filters", filterVal->Js.Json.object_)
   }
 

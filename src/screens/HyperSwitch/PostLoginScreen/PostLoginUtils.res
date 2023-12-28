@@ -52,10 +52,7 @@ let getBrowswerDetailsPayload = () => {
     ("isoAlpha3", clientCountry.isoAlpha3->Js.Json.string),
     ("countryName", clientCountry.countryName->getCountryNameFromVarient->Js.Json.string),
     ("isoAlpha2", clientCountry.isoAlpha2->getCountryCodeStringFromVarient->Js.Json.string),
-    (
-      "timeZones",
-      clientCountry.timeZones->Js.Array2.map(ele => ele->Js.Json.string)->Js.Json.array,
-    ),
+    ("timeZones", clientCountry.timeZones->Array.map(ele => ele->Js.Json.string)->Js.Json.array),
   ])
   [
     ("userAgent", browserDetails.userAgent->Js.Json.string),
@@ -77,7 +74,7 @@ let generateSurveyJson = values => {
   let valuesDict = values->getDictFromJsonObject
   let survey_json =
     questionForSurvey
-    ->Js.Array2.map(value => {
+    ->Array.map(value => {
       (value.key, valuesDict->getString(value.key, "")->Js.Json.string)
     })
     ->Js.Dict.fromArray
@@ -90,7 +87,7 @@ let generateSurveyJson = values => {
 
 let initialValueDict =
   questionForSurvey
-  ->Js.Array2.map(value => {
+  ->Array.map(value => {
     (value.key, ""->Js.Json.string)
   })
   ->Js.Dict.fromArray

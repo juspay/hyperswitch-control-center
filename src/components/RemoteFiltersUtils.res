@@ -42,7 +42,7 @@ let getFinalDict = (
   ->Js.Array2.forEach(entry => {
     let (key, val) = entry
 
-    let parser = switch options->Js.Array2.find(option => {
+    let parser = switch options->Array.find(option => {
       option.urlKey === key
     }) {
     | Some(selectedOption) => selectedOption.parser
@@ -76,10 +76,10 @@ let getFinalDict = (
     filterDict->Js.Dict.set(key, val)
   })
 
-  if filterDict->Js.Dict.keys->Js.Array2.length === 0 {
+  if filterDict->Js.Dict.keys->Array.length === 0 {
     filterJson
   } else {
-    if dropdownSearchKeyValueNames->Js.Array2.length === 2 {
+    if dropdownSearchKeyValueNames->Array.length === 2 {
       if !isSearchKeyArray {
         let key =
           filterDict
@@ -98,7 +98,7 @@ let getFinalDict = (
             if intSearchKeys->Js.Array2.includes(key->Js.Json.string) {
               value->LogicUtils.getFloatFromString(0.00)->Js.Json.number
             } else if arrSearchKeys->Js.Array2.includes(key->Js.Json.string) {
-              value->Js.String2.split(",")->Js.Array2.map(str => str->Js.Json.string)->Js.Json.array
+              value->Js.String2.split(",")->Array.map(str => str->Js.Json.string)->Js.Json.array
             } else {
               value->Js.Json.string
             }
@@ -114,13 +114,13 @@ let getFinalDict = (
             dropdownSearchKeyValueNames[0]->Belt.Option.getWithDefault(""),
             [],
           )
-          ->Js.Array2.map(item => item->LogicUtils.getStringFromJson("")->LogicUtils.toCamelCase)
+          ->Array.map(item => item->LogicUtils.getStringFromJson("")->LogicUtils.toCamelCase)
         let value =
           filterDict
           ->LogicUtils.getString(dropdownSearchKeyValueNames[1]->Belt.Option.getWithDefault(""), "")
           ->Js.String2.split(", ")
         value->Js.Array2.forEachi((value, indx) => {
-          let key = key->Js.Array2.length > indx ? key[indx]->Belt.Option.getWithDefault("") : ""
+          let key = key->Array.length > indx ? key[indx]->Belt.Option.getWithDefault("") : ""
           if value !== "" && key != "" {
             let isformat = searchkeysDict !== Js.Dict.empty()
             let value = if isformat {
@@ -129,10 +129,7 @@ let getFinalDict = (
               if intSearchKeys->Js.Array2.includes(key->Js.Json.string) {
                 value->LogicUtils.getFloatFromString(0.00)->Js.Json.number
               } else if arrSearchKeys->Js.Array2.includes(key->Js.Json.string) {
-                value
-                ->Js.String2.split(",")
-                ->Js.Array2.map(str => str->Js.Json.string)
-                ->Js.Json.array
+                value->Js.String2.split(",")->Array.map(str => str->Js.Json.string)->Js.Json.array
               } else {
                 value->Js.Json.string
               }
@@ -160,7 +157,7 @@ let getFinalDict = (
 let getStrFromJson = (key, val) => {
   switch val->Js.Json.classify {
   | JSONString(str) => str
-  | JSONArray(array) => array->Js.Array2.length > 0 ? `[${array->Js.Array2.joinWith(",")}]` : ""
+  | JSONArray(array) => array->Array.length > 0 ? `[${array->Js.Array2.joinWith(",")}]` : ""
   | JSONNumber(num) => key === "offset" ? "0" : num->Belt.Float.toInt->string_of_int
   | _ => ""
   }
@@ -173,7 +170,7 @@ let getInitialValuesFromUrl = (
   ~mandatoryRemoteKeys: array<string>=[],
   (),
 ) => {
-  let initialFilters = initialFilters->Js.Array2.map(item => item.field)
+  let initialFilters = initialFilters->Array.map(item => item.field)
   let dict = Js.Dict.empty()
   let searchParams = searchParams->LogicUtils.stringReplaceAll("%20", " ")
   if Js.String.length(searchParams) > 0 {
@@ -273,8 +270,8 @@ let getLocalFiltersData = (
       let start_Date =
         valueList[keyList->Js.Array2.indexOf(startKey)]->Belt.Option.getWithDefault("")
       let end_Date = valueList[keyList->Js.Array2.indexOf(endKey)]->Belt.Option.getWithDefault("")
-      let keyList = keyList->Js.Array2.filter(item => item != startKey && item != endKey)
-      let valueList = valueList->Js.Array2.filter(item => item != start_Date && item != end_Date)
+      let keyList = keyList->Array.filter(item => item != startKey && item != endKey)
+      let valueList = valueList->Array.filter(item => item != start_Date && item != end_Date)
       keyList->Js.Array2.push(startKey)->ignore
       valueList->Js.Array2.push(`${start_Date}&${end_Date}`)->ignore
       (keyList, valueList)
@@ -293,7 +290,7 @@ let getLocalFiltersData = (
               if Js.String2.includes(value, "[") {
                 let str = Js.String2.slice(~from=1, ~to_=value->Js.String2.length - 1, value)
                 let splitArray = Js.String2.split(str, ",")
-                let jsonarr = splitArray->Js.Array2.map(val => Js.Json.string(val))
+                let jsonarr = splitArray->Array.map(val => Js.Json.string(val))
                 res.contents = switch localFilter {
                 | Some(localFilter) => localFilter(res.contents, Js.Json.array(jsonarr))
                 | None => res.contents
@@ -336,7 +333,7 @@ let generateUrlFromDict = (~dict, ~options: array<EntityType.optionType<'t>>, ta
 
     let strValue = getStrFromJson(key, val)
     if strValue !== "" {
-      let requiredOption = options->Js.Array2.find(option => option.urlKey === key)
+      let requiredOption = options->Array.find(option => option.urlKey === key)
       switch requiredOption {
       | Some(option) => {
           let finalVal = option.parser(val)
@@ -420,7 +417,7 @@ let applyFilters = (
       fn(
         localSearchDict
         ->Js.Dict.entries
-        ->Js.Array2.map(item => {
+        ->Array.map(item => {
           let (key, value) = item
           (key, getStrFromJson(key, value))
         })

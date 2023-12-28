@@ -197,7 +197,7 @@ let make = (
     None
   }, [tabIndex])
   let buttonStyle =
-    tabIndex === tabs->Js.Array2.length - 1
+    tabIndex === tabs->Array.length - 1
       ? "!border !border-blue-700 !rounded-md bg-white !text-blue-700"
       : "!rounded-md"
   let requestedPlatform = getRequestedPlatforms()
@@ -223,7 +223,7 @@ let make = (
             customButtonStyle=buttonStyle
             buttonType={Secondary}
             buttonSize={Small}
-            buttonState={tabIndex === tabs->Js.Array2.length - 1 ? Normal : Disabled}
+            buttonState={tabIndex === tabs->Array.length - 1 ? Normal : Disabled}
             onClick={_ => handleMarkAsDone()}
           />
         </UIUtils.RenderIf>
@@ -248,7 +248,7 @@ let make = (
               setTabIndex(_ => indx)
             }}
           />
-          <UIUtils.RenderIf condition={tabIndex !== tabs->Js.Array2.length - 1}>
+          <UIUtils.RenderIf condition={tabIndex !== tabs->Array.length - 1}>
             <div className="flex my-4 w-full justify-end">
               <Button
                 text={"Next Step"}

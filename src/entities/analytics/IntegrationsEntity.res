@@ -179,11 +179,11 @@ let getManagementTable: Js.Json.t => array<integrationTable> = json => {
   let val =
     json
     ->LogicUtils.getArrayFromJson([])
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       tableItemToObjMapper(item->getDictFromJsonObject)
     })
 
-  val->Js.Array2.map(item => {
+  val->Array.map(item => {
     let score =
       item.critical_success->Belt.Int.toFloat /. item.critical_total->Belt.Int.toFloat *. 100.
 
@@ -493,13 +493,13 @@ let timeSeriesObjMapper = json => {
 
   let timeSeriesArr =
     queryData
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let dic = item->Js.Json.decodeObject->getWithDefault(Js.Dict.empty())
       dic->getString("time_bucket", "")
     })
     ->getUniqueArray
-    ->Js.Array2.map(item => {
-      queryData->Js.Array2.filter(ele => {
+    ->Array.map(item => {
+      queryData->Array.filter(ele => {
         let dic = ele->Js.Json.decodeObject->getWithDefault(Js.Dict.empty())
         let timeBucket = dic->getString("time_bucket", "")
         item === timeBucket
@@ -541,22 +541,22 @@ let defaultColumn: array<DynamicSingleStat.columns<colT>> = [
 let constructData = (key, singlestatTimeseriesData) => {
   switch key {
   | "ec_only_count" =>
-    singlestatTimeseriesData->Js.Array2.map(ob => (
+    singlestatTimeseriesData->Array.map(ob => (
       ob.timeSeries->DateTimeUtils.parseAsFloat,
       ob.ec_only_count->Belt.Int.toFloat,
     ))
   | "ec_sdk_count" =>
-    singlestatTimeseriesData->Js.Array2.map(ob => (
+    singlestatTimeseriesData->Array.map(ob => (
       ob.timeSeries->DateTimeUtils.parseAsFloat,
       ob.ec_sdk_count->Belt.Int.toFloat,
     ))
   | "payment_page_session_count" =>
-    singlestatTimeseriesData->Js.Array2.map(ob => (
+    singlestatTimeseriesData->Array.map(ob => (
       ob.timeSeries->DateTimeUtils.parseAsFloat,
       ob.payment_page_session_count->Belt.Int.toFloat,
     ))
   | "payment_page_signature_count" =>
-    singlestatTimeseriesData->Js.Array2.map(ob => (
+    singlestatTimeseriesData->Array.map(ob => (
       ob.timeSeries->DateTimeUtils.parseAsFloat,
       ob.payment_page_signature_count->Belt.Int.toFloat,
     ))

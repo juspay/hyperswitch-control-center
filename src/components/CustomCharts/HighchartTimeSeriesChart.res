@@ -75,7 +75,7 @@ module LineChart1D = {
 
     let (fistLegend, secondLegend) = switch selectedMetrics {
     | {legendOption} =>
-      legendData->Js.Array2.length > 0
+      legendData->Array.length > 0
         ? legendOption
         : LineChartUtils.legendTypeBasedOnMetric(selectedMetrics.metric_type)
     | _ => LineChartUtils.legendTypeBasedOnMetric(selectedMetrics.metric_type)
@@ -90,7 +90,7 @@ module LineChart1D = {
       (legendData: LineChartUtils.legendTableData) => {
         setClickedRowNamesOrig(prev => {
           prev->Js.Array2.includes(legendData.groupByName)
-            ? prev->Js.Array2.filter(item => item !== legendData.groupByName)
+            ? prev->Array.filter(item => item !== legendData.groupByName)
             : [legendData.groupByName]
         })
       }
@@ -115,7 +115,7 @@ module LineChart1D = {
         } else {
           Some({
             ...item,
-            data: item.data->Js.Array2.map(
+            data: item.data->Array.map(
               dataItem => {
                 let (xAxis, yAxis, xY) = dataItem
 
@@ -156,10 +156,10 @@ module LineChart1D = {
 
       let selectedChartData = switch selectedRow {
       | Some(data: LineChartUtils.chartData<Js.Json.t>) =>
-        chartdata->Js.Array2.filter(item => data.name == item.name)
+        chartdata->Array.filter(item => data.name == item.name)
       | None =>
-        clickedRowNames->Js.Array2.length > 0
-          ? chartdata->Js.Array2.filter(item => clickedRowNames->Js.Array2.includes(item.name))
+        clickedRowNames->Array.length > 0
+          ? chartdata->Array.filter(item => clickedRowNames->Js.Array2.includes(item.name))
           : chartdata
       }
 
@@ -185,10 +185,10 @@ module LineChart1D = {
         )
       })
 
-      let data = if clickedRowNames->Js.Array2.length === 0 {
+      let data = if clickedRowNames->Array.length === 0 {
         switch hoverOnRows {
         | Some(hoverOnRows) =>
-          chartdata->Js.Array2.map(item => {
+          chartdata->Array.map(item => {
             let color = switch item.color {
             | Some(color) => Some(item.name !== hoverOnRows ? `${color}20` : color)
             | None => None
@@ -230,14 +230,14 @@ module LineChart1D = {
         //always uses same color for same entity Upi live mode
         let val: option<seriesLine<Js.Json.t>> = if (
           !(clickedRowNames->Js.Array2.includes(chartDataItem.name)) &&
-          clickedRowNames->Js.Array2.length > 0
+          clickedRowNames->Array.length > 0
         ) {
           None
         } else {
           let value: Highcharts.seriesLine<Js.Json.t> = {
             color,
             name: chartDataItem.name,
-            data: chartDataItem.data->Js.Array2.map(
+            data: chartDataItem.data->Array.map(
               item => {
                 let (x, y, _) = item
                 (x, y->Js.Nullable.return)
@@ -316,7 +316,7 @@ module LineChart1D = {
         num->HSAnalyticsUtils.setPrecision()
       }
       let (nonSelectedClass, backgroundColor) =
-        clickedRowNames->Js.Array2.length === 0 ||
+        clickedRowNames->Array.length === 0 ||
           clickedRowNames->Js.Array2.includes(transactionTable.groupByName)
           ? ("", `${color}`)
           : ("opacity-40", `${color}50`)
@@ -696,7 +696,7 @@ module LineChart1D = {
       ("flex flex-row", "w-1/5", "w-4/5")
     }
 
-    if chartData->Js.Array2.length > 0 {
+    if chartData->Array.length > 0 {
       <div className={isMobileView ? "w-full" : isMultiDimensional ? "w-1/3" : ""}>
         <div className={`${flexClass} ${class} px-4 pb-3`}>
           <AddDataAttributes attributes=[("data-chart", chartTitleText)]>
@@ -723,29 +723,29 @@ module LineChart1D = {
                   : [GroupBY, fistLegend, secondLegend]}
                 title="High Chart Time Series Chart"
                 hideTitle=true
-                actualData={legendData->Js.Array2.map(Js.Nullable.return)}
+                actualData={legendData->Array.map(Js.Nullable.return)}
                 entity=legendTableEntity
                 resultsPerPage=15
-                totalResults={legendData->Js.Array2.length}
+                totalResults={legendData->Array.length}
                 offset
                 setOffset
                 defaultSort
                 showPagination=false
-                currrentFetchCount={legendData->Js.Array2.length}
+                currrentFetchCount={legendData->Array.length}
                 onEntityClick={val => {
                   setClickedRowNames(val)
                 }}
                 onEntityDoubleClick={val => {
                   setClickedRowNamesOrig(_ => [])
-                  clickedRowNames->Js.Array2.length > 0 ? setHoverOnRows(_ => None) : ()
+                  clickedRowNames->Array.length > 0 ? setHoverOnRows(_ => None) : ()
                 }}
                 onMouseEnter={val => {
-                  clickedRowNames->Js.Array2.length === 0
+                  clickedRowNames->Array.length === 0
                     ? setHoverOnRows(_ => Some(val.groupByName))
                     : ()
                 }}
                 onMouseLeave={val => {
-                  clickedRowNames->Js.Array2.length === 0 ? setHoverOnRows(_ => None) : ()
+                  clickedRowNames->Array.length === 0 ? setHoverOnRows(_ => None) : ()
                 }}
                 isHighchartLegend=true
                 showTableOnMobileView=true
@@ -778,7 +778,7 @@ module LegendItem = {
       }
     <div className="flex flex-row m-5 gap-6 font-inter-style mobile:flex-wrap">
       {LineChartUtils.removeDuplicates(chartNames)
-      ->Js.Array2.map(legendItem => {
+      ->Array.map(legendItem => {
         let opacity = opacity(legendItem.name)
         <AddDataAttributes attributes=[("data-chart-legend", legendItem.name)]>
           <div
@@ -831,9 +831,9 @@ module RenderMultiDimensionalChart = {
           (),
         )
         chartdata
-        ->Js.Array2.map(i =>
+        ->Array.map(i =>
           acc->Array.push({
-            data: i.data->Js.Array2.map(
+            data: i.data->Array.map(
               item => {
                 let (val1, val2, val3) = item
                 (val1->Js.Json.number, val2, val3)

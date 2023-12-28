@@ -337,7 +337,7 @@ let timeSeriesDataMaker = (
   let secondryMetrics = metricsConfig.secondryMetrics
   let timeSeriesDict = Js.Dict.empty() // { name : groupByName, data: array<(value1, value2)>}
   let groupedByTime = Js.Dict.empty() // {time : [values at that time]}
-  let _ = data->Js.Array2.map(item => {
+  let _ = data->Array.map(item => {
     let dict = item->getDictFromJsonObject
 
     let groupByName =
@@ -369,17 +369,17 @@ let timeSeriesDataMaker = (
 
   let timeSeriesArr = timeSeriesDict->Js.Dict.entries
 
-  let chartOverlapping = timeSeriesArr->Js.Array2.length
+  let chartOverlapping = timeSeriesArr->Array.length
 
   let topGradient = calculateOpacity(~length=chartOverlapping, ~originalOpacity=0.50)
   let bottomGradient = calculateOpacity(~length=chartOverlapping, ~originalOpacity=0.05)
 
-  timeSeriesArr->Js.Array2.mapi((item, index) => {
+  timeSeriesArr->Array.mapWithIndex((item, index) => {
     let (key, value) = item
     let sortedValBasedOnTime = switch metrixType {
     | Traffic =>
       value
-      ->Js.Array2.map(item => {
+      ->Array.map(item => {
         let (key, value, secondryMetrix) = item
         let trafficValue =
           value *.
@@ -390,21 +390,19 @@ let timeSeriesDataMaker = (
       ->Js.Array2.sortInPlaceWith(chartDataSortBasedOnTime)
     | _ => value->Js.Array2.sortInPlaceWith(chartDataSortBasedOnTime)
     }
-    let color = switch colors->Js.Array2.find(item => item.name == key) {
+    let color = switch colors->Array.find(item => item.name == key) {
     | Some(val) => val.color
     | None =>
-      legendColor[mod(index, legendColor->Js.Array2.length)]->Belt.Option.getWithDefault(
-        defaultColor,
-      )
+      legendColor[mod(index, legendColor->Array.length)]->Belt.Option.getWithDefault(defaultColor)
     }
 
-    let fillColor = switch legendColorGradients(topGradient, bottomGradient)->Js.Array2.find(item =>
+    let fillColor = switch legendColorGradients(topGradient, bottomGradient)->Array.find(item =>
       item.color->Belt.Option.getWithDefault("#000000") == color
     ) {
     | Some(val) => val
     | None =>
       legendColorGradients(topGradient, bottomGradient)[
-        mod(index, legendColor->Js.Array2.length)
+        mod(index, legendColor->Array.length)
       ]->Belt.Option.getWithDefault(defaultLegendColorGradients(topGradient, bottomGradient))
     }
     let value: timeSeriesDictWithSecondryMetrics<float> = {
@@ -427,7 +425,7 @@ let getLegendDataForCurrentMetrix = (
   ~metrixType: dropDownMetricType,
 ) => {
   let currentAvgDict = Js.Dict.empty()
-  let orderedDims = groupedData->Js.Array2.map(item => {
+  let orderedDims = groupedData->Array.map(item => {
     let dict = item->getDictFromJsonObject
     getString(
       dict,
@@ -455,32 +453,32 @@ let getLegendDataForCurrentMetrix = (
   let currentAvgSortedDict =
     currentAvgDict
     ->Js.Dict.entries
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let (key, value) = item
       (key, value->Js.Array2.sortInPlaceWith(sortBasedOnTimeLegend))
     })
   let currentValueOverallSum =
     currentAvgSortedDict
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let (_, value) = item
       let (_, currentVal) =
-        value->Belt.Array.get(value->Js.Array.length - 1)->Belt.Option.getWithDefault(("", 0.))
+        value->Belt.Array.get(value->Array.length - 1)->Belt.Option.getWithDefault(("", 0.))
       currentVal
     })
     ->AnalyticsUtils.sumOfArrFloat
-  let currentAvgDict = if groupedData->Js.Array2.length === 0 {
+  let currentAvgDict = if groupedData->Array.length === 0 {
     currentAvgDict
     ->Js.Dict.entries
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let (key, value) = item
       let sortedValueBasedOnTime = value->Js.Array2.sortInPlaceWith(sortBasedOnTimeLegend)
-      let arrLen = sortedValueBasedOnTime->Js.Array2.length
+      let arrLen = sortedValueBasedOnTime->Array.length
       let (_, currentVal) =
         sortedValueBasedOnTime->Belt.Array.get(arrLen - 1)->Belt.Option.getWithDefault(("", 1.0))
 
       let overall =
         sortedValueBasedOnTime
-        ->Js.Array2.map(item => {
+        ->Array.map(item => {
           let (_, value) = item
           value
         })
@@ -503,17 +501,17 @@ let getLegendDataForCurrentMetrix = (
     let totalOverall =
       currentOverall
       ->Js.Dict.entries
-      ->Js.Array2.map(item => {
+      ->Array.map(item => {
         let (_, value) = item
         value
       })
       ->AnalyticsUtils.sumOfArrFloat
     currentAvgDict
     ->Js.Dict.entries
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let (metricsName, value) = item
       let sortedValueBasedOnTime = value->Js.Array2.sortInPlaceWith(sortBasedOnTimeLegend)
-      let arrLen = sortedValueBasedOnTime->Js.Array2.length
+      let arrLen = sortedValueBasedOnTime->Array.length
       let (_, currentVal) = sortedValueBasedOnTime[arrLen - 1]->Belt.Option.getWithDefault(("", 0.))
       // the avg stat won't work correct for Sr case have to find another way or avoid using the avg for Sr
       let overall = if metrixType === Traffic {
@@ -546,7 +544,7 @@ let getLegendDataForCurrentMetrix = (
 
   currentAvgDict
   ->Js.Array2.sortInPlaceWith(sortBasedOnArr)
-  ->Js.Array2.mapi((item, index) => {
+  ->Array.mapWithIndex((item, index) => {
     {...item, index}
   })
 }
@@ -571,14 +569,14 @@ let barChartDataMaker = (~yAxis: string, ~rawData: array<Js.Json.t>, ~activeTab:
 
   let val: Highcharts.barChartSeries = {
     color: "#4C8CFB",
-    data: value->Js.Array2.map(item => {
+    data: value->Array.map(item => {
       let (_, data) = item
 
       data
     }),
   }
   (
-    value->Js.Array2.map(item => {
+    value->Array.map(item => {
       let (categories, _) = item
       categories
     }),
@@ -611,10 +609,10 @@ let legendClickItem = (s: Highcharts.legendItem, e, setState) => {
       setState(prev => {
         let value =
           prev->Js.Array2.includes(x)
-            ? prev->Js.Array2.filter(item => item !== x)
+            ? prev->Array.filter(item => item !== x)
             : Belt.Array.concat(prev, [x])
 
-        if value->Js.Array2.length === 0 {
+        if value->Array.length === 0 {
           Belt.Array.forEach(
             s.chart.series,
             y => {
@@ -720,7 +718,7 @@ let legendFormatter = (
 
   let value =
     legendData
-    ->Js.Array2.filter(item => {
+    ->Array.filter(item => {
       item.groupByName === name
     })
     ->Belt.Array.get(0)
@@ -780,7 +778,7 @@ let tooltipFormatter = (
     let onCursorName = series->getString("name", "")
     let htmlStr =
       dataArr
-      ->Js.Array2.map(data => {
+      ->Array.map(data => {
         getTooltipHTML(metrics, data, onCursorName)
       })
       ->Js.Array2.joinWith("")
@@ -940,13 +938,13 @@ let chartDataMaker = (~filterNull=false, rawData, groupKey, metric) => {
     }
   }
   rawData
-  ->Js.Array2.filter(dataPoint => {
+  ->Array.filter(dataPoint => {
     !filterNull || {
       let dataPointDict = dataPoint->getDictFromJsonObject
       dataPointDict->getString(groupKey, "") !== "other"
     }
   })
-  ->Js.Array2.map(dataPoint => {
+  ->Array.map(dataPoint => {
     let dataPointDict = dataPoint->getDictFromJsonObject
     (
       dataPointDict->getString(groupKey, "")->Js.String2.toLowerCase->snakeToTitle,

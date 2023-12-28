@@ -25,7 +25,7 @@ let make = (~url, ~className, ~loading, ~height=700, ~width=800, ~error) => {
 
   <DocumentPDF file=url className onLoadSuccess error loading noData>
     {Belt.Array.makeBy(numPages, i => i + 1)
-    ->Js.Array2.mapi((ele, index) => {
+    ->Array.mapWithIndex((ele, index) => {
       <Page
         key={`page_${index->string_of_int}`}
         pageNumber={ele}

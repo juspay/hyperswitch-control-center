@@ -23,7 +23,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
       {
         title: "Manage rules",
         renderContent: () => {
-          records->Js.Array2.length > 0
+          records->Array.length > 0
             ? <History records activeRoutingIds />
             : <DefaultLandingPage
                 height="90%"
@@ -53,7 +53,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         ->Js.Json.decodeArray
         ->Belt.Option.getWithDefault([])
         ->Belt.Array.keepMap(Js.Json.decodeObject)
-        ->Js.Array2.map(HistoryEntity.itemToObjMapper)
+        ->Array.map(HistoryEntity.itemToObjMapper)
 
       // To sort the data in a format that active routing always comes at top of the table
       // For ref:https://rescript-lang.org/docs/manual/latest/api/js/array-2#sortinplacewith
@@ -69,7 +69,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
             0
           }
         })
-        ->Js.Array2.map(Js.Nullable.return)
+        ->Array.map(Js.Nullable.return)
 
       setRecords(_ => sortedHistoryRecords)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -91,7 +91,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
       let routingArr = routingJson->getArrayFromJson([])
 
-      if routingArr->Js.Array2.length > 0 {
+      if routingArr->Array.length > 0 {
         let currentActiveIds = []
         routingArr->Js.Array2.forEach(ele => {
           let id = ele->getDictFromJsonObject->getString("id", "")

@@ -60,7 +60,7 @@ let validateForm = (
   // duplicate entry check
   if (
     list
-    ->Js.Array2.find(item => {
+    ->Array.find(item => {
       let profileName = valuesDict->getUserEnteredProfileDetails
       item.profile_name === profileName
     })

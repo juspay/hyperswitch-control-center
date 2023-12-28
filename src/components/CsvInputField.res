@@ -43,10 +43,10 @@ let make = (
 
   let validateUploadedFile = fileJson => {
     let allHeadings = Js.String2.split(heading, ",")
-    if allHeadings->Js.Array2.length == 1 {
+    if allHeadings->Array.length == 1 {
       let headingStr = switch Js.Json.decodeArray(fileJson) {
       | Some(dict_arr) =>
-        if Js.Array2.length(dict_arr) != 0 {
+        if Array.length(dict_arr) != 0 {
           switch dict_arr[0]->Belt.Option.getWithDefault(Js.Json.null)->Js.Json.decodeObject {
           | Some(obj) => {
               let key = Js.Dict.keys(obj)
@@ -77,7 +77,7 @@ let make = (
 
       let fileDataCheck = switch fileJson->Js.Json.decodeArray {
       | Some(dict_arr) => {
-          let valCheck = dict_arr->Js.Array2.map(item => {
+          let valCheck = dict_arr->Array.map(item => {
             let itemCheck = switch item->Js.Json.decodeObject {
             | Some(val) => {
                 let fieldCheck = val->Js.Dict.entries->Js.Array2.reduce((acc, entry) => {
@@ -123,7 +123,7 @@ let make = (
     let target = ReactEvent.Form.target(evt)
     let value = target["files"]["0"]
 
-    if target["files"]->Js.Array2.length > 0 {
+    if target["files"]->Array.length > 0 {
       let filename = value["name"]
       setFilename(_ => filename)
       let fileReader = FileReader.reader
@@ -141,7 +141,7 @@ let make = (
           | Some(validateFn) => validateFn(res)
           | None => true
           }
-          if Js.Array2.length(value) == 0 {
+          if Array.length(value) == 0 {
             toast("Empty file or invalid format uploaded", ToastError)
           } else if validateUploadedFile(res) && isValid {
             setIsNewUpload(_ => true)
@@ -160,12 +160,12 @@ let make = (
                   })
                 })
 
-                if errorLines->Js.Array2.length === 0 {
+                if errorLines->Array.length === 0 {
                   input.onChange(res->Identity.anyTypeToReactEvent)
                   toast("File Uploaded Successfully", ToastSuccess)
                 }
 
-                if errorLines->Js.Array2.length > 0 {
+                if errorLines->Array.length > 0 {
                   let errorLineNo = string_of_int(errorLines[0]->Belt.Option.getWithDefault(0) + 1)
                   toast(`Error: Invalid file row content (line ${errorLineNo})`, ToastError)
                 }
@@ -243,13 +243,13 @@ let make = (
         </label>
       </div>
       {if fileType == ".csv" {
-        if Js.Array2.length(jsonToarr(input.value)) != 0 && showStatus {
+        if Array.length(jsonToarr(input.value)) != 0 && showStatus {
           <>
             <div
               className="flex flex-row p-2  text-base text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-40 text-opacity-50 font-medium">
               {if isNewUpload {
                 React.string(
-                  Belt.Int.toString(Js.Array2.length(jsonToarr(input.value))) ++ " Rows Uploaded",
+                  Belt.Int.toString(Array.length(jsonToarr(input.value))) ++ " Rows Uploaded",
                 )
               } else {
                 React.string("File Uploaded")

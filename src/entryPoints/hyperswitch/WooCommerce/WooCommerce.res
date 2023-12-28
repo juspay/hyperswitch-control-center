@@ -271,7 +271,7 @@ let make = () => {
 
   React.useEffect1(() => {
     let enums = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
-    let currentPending = steps->Js.Array2.find(step => {
+    let currentPending = steps->Array.find(step => {
       step->enumToValueMapper(enums) === false
     })
 

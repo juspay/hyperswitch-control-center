@@ -39,8 +39,8 @@ let make = (
 
   let selectInputOption = {
     [5, 10, 15, 25, 50, 100]
-    ->Js.Array2.filter(val => val <= totalResults)
-    ->Js.Array2.map(Belt.Int.toString)
+    ->Array.filter(val => val <= totalResults)
+    ->Array.map(Belt.Int.toString)
     ->SelectBox.makeOptions
   }
   let selectInput: ReactFinalForm.fieldRenderPropsInput = {

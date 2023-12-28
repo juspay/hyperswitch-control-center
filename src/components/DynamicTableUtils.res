@@ -48,13 +48,13 @@ let filteredData = (
   dateFormatConvertor: string => option<Js.Json.t>,
 ) => {
   let selectedFiltersKeys = columnFilter->Js.Dict.keys
-  if selectedFiltersKeys->Js.Array2.length > 0 {
-    actualData->Js.Array2.filter(item => {
+  if selectedFiltersKeys->Array.length > 0 {
+    actualData->Array.filter(item => {
       switch item->Js.Nullable.toOption {
       | Some(row) =>
         // either to take this row or not if any filter is present then take row or else drop
         let rowDict = row->Identity.genericTypeToDictOfJson
-        let anyMatch = selectedFiltersKeys->Js.Array2.find(keys => {
+        let anyMatch = selectedFiltersKeys->Array.find(keys => {
           // Selected fitler
           switch Js.Dict.get(columnFilter, keys) {
           | Some(selectedArr) => {
@@ -90,7 +90,7 @@ let filteredData = (
                       let selectedArr =
                         selectedArr
                         ->Belt.Array.keepMap(item => item->Js.Json.decodeString)
-                        ->Js.Array2.map(Js.String.toLowerCase)
+                        ->Array.map(Js.String.toLowerCase)
 
                       let currVal = switch jsonVal {
                       | (Some(transformed), _) => transformed->Js.String.make->Js.String.toLowerCase

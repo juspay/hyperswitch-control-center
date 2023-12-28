@@ -60,7 +60,7 @@ module HighBarChart1D = {
       }->Identity.genericObjectOrRecordToJson
       barOption
     }, (barSeries, gridLineColor))
-    if barSeries->Js.Array2.length > 0 {
+    if barSeries->Array.length > 0 {
       <RawBarChart options=barOption />
     } else {
       React.null

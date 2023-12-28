@@ -54,7 +54,7 @@ let getPaymentMethod = paymentMethod => {
   let paymentMethodTypeArr = paymentMethodDict->getArrayFromDict("payment_method_types", [])
 
   let pmTypesArr =
-    paymentMethodTypeArr->Js.Array2.map(item =>
+    paymentMethodTypeArr->Array.map(item =>
       item->getDictFromJsonObject->getString("payment_method_type", "")
     )
 
@@ -115,7 +115,7 @@ let getConnectorConfig = connectors => {
 
 let filterList = (items, ~removeFromList, ()) => {
   open LogicUtils
-  items->Js.Array2.filter(dict => {
+  items->Array.filter(dict => {
     let isConnector = dict->getString("connector_type", "") !== "payment_vas"
 
     switch removeFromList {
@@ -129,7 +129,7 @@ let createAllOptions = connectorsConfig => {
   open ConnectorTypes
   connectorsConfig
   ->Js.Dict.keys
-  ->Js.Array2.map(connectorName => {
+  ->Array.map(connectorName => {
     gateway: connectorName,
     payment_methods: [],
   })
@@ -139,12 +139,12 @@ let generateFRMPaymentMethodsConfig = paymentMethodsDict => {
   open ConnectorTypes
   paymentMethodsDict
   ->Js.Dict.keys
-  ->Js.Array2.map(paymentMethodName => {
+  ->Array.map(paymentMethodName => {
     let paymentMethodTypesArr =
       paymentMethodsDict
       ->Js.Dict.get(paymentMethodName)
       ->Belt.Option.getWithDefault([])
-      ->Js.Array2.map(paymentMethodType => {
+      ->Array.map(paymentMethodType => {
         {
           payment_method_type: paymentMethodType,
           flow: "pre",
@@ -163,7 +163,7 @@ let ignoreFields = json => {
   json
   ->LogicUtils.getDictFromJsonObject
   ->Js.Dict.entries
-  ->Js.Array2.filter(entry => {
+  ->Array.filter(entry => {
     let (key, _val) = entry
     !(ignoredField->Js.Array2.includes(key))
   })

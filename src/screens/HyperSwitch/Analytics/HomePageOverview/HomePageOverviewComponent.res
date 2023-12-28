@@ -18,7 +18,7 @@ module ConnectorOverview = {
           )
 
         let arr =
-          connectorsList->Js.Array2.map(paymentMethod =>
+          connectorsList->Array.map(paymentMethod =>
             paymentMethod
             ->getString("connector_name", "")
             ->ConnectorUtils.getConnectorNameTypeFromString
@@ -48,11 +48,11 @@ module ConnectorOverview = {
         })
 
       let icons =
-        configuredConnectors->Js.Array2.length > 3
+        configuredConnectors->Array.length > 3
           ? icons->Js.Array2.concat([
               <div
                 className={`w-12 h-12 flex items-center justify-center text-white font-medium rounded-full border-3 border-white -ml-3 z-0 bg-blue-900`}>
-                {`+${(configuredConnectors->Js.Array2.length - 3)->Js.Int.toString}`->React.string}
+                {`+${(configuredConnectors->Array.length - 3)->Js.Int.toString}`->React.string}
               </div>,
             ])
           : icons
@@ -60,14 +60,14 @@ module ConnectorOverview = {
       <div className="flex"> {icons->React.array} </div>
     }
 
-    <UIUtils.RenderIf condition={configuredConnectors->Js.Array2.length > 0}>
+    <UIUtils.RenderIf condition={configuredConnectors->Array.length > 0}>
       <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="w-full h-full" />}>
         <div className=boxCss>
           {getConnectorIconsList()}
           <div className="flex items-center gap-2">
             <p className=cardHeaderTextStyle>
               {`${configuredConnectors
-                ->Js.Array2.length
+                ->Array.length
                 ->Js.Int.toString} Active Processors`->React.string}
             </p>
           </div>
@@ -175,7 +175,7 @@ module SystemMetricsInsights = {
         `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
     }
 
-    let metrics = ["latency"]->Js.Array2.map(key => {
+    let metrics = ["latency"]->Array.map(key => {
       [("name", key->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
     })
 

@@ -142,7 +142,7 @@ let make = (
   <div
     className={`flex flex-1 flex-row justify-center overflow-auto select-none ${calendarContaierStyle}`}>
     {dummyRow
-    ->Js.Array2.mapi((_item, i) => {
+    ->Array.mapWithIndex((_item, i) => {
       let currDateTemp = Js.Date.fromFloat(Js.Date.valueOf(currDateIm))
       let tempDate = Js.Date.setMonth(
         currDateTemp,

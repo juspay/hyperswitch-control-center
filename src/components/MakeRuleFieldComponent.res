@@ -4,10 +4,10 @@ let validateConditionJson = json => {
   let checkValue = dict => {
     dict
     ->getArrayFromDict("value", [])
-    ->Js.Array2.filter(ele => {
+    ->Array.filter(ele => {
       ele != ""->Js.Json.string
     })
-    ->Js.Array2.length > 0 ||
+    ->Array.length > 0 ||
     dict->getString("value", "") !== "" ||
     dict->getFloat("value", -1.0) !== -1.0 ||
     dict->getString("operator", "") == "IS NULL" ||
@@ -75,7 +75,7 @@ module CompressedView = {
         | None => React.null
         }}
         <TextView str=operator fontColor="text-red-500" fontWeight="font-semibold" />
-        <TextView str={value->Js.Array2.filter(ele => ele != "")->Js.Array2.joinWith(", ")} />
+        <TextView str={value->Array.filter(ele => ele != "")->Js.Array2.joinWith(", ")} />
       </div>
     | None => React.null
     }

@@ -99,7 +99,7 @@ let make = (~children) => {
           "filters.dateCreated.opt", // to be fixed and removed from here
         ])
         ->Js.Dict.entries
-        ->Js.Array2.map(
+        ->Array.map(
           item => {
             let (key, value) = item
             `${key}=${value}`
@@ -178,7 +178,7 @@ let make = (~children) => {
   let userPrefString =
     userPref
     ->Js.Dict.entries
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let (key, value) = item
       (key, value->userPrefToJson)
     })

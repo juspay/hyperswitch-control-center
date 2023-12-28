@@ -123,17 +123,17 @@ let make = () => {
       )
       let res = await fetchDetails(userDataURL)
       let userData = res->LogicUtils.getArrayDataFromJson(UserRoleEntity.itemToObjMapperForUser)
-      setUsersList(_ => userData->Js.Array2.map(Js.Nullable.return))
+      setUsersList(_ => userData->Array.map(Js.Nullable.return))
     } catch {
     | _ => ()
     }
   }
 
   React.useEffect1(() => {
-    if usersList->Js.Array2.length === 0 {
+    if usersList->Array.length === 0 {
       getUserData()->ignore
     }
-    if permissionInfo->Js.Array2.length === 0 {
+    if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
     } else if currentSelectedUser.role_id->Js.String2.length !== 0 {
       getRoleForUser()->ignore

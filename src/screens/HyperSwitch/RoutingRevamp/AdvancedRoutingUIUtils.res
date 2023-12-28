@@ -85,7 +85,7 @@ module OperatorInp = {
     let disableSelect =
       field.value->Js.Json.decodeString->Belt.Option.getWithDefault("")->Js.String2.length === 0
 
-    let operatorOptions = opVals->Js.Array2.map(opVal => {
+    let operatorOptions = opVals->Array.map(opVal => {
       let obj: SelectBox.dropdownOption = {
         label: opVal,
         value: opVal,
@@ -201,7 +201,7 @@ module MetadataInp = {
         let value = valueField.value
         let val = value->LogicUtils.getStringFromJson("")
         let valSplit = Js.String2.split(val, ",")
-        let arrStr = valSplit->Js.Array2.map(item => {
+        let arrStr = valSplit->Array.map(item => {
           Js.String2.trim(item)
         })
         let finalVal = Js.Array2.joinWith(arrStr, ",")->Js.Json.string
@@ -372,7 +372,7 @@ module RuleFieldBase = {
       }
     })
 
-    <UIUtils.RenderIf condition={methodKeys->Js.Array2.length > 0}>
+    <UIUtils.RenderIf condition={methodKeys->Array.length > 0}>
       {if isExpanded {
         <div
           className={`flex flex-wrap items-center px-1 ${hover

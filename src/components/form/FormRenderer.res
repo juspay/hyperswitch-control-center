@@ -83,7 +83,7 @@ let makeMultiInputFieldInfoOld = (
     isRequired,
     comboCustomInput,
     inputFields,
-    inputNames: inputFields->Js.Array2.map(x => x.name),
+    inputNames: inputFields->Array.map(x => x.name),
   }
 }
 
@@ -105,7 +105,7 @@ let makeMultiInputFieldInfo = (
   let inputNames =
     comboCustomInput
     ->Belt.Option.mapWithDefault([], x => x.names)
-    ->Js.Array2.concat(inputFields->Js.Array2.map(x => x.name))
+    ->Js.Array2.concat(inputFields->Array.map(x => x.name))
   {
     label,
     customLabelIcon,
@@ -366,7 +366,7 @@ module ComboFieldsRenderer = {
     <div>
       <ButtonGroup wrapperClass="flex flex-row items-center">
         {field.inputFields
-        ->Js.Array2.mapi((field, i) => {
+        ->Array.mapWithIndex((field, i) => {
           <ErrorBoundary key={string_of_int(i)}>
             <FieldInputRenderer field showError=false />
           </ErrorBoundary>
@@ -375,7 +375,7 @@ module ComboFieldsRenderer = {
       </ButtonGroup>
       <div>
         {field.inputFields
-        ->Js.Array2.mapi((field, i) => {
+        ->Array.mapWithIndex((field, i) => {
           <ErrorBoundary key={string_of_int(i)}>
             <FieldErrorRenderer field />
           </ErrorBoundary>
@@ -399,7 +399,7 @@ module ComboFieldsRenderer3 = {
         ~renderInputs: array<ReactFinalForm.fieldRenderProps> => React.element,
       ) => React.element,
     ) => {
-      if inputFields->Js.Array2.length === 0 {
+      if inputFields->Array.length === 0 {
         renderInputs(fieldsState)
       } else {
         let inputField =
@@ -497,7 +497,7 @@ module FieldRenderer = {
               subTextClass
               subHeadingClass
               dataId=names>
-              {if field.inputFields->Js.Array2.length === 1 {
+              {if field.inputFields->Array.length === 1 {
                 let field =
                   field.inputFields[0]->Belt.Option.getWithDefault(makeInputFieldInfo(~name="", ()))
 
@@ -690,7 +690,7 @@ module SubmitButton = {
               formState.values
               ->LogicUtils.getDictFromJsonObject
               ->Js.Dict.keys
-              ->Js.Array2.filter(key => {
+              ->Array.filter(key => {
                 ["startTime", "endTime"]->Js.Array2.includes(key)->not
               })
               ->Js.Json.stringifyAny
@@ -713,12 +713,12 @@ module SubmitButton = {
       </>
 
     let button = withDialog ? popUpBtn : submitBtn
-    if errorsList->Js.Array2.length === 0 {
+    if errorsList->Array.length === 0 {
       button
     } else {
       let description =
         errorsList
-        ->Js.Array2.map(entry => {
+        ->Array.map(entry => {
           let (key, jsonValue) = entry
           let value = LogicUtils.getStringFromJson(jsonValue, "Error")
 
@@ -755,7 +755,7 @@ module FieldsRenderer = {
     ~subTextClass="",
     ~subHeadingClass="",
   ) => {
-    Js.Array2.mapi(fields, (field, i) => {
+    Array.mapWithIndex(fields, (field, i) => {
       <FieldRenderer
         key={string_of_int(i)}
         field

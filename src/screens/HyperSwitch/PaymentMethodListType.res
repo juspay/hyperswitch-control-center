@@ -55,7 +55,7 @@ let getPaymentExperience = (dict, str) => {
   ->Belt.Option.flatMap(Js.Json.decodeArray)
   ->Belt.Option.getWithDefault([])
   ->Belt.Array.keepMap(Js.Json.decodeObject)
-  ->Js.Array2.map(json => {
+  ->Array.map(json => {
     {
       payment_experience_type: getString(
         json,
@@ -73,7 +73,7 @@ let getBankNames = (dict, str) => {
   ->Belt.Option.flatMap(Js.Json.decodeArray)
   ->Belt.Option.getWithDefault([])
   ->Belt.Array.keepMap(Js.Json.decodeObject)
-  ->Js.Array2.map(json => {
+  ->Array.map(json => {
     {
       bank_name: getStrArray(json, "bank_name"),
       eligible_connectors: getStrArray(json, "eligible_connectors"),
@@ -95,7 +95,7 @@ let getPaymentMethodTypes = (dict, str) => {
   ->Belt.Option.flatMap(Js.Json.decodeArray)
   ->Belt.Option.getWithDefault([])
   ->Belt.Array.keepMap(Js.Json.decodeObject)
-  ->Js.Array2.map(json => {
+  ->Array.map(json => {
     {
       payment_method_type: getString(json, "payment_method_type", ""),
       payment_experience: getPaymentExperience(json, "payment_experience"),
@@ -113,7 +113,7 @@ let getMethodsArr = (dict, str) => {
   ->Belt.Option.flatMap(Js.Json.decodeArray)
   ->Belt.Option.getWithDefault([])
   ->Belt.Array.keepMap(Js.Json.decodeObject)
-  ->Js.Array2.map(json => {
+  ->Array.map(json => {
     {
       payment_method: getString(json, "payment_method", "")->getMethod,
       payment_method_types: getPaymentMethodTypes(json, "payment_method_types"),

@@ -57,7 +57,7 @@ let make = () => {
         ->Js.Json.object_
         ->QuickStartUtils.getTypedValueFromDict
 
-      let currentPending = steps->Js.Array2.find(step => {
+      let currentPending = steps->Array.find(step => {
         step->enumToValueMapper(enums) === false
       })
 

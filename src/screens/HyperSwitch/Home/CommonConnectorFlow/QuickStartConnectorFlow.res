@@ -37,7 +37,7 @@ let make = (
 
   let handleSummaryProceed = () => {
     if (
-      connectorArray->Js.Array2.length === multipleConfigurationArrayLength &&
+      connectorArray->Array.length === multipleConfigurationArrayLength &&
         typedEnumValue.configurationType->connectorChoiceStringVariantMapper ===
           #MultipleProcessorWithSmartRouting
     ) {

@@ -29,7 +29,7 @@ let filterByData = (actualData, value) => {
     let isMatched =
       dict
       ->Js.Dict.values
-      ->Js.Array2.map(val => {
+      ->Array.map(val => {
         val->Js.String2.toLowerCase->Js.String2.includes(searchText)
       })
       ->Js.Array2.includes(true)

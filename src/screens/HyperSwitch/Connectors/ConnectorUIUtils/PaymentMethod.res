@@ -199,8 +199,7 @@ module PaymentMethodsRender = {
           : Window.getConnectorConfig(connector)
       )->getDictFromJsonObject
     }, [connector])
-    let keys =
-      pmts->Js.Dict.keys->Js.Array2.filter(val => !Js.Array2.includes(configKeysToIgnore, val))
+    let keys = pmts->Js.Dict.keys->Array.filter(val => !Js.Array2.includes(configKeysToIgnore, val))
 
     <div className="flex flex-col gap-12">
       {keys

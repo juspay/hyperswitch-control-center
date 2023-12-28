@@ -109,7 +109,7 @@ module Wrapper = {
       )
 
     let handleClickExpand = _ => {
-      let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Js.Array2.length > 0
+      let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Array.length > 0
 
       if gatewayArrPresent && areValidConditions {
         setIsExpanded(p => !p)
@@ -123,7 +123,7 @@ module Wrapper = {
     React.useEffect0(() => {
       name.onChange(heading->Js.String2.toLowerCase->titleToSnake->Identity.stringToFormReactEvent)
 
-      let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Js.Array2.length > 0
+      let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Array.length > 0
 
       if gatewayArrPresent && areValidConditions {
         setIsExpanded(p => !p)
@@ -274,7 +274,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
       | Create =>
         <>
           {
-            let notFirstRule = ruleInput.value->getArrayFromJson([])->Js.Array2.length > 1
+            let notFirstRule = ruleInput.value->getArrayFromJson([])->Array.length > 1
 
             let rule = ruleInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
             let keyExtractor = (index, _rule, isDragging) => {
@@ -360,7 +360,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
   let getConnectorsList = () => {
     setConnectors(_ =>
-      connectorList->Js.Array2.filter(connector => connector.connector_name !== "applepay")
+      connectorList->Array.filter(connector => connector.connector_name !== "applepay")
     )
   }
 
@@ -427,7 +427,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     RoutingUtils.validateNameAndDescription(~dict, ~errors)
 
     let validateGateways = (connectorData: array<AdvancedRoutingTypes.connectorSelectionData>) => {
-      if connectorData->Js.Array2.length === 0 {
+      if connectorData->Array.length === 0 {
         Some("Need atleast 1 Gateway")
       } else {
         let isDistibuted = connectorData->Js.Array2.every(ele => {
@@ -470,7 +470,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
     let rulesArray = convertedObject.algorithm.data.rules
 
-    if rulesArray->Js.Array2.length === 0 {
+    if rulesArray->Array.length === 0 {
       errors->Js.Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
     } else {
       rulesArray->Array.forEachWithIndex((rule, i) => {
@@ -568,7 +568,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
         dataDict
         ->getDictfromDict("defaultSelection")
         ->getStrArrayFromDict("data", [])
-        ->Js.Array2.map(id => {
+        ->Array.map(id => {
           {
             "connector": (
               connectorList->ConnectorTableUtils.getConnectorNameViaId(id)
@@ -619,18 +619,18 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
   let connectorOptions = React.useMemo2(() => {
     connectors
-    ->Js.Array2.filter(item => item.profile_id === profile)
-    ->Js.Array2.map((item): SelectBox.dropdownOption => {
+    ->Array.filter(item => item.profile_id === profile)
+    ->Array.map((item): SelectBox.dropdownOption => {
       {
         label: item.connector_label,
         value: item.merchant_connector_id,
       }
     })
-  }, (profile, connectors->Js.Array2.length))
+  }, (profile, connectors->Array.length))
 
   <div className="my-6">
     <PageLoaderWrapper screenState>
-      {connectors->Js.Array2.length > 0
+      {connectors->Array.length > 0
         ? <Form
             initialValues={initialValues} validate onSubmit={(values, _) => onSubmit(values, true)}>
             <div className="w-full flex flex-row  justify-between">

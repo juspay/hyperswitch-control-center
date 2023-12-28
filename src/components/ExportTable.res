@@ -10,7 +10,7 @@ let make = (
   let actualDataOrig =
     tableData
     ->Belt.Array.keepMap(item => item->Js.Nullable.toOption)
-    ->Js.Array2.map(Identity.genericTypeToJson)
+    ->Array.map(Identity.genericTypeToJson)
 
   let headerNames = visibleColumns->Belt.Array.keepMap(head => {
     let item = head->getHeading
@@ -27,10 +27,10 @@ let make = (
 
     let csv =
       actualDataOrig
-      ->Js.Array2.map(allRows => {
+      ->Array.map(allRows => {
         let allRowsDict = Js.Json.decodeObject(allRows)->Belt.Option.getWithDefault(Js.Dict.empty())
         initialValues
-        ->Js.Array2.map(col => {
+        ->Array.map(col => {
           let str =
             Js.Dict.get(allRowsDict, col)
             ->Belt.Option.getWithDefault(Js.Json.null)
@@ -39,7 +39,7 @@ let make = (
           let strArr = str->Js.String2.split(".")
 
           let newStr = if (
-            strArr->Js.Array2.length === 2 && str->Belt.Float.fromString->Belt.Option.isSome
+            strArr->Array.length === 2 && str->Belt.Float.fromString->Belt.Option.isSome
           ) {
             let newDecimal =
               strArr

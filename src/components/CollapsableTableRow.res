@@ -27,7 +27,7 @@ let make = (
       <tr
         className={`group h-full ${borderRadius} bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100 dark:hover:bg-opacity-10 ${textColor} ${fontStyle} transition duration-300 ease-in-out ${fontSize}`}>
         {item
-        ->Js.Array2.mapi((obj: Table.cell, cellIndex) => {
+        ->Array.mapWithIndex((obj: Table.cell, cellIndex) => {
           let showBorderTop = switch obj {
           | Text(x) => x !== "-"
           | _ => true
@@ -80,7 +80,7 @@ let make = (
     <MobileView>
       <div className="px-3 py-4 bg-white dark:bg-jp-gray-lightgray_background">
         {item
-        ->Js.Array2.mapi((obj, index) => {
+        ->Array.mapWithIndex((obj, index) => {
           let heading = headingArray->Belt.Array.get(index)->Belt.Option.getWithDefault("")
           <UIUtils.RenderIf condition={index !== 0} key={index->string_of_int}>
             <div className="flex mb-5 justify-between">

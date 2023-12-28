@@ -31,7 +31,7 @@ let currencyField = (
       ~deselectDisable=true,
       ~disableSelect,
       ~customStyle="max-h-48",
-      ~options=options->Js.Array2.map(getCurrencyOption),
+      ~options=options->Array.map(getCurrencyOption),
       ~buttonText="Select Currency",
       (),
     ),
@@ -109,8 +109,7 @@ module RenderConnectorInputFields = {
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     open ConnectorUtils
     open LogicUtils
-    let keys =
-      details->Js.Dict.keys->Js.Array2.filter(ele => !Js.Array2.includes(keysToIgnore, ele))
+    let keys = details->Js.Dict.keys->Array.filter(ele => !Js.Array2.includes(keysToIgnore, ele))
     keys
     ->Array.mapWithIndex((field, i) => {
       let label = details->getString(field, "")
@@ -288,7 +287,7 @@ module BusinessProfileRender = {
                   ev => {
                     let profileName = (
                       arrayOfBusinessProfile
-                      ->Js.Array2.find((ele: HSwitchSettingTypes.profileEntity) =>
+                      ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
                         ele.profile_id === ev->Identity.formReactEventToString
                       )
                       ->Belt.Option.getWithDefault(defaultBusinessProfile)

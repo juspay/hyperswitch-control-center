@@ -177,7 +177,7 @@ let make = (
           ? <div className="flex text-jp-gray-600 justify-between w-80">
               <ul className="w-1/2 h-80 overflow-scroll">
                 {months
-                ->Js.Array2.mapi((mon, i) =>
+                ->Array.mapWithIndex((mon, i) =>
                   <MonthItem
                     key={i->Belt.Int.toString}
                     index=i
@@ -192,7 +192,7 @@ let make = (
               </ul>
               <ul className="w-1/2">
                 {years
-                ->Js.Array2.mapi((year, i) =>
+                ->Array.mapWithIndex((year, i) =>
                   <YearItem
                     key={i->Belt.Int.toString}
                     tempMonth

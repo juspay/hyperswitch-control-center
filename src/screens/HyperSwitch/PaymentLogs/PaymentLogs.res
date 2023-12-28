@@ -126,7 +126,7 @@ module ApiDetailsComponent = {
     | Sdk =>
       paymentDetailsValue
       ->Js.Dict.entries
-      ->Js.Array2.filter(entry => {
+      ->Array.filter(entry => {
         let (key, _) = entry
         filteredKeys->Js.Array2.includes(key)->not
       })
@@ -299,7 +299,7 @@ let make = (~paymentId, ~createdAt) => {
       let sdkLogsArray =
         (await fetchPostDetils(url, body, Post))
         ->getArrayFromJson([])
-        ->Js.Array2.map(event => {
+        ->Array.map(event => {
           let eventDict = event->getDictFromJsonObject
           let eventName = eventDict->getString("event_name", "")
           let timestamp = eventDict->getString("created_at_precise", "")
@@ -334,7 +334,7 @@ let make = (~paymentId, ~createdAt) => {
           eventDict->Js.Json.object_
         })
       setSdkLogsData(_ =>
-        sdkLogsArray->Js.Array2.filter(sdkLog => {
+        sdkLogsArray->Array.filter(sdkLog => {
           let eventDict = sdkLog->getDictFromJsonObject
           let eventName = eventDict->getString("event_name", "")
           let filteredEventNames = ["StripeElementsCalled"]
@@ -395,7 +395,7 @@ let make = (~paymentId, ~createdAt) => {
 
   let screenState = React.useMemo2(() => {
     setAllLogsData(_ =>
-      sdkLogsData->Js.Array.concat(paymentLogsData)->Js.Array2.sortInPlaceWith(sortByCreatedAt)
+      sdkLogsData->Array.concat(paymentLogsData)->Js.Array2.sortInPlaceWith(sortByCreatedAt)
     )
     switch (screenState1, screenState2) {
     | (PageLoaderWrapper.Success, _)
@@ -444,7 +444,7 @@ let make = (~paymentId, ~createdAt) => {
                 setCurrentSelectedType
                 paymentId
                 index
-                logsDataLength={allLogsData->Js.Array2.length - 1}
+                logsDataLength={allLogsData->Array.length - 1}
               />
             })
             ->React.array}

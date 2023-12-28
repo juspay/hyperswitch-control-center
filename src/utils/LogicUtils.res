@@ -77,14 +77,14 @@ let removeDuplicate = (arr: array<string>) => {
 }
 
 let sortBasedOnPriority = (sortArr: array<string>, priorityArr: array<string>) => {
-  let finalPriorityArr = priorityArr->Js.Array2.filter(val => sortArr->Js.Array2.includes(val))
-  let filteredArr = sortArr->Js.Array2.filter(item => !(finalPriorityArr->Js.Array2.includes(item)))
+  let finalPriorityArr = priorityArr->Array.filter(val => sortArr->Js.Array2.includes(val))
+  let filteredArr = sortArr->Array.filter(item => !(finalPriorityArr->Js.Array2.includes(item)))
   finalPriorityArr->Js.Array2.concat(filteredArr)
 }
 let toCamelCase = str => {
   let strArr = str->Js.String2.replaceByRe(%re("/[-_]+/g"), " ")->Js.String2.split(" ")
   strArr
-  ->Js.Array2.mapi((item, i) => {
+  ->Array.mapWithIndex((item, i) => {
     let matchFn = (match, _, _, _, _, _) => {
       if i == 0 {
         match->Js.String2.toLocaleLowerCase
@@ -101,7 +101,7 @@ let getNameFromEmail = email => {
   ->Js.String2.split("@")
   ->Js.Array2.unsafe_get(0)
   ->Js.String2.split(".")
-  ->Js.Array2.map(name => {
+  ->Array.map(name => {
     if name == "" {
       name
     } else {
@@ -146,7 +146,7 @@ let getArrayDataFromJson = (json, itemToObjMapper) => {
   ->Js.Json.decodeArray
   ->getWithDefault([])
   ->Belt.Array.keepMap(Js.Json.decodeObject)
-  ->Js.Array2.map(itemToObjMapper)
+  ->Array.map(itemToObjMapper)
 }
 let getStrArray = (dict, key) => {
   dict
@@ -190,7 +190,7 @@ let getNonEmptyString = str => {
 }
 
 let getNonEmptyArray = arr => {
-  if arr->Js.Array2.length === 0 {
+  if arr->Array.length === 0 {
     None
   } else {
     Some(arr)
@@ -343,7 +343,7 @@ let capitalizeString = str => {
 let snakeToCamel = str => {
   str
   ->Js.String2.split("_")
-  ->Js.Array2.mapi((x, i) => i == 0 ? x : capitalizeString(x))
+  ->Array.mapWithIndex((x, i) => i == 0 ? x : capitalizeString(x))
   ->Js.Array2.joinWith("")
 }
 
@@ -365,7 +365,7 @@ let isContainingStringLowercase = (text, searchStr) => {
 let snakeToTitle = str => {
   str
   ->Js.String2.split("_")
-  ->Js.Array2.map(x => {
+  ->Array.map(x => {
     let first = x->Js.String2.charAt(0)->Js.String2.toUpperCase
     let second = x->Js.String2.substringToEnd(~from=1)
     first ++ second
@@ -374,7 +374,7 @@ let snakeToTitle = str => {
 }
 
 let titleToSnake = str => {
-  str->Js.String2.split(" ")->Js.Array2.map(Js.String2.toLowerCase)->Js.Array2.joinWith("_")
+  str->Js.String2.split(" ")->Array.map(Js.String2.toLowerCase)->Js.Array2.joinWith("_")
 }
 
 let getIntFromString = (str, default) => {
@@ -494,21 +494,21 @@ let numericArraySortComperator = (a, b) => {
 }
 
 let isEmptyDict = dict => {
-  dict->Js.Dict.keys->Js.Array2.length === 0
+  dict->Js.Dict.keys->Array.length === 0
 }
 let stringReplaceAll = (str, old, new) => {
   str->Js.String2.split(old)->Js.Array2.joinWith(new)
 }
 
 let getUniqueArray = (arr: array<'t>) => {
-  arr->Js.Array2.map(item => (item, ""))->Js.Dict.fromArray->Js.Dict.keys
+  arr->Array.map(item => (item, ""))->Js.Dict.fromArray->Js.Dict.keys
 }
 
 let getFirstLetterCaps = (str, ~splitBy="-", ()) => {
   str
   ->Js.String2.toLowerCase
   ->Js.String2.split(splitBy)
-  ->Js.Array2.map(capitalizeString)
+  ->Array.map(capitalizeString)
   ->Js.Array2.joinWith(" ")
 }
 
@@ -524,7 +524,7 @@ let getValueFromArray = (arr, index, default) =>
 let isEqualStringArr = (arr1, arr2) => {
   let arr1 = arr1->getUniqueArray
   let arr2 = arr2->getUniqueArray
-  let lengthEqual = arr1->Js.Array2.length === arr2->Js.Array2.length
+  let lengthEqual = arr1->Array.length === arr2->Array.length
   let isContainsAll = arr1->Js.Array2.reduce((acc, str) => {
     arr2->Js.Array2.includes(str) && acc
   }, true)
@@ -543,14 +543,14 @@ let indianShortNum = labelValue => {
 let convertNewLineSaperatedDataToArrayOfJson = text => {
   text
   ->Js.String2.split("\n")
-  ->Js.Array2.filter(item => item !== "")
-  ->Js.Array2.map(item => {
+  ->Array.filter(item => item !== "")
+  ->Array.map(item => {
     item->safeParse
   })
 }
 
 let getObjectArrayFromJson = json => {
-  json->getArrayFromJson([])->Js.Array2.map(getDictFromJsonObject)
+  json->getArrayFromJson([])->Array.map(getDictFromJsonObject)
 }
 
 let getListHead = (~default="", list) => {
@@ -564,7 +564,7 @@ let dataMerge = (~dataArr: array<array<Js.Json.t>>, ~dictKey: array<string>) => 
       let dict = jsonObj->getDictFromJsonObject
       let dictKey =
         dictKey
-        ->Js.Array2.map(
+        ->Array.map(
           ele => {
             dict->getString(ele, "")
           },
@@ -612,7 +612,7 @@ let getTitle = name => {
   name
   ->Js.String2.toLowerCase
   ->Js.String2.split("_")
-  ->Js.Array2.map(capitalizeString)
+  ->Array.map(capitalizeString)
   ->Js.Array2.joinWith(" ")
 }
 

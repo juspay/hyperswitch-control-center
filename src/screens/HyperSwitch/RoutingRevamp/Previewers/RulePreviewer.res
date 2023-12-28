@@ -40,7 +40,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false) => {
           ->Array.mapWithIndex((rule, index) => {
             let statementsArr = rule.statements
             let headingText = `Rule ${string_of_int(index + 1)}`
-            let marginStyle = index === ruleInfo.rules->Js.Array2.length - 1 ? "mt-2" : "my-2"
+            let marginStyle = index === ruleInfo.rules->Array.length - 1 ? "mt-2" : "my-2"
             let threeDsType = rule.connectorSelection.override_3ds->Belt.Option.getWithDefault("")
 
             <div
@@ -104,7 +104,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false) => {
                   })
                   ->React.array}
                 </div>
-                <UIUtils.RenderIf condition={rule.statements->Js.Array2.length > 0}>
+                <UIUtils.RenderIf condition={rule.statements->Array.length > 0}>
                   <Icon size=14 name="arrow-right" className="mx-4 text-jp-gray-700" />
                 </UIUtils.RenderIf>
                 <UIUtils.RenderIf condition={isFrom3ds}>

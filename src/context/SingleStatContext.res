@@ -125,7 +125,7 @@ let make = (
 
   let initialValue =
     dataFetcherObj
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let {metrics} = item
       let updatedMetrics = metrics->metrixMapper
       (updatedMetrics, Loading)
@@ -134,7 +134,7 @@ let make = (
 
   let initialValueLoader =
     dataFetcherObj
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let {metrics} = item
       let updatedMetrics = metrics->metrixMapper
       (updatedMetrics, AnalyticsUtils.Shimmer)
@@ -196,7 +196,7 @@ let make = (
       })
 
       dataFetcherObj
-      ->Js.Array2.mapi((urlConfig, index) => {
+      ->Array.mapWithIndex((urlConfig, index) => {
         let {url, metrics} = urlConfig
         let updatedMetrics = metrics->metrixMapper
         setIndividualSingleStatTime(
@@ -375,12 +375,12 @@ let make = (
           )
           ->then(
             text => {
-              let jsonObj = convertNewLineSaperatedDataToArrayOfJson(text)->Js.Array2.map(
+              let jsonObj = convertNewLineSaperatedDataToArrayOfJson(text)->Array.map(
                 item => {
                   item
                   ->getDictFromJsonObject
                   ->Js.Dict.entries
-                  ->Js.Array2.map(
+                  ->Array.map(
                     dictEn => {
                       let (key, value) = dictEn
                       (key === `${urlConfig.timeColumn}_time` ? "time" : key, value)
@@ -450,7 +450,7 @@ let make = (
                 individualTime
               },
             )
-            if index === dataFetcherObj->Js.Array2.length - 1 {
+            if index === dataFetcherObj->Array.length - 1 {
               setSingleStatTime(
                 prev => {
                   ...prev,

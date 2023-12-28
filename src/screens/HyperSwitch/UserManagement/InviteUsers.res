@@ -183,7 +183,7 @@ let make = () => {
   }
 
   React.useEffect1(() => {
-    if permissionInfo->Js.Array2.length === 0 {
+    if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
     } else {
       getRoleInfo(permissionInfo)

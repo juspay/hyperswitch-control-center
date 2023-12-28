@@ -121,12 +121,12 @@ module CheckBoxRenderer = {
     let setConfigJson = {frmConfigInput.onChange}
 
     let isToggleDisabled = switch connectorPaymentMethods {
-    | Some(paymentMethods) => paymentMethods->Js.Dict.keys->Js.Array2.length <= 0
+    | Some(paymentMethods) => paymentMethods->Js.Dict.keys->Array.length <= 0
     | _ => true
     }
 
     let initToggleValue = isUpdateFlow
-      ? frmConfigInfo.payment_methods->Js.Array2.length > 0
+      ? frmConfigInfo.payment_methods->Array.length > 0
       : !isToggleDisabled
 
     let (isOpen, setIsOpen) = React.useState(_ => initToggleValue)
@@ -168,7 +168,7 @@ module CheckBoxRenderer = {
           | _ => ()
           }
           setIsOpen(_ => !isOpen)
-        } else if frmConfigInfo.payment_methods->Js.Array2.length > 0 {
+        } else if frmConfigInfo.payment_methods->Array.length > 0 {
           if isUpdateFlow {
             showConfitmation()
           } else {
@@ -212,10 +212,10 @@ module CheckBoxRenderer = {
         </div>
       </div>
       {frmConfigInfo.payment_methods
-      ->Js.Array2.mapi((paymentMethodInfo, index) => {
+      ->Array.mapWithIndex((paymentMethodInfo, index) => {
         <UIUtils.RenderIf condition={isOpen} key={index->string_of_int}>
           {paymentMethodInfo.payment_method_types
-          ->Js.Array2.mapi((paymentMethodTypeInfo, i) => {
+          ->Array.mapWithIndex((paymentMethodTypeInfo, i) => {
             <Accordion
               key={i->string_of_int}
               initialExpandedArray=[0]
@@ -281,15 +281,15 @@ module PaymentMethodsRenderer = {
         let connectorsConfig =
           response
           ->getArrayFromJson([])
-          ->Js.Array2.map(getDictFromJsonObject)
+          ->Array.map(getDictFromJsonObject)
           ->FRMUtils.filterList(~removeFromList=FRMPlayer, ())
           ->getConnectorConfig
 
         let updateFRMConfig =
           connectorsConfig
           ->createAllOptions
-          ->Js.Array2.map(defaultConfig => {
-            switch frmConfigs->Js.Array2.find(item => item.gateway === defaultConfig.gateway) {
+          ->Array.map(defaultConfig => {
+            switch frmConfigs->Array.find(item => item.gateway === defaultConfig.gateway) {
             | Some(config) => config
             | _ => defaultConfig
             }
@@ -311,7 +311,7 @@ module PaymentMethodsRenderer = {
     <PageLoaderWrapper screenState={pageState}>
       <div className="flex flex-col gap-4">
         {frmConfigs
-        ->Js.Array2.mapi((configInfo, i) => {
+        ->Array.mapWithIndex((configInfo, i) => {
           <CheckBoxRenderer
             key={i->string_of_int}
             frmConfigInfo={configInfo}
@@ -342,7 +342,7 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
       valuesDict
       ->getJsonObjectFromDict("frm_configs")
       ->parseFRMConfig
-      ->Js.Array2.filter(config => config.payment_methods->Js.Array2.length > 0)
+      ->Array.filter(config => config.payment_methods->Array.length > 0)
 
     valuesDict->Js.Dict.set("frm_configs", filteredArray->Identity.genericTypeToJson)
     setInitialValues(_ => valuesDict->Js.Json.object_)

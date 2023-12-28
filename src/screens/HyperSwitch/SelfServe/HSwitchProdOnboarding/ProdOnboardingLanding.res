@@ -29,7 +29,7 @@ module CheckListSection = {
       let currentViewindex =
         updatedCheckList->Js.Array2.indexOf(
           updatedCheckList
-          ->Js.Array2.filter(ele => ele.itemsVariants->Js.Array2.includes(pageView))
+          ->Array.filter(ele => ele.itemsVariants->Js.Array2.includes(pageView))
           ->Belt.Array.get(0)
           ->Belt.Option.getWithDefault(defaultValueOfCheckList),
         )

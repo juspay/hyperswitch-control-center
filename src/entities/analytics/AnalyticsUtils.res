@@ -396,7 +396,7 @@ module TableModalContent = {
             ->getDictFromJsonObject
             ->getJsonObjectFromDict("queryData")
             ->summayTableEntity.getObjects
-            ->Js.Array2.map(Js.Nullable.return)
+            ->Array.map(Js.Nullable.return)
           setData(_ => arrData)
           resolve()
         })
@@ -418,11 +418,11 @@ module TableModalContent = {
     } else {
       <LoadedTable
         actualData
-        totalResults={actualData->Js.Array2.length}
+        totalResults={actualData->Array.length}
         offset
         setOffset
         entity=summayTableEntity
-        currrentFetchCount={actualData->Js.Array2.length}
+        currrentFetchCount={actualData->Array.length}
         title="Analytics Summary Table OnClickDetails"
         hideTitle=true
         resultsPerPage=10
@@ -491,7 +491,7 @@ module TableErrorModalContent = {
             _ =>
               summayTableEntity.getObjects(
                 data->convertNewLineSaperatedDataToArrayOfJson->Js.Json.array,
-              )->Js.Array2.map(Js.Nullable.return),
+              )->Array.map(Js.Nullable.return),
           )
           resolve()
         })
@@ -535,11 +535,11 @@ module TableErrorModalContent = {
     } else {
       <LoadedTable
         actualData
-        totalResults={actualData->Js.Array2.length}
+        totalResults={actualData->Array.length}
         offset
         setOffset
         entity=summayTableEntity
-        currrentFetchCount={actualData->Js.Array2.length}
+        currrentFetchCount={actualData->Array.length}
         title="Analytics Summary Table OnClickDetails"
         hideTitle=true
         resultsPerPage=10
@@ -580,7 +580,7 @@ let getFilterRequestBody = (
 
   switch groupByNames {
   | Some(groupByNames) =>
-    if groupByNames->Js.Array2.length != 0 {
+    if groupByNames->Array.length != 0 {
       Js.Dict.set(
         body,
         "groupByNames",
@@ -639,7 +639,7 @@ let getFilterRequestBody = (
 
   switch metrics {
   | Some(metrics) =>
-    if metrics->Js.Array2.length != 0 {
+    if metrics->Array.length != 0 {
       Js.Dict.set(
         body,
         "metrics",
@@ -866,7 +866,7 @@ let generateTablePayload = (
   let endTime = endTimeFromUrl
 
   let deltaDateArr =
-    {deltaMetrics->Js.Array2.length === 0}
+    {deltaMetrics->Array.length === 0}
       ? []
       : generateDateArray(~startTime, ~endTime, ~deltaPrefixArr)
 
@@ -881,7 +881,7 @@ let generateTablePayload = (
     ~customFilter,
     ~showDeltaMetrics,
   )
-  let tableBodyWithNonDeltaMetrix = if metrics->Js.Array2.length > 0 {
+  let tableBodyWithNonDeltaMetrix = if metrics->Array.length > 0 {
     [
       getFilterRequestBody(
         ~groupByNames=currenltySelectedTab,
@@ -900,7 +900,7 @@ let generateTablePayload = (
     []
   }
 
-  let tableBodyWithDeltaMetrix = if deltaMetrics->Js.Array2.length > 0 {
+  let tableBodyWithDeltaMetrix = if deltaMetrics->Array.length > 0 {
     [
       getFilterRequestBody(
         ~groupByNames=currenltySelectedTab,
@@ -1032,7 +1032,7 @@ let sampleApiBody = (tableApiBodyEntity: tableApiBodyEntity) => {
       "activeTab",
       tableApiBodyEntity.currenltySelectedTab
       ->Belt.Option.getWithDefault([])
-      ->Js.Array2.map(Js.Json.string)
+      ->Array.map(Js.Json.string)
       ->Js.Json.array,
     ),
     ("filter", defaultFilters->Js.Json.object_),
@@ -1044,13 +1044,13 @@ let sampleApiBody = (tableApiBodyEntity: tableApiBodyEntity) => {
 
 let deltaTimeRangeMapper = (arrJson: array<Js.Json.t>) => {
   let emptyDict = Js.Dict.empty()
-  let _ = arrJson->Js.Array2.map(item => {
+  let _ = arrJson->Array.map(item => {
     let dict = item->getDictFromJsonObject
     let name = dict->getString("requestPrefix", "")
     let deltaTimeRange = dict->getJsonObjectFromDict("deltaTimeRange")->getDictFromJsonObject
     let fromTime = deltaTimeRange->getString("startTime", "")
     let toTime = deltaTimeRange->getString("endTime", "")
-    if name === "" && deltaTimeRange->Js.Dict.entries->Js.Array2.length > 0 {
+    if name === "" && deltaTimeRange->Js.Dict.entries->Array.length > 0 {
       emptyDict->Js.Dict.set("currentSr", {fromTime, toTime})
     } else if name === "last7" {
       emptyDict->Js.Dict.set("prev7DaySr", {fromTime, toTime})
@@ -2300,7 +2300,7 @@ module RedirectToOrderTableModal = {
       let isMatched =
         dict
         ->Js.Dict.values
-        ->Js.Array2.map(val => {
+        ->Array.map(val => {
           val->Js.String2.toLowerCase->Js.String2.includes(searchText)
         })
         ->Js.Array2.includes(true)
@@ -2397,7 +2397,7 @@ let sampleApiBodyBQ = (tableApiBodyEntity: tableApiBodyEntity) => {
       "activeTab",
       tableApiBodyEntity.currenltySelectedTab
       ->Belt.Option.getWithDefault([])
-      ->Js.Array2.map(Js.Json.string)
+      ->Array.map(Js.Json.string)
       ->Js.Json.array,
     ),
     ("filter", defaultFilters->Js.Json.object_),
@@ -2445,7 +2445,7 @@ let useGetFilters = (
   let getAllFilter =
     filterValue
     ->Js.Dict.entries
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let (key, value) = item
       (key, value->UrlFetchUtils.getFilterValue)
     })

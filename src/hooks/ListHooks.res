@@ -9,19 +9,18 @@ let useListCount = (~entityName) => {
     try {
       let response = await fetchDetails(getUrl)
       let count = switch entityName {
-      | ROUTING =>
-        response->getDictFromJsonObject->getArrayFromDict("records", [])->Js.Array2.length
+      | ROUTING => response->getDictFromJsonObject->getArrayFromDict("records", [])->Array.length
       | CONNECTOR =>
         response
         ->getObjectArrayFromJson
         ->HSwitchUtils.filterList(~removeFromList=FRMPlayer)
-        ->Js.Array2.length
+        ->Array.length
       | FRAUD_RISK_MANAGEMENT =>
         response
         ->getObjectArrayFromJson
         ->HSwitchUtils.filterList(~removeFromList=Connector)
-        ->Js.Array2.length
-      | _ => response->getArrayFromJson([])->Js.Array2.length
+        ->Array.length
+      | _ => response->getArrayFromJson([])->Array.length
       }
       setCount(_ => count)
     } catch {

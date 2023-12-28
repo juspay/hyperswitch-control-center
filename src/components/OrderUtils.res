@@ -196,7 +196,7 @@ module Details = {
       <div
         className="flex flex-col w-full pt-4 gap-4 bg-white rounded-md dark:bg-jp-gray-lightgray_background">
         {detailsFields
-        ->Js.Array2.map(item => {
+        ->Array.map(item => {
           <div className="flex justify-between">
             <div className="text-jp-gray-900 dark:text-white opacity-50 font-medium">
               {getHeading(item).title->React.string}

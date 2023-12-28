@@ -5,7 +5,7 @@ let inviteEmail = FormRenderer.makeFieldInfo(
   ~name="emailList",
   ~customInput=(
     (~input, ~placeholder as _) => {
-      let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Js.Array2.length === 0
+      let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Array.length === 0
       InputFields.textTagInput(
         ~input,
         ~placeholder=showPlaceHolder ? "Eg: mehak.sam@wise.com, deepak.ven@wise.com" : "",
@@ -33,7 +33,7 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
 
   fieldsToValidate->Js.Array2.forEach(key => {
     let value = LogicUtils.getArrayFromDict(valuesDict, key, [])
-    if value->Js.Array2.length === 0 {
+    if value->Array.length === 0 {
       key->validateEmptyValue(errors)
     } else {
       value->Js.Array2.forEach(ele => {
@@ -57,7 +57,7 @@ let roleListDataMapper: UserRoleEntity.roleListResponse => SelectBox.dropdownOpt
 
 let roleOptions: array<UserRoleEntity.roleListResponse> => array<
   SelectBox.dropdownOption,
-> = roleListData => roleListData->Js.Array2.map(roleListDataMapper)
+> = roleListData => roleListData->Array.map(roleListDataMapper)
 
 let roleType = roleListData =>
   FormRenderer.makeFieldInfo(
@@ -77,14 +77,14 @@ let getArrayOfPermissionData = json => {
   json
   ->LogicUtils.getDictFromJsonObject
   ->LogicUtils.getArrayFromDict("permissions", [])
-  ->Js.Array2.map(i => i->Js.Json.decodeString->Belt.Option.getWithDefault(""))
+  ->Array.map(i => i->Js.Json.decodeString->Belt.Option.getWithDefault(""))
 }
 
 let updatePresentInInfoList = (infoData, permissionsData) => {
   let copyOfInfoData = infoData->Js.Array2.copy
   let copyOfPermissionsData = permissionsData->Js.Array2.copy
 
-  copyOfInfoData->Js.Array2.map((infoValItem: ProviderTypes.getInfoType) => {
+  copyOfInfoData->Array.map((infoValItem: ProviderTypes.getInfoType) => {
     infoValItem.permissions->Array.forEachWithIndex((
       enumValue: ProviderTypes.permissions,
       index,
@@ -101,7 +101,7 @@ let updatePresentInInfoList = (infoData, permissionsData) => {
 let defaultPresentInInfoList = infoData => {
   let copyOfInfoData = infoData->Js.Array2.copy
 
-  copyOfInfoData->Js.Array2.map((infoValItem: ProviderTypes.getInfoType) => {
+  copyOfInfoData->Array.map((infoValItem: ProviderTypes.getInfoType) => {
     infoValItem.permissions->Js.Array2.forEach((enumValue: ProviderTypes.permissions) => {
       enumValue.isPermissionAllowed = false
     })

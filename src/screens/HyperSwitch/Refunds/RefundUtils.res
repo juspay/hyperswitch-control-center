@@ -24,8 +24,8 @@ let getRefundsList = async (
     if total > 0 {
       let refundDataDictArr = data->Belt.Array.keepMap(Js.Json.decodeObject)
       let refundData =
-        arr->Js.Array2.concat(refundDataDictArr)->Js.Array2.map(RefundEntity.itemToObjMapper)
-      let list = refundData->Js.Array2.map(Js.Nullable.return)
+        arr->Js.Array2.concat(refundDataDictArr)->Array.map(RefundEntity.itemToObjMapper)
+      let list = refundData->Array.map(Js.Nullable.return)
       setRefundsData(_ => list)
       setTotalCount(_ => total)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -59,7 +59,7 @@ let filterByData = (txnArr, value) => {
       data
       ->Identity.genericTypeToDictOfJson
       ->Js.Dict.entries
-      ->Js.Array2.map(item => {
+      ->Array.map(item => {
         let (_, value) = item
 
         value->getStringFromJson("")->Js.String2.toLowerCase->Js.String2.includes(searchText)
@@ -104,7 +104,7 @@ let initialFilters = json => {
   filterDict
   ->Js.Dict.keys
   ->Array.filterWithIndex((_item, index) => index <= 2)
-  ->Js.Array2.map((key): EntityType.initialFilters<'t> => {
+  ->Array.map((key): EntityType.initialFilters<'t> => {
     let title = `Select ${key->snakeToTitle}`
     let values = filterDict->getArrayFromDict(key, [])->getStrArrayFromJsonArray
 

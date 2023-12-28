@@ -291,7 +291,7 @@ module BackendFrontendPlatformLangDropDown = {
       value: (platform :> string)->Js.Json.string,
       checked: true,
     }
-    let options = platforms->Js.Array2.map((op): SelectBox.dropdownOption => {
+    let options = platforms->Array.map((op): SelectBox.dropdownOption => {
       {value: (op :> string), label: (op :> string)}
     })
 
@@ -365,7 +365,7 @@ module BackendFrontendPlatformLangDropDown = {
             buttonText="Select Frontend"
             deselectDisable=true
             input={frontendLangInput}
-            options={frontendLangauge->Js.Array2.map((lang): SelectBox.dropdownOption => {
+            options={frontendLangauge->Array.map((lang): SelectBox.dropdownOption => {
               {value: (lang :> string), label: (lang :> string)}
             })}
             customButtonStyle="!rounded-md"
@@ -405,7 +405,7 @@ module BackendFrontendPlatformLangDropDown = {
               )
             }}
             customButtonStyle="!rounded-md"
-            options={backendLangauge->Js.Array2.map((lang): SelectBox.dropdownOption => {
+            options={backendLangauge->Array.map((lang): SelectBox.dropdownOption => {
               {value: (lang :> string), label: (lang :> string)}
             })}
             hideMultiSelectButtons=true

@@ -23,7 +23,7 @@ module AddEntryBtn = {
     open BusinessMappingUtils
     let initialValues =
       [
-        ("profile_name", `default${list->Js.Array2.length->string_of_int}`->Js.Json.string),
+        ("profile_name", `default${list->Array.length->string_of_int}`->Js.Json.string),
       ]->Js.Dict.fromArray
     let modalBody =
       <div>
@@ -172,7 +172,7 @@ let make = (
             title="Business Profiles"
             subTitle="Add and manage profiles to represent different businesses across countries."
           />
-          <UIUtils.RenderIf condition={businessProfileValues->Js.Array2.length > 1}>
+          <UIUtils.RenderIf condition={businessProfileValues->Array.length > 1}>
             <WarningArea
               warningText="Warning! Now that you've configured more than one profile, you must mandatorily pass 'profile_id' in payments API request every time"
             />
@@ -184,11 +184,11 @@ let make = (
             visibleColumns
             entity={businessProfileTableEntity}
             showSerialNumber=true
-            actualData={businessProfileValues->Js.Array2.map(Js.Nullable.return)}
-            totalResults={businessProfileValues->Js.Array2.length}
+            actualData={businessProfileValues->Array.map(Js.Nullable.return)}
+            totalResults={businessProfileValues->Array.length}
             offset
             setOffset
-            currrentFetchCount={businessProfileValues->Js.Array2.length}
+            currrentFetchCount={businessProfileValues->Array.length}
           />
           <div className="absolute right-0 -top-3">
             <AddEntryBtn

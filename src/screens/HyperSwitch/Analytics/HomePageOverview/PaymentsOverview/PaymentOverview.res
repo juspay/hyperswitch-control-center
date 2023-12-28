@@ -7,7 +7,7 @@ let make = () => {
     "payment_success_rate",
     "payment_count",
     "payment_success_count",
-  ]->Js.Array2.map(key => {
+  ]->Array.map(key => {
     [("name", key->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
   })
 

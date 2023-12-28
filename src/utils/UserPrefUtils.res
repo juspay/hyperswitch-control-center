@@ -22,7 +22,7 @@ let convertToModuleVisePref = json => {
 
   dict
   ->Js.Dict.keys
-  ->Js.Array2.map(key => {
+  ->Array.map(key => {
     let jsonForTheDict = dict->LogicUtils.getDictfromDict(key)
     let value = {
       searchParams: jsonForTheDict->LogicUtils.getString(urlKey, ""),
@@ -38,7 +38,7 @@ let convertToModuleVisePref = json => {
 let converToUserPref = dict => {
   dict
   ->Js.Dict.keys
-  ->Js.Array2.map(key => {
+  ->Array.map(key => {
     let jsonForTheDict = dict->LogicUtils.getDictfromDict(key)
     let value = {
       lastVisitedTab: getString(jsonForTheDict, lastVisitedTabKey, ""),
@@ -58,7 +58,7 @@ let saveUserPref = (userPref: Js.Dict.t<userPref>) => {
     userPreferenceKeyInLocalStorage,
     userPref
     ->Js.Dict.entries
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let (key, value) = item
       (key, value->userPrefToJson)
     })

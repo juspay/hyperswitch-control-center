@@ -130,17 +130,17 @@ let make = (
   let searchParams = disableURIdecode ? url.search : url.search->Js.Global.decodeURI
   let (refreshData, _setRefreshData) = React.useContext(RefreshStateContext.refreshStateContext)
   let (offset, setOffset) = React.useState(() => 0)
-  let remoteFilters = initialFilters->Js.Array2.filter(item => item.localFilter->Js.Option.isNone)
+  let remoteFilters = initialFilters->Array.filter(item => item.localFilter->Js.Option.isNone)
   let filtersFromUrl = LogicUtils.getDictFromUrlSearchParams(searchParams)
-  let localFilters = initialFilters->Js.Array2.filter(item => item.localFilter->Js.Option.isSome)
+  let localFilters = initialFilters->Array.filter(item => item.localFilter->Js.Option.isSome)
   let showToast = ToastState.useShowToast()
 
   let localOptions =
-    Js.Array2.concat(options, popupFilterFields)->Js.Array2.filter(item =>
+    Js.Array2.concat(options, popupFilterFields)->Array.filter(item =>
       item.localFilter->Js.Option.isSome
     )
   let remoteOptions =
-    Js.Array2.concat(options, popupFilterFields)->Js.Array2.filter(item =>
+    Js.Array2.concat(options, popupFilterFields)->Array.filter(item =>
       item.localFilter->Js.Option.isNone
     )
   let remoteFiltersFromUrl = useRemoteFilter(
@@ -208,7 +208,7 @@ let make = (
     }
 
     let getCustomUri = (uri, searchValueDict) => {
-      let uriList = Js.Dict.keys(searchValueDict)->Js.Array2.map(val => {
+      let uriList = Js.Dict.keys(searchValueDict)->Array.map(val => {
         let defaultFilterOffset =
           defaultFilters->LogicUtils.getDictFromJsonObject->LogicUtils.getInt("offset", 0)
         let dictValue = if val === "offset" {
@@ -232,7 +232,7 @@ let make = (
 
         urii
       })
-      let uri = uri ++ "?" ++ uriList->Js.Array2.filter(val => val !== "")->Js.Array2.joinWith("&")
+      let uri = uri ++ "?" ++ uriList->Array.filter(val => val !== "")->Js.Array2.joinWith("&")
       uri
     }
 
@@ -269,12 +269,11 @@ let make = (
     })
     ->then(json => {
       switch json->Js.Json.classify {
-      | JSONArray(_arr) =>
-        json->getObjects->Js.Array2.map(obj => obj->Js.Nullable.return)->setNewData
+      | JSONArray(_arr) => json->getObjects->Array.map(obj => obj->Js.Nullable.return)->setNewData
       | JSONObject(dict) => {
           let flattenedObject = JsonFlattenUtils.flattenObject(json, false)
           switch Js.Dict.get(flattenedObject, dataKey) {
-          | Some(x) => x->getObjects->Js.Array2.map(obj => obj->Js.Nullable.return)->setNewData
+          | Some(x) => x->getObjects->Array.map(obj => obj->Js.Nullable.return)->setNewData
           | None => ()
           }
           let summary = switch Js.Dict.get(dict, summaryKey) {
@@ -324,7 +323,7 @@ let make = (
 
   let visibleColumns = visibleColumnsProp->Belt.Option.getWithDefault(defaultColumns)
   let handleRefetch = () => {
-    let rowFetched = data->Belt.Option.getWithDefault([])->Js.Array2.length
+    let rowFetched = data->Belt.Option.getWithDefault([])->Array.length
     if rowFetched !== summary.totalCount {
       setTableDataLoading(_ => true)
       let newDefaultFilter =
@@ -340,15 +339,15 @@ let make = (
   }
 
   let showLocalFilter =
-    (localFilters->Js.Array2.length > 0 || localOptions->Js.Array2.length > 0) &&
-      (applyFilters ? finalData : data)->Belt.Option.getWithDefault([])->Js.Array2.length > 0
-  let showRemoteFilter = remoteFilters->Js.Array2.length > 0 || remoteOptions->Js.Array2.length > 0
+    (localFilters->Array.length > 0 || localOptions->Array.length > 0) &&
+      (applyFilters ? finalData : data)->Belt.Option.getWithDefault([])->Array.length > 0
+  let showRemoteFilter = remoteFilters->Array.length > 0 || remoteOptions->Array.length > 0
 
   let filters = {
     if (
-      (Js.Array.length(initialFilters) > 0 || Js.Array.length(options) > 0) &&
+      (Array.length(initialFilters) > 0 || Array.length(options) > 0) &&
       (showLocalFilter || showRemoteFilter) &&
-      (!hideFiltersOnNoData || data->Belt.Option.getWithDefault([])->Js.Array2.length > 0)
+      (!hideFiltersOnNoData || data->Belt.Option.getWithDefault([])->Array.length > 0)
     ) {
       let children =
         <div className={`flex-1 ${customFilterStyle}`}>
@@ -413,7 +412,7 @@ let make = (
     | Some(obj) =>
       switch filterCols {
       | Some(cols) =>
-        let _ = cols->Js.Array2.map(key => {
+        let _ = cols->Array.map(key => {
           obj[key] = filterForRow(data, key)
         })
         obj
@@ -430,7 +429,7 @@ let make = (
   let checkLength = ref(true)
   React.useEffect2(() => {
     let findVal = (accumulator, item: TableUtils.filterObject) =>
-      Js.Array.concat(accumulator, item.selected)
+      Array.concat(accumulator, item.selected)
     let keys = switch filterObj {
     | Some(obj) => obj->Js.Array2.reduce(findVal, [])
     | None => []
@@ -440,11 +439,11 @@ let make = (
     | Some(obj) =>
       switch filterCols {
       | Some(cols) =>
-        for i in 0 to cols->Js.Array2.length - 1 {
+        for i in 0 to cols->Array.length - 1 {
           checkLength :=
             checkLength.contents &&
             switch obj[cols[i]->Belt.Option.getWithDefault(0)] {
-            | Some(ele) => Js.Array.length(ele.selected) > 0
+            | Some(ele) => Array.length(ele.selected) > 0
             | None => false
             }
         }
@@ -453,7 +452,7 @@ let make = (
       if checkLength.contents {
         let newData = switch data {
         | Some(data) =>
-          data->Js.Array2.filter(item => {
+          data->Array.filter(item => {
             switch item->Js.Nullable.toOption {
             | Some(val) => filterCheck(val, keys)
             | _ => false
@@ -475,7 +474,7 @@ let make = (
   switch applyFilters ? finalData : data {
   | Some(actualData) => {
       let localFilteredData =
-        localFilters->Js.Array2.length > 0 || localOptions->Js.Array2.length > 0
+        localFilters->Array.length > 0 || localOptions->Array.length > 0
           ? RemoteFiltersUtils.getLocalFiltersData(
               ~resArr=actualData,
               ~dateRangeFilterDict,
@@ -485,10 +484,10 @@ let make = (
               (),
             )
           : actualData
-      let currrentFetchCount = localFilteredData->Js.Array.length
+      let currrentFetchCount = localFilteredData->Array.length
 
       open DynamicTableUtils
-      let totalResults = if actualData->Js.Array2.length < summary.totalCount {
+      let totalResults = if actualData->Array.length < summary.totalCount {
         summary.totalCount
       } else {
         currrentFetchCount

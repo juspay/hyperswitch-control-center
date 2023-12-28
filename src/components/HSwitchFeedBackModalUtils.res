@@ -27,7 +27,7 @@ let selectFeedbackType = makeFieldInfo(
   ~name="category",
   ~label="",
   ~customInput=InputFields.radioInput(
-    ~options=feedbackTypeList->Js.Array2.map(getFeedBackStringFromVariant)->SelectBox.makeOptions,
+    ~options=feedbackTypeList->Array.map(getFeedBackStringFromVariant)->SelectBox.makeOptions,
     ~buttonText="options",
     ~isHorizontal=true,
     (),

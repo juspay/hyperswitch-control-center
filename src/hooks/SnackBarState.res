@@ -60,7 +60,7 @@ let useHideSnackbar = () => {
 
   React.useCallback1(key => {
     setOpenSnackBar(.prevArr => {
-      Js.Array2.filter(
+      Array.filter(
         prevArr,
         (snackbarProps: snackbarProps) => {
           snackbarProps.body !== key

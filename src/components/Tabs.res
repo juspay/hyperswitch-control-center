@@ -186,7 +186,7 @@ let make = (
   let firstTabRef = React.useRef(Js.Nullable.null)
   let scrollRef = React.useRef(Js.Nullable.null)
   let lastTabRef = React.useRef(Js.Nullable.null)
-  let numberOfTabs = Js.Array2.length(tabs)
+  let numberOfTabs = Array.length(tabs)
   let onScroll = _ev => {
     let leftVal = firstTabRef->getBoundingRectInfo(val => val.x)
     let rightVal = lastTabRef->getBoundingRectInfo(val => val.right)
@@ -227,7 +227,7 @@ let make = (
             className={`flex flex-row ${topMargin} pr-8 ${tabOuterClass}
           ${showBorder && includeMargin ? "ml-5" : ""}  ${tabContainerClass}`}>
             {tabs
-            ->Js.Array2.mapi((tab, i) => {
+            ->Array.mapWithIndex((tab, i) => {
               let ref = if i == 0 {
                 firstTabRef->ReactDOM.Ref.domRef->Some
               } else if i == numberOfTabs - 1 {

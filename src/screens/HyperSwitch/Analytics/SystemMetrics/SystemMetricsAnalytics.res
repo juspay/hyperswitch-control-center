@@ -63,7 +63,7 @@ module APITableInfo = {
           </div>
           <div className="h-96 overflow-scroll show-scrollbar">
             {apis
-            ->Js.Array2.map(path =>
+            ->Array.map(path =>
               <div className="bg-gray-100 p-2 mb-1 rounded mr-2"> {`/${path}`->React.string} </div>
             )
             ->React.array}
@@ -147,7 +147,7 @@ module SystemMetricsAnalytics = {
     let filterDataOrig = getFilterData(filterUri, Fetch.Post, filterBody)
     let filterData = filterDataOrig->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty()))
 
-    <UIUtils.RenderIf condition={getModuleFilters->Js.Dict.entries->Js.Array2.length > 0}>
+    <UIUtils.RenderIf condition={getModuleFilters->Js.Dict.entries->Array.length > 0}>
       {switch chartEntity1 {
       | Some(chartEntity) =>
         <div className="h-75-vh">

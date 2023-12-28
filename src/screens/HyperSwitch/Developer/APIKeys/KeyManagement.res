@@ -404,11 +404,11 @@ module ApiKeysTable = {
           visibleColumns
           entity=apiKeysTableEntity
           showSerialNumber=true
-          actualData={data->Js.Array2.map(Js.Nullable.return)}
-          totalResults={data->Js.Array2.length}
+          actualData={data->Array.map(Js.Nullable.return)}
+          totalResults={data->Array.length}
           offset
           setOffset
-          currrentFetchCount={data->Js.Array2.length}
+          currrentFetchCount={data->Array.length}
           tableActions={<div className="mt-5">
             <ApiKeyAddBtn getAPIKeyDetails />
           </div>}

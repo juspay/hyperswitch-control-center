@@ -1,10 +1,7 @@
 let parseUrlIntoDict = queryUrl => {
   let arr =
-    queryUrl
-    ->Js.Global.decodeURI
-    ->Js.String2.split("&")
-    ->Js.Array2.map(e => e->Js.String2.split("="))
-  let safeArray = arr->Js.Array2.filter(e => e->Js.Array2.length == 2)
+    queryUrl->Js.Global.decodeURI->Js.String2.split("&")->Array.map(e => e->Js.String2.split("="))
+  let safeArray = arr->Array.filter(e => e->Array.length == 2)
   let dict: Js.Dict.t<string> = Js.Dict.empty()
   safeArray->Js.Array2.forEach(e => {
     dict->Js.Dict.set(
@@ -57,7 +54,7 @@ let getQueryValue = (~queryUrl, ~key: queryInput) => {
         ->Js.String2.replace("[", "")
         ->Js.String2.replace("]", "")
         ->Js.String2.split(",")
-        ->Js.Array2.filter(e => e !== "")
+        ->Array.filter(e => e !== "")
       }),
     )
   }

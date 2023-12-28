@@ -107,7 +107,7 @@ let filterByData = (txnArr, value) => {
       data
       ->Identity.genericTypeToDictOfJson
       ->Js.Dict.entries
-      ->Js.Array2.map(item => {
+      ->Array.map(item => {
         let (_, value) = item
 
         value->getStringFromJson("")->Js.String2.toLowerCase->Js.String2.includes(searchText)
@@ -125,7 +125,7 @@ let initialFilters = json => {
   filterDict
   ->Js.Dict.keys
   ->Array.filterWithIndex((_item, index) => index <= 3)
-  ->Js.Array2.map((key): EntityType.initialFilters<'t> => {
+  ->Array.map((key): EntityType.initialFilters<'t> => {
     let title = `Select ${key->snakeToTitle}`
     let values = filterDict->getArrayFromDict(key, [])->getStrArrayFromJsonArray
 
@@ -198,12 +198,12 @@ let setData = (
     let orderData =
       arr
       ->Js.Array2.concat(orderDataDictArr)
-      ->Js.Array2.map(OrderEntity.itemToObjMapper)
+      ->Array.map(OrderEntity.itemToObjMapper)
       ->Array.filterWithIndex((_, i) => {
         !previewOnly || i <= 2
       })
 
-    let list = orderData->Js.Array2.map(Js.Nullable.return)
+    let list = orderData->Array.map(Js.Nullable.return)
     setTotalCount(_ => total)
     setOrdersData(_ => list)
     setScreenState(_ => PageLoaderWrapper.Success)
@@ -232,9 +232,7 @@ let getOrdersList = async (
     let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
-    if (
-      data->Js.Array.length === 0 && filterValueJson->Js.Dict.get("payment_id")->Belt.Option.isSome
-    ) {
+    if data->Array.length === 0 && filterValueJson->Js.Dict.get("payment_id")->Belt.Option.isSome {
       let payment_id =
         filterValueJson
         ->Js.Dict.get("payment_id")

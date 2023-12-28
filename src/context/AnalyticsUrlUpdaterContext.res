@@ -59,7 +59,7 @@ let make = (~children) => {
         let currentDictArr =
           dict
           ->Js.Dict.entries
-          ->Js.Array2.filter(
+          ->Array.filter(
             item => {
               let (_, value) = item
               value !== ""
@@ -96,7 +96,7 @@ let make = (~children) => {
       removeKeys,
       filterValueJson: urlDict
       ->Js.Dict.entries
-      ->Js.Array2.map(item => {
+      ->Array.map(item => {
         let (key, value) = item
         (key, value->UrlFetchUtils.getFilterValue)
       })

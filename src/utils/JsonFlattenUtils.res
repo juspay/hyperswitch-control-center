@@ -36,9 +36,9 @@ let rec flattenObject = (obj, addIndicatorForObject) => {
 }
 
 let rec setNested = (dict, keys, value) => {
-  if keys->Js.Array.length === 0 {
+  if keys->Array.length === 0 {
     ()
-  } else if keys->Js.Array.length === 1 {
+  } else if keys->Array.length === 1 {
     Js.Dict.set(dict, keys[0]->Belt.Option.getWithDefault(""), value)
   } else {
     let key = keys[0]->Belt.Option.getWithDefault("")

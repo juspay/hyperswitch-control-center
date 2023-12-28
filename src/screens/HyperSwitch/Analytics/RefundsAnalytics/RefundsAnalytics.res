@@ -36,7 +36,7 @@ let make = () => {
       let refundDetails = await updateDetails(refundUrl, body->Js.Json.object_, Post)
       let data = refundDetails->getDictFromJsonObject->getArrayFromDict("data", [])
 
-      if data->Js.Array2.length < 1 {
+      if data->Array.length < 1 {
         setScreenState(_ => PageLoaderWrapper.Custom)
       } else {
         await loadInfo()

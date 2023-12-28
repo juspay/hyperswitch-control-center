@@ -8,7 +8,7 @@ module SDKConfiguarationFields = {
     let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
     let disableSelectionForProfile = arrayOfBusinessProfile->HomeUtils.isDefaultBusinessProfile
 
-    let dropDownOptions = HomeUtils.countries->Js.Array2.map((item): SelectBox.dropdownOption => {
+    let dropDownOptions = HomeUtils.countries->Array.map((item): SelectBox.dropdownOption => {
       {
         label: `${item.countryName} (${item.currency})`,
         value: `${item.countryName}-${item.currency}`,

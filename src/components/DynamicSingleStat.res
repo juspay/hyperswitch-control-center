@@ -87,13 +87,13 @@ type singleStateData<'t, 't2> = {
 let deltaTimeRangeMapper: array<Js.Json.t> => deltaRange = (arrJson: array<Js.Json.t>) => {
   open LogicUtils
   let emptyDict = Js.Dict.empty()
-  let _ = arrJson->Js.Array2.map(item => {
+  let _ = arrJson->Array.map(item => {
     let dict = item->getDictFromJsonObject
     let deltaTimeRange = dict->getJsonObjectFromDict("deltaTimeRange")->getDictFromJsonObject
     let fromTime = deltaTimeRange->getString("startTime", "")
     let toTime = deltaTimeRange->getString("endTime", "")
     let timeRanges: AnalyticsUtils.timeRanges = {fromTime, toTime}
-    if deltaTimeRange->Js.Dict.entries->Js.Array2.length > 0 {
+    if deltaTimeRange->Js.Dict.entries->Array.length > 0 {
       emptyDict->Js.Dict.set("currentSr", timeRanges)
     }
   })
@@ -260,7 +260,7 @@ let make = (
       setSingleStatLoading(_ => enableLoaders)
 
       entity.urlConfig
-      ->Js.Array2.map(urlConfig => {
+      ->Array.map(urlConfig => {
         let {uri, metrics} = urlConfig
         let domain = Js.String.split("/", uri)->Belt.Array.get(4)->Belt.Option.getWithDefault("")
         let startTime = if domain === "mandate" {
@@ -300,7 +300,7 @@ let make = (
       })
       ->Promise.all
       ->Promise.thenResolve(dataArr => {
-        let data = dataArr->Js.Array2.map(
+        let data = dataArr->Array.map(
           item => {
             let (sectionName, json) = item
             switch entity.totalVolumeCol {
@@ -314,7 +314,7 @@ let make = (
                   ->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty()))
                   ->LogicUtils.getDictFromJsonObject
                   ->Js.Dict.entries
-                  ->Js.Array2.find(
+                  ->Array.find(
                     item => {
                       let (key, _) = item
                       key === val
@@ -364,7 +364,7 @@ let make = (
 
       open Promise
       entity.urlConfig
-      ->Js.Array2.map(urlConfig => {
+      ->Array.map(urlConfig => {
         let {uri, metrics} = urlConfig
         let domain = Js.String.split("/", uri)->Belt.Array.get(4)->Belt.Option.getWithDefault("")
         let startTime = if domain === "mandate" {
@@ -412,7 +412,7 @@ let make = (
       })
       ->Promise.all
       ->thenResolve(timeSeriesArr => {
-        let data = timeSeriesArr->Js.Array2.map(
+        let data = timeSeriesArr->Array.map(
           item => {
             let (sectionName, json) = item
 
@@ -448,7 +448,7 @@ let make = (
       | Some(sdata) => {
           let sectiondata =
             sdata
-            ->Js.Array2.filter(
+            ->Array.filter(
               item => {
                 item.sectionUrl === uri
               },

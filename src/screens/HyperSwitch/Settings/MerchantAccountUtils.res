@@ -25,7 +25,7 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
       if !Js.Re.test_(%re("/^(?=.*[!@#$%^&*_])/"), value) {
         mustHave->Array.push("special")
       }
-      if mustHave->Js.Array2.length > 0 {
+      if mustHave->Array.length > 0 {
         Js.Dict.set(
           errors,
           key,
@@ -83,7 +83,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
 let parseMerchantJson = (merchantDict: merchantPayload) => {
   open LogicUtils
   let {merchant_details, merchant_name, publishable_key, primary_business_details} = merchantDict
-  let primary_business_details = primary_business_details->Js.Array2.map(detail => {
+  let primary_business_details = primary_business_details->Array.map(detail => {
     let {country, business} = detail
     let props = [("country", country->Js.Json.string), ("business", business->Js.Json.string)]
 
@@ -143,7 +143,7 @@ let getMerchantDetails = (values: Js.Json.t) => {
   let primary_business_details =
     valuesDict
     ->getArrayFromDict("primary_business_details", [])
-    ->Js.Array2.map(detail => {
+    ->Array.map(detail => {
       let detailDict = detail->getDictFromJsonObject
 
       let info = {
@@ -298,7 +298,7 @@ let getSettingsPayload = (values: Js.Json.t, merchantId) => {
   let primary_business_details =
     valuesDict
     ->LogicUtils.getArrayFromDict("primary_business_details", [])
-    ->Js.Array2.map(detail => {
+    ->Array.map(detail => {
       let detailDict = detail->LogicUtils.getDictFromJsonObject
 
       let detailDict =
@@ -349,7 +349,7 @@ let checkValueChange = (~initialDict, ~valuesDict) => {
   let key =
     initialDict
     ->Js.Dict.keys
-    ->Js.Array2.find(key => {
+    ->Array.find(key => {
       let initialValue = initialDict->LogicUtils.getString(key, "")
       let updatedValue = valuesDict->LogicUtils.getString(key, "")
 
@@ -435,7 +435,7 @@ let businessProfileTypeMapper = values => {
 }
 
 let convertObjectToType = value => {
-  value->Js.Array2.reverseInPlace->Js.Array2.map(businessProfileTypeMapper)
+  value->Js.Array2.reverseInPlace->Array.map(businessProfileTypeMapper)
 }
 
 let defaultValueForBusinessProfile = {
@@ -475,7 +475,7 @@ let useGetBusinessProflile = profileId => {
   HyperswitchAtom.businessProfilesAtom
   ->Recoil.useRecoilValueFromAtom
   ->getArrayOfBusinessProfile
-  ->Js.Array2.find(profile => profile.profile_id == profileId)
+  ->Array.find(profile => profile.profile_id == profileId)
   ->Belt.Option.getWithDefault(defaultValueForBusinessProfile)
 }
 
@@ -490,7 +490,7 @@ module BusinessProfile = {
 }
 
 let businessProfileNameDropDownOption = arrBusinessProfile =>
-  arrBusinessProfile->Js.Array2.map(ele => {
+  arrBusinessProfile->Array.map(ele => {
     let obj: SelectBox.dropdownOption = {
       label: {`${ele.profile_name} (${ele.profile_id})`},
       value: ele.profile_id,

@@ -74,11 +74,11 @@ module BaseTableComponent = {
               actualData={tableData}
               entity=modifiedTableEntity
               resultsPerPage=10
-              totalResults={tableData->Js.Array2.length}
+              totalResults={tableData->Array.length}
               offset
               setOffset
               defaultSort
-              currrentFetchCount={tableData->Js.Array2.length}
+              currrentFetchCount={tableData->Array.length}
               tableLocalFilter=false
               tableheadingClass=tableBorderClass
               tableBorderClass
@@ -121,7 +121,7 @@ module TableWrapper = {
     let activeTabStr = activeTab->Belt.Option.getWithDefault([])->Js.Array2.joinWith("-")
     let (startTimeFilterKey, endTimeFilterKey) = dateKeys
     let (tableDataLoading, setTableDataLoading) = React.useState(_ => true)
-    let (tableData, setTableData) = React.useState(_ => []->Js.Array2.map(Js.Nullable.return))
+    let (tableData, setTableData) = React.useState(_ => []->Array.map(Js.Nullable.return))
 
     let getTopLevelFilter = React.useMemo1(() => {
       getAllFilter
@@ -192,7 +192,7 @@ module TableWrapper = {
     let generateIDFromKeys = (keys, dict) => {
       keys
       ->Belt.Option.getWithDefault([])
-      ->Js.Array2.map(key => {
+      ->Array.map(key => {
         dict->Js.Dict.get(key)
       })
       ->Js.Array2.joinWith("")
@@ -204,7 +204,7 @@ module TableWrapper = {
       let weeklyArr = weeklyData->parseData
 
       dataArr
-      ->Js.Array2.map(item => {
+      ->Array.map(item => {
         let dataDict = item->getDictFromJsonObject
         let dataKey = activeTab->generateIDFromKeys(dataDict)
 
@@ -227,7 +227,7 @@ module TableWrapper = {
       })
       ->Js.Json.array
       ->getTable
-      ->Js.Array2.map(Js.Nullable.return)
+      ->Array.map(Js.Nullable.return)
     }
 
     open Promise
@@ -291,10 +291,7 @@ module TableWrapper = {
           | _ => {
               let data = json->getDictFromJsonObject
               let value =
-                data
-                ->getJsonObjectFromDict("queryData")
-                ->getTable
-                ->Js.Array2.map(Js.Nullable.return)
+                data->getJsonObjectFromDict("queryData")->getTable->Array.map(Js.Nullable.return)
 
               setTableData(_ => value)
               setTableDataLoading(_ => false)
@@ -357,7 +354,7 @@ module TableWrapper = {
       [
         (
           "activeTab",
-          activeTab->Belt.Option.getWithDefault([])->Js.Array2.map(Js.Json.string)->Js.Json.array,
+          activeTab->Belt.Option.getWithDefault([])->Array.map(Js.Json.string)->Js.Json.array,
         ),
         ("filter", defaultFilters->Js.Json.object_),
       ]->Js.Dict.fromArray
@@ -366,7 +363,7 @@ module TableWrapper = {
 
     showTable
       ? <>
-          <UIUtils.RenderIf condition={tableData->Js.Array2.length > 0}>
+          <UIUtils.RenderIf condition={tableData->Array.length > 0}>
             <div
               className="flex border items-start border-blue-800 text-sm rounded-md gap-2 px-4 py-3 mt-7">
               <Icon name="info-vacent" className="text-blue-900 mt-1" size=18 />
@@ -632,7 +629,7 @@ let make = (
     Some(
       getModuleFilters
       ->getStrArrayFromDict(`${moduleName}.tabName`, activeTav)
-      ->Js.Array2.filter(item => item !== ""),
+      ->Array.filter(item => item !== ""),
     )
   }, [getModuleFilters])
 
@@ -645,8 +642,8 @@ let make = (
   let hideFiltersDefaultValue =
     filterValue
     ->Js.Dict.keys
-    ->Js.Array2.filter(item => tabKeys->Js.Array2.find(key => key == item)->Belt.Option.isSome)
-    ->Js.Array2.length < 1
+    ->Array.filter(item => tabKeys->Array.find(key => key == item)->Belt.Option.isSome)
+    ->Array.length < 1
 
   let topFilterUi = switch filterDataOrig {
   | Some(filterData) => {
@@ -658,7 +655,7 @@ let make = (
             ->getDictFromJsonObject
             ->getJsonObjectFromDict("queryData")
             ->getArrayFromJson([])
-            ->Js.Array2.filter(dimension => {
+            ->Array.filter(dimension => {
               let dim = dimension->getDictFromJsonObject->getString("dimension", "")
               filteredDims->Js.Array2.includes(dim)->not
             })
@@ -702,7 +699,7 @@ let make = (
     </div>
   }
 
-  <UIUtils.RenderIf condition={getModuleFilters->Js.Dict.entries->Js.Array2.length > 0}>
+  <UIUtils.RenderIf condition={getModuleFilters->Js.Dict.entries->Array.length > 0}>
     {switch chartEntity1 {
     | Some(chartEntity) =>
       <div>

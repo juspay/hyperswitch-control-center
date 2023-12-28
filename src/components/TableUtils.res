@@ -12,7 +12,7 @@ let highlightedText = (str, searchedText) => {
 
     {
       listText
-      ->Js.Array2.mapi((item, i) => {
+      ->Array.mapWithIndex((item, i) => {
         if (
           Js.String2.toLowerCase(item) == Js.String2.toLowerCase(searchedText) &&
             Js.String2.length(searchedText) > 0

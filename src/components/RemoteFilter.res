@@ -170,18 +170,18 @@ module ClearFilters = {
       ->Js.Json.decodeObject
       ->Belt.Option.getWithDefault(Js.Dict.empty())
       ->Js.Dict.entries
-      ->Js.Array2.filter(entry => {
+      ->Array.filter(entry => {
         let (key, value) = entry
         let isEmptyValue = switch value->Js.Json.classify {
         | JSONString(str) => str === ""
-        | JSONArray(arr) => arr->Js.Array2.length === 0
+        | JSONArray(arr) => arr->Array.length === 0
         | JSONNull => true
         | _ => false
         }
 
         !(defaultFilterKeys->Js.Array2.includes(key)) && !isEmptyValue
       })
-      ->Js.Array2.length > 0
+      ->Array.length > 0
     }, (formState.initialValues, defaultFilterKeys))
     let text = isCountRequired ? `Clear ${count->Belt.Int.toString} Filters` : "Clear Filters"
     <UIUtils.RenderIf condition={hasExtraFilters || outsidefilter}>
@@ -241,18 +241,18 @@ module AnalyticsClearFilters = {
       ->Js.Json.decodeObject
       ->Belt.Option.getWithDefault(Js.Dict.empty())
       ->Js.Dict.entries
-      ->Js.Array2.filter(entry => {
+      ->Array.filter(entry => {
         let (key, value) = entry
         let isEmptyValue = switch value->Js.Json.classify {
         | JSONString(str) => str === ""
-        | JSONArray(arr) => arr->Js.Array2.length === 0
+        | JSONArray(arr) => arr->Array.length === 0
         | JSONNull => true
         | _ => false
         }
 
         !(defaultFilterKeys->Js.Array2.includes(key)) && !isEmptyValue
       })
-      ->Js.Array2.length > 0
+      ->Array.length > 0
     }, (formState.initialValues, defaultFilterKeys))
 
     <UIUtils.RenderIf condition={hasExtraFilters || outsidefilter}>
@@ -287,11 +287,11 @@ module CheckCustomFilters = {
 
     let onChangeSelect = ev => {
       let fieldNameArr = ev->Identity.formReactEventToArrayOfString
-      let newlyAdded = Js.Array2.filter(fieldNameArr, newVal =>
+      let newlyAdded = Array.filter(fieldNameArr, newVal =>
         !Js.Array2.includes(checkedFilters, newVal)
       )
 
-      if Js.Array2.length(newlyAdded) > 0 {
+      if Array.length(newlyAdded) > 0 {
         addFilters(newlyAdded)
       } else {
         removeFilters(fieldNameArr, values)
@@ -300,14 +300,14 @@ module CheckCustomFilters = {
       hyperswitchMixPanel(~eventName=Some("analytics_addfilters"), ())
     }
 
-    let selectOptions = options->Js.Array2.map(obj => obj.urlKey)
+    let selectOptions = options->Array.map(obj => obj.urlKey)
 
     <div className="md:justify-between flex p-1 items-center flex-wrap">
-      {if Js.Array.length(options) > 0 && showAddFilter {
+      {if Array.length(options) > 0 && showAddFilter {
         <div className="flex flex-wrap">
           <CustomInputSelectBox
             onChange=onChangeSelect
-            options={selectOptions->Js.Array2.map(item => {
+            options={selectOptions->Array.map(item => {
               {
                 SelectBox.label: LogicUtils.snakeToTitle(item),
                 SelectBox.value: item,
@@ -362,7 +362,7 @@ module AutoSubmitter = {
 let getStrFromJson = (key, val) => {
   switch val->Js.Json.classify {
   | JSONString(str) => str
-  | JSONArray(array) => array->Js.Array2.length > 0 ? `[${array->Js.Array2.joinWith(",")}]` : ""
+  | JSONArray(array) => array->Array.length > 0 ? `[${array->Js.Array2.joinWith(",")}]` : ""
   | JSONNumber(num) => key === "offset" ? "0" : num->Belt.Float.toInt->string_of_int
   | _ => ""
   }
@@ -381,7 +381,7 @@ module ApplyFilterButton = {
     let defaultinputField = FormRenderer.makeInputFieldInfo(~name="-", ())
     let inputFieldsDict =
       selectedFiltersList
-      ->Js.Array2.map(filter => {
+      ->Array.map(filter => {
         let inputFieldsArr = filter.inputFields
         let inputField = inputFieldsArr->LogicUtils.getValueFromArray(0, defaultinputField)
         (inputField.name, inputField)
@@ -409,7 +409,7 @@ module ApplyFilterButton = {
     let getFormattedDict = dict => {
       dict
       ->Js.Dict.entries
-      ->Js.Array2.map(entry => {
+      ->Array.map(entry => {
         let (key, value) = entry
         let inputField =
           inputFieldsDict->Js.Dict.get(key)->Belt.Option.getWithDefault(defaultinputField)
@@ -438,8 +438,8 @@ module ApplyFilterButton = {
           let (_, value) = item
           switch value->Js.Json.classify {
           | JSONString(str) => str === ""
-          | JSONArray(arr) => arr->Js.Array2.length === 0
-          | JSONObject(dict) => dict->Js.Dict.entries->Js.Array2.length === 0
+          | JSONArray(arr) => arr->Array.length === 0
+          | JSONObject(dict) => dict->Js.Dict.entries->Array.length === 0
           | JSONNull => true
           | _ => false
           } &&
@@ -471,13 +471,13 @@ module FilterModal = {
 
     let formCurrentValues = formState.values->LogicUtils.getDictFromJsonObject
     let sortedSelectedFiltersList = React.useMemo1(_ => {
-      let selectedFiltersListWithVal = selectedFiltersList->Js.Array2.filter(item => {
+      let selectedFiltersListWithVal = selectedFiltersList->Array.filter(item => {
         let inputName = item.inputNames->Belt.Array.get(0)->Belt.Option.getWithDefault("")
         let selectedNo =
-          formCurrentValues->LogicUtils.getStrArray(inputName)->Js.Array2.length->Belt.Int.toString
+          formCurrentValues->LogicUtils.getStrArray(inputName)->Array.length->Belt.Int.toString
         selectedNo !== "0"
       })
-      let selectedFiltersListWithoutVal = selectedFiltersList->Js.Array2.filter(item => {
+      let selectedFiltersListWithoutVal = selectedFiltersList->Array.filter(item => {
         !(selectedFiltersListWithVal->Js.Array2.includes(item))
       })
 
@@ -486,10 +486,10 @@ module FilterModal = {
 
     <div className="flex flex-col gap-4.5">
       {sortedSelectedFiltersList
-      ->Js.Array2.mapi((item, i) => {
+      ->Array.mapWithIndex((item, i) => {
         let inputName = item.inputNames->Belt.Array.get(0)->Belt.Option.getWithDefault("")
         let selectedNo =
-          formCurrentValues->LogicUtils.getStrArray(inputName)->Js.Array2.length->Belt.Int.toString
+          formCurrentValues->LogicUtils.getStrArray(inputName)->Array.length->Belt.Int.toString
         let textcolor =
           selectedNo !== "0" ? "text-jp-2-light-gray-2000" : "text-jp-2-light-gray-1000"
         <UIUtils.RenderIf condition={showAllFilter || i < 10}>
@@ -562,26 +562,26 @@ let make = (
   let syncIcon = "sync"
 
   let (selectedFiltersList, setSelectedFiltersList) = React.useState(_ =>
-    remoteFilters->Js.Array2.map(item => item.field)
+    remoteFilters->Array.map(item => item.field)
   )
 
   React.useEffect1(_ => {
-    if remoteFilters->Js.Array2.length >= selectedFiltersList->Js.Array2.length {
-      setSelectedFiltersList(_ => remoteFilters->Js.Array2.map(item => item.field))
+    if remoteFilters->Array.length >= selectedFiltersList->Array.length {
+      setSelectedFiltersList(_ => remoteFilters->Array.map(item => item.field))
     }
     None
   }, remoteFilters)
 
   let updatedSelectedList = React.useMemo1(() => {
     selectedFiltersList
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       item.inputNames->Belt.Array.get(0)->Belt.Option.getWithDefault("")
     })
     ->Js.Json.stringArray
   }, [selectedFiltersList])
 
   React.useEffect1(() => {
-    if remoteFilters->Js.Array2.length > 0 {
+    if remoteFilters->Array.length > 0 {
       addConfig(alreadySelectedFiltersUserpref, updatedSelectedList)
     }
     None
@@ -592,7 +592,7 @@ let make = (
   let (isButtonDisabled, setIsButtonDisabled) = React.useState(_ => false)
   let queryStr = url.search
 
-  let totalFilters = selectedFiltersList->Js.Array2.length + localOptions->Js.Array2.length
+  let totalFilters = selectedFiltersList->Array.length + localOptions->Array.length
   let (checkedFilters, setCheckedFilters) = React.useState(_ => [])
   let (clearFilterAfterRefresh, setClearFilterAfterRefresh) = React.useState(_ => false)
   let (count, setCount) = React.useState(_ => initalCount)
@@ -609,7 +609,7 @@ let make = (
   let countSelectedFilters = React.useMemo1(() => {
     Js.Dict.keys(
       initialValueJson->Js.Json.decodeObject->Belt.Option.getWithDefault(Js.Dict.empty()),
-    )->Js.Array2.length
+    )->Array.length
   }, [initialValueJson])
 
   let hideFiltersInit = switch hideFiltersDefaultValue {
@@ -635,14 +635,14 @@ let make = (
     )
     ->LogicUtils.getDictFromJsonObject
     ->Js.Dict.keys
-    ->Js.Array2.length
+    ->Array.length
 
-  let popupUrlKeyArr = popupFilterFields->Js.Array2.map(item => item.urlKey)
+  let popupUrlKeyArr = popupFilterFields->Array.map(item => item.urlKey)
 
   React.useEffect1(() => {
     let initialValues = RemoteFiltersUtils.getInitialValuesFromUrl(
       ~searchParams,
-      ~initialFilters={Js.Array.concat(remoteFilters, fixedFilters)},
+      ~initialFilters={Array.concat(remoteFilters, fixedFilters)},
       ~mandatoryRemoteKeys,
       ~options=remoteOptions,
       (),
@@ -653,7 +653,7 @@ let make = (
         initialValues
         ->LogicUtils.getDictFromJsonObject
         ->Js.Dict.entries
-        ->Js.Array2.map(item => {
+        ->Array.map(item => {
           let (key, value) = item
           (key, getStrFromJson(key, value))
         })
@@ -664,11 +664,11 @@ let make = (
 
     switch initialValues->Js.Json.decodeObject {
     | Some(dict) => {
-        let localCheckedFilters = Js.Array2.map(checkedFilters, filter => {
+        let localCheckedFilters = Array.map(checkedFilters, filter => {
           filter
         })
 
-        let localSelectedFiltersList = Js.Array2.map(selectedFiltersList, filter => {
+        let localSelectedFiltersList = Array.map(selectedFiltersList, filter => {
           filter
         })
 
@@ -752,14 +752,14 @@ let make = (
   }
 
   let addFilters = newlyAdded => {
-    let localCheckedFilters = Js.Array2.map(checkedFilters, checkedStr => {
+    let localCheckedFilters = Array.map(checkedFilters, checkedStr => {
       checkedStr
     })
-    let localSelectedFiltersList = Js.Array2.map(selectedFiltersList, filter => {
+    let localSelectedFiltersList = Array.map(selectedFiltersList, filter => {
       filter
     })
     newlyAdded->Js.Array2.forEach(value => {
-      let optionObjArry = remoteOptions->Js.Array2.filter(option => option.urlKey === value)
+      let optionObjArry = remoteOptions->Array.filter(option => option.urlKey === value)
       let defaultEntityOptionType: EntityType.optionType<
         't,
       > = EntityType.getDefaultEntityOptionType()
@@ -773,7 +773,7 @@ let make = (
 
   let removeFilters = (fieldNameArr, values) => {
     let toBeRemoved =
-      checkedFilters->Js.Array2.filter(oldVal => !Js.Array.includes(oldVal, fieldNameArr))
+      checkedFilters->Array.filter(oldVal => !Js.Array.includes(oldVal, fieldNameArr))
     switch values->Js.Json.decodeObject {
     | Some(dict) =>
       dict
@@ -788,21 +788,21 @@ let make = (
     | None => ()
     }
 
-    let finalFieldList = selectedFiltersList->Js.Array2.filter(val => {
+    let finalFieldList = selectedFiltersList->Array.filter(val => {
       val.inputNames
       ->Belt.Array.get(0)
       ->Belt.Option.map(name => !Js.Array2.includes(toBeRemoved, name))
       ->Belt.Option.getWithDefault(false)
     })
     let filtersAfterRemoving =
-      checkedFilters->Js.Array2.filter(val => !Js.Array2.includes(toBeRemoved, val))
+      checkedFilters->Array.filter(val => !Js.Array2.includes(toBeRemoved, val))
 
     let newValueJson =
       initialValueJson
       ->Js.Json.decodeObject
       ->Belt.Option.map(Js.Dict.entries)
       ->Belt.Option.getWithDefault([])
-      ->Js.Array2.filter(entry => {
+      ->Array.filter(entry => {
         let (key, _value) = entry
         !Js.Array2.includes(toBeRemoved, key)
       })
@@ -828,7 +828,7 @@ let make = (
         Js.Dict.set(errors, key, "Required"->Js.Json.string)
       }
     })
-    if errors->Js.Dict.entries->Js.Array2.length > 0 {
+    if errors->Js.Dict.entries->Array.length > 0 {
       setIsButtonDisabled(_ => true)
     } else {
       setIsButtonDisabled(_ => false)
@@ -836,7 +836,7 @@ let make = (
     errors->Js.Json.object_
   }
 
-  let fieldsFromOption = popupFilterFields->Js.Array2.map(option => {option.field})
+  let fieldsFromOption = popupFilterFields->Array.map(option => {option.field})
 
   let handleRefresh = _ => {
     let newQueryStr = getNewQuery(
@@ -875,7 +875,7 @@ let make = (
   }
   let (text, iconName) = if !showAllFilter {
     (
-      `View ${(selectedFiltersList->Js.Array2.length - 10)->Belt.Int.toString} more filters`,
+      `View ${(selectedFiltersList->Array.length - 10)->Belt.Int.toString} more filters`,
       "new-chevron-down",
     )
   } else {
@@ -892,7 +892,7 @@ let make = (
   let advacedAndClearButtons =
     <>
       <UIUtils.RenderIf
-        condition={fieldsFromOption->Js.Array.length > 0 &&
+        condition={fieldsFromOption->Array.length > 0 &&
         !showExtraFiltersInline &&
         !showRemoteOptions}>
         <Portal to={`tableFilterTopRight-${title}`}>
@@ -914,7 +914,7 @@ let make = (
         </Portal>
       </UIUtils.RenderIf>
       <UIUtils.RenderIf
-        condition={!hideFilters && fixedFilters->Js.Array2.length === 0 && showClearFilter}>
+        condition={!hideFilters && fixedFilters->Array.length === 0 && showClearFilter}>
         <ClearFilters
           filterButtonStyle
           defaultFilterKeys
@@ -932,10 +932,10 @@ let make = (
       {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
         <div>
           <div className={`flex flex-wrap flex-1 ${verticalGap}`}>
-            {fixedFilters->Js.Array2.length > 0
+            {fixedFilters->Array.length > 0
               ? <>
                   <FormRenderer.FieldsRenderer
-                    fields={fixedFilters->Js.Array2.map(item => item.field)}
+                    fields={fixedFilters->Array.map(item => item.field)}
                     labelClass="hidden"
                     labelPadding="pb-2"
                     ?fieldWrapperClass
@@ -1030,7 +1030,7 @@ let make = (
                         <div
                           className="overflow-auto pb-10 gap-8"
                           style={ReactDOMStyle.make(~height="calc(100vh - 14rem)", ())}>
-                          {if selectedFiltersList->Js.Array2.length > 0 {
+                          {if selectedFiltersList->Array.length > 0 {
                             <div className="flex flex-col gap-6">
                               <FilterModal selectedFiltersList showAllFilter />
                               <div
@@ -1089,7 +1089,7 @@ let make = (
                         <FormRenderer.FieldsRenderer
                           fields={selectedFiltersList} labelClass="hidden" labelPadding="pb-2"
                         />
-                        {fixedFilters->Js.Array2.length === 0 ? refreshFilterUi : React.null}
+                        {fixedFilters->Array.length === 0 ? refreshFilterUi : React.null}
                         advacedAndClearButtons
                         <UIUtils.RenderIf condition={!hideFilters}>
                           <PortalCapture
@@ -1110,8 +1110,8 @@ let make = (
                             checkedFilters
                             addFilters
                             removeFilters
-                            showAddFilter={fieldsFromOption->Js.Array2.length > 0 ||
-                              (showRemoteOptions && remoteOptions->Js.Array2.length > 0)}
+                            showAddFilter={fieldsFromOption->Array.length > 0 ||
+                              (showRemoteOptions && remoteOptions->Array.length > 0)}
                             showSelectFiltersSearch
                           />
                         </div>

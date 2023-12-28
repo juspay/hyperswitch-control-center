@@ -33,8 +33,8 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
       />
     }}
     {pageNumbers
-    ->Js.Array2.filter(nonEmpty)
-    ->Js.Array2.mapi((number, idx) => {
+    ->Array.filter(nonEmpty)
+    ->Array.mapWithIndex((number, idx) => {
       let isSelected = number == currentPage
       if isSelected {
         <div className="p-2">

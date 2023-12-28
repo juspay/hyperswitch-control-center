@@ -10,7 +10,7 @@ let defaultThreeDsObjectValue: routingOutputType = {
 let currentTimeInUTC = Js.Date.fromFloat(Js.Date.now())->Js.Date.toUTCString
 let validateConditionJson = json => {
   let checkValue = dict => {
-    dict->getArrayFromDict("value", [])->Js.Array2.length > 0 || dict->getString("value", "") !== ""
+    dict->getArrayFromDict("value", [])->Array.length > 0 || dict->getString("value", "") !== ""
   }
   switch json->Js.Json.decodeObject {
   | Some(dict) =>
@@ -273,14 +273,14 @@ let getVolumeSplit = (
 ) => {
   dict_arr->Array.reduce([], (acc, routingObj) => {
     let value = [routingObj->getDictFromJsonObject->objMapper(connectorList)->Js.Json.object_]
-    acc->Js.Array2.concat(value)->Js.Array2.map(value => value)
+    acc->Js.Array2.concat(value)->Array.map(value => value)
   })
 }
 
 let checkIfValuePresesent = valueRes => {
   // to check if the value is present only then add to the statement
   let conditionMatched = switch Js.Json.classify(valueRes) {
-  | JSONArray(arr) => arr->Js.Array2.length > 0
+  | JSONArray(arr) => arr->Array.length > 0
   | JSONString(str) => str->Js.String2.length > 0
   | JSONNumber(num) => num > Belt.Int.toFloat(0)
   | _ => false
@@ -336,10 +336,10 @@ let generateStatement = (arr, wasm) => {
   })
 
   let copyDict = Js.Dict.map((. val) => val, conditionDict)
-  Js.Dict.set(statementDict, Belt.Int.toString(arr->Js.Array2.length), copyDict)
+  Js.Dict.set(statementDict, Belt.Int.toString(arr->Array.length), copyDict)
   statementDict
   ->Js.Dict.keys
-  ->Js.Array2.map(val => {
+  ->Array.map(val => {
     switch statementDict->Js.Dict.get(val) {
     | Some(dt) => dt->Js.Json.object_
     | _ => Js.Dict.empty()->Js.Json.object_
@@ -408,7 +408,7 @@ let advanceRoutingPayload = (dict, wasm, metadata, name, description) => {
             let gateway =
               priorityLogicObj
               ->getArrayFromDict("gateways", [])
-              ->Js.Array2.map(dict =>
+              ->Array.map(dict =>
                 dict->getDictFromJsonObject->getString("gateway_name", "")->Js.Json.string
               )
             Js.Dict.set(connectorSelection, "data", gateway->Js.Json.array)
@@ -505,7 +505,7 @@ let getContent = routetype =>
 
 // Volume
 let getGatewayTypes = (arr: array<Js.Json.t>, gatewayKey: string, distributionKey: string) => {
-  let tempArr = arr->Js.Array2.map(value => {
+  let tempArr = arr->Array.map(value => {
     let val = value->getDictFromJsonObject
     let tempval = {
       distribution: val->getInt(distributionKey, 0),
@@ -555,7 +555,7 @@ let ruleInfoTypeMapper = json => {
   let arr = json->getDictFromJsonObject->getArrayFromDict("rules", [])
   let defaultGateways =
     json->getDictFromJsonObject->getArrayFromDict("default_gateways", [])->getStrArrayFromJsonArray
-  let rulesArray = arr->Js.Array2.map(value => {
+  let rulesArray = arr->Array.map(value => {
     let eachRule = {
       gateways: getGatewayTypes(
         value->getDictFromJsonObject->getArrayFromDict("gateways", []),
@@ -693,10 +693,10 @@ let checkIfValuePresent = dict => {
 
   valueFromObject
   ->getArrayFromDict("value", [])
-  ->Js.Array2.filter(ele => {
+  ->Array.filter(ele => {
     ele != ""->Js.Json.string
   })
-  ->Js.Array2.length > 0 ||
+  ->Array.length > 0 ||
   valueFromObject->getString("value", "")->Js.String2.length > 0 ||
   valueFromObject->getFloat("value", -1.0) !== -1.0 ||
   (valueFromObject->getDictfromDict("value")->getString("key", "")->Js.String2.length > 0 &&
@@ -726,9 +726,9 @@ let validateConditionsFor3ds = dict => {
 }
 
 let filterEmptyValues = (arr: array<RoutingTypes.condition>) => {
-  arr->Js.Array2.filter(item => {
+  arr->Array.filter(item => {
     switch item.value {
-    | StringArray(arr) => arr->Js.Array2.length > 0
+    | StringArray(arr) => arr->Array.length > 0
     | String(str) => str->Js.String2.length > 0
     | Int(int) => int > 0
     }

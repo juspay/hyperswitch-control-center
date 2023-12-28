@@ -21,7 +21,7 @@ let make = () => {
 
   let settingUpConnectorsState = routingRespArray => {
     let profileList =
-      routingRespArray->Js.Array2.filter(value =>
+      routingRespArray->Array.filter(value =>
         value->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "") === profile
       )
 
@@ -31,7 +31,7 @@ let make = () => {
       ->Belt.Option.getWithDefault(Js.Json.null)
       ->LogicUtils.getDictFromJsonObject
       ->LogicUtils.getArrayFromDict("connectors", [])
-    if connectorList->Js.Array2.length > 0 {
+    if connectorList->Array.length > 0 {
       setGateways(_ => connectorList)
       setScreenState(_ => PageLoaderWrapper.Success)
     } else {
@@ -64,7 +64,7 @@ let make = () => {
   })
 
   React.useEffect1(() => {
-    if defaultRoutingResponse->Js.Array2.length > 0 {
+    if defaultRoutingResponse->Array.length > 0 {
       settingUpConnectorsState(defaultRoutingResponse)
     }
     None
@@ -173,7 +173,7 @@ let make = () => {
         buttonType=Primary
         leftIcon={FontAwesome("check")}
         loadingText="Activating..."
-        buttonState={gateways->Js.Array2.length > 0 ? Button.Normal : Button.Disabled}
+        buttonState={gateways->Array.length > 0 ? Button.Normal : Button.Disabled}
       />
     </PageLoaderWrapper>
   </div>

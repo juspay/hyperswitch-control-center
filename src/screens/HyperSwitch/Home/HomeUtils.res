@@ -122,7 +122,7 @@ let countries: array<HyperSwitchTypes.country> = [
   },
 ]
 
-let isDefaultBusinessProfile = details => details->Js.Array2.length === 1
+let isDefaultBusinessProfile = details => details->Array.length === 1
 
 module MerchantAuthInfo = {
   @react.component

@@ -16,7 +16,7 @@ module OptionVals = {
       disabled=isDisabled
       className={`dark:bg-jp-gray-lightgray_background font-medium border border-gray-400 rounded-md self-start ${cursorClass} outline-none`}>
       {Belt.Array.make(upto, 0)
-      ->Js.Array2.mapi((_, i) => {
+      ->Array.mapWithIndex((_, i) => {
         <option key={Belt.Int.toString(i)} value={Belt.Int.toString(i)}>
           {i->padNum->React.string}
         </option>
@@ -53,11 +53,7 @@ let make = (
     let arr = [hourVal, minuteVal, secondsVal]
     Belt.Array.set(arr, index, newVal)->ignore
 
-    arr
-    ->Js.Array2.map(padNum)
-    ->Js.Array2.joinWith(":")
-    ->Identity.anyTypeToReactEvent
-    ->input.onChange
+    arr->Array.map(padNum)->Js.Array2.joinWith(":")->Identity.anyTypeToReactEvent->input.onChange
   }, (hourVal, minuteVal, secondsVal, input.onChange))
   let onHourChange = React.useCallback1(changeVal(0), [changeVal])
   let onMinuteChange = React.useCallback1(changeVal(1), [changeVal])

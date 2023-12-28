@@ -15,7 +15,7 @@ module DateCalendar = {
     <span
       className={`flex flex-1 flex-row justify-center overflow-auto bg-jp-gray-50 dark:bg-jp-gray-950 rounded border border-jp-gray-500 dark:border-jp-gray-960 select-none pt-1`}>
       {dummyRow
-      ->Js.Array2.mapi((_item, i) => {
+      ->Array.mapWithIndex((_item, i) => {
         <Calendar
           key={string_of_int(i)}
           month=Nov

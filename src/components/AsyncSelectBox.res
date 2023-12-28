@@ -57,8 +57,8 @@ let make = (
   }, [url])
 
   let loadingOption = ["Loading..."]->SelectBox.makeOptions
-  let shouldDisable = loadErr || options->Js.Array2.length <= 0 ? true : disableSelect
-  let buttonText = options->Js.Array2.length <= 0 ? "No Options Found" : buttonText
+  let shouldDisable = loadErr || options->Array.length <= 0 ? true : disableSelect
+  let buttonText = options->Array.length <= 0 ? "No Options Found" : buttonText
 
   if dataLoading {
     <SelectBox

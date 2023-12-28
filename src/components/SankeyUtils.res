@@ -38,7 +38,7 @@ let convertToSankeyFormat = (
 
     currentDimsTopN
     ->Js.Dict.entries
-    ->Js.Array2.map(topN => {
+    ->Array.map(topN => {
       let (key, value) = topN
 
       (key, value->AnalyticsUtils.sumOfArr)
@@ -51,7 +51,7 @@ let convertToSankeyFormat = (
     })
   })
 
-  let lastIndex = snakeyActiveTab->Js.Array2.length - 1
+  let lastIndex = snakeyActiveTab->Array.length - 1
 
   snakeyActiveTab->Belt.Array.forEachWithIndex((index, item) => {
     let topNMetrix = topNDicts->Js.Dict.get(item)->Belt.Option.getWithDefault([])
@@ -72,7 +72,7 @@ let convertToSankeyFormat = (
       let updatedTotalSum =
         currentSelectedTabDict
         ->Js.Dict.entries
-        ->Js.Array2.map(item => {
+        ->Array.map(item => {
           let (key, value) = item
           let totalSum = value->AnalyticsUtils.sumOfArr
           (key, totalSum)
@@ -80,7 +80,7 @@ let convertToSankeyFormat = (
 
       let total_sum =
         updatedTotalSum
-        ->Js.Array2.map(item => {
+        ->Array.map(item => {
           let (_, value) = item
           value
         })
@@ -144,7 +144,7 @@ let convertToSankeyFormat = (
       let currentSelectedTabDict1St =
         currentSelectedTabDict1St
         ->Js.Dict.entries
-        ->Js.Array2.map(item => {
+        ->Array.map(item => {
           let (key, value) = item
           let totalSum = value->AnalyticsUtils.sumOfArr
           (key, totalSum)
@@ -172,7 +172,7 @@ let convertToSankeyFormat = (
       //
       currentSelectedTabDict
       ->Js.Dict.entries
-      ->Js.Array2.map(item => {
+      ->Array.map(item => {
         let (key, value) = item
         let totalSum = value->AnalyticsUtils.sumOfArr
         (key, totalSum)
@@ -248,12 +248,12 @@ let convertToSankeyFormat = (
 
       currentSelectedTabDictlast
       ->Js.Dict.entries
-      ->Js.Array2.map(item => {
+      ->Array.map(item => {
         let (key, value) = item
 
         let totalSum =
           value
-          ->Js.Array2.map(
+          ->Array.map(
             item => {
               let (totalVolume, _) = item
               totalVolume
@@ -262,7 +262,7 @@ let convertToSankeyFormat = (
           ->AnalyticsUtils.sumOfArr
         let successSum =
           value
-          ->Js.Array2.map(
+          ->Array.map(
             item => {
               let (_, successVolume) = item
               successVolume

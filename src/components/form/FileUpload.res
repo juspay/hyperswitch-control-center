@@ -43,7 +43,7 @@ let make = (
   let onChange = evt => {
     let target = ReactEvent.Form.target(evt)
     let value = target["files"]["0"]
-    if target["files"]->Js.Array2.length > 0 {
+    if target["files"]->Array.length > 0 {
       let filename = value["name"]
       let fileTypeArr = fileType->Js.String2.split(",")
       let isCorrectFileFormat =
@@ -68,7 +68,7 @@ let make = (
         } else if isValid {
           switch rowsLimit {
           | Some(val) =>
-            let rows = Js.String2.split(file, "\n")->Js.Array2.length
+            let rows = Js.String2.split(file, "\n")->Array.length
             if value !== "" && rows - 1 < val {
               setFilename(_ => filename)
               input.onChange(Identity.anyTypeToReactEvent(value))

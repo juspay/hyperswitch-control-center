@@ -122,19 +122,19 @@ let nodeFormatter = (~data: array<(string, string, int, int, int)>) => {
   @this
   (t: tooltipnode) => {
     open LogicUtils
-    let filteredDataNonLastindex = data->Js.Array2.filter(item => {
+    let filteredDataNonLastindex = data->Array.filter(item => {
       let (_, _, _, _, index) = item
       index === t.level
     })
 
-    let filteredDataLastIndex = data->Js.Array2.filter(item => {
+    let filteredDataLastIndex = data->Array.filter(item => {
       let (_, _, _, _, index) = item
       index === t.level - 1
     })
 
     let total_weight_to =
       filteredDataNonLastindex
-      ->Js.Array2.map(item => {
+      ->Array.map(item => {
         let (_, _, current_weight, _, _) = item
         current_weight->Belt.Int.toFloat
       })
@@ -142,7 +142,7 @@ let nodeFormatter = (~data: array<(string, string, int, int, int)>) => {
 
     let total_weight_from =
       filteredDataLastIndex
-      ->Js.Array2.map(item => {
+      ->Array.map(item => {
         let (_, _, current_weight, _, _) = item
         current_weight->Belt.Int.toFloat
       })

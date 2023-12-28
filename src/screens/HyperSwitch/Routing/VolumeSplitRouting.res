@@ -23,7 +23,7 @@ module VolumeRoutingView = {
     let url = RescriptReactRouter.useUrl()
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
-    let listLength = connectors->Js.Array2.length
+    let listLength = connectors->Array.length
     let (showModal, setShowModal) = React.useState(_ => false)
     let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
     let connectorList = React.useMemo0(() => {
@@ -105,7 +105,7 @@ module VolumeRoutingView = {
       let dict = values->getDictFromJsonObject
       let validateGateways = dict => {
         let gateways = dict->getArrayFromDict("gateways", [])
-        if gateways->Js.Array2.length === 0 {
+        if gateways->Array.length === 0 {
           Some("Need atleast 1 Gateway")
         } else {
           let distributionPercentages = gateways->Belt.Array.keepMap(json => {
@@ -194,8 +194,8 @@ module VolumeRoutingView = {
 
     let connectorOptions = React.useMemo1(() => {
       connectors
-      ->Js.Array2.filter(item => item.profile_id === profile)
-      ->Js.Array2.map((item): SelectBox.dropdownOption => {
+      ->Array.filter(item => item.profile_id === profile)
+      ->Array.map((item): SelectBox.dropdownOption => {
         {
           label: item.connector_label,
           value: item.merchant_connector_id,
@@ -355,7 +355,7 @@ let make = (~routingRuleId, ~isActive) => {
     setConnectors(_ =>
       connectorListJson
       ->ConnectorTableUtils.getArrayOfConnectorListPayloadType
-      ->Js.Array2.filter(connector => connector.connector_name !== "applepay")
+      ->Array.filter(connector => connector.connector_name !== "applepay")
     )
   }
 

@@ -82,7 +82,7 @@ let make = () => {
           totalResults={totalCount}
           offset
           setOffset
-          currrentFetchCount={refundData->Js.Array2.length}
+          currrentFetchCount={refundData->Array.length}
           defaultColumns={RefundEntity.defaultColumns}
           customColumnMapper=RefundEntity.refundsMapDefaultCols
           showSerialNumberInCustomizeColumns=false

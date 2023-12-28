@@ -66,7 +66,7 @@ let setUserDetails = (key, value) => {
 }
 let getSearchOptionsForProcessors = (~processorList, ~getNameFromString) => {
   let searchOptionsForProcessors =
-    processorList->Js.Array2.map(item => (
+    processorList->Array.map(item => (
       `Connect ${item->getNameFromString->capitalizeString}`,
       `/new?name=${item->getNameFromString}`,
     ))
@@ -98,9 +98,7 @@ let useMerchantDetailsValue = () =>
 
 let getClientCountry = clientTimeZone => {
   Country.country
-  ->Js.Array2.find(item =>
-    item.timeZones->Js.Array2.find(i => i == clientTimeZone)->Belt.Option.isSome
-  )
+  ->Array.find(item => item.timeZones->Array.find(i => i == clientTimeZone)->Belt.Option.isSome)
   ->Belt.Option.getWithDefault(Country.defaultTimeZone)
 }
 
@@ -149,7 +147,7 @@ module BackgroundImageWrapper = {
 type processors = FRMPlayer | Connector | PayoutConnector
 
 let filterList = (items, ~removeFromList) => {
-  items->Js.Array2.filter(dict => {
+  items->Array.filter(dict => {
     let connectorType = dict->getString("connector_type", "")
     let isPayoutConnector = connectorType == "payout_processor"
     let isConnector = connectorType !== "payment_vas" && !isPayoutConnector
@@ -163,7 +161,7 @@ let filterList = (items, ~removeFromList) => {
 }
 
 let getProcessorsListFromJson = (json, ~removeFromList=FRMPlayer, ()) => {
-  json->getArrayFromJson([])->Js.Array2.map(getDictFromJsonObject)->filterList(~removeFromList)
+  json->getArrayFromJson([])->Array.map(getDictFromJsonObject)->filterList(~removeFromList)
 }
 
 let getPageNameFromUrl = url => {

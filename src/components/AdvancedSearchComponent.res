@@ -1,7 +1,7 @@
 let getSummary: Js.Json.t => EntityType.summary = json => {
   switch json->Js.Json.decodeObject {
   | Some(dict) => {
-      let rowsCount = LogicUtils.getArrayFromDict(dict, "rows", [])->Js.Array2.length
+      let rowsCount = LogicUtils.getArrayFromDict(dict, "rows", [])->Array.length
       let totalCount = LogicUtils.getInt(dict, "entries", 0)
       {totalCount, count: rowsCount}
     }
@@ -33,7 +33,7 @@ let make = (
       let jsonData =
         json->Js.Json.decodeObject->Belt.Option.flatMap(dict => dict->Js.Dict.get("rows"))
       let newData = switch jsonData {
-      | Some(actualJson) => actualJson->getObjects->Js.Array2.map(obj => obj->Js.Nullable.return)
+      | Some(actualJson) => actualJson->getObjects->Array.map(obj => obj->Js.Nullable.return)
       | None => []
       }
 
@@ -70,7 +70,7 @@ let make = (
     }
     let keys = Js.Dict.keys(finalValuesDict)
     let errors = Js.Dict.empty()
-    if keys->Js.Array2.length === 0 {
+    if keys->Array.length === 0 {
       Js.Dict.set(errors, "Please Choose One of the fields", ""->Js.Json.string)
     }
     Js.log3("values", values, errors)

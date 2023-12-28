@@ -104,12 +104,12 @@ module NewCell = {
       | _ => ()
       }
     }, (onMouseLeave, rowIndex))
-    let colsLen = item->Js.Array2.length
+    let colsLen = item->Array.length
     let cursorClass = onRowClickPresent ? "cursor-pointer" : ""
 
     let customcellColouredCellCheck =
       item
-      ->Js.Array2.map((obj: cell) => {
+      ->Array.map((obj: cell) => {
         switch obj {
         | CustomCell(_, x) => x->Js.String2.split(",")->Js.Array2.includes("true")
         | _ => false
@@ -131,7 +131,7 @@ module NewCell = {
         onMouseEnter
         onMouseLeave>
         {item
-        ->Js.Array2.mapi((obj: cell, cellIndex) => {
+        ->Array.mapWithIndex((obj: cell, cellIndex) => {
           let cellWidth = if cellIndex === colsLen - 1 {
             "w-full"
           } else if (
@@ -181,7 +181,7 @@ module NewCell = {
                   })
                 } else {
                   setExpandedIndexArr(prev => {
-                    prev->Js.Array2.filter(item => item != rowIndex)
+                    prev->Array.filter(item => item != rowIndex)
                   })
                 }
               }
@@ -274,9 +274,9 @@ module ReactWindowTableComponent = {
       setExpandedIndexArr(_ => [])
       handleExpand(0, true)
       None
-    }, [rowInfo->Js.Array2.length])
+    }, [rowInfo->Array.length])
 
-    let headingsLen = heading->Js.Array2.length
+    let headingsLen = heading->Array.length
 
     let widthClass = if fullWidth {
       "min-w-full"
@@ -289,7 +289,7 @@ module ReactWindowTableComponent = {
       "no-scrollbar"
     }
 
-    let filterPresent = heading->Js.Array2.find(head => head.showFilter)->Js.Option.isSome
+    let filterPresent = heading->Array.find(head => head.showFilter)->Js.Option.isSome
     let highlightEnabledFieldsArray = heading->Js.Array2.reducei((acc, item, index) => {
       if item.highlightCellOnHover {
         let _ = Js.Array2.push(acc, index)
@@ -301,19 +301,19 @@ module ReactWindowTableComponent = {
     let arr = switch columnWidth {
     | Some(arr) => arr
     | _ =>
-      heading->Js.Array2.mapi((_, i) => {
+      heading->Array.mapWithIndex((_, i) => {
         i === 0 && customSerialNoColumn ? "w-24" : "w-64"
       })
     }
 
-    let headingReact = if heading->Js.Array2.length !== 0 {
+    let headingReact = if heading->Array.length !== 0 {
       <div className="sticky z-10 top-0 ">
         <div className="flex flex-row">
           {heading
-          ->Js.Array2.mapi((item, i) => {
+          ->Array.mapWithIndex((item, i) => {
             let isFirstCol = i === 0
             let isLastCol = i === headingsLen - 1
-            let cellWidth = if i === heading->Js.Array2.length - 1 {
+            let cellWidth = if i === heading->Array.length - 1 {
               "w-full"
             } else if (
               (showCheckBox && i === 0) ||
@@ -434,7 +434,7 @@ module ReactWindowTableComponent = {
               </div>
               <div>
                 {
-                  let len = colFilter->Js.Array2.length
+                  let len = colFilter->Array.length
                   switch colFilter->Belt.Array.get(i) {
                   | Some(fitlerRows) =>
                     <FilterRow
@@ -460,7 +460,7 @@ module ReactWindowTableComponent = {
     }
 
     let rows = index => {
-      rowInfo->Js.Array2.length == 0
+      rowInfo->Array.length == 0
         ? React.null
         : {
             let rowIndex = index->LogicUtils.getInt("index", 0)
@@ -524,7 +524,7 @@ module ReactWindowTableComponent = {
             itemSize={index => getHeight(index)}
             height=tableHeight
             overscanCount=6
-            itemCount={rowInfo->Js.Array2.length}>
+            itemCount={rowInfo->Array.length}>
             {rows}
           </ReactWindow.VariableSizeList>
         </div>
@@ -693,7 +693,7 @@ let make = (
   let customizeColumn = if (
     Some(activeColumnsAtom)->Js.Option.isSome &&
     entity.allColumns->Js.Option.isSome &&
-    actualData->Js.Array2.length > 0
+    actualData->Array.length > 0
   ) {
     <Button
       text="Customize Columns"
@@ -715,16 +715,16 @@ let make = (
     (filterKey, filterValue: array<Js.Json.t>) => {
       setColumnFilterOrig(oldFitlers => {
         let newObj = oldFitlers->Js.Dict.entries->Js.Dict.fromArray
-        let filterValue = filterValue->Js.Array2.filter(
+        let filterValue = filterValue->Array.filter(
           item => {
             let updatedItem = item->Js.String.make
             updatedItem !== ""
           },
         )
-        if filterValue->Js.Array.length === 0 {
+        if filterValue->Array.length === 0 {
           newObj
           ->Js.Dict.entries
-          ->Js.Array2.filter(
+          ->Array.filter(
             entry => {
               let (key, _value) = entry
               key !== filterKey
@@ -758,9 +758,7 @@ let make = (
   }, (isFilterOpen, setIsFilterOpen))
 
   let heading =
-    visibleColumns
-    ->Belt.Option.getWithDefault(entity.defaultColumns)
-    ->Js.Array2.map(entity.getHeading)
+    visibleColumns->Belt.Option.getWithDefault(entity.defaultColumns)->Array.map(entity.getHeading)
 
   if showSerialNumber {
     heading
@@ -794,7 +792,7 @@ let make = (
       let columnFilterRow =
         visibleColumns
         ->Belt.Option.getWithDefault(entity.defaultColumns)
-        ->Js.Array2.map(item => {
+        ->Array.map(item => {
           let headingEntity = entity.getHeading(item)
           let key = headingEntity.key
           let dataType = headingEntity.dataType
@@ -852,9 +850,9 @@ let make = (
           | MoneyType | NumericType | ProgressType => {
               let newArr =
                 filterValueArray
-                ->Js.Array2.map(item => item->Js.Json.decodeNumber->Belt.Option.getWithDefault(0.))
+                ->Array.map(item => item->Js.Json.decodeNumber->Belt.Option.getWithDefault(0.))
                 ->Js.Array2.sortInPlaceWith(LogicUtils.numericArraySortComperator)
-              let lengthOfArr = newArr->Js.Array2.length
+              let lengthOfArr = newArr->Array.length
 
               if lengthOfArr >= 2 {
                 Table.Range(
@@ -878,7 +876,7 @@ let make = (
       Some(
         showSerialNumber && tableLocalFilter
           ? Js.Array2.concat(
-              [Table.Range("s_no", 0., actualData->Js.Array2.length->Belt.Int.toFloat)],
+              [Table.Range("s_no", 0., actualData->Array.length->Belt.Int.toFloat)],
               columnFilterRow,
             )
           : columnFilterRow,
@@ -904,11 +902,11 @@ let make = (
   }, (sortedObj, customGetObjects, actualData, getObjects))
 
   let selectAllCheckBox = React.useMemo2(() => {
-    let selectedRowDataLength = checkBoxProps.selectedData->Js.Array2.length
-    let isCompleteDataSelected = selectedRowDataLength === filteredData->Js.Array2.length
+    let selectedRowDataLength = checkBoxProps.selectedData->Array.length
+    let isCompleteDataSelected = selectedRowDataLength === filteredData->Array.length
     if isCompleteDataSelected {
       Some(ALL)
-    } else if checkBoxProps.selectedData->Js.Array2.length === 0 {
+    } else if checkBoxProps.selectedData->Array.length === 0 {
       None
     } else {
       Some(PARTIAL)
@@ -919,7 +917,7 @@ let make = (
       switch v(selectAllCheckBox) {
       | Some(ALL) =>
         checkBoxProps.setSelectedData(_ => {
-          filteredData->Js.Array2.map(toJson)
+          filteredData->Array.map(toJson)
         })
       | Some(PARTIAL)
       | None =>
@@ -932,7 +930,7 @@ let make = (
   React.useEffect1(() => {
     if selectAllCheckBox === Some(ALL) {
       checkBoxProps.setSelectedData(_ => {
-        filteredData->Js.Array2.map(toJson)
+        filteredData->Array.map(toJson)
       })
     } else if selectAllCheckBox === None {
       checkBoxProps.setSelectedData(_ => [])
@@ -943,19 +941,19 @@ let make = (
   // filtering for SNO
   let rows =
     filteredData
-    ->Js.Array2.mapi((nullableItem, index) => {
+    ->Array.mapWithIndex((nullableItem, index) => {
       let actualRows = switch nullableItem->Js.Nullable.toOption {
       | Some(item) => {
           let visibleCell =
             visibleColumns
             ->Belt.Option.getWithDefault(entity.defaultColumns)
-            ->Js.Array2.map(colType => {
+            ->Array.map(colType => {
               entity.getCell(item, colType)
             })
           let startPoint = sNoArr->Belt.Array.get(0)->Belt.Option.getWithDefault(1.->Js.Json.number)
           let endPoint = sNoArr->Belt.Array.get(1)->Belt.Option.getWithDefault(1.->Js.Json.number)
           let jsonIndex = (index + 1)->Belt.Int.toFloat->Js.Json.number
-          sNoArr->Js.Array2.length > 0
+          sNoArr->Array.length > 0
             ? {
                 startPoint <= jsonIndex && endPoint >= jsonIndex ? visibleCell : []
               }
@@ -975,17 +973,17 @@ let make = (
         } else {
           checkBoxProps.setSelectedData(prev =>
             if filterWithIdOnly {
-              prev->Js.Array2.filter(
+              prev->Array.filter(
                 item => getIdFromJson(item) !== getIdFromJson(nullableItem->toJson),
               )
             } else {
-              prev->Js.Array2.filter(item => item !== nullableItem->toJson)
+              prev->Array.filter(item => item !== nullableItem->toJson)
             }
           )
         }
       }
 
-      if showSerialNumber && actualRows->Js.Array2.length > 0 {
+      if showSerialNumber && actualRows->Array.length > 0 {
         actualRows
         ->Js.Array2.unshift(
           Numeric(
@@ -1022,11 +1020,11 @@ let make = (
       actualRows
     })
     ->Belt.Array.keepMap(item => {
-      item->Js.Array2.length == 0 ? None : Some(item)
+      item->Array.length == 0 ? None : Some(item)
     })
 
-  let dataExists = rows->Js.Array2.length > 0
-  let heading = heading->Js.Array2.mapi((head, index) => {
+  let dataExists = rows->Array.length > 0
+  let heading = heading->Array.mapWithIndex((head, index) => {
     let getValue = row =>
       row->Belt.Array.get(index)->Belt.Option.mapWithDefault("", Table.getTableCellValue)
 
@@ -1038,7 +1036,7 @@ let make = (
       ...head,
       showSort: head.showSort &&
       dataExists && (
-        totalResults == Js.Array.length(rows)
+        totalResults == Array.length(rows)
           ? rows->Js.Array2.some(row => getValue(row) !== default)
           : true
       ),
@@ -1194,7 +1192,7 @@ let make = (
         React.null
       }}
       {if tableDataLoading {
-        <TableDataLoadingIndicator showWithData={rows->Js.Array2.length !== 0} />
+        <TableDataLoadingIndicator showWithData={rows->Array.length !== 0} />
       } else {
         React.null
       }}

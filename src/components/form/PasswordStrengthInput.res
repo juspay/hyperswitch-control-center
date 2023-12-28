@@ -48,11 +48,11 @@ let make = (
         | Some(val) => Js.Re.captures(val)
         | None => []
         }
-        let nonEmptyResult = result->Js.Array2.length != 0
+        let nonEmptyResult = result->Array.length != 0
         let localVariety = nonEmptyResult ? accVariety + 1 : 0
         let localScore =
           accScore +.
-          (test.weight *. result->Js.Array2.length->Belt.Int.toFloat +.
+          (test.weight *. result->Array.length->Belt.Int.toFloat +.
           strVal->Js.String2.length->Belt.Int.toFloat *. 1.2)
         (localVariety, localScore)
       }, (0, 0.0))

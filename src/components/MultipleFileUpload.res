@@ -94,7 +94,7 @@ let make = (
     let files = input.value->LogicUtils.getArrayFromJson([])
 
     while !break.contents {
-      if target["files"]->Js.Array2.length > arr[0]->Belt.Option.getWithDefault(0) {
+      if target["files"]->Array.length > arr[0]->Belt.Option.getWithDefault(0) {
         let index = arr->Belt.Array.get(0)->Belt.Option.getWithDefault(0)
         switch target["files"][index] {
         | Some(value) => {
@@ -142,7 +142,7 @@ let make = (
                   } else {
                     switch rowsLimit {
                     | Some(val) =>
-                      let rows = Js.String2.split(file, "\n")->Js.Array2.length
+                      let rows = Js.String2.split(file, "\n")->Array.length
                       if value !== "" && rows - 1 < val {
                         setFilenames(prev => {
                           let fileArr = prev->Js.Array2.copy->Js.Array2.concat(filename)
@@ -216,7 +216,7 @@ let make = (
         onDrop={ev => {
           ReactEvent.Mouse.preventDefault(ev)
           let files = ev->dataTransfer->files
-          if files->Js.Array2.length > 0 {
+          if files->Array.length > 0 {
             let file = files["0"]
             let filename = file["name"]
             let mimeType = file["type"]
@@ -254,7 +254,7 @@ let make = (
     </label>
     <div className={`${heightClass} ${displayClass} justify-between gap-x-5`}>
       {fileNames
-      ->Js.Array2.mapi((fileName, indx) => {
+      ->Array.mapWithIndex((fileName, indx) => {
         <div
           key={indx->Belt.Int.toString} className="flex items-center border p-2 gap-4 rounded-lg">
           <div

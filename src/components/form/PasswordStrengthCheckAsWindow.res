@@ -145,7 +145,7 @@ let make = (
       <BarCounter totalBar=4 passwordChecks />
       <div>
         {passwordChips
-        ->Js.Array2.mapi((chipType, index) => {
+        ->Array.mapWithIndex((chipType, index) => {
           <PasswordCheckWindow
             key={`check_${index->Belt.Int.toString}`} passwordChecks chipType customTextStyle
           />

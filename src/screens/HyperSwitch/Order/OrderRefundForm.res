@@ -96,7 +96,7 @@ let make = (
       if floatVal > amoutAvailableToRefund {
         let amountSplitArr =
           Js.Float.toFixedWithPrecision(amoutAvailableToRefund, ~digits=2)->Js.String2.split(".")
-        let decimal = if amountSplitArr->Js.Array2.length > 1 {
+        let decimal = if amountSplitArr->Array.length > 1 {
           amountSplitArr[1]->Belt.Option.getWithDefault("")
         } else {
           "00"

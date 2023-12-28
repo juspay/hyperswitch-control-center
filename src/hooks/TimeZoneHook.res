@@ -93,7 +93,7 @@ let en_USStringToDateTimeObject = dateTimeIsoString => {
   let tempTimeDate =
     tempTimeDateString
     ->Js.String2.splitByRe(%re("/\s/"))
-    ->Js.Array2.map(val => val->Belt.Option.getWithDefault(""))
+    ->Array.map(val => val->Belt.Option.getWithDefault(""))
 
   let time = tempTimeDate[1]
   let date = tempTimeDate[0]
@@ -197,7 +197,7 @@ let useIsoStringToCustomTimeZoneInFloat = () => {
 
 let timeStrToMicroSec = str => {
   let arr = str->Js.String2.split(" ")
-  if arr->Js.Array2.length > 1 {
+  if arr->Array.length > 1 {
     let time =
       arr[0]->Belt.Option.getWithDefault("00")->Belt.Int.fromString->Belt.Option.getWithDefault(0)
     let ms = arr[1]->Belt.Option.getWithDefault("") === "min" ? time * 60000 : time * 1000

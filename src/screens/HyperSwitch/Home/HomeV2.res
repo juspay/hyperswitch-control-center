@@ -40,7 +40,7 @@ module HomePageHorizontalStepper = {
               className={`h-6 w-6 flex items-center justify-center border-2 rounded-md font-semibold ${index->getStepperStyle} ${getTextStyle}`}>
               {(index + 1)->string_of_int->React.string}
             </span>
-            <UIUtils.RenderIf condition={index !== stepperItemsArray->Js.Array2.length - 1}>
+            <UIUtils.RenderIf condition={index !== stepperItemsArray->Array.length - 1}>
               <div className="relative w-full">
                 <div className={`absolute h-1 rounded-full z-1 ${index->getProgressBarStyle}`} />
                 <div className="w-full h-1 rounded-full bg-grey-700 bg-opacity-10" />
@@ -82,7 +82,7 @@ module QuickStart = {
           typedValueOfEnum.firstProcessorConnected.processorID->Js.String2.length === 0 &&
           typedValueOfEnum.secondProcessorConnected.processorID->Js.String2.length === 0
         ) {
-          if typedConnectorValue->Js.Array2.length >= 2 {
+          if typedConnectorValue->Array.length >= 2 {
             let firstConnectorValue =
               typedConnectorValue
               ->Belt.Array.get(0)
@@ -123,7 +123,7 @@ module QuickStart = {
               (ProcesorType(bodyOfSecondConnector), #SecondProcessorConnected),
             ])
             setQuickStartPageState(_ => ConnectProcessor(CONFIGURE_SMART_ROUTING))
-          } else if typedConnectorValue->Js.Array2.length === 1 {
+          } else if typedConnectorValue->Array.length === 1 {
             let firstConnectorValue =
               typedConnectorValue
               ->Belt.Array.get(0)

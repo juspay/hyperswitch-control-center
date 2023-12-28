@@ -113,10 +113,10 @@ let make = (~previewOnly=false) => {
           entity={OrderEntity.orderEntity}
           resultsPerPage=10
           showSerialNumber=true
-          totalResults={previewOnly ? orderData->Js.Array2.length : totalCount}
+          totalResults={previewOnly ? orderData->Array.length : totalCount}
           offset
           setOffset
-          currrentFetchCount={orderData->Js.Array2.length}
+          currrentFetchCount={orderData->Array.length}
           customColumnMapper=OrderEntity.ordersMapDefaultCols
           defaultColumns={OrderEntity.defaultColumns}
           showSerialNumberInCustomizeColumns=false

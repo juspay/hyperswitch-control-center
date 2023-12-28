@@ -33,7 +33,7 @@ let make = (
         1
       }
     })
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let (x, y) = item
       if y === 0. && filterNullVals {
         (x, Js.Nullable.null)

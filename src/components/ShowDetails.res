@@ -17,7 +17,7 @@ module EntityData = {
   ) => {
     <div className="flex flex-1 flex-col overflow-scroll  pl-1 pr-2">
       {detailsKeyList
-      ->Js.Array2.mapi((key: string, idx) => {
+      ->Array.mapWithIndex((key: string, idx) => {
         switch Js.Dict.get(syncData, key) {
         | Some(json) => <div key={idx->string_of_int}> {entity.detailsPageLayout(json, key)} </div>
         | _ =>

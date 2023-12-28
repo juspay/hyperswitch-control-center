@@ -7,7 +7,7 @@ let make = React.memo((~name: string, ~customStyle="") => {
         let clonedDict =
           prevDict
           ->Js.Dict.entries
-          ->Js.Array2.filter(
+          ->Array.filter(
             entry => {
               let (key, _val) = entry
               key !== name

@@ -130,7 +130,7 @@ let apiDescription = FormRenderer.makeFieldInfo(
 )
 
 let makeOptions: array<string> => array<SelectBox.dropdownOption> = options => {
-  options->Js.Array2.map(str => {
+  options->Array.map(str => {
     let option: SelectBox.dropdownOption = {label: str->LogicUtils.snakeToTitle, value: str}
     option
   })

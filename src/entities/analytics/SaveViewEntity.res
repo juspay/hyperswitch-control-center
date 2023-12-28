@@ -48,7 +48,7 @@ let filterBySearchText = (actualData, value) => {
     let isMatched =
       dict
       ->Js.Dict.values
-      ->Js.Array2.find(val => {
+      ->Array.find(val => {
         val->Js.String2.toLowerCase->Js.String2.includes(searchText)
       })
       ->Belt.Option.isSome
@@ -66,7 +66,7 @@ let getFilterDict = (~url, ~prefix, ~excludeKeys=[], ~includeKeys=[], ()) => {
     url
     ->Js.Global.decodeURI
     ->Js.String2.split("&")
-    ->Js.Array2.map(str => {
+    ->Array.map(str => {
       let arr = str->Js.String2.split("=")
       let key = arr->Belt.Array.get(0)->Belt.Option.getWithDefault("-")
       let val = arr->Belt.Array.sliceToEnd(1)->Js.Array2.joinWith("=")

@@ -124,7 +124,7 @@ module ConnectorSummaryGrid = {
     let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
     let currentProfileName =
       arrayOfBusinessProfile
-      ->Js.Array2.find((ele: HSwitchSettingTypes.profileEntity) =>
+      ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
         ele.profile_id === connectorInfo.profile_id
       )
       ->Belt.Option.getWithDefault(defaultBusinessProfile)
@@ -206,7 +206,7 @@ module ConnectorSummaryGrid = {
               label={field.payment_method->LogicUtils.snakeToTitle}
               render={Some(
                 field.payment_method_types
-                ->Js.Array2.map(item => item.payment_method_type->LogicUtils.snakeToTitle)
+                ->Array.map(item => item.payment_method_type->LogicUtils.snakeToTitle)
                 ->Array.reduce([], (acc, curr) => {
                   if !(acc->Js.Array2.includes(curr)) {
                     acc->Array.push(curr)

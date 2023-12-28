@@ -73,7 +73,7 @@ module CustomFilters = {
           endColumn: word.endColumn,
         }
         let createSuggest = range => {
-          Js.Array2.map(tabNames, val => {
+          Array.map(tabNames, val => {
             let value: Monaco.Language.labels = {
               label: val,
               insertText: val,
@@ -165,8 +165,8 @@ let make = (
   ~hideFiltersDefaultValue=?,
   ~refreshFilters=true,
 ) => {
-  let localFilters = initialFilters->Js.Array2.filter(item => item.localFilter->Js.Option.isSome)
-  let remoteOptions = options->Js.Array2.filter(item => item.localFilter->Js.Option.isNone)
+  let localFilters = initialFilters->Array.filter(item => item.localFilter->Js.Option.isSome)
+  let remoteOptions = options->Array.filter(item => item.localFilter->Js.Option.isNone)
   let defaultFilters = ""->Js.Json.string
   let (showModal, setShowModal) = React.useState(_ => false)
 

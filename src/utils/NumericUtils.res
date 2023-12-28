@@ -1,7 +1,7 @@
 // Copied from https://gist.github.com/Frencil/aab561687cdd2b0de04a
 
 let pretty = (range: array<float>, n: int) => {
-  if range->Js.Array2.length === 2 {
+  if range->Array.length === 2 {
     let range = if range[0] === range[1] {
       [0., range[1]->Belt.Option.getWithDefault(0.)]
     } else {

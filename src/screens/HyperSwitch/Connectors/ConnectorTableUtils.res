@@ -41,7 +41,7 @@ let parsePaymentMethod = paymentMethod => {
   let payment_method_types =
     paymentMethodDict
     ->getArrayFromDict("payment_method_types", [])
-    ->Js.Array2.map(parsePaymentMethodType)
+    ->Array.map(parsePaymentMethodType)
 
   {
     payment_method: paymentMethodDict->getString("payment_method", ""),
@@ -52,10 +52,10 @@ let parsePaymentMethod = paymentMethod => {
 let convertFRMConfigJsonToObj = json => {
   open LogicUtils
 
-  json->Js.Array2.map(config => {
+  json->Array.map(config => {
     let configDict = config->getDictFromJsonObject
     let payment_methods =
-      configDict->getArrayFromDict("payment_methods", [])->Js.Array2.map(parsePaymentMethod)
+      configDict->getArrayFromDict("payment_methods", [])->Array.map(parsePaymentMethod)
 
     {
       gateway: configDict->getString("gateway", ""),
@@ -136,7 +136,7 @@ let getArrayOfConnectorListPayloadType = json => {
   open LogicUtils
   json
   ->getArrayFromJson([])
-  ->Js.Array2.map(connectorJson => {
+  ->Array.map(connectorJson => {
     connectorJson->getDictFromJsonObject->getProcessorPayloadType
   })
 }
@@ -146,7 +146,7 @@ let getConnectorNameViaId = (
   mca_id: string,
 ) => {
   connectorList
-  ->Js.Array2.find(ele => {ele.merchant_connector_id == mca_id})
+  ->Array.find(ele => {ele.merchant_connector_id == mca_id})
   ->Belt.Option.getWithDefault(Js.Dict.empty()->getProcessorPayloadType)
 }
 
@@ -210,8 +210,8 @@ let connectorsTableDefaultColumns = Recoil.atom(. "connectorsTableDefaultColumns
 let getArrayDataFromJson = (json, itemToObjMapper: Js.Dict.t<Js.Json.t> => connectorPayload) => {
   json
   ->HSwitchUtils.getProcessorsListFromJson()
-  ->Js.Array2.map(itemToObjMapper)
-  ->Js.Array2.filter(item => !(item.connector_name->Js.String2.includes("apple")))
+  ->Array.map(itemToObjMapper)
+  ->Array.filter(item => !(item.connector_name->Js.String2.includes("apple")))
 }
 
 let comparatorFunction = (connector1: connectorPayload, connector2: connectorPayload) => {

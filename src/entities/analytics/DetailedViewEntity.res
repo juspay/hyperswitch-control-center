@@ -433,7 +433,7 @@ let getIntegrationTable: Js.Json.t => array<detailedTable> = json => {
   let val =
     json
     ->LogicUtils.getArrayFromJson([])
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       tableItemToObjMapper(item->getDictFromJsonObject)
     })
   val
@@ -443,7 +443,7 @@ let getErrTable: Js.Json.t => array<errorTable> = json => {
   let val =
     json
     ->LogicUtils.getArrayFromJson([])
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       errItemToObj(item->getDictFromJsonObject)
     })
   val

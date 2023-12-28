@@ -59,7 +59,7 @@ module Configure3DSRule = {
 
     <div>
       {
-        let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Js.Array2.length > 1
+        let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Array.length > 1
         let rule = ruleInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
         let keyExtractor = (index, _rule, isDragging) => {
           let id = {`algorithm.rules[${string_of_int(index)}]`}
@@ -212,7 +212,7 @@ let make = () => {
     | Some(jsonDict) => {
         let index = 1
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
-        if index === 1 && rules->Js.Array2.length === 0 {
+        if index === 1 && rules->Array.length === 0 {
           errors->Js.Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
         } else {
           rules->Array.forEachWithIndex((rule, i) => {

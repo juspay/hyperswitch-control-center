@@ -32,7 +32,7 @@ module SimpleRoutingView = {
     let saveConfiguration = async () => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let data = gateways->Js.Array2.map(str => str->Js.Json.string)
+        let data = gateways->Array.map(str => str->Js.Json.string)
 
         let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
 
@@ -183,7 +183,7 @@ module SimpleRoutingView = {
             buttonType=Primary
             leftIcon={FontAwesome("check")}
             loadingText="Activating..."
-            buttonState={gateways->Js.Array2.length > 0 ? Button.Normal : Button.Disabled}
+            buttonState={gateways->Array.length > 0 ? Button.Normal : Button.Disabled}
           />
         | Preview =>
           <>
@@ -268,8 +268,8 @@ let make = (~routingRuleId, ~isActive) => {
     let arr =
       connectorListJson
       ->HSwitchUtils.getProcessorsListFromJson()
-      ->Js.Array2.map(connectorDict => connectorDict->getString("connector_name", ""))
-      ->Js.Array2.filter(x => x !== "applepay")
+      ->Array.map(connectorDict => connectorDict->getString("connector_name", ""))
+      ->Array.filter(x => x !== "applepay")
       ->getUniqueArray
     setConnectors(_ => arr)
     setScreenState(_ => Success)

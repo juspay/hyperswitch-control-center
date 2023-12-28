@@ -39,14 +39,14 @@ let equalDicts = (dictionary1, dictionary2) => {
   // if it return nothing means both are same
   dictionary1
   ->Js.Dict.entries
-  ->Js.Array2.find(item => {
+  ->Array.find(item => {
     let (key, value) = item
     dictionary2->Js.Dict.get(key) !== Some(value)
   })
   ->Belt.Option.isNone &&
     dictionary2
     ->Js.Dict.entries
-    ->Js.Array2.find(item => {
+    ->Array.find(item => {
       let (key, value) = item
       dictionary1->Js.Dict.get(key) !== Some(value)
     })
@@ -59,10 +59,10 @@ let checkEqualJsonDicts = (~checkKeys, ~ignoreKeys, dictionary1, dictionary2) =>
 
   dictionary1
   ->Js.Dict.entries
-  ->Js.Array2.find(item => {
+  ->Array.find(item => {
     let (key, value) = item
     if (
-      (checkKeys->Js.Array2.includes(key) || checkKeys->Js.Array2.length === 0) &&
+      (checkKeys->Js.Array2.includes(key) || checkKeys->Array.length === 0) &&
         !(ignoreKeys->Js.Array2.includes(key))
     ) {
       switch value->Js.Json.classify {
@@ -82,7 +82,7 @@ let checkEqualJsonDicts = (~checkKeys, ~ignoreKeys, dictionary1, dictionary2) =>
   ->Belt.Option.isNone &&
     dictionary2
     ->Js.Dict.entries
-    ->Js.Array2.find(item => {
+    ->Array.find(item => {
       let (key, value) = item
       if checkKeys->Js.Array2.includes(key) && !(ignoreKeys->Js.Array2.includes(key)) {
         switch value->Js.Json.classify {

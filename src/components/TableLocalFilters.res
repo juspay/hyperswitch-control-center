@@ -20,7 +20,7 @@ module RangeSliderLocalFilter = {
       <div className="flex flex-row justify-between w-full">
         <div className="px-2 text-fs-13 font-medium truncate whitespace-pre ">
           {val
-          ->Js.Array2.mapi((item, index) =>
+          ->Array.mapWithIndex((item, index) =>
             index > 0 ? `...${item->Js.String.make}` : item->Js.String.make
           )
           ->Js.Array2.reduce((acc, item) => acc ++ item, "")
@@ -95,8 +95,7 @@ module FilterDropDown = {
     arr
     ->LogicUtils.getStrArrayFromJsonArray
     ->Js.Array2.forEach(item => Js.Dict.set(dummyDict, item, ""))
-    let options =
-      dummyDict->Js.Dict.keys->Js.Array2.filter(item => item != "")->SelectBox.makeOptions
+    let options = dummyDict->Js.Dict.keys->Array.filter(item => item != "")->SelectBox.makeOptions
 
     let selectedValue = Js.Dict.get(lclFiltrState, val)->Belt.Option.getWithDefault([])
 
@@ -109,7 +108,7 @@ module FilterDropDown = {
       checked: true,
     }
 
-    let (buttonText, icon) = switch selectedValue->Js.Array2.length > 0 {
+    let (buttonText, icon) = switch selectedValue->Array.length > 0 {
     | true => (
         selectedValue->Js.Json.array->Js.Json.stringify,
         Button.CustomIcon(
@@ -127,7 +126,7 @@ module FilterDropDown = {
     | false => ("All", Button.Euler(filterIconName))
     }
 
-    if options->Js.Array2.length > 1 {
+    if options->Array.length > 1 {
       <SelectBox.BaseDropdown
         allowMultiSelect=true
         hideMultiSelectButtons=true

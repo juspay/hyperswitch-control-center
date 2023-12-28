@@ -68,7 +68,7 @@ let getFilterFields: Js.Json.t => array<EntityType.optionType<'t>> = json => {
             ~options={
               values
               ->SelectBox.makeOptions
-              ->Js.Array2.map(item => {
+              ->Array.map(item => {
                 let value = {...item, label: item.value}
                 value
               })
@@ -88,7 +88,7 @@ let getFilterFields: Js.Json.t => array<EntityType.optionType<'t>> = json => {
       localFilter: None,
     }
 
-    if values->Js.Array2.length > 0 {
+    if values->Array.length > 0 {
       acc->Array.push(dropdownOptions)
     }
     acc
@@ -110,7 +110,7 @@ let useSetInitialFilters = (
 
     let defaultDate = getDateFilteredObject()
 
-    if filterValueJson->Js.Dict.keys->Js.Array2.length < 1 {
+    if filterValueJson->Js.Dict.keys->Array.length < 1 {
       [
         (startTimeFilterKey, defaultDate.start_time),
         (endTimeFilterKey, defaultDate.end_time),
@@ -270,7 +270,7 @@ module RemoteTableFilters = {
 
     React.useEffect1(() => {
       updateComponentPrefrences(~dict=filterValue)
-      if filterValueJson->Js.Dict.keys->Js.Array2.length > 0 {
+      if filterValueJson->Js.Dict.keys->Array.length > 0 {
         setFilters(_ => filterValueJson->Some)
         setOffset(_ => 0)
       }
@@ -279,13 +279,13 @@ module RemoteTableFilters = {
 
     let remoteFilters = filterData->initialFilters
     let initialDisplayFilters =
-      remoteFilters->Js.Array2.filter((item: EntityType.initialFilters<'t>) =>
+      remoteFilters->Array.filter((item: EntityType.initialFilters<'t>) =>
         item.localFilter->Js.Option.isSome
       )
     let remoteOptions =
       filterData
       ->getFilterFields
-      ->Js.Array2.filter(item => item.localFilter->Js.Option.isNone)
+      ->Array.filter(item => item.localFilter->Js.Option.isNone)
       ->Array.filterWithIndex((_item, index) => index > 3)
 
     let clearFilters = () => {
@@ -295,12 +295,10 @@ module RemoteTableFilters = {
     let hideFiltersDefaultValue = !(
       filterValue
       ->Js.Dict.keys
-      ->Js.Array2.filter(item =>
-        [startTimeFilterKey, endTimeFilterKey]
-        ->Js.Array2.find(key => key == item)
-        ->Belt.Option.isNone
+      ->Array.filter(item =>
+        [startTimeFilterKey, endTimeFilterKey]->Array.find(key => key == item)->Belt.Option.isNone
       )
-      ->Js.Array2.length > 0
+      ->Array.length > 0
     )
 
     switch filterDataJson {
@@ -322,7 +320,7 @@ module RemoteTableFilters = {
         updateUrlWith={updateExistingKeys}
         clearFilters
         filterFieldsPortalName=""
-        showFiltersBtn={filterData->getFilterFields->Js.Array2.length > 0}
+        showFiltersBtn={filterData->getFilterFields->Array.length > 0}
         hideFiltersDefaultValue
       />
     | _ =>

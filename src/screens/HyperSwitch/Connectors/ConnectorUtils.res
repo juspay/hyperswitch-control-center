@@ -18,7 +18,7 @@ let getStepName = step => {
 }
 
 let toLCase = str => str->Js.String2.toLowerCase
-let len = arr => arr->Js.Array2.length
+let len = arr => arr->Array.length
 
 let payoutConnectorList: array<connectorName> = [ADYEN, WISE]
 
@@ -568,7 +568,7 @@ let ignoreFields = (json, id, fields) => {
     json
     ->LogicUtils.getDictFromJsonObject
     ->Js.Dict.entries
-    ->Js.Array2.filter(entry => {
+    ->Array.filter(entry => {
       let (key, _val) = entry
       !(fields->Js.Array2.includes(key))
     })
@@ -599,7 +599,7 @@ let getConnectorType = (connector, ~isPayoutFlow, ()) => {
 
 let getSelectedPaymentObj = (paymentMethodsEnabled: array<paymentMethodEnabled>, paymentMethod) => {
   paymentMethodsEnabled
-  ->Js.Array2.find(item => item.payment_method_type->toLCase == paymentMethod->toLCase)
+  ->Array.find(item => item.payment_method_type->toLCase == paymentMethod->toLCase)
   ->Belt.Option.getWithDefault({
     payment_method: "unknown",
     payment_method_type: "unkonwn",
@@ -773,7 +773,7 @@ let validateConnectorRequiredFields = (
   let newDict = getDictFromJsonObject(errors)
   if bodyType->mapAuthType == #CurrencyAuthKey {
     let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
-    let indexLength = dict->Js.Dict.keys->Js.Array2.length
+    let indexLength = dict->Js.Dict.keys->Array.length
     let vector = Js.Vector.make(indexLength, false)
 
     dict

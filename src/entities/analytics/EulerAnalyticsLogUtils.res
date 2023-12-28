@@ -13,7 +13,7 @@ let useAddLogsAroundFetch = () => {
       let dict =
         prev
         ->Js.Dict.entries
-        ->Js.Array2.filter(entry => {
+        ->Array.filter(entry => {
           let (key, _value) = entry
           key !== logTitle
         })
@@ -58,7 +58,7 @@ let useAddLogsAroundFetchNew = () => {
       let dict =
         prev
         ->Js.Dict.entries
-        ->Js.Array2.filter(entry => {
+        ->Array.filter(entry => {
           let (key, _value) = entry
           key !== logTitle
         })

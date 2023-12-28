@@ -39,7 +39,7 @@ module SelectProcessor = {
       <QuickStartUIUtils.SelectConnectorGrid
         selectedConnector
         setSelectedConnector
-        connectorList={ConnectorUtils.connectorList->Js.Array2.filter(value =>
+        connectorList={ConnectorUtils.connectorList->Array.filter(value =>
           !(connectorArray->Js.Array2.includes(value->ConnectorUtils.getConnectorNameString))
         )}
       />

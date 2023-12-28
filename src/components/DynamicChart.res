@@ -33,7 +33,7 @@ let cardinalityStrMapper = str => {
 }
 
 let getTimeSeriesChart = (chartEntity: chartEntity) => {
-  let metricsArr = chartEntity.metrics->Js.Array2.map(item => {
+  let metricsArr = chartEntity.metrics->Array.map(item => {
     item.metric_name_db
   })
   [
@@ -58,7 +58,7 @@ let getTimeSeriesChart = (chartEntity: chartEntity) => {
 }
 
 let getLegendBody = (chartEntity: chartEntity) => {
-  let metricsArr = chartEntity.metrics->Js.Array2.map(item => {
+  let metricsArr = chartEntity.metrics->Array.map(item => {
     item.metric_name_db
   })
   [
@@ -186,8 +186,8 @@ let makeEntity = (
   ~jsonTransformer: option<(string, array<Js.Json.t>) => array<Js.Json.t>>=?,
   (),
 ) => {
-  let granularity = granularity->Js.Array2.length === 0 ? [G_ONEDAY] : granularity
-  let chartTypes = chartTypes->Js.Array2.length === 0 ? [Line] : chartTypes
+  let granularity = granularity->Array.length === 0 ? [G_ONEDAY] : granularity
+  let chartTypes = chartTypes->Array.length === 0 ? [Line] : chartTypes
 
   {
     uri,
@@ -217,7 +217,7 @@ let useChartFetch = (~setStatusDict) => {
     open Promise
 
     updatedChartBody
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       fetchApi(
         item.url,
         ~method_=Fetch.Post,
@@ -390,7 +390,7 @@ let make = (
   let getAllFilter =
     filterValue
     ->Js.Dict.entries
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let (key, value) = item
       (key, value->UrlFetchUtils.getFilterValue)
     })
@@ -513,7 +513,7 @@ let make = (
   })
   let chartDimensionView = switch selectedTabState {
   | Some(selectedTab) =>
-    switch selectedTab->Js.Array2.length {
+    switch selectedTab->Array.length {
     | 1 => OneDimension
     | 2 => TwoDimension
     | 3 => ThreeDimension
@@ -630,9 +630,9 @@ let make = (
   let selectedTabStr = selectedTab->Belt.Option.getWithDefault([])->Js.Array2.joinWith("")
 
   let updatedChartConfigArr = React.useMemo7(() => {
-    uriConfig->Js.Array2.map(item => {
+    uriConfig->Array.map(item => {
       let filterKeys =
-        item.filterKeys->Js.Array2.filter(item => allFilterDimension->Js.Array2.includes(item))
+        item.filterKeys->Array.filter(item => allFilterDimension->Js.Array2.includes(item))
       let filterValue =
         getTopLevelFilter
         ->Js.Dict.entries
@@ -687,7 +687,7 @@ let make = (
 
   let updatedChartBody = React.useMemo1(() => {
     uriConfig->Belt.Array.keepMap(item => {
-      switch updatedChartConfigArr->Js.Array2.find(config => config.uri === item.uri) {
+      switch updatedChartConfigArr->Array.find(config => config.uri === item.uri) {
       | Some(chartconfig) => {
           let legendBody = switch item {
           | {legendBody} => Some(legendBody(chartconfig))
@@ -697,7 +697,7 @@ let make = (
             url: item.uri,
             body: item.timeSeriesBody(chartconfig),
             legendBody: ?(
-              chartconfig.groupByNames->Belt.Option.getWithDefault([])->Js.Array2.length === 1
+              chartconfig.groupByNames->Belt.Option.getWithDefault([])->Array.length === 1
                 ? legendBody
                 : None
             ),
@@ -728,8 +728,8 @@ let make = (
   }, [selectedTab])
 
   let setRawChartData = (data: array<urlToDataMap>) => {
-    let chartData = data->Js.Array2.map(mappedData => {
-      let rawdata = mappedData.rawData->Js.Array2.map(item => {
+    let chartData = data->Array.map(mappedData => {
+      let rawdata = mappedData.rawData->Array.map(item => {
         let dict = item->Js.Json.decodeObject->Belt.Option.getWithDefault(Js.Dict.empty())
 
         switch dict->Js.Dict.get("time_range") {
@@ -839,7 +839,7 @@ let make = (
     None
   }, [updatedChartBody])
   let _transformChartType = arr => {
-    Js.Array2.map(arr, str => {
+    Array.map(arr, str => {
       let a: SelectBox.dropdownOption = {
         label: chartMapper(str),
         value: chartMapper(str),
@@ -848,7 +848,7 @@ let make = (
     })
   }
   let transformMetric = (arr: array<LineChartUtils.metricsConfig>) => {
-    arr->Js.Array2.map(item => {
+    arr->Array.map(item => {
       let a: SelectBox.dropdownOption = {
         label: item.metric_label,
         value: item.metric_label,
@@ -970,19 +970,19 @@ let make = (
                   <Shimmer styleClass="w-full h-96 dark:bg-black bg-white" shimmerType={Big} />
                 } else if isExpandedUpper {
                   switch entityAllMetrics
-                  ->Js.Array2.filter(item => item.metric_label === chartTopMetricFromUrl)
+                  ->Array.filter(item => item.metric_label === chartTopMetricFromUrl)
                   ->Belt.Array.get(0) {
                   | Some(selectedMetrics) =>
-                    let metricsUri = uriConfig->Js.Array2.find(uriMetrics => {
+                    let metricsUri = uriConfig->Array.find(uriMetrics => {
                       uriMetrics.metrics
-                      ->Js.Array2.map(item => {item.metric_label})
+                      ->Array.map(item => {item.metric_label})
                       ->Js.Array2.includes(selectedMetrics.metric_label)
                     })
                     let (data, legendData, timeCol) = switch metricsUri {
                     | Some(val) =>
                       switch rawChartData
                       ->Belt.Option.getWithDefault([])
-                      ->Js.Array2.find(item => item.metricsUrl === val.uri) {
+                      ->Array.find(item => item.metricsUrl === val.uri) {
                       | Some(dataVal) => (dataVal.rawData, dataVal.legendData, val.timeCol)
                       | None => ([], [], "")
                       }
@@ -1066,19 +1066,19 @@ let make = (
       />
       {if enableBottomChart {
         switch entityAllMetrics
-        ->Js.Array2.filter(item => item.metric_label === chartBottomMetricFromUrl)
+        ->Array.filter(item => item.metric_label === chartBottomMetricFromUrl)
         ->Belt.Array.get(0) {
         | Some(selectedMetrics) =>
-          let metricsUri = uriConfig->Js.Array2.find(uriMetrics => {
+          let metricsUri = uriConfig->Array.find(uriMetrics => {
             uriMetrics.metrics
-            ->Js.Array2.map(item => {item.metric_label})
+            ->Array.map(item => {item.metric_label})
             ->Js.Array2.includes(selectedMetrics.metric_label)
           })
           let (data, legendData, timeCol) = switch metricsUri {
           | Some(val) =>
             switch rawChartData
             ->Belt.Option.getWithDefault([])
-            ->Js.Array2.find(item => item.metricsUrl === val.uri) {
+            ->Array.find(item => item.metricsUrl === val.uri) {
             | Some(dataVal) => (dataVal.rawData, dataVal.legendData, val.timeCol)
             | None => ([], [], "")
             }

@@ -2,11 +2,11 @@ let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName, 
   open LogicUtils
   searchOptions
   ->Belt.Option.getWithDefault([])
-  ->Js.Array2.filter(item => {
+  ->Array.filter(item => {
     let (searchKey, _redirection) = item
     checkStringStartsWithSubstring(~itemToCheck=searchKey, ~searchText)
   })
-  ->Js.Array2.map(item => {
+  ->Array.map(item => {
     let (searchKey, redirection) = item
     [
       (
@@ -169,7 +169,7 @@ let make = () => {
   let prefix = LogicUtils.useUrlPrefix()
 
   React.useEffect2(() => {
-    if searchText->Js.String2.length > 0 && arr->Js.Array2.length === 0 {
+    if searchText->Js.String2.length > 0 && arr->Array.length === 0 {
       hyperswitchMixPanel(
         ~eventName=Some("open_searchbar_resultnotfound"),
         ~description=Some(searchText),
@@ -177,7 +177,7 @@ let make = () => {
       )
     }
     None
-  }, (searchText, arr->Js.Array2.length))
+  }, (searchText, arr->Array.length))
 
   let redirectOnSelect = (element, mixpanelActionName) => {
     let redirectLink = element->LogicUtils.getString("redirect_link", "")
@@ -220,7 +220,7 @@ let make = () => {
   let isMobileView = MatchMedia.useMobileChecker()
   let shortcutText = Window.Navigator.platform->Js.String2.includes("Mac") ? "Cmd + K" : "Ctrl + K"
   let searchBoxBorderColor =
-    arr->Js.Array2.length > 0
+    arr->Array.length > 0
       ? "border border-transparent"
       : "border border-blue-700 rounded-md !shadow-[0_0_8px_2px_rgba(0,_112,_255,_0.2)]"
   let openModalOnClickHandler = _ => {
@@ -253,7 +253,7 @@ let make = () => {
           <Combobox
             className="w-full " onChange={element => redirectOnSelect(element, "onenterpress")}>
             {listBoxProps => {
-              let borderClass = arr->Js.Array2.length > 0 ? "border-b dark:border-jp-gray-960" : ""
+              let borderClass = arr->Array.length > 0 ? "border-b dark:border-jp-gray-960" : ""
               <div className="relative py-2">
                 <div className={`flex flex-row relative items-center grow ${borderClass}`}>
                   <div id="leftIcon" className="self-center p-3 opacity-30">
@@ -313,7 +313,7 @@ let make = () => {
                                   <RenderedComponent ele=elementValue searchText />
                                   <UIUtils.RenderIf
                                     condition={index >= 0 &&
-                                      index < elementsArray->Js.Array2.length - 1}>
+                                      index < elementsArray->Array.length - 1}>
                                     <span className="mx-2 text-lightgray_background opacity-50">
                                       {">"->React.string}
                                     </span>
@@ -333,7 +333,7 @@ let make = () => {
             }}
           </Combobox>
           <UIUtils.RenderIf
-            condition={searchText->Js.String2.length > 0 && arr->Js.Array2.length === 0}>
+            condition={searchText->Js.String2.length > 0 && arr->Array.length === 0}>
             <div className="flex flex-col w-full h-72 p-2 justify-center items-center gap-1">
               <img className="w-1/3" src={`${prefix}/icons/globalSearchNoResult.svg`} />
               <div> {`No Results for ${searchText}`->React.string} </div>
