@@ -765,8 +765,6 @@ let sumOfArrFloat = (arr: array<float>) => {
   arr->Belt.Array.reduce(0., (acc, value) => acc +. value)
 }
 
-open IntroJsReact
-
 module NoDataFoundPage = {
   @react.component
   let make = () => {
