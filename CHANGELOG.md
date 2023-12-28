@@ -3,6 +3,27 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.18.0 (2023-12-28)
+
+### Features
+
+- Sentry Removal & Error Boundary Added ([#140](https://github.com/juspay/hyperswitch-control-center/pull/140)) ([`9e0d786`](https://github.com/juspay/hyperswitch-control-center/commit/9e0d7862f54d957166b94b9f007edad5422085ee))
+
+### Bug Fixes
+
+- Restrict reset password ([`a4b3fa4`](https://github.com/juspay/hyperswitch-control-center/commit/a4b3fa45823e196af564da8bf289bbb142e2bc65))
+- Removed console log form prod ([#144](https://github.com/juspay/hyperswitch-control-center/pull/144)) ([`e53b9b8`](https://github.com/juspay/hyperswitch-control-center/commit/e53b9b8d94b93de2aa04f72740a4f037be7ac012))
+- Verify email url fix ([#147](https://github.com/juspay/hyperswitch-control-center/pull/147)) ([`e11135e`](https://github.com/juspay/hyperswitch-control-center/commit/e11135eb135f064020da98fd0a4da03ed560a803))
+
+### Miscellaneous Tasks
+
+- Package removal ([#143](https://github.com/juspay/hyperswitch-control-center/pull/143)) ([`87b0c58`](https://github.com/juspay/hyperswitch-control-center/commit/87b0c58e3be6a906c9d23be6e55219f08cbc2c04))
+
+**Full Changelog:** [`v1.17.0...v1.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.17.0...v1.18.0)
+
+- - -
+
+
 ## 1.17.0 (2023-12-27)
 
 ### Features
