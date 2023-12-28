@@ -798,20 +798,29 @@ let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
     connectorAccountFields->getDictfromDict("auth_key_map")->Js.Json.object_->changeType
   convertMapObjectToDict(authKeyMap)
 }
-
-let checkInnerField = (valuesFlattenJson, dict, country: string): bool => {
+let checkCashtoCodeFields = (keys, country, valuesFlattenJson) => {
   open LogicUtils
-  let value = dict->getDictfromDict(country)->Js.Dict.keys
-  let result = value->Js.Array2.every(field => {
+  keys->Js.Array2.map(field => {
     let key = `connector_account_details.auth_key_map.${country}.${field}`
     let value = valuesFlattenJson->getString(`${key}`, "")
     value->Js.String2.length === 0 ? false : true
   })
-  result
+}
+
+let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool => {
+  open LogicUtils
+  let value = dict->getDictfromDict(country)->Js.Dict.keys
+  let result = value->Js.Array2.map(method => {
+    let keys = dict->getDictfromDict(country)->getDictfromDict(method)->Js.Dict.keys
+    keys->checkCashtoCodeFields(country, valuesFlattenJson)->Js.Array2.includes(false)
+      ? false
+      : true
+  })
+
+  result->Js.Array2.includes(true) ? true : false
 }
 
 let validateConnectorRequiredFields = (
-  bodyType,
   connector: connectorName,
   valuesFlattenJson,
   connectorAccountFields,
@@ -822,15 +831,17 @@ let validateConnectorRequiredFields = (
 ) => {
   open LogicUtils
   let newDict = getDictFromJsonObject(errors)
-  if bodyType->mapAuthType == #CurrencyAuthKey {
+  if connector === CASHTOCODE {
     let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
+
     let indexLength = dict->Js.Dict.keys->Js.Array2.length
     let vector = Js.Vector.make(indexLength, false)
 
     dict
     ->Js.Dict.keys
     ->Array.forEachWithIndex((country, index) => {
-      let res = checkInnerField(valuesFlattenJson, dict, country)
+      let res = checkCashtoCodeInnerField(valuesFlattenJson, dict, country)
+
       vector->Js.Vector.set(index, res)
     })
 
@@ -953,6 +964,7 @@ let validate = (values, ~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => {
   let errors = Js.Dict.empty()
   let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
   let labelArr = dict->Js.Dict.values
+  Js.log2(values, "values values")
   selectedConnector.validate
   ->Belt.Option.getWithDefault([])
   ->Array.forEachWithIndex((field, index) => {
@@ -1175,7 +1187,6 @@ let getConnectorPaymentMethodDetails = async (
   open LogicUtils
   try {
     let json = Window.getResponsePayload(initialValues)
-    Js.log(json)
     let metaData = json->getDictFromJsonObject->getJsonObjectFromDict("metadata")
     let paymentMethodEnabled =
       json

@@ -212,7 +212,6 @@ let make = (
     }
 
     validateConnectorRequiredFields(
-      bodyType,
       connector->getConnectorNameTypeFromString,
       valuesFlattenJson,
       connectorAccountFields,
@@ -311,7 +310,6 @@ let make = (
               selectedConnector
               connectorMetaDataFields
               connectorWebHookDetails
-              bodyType
               isUpdateFlow
               connectorLabelDetailField
             />

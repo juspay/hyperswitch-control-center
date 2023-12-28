@@ -180,19 +180,26 @@ module CashToCodeSelectBox = {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
     )
-    let values = formState.values
-    Js.log2(values, "values")
 
-    let isSelected = value => {
-      Js.log2(value, "value value value")
-      let v =
+    let isSelected = (country): bool => {
+      let formValues =
         formState.values
         ->getDictFromJsonObject
         ->getDictfromDict("connector_account_details")
         ->getDictfromDict("auth_key_map")
-        ->getDictfromDict(value)
-      Js.log(v)
-      true
+        ->getDictfromDict(country)
+
+      let wasmValues =
+        dict
+        ->getDictfromDict(country)
+        ->getDictfromDict(
+          (selectedCashToCodeMthd: cashToCodeMthd :> string)->Js.String2.toLowerCase,
+        )
+        ->Js.Dict.keys
+
+      wasmValues
+      ->Js.Array2.find(ele => formValues->getString(ele, "")->Js.String2.length <= 0)
+      ->Belt.Option.isNone
     }
 
     <div>
@@ -200,10 +207,7 @@ module CashToCodeSelectBox = {
       ->Js.Array2.map(country => {
         <div className="flex items-center gap-2 break-words">
           <div onClick={_e => selectedCountry(country)}>
-            <CheckBoxIcon
-              isSelected={country->isSelected}
-              // isSelected={true}
-            />
+            <CheckBoxIcon isSelected={country->isSelected} />
           </div>
           <p className=p2RegularTextStyle> {React.string(country->snakeToTitle)} </p>
         </div>
@@ -315,13 +319,12 @@ module ConnectorConfigurationFields = {
     ~selectedConnector: integrationFields,
     ~connectorMetaDataFields,
     ~connectorWebHookDetails,
-    ~bodyType: string,
     ~isUpdateFlow=false,
     ~connectorLabelDetailField,
   ) => {
     open ConnectorUtils
     <div className="flex flex-col">
-      {if bodyType->mapAuthType == #CurrencyAuthKey {
+      {if connector === CASHTOCODE {
         <div>
           <div className="mb-6">
             <CashToCodeMethods connectorAccountFields connector selectedConnector />
