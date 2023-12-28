@@ -104,7 +104,7 @@ module Wrapper = {
     let areValidConditions =
       conditionsInput.value
       ->getArrayFromJson([])
-      ->Js.Array2.every(ele =>
+      ->Array.every(ele =>
         ele->getDictFromJsonObject->statementTypeMapper->isStatementMandatoryFieldsPresent
       )
 
@@ -430,7 +430,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       if connectorData->Array.length === 0 {
         Some("Need atleast 1 Gateway")
       } else {
-        let isDistibuted = connectorData->Js.Array2.every(ele => {
+        let isDistibuted = connectorData->Array.every(ele => {
           switch ele {
           | PriorityObject(_) => false
           | VolumeObject(_) => true

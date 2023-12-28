@@ -15,9 +15,8 @@ let validateConditionJson = json => {
   }
   switch json->Js.Json.decodeObject {
   | Some(dict) =>
-    ["operator", "real_field"]->Js.Array2.every(key =>
-      dict->Js.Dict.get(key)->Belt.Option.isSome
-    ) && dict->checkValue
+    ["operator", "real_field"]->Array.every(key => dict->Js.Dict.get(key)->Belt.Option.isSome) &&
+      dict->checkValue
   | None => false
   }
 }

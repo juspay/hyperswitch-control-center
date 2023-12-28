@@ -750,7 +750,7 @@ let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
 let checkInnerField = (valuesFlattenJson, dict, country: string): bool => {
   open LogicUtils
   let value = dict->getDictfromDict(country)->Js.Dict.keys
-  let result = value->Js.Array2.every(field => {
+  let result = value->Array.every(field => {
     let key = `connector_account_details.auth_key_map.${country}.${field}`
     let value = valuesFlattenJson->getString(`${key}`, "")
     value->Js.String2.length === 0 ? false : true

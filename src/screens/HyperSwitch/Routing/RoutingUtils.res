@@ -14,9 +14,8 @@ let validateConditionJson = json => {
   }
   switch json->Js.Json.decodeObject {
   | Some(dict) =>
-    ["operator", "real_field"]->Js.Array2.every(key =>
-      dict->Js.Dict.get(key)->Belt.Option.isSome
-    ) && dict->checkValue
+    ["operator", "real_field"]->Array.every(key => dict->Js.Dict.get(key)->Belt.Option.isSome) &&
+      dict->checkValue
   | None => false
   }
 }
@@ -705,7 +704,7 @@ let checkIfValuePresent = dict => {
 let validateConditionJsonFor3ds = json => {
   switch json->Js.Json.decodeObject {
   | Some(dict) =>
-    ["comparison", "lhs"]->Js.Array2.every(key => dict->Js.Dict.get(key)->Belt.Option.isSome) &&
+    ["comparison", "lhs"]->Array.every(key => dict->Js.Dict.get(key)->Belt.Option.isSome) &&
       dict->checkIfValuePresent
   | None => false
   }
@@ -714,7 +713,7 @@ let validateConditionJsonFor3ds = json => {
 let validateConditions = dict => {
   dict
   ->LogicUtils.getArrayFromDict("conditions", [])
-  ->Js.Array2.every(MakeRuleFieldComponent.validateConditionJson)
+  ->Array.every(MakeRuleFieldComponent.validateConditionJson)
 }
 
 let validateConditionsFor3ds = dict => {

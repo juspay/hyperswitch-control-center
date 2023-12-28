@@ -346,7 +346,7 @@ let getRoutingTypesFromJson: Js.Json.t => AdvancedRoutingTypes.advancedRouting =
 }
 
 let validateStatements = statementsArray => {
-  statementsArray->Js.Array2.every(isStatementMandatoryFieldsPresent)
+  statementsArray->Array.every(isStatementMandatoryFieldsPresent)
 }
 
 let generateStatements = statements => {
