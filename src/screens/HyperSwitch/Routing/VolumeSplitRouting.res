@@ -409,7 +409,6 @@ let make = (~routingRuleId, ~isActive) => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
-        Js.log(e)
         let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }
