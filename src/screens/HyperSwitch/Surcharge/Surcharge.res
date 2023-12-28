@@ -1,6 +1,3 @@
-open RoutingTypes
-external toWasm: Js.Dict.t<Js.Json.t> => wasmModule = "%identity"
-
 module ActiveRulePreview = {
   open LogicUtils
   @react.component
@@ -119,7 +116,7 @@ let make = () => {
       let wasmResult = await Window.connectorWasmInit()
       let wasm =
         wasmResult->LogicUtils.getDictFromJsonObject->LogicUtils.getObj("wasm", Js.Dict.empty())
-      setWasm(_ => Some(wasm->toWasm))
+      setWasm(_ => Some(wasm->Identity.toWasm))
     } catch {
     | _ => ()
     }
