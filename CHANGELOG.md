@@ -3,6 +3,19 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.18.1 (2023-12-29)
+
+### Bug Fixes
+
+- Enabled invite users ([#149](https://github.com/juspay/hyperswitch-control-center/pull/149)) ([`298634b`](https://github.com/juspay/hyperswitch-control-center/commit/298634b884df48e1f2e61c243ef10583c43325d5))
+- Connnector status UI changes ([#150](https://github.com/juspay/hyperswitch-control-center/pull/150)) ([`0428af2`](https://github.com/juspay/hyperswitch-control-center/commit/0428af23010f292e841879abd1c2944e98f66885))
+- Text overlap issue fix ([#151](https://github.com/juspay/hyperswitch-control-center/pull/151)) ([`429025a`](https://github.com/juspay/hyperswitch-control-center/commit/429025a592420086eede4c8553560ffbadf57c13))
+
+**Full Changelog:** [`v1.18.0...v1.18.1`](https://github.com/juspay/hyperswitch-control-center/compare/v1.18.0...v1.18.1)
+
+- - -
+
+
 ## 1.18.0 (2023-12-28)
 
 ### Features
