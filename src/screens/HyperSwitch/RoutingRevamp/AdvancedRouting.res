@@ -112,7 +112,7 @@ module AddSurchargeCondition = {
             field={FormRenderer.makeFieldInfo(
               ~label="",
               ~name=`${id}.connectorSelection.surcharge_details.surcharge.value.percentage`,
-              ~customInput=InputFields.numericTextInput(~customStyle="!-mt-5", ()),
+              ~customInput=InputFields.numericTextInput(~customStyle="!-mt-5", ~precision=2, ()),
               (),
             )}
           />
