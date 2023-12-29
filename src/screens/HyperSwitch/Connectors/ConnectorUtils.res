@@ -964,7 +964,6 @@ let validate = (values, ~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => {
   let errors = Js.Dict.empty()
   let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
   let labelArr = dict->Js.Dict.values
-  Js.log2(values, "values values")
   selectedConnector.validate
   ->Belt.Option.getWithDefault([])
   ->Array.forEachWithIndex((field, index) => {
