@@ -161,7 +161,7 @@ let getHeading = colType => {
   switch colType {
   | Name => Table.makeHeaderInfo(~key="connector_name", ~title="Processor", ~showSort=false, ())
   | TestMode => Table.makeHeaderInfo(~key="test_mode", ~title="Test Mode", ~showSort=false, ())
-  | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~showSort=false, ())
+  | Status => Table.makeHeaderInfo(~key="status", ~title="Integration status", ~showSort=false, ())
   | Disabled => Table.makeHeaderInfo(~key="disabled", ~title="Disabled", ~showSort=false, ())
   | Actions => Table.makeHeaderInfo(~key="actions", ~title="", ~showSort=false, ())
   | ProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile Id", ~showSort=false, ())
