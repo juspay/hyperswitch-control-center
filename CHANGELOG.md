@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.18.2 (2024-01-01)
+
+### Bug Fixes
+
+- Wasm to support minimum_amount and maximum amount ([#131](https://github.com/juspay/hyperswitch-control-center/pull/131)) ([`ad40573`](https://github.com/juspay/hyperswitch-control-center/commit/ad40573d95db0c15aabfd15f5c68105de5a0e673))
+
+**Full Changelog:** [`v1.18.1...v1.18.2`](https://github.com/juspay/hyperswitch-control-center/compare/v1.18.1...v1.18.2)
+
+- - -
+
+
 ## 1.18.1 (2023-12-29)
 
 ### Bug Fixes
