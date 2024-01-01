@@ -66,26 +66,17 @@ let convertFRMConfigJsonToObj = json => {
 
 let getPaymentMethodTypes = dict => {
   open LogicUtils
+  open ConnectorUtils
   {
     payment_method_type: dict->getString("payment_method_type", ""),
-    payment_experience: dict->getString("payment_method_type", ""),
+    payment_experience: dict->getOptionString("payment_method_type"),
     card_networks: dict->getStrArrayFromDict("card_networks", []),
-    accepted_countries: {
-      options: {
-        type_: "",
-        list: [],
-      },
-    },
-    accepted_currencies: {
-      options: {
-        type_: "",
-        list: [],
-      },
-    },
-    minimum_amount: dict->getInt("minimum_amount", 0),
-    maximum_amount: dict->getInt("maximum_amount", 0),
-    recurring_enabled: dict->getBool("recurring_enabled", false),
-    installment_payment_enabled: dict->getBool("installment_payment_enabled", false),
+    accepted_countries: dict->getDictfromDict("accepted_countries")->acceptedValues,
+    accepted_currencies: dict->getDictfromDict("accepted_countries")->acceptedValues,
+    minimum_amount: dict->getOptionInt("minimum_amount"),
+    maximum_amount: dict->getOptionInt("maximum_amount"),
+    recurring_enabled: dict->getOptionBool("recurring_enabled"),
+    installment_payment_enabled: dict->getOptionBool("installment_payment_enabled"),
   }
 }
 
