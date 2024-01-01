@@ -69,7 +69,6 @@ let formattedDateTimeString = (dateTime: dateTimeString, format: string) => {
 
 let formattedISOString = (dateTimeIsoString: string, format: string) => {
   // 2021-08-29T18:30:00.000Z
-  // Js.log2("inside formatter", dateTimeIsoString)
   let tempTimeDateString = dateTimeIsoString->Js.String2.replace("Z", "")
   let tempTimeDate = tempTimeDateString->Js.String2.split("T")
   let time = tempTimeDate[1]
