@@ -64,6 +64,7 @@ module QuickStart = {
     )
     let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
     let updateEnumInRecoil = EnumVariantHook.useUpdateEnumInRecoil()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let (configureButtonState, setConfigureButtonState) = React.useState(_ => Button.Normal)
     let connectorList =
       HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->LogicUtils.safeParse
@@ -170,6 +171,15 @@ module QuickStart = {
       "Get Production access"
     }
 
+    let mixpanelEventForQuickStart = () =>
+      if !(typedValueOfEnum.testPayment.payment_id->Js.String2.length > 0) {
+        mixpanelEvent(~eventName=`quickstart_configure_test_mode`, ())
+      } else if !typedValueOfEnum.integrationCompleted {
+        mixpanelEvent(~eventName=`quickstart_start_integration_on_app`, ())
+      } else {
+        mixpanelEvent(~eventName=`quickstart_get_productuion_access`, ())
+      }
+
     <div className="flex flex-col md:flex-row pt-10 border rounded-md bg-white gap-4">
       <div className="flex flex-col justify-evenly gap-8 pl-10 pb-10 pr-2 md:pr-0">
         <div className="flex flex-col gap-2">
@@ -192,6 +202,7 @@ module QuickStart = {
             />,
           )}
           onClick={_ => {
+            mixpanelEventForQuickStart()
             setEnumsForPreviouslyConnectedConnectors()->ignore
           }}
         />
@@ -208,6 +219,7 @@ module QuickStart = {
 module RecipesAndPlugins = {
   @react.component
   let make = () => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let enumDetails =
       HyperswitchAtom.enumVariantAtom
       ->Recoil.useRecoilValueFromAtom
@@ -221,7 +233,10 @@ module RecipesAndPlugins = {
       <div className="grid grid-cols-1 md:grid-cols-2 w-full gap-4">
         <div
           className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted, ())}
-          onClick={_ => RescriptReactRouter.push("stripe-plus-paypal")}>
+          onClick={_ => {
+            mixpanelEvent(~eventName=`stripe_plus_paypal`, ())
+            RescriptReactRouter.push("stripe-plus-paypal")
+          }}>
           <div className="flex items-center gap-2">
             <p className=cardHeaderTextStyle> {"Use PayPal with Stripe"->React.string} </p>
             <Icon
@@ -244,7 +259,10 @@ module RecipesAndPlugins = {
         </div>
         <div
           className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted, ())}
-          onClick={_ => RescriptReactRouter.push("woocommerce")}>
+          onClick={_ => {
+            mixpanelEvent(~eventName=`woocommerce`, ())
+            RescriptReactRouter.push("woocommerce")
+          }}>
           <div className="flex items-center gap-2">
             <p className=cardHeaderTextStyle> {"WooCommerce plugin"->React.string} </p>
             <Icon
@@ -273,6 +291,7 @@ module RecipesAndPlugins = {
 module Resources = {
   @react.component
   let make = () => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let elements: array<HomeUtils.resourcesTypes> = [
       {
         id: "tryTheDemo",
@@ -307,8 +326,10 @@ module Resources = {
               key={index->string_of_int}
               onClick={_ => {
                 if item.id === "openSource" {
+                  mixpanelEvent(~eventName=`contribute_in_open_source`, ())
                   "https://github.com/juspay/hyperswitch"->Window._open
                 } else if item.id === "developerdocs" {
+                  mixpanelEvent(~eventName=`dev_docs`, ())
                   "https://hyperswitch.io/docs"->Window._open
                 } else if item.id === "tryTheDemo" {
                   RescriptReactRouter.replace("/sdk")
