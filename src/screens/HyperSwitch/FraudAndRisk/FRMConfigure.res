@@ -7,7 +7,6 @@ let make = () => {
   open FRMInfo
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let url = RescriptReactRouter.useUrl()
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
@@ -34,23 +33,6 @@ let make = () => {
     })
     setCurrentStep(_ => isUpdateFlow ? Preview : initStep)
     frmInfo
-  }, [frmName])
-
-  React.useEffect1(() => {
-    if (
-      frmName->Js.String2.length > 0 &&
-        frmName->getFRMNameTypeFromString !== UnknownFRM("Not known")
-    ) {
-      [frmName, "global"]->Js.Array2.forEach(ele =>
-        hyperswitchMixPanel(
-          ~pageName=url.path->LogicUtils.getListHead,
-          ~contextName=ele,
-          ~actionName=`${isUpdateFlow ? "selectedold" : "selectednew"}`,
-          (),
-        )
-      )
-    }
-    None
   }, [frmName])
 
   let getFRMDetails = async url => {
@@ -112,7 +94,6 @@ let make = () => {
             selectedFRMInfo
             setInitialValues
             retrivedValues=Some(initialValues)
-            currentStep
             isUpdateFlow
           />
         | PaymentMethods =>
@@ -121,7 +102,7 @@ let make = () => {
           />
         | SummaryAndTest
         | Preview =>
-          <FRMSummary initialValues currentStep setCurrentStep isUpdateFlow />
+          <FRMSummary initialValues currentStep setCurrentStep />
         }}
       </div>
     </div>

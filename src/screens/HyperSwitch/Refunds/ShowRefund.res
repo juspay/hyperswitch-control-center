@@ -76,7 +76,6 @@ let make = (~id) => {
   let (screenStateForRefund, setScreenStateForRefund) = React.useState(_ =>
     PageLoaderWrapper.Loading
   )
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let (_screenStateForOrder, setScreenStateForOrder) = React.useState(_ =>
     PageLoaderWrapper.Loading
   )
@@ -96,15 +95,6 @@ let make = (~id) => {
     setOrdersData(_ => paymentArray->Js.Array2.map(Js.Nullable.return))
     None
   }, [orderDataForPaymentId])
-
-  React.useEffect0(() => {
-    hyperswitchMixPanel(
-      ~eventName=Some(`refundops_refunddetail`),
-      ~description=Some(`Refund - ${id}`),
-      (),
-    )
-    None
-  })
 
   <div className="flex flex-col overflow-scroll">
     <div className="mb-4 flex justify-between">

@@ -43,7 +43,6 @@ let customUI =
     buttonText="Take me to payments"
     onClickUrl="payments"
     moduleName=""
-    mixPanelEventName="refunds_takemetopayments"
   />
 
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")

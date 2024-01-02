@@ -84,7 +84,6 @@ module SDKConfiguarationFields = {
 @react.component
 let make = () => {
   open MerchantAccountUtils
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let filtersFromUrl = url.search->LogicUtils.getDictFromUrlSearchParams
   let (isSDKOpen, setIsSDKOpen) = React.useState(_ => false)
@@ -119,12 +118,6 @@ let make = () => {
     setInitialValues(_ => values->SDKPaymentUtils.getTypedValueForPayment)
     setIsSDKOpen(_ => true)
     RescriptReactRouter.push("/sdk")
-    hyperswitchMixPanel(
-      ~pageName=url.path->LogicUtils.getListHead,
-      ~contextName="sdk",
-      ~actionName="proceed",
-      (),
-    )
     Js.Nullable.null->Promise.resolve
   }
 

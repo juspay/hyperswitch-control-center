@@ -753,30 +753,6 @@ let getDisableConnectorPayload = (connectorType, previousConnectorState) => {
   ]->Js.Dict.fromArray
 }
 
-let getMixpanelForConnectorOnSubmit = (
-  ~connectorName,
-  ~currentStep,
-  ~isUpdateFlow,
-  ~url: RescriptReactRouter.url,
-  ~hyperswitchMixPanel: HSMixPanel.functionType,
-) => {
-  let selectedConnectorNameString = connectorName
-  let currentStepName = currentStep->getStepName->LogicUtils.stringReplaceAll(" ", "")
-  if selectedConnectorNameString !== "Unknown Connector" {
-    //* Generic Name 'global' given for mixpanel events for calculating total
-    [connectorName, "global"]->Js.Array2.forEach(ele =>
-      hyperswitchMixPanel(
-        ~pageName=url.path->LogicUtils.getListHead,
-        ~contextName=ele,
-        ~actionName={
-          `${isUpdateFlow ? "update_" : ""}step_${currentStepName}`
-        },
-        (),
-      )
-    )
-  }
-}
-
 let getWebHookRequiredFields = (connector: connectorName, fieldName: string) => {
   switch (connector, fieldName) {
   | (ADYEN, "merchant_secret") => true
@@ -1028,29 +1004,12 @@ let onSubmit = async (
   ~setVerifyDone,
   ~verifyDone,
   ~isVerifyConnector,
-  ~hyperswitchMixPanel: HSMixPanel.functionType,
   ~isVerifyConnectorFeatureEnabled,
-  ~path,
 ) => {
   setVerifyDone(_ => Loading)
   if isVerifyConnectorFeatureEnabled && verifyDone === NoAttempt && isVerifyConnector {
-    hyperswitchMixPanel(
-      ~pageName=path->LogicUtils.getListHead,
-      ~contextName="verify_connector",
-      ~actionName="request",
-      (),
-    )
     onSubmitVerify(values)->ignore
   } else {
-    if isVerifyConnector {
-      hyperswitchMixPanel(
-        ~pageName=path->LogicUtils.getListHead,
-        ~contextName="connector",
-        ~actionName="proceed_clicked",
-        (),
-      )
-    }
-
     onSubmitMain(values)->ignore
   }
   Js.Nullable.null
@@ -1196,23 +1155,5 @@ let getConnectorPaymentMethodDetails = async (
       let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
-  }
-}
-
-let mixpanelEventWrapper = (
-  ~url: RescriptReactRouter.url,
-  ~selectedConnector,
-  ~actionName,
-  ~hyperswitchMixPanel: HSMixPanel.functionType,
-) => {
-  if selectedConnector->Js.String2.length > 0 {
-    [selectedConnector, "global"]->Js.Array2.forEach(ele =>
-      hyperswitchMixPanel(
-        ~pageName=url.path->LogicUtils.getListHead,
-        ~contextName=ele,
-        ~actionName,
-        (),
-      )
-    )
   }
 }

@@ -1,7 +1,5 @@
 @react.component
 let make = () => {
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let url = RescriptReactRouter.useUrl()
   let fetchDetails = APIUtils.useGetMethod()
   let (merchantInfo, setMerchantInfo) = React.useState(() =>
     Js.Json.null->MerchantAccountUtils.getMerchantDetails
@@ -52,12 +50,6 @@ let make = () => {
                   toolTipFor={<div
                     className="cursor-pointer"
                     onClick={_ => {
-                      hyperswitchMixPanel(
-                        ~pageName=url.path->LogicUtils.getListHead,
-                        ~contextName="publishable_key",
-                        ~actionName="visit_docs",
-                        (),
-                      )
                       "https://hyperswitch.io/docs"->Window._open
                     }}>
                     <Icon name="open_arrow" size=12 />
@@ -70,14 +62,6 @@ let make = () => {
               displayValue={merchantInfo.publishable_key}
               customTextCss="break-all text-sm font-semibold text-jp-gray-800 text-opacity-75"
               customParentClass="flex items-center gap-5"
-              customOnCopyClick={() => {
-                hyperswitchMixPanel(
-                  ~pageName=url.path->LogicUtils.getListHead,
-                  ~contextName="publishable_key",
-                  ~actionName="key_copied",
-                  (),
-                )
-              }}
             />
           </div>
           <UIUtils.RenderIf condition={paymentResponsHashKey->Js.String2.length !== 0}>
@@ -89,14 +73,6 @@ let make = () => {
                 displayValue={paymentResponsHashKey}
                 customTextCss="break-all text-sm font-semibold text-jp-gray-800 text-opacity-75"
                 customParentClass="flex items-center gap-5"
-                customOnCopyClick={() => {
-                  hyperswitchMixPanel(
-                    ~pageName=url.path->LogicUtils.getListHead,
-                    ~contextName="payment_response_hash_key",
-                    ~actionName="key_copied",
-                    (),
-                  )
-                }}
               />
             </div>
           </UIUtils.RenderIf>

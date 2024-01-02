@@ -11,33 +11,13 @@ module ApiEditModal = {
     ~action=Create,
     ~keyId=?,
   ) => {
-    let url = RescriptReactRouter.useUrl()
     let (apiKey, setApiKey) = React.useState(_ => "")
     let (showCustomDate, setShowCustomDate) = React.useState(_ => false)
     let (modalState, setModalState) = React.useState(_ => action)
     let showToast = ToastState.useShowToast()
     let updateDetails = APIUtils.useUpdateMethod()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let setShowCustomDate = val => {
       setShowCustomDate(_ => val)
-    }
-
-    let isNotEmpty = str => str->Js.String2.length > 0 ? "NonEmpty" : "Empty"
-
-    let trackApiKeyDetails = (~description, ~expirationDate) => {
-      let actionText = switch action {
-      | Update => "update"
-      | _ => "create"
-      }
-
-      let valueStr = `description:${description->isNotEmpty}-expiration_date:${expirationDate->isNotEmpty}`
-
-      hyperswitchMixPanel(
-        ~pageName=url.path->LogicUtils.getListHead,
-        ~contextName="api_keys",
-        ~actionName=`${actionText}_key_${valueStr}`,
-        (),
-      )
     }
 
     React.useEffect1(() => {
@@ -79,8 +59,6 @@ module ApiEditModal = {
         }
 
         Js.Dict.set(body, "expiration", expriryValue->Js.Json.string)
-
-        trackApiKeyDetails(~description, ~expirationDate)
 
         setModalState(_ => Loading)
 
@@ -198,8 +176,6 @@ module ApiKeyAddBtn = {
   open DeveloperUtils
   @react.component
   let make = (~getAPIKeyDetails) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     let (showModal, setShowModal) = React.useState(_ => false)
     let initialValues = Js.Dict.empty()
     initialValues->Js.Dict.set("expiration", Never->getStringFromRecordType->Js.Json.string)
@@ -216,12 +192,6 @@ module ApiKeyAddBtn = {
         buttonType=Secondary
         buttonSize=Small
         onClick={_ => {
-          hyperswitchMixPanel(
-            ~pageName=url.path->LogicUtils.getListHead,
-            ~contextName="api_keys",
-            ~actionName="create_new_key",
-            (),
-          )
           setShowModal(_ => true)
         }}
       />
@@ -235,8 +205,6 @@ module TableActionsCell = {
   @react.component
   let make = (~keyId, ~getAPIKeyDetails: unit => promise<unit>, ~data: apiKey) => {
     let showToast = ToastState.useShowToast()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     let (showModal, setShowModal) = React.useState(_ => false)
     let showPopUp = PopUpState.useShowPopUp()
     let deleteDetails = APIUtils.useUpdateMethod()
@@ -273,12 +241,6 @@ module TableActionsCell = {
         handleConfirm: {
           text: `Yes, delete it`,
           onClick: _ => {
-            hyperswitchMixPanel(
-              ~pageName=url.path->LogicUtils.getListHead,
-              ~contextName="api_keys",
-              ~actionName="delete_key",
-              (),
-            )
             deleteKey()->ignore
           },
         },
@@ -304,12 +266,6 @@ module TableActionsCell = {
       <div className="invisible cursor-pointer group-hover:visible flex ">
         <div
           onClick={_ => {
-            hyperswitchMixPanel(
-              ~pageName=url.path->LogicUtils.getListHead,
-              ~contextName="api_keys",
-              ~actionName="update_key",
-              (),
-            )
             setShowModal(_ => true)
           }}>
           <Icon

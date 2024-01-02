@@ -279,7 +279,6 @@ module CheckCustomFilters = {
     ~showAddFilter,
     ~showSelectFiltersSearch,
   ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
     )
@@ -296,8 +295,6 @@ module CheckCustomFilters = {
       } else {
         removeFilters(fieldNameArr, values)
       }
-
-      hyperswitchMixPanel(~eventName=Some("analytics_addfilters"), ())
     }
 
     let selectOptions = options->Js.Array2.map(obj => obj.urlKey)
@@ -554,7 +551,6 @@ let make = (
   ~disableURIdecode=false,
   ~revampedFilter=false,
 ) => {
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let alreadySelectedFiltersUserpref = `remote_filters_selected_keys_${tableName->Belt.Option.getWithDefault(
       "",
     )}`
@@ -966,13 +962,6 @@ let make = (
                       )
                       onClick={_ => {
                         setHideFilters(_ => !hideFilters)
-                        hyperswitchMixPanel(
-                          ~eventName=Some(
-                            `analytics_${hideFilters ? "showfilters" : "hidefilters"}`,
-                          ),
-                          ~description=Some(hideFilters ? "show_filters" : "hide_filters"),
-                          (),
-                        )
                       }}
                     />
                   </div>}
@@ -998,13 +987,6 @@ let make = (
                         }
                         onClick={_ => {
                           setShowFiltersModal(_ => true)
-                          hyperswitchMixPanel(
-                            ~eventName=Some(
-                              `analytics_${hideFilters ? "showfilters" : "hidefilters"}`,
-                            ),
-                            ~description=Some(hideFilters ? "show_filters" : "hide_filters"),
-                            (),
-                          )
                         }}
                       />
                       <UIUtils.RenderIf condition={count > 0 && filterHovered}>
