@@ -139,7 +139,7 @@ let getURL = (
     let userUrl = `user`
     switch userType {
     | #NONE => ""
-    | #VERIFY_MAGIC_LINK => `${userUrl}/v2/signin/verify`
+    | #VERIFY_MAGIC_LINK => `${userUrl}/verify_email`
     | #USER_DATA => `${userUrl}/data`
     | #MERCHANT_DATA => `${userUrl}/data`
     | #INVITE
