@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.18.3 (2024-01-02)
+
+### Bug Fixes
+
+- Scrollbar revert ([#153](https://github.com/juspay/hyperswitch-control-center/pull/153)) ([`731ac50`](https://github.com/juspay/hyperswitch-control-center/commit/731ac503e93d051cf3dc1b34593e91b896105897))
+- Business profile addition modal bugfix ([#152](https://github.com/juspay/hyperswitch-control-center/pull/152)) ([`7075812`](https://github.com/juspay/hyperswitch-control-center/commit/707581209d18e19c9247a551544a317035cd2039))
+- Unnecessary API List count of connectors stop ([#154](https://github.com/juspay/hyperswitch-control-center/pull/154)) ([`40ae278`](https://github.com/juspay/hyperswitch-control-center/commit/40ae2788172c19f05206df59131e6a35e1b70f8e))
+
+### Miscellaneous Tasks
+
+- Mixpanel clearing ([#155](https://github.com/juspay/hyperswitch-control-center/pull/155)) ([`c3a6eaf`](https://github.com/juspay/hyperswitch-control-center/commit/c3a6eaff6f42abc977e8121e1730f2372fc1b5de))
+
+**Full Changelog:** [`v1.18.2...v1.18.3`](https://github.com/juspay/hyperswitch-control-center/compare/v1.18.2...v1.18.3)
+
+- - -
+
+
 ## 1.16.0 (2023-12-26)
 
 ### Features
