@@ -65,7 +65,6 @@ let make = (
     onBlur: _ev => (),
     onChange: ev => {
       let target = ev->Identity.formReactEventToArrayOfString
-      Js.log2("ppp", target)
       maxLengthArray(target, setValues)
     },
     onFocus: _ev => (),
