@@ -171,7 +171,12 @@ module CheckoutCard = {
     let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-    let isConfigureConnector = ListHooks.useListCount(~entityName=CONNECTOR) > 0
+    let connectorList =
+      HyperswitchAtom.connectorListAtom
+      ->Recoil.useRecoilValueFromAtom
+      ->LogicUtils.safeParse
+      ->LogicUtils.getObjectArrayFromJson
+    let isConfigureConnector = connectorList->Array.length > 0
     let urlPath = url.path->Belt.List.toArray->Js.Array2.joinWith("_")
 
     let handleOnClick = _ => {
