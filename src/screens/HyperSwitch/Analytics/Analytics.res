@@ -125,7 +125,7 @@ module TableWrapper = {
 
     let getTopLevelFilter = React.useMemo1(() => {
       getAllFilter
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Belt.Array.keepMap(item => {
         let (key, value) = item
         let keyArr = key->Js.String2.split(".")
@@ -145,7 +145,7 @@ module TableWrapper = {
     let topFiltersToSearchParam = React.useMemo1(() => {
       let filterSearchParam =
         getTopLevelFilter
-        ->Js.Dict.entries
+        ->Dict.toArray
         ->Belt.Array.keepMap(entry => {
           let (key, value) = entry
           if allFilterKeys->Array.includes(key) {
@@ -166,7 +166,7 @@ module TableWrapper = {
 
     let filterValueFromUrl = React.useMemo1(() => {
       getTopLevelFilter
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Belt.Array.keepMap(entries => {
         let (key, value) = entries
         filterKeys->Array.includes(key) ? Some((key, value)) : None
@@ -216,7 +216,7 @@ module TableWrapper = {
             cols->Array.forEach(
               obj => {
                 switch weekklyDataDict->Js.Dict.get(obj.refKey) {
-                | Some(val) => dataDict->Js.Dict.set(obj.newKey, val)
+                | Some(val) => dataDict->Dict.set(obj.newKey, val)
                 | _ => ()
                 }
               },
@@ -342,7 +342,7 @@ module TableWrapper = {
         ("endTime", endTimeFromUrl->Js.Json.string),
       ]->Js.Dict.fromArray
 
-    let filters = filterValueFromUrl->Belt.Option.getWithDefault(Js.Dict.empty()->Js.Json.object_)
+    let filters = filterValueFromUrl->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
 
     let defaultFilters =
       [
@@ -435,7 +435,7 @@ module TabDetails = {
         ("component", "checkout_platform"),
         ("platform", "customer_device"),
       ]->Js.Dict.fromArray
-    | _ => Js.Dict.empty()
+    | _ => Dict.make()
     }
 
     let tab =
@@ -561,7 +561,7 @@ let make = (
 
         let prevDictArr =
           prev
-          ->Js.Dict.entries
+          ->Dict.toArray
           ->Belt.Array.keepMap(item => {
             let (key, _) = item
             switch dict->Js.Dict.get(key) {
@@ -572,7 +572,7 @@ let make = (
 
         let currentDict =
           dict
-          ->Js.Dict.entries
+          ->Dict.toArray
           ->Belt.Array.keepMap(item => {
             let (key, value) = item
             if value !== "" {
@@ -623,7 +623,7 @@ let make = (
   }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
 
   let filterDataOrig = getFilterData(filterUri, Fetch.Post, filterBody)
-  let filterData = filterDataOrig->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty()))
+  let filterData = filterDataOrig->Belt.Option.getWithDefault(Js.Json.object_(Dict.make()))
 
   let activeTab = React.useMemo1(() => {
     Some(
@@ -641,7 +641,7 @@ let make = (
 
   let hideFiltersDefaultValue =
     filterValue
-    ->Js.Dict.keys
+    ->Dict.keysToArray
     ->Array.filter(item => tabKeys->Array.find(key => key == item)->Belt.Option.isSome)
     ->Array.length < 1
 
@@ -699,7 +699,7 @@ let make = (
     </div>
   }
 
-  <UIUtils.RenderIf condition={getModuleFilters->Js.Dict.entries->Array.length > 0}>
+  <UIUtils.RenderIf condition={getModuleFilters->Dict.toArray->Array.length > 0}>
     {switch chartEntity1 {
     | Some(chartEntity) =>
       <div>
@@ -724,7 +724,7 @@ let make = (
               setTotalVolume
               showPercentage=false
               statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(
-                Js.Dict.empty(),
+                Dict.make(),
               )}
             />
           </div>

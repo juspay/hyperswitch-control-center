@@ -327,7 +327,7 @@ module BackendFrontendPlatformLangDropDown = {
       backEndLang === #ChooseLanguage ? "Choose Backend" : (backEndLang :> string)
     }
 
-    <Form initialValues={Js.Dict.empty()->Js.Json.object_}>
+    <Form initialValues={Dict.make()->Js.Json.object_}>
       <div className="flex flex-row gap-4 flex-wrap">
         <UIUtils.RenderIf condition={!isFromLanding && currentRoute !== SampleProjects}>
           <SelectBox.BaseDropdown
@@ -429,8 +429,7 @@ module BackendFrontendPlatformLangDropDown = {
 module LanguageTag = {
   @react.component
   let make = (~frontendLang="", ~backendLang="") => {
-    <UIUtils.RenderIf
-      condition={frontendLang->Js.String2.length > 0 && backendLang->Js.String2.length > 0}>
+    <UIUtils.RenderIf condition={frontendLang->String.length > 0 && backendLang->String.length > 0}>
       <div className="flex gap-2 items-center">
         <Icon name={`${frontendLang}`} size=25 />
         <Icon name={`${backendLang}`} size=25 />
@@ -766,8 +765,7 @@ let getTabsForIntegration = (
               </p>
             </p>}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf
-                condition={backEndLang->getInstallDependencies->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={backEndLang->getInstallDependencies->String.length > 0}>
                 <ShowCodeEditor
                   value={backEndLang->getInstallDependencies}
                   theme
@@ -795,8 +793,7 @@ let getTabsForIntegration = (
         renderContent: () =>
           <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea currentRoute />}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf
-                condition={frontEndLang->getInstallDependencies->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getInstallDependencies->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getInstallDependencies}
                   theme
@@ -807,8 +804,7 @@ let getTabsForIntegration = (
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf
-                condition={frontEndLang->getInstallDependencies->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getInstallDependencies->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getImports}
                   theme
@@ -819,7 +815,7 @@ let getTabsForIntegration = (
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getLoad->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getLoad->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getLoad}
                   theme
@@ -830,7 +826,7 @@ let getTabsForIntegration = (
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getInitialize->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getInitialize->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getInitialize}
                   theme
@@ -842,9 +838,7 @@ let getTabsForIntegration = (
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
               <UIUtils.RenderIf
-                condition={frontEndLang
-                ->getCheckoutFormForDisplayCheckoutPage
-                ->Js.String2.length > 0}>
+                condition={frontEndLang->getCheckoutFormForDisplayCheckoutPage->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getCheckoutFormForDisplayCheckoutPage}
                   theme
@@ -862,7 +856,7 @@ let getTabsForIntegration = (
         renderContent: () =>
           <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea currentRoute />}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf condition={frontEndLang->getHandleEvents->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getHandleEvents->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getHandleEvents}
                   theme
@@ -874,8 +868,7 @@ let getTabsForIntegration = (
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf
-                condition={frontEndLang->getDisplayConformation->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getDisplayConformation->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getDisplayConformation}
                   theme

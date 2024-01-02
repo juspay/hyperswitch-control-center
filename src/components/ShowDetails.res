@@ -11,7 +11,7 @@ module EntityData = {
   @react.component
   let make = (
     ~dictData: Js.Dict.t<Js.Json.t>,
-    ~syncData=Js.Dict.empty(),
+    ~syncData=Dict.make(),
     ~detailsKeyList,
     ~entity: EntityType.entityType<'colType, 't>,
   ) => {

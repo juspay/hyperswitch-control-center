@@ -322,7 +322,7 @@ let getErrCell = (errorTable: errorTable, errColType): Table.cell => {
 }
 
 let getDefaultReportFilters = () => {
-  let filterCreatedDict = Js.Dict.empty()
+  let filterCreatedDict = Dict.make()
 
   let currentDate = Js.Date.now()
 
@@ -332,7 +332,7 @@ let getDefaultReportFilters = () => {
     Js.Date.setDate(presentDayInString, prevDateInFloat)
   }
 
-  Js.Dict.set(filterCreatedDict, "endTime", Js.Json.string(formatDate(prevEndMins)))
+  Dict.set(filterCreatedDict, "endTime", Js.Json.string(formatDate(prevEndMins)))
 
   let prevStartMins = {
     let presentDayInString = Js.Date.fromFloat(currentDate)
@@ -340,17 +340,17 @@ let getDefaultReportFilters = () => {
     Js.Date.setDate(presentDayInString, prevDateInFloat)
   }
 
-  Js.Dict.set(filterCreatedDict, "startTime", Js.Json.string(formatDate(prevStartMins)))
+  Dict.set(filterCreatedDict, "startTime", Js.Json.string(formatDate(prevStartMins)))
 
   filterCreatedDict
 }
 
 let getDefaultFilters = () => {
-  let filterCreatedDict = Js.Dict.empty()
+  let filterCreatedDict = Dict.make()
 
   let currentDate = Js.Date.now()
   let currentTimestamp = currentDate->Js.Date.fromFloat->Js.Date.toISOString
-  filterCreatedDict->Js.Dict.set(
+  filterCreatedDict->Dict.set(
     "endTime",
     Js.Json.string(currentTimestamp->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:ss[Z]")),
   )
@@ -361,7 +361,7 @@ let getDefaultFilters = () => {
     Js.Date.setDate(presentDayInString, prevDateInFloat)
   }
 
-  Js.Dict.set(filterCreatedDict, "startTime", Js.Json.string(formatDate(prevMins)))
+  Dict.set(filterCreatedDict, "startTime", Js.Json.string(formatDate(prevMins)))
 
   filterCreatedDict
 }

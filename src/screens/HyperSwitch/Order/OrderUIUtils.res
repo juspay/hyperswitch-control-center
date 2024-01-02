@@ -106,7 +106,7 @@ let filterByData = (txnArr, value) => {
     let valueArr =
       data
       ->Identity.genericTypeToDictOfJson
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Array.map(item => {
         let (_, value) = item
 
@@ -123,7 +123,7 @@ let initialFilters = json => {
   let filterDict = json->getDictFromJsonObject
 
   filterDict
-  ->Js.Dict.keys
+  ->Dict.keysToArray
   ->Array.filterWithIndex((_item, index) => index <= 3)
   ->Array.map((key): EntityType.initialFilters<'t> => {
     let title = `Select ${key->snakeToTitle}`
@@ -187,7 +187,7 @@ let setData = (
   setScreenState,
   previewOnly,
 ) => {
-  let arr = Belt.Array.make(offset, Js.Dict.empty())
+  let arr = Belt.Array.make(offset, Dict.make())
   if total <= offset {
     setOffset(_ => 0)
   }
@@ -242,7 +242,7 @@ let getOrdersList = async (
 
       if Js.Re.test_(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
         let newID = payment_id->Js.String2.replaceByRe(%re("/_[0-9]$/g"), "")
-        filterValueJson->Js.Dict.set("payment_id", newID->Js.Json.string)
+        filterValueJson->Dict.set("payment_id", newID->Js.Json.string)
 
         let res = await updateDetails(ordersUrl, filterValueJson->Js.Json.object_, Fetch.Post)
         let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])

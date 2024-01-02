@@ -1,6 +1,6 @@
 let generateDefaultUrl = dict => {
   dict
-  ->Js.Dict.entries
+  ->Dict.toArray
   ->Belt.Array.keepMap(entry => {
     let (key, val) = entry
 
@@ -15,7 +15,7 @@ let generateDefaultUrl = dict => {
 }
 
 let updateURLWithDefaultFilter = (~path, ~filterParam, ~filterString) => {
-  if path->Js.String2.length > 0 && filterParam->Js.String2.length == 0 {
+  if path->String.length > 0 && filterParam->String.length == 0 {
     let finalUrl = `${path}?${filterString}`
     RescriptReactRouter.replace(finalUrl)
   }

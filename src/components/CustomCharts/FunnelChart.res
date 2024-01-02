@@ -39,7 +39,7 @@ let make = (
 
   let someData =
     funnelData
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Array.filter(entry => {
       let (_key, value) = entry
       value->LogicUtils.getIntFromJson(0) !== 0

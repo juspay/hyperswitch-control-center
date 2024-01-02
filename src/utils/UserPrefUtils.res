@@ -21,7 +21,7 @@ let convertToModuleVisePref = json => {
   let dict = json->LogicUtils.getDictFromJsonObject
 
   dict
-  ->Js.Dict.keys
+  ->Dict.keysToArray
   ->Array.map(key => {
     let jsonForTheDict = dict->LogicUtils.getDictfromDict(key)
     let value = {
@@ -37,7 +37,7 @@ let convertToModuleVisePref = json => {
 
 let converToUserPref = dict => {
   dict
-  ->Js.Dict.keys
+  ->Dict.keysToArray
   ->Array.map(key => {
     let jsonForTheDict = dict->LogicUtils.getDictfromDict(key)
     let value = {
@@ -57,7 +57,7 @@ let saveUserPref = (userPref: Js.Dict.t<userPref>) => {
   LocalStorage.setItem(
     userPreferenceKeyInLocalStorage,
     userPref
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Array.map(item => {
       let (key, value) = item
       (key, value->userPrefToJson)
@@ -75,10 +75,10 @@ let getUserPref = () => {
     str
     ->LogicUtils.safeParse
     ->Js.Json.decodeObject
-    ->Belt.Option.getWithDefault(Js.Dict.empty())
+    ->Belt.Option.getWithDefault(Dict.make())
     ->converToUserPref
 
-  | None => Js.Dict.empty()
+  | None => Dict.make()
   }
 }
 

@@ -49,7 +49,7 @@ let make = (
       setQuickStartPageState(_ => QuickStartTypes.ConnectProcessor(QuickStartTypes.CHECKOUT))
     } else {
       setSelectedConnector(_ => UnknownConnector(""))
-      setInitialValues(_ => Js.Dict.empty()->Js.Json.object_)
+      setInitialValues(_ => Dict.make()->Js.Json.object_)
       setConnectorConfigureState(_ => Select_processor)
       setQuickStartPageState(_ => ConnectProcessor(CONFIGURE_SECONDARY))
     }

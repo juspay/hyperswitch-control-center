@@ -73,7 +73,7 @@ module CheckoutForm = {
           json->resolve
         })
         ->catch(_e => {
-          Js.Dict.empty()->Js.Json.object_->resolve
+          Dict.make()->Js.Json.object_->resolve
         })
         ->ignore
       }
@@ -177,12 +177,12 @@ module CheckoutForm = {
         ->Js.Json.object_
       hyper.confirmPayment(confirmParams)
       ->then(val => {
-        let resDict = val->Js.Json.decodeObject->Belt.Option.getWithDefault(Js.Dict.empty())
+        let resDict = val->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make())
         let errorDict =
           resDict
           ->Js.Dict.get("error")
           ->Belt.Option.flatMap(Js.Json.decodeObject)
-          ->Belt.Option.getWithDefault(Js.Dict.empty())
+          ->Belt.Option.getWithDefault(Dict.make())
 
         let errorMsg = errorDict->Js.Dict.get("message")
 

@@ -91,11 +91,10 @@ module FilterDropDown = {
     let strokeColor = ""
 
     // Making the options Unique
-    let dummyDict = Js.Dict.empty()
-    arr
-    ->LogicUtils.getStrArrayFromJsonArray
-    ->Array.forEach(item => Js.Dict.set(dummyDict, item, ""))
-    let options = dummyDict->Js.Dict.keys->Array.filter(item => item != "")->SelectBox.makeOptions
+    let dummyDict = Dict.make()
+    arr->LogicUtils.getStrArrayFromJsonArray->Array.forEach(item => Dict.set(dummyDict, item, ""))
+    let options =
+      dummyDict->Dict.keysToArray->Array.filter(item => item != "")->SelectBox.makeOptions
 
     let selectedValue = Js.Dict.get(lclFiltrState, val)->Belt.Option.getWithDefault([])
 

@@ -563,7 +563,7 @@ module Base = {
 
     let btnStyle = customButtonStyle->Belt.Option.getWithDefault("")
 
-    let customStyleForBtn = btnStyle->Js.String2.length > 0 ? btnStyle : customStyle
+    let customStyleForBtn = btnStyle->String.length > 0 ? btnStyle : customStyle
 
     let getDiffForPredefined = predefinedDay => {
       let (stDate, enDate, stTime, enTime) = DateRangeUtils.getPredefinedStartAndEndDate(

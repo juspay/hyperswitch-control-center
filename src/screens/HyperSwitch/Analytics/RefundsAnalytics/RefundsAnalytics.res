@@ -31,8 +31,8 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Post, ~id=Some("refund-post"), ())
-      let body = Js.Dict.empty()
-      body->Js.Dict.set("limit", 100->Belt.Int.toFloat->Js.Json.number)
+      let body = Dict.make()
+      body->Dict.set("limit", 100->Belt.Int.toFloat->Js.Json.number)
       let refundDetails = await updateDetails(refundUrl, body->Js.Json.object_, Post)
       let data = refundDetails->getDictFromJsonObject->getArrayFromDict("data", [])
 

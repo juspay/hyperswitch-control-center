@@ -162,12 +162,12 @@ type chartData<'a> = {
   fillColor?: Highcharts.fillColorSeries,
 }
 let removeDuplicates = (arr: array<chartData<'a>>) => {
-  let uniqueItemsMap = Js.Dict.empty()
+  let uniqueItemsMap = Dict.make()
 
   arr->Array.forEach(item => {
     let value = item.name
     if uniqueItemsMap->Js.Dict.get(value)->Belt.Option.isNone {
-      uniqueItemsMap->Js.Dict.set(value, item)
+      uniqueItemsMap->Dict.set(value, item)
     }
   })
 
@@ -186,7 +186,7 @@ let createGradient = (key: string): Highcharts.fillColorSeries => {
   let color = stringToColor(key)
   let componentToHex = (c: int): string => {
     let hex = Js.Int.toStringWithRadix(c, ~radix=16)
-    if Js.String2.length(hex) < 2 {
+    if String.length(hex) < 2 {
       "0" ++ hex
     } else {
       hex
@@ -254,7 +254,7 @@ let appendToDictValue = (dict, key, value) => {
   | Some(val) => Belt.Array.concat(val, [value])
   | None => [value]
   }
-  dict->Js.Dict.set(key, updatedValue)
+  dict->Dict.set(key, updatedValue)
 }
 
 let addToDictValueFloat = (dict, key, value) => {
@@ -262,7 +262,7 @@ let addToDictValueFloat = (dict, key, value) => {
   | Some(val) => val +. value
   | None => value
   }
-  dict->Js.Dict.set(key, updatedValue)
+  dict->Dict.set(key, updatedValue)
 }
 
 let chartDataSortBasedOnTime = (
@@ -335,8 +335,8 @@ let timeSeriesDataMaker = (
   let yAxis = metricsConfig.metric_name_db
   let metrixType = metricsConfig.metric_type
   let secondryMetrics = metricsConfig.secondryMetrics
-  let timeSeriesDict = Js.Dict.empty() // { name : groupByName, data: array<(value1, value2)>}
-  let groupedByTime = Js.Dict.empty() // {time : [values at that time]}
+  let timeSeriesDict = Dict.make() // { name : groupByName, data: array<(value1, value2)>}
+  let groupedByTime = Dict.make() // {time : [values at that time]}
   let _ = data->Array.map(item => {
     let dict = item->getDictFromJsonObject
 
@@ -367,7 +367,7 @@ let timeSeriesDataMaker = (
     }
   })
 
-  let timeSeriesArr = timeSeriesDict->Js.Dict.entries
+  let timeSeriesArr = timeSeriesDict->Dict.toArray
 
   let chartOverlapping = timeSeriesArr->Array.length
 
@@ -424,7 +424,7 @@ let getLegendDataForCurrentMetrix = (
   ~xAxis: string,
   ~metrixType: dropDownMetricType,
 ) => {
-  let currentAvgDict = Js.Dict.empty()
+  let currentAvgDict = Dict.make()
   let orderedDims = groupedData->Array.map(item => {
     let dict = item->getDictFromJsonObject
     getString(
@@ -452,7 +452,7 @@ let getLegendDataForCurrentMetrix = (
 
   let currentAvgSortedDict =
     currentAvgDict
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Array.map(item => {
       let (key, value) = item
       (key, value->Js.Array2.sortInPlaceWith(sortBasedOnTimeLegend))
@@ -468,7 +468,7 @@ let getLegendDataForCurrentMetrix = (
     ->AnalyticsUtils.sumOfArrFloat
   let currentAvgDict = if groupedData->Array.length === 0 {
     currentAvgDict
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Array.map(item => {
       let (key, value) = item
       let sortedValueBasedOnTime = value->Js.Array2.sortInPlaceWith(sortBasedOnTimeLegend)
@@ -493,21 +493,21 @@ let getLegendDataForCurrentMetrix = (
       value
     })
   } else {
-    let currentOverall = Js.Dict.empty()
+    let currentOverall = Dict.make()
     groupedData->Belt.Array.forEach(item => {
       let dict = item->getDictFromJsonObject
-      currentOverall->Js.Dict.set(getString(dict, activeTab, ""), getFloat(dict, yAxis, 0.))
+      currentOverall->Dict.set(getString(dict, activeTab, ""), getFloat(dict, yAxis, 0.))
     })
     let totalOverall =
       currentOverall
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Array.map(item => {
         let (_, value) = item
         value
       })
       ->AnalyticsUtils.sumOfArrFloat
     currentAvgDict
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Array.map(item => {
       let (metricsName, value) = item
       let sortedValueBasedOnTime = value->Js.Array2.sortInPlaceWith(sortBasedOnTimeLegend)
@@ -550,7 +550,7 @@ let getLegendDataForCurrentMetrix = (
 }
 
 let barChartDataMaker = (~yAxis: string, ~rawData: array<Js.Json.t>, ~activeTab: string) => {
-  let _overallDataDict = Js.Dict.empty()
+  let _overallDataDict = Dict.make()
 
   let value = rawData->Belt.Array.keepMap(item => {
     let dict = item->getDictFromJsonObject

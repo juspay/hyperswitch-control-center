@@ -22,7 +22,7 @@ module ApiEditModal = {
       setShowCustomDate(_ => val)
     }
 
-    let isNotEmpty = str => str->Js.String2.length > 0 ? "NonEmpty" : "Empty"
+    let isNotEmpty = str => str->String.length > 0 ? "NonEmpty" : "Empty"
 
     let trackApiKeyDetails = (~description, ~expirationDate) => {
       let actionText = switch action {
@@ -64,10 +64,10 @@ module ApiEditModal = {
       try {
         let valuesDict = values->LogicUtils.getDictFromJsonObject
 
-        let body = Js.Dict.empty()
-        Js.Dict.set(body, "name", valuesDict->LogicUtils.getString("name", "")->Js.Json.string)
+        let body = Dict.make()
+        Dict.set(body, "name", valuesDict->LogicUtils.getString("name", "")->Js.Json.string)
         let description = valuesDict->LogicUtils.getString("description", "")
-        Js.Dict.set(body, "description", description->Js.Json.string)
+        Dict.set(body, "description", description->Js.Json.string)
 
         let expirationDate = valuesDict->LogicUtils.getString("expiration_date", "")
 
@@ -78,7 +78,7 @@ module ApiEditModal = {
         | _ => Never->getStringFromRecordType
         }
 
-        Js.Dict.set(body, "expiration", expriryValue->Js.Json.string)
+        Dict.set(body, "expiration", expriryValue->Js.Json.string)
 
         trackApiKeyDetails(~description, ~expirationDate)
 
@@ -201,8 +201,8 @@ module ApiKeyAddBtn = {
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let url = RescriptReactRouter.useUrl()
     let (showModal, setShowModal) = React.useState(_ => false)
-    let initialValues = Js.Dict.empty()
-    initialValues->Js.Dict.set("expiration", Never->getStringFromRecordType->Js.Json.string)
+    let initialValues = Dict.make()
+    initialValues->Dict.set("expiration", Never->getStringFromRecordType->Js.Json.string)
 
     <>
       <ApiEditModal showModal setShowModal initialValues getAPIKeyDetails />
@@ -242,9 +242,9 @@ module TableActionsCell = {
     let deleteDetails = APIUtils.useUpdateMethod()
     let deleteKey = async () => {
       try {
-        let body = Js.Dict.empty()
-        Js.Dict.set(body, "key_id", keyId->Js.Json.string)
-        Js.Dict.set(body, "revoked", true->Js.Json.boolean)
+        let body = Dict.make()
+        Dict.set(body, "key_id", keyId->Js.Json.string)
+        Dict.set(body, "revoked", true->Js.Json.boolean)
 
         let deleteUrl = APIUtils.getURL(
           ~entityName=API_KEYS,
@@ -291,10 +291,10 @@ module TableActionsCell = {
     ])
 
     if data.expiration == Never {
-      initialValues->Js.Dict.set("expiration", Never->getStringFromRecordType->Js.Json.string)
+      initialValues->Dict.set("expiration", Never->getStringFromRecordType->Js.Json.string)
     } else {
-      initialValues->Js.Dict.set("expiration", Custom->getStringFromRecordType->Js.Json.string)
-      initialValues->Js.Dict.set("expiration_date", data.expiration_date->Js.Json.string)
+      initialValues->Dict.set("expiration", Custom->getStringFromRecordType->Js.Json.string)
+      initialValues->Dict.set("expiration_date", data.expiration_date->Js.Json.string)
     }
 
     <div>

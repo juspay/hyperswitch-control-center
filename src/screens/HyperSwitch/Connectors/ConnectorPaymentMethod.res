@@ -16,9 +16,9 @@ let make = (
   let url = RescriptReactRouter.useUrl()
   let _showAdvancedConfiguration = false
   let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
-    Js.Dict.empty()->Js.Json.object_->getPaymentMethodEnabled
+    Dict.make()->Js.Json.object_->getPaymentMethodEnabled
   )
-  let (metaData, setMetaData) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
+  let (metaData, setMetaData) = React.useState(_ => Dict.make()->Js.Json.object_)
   let showToast = ToastState.useShowToast()
   let connectorID = initialValues->getDictFromJsonObject->getOptionString("merchant_connector_id")
   let (screenState, setScreenState) = React.useState(_ => Loading)

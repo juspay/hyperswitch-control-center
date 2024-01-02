@@ -16,7 +16,7 @@ type dateTimeFloat = {
 }
 
 let formatter = str => {
-  let strLen = str->Js.String2.length
+  let strLen = str->String.length
   strLen == 0 ? "00" : strLen == 1 ? `0${str}` : str
 }
 
@@ -138,8 +138,8 @@ let useCustomTimeZoneToIsoString = () => {
       let timeZoneData = selectedTimeZoneData
       let timezone = timeZoneData.offset
 
-      let monthString = Js.String2.length(month) == 1 ? `0${month}` : month
-      let dayString = Js.String2.length(day) == 1 ? `0${day}` : day
+      let monthString = String.length(month) == 1 ? `0${month}` : month
+      let dayString = String.length(day) == 1 ? `0${day}` : day
       let hoursString = formatter(hours)
       let minutesString = formatter(minutes)
 

@@ -16,7 +16,7 @@ let getRefundsList = async (
     let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
-    let arr = Belt.Array.make(offset, Js.Dict.empty())
+    let arr = Belt.Array.make(offset, Dict.make())
     if total <= offset {
       setOffset(_ => 0)
     }
@@ -57,7 +57,7 @@ let filterByData = (txnArr, value) => {
     let valueArr =
       data
       ->Identity.genericTypeToDictOfJson
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Array.map(item => {
         let (_, value) = item
 
@@ -101,7 +101,7 @@ let initialFilters = json => {
   let filterDict = json->getDictFromJsonObject
 
   filterDict
-  ->Js.Dict.keys
+  ->Dict.keysToArray
   ->Array.filterWithIndex((_item, index) => index <= 2)
   ->Array.map((key): EntityType.initialFilters<'t> => {
     let title = `Select ${key->snakeToTitle}`

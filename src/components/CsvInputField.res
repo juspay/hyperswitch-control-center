@@ -49,7 +49,7 @@ let make = (
         if Array.length(dict_arr) != 0 {
           switch dict_arr[0]->Belt.Option.getWithDefault(Js.Json.null)->Js.Json.decodeObject {
           | Some(obj) => {
-              let key = Js.Dict.keys(obj)
+              let key = Dict.keysToArray(obj)
               let strval = key[0]->Belt.Option.getWithDefault("")
               strval
             }
@@ -69,7 +69,7 @@ let make = (
         ->Belt.Array.get(0)
         ->Belt.Option.flatMap(Js.Json.decodeObject)
         ->Belt.Option.map(obj => {
-          let computedHeading = obj->Js.Dict.keys->Array.joinWith(",")
+          let computedHeading = obj->Dict.keysToArray->Array.joinWith(",")
           //if existing keys match heading
           computedHeading === heading
         })
@@ -80,10 +80,10 @@ let make = (
           let valCheck = dict_arr->Array.map(item => {
             let itemCheck = switch item->Js.Json.decodeObject {
             | Some(val) => {
-                let fieldCheck = val->Js.Dict.entries->Js.Array2.reduce((acc, entry) => {
+                let fieldCheck = val->Dict.toArray->Js.Array2.reduce((acc, entry) => {
                     let (_key, value) = entry
                     let acc = switch value->Js.Json.decodeString {
-                    | Some(str) => ignoreEmptySpace ? true : str->Js.String2.length != 0
+                    | Some(str) => ignoreEmptySpace ? true : str->String.length != 0
                     | None => acc
                     }
                     acc
@@ -150,7 +150,7 @@ let make = (
             | Some(regexStr) => {
                 let regex = Js.Re.fromString(regexStr)
                 let errorLines = []
-                jsonToarr(res)->Js.Array2.forEachi((item, i) => {
+                jsonToarr(res)->Array.forEachWithIndex((item, i) => {
                   item
                   ->Js.Dict.values
                   ->Array.forEach(value => {

@@ -17,7 +17,7 @@ module BaseComponent = {
       <div className="flex justify-between items-center px-10 pt-6">
         <div className="flex gap-2 items-center">
           <UIUtils.RenderIf
-            condition={customIcon->Belt.Option.isNone && headerLeftIcon->Js.String2.length > 0}>
+            condition={customIcon->Belt.Option.isNone && headerLeftIcon->String.length > 0}>
             <Icon name=headerLeftIcon size=25 />
           </UIUtils.RenderIf>
           <UIUtils.RenderIf condition={customIcon->Belt.Option.isSome}>
@@ -164,7 +164,7 @@ module HorizontalChoiceTile = {
             />
           </div>
           <UIUtils.RenderIf
-            condition={items.imageLink->Belt.Option.getWithDefault("")->Js.String2.length > 0}>
+            condition={items.imageLink->Belt.Option.getWithDefault("")->String.length > 0}>
             <img alt="" src={items.imageLink->Belt.Option.getWithDefault("")} />
           </UIUtils.RenderIf>
           <div className="flex gap-2 items-center ">

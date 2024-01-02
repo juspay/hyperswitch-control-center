@@ -58,9 +58,9 @@ module SelectPaymentMethods = {
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
 
     let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
-      Js.Dict.empty()->Js.Json.object_->ConnectorUtils.getPaymentMethodEnabled
+      Dict.make()->Js.Json.object_->ConnectorUtils.getPaymentMethodEnabled
     )
-    let (metaData, setMetaData) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
+    let (metaData, setMetaData) = React.useState(_ => Dict.make()->Js.Json.object_)
 
     let updateDetails = value => {
       setPaymentMethods(_ => value->Array.copy)
@@ -79,12 +79,12 @@ module SelectPaymentMethods = {
 
         let enumRecoilUpdateArr = []
 
-        if enums.firstProcessorConnected.processorID->Js.String2.length === 0 {
+        if enums.firstProcessorConnected.processorID->String.length === 0 {
           let _ = await body->postEnumDetails(#FirstProcessorConnected)
           enumRecoilUpdateArr->Array.push((body, #FirstProcessorConnected))
         }
 
-        if enums.configurationType->Js.String2.length === 0 {
+        if enums.configurationType->String.length === 0 {
           let _ =
             await StringEnumType(
               #MultipleProcessorWithSmartRouting->connectorChoiceVariantToString,

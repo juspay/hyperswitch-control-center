@@ -634,7 +634,7 @@ module Base = {
 
     let btnStyle = customButtonStyle->Belt.Option.getWithDefault("")
 
-    let customStyleForBtn = btnStyle->Js.String2.length > 0 ? btnStyle : ""
+    let customStyleForBtn = btnStyle->String.length > 0 ? btnStyle : ""
 
     let timeVisibilityClass = showTime ? "block" : "hidden"
 

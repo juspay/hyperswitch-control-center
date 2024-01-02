@@ -31,7 +31,7 @@ module RenderedComponent = {
     ->Array.mapWithIndex((item, i) => {
       if (
         Js.String2.toLowerCase(item) == Js.String2.toLowerCase(searchText) &&
-          Js.String2.length(searchText) > 0
+          String.length(searchText) > 0
       ) {
         <mark
           key={i->string_of_int}
@@ -169,7 +169,7 @@ let make = () => {
   let prefix = LogicUtils.useUrlPrefix()
 
   React.useEffect2(() => {
-    if searchText->Js.String2.length > 0 && arr->Array.length === 0 {
+    if searchText->String.length > 0 && arr->Array.length === 0 {
       hyperswitchMixPanel(
         ~eventName=Some("open_searchbar_resultnotfound"),
         ~description=Some(searchText),
@@ -181,7 +181,7 @@ let make = () => {
 
   let redirectOnSelect = (element, mixpanelActionName) => {
     let redirectLink = element->LogicUtils.getString("redirect_link", "")
-    if redirectLink->Js.String2.length > 0 {
+    if redirectLink->String.length > 0 {
       setShowModal(_ => false)
       hyperswitchMixPanel(
         ~pageName=url.path->LogicUtils.getListHead,
@@ -308,7 +308,7 @@ let make = () => {
                                 let elementValue =
                                   item->Js.Json.decodeString->Belt.Option.getWithDefault("")
                                 <UIUtils.RenderIf
-                                  condition={elementValue->Js.String2.length > 0}
+                                  condition={elementValue->String.length > 0}
                                   key={index->string_of_int}>
                                   <RenderedComponent ele=elementValue searchText />
                                   <UIUtils.RenderIf
@@ -332,8 +332,7 @@ let make = () => {
               </div>
             }}
           </Combobox>
-          <UIUtils.RenderIf
-            condition={searchText->Js.String2.length > 0 && arr->Array.length === 0}>
+          <UIUtils.RenderIf condition={searchText->String.length > 0 && arr->Array.length === 0}>
             <div className="flex flex-col w-full h-72 p-2 justify-center items-center gap-1">
               <img className="w-1/3" src={`${prefix}/icons/globalSearchNoResult.svg`} />
               <div> {`No Results for ${searchText}`->React.string} </div>

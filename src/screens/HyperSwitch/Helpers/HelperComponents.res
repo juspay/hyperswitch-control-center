@@ -20,7 +20,7 @@ module CopyTextCustomComp = {
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
     }
 
-    if displayValue->Js.String2.length > 0 {
+    if displayValue->String.length > 0 {
       <div className=customParentClass>
         <div className=customTextCss> {displayValue->React.string} </div>
         <img
@@ -77,7 +77,7 @@ module BluredTableComponent = {
         ->Array.mapWithIndex((value, index) => {
           <div className="flex gap-8 my-10 justify-between" key={index->string_of_int}>
             {value
-            ->Js.Dict.keys
+            ->Dict.keysToArray
             ->Array.mapWithIndex((tableVal, ind) =>
               <div
                 className="flex justify-center text-grey-700 opacity-50" key={ind->string_of_int}>
@@ -100,7 +100,7 @@ module BluredTableComponent = {
             buttonType={Primary}
             onClick={_ => {
               hyperswitchMixPanel(~eventName=mixPanelEventName, ())
-              onClickUrl->Js.String2.length > 0
+              onClickUrl->String.length > 0
                 ? RescriptReactRouter.push(onClickUrl)
                 : setPaymentModal(_ => true)
             }}

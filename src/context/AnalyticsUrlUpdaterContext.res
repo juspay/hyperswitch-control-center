@@ -1,4 +1,4 @@
-let defaultValue: Js.Dict.t<string> = Js.Dict.empty()
+let defaultValue: Js.Dict.t<string> = Dict.make()
 let setDefaultValue: Js.Dict.t<string> => unit = _dict => ()
 let nameSpace: string = ""
 let setDefaultNameSpace: string => unit = _ => ()
@@ -12,10 +12,10 @@ type urlUpdater = {
 }
 
 let urlUpdater = {
-  filterValue: Js.Dict.empty(),
+  filterValue: Dict.make(),
   updateExistingKeys: _dict => (),
   removeKeys: _arr => (),
-  filterValueJson: Js.Dict.empty(),
+  filterValueJson: Dict.make(),
   reset: () => (),
 }
 
@@ -46,7 +46,7 @@ let make = (~children) => {
       setUrlDict(prev => {
         let prevDictArr =
           prev
-          ->Js.Dict.entries
+          ->Dict.toArray
           ->Belt.Array.keepMap(
             item => {
               let (key, value) = item
@@ -58,7 +58,7 @@ let make = (~children) => {
           )
         let currentDictArr =
           dict
-          ->Js.Dict.entries
+          ->Dict.toArray
           ->Array.filter(
             item => {
               let (_, value) = item
@@ -76,13 +76,13 @@ let make = (~children) => {
     }
 
     let reset = () => {
-      setUrlDict(_ => Js.Dict.empty())
+      setUrlDict(_ => Dict.make())
     }
 
     let removeKeys = (arr: array<string>) => {
       setUrlDict(prev => {
         let updatedDict =
-          prev->Js.Dict.entries->Array.copy->Js.Dict.fromArray->DictionaryUtils.deleteKeys(arr)
+          prev->Dict.toArray->Array.copy->Js.Dict.fromArray->DictionaryUtils.deleteKeys(arr)
         if DictionaryUtils.equalDicts(updatedDict, prev) {
           prev
         } else {
@@ -95,7 +95,7 @@ let make = (~children) => {
       updateExistingKeys: updateUrl,
       removeKeys,
       filterValueJson: urlDict
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Array.map(item => {
         let (key, value) = item
         (key, value->UrlFetchUtils.getFilterValue)

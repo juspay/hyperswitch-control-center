@@ -32,14 +32,14 @@ module VolumeRoutingView = {
 
     let initalValue = switch initialRule {
     | Some(initialRule) => initialRule
-    | None => Js.Dict.empty()
+    | None => Dict.make()
     }
 
     let gateways =
       initalValue
       ->getJsonObjectFromDict("json")
       ->getDictFromJsonObject
-      ->getObj("volumeBasedDistribution", Js.Dict.empty())
+      ->getObj("volumeBasedDistribution", Dict.make())
       ->getArrayFromDict("gateways", [])
 
     let onSubmit = async (values, isSaveRule) => {
@@ -60,7 +60,7 @@ module VolumeRoutingView = {
           ->getDictFromJsonObject
           ->getJsonObjectFromDict("volumeBasedDistribution")
           ->Js.Json.decodeObject
-          ->Belt.Option.getWithDefault(Js.Dict.empty())
+          ->Belt.Option.getWithDefault(Dict.make())
           ->getArrayFromDict("gateways", [])
         let payload = getVolumeSplit(data, itemBodyGateWayObjMapper, Some(connectorList))
 
@@ -101,7 +101,7 @@ module VolumeRoutingView = {
     }
 
     let validate = (values: Js.Json.t) => {
-      let errors = Js.Dict.empty()
+      let errors = Dict.make()
       let dict = values->getDictFromJsonObject
       let validateGateways = dict => {
         let gateways = dict->getArrayFromDict("gateways", [])
@@ -129,10 +129,10 @@ module VolumeRoutingView = {
       }
 
       let volumeBasedDistributionDict =
-        dict->getObj("json", Js.Dict.empty())->getObj("volumeBasedDistribution", Js.Dict.empty())
+        dict->getObj("json", Dict.make())->getObj("volumeBasedDistribution", Dict.make())
 
       switch volumeBasedDistributionDict->validateGateways {
-      | Some(error) => errors->Js.Dict.set("Volume Based Distribution", error->Js.Json.string)
+      | Some(error) => errors->Dict.set("Volume Based Distribution", error->Js.Json.string)
       | None => ()
       }
 
@@ -142,7 +142,7 @@ module VolumeRoutingView = {
       try {
         setScreenState(_ => Loading)
         let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-        let _ = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
+        let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
         showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(`/routing?`)
         setScreenState(_ => Success)
@@ -341,7 +341,7 @@ let make = (~routingRuleId, ~isActive) => {
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
   let (formState, setFormState) = React.useState(_ => AdvancedRoutingTypes.EditReplica)
   let (initialRule, setInitialRule) = React.useState(() => None)
-  let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty())
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (pageState, setPageState) = React.useState(() => Create)
@@ -365,7 +365,7 @@ let make = (~routingRuleId, ~isActive) => {
     let algorithm =
       routingJson
       ->getDictFromJsonObject
-      ->getObj("algorithm", Js.Dict.empty())
+      ->getObj("algorithm", Dict.make())
       ->getArrayFromDict("data", [])
 
     let volumeBasedGatewayDistribution = RoutingUtils.getVolumeSplit(

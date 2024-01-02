@@ -19,7 +19,7 @@ let checkBoxPropDefaultVal: checkBoxProps = {
   setSelectedData: _ => (),
 }
 
-let sortAtom: Recoil.recoilAtom<Js.Dict.t<sortOb>> = Recoil.atom(. "sortAtom", Js.Dict.empty())
+let sortAtom: Recoil.recoilAtom<Js.Dict.t<sortOb>> = Recoil.atom(. "sortAtom", Dict.make())
 
 let backgroundClass = "bg-gray-50 dark:bg-jp-gray-darkgray_background"
 
@@ -58,8 +58,8 @@ let useSortedObj = (title: string, defaultSort) => {
       }
 
       setDict(.dict => {
-        let nDict = Js.Dict.fromArray(Js.Dict.entries(dict))
-        Js.Dict.set(nDict, title, sortOb)
+        let nDict = Js.Dict.fromArray(Dict.toArray(dict))
+        Dict.set(nDict, title, sortOb)
         nDict
       })
     | _ => ()
@@ -134,7 +134,7 @@ type pageDetails = {
 
 let table_pageDetails: Recoil.recoilAtom<Js.Dict.t<pageDetails>> = Recoil.atom(.
   "table_pageDetails",
-  Js.Dict.empty(),
+  Dict.make(),
 )
 
 @react.component
@@ -267,9 +267,9 @@ let make = (
     | None => {offset: offsetVal(0), resultsPerPage: defaultValue.resultsPerPage}
     }
 
-    let newDict = pageDetailDict->Js.Dict.entries->Js.Dict.fromArray
+    let newDict = pageDetailDict->Dict.toArray->Js.Dict.fromArray
 
-    newDict->Js.Dict.set(title, value)
+    newDict->Dict.set(title, value)
     setOffset(_ => offsetVal(0))
     setPageDetails(._ => newDict)
   }
@@ -288,8 +288,8 @@ let make = (
       | None => {offset, resultsPerPage: defaultValue.resultsPerPage}
       }
 
-      let newDict = pageDetailDict->Js.Dict.entries->Js.Dict.fromArray
-      newDict->Js.Dict.set(title, value)
+      let newDict = pageDetailDict->Dict.toArray->Js.Dict.fromArray
+      newDict->Dict.set(title, value)
       setPageDetails(._ => newDict)
     }
     None
@@ -305,13 +305,13 @@ let make = (
       }
     | None => {offset: defaultValue.offset, resultsPerPage: localResultsPerPage(0)}
     }
-    let newDict = pageDetailDict->Js.Dict.entries->Js.Dict.fromArray
+    let newDict = pageDetailDict->Dict.toArray->Js.Dict.fromArray
 
-    newDict->Js.Dict.set(title, value)
+    newDict->Dict.set(title, value)
     setPageDetails(._ => newDict)
   }
 
-  let (columnFilter, setColumnFilterOrig) = React.useState(_ => Js.Dict.empty())
+  let (columnFilter, setColumnFilterOrig) = React.useState(_ => Dict.make())
   let isMobileView = MatchMedia.useMobileChecker()
   let url = RescriptReactRouter.useUrl()
   let dateFormatConvertor = useDateFormatConvertor()
@@ -324,7 +324,7 @@ let make = (
   let setColumnFilter = React.useMemo1(() => {
     (filterKey, filterValue: array<Js.Json.t>) => {
       setColumnFilterOrig(oldFitlers => {
-        let newObj = oldFitlers->Js.Dict.entries->Js.Dict.fromArray
+        let newObj = oldFitlers->Dict.toArray->Js.Dict.fromArray
         let filterValue = filterValue->Array.filter(
           item => {
             let updatedItem = item->Js.String.make
@@ -333,7 +333,7 @@ let make = (
         )
         if filterValue->Array.length === 0 {
           newObj
-          ->Js.Dict.entries
+          ->Dict.toArray
           ->Array.filter(
             entry => {
               let (key, _value) = entry
@@ -342,7 +342,7 @@ let make = (
           )
           ->Js.Dict.fromArray
         } else {
-          Js.Dict.set(newObj, filterKey, filterValue)
+          Dict.set(newObj, filterKey, filterValue)
           newObj
         }
       })
@@ -350,7 +350,7 @@ let make = (
   }, [setColumnFilterOrig])
 
   React.useEffect1(_ => {
-    if columnFilter != Js.Dict.empty() {
+    if columnFilter != Dict.make() {
       newSetOffset(_ => 0)
     }
     None
@@ -360,12 +360,12 @@ let make = (
     (columnFilter, setColumnFilter)
   }, (columnFilter, setColumnFilter))
 
-  let (isFilterOpen, setIsFilterOpenOrig) = React.useState(_ => Js.Dict.empty())
+  let (isFilterOpen, setIsFilterOpenOrig) = React.useState(_ => Dict.make())
   let setIsFilterOpen = React.useMemo1(() => {
     (filterKey, value: bool) => {
       setIsFilterOpenOrig(oldFitlers => {
         let newObj = oldFitlers->DictionaryUtils.copyOfDict
-        newObj->Js.Dict.set(filterKey, value)
+        newObj->Dict.set(filterKey, value)
         newObj
       })
     }
@@ -450,7 +450,7 @@ let make = (
           let columnFilterCopy = columnFilter->DictionaryUtils.deleteKey(key)
 
           let actualData =
-            columnFilter->Js.Dict.keys->Array.includes(headingEntity.key)
+            columnFilter->Dict.keysToArray->Array.includes(headingEntity.key)
               ? originalActualData
               : actualData
 
@@ -517,7 +517,7 @@ let make = (
   let sortArray = useSortArray()
 
   let filteredDataLength =
-    columnFilter->Js.Dict.keys->Array.length !== 0 ? actualData->Array.length : totalResults
+    columnFilter->Dict.keysToArray->Array.length !== 0 ? actualData->Array.length : totalResults
 
   React.useEffect1(() => {
     switch setExtFilteredDataLength {

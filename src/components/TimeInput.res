@@ -1,6 +1,6 @@
 let padNum = num => {
   let str = num->Belt.Int.toString
-  if str->Js.String2.length === 1 {
+  if str->String.length === 1 {
     `0${str}`
   } else {
     str

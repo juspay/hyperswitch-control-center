@@ -49,7 +49,7 @@ module TextFieldRow = {
 
 let setMerchantDetails = (key, value) => {
   let localStorageData = getInfoFromLocalStorage(~lStorageKey="merchant")
-  localStorageData->Js.Dict.set(key, value)
+  localStorageData->Dict.set(key, value)
 
   "merchant"->LocalStorage.setItem(
     localStorageData->Js.Json.stringifyAny->Belt.Option.getWithDefault(""),
@@ -59,7 +59,7 @@ let setMerchantDetails = (key, value) => {
 // TODO : Remove once user-management flow introduces
 let setUserDetails = (key, value) => {
   let localStorageData = getInfoFromLocalStorage(~lStorageKey="user")
-  localStorageData->Js.Dict.set(key, value)
+  localStorageData->Dict.set(key, value)
   "user"->LocalStorage.setItem(
     localStorageData->Js.Json.stringifyAny->Belt.Option.getWithDefault(""),
   )
@@ -76,7 +76,7 @@ let getSearchOptionsForProcessors = (~processorList, ~getNameFromString) => {
 module ConnectorCustomCell = {
   @react.component
   let make = (~connectorName) => {
-    if connectorName->Js.String2.length > 0 {
+    if connectorName->String.length > 0 {
       <div className="flex items-center flex-nowrap break-all whitespace-nowrap mr-6">
         <GatewayIcon gateway={connectorName->Js.String2.toUpperCase} className="w-6 h-6 mr-2" />
         <div className="capitalize"> {connectorName->React.string} </div>
@@ -272,7 +272,7 @@ let constructOnboardingBody = (
   ])->Js.Json.object_
 }
 
-let isEmptyString = str => str->Js.String2.length <= 0
+let isEmptyString = str => str->String.length <= 0
 
 type textVariantType =
   | H1
@@ -303,8 +303,8 @@ let getTextClass = (~textVariant, ~h3TextVariant=Leading_1, ~paragraphTextVarian
 }
 
 let checkStripePlusPayPal = (enumDetails: QuickStartTypes.responseType) => {
-  enumDetails.stripeConnected.processorID->Js.String2.length > 0 &&
-  enumDetails.paypalConnected.processorID->Js.String2.length > 0 &&
+  enumDetails.stripeConnected.processorID->String.length > 0 &&
+  enumDetails.paypalConnected.processorID->String.length > 0 &&
   enumDetails.sPTestPayment
     ? true
     : false
@@ -312,7 +312,7 @@ let checkStripePlusPayPal = (enumDetails: QuickStartTypes.responseType) => {
 
 let checkWooCommerce = (enumDetails: QuickStartTypes.responseType) => {
   enumDetails.setupWoocomWebhook &&
-  enumDetails.firstProcessorConnected.processorID->Js.String2.length > 0
+  enumDetails.firstProcessorConnected.processorID->String.length > 0
     ? true
     : false
 }

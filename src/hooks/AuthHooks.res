@@ -22,7 +22,7 @@ let getHeaders = (~uri, ~headers, ()) => {
     Fetch.HeadersInit.make(headerObj)
   } else {
     let headerObj =
-      headers->Js.Dict.get("api-key")->Belt.Option.getWithDefault("")->Js.String2.length > 0
+      headers->Js.Dict.get("api-key")->Belt.Option.getWithDefault("")->String.length > 0
 
     if headerObj {
       let headerObj = {
@@ -82,7 +82,7 @@ let useApiFetcher = () => {
     (
       uri,
       ~bodyStr: string="",
-      ~headers=Js.Dict.empty(),
+      ~headers=Dict.make(),
       ~bodyHeader as _=?,
       ~method_: Fetch.requestMethod,
       ~authToken as _=?,

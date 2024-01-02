@@ -2,9 +2,9 @@ let parseUrlIntoDict = queryUrl => {
   let arr =
     queryUrl->Js.Global.decodeURI->Js.String2.split("&")->Array.map(e => e->Js.String2.split("="))
   let safeArray = arr->Array.filter(e => e->Array.length == 2)
-  let dict: Js.Dict.t<string> = Js.Dict.empty()
+  let dict: Js.Dict.t<string> = Dict.make()
   safeArray->Array.forEach(e => {
-    dict->Js.Dict.set(
+    dict->Dict.set(
       e->Belt.Array.get(0)->Belt.Option.getWithDefault(""),
       e->Belt.Array.get(1)->Belt.Option.getWithDefault(""),
     )
@@ -18,16 +18,16 @@ let changeSearchValue = (~arr: array<queryInput>, ~queryUrl, ~path) => {
   let dict = parseUrlIntoDict(queryUrl)
   arr->Array.forEach(query => {
     switch query {
-    | String(key, val) => dict->Js.Dict.set(key, val)
+    | String(key, val) => dict->Dict.set(key, val)
     | Array(key, val) =>
-      dict->Js.Dict.set(
+      dict->Dict.set(
         key,
         `[${val->Js.Array2.reducei((acc, e, i) => `${acc}${i == 0 ? "" : ","}${e}`, "")}]`,
       )
     }
   })
   let path = path->Belt.List.reduce("", (acc, item) => `${acc}/${item}`)
-  let entry = dict->Js.Dict.entries
+  let entry = dict->Dict.toArray
   let query =
     entry->Js.Array2.reducei(
       (acc, (key, value), i) => `${acc}${i == 0 ? "" : "&"}${key}=${value}`,

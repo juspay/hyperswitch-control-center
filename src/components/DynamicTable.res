@@ -1,6 +1,6 @@
 let useRemoteFilter = (~searchParams, ~remoteFilters, ~remoteOptions, ~mandatoryRemoteKeys) => {
   let (remoteFiltersFromUrl, setRemoteFiltersFromUrl) = React.useState(() =>
-    Js.Json.object_(Js.Dict.empty())
+    Js.Json.object_(Dict.make())
   )
 
   let remoteFiltersFromUrlTemp = React.useMemo1(() => {
@@ -52,7 +52,7 @@ let make = (
   ~isEulerOrderEntity=false,
   ~tableLocalFilter=false,
   ~dropdownSearchKeyValueNames=[],
-  ~searchkeysDict=Js.Dict.empty(),
+  ~searchkeysDict=Dict.make(),
   ~mandatoryRemoteKeys=[],
   ~isSearchKeyArray=false,
   ~forcePreventConcatData=false,
@@ -96,7 +96,7 @@ let make = (
   ~disableURIdecode=false,
   ~mergeBodytoRemoteFilterDict=false,
   ~defaultKeysAllowed=?,
-  ~urlKeyTypeDict: Js.Dict.t<RemoteFiltersUtils.urlKEyType>=Js.Dict.empty(),
+  ~urlKeyTypeDict: Js.Dict.t<RemoteFiltersUtils.urlKEyType>=Dict.make(),
 ) => {
   let {
     getObjects,
@@ -195,8 +195,8 @@ let make = (
 
     let setNewData = sampleRes => {
       if (
-        (remoteFiltersFromUrl->LogicUtils.getDictFromJsonObject != Js.Dict.empty() &&
-          offset == 0) || forcePreventConcatData
+        (remoteFiltersFromUrl->LogicUtils.getDictFromJsonObject != Dict.make() && offset == 0) ||
+          forcePreventConcatData
       ) {
         clearData()
       }
@@ -208,7 +208,7 @@ let make = (
     }
 
     let getCustomUri = (uri, searchValueDict) => {
-      let uriList = Js.Dict.keys(searchValueDict)->Array.map(val => {
+      let uriList = Dict.keysToArray(searchValueDict)->Array.map(val => {
         let defaultFilterOffset =
           defaultFilters->LogicUtils.getDictFromJsonObject->LogicUtils.getInt("offset", 0)
         let dictValue = if val === "offset" {
@@ -329,11 +329,11 @@ let make = (
       let newDefaultFilter =
         defaultFilters
         ->Js.Json.decodeObject
-        ->Belt.Option.getWithDefault(Js.Dict.empty())
-        ->Js.Dict.entries
+        ->Belt.Option.getWithDefault(Dict.make())
+        ->Dict.toArray
         ->Js.Dict.fromArray
 
-      Js.Dict.set(newDefaultFilter, "offset", rowFetched->Js.Int.toFloat->Js.Json.number)
+      Dict.set(newDefaultFilter, "offset", rowFetched->Js.Int.toFloat->Js.Json.number)
       setDefaultFilters(_ => newDefaultFilter->Js.Json.object_)
     }
   }

@@ -8,7 +8,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   open LogicUtils
 
   let url = RescriptReactRouter.useUrl()
-  let initialValues = Js.Dict.empty()->Js.Json.object_
+  let initialValues = Dict.make()->Js.Json.object_
   let clientCountry = HSwitchUtils.getBrowswerDetails().clientCountry
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
   let hyperswitchMixPanel = HSMixPanel.useSendEvent()

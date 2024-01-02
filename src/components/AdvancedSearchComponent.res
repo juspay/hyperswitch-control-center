@@ -20,7 +20,7 @@ let make = (
 ) => {
   let {getObjects, searchUrl: url} = entity
   let fetchApi = AuthHooks.useApiFetcher()
-  let initialValueJson = Js.Json.object_(Js.Dict.empty())
+  let initialValueJson = Js.Json.object_(Dict.make())
   let showToast = ToastState.useShowToast()
   let (showModal, setShowModal) = React.useState(_ => false)
 
@@ -53,7 +53,7 @@ let make = (
       | None => ()
       }
       setShowModal(_ => false)
-      form.reset(Js.Json.object_(Js.Dict.empty())->Js.Nullable.return)
+      form.reset(Js.Json.object_(Dict.make())->Js.Nullable.return)
       json->Js.Nullable.return->resolve
     })
     ->catch(_err => {
@@ -66,12 +66,12 @@ let make = (
   let validateForm = (values: Js.Json.t) => {
     let finalValuesDict = switch values->Js.Json.decodeObject {
     | Some(dict) => dict
-    | None => Js.Dict.empty()
+    | None => Dict.make()
     }
-    let keys = Js.Dict.keys(finalValuesDict)
-    let errors = Js.Dict.empty()
+    let keys = Dict.keysToArray(finalValuesDict)
+    let errors = Dict.make()
     if keys->Array.length === 0 {
-      Js.Dict.set(errors, "Please Choose One of the fields", ""->Js.Json.string)
+      Dict.set(errors, "Please Choose One of the fields", ""->Js.Json.string)
     }
     errors->Js.Json.object_
   }

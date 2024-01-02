@@ -63,8 +63,8 @@ let make = (
   }
 
   let onSubmit = () => {
-    let updatedDict = Js.Dict.empty()
-    Js.Dict.set(updatedDict, "items", list)
+    let updatedDict = Dict.make()
+    Dict.set(updatedDict, "items", list)
     //TODO conversion
     // let transformedList = arrOfObjToArrOfObjValue(value=list, )
     setListItems(_ => list)

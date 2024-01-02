@@ -63,7 +63,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false) => {
                     let field = statement.lhs
                     let metadataDict =
                       statement.metadata
-                      ->Belt.Option.getWithDefault(Js.Dict.empty()->Js.Json.object_)
+                      ->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
                       ->getDictFromJsonObject
 
                     let value = switch statement.value.value->Js.Json.classify {

@@ -64,7 +64,7 @@ let make = () => {
   let currentSelectedUser = React.useMemo1(() => {
     usersList
     ->typeConversion
-    ->Array.reduce(Js.Dict.empty()->UserRoleEntity.itemToObjMapperForUser, (acc, ele) => {
+    ->Array.reduce(Dict.make()->UserRoleEntity.itemToObjMapperForUser, (acc, ele) => {
       url.path->Belt.List.toArray->Array.joinWith("/")->Js.String2.includes(ele.user_id) ? ele : acc
     })
   }, [usersList])
@@ -103,7 +103,7 @@ let make = () => {
       let permissionInfoValue =
         res->LogicUtils.getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
       setPermissionInfo(_ => permissionInfoValue)
-      if currentSelectedUser.role_id->Js.String2.length !== 0 {
+      if currentSelectedUser.role_id->String.length !== 0 {
         getRoleForUser()->ignore
       }
     } catch {
@@ -133,7 +133,7 @@ let make = () => {
     }
     if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
-    } else if currentSelectedUser.role_id->Js.String2.length !== 0 {
+    } else if currentSelectedUser.role_id->String.length !== 0 {
       getRoleForUser()->ignore
     }
     None

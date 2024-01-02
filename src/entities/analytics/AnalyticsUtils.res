@@ -272,10 +272,10 @@ let multi_mid_merchants = ["vodafone", "bigbasket", "cred", "swiggy", "paypal"]
 let (startTimeFilterKey, endTimeFilterKey, optFilterKey) = ("startTime", "endTime", "opt")
 let getDateCreatedObject = () => {
   let currentDate = Js.Date.now()
-  let filterCreatedDict = Js.Dict.empty()
+  let filterCreatedDict = Dict.make()
   let currentTimestamp = currentDate->Js.Date.fromFloat->Js.Date.toISOString
   let dateFormat = "YYYY-MM-DDTHH:mm:[00][Z]"
-  Js.Dict.set(
+  Dict.set(
     filterCreatedDict,
     endTimeFilterKey,
     Js.Json.string(currentTimestamp->TimeZoneHook.formattedISOString(dateFormat)),
@@ -294,8 +294,8 @@ let getDateCreatedObject = () => {
       ->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]"),
     )
   }
-  Js.Dict.set(filterCreatedDict, startTimeFilterKey, defaultStartTime)
-  Js.Dict.set(filterCreatedDict, "opt", Js.Json.string("today"))
+  Dict.set(filterCreatedDict, startTimeFilterKey, defaultStartTime)
+  Dict.set(filterCreatedDict, "opt", Js.Json.string("today"))
 
   filterCreatedDict
 }
@@ -348,7 +348,7 @@ let useFilterUrlUpdater = (~addParam="", ~getDateCreatedObject=getDateCreatedObj
       let (key, defaultValue) = item
       switch inititalSearchParam->Js.Dict.get(key) {
       | Some(_) => ()
-      | None => inititalSearchParam->Js.Dict.set(key, defaultValue)
+      | None => inititalSearchParam->Dict.set(key, defaultValue)
       }
     })
     updateExistingKeys(inititalSearchParam)
@@ -570,18 +570,18 @@ let getFilterRequestBody = (
   ~source: string="BATCH",
   (),
 ) => {
-  let body: Js.Dict.t<Js.Json.t> = Js.Dict.empty()
-  let timeRange = Js.Dict.empty()
-  let timeSeries = Js.Dict.empty()
+  let body: Js.Dict.t<Js.Json.t> = Dict.make()
+  let timeRange = Dict.make()
+  let timeSeries = Dict.make()
 
-  Js.Dict.set(timeRange, "startTime", startDateTime->Js.Json.string)
-  Js.Dict.set(timeRange, "endTime", endDateTime->Js.Json.string)
-  Js.Dict.set(body, "timeRange", timeRange->Js.Json.object_)
+  Dict.set(timeRange, "startTime", startDateTime->Js.Json.string)
+  Dict.set(timeRange, "endTime", endDateTime->Js.Json.string)
+  Dict.set(body, "timeRange", timeRange->Js.Json.object_)
 
   switch groupByNames {
   | Some(groupByNames) =>
     if groupByNames->Array.length != 0 {
-      Js.Dict.set(
+      Dict.set(
         body,
         "groupByNames",
         groupByNames
@@ -596,7 +596,7 @@ let getFilterRequestBody = (
   switch filter {
   | Some(filters) =>
     if !(filters->checkEmptyJson) {
-      Js.Dict.set(body, "filters", filters)
+      Dict.set(body, "filters", filters)
     }
   | None => ()
   }
@@ -604,43 +604,43 @@ let getFilterRequestBody = (
   switch distributionValues {
   | Some(distributionValues) =>
     if !(distributionValues->checkEmptyJson) {
-      Js.Dict.set(body, "distribution", distributionValues)
+      Dict.set(body, "distribution", distributionValues)
     }
   | None => ()
   }
 
   if customFilter != "" {
-    Js.Dict.set(body, "customFilter", customFilter->Js.Json.string)
+    Dict.set(body, "customFilter", customFilter->Js.Json.string)
   }
   switch granularity {
   | Some(granularity) => {
-      Js.Dict.set(timeSeries, "granularity", granularity->Js.Json.string)
-      Js.Dict.set(body, "timeSeries", timeSeries->Js.Json.object_)
+      Dict.set(timeSeries, "granularity", granularity->Js.Json.string)
+      Dict.set(body, "timeSeries", timeSeries->Js.Json.object_)
     }
 
   | None => ()
   }
 
   switch cardinality {
-  | Some(cardinality) => Js.Dict.set(body, "cardinality", cardinality->Js.Json.string)
+  | Some(cardinality) => Dict.set(body, "cardinality", cardinality->Js.Json.string)
   | None => ()
   }
   switch mode {
-  | Some(mode) => Js.Dict.set(body, "mode", mode->Js.Json.string)
+  | Some(mode) => Dict.set(body, "mode", mode->Js.Json.string)
   | None => ()
   }
 
   switch prefix {
-  | Some(prefix) => Js.Dict.set(body, "prefix", prefix->Js.Json.string)
+  | Some(prefix) => Dict.set(body, "prefix", prefix->Js.Json.string)
   | None => ()
   }
 
-  Js.Dict.set(body, "source", source->Js.Json.string)
+  Dict.set(body, "source", source->Js.Json.string)
 
   switch metrics {
   | Some(metrics) =>
     if metrics->Array.length != 0 {
-      Js.Dict.set(
+      Dict.set(
         body,
         "metrics",
         metrics
@@ -652,7 +652,7 @@ let getFilterRequestBody = (
   | None => ()
   }
   if delta {
-    Js.Dict.set(body, "delta", true->Js.Json.boolean)
+    Dict.set(body, "delta", true->Js.Json.boolean)
   }
 
   body
@@ -753,7 +753,7 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
 
     [timeArray]
   } else {
-    let timeArray = Js.Dict.empty()
+    let timeArray = Dict.make()
     [timeArray]
   }
 }
@@ -800,16 +800,16 @@ let generatePayload = (
   }
 
   switch mode {
-  | Some(mode) => Js.Dict.set(newDict, "mode", mode->Js.Json.string)
+  | Some(mode) => Dict.set(newDict, "mode", mode->Js.Json.string)
   | None => ()
   }
   if customFilter != "" {
-    Js.Dict.set(newDict, "customFilter", customFilter->Js.Json.string)
+    Dict.set(newDict, "customFilter", customFilter->Js.Json.string)
   }
   switch filters {
   | Some(filters) =>
     if !(filters->checkEmptyJson) {
-      Js.Dict.set(newDict, "filters", filters)
+      Dict.set(newDict, "filters", filters)
     }
   | None => ()
   }
@@ -1020,7 +1020,7 @@ let sampleApiBody = (tableApiBodyEntity: tableApiBodyEntity) => {
       (
         "filters",
         tableApiBodyEntity.filterValueFromUrl->Belt.Option.getWithDefault(
-          Js.Json.object_(Js.Dict.empty()),
+          Js.Json.object_(Dict.make()),
         ),
       ),
       ("source", tableApiBodyEntity.source->Js.Json.string),
@@ -1043,25 +1043,25 @@ let sampleApiBody = (tableApiBodyEntity: tableApiBodyEntity) => {
 }
 
 let deltaTimeRangeMapper = (arrJson: array<Js.Json.t>) => {
-  let emptyDict = Js.Dict.empty()
+  let emptyDict = Dict.make()
   let _ = arrJson->Array.map(item => {
     let dict = item->getDictFromJsonObject
     let name = dict->getString("requestPrefix", "")
     let deltaTimeRange = dict->getJsonObjectFromDict("deltaTimeRange")->getDictFromJsonObject
     let fromTime = deltaTimeRange->getString("startTime", "")
     let toTime = deltaTimeRange->getString("endTime", "")
-    if name === "" && deltaTimeRange->Js.Dict.entries->Array.length > 0 {
-      emptyDict->Js.Dict.set("currentSr", {fromTime, toTime})
+    if name === "" && deltaTimeRange->Dict.toArray->Array.length > 0 {
+      emptyDict->Dict.set("currentSr", {fromTime, toTime})
     } else if name === "last7" {
-      emptyDict->Js.Dict.set("prev7DaySr", {fromTime, toTime})
+      emptyDict->Dict.set("prev7DaySr", {fromTime, toTime})
     } else if name === "yesterday" {
-      emptyDict->Js.Dict.set("yesterdaySr", {fromTime, toTime})
+      emptyDict->Dict.set("yesterdaySr", {fromTime, toTime})
     } else if name === "currentweek" {
-      emptyDict->Js.Dict.set("currentWeekSr", {fromTime, toTime})
+      emptyDict->Dict.set("currentWeekSr", {fromTime, toTime})
     } else if name === "currentmonth" {
-      emptyDict->Js.Dict.set("currentMonthSr", {fromTime, toTime})
+      emptyDict->Dict.set("currentMonthSr", {fromTime, toTime})
     } else if name === "industry" {
-      emptyDict->Js.Dict.set("industrySr", {fromTime, toTime})
+      emptyDict->Dict.set("industrySr", {fromTime, toTime})
     }
   })
 
@@ -2385,7 +2385,7 @@ let sampleApiBodyBQ = (tableApiBodyEntity: tableApiBodyEntity) => {
       (
         "filters",
         tableApiBodyEntity.filterValueFromUrl->Belt.Option.getWithDefault(
-          Js.Json.object_(Js.Dict.empty()),
+          Js.Json.object_(Dict.make()),
         ),
       ),
       ("source", "BQ"->Js.Json.string),
@@ -2444,7 +2444,7 @@ let useGetFilters = (
   let {filterValue} = React.useContext(AnalyticsUrlUpdaterContext.urlUpdaterContext)
   let getAllFilter =
     filterValue
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Array.map(item => {
       let (key, value) = item
       (key, value->UrlFetchUtils.getFilterValue)
@@ -2452,7 +2452,7 @@ let useGetFilters = (
     ->Js.Dict.fromArray
   let getTopLevelSingleStatFilter = React.useMemo1(() => {
     getAllFilter
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->Js.String2.split(".")
@@ -2474,7 +2474,7 @@ let useGetFilters = (
     )
     let filterSearchParam =
       getTopLevelSingleStatFilter
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
         if allFilterKeys->Array.includes(key) {
@@ -2498,7 +2498,7 @@ let useGetFilters = (
   }, [getTopLevelSingleStatFilter])
   let filterValueFromUrl = React.useMemo1(() => {
     getTopLevelSingleStatFilter
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Belt.Array.keepMap(entries => {
       let (key, value) = entries
       filterKeys->Array.includes(key) ? Some((key, value)) : None

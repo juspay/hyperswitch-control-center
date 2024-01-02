@@ -109,12 +109,12 @@ module RenderConnectorInputFields = {
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     open ConnectorUtils
     open LogicUtils
-    let keys = details->Js.Dict.keys->Array.filter(ele => !Array.includes(keysToIgnore, ele))
+    let keys = details->Dict.keysToArray->Array.filter(ele => !Array.includes(keysToIgnore, ele))
     keys
     ->Array.mapWithIndex((field, i) => {
       let label = details->getString(field, "")
       let formName = isLabelNested ? `${name}.${field}` : name
-      <UIUtils.RenderIf condition={label->Js.String2.length > 0} key={i->string_of_int}>
+      <UIUtils.RenderIf condition={label->String.length > 0} key={i->string_of_int}>
         <div key={label}>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
@@ -155,7 +155,7 @@ module CurrencyAuthKey = {
   let make = (~dict, ~connector, ~selectedConnector: ConnectorTypes.integrationFields) => {
     open LogicUtils
     dict
-    ->Js.Dict.keys
+    ->Dict.keysToArray
     ->Array.mapWithIndex((country, index) => {
       <Accordion
         key={index->string_of_int}

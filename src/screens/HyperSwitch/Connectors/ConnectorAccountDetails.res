@@ -56,21 +56,21 @@ let make = (
 
   let connectorDetails = React.useMemo1(() => {
     try {
-      if connector->Js.String2.length > 0 {
+      if connector->String.length > 0 {
         let dict = isPayoutFlow
           ? Window.getPayoutConnectorConfig(connector)
           : Window.getConnectorConfig(connector)
         setScreenState(_ => Success)
         dict
       } else {
-        Js.Dict.empty()->Js.Json.object_
+        Dict.make()->Js.Json.object_
       }
     } catch {
     | Js.Exn.Error(e) => {
         Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
         let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
         setScreenState(_ => PageLoaderWrapper.Error(err))
-        Js.Dict.empty()->Js.Json.object_
+        Dict.make()->Js.Json.object_
       }
     }
   }, [connector])
@@ -89,7 +89,7 @@ let make = (
   let updatedInitialVal = React.useMemo1(() => {
     let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
     if !isUpdateFlow {
-      initialValuesToDict->Js.Dict.set(
+      initialValuesToDict->Dict.set(
         "connector_label",
         `${connector}_${activeBusinessProfile.profile_name}`->Js.Json.string,
       )
@@ -100,7 +100,7 @@ let make = (
       ->checkIsDummyConnector(featureFlagDetails.testProcessors) && !isUpdateFlow
     ) {
       let apiKeyDict = [("api_key", "test_key"->Js.Json.string)]->Js.Dict.fromArray
-      initialValuesToDict->Js.Dict.set("connector_account_details", apiKeyDict->Js.Json.object_)
+      initialValuesToDict->Dict.set("connector_account_details", apiKeyDict->Js.Json.object_)
 
       initialValuesToDict->Js.Json.object_
     } else {
@@ -204,11 +204,11 @@ let make = (
   }
 
   let validateMandatoryField = values => {
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
     let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
-    if profileId->Js.String2.length === 0 {
-      Js.Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
+    if profileId->String.length === 0 {
+      Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
     }
 
     validateConnectorRequiredFields(

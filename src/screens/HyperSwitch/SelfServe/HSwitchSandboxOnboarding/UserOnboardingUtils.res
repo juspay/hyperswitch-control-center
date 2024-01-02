@@ -247,7 +247,7 @@ let getMixPanelEventName = (
   ~filtersFromUrl,
   ~hyperswitchMixPanel: HSMixPanel.functionType,
 ) => {
-  if filtersFromUrl->Js.String2.length > 0 {
+  if filtersFromUrl->String.length > 0 {
     hyperswitchMixPanel(
       ~pageName=`${url.path->LogicUtils.getListHead}`,
       ~contextName=filtersFromUrl,

@@ -85,7 +85,7 @@ let getAchConnectors = (dict, str) => {
   dict
   ->Js.Dict.get(str)
   ->Belt.Option.flatMap(Js.Json.decodeObject)
-  ->Belt.Option.getWithDefault(Js.Dict.empty())
+  ->Belt.Option.getWithDefault(Dict.make())
   ->getStrArray("elligible_connectors")
 }
 

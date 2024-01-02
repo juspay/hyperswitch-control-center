@@ -151,7 +151,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
   let (previewState, setPreviewState) = React.useState(_ => None)
-  let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
   let (connectorID, setConnectorID) = React.useState(_ => "")
   let routerUrl = RescriptReactRouter.useUrl()
 
@@ -168,7 +168,7 @@ let make = () => {
         let baseUrlPath = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${routerUrl.path
           ->Belt.List.toArray
           ->Array.joinWith("/")}`
-        routerUrl.search->Js.String2.length > 0
+        routerUrl.search->String.length > 0
           ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)
           : RescriptReactRouter.push(`${baseUrlPath}`)
       } else {
@@ -210,7 +210,7 @@ let make = () => {
         ->getJsonObjectFromDict("SetupProcessor")
         ->getDictFromJsonObject
         ->getString("connector_id", "")
-      if connectorId->Js.String2.length > 0 {
+      if connectorId->String.length > 0 {
         setConnectorID(_ => connectorId)
         getConfigureEndpointEnum()->ignore
       } else {

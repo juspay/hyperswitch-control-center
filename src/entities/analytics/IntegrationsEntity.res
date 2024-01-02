@@ -204,11 +204,11 @@ let getManagementTable: Js.Json.t => array<integrationTable> = json => {
 }
 
 let getDefaultFilters = () => {
-  let filterCreatedDict = Js.Dict.empty()
+  let filterCreatedDict = Dict.make()
 
   let currentDate = Js.Date.now()
   let currentTimestamp = currentDate->Js.Date.fromFloat->Js.Date.toISOString
-  filterCreatedDict->Js.Dict.set(
+  filterCreatedDict->Dict.set(
     "endTime",
     Js.Json.string(currentTimestamp->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:ss[Z]")),
   )
@@ -219,7 +219,7 @@ let getDefaultFilters = () => {
     Js.Date.setDate(presentDayInString, prevDateInFloat)
   }
 
-  Js.Dict.set(
+  Dict.set(
     filterCreatedDict,
     "startTime",
     Js.Json.string(
@@ -436,7 +436,7 @@ let itemToObjMapper = json => {
     ->Belt.Option.getWithDefault([])
 
   let data = queryData->Js.Array2.reduce((finalDict, json) => {
-    let dict = json->Js.Json.decodeObject->getWithDefault(Js.Dict.empty())
+    let dict = json->Js.Json.decodeObject->getWithDefault(Dict.make())
     let product = dict->getString("product_integrated", "")
     if product === "Payment Page Signature" {
       {
@@ -494,13 +494,13 @@ let timeSeriesObjMapper = json => {
   let timeSeriesArr =
     queryData
     ->Array.map(item => {
-      let dic = item->Js.Json.decodeObject->getWithDefault(Js.Dict.empty())
+      let dic = item->Js.Json.decodeObject->getWithDefault(Dict.make())
       dic->getString("time_bucket", "")
     })
     ->getUniqueArray
     ->Array.map(item => {
       queryData->Array.filter(ele => {
-        let dic = ele->Js.Json.decodeObject->getWithDefault(Js.Dict.empty())
+        let dic = ele->Js.Json.decodeObject->getWithDefault(Dict.make())
         let timeBucket = dic->getString("time_bucket", "")
         item === timeBucket
       })

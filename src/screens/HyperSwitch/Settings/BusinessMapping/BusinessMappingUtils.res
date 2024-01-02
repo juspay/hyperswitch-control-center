@@ -22,7 +22,7 @@ type modalState = Loading | Edit | Successful
 let validateEmptyValue = (key, errors) => {
   switch key {
   | ProfileName =>
-    errors->Js.Dict.set(key->getStringFromVariant, "Please enter a profile name"->Js.Json.string)
+    errors->Dict.set(key->getStringFromVariant, "Please enter a profile name"->Js.Json.string)
   }
 }
 
@@ -30,7 +30,7 @@ let validateCustom = (key, errors, value) => {
   switch key {
   | ProfileName =>
     if !Js.Re.test_(%re("/^[a-zA-Z][a-zA-Z0-9]*$/"), value) {
-      errors->Js.Dict.set(key->getStringFromVariant, "Please enter a profile name"->Js.Json.string)
+      errors->Dict.set(key->getStringFromVariant, "Please enter a profile name"->Js.Json.string)
     }
   }
 }
@@ -46,15 +46,13 @@ let validateForm = (
   ~fieldsToValidate: array<modalFields>,
   ~list: array<profileEntity>,
 ) => {
-  let errors = Js.Dict.empty()
+  let errors = Dict.make()
   let valuesDict = values->LogicUtils.getDictFromJsonObject
 
   fieldsToValidate->Array.forEach(key => {
     let value = valuesDict->LogicUtils.getString(key->getStringFromVariant, "")
 
-    value->Js.String2.length <= 0
-      ? key->validateEmptyValue(errors) // empty check
-      : key->validateCustom(errors, value) // custom validations
+    value->String.length <= 0 ? key->validateEmptyValue(errors) : key->validateCustom(errors, value) // empty check // custom validations
   })
 
   // duplicate entry check
@@ -66,7 +64,7 @@ let validateForm = (
     })
     ->Belt.Option.isSome
   ) {
-    errors->Js.Dict.set(
+    errors->Dict.set(
       "profile_name",
       "The entry you are trying to add already exists."->Js.Json.string,
     )

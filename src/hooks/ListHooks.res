@@ -29,7 +29,7 @@ let useListCount = (~entityName) => {
   }
 
   React.useEffect0(() => {
-    HSLocalStorage.getFromMerchantDetails("merchant_id")->Js.String2.length > 0
+    HSLocalStorage.getFromMerchantDetails("merchant_id")->String.length > 0
       ? fetchData()->ignore
       : ()
     None

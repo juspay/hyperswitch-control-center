@@ -25,7 +25,7 @@ let make = () => {
     setTotalVolume
     showPercentage=false
     isHomePage=true
-    statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(Js.Dict.empty())}
+    statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(Dict.make())}
     wrapperClass="flex flex-wrap w-full h-full"
   />
 }

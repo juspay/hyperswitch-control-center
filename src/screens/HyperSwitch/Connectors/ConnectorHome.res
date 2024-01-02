@@ -62,7 +62,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
 
@@ -73,7 +73,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   }
 
   React.useEffect1(() => {
-    if connector->Js.String2.length > 0 && connector !== "Unknown Connector" {
+    if connector->String.length > 0 && connector !== "Unknown Connector" {
       [connector, "global"]->Array.forEach(ele =>
         hyperswitchMixPanel(
           ~pageName=url.path->LogicUtils.getListHead,
@@ -114,7 +114,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   }
 
   React.useEffect1(() => {
-    if connector->Js.String2.length > 0 {
+    if connector->String.length > 0 {
       getDetails()->ignore
     }
     None

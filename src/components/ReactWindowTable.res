@@ -540,7 +540,7 @@ type sortOb = {
   sortType: sortTyp,
 }
 
-let sortAtom: Recoil.recoilAtom<Js.Dict.t<sortOb>> = Recoil.atom(. "sortAtom", Js.Dict.empty())
+let sortAtom: Recoil.recoilAtom<Js.Dict.t<sortOb>> = Recoil.atom(. "sortAtom", Dict.make())
 
 let useSortedObj = (title: string, defaultSort) => {
   let (dict, setDict) = Recoil.useRecoilState(sortAtom)
@@ -577,8 +577,8 @@ let useSortedObj = (title: string, defaultSort) => {
       }
 
       setDict(.dict => {
-        let nDict = Js.Dict.fromArray(Js.Dict.entries(dict))
-        Js.Dict.set(nDict, title, sortOb)
+        let nDict = Js.Dict.fromArray(Dict.toArray(dict))
+        Dict.set(nDict, title, sortOb)
         nDict
       })
     | _ => ()
@@ -672,7 +672,7 @@ let make = (
   ~filterWithIdOnly=false,
   ~fullWidth=true,
 ) => {
-  let (columnFilter, setColumnFilterOrig) = React.useState(_ => Js.Dict.empty())
+  let (columnFilter, setColumnFilterOrig) = React.useState(_ => Dict.make())
   let url = RescriptReactRouter.useUrl()
   let dateFormatConvertor = useDateFormatConvertor()
 
@@ -714,7 +714,7 @@ let make = (
   let setColumnFilter = React.useMemo1(() => {
     (filterKey, filterValue: array<Js.Json.t>) => {
       setColumnFilterOrig(oldFitlers => {
-        let newObj = oldFitlers->Js.Dict.entries->Js.Dict.fromArray
+        let newObj = oldFitlers->Dict.toArray->Js.Dict.fromArray
         let filterValue = filterValue->Array.filter(
           item => {
             let updatedItem = item->Js.String.make
@@ -723,7 +723,7 @@ let make = (
         )
         if filterValue->Array.length === 0 {
           newObj
-          ->Js.Dict.entries
+          ->Dict.toArray
           ->Array.filter(
             entry => {
               let (key, _value) = entry
@@ -732,7 +732,7 @@ let make = (
           )
           ->Js.Dict.fromArray
         } else {
-          Js.Dict.set(newObj, filterKey, filterValue)
+          Dict.set(newObj, filterKey, filterValue)
           newObj
         }
       })
@@ -743,12 +743,12 @@ let make = (
     (columnFilter, setColumnFilter)
   }, (columnFilter, setColumnFilter))
 
-  let (isFilterOpen, setIsFilterOpenOrig) = React.useState(_ => Js.Dict.empty())
+  let (isFilterOpen, setIsFilterOpenOrig) = React.useState(_ => Dict.make())
   let setIsFilterOpen = React.useMemo1(() => {
     (filterKey, value: bool) => {
       setIsFilterOpenOrig(oldFitlers => {
         let newObj = oldFitlers->DictionaryUtils.copyOfDict
-        newObj->Js.Dict.set(filterKey, value)
+        newObj->Dict.set(filterKey, value)
         newObj
       })
     }
@@ -796,7 +796,7 @@ let make = (
           let headingEntity = entity.getHeading(item)
           let key = headingEntity.key
           let dataType = headingEntity.dataType
-          let dictArrObj = Js.Dict.empty()
+          let dictArrObj = Dict.make()
           let columnFilterCopy = columnFilter->DictionaryUtils.deleteKey(key)
           let newValues =
             actualData
@@ -833,8 +833,8 @@ let make = (
                       convertStrCellToFloat(dataType, "")
                     }
                     switch dictArrObj->Js.Dict.get(key) {
-                    | Some(arr) => Js.Dict.set(dictArrObj, key, Belt.Array.concat(arr, [value]))
-                    | None => Js.Dict.set(dictArrObj, key, [value])
+                    | Some(arr) => Dict.set(dictArrObj, key, Belt.Array.concat(arr, [value]))
+                    | None => Dict.set(dictArrObj, key, [value])
                     }
                   },
                 )
@@ -963,8 +963,7 @@ let make = (
       | None => []
       }
       let getIdFromJson = json => {
-        let selectedPlanDict =
-          json->Js.Json.decodeObject->Belt.Option.getWithDefault(Js.Dict.empty())
+        let selectedPlanDict = json->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make())
         selectedPlanDict->LogicUtils.getString("id", "")
       }
       let setIsSelected = isSelected => {
@@ -1057,7 +1056,7 @@ let make = (
         switch getShowLink {
         | Some(fn) => {
             let link = fn(value)
-            let finalUrl = url.search->Js.String2.length > 0 ? `${link}?${url.search}` : link
+            let finalUrl = url.search->String.length > 0 ? `${link}?${url.search}` : link
             RescriptReactRouter.push(finalUrl)
           }
 

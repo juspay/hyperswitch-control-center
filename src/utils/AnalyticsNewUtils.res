@@ -46,7 +46,7 @@ let makeFilters = (~filters: Js.Json.t, ~cardinalityArr) => {
 
   let expressionArr =
     decodeFilter
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Array.map(item => {
       let (key, value) = item
       Js.Dict.fromArray([
@@ -60,16 +60,16 @@ let makeFilters = (~filters: Js.Json.t, ~cardinalityArr) => {
     expressionArr->Belt.Array.get(0)
   } else if expressionArr->Array.length > 1 {
     let leftInitial =
-      Js.Array2.pop(expressionArr)->Belt.Option.getWithDefault(Js.Dict.empty())->Js.Json.object_
+      Js.Array2.pop(expressionArr)->Belt.Option.getWithDefault(Dict.make())->Js.Json.object_
     let rightInitial =
-      Js.Array2.pop(expressionArr)->Belt.Option.getWithDefault(Js.Dict.empty())->Js.Json.object_
+      Js.Array2.pop(expressionArr)->Belt.Option.getWithDefault(Dict.make())->Js.Json.object_
 
     let complexFilterDict = Js.Dict.fromArray([
       ("and", Js.Dict.fromArray([("left", leftInitial), ("right", rightInitial)])->Js.Json.object_),
     ])
     expressionArr->Array.forEach(item => {
-      let complextFilterDictCopy = complexFilterDict->Js.Dict.entries->Array.copy->Js.Dict.fromArray
-      complexFilterDict->Js.Dict.set(
+      let complextFilterDictCopy = complexFilterDict->Dict.toArray->Array.copy->Js.Dict.fromArray
+      complexFilterDict->Dict.set(
         "and",
         Js.Dict.fromArray([
           ("left", complextFilterDictCopy->Js.Json.object_),
@@ -319,8 +319,8 @@ let getFilterBody = (
       if filterValueArr->Array.length === 1 {
         filterValueArr->Belt.Array.get(0)
       } else if filterValueArr->Array.length >= 2 {
-        let leftInitial = filterValueArr[0]->Belt.Option.getWithDefault(Js.Dict.empty())
-        let rightInitial = filterValueArr[1]->Belt.Option.getWithDefault(Js.Dict.empty())
+        let leftInitial = filterValueArr[0]->Belt.Option.getWithDefault(Dict.make())
+        let rightInitial = filterValueArr[1]->Belt.Option.getWithDefault(Dict.make())
         let conditionInitital = andAndOr->Belt.Array.get(0)->Belt.Option.getWithDefault("and")
         let complexFilterDict = Js.Dict.fromArray([
           (
@@ -334,10 +334,10 @@ let getFilterBody = (
         let filterValueArr = Js.Array2.sliceFrom(filterValueArr->Array.copy, 2)
         let andAndOr = Js.Array2.sliceFrom(andAndOr->Array.copy, 1)
 
-        filterValueArr->Js.Array2.forEachi((item, index) => {
+        filterValueArr->Array.forEachWithIndex((item, index) => {
           let complextFilterDictCopy =
-            complexFilterDict->Js.Dict.entries->Array.copy->Js.Dict.fromArray
-          complexFilterDict->Js.Dict.set(
+            complexFilterDict->Dict.toArray->Array.copy->Js.Dict.fromArray
+          complexFilterDict->Dict.set(
             andAndOr->Belt.Array.get(index)->Belt.Option.getWithDefault("and"),
             Js.Dict.fromArray([
               ("left", complextFilterDictCopy->Js.Json.object_),
@@ -375,17 +375,17 @@ let getFilterBody = (
   | (Some(value), None) =>
     switch makeFilters(~filters=value, ~cardinalityArr=cardinalityArrFilter) {
     | Some(formattedFilters) => formattedFilters
-    | None => Js.Dict.empty()
+    | None => Dict.make()
     }
 
   | (None, Some(customFilter)) => customFilter
 
-  | (None, None) => Js.Dict.empty()
+  | (None, None) => Dict.make()
   }
 
   switch jsonFormattedFilter {
   | Some(jsonFormattedFilter) =>
-    switch filterValue->Js.Dict.entries->Array.length > 0 {
+    switch filterValue->Dict.toArray->Array.length > 0 {
     | true =>
       Js.Dict.fromArray([
         (
@@ -396,8 +396,7 @@ let getFilterBody = (
           ])->Js.Json.object_,
         ),
       ])
-    | false =>
-      jsonFormattedFilter->Js.Json.decodeObject->Belt.Option.getWithDefault(Js.Dict.empty())
+    | false => jsonFormattedFilter->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make())
     }
   | None => filterValue
   }
@@ -433,7 +432,7 @@ let apiBodyMaker = (
   ~dataLimit: option<float>=?,
   (),
 ) => {
-  let finalBody = Js.Dict.empty()
+  let finalBody = Dict.make()
 
   let cardinalityArrFilter = switch (cardinality, groupBy) {
   | (Some(cardinality), Some(groupBy)) =>
@@ -460,7 +459,7 @@ let apiBodyMaker = (
   }
 
   let activeTabArr = groupBy->Belt.Option.getWithDefault([])->Array.map(Js.Json.string)
-  finalBody->Js.Dict.set("metric", metric->Js.Json.string)
+  finalBody->Dict.set("metric", metric->Js.Json.string)
   let filterVal = getFilterBody(
     filterValueFromUrl,
     customFilterValue,
@@ -468,33 +467,33 @@ let apiBodyMaker = (
     cardinalityArrFilter,
   )
 
-  if filterVal->Js.Dict.entries->Array.length !== 0 {
-    finalBody->Js.Dict.set("filters", filterVal->Js.Json.object_)
+  if filterVal->Dict.toArray->Array.length !== 0 {
+    finalBody->Dict.set("filters", filterVal->Js.Json.object_)
   }
 
   switch granularityConfig {
   | Some(config) => {
       let (granularityDuration, granularityUnit) = config
-      let granularityDimension = Js.Dict.empty()
-      let granularity = Js.Dict.empty()
-      Js.Dict.set(granularityDimension, "timeZone", timeZone->timeZoneMapper->Js.Json.string)
-      Js.Dict.set(granularityDimension, "intervalCol", timeCol->Js.Json.string)
-      Js.Dict.set(granularity, "unit", granularityUnit->Js.Json.string)
-      Js.Dict.set(granularity, "duration", granularityDuration->Belt.Int.toFloat->Js.Json.number)
-      Js.Dict.set(granularityDimension, "granularity", granularity->Js.Json.object_)
+      let granularityDimension = Dict.make()
+      let granularity = Dict.make()
+      Dict.set(granularityDimension, "timeZone", timeZone->timeZoneMapper->Js.Json.string)
+      Dict.set(granularityDimension, "intervalCol", timeCol->Js.Json.string)
+      Dict.set(granularity, "unit", granularityUnit->Js.Json.string)
+      Dict.set(granularity, "duration", granularityDuration->Belt.Int.toFloat->Js.Json.number)
+      Dict.set(granularityDimension, "granularity", granularity->Js.Json.object_)
 
-      finalBody->Js.Dict.set(
+      finalBody->Dict.set(
         "dimensions",
         Array.concat(activeTabArr, [granularityDimension->Js.Json.object_])->Js.Json.array,
       )
     }
 
-  | None => finalBody->Js.Dict.set("dimensions", activeTabArr->Js.Json.array)
+  | None => finalBody->Dict.set("dimensions", activeTabArr->Js.Json.array)
   }
 
   switch sortingParams {
   | Some(val) =>
-    finalBody->Js.Dict.set(
+    finalBody->Dict.set(
       "sortedOn",
       Js.Dict.fromArray([
         ("sortDimension", val.sortDimension->Js.Json.string),
@@ -504,11 +503,11 @@ let apiBodyMaker = (
   | None => ()
   }
   switch dataLimit {
-  | Some(dataLimit) => finalBody->Js.Dict.set("limit", dataLimit->Js.Json.number)
+  | Some(dataLimit) => finalBody->Dict.set("limit", dataLimit->Js.Json.number)
   | None => ()
   }
 
-  finalBody->Js.Dict.set("domain", domain->Js.Json.string)
-  finalBody->Js.Dict.set("interval", timeObj->Js.Json.object_)
+  finalBody->Dict.set("domain", domain->Js.Json.string)
+  finalBody->Dict.set("interval", timeObj->Js.Json.object_)
   finalBody->Js.Json.object_
 }

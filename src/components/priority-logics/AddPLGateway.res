@@ -200,7 +200,7 @@ let make = (
   let gatewayName = name => {
     let res =
       connectorList
-      ->Belt.Option.getWithDefault([Js.Dict.empty()->ConnectorTableUtils.getProcessorPayloadType])
+      ->Belt.Option.getWithDefault([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
       ->ConnectorTableUtils.getConnectorNameViaId(name)
     res.connector_label
   }

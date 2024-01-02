@@ -58,7 +58,7 @@ and logic = {
 let getDictFromJsonObject = json => {
   switch json->Js.Json.decodeObject {
   | Some(dict) => dict
-  | None => Js.Dict.empty()
+  | None => Dict.make()
   }
 }
 
@@ -206,7 +206,7 @@ let getBool = (dict, key, default) => {
 }
 
 let getJsonObjectFromDict = (dict, key) => {
-  dict->Js.Dict.get(key)->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty()))
+  dict->Js.Dict.get(key)->Belt.Option.getWithDefault(Js.Json.object_(Dict.make()))
 }
 
 let getBoolFromString = (boolString, default: bool) => {
@@ -323,17 +323,17 @@ let getDictFromUrlSearchParams = searchParams => {
   ->Js.Dict.fromArray
 }
 let setOptionString = (dict, key, optionStr) =>
-  optionStr->Belt.Option.mapWithDefault((), str => dict->Js.Dict.set(key, str->Js.Json.string))
+  optionStr->Belt.Option.mapWithDefault((), str => dict->Dict.set(key, str->Js.Json.string))
 
 let setOptionBool = (dict, key, optionInt) =>
-  optionInt->Belt.Option.mapWithDefault((), bool => dict->Js.Dict.set(key, bool->Js.Json.boolean))
+  optionInt->Belt.Option.mapWithDefault((), bool => dict->Dict.set(key, bool->Js.Json.boolean))
 
 let setOptionArray = (dict, key, optionArray) =>
-  optionArray->Belt.Option.mapWithDefault((), array => dict->Js.Dict.set(key, array->Js.Json.array))
+  optionArray->Belt.Option.mapWithDefault((), array => dict->Dict.set(key, array->Js.Json.array))
 
 let setOptionDict = (dict, key, optionDictValue) =>
   optionDictValue->Belt.Option.mapWithDefault((), value =>
-    dict->Js.Dict.set(key, value->Js.Json.object_)
+    dict->Dict.set(key, value->Js.Json.object_)
   )
 
 let capitalizeString = str => {
@@ -480,7 +480,7 @@ let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?, ()) => {
 }
 
 let checkEmptyJson = json => {
-  json == Js.Json.object_(Js.Dict.empty())
+  json == Js.Json.object_(Dict.make())
 }
 
 let numericArraySortComperator = (a, b) => {
@@ -494,14 +494,14 @@ let numericArraySortComperator = (a, b) => {
 }
 
 let isEmptyDict = dict => {
-  dict->Js.Dict.keys->Array.length === 0
+  dict->Dict.keysToArray->Array.length === 0
 }
 let stringReplaceAll = (str, old, new) => {
   str->Js.String2.split(old)->Array.joinWith(new)
 }
 
 let getUniqueArray = (arr: array<'t>) => {
-  arr->Array.map(item => (item, ""))->Js.Dict.fromArray->Js.Dict.keys
+  arr->Array.map(item => (item, ""))->Js.Dict.fromArray->Dict.keysToArray
 }
 
 let getFirstLetterCaps = (str, ~splitBy="-", ()) => {
@@ -558,7 +558,7 @@ let getListHead = (~default="", list) => {
 }
 
 let dataMerge = (~dataArr: array<array<Js.Json.t>>, ~dictKey: array<string>) => {
-  let finalData = Js.Dict.empty()
+  let finalData = Dict.make()
   dataArr->Array.forEach(jsonArr => {
     jsonArr->Array.forEach(jsonObj => {
       let dict = jsonObj->getDictFromJsonObject
@@ -570,10 +570,10 @@ let dataMerge = (~dataArr: array<array<Js.Json.t>>, ~dictKey: array<string>) => 
           },
         )
         ->Array.joinWith("-")
-      let existingData = finalData->getObj(dictKey, Js.Dict.empty())->Js.Dict.entries
-      let data = dict->Js.Dict.entries
+      let existingData = finalData->getObj(dictKey, Dict.make())->Dict.toArray
+      let data = dict->Dict.toArray
 
-      finalData->Js.Dict.set(
+      finalData->Dict.set(
         dictKey,
         existingData->Array.concat(data)->Js.Dict.fromArray->Js.Json.object_,
       )
@@ -635,7 +635,7 @@ let checkStringStartsWithSubstring = (~itemToCheck, ~searchText) => {
   | Some(_) => true
   | None => Js.String2.match_(itemToCheck, regex("_", searchText))->Belt.Option.isSome
   }
-  isMatch && searchText->Js.String2.length > 0
+  isMatch && searchText->String.length > 0
 }
 
 let listOfMatchedText = (text, searchText) => {

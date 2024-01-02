@@ -8,7 +8,7 @@ module HomePageHorizontalStepper = {
     let typedValueOfEnum = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
 
     // TODO : To be used when Test Payment flow if is integrated
-    let step = if !(typedValueOfEnum.testPayment.payment_id->Js.String2.length > 0) {
+    let step = if !(typedValueOfEnum.testPayment.payment_id->String.length > 0) {
       0
     } else if !typedValueOfEnum.integrationCompleted {
       1
@@ -78,20 +78,20 @@ module QuickStart = {
         let typedConnectorValue = connectorList->getArrayOfConnectorListPayloadType
 
         if (
-          typedValueOfEnum.configurationType->Js.String2.length === 0 &&
-          typedValueOfEnum.firstProcessorConnected.processorID->Js.String2.length === 0 &&
-          typedValueOfEnum.secondProcessorConnected.processorID->Js.String2.length === 0
+          typedValueOfEnum.configurationType->String.length === 0 &&
+          typedValueOfEnum.firstProcessorConnected.processorID->String.length === 0 &&
+          typedValueOfEnum.secondProcessorConnected.processorID->String.length === 0
         ) {
           if typedConnectorValue->Array.length >= 2 {
             let firstConnectorValue =
               typedConnectorValue
               ->Belt.Array.get(0)
-              ->Belt.Option.getWithDefault(getProcessorPayloadType(Js.Dict.empty()))
+              ->Belt.Option.getWithDefault(getProcessorPayloadType(Dict.make()))
 
             let secondConnectorValue =
               typedConnectorValue
               ->Belt.Array.get(1)
-              ->Belt.Option.getWithDefault(getProcessorPayloadType(Js.Dict.empty()))
+              ->Belt.Option.getWithDefault(getProcessorPayloadType(Dict.make()))
 
             let bodyOfFirstConnector: QuickStartTypes.processorType = {
               processorID: firstConnectorValue.merchant_connector_id,
@@ -127,7 +127,7 @@ module QuickStart = {
             let firstConnectorValue =
               typedConnectorValue
               ->Belt.Array.get(0)
-              ->Belt.Option.getWithDefault(getProcessorPayloadType(Js.Dict.empty()))
+              ->Belt.Option.getWithDefault(getProcessorPayloadType(Dict.make()))
 
             let bodyOfFirstConnector: QuickStartTypes.processorType = {
               processorID: firstConnectorValue.merchant_connector_id,
@@ -162,7 +162,7 @@ module QuickStart = {
       }
     }
 
-    let buttonText = if !(typedValueOfEnum.testPayment.payment_id->Js.String2.length > 0) {
+    let buttonText = if !(typedValueOfEnum.testPayment.payment_id->String.length > 0) {
       "Configure (Test mode)"
     } else if !typedValueOfEnum.integrationCompleted {
       "Start Integration on app"
@@ -342,7 +342,7 @@ let make = () => {
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
 
   let checkingConditions = [
-    typedEnumValue.testPayment.payment_id->Js.String2.length > 0,
+    typedEnumValue.testPayment.payment_id->String.length > 0,
     typedEnumValue.integrationCompleted,
     isProdIntentCompleted,
   ]

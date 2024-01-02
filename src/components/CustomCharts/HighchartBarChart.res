@@ -36,7 +36,7 @@ module HighBarChart1D = {
         ),
         "title": {
           "text": "",
-          "style": Js.Json.object_(Js.Dict.empty()),
+          "style": Js.Json.object_(Dict.make()),
         },
         "xAxis": {
           "categories": categories,

@@ -21,7 +21,7 @@ module InternalStorage = {
   let removeEventListener = fn => {
     let index = listeners->Js.Array2.findIndex(x => x === fn)
     if index !== -1 {
-      listeners->Js.Array2.spliceInPlace(~pos=index, ~remove=1, ~add=[])->ignore
+      listeners->Array.splice(~start=index, ~remove=1, ~insert=[])->ignore
     }
   }
 

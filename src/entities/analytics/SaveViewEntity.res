@@ -41,9 +41,9 @@ let filterBySearchText = (actualData, value) => {
   actualData
   ->Belt.Array.keepMap(Js.Nullable.toOption)
   ->Belt.Array.keepMap((data: saveView) => {
-    let dict = Js.Dict.empty()
-    dict->Js.Dict.set("name", data.name)
-    dict->Js.Dict.set("description", data.description)
+    let dict = Dict.make()
+    dict->Dict.set("name", data.name)
+    dict->Dict.set("description", data.description)
 
     let isMatched =
       dict
@@ -96,7 +96,7 @@ let getFilterDict = (~url, ~prefix, ~excludeKeys=[], ~includeKeys=[], ()) => {
     })
     ->Js.Dict.fromArray
   } else {
-    Js.Dict.empty()
+    Dict.make()
   }
 }
 

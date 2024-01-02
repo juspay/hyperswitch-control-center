@@ -5,7 +5,7 @@ module ActiveRulePreview = {
   open LogicUtils
   @react.component
   let make = (~initialRule) => {
-    let ruleInfo = initialRule->Belt.Option.getWithDefault(Js.Dict.empty())
+    let ruleInfo = initialRule->Belt.Option.getWithDefault(Dict.make())
     let name = ruleInfo->getString("name", "")
     let description = ruleInfo->getString("description", "")
 
@@ -117,7 +117,7 @@ let make = () => {
     try {
       let wasmResult = await Window.connectorWasmInit()
       let wasm =
-        wasmResult->LogicUtils.getDictFromJsonObject->LogicUtils.getObj("wasm", Js.Dict.empty())
+        wasmResult->LogicUtils.getDictFromJsonObject->LogicUtils.getObj("wasm", Dict.make())
       setWasm(_ => Some(wasm->toWasm))
     } catch {
     | _ => ()
@@ -129,7 +129,7 @@ let make = () => {
       let threeDsUrl = getURL(~entityName=THREE_DS, ~methodType=Get, ())
       let threeDsRuleDetail = await fetchDetails(threeDsUrl)
       let responseDict = threeDsRuleDetail->getDictFromJsonObject
-      let programValue = responseDict->getObj("program", Js.Dict.empty())
+      let programValue = responseDict->getObj("program", Dict.make())
 
       let intitialValue =
         [
@@ -204,7 +204,7 @@ let make = () => {
   let validate = (values: Js.Json.t) => {
     let dict = values->LogicUtils.getDictFromJsonObject
 
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
 
     RoutingUtils.validateNameAndDescription(~dict, ~errors)
 
@@ -213,12 +213,12 @@ let make = () => {
         let index = 1
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
         if index === 1 && rules->Array.length === 0 {
-          errors->Js.Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
+          errors->Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
         } else {
           rules->Array.forEachWithIndex((rule, i) => {
             let ruleDict = rule->LogicUtils.getDictFromJsonObject
             if !RoutingUtils.validateConditionsFor3ds(ruleDict) {
-              errors->Js.Dict.set(
+              errors->Dict.set(
                 `Rule ${(i + 1)->string_of_int} - Condition`,
                 `Invalid`->Js.Json.string,
               )

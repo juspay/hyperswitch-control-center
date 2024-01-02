@@ -74,7 +74,7 @@ module SDKConfiguarationFields = {
       <FormRenderer.FieldRenderer field=enterAmountField fieldWrapperClass="!w-full" />
       <FormRenderer.SubmitButton
         text="Show preview"
-        disabledParamter={!(initialValues.profile_id->Js.String2.length > 0)}
+        disabledParamter={!(initialValues.profile_id->String.length > 0)}
         customSumbitButtonStyle="!mt-5"
       />
     </div>
@@ -105,7 +105,7 @@ let make = () => {
   React.useEffect1(() => {
     setInitialValues(_ => defaultBusinessProfile->SDKPaymentUtils.initialValueForForm)
     None
-  }, [defaultBusinessProfile.profile_id->Js.String2.length])
+  }, [defaultBusinessProfile.profile_id->String.length])
 
   let onProceed = async (~paymentId) => {
     switch paymentId {

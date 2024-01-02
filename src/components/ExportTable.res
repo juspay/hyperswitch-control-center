@@ -28,7 +28,7 @@ let make = (
     let csv =
       actualDataOrig
       ->Array.map(allRows => {
-        let allRowsDict = Js.Json.decodeObject(allRows)->Belt.Option.getWithDefault(Js.Dict.empty())
+        let allRowsDict = Js.Json.decodeObject(allRows)->Belt.Option.getWithDefault(Dict.make())
         initialValues
         ->Array.map(col => {
           let str =

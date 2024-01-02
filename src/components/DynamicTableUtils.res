@@ -47,7 +47,7 @@ let filteredData = (
   entity: EntityType.entityType<'colType, 't>,
   dateFormatConvertor: string => option<Js.Json.t>,
 ) => {
-  let selectedFiltersKeys = columnFilter->Js.Dict.keys
+  let selectedFiltersKeys = columnFilter->Dict.keysToArray
   if selectedFiltersKeys->Array.length > 0 {
     actualData->Array.filter(item => {
       switch item->Js.Nullable.toOption {

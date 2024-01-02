@@ -158,7 +158,7 @@ let make = () => {
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
     let (searchText, arr) = ob
-    let filteredList = if searchText->Js.String2.length > 0 {
+    let filteredList = if searchText->String.length > 0 {
       arr->Array.filter((frmPlayer: Js.Nullable.t<ConnectorTypes.connectorPayload>) => {
         switch Js.Nullable.toOption(frmPlayer) {
         | Some(frmPlayer) => isContainingStringLowercase(frmPlayer.connector_name, searchText)

@@ -263,7 +263,7 @@ let refundMetaitemToObjMapper = dict => {
 }
 
 let getRefundMetaData: Js.Json.t => refundMetaData = json => {
-  json->Js.Json.decodeObject->Belt.Option.getWithDefault(Js.Dict.empty())->refundMetaitemToObjMapper
+  json->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make())->refundMetaitemToObjMapper
 }
 
 let refunditemToObjMapper = dict => {

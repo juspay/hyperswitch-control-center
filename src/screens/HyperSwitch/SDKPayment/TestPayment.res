@@ -81,7 +81,7 @@ let make = (
       setPaymentStatus(_ => INCOMPLETE)
     }
     setPaymentId(_ => paymentIdFromPaymemtIntentClientSecret)
-    if status->Js.String2.length <= 0 && keyValue->Js.String2.length > 0 {
+    if status->String.length <= 0 && keyValue->String.length > 0 {
       getClientSecret()->ignore
     }
     None

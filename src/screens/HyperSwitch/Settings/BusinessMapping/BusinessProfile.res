@@ -70,7 +70,7 @@ module AddEntryBtn = {
               text={"Configure payment settings"}
               buttonType=Primary
               onClick={_ => {
-                if updatedProfileId->Js.String2.length > 0 {
+                if updatedProfileId->String.length > 0 {
                   RescriptReactRouter.replace(`/payment-settings/${updatedProfileId}`)
                   setModalState(_ => Edit)
                 }

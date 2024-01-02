@@ -21,10 +21,10 @@ let filterByData = (actualData, value) => {
   actualData
   ->Belt.Array.keepMap(Js.Nullable.toOption)
   ->Belt.Array.keepMap((data: tableDetails) => {
-    let dict = Js.Dict.empty()
-    dict->Js.Dict.set("orderId", data.orderId)
-    dict->Js.Dict.set("merchantId", data.merchantId)
-    dict->Js.Dict.set("timestamp", data.timestamp)
+    let dict = Dict.make()
+    dict->Dict.set("orderId", data.orderId)
+    dict->Dict.set("merchantId", data.merchantId)
+    dict->Dict.set("timestamp", data.timestamp)
 
     let isMatched =
       dict

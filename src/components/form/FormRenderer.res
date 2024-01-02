@@ -211,7 +211,7 @@ module FieldWrapper = {
     let labelPadding = labelPadding === "" ? "pt-2 pb-2" : labelPadding
 
     let labelTextClass =
-      labelTextStyleClass->Js.String2.length > 0
+      labelTextStyleClass->String.length > 0
         ? labelTextStyleClass
         : "text-fs-13 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1"
 
@@ -527,9 +527,9 @@ module FormError = {
     let (submitErrors, setSubmitErrors) = React.useState(() => None)
 
     let subscriptionJson = {
-      let subscriptionDict = Js.Dict.empty()
+      let subscriptionDict = Dict.make()
 
-      Js.Dict.set(subscriptionDict, "submitErrors", Js.Json.boolean(true))
+      Dict.set(subscriptionDict, "submitErrors", Js.Json.boolean(true))
 
       Js.Json.object_(subscriptionDict)
     }
@@ -596,7 +596,7 @@ module SubmitButton = {
   ) => {
     let url = RescriptReactRouter.useUrl()
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let dict = Js.Dict.empty()
+    let dict = Dict.make()
     [
       "hasSubmitErrors",
       "hasValidationErrors",
@@ -604,7 +604,7 @@ module SubmitButton = {
       "submitErrors",
       "submitting",
     ]->Array.forEach(item => {
-      Js.Dict.set(dict, item, Js.Json.boolean(true))
+      Dict.set(dict, item, Js.Json.boolean(true))
     })
 
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
@@ -612,7 +612,7 @@ module SubmitButton = {
     )
     let {hasValidationErrors, hasSubmitErrors, submitting, dirtySinceLastSubmit, errors} = formState
 
-    let errorsList = JsonFlattenUtils.flattenObject(errors, false)->Js.Dict.entries
+    let errorsList = JsonFlattenUtils.flattenObject(errors, false)->Dict.toArray
 
     let hasError = {
       if loginPageValidator {
@@ -689,7 +689,7 @@ module SubmitButton = {
             let filterKeys =
               formState.values
               ->LogicUtils.getDictFromJsonObject
-              ->Js.Dict.keys
+              ->Dict.keysToArray
               ->Array.filter(key => {
                 ["startTime", "endTime"]->Array.includes(key)->not
               })

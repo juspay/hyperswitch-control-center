@@ -6,7 +6,7 @@ module SurveyComponent = {
     let url = RescriptReactRouter.useUrl()
     let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let currentQuestionValue = currentQuestionDict.key->getStringValueFromForm
-    let isNextButtonEnabled = currentQuestionValue->Js.String2.length > 0
+    let isNextButtonEnabled = currentQuestionValue->String.length > 0
 
     let sendMixpanelEvent = (~actionName) => {
       hyperswitchMixPanel(
@@ -60,7 +60,7 @@ module SurveyComponent = {
           <FormRenderer.SubmitButton
             text="Submit"
             customSumbitButtonStyle="!rounded-md w-full"
-            disabledParamter={currentQuestionValue->Js.String2.length > 0 ? false : true}
+            disabledParamter={currentQuestionValue->String.length > 0 ? false : true}
           />
         } else {
           <Button

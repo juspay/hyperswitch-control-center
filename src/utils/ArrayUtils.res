@@ -4,5 +4,5 @@ let getUniqueStrArray = (arr: array<string>) => {
     (item, 0)
   })
   ->Js.Dict.fromArray
-  ->Js.Dict.keys
+  ->Dict.keysToArray
 }

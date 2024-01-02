@@ -3,7 +3,7 @@ type filterBody = {
   end_time: string,
 }
 
-let isStringNonEmpty = str => str->Js.String2.length > 0
+let isStringNonEmpty = str => str->String.length > 0
 
 let getDateValue = (key, ~getModuleFilters) => {
   getModuleFilters->LogicUtils.getString(key, "")
@@ -53,7 +53,7 @@ let getFilterFields: Js.Json.t => array<EntityType.optionType<'t>> = json => {
   let filterDict = json->getDictFromJsonObject
 
   filterDict
-  ->Js.Dict.keys
+  ->Dict.keysToArray
   ->Array.reduce([], (acc, key) => {
     let title = `Select ${key->snakeToTitle}`
     let values = filterDict->getArrayFromDict(key, [])->getStrArrayFromJsonArray
@@ -110,7 +110,7 @@ let useSetInitialFilters = (
 
     let defaultDate = getDateFilteredObject()
 
-    if filterValueJson->Js.Dict.keys->Array.length < 1 {
+    if filterValueJson->Dict.keysToArray->Array.length < 1 {
       [
         (startTimeFilterKey, defaultDate.start_time),
         (endTimeFilterKey, defaultDate.end_time),
@@ -118,7 +118,7 @@ let useSetInitialFilters = (
         let (key, defaultValue) = item
         switch inititalSearchParam->Js.Dict.get(key) {
         | Some(_) => ()
-        | None => inititalSearchParam->Js.Dict.set(key, defaultValue)
+        | None => inititalSearchParam->Dict.set(key, defaultValue)
         }
       })
 
@@ -181,7 +181,7 @@ module SearchBarFilter = {
     }, [searchValBase])
 
     React.useEffect1(() => {
-      if searchValBase->Js.String2.length < 1 && searchVal->Js.String2.length > 0 {
+      if searchValBase->String.length < 1 && searchVal->String.length > 0 {
         setSearchVal(_ => searchValBase)
       }
       None
@@ -259,7 +259,7 @@ module RemoteTableFilters = {
     }, (startTimeVal, endTimeVal, filterValue))
 
     let filterDataJson = filterUrl->getFilterData(filterBody)
-    let filterData = filterDataJson->Belt.Option.getWithDefault(Js.Dict.empty()->Js.Json.object_)
+    let filterData = filterDataJson->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
 
     React.useEffect1(() => {
       if url.search->HSwitchUtils.isEmptyString {
@@ -270,7 +270,7 @@ module RemoteTableFilters = {
 
     React.useEffect1(() => {
       updateComponentPrefrences(~dict=filterValue)
-      if filterValueJson->Js.Dict.keys->Array.length > 0 {
+      if filterValueJson->Dict.keysToArray->Array.length > 0 {
         setFilters(_ => filterValueJson->Some)
         setOffset(_ => 0)
       }
@@ -289,12 +289,12 @@ module RemoteTableFilters = {
       ->Array.filterWithIndex((_item, index) => index > 3)
 
     let clearFilters = () => {
-      filterData->getDictFromJsonObject->Js.Dict.keys->removeKeys
+      filterData->getDictFromJsonObject->Dict.keysToArray->removeKeys
     }
 
     let hideFiltersDefaultValue = !(
       filterValue
-      ->Js.Dict.keys
+      ->Dict.keysToArray
       ->Array.filter(item =>
         [startTimeFilterKey, endTimeFilterKey]->Array.find(key => key == item)->Belt.Option.isNone
       )

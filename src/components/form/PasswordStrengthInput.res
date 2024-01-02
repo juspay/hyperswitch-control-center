@@ -53,11 +53,11 @@ let make = (
         let localScore =
           accScore +.
           (test.weight *. result->Array.length->Belt.Int.toFloat +.
-          strVal->Js.String2.length->Belt.Int.toFloat *. 1.2)
+          strVal->String.length->Belt.Int.toFloat *. 1.2)
         (localVariety, localScore)
       }, (0, 0.0))
 
-      let newPasswordStatus = if strVal->Js.String2.length <= 1 {
+      let newPasswordStatus = if strVal->String.length <= 1 {
         {message: "", color: Red}
       } else if variety != 4 {
         {message: "Too Simple", color: Red}

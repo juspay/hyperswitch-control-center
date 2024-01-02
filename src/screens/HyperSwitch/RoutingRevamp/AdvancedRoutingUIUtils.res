@@ -10,7 +10,7 @@ module LogicalOps = {
     let logicalOpsInput = ReactFinalForm.useField(`${id}.logical`).input
 
     React.useEffect0(() => {
-      if logicalOpsInput.value->LogicUtils.getStringFromJson("")->Js.String2.length === 0 {
+      if logicalOpsInput.value->LogicUtils.getStringFromJson("")->String.length === 0 {
         logicalOpsInput.onChange("AND"->strToFormEvent)
       }
       None
@@ -83,7 +83,7 @@ module OperatorInp = {
         ("NOT_CONTAINS", "Includes results except any value for the filter property."),
       ]->Js.Dict.fromArray
     let disableSelect =
-      field.value->Js.Json.decodeString->Belt.Option.getWithDefault("")->Js.String2.length === 0
+      field.value->Js.Json.decodeString->Belt.Option.getWithDefault("")->String.length === 0
 
     let operatorOptions = opVals->Array.map(opVal => {
       let obj: SelectBox.dropdownOption = {
@@ -167,7 +167,7 @@ module ValueInp = {
         let val = valueField.value->LogicUtils.getStringFromJson("")
         <SelectBox.BaseDropdown
           allowMultiSelect=false
-          buttonText={val->Js.String2.length === 0 ? "Select Value" : val}
+          buttonText={val->String.length === 0 ? "Select Value" : val}
           input
           options={variantValues->SelectBox.makeOptions}
           hideMultiSelectButtons=true
@@ -294,7 +294,7 @@ module FieldInp = {
     })
 
     let options = React.useMemo0(() =>
-      convertedValue->Js.Dict.keys->Js.Array2.reduce((acc, ele) => {
+      convertedValue->Dict.keysToArray->Js.Array2.reduce((acc, ele) => {
         open LogicUtils
         convertedValue
         ->getArrayFromDict(ele, [])
@@ -362,7 +362,7 @@ module RuleFieldBase = {
 
     let methodKeys = React.useMemo0(() => {
       let value = field.value->LogicUtils.getStringFromJson("")
-      if value->Js.String2.length > 0 {
+      if value->String.length > 0 {
         setKeyTypeAndVariants(wasm, value)
       }
       if isFrom3ds {
@@ -422,7 +422,7 @@ module MakeRuleField = {
     //fields->Js.Array2.every(validateConditionJson)
     let onPlusClick = _ => {
       if plusBtnEnabled {
-        let toAdd = Js.Dict.empty()
+        let toAdd = Dict.make()
         conditionsInput.onChange(
           Array.concat(
             fields,

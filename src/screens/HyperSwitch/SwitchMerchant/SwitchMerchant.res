@@ -240,8 +240,8 @@ let make = (~userRole) => {
   let switchMerchant = async value => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Post, ())
-      let body = Js.Dict.empty()
-      body->Js.Dict.set("merchant_id", value->Js.Json.string)
+      let body = Dict.make()
+      body->Dict.set("merchant_id", value->Js.Json.string)
       let res = await updateDetails(url, body->Js.Json.object_, Post)
       let responseDict = res->getDictFromJsonObject
       let token = responseDict->getString("token", "")

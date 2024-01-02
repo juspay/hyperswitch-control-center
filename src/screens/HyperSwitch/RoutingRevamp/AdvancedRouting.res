@@ -28,7 +28,7 @@ let initialValues = {
   algorithm: {
     data: {
       rules: [defaultRule],
-      metadata: Js.Dict.empty()->Js.Json.object_,
+      metadata: Dict.make()->Js.Json.object_,
       defaultSelection: {
         \"type": "",
         data: [],
@@ -369,7 +369,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       let routingUrl = getURL(~entityName=ROUTING, ~methodType=Get, ~id=routingRuleId, ())
       let routingJson = await fetchDetails(routingUrl)
       let schemaValue = routingJson->getDictFromJsonObject
-      let rulesValue = schemaValue->getObj("algorithm", Js.Dict.empty())->getDictfromDict("data")
+      let rulesValue = schemaValue->getObj("algorithm", Dict.make())->getDictfromDict("data")
 
       setInitialValues(_ => routingJson)
       setInitialRule(_ => Some(ruleInfoTypeMapper(rulesValue)))
@@ -385,7 +385,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let getWasm = async () => {
     try {
       let wasmResult = await Window.connectorWasmInit()
-      let wasm = wasmResult->getDictFromJsonObject->getObj("wasm", Js.Dict.empty())
+      let wasm = wasmResult->getDictFromJsonObject->getObj("wasm", Dict.make())
       setWasm(_ => Some(wasm->toWasm))
     } catch {
     | _ => ()
@@ -422,7 +422,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     let dict = values->LogicUtils.getDictFromJsonObject
     let convertedObject = values->AdvancedRoutingUtils.getRoutingTypesFromJson
 
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
 
     RoutingUtils.validateNameAndDescription(~dict, ~errors)
 
@@ -471,22 +471,19 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     let rulesArray = convertedObject.algorithm.data.rules
 
     if rulesArray->Array.length === 0 {
-      errors->Js.Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
+      errors->Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
     } else {
       rulesArray->Array.forEachWithIndex((rule, i) => {
         let connectorDetails = rule.connectorSelection.data->Belt.Option.getWithDefault([])
 
         switch connectorDetails->validateGateways {
         | Some(error) =>
-          errors->Js.Dict.set(`Rule ${(i + 1)->string_of_int} - Gateway`, error->Js.Json.string)
+          errors->Dict.set(`Rule ${(i + 1)->string_of_int} - Gateway`, error->Js.Json.string)
         | None => ()
         }
 
         if !AdvancedRoutingUtils.validateStatements(rule.statements) {
-          errors->Js.Dict.set(
-            `Rule ${(i + 1)->string_of_int} - Condition`,
-            `Invalid`->Js.Json.string,
-          )
+          errors->Dict.set(`Rule ${(i + 1)->string_of_int} - Condition`, `Invalid`->Js.Json.string)
         }
       })
     }
@@ -498,7 +495,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     try {
       setScreenState(_ => Loading)
       let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-      let _ = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
       showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
       RescriptReactRouter.replace(`/routing?`)
       setScreenState(_ => Success)

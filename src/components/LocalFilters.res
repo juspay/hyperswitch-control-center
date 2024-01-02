@@ -99,9 +99,7 @@ let make = (
   let (checkedFilters, setCheckedFilters) = React.useState(_ => [])
   let url = RescriptReactRouter.useUrl()
   let searchParams = disableURIdecode ? url.search : url.search->Js.Global.decodeURI
-  let (initialValueJson, setInitialValueJson) = React.useState(_ =>
-    Js.Json.object_(Js.Dict.empty())
-  )
+  let (initialValueJson, setInitialValueJson) = React.useState(_ => Js.Json.object_(Dict.make()))
   let remoteFiltersJson = RemoteFiltersUtils.getInitialValuesFromUrl(
     ~searchParams,
     ~initialFilters=remoteFilters,
@@ -124,8 +122,8 @@ let make = (
 
     initialValues
     ->Js.Json.decodeObject
-    ->Belt.Option.getWithDefault(Js.Dict.empty())
-    ->Js.Dict.entries
+    ->Belt.Option.getWithDefault(Dict.make())
+    ->Dict.toArray
     ->Array.forEach(entry => {
       let (key, _value) = entry
       let includes = Array.includes(checkedFilters, key)
@@ -194,8 +192,8 @@ let make = (
     let newInitialValues =
       initialValueJson
       ->Js.Json.decodeObject
-      ->Belt.Option.getWithDefault(Js.Dict.empty())
-      ->Js.Dict.entries
+      ->Belt.Option.getWithDefault(Dict.make())
+      ->Dict.toArray
       ->Array.filter(entry => {
         let (key, _value) = entry
         !Array.includes(toBeRemoved, key)
@@ -206,12 +204,12 @@ let make = (
     switch values->Js.Json.decodeObject {
     | Some(dict) =>
       dict
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Array.forEach(entry => {
         let (key, _val) = entry
 
         if toBeRemoved->Array.includes(key) {
-          dict->Js.Dict.set(key, Js.Json.string(""))
+          dict->Dict.set(key, Js.Json.string(""))
         }
         dict->applyFilters
       })

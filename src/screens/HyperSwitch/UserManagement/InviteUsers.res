@@ -77,7 +77,7 @@ let make = () => {
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (roleTypeValue, setRoleTypeValue) = React.useState(_ => "merchant_view_only")
-  let (roleDict, setRoleDict) = React.useState(_ => Js.Dict.empty())
+  let (roleDict, setRoleDict) = React.useState(_ => Dict.make())
 
   let initialValues = React.useMemo0(() => {
     [("roleType", ["merchant_view_only"->Js.Json.string]->Js.Json.array)]
@@ -146,7 +146,7 @@ let make = () => {
       )
       let res = await fetchDetails(url)
       setRoleDict(prevDict => {
-        prevDict->Js.Dict.set(roleTypeValue, res)
+        prevDict->Dict.set(roleTypeValue, res)
         prevDict
       })
       settingUpValues(res, permissionInfoValue)

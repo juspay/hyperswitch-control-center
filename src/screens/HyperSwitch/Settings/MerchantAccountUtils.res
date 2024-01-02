@@ -5,9 +5,9 @@ let parseKey = api_key => {
 
 let passwordKeyValidation = (value, key, keyVal, errors) => {
   let mustHave: array<string> = []
-  if value->Js.String2.length > 0 && key === keyVal {
-    if value->Js.String2.length < 8 {
-      Js.Dict.set(
+  if value->String.length > 0 && key === keyVal {
+    if value->String.length < 8 {
+      Dict.set(
         errors,
         key,
         "Your password is not strong enough. Password size must be more than 8"->Js.Json.string,
@@ -26,7 +26,7 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
         mustHave->Array.push("special")
       }
       if mustHave->Array.length > 0 {
-        Js.Dict.set(
+        Dict.set(
           errors,
           key,
           `Your password is not strong enough. A good password must contain atleast ${mustHave->Array.joinWith(
@@ -48,7 +48,7 @@ let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, err
       Js.Dict.get(valuesDict, key),
     )
   ) {
-    Js.Dict.set(errors, key, "The New password does not match!"->Js.Json.string)
+    Dict.set(errors, key, "The New password does not match!"->Js.Json.string)
   }
 }
 
@@ -137,8 +137,8 @@ let constructWebhookDetailsObject = webhookDetailsDict => {
 let getMerchantDetails = (values: Js.Json.t) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
-  let merchantDetails = valuesDict->getObj("merchant_details", Js.Dict.empty())
-  let address = merchantDetails->getObj("address", Js.Dict.empty())
+  let merchantDetails = valuesDict->getObj("merchant_details", Dict.make())
+  let address = merchantDetails->getObj("address", Dict.make())
 
   let primary_business_details =
     valuesDict
@@ -207,7 +207,7 @@ let getMerchantDetails = (values: Js.Json.t) => {
 let getBusinessProfilePayload = (values: Js.Json.t) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
-  let webhookSettingsValue = Js.Dict.empty()
+  let webhookSettingsValue = Dict.make()
   webhookSettingsValue->setOptionString(
     "webhook_version",
     valuesDict->getOptionString("webhook_version"),
@@ -234,7 +234,7 @@ let getBusinessProfilePayload = (values: Js.Json.t) => {
     valuesDict->getOptionBool("payment_failed_enabled"),
   )
 
-  let profileDetailsDict = Js.Dict.empty()
+  let profileDetailsDict = Dict.make()
   profileDetailsDict->setOptionString("return_url", valuesDict->getOptionString("return_url"))
   profileDetailsDict->setOptionDict(
     "webhook_details",
@@ -246,20 +246,20 @@ let getBusinessProfilePayload = (values: Js.Json.t) => {
 let getSettingsPayload = (values: Js.Json.t, merchantId) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
-  let addressDetailsValue = Js.Dict.empty()
+  let addressDetailsValue = Dict.make()
   addressDetailsValue->setOptionString("line1", valuesDict->getOptionString("line1"))
   addressDetailsValue->setOptionString("line2", valuesDict->getOptionString("line2"))
   addressDetailsValue->setOptionString("line3", valuesDict->getOptionString("line3"))
   addressDetailsValue->setOptionString("city", valuesDict->getOptionString("city"))
   addressDetailsValue->setOptionString("state", valuesDict->getOptionString("state"))
   addressDetailsValue->setOptionString("zip", valuesDict->getOptionString("zip"))
-  let merchantDetailsValue = Js.Dict.empty()
+  let merchantDetailsValue = Dict.make()
   merchantDetailsValue->setOptionString(
     "primary_contact_person",
     valuesDict->getOptionString("primary_contact_person"),
   )
   let primaryEmail = valuesDict->getOptionString("primary_email")
-  if primaryEmail->Belt.Option.getWithDefault("")->Js.String2.length > 0 {
+  if primaryEmail->Belt.Option.getWithDefault("")->String.length > 0 {
     merchantDetailsValue->setOptionString("primary_email", primaryEmail)
   }
   merchantDetailsValue->setOptionString(
@@ -271,7 +271,7 @@ let getSettingsPayload = (values: Js.Json.t, merchantId) => {
     valuesDict->getOptionString("secondary_contact_person"),
   )
   let secondaryEmail = valuesDict->getOptionString("secondary_email")
-  if secondaryEmail->Belt.Option.getWithDefault("")->Js.String2.length > 0 {
+  if secondaryEmail->Belt.Option.getWithDefault("")->String.length > 0 {
     merchantDetailsValue->setOptionString(
       "secondary_email",
       valuesDict->getOptionString("secondary_email"),
@@ -292,7 +292,7 @@ let getSettingsPayload = (values: Js.Json.t, merchantId) => {
   )
 
   !(addressDetailsValue->isEmptyDict)
-    ? merchantDetailsValue->Js.Dict.set("address", addressDetailsValue->Js.Json.object_)
+    ? merchantDetailsValue->Dict.set("address", addressDetailsValue->Js.Json.object_)
     : ()
 
   let primary_business_details =
@@ -344,11 +344,11 @@ let validationFieldsMapper = key => {
 }
 
 let checkValueChange = (~initialDict, ~valuesDict) => {
-  let initialKeys = Js.Dict.keys(initialDict)
-  let updatedKeys = Js.Dict.keys(valuesDict)
+  let initialKeys = Dict.keysToArray(initialDict)
+  let updatedKeys = Dict.keysToArray(valuesDict)
   let key =
     initialDict
-    ->Js.Dict.keys
+    ->Dict.keysToArray
     ->Array.find(key => {
       let initialValue = initialDict->LogicUtils.getString(key, "")
       let updatedValue = valuesDict->LogicUtils.getString(key, "")
@@ -361,7 +361,7 @@ let checkValueChange = (~initialDict, ~valuesDict) => {
 let validateEmptyValue = (key, errors) => {
   switch key {
   | ReturnUrl =>
-    Js.Dict.set(errors, key->validationFieldsMapper, "Please enter a return url"->Js.Json.string)
+    Dict.set(errors, key->validationFieldsMapper, "Please enter a return url"->Js.Json.string)
   | _ => ()
   }
 }
@@ -370,15 +370,11 @@ let validateCustom = (key, errors, value) => {
   switch key {
   | PrimaryEmail | SecondaryEmail =>
     if value->HSwitchUtils.isValidEmail {
-      Js.Dict.set(
-        errors,
-        key->validationFieldsMapper,
-        "Please enter valid email id"->Js.Json.string,
-      )
+      Dict.set(errors, key->validationFieldsMapper, "Please enter valid email id"->Js.Json.string)
     }
   | PrimaryPhone | SecondaryPhone =>
     if !Js.Re.test_(%re("/^(?:\+\d{1,15}?[.-])??\d{3}?[.-]?\d{3}[.-]?\d{3,9}$/"), value) {
-      Js.Dict.set(
+      Dict.set(
         errors,
         key->validationFieldsMapper,
         "Please enter valid phone number"->Js.Json.string,
@@ -386,7 +382,7 @@ let validateCustom = (key, errors, value) => {
     }
   | Website | WebhookUrl | ReturnUrl =>
     if !Js.Re.test_(%re("/^https:\/\//i"), value) || value->Js.String2.includes("localhost") {
-      Js.Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->Js.Json.string)
+      Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->Js.Json.string)
     }
 
   | _ => ()
@@ -399,16 +395,14 @@ let validateMerchantAccountForm = (
   ~setIsDisabled,
   ~initialData,
 ) => {
-  let errors = Js.Dict.empty()
+  let errors = Dict.make()
   let initialDict = initialData->LogicUtils.getDictFromJsonObject
   let valuesDict = values->LogicUtils.getDictFromJsonObject
 
   fieldsToValidate->Array.forEach(key => {
     let value = LogicUtils.getString(valuesDict, key->validationFieldsMapper, "")
 
-    value->Js.String2.length <= 0
-      ? key->validateEmptyValue(errors)
-      : key->validateCustom(errors, value)
+    value->String.length <= 0 ? key->validateEmptyValue(errors) : key->validateCustom(errors, value)
   })
 
   setIsDisabled->Belt.Option.mapWithDefault((), disableBtn => {
@@ -483,9 +477,7 @@ module BusinessProfile = {
   @react.component
   let make = (~profile_id: string, ~className="") => {
     let {profile_name} = useGetBusinessProflile(profile_id)
-    <div className>
-      {(profile_name->Js.String2.length > 0 ? profile_name : "NA")->React.string}
-    </div>
+    <div className> {(profile_name->String.length > 0 ? profile_name : "NA")->React.string} </div>
   }
 }
 

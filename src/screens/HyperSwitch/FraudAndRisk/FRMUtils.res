@@ -63,11 +63,11 @@ let getPaymentMethod = paymentMethod => {
 
 let parseConnectorConfig = dict => {
   open LogicUtils
-  let pmDict = Js.Dict.empty()
+  let pmDict = Dict.make()
   let connectorPaymentMethods = dict->getArrayFromDict("payment_methods_enabled", [])
   connectorPaymentMethods->Array.forEach(item => {
     let (pmName, pmTypes) = item->getPaymentMethod
-    pmDict->Js.Dict.set(pmName, pmTypes)
+    pmDict->Dict.set(pmName, pmTypes)
   })
 
   (getString(dict, "connector_name", ""), pmDict)
@@ -78,10 +78,10 @@ let updatePaymentMethodsDict = (prevPaymentMethodsDict, pmName, currentPmTypes) 
   switch prevPaymentMethodsDict->Js.Dict.get(pmName) {
   | Some(prevPmTypes) => {
       let pmTypesArr = prevPmTypes->Array.concat(currentPmTypes)
-      prevPaymentMethodsDict->Js.Dict.set(pmName, pmTypesArr->getUniqueArray)
+      prevPaymentMethodsDict->Dict.set(pmName, pmTypesArr->getUniqueArray)
     }
 
-  | _ => prevPaymentMethodsDict->Js.Dict.set(pmName, currentPmTypes)
+  | _ => prevPaymentMethodsDict->Dict.set(pmName, currentPmTypes)
   }
 }
 
@@ -89,7 +89,7 @@ let updateConfigDict = (configDict, connectorName, paymentMethodsDict) => {
   switch configDict->Js.Dict.get(connectorName) {
   | Some(prevPaymentMethodsDict) =>
     paymentMethodsDict
-    ->Js.Dict.keys
+    ->Dict.keysToArray
     ->Array.forEach(pmName =>
       updatePaymentMethodsDict(
         prevPaymentMethodsDict,
@@ -98,12 +98,12 @@ let updateConfigDict = (configDict, connectorName, paymentMethodsDict) => {
       )
     )
 
-  | _ => configDict->Js.Dict.set(connectorName, paymentMethodsDict)
+  | _ => configDict->Dict.set(connectorName, paymentMethodsDict)
   }
 }
 
 let getConnectorConfig = connectors => {
-  let configDict = Js.Dict.empty()
+  let configDict = Dict.make()
 
   connectors->Array.forEach(connector => {
     let (connectorName, paymentMethodsDict) = connector->parseConnectorConfig
@@ -128,7 +128,7 @@ let filterList = (items, ~removeFromList, ()) => {
 let createAllOptions = connectorsConfig => {
   open ConnectorTypes
   connectorsConfig
-  ->Js.Dict.keys
+  ->Dict.keysToArray
   ->Array.map(connectorName => {
     gateway: connectorName,
     payment_methods: [],
@@ -138,7 +138,7 @@ let createAllOptions = connectorsConfig => {
 let generateFRMPaymentMethodsConfig = paymentMethodsDict => {
   open ConnectorTypes
   paymentMethodsDict
-  ->Js.Dict.keys
+  ->Dict.keysToArray
   ->Array.map(paymentMethodName => {
     let paymentMethodTypesArr =
       paymentMethodsDict
@@ -162,7 +162,7 @@ let generateFRMPaymentMethodsConfig = paymentMethodsDict => {
 let ignoreFields = json => {
   json
   ->LogicUtils.getDictFromJsonObject
-  ->Js.Dict.entries
+  ->Dict.toArray
   ->Array.filter(entry => {
     let (key, _val) = entry
     !(ignoredField->Array.includes(key))

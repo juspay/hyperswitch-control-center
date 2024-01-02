@@ -111,7 +111,7 @@ module RulePreviewer = {
                     ->Array.mapWithIndex((condition, index) => {
                       let logical = logicalOperatorTypeToStringMapper(condition.logicalOperator)
                       let operator = operatorTypeToStringMapper(condition.operator)
-                      let field = condition.field->Js.String2.length > 0 ? condition.field : ""
+                      let field = condition.field->String.length > 0 ? condition.field : ""
 
                       let value = switch condition.value {
                       | StringArray(arr) => arr->Array.joinWith(", ")

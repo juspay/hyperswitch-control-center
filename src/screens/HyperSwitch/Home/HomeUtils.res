@@ -439,12 +439,12 @@ let getValueMapped = (value, key) => {
 let responseDataMapper = (res: Js.Json.t) => {
   open LogicUtils
   let arrayFromJson = res->getArrayFromJson([])
-  let resDict = Js.Dict.empty()
+  let resDict = Dict.make()
 
   arrayFromJson->Array.forEach(value => {
     let value1 = value->getDictFromJsonObject
-    let key = value1->Js.Dict.keys->Belt.Array.get(0)->Belt.Option.getWithDefault("")
-    resDict->Js.Dict.set(key, value1->getValueMapped(key))
+    let key = value1->Dict.keysToArray->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+    resDict->Dict.set(key, value1->getValueMapped(key))
   })
   resDict
 }

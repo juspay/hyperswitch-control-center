@@ -46,7 +46,7 @@ module PrettyPrintJson = {
       </div>
 
     <div className="flex flex-col gap-2  my-2">
-      <UIUtils.RenderIf condition={parsedJson->Js.String2.length > 0}>
+      <UIUtils.RenderIf condition={parsedJson->String.length > 0}>
         {<>
           <UIUtils.RenderIf condition={headerText->Belt.Option.isSome}>
             <div className="flex justify-between items-center">
@@ -72,7 +72,7 @@ module PrettyPrintJson = {
           />
         </>}
       </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={parsedJson->Js.String2.length === 0}>
+      <UIUtils.RenderIf condition={parsedJson->String.length === 0}>
         <div className="flex flex-col justify-start items-start gap-2 h-25-rem">
           <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
             {headerText->Belt.Option.getWithDefault("")->React.string}
@@ -125,7 +125,7 @@ module ApiDetailsComponent = {
     | Payment => paymentDetailsValue->getString("request", "")
     | Sdk =>
       paymentDetailsValue
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Array.filter(entry => {
         let (key, _) = entry
         filteredKeys->Array.includes(key)->not
@@ -168,11 +168,11 @@ module ApiDetailsComponent = {
     | _ => "grey-700 opacity-50"
     }
     let stepColor =
-      currentSelected->Js.String2.length > 0 && currentSelected === requestId
+      currentSelected->String.length > 0 && currentSelected === requestId
         ? background_color
         : "gray-300 "
     let boxShadowOnSelection =
-      currentSelected->Js.String2.length > 0 && currentSelected === requestId
+      currentSelected->String.length > 0 && currentSelected === requestId
         ? "border border-blue-700 rounded-md shadow-paymentLogsShadow"
         : "border border-transparent"
 
@@ -306,22 +306,22 @@ let make = (~paymentId, ~createdAt) => {
           let logType = eventDict->getString("log_type", "")
           let updatedEventName =
             logType === "INFO" ? eventName->Js.String2.replace("Call", "Response") : eventName
-          eventDict->Js.Dict.set("event_name", updatedEventName->Js.Json.string)
-          eventDict->Js.Dict.set("event_id", sha256(updatedEventName ++ timestamp)->Js.Json.string)
-          eventDict->Js.Dict.set(
+          eventDict->Dict.set("event_name", updatedEventName->Js.Json.string)
+          eventDict->Dict.set("event_id", sha256(updatedEventName ++ timestamp)->Js.Json.string)
+          eventDict->Dict.set(
             "source",
             eventDict->getString("source", "")->sourceMapper->Js.Json.string,
           )
-          eventDict->Js.Dict.set(
+          eventDict->Dict.set(
             "checkout_platform",
             eventDict->getString("component", "")->Js.Json.string,
           )
-          eventDict->Js.Dict.set(
+          eventDict->Dict.set(
             "customer_device",
             eventDict->getString("platform", "")->Js.Json.string,
           )
-          eventDict->Js.Dict.set("sdk_version", eventDict->getString("version", "")->Js.Json.string)
-          eventDict->Js.Dict.set(
+          eventDict->Dict.set("sdk_version", eventDict->getString("version", "")->Js.Json.string)
+          eventDict->Dict.set(
             "event_name",
             updatedEventName
             ->snakeToTitle
@@ -330,7 +330,7 @@ let make = (~paymentId, ~createdAt) => {
             ->capitalizeString
             ->Js.Json.string,
           )
-          eventDict->Js.Dict.set("created_at", timestamp->Js.Json.string)
+          eventDict->Dict.set("created_at", timestamp->Js.Json.string)
           eventDict->Js.Json.object_
         })
       setSdkLogsData(_ =>
@@ -451,17 +451,17 @@ let make = (~paymentId, ~createdAt) => {
           </div>
         </div>
         <UIUtils.RenderIf
-          condition={responseObject->Js.String2.length > 0 || requestObject->Js.String2.length > 0}>
+          condition={responseObject->String.length > 0 || requestObject->String.length > 0}>
           <div
             className="flex flex-col gap-4 bg-hyperswitch_background rounded show-scrollbar scroll-smooth overflow-scroll px-8 py-4 w-1/2">
-            <UIUtils.RenderIf condition={requestObject->Js.String2.length > 0}>
+            <UIUtils.RenderIf condition={requestObject->String.length > 0}>
               <PrettyPrintJson
                 jsonToDisplay=requestObject
                 headerText={Some(currentSelectedType === Payment ? "Request body" : "Event")}
-                maxHeightClass={responseObject->Js.String2.length > 0 ? "max-h-25-rem" : ""}
+                maxHeightClass={responseObject->String.length > 0 ? "max-h-25-rem" : ""}
               />
             </UIUtils.RenderIf>
-            <UIUtils.RenderIf condition={responseObject->Js.String2.length > 0}>
+            <UIUtils.RenderIf condition={responseObject->String.length > 0}>
               <PrettyPrintJson
                 jsonToDisplay=responseObject
                 headerText={Some(currentSelectedType === Payment ? "Response body" : "Metadata")}

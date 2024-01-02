@@ -79,7 +79,7 @@ let make = (
   )
 
   let validateFunc = strVal => {
-    if strVal->Js.String2.length >= 8 {
+    if strVal->String.length >= 8 {
       setPasswordChecks(prev => {
         ...prev,
         minEightChars: true,

@@ -12,7 +12,7 @@ module ClearForm = {
     <div className="ml-2">
       <Button
         text="Clear Form"
-        onClick={e => form.reset(Js.Json.object_(Js.Dict.empty())->Js.Nullable.return)}
+        onClick={e => form.reset(Js.Json.object_(Dict.make())->Js.Nullable.return)}
       />
     </div>
   }
@@ -143,8 +143,8 @@ module ClearFilters = {
         let searchStr =
           formState.values
           ->Js.Json.decodeObject
-          ->Belt.Option.getWithDefault(Js.Dict.empty())
-          ->Js.Dict.entries
+          ->Belt.Option.getWithDefault(Dict.make())
+          ->Dict.toArray
           ->Belt.Array.keepMap(entry => {
             let (key, value) = entry
             switch defaultFilterKeys->Array.includes(key) {
@@ -168,8 +168,8 @@ module ClearFilters = {
     let hasExtraFilters = React.useMemo2(() => {
       formState.initialValues
       ->Js.Json.decodeObject
-      ->Belt.Option.getWithDefault(Js.Dict.empty())
-      ->Js.Dict.entries
+      ->Belt.Option.getWithDefault(Dict.make())
+      ->Dict.toArray
       ->Array.filter(entry => {
         let (key, value) = entry
         let isEmptyValue = switch value->Js.Json.classify {
@@ -214,8 +214,8 @@ module AnalyticsClearFilters = {
         let searchStr =
           formState.values
           ->Js.Json.decodeObject
-          ->Belt.Option.getWithDefault(Js.Dict.empty())
-          ->Js.Dict.entries
+          ->Belt.Option.getWithDefault(Dict.make())
+          ->Dict.toArray
           ->Belt.Array.keepMap(entry => {
             let (key, value) = entry
             switch defaultFilterKeys->Array.includes(key) {
@@ -239,8 +239,8 @@ module AnalyticsClearFilters = {
     let hasExtraFilters = React.useMemo2(() => {
       formState.initialValues
       ->Js.Json.decodeObject
-      ->Belt.Option.getWithDefault(Js.Dict.empty())
-      ->Js.Dict.entries
+      ->Belt.Option.getWithDefault(Dict.make())
+      ->Dict.toArray
       ->Array.filter(entry => {
         let (key, value) = entry
         let isEmptyValue = switch value->Js.Json.classify {
@@ -402,11 +402,11 @@ module ApplyFilterButton = {
       formState.initialValues
       ->LogicUtils.getDictFromJsonObject
       ->DictionaryUtils.deleteKeys(defaultFilterKeys)
-    let dirtyFields = formState.dirtyFields->Js.Dict.keys
+    let dirtyFields = formState.dirtyFields->Dict.keysToArray
 
     let getFormattedDict = dict => {
       dict
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Array.map(entry => {
         let (key, value) = entry
         let inputField =
@@ -432,12 +432,12 @@ module ApplyFilterButton = {
         ~ignoreKeys=["opt"],
       )
 
-      let otherCheck = formattedCurrentValues->Js.Dict.entries->Js.Array2.reduce((acc, item) => {
+      let otherCheck = formattedCurrentValues->Dict.toArray->Js.Array2.reduce((acc, item) => {
           let (_, value) = item
           switch value->Js.Json.classify {
           | JSONString(str) => str === ""
           | JSONArray(arr) => arr->Array.length === 0
-          | JSONObject(dict) => dict->Js.Dict.entries->Array.length === 0
+          | JSONObject(dict) => dict->Dict.toArray->Array.length === 0
           | JSONNull => true
           | _ => false
           } &&
@@ -600,13 +600,11 @@ let make = (
 
   let isMobileView = MatchMedia.useMobileChecker()
 
-  let (initialValueJson, setInitialValueJson) = React.useState(_ =>
-    Js.Json.object_(Js.Dict.empty())
-  )
+  let (initialValueJson, setInitialValueJson) = React.useState(_ => Js.Json.object_(Dict.make()))
 
   let countSelectedFilters = React.useMemo1(() => {
-    Js.Dict.keys(
-      initialValueJson->Js.Json.decodeObject->Belt.Option.getWithDefault(Js.Dict.empty()),
+    Dict.keysToArray(
+      initialValueJson->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make()),
     )->Array.length
   }, [initialValueJson])
 
@@ -632,7 +630,7 @@ let make = (
       (),
     )
     ->LogicUtils.getDictFromJsonObject
-    ->Js.Dict.keys
+    ->Dict.keysToArray
     ->Array.length
 
   let popupUrlKeyArr = popupFilterFields->Array.map(item => item.urlKey)
@@ -650,7 +648,7 @@ let make = (
       fn(
         initialValues
         ->LogicUtils.getDictFromJsonObject
-        ->Js.Dict.entries
+        ->Dict.toArray
         ->Array.map(item => {
           let (key, value) = item
           (key, getStrFromJson(key, value))
@@ -671,7 +669,7 @@ let make = (
         })
 
         dict
-        ->Js.Dict.entries
+        ->Dict.toArray
         ->Array.forEach(entry => {
           let (key, _value) = entry
           let keyIdx = checkedFilters->Js.Array2.findIndex(item => item === key)
@@ -711,8 +709,8 @@ let make = (
     let obj =
       values
       ->Js.Json.decodeObject
-      ->Belt.Option.getWithDefault(Js.Dict.empty())
-      ->Js.Dict.entries
+      ->Belt.Option.getWithDefault(Dict.make())
+      ->Dict.toArray
       ->Js.Dict.fromArray
 
     let flattendDict = obj->Js.Json.object_->JsonFlattenUtils.flattenObject(false)
@@ -775,12 +773,12 @@ let make = (
     switch values->Js.Json.decodeObject {
     | Some(dict) =>
       dict
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Array.forEach(entry => {
         let (key, _val) = entry
 
         if toBeRemoved->Array.includes(key) {
-          dict->Js.Dict.set(key, Js.Json.string(""))
+          dict->Dict.set(key, Js.Json.string(""))
         }
       })
     | None => ()
@@ -798,7 +796,7 @@ let make = (
     let newValueJson =
       initialValueJson
       ->Js.Json.decodeObject
-      ->Belt.Option.map(Js.Dict.entries)
+      ->Belt.Option.map(Dict.toArray)
       ->Belt.Option.getWithDefault([])
       ->Array.filter(entry => {
         let (key, _value) = entry
@@ -814,7 +812,7 @@ let make = (
 
   let validate = values => {
     let valuesDict = values->JsonFlattenUtils.flattenObject(false)
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
 
     requiredSearchFieldsList->Array.forEach(key => {
       if Js.Dict.get(valuesDict, key)->Js.Option.isNone {
@@ -823,10 +821,10 @@ let make = (
         } else {
           key
         }
-        Js.Dict.set(errors, key, "Required"->Js.Json.string)
+        Dict.set(errors, key, "Required"->Js.Json.string)
       }
     })
-    if errors->Js.Dict.entries->Array.length > 0 {
+    if errors->Dict.toArray->Array.length > 0 {
       setIsButtonDisabled(_ => true)
     } else {
       setIsButtonDisabled(_ => false)
@@ -847,7 +845,7 @@ let make = (
     )
     let urlValue = `${path}?${newQueryStr}`
     setClearFilterAfterRefresh(_ => true)
-    setInitialValueJson(_ => Js.Dict.empty()->Js.Json.object_)
+    setInitialValueJson(_ => Dict.make()->Js.Json.object_)
     replace(urlValue)
   }
 

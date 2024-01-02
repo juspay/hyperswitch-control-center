@@ -26,9 +26,9 @@ let convertToSankeyFormat = (
 ) => {
   let sankeyArr = []
   let nodeArr = []
-  let topNDicts = Js.Dict.empty()
+  let topNDicts = Dict.make()
   snakeyActiveTab->Belt.Array.forEach(groupBy => {
-    let currentDimsTopN = Js.Dict.empty()
+    let currentDimsTopN = Dict.make()
     arr->Belt.Array.forEach(item => {
       let groupByVal = item->getDictFromJsonObject->getString(groupBy, "")
       let groupByVal = groupByVal === "" ? "NA" : groupByVal
@@ -37,7 +37,7 @@ let convertToSankeyFormat = (
     })
 
     currentDimsTopN
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Array.map(topN => {
       let (key, value) = topN
 
@@ -57,7 +57,7 @@ let convertToSankeyFormat = (
     let topNMetrix = topNDicts->Js.Dict.get(item)->Belt.Option.getWithDefault([])
     if index === 0 {
       // first index
-      let currentSelectedTabDict = Js.Dict.empty()
+      let currentSelectedTabDict = Dict.make()
       arr->Belt.Array.forEach(sankeyData => {
         let sankeyDict = sankeyData->getDictFromJsonObject
         let levelName = sankeyDict->getString(item, "")
@@ -71,7 +71,7 @@ let convertToSankeyFormat = (
 
       let updatedTotalSum =
         currentSelectedTabDict
-        ->Js.Dict.entries
+        ->Dict.toArray
         ->Array.map(item => {
           let (key, value) = item
           let totalSum = value->AnalyticsUtils.sumOfArr
@@ -124,8 +124,8 @@ let convertToSankeyFormat = (
       })
       ->ignore
     } else if lastIndex !== 0 {
-      let currentSelectedTabDict = Js.Dict.empty()
-      let currentSelectedTabDict1St = Js.Dict.empty()
+      let currentSelectedTabDict = Dict.make()
+      let currentSelectedTabDict1St = Dict.make()
       // middle index
       let dimsPrev = snakeyActiveTab[index - 1]->Belt.Option.getWithDefault("")
       let dimsCurrent = snakeyActiveTab[index]->Belt.Option.getWithDefault("")
@@ -142,7 +142,7 @@ let convertToSankeyFormat = (
       })
       let currentSelectedTabDict1St =
         currentSelectedTabDict1St
-        ->Js.Dict.entries
+        ->Dict.toArray
         ->Array.map(item => {
           let (key, value) = item
           let totalSum = value->AnalyticsUtils.sumOfArr
@@ -169,7 +169,7 @@ let convertToSankeyFormat = (
       })
       //
       currentSelectedTabDict
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Array.map(item => {
         let (key, value) = item
         let totalSum = value->AnalyticsUtils.sumOfArr
@@ -225,7 +225,7 @@ let convertToSankeyFormat = (
       ()
     }
     if index === lastIndex && lastStageAdd {
-      let currentSelectedTabDictlast = Js.Dict.empty()
+      let currentSelectedTabDictlast = Dict.make()
       let topNMetrixCurr =
         topNDicts
         ->Js.Dict.get(snakeyActiveTab[lastIndex]->Belt.Option.getWithDefault(""))
@@ -245,7 +245,7 @@ let convertToSankeyFormat = (
       })
 
       currentSelectedTabDictlast
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Array.map(item => {
         let (key, value) = item
 

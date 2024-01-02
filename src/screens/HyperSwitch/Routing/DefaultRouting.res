@@ -99,7 +99,7 @@ let make = () => {
   }
 
   <div>
-    <Form initialValues={Js.Dict.empty()->Js.Json.object_}>
+    <Form initialValues={Dict.make()->Js.Json.object_}>
       <div className="w-full flex justify-between">
         <BasicDetailsForm.BusinessProfileInp
           setProfile={setProfile}

@@ -469,7 +469,7 @@ module OrderActions = {
       )
 
       None
-    }, [orderDict->Js.Dict.keys->Array.length])
+    }, [orderDict->Dict.keysToArray->Array.length])
 
     let order = itemToObjMapper(orderDict)
 
@@ -507,7 +507,7 @@ module FraudRiskBannerDetails = {
             (),
           )}/${decision->Js.String2.toLowerCase}`
 
-        let _ = await updateDetails(ordersDecisionUrl, Js.Dict.empty()->Js.Json.object_, Post)
+        let _ = await updateDetails(ordersDecisionUrl, Dict.make()->Js.Json.object_, Post)
         showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
         refetch()
       } catch {
@@ -553,7 +553,7 @@ module FraudRiskBannerDetails = {
         ->React.array}
       </div>
       <UIUtils.RenderIf
-        condition={order.merchant_decision->Js.String2.length === 0 &&
+        condition={order.merchant_decision->String.length === 0 &&
         order.frm_message.frm_status === "fraud" &&
         order.status->HSwitchOrderUtils.statusVariantMapper === Succeeded}>
         <div className="flex items-center gap-5 justify-end">

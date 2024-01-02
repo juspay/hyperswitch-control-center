@@ -86,15 +86,15 @@ type singleStateData<'t, 't2> = {
 
 let deltaTimeRangeMapper: array<Js.Json.t> => deltaRange = (arrJson: array<Js.Json.t>) => {
   open LogicUtils
-  let emptyDict = Js.Dict.empty()
+  let emptyDict = Dict.make()
   let _ = arrJson->Array.map(item => {
     let dict = item->getDictFromJsonObject
     let deltaTimeRange = dict->getJsonObjectFromDict("deltaTimeRange")->getDictFromJsonObject
     let fromTime = deltaTimeRange->getString("startTime", "")
     let toTime = deltaTimeRange->getString("endTime", "")
     let timeRanges: AnalyticsUtils.timeRanges = {fromTime, toTime}
-    if deltaTimeRange->Js.Dict.entries->Array.length > 0 {
-      emptyDict->Js.Dict.set("currentSr", timeRanges)
+    if deltaTimeRange->Dict.toArray->Array.length > 0 {
+      emptyDict->Dict.set("currentSr", timeRanges)
     }
   })
   {
@@ -134,7 +134,7 @@ let make = (
   // without prefix only table related Filters
   let getTopLevelFilter = React.useMemo1(() => {
     getAllFilter
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->Js.String2.split(".")
@@ -181,7 +181,7 @@ let make = (
   let (topFiltersToSearchParam, customFilter) = React.useMemo1(() => {
     let filterSearchParam =
       getTopLevelFilter
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
         if allFilterKeys->Array.includes(key) {
@@ -202,7 +202,7 @@ let make = (
 
   let filterValueFromUrl = React.useMemo1(() => {
     getTopLevelFilter
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Belt.Array.keepMap(entries => {
       let (key, value) = entries
       filterKeys->Array.includes(key) ? Some((key, value)) : None
@@ -296,7 +296,7 @@ let make = (
         )
         ->addLogsAroundFetch(~logTitle="SingleStat Data Api")
         ->then(json => resolve((`${urlConfig.prefix->Belt.Option.getWithDefault("")}${uri}`, json)))
-        ->catch(_err => resolve(("", Js.Json.object_(Js.Dict.empty()))))
+        ->catch(_err => resolve(("", Js.Json.object_(Dict.make()))))
       })
       ->Promise.all
       ->Promise.thenResolve(dataArr => {
@@ -311,9 +311,9 @@ let make = (
                   ->LogicUtils.getJsonObjectFromDict("queryData")
                   ->LogicUtils.getArrayFromJson([])
                   ->Belt.Array.get(0)
-                  ->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty()))
+                  ->Belt.Option.getWithDefault(Js.Json.object_(Dict.make()))
                   ->LogicUtils.getDictFromJsonObject
-                  ->Js.Dict.entries
+                  ->Dict.toArray
                   ->Array.find(
                     item => {
                       let (key, _) = item
@@ -406,7 +406,7 @@ let make = (
         )
         ->catch(
           _err => {
-            resolve(("", Js.Json.object_(Js.Dict.empty())))
+            resolve(("", Js.Json.object_(Dict.make())))
           },
         )
       })

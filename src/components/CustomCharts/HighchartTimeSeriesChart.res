@@ -17,7 +17,7 @@ module TooltipString = {
   let make = (~text, ~showTableBelow) => {
     let isMobileView = MatchMedia.useMobileChecker()
     let class = showTableBelow ? "w-fit" : "w-20"
-    if text->Js.String2.length > 15 && !showTableBelow {
+    if text->String.length > 15 && !showTableBelow {
       <ToolTip
         contentAlign=Left
         description=text
@@ -162,7 +162,7 @@ module LineChart1D = {
           : chartdata
       }
 
-      let xAxisMapInfo = Js.Dict.empty()
+      let xAxisMapInfo = Dict.make()
       selectedChartData->Array.forEach(item => {
         item.data->Array.forEach(
           axes => {
@@ -818,7 +818,7 @@ module RenderMultiDimensionalChart = {
     let (selectedRow, setSelectedRow) = React.useState(_ => None)
     let chartNames =
       props.chartDictData
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Array.reduce([], (acc: array<LineChartUtils.chartData<Js.Json.t>>, (_, value)) => {
         let chartdata = LineChartUtils.timeSeriesDataMaker(
           ~data=value,
@@ -851,7 +851,7 @@ module RenderMultiDimensionalChart = {
         {
           let chartArr = {
             props.chartDictData
-            ->Js.Dict.entries
+            ->Dict.toArray
             ->Array.mapWithIndex((item, index) => {
               let (key, value) = item
 
@@ -903,7 +903,7 @@ module LineChart2D = {
     }
     let (groupBy1, groupBy2) = (groupBy2, groupBy1)
 
-    let chartDictData = Js.Dict.empty()
+    let chartDictData = Dict.make()
     rawChartData->Array.forEach(item => {
       let dict = item->getDictFromJsonObject
       let groupBy = dict->getString(groupBy1, "")
@@ -949,7 +949,7 @@ module LineChart3D = {
     }
     let (groupBy1, groupBy2, groupby3) = (groupBy2, groupby3, groupBy1)
 
-    let chartDictData = Js.Dict.empty()
+    let chartDictData = Dict.make()
     rawChartData->Array.forEach(item => {
       let dict = item->getDictFromJsonObject
       let groupBy1 = dict->getString(groupBy1, "")

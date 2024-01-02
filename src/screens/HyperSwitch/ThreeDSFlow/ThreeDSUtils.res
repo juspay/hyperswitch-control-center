@@ -81,7 +81,7 @@ let buildThreeDsPayloadBody = values => {
         "override_3ds": null,
       },
       "rules": modifiedRules,
-      "metadata": Js.Dict.empty()->Js.Json.object_,
+      "metadata": Dict.make()->Js.Json.object_,
     },
   }
 

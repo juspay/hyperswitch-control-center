@@ -4,7 +4,7 @@ open UserPrefUtils
 external userPrefToJson: userPref => Js.Json.t = "%identity"
 external dictUserPrefToStr: Js.Dict.t<userPref> => string = "%identity"
 let userPrefSetter: (Js.Dict.t<userPref> => Js.Dict.t<userPref>) => unit = _ => ()
-let defaultUserPref: Js.Dict.t<userPref> = Js.Dict.empty()
+let defaultUserPref: Js.Dict.t<userPref> = Dict.make()
 let defaultUserModuleWisePref: moduleVisePref = {}
 type filter = {
   userPref: Js.Dict.t<userPref>,
@@ -64,7 +64,7 @@ let make = (~children) => {
         } else {
           updatedPrev
         }
-        prev->Js.Dict.set(username, updatedValue)
+        prev->Dict.set(username, updatedValue)
         UserPrefUtils.saveUserPref(prev)
         prev
       })
@@ -80,7 +80,7 @@ let make = (~children) => {
       let updatedPrev = currentConfig
       let moduleWisePref = switch updatedPrev {
       | {moduleVisePref} => moduleVisePref
-      | _ => Js.Dict.empty()
+      | _ => Dict.make()
       }
       let currentModulePerf =
         moduleWisePref
@@ -98,7 +98,7 @@ let make = (~children) => {
           "filters.dateCreated.gte",
           "filters.dateCreated.opt", // to be fixed and removed from here
         ])
-        ->Js.Dict.entries
+        ->Dict.toArray
         ->Array.map(
           item => {
             let (key, value) = item
@@ -107,7 +107,7 @@ let make = (~children) => {
         )
         ->Array.joinWith("&")
       let isMarketplaceApp = urlPathConcationation == "/marketplace"
-      moduleWisePref->Js.Dict.set(
+      moduleWisePref->Dict.set(
         urlPathConcationation,
         {
           ...currentModulePerf,
@@ -118,7 +118,7 @@ let make = (~children) => {
         ...updatedPrev,
         moduleVisePref: moduleWisePref,
       }
-      prev->Js.Dict.set(username, updatedCurrentConfig)
+      prev->Dict.set(username, updatedCurrentConfig)
       UserPrefUtils.saveUserPref(prev)
       prev
     })
@@ -137,7 +137,7 @@ let make = (~children) => {
       let updatedPrev = currentConfig
       let moduleWisePref = switch updatedPrev {
       | {moduleVisePref} => moduleVisePref
-      | _ => Js.Dict.empty()
+      | _ => Dict.make()
       }
       let currentModulePerf =
         moduleWisePref
@@ -145,16 +145,16 @@ let make = (~children) => {
         ->Belt.Option.getWithDefault(defaultUserModuleWisePref)
       let moduleConfig = switch currentModulePerf {
       | {moduleConfig} => moduleConfig
-      | _ => Js.Dict.empty()
+      | _ => Dict.make()
       }
-      moduleConfig->Js.Dict.set(key, value)
-      moduleWisePref->Js.Dict.set(urlPathConcationation, {...currentModulePerf, moduleConfig})
+      moduleConfig->Dict.set(key, value)
+      moduleWisePref->Dict.set(urlPathConcationation, {...currentModulePerf, moduleConfig})
 
       let updatedCurrentConfig = {
         ...updatedPrev,
         moduleVisePref: moduleWisePref,
       }
-      prev->Js.Dict.set(username, updatedCurrentConfig)
+      prev->Dict.set(username, updatedCurrentConfig)
       UserPrefUtils.saveUserPref(prev)
       prev
     })
@@ -177,7 +177,7 @@ let make = (~children) => {
   // not adding to useMemo as it doesn't triggers sometimes
   let userPrefString =
     userPref
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Array.map(item => {
       let (key, value) = item
       (key, value->userPrefToJson)
@@ -195,7 +195,7 @@ let make = (~children) => {
     }
     let moduleVisePref = switch updatedPrev {
     | {moduleVisePref} => moduleVisePref
-    | _ => Js.Dict.empty()
+    | _ => Dict.make()
     }
     let getSearchParamByLink = link => {
       let searchParam = UserPrefUtils.getSearchParams(moduleVisePref, ~key=link) // this is for removing the v4 from the link

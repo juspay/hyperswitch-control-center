@@ -14,7 +14,7 @@ let getOrdersData = (orderId, refetchCounter, setScreenState) => {
   let setLoadDataForOrders = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      if orderId->Js.String2.length !== 0 {
+      if orderId->String.length !== 0 {
         let orderDataResponse = await fetchDetails(accountUrl)
         setOrderData(_ => orderDataResponse)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -36,7 +36,7 @@ let getOrdersData = (orderId, refetchCounter, setScreenState) => {
   }
 
   React.useEffect2(() => {
-    if orderId->Js.String2.length !== 0 {
+    if orderId->String.length !== 0 {
       setLoadDataForOrders()->ignore
     }
     None

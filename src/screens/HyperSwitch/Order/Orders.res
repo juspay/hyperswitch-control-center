@@ -27,18 +27,18 @@ let make = (~previewOnly=false) => {
     if !previewOnly {
       switch filters {
       | Some(dict) =>
-        let filters = Js.Dict.empty()
+        let filters = Dict.make()
 
-        filters->Js.Dict.set("offset", offset->Belt.Int.toFloat->Js.Json.number)
+        filters->Dict.set("offset", offset->Belt.Int.toFloat->Js.Json.number)
         if !(searchText->isEmptyString) {
-          filters->Js.Dict.set("payment_id", searchText->Js.Json.string)
+          filters->Dict.set("payment_id", searchText->Js.Json.string)
         }
 
         dict
-        ->Js.Dict.entries
+        ->Dict.toArray
         ->Array.forEach(item => {
           let (key, value) = item
-          filters->Js.Dict.set(key, value)
+          filters->Dict.set(key, value)
         })
 
         filters
@@ -56,7 +56,7 @@ let make = (~previewOnly=false) => {
       | _ => ()
       }
     } else {
-      let filters = Js.Dict.empty()
+      let filters = Dict.make()
 
       filters
       ->getOrdersList(

@@ -65,7 +65,7 @@ module ListItem = {
     ~textEllipsisForDropDownOptions=false,
     ~textColorClass="",
   ) => {
-    let labelText = switch labelValue->Js.String2.length {
+    let labelText = switch labelValue->String.length {
     | 0 => text
     | _ => labelValue
     }
@@ -97,7 +97,7 @@ module ListItem = {
     }
     let backgroundClass = if showToggle {
       ""
-    } else if isSelected && customStyle->Js.String2.length > 0 {
+    } else if isSelected && customStyle->String.length > 0 {
       customSelectStyle
     } else if isDropDown && isSelected && !isDisabled {
       `${bgClass} transition ease-[cubic-bezier(0.33, 1, 0.68, 1)]`
@@ -152,7 +152,7 @@ module ListItem = {
 
     let textColor = "text-jp-gray-900 dark:text-jp-gray-text_darktheme"
 
-    let textColor = if textColorClass->Js.String2.length > 0 {
+    let textColor = if textColorClass->String.length > 0 {
       textColorClass
     } else {
       textColor
@@ -250,7 +250,7 @@ module ListItem = {
                     (Js.String2.toLowerCase(item) == Js.String2.toLowerCase(searchString) ||
                       Js.String2.toLowerCase(item) ==
                         Js.String2.toLowerCase("_" ++ searchString)) &&
-                      Js.String2.length(searchString) > 0
+                      String.length(searchString) > 0
                   ) {
                     <AddDataAttributes
                       key={i->string_of_int} attributes=[("data-searched-text", item)]>
@@ -1162,12 +1162,12 @@ module RenderListItemInBaseRadio = {
 }
 
 let getHashMappedOptionValues = (options: array<dropdownOptionWithoutOptional>) => {
-  let hashMappedOptions = options->Array.reduce(Js.Dict.empty(), (
+  let hashMappedOptions = options->Array.reduce(Dict.make(), (
     acc,
     ele: dropdownOptionWithoutOptional,
   ) => {
     if acc->Dict.get(ele.optGroup)->Option.isNone {
-      acc->Js.Dict.set(ele.optGroup, [ele])
+      acc->Dict.set(ele.optGroup, [ele])
     } else {
       acc->Dict.get(ele.optGroup)->Option.getWithDefault([])->Array.push(ele)->ignore
     }
@@ -1326,7 +1326,7 @@ module BaseRadio = {
       } else {
         options
       }
-      if searchString->Js.String2.length != 0 {
+      if searchString->String.length != 0 {
         let options = options->Array.filter(option => {
           shouldDisplay(option)
         })

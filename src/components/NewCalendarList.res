@@ -44,7 +44,7 @@ let make = (
     let permittedMaxYears = startYear->Belt.Float.toInt + 10
     let updatedFromDate =
       fromDate != "" &&
-      fromDate->Js.String2.length >= 5 &&
+      fromDate->String.length >= 5 &&
       fromDateJs.isValid(.) &&
       fromDateJs.year(.) <= permittedMaxYears
         ? try {
@@ -55,7 +55,7 @@ let make = (
         : ""
     let updatedToDate =
       toDate != "" &&
-      toDate->Js.String2.length >= 5 &&
+      toDate->String.length >= 5 &&
       toDateJs.isValid(.) &&
       toDateJs.year(.) <= permittedMaxYears
         ? try {

@@ -58,7 +58,7 @@ let make = () => {
   let filterLogicForUsers = ReactDebounce.useDebounced(ob => {
     open LogicUtils
     let (searchText, arr) = ob
-    let filteredList = if searchText->Js.String2.length > 0 {
+    let filteredList = if searchText->String.length > 0 {
       arr->Array.filter((obj: Js.Nullable.t<userTableTypes>) => {
         switch Js.Nullable.toOption(obj) {
         | Some(obj) =>

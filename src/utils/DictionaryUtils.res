@@ -1,6 +1,6 @@
 let deleteKey = (dictionary: Js.Dict.t<'a>, key: string) => {
   dictionary
-  ->Js.Dict.entries
+  ->Dict.toArray
   ->Belt.Array.keepMap(entry => {
     let (filterKey, _) = entry
     key !== filterKey ? Some(entry) : None
@@ -11,7 +11,7 @@ let deleteKey = (dictionary: Js.Dict.t<'a>, key: string) => {
 let deleteKeys = (dictionary: Js.Dict.t<'a>, keys: array<string>) => {
   let updatedDict =
     dictionary
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Belt.Array.keepMap(entry => {
       let (filterKey, _) = entry
       keys->Array.includes(filterKey) ? None : Some(entry)
@@ -26,26 +26,26 @@ let appnedDataToKey = (dict, key, value) => {
   | Some(val) => Belt.Array.concat(val, [value])
   | None => [value]
   }
-  dict->Js.Dict.set(key, updatedValue)
+  dict->Dict.set(key, updatedValue)
 }
 
 let mergeDicts = (arrDict: array<Js.Dict.t<'a>>) => {
   arrDict->Js.Array2.reduce((acc, dict) => {
-    acc->Array.concat(dict->Js.Dict.entries)
+    acc->Array.concat(dict->Dict.toArray)
   }, [])->Js.Dict.fromArray
 }
 
 let equalDicts = (dictionary1, dictionary2) => {
   // if it return nothing means both are same
   dictionary1
-  ->Js.Dict.entries
+  ->Dict.toArray
   ->Array.find(item => {
     let (key, value) = item
     dictionary2->Js.Dict.get(key) !== Some(value)
   })
   ->Belt.Option.isNone &&
     dictionary2
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Array.find(item => {
       let (key, value) = item
       dictionary1->Js.Dict.get(key) !== Some(value)
@@ -58,7 +58,7 @@ let checkEqualJsonDicts = (~checkKeys, ~ignoreKeys, dictionary1, dictionary2) =>
   let dictionary2 = dictionary2->Js.Json.object_->JsonFlattenUtils.flattenObject(false)
 
   dictionary1
-  ->Js.Dict.entries
+  ->Dict.toArray
   ->Array.find(item => {
     let (key, value) = item
     if (
@@ -81,7 +81,7 @@ let checkEqualJsonDicts = (~checkKeys, ~ignoreKeys, dictionary1, dictionary2) =>
   })
   ->Belt.Option.isNone &&
     dictionary2
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Array.find(item => {
       let (key, value) = item
       if checkKeys->Array.includes(key) && !(ignoreKeys->Array.includes(key)) {
@@ -103,5 +103,5 @@ let checkEqualJsonDicts = (~checkKeys, ~ignoreKeys, dictionary1, dictionary2) =>
 }
 
 let copyOfDict = dict => {
-  dict->Js.Dict.entries->Array.copy->Js.Dict.fromArray
+  dict->Dict.toArray->Array.copy->Js.Dict.fromArray
 }

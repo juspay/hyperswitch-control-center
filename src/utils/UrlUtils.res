@@ -1,6 +1,6 @@
 let useGetFilterDictFromUrl = prefix => {
   let url = RescriptReactRouter.useUrl()
-  let (searchParamsDict, setSearchParamDict) = React.useState(_ => Js.Dict.empty())
+  let (searchParamsDict, setSearchParamDict) = React.useState(_ => Dict.make())
 
   React.useEffect1(() => {
     if url.search !== "" {
@@ -54,7 +54,7 @@ let useUpdateUrlWith = (~prefix as _: string) => {
 
     let searchParam =
       dict
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Array.map(item => {
         let (key, value) = item
         `${key}=${value}`

@@ -86,7 +86,7 @@ let getPaymentMethodsEnabled: Js.Dict.t<Js.Json.t> => paymentMethodEnabledType =
     payment_method: dict->getString("payment_method", ""),
     payment_method_types: dict
     ->Js.Dict.get("payment_method_types")
-    ->Belt.Option.getWithDefault(Js.Dict.empty()->Js.Json.object_)
+    ->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
     ->getArrayDataFromJson(getPaymentMethodTypes),
   }
 }
@@ -108,13 +108,13 @@ let getProcessorPayloadType = dict => {
     connector_name: dict->getString("connector_name", ""),
     connector_label: dict->getString("connector_label", ""),
     connector_account_details: dict
-    ->getObj("connector_account_details", Js.Dict.empty())
+    ->getObj("connector_account_details", Dict.make())
     ->getConnectorAccountDetails,
     test_mode: dict->getBool("test_mode", true),
     disabled: dict->getBool("disabled", true),
     payment_methods_enabled: dict
     ->Js.Dict.get("payment_methods_enabled")
-    ->Belt.Option.getWithDefault(Js.Dict.empty()->Js.Json.object_)
+    ->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
     ->getArrayDataFromJson(getPaymentMethodsEnabled),
     profile_id: dict->getString("profile_id", ""),
     merchant_connector_id: dict->getString("merchant_connector_id", ""),
@@ -138,7 +138,7 @@ let getConnectorNameViaId = (
 ) => {
   connectorList
   ->Array.find(ele => {ele.merchant_connector_id == mca_id})
-  ->Belt.Option.getWithDefault(Js.Dict.empty()->getProcessorPayloadType)
+  ->Belt.Option.getWithDefault(Dict.make()->getProcessorPayloadType)
 }
 
 let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledType>) => {

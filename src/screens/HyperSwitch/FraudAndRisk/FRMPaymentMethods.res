@@ -121,7 +121,7 @@ module CheckBoxRenderer = {
     let setConfigJson = {frmConfigInput.onChange}
 
     let isToggleDisabled = switch connectorPaymentMethods {
-    | Some(paymentMethods) => paymentMethods->Js.Dict.keys->Array.length <= 0
+    | Some(paymentMethods) => paymentMethods->Dict.keysToArray->Array.length <= 0
     | _ => true
     }
 
@@ -271,7 +271,7 @@ module PaymentMethodsRenderer = {
     let (pageState, setPageState) = React.useState(_ => PageLoaderWrapper.Loading)
     let frmConfigInput = ReactFinalForm.useField("frm_configs").input
     let frmConfigs = parseFRMConfig(frmConfigInput.value)
-    let (connectorConfig, setConnectorConfig) = React.useState(_ => Js.Dict.empty())
+    let (connectorConfig, setConnectorConfig) = React.useState(_ => Dict.make())
     let setConfigJson = frmConfigInput.onChange
     let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
 
@@ -331,7 +331,7 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
   open FRMInfo
   open FRMUtils
   open LogicUtils
-  let initialValues = retrivedValues->Belt.Option.getWithDefault(Js.Dict.empty()->Js.Json.object_)
+  let initialValues = retrivedValues->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
 
   let onSubmit = (values, _) => {
     open Promise
@@ -344,7 +344,7 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
       ->parseFRMConfig
       ->Array.filter(config => config.payment_methods->Array.length > 0)
 
-    valuesDict->Js.Dict.set("frm_configs", filteredArray->Identity.genericTypeToJson)
+    valuesDict->Dict.set("frm_configs", filteredArray->Identity.genericTypeToJson)
     setInitialValues(_ => valuesDict->Js.Json.object_)
     setCurrentStep(prev => prev->getNextStep)
 
@@ -352,7 +352,7 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
   }
 
   let validate = _values => {
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
     errors->Js.Json.object_
   }
 

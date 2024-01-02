@@ -21,13 +21,13 @@ let inviteEmail = FormRenderer.makeFieldInfo(
 
 let validateEmptyValue = (key, errors) => {
   switch key {
-  | "emailList" => Js.Dict.set(errors, "email", "Please enter Invite mails"->Js.Json.string)
-  | _ => Js.Dict.set(errors, key, `Please enter a ${key->LogicUtils.snakeToTitle}`->Js.Json.string)
+  | "emailList" => Dict.set(errors, "email", "Please enter Invite mails"->Js.Json.string)
+  | _ => Dict.set(errors, key, `Please enter a ${key->LogicUtils.snakeToTitle}`->Js.Json.string)
   }
 }
 
 let validateForm = (values, ~fieldsToValidate: array<string>) => {
-  let errors = Js.Dict.empty()
+  let errors = Dict.make()
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
 
@@ -38,7 +38,7 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
     } else {
       value->Array.forEach(ele => {
         if ele->Js.Json.decodeString->Belt.Option.getWithDefault("")->HSwitchUtils.isValidEmail {
-          errors->Js.Dict.set("email", "Please enter a valid email"->Js.Json.string)
+          errors->Dict.set("email", "Please enter a valid email"->Js.Json.string)
         }
       })
       ()
@@ -138,7 +138,7 @@ module RolePermissionValueRenderer = {
         <div className="mt-2 text-base text-hyperswitch_black opacity-50 w-1/2">
           {description->React.string}
         </div>
-        <UIUtils.RenderIf condition={writeValue->Js.String2.length > 0}>
+        <UIUtils.RenderIf condition={writeValue->String.length > 0}>
           <div className="flex items-center gap-3 w-1/2">
             <Icon size=14 name={isPermissionAllowedForWrite ? "permitted" : "not-permitted"} />
             <div className="text-base text-hyperswitch_black opacity-50">

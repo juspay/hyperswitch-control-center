@@ -145,9 +145,9 @@ module SystemMetricsAnalytics = {
     }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
 
     let filterDataOrig = getFilterData(filterUri, Fetch.Post, filterBody)
-    let filterData = filterDataOrig->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty()))
+    let filterData = filterDataOrig->Belt.Option.getWithDefault(Js.Json.object_(Dict.make()))
 
-    <UIUtils.RenderIf condition={getModuleFilters->Js.Dict.entries->Array.length > 0}>
+    <UIUtils.RenderIf condition={getModuleFilters->Dict.toArray->Array.length > 0}>
       {switch chartEntity1 {
       | Some(chartEntity) =>
         <div className="h-75-vh">
@@ -177,9 +177,7 @@ module SystemMetricsAnalytics = {
             moduleName
             setTotalVolume
             showPercentage=false
-            statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(
-              Js.Dict.empty(),
-            )}
+            statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(Dict.make())}
           />
         </div>
       | _ => React.null

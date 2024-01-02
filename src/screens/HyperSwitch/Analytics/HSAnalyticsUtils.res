@@ -70,7 +70,7 @@ let filterByData = (txnArr, value) => {
     let valueArr =
       data
       ->Identity.genericTypeToDictOfJson
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Array.map(item => {
         let (_, value) = item
 

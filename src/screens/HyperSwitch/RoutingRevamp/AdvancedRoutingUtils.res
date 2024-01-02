@@ -184,7 +184,7 @@ let getDefaultSelection: Js.Dict.t<
   open LogicUtils
   let override3dsValue = defaultSelection->getString("override_3ds", "")
 
-  if override3dsValue->Js.String2.length > 0 {
+  if override3dsValue->String.length > 0 {
     {
       override_3ds: override3dsValue,
     }
@@ -317,13 +317,11 @@ let getModalObj = (routingType, text) => {
 let isStatementMandatoryFieldsPresent = (statement: AdvancedRoutingTypes.statement) => {
   let statementValue = switch statement.value.value->Js.Json.classify {
   | JSONArray(ele) => ele->Array.length > 0
-  | JSONString(str) => str->Js.String2.length > 0
+  | JSONString(str) => str->String.length > 0
   | _ => false
   }
 
-  statement.lhs->Js.String2.length > 0 &&
-    (statement.value.\"type"->Js.String2.length > 0 &&
-    statementValue)
+  statement.lhs->String.length > 0 && (statement.value.\"type"->String.length > 0 && statementValue)
 }
 
 let algorithmTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithm = values => {

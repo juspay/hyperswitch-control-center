@@ -17,14 +17,14 @@ module AdvanceSearch = {
   ) => {
     let {optionalSearchFieldsList, requiredSearchFieldsList, detailsKey} = entity
     let fetchApi = AuthHooks.useApiFetcher()
-    let initialValueJson = Js.Json.object_(Js.Dict.empty())
+    let initialValueJson = Js.Json.object_(Dict.make())
     let showToast = ToastState.useShowToast()
 
     let onSubmit = (values, _) => {
       let otherQueries = switch values->Js.Json.decodeObject {
       | Some(dict) =>
         dict
-        ->Js.Dict.entries
+        ->Dict.toArray
         ->Belt.Array.keepMap(entry => {
           let (key, value) = entry
           let stringVal = LogicUtils.getStringFromJson(value, "")
@@ -37,7 +37,7 @@ module AdvanceSearch = {
         ->Array.joinWith("&")
       | _ => ""
       }
-      let finalUrl = otherQueries->Js.String2.length > 0 ? `${url}?${otherQueries}` : url
+      let finalUrl = otherQueries->String.length > 0 ? `${url}?${otherQueries}` : url
 
       open Promise
       open LogicUtils
@@ -85,13 +85,13 @@ module AdvanceSearch = {
 
     let validateForm = (values: Js.Json.t) => {
       let valuesDict = switch values->Js.Json.decodeObject {
-      | Some(dict) => dict->Js.Dict.entries->Js.Dict.fromArray
-      | None => Js.Dict.empty()
+      | Some(dict) => dict->Dict.toArray->Js.Dict.fromArray
+      | None => Dict.make()
       }
-      let errors = Js.Dict.empty()
+      let errors = Dict.make()
       requiredSearchFieldsList->Array.forEach(key => {
         if Js.Dict.get(valuesDict, key)->Js.Option.isNone {
-          Js.Dict.set(errors, key, "Required"->Js.Json.string)
+          Dict.set(errors, key, "Required"->Js.Json.string)
         }
       })
       let isSubmitEnabled = optionalSearchFieldsList->Array.some(key => {
@@ -99,7 +99,7 @@ module AdvanceSearch = {
       })
 
       if !isSubmitEnabled {
-        Js.Dict.set(
+        Dict.set(
           errors,
           optionalSearchFieldsList->Array.joinWith(","),
           "Atleast One of Optional fields is Required"->Js.Json.string,

@@ -389,7 +389,7 @@ let make = (
 
   let getAllFilter =
     filterValue
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Array.map(item => {
       let (key, value) = item
       (key, value->UrlFetchUtils.getFilterValue)
@@ -399,7 +399,7 @@ let make = (
   // with prefix only for charts
   let getChartCompFilters = React.useMemo1(() => {
     getAllFilter
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->Js.String2.split(".")
@@ -421,7 +421,7 @@ let make = (
   // without prefix only for charts
   let getTopLevelFilter = React.useMemo1(() => {
     getAllFilter
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->Js.String2.split(".")
@@ -469,40 +469,40 @@ let make = (
     let chartBottomMetric =
       getChartCompFilters->LogicUtils.getString("chartBottomMetric", currentBottomMetrix)
 
-    let dict = Js.Dict.empty()
+    let dict = Dict.make()
     let chartMatrixArr = entityAllMetrics->Belt.Array.map(item => item.metric_label)
 
     if cardinalityArr->Array.includes(cardinality) {
-      dict->Js.Dict.set("cardinality", cardinality)
+      dict->Dict.set("cardinality", cardinality)
     } else if cardinalityArr->Array.includes("TOP_5") {
-      dict->Js.Dict.set("cardinality", "TOP_5")
+      dict->Dict.set("cardinality", "TOP_5")
     } else {
-      dict->Js.Dict.set(
+      dict->Dict.set(
         "cardinality",
         cardinalityArr->Belt.Array.get(0)->Belt.Option.getWithDefault(""),
       )
     }
     chartTypeArr->Array.includes(chartType)
-      ? dict->Js.Dict.set("chartType", chartType)
-      : dict->Js.Dict.set("chartType", "Line chart")
+      ? dict->Dict.set("chartType", chartType)
+      : dict->Dict.set("chartType", "Line chart")
 
     if chartMatrixArr->Array.includes(chartTopMetric) {
-      dict->Js.Dict.set("chartTopMetric", chartTopMetric)
+      dict->Dict.set("chartTopMetric", chartTopMetric)
     } else if chartMatrixArr->Array.includes(currentTopMatrix) {
-      dict->Js.Dict.set("chartTopMetric", currentTopMatrix)
+      dict->Dict.set("chartTopMetric", currentTopMatrix)
     } else {
-      dict->Js.Dict.set(
+      dict->Dict.set(
         "chartTopMetric",
         chartMatrixArr->Belt.Array.get(0)->Belt.Option.getWithDefault(""),
       )
     }
 
     if chartMatrixArr->Array.includes(chartBottomMetric) {
-      dict->Js.Dict.set("chartBottomMetric", chartBottomMetric)
+      dict->Dict.set("chartBottomMetric", chartBottomMetric)
     } else if chartMatrixArr->Array.includes(currentBottomMetrix) {
-      dict->Js.Dict.set("chartBottomMetric", currentBottomMetrix)
+      dict->Dict.set("chartBottomMetric", currentBottomMetrix)
     } else {
-      dict->Js.Dict.set(
+      dict->Dict.set(
         "chartBottomMetric",
         chartMatrixArr->Belt.Array.get(0)->Belt.Option.getWithDefault(""),
       )
@@ -551,7 +551,7 @@ let make = (
   let (topFiltersToSearchParam, customFilter) = React.useMemo1(() => {
     let filterSearchParam =
       getTopLevelFilter
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
         if allFilterKeys->Array.includes(key) {
@@ -585,7 +585,7 @@ let make = (
     setSwitchToMobileView(prev => prev || isMobileView)
     None
   }, [isMobileView])
-  let (statusDict, setStatusDict) = React.useState(_ => Js.Dict.empty())
+  let (statusDict, setStatusDict) = React.useState(_ => Dict.make())
   let fetchChartData = useChartFetch(~setStatusDict)
 
   let startTimeFromUrl = React.useMemo1(() => {
@@ -598,7 +598,7 @@ let make = (
   let topFiltersToSearchParam = React.useMemo1(() => {
     let filterSearchParam =
       getTopLevelFilter
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
         switch value->Js.Json.classify {
@@ -635,7 +635,7 @@ let make = (
         item.filterKeys->Array.filter(item => allFilterDimension->Array.includes(item))
       let filterValue =
         getTopLevelFilter
-        ->Js.Dict.entries
+        ->Dict.toArray
         ->Belt.Array.keepMap(
           entries => {
             let (key, value) = entries
@@ -730,7 +730,7 @@ let make = (
   let setRawChartData = (data: array<urlToDataMap>) => {
     let chartData = data->Array.map(mappedData => {
       let rawdata = mappedData.rawData->Array.map(item => {
-        let dict = item->Js.Json.decodeObject->Belt.Option.getWithDefault(Js.Dict.empty())
+        let dict = item->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make())
 
         switch dict->Js.Dict.get("time_range") {
         | Some(jsonObj) => {
@@ -740,11 +740,11 @@ let make = (
             | Some(startValue) => {
                 let sTime = startValue->Js.Json.decodeString->Belt.Option.getWithDefault("")
 
-                if sTime->Js.String2.length > 0 {
+                if sTime->String.length > 0 {
                   let {date, hour, minute, month, second, year} =
                     sTime->Js.Date.fromString->Js.Date.toISOString->isoStringToCustomTimeZone
 
-                  dict->Js.Dict.set(
+                  dict->Dict.set(
                     "time_bucket",
                     `${year}-${month}-${date} ${hour}:${minute}:${second}`->Js.Json.string,
                   )
@@ -767,9 +767,9 @@ let make = (
               ->Belt.Option.getWithDefault("")
             let label = metric == "" ? "other" : metric
 
-            Js.Dict.set(dict, tabName, label->Js.Json.string)
+            Dict.set(dict, tabName, label->Js.Json.string)
 
-            Js.Dict.keys(dict)->Array.forEach(
+            Dict.keysToArray(dict)->Array.forEach(
               key => {
                 if key->Js.String2.includes("amount") {
                   let amount =
@@ -780,13 +780,13 @@ let make = (
 
                   let amount = (amount /. 100.0)->Js.Float.toFixedWithPrecision(~digits=2)
 
-                  Js.Dict.set(dict, key, amount->Js.Float.fromString->Js.Json.number)
+                  Dict.set(dict, key, amount->Js.Float.fromString->Js.Json.number)
                 } else if !(key->Js.String2.includes("time")) && key != tabName {
                   switch Js.Dict.get(dict, key) {
                   | Some(val) =>
                     switch val->Js.Json.decodeNumber {
                     | Some(val2) =>
-                      Js.Dict.set(
+                      Dict.set(
                         dict,
                         key,
                         val2->Js.Float.toFixedWithPrecision(~digits=2)->Js.Json.string,
