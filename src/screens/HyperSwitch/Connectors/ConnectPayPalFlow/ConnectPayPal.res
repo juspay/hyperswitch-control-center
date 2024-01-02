@@ -445,18 +445,22 @@ let make = (
     Js.Nullable.null->Js.Promise.resolve
   }
 
+  let proceedButton = switch setupAccountStatus {
+  | Redirecting_to_paypal => React.null
+  | _ =>
+    <FormRenderer.SubmitButton
+      loadingText="Processing..."
+      text="Proceed"
+      disabledParamter={configuartionType === NotSelected ? true : false}
+    />
+  }
+
   <div className="w-full h-full flex flex-col justify-between">
     <PageLoaderWrapper screenState>
       <Form initialValues validate={validateMandatoryFieldForPaypal} onSubmit={handleOnSubmit}>
         <div className="">
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
-            connector
-            headerButton={<FormRenderer.SubmitButton
-              loadingText="Processing..."
-              text="Proceed"
-              disabledParamter={configuartionType === NotSelected ? true : false}
-            />}
-            setShowModal>
+            connector headerButton={proceedButton} setShowModal>
             <div className="flex flex-col gap-2 p-2 md:p-10">
               {switch setupAccountStatus {
               | Account_not_found =>
