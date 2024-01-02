@@ -20,23 +20,23 @@ let useOutsideClick = (
 
         let isInsideClick = switch refs {
         | ArrayOfRef(refs) =>
-          refs->Js.Array2.reduce((acc, ref: React.ref<Js.Nullable.t<Dom.element>>) => {
+          refs->Array.reduce(false, (acc, ref: React.ref<Js.Nullable.t<Dom.element>>) => {
             let isClickInsideRef = switch ffToWebDom(ref.current)->Js.Nullable.toOption {
             | Some(element) => element->Webapi.Dom.Element.contains(~child=ffToDomType(targ))
             | None => false
             }
             acc || isClickInsideRef
-          }, false)
+          })
         | RefArray(refs) =>
           refs.current
           ->Js.Array2.slice(~start=0, ~end_=-1)
-          ->Js.Array2.reduce((acc, ref: Js.Nullable.t<Dom.element>) => {
+          ->Array.reduce(false, (acc, ref: Js.Nullable.t<Dom.element>) => {
             let isClickInsideRef = switch ffToWebDom(ref)->Js.Nullable.toOption {
             | Some(element) => element->Webapi.Dom.Element.contains(~child=ffToDomType(targ))
             | None => false
             }
             acc || isClickInsideRef
-          }, false)
+          })
         }
 
         let isClickInsideOfContainer = switch containerRefs {

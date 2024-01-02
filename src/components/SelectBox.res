@@ -599,9 +599,9 @@ module BaseSelect = {
     let noOfSelected = saneValue->Array.length
     let applyBtnDisabled =
       noOfSelected === preservedAppliedOptions->Array.length &&
-        saneValue->Js.Array2.reduce((acc, val) => {
+        saneValue->Array.reduce(true, (acc, val) => {
           preservedAppliedOptions->Array.includes(val) && acc
-        }, true)
+        })
 
     let searchRef = React.useRef(Js.Nullable.null)
     let selectBtnRef = insertselectBtnRef->Belt.Option.map(ReactDOM.Ref.callbackDomRef)

@@ -80,14 +80,17 @@ let make = (
           let valCheck = dict_arr->Array.map(item => {
             let itemCheck = switch item->Js.Json.decodeObject {
             | Some(val) => {
-                let fieldCheck = val->Dict.toArray->Js.Array2.reduce((acc, entry) => {
+                let fieldCheck =
+                  val
+                  ->Dict.toArray
+                  ->Array.reduce(false, (acc, entry) => {
                     let (_key, value) = entry
                     let acc = switch value->Js.Json.decodeString {
                     | Some(str) => ignoreEmptySpace ? true : str->String.length != 0
                     | None => acc
                     }
                     acc
-                  }, false)
+                  })
                 fieldCheck
               }
 

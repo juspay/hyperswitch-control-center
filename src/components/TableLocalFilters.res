@@ -23,7 +23,7 @@ module RangeSliderLocalFilter = {
           ->Array.mapWithIndex((item, index) =>
             index > 0 ? `...${item->Js.String.make}` : item->Js.String.make
           )
-          ->Js.Array2.reduce((acc, item) => acc ++ item, "")
+          ->Array.reduce("", (acc, item) => acc ++ item)
           ->React.string}
         </div>
         <span className={`flex items-center `}>

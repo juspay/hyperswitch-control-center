@@ -888,7 +888,7 @@ let make = (
   let parentMinWidthClass = frozenUpto > 0 ? "min-w-max" : ""
   let childMinWidthClass = frozenUpto > 0 ? "" : "min-w-full"
   let overflowClass =
-    lclFilterOpen->Js.Dict.values->Js.Array2.reduce((acc, item) => item || acc, false)
+    lclFilterOpen->Js.Dict.values->Array.reduce(false, (acc, item) => item || acc)
       ? ""
       : isMinHeightRequired
       ? ""

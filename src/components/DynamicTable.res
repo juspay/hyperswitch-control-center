@@ -431,7 +431,7 @@ let make = (
     let findVal = (accumulator, item: TableUtils.filterObject) =>
       Array.concat(accumulator, item.selected)
     let keys = switch filterObj {
-    | Some(obj) => obj->Js.Array2.reduce(findVal, [])
+    | Some(obj) => obj->Array.reduce([], findVal)
     | None => []
     }
 

@@ -525,9 +525,9 @@ let isEqualStringArr = (arr1, arr2) => {
   let arr1 = arr1->getUniqueArray
   let arr2 = arr2->getUniqueArray
   let lengthEqual = arr1->Array.length === arr2->Array.length
-  let isContainsAll = arr1->Js.Array2.reduce((acc, str) => {
+  let isContainsAll = arr1->Array.reduce(true, (acc, str) => {
     arr2->Array.includes(str) && acc
-  }, true)
+  })
   lengthEqual && isContainsAll
 }
 

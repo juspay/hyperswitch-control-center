@@ -16,11 +16,11 @@ type toastProps = {
 }
 
 let randomString = (length, chars) => {
-  Belt.Array.make(length, 0)->Js.Array2.reduce((acc, _) => {
+  Belt.Array.make(length, 0)->Array.reduce("", (acc, _) => {
     let charIndex = Js.Math.random_int(0, chars->String.length)
     let newChar = chars->Js.String2.charAt(charIndex)
     acc ++ newChar
-  }, "")
+  })
 }
 
 let makeToastProps = (

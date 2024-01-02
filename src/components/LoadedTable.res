@@ -767,7 +767,7 @@ let make = (
       noScrollbar || (tableLocalFilter && rows->Array.length <= 5 && frozenUpto->Belt.Option.isNone)
 
     let scrollBarClass =
-      isFilterOpen->Js.Dict.values->Js.Array2.reduce((acc, item) => item || acc, false)
+      isFilterOpen->Js.Dict.values->Array.reduce(false, (acc, item) => item || acc)
         ? ""
         : `${isMinHeightRequired ? noScrollbar ? "" : "overflow-x-scroll" : "overflow-scroll"}`
     let loadedTable =

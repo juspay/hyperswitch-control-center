@@ -35,9 +35,9 @@ let xLabelFormatter: Js_OO.Callback.arity1<xAxisRecord => string> = {
         switch options {
         | Some(options) => options.data
         | None => []
-        }->Js.Array2.reduce((acc, num) => {acc + num}, 0)
+        }->Array.reduce(0, (acc, num) => {acc + num})
       })
-      ->Js.Array2.reduce((acc, num) => {acc + num}, 0)
+      ->Array.reduce(0, (acc, num) => {acc + num})
     let index = Js.Array2.findIndex(axis.categories, x => {x === value})
     let firstSeries = series->Belt.Array.get(0)
     let y = switch firstSeries {

@@ -432,7 +432,10 @@ module ApplyFilterButton = {
         ~ignoreKeys=["opt"],
       )
 
-      let otherCheck = formattedCurrentValues->Dict.toArray->Js.Array2.reduce((acc, item) => {
+      let otherCheck =
+        formattedCurrentValues
+        ->Dict.toArray
+        ->Array.reduce(true, (acc, item) => {
           let (_, value) = item
           switch value->Js.Json.classify {
           | JSONString(str) => str === ""
@@ -442,7 +445,7 @@ module ApplyFilterButton = {
           | _ => false
           } &&
           acc
-        }, true)
+        })
       !equalDictCheck && !otherCheck
     }
 

@@ -30,9 +30,11 @@ let appnedDataToKey = (dict, key, value) => {
 }
 
 let mergeDicts = (arrDict: array<Js.Dict.t<'a>>) => {
-  arrDict->Js.Array2.reduce((acc, dict) => {
+  arrDict
+  ->Array.reduce([], (acc, dict) => {
     acc->Array.concat(dict->Dict.toArray)
-  }, [])->Js.Dict.fromArray
+  })
+  ->Js.Dict.fromArray
 }
 
 let equalDicts = (dictionary1, dictionary2) => {

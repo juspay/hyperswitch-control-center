@@ -3,7 +3,7 @@ external ffInputToSelectInput: ReactFinalForm.fieldRenderPropsInput => ReactFina
 > = "%identity"
 
 let getStrArray = jsonArr => {
-  jsonArr->Js.Array2.reduce((acc, jsonElement) => {
+  jsonArr->Array.reduce([], (acc, jsonElement) => {
     switch jsonElement->Js.Json.decodeString {
     | Some(str) => {
         let _ = Array.push(acc, str)
@@ -12,7 +12,7 @@ let getStrArray = jsonArr => {
     | None => ()
     }
     acc
-  }, [])
+  })
 }
 
 let startYear = ref(2016)

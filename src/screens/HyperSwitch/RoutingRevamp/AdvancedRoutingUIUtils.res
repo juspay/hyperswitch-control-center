@@ -294,7 +294,9 @@ module FieldInp = {
     })
 
     let options = React.useMemo0(() =>
-      convertedValue->Dict.keysToArray->Js.Array2.reduce((acc, ele) => {
+      convertedValue
+      ->Dict.keysToArray
+      ->Array.reduce([], (acc, ele) => {
         open LogicUtils
         convertedValue
         ->getArrayFromDict(ele, [])
@@ -314,7 +316,7 @@ module FieldInp = {
           },
         )
         acc
-      }, [])
+      })
     )
 
     let input: ReactFinalForm.fieldRenderPropsInput = {

@@ -435,7 +435,7 @@ let itemToObjMapper = json => {
     ->Belt.Option.flatMap(Js.Json.decodeArray)
     ->Belt.Option.getWithDefault([])
 
-  let data = queryData->Js.Array2.reduce((finalDict, json) => {
+  let data = queryData->Array.reduce(singlestatInitialValue, (finalDict, json) => {
     let dict = json->Js.Json.decodeObject->getWithDefault(Dict.make())
     let product = dict->getString("product_integrated", "")
     if product === "Payment Page Signature" {
@@ -465,7 +465,7 @@ let itemToObjMapper = json => {
     } else {
       finalDict
     }
-  }, singlestatInitialValue)
+  })
   data
 }
 
@@ -507,7 +507,7 @@ let timeSeriesObjMapper = json => {
     })
 
   timeSeriesArr->Array.forEach(item => {
-    let data = item->Js.Array2.reduce((finalData, item) => {
+    let data = item->Array.reduce(singlestatTimeseriesInitialValue, (finalData, item) => {
       let dict = singlestatTimeseriesItemToObjMapper(item)
       {
         payment_page_session_count: finalData.payment_page_session_count +
@@ -518,7 +518,7 @@ let timeSeriesObjMapper = json => {
         ec_sdk_count: finalData.ec_sdk_count + dict.ec_sdk_count,
         timeSeries: dict.timeSeries,
       }
-    }, singlestatTimeseriesInitialValue)
+    })
     finalArr->Array.push(data)->ignore
   })
 
