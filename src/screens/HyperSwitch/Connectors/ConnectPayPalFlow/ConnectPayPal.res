@@ -238,8 +238,6 @@ module ErrorPage = {
   }
 }
 
-external toJson: 'a => Js.Json.t = "%identity"
-
 @react.component
 let make = (
   ~connector,
