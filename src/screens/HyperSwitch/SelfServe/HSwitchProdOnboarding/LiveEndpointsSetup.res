@@ -17,8 +17,6 @@ module ReplaceAPIKey = {
         subtextSectionText="Configure this base url in your application for all server-server calls"
         customRightSection={<HelperComponents.KeyAndCopyArea
           copyValue=HSwitchGlobalVars.hyperSwitchApiPrefix
-          contextName="setup_webhook_processor"
-          actionName="hs_webhookcopied"
           shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-max"
         />}
         rightTag={<Icon name="server-tag" size=30 customWidth="50" />}
@@ -29,8 +27,6 @@ module ReplaceAPIKey = {
         subtextSectionText="Use this key to authenticate all calls from your application's client to Hyperswitch SDK"
         customRightSection={<HelperComponents.KeyAndCopyArea
           copyValue=publishablekeyMerchant
-          contextName="setup_webhook_processor"
-          actionName="hs_webhookcopied"
           shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-max"
         />}
         rightTag={<Icon name="client-tag" size=30 customWidth="50" />}
@@ -42,10 +38,7 @@ module ReplaceAPIKey = {
           headerSectionText="Merchant Webhook Endpoint"
           subtextSectionText="Provide the endpoint where you would want us to send live payment events"
           customRightSection={<HelperComponents.KeyAndCopyArea
-            copyValue=webhookEndpoint
-            contextName="setup_webhook_processor"
-            actionName="hs_webhookcopied"
-            shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-max"
+            copyValue=webhookEndpoint shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-max"
           />}
         />
         <div className={`${dividerColor} px-2`} />
@@ -55,8 +48,6 @@ module ReplaceAPIKey = {
             subtextSectionText="Download the provided key to authenticate and verify live events sent by Hyperswitch. Learn more"
             customRightSection={<HelperComponents.KeyAndCopyArea
               copyValue=paymentResponseHashKey
-              contextName="setup_webhook_processor"
-              actionName="hs_webhookcopied"
               shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-full"
             />}
           />
@@ -113,8 +104,6 @@ module SetupWebhookUser = {
           subtextSectionText="Download the provided key to authenticate and verify live events sent by Hyperswitch. Learn more"
           customRightSection={<HelperComponents.KeyAndCopyArea
             copyValue=paymentResponseHashKey
-            contextName="setup_webhook_processor"
-            actionName="hs_webhookcopied"
             shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-full"
           />}
         />

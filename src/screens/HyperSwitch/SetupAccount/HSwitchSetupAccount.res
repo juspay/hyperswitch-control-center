@@ -3,7 +3,6 @@ let make = () => {
   open HSwitchSetupAccountUtils
   open APIUtils
   open HyperSwitchUtils
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let finalTickLottieFile = LottieFiles.useLottieJson("FinalTick.json")
   let (stepCounter, setStepCounter) = React.useState(_ => #INITIALIZE)
@@ -100,14 +99,7 @@ let make = () => {
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       setDashboardPageState(_ => #INTEGRATION_DOC)
     } catch {
-    | Js.Exn.Error(e) => {
-        let stepCount: HSwitchSetupAccountUtils.stepCounterTypes = stepCounter
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
-        hyperswitchMixPanel(
-          ~eventName=Some("setup_account_failed"),
-          ~description=Some(`${(stepCount :> string)} ${err}`),
-          (),
-        )
+    | _ => {
         await delay(delayTime - 1000)
         setDashboardPageState(_ => #HOME)
       }

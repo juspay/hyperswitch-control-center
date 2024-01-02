@@ -35,7 +35,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let url = RescriptReactRouter.useUrl()
   let id = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault(profileId)
   let businessProfileDetails = useGetBusinessProflile(id)
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
 
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
@@ -48,12 +47,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   let onSubmit = async (values, _) => {
     try {
-      hyperswitchMixPanel(
-        ~pageName=url.path->LogicUtils.getListHead,
-        ~contextName="webhooks",
-        ~actionName="update",
-        (),
-      )
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id), ())
       let body = values->getBusinessProfilePayload->Js.Json.object_

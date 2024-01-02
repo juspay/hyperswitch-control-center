@@ -242,23 +242,6 @@ let variantToTextMapperForBuildHS = currentRoute => {
   }
 }
 
-let getMixPanelEventName = (
-  ~url: RescriptReactRouter.url,
-  ~filtersFromUrl,
-  ~hyperswitchMixPanel: HSMixPanel.functionType,
-) => {
-  if filtersFromUrl->Js.String2.length > 0 {
-    hyperswitchMixPanel(
-      ~pageName=`${url.path->LogicUtils.getListHead}`,
-      ~contextName=filtersFromUrl,
-      ~actionName="skip&exploredashboard",
-      (),
-    )
-  } else {
-    hyperswitchMixPanel(~eventName=Some(`${url.path->LogicUtils.getListHead}_exploredashboard`), ())
-  }
-}
-
 let githubCodespaces: array<UserOnboardingTypes.sectionContentType> = [
   {
     headerIcon: "github",

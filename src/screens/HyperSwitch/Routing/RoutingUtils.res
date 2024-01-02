@@ -608,10 +608,7 @@ module SaveAndActivateButton = {
   let make = (
     ~onSubmit: (Js.Json.t, 'a) => promise<Js.Nullable.t<Js.Json.t>>,
     ~handleActivateConfiguration,
-    ~mixPanelContext: string,
   ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
     )
@@ -637,12 +634,6 @@ module SaveAndActivateButton = {
       buttonType={Primary}
       buttonSize=Button.Small
       onClick={_ => {
-        hyperswitchMixPanel(
-          ~pageName=url.path->LogicUtils.getListHead,
-          ~contextName=mixPanelContext,
-          ~actionName="saveandactivate",
-          (),
-        )
         handleSaveAndActivate()->ignore
       }}
       customButtonStyle="w-1/5 rounded-sm"
@@ -651,29 +642,17 @@ module SaveAndActivateButton = {
 }
 module ConfigureRuleButton = {
   @react.component
-  let make = (~setShowModal, ~currentTabName, ~routingType, ~isConfigButtonEnabled) => {
-    let url = RescriptReactRouter.useUrl()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
+  let make = (~setShowModal, ~isConfigButtonEnabled) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
     )
-    let getMixedPanelName = switch routingType {
-    | VOLUME_SPLIT => "volume"
-    | ADVANCED => "rulebased"
-    | _ => ""
-    }
+
     <Button
       text={"Configure Rule"}
       buttonType=Primary
       buttonState={!formState.hasValidationErrors && isConfigButtonEnabled ? Normal : Disabled}
       onClick={_ => {
         setShowModal(_ => true)
-        hyperswitchMixPanel(
-          ~pageName=`${url.path->LogicUtils.getListHead}_${currentTabName}`,
-          ~contextName="configurationpage",
-          ~actionName=`configure${getMixedPanelName}Rule`,
-          (),
-        )
       }}
       customButtonStyle="w-1/5"
     />
