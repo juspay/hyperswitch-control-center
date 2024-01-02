@@ -82,9 +82,6 @@ module NoData = {
       paymentModal
       setPaymentModal
       showRedirectCTA={!isLiveMode}
-      mixPanelEventName={isConfigureConnector
-        ? "paymentops_makeapayment"
-        : "payemntops_connectaconnector"}
       onClickUrl={isConfigureConnector
         ? "/sdk"
         : `${HSwitchGlobalVars.hyperSwitchFEPrefix}/connectors`}

@@ -14,13 +14,10 @@ module VolumeRoutingView = {
     ~pageState,
     ~connectors: array<ConnectorTypes.connectorPayload>,
     ~isActive,
-    ~currentTabName,
     ~initialValues,
     ~isConfigButtonEnabled,
     ~profile,
   ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
     let listLength = connectors->Js.Array2.length
@@ -43,14 +40,6 @@ module VolumeRoutingView = {
       ->getArrayFromDict("gateways", [])
 
     let onSubmit = async (values, isSaveRule) => {
-      if isSaveRule {
-        hyperswitchMixPanel(
-          ~pageName=`${url.path->LogicUtils.getListHead}_${currentTabName}`,
-          ~contextName="volume",
-          ~actionName="saverule",
-          (),
-        )
-      }
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let data =
@@ -236,9 +225,7 @@ module VolumeRoutingView = {
                       dropDownButtonText="Add Processors"
                       connectorList
                     />
-                    <ConfigureRuleButton
-                      setShowModal currentTabName routingType={VOLUME_SPLIT} isConfigButtonEnabled
-                    />
+                    <ConfigureRuleButton setShowModal isConfigButtonEnabled />
                     <CustomModal.RoutingCustomModal
                       showModal
                       setShowModal
@@ -249,11 +236,7 @@ module VolumeRoutingView = {
                         customSumbitButtonStyle="w-1/5 rounded-lg"
                         tooltipWidthClass="w-48"
                       />}
-                      submitButton={<SaveAndActivateButton
-                        onSubmit
-                        handleActivateConfiguration
-                        mixPanelContext={`${currentTabName}_volume`}
-                      />}
+                      submitButton={<SaveAndActivateButton onSubmit handleActivateConfiguration />}
                       headingText="Activate Current Configuration?"
                       subHeadingText="Activating the current configuration will override the current active configuration. Alternatively, save this configuration to access / activate it later from the configuration history. Please confirm."
                       leftIcon="hswitch-warning"
@@ -296,12 +279,6 @@ module VolumeRoutingView = {
                   buttonType={Primary}
                   onClick={_ => {
                     handleActivateConfiguration(routingId)->ignore
-                    hyperswitchMixPanel(
-                      ~pageName=`${url.path->LogicUtils.getListHead}_${currentTabName}`,
-                      ~contextName="previewrule",
-                      ~actionName="activatevolumeconfiguration",
-                      (),
-                    )
                   }}
                   customButtonStyle="w-1/5 rounded-sm"
                   buttonState={Normal}
@@ -313,12 +290,6 @@ module VolumeRoutingView = {
                   buttonType={Primary}
                   onClick={_ => {
                     handleDeactivateConfiguration()->ignore
-                    hyperswitchMixPanel(
-                      ~pageName=`${url.path->LogicUtils.getListHead}_${currentTabName}`,
-                      ~contextName="previewrule",
-                      ~actionName="deactivatevolumeconfiguration",
-                      (),
-                    )
                   }}
                   customButtonStyle="w-1/5 rounded-sm"
                   buttonState=Normal
@@ -428,7 +399,6 @@ let make = (~routingRuleId, ~isActive) => {
             <BasicDetailsForm
               formState
               setFormState
-              routingType={VOLUME_SPLIT}
               currentTabName
               setInitialValues
               setIsConfigButtonEnabled
@@ -446,7 +416,6 @@ let make = (~routingRuleId, ~isActive) => {
           connectors
           routingId={routingRuleId}
           isActive
-          currentTabName
           initialValues
           isConfigButtonEnabled
           profile

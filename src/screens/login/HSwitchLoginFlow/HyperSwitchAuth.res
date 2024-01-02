@@ -11,7 +11,6 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let initialValues = Js.Dict.empty()->Js.Json.object_
   let clientCountry = HSwitchUtils.getBrowswerDetails().clientCountry
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (email, setEmail) = React.useState(_ => "")
@@ -70,7 +69,6 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   }
 
   let openPlayground = _ => {
-    hyperswitchMixPanel(~eventName=Some("try_playground"), ~email=playgroundUserEmail, ())
     let body = getEmailPasswordBody(playgroundUserEmail, playgroundUserPassword, country)
     getUserWithEmailPassword(body, playgroundUserEmail, #SIGNIN)->ignore
     HSLocalStorage.setIsPlaygroundInLocalStorage(true)
@@ -114,34 +112,12 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     Js.Nullable.null
   }
 
-  let logMixpanelEvents = email => {
-    open HyperSwitchAuthTypes
-    switch authType {
-    | LoginWithPassword => hyperswitchMixPanel(~eventName=Some("landing_loginbutton"), ~email, ())
-    | LoginWithEmail =>
-      hyperswitchMixPanel(~eventName=Some("landing_loginbutton_magic_link"), ~email, ())
-    | SignUP => hyperswitchMixPanel(~eventName=Some("landing_registerbutton"), ~email, ())
-    | MagicLinkEmailSent => hyperswitchMixPanel(~eventName=Some("landing_verifyemail"), ~email, ())
-    | EmailVerify => hyperswitchMixPanel(~eventName=Some("landing_emailverify"), ~email, ())
-    | ForgetPassword => hyperswitchMixPanel(~eventName=Some("landing_forgotpassword"), ~email, ())
-    | ForgetPasswordEmailSent =>
-      hyperswitchMixPanel(~eventName=Some("landing_forgetpassword_resend_mail"), ~email, ())
-    | MagicLinkVerify => hyperswitchMixPanel(~eventName=Some("landing_magiclinkverify"), ~email, ())
-    | ResendVerifyEmail =>
-      hyperswitchMixPanel(~eventName=Some("landing_resendverifyemail"), ~email, ())
-    | ResendVerifyEmailSent =>
-      hyperswitchMixPanel(~eventName=Some("landing_verifyemail_resend_mail"), ~email, ())
-    | ResetPassword => hyperswitchMixPanel(~eventName=Some("landing_resetpassword"), ~email, ())
-    | LiveMode => hyperswitchMixPanel(~eventName=Some("landing_livetesttoggle"), ~email, ())
-    }
-  }
-
   let onSubmit = async (values, _) => {
     try {
+      open HyperSwitchAuthTypes
       let valuesDict = values->getDictFromJsonObject
       let email = valuesDict->getString("email", "")
       setEmail(_ => email)
-      logMixpanelEvents(email)
 
       let _ = await (
         switch (isMagicLinkEnabled, authType) {

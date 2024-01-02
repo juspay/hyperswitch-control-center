@@ -27,8 +27,6 @@ module TopRightIcons = {
 module ActionButtons = {
   @react.component
   let make = (~routeType: routingType) => {
-    let url = RescriptReactRouter.useUrl()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let showToast = ToastState.useShowToast()
     let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
 
@@ -75,12 +73,6 @@ module ActionButtons = {
         customButtonStyle="border !border-blue-700 bg-white !text-blue-700"
         onClick={_ => {
           RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)
-          hyperswitchMixPanel(
-            ~pageName=`${url.path->LogicUtils.getListHead}_active`,
-            ~contextName=`${routeType->routingTypeName}based`,
-            ~actionName="setup",
-            (),
-          )
         }}
       />
     | DEFAULTFALLBACK =>
@@ -91,12 +83,6 @@ module ActionButtons = {
         buttonSize={Small}
         onClick={_ => {
           RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)
-          hyperswitchMixPanel(
-            ~pageName=`${url.path->LogicUtils.getListHead}_active`,
-            ~contextName=`${routeType->routingTypeName}`,
-            ~actionName="manage",
-            (),
-          )
         }}
       />
 
@@ -132,8 +118,6 @@ module ActiveSection = {
   @react.component
   let make = (~activeRouting, ~activeRoutingId) => {
     open LogicUtils
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     let activeRoutingType =
       activeRouting->getDictFromJsonObject->getString("kind", "")->routingTypeMapper
 
@@ -192,12 +176,6 @@ module ActiveSection = {
                     )}?id=${activeRoutingId}&isActive=true`,
                 )
               }
-              hyperswitchMixPanel(
-                ~pageName=`${url.path->LogicUtils.getListHead}_active`,
-                ~contextName=`${activeRoutingType->routingTypeName}`,
-                ~actionName="manage",
-                (),
-              )
             }}
           />
         </div>

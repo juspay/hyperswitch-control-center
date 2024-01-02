@@ -1,15 +1,7 @@
 type functionType = (
-  ~eventName: option<Js.String2.t>=?,
+  ~eventName: Js.String2.t=?,
   ~email: Js.String.t=?,
-  ~pageName: string=?,
-  ~actionName: string=?,
-  ~contextName: string=?,
   ~description: option<string>=?,
-  ~isApiFailure: bool=?,
-  ~apiUrl: string=?,
-  ~apiMethodName: string=?,
-  ~xRequestId: option<string>=?,
-  ~responseStatusCode: option<int>=?,
   unit,
 ) => unit
 
@@ -79,34 +71,15 @@ let useSendEvent = () => {
     }
   }
 
-  (
-    ~eventName=None,
-    ~email="",
-    ~pageName="",
-    ~actionName="",
-    ~contextName="",
-    ~description=None,
-    ~isApiFailure=false,
-    ~apiUrl="",
-    ~apiMethodName=Fetch.Post->LogicUtils.methodStr,
-    ~xRequestId=None,
-    ~responseStatusCode=None,
-    (),
-  ) => {
-    // Use eventName if the event is not of the form pageName_contextName_actionName
-    let eventName = switch eventName {
-    | Some(event_name) => event_name
-    | None => `${pageName}_${contextName}_${actionName}`
-    }->Js.String2.toLowerCase
-
-    let apiFailureMessage = `Hyperswitch API Failure - ${apiMethodName} - ${apiUrl}`
+  (~eventName, ~email="", ~description=None, ~xRequestId=None, ~responseStatusCode=None, ()) => {
+    let eventName = eventName->Js.String2.toLowerCase
     let someRequestId = xRequestId->Belt.Option.getWithDefault("")
     let someStatusCode = responseStatusCode->Belt.Option.getWithDefault(0)
     let merchantId = getFromMerchantDetails("merchant_id")
 
     if featureFlagDetails.mixPanel {
       MixPanel.track(
-        isApiFailure ? apiFailureMessage : eventName,
+        eventName,
         {
           "email": email->parseEmail,
           "merchantId": merchantId,
@@ -122,7 +95,7 @@ let useSendEvent = () => {
         ~description,
         ~requestId={someRequestId},
         ~statusCode={someStatusCode},
-        ~event={isApiFailure ? apiFailureMessage : eventName},
+        ~event={eventName},
       )->ignore
     }
   }

@@ -114,7 +114,7 @@ module ConfigurePlugin = {
                     {"Use this key to authenticate all calls from your application's client"->React.string}
                   </div>
                 </div>
-                <UserOnboardingUIUtils.PublishableKeyArea currentRoute={WooCommercePlugin} />
+                <UserOnboardingUIUtils.PublishableKeyArea />
               </div>
               <div className="grid grid-cols-3 w-full py-4">
                 <div className="col-span-2">
@@ -123,9 +123,7 @@ module ConfigurePlugin = {
                     {"This helps to authenticate and verify live events send by Hyperswitch."->React.string}
                   </div>
                 </div>
-                <UserOnboardingUIUtils.PaymentResponseHashKeyArea
-                  currentRoute={WooCommercePlugin}
-                />
+                <UserOnboardingUIUtils.PaymentResponseHashKeyArea />
               </div>
             </div>
           </div>

@@ -22,7 +22,6 @@ type buttonType =
   | Dropdown
   | LightBlue
   | ArdraDefaultBlue
-
 type buttonSize = Large | Medium | Small | XSmall
 type iconType =
   | FontAwesome(string)
@@ -103,12 +102,8 @@ let make: (
   ~fullLength: bool=?,
   ~disableRipple: bool=?,
   ~customButtonStyle: Js.String2.t=?,
-  ~textStyleClass: Js.String2.t=?,
+  ~textStyleClass: string=?,
   ~customTextPaddingClass: string=?,
-  ~hswitchMixPanelDescription: string=?,
-  ~hswitchMixPanelPageName: string=?,
-  ~hswitchMixPanelContextName: string=?,
-  ~hswitchMixPanelActionName: string=?,
   ~allowButtonTextMinWidth: bool=?,
   ~badge: badge=?,
   ~buttonRightText: string=?,

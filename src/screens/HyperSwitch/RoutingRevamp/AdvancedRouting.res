@@ -398,8 +398,6 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
 
 @react.component
 let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
-  let url = RescriptReactRouter.useUrl()
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
@@ -613,15 +611,8 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   }
 
   let onSubmit = async (values, isSaveRule) => {
-    hyperswitchMixPanel(
-      ~pageName=`${url.path->getListHead}_${currentTabName}`,
-      ~contextName="rulebased",
-      ~actionName="saverule",
-      (),
-    )
-    setScreenState(_ => Loading)
-
     try {
+      setScreenState(_ => Loading)
       let valuesDict = values->getDictFromJsonObject
       let dataDict = valuesDict->getDictfromDict("algorithm")->getDictfromDict("data")
 
@@ -701,13 +692,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
             <div className="w-full flex flex-row  justify-between">
               <div className="w-full">
                 <BasicDetailsForm
-                  formState
-                  setFormState
-                  routingType={ADVANCED}
-                  currentTabName
-                  setIsConfigButtonEnabled
-                  profile
-                  setProfile
+                  formState setFormState currentTabName setIsConfigButtonEnabled profile setProfile
                 />
                 <UIUtils.RenderIf condition={formState != CreateConfig}>
                   <div className="mb-5">
@@ -723,12 +708,6 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                             buttonType={Primary}
                             onClick={_ => {
                               handleActivateConfiguration(routingRuleId)->ignore
-                              hyperswitchMixPanel(
-                                ~pageName=`${url.path->getListHead}_${currentTabName}`,
-                                ~contextName="previewrule",
-                                ~actionName="activaterulebasedconfiguration",
-                                (),
-                              )
                             }}
                             customButtonStyle="w-1/5 rounded-sm"
                             buttonState=Normal
@@ -740,12 +719,6 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                             buttonType={Primary}
                             onClick={_ => {
                               handleDeactivateConfiguration()->ignore
-                              hyperswitchMixPanel(
-                                ~pageName=`${url.path->LogicUtils.getListHead}_${currentTabName}`,
-                                ~contextName="previewrule",
-                                ~actionName="deactivatevolumeconfiguration",
-                                (),
-                              )
                             }}
                             customButtonStyle="w-1/5 rounded-sm"
                             buttonState=Normal
@@ -753,9 +726,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                         </UIUtils.RenderIf>
                       </div>
                     | Create =>
-                      <RoutingUtils.ConfigureRuleButton
-                        setShowModal currentTabName routingType={ADVANCED} isConfigButtonEnabled
-                      />
+                      <RoutingUtils.ConfigureRuleButton setShowModal isConfigButtonEnabled />
                     | _ => React.null
                     }}
                   </div>
@@ -771,9 +742,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                     tooltipWidthClass="w-48"
                   />}
                   submitButton={<RoutingUtils.SaveAndActivateButton
-                    onSubmit
-                    handleActivateConfiguration
-                    mixPanelContext={`${currentTabName}_rulebased`}
+                    onSubmit handleActivateConfiguration
                   />}
                   headingText="Activate Current Configuration?"
                   subHeadingText="Activating the current configuration will override the current active configuration. Alternatively, save this configuration to access / activate it later from the configuration history. Please confirm."

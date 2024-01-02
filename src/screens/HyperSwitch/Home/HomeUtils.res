@@ -32,21 +32,6 @@ type resourcesTypes = {
   id: string,
 }
 
-let trackRedictMixPanelEvents = (
-  ~pageName,
-  ~destination,
-  ~redirectType="internal",
-  ~hyperswitchMixPanel: HSMixPanel.functionType,
-  (),
-) => {
-  hyperswitchMixPanel(
-    ~pageName,
-    ~contextName=`${redirectType}_redirect`,
-    ~actionName=`to_${destination}`,
-    (),
-  )
-}
-
 let countries: array<HyperSwitchTypes.country> = [
   {
     isoAlpha3: "USA",
@@ -164,10 +149,8 @@ module MerchantAuthInfo = {
 module CheckoutCard = {
   @react.component
   let make = () => {
-    let url = RescriptReactRouter.useUrl()
     let fetchApi = AuthHooks.useApiFetcher()
     let showPopUp = PopUpState.useShowPopUp()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
@@ -177,7 +160,6 @@ module CheckoutCard = {
       ->LogicUtils.safeParse
       ->LogicUtils.getObjectArrayFromJson
     let isConfigureConnector = connectorList->Array.length > 0
-    let urlPath = url.path->Belt.List.toArray->Js.Array2.joinWith("_")
 
     let handleOnClick = _ => {
       if isPlayground {
@@ -191,20 +173,12 @@ module CheckoutCard = {
             text: "Sign up Now",
             onClick: {
               _ => {
-                hyperswitchMixPanel(~eventName=Some(`${urlPath}_tryplayground_register`), ())
-                hyperswitchMixPanel(~eventName=Some(`global_tryplayground_register`), ())
                 let _ = APIUtils.handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
               }
             },
           },
         })
       } else {
-        hyperswitchMixPanel(
-          ~pageName=url.path->LogicUtils.getListHead,
-          ~contextName="sdk",
-          ~actionName="tryitout",
-          (),
-        )
         RescriptReactRouter.replace("/sdk")
       }
     }
@@ -234,12 +208,8 @@ module CheckoutCard = {
 module ControlCenter = {
   @react.component
   let make = () => {
-    let url = RescriptReactRouter.useUrl()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let merchantDetailsValue = useMerchantDetailsValue()
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
-    let pageName = url.path->getPageNameFromUrl
 
     let isLiveModeEnabledStyles = isLiveMode
       ? "flex flex-col md:flex-row gap-5 w-full"
@@ -262,16 +232,7 @@ module ControlCenter = {
               text="+  Connect"
               buttonType={Secondary}
               buttonSize={Small}
-              hswitchMixPanelPageName="home"
-              hswitchMixPanelActionName="connector"
-              hswitchMixPanelContextName="connect"
               onClick={_ => {
-                trackRedictMixPanelEvents(
-                  ~pageName,
-                  ~destination="connectors",
-                  ~hyperswitchMixPanel,
-                  (),
-                )
                 RescriptReactRouter.push("/connectors")
               }}
             />
@@ -290,16 +251,7 @@ module ControlCenter = {
               text="Go to API keys"
               buttonType={Secondary}
               buttonSize={Small}
-              hswitchMixPanelPageName="home"
-              hswitchMixPanelActionName="apikey"
-              hswitchMixPanelContextName="goto"
               onClick={_ => {
-                trackRedictMixPanelEvents(
-                  ~pageName,
-                  ~destination="developers_api_keys",
-                  ~hyperswitchMixPanel,
-                  (),
-                )
                 RescriptReactRouter.push("/developer-api-keys")
               }}
             />
@@ -316,10 +268,6 @@ module ControlCenter = {
 module DevResources = {
   @react.component
   let make = () => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
-    let pageName = url.path->getPageNameFromUrl
-
     <div className="mb-5">
       <PageHeading
         title="Developer resources"
@@ -338,13 +286,6 @@ module DevResources = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                trackRedictMixPanelEvents(
-                  ~pageName,
-                  ~destination="docs",
-                  ~redirectType="external",
-                  ~hyperswitchMixPanel,
-                  (),
-                )
                 "https://hyperswitch.io/docs"->Window._open
               }}
             />
@@ -362,13 +303,6 @@ module DevResources = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                trackRedictMixPanelEvents(
-                  ~pageName,
-                  ~destination="github",
-                  ~redirectType="external",
-                  ~hyperswitchMixPanel,
-                  (),
-                )
                 "https://github.com/juspay/hyperswitch"->Window._open
               }}
             />
@@ -386,13 +320,6 @@ module DevResources = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                trackRedictMixPanelEvents(
-                  ~pageName,
-                  ~destination="blog",
-                  ~redirectType="external",
-                  ~hyperswitchMixPanel,
-                  (),
-                )
                 "https://hyperswitch.io/blog"->Window._open
               }}
             />
