@@ -93,7 +93,10 @@ module AddEntryBtn = {
           buttonSize=Small
           buttonType={Primary}
           rightIcon={FontAwesome("plus")}
-          onClick={_ => setShowModal(_ => true)}
+          onClick={_ => {
+            setModalState(_ => Edit)
+            setShowModal(_ => true)
+          }}
         />
       </UIUtils.RenderIf>
       <Modal
