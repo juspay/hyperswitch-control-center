@@ -11,7 +11,12 @@ let make = (~previewOnly=false) => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
   let (paymentModal, setPaymentModal) = React.useState(_ => false)
-  let isConfigureConnector = ListHooks.useListCount(~entityName=CONNECTOR) > 0
+  let connectorList =
+    HyperswitchAtom.connectorListAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->LogicUtils.safeParse
+    ->LogicUtils.getObjectArrayFromJson
+  let isConfigureConnector = connectorList->Array.length > 0
 
   let (widthClass, heightClass) = React.useMemo1(() => {
     previewOnly ? ("w-full", "max-h-96") : ("w-full", "")
