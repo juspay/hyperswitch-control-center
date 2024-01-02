@@ -18,6 +18,7 @@ let listOfStepCounter: array<stepCounterTypes> = [
 
 let constructBody = (~connectorName, ~json, ~profileId) => {
   open LogicUtils
+  open ConnectorUtils
   let connectorAccountDict = json->getDictFromJsonObject->getDictfromDict("connector_auth")
   let bodyType =
     connectorAccountDict->Js.Dict.keys->Belt.Array.get(0)->Belt.Option.getWithDefault("")
@@ -40,11 +41,31 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
     (),
   )
 
-  let creditCardNetworkArray = json->getDictFromJsonObject->getStrArrayFromDict("credit", [])
-  let debitCardNetworkArray = json->getDictFromJsonObject->getStrArrayFromDict("debit", [])
+  let creditCardNetworkArray =
+    json
+    ->getDictFromJsonObject
+    ->getArrayFromDict("credit", [])
+    ->Js.Json.array
+    ->getPaymentMethodMapper
+  let debitCardNetworkArray =
+    json
+    ->getDictFromJsonObject
+    ->getArrayFromDict("debit", [])
+    ->Js.Json.array
+    ->getPaymentMethodMapper
 
-  let payLaterArray = json->getDictFromJsonObject->getStrArrayFromDict("pay_later", [])
-  let walletArray = json->getDictFromJsonObject->getStrArrayFromDict("wallet", [])
+  let payLaterArray =
+    json
+    ->getDictFromJsonObject
+    ->getArrayFromDict("pay_later", [])
+    ->Js.Json.array
+    ->getPaymentMethodMapper
+  let walletArray =
+    json
+    ->getDictFromJsonObject
+    ->getArrayFromDict("wallet", [])
+    ->Js.Json.array
+    ->getPaymentMethodMapper
 
   let paymentMethodsEnabledArray: array<ConnectorTypes.paymentMethodEnabled> = [
     {
