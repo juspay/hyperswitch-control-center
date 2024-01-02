@@ -1,7 +1,6 @@
 open ThreeDSUtils
-open AdvancedRoutingTypes
 
-let defaultSurcharge = {
+let defaultSurcharge: AdvancedRoutingTypes.surchargeDetailsType = {
   surcharge: {
     \"type": "rate",
     value: {

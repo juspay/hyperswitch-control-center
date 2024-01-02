@@ -247,7 +247,7 @@ let make = () => {
       | NEW =>
         <div className="w-full border p-8 bg-white rounded-md ">
           <Form initialValues validate formClass="flex flex-col gap-6 justify-between" onSubmit>
-            <BasicDetailsForm formState setFormState routingType={ADVANCED} isThreeDs=true />
+            <BasicDetailsForm formState setFormState isThreeDs=true />
             <ConfigureSurchargeRule wasm />
             <FormValuesSpy />
             <div className="flex gap-4">
