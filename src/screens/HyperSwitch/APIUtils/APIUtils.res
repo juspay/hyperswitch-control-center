@@ -36,6 +36,7 @@ let getURL = (
   | TEST_LIVE_PAYMENT => `test_payment`
   | THREE_DS => `routing/decision`
   | VERIFY_APPLE_PAY => `verify/apple_pay`
+  | PAYPAL_ONBOARDING => `connector_onboarding`
   | SURCHARGE => `routing/decision/surcharge`
   | FRAUD_RISK_MANAGEMENT | CONNECTOR =>
     switch methodType {
@@ -148,7 +149,7 @@ let getURL = (
     let userUrl = `user`
     switch userType {
     | #NONE => ""
-    | #VERIFY_MAGIC_LINK => `${userUrl}/v2/signin/verify`
+    | #VERIFY_MAGIC_LINK => `${userUrl}/verify_email`
     | #SIGNIN
     | #SIGNUP
     | #VERIFY_EMAIL =>
