@@ -113,7 +113,8 @@ module TableWrapper = {
     ~distributionArray=None,
   ) => {
     let customFilter = Recoil.useRecoilValueFromAtom(AnalyticsAtoms.customFilterAtom)
-    let getAllFilter = UrlUtils.useGetFilterDictFromUrl("")
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let filterValueDict = filterValueJson
     let fetchDetails = APIUtils.useUpdateMethod()
     let (_, setDefaultFilter) = Recoil.useRecoilState(AnalyticsHooks.defaultFilter)
     let (showTable, setShowTable) = React.useState(_ => false)
@@ -124,11 +125,11 @@ module TableWrapper = {
     let (tableData, setTableData) = React.useState(_ => []->Array.map(Js.Nullable.return))
 
     let getTopLevelFilter = React.useMemo1(() => {
-      getAllFilter
+      filterValueDict
       ->Dict.toArray
       ->Belt.Array.keepMap(item => {
         let (key, value) = item
-        let keyArr = key->Js.String2.split(".")
+        let keyArr = key->String.split(".")
         let prefix = keyArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
         if prefix === moduleName && prefix !== "" {
           None
@@ -137,7 +138,7 @@ module TableWrapper = {
         }
       })
       ->Dict.fromArray
-    }, [getAllFilter])
+    }, [filterValueDict])
 
     let allColumns = allColumns->Belt.Option.getWithDefault([])
     let allFilterKeys = Array.concat([startTimeFilterKey, endTimeFilterKey], filterKeys)
@@ -417,7 +418,7 @@ module TabDetails = {
     let id =
       activeTab
       ->Belt.Option.getWithDefault(["tab"])
-      ->Array.reduce("", (acc, tabName) => {acc->Js.String2.concat(tabName)})
+      ->Array.reduce("", (acc, tabName) => {acc->String.concat(tabName)})
 
     let isMobileView = MatchMedia.useMobileChecker()
 
@@ -512,17 +513,12 @@ let make = (
 ) => {
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let analyticsType = moduleName->getAnalyticsType
-  let {filterValue, updateExistingKeys} = React.useContext(
-    AnalyticsUrlUpdaterContext.urlUpdaterContext,
+  let {filterValue, updateExistingKeys, filterValueJson} = React.useContext(
+    FilterContext.filterContext,
   )
-  let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
+
   let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
-  let (_filterAtom, setFilterAtom) = Recoil.useRecoilState(AnalyticsAtoms.customFilterAtom)
-  React.useEffect0(() => {
-    setFilterAtom(._ => "")
-    None
-  })
   let (filteredTabKeys, filteredTabVales) = (tabKeys, tabValues)
   let chartEntity1 = chartEntity.default // User Journey - SemiDonut (Payment Metrics), Others - Default Chart Entity
   let pieChartEntity = chartEntity.userPieChart // SemiDonut (User Metrics)
@@ -533,26 +529,23 @@ let make = (
   | None => None
   }
 
+  let filterValueDict = filterValueJson
   let getFilterData = AnalyticsHooks.useGetFiltersData()
 
   let (activeTav, setActiveTab) = React.useState(_ =>
-    getModuleFilters->getStrArrayFromDict(
+    filterValueDict->getStrArrayFromDict(
       `${moduleName}.tabName`,
       [filteredTabKeys->Belt.Array.get(0)->Belt.Option.getWithDefault("")],
     )
   )
   let setActiveTab = React.useMemo1(() => {
     (str: string) => {
-      setActiveTab(_ => str->Js.String2.split(","))
+      setActiveTab(_ => str->String.split(","))
     }
   }, [setActiveTab])
 
-  let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
-  let startTimeVal = getModuleFilters->getString(startTimeFilterKey, "")
-
-  let endTimeVal = getModuleFilters->getString(endTimeFilterKey, "")
-
-  let updateComponentPrefrences = UrlUtils.useUpdateUrlWith(~prefix="")
+  let startTimeVal = filterValueDict->getString(startTimeFilterKey, "")
+  let endTimeVal = filterValueDict->getString(endTimeFilterKey, "")
 
   let updateUrlWithPrefix = React.useMemo1(() => {
     (chartType: string) => {
@@ -588,7 +581,6 @@ let make = (
   }, [updateExistingKeys])
 
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateComponentPrefrences,
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
@@ -598,19 +590,6 @@ let make = (
     setInitialFilters()
     None
   })
-
-  let url = RescriptReactRouter.useUrl()
-  React.useEffect1(() => {
-    if url.search->HSwitchUtils.isEmptyString {
-      updateComponentPrefrences(~dict=filterValue)
-    }
-    None
-  }, [url])
-
-  React.useEffect1(() => {
-    updateComponentPrefrences(~dict=filterValue)
-    None
-  }, [filterValue])
 
   let filterBody = React.useMemo3(() => {
     let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
@@ -627,11 +606,11 @@ let make = (
 
   let activeTab = React.useMemo1(() => {
     Some(
-      getModuleFilters
+      filterValueDict
       ->getStrArrayFromDict(`${moduleName}.tabName`, activeTav)
       ->Array.filter(item => item !== ""),
     )
-  }, [getModuleFilters])
+  }, [filterValueDict])
 
   let isMobileView = MatchMedia.useMobileChecker()
 
@@ -699,7 +678,7 @@ let make = (
     </div>
   }
 
-  <UIUtils.RenderIf condition={getModuleFilters->Dict.toArray->Array.length > 0}>
+  <UIUtils.RenderIf condition={filterValueDict->Dict.toArray->Array.length > 0}>
     {switch chartEntity1 {
     | Some(chartEntity) =>
       <div>

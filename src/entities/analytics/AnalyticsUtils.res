@@ -299,65 +299,6 @@ let getDateCreatedObject = () => {
 
   filterCreatedDict
 }
-let useFilterUrlUpdater = (~addParam="", ~getDateCreatedObject=getDateCreatedObject, ()) => {
-  let addParamKeyValueMode =
-    addParam
-    ->Js.String2.split("&")
-    ->Belt.Array.get(0)
-    ->Belt.Option.getWithDefault("")
-    ->Js.String2.split("=")
-
-  let addParamKey = addParamKeyValueMode->Belt.Array.get(0)->Belt.Option.getWithDefault("")
-
-  let addParamValue = addParamKeyValueMode->Belt.Array.get(1)->Belt.Option.getWithDefault("")
-
-  let url = RescriptReactRouter.useUrl()
-  let {updateExistingKeys} = React.useContext(AnalyticsUrlUpdaterContext.urlUpdaterContext)
-  let searchString = url.search
-
-  React.useEffect0(() => {
-    let inititalSearchParam =
-      searchString
-      ->Js.Global.decodeURI
-      ->Js.String2.split("&")
-      ->Belt.Array.keepMap(item => {
-        let searchParam = item->Js.String2.split("=")
-        let key = searchParam->Belt.Array.get(0)->Belt.Option.getWithDefault("")
-        let value = searchParam->Belt.Array.sliceToEnd(1)->Array.joinWith("=")
-
-        if key !== "" && value !== "" {
-          Some((key, value))
-        } else {
-          None
-        }
-      })
-      ->Dict.fromArray
-
-    let getDefaultDate = getDateCreatedObject()
-    let defaultStateTimeValue = getDefaultDate->LogicUtils.getString(startTimeFilterKey, "")
-    let defaultEndTime = getDefaultDate->LogicUtils.getString(endTimeFilterKey, "")
-    let defaultOpt = getDefaultDate->LogicUtils.getString(optFilterKey, "")
-    let defaultMode = addParamValue
-    // we should be adding some validation on the default startTime and default End Time and on mode as well
-    [
-      (startTimeFilterKey, defaultStateTimeValue),
-      (endTimeFilterKey, defaultEndTime),
-      (addParamKey, defaultMode),
-      (optFilterKey, defaultOpt),
-    ]->Belt.Array.forEach(item => {
-      let (key, defaultValue) = item
-      switch inititalSearchParam->Dict.get(key) {
-      | Some(_) => ()
-      | None => inititalSearchParam->Dict.set(key, defaultValue)
-      }
-    })
-    updateExistingKeys(inititalSearchParam)
-
-    None
-  })
-
-  true
-}
 
 module TableModalContent = {
   @react.component
@@ -2284,7 +2225,7 @@ module RedirectToOrderTableModal = {
   let allColumns = defaultColumns
 
   let filterByData = (actualData, value) => {
-    let searchText = getStringFromJson(value, "")->Js.String2.toLowerCase
+    let searchText = getStringFromJson(value, "")->String.toLowerCase
 
     actualData
     ->Belt.Array.keepMap(Js.Nullable.toOption)
@@ -2301,7 +2242,7 @@ module RedirectToOrderTableModal = {
         dict
         ->Dict.valuesToArray
         ->Array.map(val => {
-          val->Js.String2.toLowerCase->Js.String2.includes(searchText)
+          val->String.toLowerCase->String.includes(searchText)
         })
         ->Array.includes(true)
 
@@ -2441,7 +2382,7 @@ let useGetFilters = (
   ~customFilterKey: string="",
   (),
 ) => {
-  let {filterValue} = React.useContext(AnalyticsUrlUpdaterContext.urlUpdaterContext)
+  let {filterValue} = React.useContext(FilterContext.filterContext)
   let getAllFilter =
     filterValue
     ->Dict.toArray
@@ -2455,7 +2396,7 @@ let useGetFilters = (
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
-      let keyArr = key->Js.String2.split(".")
+      let keyArr = key->String.split(".")
       let prefix = keyArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
       if prefix === moduleName && prefix !== "" {
         None

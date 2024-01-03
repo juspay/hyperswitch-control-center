@@ -7,9 +7,9 @@ let useGetFilterDictFromUrl = prefix => {
       let searcParamsToDict =
         url.search
         ->Js.Global.decodeURI
-        ->Js.String2.split("&")
+        ->String.split("&")
         ->Array.map(str => {
-          let arr = str->Js.String2.split("=")
+          let arr = str->String.split("=")
           let key = arr->Belt.Array.get(0)->Belt.Option.getWithDefault("-")
           let val = arr->Belt.Array.sliceToEnd(1)->Array.joinWith("=")
 
@@ -19,8 +19,8 @@ let useGetFilterDictFromUrl = prefix => {
           let (key, val) = entry
           if prefix === "" {
             entry->Some
-          } else if key->Js.String2.indexOf(`${prefix}.`) === 0 {
-            let transformedKey = key->Js.String2.replace(`${prefix}.`, "")
+          } else if key->String.indexOf(`${prefix}.`) === 0 {
+            let transformedKey = key->String.replace(`${prefix}.`, "")
             (transformedKey, val)->Some
           } else {
             None
@@ -34,36 +34,4 @@ let useGetFilterDictFromUrl = prefix => {
   }, [url.search])
 
   searchParamsDict
-}
-
-let useUpdateUrlWith = (~prefix as _: string) => {
-  let url = RescriptReactRouter.useUrl()
-  let updateUrl = (~dict: Js.Dict.t<string>) => {
-    let currentSearchParamsDict =
-      url.search
-      ->Js.Global.decodeURI
-      ->Js.String2.split("&")
-      ->Belt.Array.keepMap(str => {
-        let arr = str->Js.String2.split("=")
-        let key = arr->Belt.Array.get(0)->Belt.Option.getWithDefault("-")
-        let val = arr->Belt.Array.sliceToEnd(1)->Array.joinWith("=")
-        key === "" || val === "" ? None : Some((key, val))
-      })
-      ->Dict.fromArray
-    let path = url.path->Belt.List.toArray->Array.joinWith("/")
-
-    let searchParam =
-      dict
-      ->Dict.toArray
-      ->Array.map(item => {
-        let (key, value) = item
-        `${key}=${value}`
-      })
-      ->Array.joinWith("&")
-
-    if !DictionaryUtils.equalDicts(currentSearchParamsDict, dict) {
-      RescriptReactRouter.push(`/${path}?${searchParam}`)
-    }
-  }
-  updateUrl
 }

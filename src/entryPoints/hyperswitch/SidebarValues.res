@@ -126,13 +126,15 @@ let userJourneyAnalytics = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
-let analytics = isAnalyticsEnabled =>
+let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag) =>
   isAnalyticsEnabled
     ? Section({
         name: "Analytics",
         icon: "analytics",
         showSection: true,
-        links: [paymentAnalytcis, refundAnalytics, userJourneyAnalytics],
+        links: userJourneyAnalyticsFlag
+          ? [paymentAnalytcis, refundAnalytics, userJourneyAnalytics]
+          : [paymentAnalytcis, refundAnalytics],
       })
     : emptyComponent
 
@@ -162,13 +164,13 @@ let surcharge = SubLevelLink({
   searchOptions: [("Add Surcharge", "")],
 })
 
-let workflow = isWorkflowEnabled =>
+let workflow = (isWorkflowEnabled, isSurchargeEnabled) =>
   isWorkflowEnabled
     ? Section({
         name: "Workflow",
         icon: "3ds",
         showSection: true,
-        links: [routing, threeDs, surcharge],
+        links: isSurchargeEnabled ? [routing, threeDs, surcharge] : [routing, threeDs],
       })
     : emptyComponent
 
@@ -322,14 +324,16 @@ let getHyperSwitchAppSidebars = (
     sampleData,
     businessProfile,
     systemMetrics,
+    userJourneyAnalytics: userJourneyAnalyticsFlag,
+    surcharge: isSurchargeEnabled,
   } = featureFlagDetails
   let sidebar = [
     productionAccess->productionAccessComponent,
     default->home,
     default->operations,
-    default->analytics,
+    default->analytics(userJourneyAnalyticsFlag),
     default->connectors,
-    default->workflow,
+    default->workflow(isSurchargeEnabled),
     frm->fraudAndRisk,
     payOut->payoutConnectors,
     recon->reconTag(isReconEnabled),

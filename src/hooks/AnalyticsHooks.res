@@ -21,10 +21,9 @@ let handleError = (json: Js.Json.t) => {
 
 let useGetFiltersData = () => {
   let (filterData, setFilterData) = React.useState(_ => None)
-  let timeFilters = UrlUtils.useGetFilterDictFromUrl("")
-  let startTimeVal = timeFilters->LogicUtils.getString("startTime", "")
-
-  let endTimeVal = timeFilters->LogicUtils.getString("endTime", "")
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let startTimeVal = filterValueJson->getString("startTime", "")
+  let endTimeVal = filterValueJson->getString("endTime", "")
   let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetch()
 
   let fetchApi = AuthHooks.useApiFetcher()
@@ -54,80 +53,118 @@ let useGetFiltersData = () => {
   }
 }
 
-let useUpdateSaveView = () => {
+let useGetLiveFiltersData = () => {
+  let (filterData, setFilterData) = React.useState(_ => None)
+
+  let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetch()
+
   let fetchApi = AuthHooks.useApiFetcher()
-  (~bodyStr: string, ~id: string) => {
-    let url = `/api/ec/v1/savedView/${id}`
 
+  (uri, method, filterBody) => {
     open Promise
-    fetchApi(url, ~method_=Put, ~bodyStr, ())
-    ->then(res => {
-      if res->Fetch.Response.status == 200 {
-        resolve(Success)
-      } else {
-        Fetch.Response.json(res)->thenResolve(json => {
-          json->handleError->Error
-        })
-      }
-    })
-    ->catch(_ => resolve(Error(Some("Something went wrong"))))
-  }
-}
 
-let useDeleteSaveView = () => {
-  let fetchApi = AuthHooks.useApiFetcher()
-  (~id: string) => {
-    let url = `/api/ec/v1/savedView/${id}`
+    React.useEffect1(() => {
+      let endTimeVal = Js.Date.make()->Js.Date.toISOString
+      let endTimeInMs = Js.Date.make()->Js.Date.getTime
+      let ttlTime = 1.0 *. 3600.0 *. 1000.0
+      let startTimeInMs = endTimeInMs -. ttlTime
+      let startTimeVal = Js.Date.fromFloat(startTimeInMs)->Js.Date.toISOString
+      setFilterData(_ => None)
 
-    open Promise
-    fetchApi(url, ~method_=Delete, ())
-    ->then(res => {
-      if res->Fetch.Response.status == 200 {
-        resolve(Success)
-      } else {
-        Fetch.Response.json(res)->thenResolve(json => {
-          json->handleError->Error
-        })
-      }
-    })
-    ->catch(_ => resolve(Error(Some("Something went wrong"))))
-  }
-}
-
-let useSaveViewListFetcher = () => {
-  let fetchApi = AuthHooks.useApiFetcher()
-  let showToast = ToastState.useShowToast()
-  (~process) => {
-    let url = "/api/ec/v1/savedView/list"
-
-    open Promise
-    fetchApi(url, ~method_=Get, ())
-    ->then(Fetch.Response.json)
-    ->thenResolve(json => {
-      let dict = json->getDictFromJsonObject
-      let hasError = LogicUtils.getBool(dict, "error", false)
-      if hasError {
-        let errorMessage = LogicUtils.getString(
-          dict,
-          "errorMessage",
-          "Error occurred on switching Merchant",
+      if startTimeVal !== "" && endTimeVal !== "" {
+        fetchApi(
+          uri,
+          ~method_=method,
+          ~bodyStr=filterBody,
+          ~headers=[("QueryType", "Filter")]->Js.Dict.fromArray,
+          (),
         )
-        showToast(~toastType=ToastError, ~message=errorMessage, ())
-      } else {
-        let rows = dict->getJsonObjectFromDict("rows")
-        process(rows)
+        ->addLogsAroundFetch(~logTitle="Filter Data Api")
+        ->thenResolve(json => setFilterData(_ => json->Some))
+        ->catch(_err => resolve())
+        ->ignore
       }
+      None
+    }, [filterBody])
+    filterData
+  }
+}
+
+let useAnalyticsFetch = () => {
+  let fetchApi = AuthHooks.useApiFetcher()
+  let fetchChartData = (~url, ~body, ~setState, ~setDataLoading) => {
+    setDataLoading(_ => true)
+    open Promise
+    fetchApi(url, ~method_=Fetch.Post, ~bodyStr=body, ())
+    ->then(Fetch.Response.json)
+    ->then(json => {
+      // get total volume and time series and pass that on
+      let dataRaw =
+        json->getDictFromJsonObject->getJsonObjectFromDict("queryData")->getArrayFromJson([])
+
+      setState(dataRaw)
+      setDataLoading(_ => false)
+      resolve()
     })
-    ->catch(_ => {
-      showToast(~toastType=ToastError, ~message="SomeThing Went Wrong", ())
+    ->catch(_err => {
+      setDataLoading(_ => false)
       resolve()
     })
     ->ignore
   }
+  fetchChartData
 }
 
 type tabsetHookType = {
   setActiveTab: string => unit,
   activeTab: option<array<string>>,
   updateUrlWithPrefix: Js.Dict.t<string> => unit,
+}
+
+let useTabHooks = (~moduleName, ~segmentsOptions) => {
+  let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let getModuleFilters = filterValueJson
+  let (activeTav, setActiveTab) = React.useState(_ =>
+    getModuleFilters->getStrArrayFromDict(
+      `${moduleName}.tabName`,
+      [segmentsOptions->Belt.Array.get(0)->Belt.Option.getWithDefault("")],
+    )
+  )
+  let setActiveTab = React.useMemo1(() => {
+    (str: string) => {
+      setActiveTab(_ => str->Js.String2.split(","))
+    }
+  }, [setActiveTab])
+
+  let updateUrlWithPrefix = React.useMemo1(() => {
+    (dict: Js.Dict.t<string>) => {
+      let currentDict =
+        dict
+        ->Js.Dict.entries
+        ->Belt.Array.keepMap(item => {
+          let (key, value) = item
+          if value !== "" {
+            Some((`${moduleName}.${key}`, value))
+          } else {
+            None
+          }
+        })
+      updateExistingKeys(currentDict->Js.Dict.fromArray)
+    }
+  }, [updateExistingKeys])
+  let activeTab = React.useMemo1(() => {
+    Some(
+      getModuleFilters
+      ->getOptionStrArrayFromDict(`${moduleName}.tabName`)
+      ->Belt.Option.getWithDefault(activeTav)
+      ->Js.Array2.filter(item => item !== ""),
+    )
+  }, [getModuleFilters])
+
+  {
+    setActiveTab,
+    activeTab,
+    updateUrlWithPrefix,
+  }
 }
