@@ -164,13 +164,13 @@ let surcharge = SubLevelLink({
   searchOptions: [("Add Surcharge", "")],
 })
 
-let workflow = isWorkflowEnabled =>
+let workflow = (isWorkflowEnabled, isSurchargeEnabled) =>
   isWorkflowEnabled
     ? Section({
         name: "Workflow",
         icon: "3ds",
         showSection: true,
-        links: [routing, threeDs, surcharge],
+        links: isSurchargeEnabled ? [routing, threeDs, surcharge] : [routing, threeDs],
       })
     : emptyComponent
 
@@ -325,6 +325,7 @@ let getHyperSwitchAppSidebars = (
     businessProfile,
     systemMetrics,
     userJourneyAnalytics: userJourneyAnalyticsFlag,
+    surcharge: isSurchargeEnabled,
   } = featureFlagDetails
   let sidebar = [
     productionAccess->productionAccessComponent,
@@ -332,7 +333,7 @@ let getHyperSwitchAppSidebars = (
     default->operations,
     default->analytics(userJourneyAnalyticsFlag),
     default->connectors,
-    default->workflow,
+    default->workflow(isSurchargeEnabled),
     frm->fraudAndRisk,
     payOut->payoutConnectors,
     recon->reconTag(isReconEnabled),

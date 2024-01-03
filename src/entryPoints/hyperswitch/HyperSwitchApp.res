@@ -340,7 +340,10 @@ let make = () => {
                           <SDKPage />
                         </FeatureFlagEnabledComponent>
                       | list{"3ds"} => <HSwitchThreeDS />
-                      | list{"surcharge"} => <Surcharge />
+                      | list{"surcharge"} =>
+                        <FeatureFlagEnabledComponent isEnabled={featureFlagDetails.surcharge}>
+                          <Surcharge />
+                        </FeatureFlagEnabledComponent>
                       | list{"account-settings"} =>
                         <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.sampleData>
                           <HSwitchSettings />

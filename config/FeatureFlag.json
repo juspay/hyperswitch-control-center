@@ -20,5 +20,6 @@
   "generate_report": false,
   "forgot_password": false,
   "oss_build": true,
-  "user_journey_analytics": false
+  "user_journey_analytics": false,
+  "surcharge": false
 }
