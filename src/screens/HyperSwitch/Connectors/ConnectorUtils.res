@@ -76,6 +76,7 @@ let connectorListForLive: array<connectorName> = [
   PAYPAL,
   BANKOFAMERICA,
   BLUESNAP,
+  BRAINTREE,
   CHECKOUT,
   CRYPTOPAY,
   IATAPAY,
