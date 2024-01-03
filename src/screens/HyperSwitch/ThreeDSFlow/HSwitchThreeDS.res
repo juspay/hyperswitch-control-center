@@ -98,7 +98,7 @@ let make = () => {
   // Three Ds flow
   open APIUtils
   open ThreeDSUtils
-
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
@@ -237,6 +237,7 @@ let make = () => {
     RescriptReactRouter.replace(`/3ds?type=new`)
   }
   let handleCreateNew = () => {
+    mixpanelEvent(~eventName="create_new_3ds_rule", ())
     if showWarning {
       showPopUp({
         popUpType: (Warning, WithIcon),

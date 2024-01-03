@@ -1,5 +1,6 @@
 @react.component
 let make = (~entityName) => {
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let (reportModal, setReportModal) = React.useState(_ => false)
 
   <>
@@ -8,6 +9,7 @@ let make = (~entityName) => {
       buttonType={Primary}
       onClick={_ => {
         setReportModal(_ => true)
+        mixpanelEvent(~eventName="generate_reports", ())
       }}
     />
     <UIUtils.RenderIf condition={reportModal}>

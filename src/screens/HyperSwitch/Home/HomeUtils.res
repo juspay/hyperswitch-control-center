@@ -151,6 +151,7 @@ module CheckoutCard = {
   let make = () => {
     let fetchApi = AuthHooks.useApiFetcher()
     let showPopUp = PopUpState.useShowPopUp()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
@@ -179,6 +180,7 @@ module CheckoutCard = {
           },
         })
       } else {
+        mixpanelEvent(~eventName=`try_test_payment`, ())
         RescriptReactRouter.replace("/sdk")
       }
     }
@@ -268,6 +270,7 @@ module ControlCenter = {
 module DevResources = {
   @react.component
   let make = () => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     <div className="mb-5">
       <PageHeading
         title="Developer resources"
@@ -286,6 +289,7 @@ module DevResources = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
+                mixpanelEvent(~eventName=`dev_docs`, ())
                 "https://hyperswitch.io/docs"->Window._open
               }}
             />
@@ -303,6 +307,7 @@ module DevResources = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
+                mixpanelEvent(~eventName=`contribute_in_open_source`, ())
                 "https://github.com/juspay/hyperswitch"->Window._open
               }}
             />

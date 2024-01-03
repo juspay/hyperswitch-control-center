@@ -27,6 +27,7 @@ module TopRightIcons = {
 module ActionButtons = {
   @react.component
   let make = (~routeType: routingType) => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let showToast = ToastState.useShowToast()
     let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
 
@@ -73,6 +74,7 @@ module ActionButtons = {
         customButtonStyle="border !border-blue-700 bg-white !text-blue-700"
         onClick={_ => {
           RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)
+          mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
         }}
       />
     | DEFAULTFALLBACK =>
@@ -83,6 +85,7 @@ module ActionButtons = {
         buttonSize={Small}
         onClick={_ => {
           RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)
+          mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
         }}
       />
 

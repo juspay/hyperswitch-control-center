@@ -5,6 +5,7 @@ open SidebarTypes
 module GetProductionAccess = {
   @react.component
   let make = () => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let textStyles = HSwitchUtils.getTextClass(~textVariant=P2, ~paragraphTextVariant=Medium, ())
     let {isProdIntentCompleted, setShowProdIntentForm} = React.useContext(
       GlobalProvider.defaultContext,
@@ -18,7 +19,12 @@ module GetProductionAccess = {
     <div
       className={`flex items-center gap-2 ${backgroundColor} ${cursorStyles} px-4 py-3 m-2 ml-2 mb-3 !mx-4 whitespace-nowrap rounded`}
       onClick={_ => {
-        isProdIntentCompleted ? () : setShowProdIntentForm(_ => true)
+        isProdIntentCompleted
+          ? ()
+          : {
+              setShowProdIntentForm(_ => true)
+              mixpanelEvent(~eventName="get_production_access", ())
+            }
       }}>
       <div className={`text-white ${textStyles} !font-semibold`}>
         {productionAccessString->React.string}
