@@ -107,8 +107,6 @@ let make = (
                 theme
                 headerText="Installation"
                 langauge=backEndLang
-                currentRoute
-                currentTabName="2.installDependencies"
               />
             </UIUtils.RenderIf>
           </div>
@@ -119,8 +117,6 @@ let make = (
               headerText="Request"
               customHeight="25vh"
               langauge=backEndLang
-              currentRoute
-              currentTabName="2.createapayment"
             />
           </div>
         </div>
@@ -132,7 +128,7 @@ let make = (
         </div>
         <div className="flex flex-col gap-2">
           <div className="text-grey-900 font-medium"> {"Publishable Key"->React.string} </div>
-          <UserOnboardingUIUtils.PublishableKeyArea currentRoute />
+          <UserOnboardingUIUtils.PublishableKeyArea />
         </div>
         <div className="p-10 bg-gray-50 border rounded flex flex-col gap-4">
           <UserOnboardingUIUtils.BackendFrontendPlatformLangDropDown
@@ -152,8 +148,6 @@ let make = (
                 theme
                 headerText="Installation"
                 langauge=frontEndLang
-                currentRoute
-                currentTabName="3.displaycheckoutpage"
               />
             </div>
           </UIUtils.RenderIf>
@@ -165,8 +159,6 @@ let make = (
                 theme
                 headerText="Imports"
                 langauge=frontEndLang
-                currentRoute
-                currentTabName="3.displaycheckoutpage"
               />
             </div>
           </UIUtils.RenderIf>
@@ -178,8 +170,6 @@ let make = (
                 theme
                 headerText="Load"
                 langauge=frontEndLang
-                currentRoute
-                currentTabName="3.displaycheckoutpage"
               />
             </div>
           </UIUtils.RenderIf>
@@ -191,8 +181,6 @@ let make = (
                 theme
                 headerText="Initialize"
                 langauge=frontEndLang
-                currentRoute
-                currentTabName="3.displaycheckoutpage"
               />
             </div>
           </UIUtils.RenderIf>
@@ -206,8 +194,6 @@ let make = (
                 theme
                 headerText="Checkout Form"
                 langauge=frontEndLang
-                currentRoute
-                currentTabName="3.displaycheckoutpage"
               />
             </div>
           </UIUtils.RenderIf>
@@ -220,7 +206,7 @@ let make = (
         </div>
         <div className="flex flex-col gap-2">
           <div className="text-grey-900 font-medium"> {"Publishable Key"->React.string} </div>
-          <UserOnboardingUIUtils.PublishableKeyArea currentRoute />
+          <UserOnboardingUIUtils.PublishableKeyArea />
         </div>
         <div className="p-10 bg-gray-50 border rounded flex flex-col gap-4">
           <UserOnboardingUIUtils.BackendFrontendPlatformLangDropDown
@@ -241,8 +227,6 @@ let make = (
                 headerText="Handle Events"
                 customHeight="20vh"
                 langauge=frontEndLang
-                currentRoute
-                currentTabName="4.displaypaymentconfirmation"
               />
             </div>
           </UIUtils.RenderIf>
@@ -255,8 +239,6 @@ let make = (
                 headerText="Display Payment Confirmation"
                 customHeight="20vh"
                 langauge=frontEndLang
-                currentRoute
-                currentTabName="4.displaypaymentconfirmation"
               />
             </div>
           </UIUtils.RenderIf>

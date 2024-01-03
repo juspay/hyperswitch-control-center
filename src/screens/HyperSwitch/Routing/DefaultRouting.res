@@ -4,8 +4,6 @@ open MerchantAccountUtils
 
 @react.component
 let make = () => {
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
   let showPopUp = PopUpState.useShowPopUp()
@@ -15,7 +13,6 @@ let make = () => {
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (gateways, setGateways) = React.useState(() => [])
-  let currentTabName = Recoil.useRecoilValueFromAtom(RoutingUtils.currentTabNameRecoilAtom)
   let (defaultRoutingResponse, setDefaultRoutingResponse) = React.useState(_ => [])
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
 
@@ -161,12 +158,6 @@ let make = () => {
       <Button
         onClick={_ => {
           openConfirmationPopUp()
-          hyperswitchMixPanel(
-            ~pageName=`${url.path->LogicUtils.getListHead}_${currentTabName}`,
-            ~contextName="default",
-            ~actionName="savechanges",
-            (),
-          )
         }}
         text="Save Changes"
         buttonSize=Small

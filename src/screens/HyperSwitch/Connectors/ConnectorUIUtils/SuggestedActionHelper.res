@@ -32,8 +32,6 @@ module StripSendingCreditCard = {
 module StripeInvalidAPIKey = {
   @react.component
   let make = () => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     <>
       <SuggestedAction />
       <div
@@ -43,15 +41,7 @@ module StripeInvalidAPIKey = {
           <a
             className="inline text-blue-900 underline"
             href="https://dashboard.stripe.com/test/apikeys"
-            target="_blank"
-            onClick={_ => {
-              hyperswitchMixPanel(
-                ~pageName=url.path->LogicUtils.getListHead,
-                ~contextName="verify_connector",
-                ~actionName="view_docs_stripe",
-                (),
-              )
-            }}>
+            target="_blank">
             {React.string("here")}
           </a>
           {` to find the Secret key of your stripe account from the list of your API keys`->React.string}
@@ -64,8 +54,6 @@ module StripeInvalidAPIKey = {
 module PaypalClientAuthenticationFalied = {
   @react.component
   let make = () => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     <>
       <SuggestedAction />
       <div
@@ -75,15 +63,7 @@ module PaypalClientAuthenticationFalied = {
           <a
             className="inline text-blue-900 underline"
             href="https://developer.paypal.com/dashboard/applications/sandbox"
-            target="_blank"
-            onClick={_ => {
-              hyperswitchMixPanel(
-                ~pageName=url.path->LogicUtils.getListHead,
-                ~contextName="verify_connector",
-                ~actionName="view_docs_paypal",
-                (),
-              )
-            }}>
+            target="_blank">
             {React.string("here")}
           </a>
           {` to find the client secret and client key of your Paypal`->React.string}

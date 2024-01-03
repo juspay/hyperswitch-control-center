@@ -342,7 +342,7 @@ module FieldInp = {
 
 module RuleFieldBase = {
   @react.component
-  let make = (~isFirst, ~id, ~isExpanded, ~onClick, ~wasm, ~isFrom3ds) => {
+  let make = (~isFirst, ~id, ~isExpanded, ~onClick, ~wasm, ~isFrom3ds, ~isFromSurcharge) => {
     let (hover, setHover) = React.useState(_ => false)
     let (keyType, setKeyType) = React.useState(_ => "")
     let (variantValues, setVariantValues) = React.useState(_ => [])
@@ -369,6 +369,8 @@ module RuleFieldBase = {
       }
       if isFrom3ds {
         Window.getThreeDsKeys()
+      } else if isFromSurcharge {
+        Window.getSurchargeKeys()
       } else {
         Window.getAllKeys()
       }
@@ -416,7 +418,7 @@ module RuleFieldBase = {
 
 module MakeRuleField = {
   @react.component
-  let make = (~id, ~isExpanded, ~wasm, ~isFrom3ds) => {
+  let make = (~id, ~isExpanded, ~wasm, ~isFrom3ds, ~isFromSurcharge) => {
     let ruleJsonPath = `${id}.statements`
     let conditionsInput = ReactFinalForm.useField(ruleJsonPath).input
     let fields = conditionsInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
@@ -452,6 +454,7 @@ module MakeRuleField = {
           isExpanded
           wasm
           isFrom3ds
+          isFromSurcharge
         />
       )->React.array}
       {if isExpanded {

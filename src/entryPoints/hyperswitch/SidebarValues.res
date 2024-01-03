@@ -149,13 +149,20 @@ let threeDs = SubLevelLink({
   searchOptions: [("Configure 3ds", "")],
 })
 
+let surcharge = SubLevelLink({
+  name: "Surcharge",
+  link: `/surcharge`,
+  access: ReadWrite,
+  searchOptions: [("Add Surcharge", "")],
+})
+
 let workflow = isWorkflowEnabled =>
   isWorkflowEnabled
     ? Section({
         name: "Workflow",
         icon: "3ds",
         showSection: true,
-        links: [routing, threeDs],
+        links: [routing, threeDs, surcharge],
       })
     : emptyComponent
 

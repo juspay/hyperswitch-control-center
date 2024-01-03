@@ -2,7 +2,6 @@ module HyperSwitchEntryComponent = {
   @react.component
   let make = () => {
     open HSLocalStorage
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let postDetails = APIUtils.useUpdateMethod()
     let email = getFromMerchantDetails("email")
     let name = getFromUserDetails("name")
@@ -44,10 +43,6 @@ module HyperSwitchEntryComponent = {
         : `${page} - Dashboard [Test]`
       DOMUtils.document.title = title
       GoogleAnalytics.send({hitType: "pageview", page})
-      hyperswitchMixPanel(
-        ~eventName=Some(pageTitle->HyperSwitchUtils.getMixpanelRouteName(url)),
-        (),
-      )
     }
 
     React.useEffect1(() => {

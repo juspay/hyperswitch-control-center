@@ -98,7 +98,7 @@ module NewProcessorCards = {
 let make = () => {
   open FRMInfo
   open UIUtils
-  let url = RescriptReactRouter.useUrl()
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchDetails = APIUtils.useGetMethod()
   let isMobileView = MatchMedia.useMatchMedia("(max-width: 844px)")
@@ -118,7 +118,6 @@ let make = () => {
       onClickUrl="connectors"
       moduleName="Fraud & Risk Management"
       moduleSubtitle="Connect and configure processors to screen transactions and mitigate fraud"
-      mixPanelEventName={`${url.path->LogicUtils.getListHead}_take_me_to_connectors`}
     />
 
   React.useEffect0(() => {

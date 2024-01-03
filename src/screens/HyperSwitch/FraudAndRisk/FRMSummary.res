@@ -55,15 +55,13 @@ module ConfigInfo = {
 }
 
 @react.component
-let make = (~initialValues, ~currentStep, ~setCurrentStep, ~isUpdateFlow) => {
+let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
   open LogicUtils
   open FRMUtils
   open APIUtils
   open ConnectorTypes
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let updateDetails = useUpdateMethod()
   let url = RescriptReactRouter.useUrl()
-  let frmName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
 
   let showToast = ToastState.useShowToast()
   let frmInfo = initialValues->getDictFromJsonObject->ConnectorTableUtils.getProcessorPayloadType
@@ -108,20 +106,12 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep, ~isUpdateFlow) => {
             setCurrentStep
             disableConnector={disableFRM}
             isConnectorDisabled={isfrmDisabled}
-            connectorInfo={frmInfo}
             pageName={url.path->LogicUtils.getListHead}
           />
         </div>
       | _ =>
         <Button
           onClick={_ => {
-            getMixpanelForFRMOnSubmit(
-              ~frmName,
-              ~currentStep,
-              ~isUpdateFlow,
-              ~url,
-              ~hyperswitchMixPanel,
-            )
             RescriptReactRouter.push("/fraud-risk-management")
           }}
           text="Done"

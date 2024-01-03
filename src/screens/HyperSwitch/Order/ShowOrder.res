@@ -25,7 +25,6 @@ module OrderInfo = {
       ~paymentId,
       ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
     ) => {
-      let hyperswitchMixPanel = HSMixPanel.useSendEvent()
       let typedPaymentStatus = paymentStatus->statusVariantMapper
       <Section customCssClass={`${border} ${bgColor} rounded-md p-5 h-full`}>
         <UIUtils.RenderIf condition=isButtonEnabled>
@@ -45,12 +44,6 @@ module OrderInfo = {
             <Button
               text="+ Refund"
               onClick={_ => {
-                hyperswitchMixPanel(
-                  ~pageName="paymentops",
-                  ~contextName="paymentdetail",
-                  ~actionName="createrefund",
-                  (),
-                )
                 openRefundModal()
               }}
               buttonType={Secondary}
@@ -624,7 +617,6 @@ module RenderAccordian = {
 let make = (~id) => {
   open APIUtils
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
 
@@ -666,15 +658,6 @@ let make = (~id) => {
   let openRefundModal = _ => {
     setShowModal(_ => true)
   }
-
-  React.useEffect0(() => {
-    hyperswitchMixPanel(
-      ~eventName=Some(`paymentops_paymentdetail`),
-      ~description=Some(`Payment - ${id}`),
-      (),
-    )
-    None
-  })
 
   let showSyncButton = React.useCallback1(_ => {
     let status = orderData->getDictFromJsonObject->getString("status", "")->statusVariantMapper

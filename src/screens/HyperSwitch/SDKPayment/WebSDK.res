@@ -38,8 +38,6 @@ module CheckoutForm = {
     ~amount,
     ~setClientSecret,
   ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     let (error, setError) = React.useState(_ => None)
     let (btnState, setBtnState) = React.useState(_ => Button.Normal)
     let hyper = useHyper()
@@ -242,12 +240,6 @@ module CheckoutForm = {
               onClick={_ => {
                 setBtnState(_ => Button.Loading)
                 handleSubmit()
-                hyperswitchMixPanel(
-                  ~pageName=`${url.path->LogicUtils.getListHead}`,
-                  ~contextName="sdk",
-                  ~actionName="testpayment",
-                  (),
-                )
               }}
             />
           </div>

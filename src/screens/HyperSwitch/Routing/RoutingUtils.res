@@ -8,17 +8,6 @@ let defaultThreeDsObjectValue: routingOutputType = {
   override_3ds: "three_ds",
 }
 let currentTimeInUTC = Js.Date.fromFloat(Js.Date.now())->Js.Date.toUTCString
-let validateConditionJson = json => {
-  let checkValue = dict => {
-    dict->getArrayFromDict("value", [])->Array.length > 0 || dict->getString("value", "") !== ""
-  }
-  switch json->Js.Json.decodeObject {
-  | Some(dict) =>
-    ["operator", "real_field"]->Array.every(key => dict->Js.Dict.get(key)->Belt.Option.isSome) &&
-      dict->checkValue
-  | None => false
-  }
-}
 let getCurrentUTCTime = () => {
   let currentDate = Js.Date.now()->Js.Date.fromFloat
   let currMonth = currentDate->Js.Date.getUTCMonth->Belt.Float.toString
@@ -604,10 +593,7 @@ module SaveAndActivateButton = {
   let make = (
     ~onSubmit: (Js.Json.t, 'a) => promise<Js.Nullable.t<Js.Json.t>>,
     ~handleActivateConfiguration,
-    ~mixPanelContext: string,
   ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
     )
@@ -633,12 +619,6 @@ module SaveAndActivateButton = {
       buttonType={Primary}
       buttonSize=Button.Small
       onClick={_ => {
-        hyperswitchMixPanel(
-          ~pageName=url.path->LogicUtils.getListHead,
-          ~contextName=mixPanelContext,
-          ~actionName="saveandactivate",
-          (),
-        )
         handleSaveAndActivate()->ignore
       }}
       customButtonStyle="w-1/5 rounded-sm"
@@ -647,29 +627,17 @@ module SaveAndActivateButton = {
 }
 module ConfigureRuleButton = {
   @react.component
-  let make = (~setShowModal, ~currentTabName, ~routingType, ~isConfigButtonEnabled) => {
-    let url = RescriptReactRouter.useUrl()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
+  let make = (~setShowModal, ~isConfigButtonEnabled) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
     )
-    let getMixedPanelName = switch routingType {
-    | VOLUME_SPLIT => "volume"
-    | ADVANCED => "rulebased"
-    | _ => ""
-    }
+
     <Button
       text={"Configure Rule"}
       buttonType=Primary
       buttonState={!formState.hasValidationErrors && isConfigButtonEnabled ? Normal : Disabled}
       onClick={_ => {
         setShowModal(_ => true)
-        hyperswitchMixPanel(
-          ~pageName=`${url.path->LogicUtils.getListHead}_${currentTabName}`,
-          ~contextName="configurationpage",
-          ~actionName=`configure${getMixedPanelName}Rule`,
-          (),
-        )
       }}
       customButtonStyle="w-1/5"
     />
@@ -698,26 +666,21 @@ let checkIfValuePresent = dict => {
   (valueFromObject->getDictfromDict("value")->getString("key", "")->String.length > 0 &&
     valueFromObject->getDictfromDict("value")->getString("value", "")->String.length > 0)
 }
-let validateConditionJsonFor3ds = json => {
+
+let validateConditionJson = (json, keys) => {
   switch json->Js.Json.decodeObject {
   | Some(dict) =>
-    ["comparison", "lhs"]->Array.every(key => dict->Js.Dict.get(key)->Belt.Option.isSome) &&
+    keys->Js.Array2.every(key => dict->Js.Dict.get(key)->Belt.Option.isSome) &&
       dict->checkIfValuePresent
   | None => false
   }
-}
-
-let validateConditions = dict => {
-  dict
-  ->LogicUtils.getArrayFromDict("conditions", [])
-  ->Array.every(MakeRuleFieldComponent.validateConditionJson)
 }
 
 let validateConditionsFor3ds = dict => {
   let conditionsArray = dict->LogicUtils.getArrayFromDict("statements", [])
 
   conditionsArray->Array.every(value => {
-    value->validateConditionJsonFor3ds
+    value->validateConditionJson(["comparison", "lhs"])
   })
 }
 

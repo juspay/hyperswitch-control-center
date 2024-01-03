@@ -1,16 +1,8 @@
 @react.component
-let make = (
-  ~currentStep,
-  ~setCurrentStep,
-  ~setInitialValues,
-  ~initialValues,
-  ~isUpdateFlow,
-  ~isPayoutFlow,
-) => {
+let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~isPayoutFlow) => {
   open ConnectorUtils
   open APIUtils
   open ConnectorAccountDetailsHelper
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
@@ -32,16 +24,6 @@ let make = (
 
   let activeBusinessProfile =
     defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
-
-  React.useEffect1(() => {
-    mixpanelEventWrapper(
-      ~url,
-      ~selectedConnector=connector,
-      ~actionName=`${isUpdateFlow ? "settings_entry_updateflow" : "settings_entry"}`,
-      ~hyperswitchMixPanel,
-    )
-    None
-  }, [connector])
 
   React.useEffect1(() => {
     if !isUpdateFlow {
@@ -120,13 +102,6 @@ let make = (
         (),
       )
       setScreenState(_ => Loading)
-      getMixpanelForConnectorOnSubmit(
-        ~connectorName=connector,
-        ~currentStep,
-        ~isUpdateFlow,
-        ~url,
-        ~hyperswitchMixPanel,
-      )
       setCurrentStep(_ => PaymentMethods)
       setScreenState(_ => Success)
       setInitialValues(_ => body)
@@ -190,12 +165,6 @@ let make = (
           setVerifyErrorMessage(_ => errorMessage.message)
           setShowVerifyModal(_ => true)
           setVerifyDone(_ => Failure)
-          hyperswitchMixPanel(
-            ~isApiFailure=true,
-            ~apiUrl=`/verify_connector`,
-            ~description=errorMessage->Js.Json.stringifyAny,
-            (),
-          )
         }
 
       | None => setScreenState(_ => Error("Failed to Fetch!"))
@@ -250,8 +219,6 @@ let make = (
           ~setVerifyDone,
           ~verifyDone,
           ~isVerifyConnector,
-          ~hyperswitchMixPanel,
-          ~path={url.path},
           ~isVerifyConnectorFeatureEnabled=featureFlagDetails.verifyConnector,
         )}
       validate={validateMandatoryField}
@@ -272,12 +239,6 @@ let make = (
               className={`flex cursor-pointer px-4 py-3 flex text-sm text-blue-900 items-center mx-4`}
               target="_blank"
               onClick={_ => {
-                hyperswitchMixPanel(
-                  ~pageName=url.path->LogicUtils.getListHead,
-                  ~contextName="integration_steps",
-                  ~actionName="modal_open",
-                  (),
-                )
                 setShowModal(_ => true)
               }}>
               {React.string("View integration steps")}

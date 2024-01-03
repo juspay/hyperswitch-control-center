@@ -13,7 +13,6 @@ let make = (
   ~amoutAvailableToRefund,
   ~refetch,
 ) => {
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let notShowRefundReasonList = ["adyen"]
@@ -48,12 +47,6 @@ let make = (
 
   let onSubmit = (values, _) => {
     open Promise
-    hyperswitchMixPanel(
-      ~pageName="paymentops",
-      ~contextName="paymentdetail",
-      ~actionName="createrefund_initiaterefund",
-      (),
-    )
     setShowModal(_ => false)
     let dict = values->LogicUtils.getDictFromJsonObject
     let amount = dict->LogicUtils.getFloat("amount", 0.0)

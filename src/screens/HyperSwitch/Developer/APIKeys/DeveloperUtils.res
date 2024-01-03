@@ -198,8 +198,6 @@ module ErrorUI = {
 module SuccessUI = {
   @react.component
   let make = (~downloadFun, ~apiKey) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     <div>
       <div className="flex p-5">
         <Icon className="align-middle fill-blue-950 self-center" size=40 name="info-circle" />
@@ -214,14 +212,6 @@ module SuccessUI = {
               copyValue={Some(apiKey)}
               customTextCss="break-all text-sm font-semibold text-jp-gray-800 text-opacity-75"
               customParentClass="flex items-center gap-5"
-              customOnCopyClick={() => {
-                hyperswitchMixPanel(
-                  ~pageName=url.path->LogicUtils.getListHead,
-                  ~contextName="api_keys",
-                  ~actionName=`copied_key`,
-                  (),
-                )
-              }}
             />
           </div>
           <h1 className="whitespace-pre-line text-orange-950 w-full p-2 rounded-md ">
@@ -236,12 +226,6 @@ module SuccessUI = {
           text="Download the key"
           onClick={_ => {
             downloadFun()
-            hyperswitchMixPanel(
-              ~pageName=url.path->LogicUtils.getListHead,
-              ~contextName="api_keys",
-              ~actionName="download_the_key",
-              (),
-            )
           }}
           buttonType={Primary}
           buttonSize={Small}

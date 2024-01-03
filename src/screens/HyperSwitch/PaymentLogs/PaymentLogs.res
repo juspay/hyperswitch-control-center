@@ -10,9 +10,7 @@ module PrettyPrintJson = {
     ~maxHeightClass="max-h-25-rem",
     ~overrideBackgroundColor="bg-hyperswitch_background",
   ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let showToast = ToastState.useShowToast()
-    let url = RescriptReactRouter.useUrl()
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
     let (parsedJson, setParsedJson) = React.useState(_ => "")
 
@@ -32,12 +30,6 @@ module PrettyPrintJson = {
     let handleOnClickCopy = (~parsedValue) => {
       Clipboard.writeText(parsedValue)
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
-      hyperswitchMixPanel(
-        ~pageName=`${url.path->getListHead}`,
-        ~contextName=`${headerText->Belt.Option.getWithDefault("")->toCamelCase}`,
-        ~actionName="copied",
-        (),
-      )
     }
 
     let copyParsedJson =
