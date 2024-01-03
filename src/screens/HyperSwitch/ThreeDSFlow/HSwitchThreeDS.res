@@ -98,7 +98,7 @@ let make = () => {
   // Three Ds flow
   open APIUtils
   open ThreeDSUtils
-
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
@@ -116,9 +116,9 @@ let make = () => {
   let getWasm = async () => {
     try {
       let wasmResult = await Window.connectorWasmInit()
-      let wasm =
+      let fetchedWasm =
         wasmResult->LogicUtils.getDictFromJsonObject->LogicUtils.getObj("wasm", Js.Dict.empty())
-      setWasm(_ => Some(wasm->toWasm))
+      setWasm(_ => Some(fetchedWasm->toWasm))
     } catch {
     | _ => ()
     }
@@ -237,6 +237,7 @@ let make = () => {
     RescriptReactRouter.replace(`/3ds?type=new`)
   }
   let handleCreateNew = () => {
+    mixpanelEvent(~eventName="create_new_3ds_rule", ())
     if showWarning {
       showPopUp({
         popUpType: (Warning, WithIcon),
@@ -267,7 +268,7 @@ let make = () => {
       | NEW =>
         <div className="w-full border p-8 bg-white rounded-md ">
           <Form initialValues validate formClass="flex flex-col gap-6 justify-between" onSubmit>
-            <BasicDetailsForm formState setFormState routingType={ADVANCED} isThreeDs=true />
+            <BasicDetailsForm formState setFormState isThreeDs=true />
             <Configure3DSRule wasm />
             <FormValuesSpy />
             <div className="flex gap-4">

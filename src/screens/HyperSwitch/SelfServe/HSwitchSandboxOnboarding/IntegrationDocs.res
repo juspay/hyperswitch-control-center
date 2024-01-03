@@ -109,8 +109,6 @@ let make = (
 ) => {
   open UserOnboardingUtils
   open UserOnboardingTypes
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let url = RescriptReactRouter.useUrl()
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let (frontEndLang, setFrontEndLang) = React.useState(_ =>
     currentRoute === SampleProjects ? #ChooseLanguage : #ReactJs
@@ -130,10 +128,6 @@ let make = (
   }
 
   open Tabs
-  let defaultNames = {
-    title: "",
-    renderContent: () => React.null,
-  }
   let tabs = UserOnboardingUIUtils.getTabsForIntegration(
     ~currentRoute,
     ~tabIndex,
@@ -142,31 +136,14 @@ let make = (
     ~backEndLang,
     ~publishablekeyMerchant,
   )
-  let currentTabName = currentIndex =>
-    (tabs->Belt.Array.get(currentIndex)->Belt.Option.getWithDefault(defaultNames)).title
 
   let handleMarkAsDone = () => {
-    let contextName = `${currentRoute->variantToTextMapperForBuildHS}_${tabIndex->currentTabName}`
-    hyperswitchMixPanel(
-      ~pageName=`${url.path->LogicUtils.getListHead}`,
-      ~contextName,
-      ~actionName="markasdone",
-      (),
-    )
     switch markAsDone {
     | Some(fun) => fun()->ignore
     | _ => ()->ignore
     }
   }
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let handleDeveloperDocs = () => {
-    let contextName = `${currentRoute->variantToTextMapperForBuildHS}_${tabIndex->currentTabName}`
-    hyperswitchMixPanel(
-      ~pageName=`${url.path->LogicUtils.getListHead}`,
-      ~contextName,
-      ~actionName="developerdocs",
-      (),
-    )
     switch currentRoute {
     | MigrateFromStripe => Window._open("https://hyperswitch.io/docs/migrateFromStripe")
     | IntegrateFromScratch => Window._open("https://hyperswitch.io/docs/quickstart")
@@ -187,15 +164,6 @@ let make = (
     }
   }
 
-  React.useEffect1(() => {
-    hyperswitchMixPanel(
-      ~pageName=`${url.path->LogicUtils.getListHead}`,
-      ~contextName={tabIndex->currentTabName},
-      ~actionName="tabclicked",
-      (),
-    )
-    None
-  }, [tabIndex])
   let buttonStyle =
     tabIndex === tabs->Js.Array2.length - 1
       ? "!border !border-blue-700 !rounded-md bg-white !text-blue-700"

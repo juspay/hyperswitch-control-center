@@ -126,8 +126,9 @@ let make = (
   ~statThreshold=?,
   ~wrapperClass=?,
 ) => {
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let fetchApi = AuthHooks.useApiFetcher()
-  let getAllFilter = UrlUtils.useGetFilterDictFromUrl("")
+  let getAllFilter = filterValueJson
   let isMobileView = MatchMedia.useMobileChecker()
   let (showStats, setShowStats) = React.useState(_ => false)
 
@@ -506,6 +507,7 @@ let make = (
 
       | None =>
         <HSwitchSingleStatWidget
+          key={singleStatArrIndex->string_of_int}
           title=""
           tooltipText=""
           deltaTooltipComponent=React.null

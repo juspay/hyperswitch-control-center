@@ -42,6 +42,9 @@ external getPayoutConnectorConfig: string => Js.Json.t = "getPayoutConnectorConf
 external getThreeDsKeys: unit => array<string> = "getThreeDsKeys"
 
 @val @scope("window")
+external getSurchargeKeys: unit => array<string> = "getSurchargeKeys"
+
+@val @scope("window")
 external getAllKeys: unit => array<string> = "getAllKeys"
 
 @val @scope("window")
@@ -70,6 +73,9 @@ external getParsedJson: string => Js.Json.t = "getParsedJson"
 @val @scope("window") external innerHeight: int = "innerHeight"
 
 @val @scope("window") external globalUrlPrefix: option<string> = "urlPrefix"
+
+@val @scope("window")
+external payPalCreateAccountWindow: unit => unit = "payPalCreateAccountWindow"
 
 module MatchMedia = {
   type matchEvent = {
@@ -221,6 +227,6 @@ external fcWidget: 'a = "fcWidget"
 type boundingClient = {x: int, y: int, width: int, height: int}
 @send external getBoundingClientRect: Dom.element => boundingClient = "getBoundingClientRect"
 
-type env = {apiBaseUrl?: string, sdkBaseUrl?: string}
+type env = {apiBaseUrl?: string, sdkBaseUrl?: string, mixpanelToken?: string}
 @val @scope("window")
 external env: env = "_env_"

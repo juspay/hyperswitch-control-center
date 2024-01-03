@@ -22,34 +22,44 @@ module CardRenderer = {
     ~updateDetails,
     ~paymentMethodsEnabled: array<paymentMethodEnabled>,
     ~paymentMethod,
-    ~provider,
+    ~provider: array<paymentMethodConfigType>,
     ~_showAdvancedConfiguration,
     ~metaData,
     ~setMetaData,
     ~connector,
   ) => {
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
-    let (selectedWallet, setSelectedWallet) = React.useState(_ => "")
+    let (selectedWallet, setSelectedWallet) = React.useState(_ =>
+      Js.Dict.empty()->itemProviderMapper
+    )
     let selectedAll = isSelectedAll(paymentMethodsEnabled, provider, paymentMethod)
 
     let paymentObj = paymentMethodsEnabled->getSelectedPaymentObj(paymentMethod)
-    let standardProviders = paymentObj.provider->Belt.Option.getWithDefault([])
-    let cardProviders = paymentObj.card_provider->Belt.Option.getWithDefault([])
+    let standardProviders =
+      paymentObj.provider->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+    let cardProviders =
+      paymentObj.card_provider->Belt.Option.getWithDefault(
+        []->Js.Json.array->getPaymentMethodMapper,
+      )
 
-    let removeOrAddMethods = method => {
+    let checkPaymentMethodType = (
+      obj: paymentMethodConfigType,
+      selectedMethod: paymentMethodConfigType,
+    ) => obj.payment_method_type == selectedMethod.payment_method_type
+
+    let removeOrAddMethods = (method: paymentMethodConfigType) => {
       switch paymentMethod->getPaymentMethodFromString {
       | Card =>
-        if cardProviders->Js.Array2.includes(method) {
+        if cardProviders->Js.Array2.some(obj => checkPaymentMethodType(obj, method)) {
           paymentMethodsEnabled->removeMethod(paymentMethod, method)->updateDetails
         } else {
           paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
         }
-
       | _ =>
-        if standardProviders->Js.Array2.includes(method) {
+        if standardProviders->Js.Array2.some(obj => checkPaymentMethodType(obj, method)) {
           paymentMethodsEnabled->removeMethod(paymentMethod, method)->updateDetails
         } else {
-          let methodVariant = method->getPaymentMethodTypeFromString
+          let methodVariant = method.payment_method_type->getPaymentMethodTypeFromString
           if (
             (methodVariant === GooglePay || methodVariant === ApplePay) &&
               (connector->getConnectorNameTypeFromString !== TRUSTPAY &&
@@ -66,7 +76,7 @@ module CardRenderer = {
     }
 
     let updateSelectAll = (paymentMethod, isSelectedAll) => {
-      let arr = isSelectedAll ? [] : provider->LogicUtils.getUniqueArray
+      let arr = isSelectedAll ? [] : provider
       paymentMethodsEnabled->Js.Array2.forEach(val => {
         if val.payment_method_type === paymentMethod {
           switch paymentMethod->getPaymentMethodTypeFromString {
@@ -89,8 +99,9 @@ module CardRenderer = {
       updateDetails(paymentMethodsEnabled)
     }
 
-    let isSelected = value => {
-      standardProviders->Js.Array2.includes(value) || cardProviders->Js.Array2.includes(value)
+    let isSelected = selectedMethod => {
+      standardProviders->Js.Array2.some(obj => checkPaymentMethodType(obj, selectedMethod)) ||
+        cardProviders->Js.Array2.some(obj => checkPaymentMethodType(obj, selectedMethod))
         ? true
         : false
     }
@@ -145,16 +156,19 @@ module CardRenderer = {
               <div onClick={_e => removeOrAddMethods(value)}>
                 <CheckBoxIcon isSelected={isSelected(value)} />
               </div>
-              <p className=p2RegularTextStyle> {React.string(value->snakeToTitle)} </p>
+              <p className=p2RegularTextStyle>
+                {React.string(value.payment_method_type->snakeToTitle)}
+              </p>
             </div>
           </div>
         })
         ->React.array}
         <UIUtils.RenderIf
-          condition={selectedWallet->getPaymentMethodTypeFromString === ApplePay ||
-            selectedWallet->getPaymentMethodTypeFromString === GooglePay}>
+          condition={selectedWallet.payment_method_type->getPaymentMethodTypeFromString ===
+            ApplePay ||
+            selectedWallet.payment_method_type->getPaymentMethodTypeFromString === GooglePay}>
           <Modal
-            modalHeading={`Additional Details to enable ${selectedWallet->LogicUtils.snakeToTitle}`}
+            modalHeading={`Additional Details to enable ${selectedWallet.payment_method_type->LogicUtils.snakeToTitle}`}
             headerTextClass="text-blue-800 font-bold text-xl"
             showModal={showWalletConfigurationModal}
             setShowModal={setShowWalletConfigurationModal}
@@ -205,7 +219,8 @@ module PaymentMethodsRender = {
     <div className="flex flex-col gap-12">
       {keys
       ->Array.mapWithIndex((value, i) => {
-        let provider = pmts->getStrArray(value)
+        let provider = pmts->getArrayFromDict(value, [])->Js.Json.array->getPaymentMethodMapper
+
         switch value->getPaymentMethodTypeFromString {
         | Credit | Debit =>
           <div key={i->string_of_int}>
@@ -226,7 +241,7 @@ module PaymentMethodsRender = {
               updateDetails
               paymentMethodsEnabled
               paymentMethod={value}
-              provider={pmts->getStrArray(value)}
+              provider
               _showAdvancedConfiguration=false
               metaData
               setMetaData

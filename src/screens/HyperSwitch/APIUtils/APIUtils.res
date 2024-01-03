@@ -15,21 +15,24 @@ let getURL = (
   (),
 ) => {
   let merchantId = getFromMerchantDetails("merchant_id")
-  let connectorBaseURL = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/account/${merchantId}/connectors`
+  let connectorBaseURL = `account/${merchantId}/connectors`
 
-  switch entityName {
-  | MERCHANT_ACCOUNT =>
-    switch methodType {
-    | Get
-    | Post =>
-      `${HSwitchGlobalVars.hyperSwitchApiPrefix}/accounts/${merchantId}`
-    | _ => ""
-    }
-  | ONBOARDING =>
-    switch methodType {
-    | Get => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/onboarding`
-    | _ => ""
-    }
+  let endpoint = switch entityName {
+  | INTEGRATION_DETAILS => `user/get_sandbox_integration_details`
+  | DEFAULT_FALLBACK => `routing/default`
+  | CHANGE_PASSWORD => `user/change_password`
+  | MERCHANT_ACCOUNT => `accounts/${merchantId}`
+  | ONBOARDING => `onboarding`
+  | PAYMENT_REPORT => `analytics/v1/report/payments`
+  | REFUND_REPORT => `analytics/v1/report/refunds`
+  | DISPUTE_REPORT => `analytics/v1/report/dispute`
+  | SDK_EVENT_LOGS => `analytics/v1/sdk_event_logs`
+  | GENERATE_SAMPLE_DATA => `user/sample_data`
+  | TEST_LIVE_PAYMENT => `test_payment`
+  | THREE_DS => `routing/decision`
+  | VERIFY_APPLE_PAY => `verify/apple_pay`
+  | PAYPAL_ONBOARDING => `connector_onboarding`
+  | SURCHARGE => `routing/decision/surcharge`
   | FRAUD_RISK_MANAGEMENT | CONNECTOR =>
     switch methodType {
     | Get =>
@@ -39,7 +42,7 @@ let getURL = (
       }
     | Post =>
       switch connector {
-      | Some(_con) => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/account/connectors/verify`
+      | Some(_con) => `account/connectors/verify`
       | None =>
         switch id {
         | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
@@ -50,38 +53,27 @@ let getURL = (
     }
   | ROUTING =>
     switch methodType {
-    | Get =>
+    | Get | Put =>
       switch id {
-      | Some(routingId) => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/routing/${routingId}`
-      | _ => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/routing`
+      | Some(routingId) => `routing/${routingId}`
+      | _ => `routing`
       }
     | Post =>
       switch id {
-      | Some(routing_id) =>
-        `${HSwitchGlobalVars.hyperSwitchApiPrefix}/routing/${routing_id}/activate `
-      | _ => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/routing`
+      | Some(routing_id) => `routing/${routing_id}/activate`
+      | _ => `routing`
       }
-
-    | Put =>
-      switch id {
-      | Some(routing_id) => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/routing/${routing_id}`
-      | _ => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/routing `
-      }
-
     | _ => ""
     }
   | API_KEYS =>
     switch methodType {
-    | Get => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/api_keys/${merchantId}/list`
+    | Get => `api_keys/${merchantId}/list`
     | Post =>
       switch id {
-      | Some(key_id) => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/api_keys/${merchantId}/${key_id}`
-      | None => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/api_keys/${merchantId}`
+      | Some(key_id) => `api_keys/${merchantId}/${key_id}`
+      | None => `api_keys/${merchantId}`
       }
-    | Delete =>
-      `${HSwitchGlobalVars.hyperSwitchApiPrefix}/api_keys/${merchantId}/${id->Belt.Option.getWithDefault(
-          "",
-        )}`
+    | Delete => `api_keys/${merchantId}/${id->Belt.Option.getWithDefault("")}`
     | _ => ""
     }
   | ORDERS =>
@@ -90,31 +82,29 @@ let getURL = (
       switch id {
       | Some(key_id) =>
         switch queryParamerters {
-        | Some(queryParams) =>
-          `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/${key_id}?${queryParams}`
-        | None => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/${key_id}`
+        | Some(queryParams) => `payments/${key_id}?${queryParams}`
+        | None => `payments/${key_id}`
         }
       | None =>
         switch queryParamerters {
-        | Some(queryParams) =>
-          `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/list?${queryParams}`
-        | None => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/list?limit=100`
+        | Some(queryParams) => `payments/list?${queryParams}`
+        | None => `payments/list?limit=100`
         }
       }
-    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/payments/list`
+    | Post => `payments/list`
     | _ => ""
     }
   | REFUNDS =>
     switch methodType {
     | Get =>
       switch id {
-      | Some(key_id) => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds/${key_id}`
+      | Some(key_id) => `refunds/${key_id}`
       | None => ""
       }
     | Post =>
       switch id {
-      | Some(_keyid) => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds/list`
-      | None => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds`
+      | Some(_keyid) => `refunds/list`
+      | None => `refunds`
       }
     | _ => ""
     }
@@ -122,91 +112,60 @@ let getURL = (
     switch methodType {
     | Get =>
       switch id {
-      | Some(dispute_id) => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/disputes/${dispute_id}`
-      | None => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/disputes/list?limit=100`
+      | Some(dispute_id) => `disputes/${dispute_id}`
+      | None => `disputes/list?limit=100`
       }
-    | _ => ""
-    }
-  | DEFAULT_FALLBACK =>
-    switch methodType {
-    | Get
-    | _ =>
-      `${HSwitchGlobalVars.hyperSwitchApiPrefix}/routing/default`
-    }
-  | CHANGE_PASSWORD =>
-    switch methodType {
-    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/change_password`
     | _ => ""
     }
   | ANALYTICS_REFUNDS | ANALYTICS_PAYMENTS | ANALYTICS_USER_JOURNEY | ANALYTICS_SYSTEM_METRICS =>
     switch methodType {
     | Get =>
       switch id {
-      | Some(domain) => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/${domain}/info`
+      | Some(domain) => `analytics/v1/${domain}/info`
       | _ => ""
       }
     | _ => ""
     }
-  | PAYMENT_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/payments`
-  | REFUND_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/refunds`
-  | DISPUTE_REPORT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/report/dispute`
   | PAYMENT_LOGS =>
     switch methodType {
     | Get =>
       switch id {
-      | Some(payment_id) =>
-        `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/api_event_logs?type=Payment&payment_id=${payment_id}`
-      | None => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/event-logs`
+      | Some(payment_id) => `analytics/v1/api_event_logs?type=Payment&payment_id=${payment_id}`
+      | None => `analytics/v1/event-logs`
       }
     | _ => ""
     }
-  | SDK_EVENT_LOGS => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/sdk_event_logs`
-
   | USERS =>
-    let userUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user`
+    let userUrl = `user`
     switch userType {
     | #NONE => ""
-    | #CONNECT_ACCOUNT => `${userUrl}/connect_account`
     | #VERIFY_MAGIC_LINK => `${userUrl}/verify_email`
-    | #SIGNUP => `${userUrl}/signup`
-
-    | #SIGNIN => `${userUrl}/signin`
-
-    | #VERIFY_EMAIL => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
-
     | #USER_DATA => `${userUrl}/data`
     | #MERCHANT_DATA => `${userUrl}/data`
     | #INVITE
     | #RESEND_INVITE =>
       `${userUrl}/user/${(userType :> string)->Js.String2.toLowerCase}`
-
+    | #CONNECT_ACCOUNT => `${userUrl}/connect_account`
     | #SWITCH_MERCHANT =>
       switch methodType {
       | Get => `${userUrl}/switch/list`
       | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
       }
     | #CREATE_MERCHANT => `${userUrl}/create_merchant`
-
-    | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
+    | #SIGNIN
+    | #SIGNUP
+    | #VERIFY_EMAIL
+    | #SIGNOUT
+    | #RESET_PASSWORD
+    | #SET_METADATA
+    | #VERIFY_EMAIL_REQUEST
+    | #FORGOT_PASSWORD
+    | #PERMISSION_INFO =>
+      `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
     }
-  | RECON =>
-    `${HSwitchGlobalVars.hyperSwitchApiPrefix}/recon/${(reconType :> string)->Js.String2.toLowerCase}`
-  | GENERATE_SAMPLE_DATA =>
-    switch methodType {
-    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data`
-
-    | Delete => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/sample_data`
-
-    | _ => ""
-    }
-  | INTEGRATION_DETAILS =>
-    switch methodType {
-    | Get => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/get_sandbox_integration_details`
-    | Post => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user/set_sandbox_integration_details`
-    | _ => ""
-    }
+  | RECON => `recon/${(reconType :> string)->Js.String2.toLowerCase}`
   | USER_MANAGEMENT => {
-      let userUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/user`
+      let userUrl = `user`
       switch userRoleTypes {
       | USER_LIST => `${userUrl}/user/list`
       | ROLE_LIST => `${userUrl}/role/list`
@@ -218,18 +177,14 @@ let getURL = (
       | NONE => ""
       }
     }
-  | TEST_LIVE_PAYMENT => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/test_payment`
-  | THREE_DS => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/routing/decision`
   | BUSINESS_PROFILE =>
     switch id {
-    | Some(id) =>
-      `${HSwitchGlobalVars.hyperSwitchApiPrefix}/account/${merchantId}/business_profile/${id}`
-    | None => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/account/${merchantId}/business_profile`
+    | Some(id) => `account/${merchantId}/business_profile/${id}`
+    | None => `account/${merchantId}/business_profile`
     }
-
-  | VERIFY_APPLE_PAY => `${HSwitchGlobalVars.hyperSwitchApiPrefix}/verify/apple_pay`
-  | _ => ""
+  | PAYMENT | SETTINGS => ""
   }
+  `${HSwitchGlobalVars.hyperSwitchApiPrefix}/${endpoint}`
 }
 
 let sessionExpired = ref(false)
@@ -261,14 +216,11 @@ let handleLogout = async (
 
 let responseHandler = async (
   ~res,
-  ~url,
   ~showToast: ToastState.showToastFn,
-  ~requestMethod,
   ~showErrorToast: bool,
   ~showPopUp: React.callback<PopUpState.popUpProps, unit>,
   ~isPlayground,
   ~popUpCallBack,
-  ~hyperswitchMixPanel: HSMixPanel.functionType,
 ) => {
   let json = try {
     await res->Fetch.Response.json
@@ -283,15 +235,6 @@ let responseHandler = async (
   | _ => {
       let errorDict = json->getDictFromJsonObject->getObj("error", Js.Dict.empty())
       let errorStringifiedJson = errorDict->Js.Json.object_->Js.Json.stringify
-      hyperswitchMixPanel(
-        ~isApiFailure=true,
-        ~apiUrl=url,
-        ~apiMethodName=requestMethod->LogicUtils.methodStr,
-        ~description=Some(errorStringifiedJson),
-        ~responseStatusCode=Some(responseStatus),
-        ~xRequestId=Some(res->HyperSwitchUtils.fetchRequestIdFromAPI),
-        (),
-      )
 
       //TODO:-
       // errorCodes to be handled
@@ -304,30 +247,24 @@ let responseHandler = async (
         | 401 =>
           if !sessionExpired.contents {
             showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false, ())
-            hyperswitchMixPanel(
-              ~eventName=Some(`Hyperswitch - Unauthorized Token - Session Expired`),
-              (),
-            )
             RescriptReactRouter.push("/login")
             sessionExpired := true
           }
 
-        | 403 => {
-            showPopUp({
-              popUpType: (Warning, WithIcon),
-              heading: "Access Forbidden",
-              description: {
-                "You do not have the required permissions to access this module. Please contact your administrator for necessary permissions."->React.string
+        | 403 =>
+          showPopUp({
+            popUpType: (Warning, WithIcon),
+            heading: "Access Forbidden",
+            description: {
+              "You do not have the required permissions to access this module. Please contact your administrator for necessary permissions."->React.string
+            },
+            handleConfirm: {
+              text: "Close",
+              onClick: {
+                _ => ()
               },
-              handleConfirm: {
-                text: "Close",
-                onClick: {
-                  _ => ()
-                },
-              },
-            })
-            hyperswitchMixPanel(~eventName=Some(`Hyperswitch - Access Forbidden`), ())
-          }
+            },
+          })
 
         | _ =>
           showToast(
@@ -345,24 +282,14 @@ let responseHandler = async (
 
 let catchHandler = (
   ~err,
-  ~requestMethod,
-  ~url,
   ~showErrorToast,
   ~showToast: ToastState.showToastFn,
   ~isPlayground,
   ~popUpCallBack,
-  ~hyperswitchMixPanel: HSMixPanel.functionType,
 ) => {
   switch Js.Exn.message(err) {
   | Some(msg) => Js.Exn.raiseError(msg)
   | None => {
-      hyperswitchMixPanel(
-        ~isApiFailure=true,
-        ~apiMethodName=requestMethod->LogicUtils.methodStr,
-        ~apiUrl=url,
-        ~description=Some("Failed to Fetch"),
-        (),
-      )
       if isPlayground {
         popUpCallBack()
       } else if showErrorToast {
@@ -374,15 +301,12 @@ let catchHandler = (
 }
 
 let useGetMethod = (~showErrorToast=true, ()) => {
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-  let url = RescriptReactRouter.useUrl()
-  let urlPath = url.path->Belt.List.toArray->Js.Array2.joinWith("_")
 
   let popUpCallBack = () =>
     showPopUp({
@@ -395,8 +319,6 @@ let useGetMethod = (~showErrorToast=true, ()) => {
         text: "Sign up Now",
         onClick: {
           _ => {
-            hyperswitchMixPanel(~eventName=Some(`${urlPath}_tryplayground_register`), ())
-            hyperswitchMixPanel(~eventName=Some(`global_tryplayground_register`), ())
             let _ = handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
           }
         },
@@ -408,27 +330,22 @@ let useGetMethod = (~showErrorToast=true, ()) => {
       let res = await fetchApi(url, ~method_=Get, ())
       await responseHandler(
         ~res,
-        ~url,
-        ~requestMethod={Get},
         ~showErrorToast,
         ~showToast,
         ~showPopUp,
         ~isPlayground,
         ~popUpCallBack,
-        ~hyperswitchMixPanel,
       )
     } catch {
     | Js.Exn.Error(e) =>
       catchHandler(
         ~err={e},
-        ~url,
-        ~requestMethod={Get},
+        ~requestMethod={Fetch.Get},
         ~showErrorToast,
         ~showToast,
         ~showPopUp,
         ~isPlayground,
         ~popUpCallBack,
-        ~hyperswitchMixPanel,
       )
     | _ => Js.Exn.raiseError("Something went wrong")
     }
@@ -436,14 +353,11 @@ let useGetMethod = (~showErrorToast=true, ()) => {
 }
 
 let useUpdateMethod = (~showErrorToast=true, ()) => {
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-  let url = RescriptReactRouter.useUrl()
-  let urlPath = url.path->Belt.List.toArray->Js.Array2.joinWith("_")
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
   let popUpCallBack = () =>
@@ -457,8 +371,6 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
         text: "Sign up Now",
         onClick: {
           _ => {
-            hyperswitchMixPanel(~eventName=Some(`${urlPath}_tryplayground_register`), ())
-            hyperswitchMixPanel(~eventName=Some(`global_tryplayground_register`), ())
             let _ = handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
           }
         },
@@ -470,26 +382,21 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
       let res = await fetchApi(url, ~method_=method, ~bodyStr=body->Js.Json.stringify, ())
       await responseHandler(
         ~res,
-        ~url,
-        ~requestMethod={method},
         ~showErrorToast,
         ~showToast,
         ~isPlayground,
         ~showPopUp,
         ~popUpCallBack,
-        ~hyperswitchMixPanel,
       )
     } catch {
     | Js.Exn.Error(e) =>
       catchHandler(
         ~err={e},
-        ~url,
         ~requestMethod={method},
         ~showErrorToast,
         ~showToast,
         ~isPlayground,
         ~popUpCallBack,
-        ~hyperswitchMixPanel,
       )
     | _ => Js.Exn.raiseError("Something went wrong")
     }

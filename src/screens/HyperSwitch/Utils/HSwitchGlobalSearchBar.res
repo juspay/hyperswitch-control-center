@@ -70,9 +70,6 @@ let make = () => {
     ~userRole,
     (),
   )
-  let url = RescriptReactRouter.useUrl()
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-
   let searchText = searchText->Js.String2.trim
   React.useEffect1(_ => {
     let matchedList = hswitchTabs->Array.reduce([], (acc, item) => {
@@ -168,27 +165,10 @@ let make = () => {
 
   let prefix = LogicUtils.useUrlPrefix()
 
-  React.useEffect2(() => {
-    if searchText->Js.String2.length > 0 && arr->Js.Array2.length === 0 {
-      hyperswitchMixPanel(
-        ~eventName=Some("open_searchbar_resultnotfound"),
-        ~description=Some(searchText),
-        (),
-      )
-    }
-    None
-  }, (searchText, arr->Js.Array2.length))
-
-  let redirectOnSelect = (element, mixpanelActionName) => {
+  let redirectOnSelect = element => {
     let redirectLink = element->LogicUtils.getString("redirect_link", "")
     if redirectLink->Js.String2.length > 0 {
       setShowModal(_ => false)
-      hyperswitchMixPanel(
-        ~pageName=url.path->LogicUtils.getListHead,
-        ~contextName="searchbar",
-        ~actionName=mixpanelActionName,
-        (),
-      )
       RescriptReactRouter.push(redirectLink)
     }
   }
@@ -206,11 +186,9 @@ let make = () => {
 
       if Window.Navigator.platform->Js.String2.includes("Mac") && metaKey && keyPressed == "k" {
         setShowModal(_ => true)
-        hyperswitchMixPanel(~eventName=Some(`open_searchbar_cmd+k`), ())
       } else if ctrlKey && keyPressed == "k" {
         event->ReactEvent.Keyboard.preventDefault
         setShowModal(_ => true)
-        hyperswitchMixPanel(~eventName=Some(`open_searchbar_ctrl+k`), ())
       }
     }
     Window.addEventListener("keydown", onKeyPress)
@@ -224,7 +202,6 @@ let make = () => {
       ? "border border-transparent"
       : "border border-blue-700 rounded-md !shadow-[0_0_8px_2px_rgba(0,_112,_255,_0.2)]"
   let openModalOnClickHandler = _ => {
-    hyperswitchMixPanel(~eventName=Some("open_searchbar_icononclick"), ())
     setShowModal(_ => true)
   }
   <div className="w-max">
@@ -250,8 +227,7 @@ let make = () => {
         bgClass="bg-transparent dark:bg-transparent border-transparent dark:border-transparent shadow-transparent	">
         <div
           className={`flex flex-col bg-white dark:bg-black gap-2 rounded-md  ${searchBoxBorderColor}`}>
-          <Combobox
-            className="w-full " onChange={element => redirectOnSelect(element, "onenterpress")}>
+          <Combobox className="w-full " onChange={element => redirectOnSelect(element)}>
             {listBoxProps => {
               let borderClass = arr->Js.Array2.length > 0 ? "border-b dark:border-jp-gray-960" : ""
               <div className="relative py-2">
@@ -292,7 +268,7 @@ let make = () => {
                         let elementsArray = ele->LogicUtils.getArrayFromDict("elements", [])
                         <Combobox.Option
                           className="flex flex-row border-b dark:border-jp-gray-960 p-2 cursor-pointer"
-                          onClick={_ => redirectOnSelect(ele, "onclick")}
+                          onClick={_ => redirectOnSelect(ele)}
                           key={i->string_of_int}
                           value=ele>
                           {props => {

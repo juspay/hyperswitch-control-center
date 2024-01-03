@@ -5,6 +5,7 @@ open SidebarTypes
 module GetProductionAccess = {
   @react.component
   let make = () => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let textStyles = HSwitchUtils.getTextClass(~textVariant=P2, ~paragraphTextVariant=Medium, ())
     let {isProdIntentCompleted, setShowProdIntentForm} = React.useContext(
       GlobalProvider.defaultContext,
@@ -18,7 +19,12 @@ module GetProductionAccess = {
     <div
       className={`flex items-center gap-2 ${backgroundColor} ${cursorStyles} px-4 py-3 m-2 ml-2 mb-3 !mx-4 whitespace-nowrap rounded`}
       onClick={_ => {
-        isProdIntentCompleted ? () : setShowProdIntentForm(_ => true)
+        isProdIntentCompleted
+          ? ()
+          : {
+              setShowProdIntentForm(_ => true)
+              mixpanelEvent(~eventName="get_production_access", ())
+            }
       }}>
       <div className={`text-white ${textStyles} !font-semibold`}>
         {productionAccessString->React.string}
@@ -120,13 +126,15 @@ let userJourneyAnalytics = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
-let analytics = isAnalyticsEnabled =>
+let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag) =>
   isAnalyticsEnabled
     ? Section({
         name: "Analytics",
         icon: "analytics",
         showSection: true,
-        links: [paymentAnalytcis, refundAnalytics, userJourneyAnalytics],
+        links: userJourneyAnalyticsFlag
+          ? [paymentAnalytcis, refundAnalytics, userJourneyAnalytics]
+          : [paymentAnalytcis, refundAnalytics],
       })
     : emptyComponent
 
@@ -149,13 +157,20 @@ let threeDs = SubLevelLink({
   searchOptions: [("Configure 3ds", "")],
 })
 
-let workflow = isWorkflowEnabled =>
+let surcharge = SubLevelLink({
+  name: "Surcharge",
+  link: `/surcharge`,
+  access: ReadWrite,
+  searchOptions: [("Add Surcharge", "")],
+})
+
+let workflow = (isWorkflowEnabled, isSurchargeEnabled) =>
   isWorkflowEnabled
     ? Section({
         name: "Workflow",
         icon: "3ds",
         showSection: true,
-        links: [routing, threeDs],
+        links: isSurchargeEnabled ? [routing, threeDs, surcharge] : [routing, threeDs],
       })
     : emptyComponent
 
@@ -309,14 +324,16 @@ let getHyperSwitchAppSidebars = (
     sampleData,
     businessProfile,
     systemMetrics,
+    userJourneyAnalytics: userJourneyAnalyticsFlag,
+    surcharge: isSurchargeEnabled,
   } = featureFlagDetails
   let sidebar = [
     productionAccess->productionAccessComponent,
     default->home,
     default->operations,
-    default->analytics,
+    default->analytics(userJourneyAnalyticsFlag),
     default->connectors,
-    default->workflow,
+    default->workflow(isSurchargeEnabled),
     frm->fraudAndRisk,
     payOut->payoutConnectors,
     recon->reconTag(isReconEnabled),
