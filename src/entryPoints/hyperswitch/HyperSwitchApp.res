@@ -80,7 +80,15 @@ let make = () => {
       let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl
       let response = await fetchDetails(url)
 
-      if response->getDictFromJsonObject->getBool("ProductionAgreement", false) {
+      let productionAgreementResponse =
+        response
+        ->getArrayFromJson([])
+        ->Js.Array2.find(ele => {
+          ele->getDictFromJsonObject->getBool("ProductionAgreement", false)
+        })
+        ->Option.getWithDefault(Js.Json.null)
+
+      if productionAgreementResponse->getDictFromJsonObject->getBool("ProductionAgreement", false) {
         setDashboardPageState(_ => #PROD_ONBOARDING)
       } else {
         setDashboardPageState(_ => #AGREEMENT_SIGNATURE)
@@ -299,9 +307,12 @@ let make = () => {
                           <RefundsAnalytics />
                         </FilterContext>
                       | list{"analytics-user-journey"} =>
-                        <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
-                          <UserJourneyAnalytics />
-                        </FilterContext>
+                        <FeatureFlagEnabledComponent
+                          isEnabled=featureFlagDetails.userJourneyAnalytics>
+                          <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
+                            <UserJourneyAnalytics />
+                          </FilterContext>
+                        </FeatureFlagEnabledComponent>
                       | list{"monitoring"} => comingSoonPage
                       | list{"developer-api-keys"} => <KeyManagement.KeysManagement />
                       | list{"developer-system-metrics"} =>
@@ -329,7 +340,10 @@ let make = () => {
                           <SDKPage />
                         </FeatureFlagEnabledComponent>
                       | list{"3ds"} => <HSwitchThreeDS />
-                      | list{"surcharge"} => <Surcharge />
+                      | list{"surcharge"} =>
+                        <FeatureFlagEnabledComponent isEnabled={featureFlagDetails.surcharge}>
+                          <Surcharge />
+                        </FeatureFlagEnabledComponent>
                       | list{"account-settings"} =>
                         <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.sampleData>
                           <HSwitchSettings />

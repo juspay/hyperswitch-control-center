@@ -124,6 +124,7 @@ module BasicDetailsSection = {
       let merchantDetails = getInfoFromLocalStorage(~lStorageKey="merchant")
       merchantDetails->LogicUtils.getString(value, "Not Added")
     }
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     <div className="flex flex-col gap-10 bg-white border rounded w-full px-10 pt-6 pb-10">
       <p className=sectionHeadingClass> {"User Info"->React.string} </p>
       <div className="flex gap-10 items-center">
@@ -136,7 +137,7 @@ module BasicDetailsSection = {
           {(userName->Js.String2.length === 0 ? "--" : userName)->React.string}
         </p>
       </div>
-      <UIUtils.RenderIf condition={!isPlayground}>
+      <UIUtils.RenderIf condition={!isPlayground && featureFlagDetails.magicLink}>
         <ResetPassword />
       </UIUtils.RenderIf>
     </div>
