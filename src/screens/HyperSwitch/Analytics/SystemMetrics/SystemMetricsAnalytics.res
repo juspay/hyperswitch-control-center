@@ -102,7 +102,7 @@ module HSiwtchPaymentConfirmLatency = {
           ("status_code", [200.0->Js.Json.number]->Js.Json.array),
           ("flow_type", [flowType->Js.Json.string]->Js.Json.array),
         ]
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_
 
       [
