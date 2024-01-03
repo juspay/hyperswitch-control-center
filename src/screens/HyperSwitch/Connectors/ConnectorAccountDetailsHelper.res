@@ -6,9 +6,6 @@ let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorName> = [
   STRIPE,
   PAYPAL,
 ]
-external toMouseEvent: JsxEvent.synthetic<ReactEvent.Keyboard.tag> => JsxEvent.synthetic<
-  JsxEvent.Mouse.tag,
-> = "%identity"
 
 let getCurrencyOption: CurrencyUtils.currencyCode => SelectBox.dropdownOption = currencyType => {
   open CurrencyUtils
@@ -153,10 +150,10 @@ module RenderConnectorInputFields = {
     ->React.array
   }
 }
-type cashToCodeMthd = [#Classic | #Evoucher]
 
 module CashToCodeSelectBox = {
   external formEventToStr: ReactEvent.Form.t => string = "%identity"
+  open ConnectorTypes
   @react.component
   let make = (
     ~opts: array<string>,
@@ -247,6 +244,7 @@ module CashToCodeSelectBox = {
 }
 
 module CashToCodeMethods = {
+  open ConnectorTypes
   @react.component
   let make = (~connectorAccountFields, ~selectedConnector, ~connector) => {
     open ConnectorUtils
@@ -279,41 +277,6 @@ module CashToCodeMethods = {
     />
   }
 }
-module CurrencyAuthKey = {
-  @react.component
-  let make = (~dict, ~connector, ~selectedConnector: ConnectorTypes.integrationFields) => {
-    open LogicUtils
-    dict
-    ->Js.Dict.keys
-    ->Array.mapWithIndex((country, index) => {
-      <Accordion
-        key={index->string_of_int}
-        initialExpandedArray={index == 0 ? [0] : []}
-        accordion={[
-          {
-            title: country->snakeToTitle,
-            renderContent: () => {
-              <div className="grid gap-5">
-                <RenderConnectorInputFields
-                  details={dict->getDictfromDict(country)}
-                  name={`connector_account_details.auth_key_map.${country}`}
-                  connector
-                  selectedConnector
-                />
-              </div>
-            },
-            renderContentOnTop: None,
-          },
-        ]}
-        accordianTopContainerCss="border"
-        accordianBottomContainerCss="p-5"
-        contentExpandCss="px-10 pb-6 pt-3 !border-t-0"
-        titleStyle="font-semibold text-bold text-md"
-      />
-    })
-    ->React.array
-  }
-}
 
 module ConnectorConfigurationFields = {
   open ConnectorTypes
@@ -330,11 +293,7 @@ module ConnectorConfigurationFields = {
     open ConnectorUtils
     <div className="flex flex-col">
       {if connector === CASHTOCODE {
-        // <div>
-        // <div className="p-6">
         <CashToCodeMethods connectorAccountFields connector selectedConnector />
-        // </div>
-        // </div>
       } else {
         <RenderConnectorInputFields
           details={connectorAccountFields}
