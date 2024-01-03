@@ -152,7 +152,6 @@ module RenderConnectorInputFields = {
 }
 
 module CashToCodeSelectBox = {
-  external formEventToStr: ReactEvent.Form.t => string = "%identity"
   open ConnectorTypes
   @react.component
   let make = (
