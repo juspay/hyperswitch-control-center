@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.19.0 (2024-01-03)
+
+### Features
+
+- Surcharge ([#123](https://github.com/juspay/hyperswitch-control-center/pull/123)) ([`95a1d81`](https://github.com/juspay/hyperswitch-control-center/commit/95a1d8146057a8262b824d0784e32c268118af73))
+- Added mixpanel events ([#158](https://github.com/juspay/hyperswitch-control-center/pull/158)) ([`543e074`](https://github.com/juspay/hyperswitch-control-center/commit/543e0749dfcc2b0a426eecd554c4890396793f38))
+- Multi filters support ([#79](https://github.com/juspay/hyperswitch-control-center/pull/79)) ([`fd1aa3d`](https://github.com/juspay/hyperswitch-control-center/commit/fd1aa3d0b108f14375d50cc50833395fb6f19867))
+- Prod enum changes ([#128](https://github.com/juspay/hyperswitch-control-center/pull/128)) ([`b67b95a`](https://github.com/juspay/hyperswitch-control-center/commit/b67b95a5555b5d7d46ee0e1ccd808821e6505336))
+
+**Full Changelog:** [`v1.18.3...v1.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.18.3...v1.19.0)
+
+- - -
+
+
 ## 1.18.3 (2024-01-02)
 
 ### Bug Fixes

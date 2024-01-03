@@ -35,35 +35,3 @@ let useGetFilterDictFromUrl = prefix => {
 
   searchParamsDict
 }
-
-let useUpdateUrlWith = (~prefix as _: string) => {
-  let url = RescriptReactRouter.useUrl()
-  let updateUrl = (~dict: Js.Dict.t<string>) => {
-    let currentSearchParamsDict =
-      url.search
-      ->Js.Global.decodeURI
-      ->Js.String2.split("&")
-      ->Belt.Array.keepMap(str => {
-        let arr = str->Js.String2.split("=")
-        let key = arr->Belt.Array.get(0)->Belt.Option.getWithDefault("-")
-        let val = arr->Belt.Array.sliceToEnd(1)->Js.Array2.joinWith("=")
-        key === "" || val === "" ? None : Some((key, val))
-      })
-      ->Js.Dict.fromArray
-    let path = url.path->Belt.List.toArray->Js.Array2.joinWith("/")
-
-    let searchParam =
-      dict
-      ->Js.Dict.entries
-      ->Js.Array2.map(item => {
-        let (key, value) = item
-        `${key}=${value}`
-      })
-      ->Js.Array2.joinWith("&")
-
-    if !DictionaryUtils.equalDicts(currentSearchParamsDict, dict) {
-      RescriptReactRouter.push(`/${path}?${searchParam}`)
-    }
-  }
-  updateUrl
-}

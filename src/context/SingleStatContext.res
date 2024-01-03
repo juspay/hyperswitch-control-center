@@ -50,7 +50,8 @@ let make = (
   | {jsonTransformer} => jsonTransformer
   | _ => (_val, arr) => arr
   }
-  let getAllFilter = UrlUtils.useGetFilterDictFromUrl("")
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let getAllFilter = filterValueJson
   let (isSingleStatVisible, setSingleStatIsVisible) = React.useState(_ => false)
   let parentToken = AuthWrapperUtils.useTokenParent(Original)
   let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetchNew()

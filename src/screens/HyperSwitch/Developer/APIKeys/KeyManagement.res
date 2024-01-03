@@ -176,6 +176,7 @@ module ApiKeyAddBtn = {
   open DeveloperUtils
   @react.component
   let make = (~getAPIKeyDetails) => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let (showModal, setShowModal) = React.useState(_ => false)
     let initialValues = Js.Dict.empty()
     initialValues->Js.Dict.set("expiration", Never->getStringFromRecordType->Js.Json.string)
@@ -192,6 +193,7 @@ module ApiKeyAddBtn = {
         buttonType=Secondary
         buttonSize=Small
         onClick={_ => {
+          mixpanelEvent(~eventName="create_new_api_key", ())
           setShowModal(_ => true)
         }}
       />

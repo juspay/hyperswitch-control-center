@@ -8,6 +8,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   open LogicUtils
 
   let url = RescriptReactRouter.useUrl()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let initialValues = Js.Dict.empty()->Js.Json.object_
   let clientCountry = HSwitchUtils.getBrowswerDetails().clientCountry
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
@@ -112,12 +113,23 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     Js.Nullable.null
   }
 
+  let logMixpanelEvents = _ => {
+    open HyperSwitchAuthTypes
+    switch authType {
+    | LoginWithPassword => mixpanelEvent(~eventName=`signin_using_email&password`, ())
+    | LoginWithEmail => mixpanelEvent(~eventName=`signin_using_magic_link`, ())
+    | SignUP => mixpanelEvent(~eventName=`signup_using_magic_link`, ())
+    | _ => ()
+    }
+  }
+
   let onSubmit = async (values, _) => {
     try {
       open HyperSwitchAuthTypes
       let valuesDict = values->getDictFromJsonObject
       let email = valuesDict->getString("email", "")
       setEmail(_ => email)
+      logMixpanelEvents()
 
       let _ = await (
         switch (isMagicLinkEnabled, authType) {

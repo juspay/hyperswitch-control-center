@@ -373,7 +373,7 @@ let make = (
   }
 
   let currentTheme = ThemeProvider.useTheme()
-  let {filterValue} = React.useContext(AnalyticsUrlUpdaterContext.urlUpdaterContext)
+  let {filterValue} = React.useContext(FilterContext.filterContext)
   let (_switchToMobileView, setSwitchToMobileView) = React.useState(_ => false)
   let (selectedTabState, setSelectedTabState) = React.useState(_ => selectedTab)
 

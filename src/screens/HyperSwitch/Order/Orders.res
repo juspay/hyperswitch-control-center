@@ -36,7 +36,7 @@ let make = (~previewOnly=false) => {
 
         filters->Js.Dict.set("offset", offset->Belt.Int.toFloat->Js.Json.number)
         if !(searchText->isEmptyString) {
-          filters->Js.Dict.set("payment_id", searchText->Js.Json.string)
+          filters->Js.Dict.set("payment_id", searchText->Js.String2.trim->Js.Json.string)
         }
 
         dict
@@ -86,6 +86,21 @@ let make = (~previewOnly=false) => {
 
   let customUI = <NoData isConfigureConnector paymentModal setPaymentModal />
 
+  let filtersUI = React.useMemo0(() => {
+    <RemoteTableFilters
+      placeholder="Search payment id"
+      setSearchVal=setSearchText
+      searchVal=searchText
+      filterUrl
+      setFilters
+      endTimeFilterKey
+      startTimeFilterKey
+      initialFilters
+      initialFixedFilter
+      setOffset
+    />
+  })
+
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
       <PageUtils.PageHeading
@@ -97,20 +112,7 @@ let make = (~previewOnly=false) => {
           <GenerateReport entityName={PAYMENT_REPORT} />
         </UIUtils.RenderIf>
       </div>
-      <UIUtils.RenderIf condition={!previewOnly}>
-        <RemoteTableFilters
-          placeholder="Search payment id"
-          setSearchVal=setSearchText
-          searchVal=searchText
-          filterUrl
-          setFilters
-          endTimeFilterKey
-          startTimeFilterKey
-          initialFilters
-          initialFixedFilter
-          setOffset
-        />
-      </UIUtils.RenderIf>
+      <UIUtils.RenderIf condition={!previewOnly}> {filtersUI} </UIUtils.RenderIf>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns
           title="Orders"
