@@ -1,6 +1,6 @@
 @val external appVersion: string = "appVersion"
 
-let mixpanelToken = Window.env.mixpanelToken->Belt.Option.getWithDefault("")
+let mixpanelToken = Window.env.mixpanelToken->Belt.Option.getWithDefault("mixpanel-token")
 
 type hostType = Live | Sandbox | Local | Netlify
 
