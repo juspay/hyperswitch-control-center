@@ -540,7 +540,9 @@ module Base = {
     }
 
     let buttonText = {
-      showTime
+      startDateVal->Js.String2.length === 0 && endDateVal->Js.String2.length === 0
+        ? `Select Date ${showTime ? "and Time" : ""}`
+        : showTime
         ? `${startDateStr} ${startTimeStr} - ${endDateStr} ${endTimeStr}`
         : `${startDateStr} ${startDateStr === buttonText ? "" : "-"} ${endDateStr}`
     }
