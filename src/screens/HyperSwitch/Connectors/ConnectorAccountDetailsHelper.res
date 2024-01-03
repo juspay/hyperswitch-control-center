@@ -247,8 +247,6 @@ module ConnectorConfigurationFields = {
 module BusinessProfileRender = {
   @react.component
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
-    let url = RescriptReactRouter.useUrl()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
     let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
@@ -260,15 +258,9 @@ module BusinessProfileRender = {
     let hereTextStyle = isUpdateFlow
       ? "text-grey-700 opacity-50 cursor-not-allowed"
       : "text-blue-900  cursor-pointer"
-    let _onClickHandler = countryOrLabel => {
+    let _onClickHandler = _ => {
       if !isUpdateFlow {
         setShowModalFromOtherScreen(_ => true)
-        ConnectorUtils.mixpanelEventWrapper(
-          ~url,
-          ~selectedConnector,
-          ~actionName=`add_new_${countryOrLabel}`,
-          ~hyperswitchMixPanel,
-        )
       }
       setDashboardPageState(_ => #HOME)
     }
@@ -297,12 +289,6 @@ module BusinessProfileRender = {
                       `${selectedConnector}_${profileName}`->Identity.stringToFormReactEvent,
                     )
                     input.onChange(ev)
-                    ConnectorUtils.mixpanelEventWrapper(
-                      ~url,
-                      ~selectedConnector,
-                      ~actionName=`settings_choose_profile`,
-                      ~hyperswitchMixPanel,
-                    )
                   }
                 },
               },
@@ -348,8 +334,6 @@ module VerifyConnectorModal = {
     ~suggestedAction,
     ~setVerifyDone,
   ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     <Modal
       showModal={showVerifyModal}
       setShowModal={setShowVerifyModal}
@@ -396,12 +380,6 @@ module VerifyConnectorModal = {
             <Button
               text="Cancel"
               onClick={_ => {
-                hyperswitchMixPanel(
-                  ~pageName=url.path->LogicUtils.getListHead,
-                  ~contextName="verify_connector",
-                  ~actionName="cancel_clicked",
-                  (),
-                )
                 setVerifyDone(_ => ConnectorTypes.NoAttempt)
                 setShowVerifyModal(_ => false)
               }}

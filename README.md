@@ -44,6 +44,8 @@ Follow these simple steps to set up Hyperswitch on your local machine.
    ```bash
    apiBaseUrl = your-backend-url
    sdkBaseUrl = your-sdk-url
+   mixpanelToken = mixpanel-token
+   # To view Mixpanel events on the Mixpanel dashboard, you must add your Mixpanel token; otherwise, you can ignore this requirement.
    ```
 
 5. Start the ReScript compiler:

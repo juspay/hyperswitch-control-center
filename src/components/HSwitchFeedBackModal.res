@@ -8,20 +8,10 @@ let make = (
 ) => {
   open HSwitchFeedBackModalUtils
   open APIUtils
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
 
   let onSubmit = async (values, _) => {
-    let mixPanelAction = switch modalType {
-    | FeedBackModal => "givefeedback"
-    | RequestConnectorModal => "request_connector"
-    }
-    ["global", url.path->LogicUtils.getListHead]->Js.Array2.forEach(ele =>
-      hyperswitchMixPanel(~pageName=ele, ~contextName=feedbackVia, ~actionName=mixPanelAction, ())
-    )
-
     try {
       let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
       let body =

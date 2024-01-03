@@ -126,8 +126,9 @@ let make = (
   ~statThreshold=?,
   ~wrapperClass=?,
 ) => {
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let fetchApi = AuthHooks.useApiFetcher()
-  let getAllFilter = UrlUtils.useGetFilterDictFromUrl("")
+  let getAllFilter = filterValueJson
   let isMobileView = MatchMedia.useMobileChecker()
   let (showStats, setShowStats) = React.useState(_ => false)
 
