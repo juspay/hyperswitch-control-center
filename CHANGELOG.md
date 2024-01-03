@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.19.1 (2024-01-03)
+
+### Bug Fixes
+
+- Enabled braintree in prod ([#161](https://github.com/juspay/hyperswitch-control-center/pull/161)) ([`bcffb62`](https://github.com/juspay/hyperswitch-control-center/commit/bcffb627f8a25af19352d4740e879dbc8772e06a))
+
+### Miscellaneous Tasks
+
+- Move from Js Library to Core Array/Dict components ([#145](https://github.com/juspay/hyperswitch-control-center/pull/145)) ([`6a68efd`](https://github.com/juspay/hyperswitch-control-center/commit/6a68efd851515f8a4af17077a9145483364a7cb5))
+
+**Full Changelog:** [`v1.19.0...v1.19.1`](https://github.com/juspay/hyperswitch-control-center/compare/v1.19.0...v1.19.1)
+
+- - -
+
+
 ## 1.19.0 (2024-01-03)
 
 ### Features
