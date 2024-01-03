@@ -103,7 +103,7 @@ let itemGateWayObjMapper = (
     ("distribution", dict->getFloat("split", 0.00)->Js.Json.number),
     ("disableFallback", dict->getBool("disableFallback", false)->Js.Json.boolean),
     ("gateway_name", connectorId->Js.Json.string),
-  ]->Js.Dict.fromArray
+  ]->Dict.fromArray
 }
 
 let itemBodyGateWayObjMapper = (
@@ -120,12 +120,12 @@ let itemBodyGateWayObjMapper = (
       ("connector", name.connector_name->Js.Json.string),
       ("merchant_connector_id", dict->getString("gateway_name", "")->Js.Json.string),
     ]
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
   [
     ("split", dict->getFloat("distribution", 0.00)->Js.Json.number),
     ("connector", newDict),
-  ]->Js.Dict.fromArray
+  ]->Dict.fromArray
 }
 
 let connectorPayload = (routingType, arr) => {
@@ -146,14 +146,14 @@ let connectorPayload = (routingType, arr) => {
 
 let getRoutingPayload = (data, routingType, name, description, profileId) => {
   let connectorsOrder =
-    [("data", data->Js.Json.array), ("type", routingType->Js.Json.string)]->Js.Dict.fromArray
+    [("data", data->Js.Json.array), ("type", routingType->Js.Json.string)]->Dict.fromArray
 
   [
     ("name", name->Js.Json.string),
     ("description", description->Js.Json.string),
     ("profile_id", profileId->Js.Json.string),
     ("algorithm", connectorsOrder->Js.Json.object_),
-  ]->Js.Dict.fromArray
+  ]->Dict.fromArray
 }
 
 let getWasmKeyType = (wasm, value) => {
@@ -234,7 +234,7 @@ let advanceRoutingConditionMapper = (dict, wasm) => {
           let key =
             dict->getDictfromDict("metadata")->getString("key", "")->Js.String2.trim->Js.Json.string
           let value = dict->getString("value", "")->Js.String2.trim->Js.Json.string
-          Js.Dict.fromArray([("key", key), ("value", value)])->Js.Json.object_
+          Dict.fromArray([("key", key), ("value", value)])->Js.Json.object_
         }
       | String_value => dict->getString("value", "")->Js.Json.string
       | _ => ""->Js.Json.string
@@ -242,14 +242,14 @@ let advanceRoutingConditionMapper = (dict, wasm) => {
     },
     metadata: Dict.make()->Js.Json.object_,
   }
-  let value = [("value", obj.value["value"]), ("type", obj.value["type"])]->Js.Dict.fromArray
+  let value = [("value", obj.value["value"]), ("type", obj.value["type"])]->Dict.fromArray
   let dict =
     [
       ("lhs", obj.lhs->Js.Json.string),
       ("comparison", obj.comparison->Js.Json.string),
       ("value", value->Js.Json.object_),
       ("metadata", obj.metadata),
-    ]->Js.Dict.fromArray
+    ]->Dict.fromArray
 
   dict->Js.Json.object_
 }
@@ -281,10 +281,7 @@ let generateStatement = (arr, wasm) => {
   let statementDict = Dict.make()
   arr->Array.forEachWithIndex((item, index) => {
     let valueRes =
-      item
-      ->getDictFromJsonObject
-      ->Js.Dict.get("value")
-      ->Belt.Option.getWithDefault([]->Js.Json.array)
+      item->getDictFromJsonObject->Dict.get("value")->Belt.Option.getWithDefault([]->Js.Json.array)
 
     if valueRes->checkIfValuePresesent {
       let value = item->getDictFromJsonObject->advanceRoutingConditionMapper(wasm)
@@ -296,7 +293,7 @@ let generateStatement = (arr, wasm) => {
           Dict.set(statementDict, Belt.Int.toString(index), copyDict)
           conditionDict->Dict.set("condition", []->Js.Json.array)
           let val =
-            conditionDict->Js.Dict.get("condition")->Belt.Option.getWithDefault([]->Js.Json.array)
+            conditionDict->Dict.get("condition")->Belt.Option.getWithDefault([]->Js.Json.array)
           let arr = switch Js.Json.classify(val) {
           | JSONArray(arr) => {
               arr->Array.push(value)
@@ -309,7 +306,7 @@ let generateStatement = (arr, wasm) => {
 
       | _ =>
         let val =
-          conditionDict->Js.Dict.get("condition")->Belt.Option.getWithDefault([]->Js.Json.array)
+          conditionDict->Dict.get("condition")->Belt.Option.getWithDefault([]->Js.Json.array)
         let arr = switch Js.Json.classify(val) {
         | JSONArray(arr) => {
             arr->Array.push(value)
@@ -328,7 +325,7 @@ let generateStatement = (arr, wasm) => {
   statementDict
   ->Dict.keysToArray
   ->Array.map(val => {
-    switch statementDict->Js.Dict.get(val) {
+    switch statementDict->Dict.get(val) {
     | Some(dt) => dt->Js.Json.object_
     | _ => Dict.make()->Js.Json.object_
     }
@@ -339,10 +336,10 @@ let getDefaultSelection = dict => {
   [
     ("data", dict->getArrayFromDict("default_gateways", [])->Js.Json.array),
     ("type", "priority"->Js.Json.string),
-  ]->Js.Dict.fromArray
+  ]->Dict.fromArray
 }
 let generateRuleObject = (index, connectorSelection, statement) => {
-  let ruleObj = Js.Dict.fromArray([
+  let ruleObj = Dict.fromArray([
     ("name", `rule_${string_of_int(index + 1)}`->Js.Json.string),
     ("statements", statement->Js.Json.array),
     ("connectorSelection", connectorSelection->Js.Json.object_),
@@ -355,20 +352,17 @@ let constuctAlgorithm = (dict, rules, metadata) => {
       ("defaultSelection", getDefaultSelection(dict)->Js.Json.object_),
       ("rules", rules->Js.Json.array),
       ("metadata", metadata->Js.Json.object_),
-    ]->Js.Dict.fromArray
+    ]->Dict.fromArray
 
   let algorithm =
-    [("type", "advanced"->Js.Json.string), ("data", body->Js.Json.object_)]->Js.Dict.fromArray
+    [("type", "advanced"->Js.Json.string), ("data", body->Js.Json.object_)]->Dict.fromArray
 
   algorithm
 }
 
 let advanceRoutingPayload = (dict, wasm, metadata, name, description) => {
   let advancedRoutingPayload =
-    [
-      ("name", name->Js.Json.string),
-      ("description", description->Js.Json.string),
-    ]->Js.Dict.fromArray
+    [("name", name->Js.Json.string), ("description", description->Js.Json.string)]->Dict.fromArray
 
   // data part of algorithm
 
@@ -507,7 +501,7 @@ let getGatewayTypes = (arr: array<Js.Json.t>, gatewayKey: string, distributionKe
 
 // Advanced
 let valueTypeMapper = dict => {
-  let value = switch Js.Dict.get(dict, "value")->Belt.Option.map(Js.Json.classify) {
+  let value = switch Dict.get(dict, "value")->Belt.Option.map(Js.Json.classify) {
   | Some(JSONArray(arr)) => StringArray(arr->getStrArrayFromJsonArray)
   | Some(JSONString(st)) => String(st)
   | Some(JSONNumber(num)) => Int(num->Belt.Float.toInt)
@@ -568,7 +562,7 @@ let ruleInfoTypeMapper = json => {
 
 let constructNameDescription = routingType => {
   let routingText = routingType->routingTypeName
-  Js.Dict.fromArray([
+  Dict.fromArray([
     (
       "name",
       `${routingText->LogicUtils.capitalizeString} Based Routing-${getCurrentUTCTime()}`->Js.Json.string,
@@ -670,8 +664,7 @@ let checkIfValuePresent = dict => {
 let validateConditionJson = (json, keys) => {
   switch json->Js.Json.decodeObject {
   | Some(dict) =>
-    keys->Js.Array2.every(key => dict->Js.Dict.get(key)->Belt.Option.isSome) &&
-      dict->checkIfValuePresent
+    keys->Array.every(key => dict->Dict.get(key)->Belt.Option.isSome) && dict->checkIfValuePresent
   | None => false
   }
 }

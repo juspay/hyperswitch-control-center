@@ -94,7 +94,7 @@ let make = () => {
     defaultBusinessProfile->SDKPaymentUtils.initialValueForForm
   )
   React.useEffect1(() => {
-    let paymentIntentOptional = filtersFromUrl->Js.Dict.get("payment_intent_client_secret")
+    let paymentIntentOptional = filtersFromUrl->Dict.get("payment_intent_client_secret")
     if paymentIntentOptional->Belt.Option.isSome {
       setIsSDKOpen(_ => true)
     }

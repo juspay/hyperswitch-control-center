@@ -12,7 +12,7 @@ module RangeSliderLocalFilter = {
     let (lclFiltrState, setLclFltrState) = React.useContext(DatatableContext.datatableContext)
     let dropdownRef = React.useRef(Js.Nullable.null)
     let (showDropDown, setShowDropDown) = React.useState(() => false)
-    let selectedFilterVal = Js.Dict.get(lclFiltrState, filterKey)
+    let selectedFilterVal = Dict.get(lclFiltrState, filterKey)
     let filterIconName = "bars-filter"
     let strokeColor = ""
     let rightIcon = switch selectedFilterVal {
@@ -96,7 +96,7 @@ module FilterDropDown = {
     let options =
       dummyDict->Dict.keysToArray->Array.filter(item => item != "")->SelectBox.makeOptions
 
-    let selectedValue = Js.Dict.get(lclFiltrState, val)->Belt.Option.getWithDefault([])
+    let selectedValue = Dict.get(lclFiltrState, val)->Belt.Option.getWithDefault([])
 
     let filterInput: ReactFinalForm.fieldRenderPropsInput = {
       name: val,
@@ -175,7 +175,7 @@ module TextFilterCell = {
     let showPopUp = PopUpState.useShowPopUp()
 
     let selectedValue =
-      Js.Dict.get(lclFiltrState, val)
+      Dict.get(lclFiltrState, val)
       ->Belt.Option.getWithDefault([])
       ->Belt.Array.get(0)
       ->Belt.Option.getWithDefault(""->Js.Json.string)
@@ -233,7 +233,7 @@ module RangeFilterCell = {
     let minVal = Js.Math.floor_float(minVal)
     let maxVal = Js.Math.ceil_float(maxVal)
     let selectedValueStr =
-      Js.Dict.get(lclFiltrState, val)->Belt.Option.getWithDefault([
+      Dict.get(lclFiltrState, val)->Belt.Option.getWithDefault([
         minVal->Js.Json.number,
         maxVal->Js.Json.number,
       ])

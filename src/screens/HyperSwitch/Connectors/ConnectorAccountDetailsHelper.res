@@ -78,7 +78,7 @@ module ErrorValidation = {
     let imageStyle = "w-4 h-4 my-auto border-gray-100"
     let errorDict = formState.values->validate->getDictFromJsonObject
     let {touched} = ReactFinalForm.useField(fieldName).meta
-    let err = touched ? errorDict->Js.Dict.get(fieldName) : None
+    let err = touched ? errorDict->Dict.get(fieldName) : None
     <UIUtils.RenderIf condition={err->Belt.Option.isSome}>
       <div
         className={`flex flex-row items-center text-orange-950 dark:text-orange-400 pt-2 text-base font-medium text-start ml-1`}>

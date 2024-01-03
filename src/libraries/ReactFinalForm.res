@@ -140,9 +140,9 @@ type formRenderProps = {
 @module("final-form")
 external formError: string = "FORM_ERROR"
 
-let subscribeToValues = [("values", true)]->Js.Dict.fromArray
+let subscribeToValues = [("values", true)]->Dict.fromArray
 
-let subscribeToPristine = [("pristine", true)]->Js.Dict.fromArray
+let subscribeToPristine = [("pristine", true)]->Dict.fromArray
 
 module Form = {
   @module("react-final-form") @react.component

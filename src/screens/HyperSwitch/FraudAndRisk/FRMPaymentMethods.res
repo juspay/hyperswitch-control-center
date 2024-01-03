@@ -316,7 +316,7 @@ module PaymentMethodsRenderer = {
             key={i->string_of_int}
             frmConfigInfo={configInfo}
             frmConfigs
-            connectorPaymentMethods={connectorConfig->Js.Dict.get(configInfo.gateway)}
+            connectorPaymentMethods={connectorConfig->Dict.get(configInfo.gateway)}
             isUpdateFlow
           />
         })

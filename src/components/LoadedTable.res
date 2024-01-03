@@ -25,7 +25,7 @@ let backgroundClass = "bg-gray-50 dark:bg-jp-gray-darkgray_background"
 
 let useSortedObj = (title: string, defaultSort) => {
   let (dict, setDict) = Recoil.useRecoilState(sortAtom)
-  let filters = Js.Dict.get(dict, title)
+  let filters = Dict.get(dict, title)
 
   let (sortedObj, setSortedObj) = React.useState(_ => defaultSort)
   React.useEffect0(() => {
@@ -58,7 +58,7 @@ let useSortedObj = (title: string, defaultSort) => {
       }
 
       setDict(.dict => {
-        let nDict = Js.Dict.fromArray(Dict.toArray(dict))
+        let nDict = Dict.fromArray(Dict.toArray(dict))
         Dict.set(nDict, title, sortOb)
         nDict
       })
@@ -94,12 +94,12 @@ let useSortArray = () => {
           JsonFlattenUtils.flattenObject(item1, true)
           ->Js.Json.object_
           ->Js.Json.decodeObject
-          ->Belt.Option.flatMap(dict => dict->Js.Dict.get(key))
+          ->Belt.Option.flatMap(dict => dict->Dict.get(key))
         let val2 =
           JsonFlattenUtils.flattenObject(item2, true)
           ->Js.Json.object_
           ->Js.Json.decodeObject
-          ->Belt.Option.flatMap(dict => dict->Js.Dict.get(key))
+          ->Belt.Option.flatMap(dict => dict->Dict.get(key))
         let value1 = getValue(val1)
         let value2 = getValue(val2)
         if value1 === ""->Js.Json.string || value2 === ""->Js.Json.string {
@@ -253,7 +253,7 @@ let make = (
   let (firstRender, setFirstRender) = React.useState(_ => true)
   let setPageDetails = Recoil.useSetRecoilState(table_pageDetails)
   let pageDetailDict = Recoil.useRecoilValueFromAtom(table_pageDetails)
-  let pageDetail = pageDetailDict->Js.Dict.get(title)->Belt.Option.getWithDefault(defaultValue)
+  let pageDetail = pageDetailDict->Dict.get(title)->Belt.Option.getWithDefault(defaultValue)
 
   let (
     selectAllCheckBox: option<TableUtils.multipleSelectRows>,
@@ -261,13 +261,13 @@ let make = (
   ) = React.useState(_ => None)
 
   let newSetOffset = offsetVal => {
-    let value = switch pageDetailDict->Js.Dict.get(title) {
+    let value = switch pageDetailDict->Dict.get(title) {
     | Some(val) => {offset: offsetVal(0), resultsPerPage: val.resultsPerPage}
 
     | None => {offset: offsetVal(0), resultsPerPage: defaultValue.resultsPerPage}
     }
 
-    let newDict = pageDetailDict->Dict.toArray->Js.Dict.fromArray
+    let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
 
     newDict->Dict.set(title, value)
     setOffset(_ => offsetVal(0))
@@ -283,12 +283,12 @@ let make = (
 
   React.useEffect1(_ => {
     if pageDetail.offset !== offset && !firstRender {
-      let value = switch pageDetailDict->Js.Dict.get(title) {
+      let value = switch pageDetailDict->Dict.get(title) {
       | Some(val) => {offset, resultsPerPage: val.resultsPerPage}
       | None => {offset, resultsPerPage: defaultValue.resultsPerPage}
       }
 
-      let newDict = pageDetailDict->Dict.toArray->Js.Dict.fromArray
+      let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
       newDict->Dict.set(title, value)
       setPageDetails(._ => newDict)
     }
@@ -296,7 +296,7 @@ let make = (
   }, [offset])
 
   let setLocalResultsPerPageOrig = localResultsPerPage => {
-    let value = switch pageDetailDict->Js.Dict.get(title) {
+    let value = switch pageDetailDict->Dict.get(title) {
     | Some(val) =>
       if totalResults > val.offset || tableDataLoading {
         {offset: val.offset, resultsPerPage: localResultsPerPage(0)}
@@ -305,7 +305,7 @@ let make = (
       }
     | None => {offset: defaultValue.offset, resultsPerPage: localResultsPerPage(0)}
     }
-    let newDict = pageDetailDict->Dict.toArray->Js.Dict.fromArray
+    let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
 
     newDict->Dict.set(title, value)
     setPageDetails(._ => newDict)
@@ -324,7 +324,7 @@ let make = (
   let setColumnFilter = React.useMemo1(() => {
     (filterKey, filterValue: array<Js.Json.t>) => {
       setColumnFilterOrig(oldFitlers => {
-        let newObj = oldFitlers->Dict.toArray->Js.Dict.fromArray
+        let newObj = oldFitlers->Dict.toArray->Dict.fromArray
         let filterValue = filterValue->Array.filter(
           item => {
             let updatedItem = item->Js.String.make
@@ -340,7 +340,7 @@ let make = (
               key !== filterKey
             },
           )
-          ->Js.Dict.fromArray
+          ->Dict.fromArray
         } else {
           Dict.set(newObj, filterKey, filterValue)
           newObj
@@ -563,7 +563,7 @@ let make = (
     None
   }, [selectAllCheckBox])
 
-  let sNoArr = Js.Dict.get(columnFilter, "s_no")->Belt.Option.getWithDefault([])
+  let sNoArr = Dict.get(columnFilter, "s_no")->Belt.Option.getWithDefault([])
   // filtering for SNO
   let nullableRows = filteredData->Array.mapWithIndex((nullableItem, index) => {
     let actualRows = switch nullableItem->Js.Nullable.toOption {
@@ -767,7 +767,7 @@ let make = (
       noScrollbar || (tableLocalFilter && rows->Array.length <= 5 && frozenUpto->Belt.Option.isNone)
 
     let scrollBarClass =
-      isFilterOpen->Js.Dict.values->Array.reduce(false, (acc, item) => item || acc)
+      isFilterOpen->Dict.valuesToArray->Array.reduce(false, (acc, item) => item || acc)
         ? ""
         : `${isMinHeightRequired ? noScrollbar ? "" : "overflow-x-scroll" : "overflow-scroll"}`
     let loadedTable =

@@ -295,7 +295,7 @@ let make = () => {
   React.useEffect1(() => {
     let defaultJsonOnNewConnector =
       [("profile_id", activeBusinessProfile.profile_id->Js.Json.string)]
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
       ->Js.Json.object_
     setInitialValues(_ => defaultJsonOnNewConnector)
     None

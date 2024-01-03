@@ -103,7 +103,7 @@ let make = (
             let mimeType = value["type"]
             let fileFormat = Js.String2.concat(
               ".",
-              Js.Array2.pop(filename->Js.String2.split("."))->Belt.Option.getWithDefault(""),
+              Array.pop(filename->Js.String2.split("."))->Belt.Option.getWithDefault(""),
             )
             let fileTypeArr = fileType->Js.String2.split(",")
             let isCorrectFileFormat =
@@ -261,7 +261,7 @@ let make = (
             className={pointerDisable
               ? "flex items-center gap-4 flex-1 pointer-events-none"
               : "flex items-center gap-4 flex-1"}>
-            {switch fileName->Js.String2.split(".")->Js.Array2.pop->Belt.Option.getWithDefault("") {
+            {switch fileName->Js.String2.split(".")->Array.pop->Belt.Option.getWithDefault("") {
             | "pdf" => <img src={`/icons/paIcons/pdfIcon.svg`} />
             | "csv" => <img src={`/icons/paIcons/csvIcon.svg`} />
             | _ => React.null

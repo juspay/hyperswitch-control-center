@@ -136,7 +136,7 @@ module TableWrapper = {
           Some((prefix, value))
         }
       })
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
     }, [getAllFilter])
 
     let allColumns = allColumns->Belt.Option.getWithDefault([])
@@ -171,7 +171,7 @@ module TableWrapper = {
         let (key, value) = entries
         filterKeys->Array.includes(key) ? Some((key, value)) : None
       })
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
       ->Js.Json.object_
       ->Some
     }, [topFiltersToSearchParam])
@@ -193,7 +193,7 @@ module TableWrapper = {
       keys
       ->Belt.Option.getWithDefault([])
       ->Array.map(key => {
-        dict->Js.Dict.get(key)
+        dict->Dict.get(key)
       })
       ->Array.joinWith("")
     }
@@ -215,7 +215,7 @@ module TableWrapper = {
           if dataKey === weekklyDataKey {
             cols->Array.forEach(
               obj => {
-                switch weekklyDataDict->Js.Dict.get(obj.refKey) {
+                switch weekklyDataDict->Dict.get(obj.refKey) {
                 | Some(val) => dataDict->Dict.set(obj.newKey, val)
                 | _ => ()
                 }
@@ -340,7 +340,7 @@ module TableWrapper = {
       [
         ("startTime", startTimeFromUrl->Js.Json.string),
         ("endTime", endTimeFromUrl->Js.Json.string),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
 
     let filters = filterValueFromUrl->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
 
@@ -349,7 +349,7 @@ module TableWrapper = {
         ("timeRange", timeRange->Js.Json.object_),
         ("filters", filters),
         ("source", "BATCH"->Js.Json.string),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
     let dict =
       [
         (
@@ -357,7 +357,7 @@ module TableWrapper = {
           activeTab->Belt.Option.getWithDefault([])->Array.map(Js.Json.string)->Js.Json.array,
         ),
         ("filter", defaultFilters->Js.Json.object_),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
 
     setDefaultFilter(._ => dict->Js.Json.object_->Js.Json.stringify)
 
@@ -434,7 +434,7 @@ module TabDetails = {
         ("browser_name", "browser"),
         ("component", "checkout_platform"),
         ("platform", "customer_device"),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
     | _ => Dict.make()
     }
 
@@ -564,7 +564,7 @@ let make = (
           ->Dict.toArray
           ->Belt.Array.keepMap(item => {
             let (key, _) = item
-            switch dict->Js.Dict.get(key) {
+            switch dict->Dict.get(key) {
             | Some(_) => None
             | None => Some(item)
             }
@@ -582,7 +582,7 @@ let make = (
             }
           })
 
-        updateExistingKeys(Array.concat(prevDictArr, currentDict)->Js.Dict.fromArray)
+        updateExistingKeys(Array.concat(prevDictArr, currentDict)->Dict.fromArray)
       }
     }
   }, [updateExistingKeys])
@@ -660,7 +660,7 @@ let make = (
               filteredDims->Array.includes(dim)->not
             })
             ->Js.Json.array
-          [("queryData", queryData)]->Js.Dict.fromArray->Js.Json.object_
+          [("queryData", queryData)]->Dict.fromArray->Js.Json.object_
         }
       | _ => filterData
       }

@@ -544,7 +544,7 @@ let sortAtom: Recoil.recoilAtom<Js.Dict.t<sortOb>> = Recoil.atom(. "sortAtom", D
 
 let useSortedObj = (title: string, defaultSort) => {
   let (dict, setDict) = Recoil.useRecoilState(sortAtom)
-  let filters = Js.Dict.get(dict, title)
+  let filters = Dict.get(dict, title)
 
   let (sortedObj, setSortedObj) = React.useState(_ => defaultSort)
   React.useEffect0(() => {
@@ -577,7 +577,7 @@ let useSortedObj = (title: string, defaultSort) => {
       }
 
       setDict(.dict => {
-        let nDict = Js.Dict.fromArray(Dict.toArray(dict))
+        let nDict = Dict.fromArray(Dict.toArray(dict))
         Dict.set(nDict, title, sortOb)
         nDict
       })
@@ -609,9 +609,9 @@ let useSortArray = () => {
         let item2 = i2->Js.Json.stringifyAny->Belt.Option.getWithDefault("")->LogicUtils.safeParse
         // flatten items and get data
 
-        let val1 = item1->Js.Json.decodeObject->Belt.Option.flatMap(dict => dict->Js.Dict.get(key))
+        let val1 = item1->Js.Json.decodeObject->Belt.Option.flatMap(dict => dict->Dict.get(key))
 
-        let val2 = item2->Js.Json.decodeObject->Belt.Option.flatMap(dict => dict->Js.Dict.get(key))
+        let val2 = item2->Js.Json.decodeObject->Belt.Option.flatMap(dict => dict->Dict.get(key))
 
         let value1 = getValue(val1)
         let value2 = getValue(val2)
@@ -714,7 +714,7 @@ let make = (
   let setColumnFilter = React.useMemo1(() => {
     (filterKey, filterValue: array<Js.Json.t>) => {
       setColumnFilterOrig(oldFitlers => {
-        let newObj = oldFitlers->Dict.toArray->Js.Dict.fromArray
+        let newObj = oldFitlers->Dict.toArray->Dict.fromArray
         let filterValue = filterValue->Array.filter(
           item => {
             let updatedItem = item->Js.String.make
@@ -730,7 +730,7 @@ let make = (
               key !== filterKey
             },
           )
-          ->Js.Dict.fromArray
+          ->Dict.fromArray
         } else {
           Dict.set(newObj, filterKey, filterValue)
           newObj
@@ -832,7 +832,7 @@ let make = (
                     | StartEndDate(_) | InputField(_) | TrimmedText(_) | DropDown(_) =>
                       convertStrCellToFloat(dataType, "")
                     }
-                    switch dictArrObj->Js.Dict.get(key) {
+                    switch dictArrObj->Dict.get(key) {
                     | Some(arr) => Dict.set(dictArrObj, key, Belt.Array.concat(arr, [value]))
                     | None => Dict.set(dictArrObj, key, [value])
                     }
@@ -843,7 +843,7 @@ let make = (
 
           | None => ()
           }
-          let filterValueArray = dictArrObj->Js.Dict.get(key)->Belt.Option.getWithDefault([])
+          let filterValueArray = dictArrObj->Dict.get(key)->Belt.Option.getWithDefault([])
           switch dataType {
           | DropDown => Table.DropDownFilter(key, filterValueArray) // TextDropDownColumn
           | LabelType | TextType => Table.TextFilter(key)
@@ -937,7 +937,7 @@ let make = (
     }
     None
   }, [selectAllCheckBox])
-  let sNoArr = Js.Dict.get(columnFilter, "s_no")->Belt.Option.getWithDefault([])
+  let sNoArr = Dict.get(columnFilter, "s_no")->Belt.Option.getWithDefault([])
   // filtering for SNO
   let rows =
     filteredData

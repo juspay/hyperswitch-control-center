@@ -175,10 +175,10 @@ let make = (
   )
 
   let currentCustomFilterValue =
-    filterValue->Js.Dict.get(customFilterKey)->Belt.Option.getWithDefault("")
+    filterValue->Dict.get(customFilterKey)->Belt.Option.getWithDefault("")
 
   let setCustomFilter = customFilter => {
-    updateExistingKeys(Js.Dict.fromArray([(customFilterKey, customFilter)]))
+    updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
   }
 
   let customFilters = if customFilterKey !== "" {

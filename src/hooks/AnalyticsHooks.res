@@ -40,7 +40,7 @@ let useGetFiltersData = () => {
           uri,
           ~method_=method,
           ~bodyStr=filterBody,
-          ~headers=[("QueryType", "Filter")]->Js.Dict.fromArray,
+          ~headers=[("QueryType", "Filter")]->Dict.fromArray,
           (),
         )
         ->addLogsAroundFetch(~logTitle="Filter Data Api")

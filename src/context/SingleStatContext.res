@@ -70,7 +70,7 @@ let make = (
         Some((prefix, value))
       }
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
   }, [getAllFilter])
 
   let (topFiltersToSearchParam, customFilter, modeValue) = React.useMemo1(() => {
@@ -111,7 +111,7 @@ let make = (
       let (key, value) = entries
       filterKeys->Array.includes(key) ? Some((key, value)) : None
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
     ->Some
   }, [topFiltersToSearchParam])
@@ -130,7 +130,7 @@ let make = (
       let updatedMetrics = metrics->metrixMapper
       (updatedMetrics, Loading)
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
 
   let initialValueLoader =
     dataFetcherObj
@@ -139,7 +139,7 @@ let make = (
       let updatedMetrics = metrics->metrixMapper
       (updatedMetrics, AnalyticsUtils.Shimmer)
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
   let (singleStatStateData, setSingleStatStateData) = React.useState(_ => initialValue)
   let (singleStatTimeSeries, setSingleStatTimeSeries) = React.useState(_ => initialValue)
   let (singleStatStateDataHistoric, setSingleStatStateDataHistoric) = React.useState(_ =>
@@ -201,7 +201,7 @@ let make = (
         let updatedMetrics = metrics->metrixMapper
         setIndividualSingleStatTime(
           prev => {
-            let individualTime = prev->Dict.toArray->Js.Dict.fromArray
+            let individualTime = prev->Dict.toArray->Dict.fromArray
             individualTime->Dict.set(index->Belt.Int.toString, Js.Date.now())
             individualTime
           },
@@ -229,11 +229,11 @@ let make = (
             prevDict
           },
         )
-        let timeObj = Js.Dict.fromArray([
+        let timeObj = Dict.fromArray([
           ("start", filterConfigCurrent.startTime->Js.Json.string),
           ("end", filterConfigCurrent.endTime->Js.Json.string),
         ])
-        let historicTimeObj = Js.Dict.fromArray([
+        let historicTimeObj = Dict.fromArray([
           ("start", filterConfigHistoric.startTime->Js.Json.string),
           ("end", filterConfigHistoric.endTime->Js.Json.string),
         ])
@@ -256,7 +256,7 @@ let make = (
               (),
             )->Js.Json.stringify,
             ~authToken=parentToken,
-            ~headers=[("QueryType", "SingleStatHistoric")]->Js.Dict.fromArray,
+            ~headers=[("QueryType", "SingleStatHistoric")]->Dict.fromArray,
             (),
           )
           ->addLogsAroundFetch(
@@ -312,7 +312,7 @@ let make = (
               (),
             )->Js.Json.stringify,
             ~authToken=parentToken,
-            ~headers=[("QueryType", "SingleStat")]->Js.Dict.fromArray,
+            ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
             (),
           )
           ->addLogsAroundFetch(~logTitle=`SingleStat data for metrics ${metrics->metrixMapper}`)
@@ -367,7 +367,7 @@ let make = (
               (),
             )->Js.Json.stringify,
             ~authToken=parentToken,
-            ~headers=[("QueryType", "SingleStat Time Series")]->Js.Dict.fromArray,
+            ~headers=[("QueryType", "SingleStat Time Series")]->Dict.fromArray,
             (),
           )
           ->addLogsAroundFetch(
@@ -386,7 +386,7 @@ let make = (
                       (key === `${urlConfig.timeColumn}_time` ? "time" : key, value)
                     },
                   )
-                  ->Js.Dict.fromArray
+                  ->Dict.fromArray
                   ->Js.Json.object_
                 },
               )
@@ -439,12 +439,12 @@ let make = (
             )
             setIndividualSingleStatTime(
               prev => {
-                let individualTime = prev->Dict.toArray->Js.Dict.fromArray
+                let individualTime = prev->Dict.toArray->Dict.fromArray
                 individualTime->Dict.set(
                   index->Belt.Int.toString,
                   Js.Date.now() -.
                   individualTime
-                  ->Js.Dict.get(index->Belt.Int.toString)
+                  ->Dict.get(index->Belt.Int.toString)
                   ->Belt.Option.getWithDefault(Js.Date.now()),
                 )
                 individualTime

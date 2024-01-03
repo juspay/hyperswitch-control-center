@@ -18,10 +18,10 @@ module EntityData = {
     <div className="flex flex-1 flex-col overflow-scroll  pl-1 pr-2">
       {detailsKeyList
       ->Array.mapWithIndex((key: string, idx) => {
-        switch Js.Dict.get(syncData, key) {
+        switch Dict.get(syncData, key) {
         | Some(json) => <div key={idx->string_of_int}> {entity.detailsPageLayout(json, key)} </div>
         | _ =>
-          switch Js.Dict.get(dictData, key) {
+          switch Dict.get(dictData, key) {
           | Some(json) =>
             <div key={idx->string_of_int}> {entity.detailsPageLayout(json, key)} </div>
           | _ => React.null

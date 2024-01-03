@@ -135,7 +135,7 @@ module SystemMetricsInsights = {
           ("status_code", [200.0->Js.Json.number]->Js.Json.array),
           ("flow_type", ["Payment"->Js.Json.string]->Js.Json.array),
         ]
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_
 
       [
@@ -176,7 +176,7 @@ module SystemMetricsInsights = {
     }
 
     let metrics = ["latency"]->Array.map(key => {
-      [("name", key->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
+      [("name", key->Js.Json.string)]->Dict.fromArray->Js.Json.object_
     })
 
     let singleStatEntity = getStatEntity(metrics)
@@ -212,7 +212,7 @@ module OverviewInfo = {
         let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
         let _ = await updateDetails(
           generateSampleDataUrl,
-          [("record", 50.0->Js.Json.number)]->Js.Dict.fromArray->Js.Json.object_,
+          [("record", 50.0->Js.Json.number)]->Dict.fromArray->Js.Json.object_,
           Post,
         )
         showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess, ())

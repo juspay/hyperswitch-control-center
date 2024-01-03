@@ -18,7 +18,7 @@ let getFinalDict = (
   switch filterJson->Js.Json.decodeObject {
   | Some(dict) => {
       // Hack for admin service config entity
-      let allowedDefaultKeys = if dict->Js.Dict.get("sourceObject")->Js.Option.isSome {
+      let allowedDefaultKeys = if dict->Dict.get("sourceObject")->Js.Option.isSome {
         Dict.keysToArray(dict)
       } else {
         defaultKeysAllowed
@@ -142,7 +142,7 @@ let getFinalDict = (
       }
     }
     if isEulerOrderEntity {
-      let arr = if filterDict->Js.Dict.get("customerId")->Js.Option.isSome {
+      let arr = if filterDict->Dict.get("customerId")->Js.Option.isSome {
         [["date_created", "DESC"]->Js.Json.stringArray]
       } else {
         []
@@ -391,7 +391,7 @@ let applyFilters = (
   ) {
     (
       `${existingFilterUrl}&${currentFilterUrl}`,
-      Js.Dict.fromArray(
+      Dict.fromArray(
         Array.concat(existingFilterDict->Dict.toArray, currentFilterDict->Dict.toArray),
       ),
     )
@@ -419,7 +419,7 @@ let applyFilters = (
           let (key, value) = item
           (key, getStrFromJson(key, value))
         })
-        ->Js.Dict.fromArray,
+        ->Dict.fromArray,
       )
     | None => RescriptReactRouter.push(finalCompleteUrl)
     }

@@ -23,7 +23,7 @@ module HyperSwitchEntryComponent = {
           "loaded": () => {
             let mixpanelUserInfo =
               [("name", email->Js.Json.string), ("merchantName", name->Js.Json.string)]
-              ->Js.Dict.fromArray
+              ->Dict.fromArray
               ->Js.Json.object_
 
             let userId = MixPanel.getDistinctId()

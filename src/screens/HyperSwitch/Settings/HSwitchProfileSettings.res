@@ -24,7 +24,7 @@ module MerchantDetailsSection = {
               "merchant_name",
               merchantInfoDict->LogicUtils.getString("merchant_name", "")->Js.Json.string,
             ),
-          ]->Js.Dict.fromArray
+          ]->Dict.fromArray
         setMerchantInfo(_ => requiredInfo)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {

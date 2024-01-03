@@ -24,7 +24,7 @@ let make = (
       | Js.Json.JSONObject(jsonDict) => {
           let payloadArr =
             jsonDict
-            ->Js.Dict.get(dataKey)
+            ->Dict.get(dataKey)
             ->Belt.Option.flatMap(Js.Json.decodeArray)
             ->Belt.Option.map(x => x->Belt.Array.keepMap(Js.Json.decodeString))
             ->Belt.Option.getWithDefault([])

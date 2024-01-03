@@ -81,7 +81,7 @@ let make = () => {
 
   let initialValues = React.useMemo0(() => {
     [("roleType", ["merchant_view_only"->Js.Json.string]->Js.Json.array)]
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
   })
 
@@ -110,7 +110,7 @@ let make = () => {
           ("name", ele->getNameFromEmail->Js.Json.string),
           ("role_id", role->Js.Json.string),
         ]
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_
       let _ = inviteUserReq(body, index)
     })
@@ -161,7 +161,7 @@ let make = () => {
   }
 
   let getRoleInfo = permissionInfoValue => {
-    let roleTypeValue = roleDict->Js.Dict.get(roleTypeValue)
+    let roleTypeValue = roleDict->Dict.get(roleTypeValue)
     if roleTypeValue->Belt.Option.isNone {
       getRoleForUser(permissionInfoValue)->ignore
     } else {

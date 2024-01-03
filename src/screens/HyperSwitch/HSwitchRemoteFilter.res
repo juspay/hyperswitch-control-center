@@ -19,7 +19,7 @@ let parseUrl = url => {
     let val = arr->Belt.Array.sliceToEnd(1)->Array.joinWith("=")
     key === "" || val === "" ? None : Some((key, val))
   })
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
 }
 
 let formateDateString = date => {
@@ -116,7 +116,7 @@ let useSetInitialFilters = (
         (endTimeFilterKey, defaultDate.end_time),
       ]->Belt.Array.forEach(item => {
         let (key, defaultValue) = item
-        switch inititalSearchParam->Js.Dict.get(key) {
+        switch inititalSearchParam->Dict.get(key) {
         | Some(_) => ()
         | None => inititalSearchParam->Dict.set(key, defaultValue)
         }
@@ -255,7 +255,7 @@ module RemoteTableFilters = {
       [
         (startTimeFilterKey, startTimeVal->Js.Json.string),
         (endTimeFilterKey, endTimeVal->Js.Json.string),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
     }, (startTimeVal, endTimeVal, filterValue))
 
     let filterDataJson = filterUrl->getFilterData(filterBody)

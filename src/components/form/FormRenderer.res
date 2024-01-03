@@ -547,7 +547,7 @@ module FormError = {
     | Some(errorsJson) =>
       switch errorsJson->Js.Json.decodeObject {
       | Some(dict) =>
-        let errStr = switch Js.Dict.get(dict, "FORM_ERROR") {
+        let errStr = switch Dict.get(dict, "FORM_ERROR") {
         | Some(err) => LogicUtils.getStringFromJson(err, "")
         | None => "Error occurred on submit"
         }
@@ -594,7 +594,7 @@ module SubmitButton = {
     ~textWeight=?,
     ~customHeightClass=?,
   ) => {
-    let dict = Js.Dict.empty()
+    let dict = Dict.make()
     [
       "hasSubmitErrors",
       "hasValidationErrors",

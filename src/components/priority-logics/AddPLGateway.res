@@ -72,7 +72,7 @@ let make = (
     gatewaysJsonArr->Array.some(json =>
       json
       ->Js.Json.decodeObject
-      ->Belt.Option.flatMap(Js.Dict.get(_, "disableFallback"))
+      ->Belt.Option.flatMap(Dict.get(_, "disableFallback"))
       ->Belt.Option.flatMap(Js.Json.decodeBoolean)
       ->Belt.Option.getWithDefault(false)
     )

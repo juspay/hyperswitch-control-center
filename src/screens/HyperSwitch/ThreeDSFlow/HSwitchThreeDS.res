@@ -117,7 +117,7 @@ let make = () => {
     try {
       let wasmResult = await Window.connectorWasmInit()
       let fetchedWasm =
-        wasmResult->LogicUtils.getDictFromJsonObject->LogicUtils.getObj("wasm", Js.Dict.empty())
+        wasmResult->LogicUtils.getDictFromJsonObject->LogicUtils.getObj("wasm", Dict.make())
       setWasm(_ => Some(fetchedWasm->toWasm))
     } catch {
     | _ => ()
@@ -136,7 +136,7 @@ let make = () => {
           ("name", responseDict->LogicUtils.getString("name", "")->Js.Json.string),
           ("description", responseDict->LogicUtils.getString("description", "")->Js.Json.string),
           ("algorithm", programValue->Js.Json.object_),
-        ]->Js.Dict.fromArray
+        ]->Dict.fromArray
 
       setInitialRule(_ => Some(intitialValue))
     } catch {
@@ -175,7 +175,7 @@ let make = () => {
     let searchParams = url.search
     let filtersFromUrl =
       LogicUtils.getDictFromUrlSearchParams(searchParams)
-      ->Js.Dict.get("type")
+      ->Dict.get("type")
       ->Belt.Option.getWithDefault("")
     setPageView(_ => filtersFromUrl->pageStateMapper)
     None
@@ -208,7 +208,7 @@ let make = () => {
 
     RoutingUtils.validateNameAndDescription(~dict, ~errors)
 
-    switch dict->Js.Dict.get("algorithm")->Belt.Option.flatMap(Js.Json.decodeObject) {
+    switch dict->Dict.get("algorithm")->Belt.Option.flatMap(Js.Json.decodeObject) {
     | Some(jsonDict) => {
         let index = 1
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])

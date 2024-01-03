@@ -56,7 +56,7 @@ let constructApplePayMetadata = (
   dict
   ->Dict.set(
     "apple_pay_combined",
-    Js.Dict.fromArray([
+    Dict.fromArray([
       ((integrationType: applePayIntegrationType :> string), applePayDict->Js.Json.object_),
     ])->Js.Json.object_,
   )

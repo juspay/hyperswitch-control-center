@@ -8,7 +8,7 @@ let make = () => {
     "payment_count",
     "payment_success_count",
   ]->Array.map(key => {
-    [("name", key->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
+    [("name", key->Js.Json.string)]->Dict.fromArray->Js.Json.object_
   })
 
   let singleStatEntity = PaymentOverviewUtils.getSingleStatEntity(metrics)

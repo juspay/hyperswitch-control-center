@@ -155,7 +155,7 @@ let make = (
                 let errorLines = []
                 jsonToarr(res)->Array.forEachWithIndex((item, i) => {
                   item
-                  ->Js.Dict.values
+                  ->Dict.valuesToArray
                   ->Array.forEach(value => {
                     if Js.Re.test_(regex, value) {
                       let _ = Array.push(errorLines, i)

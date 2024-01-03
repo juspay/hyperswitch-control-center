@@ -58,7 +58,7 @@ module BluredTableComponent = {
         ("status", "####"->Js.Json.string),
         ("amount", "####"->Js.Json.string),
         ("amount_capturable", "####"->Js.Json.string),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
 
     let dummyTableValue = Belt.Array.make(5, dummyTableValueDict)
 

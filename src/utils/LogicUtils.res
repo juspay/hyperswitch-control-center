@@ -112,7 +112,7 @@ let getNameFromEmail = email => {
 }
 
 let getOptionString = (dict, key) => {
-  dict->Js.Dict.get(key)->Belt.Option.flatMap(Js.Json.decodeString)
+  dict->Dict.get(key)->Belt.Option.flatMap(Js.Json.decodeString)
 }
 
 let getString = (dict, key, default) => {
@@ -132,7 +132,7 @@ let getArrayFromJson = (json: Js.Json.t, default) => {
 }
 
 let getOptionalArrayFromDict = (dict, key) => {
-  dict->Js.Dict.get(key)->Belt.Option.flatMap(Js.Json.decodeArray)
+  dict->Dict.get(key)->Belt.Option.flatMap(Js.Json.decodeArray)
 }
 
 let getArrayFromDict = (dict, key, default) => {
@@ -172,13 +172,13 @@ let getOptionStrArrayFromJson = json => {
 
 let getStrArrayFromDict = (dict, key, default) => {
   dict
-  ->Js.Dict.get(key)
+  ->Dict.get(key)
   ->Belt.Option.flatMap(getOptionStrArrayFromJson)
   ->Belt.Option.getWithDefault(default)
 }
 
 let getOptionStrArrayFromDict = (dict, key) => {
-  dict->Js.Dict.get(key)->Belt.Option.flatMap(getOptionStrArrayFromJson)
+  dict->Dict.get(key)->Belt.Option.flatMap(getOptionStrArrayFromJson)
 }
 
 let getNonEmptyString = str => {
@@ -198,7 +198,7 @@ let getNonEmptyArray = arr => {
 }
 
 let getOptionBool = (dict, key) => {
-  dict->Js.Dict.get(key)->Belt.Option.flatMap(Js.Json.decodeBoolean)
+  dict->Dict.get(key)->Belt.Option.flatMap(Js.Json.decodeBoolean)
 }
 
 let getBool = (dict, key, default) => {
@@ -206,7 +206,7 @@ let getBool = (dict, key, default) => {
 }
 
 let getJsonObjectFromDict = (dict, key) => {
-  dict->Js.Dict.get(key)->Belt.Option.getWithDefault(Js.Json.object_(Dict.make()))
+  dict->Dict.get(key)->Belt.Option.getWithDefault(Js.Json.object_(Dict.make()))
 }
 
 let getBoolFromString = (boolString, default: bool) => {
@@ -274,20 +274,20 @@ let getFloatFromJson = (json, default) => {
 }
 
 let getInt = (dict, key, default) => {
-  switch Js.Dict.get(dict, key) {
+  switch Dict.get(dict, key) {
   | Some(value) => getIntFromJson(value, default)
   | None => default
   }
 }
 let getOptionInt = (dict, key) => {
-  switch Js.Dict.get(dict, key) {
+  switch Dict.get(dict, key) {
   | Some(value) => getOptionIntFromJson(value)
   | None => None
   }
 }
 
 let getOptionFloat = (dict, key) => {
-  switch Js.Dict.get(dict, key) {
+  switch Dict.get(dict, key) {
   | Some(value) => getOptionFloatFromJson(value)
   | None => None
   }
@@ -295,14 +295,14 @@ let getOptionFloat = (dict, key) => {
 
 let getFloat = (dict, key, default) => {
   dict
-  ->Js.Dict.get(key)
+  ->Dict.get(key)
   ->Belt.Option.map(json => getFloatFromJson(json, default))
   ->Belt.Option.getWithDefault(default)
 }
 
 let getObj = (dict, key, default) => {
   dict
-  ->Js.Dict.get(key)
+  ->Dict.get(key)
   ->Belt.Option.flatMap(Js.Json.decodeObject)
   ->Belt.Option.getWithDefault(default)
 }
@@ -320,7 +320,7 @@ let getDictFromUrlSearchParams = searchParams => {
     | _ => None
     }
   })
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
 }
 let setOptionString = (dict, key, optionStr) =>
   optionStr->Belt.Option.mapWithDefault((), str => dict->Dict.set(key, str->Js.Json.string))
@@ -501,7 +501,7 @@ let stringReplaceAll = (str, old, new) => {
 }
 
 let getUniqueArray = (arr: array<'t>) => {
-  arr->Array.map(item => (item, ""))->Js.Dict.fromArray->Dict.keysToArray
+  arr->Array.map(item => (item, ""))->Dict.fromArray->Dict.keysToArray
 }
 
 let getFirstLetterCaps = (str, ~splitBy="-", ()) => {
@@ -575,12 +575,12 @@ let dataMerge = (~dataArr: array<array<Js.Json.t>>, ~dictKey: array<string>) => 
 
       finalData->Dict.set(
         dictKey,
-        existingData->Array.concat(data)->Js.Dict.fromArray->Js.Json.object_,
+        existingData->Array.concat(data)->Dict.fromArray->Js.Json.object_,
       )
     })
   })
 
-  finalData->Js.Dict.values
+  finalData->Dict.valuesToArray
 }
 
 let getJsonFromStr = data => {
@@ -606,7 +606,7 @@ let compareLogic = (firstValue, secondValue) => {
   }
 }
 
-let getJsonFromArrayOfJson = arr => arr->Js.Dict.fromArray->Js.Json.object_
+let getJsonFromArrayOfJson = arr => arr->Dict.fromArray->Js.Json.object_
 
 let getTitle = name => {
   name

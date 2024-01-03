@@ -47,7 +47,7 @@ let filterBySearchText = (actualData, value) => {
 
     let isMatched =
       dict
-      ->Js.Dict.values
+      ->Dict.valuesToArray
       ->Array.find(val => {
         val->Js.String2.toLowerCase->Js.String2.includes(searchText)
       })
@@ -94,7 +94,7 @@ let getFilterDict = (~url, ~prefix, ~excludeKeys=[], ~includeKeys=[], ()) => {
         None
       }
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
   } else {
     Dict.make()
   }
@@ -116,10 +116,7 @@ module DefaultView = {
 
     let update = id => {
       let bodyStr =
-        [("isDefault", true->Js.Json.boolean)]
-        ->Js.Dict.fromArray
-        ->Js.Json.object_
-        ->Js.Json.stringify
+        [("isDefault", true->Js.Json.boolean)]->Dict.fromArray->Js.Json.object_->Js.Json.stringify
 
       updateSaveView(~bodyStr, ~id)
       ->then(response => {
@@ -147,7 +144,7 @@ module DefaultView = {
       if isDefaultSaveViewPresent {
         let bodyStr =
           [("isDefault", false->Js.Json.boolean)]
-          ->Js.Dict.fromArray
+          ->Dict.fromArray
           ->Js.Json.object_
           ->Js.Json.stringify
         updateSaveView(~bodyStr, ~id=defaultSaveView.id)

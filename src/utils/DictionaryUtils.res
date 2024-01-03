@@ -5,7 +5,7 @@ let deleteKey = (dictionary: Js.Dict.t<'a>, key: string) => {
     let (filterKey, _) = entry
     key !== filterKey ? Some(entry) : None
   })
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
 }
 
 let deleteKeys = (dictionary: Js.Dict.t<'a>, keys: array<string>) => {
@@ -16,13 +16,13 @@ let deleteKeys = (dictionary: Js.Dict.t<'a>, keys: array<string>) => {
       let (filterKey, _) = entry
       keys->Array.includes(filterKey) ? None : Some(entry)
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
 
   updatedDict
 }
 
 let appnedDataToKey = (dict, key, value) => {
-  let updatedValue = switch dict->Js.Dict.get(key) {
+  let updatedValue = switch dict->Dict.get(key) {
   | Some(val) => Belt.Array.concat(val, [value])
   | None => [value]
   }
@@ -34,7 +34,7 @@ let mergeDicts = (arrDict: array<Js.Dict.t<'a>>) => {
   ->Array.reduce([], (acc, dict) => {
     acc->Array.concat(dict->Dict.toArray)
   })
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
 }
 
 let equalDicts = (dictionary1, dictionary2) => {
@@ -43,14 +43,14 @@ let equalDicts = (dictionary1, dictionary2) => {
   ->Dict.toArray
   ->Array.find(item => {
     let (key, value) = item
-    dictionary2->Js.Dict.get(key) !== Some(value)
+    dictionary2->Dict.get(key) !== Some(value)
   })
   ->Belt.Option.isNone &&
     dictionary2
     ->Dict.toArray
     ->Array.find(item => {
       let (key, value) = item
-      dictionary1->Js.Dict.get(key) !== Some(value)
+      dictionary1->Dict.get(key) !== Some(value)
     })
     ->Belt.Option.isNone
 }
@@ -105,5 +105,5 @@ let checkEqualJsonDicts = (~checkKeys, ~ignoreKeys, dictionary1, dictionary2) =>
 }
 
 let copyOfDict = dict => {
-  dict->Dict.toArray->Array.copy->Js.Dict.fromArray
+  dict->Dict.toArray->Array.copy->Dict.fromArray
 }

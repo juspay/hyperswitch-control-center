@@ -25,7 +25,7 @@ let convertTimeZone = (date, timezoneString) => {
 let isoStringToCustomTimezone = isoString => {
   let timezone = "IST"
 
-  let timezoneString = switch Js.Dict.get(timezoneLocation, timezone) {
+  let timezoneString = switch Dict.get(timezoneLocation, timezone) {
   | Some(d) => d
   | None => "Asia/Kolkata"
   }
@@ -52,7 +52,7 @@ let isoStringToCustomTimezone = isoString => {
 let customTimezoneToISOString = (year, month, day, hours, minutes, seconds, _timezone) => {
   let timezone = "IST"
 
-  let timezoneString = switch Js.Dict.get(timezoneOffset, timezone) {
+  let timezoneString = switch Dict.get(timezoneOffset, timezone) {
   | Some(d) => d
   | None => "+05:30"
   }

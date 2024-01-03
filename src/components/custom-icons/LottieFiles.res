@@ -18,7 +18,7 @@ let useLottieJson = lottieFileName => {
   let prefix = `${Window.Location.origin}${uriPrefix}`
 
   React.useEffect1(() => {
-    switch lottieDict->Js.Dict.get(lottieFileName) {
+    switch lottieDict->Dict.get(lottieFileName) {
     | Some(val) =>
       switch val {
       | Loaded(json) => setlottieJson(_ => json)

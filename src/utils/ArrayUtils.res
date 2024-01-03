@@ -3,6 +3,6 @@ let getUniqueStrArray = (arr: array<string>) => {
   ->Array.map(item => {
     (item, 0)
   })
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Dict.keysToArray
 }

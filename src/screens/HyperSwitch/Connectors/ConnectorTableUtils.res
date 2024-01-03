@@ -85,7 +85,7 @@ let getPaymentMethodsEnabled: Js.Dict.t<Js.Json.t> => paymentMethodEnabledType =
   {
     payment_method: dict->getString("payment_method", ""),
     payment_method_types: dict
-    ->Js.Dict.get("payment_method_types")
+    ->Dict.get("payment_method_types")
     ->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
     ->getArrayDataFromJson(getPaymentMethodTypes),
   }
@@ -113,7 +113,7 @@ let getProcessorPayloadType = dict => {
     test_mode: dict->getBool("test_mode", true),
     disabled: dict->getBool("disabled", true),
     payment_methods_enabled: dict
-    ->Js.Dict.get("payment_methods_enabled")
+    ->Dict.get("payment_methods_enabled")
     ->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
     ->getArrayDataFromJson(getPaymentMethodsEnabled),
     profile_id: dict->getString("profile_id", ""),

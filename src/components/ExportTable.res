@@ -32,9 +32,7 @@ let make = (
         initialValues
         ->Array.map(col => {
           let str =
-            Js.Dict.get(allRowsDict, col)
-            ->Belt.Option.getWithDefault(Js.Json.null)
-            ->Js.Json.stringify
+            Dict.get(allRowsDict, col)->Belt.Option.getWithDefault(Js.Json.null)->Js.Json.stringify
 
           let strArr = str->Js.String2.split(".")
 

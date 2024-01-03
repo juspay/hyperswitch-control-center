@@ -44,7 +44,7 @@ let buildSurchargePayloadBody = values => {
     "algorithm": {
       "defaultSelection": algorithmDict->getJsonObjectFromDict("defaultSelection"),
       "rules": modifiedRules,
-      "metadata": Js.Dict.empty()->Js.Json.object_,
+      "metadata": Dict.make()->Js.Json.object_,
     },
     "merchant_surcharge_configs": {
       "show_surcharge_breakup_screen": true,

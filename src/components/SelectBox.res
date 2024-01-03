@@ -1627,7 +1627,7 @@ module BaseDropdown = {
       | None =>
         selectBoxRef.current
         ->Js.Nullable.toOption
-        ->Belt.Option.flatMap(elem => elem->getClientRects->toDict->Js.Dict.get("0"))
+        ->Belt.Option.flatMap(elem => elem->getClientRects->toDict->Dict.get("0"))
         ->Belt.Option.flatMap(firstEl => {
           let bottomVacent = windowInnerHeight - firstEl["bottom"]->Belt.Float.toInt > 375
           let topVacent = firstEl["top"]->Belt.Float.toInt > 470

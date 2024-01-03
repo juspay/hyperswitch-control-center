@@ -55,7 +55,7 @@ let make = (~children) => {
   React.useEffect2(() => {
     if urlPathConcationation !== "/" {
       setUserPref(prev => {
-        let currentConfig = prev->Js.Dict.get(username)->Belt.Option.getWithDefault({})
+        let currentConfig = prev->Dict.get(username)->Belt.Option.getWithDefault({})
         let updatedPrev = currentConfig
         let updatedValue = if (
           urlPathConcationation !== updatedPrev.lastVisitedTab->Belt.Option.getWithDefault("")
@@ -76,7 +76,7 @@ let make = (~children) => {
   // UPDATE THE searchParams IN LAST VISITED TAB
   React.useEffect2(() => {
     setUserPref(prev => {
-      let currentConfig = prev->Js.Dict.get(username)->Belt.Option.getWithDefault({})
+      let currentConfig = prev->Dict.get(username)->Belt.Option.getWithDefault({})
       let updatedPrev = currentConfig
       let moduleWisePref = switch updatedPrev {
       | {moduleVisePref} => moduleVisePref
@@ -84,7 +84,7 @@ let make = (~children) => {
       }
       let currentModulePerf =
         moduleWisePref
-        ->Js.Dict.get(urlPathConcationation)
+        ->Dict.get(urlPathConcationation)
         ->Belt.Option.getWithDefault(defaultUserModuleWisePref)
 
       let filteredUrlSearch =
@@ -133,7 +133,7 @@ let make = (~children) => {
 
   let addConfig = (key, value) => {
     setUserPref(prev => {
-      let currentConfig = prev->Js.Dict.get(username)->Belt.Option.getWithDefault({})
+      let currentConfig = prev->Dict.get(username)->Belt.Option.getWithDefault({})
       let updatedPrev = currentConfig
       let moduleWisePref = switch updatedPrev {
       | {moduleVisePref} => moduleVisePref
@@ -141,7 +141,7 @@ let make = (~children) => {
       }
       let currentModulePerf =
         moduleWisePref
-        ->Js.Dict.get(urlPathConcationation)
+        ->Dict.get(urlPathConcationation)
         ->Belt.Option.getWithDefault(defaultUserModuleWisePref)
       let moduleConfig = switch currentModulePerf {
       | {moduleConfig} => moduleConfig
@@ -161,14 +161,14 @@ let make = (~children) => {
   }
 
   let getConfig = key => {
-    let currentConfig = userPref->Js.Dict.get(username)->Belt.Option.getWithDefault({})
+    let currentConfig = userPref->Dict.get(username)->Belt.Option.getWithDefault({})
     let updatedPrev = currentConfig
     switch updatedPrev {
     | {moduleVisePref} =>
       switch moduleVisePref
-      ->Js.Dict.get(urlPathConcationation)
+      ->Dict.get(urlPathConcationation)
       ->Belt.Option.getWithDefault(defaultUserModuleWisePref) {
-      | {moduleConfig} => moduleConfig->Js.Dict.get(key)
+      | {moduleConfig} => moduleConfig->Dict.get(key)
       | _ => None
       }
     | _ => None
@@ -182,12 +182,12 @@ let make = (~children) => {
       let (key, value) = item
       (key, value->userPrefToJson)
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
     ->Js.Json.stringify
 
   let value = React.useMemo4(() => {
-    let currentConfig = userPref->Js.Dict.get(username)->Belt.Option.getWithDefault({})
+    let currentConfig = userPref->Dict.get(username)->Belt.Option.getWithDefault({})
     let updatedPrev = currentConfig
     let lastVisitedTab = switch updatedPrev {
     | {lastVisitedTab} => lastVisitedTab

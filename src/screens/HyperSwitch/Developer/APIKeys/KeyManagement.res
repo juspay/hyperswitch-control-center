@@ -247,7 +247,7 @@ module TableActionsCell = {
         handleCancel: {text: `No, don't delete`, onClick: _ => ()},
       })
     }
-    let initialValues = Js.Dict.fromArray([
+    let initialValues = Dict.fromArray([
       ("name", data.name->Js.Json.string),
       ("description", data.description->Js.Json.string),
     ])

@@ -18,7 +18,7 @@ let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName, 
         ]->Js.Json.array,
       ),
       ("redirect_link", `${link}${redirection}`->Js.Json.string),
-    ]->Js.Dict.fromArray
+    ]->Dict.fromArray
   })
 }
 
@@ -81,7 +81,7 @@ let make = () => {
               [
                 ("elements", [""->Js.Json.string, obj.name->Js.Json.string]->Js.Json.array),
                 ("redirect_link", obj.link->Js.Json.string),
-              ]->Js.Dict.fromArray
+              ]->Dict.fromArray
             acc->Array.push(matchedEle)
           }
           let matchedSearchValues = matchInSearchOption(
@@ -116,7 +116,7 @@ let make = () => {
                           ]->Js.Json.array,
                         ),
                         ("redirect_link", obj.link->Js.Json.string),
-                      ]->Js.Dict.fromArray
+                      ]->Dict.fromArray
                     insideAcc->Array.push(matchedEle)
                   }
                   let matchedSearchValues = matchInSearchOption(
@@ -141,7 +141,7 @@ let make = () => {
               [
                 ("elements", [obj.name->Js.Json.string]->Js.Json.array),
                 ("redirect_link", obj.link->Js.Json.string),
-              ]->Js.Dict.fromArray
+              ]->Dict.fromArray
             acc->Array.push(matchedEle)
           }
 

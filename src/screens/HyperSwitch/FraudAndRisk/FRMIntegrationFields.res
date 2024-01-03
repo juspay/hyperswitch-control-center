@@ -74,7 +74,7 @@ module IntegrationFieldsForm = {
         let key = field.name
         let value =
           valuesFlattenJson
-          ->Js.Dict.get(key)
+          ->Dict.get(key)
           ->Belt.Option.getWithDefault(""->Js.Json.string)
           ->LogicUtils.getStringFromJson("")
 
@@ -237,13 +237,13 @@ let make = (
   let updateMerchantDetails = async () => {
     let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
     let info =
-      [("data", "signifyd"->Js.Json.string), ("type", "single"->Js.Json.string)]->Js.Dict.fromArray
+      [("data", "signifyd"->Js.Json.string), ("type", "single"->Js.Json.string)]->Dict.fromArray
     let body =
       [
         ("frm_routing_algorithm", info->Js.Json.object_),
         ("merchant_id", merchantId->Js.Json.string),
       ]
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
       ->Js.Json.object_
     let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ())
     try {

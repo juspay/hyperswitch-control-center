@@ -431,7 +431,7 @@ let singlestatTimeseriesItemToObjMapper = json => {
 let itemToObjMapper = json => {
   let queryData =
     Js.Json.decodeObject(json)
-    ->Belt.Option.flatMap(dict => Js.Dict.get(dict, "queryData"))
+    ->Belt.Option.flatMap(dict => Dict.get(dict, "queryData"))
     ->Belt.Option.flatMap(Js.Json.decodeArray)
     ->Belt.Option.getWithDefault([])
 
@@ -487,7 +487,7 @@ let timeSeriesObjMapper = json => {
   let finalArr = []
   let queryData =
     Js.Json.decodeObject(json)
-    ->Belt.Option.flatMap(dict => Js.Dict.get(dict, "queryData"))
+    ->Belt.Option.flatMap(dict => Dict.get(dict, "queryData"))
     ->Belt.Option.flatMap(Js.Json.decodeArray)
     ->Belt.Option.getWithDefault([])
 

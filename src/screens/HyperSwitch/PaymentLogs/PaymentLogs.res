@@ -94,7 +94,7 @@ module ApiDetailsComponent = {
     ~logsDataLength,
   ) => {
     let headerStyle = "text-fs-13 font-medium text-grey-700 break-all"
-    let logType = paymentDetailsValue->Js.Dict.get("request_id")->Belt.Option.isSome ? Payment : Sdk
+    let logType = paymentDetailsValue->Dict.get("request_id")->Belt.Option.isSome ? Payment : Sdk
     let apiName = switch logType {
     | Payment => paymentDetailsValue->getString("api_flow", "default value")->camelCaseToTitle
     | Sdk => paymentDetailsValue->getString("event_name", "default value")
@@ -122,7 +122,7 @@ module ApiDetailsComponent = {
         let (key, _) = entry
         filteredKeys->Array.includes(key)->not
       })
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
       ->Js.Json.object_
       ->Js.Json.stringify
     }
@@ -282,11 +282,11 @@ let make = (~paymentId, ~createdAt) => {
           (
             "timeRange",
             [("startTime", startTime->Js.Json.string), ("endTime", endTime->Js.Json.string)]
-            ->Js.Dict.fromArray
+            ->Dict.fromArray
             ->Js.Json.object_,
           ),
         ]
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_
       let sdkLogsArray =
         (await fetchPostDetils(url, body, Post))

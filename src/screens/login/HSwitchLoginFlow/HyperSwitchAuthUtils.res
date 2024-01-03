@@ -82,7 +82,7 @@ let passwordField = FormRenderer.makeFieldInfo(
 
 let getResetpasswordBodyJson = (password, token) =>
   [("password", password->Js.Json.string), ("token", token->Js.Json.string)]
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_
 
 let getEmailPasswordBody = (email, password, country) =>
@@ -91,7 +91,7 @@ let getEmailPasswordBody = (email, password, country) =>
     ("password", password->Js.Json.string),
     ("country", country->Js.Json.string),
   ]
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_
 
 let getEmailBody = (email, ~country=?, ()) => {
@@ -102,7 +102,7 @@ let getEmailBody = (email, ~country=?, ()) => {
   | _ => ()
   }
 
-  fields->Js.Dict.fromArray->Js.Json.object_
+  fields->Dict.fromArray->Js.Json.object_
 }
 
 let parseResponseJson = (~json, ~email) => {

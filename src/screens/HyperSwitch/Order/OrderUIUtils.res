@@ -44,7 +44,7 @@ module GenerateSampleDataButton = {
         let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
         let _ = await updateDetails(
           generateSampleDataUrl,
-          [("record", 50.0->Js.Json.number)]->Js.Dict.fromArray->Js.Json.object_,
+          [("record", 50.0->Js.Json.number)]->Dict.fromArray->Js.Json.object_,
           Post,
         )
         showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess, ())
@@ -229,10 +229,10 @@ let getOrdersList = async (
     let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
-    if data->Array.length === 0 && filterValueJson->Js.Dict.get("payment_id")->Belt.Option.isSome {
+    if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Belt.Option.isSome {
       let payment_id =
         filterValueJson
-        ->Js.Dict.get("payment_id")
+        ->Dict.get("payment_id")
         ->Belt.Option.getWithDefault(""->Js.Json.string)
         ->Js.Json.decodeString
         ->Belt.Option.getWithDefault("")

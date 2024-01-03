@@ -200,7 +200,7 @@ let getBodyForFeedBack = (values, ~modalType=HSwitchFeedBackModalUtils.FeedBackM
     ->ignore
   }
 
-  bodyFields->Js.Dict.fromArray
+  bodyFields->Dict.fromArray
 }
 
 let getMetaData = (newMetadata, metaData) => {
@@ -211,7 +211,7 @@ let getMetaData = (newMetadata, metaData) => {
 }
 
 let returnIntegrationJson = (integrationData: ProviderTypes.integration): Js.Json.t => {
-  Js.Dict.fromArray([
+  Dict.fromArray([
     ("is_done", integrationData.is_done->Js.Json.boolean),
     ("metadata", integrationData.metadata),
   ])->Js.Json.object_
@@ -258,7 +258,7 @@ let constructOnboardingBody = (
   | _ => ()
   }
 
-  Js.Dict.fromArray([
+  Dict.fromArray([
     (
       "integration_checklist",
       copyOfIntegrationDetails.integration_checklist->returnIntegrationJson,

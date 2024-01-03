@@ -45,11 +45,11 @@ let useUpdateEnumInRecoil = () => {
 
       switch body {
       | Boolean(_) => {
-          let booleanDict = [((enumVariant :> string), true->Js.Json.boolean)]->Js.Dict.fromArray
+          let booleanDict = [((enumVariant :> string), true->Js.Json.boolean)]->Dict.fromArray
           enumDictsArray->Array.push(booleanDict)
         }
       | String(str) => {
-          let stringDict = [((enumVariant :> string), str->Js.Json.string)]->Js.Dict.fromArray
+          let stringDict = [((enumVariant :> string), str->Js.Json.string)]->Dict.fromArray
           enumDictsArray->Array.push(stringDict)
         }
       | _ => enumDictsArray->Array.push(bodyValForApi->getDictFromJsonObject)

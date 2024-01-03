@@ -24,7 +24,7 @@ module AddEntryBtn = {
     let initialValues =
       [
         ("profile_name", `default${list->Array.length->string_of_int}`->Js.Json.string),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
     let modalBody =
       <div>
         {switch modalState {

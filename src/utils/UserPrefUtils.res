@@ -32,7 +32,7 @@ let convertToModuleVisePref = json => {
     }
     (key, value)
   })
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
 }
 
 let converToUserPref = dict => {
@@ -49,7 +49,7 @@ let converToUserPref = dict => {
     }
     (key, value)
   })
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
 }
 
 // this will be changed to api call on every change to url this save will happen
@@ -62,7 +62,7 @@ let saveUserPref = (userPref: Js.Dict.t<userPref>) => {
       let (key, value) = item
       (key, value->userPrefToJson)
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
     ->Js.Json.stringify,
   )
@@ -83,7 +83,7 @@ let getUserPref = () => {
 }
 
 let getSearchParams = (moduleWisePref: Js.Dict.t<moduleVisePref>, ~key: string) => {
-  switch moduleWisePref->Js.Dict.get(key)->Belt.Option.getWithDefault({}) {
+  switch moduleWisePref->Dict.get(key)->Belt.Option.getWithDefault({}) {
   | {searchParams} => searchParams
   | _ => ""
   }

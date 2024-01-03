@@ -102,7 +102,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         setRoutingType(_ => routingArr)
       } else {
         await fetchRoutingRecords([])
-        let defaultFallback = [("kind", "default"->Js.Json.string)]->Js.Dict.fromArray
+        let defaultFallback = [("kind", "default"->Js.Json.string)]->Dict.fromArray
         setRoutingType(_ => [defaultFallback->Js.Json.object_])
         setScreenState(_ => PageLoaderWrapper.Success)
       }

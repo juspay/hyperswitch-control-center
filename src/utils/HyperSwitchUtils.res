@@ -22,7 +22,7 @@ let getMixpanelRouteName = (pageTitle, url: RescriptReactRouter.url) => {
   | (list{"settings"}, searchParamValue) => {
       let type_ =
         LogicUtils.getDictFromUrlSearchParams(searchParamValue)
-        ->Js.Dict.get("type")
+        ->Dict.get("type")
         ->Belt.Option.getWithDefault("")
       `/${pageTitle}/${type_}`
     }
@@ -30,7 +30,7 @@ let getMixpanelRouteName = (pageTitle, url: RescriptReactRouter.url) => {
   | (list{"onboarding"}, searchParamValue) => {
       let type_ =
         LogicUtils.getDictFromUrlSearchParams(searchParamValue)
-        ->Js.Dict.get("type")
+        ->Dict.get("type")
         ->Belt.Option.getWithDefault("")
       `/${pageTitle}/${type_}`
     }

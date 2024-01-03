@@ -50,7 +50,7 @@ module AdvanceSearch = {
 
             if statusStr === "SUCCESS" {
               let payloadDict =
-                jsonDict->Js.Dict.get(detailsKey)->Belt.Option.flatMap(Js.Json.decodeObject)
+                jsonDict->Dict.get(detailsKey)->Belt.Option.flatMap(Js.Json.decodeObject)
 
               switch payloadDict {
               | Some(dict) => {
@@ -85,17 +85,17 @@ module AdvanceSearch = {
 
     let validateForm = (values: Js.Json.t) => {
       let valuesDict = switch values->Js.Json.decodeObject {
-      | Some(dict) => dict->Dict.toArray->Js.Dict.fromArray
+      | Some(dict) => dict->Dict.toArray->Dict.fromArray
       | None => Dict.make()
       }
       let errors = Dict.make()
       requiredSearchFieldsList->Array.forEach(key => {
-        if Js.Dict.get(valuesDict, key)->Js.Option.isNone {
+        if Dict.get(valuesDict, key)->Js.Option.isNone {
           Dict.set(errors, key, "Required"->Js.Json.string)
         }
       })
       let isSubmitEnabled = optionalSearchFieldsList->Array.some(key => {
-        Js.Dict.get(valuesDict, key)->Js.Option.isSome
+        Dict.get(valuesDict, key)->Js.Option.isSome
       })
 
       if !isSubmitEnabled {

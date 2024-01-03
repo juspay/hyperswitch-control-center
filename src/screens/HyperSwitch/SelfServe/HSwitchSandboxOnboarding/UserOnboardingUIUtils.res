@@ -61,7 +61,7 @@ module DownloadAPIKeyButton = {
             ("name", "DefaultAPIKey"->Js.Json.string),
             ("description", "Default Value of the API key"->Js.Json.string),
             ("expiration", "never"->Js.Json.string),
-          ]->Js.Dict.fromArray
+          ]->Dict.fromArray
         let res = await updateDetails(url, body->Js.Json.object_, Post)
         let apiKey = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("api_key", "")
         DownloadUtils.downloadOld(~fileName=`apiKey.txt`, ~content=apiKey)
@@ -414,7 +414,7 @@ module LandingPageTileForIntegrateDocs = {
     let skipAndContinue = async () => {
       try {
         let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
-        let metaDataDict = Js.Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
+        let metaDataDict = Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
         let body = HSwitchUtils.constructOnboardingBody(
           ~dashboardPageState,
           ~integrationDetails,
@@ -869,7 +869,7 @@ let getTabsForIntegration = (
             try {
               let url = APIUtils.getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
               let metaDataDict =
-                Js.Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
+                Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
               let body = HSwitchUtils.constructOnboardingBody(
                 ~dashboardPageState,
                 ~integrationDetails,

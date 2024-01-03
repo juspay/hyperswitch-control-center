@@ -49,7 +49,7 @@ let makeFilters = (~filters: Js.Json.t, ~cardinalityArr) => {
     ->Dict.toArray
     ->Array.map(item => {
       let (key, value) = item
-      Js.Dict.fromArray([
+      Dict.fromArray([
         ("field", key->Js.Json.string),
         ("condition", "In"->Js.Json.string),
         ("val", value),
@@ -60,18 +60,18 @@ let makeFilters = (~filters: Js.Json.t, ~cardinalityArr) => {
     expressionArr->Belt.Array.get(0)
   } else if expressionArr->Array.length > 1 {
     let leftInitial =
-      Js.Array2.pop(expressionArr)->Belt.Option.getWithDefault(Dict.make())->Js.Json.object_
+      Array.pop(expressionArr)->Belt.Option.getWithDefault(Dict.make())->Js.Json.object_
     let rightInitial =
-      Js.Array2.pop(expressionArr)->Belt.Option.getWithDefault(Dict.make())->Js.Json.object_
+      Array.pop(expressionArr)->Belt.Option.getWithDefault(Dict.make())->Js.Json.object_
 
-    let complexFilterDict = Js.Dict.fromArray([
-      ("and", Js.Dict.fromArray([("left", leftInitial), ("right", rightInitial)])->Js.Json.object_),
+    let complexFilterDict = Dict.fromArray([
+      ("and", Dict.fromArray([("left", leftInitial), ("right", rightInitial)])->Js.Json.object_),
     ])
     expressionArr->Array.forEach(item => {
-      let complextFilterDictCopy = complexFilterDict->Dict.toArray->Array.copy->Js.Dict.fromArray
+      let complextFilterDictCopy = complexFilterDict->Dict.toArray->Array.copy->Dict.fromArray
       complexFilterDict->Dict.set(
         "and",
-        Js.Dict.fromArray([
+        Dict.fromArray([
           ("left", complextFilterDictCopy->Js.Json.object_),
           ("right", item->Js.Json.object_),
         ])->Js.Json.object_,
@@ -111,7 +111,7 @@ let getFilterBody = (
               ->Array.map(item => item->Js.String.trim)
             if value->Array.length >= 2 {
               Some(
-                Js.Dict.fromArray([
+                Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
                   ("condition", "NotEquals"->Js.Json.string),
                   (
@@ -133,7 +133,7 @@ let getFilterBody = (
               ->Array.map(item => item->Js.String.trim)
             if value->Array.length >= 2 {
               Some(
-                Js.Dict.fromArray([
+                Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
                   ("condition", "Greater"->Js.Json.string),
                   (
@@ -155,7 +155,7 @@ let getFilterBody = (
               ->Array.map(item => item->Js.String.trim)
             if value->Array.length >= 2 {
               Some(
-                Js.Dict.fromArray([
+                Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
                   ("condition", "Less"->Js.Json.string),
                   (
@@ -177,7 +177,7 @@ let getFilterBody = (
               ->Array.map(item => item->Js.String.trim)
             if value->Array.length >= 2 {
               Some(
-                Js.Dict.fromArray([
+                Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
                   ("condition", "GreaterThanEquall"->Js.Json.string),
                   (
@@ -199,7 +199,7 @@ let getFilterBody = (
               ->Array.map(item => item->Js.String.trim)
             if value->Array.length >= 2 {
               Some(
-                Js.Dict.fromArray([
+                Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
                   ("condition", "LessThanEqual"->Js.Json.string),
                   (
@@ -221,7 +221,7 @@ let getFilterBody = (
               ->Array.map(item => item->Js.String.trim)
             if value->Array.length >= 2 {
               Some(
-                Js.Dict.fromArray([
+                Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
                   ("condition", "Equals"->Js.Json.string),
                   (
@@ -243,7 +243,7 @@ let getFilterBody = (
               ->Array.map(item => item->Js.String.trim)
             if value->Array.length >= 2 {
               Some(
-                Js.Dict.fromArray([
+                Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
                   ("condition", "In"->Js.Json.string),
                   (
@@ -269,7 +269,7 @@ let getFilterBody = (
               ->Array.map(item => item->Js.String.trim)
             if value->Array.length >= 2 {
               Some(
-                Js.Dict.fromArray([
+                Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
                   ("condition", "NotIn"->Js.Json.string),
                   (
@@ -295,7 +295,7 @@ let getFilterBody = (
               ->Array.map(item => item->Js.String.trim)
             if value->Array.length >= 2 {
               Some(
-                Js.Dict.fromArray([
+                Dict.fromArray([
                   ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
                   ("condition", "Like"->Js.Json.string),
                   (
@@ -322,10 +322,10 @@ let getFilterBody = (
         let leftInitial = filterValueArr[0]->Belt.Option.getWithDefault(Dict.make())
         let rightInitial = filterValueArr[1]->Belt.Option.getWithDefault(Dict.make())
         let conditionInitital = andAndOr->Belt.Array.get(0)->Belt.Option.getWithDefault("and")
-        let complexFilterDict = Js.Dict.fromArray([
+        let complexFilterDict = Dict.fromArray([
           (
             conditionInitital,
-            Js.Dict.fromArray([
+            Dict.fromArray([
               ("left", leftInitial->Js.Json.object_),
               ("right", rightInitial->Js.Json.object_),
             ])->Js.Json.object_,
@@ -335,11 +335,10 @@ let getFilterBody = (
         let andAndOr = Js.Array2.sliceFrom(andAndOr->Array.copy, 1)
 
         filterValueArr->Array.forEachWithIndex((item, index) => {
-          let complextFilterDictCopy =
-            complexFilterDict->Dict.toArray->Array.copy->Js.Dict.fromArray
+          let complextFilterDictCopy = complexFilterDict->Dict.toArray->Array.copy->Dict.fromArray
           complexFilterDict->Dict.set(
             andAndOr->Belt.Array.get(index)->Belt.Option.getWithDefault("and"),
-            Js.Dict.fromArray([
+            Dict.fromArray([
               ("left", complextFilterDictCopy->Js.Json.object_),
               ("right", item->Js.Json.object_),
             ])->Js.Json.object_,
@@ -357,10 +356,10 @@ let getFilterBody = (
   | (Some(value), Some(customFilter)) =>
     switch makeFilters(~filters=value, ~cardinalityArr=cardinalityArrFilter) {
     | Some(formattedFilters) => {
-        let overallFilters = Js.Dict.fromArray([
+        let overallFilters = Dict.fromArray([
           (
             "and",
-            Js.Dict.fromArray([
+            Dict.fromArray([
               ("left", formattedFilters->Js.Json.object_),
               ("right", customFilter->Js.Json.object_),
             ])->Js.Json.object_,
@@ -387,10 +386,10 @@ let getFilterBody = (
   | Some(jsonFormattedFilter) =>
     switch filterValue->Dict.toArray->Array.length > 0 {
     | true =>
-      Js.Dict.fromArray([
+      Dict.fromArray([
         (
           "and",
-          Js.Dict.fromArray([
+          Dict.fromArray([
             ("left", filterValue->Js.Json.object_),
             ("right", jsonFormattedFilter),
           ])->Js.Json.object_,
@@ -437,15 +436,15 @@ let apiBodyMaker = (
   let cardinalityArrFilter = switch (cardinality, groupBy) {
   | (Some(cardinality), Some(groupBy)) =>
     groupBy->Array.map(item => {
-      Js.Dict.fromArray([
+      Dict.fromArray([
         ("field", item->Js.Json.string),
         ("condition", "In"->Js.Json.string),
         (
           "val",
-          Js.Dict.fromArray([
+          Dict.fromArray([
             (
               "sortedOn",
-              Js.Dict.fromArray([
+              Dict.fromArray([
                 ("sortDimension", cardinalitySortDims->Js.Json.string),
                 ("ordering", "Desc"->Js.Json.string),
               ])->Js.Json.object_,
@@ -495,7 +494,7 @@ let apiBodyMaker = (
   | Some(val) =>
     finalBody->Dict.set(
       "sortedOn",
-      Js.Dict.fromArray([
+      Dict.fromArray([
         ("sortDimension", val.sortDimension->Js.Json.string),
         ("ordering", val.ordering === #Desc ? "Desc"->Js.Json.string : "Asc"->Js.Json.string),
       ])->Js.Json.object_,

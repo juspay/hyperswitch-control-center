@@ -54,7 +54,7 @@ let convertToSankeyFormat = (
   let lastIndex = snakeyActiveTab->Array.length - 1
 
   snakeyActiveTab->Belt.Array.forEachWithIndex((index, item) => {
-    let topNMetrix = topNDicts->Js.Dict.get(item)->Belt.Option.getWithDefault([])
+    let topNMetrix = topNDicts->Dict.get(item)->Belt.Option.getWithDefault([])
     if index === 0 {
       // first index
       let currentSelectedTabDict = Dict.make()
@@ -129,8 +129,8 @@ let convertToSankeyFormat = (
       // middle index
       let dimsPrev = snakeyActiveTab[index - 1]->Belt.Option.getWithDefault("")
       let dimsCurrent = snakeyActiveTab[index]->Belt.Option.getWithDefault("")
-      let topNMetrixCurr = topNDicts->Js.Dict.get(dimsCurrent)->Belt.Option.getWithDefault([])
-      let topNMetrixPrev = topNDicts->Js.Dict.get(dimsPrev)->Belt.Option.getWithDefault([])
+      let topNMetrixCurr = topNDicts->Dict.get(dimsCurrent)->Belt.Option.getWithDefault([])
+      let topNMetrixPrev = topNDicts->Dict.get(dimsPrev)->Belt.Option.getWithDefault([])
       arr->Belt.Array.forEach(sankeyData => {
         let sankeyDict = sankeyData->getDictFromJsonObject
         let levelNamePrev = sankeyDict->getString(dimsPrev, "")
@@ -148,7 +148,7 @@ let convertToSankeyFormat = (
           let totalSum = value->AnalyticsUtils.sumOfArr
           (key, totalSum)
         })
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
 
       arr->Belt.Array.forEach(sankeyData => {
         let sankeyDict = sankeyData->getDictFromJsonObject
@@ -191,7 +191,7 @@ let convertToSankeyFormat = (
           `${currentLevel}( +++ )${dimsCurrent}`,
           totalSum,
           currentSelectedTabDict1St
-          ->Js.Dict.get(keyArr->Belt.Array.get(0)->Belt.Option.getWithDefault(""))
+          ->Dict.get(keyArr->Belt.Array.get(0)->Belt.Option.getWithDefault(""))
           ->Belt.Option.getWithDefault(0),
           index,
         ))
@@ -228,7 +228,7 @@ let convertToSankeyFormat = (
       let currentSelectedTabDictlast = Dict.make()
       let topNMetrixCurr =
         topNDicts
-        ->Js.Dict.get(snakeyActiveTab[lastIndex]->Belt.Option.getWithDefault(""))
+        ->Dict.get(snakeyActiveTab[lastIndex]->Belt.Option.getWithDefault(""))
         ->Belt.Option.getWithDefault([])
       arr->Belt.Array.forEach(sankeyData => {
         let sankeyDict = sankeyData->getDictFromJsonObject

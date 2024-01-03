@@ -198,7 +198,7 @@ let make = (
         let (key, _value) = entry
         !Array.includes(toBeRemoved, key)
       })
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
       ->Js.Json.object_
 
     switch values->Js.Json.decodeObject {

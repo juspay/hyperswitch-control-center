@@ -26,7 +26,7 @@ let useGetFilterDictFromUrl = prefix => {
             None
           }
         })
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
       setSearchParamDict(_ => searcParamsToDict)
     }
 
@@ -49,7 +49,7 @@ let useUpdateUrlWith = (~prefix as _: string) => {
         let val = arr->Belt.Array.sliceToEnd(1)->Array.joinWith("=")
         key === "" || val === "" ? None : Some((key, val))
       })
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
     let path = url.path->Belt.List.toArray->Array.joinWith("/")
 
     let searchParam =

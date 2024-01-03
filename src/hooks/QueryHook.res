@@ -41,13 +41,13 @@ let getQueryValue = (~queryUrl, ~key: queryInput) => {
   | String(key, initialVal) =>
     String(
       key,
-      dict->Js.Dict.get(key)->Belt.Option.mapWithDefault(initialVal, a => a->Js.Global.decodeURI),
+      dict->Dict.get(key)->Belt.Option.mapWithDefault(initialVal, a => a->Js.Global.decodeURI),
     )
   | Array(key, initialval) =>
     Array(
       key,
       dict
-      ->Js.Dict.get(key)
+      ->Dict.get(key)
       ->Belt.Option.mapWithDefault(initialval, a => {
         a
         ->Js.Global.decodeURI

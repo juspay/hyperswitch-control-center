@@ -56,10 +56,10 @@ let filteredData = (
         let rowDict = row->Identity.genericTypeToDictOfJson
         let anyMatch = selectedFiltersKeys->Array.find(keys => {
           // Selected fitler
-          switch Js.Dict.get(columnFilter, keys) {
+          switch Dict.get(columnFilter, keys) {
           | Some(selectedArr) => {
               // selected value of the fitler
-              let jsonVal = Js.Dict.get(
+              let jsonVal = Dict.get(
                 rowDict->Js.Json.object_->JsonFlattenUtils.flattenObject(false),
                 keys,
               )

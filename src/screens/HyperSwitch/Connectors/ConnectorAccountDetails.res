@@ -29,7 +29,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
     if !isUpdateFlow {
       let defaultJsonOnNewConnector =
         [("profile_id", activeBusinessProfile.profile_id->Js.Json.string)]
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_
       setInitialValues(_ => defaultJsonOnNewConnector)
     }
@@ -81,7 +81,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
       ->getConnectorNameTypeFromString
       ->checkIsDummyConnector(featureFlagDetails.testProcessors) && !isUpdateFlow
     ) {
-      let apiKeyDict = [("api_key", "test_key"->Js.Json.string)]->Js.Dict.fromArray
+      let apiKeyDict = [("api_key", "test_key"->Js.Json.string)]->Dict.fromArray
       initialValuesToDict->Dict.set("connector_account_details", apiKeyDict->Js.Json.object_)
 
       initialValuesToDict->Js.Json.object_

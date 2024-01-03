@@ -17,7 +17,7 @@ let useAddLogsAroundFetch = () => {
           let (key, _value) = entry
           key !== logTitle
         })
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
       dict
     })
     open Promise
@@ -62,7 +62,7 @@ let useAddLogsAroundFetchNew = () => {
           let (key, _value) = entry
           key !== logTitle
         })
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
       dict
     })
     open Promise

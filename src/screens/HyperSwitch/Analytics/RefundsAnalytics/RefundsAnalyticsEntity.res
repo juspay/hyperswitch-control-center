@@ -357,7 +357,7 @@ let getStatSentiment = {
     ("Success Refunds", Negative),
     ("Overall Refunds", Negative),
     ("Processed Amount", Negative),
-  ]->Js.Dict.fromArray
+  ]->Dict.fromArray
 }
 
 let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {

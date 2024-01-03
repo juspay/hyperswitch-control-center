@@ -3,7 +3,7 @@ let generateBody = (url: RescriptReactRouter.url) => {
   let val =
     url.search
     ->LogicUtils.getDictFromUrlSearchParams
-    ->Js.Dict.get("token")
+    ->Dict.get("token")
     ->Belt.Option.getWithDefault("")
 
   body->Dict.set("token", val->Js.Json.string)

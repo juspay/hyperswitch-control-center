@@ -81,7 +81,7 @@ module OperatorInp = {
         ("CONTAINS", "Includes only results with any value for the filter property."),
         ("IS_NOT", "Includes results that does not match the filter value(s)."),
         ("NOT_CONTAINS", "Includes results except any value for the filter property."),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
     let disableSelect =
       field.value->Js.Json.decodeString->Belt.Option.getWithDefault("")->String.length === 0
 
@@ -91,7 +91,7 @@ module OperatorInp = {
         value: opVal,
       }
 
-      switch descriptionDict->Js.Dict.get(opVal) {
+      switch descriptionDict->Dict.get(opVal) {
       | Some(description) => {...obj, description}
       | None => obj
       }

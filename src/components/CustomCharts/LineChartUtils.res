@@ -166,12 +166,12 @@ let removeDuplicates = (arr: array<chartData<'a>>) => {
 
   arr->Array.forEach(item => {
     let value = item.name
-    if uniqueItemsMap->Js.Dict.get(value)->Belt.Option.isNone {
+    if uniqueItemsMap->Dict.get(value)->Belt.Option.isNone {
       uniqueItemsMap->Dict.set(value, item)
     }
   })
 
-  uniqueItemsMap->Js.Dict.values
+  uniqueItemsMap->Dict.valuesToArray
 }
 
 let calculateOpacity = (~length, ~originalOpacity) => {
@@ -250,7 +250,7 @@ let legendTypeBasedOnMetric = (metric_type: dropDownMetricType) => {
   }
 }
 let appendToDictValue = (dict, key, value) => {
-  let updatedValue = switch dict->Js.Dict.get(key) {
+  let updatedValue = switch dict->Dict.get(key) {
   | Some(val) => Belt.Array.concat(val, [value])
   | None => [value]
   }
@@ -258,7 +258,7 @@ let appendToDictValue = (dict, key, value) => {
 }
 
 let addToDictValueFloat = (dict, key, value) => {
-  let updatedValue = switch dict->Js.Dict.get(key) {
+  let updatedValue = switch dict->Dict.get(key) {
   | Some(val) => val +. value
   | None => value
   }
@@ -343,9 +343,7 @@ let timeSeriesDataMaker = (
     let groupByName =
       dict->getString(
         groupKey,
-        Js.Dict.get(dict, groupKey)
-        ->Belt.Option.getWithDefault(""->Js.Json.string)
-        ->Js.Json.stringify,
+        Dict.get(dict, groupKey)->Belt.Option.getWithDefault(""->Js.Json.string)->Js.Json.stringify,
       )
     let xAxisDataPoint =
       dict->getString(xAxis, "")->Js.String2.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
@@ -384,7 +382,7 @@ let timeSeriesDataMaker = (
         let trafficValue =
           value *.
           100. /.
-          groupedByTime->Js.Dict.get(key->Belt.Float.toString)->Belt.Option.getWithDefault(1.)
+          groupedByTime->Dict.get(key->Belt.Float.toString)->Belt.Option.getWithDefault(1.)
         (key, trafficValue, secondryMetrix)
       })
       ->Js.Array2.sortInPlaceWith(chartDataSortBasedOnTime)
@@ -430,9 +428,7 @@ let getLegendDataForCurrentMetrix = (
     getString(
       dict,
       activeTab,
-      Js.Dict.get(dict, activeTab)
-      ->Belt.Option.getWithDefault(""->Js.Json.string)
-      ->Js.Json.stringify,
+      Dict.get(dict, activeTab)->Belt.Option.getWithDefault(""->Js.Json.string)->Js.Json.stringify,
     )
   })
   timeSeriesData->Belt.Array.forEach(item => {
@@ -442,7 +438,7 @@ let getLegendDataForCurrentMetrix = (
       getString(
         dict,
         activeTab,
-        Js.Dict.get(dict, activeTab)
+        Dict.get(dict, activeTab)
         ->Belt.Option.getWithDefault(""->Js.Json.string)
         ->Js.Json.stringify,
       ),
@@ -515,7 +511,7 @@ let getLegendDataForCurrentMetrix = (
       let (_, currentVal) = sortedValueBasedOnTime[arrLen - 1]->Belt.Option.getWithDefault(("", 0.))
       // the avg stat won't work correct for Sr case have to find another way or avoid using the avg for Sr
       let overall = if metrixType === Traffic {
-        (currentOverall->Js.Dict.get(metricsName)->Belt.Option.getWithDefault(0.) *.
+        (currentOverall->Dict.get(metricsName)->Belt.Option.getWithDefault(0.) *.
         100. /.
         Js.Math.max_float(totalOverall, 1.))
         ->Js.Float.toFixedWithPrecision(~digits=2)
@@ -523,7 +519,7 @@ let getLegendDataForCurrentMetrix = (
         ->Belt.Float.fromString
         ->Belt.Option.getWithDefault(0.)
       } else {
-        currentOverall->Js.Dict.get(metricsName)->Belt.Option.getWithDefault(0.)
+        currentOverall->Dict.get(metricsName)->Belt.Option.getWithDefault(0.)
       }
       let currentVal = if metrixType === Traffic {
         currentVal *. 100. /. currentValueOverallSum
@@ -558,9 +554,7 @@ let barChartDataMaker = (~yAxis: string, ~rawData: array<Js.Json.t>, ~activeTab:
     let selectedSegmentVal = getString(
       dict,
       activeTab,
-      Js.Dict.get(dict, activeTab)
-      ->Belt.Option.getWithDefault(""->Js.Json.string)
-      ->Js.Json.stringify,
+      Dict.get(dict, activeTab)->Belt.Option.getWithDefault(""->Js.Json.string)->Js.Json.stringify,
     ) // groupby/ selected segment
 
     let stats = getFloat(dict, yAxis, 0.) // overall metrics
@@ -769,10 +763,10 @@ let tooltipFormatter = (
 
     let dataArr = if ["run_date", "run_month", "run_week"]->Array.includes(groupKey) {
       let x = points->getString("name", "")
-      xAxisMapInfo->Js.Dict.get(x)->Belt.Option.getWithDefault([])
+      xAxisMapInfo->Dict.get(x)->Belt.Option.getWithDefault([])
     } else {
       let x = points->getFloat("x", 0.)
-      xAxisMapInfo->Js.Dict.get(x->Js.Float.toString)->Belt.Option.getWithDefault([])
+      xAxisMapInfo->Dict.get(x->Js.Float.toString)->Belt.Option.getWithDefault([])
     }
 
     let onCursorName = series->getString("name", "")

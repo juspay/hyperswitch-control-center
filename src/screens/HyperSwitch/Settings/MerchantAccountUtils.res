@@ -44,8 +44,8 @@ let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, err
     value !== "" &&
     !Js.Option.equal(
       (. a, b) => a == b,
-      Js.Dict.get(valuesDict, passwordKey),
-      Js.Dict.get(valuesDict, key),
+      Dict.get(valuesDict, passwordKey),
+      Dict.get(valuesDict, key),
     )
   ) {
     Dict.set(errors, key, "The New password does not match!"->Js.Json.string)
@@ -67,7 +67,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
       ("merchant_id", merchant_id->Js.Json.string),
       ("profile_id", profile_id->Js.Json.string),
       ("profile_name", profile_name->Js.Json.string),
-    ]->Js.Dict.fromArray
+    ]->Dict.fromArray
   profileInfo->setOptionString("return_url", return_url)
   profileInfo->setOptionString("webhook_version", webhook_details.webhook_version)
   profileInfo->setOptionString("webhook_username", webhook_details.webhook_username)
@@ -87,7 +87,7 @@ let parseMerchantJson = (merchantDict: merchantPayload) => {
     let {country, business} = detail
     let props = [("country", country->Js.Json.string), ("business", business->Js.Json.string)]
 
-    props->Js.Dict.fromArray->Js.Json.object_
+    props->Dict.fromArray->Js.Json.object_
   })
   let merchantInfo =
     [
@@ -95,7 +95,7 @@ let parseMerchantJson = (merchantDict: merchantPayload) => {
       ("merchant_name", merchant_name->Js.Json.string),
       ("publishable_key", publishable_key->Js.Json.string),
       ("publishable_key_hide", publishable_key->parseKey->Js.Json.string),
-    ]->Js.Dict.fromArray
+    ]->Dict.fromArray
 
   merchantInfo->setOptionString("about_business", merchant_details.about_business)
   merchantInfo->setOptionString("primary_email", merchant_details.primary_email)
@@ -305,12 +305,12 @@ let getSettingsPayload = (values: Js.Json.t, merchantId) => {
         [
           ("business", detailDict->getString("business", "")->Js.Json.string),
           ("country", detailDict->getString("country", "")->Js.Json.string),
-        ]->Js.Dict.fromArray
+        ]->Dict.fromArray
 
       detailDict->Js.Json.object_
     })
 
-  let settingsPayload = Js.Dict.fromArray([
+  let settingsPayload = Dict.fromArray([
     ("merchant_id", merchantId->Js.Json.string),
     ("locker_id", "m0010"->Js.Json.string),
   ])

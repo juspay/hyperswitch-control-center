@@ -51,7 +51,7 @@ let getPaymentExperienceType = str => {
 open LogicUtils
 let getPaymentExperience = (dict, str) => {
   dict
-  ->Js.Dict.get(str)
+  ->Dict.get(str)
   ->Belt.Option.flatMap(Js.Json.decodeArray)
   ->Belt.Option.getWithDefault([])
   ->Belt.Array.keepMap(Js.Json.decodeObject)
@@ -69,7 +69,7 @@ let getPaymentExperience = (dict, str) => {
 
 let getBankNames = (dict, str) => {
   dict
-  ->Js.Dict.get(str)
+  ->Dict.get(str)
   ->Belt.Option.flatMap(Js.Json.decodeArray)
   ->Belt.Option.getWithDefault([])
   ->Belt.Array.keepMap(Js.Json.decodeObject)
@@ -83,7 +83,7 @@ let getBankNames = (dict, str) => {
 
 let getAchConnectors = (dict, str) => {
   dict
-  ->Js.Dict.get(str)
+  ->Dict.get(str)
   ->Belt.Option.flatMap(Js.Json.decodeObject)
   ->Belt.Option.getWithDefault(Dict.make())
   ->getStrArray("elligible_connectors")
@@ -91,7 +91,7 @@ let getAchConnectors = (dict, str) => {
 
 let getPaymentMethodTypes = (dict, str) => {
   dict
-  ->Js.Dict.get(str)
+  ->Dict.get(str)
   ->Belt.Option.flatMap(Js.Json.decodeArray)
   ->Belt.Option.getWithDefault([])
   ->Belt.Array.keepMap(Js.Json.decodeObject)
@@ -109,7 +109,7 @@ let getPaymentMethodTypes = (dict, str) => {
 
 let getMethodsArr = (dict, str) => {
   dict
-  ->Js.Dict.get(str)
+  ->Dict.get(str)
   ->Belt.Option.flatMap(Js.Json.decodeArray)
   ->Belt.Option.getWithDefault([])
   ->Belt.Array.keepMap(Js.Json.decodeObject)

@@ -117,7 +117,7 @@ module MerchantAuthInfo = {
       [
         ("merchant_id", detail.merchant_id->Js.Json.string),
         ("publishable_key", detail.publishable_key->Js.Json.string),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
 
     <Form initialValues={dataDict->Js.Json.object_} formClass="md:ml-9 my-4">
       <div className="flex flex-col md:flex-row gap-3">

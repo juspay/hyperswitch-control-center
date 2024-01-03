@@ -252,11 +252,11 @@ let getStatSentiment = {
     ("Converted User Sessions", Positive),
     ("Dropped Out User Sessions", Negative),
     ("Average Payment Time", Negative),
-  ]->Js.Dict.fromArray
+  ]->Dict.fromArray
 }
 
 let getStatThresholds = {
-  [("Dropped Out User Sessions", 40.), ("Converted User Sessions", 60.)]->Js.Dict.fromArray
+  [("Dropped Out User Sessions", 40.), ("Converted User Sessions", 60.)]->Dict.fromArray
 }
 
 let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {

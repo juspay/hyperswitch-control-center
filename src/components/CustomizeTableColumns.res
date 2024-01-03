@@ -21,7 +21,7 @@ let make = (
       getHeading(item).title,
       index->Belt.Int.toFloat->Js.Json.number,
     ))
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
 
   let sortByOrderOderedArr = (a, b) => {
     let positionInHeader = headingDict->LogicUtils.getInt(getHeading(a).title, 0)

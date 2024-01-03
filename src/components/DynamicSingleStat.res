@@ -99,7 +99,7 @@ let deltaTimeRangeMapper: array<Js.Json.t> => deltaRange = (arrJson: array<Js.Js
   })
   {
     currentSr: emptyDict
-    ->Js.Dict.get("currentSr")
+    ->Dict.get("currentSr")
     ->Belt.Option.getWithDefault({
       fromTime: "",
       toTime: "",
@@ -145,7 +145,7 @@ let make = (
         Some((prefix, value))
       }
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
   }, [getAllFilter])
 
   let mode = switch modeKey {
@@ -207,7 +207,7 @@ let make = (
       let (key, value) = entries
       filterKeys->Array.includes(key) ? Some((key, value)) : None
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
     ->Some
   }, [topFiltersToSearchParam])
@@ -291,7 +291,7 @@ let make = (
           uri,
           ~method_=Post,
           ~bodyStr=singleStatBody,
-          ~headers=[("QueryType", "SingleStat")]->Js.Dict.fromArray,
+          ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
           (),
         )
         ->addLogsAroundFetch(~logTitle="SingleStat Data Api")
@@ -395,7 +395,7 @@ let make = (
           uri,
           ~method_=Post,
           ~bodyStr=singleStatBodyMakerFn(singleStatBodyEntity),
-          ~headers=[("QueryType", "SingleStatTimeseries")]->Js.Dict.fromArray,
+          ~headers=[("QueryType", "SingleStatTimeseries")]->Dict.fromArray,
           (),
         )
         ->addLogsAroundFetch(~logTitle="SingleStatTimeseries Data Api")

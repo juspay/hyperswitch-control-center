@@ -25,7 +25,7 @@ let size = "w-14 h-14 rounded-full"
 let generateInitialValuesDict = (~selectedFRMInfo, ~isLiveMode, ()) => {
   let frmAccountDetailsDict =
     [("auth_type", selectedFRMInfo.name->getFRMAuthType->Js.Json.string)]
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
 
   [
@@ -36,7 +36,7 @@ let generateInitialValuesDict = (~selectedFRMInfo, ~isLiveMode, ()) => {
     ("connector_account_details", frmAccountDetailsDict),
     ("frm_configs", []->Js.Json.array),
   ]
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_
 }
 
@@ -75,7 +75,7 @@ let parseConnectorConfig = dict => {
 
 let updatePaymentMethodsDict = (prevPaymentMethodsDict, pmName, currentPmTypes) => {
   open LogicUtils
-  switch prevPaymentMethodsDict->Js.Dict.get(pmName) {
+  switch prevPaymentMethodsDict->Dict.get(pmName) {
   | Some(prevPmTypes) => {
       let pmTypesArr = prevPmTypes->Array.concat(currentPmTypes)
       prevPaymentMethodsDict->Dict.set(pmName, pmTypesArr->getUniqueArray)
@@ -86,7 +86,7 @@ let updatePaymentMethodsDict = (prevPaymentMethodsDict, pmName, currentPmTypes) 
 }
 
 let updateConfigDict = (configDict, connectorName, paymentMethodsDict) => {
-  switch configDict->Js.Dict.get(connectorName) {
+  switch configDict->Dict.get(connectorName) {
   | Some(prevPaymentMethodsDict) =>
     paymentMethodsDict
     ->Dict.keysToArray
@@ -94,7 +94,7 @@ let updateConfigDict = (configDict, connectorName, paymentMethodsDict) => {
       updatePaymentMethodsDict(
         prevPaymentMethodsDict,
         pmName,
-        paymentMethodsDict->Js.Dict.get(pmName)->Belt.Option.getWithDefault([]),
+        paymentMethodsDict->Dict.get(pmName)->Belt.Option.getWithDefault([]),
       )
     )
 
@@ -142,7 +142,7 @@ let generateFRMPaymentMethodsConfig = paymentMethodsDict => {
   ->Array.map(paymentMethodName => {
     let paymentMethodTypesArr =
       paymentMethodsDict
-      ->Js.Dict.get(paymentMethodName)
+      ->Dict.get(paymentMethodName)
       ->Belt.Option.getWithDefault([])
       ->Array.map(paymentMethodType => {
         {
@@ -167,6 +167,6 @@ let ignoreFields = json => {
     let (key, _val) = entry
     !(ignoredField->Array.includes(key))
   })
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_
 }

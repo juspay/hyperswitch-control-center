@@ -25,7 +25,7 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
 
   let connectorAccountDetails =
     [("auth_type", bodyType->Js.Json.string), ("api_key", "test"->Js.Json.string)]
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
 
   let initialValueForPayload = ConnectorUtils.generateInitialValuesDict(
@@ -34,7 +34,7 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
       ("connector_account_details", connectorAccountDetails),
       ("connector_label", `${connectorName}_default`->Js.Json.string),
     ]
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_,
     ~connector=connectorName,
     ~bodyType,
@@ -116,10 +116,10 @@ let constructRoutingPayload = (routingData: routingData) => {
       ("connector", routingData.connector_name->Js.Json.string),
       ("merchant_connector_id", routingData.merchant_connector_id->Js.Json.string),
     ]
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
   [("split", 50.0->Js.Json.number), ("connector", innerRoutingDict)]
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_
 }
 

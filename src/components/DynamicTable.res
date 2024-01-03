@@ -215,9 +215,9 @@ let make = (
         } else {
           let x =
             filtersFromUrl
-            ->Js.Dict.get(val)
+            ->Dict.get(val)
             ->Belt.Option.getWithDefault(
-              searchValueDict->Js.Dict.get(val)->Belt.Option.getWithDefault(""),
+              searchValueDict->Dict.get(val)->Belt.Option.getWithDefault(""),
             )
           if requireDateFormatting && (val == "startTime" || val == "endTime") {
             (x->DayJs.getDayJsForString).format(. "YYYY-MM-DD+HH:mm:ss")
@@ -260,11 +260,11 @@ let make = (
       | JSONArray(_arr) => json->getObjects->Array.map(obj => obj->Js.Nullable.return)->setNewData
       | JSONObject(dict) => {
           let flattenedObject = JsonFlattenUtils.flattenObject(json, false)
-          switch Js.Dict.get(flattenedObject, dataKey) {
+          switch Dict.get(flattenedObject, dataKey) {
           | Some(x) => x->getObjects->Array.map(obj => obj->Js.Nullable.return)->setNewData
           | None => ()
           }
-          let summary = switch Js.Dict.get(dict, summaryKey) {
+          let summary = switch Dict.get(dict, summaryKey) {
           | Some(x) => x->getSummary
           | None => dict->Js.Json.object_->getSummary
           }
@@ -311,7 +311,7 @@ let make = (
         ->Js.Json.decodeObject
         ->Belt.Option.getWithDefault(Dict.make())
         ->Dict.toArray
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
 
       Dict.set(newDefaultFilter, "offset", rowFetched->Js.Int.toFloat->Js.Json.number)
       setDefaultFilters(_ => newDefaultFilter->Js.Json.object_)

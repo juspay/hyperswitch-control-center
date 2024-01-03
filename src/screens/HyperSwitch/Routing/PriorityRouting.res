@@ -237,7 +237,7 @@ let make = (~routingRuleId, ~isActive) => {
         ->getArrayFromDict("data", [])
         ->getStrArrayFromJsonArray
 
-      let initialValueDict = Js.Dict.fromArray([
+      let initialValueDict = Dict.fromArray([
         (
           "name",
           routingJson

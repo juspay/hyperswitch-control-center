@@ -184,7 +184,7 @@ let getDefaultSelection: Js.Dict.t<
   open LogicUtils
   open AdvancedRoutingTypes
   let override3dsValue = defaultSelection->getString("override_3ds", "")
-  let surchargeDetailsOptionalValue = defaultSelection->Js.Dict.get("surcharge_details")
+  let surchargeDetailsOptionalValue = defaultSelection->Dict.get("surcharge_details")
   let surchargeDetailsValue = defaultSelection->getDictfromDict("surcharge_details")
 
   if override3dsValue->String.length > 0 {

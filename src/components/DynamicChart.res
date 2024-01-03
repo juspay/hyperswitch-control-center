@@ -222,7 +222,7 @@ let useChartFetch = (~setStatusDict) => {
         item.url,
         ~method_=Fetch.Post,
         ~bodyStr=item.body,
-        ~headers=[("QueryType", "Chart")]->Js.Dict.fromArray,
+        ~headers=[("QueryType", "Chart")]->Dict.fromArray,
         (),
       )
       ->addLogsAroundFetch(~logTitle="Chart Data Api", ~setStatusDict)
@@ -240,7 +240,7 @@ let useChartFetch = (~setStatusDict) => {
             item.url,
             ~method_=Fetch.Post,
             ~bodyStr=legendBody,
-            ~headers=[("QueryType", "Chart")]->Js.Dict.fromArray,
+            ~headers=[("QueryType", "Chart")]->Dict.fromArray,
             (),
           )
           ->addLogsAroundFetch(~logTitle="Chart Data Api", ~setStatusDict)
@@ -350,7 +350,7 @@ let cardinalityMapper = (cardinality: cardinality) => {
 let validateAndUpdateUri = (~updateUri, ~updatedFilter, ~validationArr, ~valueFromUrl) => {
   validationArr->Array.includes(valueFromUrl)
     ? ()
-    : updateUri(~dict=Js.Dict.fromArray([updatedFilter]))
+    : updateUri(~dict=Dict.fromArray([updatedFilter]))
 }
 
 @react.component
@@ -394,7 +394,7 @@ let make = (
       let (key, value) = item
       (key, value->UrlFetchUtils.getFilterValue)
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
 
   // with prefix only for charts
   let getChartCompFilters = React.useMemo1(() => {
@@ -415,7 +415,7 @@ let make = (
         None
       }
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
   }, [getAllFilter])
 
   // without prefix only for charts
@@ -433,7 +433,7 @@ let make = (
         Some((prefix, value))
       }
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
   }, [getAllFilter])
 
   let mode = switch modeKey {
@@ -642,7 +642,7 @@ let make = (
             filterKeys->Array.includes(key) ? Some((key, value)) : None
           },
         )
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
       let activeTab =
         selectedTab
         ->Belt.Option.getWithDefault([])
@@ -717,7 +717,7 @@ let make = (
     switch (tabTitleMapper, selectedTab) {
     | (Some(dict), Some(arr)) => {
         let groupKey = arr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
-        (groupKey, dict->Js.Dict.get(groupKey)->Belt.Option.getWithDefault(groupKey))
+        (groupKey, dict->Dict.get(groupKey)->Belt.Option.getWithDefault(groupKey))
       }
     | (None, Some(arr)) => (
         arr->Belt.Array.get(0)->Belt.Option.getWithDefault(""),
@@ -732,11 +732,11 @@ let make = (
       let rawdata = mappedData.rawData->Array.map(item => {
         let dict = item->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make())
 
-        switch dict->Js.Dict.get("time_range") {
+        switch dict->Dict.get("time_range") {
         | Some(jsonObj) => {
             let timeDict = jsonObj->LogicUtils.getDictFromJsonObject
 
-            switch timeDict->Js.Dict.get("startTime") {
+            switch timeDict->Dict.get("startTime") {
             | Some(startValue) => {
                 let sTime = startValue->Js.Json.decodeString->Belt.Option.getWithDefault("")
 
@@ -761,7 +761,7 @@ let make = (
         ->Array.forEach(
           tabName => {
             let metric =
-              Js.Dict.get(dict, tabName)
+              Dict.get(dict, tabName)
               ->Belt.Option.getWithDefault(""->Js.Json.string)
               ->Js.Json.decodeString
               ->Belt.Option.getWithDefault("")
@@ -773,7 +773,7 @@ let make = (
               key => {
                 if key->Js.String2.includes("amount") {
                   let amount =
-                    Js.Dict.get(dict, key)
+                    Dict.get(dict, key)
                     ->Belt.Option.getWithDefault(Js.Json.number(0.0))
                     ->Js.Json.decodeNumber
                     ->Belt.Option.getWithDefault(0.0)
@@ -782,7 +782,7 @@ let make = (
 
                   Dict.set(dict, key, amount->Js.Float.fromString->Js.Json.number)
                 } else if !(key->Js.String2.includes("time")) && key != tabName {
-                  switch Js.Dict.get(dict, key) {
+                  switch Dict.get(dict, key) {
                   | Some(val) =>
                     switch val->Js.Json.decodeNumber {
                     | Some(val2) =>
@@ -859,9 +859,7 @@ let make = (
   let _inputChart: ReactFinalForm.fieldRenderPropsInput = {
     name: "inputChart",
     onChange: ev => {
-      updateChartCompFilters(
-        Js.Dict.fromArray([("chartType", ev->Identity.formReactEventToString)]),
-      )
+      updateChartCompFilters(Dict.fromArray([("chartType", ev->Identity.formReactEventToString)]))
     },
     value: chartTypeFromUrl->Js.Json.string,
     onBlur: _ev => (),
@@ -872,7 +870,7 @@ let make = (
     name: "inputMetricTop",
     onChange: ev => {
       updateChartCompFilters(
-        Js.Dict.fromArray([("chartTopMetric", ev->Identity.formReactEventToString)]),
+        Dict.fromArray([("chartTopMetric", ev->Identity.formReactEventToString)]),
       )
     },
     value: chartTopMetricFromUrl->Js.Json.string,
@@ -884,7 +882,7 @@ let make = (
     name: "inputMetricBottom",
     onChange: ev => {
       updateChartCompFilters(
-        Js.Dict.fromArray([("chartBottomMetric", ev->Identity.formReactEventToString)]),
+        Dict.fromArray([("chartBottomMetric", ev->Identity.formReactEventToString)]),
       )
     },
     value: chartBottomMetricFromUrl->Js.Json.string,
@@ -906,7 +904,7 @@ let make = (
       ? "hidden"
       : ""
 
-  if statusDict->Js.Dict.values->Array.includes(504) {
+  if statusDict->Dict.valuesToArray->Array.includes(504) {
     <AnalyticsUtils.NoDataFoundPage />
   } else {
     <div>

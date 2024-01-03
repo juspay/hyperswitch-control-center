@@ -110,7 +110,7 @@ module TabInfo = {
             if Array.length(tabStacksnames) >= 1 {
               handleSelectedTab(
                 ~tabValue={
-                  switch tabStacksnames->Js.Array2.pop {
+                  switch tabStacksnames->Array.pop {
                   | Some(tabName) => tabName
                   | None => getValueFromArrayTab(updatedTabNames, 0)
                   }
@@ -360,7 +360,7 @@ let make = (
         setTabDetails(_ => Array.concat(tabsDetails, newTab))
         setActiveTab(getValueFromArrayTab(updatedColllapsableTab, Array.length(collapsibleTabs)))
         updateTabNameWith(
-          Js.Dict.fromArray([
+          Dict.fromArray([
             (
               "tabName",
               `[${getValueFromArrayTab(updatedColllapsableTab, Array.length(collapsibleTabs))}]`,
@@ -372,7 +372,7 @@ let make = (
         setActiveTab(getValueFromArrayTab(collapsibleTabs, concatinatedTabIndex))
 
         updateTabNameWith(
-          Js.Dict.fromArray([
+          Dict.fromArray([
             ("tabName", `[${getValueFromArrayTab(collapsibleTabs, concatinatedTabIndex)}]`),
           ]),
         )
@@ -382,7 +382,7 @@ let make = (
       setActiveTab(getValueFromArrayTab(collapsibleTabs, 0))
 
       updateTabNameWith(
-        Js.Dict.fromArray([("tabName", `[${getValueFromArrayTab(collapsibleTabs, 0)}]`)]),
+        Dict.fromArray([("tabName", `[${getValueFromArrayTab(collapsibleTabs, 0)}]`)]),
       )
       (0, collapsibleTabs)
     }
@@ -444,14 +444,14 @@ let make = (
           Array.concat(prev, [tabValue])
         })
       }
-      updateTabNameWith(Js.Dict.fromArray([("tabName", `[${tabValue}]`)]))
+      updateTabNameWith(Dict.fromArray([("tabName", `[${tabValue}]`)]))
       setActiveTab(tabValue)
       setSelectedIndex(_ =>
         Js.Math.max_int(0, collapsibleTabs->Array.map(item => item.value)->Array.indexOf(tabValue))
       )
     } else {
       updateTabNameWith(
-        Js.Dict.fromArray([
+        Dict.fromArray([
           (
             "tabName",
             `[${tabStacksnames
@@ -498,7 +498,7 @@ let make = (
       setTabDetails(_ => Array.concat(tabsDetails, newTab))
       setSelectedIndex(_ => Array.length(updatedCollapsableTabs) - 1)
       setTabStacksnames(prev => Array.concat(prev, [getValueFromArrayTab(newTab, 0)]))
-      updateTabNameWith(Js.Dict.fromArray([("tabName", `[${getValueFromArrayTab(newTab, 0)}]`)]))
+      updateTabNameWith(Dict.fromArray([("tabName", `[${getValueFromArrayTab(newTab, 0)}]`)]))
       setActiveTab(getValueFromArrayTab(newTab, 0))
 
       Js.Global.setTimeout(_ => {
@@ -510,7 +510,7 @@ let make = (
       }, 200)->ignore
     } else {
       setSelectedIndex(_ => Array.indexOf(collapsibleTabs->Array.map(item => item.value), tabValue))
-      updateTabNameWith(Js.Dict.fromArray([("tabName", `[${values->Array.joinWith(",")}]`)]))
+      updateTabNameWith(Dict.fromArray([("tabName", `[${values->Array.joinWith(",")}]`)]))
       setActiveTab(values->Array.joinWith(","))
     }
     setShowModal(_ => false)

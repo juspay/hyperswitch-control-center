@@ -48,7 +48,7 @@ let getBrowswerDetailsPayload = () => {
   open CountryUtils
   let browserDetails = HSwitchUtils.getBrowswerDetails()
   let clientCountry = browserDetails.clientCountry
-  let clientCountryDict = Js.Dict.fromArray([
+  let clientCountryDict = Dict.fromArray([
     ("isoAlpha3", clientCountry.isoAlpha3->Js.Json.string),
     ("countryName", clientCountry.countryName->getCountryNameFromVarient->Js.Json.string),
     ("isoAlpha2", clientCountry.isoAlpha2->getCountryCodeStringFromVarient->Js.Json.string),
@@ -65,7 +65,7 @@ let getBrowswerDetailsPayload = () => {
     ("timeZoneOffset", browserDetails.timeZoneOffset->Js.Json.string),
     ("clientCountry", clientCountryDict->Js.Json.object_),
   ]
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_
 }
 
@@ -77,12 +77,12 @@ let generateSurveyJson = values => {
     ->Array.map(value => {
       (value.key, valuesDict->getString(value.key, "")->Js.Json.string)
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
   let browserDetailsPayload = getBrowswerDetailsPayload()
   [
     ("signin_survey", survey_json->Js.Json.object_),
     ("browser_details", browserDetailsPayload),
-  ]->Js.Dict.fromArray
+  ]->Dict.fromArray
 }
 
 let initialValueDict =
@@ -90,5 +90,5 @@ let initialValueDict =
   ->Array.map(value => {
     (value.key, ""->Js.Json.string)
   })
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_

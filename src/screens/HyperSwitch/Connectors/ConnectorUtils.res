@@ -604,7 +604,7 @@ let ignoreFields = (json, id, fields) => {
       let (key, _val) = entry
       !(fields->Array.includes(key))
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
   }
 }
@@ -750,7 +750,7 @@ let getDisableConnectorPayload = (connectorType, previousConnectorState) => {
   [
     ("connector_type", connectorType->Js.Json.string),
     ("disabled", !previousConnectorState->Js.Json.boolean),
-  ]->Js.Dict.fromArray
+  ]->Dict.fromArray
 }
 
 let getWebHookRequiredFields = (connector: connectorName, fieldName: string) => {
@@ -896,7 +896,7 @@ let getConnectorFields = connectorDetails => {
     connectorDetails
     ->LogicUtils.getDictFromJsonObject
     ->LogicUtils.getDictfromDict("connector_webhook_details")
-  let connectorLabelDetailField = Js.Dict.fromArray([
+  let connectorLabelDetailField = Dict.fromArray([
     ("connector_label", "Connector label"->Js.Json.string),
   ])
   (
@@ -928,14 +928,14 @@ let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {
 let validate = (values, ~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => {
   let errors = Dict.make()
   let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
-  let labelArr = dict->Js.Dict.values
+  let labelArr = dict->Dict.valuesToArray
   selectedConnector.validate
   ->Belt.Option.getWithDefault([])
   ->Array.forEachWithIndex((field, index) => {
     let key = field.name
     let value =
       valuesFlattenJson
-      ->Js.Dict.get(key)
+      ->Dict.get(key)
       ->Belt.Option.getWithDefault(""->Js.Json.string)
       ->LogicUtils.getStringFromJson("")
     let regexToUse = isLiveMode ? field.liveValidationRegex : field.testValidationRegex
@@ -1035,7 +1035,7 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: Js.Json.
     test_mode: dict->getBool("test_mode", false),
   }
   let values = Window.getRequestPayload(wasmRequest, payLoadDetails)
-  let dict = Js.Dict.fromArray([
+  let dict = Dict.fromArray([
     ("connector_account_details", connectorAccountDetails),
     ("connector_label", dict->getString("connector_label", "")->Js.Json.string),
     ("status", dict->getString("status", "active")->Js.Json.string),
@@ -1044,7 +1044,7 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: Js.Json.
   ->getDictFromJsonObject
   ->Dict.toArray
   ->Array.concat(dict->Dict.toArray)
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_
 }
 

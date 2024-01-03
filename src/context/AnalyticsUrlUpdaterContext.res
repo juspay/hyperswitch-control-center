@@ -38,7 +38,7 @@ let make = (~children) => {
       let val = arr->Belt.Array.sliceToEnd(1)->Array.joinWith("=")
       key === "" || val === "" ? None : Some((key, val))
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
 
   let (urlDict, setUrlDict) = React.useState(_ => searcParamsToDict)
   let updateUrl = React.useMemo2(() => {
@@ -50,7 +50,7 @@ let make = (~children) => {
           ->Belt.Array.keepMap(
             item => {
               let (key, value) = item
-              switch dict->Js.Dict.get(key) {
+              switch dict->Dict.get(key) {
               | Some(_) => None
               | None => value !== "" ? Some(item) : None
               }
@@ -66,7 +66,7 @@ let make = (~children) => {
             },
           )
 
-        let updatedDict = Array.concat(prevDictArr, currentDictArr)->Js.Dict.fromArray
+        let updatedDict = Array.concat(prevDictArr, currentDictArr)->Dict.fromArray
         if DictionaryUtils.equalDicts(updatedDict, prev) {
           prev
         } else {
@@ -82,7 +82,7 @@ let make = (~children) => {
     let removeKeys = (arr: array<string>) => {
       setUrlDict(prev => {
         let updatedDict =
-          prev->Dict.toArray->Array.copy->Js.Dict.fromArray->DictionaryUtils.deleteKeys(arr)
+          prev->Dict.toArray->Array.copy->Dict.fromArray->DictionaryUtils.deleteKeys(arr)
         if DictionaryUtils.equalDicts(updatedDict, prev) {
           prev
         } else {
@@ -100,7 +100,7 @@ let make = (~children) => {
         let (key, value) = item
         (key, value->UrlFetchUtils.getFilterValue)
       })
-      ->Js.Dict.fromArray,
+      ->Dict.fromArray,
       reset,
     }
   }, (urlDict, setUrlDict))

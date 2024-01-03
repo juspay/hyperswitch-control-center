@@ -13,7 +13,7 @@ let make = React.memo((~name: string, ~customStyle="") => {
               key !== name
             },
           )
-          ->Js.Dict.fromArray
+          ->Dict.fromArray
 
         switch elem->Js.Nullable.toOption {
         | Some(elem) => Dict.set(clonedDict, name, elem)

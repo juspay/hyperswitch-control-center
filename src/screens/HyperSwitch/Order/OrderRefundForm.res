@@ -76,13 +76,13 @@ let make = (
         | _ => None
         }
       })
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
     ["amount"]->Array.forEach(key => {
-      if Js.Dict.get(valuesDict, key)->Js.Option.isNone {
+      if Dict.get(valuesDict, key)->Js.Option.isNone {
         Dict.set(errors, key, "Required"->Js.Json.string)
       }
     })
-    let amountValue = Js.Dict.get(valuesDict, "amount")
+    let amountValue = Dict.get(valuesDict, "amount")
 
     switch amountValue->Belt.Option.flatMap(Js.Json.decodeNumber) {
     | Some(floatVal) =>

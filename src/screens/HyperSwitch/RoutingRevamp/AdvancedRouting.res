@@ -586,7 +586,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     try {
       setScreenState(_ => Loading)
       let deactivateRoutingURL = `${getURL(~entityName=ROUTING, ~methodType=Post, ())}/deactivate`
-      let body = [("profile_id", profile->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
+      let body = [("profile_id", profile->Js.Json.string)]->Dict.fromArray->Js.Json.object_
       let _ = await updateDetails(deactivateRoutingURL, body, Post)
       showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
       RescriptReactRouter.replace(`/routing?`)

@@ -223,7 +223,7 @@ let tableItemToObjMapper = dict => {
 let objMapper = dict => {
   {
     name: dict->getString("name", ""),
-    desc: Js.Dict.get(dict, "desc")->Belt.Option.getWithDefault(Js.Json.null),
+    desc: Dict.get(dict, "desc")->Belt.Option.getWithDefault(Js.Json.null),
   }
 }
 

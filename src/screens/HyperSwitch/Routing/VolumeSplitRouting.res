@@ -160,7 +160,7 @@ module VolumeRoutingView = {
       try {
         setScreenState(_ => Loading)
         let deactivateRoutingURL = `${getURL(~entityName=ROUTING, ~methodType=Post, ())}/deactivate`
-        let body = [("profile_id", profile->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
+        let body = [("profile_id", profile->Js.Json.string)]->Dict.fromArray->Js.Json.object_
         let _ = await updateDetails(deactivateRoutingURL, body, Post)
         showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(`/routing?`)
@@ -344,13 +344,12 @@ let make = (~routingRuleId, ~isActive) => {
       RoutingUtils.itemGateWayObjMapper,
       None,
     )
-    let gatewaysDict =
-      [("gateways", volumeBasedGatewayDistribution->Js.Json.array)]->Js.Dict.fromArray
-    let volDict = [("volumeBasedDistribution", gatewaysDict->Js.Json.object_)]->Js.Dict.fromArray
-    let ruleDict = [("json", volDict->Js.Json.object_)]->Js.Dict.fromArray
+    let gatewaysDict = [("gateways", volumeBasedGatewayDistribution->Js.Json.array)]->Dict.fromArray
+    let volDict = [("volumeBasedDistribution", gatewaysDict->Js.Json.object_)]->Dict.fromArray
+    let ruleDict = [("json", volDict->Js.Json.object_)]->Dict.fromArray
     let routingJsonToDict = routingJson->getDictFromJsonObject
 
-    let initialValueDict = Js.Dict.fromArray([
+    let initialValueDict = Dict.fromArray([
       ("name", routingJsonToDict->getString("name", "")->Js.Json.string),
       ("description", routingJsonToDict->getString("description", "")->Js.Json.string),
       ("profile_id", routingJsonToDict->getString("profile_id", "")->Js.Json.string),

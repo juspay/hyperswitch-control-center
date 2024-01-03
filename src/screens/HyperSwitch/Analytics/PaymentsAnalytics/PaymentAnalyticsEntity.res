@@ -69,7 +69,7 @@ let distribution =
     ("distributionFor", "payment_error_message"->Js.Json.string),
     ("distributionCardinality", "TOP_5"->Js.Json.string),
   ]
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_
 
 let tableItemToObjMapper: Js.Dict.t<Js.Json.t> => paymentTableType = dict => {

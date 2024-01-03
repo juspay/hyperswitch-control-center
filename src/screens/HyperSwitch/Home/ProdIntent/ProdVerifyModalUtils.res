@@ -167,5 +167,5 @@ let getBody = (values: Js.Json.t) => {
     (Website->getStringFromVariant, valuesDict->getJsonString(Website)),
     (POCName->getStringFromVariant, valuesDict->getJsonString(POCName)),
     (BusinessTAN->getStringFromVariant, valuesDict->getJsonString(BusinessTAN)),
-  ]->Js.Dict.fromArray
+  ]->Dict.fromArray
 }
