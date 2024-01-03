@@ -4,9 +4,6 @@ module AdvanceSettings = {
     let (isFRMSettings, setIsFRMSettings) = React.useState(_ => isUpdateFlow)
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let form = ReactFinalForm.useForm()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
-    let pageName = url.path->LogicUtils.getListHead
 
     let inputLabel: ReactFinalForm.fieldRenderPropsInput = {
       name: `input`,
@@ -14,14 +11,6 @@ module AdvanceSettings = {
       onChange: ev => {
         let value = ev->Identity.formReactEventToBool
         setIsFRMSettings(_ => value)
-        [frmName, "global"]->Js.Array2.forEach(ele =>
-          hyperswitchMixPanel(
-            ~pageName,
-            ~contextName=ele,
-            ~actionName=isFRMSettings ? "settings_open" : "settings_close",
-            (),
-          )
-        )
       },
       onFocus: _ev => (),
       value: {isFRMSettings->Js.Json.boolean},
@@ -183,7 +172,6 @@ module IntegrationFieldsForm = {
 let make = (
   ~setCurrentStep,
   ~selectedFRMInfo,
-  ~currentStep,
   ~retrivedValues=None,
   ~setInitialValues,
   ~isUpdateFlow,
@@ -193,10 +181,8 @@ let make = (
   open FRMTypes
   open APIUtils
   open Promise
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let showToast = ToastState.useShowToast()
   let fetchApi = useUpdateMethod()
-  let url = RescriptReactRouter.useUrl()
   let frmName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -242,16 +228,6 @@ let make = (
 
   let updateDetails = useUpdateMethod()
 
-  React.useEffect1(() => {
-    ConnectorUtils.mixpanelEventWrapper(
-      ~url,
-      ~selectedConnector=frmName,
-      ~actionName=`${isUpdateFlow ? "settings_entry_updateflow" : "settings_entry"}`,
-      ~hyperswitchMixPanel,
-    )
-    None
-  }, [frmName])
-
   let frmUrl = if frmID->Js.String.length <= 0 {
     getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ())
   } else {
@@ -281,7 +257,6 @@ let make = (
   let setFRMValues = async body => {
     fetchApi(frmUrl, body, Fetch.Post)
     ->thenResolve(res => {
-      getMixpanelForFRMOnSubmit(~frmName, ~currentStep, ~isUpdateFlow, ~url, ~hyperswitchMixPanel)
       setCurrentStep(prev => prev->getNextStep)
       let _ = updateMerchantDetails()
       setInitialValues(_ => res)

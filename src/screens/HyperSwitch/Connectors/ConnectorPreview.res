@@ -40,11 +40,8 @@ module MenuOption = {
     ~setCurrentStep,
     ~disableConnector,
     ~isConnectorDisabled,
-    ~connectorInfo: ConnectorTypes.connectorPayload,
     ~pageName="connector",
   ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     let showPopUp = PopUpState.useShowPopUp()
     let openConfirmationPopUp = _ => {
       showPopUp({
@@ -75,30 +72,12 @@ module MenuOption = {
                 <Navbar.MenuOption
                   text="Update"
                   onClick={_ => {
-                    hyperswitchMixPanel(
-                      ~pageName=url.path->LogicUtils.getListHead,
-                      ~contextName=connectorInfo.connector_name,
-                      ~actionName="update",
-                      ~description=Some(
-                        `${connectorInfo.connector_name}_previous_connector_update`,
-                      ),
-                      (),
-                    )
                     setCurrentStep(_ => updateStepValue)
                   }}
                 />
                 <Navbar.MenuOption
                   text={connectorStatusAvailableToSwitch}
                   onClick={_ => {
-                    hyperswitchMixPanel(
-                      ~pageName=url.path->LogicUtils.getListHead,
-                      ~contextName=connectorInfo.connector_name,
-                      ~actionName=connectorStatusAvailableToSwitch,
-                      ~description=Some(
-                        `${connectorInfo.connector_name}_previous_connector_${connectorStatusAvailableToSwitch}`,
-                      ),
-                      (),
-                    )
                     openConfirmationPopUp()
                   }}
                 />
@@ -157,7 +136,20 @@ module ConnectorSummaryGrid = {
       connectorDetails,
     )
 
+    let connectorStatusStyle = connectorStatus =>
+      switch connectorStatus {
+      | "active" => "border bg-green-600 bg-opacity-40 border-green-700"
+      | _ => "border bg-red-600 bg-opacity-40 border-red-400"
+      }
+
     <div className="p-2 md:px-10">
+      <div className="grid grid-cols-4 my-12">
+        <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
+        <div
+          className={`px-4 py-2 rounded-full w-fit text-black font-medium text-sm ${connectorInfo.status->connectorStatusStyle}`}>
+          {connectorInfo.status->Js.String2.toUpperCase->React.string}
+        </div>
+      </div>
       <div className="grid grid-cols-4 my-12">
         <div className="flex items-start">
           <h4 className="text-lg font-semibold"> {"Webhook Endpoint"->React.string} </h4>
@@ -235,7 +227,6 @@ let make = (
 ) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   open APIUtils
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
@@ -291,23 +282,16 @@ let make = (
                 className={`text-fs-13 font-bold ${isConnectorDisabled
                     ? "text-red-800"
                     : "text-green-700"}`}>
-                {(isConnectorDisabled ? "INACTIVE" : "ACTIVE")->React.string}
+                {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
               </p>
               <UIUtils.RenderIf condition={showMenuOption}>
-                <MenuOption setCurrentStep disableConnector isConnectorDisabled connectorInfo />
+                <MenuOption setCurrentStep disableConnector isConnectorDisabled />
               </UIUtils.RenderIf>
             </div>
 
           | _ =>
             <Button
               onClick={_ => {
-                ConnectorUtils.getMixpanelForConnectorOnSubmit(
-                  ~connectorName=connectorInfo.connector_name,
-                  ~currentStep,
-                  ~isUpdateFlow,
-                  ~url,
-                  ~hyperswitchMixPanel,
-                )
                 if isFeedbackModalToBeOpen {
                   setShowFeedbackModal(_ => true)
                 }

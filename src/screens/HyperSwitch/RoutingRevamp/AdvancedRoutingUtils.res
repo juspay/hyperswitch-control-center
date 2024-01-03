@@ -182,11 +182,32 @@ let getDefaultSelection: Js.Dict.t<
   Js.Json.t,
 > => AdvancedRoutingTypes.connectorSelection = defaultSelection => {
   open LogicUtils
+  open AdvancedRoutingTypes
   let override3dsValue = defaultSelection->getString("override_3ds", "")
+  let surchargeDetailsOptionalValue = defaultSelection->Js.Dict.get("surcharge_details")
+  let surchargeDetailsValue = defaultSelection->getDictfromDict("surcharge_details")
 
   if override3dsValue->Js.String2.length > 0 {
     {
       override_3ds: override3dsValue,
+    }
+  } else if surchargeDetailsOptionalValue->Option.isSome {
+    let surchargeValue = surchargeDetailsValue->getDictfromDict("surcharge")
+
+    {
+      surcharge_details: {
+        surcharge: {
+          \"type": surchargeValue->getString("type", ""),
+          value: {
+            percentage: surchargeValue->getDictfromDict("value")->getFloat("percentage", 0.0),
+          },
+        },
+        tax_on_surcharge: {
+          percentage: surchargeDetailsValue
+          ->getDictfromDict("tax_on_surcharge")
+          ->getFloat("percentage", 0.0),
+        },
+      }->Js.Nullable.return,
     }
   } else {
     {
