@@ -74,6 +74,144 @@ module APITableInfo = {
   }
 }
 
+module HSiwtchPaymentConfirmLatency = {
+  open DynamicSingleStat
+  open SystemMetricsAnalyticsUtils
+  open Promise
+  open LogicUtils
+  @react.component
+  let make = () => {
+    let url = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`
+    let (isLoading, setIsLoading) = React.useState(_ => true)
+    let (latency, setLatency) = React.useState(_ => 0)
+    let (connectorLatency, setConnectorLatency) = React.useState(_ => 0)
+    let (overallLatency, setOverallrLatency) = React.useState(_ => 0)
+    let updateDetails = APIUtils.useUpdateMethod()
+    let dateDict = HSwitchRemoteFilter.getDateFilteredObject()
+
+    let singleStatBodyEntity = {
+      metrics: ["latency", "api_count", "status_code_count"],
+      startDateTime: dateDict.start_time,
+      endDateTime: dateDict.end_time,
+    }
+
+    let singleStatBodyMake = (singleStatBodyEntity: singleStatBodyEntity, flowType) => {
+      let filters =
+        [
+          ("api_name", ["PaymentsConfirm"->Js.Json.string]->Js.Json.array),
+          ("status_code", [200.0->Js.Json.number]->Js.Json.array),
+          ("flow_type", [flowType->Js.Json.string]->Js.Json.array),
+        ]
+        ->Js.Dict.fromArray
+        ->Js.Json.object_
+
+      [
+        AnalyticsUtils.getFilterRequestBody(
+          ~filter=filters->Some,
+          ~metrics=singleStatBodyEntity.metrics,
+          ~delta=?singleStatBodyEntity.delta,
+          ~startDateTime=singleStatBodyEntity.startDateTime,
+          ~endDateTime=singleStatBodyEntity.endDateTime,
+          ~mode=singleStatBodyEntity.mode,
+          ~customFilter=?singleStatBodyEntity.customFilter,
+          ~source=?singleStatBodyEntity.source,
+          ~granularity=singleStatBodyEntity.granularity,
+          ~prefix=singleStatBodyEntity.prefix,
+          (),
+        )->Js.Json.object_,
+      ]->Js.Json.array
+    }
+
+    let parseJson = json => {
+      json
+      ->getDictFromJsonObject
+      ->getJsonObjectFromDict("queryData")
+      ->getArrayFromJson([])
+      ->Belt.Array.get(0)
+      ->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty()))
+      ->getDictFromJsonObject
+      ->getInt("latency", 0)
+    }
+
+    let getOverallLatency = async () => {
+      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("Payment"), Fetch.Post)
+      ->thenResolve(json => {
+        setOverallrLatency(_ => json->parseJson)
+      })
+      ->catch(_ => {
+        setIsLoading(_ => false)
+        resolve()
+      })
+      ->ignore
+    }
+
+    let getConnectorLatency = () => {
+      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("OutgoingEvent"), Fetch.Post)
+      ->thenResolve(json => {
+        setConnectorLatency(_ => json->parseJson)
+        setIsLoading(_ => false)
+      })
+      ->catch(_ => {
+        setIsLoading(_ => false)
+        resolve()
+      })
+      ->ignore
+    }
+
+    React.useEffect2(() => {
+      let value = overallLatency - connectorLatency
+      setLatency(_ => value)
+
+      None
+    }, (overallLatency, connectorLatency))
+
+    React.useEffect0(() => {
+      getOverallLatency()->ignore
+      getConnectorLatency()->ignore
+
+      None
+    })
+
+    if isLoading {
+      <div className={`p-4 w-full`}>
+        <Shimmer styleClass="w-full h-28" />
+      </div>
+    } else {
+      <div className="mt-4 w-full">
+        <div
+          className={`h-full flex flex-col border rounded dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden singlestatBox p-4 mr-4`}>
+          <div className="px-4 pb-4 pt-1 flex flex-col justify-between h-full gap-auto">
+            <div className="flex flex-row h-1/2 items-end">
+              <div className="font-bold text-3xl">
+                {latencyShortNum(
+                  ~labelValue=latency->Belt.Int.toFloat /. 1000.0,
+                  ~includeMilliseconds=true,
+                  (),
+                )
+                ->Js.String2.toLowerCase
+                ->React.string}
+              </div>
+            </div>
+            <div
+              className={"flex gap-2 items-center pt-4 text-jp-gray-700 font-bold self-start h-1/2"}>
+              <div className="font-semibold text-base text-black dark:text-white">
+                {"Hyperswitch overhead for payment confirm"->React.string}
+              </div>
+              <ToolTip
+                description="Average time added by the Hyperswitch application to the overall Payments Confirm API latency"
+                toolTipFor={<div className="cursor-pointer">
+                  <Icon name="info-vacent" size=13 />
+                </div>}
+                toolTipPosition=ToolTip.Top
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  }
+}
+
 module SystemMetricsAnalytics = {
   open AnalyticsTypes
   open LogicUtils
@@ -90,18 +228,14 @@ module SystemMetricsAnalytics = {
     ~filterUri,
     ~moduleName: string,
   ) => {
-    let url = RescriptReactRouter.useUrl()
-
     let getFilterData = AnalyticsHooks.useGetFiltersData()
-    let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let getModuleFilters = filterValueJson
     let startTimeVal = getModuleFilters->getString(startTimeFilterKey, "")
     let endTimeVal = getModuleFilters->getString(endTimeFilterKey, "")
-    let updateComponentPrefrences = UrlUtils.useUpdateUrlWith(~prefix="")
-    let {filterValue, updateExistingKeys} =
-      AnalyticsUrlUpdaterContext.urlUpdaterContext->React.useContext
+    let {updateExistingKeys} = FilterContext.filterContext->React.useContext
     let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
     let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
-    let (_filterAtom, setFilterAtom) = Recoil.useRecoilState(AnalyticsAtoms.customFilterAtom)
 
     let chartEntity1 = chartEntity.default
     let chartEntity1 = switch chartEntity1 {
@@ -110,29 +244,15 @@ module SystemMetricsAnalytics = {
     }
 
     let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-      ~updateComponentPrefrences,
       ~updateExistingKeys,
       ~startTimeFilterKey,
       ~endTimeFilterKey,
     )
 
     React.useEffect0(() => {
-      setFilterAtom(._ => "")
       setInitialFilters()
       None
     })
-
-    React.useEffect1(() => {
-      if url.search->HSwitchUtils.isEmptyString {
-        updateComponentPrefrences(~dict=filterValue)
-      }
-      None
-    }, [url])
-
-    React.useEffect1(() => {
-      updateComponentPrefrences(~dict=filterValue)
-      None
-    }, [filterValue])
 
     let filterBody = React.useMemo3(() => {
       let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
@@ -219,7 +339,6 @@ let make = () => {
   })
 
   let tabKeys = getStringListFromArrayDict(dimensions)
-
   let title = "System Metrics"
   let subTitle = "Gain Insights, monitor performance and make Informed Decisions with System Metrics."
 
