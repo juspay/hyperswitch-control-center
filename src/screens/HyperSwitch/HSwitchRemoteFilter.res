@@ -207,18 +207,14 @@ module RemoteTableFilters = {
     let {filterValue, updateExistingKeys, filterValueJson, removeKeys} =
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->Js.Json.string}
-
     let getFilterData = useGetFiltersData()
-    let setInitialFilters = useSetInitialFilters(
-      ~updateExistingKeys,
-      ~startTimeFilterKey,
-      ~endTimeFilterKey,
-    )
-
     let customViewTop = <SearchBarFilter placeholder setSearchVal searchVal />
 
     React.useEffect0(() => {
-      setInitialFilters()
+      if filterValueJson->Js.Dict.keys->Js.Array2.length <= 0 {
+        setFilters(_ => Js.Dict.empty()->Some)
+        setOffset(_ => 0)
+      }
       None
     })
 
