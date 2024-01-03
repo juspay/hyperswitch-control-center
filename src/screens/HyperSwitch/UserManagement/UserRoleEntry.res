@@ -5,6 +5,7 @@ open UserRoleEntity
 let make = () => {
   open APIUtils
   let fetchDetails = useGetMethod()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let (usersData, setUsersData) = React.useState(_ => [])
   let (usersFilterData, setUsersFilterData) = React.useState(_ => [])
   let (screenStateUsers, setScreenStateUsers) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -126,7 +127,10 @@ let make = () => {
           <Button
             text={"Invite users"}
             buttonType=Primary
-            onClick={_ => RescriptReactRouter.push("/users/invite-users")}
+            onClick={_ => {
+              mixpanelEvent(~eventName="invite_users", ())
+              RescriptReactRouter.push("/users/invite-users")
+            }}
             customButtonStyle="w-48"
           />
         </div>
