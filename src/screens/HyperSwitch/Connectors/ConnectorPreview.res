@@ -3,7 +3,7 @@ module InfoField = {
   let make = (~render, ~label) => {
     let str = render->Belt.Option.getWithDefault("")
 
-    <UIUtils.RenderIf condition={str->Js.String2.length > 0}>
+    <UIUtils.RenderIf condition={str->String.length > 0}>
       <div>
         <h2 className="text-lg font-semibold"> {label->React.string} </h2>
         <h3 className=" break-words"> {str->React.string} </h3>
@@ -103,7 +103,7 @@ module ConnectorSummaryGrid = {
     let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
     let currentProfileName =
       arrayOfBusinessProfile
-      ->Js.Array2.find((ele: HSwitchSettingTypes.profileEntity) =>
+      ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
         ele.profile_id === connectorInfo.profile_id
       )
       ->Belt.Option.getWithDefault(defaultBusinessProfile)
@@ -114,21 +114,21 @@ module ConnectorSummaryGrid = {
     )
     let connectorDetails = React.useMemo1(() => {
       try {
-        if connector->Js.String2.length > 0 {
+        if connector->String.length > 0 {
           let dict = isPayoutFlow
             ? Window.getPayoutConnectorConfig(connector)
             : Window.getConnectorConfig(connector)
           setScreenState(_ => Success)
           dict
         } else {
-          Js.Dict.empty()->Js.Json.object_
+          Dict.make()->Js.Json.object_
         }
       } catch {
       | Js.Exn.Error(e) => {
           Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
           let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
           setScreenState(_ => PageLoaderWrapper.Error(err))
-          Js.Dict.empty()->Js.Json.object_
+          Dict.make()->Js.Json.object_
         }
       }
     }, [connector])
@@ -175,7 +175,7 @@ module ConnectorSummaryGrid = {
         <h4 className="text-lg font-semibold"> {"API Keys"->React.string} </h4>
         <div className="flex flex-col gap-6 col-span-3">
           {connectorAccountFields
-          ->Js.Dict.keys
+          ->Dict.keysToArray
           ->Array.mapWithIndex((field, index) => {
             open LogicUtils
             let label = connectorAccountFields->getString(field, "")
@@ -198,14 +198,14 @@ module ConnectorSummaryGrid = {
               label={field.payment_method->LogicUtils.snakeToTitle}
               render={Some(
                 field.payment_method_types
-                ->Js.Array2.map(item => item.payment_method_type->LogicUtils.snakeToTitle)
+                ->Array.map(item => item.payment_method_type->LogicUtils.snakeToTitle)
                 ->Array.reduce([], (acc, curr) => {
-                  if !(acc->Js.Array2.includes(curr)) {
+                  if !(acc->Array.includes(curr)) {
                     acc->Array.push(curr)
                   }
                   acc
                 })
-                ->Js.Array2.joinWith(", "),
+                ->Array.joinWith(", "),
               )}
             />
           })

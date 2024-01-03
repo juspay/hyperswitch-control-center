@@ -33,7 +33,7 @@ module ReplaceAPIKey = {
       />
       <div className={`${dividerColor} px-2`} />
       <UIUtils.RenderIf
-        condition={previewVariant->Belt.Option.isSome && webhookEndpoint->Js.String2.length > 0}>
+        condition={previewVariant->Belt.Option.isSome && webhookEndpoint->String.length > 0}>
         <ProdOnboardingUIUtils.SetupWebhookProcessor
           headerSectionText="Merchant Webhook Endpoint"
           subtextSectionText="Provide the endpoint where you would want us to send live payment events"
@@ -42,7 +42,7 @@ module ReplaceAPIKey = {
           />}
         />
         <div className={`${dividerColor} px-2`} />
-        <UIUtils.RenderIf condition={paymentResponseHashKey->Js.String2.length > 0}>
+        <UIUtils.RenderIf condition={paymentResponseHashKey->String.length > 0}>
           <ProdOnboardingUIUtils.SetupWebhookProcessor
             headerSectionText="Payment Response Hash Key"
             subtextSectionText="Download the provided key to authenticate and verify live events sent by Hyperswitch. Learn more"
@@ -98,7 +98,7 @@ module SetupWebhookUser = {
           <TextInput input=webhookEndpoint placeholder="Enter your webhook endpoint here " />
         </FormRenderer.FieldWrapper>}
       />
-      <UIUtils.RenderIf condition={paymentResponseHashKey->Js.String2.length > 0}>
+      <UIUtils.RenderIf condition={paymentResponseHashKey->String.length > 0}>
         <ProdOnboardingUIUtils.SetupWebhookProcessor
           headerSectionText="Payment Response Hash Key"
           subtextSectionText="Download the provided key to authenticate and verify live events sent by Hyperswitch. Learn more"
@@ -172,7 +172,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
     try {
       setButtonState(_ => Loading)
       let mercahantUpdateBody =
-        [("webhook_url", webhookEndpoint->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
+        [("webhook_url", webhookEndpoint->Js.Json.string)]->Dict.fromArray->Js.Json.object_
       let body = mercahantUpdateBody->MerchantAccountUtils.getSettingsPayload(merchantId)
       let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ())
       let merchantInfo = await updateDetails(url, body, Post)

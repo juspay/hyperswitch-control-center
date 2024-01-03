@@ -233,7 +233,7 @@ let responseHandler = async (
   switch responseStatus {
   | 200 => json
   | _ => {
-      let errorDict = json->getDictFromJsonObject->getObj("error", Js.Dict.empty())
+      let errorDict = json->getDictFromJsonObject->getObj("error", Dict.make())
       let errorStringifiedJson = errorDict->Js.Json.object_->Js.Json.stringify
 
       //TODO:-

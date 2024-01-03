@@ -9,7 +9,7 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
   let frmName = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
   let frmID = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
 

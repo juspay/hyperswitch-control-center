@@ -140,9 +140,9 @@ type formRenderProps = {
 @module("final-form")
 external formError: string = "FORM_ERROR"
 
-let subscribeToValues = [("values", true)]->Js.Dict.fromArray
+let subscribeToValues = [("values", true)]->Dict.fromArray
 
-let subscribeToPristine = [("pristine", true)]->Js.Dict.fromArray
+let subscribeToPristine = [("pristine", true)]->Dict.fromArray
 
 module Form = {
   @module("react-final-form") @react.component
@@ -194,9 +194,9 @@ module Field = {
 type formSubscription = Js.Json.t
 let useFormSubscription = (keys): formSubscription => {
   React.useMemo0(() => {
-    let dict = Js.Dict.empty()
+    let dict = Dict.make()
     Js.Array.forEach(key => {
-      Js.Dict.set(dict, key, Js.Json.boolean(true))
+      Dict.set(dict, key, Js.Json.boolean(true))
     }, keys)
     dict->Js.Json.object_
   })

@@ -30,11 +30,9 @@ module CheckLocalFilters = {
     }, [values])
     let onChangeSelect = ev => {
       let fieldNameArr = ev->Identity.formReactEventToArrayOfString
-      let newlyAdded = Js.Array2.filter(fieldNameArr, newVal =>
-        !Js.Array2.includes(checkedFilters, newVal)
-      )
+      let newlyAdded = Array.filter(fieldNameArr, newVal => !Array.includes(checkedFilters, newVal))
 
-      if Js.Array2.length(newlyAdded) > 0 {
+      if Array.length(newlyAdded) > 0 {
         addFilters(newlyAdded)
       } else {
         removeFilters(fieldNameArr, values)
@@ -46,14 +44,14 @@ module CheckLocalFilters = {
     let innerClass = ""
     let fieldWrapperClass = !isMobileView ? "px-1 flex flex-col" : ""
 
-    let selectOptions = options->Js.Array2.map(obj => obj.urlKey)
+    let selectOptions = options->Array.map(obj => obj.urlKey)
 
     <div className={`flex flex-row flex-wrap ${innerClass}`}>
       <FormRenderer.FieldsRenderer
         fields={selectedFiltersList} fieldWrapperClass labelClass labelPadding
       />
       <div className={`md:justify-between flex flex-row items-center flex-wrap ${addFilterStyle}`}>
-        {if Js.Array.length(options) > 0 {
+        {if Array.length(options) > 0 {
           <div className={`flex`}>
             <CustomInputSelectBox
               onChange=onChangeSelect
@@ -96,14 +94,12 @@ let make = (
 ) => {
   let {defaultFilters} = entity
   let (selectedFiltersList, setSelectedFiltersList) = React.useState(_ =>
-    localFilters->Js.Array2.map(item => item.field)
+    localFilters->Array.map(item => item.field)
   )
   let (checkedFilters, setCheckedFilters) = React.useState(_ => [])
   let url = RescriptReactRouter.useUrl()
   let searchParams = disableURIdecode ? url.search : url.search->Js.Global.decodeURI
-  let (initialValueJson, setInitialValueJson) = React.useState(_ =>
-    Js.Json.object_(Js.Dict.empty())
-  )
+  let (initialValueJson, setInitialValueJson) = React.useState(_ => Js.Json.object_(Dict.make()))
   let remoteFiltersJson = RemoteFiltersUtils.getInitialValuesFromUrl(
     ~searchParams,
     ~initialFilters=remoteFilters,
@@ -121,23 +117,23 @@ let make = (
       ~options=localOptions,
       (),
     )
-    let localCheckedFilters = checkedFilters->Js.Array2.copy
-    let localSelectedFiltersList = selectedFiltersList->Js.Array2.copy
+    let localCheckedFilters = checkedFilters->Array.copy
+    let localSelectedFiltersList = selectedFiltersList->Array.copy
 
     initialValues
     ->Js.Json.decodeObject
-    ->Belt.Option.getWithDefault(Js.Dict.empty())
-    ->Js.Dict.entries
-    ->Js.Array2.forEach(entry => {
+    ->Belt.Option.getWithDefault(Dict.make())
+    ->Dict.toArray
+    ->Array.forEach(entry => {
       let (key, _value) = entry
-      let includes = Js.Array2.includes(checkedFilters, key)
+      let includes = Array.includes(checkedFilters, key)
 
       if !includes {
-        let optionalOption = localOptions->Js.Array2.find(option => option.urlKey === key)
+        let optionalOption = localOptions->Array.find(option => option.urlKey === key)
         switch optionalOption {
         | Some(optionObj) => {
-            localSelectedFiltersList->Js.Array2.push(optionObj.field)->ignore
-            localCheckedFilters->Js.Array2.push(key)->ignore
+            localSelectedFiltersList->Array.push(optionObj.field)->ignore
+            localCheckedFilters->Array.push(key)->ignore
           }
 
         | None => ()
@@ -167,54 +163,53 @@ let make = (
   }
 
   let addFilters = newlyAdded => {
-    let localCheckedFilters = checkedFilters->Js.Array2.copy
-    let localSelectedFiltersList = selectedFiltersList->Js.Array2.copy
-    newlyAdded->Js.Array2.forEach(value => {
-      let optionObjArry = localOptions->Js.Array2.filter(option => option.urlKey === value)
+    let localCheckedFilters = checkedFilters->Array.copy
+    let localSelectedFiltersList = selectedFiltersList->Array.copy
+    newlyAdded->Array.forEach(value => {
+      let optionObjArry = localOptions->Array.filter(option => option.urlKey === value)
       let defaultEntityOptionType: EntityType.optionType<
         't,
       > = EntityType.getDefaultEntityOptionType()
       let optionObj = optionObjArry[0]->Belt.Option.getWithDefault(defaultEntityOptionType)
-      localSelectedFiltersList->Js.Array2.push(optionObj.field)->ignore
-      localCheckedFilters->Js.Array2.push(value)->ignore
+      localSelectedFiltersList->Array.push(optionObj.field)->ignore
+      localCheckedFilters->Array.push(value)->ignore
     })
     setCheckedFilters(_prev => localCheckedFilters)
     setSelectedFiltersList(_prev => localSelectedFiltersList)
   }
 
   let removeFilters = (fieldNameArr, values) => {
-    let toBeRemoved =
-      checkedFilters->Js.Array2.filter(oldVal => !Js.Array2.includes(fieldNameArr, oldVal))
-    let finalFieldList = selectedFiltersList->Js.Array2.filter(val => {
+    let toBeRemoved = checkedFilters->Array.filter(oldVal => !Array.includes(fieldNameArr, oldVal))
+    let finalFieldList = selectedFiltersList->Array.filter(val => {
       val.inputNames
       ->Belt.Array.get(0)
-      ->Belt.Option.map(name => !{toBeRemoved->Js.Array2.includes(name)})
+      ->Belt.Option.map(name => !{toBeRemoved->Array.includes(name)})
       ->Belt.Option.getWithDefault(false)
     })
     let filtersAfterRemoving =
-      checkedFilters->Js.Array2.filter(val => !Js.Array2.includes(toBeRemoved, val))
+      checkedFilters->Array.filter(val => !Array.includes(toBeRemoved, val))
 
     let newInitialValues =
       initialValueJson
       ->Js.Json.decodeObject
-      ->Belt.Option.getWithDefault(Js.Dict.empty())
-      ->Js.Dict.entries
-      ->Js.Array2.filter(entry => {
+      ->Belt.Option.getWithDefault(Dict.make())
+      ->Dict.toArray
+      ->Array.filter(entry => {
         let (key, _value) = entry
-        !Js.Array2.includes(toBeRemoved, key)
+        !Array.includes(toBeRemoved, key)
       })
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
       ->Js.Json.object_
 
     switch values->Js.Json.decodeObject {
     | Some(dict) =>
       dict
-      ->Js.Dict.entries
-      ->Js.Array2.forEach(entry => {
+      ->Dict.toArray
+      ->Array.forEach(entry => {
         let (key, _val) = entry
 
-        if toBeRemoved->Js.Array2.includes(key) {
-          dict->Js.Dict.set(key, Js.Json.string(""))
+        if toBeRemoved->Array.includes(key) {
+          dict->Dict.set(key, Js.Json.string(""))
         }
         dict->applyFilters
       })

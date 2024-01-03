@@ -43,7 +43,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
       setfilterDict(prev => {
         let prevDictArr =
           prev
-          ->Js.Dict.entries
+          ->Dict.toArray
           ->Belt.Array.keepMap(
             item => {
               let (key, value) = item
@@ -55,7 +55,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
           )
         let currentDictArr =
           dict
-          ->Js.Dict.entries
+          ->Dict.toArray
           ->Js.Array2.filter(
             item => {
               let (_, value) = item
@@ -63,7 +63,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
             },
           )
 
-        let updatedDict = Js.Array2.concat(prevDictArr, currentDictArr)->Js.Dict.fromArray
+        let updatedDict = Js.Array2.concat(prevDictArr, currentDictArr)->Dict.fromArray
         let dict = if DictionaryUtils.equalDicts(updatedDict, prev) {
           prev
         } else {
@@ -83,7 +83,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
     let removeKeys = (arr: array<string>) => {
       setfilterDict(prev => {
         let updatedDict =
-          prev->Js.Dict.entries->Js.Array2.copy->Js.Dict.fromArray->DictionaryUtils.deleteKeys(arr)
+          prev->Dict.toArray->Js.Array2.copy->Dict.fromArray->DictionaryUtils.deleteKeys(arr)
         let dict = if DictionaryUtils.equalDicts(updatedDict, prev) {
           prev
         } else {
@@ -99,12 +99,12 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
       updateExistingKeys: updateFilter,
       removeKeys,
       filterValueJson: filterDict
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Js.Array2.map(item => {
         let (key, value) = item
         (key, value->UrlFetchUtils.getFilterValue)
       })
-      ->Js.Dict.fromArray,
+      ->Dict.fromArray,
       reset,
     }
   }, (filterDict, setfilterDict))

@@ -58,7 +58,7 @@ module TableRow = {
       } else {
         <tr className="transition duration-300 ease-in-out">
           {item
-          ->Js.Array2.mapi((obj, cellIndex) => {
+          ->Array.mapWithIndex((obj, cellIndex) => {
             let date =
               customTimezoneToISOString(
                 Js.String2.make(year),
@@ -315,7 +315,7 @@ let make = (
   let months = [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
   let heading = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
   let isMobileView = MatchMedia.useMobileChecker()
-  let getMonthInFloat = mon => Js.Array2.indexOf(months, mon)->Belt.Float.fromInt
+  let getMonthInFloat = mon => Array.indexOf(months, mon)->Belt.Float.fromInt
   let getMonthInStr = mon => {
     switch mon {
     | Jan => "January, "
@@ -356,7 +356,7 @@ let make = (
   let dummyRow = Belt.Array.make(6, Belt.Array.make(7, ""))
 
   let rowMapper = (row, indexRow) => {
-    Js.Array2.mapi(row, (_item, index) => {
+    Array.mapWithIndex(row, (_item, index) => {
       let subFactor = Belt.Float.toInt(firstDay)
       if indexRow == 0 && index < Belt.Float.toInt(firstDay) {
         ""
@@ -369,7 +369,7 @@ let make = (
       }
     })
   }
-  let rowInfo = Js.Array2.mapi(dummyRow, rowMapper)
+  let rowInfo = Array.mapWithIndex(dummyRow, rowMapper)
 
   <div className="text-sm px-2 pb-2">
     {showTitle
@@ -387,7 +387,7 @@ let make = (
         {if showHead {
           <tr>
             {heading
-            ->Js.Array2.mapi((item, i) => {
+            ->Array.mapWithIndex((item, i) => {
               <th key={string_of_int(i)}>
                 <div
                   className="flex flex-1 justify-center py-1 text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
@@ -403,7 +403,7 @@ let make = (
       </thead>
       <tbody>
         {rowInfo
-        ->Js.Array2.mapi((item, rowIndex) => {
+        ->Array.mapWithIndex((item, rowIndex) => {
           <TableRow
             key={string_of_int(rowIndex)}
             item

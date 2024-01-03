@@ -179,11 +179,11 @@ let getManagementTable: Js.Json.t => array<integrationTable> = json => {
   let val =
     json
     ->LogicUtils.getArrayFromJson([])
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       tableItemToObjMapper(item->getDictFromJsonObject)
     })
 
-  val->Js.Array2.map(item => {
+  val->Array.map(item => {
     let score =
       item.critical_success->Belt.Int.toFloat /. item.critical_total->Belt.Int.toFloat *. 100.
 
@@ -204,11 +204,11 @@ let getManagementTable: Js.Json.t => array<integrationTable> = json => {
 }
 
 let getDefaultFilters = () => {
-  let filterCreatedDict = Js.Dict.empty()
+  let filterCreatedDict = Dict.make()
 
   let currentDate = Js.Date.now()
   let currentTimestamp = currentDate->Js.Date.fromFloat->Js.Date.toISOString
-  filterCreatedDict->Js.Dict.set(
+  filterCreatedDict->Dict.set(
     "endTime",
     Js.Json.string(currentTimestamp->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:ss[Z]")),
   )
@@ -219,7 +219,7 @@ let getDefaultFilters = () => {
     Js.Date.setDate(presentDayInString, prevDateInFloat)
   }
 
-  Js.Dict.set(
+  Dict.set(
     filterCreatedDict,
     "startTime",
     Js.Json.string(
@@ -431,12 +431,12 @@ let singlestatTimeseriesItemToObjMapper = json => {
 let itemToObjMapper = json => {
   let queryData =
     Js.Json.decodeObject(json)
-    ->Belt.Option.flatMap(dict => Js.Dict.get(dict, "queryData"))
+    ->Belt.Option.flatMap(dict => Dict.get(dict, "queryData"))
     ->Belt.Option.flatMap(Js.Json.decodeArray)
     ->Belt.Option.getWithDefault([])
 
-  let data = queryData->Js.Array2.reduce((finalDict, json) => {
-    let dict = json->Js.Json.decodeObject->getWithDefault(Js.Dict.empty())
+  let data = queryData->Array.reduce(singlestatInitialValue, (finalDict, json) => {
+    let dict = json->Js.Json.decodeObject->getWithDefault(Dict.make())
     let product = dict->getString("product_integrated", "")
     if product === "Payment Page Signature" {
       {
@@ -465,7 +465,7 @@ let itemToObjMapper = json => {
     } else {
       finalDict
     }
-  }, singlestatInitialValue)
+  })
   data
 }
 
@@ -487,27 +487,27 @@ let timeSeriesObjMapper = json => {
   let finalArr = []
   let queryData =
     Js.Json.decodeObject(json)
-    ->Belt.Option.flatMap(dict => Js.Dict.get(dict, "queryData"))
+    ->Belt.Option.flatMap(dict => Dict.get(dict, "queryData"))
     ->Belt.Option.flatMap(Js.Json.decodeArray)
     ->Belt.Option.getWithDefault([])
 
   let timeSeriesArr =
     queryData
-    ->Js.Array2.map(item => {
-      let dic = item->Js.Json.decodeObject->getWithDefault(Js.Dict.empty())
+    ->Array.map(item => {
+      let dic = item->Js.Json.decodeObject->getWithDefault(Dict.make())
       dic->getString("time_bucket", "")
     })
     ->getUniqueArray
-    ->Js.Array2.map(item => {
-      queryData->Js.Array2.filter(ele => {
-        let dic = ele->Js.Json.decodeObject->getWithDefault(Js.Dict.empty())
+    ->Array.map(item => {
+      queryData->Array.filter(ele => {
+        let dic = ele->Js.Json.decodeObject->getWithDefault(Dict.make())
         let timeBucket = dic->getString("time_bucket", "")
         item === timeBucket
       })
     })
 
-  timeSeriesArr->Js.Array2.forEach(item => {
-    let data = item->Js.Array2.reduce((finalData, item) => {
+  timeSeriesArr->Array.forEach(item => {
+    let data = item->Array.reduce(singlestatTimeseriesInitialValue, (finalData, item) => {
       let dict = singlestatTimeseriesItemToObjMapper(item)
       {
         payment_page_session_count: finalData.payment_page_session_count +
@@ -518,8 +518,8 @@ let timeSeriesObjMapper = json => {
         ec_sdk_count: finalData.ec_sdk_count + dict.ec_sdk_count,
         timeSeries: dict.timeSeries,
       }
-    }, singlestatTimeseriesInitialValue)
-    finalArr->Js.Array2.push(data)->ignore
+    })
+    finalArr->Array.push(data)->ignore
   })
 
   finalArr
@@ -541,22 +541,22 @@ let defaultColumn: array<DynamicSingleStat.columns<colT>> = [
 let constructData = (key, singlestatTimeseriesData) => {
   switch key {
   | "ec_only_count" =>
-    singlestatTimeseriesData->Js.Array2.map(ob => (
+    singlestatTimeseriesData->Array.map(ob => (
       ob.timeSeries->DateTimeUtils.parseAsFloat,
       ob.ec_only_count->Belt.Int.toFloat,
     ))
   | "ec_sdk_count" =>
-    singlestatTimeseriesData->Js.Array2.map(ob => (
+    singlestatTimeseriesData->Array.map(ob => (
       ob.timeSeries->DateTimeUtils.parseAsFloat,
       ob.ec_sdk_count->Belt.Int.toFloat,
     ))
   | "payment_page_session_count" =>
-    singlestatTimeseriesData->Js.Array2.map(ob => (
+    singlestatTimeseriesData->Array.map(ob => (
       ob.timeSeries->DateTimeUtils.parseAsFloat,
       ob.payment_page_session_count->Belt.Int.toFloat,
     ))
   | "payment_page_signature_count" =>
-    singlestatTimeseriesData->Js.Array2.map(ob => (
+    singlestatTimeseriesData->Array.map(ob => (
       ob.timeSeries->DateTimeUtils.parseAsFloat,
       ob.payment_page_signature_count->Belt.Int.toFloat,
     ))

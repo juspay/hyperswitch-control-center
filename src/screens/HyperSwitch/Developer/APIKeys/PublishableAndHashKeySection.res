@@ -64,7 +64,7 @@ let make = () => {
               customParentClass="flex items-center gap-5"
             />
           </div>
-          <UIUtils.RenderIf condition={paymentResponsHashKey->Js.String2.length !== 0}>
+          <UIUtils.RenderIf condition={paymentResponsHashKey->String.length !== 0}>
             <div className="flex flex-col gap-4">
               <div className="break-all text-md text-base text-grey-700 font-semibold">
                 {"Payment Response Hash Key"->React.string}

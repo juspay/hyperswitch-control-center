@@ -50,8 +50,8 @@ type entityType<'colType, 't> = {
 }
 
 let emptyObj = {
-  let dict = Js.Dict.empty()
-  Js.Dict.set(dict, "offset", Js.Json.number(0.0))
+  let dict = Dict.make()
+  Dict.set(dict, "offset", Js.Json.number(0.0))
   Js.Json.object_(dict)
 }
 
@@ -91,7 +91,7 @@ let makeEntity = (
   ~initialFilters=[],
   ~options=[],
   ~getDetailsUri=_ => "",
-  ~headers=Js.Dict.empty(),
+  ~headers=Dict.make(),
   ~getSyncUrl=_ => None,
   ~detailsPageLayout=(_, _) => React.null,
   ~searchFields=[],
@@ -100,7 +100,7 @@ let makeEntity = (
   ~optionalSearchFieldsList=[],
   ~requiredSearchFieldsList=[],
   ~popupFilterFields=[],
-  ~dateRangeFilterDict=Js.Dict.empty(),
+  ~dateRangeFilterDict=Dict.make(),
   ~searchValueDict=?,
   ~filterCheck=(_, _) => false,
   ~filterForRow=(_, _): TableUtils.filterObject => {key: "", options: [], selected: []},

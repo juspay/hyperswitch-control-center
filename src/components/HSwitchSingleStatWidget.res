@@ -13,8 +13,8 @@ let make = (
   ~loaderType: AnalyticsUtils.loaderType=Shimmer,
   ~statChartColor: statChartColor=#blue,
   ~filterNullVals: bool=false,
-  ~statSentiment: Js.Dict.t<AnalyticsUtils.statSentiment>=Js.Dict.empty(),
-  ~statThreshold: Js.Dict.t<float>=Js.Dict.empty(),
+  ~statSentiment: Js.Dict.t<AnalyticsUtils.statSentiment>=Dict.make(),
+  ~statThreshold: Js.Dict.t<float>=Dict.make(),
   ~isHomePage=false,
 ) => {
   open Identity
@@ -33,7 +33,7 @@ let make = (
         1
       }
     })
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let (x, y) = item
       if y === 0. && filterNullVals {
         (x, Js.Nullable.null)
@@ -90,7 +90,7 @@ let make = (
       ),
       title: {
         "text": "",
-        "style": Js.Json.object_(Js.Dict.empty()),
+        "style": Js.Json.object_(Dict.make()),
       }->genericObjectOrRecordToJson,
       credits: {
         "enabled": false,
@@ -143,7 +143,7 @@ let make = (
         "visible": false,
         "title": {
           "text": "",
-          "style": Js.Json.object_(Js.Dict.empty()),
+          "style": Js.Json.object_(Dict.make()),
         }->genericObjectOrRecordToJson,
         "labels": {"formatter": None, "enabled": false, "useHTML": false}->Some,
         "zoomEnabled": false,

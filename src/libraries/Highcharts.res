@@ -216,10 +216,10 @@ type tooltip = {
   >,
 }
 let xAxisMake = (~lineType=?, ()) => {
-  let emptyDict = Js.Dict.empty()
+  let emptyDict = Dict.make()
   switch lineType {
   | Some(lineType) => {
-      emptyDict->Js.Dict.set("type", lineType->Js.Json.string)
+      emptyDict->Dict.set("type", lineType->Js.Json.string)
       Some(emptyDict->Js.Json.object_)
     }
 

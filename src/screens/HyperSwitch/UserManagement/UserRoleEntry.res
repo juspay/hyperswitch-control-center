@@ -25,8 +25,8 @@ let make = () => {
       )
       let res = await fetchDetails(userDataURL)
       let userData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForUser)
-      setUsersData(_ => userData->Js.Array2.map(Js.Nullable.return))
-      setUsersFilterData(_ => userData->Js.Array2.map(Js.Nullable.return))
+      setUsersData(_ => userData->Array.map(Js.Nullable.return))
+      setUsersFilterData(_ => userData->Array.map(Js.Nullable.return))
       setScreenStateUsers(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenStateUsers(_ => PageLoaderWrapper.Error(""))
@@ -46,11 +46,11 @@ let make = () => {
   }
 
   React.useEffect0(() => {
-    if permissionInfo->Js.Array2.length === 0 {
+    if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
     }
 
-    if usersData->Js.Array2.length === 0 {
+    if usersData->Array.length === 0 {
       getUserData()->ignore
     }
     None
@@ -59,8 +59,8 @@ let make = () => {
   let filterLogicForUsers = ReactDebounce.useDebounced(ob => {
     open LogicUtils
     let (searchText, arr) = ob
-    let filteredList = if searchText->Js.String2.length > 0 {
-      arr->Js.Array2.filter((obj: Js.Nullable.t<userTableTypes>) => {
+    let filteredList = if searchText->String.length > 0 {
+      arr->Array.filter((obj: Js.Nullable.t<userTableTypes>) => {
         switch Js.Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.email, searchText) ||
@@ -84,7 +84,7 @@ let make = () => {
               title="Users"
               hideTitle=true
               actualData=usersFilterData
-              totalResults={usersFilterData->Js.Array2.length}
+              totalResults={usersFilterData->Array.length}
               filters={<TableSearchFilter
                 data={usersData}
                 filterLogic=filterLogicForUsers
@@ -98,7 +98,7 @@ let make = () => {
               offset=userOffset
               setOffset=setUserOffset
               entity={userEntity}
-              currrentFetchCount={usersFilterData->Js.Array2.length}
+              currrentFetchCount={usersFilterData->Array.length}
               showSerialNumber=true
               collapseTableRow=false
               rowHeightClass="h-20"

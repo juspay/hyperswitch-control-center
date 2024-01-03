@@ -28,7 +28,7 @@ let makeStartOfDayDate = date => {
 }
 let getStartOfWeek = (dayJs: Js.Date.t, startOfday: days) => {
   let day = Js.Date.getDay(dayJs)
-  let startWeekDay = daysArr->Js.Array2.indexOf(startOfday)->Belt.Int.toFloat
+  let startWeekDay = daysArr->Array.indexOf(startOfday)->Belt.Int.toFloat
   let diff = (day < startWeekDay ? 7. : 0.) +. day -. startWeekDay
   Js.Date.setDate(cloneDate(dayJs), Js.Date.getDate(dayJs) -. diff)
   ->Js.Date.fromFloat

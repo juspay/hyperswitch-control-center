@@ -18,7 +18,7 @@ let getStepName = step => {
 }
 
 let toLCase = str => str->Js.String2.toLowerCase
-let len = arr => arr->Js.Array2.length
+let len = arr => arr->Array.length
 
 let payoutConnectorList: array<connectorName> = [ADYEN, WISE]
 
@@ -113,7 +113,7 @@ let dummyConnectorList = isTestProcessorsEnabled =>
   isTestProcessorsEnabled ? [STRIPE_TEST, PAYPAL_TEST, FAUXPAY, PRETENDPAY] : []
 
 let checkIsDummyConnector = (connectorName, isTestProcessorsEnabled) =>
-  isTestProcessorsEnabled->dummyConnectorList->Js.Array2.includes(connectorName)
+  isTestProcessorsEnabled->dummyConnectorList->Array.includes(connectorName)
 
 let stripeInfo = {
   description: "Versatile processor supporting credit cards, digital wallets, and bank transfers.",
@@ -526,7 +526,7 @@ let acceptedValues = dict => {
     type_: dict->getString("type", "enable_only"),
     list: dict->getStrArray("list"),
   }
-  values.list->Js.Array2.length > 0 ? Some(values) : None
+  values.list->Array.length > 0 ? Some(values) : None
 }
 
 let itemProviderMapper = dict => {
@@ -595,17 +595,17 @@ let verifyConnectorIgnoreField = [
 ]
 
 let ignoreFields = (json, id, fields) => {
-  if id->Js.String2.length <= 0 || id === "new" {
+  if id->String.length <= 0 || id === "new" {
     json
   } else {
     json
     ->LogicUtils.getDictFromJsonObject
-    ->Js.Dict.entries
-    ->Js.Array2.filter(entry => {
+    ->Dict.toArray
+    ->Array.filter(entry => {
       let (key, _val) = entry
-      !(fields->Js.Array2.includes(key))
+      !(fields->Array.includes(key))
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
   }
 }
@@ -632,7 +632,7 @@ let getConnectorType = (connector, ~isPayoutFlow, ()) => {
 
 let getSelectedPaymentObj = (paymentMethodsEnabled: array<paymentMethodEnabled>, paymentMethod) => {
   paymentMethodsEnabled
-  ->Js.Array2.find(item => item.payment_method_type->toLCase == paymentMethod->toLCase)
+  ->Array.find(item => item.payment_method_type->toLCase == paymentMethod->toLCase)
   ->Belt.Option.getWithDefault({
     payment_method: "unknown",
     payment_method_type: "unkonwn",
@@ -640,10 +640,10 @@ let getSelectedPaymentObj = (paymentMethodsEnabled: array<paymentMethodEnabled>,
 }
 
 let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
-  let pmts = paymentMethodsEnabled->Js.Array2.copy
+  let pmts = paymentMethodsEnabled->Array.copy
   switch paymentMethod->getPaymentMethodFromString {
   | Card =>
-    pmts->Js.Array2.forEach((val: paymentMethodEnabled) => {
+    pmts->Array.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->toLCase === paymentMethod->toLCase {
         val.card_provider
         ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
@@ -651,7 +651,7 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
       }
     })
   | _ =>
-    pmts->Js.Array2.forEach((val: paymentMethodEnabled) => {
+    pmts->Array.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->toLCase === paymentMethod->toLCase {
         val.provider
         ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
@@ -663,16 +663,16 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
 }
 
 let removeMethod = (paymentMethodsEnabled, paymentMethod, method: paymentMethodConfigType) => {
-  let pmts = paymentMethodsEnabled->Js.Array2.copy
+  let pmts = paymentMethodsEnabled->Array.copy
   switch paymentMethod->getPaymentMethodFromString {
   | Card =>
-    pmts->Js.Array2.forEach((val: paymentMethodEnabled) => {
+    pmts->Array.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->toLCase === paymentMethod->toLCase {
         let indexOfRemovalItem =
           val.card_provider
           ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
-          ->Js.Array2.map(ele => ele.payment_method_type)
-          ->Js.Array2.indexOf(method.payment_method_type)
+          ->Array.map(ele => ele.payment_method_type)
+          ->Array.indexOf(method.payment_method_type)
 
         val.card_provider
         ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
@@ -685,13 +685,13 @@ let removeMethod = (paymentMethodsEnabled, paymentMethod, method: paymentMethodC
     })
 
   | _ =>
-    pmts->Js.Array2.forEach((val: paymentMethodEnabled) => {
+    pmts->Array.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->toLCase === paymentMethod->toLCase {
         let indexOfRemovalItem =
           val.provider
           ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
-          ->Js.Array2.map(ele => ele.payment_method_type)
-          ->Js.Array2.indexOf(method.payment_method_type)
+          ->Array.map(ele => ele.payment_method_type)
+          ->Array.indexOf(method.payment_method_type)
 
         val.provider
         ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
@@ -721,23 +721,23 @@ let generateInitialValuesDict = (
   let connectorAccountDetails =
     dict->getJsonObjectFromDict("connector_account_details")->getDictFromJsonObject
 
-  connectorAccountDetails->Js.Dict.set("auth_type", bodyType->Js.Json.string)
+  connectorAccountDetails->Dict.set("auth_type", bodyType->Js.Json.string)
 
-  dict->Js.Dict.set("connector_account_details", connectorAccountDetails->Js.Json.object_)
+  dict->Dict.set("connector_account_details", connectorAccountDetails->Js.Json.object_)
 
-  dict->Js.Dict.set("connector_name", connector->Js.Json.string)
-  dict->Js.Dict.set(
+  dict->Dict.set("connector_name", connector->Js.Json.string)
+  dict->Dict.set(
     "connector_type",
     getConnectorType(connector->getConnectorNameTypeFromString, ~isPayoutFlow, ())->Js.Json.string,
   )
-  dict->Js.Dict.set("disabled", dict->getBool("disabled", false)->Js.Json.boolean)
-  dict->Js.Dict.set("test_mode", (isLiveMode ? false : true)->Js.Json.boolean)
-  dict->Js.Dict.set("connector_label", dict->getString("connector_label", "")->Js.Json.string)
+  dict->Dict.set("disabled", dict->getBool("disabled", false)->Js.Json.boolean)
+  dict->Dict.set("test_mode", (isLiveMode ? false : true)->Js.Json.boolean)
+  dict->Dict.set("connector_label", dict->getString("connector_label", "")->Js.Json.string)
 
   let connectorWebHookDetails =
     dict->getJsonObjectFromDict("connector_webhook_details")->getDictFromJsonObject
 
-  dict->Js.Dict.set(
+  dict->Dict.set(
     "connector_webhook_details",
     connectorWebHookDetails->getOptionString("merchant_secret")->Belt.Option.isSome
       ? connectorWebHookDetails->Js.Json.object_
@@ -751,7 +751,7 @@ let getDisableConnectorPayload = (connectorType, previousConnectorState) => {
   [
     ("connector_type", connectorType->Js.Json.string),
     ("disabled", !previousConnectorState->Js.Json.boolean),
-  ]->Js.Dict.fromArray
+  ]->Dict.fromArray
 }
 
 let getWebHookRequiredFields = (connector: connectorName, fieldName: string) => {
@@ -778,11 +778,11 @@ let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
 
 let checkInnerField = (valuesFlattenJson, dict, country: string): bool => {
   open LogicUtils
-  let value = dict->getDictfromDict(country)->Js.Dict.keys
-  let result = value->Js.Array2.every(field => {
+  let value = dict->getDictfromDict(country)->Dict.keysToArray
+  let result = value->Array.every(field => {
     let key = `connector_account_details.auth_key_map.${country}.${field}`
     let value = valuesFlattenJson->getString(`${key}`, "")
-    value->Js.String2.length === 0 ? false : true
+    value->String.length === 0 ? false : true
   })
   result
 }
@@ -801,11 +801,11 @@ let validateConnectorRequiredFields = (
   let newDict = getDictFromJsonObject(errors)
   if bodyType->mapAuthType == #CurrencyAuthKey {
     let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
-    let indexLength = dict->Js.Dict.keys->Js.Array2.length
+    let indexLength = dict->Dict.keysToArray->Array.length
     let vector = Js.Vector.make(indexLength, false)
 
     dict
-    ->Js.Dict.keys
+    ->Dict.keysToArray
     ->Array.forEachWithIndex((country, index) => {
       let res = checkInnerField(valuesFlattenJson, dict, country)
       vector->Js.Vector.set(index, res)
@@ -814,52 +814,52 @@ let validateConnectorRequiredFields = (
     let _ = Js.Vector.filterInPlace((. val) => val == true, vector)
 
     if vector->Js.Vector.length === 0 {
-      Js.Dict.set(newDict, "Currency", `Please enter currency`->Js.Json.string)
+      Dict.set(newDict, "Currency", `Please enter currency`->Js.Json.string)
     }
   } else {
     connectorAccountFields
-    ->Js.Dict.keys
-    ->Js.Array2.forEach(value => {
+    ->Dict.keysToArray
+    ->Array.forEach(value => {
       let key = `connector_account_details.${value}`
       let errorKey = connectorAccountFields->getString(value, "")
       let value = valuesFlattenJson->getString(`connector_account_details.${value}`, "")
-      if value->Js.String2.length === 0 {
-        Js.Dict.set(newDict, key, `Please enter ${errorKey}`->Js.Json.string)
+      if value->String.length === 0 {
+        Dict.set(newDict, key, `Please enter ${errorKey}`->Js.Json.string)
       }
     })
   }
   connectorMetaDataFields
-  ->Js.Dict.keys
-  ->Js.Array2.forEach(fieldName => {
+  ->Dict.keysToArray
+  ->Array.forEach(fieldName => {
     let walletType = fieldName->getPaymentMethodTypeFromString
     if walletType !== GooglePay && walletType !== ApplePay {
       let key = `metadata.${fieldName}`
       let errorKey = connectorMetaDataFields->LogicUtils.getString(fieldName, "")
       let value = valuesFlattenJson->LogicUtils.getString(`metadata.${fieldName}`, "")
-      if value->Js.String2.length === 0 && connector->getMetaDataRequiredFields(fieldName) {
-        Js.Dict.set(newDict, key, `Please enter ${errorKey}`->Js.Json.string)
+      if value->String.length === 0 && connector->getMetaDataRequiredFields(fieldName) {
+        Dict.set(newDict, key, `Please enter ${errorKey}`->Js.Json.string)
       }
     }
   })
 
   connectorWebHookDetails
-  ->Js.Dict.keys
-  ->Js.Array2.forEach(fieldName => {
+  ->Dict.keysToArray
+  ->Array.forEach(fieldName => {
     let key = `connector_webhook_details.${fieldName}`
     let errorKey = connectorWebHookDetails->LogicUtils.getString(fieldName, "")
     let value =
       valuesFlattenJson->LogicUtils.getString(`connector_webhook_details.${fieldName}`, "")
-    if value->Js.String2.length === 0 && connector->getWebHookRequiredFields(fieldName) {
-      Js.Dict.set(newDict, key, `Please enter ${errorKey}`->Js.Json.string)
+    if value->String.length === 0 && connector->getWebHookRequiredFields(fieldName) {
+      Dict.set(newDict, key, `Please enter ${errorKey}`->Js.Json.string)
     }
   })
   connectorLabelDetailField
-  ->Js.Dict.keys
-  ->Js.Array2.forEach(fieldName => {
+  ->Dict.keysToArray
+  ->Array.forEach(fieldName => {
     let errorKey = connectorLabelDetailField->LogicUtils.getString(fieldName, "")
     let value = valuesFlattenJson->LogicUtils.getString(fieldName, "")
-    if value->Js.String2.length === 0 {
-      Js.Dict.set(newDict, fieldName, `Please enter ${errorKey}`->Js.Json.string)
+    if value->String.length === 0 {
+      Dict.set(newDict, fieldName, `Please enter ${errorKey}`->Js.Json.string)
     }
   })
   newDict->Js.Json.object_
@@ -887,7 +887,7 @@ let getConnectorFields = connectorDetails => {
   let connectorAccountDict =
     connectorDetails->LogicUtils.getDictFromJsonObject->LogicUtils.getDictfromDict("connector_auth")
   let bodyType =
-    connectorAccountDict->Js.Dict.keys->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+    connectorAccountDict->Dict.keysToArray->Belt.Array.get(0)->Belt.Option.getWithDefault("")
   let connectorAccountFields = connectorAccountDict->LogicUtils.getDictfromDict(bodyType)
   let connectorMetaDataFields =
     connectorDetails->LogicUtils.getDictFromJsonObject->LogicUtils.getDictfromDict("metadata")
@@ -897,7 +897,7 @@ let getConnectorFields = connectorDetails => {
     connectorDetails
     ->LogicUtils.getDictFromJsonObject
     ->LogicUtils.getDictfromDict("connector_webhook_details")
-  let connectorLabelDetailField = Js.Dict.fromArray([
+  let connectorLabelDetailField = Dict.fromArray([
     ("connector_label", "Connector label"->Js.Json.string),
   ])
   (
@@ -914,29 +914,29 @@ let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {
   open LogicUtils
   let newDict = getDictFromJsonObject(errors)
   dict
-  ->Js.Dict.keys
-  ->Js.Array2.forEach(_value => {
-    let lastItem = fieldName->Js.String2.split(".")->Js.Array2.pop->Belt.Option.getWithDefault("")
+  ->Dict.keysToArray
+  ->Array.forEach(_value => {
+    let lastItem = fieldName->Js.String2.split(".")->Array.pop->Belt.Option.getWithDefault("")
     let errorKey = dict->getString(lastItem, "")
     let value = valuesFlattenJson->getString(`${fieldName}`, "")
-    if value->Js.String2.length === 0 {
-      Js.Dict.set(newDict, fieldName, `Please enter ${errorKey}`->Js.Json.string)
+    if value->String.length === 0 {
+      Dict.set(newDict, fieldName, `Please enter ${errorKey}`->Js.Json.string)
     }
   })
   newDict->Js.Json.object_
 }
 
 let validate = (values, ~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => {
-  let errors = Js.Dict.empty()
+  let errors = Dict.make()
   let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
-  let labelArr = dict->Js.Dict.values
+  let labelArr = dict->Dict.valuesToArray
   selectedConnector.validate
   ->Belt.Option.getWithDefault([])
   ->Array.forEachWithIndex((field, index) => {
     let key = field.name
     let value =
       valuesFlattenJson
-      ->Js.Dict.get(key)
+      ->Dict.get(key)
       ->Belt.Option.getWithDefault(""->Js.Json.string)
       ->LogicUtils.getStringFromJson("")
     let regexToUse = isLiveMode ? field.liveValidationRegex : field.testValidationRegex
@@ -944,23 +944,23 @@ let validate = (values, ~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => {
     | Some(regex) => regex->Js.Re.fromString->Js.Re.test_(value)
     | None => true
     }
-    if field.isRequired->Belt.Option.getWithDefault(true) && value->Js.String2.length === 0 {
+    if field.isRequired->Belt.Option.getWithDefault(true) && value->String.length === 0 {
       let errorLabel =
         labelArr
         ->Belt.Array.get(index)
         ->Belt.Option.getWithDefault(""->Js.Json.string)
         ->LogicUtils.getStringFromJson("")
-      Js.Dict.set(errors, key, `Please enter ${errorLabel}`->Js.Json.string)
-    } else if !validationResult && value->Js.String2.length !== 0 {
+      Dict.set(errors, key, `Please enter ${errorLabel}`->Js.Json.string)
+    } else if !validationResult && value->String.length !== 0 {
       let expectedFormat = isLiveMode ? field.liveExpectedFormat : field.testExpectedFormat
       let warningMessage = expectedFormat->Belt.Option.getWithDefault("")
-      Js.Dict.set(errors, key, warningMessage->Js.Json.string)
+      Dict.set(errors, key, warningMessage->Js.Json.string)
     }
   })
 
   let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
-  if profileId->Js.String2.length === 0 {
-    Js.Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
+  if profileId->String.length === 0 {
+    Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
   }
   validateRequiredFiled(valuesFlattenJson, dict, fieldName, errors->Js.Json.object_)
 }
@@ -1036,16 +1036,16 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: Js.Json.
     test_mode: dict->getBool("test_mode", false),
   }
   let values = Window.getRequestPayload(wasmRequest, payLoadDetails)
-  let dict = Js.Dict.fromArray([
+  let dict = Dict.fromArray([
     ("connector_account_details", connectorAccountDetails),
     ("connector_label", dict->getString("connector_label", "")->Js.Json.string),
     ("status", dict->getString("status", "active")->Js.Json.string),
   ])
   values
   ->getDictFromJsonObject
-  ->Js.Dict.entries
-  ->Js.Array2.concat(dict->Js.Dict.entries)
-  ->Js.Dict.fromArray
+  ->Dict.toArray
+  ->Array.concat(dict->Dict.toArray)
+  ->Dict.fromArray
   ->Js.Json.object_
 }
 
@@ -1085,7 +1085,7 @@ let defaultSelectAllCards = (
           ? Window.getPayoutConnectorConfig(connector)
           : Window.getConnectorConfig(connector)
       )->getDictFromJsonObject
-    pmts->Js.Array2.forEach(val => {
+    pmts->Array.forEach(val => {
       switch val.payment_method->getPaymentMethodFromString {
       | Card => {
           let arr =

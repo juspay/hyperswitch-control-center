@@ -9,8 +9,8 @@ let make = (
   let (startDateArr, setStartDateArr) = React.useState(_ => [""])
   let (endDateArr, setEndDateArr) = React.useState(_ => [""])
   let onClickAdd = _ => {
-    setEndDateArr(prev => Js.Array.concat([""], prev))
-    setStartDateArr(prev => Js.Array.concat([""], prev))
+    setEndDateArr(prev => Array.concat([""], prev))
+    setStartDateArr(prev => Array.concat([""], prev))
   }
   React.useEffect1(() => {
     setStartDateArr(_ => [""])
@@ -20,7 +20,7 @@ let make = (
 
   let onClick = _ => {
     let newArr =
-      startDateArr->Js.Array2.mapi((x, i) => (
+      startDateArr->Array.mapWithIndex((x, i) => (
         x,
         endDateArr->Belt.Array.get(i)->Belt.Option.getWithDefault(x),
       ))
@@ -55,13 +55,13 @@ let make = (
     <UIUtils.RenderIf condition={showCalendars}>
       <div className="flex px-2">
         {startDateArr
-        ->Js.Array2.mapi((_x, i) => {
+        ->Array.mapWithIndex((_x, i) => {
           <div className="px-1">
             <DateRangePicker.Base
               startDateVal={startDateArr[i]->Belt.Option.getWithDefault("")}
               setStartDateVal={fn => {
                 setStartDateArr(prev => {
-                  let newArr = prev->Js.Array2.mapi(
+                  let newArr = prev->Array.mapWithIndex(
                     (x2, i2) => {
                       if i2 == i {
                         fn(prev[i]->Belt.Option.getWithDefault(""))
@@ -77,7 +77,7 @@ let make = (
               endDateVal={endDateArr[i]->Belt.Option.getWithDefault("")}
               setEndDateVal={fn => {
                 setEndDateArr(prev => {
-                  let newArr = prev->Js.Array2.mapi(
+                  let newArr = prev->Array.mapWithIndex(
                     (x2, i2) => {
                       if i2 == i {
                         fn(prev[i]->Belt.Option.getWithDefault(""))

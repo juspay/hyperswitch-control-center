@@ -17,14 +17,14 @@ module AdvanceSearch = {
   ) => {
     let {optionalSearchFieldsList, requiredSearchFieldsList, detailsKey} = entity
     let fetchApi = AuthHooks.useApiFetcher()
-    let initialValueJson = Js.Json.object_(Js.Dict.empty())
+    let initialValueJson = Js.Json.object_(Dict.make())
     let showToast = ToastState.useShowToast()
 
     let onSubmit = (values, _) => {
       let otherQueries = switch values->Js.Json.decodeObject {
       | Some(dict) =>
         dict
-        ->Js.Dict.entries
+        ->Dict.toArray
         ->Belt.Array.keepMap(entry => {
           let (key, value) = entry
           let stringVal = LogicUtils.getStringFromJson(value, "")
@@ -34,10 +34,10 @@ module AdvanceSearch = {
             None
           }
         })
-        ->Js.Array2.joinWith("&")
+        ->Array.joinWith("&")
       | _ => ""
       }
-      let finalUrl = otherQueries->Js.String2.length > 0 ? `${url}?${otherQueries}` : url
+      let finalUrl = otherQueries->String.length > 0 ? `${url}?${otherQueries}` : url
 
       open Promise
       open LogicUtils
@@ -50,7 +50,7 @@ module AdvanceSearch = {
 
             if statusStr === "SUCCESS" {
               let payloadDict =
-                jsonDict->Js.Dict.get(detailsKey)->Belt.Option.flatMap(Js.Json.decodeObject)
+                jsonDict->Dict.get(detailsKey)->Belt.Option.flatMap(Js.Json.decodeObject)
 
               switch payloadDict {
               | Some(dict) => {
@@ -85,23 +85,23 @@ module AdvanceSearch = {
 
     let validateForm = (values: Js.Json.t) => {
       let valuesDict = switch values->Js.Json.decodeObject {
-      | Some(dict) => dict->Js.Dict.entries->Js.Dict.fromArray
-      | None => Js.Dict.empty()
+      | Some(dict) => dict->Dict.toArray->Dict.fromArray
+      | None => Dict.make()
       }
-      let errors = Js.Dict.empty()
-      requiredSearchFieldsList->Js.Array2.forEach(key => {
-        if Js.Dict.get(valuesDict, key)->Js.Option.isNone {
-          Js.Dict.set(errors, key, "Required"->Js.Json.string)
+      let errors = Dict.make()
+      requiredSearchFieldsList->Array.forEach(key => {
+        if Dict.get(valuesDict, key)->Js.Option.isNone {
+          Dict.set(errors, key, "Required"->Js.Json.string)
         }
       })
-      let isSubmitEnabled = optionalSearchFieldsList->Js.Array2.some(key => {
-        Js.Dict.get(valuesDict, key)->Js.Option.isSome
+      let isSubmitEnabled = optionalSearchFieldsList->Array.some(key => {
+        Dict.get(valuesDict, key)->Js.Option.isSome
       })
 
       if !isSubmitEnabled {
-        Js.Dict.set(
+        Dict.set(
           errors,
-          optionalSearchFieldsList->Js.Array2.joinWith(","),
+          optionalSearchFieldsList->Array.joinWith(","),
           "Atleast One of Optional fields is Required"->Js.Json.string,
         )
       }

@@ -44,10 +44,10 @@ module ApiEditModal = {
       try {
         let valuesDict = values->LogicUtils.getDictFromJsonObject
 
-        let body = Js.Dict.empty()
-        Js.Dict.set(body, "name", valuesDict->LogicUtils.getString("name", "")->Js.Json.string)
+        let body = Dict.make()
+        Dict.set(body, "name", valuesDict->LogicUtils.getString("name", "")->Js.Json.string)
         let description = valuesDict->LogicUtils.getString("description", "")
-        Js.Dict.set(body, "description", description->Js.Json.string)
+        Dict.set(body, "description", description->Js.Json.string)
 
         let expirationDate = valuesDict->LogicUtils.getString("expiration_date", "")
 
@@ -58,7 +58,7 @@ module ApiEditModal = {
         | _ => Never->getStringFromRecordType
         }
 
-        Js.Dict.set(body, "expiration", expriryValue->Js.Json.string)
+        Dict.set(body, "expiration", expriryValue->Js.Json.string)
 
         setModalState(_ => Loading)
 
@@ -178,8 +178,8 @@ module ApiKeyAddBtn = {
   let make = (~getAPIKeyDetails) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let (showModal, setShowModal) = React.useState(_ => false)
-    let initialValues = Js.Dict.empty()
-    initialValues->Js.Dict.set("expiration", Never->getStringFromRecordType->Js.Json.string)
+    let initialValues = Dict.make()
+    initialValues->Dict.set("expiration", Never->getStringFromRecordType->Js.Json.string)
 
     <>
       <ApiEditModal showModal setShowModal initialValues getAPIKeyDetails />
@@ -212,9 +212,9 @@ module TableActionsCell = {
     let deleteDetails = APIUtils.useUpdateMethod()
     let deleteKey = async () => {
       try {
-        let body = Js.Dict.empty()
-        Js.Dict.set(body, "key_id", keyId->Js.Json.string)
-        Js.Dict.set(body, "revoked", true->Js.Json.boolean)
+        let body = Dict.make()
+        Dict.set(body, "key_id", keyId->Js.Json.string)
+        Dict.set(body, "revoked", true->Js.Json.boolean)
 
         let deleteUrl = APIUtils.getURL(
           ~entityName=API_KEYS,
@@ -249,16 +249,16 @@ module TableActionsCell = {
         handleCancel: {text: `No, don't delete`, onClick: _ => ()},
       })
     }
-    let initialValues = Js.Dict.fromArray([
+    let initialValues = Dict.fromArray([
       ("name", data.name->Js.Json.string),
       ("description", data.description->Js.Json.string),
     ])
 
     if data.expiration == Never {
-      initialValues->Js.Dict.set("expiration", Never->getStringFromRecordType->Js.Json.string)
+      initialValues->Dict.set("expiration", Never->getStringFromRecordType->Js.Json.string)
     } else {
-      initialValues->Js.Dict.set("expiration", Custom->getStringFromRecordType->Js.Json.string)
-      initialValues->Js.Dict.set("expiration_date", data.expiration_date->Js.Json.string)
+      initialValues->Dict.set("expiration", Custom->getStringFromRecordType->Js.Json.string)
+      initialValues->Dict.set("expiration_date", data.expiration_date->Js.Json.string)
     }
 
     <div>
@@ -362,11 +362,11 @@ module ApiKeysTable = {
           visibleColumns
           entity=apiKeysTableEntity
           showSerialNumber=true
-          actualData={data->Js.Array2.map(Js.Nullable.return)}
-          totalResults={data->Js.Array2.length}
+          actualData={data->Array.map(Js.Nullable.return)}
+          totalResults={data->Array.length}
           offset
           setOffset
-          currrentFetchCount={data->Js.Array2.length}
+          currrentFetchCount={data->Array.length}
           tableActions={<div className="mt-5">
             <ApiKeyAddBtn getAPIKeyDetails />
           </div>}

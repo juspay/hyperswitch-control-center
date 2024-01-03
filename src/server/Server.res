@@ -1,7 +1,7 @@
 @val @scope("process")
 external env: Js.Dict.t<string> = "env"
 
-let appName = env->Js.Dict.get("appName")
+let appName = env->Dict.get("appName")
 
 let serverPath = "dist/hyperswitch"
 let port = 9000
@@ -58,9 +58,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
 
   if path === "/config/merchant-access" && request.method === "POST" {
     let path =
-      env
-      ->Js.Dict.get("configPath")
-      ->Belt.Option.getWithDefault("dist/server/config/FeatureFlag.json")
+      env->Dict.get("configPath")->Belt.Option.getWithDefault("dist/server/config/FeatureFlag.json")
     Promise.make((resolve, _reject) => {
       configHandler(request, response, true, path)
       ()->resolve(. _)

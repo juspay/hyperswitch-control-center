@@ -19,7 +19,7 @@ let make = (
     ->LogicUtils.getDictFromJsonObject
   let (hoverIndex, setHoverIndex) = React.useState(_ => -1.)
   let (selectedMetric, setSelectedMetric) = React.useState(_ => Volume)
-  let length = metrics->Js.Array2.length->Belt.Float.fromInt
+  let length = metrics->Array.length->Belt.Float.fromInt
   let widths = metrics->Array.mapWithIndex((metric, i) => {
     let previousMetric = metrics->Belt.Array.get(i - 1)
     let previousMetric = switch previousMetric {
@@ -39,12 +39,12 @@ let make = (
 
   let someData =
     funnelData
-    ->Js.Dict.entries
-    ->Js.Array2.filter(entry => {
+    ->Dict.toArray
+    ->Array.filter(entry => {
       let (_key, value) = entry
       value->LogicUtils.getIntFromJson(0) !== 0
     })
-    ->Js.Array2.length > 0
+    ->Array.length > 0
   <div className="block m-6 mb-2">
     <div className="font-semibold text-lg text-black dark:text-white">
       {moduleName->LogicUtils.camelToSnake->LogicUtils.snakeToTitle->React.string}
