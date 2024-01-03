@@ -10,7 +10,6 @@ let make = () => {
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
-
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Js.Dict.get("Refunds")->Belt.Option.getWithDefault(defaultValue)
@@ -23,8 +22,8 @@ let make = () => {
 
       filters->Js.Dict.set("offset", offset->Belt.Int.toFloat->Js.Json.number)
       if !(searchText->isEmptyString) {
-        filters->Js.Dict.set("payment_id", searchText->Js.Json.string)
-        filters->Js.Dict.set("refund_id", searchText->Js.Json.string)
+        filters->Js.Dict.set("payment_id", searchText->Js.String2.trim->Js.Json.string)
+        filters->Js.Dict.set("refund_id", searchText->Js.String2.trim->Js.Json.string)
       }
 
       dict

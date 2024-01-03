@@ -257,7 +257,8 @@ let make = (
   | None => _ => ()
   }
   let {addConfig, getConfig} = React.useContext(UserPrefContext.userPrefContext)
-  let getTabNames = UrlUtils.useGetFilterDictFromUrl(tabId)
+  let {filterValueJson} = React.useContext(FilterContext.filterContext)
+  let getTabNames = filterValueJson
   let getTitle = key => {
     (
       tabs

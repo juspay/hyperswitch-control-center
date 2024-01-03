@@ -117,7 +117,7 @@ module ClearFilters = {
     ~isCountRequired=true,
     ~outsidefilter=false,
   ) => {
-    let url = RescriptReactRouter.useUrl()
+    let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
     let isMobileView = MatchMedia.useMobileChecker()
     let outerClass = if isMobileView {
       "flex items-center justify-end"
@@ -160,8 +160,7 @@ module ClearFilters = {
           })
           ->Js.Array2.joinWith("&")
 
-        let path = url.path->Belt.List.toArray->Js.Array2.joinWith("/")
-        RescriptReactRouter.replace(`/${path}?${searchStr}`)
+        searchStr->FilterUtils.parseFilterString->updateExistingKeys
       }
     }
 
@@ -197,7 +196,7 @@ module ClearFilters = {
 module AnalyticsClearFilters = {
   @react.component
   let make = (~defaultFilterKeys=[], ~clearFilters=?, ~outsidefilter=false) => {
-    let url = RescriptReactRouter.useUrl()
+    let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values", "initialValues"])->Js.Nullable.return,
     )
@@ -231,8 +230,7 @@ module AnalyticsClearFilters = {
           })
           ->Js.Array2.joinWith("&")
 
-        let path = url.path->Belt.List.toArray->Js.Array2.joinWith("/")
-        RescriptReactRouter.replace(`/${path}?${searchStr}`)
+        searchStr->FilterUtils.parseFilterString->updateExistingKeys
       }
     }
 
@@ -551,6 +549,7 @@ let make = (
   ~disableURIdecode=false,
   ~revampedFilter=false,
 ) => {
+  let {query} = React.useContext(FilterContext.filterContext)
   let alreadySelectedFiltersUserpref = `remote_filters_selected_keys_${tableName->Belt.Option.getWithDefault(
       "",
     )}`
@@ -584,17 +583,14 @@ let make = (
   }, [updatedSelectedList->Js.Json.stringify])
 
   let getNewQuery = DateRefreshHooks.useConstructQueryOnBasisOfOpt()
-  let url = RescriptReactRouter.useUrl()
   let (isButtonDisabled, setIsButtonDisabled) = React.useState(_ => false)
-  let queryStr = url.search
 
   let totalFilters = selectedFiltersList->Js.Array2.length + localOptions->Js.Array2.length
   let (checkedFilters, setCheckedFilters) = React.useState(_ => [])
   let (clearFilterAfterRefresh, setClearFilterAfterRefresh) = React.useState(_ => false)
   let (count, setCount) = React.useState(_ => initalCount)
 
-  let url = RescriptReactRouter.useUrl()
-  let searchParams = disableURIdecode ? url.search : url.search->Js.Global.decodeURI
+  let searchParams = disableURIdecode ? query : query->Js.Global.decodeURI
 
   let isMobileView = MatchMedia.useMobileChecker()
 
@@ -836,7 +832,7 @@ let make = (
 
   let handleRefresh = _ => {
     let newQueryStr = getNewQuery(
-      ~queryString=queryStr,
+      ~queryString=query,
       ~disableFutureDates=true,
       ~disablePastDates=false,
       ~startKey="startTime",
