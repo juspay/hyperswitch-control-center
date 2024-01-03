@@ -71,7 +71,6 @@ module DefaultDocsPage = {
 let make = () => {
   open UserOnboardingTypes
   let url = RescriptReactRouter.useUrl()
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let searchParams = url.search
   let filtersFromUrl =
     LogicUtils.getDictFromUrlSearchParams(searchParams)
@@ -109,7 +108,6 @@ let make = () => {
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
 
   let skipAndContinue = async () => {
-    UserOnboardingUtils.getMixPanelEventName(~url, ~filtersFromUrl, ~hyperswitchMixPanel)
     try {
       let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
       let metaDataDict = Js.Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_

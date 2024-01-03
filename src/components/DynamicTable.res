@@ -115,7 +115,6 @@ let make = (
     filterCheck,
     filterForRow,
   } = entity
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let tableName =
     prefixAddition->Belt.Option.getWithDefault(false)
       ? title->Js.String.replaceByRe(%re("/ /g"), "-", _)->Js.String.toLowerCase->Some
@@ -249,17 +248,6 @@ let make = (
     fetchApi(uri, ~bodyStr=Js.Json.stringify(finalJson), ~headers, ~method_=method, ())
     ->then(resp => {
       let status = resp->Fetch.Response.status
-      if status >= 200 && status < 300 {
-        hyperswitchMixPanel(
-          ~description=resp->Js.Json.stringifyAny,
-          ~isApiFailure=true,
-          ~apiUrl=`Dynamic Table Loading Failed - ${uri}`,
-          ~apiMethodName=method->LogicUtils.methodStr,
-          ~xRequestId=Some(resp->HyperSwitchUtils.fetchRequestIdFromAPI),
-          ~responseStatusCode=Some(status),
-          (),
-        )
-      }
       if status >= 300 {
         setFetchSuccess(_ => false)
         setTableDataLoading(_ => false)
@@ -296,14 +284,6 @@ let make = (
       resolve()
     })
     ->catch(_ => {
-      hyperswitchMixPanel(
-        ~description=Some("Failed to fetch"),
-        ~isApiFailure=true,
-        ~apiUrl=`Dynamic Table Loading Failed - ${uri}`,
-        ~apiMethodName=method->LogicUtils.methodStr,
-        (),
-      )
-
       resolve()
     })
     ->ignore

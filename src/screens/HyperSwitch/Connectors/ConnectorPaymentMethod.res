@@ -1,6 +1,5 @@
 @react.component
 let make = (
-  ~currentStep,
   ~setCurrentStep,
   ~connector,
   ~setInitialValues,
@@ -12,8 +11,6 @@ let make = (
   open APIUtils
   open PageLoaderWrapper
   open LogicUtils
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let url = RescriptReactRouter.useUrl()
   let _showAdvancedConfiguration = false
   let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
     Js.Dict.empty()->Js.Json.object_->getPaymentMethodEnabled
@@ -59,13 +56,6 @@ let make = (
         )
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID, ())
       let response = await updateAPIHook(connectorUrl, body, Post)
-      getMixpanelForConnectorOnSubmit(
-        ~connectorName=connector,
-        ~currentStep,
-        ~isUpdateFlow,
-        ~url,
-        ~hyperswitchMixPanel,
-      )
       setInitialValues(_ => response)
       setScreenState(_ => Success)
       setCurrentStep(_ => ConnectorTypes.SummaryAndTest)

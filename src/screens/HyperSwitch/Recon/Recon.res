@@ -9,8 +9,6 @@ let make = () => {
   let fetchMerchantAccountDetails = useFetchMerchantDetails()
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()->getMerchantDetails
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let url = RescriptReactRouter.useUrl()
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let isReconEnabled = merchentDetails.recon_status === Active
 
   let onClickForReconRequest = async () => {
@@ -86,12 +84,6 @@ let make = () => {
                 buttonSize={Small}
                 buttonState={Normal}
                 onClick={v => {
-                  hyperswitchMixPanel(
-                    ~pageName=url.path->HSwitchUtils.getPageNameFromUrl,
-                    ~contextName="reconciliation",
-                    ~actionName="go_to_recon_tab",
-                    (),
-                  )
                   openReconTab()->ignore
                 }}
               />
@@ -128,12 +120,6 @@ let make = () => {
                   buttonSize={Small}
                   buttonState={Normal}
                   onClick={v => {
-                    hyperswitchMixPanel(
-                      ~pageName=url.path->HSwitchUtils.getPageNameFromUrl,
-                      ~contextName="activate_reconciliation",
-                      ~actionName="send_an_email",
-                      (),
-                    )
                     onClickForReconRequest()->ignore
                   }}
                 />
@@ -148,15 +134,7 @@ let make = () => {
                     <a
                       className={`text-[#0000FF]`}
                       href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
-                      target="_blank"
-                      onClick={e => {
-                        hyperswitchMixPanel(
-                          ~pageName=url.path->HSwitchUtils.getPageNameFromUrl,
-                          ~contextName="activate_reconciliation",
-                          ~actionName="slack",
-                          (),
-                        )
-                      }}>
+                      target="_blank">
                       {"slack"->React.string}
                     </a>
                   </div>

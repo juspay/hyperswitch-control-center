@@ -1,19 +1,13 @@
-open RoutingTypes
-external toWasm: Js.Dict.t<Js.Json.t> => wasmModule = "%identity"
-
 module ActiveRulePreview = {
   open LogicUtils
   @react.component
   let make = (~initialRule) => {
-    let ruleInfo = initialRule->Belt.Option.getWithDefault(Js.Dict.empty())
-    let name = ruleInfo->getString("name", "")
-    let description = ruleInfo->getString("description", "")
+    let rule = initialRule->Belt.Option.getWithDefault(Js.Dict.empty())
 
-    let ruleInfo =
-      ruleInfo
-      ->getJsonObjectFromDict("algorithm")
-      ->getDictFromJsonObject
-      ->AdvancedRoutingUtils.ruleInfoTypeMapper
+    let name = rule->getString("name", "")
+    let description = rule->getString("description", "")
+
+    let ruleInfo = rule->getDictfromDict("algorithm")->SurchargeUtils.ruleInfoTypeMapper
 
     <UIUtils.RenderIf condition={initialRule->Belt.Option.isSome}>
       <div className="relative flex flex-col gap-6 w-full border p-6 bg-white rounded-md">
@@ -29,13 +23,13 @@ module ActiveRulePreview = {
             {description->React.string}
           </p>
         </div>
-        <RulePreviewer ruleInfo isFrom3ds=true />
+        <RulePreviewer ruleInfo isFromSurcharge=true />
       </div>
     </UIUtils.RenderIf>
   }
 }
 
-module Configure3DSRule = {
+module ConfigureSurchargeRule = {
   @react.component
   let make = (~wasm) => {
     let ruleInput = ReactFinalForm.useField("algorithm.rules").input
@@ -44,6 +38,7 @@ module Configure3DSRule = {
       ruleInput.onChange(rules->Identity.arrayOfGenericTypeToFormReactEvent)
       None
     }, [rules])
+
     let addRule = (index, _copy) => {
       let existingRules = ruleInput.value->LogicUtils.getArrayFromJson([])
       let newRule = existingRules[index]->Belt.Option.getWithDefault(Js.Json.null)
@@ -63,11 +58,10 @@ module Configure3DSRule = {
         let rule = ruleInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
         let keyExtractor = (index, _rule, isDragging) => {
           let id = {`algorithm.rules[${string_of_int(index)}]`}
-          let i = 1
           <AdvancedRouting.Wrapper
             key={index->string_of_int}
             id
-            heading={`Rule ${string_of_int(index + i)}`}
+            heading={`Rule ${string_of_int(index + 1)}`}
             onClickAdd={_ => addRule(index, false)}
             onClickCopy={_ => addRule(index, true)}
             onClickRemove={_ => removeRule(index)}
@@ -75,7 +69,7 @@ module Configure3DSRule = {
             notFirstRule
             isDragging
             wasm
-            isFrom3ds=true
+            isFromSurcharge=true
           />
         }
         if notFirstRule {
@@ -93,22 +87,22 @@ module Configure3DSRule = {
     </div>
   }
 }
+
 @react.component
 let make = () => {
-  // Three Ds flow
   open APIUtils
   open ThreeDSUtils
-
-  let url = RescriptReactRouter.useUrl()
+  open SurchargeUtils
+  let showToast = ToastState.useShowToast()
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (wasm, setWasm) = React.useState(_ => None)
   let (initialValues, _setInitialValues) = React.useState(_ =>
-    buildInitial3DSValue->Identity.genericTypeToJson
+    buildInitialSurchargeValue->Identity.genericTypeToJson
   )
   let (initialRule, setInitialRule) = React.useState(() => None)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (pageView, setPageView) = React.useState(_ => NEW)
+  let (pageView, setPageView) = React.useState(_ => LANDING)
   let (formState, setFormState) = React.useState(_ => AdvancedRoutingTypes.EditReplica)
   let showPopUp = PopUpState.useShowPopUp()
   let (showWarning, setShowWarning) = React.useState(_ => true)
@@ -116,9 +110,9 @@ let make = () => {
   let getWasm = async () => {
     try {
       let wasmResult = await Window.connectorWasmInit()
-      let fetchedWasm =
+      let wasm =
         wasmResult->LogicUtils.getDictFromJsonObject->LogicUtils.getObj("wasm", Js.Dict.empty())
-      setWasm(_ => Some(fetchedWasm->toWasm))
+      setWasm(_ => Some(wasm->Identity.toWasm))
     } catch {
     | _ => ()
     }
@@ -126,10 +120,10 @@ let make = () => {
   let activeRoutingDetails = async () => {
     open LogicUtils
     try {
-      let threeDsUrl = getURL(~entityName=THREE_DS, ~methodType=Get, ())
-      let threeDsRuleDetail = await fetchDetails(threeDsUrl)
-      let responseDict = threeDsRuleDetail->getDictFromJsonObject
-      let programValue = responseDict->getObj("program", Js.Dict.empty())
+      let surchargeUrl = getURL(~entityName=SURCHARGE, ~methodType=Get, ())
+      let surchargeRuleDetail = await fetchDetails(surchargeUrl)
+      let responseDict = surchargeRuleDetail->getDictFromJsonObject
+      let programValue = responseDict->getObj("algorithm", Js.Dict.empty())
 
       let intitialValue =
         [
@@ -171,32 +165,20 @@ let make = () => {
     None
   })
 
-  React.useEffect1(() => {
-    let searchParams = url.search
-    let filtersFromUrl =
-      LogicUtils.getDictFromUrlSearchParams(searchParams)
-      ->Js.Dict.get("type")
-      ->Belt.Option.getWithDefault("")
-    setPageView(_ => filtersFromUrl->pageStateMapper)
-    None
-  }, [url.search])
-
   let onSubmit = async (values, _) => {
     try {
-      setScreenState(_ => Loading)
-      let threeDsPayload = values->buildThreeDsPayloadBody
-
-      let getActivateUrl = getURL(~entityName=THREE_DS, ~methodType=Put, ())
-      let _ = await updateDetails(getActivateUrl, threeDsPayload->Identity.genericTypeToJson, Put)
+      let surchargePayload = values->buildSurchargePayloadBody
+      let getActivateUrl = getURL(~entityName=SURCHARGE, ~methodType=Put, ())
+      let _ = await updateDetails(getActivateUrl, surchargePayload->Identity.genericTypeToJson, Put)
       fetchDetails()->ignore
       setShowWarning(_ => true)
-      RescriptReactRouter.replace(`/3ds`)
+      RescriptReactRouter.replace(`/surcharge`)
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) =>
       let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
-      setScreenState(_ => Error(err))
+      showToast(~message=err, ~toastType=ToastError, ())
     }
     Js.Nullable.null
   }
@@ -210,14 +192,14 @@ let make = () => {
 
     switch dict->Js.Dict.get("algorithm")->Belt.Option.flatMap(Js.Json.decodeObject) {
     | Some(jsonDict) => {
-        let index = 1
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
-        if index === 1 && rules->Js.Array2.length === 0 {
+        if rules->Js.Array2.length === 0 {
           errors->Js.Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
         } else {
           rules->Array.forEachWithIndex((rule, i) => {
             let ruleDict = rule->LogicUtils.getDictFromJsonObject
-            if !RoutingUtils.validateConditionsFor3ds(ruleDict) {
+
+            if !validateConditionsForSurcharge(ruleDict) {
               errors->Js.Dict.set(
                 `Rule ${(i + 1)->string_of_int} - Condition`,
                 `Invalid`->Js.Json.string,
@@ -232,16 +214,17 @@ let make = () => {
 
     errors->Js.Json.object_
   }
+
   let redirectToNewRule = () => {
     setPageView(_ => NEW)
-    RescriptReactRouter.replace(`/3ds?type=new`)
   }
+
   let handleCreateNew = () => {
     if showWarning {
       showPopUp({
         popUpType: (Warning, WithIcon),
         heading: "Heads up!",
-        description: "This will override the existing 3DS configuration. Please confirm to proceed"->React.string,
+        description: "This will override the existing surcharge configuration. Please confirm to proceed"->React.string,
         handleConfirm: {
           text: "Confirm",
           onClick: {
@@ -259,16 +242,13 @@ let make = () => {
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col overflow-scroll gap-6">
-      <PageUtils.PageHeading
-        title={"3DS Decision Manager"}
-        subTitle="Make your payments more secure by enforcing 3DS authentication through custom rules defined on payment parameters"
-      />
+      <PageUtils.PageHeading title={"Surcharge"} subTitle="Add your surcharge" />
       {switch pageView {
       | NEW =>
         <div className="w-full border p-8 bg-white rounded-md ">
           <Form initialValues validate formClass="flex flex-col gap-6 justify-between" onSubmit>
             <BasicDetailsForm formState setFormState isThreeDs=true />
-            <Configure3DSRule wasm />
+            <ConfigureSurchargeRule wasm />
             <FormValuesSpy />
             <div className="flex gap-4">
               <Button
@@ -276,7 +256,7 @@ let make = () => {
                 buttonType=Secondary
                 onClick={_ => {
                   setPageView(_ => LANDING)
-                  RescriptReactRouter.replace(`/3ds`)
+                  RescriptReactRouter.replace(`/surcharge`)
                 }}
               />
               <FormRenderer.SubmitButton
@@ -290,10 +270,10 @@ let make = () => {
           <ActiveRulePreview initialRule />
           <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
             <p className="text-base font-semibold text-grey-700">
-              {"Configure 3DS Rule"->React.string}
+              {"Add Surcharge"->React.string}
             </p>
             <p className="text-base font-normal text-grey-700 opacity-50">
-              {"Create advanced rules using various payment parameters like amount, currency,payment method etc to enforce 3DS authentication for specific payments to reduce fraudulent transactions"->React.string}
+              {"Surcharge info description can come here"->React.string}
             </p>
             <Button
               text="Create New"

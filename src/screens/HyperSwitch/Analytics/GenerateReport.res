@@ -1,7 +1,5 @@
 @react.component
 let make = (~entityName) => {
-  let url = RescriptReactRouter.useUrl()
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let (reportModal, setReportModal) = React.useState(_ => false)
 
   <>
@@ -9,10 +7,6 @@ let make = (~entityName) => {
       text="Generate Reports"
       buttonType={Primary}
       onClick={_ => {
-        hyperswitchMixPanel(
-          ~eventName=Some(`${url.path->LogicUtils.getListHead}_generate_reports`),
-          (),
-        )
         setReportModal(_ => true)
       }}
     />

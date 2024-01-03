@@ -79,6 +79,14 @@ function getThreeDsKeys() {
   }
 }
 
+function getSurchargeKeys() {
+  if (wasm) {
+    return wasm.getSurchargeKeys();
+  } else {
+    return [];
+  }
+}
+
 function getAllKeys() {
   if (wasm) {
     return wasm.getAllKeys();

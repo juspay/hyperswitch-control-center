@@ -93,7 +93,10 @@ module AddEntryBtn = {
           buttonSize=Small
           buttonType={Primary}
           rightIcon={FontAwesome("plus")}
-          onClick={_ => setShowModal(_ => true)}
+          onClick={_ => {
+            setModalState(_ => Edit)
+            setShowModal(_ => true)
+          }}
         />
       </UIUtils.RenderIf>
       <Modal
@@ -117,7 +120,6 @@ let make = (
   open APIUtils
   open BusinessMappingUtils
   open BusinessMappingEntity
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
   let (offset, setOffset) = React.useState(_ => 0)
@@ -143,9 +145,6 @@ let make = (
       )
       fetchBusinessProfiles()->ignore
       showToast(~message="Your Entry added successfully", ~toastType=ToastState.ToastSuccess, ())
-      if !isFromSettings {
-        hyperswitchMixPanel(~eventName=Some(`connectors_add_business_profile`), ())
-      }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
