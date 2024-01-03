@@ -27,12 +27,7 @@ let getURL = (
   | REFUND_REPORT => `analytics/v1/report/refunds`
   | DISPUTE_REPORT => `analytics/v1/report/dispute`
   | SDK_EVENT_LOGS => `analytics/v1/sdk_event_logs`
-  | GENERATE_SAMPLE_DATA =>
-    switch methodType {
-    | Post => `user/sample_data`
-    | Delete => `user/sample_data`
-    | _ => ""
-    }
+  | GENERATE_SAMPLE_DATA => `user/sample_data`
   | TEST_LIVE_PAYMENT => `test_payment`
   | THREE_DS => `routing/decision`
   | VERIFY_APPLE_PAY => `verify/apple_pay`
@@ -58,20 +53,15 @@ let getURL = (
     }
   | ROUTING =>
     switch methodType {
-    | Get =>
+    | Get | Put =>
       switch id {
       | Some(routingId) => `routing/${routingId}`
       | _ => `routing`
       }
     | Post =>
       switch id {
-      | Some(routing_id) => `routing/${routing_id}/activate `
+      | Some(routing_id) => `routing/${routing_id}/activate`
       | _ => `routing`
-      }
-    | Put =>
-      switch id {
-      | Some(routing_id) => `routing/${routing_id}`
-      | _ => `routing `
       }
     | _ => ""
     }
@@ -150,10 +140,6 @@ let getURL = (
     switch userType {
     | #NONE => ""
     | #VERIFY_MAGIC_LINK => `${userUrl}/verify_email`
-    | #SIGNIN
-    | #SIGNUP
-    | #VERIFY_EMAIL =>
-      `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
     | #USER_DATA => `${userUrl}/data`
     | #MERCHANT_DATA => `${userUrl}/data`
     | #INVITE
@@ -166,7 +152,16 @@ let getURL = (
       | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
       }
     | #CREATE_MERCHANT => `${userUrl}/create_merchant`
-    | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
+    | #SIGNIN
+    | #SIGNUP
+    | #VERIFY_EMAIL
+    | #SIGNOUT
+    | #RESET_PASSWORD
+    | #SET_METADATA
+    | #VERIFY_EMAIL_REQUEST
+    | #FORGOT_PASSWORD
+    | #PERMISSION_INFO =>
+      `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
     }
   | RECON => `recon/${(reconType :> string)->Js.String2.toLowerCase}`
   | USER_MANAGEMENT => {
@@ -189,7 +184,6 @@ let getURL = (
     }
   | PAYMENT | SETTINGS => ""
   }
-
   `${HSwitchGlobalVars.hyperSwitchApiPrefix}/${endpoint}`
 }
 

@@ -75,6 +75,69 @@ module Add3DSCondition = {
     </div>
   }
 }
+
+module AddSurchargeCondition = {
+  let classStyle = "flex justify-center relative py-2 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border-2 border-border_gray border-opacity-50 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
+
+  //keep the rate only for now.
+  let options: array<SelectBox.dropdownOption> = [
+    {value: "rate", label: "Rate"},
+    // {value: "amount", label: "Amount"},
+  ]
+
+  @react.component
+  let make = (~isFirst, ~id) => {
+    <div className="flex flex-row ml-2">
+      <UIUtils.RenderIf condition={!isFirst}>
+        <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
+      </UIUtils.RenderIf>
+      <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
+        <div className="flex flex-wrap gap-4">
+          <div className=classStyle> {"Surcharge is"->React.string} </div>
+          <FormRenderer.FieldRenderer
+            field={FormRenderer.makeFieldInfo(
+              ~label="",
+              ~name=`${id}.connectorSelection.surcharge_details.surcharge.type`,
+              ~customInput=InputFields.selectInput(
+                ~options,
+                ~buttonText="Select Surcharge Type",
+                ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
+                ~deselectDisable=true,
+                (),
+              ),
+              (),
+            )}
+          />
+          <FormRenderer.FieldRenderer
+            field={FormRenderer.makeFieldInfo(
+              ~label="",
+              ~name=`${id}.connectorSelection.surcharge_details.surcharge.value.percentage`,
+              ~customInput=InputFields.numericTextInput(~customStyle="!-mt-5", ~precision=2, ()),
+              (),
+            )}
+          />
+        </div>
+        <div className="flex flex-wrap gap-4">
+          <div className=classStyle> {"Tax on Surcharge"->React.string} </div>
+          <FormRenderer.FieldRenderer
+            field={FormRenderer.makeFieldInfo(
+              ~label="",
+              ~name=`${id}.connectorSelection.surcharge_details.tax_on_surcharge.percentage`,
+              ~customInput=InputFields.numericTextInput(
+                ~precision=2,
+                ~customStyle="!-mt-5",
+                ~rightIcon=<Icon name="percent" size=16 />,
+                ~rightIconCustomStyle="-ml-7 -mt-5",
+                (),
+              ),
+              (),
+            )}
+          />
+        </div>
+      </div>
+    </div>
+  }
+}
 module Wrapper = {
   @react.component
   let make = (
@@ -89,6 +152,7 @@ module Wrapper = {
     ~isDragging=false,
     ~wasm,
     ~isFrom3ds=false,
+    ~isFromSurcharge=false,
   ) => {
     let showToast = ToastState.useShowToast()
     let isMobileView = MatchMedia.useMobileChecker()
@@ -204,9 +268,7 @@ module Wrapper = {
           onClick={handleClickExpand}
           className="cursor-pointer flex flex-row gap-2 items-center justify-between p-2 bg-blue-100 dark:bg-jp-gray-970 rounded-full border border-blue-700 dark:border-blue-900">
           <div className="font-semibold pl-2 text-sm md:text-base"> {React.string(heading)} </div>
-          <Icon
-            name={isExpanded ? "angle-up" : "angle-down"} className="" size={isMobileView ? 14 : 16}
-          />
+          <Icon name={isExpanded ? "angle-up" : "angle-down"} size={isMobileView ? 14 : 16} />
         </div>
         {actions}
       </div>
@@ -218,13 +280,16 @@ module Wrapper = {
             ${border} 
             border-blue-700`}>
         <UIUtils.RenderIf condition={!isFirst}>
-          <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm isFrom3ds />
+          <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm isFrom3ds isFromSurcharge />
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!isFrom3ds}>
+        <UIUtils.RenderIf condition={!isFrom3ds && !isFromSurcharge}>
           <AddRuleGateway id gatewayOptions isExpanded isFirst />
         </UIUtils.RenderIf>
         <UIUtils.RenderIf condition={isFrom3ds}>
           <Add3DSCondition isFirst id />
+        </UIUtils.RenderIf>
+        <UIUtils.RenderIf condition={isFromSurcharge}>
+          <AddSurchargeCondition isFirst id />
         </UIUtils.RenderIf>
       </div>
     </div>

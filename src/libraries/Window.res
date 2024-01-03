@@ -42,6 +42,9 @@ external getPayoutConnectorConfig: string => Js.Json.t = "getPayoutConnectorConf
 external getThreeDsKeys: unit => array<string> = "getThreeDsKeys"
 
 @val @scope("window")
+external getSurchargeKeys: unit => array<string> = "getSurchargeKeys"
+
+@val @scope("window")
 external getAllKeys: unit => array<string> = "getAllKeys"
 
 @val @scope("window")

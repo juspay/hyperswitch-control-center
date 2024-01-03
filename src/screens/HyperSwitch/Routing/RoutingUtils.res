@@ -8,18 +8,7 @@ let defaultThreeDsObjectValue: routingOutputType = {
   override_3ds: "three_ds",
 }
 let currentTimeInUTC = Js.Date.fromFloat(Js.Date.now())->Js.Date.toUTCString
-let validateConditionJson = json => {
-  let checkValue = dict => {
-    dict->getArrayFromDict("value", [])->Js.Array2.length > 0 || dict->getString("value", "") !== ""
-  }
-  switch json->Js.Json.decodeObject {
-  | Some(dict) =>
-    ["operator", "real_field"]->Js.Array2.every(key =>
-      dict->Js.Dict.get(key)->Belt.Option.isSome
-    ) && dict->checkValue
-  | None => false
-  }
-}
+
 let getCurrentUTCTime = () => {
   let currentDate = Js.Date.now()->Js.Date.fromFloat
   let currMonth = currentDate->Js.Date.getUTCMonth->Belt.Float.toString
@@ -681,26 +670,21 @@ let checkIfValuePresent = dict => {
   (valueFromObject->getDictfromDict("value")->getString("key", "")->Js.String2.length > 0 &&
     valueFromObject->getDictfromDict("value")->getString("value", "")->Js.String2.length > 0)
 }
-let validateConditionJsonFor3ds = json => {
+
+let validateConditionJson = (json, keys) => {
   switch json->Js.Json.decodeObject {
   | Some(dict) =>
-    ["comparison", "lhs"]->Js.Array2.every(key => dict->Js.Dict.get(key)->Belt.Option.isSome) &&
+    keys->Js.Array2.every(key => dict->Js.Dict.get(key)->Belt.Option.isSome) &&
       dict->checkIfValuePresent
   | None => false
   }
-}
-
-let validateConditions = dict => {
-  dict
-  ->LogicUtils.getArrayFromDict("conditions", [])
-  ->Js.Array2.every(MakeRuleFieldComponent.validateConditionJson)
 }
 
 let validateConditionsFor3ds = dict => {
   let conditionsArray = dict->LogicUtils.getArrayFromDict("statements", [])
 
   conditionsArray->Array.every(value => {
-    value->validateConditionJsonFor3ds
+    value->validateConditionJson(["comparison", "lhs"])
   })
 }
 
