@@ -35,11 +35,13 @@ module GenerateSampleDataButton = {
   open APIUtils
   @react.component
   let make = (~previewOnly, ~getOrdersList) => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let generateSampleData = async () => {
+      mixpanelEvent(~eventName="generate_sample_data", ())
       try {
         let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
         let _ = await updateDetails(
@@ -82,9 +84,6 @@ module NoData = {
       paymentModal
       setPaymentModal
       showRedirectCTA={!isLiveMode}
-      mixPanelEventName={isConfigureConnector
-        ? "paymentops_makeapayment"
-        : "payemntops_connectaconnector"}
       onClickUrl={isConfigureConnector
         ? "/sdk"
         : `${HSwitchGlobalVars.hyperSwitchFEPrefix}/connectors`}

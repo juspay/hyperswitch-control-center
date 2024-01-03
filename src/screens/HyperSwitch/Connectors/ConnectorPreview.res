@@ -40,11 +40,8 @@ module MenuOption = {
     ~setCurrentStep,
     ~disableConnector,
     ~isConnectorDisabled,
-    ~connectorInfo: ConnectorTypes.connectorPayload,
     ~pageName="connector",
   ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     let showPopUp = PopUpState.useShowPopUp()
     let openConfirmationPopUp = _ => {
       showPopUp({
@@ -75,30 +72,12 @@ module MenuOption = {
                 <Navbar.MenuOption
                   text="Update"
                   onClick={_ => {
-                    hyperswitchMixPanel(
-                      ~pageName=url.path->LogicUtils.getListHead,
-                      ~contextName=connectorInfo.connector_name,
-                      ~actionName="update",
-                      ~description=Some(
-                        `${connectorInfo.connector_name}_previous_connector_update`,
-                      ),
-                      (),
-                    )
                     setCurrentStep(_ => updateStepValue)
                   }}
                 />
                 <Navbar.MenuOption
                   text={connectorStatusAvailableToSwitch}
                   onClick={_ => {
-                    hyperswitchMixPanel(
-                      ~pageName=url.path->LogicUtils.getListHead,
-                      ~contextName=connectorInfo.connector_name,
-                      ~actionName=connectorStatusAvailableToSwitch,
-                      ~description=Some(
-                        `${connectorInfo.connector_name}_previous_connector_${connectorStatusAvailableToSwitch}`,
-                      ),
-                      (),
-                    )
                     openConfirmationPopUp()
                   }}
                 />
@@ -248,7 +227,6 @@ let make = (
 ) => {
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   open APIUtils
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
@@ -307,20 +285,13 @@ let make = (
                 {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
               </p>
               <UIUtils.RenderIf condition={showMenuOption}>
-                <MenuOption setCurrentStep disableConnector isConnectorDisabled connectorInfo />
+                <MenuOption setCurrentStep disableConnector isConnectorDisabled />
               </UIUtils.RenderIf>
             </div>
 
           | _ =>
             <Button
               onClick={_ => {
-                ConnectorUtils.getMixpanelForConnectorOnSubmit(
-                  ~connectorName=connectorInfo.connector_name,
-                  ~currentStep,
-                  ~isUpdateFlow,
-                  ~url,
-                  ~hyperswitchMixPanel,
-                )
                 if isFeedbackModalToBeOpen {
                   setShowFeedbackModal(_ => true)
                 }

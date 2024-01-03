@@ -346,10 +346,6 @@ let make = (
   ~customButtonStyle="",
   ~textStyleClass=?,
   ~customTextPaddingClass=?,
-  ~hswitchMixPanelDescription=?,
-  ~hswitchMixPanelPageName=?,
-  ~hswitchMixPanelContextName=?,
-  ~hswitchMixPanelActionName=?,
   ~allowButtonTextMinWidth=true,
   ~badge: badge={
     value: 1->Belt.Int.toString,
@@ -365,7 +361,6 @@ let make = (
   ~isPhoneDropdown=false,
   ~showBtnTextToolTip=false,
 ) => {
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let parentRef = React.useRef(Js.Nullable.null)
   let dummyRef = React.useRef(Js.Nullable.null)
   let buttonRef = disableRipple ? dummyRef : parentRef
@@ -664,23 +659,7 @@ let make = (
   }
   let handleClick = ev => {
     switch onClick {
-    | Some(fn) => {
-        if (
-          hswitchMixPanelPageName->Belt.Option.isSome &&
-          hswitchMixPanelActionName->Belt.Option.isSome &&
-          hswitchMixPanelContextName->Belt.Option.isSome
-        ) {
-          hyperswitchMixPanel(
-            ~pageName=hswitchMixPanelPageName->Belt.Option.getWithDefault(""),
-            ~actionName=hswitchMixPanelActionName->Belt.Option.getWithDefault(""),
-            ~contextName=hswitchMixPanelContextName->Belt.Option.getWithDefault(""),
-            ~description=hswitchMixPanelDescription,
-            (),
-          )
-        }
-        fn(ev)
-      }
-
+    | Some(fn) => fn(ev)
     | None => ()
     }
   }

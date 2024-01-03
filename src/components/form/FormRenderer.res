@@ -594,8 +594,6 @@ module SubmitButton = {
     ~textWeight=?,
     ~customHeightClass=?,
   ) => {
-    let url = RescriptReactRouter.useUrl()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let dict = Js.Dict.empty()
     [
       "hasSubmitErrors",
@@ -686,22 +684,7 @@ module SubmitButton = {
           buttonState
           loadingText
           onClick={_ev => {
-            let filterKeys =
-              formState.values
-              ->LogicUtils.getDictFromJsonObject
-              ->Js.Dict.keys
-              ->Js.Array2.filter(key => {
-                ["startTime", "endTime"]->Js.Array2.includes(key)->not
-              })
-              ->Js.Json.stringifyAny
             form.submit()->ignore
-            if text === "Apply Filters" {
-              hyperswitchMixPanel(
-                ~eventName=Some(`${url.path->LogicUtils.getListHead}_applyfilters`),
-                ~description=filterKeys,
-                (),
-              )
-            }
           }} //either onclick or type_should be called #warning
           leftIcon=icon
           rightIcon

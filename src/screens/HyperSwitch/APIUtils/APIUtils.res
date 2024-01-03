@@ -27,12 +27,7 @@ let getURL = (
   | REFUND_REPORT => `analytics/v1/report/refunds`
   | DISPUTE_REPORT => `analytics/v1/report/dispute`
   | SDK_EVENT_LOGS => `analytics/v1/sdk_event_logs`
-  | GENERATE_SAMPLE_DATA =>
-    switch methodType {
-    | Post => `user/sample_data`
-    | Delete => `user/sample_data`
-    | _ => ""
-    }
+  | GENERATE_SAMPLE_DATA => `user/sample_data`
   | TEST_LIVE_PAYMENT => `test_payment`
   | THREE_DS => `routing/decision`
   | VERIFY_APPLE_PAY => `verify/apple_pay`
@@ -58,20 +53,15 @@ let getURL = (
     }
   | ROUTING =>
     switch methodType {
-    | Get =>
+    | Get | Put =>
       switch id {
       | Some(routingId) => `routing/${routingId}`
       | _ => `routing`
       }
     | Post =>
       switch id {
-      | Some(routing_id) => `routing/${routing_id}/activate `
+      | Some(routing_id) => `routing/${routing_id}/activate`
       | _ => `routing`
-      }
-    | Put =>
-      switch id {
-      | Some(routing_id) => `routing/${routing_id}`
-      | _ => `routing `
       }
     | _ => ""
     }
@@ -150,10 +140,6 @@ let getURL = (
     switch userType {
     | #NONE => ""
     | #VERIFY_MAGIC_LINK => `${userUrl}/verify_email`
-    | #SIGNIN
-    | #SIGNUP
-    | #VERIFY_EMAIL =>
-      `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
     | #USER_DATA => `${userUrl}/data`
     | #MERCHANT_DATA => `${userUrl}/data`
     | #INVITE
@@ -166,7 +152,16 @@ let getURL = (
       | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
       }
     | #CREATE_MERCHANT => `${userUrl}/create_merchant`
-    | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
+    | #SIGNIN
+    | #SIGNUP
+    | #VERIFY_EMAIL
+    | #SIGNOUT
+    | #RESET_PASSWORD
+    | #SET_METADATA
+    | #VERIFY_EMAIL_REQUEST
+    | #FORGOT_PASSWORD
+    | #PERMISSION_INFO =>
+      `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
     }
   | RECON => `recon/${(reconType :> string)->Js.String2.toLowerCase}`
   | USER_MANAGEMENT => {
@@ -189,7 +184,6 @@ let getURL = (
     }
   | PAYMENT | SETTINGS => ""
   }
-
   `${HSwitchGlobalVars.hyperSwitchApiPrefix}/${endpoint}`
 }
 
@@ -222,14 +216,11 @@ let handleLogout = async (
 
 let responseHandler = async (
   ~res,
-  ~url,
   ~showToast: ToastState.showToastFn,
-  ~requestMethod,
   ~showErrorToast: bool,
   ~showPopUp: React.callback<PopUpState.popUpProps, unit>,
   ~isPlayground,
   ~popUpCallBack,
-  ~hyperswitchMixPanel: HSMixPanel.functionType,
 ) => {
   let json = try {
     await res->Fetch.Response.json
@@ -244,15 +235,6 @@ let responseHandler = async (
   | _ => {
       let errorDict = json->getDictFromJsonObject->getObj("error", Js.Dict.empty())
       let errorStringifiedJson = errorDict->Js.Json.object_->Js.Json.stringify
-      hyperswitchMixPanel(
-        ~isApiFailure=true,
-        ~apiUrl=url,
-        ~apiMethodName=requestMethod->LogicUtils.methodStr,
-        ~description=Some(errorStringifiedJson),
-        ~responseStatusCode=Some(responseStatus),
-        ~xRequestId=Some(res->HyperSwitchUtils.fetchRequestIdFromAPI),
-        (),
-      )
 
       //TODO:-
       // errorCodes to be handled
@@ -265,30 +247,24 @@ let responseHandler = async (
         | 401 =>
           if !sessionExpired.contents {
             showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false, ())
-            hyperswitchMixPanel(
-              ~eventName=Some(`Hyperswitch - Unauthorized Token - Session Expired`),
-              (),
-            )
             RescriptReactRouter.push("/login")
             sessionExpired := true
           }
 
-        | 403 => {
-            showPopUp({
-              popUpType: (Warning, WithIcon),
-              heading: "Access Forbidden",
-              description: {
-                "You do not have the required permissions to access this module. Please contact your administrator for necessary permissions."->React.string
+        | 403 =>
+          showPopUp({
+            popUpType: (Warning, WithIcon),
+            heading: "Access Forbidden",
+            description: {
+              "You do not have the required permissions to access this module. Please contact your administrator for necessary permissions."->React.string
+            },
+            handleConfirm: {
+              text: "Close",
+              onClick: {
+                _ => ()
               },
-              handleConfirm: {
-                text: "Close",
-                onClick: {
-                  _ => ()
-                },
-              },
-            })
-            hyperswitchMixPanel(~eventName=Some(`Hyperswitch - Access Forbidden`), ())
-          }
+            },
+          })
 
         | _ =>
           showToast(
@@ -306,24 +282,14 @@ let responseHandler = async (
 
 let catchHandler = (
   ~err,
-  ~requestMethod,
-  ~url,
   ~showErrorToast,
   ~showToast: ToastState.showToastFn,
   ~isPlayground,
   ~popUpCallBack,
-  ~hyperswitchMixPanel: HSMixPanel.functionType,
 ) => {
   switch Js.Exn.message(err) {
   | Some(msg) => Js.Exn.raiseError(msg)
   | None => {
-      hyperswitchMixPanel(
-        ~isApiFailure=true,
-        ~apiMethodName=requestMethod->LogicUtils.methodStr,
-        ~apiUrl=url,
-        ~description=Some("Failed to Fetch"),
-        (),
-      )
       if isPlayground {
         popUpCallBack()
       } else if showErrorToast {
@@ -335,15 +301,12 @@ let catchHandler = (
 }
 
 let useGetMethod = (~showErrorToast=true, ()) => {
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-  let url = RescriptReactRouter.useUrl()
-  let urlPath = url.path->Belt.List.toArray->Js.Array2.joinWith("_")
 
   let popUpCallBack = () =>
     showPopUp({
@@ -356,8 +319,6 @@ let useGetMethod = (~showErrorToast=true, ()) => {
         text: "Sign up Now",
         onClick: {
           _ => {
-            hyperswitchMixPanel(~eventName=Some(`${urlPath}_tryplayground_register`), ())
-            hyperswitchMixPanel(~eventName=Some(`global_tryplayground_register`), ())
             let _ = handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
           }
         },
@@ -369,27 +330,22 @@ let useGetMethod = (~showErrorToast=true, ()) => {
       let res = await fetchApi(url, ~method_=Get, ())
       await responseHandler(
         ~res,
-        ~url,
-        ~requestMethod={Get},
         ~showErrorToast,
         ~showToast,
         ~showPopUp,
         ~isPlayground,
         ~popUpCallBack,
-        ~hyperswitchMixPanel,
       )
     } catch {
     | Js.Exn.Error(e) =>
       catchHandler(
         ~err={e},
-        ~url,
-        ~requestMethod={Get},
+        ~requestMethod={Fetch.Get},
         ~showErrorToast,
         ~showToast,
         ~showPopUp,
         ~isPlayground,
         ~popUpCallBack,
-        ~hyperswitchMixPanel,
       )
     | _ => Js.Exn.raiseError("Something went wrong")
     }
@@ -397,14 +353,11 @@ let useGetMethod = (~showErrorToast=true, ()) => {
 }
 
 let useUpdateMethod = (~showErrorToast=true, ()) => {
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let fetchApi = AuthHooks.useApiFetcher()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-  let url = RescriptReactRouter.useUrl()
-  let urlPath = url.path->Belt.List.toArray->Js.Array2.joinWith("_")
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
   let popUpCallBack = () =>
@@ -418,8 +371,6 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
         text: "Sign up Now",
         onClick: {
           _ => {
-            hyperswitchMixPanel(~eventName=Some(`${urlPath}_tryplayground_register`), ())
-            hyperswitchMixPanel(~eventName=Some(`global_tryplayground_register`), ())
             let _ = handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
           }
         },
@@ -431,26 +382,21 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
       let res = await fetchApi(url, ~method_=method, ~bodyStr=body->Js.Json.stringify, ())
       await responseHandler(
         ~res,
-        ~url,
-        ~requestMethod={method},
         ~showErrorToast,
         ~showToast,
         ~isPlayground,
         ~showPopUp,
         ~popUpCallBack,
-        ~hyperswitchMixPanel,
       )
     } catch {
     | Js.Exn.Error(e) =>
       catchHandler(
         ~err={e},
-        ~url,
         ~requestMethod={method},
         ~showErrorToast,
         ~showToast,
         ~isPlayground,
         ~popUpCallBack,
-        ~hyperswitchMixPanel,
       )
     | _ => Js.Exn.raiseError("Something went wrong")
     }
