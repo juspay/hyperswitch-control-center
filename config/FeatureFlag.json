@@ -16,7 +16,7 @@
   "feedback": false,
   "verify_connector": false,
   "mixpanel": false,
-  "business_profile": true,
+  "business_profile": false,
   "generate_report": false,
   "forgot_password": false,
   "oss_build": true
