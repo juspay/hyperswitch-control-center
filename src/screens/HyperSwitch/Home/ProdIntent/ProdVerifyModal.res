@@ -4,8 +4,6 @@ open CardUtils
 @react.component
 let make = (~showModal, ~setShowModal, ~initialValues=Js.Dict.empty(), ~getProdVerifyDetails) => {
   open APIUtils
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
@@ -35,12 +33,6 @@ let make = (~showModal, ~setShowModal, ~initialValues=Js.Dict.empty(), ~getProdV
 
   let onSubmit = (values, _) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
-    hyperswitchMixPanel(
-      ~pageName=url.path->LogicUtils.getListHead,
-      ~contextName="prodintent",
-      ~actionName="bizdetails",
-      (),
-    )
     updateProdDetails(values)
   }
 

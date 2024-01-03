@@ -21,8 +21,6 @@ module TileComponent = {
     ~cardName,
   ) => {
     open APIUtils
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     let showPopUp = PopUpState.useShowPopUp()
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
@@ -47,14 +45,6 @@ module TileComponent = {
           text: "Delete All",
           onClick: {
             _ => {
-              if HSwitchGlobalVars.isHyperSwitchDashboard {
-                hyperswitchMixPanel(
-                  ~pageName=url.path->LogicUtils.getListHead,
-                  ~contextName=heading->Js.String2.replace(" ", "_"),
-                  ~actionName="delete_sample_data_confirm",
-                  (),
-                )
-              }
               deleteSampleData()->ignore
             }
           },
@@ -62,16 +52,7 @@ module TileComponent = {
         handleCancel: {
           text: "Cancel",
           onClick: {
-            _ => {
-              if HSwitchGlobalVars.isHyperSwitchDashboard {
-                hyperswitchMixPanel(
-                  ~pageName=url.path->LogicUtils.getListHead,
-                  ~contextName=heading->Js.String2.replace(" ", "_"),
-                  ~actionName="delete_sample_data_cancel",
-                  (),
-                )
-              }
-            }
+            _ => ()
           },
         },
       })
@@ -92,12 +73,6 @@ module TileComponent = {
           }
         }
       }
-      hyperswitchMixPanel(
-        ~pageName=url.path->LogicUtils.getListHead,
-        ~contextName=heading->Js.String2.replace(" ", "_"),
-        ~actionName=buttonText->Js.String2.replace(" ", "_"),
-        (),
-      )
     }
     <div
       className="flex flex-col bg-white pt-6 pl-6 pr-8 pb-8 justify-between gap-10 border border-jp-gray-border_gray rounded ">

@@ -109,7 +109,6 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   }
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
   let (verifyErrorMessage, setVerifyErrorMessage) = React.useState(_ => None)
   let (verifyDone, setVerifyDone) = React.useState(_ => ConnectorTypes.NoAttempt)
@@ -284,12 +283,6 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
           setVerifyErrorMessage(_ => errorMessage.message)
           setShowVerifyModal(_ => true)
           setVerifyDone(_ => Failure)
-          hyperswitchMixPanel(
-            ~isApiFailure=true,
-            ~apiUrl=`/verify_connector`,
-            ~description=errorMessage->Js.Json.stringifyAny,
-            (),
-          )
         }
 
       | None => setScreenState(_ => Error("Failed to Fetch!"))
@@ -340,8 +333,6 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         subtextSectionText="Configure this endpoint in the processors dashboard under webhook settings for us to receive events"
         customRightSection={<HelperComponents.KeyAndCopyArea
           copyValue={getWebhooksUrl(~connectorName, ~merchantId)}
-          contextName="setup_webhook_processor"
-          actionName="hs_webhookcopied"
           shadowClass="shadow shadow-hyperswitch_box_shadow !w-full"
         />}
       />
@@ -360,8 +351,6 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       ~setVerifyDone,
       ~verifyDone,
       ~isVerifyConnector,
-      ~hyperswitchMixPanel,
-      ~path={url.path},
       ~isVerifyConnectorFeatureEnabled=featureFlagDetails.verifyConnector,
     )->ignore
   }
