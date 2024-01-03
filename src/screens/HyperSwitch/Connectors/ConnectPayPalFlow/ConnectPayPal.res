@@ -426,8 +426,26 @@ let make = (
     | Account_not_found =>
       switch configuartionType {
       | Manual
-      | NotSelected =>
-        setSetupAccountStatus(._ => Manual_setup_flow)
+      | NotSelected => {
+          let authType =
+            initialValues
+            ->LogicUtils.getDictFromJsonObject
+            ->LogicUtils.getDictfromDict("connector_account_details")
+            ->LogicUtils.getString("auth_type", "")
+            ->Js.String2.toLowerCase
+            ->ConnectorUtils.mapAuthType
+
+          let temporaryAuthDict =
+            [("auth_type", "TemporaryAuth"->Js.Json.string)]->LogicUtils.getJsonFromArrayOfJson
+
+          let dictOfInitialValues = values->LogicUtils.getDictFromJsonObject
+
+          setSetupAccountStatus(._ => Manual_setup_flow)
+          if isUpdateFlow && authType === #SignatureKey {
+            dictOfInitialValues->Js.Dict.set("connector_account_details", temporaryAuthDict)
+            setInitialValues(_ => dictOfInitialValues->Js.Json.object_)
+          }
+        }
 
       | Automatic => handleConnector(values)->ignore
       }
