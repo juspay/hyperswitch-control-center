@@ -253,16 +253,14 @@ module CashToCodeMethods = {
     let tabs = [#Classic, #Evoucher]
 
     let tabList: array<Tabs.tab> = tabs->Js.Array2.map(tab => {
-      let t: Tabs.tab = {
+      let tab: Tabs.tab = {
         title: (tab: cashToCodeMthd :> string),
         renderContent: () =>
-          // <div className="p-6">
           <CashToCodeSelectBox
             opts={dict->Js.Dict.keys} dict={dict} selectedCashToCodeMthd connector selectedConnector
           />,
-        // </div>,
       }
-      t
+      tab
     })
     <Tabs
       tabs=tabList
