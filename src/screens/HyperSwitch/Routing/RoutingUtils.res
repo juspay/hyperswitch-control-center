@@ -24,10 +24,10 @@ let operatorMapper = value => {
   | "NOT_CONTAINS" => NOT_CONTAINS
   | "IS" => IS
   | "IS_NOT" => IS_NOT
-  | "GREATER THAN" => GREATER_THAN
-  | "LESS THAN" => LESS_THAN
-  | "EQUAL TO" => EQUAL_TO
-  | "NOT EQUAL_TO" => NOT_EQUAL_TO
+  | "GREATER_THAN" => GREATER_THAN
+  | "LESS_THAN" => LESS_THAN
+  | "EQUAL_TO" => EQUAL_TO
+  | "NOT_EQUAL_TO" => NOT_EQUAL_TO
   | _ => UnknownOperator("")
   }
 }

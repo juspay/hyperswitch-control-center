@@ -702,6 +702,76 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                     {switch pageState {
                     | Preview =>
                       <div className="flex flex-col md:flex-row gap-4 my-5">
+                        <Button
+                          text={"Duplicate & Edit Configuration"}
+                          buttonType={Secondary}
+                          onClick={_ => {
+                            setFormState(_ => AdvancedRoutingTypes.EditConfig)
+                            setPageState(_ => Create)
+                            setInitialValues(routingJson => {
+                              let schemaValue = routingJson->getDictFromJsonObject
+                              let rulesValue =
+                                schemaValue
+                                ->getObj("algorithm", Js.Dict.empty())
+                                ->getDictfromDict("data")
+                                ->getArrayFromDict("rules", [])
+                                ->Array.map(rule => {
+                                  let ruleDict = rule->getDictFromJsonObject
+                                  let statements =
+                                    ruleDict
+                                    ->getArrayFromDict("statements", [])
+                                    ->Array.map(
+                                      json =>
+                                        json
+                                        ->getDictFromJsonObject
+                                        ->getArrayFromDict("condition", [])
+                                        ->Array.mapWithIndex(
+                                          (item, i) => {
+                                            let dict = item->getDictFromJsonObject
+
+                                            Dict.set(
+                                              dict,
+                                              "logical",
+                                              `${i == 0 ? "OR" : "AND"}`->Js.Json.string,
+                                            )
+
+                                            let valueType =
+                                              dict
+                                              ->getObj("value", Js.Dict.empty())
+                                              ->getString("type", "")
+
+                                            let comparison = dict->getString("comparison", "")
+
+                                            Dict.set(
+                                              dict,
+                                              "comparison",
+                                              getOperatorFromComparisonType(
+                                                comparison,
+                                                valueType,
+                                              )->Js.Json.string,
+                                            )
+                                            dict
+                                          },
+                                        ),
+                                    )
+                                    ->Js.Array2.reduce(
+                                      (acc, arr) => {
+                                        acc->Array.concat(arr)
+                                      },
+                                      [],
+                                    )
+                                    ->Identity.genericTypeToJson
+
+                                  ruleDict->Js.Dict.set("statements", statements)
+                                  ruleDict
+                                })
+                                ->Identity.genericTypeToJson
+                              schemaValue->Js.Dict.set("algorithm", rulesValue)
+                              schemaValue->Identity.genericTypeToJson
+                            })
+                          }}
+                          customButtonStyle="w-1/5 rounded-sm"
+                        />
                         <UIUtils.RenderIf condition={!isActive}>
                           <Button
                             text={"Activate Configuration"}
