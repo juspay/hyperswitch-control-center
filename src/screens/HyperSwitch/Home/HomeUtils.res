@@ -107,7 +107,7 @@ let countries: array<HyperSwitchTypes.country> = [
   },
 ]
 
-let isDefaultBusinessProfile = details => details->Js.Array2.length === 1
+let isDefaultBusinessProfile = details => details->Array.length === 1
 
 module MerchantAuthInfo = {
   @react.component
@@ -117,7 +117,7 @@ module MerchantAuthInfo = {
       [
         ("merchant_id", detail.merchant_id->Js.Json.string),
         ("publishable_key", detail.publishable_key->Js.Json.string),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
 
     <Form initialValues={dataDict->Js.Json.object_} formClass="md:ml-9 my-4">
       <div className="flex flex-col md:flex-row gap-3">
@@ -376,12 +376,12 @@ let getValueMapped = (value, key) => {
 let responseDataMapper = (res: Js.Json.t) => {
   open LogicUtils
   let arrayFromJson = res->getArrayFromJson([])
-  let resDict = Js.Dict.empty()
+  let resDict = Dict.make()
 
-  arrayFromJson->Js.Array2.forEach(value => {
+  arrayFromJson->Array.forEach(value => {
     let value1 = value->getDictFromJsonObject
-    let key = value1->Js.Dict.keys->Belt.Array.get(0)->Belt.Option.getWithDefault("")
-    resDict->Js.Dict.set(key, value1->getValueMapped(key))
+    let key = value1->Dict.keysToArray->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+    resDict->Dict.set(key, value1->getValueMapped(key))
   })
   resDict
 }

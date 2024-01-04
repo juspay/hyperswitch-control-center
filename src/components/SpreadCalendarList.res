@@ -78,12 +78,12 @@ let make = (
 
   <span className="flex flex-1 flex-row max-w-full overflow-auto">
     {dummyRow
-    ->Js.Array2.mapi((_item, i) => {
+    ->Array.mapWithIndex((_item, i) => {
       let topRow = Belt.Array.make(dateMonthDiff(currDateIm, endDateIm), 1)
       <AddDataAttributes attributes=[("data-calendar", "calendar")]>
         <div key={i->Belt.Int.toString} className="flex flex-wrap">
           {topRow
-          ->Js.Array2.mapi((_item, index) => {
+          ->Array.mapWithIndex((_item, index) => {
             let currDateTemp = Js.Date.fromFloat(Js.Date.valueOf(currDateIm))
             let newMonth = Belt.Float.toInt(Js.Date.getMonth(currDateTemp)) + index
             let updatedDate = Js.Date.fromFloat(Js.Date.setDate(currDateTemp, 1.0))

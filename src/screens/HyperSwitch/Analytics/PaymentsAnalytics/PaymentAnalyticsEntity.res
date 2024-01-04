@@ -69,14 +69,14 @@ let distribution =
     ("distributionFor", "payment_error_message"->Js.Json.string),
     ("distributionCardinality", "TOP_5"->Js.Json.string),
   ]
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_
 
 let tableItemToObjMapper: Js.Dict.t<Js.Json.t> => paymentTableType = dict => {
   let parseErrorReasons = dict => {
     dict
     ->getArrayFromDict(PaymentErrorMessage->colMapper, [])
-    ->Js.Array2.map(errorJson => {
+    ->Array.map(errorJson => {
       let dict = errorJson->getDictFromJsonObject
 
       {
@@ -217,7 +217,7 @@ let getCell = (paymentTable, colType): Table.cell => {
 let getPaymentTable: Js.Json.t => array<paymentTableType> = json => {
   json
   ->LogicUtils.getArrayFromJson([])
-  ->Js.Array2.map(item => {
+  ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
 }
@@ -299,7 +299,7 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  let data = json->getQueryData->Js.Array2.map(singleStateItemToObjMapper)
+  let data = json->getQueryData->Array.map(singleStateItemToObjMapper)
   switch data[0] {
   | Some(ele) => ele
   | None => singleStateInitialValue
@@ -307,7 +307,7 @@ let itemToObjMapper = json => {
 }
 
 let timeSeriesObjMapper = json =>
-  json->getQueryData->Js.Array2.map(json => singleStateSeriesItemToObjMapper(json))
+  json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
 
 type colT =
   | SuccessRate
@@ -364,51 +364,51 @@ let constructData = (
   switch key {
   | "payment_success_rate" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.payment_success_rate))
+    ->Array.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.payment_success_rate))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "payment_count" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (
+    ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.payment_count->Belt.Int.toFloat,
     ))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "payment_success_count" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (
+    ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.payment_success_count->Belt.Int.toFloat,
     ))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "payment_processed_amount" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (
+    ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.payment_processed_amount /. 100.00,
     ))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "payment_avg_ticket_size" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (
+    ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.payment_avg_ticket_size /. 100.00,
     ))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "retries_count" =>
-    singlestatTimeseriesData->Js.Array2.map(ob => (
+    singlestatTimeseriesData->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.retries_count->Belt.Int.toFloat,
     ))
   | "retries_amount_processed" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (
+    ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.retries_amount_processe /. 100.00,
     ))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "connector_success_rate" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.connector_success_rate))
+    ->Array.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.connector_success_rate))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | _ => []
   }

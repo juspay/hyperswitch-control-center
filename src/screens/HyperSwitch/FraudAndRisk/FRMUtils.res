@@ -25,7 +25,7 @@ let size = "w-14 h-14 rounded-full"
 let generateInitialValuesDict = (~selectedFRMInfo, ~isLiveMode, ()) => {
   let frmAccountDetailsDict =
     [("auth_type", selectedFRMInfo.name->getFRMAuthType->Js.Json.string)]
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
 
   [
@@ -36,7 +36,7 @@ let generateInitialValuesDict = (~selectedFRMInfo, ~isLiveMode, ()) => {
     ("connector_account_details", frmAccountDetailsDict),
     ("frm_configs", []->Js.Json.array),
   ]
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_
 }
 
@@ -54,7 +54,7 @@ let getPaymentMethod = paymentMethod => {
   let paymentMethodTypeArr = paymentMethodDict->getArrayFromDict("payment_method_types", [])
 
   let pmTypesArr =
-    paymentMethodTypeArr->Js.Array2.map(item =>
+    paymentMethodTypeArr->Array.map(item =>
       item->getDictFromJsonObject->getString("payment_method_type", "")
     )
 
@@ -63,11 +63,11 @@ let getPaymentMethod = paymentMethod => {
 
 let parseConnectorConfig = dict => {
   open LogicUtils
-  let pmDict = Js.Dict.empty()
+  let pmDict = Dict.make()
   let connectorPaymentMethods = dict->getArrayFromDict("payment_methods_enabled", [])
-  connectorPaymentMethods->Js.Array2.forEach(item => {
+  connectorPaymentMethods->Array.forEach(item => {
     let (pmName, pmTypes) = item->getPaymentMethod
-    pmDict->Js.Dict.set(pmName, pmTypes)
+    pmDict->Dict.set(pmName, pmTypes)
   })
 
   (getString(dict, "connector_name", ""), pmDict)
@@ -75,37 +75,37 @@ let parseConnectorConfig = dict => {
 
 let updatePaymentMethodsDict = (prevPaymentMethodsDict, pmName, currentPmTypes) => {
   open LogicUtils
-  switch prevPaymentMethodsDict->Js.Dict.get(pmName) {
+  switch prevPaymentMethodsDict->Dict.get(pmName) {
   | Some(prevPmTypes) => {
-      let pmTypesArr = prevPmTypes->Js.Array2.concat(currentPmTypes)
-      prevPaymentMethodsDict->Js.Dict.set(pmName, pmTypesArr->getUniqueArray)
+      let pmTypesArr = prevPmTypes->Array.concat(currentPmTypes)
+      prevPaymentMethodsDict->Dict.set(pmName, pmTypesArr->getUniqueArray)
     }
 
-  | _ => prevPaymentMethodsDict->Js.Dict.set(pmName, currentPmTypes)
+  | _ => prevPaymentMethodsDict->Dict.set(pmName, currentPmTypes)
   }
 }
 
 let updateConfigDict = (configDict, connectorName, paymentMethodsDict) => {
-  switch configDict->Js.Dict.get(connectorName) {
+  switch configDict->Dict.get(connectorName) {
   | Some(prevPaymentMethodsDict) =>
     paymentMethodsDict
-    ->Js.Dict.keys
-    ->Js.Array2.forEach(pmName =>
+    ->Dict.keysToArray
+    ->Array.forEach(pmName =>
       updatePaymentMethodsDict(
         prevPaymentMethodsDict,
         pmName,
-        paymentMethodsDict->Js.Dict.get(pmName)->Belt.Option.getWithDefault([]),
+        paymentMethodsDict->Dict.get(pmName)->Belt.Option.getWithDefault([]),
       )
     )
 
-  | _ => configDict->Js.Dict.set(connectorName, paymentMethodsDict)
+  | _ => configDict->Dict.set(connectorName, paymentMethodsDict)
   }
 }
 
 let getConnectorConfig = connectors => {
-  let configDict = Js.Dict.empty()
+  let configDict = Dict.make()
 
-  connectors->Js.Array2.forEach(connector => {
+  connectors->Array.forEach(connector => {
     let (connectorName, paymentMethodsDict) = connector->parseConnectorConfig
     updateConfigDict(configDict, connectorName, paymentMethodsDict)
   })
@@ -115,7 +115,7 @@ let getConnectorConfig = connectors => {
 
 let filterList = (items, ~removeFromList, ()) => {
   open LogicUtils
-  items->Js.Array2.filter(dict => {
+  items->Array.filter(dict => {
     let isConnector = dict->getString("connector_type", "") !== "payment_vas"
 
     switch removeFromList {
@@ -128,8 +128,8 @@ let filterList = (items, ~removeFromList, ()) => {
 let createAllOptions = connectorsConfig => {
   open ConnectorTypes
   connectorsConfig
-  ->Js.Dict.keys
-  ->Js.Array2.map(connectorName => {
+  ->Dict.keysToArray
+  ->Array.map(connectorName => {
     gateway: connectorName,
     payment_methods: [],
   })
@@ -138,13 +138,13 @@ let createAllOptions = connectorsConfig => {
 let generateFRMPaymentMethodsConfig = paymentMethodsDict => {
   open ConnectorTypes
   paymentMethodsDict
-  ->Js.Dict.keys
-  ->Js.Array2.map(paymentMethodName => {
+  ->Dict.keysToArray
+  ->Array.map(paymentMethodName => {
     let paymentMethodTypesArr =
       paymentMethodsDict
-      ->Js.Dict.get(paymentMethodName)
+      ->Dict.get(paymentMethodName)
       ->Belt.Option.getWithDefault([])
-      ->Js.Array2.map(paymentMethodType => {
+      ->Array.map(paymentMethodType => {
         {
           payment_method_type: paymentMethodType,
           flow: "pre",
@@ -162,11 +162,11 @@ let generateFRMPaymentMethodsConfig = paymentMethodsDict => {
 let ignoreFields = json => {
   json
   ->LogicUtils.getDictFromJsonObject
-  ->Js.Dict.entries
-  ->Js.Array2.filter(entry => {
+  ->Dict.toArray
+  ->Array.filter(entry => {
     let (key, _val) = entry
-    !(ignoredField->Js.Array2.includes(key))
+    !(ignoredField->Array.includes(key))
   })
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_
 }

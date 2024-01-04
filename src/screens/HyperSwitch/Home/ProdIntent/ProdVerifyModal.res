@@ -2,7 +2,7 @@ open ProdVerifyModalUtils
 open CardUtils
 
 @react.component
-let make = (~showModal, ~setShowModal, ~initialValues=Js.Dict.empty(), ~getProdVerifyDetails) => {
+let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerifyDetails) => {
   open APIUtils
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()

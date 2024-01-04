@@ -47,7 +47,7 @@ let make = (~children) => {
   let (openModals, setOpenModals) = Recoil.useRecoilState(ModalsState.openModals)
   let hideModalAtIndex = React.useCallback1(index => {
     setOpenModals(.prevArr => {
-      Js.Array2.filteri(
+      Array.filterWithIndex(
         prevArr,
         (_, i) => {
           i !== index
@@ -61,7 +61,7 @@ let make = (~children) => {
     children
     <div>
       {openModals
-      ->Js.Array2.mapi((modalProps, i) => {
+      ->Array.mapWithIndex((modalProps, i) => {
         <Modal key={string_of_int(i)} modalProps index=i hideModalAtIndex />
       })
       ->React.array}

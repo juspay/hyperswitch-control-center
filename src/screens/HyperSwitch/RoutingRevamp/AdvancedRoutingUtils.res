@@ -118,7 +118,7 @@ let conditionTypeMapper = (statementArr: array<Js.Json.t>) => {
   let statements = statementArr->Array.reduce([], (acc, statementJson) => {
     let conditionArray = statementJson->getDictFromJsonObject->getArrayFromDict("condition", [])
 
-    let arr = conditionArray->Js.Array2.mapi((conditionJson, index) => {
+    let arr = conditionArray->Array.mapWithIndex((conditionJson, index) => {
       let statementDict = conditionJson->getDictFromJsonObject
       let returnValue: AdvancedRoutingTypes.statement = {
         lhs: statementDict->getString("lhs", ""),
@@ -128,7 +128,7 @@ let conditionTypeMapper = (statementArr: array<Js.Json.t>) => {
       }
       returnValue
     })
-    acc->Js.Array2.concat(arr)
+    acc->Array.concat(arr)
   })
 
   statements
@@ -184,10 +184,10 @@ let getDefaultSelection: Js.Dict.t<
   open LogicUtils
   open AdvancedRoutingTypes
   let override3dsValue = defaultSelection->getString("override_3ds", "")
-  let surchargeDetailsOptionalValue = defaultSelection->Js.Dict.get("surcharge_details")
+  let surchargeDetailsOptionalValue = defaultSelection->Dict.get("surcharge_details")
   let surchargeDetailsValue = defaultSelection->getDictfromDict("surcharge_details")
 
-  if override3dsValue->Js.String2.length > 0 {
+  if override3dsValue->String.length > 0 {
     {
       override_3ds: override3dsValue,
     }
@@ -214,7 +214,7 @@ let getDefaultSelection: Js.Dict.t<
       \"type": defaultSelection->getString("type", ""),
       data: defaultSelection
       ->getArrayFromDict("data", [])
-      ->Js.Array2.map(ele => ele->connectorSelectionDataMapperFromJson),
+      ->Array.map(ele => ele->connectorSelectionDataMapperFromJson),
     }
   }
 }
@@ -247,7 +247,7 @@ let ruleInfoTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithmDa
 
   let defaultSelection = json->getDictfromDict("defaultSelection")
 
-  let rulesModifiedArray = rulesArray->Js.Array2.map(rule => {
+  let rulesModifiedArray = rulesArray->Array.map(rule => {
     let ruleDict = rule->getDictFromJsonObject
     let connectorsDict = ruleDict->getDictfromDict("connectorSelection")
 
@@ -292,7 +292,7 @@ let getOperatorFromComparisonType = (comparison, variantType) => {
 }
 
 let getGatewaysArrayFromValueData = data => {
-  data->Js.Array2.map(getConnectorStringFromConnectorSelectionData)
+  data->Array.map(getConnectorStringFromConnectorSelectionData)
 }
 
 let getModalObj = (routingType, text) => {
@@ -337,14 +337,12 @@ let getModalObj = (routingType, text) => {
 
 let isStatementMandatoryFieldsPresent = (statement: AdvancedRoutingTypes.statement) => {
   let statementValue = switch statement.value.value->Js.Json.classify {
-  | JSONArray(ele) => ele->Js.Array2.length > 0
-  | JSONString(str) => str->Js.String2.length > 0
+  | JSONArray(ele) => ele->Array.length > 0
+  | JSONString(str) => str->String.length > 0
   | _ => false
   }
 
-  statement.lhs->Js.String2.length > 0 &&
-    (statement.value.\"type"->Js.String2.length > 0 &&
-    statementValue)
+  statement.lhs->String.length > 0 && (statement.value.\"type"->String.length > 0 && statementValue)
 }
 
 let algorithmTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithm = values => {
@@ -367,7 +365,7 @@ let getRoutingTypesFromJson: Js.Json.t => AdvancedRoutingTypes.advancedRouting =
 }
 
 let validateStatements = statementsArray => {
-  statementsArray->Js.Array2.every(isStatementMandatoryFieldsPresent)
+  statementsArray->Array.every(isStatementMandatoryFieldsPresent)
 }
 
 let generateStatements = statements => {
@@ -382,7 +380,7 @@ let generateStatements = statements => {
     let logicalOperator = statementDict->getString("logical", "")->Js.String2.toLowerCase
 
     let lastItem =
-      acc->Belt.Array.get(acc->Js.Array2.length - 1)->Belt.Option.getWithDefault({condition: []})
+      acc->Belt.Array.get(acc->Array.length - 1)->Belt.Option.getWithDefault({condition: []})
 
     let condition: AdvancedRoutingTypes.statement = {
       lhs: statementDict->getString("lhs", ""),
@@ -402,14 +400,14 @@ let generateStatements = statements => {
     }
 
     let newAcc = if logicalOperator === "or" {
-      acc->Js.Array2.concat([
+      acc->Array.concat([
         {
           condition: [condition],
         },
       ])
     } else {
       lastItem.condition->Array.push(condition)
-      let filteredArr = acc->Array.filterWithIndex((_, i) => i !== acc->Js.Array2.length - 1)
+      let filteredArr = acc->Array.filterWithIndex((_, i) => i !== acc->Array.length - 1)
       filteredArr->Array.push(lastItem)
       filteredArr
     }
@@ -419,7 +417,7 @@ let generateStatements = statements => {
 }
 
 let generateRule = rulesDict => {
-  let modifiedRules = rulesDict->Js.Array2.map(ruleJson => {
+  let modifiedRules = rulesDict->Array.map(ruleJson => {
     open LogicUtils
     let ruleDict = ruleJson->getDictFromJsonObject
     let statements = ruleDict->getArrayFromDict("statements", [])
@@ -429,7 +427,7 @@ let generateRule = rulesDict => {
     {
       "name": ruleDict->getString("name", ""),
       "connectorSelection": ruleDict->getJsonObjectFromDict("connectorSelection"),
-      "statements": modifiedStatements->Js.Array2.map(Identity.genericTypeToJson)->Js.Json.array,
+      "statements": modifiedStatements->Array.map(Identity.genericTypeToJson)->Js.Json.array,
     }
   })
   modifiedRules

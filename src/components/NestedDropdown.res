@@ -25,15 +25,15 @@ module RenderOption = {
 
     let onClick = _ => {
       if option.value == "timeP" {
-        let data = if Js.Array2.includes(selectedData, option.value) {
-          selectedData->Js.Array2.filter(x => x !== option.value)
+        let data = if Array.includes(selectedData, option.value) {
+          selectedData->Array.filter(x => x !== option.value)
         } else {
-          Js.Array2.concat(selectedData, [option.value])
+          Array.concat(selectedData, [option.value])
         }
-        let dataN = if Js.Array2.includes(selectedDataVal, option.title) {
-          selectedDataVal->Js.Array2.filter(x => x !== option.title)
+        let dataN = if Array.includes(selectedDataVal, option.title) {
+          selectedDataVal->Array.filter(x => x !== option.title)
         } else {
-          Js.Array2.concat(selectedDataVal, [option.title])
+          Array.concat(selectedDataVal, [option.title])
         }
         setSelectedData(_ => data)
         setSelectedDataVal(_ => dataN)
@@ -60,17 +60,17 @@ module RenderOption = {
         <Icon name="angle-right" size=18 />
       </div>
     } else {
-      let isSelected = selectedData->Js.Array2.indexOf(option.value) > -1
+      let isSelected = selectedData->Array.indexOf(option.value) > -1
       let onClick = _ => {
-        let data = if Js.Array2.includes(selectedData, option.value) {
-          selectedData->Js.Array2.filter(x => x !== option.value)
+        let data = if Array.includes(selectedData, option.value) {
+          selectedData->Array.filter(x => x !== option.value)
         } else {
-          Js.Array2.concat(selectedData, [option.value])
+          Array.concat(selectedData, [option.value])
         }
-        let dataN = if Js.Array2.includes(selectedDataVal, option.title) {
-          selectedDataVal->Js.Array2.filter(x => x !== option.title)
+        let dataN = if Array.includes(selectedDataVal, option.title) {
+          selectedDataVal->Array.filter(x => x !== option.title)
         } else {
-          Js.Array2.concat(selectedDataVal, [option.title])
+          Array.concat(selectedDataVal, [option.title])
         }
         setSelectedData(_ => data)
         setSelectedDataVal(_ => dataN)
@@ -150,7 +150,7 @@ module RenderOptionList = {
             {React.string("Please select 2 or more values to compare")}
           </UIUtils.RenderIf>
           {options
-          ->Js.Array2.mapi((opt, index) =>
+          ->Array.mapWithIndex((opt, index) =>
             <RenderOption
               option=opt
               input
@@ -172,14 +172,14 @@ module RenderOptionList = {
           <UIUtils.RenderIf condition={!hasNestedOptions}>
             <Button
               buttonType=Primary
-              text={`Compare (${selectedData->Js.Array2.length->Belt.Int.toString})`}
+              text={`Compare (${selectedData->Array.length->Belt.Int.toString})`}
               onClick
               type_="submit"
             />
           </UIUtils.RenderIf>
         </div>
       </div>
-      <UIUtils.RenderIf condition={Js.Array.length(nestedOptions) > 0}>
+      <UIUtils.RenderIf condition={Array.length(nestedOptions) > 0}>
         {React.createElement(
           make,
           {
@@ -212,7 +212,7 @@ let make = (
   let setSelectedData = React.useCallback1(fn => {
     setSelectedDataOrig(p => {
       let next = fn(p)
-      if next->Js.Array.length == 0 && p->Js.Array.length == 0 {
+      if next->Array.length == 0 && p->Array.length == 0 {
         p
       } else {
         next
@@ -223,7 +223,7 @@ let make = (
   let setSelectedDataVal = React.useCallback1(fn => {
     setSelectedDataValOrig(p => {
       let next = fn(p)
-      if next->Js.Array.length == 0 && p->Js.Array.length == 0 {
+      if next->Array.length == 0 && p->Array.length == 0 {
         p
       } else {
         next
@@ -234,8 +234,8 @@ let make = (
   React.useEffect1(() => {
     setShowDropDown(_ => false)
 
-    if selectedDataVal->Js.Array.length > 0 {
-      let valStr = selectedDataVal->Js.Array2.joinWith(", ")
+    if selectedDataVal->Array.length > 0 {
+      let valStr = selectedDataVal->Array.joinWith(", ")
       setButtonText(_ => `${title}: ${valStr}`)
     }
     None

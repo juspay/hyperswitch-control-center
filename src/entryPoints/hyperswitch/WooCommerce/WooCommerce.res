@@ -221,7 +221,7 @@ let make = () => {
   let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let (selectedConnector, setSelectedConnector) = React.useState(_ => UnknownConnector(""))
-  let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
   let (connectorConfigureState, setConnectorConfigureState) = React.useState(_ => Select_processor)
   let (stepInView, setStepInView) = React.useState(_ => PLUGIN_INSTALL)
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
@@ -239,7 +239,7 @@ let make = () => {
 
   let handleNavigation = async (~forward: bool) => {
     let enums = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
-    let isAnyConnectorConfigured = enums.firstProcessorConnected.processorID->Js.String2.length > 0
+    let isAnyConnectorConfigured = enums.firstProcessorConnected.processorID->String.length > 0
 
     try {
       if forward && !(stepInView->enumToValueMapper(enums)) {
@@ -269,7 +269,7 @@ let make = () => {
 
   React.useEffect1(() => {
     let enums = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
-    let currentPending = steps->Js.Array2.find(step => {
+    let currentPending = steps->Array.find(step => {
       step->enumToValueMapper(enums) === false
     })
 
@@ -295,7 +295,7 @@ let make = () => {
   React.useEffect1(() => {
     let defaultJsonOnNewConnector =
       [("profile_id", activeBusinessProfile.profile_id->Js.Json.string)]
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
       ->Js.Json.object_
     setInitialValues(_ => defaultJsonOnNewConnector)
     None

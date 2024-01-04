@@ -19,13 +19,13 @@ let checkBoxPropDefaultVal: checkBoxProps = {
   setSelectedData: _ => (),
 }
 
-let sortAtom: Recoil.recoilAtom<Js.Dict.t<sortOb>> = Recoil.atom(. "sortAtom", Js.Dict.empty())
+let sortAtom: Recoil.recoilAtom<Js.Dict.t<sortOb>> = Recoil.atom(. "sortAtom", Dict.make())
 
 let backgroundClass = "bg-gray-50 dark:bg-jp-gray-darkgray_background"
 
 let useSortedObj = (title: string, defaultSort) => {
   let (dict, setDict) = Recoil.useRecoilState(sortAtom)
-  let filters = Js.Dict.get(dict, title)
+  let filters = Dict.get(dict, title)
 
   let (sortedObj, setSortedObj) = React.useState(_ => defaultSort)
   React.useEffect0(() => {
@@ -58,8 +58,8 @@ let useSortedObj = (title: string, defaultSort) => {
       }
 
       setDict(.dict => {
-        let nDict = Js.Dict.fromArray(Js.Dict.entries(dict))
-        Js.Dict.set(nDict, title, sortOb)
+        let nDict = Dict.fromArray(Dict.toArray(dict))
+        Dict.set(nDict, title, sortOb)
         nDict
       })
     | _ => ()
@@ -94,12 +94,12 @@ let useSortArray = () => {
           JsonFlattenUtils.flattenObject(item1, true)
           ->Js.Json.object_
           ->Js.Json.decodeObject
-          ->Belt.Option.flatMap(dict => dict->Js.Dict.get(key))
+          ->Belt.Option.flatMap(dict => dict->Dict.get(key))
         let val2 =
           JsonFlattenUtils.flattenObject(item2, true)
           ->Js.Json.object_
           ->Js.Json.decodeObject
-          ->Belt.Option.flatMap(dict => dict->Js.Dict.get(key))
+          ->Belt.Option.flatMap(dict => dict->Dict.get(key))
         let value1 = getValue(val1)
         let value2 = getValue(val2)
         if value1 === ""->Js.Json.string || value2 === ""->Js.Json.string {
@@ -134,7 +134,7 @@ type pageDetails = {
 
 let table_pageDetails: Recoil.recoilAtom<Js.Dict.t<pageDetails>> = Recoil.atom(.
   "table_pageDetails",
-  Js.Dict.empty(),
+  Dict.make(),
 )
 
 @react.component
@@ -253,7 +253,7 @@ let make = (
   let (firstRender, setFirstRender) = React.useState(_ => true)
   let setPageDetails = Recoil.useSetRecoilState(table_pageDetails)
   let pageDetailDict = Recoil.useRecoilValueFromAtom(table_pageDetails)
-  let pageDetail = pageDetailDict->Js.Dict.get(title)->Belt.Option.getWithDefault(defaultValue)
+  let pageDetail = pageDetailDict->Dict.get(title)->Belt.Option.getWithDefault(defaultValue)
 
   let (
     selectAllCheckBox: option<TableUtils.multipleSelectRows>,
@@ -261,15 +261,15 @@ let make = (
   ) = React.useState(_ => None)
 
   let newSetOffset = offsetVal => {
-    let value = switch pageDetailDict->Js.Dict.get(title) {
+    let value = switch pageDetailDict->Dict.get(title) {
     | Some(val) => {offset: offsetVal(0), resultsPerPage: val.resultsPerPage}
 
     | None => {offset: offsetVal(0), resultsPerPage: defaultValue.resultsPerPage}
     }
 
-    let newDict = pageDetailDict->Js.Dict.entries->Js.Dict.fromArray
+    let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
 
-    newDict->Js.Dict.set(title, value)
+    newDict->Dict.set(title, value)
     setOffset(_ => offsetVal(0))
     setPageDetails(._ => newDict)
   }
@@ -279,24 +279,24 @@ let make = (
     setFirstRender(_ => false)
     setOffset(_ => pageDetail.offset)
     None
-  }, [url.path->Belt.List.toArray->Js.Array2.joinWith("/")])
+  }, [url.path->Belt.List.toArray->Array.joinWith("/")])
 
   React.useEffect1(_ => {
     if pageDetail.offset !== offset && !firstRender {
-      let value = switch pageDetailDict->Js.Dict.get(title) {
+      let value = switch pageDetailDict->Dict.get(title) {
       | Some(val) => {offset, resultsPerPage: val.resultsPerPage}
       | None => {offset, resultsPerPage: defaultValue.resultsPerPage}
       }
 
-      let newDict = pageDetailDict->Js.Dict.entries->Js.Dict.fromArray
-      newDict->Js.Dict.set(title, value)
+      let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
+      newDict->Dict.set(title, value)
       setPageDetails(._ => newDict)
     }
     None
   }, [offset])
 
   let setLocalResultsPerPageOrig = localResultsPerPage => {
-    let value = switch pageDetailDict->Js.Dict.get(title) {
+    let value = switch pageDetailDict->Dict.get(title) {
     | Some(val) =>
       if totalResults > val.offset || tableDataLoading {
         {offset: val.offset, resultsPerPage: localResultsPerPage(0)}
@@ -305,13 +305,13 @@ let make = (
       }
     | None => {offset: defaultValue.offset, resultsPerPage: localResultsPerPage(0)}
     }
-    let newDict = pageDetailDict->Js.Dict.entries->Js.Dict.fromArray
+    let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
 
-    newDict->Js.Dict.set(title, value)
+    newDict->Dict.set(title, value)
     setPageDetails(._ => newDict)
   }
 
-  let (columnFilter, setColumnFilterOrig) = React.useState(_ => Js.Dict.empty())
+  let (columnFilter, setColumnFilterOrig) = React.useState(_ => Dict.make())
   let isMobileView = MatchMedia.useMobileChecker()
   let url = RescriptReactRouter.useUrl()
   let dateFormatConvertor = useDateFormatConvertor()
@@ -324,25 +324,25 @@ let make = (
   let setColumnFilter = React.useMemo1(() => {
     (filterKey, filterValue: array<Js.Json.t>) => {
       setColumnFilterOrig(oldFitlers => {
-        let newObj = oldFitlers->Js.Dict.entries->Js.Dict.fromArray
-        let filterValue = filterValue->Js.Array2.filter(
+        let newObj = oldFitlers->Dict.toArray->Dict.fromArray
+        let filterValue = filterValue->Array.filter(
           item => {
             let updatedItem = item->Js.String.make
             updatedItem !== ""
           },
         )
-        if filterValue->Js.Array.length === 0 {
+        if filterValue->Array.length === 0 {
           newObj
-          ->Js.Dict.entries
-          ->Js.Array2.filter(
+          ->Dict.toArray
+          ->Array.filter(
             entry => {
               let (key, _value) = entry
               key !== filterKey
             },
           )
-          ->Js.Dict.fromArray
+          ->Dict.fromArray
         } else {
-          Js.Dict.set(newObj, filterKey, filterValue)
+          Dict.set(newObj, filterKey, filterValue)
           newObj
         }
       })
@@ -350,7 +350,7 @@ let make = (
   }, [setColumnFilterOrig])
 
   React.useEffect1(_ => {
-    if columnFilter != Js.Dict.empty() {
+    if columnFilter != Dict.make() {
       newSetOffset(_ => 0)
     }
     None
@@ -360,12 +360,12 @@ let make = (
     (columnFilter, setColumnFilter)
   }, (columnFilter, setColumnFilter))
 
-  let (isFilterOpen, setIsFilterOpenOrig) = React.useState(_ => Js.Dict.empty())
+  let (isFilterOpen, setIsFilterOpenOrig) = React.useState(_ => Dict.make())
   let setIsFilterOpen = React.useMemo1(() => {
     (filterKey, value: bool) => {
       setIsFilterOpenOrig(oldFitlers => {
         let newObj = oldFitlers->DictionaryUtils.copyOfDict
-        newObj->Js.Dict.set(filterKey, value)
+        newObj->Dict.set(filterKey, value)
         newObj
       })
     }
@@ -375,9 +375,7 @@ let make = (
   }, (isFilterOpen, setIsFilterOpen))
 
   let heading =
-    visibleColumns
-    ->Belt.Option.getWithDefault(entity.defaultColumns)
-    ->Js.Array2.map(entity.getHeading)
+    visibleColumns->Belt.Option.getWithDefault(entity.defaultColumns)->Array.map(entity.getHeading)
 
   let handleRemoveLines = removeVerticalLines->Belt.Option.getWithDefault(true)
   if showSerialNumber {
@@ -444,7 +442,7 @@ let make = (
       let columnFilterRow =
         visibleColumns
         ->Belt.Option.getWithDefault(entity.defaultColumns)
-        ->Js.Array2.map(item => {
+        ->Array.map(item => {
           let headingEntity = entity.getHeading(item)
           let key = headingEntity.key
           let dataType = headingEntity.dataType
@@ -452,7 +450,7 @@ let make = (
           let columnFilterCopy = columnFilter->DictionaryUtils.deleteKey(key)
 
           let actualData =
-            columnFilter->Js.Dict.keys->Js.Array2.includes(headingEntity.key)
+            columnFilter->Dict.keysToArray->Array.includes(headingEntity.key)
               ? originalActualData
               : actualData
 
@@ -479,7 +477,7 @@ let make = (
                 | StartEndDate(_) | InputField(_) | TrimmedText(_) | DropDown(_) =>
                   convertStrCellToFloat(dataType, "")
                 }
-                filterValueArray->Js.Array2.push(value)->ignore
+                filterValueArray->Array.push(value)->ignore
               | None => ()
               }
             },
@@ -490,11 +488,11 @@ let make = (
           | LabelType | TextType => Table.TextFilter(key)
           | MoneyType | NumericType | ProgressType => {
               let newArr =
-                filterValueArray->Js.Array2.map(
+                filterValueArray->Array.map(
                   item => item->Js.Json.decodeNumber->Belt.Option.getWithDefault(0.),
                 )
 
-              if newArr->Js.Array2.length >= 1 {
+              if newArr->Array.length >= 1 {
                 Table.Range(key, Js.Math.minMany_float(newArr), Js.Math.maxMany_float(newArr))
               } else {
                 Table.Range(key, 0.0, 0.0)
@@ -505,8 +503,8 @@ let make = (
 
       Some(
         showSerialNumber && tableLocalFilter
-          ? Js.Array2.concat(
-              [Table.Range("s_no", 0., actualData->Js.Array2.length->Belt.Int.toFloat)],
+          ? Array.concat(
+              [Table.Range("s_no", 0., actualData->Array.length->Belt.Int.toFloat)],
               columnFilterRow,
             )
           : columnFilterRow,
@@ -519,7 +517,7 @@ let make = (
   let sortArray = useSortArray()
 
   let filteredDataLength =
-    columnFilter->Js.Dict.keys->Js.Array2.length !== 0 ? actualData->Js.Array2.length : totalResults
+    columnFilter->Dict.keysToArray->Array.length !== 0 ? actualData->Array.length : totalResults
 
   React.useEffect1(() => {
     switch setExtFilteredDataLength {
@@ -537,11 +535,11 @@ let make = (
   }, (sortedObj, customGetObjects, actualData, getObjects))
 
   React.useEffect2(() => {
-    let selectedRowDataLength = checkBoxProps.selectedData->Js.Array2.length
-    let isCompleteDataSelected = selectedRowDataLength === filteredData->Js.Array2.length
+    let selectedRowDataLength = checkBoxProps.selectedData->Array.length
+    let isCompleteDataSelected = selectedRowDataLength === filteredData->Array.length
     if isCompleteDataSelected {
       setSelectAllCheckBox(_ => Some(ALL))
-    } else if checkBoxProps.selectedData->Js.Array2.length === 0 {
+    } else if checkBoxProps.selectedData->Array.length === 0 {
       setSelectAllCheckBox(_ => None)
     } else {
       setSelectAllCheckBox(_ => Some(PARTIAL))
@@ -553,7 +551,7 @@ let make = (
   React.useEffect1(() => {
     if selectAllCheckBox === Some(ALL) {
       checkBoxProps.setSelectedData(_ => {
-        filteredData->Js.Array2.map(
+        filteredData->Array.map(
           ele => {
             ele->toJson
           },
@@ -565,21 +563,21 @@ let make = (
     None
   }, [selectAllCheckBox])
 
-  let sNoArr = Js.Dict.get(columnFilter, "s_no")->Belt.Option.getWithDefault([])
+  let sNoArr = Dict.get(columnFilter, "s_no")->Belt.Option.getWithDefault([])
   // filtering for SNO
-  let nullableRows = filteredData->Js.Array2.mapi((nullableItem, index) => {
+  let nullableRows = filteredData->Array.mapWithIndex((nullableItem, index) => {
     let actualRows = switch nullableItem->Js.Nullable.toOption {
     | Some(item) => {
         let visibleCell =
           visibleColumns
           ->Belt.Option.getWithDefault(entity.defaultColumns)
-          ->Js.Array2.map(colType => {
+          ->Array.map(colType => {
             entity.getCell(item, colType)
           })
         let startPoint = sNoArr->Belt.Array.get(0)->Belt.Option.getWithDefault(1.->Js.Json.number)
         let endPoint = sNoArr->Belt.Array.get(1)->Belt.Option.getWithDefault(1.->Js.Json.number)
         let jsonIndex = (index + 1)->Belt.Int.toFloat->Js.Json.number
-        sNoArr->Js.Array2.length > 0
+        sNoArr->Array.length > 0
           ? {
               startPoint <= jsonIndex && endPoint >= jsonIndex ? visibleCell : []
             }
@@ -591,15 +589,15 @@ let make = (
 
     let setIsSelected = isSelected => {
       if isSelected {
-        checkBoxProps.setSelectedData(prev => prev->Js.Array2.concat([nullableItem->toJson]))
+        checkBoxProps.setSelectedData(prev => prev->Array.concat([nullableItem->toJson]))
       } else {
         checkBoxProps.setSelectedData(prev =>
-          prev->Js.Array2.filter(item => item !== nullableItem->toJson)
+          prev->Array.filter(item => item !== nullableItem->toJson)
         )
       }
     }
 
-    if actualRows->Js.Array2.length > 0 {
+    if actualRows->Array.length > 0 {
       if showSerialNumber {
         actualRows
         ->Js.Array2.unshift(
@@ -637,12 +635,12 @@ let make = (
     nullableRows
   } else {
     nullableRows->Belt.Array.keepMap(item => {
-      item->Js.Array2.length == 0 ? None : Some(item)
+      item->Array.length == 0 ? None : Some(item)
     })
   }
 
-  let dataExists = rows->Js.Array2.length > 0
-  let heading = heading->Js.Array2.mapi((head, index) => {
+  let dataExists = rows->Array.length > 0
+  let heading = heading->Array.mapWithIndex((head, index) => {
     let getValue = row =>
       row->Belt.Array.get(index)->Belt.Option.mapWithDefault("", Table.getTableCellValue)
 
@@ -654,8 +652,8 @@ let make = (
       ...head,
       showSort: head.showSort &&
       dataExists && (
-        totalResults == Js.Array.length(rows)
-          ? rows->Js.Array2.some(row => getValue(row) !== default)
+        totalResults == Array.length(rows)
+          ? rows->Array.some(row => getValue(row) !== default)
           : true
       ),
     }
@@ -766,11 +764,10 @@ let make = (
       React.null
     }
     let isMinHeightRequired =
-      noScrollbar ||
-      (tableLocalFilter && rows->Js.Array2.length <= 5 && frozenUpto->Belt.Option.isNone)
+      noScrollbar || (tableLocalFilter && rows->Array.length <= 5 && frozenUpto->Belt.Option.isNone)
 
     let scrollBarClass =
-      isFilterOpen->Js.Dict.values->Js.Array2.reduce((acc, item) => item || acc, false)
+      isFilterOpen->Dict.valuesToArray->Array.reduce(false, (acc, item) => item || acc)
         ? ""
         : `${isMinHeightRequired ? noScrollbar ? "" : "overflow-x-scroll" : "overflow-scroll"}`
     let loadedTable =
@@ -856,7 +853,7 @@ let make = (
             <div className="overflow-auto flex flex-col">
               {paginatedData
               ->Belt.Array.keepMap(Js.Nullable.toOption)
-              ->Js.Array2.mapi((item, rowIndex) => {
+              ->Array.mapWithIndex((item, rowIndex) => {
                 renderer(~index={rowIndex + offset}, ~item, ~onRowClick=handleRowClick)
               })
               ->React.array}
@@ -900,7 +897,7 @@ let make = (
       | Some(x) =>
         <AdvancedSearchComponent entity ?setData ?setSummary> {x} </AdvancedSearchComponent>
       | None =>
-        <UIUtils.RenderIf condition={searchFields->Js.Array2.length > 0}>
+        <UIUtils.RenderIf condition={searchFields->Array.length > 0}>
           <AdvancedSearchModal searchFields url=searchUrl entity />
           // <PaymentLinkAdvancedSearch searchFields url=searchUrl />
         </UIUtils.RenderIf>
@@ -998,12 +995,12 @@ let make = (
         </div>
       </div>
       {if dataLoading {
-        <TableDataLoadingIndicator showWithData={rows->Js.Array2.length !== 0} />
+        <TableDataLoadingIndicator showWithData={rows->Array.length !== 0} />
       } else {
         loadedTableUI
       }}
       <UIUtils.RenderIf condition={tableDataLoading && !dataLoading}>
-        <TableDataLoadingIndicator showWithData={rows->Js.Array2.length !== 0} />
+        <TableDataLoadingIndicator showWithData={rows->Array.length !== 0} />
       </UIUtils.RenderIf>
       <div
         className={`${tableActions->Js.Option.isSome && isMobileView

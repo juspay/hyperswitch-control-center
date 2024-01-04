@@ -7,8 +7,8 @@ let make = () => {
     "payment_success_rate",
     "payment_count",
     "payment_success_count",
-  ]->Js.Array2.map(key => {
-    [("name", key->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
+  ]->Array.map(key => {
+    [("name", key->Js.Json.string)]->Dict.fromArray->Js.Json.object_
   })
 
   let singleStatEntity = PaymentOverviewUtils.getSingleStatEntity(metrics)
@@ -25,7 +25,7 @@ let make = () => {
     setTotalVolume
     showPercentage=false
     isHomePage=true
-    statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(Js.Dict.empty())}
+    statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(Dict.make())}
     wrapperClass="flex flex-wrap w-full h-full"
   />
 }

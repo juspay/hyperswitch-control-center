@@ -16,7 +16,7 @@ type dateTimeFloat = {
 }
 
 let formatter = str => {
-  let strLen = str->Js.String2.length
+  let strLen = str->String.length
   strLen == 0 ? "00" : strLen == 1 ? `0${str}` : str
 }
 
@@ -92,7 +92,7 @@ let en_USStringToDateTimeObject = dateTimeIsoString => {
   let tempTimeDate =
     tempTimeDateString
     ->Js.String2.splitByRe(%re("/\s/"))
-    ->Js.Array2.map(val => val->Belt.Option.getWithDefault(""))
+    ->Array.map(val => val->Belt.Option.getWithDefault(""))
 
   let time = tempTimeDate[1]
   let date = tempTimeDate[0]
@@ -138,8 +138,8 @@ let useCustomTimeZoneToIsoString = () => {
       let timeZoneData = selectedTimeZoneData
       let timezone = timeZoneData.offset
 
-      let monthString = Js.String2.length(month) == 1 ? `0${month}` : month
-      let dayString = Js.String2.length(day) == 1 ? `0${day}` : day
+      let monthString = String.length(month) == 1 ? `0${month}` : month
+      let dayString = String.length(day) == 1 ? `0${day}` : day
       let hoursString = formatter(hours)
       let minutesString = formatter(minutes)
 
@@ -196,7 +196,7 @@ let useIsoStringToCustomTimeZoneInFloat = () => {
 
 let timeStrToMicroSec = str => {
   let arr = str->Js.String2.split(" ")
-  if arr->Js.Array2.length > 1 {
+  if arr->Array.length > 1 {
     let time =
       arr[0]->Belt.Option.getWithDefault("00")->Belt.Int.fromString->Belt.Option.getWithDefault(0)
     let ms = arr[1]->Belt.Option.getWithDefault("") === "min" ? time * 60000 : time * 1000

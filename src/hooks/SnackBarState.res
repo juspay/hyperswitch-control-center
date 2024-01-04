@@ -15,11 +15,11 @@ type snackbarProps = {
 }
 
 let randomString = (length, chars) => {
-  Belt.Array.make(length, 0)->Js.Array2.reduce((acc, _) => {
-    let charIndex = Js.Math.random_int(0, chars->Js.String2.length)
+  Belt.Array.make(length, 0)->Array.reduce("", (acc, _) => {
+    let charIndex = Js.Math.random_int(0, chars->String.length)
     let newChar = chars->Js.String2.charAt(charIndex)
     acc ++ newChar
-  }, "")
+  })
 }
 
 let makeSnackbarProps = (
@@ -60,7 +60,7 @@ let useHideSnackbar = () => {
 
   React.useCallback1(key => {
     setOpenSnackBar(.prevArr => {
-      Js.Array2.filter(
+      Array.filter(
         prevArr,
         (snackbarProps: snackbarProps) => {
           snackbarProps.body !== key
@@ -83,7 +83,7 @@ let useShowSnackbar = (): showSnackbarFn => {
         (),
       )
 
-      setOpenSnackbar(.prevArr => prevArr->Js.Array2.concat([snackbarProps]))
+      setOpenSnackbar(.prevArr => prevArr->Array.concat([snackbarProps]))
     },
     [setOpenSnackbar],
   )

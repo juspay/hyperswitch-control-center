@@ -18,7 +18,7 @@ let options: Js.Json.t => array<EntityType.optionType<'t>> = json => {
   ->getOptionalArrayFromDict("queryData")
   ->Belt.Option.flatMap(arr => {
     arr
-    ->Js.Array2.map(dimensionObject => {
+    ->Array.map(dimensionObject => {
       let dimensionObject = dimensionObject->getDictFromJsonObject
       let dimension = getString(dimensionObject, "dimension", "")
       let dimensionTitleCase = `Select ${snakeToTitle(dimension)}`
@@ -33,7 +33,7 @@ let options: Js.Json.t => array<EntityType.optionType<'t>> = json => {
               ~options={
                 value
                 ->SelectBox.makeOptions
-                ->Js.Array2.map(
+                ->Array.map(
                   item => {
                     let value = {...item, label: item.value}
                     value
@@ -70,8 +70,8 @@ let filterByData = (txnArr, value) => {
     let valueArr =
       data
       ->Identity.genericTypeToDictOfJson
-      ->Js.Dict.entries
-      ->Js.Array2.map(item => {
+      ->Dict.toArray
+      ->Array.map(item => {
         let (_, value) = item
 
         value
@@ -170,7 +170,7 @@ let initialFixedFilterFields = _json => {
 
 let getStringListFromArrayDict = metrics => {
   open LogicUtils
-  metrics->Js.Array2.map(item => item->getDictFromJsonObject->getString("name", ""))
+  metrics->Array.map(item => item->getDictFromJsonObject->getString("name", ""))
 }
 
 module NoData = {
@@ -215,7 +215,7 @@ let generateTablePayload = (
   let endTime = endTimeFromUrl
 
   let deltaDateArr =
-    {deltaMetrics->Js.Array2.length === 0}
+    {deltaMetrics->Array.length === 0}
       ? []
       : generateDateArray(~startTime, ~endTime, ~deltaPrefixArr)
 
@@ -231,7 +231,7 @@ let generateTablePayload = (
     ~showDeltaMetrics,
   )
 
-  let tableBodyWithNonDeltaMetrix = if metrics->Js.Array2.length > 0 {
+  let tableBodyWithNonDeltaMetrix = if metrics->Array.length > 0 {
     [
       getFilterRequestBody(
         ~groupByNames=currenltySelectedTab,
@@ -250,7 +250,7 @@ let generateTablePayload = (
     []
   }
 
-  let tableBodyWithDeltaMetrix = if deltaMetrics->Js.Array2.length > 0 {
+  let tableBodyWithDeltaMetrix = if deltaMetrics->Array.length > 0 {
     switch distributionArray {
     | Some(distributionArray) =>
       distributionArray->Belt.Array.map(arr =>

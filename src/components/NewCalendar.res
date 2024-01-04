@@ -54,7 +54,7 @@ module TableRow = {
         <>
           <tr className="transition duration-300 ease-in-out">
             {item
-            ->Js.Array2.mapi((obj, cellIndex) => {
+            ->Array.mapWithIndex((obj, cellIndex) => {
               let date =
                 customTimezoneToISOString(
                   Js.String2.make(year),
@@ -383,7 +383,7 @@ let make = (
   let heading = ["Sun", "Mon", "Tue", "Wed", "Thr", "Fri", "Sat"]
 
   let isMobileView = MatchMedia.useMobileChecker()
-  let getMonthInFloat = mon => Js.Array2.indexOf(months, mon)->Belt.Float.fromInt
+  let getMonthInFloat = mon => Array.indexOf(months, mon)->Belt.Float.fromInt
   let totalMonths = disablePastDates
     ? 1
     : (year - 1970) * 12 + getMonthInFloat(month)->Belt.Float.toInt + 1
@@ -479,7 +479,7 @@ let make = (
     let dummyRow = Belt.Array.make(6, Belt.Array.make(7, ""))
 
     let rowMapper = (row, indexRow) => {
-      Js.Array2.mapi(row, (_item, index) => {
+      Array.mapWithIndex(row, (_item, index) => {
         let subFactor = Belt.Float.toInt(firstDay)
         if indexRow == 0 && index < Belt.Float.toInt(firstDay) {
           ""
@@ -492,7 +492,7 @@ let make = (
         }
       })
     }
-    let rowInfo = Js.Array2.mapi(dummyRow, rowMapper)
+    let rowInfo = Array.mapWithIndex(dummyRow, rowMapper)
 
     <div style={index->LogicUtils.getJsonObjectFromDict("style")->Identity.jsonToReactDOMStyle}>
       <div className={`font-normal text-fs-16 text-[#344054] leading-6 mt-5`}>
@@ -501,7 +501,7 @@ let make = (
       <table className="table-auto min-w-full">
         <tbody>
           {rowInfo
-          ->Js.Array2.mapi((item, rowIndex) => {
+          ->Array.mapWithIndex((item, rowIndex) => {
             <TableRow
               key={rowIndex->Belt.Int.toString}
               item
@@ -536,7 +536,7 @@ let make = (
       {if showHead {
         <div className="flex flex-row justify-between">
           {heading
-          ->Js.Array2.mapi((item, i) => {
+          ->Array.mapWithIndex((item, i) => {
             <div className="w-10" key={string_of_int(i)}>
               <div
                 className="flex flex-1 justify-center pb-2.5 pt-0.5 text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50">

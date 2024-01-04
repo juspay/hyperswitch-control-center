@@ -12,7 +12,7 @@ module RangeSliderLocalFilter = {
     let (lclFiltrState, setLclFltrState) = React.useContext(DatatableContext.datatableContext)
     let dropdownRef = React.useRef(Js.Nullable.null)
     let (showDropDown, setShowDropDown) = React.useState(() => false)
-    let selectedFilterVal = Js.Dict.get(lclFiltrState, filterKey)
+    let selectedFilterVal = Dict.get(lclFiltrState, filterKey)
     let filterIconName = "bars-filter"
     let strokeColor = ""
     let rightIcon = switch selectedFilterVal {
@@ -20,10 +20,10 @@ module RangeSliderLocalFilter = {
       <div className="flex flex-row justify-between w-full">
         <div className="px-2 text-fs-13 font-medium truncate whitespace-pre ">
           {val
-          ->Js.Array2.mapi((item, index) =>
+          ->Array.mapWithIndex((item, index) =>
             index > 0 ? `...${item->Js.String.make}` : item->Js.String.make
           )
-          ->Js.Array2.reduce((acc, item) => acc ++ item, "")
+          ->Array.reduce("", (acc, item) => acc ++ item)
           ->React.string}
         </div>
         <span className={`flex items-center `}>
@@ -91,14 +91,12 @@ module FilterDropDown = {
     let strokeColor = ""
 
     // Making the options Unique
-    let dummyDict = Js.Dict.empty()
-    arr
-    ->LogicUtils.getStrArrayFromJsonArray
-    ->Js.Array2.forEach(item => Js.Dict.set(dummyDict, item, ""))
+    let dummyDict = Dict.make()
+    arr->LogicUtils.getStrArrayFromJsonArray->Array.forEach(item => Dict.set(dummyDict, item, ""))
     let options =
-      dummyDict->Js.Dict.keys->Js.Array2.filter(item => item != "")->SelectBox.makeOptions
+      dummyDict->Dict.keysToArray->Array.filter(item => item != "")->SelectBox.makeOptions
 
-    let selectedValue = Js.Dict.get(lclFiltrState, val)->Belt.Option.getWithDefault([])
+    let selectedValue = Dict.get(lclFiltrState, val)->Belt.Option.getWithDefault([])
 
     let filterInput: ReactFinalForm.fieldRenderPropsInput = {
       name: val,
@@ -109,7 +107,7 @@ module FilterDropDown = {
       checked: true,
     }
 
-    let (buttonText, icon) = switch selectedValue->Js.Array2.length > 0 {
+    let (buttonText, icon) = switch selectedValue->Array.length > 0 {
     | true => (
         selectedValue->Js.Json.array->Js.Json.stringify,
         Button.CustomIcon(
@@ -127,7 +125,7 @@ module FilterDropDown = {
     | false => ("All", Button.Euler(filterIconName))
     }
 
-    if options->Js.Array2.length > 1 {
+    if options->Array.length > 1 {
       <SelectBox.BaseDropdown
         allowMultiSelect=true
         hideMultiSelectButtons=true
@@ -177,7 +175,7 @@ module TextFilterCell = {
     let showPopUp = PopUpState.useShowPopUp()
 
     let selectedValue =
-      Js.Dict.get(lclFiltrState, val)
+      Dict.get(lclFiltrState, val)
       ->Belt.Option.getWithDefault([])
       ->Belt.Array.get(0)
       ->Belt.Option.getWithDefault(""->Js.Json.string)
@@ -235,7 +233,7 @@ module RangeFilterCell = {
     let minVal = Js.Math.floor_float(minVal)
     let maxVal = Js.Math.ceil_float(maxVal)
     let selectedValueStr =
-      Js.Dict.get(lclFiltrState, val)->Belt.Option.getWithDefault([
+      Dict.get(lclFiltrState, val)->Belt.Option.getWithDefault([
         minVal->Js.Json.number,
         maxVal->Js.Json.number,
       ])

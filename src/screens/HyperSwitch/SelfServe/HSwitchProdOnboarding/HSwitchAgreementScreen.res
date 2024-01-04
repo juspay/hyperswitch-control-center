@@ -33,7 +33,7 @@ let make = () => {
       ->TimeZoneHook.formattedISOString("YYYY-MM-DD HH:mm:ss")
 
     //? - For localtesting this condn added
-    if HSwitchGlobalVars.urlFordownloadingAgreementMapper->Js.String2.length > 0 {
+    if HSwitchGlobalVars.urlFordownloadingAgreementMapper->String.length > 0 {
       open Promise
       fetchApi(HSwitchGlobalVars.urlFordownloadingAgreementMapper, ~method_=Get, ())
       ->then(resp => {

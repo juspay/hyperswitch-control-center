@@ -263,7 +263,7 @@ let refundMetaitemToObjMapper = dict => {
 }
 
 let getRefundMetaData: Js.Json.t => refundMetaData = json => {
-  json->Js.Json.decodeObject->Belt.Option.getWithDefault(Js.Dict.empty())->refundMetaitemToObjMapper
+  json->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make())->refundMetaitemToObjMapper
 }
 
 let refunditemToObjMapper = dict => {
@@ -634,7 +634,7 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
   | Connector => CustomCell(<ConnectorCustomCell connectorName=order.connector />, "")
   | PaymentMethod => Text(order.payment_method)
   | PaymentMethodType => Text(order.payment_method_type)
-  | Refunds => Text(order.refunds->Js.Array2.length > 0 ? "Yes" : "No")
+  | Refunds => Text(order.refunds->Array.length > 0 ? "Yes" : "No")
   | AuthenticationType => Text(order.authentication_type)
   | MandateId => Text(order.mandate_id)
   | CardBrand => Text(order.card_brand)
@@ -662,9 +662,7 @@ let getCellForOtherDetails = (order, aboutPaymentColType): Table.cell => {
   | FirstName => Text(splittedName->Belt.Array.get(0)->Belt.Option.getWithDefault(""))
   | LastName =>
     Text(
-      splittedName
-      ->Belt.Array.get(splittedName->Js.Array2.length - 1)
-      ->Belt.Option.getWithDefault(""),
+      splittedName->Belt.Array.get(splittedName->Array.length - 1)->Belt.Option.getWithDefault(""),
     )
   | Phone => Text(order.phone)
   | Email => Text(order.email)

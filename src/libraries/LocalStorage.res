@@ -14,19 +14,19 @@ module InternalStorage = {
   type listener = unit => unit
   let listeners: array<listener> = []
   let addEventListener = fn => {
-    if !{listeners->Js.Array2.includes(fn)} {
-      listeners->Js.Array2.push(fn)->ignore
+    if !{listeners->Array.includes(fn)} {
+      listeners->Array.push(fn)->ignore
     }
   }
   let removeEventListener = fn => {
     let index = listeners->Js.Array2.findIndex(x => x === fn)
     if index !== -1 {
-      listeners->Js.Array2.spliceInPlace(~pos=index, ~remove=1, ~add=[])->ignore
+      listeners->Array.splice(~start=index, ~remove=1, ~insert=[])->ignore
     }
   }
 
   let sendEvents = () => {
-    listeners->Js.Array2.forEach(fn => fn())
+    listeners->Array.forEach(fn => fn())
   }
 }
 

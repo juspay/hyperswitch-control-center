@@ -126,13 +126,15 @@ let userJourneyAnalytics = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
-let analytics = isAnalyticsEnabled =>
+let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag) =>
   isAnalyticsEnabled
     ? Section({
         name: "Analytics",
         icon: "analytics",
         showSection: true,
-        links: [paymentAnalytcis, refundAnalytics, userJourneyAnalytics],
+        links: userJourneyAnalyticsFlag
+          ? [paymentAnalytcis, refundAnalytics, userJourneyAnalytics]
+          : [paymentAnalytcis, refundAnalytics],
       })
     : emptyComponent
 
@@ -162,13 +164,13 @@ let surcharge = SubLevelLink({
   searchOptions: [("Add Surcharge", "")],
 })
 
-let workflow = isWorkflowEnabled =>
+let workflow = (isWorkflowEnabled, isSurchargeEnabled) =>
   isWorkflowEnabled
     ? Section({
         name: "Workflow",
         icon: "3ds",
         showSection: true,
-        links: [routing, threeDs, surcharge],
+        links: isSurchargeEnabled ? [routing, threeDs, surcharge] : [routing, threeDs],
       })
     : emptyComponent
 
@@ -208,13 +210,13 @@ let settings = (~isSampleDataEnabled, ~isUserManagementEnabled, ~isBusinessProfi
   let settingsLinkArray = [businessDetails]
 
   if isBusinessProfileEnabled {
-    settingsLinkArray->Js.Array2.push(businessProfiles)->ignore
+    settingsLinkArray->Array.push(businessProfiles)->ignore
   }
   if isSampleDataEnabled {
-    settingsLinkArray->Js.Array2.push(accountSettings)->ignore
+    settingsLinkArray->Array.push(accountSettings)->ignore
   }
   if isUserManagementEnabled {
-    settingsLinkArray->Js.Array2.push(userManagement)->ignore
+    settingsLinkArray->Array.push(userManagement)->ignore
   }
 
   Section({
@@ -322,14 +324,16 @@ let getHyperSwitchAppSidebars = (
     sampleData,
     businessProfile,
     systemMetrics,
+    userJourneyAnalytics: userJourneyAnalyticsFlag,
+    surcharge: isSurchargeEnabled,
   } = featureFlagDetails
   let sidebar = [
     productionAccess->productionAccessComponent,
     default->home,
     default->operations,
-    default->analytics,
+    default->analytics(userJourneyAnalyticsFlag),
     default->connectors,
-    default->workflow,
+    default->workflow(isSurchargeEnabled),
     frm->fraudAndRisk,
     payOut->payoutConnectors,
     recon->reconTag(isReconEnabled),

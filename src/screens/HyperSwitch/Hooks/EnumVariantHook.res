@@ -11,7 +11,7 @@ let useFetchEnumDetails = () => {
           ~userType=#USER_DATA,
           ~methodType=Get,
           (),
-        )}?keys=${enumArray->Js.Array2.joinWith(",")}`
+        )}?keys=${enumArray->Array.joinWith(",")}`
       let res = await fetchDetails(url)
       let responseDict = res->responseDataMapper
       setEnumVariantValues(._ => responseDict->Js.Json.object_->Js.Json.stringify)
@@ -39,17 +39,17 @@ let useUpdateEnumInRecoil = () => {
     let enumValueDict = enumVariantValues->safeParse->getDictFromJsonObject
     let enumDictsArray = [enumValueDict]
 
-    enumVariantsAndBodies->Js.Array2.forEach(item => {
+    enumVariantsAndBodies->Array.forEach(item => {
       let (body, enumVariant) = item
       let bodyValForApi = enumVariant->QuickStartUtils.generateBodyBasedOnType(body)
 
       switch body {
       | Boolean(_) => {
-          let booleanDict = [((enumVariant :> string), true->Js.Json.boolean)]->Js.Dict.fromArray
+          let booleanDict = [((enumVariant :> string), true->Js.Json.boolean)]->Dict.fromArray
           enumDictsArray->Array.push(booleanDict)
         }
       | String(str) => {
-          let stringDict = [((enumVariant :> string), str->Js.Json.string)]->Js.Dict.fromArray
+          let stringDict = [((enumVariant :> string), str->Js.Json.string)]->Dict.fromArray
           enumDictsArray->Array.push(stringDict)
         }
       | _ => enumDictsArray->Array.push(bodyValForApi->getDictFromJsonObject)

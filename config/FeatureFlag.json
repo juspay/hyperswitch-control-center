@@ -4,7 +4,7 @@
   "magic_link": false,
   "production_access": false,
   "quick_start": false,
-  "switch_merchant": false,
+  "switch_merchant": true,
   "audit_trail": false,
   "system_metrics": false,
   "sample_data": false,
@@ -19,5 +19,7 @@
   "business_profile": false,
   "generate_report": false,
   "forgot_password": false,
-  "oss_build": true
+  "oss_build": true,
+  "user_journey_analytics": false,
+  "surcharge": false
 }
