@@ -15,7 +15,6 @@ let defaultColumns = [OrderID, MerchantID, Timestamp]
 
 let allColumns = defaultColumns
 
-
 let itemToObjMapper = dict => {
   {
     orderId: getString(dict, "order_id", ""),

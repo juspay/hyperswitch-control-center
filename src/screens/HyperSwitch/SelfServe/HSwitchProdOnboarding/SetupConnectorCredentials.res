@@ -62,7 +62,7 @@ module ConnectorDetailsForm = {
         suggestedAction
         setVerifyDone
       />
-      <UIUtils.RenderIf condition={checkboxText->Js.String2.length > 0}>
+      <UIUtils.RenderIf condition={checkboxText->String.length > 0}>
         <div className="flex gap-2 items-center">
           <CheckBoxIcon
             isSelected=isCheckboxSelected
@@ -109,7 +109,6 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   }
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
   let (verifyErrorMessage, setVerifyErrorMessage) = React.useState(_ => None)
   let (verifyDone, setVerifyDone) = React.useState(_ => ConnectorTypes.NoAttempt)
@@ -135,11 +134,11 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   React.useEffect1(() => {
     setInitialValues(prevJson => {
       let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
-      prevJsonDict->Js.Dict.set(
+      prevJsonDict->Dict.set(
         "connector_label",
         `${selectedConnector->ConnectorUtils.getConnectorNameString}_${defaultBusinessProfile.profile_name}`->Js.Json.string,
       )
-      prevJsonDict->Js.Dict.set("profile_id", defaultBusinessProfile.profile_id->Js.Json.string)
+      prevJsonDict->Dict.set("profile_id", defaultBusinessProfile.profile_id->Js.Json.string)
       prevJsonDict->Js.Json.object_
     })
 
@@ -194,7 +193,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       let requestPayload: ConnectorTypes.wasmRequest = {
         payment_methods_enabled: paymentMethodsEnabledArray,
         connector: connectorName,
-        metadata: Js.Dict.empty()->Js.Json.object_,
+        metadata: Dict.make()->Js.Json.object_,
       }
 
       let payload = generateInitialValuesDict(
@@ -242,7 +241,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     }
   }
   let validateMandatoryField = values => {
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
 
     validateConnectorRequiredFields(
@@ -284,12 +283,6 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
           setVerifyErrorMessage(_ => errorMessage.message)
           setShowVerifyModal(_ => true)
           setVerifyDone(_ => Failure)
-          hyperswitchMixPanel(
-            ~isApiFailure=true,
-            ~apiUrl=`/verify_connector`,
-            ~description=errorMessage->Js.Json.stringifyAny,
-            (),
-          )
         }
 
       | None => setScreenState(_ => Error("Failed to Fetch!"))
@@ -340,8 +333,6 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         subtextSectionText="Configure this endpoint in the processors dashboard under webhook settings for us to receive events"
         customRightSection={<HelperComponents.KeyAndCopyArea
           copyValue={getWebhooksUrl(~connectorName, ~merchantId)}
-          contextName="setup_webhook_processor"
-          actionName="hs_webhookcopied"
           shadowClass="shadow shadow-hyperswitch_box_shadow !w-full"
         />}
       />
@@ -351,7 +342,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
 
   let onSubmit = values => {
     let dict = values->getDictFromJsonObject
-    dict->Js.Dict.set("profile_id", profile_id->Js.Json.string)
+    dict->Dict.set("profile_id", profile_id->Js.Json.string)
 
     ConnectorUtils.onSubmit(
       ~values={dict->Js.Json.object_},
@@ -360,8 +351,6 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       ~setVerifyDone,
       ~verifyDone,
       ~isVerifyConnector,
-      ~hyperswitchMixPanel,
-      ~path={url.path},
       ~isVerifyConnectorFeatureEnabled=featureFlagDetails.verifyConnector,
     )->ignore
   }
@@ -403,7 +392,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
               text=buttonText
               customSumbitButtonStyle="!rounded-md"
               loadingText={isLoading ? "Loading ..." : ""}
-              disabledParamter={checkboxText->Js.String2.length > 0 && !isCheckboxSelected}
+              disabledParamter={checkboxText->String.length > 0 && !isCheckboxSelected}
             />
           </div>
         </div>

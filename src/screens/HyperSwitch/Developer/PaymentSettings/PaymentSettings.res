@@ -35,7 +35,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let url = RescriptReactRouter.useUrl()
   let id = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault(profileId)
   let businessProfileDetails = useGetBusinessProflile(id)
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
 
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
@@ -48,12 +47,6 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   let onSubmit = async (values, _) => {
     try {
-      hyperswitchMixPanel(
-        ~pageName=url.path->LogicUtils.getListHead,
-        ~contextName="webhooks",
-        ~actionName="update",
-        (),
-      )
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id), ())
       let body = values->getBusinessProfilePayload->Js.Json.object_
@@ -101,7 +94,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 ~values,
                 ~setIsDisabled=Some(setIsDisabled),
                 ~fieldsToValidate={
-                  [WebhookUrl, ReturnUrl]->Js.Array2.filter(urlField =>
+                  [WebhookUrl, ReturnUrl]->Array.filter(urlField =>
                     urlField === WebhookUrl || !webhookOnly
                   )
                 },
@@ -137,7 +130,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 </div>
                 <FormRenderer.DesktopRow>
                   {[webhookUrl, returnUrl]
-                  ->Js.Array2.filter(urlField => urlField.label === "Webhook URL" || !webhookOnly)
+                  ->Array.filter(urlField => urlField.label === "Webhook URL" || !webhookOnly)
                   ->Array.mapWithIndex((field, index) =>
                     <FormRenderer.FieldRenderer
                       key={index->Belt.Int.toString}

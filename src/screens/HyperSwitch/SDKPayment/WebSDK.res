@@ -38,8 +38,6 @@ module CheckoutForm = {
     ~amount,
     ~setClientSecret,
   ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     let (error, setError) = React.useState(_ => None)
     let (btnState, setBtnState) = React.useState(_ => Button.Normal)
     let hyper = useHyper()
@@ -64,7 +62,7 @@ module CheckoutForm = {
         fetchApi(
           "https://4gla4dnvbg.execute-api.ap-south-1.amazonaws.com/default/hyperConfig",
           ~bodyStr=val->Js.Json.stringifyAny->Belt.Option.getWithDefault(""),
-          ~headers=[("Access-Control-Allow-Origin", "*")]->Js.Dict.fromArray,
+          ~headers=[("Access-Control-Allow-Origin", "*")]->Dict.fromArray,
           ~method_=Fetch.Post,
           (),
         )
@@ -73,7 +71,7 @@ module CheckoutForm = {
           json->resolve
         })
         ->catch(_e => {
-          Js.Dict.empty()->Js.Json.object_->resolve
+          Dict.make()->Js.Json.object_->resolve
         })
         ->ignore
       }
@@ -169,22 +167,22 @@ module CheckoutForm = {
         [
           (
             "confirmParams",
-            [("return_url", returnUrl->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_,
+            [("return_url", returnUrl->Js.Json.string)]->Dict.fromArray->Js.Json.object_,
           ),
           ("redirect", "always"->Js.Json.string),
         ]
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_
       hyper.confirmPayment(confirmParams)
       ->then(val => {
-        let resDict = val->Js.Json.decodeObject->Belt.Option.getWithDefault(Js.Dict.empty())
+        let resDict = val->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make())
         let errorDict =
           resDict
-          ->Js.Dict.get("error")
+          ->Dict.get("error")
           ->Belt.Option.flatMap(Js.Json.decodeObject)
-          ->Belt.Option.getWithDefault(Js.Dict.empty())
+          ->Belt.Option.getWithDefault(Dict.make())
 
-        let errorMsg = errorDict->Js.Dict.get("message")
+        let errorMsg = errorDict->Dict.get("message")
 
         switch errorMsg {
         | Some(val) => {
@@ -242,12 +240,6 @@ module CheckoutForm = {
               onClick={_ => {
                 setBtnState(_ => Button.Loading)
                 handleSubmit()
-                hyperswitchMixPanel(
-                  ~pageName=`${url.path->LogicUtils.getListHead}`,
-                  ~contextName="sdk",
-                  ~actionName="testpayment",
-                  (),
-                )
               }}
             />
           </div>

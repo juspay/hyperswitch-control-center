@@ -220,7 +220,7 @@ let getFilteredList = (
   if felang === Some("chooselanguage") && belang === Some("chooselanguage") {
     githubcodespaces
   } else {
-    let filteredList = githubcodespaces->Js.Array2.filter(value => {
+    let filteredList = githubcodespaces->Array.filter(value => {
       if felang === Some("chooselanguage") {
         value.backEndLang === belang
       } else if belang === Some("chooselanguage") {
@@ -239,23 +239,6 @@ let variantToTextMapperForBuildHS = currentRoute => {
   | IntegrateFromScratch => "integrateFromScratch"
   | WooCommercePlugin => "wooCommercePlugin"
   | _ => "onboarding"
-  }
-}
-
-let getMixPanelEventName = (
-  ~url: RescriptReactRouter.url,
-  ~filtersFromUrl,
-  ~hyperswitchMixPanel: HSMixPanel.functionType,
-) => {
-  if filtersFromUrl->Js.String2.length > 0 {
-    hyperswitchMixPanel(
-      ~pageName=`${url.path->LogicUtils.getListHead}`,
-      ~contextName=filtersFromUrl,
-      ~actionName="skip&exploredashboard",
-      (),
-    )
-  } else {
-    hyperswitchMixPanel(~eventName=Some(`${url.path->LogicUtils.getListHead}_exploredashboard`), ())
   }
 }
 

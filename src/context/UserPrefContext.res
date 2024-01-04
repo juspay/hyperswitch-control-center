@@ -4,7 +4,7 @@ open UserPrefUtils
 external userPrefToJson: userPref => Js.Json.t = "%identity"
 external dictUserPrefToStr: Js.Dict.t<userPref> => string = "%identity"
 let userPrefSetter: (Js.Dict.t<userPref> => Js.Dict.t<userPref>) => unit = _ => ()
-let defaultUserPref: Js.Dict.t<userPref> = Js.Dict.empty()
+let defaultUserPref: Js.Dict.t<userPref> = Dict.make()
 let defaultUserModuleWisePref: moduleVisePref = {}
 type filter = {
   userPref: Js.Dict.t<userPref>,
@@ -50,12 +50,12 @@ let make = (~children) => {
   let urlPathConcationation = `/${url.path
     ->LogicUtils.stripV4
     ->Belt.List.toArray
-    ->Js.Array2.joinWith("/")}`
+    ->Array.joinWith("/")}`
   // UPDATE THE LAST VISITED TAB
   React.useEffect2(() => {
     if urlPathConcationation !== "/" {
       setUserPref(prev => {
-        let currentConfig = prev->Js.Dict.get(username)->Belt.Option.getWithDefault({})
+        let currentConfig = prev->Dict.get(username)->Belt.Option.getWithDefault({})
         let updatedPrev = currentConfig
         let updatedValue = if (
           urlPathConcationation !== updatedPrev.lastVisitedTab->Belt.Option.getWithDefault("")
@@ -64,7 +64,7 @@ let make = (~children) => {
         } else {
           updatedPrev
         }
-        prev->Js.Dict.set(username, updatedValue)
+        prev->Dict.set(username, updatedValue)
         UserPrefUtils.saveUserPref(prev)
         prev
       })
@@ -76,15 +76,15 @@ let make = (~children) => {
   // UPDATE THE searchParams IN LAST VISITED TAB
   React.useEffect2(() => {
     setUserPref(prev => {
-      let currentConfig = prev->Js.Dict.get(username)->Belt.Option.getWithDefault({})
+      let currentConfig = prev->Dict.get(username)->Belt.Option.getWithDefault({})
       let updatedPrev = currentConfig
       let moduleWisePref = switch updatedPrev {
       | {moduleVisePref} => moduleVisePref
-      | _ => Js.Dict.empty()
+      | _ => Dict.make()
       }
       let currentModulePerf =
         moduleWisePref
-        ->Js.Dict.get(urlPathConcationation)
+        ->Dict.get(urlPathConcationation)
         ->Belt.Option.getWithDefault(defaultUserModuleWisePref)
 
       let filteredUrlSearch =
@@ -98,16 +98,16 @@ let make = (~children) => {
           "filters.dateCreated.gte",
           "filters.dateCreated.opt", // to be fixed and removed from here
         ])
-        ->Js.Dict.entries
-        ->Js.Array2.map(
+        ->Dict.toArray
+        ->Array.map(
           item => {
             let (key, value) = item
             `${key}=${value}`
           },
         )
-        ->Js.Array2.joinWith("&")
+        ->Array.joinWith("&")
       let isMarketplaceApp = urlPathConcationation == "/marketplace"
-      moduleWisePref->Js.Dict.set(
+      moduleWisePref->Dict.set(
         urlPathConcationation,
         {
           ...currentModulePerf,
@@ -118,7 +118,7 @@ let make = (~children) => {
         ...updatedPrev,
         moduleVisePref: moduleWisePref,
       }
-      prev->Js.Dict.set(username, updatedCurrentConfig)
+      prev->Dict.set(username, updatedCurrentConfig)
       UserPrefUtils.saveUserPref(prev)
       prev
     })
@@ -133,42 +133,42 @@ let make = (~children) => {
 
   let addConfig = (key, value) => {
     setUserPref(prev => {
-      let currentConfig = prev->Js.Dict.get(username)->Belt.Option.getWithDefault({})
+      let currentConfig = prev->Dict.get(username)->Belt.Option.getWithDefault({})
       let updatedPrev = currentConfig
       let moduleWisePref = switch updatedPrev {
       | {moduleVisePref} => moduleVisePref
-      | _ => Js.Dict.empty()
+      | _ => Dict.make()
       }
       let currentModulePerf =
         moduleWisePref
-        ->Js.Dict.get(urlPathConcationation)
+        ->Dict.get(urlPathConcationation)
         ->Belt.Option.getWithDefault(defaultUserModuleWisePref)
       let moduleConfig = switch currentModulePerf {
       | {moduleConfig} => moduleConfig
-      | _ => Js.Dict.empty()
+      | _ => Dict.make()
       }
-      moduleConfig->Js.Dict.set(key, value)
-      moduleWisePref->Js.Dict.set(urlPathConcationation, {...currentModulePerf, moduleConfig})
+      moduleConfig->Dict.set(key, value)
+      moduleWisePref->Dict.set(urlPathConcationation, {...currentModulePerf, moduleConfig})
 
       let updatedCurrentConfig = {
         ...updatedPrev,
         moduleVisePref: moduleWisePref,
       }
-      prev->Js.Dict.set(username, updatedCurrentConfig)
+      prev->Dict.set(username, updatedCurrentConfig)
       UserPrefUtils.saveUserPref(prev)
       prev
     })
   }
 
   let getConfig = key => {
-    let currentConfig = userPref->Js.Dict.get(username)->Belt.Option.getWithDefault({})
+    let currentConfig = userPref->Dict.get(username)->Belt.Option.getWithDefault({})
     let updatedPrev = currentConfig
     switch updatedPrev {
     | {moduleVisePref} =>
       switch moduleVisePref
-      ->Js.Dict.get(urlPathConcationation)
+      ->Dict.get(urlPathConcationation)
       ->Belt.Option.getWithDefault(defaultUserModuleWisePref) {
-      | {moduleConfig} => moduleConfig->Js.Dict.get(key)
+      | {moduleConfig} => moduleConfig->Dict.get(key)
       | _ => None
       }
     | _ => None
@@ -177,17 +177,17 @@ let make = (~children) => {
   // not adding to useMemo as it doesn't triggers sometimes
   let userPrefString =
     userPref
-    ->Js.Dict.entries
-    ->Js.Array2.map(item => {
+    ->Dict.toArray
+    ->Array.map(item => {
       let (key, value) = item
       (key, value->userPrefToJson)
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
     ->Js.Json.stringify
 
   let value = React.useMemo4(() => {
-    let currentConfig = userPref->Js.Dict.get(username)->Belt.Option.getWithDefault({})
+    let currentConfig = userPref->Dict.get(username)->Belt.Option.getWithDefault({})
     let updatedPrev = currentConfig
     let lastVisitedTab = switch updatedPrev {
     | {lastVisitedTab} => lastVisitedTab
@@ -195,7 +195,7 @@ let make = (~children) => {
     }
     let moduleVisePref = switch updatedPrev {
     | {moduleVisePref} => moduleVisePref
-    | _ => Js.Dict.empty()
+    | _ => Dict.make()
     }
     let getSearchParamByLink = link => {
       let searchParam = UserPrefUtils.getSearchParams(moduleVisePref, ~key=link) // this is for removing the v4 from the link

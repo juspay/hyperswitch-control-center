@@ -11,33 +11,13 @@ module ApiEditModal = {
     ~action=Create,
     ~keyId=?,
   ) => {
-    let url = RescriptReactRouter.useUrl()
     let (apiKey, setApiKey) = React.useState(_ => "")
     let (showCustomDate, setShowCustomDate) = React.useState(_ => false)
     let (modalState, setModalState) = React.useState(_ => action)
     let showToast = ToastState.useShowToast()
     let updateDetails = APIUtils.useUpdateMethod()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let setShowCustomDate = val => {
       setShowCustomDate(_ => val)
-    }
-
-    let isNotEmpty = str => str->Js.String2.length > 0 ? "NonEmpty" : "Empty"
-
-    let trackApiKeyDetails = (~description, ~expirationDate) => {
-      let actionText = switch action {
-      | Update => "update"
-      | _ => "create"
-      }
-
-      let valueStr = `description:${description->isNotEmpty}-expiration_date:${expirationDate->isNotEmpty}`
-
-      hyperswitchMixPanel(
-        ~pageName=url.path->LogicUtils.getListHead,
-        ~contextName="api_keys",
-        ~actionName=`${actionText}_key_${valueStr}`,
-        (),
-      )
     }
 
     React.useEffect1(() => {
@@ -64,10 +44,10 @@ module ApiEditModal = {
       try {
         let valuesDict = values->LogicUtils.getDictFromJsonObject
 
-        let body = Js.Dict.empty()
-        Js.Dict.set(body, "name", valuesDict->LogicUtils.getString("name", "")->Js.Json.string)
+        let body = Dict.make()
+        Dict.set(body, "name", valuesDict->LogicUtils.getString("name", "")->Js.Json.string)
         let description = valuesDict->LogicUtils.getString("description", "")
-        Js.Dict.set(body, "description", description->Js.Json.string)
+        Dict.set(body, "description", description->Js.Json.string)
 
         let expirationDate = valuesDict->LogicUtils.getString("expiration_date", "")
 
@@ -78,9 +58,7 @@ module ApiEditModal = {
         | _ => Never->getStringFromRecordType
         }
 
-        Js.Dict.set(body, "expiration", expriryValue->Js.Json.string)
-
-        trackApiKeyDetails(~description, ~expirationDate)
+        Dict.set(body, "expiration", expriryValue->Js.Json.string)
 
         setModalState(_ => Loading)
 
@@ -198,11 +176,10 @@ module ApiKeyAddBtn = {
   open DeveloperUtils
   @react.component
   let make = (~getAPIKeyDetails) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let (showModal, setShowModal) = React.useState(_ => false)
-    let initialValues = Js.Dict.empty()
-    initialValues->Js.Dict.set("expiration", Never->getStringFromRecordType->Js.Json.string)
+    let initialValues = Dict.make()
+    initialValues->Dict.set("expiration", Never->getStringFromRecordType->Js.Json.string)
 
     <>
       <ApiEditModal showModal setShowModal initialValues getAPIKeyDetails />
@@ -216,12 +193,7 @@ module ApiKeyAddBtn = {
         buttonType=Secondary
         buttonSize=Small
         onClick={_ => {
-          hyperswitchMixPanel(
-            ~pageName=url.path->LogicUtils.getListHead,
-            ~contextName="api_keys",
-            ~actionName="create_new_key",
-            (),
-          )
+          mixpanelEvent(~eventName="create_new_api_key", ())
           setShowModal(_ => true)
         }}
       />
@@ -235,16 +207,14 @@ module TableActionsCell = {
   @react.component
   let make = (~keyId, ~getAPIKeyDetails: unit => promise<unit>, ~data: apiKey) => {
     let showToast = ToastState.useShowToast()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     let (showModal, setShowModal) = React.useState(_ => false)
     let showPopUp = PopUpState.useShowPopUp()
     let deleteDetails = APIUtils.useUpdateMethod()
     let deleteKey = async () => {
       try {
-        let body = Js.Dict.empty()
-        Js.Dict.set(body, "key_id", keyId->Js.Json.string)
-        Js.Dict.set(body, "revoked", true->Js.Json.boolean)
+        let body = Dict.make()
+        Dict.set(body, "key_id", keyId->Js.Json.string)
+        Dict.set(body, "revoked", true->Js.Json.boolean)
 
         let deleteUrl = APIUtils.getURL(
           ~entityName=API_KEYS,
@@ -273,28 +243,22 @@ module TableActionsCell = {
         handleConfirm: {
           text: `Yes, delete it`,
           onClick: _ => {
-            hyperswitchMixPanel(
-              ~pageName=url.path->LogicUtils.getListHead,
-              ~contextName="api_keys",
-              ~actionName="delete_key",
-              (),
-            )
             deleteKey()->ignore
           },
         },
         handleCancel: {text: `No, don't delete`, onClick: _ => ()},
       })
     }
-    let initialValues = Js.Dict.fromArray([
+    let initialValues = Dict.fromArray([
       ("name", data.name->Js.Json.string),
       ("description", data.description->Js.Json.string),
     ])
 
     if data.expiration == Never {
-      initialValues->Js.Dict.set("expiration", Never->getStringFromRecordType->Js.Json.string)
+      initialValues->Dict.set("expiration", Never->getStringFromRecordType->Js.Json.string)
     } else {
-      initialValues->Js.Dict.set("expiration", Custom->getStringFromRecordType->Js.Json.string)
-      initialValues->Js.Dict.set("expiration_date", data.expiration_date->Js.Json.string)
+      initialValues->Dict.set("expiration", Custom->getStringFromRecordType->Js.Json.string)
+      initialValues->Dict.set("expiration_date", data.expiration_date->Js.Json.string)
     }
 
     <div>
@@ -304,12 +268,6 @@ module TableActionsCell = {
       <div className="invisible cursor-pointer group-hover:visible flex ">
         <div
           onClick={_ => {
-            hyperswitchMixPanel(
-              ~pageName=url.path->LogicUtils.getListHead,
-              ~contextName="api_keys",
-              ~actionName="update_key",
-              (),
-            )
             setShowModal(_ => true)
           }}>
           <Icon
@@ -404,11 +362,11 @@ module ApiKeysTable = {
           visibleColumns
           entity=apiKeysTableEntity
           showSerialNumber=true
-          actualData={data->Js.Array2.map(Js.Nullable.return)}
-          totalResults={data->Js.Array2.length}
+          actualData={data->Array.map(Js.Nullable.return)}
+          totalResults={data->Array.length}
           offset
           setOffset
-          currrentFetchCount={data->Js.Array2.length}
+          currrentFetchCount={data->Array.length}
           tableActions={<div className="mt-5">
             <ApiKeyAddBtn getAPIKeyDetails />
           </div>}

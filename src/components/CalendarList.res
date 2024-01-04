@@ -33,7 +33,7 @@ let make = (
     months[valueInt]->Belt.Option.getWithDefault(Jan)
   }
   let getMonthInFloat = mon => {
-    Js.Array2.indexOf(months, mon)->Belt.Float.fromInt
+    Array.indexOf(months, mon)->Belt.Float.fromInt
   }
   let getMonthInStr = mon => {
     switch mon {
@@ -80,7 +80,7 @@ let make = (
   <div
     className={`flex flex-1 flex-row justify-center overflow-auto bg-jp-gray-50 dark:bg-jp-gray-950 rounded border border-jp-gray-500 dark:border-jp-gray-960 select-none ${calendarContaierStyle}`}>
     {dummyRow
-    ->Js.Array2.mapi((_item, i) => {
+    ->Array.mapWithIndex((_item, i) => {
       let currDateTemp = Js.Date.fromFloat(Js.Date.valueOf(currDateIm))
       let tempDate = Js.Date.setMonth(
         currDateTemp,

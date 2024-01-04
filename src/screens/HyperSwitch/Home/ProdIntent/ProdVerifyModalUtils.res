@@ -75,7 +75,7 @@ let countryField = FormRenderer.makeFieldInfo(
     ~fullLength=true,
     ~customStyle="max-h-48",
     ~customButtonStyle="pr-3",
-    ~options=CountryUtils.countriesList->Js.Array2.map(CountryUtils.getCountryOption),
+    ~options=CountryUtils.countriesList->Array.map(CountryUtils.getCountryOption),
     ~buttonText="Select Country",
     (),
   ),
@@ -85,25 +85,24 @@ let countryField = FormRenderer.makeFieldInfo(
 let validateEmptyValue = (key, errors) => {
   switch key {
   | POCemail =>
-    Js.Dict.set(
+    Dict.set(
       errors,
       key->getStringFromVariant,
       "Please enter a Point of Contact Email"->Js.Json.string,
     )
   | BusinessName =>
-    Js.Dict.set(errors, key->getStringFromVariant, "Please enter a Business Name"->Js.Json.string)
+    Dict.set(errors, key->getStringFromVariant, "Please enter a Business Name"->Js.Json.string)
   | Country =>
-    Js.Dict.set(errors, key->getStringFromVariant, "Please select a Country"->Js.Json.string)
-  | Website =>
-    Js.Dict.set(errors, key->getStringFromVariant, "Please enter a Website"->Js.Json.string)
+    Dict.set(errors, key->getStringFromVariant, "Please select a Country"->Js.Json.string)
+  | Website => Dict.set(errors, key->getStringFromVariant, "Please enter a Website"->Js.Json.string)
   | POCName =>
-    Js.Dict.set(
+    Dict.set(
       errors,
       key->getStringFromVariant,
       "Please enter a Point of Contact Name"->Js.Json.string,
     )
   | BusinessTAN =>
-    Js.Dict.set(errors, key->getStringFromVariant, "Please enter a Business TAN"->Js.Json.string)
+    Dict.set(errors, key->getStringFromVariant, "Please enter a Business TAN"->Js.Json.string)
   | _ => ()
   }
 }
@@ -125,11 +124,11 @@ let validateCustom = (key, errors, value) => {
   switch key {
   | POCemail =>
     if value->HSwitchUtils.isValidEmail {
-      Js.Dict.set(errors, key->getStringFromVariant, "Please enter valid email id"->Js.Json.string)
+      Dict.set(errors, key->getStringFromVariant, "Please enter valid email id"->Js.Json.string)
     }
   | Website =>
     if !Js.Re.test_(%re("/^https:\/\//i"), value) || value->Js.String2.includes("localhost") {
-      Js.Dict.set(errors, key->getStringFromVariant, "Please Enter Valid URL"->Js.Json.string)
+      Dict.set(errors, key->getStringFromVariant, "Please Enter Valid URL"->Js.Json.string)
     }
   | _ => ()
   }
@@ -137,18 +136,16 @@ let validateCustom = (key, errors, value) => {
 
 let validateForm = (values, ~fieldsToValidate: array<prodFormColumnType>, ~setIsDisabled) => {
   open LogicUtils
-  let errors = Js.Dict.empty()
+  let errors = Dict.make()
   let valuesDict = values->getDictFromJsonObject
 
-  fieldsToValidate->Js.Array2.forEach(key => {
+  fieldsToValidate->Array.forEach(key => {
     let value = LogicUtils.getString(valuesDict, key->getStringFromVariant, "")
 
-    value->Js.String2.length < 1
-      ? key->validateEmptyValue(errors)
-      : key->validateCustom(errors, value)
+    value->String.length < 1 ? key->validateEmptyValue(errors) : key->validateCustom(errors, value)
   })
 
-  errors->Js.Dict.keys->Js.Array2.length > 0 ? setIsDisabled(_ => true) : setIsDisabled(_ => false)
+  errors->Dict.keysToArray->Array.length > 0 ? setIsDisabled(_ => true) : setIsDisabled(_ => false)
 
   errors->Js.Json.object_
 }
@@ -170,5 +167,5 @@ let getBody = (values: Js.Json.t) => {
     (Website->getStringFromVariant, valuesDict->getJsonString(Website)),
     (POCName->getStringFromVariant, valuesDict->getJsonString(POCName)),
     (BusinessTAN->getStringFromVariant, valuesDict->getJsonString(BusinessTAN)),
-  ]->Js.Dict.fromArray
+  ]->Dict.fromArray
 }

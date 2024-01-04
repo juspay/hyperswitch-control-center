@@ -14,3 +14,4 @@ external jsonToFormReactEvent: Js.Json.t => ReactEvent.Form.t = "%identity"
 external arrayOfGenericTypeToFormReactEvent: array<'a> => ReactEvent.Form.t = "%identity"
 external webAPIFocusEventToReactEventFocus: Webapi.Dom.FocusEvent.t => ReactEvent.Focus.t =
   "%identity"
+external toWasm: Js.Dict.t<Js.Json.t> => RoutingTypes.wasmModule = "%identity"

@@ -48,10 +48,10 @@ let getTableCell = activeRoutingIds => {
     | LastUpdated => Text(historyData.modified_at)
     | Status =>
       Label({
-        title: activeRoutingIds->Js.Array2.includes(historyData.id)
+        title: activeRoutingIds->Array.includes(historyData.id)
           ? "ACTIVE"
           : "INACTIVE"->Js.String2.toUpperCase,
-        color: switch activeRoutingIds->Js.Array2.includes(historyData.id) {
+        color: switch activeRoutingIds->Array.includes(historyData.id) {
         | true => LabelGreen
         | false => LabelWhite
         },
@@ -80,7 +80,7 @@ let historyEntity = (activeRoutingIds: array<string>) => {
       value => {
         `/routing/${value.kind
           ->routingTypeMapper
-          ->routingTypeName}?id=${value.id}${activeRoutingIds->Js.Array2.includes(value.id)
+          ->routingTypeName}?id=${value.id}${activeRoutingIds->Array.includes(value.id)
             ? "&isActive=true"
             : ""}`
       }

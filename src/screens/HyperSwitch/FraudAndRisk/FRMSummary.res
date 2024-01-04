@@ -25,12 +25,12 @@ module ConfigInfo = {
   @react.component
   let make = (~frmConfigs) => {
     frmConfigs
-    ->Js.Array2.mapi((config, i) => {
+    ->Array.mapWithIndex((config, i) => {
       <div className="grid grid-cols-2 md:w-1/2 ml-12 my-12" key={i->string_of_int}>
         <h4 className="text-lg font-semibold"> {config.gateway->snakeToTitle->React.string} </h4>
         <div>
           {config.payment_methods
-          ->Js.Array2.mapi((paymentMethod, ind) => {
+          ->Array.mapWithIndex((paymentMethod, ind) => {
             <div key={ind->string_of_int}>
               {paymentMethod.payment_method_types
               ->Array.mapWithIndex(
@@ -55,15 +55,13 @@ module ConfigInfo = {
 }
 
 @react.component
-let make = (~initialValues, ~currentStep, ~setCurrentStep, ~isUpdateFlow) => {
+let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
   open LogicUtils
   open FRMUtils
   open APIUtils
   open ConnectorTypes
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let updateDetails = useUpdateMethod()
   let url = RescriptReactRouter.useUrl()
-  let frmName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
 
   let showToast = ToastState.useShowToast()
   let frmInfo = initialValues->getDictFromJsonObject->ConnectorTableUtils.getProcessorPayloadType
@@ -108,20 +106,12 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep, ~isUpdateFlow) => {
             setCurrentStep
             disableConnector={disableFRM}
             isConnectorDisabled={isfrmDisabled}
-            connectorInfo={frmInfo}
             pageName={url.path->LogicUtils.getListHead}
           />
         </div>
       | _ =>
         <Button
           onClick={_ => {
-            getMixpanelForFRMOnSubmit(
-              ~frmName,
-              ~currentStep,
-              ~isUpdateFlow,
-              ~url,
-              ~hyperswitchMixPanel,
-            )
             RescriptReactRouter.push("/fraud-risk-management")
           }}
           text="Done"
@@ -134,7 +124,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep, ~isUpdateFlow) => {
         <h4 className="text-lg font-semibold"> {"Profile id"->React.string} </h4>
         <div> {frmInfo.profile_id->React.string} </div>
       </div>
-      <UIUtils.RenderIf condition={frmConfigs->Js.Array2.length > 0}>
+      <UIUtils.RenderIf condition={frmConfigs->Array.length > 0}>
         <ConfigInfo frmConfigs />
       </UIUtils.RenderIf>
     </div>

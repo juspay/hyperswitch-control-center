@@ -3,23 +3,10 @@ type filterBody = {
   end_time: string,
 }
 
-let isStringNonEmpty = str => str->Js.String2.length > 0
+let isStringNonEmpty = str => str->String.length > 0
 
 let getDateValue = (key, ~getModuleFilters) => {
-  getModuleFilters->LogicUtils.getString(key, "")
-}
-
-let parseUrl = url => {
-  url
-  ->Js.Global.decodeURI
-  ->Js.String2.split("&")
-  ->Belt.Array.keepMap(str => {
-    let arr = str->Js.String2.split("=")
-    let key = arr->Belt.Array.get(0)->Belt.Option.getWithDefault("-")
-    let val = arr->Belt.Array.sliceToEnd(1)->Js.Array2.joinWith("=")
-    key === "" || val === "" ? None : Some((key, val))
-  })
-  ->Js.Dict.fromArray
+  getModuleFilters->Dict.get(key)->Belt.Option.getWithDefault("")
 }
 
 let formateDateString = date => {
@@ -53,7 +40,7 @@ let getFilterFields: Js.Json.t => array<EntityType.optionType<'t>> = json => {
   let filterDict = json->getDictFromJsonObject
 
   filterDict
-  ->Js.Dict.keys
+  ->Dict.keysToArray
   ->Array.reduce([], (acc, key) => {
     let title = `Select ${key->snakeToTitle}`
     let values = filterDict->getArrayFromDict(key, [])->getStrArrayFromJsonArray
@@ -68,7 +55,7 @@ let getFilterFields: Js.Json.t => array<EntityType.optionType<'t>> = json => {
             ~options={
               values
               ->SelectBox.makeOptions
-              ->Js.Array2.map(item => {
+              ->Array.map(item => {
                 let value = {...item, label: item.value}
                 value
               })
@@ -88,42 +75,34 @@ let getFilterFields: Js.Json.t => array<EntityType.optionType<'t>> = json => {
       localFilter: None,
     }
 
-    if values->Js.Array2.length > 0 {
+    if values->Array.length > 0 {
       acc->Array.push(dropdownOptions)
     }
     acc
   })
 }
 
-let useSetInitialFilters = (
-  ~updateComponentPrefrences,
-  ~updateExistingKeys,
-  ~startTimeFilterKey,
-  ~endTimeFilterKey,
-) => {
-  let url = RescriptReactRouter.useUrl()
-
-  let {filterValueJson} = AnalyticsUrlUpdaterContext.urlUpdaterContext->React.useContext
+let useSetInitialFilters = (~updateExistingKeys, ~startTimeFilterKey, ~endTimeFilterKey) => {
+  let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   () => {
-    let inititalSearchParam = url.search->parseUrl
+    let inititalSearchParam = Dict.make()
 
     let defaultDate = getDateFilteredObject()
 
-    if filterValueJson->Js.Dict.keys->Js.Array2.length < 1 {
+    if filterValueJson->Dict.keysToArray->Array.length < 1 {
       [
         (startTimeFilterKey, defaultDate.start_time),
         (endTimeFilterKey, defaultDate.end_time),
       ]->Belt.Array.forEach(item => {
         let (key, defaultValue) = item
-        switch inititalSearchParam->Js.Dict.get(key) {
+        switch inititalSearchParam->Dict.get(key) {
         | Some(_) => ()
-        | None => inititalSearchParam->Js.Dict.set(key, defaultValue)
+        | None => inititalSearchParam->Dict.set(key, defaultValue)
         }
       })
 
       inititalSearchParam->updateExistingKeys
-      updateComponentPrefrences(~dict=inititalSearchParam)
     }
   }
 }
@@ -132,16 +111,14 @@ let useGetFiltersData = () => {
   open APIUtils
   open Promise
   open LogicUtils
-
   let (filterData, setFilterData) = React.useState(_ => None)
   let updateDetails = useUpdateMethod()
-
-  let timeFilters = UrlUtils.useGetFilterDictFromUrl("")
-  let startTimeVal = timeFilters->getString("start_time", "")
-  let endTimeVal = timeFilters->getString("end_time", "")
+  let {filterValueJson} = FilterContext.filterContext->React.useContext
+  let startTimeVal = filterValueJson->getString("start_time", "")
+  let endTimeVal = filterValueJson->getString("end_time", "")
 
   (url, body) => {
-    React.useEffect1(() => {
+    React.useEffect3(() => {
       setFilterData(_ => None)
       if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
         try {
@@ -154,7 +131,7 @@ let useGetFiltersData = () => {
         }
       }
       None
-    }, [body])
+    }, (startTimeVal, endTimeVal, body->Js.Json.object_->Js.Json.stringify))
     filterData
   }
 }
@@ -181,7 +158,7 @@ module SearchBarFilter = {
     }, [searchValBase])
 
     React.useEffect1(() => {
-      if searchValBase->Js.String2.length < 1 && searchVal->Js.String2.length > 0 {
+      if searchValBase->String.length < 1 && searchVal->String.length > 0 {
         setSearchVal(_ => searchValBase)
       }
       None
@@ -227,15 +204,12 @@ module RemoteTableFilters = {
     ~setOffset,
     (),
   ) => {
-    let defaultFilters = {""->Js.Json.string}
-    let url = RescriptReactRouter.useUrl()
-    let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
-    let getFilterData = useGetFiltersData()
-    let updateComponentPrefrences = UrlUtils.useUpdateUrlWith(~prefix="")
     let {filterValue, updateExistingKeys, filterValueJson, removeKeys} =
-      AnalyticsUrlUpdaterContext.urlUpdaterContext->React.useContext
+      FilterContext.filterContext->React.useContext
+    let defaultFilters = {""->Js.Json.string}
+
+    let getFilterData = useGetFiltersData()
     let setInitialFilters = useSetInitialFilters(
-      ~updateComponentPrefrences,
       ~updateExistingKeys,
       ~startTimeFilterKey,
       ~endTimeFilterKey,
@@ -248,29 +222,21 @@ module RemoteTableFilters = {
       None
     })
 
-    let endTimeVal = endTimeFilterKey->getDateValue(~getModuleFilters)
-    let startTimeVal = startTimeFilterKey->getDateValue(~getModuleFilters)
+    let endTimeVal = filterValueJson->getString(endTimeFilterKey, "")
+    let startTimeVal = filterValueJson->getString(startTimeFilterKey, "")
 
     let filterBody = React.useMemo3(() => {
       [
         (startTimeFilterKey, startTimeVal->Js.Json.string),
         (endTimeFilterKey, endTimeVal->Js.Json.string),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
     }, (startTimeVal, endTimeVal, filterValue))
 
     let filterDataJson = filterUrl->getFilterData(filterBody)
-    let filterData = filterDataJson->Belt.Option.getWithDefault(Js.Dict.empty()->Js.Json.object_)
+    let filterData = filterDataJson->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
 
     React.useEffect1(() => {
-      if url.search->HSwitchUtils.isEmptyString {
-        updateComponentPrefrences(~dict=filterValue)
-      }
-      None
-    }, [url])
-
-    React.useEffect1(() => {
-      updateComponentPrefrences(~dict=filterValue)
-      if filterValueJson->Js.Dict.keys->Js.Array2.length > 0 {
+      if filterValueJson->Dict.keysToArray->Array.length > 0 {
         setFilters(_ => filterValueJson->Some)
         setOffset(_ => 0)
       }
@@ -279,28 +245,26 @@ module RemoteTableFilters = {
 
     let remoteFilters = filterData->initialFilters
     let initialDisplayFilters =
-      remoteFilters->Js.Array2.filter((item: EntityType.initialFilters<'t>) =>
+      remoteFilters->Array.filter((item: EntityType.initialFilters<'t>) =>
         item.localFilter->Js.Option.isSome
       )
     let remoteOptions =
       filterData
       ->getFilterFields
-      ->Js.Array2.filter(item => item.localFilter->Js.Option.isNone)
+      ->Array.filter(item => item.localFilter->Js.Option.isNone)
       ->Array.filterWithIndex((_item, index) => index > 3)
 
     let clearFilters = () => {
-      filterData->getDictFromJsonObject->Js.Dict.keys->removeKeys
+      filterData->getDictFromJsonObject->Dict.keysToArray->removeKeys
     }
 
     let hideFiltersDefaultValue = !(
       filterValue
-      ->Js.Dict.keys
-      ->Js.Array2.filter(item =>
-        [startTimeFilterKey, endTimeFilterKey]
-        ->Js.Array2.find(key => key == item)
-        ->Belt.Option.isNone
+      ->Dict.keysToArray
+      ->Array.filter(item =>
+        [startTimeFilterKey, endTimeFilterKey]->Array.find(key => key == item)->Belt.Option.isNone
       )
-      ->Js.Array2.length > 0
+      ->Array.length > 0
     )
 
     switch filterDataJson {
@@ -315,14 +279,14 @@ module RemoteTableFilters = {
         localOptions=[]
         remoteOptions
         remoteFilters
-        autoApply=true
+        autoApply=false
         showExtraFiltersInline=true
         showClearFilterButton=true
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         updateUrlWith={updateExistingKeys}
         clearFilters
         filterFieldsPortalName=""
-        showFiltersBtn={filterData->getFilterFields->Js.Array2.length > 0}
+        showFiltersBtn={filterData->getFilterFields->Array.length > 0}
         hideFiltersDefaultValue
       />
     | _ =>
@@ -336,7 +300,7 @@ module RemoteTableFilters = {
         localOptions=[]
         remoteOptions=[]
         remoteFilters=[]
-        autoApply=true
+        autoApply=false
         showExtraFiltersInline=true
         showClearFilterButton=true
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]

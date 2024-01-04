@@ -2,7 +2,7 @@ open ProviderTypes
 
 let setIsSidebarDetails = (key, value) => {
   let localStorageData = HSLocalStorage.getInfoFromLocalStorage(~lStorageKey="sidebar")
-  localStorageData->Js.Dict.set(key, value)
+  localStorageData->Dict.set(key, value)
   "sidebar"->LocalStorage.setItem(
     localStorageData->Js.Json.stringifyAny->Belt.Option.getWithDefault(""),
   )

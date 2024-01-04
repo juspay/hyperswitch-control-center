@@ -142,7 +142,7 @@ module ExternalUser = {
                 {props => <>
                   <div className="px-1 py-1 ">
                     {options
-                    ->Js.Array2.mapi((option, i) =>
+                    ->Array.mapWithIndex((option, i) =>
                       <Menu.Item key={i->string_of_int}>
                         {props =>
                           <div className="relative">
@@ -205,8 +205,6 @@ let make = (~userRole) => {
   open LogicUtils
   open HSLocalStorage
   open APIUtils
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let url = RescriptReactRouter.useUrl()
   let (value, setValue) = React.useState(() => "")
   let merchantId = getFromMerchantDetails("merchant_id")
   let updateDetails = useUpdateMethod()
@@ -240,8 +238,8 @@ let make = (~userRole) => {
   let switchMerchant = async value => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Post, ())
-      let body = Js.Dict.empty()
-      body->Js.Dict.set("merchant_id", value->Js.Json.string)
+      let body = Dict.make()
+      body->Dict.set("merchant_id", value->Js.Json.string)
       let res = await updateDetails(url, body->Js.Json.object_, Post)
       let responseDict = res->getDictFromJsonObject
       let token = responseDict->getString("token", "")
@@ -257,9 +255,6 @@ let make = (~userRole) => {
 
   let handleKeyUp = event => {
     if event->ReactEvent.Keyboard.keyCode === 13 {
-      [`${url.path->LogicUtils.getListHead}`, `global`]->Js.Array2.forEach(ele =>
-        hyperswitchMixPanel(~eventName=Some(`${ele}_switch_merchant`), ())
-      )
       switchMerchant(value)->ignore
     }
   }
