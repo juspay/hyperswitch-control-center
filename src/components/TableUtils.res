@@ -479,8 +479,8 @@ module LinkCell = {
 
 module DateCell = {
   let getFormattedDate = (dateStr, dateFormat) => {
+    let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
     try {
-      let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
       let customTimeZone = isoStringToCustomTimeZone(dateStr)
       TimeZoneHook.formattedDateTimeFloat(customTimeZone, dateFormat)
     } catch {

@@ -179,7 +179,7 @@ type highchartsSankey
 @module("highcharts") external highchartsModule: highcharts = "default"
 @module("highcharts/modules/sankey")
 external highchartsSankey: highcharts => unit = "default"
-let init = (data: array<(string, string, int, int, int)>, nodes) => {
+let useInit = (data: array<(string, string, int, int, int)>, nodes) => {
   highchartsSankey(highchartsModule)
   let theme = ThemeProvider.useTheme()
   let options: Js.Json.t = {

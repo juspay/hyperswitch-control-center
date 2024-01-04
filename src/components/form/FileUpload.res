@@ -16,9 +16,10 @@ let make = (
   ~validateUploadedFile=?,
 ) => {
   let (key, setKey) = React.useState(_ => 1)
+  let formInput = ReactFinalForm.useField(input.name ++ "_filename").input
   let fileNameInput = switch fileNameInput {
   | Some(filenameInput) => filenameInput
-  | None => ReactFinalForm.useField(input.name ++ "_filename").input
+  | None => formInput
   }
   let defaultFileName = fileNameInput.value->LogicUtils.getStringFromJson("")
 

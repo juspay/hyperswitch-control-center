@@ -3,7 +3,8 @@ type cardFlowDirection = LEFT | RIGHT
 module SurveyComponent = {
   @react.component
   let make = (~currentStep, ~setCurrentStep, ~currentQuestionDict, ~setCarouselDirection) => {
-    let currentQuestionValue = currentQuestionDict.key->getStringValueFromForm
+    let currentQuestionValue =
+      ReactFinalForm.useField(currentQuestionDict.key).input.value->LogicUtils.getStringFromJson("")
     let isNextButtonEnabled = currentQuestionValue->String.length > 0
 
     <div className="flex flex-col gap-2 h-full ">
