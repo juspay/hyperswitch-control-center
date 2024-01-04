@@ -31,7 +31,7 @@ let currencyField = (
       ~deselectDisable=true,
       ~disableSelect,
       ~customStyle="max-h-48",
-      ~options=options->Js.Array2.map(getCurrencyOption),
+      ~options=options->Array.map(getCurrencyOption),
       ~buttonText="Select Currency",
       (),
     ),
@@ -78,7 +78,7 @@ module ErrorValidation = {
     let imageStyle = "w-4 h-4 my-auto border-gray-100"
     let errorDict = formState.values->validate->getDictFromJsonObject
     let {touched} = ReactFinalForm.useField(fieldName).meta
-    let err = touched ? errorDict->Js.Dict.get(fieldName) : None
+    let err = touched ? errorDict->Dict.get(fieldName) : None
     <UIUtils.RenderIf condition={err->Belt.Option.isSome}>
       <div
         className={`flex flex-row items-center text-orange-950 dark:text-orange-400 pt-2 text-base font-medium text-start ml-1`}>
@@ -109,13 +109,12 @@ module RenderConnectorInputFields = {
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     open ConnectorUtils
     open LogicUtils
-    let keys =
-      details->Js.Dict.keys->Js.Array2.filter(ele => !Js.Array2.includes(keysToIgnore, ele))
+    let keys = details->Dict.keysToArray->Array.filter(ele => !Array.includes(keysToIgnore, ele))
     keys
     ->Array.mapWithIndex((field, i) => {
       let label = details->getString(field, "")
       let formName = isLabelNested ? `${name}.${field}` : name
-      <UIUtils.RenderIf condition={label->Js.String2.length > 0} key={i->string_of_int}>
+      <UIUtils.RenderIf condition={label->String.length > 0} key={i->string_of_int}>
         <div key={label}>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
@@ -156,7 +155,7 @@ module CurrencyAuthKey = {
   let make = (~dict, ~connector, ~selectedConnector: ConnectorTypes.integrationFields) => {
     open LogicUtils
     dict
-    ->Js.Dict.keys
+    ->Dict.keysToArray
     ->Array.mapWithIndex((country, index) => {
       <Accordion
         key={index->string_of_int}
@@ -280,7 +279,7 @@ module BusinessProfileRender = {
                   ev => {
                     let profileName = (
                       arrayOfBusinessProfile
-                      ->Js.Array2.find((ele: HSwitchSettingTypes.profileEntity) =>
+                      ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
                         ele.profile_id === ev->Identity.formReactEventToString
                       )
                       ->Belt.Option.getWithDefault(defaultBusinessProfile)

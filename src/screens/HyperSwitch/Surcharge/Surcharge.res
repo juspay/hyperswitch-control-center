@@ -2,7 +2,7 @@ module ActiveRulePreview = {
   open LogicUtils
   @react.component
   let make = (~initialRule) => {
-    let rule = initialRule->Belt.Option.getWithDefault(Js.Dict.empty())
+    let rule = initialRule->Belt.Option.getWithDefault(Dict.make())
 
     let name = rule->getString("name", "")
     let description = rule->getString("description", "")
@@ -111,7 +111,7 @@ let make = () => {
     try {
       let wasmResult = await Window.connectorWasmInit()
       let wasm =
-        wasmResult->LogicUtils.getDictFromJsonObject->LogicUtils.getObj("wasm", Js.Dict.empty())
+        wasmResult->LogicUtils.getDictFromJsonObject->LogicUtils.getObj("wasm", Dict.make())
       setWasm(_ => Some(wasm->Identity.toWasm))
     } catch {
     | _ => ()
@@ -123,14 +123,14 @@ let make = () => {
       let surchargeUrl = getURL(~entityName=SURCHARGE, ~methodType=Get, ())
       let surchargeRuleDetail = await fetchDetails(surchargeUrl)
       let responseDict = surchargeRuleDetail->getDictFromJsonObject
-      let programValue = responseDict->getObj("algorithm", Js.Dict.empty())
+      let programValue = responseDict->getObj("algorithm", Dict.make())
 
       let intitialValue =
         [
           ("name", responseDict->LogicUtils.getString("name", "")->Js.Json.string),
           ("description", responseDict->LogicUtils.getString("description", "")->Js.Json.string),
           ("algorithm", programValue->Js.Json.object_),
-        ]->Js.Dict.fromArray
+        ]->Dict.fromArray
 
       setInitialRule(_ => Some(intitialValue))
     } catch {
@@ -186,21 +186,21 @@ let make = () => {
   let validate = (values: Js.Json.t) => {
     let dict = values->LogicUtils.getDictFromJsonObject
 
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
 
     RoutingUtils.validateNameAndDescription(~dict, ~errors)
 
-    switch dict->Js.Dict.get("algorithm")->Belt.Option.flatMap(Js.Json.decodeObject) {
+    switch dict->Dict.get("algorithm")->Belt.Option.flatMap(Js.Json.decodeObject) {
     | Some(jsonDict) => {
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
         if rules->Js.Array2.length === 0 {
-          errors->Js.Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
+          errors->Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
         } else {
           rules->Array.forEachWithIndex((rule, i) => {
             let ruleDict = rule->LogicUtils.getDictFromJsonObject
 
             if !validateConditionsForSurcharge(ruleDict) {
-              errors->Js.Dict.set(
+              errors->Dict.set(
                 `Rule ${(i + 1)->string_of_int} - Condition`,
                 `Invalid`->Js.Json.string,
               )

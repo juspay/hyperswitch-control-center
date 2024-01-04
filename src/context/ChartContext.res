@@ -118,15 +118,15 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   }
   let getAllFilter =
     filterValue
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Js.Array2.map(item => {
       let (key, value) = item
       (key, value->UrlFetchUtils.getFilterValue)
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
   let getTopLevelChartFilter = React.useMemo1(() => {
     getAllFilter
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->Js.String2.split(".")
@@ -137,13 +137,13 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
         Some((prefix, value))
       }
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
   }, [getAllFilter])
 
   let (topFiltersToSearchParam, customFilter) = React.useMemo1(() => {
     let filterSearchParam =
       getTopLevelChartFilter
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
         if allFilterKeys->Js.Array2.includes(key) {
@@ -169,7 +169,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
 
   let getChartCompFilters = React.useMemo1(() => {
     getAllFilter
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->Js.String2.split(".")
@@ -185,7 +185,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
         None
       }
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
   }, [getAllFilter])
 
   let (startTimeFromUrl, endTimeFromUrl, filterValueFromUrl) = React.useMemo1(() => {
@@ -193,12 +193,12 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     let endTimeFromUrl = getTopLevelChartFilter->getString(endTimeFilterKey, "")
     let filterValueFromUrl =
       getTopLevelChartFilter
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Belt.Array.keepMap(entries => {
         let (key, value) = entries
         chartEntity.allFilterDimension->Js.Array2.includes(key) ? Some((key, value)) : None
       })
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
       ->Js.Json.object_
       ->Some
     (startTimeFromUrl, endTimeFromUrl, filterValueFromUrl)
@@ -318,7 +318,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
           setTopChartDataLegendData(_ => Loading)
           setTopChartData(_ => Loading)
           let cardinality = cardinalityMapperToNumber(Some(cardinalityFromUrl))
-          let timeObj = Js.Dict.fromArray([
+          let timeObj = Dict.fromArray([
             ("start", startTimeFromUrl->Js.Json.string),
             ("end", endTimeFromUrl->Js.Json.string),
           ])
@@ -354,7 +354,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 (),
               )->Js.Json.stringify,
               ~authToken=parentToken,
-              ~headers=[("QueryType", "Chart Time Series")]->Js.Dict.fromArray,
+              ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
               (),
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch`)
@@ -364,14 +364,14 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                   item => {
                     item
                     ->getDictFromJsonObject
-                    ->Js.Dict.entries
+                    ->Dict.toArray
                     ->Js.Array2.map(
                       dictEn => {
                         let (key, value) = dictEn
                         (key === `${timeCol}_time` ? "time" : key, value)
                       },
                     )
-                    ->Js.Dict.fromArray
+                    ->Dict.fromArray
                     ->Js.Json.object_
                   },
                 )
@@ -414,7 +414,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               (),
             )->Js.Json.stringify,
             ~authToken=parentToken,
-            ~headers=[("QueryType", "Chart Legend")]->Js.Dict.fromArray,
+            ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
             (),
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
@@ -449,7 +449,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
           setBottomChartData(_ => Loading)
 
           let cardinality = cardinalityMapperToNumber(Some(cardinalityFromUrl))
-          let timeObj = Js.Dict.fromArray([
+          let timeObj = Dict.fromArray([
             ("start", startTimeFromUrl->Js.Json.string),
             ("end", endTimeFromUrl->Js.Json.string),
           ])
@@ -483,7 +483,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 (),
               )->Js.Json.stringify,
               ~authToken=parentToken,
-              ~headers=[("QueryType", "Chart Time Series")]->Js.Dict.fromArray,
+              ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
               (),
             )
             ->addLogsAroundFetch(~logTitle=`Chart fetch bottomChart`)
@@ -493,14 +493,14 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                   item => {
                     item
                     ->getDictFromJsonObject
-                    ->Js.Dict.entries
+                    ->Dict.toArray
                     ->Js.Array2.map(
                       dictEn => {
                         let (key, value) = dictEn
                         (key === `${timeCol}_time` ? "time" : key, value)
                       },
                     )
-                    ->Js.Dict.fromArray
+                    ->Dict.fromArray
                     ->Js.Json.object_
                   },
                 )
@@ -540,7 +540,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               (),
             )->Js.Json.stringify,
             ~authToken=parentToken,
-            ~headers=[("QueryType", "Chart Legend")]->Js.Dict.fromArray,
+            ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
             (),
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
@@ -629,15 +629,15 @@ module SDKAnalyticsChartContext = {
     }
     let getAllFilter =
       filterValue
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Js.Array2.map(item => {
         let (key, value) = item
         (key, value->UrlFetchUtils.getFilterValue)
       })
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
     let getTopLevelChartFilter = React.useMemo1(() => {
       getAllFilter
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Belt.Array.keepMap(item => {
         let (key, value) = item
         let keyArr = key->Js.String2.split(".")
@@ -648,13 +648,13 @@ module SDKAnalyticsChartContext = {
           Some((prefix, value))
         }
       })
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
     }, [getAllFilter])
 
     let (topFiltersToSearchParam, customFilter) = React.useMemo1(() => {
       let filterSearchParam =
         getTopLevelChartFilter
-        ->Js.Dict.entries
+        ->Dict.toArray
         ->Belt.Array.keepMap(entry => {
           let (key, value) = entry
           if allFilterKeys->Js.Array2.includes(key) {
@@ -680,7 +680,7 @@ module SDKAnalyticsChartContext = {
 
     let getChartCompFilters = React.useMemo1(() => {
       getAllFilter
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Belt.Array.keepMap(item => {
         let (key, value) = item
         let keyArr = key->Js.String2.split(".")
@@ -696,7 +696,7 @@ module SDKAnalyticsChartContext = {
           None
         }
       })
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
     }, [getAllFilter])
 
     let (startTimeFromUrl, endTimeFromUrl, filterValueFromUrl) = React.useMemo1(() => {
@@ -704,12 +704,12 @@ module SDKAnalyticsChartContext = {
       let endTimeFromUrl = getTopLevelChartFilter->getString(endTimeFilterKey, "")
       let filterValueFromUrl =
         getTopLevelChartFilter
-        ->Js.Dict.entries
+        ->Dict.toArray
         ->Belt.Array.keepMap(entries => {
           let (key, value) = entries
           chartEntity.allFilterDimension->Js.Array2.includes(key) ? Some((key, value)) : None
         })
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_
         ->Some
       (startTimeFromUrl, endTimeFromUrl, filterValueFromUrl)
@@ -810,7 +810,7 @@ module SDKAnalyticsChartContext = {
               granularity->Belt.Option.getWithDefault("")->getGranularityMapper
             switch differentTimeValues->Belt.Array.get(0) {
             | Some(timeObjOrig) => {
-                let timeObj = Js.Dict.fromArray([
+                let timeObj = Dict.fromArray([
                   ("start", timeObjOrig.fromTime->Js.Json.string),
                   ("end", timeObjOrig.toTime->Js.Json.string),
                 ])
@@ -830,7 +830,7 @@ module SDKAnalyticsChartContext = {
                     (),
                   )->Js.Json.stringify,
                   ~authToken=parentToken,
-                  ~headers=[("QueryType", "Chart Time Series")]->Js.Dict.fromArray,
+                  ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
                   (),
                 )
                 ->addLogsAroundFetch(~logTitle=`Chart fetch`)
@@ -839,7 +839,7 @@ module SDKAnalyticsChartContext = {
                     item => {
                       item
                       ->getDictFromJsonObject
-                      ->Js.Dict.entries
+                      ->Dict.toArray
                       ->Belt.Array.keepMap(
                         dictOrigItem => {
                           let (key, value) = dictOrigItem
@@ -871,7 +871,7 @@ module SDKAnalyticsChartContext = {
                           (),
                         )->Js.Json.stringify,
                         ~authToken=parentToken,
-                        ~headers=[("QueryType", "Chart Time Series")]->Js.Dict.fromArray,
+                        ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
                         (),
                       )
                       ->addLogsAroundFetch(~logTitle=`Chart fetch`)
@@ -887,7 +887,7 @@ module SDKAnalyticsChartContext = {
                                   let origDictArr =
                                     item
                                     ->getDictFromJsonObject
-                                    ->Js.Dict.entries
+                                    ->Dict.toArray
                                     ->Belt.Array.keepMap(
                                       origDictArrItem => {
                                         let (key, value) = origDictArrItem
@@ -908,14 +908,14 @@ module SDKAnalyticsChartContext = {
                                     ? Some(
                                         item
                                         ->getDictFromJsonObject
-                                        ->Js.Dict.entries
+                                        ->Dict.toArray
                                         ->Js.Array2.map(
                                           dictEn => {
                                             let (key, value) = dictEn
                                             (key === `${timeCol}_time` ? "time" : key, value)
                                           },
                                         )
-                                        ->Js.Dict.fromArray
+                                        ->Dict.fromArray
                                         ->Js.Json.object_,
                                       )
                                     : None
@@ -987,7 +987,7 @@ module SDKAnalyticsChartContext = {
 
     //         differentTimeValues
     //         ->Js.Array2.map(timeObjOrig => {
-    //           let timeObj = Js.Dict.fromArray([
+    //           let timeObj = Dict.fromArray([
     //             ("start", timeObjOrig.fromTime->Js.Json.string),
     //             ("end", timeObjOrig.toTime->Js.Json.string),
     //           ])
@@ -1008,7 +1008,7 @@ module SDKAnalyticsChartContext = {
     //                   (),
     //                 )->Js.Json.stringify,
     //                 ~authToken=parentToken,
-    //                 ~headers=[("QueryType", "Chart Time Series")]->Js.Dict.fromArray,
+    //                 ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
     //                 (),
     //               )
     //               ->addLogsAroundFetch(~logTitle=`Chart fetch`)

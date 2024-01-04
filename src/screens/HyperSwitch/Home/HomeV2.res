@@ -8,7 +8,7 @@ module HomePageHorizontalStepper = {
     let typedValueOfEnum = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
 
     // TODO : To be used when Test Payment flow if is integrated
-    let step = if !(typedValueOfEnum.testPayment.payment_id->Js.String2.length > 0) {
+    let step = if !(typedValueOfEnum.testPayment.payment_id->String.length > 0) {
       0
     } else if !typedValueOfEnum.integrationCompleted {
       1
@@ -40,7 +40,7 @@ module HomePageHorizontalStepper = {
               className={`h-6 w-6 flex items-center justify-center border-2 rounded-md font-semibold ${index->getStepperStyle} ${getTextStyle}`}>
               {(index + 1)->string_of_int->React.string}
             </span>
-            <UIUtils.RenderIf condition={index !== stepperItemsArray->Js.Array2.length - 1}>
+            <UIUtils.RenderIf condition={index !== stepperItemsArray->Array.length - 1}>
               <div className="relative w-full">
                 <div className={`absolute h-1 rounded-full z-1 ${index->getProgressBarStyle}`} />
                 <div className="w-full h-1 rounded-full bg-grey-700 bg-opacity-10" />
@@ -79,20 +79,20 @@ module QuickStart = {
         let typedConnectorValue = connectorList->getArrayOfConnectorListPayloadType
 
         if (
-          typedValueOfEnum.configurationType->Js.String2.length === 0 &&
-          typedValueOfEnum.firstProcessorConnected.processorID->Js.String2.length === 0 &&
-          typedValueOfEnum.secondProcessorConnected.processorID->Js.String2.length === 0
+          typedValueOfEnum.configurationType->String.length === 0 &&
+          typedValueOfEnum.firstProcessorConnected.processorID->String.length === 0 &&
+          typedValueOfEnum.secondProcessorConnected.processorID->String.length === 0
         ) {
-          if typedConnectorValue->Js.Array2.length >= 2 {
+          if typedConnectorValue->Array.length >= 2 {
             let firstConnectorValue =
               typedConnectorValue
               ->Belt.Array.get(0)
-              ->Belt.Option.getWithDefault(getProcessorPayloadType(Js.Dict.empty()))
+              ->Belt.Option.getWithDefault(getProcessorPayloadType(Dict.make()))
 
             let secondConnectorValue =
               typedConnectorValue
               ->Belt.Array.get(1)
-              ->Belt.Option.getWithDefault(getProcessorPayloadType(Js.Dict.empty()))
+              ->Belt.Option.getWithDefault(getProcessorPayloadType(Dict.make()))
 
             let bodyOfFirstConnector: QuickStartTypes.processorType = {
               processorID: firstConnectorValue.merchant_connector_id,
@@ -124,11 +124,11 @@ module QuickStart = {
               (ProcesorType(bodyOfSecondConnector), #SecondProcessorConnected),
             ])
             setQuickStartPageState(_ => ConnectProcessor(CONFIGURE_SMART_ROUTING))
-          } else if typedConnectorValue->Js.Array2.length === 1 {
+          } else if typedConnectorValue->Array.length === 1 {
             let firstConnectorValue =
               typedConnectorValue
               ->Belt.Array.get(0)
-              ->Belt.Option.getWithDefault(getProcessorPayloadType(Js.Dict.empty()))
+              ->Belt.Option.getWithDefault(getProcessorPayloadType(Dict.make()))
 
             let bodyOfFirstConnector: QuickStartTypes.processorType = {
               processorID: firstConnectorValue.merchant_connector_id,
@@ -163,7 +163,7 @@ module QuickStart = {
       }
     }
 
-    let buttonText = if !(typedValueOfEnum.testPayment.payment_id->Js.String2.length > 0) {
+    let buttonText = if !(typedValueOfEnum.testPayment.payment_id->String.length > 0) {
       "Configure (Test mode)"
     } else if !typedValueOfEnum.integrationCompleted {
       "Start Integration on app"
@@ -363,7 +363,7 @@ let make = () => {
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
 
   let checkingConditions = [
-    typedEnumValue.testPayment.payment_id->Js.String2.length > 0,
+    typedEnumValue.testPayment.payment_id->String.length > 0,
     typedEnumValue.integrationCompleted,
     isProdIntentCompleted,
   ]
@@ -374,7 +374,7 @@ let make = () => {
       subTitle="Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments."
     />
     <div className="w-full flex flex-col gap-14">
-      {if checkingConditions->Js.Array2.includes(false) {
+      {if checkingConditions->Array.includes(false) {
         <QuickStart isMobileView />
       } else {
         <HomePageOverviewComponent />

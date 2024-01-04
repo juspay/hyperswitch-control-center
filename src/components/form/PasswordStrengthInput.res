@@ -41,23 +41,23 @@ let make = (
     onChange: ev => {
       input.onChange(ev)
       let strVal = ReactEvent.Form.target(ev)["value"]
-      let (variety, score) = tests->Js.Array2.reduce((acc, test) => {
+      let (variety, score) = tests->Array.reduce((0, 0.0), (acc, test) => {
         let (accVariety, accScore) = acc
         let res = Js.Re.exec_(test.regex, strVal)
         let result = switch res {
         | Some(val) => Js.Re.captures(val)
         | None => []
         }
-        let nonEmptyResult = result->Js.Array2.length != 0
+        let nonEmptyResult = result->Array.length != 0
         let localVariety = nonEmptyResult ? accVariety + 1 : 0
         let localScore =
           accScore +.
-          (test.weight *. result->Js.Array2.length->Belt.Int.toFloat +.
-          strVal->Js.String2.length->Belt.Int.toFloat *. 1.2)
+          (test.weight *. result->Array.length->Belt.Int.toFloat +.
+          strVal->String.length->Belt.Int.toFloat *. 1.2)
         (localVariety, localScore)
-      }, (0, 0.0))
+      })
 
-      let newPasswordStatus = if strVal->Js.String2.length <= 1 {
+      let newPasswordStatus = if strVal->String.length <= 1 {
         {message: "", color: Red}
       } else if variety != 4 {
         {message: "Too Simple", color: Red}

@@ -104,7 +104,7 @@ let make = () => {
     try {
       let response = await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray)
       let responseValueDict =
-        response->Js.Nullable.toOption->Belt.Option.getWithDefault(Js.Dict.empty())
+        response->Js.Nullable.toOption->Belt.Option.getWithDefault(Dict.make())
       let pageStateToSet = responseValueDict->QuickStartUtils.getCurrentStep
       setQuickStartPageState(_ => pageStateToSet->QuickStartUtils.enumToVarinatMapper)
       responseValueDict
@@ -173,7 +173,7 @@ let make = () => {
     if (
       isProdIntentCompleted &&
       enumDetails.integrationCompleted &&
-      enumDetails.testPayment.payment_id->Js.String2.length > 0
+      enumDetails.testPayment.payment_id->String.length > 0
     ) {
       RescriptReactRouter.replace("/home")
       React.null

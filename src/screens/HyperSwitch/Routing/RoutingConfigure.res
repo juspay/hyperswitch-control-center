@@ -9,7 +9,7 @@ let make = (~routingType) => {
   let (isActive, setIsActive) = React.useState(_ => false)
   React.useEffect1(() => {
     let searchParams = url.search
-    let filtersFromUrl = LogicUtils.getDictFromUrlSearchParams(searchParams)->Js.Dict.get("id")
+    let filtersFromUrl = LogicUtils.getDictFromUrlSearchParams(searchParams)->Dict.get("id")
     setId(_ => filtersFromUrl)
     switch routingType->Js.String2.toLowerCase {
     | "rank" => setCurrentRouting(_ => PRIORITY)
@@ -20,7 +20,7 @@ let make = (~routingType) => {
     }
     let isActive =
       LogicUtils.getDictFromUrlSearchParams(searchParams)
-      ->Js.Dict.get("isActive")
+      ->Dict.get("isActive")
       ->Belt.Option.getWithDefault("")
       ->LogicUtils.getBoolFromString(false)
     setIsActive(_ => isActive)

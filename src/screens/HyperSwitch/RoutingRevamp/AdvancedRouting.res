@@ -28,7 +28,7 @@ let initialValues = {
   algorithm: {
     data: {
       rules: [defaultRule],
-      metadata: Js.Dict.empty()->Js.Json.object_,
+      metadata: Dict.make()->Js.Json.object_,
       defaultSelection: {
         \"type": "",
         data: [],
@@ -168,12 +168,12 @@ module Wrapper = {
     let areValidConditions =
       conditionsInput.value
       ->getArrayFromJson([])
-      ->Js.Array2.every(ele =>
+      ->Array.every(ele =>
         ele->getDictFromJsonObject->statementTypeMapper->isStatementMandatoryFieldsPresent
       )
 
     let handleClickExpand = _ => {
-      let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Js.Array2.length > 0
+      let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Array.length > 0
 
       if gatewayArrPresent && areValidConditions {
         setIsExpanded(p => !p)
@@ -187,7 +187,7 @@ module Wrapper = {
     React.useEffect0(() => {
       name.onChange(heading->Js.String2.toLowerCase->titleToSnake->Identity.stringToFormReactEvent)
 
-      let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Js.Array2.length > 0
+      let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Array.length > 0
 
       if gatewayArrPresent && areValidConditions {
         setIsExpanded(p => !p)
@@ -313,7 +313,7 @@ module RuleBasedUI = {
       let newRule = copy
         ? existingRules[index]->Belt.Option.getWithDefault(defaultRule->Identity.genericTypeToJson)
         : defaultRule->Identity.genericTypeToJson
-      let newRules = existingRules->Js.Array2.concat([newRule])
+      let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
@@ -339,7 +339,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
       | Create =>
         <>
           {
-            let notFirstRule = ruleInput.value->getArrayFromJson([])->Js.Array2.length > 1
+            let notFirstRule = ruleInput.value->getArrayFromJson([])->Array.length > 1
 
             let rule = ruleInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
             let keyExtractor = (index, _rule, isDragging) => {
@@ -423,7 +423,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
   let getConnectorsList = () => {
     setConnectors(_ =>
-      connectorList->Js.Array2.filter(connector => connector.connector_name !== "applepay")
+      connectorList->Array.filter(connector => connector.connector_name !== "applepay")
     )
   }
 
@@ -432,7 +432,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       let routingUrl = getURL(~entityName=ROUTING, ~methodType=Get, ~id=routingRuleId, ())
       let routingJson = await fetchDetails(routingUrl)
       let schemaValue = routingJson->getDictFromJsonObject
-      let rulesValue = schemaValue->getObj("algorithm", Js.Dict.empty())->getDictfromDict("data")
+      let rulesValue = schemaValue->getObj("algorithm", Dict.make())->getDictfromDict("data")
 
       setInitialValues(_ => routingJson)
       setInitialRule(_ => Some(ruleInfoTypeMapper(rulesValue)))
@@ -448,7 +448,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let getWasm = async () => {
     try {
       let wasmResult = await Window.connectorWasmInit()
-      let wasm = wasmResult->getDictFromJsonObject->getObj("wasm", Js.Dict.empty())
+      let wasm = wasmResult->getDictFromJsonObject->getObj("wasm", Dict.make())
       setWasm(_ => Some(wasm->toWasm))
     } catch {
     | _ => ()
@@ -485,15 +485,15 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     let dict = values->LogicUtils.getDictFromJsonObject
     let convertedObject = values->AdvancedRoutingUtils.getRoutingTypesFromJson
 
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
 
     RoutingUtils.validateNameAndDescription(~dict, ~errors)
 
     let validateGateways = (connectorData: array<AdvancedRoutingTypes.connectorSelectionData>) => {
-      if connectorData->Js.Array2.length === 0 {
+      if connectorData->Array.length === 0 {
         Some("Need atleast 1 Gateway")
       } else {
-        let isDistibuted = connectorData->Js.Array2.every(ele => {
+        let isDistibuted = connectorData->Array.every(ele => {
           switch ele {
           | PriorityObject(_) => false
           | VolumeObject(_) => true
@@ -507,11 +507,11 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
             )
 
           let hasZero =
-            connectorData->Js.Array2.some(ele =>
+            connectorData->Array.some(ele =>
               ele->AdvancedRoutingUtils.getSplitFromConnectorSelectionData === 0
             )
           let isDistributeChecked = !(
-            connectorData->Js.Array2.some(ele => {
+            connectorData->Array.some(ele => {
               ele->AdvancedRoutingUtils.getSplitFromConnectorSelectionData === 100
             })
           )
@@ -533,23 +533,20 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
     let rulesArray = convertedObject.algorithm.data.rules
 
-    if rulesArray->Js.Array2.length === 0 {
-      errors->Js.Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
+    if rulesArray->Array.length === 0 {
+      errors->Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
     } else {
       rulesArray->Array.forEachWithIndex((rule, i) => {
         let connectorDetails = rule.connectorSelection.data->Belt.Option.getWithDefault([])
 
         switch connectorDetails->validateGateways {
         | Some(error) =>
-          errors->Js.Dict.set(`Rule ${(i + 1)->string_of_int} - Gateway`, error->Js.Json.string)
+          errors->Dict.set(`Rule ${(i + 1)->string_of_int} - Gateway`, error->Js.Json.string)
         | None => ()
         }
 
         if !AdvancedRoutingUtils.validateStatements(rule.statements) {
-          errors->Js.Dict.set(
-            `Rule ${(i + 1)->string_of_int} - Condition`,
-            `Invalid`->Js.Json.string,
-          )
+          errors->Dict.set(`Rule ${(i + 1)->string_of_int} - Condition`, `Invalid`->Js.Json.string)
         }
       })
     }
@@ -561,7 +558,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     try {
       setScreenState(_ => Loading)
       let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-      let _ = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
       showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
       RescriptReactRouter.replace(`/routing?`)
       setScreenState(_ => Success)
@@ -589,7 +586,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     try {
       setScreenState(_ => Loading)
       let deactivateRoutingURL = `${getURL(~entityName=ROUTING, ~methodType=Post, ())}/deactivate`
-      let body = [("profile_id", profile->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
+      let body = [("profile_id", profile->Js.Json.string)]->Dict.fromArray->Js.Json.object_
       let _ = await updateDetails(deactivateRoutingURL, body, Post)
       showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
       RescriptReactRouter.replace(`/routing?`)
@@ -624,7 +621,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
         dataDict
         ->getDictfromDict("defaultSelection")
         ->getStrArrayFromDict("data", [])
-        ->Js.Array2.map(id => {
+        ->Array.map(id => {
           {
             "connector": (
               connectorList->ConnectorTableUtils.getConnectorNameViaId(id)
@@ -675,18 +672,18 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
   let connectorOptions = React.useMemo2(() => {
     connectors
-    ->Js.Array2.filter(item => item.profile_id === profile)
-    ->Js.Array2.map((item): SelectBox.dropdownOption => {
+    ->Array.filter(item => item.profile_id === profile)
+    ->Array.map((item): SelectBox.dropdownOption => {
       {
         label: item.connector_label,
         value: item.merchant_connector_id,
       }
     })
-  }, (profile, connectors->Js.Array2.length))
+  }, (profile, connectors->Array.length))
 
   <div className="my-6">
     <PageLoaderWrapper screenState>
-      {connectors->Js.Array2.length > 0
+      {connectors->Array.length > 0
         ? <Form
             initialValues={initialValues} validate onSubmit={(values, _) => onSubmit(values, true)}>
             <div className="w-full flex flex-row  justify-between">

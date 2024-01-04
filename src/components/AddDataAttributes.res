@@ -2,7 +2,7 @@ let spreadProps = React.cloneElement
 
 @react.component
 let make = (~attributes: array<(string, string)>, ~children) => {
-  let attributesDict = attributes->Js.Dict.fromArray
+  let attributesDict = attributes->Dict.fromArray
   let ignoreAttributes = React.useContext(AddAttributesContext.ignoreAttributesContext)
 
   if !ignoreAttributes {

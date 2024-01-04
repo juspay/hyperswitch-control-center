@@ -16,20 +16,19 @@ module CheckListSection = {
     ~setPreviewState,
   ) => {
     let stepColor =
-      checkListItems->Js.Array2.includes(pageView)
+      checkListItems->Array.includes(pageView)
         ? "bg-blue-700 text-white py-px px-2 rounded-md"
         : "bg-blue-700 bg-opacity-20 text-blue-700 py-px px-2 rounded-md"
-    let bgColor =
-      checkListItems->Js.Array2.includes(pageView) ? "bg-white" : "bg-jp-gray-light_gray_bg"
+    let bgColor = checkListItems->Array.includes(pageView) ? "bg-white" : "bg-jp-gray-light_gray_bg"
     let selectedItemColor = indexVal =>
       indexVal->getIndexFromVariant === pageView->getIndexFromVariant
         ? "bg-pdf_background rounded-md"
         : ""
     let handleOnClick = clickedVariant => {
       let currentViewindex =
-        updatedCheckList->Js.Array2.indexOf(
+        updatedCheckList->Array.indexOf(
           updatedCheckList
-          ->Js.Array2.filter(ele => ele.itemsVariants->Js.Array2.includes(pageView))
+          ->Array.filter(ele => ele.itemsVariants->Array.includes(pageView))
           ->Belt.Array.get(0)
           ->Belt.Option.getWithDefault(defaultValueOfCheckList),
         )
@@ -53,7 +52,7 @@ module CheckListSection = {
           </p>
           <p className=unselectedSubHeading> {headerText->React.string} </p>
         </div>
-        <UIUtils.RenderIf condition={!(checkListItems->Js.Array2.includes(pageView))}>
+        <UIUtils.RenderIf condition={!(checkListItems->Array.includes(pageView))}>
           <Icon name="lock-outlined" size=20 />
         </UIUtils.RenderIf>
       </div>
@@ -152,7 +151,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
   let (previewState, setPreviewState) = React.useState(_ => None)
-  let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
   let (connectorID, setConnectorID) = React.useState(_ => "")
   let routerUrl = RescriptReactRouter.useUrl()
 
@@ -176,8 +175,8 @@ let make = () => {
         setDashboardPageState(_ => #HOME)
         let baseUrlPath = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${routerUrl.path
           ->Belt.List.toArray
-          ->Js.Array2.joinWith("/")}`
-        routerUrl.search->Js.String2.length > 0
+          ->Array.joinWith("/")}`
+        routerUrl.search->String.length > 0
           ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)
           : RescriptReactRouter.push(`${baseUrlPath}`)
       } else {
@@ -224,7 +223,7 @@ let make = () => {
         response
         ->getArrayFromJson([])
         ->Array.find(ele => {
-          ele->getDictFromJsonObject->getDictfromDict("SetupProcessor") != Js.Dict.empty()
+          ele->getDictFromJsonObject->getDictfromDict("SetupProcessor") != Dict.make()
         })
         ->Option.getWithDefault(Js.Json.null)
 
@@ -234,7 +233,7 @@ let make = () => {
         ->getDictfromDict("SetupProcessor")
         ->getString("connector_id", "")
 
-      if connectorId->Js.String2.length > 0 {
+      if connectorId->String.length > 0 {
         setConnectorID(_ => connectorId)
         getConfigureEndpointEnum()->ignore
       } else {

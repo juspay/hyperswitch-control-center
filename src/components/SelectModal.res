@@ -26,8 +26,8 @@ let make = (
     switch maxSelection {
     | -1 => setValues(_ => arr)
     | _ =>
-      if arr->Js.Array.length > maxSelection {
-        let temp = arr->Js.Array2.sliceFrom(arr->Js.Array.length - maxSelection)
+      if arr->Array.length > maxSelection {
+        let temp = arr->Js.Array2.sliceFrom(arr->Array.length - maxSelection)
         setValues(_ => temp)
       } else {
         setValues(_ => arr)
@@ -41,11 +41,11 @@ let make = (
   let disableSelectBtn = React.useMemo2(
     () =>
       (initialValues->Js.Array.toString === values->Js.Array.toString && !enableSelect) ||
-        values->Js.Array2.length === 0,
+        values->Array.length === 0,
     (values, initialValues),
   )
 
-  let len = values->Js.Array2.length
+  let len = values->Array.length
   let buttonText =
     submitButtonText->Belt.Option.getWithDefault(
       len > 0 ? `${len->Belt.Int.toString} ${title} Selected` : "Select",
@@ -102,7 +102,7 @@ let make = (
           showSerialNumber
           maxHeight="max-h-full"
           searchable=true
-          searchInputPlaceHolder={`Search in ${options->Js.Array2.length->string_of_int} options`}
+          searchInputPlaceHolder={`Search in ${options->Array.length->string_of_int} options`}
           customStyle="px-2 py-1"
           customSearchStyle="bg-white dark:bg-jp-gray-lightgray_background"
           disableSelect
@@ -114,16 +114,16 @@ let make = (
         ? <div className="bg-[#F6F6F6] p-4 border-b border-slate-300 text-center text-[#868686]">
             {React.string(
               `Conversion rate  = ${options
-                ->Js.Array2.filter(itm =>
+                ->Array.filter(itm =>
                   values->Belt.Array.get(0)->Belt.Option.getWithDefault("") == itm.value
                 )
-                ->Js.Array2.map(item => item.label)
+                ->Array.map(item => item.label)
                 ->Belt.Array.get(0)
                 ->Belt.Option.getWithDefault("Factor 1")} / ${options
-                ->Js.Array2.filter(itm =>
+                ->Array.filter(itm =>
                   values->Belt.Array.get(1)->Belt.Option.getWithDefault("") == itm.value
                 )
-                ->Js.Array2.map(item => item.label)
+                ->Array.map(item => item.label)
                 ->Belt.Array.get(0)
                 ->Belt.Option.getWithDefault("Factor 2")}`,
             )}
@@ -131,7 +131,7 @@ let make = (
         : React.null}
       <div
         className="flex flex-row items-center overflow-hidden justify-center mt-1.5 mb-1 h-20 gap-2">
-        {if showDeSelectAll && values->Js.Array2.length > 0 {
+        {if showDeSelectAll && values->Array.length > 0 {
           <Button
             text="DESELECT ALL"
             customButtonStyle=applyBtnStyle

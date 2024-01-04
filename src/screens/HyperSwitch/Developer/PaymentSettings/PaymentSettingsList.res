@@ -26,11 +26,11 @@ let make = (
           visibleColumns
           entity={webhookProfileTableEntity}
           showSerialNumber=true
-          actualData={businessProfileValues->Js.Array2.map(Js.Nullable.return)}
-          totalResults={businessProfileValues->Js.Array2.length}
+          actualData={businessProfileValues->Array.map(Js.Nullable.return)}
+          totalResults={businessProfileValues->Array.length}
           offset
           setOffset
-          currrentFetchCount={businessProfileValues->Js.Array2.length}
+          currrentFetchCount={businessProfileValues->Array.length}
         />
       </div>
     </div>

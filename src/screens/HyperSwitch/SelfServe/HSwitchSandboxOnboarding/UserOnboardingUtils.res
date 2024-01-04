@@ -220,7 +220,7 @@ let getFilteredList = (
   if felang === Some("chooselanguage") && belang === Some("chooselanguage") {
     githubcodespaces
   } else {
-    let filteredList = githubcodespaces->Js.Array2.filter(value => {
+    let filteredList = githubcodespaces->Array.filter(value => {
       if felang === Some("chooselanguage") {
         value.backEndLang === belang
       } else if belang === Some("chooselanguage") {

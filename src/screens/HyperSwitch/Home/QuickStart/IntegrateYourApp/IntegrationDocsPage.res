@@ -156,9 +156,9 @@ let make = (
   //   }
   // }
   let getRequestedPlatforms = () => {
-    if requestOnlyPlatforms->Js.Array2.includes(platform) {
+    if requestOnlyPlatforms->Array.includes(platform) {
       Some((platform :> string))
-    } else if !([#Node]->Js.Array2.includes(backEndLang)) && currentRoute === MigrateFromStripe {
+    } else if !([#Node]->Array.includes(backEndLang)) && currentRoute === MigrateFromStripe {
       Some((backEndLang :> string))
     } else {
       None

@@ -79,7 +79,7 @@ let make = (
   )
 
   let validateFunc = strVal => {
-    if strVal->Js.String2.length >= 8 {
+    if strVal->String.length >= 8 {
       setPasswordChecks(prev => {
         ...prev,
         minEightChars: true,
@@ -145,7 +145,7 @@ let make = (
       <BarCounter totalBar=4 passwordChecks />
       <div>
         {passwordChips
-        ->Js.Array2.mapi((chipType, index) => {
+        ->Array.mapWithIndex((chipType, index) => {
           <PasswordCheckWindow
             key={`check_${index->Belt.Int.toString}`} passwordChecks chipType customTextStyle
           />

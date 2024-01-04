@@ -67,7 +67,7 @@ let make = (~children) => {
 
   let hideSnackbar = React.useCallback1(key => {
     setOpenSnackbar(.prevArr => {
-      Js.Array2.filter(
+      Array.filter(
         prevArr,
         (snackbarProps: SnackBarState.snackbarProps) => {
           snackbarProps.snackbarKey !== key
@@ -84,7 +84,7 @@ let make = (~children) => {
         <div
           className={`flex flex-col font-inter-style pointer-events-auto w-auto self-start w-max max-w-4xl`}>
           {openSnackbar
-          ->Js.Array2.map(snackbarProps => {
+          ->Array.map(snackbarProps => {
             <Snackbar key={snackbarProps.snackbarKey} snackbarProps hideSnackbar />
           })
           ->React.array}

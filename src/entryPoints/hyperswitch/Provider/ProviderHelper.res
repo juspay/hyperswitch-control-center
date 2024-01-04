@@ -41,7 +41,7 @@ let itemToObjMapperForGetInfo = dict => {
   {
     module_: getString(dict, "module", ""),
     description: getString(dict, "description", ""),
-    permissions: getArrayFromDict(dict, "permissions", [])->Js.Array2.map(i =>
+    permissions: getArrayFromDict(dict, "permissions", [])->Array.map(i =>
       i->getDictFromJsonObject->itemToObjMapperForEnum
     ),
   }

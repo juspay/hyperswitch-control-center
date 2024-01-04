@@ -51,12 +51,12 @@ let make = (
   }, (fileNames, fileTypes))
 
   let clearData = indx => {
-    setFilenames(prev => prev->Js.Array2.filteri((_, i) => indx !== i))
-    setFileTypes(prev => prev->Js.Array2.filteri((_, i) => indx !== i))
+    setFilenames(prev => prev->Array.filterWithIndex((_, i) => indx !== i))
+    setFileTypes(prev => prev->Array.filterWithIndex((_, i) => indx !== i))
     input.onChange(
       input.value
       ->getArrayFromJson([])
-      ->Js.Array2.filteri((_, i) => indx != i)
+      ->Array.filterWithIndex((_, i) => indx != i)
       ->Js.Json.array
       ->Identity.anyTypeToReactEvent,
     )
@@ -70,15 +70,15 @@ let make = (
   let fileEmptyCheckUpload = (~value, ~files, ~filename, ~mimeType) => {
     if value !== "" {
       setFilenames(prev => {
-        let fileArr = prev->Js.Array2.copy->Js.Array2.concat(filename)
+        let fileArr = prev->Array.copy->Array.concat(filename)
         fileArr
       })
       setFileTypes(prev => {
-        let mimeArr = prev->Js.Array2.copy->Js.Array2.concat(mimeType)
+        let mimeArr = prev->Array.copy->Array.concat(mimeType)
         mimeArr
       })
 
-      files->Js.Array2.push(value->Js.Json.string)->ignore
+      files->Array.push(value->Js.Json.string)->ignore
       if showUploadtoast {
         toast("File Uploaded Successfully", ToastSuccess)
       }
@@ -94,7 +94,7 @@ let make = (
     let files = input.value->LogicUtils.getArrayFromJson([])
 
     while !break.contents {
-      if target["files"]->Js.Array2.length > arr[0]->Belt.Option.getWithDefault(0) {
+      if target["files"]->Array.length > arr[0]->Belt.Option.getWithDefault(0) {
         let index = arr->Belt.Array.get(0)->Belt.Option.getWithDefault(0)
         switch target["files"][index] {
         | Some(value) => {
@@ -103,11 +103,11 @@ let make = (
             let mimeType = value["type"]
             let fileFormat = Js.String2.concat(
               ".",
-              Js.Array2.pop(filename->Js.String2.split("."))->Belt.Option.getWithDefault(""),
+              Array.pop(filename->Js.String2.split("."))->Belt.Option.getWithDefault(""),
             )
             let fileTypeArr = fileType->Js.String2.split(",")
             let isCorrectFileFormat =
-              fileTypeArr->Js.Array2.includes(fileFormat) || fileTypeArr->Js.Array2.includes("*")
+              fileTypeArr->Array.includes(fileFormat) || fileTypeArr->Array.includes("*")
             let fileReader = FileReader.reader
             let _file = if filename->Js.String2.includes("p12") {
               fileReader.readAsBinaryString(. value)
@@ -142,18 +142,18 @@ let make = (
                   } else {
                     switch rowsLimit {
                     | Some(val) =>
-                      let rows = Js.String2.split(file, "\n")->Js.Array2.length
+                      let rows = Js.String2.split(file, "\n")->Array.length
                       if value !== "" && rows - 1 < val {
                         setFilenames(prev => {
-                          let fileArr = prev->Js.Array2.copy->Js.Array2.concat(filename)
+                          let fileArr = prev->Array.copy->Array.concat(filename)
                           fileArr
                         })
                         setFileTypes(prev => {
-                          let mimeArr = prev->Js.Array2.copy->Js.Array2.concat(mimeType)
+                          let mimeArr = prev->Array.copy->Array.concat(mimeType)
                           mimeArr
                         })
 
-                        files->Js.Array2.push(value->Js.Json.string)->ignore
+                        files->Array.push(value->Js.Json.string)->ignore
 
                         if showUploadtoast {
                           toast("File Uploaded Successfully", ToastSuccess)
@@ -216,15 +216,15 @@ let make = (
         onDrop={ev => {
           ReactEvent.Mouse.preventDefault(ev)
           let files = ev->dataTransfer->files
-          if files->Js.Array2.length > 0 {
+          if files->Array.length > 0 {
             let file = files["0"]
             let filename = file["name"]
             let mimeType = file["type"]
-            setFilenames(prev => prev->Js.Array2.concat(filename))
-            setFileTypes(prev => prev->Js.Array2.concat(mimeType))
+            setFilenames(prev => prev->Array.concat(filename))
+            setFileTypes(prev => prev->Array.concat(mimeType))
             input.onChange(
               Identity.anyTypeToReactEvent(
-                input.value->getArrayFromJson([])->Js.Array2.concat([file->Js.Json.string]),
+                input.value->getArrayFromJson([])->Array.concat([file->Js.Json.string]),
               ),
             )
           }
@@ -254,14 +254,14 @@ let make = (
     </label>
     <div className={`${heightClass} ${displayClass} justify-between gap-x-5`}>
       {fileNames
-      ->Js.Array2.mapi((fileName, indx) => {
+      ->Array.mapWithIndex((fileName, indx) => {
         <div
           key={indx->Belt.Int.toString} className="flex items-center border p-2 gap-4 rounded-lg">
           <div
             className={pointerDisable
               ? "flex items-center gap-4 flex-1 pointer-events-none"
               : "flex items-center gap-4 flex-1"}>
-            {switch fileName->Js.String2.split(".")->Js.Array2.pop->Belt.Option.getWithDefault("") {
+            {switch fileName->Js.String2.split(".")->Array.pop->Belt.Option.getWithDefault("") {
             | "pdf" => <img src={`/icons/paIcons/pdfIcon.svg`} />
             | "csv" => <img src={`/icons/paIcons/csvIcon.svg`} />
             | _ => React.null

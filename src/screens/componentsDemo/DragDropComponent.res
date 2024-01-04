@@ -3,7 +3,7 @@ type draggableItem = React.element
 
 let reorder = (currentState, startIndex, endIndex) => {
   if startIndex !== endIndex {
-    let oldStateArray = Js.Array.copy(currentState)
+    let oldStateArray = Array.copy(currentState)
     let removed = Js.Array.removeCountInPlace(~pos=startIndex, ~count=1, oldStateArray)
     let _ = Js.Array.spliceInPlace(~pos=endIndex, ~remove=0, ~add=removed, oldStateArray)
     (oldStateArray, true)
@@ -40,7 +40,7 @@ let make = (~isHorizontal=true, ~listItems, ~gap="", ~setListItems, ~keyExtracto
         React.cloneElement(
           <div className={`flex ${directionClass} ${gap} w-full`} ref={provided["innerRef"]}>
             {listItems
-            ->Js.Array2.mapi((item, index) => {
+            ->Array.mapWithIndex((item, index) => {
               <ReactBeautifulDND.Draggable
                 key={`item-${Belt.Int.toString(index)}`}
                 index={index}

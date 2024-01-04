@@ -89,7 +89,7 @@ let make = (~children) => {
 
   let hideToast = React.useCallback1(key => {
     setOpenToasts(.prevArr => {
-      Js.Array2.filter(
+      Array.filter(
         prevArr,
         (toastProps: ToastState.toastProps) => {
           toastProps.toastKey !== key
@@ -109,7 +109,7 @@ let make = (~children) => {
         className={`absolute inset-0 overflow-scroll flex flex-col pointer-events-none m-4 ${toastClass} no-scrollbar`}>
         <div className={`flex flex-col pointer-events-auto w-auto ${widthClass}`}>
           {openToasts
-          ->Js.Array2.map(toastProps => {
+          ->Array.map(toastProps => {
             if toastProps.toastElement != React.null {
               toastProps.toastElement
             } else {

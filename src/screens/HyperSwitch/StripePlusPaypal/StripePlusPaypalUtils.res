@@ -12,8 +12,8 @@ let variantToEnumMapper = variantValue => {
 
 let enumToValueMapper = (variantValue, typedValue: QuickStartTypes.responseType) => {
   switch variantValue {
-  | STRIPE_CONFIGURE => typedValue.stripeConnected.processorID->Js.String2.length > 0
-  | PAYPAL_CONFIGURE => typedValue.paypalConnected.processorID->Js.String2.length > 0
+  | STRIPE_CONFIGURE => typedValue.stripeConnected.processorID->String.length > 0
+  | PAYPAL_CONFIGURE => typedValue.paypalConnected.processorID->String.length > 0
   | TEST_PAYMENT => typedValue.sPTestPayment
   | COMPLETED_STRIPE_PAYPAL => true
   }

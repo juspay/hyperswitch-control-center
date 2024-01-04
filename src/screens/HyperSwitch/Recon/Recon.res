@@ -28,7 +28,7 @@ let make = () => {
 
   let openReconTab = async () => {
     try {
-      if redirectToken->Js.String2.length === 0 {
+      if redirectToken->String.length === 0 {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let url = getURL(~entityName=RECON, ~reconType=#TOKEN, ~methodType=Get, ())
         let res = await fetchDetails(url)

@@ -324,8 +324,7 @@ module SidebarNestedSection = {
     let (isSectionExpanded, setIsSectionExpanded) = React.useState(_ => false)
     let (isElementShown, setIsElementShown) = React.useState(_ => false)
 
-    let isAnySubItemSelected =
-      section.links->Js.Array2.find(isSubLevelItemSelected)->Js.Option.isSome
+    let isAnySubItemSelected = section.links->Array.find(isSubLevelItemSelected)->Js.Option.isSome
 
     React.useEffect2(() => {
       if isSectionExpanded {

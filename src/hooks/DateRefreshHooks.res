@@ -12,7 +12,7 @@ let useConstructQueryOnBasisOfOpt = () => {
     if queryString->Js.String2.includes(optKey) {
       try {
         let arrQuery = queryString->Js.String2.split("&")
-        let tempArr = arrQuery->Js.Array2.filter(x => x->Js.String2.includes(optKey))
+        let tempArr = arrQuery->Array.filter(x => x->Js.String2.includes(optKey))
         let tempArr = tempArr[0]->Belt.Option.getWithDefault("")->Js.String2.split("=")
         let optVal = tempArr[1]->Belt.Option.getWithDefault("")
 
@@ -59,7 +59,7 @@ let useConstructQueryOnBasisOfOpt = () => {
           ~customTimezoneToISOString,
           ~format="YYYY-MM-DDTHH:mm:ss.SSS[Z]",
         )
-        let updatedArr = arrQuery->Js.Array2.map(x =>
+        let updatedArr = arrQuery->Array.map(x =>
           if x->Js.String2.includes(startKey) {
             `${startKey}=${stTimeStamp}`
           } else if x->Js.String2.includes(endKey) {
@@ -68,7 +68,7 @@ let useConstructQueryOnBasisOfOpt = () => {
             x
           }
         )
-        updatedArr->Js.Array2.joinWith("&")
+        updatedArr->Array.joinWith("&")
       } catch {
       | _error => queryString
       }
