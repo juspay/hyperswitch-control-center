@@ -190,16 +190,16 @@ module CashToCodeSelectBox = {
         ->getDictfromDict(
           (selectedCashToCodeMthd: cashToCodeMthd :> string)->Js.String2.toLowerCase,
         )
-        ->Js.Dict.keys
+        ->Dict.keysToArray
 
       wasmValues
-      ->Js.Array2.find(ele => formValues->getString(ele, "")->Js.String2.length <= 0)
+      ->Array.find(ele => formValues->getString(ele, "")->Js.String2.length <= 0)
       ->Belt.Option.isNone
     }
 
     <div>
       {opts
-      ->Js.Array2.map(country => {
+      ->Array.map(country => {
         <div className="flex items-center gap-2 break-words p-2">
           <div onClick={_e => selectedCountry(country)}>
             <CheckBoxIcon isSelected={country->isSelected} />
@@ -250,12 +250,16 @@ module CashToCodeMethods = {
     let (selectedCashToCodeMthd, setCashToCodeMthd) = React.useState(_ => #Classic)
     let tabs = [#Classic, #Evoucher]
 
-    let tabList: array<Tabs.tab> = tabs->Js.Array2.map(tab => {
+    let tabList: array<Tabs.tab> = tabs->Array.map(tab => {
       let tab: Tabs.tab = {
         title: (tab: cashToCodeMthd :> string),
         renderContent: () =>
           <CashToCodeSelectBox
-            opts={dict->Js.Dict.keys} dict={dict} selectedCashToCodeMthd connector selectedConnector
+            opts={dict->Dict.keysToArray}
+            dict={dict}
+            selectedCashToCodeMthd
+            connector
+            selectedConnector
           />,
       }
       tab
@@ -268,7 +272,7 @@ module CashToCodeMethods = {
       lightThemeColor="black"
       defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
       onTitleClick={tabIndex => {
-        setCashToCodeMthd(_ => tabs->Belt.Array.get(tabIndex)->Belt.Option.getWithDefault(#Classic))
+        setCashToCodeMthd(_ => tabs->LogicUtils.getValueFromArray(tabIndex, #Classic))
       }}
     />
   }

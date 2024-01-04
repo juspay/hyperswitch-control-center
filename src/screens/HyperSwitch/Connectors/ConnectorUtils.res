@@ -795,7 +795,7 @@ let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool
       : true
   })
 
-  result->Js.Array2.includes(true) ? true : false
+  result->Js.Array2.includes(true)
 }
 
 let validateConnectorRequiredFields = (
