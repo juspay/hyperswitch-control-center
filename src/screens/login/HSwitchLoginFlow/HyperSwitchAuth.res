@@ -8,7 +8,8 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   open LogicUtils
 
   let url = RescriptReactRouter.useUrl()
-  let initialValues = Js.Dict.empty()->Js.Json.object_
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+  let initialValues = Dict.make()->Js.Json.object_
   let clientCountry = HSwitchUtils.getBrowswerDetails().clientCountry
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
   let showToast = ToastState.useShowToast()
@@ -112,12 +113,23 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     Js.Nullable.null
   }
 
+  let logMixpanelEvents = email => {
+    open HyperSwitchAuthTypes
+    switch authType {
+    | LoginWithPassword => mixpanelEvent(~eventName=`signin_using_email&password`, ~email, ())
+    | LoginWithEmail => mixpanelEvent(~eventName=`signin_using_magic_link`, ~email, ())
+    | SignUP => mixpanelEvent(~eventName=`signup_using_magic_link`, ~email, ())
+    | _ => ()
+    }
+  }
+
   let onSubmit = async (values, _) => {
     try {
       open HyperSwitchAuthTypes
       let valuesDict = values->getDictFromJsonObject
       let email = valuesDict->getString("email", "")
       setEmail(_ => email)
+      logMixpanelEvents(email)
 
       let _ = await (
         switch (isMagicLinkEnabled, authType) {
@@ -142,8 +154,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
           }
         | (_, ResetPassword) => {
             let queryDict = url.search->getDictFromUrlSearchParams
-            let password_reset_token =
-              queryDict->Js.Dict.get("token")->Belt.Option.getWithDefault("")
+            let password_reset_token = queryDict->Dict.get("token")->Belt.Option.getWithDefault("")
             let password = getString(valuesDict, "create_password", "")
             let body = getResetpasswordBodyJson(password, password_reset_token)
             setResetPassword(body)

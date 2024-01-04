@@ -474,10 +474,10 @@ module SelectBoxHeadlessUI = {
                 className={`absolute z-10 ${dropdownPositionClass} ${dropdownWidth} max-h-[225px] overflow-auto mt-2 p-1 origin-top-right bg-white dark:bg-jp-gray-950 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none`}>
                 {props =>
                   transformedOptions
-                  ->Js.Array2.mapi((option, index) => {
+                  ->Array.mapWithIndex((option, index) => {
                     let selected = switch value {
                     | String(v) => v === option.value
-                    | Array(arr) => arr->Js.Array2.includes(option.value)
+                    | Array(arr) => arr->Array.includes(option.value)
                     }
 
                     <Menu.Item key={index->Js.Int.toString}>

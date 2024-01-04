@@ -52,7 +52,7 @@ module Copy = {
       ev->ReactEvent.Mouse.stopPropagation
       setTooltipText(_ => "copied")
 
-      writeText([data]->Js.Array2.joinWith("\n"))
+      writeText([data]->Array.joinWith("\n"))
     }
 
     let iconClass = HSwitchGlobalVars.isHyperSwitchDashboard ? "text-gray-300" : "text-jp-gray-900"

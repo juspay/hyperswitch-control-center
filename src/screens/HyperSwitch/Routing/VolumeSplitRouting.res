@@ -22,7 +22,7 @@ module VolumeRoutingView = {
   ) => {
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
-    let listLength = connectors->Js.Array2.length
+    let listLength = connectors->Array.length
     let (showModal, setShowModal) = React.useState(_ => false)
     let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
     let connectorList = React.useMemo0(() => {
@@ -30,14 +30,14 @@ module VolumeRoutingView = {
     })
     let initalValue = switch initialRule {
     | Some(initialRule) => initialRule
-    | None => Js.Dict.empty()
+    | None => Dict.make()
     }
 
     let gateways =
       initalValue
       ->getJsonObjectFromDict("json")
       ->getDictFromJsonObject
-      ->getObj("volumeBasedDistribution", Js.Dict.empty())
+      ->getObj("volumeBasedDistribution", Dict.make())
       ->getArrayFromDict("gateways", [])
 
     let onSubmit = async (values, isSaveRule) => {
@@ -50,7 +50,7 @@ module VolumeRoutingView = {
           ->getDictFromJsonObject
           ->getJsonObjectFromDict("volumeBasedDistribution")
           ->Js.Json.decodeObject
-          ->Belt.Option.getWithDefault(Js.Dict.empty())
+          ->Belt.Option.getWithDefault(Dict.make())
           ->getArrayFromDict("gateways", [])
         let payload = getVolumeSplit(data, itemBodyGateWayObjMapper, Some(connectorList))
 
@@ -94,7 +94,7 @@ module VolumeRoutingView = {
       try {
         setScreenState(_ => Loading)
         let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-        let _ = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
+        let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
         showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(`/routing?`)
         setScreenState(_ => Success)
@@ -123,7 +123,7 @@ module VolumeRoutingView = {
       try {
         setScreenState(_ => Loading)
         let deactivateRoutingURL = `${getURL(~entityName=ROUTING, ~methodType=Post, ())}/deactivate`
-        let body = [("profile_id", profile->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
+        let body = [("profile_id", profile->Js.Json.string)]->Dict.fromArray->Js.Json.object_
         let _ = await updateDetails(deactivateRoutingURL, body, Post)
         showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(`/routing?`)
@@ -146,8 +146,8 @@ module VolumeRoutingView = {
 
     let connectorOptions = React.useMemo1(() => {
       connectors
-      ->Js.Array2.filter(item => item.profile_id === profile)
-      ->Js.Array2.map((item): SelectBox.dropdownOption => {
+      ->Array.filter(item => item.profile_id === profile)
+      ->Array.map((item): SelectBox.dropdownOption => {
         {
           label: item.connector_label,
           value: item.merchant_connector_id,
@@ -267,7 +267,7 @@ let make = (~routingRuleId, ~isActive) => {
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
   let (formState, setFormState) = React.useState(_ => AdvancedRoutingTypes.EditReplica)
   let (initialRule, setInitialRule) = React.useState(() => None)
-  let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty())
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (pageState, setPageState) = React.useState(() => Create)
@@ -281,7 +281,7 @@ let make = (~routingRuleId, ~isActive) => {
     setConnectors(_ =>
       connectorListJson
       ->ConnectorTableUtils.getArrayOfConnectorListPayloadType
-      ->Js.Array2.filter(connector => connector.connector_name !== "applepay")
+      ->Array.filter(connector => connector.connector_name !== "applepay")
     )
   }
 
@@ -292,7 +292,7 @@ let make = (~routingRuleId, ~isActive) => {
     let algorithm =
       routingJson
       ->getDictFromJsonObject
-      ->getObj("algorithm", Js.Dict.empty())
+      ->getObj("algorithm", Dict.make())
       ->getArrayFromDict("data", [])
 
     let volumeBasedGatewayDistribution = RoutingUtils.getVolumeSplit(
@@ -300,13 +300,12 @@ let make = (~routingRuleId, ~isActive) => {
       RoutingUtils.itemGateWayObjMapper,
       None,
     )
-    let gatewaysDict =
-      [("gateways", volumeBasedGatewayDistribution->Js.Json.array)]->Js.Dict.fromArray
-    let volDict = [("volumeBasedDistribution", gatewaysDict->Js.Json.object_)]->Js.Dict.fromArray
-    let ruleDict = [("json", volDict->Js.Json.object_)]->Js.Dict.fromArray
+    let gatewaysDict = [("gateways", volumeBasedGatewayDistribution->Js.Json.array)]->Dict.fromArray
+    let volDict = [("volumeBasedDistribution", gatewaysDict->Js.Json.object_)]->Dict.fromArray
+    let ruleDict = [("json", volDict->Js.Json.object_)]->Dict.fromArray
     let routingJsonToDict = routingJson->getDictFromJsonObject
 
-    let initialValueDict = Js.Dict.fromArray([
+    let initialValueDict = Dict.fromArray([
       ("name", routingJsonToDict->getString("name", "")->Js.Json.string),
       ("description", routingJsonToDict->getString("description", "")->Js.Json.string),
       ("profile_id", routingJsonToDict->getString("profile_id", "")->Js.Json.string),

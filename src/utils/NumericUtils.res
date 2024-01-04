@@ -1,7 +1,7 @@
 // Copied from https://gist.github.com/Frencil/aab561687cdd2b0de04a
 
 let pretty = (range: array<float>, n: int) => {
-  if range->Js.Array2.length === 2 {
+  if range->Array.length === 2 {
     let range = if range[0] === range[1] {
       [0., range[1]->Belt.Option.getWithDefault(0.)]
     } else {
@@ -60,7 +60,7 @@ let pretty = (range: array<float>, n: int) => {
     let iRef = ref(i)
     let break = ref(false)
     while iRef.contents < range[1]->Belt.Option.getWithDefault(0.) && unit.contents > 0. {
-      ticks->Js.Array2.push(iRef.contents)->ignore
+      ticks->Array.push(iRef.contents)->ignore
       iRef := iRef.contents +. unit.contents
       if base_toFixed > 0 && unit.contents > 0. {
         iRef :=
@@ -72,7 +72,7 @@ let pretty = (range: array<float>, n: int) => {
         break := true
       }
     }
-    ticks->Js.Array2.push(iRef.contents)->ignore
+    ticks->Array.push(iRef.contents)->ignore
 
     ticks
   } else {

@@ -17,10 +17,10 @@ let make = (
   let showToast = ToastState.useShowToast()
   let notShowRefundReasonList = ["adyen"]
   let showRefundReason = !(
-    notShowRefundReasonList->Js.Array2.includes(order.connector->Js.String2.toLowerCase)
+    notShowRefundReasonList->Array.includes(order.connector->Js.String2.toLowerCase)
   )
 
-  let initiateValue = Js.Dict.empty()
+  let initiateValue = Dict.make()
   let initiateValueJson = initiateValue->Js.Json.object_
 
   let updateRefundDetails = async body => {
@@ -50,23 +50,23 @@ let make = (
     setShowModal(_ => false)
     let dict = values->LogicUtils.getDictFromJsonObject
     let amount = dict->LogicUtils.getFloat("amount", 0.0)
-    Js.Dict.set(dict, "amount", Js.Math.round(amount *. 100.0)->Js.Json.number)
+    Dict.set(dict, "amount", Js.Math.round(amount *. 100.0)->Js.Json.number)
     let body = dict
-    Js.Dict.set(body, "payment_id", order.payment_id->Js.Json.string)
-    Js.Dict.set(body, "refund_type", "instant"->Js.Json.string)
+    Dict.set(body, "payment_id", order.payment_id->Js.Json.string)
+    Dict.set(body, "refund_type", "instant"->Js.Json.string)
     if !showRefundReason {
-      Js.Dict.set(body, "reason", "RETURN"->Js.Json.string)
+      Dict.set(body, "reason", "RETURN"->Js.Json.string)
     }
     updateRefundDetails(body->Js.Json.object_)->ignore
     Js.Nullable.null->resolve
   }
 
   let validate = values => {
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
     let valuesDict =
       values
       ->Js.Json.decodeObject
-      ->Belt.Option.map(Js.Dict.entries)
+      ->Belt.Option.map(Dict.toArray)
       ->Belt.Option.getWithDefault([])
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
@@ -76,37 +76,33 @@ let make = (
         | _ => None
         }
       })
-      ->Js.Dict.fromArray
-    ["amount"]->Js.Array2.forEach(key => {
-      if Js.Dict.get(valuesDict, key)->Js.Option.isNone {
-        Js.Dict.set(errors, key, "Required"->Js.Json.string)
+      ->Dict.fromArray
+    ["amount"]->Array.forEach(key => {
+      if Dict.get(valuesDict, key)->Js.Option.isNone {
+        Dict.set(errors, key, "Required"->Js.Json.string)
       }
     })
-    let amountValue = Js.Dict.get(valuesDict, "amount")
+    let amountValue = Dict.get(valuesDict, "amount")
 
     switch amountValue->Belt.Option.flatMap(Js.Json.decodeNumber) {
     | Some(floatVal) =>
       if floatVal > amoutAvailableToRefund {
         let amountSplitArr =
           Js.Float.toFixedWithPrecision(amoutAvailableToRefund, ~digits=2)->Js.String2.split(".")
-        let decimal = if amountSplitArr->Js.Array2.length > 1 {
+        let decimal = if amountSplitArr->Array.length > 1 {
           amountSplitArr[1]->Belt.Option.getWithDefault("")
         } else {
           "00"
         }
         let receivedValue = amoutAvailableToRefund->Js.Math.floor_float->Belt.Float.toString
         let formatted_amount = `${receivedValue}.${decimal}`
-        Js.Dict.set(
+        Dict.set(
           errors,
           "amount",
           `Refund amount should not exceed ${formatted_amount}`->Js.Json.string,
         )
       } else if floatVal == 0.0 {
-        Js.Dict.set(
-          errors,
-          "amount",
-          "Please enter refund amount greater than zero"->Js.Json.string,
-        )
+        Dict.set(errors, "amount", "Please enter refund amount greater than zero"->Js.Json.string)
       }
     | None => ()
     }

@@ -30,14 +30,14 @@ let xLabelFormatter: Js_OO.Callback.arity1<xAxisRecord => string> = {
     let value = param.value
     let seriesSum =
       series
-      ->Js.Array2.map(series => {
+      ->Array.map(series => {
         let options = series.options
         switch options {
         | Some(options) => options.data
         | None => []
-        }->Js.Array2.reduce((acc, num) => {acc + num}, 0)
+        }->Array.reduce(0, (acc, num) => {acc + num})
       })
-      ->Js.Array2.reduce((acc, num) => {acc + num}, 0)
+      ->Array.reduce(0, (acc, num) => {acc + num})
     let index = Js.Array2.findIndex(axis.categories, x => {x === value})
     let firstSeries = series->Belt.Array.get(0)
     let y = switch firstSeries {
@@ -78,8 +78,8 @@ let make = (
 
   let barOption: Js.Json.t = React.useMemo2(() => {
     let colors = {
-      let length = barChartData->Js.Array2.length->Belt.Int.toFloat
-      barChartData->Js.Array2.mapi((_data, i) => {
+      let length = barChartData->Array.length->Belt.Int.toFloat
+      barChartData->Array.mapWithIndex((_data, i) => {
         let i = i->Belt.Int.toFloat
         let opacity = (length -. i +. 1.) /. (length +. 1.)
         `rgb(0,109,249,${opacity->Belt.Float.toString})`
@@ -99,7 +99,7 @@ let make = (
       series: [
         {
           name: `${titleKey->LogicUtils.snakeToTitle} Share`,
-          data: barChartData->Js.Array2.map(data => {
+          data: barChartData->Array.map(data => {
             let (_, y) = data
             y
           }),
@@ -131,7 +131,7 @@ let make = (
         backgroundColor: theme === Dark ? "#202124" : "white",
       },
       xAxis: {
-        categories: barChartData->Js.Array2.map(data => {
+        categories: barChartData->Array.map(data => {
           let (x, _) = data
           x
         }),

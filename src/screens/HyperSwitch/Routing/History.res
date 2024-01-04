@@ -10,10 +10,10 @@ module HistoryTable = {
       entity={historyEntity(activeRoutingIds)}
       resultsPerPage=10
       showSerialNumber=true
-      totalResults={records->Js.Array2.length}
+      totalResults={records->Array.length}
       offset
       setOffset
-      currrentFetchCount={records->Js.Array2.length}
+      currrentFetchCount={records->Array.length}
     />
   }
 }

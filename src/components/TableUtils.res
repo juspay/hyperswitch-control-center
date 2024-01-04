@@ -12,10 +12,10 @@ let highlightedText = (str, searchedText) => {
 
     {
       listText
-      ->Js.Array2.mapi((item, i) => {
+      ->Array.mapWithIndex((item, i) => {
         if (
           Js.String2.toLowerCase(item) == Js.String2.toLowerCase(searchedText) &&
-            Js.String2.length(searchedText) > 0
+            String.length(searchedText) > 0
         ) {
           <mark key={i->string_of_int} className="bg-yellow"> {item->React.string} </mark>
         } else {
@@ -568,7 +568,7 @@ module EllipsisText = {
     let ellipsesCondition =
       ellipsisIdentifier !== ""
         ? Js.String.includes(ellipsisIdentifier, text)
-        : text->Js.String2.length > ellipsisThreshold
+        : text->String.length > ellipsisThreshold
 
     // If text character count is greater than ellipsisThreshold, it will render tooltip else we will have whole text in cell
     if ellipsesCondition {
@@ -595,7 +595,7 @@ module TrimmedText = {
   let make = (~text, ~width, ~highlightText="", ~hideShowMore=false) => {
     let (show, setshow) = React.useState(_ => true)
     let breakWords = hideShowMore ? "" : "whitespace-nowrap text-ellipsis overflow-x-hidden"
-    if text->Js.String2.length > 40 {
+    if text->String.length > 40 {
       <div className={show ? `${breakWords}  justify-content ${width}` : "justify-content"}>
         <AddDataAttributes attributes=[("data-trimmed-text", text)]>
           <div className={hideShowMore ? "truncate" : ""}>
@@ -704,11 +704,11 @@ module TableCell = {
       <MoneyCell amount currency ?textAlign fontBold customMoneyStyle />
 
     | Date(timestamp) =>
-      timestamp->Js.String2.length > 0
+      timestamp->String.length > 0
         ? <DateCell timestamp textAlign=Left customDateStyle />
         : <div> {React.string("-")} </div>
     | DateWithoutTime(timestamp) =>
-      timestamp->Js.String2.length > 0
+      timestamp->String.length > 0
         ? <DateCell timestamp textAlign=Left customDateStyle hideTime=true />
         : <div> {React.string("-")} </div>
     | StartEndDate(startDate, endDate) => <StartEndDateCell startDate endDate />
@@ -753,11 +753,11 @@ module NewTableCell = {
       <MoneyCell amount currency ?textAlign fontBold customMoneyStyle />
 
     | Date(timestamp) =>
-      timestamp->Js.String2.length > 0
+      timestamp->String.length > 0
         ? <DateCell timestamp textAlign=Left customDateStyle />
         : <div> {React.string("-")} </div>
     | DateWithoutTime(timestamp) =>
-      timestamp->Js.String2.length > 0
+      timestamp->String.length > 0
         ? <DateCell timestamp textAlign=Left customDateStyle hideTime=true />
         : <div> {React.string("-")} </div>
     | StartEndDate(startDate, endDate) => <StartEndDateCell startDate endDate />

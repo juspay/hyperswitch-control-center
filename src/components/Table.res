@@ -10,7 +10,7 @@ module TableFilterRow = {
     ~customFilterRowStyle,
     ~showCheckbox,
   ) => {
-    let colsLen = item->Js.Array2.length
+    let colsLen = item->Array.length
     let borderColor = "border-jp-gray-light_table_border_color dark:border-jp-gray-960"
     let paddingClass = "px-4 py-3"
     let hoverClass = "hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-table_hover_dark"
@@ -22,7 +22,7 @@ module TableFilterRow = {
         React.null
       }}
       {item
-      ->Js.Array2.mapi((obj: filterRow, cellIndex) => {
+      ->Array.mapWithIndex((obj: filterRow, cellIndex) => {
         let isLast = cellIndex === colsLen - 1
         let showBorderTop = true
         let borderTop = showBorderTop ? "border-t" : "border-t-0"
@@ -115,13 +115,13 @@ module TableRow = {
       | _ => ()
       }
     }, (onMouseLeave, actualIndex))
-    let colsLen = item->Js.Array2.length
+    let colsLen = item->Array.length
     let cursorClass = onRowClickPresent ? "cursor-pointer" : ""
     let rowRef = React.useRef(Js.Nullable.null)
     let coloredRow =
       // colour based on custom cell's value
       item
-      ->Js.Array2.find(obj => {
+      ->Array.find(obj => {
         switch obj {
         | CustomCell(_, x) => x === "true"
         | _ => false
@@ -147,7 +147,7 @@ module TableRow = {
         onMouseLeave
         onDoubleClick>
         {item
-        ->Js.Array2.mapi((obj: cell, cellIndex) => {
+        ->Array.mapWithIndex((obj: cell, cellIndex) => {
           let isLast = cellIndex === colsLen - 1
           let showBorderTop = switch obj {
           | Text(x) => x !== "-"
@@ -165,7 +165,7 @@ module TableRow = {
 
           let customColorCell = coloredRow ? customCellColor : ""
 
-          let highlightCell = highlightEnabledFieldsArray->Js.Array2.includes(cellIndex)
+          let highlightCell = highlightEnabledFieldsArray->Array.includes(cellIndex)
           let highlightClass = highlightCell ? "hover:font-bold" : ""
           let borderColor = "border-jp-gray-light_table_border_color dark:border-jp-gray-960"
           let borderTop = showBorderTop ? "border-t" : "border-t-0"
@@ -323,13 +323,13 @@ module TableHeadingCell = {
   ) => {
     let i = index
     let isFirstCol = i === 0
-    let isLastCol = i === headingArray->Js.Array2.length - 1
+    let isLastCol = i === headingArray->Array.length - 1
 
     let handleUpdateFilterObj = (ev, i) => {
       switch setFilterObj {
       | Some(fn) =>
         fn((prevFilterObj: array<filterObject>) => {
-          prevFilterObj->Js.Array2.map(obj => {
+          prevFilterObj->Array.map(obj => {
             obj.key === string_of_int(i)
               ? {
                   key: string_of_int(i),
@@ -463,13 +463,13 @@ module TableHeadingCell = {
                           }
                         | None => ([], [])
                         }
-                        if options->Js.Array2.length > 1 {
+                        if options->Array.length > 1 {
                           let filterInput: ReactFinalForm.fieldRenderPropsInput = {
                             name: "filterInput",
                             onBlur: _ev => (),
                             onChange: ev => handleUpdateFilterObj(ev, i),
                             onFocus: _ev => (),
-                            value: selected->Js.Array2.map(Js.Json.string)->Js.Json.array,
+                            value: selected->Array.map(Js.Json.string)->Js.Json.array,
                             checked: true,
                           }
                           let icon = switch filterIcon {
@@ -556,11 +556,11 @@ module TableHeadingRow = {
     ~customizeColumnNewTheme=?,
     ~tableHeadingTextClass="",
   ) => {
-    if headingArray->Js.Array2.length !== 0 {
+    if headingArray->Array.length !== 0 {
       <thead>
         <tr>
           {headingArray
-          ->Js.Array2.mapi((item, i) => {
+          ->Array.mapWithIndex((item, i) => {
             let columnFilterRow: array<filterRow> = columnFilterRow->Belt.Option.getWithDefault([])
             let filterRow = columnFilterRow->Belt.Array.get(i)
             <TableHeadingCell
@@ -668,7 +668,7 @@ let make = (
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
   let actualData: option<Js.Array2.t<Js.Nullable.t<'t>>> = actualData
-  let numberOfCols = heading->Js.Array2.length
+  let numberOfCols = heading->Array.length
   open Webapi
   let totalTableWidth =
     Dom.document
@@ -688,11 +688,11 @@ let make = (
   } else {
     ""
   }
-  let filterPresent = heading->Js.Array2.find(head => head.showFilter)->Js.Option.isSome
+  let filterPresent = heading->Array.find(head => head.showFilter)->Js.Option.isSome
 
   let highlightEnabledFieldsArray = heading->Js.Array2.reducei((acc, item, index) => {
     if item.highlightCellOnHover {
-      let _ = Js.Array2.push(acc, index)
+      let _ = Array.push(acc, index)
     }
     acc
   }, [])
@@ -711,7 +711,7 @@ let make = (
 
   let tableRows = (rowArr, isCustomiseColumn) => {
     rowArr
-    ->Js.Array2.mapi((item: array<cell>, rowIndex) => {
+    ->Array.mapWithIndex((item: array<cell>, rowIndex) => {
       <TableRow
         title
         key={string_of_int(offset + rowIndex)}
@@ -819,12 +819,12 @@ let make = (
   let frozenCustomiseColumnHeading = [
     makeHeaderInfo(~key="", ~title="Customize Column", ~showMultiSelectCheckBox=true, ()),
   ]
-  let frozenRow = rowInfo->Js.Array2.map(row => {
+  let frozenRow = rowInfo->Array.map(row => {
     row->Js.Array2.slice(~start=0, ~end_=frozenUpto)
   })
 
   let remainingHeading = heading->Js.Array2.sliceFrom(frozenUpto)
-  let remaingRow = rowInfo->Js.Array2.map(row => {
+  let remaingRow = rowInfo->Array.map(row => {
     row->Js.Array2.sliceFrom(frozenUpto)
   })
 
@@ -849,7 +849,7 @@ let make = (
     </table>
   }
 
-  let totalLength = rowInfo->Js.Array2.length
+  let totalLength = rowInfo->Array.length
 
   let customizeColumn = {
     <table className={`table-auto rounded-lg sticky right-0 !px-0 !py-0 z-10`}>
@@ -862,7 +862,7 @@ let make = (
         )}
       </UIUtils.RenderIf>
       <tbody>
-        {tableRows(Belt.Array.range(1, totalLength)->Js.Array2.map(_ => [Text("")]), true)}
+        {tableRows(Belt.Array.range(1, totalLength)->Array.map(_ => [Text("")]), true)}
       </tbody>
     </table>
   }
@@ -888,7 +888,7 @@ let make = (
   let parentMinWidthClass = frozenUpto > 0 ? "min-w-max" : ""
   let childMinWidthClass = frozenUpto > 0 ? "" : "min-w-full"
   let overflowClass =
-    lclFilterOpen->Js.Dict.values->Js.Array2.reduce((acc, item) => item || acc, false)
+    lclFilterOpen->Dict.valuesToArray->Array.reduce(false, (acc, item) => item || acc)
       ? ""
       : isMinHeightRequired
       ? ""

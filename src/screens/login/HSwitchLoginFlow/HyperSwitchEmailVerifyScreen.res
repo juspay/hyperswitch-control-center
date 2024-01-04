@@ -1,12 +1,12 @@
 let generateBody = (url: RescriptReactRouter.url) => {
-  let body = Js.Dict.empty()
+  let body = Dict.make()
   let val =
     url.search
     ->LogicUtils.getDictFromUrlSearchParams
-    ->Js.Dict.get("token")
+    ->Dict.get("token")
     ->Belt.Option.getWithDefault("")
 
-  body->Js.Dict.set("token", val->Js.Json.string)
+  body->Dict.set("token", val->Js.Json.string)
   body->Js.Json.object_
 }
 
@@ -28,7 +28,7 @@ let make = (~setAuthType, ~setAuthStatus, ~authType) => {
       let email =
         res
         ->Js.Json.decodeObject
-        ->Belt.Option.getWithDefault(Js.Dict.empty())
+        ->Belt.Option.getWithDefault(Dict.make())
         ->LogicUtils.getString("email", "")
       let token = HyperSwitchAuthUtils.parseResponseJson(~json=res, ~email)
       if !(token->isEmptyString) && !(email->isEmptyString) {
@@ -55,7 +55,7 @@ let make = (~setAuthType, ~setAuthStatus, ~authType) => {
   })
 
   <HSwitchUtils.BackgroundImageWrapper customPageCss="font-semibold md:text-3xl p-16">
-    {if errorMessage->Js.String2.length !== 0 {
+    {if errorMessage->String.length !== 0 {
       <div className="flex flex-col justify-between gap-32 flex items-center justify-center h-2/3">
         <Icon
           name="hyperswitch-text-icon"

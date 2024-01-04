@@ -3,7 +3,7 @@ let p1MediumTextStyle = HSwitchUtils.getTextClass(~textVariant=P1, ~paragraphTex
 module RequestConnector = {
   @react.component
   let make = (~connectorList, ~setShowModal) => {
-    <UIUtils.RenderIf condition={connectorList->Js.Array2.length === 0}>
+    <UIUtils.RenderIf condition={connectorList->Array.length === 0}>
       <div
         className="flex flex-col gap-6 items-center justify-center w-full bg-white rounded-lg border p-8">
         <div className="mb-8 mt-4 max-w-full h-auto">
@@ -36,8 +36,8 @@ module NewProcessorCards = {
       : ConnectorUtils.connectorList
 
     let unConfiguredConnectors =
-      connectorsAvailableForIntegration->Js.Array2.filter(total =>
-        configuredConnectors->Js.Array2.find(item => item === total)->Belt.Option.isNone
+      connectorsAvailableForIntegration->Array.filter(total =>
+        configuredConnectors->Array.find(item => item === total)->Belt.Option.isNone
       )
 
     let (showModal, setShowModal) = React.useState(_ => false)
@@ -48,7 +48,7 @@ module NewProcessorCards = {
     let handleClick = connectorName => {
       RescriptReactRouter.push(`${urlPrefix}?name=${connectorName}`)
     }
-    let unConfiguredConnectorsCount = unConfiguredConnectors->Js.Array2.length
+    let unConfiguredConnectorsCount = unConfiguredConnectors->Array.length
 
     let handleSearch = event => {
       let val = ref(ReactEvent.Form.currentTarget(event)["value"])
@@ -86,7 +86,7 @@ module NewProcessorCards = {
             </div>
           </UIUtils.RenderIf>
         </div>
-        <UIUtils.RenderIf condition={connectorList->Js.Array2.length > 0}>
+        <UIUtils.RenderIf condition={connectorList->Array.length > 0}>
           <div
             className="grid gap-x-5 gap-y-6 2xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 mb-5">
             {connectorList
@@ -154,7 +154,7 @@ module NewProcessorCards = {
             </div>
           </UIUtils.RenderIf>
         </div>
-        <UIUtils.RenderIf condition={connectorList->Js.Array2.length > 0}>
+        <UIUtils.RenderIf condition={connectorList->Array.length > 0}>
           <div className="bg-white rounded-md flex gap-2 flex-wrap p-4 border">
             {connectorList
             ->Array.mapWithIndex((connector, i) => {
@@ -179,8 +179,8 @@ module NewProcessorCards = {
     }
 
     let connectorListFiltered = {
-      if searchedConnector->Js.String2.length > 0 {
-        connectorsAvailableForIntegration->Js.Array2.filter(item =>
+      if searchedConnector->String.length > 0 {
+        connectorsAvailableForIntegration->Array.filter(item =>
           item
           ->ConnectorUtils.getConnectorNameString
           ->Js.String2.includes(searchedConnector->Js.String2.toLowerCase)
@@ -244,12 +244,12 @@ let make = (~isPayoutFlow=false) => {
       let response = await fetchConnectorListResponse()
       let removeFromList = isPayoutFlow ? HSwitchUtils.PayoutConnector : HSwitchUtils.FRMPlayer
       let connectorsList = response->HSwitchUtils.getProcessorsListFromJson(~removeFromList, ())
-      let previousData = connectorsList->Js.Array2.map(ConnectorTableUtils.getProcessorPayloadType)
+      let previousData = connectorsList->Array.map(ConnectorTableUtils.getProcessorPayloadType)
 
-      setFilteredConnectorData(_ => previousData->Js.Array2.map(Js.Nullable.return))
-      setPreviouslyConnectedData(_ => previousData->Js.Array2.map(Js.Nullable.return))
+      setFilteredConnectorData(_ => previousData->Array.map(Js.Nullable.return))
+      setPreviouslyConnectedData(_ => previousData->Array.map(Js.Nullable.return))
       let arr =
-        connectorsList->Js.Array2.map(paymentMethod =>
+        connectorsList->Array.map(paymentMethod =>
           paymentMethod->getString("connector_name", "")->getConnectorNameTypeFromString
         )
       setConfiguredConnectors(_ => arr)
@@ -267,8 +267,8 @@ let make = (~isPayoutFlow=false) => {
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
     let (searchText, arr) = ob
-    let filteredList = if searchText->Js.String2.length > 0 {
-      arr->Js.Array2.filter((obj: Js.Nullable.t<ConnectorTypes.connectorPayload>) => {
+    let filteredList = if searchText->String.length > 0 {
+      arr->Array.filter((obj: Js.Nullable.t<ConnectorTypes.connectorPayload>) => {
         switch Js.Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.connector_name, searchText) ||
@@ -304,11 +304,11 @@ let make = (~isPayoutFlow=false) => {
         <RenderIf condition={showConnectorIcons}>
           <NewProcessorCards configuredConnectors showIcons={showConnectorIcons} isPayoutFlow />
         </RenderIf>
-        <RenderIf condition={configuredConnectors->Js.Array2.length > 0}>
+        <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Previously Connected"
             actualData=filteredConnectorData
-            totalResults={filteredConnectorData->Js.Array2.length}
+            totalResults={filteredConnectorData->Array.length}
             filters={<TableSearchFilter
               data={previouslyConnectedData}
               filterLogic
@@ -322,7 +322,7 @@ let make = (~isPayoutFlow=false) => {
             offset
             setOffset
             entity={ConnectorTableUtils.connectorEntity(`${entityPrefix}connectors`)}
-            currrentFetchCount={filteredConnectorData->Js.Array2.length}
+            currrentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false
           />
         </RenderIf>

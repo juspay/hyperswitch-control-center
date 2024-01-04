@@ -29,9 +29,7 @@ module CardRenderer = {
     ~connector,
   ) => {
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
-    let (selectedWallet, setSelectedWallet) = React.useState(_ =>
-      Js.Dict.empty()->itemProviderMapper
-    )
+    let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
     let selectedAll = isSelectedAll(paymentMethodsEnabled, provider, paymentMethod)
 
     let paymentObj = paymentMethodsEnabled->getSelectedPaymentObj(paymentMethod)
@@ -50,13 +48,13 @@ module CardRenderer = {
     let removeOrAddMethods = (method: paymentMethodConfigType) => {
       switch paymentMethod->getPaymentMethodFromString {
       | Card =>
-        if cardProviders->Js.Array2.some(obj => checkPaymentMethodType(obj, method)) {
+        if cardProviders->Array.some(obj => checkPaymentMethodType(obj, method)) {
           paymentMethodsEnabled->removeMethod(paymentMethod, method)->updateDetails
         } else {
           paymentMethodsEnabled->addMethod(paymentMethod, method)->updateDetails
         }
       | _ =>
-        if standardProviders->Js.Array2.some(obj => checkPaymentMethodType(obj, method)) {
+        if standardProviders->Array.some(obj => checkPaymentMethodType(obj, method)) {
           paymentMethodsEnabled->removeMethod(paymentMethod, method)->updateDetails
         } else {
           let methodVariant = method.payment_method_type->getPaymentMethodTypeFromString
@@ -77,7 +75,7 @@ module CardRenderer = {
 
     let updateSelectAll = (paymentMethod, isSelectedAll) => {
       let arr = isSelectedAll ? [] : provider
-      paymentMethodsEnabled->Js.Array2.forEach(val => {
+      paymentMethodsEnabled->Array.forEach(val => {
         if val.payment_method_type === paymentMethod {
           switch paymentMethod->getPaymentMethodTypeFromString {
           | Credit | Debit =>
@@ -100,10 +98,8 @@ module CardRenderer = {
     }
 
     let isSelected = selectedMethod => {
-      standardProviders->Js.Array2.some(obj => checkPaymentMethodType(obj, selectedMethod)) ||
-        cardProviders->Js.Array2.some(obj => checkPaymentMethodType(obj, selectedMethod))
-        ? true
-        : false
+      standardProviders->Array.some(obj => checkPaymentMethodType(obj, selectedMethod)) ||
+        cardProviders->Array.some(obj => checkPaymentMethodType(obj, selectedMethod))
     }
 
     let isNotVerifiablePaymentMethod = paymentMethodVariant => {
@@ -213,8 +209,7 @@ module PaymentMethodsRender = {
           : Window.getConnectorConfig(connector)
       )->getDictFromJsonObject
     }, [connector])
-    let keys =
-      pmts->Js.Dict.keys->Js.Array2.filter(val => !Js.Array2.includes(configKeysToIgnore, val))
+    let keys = pmts->Dict.keysToArray->Array.filter(val => !Array.includes(configKeysToIgnore, val))
 
     <div className="flex flex-col gap-12">
       {keys

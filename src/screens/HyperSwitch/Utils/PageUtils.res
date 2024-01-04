@@ -27,7 +27,7 @@ module PageHeading = {
       </div>
       {switch subTitle {
       | Some(text) =>
-        <UIUtils.RenderIf condition={text->Js.String2.length > 0}>
+        <UIUtils.RenderIf condition={text->String.length > 0}>
           <div className={`opacity-50 mt-2 ${customSubTitleStyle}`}> {text->React.string} </div>
         </UIUtils.RenderIf>
       | None => React.null

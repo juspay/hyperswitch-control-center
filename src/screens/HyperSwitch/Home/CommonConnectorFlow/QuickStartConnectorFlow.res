@@ -37,7 +37,7 @@ let make = (
 
   let handleSummaryProceed = () => {
     if (
-      connectorArray->Js.Array2.length === multipleConfigurationArrayLength &&
+      connectorArray->Array.length === multipleConfigurationArrayLength &&
         typedEnumValue.configurationType->connectorChoiceStringVariantMapper ===
           #MultipleProcessorWithSmartRouting
     ) {
@@ -49,7 +49,7 @@ let make = (
       setQuickStartPageState(_ => QuickStartTypes.ConnectProcessor(QuickStartTypes.CHECKOUT))
     } else {
       setSelectedConnector(_ => UnknownConnector(""))
-      setInitialValues(_ => Js.Dict.empty()->Js.Json.object_)
+      setInitialValues(_ => Dict.make()->Js.Json.object_)
       setConnectorConfigureState(_ => Select_processor)
       setQuickStartPageState(_ => ConnectProcessor(CONFIGURE_SECONDARY))
     }
@@ -114,7 +114,7 @@ let make = (
   React.useEffect1(() => {
     let defaultJsonOnNewConnector =
       [("profile_id", activeBusinessProfile.profile_id->Js.Json.string)]
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
       ->Js.Json.object_
     setInitialValues(_ => defaultJsonOnNewConnector)
     None

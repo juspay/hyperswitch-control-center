@@ -20,7 +20,7 @@ module CopyTextCustomComp = {
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
     }
 
-    if displayValue->Js.String2.length > 0 {
+    if displayValue->String.length > 0 {
       <div className=customParentClass>
         <div className=customTextCss> {displayValue->React.string} </div>
         <img
@@ -58,7 +58,7 @@ module BluredTableComponent = {
         ("status", "####"->Js.Json.string),
         ("amount", "####"->Js.Json.string),
         ("amount_capturable", "####"->Js.Json.string),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
 
     let dummyTableValue = Belt.Array.make(5, dummyTableValueDict)
 
@@ -75,7 +75,7 @@ module BluredTableComponent = {
         ->Array.mapWithIndex((value, index) => {
           <div className="flex gap-8 my-10 justify-between" key={index->string_of_int}>
             {value
-            ->Js.Dict.keys
+            ->Dict.keysToArray
             ->Array.mapWithIndex((tableVal, ind) =>
               <div
                 className="flex justify-center text-grey-700 opacity-50" key={ind->string_of_int}>

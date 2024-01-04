@@ -107,7 +107,7 @@ let countries: array<HyperSwitchTypes.country> = [
   },
 ]
 
-let isDefaultBusinessProfile = details => details->Js.Array2.length === 1
+let isDefaultBusinessProfile = details => details->Array.length === 1
 
 module MerchantAuthInfo = {
   @react.component
@@ -117,7 +117,7 @@ module MerchantAuthInfo = {
       [
         ("merchant_id", detail.merchant_id->Js.Json.string),
         ("publishable_key", detail.publishable_key->Js.Json.string),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
 
     <Form initialValues={dataDict->Js.Json.object_} formClass="md:ml-9 my-4">
       <div className="flex flex-col md:flex-row gap-3">
@@ -151,6 +151,7 @@ module CheckoutCard = {
   let make = () => {
     let fetchApi = AuthHooks.useApiFetcher()
     let showPopUp = PopUpState.useShowPopUp()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
@@ -179,6 +180,7 @@ module CheckoutCard = {
           },
         })
       } else {
+        mixpanelEvent(~eventName=`try_test_payment`, ())
         RescriptReactRouter.replace("/sdk")
       }
     }
@@ -268,6 +270,7 @@ module ControlCenter = {
 module DevResources = {
   @react.component
   let make = () => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     <div className="mb-5">
       <PageHeading
         title="Developer resources"
@@ -286,6 +289,7 @@ module DevResources = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
+                mixpanelEvent(~eventName=`dev_docs`, ())
                 "https://hyperswitch.io/docs"->Window._open
               }}
             />
@@ -303,6 +307,7 @@ module DevResources = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
+                mixpanelEvent(~eventName=`contribute_in_open_source`, ())
                 "https://github.com/juspay/hyperswitch"->Window._open
               }}
             />
@@ -371,12 +376,12 @@ let getValueMapped = (value, key) => {
 let responseDataMapper = (res: Js.Json.t) => {
   open LogicUtils
   let arrayFromJson = res->getArrayFromJson([])
-  let resDict = Js.Dict.empty()
+  let resDict = Dict.make()
 
-  arrayFromJson->Js.Array2.forEach(value => {
+  arrayFromJson->Array.forEach(value => {
     let value1 = value->getDictFromJsonObject
-    let key = value1->Js.Dict.keys->Belt.Array.get(0)->Belt.Option.getWithDefault("")
-    resDict->Js.Dict.set(key, value1->getValueMapped(key))
+    let key = value1->Dict.keysToArray->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+    resDict->Dict.set(key, value1->getValueMapped(key))
   })
   resDict
 }

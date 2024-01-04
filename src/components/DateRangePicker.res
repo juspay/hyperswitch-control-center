@@ -185,7 +185,7 @@ module Base = {
   ) => {
     open DateRangeUtils
     let (isCustomSelected, setIsCustomSelected) = React.useState(_ =>
-      predefinedDays->Js.Array2.length === 0
+      predefinedDays->Array.length === 0
     )
     let formatDateTime = showSeconds ? "MMM DD, YYYY HH:mm:ss" : "MMM DD, YYYY HH:mm"
     let (showOption, setShowOption) = React.useState(_ => false)
@@ -404,7 +404,7 @@ module Base = {
       | Some(_d) => Belt.Array.keep(clickedDates, x => x != str)
       | None => Belt.Array.concat(clickedDates, [str])
       }
-      let dat = data->Js.Array2.map(x => x)
+      let dat = data->Array.map(x => x)
       setClickedDates(_ => dat)
       changeStartDate(str, true, None)
     }
@@ -572,14 +572,14 @@ module Base = {
         DateRangeUtils.datetext(value, disableFutureDates)
         ->Js.String2.toLowerCase
         ->Js.String2.split(" ")
-        ->Js.Array2.joinWith("_")
+        ->Array.joinWith("_")
       )
       changeStartDate(stDate, false, Some(stTime))
       changeEndDate(enDate, false, Some(enTime))
     }
 
     let handleDropdownClick = () => {
-      if predefinedDays->Js.Array2.length > 0 {
+      if predefinedDays->Array.length > 0 {
         if calendarVisibility {
           setCalendarVisibility(_ => false)
           setShowOption(_ => !isDropdownExpanded)
@@ -634,7 +634,7 @@ module Base = {
 
     let btnStyle = customButtonStyle->Belt.Option.getWithDefault("")
 
-    let customStyleForBtn = btnStyle->Js.String2.length > 0 ? btnStyle : ""
+    let customStyleForBtn = btnStyle->String.length > 0 ? btnStyle : ""
 
     let timeVisibilityClass = showTime ? "block" : "hidden"
 
@@ -665,7 +665,7 @@ module Base = {
       getStartEndDiff(startTimestamp, endTimestamp)
     }
 
-    let predefinedOptionSelected = predefinedDays->Js.Array2.find(item => {
+    let predefinedOptionSelected = predefinedDays->Array.find(item => {
       let startDate = convertTimeStamp(
         ~isoStringToCustomTimeZone,
         startDateVal,
@@ -683,7 +683,7 @@ module Base = {
     let filteredPredefinedDays = {
       switch dateRangeLimit {
       | Some(limit) =>
-        predefinedDays->Js.Array2.filter(item => {
+        predefinedDays->Array.filter(item => {
           getDiffForPredefined(item) <=
           (limit->Belt.Float.fromInt *. 24. *. 60. *. 60. -. 1.) *. 1000.
         })
@@ -727,11 +727,11 @@ module Base = {
 
     let calendarElement =
       <div className={`flex md:flex-row flex-col w-full`}>
-        {if predefinedDays->Js.Array2.length > 0 && showOption {
+        {if predefinedDays->Array.length > 0 && showOption {
           <AddDataAttributes attributes=[("data-date-picker-predifined", "predefined-options")]>
             <div className="flex flex-wrap md:flex-col">
               {filteredPredefinedDays
-              ->Js.Array2.mapi((value, i) => {
+              ->Array.mapWithIndex((value, i) => {
                 <div
                   key={i->string_of_int}
                   className="w-1/3 md:w-full md:min-w-max text-center md:text-start">

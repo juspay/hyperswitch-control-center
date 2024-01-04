@@ -54,13 +54,13 @@ let pageStateMapper = pageType => {
 }
 
 let constuctAlgorithmValue = rules => {
-  let defaultSelection = [("override_3ds", Js.Json.null)]->Js.Dict.fromArray
+  let defaultSelection = [("override_3ds", Js.Json.null)]->Dict.fromArray
 
   let algorithm =
     [
       ("defaultSelection", defaultSelection->Js.Json.object_),
       ("rules", rules->Js.Json.array),
-    ]->Js.Dict.fromArray
+    ]->Dict.fromArray
 
   algorithm
 }
@@ -81,7 +81,7 @@ let buildThreeDsPayloadBody = values => {
         "override_3ds": null,
       },
       "rules": modifiedRules,
-      "metadata": Js.Dict.empty()->Js.Json.object_,
+      "metadata": Dict.make()->Js.Json.object_,
     },
   }
 

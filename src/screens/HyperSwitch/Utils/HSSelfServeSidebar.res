@@ -24,11 +24,11 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
   }
 
   let completedSteps =
-    sidebarOptions->Js.Array2.filter(sidebarOption => sidebarOption.status === COMPLETED)
+    sidebarOptions->Array.filter(sidebarOption => sidebarOption.status === COMPLETED)
 
   let completedPercentage =
-    (completedSteps->Js.Array2.length->Belt.Int.toFloat /.
-    sidebarOptions->Js.Array2.length->Belt.Int.toFloat *. 100.0)->Belt.Float.toInt
+    (completedSteps->Array.length->Belt.Int.toFloat /.
+    sidebarOptions->Array.length->Belt.Int.toFloat *. 100.0)->Belt.Float.toInt
 
   <div className="w-22.7-rem h-screen bg-white shadow-sm">
     <div className="p-6 flex flex-col gap-3">
@@ -82,7 +82,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
           condition={sidebarOption.status === ONGOING && subOptionsArray->Array.length > 0}>
           <div className="my-4">
             {subOptionsArray
-            ->Js.Array2.mapi((subOption, i) => {
+            ->Array.mapWithIndex((subOption, i) => {
               let (subIcon, subIconColor, subBackground, subFont) = switch subOption.status {
               | COMPLETED => ("check", "green", "", "text-gray-600")
               | PENDING => ("nonselected", "text-gray-100", "", "text-gray-400")

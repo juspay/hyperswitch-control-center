@@ -3,7 +3,7 @@ open APIUtils
 let make = (~remainingPath, ~previewOnly=false) => {
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
-  let pathVar = url.path->Belt.List.toArray->Js.Array2.joinWith("/")
+  let pathVar = url.path->Belt.List.toArray->Array.joinWith("/")
 
   let (records, setRecords) = React.useState(_ => [])
   let (activeRoutingIds, setActiveRoutingIds) = React.useState(_ => [])
@@ -23,7 +23,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
       {
         title: "Manage rules",
         renderContent: () => {
-          records->Js.Array2.length > 0
+          records->Array.length > 0
             ? <History records activeRoutingIds />
             : <DefaultLandingPage
                 height="90%"
@@ -53,7 +53,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         ->Js.Json.decodeArray
         ->Belt.Option.getWithDefault([])
         ->Belt.Array.keepMap(Js.Json.decodeObject)
-        ->Js.Array2.map(HistoryEntity.itemToObjMapper)
+        ->Array.map(HistoryEntity.itemToObjMapper)
 
       // To sort the data in a format that active routing always comes at top of the table
       // For ref:https://rescript-lang.org/docs/manual/latest/api/js/array-2#sortinplacewith
@@ -61,15 +61,15 @@ let make = (~remainingPath, ~previewOnly=false) => {
       let sortedHistoryRecords =
         recordsData
         ->Js.Array2.sortInPlaceWith((item1, item2) => {
-          if activeIds->Js.Array2.includes(item1.id) {
+          if activeIds->Array.includes(item1.id) {
             -1
-          } else if activeIds->Js.Array2.includes(item2.id) {
+          } else if activeIds->Array.includes(item2.id) {
             1
           } else {
             0
           }
         })
-        ->Js.Array2.map(Js.Nullable.return)
+        ->Array.map(Js.Nullable.return)
 
       setRecords(_ => sortedHistoryRecords)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -91,9 +91,9 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
       let routingArr = routingJson->getArrayFromJson([])
 
-      if routingArr->Js.Array2.length > 0 {
+      if routingArr->Array.length > 0 {
         let currentActiveIds = []
-        routingArr->Js.Array2.forEach(ele => {
+        routingArr->Array.forEach(ele => {
           let id = ele->getDictFromJsonObject->getString("id", "")
           currentActiveIds->Array.push(id)
         })
@@ -102,7 +102,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         setRoutingType(_ => routingArr)
       } else {
         await fetchRoutingRecords([])
-        let defaultFallback = [("kind", "default"->Js.Json.string)]->Js.Dict.fromArray
+        let defaultFallback = [("kind", "default"->Js.Json.string)]->Dict.fromArray
         setRoutingType(_ => [defaultFallback->Js.Json.object_])
         setScreenState(_ => PageLoaderWrapper.Success)
       }
