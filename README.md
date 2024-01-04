@@ -397,6 +397,6 @@ Welcome to the standard process for raising a Pull Request (PR) directly from a 
 
 ## License
 
-This project is open-source and available under the MIT License.
+This project is open-source and available under the Apache 2.0 license.
 
 ---
