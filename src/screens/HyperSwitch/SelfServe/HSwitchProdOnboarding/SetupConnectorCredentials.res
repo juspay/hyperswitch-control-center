@@ -18,7 +18,7 @@ module ConnectorDetailsForm = {
     let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
 
     let (
-      bodyType,
+      _,
       connectorAccountFields,
       connectorMetaDataFields,
       _,
@@ -50,7 +50,6 @@ module ConnectorDetailsForm = {
         selectedConnector
         connectorMetaDataFields
         connectorWebHookDetails
-        bodyType
         connectorLabelDetailField
       />
       <ConnectorAccountDetailsHelper.VerifyConnectorModal
@@ -245,7 +244,6 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
 
     validateConnectorRequiredFields(
-      bodyType,
       connectorName->getConnectorNameTypeFromString,
       valuesFlattenJson,
       connectorAccountFields,

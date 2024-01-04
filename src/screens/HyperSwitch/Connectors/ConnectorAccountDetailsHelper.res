@@ -150,39 +150,131 @@ module RenderConnectorInputFields = {
   }
 }
 
-module CurrencyAuthKey = {
+module CashToCodeSelectBox = {
+  open ConnectorTypes
   @react.component
-  let make = (~dict, ~connector, ~selectedConnector: ConnectorTypes.integrationFields) => {
+  let make = (
+    ~opts: array<string>,
+    ~dict,
+    ~selectedCashToCodeMthd: cashToCodeMthd,
+    ~connector,
+    ~selectedConnector,
+  ) => {
     open LogicUtils
-    dict
-    ->Dict.keysToArray
-    ->Array.mapWithIndex((country, index) => {
-      <Accordion
-        key={index->string_of_int}
-        initialExpandedArray={index == 0 ? [0] : []}
-        accordion={[
-          {
-            title: country->snakeToTitle,
-            renderContent: () => {
-              <div className="grid gap-5">
-                <RenderConnectorInputFields
-                  details={dict->getDictfromDict(country)}
-                  name={`connector_account_details.auth_key_map.${country}`}
-                  connector
-                  selectedConnector
-                />
-              </div>
-            },
-            renderContentOnTop: None,
-          },
-        ]}
-        accordianTopContainerCss="border"
-        accordianBottomContainerCss="p-5"
-        contentExpandCss="px-10 pb-6 pt-3 !border-t-0"
-        titleStyle="font-semibold text-bold text-md"
-      />
+    let p2RegularTextStyle = `${HSwitchUtils.getTextClass(
+        ~textVariant=P2,
+        ~paragraphTextVariant=Medium,
+        (),
+      )} text-grey-700 opacity-50`
+    let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
+    let (country, setSelectedCountry) = React.useState(_ => "")
+    let selectedCountry = country => {
+      setShowWalletConfigurationModal(_ => !showWalletConfigurationModal)
+      setSelectedCountry(_ => country)
+    }
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+    )
+
+    let isSelected = (country): bool => {
+      let formValues =
+        formState.values
+        ->getDictFromJsonObject
+        ->getDictfromDict("connector_account_details")
+        ->getDictfromDict("auth_key_map")
+        ->getDictfromDict(country)
+
+      let wasmValues =
+        dict
+        ->getDictfromDict(country)
+        ->getDictfromDict(
+          (selectedCashToCodeMthd: cashToCodeMthd :> string)->Js.String2.toLowerCase,
+        )
+        ->Dict.keysToArray
+
+      wasmValues
+      ->Array.find(ele => formValues->getString(ele, "")->Js.String2.length <= 0)
+      ->Belt.Option.isNone
+    }
+
+    <div>
+      {opts
+      ->Array.map(country => {
+        <div className="flex items-center gap-2 break-words p-2">
+          <div onClick={_e => selectedCountry(country)}>
+            <CheckBoxIcon isSelected={country->isSelected} />
+          </div>
+          <p className=p2RegularTextStyle> {React.string(country->snakeToTitle)} </p>
+        </div>
+      })
+      ->React.array}
+      <Modal
+        modalHeading={`Additional Details to enable`}
+        headerTextClass="text-blue-800 font-bold text-xl"
+        showModal={showWalletConfigurationModal}
+        setShowModal={setShowWalletConfigurationModal}
+        paddingClass=""
+        revealFrom=Reveal.Right
+        modalClass="w-full p-4 md:w-1/3 !h-full overflow-y-scroll !overflow-x-hidden rounded-none text-jp-gray-900"
+        childClass={""}>
+        <div>
+          <RenderConnectorInputFields
+            details={dict
+            ->getDictfromDict(country)
+            ->getDictfromDict(
+              (selectedCashToCodeMthd: cashToCodeMthd :> string)->Js.String2.toLowerCase,
+            )}
+            name={`connector_account_details.auth_key_map.${country}`}
+            connector
+            selectedConnector
+          />
+          <div className="flex flex-col justify-center mt-4">
+            <Button
+              text={"Proceed"}
+              buttonType=Primary
+              onClick={_ => setShowWalletConfigurationModal(_ => false)}
+            />
+          </div>
+        </div>
+      </Modal>
+    </div>
+  }
+}
+
+module CashToCodeMethods = {
+  open ConnectorTypes
+  @react.component
+  let make = (~connectorAccountFields, ~selectedConnector, ~connector) => {
+    open ConnectorUtils
+    let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
+    let (selectedCashToCodeMthd, setCashToCodeMthd) = React.useState(_ => #Classic)
+    let tabs = [#Classic, #Evoucher]
+
+    let tabList: array<Tabs.tab> = tabs->Array.map(tab => {
+      let tab: Tabs.tab = {
+        title: (tab: cashToCodeMthd :> string),
+        renderContent: () =>
+          <CashToCodeSelectBox
+            opts={dict->Dict.keysToArray}
+            dict={dict}
+            selectedCashToCodeMthd
+            connector
+            selectedConnector
+          />,
+      }
+      tab
     })
-    ->React.array
+    <Tabs
+      tabs=tabList
+      disableIndicationArrow=true
+      showBorder=false
+      includeMargin=false
+      lightThemeColor="black"
+      defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
+      onTitleClick={tabIndex => {
+        setCashToCodeMthd(_ => tabs->LogicUtils.getValueFromArray(tabIndex, #Classic))
+      }}
+    />
   }
 }
 
@@ -195,15 +287,13 @@ module ConnectorConfigurationFields = {
     ~selectedConnector: integrationFields,
     ~connectorMetaDataFields,
     ~connectorWebHookDetails,
-    ~bodyType: string,
     ~isUpdateFlow=false,
     ~connectorLabelDetailField,
   ) => {
     open ConnectorUtils
     <div className="flex flex-col">
-      {if bodyType->mapAuthType == #CurrencyAuthKey {
-        let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
-        <CurrencyAuthKey dict connector selectedConnector />
+      {if connector === CASHTOCODE {
+        <CashToCodeMethods connectorAccountFields connector selectedConnector />
       } else {
         <RenderConnectorInputFields
           details={connectorAccountFields}
