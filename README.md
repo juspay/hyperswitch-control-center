@@ -86,6 +86,10 @@ The `business_profile` feature flag enables the ability to create multiple busin
 
 The `mixpanel` feature flag controls the collection and transmission of anonymous usage data to Mixpanel for analytics. When enabled, the dashboard will automatically send information about user actions and events to Mixpanel without collecting any personally identifiable information.
 
+#### MixpanelSDK
+
+The `mixpanelSdk` feature flag controls the means by which data is sent to Mixpanel, either via SDK or REST API.
+
 #### Verify Connector
 
 The `verify_connector` feature flag enables connector validation when adding new payment processors. When enabled, this will perform a test API call to the processor after entering credentials to verify connectivity. This helps catch any issues with the integration or credentials before attempting to process live payments.
