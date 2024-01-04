@@ -1,4 +1,4 @@
-type gateway = PriorityLogicUtils.gateway
+type gateway = AdvancedRoutingTypes.volumeSplitConnectorSelectionData
 
 module GatewayView = {
   @react.component
@@ -6,22 +6,20 @@ module GatewayView = {
     <div className="flex flex-wrap gap-4 items-center">
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {
-        <AddDataAttributes attributes=[("data-plc-text", ruleGateway.gateway_name)]>
-          <div
-            key={Belt.Int.toString(index)}
-            className="my-2 h-6 md:h-8 flex items-center rounded-md  border border-jp-gray-500 dark:border-jp-gray-960 font-medium
+        <div
+          key={Belt.Int.toString(index)}
+          className="my-2 h-6 md:h-8 flex items-center rounded-md  border border-jp-gray-500 dark:border-jp-gray-960 font-medium
                             text-blue-800 hover:text-blue-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 
                             dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1">
-            {React.string(ruleGateway.gateway_name)}
-            {if ruleGateway.distribution !== 100 {
-              <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
-                {React.string(ruleGateway.distribution->string_of_int ++ "%")}
-              </span>
-            } else {
-              React.null
-            }}
-          </div>
-        </AddDataAttributes>
+          {React.string(ruleGateway.connector.connector)}
+          {if ruleGateway.split !== 100 {
+            <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
+              {React.string(ruleGateway.split->string_of_int ++ "%")}
+            </span>
+          } else {
+            React.null
+          }}
+        </div>
       })
       ->React.array}
     </div>
@@ -61,19 +59,15 @@ let make = (
       ->Js.Json.decodeObject
       ->Belt.Option.flatMap(dict => {
         let obj: gateway = {
-          gateway_name: dict->LogicUtils.getString("gateway_name", ""),
-          distribution: dict->LogicUtils.getInt("distribution", 100),
-          disableFallback: dict->LogicUtils.getBool("disableFallback", false),
+          connector: {
+            connector: "",
+            merchant_connector_id: "",
+          },
+          split: dict->LogicUtils.getInt("split", 100),
         }
         Some(obj)
       })
     )
-
-  let getDisableFallback = item => {
-    selectedOptions
-    ->Array.find(str => str.gateway_name === item)
-    ->Belt.Option.mapWithDefault(false, item => item.disableFallback)
-  }
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "gateways",
@@ -91,9 +85,11 @@ let make = (
             sharePercent
           }
           let obj: gateway = {
-            gateway_name: item,
-            distribution: sharePercent,
-            disableFallback: getDisableFallback(item),
+            connector: {
+              connector: "",
+              merchant_connector_id: item,
+            },
+            split: sharePercent,
           }
           obj
         })
@@ -101,30 +97,15 @@ let make = (
       }
     },
     onFocus: _ev => (),
-    value: selectedOptions->Array.map(i => i.gateway_name->Js.Json.string)->Js.Json.array,
+    value: selectedOptions->Array.map(i => i.connector.connector->Js.Json.string)->Js.Json.array,
     checked: true,
   }
-
-  let onClickFallback = newFallbackValue => {
-    if isDistribute {
-      selectedOptions
-      ->Array.map(item => {...item, disableFallback: newFallbackValue})
-      ->Identity.anyTypeToReactEvent
-      ->gateWaysInput.onChange
-    }
-  }
-  React.useEffect1(_ => {
-    if selectedOptions->Array.length < 2 {
-      onClickFallback(false)
-    }
-    None
-  }, [selectedOptions->Array.length])
 
   let updatePercentage = (item: gateway, value) => {
     if value < 100 {
       let newList = selectedOptions->Array.map(option => {
-        if option.gateway_name === item.gateway_name {
-          {...option, distribution: value}
+        if option.connector.connector === item.connector.connector {
+          {...option, split: value}
         } else {
           option
         }
@@ -136,7 +117,7 @@ let make = (
   let removeItem = index => {
     input.onChange(
       selectedOptions
-      ->Array.map(i => i.gateway_name)
+      ->Array.map(i => i.connector.connector)
       ->Array.filterWithIndex((_, i) => i !== index)
       ->Identity.anyTypeToReactEvent,
     )
@@ -180,7 +161,7 @@ let make = (
           {selectedOptions
           ->Array.mapWithIndex((item, i) => {
             let key = string_of_int(i + 1)
-            <AddDataAttributes key attributes=[("data-gateway-button", item.gateway_name)]>
+            <AddDataAttributes key attributes=[("data-gateway-button", item.connector.connector)]>
               {<div className="flex flex-row">
                 <div
                   className="w-min flex flex-row items-center justify-around gap-2 h-10 rounded-md  border border-jp-gray-500 dark:border-jp-gray-960
@@ -191,7 +172,7 @@ let make = (
                   <AddDataAttributes attributes=[("data-gateway-count", key)]>
                     <NewThemeUtils.Badge number={i + 1} />
                   </AddDataAttributes>
-                  <div> {item.gateway_name->gatewayName->React.string} </div>
+                  <div> {item.connector.connector->gatewayName->React.string} </div>
                   <Icon
                     name="close"
                     size=10
@@ -213,7 +194,7 @@ let make = (
                             val->Belt.Int.fromString->Belt.Option.getWithDefault(0),
                           )
                         }}
-                        value={item.distribution->Belt.Int.toString}
+                        value={item.split->Belt.Int.toString}
                         type_="text"
                         inputMode="text"
                       />
