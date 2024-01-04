@@ -71,16 +71,19 @@ let useSendEvent = () => {
     let merchantId = getFromMerchantDetails("merchant_id")
 
     if featureFlagDetails.mixPanel {
-      MixPanel.track(
-        eventName,
-        {
-          "email": email->parseEmail,
-          "merchantId": merchantId,
-          "environment": environment,
-          "description": description,
-        },
-      )
-      trackApi(~email={email->parseEmail}, ~merchantId, ~description, ~event={eventName})->ignore
+      if featureFlagDetails.mixpanelSdk {
+        MixPanel.track(
+          eventName,
+          {
+            "email": email->parseEmail,
+            "merchantId": merchantId,
+            "environment": environment,
+            "description": description,
+          },
+        )
+      } else {
+        trackApi(~email={email->parseEmail}, ~merchantId, ~description, ~event={eventName})->ignore
+      }
     }
   }
 }
