@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.19.2 (2024-01-04)
+
+### Bug Fixes
+
+- Disputes api change ([#162](https://github.com/juspay/hyperswitch-control-center/pull/162)) ([`17e4c8a`](https://github.com/juspay/hyperswitch-control-center/commit/17e4c8a013c3934c192f8ae7303db501d1e2c19f))
+- Connector list fix for search live ([#164](https://github.com/juspay/hyperswitch-control-center/pull/164)) ([`24e1cef`](https://github.com/juspay/hyperswitch-control-center/commit/24e1cef2010c77cf69e80bfb54fd34acbc00fafd))
+- Email issue in mixpanel capture ([#163](https://github.com/juspay/hyperswitch-control-center/pull/163)) ([`c2ff8a9`](https://github.com/juspay/hyperswitch-control-center/commit/c2ff8a9f610b0a1874435e977f3f3a48a5a1b0e1))
+- Cashtocode update flow ([#148](https://github.com/juspay/hyperswitch-control-center/pull/148)) ([`c17b466`](https://github.com/juspay/hyperswitch-control-center/commit/c17b46692e7f723a8680b5b1cecd7bf383e536c8))
+
+**Full Changelog:** [`v1.19.1...v1.19.2`](https://github.com/juspay/hyperswitch-control-center/compare/v1.19.1...v1.19.2)
+
+- - -
+
+
 ## 1.19.1 (2024-01-03)
 
 ### Bug Fixes
