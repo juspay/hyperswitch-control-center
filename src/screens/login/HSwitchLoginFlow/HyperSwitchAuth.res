@@ -116,9 +116,9 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let logMixpanelEvents = _ => {
     open HyperSwitchAuthTypes
     switch authType {
-    | LoginWithPassword => mixpanelEvent(~eventName=`signin_using_email&password`, ())
-    | LoginWithEmail => mixpanelEvent(~eventName=`signin_using_magic_link`, ())
-    | SignUP => mixpanelEvent(~eventName=`signup_using_magic_link`, ())
+    | LoginWithPassword => mixpanelEvent(~eventName=`signin_using_email&password`, ~email, ())
+    | LoginWithEmail => mixpanelEvent(~eventName=`signin_using_magic_link`, ~email, ())
+    | SignUP => mixpanelEvent(~eventName=`signup_using_magic_link`, ~email, ())
     | _ => ()
     }
   }
