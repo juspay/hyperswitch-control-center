@@ -319,11 +319,11 @@ let make = (
 
       setInitialValues(_ => res)
       let connectorId = res->getDictFromJsonObject->getString("merchant_connector_id", "")
+      setConnectorId(_ => connectorId)
+      setScreenState(_ => Success)
       if !isUpdateFlow {
         RescriptReactRouter.push(`/connectors/new?name=paypal&connectorId=${connectorId}`)
       }
-      setConnectorId(_ => connectorId)
-      setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
         setShowVerifyModal(_ => false)
@@ -392,10 +392,10 @@ let make = (
     if isRedirectedFromPaypalModal {
       getStatus()->ignore
     }
+    setSetupAccountStatus(._ => Account_not_found)
     if !isUpdateFlow {
       RescriptReactRouter.replace("/connectors/new?name=paypal")
     }
-    setSetupAccountStatus(._ => Account_not_found)
     None
   })
 
