@@ -160,3 +160,8 @@ let generatePayPalBody = (~returnUrl=None, ~connectorId, ~profileId=None, ()) =>
     ]->LogicUtils.getJsonFromArrayOfJson
   }
 }
+
+let conditionForIntegrationSteps: array<PayPalFlowTypes.setupAccountStatus> = [
+  Account_not_found,
+  Redirecting_to_paypal,
+]

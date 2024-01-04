@@ -242,6 +242,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
         setVerifyDone
         handleStateToNextPage
         connectorLabelDetailField
+        showModal
       />
     | _ =>
       <Form

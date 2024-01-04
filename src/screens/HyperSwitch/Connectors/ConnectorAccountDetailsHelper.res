@@ -395,7 +395,13 @@ module VerifyConnectorModal = {
 // Wraps the component with Connector Icon + ConnectorName + Integration Steps Modal
 module ConnectorHeaderWrapper = {
   @react.component
-  let make = (~children, ~headerButton, ~connector, ~setShowModal) => {
+  let make = (
+    ~children,
+    ~headerButton,
+    ~connector,
+    ~setShowModal,
+    ~conditionForIntegrationSteps=true,
+  ) => {
     open ConnectorUtils
     <>
       <div className="flex items-center justify-between border-b p-2 md:px-10 md:py-6">
@@ -409,7 +415,7 @@ module ConnectorHeaderWrapper = {
           <UIUtils.RenderIf
             condition={connectorsWithIntegrationSteps->Array.includes(
               connector->getConnectorNameTypeFromString,
-            )}>
+            ) && conditionForIntegrationSteps}>
             <a
               className={`flex cursor-pointer px-4 py-3 flex text-sm text-blue-900 items-center mx-4`}
               target="_blank"

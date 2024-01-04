@@ -256,16 +256,17 @@ let make = (
   ~setVerifyDone,
   ~handleStateToNextPage,
   ~connectorLabelDetailField,
+  ~showModal,
 ) => {
   open APIUtils
-
+  open LogicUtils
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
 
   let connectorValue = isUpdateFlow
     ? url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
     : url.search
-      ->LogicUtils.getDictFromUrlSearchParams
+      ->getDictFromUrlSearchParams
       ->Dict.get("connectorId")
       ->Belt.Option.getWithDefault("")
 
@@ -273,10 +274,10 @@ let make = (
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let isRedirectedFromPaypalModal =
     url.search
-    ->LogicUtils.getDictFromUrlSearchParams
+    ->getDictFromUrlSearchParams
     ->Dict.get("is_back")
     ->Belt.Option.getWithDefault("")
-    ->LogicUtils.getBoolFromString(false)
+    ->getBoolFromString(false)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuartionType, setConfigurationType) = React.useState(_ => PayPalFlowTypes.NotSelected)
@@ -295,8 +296,7 @@ let make = (
     open PayPalFlowUtils
     try {
       setScreenState(_ => Loading)
-      let profileIdValue =
-        values->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
+      let profileIdValue = values->getDictFromJsonObject->getString("profile_id", "")
       let body = generateConnectorPayloadPayPal(
         ~profileId=profileIdValue,
         ~connectorId,
@@ -305,7 +305,7 @@ let make = (
         ~configuartionType,
         ~setupAccountStatus,
         ~connectorLabel={
-          values->LogicUtils.getDictFromJsonObject->LogicUtils.getString("connector_label", "")
+          values->getDictFromJsonObject->getString("connector_label", "")
         },
       )
 
@@ -318,8 +318,7 @@ let make = (
       let res = await updateDetails(url, body, Post)
 
       setInitialValues(_ => res)
-      let connectorId =
-        res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("merchant_connector_id", "")
+      let connectorId = res->getDictFromJsonObject->getString("merchant_connector_id", "")
       if !isUpdateFlow {
         RescriptReactRouter.push(`/connectors/new?name=paypal&connectorId=${connectorId}`)
       }
@@ -359,11 +358,9 @@ let make = (
 
   let getStatus = async () => {
     open PayPalFlowUtils
-    open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let profileId =
-        initialValues->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
+      let profileId = initialValues->getDictFromJsonObject->getString("profile_id", "")
       let paypalBody = PayPalFlowUtils.generatePayPalBody(
         ~connectorId={connectorId},
         ~profileId=Some(profileId),
@@ -405,7 +402,7 @@ let make = (
   let validateMandatoryFieldForPaypal = values => {
     let errors = Dict.make()
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
-    let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
+    let profileId = valuesFlattenJson->getString("profile_id", "")
     if profileId->Js.String2.length === 0 {
       Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
     }
@@ -429,16 +426,16 @@ let make = (
       | NotSelected => {
           let authType =
             initialValues
-            ->LogicUtils.getDictFromJsonObject
-            ->LogicUtils.getDictfromDict("connector_account_details")
-            ->LogicUtils.getString("auth_type", "")
+            ->getDictFromJsonObject
+            ->getDictfromDict("connector_account_details")
+            ->getString("auth_type", "")
             ->Js.String2.toLowerCase
             ->ConnectorUtils.mapAuthType
 
           let temporaryAuthDict =
-            [("auth_type", "TemporaryAuth"->Js.Json.string)]->LogicUtils.getJsonFromArrayOfJson
+            [("auth_type", "TemporaryAuth"->Js.Json.string)]->getJsonFromArrayOfJson
 
-          let dictOfInitialValues = values->LogicUtils.getDictFromJsonObject
+          let dictOfInitialValues = values->getDictFromJsonObject
 
           setSetupAccountStatus(._ => Manual_setup_flow)
           if isUpdateFlow && authType === #SignatureKey {
@@ -450,7 +447,7 @@ let make = (
       | Automatic => handleConnector(values)->ignore
       }
     | Manual_setup_flow => {
-        let dictOfInitialValues = values->LogicUtils.getDictFromJsonObject
+        let dictOfInitialValues = values->getDictFromJsonObject
         dictOfInitialValues->Dict.set("disabled", false->Js.Json.boolean)
         dictOfInitialValues->Dict.set("status", "active"->Js.Json.string)
         setInitialValues(_ => dictOfInitialValues->Js.Json.object_)
@@ -476,7 +473,12 @@ let make = (
       <Form initialValues validate={validateMandatoryFieldForPaypal} onSubmit={handleOnSubmit}>
         <div className="">
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
-            connector headerButton={proceedButton} setShowModal>
+            connector
+            headerButton={proceedButton}
+            setShowModal
+            conditionForIntegrationSteps={!(
+              PayPalFlowUtils.conditionForIntegrationSteps->Array.includes(setupAccountStatus)
+            )}>
             <div className="flex flex-col gap-2 p-2 md:p-10">
               {switch setupAccountStatus {
               | Account_not_found =>
@@ -506,6 +508,7 @@ let make = (
                 <ErrorPage setupAccountStatus actionUrl getStatus setScreenState />
               | _ => React.null
               }}
+              <IntegrationHelp.Render connector setShowModal showModal />
             </div>
             <FormValuesSpy />
           </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
