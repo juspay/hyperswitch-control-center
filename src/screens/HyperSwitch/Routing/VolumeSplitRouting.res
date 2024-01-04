@@ -28,7 +28,6 @@ module VolumeRoutingView = {
     let connectorList = React.useMemo0(() => {
       connectorListJson->safeParse->ConnectorTableUtils.getArrayOfConnectorListPayloadType
     })
-
     let initalValue = switch initialRule {
     | Some(initialRule) => initialRule
     | None => Js.Dict.empty()
@@ -91,44 +90,6 @@ module VolumeRoutingView = {
       }
     }
 
-    let validate = (values: Js.Json.t) => {
-      let errors = Js.Dict.empty()
-      let dict = values->getDictFromJsonObject
-      let validateGateways = dict => {
-        let gateways = dict->getArrayFromDict("gateways", [])
-        if gateways->Js.Array2.length === 0 {
-          Some("Need atleast 1 Gateway")
-        } else {
-          let distributionPercentages = gateways->Belt.Array.keepMap(json => {
-            json->Js.Json.decodeObject->Belt.Option.flatMap(getOptionFloat(_, "distribution"))
-          })
-          let distributionPercentageSum =
-            distributionPercentages->Array.reduce(0., (sum, distribution) => sum +. distribution)
-          let hasZero = distributionPercentages->Js.Array2.some(ele => ele === 0.)
-          let isDistributeChecked = !(distributionPercentages->Js.Array2.some(ele => ele === 100.0))
-
-          let isNotValid =
-            isDistributeChecked &&
-            (distributionPercentageSum > 100. || hasZero || distributionPercentageSum !== 100.)
-
-          if isNotValid {
-            Some("Distribution Percent not correct")
-          } else {
-            None
-          }
-        }
-      }
-
-      let volumeBasedDistributionDict =
-        dict->getObj("json", Js.Dict.empty())->getObj("volumeBasedDistribution", Js.Dict.empty())
-
-      switch volumeBasedDistributionDict->validateGateways {
-      | Some(error) => errors->Js.Dict.set("Volume Based Distribution", error->Js.Json.string)
-      | None => ()
-      }
-
-      errors->Js.Json.object_
-    }
     let handleActivateConfiguration = async activatingId => {
       try {
         setScreenState(_ => Loading)
@@ -209,45 +170,45 @@ module VolumeRoutingView = {
       <div className="flex w-full flex-start">
         {switch pageState {
         | Create =>
-          <Form
-            onSubmit={(values, _) => onSubmit(values, true)}
-            validate
-            initialValues={initalValue->Js.Json.object_}>
-            <div className="flex flex-col gap-4">
-              {listLength > 0
-                ? <>
-                    <AddPLGateway
-                      id="json.volumeBasedDistribution"
-                      gatewayOptions={connectorOptions}
-                      isExpanded={true}
-                      isFirst={true}
-                      showPriorityIcon={false}
-                      showDistributionIcon={false}
-                      showFallbackIcon={false}
-                      dropDownButtonText="Add Processors"
-                      connectorList
-                    />
-                    <ConfigureRuleButton setShowModal isConfigButtonEnabled />
-                    <CustomModal.RoutingCustomModal
-                      showModal
-                      setShowModal
-                      cancelButton={<FormRenderer.SubmitButton
-                        text="Save Rule"
-                        buttonSize=Button.Small
-                        buttonType=Button.Secondary
-                        customSumbitButtonStyle="w-1/5 rounded-lg"
-                        tooltipWidthClass="w-48"
-                      />}
-                      submitButton={<SaveAndActivateButton onSubmit handleActivateConfiguration />}
-                      headingText="Activate Current Configuration?"
-                      subHeadingText="Activating the current configuration will override the current active configuration. Alternatively, save this configuration to access / activate it later from the configuration history. Please confirm."
-                      leftIcon="hswitch-warning"
-                    />
-                  </>
-                : <NoDataFound message="Please configure atleast 1 connector" renderType=InfoBox />}
-            </div>
-            <FormValuesSpy />
-          </Form>
+          // <Form
+          //   onSubmit={(values, _) => onSubmit(values, true)}
+          //   validate
+          //   initialValues={initalValue->Js.Json.object_}>
+          <div className="flex flex-col gap-4">
+            {listLength > 0
+              ? <>
+                  <AddPLGateway
+                    id="json.volumeBasedDistribution"
+                    gatewayOptions={connectorOptions}
+                    isExpanded={true}
+                    isFirst={true}
+                    showPriorityIcon={false}
+                    showDistributionIcon={false}
+                    showFallbackIcon={false}
+                    dropDownButtonText="Add Processors"
+                    connectorList
+                  />
+                  <ConfigureRuleButton setShowModal isConfigButtonEnabled />
+                  <CustomModal.RoutingCustomModal
+                    showModal
+                    setShowModal
+                    cancelButton={<FormRenderer.SubmitButton
+                      text="Save Rule"
+                      buttonSize=Button.Small
+                      buttonType=Button.Secondary
+                      customSumbitButtonStyle="w-1/5 rounded-lg"
+                      tooltipWidthClass="w-48"
+                    />}
+                    submitButton={<SaveAndActivateButton onSubmit handleActivateConfiguration />}
+                    headingText="Activate Current Configuration?"
+                    subHeadingText="Activating the current configuration will override the current active configuration. Alternatively, save this configuration to access / activate it later from the configuration history. Please confirm."
+                    leftIcon="hswitch-warning"
+                  />
+                </>
+              : <NoDataFound message="Please configure atleast 1 connector" renderType=InfoBox />}
+          </div>
+        //   <FormValuesSpy />
+        // </Form>
         | Preview =>
           <div className="flex flex-col w-full gap-3">
             <div
@@ -264,7 +225,6 @@ module VolumeRoutingView = {
                 buttonType={Secondary}
                 onClick={_ => {
                   setFormState(_ => AdvancedRoutingTypes.EditConfig)
-                  // setInitialValues(_ => VOLUME_SPLIT->RoutingUtils.constructNameDescription)
                   setPageState(_ => Create)
                 }}
                 customButtonStyle="w-1/5 rounded-sm"
@@ -293,7 +253,6 @@ module VolumeRoutingView = {
               </UIUtils.RenderIf>
             </div>
           </div>
-
         | _ => React.null
         }}
       </div>
@@ -329,6 +288,7 @@ let make = (~routingRuleId, ~isActive) => {
   let activeRoutingDetails = async () => {
     let routingUrl = getURL(~entityName=ROUTING, ~methodType=Get, ~id=routingRuleId, ())
     let routingJson = await fetchDetails(routingUrl)
+
     let algorithm =
       routingJson
       ->getDictFromJsonObject
@@ -382,6 +342,45 @@ let make = (~routingRuleId, ~isActive) => {
     }
   }
 
+  let validate = (values: Js.Json.t) => {
+    let errors = Js.Dict.empty()
+    let dict = values->getDictFromJsonObject
+    let validateGateways = dict => {
+      let gateways = dict->getArrayFromDict("gateways", [])
+      if gateways->Js.Array2.length === 0 {
+        Some("Need atleast 1 Gateway")
+      } else {
+        let distributionPercentages = gateways->Belt.Array.keepMap(json => {
+          json->Js.Json.decodeObject->Belt.Option.flatMap(getOptionFloat(_, "distribution"))
+        })
+        let distributionPercentageSum =
+          distributionPercentages->Array.reduce(0., (sum, distribution) => sum +. distribution)
+        let hasZero = distributionPercentages->Js.Array2.some(ele => ele === 0.)
+        let isDistributeChecked = !(distributionPercentages->Js.Array2.some(ele => ele === 100.0))
+
+        let isNotValid =
+          isDistributeChecked &&
+          (distributionPercentageSum > 100. || hasZero || distributionPercentageSum !== 100.)
+
+        if isNotValid {
+          Some("Distribution Percent not correct")
+        } else {
+          None
+        }
+      }
+    }
+
+    let volumeBasedDistributionDict =
+      dict->getObj("json", Js.Dict.empty())->getObj("volumeBasedDistribution", Js.Dict.empty())
+
+    switch volumeBasedDistributionDict->validateGateways {
+    | Some(error) => errors->Js.Dict.set("Volume Based Distribution", error->Js.Json.string)
+    | None => ()
+    }
+
+    errors->Js.Json.object_
+  }
+
   React.useEffect1(() => {
     getDetails()->ignore
     None
@@ -389,7 +388,7 @@ let make = (~routingRuleId, ~isActive) => {
 
   <div className="my-6">
     <PageLoaderWrapper screenState>
-      <Form initialValues={initialValues->Js.Json.object_}>
+      <Form validate initialValues={initialValues->Js.Json.object_}>
         <div className="w-full flex justify-between">
           <div className="w-full">
             <BasicDetailsForm
@@ -403,22 +402,23 @@ let make = (~routingRuleId, ~isActive) => {
             />
           </div>
         </div>
+        <UIUtils.RenderIf condition={formState != CreateConfig}>
+          <VolumeRoutingView
+            initialRule
+            setScreenState
+            pageState
+            setPageState
+            connectors
+            routingId={routingRuleId}
+            isActive
+            initialValues
+            isConfigButtonEnabled
+            profile
+            setFormState
+          />
+        </UIUtils.RenderIf>
+        <FormValuesSpy />
       </Form>
-      <UIUtils.RenderIf condition={formState != CreateConfig}>
-        <VolumeRoutingView
-          initialRule
-          setScreenState
-          pageState
-          setPageState
-          connectors
-          routingId={routingRuleId}
-          isActive
-          initialValues
-          isConfigButtonEnabled
-          profile
-          setFormState
-        />
-      </UIUtils.RenderIf>
     </PageLoaderWrapper>
   </div>
 }
