@@ -113,12 +113,12 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     Js.Nullable.null
   }
 
-  let logMixpanelEvents = _ => {
+  let logMixpanelEvents = email => {
     open HyperSwitchAuthTypes
     switch authType {
-    | LoginWithPassword => mixpanelEvent(~eventName=`signin_using_email&password`, ())
-    | LoginWithEmail => mixpanelEvent(~eventName=`signin_using_magic_link`, ())
-    | SignUP => mixpanelEvent(~eventName=`signup_using_magic_link`, ())
+    | LoginWithPassword => mixpanelEvent(~eventName=`signin_using_email&password`, ~email, ())
+    | LoginWithEmail => mixpanelEvent(~eventName=`signin_using_magic_link`, ~email, ())
+    | SignUP => mixpanelEvent(~eventName=`signup_using_magic_link`, ~email, ())
     | _ => ()
     }
   }
@@ -129,7 +129,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
       let valuesDict = values->getDictFromJsonObject
       let email = valuesDict->getString("email", "")
       setEmail(_ => email)
-      logMixpanelEvents()
+      logMixpanelEvents(email)
 
       let _ = await (
         switch (isMagicLinkEnabled, authType) {
