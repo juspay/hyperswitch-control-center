@@ -101,7 +101,7 @@ module LandingScreen = {
         </p>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
           {PayPalFlowUtils.listChoices
-          ->Js.Array2.mapi((items, index) => {
+          ->Array.mapWithIndex((items, index) => {
             <div
               key={index->string_of_int}
               className={`p-6 flex flex-col gap-4 rounded-md cursor-pointer ${items.variantType->getBlockColor} rounded-md`}
@@ -133,7 +133,7 @@ module RedirectionToPayPalFlow = {
     open APIUtils
 
     let url = RescriptReactRouter.useUrl()
-    let path = url.path->Belt.List.toArray->Js.Array2.joinWith("/")
+    let path = url.path->Belt.List.toArray->Array.joinWith("/")
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
@@ -174,7 +174,7 @@ module RedirectionToPayPalFlow = {
             {"Things to keep in mind while signing up"->React.string}
           </p>
           {preRequisiteList
-          ->Js.Array2.mapi((item, index) =>
+          ->Array.mapWithIndex((item, index) =>
             <p className=p1RegularTextClass>
               {`${(index + 1)->string_of_int}. ${item}`->React.string}
             </p>
@@ -266,7 +266,7 @@ let make = (
     ? url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
     : url.search
       ->LogicUtils.getDictFromUrlSearchParams
-      ->Js.Dict.get("connectorId")
+      ->Dict.get("connectorId")
       ->Belt.Option.getWithDefault("")
 
   let (connectorId, setConnectorId) = React.useState(_ => connectorValue)
@@ -274,7 +274,7 @@ let make = (
   let isRedirectedFromPaypalModal =
     url.search
     ->LogicUtils.getDictFromUrlSearchParams
-    ->Js.Dict.get("is_back")
+    ->Dict.get("is_back")
     ->Belt.Option.getWithDefault("")
     ->LogicUtils.getBoolFromString(false)
 
@@ -403,11 +403,11 @@ let make = (
   })
 
   let validateMandatoryFieldForPaypal = values => {
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
     let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
     if profileId->Js.String2.length === 0 {
-      Js.Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
+      Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
     }
     errors->Js.Json.object_
   }
@@ -442,7 +442,7 @@ let make = (
 
           setSetupAccountStatus(._ => Manual_setup_flow)
           if isUpdateFlow && authType === #SignatureKey {
-            dictOfInitialValues->Js.Dict.set("connector_account_details", temporaryAuthDict)
+            dictOfInitialValues->Dict.set("connector_account_details", temporaryAuthDict)
             setInitialValues(_ => dictOfInitialValues->Js.Json.object_)
           }
         }
@@ -451,8 +451,8 @@ let make = (
       }
     | Manual_setup_flow => {
         let dictOfInitialValues = values->LogicUtils.getDictFromJsonObject
-        dictOfInitialValues->Js.Dict.set("disabled", false->Js.Json.boolean)
-        dictOfInitialValues->Js.Dict.set("status", "active"->Js.Json.string)
+        dictOfInitialValues->Dict.set("disabled", false->Js.Json.boolean)
+        dictOfInitialValues->Dict.set("status", "active"->Js.Json.string)
         setInitialValues(_ => dictOfInitialValues->Js.Json.object_)
         handleConnectorConnected(dictOfInitialValues->Js.Json.object_)->ignore
       }
