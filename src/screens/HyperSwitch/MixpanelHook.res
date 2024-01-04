@@ -70,7 +70,7 @@ let useSendEvent = () => {
     let eventName = eventName->Js.String2.toLowerCase
     let merchantId = getFromMerchantDetails("merchant_id")
 
-    if featureFlagDetails.mixPanel {
+    if featureFlagDetails.mixpanel {
       if featureFlagDetails.mixpanelSdk {
         MixPanel.track(
           eventName,
