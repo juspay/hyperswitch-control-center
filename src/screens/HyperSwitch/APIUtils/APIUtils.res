@@ -113,7 +113,7 @@ let getURL = (
     | Get =>
       switch id {
       | Some(dispute_id) => `disputes/${dispute_id}`
-      | None => `disputes/list?limit=100`
+      | None => `disputes/list?limit=10000`
       }
     | _ => ""
     }
