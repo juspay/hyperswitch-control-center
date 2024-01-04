@@ -66,7 +66,7 @@ let make = (
 
     if size > 400000 {
       showToast(~message="File size too large, upload below 400kb", ~toastType=ToastError, ())
-    } else if target["files"]->Js.Array2.length > 0 {
+    } else if target["files"]->Array.length > 0 {
       let filename = value["name"]
       setFilename(_ => filename)
       let fileReader = FileReader.reader
@@ -114,7 +114,7 @@ let make = (
     onDrop={ev => {
       ReactEvent.Mouse.preventDefault(ev)
       let files = ev->dataTransfer->files
-      if files->Js.Array2.length > 0 {
+      if files->Array.length > 0 {
         let file = files["0"]
         let size = file["size"]
         setIsfileTooLarge(_ => size > 400000)

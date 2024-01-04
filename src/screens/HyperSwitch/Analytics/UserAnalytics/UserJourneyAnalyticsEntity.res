@@ -55,7 +55,7 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  let data = json->getQueryData->Js.Array2.map(singleStatItemToObjMapper)
+  let data = json->getQueryData->Array.map(singleStatItemToObjMapper)
   switch data[0] {
   | Some(ele) => ele
   | None => singleStateInitialValue
@@ -63,7 +63,7 @@ let itemToObjMapper = json => {
 }
 
 let timeSeriesObjMapper = json =>
-  json->getQueryData->Js.Array2.map(json => singleStateSeriesItemToObjMapper(json))
+  json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
 
 type colT =
   | SdkRenderedCount
@@ -95,31 +95,31 @@ let constructData = (key, singlestatTimeseriesData) => {
   switch key {
   | "payment_attempts" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (
+    ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.payment_attempts->Belt.Int.toFloat,
     ))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "conversion_rate" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (
+    ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       100. *. ob.payment_attempts->Belt.Int.toFloat /. ob.sdk_rendered_count->Belt.Int.toFloat,
     ))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "drop_out_rate" =>
-    singlestatTimeseriesData->Js.Array2.map(ob => (
+    singlestatTimeseriesData->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       100. -.
       100. *. ob.payment_attempts->Belt.Int.toFloat /. ob.sdk_rendered_count->Belt.Int.toFloat,
     ))
   | "sdk_rendered_count" =>
-    singlestatTimeseriesData->Js.Array2.map(ob => (
+    singlestatTimeseriesData->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.sdk_rendered_count->Belt.Int.toFloat,
     ))
   | "average_payment_time" =>
-    singlestatTimeseriesData->Js.Array2.map(ob => (
+    singlestatTimeseriesData->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.average_payment_time,
     ))
@@ -252,11 +252,11 @@ let getStatSentiment = {
     ("Converted User Sessions", Positive),
     ("Dropped Out User Sessions", Negative),
     ("Average Payment Time", Negative),
-  ]->Js.Dict.fromArray
+  ]->Dict.fromArray
 }
 
 let getStatThresholds = {
-  [("Dropped Out User Sessions", 40.), ("Converted User Sessions", 60.)]->Js.Dict.fromArray
+  [("Dropped Out User Sessions", 40.), ("Converted User Sessions", 60.)]->Dict.fromArray
 }
 
 let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {

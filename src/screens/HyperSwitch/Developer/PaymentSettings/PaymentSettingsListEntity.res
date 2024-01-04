@@ -38,9 +38,7 @@ let itemToObjMapper = dict => {
     merchant_id: getString(dict, "merchant_id", ""),
     return_url: getOptionString(dict, "return_url"),
     payment_response_hash_key: getOptionString(dict, "payment_response_hash_key"),
-    webhook_details: dict
-    ->getObj("webhook_details", Js.Dict.empty())
-    ->constructWebhookDetailsObject,
+    webhook_details: dict->getObj("webhook_details", Dict.make())->constructWebhookDetailsObject,
   }
 }
 

@@ -17,7 +17,7 @@ let checkList: array<ProdOnboardingTypes.checkListType> = [
   },
 ]
 
-let updatedCheckList = [defaultValueOfCheckList]->Js.Array2.concat(checkList)
+let updatedCheckList = [defaultValueOfCheckList]->Array.concat(checkList)
 
 let getPageView = index => {
   open ProdOnboardingTypes
@@ -146,10 +146,10 @@ let getProdApiBody = (
     [
       (
         (parentVariant :> string),
-        [("connector_id", connectorId->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_,
+        [("connector_id", connectorId->Js.Json.string)]->Dict.fromArray->Js.Json.object_,
       ),
     ]
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
 
   | #ProductionAgreement =>
@@ -157,11 +157,11 @@ let getProdApiBody = (
       (
         (parentVariant :> string),
         [("version", HSwitchGlobalVars.agreementVersion->Js.Json.string)]
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_,
       ),
     ]
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
   | _ => (parentVariant :> string)->Js.Json.string
   }

@@ -32,7 +32,7 @@ module SimpleRoutingView = {
     let saveConfiguration = async () => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let data = gateways->Js.Array2.map(str => str->Js.Json.string)
+        let data = gateways->Array.map(str => str->Js.Json.string)
 
         let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
 
@@ -65,7 +65,7 @@ module SimpleRoutingView = {
       try {
         setScreenState(_ => Loading)
         let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=routingId, ())
-        let _ = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
+        let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
         showToast(
           ~message="Successfully Activated Selected Configuration !",
           ~toastType=ToastState.ToastSuccess,
@@ -183,7 +183,7 @@ module SimpleRoutingView = {
             buttonType=Primary
             leftIcon={FontAwesome("check")}
             loadingText="Activating..."
-            buttonState={gateways->Js.Array2.length > 0 ? Button.Normal : Button.Disabled}
+            buttonState={gateways->Array.length > 0 ? Button.Normal : Button.Disabled}
           />
         | Preview =>
           <>
@@ -219,7 +219,7 @@ let make = (~routingRuleId, ~isActive) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (gateways, setGateways) = React.useState(() => [])
   let (showModal, setShowModal) = React.useState(_ => false)
-  let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty())
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let (connectors, setConnectors) = React.useState(_ => [])
   let connectorListJson =
     HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->LogicUtils.safeParse
@@ -233,11 +233,11 @@ let make = (~routingRuleId, ~isActive) => {
       let connectorsOrder =
         routingJson
         ->getDictFromJsonObject
-        ->getObj("algorithm", Js.Dict.empty())
+        ->getObj("algorithm", Dict.make())
         ->getArrayFromDict("data", [])
         ->getStrArrayFromJsonArray
 
-      let initialValueDict = Js.Dict.fromArray([
+      let initialValueDict = Dict.fromArray([
         (
           "name",
           routingJson
@@ -268,8 +268,8 @@ let make = (~routingRuleId, ~isActive) => {
     let arr =
       connectorListJson
       ->HSwitchUtils.getProcessorsListFromJson()
-      ->Js.Array2.map(connectorDict => connectorDict->getString("connector_name", ""))
-      ->Js.Array2.filter(x => x !== "applepay")
+      ->Array.map(connectorDict => connectorDict->getString("connector_name", ""))
+      ->Array.filter(x => x !== "applepay")
       ->getUniqueArray
     setConnectors(_ => arr)
     setScreenState(_ => Success)

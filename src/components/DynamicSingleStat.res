@@ -86,20 +86,20 @@ type singleStateData<'t, 't2> = {
 
 let deltaTimeRangeMapper: array<Js.Json.t> => deltaRange = (arrJson: array<Js.Json.t>) => {
   open LogicUtils
-  let emptyDict = Js.Dict.empty()
-  let _ = arrJson->Js.Array2.map(item => {
+  let emptyDict = Dict.make()
+  let _ = arrJson->Array.map(item => {
     let dict = item->getDictFromJsonObject
     let deltaTimeRange = dict->getJsonObjectFromDict("deltaTimeRange")->getDictFromJsonObject
     let fromTime = deltaTimeRange->getString("startTime", "")
     let toTime = deltaTimeRange->getString("endTime", "")
     let timeRanges: AnalyticsUtils.timeRanges = {fromTime, toTime}
-    if deltaTimeRange->Js.Dict.entries->Js.Array2.length > 0 {
-      emptyDict->Js.Dict.set("currentSr", timeRanges)
+    if deltaTimeRange->Dict.toArray->Array.length > 0 {
+      emptyDict->Dict.set("currentSr", timeRanges)
     }
   })
   {
     currentSr: emptyDict
-    ->Js.Dict.get("currentSr")
+    ->Dict.get("currentSr")
     ->Belt.Option.getWithDefault({
       fromTime: "",
       toTime: "",
@@ -135,7 +135,7 @@ let make = (
   // without prefix only table related Filters
   let getTopLevelFilter = React.useMemo1(() => {
     getAllFilter
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->Js.String2.split(".")
@@ -146,7 +146,7 @@ let make = (
         Some((prefix, value))
       }
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
   }, [getAllFilter])
 
   let mode = switch modeKey {
@@ -165,7 +165,7 @@ let make = (
   | {customFilterKey} => customFilterKey
   | _ => ""
   }
-  let allFilterKeys = Js.Array2.concat(
+  let allFilterKeys = Array.concat(
     [startTimeFilterKey, endTimeFilterKey, mode->Belt.Option.getWithDefault("")],
     filterKeys,
   )
@@ -182,10 +182,10 @@ let make = (
   let (topFiltersToSearchParam, customFilter) = React.useMemo1(() => {
     let filterSearchParam =
       getTopLevelFilter
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
-        if allFilterKeys->Js.Array2.includes(key) {
+        if allFilterKeys->Array.includes(key) {
           switch value->Js.Json.classify {
           | JSONString(str) => `${key}=${str}`->Some
           | JSONNumber(num) => `${key}=${num->Js.String.make}`->Some
@@ -196,19 +196,19 @@ let make = (
           None
         }
       })
-      ->Js.Array2.joinWith("&")
+      ->Array.joinWith("&")
 
     (filterSearchParam, getTopLevelFilter->LogicUtils.getString(customFilterKey, ""))
   }, [getTopLevelFilter])
 
   let filterValueFromUrl = React.useMemo1(() => {
     getTopLevelFilter
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Belt.Array.keepMap(entries => {
       let (key, value) = entries
-      filterKeys->Js.Array2.includes(key) ? Some((key, value)) : None
+      filterKeys->Array.includes(key) ? Some((key, value)) : None
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
     ->Some
   }, [topFiltersToSearchParam])
@@ -261,7 +261,7 @@ let make = (
       setSingleStatLoading(_ => enableLoaders)
 
       entity.urlConfig
-      ->Js.Array2.map(urlConfig => {
+      ->Array.map(urlConfig => {
         let {uri, metrics} = urlConfig
         let domain = Js.String.split("/", uri)->Belt.Array.get(4)->Belt.Option.getWithDefault("")
         let startTime = if domain === "mandate" {
@@ -292,16 +292,16 @@ let make = (
           uri,
           ~method_=Post,
           ~bodyStr=singleStatBody,
-          ~headers=[("QueryType", "SingleStat")]->Js.Dict.fromArray,
+          ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
           (),
         )
         ->addLogsAroundFetch(~logTitle="SingleStat Data Api")
         ->then(json => resolve((`${urlConfig.prefix->Belt.Option.getWithDefault("")}${uri}`, json)))
-        ->catch(_err => resolve(("", Js.Json.object_(Js.Dict.empty()))))
+        ->catch(_err => resolve(("", Js.Json.object_(Dict.make()))))
       })
       ->Promise.all
       ->Promise.thenResolve(dataArr => {
-        let data = dataArr->Js.Array2.map(
+        let data = dataArr->Array.map(
           item => {
             let (sectionName, json) = item
             switch entity.totalVolumeCol {
@@ -312,10 +312,10 @@ let make = (
                   ->LogicUtils.getJsonObjectFromDict("queryData")
                   ->LogicUtils.getArrayFromJson([])
                   ->Belt.Array.get(0)
-                  ->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty()))
+                  ->Belt.Option.getWithDefault(Js.Json.object_(Dict.make()))
                   ->LogicUtils.getDictFromJsonObject
-                  ->Js.Dict.entries
-                  ->Js.Array2.find(
+                  ->Dict.toArray
+                  ->Array.find(
                     item => {
                       let (key, _) = item
                       key === val
@@ -365,7 +365,7 @@ let make = (
 
       open Promise
       entity.urlConfig
-      ->Js.Array2.map(urlConfig => {
+      ->Array.map(urlConfig => {
         let {uri, metrics} = urlConfig
         let domain = Js.String.split("/", uri)->Belt.Array.get(4)->Belt.Option.getWithDefault("")
         let startTime = if domain === "mandate" {
@@ -396,7 +396,7 @@ let make = (
           uri,
           ~method_=Post,
           ~bodyStr=singleStatBodyMakerFn(singleStatBodyEntity),
-          ~headers=[("QueryType", "SingleStatTimeseries")]->Js.Dict.fromArray,
+          ~headers=[("QueryType", "SingleStatTimeseries")]->Dict.fromArray,
           (),
         )
         ->addLogsAroundFetch(~logTitle="SingleStatTimeseries Data Api")
@@ -407,13 +407,13 @@ let make = (
         )
         ->catch(
           _err => {
-            resolve(("", Js.Json.object_(Js.Dict.empty())))
+            resolve(("", Js.Json.object_(Dict.make())))
           },
         )
       })
       ->Promise.all
       ->thenResolve(timeSeriesArr => {
-        let data = timeSeriesArr->Js.Array2.map(
+        let data = timeSeriesArr->Array.map(
           item => {
             let (sectionName, json) = item
 
@@ -449,7 +449,7 @@ let make = (
       | Some(sdata) => {
           let sectiondata =
             sdata
-            ->Js.Array2.filter(
+            ->Array.filter(
               item => {
                 item.sectionUrl === uri
               },

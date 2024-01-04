@@ -8,7 +8,7 @@ let getRefundData = (refundId, setScreenState) => {
   let setLoadDataForRefunds = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      if refundId->Js.String2.length !== 0 {
+      if refundId->String.length !== 0 {
         let refundDataResponse = await fetchDetails(accountUrl)
         setRefundData(_ => refundDataResponse)
         setScreenState(_ => PageLoaderWrapper.Success)

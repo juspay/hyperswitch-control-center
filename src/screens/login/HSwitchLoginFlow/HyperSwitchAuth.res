@@ -9,7 +9,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
 
   let url = RescriptReactRouter.useUrl()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let initialValues = Js.Dict.empty()->Js.Json.object_
+  let initialValues = Dict.make()->Js.Json.object_
   let clientCountry = HSwitchUtils.getBrowswerDetails().clientCountry
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
   let showToast = ToastState.useShowToast()
@@ -113,12 +113,12 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     Js.Nullable.null
   }
 
-  let logMixpanelEvents = _ => {
+  let logMixpanelEvents = email => {
     open HyperSwitchAuthTypes
     switch authType {
-    | LoginWithPassword => mixpanelEvent(~eventName=`signin_using_email&password`, ())
-    | LoginWithEmail => mixpanelEvent(~eventName=`signin_using_magic_link`, ())
-    | SignUP => mixpanelEvent(~eventName=`signup_using_magic_link`, ())
+    | LoginWithPassword => mixpanelEvent(~eventName=`signin_using_email&password`, ~email, ())
+    | LoginWithEmail => mixpanelEvent(~eventName=`signin_using_magic_link`, ~email, ())
+    | SignUP => mixpanelEvent(~eventName=`signup_using_magic_link`, ~email, ())
     | _ => ()
     }
   }
@@ -129,7 +129,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
       let valuesDict = values->getDictFromJsonObject
       let email = valuesDict->getString("email", "")
       setEmail(_ => email)
-      logMixpanelEvents()
+      logMixpanelEvents(email)
 
       let _ = await (
         switch (isMagicLinkEnabled, authType) {
@@ -154,8 +154,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
           }
         | (_, ResetPassword) => {
             let queryDict = url.search->getDictFromUrlSearchParams
-            let password_reset_token =
-              queryDict->Js.Dict.get("token")->Belt.Option.getWithDefault("")
+            let password_reset_token = queryDict->Dict.get("token")->Belt.Option.getWithDefault("")
             let password = getString(valuesDict, "create_password", "")
             let body = getResetpasswordBodyJson(password, password_reset_token)
             setResetPassword(body)

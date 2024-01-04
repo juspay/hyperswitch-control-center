@@ -172,7 +172,7 @@ let make = (
   <ErrorBoundary>
     <div className={`w-full ${gapClass}`}>
       {accordion
-      ->Js.Array2.mapi((accordion, i) => {
+      ->Array.mapWithIndex((accordion, i) => {
         <AccordionInfo
           key={string_of_int(i)}
           accordion
@@ -181,7 +181,7 @@ let make = (
           accordianTopContainerCss
           accordianBottomContainerCss
           contentExpandCss
-          expanded={initialExpandedArray->Js.Array2.includes(i)}
+          expanded={initialExpandedArray->Array.includes(i)}
           titleStyle
         />
       })

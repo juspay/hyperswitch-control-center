@@ -39,7 +39,7 @@ let useGetFiltersData = () => {
           uri,
           ~method_=method,
           ~bodyStr=filterBody,
-          ~headers=[("QueryType", "Filter")]->Js.Dict.fromArray,
+          ~headers=[("QueryType", "Filter")]->Dict.fromArray,
           (),
         )
         ->addLogsAroundFetch(~logTitle="Filter Data Api")
@@ -76,7 +76,7 @@ let useGetLiveFiltersData = () => {
           uri,
           ~method_=method,
           ~bodyStr=filterBody,
-          ~headers=[("QueryType", "Filter")]->Js.Dict.fromArray,
+          ~headers=[("QueryType", "Filter")]->Dict.fromArray,
           (),
         )
         ->addLogsAroundFetch(~logTitle="Filter Data Api")
@@ -141,7 +141,7 @@ let useTabHooks = (~moduleName, ~segmentsOptions) => {
     (dict: Js.Dict.t<string>) => {
       let currentDict =
         dict
-        ->Js.Dict.entries
+        ->Dict.toArray
         ->Belt.Array.keepMap(item => {
           let (key, value) = item
           if value !== "" {
@@ -150,7 +150,7 @@ let useTabHooks = (~moduleName, ~segmentsOptions) => {
             None
           }
         })
-      updateExistingKeys(currentDict->Js.Dict.fromArray)
+      updateExistingKeys(currentDict->Dict.fromArray)
     }
   }, [updateExistingKeys])
   let activeTab = React.useMemo1(() => {

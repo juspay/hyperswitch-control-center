@@ -145,7 +145,7 @@ module ActiveSection = {
             </p>
             <Icon name="primary-tag" size=25 className="w-20" />
           </div>
-          <UIUtils.RenderIf condition={profileId->Js.String2.length > 0}>
+          <UIUtils.RenderIf condition={profileId->String.length > 0}>
             <div className="flex gap-2">
               <MerchantAccountUtils.BusinessProfile
                 profile_id={profileId}

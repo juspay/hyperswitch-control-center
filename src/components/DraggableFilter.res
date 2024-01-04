@@ -54,13 +54,13 @@ module ShowItemView = {
 
     let onClick = _ => {
       setData(old =>
-        old->Js.Array2.mapi((x, i) =>
+        old->Array.mapWithIndex((x, i) =>
           if i == index {
             let newVal = {
               let a: obL1 = {
                 field: x.field,
                 values: {
-                  let arrN = x.values->Js.Array2.mapi(
+                  let arrN = x.values->Array.mapWithIndex(
                     (ob, iN) =>
                       if iN == i2 {
                         let newOb: ob = {
@@ -89,7 +89,7 @@ module ShowItemView = {
       setSelect(_ => false)
     }
     // find the item,let user choose value
-    let optionSelected = options->Js.Array2.filter(x => x.value == item.field)->Belt.Array.get(0)
+    let optionSelected = options->Array.filter(x => x.value == item.field)->Belt.Array.get(0)
 
     let getArrStr = () => {
       switch optionSelected {
@@ -97,9 +97,9 @@ module ShowItemView = {
         switch opt.options {
         | Some(arr) =>
           arr
-          ->Js.Array2.filter(x => endSelected->Js.Array2.includes(x.value))
-          ->Js.Array2.map(x => x.title)
-          ->Js.Array2.joinWith(", ")
+          ->Array.filter(x => endSelected->Array.includes(x.value))
+          ->Array.map(x => x.title)
+          ->Array.joinWith(", ")
         | None => ""
         }
       | None => ""
@@ -125,13 +125,13 @@ module ShowItemView = {
                         setRuleSelected(_ => str)
                         setRuleDropDown(_ => false)
                         setData(old =>
-                          old->Js.Array2.mapi((x, i) =>
+                          old->Array.mapWithIndex((x, i) =>
                             if i == index {
                               let newVal = {
                                 let a: obL1 = {
                                   field: x.field,
                                   values: {
-                                    let arrN = x.values->Js.Array2.mapi(
+                                    let arrN = x.values->Array.mapWithIndex(
                                       (ob, iN) =>
                                         if iN == i2 {
                                           let newOb: ob = {
@@ -171,7 +171,7 @@ module ShowItemView = {
                 <div className="mb-2">
                   <SelectBox.BaseSelect
                     isDropDown=false
-                    options={opts->Js.Array2.map(x => {
+                    options={opts->Array.map(x => {
                       let a: SelectBox.dropdownOption = {
                         label: x.title,
                         value: x.value,
@@ -201,13 +201,13 @@ module ShowItemView = {
                         setRuleSelected(_ => str)
                         setRuleDropDown(_ => false)
                         setData(old =>
-                          old->Js.Array2.mapi((x, i) =>
+                          old->Array.mapWithIndex((x, i) =>
                             if i == index {
                               let newVal = {
                                 let a: obL1 = {
                                   field: x.field,
                                   values: {
-                                    let arrN = x.values->Js.Array2.mapi(
+                                    let arrN = x.values->Array.mapWithIndex(
                                       (ob, iN) =>
                                         if iN == i2 {
                                           let newOb: ob = {
@@ -247,7 +247,7 @@ module ShowItemView = {
                 <Button
                   buttonType=Secondary
                   showBorder=false
-                  text={`${Js.Array.length(endSelected) == 0 ? "Select Values" : getArrStr()}`}
+                  text={`${Array.length(endSelected) == 0 ? "Select Values" : getArrStr()}`}
                   onClick={_ => {setSelect(_ => true)}}
                 />
               </div>
@@ -263,7 +263,7 @@ module RenderOption = {
   let ruleSet = ["AND", "OR"]
   @react.component
   let make = (~isDragging, ~index, ~data, ~setData, ~options) => {
-    let selectedOption = options->Js.Array2.filter(x => x.value == data.field)->Belt.Array.get(0)
+    let selectedOption = options->Array.filter(x => x.value == data.field)->Belt.Array.get(0)
     let (selectedRule, setSelectedRule) = React.useState(_ => data.relation)
     React.useEffect1(() => {
       setSelectedRule(_ => data.relation)
@@ -284,7 +284,7 @@ module RenderOption = {
 
     let style = isDragging ? "border rounded-md bg-jp-gray-100 dark:bg-jp-gray-950" : ""
     let onClickCross = _ => {
-      setData(p => p->Js.Array2.filteri((_v, i) => i !== index))
+      setData(p => p->Array.filterWithIndex((_v, i) => i !== index))
     }
     let onFilter = _ => setAddView(_ => true)
     switch selectedOption {
@@ -306,7 +306,7 @@ module RenderOption = {
             </div>
           </div>
         </div>
-        {selectedOpts->Js.Array.length > 1
+        {selectedOpts->Array.length > 1
           ? <div className="m-2">
               <ButtonGroup>
                 <Button
@@ -316,7 +316,7 @@ module RenderOption = {
                   onClick={_ => {
                     setSelectedRule(_ => "AND")
                     setData(oldData => {
-                      oldData->Js.Array2.mapi((ob, i) =>
+                      oldData->Array.mapWithIndex((ob, i) =>
                         i == index
                           ? {
                               let a = {
@@ -338,7 +338,7 @@ module RenderOption = {
                   onClick={_ => {
                     setSelectedRule(_ => "OR")
                     setData(oldData => {
-                      oldData->Js.Array2.mapi((ob, i) =>
+                      oldData->Array.mapWithIndex((ob, i) =>
                         i == index
                           ? {
                               let a = {
@@ -357,7 +357,7 @@ module RenderOption = {
             </div>
           : React.null}
         {selectedOpts
-        ->Js.Array2.mapi((item, i2) => {
+        ->Array.mapWithIndex((item, i2) => {
           <ShowItemView item options=optionsN index setData i2 />
         })
         ->React.array}
@@ -365,7 +365,7 @@ module RenderOption = {
           <div className="">
             <SelectBox.BaseSelect
               isDropDown=false
-              options={optionsN->Js.Array2.map(x => {
+              options={optionsN->Array.map(x => {
                 let a: SelectBox.dropdownOption = {
                   label: x.title,
                   value: x.value,
@@ -374,7 +374,7 @@ module RenderOption = {
               })}
               onSelect={arr => {
                 setData(prevData =>
-                  prevData->Js.Array2.mapi((x, i) =>
+                  prevData->Array.mapWithIndex((x, i) =>
                     if i == index {
                       let newOb: obL1 = {
                         field: x.field,
@@ -385,7 +385,7 @@ module RenderOption = {
                             relation: "IS",
                             values: [],
                           }
-                          Js.Array2.concat(x.values, [initOb])
+                          Array.concat(x.values, [initOb])
                         },
                       }
                       newOb
@@ -447,7 +447,7 @@ let make = (
           className="p-2 absolute cursor-pointer origin-top border border-jp-gray-lightmode_steelgray border-opacity-75 dark:border-jp-gray-960 rounded  shadow-generic_shadow dark:shadow-generic_shadow_dark z-20  bg-gray-50 dark:bg-jp-gray-950 "
           style={ReactDOMStyle.make(~marginLeft={`410px`}, ~width="150px", ())}>
           {options
-          ->Js.Array2.mapi((item, _i) =>
+          ->Array.mapWithIndex((item, _i) =>
             <div
               className="pt-2  "
               onClick={_ => {
@@ -456,7 +456,7 @@ let make = (
                   relation: "AND",
                   values: [],
                 }
-                setData(old => Js.Array2.concat(old, [initData]))
+                setData(old => Array.concat(old, [initData]))
 
                 setSideOpt(_ => false)
               }}>
@@ -467,7 +467,7 @@ let make = (
         </div>
       </UIUtils.RenderIf>
     </div>
-    <UIUtils.RenderIf condition={Js.Array.length(dataSelectedBase) > 0}>
+    <UIUtils.RenderIf condition={Array.length(dataSelectedBase) > 0}>
       <DragDropComponent
         listItems=dataSelectedBase
         setListItems={v => {

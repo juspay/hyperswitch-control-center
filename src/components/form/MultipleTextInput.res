@@ -55,7 +55,7 @@ let make = (
   let (text, setText) = React.useState(_ => "")
   let customStyleClass = customStyle->Belt.Option.getWithDefault("gap-2 w-full px-1 py-1")
   let onTagRemove = text => {
-    setTags(currentTags->Js.Array2.filter(tag => tag !== text))
+    setTags(currentTags->Array.filter(tag => tag !== text))
   }
   let keyDownCondition = React.useMemo0(() => {
     open ReactEvent.Keyboard
@@ -71,45 +71,43 @@ let make = (
     open ReactEvent.Keyboard
     let isEmpty = text->Js.String2.length === 0
 
-    if (
-      isEmpty && (e->key === "Backspace" || e->keyCode === 8) && currentTags->Js.Array2.length > 0
-    ) {
-      setText(_ => currentTags[currentTags->Js.Array2.length - 1]->Belt.Option.getWithDefault(""))
+    if isEmpty && (e->key === "Backspace" || e->keyCode === 8) && currentTags->Array.length > 0 {
+      setText(_ => currentTags[currentTags->Array.length - 1]->Belt.Option.getWithDefault(""))
       setTags(currentTags->Js.Array2.slice(~start=0, ~end_=-1))
     } else if text->Js.String.length !== 0 {
       if e->key === "Enter" || e->keyCode === 13 || e->key === "Tab" || e->keyCode === 9 {
         if seperateByComma {
           let arr = text->Js.String2.split(",")
           let newArr = []
-          arr->Js.Array2.forEach(ele => {
+          arr->Array.forEach(ele => {
             if (
-              !(newArr->Js.Array2.includes(ele->Js.String2.trim)) &&
-              !(currentTags->Js.Array2.includes(ele->Js.String2.trim))
+              !(newArr->Array.includes(ele->Js.String2.trim)) &&
+              !(currentTags->Array.includes(ele->Js.String2.trim))
             ) {
               if ele->Js.String2.trim != "" {
-                newArr->Js.Array2.push(ele->Js.String2.trim)->ignore
+                newArr->Array.push(ele->Js.String2.trim)->ignore
               }
             }
           })
 
-          setTags(currentTags->Js.Array2.concat(newArr))
+          setTags(currentTags->Array.concat(newArr))
         } else if seperateBySpace {
           let arr = text->Js.String2.split(" ")
           let newArr = []
-          arr->Js.Array2.forEach(ele => {
+          arr->Array.forEach(ele => {
             if (
-              !(newArr->Js.Array2.includes(ele->Js.String2.trim)) &&
-              !(currentTags->Js.Array2.includes(ele->Js.String2.trim))
+              !(newArr->Array.includes(ele->Js.String2.trim)) &&
+              !(currentTags->Array.includes(ele->Js.String2.trim))
             ) {
               if ele->Js.String2.trim != "" {
-                newArr->Js.Array2.push(ele->Js.String2.trim)->ignore
+                newArr->Array.push(ele->Js.String2.trim)->ignore
               }
             }
           })
 
-          setTags(currentTags->Js.Array2.concat(newArr))
-        } else if !(currentTags->Js.Array2.includes(text->Js.String2.trim)) {
-          setTags(currentTags->Js.Array2.concat([text->Js.String2.trim]))
+          setTags(currentTags->Array.concat(newArr))
+        } else if !(currentTags->Array.includes(text->Js.String2.trim)) {
+          setTags(currentTags->Array.concat([text->Js.String2.trim]))
         }
         setText(_ => "")
       }
@@ -144,7 +142,7 @@ let make = (
                   border rounded border-opacity-75 border-jp-gray-lightmode_steelgray hover:border-jp-gray-600 dark:border-jp-gray-960 dark:hover:border-jp-gray-900`
   <div className>
     {currentTags
-    ->Js.Array2.map(tag => {
+    ->Array.map(tag => {
       if tag != "" && tag !== "<script>" && tag !== "</script>" {
         <Tag key=tag text=tag remove=onTagRemove disabled ?customButtonStyle />
       } else {

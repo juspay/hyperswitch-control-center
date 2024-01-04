@@ -38,10 +38,7 @@ let make = (
   }
   let inputValue = input.value->Js.Json.decodeString->Belt.Option.getWithDefault("")
   let splitFunction = input => {
-    input
-    ->Js.String2.split(",")
-    ->Js.Array2.filter(e => e !== "")
-    ->Js.Array2.map(e => e->Js.String2.trim)
+    input->Js.String2.split(",")->Array.filter(e => e !== "")->Array.map(e => e->Js.String2.trim)
   }
   let chipArray = splitFunction(inputValue)
 
@@ -49,9 +46,9 @@ let make = (
     input.onChange(
       inputValue
       ->Js.String2.split(",")
-      ->Js.Array2.map(Js.String2.trim)
-      ->Js.Array2.filter(x => x !== value)
-      ->Js.Array2.joinWith(", ")
+      ->Array.map(Js.String2.trim)
+      ->Array.filter(x => x !== value)
+      ->Array.joinWith(", ")
       ->Identity.stringToFormReactEvent,
     )
   }
@@ -73,7 +70,7 @@ let make = (
       ?max
       autoFocus
     />
-    {if chipArray->Js.Array2.length !== 0 && inputValue !== "" {
+    {if chipArray->Array.length !== 0 && inputValue !== "" {
       <div className="w-full">
         <Chip values=chipArray showButton onButtonClick=onChipCloseClick ?converterFn />
       </div>

@@ -168,7 +168,7 @@ let make = (
           text={formState === CreateConfig ? "Next" : "Save"}
           onClick={_ => {
             setFormState(_ => ViewConfig)
-            let initialValueDict = Js.Dict.fromArray([
+            let initialValueDict = Dict.fromArray([
               ("name", ip1.value->getStringFromJson("")->Js.Json.string),
               ("description", ip2.value->getStringFromJson("")->Js.Json.string),
               ("profile_id", ip3.value->getStringFromJson("")->Js.Json.string),

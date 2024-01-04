@@ -40,7 +40,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
           ->Array.mapWithIndex((rule, index) => {
             let statementsArr = rule.statements
             let headingText = `Rule ${string_of_int(index + 1)}`
-            let marginStyle = index === ruleInfo.rules->Js.Array2.length - 1 ? "mt-2" : "my-2"
+            let marginStyle = index === ruleInfo.rules->Array.length - 1 ? "mt-2" : "my-2"
             let threeDsType = rule.connectorSelection.override_3ds->Belt.Option.getWithDefault("")
 
             let surchargeType =
@@ -65,11 +65,11 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
                     let field = statement.lhs
                     let metadataDict =
                       statement.metadata
-                      ->Belt.Option.getWithDefault(Js.Dict.empty()->Js.Json.object_)
+                      ->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
                       ->getDictFromJsonObject
 
                     let value = switch statement.value.value->Js.Json.classify {
-                    | JSONArray(arr) => arr->Js.Array2.joinWith(", ")
+                    | JSONArray(arr) => arr->Array.joinWith(", ")
                     | JSONString(str) => str
                     | JSONNumber(num) => num->Belt.Float.toString
                     | JSONObject(obj) => obj->LogicUtils.getString("value", "")
@@ -106,7 +106,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
                   })
                   ->React.array}
                 </div>
-                <UIUtils.RenderIf condition={rule.statements->Js.Array2.length > 0}>
+                <UIUtils.RenderIf condition={rule.statements->Array.length > 0}>
                   <Icon size=14 name="arrow-right" className="mx-4 text-jp-gray-700" />
                 </UIUtils.RenderIf>
                 <UIUtils.RenderIf condition={isFrom3ds}>

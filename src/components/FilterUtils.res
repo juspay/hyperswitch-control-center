@@ -8,18 +8,15 @@ let parseFilterString = queryString => {
     let val = arr->Belt.Array.sliceToEnd(1)->Js.Array2.joinWith("=")
     key === "" || val === "" ? None : Some((key, val))
   })
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
 }
 
 let parseFilterDict = dict => {
-  let searchParam =
-    dict
-    ->Js.Dict.entries
-    ->Js.Array2.map(item => {
-      let (key, value) = item
-      `${key}=${value}`
-    })
-    ->Js.Array2.joinWith("&")
-
-  searchParam
+  dict
+  ->Dict.toArray
+  ->Array.map(item => {
+    let (key, value) = item
+    `${key}=${value}`
+  })
+  ->Array.joinWith("&")
 }

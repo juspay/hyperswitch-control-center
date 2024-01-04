@@ -1,3 +1,3 @@
-let defaultDict: Js.Dict.t<Dom.element> = Js.Dict.empty()
+let defaultDict: Js.Dict.t<Dom.element> = Dict.make()
 
 let portalNodes = Recoil.atom(. "portalNodes", defaultDict)

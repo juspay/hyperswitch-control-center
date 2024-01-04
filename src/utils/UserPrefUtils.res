@@ -21,8 +21,8 @@ let convertToModuleVisePref = json => {
   let dict = json->LogicUtils.getDictFromJsonObject
 
   dict
-  ->Js.Dict.keys
-  ->Js.Array2.map(key => {
+  ->Dict.keysToArray
+  ->Array.map(key => {
     let jsonForTheDict = dict->LogicUtils.getDictfromDict(key)
     let value = {
       searchParams: jsonForTheDict->LogicUtils.getString(urlKey, ""),
@@ -32,13 +32,13 @@ let convertToModuleVisePref = json => {
     }
     (key, value)
   })
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
 }
 
 let converToUserPref = dict => {
   dict
-  ->Js.Dict.keys
-  ->Js.Array2.map(key => {
+  ->Dict.keysToArray
+  ->Array.map(key => {
     let jsonForTheDict = dict->LogicUtils.getDictfromDict(key)
     let value = {
       lastVisitedTab: getString(jsonForTheDict, lastVisitedTabKey, ""),
@@ -49,7 +49,7 @@ let converToUserPref = dict => {
     }
     (key, value)
   })
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
 }
 
 // this will be changed to api call on every change to url this save will happen
@@ -57,12 +57,12 @@ let saveUserPref = (userPref: Js.Dict.t<userPref>) => {
   LocalStorage.setItem(
     userPreferenceKeyInLocalStorage,
     userPref
-    ->Js.Dict.entries
-    ->Js.Array2.map(item => {
+    ->Dict.toArray
+    ->Array.map(item => {
       let (key, value) = item
       (key, value->userPrefToJson)
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
     ->Js.Json.stringify,
   )
@@ -75,15 +75,15 @@ let getUserPref = () => {
     str
     ->LogicUtils.safeParse
     ->Js.Json.decodeObject
-    ->Belt.Option.getWithDefault(Js.Dict.empty())
+    ->Belt.Option.getWithDefault(Dict.make())
     ->converToUserPref
 
-  | None => Js.Dict.empty()
+  | None => Dict.make()
   }
 }
 
 let getSearchParams = (moduleWisePref: Js.Dict.t<moduleVisePref>, ~key: string) => {
-  switch moduleWisePref->Js.Dict.get(key)->Belt.Option.getWithDefault({}) {
+  switch moduleWisePref->Dict.get(key)->Belt.Option.getWithDefault({}) {
   | {searchParams} => searchParams
   | _ => ""
   }
