@@ -88,7 +88,7 @@ The `mixpanel` feature flag controls the collection and transmission of anonymou
 
 #### MixpanelSDK
 
-The `mixpanelSdk` feature flag controls the means by which data is sent to Mixpanel, either via SDK or REST API.
+The `mixpanel_sdk` feature flag controls the means by which data is sent to Mixpanel, either via SDK or REST API.
 
 #### Verify Connector
 
