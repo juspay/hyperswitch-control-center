@@ -2,7 +2,7 @@ type gateway = PriorityLogicUtils.gateway
 
 module GatewayView = {
   @react.component
-  let make = (~gateways: array<gateway>, ~isEnforceGatewayPriority) => {
+  let make = (~gateways: array<gateway>) => {
     <div className="flex flex-wrap gap-4 items-center">
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {
@@ -24,16 +24,6 @@ module GatewayView = {
         </AddDataAttributes>
       })
       ->React.array}
-      {if isEnforceGatewayPriority {
-        <div className="flex flex-row gap-1 ml-5 items-center ">
-          <CheckBoxIcon
-            isSelected=isEnforceGatewayPriority setIsSelected={_ => ()} isDisabled=false
-          />
-          <div> {React.string("Enforce Gateway Priority")} </div>
-        </div>
-      } else {
-        React.null
-      }}
     </div>
   }
 }
@@ -50,32 +40,17 @@ let make = (
   ~dropDownButtonText="Add Gateways",
   ~connectorList=?,
 ) => {
-  let gateWaysInput = ReactFinalForm.useField(`${id}.gateways`).input
-  let enforceGatewayPriorityInput = ReactFinalForm.useField(`${id}.isEnforceGatewayPriority`).input
-  let isDistributeInput = ReactFinalForm.useField(`${id}.isDistribute`).input
+  let gateWaysInput = ReactFinalForm.useField(`${id}`).input
 
-  let gatewaysJsonArr = gateWaysInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
   let isDistribute =
-    id === "json.volumeBasedDistribution" ||
-    isDistributeInput.value->LogicUtils.getBoolFromJson(false) ||
-    !(
-      gateWaysInput.value
-      ->LogicUtils.getArrayFromJson([])
-      ->Array.some(ele =>
-        ele->LogicUtils.getDictFromJsonObject->LogicUtils.getFloat("distribution", 0.0) === 100.0
+    id === "algorithm.data" ||
+      !(
+        gateWaysInput.value
+        ->LogicUtils.getArrayFromJson([])
+        ->Array.some(ele =>
+          ele->LogicUtils.getDictFromJsonObject->LogicUtils.getFloat("distribution", 0.0) === 100.0
+        )
       )
-    )
-
-  let isEnforceGatewayPriority =
-    enforceGatewayPriorityInput.value->Js.Json.decodeBoolean->Belt.Option.getWithDefault(false)
-  let isDisableFallback =
-    gatewaysJsonArr->Array.some(json =>
-      json
-      ->Js.Json.decodeObject
-      ->Belt.Option.flatMap(Dict.get(_, "disableFallback"))
-      ->Belt.Option.flatMap(Js.Json.decodeBoolean)
-      ->Belt.Option.getWithDefault(false)
-    )
 
   let selectedOptions =
     gateWaysInput.value
@@ -130,25 +105,6 @@ let make = (
     checked: true,
   }
 
-  let onClickDistribute = newDistributeValue => {
-    if id !== "json.volumeBasedDistribution" {
-      let sharePercent = newDistributeValue ? 100 / selectedOptions->Array.length : 100
-      let gatewaysArr = selectedOptions->Array.mapWithIndex((item, i) => {
-        let sharePercent = if i === selectedOptions->Array.length - 1 && newDistributeValue {
-          100 - sharePercent * i
-        } else {
-          sharePercent
-        }
-        {
-          ...item,
-          distribution: sharePercent,
-          disableFallback: newDistributeValue ? item.disableFallback : false,
-        }
-      })
-      gateWaysInput.onChange(gatewaysArr->Identity.anyTypeToReactEvent)
-    }
-  }
-
   let onClickFallback = newFallbackValue => {
     if isDistribute {
       selectedOptions
@@ -175,17 +131,6 @@ let make = (
       })
       gateWaysInput.onChange(newList->Identity.anyTypeToReactEvent)
     }
-  }
-
-  let updateFallback = (index, value) => {
-    let newList = selectedOptions->Array.mapWithIndex((option, i) => {
-      if i === index {
-        {...option, disableFallback: value}
-      } else {
-        option
-      }
-    })
-    gateWaysInput.onChange(newList->Identity.anyTypeToReactEvent)
   }
 
   let removeItem = index => {
@@ -243,15 +188,6 @@ let make = (
                dark:hover:text-opacity-75 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 bg-gradient-to-b
                from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 dark:text-jp-gray-text_darktheme
                dark:text-opacity-50 focus:outline-none px-1 ">
-                  {if isDisableFallback {
-                    <CheckBoxIcon
-                      isSelected=item.disableFallback
-                      setIsSelected={v => updateFallback(i, v)}
-                      isDisabled=false
-                    />
-                  } else {
-                    React.null
-                  }}
                   <AddDataAttributes attributes=[("data-gateway-count", key)]>
                     <NewThemeUtils.Badge number={i + 1} />
                   </AddDataAttributes>
@@ -295,51 +231,11 @@ let make = (
         {if selectedOptions->Array.length > 0 {
           <div
             className="flex flex-col md:flex-row md:items-center gap-4 md:gap-3 lg:gap-4 lg:ml-6">
-            {<>
-              {if showPriorityIcon {
-                <AddDataAttributes attributes=[("data-gateway-checkbox", "EnforceGatewayPriority")]>
-                  <div className="flex flex-row items-center gap-4 md:gap-1 lg:gap-2">
-                    <CheckBoxIcon
-                      isSelected=isEnforceGatewayPriority
-                      setIsSelected={v => {
-                        enforceGatewayPriorityInput.onChange(v->Identity.anyTypeToReactEvent)
-                      }}
-                      isDisabled=false
-                    />
-                    <div> {React.string("Enforce Gateway Priority")} </div>
-                  </div>
-                </AddDataAttributes>
-              } else {
-                React.null
-              }}
-              {if showDistributionIcon {
-                <AddDataAttributes attributes=[("data-gateway-checkbox", "Distribute")]>
-                  <div
-                    className={`flex flex-row items-center gap-4 md:gap-1 lg:gap-2 
-              ${id === "json.volumeBasedDistribution" ? "cursor-not-allowed" : ""}`}>
-                    <CheckBoxIcon
-                      isSelected=isDistribute
-                      setIsSelected={v => {
-                        isDistributeInput.onChange(v->Identity.anyTypeToReactEvent)
-                        onClickDistribute(v)
-                      }}
-                      isDisabled=false
-                    />
-                    <div> {React.string("Distribute")} </div>
-                  </div>
-                </AddDataAttributes>
-              } else {
-                React.null
-              }}
-            </>}
             {if selectedOptions->Array.length > 1 && showFallbackIcon {
               <AddDataAttributes attributes=[("data-gateway-checkbox", "DisableFallback")]>
                 <div
                   className={`flex flex-row items-center gap-4 md:gap-1 lg:gap-2 
               ${isDistribute ? "" : "cursor-not-allowed"}`}>
-                  <CheckBoxIcon
-                    isSelected=isDisableFallback setIsSelected=onClickFallback isDisabled=false
-                  />
                   <div> {React.string("Disable Fallback")} </div>
                 </div>
               </AddDataAttributes>
@@ -353,6 +249,6 @@ let make = (
       </div>
     </div>
   } else {
-    <GatewayView gateways=selectedOptions isEnforceGatewayPriority />
+    <GatewayView gateways=selectedOptions />
   }
 }

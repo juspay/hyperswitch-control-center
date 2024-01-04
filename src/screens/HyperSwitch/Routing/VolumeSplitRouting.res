@@ -178,7 +178,7 @@ module VolumeRoutingView = {
             {listLength > 0
               ? <>
                   <AddPLGateway
-                    id="json.volumeBasedDistribution"
+                    id="algorithm.data"
                     gatewayOptions={connectorOptions}
                     isExpanded={true}
                     isFirst={true}
