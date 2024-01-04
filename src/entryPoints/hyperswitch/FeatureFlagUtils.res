@@ -48,7 +48,7 @@ let featureFlagType = (featureFlags: Js.Json.t) => {
     generateReport: dict->getBool("generate_report", false),
     businessProfile: dict->getBool("business_profile", false),
     mixpanel: dict->getBool("mixpanel", false),
-    mixpanelSdk: dict->getBool("mixpanelSdk", false),
+    mixpanelSdk: dict->getBool("mixpanel_sdk", false),
     verifyConnector: dict->getBool("verify_connector", false),
     forgetPassword: dict->getBool("forgot_password", false),
     userJourneyAnalytics: dict->getBool("user_journey_analytics", false),
