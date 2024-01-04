@@ -181,7 +181,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
     }
 
     validateConnectorRequiredFields(
-      bodyType,
       connector->getConnectorNameTypeFromString,
       valuesFlattenJson,
       connectorAccountFields,
@@ -272,7 +271,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
               selectedConnector
               connectorMetaDataFields
               connectorWebHookDetails
-              bodyType
               isUpdateFlow
               connectorLabelDetailField
             />
