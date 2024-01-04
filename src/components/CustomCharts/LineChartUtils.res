@@ -147,7 +147,6 @@ let calculateOpacity = (~length, ~originalOpacity) => {
   Js.Math.max_float(reducedOpacity, 0.0)->Js.Float.toString
 }
 
-
 type dropDownMetricType = Latency | Volume | Rate | Amount | Traffic // traffic string can be any column which is of type Volume, Amount
 type chartLegendStatsType =
   | GroupBY
@@ -487,7 +486,6 @@ let getLegendDataForCurrentMetrix = (
 }
 
 let barChartDataMaker = (~yAxis: string, ~rawData: array<Js.Json.t>, ~activeTab: string) => {
-
   let value = rawData->Belt.Array.keepMap(item => {
     let dict = item->getDictFromJsonObject
 
@@ -750,6 +748,25 @@ let getGranularityNew = (~startTime, ~endTime) => {
   } else {
     [(1, "week")]
   }
+}
+
+let getGranularityNewStr = (~startTime, ~endTime) => {
+  getGranularityNew(~startTime, ~endTime)->Belt.Array.map(item => {
+    let (val, unit) = item
+    if val === 1 {
+      if unit === "day" {
+        "Daily"
+      } else if unit === "week" {
+        "Weekly"
+      } else if unit === "hour" {
+        "Hourly"
+      } else {
+        unit
+      }
+    } else {
+      `${val->Belt.Int.toString} ${unit}`
+    }
+  })
 }
 
 let chartDataMaker = (~filterNull=false, rawData, groupKey, metric) => {
