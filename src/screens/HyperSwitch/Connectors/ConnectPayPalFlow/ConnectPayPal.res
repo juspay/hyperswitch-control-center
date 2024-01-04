@@ -361,7 +361,7 @@ let make = (
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let profileId = initialValues->getDictFromJsonObject->getString("profile_id", "")
-      let paypalBody = PayPalFlowUtils.generatePayPalBody(
+      let paypalBody = generatePayPalBody(
         ~connectorId={connectorId},
         ~profileId=Some(profileId),
         (),
@@ -371,7 +371,7 @@ let make = (
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
 
       switch paypalDict->Js.Json.classify {
-      | JSONString(str) => setSetupAccountStatus(._ => str->PayPalFlowUtils.stringToVariantMapper)
+      | JSONString(str) => setSetupAccountStatus(._ => str->stringToVariantMapper)
       | JSONObject(dict) =>
         handleObjectResponse(
           ~dict,
@@ -458,20 +458,19 @@ let make = (
     Js.Nullable.null->Js.Promise.resolve
   }
 
-  let proceedButton = switch setupAccountStatus {
-  | Redirecting_to_paypal => React.null
-  | _ =>
-    <FormRenderer.SubmitButton
-      loadingText="Processing..."
-      text="Proceed"
-      disabledParamter={configuartionType === NotSelected ? true : false}
-    />
-  }
+  let proceedButton =
+    <UIUtils.RenderIf condition={setupAccountStatus !== Redirecting_to_paypal}>
+      <FormRenderer.SubmitButton
+        loadingText="Processing..."
+        text="Proceed"
+        disabledParamter={configuartionType === NotSelected}
+      />
+    </UIUtils.RenderIf>
 
   <div className="w-full h-full flex flex-col justify-between">
     <PageLoaderWrapper screenState>
       <Form initialValues validate={validateMandatoryFieldForPaypal} onSubmit={handleOnSubmit}>
-        <div className="">
+        <div>
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector
             headerButton={proceedButton}
