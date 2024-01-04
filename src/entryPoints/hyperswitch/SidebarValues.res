@@ -210,13 +210,13 @@ let settings = (~isSampleDataEnabled, ~isUserManagementEnabled, ~isBusinessProfi
   let settingsLinkArray = [businessDetails]
 
   if isBusinessProfileEnabled {
-    settingsLinkArray->Js.Array2.push(businessProfiles)->ignore
+    settingsLinkArray->Array.push(businessProfiles)->ignore
   }
   if isSampleDataEnabled {
-    settingsLinkArray->Js.Array2.push(accountSettings)->ignore
+    settingsLinkArray->Array.push(accountSettings)->ignore
   }
   if isUserManagementEnabled {
-    settingsLinkArray->Js.Array2.push(userManagement)->ignore
+    settingsLinkArray->Array.push(userManagement)->ignore
   }
 
   Section({

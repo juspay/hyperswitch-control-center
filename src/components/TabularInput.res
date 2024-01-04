@@ -16,7 +16,7 @@ module TableCell = {
       key={Belt.Int.toString(elemIndex)}
       className=" h-full rounded-md bg-white dark:bg-jp-gray-lightgray_background transition duration-300 ease-in-out text-sm text-jp-gray-800 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
       {fields
-      ->Js.Array2.mapi((itm, i) => {
+      ->Array.mapWithIndex((itm, i) => {
         let input: ReactFinalForm.fieldRenderPropsInput = {
           name: `input`,
           onBlur: _ev => (),
@@ -67,7 +67,7 @@ module TableStructure = {
           <tr
             className="h-full rounded-md bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100 dark:hover:bg-opacity-10 transition duration-300 ease-in-out text-sm text-jp-gray-800 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
             {headings
-            ->Js.Array2.mapi((heading, i) => {
+            ->Array.mapWithIndex((heading, i) => {
               <TableHeading heading key={Js.Int.toString(i)} />
             })
             ->React.array}
@@ -87,10 +87,10 @@ let make = (~input: ReactFinalForm.fieldRenderPropsInput, ~headings, ~fields) =>
   let currentValue = React.useMemo1(() => {
     switch tableInput.value->Js.Json.decodeArray {
     | Some(str) =>
-      str->Js.Array2.map(item => {
+      str->Array.map(item => {
         switch item->Js.Json.decodeArray {
         | Some(a) =>
-          a->Js.Array2.map(
+          a->Array.map(
             itm => {
               LogicUtils.getStringFromJson(itm, "")
             },
@@ -103,16 +103,16 @@ let make = (~input: ReactFinalForm.fieldRenderPropsInput, ~headings, ~fields) =>
     }
   }, [tableInput.value])
 
-  let dummyInitialState = [{fields->Js.Array2.map(_ => {""})}]
-  let initialState = Js.Array2.length(currentValue) > 0 ? currentValue : dummyInitialState
+  let dummyInitialState = [{fields->Array.map(_ => {""})}]
+  let initialState = Array.length(currentValue) > 0 ? currentValue : dummyInitialState
   let (keyValue, setKeyValue) = React.useState(() => initialState)
 
   let onKeyUp = tableInput.onChange
 
   let onChange = (elemIndex, coloumnIndex, value) => {
-    let a = keyValue->Js.Array2.mapi((itm, index) => {
+    let a = keyValue->Array.mapWithIndex((itm, index) => {
       if index == elemIndex {
-        itm->Js.Array2.mapi((val, k) => {
+        itm->Array.mapWithIndex((val, k) => {
           if k == coloumnIndex {
             value
           } else {
@@ -130,9 +130,9 @@ let make = (~input: ReactFinalForm.fieldRenderPropsInput, ~headings, ~fields) =>
 
   let onClick = (elemIndex, isLast, _) => {
     let value = if isLast {
-      Js.Array2.concat(initialState, dummyInitialState)
+      Array.concat(initialState, dummyInitialState)
     } else {
-      Js.Array2.filteri(initialState, (_, index) => index !== elemIndex)
+      Array.filterWithIndex(initialState, (_, index) => index !== elemIndex)
     }
 
     setKeyValue(_ => value)
@@ -140,8 +140,8 @@ let make = (~input: ReactFinalForm.fieldRenderPropsInput, ~headings, ~fields) =>
   }
   <TableStructure headings>
     {initialState
-    ->Js.Array2.mapi((_, i) => {
-      let isLast = {i == Js.Array2.length(initialState) - 1}
+    ->Array.mapWithIndex((_, i) => {
+      let isLast = {i == Array.length(initialState) - 1}
       <TableCell onClick elemIndex=i isLast fields onChange keyValue />
     })
     ->React.array}

@@ -7,18 +7,18 @@ let validateAPIKeyForm = (
   ~setShowCustomDate,
   (),
 ) => {
-  let errors = Js.Dict.empty()
+  let errors = Dict.make()
 
   let valuesDict = values->LogicUtils.getDictFromJsonObject
 
-  keys->Js.Array2.forEach(key => {
+  keys->Array.forEach(key => {
     let value = LogicUtils.getString(valuesDict, key, "")
 
     if value == "" {
       switch key {
-      | "name" => Js.Dict.set(errors, key, "Please enter name"->Js.Json.string)
-      | "description" => Js.Dict.set(errors, key, "Please enter description"->Js.Json.string)
-      | "expiration" => Js.Dict.set(errors, key, "Please select expiry"->Js.Json.string)
+      | "name" => Dict.set(errors, key, "Please enter name"->Js.Json.string)
+      | "description" => Dict.set(errors, key, "Please enter description"->Js.Json.string)
+      | "expiration" => Dict.set(errors, key, "Please select expiry"->Js.Json.string)
       | _ => ()
       }
     } else if key == "expiration" && value->Js.String2.toLowerCase != "never" {
@@ -26,12 +26,12 @@ let validateAPIKeyForm = (
       let date = LogicUtils.getString(valuesDict, "expiration_date", "")
 
       if date == "" {
-        Js.Dict.set(errors, "expiration_date", "Please select expiry date"->Js.Json.string)
+        Dict.set(errors, "expiration_date", "Please select expiry date"->Js.Json.string)
       }
     } else if key == "expiration" && value->Js.String2.toLowerCase == "never" {
       setShowCustomDate(false)
     } else if (
-      value->Js.String2.length > 0 &&
+      value->String.length > 0 &&
       (key === "webhook_url" || key === "return_url") &&
       !(value->Js.String2.includes("localhost")) &&
       !Js.Re.test_(
@@ -41,12 +41,12 @@ let validateAPIKeyForm = (
         value,
       )
     ) {
-      Js.Dict.set(errors, key, "Please Enter Valid URL"->Js.Json.string)
-    } else if (key === "webhook_url" || key === "return_url") && value->Js.String2.length <= 0 {
-      Js.Dict.set(errors, key, "Please Enter Valid URL"->Js.Json.string)
+      Dict.set(errors, key, "Please Enter Valid URL"->Js.Json.string)
+    } else if (key === "webhook_url" || key === "return_url") && value->String.length <= 0 {
+      Dict.set(errors, key, "Please Enter Valid URL"->Js.Json.string)
     }
   })
-  errors == Js.Dict.empty() ? setIsDisabled(_ => false) : setIsDisabled(_ => true)
+  errors == Dict.make() ? setIsDisabled(_ => false) : setIsDisabled(_ => true)
 
   errors->Js.Json.object_
 }
@@ -130,7 +130,7 @@ let apiDescription = FormRenderer.makeFieldInfo(
 )
 
 let makeOptions: array<string> => array<SelectBox.dropdownOption> = options => {
-  options->Js.Array2.map(str => {
+  options->Array.map(str => {
     let option: SelectBox.dropdownOption = {label: str->LogicUtils.snakeToTitle, value: str}
     option
   })

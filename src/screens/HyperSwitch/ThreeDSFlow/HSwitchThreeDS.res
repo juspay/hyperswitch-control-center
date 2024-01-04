@@ -5,7 +5,7 @@ module ActiveRulePreview = {
   open LogicUtils
   @react.component
   let make = (~initialRule) => {
-    let ruleInfo = initialRule->Belt.Option.getWithDefault(Js.Dict.empty())
+    let ruleInfo = initialRule->Belt.Option.getWithDefault(Dict.make())
     let name = ruleInfo->getString("name", "")
     let description = ruleInfo->getString("description", "")
 
@@ -47,7 +47,7 @@ module Configure3DSRule = {
     let addRule = (index, _copy) => {
       let existingRules = ruleInput.value->LogicUtils.getArrayFromJson([])
       let newRule = existingRules[index]->Belt.Option.getWithDefault(Js.Json.null)
-      let newRules = existingRules->Js.Array2.concat([newRule])
+      let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
@@ -59,7 +59,7 @@ module Configure3DSRule = {
 
     <div>
       {
-        let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Js.Array2.length > 1
+        let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Array.length > 1
         let rule = ruleInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
         let keyExtractor = (index, _rule, isDragging) => {
           let id = {`algorithm.rules[${string_of_int(index)}]`}
@@ -117,7 +117,7 @@ let make = () => {
     try {
       let wasmResult = await Window.connectorWasmInit()
       let fetchedWasm =
-        wasmResult->LogicUtils.getDictFromJsonObject->LogicUtils.getObj("wasm", Js.Dict.empty())
+        wasmResult->LogicUtils.getDictFromJsonObject->LogicUtils.getObj("wasm", Dict.make())
       setWasm(_ => Some(fetchedWasm->toWasm))
     } catch {
     | _ => ()
@@ -129,14 +129,14 @@ let make = () => {
       let threeDsUrl = getURL(~entityName=THREE_DS, ~methodType=Get, ())
       let threeDsRuleDetail = await fetchDetails(threeDsUrl)
       let responseDict = threeDsRuleDetail->getDictFromJsonObject
-      let programValue = responseDict->getObj("program", Js.Dict.empty())
+      let programValue = responseDict->getObj("program", Dict.make())
 
       let intitialValue =
         [
           ("name", responseDict->LogicUtils.getString("name", "")->Js.Json.string),
           ("description", responseDict->LogicUtils.getString("description", "")->Js.Json.string),
           ("algorithm", programValue->Js.Json.object_),
-        ]->Js.Dict.fromArray
+        ]->Dict.fromArray
 
       setInitialRule(_ => Some(intitialValue))
     } catch {
@@ -175,7 +175,7 @@ let make = () => {
     let searchParams = url.search
     let filtersFromUrl =
       LogicUtils.getDictFromUrlSearchParams(searchParams)
-      ->Js.Dict.get("type")
+      ->Dict.get("type")
       ->Belt.Option.getWithDefault("")
     setPageView(_ => filtersFromUrl->pageStateMapper)
     None
@@ -204,21 +204,21 @@ let make = () => {
   let validate = (values: Js.Json.t) => {
     let dict = values->LogicUtils.getDictFromJsonObject
 
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
 
     RoutingUtils.validateNameAndDescription(~dict, ~errors)
 
-    switch dict->Js.Dict.get("algorithm")->Belt.Option.flatMap(Js.Json.decodeObject) {
+    switch dict->Dict.get("algorithm")->Belt.Option.flatMap(Js.Json.decodeObject) {
     | Some(jsonDict) => {
         let index = 1
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
-        if index === 1 && rules->Js.Array2.length === 0 {
-          errors->Js.Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
+        if index === 1 && rules->Array.length === 0 {
+          errors->Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
         } else {
           rules->Array.forEachWithIndex((rule, i) => {
             let ruleDict = rule->LogicUtils.getDictFromJsonObject
             if !RoutingUtils.validateConditionsFor3ds(ruleDict) {
-              errors->Js.Dict.set(
+              errors->Dict.set(
                 `Rule ${(i + 1)->string_of_int} - Condition`,
                 `Invalid`->Js.Json.string,
               )

@@ -17,11 +17,11 @@ let make = (
 
   let headingDict =
     heading
-    ->Js.Array2.mapi((item, index) => (
+    ->Array.mapWithIndex((item, index) => (
       getHeading(item).title,
       index->Belt.Int.toFloat->Js.Json.number,
     ))
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
 
   let sortByOrderOderedArr = (a, b) => {
     let positionInHeader = headingDict->LogicUtils.getInt(getHeading(a).title, 0)
@@ -35,10 +35,10 @@ let make = (
     }
   }
 
-  let defaultColumnsString = defaultColumns->Js.Array2.map(head => getHeading(head).title)
-  let initalHeadingData = heading->Js.Array2.map(head => {
+  let defaultColumnsString = defaultColumns->Array.map(head => getHeading(head).title)
+  let initalHeadingData = heading->Array.map(head => {
     let columnName = getHeading(head).title
-    let isDisabled = defaultColumnsString->Js.Array2.includes(columnName)
+    let isDisabled = defaultColumnsString->Array.includes(columnName)
     let options: SelectBox.dropdownOption = {
       label: columnName,
       value: columnName,
@@ -46,17 +46,17 @@ let make = (
     }
     options
   })
-  let initialValues = visibleColumns->Js.Array2.map(head => getHeading(head).title)
+  let initialValues = visibleColumns->Array.map(head => getHeading(head).title)
 
   let onSubmit = values => {
     let getHeadingCol = text => {
-      let index = heading->Js.Array2.map(head => getHeading(head).title)->Js.Array2.indexOf(text)
+      let index = heading->Array.map(head => getHeading(head).title)->Array.indexOf(text)
       heading[index]
     }
 
     let headers = values->Belt.Array.keepMap(getHeadingCol)
     let headers = orderdColumnBasedOnDefaultCol
-      ? headers->Js.Array2.copy->Js.Array2.sortInPlaceWith(sortByOrderOderedArr)
+      ? headers->Array.copy->Js.Array2.sortInPlaceWith(sortByOrderOderedArr)
       : headers
 
     setColumns(_ => headers)

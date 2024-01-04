@@ -29,7 +29,7 @@ module DetailsSection = {
         {details.inputFields
         ->Array.mapWithIndex((field, index) => {
           let merchantName = merchantInfo->LogicUtils.getString(field.name, "Not Added")
-          let defaultText = merchantName->Js.String2.length > 0 ? merchantName : "Not Added"
+          let defaultText = merchantName->String.length > 0 ? merchantName : "Not Added"
 
           <div key={index->Belt.Int.toString}>
             {switch formState {
@@ -61,7 +61,7 @@ let make = () => {
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let (uid, setUid) = React.useState(() => None)
-  let (merchantInfo, setMerchantInfo) = React.useState(() => Js.Dict.empty())
+  let (merchantInfo, setMerchantInfo) = React.useState(() => Dict.make())
   let (formState, setFormState) = React.useState(_ => Preview)
   let (fetchState, setFetchState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (isDisabled, setIsDisabled) = React.useState(_ => false)
@@ -141,7 +141,7 @@ let make = () => {
           className="flex flex-col md:flex-row justify-between bg-white p-7 gap-8 rounded-sm border border-jp-gray-border_gray">
           <div className="w-full flex flex-col gap-5 md:gap-10">
             {renderingArray
-            ->Js.Array2.mapi((details, i) =>
+            ->Array.mapWithIndex((details, i) =>
               <DetailsSection key={i->string_of_int} details formState merchantInfo />
             )
             ->React.array}

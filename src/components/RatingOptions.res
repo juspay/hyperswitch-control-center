@@ -11,7 +11,7 @@ let make = (~icons, ~size) => {
 
   <div className="flex flex-row justify-evenly py-5">
     {icons
-    ->Js.Array2.mapi((icon, index) => {
+    ->Array.mapWithIndex((icon, index) => {
       let iconRating = index + 1
       <Icon
         key={Belt.Int.toString(index)}

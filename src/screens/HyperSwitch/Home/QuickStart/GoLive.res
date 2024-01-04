@@ -31,7 +31,7 @@ let make = (~goLive) => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let email = HSLocalStorage.getFromMerchantDetails("email")
-  let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty())
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
   let (isSubmitBtnDisabled, setIsSubmitBtnDisabled) = React.useState(_ => false)
   let {setIsProdIntentCompleted, setQuickStartPageState, setDashboardPageState} = React.useContext(
@@ -55,7 +55,7 @@ let make = (~goLive) => {
       let hideHeader = valueForProdIntent->getBool(IsCompleted->getStringFromVariant, false)
       setIsProdIntentCompleted(_ => hideHeader)
       if !hideHeader {
-        valueForProdIntent->Js.Dict.set(POCemail->getStringFromVariant, email->Js.Json.string)
+        valueForProdIntent->Dict.set(POCemail->getStringFromVariant, email->Js.Json.string)
       }
       setQuickStartPageState(_ => FinalLandingPage)
       setInitialValues(_ => valueForProdIntent)

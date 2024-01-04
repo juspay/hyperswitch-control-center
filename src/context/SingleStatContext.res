@@ -17,7 +17,7 @@ let singleStatComponentDefVal = {
   singleStatData: None,
   singleStatTimeSeries: None,
   singleStatDelta: None,
-  singleStatLoader: Js.Dict.empty(),
+  singleStatLoader: Dict.make(),
   singleStatIsVisible: _ => (),
 }
 
@@ -60,7 +60,7 @@ let make = (
 
   let getTopLevelSingleStatFilter = React.useMemo1(() => {
     getAllFilter
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->Js.String2.split(".")
@@ -71,21 +71,21 @@ let make = (
         Some((prefix, value))
       }
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
   }, [getAllFilter])
 
   let (topFiltersToSearchParam, customFilter, modeValue) = React.useMemo1(() => {
     let modeValue = Some(getTopLevelSingleStatFilter->LogicUtils.getString(modeKey, ""))
-    let allFilterKeys = Js.Array2.concat(
+    let allFilterKeys = Array.concat(
       [startTimeFilterKey, endTimeFilterKey, modeValue->Belt.Option.getWithDefault("")],
       filterKeys,
     )
     let filterSearchParam =
       getTopLevelSingleStatFilter
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
-        if allFilterKeys->Js.Array2.includes(key) {
+        if allFilterKeys->Array.includes(key) {
           switch value->Js.Json.classify {
           | JSONString(str) => `${key}=${str}`->Some
           | JSONNumber(num) => `${key}=${num->Js.String.make}`->Some
@@ -96,7 +96,7 @@ let make = (
           None
         }
       })
-      ->Js.Array2.joinWith("&")
+      ->Array.joinWith("&")
 
     (
       filterSearchParam,
@@ -107,12 +107,12 @@ let make = (
 
   let filterValueFromUrl = React.useMemo1(() => {
     getTopLevelSingleStatFilter
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Belt.Array.keepMap(entries => {
       let (key, value) = entries
-      filterKeys->Js.Array2.includes(key) ? Some((key, value)) : None
+      filterKeys->Array.includes(key) ? Some((key, value)) : None
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
     ->Some
   }, [topFiltersToSearchParam])
@@ -126,21 +126,21 @@ let make = (
 
   let initialValue =
     dataFetcherObj
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let {metrics} = item
       let updatedMetrics = metrics->metrixMapper
       (updatedMetrics, Loading)
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
 
   let initialValueLoader =
     dataFetcherObj
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let {metrics} = item
       let updatedMetrics = metrics->metrixMapper
       (updatedMetrics, AnalyticsUtils.Shimmer)
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
   let (singleStatStateData, setSingleStatStateData) = React.useState(_ => initialValue)
   let (singleStatTimeSeries, setSingleStatTimeSeries) = React.useState(_ => initialValue)
   let (singleStatStateDataHistoric, setSingleStatStateDataHistoric) = React.useState(_ =>
@@ -197,13 +197,13 @@ let make = (
       })
 
       dataFetcherObj
-      ->Js.Array2.mapi((urlConfig, index) => {
+      ->Array.mapWithIndex((urlConfig, index) => {
         let {url, metrics} = urlConfig
         let updatedMetrics = metrics->metrixMapper
         setIndividualSingleStatTime(
           prev => {
-            let individualTime = prev->Js.Dict.entries->Js.Dict.fromArray
-            individualTime->Js.Dict.set(index->Belt.Int.toString, Js.Date.now())
+            let individualTime = prev->Dict.toArray->Dict.fromArray
+            individualTime->Dict.set(index->Belt.Int.toString, Js.Date.now())
             individualTime
           },
         )
@@ -211,7 +211,7 @@ let make = (
         setSingleStatStateData(
           prev => {
             let prevDict = prev->copyOfDict
-            Js.Dict.set(prevDict, updatedMetrics, Loading)
+            Dict.set(prevDict, updatedMetrics, Loading)
             prevDict
           },
         )
@@ -219,22 +219,22 @@ let make = (
         setSingleStatTimeSeries(
           prev => {
             let prevDict = prev->copyOfDict
-            Js.Dict.set(prevDict, updatedMetrics, Loading)
+            Dict.set(prevDict, updatedMetrics, Loading)
             prevDict
           },
         )
         setSingleStatStateDataHistoric(
           prev => {
             let prevDict = prev->copyOfDict
-            Js.Dict.set(prevDict, updatedMetrics, Loading)
+            Dict.set(prevDict, updatedMetrics, Loading)
             prevDict
           },
         )
-        let timeObj = Js.Dict.fromArray([
+        let timeObj = Dict.fromArray([
           ("start", filterConfigCurrent.startTime->Js.Json.string),
           ("end", filterConfigCurrent.endTime->Js.Json.string),
         ])
-        let historicTimeObj = Js.Dict.fromArray([
+        let historicTimeObj = Dict.fromArray([
           ("start", filterConfigHistoric.startTime->Js.Json.string),
           ("end", filterConfigHistoric.endTime->Js.Json.string),
         ])
@@ -257,7 +257,7 @@ let make = (
               (),
             )->Js.Json.stringify,
             ~authToken=parentToken,
-            ~headers=[("QueryType", "SingleStatHistoric")]->Js.Dict.fromArray,
+            ~headers=[("QueryType", "SingleStatHistoric")]->Dict.fromArray,
             (),
           )
           ->addLogsAroundFetch(
@@ -271,19 +271,19 @@ let make = (
                 setSingleStatStateDataHistoric(
                   prev => {
                     let prevDict = prev->copyOfDict
-                    Js.Dict.set(
+                    Dict.set(
                       prevDict,
                       updatedMetrics,
                       Loaded(
                         jsonObj
                         ->Belt.Array.get(0)
-                        ->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty())),
+                        ->Belt.Option.getWithDefault(Js.Json.object_(Dict.make())),
                       ),
                     )
                     prevDict
                   },
                 )
-                Loaded(Js.Json.object_(Js.Dict.empty()))
+                Loaded(Js.Json.object_(Dict.make()))
               })
             },
           )
@@ -292,7 +292,7 @@ let make = (
               setSingleStatStateDataHistoric(
                 prev => {
                   let prevDict = prev->copyOfDict
-                  Js.Dict.set(prevDict, updatedMetrics, LoadedError)
+                  Dict.set(prevDict, updatedMetrics, LoadedError)
                   prevDict
                 },
               )
@@ -313,7 +313,7 @@ let make = (
               (),
             )->Js.Json.stringify,
             ~authToken=parentToken,
-            ~headers=[("QueryType", "SingleStat")]->Js.Dict.fromArray,
+            ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
             (),
           )
           ->addLogsAroundFetch(~logTitle=`SingleStat data for metrics ${metrics->metrixMapper}`)
@@ -324,20 +324,20 @@ let make = (
               setSingleStatStateData(
                 prev => {
                   let prevDict = prev->copyOfDict
-                  Js.Dict.set(
+                  Dict.set(
                     prevDict,
                     updatedMetrics,
                     Loaded(
                       jsonObj
                       ->Belt.Array.get(0)
-                      ->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty())),
+                      ->Belt.Option.getWithDefault(Js.Json.object_(Dict.make())),
                     ),
                   )
                   prevDict
                 },
               )
 
-              resolve(Loaded(Js.Json.object_(Js.Dict.empty())))
+              resolve(Loaded(Js.Json.object_(Dict.make())))
             },
           )
           ->catch(
@@ -345,7 +345,7 @@ let make = (
               setSingleStatStateData(
                 prev => {
                   let prevDict = prev->copyOfDict
-                  Js.Dict.set(prevDict, updatedMetrics, LoadedError)
+                  Dict.set(prevDict, updatedMetrics, LoadedError)
                   prevDict
                 },
               )
@@ -368,7 +368,7 @@ let make = (
               (),
             )->Js.Json.stringify,
             ~authToken=parentToken,
-            ~headers=[("QueryType", "SingleStat Time Series")]->Js.Dict.fromArray,
+            ~headers=[("QueryType", "SingleStat Time Series")]->Dict.fromArray,
             (),
           )
           ->addLogsAroundFetch(
@@ -376,18 +376,18 @@ let make = (
           )
           ->then(
             text => {
-              let jsonObj = convertNewLineSaperatedDataToArrayOfJson(text)->Js.Array2.map(
+              let jsonObj = convertNewLineSaperatedDataToArrayOfJson(text)->Array.map(
                 item => {
                   item
                   ->getDictFromJsonObject
-                  ->Js.Dict.entries
-                  ->Js.Array2.map(
+                  ->Dict.toArray
+                  ->Array.map(
                     dictEn => {
                       let (key, value) = dictEn
                       (key === `${urlConfig.timeColumn}_time` ? "time" : key, value)
                     },
                   )
-                  ->Js.Dict.fromArray
+                  ->Dict.fromArray
                   ->Js.Json.object_
                 },
               )
@@ -395,11 +395,11 @@ let make = (
               setSingleStatTimeSeries(
                 prev => {
                   let prevDict = prev->copyOfDict
-                  Js.Dict.set(prevDict, updatedMetrics, Loaded(jsonObj->Js.Json.array))
+                  Dict.set(prevDict, updatedMetrics, Loaded(jsonObj->Js.Json.array))
                   prevDict
                 },
               )
-              resolve(Loaded(Js.Json.object_(Js.Dict.empty())))
+              resolve(Loaded(Js.Json.object_(Dict.make())))
             },
           )
           ->catch(
@@ -407,7 +407,7 @@ let make = (
               setSingleStatTimeSeries(
                 prev => {
                   let prevDict = prev->copyOfDict
-                  Js.Dict.set(prevDict, updatedMetrics, LoadedError)
+                  Dict.set(prevDict, updatedMetrics, LoadedError)
                   prevDict
                 },
               )
@@ -433,25 +433,25 @@ let make = (
               prev => {
                 let prevDict = prev->copyOfDict
                 if isLoaded(ssH) && isLoaded(ssT) && isLoaded(ssD) {
-                  Js.Dict.set(prevDict, updatedMetrics, AnalyticsUtils.SideLoader)
+                  Dict.set(prevDict, updatedMetrics, AnalyticsUtils.SideLoader)
                 }
                 prevDict
               },
             )
             setIndividualSingleStatTime(
               prev => {
-                let individualTime = prev->Js.Dict.entries->Js.Dict.fromArray
-                individualTime->Js.Dict.set(
+                let individualTime = prev->Dict.toArray->Dict.fromArray
+                individualTime->Dict.set(
                   index->Belt.Int.toString,
                   Js.Date.now() -.
                   individualTime
-                  ->Js.Dict.get(index->Belt.Int.toString)
+                  ->Dict.get(index->Belt.Int.toString)
                   ->Belt.Option.getWithDefault(Js.Date.now()),
                 )
                 individualTime
               },
             )
-            if index === dataFetcherObj->Js.Array2.length - 1 {
+            if index === dataFetcherObj->Array.length - 1 {
               setSingleStatTime(
                 prev => {
                   ...prev,

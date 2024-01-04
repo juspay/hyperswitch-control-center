@@ -272,10 +272,10 @@ let multi_mid_merchants = ["vodafone", "bigbasket", "cred", "swiggy", "paypal"]
 let (startTimeFilterKey, endTimeFilterKey, optFilterKey) = ("startTime", "endTime", "opt")
 let getDateCreatedObject = () => {
   let currentDate = Js.Date.now()
-  let filterCreatedDict = Js.Dict.empty()
+  let filterCreatedDict = Dict.make()
   let currentTimestamp = currentDate->Js.Date.fromFloat->Js.Date.toISOString
   let dateFormat = "YYYY-MM-DDTHH:mm:[00][Z]"
-  Js.Dict.set(
+  Dict.set(
     filterCreatedDict,
     endTimeFilterKey,
     Js.Json.string(currentTimestamp->TimeZoneHook.formattedISOString(dateFormat)),
@@ -294,8 +294,8 @@ let getDateCreatedObject = () => {
       ->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]"),
     )
   }
-  Js.Dict.set(filterCreatedDict, startTimeFilterKey, defaultStartTime)
-  Js.Dict.set(filterCreatedDict, "opt", Js.Json.string("today"))
+  Dict.set(filterCreatedDict, startTimeFilterKey, defaultStartTime)
+  Dict.set(filterCreatedDict, "opt", Js.Json.string("today"))
 
   filterCreatedDict
 }
@@ -327,7 +327,7 @@ module TableModalContent = {
           ~method_=Post,
           ~bodyStr={defaultFilters->Js.Json.object_->Js.Json.stringify},
           ~authToken=parentToken,
-          ~headers=[("QueryType", "TableSampleData")]->Js.Dict.fromArray,
+          ~headers=[("QueryType", "TableSampleData")]->Dict.fromArray,
           (),
         )
         ->addLogsAroundFetch(~logTitle="Table Sample Data Api")
@@ -337,7 +337,7 @@ module TableModalContent = {
             ->getDictFromJsonObject
             ->getJsonObjectFromDict("queryData")
             ->summayTableEntity.getObjects
-            ->Js.Array2.map(Js.Nullable.return)
+            ->Array.map(Js.Nullable.return)
           setData(_ => arrData)
           resolve()
         })
@@ -359,11 +359,11 @@ module TableModalContent = {
     } else {
       <LoadedTable
         actualData
-        totalResults={actualData->Js.Array2.length}
+        totalResults={actualData->Array.length}
         offset
         setOffset
         entity=summayTableEntity
-        currrentFetchCount={actualData->Js.Array2.length}
+        currrentFetchCount={actualData->Array.length}
         title="Analytics Summary Table OnClickDetails"
         hideTitle=true
         resultsPerPage=10
@@ -403,13 +403,13 @@ module TableErrorModalContent = {
       open Promise
       setTableDataLoading(_ => true)
       let filters = defaultFilters->getJsonObjectFromDict("filters")->Some
-      let timeObj = Js.Dict.fromArray([
+      let timeObj = Dict.fromArray([
         ("start", startTime->Js.Json.string),
         ("end", endTime->Js.Json.string),
       ])
       if parentToken->Belt.Option.isSome {
         fetchApi(
-          `${summayTableEntity.uri}?query-type=tableSampleApi&metrics=${metrics}&groupBy=${groupBy->Js.Array2.joinWith(
+          `${summayTableEntity.uri}?query-type=tableSampleApi&metrics=${metrics}&groupBy=${groupBy->Array.joinWith(
               ",",
             )}`,
           ~method_=Post,
@@ -423,7 +423,7 @@ module TableErrorModalContent = {
             (),
           )->Js.Json.stringify,
           ~authToken=parentToken,
-          ~headers=[("QueryType", "TableSampleData")]->Js.Dict.fromArray,
+          ~headers=[("QueryType", "TableSampleData")]->Dict.fromArray,
           (),
         )
         ->addLogsAroundFetch(~logTitle="Table Sample Data Api")
@@ -432,7 +432,7 @@ module TableErrorModalContent = {
             _ =>
               summayTableEntity.getObjects(
                 data->convertNewLineSaperatedDataToArrayOfJson->Js.Json.array,
-              )->Js.Array2.map(Js.Nullable.return),
+              )->Array.map(Js.Nullable.return),
           )
           resolve()
         })
@@ -476,11 +476,11 @@ module TableErrorModalContent = {
     } else {
       <LoadedTable
         actualData
-        totalResults={actualData->Js.Array2.length}
+        totalResults={actualData->Array.length}
         offset
         setOffset
         entity=summayTableEntity
-        currrentFetchCount={actualData->Js.Array2.length}
+        currrentFetchCount={actualData->Array.length}
         title="Analytics Summary Table OnClickDetails"
         hideTitle=true
         resultsPerPage=10
@@ -511,18 +511,18 @@ let getFilterRequestBody = (
   ~source: string="BATCH",
   (),
 ) => {
-  let body: Js.Dict.t<Js.Json.t> = Js.Dict.empty()
-  let timeRange = Js.Dict.empty()
-  let timeSeries = Js.Dict.empty()
+  let body: Js.Dict.t<Js.Json.t> = Dict.make()
+  let timeRange = Dict.make()
+  let timeSeries = Dict.make()
 
-  Js.Dict.set(timeRange, "startTime", startDateTime->Js.Json.string)
-  Js.Dict.set(timeRange, "endTime", endDateTime->Js.Json.string)
-  Js.Dict.set(body, "timeRange", timeRange->Js.Json.object_)
+  Dict.set(timeRange, "startTime", startDateTime->Js.Json.string)
+  Dict.set(timeRange, "endTime", endDateTime->Js.Json.string)
+  Dict.set(body, "timeRange", timeRange->Js.Json.object_)
 
   switch groupByNames {
   | Some(groupByNames) =>
-    if groupByNames->Js.Array2.length != 0 {
-      Js.Dict.set(
+    if groupByNames->Array.length != 0 {
+      Dict.set(
         body,
         "groupByNames",
         groupByNames
@@ -537,7 +537,7 @@ let getFilterRequestBody = (
   switch filter {
   | Some(filters) =>
     if !(filters->checkEmptyJson) {
-      Js.Dict.set(body, "filters", filters)
+      Dict.set(body, "filters", filters)
     }
   | None => ()
   }
@@ -545,43 +545,43 @@ let getFilterRequestBody = (
   switch distributionValues {
   | Some(distributionValues) =>
     if !(distributionValues->checkEmptyJson) {
-      Js.Dict.set(body, "distribution", distributionValues)
+      Dict.set(body, "distribution", distributionValues)
     }
   | None => ()
   }
 
   if customFilter != "" {
-    Js.Dict.set(body, "customFilter", customFilter->Js.Json.string)
+    Dict.set(body, "customFilter", customFilter->Js.Json.string)
   }
   switch granularity {
   | Some(granularity) => {
-      Js.Dict.set(timeSeries, "granularity", granularity->Js.Json.string)
-      Js.Dict.set(body, "timeSeries", timeSeries->Js.Json.object_)
+      Dict.set(timeSeries, "granularity", granularity->Js.Json.string)
+      Dict.set(body, "timeSeries", timeSeries->Js.Json.object_)
     }
 
   | None => ()
   }
 
   switch cardinality {
-  | Some(cardinality) => Js.Dict.set(body, "cardinality", cardinality->Js.Json.string)
+  | Some(cardinality) => Dict.set(body, "cardinality", cardinality->Js.Json.string)
   | None => ()
   }
   switch mode {
-  | Some(mode) => Js.Dict.set(body, "mode", mode->Js.Json.string)
+  | Some(mode) => Dict.set(body, "mode", mode->Js.Json.string)
   | None => ()
   }
 
   switch prefix {
-  | Some(prefix) => Js.Dict.set(body, "prefix", prefix->Js.Json.string)
+  | Some(prefix) => Dict.set(body, "prefix", prefix->Js.Json.string)
   | None => ()
   }
 
-  Js.Dict.set(body, "source", source->Js.Json.string)
+  Dict.set(body, "source", source->Js.Json.string)
 
   switch metrics {
   | Some(metrics) =>
-    if metrics->Js.Array2.length != 0 {
-      Js.Dict.set(
+    if metrics->Array.length != 0 {
+      Dict.set(
         body,
         "metrics",
         metrics
@@ -593,7 +593,7 @@ let getFilterRequestBody = (
   | None => ()
   }
   if delta {
-    Js.Dict.set(body, "delta", true->Js.Json.boolean)
+    Dict.set(body, "delta", true->Js.Json.boolean)
   }
 
   body
@@ -634,7 +634,7 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
     let last7FromTime = (fromTime->DayJs.getDayJsForString).subtract(. 7, "day")
     let last7ToTime = (fromTime->DayJs.getDayJsForString).subtract(. 1, "day")
 
-    let timeArray = Js.Dict.fromArray([
+    let timeArray = Dict.fromArray([
       ("fromTime", last7FromTime.format(. dateTimeFormat)),
       ("toTime", last7ToTime.format(. dateTimeFormat)),
     ])
@@ -662,7 +662,7 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
         ),
       )->DayJs.getDayJsForJsDate
 
-    let timeArray = Js.Dict.fromArray([
+    let timeArray = Dict.fromArray([
       ("fromTime", yesterdayFromTime.format(. dateTimeFormat)),
       ("toTime", yesterdayToTime.format(. dateTimeFormat)),
     ])
@@ -677,7 +677,7 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
       ->Js.Date.toString
       ->DayJs.getDayJsForString
     let currentMonthToTime = nowtime
-    let timeArray = Js.Dict.fromArray([
+    let timeArray = Dict.fromArray([
       ("fromTime", currentMonthFromTime.format(. dateTimeFormat)),
       ("toTime", currentMonthToTime.format(. dateTimeFormat)),
     ])
@@ -687,14 +687,14 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
     let currentWeekFromTime = Js.Date.make()->DateTimeUtils.getStartOfWeek(Monday)
     let currentWeekToTime = Js.Date.make()->DayJs.getDayJsForJsDate
 
-    let timeArray = Js.Dict.fromArray([
+    let timeArray = Dict.fromArray([
       ("fromTime", currentWeekFromTime.format(. dateTimeFormat)),
       ("toTime", currentWeekToTime.format(. dateTimeFormat)),
     ])
 
     [timeArray]
   } else {
-    let timeArray = Js.Dict.empty()
+    let timeArray = Dict.make()
     [timeArray]
   }
 }
@@ -716,13 +716,13 @@ let generatePayload = (
   ~filters: option<Js.Json.t>,
   ~customFilter,
 ) => {
-  let timeArr = Js.Dict.fromArray([
+  let timeArr = Dict.fromArray([
     ("startTime", startTime->Js.Json.string),
     ("endTime", endTime->Js.Json.string),
   ])
   let newDict = switch groupByNames {
   | Some(groupByNames) =>
-    Js.Dict.fromArray([
+    Dict.fromArray([
       ("timeRange", timeArr->Js.Json.object_),
       ("metrics", metrics->Js.Json.stringArray),
       ("groupByNames", groupByNames->Js.Json.stringArray),
@@ -731,7 +731,7 @@ let generatePayload = (
       ("delta", delta->Js.Json.boolean),
     ])
   | None =>
-    Js.Dict.fromArray([
+    Dict.fromArray([
       ("timeRange", timeArr->Js.Json.object_),
       ("metrics", metrics->Js.Json.stringArray),
       ("prefix", prefix->Js.Json.string),
@@ -741,16 +741,16 @@ let generatePayload = (
   }
 
   switch mode {
-  | Some(mode) => Js.Dict.set(newDict, "mode", mode->Js.Json.string)
+  | Some(mode) => Dict.set(newDict, "mode", mode->Js.Json.string)
   | None => ()
   }
   if customFilter != "" {
-    Js.Dict.set(newDict, "customFilter", customFilter->Js.Json.string)
+    Dict.set(newDict, "customFilter", customFilter->Js.Json.string)
   }
   switch filters {
   | Some(filters) =>
     if !(filters->checkEmptyJson) {
-      Js.Dict.set(newDict, "filters", filters)
+      Dict.set(newDict, "filters", filters)
     }
   | None => ()
   }
@@ -771,8 +771,8 @@ let generatedeltaTablePayload = (
   let dictOfDates = Belt.Array.concatMany(deltaDateArr)
   let tablePayload = Belt.Array.zipBy(dictOfDates, deltaPrefixArr, (x, y) =>
     generatePayload(
-      ~startTime=x->Js.Dict.get("fromTime")->Belt.Option.getWithDefault(""),
-      ~endTime=x->Js.Dict.get("toTime")->Belt.Option.getWithDefault(""),
+      ~startTime=x->Dict.get("fromTime")->Belt.Option.getWithDefault(""),
+      ~endTime=x->Dict.get("toTime")->Belt.Option.getWithDefault(""),
       ~metrics,
       ~groupByNames,
       ~mode,
@@ -807,7 +807,7 @@ let generateTablePayload = (
   let endTime = endTimeFromUrl
 
   let deltaDateArr =
-    {deltaMetrics->Js.Array2.length === 0}
+    {deltaMetrics->Array.length === 0}
       ? []
       : generateDateArray(~startTime, ~endTime, ~deltaPrefixArr)
 
@@ -822,7 +822,7 @@ let generateTablePayload = (
     ~customFilter,
     ~showDeltaMetrics,
   )
-  let tableBodyWithNonDeltaMetrix = if metrics->Js.Array2.length > 0 {
+  let tableBodyWithNonDeltaMetrix = if metrics->Array.length > 0 {
     [
       getFilterRequestBody(
         ~groupByNames=currenltySelectedTab,
@@ -841,7 +841,7 @@ let generateTablePayload = (
     []
   }
 
-  let tableBodyWithDeltaMetrix = if deltaMetrics->Js.Array2.length > 0 {
+  let tableBodyWithDeltaMetrix = if deltaMetrics->Array.length > 0 {
     [
       getFilterRequestBody(
         ~groupByNames=currenltySelectedTab,
@@ -913,10 +913,10 @@ let generateTablePayload = (
 
 let getDownloadDataBody = (downloadDataApiEntity: downloadDataApiBodyEntity) => {
   let {startTime, endTime, columns, compressed} = downloadDataApiEntity
-  Js.Dict.fromArray([
+  Dict.fromArray([
     (
       "timeRange",
-      Js.Dict.fromArray([
+      Dict.fromArray([
         ("startTime", startTime->Js.Json.string),
         ("endTime", endTime->Js.Json.string),
       ])->Js.Json.object_,
@@ -953,7 +953,7 @@ let sampleApiBody = (tableApiBodyEntity: tableApiBodyEntity) => {
     [
       ("startTime", tableApiBodyEntity.startTimeFromUrl->Js.Json.string),
       ("endTime", tableApiBodyEntity.endTimeFromUrl->Js.Json.string),
-    ]->Js.Dict.fromArray
+    ]->Dict.fromArray
 
   let defaultFilters =
     [
@@ -961,84 +961,84 @@ let sampleApiBody = (tableApiBodyEntity: tableApiBodyEntity) => {
       (
         "filters",
         tableApiBodyEntity.filterValueFromUrl->Belt.Option.getWithDefault(
-          Js.Json.object_(Js.Dict.empty()),
+          Js.Json.object_(Dict.make()),
         ),
       ),
       ("source", tableApiBodyEntity.source->Js.Json.string),
       ("mode", tableApiBodyEntity.mode->Belt.Option.getWithDefault("")->Js.Json.string),
-    ]->Js.Dict.fromArray
+    ]->Dict.fromArray
 
   [
     (
       "activeTab",
       tableApiBodyEntity.currenltySelectedTab
       ->Belt.Option.getWithDefault([])
-      ->Js.Array2.map(Js.Json.string)
+      ->Array.map(Js.Json.string)
       ->Js.Json.array,
     ),
     ("filter", defaultFilters->Js.Json.object_),
   ]
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_
   ->Js.Json.stringify
 }
 
 let deltaTimeRangeMapper = (arrJson: array<Js.Json.t>) => {
-  let emptyDict = Js.Dict.empty()
-  let _ = arrJson->Js.Array2.map(item => {
+  let emptyDict = Dict.make()
+  let _ = arrJson->Array.map(item => {
     let dict = item->getDictFromJsonObject
     let name = dict->getString("requestPrefix", "")
     let deltaTimeRange = dict->getJsonObjectFromDict("deltaTimeRange")->getDictFromJsonObject
     let fromTime = deltaTimeRange->getString("startTime", "")
     let toTime = deltaTimeRange->getString("endTime", "")
-    if name === "" && deltaTimeRange->Js.Dict.entries->Js.Array2.length > 0 {
-      emptyDict->Js.Dict.set("currentSr", {fromTime, toTime})
+    if name === "" && deltaTimeRange->Dict.toArray->Array.length > 0 {
+      emptyDict->Dict.set("currentSr", {fromTime, toTime})
     } else if name === "last7" {
-      emptyDict->Js.Dict.set("prev7DaySr", {fromTime, toTime})
+      emptyDict->Dict.set("prev7DaySr", {fromTime, toTime})
     } else if name === "yesterday" {
-      emptyDict->Js.Dict.set("yesterdaySr", {fromTime, toTime})
+      emptyDict->Dict.set("yesterdaySr", {fromTime, toTime})
     } else if name === "currentweek" {
-      emptyDict->Js.Dict.set("currentWeekSr", {fromTime, toTime})
+      emptyDict->Dict.set("currentWeekSr", {fromTime, toTime})
     } else if name === "currentmonth" {
-      emptyDict->Js.Dict.set("currentMonthSr", {fromTime, toTime})
+      emptyDict->Dict.set("currentMonthSr", {fromTime, toTime})
     } else if name === "industry" {
-      emptyDict->Js.Dict.set("industrySr", {fromTime, toTime})
+      emptyDict->Dict.set("industrySr", {fromTime, toTime})
     }
   })
 
   {
     currentSr: emptyDict
-    ->Js.Dict.get("currentSr")
+    ->Dict.get("currentSr")
     ->Belt.Option.getWithDefault({
       fromTime: "",
       toTime: "",
     }),
     prev7DaySr: emptyDict
-    ->Js.Dict.get("prev7DaySr")
+    ->Dict.get("prev7DaySr")
     ->Belt.Option.getWithDefault({
       fromTime: "",
       toTime: "",
     }),
     yesterdaySr: emptyDict
-    ->Js.Dict.get("yesterdaySr")
+    ->Dict.get("yesterdaySr")
     ->Belt.Option.getWithDefault({
       fromTime: "",
       toTime: "",
     }),
     currentWeekSr: emptyDict
-    ->Js.Dict.get("currentWeekSr")
+    ->Dict.get("currentWeekSr")
     ->Belt.Option.getWithDefault({
       fromTime: "",
       toTime: "",
     }),
     currentMonthSr: emptyDict
-    ->Js.Dict.get("currentMonthSr")
+    ->Dict.get("currentMonthSr")
     ->Belt.Option.getWithDefault({
       fromTime: "",
       toTime: "",
     }),
     industrySr: emptyDict
-    ->Js.Dict.get("industrySr")
+    ->Dict.get("industrySr")
     ->Belt.Option.getWithDefault({
       fromTime: "",
       toTime: "",
@@ -2225,12 +2225,12 @@ module RedirectToOrderTableModal = {
   let allColumns = defaultColumns
 
   let filterByData = (actualData, value) => {
-    let searchText = getStringFromJson(value, "")->Js.String2.toLowerCase
+    let searchText = getStringFromJson(value, "")->String.toLowerCase
 
     actualData
     ->Belt.Array.keepMap(Js.Nullable.toOption)
     ->Belt.Array.keepMap((data: tableDetails) => {
-      let dict = Js.Dict.fromArray([
+      let dict = Dict.fromArray([
         ("orderId", data.orderId),
         ("merchantId", data.merchantId),
         ("timestamp", data.timestamp),
@@ -2240,11 +2240,11 @@ module RedirectToOrderTableModal = {
 
       let isMatched =
         dict
-        ->Js.Dict.values
-        ->Js.Array2.map(val => {
-          val->Js.String2.toLowerCase->Js.String2.includes(searchText)
+        ->Dict.valuesToArray
+        ->Array.map(val => {
+          val->String.toLowerCase->String.includes(searchText)
         })
-        ->Js.Array2.includes(true)
+        ->Array.includes(true)
 
       if isMatched {
         data->Js.Nullable.return->Some
@@ -2318,7 +2318,7 @@ let sampleApiBodyBQ = (tableApiBodyEntity: tableApiBodyEntity) => {
     [
       ("startTime", tableApiBodyEntity.startTimeFromUrl->Js.Json.string),
       ("endTime", tableApiBodyEntity.endTimeFromUrl->Js.Json.string),
-    ]->Js.Dict.fromArray
+    ]->Dict.fromArray
 
   let defaultFilters =
     [
@@ -2326,24 +2326,24 @@ let sampleApiBodyBQ = (tableApiBodyEntity: tableApiBodyEntity) => {
       (
         "filters",
         tableApiBodyEntity.filterValueFromUrl->Belt.Option.getWithDefault(
-          Js.Json.object_(Js.Dict.empty()),
+          Js.Json.object_(Dict.make()),
         ),
       ),
       ("source", "BQ"->Js.Json.string),
       ("mode", tableApiBodyEntity.mode->Belt.Option.getWithDefault("")->Js.Json.string),
-    ]->Js.Dict.fromArray
+    ]->Dict.fromArray
 
   [
     (
       "activeTab",
       tableApiBodyEntity.currenltySelectedTab
       ->Belt.Option.getWithDefault([])
-      ->Js.Array2.map(Js.Json.string)
+      ->Array.map(Js.Json.string)
       ->Js.Json.array,
     ),
     ("filter", defaultFilters->Js.Json.object_),
   ]
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_
   ->Js.Json.stringify
 }
@@ -2385,18 +2385,18 @@ let useGetFilters = (
   let {filterValue} = React.useContext(FilterContext.filterContext)
   let getAllFilter =
     filterValue
-    ->Js.Dict.entries
-    ->Js.Array2.map(item => {
+    ->Dict.toArray
+    ->Array.map(item => {
       let (key, value) = item
       (key, value->UrlFetchUtils.getFilterValue)
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
   let getTopLevelSingleStatFilter = React.useMemo1(() => {
     getAllFilter
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
-      let keyArr = key->Js.String2.split(".")
+      let keyArr = key->String.split(".")
       let prefix = keyArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
       if prefix === moduleName && prefix !== "" {
         None
@@ -2404,21 +2404,21 @@ let useGetFilters = (
         Some((prefix, value))
       }
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
   }, [getAllFilter])
 
   let (topFiltersToSearchParam, _customFilter, _modeValue) = React.useMemo1(() => {
     let modeValue = Some(getTopLevelSingleStatFilter->LogicUtils.getString(modeKey, ""))
-    let allFilterKeys = Js.Array2.concat(
+    let allFilterKeys = Array.concat(
       [startTimeFilterKey, endTimeFilterKey, modeValue->Belt.Option.getWithDefault("")],
       filterKeys,
     )
     let filterSearchParam =
       getTopLevelSingleStatFilter
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
-        if allFilterKeys->Js.Array2.includes(key) {
+        if allFilterKeys->Array.includes(key) {
           switch value->Js.Json.classify {
           | JSONString(str) => `${key}=${str}`->Some
           | JSONNumber(num) => `${key}=${num->Js.String.make}`->Some
@@ -2429,7 +2429,7 @@ let useGetFilters = (
           None
         }
       })
-      ->Js.Array2.joinWith("&")
+      ->Array.joinWith("&")
 
     (
       filterSearchParam,
@@ -2439,12 +2439,12 @@ let useGetFilters = (
   }, [getTopLevelSingleStatFilter])
   let filterValueFromUrl = React.useMemo1(() => {
     getTopLevelSingleStatFilter
-    ->Js.Dict.entries
+    ->Dict.toArray
     ->Belt.Array.keepMap(entries => {
       let (key, value) = entries
-      filterKeys->Js.Array2.includes(key) ? Some((key, value)) : None
+      filterKeys->Array.includes(key) ? Some((key, value)) : None
     })
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
     ->Some
   }, [topFiltersToSearchParam])

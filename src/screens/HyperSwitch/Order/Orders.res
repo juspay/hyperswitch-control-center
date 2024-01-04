@@ -24,7 +24,7 @@ let make = (~previewOnly=false) => {
 
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
-  let pageDetail = pageDetailDict->Js.Dict.get("Orders")->Belt.Option.getWithDefault(defaultValue)
+  let pageDetail = pageDetailDict->Dict.get("Orders")->Belt.Option.getWithDefault(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -32,18 +32,18 @@ let make = (~previewOnly=false) => {
     if !previewOnly {
       switch filters {
       | Some(dict) =>
-        let filters = Js.Dict.empty()
+        let filters = Dict.make()
 
-        filters->Js.Dict.set("offset", offset->Belt.Int.toFloat->Js.Json.number)
+        filters->Dict.set("offset", offset->Belt.Int.toFloat->Js.Json.number)
         if !(searchText->isEmptyString) {
-          filters->Js.Dict.set("payment_id", searchText->Js.String2.trim->Js.Json.string)
+          filters->Dict.set("payment_id", searchText->String.trim->Js.Json.string)
         }
 
         dict
-        ->Js.Dict.entries
-        ->Js.Array2.forEach(item => {
+        ->Dict.toArray
+        ->Array.forEach(item => {
           let (key, value) = item
-          filters->Js.Dict.set(key, value)
+          filters->Dict.set(key, value)
         })
 
         filters
@@ -61,7 +61,7 @@ let make = (~previewOnly=false) => {
       | _ => ()
       }
     } else {
-      let filters = Js.Dict.empty()
+      let filters = Dict.make()
 
       filters
       ->getOrdersList(
@@ -120,10 +120,10 @@ let make = (~previewOnly=false) => {
           entity={OrderEntity.orderEntity}
           resultsPerPage=10
           showSerialNumber=true
-          totalResults={previewOnly ? orderData->Js.Array2.length : totalCount}
+          totalResults={previewOnly ? orderData->Array.length : totalCount}
           offset
           setOffset
-          currrentFetchCount={orderData->Js.Array2.length}
+          currrentFetchCount={orderData->Array.length}
           customColumnMapper=OrderEntity.ordersMapDefaultCols
           defaultColumns={OrderEntity.defaultColumns}
           showSerialNumberInCustomizeColumns=false

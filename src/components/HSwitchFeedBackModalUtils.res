@@ -27,7 +27,7 @@ let selectFeedbackType = makeFieldInfo(
   ~name="category",
   ~label="",
   ~customInput=InputFields.radioInput(
-    ~options=feedbackTypeList->Js.Array2.map(getFeedBackStringFromVariant)->SelectBox.makeOptions,
+    ~options=feedbackTypeList->Array.map(getFeedBackStringFromVariant)->SelectBox.makeOptions,
     ~buttonText="options",
     ~isHorizontal=true,
     (),
@@ -53,22 +53,22 @@ let connectorDescription = makeFieldInfo(
 
 let validateFields = (values, ~modalType) => {
   open LogicUtils
-  let errors = Js.Dict.empty()
+  let errors = Dict.make()
   let values = values->getDictFromJsonObject
 
   switch modalType {
   | FeedBackModal => {
       if values->getInt("rating", -1) === -1 {
-        errors->Js.Dict.set("rating", "Please rate"->Js.Json.string)
+        errors->Dict.set("rating", "Please rate"->Js.Json.string)
       }
 
       if values->getString("category", "") !== "" && values->getString("feedbacks", "") === "" {
-        errors->Js.Dict.set("feedbacks", "Please give the feedback"->Js.Json.string)
+        errors->Dict.set("feedbacks", "Please give the feedback"->Js.Json.string)
       }
     }
   | RequestConnectorModal =>
-    if values->getString("connector_name", "")->Js.String2.length <= 0 {
-      errors->Js.Dict.set("connector_name", "Please enter a connector name"->Js.Json.string)
+    if values->getString("connector_name", "")->String.length <= 0 {
+      errors->Dict.set("connector_name", "Please enter a connector name"->Js.Json.string)
     }
   }
 

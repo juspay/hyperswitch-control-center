@@ -21,7 +21,7 @@ let make = (
 ) => {
   let prefix = LogicUtils.useUrlPrefix()
   let showPopUp = PopUpState.useShowPopUp()
-  let pathLength = path->Js.Array2.length
+  let pathLength = path->Array.length
 
   let divider = arrowDivider
   let fontWeight = "font-semibold"
@@ -35,7 +35,7 @@ let make = (
   <div
     className={`flex ${flexDirection} ${fontWeight} ${parentGapClass} ${marginClass} items-center w-fit`}>
     {path
-    ->Js.Array2.mapi((crumb, index) => {
+    ->Array.mapWithIndex((crumb, index) => {
       let showCrumb = index <= 2 || index === pathLength - 1
       let collapse = index === 2 && pathLength > 3
       let onClick = switch crumb.onClick {

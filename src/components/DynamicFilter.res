@@ -38,7 +38,7 @@ module CustomFilters = {
         Js.String2.replaceByRe(localData, %re("/ AND /gi"), "@@")
         ->Js.String2.replaceByRe(%re("/ OR /gi"), "@@")
         ->Js.String2.split("@@")
-      validatorArr->Js.Array2.forEach(ele => {
+      validatorArr->Array.forEach(ele => {
         let mArr =
           Js.String2.replaceByRe(ele, %re("/ != /gi"), "@@")
           ->Js.String2.replaceByRe(%re("/ > /gi"), "@@")
@@ -54,7 +54,7 @@ module CustomFilters = {
         let firstEle = Belt.Array.get(mArr, 0)->Belt.Option.getWithDefault("")
         if (
           firstEle != "" &&
-            tabNames->Js.Array2.indexOf(firstEle->Js.String.trim->Js.String.toLowerCase) < 0
+            tabNames->Array.indexOf(firstEle->Js.String.trim->Js.String.toLowerCase) < 0
         ) {
           setErrMessage(str => `${str} ${firstEle} is not a valid dimension.`)
         }
@@ -73,7 +73,7 @@ module CustomFilters = {
           endColumn: word.endColumn,
         }
         let createSuggest = range => {
-          Js.Array2.map(tabNames, val => {
+          Array.map(tabNames, val => {
             let value: Monaco.Language.labels = {
               label: val,
               insertText: val,
@@ -165,18 +165,18 @@ let make = (
   ~hideFiltersDefaultValue=?,
   ~refreshFilters=true,
 ) => {
-  let localFilters = initialFilters->Js.Array2.filter(item => item.localFilter->Js.Option.isSome)
-  let remoteOptions = options->Js.Array2.filter(item => item.localFilter->Js.Option.isNone)
+  let localFilters = initialFilters->Array.filter(item => item.localFilter->Js.Option.isSome)
+  let remoteOptions = options->Array.filter(item => item.localFilter->Js.Option.isNone)
   let defaultFilters = ""->Js.Json.string
   let (showModal, setShowModal) = React.useState(_ => false)
 
   let {updateExistingKeys, filterValue, removeKeys} = React.useContext(FilterContext.filterContext)
 
   let currentCustomFilterValue =
-    filterValue->Js.Dict.get(customFilterKey)->Belt.Option.getWithDefault("")
+    filterValue->Dict.get(customFilterKey)->Belt.Option.getWithDefault("")
 
   let setCustomFilter = customFilter => {
-    updateExistingKeys(Js.Dict.fromArray([(customFilterKey, customFilter)]))
+    updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
   }
 
   let customFilters = if customFilterKey !== "" {
@@ -211,7 +211,7 @@ let make = (
   }
 
   let clearFilters = () => {
-    let clearFilterKeys = [customFilterKey]->Js.Array2.concat(tabNames)
+    let clearFilterKeys = [customFilterKey]->Array.concat(tabNames)
     removeKeys(clearFilterKeys)
   }
 

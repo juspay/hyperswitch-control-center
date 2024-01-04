@@ -28,7 +28,7 @@ let make = (
   let reorder = (currentState, startIndex, endIndex) => {
     Js.log("reorder trigger")
     if startIndex !== endIndex {
-      let oldStateArray = Js.Array.copy(currentState)
+      let oldStateArray = Array.copy(currentState)
       let removed = Js.Array.removeCountInPlace(~pos=startIndex, ~count=1, oldStateArray)
       let _ = Js.Array.spliceInPlace(~pos=endIndex, ~remove=0, ~add=removed, oldStateArray)
       (oldStateArray, true)
@@ -63,8 +63,8 @@ let make = (
   }
 
   let onSubmit = () => {
-    let updatedDict = Js.Dict.empty()
-    Js.Dict.set(updatedDict, "items", list)
+    let updatedDict = Dict.make()
+    Dict.set(updatedDict, "items", list)
     //TODO conversion
     // let transformedList = arrOfObjToArrOfObjValue(value=list, )
     setListItems(_ => list)

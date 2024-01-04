@@ -65,7 +65,7 @@ module CardDetails = {
           let itemArray = !show ? itemArray : Js.Array2.slice(itemArray, ~start=0, ~end_=size)
 
           itemArray
-          ->Js.Array2.mapi((cell, cellIndex) => {
+          ->Array.mapWithIndex((cell, cellIndex) => {
             let key = Belt.Int.toString(cellIndex + offset) //webhooks UI
             switch heading[cellIndex] {
             | Some(label) =>
@@ -95,7 +95,7 @@ module CardDetails = {
         }
         {if isAnalyticsModule {
           <div className="flex justify-end text-blue-800 cursor-pointer" onClick=showMore>
-            {if itemArray->Js.Array2.length > size {
+            {if itemArray->Array.length > size {
               show ? React.string("More") : React.string("Less")
             } else {
               React.null
@@ -122,7 +122,7 @@ let make = (
   <div>
     <div className="overflow-auto flex flex-wrap">
       {rows
-      ->Js.Array2.mapi((itemArray, rowIndex) => {
+      ->Array.mapWithIndex((itemArray, rowIndex) => {
         <AddDataAttributes attributes=[("data-card-details", "cardDetails")]>
           <CardDetails
             key={(rowIndex + offset)->string_of_int}

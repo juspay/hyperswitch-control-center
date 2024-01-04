@@ -28,7 +28,7 @@ module RefundInfo = {
             className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
-              if !(excludeColKeys->Js.Array2.includes(colType)) {
+              if !(excludeColKeys->Array.includes(colType)) {
                 <div className={`flex ${widthClass} items-center`} key={Belt.Int.toString(i)}>
                   <DisplayKeyValueParams
                     heading={getHeading(colType)}
@@ -92,7 +92,7 @@ let make = (~id) => {
     let jsonArray = [orderDataForPaymentId]
     let paymentArray =
       jsonArray->Js.Json.array->LogicUtils.getArrayDataFromJson(OrderEntity.itemToObjMapper)
-    setOrdersData(_ => paymentArray->Js.Array2.map(Js.Nullable.return))
+    setOrdersData(_ => paymentArray->Array.map(Js.Nullable.return))
     None
   }, [orderDataForPaymentId])
 

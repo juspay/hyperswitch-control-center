@@ -15,8 +15,8 @@ let make = () => {
       let disputesUrl = getURL(~entityName=DISPUTES, ~methodType=Get, ())
       let response = await fetchDetails(disputesUrl)
       let disputesValue = response->LogicUtils.getArrayDataFromJson(DisputesEntity.itemToObjMapper)
-      if disputesValue->Js.Array2.length > 0 {
-        setDisputesData(_ => disputesValue->Js.Array2.map(Js.Nullable.return))
+      if disputesValue->Array.length > 0 {
+        setDisputesData(_ => disputesValue->Array.map(Js.Nullable.return))
         setScreenState(_ => Success)
       } else {
         setScreenState(_ => Custom)
@@ -39,7 +39,7 @@ let make = () => {
   // TODO: Convert it to remote filter
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
-    let filteredList = Js.Array2.filter(arr, (ob: Js.Nullable.t<DisputesEntity.disputes>) => {
+    let filteredList = Array.filter(arr, (ob: Js.Nullable.t<DisputesEntity.disputes>) => {
       switch Js.Nullable.toOption(ob) {
       | Some(obj) =>
         Js.String2.includes(
@@ -99,10 +99,10 @@ let make = () => {
             setSearchVal=setSearchText
           />}
           showSerialNumber=true
-          totalResults={filteredDisputesData->Js.Array2.length}
+          totalResults={filteredDisputesData->Array.length}
           offset
           setOffset
-          currrentFetchCount={filteredDisputesData->Js.Array2.length}
+          currrentFetchCount={filteredDisputesData->Array.length}
           defaultColumns={DisputesEntity.defaultColumns}
           customColumnMapper={DisputesEntity.disputesMapDefaultCols}
           showSerialNumberInCustomizeColumns=false

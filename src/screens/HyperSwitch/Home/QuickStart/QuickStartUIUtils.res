@@ -17,7 +17,7 @@ module BaseComponent = {
       <div className="flex justify-between items-center px-10 pt-6">
         <div className="flex gap-2 items-center">
           <UIUtils.RenderIf
-            condition={customIcon->Belt.Option.isNone && headerLeftIcon->Js.String2.length > 0}>
+            condition={customIcon->Belt.Option.isNone && headerLeftIcon->String.length > 0}>
             <Icon name=headerLeftIcon size=25 />
           </UIUtils.RenderIf>
           <UIUtils.RenderIf condition={customIcon->Belt.Option.isSome}>
@@ -109,7 +109,7 @@ module VerticalChoiceTile = {
             <div className="flex gap-2 mt-6">
               {items.footerTags
               ->Belt.Option.getWithDefault([])
-              ->Js.Array2.map(value =>
+              ->Array.map(value =>
                 <div
                   className="p-2 text-xs border border-blue-700 border-opacity-30 bg-blue-700 bg-opacity-10 rounded-md">
                   {value->React.string}
@@ -164,7 +164,7 @@ module HorizontalChoiceTile = {
             />
           </div>
           <UIUtils.RenderIf
-            condition={items.imageLink->Belt.Option.getWithDefault("")->Js.String2.length > 0}>
+            condition={items.imageLink->Belt.Option.getWithDefault("")->String.length > 0}>
             <img alt="" src={items.imageLink->Belt.Option.getWithDefault("")} />
           </UIUtils.RenderIf>
           <div className="flex gap-2 items-center ">
@@ -220,19 +220,19 @@ module SelectConnectorGrid = {
       ->Recoil.useRecoilValueFromAtom
       ->LogicUtils.safeParse
       ->HSwitchUtils.getProcessorsListFromJson()
-      ->Js.Array2.map(connectorDict =>
+      ->Array.map(connectorDict =>
         connectorDict
         ->LogicUtils.getString("connector_name", "")
         ->ConnectorUtils.getConnectorNameTypeFromString
       )
-    let popularConnectorList = [STRIPE, PAYPAL, ADYEN, CHECKOUT]->Js.Array2.filter(connector => {
-      !(typedConnectedConnectorList->Js.Array2.includes(connector))
+    let popularConnectorList = [STRIPE, PAYPAL, ADYEN, CHECKOUT]->Array.filter(connector => {
+      !(typedConnectedConnectorList->Array.includes(connector))
     })
     let remainingConnectorList =
-      connectorList->Js.Array2.filter(value =>
+      connectorList->Array.filter(value =>
         !(
-          popularConnectorList->Js.Array2.includes(value) ||
-            typedConnectedConnectorList->Js.Array2.includes(value)
+          popularConnectorList->Array.includes(value) ||
+            typedConnectedConnectorList->Array.includes(value)
         )
       )
 
@@ -244,7 +244,7 @@ module SelectConnectorGrid = {
         ? "border border-blue-700 bg-blue-700 bg-opacity-10 "
         : "border"
     <div className="flex flex-col gap-12">
-      <UIUtils.RenderIf condition={popularConnectorList->Js.Array2.length > 0}>
+      <UIUtils.RenderIf condition={popularConnectorList->Array.length > 0}>
         <div className="flex flex-col gap-4">
           <p className=headerClass> {"Popular Processors"->React.string} </p>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-5 ">

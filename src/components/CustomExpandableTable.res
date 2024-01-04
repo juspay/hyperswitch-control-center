@@ -23,10 +23,10 @@ let make = (
 
   let isMobileView = MatchMedia.useMobileChecker()
 
-  let filterPresent = heading->Js.Array2.find(head => head.showFilter)->Js.Option.isSome
+  let filterPresent = heading->Array.find(head => head.showFilter)->Js.Option.isSome
   let highlightEnabledFieldsArray = heading->Js.Array2.reducei((acc, item, index) => {
     if item.highlightCellOnHover {
-      let _ = Js.Array2.push(acc, index)
+      let _ = Array.push(acc, index)
     }
     acc
   }, [])
@@ -38,7 +38,7 @@ let make = (
   }
 
   let rowInfo: array<array<cell>> = {
-    let a = rows->Js.Array2.mapi((data, i) => {
+    let a = rows->Array.mapWithIndex((data, i) => {
       if showSerial {
         data->Js.Array2.unshift(Text((i + 1)->Belt.Int.toString))->ignore
       }
@@ -46,7 +46,7 @@ let make = (
     })
     a
   }
-  let headingsLen = heading->Js.Array2.length
+  let headingsLen = heading->Array.length
   let widthClass = if fullWidth {
     "min-w-full"
   } else {
@@ -58,7 +58,7 @@ let make = (
     | Some(fn) =>
       fn((prevFilterObj: option<array<filterObject>>) => {
         prevFilterObj->Belt.Option.map(prevObj => {
-          prevObj->Js.Array2.map(
+          prevObj->Array.map(
             obj => {
               if obj.key === string_of_int(i) {
                 {
@@ -85,11 +85,11 @@ let make = (
     style={ReactDOMStyle.make(~minHeight={filterPresent ? "30rem" : ""}, ())}>
     <AddDataAttributes attributes=[("data-expandable-table", title)]>
       <table className={`table-auto ${widthClass} h-full ${borderClass}`} colSpan=0>
-        <UIUtils.RenderIf condition={heading->Js.Array2.length !== 0 && !isMobileView}>
+        <UIUtils.RenderIf condition={heading->Array.length !== 0 && !isMobileView}>
           <thead>
             <tr>
               {heading
-              ->Js.Array2.mapi((item, i) => {
+              ->Array.mapWithIndex((item, i) => {
                 let isFirstCol = i === 0
                 let isLastCol = i === headingsLen - 1
                 let oldThemeRoundedClass = if isFirstCol {
@@ -155,13 +155,13 @@ let make = (
                               )
                               ->Belt.Option.getWithDefault(([], []))
 
-                            if options->Js.Array2.length > 1 {
+                            if options->Array.length > 1 {
                               let filterInput: ReactFinalForm.fieldRenderPropsInput = {
                                 name: "filterInput",
                                 onBlur: _ev => (),
                                 onChange: ev => handleUpdateFilterObj(ev, i),
                                 onFocus: _ev => (),
-                                value: selected->Js.Array2.map(Js.Json.string)->Js.Json.array,
+                                value: selected->Array.map(Js.Json.string)->Js.Json.array,
                                 checked: true,
                               }
 
@@ -195,7 +195,7 @@ let make = (
         </UIUtils.RenderIf>
         <tbody>
           {rowInfo
-          ->Js.Array2.mapi((item: array<cell>, rowIndex) => {
+          ->Array.mapWithIndex((item: array<cell>, rowIndex) => {
             <CollapsableTableRow
               key={string_of_int(rowIndex)}
               item

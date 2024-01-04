@@ -4,7 +4,7 @@ open RoutingUtils
 module SimplePreview = {
   @react.component
   let make = (~gateways) => {
-    <UIUtils.RenderIf condition={gateways->Js.Array2.length > 0}>
+    <UIUtils.RenderIf condition={gateways->Array.length > 0}>
       <div
         className="w-full mb-6 p-4 px-6 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
         <div
@@ -35,7 +35,7 @@ module GatewayView = {
       | None => name
       }
     }
-    let isDisableFallback = gateways->Js.Array2.some(ruleGateway => ruleGateway.disableFallback)
+    let isDisableFallback = gateways->Array.some(ruleGateway => ruleGateway.disableFallback)
     <div className="flex flex-wrap gap-4 items-center">
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {
@@ -93,7 +93,7 @@ module RulePreviewer = {
             {ruleInfo.rules
             ->Array.mapWithIndex((rule, index) => {
               let headingText = `Rule ${string_of_int(index + 1)}`
-              let marginStyle = index === ruleInfo.rules->Js.Array2.length - 1 ? "mt-2" : "my-2"
+              let marginStyle = index === ruleInfo.rules->Array.length - 1 ? "mt-2" : "my-2"
               let threeDsType =
                 rule.routingOutput->Belt.Option.getWithDefault(defaultThreeDsObjectValue)
               <div
@@ -111,10 +111,10 @@ module RulePreviewer = {
                     ->Array.mapWithIndex((condition, index) => {
                       let logical = logicalOperatorTypeToStringMapper(condition.logicalOperator)
                       let operator = operatorTypeToStringMapper(condition.operator)
-                      let field = condition.field->Js.String2.length > 0 ? condition.field : ""
+                      let field = condition.field->String.length > 0 ? condition.field : ""
 
                       let value = switch condition.value {
-                      | StringArray(arr) => arr->Js.Array2.joinWith(", ")
+                      | StringArray(arr) => arr->Array.joinWith(", ")
                       | String(str) => str
                       | Int(int) => int->Belt.Int.toString
                       }
@@ -144,7 +144,7 @@ module RulePreviewer = {
                     })
                     ->React.array}
                   </div>
-                  <UIUtils.RenderIf condition={rule.conditions->Js.Array2.length > 0}>
+                  <UIUtils.RenderIf condition={rule.conditions->Array.length > 0}>
                     <Icon size=14 name="arrow-right" className="mx-4 text-jp-gray-700" />
                   </UIUtils.RenderIf>
                   <UIUtils.RenderIf condition={isFrom3ds}>
@@ -188,7 +188,7 @@ module RulePreviewer = {
                     </div>
                     <div> {gateway->React.string} </div>
                     <UIUtils.RenderIf
-                      condition={index !== ruleInfo.default_gateways->Js.Array2.length - 1}>
+                      condition={index !== ruleInfo.default_gateways->Array.length - 1}>
                       <Icon
                         name="chevron-right"
                         size=14

@@ -9,7 +9,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
   let total = Js.Math.ceil(Belt.Int.toFloat(totalResults) /. Belt.Int.toFloat(resultsPerPage))
 
   for x in 1 to total {
-    Js.Array2.push(pageNumbers, x)->ignore
+    Array.push(pageNumbers, x)->ignore
   }
 
   let pageToLeft =
@@ -19,28 +19,27 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
 
   let arr = []
   for x in 1 to totalResults {
-    arr->Js.Array2.push(x)->ignore
+    arr->Array.push(x)->ignore
   }
   let rangeNum =
     arr
-    ->Js.Array2.map(ele => {
-      mod(ele, 10) === 0 ? Js.Array2.indexOf(arr, ele + 1) : 0
+    ->Array.map(ele => {
+      mod(ele, 10) === 0 ? Array.indexOf(arr, ele + 1) : 0
     })
-    ->Js.Array2.filter(i => i !== 0)
+    ->Array.filter(i => i !== 0)
 
   let ranges = []
 
-  rangeNum->Js.Array2.forEach(ele => {
-    ranges->Js.Array2.push((ele - 9)->Belt.Int.toString ++ "-" ++ ele->Belt.Int.toString)->ignore
+  rangeNum->Array.forEach(ele => {
+    ranges->Array.push((ele - 9)->Belt.Int.toString ++ "-" ++ ele->Belt.Int.toString)->ignore
   })
-  let lastNum =
-    rangeNum->Belt.Array.get(Js.Array2.length(rangeNum) - 1)->Belt.Option.getWithDefault(0)
+  let lastNum = rangeNum->Belt.Array.get(Array.length(rangeNum) - 1)->Belt.Option.getWithDefault(0)
   if totalResults > lastNum {
     let start = lastNum + (totalResults - lastNum)
     start === totalResults
-      ? ranges->Js.Array2.push(start->Belt.Int.toString)->ignore
+      ? ranges->Array.push(start->Belt.Int.toString)->ignore
       : ranges
-        ->Js.Array2.push(start->Belt.Int.toString ++ "-" ++ totalResults->Belt.Int.toString)
+        ->Array.push(start->Belt.Int.toString ++ "-" ++ totalResults->Belt.Int.toString)
         ->ignore
   }
 
@@ -69,8 +68,8 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
           onClick={_evt => paginate(Js.Math.max_int(1, currentPage - 1))}
         />
         {pageNumbers
-        ->Js.Array2.filter(nonEmpty)
-        ->Js.Array2.mapi((number, idx) => {
+        ->Array.filter(nonEmpty)
+        ->Array.mapWithIndex((number, idx) => {
           let isSelected = number == currentPage
 
           <Button
@@ -100,7 +99,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
         />
       </ButtonGroup>
     } else {
-      let dropDownOptions = ranges->Js.Array2.mapi((item, idx): SelectBox.dropdownOption => {
+      let dropDownOptions = ranges->Array.mapWithIndex((item, idx): SelectBox.dropdownOption => {
         {
           label: item,
           value: (idx + 1)->Belt.Int.toString,
