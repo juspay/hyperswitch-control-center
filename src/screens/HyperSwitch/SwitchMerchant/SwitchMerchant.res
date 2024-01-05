@@ -88,9 +88,34 @@ module NewAccountCreationModal = {
   }
 }
 
+module AddNewMerchantButton = {
+  @react.component
+  let make = (~setShowModal) => {
+    open HeadlessUI
+    <div className="px-1 py-1 ">
+      <Menu.Item>
+        {props =>
+          <button
+            onClick={_ => setShowModal(_ => false)}
+            className={
+              let activeClasses = if props["active"] {
+                "group flex rounded-md items-center px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+              } else {
+                "group flex rounded-md items-center px-2 py-2 text-sm"
+              }
+              `${activeClasses} text-blue-900 flex gap-2 font-medium w-56`
+            }>
+            <Icon name="plus-circle" size=15 />
+            {"Add a new merchant"->React.string}
+          </button>}
+      </Menu.Item>
+    </div>
+  }
+}
+
 module ExternalUser = {
   @react.component
-  let make = (~switchMerchant) => {
+  let make = (~switchMerchant, ~isAddMerchantEnabled) => {
     open APIUtils
     let fetchDetails = useGetMethod()
     let (selectedMerchantID, setSelectedMerchantID) = React.useState(_ => "")
@@ -170,24 +195,9 @@ module ExternalUser = {
                     )
                     ->React.array}
                   </div>
-                  <div className="px-1 py-1 ">
-                    <Menu.Item>
-                      {props =>
-                        <button
-                          onClick={_ => setShowModal(_ => true)}
-                          className={
-                            let activeClasses = if props["active"] {
-                              "group flex rounded-md items-center px-2 py-2 text-sm bg-gray-100 dark:bg-black"
-                            } else {
-                              "group flex rounded-md items-center px-2 py-2 text-sm"
-                            }
-                            `${activeClasses} text-blue-900 flex gap-2 font-medium w-56`
-                          }>
-                          <Icon name="plus-circle" size=15 />
-                          {"Add a new merchant"->React.string}
-                        </button>}
-                    </Menu.Item>
-                  </div>
+                  <UIUtils.RenderIf condition={isAddMerchantEnabled}>
+                    <AddNewMerchantButton setShowModal />
+                  </UIUtils.RenderIf>
                 </>}
               </Menu.Items>}
             </Transition>
@@ -201,7 +211,7 @@ module ExternalUser = {
 }
 
 @react.component
-let make = (~userRole) => {
+let make = (~userRole, ~isAddMerchantEnabled=false) => {
   open LogicUtils
   open HSLocalStorage
   open APIUtils
@@ -268,6 +278,6 @@ let make = (~userRole) => {
       <TextInput input customWidth="w-80" placeholder="Switch merchant" onKeyUp=handleKeyUp />
     </div>
   } else {
-    <ExternalUser switchMerchant />
+    <ExternalUser switchMerchant isAddMerchantEnabled />
   }
 }
