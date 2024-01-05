@@ -43,15 +43,9 @@ module VolumeRoutingView = {
     let onSubmit = async (values, isSaveRule) => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let data =
-          values
-          ->getDictFromJsonObject
-          ->getJsonObjectFromDict("json")
-          ->getDictFromJsonObject
-          ->getJsonObjectFromDict("volumeBasedDistribution")
-          ->Js.Json.decodeObject
-          ->Belt.Option.getWithDefault(Dict.make())
-          ->getArrayFromDict("gateways", [])
+        let valuesDict = values->getDictFromJsonObject
+        let data = valuesDict->getObj("algorithm", Js.Dict.empty())->getArrayFromDict("data", [])
+
         let payload = getVolumeSplit(data, itemBodyGateWayObjMapper, Some(connectorList))
 
         let updateUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
@@ -170,10 +164,6 @@ module VolumeRoutingView = {
       <div className="flex w-full flex-start">
         {switch pageState {
         | Create =>
-          // <Form
-          //   onSubmit={(values, _) => onSubmit(values, true)}
-          //   validate
-          //   initialValues={initalValue->Js.Json.object_}>
           <div className="flex flex-col gap-4">
             {listLength > 0
               ? <>
@@ -207,8 +197,6 @@ module VolumeRoutingView = {
                 </>
               : <NoDataFound message="Please configure atleast 1 connector" renderType=InfoBox />}
           </div>
-        //   <FormValuesSpy />
-        // </Form>
         | Preview =>
           <div className="flex flex-col w-full gap-3">
             <div
@@ -305,13 +293,8 @@ let make = (~routingRuleId, ~isActive) => {
     let ruleDict = [("json", volDict->Js.Json.object_)]->Dict.fromArray
     let routingJsonToDict = routingJson->getDictFromJsonObject
 
-    let initialValueDict = Dict.fromArray([
-      ("name", routingJsonToDict->getString("name", "")->Js.Json.string),
-      ("description", routingJsonToDict->getString("description", "")->Js.Json.string),
-      ("profile_id", routingJsonToDict->getString("profile_id", "")->Js.Json.string),
-    ])
     setFormState(_ => ViewConfig)
-    setInitialValues(_ => initialValueDict)
+    setInitialValues(_ => routingJsonToDict)
     setInitialRule(_ => Some(ruleDict))
     setProfile(_ => routingJsonToDict->getString("profile_id", defaultBusinessProfile.profile_id))
   }
@@ -345,12 +328,12 @@ let make = (~routingRuleId, ~isActive) => {
     let errors = Js.Dict.empty()
     let dict = values->getDictFromJsonObject
     let validateGateways = dict => {
-      let gateways = dict->getArrayFromDict("gateways", [])
+      let gateways = dict->getArrayFromDict("data", [])
       if gateways->Js.Array2.length === 0 {
         Some("Need atleast 1 Gateway")
       } else {
         let distributionPercentages = gateways->Belt.Array.keepMap(json => {
-          json->Js.Json.decodeObject->Belt.Option.flatMap(getOptionFloat(_, "distribution"))
+          json->Js.Json.decodeObject->Belt.Option.flatMap(getOptionFloat(_, "split"))
         })
         let distributionPercentageSum =
           distributionPercentages->Array.reduce(0., (sum, distribution) => sum +. distribution)
@@ -369,8 +352,7 @@ let make = (~routingRuleId, ~isActive) => {
       }
     }
 
-    let volumeBasedDistributionDict =
-      dict->getObj("json", Js.Dict.empty())->getObj("volumeBasedDistribution", Js.Dict.empty())
+    let volumeBasedDistributionDict = dict->getObj("algorithm", Js.Dict.empty())
 
     switch volumeBasedDistributionDict->validateGateways {
     | Some(error) => errors->Js.Dict.set("Volume Based Distribution", error->Js.Json.string)

@@ -112,15 +112,16 @@ let itemBodyGateWayObjMapper = (
   dict,
   connectorList: option<array<ConnectorTypes.connectorPayload>>,
 ) => {
-  let connectorId = dict->getString("gateway_name", "")
+  let merchantConnectorId =
+    dict->getDictfromDict("connector")->getString("merchant_connector_id", "")
   let name =
     connectorList
     ->Belt.Option.getWithDefault([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
-    ->ConnectorTableUtils.getConnectorNameViaId(connectorId)
+    ->ConnectorTableUtils.getConnectorNameViaId(merchantConnectorId)
   let newDict =
     [
       ("connector", name.connector_name->Js.Json.string),
-      ("merchant_connector_id", dict->getString("gateway_name", "")->Js.Json.string),
+      ("merchant_connector_id", merchantConnectorId->Js.Json.string),
     ]
     ->Dict.fromArray
     ->Js.Json.object_
@@ -360,64 +361,6 @@ let constuctAlgorithm = (dict, rules, metadata) => {
     [("type", "advanced"->Js.Json.string), ("data", body->Js.Json.object_)]->Dict.fromArray
 
   algorithm
-}
-
-let advanceRoutingPayload = (dict, wasm, metadata, name, description) => {
-  let advancedRoutingPayload =
-    [("name", name->Js.Json.string), ("description", description->Js.Json.string)]->Dict.fromArray
-
-  // data part of algorithm
-
-  let rules = []
-  let _payload =
-    dict
-    ->getArrayFromDict("rules", [])
-    ->Array.reduceWithIndex([], (acc, priorityLogicObj, index) => {
-      switch priorityLogicObj->Js.Json.decodeObject {
-      | Some(priorityLogicObj) => {
-          let isDistribute = getBool(priorityLogicObj, "isDistribute", false)
-
-          let connectorSelection = if isDistribute {
-            let connectorSelection = Dict.make()
-            Dict.set(connectorSelection, "type", "volume_split"->Js.Json.string)
-            let gateway =
-              priorityLogicObj
-              ->getArrayFromDict("gateways", [])
-              ->getVolumeSplit(itemBodyGateWayObjMapper, None)
-            Dict.set(connectorSelection, "data", gateway->Js.Json.array)
-            connectorSelection
-          } else {
-            let connectorSelection = Dict.make()
-            Dict.set(connectorSelection, "type", "priority"->Js.Json.string)
-            let gateway =
-              priorityLogicObj
-              ->getArrayFromDict("gateways", [])
-              ->Array.map(dict =>
-                dict->getDictFromJsonObject->getString("gateway_name", "")->Js.Json.string
-              )
-            Dict.set(connectorSelection, "data", gateway->Js.Json.array)
-            connectorSelection
-          }
-
-          let statement = generateStatement(
-            priorityLogicObj->getArrayFromDict("conditions", []),
-            wasm,
-          )
-          let ruleObj = generateRuleObject(index, connectorSelection, statement)
-
-          rules->Array.push(ruleObj->Js.Json.object_)
-        }
-
-      | None => ()
-      }
-      acc
-    })
-
-  let algorithm = constuctAlgorithm(dict, rules, metadata)
-
-  advancedRoutingPayload->Dict.set("algorithm", algorithm->Js.Json.object_)
-
-  advancedRoutingPayload
 }
 
 let getModalObj = (routingType, text) => {

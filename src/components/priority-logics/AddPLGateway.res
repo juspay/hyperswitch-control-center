@@ -9,7 +9,7 @@ module GatewayView = {
         <div
           key={Belt.Int.toString(index)}
           className="my-2 h-6 md:h-8 flex items-center rounded-md  border border-jp-gray-500 dark:border-jp-gray-960 font-medium
-                            text-blue-800 hover:text-blue-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 
+                            text-blue-800 hover:text-blue-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200
                             dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1">
           {React.string(ruleGateway.connector.connector)}
           {if ruleGateway.split !== 100 {
@@ -66,11 +66,6 @@ let make = (
       item
       ->Js.Json.decodeObject
       ->Belt.Option.flatMap(dict => {
-        //  let obj: gateway = {
-        //   gateway_name: dict->LogicUtils.getString("gateway_name", ""),
-        //   distribution: dict->LogicUtils.getInt("distribution", 100),
-        //   disableFallback: dict->LogicUtils.getBool("disableFallback", false),
-        // }
         let connectorDict = dict->LogicUtils.getDictfromDict("connector")
         let obj: gateway = {
           connector: {
@@ -167,7 +162,6 @@ let make = (
           {selectedOptions
           ->Array.mapWithIndex((item, i) => {
             let key = string_of_int(i + 1)
-            Js.log2("lokiii selected", selectedOptions)
 
             {
               <div className="flex flex-row" key>
