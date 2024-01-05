@@ -159,6 +159,9 @@ let make = () => {
   let centerItems = pageView === SETUP_COMPLETED ? "justify-center" : ""
   let urlPush = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/prod-onboarding?${routerUrl.search}`
 
+  let userRole = HSLocalStorage.getFromUserDetails("user_role")
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
   let getSetupCompleteEnum = async () => {
     open LogicUtils
     try {
@@ -285,6 +288,11 @@ let make = () => {
         className={`bg-hyperswitch_background flex items-center h-screen w-full overflow-scroll ${centerItems}`}>
         <div
           className={`h-[52rem] overflow-scroll bg-white rounded-md w-full border ${getCssOnView}`}>
+          <UIUtils.RenderIf condition={featureFlagDetails.switchMerchant}>
+            <div className="flex w-full px-5 pt-5">
+              <SwitchMerchant userRole={userRole} />
+            </div>
+          </UIUtils.RenderIf>
           {switch previewState {
           | Some(previewVariant) =>
             switch previewVariant {
