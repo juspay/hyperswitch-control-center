@@ -19,40 +19,6 @@ let handleError = (json: Js.Json.t) => {
   }
 }
 
-let useGetFiltersData = () => {
-  let (filterData, setFilterData) = React.useState(_ => None)
-  let {filterValueJson} = React.useContext(FilterContext.filterContext)
-  let startTimeVal = filterValueJson->getString("startTime", "")
-  let endTimeVal = filterValueJson->getString("endTime", "")
-  let addLogsAroundFetch = EulerAnalyticsLogUtils.useAddLogsAroundFetch()
-
-  let fetchApi = AuthHooks.useApiFetcher()
-
-  (uri, method, filterBody) => {
-    open Promise
-
-    React.useEffect3(() => {
-      setFilterData(_ => None)
-
-      if startTimeVal !== "" && endTimeVal !== "" {
-        fetchApi(
-          uri,
-          ~method_=method,
-          ~bodyStr=filterBody,
-          ~headers=[("QueryType", "Filter")]->Dict.fromArray,
-          (),
-        )
-        ->addLogsAroundFetch(~logTitle="Filter Data Api")
-        ->thenResolve(json => setFilterData(_ => json->Some))
-        ->catch(_err => resolve())
-        ->ignore
-      }
-      None
-    }, (startTimeVal, endTimeVal, filterBody))
-    filterData
-  }
-}
-
 let useAnalyticsFetch = () => {
   let fetchApi = AuthHooks.useApiFetcher()
   let fetchChartData = (~url, ~body, ~setState, ~setDataLoading) => {
