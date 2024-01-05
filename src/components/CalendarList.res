@@ -109,7 +109,7 @@ let make = (
       let showLeft = i == 0 && !secondCalendar
 
       let showRight = i + 1 == Belt.Array.length(dummyRow) && !firstCalendar
-      let monthAndYear = Js.String2.concat(
+      let monthAndYear = String.concat(
         getMonthInStr(getMonthFromFloat(tempMonth)),
         Belt.Float.toString(tempYear),
       )

@@ -9,11 +9,11 @@ let useConstructQueryOnBasisOfOpt = () => {
   let todayDate = todayDayJsObj.format(. "YYYY-MM-DD")
   let todayTime = todayDayJsObj.format(. "HH:mm:ss")
   (~queryString, ~disableFutureDates, ~disablePastDates, ~startKey, ~endKey, ~optKey) => {
-    if queryString->Js.String2.includes(optKey) {
+    if queryString->String.includes(optKey) {
       try {
-        let arrQuery = queryString->Js.String2.split("&")
-        let tempArr = arrQuery->Array.filter(x => x->Js.String2.includes(optKey))
-        let tempArr = tempArr[0]->Belt.Option.getWithDefault("")->Js.String2.split("=")
+        let arrQuery = queryString->String.split("&")
+        let tempArr = arrQuery->Array.filter(x => x->String.includes(optKey))
+        let tempArr = tempArr[0]->Belt.Option.getWithDefault("")->String.split("=")
         let optVal = tempArr[1]->Belt.Option.getWithDefault("")
 
         let customrange: customDateRange = switch optVal {
@@ -24,7 +24,7 @@ let useConstructQueryOnBasisOfOpt = () => {
         | "this_month" => ThisMonth
         | "next_month" => NextMonth
         | st => {
-            let arr = st->Js.String2.split("_")
+            let arr = st->String.split("_")
             let _ = arr[0]->Belt.Option.getWithDefault("") == "next"
             let anchor = arr[2]->Belt.Option.getWithDefault("")
             let val = arr[1]->Belt.Option.getWithDefault("")
@@ -60,9 +60,9 @@ let useConstructQueryOnBasisOfOpt = () => {
           ~format="YYYY-MM-DDTHH:mm:ss.SSS[Z]",
         )
         let updatedArr = arrQuery->Array.map(x =>
-          if x->Js.String2.includes(startKey) {
+          if x->String.includes(startKey) {
             `${startKey}=${stTimeStamp}`
-          } else if x->Js.String2.includes(endKey) {
+          } else if x->String.includes(endKey) {
             `${endKey}=${enTimeStamp}`
           } else {
             x

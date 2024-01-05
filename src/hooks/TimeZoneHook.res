@@ -69,12 +69,12 @@ let formattedDateTimeString = (dateTime: dateTimeString, format: string) => {
 
 let formattedISOString = (dateTimeIsoString: string, format: string) => {
   // 2021-08-29T18:30:00.000Z
-  let tempTimeDateString = dateTimeIsoString->Js.String2.replace("Z", "")
-  let tempTimeDate = tempTimeDateString->Js.String2.split("T")
+  let tempTimeDateString = dateTimeIsoString->String.replace("Z", "")
+  let tempTimeDate = tempTimeDateString->String.split("T")
   let time = tempTimeDate[1]
   let date = tempTimeDate[0]
-  let dateComponents = date->Belt.Option.getWithDefault("")->Js.String2.split("-")
-  let timeComponents = time->Belt.Option.getWithDefault("")->Js.String2.split(":")
+  let dateComponents = date->Belt.Option.getWithDefault("")->String.split("-")
+  let timeComponents = time->Belt.Option.getWithDefault("")->String.split(":")
   let dateTimeObject: dateTimeFloat = {
     year: dateComponents[0]->Belt.Option.getWithDefault("")->stringToFloat,
     month: dateComponents[1]->Belt.Option.getWithDefault("")->stringToFloat,
@@ -87,7 +87,7 @@ let formattedISOString = (dateTimeIsoString: string, format: string) => {
 }
 
 let en_USStringToDateTimeObject = dateTimeIsoString => {
-  let tempTimeDateString = dateTimeIsoString->Js.String2.replace(",", "")
+  let tempTimeDateString = dateTimeIsoString->String.replace(",", "")
 
   let tempTimeDate =
     tempTimeDateString
@@ -96,8 +96,8 @@ let en_USStringToDateTimeObject = dateTimeIsoString => {
 
   let time = tempTimeDate[1]
   let date = tempTimeDate[0]
-  let dateComponents = date->Belt.Option.getWithDefault("")->Js.String2.split("/")
-  let timeComponents = time->Belt.Option.getWithDefault("")->Js.String2.split(":")
+  let dateComponents = date->Belt.Option.getWithDefault("")->String.split("/")
+  let timeComponents = time->Belt.Option.getWithDefault("")->String.split(":")
   let tempHour = switch Belt.Float.fromString(timeComponents[0]->Belt.Option.getWithDefault("")) {
   | Some(a) => a
   | _ => 0.0
@@ -126,7 +126,7 @@ let convertTimeZone = (date, timezoneString) => {
   let localTimeString = Js.Date.fromString(date)
   localTimeString
   ->toLocaleString("en-US", {timeZone: timezoneString})
-  ->Js.String2.replaceByRe(%re("/\s/g"), " ")
+  ->String.replaceRegExp(%re("/\s/g"), " ")
 }
 
 let useCustomTimeZoneToIsoString = () => {
@@ -195,7 +195,7 @@ let useIsoStringToCustomTimeZoneInFloat = () => {
 }
 
 let timeStrToMicroSec = str => {
-  let arr = str->Js.String2.split(" ")
+  let arr = str->String.split(" ")
   if arr->Array.length > 1 {
     let time =
       arr[0]->Belt.Option.getWithDefault("00")->Belt.Int.fromString->Belt.Option.getWithDefault(0)
@@ -208,13 +208,13 @@ let timeStrToMicroSec = str => {
 
 let getTimeFromString = str => {
   str
-  ->Js.String2.split("T")
+  ->String.split("T")
   ->Belt.Array.get(1)
-  ->Belt.Option.mapWithDefault("00:00", Js.String2.slice(~from=0, ~to_=5))
+  ->Belt.Option.mapWithDefault("00:00", String.slice(~start=0, ~end=5))
 }
 
 let getDateFromString = str => {
-  str->Js.String2.split("T")->Belt.Array.get(0)->Belt.Option.getWithDefault("2022-01-01")
+  str->String.split("T")->Belt.Array.get(0)->Belt.Option.getWithDefault("2022-01-01")
 }
 
 let getDiffOfDatesFromToday = (~isAbs=true, toDate) => {

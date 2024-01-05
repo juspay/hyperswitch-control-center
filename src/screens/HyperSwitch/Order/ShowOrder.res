@@ -498,7 +498,7 @@ module FraudRiskBannerDetails = {
             ~methodType=Get,
             ~id=Some(order.payment_id),
             (),
-          )}/${decision->Js.String2.toLowerCase}`
+          )}/${decision->String.toLowerCase}`
 
         let _ = await updateDetails(ordersDecisionUrl, Dict.make()->Js.Json.object_, Post)
         showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
@@ -520,7 +520,7 @@ module FraudRiskBannerDetails = {
         handleConfirm: {
           text: "Confirm",
           onClick: _ =>
-            updateMerchantDecision(~decision=(decision :> string)->Js.String2.toLowerCase)->ignore,
+            updateMerchantDecision(~decision=(decision :> string)->String.toLowerCase)->ignore,
         },
         handleCancel: {text: `Cancel`},
       })
@@ -581,7 +581,7 @@ module FraudRiskBanner = {
           {`This payment is marked fraudulent by ${frmMessage.frm_name}.`->React.string}
         </p>
         <GatewayIcon
-          gateway={frmMessage.frm_name->Js.String2.toUpperCase} className="w-6 h-6 rounded-full"
+          gateway={frmMessage.frm_name->String.toUpperCase} className="w-6 h-6 rounded-full"
         />
       </div>
       <div

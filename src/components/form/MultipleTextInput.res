@@ -74,40 +74,40 @@ let make = (
     if isEmpty && (e->key === "Backspace" || e->keyCode === 8) && currentTags->Array.length > 0 {
       setText(_ => currentTags[currentTags->Array.length - 1]->Belt.Option.getWithDefault(""))
       setTags(currentTags->Array.slice(~start=0, ~end=-1))
-    } else if text->Js.String.length !== 0 {
+    } else if text->String.length !== 0 {
       if e->key === "Enter" || e->keyCode === 13 || e->key === "Tab" || e->keyCode === 9 {
         if seperateByComma {
-          let arr = text->Js.String2.split(",")
+          let arr = text->String.split(",")
           let newArr = []
           arr->Array.forEach(ele => {
             if (
-              !(newArr->Array.includes(ele->Js.String2.trim)) &&
-              !(currentTags->Array.includes(ele->Js.String2.trim))
+              !(newArr->Array.includes(ele->String.trim)) &&
+              !(currentTags->Array.includes(ele->String.trim))
             ) {
-              if ele->Js.String2.trim != "" {
-                newArr->Array.push(ele->Js.String2.trim)->ignore
+              if ele->String.trim != "" {
+                newArr->Array.push(ele->String.trim)->ignore
               }
             }
           })
 
           setTags(currentTags->Array.concat(newArr))
         } else if seperateBySpace {
-          let arr = text->Js.String2.split(" ")
+          let arr = text->String.split(" ")
           let newArr = []
           arr->Array.forEach(ele => {
             if (
-              !(newArr->Array.includes(ele->Js.String2.trim)) &&
-              !(currentTags->Array.includes(ele->Js.String2.trim))
+              !(newArr->Array.includes(ele->String.trim)) &&
+              !(currentTags->Array.includes(ele->String.trim))
             ) {
-              if ele->Js.String2.trim != "" {
-                newArr->Array.push(ele->Js.String2.trim)->ignore
+              if ele->String.trim != "" {
+                newArr->Array.push(ele->String.trim)->ignore
               }
             }
           })
 
           setTags(currentTags->Array.concat(newArr))
-        } else if !(currentTags->Array.includes(text->Js.String2.trim)) {
-          setTags(currentTags->Array.concat([text->Js.String2.trim]))
+        } else if !(currentTags->Array.includes(text->String.trim)) {
+          setTags(currentTags->Array.concat([text->String.trim]))
         }
         setText(_ => "")
       }
@@ -119,7 +119,7 @@ let make = (
       onBlur: _ev => (),
       onChange: ev => {
         let value = {ev->ReactEvent.Form.target}["value"]
-        if value->Js.String2.includes("<script>") || value->Js.String2.includes("</script>") {
+        if value->String.includes("<script>") || value->String.includes("</script>") {
           showPopUp({
             popUpType: (Warning, WithIcon),
             heading: `Script Tags are not allowed`,
@@ -127,7 +127,7 @@ let make = (
             handleConfirm: {text: "OK"},
           })
         }
-        let val = value->Js.String2.replace("<script>", "")->Js.String2.replace("</script>", "")
+        let val = value->String.replace("<script>", "")->String.replace("</script>", "")
         setText(_ => val)
       },
       onFocus: _ev => (),

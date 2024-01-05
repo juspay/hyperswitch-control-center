@@ -11,7 +11,7 @@ let make = (~routingType) => {
     let searchParams = url.search
     let filtersFromUrl = LogicUtils.getDictFromUrlSearchParams(searchParams)->Dict.get("id")
     setId(_ => filtersFromUrl)
-    switch routingType->Js.String2.toLowerCase {
+    switch routingType->String.toLowerCase {
     | "rank" => setCurrentRouting(_ => PRIORITY)
     | "volume" => setCurrentRouting(_ => VOLUME_SPLIT)
     | "rule" => setCurrentRouting(_ => ADVANCED)

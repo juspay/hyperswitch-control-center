@@ -117,7 +117,7 @@ let make = (
   } = entity
   let tableName =
     prefixAddition->Belt.Option.getWithDefault(false)
-      ? title->Js.String.replaceByRe(%re("/ /g"), "-", _)->Js.String.toLowerCase->Some
+      ? title->String.replaceRegExp(_, %re("/ /g"), "-")->String.toLowerCase->Some
       : None
   let (defaultFilters, setDefaultFilters) = React.useState(() => entity.defaultFilters)
   let defaultSummary: EntityType.summary = {totalCount: 0, count: 0}

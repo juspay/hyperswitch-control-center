@@ -94,15 +94,15 @@ let make = (
 
   let defaultStartTime =
     endDate == todayDateTime.format(. "YYYY-MM-DD")
-      ? time->Js.String2.toUpperCase
+      ? time->String.toUpperCase
       : (`${endDate} ${endTimeStr}`->DayJs.getDayJsForString).format(.
           "hh:mm:ss a",
-        )->Js.String2.toUpperCase
+        )->String.toUpperCase
 
   let (fromTime, setFromTime) = React.useState(_ =>
     (`${startDate} ${startTimeStr}`->DayJs.getDayJsForString).format(.
       "hh:mm:ss a",
-    )->Js.String2.toUpperCase
+    )->String.toUpperCase
   )
   let (toTime, settoTime) = React.useState(_ => defaultStartTime)
 
@@ -134,24 +134,24 @@ let make = (
   }
 
   let setFromTimeDropdown = val => {
-    let fromTimeArr = val->Js.String2.split(" ")
+    let fromTimeArr = val->String.split(" ")
     let fromTime = `${fromTimeArr
       ->Belt.Array.get(0)
       ->Belt.Option.getWithDefault("12:00")}:00 ${fromTimeArr
       ->Belt.Array.get(1)
       ->Belt.Option.getWithDefault("AM")}`
 
-    setFromTime(_ => fromTime->Js.String.toUpperCase)
+    setFromTime(_ => fromTime->String.toUpperCase)
   }
 
   let setToTimeDropdown = val => {
-    let toTimeArr = val->Js.String2.split(" ")
+    let toTimeArr = val->String.split(" ")
     let toTime = `${toTimeArr
       ->Belt.Array.get(0)
       ->Belt.Option.getWithDefault("11:59")}:00 ${toTimeArr
       ->Belt.Array.get(1)
       ->Belt.Option.getWithDefault("PM")}`
-    settoTime(_ => toTime->Js.String.toUpperCase)
+    settoTime(_ => toTime->String.toUpperCase)
   }
 
   React.useEffect1(() => {

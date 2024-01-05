@@ -1,6 +1,5 @@
 let parseUrlIntoDict = queryUrl => {
-  let arr =
-    queryUrl->Js.Global.decodeURI->Js.String2.split("&")->Array.map(e => e->Js.String2.split("="))
+  let arr = queryUrl->Js.Global.decodeURI->String.split("&")->Array.map(e => e->String.split("="))
   let safeArray = arr->Array.filter(e => e->Array.length == 2)
   let dict: Js.Dict.t<string> = Dict.make()
   safeArray->Array.forEach(e => {
@@ -50,9 +49,9 @@ let getQueryValue = (~queryUrl, ~key: queryInput) => {
       ->Belt.Option.mapWithDefault(initialval, a => {
         a
         ->Js.Global.decodeURI
-        ->Js.String2.replace("[", "")
-        ->Js.String2.replace("]", "")
-        ->Js.String2.split(",")
+        ->String.replace("[", "")
+        ->String.replace("]", "")
+        ->String.split(",")
         ->Array.filter(e => e !== "")
       }),
     )
