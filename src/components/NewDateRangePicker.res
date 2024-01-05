@@ -309,7 +309,7 @@ module Base = {
       if localEndDate == ele && isFromCustomInput {
         setEndDateVal(_ => "")
       } else {
-        let endDateSplit = Js.String2.split(ele, "-")
+        let endDateSplit = String.split(ele, "-")
         let endDateDate = endDateSplit->Belt.Array.get(2)->Belt.Option.getWithDefault("")
         let endDateYear = endDateSplit->Belt.Array.get(0)->Belt.Option.getWithDefault("")
         let endDateMonth = endDateSplit->Belt.Array.get(1)->Belt.Option.getWithDefault("")
@@ -323,7 +323,7 @@ module Base = {
           }
         }
 
-        let timeSplit = Js.String2.split(splitTime, ":")
+        let timeSplit = String.split(splitTime, ":")
         let timeHour = timeSplit->Belt.Array.get(0)->Belt.Option.getWithDefault("00")
         let timeMinute = timeSplit->Belt.Array.get(1)->Belt.Option.getWithDefault("00")
         let timeSecond = timeSplit->Belt.Array.get(2)->Belt.Option.getWithDefault("00")
@@ -340,7 +340,7 @@ module Base = {
     }
     let changeStartDate = (ele, isFromCustomInput, isSetEndDate, time) => {
       let setDate = str => {
-        let startDateSplit = Js.String2.split(str, "-")
+        let startDateSplit = String.split(str, "-")
         let startDateDay = startDateSplit->Belt.Array.get(2)->Belt.Option.getWithDefault("")
         let startDateYear = startDateSplit->Belt.Array.get(0)->Belt.Option.getWithDefault("")
         let startDateMonth = startDateSplit->Belt.Array.get(1)->Belt.Option.getWithDefault("")
@@ -353,7 +353,7 @@ module Base = {
             initialStartTime
           }
         }
-        let timeSplit = Js.String2.split(splitTime, ":")
+        let timeSplit = String.split(splitTime, ":")
         let timeHour = timeSplit->Belt.Array.get(0)->Belt.Option.getWithDefault("00")
         let timeMinute = timeSplit->Belt.Array.get(1)->Belt.Option.getWithDefault("00")
         let timeSecond = timeSplit->Belt.Array.get(2)->Belt.Option.getWithDefault("00")
@@ -469,14 +469,14 @@ module Base = {
         : "23:59:59"
 
     let endTimeStr = {
-      let timeArr = endTimeStr->Js.String2.split(":")
+      let timeArr = endTimeStr->String.split(":")
       let endTimeTxt = `${timeArr[0]->Belt.Option.getWithDefault(
           "00",
         )}:${timeArr[1]->Belt.Option.getWithDefault("00")}`
       showSeconds ? `${endTimeTxt}:${timeArr[2]->Belt.Option.getWithDefault("00")}` : endTimeTxt
     }
     let startTimeStr = {
-      let timeArr = startTimeStr->Js.String2.split(":")
+      let timeArr = startTimeStr->String.split(":")
       let startTimeTxt = `${timeArr[0]->Belt.Option.getWithDefault(
           "00",
         )}:${timeArr[1]->Belt.Option.getWithDefault("00")}`
@@ -518,8 +518,8 @@ module Base = {
       setEndDate(~date=endDate, ~time=enTime)
       setLocalOpt(_ =>
         DateRangeUtils.datetext(value, disableFutureDates)
-        ->Js.String2.toLowerCase
-        ->Js.String2.split(" ")
+        ->String.toLowerCase
+        ->String.split(" ")
         ->Array.joinWith("_")
       )
       changeStartDate(stDate, false, true, Some(stTime))

@@ -49,7 +49,7 @@ module MenuOption = {
         heading: "Confirm Action ? ",
         description: `You are about to ${isConnectorDisabled
             ? "Enable"
-            : "Disable"->Js.String2.toLowerCase} this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
+            : "Disable"->String.toLowerCase} this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
         handleConfirm: {
           text: "Confirm",
           onClick: _ => disableConnector(isConnectorDisabled)->ignore,
@@ -147,7 +147,7 @@ module ConnectorSummaryGrid = {
         <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
         <div
           className={`px-4 py-2 rounded-full w-fit text-black font-medium text-sm ${connectorInfo.status->connectorStatusStyle}`}>
-          {connectorInfo.status->Js.String2.toUpperCase->React.string}
+          {connectorInfo.status->String.toUpperCase->React.string}
         </div>
       </div>
       <div className="grid grid-cols-4 my-12">
@@ -268,7 +268,7 @@ let make = (
       <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
           <GatewayIcon
-            gateway={connectorInfo.connector_name->Js.String2.toUpperCase} className="w-14 h-14"
+            gateway={connectorInfo.connector_name->String.toUpperCase} className="w-14 h-14"
           />
           <h2 className="text-xl font-semibold">
             {connectorInfo.connector_name->LogicUtils.capitalizeString->React.string}

@@ -75,7 +75,7 @@ let useSortArray = () => {
       switch val {
       | Some(x) =>
         switch x->Js.Json.classify {
-        | JSONString(str) => str->Js.String.toLowerCase->Js.Json.string
+        | JSONString(str) => str->String.toLowerCase->Js.Json.string
         | JSONNumber(_num) => x
         | JSONFalse => "false"->Js.Json.string
         | JSONTrue => "true"->Js.Json.string
@@ -327,7 +327,7 @@ let make = (
         let newObj = oldFitlers->Dict.toArray->Dict.fromArray
         let filterValue = filterValue->Array.filter(
           item => {
-            let updatedItem = item->Js.String.make
+            let updatedItem = item->String.make
             updatedItem !== ""
           },
         )
@@ -930,7 +930,7 @@ let make = (
   } else {
     `${ignoreHeaderBg ? "" : backgroundClass} empty:hidden`
   }
-  let dataId = title->Js.String2.split("-")->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+  let dataId = title->String.split("-")->Belt.Array.get(0)->Belt.Option.getWithDefault("")
   <AddDataAttributes attributes=[("data-loaded-table", dataId)]>
     <div className="w-full">
       <div className=addDataAttributesClass style={ReactDOMStyle.make(~zIndex="2", ())}>

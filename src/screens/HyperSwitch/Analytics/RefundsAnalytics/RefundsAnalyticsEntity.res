@@ -47,8 +47,8 @@ let tableItemToObjMapper: 'a => refundTableType = dict => {
     refund_method: dict
     ->getString(RefundMethod->colMapper, "OTHER")
     ->LogicUtils.getFirstLetterCaps(),
-    currency: dict->getString(Currency->colMapper, "OTHER")->Js.String2.toUpperCase,
-    refund_status: dict->getString(Status->colMapper, "OTHER")->Js.String2.toUpperCase,
+    currency: dict->getString(Currency->colMapper, "OTHER")->String.toUpperCase,
+    refund_status: dict->getString(Status->colMapper, "OTHER")->String.toUpperCase,
   }
 }
 

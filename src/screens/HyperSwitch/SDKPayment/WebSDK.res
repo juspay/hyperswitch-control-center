@@ -189,8 +189,8 @@ module CheckoutForm = {
             let str =
               val
               ->LogicUtils.getStringFromJson("")
-              ->Js.String2.replace("\"", "")
-              ->Js.String2.replace("\"", "")
+              ->String.replace("\"", "")
+              ->String.replace("\"", "")
             if str == "Something went wrong" {
               setPaymentStatus(_ => CUSTOMSTATE)
               setError(_ => None)
@@ -249,8 +249,8 @@ module CheckoutForm = {
               {val
               ->Js.Json.stringifyAny
               ->Belt.Option.getWithDefault("")
-              ->Js.String2.replace("\"", "")
-              ->Js.String2.replace("\"", "")
+              ->String.replace("\"", "")
+              ->String.replace("\"", "")
               ->React.string}
             </div>
           | None => React.null

@@ -3,18 +3,17 @@ let regex = searchString => {
 }
 let highlightedText = (str, searchedText) => {
   let shouldHighlight =
-    searchedText != "" &&
-      Js.String2.includes(str->Js.String.toLowerCase, searchedText->Js.String.toLowerCase)
+    searchedText != "" && String.includes(str->String.toLowerCase, searchedText->String.toLowerCase)
   if shouldHighlight {
     let re = regex(searchedText)
     let matchFn = (matchPart, _offset, _wholeString) => `@@${matchPart}@@`
-    let listText = Js.String.unsafeReplaceBy0(re, matchFn, str)->Js.String2.split("@@")
+    let listText = Js.String.unsafeReplaceBy0(re, matchFn, str)->String.split("@@")
 
     {
       listText
       ->Array.mapWithIndex((item, i) => {
         if (
-          Js.String2.toLowerCase(item) == Js.String2.toLowerCase(searchedText) &&
+          String.toLowerCase(item) == String.toLowerCase(searchedText) &&
             String.length(searchedText) > 0
         ) {
           <mark key={i->string_of_int} className="bg-yellow"> {item->React.string} </mark>
@@ -399,16 +398,16 @@ module Numeric = {
 
 module MoneyCell = {
   let getAmountValue = (amount, currency) => {
-    let amountSplitArr = Js.Float.toFixedWithPrecision(amount, ~digits=2)->Js.String2.split(".")
+    let amountSplitArr = Js.Float.toFixedWithPrecision(amount, ~digits=2)->String.split(".")
     let decimal = amountSplitArr[1]->Belt.Option.getWithDefault("00")
     let receivedValue = amountSplitArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
 
-    let formattedAmount = if receivedValue->Js.String2.includes("e") {
+    let formattedAmount = if receivedValue->String.includes("e") {
       receivedValue
     } else if currency === "INR" {
-      receivedValue->Js.String2.replaceByRe(%re("/(\d)(?=(?:(\d\d)+(\d)(?!\d))+(?!\d))/g"), "$1,")
+      receivedValue->String.replaceRegExp(%re("/(\d)(?=(?:(\d\d)+(\d)(?!\d))+(?!\d))/g"), "$1,")
     } else {
-      receivedValue->Js.String2.replaceByRe(%re("/(\d)(?=(\d{3})+(?!\d))/g"), "$1,")
+      receivedValue->String.replaceRegExp(%re("/(\d)(?=(\d{3})+(?!\d))/g"), "$1,")
     }
     let formatted_amount = `${formattedAmount}.${decimal}`
 
@@ -447,7 +446,7 @@ module LinkCell = {
     let trimData = switch trimLength {
     | Some(length) => {
         let length = isMobileView ? 36 : length
-        Js.String.concat("..", Js.String.substrAtMost(~from=0, ~length, data))
+        String.concat("..", Js.String.substrAtMost(~from=0, ~length, data))
       }
 
     | None => data
@@ -518,9 +517,7 @@ module DateCell = {
     <AddDataAttributes attributes=[("data-date", timestamp->getFormattedDate(dateFormat))]>
       <div className={`${wrapperClass} whitespace-nowrap`}>
         {hideTime
-          ? React.string(
-              timestamp->getFormattedDate(dateFormat)->Js.String2.slice(~from=0, ~to_=12),
-            )
+          ? React.string(timestamp->getFormattedDate(dateFormat)->String.slice(~start=0, ~end=12))
           : {React.string(`${timestamp->getFormattedDate(dateFormat)} ${selectedTimeZoneAlias}`)}}
       </div>
     </AddDataAttributes>
@@ -560,14 +557,14 @@ module EllipsisText = {
       ellipsisIdentifier !== ""
         ? {
             text
-            ->Js.String2.split(ellipsisIdentifier)
+            ->String.split(ellipsisIdentifier)
             ->Belt.Array.get(0)
             ->Belt.Option.getWithDefault("") ++ "..."
           }
         : text
     let ellipsesCondition =
       ellipsisIdentifier !== ""
-        ? Js.String.includes(ellipsisIdentifier, text)
+        ? String.includes(ellipsisIdentifier, text)
         : text->String.length > ellipsisThreshold
 
     // If text character count is greater than ellipsisThreshold, it will render tooltip else we will have whole text in cell

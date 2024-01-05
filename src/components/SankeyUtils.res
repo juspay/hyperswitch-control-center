@@ -179,7 +179,7 @@ let convertToSankeyFormat = (
       ->Belt.Array.forEach(item => {
         let (key, totalSum) = item
 
-        let keyArr = key->Js.String2.split("( +++ )")
+        let keyArr = key->String.split("( +++ )")
 
         let prevLevel = keyArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
         let prevLevel = prevLevel === "" ? "NA" : prevLevel

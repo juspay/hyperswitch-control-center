@@ -82,7 +82,7 @@ module RequestPage = {
 
     <div
       className="border bg-jp-gray-light_gray_bg rounded-md p-6 overflow-scroll flex flex-col justify-center items-center gap-6">
-      <Icon name={requestedValue->Js.String2.toLowerCase} size=180 className="!scale-200" />
+      <Icon name={requestedValue->String.toLowerCase} size=180 className="!scale-200" />
       <div className="flex flex-col gap-2 items-center justify-center">
         <p className="text-2xl font-semibold text-grey-700">
           {`${requestedValue} (Coming Soon)`->React.string}

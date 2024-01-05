@@ -228,7 +228,7 @@ let make = (
 
   let updateDetails = useUpdateMethod()
 
-  let frmUrl = if frmID->Js.String.length <= 0 {
+  let frmUrl = if frmID->String.length <= 0 {
     getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ())
   } else {
     getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ~id=Some(frmID), ())

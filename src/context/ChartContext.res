@@ -37,7 +37,7 @@ let cardinalityMapperToNumber = cardinality => {
 }
 
 let getGranularityMapper = (granularity: string) => {
-  let granularityArr = granularity->Js.String2.split(" ")->Array.map(item => item->Js.String.trim)
+  let granularityArr = granularity->String.split(" ")->Array.map(item => item->String.trim)
 
   if granularity === "Daily" {
     (1, "day")
@@ -128,7 +128,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
-      let keyArr = key->Js.String2.split(".")
+      let keyArr = key->String.split(".")
       let prefix = keyArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
       if prefix === chartId && prefix !== "" {
         None
@@ -148,8 +148,8 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
         if allFilterKeys->Array.includes(key) {
           switch value->Js.Json.classify {
           | JSONString(str) => `${key}=${str}`->Some
-          | JSONNumber(num) => `${key}=${num->Js.String.make}`->Some
-          | JSONArray(arr) => `${key}=[${arr->Js.String.make}]`->Some
+          | JSONNumber(num) => `${key}=${num->String.make}`->Some
+          | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
           | _ => None
           }
         } else {
@@ -171,7 +171,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
-      let keyArr = key->Js.String2.split(".")
+      let keyArr = key->String.split(".")
       let prefix = keyArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
       let fitlerName = keyArr->Belt.Array.get(1)->Belt.Option.getWithDefault("")
 
@@ -639,7 +639,7 @@ module SDKAnalyticsChartContext = {
       ->Dict.toArray
       ->Belt.Array.keepMap(item => {
         let (key, value) = item
-        let keyArr = key->Js.String2.split(".")
+        let keyArr = key->String.split(".")
         let prefix = keyArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
         if prefix === chartId && prefix !== "" {
           None
@@ -659,8 +659,8 @@ module SDKAnalyticsChartContext = {
           if allFilterKeys->Array.includes(key) {
             switch value->Js.Json.classify {
             | JSONString(str) => `${key}=${str}`->Some
-            | JSONNumber(num) => `${key}=${num->Js.String.make}`->Some
-            | JSONArray(arr) => `${key}=[${arr->Js.String.make}]`->Some
+            | JSONNumber(num) => `${key}=${num->String.make}`->Some
+            | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
             | _ => None
             }
           } else {
@@ -682,7 +682,7 @@ module SDKAnalyticsChartContext = {
       ->Dict.toArray
       ->Belt.Array.keepMap(item => {
         let (key, value) = item
-        let keyArr = key->Js.String2.split(".")
+        let keyArr = key->String.split(".")
         let prefix = keyArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
         let fitlerName = keyArr->Belt.Array.get(1)->Belt.Option.getWithDefault("")
 

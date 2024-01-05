@@ -133,7 +133,7 @@ let useTabHooks = (~moduleName, ~segmentsOptions) => {
   )
   let setActiveTab = React.useMemo1(() => {
     (str: string) => {
-      setActiveTab(_ => str->Js.String2.split(","))
+      setActiveTab(_ => str->String.split(","))
     }
   }, [setActiveTab])
 

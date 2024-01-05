@@ -155,7 +155,7 @@ let make = () => {
     } catch {
     | Js.Exn.Error(e) => {
         let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
-        if err->Js.String2.includes("HE_02") {
+        if err->String.includes("HE_02") {
           setShowWarning(_ => false)
           setPageView(_ => LANDING)
           setScreenState(_ => Success)
