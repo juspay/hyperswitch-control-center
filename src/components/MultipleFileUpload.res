@@ -101,15 +101,15 @@ let make = (
             let filename = value["name"]
             let size = value["size"]
             let mimeType = value["type"]
-            let fileFormat = Js.String2.concat(
+            let fileFormat = String.concat(
               ".",
-              Array.pop(filename->Js.String2.split("."))->Belt.Option.getWithDefault(""),
+              Array.pop(filename->String.split("."))->Belt.Option.getWithDefault(""),
             )
-            let fileTypeArr = fileType->Js.String2.split(",")
+            let fileTypeArr = fileType->String.split(",")
             let isCorrectFileFormat =
               fileTypeArr->Array.includes(fileFormat) || fileTypeArr->Array.includes("*")
             let fileReader = FileReader.reader
-            let _file = if filename->Js.String2.includes("p12") {
+            let _file = if filename->String.includes("p12") {
               fileReader.readAsBinaryString(. value)
             } else if shouldEncodeBase64 {
               fileReader.readAsDataURL(. value)
@@ -142,7 +142,7 @@ let make = (
                   } else {
                     switch rowsLimit {
                     | Some(val) =>
-                      let rows = Js.String2.split(file, "\n")->Array.length
+                      let rows = String.split(file, "\n")->Array.length
                       if value !== "" && rows - 1 < val {
                         setFilenames(prev => {
                           let fileArr = prev->Array.copy->Array.concat(filename)
@@ -261,7 +261,7 @@ let make = (
             className={pointerDisable
               ? "flex items-center gap-4 flex-1 pointer-events-none"
               : "flex items-center gap-4 flex-1"}>
-            {switch fileName->Js.String2.split(".")->Array.pop->Belt.Option.getWithDefault("") {
+            {switch fileName->String.split(".")->Array.pop->Belt.Option.getWithDefault("") {
             | "pdf" => <img src={`/icons/paIcons/pdfIcon.svg`} />
             | "csv" => <img src={`/icons/paIcons/csvIcon.svg`} />
             | _ => React.null

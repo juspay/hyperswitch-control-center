@@ -16,7 +16,7 @@ let defaultColumns = [OrderID, MerchantID, Timestamp]
 let allColumns = defaultColumns
 
 let filterByData = (actualData, value) => {
-  let searchText = getStringFromJson(value, "")->Js.String2.toLowerCase
+  let searchText = getStringFromJson(value, "")->String.toLowerCase
 
   actualData
   ->Belt.Array.keepMap(Js.Nullable.toOption)
@@ -30,7 +30,7 @@ let filterByData = (actualData, value) => {
       dict
       ->Dict.valuesToArray
       ->Array.map(val => {
-        val->Js.String2.toLowerCase->Js.String2.includes(searchText)
+        val->String.toLowerCase->String.includes(searchText)
       })
       ->Array.includes(true)
 

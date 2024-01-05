@@ -24,7 +24,7 @@ let make = () => {
     } catch {
     | Js.Exn.Error(e) =>
       let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
-      if err->Js.String2.includes("HE_02") {
+      if err->String.includes("HE_02") {
         setScreenState(_ => Custom)
       } else {
         setScreenState(_ => PageLoaderWrapper.Error(err))
@@ -42,14 +42,8 @@ let make = () => {
     let filteredList = Array.filter(arr, (ob: Js.Nullable.t<DisputesEntity.disputes>) => {
       switch Js.Nullable.toOption(ob) {
       | Some(obj) =>
-        Js.String2.includes(
-          obj.payment_id->Js.String2.toLowerCase,
-          searchText->Js.String2.toLowerCase,
-        ) ||
-        Js.String2.includes(
-          obj.dispute_id->Js.String2.toLowerCase,
-          searchText->Js.String2.toLowerCase,
-        )
+        String.includes(obj.payment_id->String.toLowerCase, searchText->String.toLowerCase) ||
+        String.includes(obj.dispute_id->String.toLowerCase, searchText->String.toLowerCase)
       | None => false
       }
     })

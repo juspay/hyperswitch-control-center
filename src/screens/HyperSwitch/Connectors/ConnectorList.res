@@ -99,7 +99,7 @@ module NewProcessorCards = {
                 key={i->string_of_int}
                 className="border p-6 gap-4 bg-white rounded flex flex-col justify-between">
                 <div className="flex flex-col gap-3 items-start">
-                  <GatewayIcon gateway={connectorName->Js.String2.toUpperCase} className=size />
+                  <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
                   <p className={`${p1MediumTextStyle} break-all`}>
                     {connectorName->LogicUtils.capitalizeString->React.string}
                   </p>
@@ -165,7 +165,7 @@ module NewProcessorCards = {
                 description={connectorName->LogicUtils.capitalizeString}
                 toolTipFor={<div
                   className="p-2 cursor-pointer" onClick={_ => handleClick(connectorName)}>
-                  <GatewayIcon gateway={connectorName->Js.String2.toUpperCase} className=size />
+                  <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
                 </div>}
                 toolTipPosition={Top}
                 tooltipWidthClass="w-30"
@@ -183,7 +183,7 @@ module NewProcessorCards = {
         connectorsAvailableForIntegration->Array.filter(item =>
           item
           ->ConnectorUtils.getConnectorNameString
-          ->Js.String2.includes(searchedConnector->Js.String2.toLowerCase)
+          ->String.includes(searchedConnector->String.toLowerCase)
         )
       } else {
         connectorsAvailableForIntegration

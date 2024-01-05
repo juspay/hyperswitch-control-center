@@ -56,7 +56,7 @@ let getHeadingForUser = (colType: userColTypes) => {
 }
 
 let roleToVariantMapper = role => {
-  switch role->Js.String2.toUpperCase {
+  switch role->String.toUpperCase {
   | "ADMIN" => Admin
   | "VIEW ONLY" => ViewOnly
   | "OPERATIONS" => Operations
@@ -66,7 +66,7 @@ let roleToVariantMapper = role => {
 }
 
 let statusToVariantMapper = role => {
-  switch role->Js.String2.toUpperCase {
+  switch role->String.toUpperCase {
   | "ACTIVE" => Active
   | "INVITATIONSENT" => InviteSent
   | _ => None
@@ -101,7 +101,7 @@ let getCellForUser = (data: userTableTypes, colType: userColTypes): Table.cell =
     CustomCell(
       <div
         className={`w-fit font-semibold text-sm px-3 py-1 rounded-full border-1 ${role->getCssMapperForRole}`}>
-        {data.role_name->Js.String2.toUpperCase->React.string}
+        {data.role_name->String.toUpperCase->React.string}
       </div>,
       "",
     )
@@ -109,8 +109,8 @@ let getCellForUser = (data: userTableTypes, colType: userColTypes): Table.cell =
     CustomCell(
       <div className={`font-semibold text-sm ${status->getCssMapperForStatus}`}>
         {switch status {
-        | InviteSent => "INVITE SENT"->Js.String2.toUpperCase->React.string
-        | _ => data.status->Js.String2.toUpperCase->React.string
+        | InviteSent => "INVITE SENT"->String.toUpperCase->React.string
+        | _ => data.status->String.toUpperCase->React.string
         }}
       </div>,
       "",

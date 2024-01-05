@@ -144,12 +144,12 @@ let getURL = (
     | #MERCHANT_DATA => `${userUrl}/data`
     | #INVITE
     | #RESEND_INVITE =>
-      `${userUrl}/user/${(userType :> string)->Js.String2.toLowerCase}`
+      `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
     | #CONNECT_ACCOUNT => `${userUrl}/connect_account`
     | #SWITCH_MERCHANT =>
       switch methodType {
       | Get => `${userUrl}/switch/list`
-      | _ => `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
+      | _ => `${userUrl}/${(userType :> string)->String.toLowerCase}`
       }
     | #CREATE_MERCHANT => `${userUrl}/create_merchant`
     | #SIGNIN
@@ -161,9 +161,9 @@ let getURL = (
     | #VERIFY_EMAIL_REQUEST
     | #FORGOT_PASSWORD
     | #PERMISSION_INFO =>
-      `${userUrl}/${(userType :> string)->Js.String2.toLowerCase}`
+      `${userUrl}/${(userType :> string)->String.toLowerCase}`
     }
-  | RECON => `recon/${(reconType :> string)->Js.String2.toLowerCase}`
+  | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
   | USER_MANAGEMENT => {
       let userUrl = `user`
       switch userRoleTypes {

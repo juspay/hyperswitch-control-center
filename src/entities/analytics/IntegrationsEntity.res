@@ -408,18 +408,14 @@ let singlestatTimeseriesItemToObjMapper = json => {
   ->map(dict => {
     let product = dict->getString("product_integrated", "")
     {
-      payment_page_session_count: product->Js.String2.includes("Payment Page Session")
+      payment_page_session_count: product->String.includes("Payment Page Session")
         ? dict->getInt("merchant_count", 0)
         : 0,
-      payment_page_signature_count: product->Js.String2.includes("Payment Page Signature")
+      payment_page_signature_count: product->String.includes("Payment Page Signature")
         ? dict->getInt("merchant_count", 0)
         : 0,
-      ec_only_count: product->Js.String2.includes("EC Only")
-        ? dict->getInt("merchant_count", 0)
-        : 0,
-      ec_sdk_count: product->Js.String2.includes("EC + SDK")
-        ? dict->getInt("merchant_count", 0)
-        : 0,
+      ec_only_count: product->String.includes("EC Only") ? dict->getInt("merchant_count", 0) : 0,
+      ec_sdk_count: product->String.includes("EC + SDK") ? dict->getInt("merchant_count", 0) : 0,
       timeSeries: dict->getString("time_bucket", "2023-01-01 18:00:00"),
     }
   })

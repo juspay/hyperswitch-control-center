@@ -210,7 +210,7 @@ let make = (~userRole) => {
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
-  let isInternalUser = userRole->Js.String2.includes("internal_")
+  let isInternalUser = userRole->String.includes("internal_")
 
   let input = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
     {
@@ -218,7 +218,7 @@ let make = (~userRole) => {
       onBlur: _ev => (),
       onChange: ev => {
         let value = {ev->ReactEvent.Form.target}["value"]
-        if value->Js.String2.includes("<script>") || value->Js.String2.includes("</script>") {
+        if value->String.includes("<script>") || value->String.includes("</script>") {
           showPopUp({
             popUpType: (Warning, WithIcon),
             heading: `Script Tags are not allowed`,
@@ -226,7 +226,7 @@ let make = (~userRole) => {
             handleConfirm: {text: "OK"},
           })
         }
-        let val = value->Js.String2.replace("<script>", "")->Js.String2.replace("</script>", "")
+        let val = value->String.replace("<script>", "")->String.replace("</script>", "")
         setValue(_ => val)
       },
       onFocus: _ev => (),

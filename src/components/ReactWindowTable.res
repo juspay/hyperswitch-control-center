@@ -111,7 +111,7 @@ module NewCell = {
       item
       ->Array.map((obj: cell) => {
         switch obj {
-        | CustomCell(_, x) => x->Js.String2.split(",")->Array.includes("true")
+        | CustomCell(_, x) => x->String.split(",")->Array.includes("true")
         | _ => false
         }
       })
@@ -717,7 +717,7 @@ let make = (
         let newObj = oldFitlers->Dict.toArray->Dict.fromArray
         let filterValue = filterValue->Array.filter(
           item => {
-            let updatedItem = item->Js.String.make
+            let updatedItem = item->String.make
             updatedItem !== ""
           },
         )

@@ -187,9 +187,7 @@ module CashToCodeSelectBox = {
       let wasmValues =
         dict
         ->getDictfromDict(country)
-        ->getDictfromDict(
-          (selectedCashToCodeMthd: cashToCodeMthd :> string)->Js.String2.toLowerCase,
-        )
+        ->getDictfromDict((selectedCashToCodeMthd: cashToCodeMthd :> string)->String.toLowerCase)
         ->Dict.keysToArray
 
       wasmValues
@@ -222,7 +220,7 @@ module CashToCodeSelectBox = {
             details={dict
             ->getDictfromDict(country)
             ->getDictfromDict(
-              (selectedCashToCodeMthd: cashToCodeMthd :> string)->Js.String2.toLowerCase,
+              (selectedCashToCodeMthd: cashToCodeMthd :> string)->String.toLowerCase,
             )}
             name={`connector_account_details.auth_key_map.${country}`}
             connector

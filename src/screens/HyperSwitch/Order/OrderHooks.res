@@ -23,7 +23,7 @@ let getOrdersData = (orderId, refetchCounter, setScreenState) => {
     | Js.Exn.Error(e) =>
       switch Js.Exn.message(e) {
       | Some(message) =>
-        if message->Js.String2.includes("HE_02") {
+        if message->String.includes("HE_02") {
           setScreenState(_ => Custom)
         } else {
           showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError, ())

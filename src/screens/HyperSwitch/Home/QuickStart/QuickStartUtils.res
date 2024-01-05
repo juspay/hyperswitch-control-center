@@ -248,7 +248,7 @@ let getStatusValue = (comparator: valueType, enumVariant, dashboardPageState) =>
 
 let getStatusFromString = statusString => {
   open HSSelfServeSidebar
-  switch statusString->Js.String2.toUpperCase {
+  switch statusString->String.toUpperCase {
   | "PENDING" => PENDING
   | "COMPLETED" => COMPLETED
   | "ONGOING" => ONGOING

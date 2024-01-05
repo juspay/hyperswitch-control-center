@@ -17,7 +17,7 @@ let useSendEvent = () => {
   }
 
   let parseEmail = email => {
-    email->Js.String.length == 0 ? getFromMerchantDetails("email") : email
+    email->String.length == 0 ? getFromMerchantDetails("email") : email
   }
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -37,7 +37,7 @@ let useSendEvent = () => {
       "properties": {
         "token": mixpanelToken,
         "distinct_id": deviceId,
-        "$device_id": deviceId->Js.String2.split(":")->Belt.Array.get(1),
+        "$device_id": deviceId->String.split(":")->Belt.Array.get(1),
         "$screen_height": Screen.screenHeight,
         "$screen_width": Screen.screenWidth,
         "name": email,
@@ -70,7 +70,7 @@ let useSendEvent = () => {
   }
 
   (~eventName, ~email="", ~description=None, ()) => {
-    let eventName = eventName->Js.String2.toLowerCase
+    let eventName = eventName->String.toLowerCase
     let merchantId = getFromMerchantDetails("merchant_id")
 
     if featureFlagDetails.mixpanel {

@@ -138,7 +138,7 @@ let make = (
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
-      let keyArr = key->Js.String2.split(".")
+      let keyArr = key->String.split(".")
       let prefix = keyArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
       if prefix === moduleName && prefix !== "" {
         None
@@ -188,8 +188,8 @@ let make = (
         if allFilterKeys->Array.includes(key) {
           switch value->Js.Json.classify {
           | JSONString(str) => `${key}=${str}`->Some
-          | JSONNumber(num) => `${key}=${num->Js.String.make}`->Some
-          | JSONArray(arr) => `${key}=[${arr->Js.String.make}]`->Some
+          | JSONNumber(num) => `${key}=${num->String.make}`->Some
+          | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
           | _ => None
           }
         } else {
@@ -263,7 +263,7 @@ let make = (
       entity.urlConfig
       ->Array.map(urlConfig => {
         let {uri, metrics} = urlConfig
-        let domain = Js.String.split("/", uri)->Belt.Array.get(4)->Belt.Option.getWithDefault("")
+        let domain = String.split("/", uri)->Belt.Array.get(4)->Belt.Option.getWithDefault("")
         let startTime = if domain === "mandate" {
           (endTimeFromUrl->DayJs.getDayJsForString).subtract(.
             1,
@@ -367,7 +367,7 @@ let make = (
       entity.urlConfig
       ->Array.map(urlConfig => {
         let {uri, metrics} = urlConfig
-        let domain = Js.String.split("/", uri)->Belt.Array.get(4)->Belt.Option.getWithDefault("")
+        let domain = String.split("/", uri)->Belt.Array.get(4)->Belt.Option.getWithDefault("")
         let startTime = if domain === "mandate" {
           (endTimeFromUrl->DayJs.getDayJsForString).subtract(.
             1,
