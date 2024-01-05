@@ -264,7 +264,7 @@ module Refunds = {
     }
 
     let collapseClick = idx => {
-      let indexOfRemovalItem = expandedRowIndexArray->Js.Array2.findIndex(item => item === idx)
+      let indexOfRemovalItem = expandedRowIndexArray->Array.findIndex(item => item === idx)
       setExpandedRowIndexArray(_ => {
         let array = expandedRowIndexArray->Array.map(item => item)
         array->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
@@ -325,7 +325,7 @@ module Attempts = {
     }
 
     let collapseClick = idx => {
-      let indexOfRemovalItem = expandedRowIndexArray->Js.Array2.findIndex(item => item === idx)
+      let indexOfRemovalItem = expandedRowIndexArray->Array.findIndex(item => item === idx)
       setExpandedRowIndexArray(_ => {
         let array = expandedRowIndexArray->Array.map(item => item)
         array->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
@@ -398,7 +398,7 @@ module Disputes = {
     }
 
     let collapseClick = idx => {
-      let indexOfRemovalItem = expandedRowIndexArray->Js.Array2.findIndex(item => item === idx)
+      let indexOfRemovalItem = expandedRowIndexArray->Array.findIndex(item => item === idx)
       setExpandedRowIndexArray(_ => {
         let array = expandedRowIndexArray->Array.map(item => item)
         array->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])

@@ -62,7 +62,7 @@ module CardDetails = {
             ? "border border-jp-gray-500 dark:border-jp-gray-960 p-4 rounded"
             : ""} `}>
         {
-          let itemArray = !show ? itemArray : Js.Array2.slice(itemArray, ~start=0, ~end_=size)
+          let itemArray = !show ? itemArray : Array.slice(itemArray, ~start=0, ~end=size)
 
           itemArray
           ->Array.mapWithIndex((cell, cellIndex) => {

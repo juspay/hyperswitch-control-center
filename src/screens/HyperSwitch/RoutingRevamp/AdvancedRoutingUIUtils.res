@@ -423,7 +423,7 @@ module MakeRuleField = {
     let conditionsInput = ReactFinalForm.useField(ruleJsonPath).input
     let fields = conditionsInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
     let plusBtnEnabled = true
-    //fields->Js.Array2.every(validateConditionJson)
+    //fields->Array.every(validateConditionJson)
     let onPlusClick = _ => {
       if plusBtnEnabled {
         let toAdd = Dict.make()

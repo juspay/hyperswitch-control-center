@@ -42,7 +42,7 @@ module ConfigureSurchargeRule = {
     let addRule = (index, _copy) => {
       let existingRules = ruleInput.value->LogicUtils.getArrayFromJson([])
       let newRule = existingRules[index]->Belt.Option.getWithDefault(Js.Json.null)
-      let newRules = existingRules->Js.Array2.concat([newRule])
+      let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
@@ -54,7 +54,7 @@ module ConfigureSurchargeRule = {
 
     <div>
       {
-        let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Js.Array2.length > 1
+        let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Array.length > 1
         let rule = ruleInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
         let keyExtractor = (index, _rule, isDragging) => {
           let id = {`algorithm.rules[${string_of_int(index)}]`}
@@ -193,7 +193,7 @@ let make = () => {
     switch dict->Dict.get("algorithm")->Belt.Option.flatMap(Js.Json.decodeObject) {
     | Some(jsonDict) => {
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
-        if rules->Js.Array2.length === 0 {
+        if rules->Array.length === 0 {
           errors->Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
         } else {
           rules->Array.forEachWithIndex((rule, i) => {

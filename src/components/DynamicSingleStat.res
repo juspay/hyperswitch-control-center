@@ -444,7 +444,7 @@ let make = (
             timeSectionName === uri ? Some(timeSeriesObj) : None
           },
         )
-      let timeSeriesData = []->Js.Array2.concatMany(timeSeriesData)
+      let timeSeriesData = []->Array.concatMany(timeSeriesData)
       switch singlestatDataCombined.singleStatData {
       | Some(sdata) => {
           let sectiondata =

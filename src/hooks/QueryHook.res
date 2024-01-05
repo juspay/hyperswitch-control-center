@@ -22,16 +22,15 @@ let changeSearchValue = (~arr: array<queryInput>, ~queryUrl, ~path) => {
     | Array(key, val) =>
       dict->Dict.set(
         key,
-        `[${val->Js.Array2.reducei((acc, e, i) => `${acc}${i == 0 ? "" : ","}${e}`, "")}]`,
+        `[${val->Array.reduceWithIndex("", (acc, e, i) => `${acc}${i == 0 ? "" : ","}${e}`)}]`,
       )
     }
   })
   let path = path->Belt.List.reduce("", (acc, item) => `${acc}/${item}`)
   let entry = dict->Dict.toArray
   let query =
-    entry->Js.Array2.reducei(
-      (acc, (key, value), i) => `${acc}${i == 0 ? "" : "&"}${key}=${value}`,
-      "",
+    entry->Array.reduceWithIndex("", (acc, (key, value), i) =>
+      `${acc}${i == 0 ? "" : "&"}${key}=${value}`
     )
   RescriptReactRouter.replace(`${path}?${query}`)
 }
