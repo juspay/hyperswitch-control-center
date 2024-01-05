@@ -62,9 +62,9 @@ module OperatorInp = {
     React.useEffect2(() => {
       let operatorVals = switch keyType->variantTypeMapper {
       | Enum_variant => ["IS", "CONTAINS", "IS_NOT", "NOT_CONTAINS"]
-      | Number => ["EQUAL TO", "GREATER THAN", "LESS THAN"]
-      | Metadata_value => ["EQUAL TO"]
-      | String_value => ["EQUAL TO", "NOT EQUAL_TO"]
+      | Number => ["EQUAL_TO", "GREATER THAN", "LESS THAN"]
+      | Metadata_value => ["EQUAL_TO"]
+      | String_value => ["EQUAL_TO", "NOT EQUAL_TO"]
       | _ => []
       }
 

@@ -7,7 +7,7 @@ let statementObject: array<AdvancedRoutingTypes.statement> = [
       \"type": "number",
       value: ""->Js.Json.string,
     },
-    comparison: "EQUAL TO",
+    comparison: "EQUAL_TO",
   },
   {
     logical: "AND",
