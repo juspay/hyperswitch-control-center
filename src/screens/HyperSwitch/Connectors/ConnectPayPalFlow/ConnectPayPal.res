@@ -71,8 +71,8 @@ module ManualSetupScreen = {
     ~configuartionType,
     ~connectorLabelDetailField,
   ) => {
-    let setupAccountStatus = Recoil.useRecoilValueFromAtom(HyperswitchAtom.paypalAccountStatusAtom)
-    let bodyType = isUpdateFlow->PayPalFlowUtils.getBodyType(configuartionType, setupAccountStatus)
+    // let setupAccountStatus = Recoil.useRecoilValueFromAtom(HyperswitchAtom.paypalAccountStatusAtom)
+    // let bodyType = isUpdateFlow->PayPalFlowUtils.getBodyType(configuartionType, setupAccountStatus)
 
     <div className="flex flex-col gap-8">
       <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
@@ -81,7 +81,6 @@ module ManualSetupScreen = {
         selectedConnector
         connectorMetaDataFields
         connectorWebHookDetails
-        bodyType
         connectorLabelDetailField
       />
     </div>
