@@ -172,7 +172,7 @@ module QuickStart = {
     }
 
     let mixpanelEventForQuickStart = () =>
-      if !(typedValueOfEnum.testPayment.payment_id->Js.String2.length > 0) {
+      if !(typedValueOfEnum.testPayment.payment_id->String.length > 0) {
         mixpanelEvent(~eventName=`quickstart_configure_test_mode`, ())
       } else if !typedValueOfEnum.integrationCompleted {
         mixpanelEvent(~eventName=`quickstart_start_integration_on_app`, ())

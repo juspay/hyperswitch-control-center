@@ -63,7 +63,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
             },
           )
 
-        let updatedDict = Js.Array2.concat(prevDictArr, currentDictArr)->Dict.fromArray
+        let updatedDict = Array.concat(prevDictArr, currentDictArr)->Dict.fromArray
         let dict = if DictionaryUtils.equalDicts(updatedDict, prev) {
           prev
         } else {
@@ -100,7 +100,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
       removeKeys,
       filterValueJson: filterDict
       ->Dict.toArray
-      ->Js.Array2.map(item => {
+      ->Array.map(item => {
         let (key, value) = item
         (key, value->UrlFetchUtils.getFilterValue)
       })
@@ -121,7 +121,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
   })
 
   React.useEffect1(() => {
-    if !(query.contents->Js.String2.length < 1) && !disableSessionStorage {
+    if !(query.contents->String.length < 1) && !disableSessionStorage {
       sessionStorage.setItem(. index, query.contents)
     }
     None

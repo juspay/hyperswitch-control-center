@@ -481,10 +481,8 @@ module BaseSelect = {
     })
 
     let options = options->Js.Array2.sortInPlaceWith((item1, item2) => {
-      let item1Index =
-        initialSelectedOptions->Js.Array2.findIndex(item => item.label === item1.label)
-      let item2Index =
-        initialSelectedOptions->Js.Array2.findIndex(item => item.label === item2.label)
+      let item1Index = initialSelectedOptions->Array.findIndex(item => item.label === item1.label)
+      let item2Index = initialSelectedOptions->Array.findIndex(item => item.label === item2.label)
 
       item1Index <= item2Index ? 1 : -1
     })
@@ -833,13 +831,13 @@ module BaseSelect = {
             filteredOptions
             ->Array.mapWithIndex((item, indx) => {
               let valueToConsider = item.value
-              let index = Js.Array2.findIndex(saneValue, sv => sv === valueToConsider)
+              let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
               let isPrevSelected = switch filteredOptions->Belt.Array.get(indx - 1) {
-              | Some(prevItem) => Js.Array2.findIndex(saneValue, sv => sv === prevItem.value) > -1
+              | Some(prevItem) => Array.findIndex(saneValue, sv => sv === prevItem.value) > -1
               | None => false
               }
               let isNextSelected = switch filteredOptions->Belt.Array.get(indx + 1) {
-              | Some(nextItem) => Js.Array2.findIndex(saneValue, sv => sv === nextItem.value) > -1
+              | Some(nextItem) => Array.findIndex(saneValue, sv => sv === nextItem.value) > -1
               | None => false
               }
               let isSelected = index > -1
@@ -1936,7 +1934,7 @@ module BaseDropdown = {
           jsonArr
           ->LogicUtils.getStrArrayFromJsonArray
           ->Array.mapWithIndex((str, i) => {
-            let actualValueIndex = Js.Array2.findIndex(options->Array.map(x => x.value), item =>
+            let actualValueIndex = Array.findIndex(options->Array.map(x => x.value), item =>
               item == str
             )
             if actualValueIndex !== -1 {

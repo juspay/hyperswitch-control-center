@@ -18,18 +18,18 @@ let make = (
   ~showSerial=false,
 ) => {
   if showSerial {
-    heading->Js.Array2.unshift(makeHeaderInfo(~key="serial_number", ~title="S.No", ()))->ignore
+    heading->Array.unshift(makeHeaderInfo(~key="serial_number", ~title="S.No", ()))->ignore
   }
 
   let isMobileView = MatchMedia.useMobileChecker()
 
   let filterPresent = heading->Array.find(head => head.showFilter)->Js.Option.isSome
-  let highlightEnabledFieldsArray = heading->Js.Array2.reducei((acc, item, index) => {
+  let highlightEnabledFieldsArray = heading->Array.reduceWithIndex([], (acc, item, index) => {
     if item.highlightCellOnHover {
       let _ = Array.push(acc, index)
     }
     acc
-  }, [])
+  })
 
   let scrollBarClass = if showScrollBar {
     "show-scrollbar"
@@ -40,7 +40,7 @@ let make = (
   let rowInfo: array<array<cell>> = {
     let a = rows->Array.mapWithIndex((data, i) => {
       if showSerial {
-        data->Js.Array2.unshift(Text((i + 1)->Belt.Int.toString))->ignore
+        data->Array.unshift(Text((i + 1)->Belt.Int.toString))->ignore
       }
       data
     })

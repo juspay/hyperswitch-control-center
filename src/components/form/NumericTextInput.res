@@ -57,8 +57,7 @@ let make = (
 
         let cleanedValue = switch strValue->Js.String2.match_(%re("/[\d\.]/g")) {
         | Some(strArr) =>
-          let str =
-            strArr->Array.joinWith("")->Js.String2.split(".")->Js.Array2.slice(~start=0, ~end_=2)
+          let str = strArr->Array.joinWith("")->Js.String2.split(".")->Array.slice(~start=0, ~end=2)
           let result = if removeLeadingZeroes {
             str[0] =
               str[0]->Belt.Option.getWithDefault("")->Js.String2.replaceByRe(%re("/\b0+/g"), "")

@@ -99,7 +99,8 @@ let toCamelCase = str => {
 let getNameFromEmail = email => {
   email
   ->Js.String2.split("@")
-  ->Js.Array2.unsafe_get(0)
+  ->Belt.Array.get(0)
+  ->Belt.Option.getWithDefault("")
   ->Js.String2.split(".")
   ->Array.map(name => {
     if name == "" {
