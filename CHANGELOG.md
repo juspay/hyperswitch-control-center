@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.19.3 (2024-01-04)
+
+### Documentation
+
+- Added security policy, code of conduct and contributing md files ([#167](https://github.com/juspay/hyperswitch-control-center/pull/167)) ([`4056ba9`](https://github.com/juspay/hyperswitch-control-center/commit/4056ba9ee8eeebb32b125e10c6a31eac28f3b8c4))
+- Added license file and contributing guidelines ([#168](https://github.com/juspay/hyperswitch-control-center/pull/168)) ([`bc102ba`](https://github.com/juspay/hyperswitch-control-center/commit/bc102ba6237be4c8a17e2e6c999b6cf2ad80f6af))
+
+**Full Changelog:** [`v1.19.2...v1.19.3`](https://github.com/juspay/hyperswitch-control-center/compare/v1.19.2...v1.19.3)
+
+- - -
+
+
 ## 1.19.2 (2024-01-04)
 
 ### Bug Fixes
