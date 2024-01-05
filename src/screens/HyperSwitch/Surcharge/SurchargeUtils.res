@@ -65,7 +65,7 @@ let ruleInfoTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithmDa
 
   let defaultSelection = json->getDictfromDict("defaultSelection")
 
-  let rulesModifiedArray = rulesArray->Js.Array2.map(rule => {
+  let rulesModifiedArray = rulesArray->Array.map(rule => {
     let ruleDict = rule->getDictFromJsonObject
 
     let connectorSelection = getTypedSurchargeConnectorSelection(ruleDict)

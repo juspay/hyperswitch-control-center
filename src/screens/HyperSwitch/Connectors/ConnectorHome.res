@@ -2,7 +2,7 @@ module ConnectorCurrentStepIndicator = {
   @react.component
   let make = (~currentStep: ConnectorTypes.steps, ~stepsArr, ~borderWidth="w-8/12") => {
     let cols = stepsArr->Array.length->Belt.Int.toString
-    let currIndex = stepsArr->Js.Array2.findIndex(item => item === currentStep)
+    let currIndex = stepsArr->Array.findIndex(item => item === currentStep)
     <div className=" w-full md:w-2/3">
       <div className={`grid grid-cols-${cols} relative gap-2`}>
         {stepsArr

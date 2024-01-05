@@ -97,7 +97,7 @@ module BluredTableComponent = {
             text=buttonText
             buttonType={Primary}
             onClick={_ => {
-              onClickUrl->Js.String2.length > 0
+              onClickUrl->String.length > 0
                 ? RescriptReactRouter.push(onClickUrl)
                 : setPaymentModal(_ => true)
             }}
