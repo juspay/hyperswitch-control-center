@@ -413,7 +413,7 @@ module ComboFieldsRenderer3 = {
           format=?inputField.format
           validate=?{inputField.validate}>
           {fieldState => {
-            let newFieldsState = Js.Array2.concatMany([], [fieldsState, [fieldState]])
+            let newFieldsState = Array.concatMany([], [fieldsState, [fieldState]])
 
             renderComboFields(
               ~inputFields=restInputFields,

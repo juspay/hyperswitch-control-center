@@ -690,12 +690,12 @@ let make = (
   }
   let filterPresent = heading->Array.find(head => head.showFilter)->Js.Option.isSome
 
-  let highlightEnabledFieldsArray = heading->Js.Array2.reducei((acc, item, index) => {
+  let highlightEnabledFieldsArray = heading->Array.reduceWithIndex([], (acc, item, index) => {
     if item.highlightCellOnHover {
       let _ = Array.push(acc, index)
     }
     acc
-  }, [])
+  })
 
   let getRowDetails = (rowIndex: int) => {
     switch actualData {
@@ -754,7 +754,7 @@ let make = (
     let columnFilterRow = switch columnFilterRow {
     | Some(fitlerRows) =>
       switch isFrozen {
-      | true => Some(fitlerRows->Js.Array2.slice(~start=0, ~end_=frozenUpto))
+      | true => Some(fitlerRows->Array.slice(~start=0, ~end=frozenUpto))
       | false => Some(fitlerRows->Js.Array2.sliceFrom(frozenUpto))
       }
     | None => None
@@ -796,7 +796,7 @@ let make = (
     switch columnFilterRow {
     | Some(fitlerRows) => {
         let filterRows = switch isFrozen {
-        | true => fitlerRows->Js.Array2.slice(~start=0, ~end_=frozenUpto)
+        | true => fitlerRows->Array.slice(~start=0, ~end=frozenUpto)
         | false => fitlerRows->Js.Array2.sliceFrom(frozenUpto)
         }
 
@@ -815,12 +815,12 @@ let make = (
     }
   }
 
-  let frozenHeading = heading->Js.Array2.slice(~start=0, ~end_=frozenUpto)
+  let frozenHeading = heading->Array.slice(~start=0, ~end=frozenUpto)
   let frozenCustomiseColumnHeading = [
     makeHeaderInfo(~key="", ~title="Customize Column", ~showMultiSelectCheckBox=true, ()),
   ]
   let frozenRow = rowInfo->Array.map(row => {
-    row->Js.Array2.slice(~start=0, ~end_=frozenUpto)
+    row->Array.slice(~start=0, ~end=frozenUpto)
   })
 
   let remainingHeading = heading->Js.Array2.sliceFrom(frozenUpto)
