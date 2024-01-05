@@ -10,8 +10,10 @@ let defaultThreeDsObjectValue: routingOutputType = {
 let currentTimeInUTC = Js.Date.fromFloat(Js.Date.now())->Js.Date.toUTCString
 let getCurrentUTCTime = () => {
   let currentDate = Js.Date.now()->Js.Date.fromFloat
-  let currMonth = currentDate->Js.Date.getUTCMonth->Belt.Float.toString
-  let currDay = currentDate->Js.Date.getUTCDate->Belt.Float.toString
+  let month = currentDate->Js.Date.getUTCMonth +. 1.0
+  let day = currentDate->Js.Date.getUTCDate
+  let currMonth = month < 10.0 ? `0${month->Belt.Float.toString}` : month->Belt.Float.toString
+  let currDay = day < 10.0 ? `0${day->Belt.Float.toString}` : day->Belt.Float.toString
   let currYear = currentDate->Js.Date.getUTCFullYear->Belt.Float.toString
 
   `${currYear}-${currMonth}-${currDay}`
