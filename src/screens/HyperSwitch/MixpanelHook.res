@@ -21,6 +21,8 @@ let useSendEvent = () => {
   }
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {clientCountry} = HSwitchUtils.getBrowswerDetails()
+  let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
 
   let environment = switch HSwitchGlobalVars.hostType {
   | Live => "production"
@@ -48,6 +50,7 @@ let useSendEvent = () => {
         "lang": Navigator.browserLanguage,
         "$os": Navigator.platform,
         "$browser": Navigator.browserName,
+        "mp_country_code": country,
       },
     }
 
