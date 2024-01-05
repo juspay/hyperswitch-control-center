@@ -172,7 +172,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
   | Disabled => Text(connector.disabled ? "True" : "False")
   | Status =>
     Label({
-      title: connector.status->Js.String2.toUpperCase,
+      title: connector.status->String.toUpperCase,
       color: connector.status === "inactive" ? LabelRed : LabelGreen,
     })
   | ProfileId => Text(connector.profile_id)
@@ -202,11 +202,11 @@ let getArrayDataFromJson = (json, itemToObjMapper: Js.Dict.t<Js.Json.t> => conne
   json
   ->HSwitchUtils.getProcessorsListFromJson()
   ->Array.map(itemToObjMapper)
-  ->Array.filter(item => !(item.connector_name->Js.String2.includes("apple")))
+  ->Array.filter(item => !(item.connector_name->String.includes("apple")))
 }
 
 let comparatorFunction = (connector1: connectorPayload, connector2: connectorPayload) => {
-  connector1.connector_name->Js.String2.localeCompare(connector2.connector_name)->Belt.Float.toInt
+  connector1.connector_name->String.localeCompare(connector2.connector_name)->Belt.Float.toInt
 }
 
 let sortPreviouslyConnectedList = arr => {

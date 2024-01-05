@@ -54,7 +54,7 @@ let getContentBasedOnIndex = (~currentRoute, ~tabIndex) =>
   }
 
 let getLangauge = (str): languages => {
-  switch str->Js.String2.toLowerCase {
+  switch str->String.toLowerCase {
   | "reactjs" => #ReactJs
   | "node" => #Node
   | "ruby" => #Ruby
@@ -71,7 +71,7 @@ let getLangauge = (str): languages => {
   }
 }
 let getPlatform = (str): platforms => {
-  switch str->Js.String2.toLowerCase {
+  switch str->String.toLowerCase {
   | "web" => #Web
   | "ios" => #IOS
   | "android" => #Android
@@ -215,8 +215,8 @@ let getFilteredList = (
   backEndLang: languages,
   githubcodespaces: array<sectionContentType>,
 ) => {
-  let felang = Some((frontEndLang :> string)->Js.String2.toLowerCase)
-  let belang = Some((backEndLang :> string)->Js.String2.toLowerCase)
+  let felang = Some((frontEndLang :> string)->String.toLowerCase)
+  let belang = Some((backEndLang :> string)->String.toLowerCase)
   if felang === Some("chooselanguage") && belang === Some("chooselanguage") {
     githubcodespaces
   } else {

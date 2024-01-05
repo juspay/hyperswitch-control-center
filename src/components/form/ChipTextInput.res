@@ -38,15 +38,15 @@ let make = (
   }
   let inputValue = input.value->Js.Json.decodeString->Belt.Option.getWithDefault("")
   let splitFunction = input => {
-    input->Js.String2.split(",")->Array.filter(e => e !== "")->Array.map(e => e->Js.String2.trim)
+    input->String.split(",")->Array.filter(e => e !== "")->Array.map(e => e->String.trim)
   }
   let chipArray = splitFunction(inputValue)
 
   let onChipCloseClick = value => {
     input.onChange(
       inputValue
-      ->Js.String2.split(",")
-      ->Array.map(Js.String2.trim)
+      ->String.split(",")
+      ->Array.map(String.trim)
       ->Array.filter(x => x !== value)
       ->Array.joinWith(", ")
       ->Identity.stringToFormReactEvent,

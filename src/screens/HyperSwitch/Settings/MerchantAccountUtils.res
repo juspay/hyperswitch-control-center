@@ -1,6 +1,6 @@
 open HSwitchSettingTypes
 let parseKey = api_key => {
-  api_key->Js.String2.slice(~from=0, ~to_=6)->Js.String2.concat(Js.String2.repeat("*", 20))
+  api_key->String.slice(~start=0, ~end=6)->String.concat(String.repeat("*", 20))
 }
 
 let passwordKeyValidation = (value, key, keyVal, errors) => {
@@ -155,7 +155,7 @@ let getMerchantDetails = (values: Js.Json.t) => {
     })
 
   let reconStatusMapper = reconStatus => {
-    switch reconStatus->Js.String2.toLowerCase {
+    switch reconStatus->String.toLowerCase {
     | "notrequested" => NotRequested
     | "requested" => Requested
     | "active" => Active
@@ -381,7 +381,7 @@ let validateCustom = (key, errors, value) => {
       )
     }
   | Website | WebhookUrl | ReturnUrl =>
-    if !Js.Re.test_(%re("/^https:\/\//i"), value) || value->Js.String2.includes("localhost") {
+    if !Js.Re.test_(%re("/^https:\/\//i"), value) || value->String.includes("localhost") {
       Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->Js.Json.string)
     }
 

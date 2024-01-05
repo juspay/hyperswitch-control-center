@@ -29,7 +29,7 @@ module NewProcessorCards = {
             <CardUtils.CardLayout key={Belt.Int.toString(i)} width="w-full">
               <div className="flex gap-2 items-center mb-3">
                 <GatewayIcon
-                  gateway={frmName->Js.String2.toUpperCase} className="w-10 h-10 rounded-lg"
+                  gateway={frmName->String.toUpperCase} className="w-10 h-10 rounded-lg"
                 />
                 <h1 className="text-xl font-semibold break-all">
                   {frmName->LogicUtils.capitalizeString->React.string}
@@ -69,7 +69,7 @@ module NewProcessorCards = {
               description={frmName->LogicUtils.capitalizeString}
               toolTipFor={<div
                 className="bg-white p-2 cursor-pointer" onClick={_ => handleClick(frmName)}>
-                <GatewayIcon gateway={frmName->Js.String2.toUpperCase} className=size />
+                <GatewayIcon gateway={frmName->String.toUpperCase} className=size />
               </div>}
               toolTipPosition={Top}
               tooltipWidthClass="w-30"

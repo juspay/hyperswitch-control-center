@@ -83,7 +83,7 @@ let make = () => {
       let productionAgreementResponse =
         response
         ->getArrayFromJson([])
-        ->Js.Array2.find(ele => {
+        ->Array.find(ele => {
           ele->getDictFromJsonObject->getBool("ProductionAgreement", false)
         })
         ->Option.getWithDefault(Js.Json.null)
@@ -317,7 +317,7 @@ let make = () => {
                       | list{"developer-api-keys"} => <KeyManagement.KeysManagement />
                       | list{"developer-system-metrics"} =>
                         <UIUtils.RenderIf
-                          condition={userRole->Js.String2.includes("internal_") &&
+                          condition={userRole->String.includes("internal_") &&
                             featureFlagDetails.systemMetrics}>
                           <FilterContext key="SystemMetrics" index="SystemMetrics">
                             <SystemMetricsAnalytics />

@@ -334,7 +334,7 @@ let make = () => {
           <QuickStartUIUtils.BaseComponent
             headerText={connectorName->LogicUtils.capitalizeString}
             customIcon={<GatewayIcon
-              gateway={connectorName->Js.String2.toUpperCase} className="w-6 h-6 rounded-md"
+              gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
             />}
             customCss="show-scrollbar"
             backButton={<Button
