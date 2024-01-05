@@ -247,8 +247,7 @@ module RemoteTableFilters = {
     let remoteOptions =
       filterData
       ->getFilterFields
-      ->Array.filter(item => item.localFilter->Js.Option.isNone)
-      ->Array.filterWithIndex((_item, index) => index > 3)
+      ->Array.filterWithIndex((item, index) => index > 3 && item.localFilter->Js.Option.isNone)
 
     let clearFilters = () => {
       filterData->getDictFromJsonObject->Dict.keysToArray->removeKeys
