@@ -40,6 +40,14 @@ let make = (
 ) => {
   let gateWaysInput = ReactFinalForm.useField(`${id}`).input
 
+  let gatewayName = name => {
+    let res =
+      connectorList
+      ->Belt.Option.getWithDefault([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
+      ->ConnectorTableUtils.getConnectorNameViaId(name)
+    res.connector_label
+  }
+
   let isDistribute =
     id === "algorithm.data" ||
       !(
@@ -58,10 +66,16 @@ let make = (
       item
       ->Js.Json.decodeObject
       ->Belt.Option.flatMap(dict => {
+        //  let obj: gateway = {
+        //   gateway_name: dict->LogicUtils.getString("gateway_name", ""),
+        //   distribution: dict->LogicUtils.getInt("distribution", 100),
+        //   disableFallback: dict->LogicUtils.getBool("disableFallback", false),
+        // }
+        let connectorDict = dict->LogicUtils.getDictfromDict("connector")
         let obj: gateway = {
           connector: {
-            connector: "",
-            merchant_connector_id: "",
+            connector: connectorDict->LogicUtils.getString("connector", ""),
+            merchant_connector_id: connectorDict->LogicUtils.getString("merchant_connector_id", ""),
           },
           split: dict->LogicUtils.getInt("split", 100),
         }
@@ -86,7 +100,7 @@ let make = (
           }
           let obj: gateway = {
             connector: {
-              connector: "",
+              connector: item->gatewayName,
               merchant_connector_id: item,
             },
             split: sharePercent,
@@ -97,7 +111,9 @@ let make = (
       }
     },
     onFocus: _ev => (),
-    value: selectedOptions->Array.map(i => i.connector.connector->Js.Json.string)->Js.Json.array,
+    value: selectedOptions
+    ->Array.map(i => i.connector.merchant_connector_id->Js.Json.string)
+    ->Js.Json.array,
     checked: true,
   }
 
@@ -123,14 +139,6 @@ let make = (
     )
   }
 
-  let gatewayName = name => {
-    let res =
-      connectorList
-      ->Belt.Option.getWithDefault([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
-      ->ConnectorTableUtils.getConnectorNameViaId(name)
-    res.connector_label
-  }
-
   if isExpanded {
     <div className="flex flex-row ml-2">
       {if !isFirst {
@@ -140,39 +148,37 @@ let make = (
       }}
       <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
         <div className="flex flex-wrap gap-4">
-          <AddDataAttributes attributes=[("data-gateway-dropdown", "AddGateways")]>
-            <div className="flex">
-              <SelectBox.BaseDropdown
-                allowMultiSelect=true
-                buttonText=dropDownButtonText
-                buttonType=Button.SecondaryFilled
-                hideMultiSelectButtons=true
-                customButtonStyle="bg-white dark:bg-jp-gray-darkgray_background"
-                input
-                options={gatewayOptions}
-                fixedDropDownDirection=SelectBox.TopRight
-                searchable=true
-                defaultLeftIcon={FontAwesome("plus")}
-                maxHeight="max-h-full sm:max-h-64"
-              />
-              <span className="text-lg text-red-500 ml-1"> {React.string("*")} </span>
-            </div>
-          </AddDataAttributes>
+          <div className="flex">
+            <SelectBox.BaseDropdown
+              allowMultiSelect=true
+              buttonText=dropDownButtonText
+              buttonType=Button.SecondaryFilled
+              hideMultiSelectButtons=true
+              customButtonStyle="bg-white dark:bg-jp-gray-darkgray_background"
+              input
+              options={gatewayOptions}
+              fixedDropDownDirection=SelectBox.TopRight
+              searchable=true
+              defaultLeftIcon={FontAwesome("plus")}
+              maxHeight="max-h-full sm:max-h-64"
+            />
+            <span className="text-lg text-red-500 ml-1"> {React.string("*")} </span>
+          </div>
           {selectedOptions
           ->Array.mapWithIndex((item, i) => {
             let key = string_of_int(i + 1)
-            <AddDataAttributes key attributes=[("data-gateway-button", item.connector.connector)]>
-              {<div className="flex flex-row">
+            Js.log2("lokiii selected", selectedOptions)
+
+            {
+              <div className="flex flex-row" key>
                 <div
                   className="w-min flex flex-row items-center justify-around gap-2 h-10 rounded-md  border border-jp-gray-500 dark:border-jp-gray-960
                text-jp-gray-900 text-opacity-75 hover:text-opacity-100 dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme
                dark:hover:text-opacity-75 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 bg-gradient-to-b
                from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 dark:text-jp-gray-text_darktheme
                dark:text-opacity-50 focus:outline-none px-1 ">
-                  <AddDataAttributes attributes=[("data-gateway-count", key)]>
-                    <NewThemeUtils.Badge number={i + 1} />
-                  </AddDataAttributes>
-                  <div> {item.connector.connector->gatewayName->React.string} </div>
+                  <NewThemeUtils.Badge number={i + 1} />
+                  <div> {item.connector.connector->React.string} </div>
                   <Icon
                     name="close"
                     size=10
@@ -204,29 +210,11 @@ let make = (
                     React.null
                   }}
                 </div>
-              </div>}
-            </AddDataAttributes>
+              </div>
+            }
           })
           ->React.array}
         </div>
-        {if selectedOptions->Array.length > 0 {
-          <div
-            className="flex flex-col md:flex-row md:items-center gap-4 md:gap-3 lg:gap-4 lg:ml-6">
-            {if selectedOptions->Array.length > 1 && showFallbackIcon {
-              <AddDataAttributes attributes=[("data-gateway-checkbox", "DisableFallback")]>
-                <div
-                  className={`flex flex-row items-center gap-4 md:gap-1 lg:gap-2 
-              ${isDistribute ? "" : "cursor-not-allowed"}`}>
-                  <div> {React.string("Disable Fallback")} </div>
-                </div>
-              </AddDataAttributes>
-            } else {
-              React.null
-            }}
-          </div>
-        } else {
-          React.null
-        }}
       </div>
     </div>
   } else {
