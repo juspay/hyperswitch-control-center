@@ -123,7 +123,6 @@ let initialFilters = json => {
 
   filterDict
   ->Dict.keysToArray
-  ->Array.filterWithIndex((_item, index) => index <= 3)
   ->Array.map((key): EntityType.initialFilters<'t> => {
     let title = `Select ${key->snakeToTitle}`
     let values = filterDict->getArrayFromDict(key, [])->getStrArrayFromJsonArray
