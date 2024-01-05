@@ -68,7 +68,7 @@ let unflattenObject = obj => {
     ->Dict.toArray
     ->Array.forEach(entry => {
       let (key, value) = entry
-      setNested(newDict, key->Js.String2.split("."), value)
+      setNested(newDict, key->String.split("."), value)
     })
   | None => ()
   }

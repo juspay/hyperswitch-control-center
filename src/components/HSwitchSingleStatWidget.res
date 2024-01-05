@@ -177,7 +177,7 @@ let make = (
         className={`h-full w-full flex flex-col border ${borderRounded} dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden p-10 mb-7`}>
         <div className="h-full flex flex-col gap-1">
           <div className="font-bold text-[2.3rem]">
-            {statValue(statType)->Js.String2.toLowerCase->React.string}
+            {statValue(statType)->String.toLowerCase->React.string}
           </div>
           <div className={"flex gap-2 items-centertext-jp-gray-700 font-bold"}>
             <div
@@ -217,7 +217,7 @@ let make = (
           </UIUtils.RenderIf>
           <div className="flex flex-row h-1/2 items-end">
             <div className="font-bold text-3xl">
-              {statValue(statType)->Js.String2.toLowerCase->React.string}
+              {statValue(statType)->String.toLowerCase->React.string}
             </div>
             <div className="flex px-4 h-full items-center">
               <Highcharts.HighchartsReact

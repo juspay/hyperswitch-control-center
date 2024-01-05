@@ -51,7 +51,7 @@ let make = (~input: ReactFinalForm.fieldRenderPropsInput) => {
 
   let onDateClick = str => {
     setIsExpanded(p => !p)
-    let currentDateSplit = Js.String2.split(str, "-")
+    let currentDateSplit = String.split(str, "-")
     let currentDateDay = currentDateSplit[2]->Belt.Option.getWithDefault("")
     setSelectedDate(_ => currentDateDay)
     input.onChange(currentDateDay->Identity.stringToFormReactEvent)

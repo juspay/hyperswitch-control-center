@@ -172,7 +172,7 @@ module HeaderComponentView = {
       <p className="font-medium text-base"> {headerText->React.string} </p>
       <div className="flex gap-2">
         <div className="py-1 px-4 border rounded-md flex gap-2 items-center">
-          <Icon name={`${(langauge :> string)->Js.String2.toLowerCase}`} size=16 />
+          <Icon name={`${(langauge :> string)->String.toLowerCase}`} size=16 />
           <p> {(langauge :> string)->React.string} </p>
         </div>
         <div
@@ -297,7 +297,7 @@ module BackendFrontendPlatformLangDropDown = {
               text={(platform :> string)}
               buttonSize=Button.Small
               leftIcon=Button.CustomIcon(
-                <Icon size=20 name={`${(platform :> string)->Js.String2.toLowerCase}`} />,
+                <Icon size=20 name={`${(platform :> string)->String.toLowerCase}`} />,
               )
               rightIcon=Button.CustomIcon(<Icon className="pl-2 " size=20 name="chevron-down" />)
               ellipsisOnly=true
@@ -322,7 +322,7 @@ module BackendFrontendPlatformLangDropDown = {
               text=frontendDropdownText
               buttonSize=Button.Small
               leftIcon=Button.CustomIcon(
-                <Icon size=20 name={`${(frontEndLang :> string)->Js.String2.toLowerCase}`} />,
+                <Icon size=20 name={`${(frontEndLang :> string)->String.toLowerCase}`} />,
               )
               rightIcon=Button.CustomIcon(<Icon className="pl-2 " size=20 name="chevron-down" />)
               ellipsisOnly=true
@@ -343,7 +343,7 @@ module BackendFrontendPlatformLangDropDown = {
               text=backendDropdownText
               buttonSize=Button.Small
               leftIcon=Button.CustomIcon(
-                <Icon size=20 name={`${(backEndLang :> string)->Js.String2.toLowerCase}`} />,
+                <Icon size=20 name={`${(backEndLang :> string)->String.toLowerCase}`} />,
               )
               rightIcon=Button.CustomIcon(<Icon className="pl-2 " size=20 name="chevron-down" />)
               ellipsisOnly=true

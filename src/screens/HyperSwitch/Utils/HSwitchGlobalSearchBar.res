@@ -30,8 +30,7 @@ module RenderedComponent = {
     listOfMatchedText(ele, searchText)
     ->Array.mapWithIndex((item, i) => {
       if (
-        Js.String2.toLowerCase(item) == Js.String2.toLowerCase(searchText) &&
-          String.length(searchText) > 0
+        String.toLowerCase(item) == String.toLowerCase(searchText) && String.length(searchText) > 0
       ) {
         <mark
           key={i->string_of_int}
@@ -70,7 +69,7 @@ let make = () => {
     ~userRole,
     (),
   )
-  let searchText = searchText->Js.String2.trim
+  let searchText = searchText->String.trim
   React.useEffect1(_ => {
     let matchedList = hswitchTabs->Array.reduce([], (acc, item) => {
       switch item {
@@ -184,7 +183,7 @@ let make = () => {
       let keyPressed = event->ReactEvent.Keyboard.key
       let ctrlKey = event->ReactEvent.Keyboard.ctrlKey
 
-      if Window.Navigator.platform->Js.String2.includes("Mac") && metaKey && keyPressed == "k" {
+      if Window.Navigator.platform->String.includes("Mac") && metaKey && keyPressed == "k" {
         setShowModal(_ => true)
       } else if ctrlKey && keyPressed == "k" {
         event->ReactEvent.Keyboard.preventDefault
@@ -196,7 +195,7 @@ let make = () => {
   })
 
   let isMobileView = MatchMedia.useMobileChecker()
-  let shortcutText = Window.Navigator.platform->Js.String2.includes("Mac") ? "Cmd + K" : "Ctrl + K"
+  let shortcutText = Window.Navigator.platform->String.includes("Mac") ? "Cmd + K" : "Ctrl + K"
   let searchBoxBorderColor =
     arr->Array.length > 0
       ? "border border-transparent"

@@ -134,7 +134,7 @@ let make = (
         headerText={`Connect ${connectorName->LogicUtils.capitalizeString}`}
         isHeaderLeftIcon=false
         customIcon={<GatewayIcon
-          gateway={connectorName->Js.String2.toUpperCase} className="w-6 h-6 rounded-md"
+          gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
         />}
         nextButton={<Button
           buttonType=Primary
@@ -169,7 +169,7 @@ let make = (
       <QuickStartUIUtils.BaseComponent
         headerText={connectorName->LogicUtils.capitalizeString}
         customIcon={<GatewayIcon
-          gateway={connectorName->Js.String2.toUpperCase} className="w-6 h-6 rounded-md"
+          gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
         />}
         customCss="show-scrollbar"
         nextButton={<Button

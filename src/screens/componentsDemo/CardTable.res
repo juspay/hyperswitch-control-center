@@ -1,9 +1,9 @@
 module TextCard = {
   @react.component
   let make = (~text) => {
-    if Js.String.length(Js.String.trim(text)) > 0 {
+    if String.length(String.trim(text)) > 0 {
       <p className="break-words font-semibold">
-        {React.string(Js.String.length(Js.String.trim(text)) > 0 ? text : "N/A")}
+        {React.string(String.length(String.trim(text)) > 0 ? text : "N/A")}
       </p>
     } else {
       React.string("-")

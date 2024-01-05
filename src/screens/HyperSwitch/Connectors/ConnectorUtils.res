@@ -17,7 +17,7 @@ let getStepName = step => {
   }
 }
 
-let toLCase = str => str->Js.String2.toLowerCase
+let toLCase = str => str->String.toLowerCase
 let len = arr => arr->Array.length
 
 let payoutConnectorList: array<connectorName> = [ADYEN, WISE]
@@ -926,7 +926,7 @@ let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {
   dict
   ->Dict.keysToArray
   ->Array.forEach(_value => {
-    let lastItem = fieldName->Js.String2.split(".")->Array.pop->Belt.Option.getWithDefault("")
+    let lastItem = fieldName->String.split(".")->Array.pop->Belt.Option.getWithDefault("")
     let errorKey = dict->getString(lastItem, "")
     let value = valuesFlattenJson->getString(`${fieldName}`, "")
     if value->String.length === 0 {
@@ -982,9 +982,9 @@ let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
     switch connector->getConnectorNameTypeFromString {
     | STRIPE => (
         {
-          if msg->Js.String2.includes("Sending credit card numbers directly") {
+          if msg->String.includes("Sending credit card numbers directly") {
             <StripSendingCreditCard />
-          } else if msg->Js.String2.includes("Invalid API Key") {
+          } else if msg->String.includes("Invalid API Key") {
             <StripeInvalidAPIKey />
           } else {
             React.null
@@ -994,7 +994,7 @@ let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
       )
     | PAYPAL => (
         {
-          if msg->Js.String2.includes("Client Authentication failed") {
+          if msg->String.includes("Client Authentication failed") {
             <PaypalClientAuthenticationFalied />
           } else {
             React.null

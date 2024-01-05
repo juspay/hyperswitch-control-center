@@ -14,7 +14,7 @@ module TableRow = {
   let defaultCellRenderer = obj => {
     switch obj {
     | Some(a) => {
-        let day = Js.String2.split(a, "-")
+        let day = String.split(a, "-")
         React.string(day->Belt.Array.get(2)->Belt.Option.getWithDefault(""))
       }
 
@@ -57,9 +57,9 @@ module TableRow = {
             ->Array.mapWithIndex((obj, cellIndex) => {
               let date =
                 customTimezoneToISOString(
-                  Js.String2.make(year),
-                  Js.String2.make(month +. 1.0),
-                  Js.String2.make(obj == "" ? "01" : obj),
+                  String.make(year),
+                  String.make(month +. 1.0),
+                  String.make(obj == "" ? "01" : obj),
                   "00",
                   "00",
                   "00",
@@ -136,7 +136,7 @@ module TableRow = {
                     date->Belt.Array.get(0)->Belt.Option.getWithDefault("0"),
                   ),
                   ~month=Js.Float.fromString(
-                    Js.String2.make(
+                    String.make(
                       Js.Float.fromString(
                         date->Belt.Array.get(1)->Belt.Option.getWithDefault("0"),
                       ) -. 1.0,
@@ -173,14 +173,14 @@ module TableRow = {
                 let cellHoverHighlight = `h-full w-full flex flex-1 justify-center items-center  dark:bg-opacity-100`
 
                 if startDate != "" {
-                  let parsedStartDate = getDate(Js.String2.split(startDate, "-"))
+                  let parsedStartDate = getDate(String.split(startDate, "-"))
 
                   let zObj = getDate([year, month, obj])
 
                   if obj != "" {
                     let z = getDate([year, month, obj])
                     if endDate != "" {
-                      let parsedEndDate = getDate(Js.String2.split(endDate, "-"))
+                      let parsedEndDate = getDate(String.split(endDate, "-"))
                       z == parsedStartDate
                         ? selectedcellClass
                         : z == parsedEndDate
@@ -210,7 +210,7 @@ module TableRow = {
                       "h-full w-full"
                     }
                   } else if endDate != "" {
-                    let parsedEndDate = getDate(Js.String2.split(endDate, "-"))
+                    let parsedEndDate = getDate(String.split(endDate, "-"))
 
                     zObj > parsedStartDate && zObj < parsedEndDate
                       ? `${cellSelectedHiglight}
@@ -251,10 +251,10 @@ module TableRow = {
 
               let shouldHighlightBackground = (startDate, endDate, obj, month, year) => {
                 if startDate != "" && obj != "" {
-                  let parsedStartDate = getDate(Js.String2.split(startDate, "-"))
+                  let parsedStartDate = getDate(String.split(startDate, "-"))
                   let z = getDate([year, month, obj])
                   if endDate != "" {
-                    let parsedEndDate = getDate(Js.String2.split(endDate, "-"))
+                    let parsedEndDate = getDate(String.split(endDate, "-"))
                     z == parsedStartDate && parsedStartDate != parsedEndDate
                       ? "bg-jp-2-light-primary-100 dark:bg-jp-2-dark-primary-100  rounded-l-full hover:rounded-l-full"
                       : z == parsedEndDate && parsedStartDate != parsedEndDate
@@ -291,7 +291,7 @@ module TableRow = {
               }
               let handleHover = () => {
                 let date = (Js.Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD")
-                let parsedDate = getDate(Js.String2.split(date, "-"))
+                let parsedDate = getDate(String.split(date, "-"))
                 setHoverdDate(_ => parsedDate->Js.Date.toString)
                 switch setShowMsg {
                 | Some(setMsg) =>
@@ -540,7 +540,7 @@ let make = (
             <div className="w-10" key={string_of_int(i)}>
               <div
                 className="flex flex-1 justify-center pb-2.5 pt-0.5 text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
-                {React.string(isMobileView ? item->Js.String2.charAt(0) : item)}
+                {React.string(isMobileView ? item->String.charAt(0) : item)}
               </div>
             </div>
           })

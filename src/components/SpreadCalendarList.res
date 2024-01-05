@@ -107,7 +107,7 @@ let make = (
                   <h3
                     className="font-bold text-base text-md text-jp-gray-800 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
                     {React.string(
-                      Js.String2.concat(
+                      String.concat(
                         getMonthInStr(getMonthFromFloat(tempMonth)),
                         Belt.Float.toString(tempYear),
                       ),
