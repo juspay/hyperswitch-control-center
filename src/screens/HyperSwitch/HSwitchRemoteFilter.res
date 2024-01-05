@@ -212,7 +212,7 @@ module RemoteTableFilters = {
 
     React.useEffect0(() => {
       if filterValueJson === Dict.make() {
-        setFilters(_ => Js.Dict.empty()->Some)
+        setFilters(_ => Dict.make()->Some)
         setOffset(_ => 0)
       }
       None
