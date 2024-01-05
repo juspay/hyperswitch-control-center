@@ -44,7 +44,7 @@ let make = (
     let permittedMaxYears = startYear->Belt.Float.toInt + 10
     let updatedFromDate =
       fromDate != "" &&
-      fromDate->Js.String2.length >= 5 &&
+      fromDate->String.length >= 5 &&
       fromDateJs.isValid(.) &&
       fromDateJs.year(.) <= permittedMaxYears
         ? try {
@@ -55,7 +55,7 @@ let make = (
         : ""
     let updatedToDate =
       toDate != "" &&
-      toDate->Js.String2.length >= 5 &&
+      toDate->String.length >= 5 &&
       toDateJs.isValid(.) &&
       toDateJs.year(.) <= permittedMaxYears
         ? try {
@@ -123,7 +123,7 @@ let make = (
     months->Belt.Array.get(valueInt)->Belt.Option.getWithDefault(Jan)
   }
   let getMonthInFloat = mon => {
-    Js.Array2.indexOf(months, mon)->Belt.Float.fromInt
+    Array.indexOf(months, mon)->Belt.Float.fromInt
   }
 
   let startMonth = switch month {
@@ -142,7 +142,7 @@ let make = (
   <div
     className={`flex flex-1 flex-row justify-center overflow-auto select-none ${calendarContaierStyle}`}>
     {dummyRow
-    ->Js.Array2.mapi((_item, i) => {
+    ->Array.mapWithIndex((_item, i) => {
       let currDateTemp = Js.Date.fromFloat(Js.Date.valueOf(currDateIm))
       let tempDate = Js.Date.setMonth(
         currDateTemp,

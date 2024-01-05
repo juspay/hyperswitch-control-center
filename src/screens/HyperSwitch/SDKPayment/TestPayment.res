@@ -65,11 +65,11 @@ let make = (
 
   React.useEffect1(() => {
     let status =
-      filtersFromUrl->Js.Dict.get("status")->Belt.Option.getWithDefault("")->Js.String2.toLowerCase
+      filtersFromUrl->Dict.get("status")->Belt.Option.getWithDefault("")->Js.String2.toLowerCase
     let paymentIdFromPaymemtIntentClientSecret = getClientSecretFromPaymentId(
       ~paymentIntentClientSecret=url.search
       ->LogicUtils.getDictFromUrlSearchParams
-      ->Js.Dict.get("payment_intent_client_secret"),
+      ->Dict.get("payment_intent_client_secret"),
     )
     if status === "succeeded" {
       setPaymentStatus(_ => SUCCESS)
@@ -81,7 +81,7 @@ let make = (
       setPaymentStatus(_ => INCOMPLETE)
     }
     setPaymentId(_ => paymentIdFromPaymemtIntentClientSecret)
-    if status->Js.String2.length <= 0 && keyValue->Js.String2.length > 0 {
+    if status->String.length <= 0 && keyValue->String.length > 0 {
       getClientSecret()->ignore
     }
     None

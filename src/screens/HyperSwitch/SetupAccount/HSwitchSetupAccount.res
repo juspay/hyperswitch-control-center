@@ -13,7 +13,7 @@ let make = () => {
     ->Recoil.useRecoilValueFromAtom
     ->MerchantAccountUtils.getValueFromBusinessProfile
 
-  let indexOfStepCounterVal = listOfStepCounter->Js.Array2.indexOf(stepCounter)
+  let indexOfStepCounterVal = listOfStepCounter->Array.indexOf(stepCounter)
   let {
     dashboardPageState,
     setDashboardPageState,
@@ -76,12 +76,12 @@ let make = () => {
         ->getDictFromJsonObject
         ->getOptionString("id")
       let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-      let _ = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
       setStepCounter(_ => #ROUTING_ENABLED)
 
       // *GENERATE_SAMPLE_DATA
       let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
-      let _ = await updateDetails(generateSampleDataUrl, Js.Dict.empty()->Js.Json.object_, Post)
+      let _ = await updateDetails(generateSampleDataUrl, Dict.make()->Js.Json.object_, Post)
       setStepCounter(_ => #GENERATE_SAMPLE_DATA)
       await delay(delayTime)
       setStepCounter(_ => #COMPLETED)
@@ -107,7 +107,7 @@ let make = () => {
   }
 
   let getDetails = async () => {
-    if activeBusinessProfile.profile_id->Js.String2.length > 0 {
+    if activeBusinessProfile.profile_id->String.length > 0 {
       apiCalls()->ignore
     }
   }

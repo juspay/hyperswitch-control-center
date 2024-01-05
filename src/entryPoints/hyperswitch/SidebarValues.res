@@ -90,7 +90,7 @@ let operations = isOperationsEnabled => {
     : emptyComponent
 }
 
-let connectors = isConnectorsEnabled =>
+let connectors = (isConnectorsEnabled, isLiveMode) => {
   isConnectorsEnabled
     ? Link({
         name: "Processors",
@@ -98,11 +98,14 @@ let connectors = isConnectorsEnabled =>
         icon: "connectors",
         access: ReadWrite,
         searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-          ~processorList=ConnectorUtils.connectorList,
+          ~processorList=isLiveMode
+            ? ConnectorUtils.connectorListForLive
+            : ConnectorUtils.connectorList,
           ~getNameFromString=ConnectorUtils.getConnectorNameString,
         ),
       })
     : emptyComponent
+}
 
 let paymentAnalytcis = SubLevelLink({
   name: "Payments",
@@ -210,13 +213,13 @@ let settings = (~isSampleDataEnabled, ~isUserManagementEnabled, ~isBusinessProfi
   let settingsLinkArray = [businessDetails]
 
   if isBusinessProfileEnabled {
-    settingsLinkArray->Js.Array2.push(businessProfiles)->ignore
+    settingsLinkArray->Array.push(businessProfiles)->ignore
   }
   if isSampleDataEnabled {
-    settingsLinkArray->Js.Array2.push(accountSettings)->ignore
+    settingsLinkArray->Array.push(accountSettings)->ignore
   }
   if isUserManagementEnabled {
-    settingsLinkArray->Js.Array2.push(userManagement)->ignore
+    settingsLinkArray->Array.push(userManagement)->ignore
   }
 
   Section({
@@ -326,13 +329,14 @@ let getHyperSwitchAppSidebars = (
     systemMetrics,
     userJourneyAnalytics: userJourneyAnalyticsFlag,
     surcharge: isSurchargeEnabled,
+    isLiveMode,
   } = featureFlagDetails
   let sidebar = [
     productionAccess->productionAccessComponent,
     default->home,
     default->operations,
     default->analytics(userJourneyAnalyticsFlag),
-    default->connectors,
+    default->connectors(isLiveMode),
     default->workflow(isSurchargeEnabled),
     frm->fraudAndRisk,
     payOut->payoutConnectors,

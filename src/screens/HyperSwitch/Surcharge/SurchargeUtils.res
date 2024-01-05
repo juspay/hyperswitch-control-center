@@ -44,7 +44,7 @@ let buildSurchargePayloadBody = values => {
     "algorithm": {
       "defaultSelection": algorithmDict->getJsonObjectFromDict("defaultSelection"),
       "rules": modifiedRules,
-      "metadata": Js.Dict.empty()->Js.Json.object_,
+      "metadata": Dict.make()->Js.Json.object_,
     },
     "merchant_surcharge_configs": {
       "show_surcharge_breakup_screen": true,
@@ -65,7 +65,7 @@ let ruleInfoTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithmDa
 
   let defaultSelection = json->getDictfromDict("defaultSelection")
 
-  let rulesModifiedArray = rulesArray->Js.Array2.map(rule => {
+  let rulesModifiedArray = rulesArray->Array.map(rule => {
     let ruleDict = rule->getDictFromJsonObject
 
     let connectorSelection = getTypedSurchargeConnectorSelection(ruleDict)

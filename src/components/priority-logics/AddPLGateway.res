@@ -61,7 +61,7 @@ let make = (
     !(
       gateWaysInput.value
       ->LogicUtils.getArrayFromJson([])
-      ->Js.Array2.some(ele =>
+      ->Array.some(ele =>
         ele->LogicUtils.getDictFromJsonObject->LogicUtils.getFloat("distribution", 0.0) === 100.0
       )
     )
@@ -69,10 +69,10 @@ let make = (
   let isEnforceGatewayPriority =
     enforceGatewayPriorityInput.value->Js.Json.decodeBoolean->Belt.Option.getWithDefault(false)
   let isDisableFallback =
-    gatewaysJsonArr->Js.Array2.some(json =>
+    gatewaysJsonArr->Array.some(json =>
       json
       ->Js.Json.decodeObject
-      ->Belt.Option.flatMap(Js.Dict.get(_, "disableFallback"))
+      ->Belt.Option.flatMap(Dict.get(_, "disableFallback"))
       ->Belt.Option.flatMap(Js.Json.decodeBoolean)
       ->Belt.Option.getWithDefault(false)
     )
@@ -96,7 +96,7 @@ let make = (
 
   let getDisableFallback = item => {
     selectedOptions
-    ->Js.Array2.find(str => str.gateway_name === item)
+    ->Array.find(str => str.gateway_name === item)
     ->Belt.Option.mapWithDefault(false, item => item.disableFallback)
   }
 
@@ -105,12 +105,12 @@ let make = (
     onBlur: _ev => (),
     onChange: ev => {
       let newSelectedOptions = ev->Identity.formReactEventToArrayOfString
-      if newSelectedOptions->Js.Array2.length === 0 {
+      if newSelectedOptions->Array.length === 0 {
         gateWaysInput.onChange([]->Identity.anyTypeToReactEvent)
       } else {
-        let sharePercent = isDistribute ? 100 / newSelectedOptions->Js.Array2.length : 100
+        let sharePercent = isDistribute ? 100 / newSelectedOptions->Array.length : 100
         let gatewaysArr = newSelectedOptions->Array.mapWithIndex((item, i) => {
-          let sharePercent = if i === newSelectedOptions->Js.Array2.length - 1 && isDistribute {
+          let sharePercent = if i === newSelectedOptions->Array.length - 1 && isDistribute {
             100 - sharePercent * i
           } else {
             sharePercent
@@ -126,15 +126,15 @@ let make = (
       }
     },
     onFocus: _ev => (),
-    value: selectedOptions->Js.Array2.map(i => i.gateway_name->Js.Json.string)->Js.Json.array,
+    value: selectedOptions->Array.map(i => i.gateway_name->Js.Json.string)->Js.Json.array,
     checked: true,
   }
 
   let onClickDistribute = newDistributeValue => {
     if id !== "json.volumeBasedDistribution" {
-      let sharePercent = newDistributeValue ? 100 / selectedOptions->Js.Array2.length : 100
+      let sharePercent = newDistributeValue ? 100 / selectedOptions->Array.length : 100
       let gatewaysArr = selectedOptions->Array.mapWithIndex((item, i) => {
-        let sharePercent = if i === selectedOptions->Js.Array2.length - 1 && newDistributeValue {
+        let sharePercent = if i === selectedOptions->Array.length - 1 && newDistributeValue {
           100 - sharePercent * i
         } else {
           sharePercent
@@ -152,21 +152,21 @@ let make = (
   let onClickFallback = newFallbackValue => {
     if isDistribute {
       selectedOptions
-      ->Js.Array2.map(item => {...item, disableFallback: newFallbackValue})
+      ->Array.map(item => {...item, disableFallback: newFallbackValue})
       ->Identity.anyTypeToReactEvent
       ->gateWaysInput.onChange
     }
   }
   React.useEffect1(_ => {
-    if selectedOptions->Js.Array2.length < 2 {
+    if selectedOptions->Array.length < 2 {
       onClickFallback(false)
     }
     None
-  }, [selectedOptions->Js.Array2.length])
+  }, [selectedOptions->Array.length])
 
   let updatePercentage = (item: gateway, value) => {
     if value < 100 {
-      let newList = selectedOptions->Js.Array2.map(option => {
+      let newList = selectedOptions->Array.map(option => {
         if option.gateway_name === item.gateway_name {
           {...option, distribution: value}
         } else {
@@ -191,7 +191,7 @@ let make = (
   let removeItem = index => {
     input.onChange(
       selectedOptions
-      ->Js.Array2.map(i => i.gateway_name)
+      ->Array.map(i => i.gateway_name)
       ->Array.filterWithIndex((_, i) => i !== index)
       ->Identity.anyTypeToReactEvent,
     )
@@ -200,7 +200,7 @@ let make = (
   let gatewayName = name => {
     let res =
       connectorList
-      ->Belt.Option.getWithDefault([Js.Dict.empty()->ConnectorTableUtils.getProcessorPayloadType])
+      ->Belt.Option.getWithDefault([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
       ->ConnectorTableUtils.getConnectorNameViaId(name)
     res.connector_label
   }
@@ -265,7 +265,7 @@ let make = (
                       removeItem(i)
                     }}
                   />
-                  {if isDistribute && selectedOptions->Js.Array2.length > 0 {
+                  {if isDistribute && selectedOptions->Array.length > 0 {
                     <>
                       <input
                         className="w-10 text-right outline-none bg-white dark:bg-jp-gray-970 px-1 border border-jp-gray-300 dark:border-jp-gray-850 rounded-md"
@@ -292,7 +292,7 @@ let make = (
           })
           ->React.array}
         </div>
-        {if selectedOptions->Js.Array2.length > 0 {
+        {if selectedOptions->Array.length > 0 {
           <div
             className="flex flex-col md:flex-row md:items-center gap-4 md:gap-3 lg:gap-4 lg:ml-6">
             {<>
@@ -332,7 +332,7 @@ let make = (
                 React.null
               }}
             </>}
-            {if selectedOptions->Js.Array2.length > 1 && showFallbackIcon {
+            {if selectedOptions->Array.length > 1 && showFallbackIcon {
               <AddDataAttributes attributes=[("data-gateway-checkbox", "DisableFallback")]>
                 <div
                   className={`flex flex-row items-center gap-4 md:gap-1 lg:gap-2 

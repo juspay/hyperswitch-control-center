@@ -223,7 +223,7 @@ let tableItemToObjMapper = dict => {
 let objMapper = dict => {
   {
     name: dict->getString("name", ""),
-    desc: Js.Dict.get(dict, "desc")->Belt.Option.getWithDefault(Js.Json.null),
+    desc: Dict.get(dict, "desc")->Belt.Option.getWithDefault(Js.Json.null),
   }
 }
 
@@ -302,7 +302,7 @@ let getCell = (detailedTable, colType): Table.cell => {
     })
   | Category => Text(detailedTable.category)
   | Stage => Text(detailedTable.stage)
-  | Sample_sessions => Text(detailedTable.sample_sessions->Js.Array2.joinWith(", "))
+  | Sample_sessions => Text(detailedTable.sample_sessions->Array.joinWith(", "))
   | Priority => Text(detailedTable.priority)
   | Tooltip => Text(detailedTable.tooltip)
   | Header => Text(detailedTable.header)
@@ -317,12 +317,12 @@ let getErrCell = (errorTable: errorTable, errColType): Table.cell => {
   | Actionable => Text(errorTable.actionable)
   | Error_message => Text(errorTable.error_message)
   | Error_count => Numeric(errorTable.error_count->Belt.Int.toFloat, indianShortNum)
-  | Sample_sessions => Text(errorTable.sample_sessions->Js.Array2.joinWith(", "))
+  | Sample_sessions => Text(errorTable.sample_sessions->Array.joinWith(", "))
   }
 }
 
 let getDefaultReportFilters = () => {
-  let filterCreatedDict = Js.Dict.empty()
+  let filterCreatedDict = Dict.make()
 
   let currentDate = Js.Date.now()
 
@@ -332,7 +332,7 @@ let getDefaultReportFilters = () => {
     Js.Date.setDate(presentDayInString, prevDateInFloat)
   }
 
-  Js.Dict.set(filterCreatedDict, "endTime", Js.Json.string(formatDate(prevEndMins)))
+  Dict.set(filterCreatedDict, "endTime", Js.Json.string(formatDate(prevEndMins)))
 
   let prevStartMins = {
     let presentDayInString = Js.Date.fromFloat(currentDate)
@@ -340,17 +340,17 @@ let getDefaultReportFilters = () => {
     Js.Date.setDate(presentDayInString, prevDateInFloat)
   }
 
-  Js.Dict.set(filterCreatedDict, "startTime", Js.Json.string(formatDate(prevStartMins)))
+  Dict.set(filterCreatedDict, "startTime", Js.Json.string(formatDate(prevStartMins)))
 
   filterCreatedDict
 }
 
 let getDefaultFilters = () => {
-  let filterCreatedDict = Js.Dict.empty()
+  let filterCreatedDict = Dict.make()
 
   let currentDate = Js.Date.now()
   let currentTimestamp = currentDate->Js.Date.fromFloat->Js.Date.toISOString
-  filterCreatedDict->Js.Dict.set(
+  filterCreatedDict->Dict.set(
     "endTime",
     Js.Json.string(currentTimestamp->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:ss[Z]")),
   )
@@ -361,7 +361,7 @@ let getDefaultFilters = () => {
     Js.Date.setDate(presentDayInString, prevDateInFloat)
   }
 
-  Js.Dict.set(filterCreatedDict, "startTime", Js.Json.string(formatDate(prevMins)))
+  Dict.set(filterCreatedDict, "startTime", Js.Json.string(formatDate(prevMins)))
 
   filterCreatedDict
 }
@@ -433,7 +433,7 @@ let getIntegrationTable: Js.Json.t => array<detailedTable> = json => {
   let val =
     json
     ->LogicUtils.getArrayFromJson([])
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       tableItemToObjMapper(item->getDictFromJsonObject)
     })
   val
@@ -443,7 +443,7 @@ let getErrTable: Js.Json.t => array<errorTable> = json => {
   let val =
     json
     ->LogicUtils.getArrayFromJson([])
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       errItemToObj(item->getDictFromJsonObject)
     })
   val

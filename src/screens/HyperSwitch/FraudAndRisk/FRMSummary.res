@@ -25,12 +25,12 @@ module ConfigInfo = {
   @react.component
   let make = (~frmConfigs) => {
     frmConfigs
-    ->Js.Array2.mapi((config, i) => {
+    ->Array.mapWithIndex((config, i) => {
       <div className="grid grid-cols-2 md:w-1/2 ml-12 my-12" key={i->string_of_int}>
         <h4 className="text-lg font-semibold"> {config.gateway->snakeToTitle->React.string} </h4>
         <div>
           {config.payment_methods
-          ->Js.Array2.mapi((paymentMethod, ind) => {
+          ->Array.mapWithIndex((paymentMethod, ind) => {
             <div key={ind->string_of_int}>
               {paymentMethod.payment_method_types
               ->Array.mapWithIndex(
@@ -124,7 +124,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
         <h4 className="text-lg font-semibold"> {"Profile id"->React.string} </h4>
         <div> {frmInfo.profile_id->React.string} </div>
       </div>
-      <UIUtils.RenderIf condition={frmConfigs->Js.Array2.length > 0}>
+      <UIUtils.RenderIf condition={frmConfigs->Array.length > 0}>
         <ConfigInfo frmConfigs />
       </UIUtils.RenderIf>
     </div>

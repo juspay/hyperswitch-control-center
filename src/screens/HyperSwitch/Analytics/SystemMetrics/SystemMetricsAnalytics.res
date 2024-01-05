@@ -63,7 +63,7 @@ module APITableInfo = {
           </div>
           <div className="h-96 overflow-scroll show-scrollbar">
             {apis
-            ->Js.Array2.map(path =>
+            ->Array.map(path =>
               <div className="bg-gray-100 p-2 mb-1 rounded mr-2"> {`/${path}`->React.string} </div>
             )
             ->React.array}
@@ -102,7 +102,7 @@ module HSiwtchPaymentConfirmLatency = {
           ("status_code", [200.0->Js.Json.number]->Js.Json.array),
           ("flow_type", [flowType->Js.Json.string]->Js.Json.array),
         ]
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_
 
       [
@@ -262,12 +262,12 @@ module SystemMetricsAnalytics = {
         source: "BATCH",
       }
       AnalyticsUtils.filterBody(filterBodyEntity)
-    }, (startTimeVal, endTimeVal, filteredTabKeys->Js.Array2.joinWith(",")))
+    }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
 
     let filterDataOrig = getFilterData(filterUri, Fetch.Post, filterBody)
-    let filterData = filterDataOrig->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty()))
+    let filterData = filterDataOrig->Belt.Option.getWithDefault(Js.Json.object_(Dict.make()))
 
-    <UIUtils.RenderIf condition={getModuleFilters->Js.Dict.entries->Js.Array2.length > 0}>
+    <UIUtils.RenderIf condition={getModuleFilters->Dict.toArray->Array.length > 0}>
       {switch chartEntity1 {
       | Some(chartEntity) =>
         <div className="h-75-vh">
@@ -297,9 +297,7 @@ module SystemMetricsAnalytics = {
             moduleName
             setTotalVolume
             showPercentage=false
-            statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(
-              Js.Dict.empty(),
-            )}
+            statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(Dict.make())}
           />
         </div>
       | _ => React.null

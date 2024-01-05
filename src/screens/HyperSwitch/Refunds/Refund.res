@@ -12,25 +12,25 @@ let make = () => {
   let (filters, setFilters) = React.useState(_ => None)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
-  let pageDetail = pageDetailDict->Js.Dict.get("Refunds")->Belt.Option.getWithDefault(defaultValue)
+  let pageDetail = pageDetailDict->Dict.get("Refunds")->Belt.Option.getWithDefault(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
 
   React.useEffect3(() => {
     switch filters {
     | Some(dict) =>
-      let filters = Js.Dict.empty()
+      let filters = Dict.make()
 
-      filters->Js.Dict.set("offset", offset->Belt.Int.toFloat->Js.Json.number)
+      filters->Dict.set("offset", offset->Belt.Int.toFloat->Js.Json.number)
       if !(searchText->isEmptyString) {
-        filters->Js.Dict.set("payment_id", searchText->Js.String2.trim->Js.Json.string)
-        filters->Js.Dict.set("refund_id", searchText->Js.String2.trim->Js.Json.string)
+        filters->Dict.set("payment_id", searchText->String.trim->Js.Json.string)
+        filters->Dict.set("refund_id", searchText->String.trim->Js.Json.string)
       }
 
       dict
-      ->Js.Dict.entries
-      ->Js.Array2.forEach(item => {
+      ->Dict.toArray
+      ->Array.forEach(item => {
         let (key, value) = item
-        filters->Js.Dict.set(key, value)
+        filters->Dict.set(key, value)
       })
 
       filters
@@ -81,7 +81,7 @@ let make = () => {
           totalResults={totalCount}
           offset
           setOffset
-          currrentFetchCount={refundData->Js.Array2.length}
+          currrentFetchCount={refundData->Array.length}
           defaultColumns={RefundEntity.defaultColumns}
           customColumnMapper=RefundEntity.refundsMapDefaultCols
           showSerialNumberInCustomizeColumns=false

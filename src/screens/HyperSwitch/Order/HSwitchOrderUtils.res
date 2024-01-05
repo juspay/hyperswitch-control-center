@@ -103,7 +103,7 @@ let reasonField = FormRenderer.makeFieldInfo(
 let nonRefundConnectors = ["braintree", "klarna", "airwallex"]
 
 let isNonRefundConnector = json => {
-  LogicUtils.getDictFromJsonObject(json)
-  ->LogicUtils.getString("connectors", "")
-  ->Js.Array.includes(nonRefundConnectors)
+  nonRefundConnectors->Array.includes(
+    LogicUtils.getDictFromJsonObject(json)->LogicUtils.getString("connectors", ""),
+  )
 }

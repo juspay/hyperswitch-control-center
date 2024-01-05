@@ -61,7 +61,7 @@ module DownloadAPIKeyButton = {
             ("name", "DefaultAPIKey"->Js.Json.string),
             ("description", "Default Value of the API key"->Js.Json.string),
             ("expiration", "never"->Js.Json.string),
-          ]->Js.Dict.fromArray
+          ]->Dict.fromArray
         let res = await updateDetails(url, body->Js.Json.object_, Post)
         let apiKey = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("api_key", "")
         DownloadUtils.downloadOld(~fileName=`apiKey.txt`, ~content=apiKey)
@@ -247,7 +247,7 @@ module BackendFrontendPlatformLangDropDown = {
       value: (platform :> string)->Js.Json.string,
       checked: true,
     }
-    let options = platforms->Js.Array2.map((op): SelectBox.dropdownOption => {
+    let options = platforms->Array.map((op): SelectBox.dropdownOption => {
       {value: (op :> string), label: (op :> string)}
     })
 
@@ -281,7 +281,7 @@ module BackendFrontendPlatformLangDropDown = {
       backEndLang === #ChooseLanguage ? "Choose Backend" : (backEndLang :> string)
     }
 
-    <Form initialValues={Js.Dict.empty()->Js.Json.object_}>
+    <Form initialValues={Dict.make()->Js.Json.object_}>
       <div className="flex flex-row gap-4 flex-wrap">
         <UIUtils.RenderIf condition={!isFromLanding && currentRoute !== SampleProjects}>
           <SelectBox.BaseDropdown
@@ -305,13 +305,13 @@ module BackendFrontendPlatformLangDropDown = {
             />}
           />
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!(requestOnlyPlatforms->Js.Array2.includes(platform))}>
+        <UIUtils.RenderIf condition={!(requestOnlyPlatforms->Array.includes(platform))}>
           <SelectBox.BaseDropdown
             allowMultiSelect=false
             buttonText="Select Frontend"
             deselectDisable=true
             input={frontendLangInput}
-            options={frontendLangauge->Js.Array2.map((lang): SelectBox.dropdownOption => {
+            options={frontendLangauge->Array.map((lang): SelectBox.dropdownOption => {
               {value: (lang :> string), label: (lang :> string)}
             })}
             customButtonStyle="!rounded-md"
@@ -335,7 +335,7 @@ module BackendFrontendPlatformLangDropDown = {
             input={backendLangInput}
             deselectDisable=true
             customButtonStyle="!rounded-md"
-            options={backendLangauge->Js.Array2.map((lang): SelectBox.dropdownOption => {
+            options={backendLangauge->Array.map((lang): SelectBox.dropdownOption => {
               {value: (lang :> string), label: (lang :> string)}
             })}
             hideMultiSelectButtons=true
@@ -359,8 +359,7 @@ module BackendFrontendPlatformLangDropDown = {
 module LanguageTag = {
   @react.component
   let make = (~frontendLang="", ~backendLang="") => {
-    <UIUtils.RenderIf
-      condition={frontendLang->Js.String2.length > 0 && backendLang->Js.String2.length > 0}>
+    <UIUtils.RenderIf condition={frontendLang->String.length > 0 && backendLang->String.length > 0}>
       <div className="flex gap-2 items-center">
         <Icon name={`${frontendLang}`} size=25 />
         <Icon name={`${backendLang}`} size=25 />
@@ -415,7 +414,7 @@ module LandingPageTileForIntegrateDocs = {
     let skipAndContinue = async () => {
       try {
         let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
-        let metaDataDict = Js.Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
+        let metaDataDict = Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
         let body = HSwitchUtils.constructOnboardingBody(
           ~dashboardPageState,
           ~integrationDetails,
@@ -654,8 +653,7 @@ let getTabsForIntegration = (
               </p>
             </p>}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf
-                condition={backEndLang->getInstallDependencies->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={backEndLang->getInstallDependencies->String.length > 0}>
                 <ShowCodeEditor
                   value={backEndLang->getInstallDependencies}
                   theme
@@ -679,8 +677,7 @@ let getTabsForIntegration = (
         renderContent: () =>
           <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea />}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf
-                condition={frontEndLang->getInstallDependencies->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getInstallDependencies->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getInstallDependencies}
                   theme
@@ -689,20 +686,19 @@ let getTabsForIntegration = (
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf
-                condition={frontEndLang->getInstallDependencies->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getInstallDependencies->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getImports} theme headerText="Imports" langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getLoad->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getLoad->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getLoad} theme headerText="Load" langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getInitialize->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getInitialize->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getInitialize}
                   theme
@@ -712,9 +708,7 @@ let getTabsForIntegration = (
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
               <UIUtils.RenderIf
-                condition={frontEndLang
-                ->getCheckoutFormForDisplayCheckoutPage
-                ->Js.String2.length > 0}>
+                condition={frontEndLang->getCheckoutFormForDisplayCheckoutPage->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getCheckoutFormForDisplayCheckoutPage}
                   theme
@@ -730,7 +724,7 @@ let getTabsForIntegration = (
         renderContent: () =>
           <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea />}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf condition={frontEndLang->getHandleEvents->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getHandleEvents->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getHandleEvents}
                   theme
@@ -740,8 +734,7 @@ let getTabsForIntegration = (
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf
-                condition={frontEndLang->getDisplayConformation->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getDisplayConformation->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getDisplayConformation}
                   theme
@@ -876,7 +869,7 @@ let getTabsForIntegration = (
             try {
               let url = APIUtils.getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
               let metaDataDict =
-                Js.Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
+                Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
               let body = HSwitchUtils.constructOnboardingBody(
                 ~dashboardPageState,
                 ~integrationDetails,

@@ -32,7 +32,7 @@ let getObjects: Js.Json.t => array<errorObject> = json => {
   open LogicUtils
   json
   ->LogicUtils.getArrayFromJson([])
-  ->Js.Array2.map(item => {
+  ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
 }
@@ -87,8 +87,8 @@ let make = (~errors: array<AnalyticsTypes.error_message_type>) => {
     `${errorStr}...`
   }
 
-  let tableData = if errors->Js.Array2.length > 0 {
-    errors->Js.Array2.map(item => {
+  let tableData = if errors->Array.length > 0 {
+    errors->Array.map(item => {
       {
         error_reason: item.reason,
         percentage: item.percentage,
@@ -102,7 +102,7 @@ let make = (~errors: array<AnalyticsTypes.error_message_type>) => {
   let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
 
   <>
-    {if errors->Js.Array2.length > 0 {
+    {if errors->Array.length > 0 {
       <div
         className="underline underline-offset-4 font-medium cursor-pointer text-blue-900"
         onClick={_ => setShowModal(_ => !showModal)}>
@@ -124,11 +124,11 @@ let make = (~errors: array<AnalyticsTypes.error_message_type>) => {
         actualData={tableData}
         entity=tableEntity
         resultsPerPage=10
-        totalResults={tableData->Js.Array2.length}
+        totalResults={tableData->Array.length}
         offset
         setOffset
         defaultSort
-        currrentFetchCount={tableData->Js.Array2.length}
+        currrentFetchCount={tableData->Array.length}
         tableLocalFilter=false
         tableheadingClass=tableBorderClass
         tableBorderClass

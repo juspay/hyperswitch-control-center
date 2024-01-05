@@ -21,18 +21,18 @@ let filterByData = (actualData, value) => {
   actualData
   ->Belt.Array.keepMap(Js.Nullable.toOption)
   ->Belt.Array.keepMap((data: tableDetails) => {
-    let dict = Js.Dict.empty()
-    dict->Js.Dict.set("orderId", data.orderId)
-    dict->Js.Dict.set("merchantId", data.merchantId)
-    dict->Js.Dict.set("timestamp", data.timestamp)
+    let dict = Dict.make()
+    dict->Dict.set("orderId", data.orderId)
+    dict->Dict.set("merchantId", data.merchantId)
+    dict->Dict.set("timestamp", data.timestamp)
 
     let isMatched =
       dict
-      ->Js.Dict.values
-      ->Js.Array2.map(val => {
+      ->Dict.valuesToArray
+      ->Array.map(val => {
         val->Js.String2.toLowerCase->Js.String2.includes(searchText)
       })
-      ->Js.Array2.includes(true)
+      ->Array.includes(true)
 
     if isMatched {
       data->Js.Nullable.return->Some

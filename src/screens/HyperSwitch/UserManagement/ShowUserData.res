@@ -15,7 +15,7 @@ module UserHeading = {
     let _resendInvite = async () => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#RESEND_INVITE, ~methodType=Post, ())
-        let body = [("user_id", userId->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
+        let body = [("user_id", userId->Js.Json.string)]->Dict.fromArray->Js.Json.object_
         let _ = await updateDetails(url, body, Post)
         showToast(~message=`Invite resend. Please check your email.`, ~toastType=ToastSuccess, ())
       } catch {
@@ -64,10 +64,8 @@ let make = () => {
   let currentSelectedUser = React.useMemo1(() => {
     usersList
     ->typeConversion
-    ->Array.reduce(Js.Dict.empty()->UserRoleEntity.itemToObjMapperForUser, (acc, ele) => {
-      url.path->Belt.List.toArray->Js.Array2.joinWith("/")->Js.String2.includes(ele.user_id)
-        ? ele
-        : acc
+    ->Array.reduce(Dict.make()->UserRoleEntity.itemToObjMapperForUser, (acc, ele) => {
+      url.path->Belt.List.toArray->Array.joinWith("/")->Js.String2.includes(ele.user_id) ? ele : acc
     })
   }, [usersList])
 
@@ -105,7 +103,7 @@ let make = () => {
       let permissionInfoValue =
         res->LogicUtils.getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
       setPermissionInfo(_ => permissionInfoValue)
-      if currentSelectedUser.role_id->Js.String2.length !== 0 {
+      if currentSelectedUser.role_id->String.length !== 0 {
         getRoleForUser()->ignore
       }
     } catch {
@@ -123,19 +121,19 @@ let make = () => {
       )
       let res = await fetchDetails(userDataURL)
       let userData = res->LogicUtils.getArrayDataFromJson(UserRoleEntity.itemToObjMapperForUser)
-      setUsersList(_ => userData->Js.Array2.map(Js.Nullable.return))
+      setUsersList(_ => userData->Array.map(Js.Nullable.return))
     } catch {
     | _ => ()
     }
   }
 
   React.useEffect1(() => {
-    if usersList->Js.Array2.length === 0 {
+    if usersList->Array.length === 0 {
       getUserData()->ignore
     }
-    if permissionInfo->Js.Array2.length === 0 {
+    if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
-    } else if currentSelectedUser.role_id->Js.String2.length !== 0 {
+    } else if currentSelectedUser.role_id->String.length !== 0 {
       getRoleForUser()->ignore
     }
     None

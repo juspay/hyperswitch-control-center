@@ -41,7 +41,7 @@ module CustomInputBox = {
       textClass=textBoxClass
       dropdownPosition=Right
       closeListOnClick=true
-      options={timeOptions->Js.Array2.map(str => {
+      options={timeOptions->Array.map(str => {
         let item: HeadlessUISelectBox.updatedOptionWithIcons = {
           label: str,
           value: str,

@@ -3,6 +3,47 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.19.3 (2024-01-04)
+
+### Documentation
+
+- Added security policy, code of conduct and contributing md files ([#167](https://github.com/juspay/hyperswitch-control-center/pull/167)) ([`4056ba9`](https://github.com/juspay/hyperswitch-control-center/commit/4056ba9ee8eeebb32b125e10c6a31eac28f3b8c4))
+- Added license file and contributing guidelines ([#168](https://github.com/juspay/hyperswitch-control-center/pull/168)) ([`bc102ba`](https://github.com/juspay/hyperswitch-control-center/commit/bc102ba6237be4c8a17e2e6c999b6cf2ad80f6af))
+
+**Full Changelog:** [`v1.19.2...v1.19.3`](https://github.com/juspay/hyperswitch-control-center/compare/v1.19.2...v1.19.3)
+
+- - -
+
+
+## 1.19.2 (2024-01-04)
+
+### Bug Fixes
+
+- Disputes api change ([#162](https://github.com/juspay/hyperswitch-control-center/pull/162)) ([`17e4c8a`](https://github.com/juspay/hyperswitch-control-center/commit/17e4c8a013c3934c192f8ae7303db501d1e2c19f))
+- Connector list fix for search live ([#164](https://github.com/juspay/hyperswitch-control-center/pull/164)) ([`24e1cef`](https://github.com/juspay/hyperswitch-control-center/commit/24e1cef2010c77cf69e80bfb54fd34acbc00fafd))
+- Email issue in mixpanel capture ([#163](https://github.com/juspay/hyperswitch-control-center/pull/163)) ([`c2ff8a9`](https://github.com/juspay/hyperswitch-control-center/commit/c2ff8a9f610b0a1874435e977f3f3a48a5a1b0e1))
+- Cashtocode update flow ([#148](https://github.com/juspay/hyperswitch-control-center/pull/148)) ([`c17b466`](https://github.com/juspay/hyperswitch-control-center/commit/c17b46692e7f723a8680b5b1cecd7bf383e536c8))
+
+**Full Changelog:** [`v1.19.1...v1.19.2`](https://github.com/juspay/hyperswitch-control-center/compare/v1.19.1...v1.19.2)
+
+- - -
+
+
+## 1.19.1 (2024-01-03)
+
+### Bug Fixes
+
+- Enabled braintree in prod ([#161](https://github.com/juspay/hyperswitch-control-center/pull/161)) ([`bcffb62`](https://github.com/juspay/hyperswitch-control-center/commit/bcffb627f8a25af19352d4740e879dbc8772e06a))
+
+### Miscellaneous Tasks
+
+- Move from Js Library to Core Array/Dict components ([#145](https://github.com/juspay/hyperswitch-control-center/pull/145)) ([`6a68efd`](https://github.com/juspay/hyperswitch-control-center/commit/6a68efd851515f8a4af17077a9145483364a7cb5))
+
+**Full Changelog:** [`v1.19.0...v1.19.1`](https://github.com/juspay/hyperswitch-control-center/compare/v1.19.0...v1.19.1)
+
+- - -
+
+
 ## 1.19.0 (2024-01-03)
 
 ### Features

@@ -214,7 +214,7 @@ module LastOptions = {
       <label className="p-2 pt-4"> {"Last..."->React.string} </label>
       <div className="flex gap-2 flex-wrap p-2">
         {options
-        ->Js.Array2.mapi((option, i) => {
+        ->Array.mapWithIndex((option, i) => {
           let (val, durationType) = option
           let valStr = val->Belt.Int.toString
 

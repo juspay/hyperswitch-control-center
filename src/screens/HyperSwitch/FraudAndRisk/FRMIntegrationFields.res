@@ -70,29 +70,29 @@ module IntegrationFieldsForm = {
       ~fields: array<frmIntegrationField>,
       ~errors,
     ) => {
-      fields->Js.Array2.forEach(field => {
+      fields->Array.forEach(field => {
         let key = field.name
         let value =
           valuesFlattenJson
-          ->Js.Dict.get(key)
+          ->Dict.get(key)
           ->Belt.Option.getWithDefault(""->Js.Json.string)
           ->LogicUtils.getStringFromJson("")
 
-        if field.isRequired && value->Js.String2.length === 0 {
-          Js.Dict.set(errors, key, `Please enter ${field.label}`->Js.Json.string)
+        if field.isRequired && value->String.length === 0 {
+          Dict.set(errors, key, `Please enter ${field.label}`->Js.Json.string)
         }
       })
     }
 
     let validateCountryCurrency = (valuesFlattenJson, ~errors) => {
       let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
-      if profileId->Js.String2.length <= 0 {
-        Js.Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
+      if profileId->String.length <= 0 {
+        Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
       }
     }
 
     let validate = values => {
-      let errors = Js.Dict.empty()
+      let errors = Dict.make()
       let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
       //checking for required fields
       valuesFlattenJson->validateRequiredFields(~fields=selectedFRMInfo.connectorFields, ~errors)
@@ -105,7 +105,7 @@ module IntegrationFieldsForm = {
     }
 
     let validateMandatoryField = values => {
-      let errors = Js.Dict.empty()
+      let errors = Dict.make()
       let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
       //checking for required fields
       valuesFlattenJson->validateRequiredFields(~fields=selectedFRMInfo.connectorFields, ~errors)
@@ -194,14 +194,14 @@ let make = (
     | Some(json) => {
         let initialValuesObj = json->getDictFromJsonObject
         let frmAccountDetailsObj =
-          initialValuesObj->getObj("connector_account_details", Js.Dict.empty())
+          initialValuesObj->getObj("connector_account_details", Dict.make())
 
-        frmAccountDetailsObj->Js.Dict.set(
+        frmAccountDetailsObj->Dict.set(
           "auth_type",
           selectedFRMInfo.name->getFRMAuthType->Js.Json.string,
         )
 
-        initialValuesObj->Js.Dict.set(
+        initialValuesObj->Dict.set(
           "connector_account_details",
           frmAccountDetailsObj->Js.Json.object_,
         )
@@ -216,7 +216,7 @@ let make = (
 
   let frmID =
     retrivedValues
-    ->Belt.Option.getWithDefault(Js.Dict.empty()->Js.Json.object_)
+    ->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
     ->LogicUtils.getDictFromJsonObject
     ->LogicUtils.getString("merchant_connector_id", "")
 
@@ -237,13 +237,13 @@ let make = (
   let updateMerchantDetails = async () => {
     let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
     let info =
-      [("data", "signifyd"->Js.Json.string), ("type", "single"->Js.Json.string)]->Js.Dict.fromArray
+      [("data", "signifyd"->Js.Json.string), ("type", "single"->Js.Json.string)]->Dict.fromArray
     let body =
       [
         ("frm_routing_algorithm", info->Js.Json.object_),
         ("merchant_id", merchantId->Js.Json.string),
       ]
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
       ->Js.Json.object_
     let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ())
     try {

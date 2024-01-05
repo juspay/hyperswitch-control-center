@@ -24,7 +24,7 @@ let make = (
       | Js.Json.JSONObject(jsonDict) => {
           let payloadArr =
             jsonDict
-            ->Js.Dict.get(dataKey)
+            ->Dict.get(dataKey)
             ->Belt.Option.flatMap(Js.Json.decodeArray)
             ->Belt.Option.map(x => x->Belt.Array.keepMap(Js.Json.decodeString))
             ->Belt.Option.getWithDefault([])
@@ -57,8 +57,8 @@ let make = (
   }, [url])
 
   let loadingOption = ["Loading..."]->SelectBox.makeOptions
-  let shouldDisable = loadErr || options->Js.Array2.length <= 0 ? true : disableSelect
-  let buttonText = options->Js.Array2.length <= 0 ? "No Options Found" : buttonText
+  let shouldDisable = loadErr || options->Array.length <= 0 ? true : disableSelect
+  let buttonText = options->Array.length <= 0 ? "No Options Found" : buttonText
 
   if dataLoading {
     <SelectBox
