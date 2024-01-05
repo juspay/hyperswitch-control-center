@@ -84,7 +84,11 @@ The `business_profile` feature flag enables the ability to create multiple busin
 
 #### Mixpanel
 
-The `mixpanel` feature flag controls the collection and transmission of anonymous usage data to Mixpanel for analytics. When enabled, the dashboard will automatically send information about user actions and events to Mixpanel without collecting any personally identifiable information.
+The `mixpanel` feature flag controls the collection and transmission of anonymous usage data to Mixpanel for analytics. When enabled, the dashboard will automatically send information about user actions and events to Mixpanel without collecting any personally identifiable information via REST API.
+
+#### MixpanelSDK
+
+The `mixpanel_sdk` feature flag controls the collection and transmission of anonymous usage data to Mixpanel for analytics. When enabled, the dashboard will automatically send information about user actions and events to Mixpanel without collecting any personally identifiable information via it's SDK.
 
 #### Verify Connector
 
