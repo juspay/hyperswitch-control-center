@@ -94,6 +94,7 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ =>
     defaultBusinessProfile->SDKPaymentUtils.initialValueForForm
   )
+
   React.useEffect1(() => {
     let paymentIntentOptional = filtersFromUrl->Js.Dict.get("payment_intent_client_secret")
     if paymentIntentOptional->Belt.Option.isSome {
