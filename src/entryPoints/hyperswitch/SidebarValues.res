@@ -253,7 +253,7 @@ let paymentSettings = SubLevelLink({
 })
 
 let developers = (isDevelopersEnabled, userRole, systemMetrics) => {
-  let isInternalUser = userRole->Js.String2.includes("internal_")
+  let isInternalUser = userRole->String.includes("internal_")
 
   isDevelopersEnabled
     ? Section({

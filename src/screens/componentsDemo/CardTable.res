@@ -1,9 +1,9 @@
 module TextCard = {
   @react.component
   let make = (~text) => {
-    if Js.String.length(Js.String.trim(text)) > 0 {
+    if String.length(String.trim(text)) > 0 {
       <p className="break-words font-semibold">
-        {React.string(Js.String.length(Js.String.trim(text)) > 0 ? text : "N/A")}
+        {React.string(String.length(String.trim(text)) > 0 ? text : "N/A")}
       </p>
     } else {
       React.string("-")
@@ -62,7 +62,7 @@ module CardDetails = {
             ? "border border-jp-gray-500 dark:border-jp-gray-960 p-4 rounded"
             : ""} `}>
         {
-          let itemArray = !show ? itemArray : Js.Array2.slice(itemArray, ~start=0, ~end_=size)
+          let itemArray = !show ? itemArray : Array.slice(itemArray, ~start=0, ~end=size)
 
           itemArray
           ->Array.mapWithIndex((cell, cellIndex) => {

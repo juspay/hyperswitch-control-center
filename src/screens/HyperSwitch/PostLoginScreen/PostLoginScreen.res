@@ -107,7 +107,7 @@ let make = () => {
     } catch {
     | Js.Exn.Error(e) =>
       let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
-      if err->Js.String2.includes("UR_19") {
+      if err->String.includes("UR_19") {
         showToast(~toastType=ToastWarning, ~message="Please login again!", ~autoClose=false, ())
         setAuthStatus(LoggedOut)
       }

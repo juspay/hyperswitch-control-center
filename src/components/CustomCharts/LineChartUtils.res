@@ -125,9 +125,9 @@ let hexToRgb = (hex: string): hexToRgb => {
   switch result {
   | Some(matchResult) =>
     let matchString = Belt.Array.getUnsafe(matchResult, 0)->Belt.Option.getWithDefault("")
-    let r = Js.String2.substring(matchString, ~from=1, ~to_=1 + 2)
-    let g = Js.String2.substring(matchString, ~from=3, ~to_=3 + 2)
-    let b = Js.String2.substring(matchString, ~from=5, ~to_=5 + 2)
+    let r = String.substring(matchString, ~start=1, ~end=1 + 2)
+    let g = String.substring(matchString, ~start=3, ~end=3 + 2)
+    let b = String.substring(matchString, ~start=5, ~end=5 + 2)
     {
       r: int_of_string("0x" ++ r),
       g: int_of_string("0x" ++ g),
@@ -149,7 +149,7 @@ let reduceOpacity = str => {
       let opacity =
         val->Belt.Array.get(1)->Belt.Option.flatMap(a => a)->Belt.Option.getWithDefault("0")
       let newOpacity = opacity->Belt.Float.fromString->Belt.Option.getWithDefault(0.0) /. 10.0
-      str->Js.String2.replace(opacity, newOpacity->Belt.Float.toString)
+      str->String.replace(opacity, newOpacity->Belt.Float.toString)
     }
   | None => "0"
   }
@@ -345,8 +345,7 @@ let timeSeriesDataMaker = (
         groupKey,
         Dict.get(dict, groupKey)->Belt.Option.getWithDefault(""->Js.Json.string)->Js.Json.stringify,
       )
-    let xAxisDataPoint =
-      dict->getString(xAxis, "")->Js.String2.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
+    let xAxisDataPoint = dict->getString(xAxis, "")->String.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
     let yAxisDataPoint = dict->getFloat(yAxis, 0.)
 
     let secondryAxisPoint = switch secondryMetrics {
@@ -941,7 +940,7 @@ let chartDataMaker = (~filterNull=false, rawData, groupKey, metric) => {
   ->Array.map(dataPoint => {
     let dataPointDict = dataPoint->getDictFromJsonObject
     (
-      dataPointDict->getString(groupKey, "")->Js.String2.toLowerCase->snakeToTitle,
+      dataPointDict->getString(groupKey, "")->String.toLowerCase->snakeToTitle,
       dataPointDict->getString(metric, "")->Js.Float.fromString,
     )
   })

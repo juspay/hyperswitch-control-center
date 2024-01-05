@@ -15,7 +15,7 @@ module TableRow = {
   let defaultCellRenderer = obj => {
     switch obj {
     | Some(a) => {
-        let day = Js.String2.split(a, "-")
+        let day = String.split(a, "-")
         React.string(day[2]->Belt.Option.getWithDefault(""))
       }
 
@@ -49,9 +49,9 @@ module TableRow = {
           ->Array.mapWithIndex((obj, cellIndex) => {
             let date =
               customTimezoneToISOString(
-                Js.String2.make(year),
-                Js.String2.make(month +. 1.0),
-                Js.String2.make(obj == "" ? "01" : obj),
+                String.make(year),
+                String.make(month +. 1.0),
+                String.make(obj == "" ? "01" : obj),
                 "00",
                 "00",
                 "00",
@@ -108,7 +108,7 @@ module TableRow = {
                   let datevalue = Js.Date.makeWithYMD(
                     ~year=Js.Float.fromString(date[0]->Belt.Option.getWithDefault("")),
                     ~month=Js.Float.fromString(
-                      Js.String2.make(
+                      String.make(
                         Js.Float.fromString(date[1]->Belt.Option.getWithDefault("")) -. 1.0,
                       ),
                     ),
@@ -117,10 +117,10 @@ module TableRow = {
                   )
                   datevalue
                 }
-                let parsedStartDate = getDate(Js.String2.split(startDate, "-"))
+                let parsedStartDate = getDate(String.split(startDate, "-"))
                 let z = getDate([year, month, obj])
                 if endDate != "" {
-                  let parsedEndDate = getDate(Js.String2.split(endDate, "-"))
+                  let parsedEndDate = getDate(String.split(endDate, "-"))
                   z == parsedStartDate && z == parsedEndDate
                     ? "h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white dark:hover:text-jp-gray-text_darktheme rounded-full"
                     : z == parsedStartDate

@@ -21,7 +21,7 @@ module RangeSliderLocalFilter = {
         <div className="px-2 text-fs-13 font-medium truncate whitespace-pre ">
           {val
           ->Array.mapWithIndex((item, index) =>
-            index > 0 ? `...${item->Js.String.make}` : item->Js.String.make
+            index > 0 ? `...${item->String.make}` : item->String.make
           )
           ->Array.reduce("", (acc, item) => acc ++ item)
           ->React.string}
@@ -185,7 +185,7 @@ module TextFilterCell = {
         onBlur: _ev => (),
         onChange: ev => {
           let value = {ev->ReactEvent.Form.target}["value"]
-          if value->Js.String2.includes("<script>") || value->Js.String2.includes("</script>") {
+          if value->String.includes("<script>") || value->String.includes("</script>") {
             showPopUp({
               popUpType: (Warning, WithIcon),
               heading: `Script Tags are not allowed`,
@@ -193,7 +193,7 @@ module TextFilterCell = {
               handleConfirm: {text: "OK"},
             })
           }
-          let value = value->Js.String2.replace("<script>", "")->Js.String2.replace("</script>", "")
+          let value = value->String.replace("<script>", "")->String.replace("</script>", "")
 
           setLclFltrState(val, [value->Js.Json.string])
         },

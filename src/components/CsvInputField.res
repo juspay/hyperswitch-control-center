@@ -42,7 +42,7 @@ let make = (
   let showToast = ToastState.useShowToast()
 
   let validateUploadedFile = fileJson => {
-    let allHeadings = Js.String2.split(heading, ",")
+    let allHeadings = String.split(heading, ",")
     if allHeadings->Array.length == 1 {
       let headingStr = switch Js.Json.decodeArray(fileJson) {
       | Some(dict_arr) =>

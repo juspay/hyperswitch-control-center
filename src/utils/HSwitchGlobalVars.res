@@ -9,7 +9,7 @@ let hostName = Window.Location.hostname
 let hostType = switch hostName {
 | "live.hyperswitch.io" => Live
 | "app.hyperswitch.io" => Sandbox
-| _ => hostName->Js.String2.includes("netlify") ? Netlify : Local
+| _ => hostName->String.includes("netlify") ? Netlify : Local
 }
 
 let getHostURLFromVariant = (host: hostType) => {

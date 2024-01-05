@@ -105,11 +105,11 @@ module SetupWebhookProcessor = {
         onBackClick={_ => setShowModal(_ => false)}
         headingClassOverride="!p-12"
         headerAlignmentClass="items-center"
-        showModalHeadingIconName={connectorName->Js.String2.toUpperCase}
+        showModalHeadingIconName={connectorName->String.toUpperCase}
         overlayBG="bg-banner_black opacity-50"
         modalWidth="w-[35vw] !border-none"
         customIcon={Some(
-          <GatewayIcon gateway={connectorName->Js.String2.toUpperCase} className="w-12 h-12" />,
+          <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-12 h-12" />,
         )}
       />
     </div>

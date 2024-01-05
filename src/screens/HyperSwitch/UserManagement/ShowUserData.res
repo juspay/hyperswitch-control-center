@@ -29,13 +29,13 @@ module UserHeading = {
         subTitle=infoValue.email
         customTitleStyle="!p-0"
         isTag=true
-        tagText={infoValue.role_name->Js.String2.toUpperCase}
+        tagText={infoValue.role_name->String.toUpperCase}
       />
       <div className="flex items-center gap-4">
         <div className={`font-semibold text-green-700`}>
           {switch status {
-          | InviteSent => "INVITE SENT"->Js.String2.toUpperCase->React.string
-          | _ => infoValue.status->Js.String2.toUpperCase->React.string
+          | InviteSent => "INVITE SENT"->String.toUpperCase->React.string
+          | _ => infoValue.status->String.toUpperCase->React.string
           }}
         </div>
         // <UIUtils.RenderIf condition={status !== Active}>
@@ -65,7 +65,7 @@ let make = () => {
     usersList
     ->typeConversion
     ->Array.reduce(Dict.make()->UserRoleEntity.itemToObjMapperForUser, (acc, ele) => {
-      url.path->Belt.List.toArray->Array.joinWith("/")->Js.String2.includes(ele.user_id) ? ele : acc
+      url.path->Belt.List.toArray->Array.joinWith("/")->String.includes(ele.user_id) ? ele : acc
     })
   }, [usersList])
 

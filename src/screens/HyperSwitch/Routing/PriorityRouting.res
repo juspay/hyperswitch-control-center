@@ -77,7 +77,7 @@ module SimpleRoutingView = {
       | Js.Exn.Error(e) =>
         switch Js.Exn.message(e) {
         | Some(message) =>
-          if message->Js.String2.includes("IR_16") {
+          if message->String.includes("IR_16") {
             setScreenState(_ => Success)
           } else {
             setScreenState(_ => Error(message))

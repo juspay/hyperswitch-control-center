@@ -17,7 +17,7 @@ let make = (
   let showToast = ToastState.useShowToast()
   let notShowRefundReasonList = ["adyen"]
   let showRefundReason = !(
-    notShowRefundReasonList->Array.includes(order.connector->Js.String2.toLowerCase)
+    notShowRefundReasonList->Array.includes(order.connector->String.toLowerCase)
   )
 
   let initiateValue = Dict.make()
@@ -88,7 +88,7 @@ let make = (
     | Some(floatVal) =>
       if floatVal > amoutAvailableToRefund {
         let amountSplitArr =
-          Js.Float.toFixedWithPrecision(amoutAvailableToRefund, ~digits=2)->Js.String2.split(".")
+          Js.Float.toFixedWithPrecision(amoutAvailableToRefund, ~digits=2)->String.split(".")
         let decimal = if amountSplitArr->Array.length > 1 {
           amountSplitArr[1]->Belt.Option.getWithDefault("")
         } else {
