@@ -232,8 +232,8 @@ let advanceRoutingConditionMapper = (dict, wasm) => {
         }
       | Metadata_value => {
           let key =
-            dict->getDictfromDict("metadata")->getString("key", "")->Js.String2.trim->Js.Json.string
-          let value = dict->getString("value", "")->Js.String2.trim->Js.Json.string
+            dict->getDictfromDict("metadata")->getString("key", "")->String.trim->Js.Json.string
+          let value = dict->getString("value", "")->String.trim->Js.Json.string
           Dict.fromArray([("key", key), ("value", value)])->Js.Json.object_
         }
       | String_value => dict->getString("value", "")->Js.Json.string
@@ -640,7 +640,7 @@ module ConfigureRuleButton = {
 
 let validateNameAndDescription = (~dict, ~errors) => {
   ["name", "description"]->Array.forEach(field => {
-    if dict->LogicUtils.getString(field, "")->Js.String2.trim === "" {
+    if dict->LogicUtils.getString(field, "")->String.trim === "" {
       errors->Dict.set(field, `Please provide ${field} field`->Js.Json.string)
     }
   })

@@ -48,13 +48,13 @@ let currentCommitHash = nullableGitCommitStr->Belt.Option.getWithDefault("no-com
 
 let serverHandler: Http.serverHandler = (request, response) => {
   open Belt.Option
-  let arr = request.url.toString(.)->Js.String2.split("?")
+  let arr = request.url.toString(.)->String.split("?")
   let path =
     arr
     ->Belt.Array.get(0)
     ->getWithDefault("")
-    ->Js.String2.replaceByRe(%re("/^\/\//"), "/")
-    ->Js.String2.replaceByRe(%re("/^\/v4\//"), "/")
+    ->String.replaceRegExp(%re("/^\/\//"), "/")
+    ->String.replaceRegExp(%re("/^\/v4\//"), "/")
 
   if path === "/config/merchant-access" && request.method === "POST" {
     let path =
@@ -66,7 +66,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
   } else {
     open ServerHandler
 
-    let cache = if request.url.toString(.)->Js.String2.endsWith(".svg") {
+    let cache = if request.url.toString(.)->String.endsWith(".svg") {
       "max-age=3600, must-revalidate"
     } else {
       "no-cache"

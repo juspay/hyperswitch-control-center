@@ -12,7 +12,7 @@ external dictToObj: Js.Dict.t<'a> => {..} = "%identity"
 
 let getHeaders = (~uri, ~headers, ()) => {
   let hyperSwitchToken = LocalStorage.getItem("login")->Js.Nullable.toOption
-  let isMixpanel = uri->Js.String2.includes("mixpanel")
+  let isMixpanel = uri->String.includes("mixpanel")
 
   if isMixpanel {
     let headerObj = {
@@ -92,7 +92,7 @@ let useApiFetcher = () => {
       (),
     ) => {
       let uri = switch betaEndpointConfig {
-      | Some(val) => Js.String2.replace(uri, val.replaceStr, val.originalApiStr)
+      | Some(val) => String.replace(uri, val.replaceStr, val.originalApiStr)
       | None => uri
       }
 

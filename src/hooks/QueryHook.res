@@ -1,6 +1,5 @@
 let parseUrlIntoDict = queryUrl => {
-  let arr =
-    queryUrl->Js.Global.decodeURI->Js.String2.split("&")->Array.map(e => e->Js.String2.split("="))
+  let arr = queryUrl->Js.Global.decodeURI->String.split("&")->Array.map(e => e->String.split("="))
   let safeArray = arr->Array.filter(e => e->Array.length == 2)
   let dict: Js.Dict.t<string> = Dict.make()
   safeArray->Array.forEach(e => {
@@ -22,16 +21,15 @@ let changeSearchValue = (~arr: array<queryInput>, ~queryUrl, ~path) => {
     | Array(key, val) =>
       dict->Dict.set(
         key,
-        `[${val->Js.Array2.reducei((acc, e, i) => `${acc}${i == 0 ? "" : ","}${e}`, "")}]`,
+        `[${val->Array.reduceWithIndex("", (acc, e, i) => `${acc}${i == 0 ? "" : ","}${e}`)}]`,
       )
     }
   })
   let path = path->Belt.List.reduce("", (acc, item) => `${acc}/${item}`)
   let entry = dict->Dict.toArray
   let query =
-    entry->Js.Array2.reducei(
-      (acc, (key, value), i) => `${acc}${i == 0 ? "" : "&"}${key}=${value}`,
-      "",
+    entry->Array.reduceWithIndex("", (acc, (key, value), i) =>
+      `${acc}${i == 0 ? "" : "&"}${key}=${value}`
     )
   RescriptReactRouter.replace(`${path}?${query}`)
 }
@@ -51,9 +49,9 @@ let getQueryValue = (~queryUrl, ~key: queryInput) => {
       ->Belt.Option.mapWithDefault(initialval, a => {
         a
         ->Js.Global.decodeURI
-        ->Js.String2.replace("[", "")
-        ->Js.String2.replace("]", "")
-        ->Js.String2.split(",")
+        ->String.replace("[", "")
+        ->String.replace("]", "")
+        ->String.split(",")
         ->Array.filter(e => e !== "")
       }),
     )

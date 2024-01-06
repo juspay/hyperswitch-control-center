@@ -256,9 +256,7 @@ module SelectConnectorGrid = {
                 className={`py-4 px-6 flex gap-4 rounded-md cursor-pointer justify-between items-start ${connector->getBlockColor}`}
                 onClick={_ => setSelectedConnector(_ => connector)}>
                 <div className="flex flex-col gap-2 items-start ">
-                  <GatewayIcon
-                    gateway={connectorName->Js.String2.toUpperCase} className="w-12 h-12"
-                  />
+                  <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-12 h-12" />
                   <p className=subheaderText>
                     {connectorName->LogicUtils.capitalizeString->React.string}
                   </p>
@@ -286,9 +284,7 @@ module SelectConnectorGrid = {
               onClick={_ => setSelectedConnector(_ => connector)}>
               <div className="flex justify-between items-center">
                 <div className="flex gap-2 items-center ">
-                  <GatewayIcon
-                    gateway={connectorName->Js.String2.toUpperCase} className="w-8 h-8"
-                  />
+                  <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-8 h-8" />
                   <p className=subheaderText>
                     {connectorName->LogicUtils.capitalizeString->React.string}
                   </p>

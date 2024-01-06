@@ -92,13 +92,13 @@ let getFilterBody = (
   let customFilterBuild = switch customFilterValue {
   | Some(customFilterValue) => {
       let value =
-        Js.String2.replaceByRe(customFilterValue, %re("/ AND /gi"), "@@")
-        ->Js.String2.replaceByRe(%re("/ OR /gi"), "@@")
-        ->Js.String2.split("@@")
+        String.replaceRegExp(customFilterValue, %re("/ AND /gi"), "@@")
+        ->String.replaceRegExp(%re("/ OR /gi"), "@@")
+        ->String.split("@@")
       let strAr = ["or", "and"]
 
-      let andAndOr = Js.String2.split(customFilterValue, " ")->Array.filter(item => {
-        strAr->Array.includes(item->Js.String.toLocaleLowerCase)
+      let andAndOr = String.split(customFilterValue, " ")->Array.filter(item => {
+        strAr->Array.includes(item->String.toLocaleLowerCase)
       })
 
       let filterValueArr =
@@ -106,9 +106,9 @@ let getFilterBody = (
         ->Array.mapWithIndex((item, _index) => {
           if Js.String.match_(%re("/ != /gi"), item)->Belt.Option.isSome {
             let value =
-              Js.String2.replaceByRe(item, %re("/ != /gi"), "@@")
-              ->Js.String2.split("@@")
-              ->Array.map(item => item->Js.String.trim)
+              String.replaceRegExp(item, %re("/ != /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
@@ -118,7 +118,7 @@ let getFilterBody = (
                     "val",
                     value[1]
                     ->Belt.Option.getWithDefault("")
-                    ->Js.String2.replaceByRe(%re("/'/gi"), "")
+                    ->String.replaceRegExp(%re("/'/gi"), "")
                     ->Js.Json.string,
                   ),
                 ]),
@@ -128,9 +128,9 @@ let getFilterBody = (
             }
           } else if Js.String.match_(%re("/ > /gi"), item)->Belt.Option.isSome {
             let value =
-              Js.String2.replaceByRe(item, %re("/ > /gi"), "@@")
-              ->Js.String2.split("@@")
-              ->Array.map(item => item->Js.String.trim)
+              String.replaceRegExp(item, %re("/ > /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
@@ -140,7 +140,7 @@ let getFilterBody = (
                     "val",
                     value[1]
                     ->Belt.Option.getWithDefault("")
-                    ->Js.String2.replaceByRe(%re("/'/gi"), "")
+                    ->String.replaceRegExp(%re("/'/gi"), "")
                     ->Js.Json.string,
                   ),
                 ]),
@@ -150,9 +150,9 @@ let getFilterBody = (
             }
           } else if Js.String.match_(%re("/ < /gi"), item)->Belt.Option.isSome {
             let value =
-              Js.String2.replaceByRe(item, %re("/ < /gi"), "@@")
-              ->Js.String2.split("@@")
-              ->Array.map(item => item->Js.String.trim)
+              String.replaceRegExp(item, %re("/ < /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
@@ -162,7 +162,7 @@ let getFilterBody = (
                     "val",
                     value[1]
                     ->Belt.Option.getWithDefault("")
-                    ->Js.String2.replaceByRe(%re("/'/gi"), "")
+                    ->String.replaceRegExp(%re("/'/gi"), "")
                     ->Js.Json.string,
                   ),
                 ]),
@@ -172,9 +172,9 @@ let getFilterBody = (
             }
           } else if Js.String.match_(%re("/ >= /gi"), item)->Belt.Option.isSome {
             let value =
-              Js.String2.replaceByRe(item, %re("/ >= /gi"), "@@")
-              ->Js.String2.split("@@")
-              ->Array.map(item => item->Js.String.trim)
+              String.replaceRegExp(item, %re("/ >= /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
@@ -184,7 +184,7 @@ let getFilterBody = (
                     "val",
                     value[1]
                     ->Belt.Option.getWithDefault("")
-                    ->Js.String2.replaceByRe(%re("/'/gi"), "")
+                    ->String.replaceRegExp(%re("/'/gi"), "")
                     ->Js.Json.string,
                   ),
                 ]),
@@ -194,9 +194,9 @@ let getFilterBody = (
             }
           } else if Js.String.match_(%re("/ <= /gi"), item)->Belt.Option.isSome {
             let value =
-              Js.String2.replaceByRe(item, %re("/ <= /gi"), "@@")
-              ->Js.String2.split("@@")
-              ->Array.map(item => item->Js.String.trim)
+              String.replaceRegExp(item, %re("/ <= /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
@@ -206,7 +206,7 @@ let getFilterBody = (
                     "val",
                     value[1]
                     ->Belt.Option.getWithDefault("")
-                    ->Js.String2.replaceByRe(%re("/'/gi"), "")
+                    ->String.replaceRegExp(%re("/'/gi"), "")
                     ->Js.Json.string,
                   ),
                 ]),
@@ -216,9 +216,9 @@ let getFilterBody = (
             }
           } else if Js.String.match_(%re("/ = /gi"), item)->Belt.Option.isSome {
             let value =
-              Js.String2.replaceByRe(item, %re("/ = /gi"), "@@")
-              ->Js.String2.split("@@")
-              ->Array.map(item => item->Js.String.trim)
+              String.replaceRegExp(item, %re("/ = /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
@@ -228,7 +228,7 @@ let getFilterBody = (
                     "val",
                     value[1]
                     ->Belt.Option.getWithDefault("")
-                    ->Js.String2.replaceByRe(%re("/'/gi"), "")
+                    ->String.replaceRegExp(%re("/'/gi"), "")
                     ->Js.Json.string,
                   ),
                 ]),
@@ -238,9 +238,9 @@ let getFilterBody = (
             }
           } else if Js.String.match_(%re("/ IN /gi"), item)->Belt.Option.isSome {
             let value =
-              Js.String2.replaceByRe(item, %re("/ IN /gi"), "@@")
-              ->Js.String2.split("@@")
-              ->Array.map(item => item->Js.String.trim)
+              String.replaceRegExp(item, %re("/ IN /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
@@ -250,11 +250,11 @@ let getFilterBody = (
                     "val",
                     value[1]
                     ->Belt.Option.getWithDefault("")
-                    ->Js.String2.replaceByRe(%re("/'/gi"), "")
-                    ->Js.String2.replaceByRe(%re("/\(/g"), "")
-                    ->Js.String2.replaceByRe(%re("/\)/g"), "")
-                    ->Js.String2.split(",")
-                    ->Array.map(item => item->Js.String.trim)
+                    ->String.replaceRegExp(%re("/'/gi"), "")
+                    ->String.replaceRegExp(%re("/\(/g"), "")
+                    ->String.replaceRegExp(%re("/\)/g"), "")
+                    ->String.split(",")
+                    ->Array.map(item => item->String.trim)
                     ->Js.Json.stringArray,
                   ),
                 ]),
@@ -264,9 +264,9 @@ let getFilterBody = (
             }
           } else if Js.String.match_(%re("/ NOT IN /gi"), item)->Belt.Option.isSome {
             let value =
-              Js.String2.replaceByRe(item, %re("/ NOT IN /gi"), "@@")
-              ->Js.String2.split("@@")
-              ->Array.map(item => item->Js.String.trim)
+              String.replaceRegExp(item, %re("/ NOT IN /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
@@ -276,11 +276,11 @@ let getFilterBody = (
                     "val",
                     value[1]
                     ->Belt.Option.getWithDefault("")
-                    ->Js.String2.replaceByRe(%re("/'/gi"), "")
-                    ->Js.String2.replaceByRe(%re("/\(/g"), "")
-                    ->Js.String2.replaceByRe(%re("/\)/g"), "")
-                    ->Js.String2.split(",")
-                    ->Array.map(item => item->Js.String.trim)
+                    ->String.replaceRegExp(%re("/'/gi"), "")
+                    ->String.replaceRegExp(%re("/\(/g"), "")
+                    ->String.replaceRegExp(%re("/\)/g"), "")
+                    ->String.split(",")
+                    ->Array.map(item => item->String.trim)
                     ->Js.Json.stringArray,
                   ),
                 ]),
@@ -290,9 +290,9 @@ let getFilterBody = (
             }
           } else if Js.String.match_(%re("/ LIKE /gi"), item)->Belt.Option.isSome {
             let value =
-              Js.String2.replaceByRe(item, %re("/ LIKE /gi"), "@@")
-              ->Js.String2.split("@@")
-              ->Array.map(item => item->Js.String.trim)
+              String.replaceRegExp(item, %re("/ LIKE /gi"), "@@")
+              ->String.split("@@")
+              ->Array.map(item => item->String.trim)
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
@@ -302,7 +302,7 @@ let getFilterBody = (
                     "val",
                     value[1]
                     ->Belt.Option.getWithDefault("")
-                    ->Js.String2.replaceByRe(%re("/'/gi"), "")
+                    ->String.replaceRegExp(%re("/'/gi"), "")
                     ->Js.Json.string,
                   ),
                 ]),

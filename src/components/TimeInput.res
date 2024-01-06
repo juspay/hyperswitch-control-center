@@ -42,7 +42,7 @@ let make = (
   | None => ""
   }
   open Belt.Option
-  let arr = value->Js.String2.split(":")
+  let arr = value->String.split(":")
   let hourVal = arr->Belt.Array.get(0)->flatMap(Belt.Int.fromString)->getWithDefault(0)
   let minuteVal = arr->Belt.Array.get(1)->flatMap(Belt.Int.fromString)->getWithDefault(0)
   let secondsVal = arr->Belt.Array.get(2)->flatMap(Belt.Int.fromString)->getWithDefault(0)

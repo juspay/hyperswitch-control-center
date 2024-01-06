@@ -22,7 +22,7 @@ let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.ce
   | Currency => Text(refunds.currency)
   | RefundStatus =>
     Label({
-      title: refunds.status->Js.String2.toUpperCase,
+      title: refunds.status->String.toUpperCase,
       color: switch refunds.status->HSwitchOrderUtils.statusVariantMapper {
       | Succeeded
       | PartiallyCaptured =>
@@ -58,7 +58,7 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   | Connector => CustomCell(<ConnectorCustomCell connectorName=attempt.connector />, "")
   | Status =>
     Label({
-      title: attempt.status->Js.String2.toUpperCase,
+      title: attempt.status->String.toUpperCase,
       color: switch attempt.status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper {
       | #CHARGED => LabelGreen
       | #AUTHENTICATION_FAILED
@@ -458,7 +458,7 @@ let getHeading = (colType: colType) => {
 }
 
 let getStatus = order => {
-  let orderStatusLabel = order.status->Js.String2.toUpperCase
+  let orderStatusLabel = order.status->String.toUpperCase
   let fixedStatusCss = "text-sm text-white font-bold px-3 py-2 rounded-md"
   switch order.status->HSwitchOrderUtils.statusVariantMapper {
   | Succeeded
@@ -646,7 +646,7 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
 }
 
 let getCellForOtherDetails = (order, aboutPaymentColType): Table.cell => {
-  let splittedName = order.name->Js.String2.split(" ")
+  let splittedName = order.name->String.split(" ")
   switch aboutPaymentColType {
   | MerchantId => Text(order.merchant_id)
   | ReturnUrl => Text(order.return_url)
@@ -688,7 +688,7 @@ let getCell = (order, colType: colType): Table.cell => {
   | Connector => CustomCell(<ConnectorCustomCell connectorName=order.connector />, "")
   | Status =>
     Label({
-      title: order.status->Js.String2.toUpperCase,
+      title: order.status->String.toUpperCase,
       color: switch orderStatus {
       | Succeeded
       | PartiallyCaptured =>

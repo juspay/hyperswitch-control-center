@@ -218,7 +218,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         setPageView(_ => SELECT_PROCESSOR)
         switch Js.Exn.message(e) {
         | Some(message) =>
-          if message->Js.String2.includes("HE_01") {
+          if message->String.includes("HE_01") {
             showToast(
               ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
               ~toastType=ToastState.ToastError,
@@ -372,7 +372,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       <div className="flex flex-col h-full w-full ">
         <div className="flex justify-between px-11 py-8 flex-wrap gap-4">
           <div className="flex gap-4 items-center">
-            <GatewayIcon gateway={connectorName->Js.String2.toUpperCase} className="w-8 h-8" />
+            <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-8 h-8" />
             <p className=headerTextStyle> {connectorName->capitalizeString->React.string} </p>
           </div>
           <div className="flex gap-4">

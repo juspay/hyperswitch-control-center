@@ -328,7 +328,7 @@ let make = (
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
-      let keyArr = key->Js.String2.split(".")
+      let keyArr = key->String.split(".")
       let prefix = keyArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
       let fitlerName = keyArr->Belt.Array.get(1)->Belt.Option.getWithDefault("")
 
@@ -350,7 +350,7 @@ let make = (
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
-      let keyArr = key->Js.String2.split(".")
+      let keyArr = key->String.split(".")
       let prefix = keyArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
 
       if prefix === chartId && prefix !== "" {
@@ -483,8 +483,8 @@ let make = (
         if allFilterKeys->Array.includes(key) {
           switch value->Js.Json.classify {
           | JSONString(str) => `${key}=${str}`->Some
-          | JSONNumber(num) => `${key}=${num->Js.String.make}`->Some
-          | JSONArray(arr) => `${key}=[${arr->Js.String.make}]`->Some
+          | JSONNumber(num) => `${key}=${num->String.make}`->Some
+          | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
           | _ => None
           }
         } else {
@@ -529,8 +529,8 @@ let make = (
         let (key, value) = entry
         switch value->Js.Json.classify {
         | JSONString(str) => `${key}=${str}`->Some
-        | JSONNumber(num) => `${key}=${num->Js.String.make}`->Some
-        | JSONArray(arr) => `${key}=[${arr->Js.String.make}]`->Some
+        | JSONNumber(num) => `${key}=${num->String.make}`->Some
+        | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
         | _ => None
         }
       })
@@ -697,7 +697,7 @@ let make = (
 
             Dict.keysToArray(dict)->Array.forEach(
               key => {
-                if key->Js.String2.includes("amount") {
+                if key->String.includes("amount") {
                   let amount =
                     Dict.get(dict, key)
                     ->Belt.Option.getWithDefault(Js.Json.number(0.0))
@@ -707,7 +707,7 @@ let make = (
                   let amount = (amount /. 100.0)->Js.Float.toFixedWithPrecision(~digits=2)
 
                   Dict.set(dict, key, amount->Js.Float.fromString->Js.Json.number)
-                } else if !(key->Js.String2.includes("time")) && key != tabName {
+                } else if !(key->String.includes("time")) && key != tabName {
                   switch Dict.get(dict, key) {
                   | Some(val) =>
                     switch val->Js.Json.decodeNumber {

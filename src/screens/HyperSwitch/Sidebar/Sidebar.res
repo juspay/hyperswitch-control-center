@@ -77,7 +77,7 @@ module SidebarItem = {
   let make = (~tabInfo, ~isSelected, ~isExpanded) => {
     let sidebarItemRef = React.useRef(Js.Nullable.null)
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
-    let getSearchParamByLink = link => getSearchParamByLink(Js.String2.substr(link, ~from=0))
+    let getSearchParamByLink = link => getSearchParamByLink(Js.String.substr(link, ~from=0))
 
     let selectedClass = if isSelected {
       "border-l-2 rounded-sm border-white bg-light_white"
@@ -600,7 +600,7 @@ let make = (
                     <div className="flex items-center">
                       <div
                         className="inline-block text-offset_white bg-profile-sidebar-blue text-center w-10 h-10 leading-10 rounded-full mr-4">
-                        {email->Js.String2.charAt(0)->Js.String2.toUpperCase->React.string}
+                        {email->String.charAt(0)->String.toUpperCase->React.string}
                       </div>
                       <ToolTip
                         description=email

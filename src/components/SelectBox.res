@@ -18,11 +18,11 @@ external ffInputToRadioInput: ReactFinalForm.fieldRenderPropsInput => ReactFinal
 let regex = (a, searchString) => {
   let searchStringNew =
     searchString
-    ->Js.String2.replaceByRe(%re("/[<>\[\]';|?*\\]/g"), "")
-    ->Js.String2.replaceByRe(%re("/\(/g"), "\\(")
-    ->Js.String2.replaceByRe(%re("/\+/g"), "\\+")
-    ->Js.String2.replaceByRe(%re("/\)/g"), "\\)")
-    ->Js.String2.replaceByRe(%re("/\./g"), "")
+    ->String.replaceRegExp(%re("/[<>\[\]';|?*\\]/g"), "")
+    ->String.replaceRegExp(%re("/\(/g"), "\\(")
+    ->String.replaceRegExp(%re("/\+/g"), "\\+")
+    ->String.replaceRegExp(%re("/\)/g"), "\\)")
+    ->String.replaceRegExp(%re("/\./g"), "")
   Js.Re.fromStringWithFlags("(.*)(" ++ a ++ "" ++ searchStringNew ++ ")(.*)", ~flags="i")
 }
 
@@ -247,9 +247,8 @@ module ListItem = {
                 ->Array.filter(str => str !== "")
                 ->Array.mapWithIndex((item, i) => {
                   if (
-                    (Js.String2.toLowerCase(item) == Js.String2.toLowerCase(searchString) ||
-                      Js.String2.toLowerCase(item) ==
-                        Js.String2.toLowerCase("_" ++ searchString)) &&
+                    (String.toLowerCase(item) == String.toLowerCase(searchString) ||
+                      String.toLowerCase(item) == String.toLowerCase("_" ++ searchString)) &&
                       String.length(searchString) > 0
                   ) {
                     <AddDataAttributes
@@ -463,7 +462,7 @@ module BaseSelect = {
     ~preservedAppliedOptions=[],
   ) => {
     let (searchString, setSearchString) = React.useState(() => "")
-    let maxHeight = if maxHeight->Js.String2.includes("72") {
+    let maxHeight = if maxHeight->String.includes("72") {
       "md:max-h-66.5"
     } else {
       maxHeight
@@ -481,10 +480,8 @@ module BaseSelect = {
     })
 
     let options = options->Js.Array2.sortInPlaceWith((item1, item2) => {
-      let item1Index =
-        initialSelectedOptions->Js.Array2.findIndex(item => item.label === item1.label)
-      let item2Index =
-        initialSelectedOptions->Js.Array2.findIndex(item => item.label === item2.label)
+      let item1Index = initialSelectedOptions->Array.findIndex(item => item.label === item1.label)
+      let item2Index = initialSelectedOptions->Array.findIndex(item => item.label === item2.label)
 
       item1Index <= item2Index ? 1 : -1
     })
@@ -833,13 +830,13 @@ module BaseSelect = {
             filteredOptions
             ->Array.mapWithIndex((item, indx) => {
               let valueToConsider = item.value
-              let index = Js.Array2.findIndex(saneValue, sv => sv === valueToConsider)
+              let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
               let isPrevSelected = switch filteredOptions->Belt.Array.get(indx - 1) {
-              | Some(prevItem) => Js.Array2.findIndex(saneValue, sv => sv === prevItem.value) > -1
+              | Some(prevItem) => Array.findIndex(saneValue, sv => sv === prevItem.value) > -1
               | None => false
               }
               let isNextSelected = switch filteredOptions->Belt.Array.get(indx + 1) {
-              | Some(nextItem) => Js.Array2.findIndex(saneValue, sv => sv === nextItem.value) > -1
+              | Some(nextItem) => Array.findIndex(saneValue, sv => sv === nextItem.value) > -1
               | None => false
               }
               let isSelected = index > -1
@@ -1936,7 +1933,7 @@ module BaseDropdown = {
           jsonArr
           ->LogicUtils.getStrArrayFromJsonArray
           ->Array.mapWithIndex((str, i) => {
-            let actualValueIndex = Js.Array2.findIndex(options->Array.map(x => x.value), item =>
+            let actualValueIndex = Array.findIndex(options->Array.map(x => x.value), item =>
               item == str
             )
             if actualValueIndex !== -1 {

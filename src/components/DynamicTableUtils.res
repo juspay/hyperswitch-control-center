@@ -15,9 +15,9 @@ let visibilityColFunc = (
   | StartEndDate(start, end) => (
       `${dateFormatConvertor(start)
         ->Belt.Option.getWithDefault(""->Js.Json.string)
-        ->Js.String.make} ${dateFormatConvertor(end)
+        ->String.make} ${dateFormatConvertor(end)
         ->Belt.Option.getWithDefault(""->Js.Json.string)
-        ->Js.String.make}`
+        ->String.make}`
       ->Js.Json.string
       ->Some,
       dateFormatConvertor(end),
@@ -90,10 +90,10 @@ let filteredData = (
                       let selectedArr =
                         selectedArr
                         ->Belt.Array.keepMap(item => item->Js.Json.decodeString)
-                        ->Array.map(Js.String.toLowerCase)
+                        ->Array.map(String.toLowerCase)
 
                       let currVal = switch jsonVal {
-                      | (Some(transformed), _) => transformed->Js.String.make->Js.String.toLowerCase
+                      | (Some(transformed), _) => transformed->String.make->String.toLowerCase
                       | (None, _) => ""
                       }
                       !(selectedArr->Array.includes(currVal))
@@ -104,15 +104,15 @@ let filteredData = (
                         selectedArr->Belt.Array.keepMap(item => item->Js.Json.decodeString)
 
                       let currVal = switch jsonVal {
-                      | (Some(transformed), _) => transformed->Js.String.make
+                      | (Some(transformed), _) => transformed->String.make
                       | (None, _) => ""
                       }
 
                       let searchedText =
                         selectedArr1->Belt.Array.get(0)->Belt.Option.getWithDefault("")
-                      !Js.String.includes(
-                        searchedText->Js.String.toUpperCase,
-                        currVal->Js.String.toUpperCase,
+                      !String.includes(
+                        searchedText->String.toUpperCase,
+                        currVal->String.toUpperCase,
                       )
                     }
 
@@ -120,7 +120,7 @@ let filteredData = (
                       let selectedArr =
                         selectedArr->Belt.Array.keepMap(item => item->Js.Json.decodeNumber)
                       let currVal = switch jsonVal {
-                      | (_, Some(actualVal)) => actualVal->Js.String.make->Js.Float.fromString
+                      | (_, Some(actualVal)) => actualVal->String.make->Js.Float.fromString
                       | _ => 0.
                       }
                       !(

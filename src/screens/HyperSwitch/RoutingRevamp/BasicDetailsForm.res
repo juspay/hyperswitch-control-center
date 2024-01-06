@@ -76,8 +76,8 @@ let make = (
   let isMobileView = MatchMedia.useMobileChecker()
 
   let btnEnable = React.useMemo2(() => {
-    let name = getStringFromJson(ip1.value, "")->Js.String2.trim
-    name !== "" && getStringFromJson(ip2.value, "")->Js.String2.trim !== ""
+    let name = getStringFromJson(ip1.value, "")->String.trim
+    name !== "" && getStringFromJson(ip2.value, "")->String.trim !== ""
   }, (ip1.value, ip2.value))
 
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)

@@ -99,13 +99,6 @@ let legendColorGradients = (topGradient, bottomGradient) => {
   ]
 }
 
-type hexToRgb = {
-  r: int,
-  g: int,
-  b: int,
-}
-
-//Takes rgba value and reduces opacity by 10
 let reduceOpacity = str => {
   let match = str->Js.String2.match_(%re("/rgba\(\d+,\s*\d+,\s*\d+,\s*([\d.]+)\)/"))
 
@@ -114,7 +107,7 @@ let reduceOpacity = str => {
       let opacity =
         val->Belt.Array.get(1)->Belt.Option.flatMap(a => a)->Belt.Option.getWithDefault("0")
       let newOpacity = opacity->Belt.Float.fromString->Belt.Option.getWithDefault(0.0) /. 10.0
-      str->Js.String2.replace(opacity, newOpacity->Belt.Float.toString)
+      str->String.replace(opacity, newOpacity->Belt.Float.toString)
     }
   | None => "0"
   }
@@ -285,8 +278,7 @@ let timeSeriesDataMaker = (
         groupKey,
         Dict.get(dict, groupKey)->Belt.Option.getWithDefault(""->Js.Json.string)->Js.Json.stringify,
       )
-    let xAxisDataPoint =
-      dict->getString(xAxis, "")->Js.String2.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
+    let xAxisDataPoint = dict->getString(xAxis, "")->String.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
     let yAxisDataPoint = dict->getFloat(yAxis, 0.)
 
     let secondryAxisPoint = switch secondryMetrics {
@@ -791,7 +783,7 @@ let chartDataMaker = (~filterNull=false, rawData, groupKey, metric) => {
   ->Array.map(dataPoint => {
     let dataPointDict = dataPoint->getDictFromJsonObject
     (
-      dataPointDict->getString(groupKey, "")->Js.String2.toLowerCase->snakeToTitle,
+      dataPointDict->getString(groupKey, "")->String.toLowerCase->snakeToTitle,
       dataPointDict->getString(metric, "")->Js.Float.fromString,
     )
   })
