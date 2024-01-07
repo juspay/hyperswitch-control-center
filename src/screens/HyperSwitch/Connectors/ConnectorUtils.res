@@ -25,6 +25,7 @@ let payoutConnectorList: array<connectorName> = [ADYEN, WISE]
 let connectorList: array<connectorName> = [
   STRIPE,
   PAYPAL,
+  EVERYPAY,
   ACI,
   ADYEN,
   AIRWALLEX,
@@ -72,6 +73,7 @@ let connectorList: array<connectorName> = [
 
 let connectorListForLive: array<connectorName> = [
   STRIPE,
+  EVERYPAY,
   ADYEN,
   PAYPAL,
   BANKOFAMERICA,
@@ -89,6 +91,7 @@ let connectorListForLive: array<connectorName> = [
 let getPaymentMethodFromString = paymentMethod => {
   switch paymentMethod->toLCase {
   | "card" => Card
+  | "card_redirect" => CardRedirect
   | "debit" | "credit" => Card
   | "paylater" => PayLater
   | "wallet" => Wallet
@@ -350,6 +353,11 @@ let bankOfAmericaInfo = {
   description: "A top financial firm offering banking, investing, and risk solutions to individuals and businesses.",
 }
 
+let everypayInfo = {
+  description: "EU payment platform",
+}
+
+
 let getConnectorNameString = connector => {
   switch connector {
   | ADYEN => "adyen"
@@ -403,6 +411,7 @@ let getConnectorNameString = connector => {
   | PROPHETPAY => "prophetpay"
   | BANKOFAMERICA => "bankofamerica"
   | HELCIM => "helcim"
+  | EVERYPAY => "everypay"
   | UnknownConnector(str) => str
   }
 }
@@ -460,6 +469,7 @@ let getConnectorNameTypeFromString = connector => {
   | "bankofamerica" => BANKOFAMERICA
   | "prophetpay" => PROPHETPAY
   | "helcim" => HELCIM
+  | "everypay" => EVERYPAY
   | _ => UnknownConnector("Not known")
   }
 }
@@ -517,6 +527,7 @@ let getConnectorInfo = (connector: connectorName) => {
   | PROPHETPAY => prophetpayInfo
   | BANKOFAMERICA => bankOfAmericaInfo
   | HELCIM => helcimInfo
+  | EVERYPAY => everypayInfo
   | UnknownConnector(_) => unknownConnectorInfo
   }
 }

@@ -73,6 +73,8 @@ module CardRenderer = {
       }
     }
 
+    //Js.Console.info(paymentMethodsEnabled)
+
     let updateSelectAll = (paymentMethod, isSelectedAll) => {
       let arr = isSelectedAll ? [] : provider
       paymentMethodsEnabled->Array.forEach(val => {
@@ -215,6 +217,7 @@ module PaymentMethodsRender = {
       {keys
       ->Array.mapWithIndex((value, i) => {
         let provider = pmts->getArrayFromDict(value, [])->Js.Json.array->getPaymentMethodMapper
+        //Js.Console.info4(pmts, pmts->getArrayFromDict(value, [])->Js.Json.array, value, provider)
 
         switch value->getPaymentMethodTypeFromString {
         | Credit | Debit =>

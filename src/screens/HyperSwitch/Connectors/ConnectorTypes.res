@@ -76,6 +76,7 @@ type connectorName =
   | VOLT
   | PROPHETPAY
   | HELCIM
+  | EVERYPAY
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -86,6 +87,7 @@ type paymentMethod =
   | BankTransfer
   | Crypto
   | BankDebit
+  | CardRedirect
   | UnknownPaymentMethod(string)
 
 type paymentMethodTypes =

@@ -31,6 +31,7 @@ let devServer = {
     directory: path.resolve(__dirname, "dist", appName),
   },
   compress: true,
+  allowedHosts: "all",
   hot: true,
   port: port,
   historyApiFallback: true,
