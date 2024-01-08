@@ -239,11 +239,7 @@ module RemoteTableFilters = {
       remoteFilters->Array.filter((item: EntityType.initialFilters<'t>) =>
         item.localFilter->Js.Option.isSome
       )
-    let remoteOptions =
-      filterData
-      ->getFilterFields
-      ->Array.filter(item => item.localFilter->Js.Option.isNone)
-      ->Array.filterWithIndex((_item, index) => index > 3)
+    let remoteOptions = []
 
     let clearFilters = () => {
       filterData->getDictFromJsonObject->Dict.keysToArray->removeKeys
