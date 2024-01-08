@@ -89,7 +89,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
   <div>
     <div className="flex justify-between border-b sticky top-0 bg-white pb-2">
       <div className="flex gap-2 items-center">
-        <GatewayIcon gateway={Js.String2.toUpperCase(frmInfo.connector_name)} className=size />
+        <GatewayIcon gateway={String.toUpperCase(frmInfo.connector_name)} className=size />
         <h2 className="text-xl font-semibold">
           {frmInfo.connector_name->capitalizeString->React.string}
         </h2>

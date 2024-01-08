@@ -92,15 +92,15 @@ let isStartBeforeEndDate = (start, end) => {
     let datevalue = Js.Date.makeWithYMD(
       ~year=Js.Float.fromString(date[0]->Belt.Option.getWithDefault("")),
       ~month=Js.Float.fromString(
-        Js.String2.make(Js.Float.fromString(date[1]->Belt.Option.getWithDefault("")) -. 1.0),
+        String.make(Js.Float.fromString(date[1]->Belt.Option.getWithDefault("")) -. 1.0),
       ),
       ~date=Js.Float.fromString(date[2]->Belt.Option.getWithDefault("")),
       (),
     )
     datevalue
   }
-  let startDate = getDate(Js.String2.split(start, "-"))
-  let endDate = getDate(Js.String2.split(end, "-"))
+  let startDate = getDate(String.split(start, "-"))
+  let endDate = getDate(String.split(end, "-"))
   startDate < endDate
 }
 

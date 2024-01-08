@@ -187,13 +187,11 @@ module CashToCodeSelectBox = {
       let wasmValues =
         dict
         ->getDictfromDict(country)
-        ->getDictfromDict(
-          (selectedCashToCodeMthd: cashToCodeMthd :> string)->Js.String2.toLowerCase,
-        )
+        ->getDictfromDict((selectedCashToCodeMthd: cashToCodeMthd :> string)->String.toLowerCase)
         ->Dict.keysToArray
 
       wasmValues
-      ->Array.find(ele => formValues->getString(ele, "")->Js.String2.length <= 0)
+      ->Array.find(ele => formValues->getString(ele, "")->String.length <= 0)
       ->Belt.Option.isNone
     }
 
@@ -222,7 +220,7 @@ module CashToCodeSelectBox = {
             details={dict
             ->getDictfromDict(country)
             ->getDictfromDict(
-              (selectedCashToCodeMthd: cashToCodeMthd :> string)->Js.String2.toLowerCase,
+              (selectedCashToCodeMthd: cashToCodeMthd :> string)->String.toLowerCase,
             )}
             name={`connector_account_details.auth_key_map.${country}`}
             connector
@@ -496,7 +494,7 @@ module ConnectorHeaderWrapper = {
     <>
       <div className="flex items-center justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
-          <GatewayIcon gateway={connector->Js.String2.toUpperCase} />
+          <GatewayIcon gateway={connector->String.toUpperCase} />
           <h2 className="text-xl font-semibold">
             {connector->LogicUtils.capitalizeString->React.string}
           </h2>

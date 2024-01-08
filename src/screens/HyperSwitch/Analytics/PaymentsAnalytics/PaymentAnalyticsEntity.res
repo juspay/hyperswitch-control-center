@@ -100,10 +100,10 @@ let tableItemToObjMapper: Js.Dict.t<Js.Json.t> => paymentTableType = dict => {
     payment_method_type: dict
     ->getString(PaymentMethodType->colMapper, "OTHER")
     ->LogicUtils.getFirstLetterCaps(),
-    currency: dict->getString(Currency->colMapper, "OTHER")->Js.String2.toUpperCase,
-    authentication_type: dict->getString(AuthType->colMapper, "OTHER")->Js.String2.toUpperCase,
-    refund_status: dict->getString(Status->colMapper, "OTHER")->Js.String2.toUpperCase,
-    weekly_payment_success_rate: dict->getWeeklySR->Js.String2.toUpperCase,
+    currency: dict->getString(Currency->colMapper, "OTHER")->String.toUpperCase,
+    authentication_type: dict->getString(AuthType->colMapper, "OTHER")->String.toUpperCase,
+    refund_status: dict->getString(Status->colMapper, "OTHER")->String.toUpperCase,
+    weekly_payment_success_rate: dict->getWeeklySR->String.toUpperCase,
     payment_error_message: dict->parseErrorReasons,
   }
 }

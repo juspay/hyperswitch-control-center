@@ -60,7 +60,7 @@ let filterByData = (txnArr, value) => {
       ->Array.map(item => {
         let (_, value) = item
 
-        value->getStringFromJson("")->Js.String2.toLowerCase->Js.String2.includes(searchText)
+        value->getStringFromJson("")->String.toLowerCase->String.includes(searchText)
       })
       ->Array.reduce(false, (acc, item) => item || acc)
 

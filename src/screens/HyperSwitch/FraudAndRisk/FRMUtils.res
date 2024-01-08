@@ -6,7 +6,7 @@ open FRMTypes
 
 let leadingSpaceStrParser = (. ~value, ~name as _) => {
   let str = value->Js.Json.decodeString->Belt.Option.getWithDefault("")
-  str->Js.String2.replaceByRe(%re("/^[\s]+/"), "")->Js.Json.string
+  str->String.replaceRegExp(%re("/^[\s]+/"), "")->Js.Json.string
 }
 
 let base64Parse = (. ~value, ~name as _) => {

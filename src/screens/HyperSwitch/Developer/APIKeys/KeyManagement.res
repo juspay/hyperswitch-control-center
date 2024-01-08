@@ -319,7 +319,7 @@ module ApiKeysTable = {
     })
 
     let getCell = (item: apiKey, colType): Table.cell => {
-      let appendString = str => str->Js.String2.concat(Js.String2.repeat("*", 10))
+      let appendString = str => str->String.concat(String.repeat("*", 10))
 
       switch colType {
       | Name => Text(item.name)

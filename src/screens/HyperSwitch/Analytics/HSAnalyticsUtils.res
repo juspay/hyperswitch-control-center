@@ -77,8 +77,8 @@ let filterByData = (txnArr, value) => {
         value
         ->Js.Json.decodeString
         ->Belt.Option.getWithDefault("")
-        ->Js.String2.toLowerCase
-        ->Js.String2.includes(searchText)
+        ->String.toLowerCase
+        ->String.includes(searchText)
       })
       ->Array.reduce(false, (acc, item) => item || acc)
     if valueArr {

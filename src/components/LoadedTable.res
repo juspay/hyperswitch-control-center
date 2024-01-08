@@ -75,7 +75,7 @@ let useSortArray = () => {
       switch val {
       | Some(x) =>
         switch x->Js.Json.classify {
-        | JSONString(str) => str->Js.String.toLowerCase->Js.Json.string
+        | JSONString(str) => str->String.toLowerCase->Js.Json.string
         | JSONNumber(_num) => x
         | JSONFalse => "false"->Js.Json.string
         | JSONTrue => "true"->Js.Json.string
@@ -327,7 +327,7 @@ let make = (
         let newObj = oldFitlers->Dict.toArray->Dict.fromArray
         let filterValue = filterValue->Array.filter(
           item => {
-            let updatedItem = item->Js.String.make
+            let updatedItem = item->String.make
             updatedItem !== ""
           },
         )
@@ -380,7 +380,7 @@ let make = (
   let handleRemoveLines = removeVerticalLines->Belt.Option.getWithDefault(true)
   if showSerialNumber {
     heading
-    ->Js.Array2.unshift(
+    ->Array.unshift(
       Table.makeHeaderInfo(~key="serial_number", ~title="S.No", ~dataType=NumericType, ()),
     )
     ->ignore
@@ -388,7 +388,7 @@ let make = (
 
   if checkBoxProps.showCheckBox {
     heading
-    ->Js.Array2.unshift(
+    ->Array.unshift(
       Table.makeHeaderInfo(~key="select", ~title="", ~showMultiSelectCheckBox=true, ()),
     )
     ->ignore
@@ -600,7 +600,7 @@ let make = (
     if actualRows->Array.length > 0 {
       if showSerialNumber {
         actualRows
-        ->Js.Array2.unshift(
+        ->Array.unshift(
           Numeric(
             (1 + index)->Belt.Int.toFloat,
             (val: float) => {
@@ -612,9 +612,9 @@ let make = (
       }
       if checkBoxProps.showCheckBox {
         let selectedRowIndex =
-          checkBoxProps.selectedData->Js.Array2.findIndex(item => item === nullableItem->toJson)
+          checkBoxProps.selectedData->Array.findIndex(item => item === nullableItem->toJson)
         actualRows
-        ->Js.Array2.unshift(
+        ->Array.unshift(
           CustomCell(
             <div onClick={ev => ev->ReactEvent.Mouse.stopPropagation}>
               <CheckBoxIcon
@@ -661,8 +661,8 @@ let make = (
   })
 
   let paginatedData =
-    filteredData->Js.Array2.slice(~start=offsetVal, ~end_={offsetVal + localResultsPerPage})
-  let rows = rows->Js.Array2.slice(~start=offsetVal, ~end_={offsetVal + localResultsPerPage})
+    filteredData->Array.slice(~start=offsetVal, ~end={offsetVal + localResultsPerPage})
+  let rows = rows->Array.slice(~start=offsetVal, ~end={offsetVal + localResultsPerPage})
 
   let handleRowClick = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
@@ -677,7 +677,7 @@ let make = (
         switch getShowLink {
         | Some(fn) => {
             let link = fn(value)
-            let finalUrl = url.search->Js.String2.length > 0 ? `${link}?${url.search}` : link
+            let finalUrl = url.search->String.length > 0 ? `${link}?${url.search}` : link
             RescriptReactRouter.push(finalUrl)
           }
 
@@ -701,7 +701,7 @@ let make = (
         switch getShowLink {
         | Some(fn) => {
             let link = fn(value)
-            let finalUrl = url.search->Js.String2.length > 0 ? `${link}?${url.search}` : link
+            let finalUrl = url.search->String.length > 0 ? `${link}?${url.search}` : link
             RescriptReactRouter.push(finalUrl)
           }
 
@@ -930,7 +930,7 @@ let make = (
   } else {
     `${ignoreHeaderBg ? "" : backgroundClass} empty:hidden`
   }
-  let dataId = title->Js.String2.split("-")->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+  let dataId = title->String.split("-")->Belt.Array.get(0)->Belt.Option.getWithDefault("")
   <AddDataAttributes attributes=[("data-loaded-table", dataId)]>
     <div className="w-full">
       <div className=addDataAttributesClass style={ReactDOMStyle.make(~zIndex="2", ())}>

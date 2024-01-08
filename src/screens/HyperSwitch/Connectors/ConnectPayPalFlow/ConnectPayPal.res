@@ -62,18 +62,13 @@ module PayPalCreateNewAccountModal = {
 module ManualSetupScreen = {
   @react.component
   let make = (
-    ~isUpdateFlow,
     ~connector,
     ~connectorAccountFields,
     ~selectedConnector,
     ~connectorMetaDataFields,
     ~connectorWebHookDetails,
-    ~configuartionType,
     ~connectorLabelDetailField,
   ) => {
-    // let setupAccountStatus = Recoil.useRecoilValueFromAtom(HyperswitchAtom.paypalAccountStatusAtom)
-    // let bodyType = isUpdateFlow->PayPalFlowUtils.getBodyType(configuartionType, setupAccountStatus)
-
     <div className="flex flex-col gap-8">
       <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
         connector={connector->ConnectorUtils.getConnectorNameTypeFromString}
@@ -495,8 +490,6 @@ let make = (
                   selectedConnector
                   connectorMetaDataFields
                   connectorWebHookDetails
-                  isUpdateFlow
-                  configuartionType
                   connectorLabelDetailField
                 />
               | Payments_not_receivable

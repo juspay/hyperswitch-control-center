@@ -21,19 +21,19 @@ let validateAPIKeyForm = (
       | "expiration" => Dict.set(errors, key, "Please select expiry"->Js.Json.string)
       | _ => ()
       }
-    } else if key == "expiration" && value->Js.String2.toLowerCase != "never" {
+    } else if key == "expiration" && value->String.toLowerCase != "never" {
       setShowCustomDate(true)
       let date = LogicUtils.getString(valuesDict, "expiration_date", "")
 
       if date == "" {
         Dict.set(errors, "expiration_date", "Please select expiry date"->Js.Json.string)
       }
-    } else if key == "expiration" && value->Js.String2.toLowerCase == "never" {
+    } else if key == "expiration" && value->String.toLowerCase == "never" {
       setShowCustomDate(false)
     } else if (
       value->String.length > 0 &&
       (key === "webhook_url" || key === "return_url") &&
-      !(value->Js.String2.includes("localhost")) &&
+      !(value->String.includes("localhost")) &&
       !Js.Re.test_(
         %re(
           "/^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z0-9\u00a1-\uffff][a-z0-9\u00a1-\uffff_-]{0,62})?[a-z0-9\u00a1-\uffff]\.)+(?:[a-z\u00a1-\uffff]{2,}\.?))(?::\d{2,5})?(?:[/?#]\S*)?$/i"
@@ -61,7 +61,7 @@ let getStringFromRecordType = value => {
 }
 
 let getRecordTypeFromString = value => {
-  switch value->Js.String2.toLowerCase {
+  switch value->String.toLowerCase {
   | "never" => Never
   | _ => Custom
   }

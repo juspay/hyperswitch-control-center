@@ -191,9 +191,7 @@ module ApiDetailsComponent = {
             | Sdk => <p className=headerStyle> {apiName->React.string} </p>
             | Payment =>
               <p className=headerStyle>
-                <span className="font-bold mr-2">
-                  {method->Js.String2.toUpperCase->React.string}
-                </span>
+                <span className="font-bold mr-2"> {method->String.toUpperCase->React.string} </span>
                 <span> {apiPath->React.string} </span>
               </p>
             }}
@@ -297,7 +295,7 @@ let make = (~paymentId, ~createdAt) => {
           let timestamp = eventDict->getString("created_at_precise", "")
           let logType = eventDict->getString("log_type", "")
           let updatedEventName =
-            logType === "INFO" ? eventName->Js.String2.replace("Call", "Response") : eventName
+            logType === "INFO" ? eventName->String.replace("Call", "Response") : eventName
           eventDict->Dict.set("event_name", updatedEventName->Js.Json.string)
           eventDict->Dict.set("event_id", sha256(updatedEventName ++ timestamp)->Js.Json.string)
           eventDict->Dict.set(

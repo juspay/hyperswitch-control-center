@@ -74,7 +74,7 @@ module SetupWebhookUser = {
       onBlur: _ev => (),
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
-        if value->Js.String2.includes("<script>") || value->Js.String2.includes("</script>") {
+        if value->String.includes("<script>") || value->String.includes("</script>") {
           showPopUp({
             popUpType: (Warning, WithIcon),
             heading: `Script Tags are not allowed`,
@@ -82,7 +82,7 @@ module SetupWebhookUser = {
             handleConfirm: {text: "OK"},
           })
         }
-        let val = value->Js.String2.replace("<script>", "")->Js.String2.replace("</script>", "")
+        let val = value->String.replace("<script>", "")->String.replace("</script>", "")
         setWebhookEndpoint(_ => val)
       },
       onFocus: _ev => (),
