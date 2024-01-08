@@ -1,20 +1,12 @@
-name: ESlint Check
+name: Lint
 
 on: [push]
 
 jobs:
-  eslint-checks:
+  eslint:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v1
+      - uses: stefanoeb/eslint-action@1.0.2
         with:
-          fetch-depth: 0
-          token: ${{ secrets.AUTO_RELEASE_PAT }}
-
-      - name: Install dependencies
-        run: npm install --force
-
-      - name: Eslint check
-        run: npm run test:hooks
+          files: src/
