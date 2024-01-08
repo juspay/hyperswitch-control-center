@@ -28,6 +28,8 @@ module VolumeRoutingView = {
     let connectorList = React.useMemo0(() => {
       connectorListJson->safeParse->ConnectorTableUtils.getArrayOfConnectorListPayloadType
     })
+    let selectedConnectorsInput = ReactFinalForm.useField("algorithm.data").input
+
     let initalValue = switch initialRule {
     | Some(initialRule) => initialRule
     | None => Dict.make()
@@ -147,6 +149,11 @@ module VolumeRoutingView = {
           value: item.merchant_connector_id,
         }
       })
+    }, [profile])
+
+    React.useEffect1(() => {
+      selectedConnectorsInput.onChange([]->Identity.anyTypeToReactEvent)
+      None
     }, [profile])
 
     <>
