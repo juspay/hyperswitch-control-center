@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.19.5 (2024-01-08)
+
+### Bug Fixes
+
+- Add merchant fix ([#184](https://github.com/juspay/hyperswitch-control-center/pull/184)) ([`7bc7226`](https://github.com/juspay/hyperswitch-control-center/commit/7bc7226cf2ee0c70b8dc49c73de91020c2f9b8e7))
+
+### Miscellaneous Tasks
+
+- Add eslint hook ([#166](https://github.com/juspay/hyperswitch-control-center/pull/166)) ([`4a10a94`](https://github.com/juspay/hyperswitch-control-center/commit/4a10a94728ec6d62897e3299c2c924301ad86f0f))
+
+**Full Changelog:** [`v1.19.4...v1.19.5`](https://github.com/juspay/hyperswitch-control-center/compare/v1.19.4...v1.19.5)
+
+- - -
+
+
 ## 1.19.4 (2024-01-05)
 
 ### Bug Fixes
