@@ -12,13 +12,11 @@ module GatewayView = {
                             text-blue-800 hover:text-blue-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200
                             dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1">
           {React.string(ruleGateway.connector.connector)}
-          {if ruleGateway.split !== 100 {
+          <UIUtils.RenderIf condition={ruleGateway.split !== 0}>
             <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
               {React.string(ruleGateway.split->string_of_int ++ "%")}
             </span>
-          } else {
-            React.null
-          }}
+          </UIUtils.RenderIf>
         </div>
       })
       ->React.array}
