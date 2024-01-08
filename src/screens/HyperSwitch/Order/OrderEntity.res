@@ -312,8 +312,8 @@ let defaultColumns: array<colType> = [
   Created,
   Connector,
   Amount,
-  PaymentId,
   Status,
+  PaymentId,
   ConnectorTransactionID,
   PaymentMethod,
 ]

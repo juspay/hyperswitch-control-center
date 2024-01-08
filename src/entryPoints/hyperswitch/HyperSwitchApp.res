@@ -220,8 +220,7 @@ let make = () => {
                 </div>
                 <div
                   className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
-                  <div
-                    className="p-6 md:px-16 md:pb-16 pt-[3rem] flex flex-col gap-10">
+                  <div className="p-6 md:px-16 md:pb-16 pt-[3rem] flex flex-col gap-10">
                     <ErrorBoundary>
                       {switch url.path {
                       | list{"home"} =>
