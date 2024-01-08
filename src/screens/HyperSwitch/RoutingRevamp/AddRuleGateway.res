@@ -153,7 +153,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
         <div className="flex">
           <SelectBox.BaseDropdown
             allowMultiSelect=true
-            buttonText="Add Processorsergtyh"
+            buttonText="Add Processors"
             buttonType=Button.SecondaryFilled
             hideMultiSelectButtons=true
             customButtonStyle="!bg-white "
