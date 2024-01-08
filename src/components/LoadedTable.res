@@ -69,63 +69,61 @@ let useSortedObj = (title: string, defaultSort) => {
 
   (sortedObj, setSortedObj)
 }
-let useSortArray = () => {
-  (originalData, key, sortOrder: Table.sortOrder) => {
-    let getValue = val => {
-      switch val {
-      | Some(x) =>
-        switch x->Js.Json.classify {
-        | JSONString(str) => str->String.toLowerCase->Js.Json.string
-        | JSONNumber(_num) => x
-        | JSONFalse => "false"->Js.Json.string
-        | JSONTrue => "true"->Js.Json.string
-        | _ => ""->Js.Json.string
-        }
-      | None => ""->Js.Json.string
+let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
+  let getValue = val => {
+    switch val {
+    | Some(x) =>
+      switch x->Js.Json.classify {
+      | JSONString(str) => str->Js.String.toLowerCase->Js.Json.string
+      | JSONNumber(_num) => x
+      | JSONFalse => "false"->Js.Json.string
+      | JSONTrue => "true"->Js.Json.string
+      | _ => ""->Js.Json.string
       }
+    | None => ""->Js.Json.string
     }
-    let sortedArrayByOrder = {
-      let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
-        let item1 = i1->Js.Json.stringifyAny->Belt.Option.getWithDefault("")->LogicUtils.safeParse
-        let item2 = i2->Js.Json.stringifyAny->Belt.Option.getWithDefault("")->LogicUtils.safeParse
-        // flatten items and get data
+  }
+  let sortedArrayByOrder = {
+    let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
+      let item1 = i1->Js.Json.stringifyAny->Option.getWithDefault("")->LogicUtils.safeParse
+      let item2 = i2->Js.Json.stringifyAny->Option.getWithDefault("")->LogicUtils.safeParse
+      // flatten items and get data
 
-        let val1 =
-          JsonFlattenUtils.flattenObject(item1, true)
-          ->Js.Json.object_
-          ->Js.Json.decodeObject
-          ->Belt.Option.flatMap(dict => dict->Dict.get(key))
-        let val2 =
-          JsonFlattenUtils.flattenObject(item2, true)
-          ->Js.Json.object_
-          ->Js.Json.decodeObject
-          ->Belt.Option.flatMap(dict => dict->Dict.get(key))
-        let value1 = getValue(val1)
-        let value2 = getValue(val2)
-        if value1 === ""->Js.Json.string || value2 === ""->Js.Json.string {
-          if value1 === value2 {
-            0
-          } else if value2 === ""->Js.Json.string {
-            sortOrder === DEC ? 1 : -1
-          } else if sortOrder === DEC {
-            -1
-          } else {
-            1
-          }
-        } else if value1 === value2 {
+      let val1 =
+        JsonFlattenUtils.flattenObject(item1, true)
+        ->Js.Json.object_
+        ->Js.Json.decodeObject
+        ->Option.flatMap(dict => dict->Dict.get(key))
+      let val2 =
+        JsonFlattenUtils.flattenObject(item2, true)
+        ->Js.Json.object_
+        ->Js.Json.decodeObject
+        ->Option.flatMap(dict => dict->Dict.get(key))
+      let value1 = getValue(val1)
+      let value2 = getValue(val2)
+      if value1 === ""->Js.Json.string || value2 === ""->Js.Json.string {
+        if value1 === value2 {
           0
-        } else if value1 > value2 {
+        } else if value2 === ""->Js.Json.string {
           sortOrder === DEC ? 1 : -1
         } else if sortOrder === DEC {
           -1
         } else {
           1
         }
-      })
-      originalData
-    }
-    sortedArrayByOrder
+      } else if value1 === value2 {
+        0
+      } else if value1 > value2 {
+        sortOrder === DEC ? 1 : -1
+      } else if sortOrder === DEC {
+        -1
+      } else {
+        1
+      }
+    })
+    originalData
   }
+  sortedArrayByOrder
 }
 type pageDetails = {
   offset: int,
@@ -327,7 +325,7 @@ let make = (
         let newObj = oldFitlers->Dict.toArray->Dict.fromArray
         let filterValue = filterValue->Array.filter(
           item => {
-            let updatedItem = item->String.make
+            let updatedItem = item->Js.String.make
             updatedItem !== ""
           },
         )
@@ -513,8 +511,6 @@ let make = (
       None
     }
   }, (actualData, totalResults, visibleColumns, columnFilter))
-
-  let sortArray = useSortArray()
 
   let filteredDataLength =
     columnFilter->Dict.keysToArray->Array.length !== 0 ? actualData->Array.length : totalResults
@@ -930,7 +926,7 @@ let make = (
   } else {
     `${ignoreHeaderBg ? "" : backgroundClass} empty:hidden`
   }
-  let dataId = title->String.split("-")->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+  let dataId = title->Js.String2.split("-")->Belt.Array.get(0)->Belt.Option.getWithDefault("")
   <AddDataAttributes attributes=[("data-loaded-table", dataId)]>
     <div className="w-full">
       <div className=addDataAttributesClass style={ReactDOMStyle.make(~zIndex="2", ())}>

@@ -588,47 +588,45 @@ let useSortedObj = (title: string, defaultSort) => {
 
   (sortedObj, setSortedObj)
 }
-let useSortArray = () => {
-  (originalData, key, sortOrder: Table.sortOrder) => {
-    let getValue = val => {
-      switch val {
-      | Some(x) =>
-        switch x->Js.Json.classify {
-        | JSONString(_str) => x
-        | JSONNumber(_num) => x
-        | JSONFalse => "false"->Js.Json.string
-        | JSONTrue => "true"->Js.Json.string
-        | _ => ""->Js.Json.string
-        }
-      | None => ""->Js.Json.string
+let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
+  let getValue = val => {
+    switch val {
+    | Some(x) =>
+      switch x->Js.Json.classify {
+      | JSONString(_str) => x
+      | JSONNumber(_num) => x
+      | JSONFalse => "false"->Js.Json.string
+      | JSONTrue => "true"->Js.Json.string
+      | _ => ""->Js.Json.string
       }
+    | None => ""->Js.Json.string
     }
-    let sortedArrayByOrder = {
-      let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
-        let item1 = i1->Js.Json.stringifyAny->Belt.Option.getWithDefault("")->LogicUtils.safeParse
-        let item2 = i2->Js.Json.stringifyAny->Belt.Option.getWithDefault("")->LogicUtils.safeParse
-        // flatten items and get data
-
-        let val1 = item1->Js.Json.decodeObject->Belt.Option.flatMap(dict => dict->Dict.get(key))
-
-        let val2 = item2->Js.Json.decodeObject->Belt.Option.flatMap(dict => dict->Dict.get(key))
-
-        let value1 = getValue(val1)
-        let value2 = getValue(val2)
-        if value1 === value2 {
-          0
-        } else if value1 > value2 {
-          sortOrder === DEC ? 1 : -1
-        } else if sortOrder === DEC {
-          -1
-        } else {
-          1
-        }
-      })
-      originalData
-    }
-    sortedArrayByOrder
   }
+  let sortedArrayByOrder = {
+    let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
+      let item1 = i1->Js.Json.stringifyAny->Option.getWithDefault("")->LogicUtils.safeParse
+      let item2 = i2->Js.Json.stringifyAny->Option.getWithDefault("")->LogicUtils.safeParse
+      // flatten items and get data
+
+      let val1 = item1->Js.Json.decodeObject->Option.flatMap(dict => dict->Dict.get(key))
+
+      let val2 = item2->Js.Json.decodeObject->Option.flatMap(dict => dict->Dict.get(key))
+
+      let value1 = getValue(val1)
+      let value2 = getValue(val2)
+      if value1 === value2 {
+        0
+      } else if value1 > value2 {
+        sortOrder === DEC ? 1 : -1
+      } else if sortOrder === DEC {
+        -1
+      } else {
+        1
+      }
+    })
+    originalData
+  }
+  sortedArrayByOrder
 }
 
 @react.component
@@ -885,8 +883,6 @@ let make = (
       None
     }
   }, (actualData, columToConsider, totalResults, visibleColumns, columnFilter))
-
-  let sortArray = useSortArray()
 
   let actualData = if tableLocalFilter {
     filteredData(actualData, columnFilter, visibleColumns, entity, dateFormatConvertor)

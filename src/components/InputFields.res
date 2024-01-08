@@ -9,13 +9,6 @@ type comboCustomInputRecord = {
   names: array<string>,
 }
 
-let useGetAccessLevel = () => {
-  let accessLevel = React.useContext(FormAuthContext.formAuthContext)
-  () => {
-    accessLevel
-  }
-}
-
 let selectInput = (
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~options: array<SelectBox.dropdownOption>,
@@ -50,7 +43,6 @@ let selectInput = (
   ~descriptionOnHover=false,
   (),
 ) => {
-  let accessHook = useGetAccessLevel()
   <SelectBox
     input
     options
@@ -58,7 +50,7 @@ let selectInput = (
     allowMultiSelect=false
     deselectDisable
     isHorizontal
-    disableSelect={disableSelect || accessHook() == AuthTypes.Read}
+    disableSelect
     fullLength
     customButtonStyle
     textStyle
@@ -159,9 +151,9 @@ let multiSelectInput = (
   ~wrapBasis="",
   ~dropdownClassName="",
   ~baseComponentMethod=?,
+  ~disableSelect=false,
   (),
 ) => {
-  let accessHook = useGetAccessLevel()
   <SelectBox
     input
     options
@@ -184,7 +176,7 @@ let multiSelectInput = (
     ?fixedDropDownDirection
     showToolTip
     showNameAsToolTip
-    disableSelect={accessHook() == AuthTypes.Read}
+    disableSelect
     buttonType
     showSelectAll
     ?fullLength
@@ -279,12 +271,11 @@ let textInput = (
   ~widthMatchwithPlaceholderLength=None,
   (),
 ) => {
-  let accessHook = useGetAccessLevel()
   <TextInput
     input
     placeholder
     description
-    isDisabled={isDisabled || accessHook() == AuthTypes.Read}
+    isDisabled
     type_
     inputMode
     ?pattern
