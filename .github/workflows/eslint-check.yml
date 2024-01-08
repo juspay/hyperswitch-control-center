@@ -20,6 +20,5 @@ jobs:
       - name: Install dependencies
         run: npm install --force
 
-      - uses: stefanoeb/eslint-action@1.0.2
-        with:
-          files: src/
+      - name: ESLint 
+        run: npm run test:hooks
