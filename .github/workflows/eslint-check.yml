@@ -1,0 +1,21 @@
+name: ESlint Check
+
+on: [push]
+
+jobs:
+  cypress-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.AUTO_RELEASE_PAT }}
+
+      - name: Install dependencies
+        run: npm install --force
+
+      - name: Eslint check
+        run: npm run test:hooks
+
