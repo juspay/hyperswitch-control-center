@@ -14,7 +14,7 @@ type dataFetcherObj<'a> = {
   metrics: 'a, // metrics are the stats i.e total volume, success rate etc.
   bodyMaker: (string, filterConfig) => string, // to make the single stat body
   timeSeriedBodyMaker: (string, filterConfig) => string, // to make the single stat timeseries body
-  transaformer: (string, Js.Json.t) => Js.Dict.t<Js.Json.t>, // just in case if we are getting data from multiple places and we wanted to change the key or something so that we can identify it differently
+  transaformer: (string, Js.Json.t) => Dict.t<Js.Json.t>, // just in case if we are getting data from multiple places and we wanted to change the key or something so that we can identify it differently
   url: string, // url from where data need to be fetched
   domain: string,
   timeColumn: string,
