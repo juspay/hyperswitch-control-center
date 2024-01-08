@@ -6,12 +6,12 @@ module InviteEmailForm = {
     open APIUtils
     let fetchDetails = useGetMethod()
     let (roleListData, setRoleListData) = React.useState(_ => [])
-
+    let getArrayFromForm = key => ReactFinalForm.useField(key).input.value->getArrayFromJson([])
     let emailList =
       ReactFinalForm.useField("emailList").input.value->getArrayFromJson([])->Array.joinWith(",")
     let role =
-      ReactFinalForm.useField("roleType").input.value
-      ->getArrayFromJson([])
+      `roleType`
+      ->getArrayFromForm
       ->LogicUtils.getValueFromArray(0, ""->Js.Json.string)
       ->getStringFromJson("")
 

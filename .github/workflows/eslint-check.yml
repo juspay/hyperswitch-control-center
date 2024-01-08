@@ -3,7 +3,7 @@ name: ESlint Check
 on: [push]
 
 jobs:
-  cypress-tests:
+  eslint-checks:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,4 +18,3 @@ jobs:
 
       - name: Eslint check
         run: npm run test:hooks
-

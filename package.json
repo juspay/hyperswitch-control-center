@@ -20,7 +20,7 @@
     "postinstall": "git config core.hooksPath .githooks && chmod +x .githooks/commit-msg",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
-    "test:hooks": "yarn eslint src/"
+    "test:hooks": "eslint src/"
   },
   "husky": {
     "hooks": {
