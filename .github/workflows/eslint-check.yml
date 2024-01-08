@@ -6,7 +6,16 @@ jobs:
   eslint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.AUTO_RELEASE_PAT }}
+
+      - name: Install dependencies
+        run: npm install --force
+        
       - uses: stefanoeb/eslint-action@1.0.2
         with:
           files: src/
+          install: false
