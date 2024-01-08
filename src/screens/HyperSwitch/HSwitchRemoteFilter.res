@@ -182,7 +182,7 @@ module RemoteTableFilters = {
     let customViewTop = <SearchBarFilter placeholder setSearchVal searchVal />
 
     React.useEffect0(() => {
-      if filterValueJson->Js.Dict.keys->Js.Array2.length === 0 {
+      if filterValueJson->Dict.keysToArray->Array.length === 0 {
         setFilters(_ => Dict.make()->Some)
         setOffset(_ => 0)
       }
@@ -224,7 +224,7 @@ module RemoteTableFilters = {
     let filterData = filterDataJson->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
 
     React.useEffect1(() => {
-      if filterValueJson->Js.Dict.keys->Js.Array2.length != 0 {
+      if filterValueJson->Dict.keysToArray->Array.length != 0 {
         setFilters(_ => filterValueJson->Some)
         setOffset(_ => 0)
       }
