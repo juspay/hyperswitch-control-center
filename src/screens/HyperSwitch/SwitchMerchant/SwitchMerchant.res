@@ -96,7 +96,7 @@ module AddNewMerchantButton = {
       <Menu.Item>
         {props =>
           <button
-            onClick={_ => setShowModal(_ => false)}
+            onClick={_ => setShowModal(_ => true)}
             className={
               let activeClasses = if props["active"] {
                 "group flex rounded-md items-center px-2 py-2 text-sm bg-gray-100 dark:bg-black"
