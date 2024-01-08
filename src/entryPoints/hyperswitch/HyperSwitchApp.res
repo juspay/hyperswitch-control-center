@@ -80,7 +80,15 @@ let make = () => {
       let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl
       let response = await fetchDetails(url)
 
-      if response->getDictFromJsonObject->getBool("ProductionAgreement", false) {
+      let productionAgreementResponse =
+        response
+        ->getArrayFromJson([])
+        ->Array.find(ele => {
+          ele->getDictFromJsonObject->getBool("ProductionAgreement", false)
+        })
+        ->Option.getWithDefault(Js.Json.null)
+
+      if productionAgreementResponse->getDictFromJsonObject->getBool("ProductionAgreement", false) {
         setDashboardPageState(_ => #PROD_ONBOARDING)
       } else {
         setDashboardPageState(_ => #AGREEMENT_SIGNATURE)
@@ -96,7 +104,7 @@ let make = () => {
     try {
       let response = await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray)
       let responseValueDict =
-        response->Js.Nullable.toOption->Belt.Option.getWithDefault(Js.Dict.empty())
+        response->Js.Nullable.toOption->Belt.Option.getWithDefault(Dict.make())
       let pageStateToSet = responseValueDict->QuickStartUtils.getCurrentStep
       setQuickStartPageState(_ => pageStateToSet->QuickStartUtils.enumToVarinatMapper)
       responseValueDict
@@ -165,7 +173,7 @@ let make = () => {
     if (
       isProdIntentCompleted &&
       enumDetails.integrationCompleted &&
-      enumDetails.testPayment.payment_id->Js.String2.length > 0
+      enumDetails.testPayment.payment_id->String.length > 0
     ) {
       RescriptReactRouter.replace("/home")
       React.null
@@ -200,7 +208,7 @@ let make = () => {
                       headerActions={<div className="relative flex items-center gap-4 my-2 ">
                         <HSwitchGlobalSearchBar />
                         <RenderIf condition={featureFlagDetails.switchMerchant}>
-                          <SwitchMerchant userRole={userRole} />
+                          <SwitchMerchant userRole={userRole} isAddMerchantEnabled=true />
                         </RenderIf>
                         <div
                           className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
@@ -247,7 +255,7 @@ let make = () => {
                           renderShow={_ => <ConnectorHome isPayoutFlow=true />}
                         />
                       | list{"payments", ...remainingPath} =>
-                        <AnalyticsUrlUpdaterContext key="payments">
+                        <FilterContext key="payments" index="payments" disableSessionStorage=true>
                           <EntityScaffold
                             entityName="Payments"
                             remainingPath
@@ -255,9 +263,9 @@ let make = () => {
                             renderList={() => <Orders />}
                             renderShow={id => <ShowOrder id />}
                           />
-                        </AnalyticsUrlUpdaterContext>
+                        </FilterContext>
                       | list{"refunds", ...remainingPath} =>
-                        <AnalyticsUrlUpdaterContext key="refunds">
+                        <FilterContext key="refunds" index="refunds" disableSessionStorage=true>
                           <EntityScaffold
                             entityName="Refunds"
                             remainingPath
@@ -265,7 +273,7 @@ let make = () => {
                             renderList={() => <Refund />}
                             renderShow={id => <ShowRefund id />}
                           />
-                        </AnalyticsUrlUpdaterContext>
+                        </FilterContext>
                       | list{"disputes", ...remainingPath} =>
                         <EntityScaffold
                           entityName="Disputes"
@@ -291,26 +299,29 @@ let make = () => {
                           renderShow={_ => <UserRoleShowData />}
                         />
                       | list{"analytics-payments"} =>
-                        <AnalyticsUrlUpdaterContext key="PaymentsAnalytics">
+                        <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
                           <PaymentAnalytics />
-                        </AnalyticsUrlUpdaterContext>
+                        </FilterContext>
                       | list{"analytics-refunds"} =>
-                        <AnalyticsUrlUpdaterContext key="PaymentsRefunds">
+                        <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
                           <RefundsAnalytics />
-                        </AnalyticsUrlUpdaterContext>
+                        </FilterContext>
                       | list{"analytics-user-journey"} =>
-                        <AnalyticsUrlUpdaterContext key="UserJourneyAnalytics">
-                          <UserJourneyAnalytics />
-                        </AnalyticsUrlUpdaterContext>
+                        <FeatureFlagEnabledComponent
+                          isEnabled=featureFlagDetails.userJourneyAnalytics>
+                          <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
+                            <UserJourneyAnalytics />
+                          </FilterContext>
+                        </FeatureFlagEnabledComponent>
                       | list{"monitoring"} => comingSoonPage
                       | list{"developer-api-keys"} => <KeyManagement.KeysManagement />
                       | list{"developer-system-metrics"} =>
                         <UIUtils.RenderIf
-                          condition={userRole->Js.String2.includes("internal_") &&
+                          condition={userRole->String.includes("internal_") &&
                             featureFlagDetails.systemMetrics}>
-                          <AnalyticsUrlUpdaterContext key="SystemMetrics">
+                          <FilterContext key="SystemMetrics" index="SystemMetrics">
                             <SystemMetricsAnalytics />
-                          </AnalyticsUrlUpdaterContext>
+                          </FilterContext>
                         </UIUtils.RenderIf>
                       | list{"payment-settings", ...remainingPath} =>
                         <EntityScaffold
@@ -329,6 +340,10 @@ let make = () => {
                           <SDKPage />
                         </FeatureFlagEnabledComponent>
                       | list{"3ds"} => <HSwitchThreeDS />
+                      | list{"surcharge"} =>
+                        <FeatureFlagEnabledComponent isEnabled={featureFlagDetails.surcharge}>
+                          <Surcharge />
+                        </FeatureFlagEnabledComponent>
                       | list{"account-settings"} =>
                         <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.sampleData>
                           <HSwitchSettings />

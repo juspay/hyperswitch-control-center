@@ -74,11 +74,11 @@ module BaseTableComponent = {
               actualData={tableData}
               entity=modifiedTableEntity
               resultsPerPage=10
-              totalResults={tableData->Js.Array2.length}
+              totalResults={tableData->Array.length}
               offset
               setOffset
               defaultSort
-              currrentFetchCount={tableData->Js.Array2.length}
+              currrentFetchCount={tableData->Array.length}
               tableLocalFilter=false
               tableheadingClass=tableBorderClass
               tableBorderClass
@@ -113,22 +113,23 @@ module TableWrapper = {
     ~distributionArray=None,
   ) => {
     let customFilter = Recoil.useRecoilValueFromAtom(AnalyticsAtoms.customFilterAtom)
-    let getAllFilter = UrlUtils.useGetFilterDictFromUrl("")
+    let {filterValueJson} = React.useContext(FilterContext.filterContext)
+    let filterValueDict = filterValueJson
     let fetchDetails = APIUtils.useUpdateMethod()
     let (_, setDefaultFilter) = Recoil.useRecoilState(AnalyticsHooks.defaultFilter)
     let (showTable, setShowTable) = React.useState(_ => false)
     let {getHeading, allColumns, defaultColumns} = tableEntity
-    let activeTabStr = activeTab->Belt.Option.getWithDefault([])->Js.Array2.joinWith("-")
+    let activeTabStr = activeTab->Belt.Option.getWithDefault([])->Array.joinWith("-")
     let (startTimeFilterKey, endTimeFilterKey) = dateKeys
     let (tableDataLoading, setTableDataLoading) = React.useState(_ => true)
-    let (tableData, setTableData) = React.useState(_ => []->Js.Array2.map(Js.Nullable.return))
+    let (tableData, setTableData) = React.useState(_ => []->Array.map(Js.Nullable.return))
 
     let getTopLevelFilter = React.useMemo1(() => {
-      getAllFilter
-      ->Js.Dict.entries
+      filterValueDict
+      ->Dict.toArray
       ->Belt.Array.keepMap(item => {
         let (key, value) = item
-        let keyArr = key->Js.String2.split(".")
+        let keyArr = key->String.split(".")
         let prefix = keyArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
         if prefix === moduleName && prefix !== "" {
           None
@@ -136,42 +137,42 @@ module TableWrapper = {
           Some((prefix, value))
         }
       })
-      ->Js.Dict.fromArray
-    }, [getAllFilter])
+      ->Dict.fromArray
+    }, [filterValueDict])
 
     let allColumns = allColumns->Belt.Option.getWithDefault([])
-    let allFilterKeys = Js.Array2.concat([startTimeFilterKey, endTimeFilterKey], filterKeys)
+    let allFilterKeys = Array.concat([startTimeFilterKey, endTimeFilterKey], filterKeys)
 
     let topFiltersToSearchParam = React.useMemo1(() => {
       let filterSearchParam =
         getTopLevelFilter
-        ->Js.Dict.entries
+        ->Dict.toArray
         ->Belt.Array.keepMap(entry => {
           let (key, value) = entry
-          if allFilterKeys->Js.Array2.includes(key) {
+          if allFilterKeys->Array.includes(key) {
             switch value->Js.Json.classify {
             | JSONString(str) => `${key}=${str}`->Some
-            | JSONNumber(num) => `${key}=${num->Js.String.make}`->Some
-            | JSONArray(arr) => `${key}=[${arr->Js.String.make}]`->Some
+            | JSONNumber(num) => `${key}=${num->String.make}`->Some
+            | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
             | _ => None
             }
           } else {
             None
           }
         })
-        ->Js.Array2.joinWith("&")
+        ->Array.joinWith("&")
 
       filterSearchParam
     }, [getTopLevelFilter])
 
     let filterValueFromUrl = React.useMemo1(() => {
       getTopLevelFilter
-      ->Js.Dict.entries
+      ->Dict.toArray
       ->Belt.Array.keepMap(entries => {
         let (key, value) = entries
-        filterKeys->Js.Array2.includes(key) ? Some((key, value)) : None
+        filterKeys->Array.includes(key) ? Some((key, value)) : None
       })
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
       ->Js.Json.object_
       ->Some
     }, [topFiltersToSearchParam])
@@ -192,10 +193,10 @@ module TableWrapper = {
     let generateIDFromKeys = (keys, dict) => {
       keys
       ->Belt.Option.getWithDefault([])
-      ->Js.Array2.map(key => {
-        dict->Js.Dict.get(key)
+      ->Array.map(key => {
+        dict->Dict.get(key)
       })
-      ->Js.Array2.joinWith("")
+      ->Array.joinWith("")
     }
 
     open AnalyticsTypes
@@ -204,19 +205,19 @@ module TableWrapper = {
       let weeklyArr = weeklyData->parseData
 
       dataArr
-      ->Js.Array2.map(item => {
+      ->Array.map(item => {
         let dataDict = item->getDictFromJsonObject
         let dataKey = activeTab->generateIDFromKeys(dataDict)
 
-        weeklyArr->Js.Array2.forEach(newItem => {
+        weeklyArr->Array.forEach(newItem => {
           let weekklyDataDict = newItem->getDictFromJsonObject
           let weekklyDataKey = activeTab->generateIDFromKeys(weekklyDataDict)
 
           if dataKey === weekklyDataKey {
-            cols->Js.Array2.forEach(
+            cols->Array.forEach(
               obj => {
-                switch weekklyDataDict->Js.Dict.get(obj.refKey) {
-                | Some(val) => dataDict->Js.Dict.set(obj.newKey, val)
+                switch weekklyDataDict->Dict.get(obj.refKey) {
+                | Some(val) => dataDict->Dict.set(obj.newKey, val)
                 | _ => ()
                 }
               },
@@ -227,7 +228,7 @@ module TableWrapper = {
       })
       ->Js.Json.array
       ->getTable
-      ->Js.Array2.map(Js.Nullable.return)
+      ->Array.map(Js.Nullable.return)
     }
 
     open Promise
@@ -291,10 +292,7 @@ module TableWrapper = {
           | _ => {
               let data = json->getDictFromJsonObject
               let value =
-                data
-                ->getJsonObjectFromDict("queryData")
-                ->getTable
-                ->Js.Array2.map(Js.Nullable.return)
+                data->getJsonObjectFromDict("queryData")->getTable->Array.map(Js.Nullable.return)
 
               setTableData(_ => value)
               setTableDataLoading(_ => false)
@@ -330,7 +328,7 @@ module TableWrapper = {
       defaultColumns
       ->Belt.Array.keepMap(item => {
         let val = item->getHeading
-        activeTab->Belt.Option.getWithDefault([])->Js.Array2.includes(val.key) ? Some(item) : None
+        activeTab->Belt.Option.getWithDefault([])->Array.includes(val.key) ? Some(item) : None
       })
       ->Belt.Array.concat(allColumns)
     }, [activeTabStr])
@@ -343,30 +341,30 @@ module TableWrapper = {
       [
         ("startTime", startTimeFromUrl->Js.Json.string),
         ("endTime", endTimeFromUrl->Js.Json.string),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
 
-    let filters = filterValueFromUrl->Belt.Option.getWithDefault(Js.Dict.empty()->Js.Json.object_)
+    let filters = filterValueFromUrl->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
 
     let defaultFilters =
       [
         ("timeRange", timeRange->Js.Json.object_),
         ("filters", filters),
         ("source", "BATCH"->Js.Json.string),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
     let dict =
       [
         (
           "activeTab",
-          activeTab->Belt.Option.getWithDefault([])->Js.Array2.map(Js.Json.string)->Js.Json.array,
+          activeTab->Belt.Option.getWithDefault([])->Array.map(Js.Json.string)->Js.Json.array,
         ),
         ("filter", defaultFilters->Js.Json.object_),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
 
     setDefaultFilter(._ => dict->Js.Json.object_->Js.Json.stringify)
 
     showTable
       ? <>
-          <UIUtils.RenderIf condition={tableData->Js.Array2.length > 0}>
+          <UIUtils.RenderIf condition={tableData->Array.length > 0}>
             <div
               className="flex border items-start border-blue-800 text-sm rounded-md gap-2 px-4 py-3 mt-7">
               <Icon name="info-vacent" className="text-blue-900 mt-1" size=18 />
@@ -420,7 +418,7 @@ module TabDetails = {
     let id =
       activeTab
       ->Belt.Option.getWithDefault(["tab"])
-      ->Array.reduce("", (acc, tabName) => {acc->Js.String2.concat(tabName)})
+      ->Array.reduce("", (acc, tabName) => {acc->String.concat(tabName)})
 
     let isMobileView = MatchMedia.useMobileChecker()
 
@@ -437,8 +435,8 @@ module TabDetails = {
         ("browser_name", "browser"),
         ("component", "checkout_platform"),
         ("platform", "customer_device"),
-      ]->Js.Dict.fromArray
-    | _ => Js.Dict.empty()
+      ]->Dict.fromArray
+    | _ => Dict.make()
     }
 
     let tab =
@@ -515,17 +513,12 @@ let make = (
 ) => {
   let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let analyticsType = moduleName->getAnalyticsType
-  let {filterValue, updateExistingKeys} = React.useContext(
-    AnalyticsUrlUpdaterContext.urlUpdaterContext,
+  let {filterValue, updateExistingKeys, filterValueJson} = React.useContext(
+    FilterContext.filterContext,
   )
-  let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
+
   let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
   let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
-  let (_filterAtom, setFilterAtom) = Recoil.useRecoilState(AnalyticsAtoms.customFilterAtom)
-  React.useEffect0(() => {
-    setFilterAtom(._ => "")
-    None
-  })
   let (filteredTabKeys, filteredTabVales) = (tabKeys, tabValues)
   let chartEntity1 = chartEntity.default // User Journey - SemiDonut (Payment Metrics), Others - Default Chart Entity
   let pieChartEntity = chartEntity.userPieChart // SemiDonut (User Metrics)
@@ -536,26 +529,22 @@ let make = (
   | None => None
   }
 
-  let getFilterData = AnalyticsHooks.useGetFiltersData()
+  let filterValueDict = filterValueJson
 
   let (activeTav, setActiveTab) = React.useState(_ =>
-    getModuleFilters->getStrArrayFromDict(
+    filterValueDict->getStrArrayFromDict(
       `${moduleName}.tabName`,
       [filteredTabKeys->Belt.Array.get(0)->Belt.Option.getWithDefault("")],
     )
   )
   let setActiveTab = React.useMemo1(() => {
     (str: string) => {
-      setActiveTab(_ => str->Js.String2.split(","))
+      setActiveTab(_ => str->String.split(","))
     }
   }, [setActiveTab])
 
-  let getModuleFilters = UrlUtils.useGetFilterDictFromUrl("")
-  let startTimeVal = getModuleFilters->getString(startTimeFilterKey, "")
-
-  let endTimeVal = getModuleFilters->getString(endTimeFilterKey, "")
-
-  let updateComponentPrefrences = UrlUtils.useUpdateUrlWith(~prefix="")
+  let startTimeVal = filterValueDict->getString(startTimeFilterKey, "")
+  let endTimeVal = filterValueDict->getString(endTimeFilterKey, "")
 
   let updateUrlWithPrefix = React.useMemo1(() => {
     (chartType: string) => {
@@ -564,10 +553,10 @@ let make = (
 
         let prevDictArr =
           prev
-          ->Js.Dict.entries
+          ->Dict.toArray
           ->Belt.Array.keepMap(item => {
             let (key, _) = item
-            switch dict->Js.Dict.get(key) {
+            switch dict->Dict.get(key) {
             | Some(_) => None
             | None => Some(item)
             }
@@ -575,7 +564,7 @@ let make = (
 
         let currentDict =
           dict
-          ->Js.Dict.entries
+          ->Dict.toArray
           ->Belt.Array.keepMap(item => {
             let (key, value) = item
             if value !== "" {
@@ -585,13 +574,12 @@ let make = (
             }
           })
 
-        updateExistingKeys(Js.Array2.concat(prevDictArr, currentDict)->Js.Dict.fromArray)
+        updateExistingKeys(Array.concat(prevDictArr, currentDict)->Dict.fromArray)
       }
     }
   }, [updateExistingKeys])
 
   let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateComponentPrefrences,
     ~updateExistingKeys,
     ~startTimeFilterKey,
     ~endTimeFilterKey,
@@ -602,19 +590,6 @@ let make = (
     None
   })
 
-  let url = RescriptReactRouter.useUrl()
-  React.useEffect1(() => {
-    if url.search->HSwitchUtils.isEmptyString {
-      updateComponentPrefrences(~dict=filterValue)
-    }
-    None
-  }, [url])
-
-  React.useEffect1(() => {
-    updateComponentPrefrences(~dict=filterValue)
-    None
-  }, [filterValue])
-
   let filterBody = React.useMemo3(() => {
     let filterBodyEntity: AnalyticsUtils.filterBodyEntity = {
       startTime: startTimeVal,
@@ -623,18 +598,39 @@ let make = (
       source: "BATCH",
     }
     AnalyticsUtils.filterBody(filterBodyEntity)
-  }, (startTimeVal, endTimeVal, filteredTabKeys->Js.Array2.joinWith(",")))
+  }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
 
-  let filterDataOrig = getFilterData(filterUri, Fetch.Post, filterBody)
-  let filterData = filterDataOrig->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty()))
+  open APIUtils
+  open Promise
+  let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
+  let updateDetails = useUpdateMethod()
+  let {filterValueJson} = FilterContext.filterContext->React.useContext
+  let startTimeVal = filterValueJson->getString("startTime", "")
+  let endTimeVal = filterValueJson->getString("endTime", "")
+  open HSwitchRemoteFilter
+  React.useEffect3(() => {
+    setFilterDataJson(_ => None)
+    if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
+      try {
+        updateDetails(filterUri, filterBody->Js.Json.object_, Post)
+        ->thenResolve(json => setFilterDataJson(_ => json->Some))
+        ->catch(_ => resolve())
+        ->ignore
+      } catch {
+      | _ => ()
+      }
+    }
+    None
+  }, (startTimeVal, endTimeVal, filterBody->Js.Json.object_->Js.Json.stringify))
+  let filterData = filterDataJson->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
 
   let activeTab = React.useMemo1(() => {
     Some(
-      getModuleFilters
+      filterValueDict
       ->getStrArrayFromDict(`${moduleName}.tabName`, activeTav)
-      ->Js.Array2.filter(item => item !== ""),
+      ->Array.filter(item => item !== ""),
     )
-  }, [getModuleFilters])
+  }, [filterValueDict])
 
   let isMobileView = MatchMedia.useMobileChecker()
 
@@ -644,11 +640,11 @@ let make = (
 
   let hideFiltersDefaultValue =
     filterValue
-    ->Js.Dict.keys
-    ->Js.Array2.filter(item => tabKeys->Js.Array2.find(key => key == item)->Belt.Option.isSome)
-    ->Js.Array2.length < 1
+    ->Dict.keysToArray
+    ->Array.filter(item => tabKeys->Array.find(key => key == item)->Belt.Option.isSome)
+    ->Array.length < 1
 
-  let topFilterUi = switch filterDataOrig {
+  let topFilterUi = switch filterDataJson {
   | Some(filterData) => {
       let filterData = switch analyticsType {
       | USER_JOURNEY => {
@@ -658,12 +654,12 @@ let make = (
             ->getDictFromJsonObject
             ->getJsonObjectFromDict("queryData")
             ->getArrayFromJson([])
-            ->Js.Array2.filter(dimension => {
+            ->Array.filter(dimension => {
               let dim = dimension->getDictFromJsonObject->getString("dimension", "")
-              filteredDims->Js.Array2.includes(dim)->not
+              filteredDims->Array.includes(dim)->not
             })
             ->Js.Json.array
-          [("queryData", queryData)]->Js.Dict.fromArray->Js.Json.object_
+          [("queryData", queryData)]->Dict.fromArray->Js.Json.object_
         }
       | _ => filterData
       }
@@ -702,7 +698,7 @@ let make = (
     </div>
   }
 
-  <UIUtils.RenderIf condition={getModuleFilters->Js.Dict.entries->Js.Array2.length > 0}>
+  <UIUtils.RenderIf condition={filterValueDict->Dict.toArray->Array.length > 0}>
     {switch chartEntity1 {
     | Some(chartEntity) =>
       <div>
@@ -727,7 +723,7 @@ let make = (
               setTotalVolume
               showPercentage=false
               statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(
-                Js.Dict.empty(),
+                Dict.make(),
               )}
             />
           </div>

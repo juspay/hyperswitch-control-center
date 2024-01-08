@@ -5,7 +5,7 @@ let inviteEmail = FormRenderer.makeFieldInfo(
   ~name="emailList",
   ~customInput=(
     (~input, ~placeholder as _) => {
-      let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Js.Array2.length === 0
+      let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Array.length === 0
       InputFields.textTagInput(
         ~input,
         ~placeholder=showPlaceHolder ? "Eg: mehak.sam@wise.com, deepak.ven@wise.com" : "",
@@ -21,24 +21,24 @@ let inviteEmail = FormRenderer.makeFieldInfo(
 
 let validateEmptyValue = (key, errors) => {
   switch key {
-  | "emailList" => Js.Dict.set(errors, "email", "Please enter Invite mails"->Js.Json.string)
-  | _ => Js.Dict.set(errors, key, `Please enter a ${key->LogicUtils.snakeToTitle}`->Js.Json.string)
+  | "emailList" => Dict.set(errors, "email", "Please enter Invite mails"->Js.Json.string)
+  | _ => Dict.set(errors, key, `Please enter a ${key->LogicUtils.snakeToTitle}`->Js.Json.string)
   }
 }
 
 let validateForm = (values, ~fieldsToValidate: array<string>) => {
-  let errors = Js.Dict.empty()
+  let errors = Dict.make()
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
 
-  fieldsToValidate->Js.Array2.forEach(key => {
+  fieldsToValidate->Array.forEach(key => {
     let value = LogicUtils.getArrayFromDict(valuesDict, key, [])
-    if value->Js.Array2.length === 0 {
+    if value->Array.length === 0 {
       key->validateEmptyValue(errors)
     } else {
-      value->Js.Array2.forEach(ele => {
+      value->Array.forEach(ele => {
         if ele->Js.Json.decodeString->Belt.Option.getWithDefault("")->HSwitchUtils.isValidEmail {
-          errors->Js.Dict.set("email", "Please enter a valid email"->Js.Json.string)
+          errors->Dict.set("email", "Please enter a valid email"->Js.Json.string)
         }
       })
       ()
@@ -57,7 +57,7 @@ let roleListDataMapper: UserRoleEntity.roleListResponse => SelectBox.dropdownOpt
 
 let roleOptions: array<UserRoleEntity.roleListResponse> => array<
   SelectBox.dropdownOption,
-> = roleListData => roleListData->Js.Array2.map(roleListDataMapper)
+> = roleListData => roleListData->Array.map(roleListDataMapper)
 
 let roleType = roleListData =>
   FormRenderer.makeFieldInfo(
@@ -77,19 +77,19 @@ let getArrayOfPermissionData = json => {
   json
   ->LogicUtils.getDictFromJsonObject
   ->LogicUtils.getArrayFromDict("permissions", [])
-  ->Js.Array2.map(i => i->Js.Json.decodeString->Belt.Option.getWithDefault(""))
+  ->Array.map(i => i->Js.Json.decodeString->Belt.Option.getWithDefault(""))
 }
 
 let updatePresentInInfoList = (infoData, permissionsData) => {
-  let copyOfInfoData = infoData->Js.Array2.copy
-  let copyOfPermissionsData = permissionsData->Js.Array2.copy
+  let copyOfInfoData = infoData->Array.copy
+  let copyOfPermissionsData = permissionsData->Array.copy
 
-  copyOfInfoData->Js.Array2.map((infoValItem: ProviderTypes.getInfoType) => {
+  copyOfInfoData->Array.map((infoValItem: ProviderTypes.getInfoType) => {
     infoValItem.permissions->Array.forEachWithIndex((
       enumValue: ProviderTypes.permissions,
       index,
     ) => {
-      if copyOfPermissionsData->Js.Array2.includes(enumValue.enum_name) {
+      if copyOfPermissionsData->Array.includes(enumValue.enum_name) {
         enumValue.isPermissionAllowed = true
       }
       infoValItem.permissions[index] = enumValue
@@ -99,10 +99,10 @@ let updatePresentInInfoList = (infoData, permissionsData) => {
 }
 
 let defaultPresentInInfoList = infoData => {
-  let copyOfInfoData = infoData->Js.Array2.copy
+  let copyOfInfoData = infoData->Array.copy
 
-  copyOfInfoData->Js.Array2.map((infoValItem: ProviderTypes.getInfoType) => {
-    infoValItem.permissions->Js.Array2.forEach((enumValue: ProviderTypes.permissions) => {
+  copyOfInfoData->Array.map((infoValItem: ProviderTypes.getInfoType) => {
+    infoValItem.permissions->Array.forEach((enumValue: ProviderTypes.permissions) => {
       enumValue.isPermissionAllowed = false
     })
     infoValItem
@@ -138,7 +138,7 @@ module RolePermissionValueRenderer = {
         <div className="mt-2 text-base text-hyperswitch_black opacity-50 w-1/2">
           {description->React.string}
         </div>
-        <UIUtils.RenderIf condition={writeValue->Js.String2.length > 0}>
+        <UIUtils.RenderIf condition={writeValue->String.length > 0}>
           <div className="flex items-center gap-3 w-1/2">
             <Icon size=14 name={isPermissionAllowedForWrite ? "permitted" : "not-permitted"} />
             <div className="text-base text-hyperswitch_black opacity-50">

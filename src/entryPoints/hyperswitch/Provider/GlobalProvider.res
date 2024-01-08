@@ -1,6 +1,6 @@
 open ProviderTypes
 
-let defaultIntegrationValue = Js.Dict.empty()->Js.Json.object_->ProviderHelper.getIntegrationDetails
+let defaultIntegrationValue = Dict.make()->Js.Json.object_->ProviderHelper.getIntegrationDetails
 let defaultValue = {
   showFeedbackModal: false,
   setShowFeedbackModal: _ => (),
@@ -37,7 +37,7 @@ let make = (~children) => {
   ) = React.useState(_ => QuickStartTypes.ConnectProcessor(LANDING))
 
   let (integrationDetails, setIntegrationDetails) = React.useState(_ =>
-    Js.Dict.empty()->Js.Json.object_->ProviderHelper.getIntegrationDetails
+    Dict.make()->Js.Json.object_->ProviderHelper.getIntegrationDetails
   )
 
   <Provider

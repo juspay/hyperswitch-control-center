@@ -1,0 +1,30 @@
+name: ESLint
+
+on: [push]
+
+jobs:
+  eslint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.AUTO_RELEASE_PAT }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install --force
+
+      - name: Build Rescript
+        run: npm run re:build
+
+      - name: Run ESLint
+        run: npm run lint:hooks
+        env:
+          CI: true

@@ -146,10 +146,10 @@ type statSentiment = Positive | Negative | Neutral
 let (startTimeFilterKey, endTimeFilterKey, optFilterKey) = ("startTime", "endTime", "opt")
 let getDateCreatedObject = () => {
   let currentDate = Js.Date.now()
-  let filterCreatedDict = Js.Dict.empty()
+  let filterCreatedDict = Dict.make()
   let currentTimestamp = currentDate->Js.Date.fromFloat->Js.Date.toISOString
   let dateFormat = "YYYY-MM-DDTHH:mm:[00][Z]"
-  Js.Dict.set(
+  Dict.set(
     filterCreatedDict,
     endTimeFilterKey,
     Js.Json.string(currentTimestamp->TimeZoneHook.formattedISOString(dateFormat)),
@@ -168,69 +168,10 @@ let getDateCreatedObject = () => {
       ->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]"),
     )
   }
-  Js.Dict.set(filterCreatedDict, startTimeFilterKey, defaultStartTime)
-  Js.Dict.set(filterCreatedDict, "opt", Js.Json.string("today"))
+  Dict.set(filterCreatedDict, startTimeFilterKey, defaultStartTime)
+  Dict.set(filterCreatedDict, "opt", Js.Json.string("today"))
 
   filterCreatedDict
-}
-let useFilterUrlUpdater = (~addParam="", ~getDateCreatedObject=getDateCreatedObject, ()) => {
-  let addParamKeyValueMode =
-    addParam
-    ->Js.String2.split("&")
-    ->Belt.Array.get(0)
-    ->Belt.Option.getWithDefault("")
-    ->Js.String2.split("=")
-
-  let addParamKey = addParamKeyValueMode->Belt.Array.get(0)->Belt.Option.getWithDefault("")
-
-  let addParamValue = addParamKeyValueMode->Belt.Array.get(1)->Belt.Option.getWithDefault("")
-
-  let url = RescriptReactRouter.useUrl()
-  let {updateExistingKeys} = React.useContext(AnalyticsUrlUpdaterContext.urlUpdaterContext)
-  let searchString = url.search
-
-  React.useEffect0(() => {
-    let inititalSearchParam =
-      searchString
-      ->Js.Global.decodeURI
-      ->Js.String2.split("&")
-      ->Belt.Array.keepMap(item => {
-        let searchParam = item->Js.String2.split("=")
-        let key = searchParam->Belt.Array.get(0)->Belt.Option.getWithDefault("")
-        let value = searchParam->Belt.Array.sliceToEnd(1)->Js.Array2.joinWith("=")
-
-        if key !== "" && value !== "" {
-          Some((key, value))
-        } else {
-          None
-        }
-      })
-      ->Js.Dict.fromArray
-
-    let getDefaultDate = getDateCreatedObject()
-    let defaultStateTimeValue = getDefaultDate->LogicUtils.getString(startTimeFilterKey, "")
-    let defaultEndTime = getDefaultDate->LogicUtils.getString(endTimeFilterKey, "")
-    let defaultOpt = getDefaultDate->LogicUtils.getString(optFilterKey, "")
-    let defaultMode = addParamValue
-    // we should be adding some validation on the default startTime and default End Time and on mode as well
-    [
-      (startTimeFilterKey, defaultStateTimeValue),
-      (endTimeFilterKey, defaultEndTime),
-      (addParamKey, defaultMode),
-      (optFilterKey, defaultOpt),
-    ]->Belt.Array.forEach(item => {
-      let (key, defaultValue) = item
-      switch inititalSearchParam->Js.Dict.get(key) {
-      | Some(_) => ()
-      | None => inititalSearchParam->Js.Dict.set(key, defaultValue)
-      }
-    })
-    updateExistingKeys(inititalSearchParam)
-
-    None
-  })
-
-  true
 }
 
 open LogicUtils
@@ -250,18 +191,18 @@ let getFilterRequestBody = (
   ~source: string="BATCH",
   (),
 ) => {
-  let body: Js.Dict.t<Js.Json.t> = Js.Dict.empty()
-  let timeRange = Js.Dict.empty()
-  let timeSeries = Js.Dict.empty()
+  let body: Js.Dict.t<Js.Json.t> = Dict.make()
+  let timeRange = Dict.make()
+  let timeSeries = Dict.make()
 
-  Js.Dict.set(timeRange, "startTime", startDateTime->Js.Json.string)
-  Js.Dict.set(timeRange, "endTime", endDateTime->Js.Json.string)
-  Js.Dict.set(body, "timeRange", timeRange->Js.Json.object_)
+  Dict.set(timeRange, "startTime", startDateTime->Js.Json.string)
+  Dict.set(timeRange, "endTime", endDateTime->Js.Json.string)
+  Dict.set(body, "timeRange", timeRange->Js.Json.object_)
 
   switch groupByNames {
   | Some(groupByNames) =>
-    if groupByNames->Js.Array2.length != 0 {
-      Js.Dict.set(
+    if groupByNames->Array.length != 0 {
+      Dict.set(
         body,
         "groupByNames",
         groupByNames
@@ -276,7 +217,7 @@ let getFilterRequestBody = (
   switch filter {
   | Some(filters) =>
     if !(filters->checkEmptyJson) {
-      Js.Dict.set(body, "filters", filters)
+      Dict.set(body, "filters", filters)
     }
   | None => ()
   }
@@ -284,43 +225,43 @@ let getFilterRequestBody = (
   switch distributionValues {
   | Some(distributionValues) =>
     if !(distributionValues->checkEmptyJson) {
-      Js.Dict.set(body, "distribution", distributionValues)
+      Dict.set(body, "distribution", distributionValues)
     }
   | None => ()
   }
 
   if customFilter != "" {
-    Js.Dict.set(body, "customFilter", customFilter->Js.Json.string)
+    Dict.set(body, "customFilter", customFilter->Js.Json.string)
   }
   switch granularity {
   | Some(granularity) => {
-      Js.Dict.set(timeSeries, "granularity", granularity->Js.Json.string)
-      Js.Dict.set(body, "timeSeries", timeSeries->Js.Json.object_)
+      Dict.set(timeSeries, "granularity", granularity->Js.Json.string)
+      Dict.set(body, "timeSeries", timeSeries->Js.Json.object_)
     }
 
   | None => ()
   }
 
   switch cardinality {
-  | Some(cardinality) => Js.Dict.set(body, "cardinality", cardinality->Js.Json.string)
+  | Some(cardinality) => Dict.set(body, "cardinality", cardinality->Js.Json.string)
   | None => ()
   }
   switch mode {
-  | Some(mode) => Js.Dict.set(body, "mode", mode->Js.Json.string)
+  | Some(mode) => Dict.set(body, "mode", mode->Js.Json.string)
   | None => ()
   }
 
   switch prefix {
-  | Some(prefix) => Js.Dict.set(body, "prefix", prefix->Js.Json.string)
+  | Some(prefix) => Dict.set(body, "prefix", prefix->Js.Json.string)
   | None => ()
   }
 
-  Js.Dict.set(body, "source", source->Js.Json.string)
+  Dict.set(body, "source", source->Js.Json.string)
 
   switch metrics {
   | Some(metrics) =>
-    if metrics->Js.Array2.length != 0 {
-      Js.Dict.set(
+    if metrics->Array.length != 0 {
+      Dict.set(
         body,
         "metrics",
         metrics
@@ -332,7 +273,7 @@ let getFilterRequestBody = (
   | None => ()
   }
   if delta {
-    Js.Dict.set(body, "delta", true->Js.Json.boolean)
+    Dict.set(body, "delta", true->Js.Json.boolean)
   }
 
   body
@@ -361,8 +302,6 @@ let filterBody = (filterBodyEntity: filterBodyEntity) => {
     ~source=filterBodyEntity.source,
     (),
   )
-  ->Js.Json.object_
-  ->Js.Json.stringify
 }
 
 let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
@@ -373,7 +312,7 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
     let last7FromTime = (fromTime->DayJs.getDayJsForString).subtract(. 7, "day")
     let last7ToTime = (fromTime->DayJs.getDayJsForString).subtract(. 1, "day")
 
-    let timeArray = Js.Dict.fromArray([
+    let timeArray = Dict.fromArray([
       ("fromTime", last7FromTime.format(. dateTimeFormat)),
       ("toTime", last7ToTime.format(. dateTimeFormat)),
     ])
@@ -401,7 +340,7 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
         ),
       )->DayJs.getDayJsForJsDate
 
-    let timeArray = Js.Dict.fromArray([
+    let timeArray = Dict.fromArray([
       ("fromTime", yesterdayFromTime.format(. dateTimeFormat)),
       ("toTime", yesterdayToTime.format(. dateTimeFormat)),
     ])
@@ -416,7 +355,7 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
       ->Js.Date.toString
       ->DayJs.getDayJsForString
     let currentMonthToTime = nowtime
-    let timeArray = Js.Dict.fromArray([
+    let timeArray = Dict.fromArray([
       ("fromTime", currentMonthFromTime.format(. dateTimeFormat)),
       ("toTime", currentMonthToTime.format(. dateTimeFormat)),
     ])
@@ -426,14 +365,14 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
     let currentWeekFromTime = Js.Date.make()->DateTimeUtils.getStartOfWeek(Monday)
     let currentWeekToTime = Js.Date.make()->DayJs.getDayJsForJsDate
 
-    let timeArray = Js.Dict.fromArray([
+    let timeArray = Dict.fromArray([
       ("fromTime", currentWeekFromTime.format(. dateTimeFormat)),
       ("toTime", currentWeekToTime.format(. dateTimeFormat)),
     ])
 
     [timeArray]
   } else {
-    let timeArray = Js.Dict.empty()
+    let timeArray = Dict.make()
     [timeArray]
   }
 }
@@ -455,13 +394,13 @@ let generatePayload = (
   ~filters: option<Js.Json.t>,
   ~customFilter,
 ) => {
-  let timeArr = Js.Dict.fromArray([
+  let timeArr = Dict.fromArray([
     ("startTime", startTime->Js.Json.string),
     ("endTime", endTime->Js.Json.string),
   ])
   let newDict = switch groupByNames {
   | Some(groupByNames) =>
-    Js.Dict.fromArray([
+    Dict.fromArray([
       ("timeRange", timeArr->Js.Json.object_),
       ("metrics", metrics->Js.Json.stringArray),
       ("groupByNames", groupByNames->Js.Json.stringArray),
@@ -470,7 +409,7 @@ let generatePayload = (
       ("delta", delta->Js.Json.boolean),
     ])
   | None =>
-    Js.Dict.fromArray([
+    Dict.fromArray([
       ("timeRange", timeArr->Js.Json.object_),
       ("metrics", metrics->Js.Json.stringArray),
       ("prefix", prefix->Js.Json.string),
@@ -480,16 +419,16 @@ let generatePayload = (
   }
 
   switch mode {
-  | Some(mode) => Js.Dict.set(newDict, "mode", mode->Js.Json.string)
+  | Some(mode) => Dict.set(newDict, "mode", mode->Js.Json.string)
   | None => ()
   }
   if customFilter != "" {
-    Js.Dict.set(newDict, "customFilter", customFilter->Js.Json.string)
+    Dict.set(newDict, "customFilter", customFilter->Js.Json.string)
   }
   switch filters {
   | Some(filters) =>
     if !(filters->checkEmptyJson) {
-      Js.Dict.set(newDict, "filters", filters)
+      Dict.set(newDict, "filters", filters)
     }
   | None => ()
   }
@@ -510,8 +449,8 @@ let generatedeltaTablePayload = (
   let dictOfDates = Belt.Array.concatMany(deltaDateArr)
   let tablePayload = Belt.Array.zipBy(dictOfDates, deltaPrefixArr, (x, y) =>
     generatePayload(
-      ~startTime=x->Js.Dict.get("fromTime")->Belt.Option.getWithDefault(""),
-      ~endTime=x->Js.Dict.get("toTime")->Belt.Option.getWithDefault(""),
+      ~startTime=x->Dict.get("fromTime")->Belt.Option.getWithDefault(""),
+      ~endTime=x->Dict.get("toTime")->Belt.Option.getWithDefault(""),
       ~metrics,
       ~groupByNames,
       ~mode,
@@ -546,7 +485,7 @@ let generateTablePayload = (
   let endTime = endTimeFromUrl
 
   let deltaDateArr =
-    {deltaMetrics->Js.Array2.length === 0}
+    {deltaMetrics->Array.length === 0}
       ? []
       : generateDateArray(~startTime, ~endTime, ~deltaPrefixArr)
 
@@ -561,7 +500,7 @@ let generateTablePayload = (
     ~customFilter,
     ~showDeltaMetrics,
   )
-  let tableBodyWithNonDeltaMetrix = if metrics->Js.Array2.length > 0 {
+  let tableBodyWithNonDeltaMetrix = if metrics->Array.length > 0 {
     [
       getFilterRequestBody(
         ~groupByNames=currenltySelectedTab,
@@ -580,7 +519,7 @@ let generateTablePayload = (
     []
   }
 
-  let tableBodyWithDeltaMetrix = if deltaMetrics->Js.Array2.length > 0 {
+  let tableBodyWithDeltaMetrix = if deltaMetrics->Array.length > 0 {
     [
       getFilterRequestBody(
         ~groupByNames=currenltySelectedTab,

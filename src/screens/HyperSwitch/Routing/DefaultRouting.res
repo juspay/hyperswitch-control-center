@@ -4,8 +4,6 @@ open MerchantAccountUtils
 
 @react.component
 let make = () => {
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
   let showPopUp = PopUpState.useShowPopUp()
@@ -15,13 +13,12 @@ let make = () => {
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (gateways, setGateways) = React.useState(() => [])
-  let currentTabName = Recoil.useRecoilValueFromAtom(RoutingUtils.currentTabNameRecoilAtom)
   let (defaultRoutingResponse, setDefaultRoutingResponse) = React.useState(_ => [])
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
 
   let settingUpConnectorsState = routingRespArray => {
     let profileList =
-      routingRespArray->Js.Array2.filter(value =>
+      routingRespArray->Array.filter(value =>
         value->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "") === profile
       )
 
@@ -31,7 +28,7 @@ let make = () => {
       ->Belt.Option.getWithDefault(Js.Json.null)
       ->LogicUtils.getDictFromJsonObject
       ->LogicUtils.getArrayFromDict("connectors", [])
-    if connectorList->Js.Array2.length > 0 {
+    if connectorList->Array.length > 0 {
       setGateways(_ => connectorList)
       setScreenState(_ => PageLoaderWrapper.Success)
     } else {
@@ -64,7 +61,7 @@ let make = () => {
   })
 
   React.useEffect1(() => {
-    if defaultRoutingResponse->Js.Array2.length > 0 {
+    if defaultRoutingResponse->Array.length > 0 {
       settingUpConnectorsState(defaultRoutingResponse)
     }
     None
@@ -99,7 +96,7 @@ let make = () => {
   }
 
   <div>
-    <Form initialValues={Js.Dict.empty()->Js.Json.object_}>
+    <Form initialValues={Dict.make()->Js.Json.object_}>
       <div className="w-full flex justify-between">
         <BasicDetailsForm.BusinessProfileInp
           setProfile={setProfile}
@@ -161,19 +158,13 @@ let make = () => {
       <Button
         onClick={_ => {
           openConfirmationPopUp()
-          hyperswitchMixPanel(
-            ~pageName=`${url.path->LogicUtils.getListHead}_${currentTabName}`,
-            ~contextName="default",
-            ~actionName="savechanges",
-            (),
-          )
         }}
         text="Save Changes"
         buttonSize=Small
         buttonType=Primary
         leftIcon={FontAwesome("check")}
         loadingText="Activating..."
-        buttonState={gateways->Js.Array2.length > 0 ? Button.Normal : Button.Disabled}
+        buttonState={gateways->Array.length > 0 ? Button.Normal : Button.Disabled}
       />
     </PageLoaderWrapper>
   </div>

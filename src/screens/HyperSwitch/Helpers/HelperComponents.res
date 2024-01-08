@@ -20,7 +20,7 @@ module CopyTextCustomComp = {
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
     }
 
-    if displayValue->Js.String2.length > 0 {
+    if displayValue->String.length > 0 {
       <div className=customParentClass>
         <div className=customTextCss> {displayValue->React.string} </div>
         <img
@@ -48,11 +48,9 @@ module BluredTableComponent = {
     ~setPaymentModal=_ => (),
     ~moduleName,
     ~moduleSubtitle=?,
-    ~mixPanelEventName=?,
     ~showRedirectCTA=true,
     ~headerRightButton=React.null,
   ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let dummyTableValueDict =
       [
         ("payment_id", "##############"->Js.Json.string),
@@ -60,7 +58,7 @@ module BluredTableComponent = {
         ("status", "####"->Js.Json.string),
         ("amount", "####"->Js.Json.string),
         ("amount_capturable", "####"->Js.Json.string),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
 
     let dummyTableValue = Belt.Array.make(5, dummyTableValueDict)
 
@@ -77,7 +75,7 @@ module BluredTableComponent = {
         ->Array.mapWithIndex((value, index) => {
           <div className="flex gap-8 my-10 justify-between" key={index->string_of_int}>
             {value
-            ->Js.Dict.keys
+            ->Dict.keysToArray
             ->Array.mapWithIndex((tableVal, ind) =>
               <div
                 className="flex justify-center text-grey-700 opacity-50" key={ind->string_of_int}>
@@ -99,8 +97,7 @@ module BluredTableComponent = {
             text=buttonText
             buttonType={Primary}
             onClick={_ => {
-              hyperswitchMixPanel(~eventName=mixPanelEventName, ())
-              onClickUrl->Js.String2.length > 0
+              onClickUrl->String.length > 0
                 ? RescriptReactRouter.push(onClickUrl)
                 : setPaymentModal(_ => true)
             }}
@@ -114,10 +111,8 @@ module BluredTableComponent = {
 
 module KeyAndCopyArea = {
   @react.component
-  let make = (~copyValue, ~contextName, ~actionName, ~shadowClass="") => {
-    let url = RescriptReactRouter.useUrl()
+  let make = (~copyValue, ~shadowClass="") => {
     let showToast = ToastState.useShowToast()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
 
     <div className={`flex gap-4 border rounded-md py-2 px-4 items-center bg-white ${shadowClass}`}>
       <p className="text-base text-grey-700 opacity-70 col-span-2 truncate">
@@ -128,12 +123,6 @@ module KeyAndCopyArea = {
         onClick={_ => {
           Clipboard.writeText(copyValue)
           showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
-          hyperswitchMixPanel(
-            ~pageName=`${url.path->LogicUtils.getListHead}`,
-            ~contextName,
-            ~actionName,
-            (),
-          )
         }}>
         <Icon name="copy" customIconColor="rgb(156 163 175)" />
         <p className="text-grey-700 opacity-50"> {"Copy"->React.string} </p>

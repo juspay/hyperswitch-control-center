@@ -14,7 +14,7 @@ let timezoneOffset = Js.Dict.fromList(list{("IST", "+05:30"), ("GMT", "+00:00")}
 let timezoneLocation = Js.Dict.fromList(list{("IST", "Asia/Kolkata"), ("GMT", "UTC")})
 
 let formatter = str => {
-  Js.String.length(str) == 0 ? "00" : Js.String.length(str) == 1 ? `0${str}` : str
+  String.length(str) == 0 ? "00" : String.length(str) == 1 ? `0${str}` : str
 }
 
 let convertTimeZone = (date, timezoneString) => {
@@ -25,7 +25,7 @@ let convertTimeZone = (date, timezoneString) => {
 let isoStringToCustomTimezone = isoString => {
   let timezone = "IST"
 
-  let timezoneString = switch Js.Dict.get(timezoneLocation, timezone) {
+  let timezoneString = switch Dict.get(timezoneLocation, timezone) {
   | Some(d) => d
   | None => "Asia/Kolkata"
   }

@@ -29,8 +29,8 @@ let tableItemToObjMapper: 'a => refundTableType = dict => {
     refund_method: dict
     ->getString(RefundMethod->colMapper, "OTHER")
     ->LogicUtils.getFirstLetterCaps(),
-    currency: dict->getString(Currency->colMapper, "OTHER")->Js.String2.toUpperCase,
-    refund_status: dict->getString(Status->colMapper, "OTHER")->Js.String2.toUpperCase,
+    currency: dict->getString(Currency->colMapper, "OTHER")->String.toUpperCase,
+    refund_status: dict->getString(Status->colMapper, "OTHER")->String.toUpperCase,
   }
 }
 
@@ -99,7 +99,7 @@ let getCell = (refundTable: refundTableType, colType: refundColType): Table.cell
 let getRefundTable: Js.Json.t => array<refundTableType> = json => {
   json
   ->LogicUtils.getArrayFromJson([])
-  ->Js.Array2.map(item => {
+  ->Array.map(item => {
     tableItemToObjMapper(item->getDictFromJsonObject)
   })
 }
@@ -163,7 +163,7 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  let data = json->getQueryData->Js.Array2.map(json => singleStateItemToObjMapper(json))
+  let data = json->getQueryData->Array.map(json => singleStateItemToObjMapper(json))
   switch data[0] {
   | Some(ele) => ele
   | None => singleStateInitialValue
@@ -171,7 +171,7 @@ let itemToObjMapper = json => {
 }
 
 let timeSeriesObjMapper = json =>
-  json->getQueryData->Js.Array2.map(json => singleStateSeriesItemToObjMapper(json))
+  json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
 
 type colT =
   | SuccessRate
@@ -202,7 +202,7 @@ let constructData = (key, singlestatTimeseriesData: array<refundsSingleStateSeri
   switch key {
   | "refund_success_rate" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (
+    ->Array.map(ob => (
       ob.time_series
       ->DateTimeUtils.parseAsFloat
       ->Js.Date.fromFloat
@@ -213,7 +213,7 @@ let constructData = (key, singlestatTimeseriesData: array<refundsSingleStateSeri
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "refund_count" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (
+    ->Array.map(ob => (
       ob.time_series
       ->DateTimeUtils.parseAsFloat
       ->Js.Date.fromFloat
@@ -224,7 +224,7 @@ let constructData = (key, singlestatTimeseriesData: array<refundsSingleStateSeri
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "refund_success_count" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (
+    ->Array.map(ob => (
       ob.time_series
       ->DateTimeUtils.parseAsFloat
       ->Js.Date.fromFloat
@@ -235,7 +235,7 @@ let constructData = (key, singlestatTimeseriesData: array<refundsSingleStateSeri
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "refund_processed_amount" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (
+    ->Array.map(ob => (
       ob.time_series
       ->DateTimeUtils.parseAsFloat
       ->Js.Date.fromFloat
@@ -339,7 +339,7 @@ let getStatSentiment = {
     ("Success Refunds", Negative),
     ("Overall Refunds", Negative),
     ("Processed Amount", Negative),
-  ]->Js.Dict.fromArray
+  ]->Dict.fromArray
 }
 
 let getSingleStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {

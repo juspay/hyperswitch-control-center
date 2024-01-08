@@ -5,7 +5,7 @@ external ffInputToSelectInput: ReactFinalForm.fieldRenderPropsInput => ReactFina
 let startYear = ref(2016)
 let years = []
 while Js.Date.make()->Js.Date.getFullYear->Belt.Float.toInt >= startYear.contents {
-  years->Js.Array2.push(startYear.contents)->ignore
+  years->Array.push(startYear.contents)->ignore
   startYear := startYear.contents + 1
 }
 years->Js.Array2.reverseInPlace->ignore
@@ -122,7 +122,7 @@ module MonthItem = {
       className={`p-2 px-4 ${index === tempMonth->Belt.Float.toInt
           ? "bg-blue-950 text-white"
           : "dark:hover:bg-jp-gray-900 hover:bg-jp-gray-100"}  cursor-pointer`}>
-      {mon->getMonthInStr->Js.String2.replaceByRe(%re("/,/g"), "")->React.string}
+      {mon->getMonthInStr->String.replaceRegExp(%re("/,/g"), "")->React.string}
     </li>
   }
 }
@@ -160,7 +160,7 @@ let make = (
           ? <div className="flex text-jp-gray-600 justify-between w-80">
               <ul className="w-1/2 h-80 overflow-scroll">
                 {months
-                ->Js.Array2.mapi((mon, i) =>
+                ->Array.mapWithIndex((mon, i) =>
                   <MonthItem
                     key={i->Belt.Int.toString}
                     index=i
@@ -175,7 +175,7 @@ let make = (
               </ul>
               <ul className="w-1/2">
                 {years
-                ->Js.Array2.mapi((year, i) =>
+                ->Array.mapWithIndex((year, i) =>
                   <YearItem
                     key={i->Belt.Int.toString}
                     tempMonth

@@ -44,6 +44,8 @@ Follow these simple steps to set up Hyperswitch on your local machine.
    ```bash
    apiBaseUrl = your-backend-url
    sdkBaseUrl = your-sdk-url
+   mixpanelToken = mixpanel-token
+   # To view Mixpanel events on the Mixpanel dashboard, you must add your Mixpanel token; otherwise, you can ignore this requirement.
    ```
 
 5. Start the ReScript compiler:
@@ -82,7 +84,11 @@ The `business_profile` feature flag enables the ability to create multiple busin
 
 #### Mixpanel
 
-The `mixpanel` feature flag controls the collection and transmission of anonymous usage data to Mixpanel for analytics. When enabled, the dashboard will automatically send information about user actions and events to Mixpanel without collecting any personally identifiable information.
+The `mixpanel` feature flag controls the collection and transmission of anonymous usage data to Mixpanel for analytics. When enabled, the dashboard will automatically send information about user actions and events to Mixpanel without collecting any personally identifiable information via REST API.
+
+#### MixpanelSDK
+
+The `mixpanel_sdk` feature flag controls the collection and transmission of anonymous usage data to Mixpanel for analytics. When enabled, the dashboard will automatically send information about user actions and events to Mixpanel without collecting any personally identifiable information via it's SDK.
 
 #### Verify Connector
 
@@ -395,6 +401,6 @@ Welcome to the standard process for raising a Pull Request (PR) directly from a 
 
 ## License
 
-This project is open-source and available under the MIT License.
+This project is open-source and available under the Apache 2.0 license.
 
 ---

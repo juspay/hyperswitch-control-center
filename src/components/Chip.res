@@ -1,9 +1,9 @@
 @react.component
 let make = (~values=[], ~showButton=false, ~onButtonClick=_ => (), ~converterFn=str => str) => {
-  <UIUtils.RenderIf condition={values->Js.Array2.length !== 0}>
+  <UIUtils.RenderIf condition={values->Array.length !== 0}>
     <div className="flex flex-wrap flex-row">
       {values
-      ->Js.Array2.map(value => {
+      ->Array.map(value => {
         let onClick = _evt => {
           onButtonClick(value)
         }

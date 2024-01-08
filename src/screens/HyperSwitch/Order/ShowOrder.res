@@ -25,7 +25,6 @@ module OrderInfo = {
       ~paymentId,
       ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
     ) => {
-      let hyperswitchMixPanel = HSMixPanel.useSendEvent()
       let typedPaymentStatus = paymentStatus->statusVariantMapper
       <Section customCssClass={`${border} ${bgColor} rounded-md p-5 h-full`}>
         <UIUtils.RenderIf condition=isButtonEnabled>
@@ -45,12 +44,6 @@ module OrderInfo = {
             <Button
               text="+ Refund"
               onClick={_ => {
-                hyperswitchMixPanel(
-                  ~pageName="paymentops",
-                  ~contextName="paymentdetail",
-                  ~actionName="createrefund",
-                  (),
-                )
                 openRefundModal()
               }}
               buttonType={Secondary}
@@ -257,7 +250,7 @@ module Refunds = {
   let make = (~refundData) => {
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
-    let heading = refundColumns->Js.Array2.map(getRefundHeading)
+    let heading = refundColumns->Array.map(getRefundHeading)
     React.useEffect1(() => {
       if expand != -1 {
         setExpandedRowIndexArray(_ => [expand])
@@ -271,9 +264,9 @@ module Refunds = {
     }
 
     let collapseClick = idx => {
-      let indexOfRemovalItem = expandedRowIndexArray->Js.Array2.findIndex(item => item === idx)
+      let indexOfRemovalItem = expandedRowIndexArray->Array.findIndex(item => item === idx)
       setExpandedRowIndexArray(_ => {
-        let array = expandedRowIndexArray->Js.Array2.map(item => item)
+        let array = expandedRowIndexArray->Array.map(item => item)
         array->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
 
         array
@@ -288,8 +281,8 @@ module Refunds = {
       }
     }
 
-    let rows = refundData->Js.Array2.map(item => {
-      refundColumns->Js.Array2.map(colType => getRefundCell(item, colType))
+    let rows = refundData->Array.map(item => {
+      refundColumns->Array.map(colType => getRefundCell(item, colType))
     })
 
     let getRowDetails = rowIndex => {
@@ -332,9 +325,9 @@ module Attempts = {
     }
 
     let collapseClick = idx => {
-      let indexOfRemovalItem = expandedRowIndexArray->Js.Array2.findIndex(item => item === idx)
+      let indexOfRemovalItem = expandedRowIndexArray->Array.findIndex(item => item === idx)
       setExpandedRowIndexArray(_ => {
-        let array = expandedRowIndexArray->Js.Array2.map(item => item)
+        let array = expandedRowIndexArray->Array.map(item => item)
         array->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
 
         array
@@ -352,10 +345,10 @@ module Attempts = {
     let attemptsData =
       orderDict->getArrayFromDict("attempts", [])->Js.Json.array->OrderEntity.getAttempts
 
-    let heading = attemptsColumns->Js.Array2.map(getAttemptHeading)
+    let heading = attemptsColumns->Array.map(getAttemptHeading)
 
-    let rows = attemptsData->Js.Array2.map(item => {
-      attemptsColumns->Js.Array2.map(colType => getAttemptCell(item, colType))
+    let rows = attemptsData->Array.map(item => {
+      attemptsColumns->Array.map(colType => getAttemptCell(item, colType))
     })
 
     let getRowDetails = rowIndex => {
@@ -391,7 +384,7 @@ module Disputes = {
   let make = (~disputesData) => {
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
-    let heading = columnsInPaymentPage->Js.Array2.map(getHeading)
+    let heading = columnsInPaymentPage->Array.map(getHeading)
     React.useEffect1(() => {
       if expand != -1 {
         setExpandedRowIndexArray(_ => [expand])
@@ -405,9 +398,9 @@ module Disputes = {
     }
 
     let collapseClick = idx => {
-      let indexOfRemovalItem = expandedRowIndexArray->Js.Array2.findIndex(item => item === idx)
+      let indexOfRemovalItem = expandedRowIndexArray->Array.findIndex(item => item === idx)
       setExpandedRowIndexArray(_ => {
-        let array = expandedRowIndexArray->Js.Array2.map(item => item)
+        let array = expandedRowIndexArray->Array.map(item => item)
         array->Array.splice(~start=indexOfRemovalItem, ~remove=1, ~insert=[])
 
         array
@@ -422,8 +415,8 @@ module Disputes = {
       }
     }
 
-    let rows = disputesData->Js.Array2.map(item => {
-      columnsInPaymentPage->Js.Array2.map(colType => getCell(item, colType))
+    let rows = disputesData->Array.map(item => {
+      columnsInPaymentPage->Array.map(colType => getCell(item, colType))
     })
 
     let getRowDetails = rowIndex => {
@@ -454,7 +447,7 @@ module OrderActions = {
 
     let amountRefunded = ref(0.0)
     let requestedRefundAmount = ref(0.0)
-    let _ = refundData->Js.Array2.map(ele => {
+    let _ = refundData->Array.map(ele => {
       if ele.status === "pending" {
         requestedRefundAmount := requestedRefundAmount.contents +. ele.amount
       } else if ele.status === "succeeded" {
@@ -469,7 +462,7 @@ module OrderActions = {
       )
 
       None
-    }, [orderDict->Js.Dict.keys->Js.Array2.length])
+    }, [orderDict->Dict.keysToArray->Array.length])
 
     let order = itemToObjMapper(orderDict)
 
@@ -505,9 +498,9 @@ module FraudRiskBannerDetails = {
             ~methodType=Get,
             ~id=Some(order.payment_id),
             (),
-          )}/${decision->Js.String2.toLowerCase}`
+          )}/${decision->String.toLowerCase}`
 
-        let _ = await updateDetails(ordersDecisionUrl, Js.Dict.empty()->Js.Json.object_, Post)
+        let _ = await updateDetails(ordersDecisionUrl, Dict.make()->Js.Json.object_, Post)
         showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
         refetch()
       } catch {
@@ -527,7 +520,7 @@ module FraudRiskBannerDetails = {
         handleConfirm: {
           text: "Confirm",
           onClick: _ =>
-            updateMerchantDecision(~decision=(decision :> string)->Js.String2.toLowerCase)->ignore,
+            updateMerchantDecision(~decision=(decision :> string)->String.toLowerCase)->ignore,
         },
         handleCancel: {text: `Cancel`},
       })
@@ -553,7 +546,7 @@ module FraudRiskBannerDetails = {
         ->React.array}
       </div>
       <UIUtils.RenderIf
-        condition={order.merchant_decision->Js.String2.length === 0 &&
+        condition={order.merchant_decision->String.length === 0 &&
         order.frm_message.frm_status === "fraud" &&
         order.status->HSwitchOrderUtils.statusVariantMapper === Succeeded}>
         <div className="flex items-center gap-5 justify-end">
@@ -588,7 +581,7 @@ module FraudRiskBanner = {
           {`This payment is marked fraudulent by ${frmMessage.frm_name}.`->React.string}
         </p>
         <GatewayIcon
-          gateway={frmMessage.frm_name->Js.String2.toUpperCase} className="w-6 h-6 rounded-full"
+          gateway={frmMessage.frm_name->String.toUpperCase} className="w-6 h-6 rounded-full"
         />
       </div>
       <div
@@ -624,7 +617,6 @@ module RenderAccordian = {
 let make = (~id) => {
   open APIUtils
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
 
@@ -634,7 +626,7 @@ let make = (~id) => {
 
   let frmDetailsRef = React.useRef(Js.Nullable.null)
 
-  let orderData = OrderHooks.getOrdersData(id, refetchCounter, setScreenState)
+  let orderData = OrderHooks.useGetOrdersData(id, refetchCounter, setScreenState)
   let order = OrderEntity.itemToObjMapper(orderData->getDictFromJsonObject)
 
   let refundData =
@@ -644,7 +636,7 @@ let make = (~id) => {
     ->Js.Json.array
     ->OrderEntity.getRefunds
 
-  let isRefundDataAvailable = refundData->Js.Array2.length !== 0
+  let isRefundDataAvailable = refundData->Array.length !== 0
 
   let disputesData =
     orderData
@@ -653,7 +645,7 @@ let make = (~id) => {
     ->Js.Json.array
     ->DisputesEntity.getDisputes
 
-  let isDisputeDataVisible = disputesData->Js.Array2.length !== 0
+  let isDisputeDataVisible = disputesData->Array.length !== 0
 
   let createdAt = React.useMemo1(() => {
     orderData->getDictFromJsonObject->getString("created", "")
@@ -666,15 +658,6 @@ let make = (~id) => {
   let openRefundModal = _ => {
     setShowModal(_ => true)
   }
-
-  React.useEffect0(() => {
-    hyperswitchMixPanel(
-      ~eventName=Some(`paymentops_paymentdetail`),
-      ~description=Some(`Payment - ${id}`),
-      (),
-    )
-    None
-  })
 
   let showSyncButton = React.useCallback1(_ => {
     let status = orderData->getDictFromJsonObject->getString("status", "")->statusVariantMapper

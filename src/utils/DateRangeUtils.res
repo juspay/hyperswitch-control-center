@@ -80,12 +80,12 @@ let getPredefinedStartAndEndDate = (
 
   let date =
     customTimezoneToISOString(
-      Js.String2.make(customDate->Js.Date.getFullYear),
-      Js.String2.make(customDate->Js.Date.getMonth +. 1.0),
-      Js.String2.make(customDate->Js.Date.getDate),
-      Js.String2.make(customDate->Js.Date.getHours),
-      Js.String2.make(customDate->Js.Date.getMinutes),
-      Js.String2.make(customDate->Js.Date.getSeconds),
+      String.make(customDate->Js.Date.getFullYear),
+      String.make(customDate->Js.Date.getMonth +. 1.0),
+      String.make(customDate->Js.Date.getDate),
+      String.make(customDate->Js.Date.getHours),
+      String.make(customDate->Js.Date.getMinutes),
+      String.make(customDate->Js.Date.getSeconds),
     )->Js.Date.fromString
 
   let todayInitial = date
@@ -167,12 +167,12 @@ let convertTimeStamp = (~isoStringToCustomTimeZone, timestamp, format) => {
 }
 
 let changeTimeFormat = (~customTimezoneToISOString, ~date, ~time, ~format) => {
-  let dateSplit = Js.String2.split(date, "T")
-  let date = dateSplit[0]->Belt.Option.getWithDefault("")->Js.String2.split("-")
+  let dateSplit = String.split(date, "T")
+  let date = dateSplit[0]->Belt.Option.getWithDefault("")->String.split("-")
   let dateDay = date[2]->Belt.Option.getWithDefault("")
   let dateYear = date[0]->Belt.Option.getWithDefault("")
   let dateMonth = date[1]->Belt.Option.getWithDefault("")
-  let timeSplit = Js.String2.split(time, ":")
+  let timeSplit = String.split(time, ":")
   let timeHour = timeSplit->Belt.Array.get(0)->Belt.Option.getWithDefault("00")
   let timeMinute = timeSplit->Belt.Array.get(1)->Belt.Option.getWithDefault("00")
   let timeSecond = timeSplit->Belt.Array.get(2)->Belt.Option.getWithDefault("00")

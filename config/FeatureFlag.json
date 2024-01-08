@@ -3,8 +3,8 @@
   "is_live_mode": false,
   "magic_link": false,
   "production_access": false,
-  "quick_start": false,
-  "switch_merchant": false,
+  "quick_start": true,
+  "switch_merchant": true,
   "audit_trail": false,
   "system_metrics": false,
   "sample_data": false,
@@ -16,8 +16,10 @@
   "feedback": false,
   "verify_connector": false,
   "mixpanel": false,
+  "mixpanel_sdk": false,
   "business_profile": false,
   "generate_report": false,
   "forgot_password": false,
-  "oss_build": true
+  "user_journey_analytics": false,
+  "surcharge": false
 }

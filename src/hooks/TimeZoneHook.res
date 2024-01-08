@@ -16,7 +16,7 @@ type dateTimeFloat = {
 }
 
 let formatter = str => {
-  let strLen = str->Js.String2.length
+  let strLen = str->String.length
   strLen == 0 ? "00" : strLen == 1 ? `0${str}` : str
 }
 
@@ -60,12 +60,12 @@ let formattedDateTimeString = (dateTime: dateTimeString, format: string) => {
 
 let formattedISOString = (dateTimeIsoString: string, format: string) => {
   // 2021-08-29T18:30:00.000Z
-  let tempTimeDateString = dateTimeIsoString->Js.String2.replace("Z", "")
-  let tempTimeDate = tempTimeDateString->Js.String2.split("T")
+  let tempTimeDateString = dateTimeIsoString->String.replace("Z", "")
+  let tempTimeDate = tempTimeDateString->String.split("T")
   let time = tempTimeDate[1]
   let date = tempTimeDate[0]
-  let dateComponents = date->Belt.Option.getWithDefault("")->Js.String2.split("-")
-  let timeComponents = time->Belt.Option.getWithDefault("")->Js.String2.split(":")
+  let dateComponents = date->Belt.Option.getWithDefault("")->String.split("-")
+  let timeComponents = time->Belt.Option.getWithDefault("")->String.split(":")
   let dateTimeObject: dateTimeFloat = {
     year: dateComponents[0]->Belt.Option.getWithDefault("")->stringToFloat,
     month: dateComponents[1]->Belt.Option.getWithDefault("")->stringToFloat,
@@ -78,17 +78,17 @@ let formattedISOString = (dateTimeIsoString: string, format: string) => {
 }
 
 let en_USStringToDateTimeObject = dateTimeIsoString => {
-  let tempTimeDateString = dateTimeIsoString->Js.String2.replace(",", "")
+  let tempTimeDateString = dateTimeIsoString->String.replace(",", "")
 
   let tempTimeDate =
     tempTimeDateString
     ->Js.String2.splitByRe(%re("/\s/"))
-    ->Js.Array2.map(val => val->Belt.Option.getWithDefault(""))
+    ->Array.map(val => val->Belt.Option.getWithDefault(""))
 
   let time = tempTimeDate[1]
   let date = tempTimeDate[0]
-  let dateComponents = date->Belt.Option.getWithDefault("")->Js.String2.split("/")
-  let timeComponents = time->Belt.Option.getWithDefault("")->Js.String2.split(":")
+  let dateComponents = date->Belt.Option.getWithDefault("")->String.split("/")
+  let timeComponents = time->Belt.Option.getWithDefault("")->String.split(":")
   let tempHour = switch Belt.Float.fromString(timeComponents[0]->Belt.Option.getWithDefault("")) {
   | Some(a) => a
   | _ => 0.0
@@ -117,7 +117,7 @@ let convertTimeZone = (date, timezoneString) => {
   let localTimeString = Js.Date.fromString(date)
   localTimeString
   ->toLocaleString("en-US", {timeZone: timezoneString})
-  ->Js.String2.replaceByRe(%re("/\s/g"), " ")
+  ->String.replaceRegExp(%re("/\s/g"), " ")
 }
 
 let useCustomTimeZoneToIsoString = () => {
@@ -129,8 +129,8 @@ let useCustomTimeZoneToIsoString = () => {
       let timeZoneData = selectedTimeZoneData
       let timezone = timeZoneData.offset
 
-      let monthString = Js.String2.length(month) == 1 ? `0${month}` : month
-      let dayString = Js.String2.length(day) == 1 ? `0${day}` : day
+      let monthString = String.length(month) == 1 ? `0${month}` : month
+      let dayString = String.length(day) == 1 ? `0${day}` : day
       let hoursString = formatter(hours)
       let minutesString = formatter(minutes)
 
