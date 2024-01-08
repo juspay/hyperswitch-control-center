@@ -83,7 +83,7 @@ let make = () => {
       let productionAgreementResponse =
         response
         ->getArrayFromJson([])
-        ->Js.Array2.find(ele => {
+        ->Array.find(ele => {
           ele->getDictFromJsonObject->getBool("ProductionAgreement", false)
         })
         ->Option.getWithDefault(Js.Json.null)

@@ -21,6 +21,8 @@ let useSendEvent = () => {
   }
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {clientCountry} = HSwitchUtils.getBrowswerDetails()
+  let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
 
   let environment = switch HSwitchGlobalVars.hostType {
   | Live => "production"
@@ -48,6 +50,7 @@ let useSendEvent = () => {
         "lang": Navigator.browserLanguage,
         "$os": Navigator.platform,
         "$browser": Navigator.browserName,
+        "mp_country_code": country,
       },
     }
 
@@ -70,7 +73,10 @@ let useSendEvent = () => {
     let eventName = eventName->Js.String2.toLowerCase
     let merchantId = getFromMerchantDetails("merchant_id")
 
-    if featureFlagDetails.mixPanel {
+    if featureFlagDetails.mixpanel {
+      trackApi(~email={email->parseEmail}, ~merchantId, ~description, ~event={eventName})->ignore
+    }
+    if featureFlagDetails.mixpanelSdk {
       MixPanel.track(
         eventName,
         {
@@ -80,7 +86,6 @@ let useSendEvent = () => {
           "description": description,
         },
       )
-      trackApi(~email={email->parseEmail}, ~merchantId, ~description, ~event={eventName})->ignore
     }
   }
 }

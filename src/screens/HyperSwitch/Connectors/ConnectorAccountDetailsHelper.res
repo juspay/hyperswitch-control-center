@@ -193,7 +193,7 @@ module CashToCodeSelectBox = {
         ->Dict.keysToArray
 
       wasmValues
-      ->Array.find(ele => formValues->getString(ele, "")->Js.String2.length <= 0)
+      ->Array.find(ele => formValues->getString(ele, "")->String.length <= 0)
       ->Belt.Option.isNone
     }
 

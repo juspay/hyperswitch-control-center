@@ -530,7 +530,6 @@ let make = (
   }
 
   let filterValueDict = filterValueJson
-  let getFilterData = AnalyticsHooks.useGetFiltersData()
 
   let (activeTav, setActiveTab) = React.useState(_ =>
     filterValueDict->getStrArrayFromDict(
@@ -601,8 +600,29 @@ let make = (
     AnalyticsUtils.filterBody(filterBodyEntity)
   }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
 
-  let filterDataOrig = getFilterData(filterUri, Fetch.Post, filterBody)
-  let filterData = filterDataOrig->Belt.Option.getWithDefault(Js.Json.object_(Dict.make()))
+  open APIUtils
+  open Promise
+  let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
+  let updateDetails = useUpdateMethod()
+  let {filterValueJson} = FilterContext.filterContext->React.useContext
+  let startTimeVal = filterValueJson->getString("startTime", "")
+  let endTimeVal = filterValueJson->getString("endTime", "")
+  open HSwitchRemoteFilter
+  React.useEffect3(() => {
+    setFilterDataJson(_ => None)
+    if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
+      try {
+        updateDetails(filterUri, filterBody->Js.Json.object_, Post)
+        ->thenResolve(json => setFilterDataJson(_ => json->Some))
+        ->catch(_ => resolve())
+        ->ignore
+      } catch {
+      | _ => ()
+      }
+    }
+    None
+  }, (startTimeVal, endTimeVal, filterBody->Js.Json.object_->Js.Json.stringify))
+  let filterData = filterDataJson->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
 
   let activeTab = React.useMemo1(() => {
     Some(
@@ -624,7 +644,7 @@ let make = (
     ->Array.filter(item => tabKeys->Array.find(key => key == item)->Belt.Option.isSome)
     ->Array.length < 1
 
-  let topFilterUi = switch filterDataOrig {
+  let topFilterUi = switch filterDataJson {
   | Some(filterData) => {
       let filterData = switch analyticsType {
       | USER_JOURNEY => {

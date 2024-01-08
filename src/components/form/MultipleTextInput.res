@@ -69,11 +69,11 @@ let make = (
   })
   let handleKeyDown = e => {
     open ReactEvent.Keyboard
-    let isEmpty = text->Js.String2.length === 0
+    let isEmpty = text->String.length === 0
 
     if isEmpty && (e->key === "Backspace" || e->keyCode === 8) && currentTags->Array.length > 0 {
       setText(_ => currentTags[currentTags->Array.length - 1]->Belt.Option.getWithDefault(""))
-      setTags(currentTags->Js.Array2.slice(~start=0, ~end_=-1))
+      setTags(currentTags->Array.slice(~start=0, ~end=-1))
     } else if text->Js.String.length !== 0 {
       if e->key === "Enter" || e->keyCode === 13 || e->key === "Tab" || e->keyCode === 9 {
         if seperateByComma {
