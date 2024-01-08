@@ -364,8 +364,9 @@ let make = (
   let parentRef = React.useRef(Js.Nullable.null)
   let dummyRef = React.useRef(Js.Nullable.null)
   let buttonRef = disableRipple ? dummyRef : parentRef
+  let rippleEffect = RippleEffectBackground.useHorizontalRippleHook(buttonRef)
   if !isPhoneDropdown {
-    RippleEffectBackground.useHorizontalRippleHook(buttonRef)
+    rippleEffect
   }
 
   let customTextOverFlowClass = switch textStyleClass {
@@ -687,7 +688,7 @@ let make = (
 
   let dataAttrKey = isSelectBoxButton ? "data-value" : "data-button-for"
   let dataAttrStr =
-    textId === "" ? iconId : textId->Js.String2.concat(buttonFor)->LogicUtils.toCamelCase
+    textId === "" ? iconId : textId->String.concat(buttonFor)->LogicUtils.toCamelCase
   let relativeClass = isRelative ? "relative" : ""
   let conditionalButtonStyles = `${allowButtonTextMinWidth
       ? "min-w-min"
@@ -708,7 +709,7 @@ let make = (
           e->ReactEvent.Keyboard.preventDefault
         }
       }}
-      className={`flex group ${customButtonStyle->Js.String2.includes("justify")
+      className={`flex group ${customButtonStyle->String.includes("justify")
           ? ""
           : "justify-center"} ${relativeClass} ${heightClass} ${newThemeGap} ${conditionalButtonStyles} items-center ${borderStyle}  ${textColor} ${cursorType} ${paddingClass} ${lengthStyle} ${customButtonStyle}  ${customTextOverFlowClass}`}
       onClick=handleClick>

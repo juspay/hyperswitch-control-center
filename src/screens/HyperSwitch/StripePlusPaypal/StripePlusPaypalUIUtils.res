@@ -121,7 +121,7 @@ module SelectPaymentMethods = {
     <QuickStartUIUtils.BaseComponent
       headerText="Connect payment methods"
       customIcon={<GatewayIcon
-        gateway={connectorName->Js.String2.toUpperCase} className="w-6 h-6 rounded-md"
+        gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
       />}
       customCss="show-scrollbar"
       nextButton={<Button

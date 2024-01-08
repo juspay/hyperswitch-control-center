@@ -172,7 +172,7 @@ module HeaderComponentView = {
       <p className="font-medium text-base"> {headerText->React.string} </p>
       <div className="flex gap-2">
         <div className="py-1 px-4 border rounded-md flex gap-2 items-center">
-          <Icon name={`${(langauge :> string)->Js.String2.toLowerCase}`} size=16 />
+          <Icon name={`${(langauge :> string)->String.toLowerCase}`} size=16 />
           <p> {(langauge :> string)->React.string} </p>
         </div>
         <div
@@ -297,7 +297,7 @@ module BackendFrontendPlatformLangDropDown = {
               text={(platform :> string)}
               buttonSize=Button.Small
               leftIcon=Button.CustomIcon(
-                <Icon size=20 name={`${(platform :> string)->Js.String2.toLowerCase}`} />,
+                <Icon size=20 name={`${(platform :> string)->String.toLowerCase}`} />,
               )
               rightIcon=Button.CustomIcon(<Icon className="pl-2 " size=20 name="chevron-down" />)
               ellipsisOnly=true
@@ -322,7 +322,7 @@ module BackendFrontendPlatformLangDropDown = {
               text=frontendDropdownText
               buttonSize=Button.Small
               leftIcon=Button.CustomIcon(
-                <Icon size=20 name={`${(frontEndLang :> string)->Js.String2.toLowerCase}`} />,
+                <Icon size=20 name={`${(frontEndLang :> string)->String.toLowerCase}`} />,
               )
               rightIcon=Button.CustomIcon(<Icon className="pl-2 " size=20 name="chevron-down" />)
               ellipsisOnly=true
@@ -343,7 +343,7 @@ module BackendFrontendPlatformLangDropDown = {
               text=backendDropdownText
               buttonSize=Button.Small
               leftIcon=Button.CustomIcon(
-                <Icon size=20 name={`${(backEndLang :> string)->Js.String2.toLowerCase}`} />,
+                <Icon size=20 name={`${(backEndLang :> string)->String.toLowerCase}`} />,
               )
               rightIcon=Button.CustomIcon(<Icon className="pl-2 " size=20 name="chevron-down" />)
               ellipsisOnly=true
@@ -576,10 +576,10 @@ let getTabsForIntegration = (
 ) => {
   open Tabs
   let defaultEditorStyle = "flex flex-col gap-8 bg-white flex flex-col px-6 py-4 border !shadow-hyperswitch_box_shadow rounded-md"
-  let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
-  let {integrationDetails, setIntegrationDetails, dashboardPageState} = React.useContext(
-    GlobalProvider.defaultContext,
-  )
+  // let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
+  // let {integrationDetails, setIntegrationDetails, dashboardPageState} = React.useContext(
+  //   GlobalProvider.defaultContext,
+  // )
   switch currentRoute {
   | MigrateFromStripe => [
       {
@@ -862,63 +862,63 @@ let getTabsForIntegration = (
             </div>
           </div>,
       },
-      {
-        title: "3. Manage",
-        renderContent: () => {
-          let skipAndContinue = async () => {
-            try {
-              let url = APIUtils.getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
-              let metaDataDict =
-                Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
-              let body = HSwitchUtils.constructOnboardingBody(
-                ~dashboardPageState,
-                ~integrationDetails,
-                ~is_done=false,
-                ~metadata=metaDataDict,
-                (),
-              )
-              let _ = await updateDetails(url, body, Post)
-              setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
-            } catch {
-            | _ => ()
-            }
-          }
-          let skipOnboarding = async path => {
-            let _ = await skipAndContinue()
-            Window._open(path)
-          }
-          <div>
-            <TabsContentWrapper currentRoute tabIndex=7>
-              <div onClick={_ => skipOnboarding(`/connectors`)->ignore} className="cursor-pointer">
-                <div className="pointer-events-none">
-                  <ConnectorList.NewProcessorCards
-                    configuredConnectors=[] showIcons=true isPayoutFlow=false
-                  />
-                </div>
-              </div>
-            </TabsContentWrapper>
-            <TabsContentWrapper currentRoute tabIndex=8>
-              <div onClick={_ => skipOnboarding(`/routing`)->ignore} className="cursor-pointer">
-                <div className="pointer-events-none">
-                  <RoutingStack remainingPath={list{}} previewOnly=true />
-                </div>
-              </div>
-            </TabsContentWrapper>
-            <TabsContentWrapper currentRoute tabIndex=9>
-              <div onClick={_ => skipOnboarding(`/payments`)->ignore} className="cursor-pointer">
-                <div className="pointer-events-none overflow-hidden">
-                  <Orders previewOnly=true />
-                </div>
-              </div>
-            </TabsContentWrapper>
-            // <MilestoneAchievedCard
-            //   headingModule="WooCommerce integration!"
-            //   subText="Test your integration by placing an order and completing a payment on your store!"
-            //   customBackButtonRoute=""
-            // />
-          </div>
-        },
-      },
+      // {
+      //   title: "3. Manage",
+      //   renderContent: () => {
+      //     let skipAndContinue = async () => {
+      //       try {
+      //         let url = APIUtils.getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
+      //         let metaDataDict =
+      //           Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
+      //         let body = HSwitchUtils.constructOnboardingBody(
+      //           ~dashboardPageState,
+      //           ~integrationDetails,
+      //           ~is_done=false,
+      //           ~metadata=metaDataDict,
+      //           (),
+      //         )
+      //         let _ = await updateDetails(url, body, Post)
+      //         setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
+      //       } catch {
+      //       | _ => ()
+      //       }
+      //     }
+      //     let skipOnboarding = async path => {
+      //       let _ = await skipAndContinue()
+      //       Window._open(path)
+      //     }
+      //     <div>
+      //       <TabsContentWrapper currentRoute tabIndex=7>
+      //         <div onClick={_ => skipOnboarding(`/connectors`)->ignore} className="cursor-pointer">
+      //           <div className="pointer-events-none">
+      //             <ConnectorList.NewProcessorCards
+      //               configuredConnectors=[] showIcons=true isPayoutFlow=false
+      //             />
+      //           </div>
+      //         </div>
+      //       </TabsContentWrapper>
+      //       <TabsContentWrapper currentRoute tabIndex=8>
+      //         <div onClick={_ => skipOnboarding(`/routing`)->ignore} className="cursor-pointer">
+      //           <div className="pointer-events-none">
+      //             <RoutingStack remainingPath={list{}} previewOnly=true />
+      //           </div>
+      //         </div>
+      //       </TabsContentWrapper>
+      //       <TabsContentWrapper currentRoute tabIndex=9>
+      //         <div onClick={_ => skipOnboarding(`/payments`)->ignore} className="cursor-pointer">
+      //           <div className="pointer-events-none overflow-hidden">
+      //             <Orders previewOnly=true />
+      //           </div>
+      //         </div>
+      //       </TabsContentWrapper>
+      //       // <MilestoneAchievedCard
+      //       //   headingModule="WooCommerce integration!"
+      //       //   subText="Test your integration by placing an order and completing a payment on your store!"
+      //       //   customBackButtonRoute=""
+      //       // />
+      //     </div>
+      //   },
+      // },
     ]
   | _ => []
   }

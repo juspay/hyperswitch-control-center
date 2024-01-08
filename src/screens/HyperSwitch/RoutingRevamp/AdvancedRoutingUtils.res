@@ -136,7 +136,7 @@ let conditionTypeMapper = (statementArr: array<Js.Json.t>) => {
 
 let routingTypeMapper = (str: string) => {
   open AdvancedRoutingTypes
-  switch str->Js.String2.toLowerCase {
+  switch str->String.toLowerCase {
   | "priority" => PRIORITY
   | "volume_split" => VOLUME_SPLIT
   | _ => NO_ROUTING
@@ -377,7 +377,7 @@ let generateStatements = statements => {
 
   statements->Array.reduce([initialValueForStatement], (acc, statement) => {
     let statementDict = statement->getDictFromJsonObject
-    let logicalOperator = statementDict->getString("logical", "")->Js.String2.toLowerCase
+    let logicalOperator = statementDict->getString("logical", "")->String.toLowerCase
 
     let lastItem =
       acc->Belt.Array.get(acc->Array.length - 1)->Belt.Option.getWithDefault({condition: []})

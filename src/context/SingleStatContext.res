@@ -63,7 +63,7 @@ let make = (
     ->Dict.toArray
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
-      let keyArr = key->Js.String2.split(".")
+      let keyArr = key->String.split(".")
       let prefix = keyArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
       if prefix === moduleName && prefix !== "" {
         None
@@ -88,8 +88,8 @@ let make = (
         if allFilterKeys->Array.includes(key) {
           switch value->Js.Json.classify {
           | JSONString(str) => `${key}=${str}`->Some
-          | JSONNumber(num) => `${key}=${num->Js.String.make}`->Some
-          | JSONArray(arr) => `${key}=[${arr->Js.String.make}]`->Some
+          | JSONNumber(num) => `${key}=${num->String.make}`->Some
+          | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
           | _ => None
           }
         } else {

@@ -152,8 +152,8 @@ module TabInfo = {
         <div className={`${defaultClasses} ${selectionClasses}`} onClick={handleClick}>
           {React.string(
             title
-            ->Js.String2.split("+")
-            ->Array.map(Js.String2.trim)
+            ->String.split("+")
+            ->Array.map(String.trim)
             ->Array.map(LogicUtils.snakeToTitle)
             ->Array.joinWith(" + "),
           )}
@@ -281,7 +281,7 @@ let make = (
 
         let tabsFromPreference =
           Belt.Array.concat(defautTabValues, tabsFromPreference)->Array.map(item =>
-            item->Js.String2.split(",")
+            item->String.split(",")
           )
 
         tabsFromPreference->Belt.Array.keepMap(tabName => {

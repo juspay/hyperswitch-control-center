@@ -31,30 +31,29 @@ module CustomFilters = {
     }
     React.useEffect1(() => {
       setErrMessage(_ => "")
-      if Js.String2.includes(localData, `"`) {
+      if String.includes(localData, `"`) {
         setErrMessage(str => `${str} Please use ' instead of ".`)
       }
       let validatorArr =
-        Js.String2.replaceByRe(localData, %re("/ AND /gi"), "@@")
-        ->Js.String2.replaceByRe(%re("/ OR /gi"), "@@")
-        ->Js.String2.split("@@")
+        String.replaceRegExp(localData, %re("/ AND /gi"), "@@")
+        ->String.replaceRegExp(%re("/ OR /gi"), "@@")
+        ->String.split("@@")
       validatorArr->Array.forEach(ele => {
         let mArr =
-          Js.String2.replaceByRe(ele, %re("/ != /gi"), "@@")
-          ->Js.String2.replaceByRe(%re("/ > /gi"), "@@")
-          ->Js.String2.replaceByRe(%re("/ < /gi"), "@@")
-          ->Js.String2.replaceByRe(%re("/ >= /gi"), "@@")
-          ->Js.String2.replaceByRe(%re("/ <= /gi"), "@@")
-          ->Js.String2.replaceByRe(%re("/ = /gi"), "@@")
-          ->Js.String2.replaceByRe(%re("/ IN /gi"), "@@")
-          ->Js.String2.replaceByRe(%re("/ NOT IN /gi"), "@@")
-          ->Js.String2.replaceByRe(%re("/ LIKE /gi"), "@@")
-          ->Js.String2.split("@@")
+          String.replaceRegExp(ele, %re("/ != /gi"), "@@")
+          ->String.replaceRegExp(%re("/ > /gi"), "@@")
+          ->String.replaceRegExp(%re("/ < /gi"), "@@")
+          ->String.replaceRegExp(%re("/ >= /gi"), "@@")
+          ->String.replaceRegExp(%re("/ <= /gi"), "@@")
+          ->String.replaceRegExp(%re("/ = /gi"), "@@")
+          ->String.replaceRegExp(%re("/ IN /gi"), "@@")
+          ->String.replaceRegExp(%re("/ NOT IN /gi"), "@@")
+          ->String.replaceRegExp(%re("/ LIKE /gi"), "@@")
+          ->String.split("@@")
 
         let firstEle = Belt.Array.get(mArr, 0)->Belt.Option.getWithDefault("")
         if (
-          firstEle != "" &&
-            tabNames->Array.indexOf(firstEle->Js.String.trim->Js.String.toLowerCase) < 0
+          firstEle != "" && tabNames->Array.indexOf(firstEle->String.trim->String.toLowerCase) < 0
         ) {
           setErrMessage(str => `${str} ${firstEle} is not a valid dimension.`)
         }

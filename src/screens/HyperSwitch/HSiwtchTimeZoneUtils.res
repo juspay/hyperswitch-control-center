@@ -1,7 +1,7 @@
 let getUserTimeZoneString = () => {
   Js.Date.make()
   ->Js.Date.toTimeString
-  ->Js.String2.split(" ")
+  ->String.split(" ")
   ->Belt.Array.get(1)
   ->Belt.Option.getWithDefault("")
 }

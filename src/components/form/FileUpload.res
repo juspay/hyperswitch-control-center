@@ -16,9 +16,10 @@ let make = (
   ~validateUploadedFile=?,
 ) => {
   let (key, setKey) = React.useState(_ => 1)
+  let formInput = ReactFinalForm.useField(input.name ++ "_filename").input
   let fileNameInput = switch fileNameInput {
   | Some(filenameInput) => filenameInput
-  | None => ReactFinalForm.useField(input.name ++ "_filename").input
+  | None => formInput
   }
   let defaultFileName = fileNameInput.value->LogicUtils.getStringFromJson("")
 
@@ -45,11 +46,11 @@ let make = (
     let value = target["files"]["0"]
     if target["files"]->Array.length > 0 {
       let filename = value["name"]
-      let fileTypeArr = fileType->Js.String2.split(",")
+      let fileTypeArr = fileType->String.split(",")
       let isCorrectFileFormat = fileTypeArr->Array.some(item => fileTypeArr->Array.includes(item))
       let fileReader = FileReader.reader
       let _file =
-        filename->Js.String2.includes("p12")
+        filename->String.includes("p12")
           ? fileReader.readAsBinaryString(. value)
           : fileReader.readAsText(. value)
       fileReader.onload = e => {
@@ -67,7 +68,7 @@ let make = (
         } else if isValid {
           switch rowsLimit {
           | Some(val) =>
-            let rows = Js.String2.split(file, "\n")->Array.length
+            let rows = String.split(file, "\n")->Array.length
             if value !== "" && rows - 1 < val {
               setFilename(_ => filename)
               input.onChange(Identity.anyTypeToReactEvent(value))

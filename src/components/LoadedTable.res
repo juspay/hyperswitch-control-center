@@ -69,63 +69,61 @@ let useSortedObj = (title: string, defaultSort) => {
 
   (sortedObj, setSortedObj)
 }
-let useSortArray = () => {
-  (originalData, key, sortOrder: Table.sortOrder) => {
-    let getValue = val => {
-      switch val {
-      | Some(x) =>
-        switch x->Js.Json.classify {
-        | JSONString(str) => str->Js.String.toLowerCase->Js.Json.string
-        | JSONNumber(_num) => x
-        | JSONFalse => "false"->Js.Json.string
-        | JSONTrue => "true"->Js.Json.string
-        | _ => ""->Js.Json.string
-        }
-      | None => ""->Js.Json.string
+let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
+  let getValue = val => {
+    switch val {
+    | Some(x) =>
+      switch x->Js.Json.classify {
+      | JSONString(str) => str->Js.String.toLowerCase->Js.Json.string
+      | JSONNumber(_num) => x
+      | JSONFalse => "false"->Js.Json.string
+      | JSONTrue => "true"->Js.Json.string
+      | _ => ""->Js.Json.string
       }
+    | None => ""->Js.Json.string
     }
-    let sortedArrayByOrder = {
-      let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
-        let item1 = i1->Js.Json.stringifyAny->Belt.Option.getWithDefault("")->LogicUtils.safeParse
-        let item2 = i2->Js.Json.stringifyAny->Belt.Option.getWithDefault("")->LogicUtils.safeParse
-        // flatten items and get data
+  }
+  let sortedArrayByOrder = {
+    let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
+      let item1 = i1->Js.Json.stringifyAny->Option.getWithDefault("")->LogicUtils.safeParse
+      let item2 = i2->Js.Json.stringifyAny->Option.getWithDefault("")->LogicUtils.safeParse
+      // flatten items and get data
 
-        let val1 =
-          JsonFlattenUtils.flattenObject(item1, true)
-          ->Js.Json.object_
-          ->Js.Json.decodeObject
-          ->Belt.Option.flatMap(dict => dict->Dict.get(key))
-        let val2 =
-          JsonFlattenUtils.flattenObject(item2, true)
-          ->Js.Json.object_
-          ->Js.Json.decodeObject
-          ->Belt.Option.flatMap(dict => dict->Dict.get(key))
-        let value1 = getValue(val1)
-        let value2 = getValue(val2)
-        if value1 === ""->Js.Json.string || value2 === ""->Js.Json.string {
-          if value1 === value2 {
-            0
-          } else if value2 === ""->Js.Json.string {
-            sortOrder === DEC ? 1 : -1
-          } else if sortOrder === DEC {
-            -1
-          } else {
-            1
-          }
-        } else if value1 === value2 {
+      let val1 =
+        JsonFlattenUtils.flattenObject(item1, true)
+        ->Js.Json.object_
+        ->Js.Json.decodeObject
+        ->Option.flatMap(dict => dict->Dict.get(key))
+      let val2 =
+        JsonFlattenUtils.flattenObject(item2, true)
+        ->Js.Json.object_
+        ->Js.Json.decodeObject
+        ->Option.flatMap(dict => dict->Dict.get(key))
+      let value1 = getValue(val1)
+      let value2 = getValue(val2)
+      if value1 === ""->Js.Json.string || value2 === ""->Js.Json.string {
+        if value1 === value2 {
           0
-        } else if value1 > value2 {
+        } else if value2 === ""->Js.Json.string {
           sortOrder === DEC ? 1 : -1
         } else if sortOrder === DEC {
           -1
         } else {
           1
         }
-      })
-      originalData
-    }
-    sortedArrayByOrder
+      } else if value1 === value2 {
+        0
+      } else if value1 > value2 {
+        sortOrder === DEC ? 1 : -1
+      } else if sortOrder === DEC {
+        -1
+      } else {
+        1
+      }
+    })
+    originalData
   }
+  sortedArrayByOrder
 }
 type pageDetails = {
   offset: int,
@@ -380,7 +378,7 @@ let make = (
   let handleRemoveLines = removeVerticalLines->Belt.Option.getWithDefault(true)
   if showSerialNumber {
     heading
-    ->Js.Array2.unshift(
+    ->Array.unshift(
       Table.makeHeaderInfo(~key="serial_number", ~title="S.No", ~dataType=NumericType, ()),
     )
     ->ignore
@@ -388,7 +386,7 @@ let make = (
 
   if checkBoxProps.showCheckBox {
     heading
-    ->Js.Array2.unshift(
+    ->Array.unshift(
       Table.makeHeaderInfo(~key="select", ~title="", ~showMultiSelectCheckBox=true, ()),
     )
     ->ignore
@@ -514,8 +512,6 @@ let make = (
     }
   }, (actualData, totalResults, visibleColumns, columnFilter))
 
-  let sortArray = useSortArray()
-
   let filteredDataLength =
     columnFilter->Dict.keysToArray->Array.length !== 0 ? actualData->Array.length : totalResults
 
@@ -600,7 +596,7 @@ let make = (
     if actualRows->Array.length > 0 {
       if showSerialNumber {
         actualRows
-        ->Js.Array2.unshift(
+        ->Array.unshift(
           Numeric(
             (1 + index)->Belt.Int.toFloat,
             (val: float) => {
@@ -612,9 +608,9 @@ let make = (
       }
       if checkBoxProps.showCheckBox {
         let selectedRowIndex =
-          checkBoxProps.selectedData->Js.Array2.findIndex(item => item === nullableItem->toJson)
+          checkBoxProps.selectedData->Array.findIndex(item => item === nullableItem->toJson)
         actualRows
-        ->Js.Array2.unshift(
+        ->Array.unshift(
           CustomCell(
             <div onClick={ev => ev->ReactEvent.Mouse.stopPropagation}>
               <CheckBoxIcon
@@ -661,8 +657,8 @@ let make = (
   })
 
   let paginatedData =
-    filteredData->Js.Array2.slice(~start=offsetVal, ~end_={offsetVal + localResultsPerPage})
-  let rows = rows->Js.Array2.slice(~start=offsetVal, ~end_={offsetVal + localResultsPerPage})
+    filteredData->Array.slice(~start=offsetVal, ~end={offsetVal + localResultsPerPage})
+  let rows = rows->Array.slice(~start=offsetVal, ~end={offsetVal + localResultsPerPage})
 
   let handleRowClick = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
@@ -677,7 +673,7 @@ let make = (
         switch getShowLink {
         | Some(fn) => {
             let link = fn(value)
-            let finalUrl = url.search->Js.String2.length > 0 ? `${link}?${url.search}` : link
+            let finalUrl = url.search->String.length > 0 ? `${link}?${url.search}` : link
             RescriptReactRouter.push(finalUrl)
           }
 
@@ -701,7 +697,7 @@ let make = (
         switch getShowLink {
         | Some(fn) => {
             let link = fn(value)
-            let finalUrl = url.search->Js.String2.length > 0 ? `${link}?${url.search}` : link
+            let finalUrl = url.search->String.length > 0 ? `${link}?${url.search}` : link
             RescriptReactRouter.push(finalUrl)
           }
 

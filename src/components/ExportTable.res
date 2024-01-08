@@ -34,7 +34,7 @@ let make = (
           let str =
             Dict.get(allRowsDict, col)->Belt.Option.getWithDefault(Js.Json.null)->Js.Json.stringify
 
-          let strArr = str->Js.String2.split(".")
+          let strArr = str->String.split(".")
 
           let newStr = if (
             strArr->Array.length === 2 && str->Belt.Float.fromString->Belt.Option.isSome
@@ -43,7 +43,7 @@ let make = (
               strArr
               ->Belt.Array.get(1)
               ->Belt.Option.getWithDefault("00")
-              ->Js.String2.slice(~from=0, ~to_=2)
+              ->String.slice(~start=0, ~end=2)
             strArr->Belt.Array.get(0)->Belt.Option.getWithDefault("0") ++ "." ++ newDecimal
           } else {
             str

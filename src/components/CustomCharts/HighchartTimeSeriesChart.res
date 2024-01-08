@@ -25,7 +25,7 @@ module TooltipString = {
         tooltipWidthClass={isMobileView ? "w-fit" : ""}
         toolTipFor={<div className={`whitespace-pre text-ellipsis overflow-x-hidden w-15`}>
           <AddDataAttributes attributes=[("data-text", text)]>
-            <div> {React.string(`${Js.String.slice(~from=0, ~to_=12, text)}...`)} </div>
+            <div> {React.string(`${String.slice(~start=0, ~end=12, text)}...`)} </div>
           </AddDataAttributes>
         </div>}
       />
@@ -124,7 +124,7 @@ module LineChart1D = {
                     ->DateTimeUtils.toUtc
                     ->Js.Date.getHours
                     ->Belt.Float.toString}:00`
-                  ->Js.String2.sliceToEnd(~from=-5)
+                  ->String.sliceToEnd(~start=-5)
                   ->Js.Json.string
                 } else if "run_month" === groupKey {
                   xAxis
@@ -362,9 +362,7 @@ module LineChart1D = {
         CustomCell(
           {
             if (
-              !(transactionTable.groupByName->Js.String2.includes("Mid")) &&
-              isPartners &&
-              showIndicator
+              !(transactionTable.groupByName->String.includes("Mid")) && isPartners && showIndicator
             ) {
               <div className="flex items-stretch justify-start">
                 {if transactionTable.current < 20. {
@@ -413,7 +411,7 @@ module LineChart1D = {
 
       | val =>
         Table.makeHeaderInfo(
-          ~key=val->LineChartUtils.chartLegendTypeToStr->Js.String2.toLowerCase,
+          ~key=val->LineChartUtils.chartLegendTypeToStr->String.toLowerCase,
           ~title=val->LineChartUtils.chartLegendTypeToStr,
           ~dataType=NumericType,
           ~showSort={!isPartners},
@@ -804,7 +802,7 @@ module LegendItem = {
 }
 
 module RenderMultiDimensionalChart = {
-  type props = {
+  type config = {
     chartDictData: Js.Dict.t<Belt.Array.t<Js.Json.t>>,
     class: string,
     selectedMetrics: LineChartUtils.metricsConfig,
@@ -814,17 +812,18 @@ module RenderMultiDimensionalChart = {
     legendType: legendType,
     chartType: string,
   }
-  let make = (props: props) => {
+  @react.component
+  let make = (~config: config) => {
     let (selectedRow, setSelectedRow) = React.useState(_ => None)
     let chartNames =
-      props.chartDictData
+      config.chartDictData
       ->Dict.toArray
       ->Array.reduce([], (acc: array<LineChartUtils.chartData<Js.Json.t>>, (_, value)) => {
         let chartdata = LineChartUtils.timeSeriesDataMaker(
           ~data=value,
-          ~groupKey=props.groupBy,
-          ~xAxis=props.xAxis,
-          ~metricsConfig=props.selectedMetrics,
+          ~groupKey=config.groupBy,
+          ~xAxis=config.xAxis,
+          ~metricsConfig=config.selectedMetrics,
           (),
         )
         chartdata
@@ -850,28 +849,28 @@ module RenderMultiDimensionalChart = {
       <div className="flex flex-wrap">
         {
           let chartArr = {
-            props.chartDictData
+            config.chartDictData
             ->Dict.toArray
             ->Array.mapWithIndex((item, index) => {
               let (key, value) = item
 
               <LineChart1D
                 key={index->Belt.Int.toString}
-                class=props.class
+                class=config.class
                 rawChartData=value
                 commonColorsArr={LineChartUtils.removeDuplicates(chartNames)}
-                selectedMetrics=props.selectedMetrics
-                xAxis=props.xAxis
-                groupKey=props.groupBy
+                selectedMetrics=config.selectedMetrics
+                xAxis=config.xAxis
+                groupKey=config.groupBy
                 chartTitle=true
                 chartTitleText=key
                 showTableLegend=false
                 showLegend=false
-                legendType=props.legendType
+                legendType=config.legendType
                 isMultiDimensional=true
-                chartKey=props.chartKey
+                chartKey=config.chartKey
                 selectedRow={selectedRow}
-                chartType=props.chartType
+                chartType=config.chartType
               />
             })
           }
@@ -912,7 +911,7 @@ module LineChart2D = {
       chartDictData->LineChartUtils.appendToDictValue(groupBy, item)
     })
 
-    let compProps: RenderMultiDimensionalChart.props = {
+    let compProps: RenderMultiDimensionalChart.config = {
       chartDictData,
       class,
       selectedMetrics,
@@ -923,7 +922,7 @@ module LineChart2D = {
       chartType,
     }
 
-    <RenderMultiDimensionalChart {...compProps} />
+    <RenderMultiDimensionalChart config={compProps} />
   }
 }
 
@@ -960,7 +959,7 @@ module LineChart3D = {
       chartDictData->LineChartUtils.appendToDictValue(groupBy1 ++ " / " ++ groupBy2, item)
     })
 
-    let compProps: RenderMultiDimensionalChart.props = {
+    let compProps: RenderMultiDimensionalChart.config = {
       chartDictData,
       class,
       selectedMetrics,
@@ -971,6 +970,6 @@ module LineChart3D = {
       chartType,
     }
 
-    <RenderMultiDimensionalChart {...compProps} />
+    <RenderMultiDimensionalChart config=compProps />
   }
 }

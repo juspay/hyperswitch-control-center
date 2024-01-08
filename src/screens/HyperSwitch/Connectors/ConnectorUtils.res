@@ -17,7 +17,7 @@ let getStepName = step => {
   }
 }
 
-let toLCase = str => str->Js.String2.toLowerCase
+let toLCase = str => str->String.toLowerCase
 let len = arr => arr->Array.length
 
 let payoutConnectorList: array<connectorName> = [ADYEN, WISE]
@@ -778,7 +778,7 @@ let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
 }
 let checkCashtoCodeFields = (keys, country, valuesFlattenJson) => {
   open LogicUtils
-  keys->Js.Array2.map(field => {
+  keys->Array.map(field => {
     let key = `connector_account_details.auth_key_map.${country}.${field}`
     let value = valuesFlattenJson->getString(`${key}`, "")
     value->String.length === 0 ? false : true
@@ -788,14 +788,12 @@ let checkCashtoCodeFields = (keys, country, valuesFlattenJson) => {
 let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool => {
   open LogicUtils
   let value = dict->getDictfromDict(country)->Js.Dict.keys
-  let result = value->Js.Array2.map(method => {
+  let result = value->Array.map(method => {
     let keys = dict->getDictfromDict(country)->getDictfromDict(method)->Js.Dict.keys
-    keys->checkCashtoCodeFields(country, valuesFlattenJson)->Js.Array2.includes(false)
-      ? false
-      : true
+    keys->checkCashtoCodeFields(country, valuesFlattenJson)->Array.includes(false) ? false : true
   })
 
-  result->Js.Array2.includes(true)
+  result->Array.includes(true)
 }
 
 let validateConnectorRequiredFields = (
@@ -812,7 +810,7 @@ let validateConnectorRequiredFields = (
   if connector === CASHTOCODE {
     let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
 
-    let indexLength = dict->Js.Dict.keys->Js.Array2.length
+    let indexLength = dict->Js.Dict.keys->Array.length
     let vector = Js.Vector.make(indexLength, false)
 
     dict
@@ -928,7 +926,7 @@ let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {
   dict
   ->Dict.keysToArray
   ->Array.forEach(_value => {
-    let lastItem = fieldName->Js.String2.split(".")->Array.pop->Belt.Option.getWithDefault("")
+    let lastItem = fieldName->String.split(".")->Array.pop->Belt.Option.getWithDefault("")
     let errorKey = dict->getString(lastItem, "")
     let value = valuesFlattenJson->getString(`${fieldName}`, "")
     if value->String.length === 0 {
@@ -984,9 +982,9 @@ let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
     switch connector->getConnectorNameTypeFromString {
     | STRIPE => (
         {
-          if msg->Js.String2.includes("Sending credit card numbers directly") {
+          if msg->String.includes("Sending credit card numbers directly") {
             <StripSendingCreditCard />
-          } else if msg->Js.String2.includes("Invalid API Key") {
+          } else if msg->String.includes("Invalid API Key") {
             <StripeInvalidAPIKey />
           } else {
             React.null
@@ -996,7 +994,7 @@ let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
       )
     | PAYPAL => (
         {
-          if msg->Js.String2.includes("Client Authentication failed") {
+          if msg->String.includes("Client Authentication failed") {
             <PaypalClientAuthenticationFalied />
           } else {
             React.null

@@ -111,7 +111,7 @@ module NewCell = {
       item
       ->Array.map((obj: cell) => {
         switch obj {
-        | CustomCell(_, x) => x->Js.String2.split(",")->Array.includes("true")
+        | CustomCell(_, x) => x->String.split(",")->Array.includes("true")
         | _ => false
         }
       })
@@ -290,12 +290,12 @@ module ReactWindowTableComponent = {
     }
 
     let filterPresent = heading->Array.find(head => head.showFilter)->Js.Option.isSome
-    let highlightEnabledFieldsArray = heading->Js.Array2.reducei((acc, item, index) => {
+    let highlightEnabledFieldsArray = heading->Array.reduceWithIndex([], (acc, item, index) => {
       if item.highlightCellOnHover {
         let _ = Array.push(acc, index)
       }
       acc
-    }, [])
+    })
     let colFilt = columnFilterRow->Belt.Option.getWithDefault([])
     let colFilter = showCheckBox ? [TextFilter("")]->Array.concat(colFilt) : colFilt
     let arr = switch columnWidth {
@@ -588,47 +588,45 @@ let useSortedObj = (title: string, defaultSort) => {
 
   (sortedObj, setSortedObj)
 }
-let useSortArray = () => {
-  (originalData, key, sortOrder: Table.sortOrder) => {
-    let getValue = val => {
-      switch val {
-      | Some(x) =>
-        switch x->Js.Json.classify {
-        | JSONString(_str) => x
-        | JSONNumber(_num) => x
-        | JSONFalse => "false"->Js.Json.string
-        | JSONTrue => "true"->Js.Json.string
-        | _ => ""->Js.Json.string
-        }
-      | None => ""->Js.Json.string
+let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
+  let getValue = val => {
+    switch val {
+    | Some(x) =>
+      switch x->Js.Json.classify {
+      | JSONString(_str) => x
+      | JSONNumber(_num) => x
+      | JSONFalse => "false"->Js.Json.string
+      | JSONTrue => "true"->Js.Json.string
+      | _ => ""->Js.Json.string
       }
+    | None => ""->Js.Json.string
     }
-    let sortedArrayByOrder = {
-      let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
-        let item1 = i1->Js.Json.stringifyAny->Belt.Option.getWithDefault("")->LogicUtils.safeParse
-        let item2 = i2->Js.Json.stringifyAny->Belt.Option.getWithDefault("")->LogicUtils.safeParse
-        // flatten items and get data
-
-        let val1 = item1->Js.Json.decodeObject->Belt.Option.flatMap(dict => dict->Dict.get(key))
-
-        let val2 = item2->Js.Json.decodeObject->Belt.Option.flatMap(dict => dict->Dict.get(key))
-
-        let value1 = getValue(val1)
-        let value2 = getValue(val2)
-        if value1 === value2 {
-          0
-        } else if value1 > value2 {
-          sortOrder === DEC ? 1 : -1
-        } else if sortOrder === DEC {
-          -1
-        } else {
-          1
-        }
-      })
-      originalData
-    }
-    sortedArrayByOrder
   }
+  let sortedArrayByOrder = {
+    let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
+      let item1 = i1->Js.Json.stringifyAny->Option.getWithDefault("")->LogicUtils.safeParse
+      let item2 = i2->Js.Json.stringifyAny->Option.getWithDefault("")->LogicUtils.safeParse
+      // flatten items and get data
+
+      let val1 = item1->Js.Json.decodeObject->Option.flatMap(dict => dict->Dict.get(key))
+
+      let val2 = item2->Js.Json.decodeObject->Option.flatMap(dict => dict->Dict.get(key))
+
+      let value1 = getValue(val1)
+      let value2 = getValue(val2)
+      if value1 === value2 {
+        0
+      } else if value1 > value2 {
+        sortOrder === DEC ? 1 : -1
+      } else if sortOrder === DEC {
+        -1
+      } else {
+        1
+      }
+    })
+    originalData
+  }
+  sortedArrayByOrder
 }
 
 @react.component
@@ -717,7 +715,7 @@ let make = (
         let newObj = oldFitlers->Dict.toArray->Dict.fromArray
         let filterValue = filterValue->Array.filter(
           item => {
-            let updatedItem = item->Js.String.make
+            let updatedItem = item->String.make
             updatedItem !== ""
           },
         )
@@ -762,14 +760,14 @@ let make = (
 
   if showSerialNumber {
     heading
-    ->Js.Array2.unshift(
+    ->Array.unshift(
       Table.makeHeaderInfo(~key="serial_number", ~title="S.No", ~dataType=NumericType, ()),
     )
     ->ignore
   }
   if checkBoxProps.showCheckBox {
     heading
-    ->Js.Array2.unshift(
+    ->Array.unshift(
       Table.makeHeaderInfo(~key="select", ~title="", ~showMultiSelectCheckBox=true, ()),
     )
     ->ignore
@@ -886,8 +884,6 @@ let make = (
     }
   }, (actualData, columToConsider, totalResults, visibleColumns, columnFilter))
 
-  let sortArray = useSortArray()
-
   let actualData = if tableLocalFilter {
     filteredData(actualData, columnFilter, visibleColumns, entity, dateFormatConvertor)
   } else {
@@ -984,7 +980,7 @@ let make = (
 
       if showSerialNumber && actualRows->Array.length > 0 {
         actualRows
-        ->Js.Array2.unshift(
+        ->Array.unshift(
           Numeric(
             (1 + index)->Belt.Int.toFloat,
             (val: float) => {
@@ -996,7 +992,7 @@ let make = (
       }
 
       if checkBoxProps.showCheckBox {
-        let selectedRowIndex = checkBoxProps.selectedData->Js.Array2.findIndex(item =>
+        let selectedRowIndex = checkBoxProps.selectedData->Array.findIndex(item =>
           if filterWithIdOnly {
             getIdFromJson(item) == getIdFromJson(nullableItem->toJson)
           } else {
@@ -1004,7 +1000,7 @@ let make = (
           }
         )
         actualRows
-        ->Js.Array2.unshift(
+        ->Array.unshift(
           CustomCell(
             <div onClick={ev => ev->ReactEvent.Mouse.stopPropagation}>
               <CheckBoxIcon

@@ -3,7 +3,8 @@ type cardFlowDirection = LEFT | RIGHT
 module SurveyComponent = {
   @react.component
   let make = (~currentStep, ~setCurrentStep, ~currentQuestionDict, ~setCarouselDirection) => {
-    let currentQuestionValue = currentQuestionDict.key->getStringValueFromForm
+    let currentQuestionValue =
+      ReactFinalForm.useField(currentQuestionDict.key).input.value->LogicUtils.getStringFromJson("")
     let isNextButtonEnabled = currentQuestionValue->String.length > 0
 
     <div className="flex flex-col gap-2 h-full ">
@@ -107,7 +108,7 @@ let make = () => {
     } catch {
     | Js.Exn.Error(e) =>
       let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
-      if err->Js.String2.includes("UR_19") {
+      if err->String.includes("UR_19") {
         showToast(~toastType=ToastWarning, ~message="Please login again!", ~autoClose=false, ())
         setAuthStatus(LoggedOut)
       }

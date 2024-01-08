@@ -622,8 +622,6 @@ let filterBody = (filterBodyEntity: filterBodyEntity) => {
     ~source=filterBodyEntity.source,
     (),
   )
-  ->Js.Json.object_
-  ->Js.Json.stringify
 }
 
 let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
@@ -2421,8 +2419,8 @@ let useGetFilters = (
         if allFilterKeys->Array.includes(key) {
           switch value->Js.Json.classify {
           | JSONString(str) => `${key}=${str}`->Some
-          | JSONNumber(num) => `${key}=${num->Js.String.make}`->Some
-          | JSONArray(arr) => `${key}=[${arr->Js.String.make}]`->Some
+          | JSONNumber(num) => `${key}=${num->String.make}`->Some
+          | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
           | _ => None
           }
         } else {

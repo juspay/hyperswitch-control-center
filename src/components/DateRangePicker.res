@@ -71,15 +71,15 @@ let isStartBeforeEndDate = (start, end) => {
     let datevalue = Js.Date.makeWithYMD(
       ~year=Js.Float.fromString(date[0]->Belt.Option.getWithDefault("")),
       ~month=Js.Float.fromString(
-        Js.String2.make(Js.Float.fromString(date[1]->Belt.Option.getWithDefault("")) -. 1.0),
+        String.make(Js.Float.fromString(date[1]->Belt.Option.getWithDefault("")) -. 1.0),
       ),
       ~date=Js.Float.fromString(date[2]->Belt.Option.getWithDefault("")),
       (),
     )
     datevalue
   }
-  let startDate = getDate(Js.String2.split(start, "-"))
-  let endDate = getDate(Js.String2.split(end, "-"))
+  let startDate = getDate(String.split(start, "-"))
+  let endDate = getDate(String.split(end, "-"))
   startDate < endDate
 }
 
@@ -168,7 +168,7 @@ module Base = {
     ~disableApply=true,
     ~removeFilterOption=false,
     ~dateRangeLimit=?,
-    ~optFieldKey=?,
+    ~optFieldKey as _=?,
     ~textHideInMobileView=true,
     ~showSeconds=true,
     ~hideDate=false,
@@ -194,16 +194,10 @@ module Base = {
     let isoStringToCustomTimezoneInFloat = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
 
     let (clickedDates, setClickedDates) = React.useState(_ => [])
-    let optInput = optFieldKey->Belt.Option.map(key => ReactFinalForm.useField(key).input)
-
-    let optInputVal =
-      optInput->Belt.Option.mapWithDefault("", optInput =>
-        optInput.value->LogicUtils.getStringFromJson("")
-      )
 
     let (localStartDate, setLocalStartDate) = React.useState(_ => startDateVal)
     let (localEndDate, setLocalEndDate) = React.useState(_ => endDateVal)
-    let (localOpt, setLocalOpt) = React.useState(_ => optInputVal)
+    let (_localOpt, setLocalOpt) = React.useState(_ => "")
     let (showMsg, setShowMsg) = React.useState(_ => false)
 
     let (isDropdownExpanded, setIsDropdownExpanded) = React.useState(_ => false)
@@ -225,12 +219,12 @@ module Base = {
 
     let initialStartTime = disableFutureDates || selectStandardTime ? "00:00:00" : "23:59:59"
     let initialEndTime = disableFutureDates || selectStandardTime ? "23:59:59" : "00:00:00"
-    React.useEffect3(() => {
+    React.useEffect2(() => {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
-      setLocalOpt(_ => optInputVal)
+      setLocalOpt(_ => "")
       None
-    }, (startDateVal, endDateVal, optInputVal))
+    }, (startDateVal, endDateVal))
 
     let resetStartEndInput = () => {
       setLocalStartDate(_ => "")
@@ -273,16 +267,12 @@ module Base = {
       if localStartDate !== "" && localEndDate !== "" {
         setStartDateVal(_ => localStartDate)
         setEndDateVal(_ => localEndDate)
-        switch optInput {
-        | Some(ip) => ip.onChange(localOpt->Identity.stringToFormReactEvent)
-        | None => ()
-        }
       }
     }
     let resetToInitalValues = () => {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
-      setLocalOpt(_ => optInputVal)
+      setLocalOpt(_ => "")
     }
 
     OutsideClick.useOutsideClick(
@@ -305,7 +295,7 @@ module Base = {
       if localEndDate == ele && isFromCustomInput {
         setEndDateVal(_ => "")
       } else {
-        let endDateSplit = Js.String2.split(ele, "-")
+        let endDateSplit = String.split(ele, "-")
         let endDateDate = endDateSplit[2]->Belt.Option.getWithDefault("")
         let endDateYear = endDateSplit[0]->Belt.Option.getWithDefault("")
         let endDateMonth = endDateSplit[1]->Belt.Option.getWithDefault("")
@@ -319,7 +309,7 @@ module Base = {
           }
         }
 
-        let timeSplit = Js.String2.split(splitTime, ":")
+        let timeSplit = String.split(splitTime, ":")
         let timeHour = timeSplit->Belt.Array.get(0)->Belt.Option.getWithDefault("00")
         let timeMinute = timeSplit->Belt.Array.get(1)->Belt.Option.getWithDefault("00")
         let timeSecond = timeSplit->Belt.Array.get(2)->Belt.Option.getWithDefault("00")
@@ -336,7 +326,7 @@ module Base = {
     }
     let changeStartDate = (ele, isFromCustomInput, time) => {
       let setDate = str => {
-        let startDateSplit = Js.String2.split(str, "-")
+        let startDateSplit = String.split(str, "-")
         let startDateDay = startDateSplit[2]->Belt.Option.getWithDefault("")
         let startDateYear = startDateSplit[0]->Belt.Option.getWithDefault("")
         let startDateMonth = startDateSplit[1]->Belt.Option.getWithDefault("")
@@ -349,7 +339,7 @@ module Base = {
             initialStartTime
           }
         }
-        let timeSplit = Js.String2.split(splitTime, ":")
+        let timeSplit = String.split(splitTime, ":")
         let timeHour = timeSplit->Belt.Array.get(0)->Belt.Option.getWithDefault("00")
         let timeMinute = timeSplit->Belt.Array.get(1)->Belt.Option.getWithDefault("00")
         let timeSecond = timeSplit->Belt.Array.get(2)->Belt.Option.getWithDefault("00")
@@ -414,10 +404,6 @@ module Base = {
       setCalendarVisibility(p => !p)
       setIsDropdownExpanded(_ => false)
       saveDates()
-      switch optInput {
-      | Some(ip) => ip.onChange("custom_range"->Identity.stringToFormReactEvent)
-      | None => ()
-      }
     }
 
     let cancelButton = _ => {
@@ -525,14 +511,14 @@ module Base = {
         : "23:59:59"
 
     let endTimeStr = {
-      let timeArr = endTimeStr->Js.String2.split(":")
+      let timeArr = endTimeStr->String.split(":")
       let endTimeTxt = `${timeArr[0]->Belt.Option.getWithDefault(
           "00",
         )}:${timeArr[1]->Belt.Option.getWithDefault("00")}`
       showSeconds ? `${endTimeTxt}:${timeArr[2]->Belt.Option.getWithDefault("00")}` : endTimeTxt
     }
     let startTimeStr = {
-      let timeArr = startTimeStr->Js.String2.split(":")
+      let timeArr = startTimeStr->String.split(":")
       let startTimeTxt = `${timeArr[0]->Belt.Option.getWithDefault(
           "00",
         )}:${timeArr[1]->Belt.Option.getWithDefault("00")}`
@@ -570,8 +556,8 @@ module Base = {
       setEndDate(~date=endDate, ~time=enTime)
       setLocalOpt(_ =>
         DateRangeUtils.datetext(value, disableFutureDates)
-        ->Js.String2.toLowerCase
-        ->Js.String2.split(" ")
+        ->String.toLowerCase
+        ->String.split(" ")
         ->Array.joinWith("_")
       )
       changeStartDate(stDate, false, Some(stTime))
