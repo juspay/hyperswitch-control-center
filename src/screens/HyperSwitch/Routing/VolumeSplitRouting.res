@@ -8,7 +8,6 @@ module VolumeRoutingView = {
   open RoutingUtils
   @react.component
   let make = (
-    ~initialRule,
     ~setScreenState,
     ~routingId,
     ~pageState,
@@ -18,6 +17,7 @@ module VolumeRoutingView = {
     ~isConfigButtonEnabled,
     ~profile,
     ~setFormState,
+    ~initialValues,
   ) => {
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
@@ -27,41 +27,18 @@ module VolumeRoutingView = {
     let connectorList = React.useMemo0(() => {
       connectorListJson->safeParse->ConnectorTableUtils.getArrayOfConnectorListPayloadType
     })
-    let selectedConnectorsInput = ReactFinalForm.useField("algorithm.data").input
-
-    let initalValue = switch initialRule {
-    | Some(initialRule) => initialRule
-    | None => Dict.make()
-    }
 
     let gateways =
-      initalValue
-      ->getJsonObjectFromDict("json")
+      initialValues
+      ->getJsonObjectFromDict("algorithm")
       ->getDictFromJsonObject
-      ->getObj("volumeBasedDistribution", Dict.make())
-      ->getArrayFromDict("gateways", [])
+      ->getArrayFromDict("data", [])
 
     let onSubmit = async (values, isSaveRule) => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let valuesDict = values->getDictFromJsonObject
-        let data = valuesDict->getObj("algorithm", Js.Dict.empty())->getArrayFromDict("data", [])
-        Js.log2("lokiiiiii valuesDict", valuesDict)
-        let payload = getVolumeSplit(data, itemBodyGateWayObjMapper, Some(connectorList))
-        Js.log2("lokiiiiii payload", payload)
         let updateUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
-
-        let res = await updateDetails(
-          updateUrl,
-          getRoutingPayload(
-            payload,
-            "volume_split",
-            valuesDict->getString("name", ""),
-            valuesDict->getString("description", ""),
-            valuesDict->getString("profile_id", ""),
-          )->Js.Json.object_,
-          Post,
-        )
+        let res = await updateDetails(updateUrl, values, Post)
         showToast(
           ~message="Successfully Created a new Configuration !",
           ~toastType=ToastState.ToastSuccess,
@@ -150,11 +127,6 @@ module VolumeRoutingView = {
       })
     }, [profile])
 
-    React.useEffect1(() => {
-      selectedConnectorsInput.onChange([]->Identity.anyTypeToReactEvent)
-      None
-    }, [profile])
-
     <>
       <div
         className="flex flex-col gap-4 p-6 my-2 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
@@ -207,11 +179,7 @@ module VolumeRoutingView = {
           <div className="flex flex-col w-full gap-3">
             <div
               className="flex flex-col gap-4 p-6 my-2 bg-white rounded-md border border-jp-gray-600 ">
-              <GatewayView
-                gateways={gateways->getGatewayTypes("gateway_name", "distribution")}
-                isEnforceGatewayPriority=false
-                connectorList
-              />
+              <GatewayView gateways={gateways->getGatewayTypes} connectorList />
             </div>
             <div className="flex flex-col md:flex-row gap-4">
               <Button
@@ -260,7 +228,6 @@ let make = (~routingRuleId, ~isActive) => {
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
   let (formState, setFormState) = React.useState(_ => AdvancedRoutingTypes.EditReplica)
-  let (initialRule, setInitialRule) = React.useState(() => None)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -270,38 +237,16 @@ let make = (~routingRuleId, ~isActive) => {
   let (isConfigButtonEnabled, setIsConfigButtonEnabled) = React.useState(_ => false)
   let connectorListJson =
     HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->safeParse
-
   let getConnectorsList = () => {
-    setConnectors(_ =>
-      connectorListJson
-      ->ConnectorTableUtils.getArrayOfConnectorListPayloadType
-      ->Array.filter(connector => connector.connector_name !== "applepay")
-    )
+    setConnectors(_ => connectorListJson->ConnectorTableUtils.getArrayOfConnectorListPayloadType)
   }
 
   let activeRoutingDetails = async () => {
     let routingUrl = getURL(~entityName=ROUTING, ~methodType=Get, ~id=routingRuleId, ())
     let routingJson = await fetchDetails(routingUrl)
-
-    let algorithm =
-      routingJson
-      ->getDictFromJsonObject
-      ->getObj("algorithm", Dict.make())
-      ->getArrayFromDict("data", [])
-
-    let volumeBasedGatewayDistribution = RoutingUtils.getVolumeSplit(
-      algorithm,
-      RoutingUtils.itemGateWayObjMapper,
-      None,
-    )
-    let gatewaysDict = [("gateways", volumeBasedGatewayDistribution->Js.Json.array)]->Dict.fromArray
-    let volDict = [("volumeBasedDistribution", gatewaysDict->Js.Json.object_)]->Dict.fromArray
-    let ruleDict = [("json", volDict->Js.Json.object_)]->Dict.fromArray
     let routingJsonToDict = routingJson->getDictFromJsonObject
-
     setFormState(_ => ViewConfig)
     setInitialValues(_ => routingJsonToDict)
-    setInitialRule(_ => Some(ruleDict))
     setProfile(_ => routingJsonToDict->getString("profile_id", defaultBusinessProfile.profile_id))
   }
 
@@ -317,7 +262,6 @@ let make = (~routingRuleId, ~isActive) => {
 
       | None => {
           setInitialValues(_ => VOLUME_SPLIT->RoutingUtils.constructNameDescription)
-          setInitialRule(_ => None)
           setPageState(_ => Create)
         }
       }
@@ -359,12 +303,10 @@ let make = (~routingRuleId, ~isActive) => {
     }
 
     let volumeBasedDistributionDict = dict->getObj("algorithm", Js.Dict.empty())
-
     switch volumeBasedDistributionDict->validateGateways {
     | Some(error) => errors->Js.Dict.set("Volume Based Distribution", error->Js.Json.string)
     | None => ()
     }
-
     errors->Js.Json.object_
   }
 
@@ -391,7 +333,6 @@ let make = (~routingRuleId, ~isActive) => {
         </div>
         <UIUtils.RenderIf condition={formState != CreateConfig}>
           <VolumeRoutingView
-            initialRule
             setScreenState
             pageState
             setPageState
@@ -399,6 +340,7 @@ let make = (~routingRuleId, ~isActive) => {
             routingId={routingRuleId}
             isActive
             isConfigButtonEnabled
+            initialValues
             profile
             setFormState
           />

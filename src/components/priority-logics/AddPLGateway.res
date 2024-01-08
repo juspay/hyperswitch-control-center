@@ -45,7 +45,7 @@ let make = (
       connectorList
       ->Belt.Option.getWithDefault([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
       ->ConnectorTableUtils.getConnectorNameViaId(name)
-    res.connector_label
+    res.connector_name
   }
 
   let isDistribute =

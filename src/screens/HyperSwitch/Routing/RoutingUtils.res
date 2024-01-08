@@ -427,14 +427,15 @@ let getContent = routetype =>
     }
   }
 
-// Volume
-let getGatewayTypes = (arr: array<Js.Json.t>, gatewayKey: string, distributionKey: string) => {
+//Volume
+let getGatewayTypes = (arr: array<Js.Json.t>) => {
   let tempArr = arr->Array.map(value => {
     let val = value->getDictFromJsonObject
+    let connectorDict = val->getDictfromDict("connector")
     let tempval = {
-      distribution: val->getInt(distributionKey, 0),
+      distribution: val->getInt("split", 0),
       disableFallback: val->getBool("disableFallback", false),
-      gateway_name: val->getString(gatewayKey, ""),
+      gateway_name: connectorDict->getString("merchant_connector_id", ""),
     }
     tempval
   })
@@ -473,33 +474,6 @@ let threeDsTypeMapper = dict => {
     override_3ds: getRoutingOutputval,
   }
   val
-}
-
-let ruleInfoTypeMapper = json => {
-  let arr = json->getDictFromJsonObject->getArrayFromDict("rules", [])
-  let defaultGateways =
-    json->getDictFromJsonObject->getArrayFromDict("default_gateways", [])->getStrArrayFromJsonArray
-  let rulesArray = arr->Array.map(value => {
-    let eachRule = {
-      gateways: getGatewayTypes(
-        value->getDictFromJsonObject->getArrayFromDict("gateways", []),
-        "gateway_name",
-        "distribution",
-      ),
-      conditions: conditionTypeMapper(
-        value->getDictFromJsonObject->getArrayFromDict("conditions", []),
-      ),
-      routingOutput: threeDsTypeMapper(
-        value->getDictFromJsonObject->getObj("routingOutput", Dict.make()),
-      ),
-    }
-    eachRule
-  })
-  let ruleInfo = {
-    rules: rulesArray,
-    default_gateways: defaultGateways,
-  }
-  ruleInfo
 }
 
 let constructNameDescription = routingType => {
