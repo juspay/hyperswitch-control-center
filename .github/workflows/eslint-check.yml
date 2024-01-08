@@ -16,7 +16,6 @@ jobs:
       - name: install
         run: yarn install
       - name: ESLint
-        run: |
-          npm run test:hooks || exit 1
+        run: npm run lint
         env:
           CI: true
