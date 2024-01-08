@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.19.4 (2024-01-05)
+
+### Bug Fixes
+
+- Switch merchant enabled for Live Env ([#176](https://github.com/juspay/hyperswitch-control-center/pull/176)) ([`035ab3e`](https://github.com/juspay/hyperswitch-control-center/commit/035ab3e55609b0cb2d8c5c026229fd0e1fb6d780))
+
+### Miscellaneous Tasks
+
+- Add issue template ([`0f112ed`](https://github.com/juspay/hyperswitch-control-center/commit/0f112edc291e34635cf89ad88a37be83c22de67f))
+- Mixpanel country added ([#171](https://github.com/juspay/hyperswitch-control-center/pull/171)) ([`4ee8937`](https://github.com/juspay/hyperswitch-control-center/commit/4ee89375bf14b55bd9b68d8d64f5d628abe0469e))
+- Array changes ([#174](https://github.com/juspay/hyperswitch-control-center/pull/174)) ([`1571bc2`](https://github.com/juspay/hyperswitch-control-center/commit/1571bc29d7c6a74eb02894789b172ecc14f8e592))
+- String clean changes ([#175](https://github.com/juspay/hyperswitch-control-center/pull/175)) ([`d2ce5be`](https://github.com/juspay/hyperswitch-control-center/commit/d2ce5be1d23f5a19161305e71f4373f9fe49c205))
+
+**Full Changelog:** [`v1.19.3...v1.19.4`](https://github.com/juspay/hyperswitch-control-center/compare/v1.19.3...v1.19.4)
+
+- - -
+
+
 ## 1.19.3 (2024-01-04)
 
 ### Documentation

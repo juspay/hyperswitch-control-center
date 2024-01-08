@@ -364,8 +364,9 @@ let make = (
   let parentRef = React.useRef(Js.Nullable.null)
   let dummyRef = React.useRef(Js.Nullable.null)
   let buttonRef = disableRipple ? dummyRef : parentRef
+  let rippleEffect = RippleEffectBackground.useHorizontalRippleHook(buttonRef)
   if !isPhoneDropdown {
-    RippleEffectBackground.useHorizontalRippleHook(buttonRef)
+    rippleEffect
   }
 
   let customTextOverFlowClass = switch textStyleClass {

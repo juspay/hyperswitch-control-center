@@ -235,11 +235,11 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let connectorInfo =
     connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorTableUtils.getProcessorPayloadType
+  let connectorCount = ListHooks.useListCount(~entityName=CONNECTOR)
   let isFeedbackModalToBeOpen =
     featureFlagDetails.feedback &&
     !isUpdateFlow &&
-    ListHooks.useListCount(~entityName=CONNECTOR) <=
-    HSwitchUtils.feedbackModalOpenCountForConnectors
+    connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
   let redirectPath = switch url.path {
   | list{"payoutconnectors", _} => "/payoutconnectors"
   | _ => "/connectors"

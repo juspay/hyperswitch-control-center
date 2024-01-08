@@ -107,35 +107,6 @@ let useSetInitialFilters = (~updateExistingKeys, ~startTimeFilterKey, ~endTimeFi
   }
 }
 
-let useGetFiltersData = () => {
-  open APIUtils
-  open Promise
-  open LogicUtils
-  let (filterData, setFilterData) = React.useState(_ => None)
-  let updateDetails = useUpdateMethod()
-  let {filterValueJson} = FilterContext.filterContext->React.useContext
-  let startTimeVal = filterValueJson->getString("start_time", "")
-  let endTimeVal = filterValueJson->getString("end_time", "")
-
-  (url, body) => {
-    React.useEffect3(() => {
-      setFilterData(_ => None)
-      if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
-        try {
-          updateDetails(url, body->Js.Json.object_, Post)
-          ->thenResolve(json => setFilterData(_ => json->Some))
-          ->catch(_ => resolve())
-          ->ignore
-        } catch {
-        | _ => ()
-        }
-      }
-      None
-    }, (startTimeVal, endTimeVal, body->Js.Json.object_->Js.Json.stringify))
-    filterData
-  }
-}
-
 module SearchBarFilter = {
   @react.component
   let make = (~placeholder, ~setSearchVal, ~searchVal) => {
@@ -208,7 +179,6 @@ module RemoteTableFilters = {
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->Js.Json.string}
 
-    let getFilterData = useGetFiltersData()
     let setInitialFilters = useSetInitialFilters(
       ~updateExistingKeys,
       ~startTimeFilterKey,
@@ -232,7 +202,28 @@ module RemoteTableFilters = {
       ]->Dict.fromArray
     }, (startTimeVal, endTimeVal, filterValue))
 
-    let filterDataJson = filterUrl->getFilterData(filterBody)
+    open APIUtils
+    open Promise
+    let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
+    let updateDetails = useUpdateMethod()
+    let {filterValueJson} = FilterContext.filterContext->React.useContext
+    let startTimeVal = filterValueJson->getString("start_time", "")
+    let endTimeVal = filterValueJson->getString("end_time", "")
+
+    React.useEffect3(() => {
+      setFilterDataJson(_ => None)
+      if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
+        try {
+          updateDetails(filterUrl, filterBody->Js.Json.object_, Post)
+          ->thenResolve(json => setFilterDataJson(_ => json->Some))
+          ->catch(_ => resolve())
+          ->ignore
+        } catch {
+        | _ => ()
+        }
+      }
+      None
+    }, (startTimeVal, endTimeVal, filterBody->Js.Json.object_->Js.Json.stringify))
     let filterData = filterDataJson->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
 
     React.useEffect1(() => {
