@@ -3,19 +3,25 @@ name: Lint
 on: [push]
 
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  lint:
     runs-on: ubuntu-latest
-    # Steps represent a sequence of tasks that will be executed as part of the job
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
         with:
-          node-version: "18"
-      - name: install
-        run: yarn install
-      - name: ESLint
+          fetch-depth: 0
+          token: ${{ secrets.AUTO_RELEASE_PAT }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint
         run: npm run lint:hooks
         env:
           CI: true
