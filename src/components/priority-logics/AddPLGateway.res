@@ -134,11 +134,9 @@ let make = (
 
   if isExpanded {
     <div className="flex flex-row ml-2">
-      {if !isFirst {
+      <UIUtils.RenderIf condition={!isFirst}>
         <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
-      } else {
-        React.null
-      }}
+      </UIUtils.RenderIf>
       <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
         <div className="flex flex-wrap gap-4">
           <div className="flex">
