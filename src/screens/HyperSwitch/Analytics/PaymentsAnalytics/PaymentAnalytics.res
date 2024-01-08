@@ -15,7 +15,16 @@ let make = () => {
     try {
       let infoUrl = getURL(~entityName=ANALYTICS_PAYMENTS, ~methodType=Get, ~id=Some(domain), ())
       let infoDetails = await fetchDetails(infoUrl)
-      setMetrics(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("metrics", []))
+      let metrics =
+        infoDetails
+        ->getDictFromJsonObject
+        ->getArrayFromDict("metrics", [])
+        ->Js.Array2.filter(item => {
+          let dict = item->getDictFromJsonObject
+          dict->Js.Dict.get("name")->Belt.Option.getWithDefault(""->Js.Json.string) !==
+            "retries_count"->Js.Json.string
+        })
+      setMetrics(_ => metrics)
       setDimensions(_ => infoDetails->getDictFromJsonObject->getArrayFromDict("dimensions", []))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
