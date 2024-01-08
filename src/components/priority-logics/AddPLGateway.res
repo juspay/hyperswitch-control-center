@@ -105,7 +105,7 @@ let make = (
     },
     onFocus: _ev => (),
     value: selectedOptions
-    ->Array.map(i => i.connector.merchant_connector_id->Js.Json.string)
+    ->Array.map(selectedOption => selectedOption.connector.merchant_connector_id->Js.Json.string)
     ->Js.Json.array,
     checked: true,
   }
@@ -126,7 +126,7 @@ let make = (
   let removeItem = index => {
     input.onChange(
       selectedOptions
-      ->Array.map(i => i.connector.connector)
+      ->Array.map(selectedOption => selectedOption.connector.connector)
       ->Array.filterWithIndex((_, i) => i !== index)
       ->Identity.anyTypeToReactEvent,
     )
