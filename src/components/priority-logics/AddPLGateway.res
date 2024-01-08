@@ -178,8 +178,8 @@ let make = (
                       removeItem(i)
                     }}
                   />
-                  {if isDistribute && selectedOptions->Array.length > 0 {
-                    <>
+                  <UIUtils.RenderIf condition={isDistribute && selectedOptions->Array.length > 0}>
+                    {<>
                       <input
                         className="w-10 text-right outline-none bg-white dark:bg-jp-gray-970 px-1 border border-jp-gray-300 dark:border-jp-gray-850 rounded-md"
                         name=key
@@ -195,10 +195,8 @@ let make = (
                         inputMode="text"
                       />
                       <div> {React.string("%")} </div>
-                    </>
-                  } else {
-                    React.null
-                  }}
+                    </>}
+                  </UIUtils.RenderIf>
                 </div>
               </div>
             }
