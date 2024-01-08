@@ -526,7 +526,7 @@ module Base = {
     }
 
     let buttonText = {
-      startDateVal->String.length <= 0 && endDateVal->String.length <= 0
+      startDateVal->String.length === 0 && endDateVal->String.length === 0
         ? `Select Date ${showTime ? "and Time" : ""}`
         : showTime
         ? `${startDateStr} ${startTimeStr} - ${endDateStr} ${endTimeStr}`
