@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: npm install --force
 
-      - name: Build Prod
+      - name: Build Rescript
         run: npm run re:build
 
       - name: Run ESLint
