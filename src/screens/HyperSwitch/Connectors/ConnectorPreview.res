@@ -136,17 +136,11 @@ module ConnectorSummaryGrid = {
       connectorDetails,
     )
 
-    let connectorStatusStyle = connectorStatus =>
-      switch connectorStatus {
-      | "active" => "border bg-green-600 bg-opacity-40 border-green-700"
-      | _ => "border bg-red-600 bg-opacity-40 border-red-400"
-      }
-
     <div className="p-2 md:px-10">
       <div className="grid grid-cols-4 my-12">
         <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
         <div
-          className={`px-4 py-2 rounded-full w-fit text-black font-medium text-sm ${connectorInfo.status->connectorStatusStyle}`}>
+          className={`text-black font-semibold text-sm ${connectorInfo.status->ConnectorTableUtils.connectorStatusStyle}`}>
           {connectorInfo.status->String.toUpperCase->React.string}
         </div>
       </div>
@@ -263,6 +257,12 @@ let make = (
     }
   }
 
+  let connectorStatusStyle = connectorStatus =>
+    switch connectorStatus {
+    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-800"
+    | _ => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
+    }
+
   <PageLoaderWrapper screenState>
     <div>
       <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
@@ -278,12 +278,10 @@ let make = (
           {switch currentStep {
           | Preview =>
             <div className="flex gap-6 items-center">
-              <p
-                className={`text-fs-13 font-bold ${isConnectorDisabled
-                    ? "text-red-800"
-                    : "text-green-700"}`}>
+              <div
+                className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
                 {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
-              </p>
+              </div>
               <UIUtils.RenderIf condition={showMenuOption}>
                 <MenuOption setCurrentStep disableConnector isConnectorDisabled />
               </UIUtils.RenderIf>
