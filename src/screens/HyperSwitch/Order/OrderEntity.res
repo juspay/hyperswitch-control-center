@@ -309,13 +309,13 @@ let getAttempts: Js.Json.t => array<attempts> = json => {
 }
 
 let defaultColumns: array<colType> = [
-  PaymentId,
-  Connector,
-  ConnectorTransactionID,
-  Amount,
-  Status,
-  PaymentMethod,
   Created,
+  Connector,
+  Amount,
+  PaymentId,
+  Status,
+  ConnectorTransactionID,
+  PaymentMethod,
 ]
 
 let allColumns = [
@@ -742,7 +742,7 @@ let getCell = (order, colType: colType): Table.cell => {
   | CancellationReason => Text(order.cancellation_reason)
   | ErrorCode => Text(order.error_code)
   | ErrorMessage => Text(order.error_message)
-  | ConnectorTransactionID => Text(order.connector_transaction_id)
+  | ConnectorTransactionID => EllipsisText(order.connector_transaction_id, "w-40")
   | ProfileId => Text(order.profile_id)
   | Refunds =>
     Text(

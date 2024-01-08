@@ -204,7 +204,7 @@ let make = () => {
     setShowModal(_ => true)
   }
   <div className="w-max">
-    {if isMobileView {
+    {if isMobileView || true {
       <Icon size=14 name="search" className="mx-2" onClick={openModalOnClickHandler} />
     } else {
       <div

@@ -357,7 +357,6 @@ let everypayInfo = {
   description: "EU payment platform",
 }
 
-
 let getConnectorNameString = connector => {
   switch connector {
   | ADYEN => "adyen"

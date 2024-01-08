@@ -203,7 +203,7 @@ let make = () => {
                 </RenderIf>
                 // TODO : To be removed after new navbar design
                 <div className="border-b shadow hyperswitch_box_shadow ">
-                  <div className="w-full max-w-fixedPageWidth px-9">
+                  <div className="w-full px-9">
                     <Navbar
                       headerActions={<div className="relative flex items-center gap-4 my-2 ">
                         <HSwitchGlobalSearchBar />
@@ -221,7 +221,7 @@ let make = () => {
                 <div
                   className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
                   <div
-                    className="p-6 md:px-16 md:pb-16 pt-[3rem] flex flex-col gap-10 max-w-fixedPageWidth">
+                    className="p-6 md:px-16 md:pb-16 pt-[3rem] flex flex-col gap-10">
                     <ErrorBoundary>
                       {switch url.path {
                       | list{"home"} =>

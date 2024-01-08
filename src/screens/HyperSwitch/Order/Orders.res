@@ -119,7 +119,7 @@ let make = (~previewOnly=false) => {
           actualData=orderData
           entity={OrderEntity.orderEntity}
           resultsPerPage=10
-          showSerialNumber=true
+          showSerialNumber=false
           totalResults={previewOnly ? orderData->Array.length : totalCount}
           offset
           setOffset
@@ -130,7 +130,7 @@ let make = (~previewOnly=false) => {
           sortingBasedOnDisabled=false
           hideTitle=true
           previewOnly
-          showResultsPerPageSelector=false
+          showResultsPerPageSelector=true
         />
       </PageLoaderWrapper>
     </div>
