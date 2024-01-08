@@ -24,7 +24,7 @@ let singleStateItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  let data = json->getQueryData->Js.Array2.map(singleStateItemToObjMapper)
+  let data = json->getQueryData->Array.map(singleStateItemToObjMapper)
   switch data[0] {
   | Some(ele) => ele
   | None => singleStateInitialValue
@@ -52,7 +52,7 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let timeSeriesObjMapper = json =>
-  json->getQueryData->Js.Array2.map(json => singleStateSeriesItemToObjMapper(json))
+  json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
 
 type colT =
   | RetriesCount
@@ -71,13 +71,13 @@ let constructData = (
 ) => {
   switch key {
   | "retries_count" =>
-    singlestatTimeseriesData->Js.Array2.map(ob => (
+    singlestatTimeseriesData->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.retries_count->Belt.Int.toFloat,
     ))
   | "retries_amount_processed" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (
+    ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.retries_amount_processe /. 100.00,
     ))

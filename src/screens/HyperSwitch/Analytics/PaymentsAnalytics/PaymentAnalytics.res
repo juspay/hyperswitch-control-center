@@ -19,9 +19,9 @@ let make = () => {
         infoDetails
         ->getDictFromJsonObject
         ->getArrayFromDict("metrics", [])
-        ->Js.Array2.filter(item => {
+        ->Array.filter(item => {
           let dict = item->getDictFromJsonObject
-          dict->Js.Dict.get("name")->Belt.Option.getWithDefault(""->Js.Json.string) !==
+          dict->Dict.get("name")->Belt.Option.getWithDefault(""->Js.Json.string) !==
             "retries_count"->Js.Json.string
         })
       setMetrics(_ => metrics)

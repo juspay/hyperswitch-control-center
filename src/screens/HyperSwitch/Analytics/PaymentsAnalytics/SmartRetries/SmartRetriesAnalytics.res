@@ -26,7 +26,7 @@ module SmartRetries = {
 
     let headerTextStyle = HSwitchUtils.getTextClass(~textVariant=H1, ())
 
-    <UIUtils.RenderIf condition={filterValueJson->Js.Dict.entries->Js.Array2.length > 0}>
+    <UIUtils.RenderIf condition={filterValueJson->Js.Dict.entries->Array.length > 0}>
       <div className="flex flex-col gap-0 mb-10">
         <div className={`${headerTextStyle} pt-2`}> {pageTitle->React.string} </div>
         <div className="mt-2 -ml-1">
@@ -34,7 +34,7 @@ module SmartRetries = {
             initialFilters=[]
             options=[]
             popupFilterFields=[]
-            initialFixedFilters={initialFixedFilters(Js.Json.object_(Js.Dict.empty()))}
+            initialFixedFilters={initialFixedFilters(Js.Json.object_(Dict.make()))}
             defaultFilterKeys=defaultFilters
             tabNames=tabKeys
             updateUrlWith=updateExistingKeys //
@@ -53,9 +53,7 @@ module SmartRetries = {
           moduleName
           setTotalVolume
           showPercentage=false
-          statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(
-            Js.Dict.empty(),
-          )}
+          statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(Dict.make())}
         />
       </div>
     </UIUtils.RenderIf>
@@ -66,7 +64,7 @@ module SmartRetries = {
 let make = () => {
   open SmartRetriesAnalyticsEntity
 
-  let metrics = [[("name", "retries_count"->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_]
+  let metrics = [[("name", "retries_count"->Js.Json.string)]->Dict.fromArray->Js.Json.object_]
 
   <SmartRetries
     pageTitle="Smart Retries"
