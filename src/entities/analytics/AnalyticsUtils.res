@@ -622,8 +622,6 @@ let filterBody = (filterBodyEntity: filterBodyEntity) => {
     ~source=filterBodyEntity.source,
     (),
   )
-  ->Js.Json.object_
-  ->Js.Json.stringify
 }
 
 let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {

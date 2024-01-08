@@ -35,7 +35,7 @@ module DebugObserver = {
   }
   `)
 
-  let make: unit => React.element = () => {
+  let useMake: unit => React.element = () => {
     let snapshot = useRecoilSnapshot()
 
     React.useEffect1(() => {

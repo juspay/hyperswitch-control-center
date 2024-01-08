@@ -1,6 +1,6 @@
 open APIUtils
 
-let getOrdersData = (orderId, refetchCounter, setScreenState) => {
+let useGetOrdersData = (orderId, refetchCounter, setScreenState) => {
   let (orderData, setOrderData) = React.useState(() => Js.Json.null)
   let fetchDetails = useGetMethod()
   let accountUrl = getURL(
