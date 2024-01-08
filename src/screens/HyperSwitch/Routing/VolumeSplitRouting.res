@@ -47,9 +47,9 @@ module VolumeRoutingView = {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let valuesDict = values->getDictFromJsonObject
         let data = valuesDict->getObj("algorithm", Js.Dict.empty())->getArrayFromDict("data", [])
-
+        Js.log2("lokiiiiii valuesDict", valuesDict)
         let payload = getVolumeSplit(data, itemBodyGateWayObjMapper, Some(connectorList))
-
+        Js.log2("lokiiiiii payload", payload)
         let updateUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
 
         let res = await updateDetails(
@@ -57,9 +57,9 @@ module VolumeRoutingView = {
           getRoutingPayload(
             payload,
             "volume_split",
-            initialValues->getString("name", ""),
-            initialValues->getString("description", ""),
-            initialValues->getString("profile_id", ""),
+            valuesDict->getString("name", ""),
+            valuesDict->getString("description", ""),
+            valuesDict->getString("profile_id", ""),
           )->Js.Json.object_,
           Post,
         )

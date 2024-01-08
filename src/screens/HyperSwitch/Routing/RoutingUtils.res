@@ -125,10 +125,7 @@ let itemBodyGateWayObjMapper = (
     ]
     ->Dict.fromArray
     ->Js.Json.object_
-  [
-    ("split", dict->getFloat("distribution", 0.00)->Js.Json.number),
-    ("connector", newDict),
-  ]->Dict.fromArray
+  [("split", dict->getFloat("split", 0.00)->Js.Json.number), ("connector", newDict)]->Dict.fromArray
 }
 
 let connectorPayload = (routingType, arr) => {
