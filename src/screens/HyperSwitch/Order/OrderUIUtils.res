@@ -109,7 +109,7 @@ let filterByData = (txnArr, value) => {
       ->Array.map(item => {
         let (_, value) = item
 
-        value->getStringFromJson("")->Js.String2.toLowerCase->Js.String2.includes(searchText)
+        value->getStringFromJson("")->String.toLowerCase->String.includes(searchText)
       })
       ->Array.reduce(false, (acc, item) => item || acc)
 
@@ -240,7 +240,7 @@ let getOrdersList = async (
         ->Belt.Option.getWithDefault("")
 
       if Js.Re.test_(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
-        let newID = payment_id->Js.String2.replaceByRe(%re("/_[0-9]$/g"), "")
+        let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
         filterValueJson->Dict.set("payment_id", newID->Js.Json.string)
 
         let res = await updateDetails(ordersUrl, filterValueJson->Js.Json.object_, Fetch.Post)

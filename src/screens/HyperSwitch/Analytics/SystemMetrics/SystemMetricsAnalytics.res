@@ -188,7 +188,7 @@ module HSiwtchPaymentConfirmLatency = {
                   ~includeMilliseconds=true,
                   (),
                 )
-                ->Js.String2.toLowerCase
+                ->String.toLowerCase
                 ->React.string}
               </div>
             </div>

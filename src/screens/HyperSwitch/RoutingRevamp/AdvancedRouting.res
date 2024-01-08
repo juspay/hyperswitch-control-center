@@ -185,7 +185,7 @@ module Wrapper = {
     }
 
     React.useEffect0(() => {
-      name.onChange(heading->Js.String2.toLowerCase->titleToSnake->Identity.stringToFormReactEvent)
+      name.onChange(heading->String.toLowerCase->titleToSnake->Identity.stringToFormReactEvent)
 
       let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Array.length > 0
 
@@ -566,7 +566,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     | Js.Exn.Error(e) =>
       switch Js.Exn.message(e) {
       | Some(message) =>
-        if message->Js.String2.includes("IR_16") {
+        if message->String.includes("IR_16") {
           showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
           RescriptReactRouter.replace(`/routing`)
           setScreenState(_ => Success)

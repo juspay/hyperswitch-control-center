@@ -2,8 +2,6 @@ open AdvancedRoutingTypes
 open AdvancedRoutingUtils
 open FormRenderer
 
-external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
-
 module LogicalOps = {
   @react.component
   let make = (~id) => {
@@ -11,11 +9,11 @@ module LogicalOps = {
 
     React.useEffect0(() => {
       if logicalOpsInput.value->LogicUtils.getStringFromJson("")->String.length === 0 {
-        logicalOpsInput.onChange("AND"->strToFormEvent)
+        logicalOpsInput.onChange("AND"->Identity.stringToFormReactEvent)
       }
       None
     })
-    let onChange = str => logicalOpsInput.onChange(str->strToFormEvent)
+    let onChange = str => logicalOpsInput.onChange(str->Identity.stringToFormReactEvent)
 
     <ButtonGroup wrapperClass="flex flex-row mr-2 ml-1">
       {["AND", "OR"]
@@ -200,9 +198,9 @@ module MetadataInp = {
       onBlur: _ev => {
         let value = valueField.value
         let val = value->LogicUtils.getStringFromJson("")
-        let valSplit = Js.String2.split(val, ",")
+        let valSplit = String.split(val, ",")
         let arrStr = valSplit->Array.map(item => {
-          Js.String2.trim(item)
+          String.trim(item)
         })
         let finalVal = Array.joinWith(arrStr, ",")->Js.Json.string
 

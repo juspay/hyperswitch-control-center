@@ -63,7 +63,7 @@ let allColumns = [
 
 let getStatus = dispute => {
   open DisputesUtils
-  let orderStatusLabel = dispute.dispute_status->Js.String2.toUpperCase
+  let orderStatusLabel = dispute.dispute_status->String.toUpperCase
   let fixedCss = "text-sm text-white font-bold p-1.5 rounded-lg"
   switch dispute.dispute_status->disputeStatusVariantMapper {
   | DisputeAccepted
@@ -173,7 +173,7 @@ let getCell = (disputesData, colType): Table.cell => {
   | Currency => Text(disputesData.currency)
   | DisputeStage =>
     Label({
-      title: disputesData.dispute_stage->Js.String2.toUpperCase,
+      title: disputesData.dispute_stage->String.toUpperCase,
       color: switch disputesData.dispute_stage->disputeStageVariantMapper {
       | PreDispute => LabelOrange
       | Dispute => LabelGreen
@@ -183,7 +183,7 @@ let getCell = (disputesData, colType): Table.cell => {
     })
   | DisputeStatus =>
     Label({
-      title: disputesData.dispute_status->Js.String2.toUpperCase,
+      title: disputesData.dispute_status->String.toUpperCase,
       color: switch disputesData.dispute_status->disputeStatusVariantMapper {
       | DisputeOpened => LabelLightBlue
       | DisputeExpired => LabelRed

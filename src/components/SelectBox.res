@@ -18,11 +18,11 @@ external ffInputToRadioInput: ReactFinalForm.fieldRenderPropsInput => ReactFinal
 let regex = (a, searchString) => {
   let searchStringNew =
     searchString
-    ->Js.String2.replaceByRe(%re("/[<>\[\]';|?*\\]/g"), "")
-    ->Js.String2.replaceByRe(%re("/\(/g"), "\\(")
-    ->Js.String2.replaceByRe(%re("/\+/g"), "\\+")
-    ->Js.String2.replaceByRe(%re("/\)/g"), "\\)")
-    ->Js.String2.replaceByRe(%re("/\./g"), "")
+    ->String.replaceRegExp(%re("/[<>\[\]';|?*\\]/g"), "")
+    ->String.replaceRegExp(%re("/\(/g"), "\\(")
+    ->String.replaceRegExp(%re("/\+/g"), "\\+")
+    ->String.replaceRegExp(%re("/\)/g"), "\\)")
+    ->String.replaceRegExp(%re("/\./g"), "")
   Js.Re.fromStringWithFlags("(.*)(" ++ a ++ "" ++ searchStringNew ++ ")(.*)", ~flags="i")
 }
 
@@ -247,9 +247,8 @@ module ListItem = {
                 ->Array.filter(str => str !== "")
                 ->Array.mapWithIndex((item, i) => {
                   if (
-                    (Js.String2.toLowerCase(item) == Js.String2.toLowerCase(searchString) ||
-                      Js.String2.toLowerCase(item) ==
-                        Js.String2.toLowerCase("_" ++ searchString)) &&
+                    (String.toLowerCase(item) == String.toLowerCase(searchString) ||
+                      String.toLowerCase(item) == String.toLowerCase("_" ++ searchString)) &&
                       String.length(searchString) > 0
                   ) {
                     <AddDataAttributes
@@ -463,7 +462,7 @@ module BaseSelect = {
     ~preservedAppliedOptions=[],
   ) => {
     let (searchString, setSearchString) = React.useState(() => "")
-    let maxHeight = if maxHeight->Js.String2.includes("72") {
+    let maxHeight = if maxHeight->String.includes("72") {
       "md:max-h-66.5"
     } else {
       maxHeight

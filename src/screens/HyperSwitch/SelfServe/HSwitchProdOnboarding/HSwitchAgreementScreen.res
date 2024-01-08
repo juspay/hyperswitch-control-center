@@ -7,6 +7,8 @@ let make = () => {
   let {dashboardPageState, setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
   let (isAgreeEnable, setIsAgreeEnable) = React.useState(_ => false)
   let (isSelected, setIsSelected) = React.useState(_ => false)
+  let userRole = HSLocalStorage.getFromUserDetails("user_role")
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   React.useEffect1(() => {
     RescriptReactRouter.push("agreement-signature")
@@ -87,9 +89,23 @@ let make = () => {
       <Loader />
     </div>
 
+  let buttonState = if GlobalVars.isLocalhost {
+    Button.Normal
+  } else if isSelected && isAgreeEnable {
+    Button.Normal
+  } else {
+    Button.Disabled
+  }
+
   <HSwitchUtils.BackgroundImageWrapper>
-    <div className=" w-full h-full md:w-pageWidth11 mx-auto py-10">
-      <div className="flex flex-col gap-5 bg-white p-20 w-full h-full overflow-hidden">
+    <div className="w-full h-[90%] md:w-pageWidth11 mx-auto py-10">
+      <div className="flex items-center justify-between px-20 bg-white pb-5 pt-10">
+        <img src={`assets/Dark/hyperswitchLogoIconWithText.svg`} />
+        <UIUtils.RenderIf condition={featureFlagDetails.switchMerchant}>
+          <SwitchMerchant userRole={userRole} />
+        </UIUtils.RenderIf>
+      </div>
+      <div className="flex flex-col gap-5 bg-white px-20 pb-10 w-full h-full overflow-hidden">
         <div className="flex justify-between items-center flex-wrap gap-2">
           <div className="font-semibold text-xl">
             {"Hyperswitch Service Agreement"->React.string}
@@ -101,8 +117,9 @@ let make = () => {
               buttonType={Primary}
               buttonSize={Small}
               customButtonStyle="!px-2 rounded-lg"
-              onClick={_ => downloadPDF()}
-              buttonState={isSelected && isAgreeEnable ? Normal : Disabled}
+              onClick={_ =>
+                GlobalVars.isLocalhost ? setDashboardPageState(_ => #HOME) : downloadPDF()}
+              buttonState
             />}
             toolTipPosition=ToolTip.Top
             tooltipWidthClass="w-auto"

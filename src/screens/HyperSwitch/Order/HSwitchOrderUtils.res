@@ -37,7 +37,7 @@ type paymentAttemptStatus = [
 ]
 
 let statusVariantMapper: string => status = statusLabel =>
-  switch statusLabel->Js.String2.toUpperCase {
+  switch statusLabel->String.toUpperCase {
   | "SUCCEEDED" => Succeeded
   | "FAILED" => Failed
   | "CANCELLED" => Cancelled
@@ -50,7 +50,7 @@ let statusVariantMapper: string => status = statusLabel =>
   }
 
 let paymentAttemptStatusVariantMapper: string => paymentAttemptStatus = statusLabel =>
-  switch statusLabel->Js.String2.toUpperCase {
+  switch statusLabel->String.toUpperCase {
   | "STARTED" => #STARTED
   | "AUTHENTICATION_FAILED" => #AUTHENTICATION_FAILED
   | "ROUTER_DECLINED" => #ROUTER_DECLINED
@@ -77,7 +77,7 @@ let paymentAttemptStatusVariantMapper: string => paymentAttemptStatus = statusLa
   | _ => #NONE
   }
 
-let isTestPayment = id => id->Js.String2.includes("test_")
+let isTestPayment = id => id->String.includes("test_")
 
 let eventLogHeader =
   <div className="font-bold text-lg mb-5"> {"Events and logs"->React.string} </div>

@@ -112,7 +112,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
         switch Js.Exn.message(e) {
         | Some(message) => {
             let errMsg = message->parseIntoMyData
-            if errMsg.code->Belt.Option.getWithDefault("")->Js.String2.includes("HE_01") {
+            if errMsg.code->Belt.Option.getWithDefault("")->String.includes("HE_01") {
               showToast(
                 ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
                 ~toastType=ToastState.ToastError,
@@ -224,7 +224,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
       formClass="flex flex-col ">
       <div className="flex items-center justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
-          <GatewayIcon gateway={connector->Js.String2.toUpperCase} />
+          <GatewayIcon gateway={connector->String.toUpperCase} />
           <h2 className="text-xl font-semibold">
             {connector->LogicUtils.capitalizeString->React.string}
           </h2>

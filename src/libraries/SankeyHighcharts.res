@@ -89,12 +89,12 @@ let tooltipFormatter = () => {
   (t: tooltiplink) => {
     open LogicUtils
     let tFrom =
-      t.from->Js.String2.includes("( +++ )")
-        ? t.from->Js.String2.split("( +++ )")->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+      t.from->String.includes("( +++ )")
+        ? t.from->String.split("( +++ )")->Belt.Array.get(0)->Belt.Option.getWithDefault("")
         : t.from
     let tTo =
-      t.to->Js.String2.includes("( +++ )")
-        ? t.to->Js.String2.split("( +++ )")->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+      t.to->String.includes("( +++ )")
+        ? t.to->String.split("( +++ )")->Belt.Array.get(0)->Belt.Option.getWithDefault("")
         : t.to
     `<div class="w-70 p-4 rounded-lg">
         <div class="block"><div class="align-sub rounded-sm inline-block w-4 h-4  mr-4 bg-red" style="fill: ${t.fromNode.color};background: ${t.fromNode.color};"></div>

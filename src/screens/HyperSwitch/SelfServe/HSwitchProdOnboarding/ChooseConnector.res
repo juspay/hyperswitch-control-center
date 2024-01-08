@@ -34,7 +34,7 @@ let make = (~selectedConnector, ~setSelectedConnector, ~pageView, ~setPageView) 
           onClick={_ => setSelectedConnector(_ => connector)}>
           <div className="flex justify-between items-center">
             <div className="flex gap-2 items-center ">
-              <GatewayIcon gateway={connectorName->Js.String2.toUpperCase} className="w-8 h-8" />
+              <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-8 h-8" />
               <p className=subheaderText>
                 {connectorName->LogicUtils.capitalizeString->React.string}
               </p>

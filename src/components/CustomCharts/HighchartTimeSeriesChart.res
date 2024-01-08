@@ -25,7 +25,7 @@ module TooltipString = {
         tooltipWidthClass={isMobileView ? "w-fit" : ""}
         toolTipFor={<div className={`whitespace-pre text-ellipsis overflow-x-hidden w-15`}>
           <AddDataAttributes attributes=[("data-text", text)]>
-            <div> {React.string(`${Js.String.slice(~from=0, ~to_=12, text)}...`)} </div>
+            <div> {React.string(`${String.slice(~start=0, ~end=12, text)}...`)} </div>
           </AddDataAttributes>
         </div>}
       />
@@ -124,7 +124,7 @@ module LineChart1D = {
                     ->DateTimeUtils.toUtc
                     ->Js.Date.getHours
                     ->Belt.Float.toString}:00`
-                  ->Js.String2.sliceToEnd(~from=-5)
+                  ->String.sliceToEnd(~start=-5)
                   ->Js.Json.string
                 } else if "run_month" === groupKey {
                   xAxis
@@ -362,9 +362,7 @@ module LineChart1D = {
         CustomCell(
           {
             if (
-              !(transactionTable.groupByName->Js.String2.includes("Mid")) &&
-              isPartners &&
-              showIndicator
+              !(transactionTable.groupByName->String.includes("Mid")) && isPartners && showIndicator
             ) {
               <div className="flex items-stretch justify-start">
                 {if transactionTable.current < 20. {
@@ -413,7 +411,7 @@ module LineChart1D = {
 
       | val =>
         Table.makeHeaderInfo(
-          ~key=val->LineChartUtils.chartLegendTypeToStr->Js.String2.toLowerCase,
+          ~key=val->LineChartUtils.chartLegendTypeToStr->String.toLowerCase,
           ~title=val->LineChartUtils.chartLegendTypeToStr,
           ~dataType=NumericType,
           ~showSort={!isPartners},

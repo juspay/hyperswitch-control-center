@@ -159,6 +159,9 @@ let make = () => {
   let centerItems = pageView === SETUP_COMPLETED ? "justify-center" : ""
   let urlPush = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/prod-onboarding?${routerUrl.search}`
 
+  let userRole = HSLocalStorage.getFromUserDetails("user_role")
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
   let getSetupCompleteEnum = async () => {
     open LogicUtils
     try {
@@ -283,45 +286,51 @@ let make = () => {
       <SidebarChecklist pageView getConnectorDetails setPreviewState />
       <div
         className={`bg-hyperswitch_background flex items-center h-screen w-full overflow-scroll ${centerItems}`}>
-        <div
-          className={`h-[52rem] overflow-scroll bg-white rounded-md w-full border ${getCssOnView}`}>
-          {switch previewState {
-          | Some(previewVariant) =>
-            switch previewVariant {
-            | SELECT_PROCESSOR_PREVIEW =>
-              <div className="h-full w-full px-11 py-8">
-                <ConnectorPreview
-                  connectorInfo={initialValues}
-                  currentStep=ConnectorTypes.Preview
-                  setCurrentStep={_ => ()}
-                  isUpdateFlow=true
-                  isPayoutFlow=false
-                  showMenuOption=false
+        <div className={`flex flex-col ${getCssOnView}`}>
+          <UIUtils.RenderIf condition={featureFlagDetails.switchMerchant}>
+            <div className={`flex justify-end w-full pb-5`}>
+              <SwitchMerchant userRole={userRole} />
+            </div>
+          </UIUtils.RenderIf>
+          <div className={`h-[52rem] overflow-scroll bg-white rounded-md w-full border`}>
+            {switch previewState {
+            | Some(previewVariant) =>
+              switch previewVariant {
+              | SELECT_PROCESSOR_PREVIEW =>
+                <div className="h-full w-full px-11 py-8">
+                  <ConnectorPreview
+                    connectorInfo={initialValues}
+                    currentStep=ConnectorTypes.Preview
+                    setCurrentStep={_ => ()}
+                    isUpdateFlow=true
+                    isPayoutFlow=false
+                    showMenuOption=false
+                  />
+                </div>
+              | LIVE_ENDPOINTS_PREVIEW => <LiveEndpointsSetup pageView setPageView previewState />
+              | _ => React.null
+              }
+            | None =>
+              switch pageView {
+              | SELECT_PROCESSOR =>
+                <ChooseConnector selectedConnector setSelectedConnector pageView setPageView />
+              | SETUP_CREDS | SETUP_WEBHOOK_PROCESSOR =>
+                <SetupConnectorCredentials selectedConnector pageView setPageView setConnectorID />
+              | REPLACE_API_KEYS | SETUP_WEBHOOK_USER =>
+                <LiveEndpointsSetup pageView setPageView previewState />
+              // | TEST_LIVE_PAYMENT => <TestLivePayment pageView setPageView setPaymentId />
+              | SETUP_COMPLETED =>
+                <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
+                  iconName="account-setup-completed"
+                  statusText="Basic Account Setup Successful"
+                  buttonText="Go to Dashboard"
+                  buttonOnClick={_ => updateSetupPageCompleted()->ignore}
+                  buttonState
                 />
-              </div>
-            | LIVE_ENDPOINTS_PREVIEW => <LiveEndpointsSetup pageView setPageView previewState />
-            | _ => React.null
-            }
-          | None =>
-            switch pageView {
-            | SELECT_PROCESSOR =>
-              <ChooseConnector selectedConnector setSelectedConnector pageView setPageView />
-            | SETUP_CREDS | SETUP_WEBHOOK_PROCESSOR =>
-              <SetupConnectorCredentials selectedConnector pageView setPageView setConnectorID />
-            | REPLACE_API_KEYS | SETUP_WEBHOOK_USER =>
-              <LiveEndpointsSetup pageView setPageView previewState />
-            // | TEST_LIVE_PAYMENT => <TestLivePayment pageView setPageView setPaymentId />
-            | SETUP_COMPLETED =>
-              <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
-                iconName="account-setup-completed"
-                statusText="Basic Account Setup Successful"
-                buttonText="Go to Dashboard"
-                buttonOnClick={_ => updateSetupPageCompleted()->ignore}
-                buttonState
-              />
-            | _ => React.null
-            }
-          }}
+              | _ => React.null
+              }
+            }}
+          </div>
         </div>
       </div>
     </div>

@@ -26,7 +26,7 @@ let make = (
   let handleSearch = e => {
     setPrevVal(_ => inputText)
     let value = {e->ReactEvent.Form.target}["value"]
-    if value->Js.String2.includes("<script>") || value->Js.String2.includes("</script>") {
+    if value->String.includes("<script>") || value->String.includes("</script>") {
       showPopUp({
         popUpType: (Warning, WithIcon),
         heading: `Script Tags are not allowed`,
@@ -34,7 +34,7 @@ let make = (
         handleConfirm: {text: "OK"},
       })
     }
-    let searchStr = value->Js.String2.replace("<script>", "")->Js.String2.replace("</script>", "")
+    let searchStr = value->String.replace("<script>", "")->String.replace("</script>", "")
     // let searchStr = (e->ReactEvent.Form.target)["value"]
 
     onChange(searchStr)

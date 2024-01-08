@@ -139,7 +139,7 @@ module MonthItem = {
       className={`p-2 px-4 ${index === tempMonth->Belt.Float.toInt
           ? "bg-blue-950 text-white"
           : "dark:hover:bg-jp-gray-900 hover:bg-jp-gray-100"}  cursor-pointer`}>
-      {mon->getMonthInStr->Js.String2.replaceByRe(%re("/,/g"), "")->React.string}
+      {mon->getMonthInStr->String.replaceRegExp(%re("/,/g"), "")->React.string}
     </li>
   }
 }

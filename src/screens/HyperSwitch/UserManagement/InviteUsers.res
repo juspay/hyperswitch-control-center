@@ -106,7 +106,7 @@ let make = () => {
     ->Array.forEachWithIndex((ele, index) => {
       let body =
         [
-          ("email", ele->Js.String2.toLowerCase->Js.Json.string),
+          ("email", ele->String.toLowerCase->Js.Json.string),
           ("name", ele->getNameFromEmail->Js.Json.string),
           ("role_id", role->Js.Json.string),
         ]

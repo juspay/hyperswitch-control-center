@@ -208,7 +208,7 @@ let make = () => {
                       headerActions={<div className="relative flex items-center gap-4 my-2 ">
                         <HSwitchGlobalSearchBar />
                         <RenderIf condition={featureFlagDetails.switchMerchant}>
-                          <SwitchMerchant userRole={userRole} />
+                          <SwitchMerchant userRole={userRole} isAddMerchantEnabled=true />
                         </RenderIf>
                         <div
                           className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
@@ -317,7 +317,7 @@ let make = () => {
                       | list{"developer-api-keys"} => <KeyManagement.KeysManagement />
                       | list{"developer-system-metrics"} =>
                         <UIUtils.RenderIf
-                          condition={userRole->Js.String2.includes("internal_") &&
+                          condition={userRole->String.includes("internal_") &&
                             featureFlagDetails.systemMetrics}>
                           <FilterContext key="SystemMetrics" index="SystemMetrics">
                             <SystemMetricsAnalytics />
