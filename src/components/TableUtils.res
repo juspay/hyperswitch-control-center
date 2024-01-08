@@ -478,15 +478,6 @@ module LinkCell = {
 }
 
 module DateCell = {
-  let getFormattedDate = (dateStr, dateFormat) => {
-    let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
-    try {
-      let customTimeZone = isoStringToCustomTimeZone(dateStr)
-      TimeZoneHook.formattedDateTimeFloat(customTimeZone, dateFormat)
-    } catch {
-    | _ => `${dateStr} - unable to parse`
-    }
-  }
   @react.component
   let make = (
     ~timestamp,
@@ -499,6 +490,16 @@ module DateCell = {
     let isMobileView = MatchMedia.useMobileChecker()
     let dateFormat = React.useContext(DateFormatProvider.dateFormatContext)
     let dateFormat = isMobileView ? "DD MMM HH:mm" : dateFormat
+
+    let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
+    let getFormattedDate = dateStr => {
+      try {
+        let customTimeZone = isoStringToCustomTimeZone(dateStr)
+        TimeZoneHook.formattedDateTimeFloat(customTimeZone, dateFormat)
+      } catch {
+      | _ => `${dateStr} - unable to parse`
+      }
+    }
 
     let fontType = switch textStyle {
     | Some(font) => font
@@ -515,13 +516,11 @@ module DateCell = {
       ? fontType
       : `dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${textAlignClass} ${fontStyle}`
 
-    <AddDataAttributes attributes=[("data-date", timestamp->getFormattedDate(dateFormat))]>
+    <AddDataAttributes attributes=[("data-date", timestamp->getFormattedDate)]>
       <div className={`${wrapperClass} whitespace-nowrap`}>
         {hideTime
-          ? React.string(
-              timestamp->getFormattedDate(dateFormat)->Js.String2.slice(~from=0, ~to_=12),
-            )
-          : {React.string(`${timestamp->getFormattedDate(dateFormat)} ${selectedTimeZoneAlias}`)}}
+          ? React.string(timestamp->getFormattedDate->Js.String2.slice(~from=0, ~to_=12))
+          : {React.string(`${timestamp->getFormattedDate} ${selectedTimeZoneAlias}`)}}
       </div>
     </AddDataAttributes>
   }
