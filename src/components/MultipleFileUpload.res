@@ -31,9 +31,10 @@ let make = (
   ~pointerDisable=false,
 ) => {
   let (key, setKey) = React.useState(_ => 1)
+  let formValues = ReactFinalForm.useField(input.name ++ "_filenames").input
   let fileNamesInput = switch fileNamesInput {
   | Some(filenamesInput) => filenamesInput
-  | None => ReactFinalForm.useField(input.name ++ "_filenames").input
+  | None => formValues
   }
   let fileTypeInput = ReactFinalForm.useField(input.name ++ "_filemimes").input
 

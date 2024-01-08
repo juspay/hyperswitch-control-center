@@ -100,6 +100,7 @@ let multiSelectInput: (
   ~wrapBasis: string=?,
   ~dropdownClassName: string=?,
   ~baseComponentMethod: bool => React.element=?,
+  ~disableSelect: bool=?,
   unit,
 ) => React.element
 let radioInput: (

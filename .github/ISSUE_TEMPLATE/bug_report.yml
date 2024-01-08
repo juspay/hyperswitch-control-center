@@ -60,7 +60,6 @@ body:
     validations:
       required: false
 
-
   - type: checkboxes
     id: no-duplicate-issues
     attributes:

@@ -15,7 +15,7 @@ let useSortedObj: (
   option<Table.sortedObject>,
   (option<Table.sortedObject> => option<Table.sortedObject>) => unit,
 )
-let useSortArray: (unit, Js.Array2.t<'a>, Js.Dict.key, Table.sortOrder) => Js.Array2.t<'a>
+// let sortArray: (Js.Array2.t<'a>, RescriptCoreFuture.Dict.key, Table.sortOrder) => Js.Array2.t<'a>
 type pageDetails = {offset: int, resultsPerPage: int}
 let table_pageDetails: Recoil.recoilAtom<Js.Dict.t<pageDetails>>
 @react.component

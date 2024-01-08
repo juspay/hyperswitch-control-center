@@ -41,9 +41,6 @@ let requirementsQuestion: questionsType = {
 }
 let questionForSurvey = [userRoleQuestions, paymentProcessorQuestions, requirementsQuestion]
 
-let getStringValueFromForm = valueToExtract =>
-  ReactFinalForm.useField(valueToExtract).input.value->LogicUtils.getStringFromJson("")
-
 let getBrowswerDetailsPayload = () => {
   open CountryUtils
   let browserDetails = HSwitchUtils.getBrowswerDetails()
