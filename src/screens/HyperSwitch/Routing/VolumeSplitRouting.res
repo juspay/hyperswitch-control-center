@@ -15,7 +15,6 @@ module VolumeRoutingView = {
     ~setPageState,
     ~connectors: array<ConnectorTypes.connectorPayload>,
     ~isActive,
-    ~initialValues,
     ~isConfigButtonEnabled,
     ~profile,
     ~setFormState,
@@ -399,7 +398,6 @@ let make = (~routingRuleId, ~isActive) => {
             connectors
             routingId={routingRuleId}
             isActive
-            initialValues
             isConfigButtonEnabled
             profile
             setFormState
