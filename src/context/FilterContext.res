@@ -8,19 +8,19 @@ type sessionStorage = {
 
 type filterUpdater = {
   query: string,
-  filterValue: Js.Dict.t<string>,
-  updateExistingKeys: Js.Dict.t<string> => unit,
+  filterValue: Dict.t<string>,
+  updateExistingKeys: Dict.t<string> => unit,
   removeKeys: array<string> => unit,
-  filterValueJson: Js.Dict.t<Js.Json.t>,
+  filterValueJson: Dict.t<Js.Json.t>,
   reset: unit => unit,
 }
 
 let filterUpdater = {
   query: "",
-  filterValue: Js.Dict.empty(),
+  filterValue: Dict.make(),
   updateExistingKeys: _dict => (),
   removeKeys: _arr => (),
-  filterValueJson: Js.Dict.empty(),
+  filterValueJson: Dict.make(),
   reset: () => (),
 }
 
@@ -39,7 +39,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
   let (filterDict, setfilterDict) = React.useState(_ => searcParamsToDict)
 
   let updateFilter = React.useMemo2(() => {
-    let updateFilter = (dict: Js.Dict.t<string>) => {
+    let updateFilter = (dict: Dict.t<string>) => {
       setfilterDict(prev => {
         let prevDictArr =
           prev
@@ -47,7 +47,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
           ->Belt.Array.keepMap(
             item => {
               let (key, value) = item
-              switch dict->Js.Dict.get(key) {
+              switch dict->Dict.get(key) {
               | Some(_) => None
               | None => !(value->isEmptyString) ? Some(item) : None
               }
@@ -75,7 +75,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
     }
 
     let reset = () => {
-      let dict = Js.Dict.empty()
+      let dict = Dict.make()
       setfilterDict(_ => dict)
       query := dict->FilterUtils.parseFilterDict
     }
