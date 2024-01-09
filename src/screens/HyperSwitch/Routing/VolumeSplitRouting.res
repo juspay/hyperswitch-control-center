@@ -18,6 +18,7 @@ module VolumeRoutingView = {
     ~profile,
     ~setFormState,
     ~initialValues,
+    ~onSubmit,
   ) => {
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
@@ -34,37 +35,9 @@ module VolumeRoutingView = {
       ->getDictFromJsonObject
       ->getArrayFromDict("data", [])
 
-    let onSubmit = async (values, isSaveRule) => {
-      try {
-        setScreenState(_ => PageLoaderWrapper.Loading)
-        let updateUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
-        let res = await updateDetails(updateUrl, values, Post)
-        showToast(
-          ~message="Successfully Created a new Configuration !",
-          ~toastType=ToastState.ToastSuccess,
-          (),
-        )
-        setScreenState(_ => Success)
-        if isSaveRule {
-          RescriptReactRouter.replace(`/routing`)
-        }
-        Js.Nullable.return(res)
-      } catch {
-      | Js.Exn.Error(e) =>
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong!")
-        showToast(
-          ~message="Failed to Save the Configuration !",
-          ~toastType=ToastState.ToastError,
-          (),
-        )
-        setScreenState(_ => PageLoaderWrapper.Error(err))
-        Js.Exn.raiseError(err)
-      }
-    }
-
     let handleActivateConfiguration = async activatingId => {
       try {
-        setScreenState(_ => Loading)
+        setScreenState(_ => PageLoaderWrapper.Loading)
         let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
         let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
         showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
@@ -224,6 +197,7 @@ module VolumeRoutingView = {
 
 @react.component
 let make = (~routingRuleId, ~isActive) => {
+  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
@@ -235,6 +209,7 @@ let make = (~routingRuleId, ~isActive) => {
   let (connectors, setConnectors) = React.useState(_ => [])
   let currentTabName = Recoil.useRecoilValueFromAtom(RoutingUtils.currentTabNameRecoilAtom)
   let (isConfigButtonEnabled, setIsConfigButtonEnabled) = React.useState(_ => false)
+  let showToast = ToastState.useShowToast()
   let connectorListJson =
     HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->safeParse
   let getConnectorsList = () => {
@@ -320,6 +295,30 @@ let make = (~routingRuleId, ~isActive) => {
     errors->Js.Json.object_
   }
 
+  let onSubmit = async (values, isSaveRule) => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let updateUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
+      let res = await updateDetails(updateUrl, values, Post)
+      showToast(
+        ~message="Successfully Created a new Configuration !",
+        ~toastType=ToastState.ToastSuccess,
+        (),
+      )
+      setScreenState(_ => Success)
+      if isSaveRule {
+        RescriptReactRouter.replace(`/routing`)
+      }
+      Js.Nullable.return(res)
+    } catch {
+    | Js.Exn.Error(e) =>
+      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong!")
+      showToast(~message="Failed to Save the Configuration !", ~toastType=ToastState.ToastError, ())
+      setScreenState(_ => PageLoaderWrapper.Error(err))
+      Js.Exn.raiseError(err)
+    }
+  }
+
   React.useEffect1(() => {
     getDetails()->ignore
     None
@@ -327,7 +326,10 @@ let make = (~routingRuleId, ~isActive) => {
 
   <div className="my-6">
     <PageLoaderWrapper screenState>
-      <Form validate initialValues={initialValues->Js.Json.object_}>
+      <Form
+        onSubmit={(values, _) => onSubmit(values, true)}
+        validate
+        initialValues={initialValues->Js.Json.object_}>
         <div className="w-full flex justify-between">
           <div className="w-full">
             <BasicDetailsForm
@@ -353,6 +355,7 @@ let make = (~routingRuleId, ~isActive) => {
             initialValues
             profile
             setFormState
+            onSubmit
           />
         </UIUtils.RenderIf>
         <FormValuesSpy />
