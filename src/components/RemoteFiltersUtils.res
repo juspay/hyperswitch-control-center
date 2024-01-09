@@ -226,7 +226,7 @@ let getLocalFiltersData = (
   ~resArr: Js.Array2.t<Js.Nullable.t<'t>>,
   ~searchParams,
   ~initialFilters: array<EntityType.initialFilters<'t>>,
-  ~dateRangeFilterDict: Js.Dict.t<Js.Json.t>,
+  ~dateRangeFilterDict: Dict.t<Js.Json.t>,
   ~options: array<EntityType.optionType<'t>>,
   (),
 ) => {
