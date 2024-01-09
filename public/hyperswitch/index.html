@@ -105,21 +105,6 @@
 
   <body>
     <!-- SDK Loader Manager (noscript) -->
-    <script>
-      (function (w, d) {
-        //http://localhost:9090/dist/HyperLoader.js
-        // var host = w.location.hostname;
-        var src = "https://dev.hyperswitch.io/v1/HyperLoader.js";
-        if (w && w["_env_"] && w["_env_"]["sdkBaseUrl"]) {
-          src = w["_env_"]["sdkBaseUrl"];
-        }
-        var s = d.createElement("script");
-        s.setAttribute("src", src);
-        d.body.appendChild(s);
-        console.log(window._env_.API_URL);
-      })(window, document);
-    </script>
-
     <script type="module" src="/wasm/euclid.js"></script>
     <script src="/module.js"></script>
     <div id="app"></div>

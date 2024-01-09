@@ -15,3 +15,7 @@ external event: string => event = "Event"
 @val @scope(("window", "location")) external windowOrigin: string = "origin"
 @get external keyCode: 'a => int = "keyCode"
 @send external querySelectorAll: (document, string) => array<Dom.element> = "querySelectorAll"
+@send external setAttribute: (Dom.element, string, string) => unit = "setAttribute"
+@send external remove: (Dom.element, unit) => unit = "remove"
+@scope(("document", "body"))
+external appendChild: Dom.element => unit = "appendChild"
