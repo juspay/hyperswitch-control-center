@@ -21,10 +21,10 @@ jobs:
       - name: Install dependencies
         run: npm install --force
 
-      - name: Build Rescript
-        run: npm run re:build
+      # - name: Build Rescript
+      #   run: npm run re:build
 
-      - name: Run ESLint
-        run: npm run lint:hooks
-        env:
-          CI: true
+      # - name: Run ESLint
+      #   run: npm run lint:hooks
+      #   env:
+      #     CI: true

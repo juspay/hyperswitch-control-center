@@ -602,7 +602,7 @@ let getTooltipHTML = (metrics, data, onCursorName) => {
 
 let tooltipFormatter = (
   metrics: metricsConfig,
-  xAxisMapInfo: Js.Dict.t<Js.Array2.t<(Js_string.t, string, float, option<float>)>>,
+  xAxisMapInfo: Dict.t<Js.Array2.t<(Js_string.t, string, float, option<float>)>>,
   groupKey: string,
 ) =>
   @this

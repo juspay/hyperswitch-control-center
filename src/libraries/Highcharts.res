@@ -56,7 +56,7 @@ type tick = {
   gridLine: gridLine,
   pos: float,
 }
-type eventYaxis = {ticks: Js.Dict.t<gridLine>}
+type eventYaxis = {ticks: Dict.t<gridLine>}
 type chartEventOnload = {yAxis: array<eventYaxis>}
 type chartEvent = {render: option<Js_OO.Callback.arity1<chartEventOnload => unit>>}
 type chart = {
@@ -300,7 +300,7 @@ type highcharts
 @module("highcharts") external highchartsModule: highcharts = "default"
 
 @module("highcharts") @scope("default")
-external objectEach: (Js.Dict.t<gridLine>, tick => unit) => unit = "objectEach"
+external objectEach: (Dict.t<gridLine>, tick => unit) => unit = "objectEach"
 
 @module("highcharts/modules/treemap") external treeMapModule: highcharts => unit = "default"
 @module("highcharts/modules/sankey") external sankeyChartModule: highcharts => unit = "default"

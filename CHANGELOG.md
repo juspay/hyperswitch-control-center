@@ -3,6 +3,41 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.20.0 (2024-01-08)
+
+### Features
+
+- Added new filters for payments ([#172](https://github.com/juspay/hyperswitch-control-center/pull/172)) ([`fd648de`](https://github.com/juspay/hyperswitch-control-center/commit/fd648de4e7cc0fde72b7316f9679abc248e0118f))
+
+### Bug Fixes
+
+- Connector integration status and disabled ui change ([#192](https://github.com/juspay/hyperswitch-control-center/pull/192)) ([`f784ef2`](https://github.com/juspay/hyperswitch-control-center/commit/f784ef27762098645886396e5043c219e566fa91))
+- Revert useField in TextInput ([#199](https://github.com/juspay/hyperswitch-control-center/pull/199)) ([`47cc5ed`](https://github.com/juspay/hyperswitch-control-center/commit/47cc5ede71736e1c6ecd5045b6f3b4c4b829436b))
+
+### Miscellaneous Tasks
+
+- Analytics files Js.Dict -> Dict migration ([#194](https://github.com/juspay/hyperswitch-control-center/pull/194)) ([`71934b5`](https://github.com/juspay/hyperswitch-control-center/commit/71934b58d459ca979d7d150c41478e05b205ebcc))
+
+**Full Changelog:** [`v1.19.5...v1.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.19.5...v1.20.0)
+
+- - -
+
+
+## 1.19.5 (2024-01-08)
+
+### Bug Fixes
+
+- Add merchant fix ([#184](https://github.com/juspay/hyperswitch-control-center/pull/184)) ([`7bc7226`](https://github.com/juspay/hyperswitch-control-center/commit/7bc7226cf2ee0c70b8dc49c73de91020c2f9b8e7))
+
+### Miscellaneous Tasks
+
+- Add eslint hook ([#166](https://github.com/juspay/hyperswitch-control-center/pull/166)) ([`4a10a94`](https://github.com/juspay/hyperswitch-control-center/commit/4a10a94728ec6d62897e3299c2c924301ad86f0f))
+
+**Full Changelog:** [`v1.19.4...v1.19.5`](https://github.com/juspay/hyperswitch-control-center/compare/v1.19.4...v1.19.5)
+
+- - -
+
+
 ## 1.19.4 (2024-01-05)
 
 ### Bug Fixes

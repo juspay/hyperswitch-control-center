@@ -73,7 +73,7 @@ let getLegendBody = (chartEntity: chartEntity) => {
   ->Js.Json.stringify
 }
 
-type chartUrl = String(string) | Func(Js.Dict.t<Js.Json.t> => string)
+type chartUrl = String(string) | Func(Dict.t<Js.Json.t> => string)
 type chartType = Line | Bar | SemiDonut | HorizontalBar | Funnel
 
 type uriConfig = {
