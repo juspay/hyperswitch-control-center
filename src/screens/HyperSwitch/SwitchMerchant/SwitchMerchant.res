@@ -1,3 +1,26 @@
+type switchMerchantListResponse = {
+  merchant_id: string,
+  merchant_name: option<string>,
+}
+
+let convertListResponseToTypedResponse = json => {
+  open LogicUtils
+  json
+  ->getArrayFromJson([])
+  ->Array.map(ele => {
+    let dictOfElement = ele->getDictFromJsonObject
+    let merchantId = dictOfElement->getString("merchant_id", "")
+    let merchantName = dictOfElement->getString("merchant_name", "")
+
+    {
+      merchant_id: merchantId,
+      merchant_name: {
+        Some(merchantName->String.length > 0 ? merchantName : merchantId)
+      },
+    }
+  })
+}
+
 module NewAccountCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal, ~fetchMerchantIDs) => {
@@ -118,7 +141,10 @@ module ExternalUser = {
   let make = (~switchMerchant, ~isAddMerchantEnabled) => {
     open APIUtils
     let fetchDetails = useGetMethod()
-    let (selectedMerchantID, setSelectedMerchantID) = React.useState(_ => "")
+    let (selectedMerchantObject, setSelectedMerchantObject) = React.useState(_ => {
+      merchant_id: "",
+      merchant_name: None,
+    })
     let (showModal, setShowModal) = React.useState(_ => false)
     let (options, setOptions) = React.useState(_ => [])
 
@@ -126,16 +152,24 @@ module ExternalUser = {
       let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Get, ())
       try {
         let res = await fetchDetails(url)
-        let merchantIdsArray = res->LogicUtils.getStrArryFromJson
-        setOptions(_ => merchantIdsArray)
+        let typedValueOfResponse = res->convertListResponseToTypedResponse
+        setOptions(_ => typedValueOfResponse)
+        let extractMerchantObject =
+          typedValueOfResponse
+          ->Array.find(ele => {
+            ele.merchant_id === HSLocalStorage.getFromMerchantDetails("merchant_id")
+          })
+          ->Option.getWithDefault({
+            merchant_id: "",
+            merchant_name: None,
+          })
+        setSelectedMerchantObject(_ => extractMerchantObject)
       } catch {
       | _ => ()
       }
     }
 
     React.useEffect0(() => {
-      open HSLocalStorage
-      setSelectedMerchantID(_ => getFromMerchantDetails("merchant_id"))
       fetchMerchantIDs()->ignore
       None
     })
@@ -149,7 +183,9 @@ module ExternalUser = {
               className="inline-flex whitespace-pre leading-5 justify-center text-sm font-medium px-4 py-2 font-medium rounded-md hover:bg-opacity-80 bg-white border">
               {buttonProps => {
                 <>
-                  {selectedMerchantID->React.string}
+                  {selectedMerchantObject.merchant_name
+                  ->Option.getWithDefault(selectedMerchantObject.merchant_id)
+                  ->React.string}
                   <Icon className="rotate-180 ml-1 mt-1" name="arrow-without-tail" size=15 />
                 </>
               }}
@@ -172,7 +208,7 @@ module ExternalUser = {
                         {props =>
                           <div className="relative">
                             <button
-                              onClick={_ => option->switchMerchant->ignore}
+                              onClick={_ => option.merchant_id->switchMerchant->ignore}
                               className={
                                 let activeClasses = if props["active"] {
                                   "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
@@ -181,9 +217,15 @@ module ExternalUser = {
                                 }
                                 `${activeClasses} font-medium`
                               }>
-                              <div className="mr-5"> {option->React.string} </div>
+                              <div className="mr-5">
+                                {option.merchant_name
+                                ->Option.getWithDefault(option.merchant_id)
+                                ->React.string}
+                              </div>
                             </button>
-                            <UIUtils.RenderIf condition={selectedMerchantID === option}>
+                            <UIUtils.RenderIf
+                              condition={selectedMerchantObject.merchant_name ===
+                                option.merchant_name}>
                               <Icon
                                 className="absolute top-2 right-2 text-blue-900"
                                 name="check"
