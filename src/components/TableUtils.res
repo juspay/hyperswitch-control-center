@@ -691,7 +691,7 @@ module TableCell = {
     | Text(x) | DropDown(x) => {
         let x = x === "" ? "NA" : x
         <AddDataAttributes attributes=[("data-desc", x)]>
-          <div> {highlightedText(x, highlightText)} </div>
+          <div className="whitespace-nowrap"> {highlightedText(x, highlightText)} </div>
         </AddDataAttributes>
       }
 

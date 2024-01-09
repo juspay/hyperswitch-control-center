@@ -32,6 +32,7 @@ type entityName =
   | DISPUTE_REPORT
   | PAYPAL_ONBOARDING
   | SURCHARGE
+  | CUSTOMERS
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 
