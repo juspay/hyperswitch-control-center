@@ -23,11 +23,11 @@ let validate = (
 ) => {
   open LogicUtils
   let dict = values->getSessionTokenDict(integrationType)
-  let errorDict = Js.Dict.empty()
-  mandateKeys->Js.Array2.forEach(key => {
+  let errorDict = Dict.make()
+  mandateKeys->Array.forEach(key => {
     let value = dict->getString(key, "")
     if value === "" {
-      errorDict->Js.Dict.set(key, `${key} cannot be empty!`->Js.Json.string)
+      errorDict->Dict.set(key, `${key} cannot be empty!`->Js.Json.string)
     }
   })
   errorDict->Js.Json.object_
@@ -49,14 +49,14 @@ let constructApplePayMetadata = (
     ->getDictfromDict((integrationType: applePayIntegrationType :> string))
   // 1.remove existing apple_pay_combined
   // 2.At given time either #manual or #simplified can exists
-  dict->Js.Dict.set("apple_pay_combined", Js.Dict.empty()->Js.Json.object_)->ignore
+  dict->Dict.set("apple_pay_combined", Dict.make()->Js.Json.object_)->ignore
 
-  applePayDict->Js.Dict.set("payment_request_data", paymentRequestData->Js.Json.object_)->ignore
+  applePayDict->Dict.set("payment_request_data", paymentRequestData->Js.Json.object_)->ignore
 
   dict
-  ->Js.Dict.set(
+  ->Dict.set(
     "apple_pay_combined",
-    Js.Dict.fromArray([
+    Dict.fromArray([
       ((integrationType: applePayIntegrationType :> string), applePayDict->Js.Json.object_),
     ])->Js.Json.object_,
   )
@@ -74,7 +74,7 @@ let constructVerifyApplePayReq = (values, connectorID) => {
 
   let body = switch data {
   | Some(val) => val->LogicUtils.safeParse
-  | None => Js.Dict.empty()->Js.Json.object_
+  | None => Dict.make()->Js.Json.object_
   }
   (body, domainName)
 }

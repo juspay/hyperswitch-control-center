@@ -60,7 +60,7 @@ module DisputesInfo = {
             className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
-              <UIUtils.RenderIf condition={!(excludeColKeys->Js.Array2.includes(colType))}>
+              <UIUtils.RenderIf condition={!(excludeColKeys->Array.includes(colType))}>
                 <div className={`flex ${widthClass} items-center`} key={Belt.Int.toString(i)}>
                   <OrderUtils.DisplayKeyValueParams
                     heading={getHeading(colType)}

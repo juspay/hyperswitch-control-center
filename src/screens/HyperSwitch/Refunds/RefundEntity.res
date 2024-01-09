@@ -51,7 +51,7 @@ let allColumns = [
 ]
 
 let getStatus = order => {
-  let orderStatusLabel = order.status->Js.String2.toUpperCase
+  let orderStatusLabel = order.status->String.toUpperCase
   let fixedCss = "text-sm text-white font-bold p-1.5 rounded-lg"
   switch order.status->statusVariantMapper {
   | Succeeded =>
@@ -127,7 +127,7 @@ let getCell = (refundData, colType): Table.cell => {
   | RefundId => CustomCell(<CopyTextCustomComp displayValue=refundData.refund_id />, "")
   | RefundStatus =>
     Label({
-      title: refundData.status->Js.String2.toUpperCase,
+      title: refundData.status->String.toUpperCase,
       color: switch refundData.status->statusVariantMapper {
       | Succeeded => LabelGreen
       | Failed => LabelRed

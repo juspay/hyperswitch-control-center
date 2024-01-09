@@ -27,8 +27,7 @@ module TopRightIcons = {
 module ActionButtons = {
   @react.component
   let make = (~routeType: routingType) => {
-    let url = RescriptReactRouter.useUrl()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let showToast = ToastState.useShowToast()
     let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
 
@@ -75,12 +74,7 @@ module ActionButtons = {
         customButtonStyle="border !border-blue-700 bg-white !text-blue-700"
         onClick={_ => {
           RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)
-          hyperswitchMixPanel(
-            ~pageName=`${url.path->LogicUtils.getListHead}_active`,
-            ~contextName=`${routeType->routingTypeName}based`,
-            ~actionName="setup",
-            (),
-          )
+          mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
         }}
       />
     | DEFAULTFALLBACK =>
@@ -91,12 +85,7 @@ module ActionButtons = {
         buttonSize={Small}
         onClick={_ => {
           RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)
-          hyperswitchMixPanel(
-            ~pageName=`${url.path->LogicUtils.getListHead}_active`,
-            ~contextName=`${routeType->routingTypeName}`,
-            ~actionName="manage",
-            (),
-          )
+          mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
         }}
       />
 
@@ -132,8 +121,6 @@ module ActiveSection = {
   @react.component
   let make = (~activeRouting, ~activeRoutingId) => {
     open LogicUtils
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     let activeRoutingType =
       activeRouting->getDictFromJsonObject->getString("kind", "")->routingTypeMapper
 
@@ -158,7 +145,7 @@ module ActiveSection = {
             </p>
             <Icon name="primary-tag" size=25 className="w-20" />
           </div>
-          <UIUtils.RenderIf condition={profileId->Js.String2.length > 0}>
+          <UIUtils.RenderIf condition={profileId->String.length > 0}>
             <div className="flex gap-2">
               <MerchantAccountUtils.BusinessProfile
                 profile_id={profileId}
@@ -192,12 +179,6 @@ module ActiveSection = {
                     )}?id=${activeRoutingId}&isActive=true`,
                 )
               }
-              hyperswitchMixPanel(
-                ~pageName=`${url.path->LogicUtils.getListHead}_active`,
-                ~contextName=`${activeRoutingType->routingTypeName}`,
-                ~actionName="manage",
-                (),
-              )
             }}
           />
         </div>

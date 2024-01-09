@@ -28,7 +28,7 @@ let initialValues = {
   algorithm: {
     data: {
       rules: [defaultRule],
-      metadata: Js.Dict.empty()->Js.Json.object_,
+      metadata: Dict.make()->Js.Json.object_,
       defaultSelection: {
         \"type": "",
         data: [],
@@ -75,6 +75,69 @@ module Add3DSCondition = {
     </div>
   }
 }
+
+module AddSurchargeCondition = {
+  let classStyle = "flex justify-center relative py-2 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border-2 border-border_gray border-opacity-50 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
+
+  //keep the rate only for now.
+  let options: array<SelectBox.dropdownOption> = [
+    {value: "rate", label: "Rate"},
+    // {value: "amount", label: "Amount"},
+  ]
+
+  @react.component
+  let make = (~isFirst, ~id) => {
+    <div className="flex flex-row ml-2">
+      <UIUtils.RenderIf condition={!isFirst}>
+        <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
+      </UIUtils.RenderIf>
+      <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
+        <div className="flex flex-wrap gap-4">
+          <div className=classStyle> {"Surcharge is"->React.string} </div>
+          <FormRenderer.FieldRenderer
+            field={FormRenderer.makeFieldInfo(
+              ~label="",
+              ~name=`${id}.connectorSelection.surcharge_details.surcharge.type`,
+              ~customInput=InputFields.selectInput(
+                ~options,
+                ~buttonText="Select Surcharge Type",
+                ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
+                ~deselectDisable=true,
+                (),
+              ),
+              (),
+            )}
+          />
+          <FormRenderer.FieldRenderer
+            field={FormRenderer.makeFieldInfo(
+              ~label="",
+              ~name=`${id}.connectorSelection.surcharge_details.surcharge.value.percentage`,
+              ~customInput=InputFields.numericTextInput(~customStyle="!-mt-5", ~precision=2, ()),
+              (),
+            )}
+          />
+        </div>
+        <div className="flex flex-wrap gap-4">
+          <div className=classStyle> {"Tax on Surcharge"->React.string} </div>
+          <FormRenderer.FieldRenderer
+            field={FormRenderer.makeFieldInfo(
+              ~label="",
+              ~name=`${id}.connectorSelection.surcharge_details.tax_on_surcharge.percentage`,
+              ~customInput=InputFields.numericTextInput(
+                ~precision=2,
+                ~customStyle="!-mt-5",
+                ~rightIcon=<Icon name="percent" size=16 />,
+                ~rightIconCustomStyle="-ml-7 -mt-5",
+                (),
+              ),
+              (),
+            )}
+          />
+        </div>
+      </div>
+    </div>
+  }
+}
 module Wrapper = {
   @react.component
   let make = (
@@ -89,6 +152,7 @@ module Wrapper = {
     ~isDragging=false,
     ~wasm,
     ~isFrom3ds=false,
+    ~isFromSurcharge=false,
   ) => {
     let showToast = ToastState.useShowToast()
     let isMobileView = MatchMedia.useMobileChecker()
@@ -104,12 +168,12 @@ module Wrapper = {
     let areValidConditions =
       conditionsInput.value
       ->getArrayFromJson([])
-      ->Js.Array2.every(ele =>
+      ->Array.every(ele =>
         ele->getDictFromJsonObject->statementTypeMapper->isStatementMandatoryFieldsPresent
       )
 
     let handleClickExpand = _ => {
-      let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Js.Array2.length > 0
+      let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Array.length > 0
 
       if gatewayArrPresent && areValidConditions {
         setIsExpanded(p => !p)
@@ -121,9 +185,9 @@ module Wrapper = {
     }
 
     React.useEffect0(() => {
-      name.onChange(heading->Js.String2.toLowerCase->titleToSnake->Identity.stringToFormReactEvent)
+      name.onChange(heading->String.toLowerCase->titleToSnake->Identity.stringToFormReactEvent)
 
-      let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Js.Array2.length > 0
+      let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Array.length > 0
 
       if gatewayArrPresent && areValidConditions {
         setIsExpanded(p => !p)
@@ -204,9 +268,7 @@ module Wrapper = {
           onClick={handleClickExpand}
           className="cursor-pointer flex flex-row gap-2 items-center justify-between p-2 bg-blue-100 dark:bg-jp-gray-970 rounded-full border border-blue-700 dark:border-blue-900">
           <div className="font-semibold pl-2 text-sm md:text-base"> {React.string(heading)} </div>
-          <Icon
-            name={isExpanded ? "angle-up" : "angle-down"} className="" size={isMobileView ? 14 : 16}
-          />
+          <Icon name={isExpanded ? "angle-up" : "angle-down"} size={isMobileView ? 14 : 16} />
         </div>
         {actions}
       </div>
@@ -218,13 +280,16 @@ module Wrapper = {
             ${border} 
             border-blue-700`}>
         <UIUtils.RenderIf condition={!isFirst}>
-          <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm isFrom3ds />
+          <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm isFrom3ds isFromSurcharge />
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!isFrom3ds}>
+        <UIUtils.RenderIf condition={!isFrom3ds && !isFromSurcharge}>
           <AddRuleGateway id gatewayOptions isExpanded isFirst />
         </UIUtils.RenderIf>
         <UIUtils.RenderIf condition={isFrom3ds}>
           <Add3DSCondition isFirst id />
+        </UIUtils.RenderIf>
+        <UIUtils.RenderIf condition={isFromSurcharge}>
+          <AddSurchargeCondition isFirst id />
         </UIUtils.RenderIf>
       </div>
     </div>
@@ -248,7 +313,7 @@ module RuleBasedUI = {
       let newRule = copy
         ? existingRules[index]->Belt.Option.getWithDefault(defaultRule->Identity.genericTypeToJson)
         : defaultRule->Identity.genericTypeToJson
-      let newRules = existingRules->Js.Array2.concat([newRule])
+      let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
 
@@ -274,7 +339,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
       | Create =>
         <>
           {
-            let notFirstRule = ruleInput.value->getArrayFromJson([])->Js.Array2.length > 1
+            let notFirstRule = ruleInput.value->getArrayFromJson([])->Array.length > 1
 
             let rule = ruleInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
             let keyExtractor = (index, _rule, isDragging) => {
@@ -333,8 +398,6 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
 
 @react.component
 let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
-  let url = RescriptReactRouter.useUrl()
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
@@ -360,7 +423,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
   let getConnectorsList = () => {
     setConnectors(_ =>
-      connectorList->Js.Array2.filter(connector => connector.connector_name !== "applepay")
+      connectorList->Array.filter(connector => connector.connector_name !== "applepay")
     )
   }
 
@@ -369,7 +432,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       let routingUrl = getURL(~entityName=ROUTING, ~methodType=Get, ~id=routingRuleId, ())
       let routingJson = await fetchDetails(routingUrl)
       let schemaValue = routingJson->getDictFromJsonObject
-      let rulesValue = schemaValue->getObj("algorithm", Js.Dict.empty())->getDictfromDict("data")
+      let rulesValue = schemaValue->getObj("algorithm", Dict.make())->getDictfromDict("data")
 
       setInitialValues(_ => routingJson)
       setInitialRule(_ => Some(ruleInfoTypeMapper(rulesValue)))
@@ -385,7 +448,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let getWasm = async () => {
     try {
       let wasmResult = await Window.connectorWasmInit()
-      let wasm = wasmResult->getDictFromJsonObject->getObj("wasm", Js.Dict.empty())
+      let wasm = wasmResult->getDictFromJsonObject->getObj("wasm", Dict.make())
       setWasm(_ => Some(wasm->toWasm))
     } catch {
     | _ => ()
@@ -422,15 +485,15 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     let dict = values->LogicUtils.getDictFromJsonObject
     let convertedObject = values->AdvancedRoutingUtils.getRoutingTypesFromJson
 
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
 
     RoutingUtils.validateNameAndDescription(~dict, ~errors)
 
     let validateGateways = (connectorData: array<AdvancedRoutingTypes.connectorSelectionData>) => {
-      if connectorData->Js.Array2.length === 0 {
+      if connectorData->Array.length === 0 {
         Some("Need atleast 1 Gateway")
       } else {
-        let isDistibuted = connectorData->Js.Array2.every(ele => {
+        let isDistibuted = connectorData->Array.every(ele => {
           switch ele {
           | PriorityObject(_) => false
           | VolumeObject(_) => true
@@ -444,11 +507,11 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
             )
 
           let hasZero =
-            connectorData->Js.Array2.some(ele =>
+            connectorData->Array.some(ele =>
               ele->AdvancedRoutingUtils.getSplitFromConnectorSelectionData === 0
             )
           let isDistributeChecked = !(
-            connectorData->Js.Array2.some(ele => {
+            connectorData->Array.some(ele => {
               ele->AdvancedRoutingUtils.getSplitFromConnectorSelectionData === 100
             })
           )
@@ -470,23 +533,20 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
     let rulesArray = convertedObject.algorithm.data.rules
 
-    if rulesArray->Js.Array2.length === 0 {
-      errors->Js.Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
+    if rulesArray->Array.length === 0 {
+      errors->Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
     } else {
       rulesArray->Array.forEachWithIndex((rule, i) => {
         let connectorDetails = rule.connectorSelection.data->Belt.Option.getWithDefault([])
 
         switch connectorDetails->validateGateways {
         | Some(error) =>
-          errors->Js.Dict.set(`Rule ${(i + 1)->string_of_int} - Gateway`, error->Js.Json.string)
+          errors->Dict.set(`Rule ${(i + 1)->string_of_int} - Gateway`, error->Js.Json.string)
         | None => ()
         }
 
         if !AdvancedRoutingUtils.validateStatements(rule.statements) {
-          errors->Js.Dict.set(
-            `Rule ${(i + 1)->string_of_int} - Condition`,
-            `Invalid`->Js.Json.string,
-          )
+          errors->Dict.set(`Rule ${(i + 1)->string_of_int} - Condition`, `Invalid`->Js.Json.string)
         }
       })
     }
@@ -498,7 +558,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     try {
       setScreenState(_ => Loading)
       let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-      let _ = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
       showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
       RescriptReactRouter.replace(`/routing?`)
       setScreenState(_ => Success)
@@ -506,7 +566,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     | Js.Exn.Error(e) =>
       switch Js.Exn.message(e) {
       | Some(message) =>
-        if message->Js.String2.includes("IR_16") {
+        if message->String.includes("IR_16") {
           showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
           RescriptReactRouter.replace(`/routing`)
           setScreenState(_ => Success)
@@ -526,7 +586,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     try {
       setScreenState(_ => Loading)
       let deactivateRoutingURL = `${getURL(~entityName=ROUTING, ~methodType=Post, ())}/deactivate`
-      let body = [("profile_id", profile->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
+      let body = [("profile_id", profile->Js.Json.string)]->Dict.fromArray->Js.Json.object_
       let _ = await updateDetails(deactivateRoutingURL, body, Post)
       showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
       RescriptReactRouter.replace(`/routing?`)
@@ -548,15 +608,8 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   }
 
   let onSubmit = async (values, isSaveRule) => {
-    hyperswitchMixPanel(
-      ~pageName=`${url.path->getListHead}_${currentTabName}`,
-      ~contextName="rulebased",
-      ~actionName="saverule",
-      (),
-    )
-    setScreenState(_ => Loading)
-
     try {
+      setScreenState(_ => Loading)
       let valuesDict = values->getDictFromJsonObject
       let dataDict = valuesDict->getDictfromDict("algorithm")->getDictfromDict("data")
 
@@ -568,7 +621,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
         dataDict
         ->getDictfromDict("defaultSelection")
         ->getStrArrayFromDict("data", [])
-        ->Js.Array2.map(id => {
+        ->Array.map(id => {
           {
             "connector": (
               connectorList->ConnectorTableUtils.getConnectorNameViaId(id)
@@ -619,30 +672,24 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
   let connectorOptions = React.useMemo2(() => {
     connectors
-    ->Js.Array2.filter(item => item.profile_id === profile)
-    ->Js.Array2.map((item): SelectBox.dropdownOption => {
+    ->Array.filter(item => item.profile_id === profile)
+    ->Array.map((item): SelectBox.dropdownOption => {
       {
         label: item.connector_label,
         value: item.merchant_connector_id,
       }
     })
-  }, (profile, connectors->Js.Array2.length))
+  }, (profile, connectors->Array.length))
 
   <div className="my-6">
     <PageLoaderWrapper screenState>
-      {connectors->Js.Array2.length > 0
+      {connectors->Array.length > 0
         ? <Form
             initialValues={initialValues} validate onSubmit={(values, _) => onSubmit(values, true)}>
             <div className="w-full flex flex-row  justify-between">
               <div className="w-full">
                 <BasicDetailsForm
-                  formState
-                  setFormState
-                  routingType={ADVANCED}
-                  currentTabName
-                  setIsConfigButtonEnabled
-                  profile
-                  setProfile
+                  formState setFormState currentTabName setIsConfigButtonEnabled profile setProfile
                 />
                 <UIUtils.RenderIf condition={formState != CreateConfig}>
                   <div className="mb-5">
@@ -658,12 +705,6 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                             buttonType={Primary}
                             onClick={_ => {
                               handleActivateConfiguration(routingRuleId)->ignore
-                              hyperswitchMixPanel(
-                                ~pageName=`${url.path->getListHead}_${currentTabName}`,
-                                ~contextName="previewrule",
-                                ~actionName="activaterulebasedconfiguration",
-                                (),
-                              )
                             }}
                             customButtonStyle="w-1/5 rounded-sm"
                             buttonState=Normal
@@ -675,12 +716,6 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                             buttonType={Primary}
                             onClick={_ => {
                               handleDeactivateConfiguration()->ignore
-                              hyperswitchMixPanel(
-                                ~pageName=`${url.path->LogicUtils.getListHead}_${currentTabName}`,
-                                ~contextName="previewrule",
-                                ~actionName="deactivatevolumeconfiguration",
-                                (),
-                              )
                             }}
                             customButtonStyle="w-1/5 rounded-sm"
                             buttonState=Normal
@@ -688,9 +723,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                         </UIUtils.RenderIf>
                       </div>
                     | Create =>
-                      <RoutingUtils.ConfigureRuleButton
-                        setShowModal currentTabName routingType={ADVANCED} isConfigButtonEnabled
-                      />
+                      <RoutingUtils.ConfigureRuleButton setShowModal isConfigButtonEnabled />
                     | _ => React.null
                     }}
                   </div>
@@ -706,9 +739,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                     tooltipWidthClass="w-48"
                   />}
                   submitButton={<RoutingUtils.SaveAndActivateButton
-                    onSubmit
-                    handleActivateConfiguration
-                    mixPanelContext={`${currentTabName}_rulebased`}
+                    onSubmit handleActivateConfiguration
                   />}
                   headingText="Activate Current Configuration?"
                   subHeadingText="Activating the current configuration will override the current active configuration. Alternatively, save this configuration to access / activate it later from the configuration history. Please confirm."

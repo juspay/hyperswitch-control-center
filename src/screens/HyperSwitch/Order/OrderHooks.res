@@ -1,6 +1,6 @@
 open APIUtils
 
-let getOrdersData = (orderId, refetchCounter, setScreenState) => {
+let useGetOrdersData = (orderId, refetchCounter, setScreenState) => {
   let (orderData, setOrderData) = React.useState(() => Js.Json.null)
   let fetchDetails = useGetMethod()
   let accountUrl = getURL(
@@ -14,7 +14,7 @@ let getOrdersData = (orderId, refetchCounter, setScreenState) => {
   let setLoadDataForOrders = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      if orderId->Js.String2.length !== 0 {
+      if orderId->String.length !== 0 {
         let orderDataResponse = await fetchDetails(accountUrl)
         setOrderData(_ => orderDataResponse)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -23,7 +23,7 @@ let getOrdersData = (orderId, refetchCounter, setScreenState) => {
     | Js.Exn.Error(e) =>
       switch Js.Exn.message(e) {
       | Some(message) =>
-        if message->Js.String2.includes("HE_02") {
+        if message->String.includes("HE_02") {
           setScreenState(_ => Custom)
         } else {
           showToast(~message="Failed to Fetch!", ~toastType=ToastState.ToastError, ())
@@ -36,7 +36,7 @@ let getOrdersData = (orderId, refetchCounter, setScreenState) => {
   }
 
   React.useEffect2(() => {
-    if orderId->Js.String2.length !== 0 {
+    if orderId->String.length !== 0 {
       setLoadDataForOrders()->ignore
     }
     None
