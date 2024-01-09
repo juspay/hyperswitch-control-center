@@ -87,6 +87,16 @@ let make = (
   let defaultBusinessProfile = businessProfiles->getValueFromBusinessProfile
   let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
 
+  //Need to check if necessary
+  let form = ReactFinalForm.useForm()
+  React.useEffect0(() => {
+    form.change(
+      "profile_id",
+      profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)->Js.Json.string,
+    )
+    None
+  })
+
   <div
     className={` mb-6 p-4 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850`}>
     {if formState === ViewConfig {
