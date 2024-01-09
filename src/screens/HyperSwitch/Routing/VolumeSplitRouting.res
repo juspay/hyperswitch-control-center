@@ -261,7 +261,17 @@ let make = (~routingRuleId, ~isActive) => {
         }
 
       | None => {
-          setInitialValues(_ => VOLUME_SPLIT->RoutingUtils.constructNameDescription)
+          setInitialValues(_ => {
+            let dict = VOLUME_SPLIT->RoutingUtils.constructNameDescription
+            dict->Dict.set("profile_id", profile->Js.Json.string)
+            dict->Dict.set(
+              "algorithm",
+              {
+                "type": "volume_split",
+              }->Identity.genericTypeToJson,
+            )
+            dict
+          })
           setPageState(_ => Create)
         }
       }
