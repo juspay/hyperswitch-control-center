@@ -10,8 +10,8 @@ type dateTime = {
   second: float,
 }
 
-let timezoneOffset = Js.Dict.fromList(list{("IST", "+05:30"), ("GMT", "+00:00")})
-let timezoneLocation = Js.Dict.fromList(list{("IST", "Asia/Kolkata"), ("GMT", "UTC")})
+let timezoneOffset = Dict.fromArray([("IST", "+05:30"), ("GMT", "+00:00")])
+let timezoneLocation = Dict.fromArray([("IST", "Asia/Kolkata"), ("GMT", "UTC")])
 
 let formatter = str => {
   String.length(str) == 0 ? "00" : String.length(str) == 1 ? `0${str}` : str
