@@ -309,7 +309,14 @@ let make = (
   let hyperPromise = async () => {
     Window.loadHyper(publishableKey)
   }
-  <PageLoaderWrapper screenState={screenState} customLoader={<> </>} sectionHeight="!h-screen">
+  <PageLoaderWrapper
+    screenState={screenState}
+    customLoader={<div className="mt-60 w-scrren flex flex-col justify-center items-center">
+      <div className={`animate-spin mb-1`}>
+        <Icon name="spinner" size=20 />
+      </div>
+    </div>}
+    sectionHeight="!h-screen">
     <div>
       {switch Window.checkLoadHyper {
       | Some(_) =>
