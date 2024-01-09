@@ -179,16 +179,13 @@ module RemoteTableFilters = {
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->Js.Json.string}
 
-    let setInitialFilters = useSetInitialFilters(
-      ~updateExistingKeys,
-      ~startTimeFilterKey,
-      ~endTimeFilterKey,
-    )
-
     let customViewTop = <SearchBarFilter placeholder setSearchVal searchVal />
 
     React.useEffect0(() => {
-      setInitialFilters()
+      if filterValueJson->Dict.keysToArray->Array.length === 0 {
+        setFilters(_ => Dict.make()->Some)
+        setOffset(_ => 0)
+      }
       None
     })
 
@@ -227,7 +224,7 @@ module RemoteTableFilters = {
     let filterData = filterDataJson->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
 
     React.useEffect1(() => {
-      if filterValueJson->Dict.keysToArray->Array.length > 0 {
+      if filterValueJson->Dict.keysToArray->Array.length != 0 {
         setFilters(_ => filterValueJson->Some)
         setOffset(_ => 0)
       }
