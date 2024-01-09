@@ -285,14 +285,11 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       <Modal
         showModal=successModal
         setShowModal=setSuccessModal
-        modalClass="w-80 !h-80 flex items-center justify-center m-auto"
+        modalClass="w-80 !h-48 flex items-center justify-center m-auto"
         paddingClass=""
         childClass="flex items-center justify-center h-full w-full">
         {<div className="flex items-center gap-2">
-          <p className="text-md font-semibold"> {"Switching merchant"->React.string} </p>
-          <div className={`animate-spin mb-1`}>
-            <Icon name="spinner" size=20 />
-          </div>
+          <p className="text-xl font-semibold"> {"Switching merchant..."->React.string} </p>
         </div>}
       </Modal>
     </>
