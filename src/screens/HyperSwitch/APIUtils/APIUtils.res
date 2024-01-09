@@ -38,7 +38,7 @@ let getURL = (
     | Get =>
       switch id {
       | Some(customerId) => `customers/${customerId}`
-      | None => `customers/list`
+      | None => `customers/list?limit=10000`
       }
     | _ => ""
     }
