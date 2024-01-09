@@ -15,33 +15,6 @@ let defaultColumns = [OrderID, MerchantID, Timestamp]
 
 let allColumns = defaultColumns
 
-let filterByData = (actualData, value) => {
-  let searchText = getStringFromJson(value, "")->String.toLowerCase
-
-  actualData
-  ->Belt.Array.keepMap(Js.Nullable.toOption)
-  ->Belt.Array.keepMap((data: tableDetails) => {
-    let dict = Dict.make()
-    dict->Dict.set("orderId", data.orderId)
-    dict->Dict.set("merchantId", data.merchantId)
-    dict->Dict.set("timestamp", data.timestamp)
-
-    let isMatched =
-      dict
-      ->Dict.valuesToArray
-      ->Array.map(val => {
-        val->String.toLowerCase->String.includes(searchText)
-      })
-      ->Array.includes(true)
-
-    if isMatched {
-      data->Js.Nullable.return->Some
-    } else {
-      None
-    }
-  })
-}
-
 let itemToObjMapper = dict => {
   {
     orderId: getString(dict, "order_id", ""),
@@ -69,14 +42,3 @@ let getCell = (tableDetails, colType): Table.cell => {
   | Timestamp => Date(tableDetails.timestamp)
   }
 }
-
-let summayTableEntity = url =>
-  EntityType.makeEntity(
-    ~uri=url,
-    ~getObjects=getTableDetails,
-    ~allColumns,
-    ~defaultColumns,
-    ~getHeading,
-    ~getCell,
-    (),
-  )

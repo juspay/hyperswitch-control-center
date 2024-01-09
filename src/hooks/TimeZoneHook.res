@@ -20,15 +20,6 @@ let formatter = str => {
   strLen == 0 ? "00" : strLen == 1 ? `0${str}` : str
 }
 
-let dateTimeObjectToString = (dateTimeObject: dateTimeString) => {
-  `${dateTimeObject.year}-${dateTimeObject.month}-${dateTimeObject.date}T${dateTimeObject.hour}:${dateTimeObject.minute}:${dateTimeObject.second}Z`
-}
-
-let getUnixFormat = dateStr => {
-  let date = Js.Date.fromString(dateStr)
-  Js.Math.floor_int(Js.Date.getTime(date) /. 1000.0)->Js.Int.toString
-}
-
 let dateTimeObjectToDate = (dateTimeObject: dateTimeFloat) => {
   Js.Date.makeWithYMDHMS(
     ~year=dateTimeObject.year,
