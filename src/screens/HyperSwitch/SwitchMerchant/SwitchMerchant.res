@@ -1,6 +1,6 @@
 type switchMerchantListResponse = {
   merchant_id: string,
-  merchant_name: option<string>,
+  merchant_name: string,
 }
 
 let convertListResponseToTypedResponse = json => {
@@ -10,13 +10,11 @@ let convertListResponseToTypedResponse = json => {
   ->Array.map(ele => {
     let dictOfElement = ele->getDictFromJsonObject
     let merchantId = dictOfElement->getString("merchant_id", "")
-    let merchantName = dictOfElement->getString("merchant_name", "")
+    let merchantName = dictOfElement->getString("merchant_name", merchantId)
 
     {
       merchant_id: merchantId,
-      merchant_name: {
-        Some(merchantName->String.length > 0 ? merchantName : merchantId)
-      },
+      merchant_name: merchantName->String.length > 0 ? merchantName : merchantId,
     }
   })
 }
@@ -141,9 +139,10 @@ module ExternalUser = {
   let make = (~switchMerchant, ~isAddMerchantEnabled) => {
     open APIUtils
     let fetchDetails = useGetMethod()
+    let defaultMerchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
     let (selectedMerchantObject, setSelectedMerchantObject) = React.useState(_ => {
-      merchant_id: "",
-      merchant_name: None,
+      merchant_id: defaultMerchantId,
+      merchant_name: defaultMerchantId,
     })
     let (showModal, setShowModal) = React.useState(_ => false)
     let (options, setOptions) = React.useState(_ => [])
@@ -156,12 +155,10 @@ module ExternalUser = {
         setOptions(_ => typedValueOfResponse)
         let extractMerchantObject =
           typedValueOfResponse
-          ->Array.find(ele => {
-            ele.merchant_id === HSLocalStorage.getFromMerchantDetails("merchant_id")
-          })
+          ->Array.find(ele => ele.merchant_id === defaultMerchantId)
           ->Option.getWithDefault({
-            merchant_id: "",
-            merchant_name: None,
+            merchant_id: defaultMerchantId,
+            merchant_name: defaultMerchantId,
           })
         setSelectedMerchantObject(_ => extractMerchantObject)
       } catch {
@@ -183,9 +180,7 @@ module ExternalUser = {
               className="inline-flex whitespace-pre leading-5 justify-center text-sm font-medium px-4 py-2 font-medium rounded-md hover:bg-opacity-80 bg-white border">
               {buttonProps => {
                 <>
-                  {selectedMerchantObject.merchant_name
-                  ->Option.getWithDefault(selectedMerchantObject.merchant_id)
-                  ->React.string}
+                  {selectedMerchantObject.merchant_name->React.string}
                   <Icon className="rotate-180 ml-1 mt-1" name="arrow-without-tail" size=15 />
                 </>
               }}
@@ -217,11 +212,7 @@ module ExternalUser = {
                                 }
                                 `${activeClasses} font-medium`
                               }>
-                              <div className="mr-5">
-                                {option.merchant_name
-                                ->Option.getWithDefault(option.merchant_id)
-                                ->React.string}
-                              </div>
+                              <div className="mr-5"> {option.merchant_name->React.string} </div>
                             </button>
                             <UIUtils.RenderIf
                               condition={selectedMerchantObject.merchant_name ===
