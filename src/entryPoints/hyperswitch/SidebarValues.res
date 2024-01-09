@@ -79,13 +79,20 @@ let disputes = SubLevelLink({
   searchOptions: [("View dispute operations", "")],
 })
 
+let customers = SubLevelLink({
+  name: "Customers",
+  link: `/customers`,
+  access: ReadWrite,
+  searchOptions: [("View customers", "")],
+})
+
 let operations = isOperationsEnabled => {
   isOperationsEnabled
     ? Section({
         name: "Operations",
         icon: "hswitch-operations",
         showSection: true,
-        links: [payments, refunds, disputes],
+        links: [payments, refunds, disputes, customers],
       })
     : emptyComponent
 }
