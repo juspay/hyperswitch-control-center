@@ -1,11 +1,4 @@
 open ApplePayWalletIntegrationTypes
-let getNextStep = (currentStep: applePayIntegrationSteps) => {
-  switch currentStep {
-  | Landing => Configure
-  | Configure => Verify
-  | Verify => Landing
-  }
-}
 
 let getSessionTokenDict = (values: Js.Json.t, applePayIntegrationType: applePayIntegrationType) => {
   open LogicUtils

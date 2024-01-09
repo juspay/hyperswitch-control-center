@@ -20,15 +20,6 @@ let formatter = str => {
   strLen == 0 ? "00" : strLen == 1 ? `0${str}` : str
 }
 
-let dateTimeObjectToString = (dateTimeObject: dateTimeString) => {
-  `${dateTimeObject.year}-${dateTimeObject.month}-${dateTimeObject.date}T${dateTimeObject.hour}:${dateTimeObject.minute}:${dateTimeObject.second}Z`
-}
-
-let getUnixFormat = dateStr => {
-  let date = Js.Date.fromString(dateStr)
-  Js.Math.floor_int(Js.Date.getTime(date) /. 1000.0)->Js.Int.toString
-}
-
 let dateTimeObjectToDate = (dateTimeObject: dateTimeFloat) => {
   Js.Date.makeWithYMDHMS(
     ~year=dateTimeObject.year,
@@ -192,49 +183,4 @@ let useIsoStringToCustomTimeZoneInFloat = () => {
     customDateTime
   }, [zone])
   isoStringToCustomTimezoneInFloat
-}
-
-let timeStrToMicroSec = str => {
-  let arr = str->String.split(" ")
-  if arr->Array.length > 1 {
-    let time =
-      arr[0]->Belt.Option.getWithDefault("00")->Belt.Int.fromString->Belt.Option.getWithDefault(0)
-    let ms = arr[1]->Belt.Option.getWithDefault("") === "min" ? time * 60000 : time * 1000
-    ms->Belt.Int.toString
-  } else {
-    str
-  }
-}
-
-let getTimeFromString = str => {
-  str
-  ->String.split("T")
-  ->Belt.Array.get(1)
-  ->Belt.Option.mapWithDefault("00:00", String.slice(~start=0, ~end=5))
-}
-
-let getDateFromString = str => {
-  str->String.split("T")->Belt.Array.get(0)->Belt.Option.getWithDefault("2022-01-01")
-}
-
-let getDiffOfDatesFromToday = (~isAbs=true, toDate) => {
-  let toDate = Js.Date.fromString(toDate)->Js.Date.getTime
-  let today = Js.Date.now()
-  ((isAbs ? Js.Math.abs_float(toDate -. today) : toDate -. today) /. 1000. /. 60. /. 60. /. 24.)
-  ->Js.Math.round
-  ->Belt.Float.toInt
-}
-let getDiffBetweenDates = (toDate, fromDate, isAbs) => {
-  let toDate = Js.Date.fromString(toDate)->Js.Date.getTime
-  let fromDate = Js.Date.fromString(fromDate)->Js.Date.getTime
-  ((isAbs ? Js.Math.abs_float(toDate -. fromDate) : toDate -. fromDate) /.
-  1000. /.
-  60. /.
-  60. /. 24.)
-  ->Js.Math.round
-  ->Belt.Float.toInt
-}
-let incrementByDays = (date, days) => {
-  let date = Js.Date.fromString(date)->Js.Date.getTime
-  date +. days *. 1000. *. 60. *. 60. *. 24.
 }

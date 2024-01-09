@@ -4,10 +4,6 @@ open DynamicSingleStat
 open HSAnalyticsUtils
 open AnalyticsTypes
 let domain = "sdk_events"
-let makeMultiInputFieldInfo = FormRenderer.makeMultiInputFieldInfo
-let makeInputFieldInfo = FormRenderer.makeInputFieldInfo
-
-let makeFieldInfo = FormRenderer.makeFieldInfo
 
 // edited
 //// single stat

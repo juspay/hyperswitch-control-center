@@ -46,18 +46,3 @@ let make = (~children) => {
 
   <Parent value=tokenContextObjext> children </Parent>
 }
-
-let useToken = (~ignoreContext=false, tokenType: AuthWrapperUtils.tokenType) => {
-  let currentToken = AuthWrapperUtils.useTokenParent(tokenType)
-  let {token, setToken} = React.useContext(tokenContext)
-  React.useEffect1(() => {
-    if token !== currentToken {
-      if !ignoreContext {
-        setToken(_ => currentToken)
-      }
-    }
-
-    None
-  }, [currentToken])
-  token
-}

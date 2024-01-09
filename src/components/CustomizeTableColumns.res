@@ -1,4 +1,3 @@
-let makeFieldInfo = FormRenderer.makeFieldInfo
 @react.component
 let make = (
   ~allHeadersArray=[],

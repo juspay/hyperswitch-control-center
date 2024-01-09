@@ -5,10 +5,6 @@ open AnalyticsTypes
 open HSAnalyticsUtils
 let domain = "refunds"
 
-let makeMultiInputFieldInfo = FormRenderer.makeMultiInputFieldInfo
-let makeInputFieldInfo = FormRenderer.makeInputFieldInfo
-let makeFieldInfo = FormRenderer.makeFieldInfo
-
 let colMapper = (col: refundColType) => {
   switch col {
   | SuccessRate => "refund_success_rate"
@@ -20,20 +16,6 @@ let colMapper = (col: refundColType) => {
   | Currency => "currency"
   | Status => "refund_status"
   | NoCol => ""
-  }
-}
-
-let reverseColMapper = (column: string): refundColType => {
-  switch column {
-  | "refund_success_rate" => SuccessRate
-  | "refund_count" => Count
-  | "refund_success_count" => SuccessCount
-  | "refund_processed_amount" => ProcessedAmount
-  | "connector" => Connector
-  | "refund_method" => RefundMethod
-  | "currency" => Currency
-  | "refund_status" => Status
-  | _ => NoCol
   }
 }
 
