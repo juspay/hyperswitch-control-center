@@ -6,12 +6,12 @@ module InviteEmailForm = {
     open APIUtils
     let fetchDetails = useGetMethod()
     let (roleListData, setRoleListData) = React.useState(_ => [])
-    let getArrayFromForm = key => ReactFinalForm.useField(key).input.value->getArrayFromJson([])
 
-    let emailList = `emailList`->getArrayFromForm->Js.Array2.joinWith(",")
+    let emailList =
+      ReactFinalForm.useField("emailList").input.value->getArrayFromJson([])->Array.joinWith(",")
     let role =
-      `roleType`
-      ->getArrayFromForm
+      ReactFinalForm.useField(`roleType`).input.value
+      ->getArrayFromJson([])
       ->LogicUtils.getValueFromArray(0, ""->Js.Json.string)
       ->getStringFromJson("")
 
@@ -77,11 +77,11 @@ let make = () => {
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (roleTypeValue, setRoleTypeValue) = React.useState(_ => "merchant_view_only")
-  let (roleDict, setRoleDict) = React.useState(_ => Js.Dict.empty())
+  let (roleDict, setRoleDict) = React.useState(_ => Dict.make())
 
   let initialValues = React.useMemo0(() => {
     [("roleType", ["merchant_view_only"->Js.Json.string]->Js.Json.array)]
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
   })
 
@@ -106,11 +106,11 @@ let make = () => {
     ->Array.forEachWithIndex((ele, index) => {
       let body =
         [
-          ("email", ele->Js.String2.toLowerCase->Js.Json.string),
+          ("email", ele->String.toLowerCase->Js.Json.string),
           ("name", ele->getNameFromEmail->Js.Json.string),
           ("role_id", role->Js.Json.string),
         ]
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_
       let _ = inviteUserReq(body, index)
     })
@@ -146,7 +146,7 @@ let make = () => {
       )
       let res = await fetchDetails(url)
       setRoleDict(prevDict => {
-        prevDict->Js.Dict.set(roleTypeValue, res)
+        prevDict->Dict.set(roleTypeValue, res)
         prevDict
       })
       settingUpValues(res, permissionInfoValue)
@@ -161,7 +161,7 @@ let make = () => {
   }
 
   let getRoleInfo = permissionInfoValue => {
-    let roleTypeValue = roleDict->Js.Dict.get(roleTypeValue)
+    let roleTypeValue = roleDict->Dict.get(roleTypeValue)
     if roleTypeValue->Belt.Option.isNone {
       getRoleForUser(permissionInfoValue)->ignore
     } else {
@@ -183,7 +183,7 @@ let make = () => {
   }
 
   React.useEffect1(() => {
-    if permissionInfo->Js.Array2.length === 0 {
+    if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
     } else {
       getRoleInfo(permissionInfo)

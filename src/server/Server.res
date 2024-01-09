@@ -1,7 +1,7 @@
 @val @scope("process")
 external env: Js.Dict.t<string> = "env"
 
-let appName = env->Js.Dict.get("appName")
+let appName = env->Dict.get("appName")
 
 let serverPath = "dist/hyperswitch"
 let port = 9000
@@ -48,19 +48,17 @@ let currentCommitHash = nullableGitCommitStr->Belt.Option.getWithDefault("no-com
 
 let serverHandler: Http.serverHandler = (request, response) => {
   open Belt.Option
-  let arr = request.url.toString(.)->Js.String2.split("?")
+  let arr = request.url.toString(.)->String.split("?")
   let path =
     arr
     ->Belt.Array.get(0)
     ->getWithDefault("")
-    ->Js.String2.replaceByRe(%re("/^\/\//"), "/")
-    ->Js.String2.replaceByRe(%re("/^\/v4\//"), "/")
+    ->String.replaceRegExp(%re("/^\/\//"), "/")
+    ->String.replaceRegExp(%re("/^\/v4\//"), "/")
 
   if path === "/config/merchant-access" && request.method === "POST" {
     let path =
-      env
-      ->Js.Dict.get("configPath")
-      ->Belt.Option.getWithDefault("dist/server/config/FeatureFlag.json")
+      env->Dict.get("configPath")->Belt.Option.getWithDefault("dist/server/config/FeatureFlag.json")
     Promise.make((resolve, _reject) => {
       configHandler(request, response, true, path)
       ()->resolve(. _)
@@ -68,7 +66,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
   } else {
     open ServerHandler
 
-    let cache = if request.url.toString(.)->Js.String2.endsWith(".svg") {
+    let cache = if request.url.toString(.)->String.endsWith(".svg") {
       "max-age=3600, must-revalidate"
     } else {
       "no-cache"

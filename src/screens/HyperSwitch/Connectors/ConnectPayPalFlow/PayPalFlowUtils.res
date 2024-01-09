@@ -87,7 +87,7 @@ let handleObjectResponse = (
   ~connector,
   ~handleStateToNextPage,
 ) => {
-  let dictkey = dict->Js.Dict.keys->LogicUtils.getValueFromArray(0, "")
+  let dictkey = dict->Dict.keysToArray->LogicUtils.getValueFromArray(0, "")
 
   switch dictkey->stringToVariantMapper {
   | Ppcp_custom_denied => setSetupAccountStatus(._ => dictkey->stringToVariantMapper)
@@ -127,7 +127,7 @@ let generateConnectorPayloadPayPal = (
   let initialValues =
     [
       ("profile_id", profileId->Js.Json.string),
-      ("connector_name", connector->Js.String2.toLowerCase->Js.Json.string),
+      ("connector_name", connector->String.toLowerCase->Js.Json.string),
       ("connector_type", "payment_processor"->Js.Json.string),
       ("disabled", true->Js.Json.boolean),
       ("test_mode", true->Js.Json.boolean),

@@ -16,23 +16,23 @@ let defaultColumns = [OrderID, MerchantID, Timestamp]
 let allColumns = defaultColumns
 
 let filterByData = (actualData, value) => {
-  let searchText = getStringFromJson(value, "")->Js.String2.toLowerCase
+  let searchText = getStringFromJson(value, "")->String.toLowerCase
 
   actualData
   ->Belt.Array.keepMap(Js.Nullable.toOption)
   ->Belt.Array.keepMap((data: tableDetails) => {
-    let dict = Js.Dict.empty()
-    dict->Js.Dict.set("orderId", data.orderId)
-    dict->Js.Dict.set("merchantId", data.merchantId)
-    dict->Js.Dict.set("timestamp", data.timestamp)
+    let dict = Dict.make()
+    dict->Dict.set("orderId", data.orderId)
+    dict->Dict.set("merchantId", data.merchantId)
+    dict->Dict.set("timestamp", data.timestamp)
 
     let isMatched =
       dict
-      ->Js.Dict.values
-      ->Js.Array2.map(val => {
-        val->Js.String2.toLowerCase->Js.String2.includes(searchText)
+      ->Dict.valuesToArray
+      ->Array.map(val => {
+        val->String.toLowerCase->String.includes(searchText)
       })
-      ->Js.Array2.includes(true)
+      ->Array.includes(true)
 
     if isMatched {
       data->Js.Nullable.return->Some

@@ -1,5 +1,5 @@
 type retType = CheckBox(array<string>) | Radiobox(string)
-external toDict: 'a => Js.Dict.t<'t> = "%identity"
+external toDict: 'a => Dict.t<'t> = "%identity"
 @send external getClientRects: Dom.element => Dom.domRect = "getClientRects"
 @send external focus: Dom.element => unit = "focus"
 @val @scope("window") external windowInnerHeight: int = "innerHeight"

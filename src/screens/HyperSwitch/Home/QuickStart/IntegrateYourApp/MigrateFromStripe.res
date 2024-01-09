@@ -79,8 +79,6 @@ let make = (
             theme
             headerText="Installation"
             langauge=backEndLang
-            currentRoute
-            currentTabName="2.installDependencies"
           />
         </div>
       </div>
@@ -91,7 +89,7 @@ let make = (
         </div>
         <div className="flex flex-col gap-2">
           <div className="text-grey-900 font-medium"> {"Publishable Key"->React.string} </div>
-          <UserOnboardingUIUtils.PublishableKeyArea currentRoute />
+          <UserOnboardingUIUtils.PublishableKeyArea />
         </div>
         <div className="p-10 bg-gray-50 border rounded flex flex-col gap-4">
           <UserOnboardingUIUtils.BackendFrontendPlatformLangDropDown
@@ -104,10 +102,7 @@ let make = (
             setPlatform
           />
           <UserOnboardingUIUtils.DiffCodeEditor
-            valueToShow={backEndLang->UserOnboardingUtils.getReplaceAPIkeys}
-            langauge=backEndLang
-            currentRoute
-            currentTabName="3.replaceaPIkey"
+            valueToShow={backEndLang->UserOnboardingUtils.getReplaceAPIkeys} langauge=backEndLang
           />
         </div>
       </div>
@@ -118,7 +113,7 @@ let make = (
         </div>
         <div className="flex flex-col gap-2">
           <div className="text-grey-900 font-medium"> {"Publishable Key"->React.string} </div>
-          <UserOnboardingUIUtils.PublishableKeyArea currentRoute />
+          <UserOnboardingUIUtils.PublishableKeyArea />
         </div>
         <div className="p-10 bg-gray-50 border rounded flex flex-col gap-4">
           <UserOnboardingUIUtils.BackendFrontendPlatformLangDropDown
@@ -131,10 +126,7 @@ let make = (
             setPlatform
           />
           <UserOnboardingUIUtils.DiffCodeEditor
-            valueToShow={frontEndLang->UserOnboardingUtils.getCheckoutForm}
-            langauge=frontEndLang
-            currentRoute
-            currentTabName="4.reconfigureCheckout"
+            valueToShow={frontEndLang->UserOnboardingUtils.getCheckoutForm} langauge=frontEndLang
           />
         </div>
       </div>
@@ -145,7 +137,7 @@ let make = (
         </div>
         <div className="flex flex-col gap-2">
           <div className="text-grey-900 font-medium"> {"Publishable Key"->React.string} </div>
-          <UserOnboardingUIUtils.PublishableKeyArea currentRoute />
+          <UserOnboardingUIUtils.PublishableKeyArea />
         </div>
         <div className="p-10 bg-gray-50 border rounded flex flex-col gap-4">
           <UserOnboardingUIUtils.BackendFrontendPlatformLangDropDown
@@ -160,8 +152,6 @@ let make = (
           <UserOnboardingUIUtils.DiffCodeEditor
             valueToShow={frontEndLang->UserOnboardingUtils.getHyperswitchCheckout}
             langauge=frontEndLang
-            currentRoute
-            currentTabName="5.loadCheckout"
           />
         </div>
       </div>

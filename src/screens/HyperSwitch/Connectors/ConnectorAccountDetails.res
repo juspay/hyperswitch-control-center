@@ -1,16 +1,8 @@
 @react.component
-let make = (
-  ~currentStep,
-  ~setCurrentStep,
-  ~setInitialValues,
-  ~initialValues,
-  ~isUpdateFlow,
-  ~isPayoutFlow,
-) => {
+let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~isPayoutFlow) => {
   open ConnectorUtils
   open APIUtils
   open ConnectorAccountDetailsHelper
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
@@ -34,20 +26,10 @@ let make = (
     defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
 
   React.useEffect1(() => {
-    mixpanelEventWrapper(
-      ~url,
-      ~selectedConnector=connector,
-      ~actionName=`${isUpdateFlow ? "settings_entry_updateflow" : "settings_entry"}`,
-      ~hyperswitchMixPanel,
-    )
-    None
-  }, [connector])
-
-  React.useEffect1(() => {
     if !isUpdateFlow {
       let defaultJsonOnNewConnector =
         [("profile_id", activeBusinessProfile.profile_id->Js.Json.string)]
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_
       setInitialValues(_ => defaultJsonOnNewConnector)
     }
@@ -56,21 +38,21 @@ let make = (
 
   let connectorDetails = React.useMemo1(() => {
     try {
-      if connector->Js.String2.length > 0 {
+      if connector->String.length > 0 {
         let dict = isPayoutFlow
           ? Window.getPayoutConnectorConfig(connector)
           : Window.getConnectorConfig(connector)
         setScreenState(_ => Success)
         dict
       } else {
-        Js.Dict.empty()->Js.Json.object_
+        Dict.make()->Js.Json.object_
       }
     } catch {
     | Js.Exn.Error(e) => {
         Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
         let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
         setScreenState(_ => PageLoaderWrapper.Error(err))
-        Js.Dict.empty()->Js.Json.object_
+        Dict.make()->Js.Json.object_
       }
     }
   }, [connector])
@@ -89,7 +71,7 @@ let make = (
   let updatedInitialVal = React.useMemo1(() => {
     let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
     if !isUpdateFlow {
-      initialValuesToDict->Js.Dict.set(
+      initialValuesToDict->Dict.set(
         "connector_label",
         `${connector}_${activeBusinessProfile.profile_name}`->Js.Json.string,
       )
@@ -99,8 +81,8 @@ let make = (
       ->getConnectorNameTypeFromString
       ->checkIsDummyConnector(featureFlagDetails.testProcessors) && !isUpdateFlow
     ) {
-      let apiKeyDict = [("api_key", "test_key"->Js.Json.string)]->Js.Dict.fromArray
-      initialValuesToDict->Js.Dict.set("connector_account_details", apiKeyDict->Js.Json.object_)
+      let apiKeyDict = [("api_key", "test_key"->Js.Json.string)]->Dict.fromArray
+      initialValuesToDict->Dict.set("connector_account_details", apiKeyDict->Js.Json.object_)
 
       initialValuesToDict->Js.Json.object_
     } else {
@@ -120,13 +102,6 @@ let make = (
         (),
       )
       setScreenState(_ => Loading)
-      getMixpanelForConnectorOnSubmit(
-        ~connectorName=connector,
-        ~currentStep,
-        ~isUpdateFlow,
-        ~url,
-        ~hyperswitchMixPanel,
-      )
       setCurrentStep(_ => PaymentMethods)
       setScreenState(_ => Success)
       setInitialValues(_ => body)
@@ -137,7 +112,7 @@ let make = (
         switch Js.Exn.message(e) {
         | Some(message) => {
             let errMsg = message->parseIntoMyData
-            if errMsg.code->Belt.Option.getWithDefault("")->Js.String2.includes("HE_01") {
+            if errMsg.code->Belt.Option.getWithDefault("")->String.includes("HE_01") {
               showToast(
                 ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
                 ~toastType=ToastState.ToastError,
@@ -190,12 +165,6 @@ let make = (
           setVerifyErrorMessage(_ => errorMessage.message)
           setShowVerifyModal(_ => true)
           setVerifyDone(_ => Failure)
-          hyperswitchMixPanel(
-            ~isApiFailure=true,
-            ~apiUrl=`/verify_connector`,
-            ~description=errorMessage->Js.Json.stringifyAny,
-            (),
-          )
         }
 
       | None => setScreenState(_ => Error("Failed to Fetch!"))
@@ -204,15 +173,14 @@ let make = (
   }
 
   let validateMandatoryField = values => {
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
     let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
-    if profileId->Js.String2.length === 0 {
-      Js.Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
+    if profileId->String.length === 0 {
+      Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
     }
 
     validateConnectorRequiredFields(
-      bodyType,
       connector->getConnectorNameTypeFromString,
       valuesFlattenJson,
       connectorAccountFields,
@@ -250,34 +218,26 @@ let make = (
           ~setVerifyDone,
           ~verifyDone,
           ~isVerifyConnector,
-          ~hyperswitchMixPanel,
-          ~path={url.path},
           ~isVerifyConnectorFeatureEnabled=featureFlagDetails.verifyConnector,
         )}
       validate={validateMandatoryField}
       formClass="flex flex-col ">
       <div className="flex items-center justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
-          <GatewayIcon gateway={connector->Js.String2.toUpperCase} />
+          <GatewayIcon gateway={connector->String.toUpperCase} />
           <h2 className="text-xl font-semibold">
             {connector->LogicUtils.capitalizeString->React.string}
           </h2>
         </div>
         <div className="flex flex-row mt-6 md:mt-0 md:justify-self-end h-min">
           <UIUtils.RenderIf
-            condition={connectorsWithIntegrationSteps->Js.Array2.includes(
+            condition={connectorsWithIntegrationSteps->Array.includes(
               connector->getConnectorNameTypeFromString,
             )}>
             <a
               className={`flex cursor-pointer px-4 py-3 flex text-sm text-blue-900 items-center mx-4`}
               target="_blank"
               onClick={_ => {
-                hyperswitchMixPanel(
-                  ~pageName=url.path->LogicUtils.getListHead,
-                  ~contextName="integration_steps",
-                  ~actionName="modal_open",
-                  (),
-                )
                 setShowModal(_ => true)
               }}>
               {React.string("View integration steps")}
@@ -311,7 +271,6 @@ let make = (
               selectedConnector
               connectorMetaDataFields
               connectorWebHookDetails
-              bodyType
               isUpdateFlow
               connectorLabelDetailField
             />

@@ -66,7 +66,7 @@ let make = (
   )
 
   let validateFunc = strVal => {
-    if strVal->Js.String2.length >= 8 {
+    if strVal->String.length >= 8 {
       setPasswordChecks(prev => {
         ...prev,
         minEightChars: true,
@@ -131,7 +131,7 @@ let make = (
           ? "block"
           : "hidden"} flex flex-row flex-wrap gap-y-3 gap-x-2 mt-3`}>
       {passwordChips
-      ->Js.Array2.mapi((chipType, index) => {
+      ->Array.mapWithIndex((chipType, index) => {
         if specialCharatersInfoText != "" && chipType === SpecialChar {
           <ToolTip
             tooltipWidthClass="w-fit"

@@ -61,7 +61,6 @@ module BusinessProfileInp = {
 let make = (
   ~formState,
   ~setFormState,
-  ~routingType=?,
   ~currentTabName="",
   ~setInitialValues=_ => (),
   ~setIsConfigButtonEnabled=_ => (),
@@ -70,7 +69,6 @@ let make = (
   ~setProfile=?,
 ) => {
   open MerchantAccountUtils
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let ip1 = ReactFinalForm.useField(`name`).input
   let ip2 = ReactFinalForm.useField(`description`).input
   let ip3 = ReactFinalForm.useField(`profile_id`).input
@@ -78,22 +76,11 @@ let make = (
   let isMobileView = MatchMedia.useMobileChecker()
 
   let btnEnable = React.useMemo2(() => {
-    let name = getStringFromJson(ip1.value, "")->Js.String2.trim
-    name !== "" && getStringFromJson(ip2.value, "")->Js.String2.trim !== ""
+    let name = getStringFromJson(ip1.value, "")->String.trim
+    name !== "" && getStringFromJson(ip2.value, "")->String.trim !== ""
   }, (ip1.value, ip2.value))
 
-  let routingTypeForMixPanel = switch routingType {
-  | Some(val) =>
-    switch (val: RoutingTypes.routingType) {
-    | VOLUME_SPLIT => "volumebased"
-    | ADVANCED => "rulebased"
-    | _ => ""
-    }
-  | None => ""
-  }
-
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-
   let defaultBusinessProfile = businessProfiles->getValueFromBusinessProfile
   let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
 
@@ -181,19 +168,13 @@ let make = (
           text={formState === CreateConfig ? "Next" : "Save"}
           onClick={_ => {
             setFormState(_ => ViewConfig)
-            let initialValueDict = Js.Dict.fromArray([
+            let initialValueDict = Dict.fromArray([
               ("name", ip1.value->getStringFromJson("")->Js.Json.string),
               ("description", ip2.value->getStringFromJson("")->Js.Json.string),
               ("profile_id", ip3.value->getStringFromJson("")->Js.Json.string),
             ])
             setInitialValues(_ => initialValueDict)
             setIsConfigButtonEnabled(_ => btnEnable)
-            hyperswitchMixPanel(
-              ~pageName=`routing_${currentTabName}_${routingTypeForMixPanel}`,
-              ~contextName="config-form",
-              ~actionName=`${formState === CreateConfig ? "next" : "save"}`,
-              (),
-            )
           }}
           customButtonStyle="my-4 ml-2"
           buttonState={btnEnable ? Normal : Disabled}

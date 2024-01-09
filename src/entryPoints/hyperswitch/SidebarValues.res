@@ -5,6 +5,7 @@ open SidebarTypes
 module GetProductionAccess = {
   @react.component
   let make = () => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let textStyles = HSwitchUtils.getTextClass(~textVariant=P2, ~paragraphTextVariant=Medium, ())
     let {isProdIntentCompleted, setShowProdIntentForm} = React.useContext(
       GlobalProvider.defaultContext,
@@ -18,7 +19,12 @@ module GetProductionAccess = {
     <div
       className={`flex items-center gap-2 ${backgroundColor} ${cursorStyles} px-4 py-3 m-2 ml-2 mb-3 !mx-4 whitespace-nowrap rounded`}
       onClick={_ => {
-        isProdIntentCompleted ? () : setShowProdIntentForm(_ => true)
+        isProdIntentCompleted
+          ? ()
+          : {
+              setShowProdIntentForm(_ => true)
+              mixpanelEvent(~eventName="get_production_access", ())
+            }
       }}>
       <div className={`text-white ${textStyles} !font-semibold`}>
         {productionAccessString->React.string}
@@ -73,18 +79,25 @@ let disputes = SubLevelLink({
   searchOptions: [("View dispute operations", "")],
 })
 
+let customers = SubLevelLink({
+  name: "Customers",
+  link: `/customers`,
+  access: ReadWrite,
+  searchOptions: [("View customers", "")],
+})
+
 let operations = isOperationsEnabled => {
   isOperationsEnabled
     ? Section({
         name: "Operations",
         icon: "hswitch-operations",
         showSection: true,
-        links: [payments, refunds, disputes],
+        links: [payments, refunds, disputes, customers],
       })
     : emptyComponent
 }
 
-let connectors = isConnectorsEnabled =>
+let connectors = (isConnectorsEnabled, isLiveMode) => {
   isConnectorsEnabled
     ? Link({
         name: "Processors",
@@ -92,11 +105,14 @@ let connectors = isConnectorsEnabled =>
         icon: "connectors",
         access: ReadWrite,
         searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-          ~processorList=ConnectorUtils.connectorList,
+          ~processorList=isLiveMode
+            ? ConnectorUtils.connectorListForLive
+            : ConnectorUtils.connectorList,
           ~getNameFromString=ConnectorUtils.getConnectorNameString,
         ),
       })
     : emptyComponent
+}
 
 let paymentAnalytcis = SubLevelLink({
   name: "Payments",
@@ -120,13 +136,15 @@ let userJourneyAnalytics = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
-let analytics = isAnalyticsEnabled =>
+let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag) =>
   isAnalyticsEnabled
     ? Section({
         name: "Analytics",
         icon: "analytics",
         showSection: true,
-        links: [paymentAnalytcis, refundAnalytics, userJourneyAnalytics],
+        links: userJourneyAnalyticsFlag
+          ? [paymentAnalytcis, refundAnalytics, userJourneyAnalytics]
+          : [paymentAnalytcis, refundAnalytics],
       })
     : emptyComponent
 
@@ -149,13 +167,20 @@ let threeDs = SubLevelLink({
   searchOptions: [("Configure 3ds", "")],
 })
 
-let workflow = isWorkflowEnabled =>
+let surcharge = SubLevelLink({
+  name: "Surcharge",
+  link: `/surcharge`,
+  access: ReadWrite,
+  searchOptions: [("Add Surcharge", "")],
+})
+
+let workflow = (isWorkflowEnabled, isSurchargeEnabled) =>
   isWorkflowEnabled
     ? Section({
         name: "Workflow",
         icon: "3ds",
         showSection: true,
-        links: [routing, threeDs],
+        links: isSurchargeEnabled ? [routing, threeDs, surcharge] : [routing, threeDs],
       })
     : emptyComponent
 
@@ -195,13 +220,13 @@ let settings = (~isSampleDataEnabled, ~isUserManagementEnabled, ~isBusinessProfi
   let settingsLinkArray = [businessDetails]
 
   if isBusinessProfileEnabled {
-    settingsLinkArray->Js.Array2.push(businessProfiles)->ignore
+    settingsLinkArray->Array.push(businessProfiles)->ignore
   }
   if isSampleDataEnabled {
-    settingsLinkArray->Js.Array2.push(accountSettings)->ignore
+    settingsLinkArray->Array.push(accountSettings)->ignore
   }
   if isUserManagementEnabled {
-    settingsLinkArray->Js.Array2.push(userManagement)->ignore
+    settingsLinkArray->Array.push(userManagement)->ignore
   }
 
   Section({
@@ -235,7 +260,7 @@ let paymentSettings = SubLevelLink({
 })
 
 let developers = (isDevelopersEnabled, userRole, systemMetrics) => {
-  let isInternalUser = userRole->Js.String2.includes("internal_")
+  let isInternalUser = userRole->String.includes("internal_")
 
   isDevelopersEnabled
     ? Section({
@@ -309,14 +334,17 @@ let getHyperSwitchAppSidebars = (
     sampleData,
     businessProfile,
     systemMetrics,
+    userJourneyAnalytics: userJourneyAnalyticsFlag,
+    surcharge: isSurchargeEnabled,
+    isLiveMode,
   } = featureFlagDetails
   let sidebar = [
     productionAccess->productionAccessComponent,
     default->home,
     default->operations,
-    default->analytics,
-    default->connectors,
-    default->workflow,
+    default->analytics(userJourneyAnalyticsFlag),
+    default->connectors(isLiveMode),
+    default->workflow(isSurchargeEnabled),
     frm->fraudAndRisk,
     payOut->payoutConnectors,
     recon->reconTag(isReconEnabled),

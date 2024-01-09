@@ -10,12 +10,12 @@ let make = (
   ~heading,
   ~title,
 ) => {
-  let isCurrentRowExpanded = expandedRowIndexArray->Js.Array2.includes(rowIndex)
+  let isCurrentRowExpanded = expandedRowIndexArray->Array.includes(rowIndex)
 
   let headingArray = []
 
-  heading->Js.Array2.forEach((item: TableUtils.header) => {
-    headingArray->Js.Array2.push(item.title)->ignore
+  heading->Array.forEach((item: TableUtils.header) => {
+    headingArray->Array.push(item.title)->ignore
   })
   let textColor = "text-jp-gray-900 dark:text-jp-gray-text_darktheme text-opacity-75 dark:text-opacity-75"
   let fontStyle = "font-fira-code"
@@ -27,7 +27,7 @@ let make = (
       <tr
         className={`group h-full ${borderRadius} bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100 dark:hover:bg-opacity-10 ${textColor} ${fontStyle} transition duration-300 ease-in-out ${fontSize}`}>
         {item
-        ->Js.Array2.mapi((obj: Table.cell, cellIndex) => {
+        ->Array.mapWithIndex((obj: Table.cell, cellIndex) => {
           let showBorderTop = switch obj {
           | Text(x) => x !== "-"
           | _ => true
@@ -38,7 +38,7 @@ let make = (
           | _ => "py-3"
           }
 
-          let highlightCell = highlightEnabledFieldsArray->Js.Array2.includes(cellIndex)
+          let highlightCell = highlightEnabledFieldsArray->Array.includes(cellIndex)
           let borderTop = showBorderTop ? "border-t" : "border-t-0"
           let borderClass = `${borderTop} border-jp-gray-500 dark:border-jp-gray-960`
           let hCell = highlightCell ? "hover:font-bold" : ""
@@ -80,7 +80,7 @@ let make = (
     <MobileView>
       <div className="px-3 py-4 bg-white dark:bg-jp-gray-lightgray_background">
         {item
-        ->Js.Array2.mapi((obj, index) => {
+        ->Array.mapWithIndex((obj, index) => {
           let heading = headingArray->Belt.Array.get(index)->Belt.Option.getWithDefault("")
           <UIUtils.RenderIf condition={index !== 0} key={index->string_of_int}>
             <div className="flex mb-5 justify-between">

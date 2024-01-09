@@ -8,7 +8,7 @@ module SDKConfiguarationFields = {
     let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
     let disableSelectionForProfile = arrayOfBusinessProfile->HomeUtils.isDefaultBusinessProfile
 
-    let dropDownOptions = HomeUtils.countries->Js.Array2.map((item): SelectBox.dropdownOption => {
+    let dropDownOptions = HomeUtils.countries->Array.map((item): SelectBox.dropdownOption => {
       {
         label: `${item.countryName} (${item.currency})`,
         value: `${item.countryName}-${item.currency}`,
@@ -74,7 +74,7 @@ module SDKConfiguarationFields = {
       <FormRenderer.FieldRenderer field=enterAmountField fieldWrapperClass="!w-full" />
       <FormRenderer.SubmitButton
         text="Show preview"
-        disabledParamter={!(initialValues.profile_id->Js.String2.length > 0)}
+        disabledParamter={!(initialValues.profile_id->String.length > 0)}
         customSumbitButtonStyle="!mt-5"
       />
     </div>
@@ -84,7 +84,6 @@ module SDKConfiguarationFields = {
 @react.component
 let make = () => {
   open MerchantAccountUtils
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let filtersFromUrl = url.search->LogicUtils.getDictFromUrlSearchParams
   let (isSDKOpen, setIsSDKOpen) = React.useState(_ => false)
@@ -96,7 +95,7 @@ let make = () => {
   )
 
   React.useEffect1(() => {
-    let paymentIntentOptional = filtersFromUrl->Js.Dict.get("payment_intent_client_secret")
+    let paymentIntentOptional = filtersFromUrl->Dict.get("payment_intent_client_secret")
     if paymentIntentOptional->Belt.Option.isSome {
       setIsSDKOpen(_ => true)
     }
@@ -106,7 +105,7 @@ let make = () => {
   React.useEffect1(() => {
     setInitialValues(_ => defaultBusinessProfile->SDKPaymentUtils.initialValueForForm)
     None
-  }, [defaultBusinessProfile.profile_id->Js.String2.length])
+  }, [defaultBusinessProfile.profile_id->String.length])
 
   let onProceed = async (~paymentId) => {
     switch paymentId {
@@ -120,12 +119,6 @@ let make = () => {
     setInitialValues(_ => values->SDKPaymentUtils.getTypedValueForPayment)
     setIsSDKOpen(_ => true)
     RescriptReactRouter.push("/sdk")
-    hyperswitchMixPanel(
-      ~pageName=url.path->LogicUtils.getListHead,
-      ~contextName="sdk",
-      ~actionName="proceed",
-      (),
-    )
     Js.Nullable.null->Promise.resolve
   }
 

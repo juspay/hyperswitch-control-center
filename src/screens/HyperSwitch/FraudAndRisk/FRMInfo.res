@@ -140,12 +140,12 @@ let getActionTypeLabel = actionType => {
   }
 }
 
-let flowTypeAllOptions = flowTypeList->Js.Array2.map(getFlowTypeNameString)
+let flowTypeAllOptions = flowTypeList->Array.map(getFlowTypeNameString)
 
 let getActionTypeAllOptions = flowType => {
   switch flowType->getFlowTypeVariantFromString {
-  | PreAuth => frmPreActionList->Js.Array2.map(getActionTypeNameString)
-  | PostAuth => frmPostActionList->Js.Array2.map(getActionTypeNameString)
+  | PreAuth => frmPreActionList->Array.map(getActionTypeNameString)
+  | PostAuth => frmPostActionList->Array.map(getActionTypeNameString)
   }
 }
 

@@ -214,7 +214,7 @@ module LastOptions = {
       <label className="p-2 pt-4"> {"Last..."->React.string} </label>
       <div className="flex gap-2 flex-wrap p-2">
         {options
-        ->Js.Array2.mapi((option, i) => {
+        ->Array.mapWithIndex((option, i) => {
           let (val, durationType) = option
           let valStr = val->Belt.Int.toString
 
@@ -312,7 +312,7 @@ let make = (
   }
 
   let changeStartDate = (~hour="00", ~min="00", ~sec="00", ~ele, ()) => {
-    let startDateSplit = Js.String2.split(ele, "-")
+    let startDateSplit = String.split(ele, "-")
     let startDateDay = startDateSplit[2]->Belt.Option.getWithDefault("")
     let startDateYear = startDateSplit[0]->Belt.Option.getWithDefault("")
     let startDateMonth = startDateSplit[1]->Belt.Option.getWithDefault("")
@@ -332,7 +332,7 @@ let make = (
 
   let changeEndDate = (~hour="23", ~min="59", ~sec="59", ~ele, ()) => {
     setIsDropdownExpanded(_ => false)
-    let endDateSplit = Js.String2.split(ele, "-")
+    let endDateSplit = String.split(ele, "-")
     let endDateDate = endDateSplit[2]->Belt.Option.getWithDefault("")
     let endDateYear = endDateSplit[0]->Belt.Option.getWithDefault("")
     let endDateMonth = endDateSplit[1]->Belt.Option.getWithDefault("")

@@ -31,7 +31,7 @@ let make = (
   )
   let (date, setDate) = React.useState(_ => {
     if selectedDate !== "" {
-      let date = Js.String2.split(selectedDate, "-")
+      let date = String.split(selectedDate, "-")
       let dateDay = date->Belt.Array.get(2)->Belt.Option.getWithDefault("1")
       let dateMonth = date->Belt.Array.get(1)->Belt.Option.getWithDefault("1")
       let dateYear = date->Belt.Array.get(0)->Belt.Option.getWithDefault("1970")
@@ -42,7 +42,7 @@ let make = (
         | None => ""
         }
         ->DateRangePicker.getTimeStringForValue(isoStringToCustomTimeZone)
-        ->Js.String2.split(":")
+        ->String.split(":")
 
       let timeHour = timeSplit->Belt.Array.get(0)->Belt.Option.getWithDefault(currentDateHourFormat)
       let timeMinute =
@@ -75,7 +75,7 @@ let make = (
 
     setSelectedDate(_ => str)
 
-    let currentDateSplit = Js.String2.split(str, "-")
+    let currentDateSplit = String.split(str, "-")
     let currentDateDay = currentDateSplit->Belt.Array.get(2)->Belt.Option.getWithDefault("1")
     let currentDateYear = currentDateSplit->Belt.Array.get(0)->Belt.Option.getWithDefault("1970")
     let currentDateMonth = currentDateSplit->Belt.Array.get(1)->Belt.Option.getWithDefault("1")
@@ -127,7 +127,7 @@ let make = (
       selectedDate
     } else {
       let time = date->DateRangePicker.getTimeStringForValue(isoStringToCustomTimeZone)
-      let splitTime = time->Js.String2.split(":")
+      let splitTime = time->String.split(":")
       `${selectedDate} ${time === ""
           ? `${currentDateHourFormat}:${currentDateMinuteFormat}${showSeconds
                 ? ":" ++ currentDateSecondsFormat
@@ -174,11 +174,11 @@ let make = (
         } else {
           timeVal
         }
-        let date = Js.String2.split(selectedDate, "-")
+        let date = String.split(selectedDate, "-")
         let dateDay = date->Belt.Array.get(2)->Belt.Option.getWithDefault("1")
         let dateMonth = date->Belt.Array.get(1)->Belt.Option.getWithDefault("1")
         let dateYear = date->Belt.Array.get(0)->Belt.Option.getWithDefault("1970")
-        let timeSplit = Js.String2.split(timeVal, ":")
+        let timeSplit = String.split(timeVal, ":")
         let timeHour =
           timeSplit->Belt.Array.get(0)->Belt.Option.getWithDefault(currentDateHourFormat)
         let timeMinute =

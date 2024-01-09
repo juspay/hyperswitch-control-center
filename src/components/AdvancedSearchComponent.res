@@ -1,7 +1,7 @@
 let getSummary: Js.Json.t => EntityType.summary = json => {
   switch json->Js.Json.decodeObject {
   | Some(dict) => {
-      let rowsCount = LogicUtils.getArrayFromDict(dict, "rows", [])->Js.Array2.length
+      let rowsCount = LogicUtils.getArrayFromDict(dict, "rows", [])->Array.length
       let totalCount = LogicUtils.getInt(dict, "entries", 0)
       {totalCount, count: rowsCount}
     }
@@ -30,15 +30,14 @@ let make = (
     fetchApi(url, ~bodyStr=Js.Json.stringify(values), ~method_=Fetch.Post, ())
     ->then(Fetch.Response.json)
     ->then(json => {
-      let jsonData =
-        json->Js.Json.decodeObject->Belt.Option.flatMap(dict => dict->Js.Dict.get("rows"))
+      let jsonData = json->Js.Json.decodeObject->Belt.Option.flatMap(dict => dict->Dict.get("rows"))
       let newData = switch jsonData {
-      | Some(actualJson) => actualJson->getObjects->Js.Array2.map(obj => obj->Js.Nullable.return)
+      | Some(actualJson) => actualJson->getObjects->Array.map(obj => obj->Js.Nullable.return)
       | None => []
       }
 
       let summaryData =
-        json->Js.Json.decodeObject->Belt.Option.flatMap(dict => dict->Js.Dict.get("summary"))
+        json->Js.Json.decodeObject->Belt.Option.flatMap(dict => dict->Dict.get("summary"))
 
       let summary = switch summaryData {
       | Some(x) => x->getSummary
@@ -53,7 +52,7 @@ let make = (
       | None => ()
       }
       setShowModal(_ => false)
-      form.reset(Js.Json.object_(Js.Dict.empty())->Js.Nullable.return)
+      form.reset(Js.Json.object_(Dict.make())->Js.Nullable.return)
       json->Js.Nullable.return->resolve
     })
     ->catch(_err => {
@@ -66,12 +65,12 @@ let make = (
   let validateForm = (values: Js.Json.t) => {
     let finalValuesDict = switch values->Js.Json.decodeObject {
     | Some(dict) => dict
-    | None => Js.Dict.empty()
+    | None => Dict.make()
     }
-    let keys = Js.Dict.keys(finalValuesDict)
-    let errors = Js.Dict.empty()
-    if keys->Js.Array2.length === 0 {
-      Js.Dict.set(errors, "Please Choose One of the fields", ""->Js.Json.string)
+    let keys = Dict.keysToArray(finalValuesDict)
+    let errors = Dict.make()
+    if keys->Array.length === 0 {
+      Dict.set(errors, "Please Choose One of the fields", ""->Js.Json.string)
     }
     errors->Js.Json.object_
   }

@@ -143,7 +143,7 @@ module LinkCell: {
   let make: (~data: Js.String.t, ~trimLength: int=?) => React.element
 }
 module DateCell: {
-  let getFormattedDate: (string, string) => string
+  // let getFormattedDate: (string, string) => string
   @react.component
   let make: (
     ~timestamp: string,

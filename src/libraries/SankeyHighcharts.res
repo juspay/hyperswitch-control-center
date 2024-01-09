@@ -89,12 +89,12 @@ let tooltipFormatter = () => {
   (t: tooltiplink) => {
     open LogicUtils
     let tFrom =
-      t.from->Js.String2.includes("( +++ )")
-        ? t.from->Js.String2.split("( +++ )")->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+      t.from->String.includes("( +++ )")
+        ? t.from->String.split("( +++ )")->Belt.Array.get(0)->Belt.Option.getWithDefault("")
         : t.from
     let tTo =
-      t.to->Js.String2.includes("( +++ )")
-        ? t.to->Js.String2.split("( +++ )")->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+      t.to->String.includes("( +++ )")
+        ? t.to->String.split("( +++ )")->Belt.Array.get(0)->Belt.Option.getWithDefault("")
         : t.to
     `<div class="w-70 p-4 rounded-lg">
         <div class="block"><div class="align-sub rounded-sm inline-block w-4 h-4  mr-4 bg-red" style="fill: ${t.fromNode.color};background: ${t.fromNode.color};"></div>
@@ -122,19 +122,19 @@ let nodeFormatter = (~data: array<(string, string, int, int, int)>) => {
   @this
   (t: tooltipnode) => {
     open LogicUtils
-    let filteredDataNonLastindex = data->Js.Array2.filter(item => {
+    let filteredDataNonLastindex = data->Array.filter(item => {
       let (_, _, _, _, index) = item
       index === t.level
     })
 
-    let filteredDataLastIndex = data->Js.Array2.filter(item => {
+    let filteredDataLastIndex = data->Array.filter(item => {
       let (_, _, _, _, index) = item
       index === t.level - 1
     })
 
     let total_weight_to =
       filteredDataNonLastindex
-      ->Js.Array2.map(item => {
+      ->Array.map(item => {
         let (_, _, current_weight, _, _) = item
         current_weight->Belt.Int.toFloat
       })
@@ -142,7 +142,7 @@ let nodeFormatter = (~data: array<(string, string, int, int, int)>) => {
 
     let total_weight_from =
       filteredDataLastIndex
-      ->Js.Array2.map(item => {
+      ->Array.map(item => {
         let (_, _, current_weight, _, _) = item
         current_weight->Belt.Int.toFloat
       })
@@ -179,7 +179,7 @@ type highchartsSankey
 @module("highcharts") external highchartsModule: highcharts = "default"
 @module("highcharts/modules/sankey")
 external highchartsSankey: highcharts => unit = "default"
-let init = (data: array<(string, string, int, int, int)>, nodes) => {
+let useInit = (data: array<(string, string, int, int, int)>, nodes) => {
   highchartsSankey(highchartsModule)
   let theme = ThemeProvider.useTheme()
   let options: Js.Json.t = {

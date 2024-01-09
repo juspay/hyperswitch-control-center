@@ -36,13 +36,13 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
     onChange: ev => {
       let newSelectedOptions = ev->Identity.formReactEventToArrayOfString
 
-      if newSelectedOptions->Js.Array2.length === 0 {
+      if newSelectedOptions->Array.length === 0 {
         gateWaysInput.onChange([]->Identity.anyTypeToReactEvent)
       } else {
-        let gatewaysArr = newSelectedOptions->Js.Array2.map(item => {
+        let gatewaysArr = newSelectedOptions->Array.map(item => {
           open AdvancedRoutingTypes
 
-          let sharePercent = isDistribute ? 100 / newSelectedOptions->Js.Array2.length : 100
+          let sharePercent = isDistribute ? 100 / newSelectedOptions->Array.length : 100
           if isDistribute {
             {
               connector: {
@@ -67,7 +67,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
     },
     onFocus: _ev => (),
     value: selectedOptions
-    ->Js.Array2.map(option =>
+    ->Array.map(option =>
       AdvancedRoutingUtils.getConnectorStringFromConnectorSelectionData(
         option,
       ).merchant_connector_id->Js.Json.string
@@ -79,9 +79,9 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
   let onClickDistribute = newDistributeValue => {
     open AdvancedRoutingTypes
 
-    let sharePercent = newDistributeValue ? 100 / selectedOptions->Js.Array2.length : 100
+    let sharePercent = newDistributeValue ? 100 / selectedOptions->Array.length : 100
     let gatewaysArr = selectedOptions->Array.mapWithIndex((item, i) => {
-      let sharePercent = if i === selectedOptions->Js.Array2.length - 1 && newDistributeValue {
+      let sharePercent = if i === selectedOptions->Array.length - 1 && newDistributeValue {
         100 - sharePercent * i
       } else {
         sharePercent
@@ -114,7 +114,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
       ).merchant_connector_id
     }
     if value < 100 {
-      let newList = selectedOptions->Js.Array2.map(option => {
+      let newList = selectedOptions->Array.map(option => {
         switch option {
         | PriorityObject(obj) => obj.connector->Identity.genericTypeToJson
         | VolumeObject(obj) =>
@@ -136,7 +136,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
   let removeItem = index => {
     input.onChange(
       selectedOptions
-      ->Js.Array2.map(i =>
+      ->Array.map(i =>
         AdvancedRoutingUtils.getConnectorStringFromConnectorSelectionData(i).merchant_connector_id
       )
       ->Array.filterWithIndex((_, i) => i !== index)
@@ -197,7 +197,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
                   removeItem(i)
                 }}
               />
-              <UIUtils.RenderIf condition={isDistribute && selectedOptions->Js.Array2.length > 0}>
+              <UIUtils.RenderIf condition={isDistribute && selectedOptions->Array.length > 0}>
                 {<>
                   <input
                     className="w-10 text-right outline-none bg-white dark:bg-jp-gray-970 px-1 border border-jp-gray-300 dark:border-jp-gray-850 rounded-md"
@@ -223,7 +223,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
         })
         ->React.array}
       </div>
-      <UIUtils.RenderIf condition={selectedOptions->Js.Array2.length > 0}>
+      <UIUtils.RenderIf condition={selectedOptions->Array.length > 0}>
         <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-3 lg:gap-4 lg:ml-6">
           <div className={`flex flex-row items-center gap-4 md:gap-1 lg:gap-2`}>
             <CheckBoxIcon

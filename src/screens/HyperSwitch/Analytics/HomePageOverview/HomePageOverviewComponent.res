@@ -18,7 +18,7 @@ module ConnectorOverview = {
           )
 
         let arr =
-          connectorsList->Js.Array2.map(paymentMethod =>
+          connectorsList->Array.map(paymentMethod =>
             paymentMethod
             ->getString("connector_name", "")
             ->ConnectorUtils.getConnectorNameTypeFromString
@@ -42,17 +42,17 @@ module ConnectorOverview = {
         ->Array.mapWithIndex((connector, index) => {
           let iconStyle = `${index === 0 ? "" : "-ml-4"} z-${(30 - index * 10)->Js.Int.toString}`
           <GatewayIcon
-            gateway={connector->ConnectorUtils.getConnectorNameString->Js.String2.toUpperCase}
+            gateway={connector->ConnectorUtils.getConnectorNameString->String.toUpperCase}
             className={`w-12 h-12 rounded-full border-3 border-white  ${iconStyle} bg-white`}
           />
         })
 
       let icons =
-        configuredConnectors->Js.Array2.length > 3
-          ? icons->Js.Array2.concat([
+        configuredConnectors->Array.length > 3
+          ? icons->Array.concat([
               <div
                 className={`w-12 h-12 flex items-center justify-center text-white font-medium rounded-full border-3 border-white -ml-3 z-0 bg-blue-900`}>
-                {`+${(configuredConnectors->Js.Array2.length - 3)->Js.Int.toString}`->React.string}
+                {`+${(configuredConnectors->Array.length - 3)->Js.Int.toString}`->React.string}
               </div>,
             ])
           : icons
@@ -60,14 +60,14 @@ module ConnectorOverview = {
       <div className="flex"> {icons->React.array} </div>
     }
 
-    <UIUtils.RenderIf condition={configuredConnectors->Js.Array2.length > 0}>
+    <UIUtils.RenderIf condition={configuredConnectors->Array.length > 0}>
       <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="w-full h-full" />}>
         <div className=boxCss>
           {getConnectorIconsList()}
           <div className="flex items-center gap-2">
             <p className=cardHeaderTextStyle>
               {`${configuredConnectors
-                ->Js.Array2.length
+                ->Array.length
                 ->Js.Int.toString} Active Processors`->React.string}
             </p>
           </div>
@@ -135,7 +135,7 @@ module SystemMetricsInsights = {
           ("status_code", [200.0->Js.Json.number]->Js.Json.array),
           ("flow_type", ["Payment"->Js.Json.string]->Js.Json.array),
         ]
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_
 
       [
@@ -175,8 +175,8 @@ module SystemMetricsInsights = {
         `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/metrics/${domain}`,
     }
 
-    let metrics = ["latency"]->Js.Array2.map(key => {
-      [("name", key->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
+    let metrics = ["latency"]->Array.map(key => {
+      [("name", key->Js.Json.string)]->Dict.fromArray->Js.Json.object_
     })
 
     let singleStatEntity = getStatEntity(metrics)
@@ -194,7 +194,7 @@ module SystemMetricsInsights = {
       showPercentage=false
       isHomePage=true
       wrapperClass="flex flex-wrap w-full h-full"
-      statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(Js.Dict.empty())}
+      statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(Dict.make())}
     />
   }
 }
@@ -212,7 +212,7 @@ module OverviewInfo = {
         let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
         let _ = await updateDetails(
           generateSampleDataUrl,
-          [("record", 50.0->Js.Json.number)]->Js.Dict.fromArray->Js.Json.object_,
+          [("record", 50.0->Js.Json.number)]->Dict.fromArray->Js.Json.object_,
           Post,
         )
         showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess, ())
