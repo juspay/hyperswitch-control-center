@@ -128,7 +128,7 @@ module HSiwtchPaymentConfirmLatency = {
       ->getJsonObjectFromDict("queryData")
       ->getArrayFromJson([])
       ->Belt.Array.get(0)
-      ->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty()))
+      ->Belt.Option.getWithDefault(Js.Json.object_(Dict.make()))
       ->getDictFromJsonObject
       ->getInt("latency", 0)
     }
