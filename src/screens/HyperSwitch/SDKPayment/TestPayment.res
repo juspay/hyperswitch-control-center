@@ -41,17 +41,6 @@ let make = (
     }
   }
 
-  React.useEffect0(() => {
-    let hyperswitchSdkPrefix =
-      Window.env.sdkBaseUrl->Belt.Option.getWithDefault(
-        "https://beta.hyperswitch.io/v1/HyperLoader.js?default=true",
-      )
-    let script = DOMUtils.document->DOMUtils.createElement("script")
-    script->DOMUtils.setAttribute("src", hyperswitchSdkPrefix)
-    DOMUtils.appendChild(script)
-    Some(_ => script->DOMUtils.remove())
-  })
-
   let getClientSecret = async () => {
     open SDKPaymentUtils
     try {

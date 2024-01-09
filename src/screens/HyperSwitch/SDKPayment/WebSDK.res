@@ -285,33 +285,59 @@ let make = (
   ~amount=65400,
   ~setClientSecret,
 ) => {
-  let hyperPromise = Js.Promise.make((~resolve, ~reject as _) => {
-    resolve(. Window.loadHyper(publishableKey))
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let loadDOM = async () => {
+    try {
+      let hyperswitchSdkPrefix =
+        Window.env.sdkBaseUrl->Belt.Option.getWithDefault(
+          "https://beta.hyperswitch.io/v1/HyperLoader.js?default=true",
+        )
+      let script = DOMUtils.document->DOMUtils.createElement("script")
+      script->DOMUtils.setAttribute("src", hyperswitchSdkPrefix)
+      DOMUtils.appendChild(script)
+      let _ = Some(_ => script->DOMUtils.remove())
+      await HyperSwitchUtils.delay(2000)
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } catch {
+    | _ => setScreenState(_ => Error(""))
+    }
+  }
+  React.useEffect0(() => {
+    loadDOM()->ignore
+    None
   })
-
-  <div>
-    <Elements options={elementOptions} stripe={hyperPromise}>
-      <CheckoutForm
-        clientSecret
-        sdkType
-        paymentStatus
-        currency
-        setPaymentStatus
-        paymentElementOptions
-        theme
-        primaryColor
-        bgColor
-        fontFamily
-        fontSizeBase
-        methodsOrder
-        layout
-        returnUrl
-        saveViewToSdk
-        publishableKey
-        isSpaceAccordion
-        amount
-        setClientSecret
-      />
-    </Elements>
-  </div>
+  let hyperPromise = async () => {
+    Window.loadHyper(publishableKey)
+  }
+  <PageLoaderWrapper screenState={screenState} customLoader={<> </>} sectionHeight="!h-screen">
+    <div>
+      {switch Window.checkLoadHyper {
+      | Some(_) =>
+        <Elements options={elementOptions} stripe={hyperPromise()}>
+          <CheckoutForm
+            clientSecret
+            sdkType
+            paymentStatus
+            currency
+            setPaymentStatus
+            paymentElementOptions
+            theme
+            primaryColor
+            bgColor
+            fontFamily
+            fontSizeBase
+            methodsOrder
+            layout
+            returnUrl
+            saveViewToSdk
+            publishableKey
+            isSpaceAccordion
+            amount
+            setClientSecret
+          />
+        </Elements>
+      | None => React.null
+      }}
+    </div>
+  </PageLoaderWrapper>
 }
