@@ -86,13 +86,15 @@ let customers = SubLevelLink({
   searchOptions: [("View customers", "")],
 })
 
-let operations = isOperationsEnabled => {
+let operations = (isOperationsEnabled, customerModule) => {
   isOperationsEnabled
     ? Section({
         name: "Operations",
         icon: "hswitch-operations",
         showSection: true,
-        links: [payments, refunds, disputes, customers],
+        links: customerModule
+          ? [payments, refunds, disputes, customers]
+          : [payments, refunds, disputes],
       })
     : emptyComponent
 }
@@ -337,11 +339,12 @@ let getHyperSwitchAppSidebars = (
     userJourneyAnalytics: userJourneyAnalyticsFlag,
     surcharge: isSurchargeEnabled,
     isLiveMode,
+    customerModule,
   } = featureFlagDetails
   let sidebar = [
     productionAccess->productionAccessComponent,
     default->home,
-    default->operations,
+    default->operations(customerModule),
     default->analytics(userJourneyAnalyticsFlag),
     default->connectors(isLiveMode),
     default->workflow(isSurchargeEnabled),
