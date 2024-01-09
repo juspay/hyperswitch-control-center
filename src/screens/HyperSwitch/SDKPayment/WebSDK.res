@@ -296,7 +296,7 @@ let make = (
       script->DOMUtils.setAttribute("src", hyperswitchSdkPrefix)
       DOMUtils.appendChild(script)
       let _ = Some(_ => script->DOMUtils.remove())
-      await HyperSwitchUtils.delay(2000)
+      await HyperSwitchUtils.delay(1000)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => Error(""))
