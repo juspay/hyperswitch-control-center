@@ -1,26 +1,4 @@
-open LogicUtils
-
-type customers = {
-  customer_id: string,
-  name: string,
-  email: string,
-  phone: string,
-  phone_country_code: string,
-  description: string,
-  address: string,
-  created_at: string,
-  metadata: Js.Json.t,
-}
-
-type customersColsType =
-  | CustomerId
-  | Name
-  | Email
-  | Phone
-  | PhoneCountryCode
-  | Description
-  | Address
-  | CreatedAt
+open CustomersType
 
 let defaultColumns = [
   CustomerId,
@@ -66,6 +44,7 @@ let getCell = (customersData, colType): Table.cell => {
 }
 
 let itemToObjMapper = dict => {
+  open LogicUtils
   {
     customer_id: dict->getString("customer_id", ""),
     name: dict->getString("name", ""),
@@ -80,6 +59,7 @@ let itemToObjMapper = dict => {
 }
 
 let getCustomers: Js.Json.t => array<customers> = json => {
+  open LogicUtils
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
