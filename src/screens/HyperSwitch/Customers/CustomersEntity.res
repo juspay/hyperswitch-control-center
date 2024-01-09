@@ -40,7 +40,7 @@ let customersMapDefaultCols = Recoil.atom(. "customersMapDefaultCols", defaultCo
 let getHeading = colType => {
   switch colType {
   | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer Id", ~showSort=true, ())
-  | Name => Table.makeHeaderInfo(~key="name", ~title="Name", ~showSort=true, ())
+  | Name => Table.makeHeaderInfo(~key="name", ~title="Customer Name", ~showSort=true, ())
   | Email => Table.makeHeaderInfo(~key="email", ~title="Email", ~showSort=true, ())
   | PhoneCountryCode =>
     Table.makeHeaderInfo(~key="phone_country_code", ~title="Phone Country Code", ~showSort=true, ())
