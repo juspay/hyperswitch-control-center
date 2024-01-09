@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.21.0 (2024-01-09)
+
+### Features
+
+- Customers module ([#198](https://github.com/juspay/hyperswitch-control-center/pull/198)) ([`c307fd7`](https://github.com/juspay/hyperswitch-control-center/commit/c307fd7bde4b3d43d54022b67f6be2265fc70eca))
+
+### Bug Fixes
+
+- Eslint issue ([#205](https://github.com/juspay/hyperswitch-control-center/pull/205)) ([`011edf1`](https://github.com/juspay/hyperswitch-control-center/commit/011edf188a610b7dd6977d32006cda3c5b029965))
+- Filters enhance ([#160](https://github.com/juspay/hyperswitch-control-center/pull/160)) ([`77cebce`](https://github.com/juspay/hyperswitch-control-center/commit/77cebced9bfd9621f7c15b40c92b82f9c8be8c4f))
+
+**Full Changelog:** [`v1.20.0...v1.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.20.0...v1.21.0)
+
+- - -
+
+
 ## 1.20.0 (2024-01-08)
 
 ### Features
