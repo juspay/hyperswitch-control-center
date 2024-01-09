@@ -409,7 +409,7 @@ module TabDetails = {
     >,
     ~tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, Js.Json.t) => array<Js.Nullable.t<'t>>>,
     ~moduleName,
-    ~updateUrl: Js.Dict.t<string> => unit,
+    ~updateUrl: Dict.t<string> => unit,
     ~weeklyTableMetricsCols,
   ) => {
     open AnalyticsTypes
@@ -548,7 +548,7 @@ let make = (
 
   let updateUrlWithPrefix = React.useMemo1(() => {
     (chartType: string) => {
-      (dict: Js.Dict.t<string>) => {
+      (dict: Dict.t<string>) => {
         let prev = filterValue
 
         let prevDictArr =

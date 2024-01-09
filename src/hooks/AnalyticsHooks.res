@@ -47,7 +47,7 @@ let useAnalyticsFetch = () => {
 type tabsetHookType = {
   setActiveTab: string => unit,
   activeTab: option<array<string>>,
-  updateUrlWithPrefix: Js.Dict.t<string> => unit,
+  updateUrlWithPrefix: Dict.t<string> => unit,
 }
 
 let useTabHooks = (~moduleName, ~segmentsOptions) => {
@@ -67,7 +67,7 @@ let useTabHooks = (~moduleName, ~segmentsOptions) => {
   }, [setActiveTab])
 
   let updateUrlWithPrefix = React.useMemo1(() => {
-    (dict: Js.Dict.t<string>) => {
+    (dict: Dict.t<string>) => {
       let currentDict =
         dict
         ->Dict.toArray
