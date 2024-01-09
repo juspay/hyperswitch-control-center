@@ -39,12 +39,10 @@ let make = (
   ~removeValidationCheck=false,
 ) => {
   let showPopUp = PopUpState.useShowPopUp()
-  let {meta} = ReactFinalForm.useField(input.name)
-  let isInValid = if removeValidationCheck {
-    false
-  } else {
-    try {
-      if !meta.valid && meta.touched {
+  let isInValid = try {
+    let {meta} = ReactFinalForm.useField(input.name)
+    if !removeValidationCheck {
+      let bool = if !meta.valid && meta.touched {
         // if there is a submission error and field value hasn't been updated after last submit, field is invalid
         // or if there is any field error, field is invalid
         (!(meta.submitError->Js.Nullable.isNullable) && !meta.dirtySinceLastSubmit) ||
@@ -52,10 +50,14 @@ let make = (
       } else {
         false
       }
-    } catch {
-    | _ => false
+      bool
+    } else {
+      false
     }
+  } catch {
+  | _ => false
   }
+
   let {isFirst, isLast} = React.useContext(ButtonGroupContext.buttonGroupContext)
   let (showPassword, setShowPassword) = React.useState(_ => false)
   let inputRef = React.useRef(Js.Nullable.null)
