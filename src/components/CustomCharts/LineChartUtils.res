@@ -749,6 +749,25 @@ let getGranularityNew = (~startTime, ~endTime) => {
   }
 }
 
+let getGranularityNewStr = (~startTime, ~endTime) => {
+  getGranularityNew(~startTime, ~endTime)->Belt.Array.map(item => {
+    let (val, unit) = item
+    if val === 1 {
+      if unit === "day" {
+        "Daily"
+      } else if unit === "week" {
+        "Weekly"
+      } else if unit === "hour" {
+        "Hourly"
+      } else {
+        unit
+      }
+    } else {
+      `${val->Belt.Int.toString} ${unit}`
+    }
+  })
+}
+
 let chartDataMaker = (~filterNull=false, rawData, groupKey, metric) => {
   let sortDescending = (obj1, obj2) => {
     let (_key, val1) = obj1
