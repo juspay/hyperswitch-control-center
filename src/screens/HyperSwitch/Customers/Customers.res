@@ -26,25 +26,23 @@ let make = () => {
     None
   })
 
-  <ErrorBoundary>
-    <PageLoaderWrapper screenState>
-      <PageUtils.PageHeading title="Customers" subTitle="View all customers" />
-      <LoadedTableWithCustomColumns
-        title=" "
-        hideTitle=true
-        actualData=customersData
-        entity={customersEntity}
-        resultsPerPage=10
-        showSerialNumber=true
-        totalResults={customersData->Array.length}
-        offset
-        setOffset
-        currrentFetchCount={customersData->Array.length}
-        defaultColumns={defaultColumns}
-        customColumnMapper={customersMapDefaultCols}
-        showSerialNumberInCustomizeColumns=false
-        sortingBasedOnDisabled=false
-      />
-    </PageLoaderWrapper>
-  </ErrorBoundary>
+  <PageLoaderWrapper screenState>
+    <PageUtils.PageHeading title="Customers" subTitle="View all customers" />
+    <LoadedTableWithCustomColumns
+      title=" "
+      hideTitle=true
+      actualData=customersData
+      entity={customersEntity}
+      resultsPerPage=10
+      showSerialNumber=true
+      totalResults={customersData->Array.length}
+      offset
+      setOffset
+      currrentFetchCount={customersData->Array.length}
+      defaultColumns={defaultColumns}
+      customColumnMapper={customersMapDefaultCols}
+      showSerialNumberInCustomizeColumns=false
+      sortingBasedOnDisabled=false
+    />
+  </PageLoaderWrapper>
 }
