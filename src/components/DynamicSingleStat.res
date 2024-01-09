@@ -48,8 +48,8 @@ type entityType<'colType, 't, 't2> = {
   source?: string,
   customFilterKey?: string,
   enableLoaders?: bool,
-  statSentiment?: Js.Dict.t<AnalyticsUtils.statSentiment>,
-  statThreshold?: Js.Dict.t<float>,
+  statSentiment?: Dict.t<AnalyticsUtils.statSentiment>,
+  statThreshold?: Dict.t<float>,
 }
 type timeType = {startTime: string, endTime: string}
 // this will be removed once filter refactor is merged

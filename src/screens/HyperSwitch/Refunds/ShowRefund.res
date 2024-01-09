@@ -81,12 +81,12 @@ let make = (~id) => {
   )
   let (offset, setOffset) = React.useState(_ => 0)
   let (orderData, setOrdersData) = React.useState(_ => [])
-  let refundData = RefundHook.getRefundData(id, setScreenStateForRefund)
+  let refundData = RefundHook.useGetRefundData(id, setScreenStateForRefund)
 
   let paymentId =
     refundData->LogicUtils.getDictFromJsonObject->LogicUtils.getString("payment_id", "")
 
-  let orderDataForPaymentId = OrderHooks.getOrdersData(paymentId, 0, setScreenStateForOrder)
+  let orderDataForPaymentId = OrderHooks.useGetOrdersData(paymentId, 0, setScreenStateForOrder)
 
   React.useEffect1(() => {
     let jsonArray = [orderDataForPaymentId]

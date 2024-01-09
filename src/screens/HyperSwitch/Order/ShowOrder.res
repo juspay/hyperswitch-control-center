@@ -626,7 +626,7 @@ let make = (~id) => {
 
   let frmDetailsRef = React.useRef(Js.Nullable.null)
 
-  let orderData = OrderHooks.getOrdersData(id, refetchCounter, setScreenState)
+  let orderData = OrderHooks.useGetOrdersData(id, refetchCounter, setScreenState)
   let order = OrderEntity.itemToObjMapper(orderData->getDictFromJsonObject)
 
   let refundData =

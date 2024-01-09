@@ -164,17 +164,29 @@ let getHeading = colType => {
     Table.makeHeaderInfo(~key="payment_methods", ~title="Payment Methods", ~showSort=false, ())
   }
 }
+let connectorStatusStyle = connectorStatus =>
+  switch connectorStatus->String.toLowerCase {
+  | "active" => "text-green-700"
+  | _ => "text-grey-800 opacity-50"
+  }
 
 let getCell = (connector: connectorPayload, colType): Table.cell => {
   switch colType {
   | Name => Text(connector.connector_name->LogicUtils.getTitle)
   | TestMode => Text(connector.test_mode ? "True" : "False")
-  | Disabled => Text(connector.disabled ? "True" : "False")
-  | Status =>
+  | Disabled =>
     Label({
-      title: connector.status->String.toUpperCase,
-      color: connector.status === "inactive" ? LabelRed : LabelGreen,
+      title: connector.disabled ? "DISABLED" : "ENABLED",
+      color: connector.disabled ? LabelRed : LabelGreen,
     })
+
+  | Status =>
+    Table.CustomCell(
+      <div className={`font-semibold ${connector.status->connectorStatusStyle}`}>
+        {connector.status->String.toUpperCase->React.string}
+      </div>,
+      "",
+    )
   | ProfileId => Text(connector.profile_id)
   | ProfileName =>
     Table.CustomCell(<MerchantAccountUtils.BusinessProfile profile_id={connector.profile_id} />, "")

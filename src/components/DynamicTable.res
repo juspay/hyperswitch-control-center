@@ -96,7 +96,7 @@ let make = (
   ~disableURIdecode=false,
   ~mergeBodytoRemoteFilterDict=false,
   ~defaultKeysAllowed=?,
-  ~urlKeyTypeDict: Js.Dict.t<RemoteFiltersUtils.urlKEyType>=Dict.make(),
+  ~urlKeyTypeDict: Dict.t<RemoteFiltersUtils.urlKEyType>=Dict.make(),
 ) => {
   let {
     getObjects,
