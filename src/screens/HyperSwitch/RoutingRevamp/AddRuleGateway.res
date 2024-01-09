@@ -144,7 +144,6 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
     )
   }
 
-  //   if isExpanded {
   <div className="flex flex-row ml-2">
     <UIUtils.RenderIf condition={!isFirst}>
       <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
@@ -240,8 +239,4 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
       </UIUtils.RenderIf>
     </div>
   </div>
-
-  //    else {
-  //     <GatewayView gateways=selectedOptions isEnforceGatewayPriority=true />
-  //   }
 }

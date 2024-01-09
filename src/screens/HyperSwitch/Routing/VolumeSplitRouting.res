@@ -8,15 +8,16 @@ module VolumeRoutingView = {
   open RoutingUtils
   @react.component
   let make = (
-    ~initialRule,
     ~setScreenState,
     ~routingId,
     ~pageState,
+    ~setPageState,
     ~connectors: array<ConnectorTypes.connectorPayload>,
     ~isActive,
-    ~initialValues,
     ~isConfigButtonEnabled,
     ~profile,
+    ~setFormState,
+    ~initialValues,
   ) => {
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
@@ -27,45 +28,17 @@ module VolumeRoutingView = {
       connectorListJson->safeParse->ConnectorTableUtils.getArrayOfConnectorListPayloadType
     })
 
-    let initalValue = switch initialRule {
-    | Some(initialRule) => initialRule
-    | None => Dict.make()
-    }
-
     let gateways =
-      initalValue
-      ->getJsonObjectFromDict("json")
+      initialValues
+      ->getJsonObjectFromDict("algorithm")
       ->getDictFromJsonObject
-      ->getObj("volumeBasedDistribution", Dict.make())
-      ->getArrayFromDict("gateways", [])
+      ->getArrayFromDict("data", [])
 
     let onSubmit = async (values, isSaveRule) => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let data =
-          values
-          ->getDictFromJsonObject
-          ->getJsonObjectFromDict("json")
-          ->getDictFromJsonObject
-          ->getJsonObjectFromDict("volumeBasedDistribution")
-          ->Js.Json.decodeObject
-          ->Belt.Option.getWithDefault(Dict.make())
-          ->getArrayFromDict("gateways", [])
-        let payload = getVolumeSplit(data, itemBodyGateWayObjMapper, Some(connectorList))
-
         let updateUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
-
-        let res = await updateDetails(
-          updateUrl,
-          getRoutingPayload(
-            payload,
-            "volume_split",
-            initialValues->getString("name", ""),
-            initialValues->getString("description", ""),
-            initialValues->getString("profile_id", ""),
-          )->Js.Json.object_,
-          Post,
-        )
+        let res = await updateDetails(updateUrl, values, Post)
         showToast(
           ~message="Successfully Created a new Configuration !",
           ~toastType=ToastState.ToastSuccess,
@@ -89,44 +62,6 @@ module VolumeRoutingView = {
       }
     }
 
-    let validate = (values: Js.Json.t) => {
-      let errors = Dict.make()
-      let dict = values->getDictFromJsonObject
-      let validateGateways = dict => {
-        let gateways = dict->getArrayFromDict("gateways", [])
-        if gateways->Array.length === 0 {
-          Some("Need atleast 1 Gateway")
-        } else {
-          let distributionPercentages = gateways->Belt.Array.keepMap(json => {
-            json->Js.Json.decodeObject->Belt.Option.flatMap(getOptionFloat(_, "distribution"))
-          })
-          let distributionPercentageSum =
-            distributionPercentages->Array.reduce(0., (sum, distribution) => sum +. distribution)
-          let hasZero = distributionPercentages->Array.some(ele => ele === 0.)
-          let isDistributeChecked = !(distributionPercentages->Array.some(ele => ele === 100.0))
-
-          let isNotValid =
-            isDistributeChecked &&
-            (distributionPercentageSum > 100. || hasZero || distributionPercentageSum !== 100.)
-
-          if isNotValid {
-            Some("Distribution Percent not correct")
-          } else {
-            None
-          }
-        }
-      }
-
-      let volumeBasedDistributionDict =
-        dict->getObj("json", Dict.make())->getObj("volumeBasedDistribution", Dict.make())
-
-      switch volumeBasedDistributionDict->validateGateways {
-      | Some(error) => errors->Dict.set("Volume Based Distribution", error->Js.Json.string)
-      | None => ()
-      }
-
-      errors->Js.Json.object_
-    }
     let handleActivateConfiguration = async activatingId => {
       try {
         setScreenState(_ => Loading)
@@ -207,72 +142,55 @@ module VolumeRoutingView = {
       <div className="flex w-full flex-start">
         {switch pageState {
         | Create =>
-          <Form
-            onSubmit={(values, _) => onSubmit(values, true)}
-            validate
-            initialValues={initalValue->Js.Json.object_}>
-            <div className="flex flex-col gap-4">
-              {listLength > 0
-                ? <>
-                    <AddPLGateway
-                      id="json.volumeBasedDistribution"
-                      gatewayOptions={connectorOptions}
-                      isExpanded={true}
-                      isFirst={true}
-                      showPriorityIcon={false}
-                      showDistributionIcon={false}
-                      showFallbackIcon={false}
-                      dropDownButtonText="Add Processors"
-                      connectorList
-                    />
-                    <ConfigureRuleButton setShowModal isConfigButtonEnabled />
-                    <CustomModal.RoutingCustomModal
-                      showModal
-                      setShowModal
-                      cancelButton={<FormRenderer.SubmitButton
-                        text="Save Rule"
-                        buttonSize=Button.Small
-                        buttonType=Button.Secondary
-                        customSumbitButtonStyle="w-1/5 rounded-lg"
-                        tooltipWidthClass="w-48"
-                      />}
-                      submitButton={<SaveAndActivateButton onSubmit handleActivateConfiguration />}
-                      headingText="Activate Current Configuration?"
-                      subHeadingText="Activating the current configuration will override the current active configuration. Alternatively, save this configuration to access / activate it later from the configuration history. Please confirm."
-                      leftIcon="hswitch-warning"
-                    />
-                  </>
-                : <NoDataFound message="Please configure atleast 1 connector" renderType=InfoBox />}
-            </div>
-            <FormValuesSpy />
-          </Form>
+          <div className="flex flex-col gap-4">
+            {listLength > 0
+              ? <>
+                  <AddPLGateway
+                    id="algorithm.data"
+                    gatewayOptions={connectorOptions}
+                    isExpanded={true}
+                    isFirst={true}
+                    showPriorityIcon={false}
+                    showDistributionIcon={false}
+                    showFallbackIcon={false}
+                    dropDownButtonText="Add Processors"
+                    connectorList
+                  />
+                  <ConfigureRuleButton setShowModal isConfigButtonEnabled />
+                  <CustomModal.RoutingCustomModal
+                    showModal
+                    setShowModal
+                    cancelButton={<FormRenderer.SubmitButton
+                      text="Save Rule"
+                      buttonSize=Button.Small
+                      buttonType=Button.Secondary
+                      customSumbitButtonStyle="w-1/5 rounded-lg"
+                      tooltipWidthClass="w-48"
+                    />}
+                    submitButton={<SaveAndActivateButton onSubmit handleActivateConfiguration />}
+                    headingText="Activate Current Configuration?"
+                    subHeadingText="Activating the current configuration will override the current active configuration. Alternatively, save this configuration to access / activate it later from the configuration history. Please confirm."
+                    leftIcon="hswitch-warning"
+                  />
+                </>
+              : <NoDataFound message="Please configure atleast 1 connector" renderType=InfoBox />}
+          </div>
         | Preview =>
           <div className="flex flex-col w-full gap-3">
             <div
               className="flex flex-col gap-4 p-6 my-2 bg-white rounded-md border border-jp-gray-600 ">
-              <GatewayView
-                gateways={gateways->getGatewayTypes("gateway_name", "distribution")}
-                isEnforceGatewayPriority=false
-                connectorList
-              />
+              <GatewayView gateways={gateways->getGatewayTypes} connectorList />
             </div>
             <div className="flex flex-col md:flex-row gap-4">
-              // <Button
-              //   text={"Duplicate & Edit Configuration"}
-              //   buttonType={Secondary}
-              //   onClick={_ => {
-              //     setFormState(_ => AdvancedRoutingTypes.EditConfig)
-              //     setInitialValues(_ => VOLUME_SPLIT->RoutingUtils.constructNameDescription)
-              //     setPageState(_ => Create)
-              //     hyperswitchMixPanel(
-              //       ~pageName=`${url.path->LogicUtils.getListHead}_${currentTabName}`,
-              //       ~contextName="previewrule",
-              //       ~actionName="duplicatevolumeconfiguration",
-              //       (),
-              //     )
-              //   }}
-              //   customButtonStyle="w-1/5 rounded-sm"
-              // />
+              <Button
+                text={"Duplicate & Edit Configuration"}
+                buttonType={Secondary}
+                onClick={_ => {
+                  setFormState(_ => AdvancedRoutingTypes.EditConfig)
+                  setPageState(_ => Create)
+                }}
+                customButtonStyle="w-1/5 rounded-sm"
+              />
               <UIUtils.RenderIf condition={!isActive}>
                 <Button
                   text={"Activate Configuration"}
@@ -297,7 +215,6 @@ module VolumeRoutingView = {
               </UIUtils.RenderIf>
             </div>
           </div>
-
         | _ => React.null
         }}
       </div>
@@ -311,7 +228,6 @@ let make = (~routingRuleId, ~isActive) => {
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
   let (formState, setFormState) = React.useState(_ => AdvancedRoutingTypes.EditReplica)
-  let (initialRule, setInitialRule) = React.useState(() => None)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -321,42 +237,16 @@ let make = (~routingRuleId, ~isActive) => {
   let (isConfigButtonEnabled, setIsConfigButtonEnabled) = React.useState(_ => false)
   let connectorListJson =
     HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->safeParse
-
   let getConnectorsList = () => {
-    setConnectors(_ =>
-      connectorListJson
-      ->ConnectorTableUtils.getArrayOfConnectorListPayloadType
-      ->Array.filter(connector => connector.connector_name !== "applepay")
-    )
+    setConnectors(_ => connectorListJson->ConnectorTableUtils.getArrayOfConnectorListPayloadType)
   }
 
   let activeRoutingDetails = async () => {
     let routingUrl = getURL(~entityName=ROUTING, ~methodType=Get, ~id=routingRuleId, ())
     let routingJson = await fetchDetails(routingUrl)
-    let algorithm =
-      routingJson
-      ->getDictFromJsonObject
-      ->getObj("algorithm", Dict.make())
-      ->getArrayFromDict("data", [])
-
-    let volumeBasedGatewayDistribution = RoutingUtils.getVolumeSplit(
-      algorithm,
-      RoutingUtils.itemGateWayObjMapper,
-      None,
-    )
-    let gatewaysDict = [("gateways", volumeBasedGatewayDistribution->Js.Json.array)]->Dict.fromArray
-    let volDict = [("volumeBasedDistribution", gatewaysDict->Js.Json.object_)]->Dict.fromArray
-    let ruleDict = [("json", volDict->Js.Json.object_)]->Dict.fromArray
     let routingJsonToDict = routingJson->getDictFromJsonObject
-
-    let initialValueDict = Dict.fromArray([
-      ("name", routingJsonToDict->getString("name", "")->Js.Json.string),
-      ("description", routingJsonToDict->getString("description", "")->Js.Json.string),
-      ("profile_id", routingJsonToDict->getString("profile_id", "")->Js.Json.string),
-    ])
     setFormState(_ => ViewConfig)
-    setInitialValues(_ => initialValueDict)
-    setInitialRule(_ => Some(ruleDict))
+    setInitialValues(_ => routingJsonToDict)
     setProfile(_ => routingJsonToDict->getString("profile_id", defaultBusinessProfile.profile_id))
   }
 
@@ -372,7 +262,6 @@ let make = (~routingRuleId, ~isActive) => {
 
       | None => {
           setInitialValues(_ => VOLUME_SPLIT->RoutingUtils.constructNameDescription)
-          setInitialRule(_ => None)
           setPageState(_ => Create)
         }
       }
@@ -385,6 +274,42 @@ let make = (~routingRuleId, ~isActive) => {
     }
   }
 
+  let validate = (values: Js.Json.t) => {
+    let errors = Js.Dict.empty()
+    let dict = values->getDictFromJsonObject
+    let validateGateways = dict => {
+      let gateways = dict->getArrayFromDict("data", [])
+      if gateways->Js.Array2.length === 0 {
+        Some("Need atleast 1 Gateway")
+      } else {
+        let distributionPercentages = gateways->Belt.Array.keepMap(json => {
+          json->Js.Json.decodeObject->Belt.Option.flatMap(getOptionFloat(_, "split"))
+        })
+        let distributionPercentageSum =
+          distributionPercentages->Array.reduce(0., (sum, distribution) => sum +. distribution)
+        let hasZero = distributionPercentages->Js.Array2.some(ele => ele === 0.)
+        let isDistributeChecked = !(distributionPercentages->Js.Array2.some(ele => ele === 100.0))
+
+        let isNotValid =
+          isDistributeChecked &&
+          (distributionPercentageSum > 100. || hasZero || distributionPercentageSum !== 100.)
+
+        if isNotValid {
+          Some("Distribution Percent not correct")
+        } else {
+          None
+        }
+      }
+    }
+
+    let volumeBasedDistributionDict = dict->getObj("algorithm", Js.Dict.empty())
+    switch volumeBasedDistributionDict->validateGateways {
+    | Some(error) => errors->Js.Dict.set("Volume Based Distribution", error->Js.Json.string)
+    | None => ()
+    }
+    errors->Js.Json.object_
+  }
+
   React.useEffect1(() => {
     getDetails()->ignore
     None
@@ -392,7 +317,7 @@ let make = (~routingRuleId, ~isActive) => {
 
   <div className="my-6">
     <PageLoaderWrapper screenState>
-      <Form initialValues={initialValues->Js.Json.object_}>
+      <Form validate initialValues={initialValues->Js.Json.object_}>
         <div className="w-full flex justify-between">
           <div className="w-full">
             <BasicDetailsForm
@@ -406,20 +331,22 @@ let make = (~routingRuleId, ~isActive) => {
             />
           </div>
         </div>
+        <UIUtils.RenderIf condition={formState != CreateConfig}>
+          <VolumeRoutingView
+            setScreenState
+            pageState
+            setPageState
+            connectors
+            routingId={routingRuleId}
+            isActive
+            isConfigButtonEnabled
+            initialValues
+            profile
+            setFormState
+          />
+        </UIUtils.RenderIf>
+        <FormValuesSpy />
       </Form>
-      <UIUtils.RenderIf condition={formState != CreateConfig}>
-        <VolumeRoutingView
-          initialRule
-          setScreenState
-          pageState
-          connectors
-          routingId={routingRuleId}
-          isActive
-          initialValues
-          isConfigButtonEnabled
-          profile
-        />
-      </UIUtils.RenderIf>
     </PageLoaderWrapper>
   </div>
 }
