@@ -1005,7 +1005,6 @@ let getCountryFromCountryCode = code => {
   }
 }
 
-
 let getCountryCodeFromCountry = country => {
   switch country {
   | Afghanistan => AF

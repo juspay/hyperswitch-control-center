@@ -6,8 +6,22 @@ external typeConversion: array<Js.Nullable.t<UserRoleEntity.userTableTypes>> => 
 
 module UserHeading = {
   @react.component
-  let make = (~infoValue: UserRoleEntity.userTableTypes) => {
+  let make = (~infoValue: UserRoleEntity.userTableTypes, ~userId) => {
+    open APIUtils
+    let showToast = ToastState.useShowToast()
+    let updateDetails = useUpdateMethod()
     let status = infoValue.status->UserRoleEntity.statusToVariantMapper
+
+    let _resendInvite = async () => {
+      try {
+        let url = getURL(~entityName=USERS, ~userType=#RESEND_INVITE, ~methodType=Post, ())
+        let body = [("user_id", userId->Js.Json.string)]->Dict.fromArray->Js.Json.object_
+        let _ = await updateDetails(url, body, Post)
+        showToast(~message=`Invite resend. Please check your email.`, ~toastType=ToastSuccess, ())
+      } catch {
+      | _ => ()
+      }
+    }
 
     <div className="flex justify-between flex-wrap">
       <PageUtils.PageHeading
@@ -24,6 +38,14 @@ module UserHeading = {
           | _ => infoValue.status->String.toUpperCase->React.string
           }}
         </div>
+        // <UIUtils.RenderIf condition={status !== Active}>
+        //   <Button
+        //     text="Resend Invite"
+        //     buttonType={SecondaryFilled}
+        //     customButtonStyle="!px-2"
+        //     onClick={_ => resendInvite()->ignore}
+        //   />
+        // </UIUtils.RenderIf>
       </div>
     </div>
   }
@@ -135,7 +157,7 @@ let make = () => {
         path=[{title: "Users", link: "/users"}] currentPageTitle=currentSelectedUser.name
       />
       <div className="h-4/5 bg-white mt-5 p-10 relative flex flex-col gap-8">
-        <UserHeading infoValue={currentSelectedUser} />
+        <UserHeading infoValue={currentSelectedUser} userId={currentSelectedUser.user_id} />
         <div className="flex flex-col justify-between gap-12 show-scrollbar overflow-scroll">
           {permissionInfo
           ->Array.mapWithIndex((ele, index) => {
