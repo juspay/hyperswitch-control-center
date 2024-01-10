@@ -32,9 +32,3 @@ let track = (str, obj) => {
 
 @module("mixpanel-browser")
 external trackEventOrig: string => unit = "track"
-
-let trackEvent = str => {
-  if wasInitialied.contents {
-    trackEventOrig(str)
-  }
-}
