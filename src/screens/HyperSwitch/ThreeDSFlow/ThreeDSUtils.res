@@ -53,18 +53,6 @@ let pageStateMapper = pageType => {
   }
 }
 
-let constuctAlgorithmValue = rules => {
-  let defaultSelection = [("override_3ds", Js.Json.null)]->Dict.fromArray
-
-  let algorithm =
-    [
-      ("defaultSelection", defaultSelection->Js.Json.object_),
-      ("rules", rules->Js.Json.array),
-    ]->Dict.fromArray
-
-  algorithm
-}
-
 let buildThreeDsPayloadBody = values => {
   open LogicUtils
 

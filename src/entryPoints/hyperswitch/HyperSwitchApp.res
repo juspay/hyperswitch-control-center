@@ -283,13 +283,15 @@ let make = () => {
                           renderShow={id => <ShowDisputes id />}
                         />
                       | list{"customers", ...remainingPath} =>
-                        <EntityScaffold
-                          entityName="Customers"
-                          remainingPath
-                          access=ReadWrite
-                          renderList={() => <Customers />}
-                          renderShow={id => <ShowCustomers id />}
-                        />
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.customersModule>
+                          <EntityScaffold
+                            entityName="Customers"
+                            remainingPath
+                            access=ReadWrite
+                            renderList={() => <Customers />}
+                            renderShow={id => <ShowCustomers id />}
+                          />
+                        </FeatureFlagEnabledComponent>
                       | list{"routing", ...remainingPath} =>
                         <EntityScaffold
                           entityName="Routing"

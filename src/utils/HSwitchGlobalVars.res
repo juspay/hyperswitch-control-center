@@ -42,8 +42,6 @@ let hyperSwitchFEPrefix = switch hostType {
 | Netlify => netlifyUrl
 }
 
-let hyperSwitchversion = appVersion->String.length > 0 ? `v${appVersion}` : ""
-
 let playgroundUserEmail = "dummyuser@dummymerchant.com"
 let playgroundUserPassword = "Dummy@1234"
 

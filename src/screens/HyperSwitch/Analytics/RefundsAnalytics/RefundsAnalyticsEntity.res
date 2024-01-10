@@ -23,20 +23,6 @@ let colMapper = (col: refundColType) => {
   }
 }
 
-let reverseColMapper = (column: string): refundColType => {
-  switch column {
-  | "refund_success_rate" => SuccessRate
-  | "refund_count" => Count
-  | "refund_success_count" => SuccessCount
-  | "refund_processed_amount" => ProcessedAmount
-  | "connector" => Connector
-  | "refund_method" => RefundMethod
-  | "currency" => Currency
-  | "refund_status" => Status
-  | _ => NoCol
-  }
-}
-
 let tableItemToObjMapper: 'a => refundTableType = dict => {
   {
     refund_success_rate: dict->getFloat(SuccessRate->colMapper, 0.0),

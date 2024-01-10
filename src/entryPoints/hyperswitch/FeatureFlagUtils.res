@@ -23,6 +23,7 @@ type featureFlag = {
   forgetPassword: bool,
   userJourneyAnalytics: bool,
   surcharge: bool,
+  customersModule: bool,
 }
 
 let featureFlagType = (featureFlags: Js.Json.t) => {
@@ -53,6 +54,7 @@ let featureFlagType = (featureFlags: Js.Json.t) => {
     forgetPassword: dict->getBool("forgot_password", false),
     userJourneyAnalytics: dict->getBool("user_journey_analytics", false),
     surcharge: dict->getBool("surcharge", false),
+    customersModule: dict->getBool("customers_module", false),
   }
   typedFeatureFlag
 }
