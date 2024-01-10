@@ -345,12 +345,6 @@ module BusinessProfileRender = {
     let hereTextStyle = isUpdateFlow
       ? "text-grey-700 opacity-50 cursor-not-allowed"
       : "text-blue-900  cursor-pointer"
-    let _onClickHandler = _ => {
-      if !isUpdateFlow {
-        setShowModalFromOtherScreen(_ => true)
-      }
-      setDashboardPageState(_ => #HOME)
-    }
 
     <>
       <FormRenderer.FieldRenderer
