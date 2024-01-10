@@ -48,38 +48,3 @@ let isoStringToCustomTimezone = isoString => {
   }
   customDateTime
 }
-
-let customTimezoneToISOString = (year, month, day, hours, minutes, seconds, _timezone) => {
-  let timezone = "IST"
-
-  let timezoneString = switch Dict.get(timezoneOffset, timezone) {
-  | Some(d) => d
-  | None => "+05:30"
-  }
-
-  let monthString = String.length(month) == 1 ? `0${month}` : month
-  let dayString = String.length(day) == 1 ? `0${day}` : day
-  let hoursString = formatter(hours)
-  let minutesString = formatter(minutes)
-  let secondsString = formatter(seconds)
-
-  let fullTimeManagedString =
-    year ++
-    "-" ++
-    monthString ++
-    "-" ++
-    dayString ++
-    "T" ++
-    hoursString ++
-    ":" ++
-    minutesString ++
-    ":" ++
-    secondsString ++
-    timezoneString
-  let newFormedDate = Js.Date.fromString(fullTimeManagedString)
-  let isoFormattedDate = Js.Date.toISOString(newFormedDate)
-
-  isoStringToCustomTimezone(isoFormattedDate)->ignore
-  isoFormattedDate
-}
-// return new Date((typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", {timeZone: timezoneString})); 
