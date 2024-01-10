@@ -10,11 +10,14 @@ let convertListResponseToTypedResponse = json => {
   ->Array.map(ele => {
     let dictOfElement = ele->getDictFromJsonObject
     let merchantId = dictOfElement->getString("merchant_id", "")
-    let merchantName = dictOfElement->getString("merchant_name", merchantId)
+    let merchantName =
+      dictOfElement->getString("merchant_name", merchantId)->String.length > 0
+        ? dictOfElement->getString("merchant_name", merchantId)
+        : merchantId
 
     {
       merchant_id: merchantId,
-      merchant_name: merchantName->String.length > 0 ? merchantName : merchantId,
+      merchant_name: merchantName,
     }
   })
 }
