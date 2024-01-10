@@ -2,19 +2,6 @@ external ffInputToSelectInput: ReactFinalForm.fieldRenderPropsInput => ReactFina
   array<string>,
 > = "%identity"
 
-let getStrArray = jsonArr => {
-  jsonArr->Array.reduce([], (acc, jsonElement) => {
-    switch jsonElement->Js.Json.decodeString {
-    | Some(str) => {
-        let _ = Array.push(acc, str)
-      }
-
-    | None => ()
-    }
-    acc
-  })
-}
-
 let startYear = ref(2016)
 let years = []
 while Js.Date.make()->Js.Date.getFullYear->Belt.Float.toInt >= startYear.contents {
@@ -59,10 +46,6 @@ let getMonthFromFloat = value => {
   let valueInt = value->Belt.Float.toInt
   months[valueInt]->Belt.Option.getWithDefault(Jan)
 }
-let getMonthInFloat = (mon: InfraCalendar.month) => {
-  Array.indexOf(months, mon)->Belt.Float.fromInt
-}
-
 module YearItem = {
   @send external scrollIntoView: Dom.element => unit = "scrollIntoView"
 
