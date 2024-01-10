@@ -29,13 +29,10 @@ jobs:
         api_url="https://api.github.com/repos/${{ github.repository }}/pulls/${pr_number}"
         current_description=$(curl -sS -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$api_url" | jq -r '.body')
 
-        updated_description="This PR is linked to the issue #${issue_number}: ${pr_url}\n\n$current_description"
+        comment="This PR is linked to the issue #${issue_number}: ${pr_url}"
 
-        # Debug: Print the updated description
-        echo "Updated Description: $updated_description"
-
-        # Update the PR description
-        curl -sS -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-             -X PATCH \
-             -d "{\"body\":\"$updated_description\"}" \
-             "$api_url"
+        # Add a comment to the issue linking to the PR
+        curl -sS -H "Authorization: token ***" \
+            -X POST \
+            -d "{\"body\":\"$comment\"}" \
+            "$api_url"
