@@ -10,8 +10,10 @@ let defaultThreeDsObjectValue: routingOutputType = {
 let currentTimeInUTC = Js.Date.fromFloat(Js.Date.now())->Js.Date.toUTCString
 let getCurrentUTCTime = () => {
   let currentDate = Js.Date.now()->Js.Date.fromFloat
-  let currMonth = currentDate->Js.Date.getUTCMonth->Belt.Float.toString
-  let currDay = currentDate->Js.Date.getUTCDate->Belt.Float.toString
+  let month = currentDate->Js.Date.getUTCMonth +. 1.0
+  let day = currentDate->Js.Date.getUTCDate
+  let currMonth = month < 10.0 ? `0${month->Belt.Float.toString}` : month->Belt.Float.toString
+  let currDay = day < 10.0 ? `0${day->Belt.Float.toString}` : day->Belt.Float.toString
   let currYear = currentDate->Js.Date.getUTCFullYear->Belt.Float.toString
 
   `${currYear}-${currMonth}-${currDay}`
@@ -110,22 +112,20 @@ let itemBodyGateWayObjMapper = (
   dict,
   connectorList: option<array<ConnectorTypes.connectorPayload>>,
 ) => {
-  let connectorId = dict->getString("gateway_name", "")
+  let merchantConnectorId =
+    dict->getDictfromDict("connector")->getString("merchant_connector_id", "")
   let name =
     connectorList
     ->Belt.Option.getWithDefault([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
-    ->ConnectorTableUtils.getConnectorNameViaId(connectorId)
+    ->ConnectorTableUtils.getConnectorNameViaId(merchantConnectorId)
   let newDict =
     [
       ("connector", name.connector_name->Js.Json.string),
-      ("merchant_connector_id", dict->getString("gateway_name", "")->Js.Json.string),
+      ("merchant_connector_id", merchantConnectorId->Js.Json.string),
     ]
     ->Dict.fromArray
     ->Js.Json.object_
-  [
-    ("split", dict->getFloat("distribution", 0.00)->Js.Json.number),
-    ("connector", newDict),
-  ]->Dict.fromArray
+  [("split", dict->getFloat("split", 0.00)->Js.Json.number), ("connector", newDict)]->Dict.fromArray
 }
 
 let connectorPayload = (routingType, arr) => {
@@ -360,64 +360,6 @@ let constuctAlgorithm = (dict, rules, metadata) => {
   algorithm
 }
 
-let advanceRoutingPayload = (dict, wasm, metadata, name, description) => {
-  let advancedRoutingPayload =
-    [("name", name->Js.Json.string), ("description", description->Js.Json.string)]->Dict.fromArray
-
-  // data part of algorithm
-
-  let rules = []
-  let _payload =
-    dict
-    ->getArrayFromDict("rules", [])
-    ->Array.reduceWithIndex([], (acc, priorityLogicObj, index) => {
-      switch priorityLogicObj->Js.Json.decodeObject {
-      | Some(priorityLogicObj) => {
-          let isDistribute = getBool(priorityLogicObj, "isDistribute", false)
-
-          let connectorSelection = if isDistribute {
-            let connectorSelection = Dict.make()
-            Dict.set(connectorSelection, "type", "volume_split"->Js.Json.string)
-            let gateway =
-              priorityLogicObj
-              ->getArrayFromDict("gateways", [])
-              ->getVolumeSplit(itemBodyGateWayObjMapper, None)
-            Dict.set(connectorSelection, "data", gateway->Js.Json.array)
-            connectorSelection
-          } else {
-            let connectorSelection = Dict.make()
-            Dict.set(connectorSelection, "type", "priority"->Js.Json.string)
-            let gateway =
-              priorityLogicObj
-              ->getArrayFromDict("gateways", [])
-              ->Array.map(dict =>
-                dict->getDictFromJsonObject->getString("gateway_name", "")->Js.Json.string
-              )
-            Dict.set(connectorSelection, "data", gateway->Js.Json.array)
-            connectorSelection
-          }
-
-          let statement = generateStatement(
-            priorityLogicObj->getArrayFromDict("conditions", []),
-            wasm,
-          )
-          let ruleObj = generateRuleObject(index, connectorSelection, statement)
-
-          rules->Array.push(ruleObj->Js.Json.object_)
-        }
-
-      | None => ()
-      }
-      acc
-    })
-
-  let algorithm = constuctAlgorithm(dict, rules, metadata)
-
-  advancedRoutingPayload->Dict.set("algorithm", algorithm->Js.Json.object_)
-
-  advancedRoutingPayload
-}
-
 let getModalObj = (routingType, text) => {
   switch routingType {
   | ADVANCED => {
@@ -485,14 +427,15 @@ let getContent = routetype =>
     }
   }
 
-// Volume
-let getGatewayTypes = (arr: array<Js.Json.t>, gatewayKey: string, distributionKey: string) => {
+//Volume
+let getGatewayTypes = (arr: array<Js.Json.t>) => {
   let tempArr = arr->Array.map(value => {
     let val = value->getDictFromJsonObject
+    let connectorDict = val->getDictfromDict("connector")
     let tempval = {
-      distribution: val->getInt(distributionKey, 0),
+      distribution: val->getInt("split", 0),
       disableFallback: val->getBool("disableFallback", false),
-      gateway_name: val->getString(gatewayKey, ""),
+      gateway_name: connectorDict->getString("merchant_connector_id", ""),
     }
     tempval
   })
@@ -531,33 +474,6 @@ let threeDsTypeMapper = dict => {
     override_3ds: getRoutingOutputval,
   }
   val
-}
-
-let ruleInfoTypeMapper = json => {
-  let arr = json->getDictFromJsonObject->getArrayFromDict("rules", [])
-  let defaultGateways =
-    json->getDictFromJsonObject->getArrayFromDict("default_gateways", [])->getStrArrayFromJsonArray
-  let rulesArray = arr->Array.map(value => {
-    let eachRule = {
-      gateways: getGatewayTypes(
-        value->getDictFromJsonObject->getArrayFromDict("gateways", []),
-        "gateway_name",
-        "distribution",
-      ),
-      conditions: conditionTypeMapper(
-        value->getDictFromJsonObject->getArrayFromDict("conditions", []),
-      ),
-      routingOutput: threeDsTypeMapper(
-        value->getDictFromJsonObject->getObj("routingOutput", Dict.make()),
-      ),
-    }
-    eachRule
-  })
-  let ruleInfo = {
-    rules: rulesArray,
-    default_gateways: defaultGateways,
-  }
-  ruleInfo
 }
 
 let constructNameDescription = routingType => {
