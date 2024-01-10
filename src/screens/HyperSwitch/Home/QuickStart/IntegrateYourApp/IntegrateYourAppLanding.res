@@ -3,6 +3,7 @@ open QuickStartTypes
 @react.component
 let make = (~integrateAppValue: integrateApp) => {
   open QuickStartUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let typedValueOfEnum = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
   let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
@@ -22,7 +23,10 @@ let make = (~integrateAppValue: integrateApp) => {
       <Button
         text="I want to integrate Hyperswitch into my app"
         buttonType={Primary}
-        onClick={_ => setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))}
+        onClick={_ => {
+          mixpanelEvent(~eventName=`quickstart_integration_landing`, ())
+          setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
+        }}
       />
       <Button
         text="Go to Home"
@@ -91,6 +95,7 @@ let make = (~integrateAppValue: integrateApp) => {
               text="Proceed"
               buttonState
               onClick={_ => {
+                mixpanelEvent(~eventName=`quickstart_integration_landing_option`, ())
                 handleIntegration()->ignore
               }}
               buttonSize=Small
