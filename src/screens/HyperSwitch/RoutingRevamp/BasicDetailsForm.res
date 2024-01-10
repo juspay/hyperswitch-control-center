@@ -28,6 +28,8 @@ let descriptionInput = makeFieldInfo(
 module BusinessProfileInp = {
   @react.component
   let make = (~setProfile, ~profile, ~options, ~label="") => {
+    let selectedConnectorsInput = ReactFinalForm.useField("algorithm.data").input
+
     <FormRenderer.FieldRenderer
       field={FormRenderer.makeFieldInfo(
         ~label,
@@ -42,6 +44,7 @@ module BusinessProfileInp = {
                 ev => {
                   setProfile(_ => ev->Identity.formReactEventToString)
                   input.onChange(ev)
+                  selectedConnectorsInput.onChange([]->Identity.anyTypeToReactEvent)
                 }
               },
             },
@@ -84,6 +87,7 @@ let make = (
   let defaultBusinessProfile = businessProfiles->getValueFromBusinessProfile
   let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
 
+  //Need to check if necessary
   let form = ReactFinalForm.useForm()
   React.useEffect0(() => {
     form.change(
@@ -168,12 +172,13 @@ let make = (
           text={formState === CreateConfig ? "Next" : "Save"}
           onClick={_ => {
             setFormState(_ => ViewConfig)
-            let initialValueDict = Dict.fromArray([
-              ("name", ip1.value->getStringFromJson("")->Js.Json.string),
-              ("description", ip2.value->getStringFromJson("")->Js.Json.string),
-              ("profile_id", ip3.value->getStringFromJson("")->Js.Json.string),
-            ])
-            setInitialValues(_ => initialValueDict)
+            setInitialValues(prevValues => {
+              prevValues->Js.Dict.set(
+                "profile_id",
+                ip3.value->getStringFromJson("")->Js.Json.string,
+              )
+              prevValues
+            })
             setIsConfigButtonEnabled(_ => btnEnable)
           }}
           customButtonStyle="my-4 ml-2"
