@@ -10,11 +10,11 @@ type dateTime = {
   second: float,
 }
 
-let timezoneOffset = Js.Dict.fromList(list{("IST", "+05:30"), ("GMT", "+00:00")})
-let timezoneLocation = Js.Dict.fromList(list{("IST", "Asia/Kolkata"), ("GMT", "UTC")})
+let timezoneOffset = Dict.fromArray([("IST", "+05:30"), ("GMT", "+00:00")])
+let timezoneLocation = Dict.fromArray([("IST", "Asia/Kolkata"), ("GMT", "UTC")])
 
 let formatter = str => {
-  Js.String.length(str) == 0 ? "00" : Js.String.length(str) == 1 ? `0${str}` : str
+  String.length(str) == 0 ? "00" : String.length(str) == 1 ? `0${str}` : str
 }
 
 let convertTimeZone = (date, timezoneString) => {
@@ -25,7 +25,7 @@ let convertTimeZone = (date, timezoneString) => {
 let isoStringToCustomTimezone = isoString => {
   let timezone = "IST"
 
-  let timezoneString = switch Js.Dict.get(timezoneLocation, timezone) {
+  let timezoneString = switch Dict.get(timezoneLocation, timezone) {
   | Some(d) => d
   | None => "Asia/Kolkata"
   }
@@ -48,38 +48,3 @@ let isoStringToCustomTimezone = isoString => {
   }
   customDateTime
 }
-
-let customTimezoneToISOString = (year, month, day, hours, minutes, seconds, _timezone) => {
-  let timezone = "IST"
-
-  let timezoneString = switch Js.Dict.get(timezoneOffset, timezone) {
-  | Some(d) => d
-  | None => "+05:30"
-  }
-
-  let monthString = Js.String.length(month) == 1 ? `0${month}` : month
-  let dayString = Js.String.length(day) == 1 ? `0${day}` : day
-  let hoursString = formatter(hours)
-  let minutesString = formatter(minutes)
-  let secondsString = formatter(seconds)
-
-  let fullTimeManagedString =
-    year ++
-    "-" ++
-    monthString ++
-    "-" ++
-    dayString ++
-    "T" ++
-    hoursString ++
-    ":" ++
-    minutesString ++
-    ":" ++
-    secondsString ++
-    timezoneString
-  let newFormedDate = Js.Date.fromString(fullTimeManagedString)
-  let isoFormattedDate = Js.Date.toISOString(newFormedDate)
-
-  isoStringToCustomTimezone(isoFormattedDate)->ignore
-  isoFormattedDate
-}
-// return new Date((typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", {timeZone: timezoneString})); 

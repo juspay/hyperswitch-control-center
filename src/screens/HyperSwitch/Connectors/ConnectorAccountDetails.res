@@ -1,212 +1,8 @@
-let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorName> = [
-  ADYEN,
-  CHECKOUT,
-  STRIPE,
-  PAYPAL,
-]
-
-let mixpanelEventWrapper = (
-  ~url: RescriptReactRouter.url,
-  ~selectedConnector,
-  ~actionName,
-  ~hyperswitchMixPanel: HSMixPanel.functionType,
-) => {
-  if selectedConnector->Js.String2.length > 0 {
-    [selectedConnector, "global"]->Js.Array2.forEach(ele =>
-      hyperswitchMixPanel(
-        ~pageName=url.path->LogicUtils.getListHead,
-        ~contextName=ele,
-        ~actionName,
-        (),
-      )
-    )
-  }
-}
-
-module BusinessProfileRender = {
-  @react.component
-  let make = (~isUpdateFlow: bool, ~selectedConnector) => {
-    let url = RescriptReactRouter.useUrl()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
-    let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-    let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
-    let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
-    let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
-
-    let (showModalFromOtherScreen, setShowModalFromOtherScreen) = React.useState(_ => false)
-
-    let hereTextStyle = isUpdateFlow
-      ? "text-grey-700 opacity-50 cursor-not-allowed"
-      : "text-blue-900  cursor-pointer"
-    let _onClickHandler = countryOrLabel => {
-      if !isUpdateFlow {
-        setShowModalFromOtherScreen(_ => true)
-        mixpanelEventWrapper(
-          ~url,
-          ~selectedConnector,
-          ~actionName=`add_new_${countryOrLabel}`,
-          ~hyperswitchMixPanel,
-        )
-      }
-      setDashboardPageState(_ => #HOME)
-    }
-
-    <>
-      <FormRenderer.FieldRenderer
-        labelClass="font-semibold !text-black"
-        field={FormRenderer.makeFieldInfo(
-          ~label="Profile",
-          ~isRequired=true,
-          ~name="profile_id",
-          ~customInput=(~input, ~placeholder as _) =>
-            InputFields.selectInput(
-              ~input={
-                ...input,
-                onChange: {
-                  ev => {
-                    let profileName = (
-                      arrayOfBusinessProfile
-                      ->Js.Array2.find((ele: HSwitchSettingTypes.profileEntity) =>
-                        ele.profile_id === ev->Identity.formReactEventToString
-                      )
-                      ->Belt.Option.getWithDefault(defaultBusinessProfile)
-                    ).profile_name
-                    connectorLabelOnChange(
-                      `${selectedConnector}_${profileName}`->Identity.stringToFormReactEvent,
-                    )
-                    input.onChange(ev)
-                    mixpanelEventWrapper(
-                      ~url,
-                      ~selectedConnector,
-                      ~actionName=`settings_choose_profile`,
-                      ~hyperswitchMixPanel,
-                    )
-                  }
-                },
-              },
-              ~deselectDisable=true,
-              ~disableSelect=isUpdateFlow,
-              ~customStyle="max-h-48",
-              ~options={
-                arrayOfBusinessProfile->MerchantAccountUtils.businessProfileNameDropDownOption
-              },
-              ~buttonText="Select Profile",
-              ~placeholder="",
-              (),
-            ),
-          (),
-        )}
-      />
-      <UIUtils.RenderIf condition={!isUpdateFlow}>
-        <div className="text-gray-400 text-sm mt-3">
-          <span> {"Manage your list of profiles."->React.string} </span>
-          <span
-            className={`ml-1 ${hereTextStyle}`}
-            onClick={_ => {
-              setDashboardPageState(_ => #HOME)
-              RescriptReactRouter.push("/business-profiles")
-            }}>
-            {React.string("here.")}
-          </span>
-        </div>
-      </UIUtils.RenderIf>
-      <BusinessProfile isFromSettings=false showModalFromOtherScreen setShowModalFromOtherScreen />
-    </>
-  }
-}
-
-module VerifyConnectoModal = {
-  @react.component
-  let make = (
-    ~showVerifyModal,
-    ~setShowVerifyModal,
-    ~connector,
-    ~verifyErrorMessage,
-    ~suggestedActionExists,
-    ~suggestedAction,
-    ~setVerifyDone,
-  ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
-    <Modal
-      showModal={showVerifyModal}
-      setShowModal={setShowVerifyModal}
-      modalClass="w-full md:w-5/12 mx-auto top-1/3 relative"
-      childClass="p-0 m-0 -mt-8"
-      customHeight="border-0 h-fit"
-      showCloseIcon=false
-      modalHeading=" "
-      headingClass="h-2 bg-orange-960 rounded-t-xl"
-      onCloseClickCustomFun={_ => {
-        setVerifyDone(_ => NoAttempt)
-        setShowVerifyModal(_ => false)
-      }}>
-      <div>
-        <div className="flex flex-col mb-2 p-2 m-2">
-          <div className="flex p-3">
-            <img
-              className="w-12 h-12 my-auto border-gray-100 w-fit mt-0"
-              src={`/icons/warning.svg`}
-              alt="warning"
-            />
-            <div className="text-jp-gray-900">
-              <div
-                className="font-semibold ml-4 text-xl px-2 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
-                {"Are you sure you want to proceed?"->React.string}
-              </div>
-              <div
-                className="whitespace-pre-line break-all flex flex-col gap-1  p-2 ml-4 text-base dark:text-jp-gray-text_darktheme dark:text-opacity-50 font-medium leading-7 opacity-50">
-                {`Received the following error from ${connector->LogicUtils.snakeToTitle}:`->React.string}
-              </div>
-              <div
-                className="whitespace-pre-line break-all flex flex-col gap-1 p-4 ml-6 text-base dark:text-jp-gray-text_darktheme dark:text-opacity-50 bg-red-50 rounded-md font-semibold">
-                {`${verifyErrorMessage->Belt.Option.getWithDefault("")}`->React.string}
-              </div>
-              <UIUtils.RenderIf condition={suggestedActionExists}>
-                {suggestedAction}
-              </UIUtils.RenderIf>
-            </div>
-          </div>
-          <div className="flex flex-row justify-end gap-5 mt-4 mb-2 p-3">
-            <FormRenderer.SubmitButton
-              buttonType={Button.Secondary} loadingText="Processing..." text="Proceed Anyway"
-            />
-            <Button
-              text="Cancel"
-              onClick={_ => {
-                hyperswitchMixPanel(
-                  ~pageName=url.path->LogicUtils.getListHead,
-                  ~contextName="verify_connector",
-                  ~actionName="cancel_clicked",
-                  (),
-                )
-                setVerifyDone(_ => ConnectorTypes.NoAttempt)
-                setShowVerifyModal(_ => false)
-              }}
-              buttonType={Primary}
-              buttonSize={Small}
-            />
-          </div>
-        </div>
-      </div>
-    </Modal>
-  }
-}
-
 @react.component
-let make = (
-  ~currentStep,
-  ~setCurrentStep,
-  ~setInitialValues,
-  ~initialValues,
-  ~isUpdateFlow,
-  ~isPayoutFlow,
-) => {
+let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~isPayoutFlow) => {
   open ConnectorUtils
   open APIUtils
   open ConnectorAccountDetailsHelper
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
@@ -230,20 +26,10 @@ let make = (
     defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
 
   React.useEffect1(() => {
-    mixpanelEventWrapper(
-      ~url,
-      ~selectedConnector=connector,
-      ~actionName=`${isUpdateFlow ? "settings_entry_updateflow" : "settings_entry"}`,
-      ~hyperswitchMixPanel,
-    )
-    None
-  }, [connector])
-
-  React.useEffect1(() => {
     if !isUpdateFlow {
       let defaultJsonOnNewConnector =
         [("profile_id", activeBusinessProfile.profile_id->Js.Json.string)]
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_
       setInitialValues(_ => defaultJsonOnNewConnector)
     }
@@ -252,21 +38,21 @@ let make = (
 
   let connectorDetails = React.useMemo1(() => {
     try {
-      if connector->Js.String2.length > 0 {
+      if connector->String.length > 0 {
         let dict = isPayoutFlow
           ? Window.getPayoutConnectorConfig(connector)
           : Window.getConnectorConfig(connector)
         setScreenState(_ => Success)
         dict
       } else {
-        Js.Dict.empty()->Js.Json.object_
+        Dict.make()->Js.Json.object_
       }
     } catch {
     | Js.Exn.Error(e) => {
         Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
         let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
         setScreenState(_ => PageLoaderWrapper.Error(err))
-        Js.Dict.empty()->Js.Json.object_
+        Dict.make()->Js.Json.object_
       }
     }
   }, [connector])
@@ -285,7 +71,7 @@ let make = (
   let updatedInitialVal = React.useMemo1(() => {
     let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
     if !isUpdateFlow {
-      initialValuesToDict->Js.Dict.set(
+      initialValuesToDict->Dict.set(
         "connector_label",
         `${connector}_${activeBusinessProfile.profile_name}`->Js.Json.string,
       )
@@ -295,8 +81,8 @@ let make = (
       ->getConnectorNameTypeFromString
       ->checkIsDummyConnector(featureFlagDetails.testProcessors) && !isUpdateFlow
     ) {
-      let apiKeyDict = [("api_key", "test_key"->Js.Json.string)]->Js.Dict.fromArray
-      initialValuesToDict->Js.Dict.set("connector_account_details", apiKeyDict->Js.Json.object_)
+      let apiKeyDict = [("api_key", "test_key"->Js.Json.string)]->Dict.fromArray
+      initialValuesToDict->Dict.set("connector_account_details", apiKeyDict->Js.Json.object_)
 
       initialValuesToDict->Js.Json.object_
     } else {
@@ -316,13 +102,6 @@ let make = (
         (),
       )
       setScreenState(_ => Loading)
-      getMixpanelForConnectorOnSubmit(
-        ~connectorName=connector,
-        ~currentStep,
-        ~isUpdateFlow,
-        ~url,
-        ~hyperswitchMixPanel,
-      )
       setCurrentStep(_ => PaymentMethods)
       setScreenState(_ => Success)
       setInitialValues(_ => body)
@@ -333,7 +112,7 @@ let make = (
         switch Js.Exn.message(e) {
         | Some(message) => {
             let errMsg = message->parseIntoMyData
-            if errMsg.code->Belt.Option.getWithDefault("")->Js.String2.includes("HE_01") {
+            if errMsg.code->Belt.Option.getWithDefault("")->String.includes("HE_01") {
               showToast(
                 ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
                 ~toastType=ToastState.ToastError,
@@ -386,12 +165,6 @@ let make = (
           setVerifyErrorMessage(_ => errorMessage.message)
           setShowVerifyModal(_ => true)
           setVerifyDone(_ => Failure)
-          hyperswitchMixPanel(
-            ~isApiFailure=true,
-            ~apiUrl=`/verify_connector`,
-            ~description=errorMessage->Js.Json.stringifyAny,
-            (),
-          )
         }
 
       | None => setScreenState(_ => Error("Failed to Fetch!"))
@@ -400,15 +173,14 @@ let make = (
   }
 
   let validateMandatoryField = values => {
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
     let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
-    if profileId->Js.String2.length === 0 {
-      Js.Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
+    if profileId->String.length === 0 {
+      Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
     }
 
     validateConnectorRequiredFields(
-      bodyType,
       connector->getConnectorNameTypeFromString,
       valuesFlattenJson,
       connectorAccountFields,
@@ -446,34 +218,26 @@ let make = (
           ~setVerifyDone,
           ~verifyDone,
           ~isVerifyConnector,
-          ~hyperswitchMixPanel,
-          ~path={url.path},
           ~isVerifyConnectorFeatureEnabled=featureFlagDetails.verifyConnector,
         )}
       validate={validateMandatoryField}
       formClass="flex flex-col ">
       <div className="flex items-center justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
-          <GatewayIcon gateway={connector->Js.String2.toUpperCase} />
+          <GatewayIcon gateway={connector->String.toUpperCase} />
           <h2 className="text-xl font-semibold">
             {connector->LogicUtils.capitalizeString->React.string}
           </h2>
         </div>
         <div className="flex flex-row mt-6 md:mt-0 md:justify-self-end h-min">
           <UIUtils.RenderIf
-            condition={connectorsWithIntegrationSteps->Js.Array2.includes(
+            condition={connectorsWithIntegrationSteps->Array.includes(
               connector->getConnectorNameTypeFromString,
             )}>
             <a
               className={`flex cursor-pointer px-4 py-3 flex text-sm text-blue-900 items-center mx-4`}
               target="_blank"
               onClick={_ => {
-                hyperswitchMixPanel(
-                  ~pageName=url.path->LogicUtils.getListHead,
-                  ~contextName="integration_steps",
-                  ~actionName="modal_open",
-                  (),
-                )
                 setShowModal(_ => true)
               }}>
               {React.string("View integration steps")}
@@ -507,7 +271,6 @@ let make = (
               selectedConnector
               connectorMetaDataFields
               connectorWebHookDetails
-              bodyType
               isUpdateFlow
               connectorLabelDetailField
             />
@@ -515,7 +278,7 @@ let make = (
           <IntegrationHelp.Render connector setShowModal showModal />
         </div>
         <FormValuesSpy />
-        <VerifyConnectoModal
+        <VerifyConnectorModal
           showVerifyModal
           setShowVerifyModal
           connector

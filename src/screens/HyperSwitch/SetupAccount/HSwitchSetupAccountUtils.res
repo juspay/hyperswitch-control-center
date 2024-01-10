@@ -18,13 +18,14 @@ let listOfStepCounter: array<stepCounterTypes> = [
 
 let constructBody = (~connectorName, ~json, ~profileId) => {
   open LogicUtils
+  open ConnectorUtils
   let connectorAccountDict = json->getDictFromJsonObject->getDictfromDict("connector_auth")
   let bodyType =
-    connectorAccountDict->Js.Dict.keys->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+    connectorAccountDict->Dict.keysToArray->Belt.Array.get(0)->Belt.Option.getWithDefault("")
 
   let connectorAccountDetails =
     [("auth_type", bodyType->Js.Json.string), ("api_key", "test"->Js.Json.string)]
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
 
   let initialValueForPayload = ConnectorUtils.generateInitialValuesDict(
@@ -33,18 +34,38 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
       ("connector_account_details", connectorAccountDetails),
       ("connector_label", `${connectorName}_default`->Js.Json.string),
     ]
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_,
     ~connector=connectorName,
     ~bodyType,
     (),
   )
 
-  let creditCardNetworkArray = json->getDictFromJsonObject->getStrArrayFromDict("credit", [])
-  let debitCardNetworkArray = json->getDictFromJsonObject->getStrArrayFromDict("debit", [])
+  let creditCardNetworkArray =
+    json
+    ->getDictFromJsonObject
+    ->getArrayFromDict("credit", [])
+    ->Js.Json.array
+    ->getPaymentMethodMapper
+  let debitCardNetworkArray =
+    json
+    ->getDictFromJsonObject
+    ->getArrayFromDict("debit", [])
+    ->Js.Json.array
+    ->getPaymentMethodMapper
 
-  let payLaterArray = json->getDictFromJsonObject->getStrArrayFromDict("pay_later", [])
-  let walletArray = json->getDictFromJsonObject->getStrArrayFromDict("wallet", [])
+  let payLaterArray =
+    json
+    ->getDictFromJsonObject
+    ->getArrayFromDict("pay_later", [])
+    ->Js.Json.array
+    ->getPaymentMethodMapper
+  let walletArray =
+    json
+    ->getDictFromJsonObject
+    ->getArrayFromDict("wallet", [])
+    ->Js.Json.array
+    ->getPaymentMethodMapper
 
   let paymentMethodsEnabledArray: array<ConnectorTypes.paymentMethodEnabled> = [
     {
@@ -76,7 +97,7 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
   let requestPayload: ConnectorTypes.wasmRequest = {
     payment_methods_enabled: paymentMethodsEnabledArray,
     connector: connectorName,
-    metadata: Js.Dict.empty()->Js.Json.object_,
+    metadata: Dict.make()->Js.Json.object_,
   }
 
   let requestPayloadDict =
@@ -95,10 +116,10 @@ let constructRoutingPayload = (routingData: routingData) => {
       ("connector", routingData.connector_name->Js.Json.string),
       ("merchant_connector_id", routingData.merchant_connector_id->Js.Json.string),
     ]
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
   [("split", 50.0->Js.Json.number), ("connector", innerRoutingDict)]
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_
 }
 

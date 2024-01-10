@@ -2,20 +2,18 @@ open AdvancedRoutingTypes
 open AdvancedRoutingUtils
 open FormRenderer
 
-external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
-
 module LogicalOps = {
   @react.component
   let make = (~id) => {
     let logicalOpsInput = ReactFinalForm.useField(`${id}.logical`).input
 
     React.useEffect0(() => {
-      if logicalOpsInput.value->LogicUtils.getStringFromJson("")->Js.String2.length === 0 {
-        logicalOpsInput.onChange("AND"->strToFormEvent)
+      if logicalOpsInput.value->LogicUtils.getStringFromJson("")->String.length === 0 {
+        logicalOpsInput.onChange("AND"->Identity.stringToFormReactEvent)
       }
       None
     })
-    let onChange = str => logicalOpsInput.onChange(str->strToFormEvent)
+    let onChange = str => logicalOpsInput.onChange(str->Identity.stringToFormReactEvent)
 
     <ButtonGroup wrapperClass="flex flex-row mr-2 ml-1">
       {["AND", "OR"]
@@ -81,17 +79,17 @@ module OperatorInp = {
         ("CONTAINS", "Includes only results with any value for the filter property."),
         ("IS_NOT", "Includes results that does not match the filter value(s)."),
         ("NOT_CONTAINS", "Includes results except any value for the filter property."),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
     let disableSelect =
-      field.value->Js.Json.decodeString->Belt.Option.getWithDefault("")->Js.String2.length === 0
+      field.value->Js.Json.decodeString->Belt.Option.getWithDefault("")->String.length === 0
 
-    let operatorOptions = opVals->Js.Array2.map(opVal => {
+    let operatorOptions = opVals->Array.map(opVal => {
       let obj: SelectBox.dropdownOption = {
         label: opVal,
         value: opVal,
       }
 
-      switch descriptionDict->Js.Dict.get(opVal) {
+      switch descriptionDict->Dict.get(opVal) {
       | Some(description) => {...obj, description}
       | None => obj
       }
@@ -167,7 +165,7 @@ module ValueInp = {
         let val = valueField.value->LogicUtils.getStringFromJson("")
         <SelectBox.BaseDropdown
           allowMultiSelect=false
-          buttonText={val->Js.String2.length === 0 ? "Select Value" : val}
+          buttonText={val->String.length === 0 ? "Select Value" : val}
           input
           options={variantValues->SelectBox.makeOptions}
           hideMultiSelectButtons=true
@@ -176,7 +174,7 @@ module ValueInp = {
       }
     | EQUAL_TO =>
       switch keyType->variantTypeMapper {
-      | String_value => <TextInput input placeholder="Enter value" />
+      | String_value | Metadata_value => <TextInput input placeholder="Enter value" />
       | _ => <NumericTextInput placeholder={"Enter value"} input />
       }
 
@@ -200,11 +198,11 @@ module MetadataInp = {
       onBlur: _ev => {
         let value = valueField.value
         let val = value->LogicUtils.getStringFromJson("")
-        let valSplit = Js.String2.split(val, ",")
-        let arrStr = valSplit->Js.Array2.map(item => {
-          Js.String2.trim(item)
+        let valSplit = String.split(val, ",")
+        let arrStr = valSplit->Array.map(item => {
+          String.trim(item)
         })
-        let finalVal = Js.Array2.joinWith(arrStr, ",")->Js.Json.string
+        let finalVal = Array.joinWith(arrStr, ",")->Js.Json.string
 
         valueField.onChange(finalVal->Identity.anyTypeToReactEvent)
       },
@@ -283,10 +281,41 @@ let metaInput = (id, keyType) =>
 
 module FieldInp = {
   @react.component
-  let make = (~ops, ~prefix, ~onChangeMethod) => {
+  let make = (~methodKeys, ~prefix, ~onChangeMethod) => {
     let field = ReactFinalForm.useField(`${prefix}.lhs`).input
     let op = ReactFinalForm.useField(`${prefix}.comparison`).input
     let val = ReactFinalForm.useField(`${prefix}.value.value`).input
+
+    let convertedValue = React.useMemo0(() => {
+      let keyDescriptionMapper = Window.getDescriptionCategory()->MapTypes.changeType
+      keyDescriptionMapper->LogicUtils.convertMapObjectToDict
+    })
+
+    let options = React.useMemo0(() =>
+      convertedValue
+      ->Dict.keysToArray
+      ->Array.reduce([], (acc, ele) => {
+        open LogicUtils
+        convertedValue
+        ->getArrayFromDict(ele, [])
+        ->Array.forEach(
+          value => {
+            let dictValue = value->LogicUtils.getDictFromJsonObject
+            let kindValue = dictValue->getString("kind", "")
+            if methodKeys->Array.includes(kindValue) {
+              let generatedSelectBoxOptionType: SelectBox.dropdownOption = {
+                label: kindValue,
+                value: kindValue,
+                description: dictValue->getString("description", ""),
+                optGroup: ele,
+              }
+              acc->Array.push(generatedSelectBoxOptionType)->ignore
+            }
+          },
+        )
+        acc
+      })
+    )
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
@@ -303,10 +332,6 @@ module FieldInp = {
       checked: true,
     }
 
-    let options = ops->Js.Array2.map((op): SelectBox.dropdownOption => {
-      {value: op, label: op}
-    })
-
     <SelectBox.BaseDropdown
       allowMultiSelect=false buttonText="Select Field" input options hideMultiSelectButtons=true
     />
@@ -315,7 +340,7 @@ module FieldInp = {
 
 module RuleFieldBase = {
   @react.component
-  let make = (~isFirst, ~id, ~isExpanded, ~onClick, ~wasm, ~isFrom3ds) => {
+  let make = (~isFirst, ~id, ~isExpanded, ~onClick, ~wasm, ~isFrom3ds, ~isFromSurcharge) => {
     let (hover, setHover) = React.useState(_ => false)
     let (keyType, setKeyType) = React.useState(_ => "")
     let (variantValues, setVariantValues) = React.useState(_ => [])
@@ -337,17 +362,19 @@ module RuleFieldBase = {
 
     let methodKeys = React.useMemo0(() => {
       let value = field.value->LogicUtils.getStringFromJson("")
-      if value->Js.String2.length > 0 {
+      if value->String.length > 0 {
         setKeyTypeAndVariants(wasm, value)
       }
       if isFrom3ds {
         Window.getThreeDsKeys()
+      } else if isFromSurcharge {
+        Window.getSurchargeKeys()
       } else {
         Window.getAllKeys()
       }
     })
 
-    <UIUtils.RenderIf condition={methodKeys->Js.Array2.length > 0}>
+    <UIUtils.RenderIf condition={methodKeys->Array.length > 0}>
       {if isExpanded {
         <div
           className={`flex flex-wrap items-center px-1 ${hover
@@ -358,7 +385,7 @@ module RuleFieldBase = {
           </UIUtils.RenderIf>
           <div className="-mt-5 p-1">
             <FieldWrapper label="">
-              <FieldInp ops=methodKeys prefix=id onChangeMethod />
+              <FieldInp methodKeys prefix=id onChangeMethod />
             </FieldWrapper>
           </div>
           <div className="-mt-5">
@@ -389,17 +416,17 @@ module RuleFieldBase = {
 
 module MakeRuleField = {
   @react.component
-  let make = (~id, ~isExpanded, ~wasm, ~isFrom3ds) => {
+  let make = (~id, ~isExpanded, ~wasm, ~isFrom3ds, ~isFromSurcharge) => {
     let ruleJsonPath = `${id}.statements`
     let conditionsInput = ReactFinalForm.useField(ruleJsonPath).input
     let fields = conditionsInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
     let plusBtnEnabled = true
-    //fields->Js.Array2.every(validateConditionJson)
+    //fields->Array.every(validateConditionJson)
     let onPlusClick = _ => {
       if plusBtnEnabled {
-        let toAdd = Js.Dict.empty()
+        let toAdd = Dict.make()
         conditionsInput.onChange(
-          Js.Array2.concat(
+          Array.concat(
             fields,
             [toAdd->Js.Json.object_],
           )->Identity.arrayOfGenericTypeToFormReactEvent,
@@ -425,6 +452,7 @@ module MakeRuleField = {
           isExpanded
           wasm
           isFrom3ds
+          isFromSurcharge
         />
       )->React.array}
       {if isExpanded {

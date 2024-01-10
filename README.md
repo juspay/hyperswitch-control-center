@@ -7,7 +7,7 @@ Hyperswitch control center is an open source dashboard to easily view, manage an
 1. Connect to multiple payment processors like Stripe, Braintree, Adyen etc. in a few clicks
 2. View and manage payments (payments, refunds, disputes) processed through multiple processors
 3. Easily configure routing rules (volume-based, rule-based) to intelligently route your payments
-4. Advanced analytics to make sense of your payments data
+4. Advanced analytics to make sense of your payment data
 
 ---
 
@@ -44,6 +44,8 @@ Follow these simple steps to set up Hyperswitch on your local machine.
    ```bash
    apiBaseUrl = your-backend-url
    sdkBaseUrl = your-sdk-url
+   mixpanelToken = mixpanel-token
+   # To view Mixpanel events on the Mixpanel dashboard, you must add your Mixpanel token; otherwise, you can ignore this requirement.
    ```
 
 5. Start the ReScript compiler:
@@ -64,11 +66,11 @@ Follow these simple steps to set up Hyperswitch on your local machine.
 
 ## Feature Flags
 
-Feature flags allows the users to enable or disable certain functionalities or flows in the control center.
+Feature flags allow the users to enable or disable certain functionalities or flows in the control center.
 
 ### Using feature flags
 
-The FeatureFlag.json file can be found under config/FeatueFlag.json. By default, all the feature flags is turned off (`False` value).
+The FeatureFlag.json file can be found under config/FeatueFlag.json. By default, all the feature flags are turned off (`False` value).
 
 ### Feature flag descriptions
 
@@ -82,7 +84,11 @@ The `business_profile` feature flag enables the ability to create multiple busin
 
 #### Mixpanel
 
-The `mixpanel` feature flag controls the collection and transmission of anonymous usage data to Mixpanel for analytics. When enabled, the dashboard will automatically send information about user actions and events to Mixpanel without collecting any personally identifiable information.
+The `mixpanel` feature flag controls the collection and transmission of anonymous usage data to Mixpanel for analytics. When enabled, the dashboard will automatically send information about user actions and events to Mixpanel without collecting any personally identifiable information via REST API.
+
+#### MixpanelSDK
+
+The `mixpanel_sdk` feature flag controls the collection and transmission of anonymous usage data to Mixpanel for analytics. When enabled, the dashboard will automatically send information about user actions and events to Mixpanel without collecting any personally identifiable information via it's SDK.
 
 #### Verify Connector
 
@@ -94,7 +100,7 @@ The `feedback` feature flag enables the ability for users to provide direct prod
 
 #### Test Processors
 
-The `test_processors` feature flag allows enabling sandbox/test payment processors for testing purposes. When enabled, developers and testers can add test payment processors like Stripe Test or PayPal Test to trial payments flows without touching live transactions or making processor API calls.
+The `test_processors` feature flag allows enabling sandbox/test payment processors for testing purposes. When enabled, developers and testers can add test payment processors like Stripe Test or PayPal Test to trial payment flows without touching live transactions or making processor API calls.
 
 #### User Management / Team
 
@@ -106,7 +112,7 @@ The `recon` feature flag enables access to reconciliation capabilities in the Hy
 
 #### Payout
 
-The `payout` feature flag enables the payouts functionality in the dashboard. When enabled, this allows users to configure payout profiles, manage recipient details, schedule disbursements, and process payout batches to pay out funds to third parties.
+The `payout` feature flag enables the payout functionality in the dashboard. When enabled, this allows users to configure payout profiles, manage recipient details, schedule disbursements, and process payout batches to pay out funds to third parties.
 
 #### FRM
 
@@ -150,7 +156,11 @@ The `production_access` feature flag enables a flow for users to request live pr
 
 #### Quick Start
 
-The `quick_start` feature flag enables the simplified onboarding flow for new users, where he connects to processors, configure payment routing and testing a payment, all in one flow.
+The `quick_start` feature flag enables the simplified onboarding flow for new users, where they connect to processors, configure payment routing and test a payment, all in one flow.
+
+#### Customers Module
+
+The `customers_module` feature flag enables the customers module in dashboard. Users can see the customers and their details via enabling this flag.
 
 ---
 
@@ -164,7 +174,7 @@ What you need to get started
 
 - An AWS account
 
-> P.S. You can directly start fron Step 3 if you have installed and configured AWS CLI.
+> P.S. You can directly start from Step 3 if you have installed and configured AWS CLI.
 
 #### Step 1 - Install or update the AWS CLI
 
@@ -225,7 +235,7 @@ which aws
 
 #### Step 2 - Configure the AWS CLI
 
-For this step you would need the following from you AWS account
+For this step you would need the following from your AWS account
 
 - Access key ID
 - Secret Access Key
@@ -255,7 +265,7 @@ Once the script is executed, you will receive a Public IP as the response (e.g. 
 
 #### Clean Up
 
-If you want to delete the application from your account simply run the below clean up script. Ypu need to install JQ for this. For more information, [click here](https://jqlang.github.io/jq/download/)
+If you want to delete the application from your account simply run the below clean up script. You need to install JQ for this. For more information, [click here](https://jqlang.github.io/jq/download/)
 
 ```
 curl https://raw.githubusercontent.com/juspay/hyperswitch-control-center/main/aws/hyperswitch_control_center_cleanup_setup.sh | bash
@@ -303,8 +313,9 @@ All commits should be signed to verify the authenticity of contributors. Follow 
 
     ```bash
       gpg --armor --export <GPG_KEY_ID>
-      Replace <GPG_KEY_ID> with the actual key ID.
     ```
+
+    Replace <GPG_KEY_ID> with the actual key ID.
 
     b. Copy the entire output, including the lines that start with "-----BEGIN PGP PUBLIC KEY BLOCK-----" and "-----END PGP PUBLIC KEY BLOCK-----".
 
@@ -341,8 +352,59 @@ For further assistance, please refer to the [GitHub documentation on signing com
 
 ---
 
+## Standard Process for Raising a Pull Request (PR) from a Branch
+
+### Introduction
+
+Welcome to the standard process for raising a Pull Request (PR) directly from a branch in our project! Please follow these guidelines to ensure that your contributions align with our project's goals and standards.
+
+### Steps to Raise a PR from a Branch
+
+1. **Clone the Repository**:
+
+   - Clone the main repository to your local machine using the following command:
+     ```bash
+     git clone https://github.com/juspay/hyperswitch-control-center.git
+     ```
+
+2. **Create a New Branch**:
+
+   - Create a new branch for your changes directly in the main repository. Please ensure the branch name is descriptive and relates to the feature or bug you're addressing.
+     ```bash
+     git checkout -b feature/your-feature-name
+     ```
+
+3. **Make Changes**:
+
+   - Make the necessary changes in the codebase, ensuring that you follow the project's coding guidelines and standards.
+
+4. **Commit Changes**:
+
+   - Commit your changes with a clear and descriptive commit message. Please follow conventional commit [guidelines](https://www.conventionalcommits.org/).
+
+5. **Push Changes**:
+
+   - Push your changes to the branch in the main repository.
+     ```bash
+     git push origin feature/your-feature-name
+     ```
+
+6. **Create a Pull Request**:
+
+   - Navigate to the main repository on GitHub and create a new PR from your branch. Provide a detailed description of the changes, along with any relevant context or screenshots.
+
+7. **Respond to Feedback**:
+
+   - Be responsive to feedback from reviewers. Address any comments or suggestions promptly and make the necessary changes as required.
+
+### Additional Notes
+
+- Ensure your PR adheres to our coding guidelines, style conventions, and documentation standards.
+- Include relevant tests, documentation updates, or screenshots, if applicable.
+- Collaborate and communicate effectively with other contributors and maintainers throughout the review process.
+
 ## License
 
-This project is open-source and available under the MIT License.
+This project is open-source and available under the Apache 2.0 license.
 
 ---

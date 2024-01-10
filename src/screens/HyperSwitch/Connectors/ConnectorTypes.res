@@ -23,6 +23,7 @@ type integrationFields = {
 
 type verifyResponse = Success | Failure | NoAttempt | Loading
 type authType = [#HeaderKey | #BodyKey | #SignatureKey | #MultiAuthKey | #CurrencyAuthKey | #Nokey]
+type cashToCodeMthd = [#Classic | #Evoucher]
 type connectorName =
   | ADYEN
   | CHECKOUT
@@ -94,11 +95,30 @@ type paymentMethodTypes =
   | ApplePay
   | UnknownPaymentMethodType(string)
 
+type advancedConfigurationList = {
+  @as("type") type_: string,
+  list: array<string>,
+}
+
+type advancedConfiguration = {options: advancedConfigurationList}
+
+type paymentMethodConfigType = {
+  payment_method_type: string,
+  card_networks: array<string>,
+  accepted_currencies: option<advancedConfigurationList>,
+  accepted_countries: option<advancedConfigurationList>,
+  minimum_amount: option<int>,
+  maximum_amount: option<int>,
+  recurring_enabled: option<bool>,
+  installment_payment_enabled: option<bool>,
+  payment_experience: option<string>,
+}
+
 type paymentMethodEnabled = {
   payment_method: string,
   payment_method_type: string,
-  provider?: array<string>,
-  card_provider?: array<string>,
+  provider?: array<paymentMethodConfigType>,
+  card_provider?: array<paymentMethodConfigType>,
 }
 
 type applePay = {
@@ -154,25 +174,6 @@ type connectorAccountDetails = {
   key2?: string,
 }
 
-type advancedConfigurationList = {
-  @as("type") type_: string,
-  list: array<string>,
-}
-
-type advancedConfiguration = {options: advancedConfigurationList}
-
-type paymentMethodConfigType = {
-  payment_method_type: string,
-  card_networks?: array<string>,
-  accepted_currencies?: advancedConfiguration,
-  accepted_countries?: advancedConfiguration,
-  minimum_amount: int,
-  maximum_amount: int,
-  recurring_enabled: bool,
-  installment_payment_enabled: bool,
-  payment_experience?: string,
-}
-
 type paymentMethodEnabledType = {
   payment_method: string,
   payment_method_types: array<paymentMethodConfigType>,
@@ -208,4 +209,5 @@ type connectorPayload = {
   metadata?: Js.Json.t,
   merchant_connector_id: string,
   frm_configs?: array<frm_config>,
+  status: string,
 }

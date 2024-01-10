@@ -58,7 +58,7 @@ and logic = {
 let getDictFromJsonObject = json => {
   switch json->Js.Json.decodeObject {
   | Some(dict) => dict
-  | None => Js.Dict.empty()
+  | None => Dict.make()
   }
 }
 
@@ -71,48 +71,50 @@ let convertMapObjectToDict = genericTypeMapVal => {
 }
 
 let removeDuplicate = (arr: array<string>) => {
-  arr->Js.Array2.filteri((item, i) => {
-    arr->Js.Array2.indexOf(item) === i
+  arr->Array.filterWithIndex((item, i) => {
+    arr->Array.indexOf(item) === i
   })
 }
 
 let sortBasedOnPriority = (sortArr: array<string>, priorityArr: array<string>) => {
-  let finalPriorityArr = priorityArr->Js.Array2.filter(val => sortArr->Js.Array2.includes(val))
-  let filteredArr = sortArr->Js.Array2.filter(item => !(finalPriorityArr->Js.Array2.includes(item)))
-  finalPriorityArr->Js.Array2.concat(filteredArr)
+  let finalPriorityArr = priorityArr->Array.filter(val => sortArr->Array.includes(val))
+  let filteredArr = sortArr->Array.filter(item => !(finalPriorityArr->Array.includes(item)))
+  finalPriorityArr->Array.concat(filteredArr)
 }
 let toCamelCase = str => {
-  let strArr = str->Js.String2.replaceByRe(%re("/[-_]+/g"), " ")->Js.String2.split(" ")
+  let strArr = str->String.replaceRegExp(%re("/[-_]+/g"), " ")->String.split(" ")
   strArr
-  ->Js.Array2.mapi((item, i) => {
+  ->Array.mapWithIndex((item, i) => {
     let matchFn = (match, _, _, _, _, _) => {
       if i == 0 {
-        match->Js.String2.toLocaleLowerCase
+        match->String.toLocaleLowerCase
       } else {
-        match->Js.String2.toLocaleUpperCase
+        match->String.toLocaleUpperCase
       }
     }
     item->Js.String2.unsafeReplaceBy3(%re("/(?:^\w|[A-Z]|\b\w)/g"), matchFn)
   })
-  ->Js.Array2.joinWith("")
+  ->Array.joinWith("")
 }
 let getNameFromEmail = email => {
   email
-  ->Js.String2.split("@")
-  ->Js.Array2.unsafe_get(0)
-  ->Js.String2.split(".")
-  ->Js.Array2.map(name => {
+  ->String.split("@")
+  ->Belt.Array.get(0)
+  ->Belt.Option.getWithDefault("")
+  ->String.split(".")
+  ->Array.map(name => {
     if name == "" {
       name
     } else {
-      name->Js.String2.get(0)->Js.String2.toUpperCase ++ name->Js.String2.sliceToEnd(~from=1)
+      name->String.get(0)->Option.getWithDefault("")->String.toUpperCase ++
+        name->String.sliceToEnd(~start=1)
     }
   })
-  ->Js.Array2.joinWith(" ")
+  ->Array.joinWith(" ")
 }
 
 let getOptionString = (dict, key) => {
-  dict->Js.Dict.get(key)->Belt.Option.flatMap(Js.Json.decodeString)
+  dict->Dict.get(key)->Belt.Option.flatMap(Js.Json.decodeString)
 }
 
 let getString = (dict, key, default) => {
@@ -132,7 +134,7 @@ let getArrayFromJson = (json: Js.Json.t, default) => {
 }
 
 let getOptionalArrayFromDict = (dict, key) => {
-  dict->Js.Dict.get(key)->Belt.Option.flatMap(Js.Json.decodeArray)
+  dict->Dict.get(key)->Belt.Option.flatMap(Js.Json.decodeArray)
 }
 
 let getArrayFromDict = (dict, key, default) => {
@@ -146,7 +148,7 @@ let getArrayDataFromJson = (json, itemToObjMapper) => {
   ->Js.Json.decodeArray
   ->getWithDefault([])
   ->Belt.Array.keepMap(Js.Json.decodeObject)
-  ->Js.Array2.map(itemToObjMapper)
+  ->Array.map(itemToObjMapper)
 }
 let getStrArray = (dict, key) => {
   dict
@@ -172,13 +174,13 @@ let getOptionStrArrayFromJson = json => {
 
 let getStrArrayFromDict = (dict, key, default) => {
   dict
-  ->Js.Dict.get(key)
+  ->Dict.get(key)
   ->Belt.Option.flatMap(getOptionStrArrayFromJson)
   ->Belt.Option.getWithDefault(default)
 }
 
 let getOptionStrArrayFromDict = (dict, key) => {
-  dict->Js.Dict.get(key)->Belt.Option.flatMap(getOptionStrArrayFromJson)
+  dict->Dict.get(key)->Belt.Option.flatMap(getOptionStrArrayFromJson)
 }
 
 let getNonEmptyString = str => {
@@ -190,7 +192,7 @@ let getNonEmptyString = str => {
 }
 
 let getNonEmptyArray = arr => {
-  if arr->Js.Array2.length === 0 {
+  if arr->Array.length === 0 {
     None
   } else {
     Some(arr)
@@ -198,7 +200,7 @@ let getNonEmptyArray = arr => {
 }
 
 let getOptionBool = (dict, key) => {
-  dict->Js.Dict.get(key)->Belt.Option.flatMap(Js.Json.decodeBoolean)
+  dict->Dict.get(key)->Belt.Option.flatMap(Js.Json.decodeBoolean)
 }
 
 let getBool = (dict, key, default) => {
@@ -206,11 +208,11 @@ let getBool = (dict, key, default) => {
 }
 
 let getJsonObjectFromDict = (dict, key) => {
-  dict->Js.Dict.get(key)->Belt.Option.getWithDefault(Js.Json.object_(Js.Dict.empty()))
+  dict->Dict.get(key)->Belt.Option.getWithDefault(Js.Json.object_(Dict.make()))
 }
 
 let getBoolFromString = (boolString, default: bool) => {
-  switch boolString->Js.String2.toLowerCase {
+  switch boolString->String.toLowerCase {
   | "true" => true
   | "false" => false
   | _ => default
@@ -274,20 +276,20 @@ let getFloatFromJson = (json, default) => {
 }
 
 let getInt = (dict, key, default) => {
-  switch Js.Dict.get(dict, key) {
+  switch Dict.get(dict, key) {
   | Some(value) => getIntFromJson(value, default)
   | None => default
   }
 }
 let getOptionInt = (dict, key) => {
-  switch Js.Dict.get(dict, key) {
+  switch Dict.get(dict, key) {
   | Some(value) => getOptionIntFromJson(value)
   | None => None
   }
 }
 
 let getOptionFloat = (dict, key) => {
-  switch Js.Dict.get(dict, key) {
+  switch Dict.get(dict, key) {
   | Some(value) => getOptionFloatFromJson(value)
   | None => None
   }
@@ -295,14 +297,14 @@ let getOptionFloat = (dict, key) => {
 
 let getFloat = (dict, key, default) => {
   dict
-  ->Js.Dict.get(key)
+  ->Dict.get(key)
   ->Belt.Option.map(json => getFloatFromJson(json, default))
   ->Belt.Option.getWithDefault(default)
 }
 
 let getObj = (dict, key, default) => {
   dict
-  ->Js.Dict.get(key)
+  ->Dict.get(key)
   ->Belt.Option.flatMap(Js.Json.decodeObject)
   ->Belt.Option.getWithDefault(default)
 }
@@ -310,71 +312,71 @@ let getObj = (dict, key, default) => {
 let getDictFromUrlSearchParams = searchParams => {
   open Belt.Array
   searchParams
-  ->Js.String2.split("&")
+  ->String.split("&")
   ->keepMap(getNonEmptyString)
   ->keepMap(keyVal => {
-    let splitArray = Js.String2.split(keyVal, "=")
+    let splitArray = String.split(keyVal, "=")
 
     switch (splitArray->get(0), splitArray->get(1)) {
     | (Some(key), Some(val)) => Some(key, val)
     | _ => None
     }
   })
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
 }
 let setOptionString = (dict, key, optionStr) =>
-  optionStr->Belt.Option.mapWithDefault((), str => dict->Js.Dict.set(key, str->Js.Json.string))
+  optionStr->Belt.Option.mapWithDefault((), str => dict->Dict.set(key, str->Js.Json.string))
 
 let setOptionBool = (dict, key, optionInt) =>
-  optionInt->Belt.Option.mapWithDefault((), bool => dict->Js.Dict.set(key, bool->Js.Json.boolean))
+  optionInt->Belt.Option.mapWithDefault((), bool => dict->Dict.set(key, bool->Js.Json.boolean))
 
 let setOptionArray = (dict, key, optionArray) =>
-  optionArray->Belt.Option.mapWithDefault((), array => dict->Js.Dict.set(key, array->Js.Json.array))
+  optionArray->Belt.Option.mapWithDefault((), array => dict->Dict.set(key, array->Js.Json.array))
 
 let setOptionDict = (dict, key, optionDictValue) =>
   optionDictValue->Belt.Option.mapWithDefault((), value =>
-    dict->Js.Dict.set(key, value->Js.Json.object_)
+    dict->Dict.set(key, value->Js.Json.object_)
   )
 
 let capitalizeString = str => {
-  Js.String2.toUpperCase(Js.String2.charAt(str, 0)) ++ Js.String2.substringToEnd(str, ~from=1)
+  String.toUpperCase(String.charAt(str, 0)) ++ Js.String2.substringToEnd(str, ~from=1)
 }
 
 let snakeToCamel = str => {
   str
-  ->Js.String2.split("_")
-  ->Js.Array2.mapi((x, i) => i == 0 ? x : capitalizeString(x))
-  ->Js.Array2.joinWith("")
+  ->String.split("_")
+  ->Array.mapWithIndex((x, i) => i == 0 ? x : capitalizeString(x))
+  ->Array.joinWith("")
 }
 
 let camelToSnake = str => {
   str
   ->capitalizeString
-  ->Js.String2.replaceByRe(%re("/([a-z0-9A-Z])([A-Z])/g"), "$1_$2")
-  ->Js.String2.toLowerCase
+  ->String.replaceRegExp(%re("/([a-z0-9A-Z])([A-Z])/g"), "$1_$2")
+  ->String.toLowerCase
 }
 
 let camelCaseToTitle = str => {
-  str->capitalizeString->Js.String2.replaceByRe(%re("/([a-z0-9A-Z])([A-Z])/g"), "$1 $2")
+  str->capitalizeString->String.replaceRegExp(%re("/([a-z0-9A-Z])([A-Z])/g"), "$1 $2")
 }
 
 let isContainingStringLowercase = (text, searchStr) => {
-  text->Js.String2.toLowerCase->Js.String2.includes(searchStr->Js.String2.toLowerCase)
+  text->String.toLowerCase->String.includes(searchStr->String.toLowerCase)
 }
 
 let snakeToTitle = str => {
   str
-  ->Js.String2.split("_")
-  ->Js.Array2.map(x => {
-    let first = x->Js.String2.charAt(0)->Js.String2.toUpperCase
+  ->String.split("_")
+  ->Array.map(x => {
+    let first = x->String.charAt(0)->String.toUpperCase
     let second = x->Js.String2.substringToEnd(~from=1)
     first ++ second
   })
-  ->Js.Array2.joinWith(" ")
+  ->Array.joinWith(" ")
 }
 
 let titleToSnake = str => {
-  str->Js.String2.split(" ")->Js.Array2.map(Js.String2.toLowerCase)->Js.Array2.joinWith("_")
+  str->String.split(" ")->Array.map(String.toLowerCase)->Array.joinWith("_")
 }
 
 let getIntFromString = (str, default) => {
@@ -430,27 +432,27 @@ let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?, ()) => {
     let seconds = mod(mod(value, 3600), 60)
 
     let year_disp = if years >= 1 {
-      `${Js.String2.make(years)}Y `
+      `${String.make(years)}Y `
     } else {
       ""
     }
     let month_disp = if months > 0 {
-      `${Js.String2.make(months)}M `
+      `${String.make(months)}M `
     } else {
       ""
     }
     let day_disp = if days > 0 {
-      `${Js.String2.make(days)}D `
+      `${String.make(days)}D `
     } else {
       ""
     }
     let hr_disp = if hours > 0 {
-      `${Js.String2.make(hours)}H `
+      `${String.make(hours)}H `
     } else {
       ""
     }
     let min_disp = if minutes > 0 {
-      `${Js.String2.make(minutes)}M `
+      `${String.make(minutes)}M `
     } else {
       ""
     }
@@ -459,12 +461,12 @@ let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?, ()) => {
         (includeMilliseconds->Belt.Option.getWithDefault(false) && labelValue < 60.0)) &&
         labelValue > 0.0
     ) {
-      `.${Js.String2.make(mod((labelValue *. 1000.0)->Belt.Int.fromFloat, 1000))}`
+      `.${String.make(mod((labelValue *. 1000.0)->Belt.Int.fromFloat, 1000))}`
     } else {
       ""
     }
     let sec_disp = if seconds > 0 {
-      `${Js.String2.make(seconds)}${millisec_disp}S `
+      `${String.make(seconds)}${millisec_disp}S `
     } else {
       ""
     }
@@ -480,7 +482,7 @@ let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?, ()) => {
 }
 
 let checkEmptyJson = json => {
-  json == Js.Json.object_(Js.Dict.empty())
+  json == Js.Json.object_(Dict.make())
 }
 
 let numericArraySortComperator = (a, b) => {
@@ -494,22 +496,18 @@ let numericArraySortComperator = (a, b) => {
 }
 
 let isEmptyDict = dict => {
-  dict->Js.Dict.keys->Js.Array2.length === 0
+  dict->Dict.keysToArray->Array.length === 0
 }
 let stringReplaceAll = (str, old, new) => {
-  str->Js.String2.split(old)->Js.Array2.joinWith(new)
+  str->String.split(old)->Array.joinWith(new)
 }
 
 let getUniqueArray = (arr: array<'t>) => {
-  arr->Js.Array2.map(item => (item, ""))->Js.Dict.fromArray->Js.Dict.keys
+  arr->Array.map(item => (item, ""))->Dict.fromArray->Dict.keysToArray
 }
 
 let getFirstLetterCaps = (str, ~splitBy="-", ()) => {
-  str
-  ->Js.String2.toLowerCase
-  ->Js.String2.split(splitBy)
-  ->Js.Array2.map(capitalizeString)
-  ->Js.Array2.joinWith(" ")
+  str->String.toLowerCase->String.split(splitBy)->Array.map(capitalizeString)->Array.joinWith(" ")
 }
 
 let getDictfromDict = (dict, key) => {
@@ -524,10 +522,10 @@ let getValueFromArray = (arr, index, default) =>
 let isEqualStringArr = (arr1, arr2) => {
   let arr1 = arr1->getUniqueArray
   let arr2 = arr2->getUniqueArray
-  let lengthEqual = arr1->Js.Array2.length === arr2->Js.Array2.length
-  let isContainsAll = arr1->Js.Array2.reduce((acc, str) => {
-    arr2->Js.Array2.includes(str) && acc
-  }, true)
+  let lengthEqual = arr1->Array.length === arr2->Array.length
+  let isContainsAll = arr1->Array.reduce(true, (acc, str) => {
+    arr2->Array.includes(str) && acc
+  })
   lengthEqual && isContainsAll
 }
 
@@ -542,15 +540,15 @@ let indianShortNum = labelValue => {
 
 let convertNewLineSaperatedDataToArrayOfJson = text => {
   text
-  ->Js.String2.split("\n")
-  ->Js.Array2.filter(item => item !== "")
-  ->Js.Array2.map(item => {
+  ->String.split("\n")
+  ->Array.filter(item => item !== "")
+  ->Array.map(item => {
     item->safeParse
   })
 }
 
 let getObjectArrayFromJson = json => {
-  json->getArrayFromJson([])->Js.Array2.map(getDictFromJsonObject)
+  json->getArrayFromJson([])->Array.map(getDictFromJsonObject)
 }
 
 let getListHead = (~default="", list) => {
@@ -558,29 +556,29 @@ let getListHead = (~default="", list) => {
 }
 
 let dataMerge = (~dataArr: array<array<Js.Json.t>>, ~dictKey: array<string>) => {
-  let finalData = Js.Dict.empty()
-  dataArr->Js.Array2.forEach(jsonArr => {
-    jsonArr->Js.Array2.forEach(jsonObj => {
+  let finalData = Dict.make()
+  dataArr->Array.forEach(jsonArr => {
+    jsonArr->Array.forEach(jsonObj => {
       let dict = jsonObj->getDictFromJsonObject
       let dictKey =
         dictKey
-        ->Js.Array2.map(
+        ->Array.map(
           ele => {
             dict->getString(ele, "")
           },
         )
-        ->Js.Array2.joinWith("-")
-      let existingData = finalData->getObj(dictKey, Js.Dict.empty())->Js.Dict.entries
-      let data = dict->Js.Dict.entries
+        ->Array.joinWith("-")
+      let existingData = finalData->getObj(dictKey, Dict.make())->Dict.toArray
+      let data = dict->Dict.toArray
 
-      finalData->Js.Dict.set(
+      finalData->Dict.set(
         dictKey,
-        existingData->Js.Array2.concat(data)->Js.Dict.fromArray->Js.Json.object_,
+        existingData->Array.concat(data)->Dict.fromArray->Js.Json.object_,
       )
     })
   })
 
-  finalData->Js.Dict.values
+  finalData->Dict.valuesToArray
 }
 
 let getJsonFromStr = data => {
@@ -606,24 +604,20 @@ let compareLogic = (firstValue, secondValue) => {
   }
 }
 
-let getJsonFromArrayOfJson = arr => arr->Js.Dict.fromArray->Js.Json.object_
+let getJsonFromArrayOfJson = arr => arr->Dict.fromArray->Js.Json.object_
 
 let getTitle = name => {
-  name
-  ->Js.String2.toLowerCase
-  ->Js.String2.split("_")
-  ->Js.Array2.map(capitalizeString)
-  ->Js.Array2.joinWith(" ")
+  name->String.toLowerCase->String.split("_")->Array.map(capitalizeString)->Array.joinWith(" ")
 }
 
 // Regex to check if a string contains a substring
 let regex = (positionToCheckFrom, searchString) => {
   let searchStringNew =
     searchString
-    ->Js.String2.replaceByRe(%re("/[<>\[\]';|?*\\]/g"), "")
-    ->Js.String2.replaceByRe(%re("/\(/g"), "\\(")
-    ->Js.String2.replaceByRe(%re("/\+/g"), "\\+")
-    ->Js.String2.replaceByRe(%re("/\)/g"), "\\)")
+    ->String.replaceRegExp(%re("/[<>\[\]';|?*\\]/g"), "")
+    ->String.replaceRegExp(%re("/\(/g"), "\\(")
+    ->String.replaceRegExp(%re("/\+/g"), "\\+")
+    ->String.replaceRegExp(%re("/\)/g"), "\\)")
   Js.Re.fromStringWithFlags(
     "(.*)(" ++ positionToCheckFrom ++ "" ++ searchStringNew ++ ")(.*)",
     ~flags="i",
@@ -635,7 +629,7 @@ let checkStringStartsWithSubstring = (~itemToCheck, ~searchText) => {
   | Some(_) => true
   | None => Js.String2.match_(itemToCheck, regex("_", searchText))->Belt.Option.isSome
   }
-  isMatch && searchText->Js.String2.length > 0
+  isMatch && searchText->String.length > 0
 }
 
 let listOfMatchedText = (text, searchText) => {

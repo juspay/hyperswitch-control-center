@@ -6,15 +6,10 @@ let defaultCellHighlighter = (_): Calendar.highlighter => {
   }
 }
 
-let useErroryValueResetter = (
-  value: string,
-  setValue: (string => string) => unit,
-  isoStringToCustomTimeZone,
-) => {
+let useErroryValueResetter = (value: string, setValue: (string => string) => unit) => {
   React.useEffect0(() => {
-    let isErroryTimeValue = value => {
+    let isErroryTimeValue = _ => {
       try {
-        let _checkEnd = value->isoStringToCustomTimeZone
         false
       } catch {
       | _error => true
@@ -71,15 +66,15 @@ let isStartBeforeEndDate = (start, end) => {
     let datevalue = Js.Date.makeWithYMD(
       ~year=Js.Float.fromString(date[0]->Belt.Option.getWithDefault("")),
       ~month=Js.Float.fromString(
-        Js.String2.make(Js.Float.fromString(date[1]->Belt.Option.getWithDefault("")) -. 1.0),
+        String.make(Js.Float.fromString(date[1]->Belt.Option.getWithDefault("")) -. 1.0),
       ),
       ~date=Js.Float.fromString(date[2]->Belt.Option.getWithDefault("")),
       (),
     )
     datevalue
   }
-  let startDate = getDate(Js.String2.split(start, "-"))
-  let endDate = getDate(Js.String2.split(end, "-"))
+  let startDate = getDate(String.split(start, "-"))
+  let endDate = getDate(String.split(end, "-"))
   startDate < endDate
 }
 
@@ -168,7 +163,7 @@ module Base = {
     ~disableApply=true,
     ~removeFilterOption=false,
     ~dateRangeLimit=?,
-    ~optFieldKey=?,
+    ~optFieldKey as _=?,
     ~textHideInMobileView=true,
     ~showSeconds=true,
     ~hideDate=false,
@@ -185,7 +180,7 @@ module Base = {
   ) => {
     open DateRangeUtils
     let (isCustomSelected, setIsCustomSelected) = React.useState(_ =>
-      predefinedDays->Js.Array2.length === 0
+      predefinedDays->Array.length === 0
     )
     let formatDateTime = showSeconds ? "MMM DD, YYYY HH:mm:ss" : "MMM DD, YYYY HH:mm"
     let (showOption, setShowOption) = React.useState(_ => false)
@@ -194,16 +189,10 @@ module Base = {
     let isoStringToCustomTimezoneInFloat = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
 
     let (clickedDates, setClickedDates) = React.useState(_ => [])
-    let optInput = optFieldKey->Belt.Option.map(key => ReactFinalForm.useField(key).input)
-
-    let optInputVal =
-      optInput->Belt.Option.mapWithDefault("", optInput =>
-        optInput.value->LogicUtils.getStringFromJson("")
-      )
 
     let (localStartDate, setLocalStartDate) = React.useState(_ => startDateVal)
     let (localEndDate, setLocalEndDate) = React.useState(_ => endDateVal)
-    let (localOpt, setLocalOpt) = React.useState(_ => optInputVal)
+    let (_localOpt, setLocalOpt) = React.useState(_ => "")
     let (showMsg, setShowMsg) = React.useState(_ => false)
 
     let (isDropdownExpanded, setIsDropdownExpanded) = React.useState(_ => false)
@@ -225,12 +214,12 @@ module Base = {
 
     let initialStartTime = disableFutureDates || selectStandardTime ? "00:00:00" : "23:59:59"
     let initialEndTime = disableFutureDates || selectStandardTime ? "23:59:59" : "00:00:00"
-    React.useEffect3(() => {
+    React.useEffect2(() => {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
-      setLocalOpt(_ => optInputVal)
+      setLocalOpt(_ => "")
       None
-    }, (startDateVal, endDateVal, optInputVal))
+    }, (startDateVal, endDateVal))
 
     let resetStartEndInput = () => {
       setLocalStartDate(_ => "")
@@ -256,8 +245,8 @@ module Base = {
     let dateRangeRef = React.useRef(Js.Nullable.null)
     let dropdownRef = React.useRef(Js.Nullable.null)
 
-    useErroryValueResetter(startDateVal, setStartDateVal, isoStringToCustomTimeZone)
-    useErroryValueResetter(endDateVal, setEndDateVal, isoStringToCustomTimeZone)
+    useErroryValueResetter(startDateVal, setStartDateVal)
+    useErroryValueResetter(endDateVal, setEndDateVal)
 
     let startDate = localStartDate->getDateStringForValue(isoStringToCustomTimeZone)
     let endDate = localEndDate->getDateStringForValue(isoStringToCustomTimeZone)
@@ -273,16 +262,12 @@ module Base = {
       if localStartDate !== "" && localEndDate !== "" {
         setStartDateVal(_ => localStartDate)
         setEndDateVal(_ => localEndDate)
-        switch optInput {
-        | Some(ip) => ip.onChange(localOpt->Identity.stringToFormReactEvent)
-        | None => ()
-        }
       }
     }
     let resetToInitalValues = () => {
       setLocalStartDate(_ => startDateVal)
       setLocalEndDate(_ => endDateVal)
-      setLocalOpt(_ => optInputVal)
+      setLocalOpt(_ => "")
     }
 
     OutsideClick.useOutsideClick(
@@ -305,7 +290,7 @@ module Base = {
       if localEndDate == ele && isFromCustomInput {
         setEndDateVal(_ => "")
       } else {
-        let endDateSplit = Js.String2.split(ele, "-")
+        let endDateSplit = String.split(ele, "-")
         let endDateDate = endDateSplit[2]->Belt.Option.getWithDefault("")
         let endDateYear = endDateSplit[0]->Belt.Option.getWithDefault("")
         let endDateMonth = endDateSplit[1]->Belt.Option.getWithDefault("")
@@ -319,7 +304,7 @@ module Base = {
           }
         }
 
-        let timeSplit = Js.String2.split(splitTime, ":")
+        let timeSplit = String.split(splitTime, ":")
         let timeHour = timeSplit->Belt.Array.get(0)->Belt.Option.getWithDefault("00")
         let timeMinute = timeSplit->Belt.Array.get(1)->Belt.Option.getWithDefault("00")
         let timeSecond = timeSplit->Belt.Array.get(2)->Belt.Option.getWithDefault("00")
@@ -336,7 +321,7 @@ module Base = {
     }
     let changeStartDate = (ele, isFromCustomInput, time) => {
       let setDate = str => {
-        let startDateSplit = Js.String2.split(str, "-")
+        let startDateSplit = String.split(str, "-")
         let startDateDay = startDateSplit[2]->Belt.Option.getWithDefault("")
         let startDateYear = startDateSplit[0]->Belt.Option.getWithDefault("")
         let startDateMonth = startDateSplit[1]->Belt.Option.getWithDefault("")
@@ -349,7 +334,7 @@ module Base = {
             initialStartTime
           }
         }
-        let timeSplit = Js.String2.split(splitTime, ":")
+        let timeSplit = String.split(splitTime, ":")
         let timeHour = timeSplit->Belt.Array.get(0)->Belt.Option.getWithDefault("00")
         let timeMinute = timeSplit->Belt.Array.get(1)->Belt.Option.getWithDefault("00")
         let timeSecond = timeSplit->Belt.Array.get(2)->Belt.Option.getWithDefault("00")
@@ -404,7 +389,7 @@ module Base = {
       | Some(_d) => Belt.Array.keep(clickedDates, x => x != str)
       | None => Belt.Array.concat(clickedDates, [str])
       }
-      let dat = data->Js.Array2.map(x => x)
+      let dat = data->Array.map(x => x)
       setClickedDates(_ => dat)
       changeStartDate(str, true, None)
     }
@@ -414,10 +399,6 @@ module Base = {
       setCalendarVisibility(p => !p)
       setIsDropdownExpanded(_ => false)
       saveDates()
-      switch optInput {
-      | Some(ip) => ip.onChange("custom_range"->Identity.stringToFormReactEvent)
-      | None => ()
-      }
     }
 
     let cancelButton = _ => {
@@ -525,14 +506,14 @@ module Base = {
         : "23:59:59"
 
     let endTimeStr = {
-      let timeArr = endTimeStr->Js.String2.split(":")
+      let timeArr = endTimeStr->String.split(":")
       let endTimeTxt = `${timeArr[0]->Belt.Option.getWithDefault(
           "00",
         )}:${timeArr[1]->Belt.Option.getWithDefault("00")}`
       showSeconds ? `${endTimeTxt}:${timeArr[2]->Belt.Option.getWithDefault("00")}` : endTimeTxt
     }
     let startTimeStr = {
-      let timeArr = startTimeStr->Js.String2.split(":")
+      let timeArr = startTimeStr->String.split(":")
       let startTimeTxt = `${timeArr[0]->Belt.Option.getWithDefault(
           "00",
         )}:${timeArr[1]->Belt.Option.getWithDefault("00")}`
@@ -540,7 +521,9 @@ module Base = {
     }
 
     let buttonText = {
-      showTime
+      startDateVal->String.length === 0 && endDateVal->String.length === 0
+        ? `Select Date ${showTime ? "and Time" : ""}`
+        : showTime
         ? `${startDateStr} ${startTimeStr} - ${endDateStr} ${endTimeStr}`
         : `${startDateStr} ${startDateStr === buttonText ? "" : "-"} ${endDateStr}`
     }
@@ -570,16 +553,16 @@ module Base = {
       setEndDate(~date=endDate, ~time=enTime)
       setLocalOpt(_ =>
         DateRangeUtils.datetext(value, disableFutureDates)
-        ->Js.String2.toLowerCase
-        ->Js.String2.split(" ")
-        ->Js.Array2.joinWith("_")
+        ->String.toLowerCase
+        ->String.split(" ")
+        ->Array.joinWith("_")
       )
       changeStartDate(stDate, false, Some(stTime))
       changeEndDate(enDate, false, Some(enTime))
     }
 
     let handleDropdownClick = () => {
-      if predefinedDays->Js.Array2.length > 0 {
+      if predefinedDays->Array.length > 0 {
         if calendarVisibility {
           setCalendarVisibility(_ => false)
           setShowOption(_ => !isDropdownExpanded)
@@ -634,7 +617,7 @@ module Base = {
 
     let btnStyle = customButtonStyle->Belt.Option.getWithDefault("")
 
-    let customStyleForBtn = btnStyle->Js.String2.length > 0 ? btnStyle : ""
+    let customStyleForBtn = btnStyle->String.length > 0 ? btnStyle : ""
 
     let timeVisibilityClass = showTime ? "block" : "hidden"
 
@@ -665,7 +648,7 @@ module Base = {
       getStartEndDiff(startTimestamp, endTimestamp)
     }
 
-    let predefinedOptionSelected = predefinedDays->Js.Array2.find(item => {
+    let predefinedOptionSelected = predefinedDays->Array.find(item => {
       let startDate = convertTimeStamp(
         ~isoStringToCustomTimeZone,
         startDateVal,
@@ -683,7 +666,7 @@ module Base = {
     let filteredPredefinedDays = {
       switch dateRangeLimit {
       | Some(limit) =>
-        predefinedDays->Js.Array2.filter(item => {
+        predefinedDays->Array.filter(item => {
           getDiffForPredefined(item) <=
           (limit->Belt.Float.fromInt *. 24. *. 60. *. 60. -. 1.) *. 1000.
         })
@@ -727,11 +710,11 @@ module Base = {
 
     let calendarElement =
       <div className={`flex md:flex-row flex-col w-full`}>
-        {if predefinedDays->Js.Array2.length > 0 && showOption {
+        {if predefinedDays->Array.length > 0 && showOption {
           <AddDataAttributes attributes=[("data-date-picker-predifined", "predefined-options")]>
             <div className="flex flex-wrap md:flex-col">
               {filteredPredefinedDays
-              ->Js.Array2.mapi((value, i) => {
+              ->Array.mapWithIndex((value, i) => {
                 <div
                   key={i->string_of_int}
                   className="w-1/3 md:w-full md:min-w-max text-center md:text-start">

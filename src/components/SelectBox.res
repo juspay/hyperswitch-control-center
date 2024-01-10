@@ -1,6 +1,6 @@
 type retType = CheckBox(array<string>) | Radiobox(string)
 
-external toDict: 'a => Js.Dict.t<'t> = "%identity"
+external toDict: 'a => Dict.t<'t> = "%identity"
 @send external getClientRects: Dom.element => Dom.domRect = "getClientRects"
 @send external focus: Dom.element => unit = "focus"
 
@@ -18,11 +18,11 @@ external ffInputToRadioInput: ReactFinalForm.fieldRenderPropsInput => ReactFinal
 let regex = (a, searchString) => {
   let searchStringNew =
     searchString
-    ->Js.String2.replaceByRe(%re("/[<>\[\]';|?*\\]/g"), "")
-    ->Js.String2.replaceByRe(%re("/\(/g"), "\\(")
-    ->Js.String2.replaceByRe(%re("/\+/g"), "\\+")
-    ->Js.String2.replaceByRe(%re("/\)/g"), "\\)")
-    ->Js.String2.replaceByRe(%re("/\./g"), "")
+    ->String.replaceRegExp(%re("/[<>\[\]';|?*\\]/g"), "")
+    ->String.replaceRegExp(%re("/\(/g"), "\\(")
+    ->String.replaceRegExp(%re("/\+/g"), "\\+")
+    ->String.replaceRegExp(%re("/\)/g"), "\\)")
+    ->String.replaceRegExp(%re("/\./g"), "")
   Js.Re.fromStringWithFlags("(.*)(" ++ a ++ "" ++ searchStringNew ++ ")(.*)", ~flags="i")
 }
 
@@ -65,7 +65,7 @@ module ListItem = {
     ~textEllipsisForDropDownOptions=false,
     ~textColorClass="",
   ) => {
-    let labelText = switch labelValue->Js.String2.length {
+    let labelText = switch labelValue->String.length {
     | 0 => text
     | _ => labelValue
     }
@@ -97,7 +97,7 @@ module ListItem = {
     }
     let backgroundClass = if showToggle {
       ""
-    } else if isSelected && customStyle->Js.String2.length > 0 {
+    } else if isSelected && customStyle->String.length > 0 {
       customSelectStyle
     } else if isDropDown && isSelected && !isDisabled {
       `${bgClass} transition ease-[cubic-bezier(0.33, 1, 0.68, 1)]`
@@ -152,7 +152,7 @@ module ListItem = {
 
     let textColor = "text-jp-gray-900 dark:text-jp-gray-text_darktheme"
 
-    let textColor = if textColorClass->Js.String2.length > 0 {
+    let textColor = if textColorClass->String.length > 0 {
       textColorClass
     } else {
       textColor
@@ -244,15 +244,15 @@ module ListItem = {
               }}
               <div className="w-full">
                 {listText
-                ->Js.Array2.filter(str => str !== "")
-                ->Js.Array2.mapi((item, i) => {
+                ->Array.filter(str => str !== "")
+                ->Array.mapWithIndex((item, i) => {
                   if (
-                    (Js.String2.toLowerCase(item) == Js.String2.toLowerCase(searchString) ||
-                      Js.String2.toLowerCase(item) ==
-                        Js.String2.toLowerCase("_" ++ searchString)) &&
-                      Js.String2.length(searchString) > 0
+                    (String.toLowerCase(item) == String.toLowerCase(searchString) ||
+                      String.toLowerCase(item) == String.toLowerCase("_" ++ searchString)) &&
+                      String.length(searchString) > 0
                   ) {
-                    <AddDataAttributes attributes=[("data-searched-text", item)]>
+                    <AddDataAttributes
+                      key={i->string_of_int} attributes=[("data-searched-text", item)]>
                       <mark
                         key={i->string_of_int} className={`${searchMatchTextColor} bg-transparent`}>
                         {item->React.string}
@@ -268,7 +268,8 @@ module ListItem = {
                     }
 
                     let selectOptions =
-                      <AddDataAttributes attributes=[("data-text", labelText)]>
+                      <AddDataAttributes
+                        attributes=[("data-text", labelText)] key={i->string_of_int}>
                         <span key={i->string_of_int} className=textClass value=labelText>
                           {item->React.string}
                         </span>
@@ -277,6 +278,7 @@ module ListItem = {
                     {
                       if showToolTipOptions {
                         <ToolTip
+                          key={i->string_of_int}
                           description=item
                           toolTipFor=selectOptions
                           contentAlign=Default
@@ -364,10 +366,12 @@ type dropdownOptionWithoutOptional = {
   description: option<string>,
   iconStroke: string,
   textColor: string,
+  optGroup: string,
 }
 type dropdownOption = {
   label: string,
   value: string,
+  optGroup?: string,
   isDisabled?: bool,
   icon?: Button.iconType,
   description?: string,
@@ -384,12 +388,13 @@ let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOpt
     description: dropdownOption.description,
     iconStroke: dropdownOption.iconStroke->Belt.Option.getWithDefault(""),
     textColor: dropdownOption.textColor->Belt.Option.getWithDefault(""),
+    optGroup: dropdownOption.optGroup->Belt.Option.getWithDefault("-"),
   }
 }
 
 let useTransformed = options => {
   React.useMemo1(() => {
-    options->Js.Array2.map(makeNonOptional)
+    options->Array.map(makeNonOptional)
   }, [options])
 }
 
@@ -397,40 +402,8 @@ type allSelectType = Icon | Text
 
 type opt = {name_: string}
 
-let makeUpdatedOptions = (optionLabels: array<string>, optionValues: array<string>) => {
-  let maxIndex = Js.Math.max_int(optionLabels->Js.Array2.length, optionValues->Js.Array2.length)
-
-  let arrToReturn = []
-
-  for i in 0 to maxIndex {
-    let label = optionLabels->Belt.Array.get(i)
-    let value = optionValues->Belt.Array.get(i)
-
-    if !(label->Js.Option.isNone && value->Js.Option.isNone) {
-      let safeLabel = switch label {
-      | Some(x) => x
-      | None =>
-        switch value {
-        | Some(x) => x
-        | None => ""
-        }
-      }
-      let safeValue = switch value {
-      | Some(x) => x
-      | None =>
-        switch label {
-        | Some(x) => x
-        | None => ""
-        }
-      }
-      let _ = Js.Array2.push(arrToReturn, {label: safeLabel, value: safeValue, isDisabled: false})
-    }
-  }
-  arrToReturn
-}
-
 let makeOptions = (options: array<string>): array<dropdownOption> => {
-  options->Js.Array2.map(str => {label: str, value: str})
+  options->Array.map(str => {label: str, value: str})
 }
 
 module BaseSelect = {
@@ -489,7 +462,7 @@ module BaseSelect = {
     ~preservedAppliedOptions=[],
   ) => {
     let (searchString, setSearchString) = React.useState(() => "")
-    let maxHeight = if maxHeight->Js.String2.includes("72") {
+    let maxHeight = if maxHeight->String.includes("72") {
       "md:max-h-66.5"
     } else {
       maxHeight
@@ -503,14 +476,12 @@ module BaseSelect = {
     , [values])
 
     let initialSelectedOptions = React.useMemo0(() => {
-      options->Js.Array2.filter(item => saneValue->Js.Array2.includes(item.value))
+      options->Array.filter(item => saneValue->Array.includes(item.value))
     })
 
     let options = options->Js.Array2.sortInPlaceWith((item1, item2) => {
-      let item1Index =
-        initialSelectedOptions->Js.Array2.findIndex(item => item.label === item1.label)
-      let item2Index =
-        initialSelectedOptions->Js.Array2.findIndex(item => item.label === item2.label)
+      let item1Index = initialSelectedOptions->Array.findIndex(item => item.label === item1.label)
+      let item2Index = initialSelectedOptions->Array.findIndex(item => item.label === item2.label)
 
       item1Index <= item2Index ? 1 : -1
     })
@@ -533,7 +504,7 @@ module BaseSelect = {
           }
         }
       }
-      let filterOptions = options->Js.Array2.filter(shouldDisplay)->Js.Array2.map(makeNonOptional)
+      let filterOptions = options->Array.filter(shouldDisplay)->Array.map(makeNonOptional)
 
       setFilteredOptions(_ => filterOptions)
       None
@@ -541,15 +512,15 @@ module BaseSelect = {
 
     let onItemClick = (itemDataValue, isDisabled, e) => {
       if !isDisabled {
-        let data = if Js.Array2.includes(saneValue, itemDataValue) {
+        let data = if Array.includes(saneValue, itemDataValue) {
           let values =
             deselectDisable->Belt.Option.getWithDefault(false)
               ? saneValue
-              : saneValue->Js.Array2.filter(x => x !== itemDataValue)
+              : saneValue->Array.filter(x => x !== itemDataValue)
           onItemSelect(e, itemDataValue)->ignore
           values
         } else {
-          Js.Array2.concat(saneValue, [itemDataValue])
+          Array.concat(saneValue, [itemDataValue])
         }
         onSelect(data)
         switch onBlur {
@@ -568,9 +539,9 @@ module BaseSelect = {
       let newValues = if select {
         let newVal =
           filteredOptions
-          ->Js.Array2.filter(x => !x.isDisabled && !(saneValue->Js.Array2.includes(x.value)))
-          ->Js.Array2.map(x => x.value)
-        Js.Array2.concat(saneValue, newVal)
+          ->Array.filter(x => !x.isDisabled && !(saneValue->Array.includes(x.value)))
+          ->Array.map(x => x.value)
+        Array.concat(saneValue, newVal)
       } else {
         []
       }
@@ -604,7 +575,7 @@ module BaseSelect = {
       `${minWidth} ${dropdownCustomWidth}`
     }
     let textIconPresent =
-      options->Js.Array2.some(op => op.icon->Belt.Option.getWithDefault(NoIcon) !== NoIcon)
+      options->Array.some(op => op.icon->Belt.Option.getWithDefault(NoIcon) !== NoIcon)
 
     let _ = if sortingBasedOnDisabled {
       options->Js.Array2.sortInPlaceWith((m1, m2) => {
@@ -622,12 +593,12 @@ module BaseSelect = {
       options
     }
 
-    let noOfSelected = saneValue->Js.Array2.length
+    let noOfSelected = saneValue->Array.length
     let applyBtnDisabled =
-      noOfSelected === preservedAppliedOptions->Js.Array2.length &&
-        saneValue->Js.Array2.reduce((acc, val) => {
-          preservedAppliedOptions->Js.Array2.includes(val) && acc
-        }, true)
+      noOfSelected === preservedAppliedOptions->Array.length &&
+        saneValue->Array.reduce(true, (acc, val) => {
+          preservedAppliedOptions->Array.includes(val) && acc
+        })
 
     let searchRef = React.useRef(Js.Nullable.null)
     let selectBtnRef = insertselectBtnRef->Belt.Option.map(ReactDOM.Ref.callbackDomRef)
@@ -656,7 +627,7 @@ module BaseSelect = {
     let listPadding = ""
 
     React.useEffect2(() => {
-      if noOfSelected === options->Js.Array2.length {
+      if noOfSelected === options->Array.length {
         setChooseAllToggleSelected(_ => true)
       } else {
         setChooseAllToggleSelected(_ => false)
@@ -712,7 +683,7 @@ module BaseSelect = {
           React.null
         }
       | None =>
-        if isDropDown && options->Js.Array2.length > 5 {
+        if isDropDown && options->Array.length > 5 {
           searchInputUI
         } else {
           React.null
@@ -729,7 +700,7 @@ module BaseSelect = {
                   buttonType=NonFilled
                   buttonSize=Small
                   customButtonStyle="w-32 text-fs-11 mx-1"
-                  buttonState={noOfSelected !== options->Js.Array2.length ? Normal : Disabled}
+                  buttonState={noOfSelected !== options->Array.length ? Normal : Disabled}
                 />
               </div>
               <div ref=?clearBtnRef onClick={selectAll(false)}>
@@ -743,14 +714,12 @@ module BaseSelect = {
               </div>
             </div>
             {if (
-              noOfSelected !== options->Js.Array2.length &&
-              noOfSelected !== 0 &&
-              showSelectionAsChips
+              noOfSelected !== options->Array.length && noOfSelected !== 0 && showSelectionAsChips
             ) {
               <div className="text-sm text-gray-500 text-start mt-1 ml-1.5 font-bold">
                 {React.string(
                   `${noOfSelected->string_of_int} items selected out of ${options
-                    ->Js.Array2.length
+                    ->Array.length
                     ->string_of_int} options`,
                 )}
               </div>
@@ -761,10 +730,8 @@ module BaseSelect = {
         } else if !isMobileView {
           let clearAllCondition = noOfSelected > 0
           <UIUtils.RenderIf
-            condition={filteredOptions->Js.Array2.length > 1 &&
-              filteredOptions
-              ->Js.Array2.find(item => item.value === "Loading...")
-              ->Belt.Option.isNone}>
+            condition={filteredOptions->Array.length > 1 &&
+              filteredOptions->Array.find(item => item.value === "Loading...")->Belt.Option.isNone}>
             <div
               onClick={selectAll(noOfSelected === 0)}
               className={`flex px-3 pt-2 pb-1 mx-1 rounded-lg gap-3 text-jp-2-gray-300 items-center text-fs-14 font-medium cursor-pointer`}>
@@ -778,12 +745,12 @@ module BaseSelect = {
           </UIUtils.RenderIf>
         } else {
           <div
-            onClick={selectAll(noOfSelected !== options->Js.Array2.length)}
+            onClick={selectAll(noOfSelected !== options->Array.length)}
             className={`flex ${isHorizontal
                 ? "flex-col"
                 : "flex-row"} justify-between pr-4 pl-5 pt-6 pb-1 text-base font-semibold text-blue-800 cursor-pointer`}>
             {"SELECT ALL"->React.string}
-            <CheckBoxIcon isSelected={noOfSelected === options->Js.Array2.length} />
+            <CheckBoxIcon isSelected={noOfSelected === options->Array.length} />
           </div>
         }
       } else {
@@ -850,26 +817,26 @@ module BaseSelect = {
             : ""}  ${showToggle ? "ml-3" : maxHeight}` ++ {
           wrapBasis == "" ? "" : " flex flex-wrap justify-between"
         }}>
-        {if filteredOptions->Js.Array2.length === 0 {
+        {if filteredOptions->Array.length === 0 {
           <div className="flex justify-center items-center m-4">
             {React.string("No matching records found")}
           </div>
         } else if (
-          filteredOptions->Js.Array2.find(item => item.value === "Loading...")->Belt.Option.isSome
+          filteredOptions->Array.find(item => item.value === "Loading...")->Belt.Option.isSome
         ) {
           <Loader />
         } else {
           {
             filteredOptions
-            ->Js.Array2.mapi((item, indx) => {
+            ->Array.mapWithIndex((item, indx) => {
               let valueToConsider = item.value
-              let index = Js.Array2.findIndex(saneValue, sv => sv === valueToConsider)
+              let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
               let isPrevSelected = switch filteredOptions->Belt.Array.get(indx - 1) {
-              | Some(prevItem) => Js.Array2.findIndex(saneValue, sv => sv === prevItem.value) > -1
+              | Some(prevItem) => Array.findIndex(saneValue, sv => sv === prevItem.value) > -1
               | None => false
               }
               let isNextSelected = switch filteredOptions->Belt.Array.get(indx + 1) {
-              | Some(nextItem) => Js.Array2.findIndex(saneValue, sv => sv === nextItem.value) > -1
+              | Some(nextItem) => Array.findIndex(saneValue, sv => sv === nextItem.value) > -1
               | None => false
               }
               let isSelected = index > -1
@@ -1000,12 +967,12 @@ module BaseSelectButton = {
       setSearchString(_ => str)
     }
 
-    let searchable = isDropDown && options->Js.Array2.length > 5
+    let searchable = isDropDown && options->Array.length > 5
 
     let width = isHorizontal ? "w-auto" : "w-full md:w-72"
     let inlineClass = isHorizontal ? "inline-flex" : ""
 
-    let textIconPresent = options->Js.Array2.some(op => op.icon !== NoIcon)
+    let textIconPresent = options->Array.some(op => op.icon !== NoIcon)
 
     let onButtonClick = itemdata => {
       switch onAssignClick {
@@ -1044,7 +1011,7 @@ module BaseSelectButton = {
       }}
       <div className={`${optionsOuterClass} ${listPadding} ${inlineClass}`}>
         {options
-        ->Js.Array2.mapi((option, i) => {
+        ->Array.mapWithIndex((option, i) => {
           let isSelected = switch value->Js.Json.decodeString {
           | Some(str) => option.value === str
           | None => false
@@ -1104,6 +1071,121 @@ module BaseSelectButton = {
     </div>
   }
 }
+
+module RenderListItemInBaseRadio = {
+  @react.component
+  let make = (
+    ~newOptions: Js.Array2.t<dropdownOptionWithoutOptional>,
+    ~value,
+    ~descriptionOnHover,
+    ~isDropDown,
+    ~textIconPresent,
+    ~searchString,
+    ~optionSize,
+    ~isSelectedStateMinus,
+    ~onItemClick,
+    ~fill,
+    ~customStyle,
+    ~isMobileView,
+    ~listFlexDirection,
+    ~customSelectStyle,
+    ~textOverflowClass,
+    ~showToolTipOptions,
+    ~textEllipsisForDropDownOptions,
+    ~isHorizontal,
+    ~customMarginStyleOfListItem="mx-3 py-2 gap-2",
+  ) => {
+    newOptions
+    ->Array.mapWithIndex((option, i) => {
+      let isSelected = switch value->Js.Json.decodeString {
+      | Some(str) => option.value === str
+      | None => false
+      }
+
+      let description = descriptionOnHover ? option.description : None
+      let leftVacennt = isDropDown && textIconPresent && option.icon === NoIcon
+      let listItemComponent =
+        <ListItem
+          key={string_of_int(i)}
+          isDropDown
+          isSelected
+          fill
+          searchString
+          onClick={onItemClick(option.value, option.isDisabled)}
+          text=option.label
+          optionSize
+          isSelectedStateMinus
+          labelValue=option.label
+          multiSelect=false
+          icon=option.icon
+          leftVacennt
+          isDisabled=option.isDisabled
+          isMobileView
+          description
+          listFlexDirection
+          customStyle
+          customSelectStyle
+          ?textOverflowClass
+          dataId=i
+          iconStroke=option.iconStroke
+          showToolTipOptions
+          textEllipsisForDropDownOptions
+          textColorClass={option.textColor}
+          customMarginStyle=customMarginStyleOfListItem
+        />
+
+      if !descriptionOnHover {
+        switch option.description {
+        | Some(str) =>
+          <div key={i->string_of_int} className="flex flex-row">
+            listItemComponent
+            <UIUtils.RenderIf condition={!isHorizontal}>
+              <ToolTip
+                description={str}
+                toolTipFor={<div className="py-4 px-4">
+                  <Icon size=12 name="info-circle" />
+                </div>}
+              />
+            </UIUtils.RenderIf>
+          </div>
+        | None => listItemComponent
+        }
+      } else {
+        listItemComponent
+      }
+    })
+    ->React.array
+  }
+}
+
+let getHashMappedOptionValues = (options: array<dropdownOptionWithoutOptional>) => {
+  let hashMappedOptions = options->Array.reduce(Dict.make(), (
+    acc,
+    ele: dropdownOptionWithoutOptional,
+  ) => {
+    if acc->Dict.get(ele.optGroup)->Option.isNone {
+      acc->Dict.set(ele.optGroup, [ele])
+    } else {
+      acc->Dict.get(ele.optGroup)->Option.getWithDefault([])->Array.push(ele)->ignore
+    }
+    acc
+  })
+
+  hashMappedOptions
+}
+
+let getSortedKeys = hashMappedOptions => {
+  hashMappedOptions
+  ->Dict.keysToArray
+  ->Js.Array2.sortInPlaceWith((a, b) => {
+    switch (a, b) {
+    | ("-", _) => 1
+    | (_, "-") => -1
+    | (_, _) => String.compare(a, b)->Belt.Float.toInt
+    }
+  })
+}
+
 module BaseRadio = {
   @react.component
   let make = (
@@ -1142,9 +1224,16 @@ module BaseRadio = {
     ~textEllipsisForDropDownOptions=false,
   ) => {
     let options = React.useMemo1(() => {
-      options->Js.Array2.map(makeNonOptional)
+      options->Array.map(makeNonOptional)
     }, [options])
-    // to set width of dropdown,
+
+    let hashMappedOptions = getHashMappedOptionValues(options)
+
+    let isNonGrouped =
+      hashMappedOptions->Dict.get("-")->Option.getWithDefault([])->Array.length ===
+        options->Array.length
+
+    let (optgroupKeys, setOptgroupKeys) = React.useState(_ => getSortedKeys(hashMappedOptions))
 
     let (searchString, setSearchString) = React.useState(() => "")
     React.useEffect1(() => {
@@ -1170,8 +1259,7 @@ module BaseRadio = {
           onSelect("")
         } else {
           if (
-            addDynamicValue &&
-            !(options->Js.Array2.map(item => item.value)->Js.Array2.includes(itemData))
+            addDynamicValue && !(options->Array.map(item => item.value)->Array.includes(itemData))
           ) {
             setSelectedString(_ => itemData)
           } else if selectedString !== "" {
@@ -1196,7 +1284,7 @@ module BaseRadio = {
       isDropDown &&
       switch searchable {
       | Some(isSearch) => isSearch
-      | None => options->Js.Array2.length > 5
+      | None => options->Array.length > 5
       }
     let widthClass =
       isMobileView || !isSearchable ? "w-auto" : fullLength ? "w-full" : dropdownCustomWidth
@@ -1207,7 +1295,7 @@ module BaseRadio = {
 
     let inlineClass = isHorizontal ? "inline-flex" : ""
 
-    let textIconPresent = options->Js.Array2.some(op => op.icon !== NoIcon)
+    let textIconPresent = options->Array.some(op => op.icon !== NoIcon)
 
     React.useEffect2(() => {
       searchRef.current->Js.Nullable.toOption->Belt.Option.forEach(input => input->focus)
@@ -1231,23 +1319,30 @@ module BaseRadio = {
 
     let newOptions = React.useMemo3(() => {
       let options = if selectedString !== "" {
-        options->Js.Array2.concat([selectedString]->makeOptions->Js.Array2.map(makeNonOptional))
+        options->Array.concat([selectedString]->makeOptions->Array.map(makeNonOptional))
       } else {
         options
       }
-      if searchString != "" {
-        let options = options->Js.Array2.filter(option => {
+      if searchString->String.length != 0 {
+        let options = options->Array.filter(option => {
           shouldDisplay(option)
         })
         if (
-          addDynamicValue &&
-          !(options->Js.Array2.map(item => item.value)->Js.Array2.includes(searchString))
+          addDynamicValue && !(options->Array.map(item => item.value)->Array.includes(searchString))
         ) {
-          options->Js.Array2.concat([searchString]->makeOptions->Js.Array2.map(makeNonOptional))
+          if isNonGrouped {
+            options->Array.concat([searchString]->makeOptions->Array.map(makeNonOptional))
+          } else {
+            options
+          }
         } else {
+          let hashMappedSearchedOptions = getHashMappedOptionValues(options)
+          let optgroupKeysForSearch = getSortedKeys(hashMappedSearchedOptions)
+          setOptgroupKeys(_ => optgroupKeysForSearch)
           options
         }
       } else {
+        setOptgroupKeys(_ => getSortedKeys(hashMappedOptions))
         options
       }
     }, (searchString, options, selectedString))
@@ -1271,309 +1366,69 @@ module BaseRadio = {
           ? "animate-textTransition transition duration-400"
           : "animate-textTransitionOff transition duration-400"}`}>
       {switch searchable {
-      | Some(val) =>
-        if val {
-          searchInputUI
-        } else {
-          React.null
-        }
+      | Some(val) => <UIUtils.RenderIf condition={val}> searchInputUI </UIUtils.RenderIf>
       | None =>
-        if isDropDown && (options->Js.Array2.length > 5 || addDynamicValue) {
+        <UIUtils.RenderIf condition={isDropDown && (options->Array.length > 5 || addDynamicValue)}>
           searchInputUI
-        } else {
-          React.null
-        }
+        </UIUtils.RenderIf>
       }}
       <div
         className={`${maxHeight} ${listPadding} ${overflowClass} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass} ${baseComponentCustomStyle}`}>
-        {if newOptions->Js.Array2.length === 0 && showMatchingRecordsText {
+        {if newOptions->Array.length === 0 && showMatchingRecordsText {
           <div className="flex justify-center items-center m-4">
             {React.string("No matching records found")}
           </div>
+        } else if isNonGrouped {
+          <RenderListItemInBaseRadio
+            newOptions
+            value
+            descriptionOnHover
+            isDropDown
+            textIconPresent
+            searchString
+            optionSize
+            isSelectedStateMinus
+            onItemClick
+            fill
+            customStyle
+            isMobileView
+            listFlexDirection
+            customSelectStyle
+            textOverflowClass
+            showToolTipOptions
+            textEllipsisForDropDownOptions
+            isHorizontal
+          />
         } else {
           {
-            newOptions
-            ->Js.Array2.mapi((option, i) => {
-              let isSelected = switch value->Js.Json.decodeString {
-              | Some(str) => option.value === str
-              | None => false
-              }
-
-              let description = descriptionOnHover ? option.description : None
-              let leftVacennt = isDropDown && textIconPresent && option.icon === NoIcon
-              let listItemComponent =
-                <ListItem
-                  key={string_of_int(i)}
+            optgroupKeys
+            ->Array.mapWithIndex((ele, index) => {
+              <React.Fragment key={index->string_of_int}>
+                <h2 className="p-3 font-bold"> {ele->React.string} </h2>
+                <RenderListItemInBaseRadio
+                  newOptions={getHashMappedOptionValues(newOptions)
+                  ->Dict.get(ele)
+                  ->Option.getWithDefault([])}
+                  value
+                  descriptionOnHover
                   isDropDown
-                  isSelected
-                  fill
+                  textIconPresent
                   searchString
-                  onClick={onItemClick(option.value, option.isDisabled)}
-                  text=option.label
                   optionSize
                   isSelectedStateMinus
-                  labelValue=option.label
-                  multiSelect=false
-                  icon=option.icon
-                  leftVacennt
-                  isDisabled=option.isDisabled
-                  isMobileView
-                  description
-                  listFlexDirection
+                  onItemClick
+                  fill
                   customStyle
+                  isMobileView
+                  listFlexDirection
                   customSelectStyle
-                  ?textOverflowClass
-                  dataId=i
-                  iconStroke=option.iconStroke
+                  textOverflowClass
                   showToolTipOptions
                   textEllipsisForDropDownOptions
-                  textColorClass={option.textColor}
+                  isHorizontal
+                  customMarginStyleOfListItem="ml-8 mx-3 py-2 gap-2"
                 />
-
-              if !descriptionOnHover {
-                switch option.description {
-                | Some(str) =>
-                  <div className="flex flex-row ">
-                    listItemComponent
-                    {if isHorizontal {
-                      React.null
-                    } else {
-                      <ToolTip
-                        description={str}
-                        toolTipFor={<div className="py-4 px-4">
-                          <Icon size=12 name="info-circle" />
-                        </div>}
-                      />
-                    }}
-                  </div>
-                | None => listItemComponent
-                }
-              } else {
-                listItemComponent
-              }
-            })
-            ->React.array
-          }
-        }}
-      </div>
-    </div>
-  }
-}
-
-module CustomUISearchOptionUI = {
-  @react.component
-  let make = (
-    ~showDropDown=false,
-    ~isDropDown=true,
-    ~isHorizontal=false,
-    ~options: array<dropdownOption>,
-    ~onSelect: string => unit,
-    ~value: Js.Json.t,
-    ~deselectDisable=false,
-    ~onBlur=?,
-    ~fill="#0EB025",
-    ~customStyle="",
-    ~searchable=?,
-    ~isMobileView=false,
-    ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
-    ~descriptionOnHover=false,
-    ~addDynamicValue=false,
-    ~dropdownCustomWidth="w-full",
-    ~dropdownRef=?,
-    ~showMatchingRecordsText=true,
-    ~fullLength=false,
-    ~searchString,
-    ~setSearchString,
-    ~searchPlaceholder="",
-  ) => {
-    let options = React.useMemo1(() => {
-      options->Js.Array2.map(makeNonOptional)
-    }, [options])
-
-    // to set width of dropdown,
-
-    OutsideClick.useOutsideClick(
-      ~refs={ArrayOfRef([dropdownRef->Belt.Option.getWithDefault(React.useRef(Js.Nullable.null))])},
-      ~isActive=showDropDown,
-      ~callback=() => {
-        setSearchString(_ => "")
-      },
-      (),
-    )
-    let onItemClick = (itemData, isDisabled, _ev) => {
-      if !isDisabled {
-        let isSelected =
-          value->Js.Json.decodeString->Belt.Option.mapWithDefault(false, str => itemData === str)
-
-        if isSelected && !deselectDisable {
-          onSelect("")
-        } else {
-          onSelect(itemData)
-        }
-        setSearchString(_ => "")
-        switch onBlur {
-        | Some(fn) =>
-          "blur"->Webapi.Dom.FocusEvent.make->Identity.webAPIFocusEventToReactEventFocus->fn
-        | None => ()
-        }
-      }
-    }
-    let handleSearch = str => {
-      setSearchString(_ => str)
-    }
-
-    let isSearchable =
-      isDropDown &&
-      switch searchable {
-      | Some(isSearch) => isSearch
-      | None => options->Js.Array2.length > 5
-      }
-    let widthClass =
-      isMobileView || !isSearchable ? "w-auto" : fullLength ? "w-full" : dropdownCustomWidth
-
-    let searchRef = React.useRef(Js.Nullable.null)
-
-    let width = isHorizontal || !isDropDown || customStyle === "" ? widthClass : customStyle
-
-    let inlineClass = isHorizontal ? "inline-flex" : ""
-    let listPadding = ""
-    let optionsOuterClass = !isDropDown ? "" : "md:max-h-72 overflow-auto"
-    let overflowClass = !isDropDown ? "" : "overflow-auto"
-
-    let textIconPresent = options->Js.Array2.some(op => op.icon !== NoIcon)
-
-    React.useEffect2(() => {
-      searchRef.current->Js.Nullable.toOption->Belt.Option.forEach(input => input->focus)
-      None
-    }, (searchRef.current, showDropDown))
-
-    let dropDownbgClass = isDropDown ? "bg-white" : ""
-    let shouldDisplay = (option: dropdownOptionWithoutOptional) => {
-      switch Js.String2.match_(option.label, regex("\\b", searchString)) {
-      | Some(_) => true
-      | None =>
-        switch Js.String2.match_(option.label, regex("_", searchString)) {
-        | Some(_) => true
-        | None => false
-        }
-      }
-    }
-    let newOptions = React.useMemo2(() => {
-      if searchString != "" {
-        let options = options->Js.Array2.filter(option => {
-          shouldDisplay(option)
-        })
-        if addDynamicValue {
-          options->Js.Array2.concat([searchString]->makeOptions->Js.Array2.map(makeNonOptional))
-        } else {
-          options
-        }
-      } else {
-        options
-      }
-    }, (searchString, options))
-    let searchInputUI =
-      <SearchInput
-        inputText=searchString onChange=handleSearch searchRef placeholder=searchPlaceholder
-      />
-
-    <div
-      className={`${dropDownbgClass} dark:bg-jp-gray-lightgray_background ${width} ${overflowClass} font-medium flex flex-col ${showDropDown
-          ? "animate-textTransition transition duration-400"
-          : "animate-textTransitionOff transition duration-400"}`}>
-      {switch searchable {
-      | Some(val) =>
-        if val {
-          searchInputUI
-        } else {
-          React.null
-        }
-      | None =>
-        if isDropDown && (options->Js.Array2.length > 5 || addDynamicValue) {
-          searchInputUI
-        } else {
-          React.null
-        }
-      }}
-      <div
-        className={`${optionsOuterClass} ${listPadding} text-fs-13 font-semibold text-jp-gray-900 text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${inlineClass}`}>
-        {if newOptions->Js.Array2.length === 0 && showMatchingRecordsText {
-          <>
-            <div
-              className="flex justify-start pt-12 text-fs-16 text-jp-2-gray-500 leading-6 font-semibold font-inter-style">
-              {React.string("Didn't find what you were looking for?")}
-            </div>
-            <div className="pt-4 justify-start">
-              <Button
-                text="Raise a Ticket "
-                buttonType=Secondary
-                buttonState=Normal
-                buttonSize=Small
-                textStyle="font-inter-style font-medium text-base text-jp-2-gray-700"
-                showBorder=true
-                onClick={_ => ()}
-                customButtonStyle="border-solid border #C3C5C9 bg-white rounded-lg shadow-button_shadow"
-              />
-            </div>
-          </>
-        } else {
-          {
-            newOptions
-            ->Js.Array2.mapi((option, i) => {
-              let isSelected = switch value->Js.Json.decodeString {
-              | Some(str) => option.value === str
-              | None => false
-              }
-
-              let description = descriptionOnHover === true ? option.description : None
-              let leftVacennt = isDropDown && textIconPresent && option.icon === NoIcon
-              let listItemComponent =
-                <ListItem
-                  key={string_of_int(i)}
-                  isDropDown
-                  isSelected
-                  fill
-                  searchString
-                  onClick={onItemClick(option.value, option.isDisabled)}
-                  text=option.label
-                  labelValue=option.label
-                  multiSelect=false
-                  icon=CustomIcon(<Icon name="article" className="pr-3" size=22 />)
-                  leftVacennt
-                  isDisabled=option.isDisabled
-                  isMobileView
-                  description
-                  dataId=i
-                  iconStroke=option.iconStroke
-                />
-
-              {
-                if searchString !== "" {
-                  if !descriptionOnHover {
-                    switch option.description {
-                    | Some(str) =>
-                      <div className="flex flex-row ">
-                        listItemComponent
-                        {if isHorizontal {
-                          React.null
-                        } else {
-                          <ToolTip
-                            description={str}
-                            toolTipFor={<div className="py-4 px-4">
-                              <Icon size=12 name="info-circle" />
-                            </div>}
-                          />
-                        }}
-                      </div>
-                    | None => listItemComponent
-                    }
-                  } else {
-                    listItemComponent
-                  }
-                } else {
-                  React.null
-                }
-              }
+              </React.Fragment>
             })
             ->React.array
           }
@@ -1736,14 +1591,14 @@ module BaseDropdown = {
     }
 
     let removeOption = (text, _ev) => {
-      let actualValue = switch Js.Array2.find(transformedOptions, option => option.value == text) {
+      let actualValue = switch Array.find(transformedOptions, option => option.value == text) {
       | Some(str) => str.value
       | None => ""
       }
       newInputSelect.onChange(
         switch newInputSelect.value->Js.Json.decodeArray {
         | Some(jsonArr) =>
-          jsonArr->LogicUtils.getStrArrayFromJsonArray->Js.Array2.filter(str => str !== actualValue)
+          jsonArr->LogicUtils.getStrArrayFromJsonArray->Array.filter(str => str !== actualValue)
         | _ => []
         },
       )
@@ -1756,7 +1611,7 @@ module BaseDropdown = {
       ? (buttonText, defaultLeftIcon, "")
       : switch newInputRadio.value->Js.Json.decodeString {
         | Some(str) =>
-          switch transformedOptions->Js.Array2.find(x => x.value === str) {
+          switch transformedOptions->Array.find(x => x.value === str) {
           | Some(x) => (x.label, x.icon, x.iconStroke)
           | None => (buttonText, defaultLeftIcon, "")
           }
@@ -1769,7 +1624,7 @@ module BaseDropdown = {
       | None =>
         selectBoxRef.current
         ->Js.Nullable.toOption
-        ->Belt.Option.flatMap(elem => elem->getClientRects->toDict->Js.Dict.get("0"))
+        ->Belt.Option.flatMap(elem => elem->getClientRects->toDict->Dict.get("0"))
         ->Belt.Option.flatMap(firstEl => {
           let bottomVacent = windowInnerHeight - firstEl["bottom"]->Belt.Float.toInt > 375
           let topVacent = firstEl["top"]->Belt.Float.toInt > 470
@@ -1817,9 +1672,9 @@ module BaseDropdown = {
       ->getWithDefault([])
       ->Belt.Array.keepMap(Js.Json.decodeString)
       ->Belt.Array.keepMap(str => {
-        transformedOptions->Js.Array2.find(x => x.value == str)->map(x => x.label)
+        transformedOptions->Array.find(x => x.value == str)->map(x => x.label)
       })
-      ->Js.Array2.joinWith(", ")
+      ->Array.joinWith(", ")
       ->LogicUtils.getNonEmptyString
       ->getWithDefault(buttonText)
     }, (transformedOptions, newInputSelect.value))
@@ -1828,7 +1683,7 @@ module BaseDropdown = {
 
     let badgeForSelect = React.useMemo1((): Button.badge => {
       open Belt.Option
-      let count = newInputSelect.value->Js.Json.decodeArray->getWithDefault([])->Js.Array2.length
+      let count = newInputSelect.value->Js.Json.decodeArray->getWithDefault([])->Array.length
       let condition = count > 1
 
       {
@@ -2021,7 +1876,7 @@ module BaseDropdown = {
                         ? `Select ${LogicUtils.snakeToTitle(newInputSelect.name)}`
                         : newInputSelect.value
                           ->LogicUtils.getStrArryFromJson
-                          ->Js.Array2.joinWith(",\n")}
+                          ->Array.joinWith(",\n")}
                       toolTipFor=selectButton
                       toolTipPosition=Bottom
                       tooltipWidthClass=""
@@ -2077,8 +1932,8 @@ module BaseDropdown = {
         | Some(jsonArr) =>
           jsonArr
           ->LogicUtils.getStrArrayFromJsonArray
-          ->Js.Array2.mapi((str, i) => {
-            let actualValueIndex = Js.Array2.findIndex(options->Js.Array2.map(x => x.value), item =>
+          ->Array.mapWithIndex((str, i) => {
+            let actualValueIndex = Array.findIndex(options->Array.map(x => x.value), item =>
               item == str
             )
             if actualValueIndex !== -1 {
@@ -2138,14 +1993,14 @@ module InfraSelectBox = {
     let onItemClick = (itemDataValue, isDisabled) => {
       if !isDisabled {
         if allowMultiSelect {
-          let data = if Js.Array2.includes(saneValue, itemDataValue) {
+          let data = if Array.includes(saneValue, itemDataValue) {
             if deselectDisable {
               saneValue
             } else {
-              saneValue->Js.Array2.filter(x => x !== itemDataValue)
+              saneValue->Array.filter(x => x !== itemDataValue)
             }
           } else {
-            Js.Array2.concat(saneValue, [itemDataValue])
+            Array.concat(saneValue, [itemDataValue])
           }
           newInputSelect.onChange(data)
         } else {
@@ -2156,8 +2011,8 @@ module InfraSelectBox = {
 
     <div className={`md:max-h-72 overflow-auto font-medium flex flex-wrap gap-y-4 gap-x-2.5`}>
       {transformedOptions
-      ->Js.Array2.mapi((option, i) => {
-        let isSelected = saneValue->Js.Array2.includes(option.value)
+      ->Array.mapWithIndex((option, i) => {
+        let isSelected = saneValue->Array.includes(option.value)
         let selectedClass = isSelected ? selectedClass : nonSelectedClass
 
         <div
@@ -2204,14 +2059,14 @@ module ChipFilterSelectBox = {
     let onItemClick = (itemDataValue, isDisabled) => {
       if !isDisabled {
         if allowMultiSelect {
-          let data = if Js.Array2.includes(saneValue, itemDataValue) {
+          let data = if Array.includes(saneValue, itemDataValue) {
             if deselectDisable {
               saneValue
             } else {
-              saneValue->Js.Array2.filter(x => x !== itemDataValue)
+              saneValue->Array.filter(x => x !== itemDataValue)
             }
           } else {
-            Js.Array2.concat(saneValue, [itemDataValue])
+            Array.concat(saneValue, [itemDataValue])
           }
           newInputSelect.onChange(data)
         } else {
@@ -2222,8 +2077,8 @@ module ChipFilterSelectBox = {
 
     <div className={`md:max-h-72 overflow-auto font-medium flex flex-wrap gap-4 `}>
       {transformedOptions
-      ->Js.Array2.mapi((option, i) => {
-        let isSelected = saneValue->Js.Array2.includes(option.value)
+      ->Array.mapWithIndex((option, i) => {
+        let isSelected = saneValue->Array.includes(option.value)
         let selectedClass = isSelected ? passedClassName : initalClassName
         let chipsCss = customStyleForChips == "" ? selectedClass : customStyleForChips
 
@@ -2468,6 +2323,8 @@ let make = (
       ?maxHeight
       ?searchInputPlaceHolder
       showSearchIcon
+      descriptionOnHover
+      showToolTipOptions
     />
   }
 }

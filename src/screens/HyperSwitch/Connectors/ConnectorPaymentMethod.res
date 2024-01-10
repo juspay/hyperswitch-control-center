@@ -1,6 +1,5 @@
 @react.component
 let make = (
-  ~currentStep,
   ~setCurrentStep,
   ~connector,
   ~setInitialValues,
@@ -12,20 +11,18 @@ let make = (
   open APIUtils
   open PageLoaderWrapper
   open LogicUtils
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let url = RescriptReactRouter.useUrl()
   let _showAdvancedConfiguration = false
   let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
-    Js.Dict.empty()->Js.Json.object_->getPaymentMethodEnabled
+    Dict.make()->Js.Json.object_->getPaymentMethodEnabled
   )
-  let (metaData, setMetaData) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
+  let (metaData, setMetaData) = React.useState(_ => Dict.make()->Js.Json.object_)
   let showToast = ToastState.useShowToast()
   let connectorID = initialValues->getDictFromJsonObject->getOptionString("merchant_connector_id")
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
 
   let updateDetails = value => {
-    setPaymentMethods(_ => value->Js.Array2.copy)
+    setPaymentMethods(_ => value->Array.copy)
   }
 
   React.useEffect1(() => {
@@ -59,13 +56,6 @@ let make = (
         )
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID, ())
       let response = await updateAPIHook(connectorUrl, body, Post)
-      getMixpanelForConnectorOnSubmit(
-        ~connectorName=connector,
-        ~currentStep,
-        ~isUpdateFlow,
-        ~url,
-        ~hyperswitchMixPanel,
-      )
       setInitialValues(_ => response)
       setScreenState(_ => Success)
       setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
@@ -95,7 +85,7 @@ let make = (
     <div className="flex flex-col">
       <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
-          <GatewayIcon gateway={connector->Js.String2.toUpperCase} />
+          <GatewayIcon gateway={connector->String.toUpperCase} />
           <h2 className="text-xl font-semibold">
             {connector->LogicUtils.capitalizeString->React.string}
           </h2>

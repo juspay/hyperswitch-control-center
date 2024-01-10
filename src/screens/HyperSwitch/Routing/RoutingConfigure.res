@@ -4,14 +4,14 @@ open RoutingUtils
 let make = (~routingType) => {
   let url = RescriptReactRouter.useUrl()
   let (currentRouting, setCurrentRouting) = React.useState(() => NO_ROUTING)
-
   let (id, setId) = React.useState(() => None)
   let (isActive, setIsActive) = React.useState(_ => false)
+
   React.useEffect1(() => {
     let searchParams = url.search
-    let filtersFromUrl = LogicUtils.getDictFromUrlSearchParams(searchParams)->Js.Dict.get("id")
+    let filtersFromUrl = LogicUtils.getDictFromUrlSearchParams(searchParams)->Dict.get("id")
     setId(_ => filtersFromUrl)
-    switch routingType->Js.String2.toLowerCase {
+    switch routingType->String.toLowerCase {
     | "rank" => setCurrentRouting(_ => PRIORITY)
     | "volume" => setCurrentRouting(_ => VOLUME_SPLIT)
     | "rule" => setCurrentRouting(_ => ADVANCED)
@@ -20,7 +20,7 @@ let make = (~routingType) => {
     }
     let isActive =
       LogicUtils.getDictFromUrlSearchParams(searchParams)
-      ->Js.Dict.get("isActive")
+      ->Dict.get("isActive")
       ->Belt.Option.getWithDefault("")
       ->LogicUtils.getBoolFromString(false)
     setIsActive(_ => isActive)

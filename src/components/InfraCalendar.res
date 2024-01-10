@@ -15,7 +15,7 @@ module TableRow = {
   let defaultCellRenderer = obj => {
     switch obj {
     | Some(a) => {
-        let day = Js.String2.split(a, "-")
+        let day = String.split(a, "-")
         React.string(day[2]->Belt.Option.getWithDefault(""))
       }
 
@@ -46,12 +46,12 @@ module TableRow = {
       } else {
         <tr className="transition duration-300 ease-in-out">
           {item
-          ->Js.Array2.mapi((obj, cellIndex) => {
+          ->Array.mapWithIndex((obj, cellIndex) => {
             let date =
               customTimezoneToISOString(
-                Js.String2.make(year),
-                Js.String2.make(month +. 1.0),
-                Js.String2.make(obj == "" ? "01" : obj),
+                String.make(year),
+                String.make(month +. 1.0),
+                String.make(obj == "" ? "01" : obj),
                 "00",
                 "00",
                 "00",
@@ -108,7 +108,7 @@ module TableRow = {
                   let datevalue = Js.Date.makeWithYMD(
                     ~year=Js.Float.fromString(date[0]->Belt.Option.getWithDefault("")),
                     ~month=Js.Float.fromString(
-                      Js.String2.make(
+                      String.make(
                         Js.Float.fromString(date[1]->Belt.Option.getWithDefault("")) -. 1.0,
                       ),
                     ),
@@ -117,10 +117,10 @@ module TableRow = {
                   )
                   datevalue
                 }
-                let parsedStartDate = getDate(Js.String2.split(startDate, "-"))
+                let parsedStartDate = getDate(String.split(startDate, "-"))
                 let z = getDate([year, month, obj])
                 if endDate != "" {
-                  let parsedEndDate = getDate(Js.String2.split(endDate, "-"))
+                  let parsedEndDate = getDate(String.split(endDate, "-"))
                   z == parsedStartDate && z == parsedEndDate
                     ? "h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white dark:hover:text-jp-gray-text_darktheme rounded-full"
                     : z == parsedStartDate
@@ -194,7 +194,7 @@ let make = (
   let _ = highLightList
   let months = [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
   let heading = ["S", "M", "T", "W", "T", "F", "S"]
-  let getMonthInFloat = mon => Js.Array2.indexOf(months, mon)->Belt.Float.fromInt
+  let getMonthInFloat = mon => Array.indexOf(months, mon)->Belt.Float.fromInt
   let getMonthInStr = mon => {
     switch mon {
     | Jan => "January, "
@@ -235,7 +235,7 @@ let make = (
   let dummyRow = Belt.Array.make(6, Belt.Array.make(7, ""))
 
   let rowMapper = (row, indexRow) => {
-    Js.Array2.mapi(row, (_item, index) => {
+    Array.mapWithIndex(row, (_item, index) => {
       let subFactor = Belt.Float.toInt(firstDay)
       if indexRow == 0 && index < Belt.Float.toInt(firstDay) {
         ""
@@ -248,7 +248,7 @@ let make = (
       }
     })
   }
-  let rowInfo = Js.Array2.mapi(dummyRow, rowMapper)
+  let rowInfo = Array.mapWithIndex(dummyRow, rowMapper)
 
   <div className="text-sm px-4 pb-2">
     {showTitle
@@ -261,7 +261,7 @@ let make = (
       <thead>
         <tr>
           {heading
-          ->Js.Array2.mapi((item, i) => {
+          ->Array.mapWithIndex((item, i) => {
             <th key={string_of_int(i)} className="p-0">
               <div
                 className="flex flex-1 justify-center py-2 font-medium text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
@@ -274,7 +274,7 @@ let make = (
       </thead>
       <tbody>
         {rowInfo
-        ->Js.Array2.mapi((item, rowIndex) => {
+        ->Array.mapWithIndex((item, rowIndex) => {
           <TableRow
             key={string_of_int(rowIndex)}
             item

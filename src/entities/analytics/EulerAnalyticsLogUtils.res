@@ -12,12 +12,12 @@ let useAddLogsAroundFetch = () => {
     setStatusDict(prev => {
       let dict =
         prev
-        ->Js.Dict.entries
-        ->Js.Array2.filter(entry => {
+        ->Dict.toArray
+        ->Array.filter(entry => {
           let (key, _value) = entry
           key !== logTitle
         })
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
       dict
     })
     open Promise
@@ -27,7 +27,7 @@ let useAddLogsAroundFetch = () => {
       let status = resp->Fetch.Response.status
 
       setStatusDict(prev => {
-        prev->Js.Dict.set(logTitle, status)
+        prev->Dict.set(logTitle, status)
         prev
       })
 
@@ -57,12 +57,12 @@ let useAddLogsAroundFetchNew = () => {
     setStatusDict(prev => {
       let dict =
         prev
-        ->Js.Dict.entries
-        ->Js.Array2.filter(entry => {
+        ->Dict.toArray
+        ->Array.filter(entry => {
           let (key, _value) = entry
           key !== logTitle
         })
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
       dict
     })
     open Promise
@@ -71,7 +71,7 @@ let useAddLogsAroundFetchNew = () => {
     ->then(resp => {
       let status = resp->Fetch.Response.status
       setStatusDict(prev => {
-        prev->Js.Dict.set(logTitle, status)
+        prev->Dict.set(logTitle, status)
         prev
       })
 

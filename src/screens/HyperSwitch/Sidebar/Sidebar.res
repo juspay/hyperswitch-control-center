@@ -77,7 +77,7 @@ module SidebarItem = {
   let make = (~tabInfo, ~isSelected, ~isExpanded) => {
     let sidebarItemRef = React.useRef(Js.Nullable.null)
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
-    let getSearchParamByLink = link => getSearchParamByLink(Js.String2.substr(link, ~from=0))
+    let getSearchParamByLink = link => getSearchParamByLink(Js.String.substr(link, ~from=0))
 
     let selectedClass = if isSelected {
       "border-l-2 rounded-sm border-white bg-light_white"
@@ -216,25 +216,6 @@ module NestedSidebarItem = {
             </Link>
           </UIUtils.RenderIf>
         }
-
-      | SubLevelRemoteLink(tabOption) => {
-          let {name, link, access, ?remoteIcon} = tabOption
-          let (remoteUi, link) = if remoteIcon->Belt.Option.getWithDefault(false) {
-            (<Icon name="external-link-alt" size=14 className="ml-3" />, link)
-          } else {
-            (React.null, `${link}${getSearchParamByLink(link)}`)
-          }
-          <UIUtils.RenderIf condition={access !== NoAccess}>
-            <a
-              ref={nestedSidebarItemRef->ReactDOM.Ref.domRef}
-              href={link}
-              target="_blank"
-              className={`${textColor} relative overflow-hidden flex flex-row items-center cursor-pointer ${paddingClass} ${selectedClass} `}>
-              <SidebarSubOption name isSectionExpanded isSelected isSideBarExpanded />
-              remoteUi
-            </a>
-          </UIUtils.RenderIf>
-        }
       }}
     </UIUtils.RenderIf>
   }
@@ -308,23 +289,18 @@ module NestedSectionItem = {
         </UIUtils.RenderIf>
       </div>
       <UIUtils.RenderIf condition={isElementShown}>
-        {
-          let subSectionsArr =
-            section.links
-            ->Array.mapWithIndex((subLevelItem, index) => {
-              let isSelected = subLevelItem->isSubLevelItemSelected
-              <NestedSidebarItem
-                key={string_of_int(index)}
-                isSelected
-                isSideBarExpanded
-                isSectionExpanded
-                tabInfo=subLevelItem
-              />
-            })
-            ->React.array
-
-          subSectionsArr
-        }
+        {section.links
+        ->Array.mapWithIndex((subLevelItem, index) => {
+          let isSelected = subLevelItem->isSubLevelItemSelected
+          <NestedSidebarItem
+            key={string_of_int(index)}
+            isSelected
+            isSideBarExpanded
+            isSectionExpanded
+            tabInfo=subLevelItem
+          />
+        })
+        ->React.array}
       </UIUtils.RenderIf>
     </div>
   }
@@ -341,17 +317,14 @@ module SidebarNestedSection = {
   ) => {
     let isSubLevelItemSelected = tabInfo => {
       switch tabInfo {
-      | SubLevelRemoteLink(item)
-      | SubLevelLink(item) =>
-        linkSelectionCheck(firstPart, item.link)
+      | SubLevelLink(item) => linkSelectionCheck(firstPart, item.link)
       }
     }
 
     let (isSectionExpanded, setIsSectionExpanded) = React.useState(_ => false)
     let (isElementShown, setIsElementShown) = React.useState(_ => false)
 
-    let isAnySubItemSelected =
-      section.links->Js.Array2.find(isSubLevelItemSelected)->Js.Option.isSome
+    let isAnySubItemSelected = section.links->Array.find(isSubLevelItemSelected)->Js.Option.isSome
 
     React.useEffect2(() => {
       if isSectionExpanded {
@@ -363,6 +336,15 @@ module SidebarNestedSection = {
       }
       None
     }, (isSectionExpanded, isSideBarExpanded))
+
+    React.useEffect2(() => {
+      if isSideBarExpanded {
+        setIsSectionExpanded(_ => isAnySubItemSelected)
+      } else {
+        setIsSectionExpanded(_ => false)
+      }
+      None
+    }, (isSideBarExpanded, isAnySubItemSelected))
 
     let toggleSectionExpansion = React.useCallback4(_ev => {
       if !isSideBarExpanded {
@@ -401,7 +383,6 @@ module SidebarNestedSection = {
       acc &&
       switch subLevelItem {
       | SubLevelLink({access}) => access === NoAccess
-      | SubLevelRemoteLink({access}) => access === NoAccess
       }
     })
     <UIUtils.RenderIf condition={!areAllSubLevelsHidden}>
@@ -524,25 +505,8 @@ let make = (
 
   let transformClass = "transform md:translate-x-0 transition"
 
-  let handleLogout = _ev => {
-    open Promise
-    fetchApi(
-      APIUtils.getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ()),
-      ~bodyStr=Js.Json.stringify(Js.Json.object_(Js.Dict.empty())),
-      ~method_=Fetch.Post,
-      (),
-    )
-    ->then(Fetch.Response.text)
-    ->then(_ => {
-      setIsSidebarExpanded(_ => false)
-      LocalStorage.clear()
-      setAuthStatus(LoggedOut)
-      resolve()
-    })
-    ->catch(_err => {
-      resolve()
-    })
-    ->ignore
+  let handleLogout = _ => {
+    let _ = APIUtils.handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
   }
 
   <div className={`bg-sidebar-blue flex group border-r border-jp-gray-500 relative`}>
@@ -636,7 +600,7 @@ let make = (
                     <div className="flex items-center">
                       <div
                         className="inline-block text-offset_white bg-profile-sidebar-blue text-center w-10 h-10 leading-10 rounded-full mr-4">
-                        {email->Js.String2.charAt(0)->Js.String2.toUpperCase->React.string}
+                        {email->String.charAt(0)->String.toUpperCase->React.string}
                       </div>
                       <ToolTip
                         description=email
@@ -678,10 +642,6 @@ let make = (
                           text="Profile"
                         />
                         <MenuOption onClick={handleLogout} text="Sign out" />
-                        <div className="border-b border-border-light-grey w-[90%] mx-auto my-2" />
-                        <div className="text-sm text-offset_white px-4 py-3">
-                          {HSwitchGlobalVars.hyperSwitchversion->React.string}
-                        </div>
                       </div>
                     }}
                   </Popover.Panel>

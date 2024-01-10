@@ -8,26 +8,13 @@ module HomePageHorizontalStepper = {
     let typedValueOfEnum = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
 
     // TODO : To be used when Test Payment flow if is integrated
-    let step = if !(typedValueOfEnum.testPayment.payment_id->Js.String2.length > 0) {
+    let step = if !(typedValueOfEnum.testPayment.payment_id->String.length > 0) {
       0
     } else if !typedValueOfEnum.integrationCompleted {
       1
     } else {
       2
     }
-
-    // let step = if !(typedValueOfEnum.firstProcessorConnected.processorID->Js.String2.length > 0) {
-    //   0
-    // } else if (
-    //   typedValueOfEnum.isMultipleConfiguration &&
-    //   !(typedValueOfEnum.configuredRouting.routing_id->Js.String2.length > 0)
-    // ) {
-    //   0
-    // } else if !typedValueOfEnum.integrationCompleted {
-    //   1
-    // } else {
-    //   2
-    // }
 
     let getStepperStyle = index => {
       index <= step ? "bg-blue-700 text-white border-transparent" : "border-blue-700 text-blue-700 "
@@ -53,7 +40,7 @@ module HomePageHorizontalStepper = {
               className={`h-6 w-6 flex items-center justify-center border-2 rounded-md font-semibold ${index->getStepperStyle} ${getTextStyle}`}>
               {(index + 1)->string_of_int->React.string}
             </span>
-            <UIUtils.RenderIf condition={index !== stepperItemsArray->Js.Array2.length - 1}>
+            <UIUtils.RenderIf condition={index !== stepperItemsArray->Array.length - 1}>
               <div className="relative w-full">
                 <div className={`absolute h-1 rounded-full z-1 ${index->getProgressBarStyle}`} />
                 <div className="w-full h-1 rounded-full bg-grey-700 bg-opacity-10" />
@@ -71,11 +58,13 @@ module HomePageHorizontalStepper = {
 module QuickStart = {
   @react.component
   let make = (~isMobileView) => {
+    open QuickStartUtils
     let {setDashboardPageState, setQuickStartPageState} = React.useContext(
       GlobalProvider.defaultContext,
     )
     let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
     let updateEnumInRecoil = EnumVariantHook.useUpdateEnumInRecoil()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let (configureButtonState, setConfigureButtonState) = React.useState(_ => Button.Normal)
     let connectorList =
       HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->LogicUtils.safeParse
@@ -90,20 +79,20 @@ module QuickStart = {
         let typedConnectorValue = connectorList->getArrayOfConnectorListPayloadType
 
         if (
-          !typedValueOfEnum.isMultipleConfiguration &&
-          typedValueOfEnum.firstProcessorConnected.processorID->Js.String2.length === 0 &&
-          typedValueOfEnum.secondProcessorConnected.processorID->Js.String2.length === 0
+          typedValueOfEnum.configurationType->String.length === 0 &&
+          typedValueOfEnum.firstProcessorConnected.processorID->String.length === 0 &&
+          typedValueOfEnum.secondProcessorConnected.processorID->String.length === 0
         ) {
-          if typedConnectorValue->Js.Array2.length >= 2 {
+          if typedConnectorValue->Array.length >= 2 {
             let firstConnectorValue =
               typedConnectorValue
               ->Belt.Array.get(0)
-              ->Belt.Option.getWithDefault(getProcessorPayloadType(Js.Dict.empty()))
+              ->Belt.Option.getWithDefault(getProcessorPayloadType(Dict.make()))
 
             let secondConnectorValue =
               typedConnectorValue
               ->Belt.Array.get(1)
-              ->Belt.Option.getWithDefault(getProcessorPayloadType(Js.Dict.empty()))
+              ->Belt.Option.getWithDefault(getProcessorPayloadType(Dict.make()))
 
             let bodyOfFirstConnector: QuickStartTypes.processorType = {
               processorID: firstConnectorValue.merchant_connector_id,
@@ -115,39 +104,48 @@ module QuickStart = {
               processorName: secondConnectorValue.connector_name,
             }
 
-            let _isMultipleConnectorSetup = await ConnectorChoice({
-              isMultipleConfiguration: true,
-            })->usePostEnumDetails(#IsMultipleConfiguration)
+            let _connectorChoiceSetup =
+              await StringEnumType(
+                #MultipleProcessorWithSmartRouting->connectorChoiceVariantToString,
+              )->usePostEnumDetails(#ConfigurationType)
+
             let _firstEnumSetupValues =
               await ProcesorType(bodyOfFirstConnector)->usePostEnumDetails(#FirstProcessorConnected)
-            let _secondEnumSetupValues =
+            let _ =
               await ProcesorType(bodyOfSecondConnector)->usePostEnumDetails(
                 #SecondProcessorConnected,
               )
             let _ = updateEnumInRecoil([
-              (Boolean(true), #IsMultipleConfiguration),
+              (
+                StringEnumType(#MultipleProcessorWithSmartRouting->connectorChoiceVariantToString),
+                #ConfigurationType,
+              ),
               (ProcesorType(bodyOfFirstConnector), #FirstProcessorConnected),
               (ProcesorType(bodyOfSecondConnector), #SecondProcessorConnected),
             ])
             setQuickStartPageState(_ => ConnectProcessor(CONFIGURE_SMART_ROUTING))
-          } else if typedConnectorValue->Js.Array2.length === 1 {
+          } else if typedConnectorValue->Array.length === 1 {
             let firstConnectorValue =
               typedConnectorValue
               ->Belt.Array.get(0)
-              ->Belt.Option.getWithDefault(getProcessorPayloadType(Js.Dict.empty()))
+              ->Belt.Option.getWithDefault(getProcessorPayloadType(Dict.make()))
 
             let bodyOfFirstConnector: QuickStartTypes.processorType = {
               processorID: firstConnectorValue.merchant_connector_id,
               processorName: firstConnectorValue.connector_name,
             }
 
-            let _isMultipleConnectorSetup = await ConnectorChoice({
-              isMultipleConfiguration: true,
-            })->usePostEnumDetails(#IsMultipleConfiguration)
+            let _connectorChoiceSetup =
+              await StringEnumType(
+                #MultipleProcessorWithSmartRouting->connectorChoiceVariantToString,
+              )->usePostEnumDetails(#ConfigurationType)
             let _firstEnumSetupValues =
               await ProcesorType(bodyOfFirstConnector)->usePostEnumDetails(#FirstProcessorConnected)
             let _ = updateEnumInRecoil([
-              (ConnectorChoice({isMultipleConfiguration: true}), #IsMultipleConfiguration),
+              (
+                StringEnumType(#MultipleProcessorWithSmartRouting->connectorChoiceVariantToString),
+                #ConfigurationType,
+              ),
               (ProcesorType(bodyOfFirstConnector), #FirstProcessorConnected),
             ])
             setQuickStartPageState(_ => ConnectProcessor(CONFIGURE_SECONDARY))
@@ -165,13 +163,22 @@ module QuickStart = {
       }
     }
 
-    let buttonText = if !(typedValueOfEnum.testPayment.payment_id->Js.String2.length > 0) {
+    let buttonText = if !(typedValueOfEnum.testPayment.payment_id->String.length > 0) {
       "Configure (Test mode)"
     } else if !typedValueOfEnum.integrationCompleted {
       "Start Integration on app"
     } else {
       "Get Production access"
     }
+
+    let mixpanelEventForQuickStart = () =>
+      if !(typedValueOfEnum.testPayment.payment_id->String.length > 0) {
+        mixpanelEvent(~eventName=`quickstart_configure_test_mode`, ())
+      } else if !typedValueOfEnum.integrationCompleted {
+        mixpanelEvent(~eventName=`quickstart_start_integration_on_app`, ())
+      } else {
+        mixpanelEvent(~eventName=`quickstart_get_productuion_access`, ())
+      }
 
     <div className="flex flex-col md:flex-row pt-10 border rounded-md bg-white gap-4">
       <div className="flex flex-col justify-evenly gap-8 pl-10 pb-10 pr-2 md:pr-0">
@@ -195,6 +202,7 @@ module QuickStart = {
             />,
           )}
           onClick={_ => {
+            mixpanelEventForQuickStart()
             setEnumsForPreviouslyConnectedConnectors()->ignore
           }}
         />
@@ -211,6 +219,7 @@ module QuickStart = {
 module RecipesAndPlugins = {
   @react.component
   let make = () => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let enumDetails =
       HyperswitchAtom.enumVariantAtom
       ->Recoil.useRecoilValueFromAtom
@@ -224,7 +233,10 @@ module RecipesAndPlugins = {
       <div className="grid grid-cols-1 md:grid-cols-2 w-full gap-4">
         <div
           className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted, ())}
-          onClick={_ => RescriptReactRouter.push("stripe-plus-paypal")}>
+          onClick={_ => {
+            mixpanelEvent(~eventName=`stripe_plus_paypal`, ())
+            RescriptReactRouter.push("stripe-plus-paypal")
+          }}>
           <div className="flex items-center gap-2">
             <p className=cardHeaderTextStyle> {"Use PayPal with Stripe"->React.string} </p>
             <Icon
@@ -247,7 +259,10 @@ module RecipesAndPlugins = {
         </div>
         <div
           className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted, ())}
-          onClick={_ => RescriptReactRouter.push("woocommerce")}>
+          onClick={_ => {
+            mixpanelEvent(~eventName=`woocommerce`, ())
+            RescriptReactRouter.push("woocommerce")
+          }}>
           <div className="flex items-center gap-2">
             <p className=cardHeaderTextStyle> {"WooCommerce plugin"->React.string} </p>
             <Icon
@@ -276,6 +291,7 @@ module RecipesAndPlugins = {
 module Resources = {
   @react.component
   let make = () => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let elements: array<HomeUtils.resourcesTypes> = [
       {
         id: "tryTheDemo",
@@ -310,8 +326,10 @@ module Resources = {
               key={index->string_of_int}
               onClick={_ => {
                 if item.id === "openSource" {
+                  mixpanelEvent(~eventName=`contribute_in_open_source`, ())
                   "https://github.com/juspay/hyperswitch"->Window._open
                 } else if item.id === "developerdocs" {
+                  mixpanelEvent(~eventName=`dev_docs`, ())
                   "https://hyperswitch.io/docs"->Window._open
                 } else if item.id === "tryTheDemo" {
                   RescriptReactRouter.replace("/sdk")
@@ -345,7 +363,7 @@ let make = () => {
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
 
   let checkingConditions = [
-    typedEnumValue.testPayment.payment_id->Js.String2.length > 0,
+    typedEnumValue.testPayment.payment_id->String.length > 0,
     typedEnumValue.integrationCompleted,
     isProdIntentCompleted,
   ]
@@ -356,7 +374,7 @@ let make = () => {
       subTitle="Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments."
     />
     <div className="w-full flex flex-col gap-14">
-      {if checkingConditions->Js.Array2.includes(false) {
+      {if checkingConditions->Array.includes(false) {
         <QuickStart isMobileView />
       } else {
         <HomePageOverviewComponent />

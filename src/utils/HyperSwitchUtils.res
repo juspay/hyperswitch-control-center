@@ -22,7 +22,7 @@ let getMixpanelRouteName = (pageTitle, url: RescriptReactRouter.url) => {
   | (list{"settings"}, searchParamValue) => {
       let type_ =
         LogicUtils.getDictFromUrlSearchParams(searchParamValue)
-        ->Js.Dict.get("type")
+        ->Dict.get("type")
         ->Belt.Option.getWithDefault("")
       `/${pageTitle}/${type_}`
     }
@@ -30,16 +30,16 @@ let getMixpanelRouteName = (pageTitle, url: RescriptReactRouter.url) => {
   | (list{"onboarding"}, searchParamValue) => {
       let type_ =
         LogicUtils.getDictFromUrlSearchParams(searchParamValue)
-        ->Js.Dict.get("type")
+        ->Dict.get("type")
         ->Belt.Option.getWithDefault("")
       `/${pageTitle}/${type_}`
     }
 
-  | _ => `/${url.path->Belt.List.toArray->Js.Array2.joinWith("/")}`
+  | _ => `/${url.path->Belt.List.toArray->Array.joinWith("/")}`
   }
 }
 
 let delay = ms =>
   Js.Promise.make((~resolve, ~reject as _) => {
-    let _timerId = Js.Global.setTimeout(() => resolve(. ()), ms)
+    let _ = Js.Global.setTimeout(() => resolve(. ()), ms)
   })

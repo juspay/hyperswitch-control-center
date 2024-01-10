@@ -35,9 +35,7 @@ let make = (
         let size =
           elem
           ->Webapi.Dom.Element.getAttribute("placeholder")
-          ->Belt.Option.mapWithDefault(length, str =>
-            Js.Math.max_int(length, str->Js.String2.length)
-          )
+          ->Belt.Option.mapWithDefault(length, str => Js.Math.max_int(length, str->String.length))
           ->Belt.Int.toString
 
         elem->Webapi.Dom.Element.setAttribute("size", size)
@@ -59,30 +57,26 @@ let make = (
 
         let cleanedValue = switch strValue->Js.String2.match_(%re("/[\d\.]/g")) {
         | Some(strArr) =>
-          let str =
-            strArr
-            ->Js.Array2.joinWith("")
-            ->Js.String2.split(".")
-            ->Js.Array2.slice(~start=0, ~end_=2)
+          let str = strArr->Array.joinWith("")->String.split(".")->Array.slice(~start=0, ~end=2)
           let result = if removeLeadingZeroes {
             str[0] =
-              str[0]->Belt.Option.getWithDefault("")->Js.String2.replaceByRe(%re("/\b0+/g"), "")
+              str[0]->Belt.Option.getWithDefault("")->String.replaceRegExp(%re("/\b0+/g"), "")
             str[0] =
               str[0]->Belt.Option.getWithDefault("") === ""
                 ? "0"
                 : str[0]->Belt.Option.getWithDefault("")
-            str->Js.Array2.joinWith(".")
+            str->Array.joinWith(".")
           } else {
-            str->Js.Array2.joinWith(".")
+            str->Array.joinWith(".")
           }
           result
         | None => ""
         }
-        let indexOfDec = cleanedValue->Js.String2.indexOf(".")
+        let indexOfDec = cleanedValue->String.indexOf(".")
         let precisionCheckedVal = switch precision {
         | Some(val) =>
           if indexOfDec > 0 {
-            cleanedValue->Js.String2.slice(~from=0, ~to_={indexOfDec + val + 1})
+            cleanedValue->String.slice(~start=0, ~end={indexOfDec + val + 1})
           } else {
             ""
           }

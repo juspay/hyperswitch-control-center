@@ -67,7 +67,7 @@ module.exports = {
         "25-rem": "25rem",
       },
       maxWidth: {
-        fixedPageWidth: "85rem",
+        fixedPageWidth: "82.75rem",
       },
       padding: {
         1: "4px",

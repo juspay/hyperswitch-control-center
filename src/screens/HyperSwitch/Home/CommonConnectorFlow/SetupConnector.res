@@ -39,8 +39,8 @@ module SelectProcessor = {
       <QuickStartUIUtils.SelectConnectorGrid
         selectedConnector
         setSelectedConnector
-        connectorList={ConnectorUtils.connectorList->Js.Array2.filter(value =>
-          !(connectorArray->Js.Array2.includes(value->ConnectorUtils.getConnectorNameString))
+        connectorList={ConnectorUtils.connectorList->Array.filter(value =>
+          !(connectorArray->Array.includes(value->ConnectorUtils.getConnectorNameString))
         )}
       />
     </QuickStartUIUtils.BaseComponent>
@@ -62,13 +62,13 @@ module ConfigureProcessor = {
 
     let connectorDetails = React.useMemo1(() => {
       try {
-        if connectorName->Js.String2.length > 0 {
+        if connectorName->String.length > 0 {
           Window.getConnectorConfig(connectorName)
         } else {
-          Js.Dict.empty()->Js.Json.object_
+          Dict.make()->Js.Json.object_
         }
       } catch {
-      | _ => Js.Dict.empty()->Js.Json.object_
+      | _ => Dict.make()->Js.Json.object_
       }
     }, [(connectorName, selectedConnector)])
 
@@ -96,15 +96,14 @@ module ConfigureProcessor = {
     }
 
     let validateMandatoryField = values => {
-      let errors = Js.Dict.empty()
+      let errors = Dict.make()
       let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
       let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
-      if profileId->Js.String2.length === 0 {
-        Js.Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
+      if profileId->String.length === 0 {
+        Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
       }
 
       validateConnectorRequiredFields(
-        bodyType,
         connectorName->getConnectorNameTypeFromString,
         valuesFlattenJson,
         connectorAccountFields,
@@ -127,17 +126,12 @@ module ConfigureProcessor = {
       <QuickStartUIUtils.BaseComponent
         headerText={`Connect ${connectorName->LogicUtils.capitalizeString}`}
         customIcon={<GatewayIcon
-          gateway={connectorName->Js.String2.toUpperCase} className="w-6 h-6 rounded-md"
+          gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
         />}
         backButton
         nextButton={<FormRenderer.SubmitButton
           loadingText="Processing..." text="Proceed" buttonSize={Small}
         />}>
-        <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
-          <ConnectorAccountDetails.BusinessProfileRender
-            isUpdateFlow=false selectedConnector={connectorName}
-          />
-        </UIUtils.RenderIf>
         <SetupConnectorCredentials.ConnectorDetailsForm
           connectorName
           connectorDetails
@@ -175,12 +169,12 @@ module SelectPaymentMethods = {
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
 
     let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
-      Js.Dict.empty()->Js.Json.object_->ConnectorUtils.getPaymentMethodEnabled
+      Dict.make()->Js.Json.object_->ConnectorUtils.getPaymentMethodEnabled
     )
-    let (metaData, setMetaData) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
+    let (metaData, setMetaData) = React.useState(_ => Dict.make()->Js.Json.object_)
 
     let updateDetails = value => {
-      setPaymentMethods(_ => value->Js.Array2.copy)
+      setPaymentMethods(_ => value->Array.copy)
     }
 
     let updateEnumForConnector = async connectorResponse => {
@@ -245,7 +239,7 @@ module SelectPaymentMethods = {
     <QuickStartUIUtils.BaseComponent
       headerText="Connect payment methods"
       customIcon={<GatewayIcon
-        gateway={connectorName->Js.String2.toUpperCase} className="w-6 h-6 rounded-md"
+        gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
       />}
       customCss="show-scrollbar"
       nextButton={<Button

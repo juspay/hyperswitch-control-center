@@ -18,8 +18,6 @@ type timeRange = {timeRange: startAndEndTime, dimensions: array<string>}
 let make = (~reportModal, ~setReportModal, ~entityName) => {
   open APIUtils
   let showToast = ToastState.useShowToast()
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
 
   let downloadReport = async body => {
@@ -35,13 +33,6 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   }
 
   let onSubmit = (values, _) => {
-    hyperswitchMixPanel(
-      ~pageName=url.path->LogicUtils.getListHead,
-      ~contextName="analytics_report",
-      ~actionName="download_btn_clicked",
-      (),
-    )
-
     open LogicUtils
     let dateCreatedDict =
       values
@@ -80,8 +71,15 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
     },
   }->Identity.genericTypeToJson
 
+  let category = switch entityName {
+  | PAYMENT_REPORT => "Payment"
+  | REFUND_REPORT => "Refund"
+  | DISPUTE_REPORT => "Dispute"
+  | _ => ""
+  }
+
   <Modal
-    modalHeading="Generate Reports"
+    modalHeading={`Generate ${category} Reports`}
     showModal=reportModal
     modalHeadingDescriptionElement={<div
       className="text-md font-medium leading-7 opacity-50 mt-1 w-full">

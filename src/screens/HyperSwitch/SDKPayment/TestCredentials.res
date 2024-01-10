@@ -1,7 +1,7 @@
 @react.component
 let make = () => {
-  let initialValues = Js.Dict.empty()
-  Js.Dict.set(initialValues, "dummy_card_number", "4242 4242 4242 4242"->Js.Json.string)
+  let initialValues = Dict.make()
+  Dict.set(initialValues, "dummy_card_number", "4242 4242 4242 4242"->Js.Json.string)
   <div className="p-6 bg-jp-gray-test_credentials_bg w-full h-fit">
     <div className="mb-4">
       <div className="flex items-center gap-4">
@@ -38,7 +38,9 @@ let make = () => {
         <div
           className="flex items-center cursor-pointer text-blue-600 dark:text-blue-500 hover:underline"
           onClick={_ => {
-            Window._open("https://hyperswitch.io/docs/paymentMethods/testCredentials")
+            Window._open(
+              "https://docs.hyperswitch.io/hyperswitch-cloud/connectors/test-a-payment-with-connector",
+            )
           }}>
           {"Test creds for other connectors here"->React.string}
           <img src={`/icons/open-new-tab.svg`} />

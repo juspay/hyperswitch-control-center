@@ -1,39 +1,10 @@
 open OrderTypes
 open LogicUtils
 
-let getDateCreatedObject = () => {
-  let currentDate = Js.Date.now()
-  let filterCreatedDict = Js.Dict.empty()
-  let currentTimestamp = currentDate->Js.Date.fromFloat->Js.Date.toISOString
-  Js.Dict.set(
-    filterCreatedDict,
-    "lte",
-    Js.Json.string(currentTimestamp->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]")),
-  )
-
-  let prevMins = {
-    let presentDayInString = Js.Date.fromFloat(currentDate)
-    let prevDateInFloat = Js.Date.getMinutes(presentDayInString) -. 30.0
-    Js.Date.setMinutes(presentDayInString, prevDateInFloat)
-  }
-
-  Js.Dict.set(
-    filterCreatedDict,
-    "gte",
-    Js.Json.string(
-      prevMins
-      ->Js.Date.fromFloat
-      ->Js.Date.toISOString
-      ->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]"),
-    ),
-  )
-
-  Js.Json.object_(filterCreatedDict)
-}
 module CurrencyCell = {
   @react.component
   let make = (~amount, ~currency) => {
-    <p> {`${amount} ${currency}`->React.string} </p>
+    <p className="whitespace-nowrap"> {`${amount} ${currency}`->React.string} </p>
   }
 }
 
@@ -51,7 +22,7 @@ let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.ce
   | Currency => Text(refunds.currency)
   | RefundStatus =>
     Label({
-      title: refunds.status->Js.String2.toUpperCase,
+      title: refunds.status->String.toUpperCase,
       color: switch refunds.status->HSwitchOrderUtils.statusVariantMapper {
       | Succeeded
       | PartiallyCaptured =>
@@ -87,7 +58,7 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   | Connector => CustomCell(<ConnectorCustomCell connectorName=attempt.connector />, "")
   | Status =>
     Label({
-      title: attempt.status->Js.String2.toUpperCase,
+      title: attempt.status->String.toUpperCase,
       color: switch attempt.status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper {
       | #CHARGED => LabelGreen
       | #AUTHENTICATION_FAILED
@@ -292,7 +263,7 @@ let refundMetaitemToObjMapper = dict => {
 }
 
 let getRefundMetaData: Js.Json.t => refundMetaData = json => {
-  json->Js.Json.decodeObject->Belt.Option.getWithDefault(Js.Dict.empty())->refundMetaitemToObjMapper
+  json->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make())->refundMetaitemToObjMapper
 }
 
 let refunditemToObjMapper = dict => {
@@ -344,6 +315,7 @@ let defaultColumns: array<colType> = [
   Amount,
   Status,
   PaymentMethod,
+  PaymentMethodType,
   Created,
 ]
 
@@ -487,7 +459,7 @@ let getHeading = (colType: colType) => {
 }
 
 let getStatus = order => {
-  let orderStatusLabel = order.status->Js.String2.toUpperCase
+  let orderStatusLabel = order.status->String.toUpperCase
   let fixedStatusCss = "text-sm text-white font-bold px-3 py-2 rounded-md"
   switch order.status->HSwitchOrderUtils.statusVariantMapper {
   | Succeeded
@@ -521,7 +493,14 @@ let getHeadingForSummary = summaryColType => {
     Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated", ~showSort=true, ())
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID", ~showSort=true, ())
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency", ~showSort=true, ())
-  | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code", ~showSort=true, ())
+  | AmountReceived =>
+    Table.makeHeaderInfo(
+      ~key="amount_received",
+      ~title="Amount Received",
+      ~description="Amount captured by the payment processor for this payment.",
+      ~showSort=true,
+      (),
+    )
   | ClientSecret =>
     Table.makeHeaderInfo(~key="client_secret", ~title="Client Secret", ~showSort=true, ())
   | ConnectorTransactionID =>
@@ -548,6 +527,8 @@ let getHeadingForAboutPayment = aboutPaymentColType => {
   | ProfileName =>
     Table.makeHeaderInfo(~key="profile_name", ~title="Profile Name", ~showSort=true, ())
   | CardBrand => Table.makeHeaderInfo(~key="card_brand", ~title="Card Brand", ~showSort=true, ())
+  | ConnectorLabel =>
+    Table.makeHeaderInfo(~key="connector_label", ~title="Connector Label", ~showSort=true, ())
   | PaymentMethod =>
     Table.makeHeaderInfo(~key="payment_method", ~title="Payment Method", ~showSort=true, ())
   | PaymentMethodType =>
@@ -563,7 +544,6 @@ let getHeadingForAboutPayment = aboutPaymentColType => {
 
   | CaptureMethod =>
     Table.makeHeaderInfo(~key="capture_method", ~title="Capture Method", ~showSort=true, ())
-  | MandateId => Table.makeHeaderInfo(~key="mandate_id", ~title="Mandate ID", ~showSort=true, ())
   }
 }
 
@@ -612,8 +592,7 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | Billing => Table.makeHeaderInfo(~key="billing", ~title="Billing Address", ~showSort=true, ())
   | AmountCapturable =>
     Table.makeHeaderInfo(~key="amount_capturable", ~title="AmountCapturable", ~showSort=true, ())
-  | AmountReceived =>
-    Table.makeHeaderInfo(~key="amount_received", ~title="Amount Received", ~showSort=true, ())
+  | ErrorCode => Table.makeHeaderInfo(~key="error_code", ~title="Error Code", ~showSort=true, ())
   | MandateData =>
     Table.makeHeaderInfo(~key="mandate_data", ~title="Mandate Data", ~showSort=true, ())
   | FRMName => Table.makeHeaderInfo(~key="frm_name", ~title="FRM Tag", ~showSort=true, ())
@@ -628,14 +607,20 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   }
 }
 
-let getCellForSummary = (order, summaryColType): Table.cell => {
+let getCellForSummary = (order, summaryColType, _): Table.cell => {
   open HelperComponents
   switch summaryColType {
   | Created => Date(order.created)
   | LastUpdated => Date(order.last_updated)
   | PaymentId => CustomCell(<CopyTextCustomComp displayValue=order.payment_id />, "")
   | Currency => Text(order.currency)
-  | ErrorCode => Text(order.error_code)
+  | AmountReceived =>
+    CustomCell(
+      <CurrencyCell
+        amount={(order.amount_received /. 100.0)->Belt.Float.toString} currency={order.currency}
+      />,
+      "",
+    )
   | ClientSecret => Text(order.client_secret)
   | OrderQuantity => Text(order.order_quantity)
   | ProductName => Text(order.product_name)
@@ -645,15 +630,29 @@ let getCellForSummary = (order, summaryColType): Table.cell => {
   }
 }
 
-let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): Table.cell => {
+let getCellForAboutPayment = (
+  order,
+  aboutPaymentColType: aboutPaymentColType,
+  connectorList,
+): Table.cell => {
   open HSwitchUtils
   switch aboutPaymentColType {
   | Connector => CustomCell(<ConnectorCustomCell connectorName=order.connector />, "")
   | PaymentMethod => Text(order.payment_method)
   | PaymentMethodType => Text(order.payment_method_type)
-  | Refunds => Text(order.refunds->Js.Array2.length > 0 ? "Yes" : "No")
+  | Refunds => Text(order.refunds->Array.length > 0 ? "Yes" : "No")
   | AuthenticationType => Text(order.authentication_type)
-  | MandateId => Text(order.mandate_id)
+  | ConnectorLabel => {
+      let connectorLabel =
+        connectorList
+        ->Array.find(ele =>
+          order.merchant_connector_id === ele->getString("merchant_connector_id", "")
+        )
+        ->Option.getWithDefault(Dict.make())
+        ->getString("connector_label", "")
+
+      Text(connectorLabel)
+    }
   | CardBrand => Text(order.card_brand)
   | ProfileId => Text(order.profile_id)
   | ProfileName =>
@@ -662,8 +661,8 @@ let getCellForAboutPayment = (order, aboutPaymentColType: aboutPaymentColType): 
   }
 }
 
-let getCellForOtherDetails = (order, aboutPaymentColType): Table.cell => {
-  let splittedName = order.name->Js.String2.split(" ")
+let getCellForOtherDetails = (order, aboutPaymentColType, _): Table.cell => {
+  let splittedName = order.name->String.split(" ")
   switch aboutPaymentColType {
   | MerchantId => Text(order.merchant_id)
   | ReturnUrl => Text(order.return_url)
@@ -679,9 +678,7 @@ let getCellForOtherDetails = (order, aboutPaymentColType): Table.cell => {
   | FirstName => Text(splittedName->Belt.Array.get(0)->Belt.Option.getWithDefault(""))
   | LastName =>
     Text(
-      splittedName
-      ->Belt.Array.get(splittedName->Js.Array2.length - 1)
-      ->Belt.Option.getWithDefault(""),
+      splittedName->Belt.Array.get(splittedName->Array.length - 1)->Belt.Option.getWithDefault(""),
     )
   | Phone => Text(order.phone)
   | Email => Text(order.email)
@@ -690,7 +687,7 @@ let getCellForOtherDetails = (order, aboutPaymentColType): Table.cell => {
   | Shipping => Text(order.shipping)
   | Billing => Text(order.billing)
   | AmountCapturable => Currency(order.amount_capturable /. 100.0, order.currency)
-  | AmountReceived => Currency(order.amount_received /. 100.0, order.currency)
+  | ErrorCode => Text(order.error_code)
   | MandateData => Text(order.mandate_data)
   | FRMName => Text(order.frm_message.frm_name)
   | FRMTransactionType => Text(order.frm_message.frm_transaction_type)
@@ -707,7 +704,7 @@ let getCell = (order, colType: colType): Table.cell => {
   | Connector => CustomCell(<ConnectorCustomCell connectorName=order.connector />, "")
   | Status =>
     Label({
-      title: order.status->Js.String2.toUpperCase,
+      title: order.status->String.toUpperCase,
       color: switch orderStatus {
       | Succeeded
       | PartiallyCaptured =>
@@ -773,38 +770,7 @@ let getCell = (order, colType: colType): Table.cell => {
   }
 }
 
-let ordersDefaultCols = Recoil.atom(. "hyperSwitchOrderDefaultCols", defaultColumns)
-
-let getOptionsArr = optionObjArr => {
-  optionObjArr->Js.Array2.map(item => {
-    let temp: EntityType.optionType<'t> = {
-      urlKey: item.urlKey,
-      field: FormRenderer.makeFieldInfo(
-        ~label=item.label,
-        ~name=item.urlKey,
-        ~customInput=InputFields.textInput(),
-        (),
-      ),
-      parser: val => {
-        val
-      },
-      localFilter: None,
-    }
-    temp
-  })
-}
-
-// let options: array<EntityType.optionType<'t>> = getOptionsArr(optionObj)
-
-let getDefaultFilters = dateCreatedObject => {
-  let dict = Js.Dict.empty()
-  let filtersDict = Js.Dict.empty()
-  Js.Dict.set(filtersDict, "dateCreated", dateCreatedObject)
-  Js.Dict.set(dict, "offset", Js.Json.number(0.0))
-  Js.Dict.set(dict, "filters", Js.Json.object_(filtersDict))
-
-  Js.Json.object_(dict)
-}
+let _ = Recoil.atom(. "hyperSwitchOrderDefaultCols", defaultColumns)
 
 let itemToObjMapperForFRMDetails = dict => {
   {
@@ -873,60 +839,9 @@ let itemToObjMapper = dict => {
     profile_id: dict->getString("profile_id", ""),
     frm_message: dict->getFRMDetails,
     merchant_decision: dict->getString("merchant_decision", ""),
+    merchant_connector_id: dict->getString("merchant_connector_id", ""),
   }
 }
-
-let datePickerField = (~limit) => {
-  FormRenderer.makeMultiInputFieldInfo(
-    ~label="Date Range",
-    ~comboCustomInput=InputFields.dateRangeField(
-      ~startKey="filters.dateCreated.gte",
-      ~endKey="filters.dateCreated.lte",
-      ~format="YYYY-MM-DDTHH:mm:ss[Z]",
-      ~showTime=true,
-      ~disablePastDates={false},
-      ~disableFutureDates={true},
-      ~predefinedDays=[
-        Hour(0.5),
-        Hour(1.0),
-        Hour(6.0),
-        Today,
-        Yesterday,
-        Day(2.0),
-        Day(7.0),
-        Day(30.0),
-        ThisMonth,
-        LastMonth,
-      ],
-      ~numMonths=2,
-      ~disableApply=false,
-      ~dateRangeLimit=limit,
-      ~optFieldKey="filters.dateCreated.opt",
-      (),
-    ),
-    ~inputFields=[],
-    ~isRequired=true,
-    (),
-  )
-}
-
-/* let initialFilterFields: array<EntityType.initialFilters<'t>> = [
-  {
-    field: makeFieldInfo(
-      ~label="Customer Id",
-      ~name="customer_id",
-      ~customInput=orderFilterInput(),
-      ~parse=Parsers.arrayParser,
-      ~format=Formatter.numericArrayStringFormat,
-      (),
-    ),
-    localFilter: None,
-  },
-  {
-    localFilter: None,
-    field: datePickerField(~limit=7),
-  },
-] */
 
 let getOrders: Js.Json.t => array<order> = json => {
   getArrayDataFromJson(json, itemToObjMapper)

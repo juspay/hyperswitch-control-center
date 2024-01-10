@@ -71,7 +71,7 @@ module SetupWebhookProcessor = {
 
     <div className="flex flex-col gap-8">
       // TODO To pick up when Product Team will give all the Docs
-      // <UIUtils.RenderIf condition={connectorName->Js.String2.length > 0}>
+      // <UIUtils.RenderIf condition={connectorName->String.length > 0}>
       //   <p
       //     className={`${highlightedText} underline`}
       //     onClick={_ => {
@@ -105,11 +105,11 @@ module SetupWebhookProcessor = {
         onBackClick={_ => setShowModal(_ => false)}
         headingClassOverride="!p-12"
         headerAlignmentClass="items-center"
-        showModalHeadingIconName={connectorName->Js.String2.toUpperCase}
+        showModalHeadingIconName={connectorName->String.toUpperCase}
         overlayBG="bg-banner_black opacity-50"
         modalWidth="w-[35vw] !border-none"
         customIcon={Some(
-          <GatewayIcon gateway={connectorName->Js.String2.toUpperCase} className="w-12 h-12" />,
+          <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-12 h-12" />,
         )}
       />
     </div>

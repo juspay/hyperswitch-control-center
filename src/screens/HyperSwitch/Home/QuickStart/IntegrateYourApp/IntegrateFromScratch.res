@@ -101,14 +101,12 @@ let make = (
             <UIUtils.RenderIf
               condition={backEndLang
               ->UserOnboardingUtils.getInstallDependencies
-              ->Js.String2.length > 0}>
+              ->String.length > 0}>
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getMigrateFromStripeDX(backEndLang)}
                 theme
                 headerText="Installation"
                 langauge=backEndLang
-                currentRoute
-                currentTabName="2.installDependencies"
               />
             </UIUtils.RenderIf>
           </div>
@@ -119,8 +117,6 @@ let make = (
               headerText="Request"
               customHeight="25vh"
               langauge=backEndLang
-              currentRoute
-              currentTabName="2.createapayment"
             />
           </div>
         </div>
@@ -132,7 +128,7 @@ let make = (
         </div>
         <div className="flex flex-col gap-2">
           <div className="text-grey-900 font-medium"> {"Publishable Key"->React.string} </div>
-          <UserOnboardingUIUtils.PublishableKeyArea currentRoute />
+          <UserOnboardingUIUtils.PublishableKeyArea />
         </div>
         <div className="p-10 bg-gray-50 border rounded flex flex-col gap-4">
           <UserOnboardingUIUtils.BackendFrontendPlatformLangDropDown
@@ -145,73 +141,59 @@ let make = (
             setPlatform
           />
           <UIUtils.RenderIf
-            condition={frontEndLang
-            ->UserOnboardingUtils.getInstallDependencies
-            ->Js.String2.length > 0}>
+            condition={frontEndLang->UserOnboardingUtils.getInstallDependencies->String.length > 0}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getInstallDependencies}
                 theme
                 headerText="Installation"
                 langauge=frontEndLang
-                currentRoute
-                currentTabName="3.displaycheckoutpage"
               />
             </div>
           </UIUtils.RenderIf>
           <UIUtils.RenderIf
-            condition={frontEndLang
-            ->UserOnboardingUtils.getInstallDependencies
-            ->Js.String2.length > 0}>
+            condition={frontEndLang->UserOnboardingUtils.getInstallDependencies->String.length > 0}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getImports}
                 theme
                 headerText="Imports"
                 langauge=frontEndLang
-                currentRoute
-                currentTabName="3.displaycheckoutpage"
               />
             </div>
           </UIUtils.RenderIf>
           <UIUtils.RenderIf
-            condition={frontEndLang->UserOnboardingUtils.getLoad->Js.String2.length > 0}>
+            condition={frontEndLang->UserOnboardingUtils.getLoad->String.length > 0}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getLoad}
                 theme
                 headerText="Load"
                 langauge=frontEndLang
-                currentRoute
-                currentTabName="3.displaycheckoutpage"
               />
             </div>
           </UIUtils.RenderIf>
           <UIUtils.RenderIf
-            condition={frontEndLang->UserOnboardingUtils.getInitialize->Js.String2.length > 0}>
+            condition={frontEndLang->UserOnboardingUtils.getInitialize->String.length > 0}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getInitialize}
                 theme
                 headerText="Initialize"
                 langauge=frontEndLang
-                currentRoute
-                currentTabName="3.displaycheckoutpage"
               />
             </div>
           </UIUtils.RenderIf>
           <UIUtils.RenderIf
             condition={frontEndLang
             ->UserOnboardingUtils.getCheckoutFormForDisplayCheckoutPage
-            ->Js.String2.length > 0}>
+            ->String.length > 0}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getCheckoutFormForDisplayCheckoutPage}
                 theme
                 headerText="Checkout Form"
                 langauge=frontEndLang
-                currentRoute
-                currentTabName="3.displaycheckoutpage"
               />
             </div>
           </UIUtils.RenderIf>
@@ -224,7 +206,7 @@ let make = (
         </div>
         <div className="flex flex-col gap-2">
           <div className="text-grey-900 font-medium"> {"Publishable Key"->React.string} </div>
-          <UserOnboardingUIUtils.PublishableKeyArea currentRoute />
+          <UserOnboardingUIUtils.PublishableKeyArea />
         </div>
         <div className="p-10 bg-gray-50 border rounded flex flex-col gap-4">
           <UserOnboardingUIUtils.BackendFrontendPlatformLangDropDown
@@ -237,7 +219,7 @@ let make = (
             setPlatform
           />
           <UIUtils.RenderIf
-            condition={frontEndLang->UserOnboardingUtils.getHandleEvents->Js.String2.length > 0}>
+            condition={frontEndLang->UserOnboardingUtils.getHandleEvents->String.length > 0}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getHandleEvents}
@@ -245,15 +227,11 @@ let make = (
                 headerText="Handle Events"
                 customHeight="20vh"
                 langauge=frontEndLang
-                currentRoute
-                currentTabName="4.displaypaymentconfirmation"
               />
             </div>
           </UIUtils.RenderIf>
           <UIUtils.RenderIf
-            condition={frontEndLang
-            ->UserOnboardingUtils.getDisplayConformation
-            ->Js.String2.length > 0}>
+            condition={frontEndLang->UserOnboardingUtils.getDisplayConformation->String.length > 0}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getDisplayConformation}
@@ -261,8 +239,6 @@ let make = (
                 headerText="Display Payment Confirmation"
                 customHeight="20vh"
                 langauge=frontEndLang
-                currentRoute
-                currentTabName="4.displaypaymentconfirmation"
               />
             </div>
           </UIUtils.RenderIf>

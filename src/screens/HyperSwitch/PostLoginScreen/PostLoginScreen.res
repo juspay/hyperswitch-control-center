@@ -3,19 +3,10 @@ type cardFlowDirection = LEFT | RIGHT
 module SurveyComponent = {
   @react.component
   let make = (~currentStep, ~setCurrentStep, ~currentQuestionDict, ~setCarouselDirection) => {
-    let url = RescriptReactRouter.useUrl()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let currentQuestionValue = currentQuestionDict.key->getStringValueFromForm
-    let isNextButtonEnabled = currentQuestionValue->Js.String2.length > 0
+    let currentQuestionValue =
+      ReactFinalForm.useField(currentQuestionDict.key).input.value->LogicUtils.getStringFromJson("")
+    let isNextButtonEnabled = currentQuestionValue->String.length > 0
 
-    let sendMixpanelEvent = (~actionName) => {
-      hyperswitchMixPanel(
-        ~pageName=`${url.path->LogicUtils.getListHead}`,
-        ~contextName=`question${currentStep->string_of_int}`,
-        ~actionName,
-        (),
-      )
-    }
     <div className="flex flex-col gap-2 h-full ">
       <div className="flex flex-col gap-2">
         <p className="text-fs-12 text-jp-grey-700 opacity-50">
@@ -50,7 +41,6 @@ module SurveyComponent = {
           buttonType={Secondary}
           customButtonStyle="!rounded-md w-full"
           onClick={_ => {
-            sendMixpanelEvent(~actionName="back")
             setCarouselDirection(_ => LEFT)
             setCurrentStep(_ => currentStep - 1)
           }}
@@ -60,7 +50,7 @@ module SurveyComponent = {
           <FormRenderer.SubmitButton
             text="Submit"
             customSumbitButtonStyle="!rounded-md w-full"
-            disabledParamter={currentQuestionValue->Js.String2.length > 0 ? false : true}
+            disabledParamter={currentQuestionValue->String.length > 0 ? false : true}
           />
         } else {
           <Button
@@ -68,7 +58,6 @@ module SurveyComponent = {
             buttonType={Primary}
             customButtonStyle="!rounded-md w-full"
             onClick={_ => {
-              sendMixpanelEvent(~actionName="next")
               setCarouselDirection(_ => RIGHT)
               setCurrentStep(_ => currentStep + 1)
             }}
@@ -83,8 +72,6 @@ module SurveyComponent = {
 @react.component
 let make = () => {
   open APIUtils
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
   let userName = HSLocalStorage.getFromUserDetails("name")
   let (currentStep, setCurrentStep) = React.useState(_ => 0)
@@ -111,23 +98,17 @@ let make = () => {
         (),
       )
 
-      let _responseJson = await updateDetails(
+      let _ = await updateDetails(
         postLoginSurveyUrl,
         values->generateSurveyJson->Js.Json.object_,
         Post,
       )
       HSwitchUtils.setUserDetails("is_metadata_filled", "true"->Js.Json.string)
-      hyperswitchMixPanel(
-        ~pageName=`${url.path->LogicUtils.getListHead}`,
-        ~contextName=`question3`,
-        ~actionName="submit",
-        (),
-      )
       setDashboardPageState(_ => #AUTO_CONNECTOR_INTEGRATION)
     } catch {
     | Js.Exn.Error(e) =>
       let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
-      if err->Js.String2.includes("UR_19") {
+      if err->String.includes("UR_19") {
         showToast(~toastType=ToastWarning, ~message="Please login again!", ~autoClose=false, ())
         setAuthStatus(LoggedOut)
       }

@@ -83,7 +83,7 @@ let makeMultiInputFieldInfoOld = (
     isRequired,
     comboCustomInput,
     inputFields,
-    inputNames: inputFields->Js.Array2.map(x => x.name),
+    inputNames: inputFields->Array.map(x => x.name),
   }
 }
 
@@ -105,7 +105,7 @@ let makeMultiInputFieldInfo = (
   let inputNames =
     comboCustomInput
     ->Belt.Option.mapWithDefault([], x => x.names)
-    ->Js.Array2.concat(inputFields->Js.Array2.map(x => x.name))
+    ->Array.concat(inputFields->Array.map(x => x.name))
   {
     label,
     customLabelIcon,
@@ -211,7 +211,7 @@ module FieldWrapper = {
     let labelPadding = labelPadding === "" ? "pt-2 pb-2" : labelPadding
 
     let labelTextClass =
-      labelTextStyleClass->Js.String2.length > 0
+      labelTextStyleClass->String.length > 0
         ? labelTextStyleClass
         : "text-fs-13 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1"
 
@@ -273,40 +273,6 @@ module FieldWrapper = {
         }}
       </div>
     </AddDataAttributes>
-  }
-}
-
-module MaxWidthFieldWrapper = {
-  @react.component
-  let make = (
-    ~label,
-    ~description=?,
-    ~isRequired=false,
-    ~padded=true,
-    ~fieldWrapperClass="",
-    ~children,
-  ) => {
-    <div className={`w-full flex flex-col ${fieldWrapperClass} ${padded ? "p-0 md:p-4" : ""}`}>
-      <label
-        className=" pb-1 font-semibold text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
-        {React.string(label)}
-        {if isRequired {
-          <span className="text-red-950"> {React.string(" *")} </span>
-        } else {
-          React.null
-        }}
-      </label>
-      {switch description {
-      | Some(description) =>
-        <div
-          className="pb-4 text-sm text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-40 text-opacity-40 font-medium">
-          {React.string(description)}
-        </div>
-
-      | None => React.null
-      }}
-      children
-    </div>
   }
 }
 
@@ -391,16 +357,12 @@ module FieldInputRenderer = {
 }
 
 module ComboFieldsRenderer = {
-  let customInput = (_input, _meta) => {
-    React.string("custom input")
-  }
-
   @react.component
   let make = (~field: fieldInfoType) => {
     <div>
       <ButtonGroup wrapperClass="flex flex-row items-center">
         {field.inputFields
-        ->Js.Array2.mapi((field, i) => {
+        ->Array.mapWithIndex((field, i) => {
           <ErrorBoundary key={string_of_int(i)}>
             <FieldInputRenderer field showError=false />
           </ErrorBoundary>
@@ -409,7 +371,7 @@ module ComboFieldsRenderer = {
       </ButtonGroup>
       <div>
         {field.inputFields
-        ->Js.Array2.mapi((field, i) => {
+        ->Array.mapWithIndex((field, i) => {
           <ErrorBoundary key={string_of_int(i)}>
             <FieldErrorRenderer field />
           </ErrorBoundary>
@@ -433,7 +395,7 @@ module ComboFieldsRenderer3 = {
         ~renderInputs: array<ReactFinalForm.fieldRenderProps> => React.element,
       ) => React.element,
     ) => {
-      if inputFields->Js.Array2.length === 0 {
+      if inputFields->Array.length === 0 {
         renderInputs(fieldsState)
       } else {
         let inputField =
@@ -447,7 +409,7 @@ module ComboFieldsRenderer3 = {
           format=?inputField.format
           validate=?{inputField.validate}>
           {fieldState => {
-            let newFieldsState = Js.Array2.concatMany([], [fieldsState, [fieldState]])
+            let newFieldsState = Array.concatMany([], [fieldsState, [fieldState]])
 
             renderComboFields(
               ~inputFields=restInputFields,
@@ -509,7 +471,7 @@ module FieldRenderer = {
     let isVisible = true
 
     if isVisible {
-      let names = field.inputNames->Js.Array2.joinWith("-")
+      let names = field.inputNames->Array.joinWith("-")
 
       <Portal to=portalKey>
         <AddDataAttributes attributes=[("data-component", "fieldRenderer")]>
@@ -531,7 +493,7 @@ module FieldRenderer = {
               subTextClass
               subHeadingClass
               dataId=names>
-              {if field.inputFields->Js.Array2.length === 1 {
+              {if field.inputFields->Array.length === 1 {
                 let field =
                   field.inputFields[0]->Belt.Option.getWithDefault(makeInputFieldInfo(~name="", ()))
 
@@ -555,44 +517,15 @@ module FieldRenderer = {
   }
 }
 
-module MaxWidthFieldRenderer = {
-  @react.component
-  let make = (~field: fieldInfoType, ~fieldWrapperClass="") => {
-    <ErrorBoundary>
-      <MaxWidthFieldWrapper
-        label=field.label
-        description=?field.description
-        isRequired=field.isRequired
-        fieldWrapperClass>
-        {if field.inputFields->Js.Array2.length === 1 {
-          let field =
-            field.inputFields[0]->Belt.Option.getWithDefault(makeInputFieldInfo(~name="", ()))
-
-          <ErrorBoundary>
-            <FieldInputRenderer field />
-          </ErrorBoundary>
-        } else {
-          switch field.comboCustomInput {
-          | Some(renderInputs) =>
-            <ComboFieldsRenderer3 renderInputs inputFields=field.inputFields />
-
-          | None => <ComboFieldsRenderer field />
-          }
-        }}
-      </MaxWidthFieldWrapper>
-    </ErrorBoundary>
-  }
-}
-
 module FormError = {
   @react.component
   let make = (~form: ReactFinalForm.formApi) => {
     let (submitErrors, setSubmitErrors) = React.useState(() => None)
 
     let subscriptionJson = {
-      let subscriptionDict = Js.Dict.empty()
+      let subscriptionDict = Dict.make()
 
-      Js.Dict.set(subscriptionDict, "submitErrors", Js.Json.boolean(true))
+      Dict.set(subscriptionDict, "submitErrors", Js.Json.boolean(true))
 
       Js.Json.object_(subscriptionDict)
     }
@@ -610,7 +543,7 @@ module FormError = {
     | Some(errorsJson) =>
       switch errorsJson->Js.Json.decodeObject {
       | Some(dict) =>
-        let errStr = switch Js.Dict.get(dict, "FORM_ERROR") {
+        let errStr = switch Dict.get(dict, "FORM_ERROR") {
         | Some(err) => LogicUtils.getStringFromJson(err, "")
         | None => "Error occurred on submit"
         }
@@ -657,17 +590,15 @@ module SubmitButton = {
     ~textWeight=?,
     ~customHeightClass=?,
   ) => {
-    let url = RescriptReactRouter.useUrl()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let dict = Js.Dict.empty()
+    let dict = Dict.make()
     [
       "hasSubmitErrors",
       "hasValidationErrors",
       "errors",
       "submitErrors",
       "submitting",
-    ]->Js.Array2.forEach(item => {
-      Js.Dict.set(dict, item, Js.Json.boolean(true))
+    ]->Array.forEach(item => {
+      Dict.set(dict, item, Js.Json.boolean(true))
     })
 
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
@@ -675,7 +606,7 @@ module SubmitButton = {
     )
     let {hasValidationErrors, hasSubmitErrors, submitting, dirtySinceLastSubmit, errors} = formState
 
-    let errorsList = JsonFlattenUtils.flattenObject(errors, false)->Js.Dict.entries
+    let errorsList = JsonFlattenUtils.flattenObject(errors, false)->Dict.toArray
 
     let hasError = {
       if loginPageValidator {
@@ -737,35 +668,19 @@ module SubmitButton = {
         ?textWeight
       />
 
+    let buttonState: Button.buttonState =
+      loadingText !== "" && submitting ? Loading : !avoidDisable && disabled ? Disabled : Normal
+
     let submitBtn =
       <>
         <button type_="submit" className="hidden" />
         <Button
           text
           buttonType
-          buttonState={loadingText !== "" && submitting
-            ? Loading
-            : !avoidDisable && disabled
-            ? Disabled
-            : Normal}
+          buttonState
           loadingText
           onClick={_ev => {
-            let filterKeys =
-              formState.values
-              ->LogicUtils.getDictFromJsonObject
-              ->Js.Dict.keys
-              ->Js.Array2.filter(key => {
-                ["startTime", "endTime"]->Js.Array2.includes(key)->not
-              })
-              ->Js.Json.stringifyAny
             form.submit()->ignore
-            if text === "Apply Filters" {
-              hyperswitchMixPanel(
-                ~eventName=Some(`${url.path->LogicUtils.getListHead}_applyfilters`),
-                ~description=filterKeys,
-                (),
-              )
-            }
           }} //either onclick or type_should be called #warning
           leftIcon=icon
           rightIcon
@@ -777,18 +692,18 @@ module SubmitButton = {
       </>
 
     let button = withDialog ? popUpBtn : submitBtn
-    if errorsList->Js.Array2.length === 0 {
+    if errorsList->Array.length === 0 {
       button
     } else {
       let description =
         errorsList
-        ->Js.Array2.map(entry => {
+        ->Array.map(entry => {
           let (key, jsonValue) = entry
           let value = LogicUtils.getStringFromJson(jsonValue, "Error")
 
           `${key->LogicUtils.snakeToTitle}: ${value}`
         })
-        ->Js.Array2.joinWith("\n")
+        ->Array.joinWith("\n")
       let tooltipStyle = hasError ? "bg-infra-red-900" : ""
       if showToolTip && !avoidDisable {
         <ToolTip
@@ -819,7 +734,7 @@ module FieldsRenderer = {
     ~subTextClass="",
     ~subHeadingClass="",
   ) => {
-    Js.Array2.mapi(fields, (field, i) => {
+    Array.mapWithIndex(fields, (field, i) => {
       <FieldRenderer
         key={string_of_int(i)}
         field

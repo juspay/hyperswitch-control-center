@@ -2,7 +2,7 @@ module MerchantDetailsSection = {
   @react.component
   let make = () => {
     let fetchDetails = APIUtils.useGetMethod()
-    let (merchantInfo, setMerchantInfo) = React.useState(_ => Js.Dict.empty())
+    let (merchantInfo, setMerchantInfo) = React.useState(_ => Dict.make())
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
     let titleClass = "text-hyperswitch_black text-base w-1/5"
     let subTitleClass = "text-hyperswitch_black opacity-50 text-base font-semibold "
@@ -24,7 +24,7 @@ module MerchantDetailsSection = {
               "merchant_name",
               merchantInfoDict->LogicUtils.getString("merchant_name", "")->Js.Json.string,
             ),
-          ]->Js.Dict.fromArray
+          ]->Dict.fromArray
         setMerchantInfo(_ => requiredInfo)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
@@ -124,6 +124,7 @@ module BasicDetailsSection = {
       let merchantDetails = getInfoFromLocalStorage(~lStorageKey="merchant")
       merchantDetails->LogicUtils.getString(value, "Not Added")
     }
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     <div className="flex flex-col gap-10 bg-white border rounded w-full px-10 pt-6 pb-10">
       <p className=sectionHeadingClass> {"User Info"->React.string} </p>
       <div className="flex gap-10 items-center">
@@ -133,10 +134,10 @@ module BasicDetailsSection = {
       <div className="flex gap-10 items-center">
         <p className=titleClass> {"Name"->React.string} </p>
         <p className=subTitleClass>
-          {(userName->Js.String2.length === 0 ? "--" : userName)->React.string}
+          {(userName->String.length === 0 ? "--" : userName)->React.string}
         </p>
       </div>
-      <UIUtils.RenderIf condition={!isPlayground}>
+      <UIUtils.RenderIf condition={!isPlayground && featureFlagDetails.magicLink}>
         <ResetPassword />
       </UIUtils.RenderIf>
     </div>

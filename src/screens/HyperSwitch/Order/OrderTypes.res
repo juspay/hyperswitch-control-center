@@ -93,6 +93,7 @@ type order = {
   payment_experience: string,
   frm_message: frmMessage,
   connector_transaction_id: string,
+  merchant_connector_id: string,
   merchant_decision: string,
   profile_id: string,
 }
@@ -184,7 +185,7 @@ type summaryColType =
   | LastUpdated
   | PaymentId
   | Currency
-  | ErrorCode
+  | AmountReceived
   | ClientSecret
   | OrderQuantity
   | ProductName
@@ -198,15 +199,15 @@ type aboutPaymentColType =
   | PaymentMethod
   | PaymentMethodType
   | CardBrand
+  | ConnectorLabel
   | Refunds
   | AuthenticationType
   | CaptureMethod
-  | MandateId
 
 type otherDetailsColType =
   | MandateData
   | AmountCapturable
-  | AmountReceived
+  | ErrorCode
   | Shipping
   | Billing
   | Email

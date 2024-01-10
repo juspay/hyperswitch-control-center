@@ -19,13 +19,9 @@ let make = (~connectProcessorValue: connectProcessor) => {
     ->MerchantAccountUtils.getValueFromBusinessProfile
 
   let (selectedConnector, setSelectedConnector) = React.useState(_ => UnknownConnector(""))
-  let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
   let (connectorConfigureState, setConnectorConfigureState) = React.useState(_ => Select_processor)
-  let (choiceState, setChoiceState) = React.useState(_ =>
-    typedEnumValue.isMultipleConfiguration
-      ? #MultipleProcessorWithSmartRouting
-      : #SinglePaymentProcessor
-  )
+  let (choiceState, setChoiceState) = React.useState(_ => #NotSelected)
   let (smartRoutingChoiceState, setSmartRoutingChoiceState) = React.useState(_ => #DefaultFallback)
   let (choiceStateForTestConnector, setChoiceStateForTestConnector) = React.useState(_ =>
     #TestApiKeys
@@ -54,7 +50,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
   React.useEffect2(() => {
     setInitialValues(prevJson => {
       let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
-      prevJsonDict->Js.Dict.set(
+      prevJsonDict->Dict.set(
         "connector_label",
         `${selectedConnector->ConnectorUtils.getConnectorNameString}_${activeBusinessProfile.profile_name}`->Js.Json.string,
       )
@@ -90,7 +86,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
         ~id=Some(activatingId),
         (),
       )
-      let _ = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
       let _ = await updateEnumForRouting(activatingId)
       setButtonState(_ => Normal)
     } catch {
@@ -115,12 +111,10 @@ let make = (~connectProcessorValue: connectProcessor) => {
     }
   }
 
-  let updateEnumForMultipleConfigurationType = async isMultipleConfigSelected => {
+  let updateEnumForMultipleConfigurationType = async connectorChoiceValue => {
     try {
-      let isMultipleConfigurationType = #IsMultipleConfiguration
-      let _ = await ConnectorChoice({
-        isMultipleConfiguration: isMultipleConfigSelected,
-      })->usePostEnumDetails(isMultipleConfigurationType)
+      let configurationType = #ConfigurationType
+      let _ = await StringEnumType(connectorChoiceValue)->usePostEnumDetails(configurationType)
     } catch {
     | Js.Exn.Error(e) => {
         let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to update!")
@@ -132,16 +126,20 @@ let make = (~connectProcessorValue: connectProcessor) => {
     try {
       setButtonState(_ => Loading)
       if choiceState === #MultipleProcessorWithSmartRouting {
-        let _ = await updateEnumForMultipleConfigurationType(true)
+        let _ = await updateEnumForMultipleConfigurationType(
+          #MultipleProcessorWithSmartRouting->connectorChoiceVariantToString,
+        )
         setQuickStartPageState(_ =>
-          typedEnumValue.firstProcessorConnected.processorID->Js.String2.length > 0
+          typedEnumValue.firstProcessorConnected.processorID->String.length > 0
             ? ConnectProcessor(CONFIGURE_SECONDARY)
             : ConnectProcessor(CONFIGURE_PRIMARY)
         )
       } else {
-        let _ = await updateEnumForMultipleConfigurationType(false)
+        let _ = await updateEnumForMultipleConfigurationType(
+          #SinglePaymentProcessor->connectorChoiceVariantToString,
+        )
         setQuickStartPageState(_ =>
-          typedEnumValue.firstProcessorConnected.processorID->Js.String2.length > 0
+          typedEnumValue.firstProcessorConnected.processorID->String.length > 0
             ? ConnectProcessor(CHECKOUT)
             : ConnectProcessor(CONFIGURE_PRIMARY)
         )

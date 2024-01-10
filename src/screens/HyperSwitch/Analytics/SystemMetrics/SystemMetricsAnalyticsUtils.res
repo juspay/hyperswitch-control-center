@@ -47,13 +47,13 @@ let singleStateSeriesItemToObjMapper = json => {
 }
 
 let itemToObjMapper = json => {
-  let data = json->getQueryData->Js.Array2.map(singleStateItemToObjMapper)
+  let data = json->getQueryData->Array.map(singleStateItemToObjMapper)
 
   data->Belt.Array.get(0)->Belt.Option.getWithDefault(singleStateInitialValue)
 }
 
 let timeSeriesObjMapper = json =>
-  json->getQueryData->Js.Array2.map(json => singleStateSeriesItemToObjMapper(json))
+  json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
 
 let defaultColumns: array<
   DynamicSingleStat.columns<AnalyticsTypes.systemMetricsSingleStateMetrics>,
@@ -71,18 +71,15 @@ let constructData = (
   switch key {
   | "latency" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.latency))
+    ->Array.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.latency))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "api_count" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (
-      ob.time_series->DateTimeUtils.parseAsFloat,
-      ob.api_count->Belt.Int.toFloat,
-    ))
+    ->Array.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.api_count->Belt.Int.toFloat))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "status_code_count" =>
     singlestatTimeseriesData
-    ->Js.Array2.map(ob => (
+    ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.status_code_count->Belt.Int.toFloat,
     ))

@@ -1,6 +1,6 @@
 @val external appVersion: string = "appVersion"
 
-let mixpanelToken = "" // add your mixpanel token here
+let mixpanelToken = Window.env.mixpanelToken->Belt.Option.getWithDefault("mixpanel-token")
 
 type hostType = Live | Sandbox | Local | Netlify
 
@@ -9,7 +9,7 @@ let hostName = Window.Location.hostname
 let hostType = switch hostName {
 | "live.hyperswitch.io" => Live
 | "app.hyperswitch.io" => Sandbox
-| _ => hostName->Js.String2.includes("netlify") ? Netlify : Local
+| _ => hostName->String.includes("netlify") ? Netlify : Local
 }
 
 let getHostURLFromVariant = (host: hostType) => {
@@ -41,8 +41,6 @@ let hyperSwitchFEPrefix = switch hostType {
 | Local => localURL
 | Netlify => netlifyUrl
 }
-
-let hyperSwitchversion = appVersion->Js.String2.length > 0 ? `v${appVersion}` : ""
 
 let playgroundUserEmail = "dummyuser@dummymerchant.com"
 let playgroundUserPassword = "Dummy@1234"

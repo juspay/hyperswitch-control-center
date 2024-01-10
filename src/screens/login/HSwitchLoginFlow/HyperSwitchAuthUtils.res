@@ -3,7 +3,7 @@ open HyperSwitchAuthTypes
 module TermsAndCondition = {
   @react.component
   let make = () => {
-    <div className="text-center text-sm text-infra-gray-300">
+    <div id="tc-text" className="text-center text-sm text-infra-gray-300">
       {"By continuing, you agree to our "->React.string}
       <a
         className="underline cursor-pointer"
@@ -82,7 +82,7 @@ let passwordField = FormRenderer.makeFieldInfo(
 
 let getResetpasswordBodyJson = (password, token) =>
   [("password", password->Js.Json.string), ("token", token->Js.Json.string)]
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_
 
 let getEmailPasswordBody = (email, password, country) =>
@@ -91,24 +91,24 @@ let getEmailPasswordBody = (email, password, country) =>
     ("password", password->Js.Json.string),
     ("country", country->Js.Json.string),
   ]
-  ->Js.Dict.fromArray
+  ->Dict.fromArray
   ->Js.Json.object_
 
 let getEmailBody = (email, ~country=?, ()) => {
   let fields = [("email", email->Js.Json.string)]
 
   switch country {
-  | Some(value) => fields->Js.Array2.push(("country", value->Js.Json.string))->ignore
+  | Some(value) => fields->Array.push(("country", value->Js.Json.string))->ignore
   | _ => ()
   }
 
-  fields->Js.Dict.fromArray->Js.Json.object_
+  fields->Dict.fromArray->Js.Json.object_
 }
 
 let parseResponseJson = (~json, ~email) => {
   open HSwitchUtils
   open LogicUtils
-  let valuesDict = json->Js.Json.decodeObject->Belt.Option.getWithDefault(Js.Dict.empty())
+  let valuesDict = json->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make())
 
   // * Setting all local storage values
   setMerchantDetails(
@@ -135,30 +135,26 @@ let parseResponseJson = (~json, ~email) => {
 let validateForm = (values: Js.Json.t, keys: array<string>) => {
   let valuesDict = values->LogicUtils.getDictFromJsonObject
 
-  let errors = Js.Dict.empty()
-  keys->Js.Array2.forEach(key => {
+  let errors = Dict.make()
+  keys->Array.forEach(key => {
     let value = LogicUtils.getString(valuesDict, key, "")
 
     // empty check
     if value == "" {
       switch key {
-      | "email" => Js.Dict.set(errors, key, "Please enter your Email ID"->Js.Json.string)
-      | "password" => Js.Dict.set(errors, key, "Please enter your Password"->Js.Json.string)
-      | "create_password" => Js.Dict.set(errors, key, "Please enter your Password"->Js.Json.string)
+      | "email" => Dict.set(errors, key, "Please enter your Email ID"->Js.Json.string)
+      | "password" => Dict.set(errors, key, "Please enter your Password"->Js.Json.string)
+      | "create_password" => Dict.set(errors, key, "Please enter your Password"->Js.Json.string)
       | "comfirm_password" =>
-        Js.Dict.set(errors, key, "Please enter your Password Once Again"->Js.Json.string)
+        Dict.set(errors, key, "Please enter your Password Once Again"->Js.Json.string)
       | _ =>
-        Js.Dict.set(
-          errors,
-          key,
-          `${key->LogicUtils.capitalizeString} cannot be empty`->Js.Json.string,
-        )
+        Dict.set(errors, key, `${key->LogicUtils.capitalizeString} cannot be empty`->Js.Json.string)
       }
     }
 
     // email check
     if value !== "" && key === "email" && value->HSwitchUtils.isValidEmail {
-      Js.Dict.set(errors, key, "Please enter valid Email ID"->Js.Json.string)
+      Dict.set(errors, key, "Please enter valid Email ID"->Js.Json.string)
     }
 
     // password check
@@ -190,45 +186,47 @@ let note = (authType, setAuthType, isMagicLinkEnabled) => {
     </div>
   }
 
-  switch authType {
-  | LoginWithEmail =>
-    getFooterLinkComponent(
-      ~btnText="or sign in using password",
-      ~authType=LoginWithPassword,
-      ~path="/login",
-    )
-  | LoginWithPassword =>
-    <UIUtils.RenderIf condition={isMagicLinkEnabled}>
-      {getFooterLinkComponent(
-        ~btnText="or sign in with an email",
-        ~authType=LoginWithEmail,
+  <div className="w-96">
+    {switch authType {
+    | LoginWithEmail =>
+      getFooterLinkComponent(
+        ~btnText="or sign in using password",
+        ~authType=LoginWithPassword,
         ~path="/login",
-      )}
-    </UIUtils.RenderIf>
-  | SignUP =>
-    <UIUtils.RenderIf condition={isMagicLinkEnabled}>
-      <p className="text-center">
-        {"We'll be emailing you a magic link for a password-free experience, you can always choose to setup a password later."->React.string}
-      </p>
-    </UIUtils.RenderIf>
-  | ForgetPassword | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
-    <div className="w-full flex justify-center">
-      <div
-        onClick={_ => {
-          let backState = switch authType {
-          | MagicLinkEmailSent => SignUP
-          | ForgetPasswordEmailSent => ForgetPassword
-          | ResendVerifyEmailSent => ResendVerifyEmail
-          | ForgetPassword | _ => LoginWithPassword
-          }
-          setAuthType(_ => backState)
-        }}
-        className="text-sm text-center text-blue-900 hover:underline underline-offset-2 cursor-pointer w-fit">
-        {"Cancel"->React.string}
+      )
+    | LoginWithPassword =>
+      <UIUtils.RenderIf condition={isMagicLinkEnabled}>
+        {getFooterLinkComponent(
+          ~btnText="or sign in with an email",
+          ~authType=LoginWithEmail,
+          ~path="/login",
+        )}
+      </UIUtils.RenderIf>
+    | SignUP =>
+      <UIUtils.RenderIf condition={isMagicLinkEnabled}>
+        <p className="text-center text-sm">
+          {"We'll be emailing you a magic link for a password-free experience, you can always choose to setup a password later."->React.string}
+        </p>
+      </UIUtils.RenderIf>
+    | ForgetPassword | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
+      <div className="w-full flex justify-center">
+        <div
+          onClick={_ => {
+            let backState = switch authType {
+            | MagicLinkEmailSent => SignUP
+            | ForgetPasswordEmailSent => ForgetPassword
+            | ResendVerifyEmailSent => ResendVerifyEmail
+            | ForgetPassword | _ => LoginWithPassword
+            }
+            setAuthType(_ => backState)
+          }}
+          className="text-sm text-center text-blue-900 hover:underline underline-offset-2 cursor-pointer w-fit">
+          {"Cancel"->React.string}
+        </div>
       </div>
-    </div>
-  | _ => React.null
-  }
+    | _ => React.null
+    }}
+  </div>
 }
 
 module PageFooterSection = {
@@ -236,7 +234,7 @@ module PageFooterSection = {
   let make = () => {
     <div
       className="justify-center text-base flex flex-col md:flex-row md:gap-3 items-center py-5 md:py-7">
-      <div className="flex items-center gap-2">
+      <div id="footer" className="flex items-center gap-2">
         {"An open-source initiative by "->React.string}
         <a href="https://juspay.in/" target="__blank">
           <img src={`/icons/juspay-logo-dark.svg`} className="h-3" />
@@ -346,10 +344,11 @@ module Header = {
         <div
           onClick={_ => {
             form.resetFieldState("email")
-            form.reset(Js.Json.object_(Js.Dict.empty())->Js.Nullable.return)
+            form.reset(Js.Json.object_(Dict.make())->Js.Nullable.return)
             setAuthType(_ => authType)
             path->RescriptReactRouter.push
           }}
+          id="card-subtitle"
           className="font-semibold text-blue-900 cursor-pointer">
           {sufix->React.string}
         </div>
@@ -365,7 +364,7 @@ module Header = {
     | _ => false
     }
 
-    <div className={`${headerStyle} gap-2 h-fit mb-7`}>
+    <div className={`${headerStyle} gap-2 h-fit mb-7 w-96`}>
       <UIUtils.RenderIf condition={showInfoIcon}>
         <div className="flex justify-center my-5">
           {switch authType {
@@ -376,7 +375,9 @@ module Header = {
           }}
         </div>
       </UIUtils.RenderIf>
-      <h1 className="font-semibold text-xl md:text-2xl"> {cardHeaderText->React.string} </h1>
+      <h1 id="card-header" className="font-semibold text-xl md:text-2xl">
+        {cardHeaderText->React.string}
+      </h1>
       {switch authType {
       | LoginWithPassword | LoginWithEmail =>
         !isLiveMode
@@ -425,8 +426,8 @@ let parseErrorMessage = errorMessage => {
 
   switch Js.Json.classify(parsedValue) {
   | JSONObject(obj) => obj->errorMapper
-  | JSONString(_str) => Js.Dict.empty()->errorMapper
-  | _ => Js.Dict.empty()->errorMapper
+  | JSONString(_str) => Dict.make()->errorMapper
+  | _ => Dict.make()->errorMapper
   }
 }
 

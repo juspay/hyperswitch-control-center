@@ -8227,27 +8227,26 @@ License)
       />
     </g>
   </symbol>
-  <symbol id="nonselected" viewBox="0 0 12 12">
-    <path
-      d="M12 6C12 9.31371 9.31371 12 6 12C2.68629 12 0 9.31371 0 6C0 2.68629 2.68629 0 6 0C9.31371 0 12 2.68629 12 6ZM1.68 6C1.68 8.38587 3.61413 10.32 6 10.32C8.38587 10.32 10.32 8.38587 10.32 6C10.32 3.61413 8.38587 1.68 6 1.68C3.61413 1.68 1.68 3.61413 1.68 6Z"
-      fill="#CCCCCC"
-    />
-  </symbol>
   <symbol
-    id="selected"
+    id="nonselected"
+    width="20"
+    height="20"
     viewBox="0 0 20 20"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path
-      d="M10 16.875C13.797 16.875 16.875 13.797 16.875 10C16.875 6.20304 13.797 3.125 10 3.125C6.20304 3.125 3.125 6.20304 3.125 10C3.125 13.797 6.20304 16.875 10 16.875Z"
-      stroke="#006DF9"
-      stroke-width="1.5"
-    />
-    <path
-      d="M10.0026 14.1693C12.3038 14.1693 14.1693 12.3038 14.1693 10.0026C14.1693 7.70142 12.3038 5.83594 10.0026 5.83594C7.70142 5.83594 5.83594 7.70142 5.83594 10.0026C5.83594 12.3038 7.70142 14.1693 10.0026 14.1693Z"
-      fill="#006DF9"
-    />
+    <circle cx="10" cy="10" r="6.75" stroke="#B3B3B3" stroke-width="1.5" />
+  </symbol>
+  <symbol
+    id="selected"
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="10" cy="10" r="6.75" stroke="#006DF9" stroke-width="1.5" />
+    <circle cx="10" cy="10" r="4" fill="#006DF9" />
   </symbol>
   <symbol
     id="warning-outlined"
@@ -8810,6 +8809,24 @@ License)
     ></path>
     <path
       d="M5.46332 4H6.52896V4.96657H5.46332V4ZM5 8.20669H5.20077C5.30888 8.20669 5.3861 8.17933 5.43243 8.12462C5.47876 8.06383 5.50193 7.97264 5.50193 7.85106V6.79939C5.50193 6.66565 5.48134 6.56839 5.44015 6.5076C5.40412 6.44681 5.32947 6.41641 5.21622 6.41641H5V5.6231H6.51351V7.8693C6.51351 7.9848 6.53411 8.06991 6.57529 8.12462C6.62162 8.17933 6.69627 8.20669 6.79923 8.20669H7V9H5V8.20669Z"
+    ></path>
+  </symbol>
+  <symbol id="LeftPagination" width="12" height="13" viewBox="0 0 9 9">
+    <path
+      fill-rule="evenodd"
+      clip-rule="evenodd"
+      d="M7 0L0 5.0005L7 10V0Z"
+      fill="#CCD2E2"
+      fill-opacity="0.75"
+    ></path>
+  </symbol>
+  <symbol id="RightPagination" width="12" height="13" viewBox="0 0 9 9">
+    <path
+      fill-rule="evenodd"
+      clip-rule="evenodd"
+      d="M0 0L7 5.0005L0 10V0Z"
+      fill="#CCD2E2"
+      fill-opacity="0.75"
     ></path>
   </symbol>
 </svg>

@@ -2,7 +2,6 @@ module HyperSwitchEntryComponent = {
   @react.component
   let make = () => {
     open HSLocalStorage
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let postDetails = APIUtils.useUpdateMethod()
     let email = getFromMerchantDetails("email")
     let name = getFromUserDetails("name")
@@ -24,7 +23,7 @@ module HyperSwitchEntryComponent = {
           "loaded": () => {
             let mixpanelUserInfo =
               [("name", email->Js.Json.string), ("merchantName", name->Js.Json.string)]
-              ->Js.Dict.fromArray
+              ->Dict.fromArray
               ->Js.Json.object_
 
             let userId = MixPanel.getDistinctId()
@@ -44,10 +43,6 @@ module HyperSwitchEntryComponent = {
         : `${page} - Dashboard [Test]`
       DOMUtils.document.title = title
       GoogleAnalytics.send({hitType: "pageview", page})
-      hyperswitchMixPanel(
-        ~eventName=Some(pageTitle->HyperSwitchUtils.getMixpanelRouteName(url)),
-        (),
-      )
     }
 
     React.useEffect1(() => {
@@ -69,7 +64,7 @@ module HyperSwitchEntryComponent = {
         let url = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/config/merchant-access`
         let typedResponse =
           (
-            await postDetails(url, Js.Dict.empty()->Js.Json.object_, Post)
+            await postDetails(url, Dict.make()->Js.Json.object_, Post)
           )->FeatureFlagUtils.featureFlagType
         setFeatureFlag(._ => typedResponse)
         setScreenState(_ => PageLoaderWrapper.Success)

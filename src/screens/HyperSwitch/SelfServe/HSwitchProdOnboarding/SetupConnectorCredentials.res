@@ -1,7 +1,6 @@
 let headerTextStyle = "text-xl font-semibold text-grey-700"
 let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
 let dividerColor = "bg-grey-700 bg-opacity-20 h-px w-full"
-let highlightedText = "text-base font-normal text-blue-700 underline"
 
 module ConnectorDetailsForm = {
   open ConnectorUtils
@@ -19,7 +18,7 @@ module ConnectorDetailsForm = {
     let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
 
     let (
-      bodyType,
+      _,
       connectorAccountFields,
       connectorMetaDataFields,
       _,
@@ -39,9 +38,11 @@ module ConnectorDetailsForm = {
 
     <div className="flex flex-col gap-6">
       <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
-        <ConnectorAccountDetails.BusinessProfileRender
-          isUpdateFlow=false selectedConnector={connectorName}
-        />
+        <div>
+          <ConnectorAccountDetailsHelper.BusinessProfileRender
+            isUpdateFlow=false selectedConnector={connectorName}
+          />
+        </div>
       </UIUtils.RenderIf>
       <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
         connectorAccountFields
@@ -49,10 +50,9 @@ module ConnectorDetailsForm = {
         selectedConnector
         connectorMetaDataFields
         connectorWebHookDetails
-        bodyType
         connectorLabelDetailField
       />
-      <ConnectorAccountDetails.VerifyConnectoModal
+      <ConnectorAccountDetailsHelper.VerifyConnectorModal
         showVerifyModal
         setShowVerifyModal
         connector={connectorName}
@@ -61,7 +61,7 @@ module ConnectorDetailsForm = {
         suggestedAction
         setVerifyDone
       />
-      <UIUtils.RenderIf condition={checkboxText->Js.String2.length > 0}>
+      <UIUtils.RenderIf condition={checkboxText->String.length > 0}>
         <div className="flex gap-2 items-center">
           <CheckBoxIcon
             isSelected=isCheckboxSelected
@@ -95,14 +95,19 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   let (initialValues, setInitialValues) = React.useState(_ => Js.Json.null)
 
   let getDetails = async () => {
-    let _wasmResult = await Window.connectorWasmInit()
-    let val = connectorName->Window.getConnectorConfig
-    setConnectorDetails(_ => val)
-    setScreenState(_ => Success)
+    try {
+      let _ = await Window.connectorWasmInit()
+      let val = connectorName->Window.getConnectorConfig
+      setConnectorDetails(_ => val)
+      setScreenState(_ => Success)
+    } catch {
+    | Js.Exn.Error(e) =>
+      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong!")
+      setScreenState(_ => PageLoaderWrapper.Error(err))
+    }
   }
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
   let (verifyErrorMessage, setVerifyErrorMessage) = React.useState(_ => None)
   let (verifyDone, setVerifyDone) = React.useState(_ => ConnectorTypes.NoAttempt)
@@ -128,11 +133,11 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   React.useEffect1(() => {
     setInitialValues(prevJson => {
       let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
-      prevJsonDict->Js.Dict.set(
+      prevJsonDict->Dict.set(
         "connector_label",
         `${selectedConnector->ConnectorUtils.getConnectorNameString}_${defaultBusinessProfile.profile_name}`->Js.Json.string,
       )
-      prevJsonDict->Js.Dict.set("profile_id", defaultBusinessProfile.profile_id->Js.Json.string)
+      prevJsonDict->Dict.set("profile_id", defaultBusinessProfile.profile_id->Js.Json.string)
       prevJsonDict->Js.Json.object_
     })
 
@@ -163,9 +168,11 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     try {
       setIsLoading(_ => true)
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ())
-      let json = Window.getConnectorConfig(connectorName)
-      let creditCardNetworkArray = json->getDictFromJsonObject->getStrArrayFromDict("credit", [])
-      let debitCardNetworkArray = json->getDictFromJsonObject->getStrArrayFromDict("debit", [])
+      let dict = Window.getConnectorConfig(connectorName)->getDictFromJsonObject
+      let creditCardNetworkArray =
+        dict->getArrayFromDict("credit", [])->Js.Json.array->getPaymentMethodMapper
+      let debitCardNetworkArray =
+        dict->getArrayFromDict("debit", [])->Js.Json.array->getPaymentMethodMapper
 
       let paymentMethodsEnabledArray: array<ConnectorTypes.paymentMethodEnabled> = [
         {
@@ -185,7 +192,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       let requestPayload: ConnectorTypes.wasmRequest = {
         payment_methods_enabled: paymentMethodsEnabledArray,
         connector: connectorName,
-        metadata: Js.Dict.empty()->Js.Json.object_,
+        metadata: Dict.make()->Js.Json.object_,
       }
 
       let payload = generateInitialValuesDict(
@@ -211,7 +218,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         setPageView(_ => SELECT_PROCESSOR)
         switch Js.Exn.message(e) {
         | Some(message) =>
-          if message->Js.String2.includes("HE_01") {
+          if message->String.includes("HE_01") {
             showToast(
               ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
               ~toastType=ToastState.ToastError,
@@ -233,11 +240,10 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     }
   }
   let validateMandatoryField = values => {
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
 
     validateConnectorRequiredFields(
-      bodyType,
       connectorName->getConnectorNameTypeFromString,
       valuesFlattenJson,
       connectorAccountFields,
@@ -275,12 +281,6 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
           setVerifyErrorMessage(_ => errorMessage.message)
           setShowVerifyModal(_ => true)
           setVerifyDone(_ => Failure)
-          hyperswitchMixPanel(
-            ~isApiFailure=true,
-            ~apiUrl=`/verify_connector`,
-            ~description=errorMessage->Js.Json.stringifyAny,
-            (),
-          )
         }
 
       | None => setScreenState(_ => Error("Failed to Fetch!"))
@@ -331,8 +331,6 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         subtextSectionText="Configure this endpoint in the processors dashboard under webhook settings for us to receive events"
         customRightSection={<HelperComponents.KeyAndCopyArea
           copyValue={getWebhooksUrl(~connectorName, ~merchantId)}
-          contextName="setup_webhook_processor"
-          actionName="hs_webhookcopied"
           shadowClass="shadow shadow-hyperswitch_box_shadow !w-full"
         />}
       />
@@ -342,7 +340,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
 
   let onSubmit = values => {
     let dict = values->getDictFromJsonObject
-    dict->Js.Dict.set("profile_id", profile_id->Js.Json.string)
+    dict->Dict.set("profile_id", profile_id->Js.Json.string)
 
     ConnectorUtils.onSubmit(
       ~values={dict->Js.Json.object_},
@@ -351,8 +349,6 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       ~setVerifyDone,
       ~verifyDone,
       ~isVerifyConnector,
-      ~hyperswitchMixPanel,
-      ~path={url.path},
       ~isVerifyConnectorFeatureEnabled=featureFlagDetails.verifyConnector,
     )->ignore
   }
@@ -376,7 +372,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       <div className="flex flex-col h-full w-full ">
         <div className="flex justify-between px-11 py-8 flex-wrap gap-4">
           <div className="flex gap-4 items-center">
-            <GatewayIcon gateway={connectorName->Js.String2.toUpperCase} className="w-8 h-8" />
+            <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-8 h-8" />
             <p className=headerTextStyle> {connectorName->capitalizeString->React.string} </p>
           </div>
           <div className="flex gap-4">
@@ -394,7 +390,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
               text=buttonText
               customSumbitButtonStyle="!rounded-md"
               loadingText={isLoading ? "Loading ..." : ""}
-              disabledParamter={checkboxText->Js.String2.length > 0 && !isCheckboxSelected}
+              disabledParamter={checkboxText->String.length > 0 && !isCheckboxSelected}
             />
           </div>
         </div>
@@ -407,7 +403,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
           {getComponentToRender()}
         </div>
       </div>
-      <ConnectorAccountDetails.VerifyConnectoModal
+      <ConnectorAccountDetailsHelper.VerifyConnectorModal
         showVerifyModal
         setShowVerifyModal
         connector={connectorName}

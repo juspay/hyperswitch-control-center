@@ -19,16 +19,12 @@ module PaymentLogs = {
   let make = (~id, ~createdAt) => {
     let {auditTrail} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let isSmallDevice = MatchMedia.useMatchMedia("(max-width: 700px)")
-    let showPaymentLogsComp = auditTrail
 
     <div className="overflow-x-scroll">
-      <UIUtils.RenderIf condition={!isSmallDevice && showPaymentLogsComp}>
-        {HSwitchOrderUtils.eventLogHeader}
-      </UIUtils.RenderIf>
       <UIUtils.RenderIf condition={isSmallDevice}>
         <EventLogMobileView />
       </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={!isSmallDevice && showPaymentLogsComp}>
+      <UIUtils.RenderIf condition={!isSmallDevice && auditTrail}>
         <PaymentLogs paymentId=id createdAt />
       </UIUtils.RenderIf>
     </div>
@@ -39,16 +35,18 @@ module GenerateSampleDataButton = {
   open APIUtils
   @react.component
   let make = (~previewOnly, ~getOrdersList) => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let generateSampleData = async () => {
+      mixpanelEvent(~eventName="generate_sample_data", ())
       try {
         let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
-        let _generateSampleData = await updateDetails(
+        let _ = await updateDetails(
           generateSampleDataUrl,
-          [("record", 50.0->Js.Json.number)]->Js.Dict.fromArray->Js.Json.object_,
+          [("record", 50.0->Js.Json.number)]->Dict.fromArray->Js.Json.object_,
           Post,
         )
         showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess, ())
@@ -86,9 +84,6 @@ module NoData = {
       paymentModal
       setPaymentModal
       showRedirectCTA={!isLiveMode}
-      mixPanelEventName={isConfigureConnector
-        ? "paymentops_makeapayment"
-        : "payemntops_connectaconnector"}
       onClickUrl={isConfigureConnector
         ? "/sdk"
         : `${HSwitchGlobalVars.hyperSwitchFEPrefix}/connectors`}
@@ -110,11 +105,11 @@ let filterByData = (txnArr, value) => {
     let valueArr =
       data
       ->Identity.genericTypeToDictOfJson
-      ->Js.Dict.entries
-      ->Js.Array2.map(item => {
+      ->Dict.toArray
+      ->Array.map(item => {
         let (_, value) = item
 
-        value->getStringFromJson("")->Js.String2.toLowerCase->Js.String2.includes(searchText)
+        value->getStringFromJson("")->String.toLowerCase->String.includes(searchText)
       })
       ->Array.reduce(false, (acc, item) => item || acc)
 
@@ -127,9 +122,8 @@ let initialFilters = json => {
   let filterDict = json->getDictFromJsonObject
 
   filterDict
-  ->Js.Dict.keys
-  ->Array.filterWithIndex((_item, index) => index <= 3)
-  ->Js.Array2.map((key): EntityType.initialFilters<'t> => {
+  ->Dict.keysToArray
+  ->Array.map((key): EntityType.initialFilters<'t> => {
     let title = `Select ${key->snakeToTitle}`
     let values = filterDict->getArrayFromDict(key, [])->getStrArrayFromJsonArray
 
@@ -191,7 +185,7 @@ let setData = (
   setScreenState,
   previewOnly,
 ) => {
-  let arr = Belt.Array.make(offset, Js.Dict.empty())
+  let arr = Belt.Array.make(offset, Dict.make())
   if total <= offset {
     setOffset(_ => 0)
   }
@@ -201,13 +195,13 @@ let setData = (
 
     let orderData =
       arr
-      ->Js.Array2.concat(orderDataDictArr)
-      ->Js.Array2.map(OrderEntity.itemToObjMapper)
+      ->Array.concat(orderDataDictArr)
+      ->Array.map(OrderEntity.itemToObjMapper)
       ->Array.filterWithIndex((_, i) => {
         !previewOnly || i <= 2
       })
 
-    let list = orderData->Js.Array2.map(Js.Nullable.return)
+    let list = orderData->Array.map(Js.Nullable.return)
     setTotalCount(_ => total)
     setOrdersData(_ => list)
     setScreenState(_ => PageLoaderWrapper.Success)
@@ -236,19 +230,17 @@ let getOrdersList = async (
     let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
-    if (
-      data->Js.Array.length === 0 && filterValueJson->Js.Dict.get("payment_id")->Belt.Option.isSome
-    ) {
+    if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Belt.Option.isSome {
       let payment_id =
         filterValueJson
-        ->Js.Dict.get("payment_id")
+        ->Dict.get("payment_id")
         ->Belt.Option.getWithDefault(""->Js.Json.string)
         ->Js.Json.decodeString
         ->Belt.Option.getWithDefault("")
 
       if Js.Re.test_(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
-        let newID = payment_id->Js.String2.replaceByRe(%re("/_[0-9]$/g"), "")
-        filterValueJson->Js.Dict.set("payment_id", newID->Js.Json.string)
+        let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
+        filterValueJson->Dict.set("payment_id", newID->Js.Json.string)
 
         let res = await updateDetails(ordersUrl, filterValueJson->Js.Json.object_, Fetch.Post)
         let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])

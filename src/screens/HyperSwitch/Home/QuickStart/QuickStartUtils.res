@@ -1,7 +1,5 @@
 open QuickStartTypes
 
-let testConnectors = [ConnectorTypes.STRIPE, ConnectorTypes.PAYPAL]
-
 let getTestConnectorName = (connector, quickStartPageState) => {
   open ConnectorUtils
   open QuickStartTypes
@@ -17,7 +15,7 @@ let getTestConnectorName = (connector, quickStartPageState) => {
 }
 
 let quickStartEnumIntialArray: array<sectionHeadingVariant> = [
-  #IsMultipleConfiguration,
+  #ConfigurationType,
   #FirstProcessorConnected,
   #SecondProcessorConnected,
   #ConfiguredRouting,
@@ -31,13 +29,21 @@ let quickStartEnumIntialArray: array<sectionHeadingVariant> = [
   #PaypalConnected,
   #SPTestPayment,
 ]
-let getInitalEnumArray: bool => array<sectionHeadingVariant> = isMultipleConfiguration => {
-  if isMultipleConfiguration {
-    quickStartEnumIntialArray
-  } else {
-    [#FirstProcessorConnected, #TestPayment, #IntegrationMethod, #IntegrationCompleted]
+
+let connectorChoiceStringVariantMapper = stringValue =>
+  switch stringValue {
+  | "" => #NotSelected
+  | "Single" => #SinglePaymentProcessor
+  | "Multiple" | _ => #MultipleProcessorWithSmartRouting
   }
-}
+
+let connectorChoiceVariantToString = variantValue =>
+  switch variantValue {
+  | #SinglePaymentProcessor => "Single"
+  | #MultipleProcessorWithSmartRouting => "Multiple"
+  | _ => ""
+  }
+
 let defaultChoiceStateValue: landingChoiceType = {
   displayText: "Not Selected",
   description: "Not Selected",
@@ -189,12 +195,12 @@ let getTypedValueFromDict = valueString => {
     downloadWoocom: value->getBool(#DownloadWoocom->getStringFromVariant, false),
     configureWoocom: value->getBool(#ConfigureWoocom->getStringFromVariant, false),
     setupWoocomWebhook: value->getBool(#SetupWoocomWebhook->getStringFromVariant, false),
-    isMultipleConfiguration: value->getBool(#IsMultipleConfiguration->getStringFromVariant, false),
     downloadTestAPIKeyStripe: value->getString(#DownloadTestAPIKeyStripe->getStringFromVariant, ""),
     installDeps: value->getString(#InstallDeps->getStringFromVariant, ""),
     replaceAPIKeys: value->getString(#ReplaceAPIKeys->getStringFromVariant, ""),
     reconfigureCheckout: value->getString(#ReconfigureCheckout->getStringFromVariant, ""),
     loadCheckout: value->getString(#LoadCheckout->getStringFromVariant, ""),
+    configurationType: value->getString(#ConfigurationType->getStringFromVariant, ""),
   }
   typedValue
 }
@@ -220,7 +226,7 @@ let variantToEnumMapper = variantValue => {
 }
 let enumToVarinatMapper = enum =>
   switch enum {
-  | #IsMultipleConfiguration => ConnectProcessor(LANDING)
+  | #ConfigurationType => ConnectProcessor(LANDING)
   | #FirstProcessorConnected => ConnectProcessor(CONFIGURE_PRIMARY)
   | #SecondProcessorConnected => ConnectProcessor(CONFIGURE_SECONDARY)
   | #ConfiguredRouting => ConnectProcessor(CONFIGURE_SMART_ROUTING)
@@ -234,11 +240,7 @@ let getStatusValue = (comparator: valueType, enumVariant, dashboardPageState) =>
   open HSSelfServeSidebar
   switch comparator {
   | String(strValue) =>
-    strValue->Js.String2.length > 0
-      ? COMPLETED
-      : dashboardPageState === enumVariant
-      ? ONGOING
-      : PENDING
+    strValue->String.length > 0 ? COMPLETED : dashboardPageState === enumVariant ? ONGOING : PENDING
   | Boolean(boolValue) =>
     boolValue ? COMPLETED : dashboardPageState === enumVariant ? ONGOING : PENDING
   }
@@ -246,7 +248,7 @@ let getStatusValue = (comparator: valueType, enumVariant, dashboardPageState) =>
 
 let getStatusFromString = statusString => {
   open HSSelfServeSidebar
-  switch statusString->Js.String2.toUpperCase {
+  switch statusString->String.toUpperCase {
   | "PENDING" => PENDING
   | "COMPLETED" => COMPLETED
   | "ONGOING" => ONGOING
@@ -366,7 +368,7 @@ let getSidebarOptionsForIntegrateYourApp: (
 
 let getConnectorStatus = (enumValueToCheck, connectorConfigureState, checkValue, currentEnum) => {
   open HSSelfServeSidebar
-  let isConnectorConnected = enumValueToCheck->Js.String2.length > 0
+  let isConnectorConnected = enumValueToCheck->String.length > 0
   if isConnectorConnected || connectorConfigureState === checkValue {
     COMPLETED
   } else if connectorConfigureState == currentEnum {
@@ -424,7 +426,10 @@ let getSidebarOptionsForConnectProcessor: (
   open LogicUtils
   let enumValue = enumDetails->safeParse->getTypedValueFromDict
   let currentPageStateEnum = quickStartPageState->variantToEnumMapper
-  if enumValue.isMultipleConfiguration {
+  if (
+    enumValue.configurationType->connectorChoiceStringVariantMapper ===
+      #MultipleProcessorWithSmartRouting
+  ) {
     [
       {
         title: "Connect primary processor",
@@ -511,27 +516,6 @@ let textToVariantMapperForBuildHS = str => {
   }
 }
 
-let getBackButtonState = quickStartPageState => {
-  switch quickStartPageState {
-  | ConnectProcessor(connect_processor) =>
-    switch connect_processor {
-    | CONFIGURE_PRIMARY => ConnectProcessor(LANDING)
-    | CONFIGURE_SECONDARY => ConnectProcessor(CONFIGURE_PRIMARY)
-    | CONFIGURE_SMART_ROUTING => ConnectProcessor(CONFIGURE_SECONDARY)
-    | CHECKOUT => ConnectProcessor(CONFIGURE_SMART_ROUTING)
-    | _ => ConnectProcessor(LANDING)
-    }
-  | IntegrateApp(integrate_app) =>
-    switch integrate_app {
-    | CHOOSE_INTEGRATION => ConnectProcessor(CHECKOUT)
-    | CUSTOM_INTEGRATION => IntegrateApp(CHOOSE_INTEGRATION)
-    | _ => IntegrateApp(LANDING)
-    }
-  | GoLive(_) => IntegrateApp(CUSTOM_INTEGRATION)
-  | FinalLandingPage => GoLive(GO_LIVE)
-  }
-}
-
 let stringToVariantMapperForUserData = str =>
   switch str {
   | "ProductionAgreement" => #ProductionAgreement
@@ -548,6 +532,7 @@ let stringToVariantMapperForUserData = str =>
   | "DownloadWoocom" => #DownloadWoocom
   | "ConfigureWoocom" => #ConfigureWoocom
   | "SetupWoocomWebhook" => #SetupWoocomWebhook
+  | "ConfigurationType" => #ConfigurationType
   | _ => #ProductionAgreement
   }
 
@@ -588,22 +573,19 @@ let generateBodyBasedOnType = (parentVariant: sectionHeadingVariant, value: requ
         ]->getJsonFromArrayOfJson,
       ),
     ]->getJsonFromArrayOfJson
-  | ConnectorChoice(selectedChoice) =>
-    [
-      ((parentVariant :> string), selectedChoice.isMultipleConfiguration->Js.Json.boolean),
-    ]->getJsonFromArrayOfJson
-
   | Boolean(_) => (parentVariant :> string)->Js.Json.string
   | String(str) => str->Js.Json.string
+  | StringEnumType(stringValue) =>
+    [((parentVariant :> string), stringValue->Js.Json.string)]->getJsonFromArrayOfJson
   }
 }
 
 let getInitialValueForConnector = enumValue => {
   let arr = []
-  if enumValue.firstProcessorConnected.processorID->Js.String2.length > 0 {
+  if enumValue.firstProcessorConnected.processorID->String.length > 0 {
     arr->Array.push(enumValue.firstProcessorConnected.processorName)
   }
-  if enumValue.secondProcessorConnected.processorID->Js.String2.length > 0 {
+  if enumValue.secondProcessorConnected.processorID->String.length > 0 {
     arr->Array.push(enumValue.secondProcessorConnected.processorName)
   }
   arr
@@ -619,48 +601,82 @@ let checkBool = (dict, variant) => {
   dict->getBool(variant->getStringFromVariant, false)
 }
 
+let checkString = (dict, variant) => {
+  open LogicUtils
+  dict->getString(variant->getStringFromVariant, "")
+}
+
 let getCurrentStep = dict => {
   if (
-    // 1.IsMultipleConfiguration false
+    // 1.ConfigurationType is empty
     // 2.FirstProcessorConnected dict is empty
-
-    dict->checkBool(#IsMultipleConfiguration) === false &&
+    dict->checkString(#ConfigurationType)->String.length === 0 &&
       dict->checkEmptyDict(#FirstProcessorConnected)
   ) {
-    #IsMultipleConfiguration
+    #ConfigurationType
   } else if (
-    // 1.IsMultipleConfiguration true
+    // 1.ConfigurationType is Single
     // 2.FirstProcessorConnected dict is empty
-    dict->checkBool(#IsMultipleConfiguration) && dict->checkEmptyDict(#FirstProcessorConnected)
+    dict->checkString(#ConfigurationType)->connectorChoiceStringVariantMapper ===
+      #SinglePaymentProcessor && dict->checkEmptyDict(#FirstProcessorConnected)
   ) {
     #FirstProcessorConnected
   } else if (
-    // 1.IsMultipleConfiguration true
+    // 1.ConfigurationType is Single
+    // 2.FirstProcessorConnected dict is not empty
+    dict->checkString(#ConfigurationType)->connectorChoiceStringVariantMapper ===
+      #SinglePaymentProcessor &&
+    !(dict->checkEmptyDict(#FirstProcessorConnected)) &&
+    dict->checkEmptyDict(#TestPayment) === true
+  ) {
+    #TestPayment
+  } else if (
+    // 1.ConfigurationType is Single
+    // 2.FirstProcessorConnected dict is not empty
+    // 3.IntegrationMethod dict is empty
+    dict->checkString(#ConfigurationType)->connectorChoiceStringVariantMapper ===
+      #SinglePaymentProcessor &&
+    !(dict->checkEmptyDict(#FirstProcessorConnected)) &&
+    dict->checkEmptyDict(#IntegrationMethod) === true
+  ) {
+    #IntegrationMethod
+  } else if (
+    // 1.ConfigurationType is Multiple
+    // 2.FirstProcessorConnected dict is empty
+    dict->checkString(#ConfigurationType)->connectorChoiceStringVariantMapper ===
+      #MultipleProcessorWithSmartRouting && dict->checkEmptyDict(#FirstProcessorConnected)
+  ) {
+    #FirstProcessorConnected
+  } else if (
+    // 1.ConfigurationType is Multiple
     // 2.FirstProcessorConnected dict is not empty
     // 3.SecondProcessorConnected dict is empty
-    dict->checkBool(#IsMultipleConfiguration) &&
+    dict->checkString(#ConfigurationType)->connectorChoiceStringVariantMapper ===
+      #MultipleProcessorWithSmartRouting &&
     !(dict->checkEmptyDict(#FirstProcessorConnected)) &&
     dict->checkEmptyDict(#SecondProcessorConnected)
   ) {
     #SecondProcessorConnected
   } else if (
-    // 1.IsMultipleConfiguration true
+    // 1.ConfigurationType is Multiple
     // 2.FirstProcessorConnected dict is not empty
     // 3.SecondProcessorConnected dict is not empty
     // 4.ConfiguredRouting dict is empty
-    dict->checkBool(#IsMultipleConfiguration) &&
+    dict->checkString(#ConfigurationType)->connectorChoiceStringVariantMapper ===
+      #MultipleProcessorWithSmartRouting &&
     !(dict->checkEmptyDict(#FirstProcessorConnected)) &&
     !(dict->checkEmptyDict(#SecondProcessorConnected)) &&
     dict->checkEmptyDict(#ConfiguredRouting)
   ) {
     #ConfiguredRouting
   } else if (
-    // 1.IsMultipleConfiguration true
+    // 1.ConfigurationType is Multiple
     // 2.FirstProcessorConnected dict is not empty
     // 3.SecondProcessorConnected dict is not empty
     // 4.ConfigureRouting dict is not empty
     // 5.TestPayment dict is empty
-    dict->checkBool(#IsMultipleConfiguration) &&
+    dict->checkString(#ConfigurationType)->connectorChoiceStringVariantMapper ===
+      #MultipleProcessorWithSmartRouting &&
     !(dict->checkEmptyDict(#FirstProcessorConnected)) &&
     !(dict->checkEmptyDict(#SecondProcessorConnected)) &&
     !(dict->checkEmptyDict(#ConfiguredRouting)) &&
@@ -668,33 +684,17 @@ let getCurrentStep = dict => {
   ) {
     #TestPayment
   } else if (
-    // 1.IsMultipleConfiguration true
+    // 1.ConfigurationType is Multiple
     // 2.FirstProcessorConnected dict is not empty
     // 3.SecondProcessorConnected dict is not empty
     // 4.ConfiguredRouting dict is not empty
     // 5.IntegrationMethod dict is empty
-    dict->checkBool(#IsMultipleConfiguration) &&
+    dict->checkString(#ConfigurationType)->connectorChoiceStringVariantMapper ===
+      #MultipleProcessorWithSmartRouting &&
     !(dict->checkEmptyDict(#FirstProcessorConnected)) &&
     !(dict->checkEmptyDict(#SecondProcessorConnected)) &&
     !(dict->checkEmptyDict(#ConfiguredRouting)) &&
     dict->checkEmptyDict(#IntegrationMethod)
-  ) {
-    #IntegrationMethod
-  } else if (
-    // 1.IsMultipleConfiguration false
-    // 2.FirstProcessorConnected dict is not empty
-    !(dict->checkBool(#IsMultipleConfiguration)) &&
-    !(dict->checkEmptyDict(#FirstProcessorConnected)) &&
-    dict->checkEmptyDict(#TestPayment) === true
-  ) {
-    #TestPayment
-  } else if (
-    // 1.IsMultipleConfiguration false
-    // 2.FirstProcessorConnected dict is not empty
-    // 3.IntegrationMethod dict is empty
-    !(dict->checkBool(#IsMultipleConfiguration)) &&
-    !(dict->checkEmptyDict(#FirstProcessorConnected)) &&
-    dict->checkEmptyDict(#IntegrationMethod) === true
   ) {
     #IntegrationMethod
   } else if (

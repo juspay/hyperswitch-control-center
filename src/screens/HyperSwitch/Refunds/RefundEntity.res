@@ -2,11 +2,6 @@ open LogicUtils
 open HelperComponents
 open HSwitchOrderUtils
 
-type refundMetaData = {
-  udf1: string,
-  new_customer: string,
-  login_date: string,
-}
 type refunds = {
   refund_id: string,
   payment_id: string,
@@ -36,21 +31,6 @@ type refundsColType =
   | MetaData
   | ConnectorName
 
-let refunditemToObjMapper = dict => {
-  amount: getFloat(dict, "amount", 0.0),
-  created_at: getString(dict, "created_at", ""),
-  currency: getString(dict, "currency", ""),
-  error_message: getString(dict, "error_message", ""),
-  metadata: getString(dict, "metadata", ""),
-  payment_id: getString(dict, "payment_id", ""),
-  reason: getString(dict, "reason", ""),
-  refund_id: getString(dict, "refund_id", ""),
-  status: getString(dict, "status", ""),
-  updated_at: getString(dict, "updated_at", ""),
-  error_code: getString(dict, "error_code", ""),
-  connector: getString(dict, "connector", ""),
-}
-
 let defaultColumns = [RefundId, Amount, RefundStatus, PaymentId, Created]
 
 let refundsMapDefaultCols = Recoil.atom(. "refundsMapDefaultCols", defaultColumns)
@@ -71,7 +51,7 @@ let allColumns = [
 ]
 
 let getStatus = order => {
-  let orderStatusLabel = order.status->Js.String2.toUpperCase
+  let orderStatusLabel = order.status->String.toUpperCase
   let fixedCss = "text-sm text-white font-bold p-1.5 rounded-lg"
   switch order.status->statusVariantMapper {
   | Succeeded =>
@@ -147,7 +127,7 @@ let getCell = (refundData, colType): Table.cell => {
   | RefundId => CustomCell(<CopyTextCustomComp displayValue=refundData.refund_id />, "")
   | RefundStatus =>
     Label({
-      title: refundData.status->Js.String2.toUpperCase,
+      title: refundData.status->String.toUpperCase,
       color: switch refundData.status->statusVariantMapper {
       | Succeeded => LabelGreen
       | Failed => LabelRed
@@ -166,8 +146,6 @@ let getCell = (refundData, colType): Table.cell => {
     CustomCell(<HSwitchUtils.ConnectorCustomCell connectorName=refundData.connector />, "")
   }
 }
-
-let refundDefaultCols = Recoil.atom(. "hyperSwitchRefundDefaultCols", defaultColumns)
 
 let itemToObjMapper = dict => {
   {

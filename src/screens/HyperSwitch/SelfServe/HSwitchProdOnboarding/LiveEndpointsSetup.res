@@ -17,8 +17,6 @@ module ReplaceAPIKey = {
         subtextSectionText="Configure this base url in your application for all server-server calls"
         customRightSection={<HelperComponents.KeyAndCopyArea
           copyValue=HSwitchGlobalVars.hyperSwitchApiPrefix
-          contextName="setup_webhook_processor"
-          actionName="hs_webhookcopied"
           shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-max"
         />}
         rightTag={<Icon name="server-tag" size=30 customWidth="50" />}
@@ -29,34 +27,27 @@ module ReplaceAPIKey = {
         subtextSectionText="Use this key to authenticate all calls from your application's client to Hyperswitch SDK"
         customRightSection={<HelperComponents.KeyAndCopyArea
           copyValue=publishablekeyMerchant
-          contextName="setup_webhook_processor"
-          actionName="hs_webhookcopied"
           shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-max"
         />}
         rightTag={<Icon name="client-tag" size=30 customWidth="50" />}
       />
       <div className={`${dividerColor} px-2`} />
       <UIUtils.RenderIf
-        condition={previewVariant->Belt.Option.isSome && webhookEndpoint->Js.String2.length > 0}>
+        condition={previewVariant->Belt.Option.isSome && webhookEndpoint->String.length > 0}>
         <ProdOnboardingUIUtils.SetupWebhookProcessor
           headerSectionText="Merchant Webhook Endpoint"
           subtextSectionText="Provide the endpoint where you would want us to send live payment events"
           customRightSection={<HelperComponents.KeyAndCopyArea
-            copyValue=webhookEndpoint
-            contextName="setup_webhook_processor"
-            actionName="hs_webhookcopied"
-            shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-max"
+            copyValue=webhookEndpoint shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-max"
           />}
         />
         <div className={`${dividerColor} px-2`} />
-        <UIUtils.RenderIf condition={paymentResponseHashKey->Js.String2.length > 0}>
+        <UIUtils.RenderIf condition={paymentResponseHashKey->String.length > 0}>
           <ProdOnboardingUIUtils.SetupWebhookProcessor
             headerSectionText="Payment Response Hash Key"
             subtextSectionText="Download the provided key to authenticate and verify live events sent by Hyperswitch. Learn more"
             customRightSection={<HelperComponents.KeyAndCopyArea
               copyValue=paymentResponseHashKey
-              contextName="setup_webhook_processor"
-              actionName="hs_webhookcopied"
               shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-full"
             />}
           />
@@ -83,7 +74,7 @@ module SetupWebhookUser = {
       onBlur: _ev => (),
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
-        if value->Js.String2.includes("<script>") || value->Js.String2.includes("</script>") {
+        if value->String.includes("<script>") || value->String.includes("</script>") {
           showPopUp({
             popUpType: (Warning, WithIcon),
             heading: `Script Tags are not allowed`,
@@ -91,7 +82,7 @@ module SetupWebhookUser = {
             handleConfirm: {text: "OK"},
           })
         }
-        let val = value->Js.String2.replace("<script>", "")->Js.String2.replace("</script>", "")
+        let val = value->String.replace("<script>", "")->String.replace("</script>", "")
         setWebhookEndpoint(_ => val)
       },
       onFocus: _ev => (),
@@ -107,14 +98,12 @@ module SetupWebhookUser = {
           <TextInput input=webhookEndpoint placeholder="Enter your webhook endpoint here " />
         </FormRenderer.FieldWrapper>}
       />
-      <UIUtils.RenderIf condition={paymentResponseHashKey->Js.String2.length > 0}>
+      <UIUtils.RenderIf condition={paymentResponseHashKey->String.length > 0}>
         <ProdOnboardingUIUtils.SetupWebhookProcessor
           headerSectionText="Payment Response Hash Key"
           subtextSectionText="Download the provided key to authenticate and verify live events sent by Hyperswitch. Learn more"
           customRightSection={<HelperComponents.KeyAndCopyArea
             copyValue=paymentResponseHashKey
-            contextName="setup_webhook_processor"
-            actionName="hs_webhookcopied"
             shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-full"
           />}
         />
@@ -183,7 +172,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
     try {
       setButtonState(_ => Loading)
       let mercahantUpdateBody =
-        [("webhook_url", webhookEndpoint->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_
+        [("webhook_url", webhookEndpoint->Js.Json.string)]->Dict.fromArray->Js.Json.object_
       let body = mercahantUpdateBody->MerchantAccountUtils.getSettingsPayload(merchantId)
       let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ())
       let merchantInfo = await updateDetails(url, body, Post)

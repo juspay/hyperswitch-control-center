@@ -274,10 +274,10 @@ module DescriptionSection = {
   ) => {
     <div className={textStyleGap}>
       {description
-      ->Js.String2.split("\n")
-      ->Js.Array2.filter(str => str !== "")
-      ->Js.Array2.map(item => {
-        <AddDataAttributes attributes=[("data-text", item)]>
+      ->String.split("\n")
+      ->Array.filter(str => str !== "")
+      ->Array.mapWithIndex((item, i) => {
+        <AddDataAttributes attributes=[("data-text", item)] key={i->string_of_int}>
           <div key={item} className="flex flex-col gap-1"> {React.string(item)} </div>
         </AddDataAttributes>
       })

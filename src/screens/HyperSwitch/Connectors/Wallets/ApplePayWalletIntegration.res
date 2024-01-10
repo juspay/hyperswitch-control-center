@@ -3,7 +3,7 @@ module HostURL = {
   let make = (~prefix="") => {
     let fieldInputVal = ReactFinalForm.useField(`${prefix}`).input
     let fieldInput = switch fieldInputVal.value->Js.Json.decodeString {
-    | Some(val) => val->Js.String2.length > 0 ? val : "domain_name"
+    | Some(val) => val->String.length > 0 ? val : "domain_name"
     | None => "domain_name"
     }
 
@@ -163,7 +163,7 @@ module Manual = {
 
     let fields = {
       configurationFields
-      ->Js.Dict.keys
+      ->Dict.keysToArray
       ->Array.mapWithIndex((field, index) => {
         let label = configurationFields->getString(field, "")
         <div key={index->Belt.Int.toString}>
@@ -207,7 +207,7 @@ module Manual = {
       </InfoCard>
       <Form
         validate={values =>
-          validate(values, configurationFields->Js.Dict.keys->getUniqueArray, #manual)}
+          validate(values, configurationFields->Dict.keysToArray->getUniqueArray, #manual)}
         onSubmit
         initialValues={metaData}>
         {fields}

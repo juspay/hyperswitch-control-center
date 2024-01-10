@@ -8,14 +8,14 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   open LogicUtils
 
   let url = RescriptReactRouter.useUrl()
-  let initialValues = Js.Dict.empty()->Js.Json.object_
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+  let initialValues = Dict.make()->Js.Json.object_
   let clientCountry = HSwitchUtils.getBrowswerDetails().clientCountry
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (email, setEmail) = React.useState(_ => "")
-  let {magicLink: isMagicLinkEnabled, forgetPassword, ossBuild: isOssBuild} =
+  let {magicLink: isMagicLinkEnabled, forgetPassword} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let handleAuthError = e => {
@@ -34,7 +34,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
 
   let getUserWithEmail = async body => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#SIGNIN, ~methodType=Post, ())
+      let url = getURL(~entityName=USERS, ~userType=#CONNECT_ACCOUNT, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post)
       let valuesDict = res->getDictFromJsonObject
       let magicLinkSent = valuesDict->LogicUtils.getBool("is_email_sent", false)
@@ -70,7 +70,6 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   }
 
   let openPlayground = _ => {
-    hyperswitchMixPanel(~eventName=Some("try_playground"), ~email=playgroundUserEmail, ())
     let body = getEmailPasswordBody(playgroundUserEmail, playgroundUserPassword, country)
     getUserWithEmailPassword(body, playgroundUserEmail, #SIGNIN)->ignore
     HSLocalStorage.setIsPlaygroundInLocalStorage(true)
@@ -117,77 +116,61 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let logMixpanelEvents = email => {
     open HyperSwitchAuthTypes
     switch authType {
-    | LoginWithPassword => hyperswitchMixPanel(~eventName=Some("landing_loginbutton"), ~email, ())
-    | LoginWithEmail =>
-      hyperswitchMixPanel(~eventName=Some("landing_loginbutton_magic_link"), ~email, ())
-    | SignUP => hyperswitchMixPanel(~eventName=Some("landing_registerbutton"), ~email, ())
-    | MagicLinkEmailSent => hyperswitchMixPanel(~eventName=Some("landing_verifyemail"), ~email, ())
-    | EmailVerify => hyperswitchMixPanel(~eventName=Some("landing_emailverify"), ~email, ())
-    | ForgetPassword => hyperswitchMixPanel(~eventName=Some("landing_forgotpassword"), ~email, ())
-    | ForgetPasswordEmailSent =>
-      hyperswitchMixPanel(~eventName=Some("landing_forgetpassword_resend_mail"), ~email, ())
-    | MagicLinkVerify => hyperswitchMixPanel(~eventName=Some("landing_magiclinkverify"), ~email, ())
-    | ResendVerifyEmail =>
-      hyperswitchMixPanel(~eventName=Some("landing_resendverifyemail"), ~email, ())
-    | ResendVerifyEmailSent =>
-      hyperswitchMixPanel(~eventName=Some("landing_verifyemail_resend_mail"), ~email, ())
-    | ResetPassword => hyperswitchMixPanel(~eventName=Some("landing_resetpassword"), ~email, ())
-    | LiveMode => hyperswitchMixPanel(~eventName=Some("landing_livetesttoggle"), ~email, ())
+    | LoginWithPassword => mixpanelEvent(~eventName=`signin_using_email&password`, ~email, ())
+    | LoginWithEmail => mixpanelEvent(~eventName=`signin_using_magic_link`, ~email, ())
+    | SignUP => mixpanelEvent(~eventName=`signup_using_magic_link`, ~email, ())
+    | _ => ()
     }
   }
 
   let onSubmit = async (values, _) => {
-    let valuesDict = values->getDictFromJsonObject
-    let email = valuesDict->getString("email", "")
-    setEmail(_ => email)
-    logMixpanelEvents(email)
+    try {
+      open HyperSwitchAuthTypes
+      let valuesDict = values->getDictFromJsonObject
+      let email = valuesDict->getString("email", "")
+      setEmail(_ => email)
+      logMixpanelEvents(email)
 
-    switch (isMagicLinkEnabled, authType) {
-    | (true, SignUP) | (true, LoginWithEmail) => {
-        let body = getEmailBody(email, ~country, ())
+      let _ = await (
+        switch (isMagicLinkEnabled, authType) {
+        | (true, SignUP) | (true, LoginWithEmail) => {
+            let body = getEmailBody(email, ~country, ())
+            getUserWithEmail(body)
+          }
 
-        getUserWithEmail(body)->ignore
-      }
+        | (true, ResendVerifyEmail) =>
+          let body = email->getEmailBody()
+          resendVerifyEmail(body)
 
-    | (true, ResendVerifyEmail) =>
-      let body = email->getEmailBody()
-      resendVerifyEmail(body)->ignore
+        | (false, SignUP) => {
+            let password = getString(valuesDict, "password", "")
+            let body = getEmailPasswordBody(email, password, country)
+            getUserWithEmailPassword(body, email, #SIGNUP)
+          }
+        | (_, LoginWithPassword) => {
+            let password = getString(valuesDict, "password", "")
+            let body = getEmailPasswordBody(email, password, country)
+            getUserWithEmailPassword(body, email, #SIGNIN)
+          }
+        | (_, ResetPassword) => {
+            let queryDict = url.search->getDictFromUrlSearchParams
+            let password_reset_token = queryDict->Dict.get("token")->Belt.Option.getWithDefault("")
+            let password = getString(valuesDict, "create_password", "")
+            let body = getResetpasswordBodyJson(password, password_reset_token)
+            setResetPassword(body)
+          }
+        | _ =>
+          switch (forgetPassword, authType) {
+          | (true, ForgetPassword) =>
+            let body = email->getEmailBody()
 
-    | (false, SignUP) => {
-        let password = getString(valuesDict, "password", "")
-        let body = getEmailPasswordBody(email, password, country)
-        if isOssBuild {
-          getUserWithEmailPassword(body, email, #OSSSIGNUP)->ignore
-        } else {
-          getUserWithEmailPassword(body, email, #SIGNIN)->ignore
+            setForgetPassword(body)
+          | _ => Js.Promise.make((~resolve, ~reject as _: _) => resolve(. Js.Nullable.null))
+          }
         }
-      }
-    | (_, LoginWithPassword) => {
-        let password = getString(valuesDict, "password", "")
-        let body = getEmailPasswordBody(email, password, country)
-        if isOssBuild {
-          getUserWithEmailPassword(body, email, #OSSSIGNIN)->ignore
-        } else {
-          getUserWithEmailPassword(body, email, #SIGNIN)->ignore
-        }
-      }
-    | (_, ResetPassword) => {
-        let queryDict = url.search->getDictFromUrlSearchParams
-        let password_reset_token = queryDict->Js.Dict.get("token")->Belt.Option.getWithDefault("")
-        let password = getString(valuesDict, "create_password", "")
-        let body = getResetpasswordBodyJson(password, password_reset_token)
-        setResetPassword(body)->ignore
-      }
-
-    | _ => ()
-    }
-
-    switch (forgetPassword, authType) {
-    | (true, ForgetPassword) =>
-      let body = email->getEmailBody()
-
-      setForgetPassword(body)->ignore
-    | _ => ()
+      )
+    } catch {
+    | _ => showToast(~message="Something went wrong, Try again", ~toastType=ToastError, ())
     }
     Js.Nullable.null
   }
@@ -251,7 +234,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
             <ResendBtn callBackFun={resendEmail} />
           | _ => React.null
           }}
-          <div className="flex flex-col gap-2">
+          <div id="auth-submit-btn" className="flex flex-col gap-2">
             {switch authType {
             | LoginWithPassword
             | LoginWithEmail
@@ -264,7 +247,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
                 text=submitBtnText
                 userInteractionRequired=true
                 showToolTip=false
-                loadingText="Please wait..."
+                loadingText="Loading..."
               />
             | _ => React.null
             }}

@@ -28,7 +28,7 @@ module GatewayView = {
 }
 
 @react.component
-let make = (~ruleInfo: algorithmData, ~isFrom3ds=false) => {
+let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) => {
   open LogicUtils
 
   <div
@@ -40,9 +40,11 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false) => {
           ->Array.mapWithIndex((rule, index) => {
             let statementsArr = rule.statements
             let headingText = `Rule ${string_of_int(index + 1)}`
-            let marginStyle = index === ruleInfo.rules->Js.Array2.length - 1 ? "mt-2" : "my-2"
+            let marginStyle = index === ruleInfo.rules->Array.length - 1 ? "mt-2" : "my-2"
             let threeDsType = rule.connectorSelection.override_3ds->Belt.Option.getWithDefault("")
 
+            let surchargeType =
+              rule.connectorSelection.surcharge_details->SurchargeUtils.getDefaultSurchargeType
             <div
               key={Belt.Int.toString(index)}
               className="flex flex-col items-center w-full px-4 pb-6">
@@ -63,13 +65,19 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false) => {
                     let field = statement.lhs
                     let metadataDict =
                       statement.metadata
-                      ->Belt.Option.getWithDefault(Js.Dict.empty()->Js.Json.object_)
+                      ->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
                       ->getDictFromJsonObject
 
                     let value = switch statement.value.value->Js.Json.classify {
-                    | JSONArray(arr) => arr->Js.Array2.joinWith(", ")
+                    | JSONArray(arr) => arr->Array.joinWith(", ")
                     | JSONString(str) => str
                     | JSONNumber(num) => num->Belt.Float.toString
+                    | JSONObject(obj) => obj->LogicUtils.getString("value", "")
+                    | _ => ""
+                    }
+
+                    let metadataKeyValue = switch statement.value.value->Js.Json.classify {
+                    | JSONObject(obj) => obj->LogicUtils.getString("key", "")
                     | _ => ""
                     }
 
@@ -82,6 +90,9 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false) => {
                         />
                       </UIUtils.RenderIf>
                       <MakeRuleFieldComponent.TextView str=field />
+                      <UIUtils.RenderIf condition={typeString == "metadata_variant"}>
+                        <MakeRuleFieldComponent.TextView str=metadataKeyValue />
+                      </UIUtils.RenderIf>
                       <UIUtils.RenderIf condition={metadataKey->Belt.Option.isSome}>
                         <MakeRuleFieldComponent.TextView
                           str={metadataKey->Belt.Option.getWithDefault("")}
@@ -95,7 +106,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false) => {
                   })
                   ->React.array}
                 </div>
-                <UIUtils.RenderIf condition={rule.statements->Js.Array2.length > 0}>
+                <UIUtils.RenderIf condition={rule.statements->Array.length > 0}>
                   <Icon size=14 name="arrow-right" className="mx-4 text-jp-gray-700" />
                 </UIUtils.RenderIf>
                 <UIUtils.RenderIf condition={isFrom3ds}>
@@ -108,6 +119,18 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false) => {
                   <GatewayView
                     gateways={rule.connectorSelection.data->Belt.Option.getWithDefault([])}
                   />
+                </UIUtils.RenderIf>
+                <UIUtils.RenderIf condition={isFromSurcharge}>
+                  <div
+                    className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium text-blue-800 hover:text-blue-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1">
+                    {`${surchargeType.surcharge.\"type"} -> ${surchargeType.surcharge.value.percentage
+                      ->Option.getWithDefault(0.0)
+                      ->Belt.Float.toString} | Tax on Surcharge -> ${surchargeType.tax_on_surcharge.percentage
+                      ->Option.getWithDefault(0.0)
+                      ->Belt.Float.toString}`
+                    ->LogicUtils.capitalizeString
+                    ->React.string}
+                  </div>
                 </UIUtils.RenderIf>
               </div>
             </div>

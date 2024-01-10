@@ -2,41 +2,19 @@ open ProdVerifyModalUtils
 open CardUtils
 
 @react.component
-let make = (~showModal, ~setShowModal, ~initialValues=Js.Dict.empty(), ~getProdVerifyDetails) => {
+let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerifyDetails) => {
   open APIUtils
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (isSubmitBtnDisabled, setIsSubmitBtnDisabled) = React.useState(_ => false)
-  let {
-    dashboardPageState,
-    integrationDetails,
-    setIntegrationDetails,
-    setShowProdIntentForm,
-  } = React.useContext(GlobalProvider.defaultContext)
-
-  let markAsDone = async () => {
-    try {
-      let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
-      let body = HSwitchUtils.constructOnboardingBody(
-        ~dashboardPageState,
-        ~integrationDetails,
-        ~is_done=true,
-        (),
-      )
-      let _ = await updateDetails(url, body, Post)
-      setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
-    } catch {
-    | _ => ()
-    }
-  }
+  let {setShowProdIntentForm} = React.useContext(GlobalProvider.defaultContext)
 
   let updateProdDetails = async values => {
     try {
-      let url = getURL(~entityName=PROD_VERIFY, ~methodType=Fetch.Post, ())
-      let body = values->getBody->Js.Json.object_
+      let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
+      let bodyValues = values->getBody->Js.Json.object_
+      let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
       showToast(
         ~toastType=ToastSuccess,
@@ -46,7 +24,6 @@ let make = (~showModal, ~setShowModal, ~initialValues=Js.Dict.empty(), ~getProdV
       )
       setScreenState(_ => Success)
       getProdVerifyDetails()->ignore
-      markAsDone()->ignore
       setShowProdIntentForm(_ => false)
     } catch {
     | _ => setShowModal(_ => false)
@@ -56,12 +33,6 @@ let make = (~showModal, ~setShowModal, ~initialValues=Js.Dict.empty(), ~getProdV
 
   let onSubmit = (values, _) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
-    hyperswitchMixPanel(
-      ~pageName=url.path->LogicUtils.getListHead,
-      ~contextName="prodintent",
-      ~actionName="bizdetails",
-      (),
-    )
     updateProdDetails(values)
   }
 

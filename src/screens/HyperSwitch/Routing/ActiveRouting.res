@@ -27,25 +27,30 @@ module TopRightIcons = {
 module ActionButtons = {
   @react.component
   let make = (~routeType: routingType) => {
-    let url = RescriptReactRouter.useUrl()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let showToast = ToastState.useShowToast()
     let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
 
     let handleSubmitRequest = async _ => {
       try {
-        let requestBody =
+        let requestedBody =
           [
             ("rating", 5.0->Js.Json.number),
             ("category", "Routing request"->Js.Json.string),
             ("feedbacks", `Request for Cost based Routing`->Js.Json.string),
           ]
-          ->Js.Dict.fromArray
+          ->LogicUtils.getJsonFromArrayOfJson
+          ->HSwitchUtils.getBodyForFeedBack()
           ->Js.Json.object_
 
-        let body = requestBody->HSwitchUtils.getBodyForFeedBack()
-        let feedbackUrl = APIUtils.getURL(~entityName=FEEDBACK, ~methodType=Post, ())
-        let _ = await updateDetails(feedbackUrl, body->Js.Json.object_, Post)
+        let feedbackUrl = APIUtils.getURL(
+          ~entityName=USERS,
+          ~userType=#USER_DATA,
+          ~methodType=Post,
+          (),
+        )
+        let body = [("Feedback", requestedBody)]->LogicUtils.getJsonFromArrayOfJson
+        let _ = await updateDetails(feedbackUrl, body, Post)
         showToast(
           ~toastType=ToastSuccess,
           ~message="Request submitted successfully!",
@@ -69,12 +74,7 @@ module ActionButtons = {
         customButtonStyle="border !border-blue-700 bg-white !text-blue-700"
         onClick={_ => {
           RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)
-          hyperswitchMixPanel(
-            ~pageName=`${url.path->LogicUtils.getListHead}_active`,
-            ~contextName=`${routeType->routingTypeName}based`,
-            ~actionName="setup",
-            (),
-          )
+          mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
         }}
       />
     | DEFAULTFALLBACK =>
@@ -85,12 +85,7 @@ module ActionButtons = {
         buttonSize={Small}
         onClick={_ => {
           RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)
-          hyperswitchMixPanel(
-            ~pageName=`${url.path->LogicUtils.getListHead}_active`,
-            ~contextName=`${routeType->routingTypeName}`,
-            ~actionName="manage",
-            (),
-          )
+          mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
         }}
       />
 
@@ -106,28 +101,11 @@ module ActionButtons = {
     }
   }
 }
-module DefaultSection = {
-  @react.component
-  let make = () => {
-    <div className="relative flex flex-col flex-wrap bg-white  rounded w-full gap-5">
-      <div className="text-lightgray_background font-semibold text-base">
-        {getContent(DEFAULTFALLBACK).heading->React.string}
-      </div>
-      <div className="text-lightgray_background font-medium text-base opacity-50 text-fs-14 ">
-        {getContent(DEFAULTFALLBACK).subHeading->React.string}
-      </div>
-      <div className="flex gap-5 w-1/4 ">
-        <ActionButtons routeType={DEFAULTFALLBACK} />
-      </div>
-    </div>
-  }
-}
+
 module ActiveSection = {
   @react.component
   let make = (~activeRouting, ~activeRoutingId) => {
     open LogicUtils
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     let activeRoutingType =
       activeRouting->getDictFromJsonObject->getString("kind", "")->routingTypeMapper
 
@@ -152,7 +130,7 @@ module ActiveSection = {
             </p>
             <Icon name="primary-tag" size=25 className="w-20" />
           </div>
-          <UIUtils.RenderIf condition={profileId->Js.String2.length > 0}>
+          <UIUtils.RenderIf condition={profileId->String.length > 0}>
             <div className="flex gap-2">
               <MerchantAccountUtils.BusinessProfile
                 profile_id={profileId}
@@ -186,12 +164,6 @@ module ActiveSection = {
                     )}?id=${activeRoutingId}&isActive=true`,
                 )
               }
-              hyperswitchMixPanel(
-                ~pageName=`${url.path->LogicUtils.getListHead}_active`,
-                ~contextName=`${activeRoutingType->routingTypeName}`,
-                ~actionName="manage",
-                (),
-              )
             }}
           />
         </div>

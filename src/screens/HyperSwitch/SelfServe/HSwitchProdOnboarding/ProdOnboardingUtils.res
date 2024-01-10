@@ -17,7 +17,7 @@ let checkList: array<ProdOnboardingTypes.checkListType> = [
   },
 ]
 
-let updatedCheckList = [defaultValueOfCheckList]->Js.Array2.concat(checkList)
+let updatedCheckList = [defaultValueOfCheckList]->Array.concat(checkList)
 
 let getPageView = index => {
   open ProdOnboardingTypes
@@ -27,7 +27,6 @@ let getPageView = index => {
   | SETUP_WEBHOOK_PROCESSOR => REPLACE_API_KEYS
   | REPLACE_API_KEYS => SETUP_WEBHOOK_USER
   | SETUP_WEBHOOK_USER => SETUP_COMPLETED
-  // | TEST_LIVE_PAYMENT => SETUP_COMPLETED
   | _ => SETUP_COMPLETED
   }
 }
@@ -39,8 +38,6 @@ let getBackPageView = index => {
   | SETUP_WEBHOOK_PROCESSOR => SETUP_CREDS
   | REPLACE_API_KEYS => SETUP_WEBHOOK_PROCESSOR
   | SETUP_WEBHOOK_USER => REPLACE_API_KEYS
-  // | TEST_LIVE_PAYMENT => SETUP_WEBHOOK_USER
-  // | SETUP_COMPLETED => TEST_LIVE_PAYMENT
   | _ => SETUP_COMPLETED
   }
 }
@@ -138,16 +135,6 @@ let getWarningBlockForConnector = connectorName => {
   }
 }
 
-let getFirstSubVariant = (parentVariant: ProdOnboardingTypes.sectionHeadingVariant) => {
-  open ProdOnboardingTypes
-  switch parentVariant {
-  | #SetupProcessor => SELECT_PROCESSOR
-  | #ConfigureEndpoint => REPLACE_API_KEYS
-  | #SetupComplete => SETUP_COMPLETED
-  | #ProductionAgreement => SELECT_PROCESSOR
-  }
-}
-
 let getProdApiBody = (
   ~parentVariant: ProdOnboardingTypes.sectionHeadingVariant,
   ~connectorId="",
@@ -159,10 +146,10 @@ let getProdApiBody = (
     [
       (
         (parentVariant :> string),
-        [("connector_id", connectorId->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_,
+        [("connector_id", connectorId->Js.Json.string)]->Dict.fromArray->Js.Json.object_,
       ),
     ]
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
 
   | #ProductionAgreement =>
@@ -170,28 +157,19 @@ let getProdApiBody = (
       (
         (parentVariant :> string),
         [("version", HSwitchGlobalVars.agreementVersion->Js.Json.string)]
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_,
       ),
     ]
-    ->Js.Dict.fromArray
+    ->Dict.fromArray
     ->Js.Json.object_
-  // | #SetupComplete =>
-  //   [
-  //     (
-  //       (parentVariant :> string),
-  //       [("paymentId", paymentId->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_,
-  //     ),
-  //   ]
-  //   ->Js.Dict.fromArray
-  //   ->Js.Json.object_
   | _ => (parentVariant :> string)->Js.Json.string
   }
 }
 
 let getProdOnboardingUrl = (enum: ProdOnboardingTypes.sectionHeadingVariant) => {
   open APIUtils
-  `${getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Get, ())}/${(enum :> string)}`
+  `${getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Get, ())}?keys=${(enum :> string)}`
 }
 
 let getPreviewState = headerVariant => {

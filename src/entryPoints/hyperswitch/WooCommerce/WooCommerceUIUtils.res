@@ -28,8 +28,8 @@ module SelectProcessor = {
       <QuickStartUIUtils.SelectConnectorGrid
         selectedConnector
         setSelectedConnector
-        connectorList={ConnectorUtils.connectorList->Js.Array2.filter(value =>
-          !(connectorArray->Js.Array2.includes(value->ConnectorUtils.getConnectorNameString))
+        connectorList={ConnectorUtils.connectorList->Array.filter(value =>
+          !(connectorArray->Array.includes(value->ConnectorUtils.getConnectorNameString))
         )}
       />
     </QuickStartUIUtils.BaseComponent>
@@ -49,6 +49,7 @@ module SelectPaymentMethods = {
     ~setButtonState: (Button.buttonState => Button.buttonState) => unit,
     ~buttonState,
   ) => {
+    open QuickStartUtils
     let updateEnumInRecoil = EnumVariantHook.useUpdateEnumInRecoil()
     let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
     let updateAPIHook = APIUtils.useUpdateMethod()
@@ -57,12 +58,12 @@ module SelectPaymentMethods = {
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
 
     let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
-      Js.Dict.empty()->Js.Json.object_->ConnectorUtils.getPaymentMethodEnabled
+      Dict.make()->Js.Json.object_->ConnectorUtils.getPaymentMethodEnabled
     )
-    let (metaData, setMetaData) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
+    let (metaData, setMetaData) = React.useState(_ => Dict.make()->Js.Json.object_)
 
     let updateDetails = value => {
-      setPaymentMethods(_ => value->Js.Array2.copy)
+      setPaymentMethods(_ => value->Array.copy)
     }
 
     let updateEnumForConnector = async connectorResponse => {
@@ -78,14 +79,20 @@ module SelectPaymentMethods = {
 
         let enumRecoilUpdateArr = []
 
-        if enums.firstProcessorConnected.processorID->Js.String2.length === 0 {
+        if enums.firstProcessorConnected.processorID->String.length === 0 {
           let _ = await body->postEnumDetails(#FirstProcessorConnected)
           enumRecoilUpdateArr->Array.push((body, #FirstProcessorConnected))
         }
 
-        if !enums.isMultipleConfiguration {
-          let _ = await Boolean(true)->postEnumDetails(#IsMultipleConfiguration)
-          enumRecoilUpdateArr->Array.push((Boolean(true), #IsMultipleConfiguration))
+        if enums.configurationType->String.length === 0 {
+          let _ =
+            await StringEnumType(
+              #MultipleProcessorWithSmartRouting->connectorChoiceVariantToString,
+            )->postEnumDetails(#ConfigurationType)
+          enumRecoilUpdateArr->Array.push((
+            StringEnumType(#MultipleProcessorWithSmartRouting->connectorChoiceVariantToString),
+            #ConfigurationType,
+          ))
         }
 
         let _ = updateEnumInRecoil(enumRecoilUpdateArr)
@@ -139,7 +146,7 @@ module SelectPaymentMethods = {
     <QuickStartUIUtils.BaseComponent
       headerText="Connect payment methods"
       customIcon={<GatewayIcon
-        gateway={connectorName->Js.String2.toUpperCase} className="w-6 h-6 rounded-md"
+        gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
       />}
       customCss="show-scrollbar"
       nextButton={<Button

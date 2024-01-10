@@ -1,8 +1,8 @@
 module ConnectorCurrentStepIndicator = {
   @react.component
   let make = (~currentStep: ConnectorTypes.steps, ~stepsArr, ~borderWidth="w-8/12") => {
-    let cols = stepsArr->Js.Array2.length->Belt.Int.toString
-    let currIndex = stepsArr->Js.Array2.findIndex(item => item === currentStep)
+    let cols = stepsArr->Array.length->Belt.Int.toString
+    let currIndex = stepsArr->Array.findIndex(item => item === currentStep)
     <div className=" w-full md:w-2/3">
       <div className={`grid grid-cols-${cols} relative gap-2`}>
         {stepsArr
@@ -37,7 +37,7 @@ module ConnectorCurrentStepIndicator = {
                   <p className=textColor> {(i + 1)->string_of_int->React.string} </p>
                 }}
               </div>
-              <UIUtils.RenderIf condition={i !== stepsArr->Js.Array2.length - 1}>
+              <UIUtils.RenderIf condition={i !== stepsArr->Array.length - 1}>
                 <div className={`h-0.5 ${stepLineIndicator} ml-2 flex-1`} />
               </UIUtils.RenderIf>
             </div>
@@ -58,11 +58,10 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   open ConnectorUtils
   open APIUtils
   let url = RescriptReactRouter.useUrl()
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
 
@@ -71,20 +70,6 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   | list{"payoutconnectors", "new"} => false
   | _ => true
   }
-
-  React.useEffect1(() => {
-    if connector->Js.String2.length > 0 && connector !== "Unknown Connector" {
-      [connector, "global"]->Js.Array2.forEach(ele =>
-        hyperswitchMixPanel(
-          ~pageName=url.path->LogicUtils.getListHead,
-          ~contextName=ele,
-          ~actionName=`${isUpdateFlow ? "selectedold" : "selectednew"}`,
-          (),
-        )
-      )
-    }
-    None
-  }, [connector])
 
   let getConnectorDetails = async () => {
     try {
@@ -100,7 +85,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let getDetails = async () => {
     try {
       setScreenState(_ => Loading)
-      let _wasmResult = await Window.connectorWasmInit()
+      let _ = await Window.connectorWasmInit()
       if isUpdateFlow {
         await getConnectorDetails()
       }
@@ -114,7 +99,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   }
 
   React.useEffect1(() => {
-    if connector->Js.String2.length > 0 {
+    if connector->String.length > 0 {
       getDetails()->ignore
     }
     None
@@ -155,17 +140,11 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         {switch currentStep {
         | IntegFields =>
           <ConnectorAccountDetails
-            currentStep setCurrentStep setInitialValues initialValues isUpdateFlow isPayoutFlow
+            setCurrentStep setInitialValues initialValues isUpdateFlow isPayoutFlow
           />
         | PaymentMethods =>
           <ConnectorPaymentMethod
-            currentStep
-            setCurrentStep
-            connector
-            setInitialValues
-            initialValues
-            isUpdateFlow
-            isPayoutFlow
+            setCurrentStep connector setInitialValues initialValues isUpdateFlow isPayoutFlow
           />
         | SummaryAndTest
         | Preview =>

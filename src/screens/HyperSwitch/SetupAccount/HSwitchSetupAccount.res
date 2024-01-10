@@ -3,7 +3,6 @@ let make = () => {
   open HSwitchSetupAccountUtils
   open APIUtils
   open HyperSwitchUtils
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let finalTickLottieFile = LottieFiles.useLottieJson("FinalTick.json")
   let (stepCounter, setStepCounter) = React.useState(_ => #INITIALIZE)
@@ -14,7 +13,7 @@ let make = () => {
     ->Recoil.useRecoilValueFromAtom
     ->MerchantAccountUtils.getValueFromBusinessProfile
 
-  let indexOfStepCounterVal = listOfStepCounter->Js.Array2.indexOf(stepCounter)
+  let indexOfStepCounterVal = listOfStepCounter->Array.indexOf(stepCounter)
   let {
     dashboardPageState,
     setDashboardPageState,
@@ -77,16 +76,12 @@ let make = () => {
         ->getDictFromJsonObject
         ->getOptionString("id")
       let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-      let _ = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
       setStepCounter(_ => #ROUTING_ENABLED)
 
       // *GENERATE_SAMPLE_DATA
       let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
-      let _generateSampleData = await updateDetails(
-        generateSampleDataUrl,
-        Js.Dict.empty()->Js.Json.object_,
-        Post,
-      )
+      let _ = await updateDetails(generateSampleDataUrl, Dict.make()->Js.Json.object_, Post)
       setStepCounter(_ => #GENERATE_SAMPLE_DATA)
       await delay(delayTime)
       setStepCounter(_ => #COMPLETED)
@@ -104,14 +99,7 @@ let make = () => {
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       setDashboardPageState(_ => #INTEGRATION_DOC)
     } catch {
-    | Js.Exn.Error(e) => {
-        let stepCount: HSwitchSetupAccountUtils.stepCounterTypes = stepCounter
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
-        hyperswitchMixPanel(
-          ~eventName=Some("setup_account_failed"),
-          ~description=Some(`${(stepCount :> string)} ${err}`),
-          (),
-        )
+    | _ => {
         await delay(delayTime - 1000)
         setDashboardPageState(_ => #HOME)
       }
@@ -119,7 +107,7 @@ let make = () => {
   }
 
   let getDetails = async () => {
-    if activeBusinessProfile.profile_id->Js.String2.length > 0 {
+    if activeBusinessProfile.profile_id->String.length > 0 {
       apiCalls()->ignore
     }
   }

@@ -39,12 +39,10 @@ let make = (
   ~removeValidationCheck=false,
 ) => {
   let showPopUp = PopUpState.useShowPopUp()
-  let isInValid = if removeValidationCheck {
-    false
-  } else {
-    try {
-      let {meta} = ReactFinalForm.useField(input.name)
-      if !meta.valid && meta.touched {
+  let isInValid = try {
+    let {meta} = ReactFinalForm.useField(input.name)
+    if !removeValidationCheck {
+      let bool = if !meta.valid && meta.touched {
         // if there is a submission error and field value hasn't been updated after last submit, field is invalid
         // or if there is any field error, field is invalid
         (!(meta.submitError->Js.Nullable.isNullable) && !meta.dirtySinceLastSubmit) ||
@@ -52,10 +50,14 @@ let make = (
       } else {
         false
       }
-    } catch {
-    | _ => false
+      bool
+    } else {
+      false
     }
+  } catch {
+  | _ => false
   }
+
   let {isFirst, isLast} = React.useContext(ButtonGroupContext.buttonGroupContext)
   let (showPassword, setShowPassword) = React.useState(_ => false)
   let inputRef = React.useRef(Js.Nullable.null)
@@ -68,9 +70,7 @@ let make = (
         let size =
           elem
           ->Webapi.Dom.Element.getAttribute("placeholder")
-          ->Belt.Option.mapWithDefault(length, str =>
-            Js.Math.max_int(length, str->Js.String2.length)
-          )
+          ->Belt.Option.mapWithDefault(length, str => Js.Math.max_int(length, str->String.length))
           ->Belt.Int.toString
 
         elem->Webapi.Dom.Element.setAttribute("size", size)
@@ -85,7 +85,7 @@ let make = (
   React.useEffect1(() => {
     let val = input.value->Js.Json.decodeString->Belt.Option.getWithDefault("")
 
-    if val->Js.String2.includes("<script>") || val->Js.String2.includes("</script>") {
+    if val->String.includes("<script>") || val->String.includes("</script>") {
       showPopUp({
         popUpType: (Warning, WithIcon),
         heading: `Script Tags are not allowed`,
@@ -95,8 +95,8 @@ let make = (
 
       input.onChange(
         val
-        ->Js.String2.replace("<script>", "")
-        ->Js.String2.replace("</script>", "")
+        ->String.replace("<script>", "")
+        ->String.replace("</script>", "")
         ->Identity.stringToFormReactEvent,
       )
     }

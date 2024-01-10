@@ -6,13 +6,11 @@ module PrettyPrintJson = {
   @react.component
   let make = (
     ~jsonToDisplay,
-    ~headerText,
+    ~headerText=None,
     ~maxHeightClass="max-h-25-rem",
     ~overrideBackgroundColor="bg-hyperswitch_background",
   ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let showToast = ToastState.useShowToast()
-    let url = RescriptReactRouter.useUrl()
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
     let (parsedJson, setParsedJson) = React.useState(_ => "")
 
@@ -32,32 +30,33 @@ module PrettyPrintJson = {
     let handleOnClickCopy = (~parsedValue) => {
       Clipboard.writeText(parsedValue)
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
-      hyperswitchMixPanel(
-        ~pageName=`${url.path->getListHead}`,
-        ~contextName=`${headerText->toCamelCase}`,
-        ~actionName="copied",
-        (),
-      )
     }
 
+    let copyParsedJson =
+      <div onClick={_ => handleOnClickCopy(~parsedValue=parsedJson)} className="cursor-pointer">
+        <img src={`/assets/CopyToClipboard.svg`} />
+      </div>
+
     <div className="flex flex-col gap-2  my-2">
-      <UIUtils.RenderIf condition={parsedJson->Js.String2.length > 0}>
+      <UIUtils.RenderIf condition={parsedJson->String.length > 0}>
         {<>
-          <div className="flex justify-between items-center">
-            <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
-              {headerText->React.string}
-            </p>
-            <div
-              onClick={_ => handleOnClickCopy(~parsedValue=parsedJson)} className="cursor-pointer">
-              <img src={`/assets/CopyToClipboard.svg`} />
+          <UIUtils.RenderIf condition={headerText->Belt.Option.isSome}>
+            <div className="flex justify-between items-center">
+              <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
+                {headerText->Belt.Option.getWithDefault("")->React.string}
+              </p>
+              {copyParsedJson}
             </div>
+          </UIUtils.RenderIf>
+          <div className="flex items-start justify-between">
+            <pre
+              className={`${overrideBackgroundColor} p-3 text-jp-gray-900 dark:bg-jp-gray-950 dark:bg-opacity-100 ${isTextVisible
+                  ? "overflow-visible "
+                  : `overflow-clip  h-fit ${maxHeightClass}`} text-fs-13 text font-medium`}>
+              {parsedJson->React.string}
+            </pre>
+            {copyParsedJson}
           </div>
-          <pre
-            className={`${overrideBackgroundColor} p-3 text-jp-gray-900 dark:bg-jp-gray-950 dark:bg-opacity-100 ${isTextVisible
-                ? "overflow-visible "
-                : `overflow-clip  h-fit ${maxHeightClass}`} text-fs-13 text font-medium`}>
-            {parsedJson->React.string}
-          </pre>
           <Button
             text={isTextVisible ? "Hide" : "See more"}
             customButtonStyle="h-6 w-8 flex flex-1 justify-center m-1"
@@ -65,10 +64,10 @@ module PrettyPrintJson = {
           />
         </>}
       </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={parsedJson->Js.String2.length === 0}>
+      <UIUtils.RenderIf condition={parsedJson->String.length === 0}>
         <div className="flex flex-col justify-start items-start gap-2 h-25-rem">
           <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
-            {headerText->React.string}
+            {headerText->Belt.Option.getWithDefault("")->React.string}
           </p>
           <p className="font-normal text-fs-14 text-jp-gray-900 text-opacity-50">
             {"Failed to load!"->React.string}
@@ -95,7 +94,7 @@ module ApiDetailsComponent = {
     ~logsDataLength,
   ) => {
     let headerStyle = "text-fs-13 font-medium text-grey-700 break-all"
-    let logType = paymentDetailsValue->Js.Dict.get("request_id")->Belt.Option.isSome ? Payment : Sdk
+    let logType = paymentDetailsValue->Dict.get("request_id")->Belt.Option.isSome ? Payment : Sdk
     let apiName = switch logType {
     | Payment => paymentDetailsValue->getString("api_flow", "default value")->camelCaseToTitle
     | Sdk => paymentDetailsValue->getString("event_name", "default value")
@@ -118,17 +117,12 @@ module ApiDetailsComponent = {
     | Payment => paymentDetailsValue->getString("request", "")
     | Sdk =>
       paymentDetailsValue
-      ->Js.Dict.entries
-      ->Js.Array2.filter(entry => {
+      ->Dict.toArray
+      ->Array.filter(entry => {
         let (key, _) = entry
-        filteredKeys->Js.Array2.includes(key)->not
+        filteredKeys->Array.includes(key)->not
       })
-      // ->Js.Array2.sortInPlaceWith((e1, e2) => {
-      //   let (key1, _) = e1
-      //   let (key2, _) = e2
-      //   key1 > key2 ? 1 : key1 === key2 ? 0 : -1
-      // })
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
       ->Js.Json.object_
       ->Js.Json.stringify
     }
@@ -142,8 +136,18 @@ module ApiDetailsComponent = {
     }
 
     let statusCode = switch logType {
-    | Payment => paymentDetailsValue->getString("status_code", "200")
+    | Payment => paymentDetailsValue->getInt("status_code", 200)->Belt.Int.toString
     | Sdk => paymentDetailsValue->getString("log_type", "INFO")
+    }
+
+    let method = switch logType {
+    | Payment => paymentDetailsValue->getString("http_method", "")
+    | Sdk => ""
+    }
+
+    let apiPath = switch logType {
+    | Payment => paymentDetailsValue->getString("url_path", "")
+    | Sdk => ""
     }
 
     let background_color = switch (logType, statusCode) {
@@ -156,11 +160,11 @@ module ApiDetailsComponent = {
     | _ => "grey-700 opacity-50"
     }
     let stepColor =
-      currentSelected->Js.String2.length > 0 && currentSelected === requestId
+      currentSelected->String.length > 0 && currentSelected === requestId
         ? background_color
         : "gray-300 "
     let boxShadowOnSelection =
-      currentSelected->Js.String2.length > 0 && currentSelected === requestId
+      currentSelected->String.length > 0 && currentSelected === requestId
         ? "border border-blue-700 rounded-md shadow-paymentLogsShadow"
         : "border border-transparent"
 
@@ -183,7 +187,14 @@ module ApiDetailsComponent = {
         <div className="flex flex-col gap-1">
           <div className=" flex gap-2">
             <p className={`text-${background_color} font-bold `}> {statusCode->React.string} </p>
-            <p className=headerStyle> {apiName->React.string} </p>
+            {switch logType {
+            | Sdk => <p className=headerStyle> {apiName->React.string} </p>
+            | Payment =>
+              <p className=headerStyle>
+                <span className="font-bold mr-2"> {method->String.toUpperCase->React.string} </span>
+                <span> {apiPath->React.string} </span>
+              </p>
+            }}
           </div>
           <div className={`${headerStyle} opacity-50`}>
             {createdTime->Js.Date.fromString->Js.Date.toUTCString->React.string}
@@ -269,38 +280,38 @@ let make = (~paymentId, ~createdAt) => {
           (
             "timeRange",
             [("startTime", startTime->Js.Json.string), ("endTime", endTime->Js.Json.string)]
-            ->Js.Dict.fromArray
+            ->Dict.fromArray
             ->Js.Json.object_,
           ),
         ]
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_
       let sdkLogsArray =
         (await fetchPostDetils(url, body, Post))
         ->getArrayFromJson([])
-        ->Js.Array2.map(event => {
+        ->Array.map(event => {
           let eventDict = event->getDictFromJsonObject
           let eventName = eventDict->getString("event_name", "")
           let timestamp = eventDict->getString("created_at_precise", "")
           let logType = eventDict->getString("log_type", "")
           let updatedEventName =
-            logType === "INFO" ? eventName->Js.String2.replace("Call", "Response") : eventName
-          eventDict->Js.Dict.set("event_name", updatedEventName->Js.Json.string)
-          eventDict->Js.Dict.set("event_id", sha256(updatedEventName ++ timestamp)->Js.Json.string)
-          eventDict->Js.Dict.set(
+            logType === "INFO" ? eventName->String.replace("Call", "Response") : eventName
+          eventDict->Dict.set("event_name", updatedEventName->Js.Json.string)
+          eventDict->Dict.set("event_id", sha256(updatedEventName ++ timestamp)->Js.Json.string)
+          eventDict->Dict.set(
             "source",
             eventDict->getString("source", "")->sourceMapper->Js.Json.string,
           )
-          eventDict->Js.Dict.set(
+          eventDict->Dict.set(
             "checkout_platform",
             eventDict->getString("component", "")->Js.Json.string,
           )
-          eventDict->Js.Dict.set(
+          eventDict->Dict.set(
             "customer_device",
             eventDict->getString("platform", "")->Js.Json.string,
           )
-          eventDict->Js.Dict.set("sdk_version", eventDict->getString("version", "")->Js.Json.string)
-          eventDict->Js.Dict.set(
+          eventDict->Dict.set("sdk_version", eventDict->getString("version", "")->Js.Json.string)
+          eventDict->Dict.set(
             "event_name",
             updatedEventName
             ->snakeToTitle
@@ -309,15 +320,15 @@ let make = (~paymentId, ~createdAt) => {
             ->capitalizeString
             ->Js.Json.string,
           )
-          eventDict->Js.Dict.set("created_at", timestamp->Js.Json.string)
+          eventDict->Dict.set("created_at", timestamp->Js.Json.string)
           eventDict->Js.Json.object_
         })
       setSdkLogsData(_ =>
-        sdkLogsArray->Js.Array2.filter(sdkLog => {
+        sdkLogsArray->Array.filter(sdkLog => {
           let eventDict = sdkLog->getDictFromJsonObject
           let eventName = eventDict->getString("event_name", "")
           let filteredEventNames = ["StripeElementsCalled"]
-          filteredEventNames->Js.Array2.includes(eventName)->not
+          filteredEventNames->Array.includes(eventName)->not
         })
       )
 
@@ -343,7 +354,7 @@ let make = (~paymentId, ~createdAt) => {
   }
   let getDetails = async () => {
     try {
-      let _wasmResult = await Window.connectorWasmInit()
+      let _ = await Window.connectorWasmInit()
       if !(paymentId->HSwitchOrderUtils.isTestPayment) {
         fetchPaymentLogsData()->ignore
         fetchSdkLogsData()->ignore
@@ -374,7 +385,7 @@ let make = (~paymentId, ~createdAt) => {
 
   let screenState = React.useMemo2(() => {
     setAllLogsData(_ =>
-      sdkLogsData->Js.Array.concat(paymentLogsData)->Js.Array2.sortInPlaceWith(sortByCreatedAt)
+      sdkLogsData->Array.concat(paymentLogsData)->Js.Array2.sortInPlaceWith(sortByCreatedAt)
     )
     switch (screenState1, screenState2) {
     | (PageLoaderWrapper.Success, _)
@@ -405,7 +416,7 @@ let make = (~paymentId, ~createdAt) => {
       </div>
     } else {
       <Section
-        customCssClass={`border border-jp-gray-940 border-opacity-75 bg-white dark:bg-jp-gray-lightgray_background rounded-md p-10 flex gap-16 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] overflow-scroll`}>
+        customCssClass={`bg-white dark:bg-jp-gray-lightgray_background rounded-md pt-2 pb-4 px-10 flex gap-16 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] overflow-scroll`}>
         <div className="flex flex-col w-1/2 gap-12 overflow-y-scroll">
           <p className="text-lightgray_background font-semibold text-fs-16">
             {"Audit Trail"->React.string}
@@ -423,27 +434,27 @@ let make = (~paymentId, ~createdAt) => {
                 setCurrentSelectedType
                 paymentId
                 index
-                logsDataLength={allLogsData->Js.Array2.length - 1}
+                logsDataLength={allLogsData->Array.length - 1}
               />
             })
             ->React.array}
           </div>
         </div>
         <UIUtils.RenderIf
-          condition={responseObject->Js.String2.length > 0 || requestObject->Js.String2.length > 0}>
+          condition={responseObject->String.length > 0 || requestObject->String.length > 0}>
           <div
             className="flex flex-col gap-4 bg-hyperswitch_background rounded show-scrollbar scroll-smooth overflow-scroll px-8 py-4 w-1/2">
-            <UIUtils.RenderIf condition={requestObject->Js.String2.length > 0}>
+            <UIUtils.RenderIf condition={requestObject->String.length > 0}>
               <PrettyPrintJson
                 jsonToDisplay=requestObject
-                headerText={currentSelectedType === Payment ? "Request body" : "Event"}
-                maxHeightClass={responseObject->Js.String2.length > 0 ? "max-h-25-rem" : ""}
+                headerText={Some(currentSelectedType === Payment ? "Request body" : "Event")}
+                maxHeightClass={responseObject->String.length > 0 ? "max-h-25-rem" : ""}
               />
             </UIUtils.RenderIf>
-            <UIUtils.RenderIf condition={responseObject->Js.String2.length > 0}>
+            <UIUtils.RenderIf condition={responseObject->String.length > 0}>
               <PrettyPrintJson
                 jsonToDisplay=responseObject
-                headerText={currentSelectedType === Payment ? "Response body" : "Metadata"}
+                headerText={Some(currentSelectedType === Payment ? "Response body" : "Metadata")}
               />
             </UIUtils.RenderIf>
           </div>

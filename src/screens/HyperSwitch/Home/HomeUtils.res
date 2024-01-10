@@ -16,7 +16,7 @@ let subtextStyle = `${getTextClass(
   )} text-grey-700 opacity-50`
 let cardHeaderText = `${getTextClass(~textVariant=H3, ~h3TextVariant=Leading_2, ())} `
 let hoverStyle = "cursor-pointer group-hover:shadow hover:shadow-homePageBoxShadow group"
-let boxCssHover = (~ishoverStyleRequired=true, ()) =>
+let boxCssHover = (~ishoverStyleRequired, ()) =>
   `flex flex-col  bg-white border rounded-md pt-10 pl-10 gap-2 h-12.5-rem ${ishoverStyleRequired
       ? hoverStyle
       : ""}`
@@ -30,21 +30,6 @@ type resourcesTypes = {
   subText: string,
   redirectLink: string,
   id: string,
-}
-
-let trackRedictMixPanelEvents = (
-  ~pageName,
-  ~destination,
-  ~redirectType="internal",
-  ~hyperswitchMixPanel: HSMixPanel.functionType,
-  (),
-) => {
-  hyperswitchMixPanel(
-    ~pageName,
-    ~contextName=`${redirectType}_redirect`,
-    ~actionName=`to_${destination}`,
-    (),
-  )
 }
 
 let countries: array<HyperSwitchTypes.country> = [
@@ -122,7 +107,7 @@ let countries: array<HyperSwitchTypes.country> = [
   },
 ]
 
-let isDefaultBusinessProfile = details => details->Js.Array2.length === 1
+let isDefaultBusinessProfile = details => details->Array.length === 1
 
 module MerchantAuthInfo = {
   @react.component
@@ -132,7 +117,7 @@ module MerchantAuthInfo = {
       [
         ("merchant_id", detail.merchant_id->Js.Json.string),
         ("publishable_key", detail.publishable_key->Js.Json.string),
-      ]->Js.Dict.fromArray
+      ]->Dict.fromArray
 
     <Form initialValues={dataDict->Js.Json.object_} formClass="md:ml-9 my-4">
       <div className="flex flex-col md:flex-row gap-3">
@@ -161,54 +146,21 @@ module MerchantAuthInfo = {
   }
 }
 
-module InputText = {
-  @react.component
-  let make = (~setAmount) => {
-    let (value, setValue) = React.useState(_ => "100")
-    let showPopUp = PopUpState.useShowPopUp()
-    let input: ReactFinalForm.fieldRenderPropsInput = {
-      name: "-",
-      onBlur: _ev => (),
-      onChange: ev => {
-        let value = {ev->ReactEvent.Form.target}["value"]
-        if value->Js.String2.includes("<script>") || value->Js.String2.includes("</script>") {
-          showPopUp({
-            popUpType: (Warning, WithIcon),
-            heading: `Script Tags are not allowed`,
-            description: React.string(`Input cannot contain <script>, </script> tags`),
-            handleConfirm: {text: "OK"},
-          })
-        }
-        let value = value->Js.String2.replace("<script>", "")->Js.String2.replace("</script>", "")
-        if Js.Re.test_(%re("/^[0-9]*$/"), value) && value->Js.String2.length <= 8 {
-          setValue(_ => value)
-          setAmount(_ => value->Belt.Int.fromString->Belt.Option.getWithDefault(100) * 100)
-        }
-      },
-      onFocus: _ev => (),
-      value: Js.Json.string(value),
-      checked: false,
-    }
-
-    <TextInput
-      input
-      placeholder={"Enter amount"}
-      onDisabledStyle="bg-jp-gray-300 dark:bg-gray-800 dark:bg-opacity-10"
-    />
-  }
-}
-
 module CheckoutCard = {
   @react.component
   let make = () => {
-    let url = RescriptReactRouter.useUrl()
     let fetchApi = AuthHooks.useApiFetcher()
     let showPopUp = PopUpState.useShowPopUp()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+    let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
-    let isConfigureConnector = ListHooks.useListCount(~entityName=CONNECTOR) > 0
-    let urlPath = url.path->Belt.List.toArray->Js.Array2.joinWith("_")
+    let connectorList =
+      HyperswitchAtom.connectorListAtom
+      ->Recoil.useRecoilValueFromAtom
+      ->LogicUtils.safeParse
+      ->LogicUtils.getObjectArrayFromJson
+    let isConfigureConnector = connectorList->Array.length > 0
 
     let handleOnClick = _ => {
       if isPlayground {
@@ -222,20 +174,13 @@ module CheckoutCard = {
             text: "Sign up Now",
             onClick: {
               _ => {
-                hyperswitchMixPanel(~eventName=Some(`${urlPath}_tryplayground_register`), ())
-                hyperswitchMixPanel(~eventName=Some(`global_tryplayground_register`), ())
-                let _ = APIUtils.handleLogout(~fetchApi, ~setAuthStatus)
+                let _ = APIUtils.handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
               }
             },
           },
         })
       } else {
-        hyperswitchMixPanel(
-          ~pageName=url.path->LogicUtils.getListHead,
-          ~contextName="sdk",
-          ~actionName="tryitout",
-          (),
-        )
+        mixpanelEvent(~eventName=`try_test_payment`, ())
         RescriptReactRouter.replace("/sdk")
       }
     }
@@ -265,12 +210,8 @@ module CheckoutCard = {
 module ControlCenter = {
   @react.component
   let make = () => {
-    let url = RescriptReactRouter.useUrl()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let merchantDetailsValue = useMerchantDetailsValue()
     let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
-    let pageName = url.path->getPageNameFromUrl
 
     let isLiveModeEnabledStyles = isLiveMode
       ? "flex flex-col md:flex-row gap-5 w-full"
@@ -293,16 +234,7 @@ module ControlCenter = {
               text="+  Connect"
               buttonType={Secondary}
               buttonSize={Small}
-              hswitchMixPanelPageName="home"
-              hswitchMixPanelActionName="connector"
-              hswitchMixPanelContextName="connect"
               onClick={_ => {
-                trackRedictMixPanelEvents(
-                  ~pageName,
-                  ~destination="connectors",
-                  ~hyperswitchMixPanel,
-                  (),
-                )
                 RescriptReactRouter.push("/connectors")
               }}
             />
@@ -321,16 +253,7 @@ module ControlCenter = {
               text="Go to API keys"
               buttonType={Secondary}
               buttonSize={Small}
-              hswitchMixPanelPageName="home"
-              hswitchMixPanelActionName="apikey"
-              hswitchMixPanelContextName="goto"
               onClick={_ => {
-                trackRedictMixPanelEvents(
-                  ~pageName,
-                  ~destination="developers_api_keys",
-                  ~hyperswitchMixPanel,
-                  (),
-                )
                 RescriptReactRouter.push("/developer-api-keys")
               }}
             />
@@ -347,10 +270,7 @@ module ControlCenter = {
 module DevResources = {
   @react.component
   let make = () => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
-    let pageName = url.path->getPageNameFromUrl
-
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     <div className="mb-5">
       <PageHeading
         title="Developer resources"
@@ -369,13 +289,7 @@ module DevResources = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                trackRedictMixPanelEvents(
-                  ~pageName,
-                  ~destination="docs",
-                  ~redirectType="external",
-                  ~hyperswitchMixPanel,
-                  (),
-                )
+                mixpanelEvent(~eventName=`dev_docs`, ())
                 "https://hyperswitch.io/docs"->Window._open
               }}
             />
@@ -393,13 +307,7 @@ module DevResources = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                trackRedictMixPanelEvents(
-                  ~pageName,
-                  ~destination="github",
-                  ~redirectType="external",
-                  ~hyperswitchMixPanel,
-                  (),
-                )
+                mixpanelEvent(~eventName=`contribute_in_open_source`, ())
                 "https://github.com/juspay/hyperswitch"->Window._open
               }}
             />
@@ -417,13 +325,6 @@ module DevResources = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                trackRedictMixPanelEvents(
-                  ~pageName,
-                  ~destination="blog",
-                  ~redirectType="external",
-                  ~hyperswitchMixPanel,
-                  (),
-                )
                 "https://hyperswitch.io/blog"->Window._open
               }}
             />
@@ -460,11 +361,11 @@ let getValueMapped = (value, key) => {
   | #ConfigureWoocom
   | #SetupWoocomWebhook =>
     value->getBool(key, false)->Js.Json.boolean
+  | #ConfigurationType => value->getString(key, "")->Js.Json.string
   | #FirstProcessorConnected
   | #SecondProcessorConnected
   | #StripeConnected
   | #PaypalConnected
-  | #IsMultipleConfiguration
   | #IntegrationMethod =>
     value->getJsonObjectFromDict(key)
   | #TestPayment => value->getJsonObjectFromDict(key)
@@ -475,12 +376,12 @@ let getValueMapped = (value, key) => {
 let responseDataMapper = (res: Js.Json.t) => {
   open LogicUtils
   let arrayFromJson = res->getArrayFromJson([])
-  let resDict = Js.Dict.empty()
+  let resDict = Dict.make()
 
-  let _a = arrayFromJson->Js.Array2.map(value => {
+  arrayFromJson->Array.forEach(value => {
     let value1 = value->getDictFromJsonObject
-    let key = value1->Js.Dict.keys->Belt.Array.get(0)->Belt.Option.getWithDefault("")
-    resDict->Js.Dict.set(key, value1->getValueMapped(key))
+    let key = value1->Dict.keysToArray->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+    resDict->Dict.set(key, value1->getValueMapped(key))
   })
   resDict
 }

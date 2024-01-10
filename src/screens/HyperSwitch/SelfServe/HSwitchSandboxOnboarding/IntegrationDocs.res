@@ -3,29 +3,29 @@ module RequestPage = {
   let make = (~requestedPlatform, ~currentRoute) => {
     open UserOnboardingTypes
     open UserOnboardingUtils
+    open APIUtils
+
     let requestedValue =
       requestedPlatform->Belt.Option.getWithDefault("")->LogicUtils.capitalizeString
     let (isSubmitButtonEnabled, setIsSubmitButtonEnabled) = React.useState(_ => true)
-    let fetchApi = APIUtils.useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let handleSubmitRequest = () => {
-      open Promise
-      let requestBody =
-        [
-          ("rating", 5.0->Js.Json.number),
-          ("category", "Platform Request"->Js.Json.string),
-          ("feedbacks", `Request for ${requestedValue}`->Js.Json.string),
-        ]
-        ->Js.Dict.fromArray
-        ->Js.Json.object_
+    let updateDetails = useUpdateMethod()
 
-      let body = requestBody->HSwitchUtils.getBodyForFeedBack()
-      fetchApi(
-        APIUtils.getURL(~entityName=FEEDBACK, ~methodType=Post, ()),
-        body->Js.Json.object_,
-        Fetch.Post,
-      )
-      ->thenResolve(_ => {
+    let handleSubmitRequest = async () => {
+      try {
+        let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
+        let requestedBody =
+          [
+            ("rating", 5.0->Js.Json.number),
+            ("category", "Platform Request"->Js.Json.string),
+            ("feedbacks", `Request for ${requestedValue}`->Js.Json.string),
+          ]
+          ->LogicUtils.getJsonFromArrayOfJson
+          ->HSwitchUtils.getBodyForFeedBack()
+          ->Js.Json.object_
+
+        let body = [("Feedback", requestedBody)]->LogicUtils.getJsonFromArrayOfJson
+        let _ = await updateDetails(url, body, Post)
         showToast(
           ~toastType=ToastSuccess,
           ~message="Request submitted successfully!",
@@ -33,12 +33,11 @@ module RequestPage = {
           (),
         )
         setIsSubmitButtonEnabled(_ => false)
-      })
-      ->catch(_ => {
-        resolve()
-      })
-      ->ignore
+      } catch {
+      | _ => ()
+      }
     }
+
     React.useEffect1(() => {
       setIsSubmitButtonEnabled(_ => true)
       None
@@ -53,9 +52,9 @@ module RequestPage = {
           Window._open("https://hyperswitch.io/docs/migrateFromStripe/migrateFromStripeAndroid")
         | #ReactNative =>
           Window._open("https://hyperswitch.io/docs/migrateFromStripe/migrateFromStripeRN")
-        | _ => handleSubmitRequest()
+        | _ => handleSubmitRequest()->ignore
         }
-      | _ => handleSubmitRequest()
+      | _ => handleSubmitRequest()->ignore
       }
     }
     let buttonText = () => {
@@ -82,7 +81,7 @@ module RequestPage = {
 
     <div
       className="border bg-jp-gray-light_gray_bg h-full rounded-md p-6 overflow-scroll flex flex-col justify-center items-center gap-6">
-      <Icon name={requestedValue->Js.String2.toLowerCase} size=180 className="!scale-200" />
+      <Icon name={requestedValue->String.toLowerCase} size=180 className="!scale-200" />
       <div className="flex flex-col gap-2 items-center justify-center">
         <p className="text-2xl font-semibold text-grey-700">
           {`${requestedValue} (Coming Soon)`->React.string}
@@ -110,8 +109,6 @@ let make = (
 ) => {
   open UserOnboardingUtils
   open UserOnboardingTypes
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let url = RescriptReactRouter.useUrl()
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let (frontEndLang, setFrontEndLang) = React.useState(_ =>
     currentRoute === SampleProjects ? #ChooseLanguage : #ReactJs
@@ -131,10 +128,6 @@ let make = (
   }
 
   open Tabs
-  let defaultNames = {
-    title: "",
-    renderContent: () => React.null,
-  }
   let tabs = UserOnboardingUIUtils.getTabsForIntegration(
     ~currentRoute,
     ~tabIndex,
@@ -143,31 +136,14 @@ let make = (
     ~backEndLang,
     ~publishablekeyMerchant,
   )
-  let currentTabName = currentIndex =>
-    (tabs->Belt.Array.get(currentIndex)->Belt.Option.getWithDefault(defaultNames)).title
 
   let handleMarkAsDone = () => {
-    let contextName = `${currentRoute->variantToTextMapperForBuildHS}_${tabIndex->currentTabName}`
-    hyperswitchMixPanel(
-      ~pageName=`${url.path->LogicUtils.getListHead}`,
-      ~contextName,
-      ~actionName="markasdone",
-      (),
-    )
     switch markAsDone {
     | Some(fun) => fun()->ignore
     | _ => ()->ignore
     }
   }
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let handleDeveloperDocs = () => {
-    let contextName = `${currentRoute->variantToTextMapperForBuildHS}_${tabIndex->currentTabName}`
-    hyperswitchMixPanel(
-      ~pageName=`${url.path->LogicUtils.getListHead}`,
-      ~contextName,
-      ~actionName="developerdocs",
-      (),
-    )
     switch currentRoute {
     | MigrateFromStripe => Window._open("https://hyperswitch.io/docs/migrateFromStripe")
     | IntegrateFromScratch => Window._open("https://hyperswitch.io/docs/quickstart")
@@ -179,26 +155,17 @@ let make = (
     }
   }
   let getRequestedPlatforms = () => {
-    if requestOnlyPlatforms->Js.Array2.includes(platform) {
+    if requestOnlyPlatforms->Array.includes(platform) {
       Some((platform :> string))
-    } else if !([#Node]->Js.Array2.includes(backEndLang)) && currentRoute === MigrateFromStripe {
+    } else if !([#Node]->Array.includes(backEndLang)) && currentRoute === MigrateFromStripe {
       Some((backEndLang :> string))
     } else {
       None
     }
   }
 
-  React.useEffect1(() => {
-    hyperswitchMixPanel(
-      ~pageName=`${url.path->LogicUtils.getListHead}`,
-      ~contextName={tabIndex->currentTabName},
-      ~actionName="tabclicked",
-      (),
-    )
-    None
-  }, [tabIndex])
   let buttonStyle =
-    tabIndex === tabs->Js.Array2.length - 1
+    tabIndex === tabs->Array.length - 1
       ? "!border !border-blue-700 !rounded-md bg-white !text-blue-700"
       : "!rounded-md"
   let requestedPlatform = getRequestedPlatforms()
@@ -224,7 +191,7 @@ let make = (
             customButtonStyle=buttonStyle
             buttonType={Secondary}
             buttonSize={Small}
-            buttonState={tabIndex === tabs->Js.Array2.length - 1 ? Normal : Disabled}
+            buttonState={tabIndex === tabs->Array.length - 1 ? Normal : Disabled}
             onClick={_ => handleMarkAsDone()}
           />
         </UIUtils.RenderIf>
@@ -249,7 +216,7 @@ let make = (
               setTabIndex(_ => indx)
             }}
           />
-          <UIUtils.RenderIf condition={tabIndex !== tabs->Js.Array2.length - 1}>
+          <UIUtils.RenderIf condition={tabIndex !== tabs->Array.length - 1}>
             <div className="flex my-4 w-full justify-end">
               <Button
                 text={"Next Step"}

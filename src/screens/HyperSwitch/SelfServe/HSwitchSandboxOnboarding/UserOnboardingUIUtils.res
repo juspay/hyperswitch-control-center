@@ -21,28 +21,22 @@ module ProgressBar = {
 
 module PublishableKeyArea = {
   @react.component
-  let make = (~currentRoute) => {
+  let make = () => {
     let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
     let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
-    let contextName = `${currentRoute->variantToTextMapperForBuildHS}_5.loadhyperswitchcheckout`
 
-    <HelperComponents.KeyAndCopyArea
-      copyValue={detail.publishable_key} contextName actionName="publishablekeycopied"
-    />
+    <HelperComponents.KeyAndCopyArea copyValue={detail.publishable_key} />
   }
 }
 
 module PaymentResponseHashKeyArea = {
   @react.component
-  let make = (~currentRoute) => {
+  let make = () => {
     let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
     let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
-    let contextName = `${currentRoute->variantToTextMapperForBuildHS}_5.loadhyperswitchcheckout`
 
     <HelperComponents.KeyAndCopyArea
       copyValue={detail.payment_response_hash_key->Belt.Option.getWithDefault("")}
-      contextName
-      actionName="paymentresponsehashkeycopied"
     />
   }
 }
@@ -55,8 +49,6 @@ module DownloadAPIKeyButton = {
     ~currentTabName="",
     ~buttonStyle="",
   ) => {
-    let url = RescriptReactRouter.useUrl()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
     let (showCopyToClipboard, setShowCopyToClipboard) = React.useState(_ => false)
@@ -69,7 +61,7 @@ module DownloadAPIKeyButton = {
             ("name", "DefaultAPIKey"->Js.Json.string),
             ("description", "Default Value of the API key"->Js.Json.string),
             ("expiration", "never"->Js.Json.string),
-          ]->Js.Dict.fromArray
+          ]->Dict.fromArray
         let res = await updateDetails(url, body->Js.Json.object_, Post)
         let apiKey = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("api_key", "")
         DownloadUtils.downloadOld(~fileName=`apiKey.txt`, ~content=apiKey)
@@ -101,12 +93,6 @@ module DownloadAPIKeyButton = {
           customButtonStyle={`!w-1/3 ${buttonStyle}`}
           rightIcon={FontAwesome("download-api-key")}
           onClick={_ => {
-            hyperswitchMixPanel(
-              ~pageName=`${url.path->LogicUtils.getListHead}`,
-              ~contextName=`${currentRoute->variantToTextMapperForBuildHS}_${currentTabName}`,
-              ~actionName="downloadApiKey",
-              (),
-            )
             switch currentTabName {
             | "downloadWordpressPlugin" => downloadZip()->ignore
             | _ => apiKeyGeneration()->ignore
@@ -179,16 +165,14 @@ module TabsContentWrapper = {
 }
 module HeaderComponentView = {
   @react.component
-  let make = (~value, ~headerText, ~langauge: languages, ~currentRoute, ~currentTabName) => {
+  let make = (~value, ~headerText, ~langauge: languages) => {
     let showToast = ToastState.useShowToast()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     <div
       className="flex flex-row justify-between items-center flex-wrap border-b px-4 py-6 text-gray-900">
       <p className="font-medium text-base"> {headerText->React.string} </p>
       <div className="flex gap-2">
         <div className="py-1 px-4 border rounded-md flex gap-2 items-center">
-          <Icon name={`${(langauge :> string)->Js.String2.toLowerCase}`} size=16 />
+          <Icon name={`${(langauge :> string)->String.toLowerCase}`} size=16 />
           <p> {(langauge :> string)->React.string} </p>
         </div>
         <div
@@ -196,12 +180,6 @@ module HeaderComponentView = {
           onClick={_ => {
             Clipboard.writeText(value)
             showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
-            hyperswitchMixPanel(
-              ~pageName=`${url.path->LogicUtils.getListHead}`,
-              ~contextName=`${currentRoute->variantToTextMapperForBuildHS}_${currentTabName}`,
-              ~actionName=`${(langauge :> string)}_codecopied`,
-              (),
-            )
           }}>
           <img src={`/assets/CopyToClipboard.svg`} />
           <p> {"Copy"->React.string} </p>
@@ -213,15 +191,7 @@ module HeaderComponentView = {
 
 module ShowCodeEditor = {
   @react.component
-  let make = (
-    ~value,
-    ~theme,
-    ~headerText,
-    ~customHeight="8vh",
-    ~langauge: languages,
-    ~currentRoute,
-    ~currentTabName,
-  ) => {
+  let make = (~value, ~theme, ~headerText, ~customHeight="8vh", ~langauge: languages) => {
     <ReactSuspenseWrapper>
       <MonacoEditorLazy
         defaultLanguage="javascript"
@@ -232,28 +202,19 @@ module ShowCodeEditor = {
         readOnly=true
         minimap=false
         showCopy=false
-        headerComponent={<HeaderComponentView
-          value headerText langauge currentRoute currentTabName
-        />}
+        headerComponent={<HeaderComponentView value headerText langauge />}
       />
     </ReactSuspenseWrapper>
   }
 }
 module DiffCodeEditor = {
   @react.component
-  let make = (
-    ~valueToShow: migratestripecode,
-    ~langauge: languages,
-    ~currentRoute,
-    ~currentTabName,
-  ) => {
+  let make = (~valueToShow: migratestripecode, ~langauge: languages) => {
     let oldValue = valueToShow.from
     let newValue = valueToShow.to
     <div
       className="flex flex-col gap-6 border bg-white overflow-x-scroll w-full !shadow-hyperswitch_box_shadow rounded-md">
-      <HeaderComponentView
-        value=newValue headerText="Replace" langauge currentRoute currentTabName
-      />
+      <HeaderComponentView value=newValue headerText="Replace" langauge />
       <div className="p-4">
         <ReactDiffViewer
           oldValue newValue splitView={true} hideLineNumbers={false} useDarkTheme=false
@@ -275,23 +236,18 @@ module BackendFrontendPlatformLangDropDown = {
     ~platform: platforms,
     ~setPlatform,
   ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
-    let urlHead = url.path->LogicUtils.getListHead
-    let contextName = `${currentRoute->variantToTextMapperForBuildHS}`
     let platfromInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "Platform Selecr",
       onBlur: _ev => (),
       onChange: ev => {
         let val = ev->Identity.formReactEventToString->getPlatform
         setPlatform(_ => val)
-        hyperswitchMixPanel(~pageName=urlHead, ~contextName, ~actionName={(val :> string)}, ())
       },
       onFocus: _ev => (),
       value: (platform :> string)->Js.Json.string,
       checked: true,
     }
-    let options = platforms->Js.Array2.map((op): SelectBox.dropdownOption => {
+    let options = platforms->Array.map((op): SelectBox.dropdownOption => {
       {value: (op :> string), label: (op :> string)}
     })
 
@@ -301,7 +257,6 @@ module BackendFrontendPlatformLangDropDown = {
       onChange: ev => {
         let val = ev->Identity.formReactEventToString->getLangauge
         setBackEndLang(_ => val)
-        hyperswitchMixPanel(~pageName=urlHead, ~contextName, ~actionName={(val :> string)}, ())
       },
       onFocus: _ev => (),
       value: (backEndLang :> string)->Js.Json.string,
@@ -313,7 +268,6 @@ module BackendFrontendPlatformLangDropDown = {
       onChange: ev => {
         let val = ev->Identity.formReactEventToString->getLangauge
         setFrontEndLang(_ => val)
-        hyperswitchMixPanel(~pageName=urlHead, ~contextName, ~actionName={(val :> string)}, ())
       },
       onFocus: _ev => (),
       value: (frontEndLang :> string)->Js.Json.string,
@@ -327,7 +281,7 @@ module BackendFrontendPlatformLangDropDown = {
       backEndLang === #ChooseLanguage ? "Choose Backend" : (backEndLang :> string)
     }
 
-    <Form initialValues={Js.Dict.empty()->Js.Json.object_}>
+    <Form initialValues={Dict.make()->Js.Json.object_}>
       <div className="flex flex-row gap-4 flex-wrap">
         <UIUtils.RenderIf condition={!isFromLanding && currentRoute !== SampleProjects}>
           <SelectBox.BaseDropdown
@@ -337,21 +291,13 @@ module BackendFrontendPlatformLangDropDown = {
             options
             hideMultiSelectButtons=true
             deselectDisable=true
-            buttonClickFn={e => {
-              hyperswitchMixPanel(
-                ~pageName=urlHead,
-                ~contextName,
-                ~actionName={e->Js.String2.replace(" ", "")},
-                (),
-              )
-            }}
             customButtonStyle="!rounded-md"
             defaultLeftIcon=CustomIcon(<Icon name="show-filters" size=14 />)
             baseComponent={<Button
               text={(platform :> string)}
               buttonSize=Button.Small
               leftIcon=Button.CustomIcon(
-                <Icon size=20 name={`${(platform :> string)->Js.String2.toLowerCase}`} />,
+                <Icon size=20 name={`${(platform :> string)->String.toLowerCase}`} />,
               )
               rightIcon=Button.CustomIcon(<Icon className="pl-2 " size=20 name="chevron-down" />)
               ellipsisOnly=true
@@ -359,24 +305,16 @@ module BackendFrontendPlatformLangDropDown = {
             />}
           />
         </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={!(requestOnlyPlatforms->Js.Array2.includes(platform))}>
+        <UIUtils.RenderIf condition={!(requestOnlyPlatforms->Array.includes(platform))}>
           <SelectBox.BaseDropdown
             allowMultiSelect=false
             buttonText="Select Frontend"
             deselectDisable=true
             input={frontendLangInput}
-            options={frontendLangauge->Js.Array2.map((lang): SelectBox.dropdownOption => {
+            options={frontendLangauge->Array.map((lang): SelectBox.dropdownOption => {
               {value: (lang :> string), label: (lang :> string)}
             })}
             customButtonStyle="!rounded-md"
-            buttonClickFn={e => {
-              hyperswitchMixPanel(
-                ~pageName=urlHead,
-                ~contextName,
-                ~actionName={e->Js.String2.replace(" ", "")},
-                (),
-              )
-            }}
             hideMultiSelectButtons=true
             autoApply=false
             customStyle="!rounded-md"
@@ -384,7 +322,7 @@ module BackendFrontendPlatformLangDropDown = {
               text=frontendDropdownText
               buttonSize=Button.Small
               leftIcon=Button.CustomIcon(
-                <Icon size=20 name={`${(frontEndLang :> string)->Js.String2.toLowerCase}`} />,
+                <Icon size=20 name={`${(frontEndLang :> string)->String.toLowerCase}`} />,
               )
               rightIcon=Button.CustomIcon(<Icon className="pl-2 " size=20 name="chevron-down" />)
               ellipsisOnly=true
@@ -396,16 +334,8 @@ module BackendFrontendPlatformLangDropDown = {
             buttonText="Select Backend"
             input={backendLangInput}
             deselectDisable=true
-            buttonClickFn={e => {
-              hyperswitchMixPanel(
-                ~pageName=urlHead,
-                ~contextName,
-                ~actionName={e->Js.String2.replace(" ", "")},
-                (),
-              )
-            }}
             customButtonStyle="!rounded-md"
-            options={backendLangauge->Js.Array2.map((lang): SelectBox.dropdownOption => {
+            options={backendLangauge->Array.map((lang): SelectBox.dropdownOption => {
               {value: (lang :> string), label: (lang :> string)}
             })}
             hideMultiSelectButtons=true
@@ -413,7 +343,7 @@ module BackendFrontendPlatformLangDropDown = {
               text=backendDropdownText
               buttonSize=Button.Small
               leftIcon=Button.CustomIcon(
-                <Icon size=20 name={`${(backEndLang :> string)->Js.String2.toLowerCase}`} />,
+                <Icon size=20 name={`${(backEndLang :> string)->String.toLowerCase}`} />,
               )
               rightIcon=Button.CustomIcon(<Icon className="pl-2 " size=20 name="chevron-down" />)
               ellipsisOnly=true
@@ -429,8 +359,7 @@ module BackendFrontendPlatformLangDropDown = {
 module LanguageTag = {
   @react.component
   let make = (~frontendLang="", ~backendLang="") => {
-    <UIUtils.RenderIf
-      condition={frontendLang->Js.String2.length > 0 && backendLang->Js.String2.length > 0}>
+    <UIUtils.RenderIf condition={frontendLang->String.length > 0 && backendLang->String.length > 0}>
       <div className="flex gap-2 items-center">
         <Icon name={`${frontendLang}`} size=25 />
         <Icon name={`${backendLang}`} size=25 />
@@ -462,13 +391,7 @@ module LandingPageTileForIntegrateDocs = {
     ~customRedirection=?,
   ) => {
     open APIUtils
-    let urlPath = RescriptReactRouter.useUrl()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
-    let filtersFromUrl =
-      LogicUtils.getDictFromUrlSearchParams(urlPath.search)
-      ->Js.Dict.get("type")
-      ->Belt.Option.getWithDefault("")
     let {
       integrationDetails,
       setIntegrationDetails,
@@ -487,18 +410,11 @@ module LandingPageTileForIntegrateDocs = {
           `${HSwitchGlobalVars.hyperSwitchFEPrefix}/onboarding?type=${url}`,
         )
       }
-      hyperswitchMixPanel(
-        ~pageName=`${urlPath.path->LogicUtils.getListHead}`,
-        ~contextName=headerText->LogicUtils.toCamelCase,
-        ~actionName=buttonText->LogicUtils.toCamelCase,
-        (),
-      )
     }
     let skipAndContinue = async () => {
-      getMixPanelEventName(~url=urlPath, ~filtersFromUrl, ~hyperswitchMixPanel)
       try {
         let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
-        let metaDataDict = Js.Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
+        let metaDataDict = Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
         let body = HSwitchUtils.constructOnboardingBody(
           ~dashboardPageState,
           ~integrationDetails,
@@ -560,16 +476,8 @@ module LandingPageTileForIntegrateDocs = {
 module LandingPageTileForGithub = {
   @react.component
   let make = (~headerIcon, ~customIconCss, ~url, ~displayFrontendLang, ~displayBackendLang) => {
-    let urlPath = RescriptReactRouter.useUrl()
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
     let redirect = () => {
       Window._open(url)
-      hyperswitchMixPanel(
-        ~pageName=`${urlPath.path->LogicUtils.getListHead}`,
-        ~contextName=`${displayFrontendLang->Js.String2.replace("-", "")}_${displayBackendLang}`,
-        ~actionName="open_in_new_tab",
-        (),
-      )
     }
     <div
       className={`p-5 border rounded-md flex flex-col gap-4 justify-between bg-white cursor-pointer hover:bg-jp-gray-light_gray_bg`}
@@ -668,16 +576,10 @@ let getTabsForIntegration = (
 ) => {
   open Tabs
   let defaultEditorStyle = "flex flex-col gap-8 bg-white flex flex-col px-6 py-4 border !shadow-hyperswitch_box_shadow rounded-md"
-  let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
-  let urlPath = RescriptReactRouter.useUrl()
-  let filtersFromUrl =
-    LogicUtils.getDictFromUrlSearchParams(urlPath.search)
-    ->Js.Dict.get("type")
-    ->Belt.Option.getWithDefault("")
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let {integrationDetails, setIntegrationDetails, dashboardPageState} = React.useContext(
-    GlobalProvider.defaultContext,
-  )
+  // let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
+  // let {integrationDetails, setIntegrationDetails, dashboardPageState} = React.useContext(
+  //   GlobalProvider.defaultContext,
+  // )
   switch currentRoute {
   | MigrateFromStripe => [
       {
@@ -697,8 +599,6 @@ let getTabsForIntegration = (
                 theme
                 headerText="Installation"
                 langauge=backEndLang
-                currentRoute
-                currentTabName="2.installdependencies"
               />
             </div>
           </TabsContentWrapper>,
@@ -707,35 +607,22 @@ let getTabsForIntegration = (
         title: "3. Replace API Key",
         renderContent: () =>
           <TabsContentWrapper currentRoute tabIndex>
-            <DiffCodeEditor
-              valueToShow={backEndLang->getReplaceAPIkeys}
-              langauge=backEndLang
-              currentRoute
-              currentTabName="3.replaceaPIkey"
-            />
+            <DiffCodeEditor valueToShow={backEndLang->getReplaceAPIkeys} langauge=backEndLang />
           </TabsContentWrapper>,
       },
       {
         title: "4. Reconfigure Checkout Form",
         renderContent: () =>
-          <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea currentRoute />}>
-            <DiffCodeEditor
-              valueToShow={frontEndLang->getCheckoutForm}
-              langauge=frontEndLang
-              currentRoute
-              currentTabName="4.reconfigurecheckoutform"
-            />
+          <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea />}>
+            <DiffCodeEditor valueToShow={frontEndLang->getCheckoutForm} langauge=frontEndLang />
           </TabsContentWrapper>,
       },
       {
         title: "5. Load HyperSwitch Checkout",
         renderContent: () =>
-          <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea currentRoute />}>
+          <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea />}>
             <DiffCodeEditor
-              valueToShow={frontEndLang->getHyperswitchCheckout}
-              langauge=frontEndLang
-              currentRoute
-              currentTabName="5.loadhyperSwitchcheckout"
+              valueToShow={frontEndLang->getHyperswitchCheckout} langauge=frontEndLang
             />
           </TabsContentWrapper>,
       },
@@ -766,15 +653,12 @@ let getTabsForIntegration = (
               </p>
             </p>}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf
-                condition={backEndLang->getInstallDependencies->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={backEndLang->getInstallDependencies->String.length > 0}>
                 <ShowCodeEditor
                   value={backEndLang->getInstallDependencies}
                   theme
                   headerText="Installation"
                   langauge=backEndLang
-                  currentRoute
-                  currentTabName="2.createapayment"
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
@@ -784,8 +668,6 @@ let getTabsForIntegration = (
                 headerText="Request"
                 customHeight="25vh"
                 langauge=backEndLang
-                currentRoute
-                currentTabName="2.createapayment"
               />
             </div>
           </TabsContentWrapper>,
@@ -793,65 +675,45 @@ let getTabsForIntegration = (
       {
         title: "3. Display Checkout Page",
         renderContent: () =>
-          <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea currentRoute />}>
+          <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea />}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf
-                condition={frontEndLang->getInstallDependencies->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getInstallDependencies->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getInstallDependencies}
                   theme
                   headerText="Installation"
                   langauge=frontEndLang
-                  currentRoute
-                  currentTabName="3.displaycheckoutpage"
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf
-                condition={frontEndLang->getInstallDependencies->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getInstallDependencies->String.length > 0}>
                 <ShowCodeEditor
-                  value={frontEndLang->getImports}
-                  theme
-                  headerText="Imports"
-                  langauge=frontEndLang
-                  currentRoute
-                  currentTabName="3.displaycheckoutpage"
+                  value={frontEndLang->getImports} theme headerText="Imports" langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getLoad->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getLoad->String.length > 0}>
                 <ShowCodeEditor
-                  value={frontEndLang->getLoad}
-                  theme
-                  headerText="Load"
-                  langauge=frontEndLang
-                  currentRoute
-                  currentTabName="3.displaycheckoutpage"
+                  value={frontEndLang->getLoad} theme headerText="Load" langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getInitialize->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getInitialize->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getInitialize}
                   theme
                   headerText="Initialize"
                   langauge=frontEndLang
-                  currentRoute
-                  currentTabName="3.displaycheckoutpage"
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
               <UIUtils.RenderIf
-                condition={frontEndLang
-                ->getCheckoutFormForDisplayCheckoutPage
-                ->Js.String2.length > 0}>
+                condition={frontEndLang->getCheckoutFormForDisplayCheckoutPage->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getCheckoutFormForDisplayCheckoutPage}
                   theme
                   headerText="Checkout Form"
                   langauge=frontEndLang
-                  currentRoute
-                  currentTabName="3.displaycheckoutpage"
                 />
               </UIUtils.RenderIf>
             </div>
@@ -860,30 +722,25 @@ let getTabsForIntegration = (
       {
         title: "4. Display Payment Confirmation",
         renderContent: () =>
-          <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea currentRoute />}>
+          <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea />}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf condition={frontEndLang->getHandleEvents->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getHandleEvents->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getHandleEvents}
                   theme
                   headerText="Handle Events"
                   customHeight="20vh"
                   langauge=frontEndLang
-                  currentRoute
-                  currentTabName="4.displaypaymentconfirmation"
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf
-                condition={frontEndLang->getDisplayConformation->Js.String2.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getDisplayConformation->String.length > 0}>
                 <ShowCodeEditor
                   value={frontEndLang->getDisplayConformation}
                   theme
                   headerText="Display Payment Confirmation"
                   customHeight="20vh"
                   langauge=frontEndLang
-                  currentRoute
-                  currentTabName="4.displaypaymentconfirmation"
                 />
               </UIUtils.RenderIf>
             </div>
@@ -912,8 +769,6 @@ let getTabsForIntegration = (
               <div className=defaultEditorStyle>
                 <HelperComponents.KeyAndCopyArea
                   copyValue=publishablekeyMerchant
-                  contextName="setup_webhook_processor"
-                  actionName="hs_webhookcopied"
                   shadowClass="shadow shadow-hyperswitch_box_shadow md:!w-max"
                 />
               </div>
@@ -964,10 +819,10 @@ let getTabsForIntegration = (
               <DownloadAPIKey currentRoute currentTabName="downloadApiKey" />
             </TabsContentWrapper>
             <TabsContentWrapper currentRoute tabIndex={3}>
-              <PublishableKeyArea currentRoute />
+              <PublishableKeyArea />
             </TabsContentWrapper>
             <TabsContentWrapper currentRoute tabIndex={4}>
-              <PaymentResponseHashKeyArea currentRoute />
+              <PaymentResponseHashKeyArea />
             </TabsContentWrapper>
             <TabsContentWrapper currentRoute tabIndex={5}>
               <div
@@ -1007,68 +862,63 @@ let getTabsForIntegration = (
             </div>
           </div>,
       },
-      {
-        title: "3. Manage",
-        renderContent: () => {
-          let skipAndContinue = async () => {
-            UserOnboardingUtils.getMixPanelEventName(
-              ~url=urlPath,
-              ~filtersFromUrl,
-              ~hyperswitchMixPanel,
-            )
-            try {
-              let url = APIUtils.getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
-              let metaDataDict =
-                Js.Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
-              let body = HSwitchUtils.constructOnboardingBody(
-                ~dashboardPageState,
-                ~integrationDetails,
-                ~is_done=false,
-                ~metadata=metaDataDict,
-                (),
-              )
-              let _ = await updateDetails(url, body, Post)
-              setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
-            } catch {
-            | _ => ()
-            }
-          }
-          let skipOnboarding = async path => {
-            let _skipOnboarding = await skipAndContinue()
-            Window._open(path)
-          }
-          <div>
-            <TabsContentWrapper currentRoute tabIndex=7>
-              <div onClick={_ => skipOnboarding(`/connectors`)->ignore} className="cursor-pointer">
-                <div className="pointer-events-none">
-                  <ConnectorList.NewProcessorCards
-                    configuredConnectors=[] showIcons=true isPayoutFlow=false
-                  />
-                </div>
-              </div>
-            </TabsContentWrapper>
-            <TabsContentWrapper currentRoute tabIndex=8>
-              <div onClick={_ => skipOnboarding(`/routing`)->ignore} className="cursor-pointer">
-                <div className="pointer-events-none">
-                  <RoutingStack remainingPath={list{}} previewOnly=true />
-                </div>
-              </div>
-            </TabsContentWrapper>
-            <TabsContentWrapper currentRoute tabIndex=9>
-              <div onClick={_ => skipOnboarding(`/payments`)->ignore} className="cursor-pointer">
-                <div className="pointer-events-none overflow-hidden">
-                  <Orders previewOnly=true />
-                </div>
-              </div>
-            </TabsContentWrapper>
-            // <MilestoneAchievedCard
-            //   headingModule="WooCommerce integration!"
-            //   subText="Test your integration by placing an order and completing a payment on your store!"
-            //   customBackButtonRoute=""
-            // />
-          </div>
-        },
-      },
+      // {
+      //   title: "3. Manage",
+      //   renderContent: () => {
+      //     let skipAndContinue = async () => {
+      //       try {
+      //         let url = APIUtils.getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
+      //         let metaDataDict =
+      //           Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
+      //         let body = HSwitchUtils.constructOnboardingBody(
+      //           ~dashboardPageState,
+      //           ~integrationDetails,
+      //           ~is_done=false,
+      //           ~metadata=metaDataDict,
+      //           (),
+      //         )
+      //         let _ = await updateDetails(url, body, Post)
+      //         setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
+      //       } catch {
+      //       | _ => ()
+      //       }
+      //     }
+      //     let skipOnboarding = async path => {
+      //       let _ = await skipAndContinue()
+      //       Window._open(path)
+      //     }
+      //     <div>
+      //       <TabsContentWrapper currentRoute tabIndex=7>
+      //         <div onClick={_ => skipOnboarding(`/connectors`)->ignore} className="cursor-pointer">
+      //           <div className="pointer-events-none">
+      //             <ConnectorList.NewProcessorCards
+      //               configuredConnectors=[] showIcons=true isPayoutFlow=false
+      //             />
+      //           </div>
+      //         </div>
+      //       </TabsContentWrapper>
+      //       <TabsContentWrapper currentRoute tabIndex=8>
+      //         <div onClick={_ => skipOnboarding(`/routing`)->ignore} className="cursor-pointer">
+      //           <div className="pointer-events-none">
+      //             <RoutingStack remainingPath={list{}} previewOnly=true />
+      //           </div>
+      //         </div>
+      //       </TabsContentWrapper>
+      //       <TabsContentWrapper currentRoute tabIndex=9>
+      //         <div onClick={_ => skipOnboarding(`/payments`)->ignore} className="cursor-pointer">
+      //           <div className="pointer-events-none overflow-hidden">
+      //             <Orders previewOnly=true />
+      //           </div>
+      //         </div>
+      //       </TabsContentWrapper>
+      //       // <MilestoneAchievedCard
+      //       //   headingModule="WooCommerce integration!"
+      //       //   subText="Test your integration by placing an order and completing a payment on your store!"
+      //       //   customBackButtonRoute=""
+      //       // />
+      //     </div>
+      //   },
+      // },
     ]
   | _ => []
   }
