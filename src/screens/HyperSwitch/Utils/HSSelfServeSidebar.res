@@ -75,8 +75,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
             <ToolTip
               tooltipForWidthClass="w-full"
               description={sidebarOption.title}
-              toolTipFor={<div
-                className="flex-1 relative w-60 text-ellipsis overflow-hidden whitespace-nowrap">
+              toolTipFor={<div className="w-60 text-ellipsis overflow-hidden whitespace-nowrap">
                 {sidebarOption.title->React.string}
               </div>}
             />
