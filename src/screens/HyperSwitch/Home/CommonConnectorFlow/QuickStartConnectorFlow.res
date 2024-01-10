@@ -18,6 +18,7 @@ let make = (
 
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
   let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
@@ -140,7 +141,10 @@ let make = (
           buttonType=Primary
           text="Proceed"
           buttonState
-          onClick={_ => handleConnectorSubmit()}
+          onClick={_ => {
+            mixpanelEvent(~eventName=`quickstart_select_configuration_type`, ())
+            handleConnectorSubmit()
+          }}
           buttonSize=Small
         />}
         backButton={<Button

@@ -8,6 +8,7 @@ module SelectProcessor = {
     ~connectorArray,
   ) => {
     let url = RescriptReactRouter.useUrl()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
     let {setQuickStartPageState} = React.useContext(GlobalProvider.defaultContext)
 
@@ -23,6 +24,7 @@ module SelectProcessor = {
         text="Proceed"
         onClick={_ => {
           setConnectorConfigureState(_ => Select_configuration_type)
+          mixpanelEvent(~eventName=`quickstart_select_processor`, ())
           RescriptReactRouter.replace(`/${url.path->LogicUtils.getListHead}?name=${connectorName}`)
         }}
         buttonSize=Small
@@ -113,14 +115,15 @@ module ConfigureProcessor = {
         errors->Js.Json.object_,
       )
     }
-    let backButton = isBackButtonVisible
-      ? <Button
+    let backButton =
+      <UIUtils.RenderIf condition={isBackButtonVisible}>
+        <Button
           buttonType={PrimaryOutline}
           text="Back"
           onClick={_ => setConnectorConfigureState(_ => Select_configuration_type)}
           buttonSize=Small
         />
-      : React.null
+      </UIUtils.RenderIf>
 
     <Form initialValues onSubmit validate={validateMandatoryField}>
       <QuickStartUIUtils.BaseComponent
