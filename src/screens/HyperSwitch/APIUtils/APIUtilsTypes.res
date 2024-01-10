@@ -33,6 +33,7 @@ type entityName =
   | PAYPAL_ONBOARDING
   | SURCHARGE
   | CUSTOMERS
+  | ACCEPT_DISPUTE
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 

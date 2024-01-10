@@ -191,6 +191,11 @@ let getURL = (
     | Some(id) => `account/${merchantId}/business_profile/${id}`
     | None => `account/${merchantId}/business_profile`
     }
+  | ACCEPT_DISPUTE =>
+    switch id {
+    | Some(id) => `disputes/accept/${id}`
+    | None => `disputes`
+    }
   | PAYMENT | SETTINGS => ""
   }
   `${HSwitchGlobalVars.hyperSwitchApiPrefix}/${endpoint}`

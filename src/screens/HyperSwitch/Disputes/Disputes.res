@@ -39,7 +39,7 @@ let make = () => {
   // TODO: Convert it to remote filter
   let filterLogic = ReactDebounce.useDebounced(ob => {
     let (searchText, arr) = ob
-    let filteredList = Array.filter(arr, (ob: Js.Nullable.t<DisputesEntity.disputes>) => {
+    let filteredList = Array.filter(arr, (ob: Js.Nullable.t<DisputeTypes.disputes>) => {
       switch Js.Nullable.toOption(ob) {
       | Some(obj) =>
         String.includes(obj.payment_id->String.toLowerCase, searchText->String.toLowerCase) ||
