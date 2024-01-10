@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.22.0 (2024-01-09)
+
+### Features
+
+- Modal added for Switch merchant switch. ([#213](https://github.com/juspay/hyperswitch-control-center/pull/213)) ([`660c706`](https://github.com/juspay/hyperswitch-control-center/commit/660c706b26c6a7177b36dd416483e4435e686fd4))
+
+**Full Changelog:** [`v1.21.0...v1.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.21.0...v1.22.0)
+
+- - -
+
+
 ## 1.21.0 (2024-01-09)
 
 ### Features
