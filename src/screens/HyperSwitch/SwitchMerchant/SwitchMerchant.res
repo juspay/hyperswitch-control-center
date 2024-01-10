@@ -1,24 +1,3 @@
-type switchMerchantListResponse = {
-  merchant_id: string,
-  merchant_name: string,
-}
-
-let convertListResponseToTypedResponse = json => {
-  open LogicUtils
-  json
-  ->getArrayFromJson([])
-  ->Array.map(ele => {
-    let dictOfElement = ele->getDictFromJsonObject
-    let merchantId = dictOfElement->getString("merchant_id", "")
-    let merchantName = dictOfElement->getString("merchant_name", merchantId)
-
-    {
-      merchant_id: merchantId,
-      merchant_name: merchantName->String.length > 0 ? merchantName : merchantId,
-    }
-  })
-}
-
 module NewAccountCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal, ~fetchMerchantIDs) => {
@@ -139,11 +118,7 @@ module ExternalUser = {
   let make = (~switchMerchant, ~isAddMerchantEnabled) => {
     open APIUtils
     let fetchDetails = useGetMethod()
-    let defaultMerchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
-    let (selectedMerchantObject, setSelectedMerchantObject) = React.useState(_ => {
-      merchant_id: defaultMerchantId,
-      merchant_name: defaultMerchantId,
-    })
+    let (selectedMerchantID, setSelectedMerchantID) = React.useState(_ => "")
     let (showModal, setShowModal) = React.useState(_ => false)
     let (options, setOptions) = React.useState(_ => [])
 
@@ -151,22 +126,16 @@ module ExternalUser = {
       let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Get, ())
       try {
         let res = await fetchDetails(url)
-        let typedValueOfResponse = res->convertListResponseToTypedResponse
-        setOptions(_ => typedValueOfResponse)
-        let extractMerchantObject =
-          typedValueOfResponse
-          ->Array.find(ele => ele.merchant_id === defaultMerchantId)
-          ->Option.getWithDefault({
-            merchant_id: defaultMerchantId,
-            merchant_name: defaultMerchantId,
-          })
-        setSelectedMerchantObject(_ => extractMerchantObject)
+        let merchantIdsArray = res->LogicUtils.getStrArryFromJson
+        setOptions(_ => merchantIdsArray)
       } catch {
       | _ => ()
       }
     }
 
     React.useEffect0(() => {
+      open HSLocalStorage
+      setSelectedMerchantID(_ => getFromMerchantDetails("merchant_id"))
       fetchMerchantIDs()->ignore
       None
     })
@@ -180,7 +149,7 @@ module ExternalUser = {
               className="inline-flex whitespace-pre leading-5 justify-center text-sm font-medium px-4 py-2 font-medium rounded-md hover:bg-opacity-80 bg-white border">
               {buttonProps => {
                 <>
-                  {selectedMerchantObject.merchant_name->React.string}
+                  {selectedMerchantID->React.string}
                   <Icon className="rotate-180 ml-1 mt-1" name="arrow-without-tail" size=15 />
                 </>
               }}
@@ -203,7 +172,7 @@ module ExternalUser = {
                         {props =>
                           <div className="relative">
                             <button
-                              onClick={_ => option.merchant_id->switchMerchant->ignore}
+                              onClick={_ => option->switchMerchant->ignore}
                               className={
                                 let activeClasses = if props["active"] {
                                   "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
@@ -212,11 +181,9 @@ module ExternalUser = {
                                 }
                                 `${activeClasses} font-medium`
                               }>
-                              <div className="mr-5"> {option.merchant_name->React.string} </div>
+                              <div className="mr-5"> {option->React.string} </div>
                             </button>
-                            <UIUtils.RenderIf
-                              condition={selectedMerchantObject.merchant_name ===
-                                option.merchant_name}>
+                            <UIUtils.RenderIf condition={selectedMerchantID === option}>
                               <Icon
                                 className="absolute top-2 right-2 text-blue-900"
                                 name="check"
