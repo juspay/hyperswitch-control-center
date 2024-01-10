@@ -155,7 +155,7 @@ let dummyTableApiBody = {
   source: "",
 }
 type newApiBodyEntity = {
-  timeObj: Js.Dict.t<Js.Json.t>,
+  timeObj: Dict.t<Js.Json.t>,
   metric?: string,
   groupBy?: Js.Array2.t<Js_string.t>,
   granularityConfig?: (int, string),
@@ -511,7 +511,7 @@ let getFilterRequestBody = (
   ~source: string="BATCH",
   (),
 ) => {
-  let body: Js.Dict.t<Js.Json.t> = Dict.make()
+  let body: Dict.t<Js.Json.t> = Dict.make()
   let timeRange = Dict.make()
   let timeSeries = Dict.make()
 

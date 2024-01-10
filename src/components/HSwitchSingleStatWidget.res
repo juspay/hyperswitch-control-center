@@ -13,8 +13,8 @@ let make = (
   ~loaderType: AnalyticsUtils.loaderType=Shimmer,
   ~statChartColor: statChartColor=#blue,
   ~filterNullVals: bool=false,
-  ~statSentiment: Js.Dict.t<AnalyticsUtils.statSentiment>=Dict.make(),
-  ~statThreshold: Js.Dict.t<float>=Dict.make(),
+  ~statSentiment: Dict.t<AnalyticsUtils.statSentiment>=Dict.make(),
+  ~statThreshold: Dict.t<float>=Dict.make(),
   ~isHomePage=false,
 ) => {
   open Identity

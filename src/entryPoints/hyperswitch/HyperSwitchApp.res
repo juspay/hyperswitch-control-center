@@ -282,6 +282,14 @@ let make = () => {
                           renderList={() => <Disputes />}
                           renderShow={id => <ShowDisputes id />}
                         />
+                      | list{"customers", ...remainingPath} =>
+                        <EntityScaffold
+                          entityName="Customers"
+                          remainingPath
+                          access=ReadWrite
+                          renderList={() => <Customers />}
+                          renderShow={id => <ShowCustomers id />}
+                        />
                       | list{"routing", ...remainingPath} =>
                         <EntityScaffold
                           entityName="Routing"

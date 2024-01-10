@@ -72,7 +72,7 @@ let distribution =
   ->Dict.fromArray
   ->Js.Json.object_
 
-let tableItemToObjMapper: Js.Dict.t<Js.Json.t> => paymentTableType = dict => {
+let tableItemToObjMapper: Dict.t<Js.Json.t> => paymentTableType = dict => {
   let parseErrorReasons = dict => {
     dict
     ->getArrayFromDict(PaymentErrorMessage->colMapper, [])
