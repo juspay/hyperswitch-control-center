@@ -93,6 +93,7 @@ type order = {
   payment_experience: string,
   frm_message: frmMessage,
   connector_transaction_id: string,
+  merchant_connector_id: string,
   merchant_decision: string,
   profile_id: string,
 }
@@ -198,10 +199,10 @@ type aboutPaymentColType =
   | PaymentMethod
   | PaymentMethodType
   | CardBrand
+  | ConnectorLabel
   | Refunds
   | AuthenticationType
   | CaptureMethod
-  | MandateId
 
 type otherDetailsColType =
   | MandateData

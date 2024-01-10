@@ -21,6 +21,9 @@ external removeEventListener: (string, listener<'ev>) => unit = "removeEventList
 external postMessage: (Js.Json.t, string) => unit = "postMessage"
 
 @val @scope("window")
+external checkLoadHyper: option<HyperSwitchTypes.hyperloader> = "Hyper"
+
+@val @scope("window")
 external loadHyper: string => HyperSwitchTypes.hyperloader = "Hyper"
 
 type rec selectionObj = {\"type": string}
@@ -197,13 +200,6 @@ module Notification = {
 
   @val @scope("window")
   external notification: Js.Null_undefined.t<notification> = "Notification"
-
-  let isNotificationAvailable = notification->Js.Null_undefined.toOption->Js.Option.isSome
-
-  let permission = switch notification->Js.Null_undefined.toOption {
-  | Some(notif) => notif.permission
-  | None => ""
-  }
 
   let requestPermission = switch notification->Js.Null_undefined.toOption {
   | Some(notif) => notif.requestPermission

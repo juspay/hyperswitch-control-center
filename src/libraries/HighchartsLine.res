@@ -22,15 +22,6 @@ type area = {
   "pointStart": option<int>,
 }
 
-let makeArea = (~fillColor=?, ~threshold=?, ~lineWidth, ~states) => {
-  {
-    "fillColor": fillColor,
-    "threshold": threshold,
-    "lineWidth": lineWidth,
-    "states": states,
-  }
-}
-
 type boxplot = {"visible": bool}
 type marker = {"enabled": bool}
 

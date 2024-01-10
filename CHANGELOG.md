@@ -3,6 +3,30 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.23.0 (2024-01-10)
+
+### Features
+
+- Duplicate and edit configuration in volume based routing ([#146](https://github.com/juspay/hyperswitch-control-center/pull/146)) ([`5520ba8`](https://github.com/juspay/hyperswitch-control-center/commit/5520ba8a04fb709bde4a6197c6ee4c6f07ce3a6a))
+- Customers Module feature flag ([#218](https://github.com/juspay/hyperswitch-control-center/pull/218)) ([`1e0b297`](https://github.com/juspay/hyperswitch-control-center/commit/1e0b29775127cbbfaf1f21a82b786c324e3fa7d7))
+- Connector Label added in Show Payments ([#216](https://github.com/juspay/hyperswitch-control-center/pull/216)) ([`73e0b3d`](https://github.com/juspay/hyperswitch-control-center/commit/73e0b3d7b59b588807771cb5fd9fdd68996b1252))
+- Mixpanel added for quick start flow ([#222](https://github.com/juspay/hyperswitch-control-center/pull/222)) ([`611594f`](https://github.com/juspay/hyperswitch-control-center/commit/611594f3baeb2d7579679ede49b0d0e91fde7983))
+- Change data type response for switch merchant ([#212](https://github.com/juspay/hyperswitch-control-center/pull/212)) ([`bb1ce83`](https://github.com/juspay/hyperswitch-control-center/commit/bb1ce83b209f8cbee3fb3f4d29c28ca0640a0b80))
+
+### Bug Fixes
+
+- Moved HyperLoader script ([#110](https://github.com/juspay/hyperswitch-control-center/pull/110)) ([`e94a1b4`](https://github.com/juspay/hyperswitch-control-center/commit/e94a1b4ac8ec77bf943b70f481496db3636ad53e))
+- Make self-serve sidebar responsive ([#226](https://github.com/juspay/hyperswitch-control-center/pull/226)) ([`a0305d2`](https://github.com/juspay/hyperswitch-control-center/commit/a0305d254beec02de40e6098273bad2ef140904b))
+
+### Refactors
+
+- Remove dead code ([#138](https://github.com/juspay/hyperswitch-control-center/pull/138)) ([`6c7ac5c`](https://github.com/juspay/hyperswitch-control-center/commit/6c7ac5cc9637c3c8ed3cf0072b346e2e99db3053))
+
+**Full Changelog:** [`v1.22.0...v1.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.22.0...v1.23.0)
+
+- - -
+
+
 ## 1.22.0 (2024-01-09)
 
 ### Features

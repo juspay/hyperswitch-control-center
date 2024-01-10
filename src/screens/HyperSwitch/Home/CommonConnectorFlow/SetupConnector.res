@@ -8,6 +8,7 @@ module SelectProcessor = {
     ~connectorArray,
   ) => {
     let url = RescriptReactRouter.useUrl()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
     let {setQuickStartPageState} = React.useContext(GlobalProvider.defaultContext)
 
@@ -23,6 +24,7 @@ module SelectProcessor = {
         text="Proceed"
         onClick={_ => {
           setConnectorConfigureState(_ => Select_configuration_type)
+          mixpanelEvent(~eventName=`quickstart_select_processor`, ())
           RescriptReactRouter.replace(`/${url.path->LogicUtils.getListHead}?name=${connectorName}`)
         }}
         buttonSize=Small
@@ -56,8 +58,9 @@ module ConfigureProcessor = {
     ~setConnectorConfigureState,
     ~isBackButtonVisible=true,
   ) => {
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     open ConnectorUtils
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
 
     let connectorDetails = React.useMemo1(() => {
@@ -91,6 +94,7 @@ module ConfigureProcessor = {
         (),
       )
       setInitialValues(_ => body)
+      mixpanelEvent(~eventName=`quickstart_connector_configuration`, ())
       setConnectorConfigureState(_ => Setup_payment_methods)
       Js.Nullable.null
     }
@@ -113,14 +117,15 @@ module ConfigureProcessor = {
         errors->Js.Json.object_,
       )
     }
-    let backButton = isBackButtonVisible
-      ? <Button
+    let backButton =
+      <UIUtils.RenderIf condition={isBackButtonVisible}>
+        <Button
           buttonType={PrimaryOutline}
           text="Back"
           onClick={_ => setConnectorConfigureState(_ => Select_configuration_type)}
           buttonSize=Small
         />
-      : React.null
+      </UIUtils.RenderIf>
 
     <Form initialValues onSubmit validate={validateMandatoryField}>
       <QuickStartUIUtils.BaseComponent
@@ -165,6 +170,7 @@ module SelectPaymentMethods = {
     let {quickStartPageState} = React.useContext(GlobalProvider.defaultContext)
     let updateAPIHook = APIUtils.useUpdateMethod()
     let showToast = ToastState.useShowToast()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
 
@@ -215,6 +221,7 @@ module SelectPaymentMethods = {
           (),
         )
         setButtonState(_ => Button.Normal)
+        mixpanelEvent(~eventName=`quickstart_connector_payment_methods`, ())
       } catch {
       | _ => setButtonState(_ => Button.Normal)
       }
