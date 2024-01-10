@@ -1,4 +1,5 @@
-name: Link PR to Issue
+
+name: Update PR Label
 
 on:
   pull_request:
@@ -10,40 +11,36 @@ on:
       - synchronize
 
 jobs:
-  link-pr-to-issue:
+  update-pr-label:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Check out code
+        uses: actions/checkout@v2
 
-    - name: Get Issue Number from Branch Name
-      id: extract_issue_number
-      run: echo "::set-output name=issue_number::$(echo "${{ github.event.pull_request.head.ref }}" | grep -oP '\/\K[0-9]+')"
+      - name: Get Issue Number from Branch Name
+        id: extract_issue_number
+        run: echo "::set-output name=issue_number::$(echo "${{ github.event.pull_request.head.ref }}" | grep -oP '\/\K[0-9]+')"        
 
-    - name: Link PR to Issue in PR Description
-      run: |
-        issue_number="${{ steps.extract_issue_number.outputs.issue_number }}"
-        pr_number="${{ github.event.pull_request.number }}"
-        pr_url="${{ github.event.pull_request.html_url }}"
-        api_url="https://api.github.com/repos/${{ github.repository }}/pulls/${pr_number}"
-        current_description=$(curl -sS -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$api_url" | jq -r '.body')
+      - name: Update PR Label
+        run: |
+          issue_number="${{ steps.extract_issue_number.outputs.issue_number }}"
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          # Check if the PR is merged
+          if [ "${{ github.event.pull_request.merged }}" == "true" ]; then
+            # Update the labels
+            curl -X POST \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -d '{"development": ["issue_number"]}' \
+              "https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/labels"
+          else
+            echo "PR not merged. No label update needed."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-        # Retrieve existing comments
-        existing_comments=$(curl -sS -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                                "https://api.github.com/repos/${{ github.repository }}/issues/${issue_number}/comments")
 
-        # Extract existing comment bodies and concatenate with the new comment
-        all_comments=$(echo "$existing_comments" | jq -r '.[].body' | echo "$new_comment" && cat)
 
-        # Check if the comment body is not empty
-        if [ -n "$all_comments" ]; then
-          # Update comments with the new concatenated comments
-          api_url="https://api.github.com/repos/${{ github.repository }}/issues/${issue_number}/comments"
-          curl -sS -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-               -X POST \
-               -d "{\"body\":\"$all_comments\"}" \
-               "$api_url"
-        else
-          echo "No comments to add."
-        fi
+
