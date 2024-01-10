@@ -58,8 +58,9 @@ module ConfigureProcessor = {
     ~setConnectorConfigureState,
     ~isBackButtonVisible=true,
   ) => {
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     open ConnectorUtils
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
 
     let connectorDetails = React.useMemo1(() => {
@@ -93,6 +94,7 @@ module ConfigureProcessor = {
         (),
       )
       setInitialValues(_ => body)
+      mixpanelEvent(~eventName=`quickstart_connector_configuration`, ())
       setConnectorConfigureState(_ => Setup_payment_methods)
       Js.Nullable.null
     }
@@ -168,6 +170,7 @@ module SelectPaymentMethods = {
     let {quickStartPageState} = React.useContext(GlobalProvider.defaultContext)
     let updateAPIHook = APIUtils.useUpdateMethod()
     let showToast = ToastState.useShowToast()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
 
@@ -218,6 +221,7 @@ module SelectPaymentMethods = {
           (),
         )
         setButtonState(_ => Button.Normal)
+        mixpanelEvent(~eventName=`quickstart_connector_payment_methods`, ())
       } catch {
       | _ => setButtonState(_ => Button.Normal)
       }

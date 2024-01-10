@@ -159,7 +159,11 @@ let make = (~connectProcessorValue: connectProcessor) => {
       let _ = await PaymentType(paymentBody)->usePostEnumDetails(#TestPayment)
       setQuickStartPageState(_ => IntegrateApp(LANDING))
       RescriptReactRouter.replace("/quick-start")
-      mixpanelEvent(~eventName=`quickstart_checkout_pay`, ())
+      if paymentId->Option.isSome {
+        mixpanelEvent(~eventName=`quickstart_checkout_pay`, ())
+      } else {
+        mixpanelEvent(~eventName=`quickstart_checkout_skip`, ())
+      }
     } catch {
     | _ => ()
     }
@@ -276,7 +280,6 @@ let make = (~connectProcessorValue: connectProcessor) => {
               buttonType={PrimaryOutline}
               customButtonStyle="!rounded-md"
               onClick={_ => {
-                mixpanelEvent(~eventName=`quickstart_checkout_skip`, ())
                 updateTestPaymentEnum(~paymentId=None)->ignore
               }}
             />}>
