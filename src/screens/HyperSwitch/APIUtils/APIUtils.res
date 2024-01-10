@@ -33,6 +33,15 @@ let getURL = (
   | VERIFY_APPLE_PAY => `verify/apple_pay`
   | PAYPAL_ONBOARDING => `connector_onboarding`
   | SURCHARGE => `routing/decision/surcharge`
+  | CUSTOMERS =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(customerId) => `customers/${customerId}`
+      | None => `customers/list?limit=10000`
+      }
+    | _ => ""
+    }
   | FRAUD_RISK_MANAGEMENT | CONNECTOR =>
     switch methodType {
     | Get =>

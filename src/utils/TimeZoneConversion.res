@@ -10,8 +10,8 @@ type dateTime = {
   second: float,
 }
 
-let timezoneOffset = Js.Dict.fromList(list{("IST", "+05:30"), ("GMT", "+00:00")})
-let timezoneLocation = Js.Dict.fromList(list{("IST", "Asia/Kolkata"), ("GMT", "UTC")})
+let timezoneOffset = Dict.fromArray([("IST", "+05:30"), ("GMT", "+00:00")])
+let timezoneLocation = Dict.fromArray([("IST", "Asia/Kolkata"), ("GMT", "UTC")])
 
 let formatter = str => {
   String.length(str) == 0 ? "00" : String.length(str) == 1 ? `0${str}` : str
@@ -48,38 +48,3 @@ let isoStringToCustomTimezone = isoString => {
   }
   customDateTime
 }
-
-let customTimezoneToISOString = (year, month, day, hours, minutes, seconds, _timezone) => {
-  let timezone = "IST"
-
-  let timezoneString = switch Dict.get(timezoneOffset, timezone) {
-  | Some(d) => d
-  | None => "+05:30"
-  }
-
-  let monthString = String.length(month) == 1 ? `0${month}` : month
-  let dayString = String.length(day) == 1 ? `0${day}` : day
-  let hoursString = formatter(hours)
-  let minutesString = formatter(minutes)
-  let secondsString = formatter(seconds)
-
-  let fullTimeManagedString =
-    year ++
-    "-" ++
-    monthString ++
-    "-" ++
-    dayString ++
-    "T" ++
-    hoursString ++
-    ":" ++
-    minutesString ++
-    ":" ++
-    secondsString ++
-    timezoneString
-  let newFormedDate = Js.Date.fromString(fullTimeManagedString)
-  let isoFormattedDate = Js.Date.toISOString(newFormedDate)
-
-  isoStringToCustomTimezone(isoFormattedDate)->ignore
-  isoFormattedDate
-}
-// return new Date((typeof date === "string" ? new Date(date) : date).toLocaleString("en-US", {timeZone: timezoneString})); 

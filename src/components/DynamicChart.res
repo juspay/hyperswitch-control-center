@@ -24,14 +24,6 @@ type chartEntity = {
   customFilter?: string,
 }
 
-let cardinalityStrMapper = str => {
-  switch str {
-  | "Top_5" => Top_5
-  | "Top_10" => Top_10
-  | _ => raise(Invalid_argument(`invalid values, only Top_5, Top_10 is accepted as values`))
-  }
-}
-
 let getTimeSeriesChart = (chartEntity: chartEntity) => {
   let metricsArr = chartEntity.metrics->Array.map(item => {
     item.metric_name_db
@@ -81,7 +73,7 @@ let getLegendBody = (chartEntity: chartEntity) => {
   ->Js.Json.stringify
 }
 
-type chartUrl = String(string) | Func(Js.Dict.t<Js.Json.t> => string)
+type chartUrl = String(string) | Func(Dict.t<Js.Json.t> => string)
 type chartType = Line | Bar | SemiDonut | HorizontalBar | Funnel
 
 type uriConfig = {
@@ -127,20 +119,6 @@ type entity = {
   chartDescription?: string,
   sortingColumnLegend?: string,
   jsonTransformer?: (string, array<Js.Json.t>) => array<Js.Json.t>,
-}
-
-let chartDataLoadingIndicator = {
-  let padding = "py-8 rounded-b"
-  <div
-    className="border rounded  bg-white  border-jp-gray-500 dark:border-jp-gray-960 dark:bg-jp-gray-950">
-    <div
-      className={`h-[400px] flex flex-col ${padding} justify-center space-x-2 items-center bg-white shadow-md dark:bg-jp-gray-lightgray_background dark:shadow-md`}>
-      <div className="animate-spin mb-4">
-        <Icon name="spinner" />
-      </div>
-      <div className="text-gray-500"> {React.string("Loading...")} </div>
-    </div>
-  </div>
 }
 
 let chartMapper = str => {
@@ -292,45 +270,6 @@ let useChartFetch = (~setStatusDict) => {
   fetchChartData
 }
 
-let granularityMapper = (granularity: granularity) => {
-  switch granularity {
-  | G_ONEDAY => "G_ONEDAY"
-  | G_ONEHOUR => "G_ONEHOUR"
-  | G_FIVEMIN => "G_FIVEMIN"
-  | G_THIRTYSEC => "G_THIRTYSEC"
-  | G_ONEMIN => "G_ONEMIN"
-  | G_FIFTEENMIN => "G_FIFTEENMIN"
-  | G_THIRTYMIN => "G_THIRTYMIN"
-  }
-}
-
-let granularityMapperRev = (granularity: string) => {
-  switch granularity {
-  | "G_ONEDAY" => G_ONEDAY
-  | "G_ONEHOUR" => G_ONEHOUR
-  | "G_FIVEMIN" => G_FIVEMIN
-  | "G_THIRTYSEC" => G_THIRTYSEC
-  | "G_ONEMIN" => G_ONEMIN
-  | "G_FIFTEENMIN" => G_FIFTEENMIN
-  | "G_THIRTYMIN" => G_THIRTYMIN
-  | _ =>
-    raise(
-      Invalid_argument(`invalid values, only G_ONEDAY, G_ONEHOUR, G_FIVEMIN, G_THIRTYSEC, G_ONEMIN, G_FIFTEENMIN, G_THIRTYMIN is accepted as values`),
-    )
-  }
-}
-
-let getGranularityMapperNew = (granularity: granularity) => {
-  switch granularity {
-  | G_ONEDAY => (1, "day")
-  | G_ONEHOUR => (1, "hour")
-  | G_FIVEMIN => (5, "minute")
-  | G_THIRTYSEC => (30, "second")
-  | G_ONEMIN => (1, "minute")
-  | G_FIFTEENMIN => (15, "minute")
-  | G_THIRTYMIN => (30, "minute")
-  }
-}
 let cardinalityArr = ["TOP_5", "TOP_10"]
 let chartTypeArr = [
   "Line chart",
@@ -339,19 +278,6 @@ let chartTypeArr = [
   "Horizontal Bar Chart",
   "Funnel Chart",
 ]
-
-let cardinalityMapper = (cardinality: cardinality) => {
-  switch cardinality {
-  | Top_5 => "TOP_5"
-  | Top_10 => "TOP_10"
-  }
-}
-
-let validateAndUpdateUri = (~updateUri, ~updatedFilter, ~validationArr, ~valueFromUrl) => {
-  validationArr->Array.includes(valueFromUrl)
-    ? ()
-    : updateUri(~dict=Dict.fromArray([updatedFilter]))
-}
 
 @react.component
 let make = (
@@ -838,15 +764,6 @@ let make = (
     }
     None
   }, [updatedChartBody])
-  let _transformChartType = arr => {
-    Array.map(arr, str => {
-      let a: SelectBox.dropdownOption = {
-        label: chartMapper(str),
-        value: chartMapper(str),
-      }
-      a
-    })
-  }
   let transformMetric = (arr: array<LineChartUtils.metricsConfig>) => {
     arr->Array.map(item => {
       let a: SelectBox.dropdownOption = {
@@ -855,16 +772,6 @@ let make = (
       }
       a
     })
-  }
-  let _inputChart: ReactFinalForm.fieldRenderPropsInput = {
-    name: "inputChart",
-    onChange: ev => {
-      updateChartCompFilters(Dict.fromArray([("chartType", ev->Identity.formReactEventToString)]))
-    },
-    value: chartTypeFromUrl->Js.Json.string,
-    onBlur: _ev => (),
-    onFocus: _ev => (),
-    checked: true,
   }
   let inputMetricTop: ReactFinalForm.fieldRenderPropsInput = {
     name: "inputMetricTop",

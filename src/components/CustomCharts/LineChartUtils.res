@@ -99,47 +99,12 @@ let legendColorGradients = (topGradient, bottomGradient) => {
   ]
 }
 
-let stringToColor = %raw(`function stringToColor(str) {
-    var hash = 0;
-    for (var i = 0; i < str.length; i++) {
-        hash = str.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    var color = '#';
-    for (var i = 0; i < 3; i++) {
-        var value = (hash >> (i * 8)) & 0xFF;
-        color += ('00' + value.toString(16)).substr(-2);
-    }
-    return color;
-}
-`)
-
 type hexToRgb = {
   r: int,
   g: int,
   b: int,
 }
 
-let hexToRgb = (hex: string): hexToRgb => {
-  let result = Js.String.match_(%re("/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i"), hex)
-
-  switch result {
-  | Some(matchResult) =>
-    let matchString = Belt.Array.getUnsafe(matchResult, 0)->Belt.Option.getWithDefault("")
-    let r = String.substring(matchString, ~start=1, ~end=1 + 2)
-    let g = String.substring(matchString, ~start=3, ~end=3 + 2)
-    let b = String.substring(matchString, ~start=5, ~end=5 + 2)
-    {
-      r: int_of_string("0x" ++ r),
-      g: int_of_string("0x" ++ g),
-      b: int_of_string("0x" ++ b),
-    }
-  | None => {
-      r: 0,
-      g: 0,
-      b: 0,
-    }
-  }
-}
 //Takes rgba value and reduces opacity by 10
 let reduceOpacity = str => {
   let match = str->Js.String2.match_(%re("/rgba\(\d+,\s*\d+,\s*\d+,\s*([\d.]+)\)/"))
@@ -180,31 +145,6 @@ let calculateOpacity = (~length, ~originalOpacity) => {
   // Calculate the reduced opacity based on the formula: originalOpacity * (0.4 ^ (length / 13))
 
   Js.Math.max_float(reducedOpacity, 0.0)->Js.Float.toString
-}
-
-let createGradient = (key: string): Highcharts.fillColorSeries => {
-  let color = stringToColor(key)
-  let componentToHex = (c: int): string => {
-    let hex = Js.Int.toStringWithRadix(c, ~radix=16)
-    if String.length(hex) < 2 {
-      "0" ++ hex
-    } else {
-      hex
-    }
-  }
-
-  let rgbToHex = (r: int, g: int, b: int): string => {
-    "#" ++ componentToHex(r) ++ componentToHex(g) ++ componentToHex(b)
-  }
-  let top = hexToRgb(color)
-  let colorWithAlpha = color ++ "80" //alpha of 0.5
-  let bottom = rgbToHex(top.r, top.g, top.b)
-  let bottomWithAlpha = bottom ++ "0d" //alpha of 0.05
-
-  {
-    linearGradient: (0, 0, 0, 300),
-    stops: ((0, colorWithAlpha), (1, bottomWithAlpha)),
-  }
 }
 
 type dropDownMetricType = Latency | Volume | Rate | Amount | Traffic // traffic string can be any column which is of type Volume, Amount
@@ -545,8 +485,6 @@ let getLegendDataForCurrentMetrix = (
 }
 
 let barChartDataMaker = (~yAxis: string, ~rawData: array<Js.Json.t>, ~activeTab: string) => {
-  let _overallDataDict = Dict.make()
-
   let value = rawData->Belt.Array.keepMap(item => {
     let dict = item->getDictFromJsonObject
 
@@ -648,87 +586,6 @@ let formatLabels = (metric: metricsConfig, value: float) => {
   }
 }
 
-let legendMaker = (data: (string, string, string), legendType: legenedType, legendId: string) => {
-  let (fontSize, width, marginLeft) = switch legendType {
-  | Heading => (
-      "text-fs-11 dark:text-blue-650 text-jp-gray-900 text-opacity-80 dark:text-opacity-100 font-ibm-plex font-medium not-italic pb-2 whitespace-nowrap text-ellipsis overflow-x-hidden",
-      "70px",
-      "20px",
-    )
-  | LegendData => (
-      "text-fs-10 font-medium dark:text-jp-gray-dark_chart_legend_text jp-gray-light_chart_legend_text pb-4 whitespace-nowrap text-ellipsis overflow-x-hidden",
-      "90px",
-      "0px",
-    )
-  }
-  let isHeading = legendType === Heading
-
-  let (name, statsFirst, statsSecond) = data
-
-  let headingWidth = isHeading ? "90px" : width
-  let headingMarginLeft = isHeading ? "0px" : marginLeft
-  let (heading_id1, heading_id2, heading_id3) = isHeading
-    ? (`id = "${legendId}_1"`, `id = "${legendId}_2"`, `id = "${legendId}_3"`)
-    : ("", "", "")
-
-  let statFirstUi = if statsFirst !== "" {
-    `<span ${heading_id2} class="chart_legend ${fontSize}" style=" width: ${width}; margin-left: ${marginLeft};">${statsFirst}</span>`
-  } else {
-    ""
-  }
-
-  let statsSecondUi = if statsSecond !== "" {
-    `<span ${heading_id3} class="${fontSize}" style=" width: ${width}; margin-left: ${marginLeft};">${statsSecond}</span>`
-  } else {
-    ""
-  }
-
-  `<span class="flex flex-row highcharts-legend-item highcharts-area-series highcharts-color-0 highcharts-series-0">
-    <span ${heading_id1} class="${fontSize}" style=" width: ${headingWidth}; margin-left: ${headingMarginLeft};"> ${name}</span>
-   ${statFirstUi}
-   ${statsSecondUi}
-   </span>`
-}
-let getLegendValCondition = (value: option<legendTableData>, legendTitle: chartLegendStatsType) => {
-  switch value {
-  | Some(val) =>
-    switch legendTitle {
-    | Overall => val.overall
-    | Average => val.average
-    | Current => val.current
-    | _ => 0. // noe been used
-    }
-  | None => 0.
-  }
-}
-
-let legendFormatter = (
-  name: string,
-  metrics: metricsConfig,
-  legendData: array<legendTableData>,
-) => {
-  let (fistLegend, secondLegend) = legendTypeBasedOnMetric(metrics.metric_type)
-
-  let value =
-    legendData
-    ->Array.filter(item => {
-      item.groupByName === name
-    })
-    ->Belt.Array.get(0)
-
-  let overallstat = switch secondLegend {
-  | NO_COL => ""
-  | _ => formatStatsAccToMetrix(metrics.metric_type, getLegendValCondition(value, secondLegend))
-  }
-
-  let currentstat = switch fistLegend {
-  | NO_COL => ""
-  | _ => formatStatsAccToMetrix(metrics.metric_type, getLegendValCondition(value, fistLegend))
-  }
-
-  legendMaker((name, currentstat, overallstat), LegendData)
-}
-
 let getTooltipHTML = (metrics, data, onCursorName) => {
   let metric_type = metrics.metric_type
   let (name, color, y_axis, secondry_metrix) = data
@@ -752,7 +609,7 @@ let getTooltipHTML = (metrics, data, onCursorName) => {
 
 let tooltipFormatter = (
   metrics: metricsConfig,
-  xAxisMapInfo: Js.Dict.t<Js.Array2.t<(Js_string.t, string, float, option<float>)>>,
+  xAxisMapInfo: Dict.t<Js.Array2.t<(Js_string.t, string, float, option<float>)>>,
   groupKey: string,
 ) =>
   @this
@@ -778,13 +635,6 @@ let tooltipFormatter = (
     `<table>${htmlStr}</table>`
   }
 
-let tooltipHeaderFormatter = (metric: metricsConfig) => {
-  let secondryMetrixLabel = switch metric {
-  | {secondryMetrics} => `<br>Secondary metric: ${secondryMetrics.metric_label}`
-  | _ => ""
-  }
-  `{point.key}${secondryMetrixLabel}<br><br>`->Some
-}
 let legendItemStyle = (theme: ThemeProvider.theme, legendFontFamilyClass, legendFontSizeClass) => {
   switch theme {
   | Dark =>

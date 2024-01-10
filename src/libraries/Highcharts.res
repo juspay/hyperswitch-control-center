@@ -56,7 +56,7 @@ type tick = {
   gridLine: gridLine,
   pos: float,
 }
-type eventYaxis = {ticks: Js.Dict.t<gridLine>}
+type eventYaxis = {ticks: Dict.t<gridLine>}
 type chartEventOnload = {yAxis: array<eventYaxis>}
 type chartEvent = {render: option<Js_OO.Callback.arity1<chartEventOnload => unit>>}
 type chart = {
@@ -81,16 +81,6 @@ type area = {
   "states": states,
   "pointStart": option<int>,
   "fillOpacity": float,
-}
-
-let makeArea = (~fillColor=?, ~threshold=?, ~lineWidth, ~states) => {
-  {
-    "fillColor": fillColor,
-    "threshold": threshold,
-    "lineWidth": lineWidth,
-    "states": states,
-    "fillOpacity": 0.1,
-  }
 }
 
 type boxplot = {"visible": bool}
@@ -215,17 +205,6 @@ type tooltip = {
     Js_OO.Callback.arity4<(toltipPositioner, int, int, tooltipPoint) => tooltipPoint>,
   >,
 }
-let xAxisMake = (~lineType=?, ()) => {
-  let emptyDict = Dict.make()
-  switch lineType {
-  | Some(lineType) => {
-      emptyDict->Dict.set("type", lineType->Js.Json.string)
-      Some(emptyDict->Js.Json.object_)
-    }
-
-  | None => None
-  }
-}
 type optionsJson<'a> = {
   chart: option<Js.Json.t>,
   title: Js.Json.t,
@@ -300,7 +279,7 @@ type highcharts
 @module("highcharts") external highchartsModule: highcharts = "default"
 
 @module("highcharts") @scope("default")
-external objectEach: (Js.Dict.t<gridLine>, tick => unit) => unit = "objectEach"
+external objectEach: (Dict.t<gridLine>, tick => unit) => unit = "objectEach"
 
 @module("highcharts/modules/treemap") external treeMapModule: highcharts => unit = "default"
 @module("highcharts/modules/sankey") external sankeyChartModule: highcharts => unit = "default"

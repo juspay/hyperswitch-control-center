@@ -357,10 +357,6 @@ module FieldInputRenderer = {
 }
 
 module ComboFieldsRenderer = {
-  let customInput = (_input, _meta) => {
-    React.string("custom input")
-  }
-
   @react.component
   let make = (~field: fieldInfoType) => {
     <div>
