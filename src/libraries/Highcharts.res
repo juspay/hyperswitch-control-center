@@ -83,16 +83,6 @@ type area = {
   "fillOpacity": float,
 }
 
-let makeArea = (~fillColor=?, ~threshold=?, ~lineWidth, ~states) => {
-  {
-    "fillColor": fillColor,
-    "threshold": threshold,
-    "lineWidth": lineWidth,
-    "states": states,
-    "fillOpacity": 0.1,
-  }
-}
-
 type boxplot = {"visible": bool}
 type marker = {"enabled": option<bool>, "radius": option<int>, "symbol": option<string>}
 
@@ -214,17 +204,6 @@ type tooltip = {
   "positioner": option<
     Js_OO.Callback.arity4<(toltipPositioner, int, int, tooltipPoint) => tooltipPoint>,
   >,
-}
-let xAxisMake = (~lineType=?, ()) => {
-  let emptyDict = Dict.make()
-  switch lineType {
-  | Some(lineType) => {
-      emptyDict->Dict.set("type", lineType->Js.Json.string)
-      Some(emptyDict->Js.Json.object_)
-    }
-
-  | None => None
-  }
 }
 type optionsJson<'a> = {
   chart: option<Js.Json.t>,

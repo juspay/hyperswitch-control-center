@@ -312,8 +312,6 @@ module ChooseColumns = {
 }
 
 module ChooseColumnsWrapper = {
-  let func = _ => false
-
   @react.component
   let make = (
     ~entity: EntityType.entityType<'colType, 't>,

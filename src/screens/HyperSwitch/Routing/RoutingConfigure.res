@@ -4,9 +4,9 @@ open RoutingUtils
 let make = (~routingType) => {
   let url = RescriptReactRouter.useUrl()
   let (currentRouting, setCurrentRouting) = React.useState(() => NO_ROUTING)
-
   let (id, setId) = React.useState(() => None)
   let (isActive, setIsActive) = React.useState(_ => false)
+
   React.useEffect1(() => {
     let searchParams = url.search
     let filtersFromUrl = LogicUtils.getDictFromUrlSearchParams(searchParams)->Dict.get("id")
