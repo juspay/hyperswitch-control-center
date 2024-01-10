@@ -1004,6 +1004,7 @@ let getCountryFromCountryCode = code => {
   | ZW => Zimbabwe
   }
 }
+
 let getCountryCodeFromCountry = country => {
   switch country {
   | Afghanistan => AF
@@ -1763,6 +1764,7 @@ let getCountryCodeStringFromVarient = code => {
   | ZW => "ZW"
   }
 }
+
 let getCountryFromString = country => {
   switch country {
   | "Afghanistan" => Afghanistan

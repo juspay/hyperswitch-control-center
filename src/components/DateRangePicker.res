@@ -6,15 +6,10 @@ let defaultCellHighlighter = (_): Calendar.highlighter => {
   }
 }
 
-let useErroryValueResetter = (
-  value: string,
-  setValue: (string => string) => unit,
-  isoStringToCustomTimeZone,
-) => {
+let useErroryValueResetter = (value: string, setValue: (string => string) => unit) => {
   React.useEffect0(() => {
-    let isErroryTimeValue = value => {
+    let isErroryTimeValue = _ => {
       try {
-        let _checkEnd = value->isoStringToCustomTimeZone
         false
       } catch {
       | _error => true
@@ -250,8 +245,8 @@ module Base = {
     let dateRangeRef = React.useRef(Js.Nullable.null)
     let dropdownRef = React.useRef(Js.Nullable.null)
 
-    useErroryValueResetter(startDateVal, setStartDateVal, isoStringToCustomTimeZone)
-    useErroryValueResetter(endDateVal, setEndDateVal, isoStringToCustomTimeZone)
+    useErroryValueResetter(startDateVal, setStartDateVal)
+    useErroryValueResetter(endDateVal, setEndDateVal)
 
     let startDate = localStartDate->getDateStringForValue(isoStringToCustomTimeZone)
     let endDate = localEndDate->getDateStringForValue(isoStringToCustomTimeZone)
@@ -526,7 +521,9 @@ module Base = {
     }
 
     let buttonText = {
-      showTime
+      startDateVal->String.length === 0 && endDateVal->String.length === 0
+        ? `Select Date ${showTime ? "and Time" : ""}`
+        : showTime
         ? `${startDateStr} ${startTimeStr} - ${endDateStr} ${endTimeStr}`
         : `${startDateStr} ${startDateStr === buttonText ? "" : "-"} ${endDateStr}`
     }
