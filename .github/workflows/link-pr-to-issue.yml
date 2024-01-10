@@ -28,7 +28,7 @@ jobs:
           PR_NUMBER=${{ github.event.pull_request.number }}
           GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           # Check if the PR is merged
-          if [ "${{ github.event.pull_request.merged }}" == "true" ]; then
+          if [ "${{ github.event.pull_request.merged }}" == "false" ]; then
             # Update the labels
             curl -X POST \
               -H "Accept: application/vnd.github.v3+json" \
