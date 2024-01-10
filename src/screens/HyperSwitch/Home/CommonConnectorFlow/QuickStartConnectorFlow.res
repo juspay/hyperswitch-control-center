@@ -18,6 +18,7 @@ let make = (
 
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
   let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
@@ -36,6 +37,7 @@ let make = (
   let multipleConfigurationArrayLength = 2
 
   let handleSummaryProceed = () => {
+    mixpanelEvent(~eventName=`quickstart_connector_summary`, ())
     if (
       connectorArray->Array.length === multipleConfigurationArrayLength &&
         typedEnumValue.configurationType->connectorChoiceStringVariantMapper ===
@@ -105,9 +107,11 @@ let make = (
 
   let handleConnectorSubmit = () => {
     if choiceStateForTestConnector === #TestApiKeys {
+      mixpanelEvent(~eventName=`quickstart_select_configuration_type_test`, ())
       handleTestConnector()->ignore
     } else {
       setConnectorConfigureState(_ => Configure_keys)
+      mixpanelEvent(~eventName=`quickstart_select_configuration_type_keys`, ())
     }
   }
 
@@ -140,7 +144,9 @@ let make = (
           buttonType=Primary
           text="Proceed"
           buttonState
-          onClick={_ => handleConnectorSubmit()}
+          onClick={_ => {
+            handleConnectorSubmit()
+          }}
           buttonSize=Small
         />}
         backButton={<Button
