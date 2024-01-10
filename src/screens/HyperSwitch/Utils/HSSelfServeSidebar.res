@@ -71,9 +71,16 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
             className={`${indexBackground} ${indexColor} rounded-sm w-1.1-rem h-1.1-rem flex justify-center items-center text-sm`}>
             {(i + 1)->Belt.Int.toString->React.string}
           </span>
-          <span className="flex-1 w-20 text-ellipsis overflow-hidden whitespace-nowrap">
-            {sidebarOption.title->React.string}
-          </span>
+          <div className="flex-1">
+            <ToolTip
+              tooltipForWidthClass="w-full"
+              description={sidebarOption.title}
+              toolTipFor={<div
+                className="flex-1 relative w-60 text-ellipsis overflow-hidden whitespace-nowrap">
+                {sidebarOption.title->React.string}
+              </div>}
+            />
+          </div>
           <Icon name=icon size=20 />
         </div>
         <UIUtils.RenderIf
