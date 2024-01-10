@@ -198,13 +198,6 @@ module Notification = {
   @val @scope("window")
   external notification: Js.Null_undefined.t<notification> = "Notification"
 
-  let isNotificationAvailable = notification->Js.Null_undefined.toOption->Js.Option.isSome
-
-  let permission = switch notification->Js.Null_undefined.toOption {
-  | Some(notif) => notif.permission
-  | None => ""
-  }
-
   let requestPermission = switch notification->Js.Null_undefined.toOption {
   | Some(notif) => notif.requestPermission
   | None => () => Promise.resolve("")

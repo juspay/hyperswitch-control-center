@@ -274,15 +274,6 @@ let developers = (isDevelopersEnabled, userRole, systemMetrics) => {
     : emptyComponent
 }
 
-// *  PRO Features
-
-let proFeatures = isProFeaturesEnabled =>
-  isProFeaturesEnabled
-    ? Heading({
-        name: "PRO FEATURES",
-      })
-    : emptyComponent
-
 let fraudAndRisk = isfraudAndRiskEnabled =>
   isfraudAndRiskEnabled
     ? Link({
