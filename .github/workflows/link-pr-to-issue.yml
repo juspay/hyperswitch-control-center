@@ -1,4 +1,4 @@
-name: Link PR to Issue
+name: Add Comment to PR
 
 on:
   pull_request:
@@ -10,29 +10,29 @@ on:
       - synchronize
 
 jobs:
-  link-pr-to-issue:
+  add-comment:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Get Issue Number from Branch Name
-      id: extract_issue_number
-      run: echo "::set-output name=issue_number::$(echo "${{ github.event.pull_request.head.ref }}" | grep -oP '\/\K[0-9]+')"
-
-    - name: Link PR to Issue in PR Description
+    - name: Add Comment to PR
       run: |
-        issue_number="${{ steps.extract_issue_number.outputs.issue_number }}"
-        pr_number="${{ github.event.pull_request.number }}"
+        issue_number="${{ github.event.pull_request.head.ref | split: '/' | last }}"
         pr_url="${{ github.event.pull_request.html_url }}"
-        api_url="https://api.github.com/repos/${{ github.repository }}/pulls/${pr_number}"
-        current_description=$(curl -sS -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$api_url" | jq -r '.body')
+        new_comment="This PR is linked to the issue #${issue_number}: ${pr_url}"
 
-        comment="This PR is linked to the issue #${issue_number}: ${pr_url}"
+        # Retrieve existing comments
+        existing_comments=$(curl -sS -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                                "https://api.github.com/repos/${{ github.repository }}/issues/${issue_number}/comments")
 
-        # Add a comment to the issue linking to the PR
+        # Extract existing comment bodies and concatenate with the new comment
+        all_comments=$(echo "$existing_comments" | jq -r '.[].body' | echo "$new_comment" && cat)
+
+        # Update comments with the new concatenated comments
+        api_url="https://api.github.com/repos/${{ github.repository }}/issues/${issue_number}/comments"
         curl -sS -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -X POST \
-            -d "{\"body\":\"$comment\"}" \
-            "$api_url"
+             -X POST \
+             -d "{\"body\":\"$all_comments\"}" \
+             "$api_url"
