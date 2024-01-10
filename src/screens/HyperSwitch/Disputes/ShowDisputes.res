@@ -137,8 +137,6 @@ module DisputesInfo = {
         })
       }
 
-      Js.log2("data.dispute_status", data.dispute_status)
-
       <OrderUtils.Section
         customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-6 flex flex-col gap-6`}>
         <div className="flex items-center justify-between">
