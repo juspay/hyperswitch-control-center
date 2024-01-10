@@ -283,7 +283,7 @@ let make = () => {
                           renderShow={id => <ShowDisputes id />}
                         />
                       | list{"customers", ...remainingPath} =>
-                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.customerModule>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.customersModule>
                           <EntityScaffold
                             entityName="Customers"
                             remainingPath
