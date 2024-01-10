@@ -306,9 +306,9 @@ let make = (
     loadDOM()->ignore
     None
   })
-  let hyperPromise = async () => {
+  let hyperPromise = React.useCallback1(async () => {
     Window.loadHyper(publishableKey)
-  }
+  }, [publishableKey])
   <PageLoaderWrapper
     screenState={screenState}
     customLoader={<div className="mt-60 w-scrren flex flex-col justify-center items-center">
