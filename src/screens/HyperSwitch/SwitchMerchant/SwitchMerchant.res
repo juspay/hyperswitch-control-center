@@ -218,9 +218,9 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   let (value, setValue) = React.useState(() => "")
   let merchantId = getFromMerchantDetails("merchant_id")
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let isInternalUser = userRole->String.includes("internal_")
+  let (successModal, setSuccessModal) = React.useState(_ => false)
 
   let input = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
     {
@@ -256,8 +256,10 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       let switchedMerchantId = responseDict->getString("merchant_id", "")
       LocalStorage.setItem("login", token)
       HSwitchUtils.setMerchantDetails("merchant_id", switchedMerchantId->Js.Json.string)
-      showToast(~message=`Merchant Switched Succesfully`, ~toastType=ToastSuccess, ())
+      setSuccessModal(_ => true)
+      await HyperSwitchUtils.delay(2000)
       Window.Location.reload()
+      setSuccessModal(_ => false)
     } catch {
     | _ => setValue(_ => "")
     }
@@ -278,6 +280,18 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       <TextInput input customWidth="w-80" placeholder="Switch merchant" onKeyUp=handleKeyUp />
     </div>
   } else {
-    <ExternalUser switchMerchant isAddMerchantEnabled />
+    <>
+      <ExternalUser switchMerchant isAddMerchantEnabled />
+      <Modal
+        showModal=successModal
+        setShowModal=setSuccessModal
+        modalClass="w-80 !h-48 flex items-center justify-center m-auto"
+        paddingClass=""
+        childClass="flex items-center justify-center h-full w-full">
+        {<div className="flex items-center gap-2">
+          <p className="text-xl font-semibold"> {"Switching merchant..."->React.string} </p>
+        </div>}
+      </Modal>
+    </>
   }
 }

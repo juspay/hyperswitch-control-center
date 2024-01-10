@@ -86,13 +86,15 @@ let customers = SubLevelLink({
   searchOptions: [("View customers", "")],
 })
 
-let operations = isOperationsEnabled => {
+let operations = (isOperationsEnabled, customersModule) => {
   isOperationsEnabled
     ? Section({
         name: "Operations",
         icon: "hswitch-operations",
         showSection: true,
-        links: [payments, refunds, disputes, customers],
+        links: customersModule
+          ? [payments, refunds, disputes, customers]
+          : [payments, refunds, disputes],
       })
     : emptyComponent
 }
@@ -274,15 +276,6 @@ let developers = (isDevelopersEnabled, userRole, systemMetrics) => {
     : emptyComponent
 }
 
-// *  PRO Features
-
-let proFeatures = isProFeaturesEnabled =>
-  isProFeaturesEnabled
-    ? Heading({
-        name: "PRO FEATURES",
-      })
-    : emptyComponent
-
 let fraudAndRisk = isfraudAndRiskEnabled =>
   isfraudAndRiskEnabled
     ? Link({
@@ -337,11 +330,12 @@ let getHyperSwitchAppSidebars = (
     userJourneyAnalytics: userJourneyAnalyticsFlag,
     surcharge: isSurchargeEnabled,
     isLiveMode,
+    customersModule,
   } = featureFlagDetails
   let sidebar = [
     productionAccess->productionAccessComponent,
     default->home,
-    default->operations,
+    default->operations(customersModule),
     default->analytics(userJourneyAnalyticsFlag),
     default->connectors(isLiveMode),
     default->workflow(isSurchargeEnabled),
