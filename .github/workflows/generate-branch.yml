@@ -1,0 +1,27 @@
+name: Create Branch on New Issue
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  create-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Create Branch
+      run: |
+        issue_type=$(curl -sS "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}" | jq -r '.labels[].name' | grep -E '^(feat|fix|chore)')
+        
+        # Default to 'feat' if no valid label is found
+        if [ -z "$issue_type" ]; then
+          issue_type="chore"
+        fi
+
+        branch_name="${issue_type}/${{ github.event.issue.title | replace(" ", "-") | lower }}"
+        git checkout -b "$branch_name"
+        git push origin "$branch_name"
