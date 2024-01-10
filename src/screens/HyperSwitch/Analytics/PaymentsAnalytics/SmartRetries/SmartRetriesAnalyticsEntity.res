@@ -2,7 +2,8 @@ open LogicUtils
 open DynamicSingleStat
 open HSAnalyticsUtils
 open AnalyticsTypes
-let domain = "payments"
+let apiPath: analyticsAPIEndPoints = #PAYMENTS
+let domain = (apiPath :> string)->String.toLowerCase
 let (startTimeFilterKey, endTimeFilterKey, optFilterKey) = ("startTime", "endTime", "opt")
 
 let singleStateInitialValue = {

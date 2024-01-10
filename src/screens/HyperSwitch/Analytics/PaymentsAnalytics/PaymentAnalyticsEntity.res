@@ -5,7 +5,8 @@ open DynamicSingleStat
 
 open HSAnalyticsUtils
 open AnalyticsTypes
-let domain = "payments"
+let apiPath: analyticsAPIEndPoints = #PAYMENTS
+let domain = (apiPath :> string)->String.toLowerCase
 let makeMultiInputFieldInfo = FormRenderer.makeMultiInputFieldInfo
 let makeInputFieldInfo = FormRenderer.makeInputFieldInfo
 

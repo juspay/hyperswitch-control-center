@@ -3,7 +3,8 @@ open DynamicSingleStat
 
 open HSAnalyticsUtils
 open AnalyticsTypes
-let domain = "sdk_events"
+let apiPath: analyticsAPIEndPoints = #SDK_EVENTS
+let domain = (apiPath :> string)->String.toLowerCase
 let makeMultiInputFieldInfo = FormRenderer.makeMultiInputFieldInfo
 let makeInputFieldInfo = FormRenderer.makeInputFieldInfo
 

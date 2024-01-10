@@ -223,3 +223,5 @@ type nestedEntityType = {
   userBarChart?: DynamicChart.entity,
   userFunnelChart?: DynamicChart.entity,
 }
+
+type analyticsAPIEndPoints = [#PAYMENTS | #REFUNDS | #API_EVENTS | #SDK_EVENTS]

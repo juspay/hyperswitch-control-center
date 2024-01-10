@@ -3,8 +3,8 @@ open DynamicSingleStat
 
 open AnalyticsTypes
 open HSAnalyticsUtils
-let domain = "refunds"
-
+let apiPath: analyticsAPIEndPoints = #REFUNDS
+let domain = (apiPath :> string)->String.toLowerCase
 let makeMultiInputFieldInfo = FormRenderer.makeMultiInputFieldInfo
 let makeInputFieldInfo = FormRenderer.makeInputFieldInfo
 let makeFieldInfo = FormRenderer.makeFieldInfo

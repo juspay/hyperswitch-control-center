@@ -10,7 +10,7 @@ module SmartRetries = {
     ~moduleName: string,
   ) => {
     let {updateExistingKeys, filterValueJson} = React.useContext(FilterContext.filterContext)
-    let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
+    let (_, setTotalVolume) = React.useState(_ => 0)
     let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
 
     let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(

@@ -2,7 +2,8 @@ open LogicUtils
 open DynamicSingleStat
 open HSAnalyticsUtils
 open AnalyticsTypes
-let domain = "api_events"
+let apiPath: analyticsAPIEndPoints = #API_EVENTS
+let domain = (apiPath :> string)->String.toLowerCase
 
 let singleStateInitialValue = {
   latency: 0.0,
