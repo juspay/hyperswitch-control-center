@@ -135,7 +135,7 @@ module RedirectionToPayPalFlow = {
       open LogicUtils
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let returnURL = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${path}?${url.search}&is_back=true`
+        let returnURL = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${path}?${url.search}&is_back=true&is_simplified_paypal=true`
 
         let body = PayPalFlowUtils.generatePayPalBody(
           ~connectorId={connectorId},
@@ -386,9 +386,9 @@ let make = (
     if isRedirectedFromPaypalModal {
       getStatus()->ignore
     }
-    setSetupAccountStatus(._ => Account_not_found)
     if !isUpdateFlow {
       RescriptReactRouter.replace("/connectors/new?name=paypal")
+      setSetupAccountStatus(._ => Account_not_found)
     }
     None
   })
