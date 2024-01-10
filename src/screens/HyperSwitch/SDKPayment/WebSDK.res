@@ -285,33 +285,66 @@ let make = (
   ~amount=65400,
   ~setClientSecret,
 ) => {
-  let hyperPromise = Js.Promise.make((~resolve, ~reject as _) => {
-    resolve(. Window.loadHyper(publishableKey))
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let loadDOM = async () => {
+    try {
+      let hyperswitchSdkPrefix =
+        Window.env.sdkBaseUrl->Belt.Option.getWithDefault(
+          "https://beta.hyperswitch.io/v1/HyperLoader.js?default=true",
+        )
+      let script = DOMUtils.document->DOMUtils.createElement("script")
+      script->DOMUtils.setAttribute("src", hyperswitchSdkPrefix)
+      DOMUtils.appendChild(script)
+      let _ = Some(_ => script->DOMUtils.remove())
+      await HyperSwitchUtils.delay(1000)
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } catch {
+    | _ => setScreenState(_ => Error(""))
+    }
+  }
+  React.useEffect0(() => {
+    loadDOM()->ignore
+    None
   })
-
-  <div>
-    <Elements options={elementOptions} stripe={hyperPromise}>
-      <CheckoutForm
-        clientSecret
-        sdkType
-        paymentStatus
-        currency
-        setPaymentStatus
-        paymentElementOptions
-        theme
-        primaryColor
-        bgColor
-        fontFamily
-        fontSizeBase
-        methodsOrder
-        layout
-        returnUrl
-        saveViewToSdk
-        publishableKey
-        isSpaceAccordion
-        amount
-        setClientSecret
-      />
-    </Elements>
-  </div>
+  let hyperPromise = React.useCallback1(async () => {
+    Window.loadHyper(publishableKey)
+  }, [publishableKey])
+  <PageLoaderWrapper
+    screenState={screenState}
+    customLoader={<div className="mt-60 w-scrren flex flex-col justify-center items-center">
+      <div className={`animate-spin mb-1`}>
+        <Icon name="spinner" size=20 />
+      </div>
+    </div>}
+    sectionHeight="!h-screen">
+    <div>
+      {switch Window.checkLoadHyper {
+      | Some(_) =>
+        <Elements options={elementOptions} stripe={hyperPromise()}>
+          <CheckoutForm
+            clientSecret
+            sdkType
+            paymentStatus
+            currency
+            setPaymentStatus
+            paymentElementOptions
+            theme
+            primaryColor
+            bgColor
+            fontFamily
+            fontSizeBase
+            methodsOrder
+            layout
+            returnUrl
+            saveViewToSdk
+            publishableKey
+            isSpaceAccordion
+            amount
+            setClientSecret
+          />
+        </Elements>
+      | None => React.null
+      }}
+    </div>
+  </PageLoaderWrapper>
 }
