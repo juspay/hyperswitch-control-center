@@ -15,7 +15,7 @@ jobs:
 
     - name: Get Issue Number from Branch Name
       id: extract_issue_number
-      run: echo "::set-output name=issue_number::$(echo "${{ github.event.pull_request.head.ref }}" | grep -oP 'issue-\K[0-9]+')"
+      run: echo "::set-output name=issue_number::$(echo "${{ github.event.pull_request.head.ref }}" | grep -oP '\/\K[0-9]+')"
 
     - name: Link PR to Issue in PR Description
       run: |
