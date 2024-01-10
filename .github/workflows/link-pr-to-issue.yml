@@ -31,6 +31,9 @@ jobs:
 
         updated_description="This PR is linked to the issue #${issue_number}: ${pr_url}\n\n$current_description"
 
+        # Debug: Print the updated description
+        echo "Updated Description: $updated_description"
+
         # Update the PR description
         curl -sS -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
              -X PATCH \
