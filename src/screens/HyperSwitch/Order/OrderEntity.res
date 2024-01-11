@@ -789,6 +789,7 @@ let getFRMDetails = dict => {
 }
 
 let itemToObjMapper = dict => {
+  let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
   {
     payment_id: dict->getString("payment_id", ""),
     merchant_id: dict->getString("merchant_id", ""),
@@ -813,8 +814,14 @@ let itemToObjMapper = dict => {
     payment_method_type: dict->getString("payment_method_type", ""),
     payment_method_data: dict->getString("payment_method_data", ""),
     payment_token: dict->getString("payment_token", ""),
-    shipping: dict->getString("shipping", ""),
-    billing: dict->getString("billing", ""),
+    shipping: dict
+    ->getDictfromDict("shipping")
+    ->getDictfromDict("address")
+    ->concatValueOfGivenKeysOfDict(addressKeys),
+    billing: dict
+    ->getDictfromDict("billing")
+    ->getDictfromDict("address")
+    ->concatValueOfGivenKeysOfDict(addressKeys),
     metadata: dict->getJsonObjectFromDict("metadata")->getDictFromJsonObject,
     email: dict->getString("email", ""),
     name: dict->getString("name", ""),
