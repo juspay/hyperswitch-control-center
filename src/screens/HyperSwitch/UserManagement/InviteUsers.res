@@ -5,6 +5,7 @@ module InviteEmailForm = {
     open LogicUtils
     open APIUtils
     let fetchDetails = useGetMethod()
+    let {magicLink} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (roleListData, setRoleListData) = React.useState(_ => [])
 
     let emailList =
@@ -53,7 +54,7 @@ module InviteEmailForm = {
           <div className="text-sm text-grey-500"> {emailList->React.string} </div>
         </div>
         <div className="absolute top-10 right-5">
-          <FormRenderer.SubmitButton text="Send Invite" />
+          <FormRenderer.SubmitButton text={magicLink ? "Send Invite" : "Add User"} />
         </div>
       </div>
       <FormRenderer.FieldRenderer
@@ -85,10 +86,17 @@ let make = () => {
     ->Js.Json.object_
   })
 
-  let inviteUserReq = async (body, index) => {
+  let inviteUserReq = async (body, index, emailPasswordsArray) => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#INVITE, ~methodType=Post, ())
-      let _ = await updateDetails(url, body, Post)
+      let response = await updateDetails(url, body, Post)
+      let passwordFromResponse = response->getDictFromJsonObject->getString("password", "")
+      emailPasswordsArray->Array.push(
+        [
+          ("email", body->LogicUtils.getDictFromJsonObject->LogicUtils.getString("email", "")),
+          ("password", passwordFromResponse),
+        ]->Dict.fromArray,
+      )
       if index === 0 {
         showToast(~message=`Invite(s) sent successfully via Email`, ~toastType=ToastSuccess, ())
       }
@@ -100,6 +108,7 @@ let make = () => {
   let inviteListOfUsers = async values => {
     let valDict = values->getDictFromJsonObject
     let role = valDict->getStrArray("roleType")->LogicUtils.getValueFromArray(0, "")
+    let emailPasswordsArray = []
 
     valDict
     ->getStrArray("emailList")
@@ -112,8 +121,19 @@ let make = () => {
         ]
         ->Dict.fromArray
         ->Js.Json.object_
-      let _ = inviteUserReq(body, index)
+      let _ = inviteUserReq(body, index, emailPasswordsArray)
     })
+
+    DownloadUtils.download(
+      ~fileName=`invited-users.txt`,
+      ~content=emailPasswordsArray
+      ->Js.Json.stringifyAny
+      ->Option.getWithDefault("")
+      ->Js.Json.parseExn
+      ->Js.Json.stringifyWithSpace(3),
+      ~fileType="application/json",
+    )
+
     await HyperSwitchUtils.delay(400)
     RescriptReactRouter.push("/users")
     Js.Nullable.null
