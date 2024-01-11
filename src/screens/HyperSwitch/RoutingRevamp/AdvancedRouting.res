@@ -82,7 +82,7 @@ module AddSurchargeCondition = {
   //keep the rate only for now.
   let options: array<SelectBox.dropdownOption> = [
     {value: "rate", label: "Rate"},
-    {value: "amount", label: "Amount"},
+    {value: "fixed", label: "Fixed"},
   ]
 
   @react.component
@@ -95,7 +95,7 @@ module AddSurchargeCondition = {
     React.useEffect1(() => {
       let valueType = switch surchargeTypeInput.value->LogicUtils.getStringFromJson("") {
       | "rate" => "percentage"
-      | "amount" => "amount"
+      | "fixed" => "amount"
       | _ => "percentage"
       }
       setSurchargeValueType(_ => valueType)

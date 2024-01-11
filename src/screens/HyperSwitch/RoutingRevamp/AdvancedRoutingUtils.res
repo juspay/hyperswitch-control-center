@@ -176,6 +176,7 @@ let getDefaultSelection: Js.Dict.t<
           \"type": surchargeValue->getString("type", ""),
           value: {
             percentage: surchargeValue->getDictfromDict("value")->getFloat("percentage", 0.0),
+            amount: surchargeValue->getDictfromDict("value")->getFloat("amount", 0.0),
           },
         },
         tax_on_surcharge: {

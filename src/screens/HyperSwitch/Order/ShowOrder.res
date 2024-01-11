@@ -105,6 +105,7 @@ module OrderInfo = {
               getCell=getCellForSummary
               detailsFields=[
                 Created,
+                NetAmount,
                 LastUpdated,
                 AmountReceived,
                 PaymentId,
