@@ -211,7 +211,6 @@ let make = () => {
 
     | None => ()
     }
-    Js.log2("lokiii errors", errors)
     errors->Js.Json.object_
   }
 
