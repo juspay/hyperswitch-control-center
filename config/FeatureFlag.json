@@ -21,6 +21,5 @@
   "generate_report": false,
   "forgot_password": false,
   "user_journey_analytics": false,
-  "surcharge": false,
-  "customers_module": false
+  "surcharge": false
 }
