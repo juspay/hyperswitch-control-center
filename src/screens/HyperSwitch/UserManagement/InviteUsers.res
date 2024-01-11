@@ -91,13 +91,15 @@ let make = () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#INVITE, ~methodType=Post, ())
       let response = await updateDetails(url, body, Post)
-      let passwordFromResponse = response->getDictFromJsonObject->getString("password", "")
-      emailPasswordsArray->Array.push(
-        [
-          ("email", body->LogicUtils.getDictFromJsonObject->LogicUtils.getString("email", "")),
-          ("password", passwordFromResponse),
-        ]->Dict.fromArray,
-      )
+      if !magicLink {
+        let passwordFromResponse = response->getDictFromJsonObject->getString("password", "")
+        emailPasswordsArray->Array.push(
+          [
+            ("email", body->LogicUtils.getDictFromJsonObject->LogicUtils.getString("email", "")),
+            ("password", passwordFromResponse),
+          ]->Dict.fromArray,
+        )
+      }
       if index === 0 {
         showToast(
           ~message=magicLink
@@ -131,15 +133,17 @@ let make = () => {
       let _ = inviteUserReq(body, index, emailPasswordsArray)
     })
 
-    DownloadUtils.download(
-      ~fileName=`invited-users.txt`,
-      ~content=emailPasswordsArray
-      ->Js.Json.stringifyAny
-      ->Option.getWithDefault("")
-      ->Js.Json.parseExn
-      ->Js.Json.stringifyWithSpace(3),
-      ~fileType="application/json",
-    )
+    if !magicLink {
+      DownloadUtils.download(
+        ~fileName=`invited-users.txt`,
+        ~content=emailPasswordsArray
+        ->Js.Json.stringifyAny
+        ->Option.getWithDefault("")
+        ->Js.Json.parseExn
+        ->Js.Json.stringifyWithSpace(3),
+        ~fileType="application/json",
+      )
+    }
 
     await HyperSwitchUtils.delay(400)
     RescriptReactRouter.push("/users")
