@@ -5,39 +5,6 @@ open LogicUtils
 
 external toWasm: Js.Dict.t<Js.Json.t> => RoutingTypes.wasmModule = "%identity"
 
-let defaultRule = {
-  name: "rule_1",
-  connectorSelection: {
-    \"type": "priority",
-  },
-  statements: [
-    {
-      lhs: "",
-      comparison: "",
-      value: {
-        \"type": "",
-        value: ""->Js.Json.string,
-      },
-    },
-  ],
-}
-
-let initialValues = {
-  name: getRoutingNameString(~routingType=ADVANCED),
-  description: getRoutingDescriptionString(~routingType=ADVANCED),
-  algorithm: {
-    data: {
-      rules: [defaultRule],
-      metadata: Dict.make()->Js.Json.object_,
-      defaultSelection: {
-        \"type": "",
-        data: [],
-      },
-    },
-    \"type": "",
-  },
-}
-
 module Add3DSCondition = {
   @react.component
   let make = (~isFirst, ~id) => {
