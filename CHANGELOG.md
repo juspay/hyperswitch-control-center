@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.23.3 (2024-01-11)
+
+### Bug Fixes
+
+- revert customer module flag removal ([#244](https://github.com/juspay/hyperswitch-control-center/pull/244)) ([`15d2e6e`](https://github.com/juspay/hyperswitch-control-center/commit/15d2e6e341f9336f69cb3d23fbaf0c90c8acce3e))
+- Business & Shipping Details Updated ([#245](https://github.com/juspay/hyperswitch-control-center/pull/245)) ([`8a91072`](https://github.com/juspay/hyperswitch-control-center/commit/8a91072733bc865a4078daa4c1d4034858629de1))
+
+**Full Changelog:** [`v1.23.2...v1.23.3`](https://github.com/juspay/hyperswitch-control-center/compare/v1.23.2...v1.23.3)
+
+- - -
+
+
 ## 1.23.2 (2024-01-11)
 
 ### Bug Fixes
