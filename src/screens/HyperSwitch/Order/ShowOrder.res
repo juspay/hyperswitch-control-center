@@ -87,8 +87,6 @@ module OrderInfo = {
     ~isMetadata=false,
   ) => {
     let order = itemToObjMapper(orderDict)
-    Js.log2("lokiiii orderDict", orderDict)
-    Js.log2("lokiiii customOrder", order)
     let paymentStatus = orderDict->getString("status", "")
     let headingStyles = "font-bold text-lg mb-5"
     let connectorList =
