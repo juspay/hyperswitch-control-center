@@ -75,6 +75,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
+  let {magicLink} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (roleTypeValue, setRoleTypeValue) = React.useState(_ => "merchant_view_only")
@@ -98,7 +99,13 @@ let make = () => {
         ]->Dict.fromArray,
       )
       if index === 0 {
-        showToast(~message=`Invite(s) sent successfully via Email`, ~toastType=ToastSuccess, ())
+        showToast(
+          ~message=magicLink
+            ? `Invite(s) sent successfully via Email`
+            : `The user accounts have been successfully created. The file with their credentials has been downloaded.`,
+          ~toastType=ToastSuccess,
+          (),
+        )
       }
     } catch {
     | _ => ()
