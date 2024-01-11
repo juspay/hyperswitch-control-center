@@ -489,6 +489,7 @@ let getStatus = order => {
 let getHeadingForSummary = summaryColType => {
   switch summaryColType {
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created", ~showSort=true, ())
+  | NetAmount => Table.makeHeaderInfo(~key="net_amount", ~title="Net Amount", ~showSort=true, ())
   | LastUpdated =>
     Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated", ~showSort=true, ())
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID", ~showSort=true, ())
@@ -611,6 +612,13 @@ let getCellForSummary = (order, summaryColType, _): Table.cell => {
   open HelperComponents
   switch summaryColType {
   | Created => Date(order.created)
+  | NetAmount =>
+    CustomCell(
+      <CurrencyCell
+        amount={(order.net_amount /. 100.0)->Belt.Float.toString} currency={order.currency}
+      />,
+      "",
+    )
   | LastUpdated => Date(order.last_updated)
   | PaymentId => CustomCell(<CopyTextCustomComp displayValue=order.payment_id />, "")
   | Currency => Text(order.currency)
@@ -793,6 +801,7 @@ let itemToObjMapper = dict => {
   {
     payment_id: dict->getString("payment_id", ""),
     merchant_id: dict->getString("merchant_id", ""),
+    net_amount: dict->getFloat("net_amount", 0.0),
     connector: dict->getString("connector", ""),
     status: dict->getString("status", ""),
     amount: dict->getFloat("amount", 0.0),
