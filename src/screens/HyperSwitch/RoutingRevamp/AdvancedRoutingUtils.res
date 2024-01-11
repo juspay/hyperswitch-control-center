@@ -364,3 +364,38 @@ let generateRule = rulesDict => {
   })
   modifiedRules
 }
+
+let defaultRule: AdvancedRoutingTypes.rule = {
+  name: "rule_1",
+  connectorSelection: {
+    \"type": "priority",
+  },
+  statements: [
+    {
+      lhs: "",
+      comparison: "",
+      value: {
+        \"type": "",
+        value: ""->Js.Json.string,
+      },
+    },
+  ],
+}
+
+let defaultAlgorithmData: AdvancedRoutingTypes.algorithmData = {
+  rules: [defaultRule],
+  metadata: Dict.make()->Js.Json.object_,
+  defaultSelection: {
+    \"type": "",
+    data: [],
+  },
+}
+
+let initialValues: AdvancedRoutingTypes.advancedRouting = {
+  name: getRoutingNameString(~routingType=ADVANCED),
+  description: getRoutingDescriptionString(~routingType=ADVANCED),
+  algorithm: {
+    data: defaultAlgorithmData,
+    \"type": "",
+  },
+}
