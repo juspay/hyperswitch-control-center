@@ -29,7 +29,7 @@ module BusinessProfileInp = {
   @react.component
   let make = (~setProfile, ~profile, ~options, ~label="") => {
     let selectedConnectorsInput = ReactFinalForm.useField("algorithm.data").input
-
+    Js.log("lokiiii checking")
     <FormRenderer.FieldRenderer
       field={FormRenderer.makeFieldInfo(
         ~label,
@@ -44,7 +44,11 @@ module BusinessProfileInp = {
                 ev => {
                   setProfile(_ => ev->Identity.formReactEventToString)
                   input.onChange(ev)
-                  selectedConnectorsInput.onChange([]->Identity.anyTypeToReactEvent)
+                  Js.log2("lokiiii initialValues", AdvancedRoutingUtils.initialValues)
+                  selectedConnectorsInput.onChange(
+                    AdvancedRoutingUtils.defaultAlgorithmData->Identity.anyTypeToReactEvent,
+                  )
+                  //selectedConnectorsInput.onChange([]->Identity.anyTypeToReactEvent)
                 }
               },
             },
