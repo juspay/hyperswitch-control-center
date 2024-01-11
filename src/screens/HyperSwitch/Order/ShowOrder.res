@@ -87,7 +87,7 @@ module OrderInfo = {
     ~isMetadata=false,
   ) => {
     let order = itemToObjMapper(orderDict)
-    let paymentStatus = orderDict->getString("status", "")
+    let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
     let connectorList =
       HyperswitchAtom.connectorListAtom

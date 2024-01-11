@@ -642,3 +642,10 @@ let listOfMatchedText = (text, searchText) => {
     }
   }
 }
+
+let concatValueOfGivenKeysOfDict = (dict, keys) => {
+  Array.reduceWithIndex(keys, "", (acc, key, i) => {
+    let delimiter = i + 1 == keys->Array.length ? "." : ", "
+    String.concat(acc, `${dict->getString(key, "")}${delimiter}`)
+  })
+}
