@@ -40,7 +40,7 @@ let make = () => {
     ->QuickStartUtils.getTypedValueFromDict
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
+  let setUserPermissions = Recoil.useSetRecoilState(HyperswitchAtom.userPermissionAtom)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let verificationDays = getFromMerchantDetails("verification")->LogicUtils.getIntFromString(-1)
   let userRole = getFromUserDetails("user_role")
@@ -116,8 +116,35 @@ let make = () => {
     }
   }
 
+  let fetchPermissionsForARole = async () => {
+    try {
+      let url = getURL(
+        ~entityName=USER_MANAGEMENT,
+        ~userRoleTypes=ROLE_ID,
+        ~id={
+          Some(userRole === "org_admin" ? "merchant_admin" : userRole)
+        },
+        ~methodType=Get,
+        (),
+      )
+      let response = await fetchDetails(url)
+      let permissionsValue =
+        response
+        ->LogicUtils.getDictFromJsonObject
+        ->LogicUtils.getArrayFromDict("permissions", [])
+        ->Array.map(ele => ele->Js.Json.decodeString->Option.getWithDefault(""))
+      setUserPermissions(._ => permissionsValue)
+    } catch {
+    | Js.Exn.Error(e) => {
+        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+        Js.Exn.raiseError(err)
+      }
+    }
+  }
+
   let setUpDashboard = async () => {
     try {
+      let _ = await fetchPermissionsForARole()
       let _ = await Window.connectorWasmInit()
       let _ = await fetchBusinessProfiles()
       let _ = await fetchConnectorListResponse()

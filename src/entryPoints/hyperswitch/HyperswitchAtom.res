@@ -10,8 +10,8 @@ let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.at
   "featureFlag",
   Js.Json.null->FeatureFlagUtils.featureFlagType,
 )
-
 let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatus> = Recoil.atom(.
   "paypalAccountStatusAtom",
   PayPalFlowTypes.Account_not_found,
 )
+let userPermissionAtom: Recoil.recoilAtom<array<string>> = Recoil.atom(. "userPermissionAtom", [])
