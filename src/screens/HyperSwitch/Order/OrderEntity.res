@@ -796,8 +796,34 @@ let getFRMDetails = dict => {
   dict->getJsonObjectFromDict("frm_message")->getDictFromJsonObject->itemToObjMapperForFRMDetails
 }
 
+let concatValueOfGivenKeysOfDict = (dict, keys) => {
+  Array.reduceWithIndex(keys, "", (acc, key, i) => {
+    let val = dict->getString(key, "")
+    let delimiter = if val->String.length > 0 {
+      if key !== "first_name" {
+        i + 1 == keys->Array.length ? "." : ", "
+      } else {
+        " "
+      }
+    } else {
+      ""
+    }
+    String.concat(acc, `${val}${delimiter}`)
+  })
+}
+
 let itemToObjMapper = dict => {
-  let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
+  let addressKeys = [
+    "first_name",
+    "last_name",
+    "line1",
+    "line2",
+    "line3",
+    "city",
+    "state",
+    "country",
+    "zip",
+  ]
   {
     payment_id: dict->getString("payment_id", ""),
     merchant_id: dict->getString("merchant_id", ""),
