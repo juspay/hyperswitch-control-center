@@ -120,7 +120,7 @@ module DisputesInfo = {
             ~id=Some(data.dispute_id),
             (),
           )
-          let _response = await updateDetails(url, Dict.make()->Js.Json.object_, Post)
+          let _ = await updateDetails(url, Dict.make()->Js.Json.object_, Post)
           setDisputeStatus(_ => Accepted)
         } catch {
         | _ => ()
