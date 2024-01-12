@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.24.1 (2024-01-12)
+
+### Bug Fixes
+
+- Curruncy fix ([#248](https://github.com/juspay/hyperswitch-control-center/pull/248)) ([`12c72a7`](https://github.com/juspay/hyperswitch-control-center/commit/12c72a7cb95fd408737564111e324c44c0001626))
+
+**Full Changelog:** [`v1.24.0...v1.24.1`](https://github.com/juspay/hyperswitch-control-center/compare/v1.24.0...v1.24.1)
+
+- - -
+
+
 ## 1.24.0 (2024-01-12)
 
 ### Features
