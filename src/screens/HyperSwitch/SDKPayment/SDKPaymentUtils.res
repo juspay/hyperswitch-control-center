@@ -52,7 +52,7 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
       },
     },
     capture_method: "automatic",
-    amount_to_capture: 100,
+    amount_to_capture: Js.Nullable.return(100),
     return_url: `${Window.Location.origin}${Window.Location.pathName}`,
   }
 }
@@ -79,8 +79,26 @@ let getTypedValueForPayment: Js.Json.t => SDKPaymentTypes.paymentType = values =
   let metaData =
     values->getDictFromJsonObject->getDictfromDict("metadata")->getDictfromDict("order_details")
 
+  let mandateData: SDKPaymentTypes.mandateData = {
+    customer_acceptance: {
+      acceptance_type: "offline",
+      accepted_at: "1963-05-03T04:07:52.723Z",
+      online: {
+        ip_address: "in sit",
+        user_agent: "amet irure esse",
+      },
+    },
+    mandate_type: {
+      multi_use: {
+        amount: 10000,
+        currency: dictOfValues->getString("currency", "United States-USD"),
+      },
+    },
+  }
+  let amount = dictOfValues->getInt("amount", 100)
+
   {
-    amount: dictOfValues->getInt("amount", 100),
+    amount,
     currency: dictOfValues->getString("currency", "United States-USD"),
     profile_id: dictOfValues->getString("profile_id", ""),
     customer_id: dictOfValues->getString("customer_id", ""),
@@ -128,11 +146,14 @@ let getTypedValueForPayment: Js.Json.t => SDKPaymentTypes.paymentType = values =
       order_details: {
         product_name: metaData->getString("product_name", ""),
         quantity: 1,
-        amount: dictOfValues->getInt("amount", 100),
+        amount,
       },
     },
     capture_method: "automatic",
-    amount_to_capture: dictOfValues->getInt("amount", 100),
+    amount_to_capture: amount === 0 ? Js.Nullable.null : Js.Nullable.return(amount),
     return_url: dictOfValues->getString("return_url", ""),
+    payment_type: amount === 0 ? Js.Nullable.return("setup_mandate") : Js.Nullable.null,
+    setup_future_usage: amount === 0 ? Js.Nullable.return("off_session") : Js.Nullable.null,
+    mandate_data: amount === 0 ? Js.Nullable.return(mandateData) : Js.Nullable.null,
   }
 }

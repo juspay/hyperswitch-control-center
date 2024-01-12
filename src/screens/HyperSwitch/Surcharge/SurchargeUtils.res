@@ -99,15 +99,16 @@ let validateSurchargeRate = ruleDict => {
   let connectorSelection = ruleDict->getTypedSurchargeConnectorSelection
 
   let surchargeType = getDefaultSurchargeType(connectorSelection.surcharge_details)
-  let surchargeValue = surchargeType.surcharge.value.percentage->Option.getWithDefault(0.0)
+  let surchargeValuePercent = surchargeType.surcharge.value.percentage->Option.getWithDefault(0.0)
+  let surchargeValueAmount = surchargeType.surcharge.value.amount->Option.getWithDefault(0.0)
+  let isSurchargeAmountValid = if surchargeType.surcharge.\"type" == "rate" {
+    surchargeValuePercent == 0.0 || surchargeValuePercent > 100.0
+  } else {
+    surchargeValueAmount == 0.0
+  }
   let taxOnSurcharge = surchargeType.tax_on_surcharge.percentage->Option.getWithDefault(0.0)
 
-  !(
-    surchargeValue == 0.0 ||
-    surchargeValue > 100.0 ||
-    taxOnSurcharge == 0.0 ||
-    taxOnSurcharge > 100.0
-  )
+  !(isSurchargeAmountValid || taxOnSurcharge == 0.0 || taxOnSurcharge > 100.0)
 }
 
 let validateConditionsForSurcharge = dict => {
