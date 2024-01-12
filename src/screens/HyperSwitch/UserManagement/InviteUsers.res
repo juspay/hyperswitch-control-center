@@ -108,6 +108,17 @@ let make = () => {
           ~toastType=ToastSuccess,
           (),
         )
+        if !magicLink {
+          DownloadUtils.download(
+            ~fileName=`invited-users.txt`,
+            ~content=emailPasswordsArray
+            ->Js.Json.stringifyAny
+            ->Option.getWithDefault("")
+            ->Js.Json.parseExn
+            ->Js.Json.stringifyWithSpace(3),
+            ~fileType="application/json",
+          )
+        }
       }
     } catch {
     | _ => ()
@@ -132,18 +143,6 @@ let make = () => {
         ->Js.Json.object_
       let _ = inviteUserReq(body, index, emailPasswordsArray)
     })
-
-    if !magicLink {
-      DownloadUtils.download(
-        ~fileName=`invited-users.txt`,
-        ~content=emailPasswordsArray
-        ->Js.Json.stringifyAny
-        ->Option.getWithDefault("")
-        ->Js.Json.parseExn
-        ->Js.Json.stringifyWithSpace(3),
-        ~fileType="application/json",
-      )
-    }
 
     await HyperSwitchUtils.delay(400)
     RescriptReactRouter.push("/users")
