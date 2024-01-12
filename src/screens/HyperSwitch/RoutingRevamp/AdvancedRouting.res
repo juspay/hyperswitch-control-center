@@ -5,39 +5,6 @@ open LogicUtils
 
 external toWasm: Js.Dict.t<Js.Json.t> => RoutingTypes.wasmModule = "%identity"
 
-let defaultRule = {
-  name: "rule_1",
-  connectorSelection: {
-    \"type": "priority",
-  },
-  statements: [
-    {
-      lhs: "",
-      comparison: "",
-      value: {
-        \"type": "",
-        value: ""->Js.Json.string,
-      },
-    },
-  ],
-}
-
-let initialValues = {
-  name: getRoutingNameString(~routingType=ADVANCED),
-  description: getRoutingDescriptionString(~routingType=ADVANCED),
-  algorithm: {
-    data: {
-      rules: [defaultRule],
-      metadata: Dict.make()->Js.Json.object_,
-      defaultSelection: {
-        \"type": "",
-        data: [],
-      },
-    },
-    \"type": "",
-  },
-}
-
 module Add3DSCondition = {
   @react.component
   let make = (~isFirst, ~id) => {
@@ -82,11 +49,26 @@ module AddSurchargeCondition = {
   //keep the rate only for now.
   let options: array<SelectBox.dropdownOption> = [
     {value: "rate", label: "Rate"},
-    // {value: "amount", label: "Amount"},
+    {value: "fixed", label: "Fixed"},
   ]
 
   @react.component
   let make = (~isFirst, ~id) => {
+    let (surchargeValueType, setSurchargeValueType) = React.useState(_ => "")
+    let surchargeTypeInput = ReactFinalForm.useField(
+      `${id}.connectorSelection.surcharge_details.surcharge.type`,
+    ).input
+
+    React.useEffect1(() => {
+      let valueType = switch surchargeTypeInput.value->LogicUtils.getStringFromJson("") {
+      | "rate" => "percentage"
+      | "fixed" => "amount"
+      | _ => "percentage"
+      }
+      setSurchargeValueType(_ => valueType)
+      None
+    }, [surchargeTypeInput.value])
+
     <div className="flex flex-row ml-2">
       <UIUtils.RenderIf condition={!isFirst}>
         <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
@@ -111,7 +93,7 @@ module AddSurchargeCondition = {
           <FormRenderer.FieldRenderer
             field={FormRenderer.makeFieldInfo(
               ~label="",
-              ~name=`${id}.connectorSelection.surcharge_details.surcharge.value.percentage`,
+              ~name=`${id}.connectorSelection.surcharge_details.surcharge.value.${surchargeValueType}`,
               ~customInput=InputFields.numericTextInput(~customStyle="!-mt-5", ~precision=2, ()),
               (),
             )}

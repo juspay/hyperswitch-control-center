@@ -293,15 +293,6 @@ let make = (~routingRuleId, ~isActive) => {
       <Form initialValues={initialValues->Js.Json.object_}>
         <div className="w-full flex flex-row  justify-between">
           <div className="w-full">
-            // <BasicDetails
-            //   pLNameArray=[]
-            //   isReplica={false}
-            //   options=["Rule Based UI"]
-            //   formState
-            //   setFormState
-            //   descriptionType
-            //   setDescriptionType
-            // />
             {if formState != CreateConfig {
               <SimpleRoutingView
                 showModal

@@ -45,6 +45,14 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
 
             let surchargeType =
               rule.connectorSelection.surcharge_details->SurchargeUtils.getDefaultSurchargeType
+            let surchargePercent =
+              surchargeType.surcharge.value.percentage->Option.getWithDefault(0.0)
+            let surchargeAmount = surchargeType.surcharge.value.amount->Option.getWithDefault(0.0)
+            let surchargeTypeValue = if surchargeAmount > 0.0 {
+              surchargeAmount
+            } else {
+              surchargePercent
+            }
             <div
               key={Belt.Int.toString(index)}
               className="flex flex-col items-center w-full px-4 pb-6">
@@ -123,9 +131,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
                 <UIUtils.RenderIf condition={isFromSurcharge}>
                   <div
                     className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium text-blue-800 hover:text-blue-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1">
-                    {`${surchargeType.surcharge.\"type"} -> ${surchargeType.surcharge.value.percentage
-                      ->Option.getWithDefault(0.0)
-                      ->Belt.Float.toString} | Tax on Surcharge -> ${surchargeType.tax_on_surcharge.percentage
+                    {`${surchargeType.surcharge.\"type"} -> ${surchargeTypeValue->Belt.Float.toString} | Tax on Surcharge -> ${surchargeType.tax_on_surcharge.percentage
                       ->Option.getWithDefault(0.0)
                       ->Belt.Float.toString}`
                     ->LogicUtils.capitalizeString

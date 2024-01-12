@@ -3,6 +3,42 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.23.3 (2024-01-11)
+
+### Bug Fixes
+
+- revert customer module flag removal ([#244](https://github.com/juspay/hyperswitch-control-center/pull/244)) ([`15d2e6e`](https://github.com/juspay/hyperswitch-control-center/commit/15d2e6e341f9336f69cb3d23fbaf0c90c8acce3e))
+- Business & Shipping Details Updated ([#245](https://github.com/juspay/hyperswitch-control-center/pull/245)) ([`8a91072`](https://github.com/juspay/hyperswitch-control-center/commit/8a91072733bc865a4078daa4c1d4034858629de1))
+
+**Full Changelog:** [`v1.23.2...v1.23.3`](https://github.com/juspay/hyperswitch-control-center/compare/v1.23.2...v1.23.3)
+
+- - -
+
+
+## 1.23.2 (2024-01-11)
+
+### Bug Fixes
+
+- Customer module flag removal ([#242](https://github.com/juspay/hyperswitch-control-center/pull/242)) ([`5b06a76`](https://github.com/juspay/hyperswitch-control-center/commit/5b06a7657e4605fe6b35fe506913ea429d97a204))
+
+**Full Changelog:** [`v1.23.1...v1.23.2`](https://github.com/juspay/hyperswitch-control-center/compare/v1.23.1...v1.23.2)
+
+- - -
+
+
+## 1.23.1 (2024-01-11)
+
+### Bug Fixes
+
+- Show billing and shipping address ([#233](https://github.com/juspay/hyperswitch-control-center/pull/233)) ([`f19eca8`](https://github.com/juspay/hyperswitch-control-center/commit/f19eca827599002dbdb694856d383daf8a995713))
+- Profile changes in Routing ([#236](https://github.com/juspay/hyperswitch-control-center/pull/236)) ([`623599a`](https://github.com/juspay/hyperswitch-control-center/commit/623599a5221502d6c390ab79be68f9d282e45538))
+- Surcharge value type ([#238](https://github.com/juspay/hyperswitch-control-center/pull/238)) ([`995c3bb`](https://github.com/juspay/hyperswitch-control-center/commit/995c3bbfd709616965e350f67f971e524fff6a2f))
+
+**Full Changelog:** [`v1.23.0...v1.23.1`](https://github.com/juspay/hyperswitch-control-center/compare/v1.23.0...v1.23.1)
+
+- - -
+
+
 ## 1.23.0 (2024-01-10)
 
 ### Features
