@@ -340,6 +340,7 @@ let make = (~routingRuleId, ~isActive) => {
               setIsConfigButtonEnabled
               profile
               setProfile
+              routingType=VOLUME_SPLIT
             />
           </div>
         </div>
