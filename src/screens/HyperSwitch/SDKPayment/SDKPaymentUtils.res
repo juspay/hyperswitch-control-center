@@ -91,7 +91,7 @@ let getTypedValueForPayment: Js.Json.t => SDKPaymentTypes.paymentType = values =
     mandate_type: {
       multi_use: {
         amount: 10000,
-        currency: dictOfValues->getString("currency", "United States-USD"),
+        currency: dictOfValues->getString("currency", "USD"),
       },
     },
   }
