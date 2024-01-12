@@ -1,7 +1,7 @@
 let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.paymentType = defaultBusinessProfile => {
   {
     amount: 10000,
-    currency: "USD",
+    currency: "United States-USD",
     profile_id: defaultBusinessProfile.profile_id,
     description: "Default value",
     customer_id: "hyperswitch_sdk_demo_id",
@@ -91,7 +91,7 @@ let getTypedValueForPayment: Js.Json.t => SDKPaymentTypes.paymentType = values =
     mandate_type: {
       multi_use: {
         amount: 10000,
-        currency: dictOfValues->getString("currency", "USD"),
+        currency: dictOfValues->getString("currency", "United States-USD")->getCurrencyValue,
       },
     },
   }
@@ -99,7 +99,7 @@ let getTypedValueForPayment: Js.Json.t => SDKPaymentTypes.paymentType = values =
 
   {
     amount,
-    currency: dictOfValues->getString("currency", "USD"),
+    currency: dictOfValues->getString("currency", "United States-USD"),
     profile_id: dictOfValues->getString("profile_id", ""),
     customer_id: dictOfValues->getString("customer_id", ""),
     description: dictOfValues->getString("description", "Default value"),
