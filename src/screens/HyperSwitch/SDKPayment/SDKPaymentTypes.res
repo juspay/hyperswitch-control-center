@@ -71,7 +71,7 @@ type paymentType = {
   billing: billing,
   metadata: metadata,
   return_url: string,
-  payment_type?: string,
-  setup_future_usage?: string,
+  payment_type?: Js.Nullable.t<string>,
+  setup_future_usage?: Js.Nullable.t<string>,
   mandate_data?: Js.Nullable.t<mandateData>,
 }
