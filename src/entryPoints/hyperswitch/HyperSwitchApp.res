@@ -118,6 +118,7 @@ let make = () => {
 
   let setUpDashboard = async () => {
     try {
+      Js.log(Window.connectorWasmInit)
       let _ = await Window.connectorWasmInit()
       let _ = await fetchBusinessProfiles()
       let _ = await fetchConnectorListResponse()

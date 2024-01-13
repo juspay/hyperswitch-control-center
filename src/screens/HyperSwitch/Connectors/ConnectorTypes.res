@@ -25,6 +25,7 @@ type verifyResponse = Success | Failure | NoAttempt | Loading
 type authType = [#HeaderKey | #BodyKey | #SignatureKey | #MultiAuthKey | #CurrencyAuthKey | #Nokey]
 type cashToCodeMthd = [#Classic | #Evoucher]
 type connectorName =
+  | CREDITBANCO
   | ADYEN
   | CHECKOUT
   | BRAINTREE

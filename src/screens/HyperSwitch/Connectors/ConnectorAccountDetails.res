@@ -24,7 +24,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
 
   let activeBusinessProfile =
     defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
-
   React.useEffect1(() => {
     if !isUpdateFlow {
       let defaultJsonOnNewConnector =
@@ -35,7 +34,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
     }
     None
   }, [activeBusinessProfile.profile_id])
-
   let connectorDetails = React.useMemo1(() => {
     try {
       if connector->String.length > 0 {
