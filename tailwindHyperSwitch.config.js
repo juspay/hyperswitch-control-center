@@ -400,8 +400,8 @@ module.exports = {
           warning_background_orange: "#eea2361a",
           warning_text_orange: "#EEA236",
         },
-        mon:{
-          100:"#0e0e0e",
+        mon: {
+          100: "#0e0e0e",
         },
         red: {
           50: "#F9EDED",

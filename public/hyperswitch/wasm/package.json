@@ -3,7 +3,6 @@
   "description": "WASM bindings for Euclid DSL",
   "version": "0.1.0",
   "files": [
-
     "euclid_bg.wasm",
     "euclid.js",
     "euclid.d.ts"

@@ -208,7 +208,6 @@ let make = () => {
       <Icon size=14 name="search" className="mx-2" onClick={openModalOnClickHandler} />
     } else {
       <div
-
         className={`flex w-120 inline gap-2 items-center bg-jp-gray-50 text-grey-500 font-normal justify-between px-4 py-2 rounded-full cursor-pointer`}
         onClick={openModalOnClickHandler}>
         <div className="flex">

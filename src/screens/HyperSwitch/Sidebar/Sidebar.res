@@ -54,7 +54,6 @@ module SidebarOption = {
 module SidebarSubOption = {
   @react.component
   let make = (~name, ~isSectionExpanded, ~isSelected, ~children=React.null, ~isSideBarExpanded) => {
-
     let subOptionClass = isSelected ? "" : "" //suboption bg selected
     let alignmentClasses = children == React.null ? "" : "flex flex-row items-center"
 
@@ -82,7 +81,6 @@ module SidebarItem = {
     let getSearchParamByLink = link => getSearchParamByLink(Js.String.substr(link, ~from=0))
 
     let selectedClass = if isSelected {
-
       // selected border design and clicked for home and processor!
       "border-r-2 rounded-sm border-blue-950 bg-blue-200"
     } else {
@@ -109,7 +107,6 @@ module SidebarItem = {
           <Link to_=redirectionLink>
             <div
               ref={sidebarItemRef->ReactDOM.Ref.domRef}
-
               onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()} //home&proccessor
               className={`${textColor} relative overflow-hidden flex flex-row items-center text-fs-16 rounded-lg cursor-pointer hover:bg-blue-200 ${selectedClass} p-3 ${isExpanded
                   ? "mx-2"
@@ -209,7 +206,6 @@ module NestedSidebarItem = {
             <Link to_={`${link}${getSearchParamByLink(link)}`}>
               <div
                 ref={nestedSidebarItemRef->ReactDOM.Ref.domRef}
-
                 onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()} //second suboption
                 className={`${textColor} relative overflow-hidden flex flex-row items-center cursor-pointer rounded-lg hover:bg-blue-200 my-1 ${paddingClass} ${selectedClass}`}>
                 <SidebarSubOption name isSectionExpanded isSelected isSideBarExpanded>
@@ -246,7 +242,6 @@ module NestedSectionItem = {
     ~isSubLevelItemSelected,
     ~isSideBarExpanded,
   ) => {
-
     let iconColor = isAnySubItemSelected ? "text-blue-800" : "text-grey-900 " //icon color
 
     let iconOuterClass = if !isSideBarExpanded {

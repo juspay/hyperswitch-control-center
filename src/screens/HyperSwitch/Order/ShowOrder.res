@@ -138,7 +138,6 @@ module OrderInfo = {
                 Refunds,
                 AuthenticationType,
                 CaptureMethod,
-                MandateId,
               ]
               isNonRefundConnector
               paymentStatus

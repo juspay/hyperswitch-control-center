@@ -5,7 +5,7 @@ let make = (
   ~disablePastDates=true,
   ~disableFutureDates=false,
   ~format="YYYY-MM-DDTHH:mm:ss",
-  ~customButtonStyle=?,
+  ~customButtonStyle="",
   ~newThemeCustomButtonStyle="",
   ~leftIcon=?,
   ~rightIcon=?,
@@ -237,7 +237,7 @@ let make = (
   <div ref={dropdownRef->ReactDOM.Ref.domRef} className="md:relative">
     <Button
       text=buttonText
-      ?customButtonStyle
+      customButtonStyle
       ?buttonType
       ?buttonSize
       buttonState={isDisabled ? Disabled : Normal}

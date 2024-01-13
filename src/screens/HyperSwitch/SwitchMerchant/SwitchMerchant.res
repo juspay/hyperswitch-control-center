@@ -21,6 +21,7 @@ let convertListResponseToTypedResponse = json => {
     }
   })
 }
+
 module NewAccountCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal, ~fetchMerchantIDs) => {

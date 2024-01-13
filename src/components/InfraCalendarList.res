@@ -2,7 +2,6 @@ external ffInputToSelectInput: ReactFinalForm.fieldRenderPropsInput => ReactFina
   array<string>,
 > = "%identity"
 
-
 let startYear = ref(2016)
 let years = []
 while Js.Date.make()->Js.Date.getFullYear->Belt.Float.toInt >= startYear.contents {

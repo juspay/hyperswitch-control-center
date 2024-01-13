@@ -66,13 +66,13 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
         className={`p-6 border-y border-gray-200 cursor-pointer ${background}`}
         onClick>
         <div
-          key={i->Belt.Int.toString} className={`grid grid-cols-12 items-center  ${textColor} font-medium gap-5`}>
+          key={i->Belt.Int.toString}
+          className={`grid grid-cols-12 items-center  ${textColor} font-medium gap-5`}>
           <span
             className={`${indexBackground} ${indexColor} rounded-sm w-1.1-rem h-1.1-rem flex justify-center items-center col-span-1 text-sm`}>
             {(i + 1)->Belt.Int.toString->React.string}
           </span>
           <span className="col-span-10"> {sidebarOption.title->React.string} </span>
-
           <div className="flex-1">
             <ToolTip
               description={sidebarOption.title}
@@ -83,8 +83,8 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
             />
           </div>
           <div className="justify-center flex">
-                      <Icon name=icon size=20 />
-                    </div>
+            <Icon name=icon size=20 />
+          </div>
         </div>
         <UIUtils.RenderIf
           condition={sidebarOption.status === ONGOING && subOptionsArray->Array.length > 0}>

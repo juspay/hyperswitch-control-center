@@ -99,7 +99,6 @@ let legendColorGradients = (topGradient, bottomGradient) => {
   ]
 }
 
-
 let stringToColor = %raw(`function stringToColor(str) {
     var hash = 0;
     for (var i = 0; i < str.length; i++) {
@@ -119,7 +118,6 @@ type hexToRgb = {
   g: int,
   b: int,
 }
-
 
 let hexToRgb = (hex: string): hexToRgb => {
   let result = Js.String.match_(%re("/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i"), hex)
@@ -183,7 +181,6 @@ let calculateOpacity = (~length, ~originalOpacity) => {
 
   Js.Math.max_float(reducedOpacity, 0.0)->Js.Float.toString
 }
-
 
 let createGradient = (key: string): Highcharts.fillColorSeries => {
   let color = stringToColor(key)
@@ -548,7 +545,6 @@ let getLegendDataForCurrentMetrix = (
 }
 
 let barChartDataMaker = (~yAxis: string, ~rawData: array<Js.Json.t>, ~activeTab: string) => {
-
   let _overallDataDict = Dict.make()
 
   let value = rawData->Belt.Array.keepMap(item => {
@@ -651,7 +647,6 @@ let formatLabels = (metric: metricsConfig, value: float) => {
   | None => formattedValue
   }
 }
-
 
 let legendMaker = (data: (string, string, string), legendType: legenedType, legendId: string) => {
   let (fontSize, width, marginLeft) = switch legendType {
@@ -782,7 +777,6 @@ let tooltipFormatter = (
       ->Array.joinWith("")
     `<table>${htmlStr}</table>`
   }
-
 
 let tooltipHeaderFormatter = (metric: metricsConfig) => {
   let secondryMetrixLabel = switch metric {

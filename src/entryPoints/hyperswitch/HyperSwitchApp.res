@@ -195,7 +195,6 @@ let make = () => {
       | #HOME =>
         <div className="relative">
           <div className={`h-screen flex flex-col`}>
-
             //            <div className="flex relative overflow-auto h-screen">
             <div
               className="flex relative flex-col flex-1 overflow-hidden bg-jp-gray-50 dark:bg-black overflow-scroll md:overflow-x-hidden">
@@ -219,7 +218,6 @@ let make = () => {
                           className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
                           {modeText->React.string}
                         </div>
-
                       </div>
                     </div>}
                   />

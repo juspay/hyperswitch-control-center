@@ -306,6 +306,3 @@ let make = (
     </AddDataAttributes>
   }
 }
-=======
-}
->>>>>>> new-ui

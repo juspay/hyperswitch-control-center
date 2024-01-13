@@ -24,7 +24,6 @@ type chartEntity = {
   customFilter?: string,
 }
 
-
 let getTimeSeriesChart = (chartEntity: chartEntity) => {
   let metricsArr = chartEntity.metrics->Array.map(item => {
     item.metric_name_db
@@ -121,7 +120,6 @@ type entity = {
   sortingColumnLegend?: string,
   jsonTransformer?: (string, array<Js.Json.t>) => array<Js.Json.t>,
 }
-
 
 let chartMapper = str => {
   switch str {
@@ -271,7 +269,6 @@ let useChartFetch = (~setStatusDict) => {
   }
   fetchChartData
 }
-
 
 let cardinalityArr = ["TOP_5", "TOP_10"]
 let chartTypeArr = [

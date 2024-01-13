@@ -109,7 +109,6 @@ module NewProcessorCards = {
                   {connectorInfo.description->React.string}
                 </p>
                 <Button
-    
                   text="Connect"
                   buttonType={Transparent}
                   customButtonStyle="group w-1/5"
@@ -121,9 +120,7 @@ module NewProcessorCards = {
                       className="group-hover:scale-125 cursor-pointer transition duration-200 ease-in-out"
                     />,
                   )}
-
                 />
-                
               </div>
             })
             ->React.array}

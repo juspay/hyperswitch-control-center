@@ -1004,10 +1004,6 @@ let getCountryFromCountryCode = code => {
   | ZW => Zimbabwe
   }
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> new-ui
 let getCountryCodeFromCountry = country => {
   switch country {
   | Afghanistan => AF

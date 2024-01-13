@@ -59,7 +59,6 @@ let getBGColor = (
   | Primary =>
     switch buttonState {
     | Focused
-
     | Normal => "bg-blue-900 hover:bg-blue-primary_hover focus:outline-none rounded-lg"
     | Loading => "bg-blue-900"
     | Disabled => "bg-blue-700 opacity-60 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50"
@@ -70,7 +69,6 @@ let getBGColor = (
   | SecondaryFilled =>
     switch buttonState {
     | Focused
-
     | Normal => "rounded-md bg-gradient-to-b from-jp-gray-450 to-jp-gray-350 dark:from-jp-gray-950 dark:to-jp-gray-950 hover:shadow dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none"
     | Loading => "bg-jp-gray-200 dark:bg-jp-gray-800 dark:bg-opacity-10"
     | Disabled => "bg-jp-gray-300 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50"
@@ -80,7 +78,6 @@ let getBGColor = (
   | NonFilled =>
     switch buttonState {
     | Focused
-
     | Normal => "hover:bg-blue-200 hover:bg-opacity-40 dark:hover:bg-jp-gray-950 dark:hover:bg-opacity-100 dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none"
     | Loading => "bg-jp-gray-200 dark:bg-jp-gray-800 dark:bg-opacity-10"
     | Disabled => "bg-jp-gray-300 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50"
@@ -138,7 +135,6 @@ let getBGColor = (
     | Focused
     | Normal =>
       showBorder
-
         ? "rounded-lg bg-white text-black border-2 border-jp-gray-400 border-opacity-50 hover:bg-jp-gray-100 dark:bg-jp-gray-darkgray_background  dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none"
         : "rounded-lg text-jp-gray-900 hover:bg-blue-450 hover:bg-opacity-40 dark:bg-jp-gray-darkgray_background dark:text-jp-gray-text_darktheme dark:text-opacity-50 dark:hover:bg-jp-gray-950 focus:outline-none"
     | Loading =>
@@ -151,7 +147,6 @@ let getBGColor = (
   | Pill =>
     switch buttonState {
     | Focused
-
     | Normal => "bg-red text-jp-gray-900 text-opacity-50 hover:shadow hover:text-opacity-75 dark:bg-jp-gray-darkgray_background dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none"
     | Loading =>
       showBorder
@@ -177,7 +172,6 @@ let getBGColor = (
   | Transparent =>
     switch buttonState {
     | Focused
-
     | Normal => "bg-white   hover:bg-jp-gray-100 rounded-lg dark:bg-jp-gray-darkgray_background focus:outline-none"
     | Loading => "bg-gray-50   hover:bg-gray-200 focus:outline-none"
     | Disabled => "bg-gray-50   hover:bg-gray-200 dark:bg-jp-gray-darkgray_background focus:outline-none"
@@ -548,7 +542,6 @@ let make = (
     (),
   )
 
-
   let defaultRoundedClass = "rounded-lg"
 
   let {isFirst, isLast} = React.useContext(ButtonGroupContext.buttonGroupContext)
@@ -795,5 +788,4 @@ let make = (
       }}
     </button>
   </AddDataAttributes>
-
 }
