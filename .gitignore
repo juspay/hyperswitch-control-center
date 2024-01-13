@@ -1,0 +1,23 @@
+# Ignore Mac DS_Store files
+.DS_Store
+**/.DS_Store
+node_modules
+dist/
+**/**.bs.js
+lib/
+# yarn
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions.DS_Store
+/public/env-config.js
+env-config.js
+yarn.lock
+#package-lock.json
+user_data.sh
+*.pem
+.bsb.lock
+package-lock.json

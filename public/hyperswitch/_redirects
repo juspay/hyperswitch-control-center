@@ -1,0 +1,2 @@
+/api/*  https://integ-api.hyperswitch.io/:splat  200
+/*            /index.html  200

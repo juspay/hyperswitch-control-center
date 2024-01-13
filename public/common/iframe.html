@@ -1,0 +1,181 @@
+<!-- <iframe src="http://localhost:9012/iframe.html" scrolling="yes" frameborder="0" width="1542" height="791"> -->
+<!doctype html>
+<html lang=" en">
+  <head>
+    <title>Express Checkout - Dashboard</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.svg" />
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Fira+Code"
+    />
+
+    <style>
+      html,
+      body {
+        /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+          "Segoe UI Symbol"; */
+        font-family: "Source Sans Pro";
+        font-weight: 400;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      #app {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+
+      .list-item {
+        background-color: rgba(255, 255, 255, 1);
+        padding: 10px;
+        transition: background-color 0.2s;
+      }
+
+      .list-item:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+
+      .clickable {
+        cursor: pointer;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          color: rgba(229, 231, 235, 1);
+          background-color: rgba(15, 16, 17, 1);
+        }
+      }
+    </style>
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+
+  <body>
+    <div id="container">
+      <script>
+        // const onMyFrameLoad = () => {
+        //     window.postMessage(
+        //         JSON.stringify({
+        //             eventType: "LoadEvent",
+        //             event: "PageReady",
+        //         }),
+        //         "*"
+        //     );
+        // };
+        window.addEventListener("message", (msg) => {
+          console.log("coming in pageready event", msg);
+          try {
+            const parsedMsg = JSON.parse(msg.data);
+            if (parsedMsg.event == "PageReady") {
+              const ifrMW = document.getElementById("test");
+              ifrMW.contentWindow.postMessage(
+                JSON.stringify({
+                  eventType: "AuthenticationDetails",
+                  payload: {
+                    token: "ed4d9fad0f0412d84d186177992be2",
+                    width: "100%",
+                    height: "calc(100vh - 60px)",
+                    theme: "Dark",
+                    reseller_selected_merchant: "jp",
+                  },
+                }),
+                "*",
+              );
+            }
+          } catch (e) {}
+        });
+
+        // f37f076cf7744448585d9e10803a7d
+
+        let handleLightClick = (e) => {
+          const ifrMW = document.getElementById("test");
+          ifrMW.contentWindow.postMessage(
+            JSON.stringify({
+              eventType: "themeToggle",
+              payload: "Light",
+            }),
+            "*",
+          );
+        };
+        let handleDarkClick = (e) => {
+          const ifrMW = document.getElementById("test");
+          ifrMW.contentWindow.postMessage(
+            JSON.stringify({
+              eventType: "themeToggle",
+              payload: "Dark",
+            }),
+            "*",
+          );
+        };
+      </script>
+      <button onclick="{handleLightClick()}">light</button>
+      <button onclick="{handleDarkClick()}">dark</button>
+      <iframe
+        width="100%"
+        height="1000px"
+        name="iframe_a"
+        src="/visa-transactions"
+        id="test"
+      >
+      </iframe>
+    </div>
+  </body>
+</html>
+<!-- </iframe> -->
+
+<!-- // setTimeout(() => { iframeDocument.dispatchEvent(event) }, 3000);
+// ifrMW.postMessage("message", "http://contoso.com");
+// iframeDocument.dispatchEvent(event);
+
+// if (iframeDocument) {
+    //     iframeDocument.dispatchEvent(event)
+    // } else {
+    //     setTimeout(() => { iframeDocument.dispatchEvent(event) }, 3000);
+    // } -->
+
+<!-- // let event = new CustomEvent("ThemeChange", {
+// "detail": {
+// "theme": "Light"
+// }
+// });
+// const ifrMW = document.getElementById('test');
+// const iframeDocument = ifrMW.document || ifrMW.contentDocument || ifrMW.contentWindow.document;
+// let count = 0;
+// var interval = setInterval(function () {
+// iframeDocument.dispatchEvent(event)
+// if (ifrMW != null || count > 5) {
+// clearInterval(interval);
+// }
+// count++
+// }, 1000); -->
+
+<!-- let event = new CustomEvent("ThemeChange", {
+    "detail": {
+        "theme": "Dark"
+    }
+});
+const ifrMW = document.getElementById('test');
+const iframeDocument = ifrMW.document || ifrMW.contentDocument || ifrMW.contentWindow.document;
+let count = 0;
+var interval = setInterval(function () {
+    iframeDocument.dispatchEvent(event)
+    if (ifrMW != null || count > 5) {
+        clearInterval(interval);
+    }
+    count++
+}, 1000); -->

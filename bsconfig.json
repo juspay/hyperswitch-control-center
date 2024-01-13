@@ -1,0 +1,28 @@
+{
+  "$schema": "https://raw.githubusercontent.com/rescript-lang/rescript-compiler/master/docs/docson/build-schema.json",
+  "name": "editor-ui",
+  "jsx": {
+    "version": 4,
+    "mode": "classic"
+  },
+  "bsc-flags": ["-bs-super-errors", "-open RescriptCore"],
+  "sources": {
+    "dir": "src",
+    "subdirs": true
+  },
+  "suffix": ".bs.js",
+  "namespace": false,
+  "ppx-flags": [],
+  "package-specs": {
+    "module": "es6",
+    "in-source": true
+  },
+  "bs-dependencies": [
+    "@rescript/react",
+    "rescript-webapi",
+    "bs-fetch",
+    "@ryyppy/rescript-promise",
+    "rescript-debounce-react",
+    "@rescript/core"
+  ]
+}

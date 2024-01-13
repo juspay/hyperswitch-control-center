@@ -1,0 +1,45 @@
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans"
+/>
+
+<script src="http://localhost:9012/OutageNotificationWidget.js"></script>
+
+<div id="partOfShadow">Hello, world!</div>
+
+<div id="outsideShadow" class="font-ibm-plex">Hello, world 2!</div>
+
+<script>
+  var host = document.querySelector("#partOfShadow");
+
+  window.host = host;
+
+  window.showOutageNotification(
+    host,
+    "eff0d84afb34588ad67f2f05552421",
+    "LightTheme",
+    "juspay",
+    "false",
+  );
+
+  var root2 = getShadowRoot(host);
+
+  var div = document.createElement("div");
+  div.textContent = "こんにちは、影の世界!";
+
+  root2.appendChild(div);
+
+  var root = getShadowRoot(host); // host.attachShadow({ mode: "open" });
+
+  var div = document.createElement("div");
+  div.textContent = "Hello world!sss";
+  div.className = "font-ibm-plex";
+
+  root.appendChild(div);
+
+  // var link = document.createElement("link");
+  // link.rel = "stylesheet";
+  // link.href = "http://localhost:9012/app.css";
+
+  // root.appendChild(link);
+</script>

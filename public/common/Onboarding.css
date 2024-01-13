@@ -1,0 +1,287 @@
+.introjs-overlay {
+  display: block;
+}
+
+.introjs-showElement {
+  z-index: 1100 !important;
+}
+
+tr.introjs-showElement > td {
+  z-index: 1100 !important;
+  position: relative;
+}
+
+tr.introjs-showElement > th {
+  z-index: 1100 !important;
+  position: relative;
+}
+
+.introjs-disableInteraction {
+  z-index: 1100 !important;
+  position: absolute;
+  background-color: #fff;
+  opacity: 0;
+}
+
+.introjs-relativePosition {
+  position: relative;
+}
+
+.introjs-helperLayer {
+  box-shadow: rgb(0 153 255 / 50%) 0px 0px 2px 5px !important;
+  /* -webkit-box-sizing: content-box; */
+  box-sizing: content-box;
+  position: absolute;
+  z-index: 1050;
+  border-radius: 4px;
+  -webkit-transition: all 0.3s ease-out;
+  -o-transition: all 0.3s ease-out;
+  transition: all 0.3s ease-out;
+}
+
+.introjs-helperLayer * {
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
+.introjs-helperLayer :before {
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
+.introjs-helperLayer :after {
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
+.introjs-tooltipReferenceLayer {
+  font-family: "Helvetica Neue", Inter, ui-sans-serif, "Apple Color Emoji",
+    Helvetica, Arial, sans-serif;
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+  position: absolute;
+  visibility: hidden;
+  z-index: 1200;
+  background-color: transparent;
+  -webkit-transition: all 0.3s ease-out;
+  -o-transition: all 0.3s ease-out;
+  transition: all 0.3s ease-out;
+}
+
+.introjs-tooltipReferenceLayer * {
+  font-family: "Helvetica Neue", Inter, ui-sans-serif, "Apple Color Emoji",
+    Helvetica, Arial, sans-serif;
+}
+
+.introjs-helperNumberLayer {
+  font-family: IBM Plex Sans !important;
+  font-size: 13px !important;
+  color: #354052 !important;
+  font-weight: normal;
+  display: flex;
+  float: right;
+  bottom: 0px;
+  margin-top: 18px;
+  top: 0px;
+  position: absolute;
+  right: 50px;
+}
+
+.introjs-tooltip {
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+  visibility: visible;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: absolute;
+  box-sizing: content-box;
+  background: white;
+  box-sizing: border-box;
+  padding: 10px;
+  min-width: 300px;
+  max-width: 300px;
+  border-radius: 3px;
+  -webkit-box-shadow: 0 1px 10px rgb(33 33 33 / 40%);
+  box-shadow: 0 1px 10px rgb(33 33 33 / 40%);
+  -webkit-transition: opacity 0.1s ease-out;
+  -o-transition: opacity 0.1s ease-out;
+  transition: opacity 0.1s ease-out;
+}
+
+.introjs-tooltiptext {
+  margin-top: 5px;
+  margin-bottom: 10px;
+  line-height: 20px;
+  font-family: IBM Plex Sans;
+  font-size: 13px;
+  color: #354052;
+  font-weight: normal;
+  margin: 5px 0 10px;
+}
+
+.introjs-tooltip-title {
+  font-family: IBM Plex Sans;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  color: #354052;
+}
+
+.introjs-tooltip-header:after {
+  content: ".";
+  visibility: hidden;
+  display: block;
+  height: 0;
+  clear: both;
+}
+
+.introjs-tooltipbuttons {
+  height: 34px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  float: right;
+}
+
+.introjs-skipbutton {
+  box-sizing: content-box;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #000000;
+}
+
+.stepCount {
+  font-family: IBM Plex Sans;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 14px;
+  line-height: 18px;
+  color: #000000;
+  order: 0;
+  opacity: 0.5;
+}
+
+.introjs-prevbutton {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+  text-shadow: none !important;
+  background-image: none !important;
+  font-family: IBM Plex Sans !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  color: rgba(53, 64, 82, 0.5);
+  box-shadow: none !important;
+  padding: 5px 12px !important;
+  font-size: 12px !important;
+  background: #f7f8fa !important;
+  border: 1px solid #d8dde9;
+  box-sizing: border-box;
+  text-align: center;
+  color: #000000;
+  flex: none;
+  flex-grow: 0;
+  margin-left: auto;
+  border-radius: 0.375rem;
+}
+
+.introjs-nextbutton {
+  text-shadow: none !important;
+  /* background-image: none !important; */
+  font-family: IBM Plex Sans !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  padding: 5px 12px !important;
+  font-size: 12px !important;
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+  --tw-gradient-from: #0585da;
+  --tw-gradient-to: rgb(5 133 218 / 0);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+  --tw-gradient-to: #0099ff;
+  background-image: linear-gradient(to top, var(--tw-gradient-stops));
+  border-color: rgb(5 133 218 / var(--tw-border-opacity));
+  border-width: 1px;
+  border-radius: 0.375rem;
+  flex: none;
+  order: 2;
+  margin-left: 10px;
+}
+
+.introjs-prevbutton.introjs-disabled {
+  display: none;
+}
+
+.introjs-hidden {
+  display: none;
+}
+
+.introjs-bullets {
+  display: none;
+}
+
+.introjsFloatingElement {
+  position: absolute;
+  height: 0;
+  width: 0;
+  left: 50%;
+  top: 50%;
+}
+
+.introjs-fixedTooltip {
+  position: fixed;
+}
+
+@-webkit-keyframes introjspulse {
+  0% {
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+    -webkit-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+  }
+
+  70% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+    -webkit-box-shadow: 0 0 0 10px transparent;
+    box-shadow: 0 0 0 10px transparent;
+  }
+
+  100% {
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+    -webkit-box-shadow: 0 0 0 0 transparent;
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@keyframes introjspulse {
+  0% {
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+    -webkit-box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+  }
+
+  70% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+    -webkit-box-shadow: 0 0 0 10px transparent;
+    box-shadow: 0 0 0 10px transparent;
+  }
+
+  100% {
+    -webkit-transform: scale(0.95);
+    transform: scale(0.95);
+    -webkit-box-shadow: 0 0 0 0 transparent;
+    box-shadow: 0 0 0 0 transparent;
+  }
+}

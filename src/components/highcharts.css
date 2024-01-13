@@ -1,0 +1,25 @@
+.highchart-sankey .highcharts-link {
+  fill: rgba(109, 115, 127, 0.2);
+}
+
+.highchart-sankey .highcharts-link:hover,
+.highchart-sankey .highcharts-link.highcharts-point-hover {
+  fill: rgba(109, 115, 127, 0.6);
+}
+
+.highchart-sankey .highcharts-label-box.highcharts-tooltip-box {
+  stroke: none;
+}
+
+.highchart-sankey .highcharts-label tspan.highcharts-text-outline {
+  stroke: transparent;
+}
+
+span.highcharts-title {
+  width: 100% !important;
+  padding-right: 20px;
+}
+
+.highcharts-yaxis-grid .highcharts-grid-line {
+  stroke-dasharray: 4, 6;
+}
