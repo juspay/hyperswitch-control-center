@@ -71,7 +71,7 @@ module ActionButtons = {
         text={"Setup"}
         buttonType=Secondary
         buttonSize={Small}
-        customButtonStyle="border !border-blue-700 bg-white !text-blue-700"
+        customButtonStyle="!text-blue-700"
         onClick={_ => {
           RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)
           mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
@@ -81,7 +81,7 @@ module ActionButtons = {
       <Button
         text={"Manage"}
         buttonType=Secondary
-        customButtonStyle="border !border-blue-700 bg-white !text-blue-700"
+        customButtonStyle="!text-blue-700"
         buttonSize={Small}
         onClick={_ => {
           RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)
@@ -101,7 +101,6 @@ module ActionButtons = {
     }
   }
 }
-
 module ActiveSection = {
   @react.component
   let make = (~activeRouting, ~activeRoutingId) => {

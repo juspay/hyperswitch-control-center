@@ -3,12 +3,12 @@
   "description": "WASM bindings for Euclid DSL",
   "version": "0.1.0",
   "files": [
-    "euclid_wasm_bg.wasm",
-    "euclid_wasm.js",
-    "euclid_wasm.d.ts"
+    "euclid_bg.wasm",
+    "euclid.js",
+    "euclid.d.ts"
   ],
-  "module": "euclid_wasm.js",
-  "types": "euclid_wasm.d.ts",
+  "module": "euclid.js",
+  "types": "euclid.d.ts",
   "sideEffects": [
     "./snippets/*"
   ]

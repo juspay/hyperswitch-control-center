@@ -17,7 +17,9 @@ module HomePageHorizontalStepper = {
     }
 
     let getStepperStyle = index => {
-      index <= step ? "bg-blue-700 text-white border-transparent" : "border-blue-700 text-blue-700 "
+      index <= step
+        ? "bg-blue-700 text-white border-transparent px-1"
+        : "border-blue-700 text-blue-700 px-1"
     }
     let getProgressBarStyle = index => {
       if index < step {
@@ -34,7 +36,7 @@ module HomePageHorizontalStepper = {
     <div className="flex w-full gap-2 justify-evenly">
       {stepperItemsArray
       ->Array.mapWithIndex((value, index) => {
-        <div className="flex flex-col gap-2.5 w-full" key={index->string_of_int}>
+        <div className="flex flex-col-reverse gap-2.5 w-full" key={index->string_of_int}>
           <div className="flex items-center gap-2">
             <span
               className={`h-6 w-6 flex items-center justify-center border-2 rounded-md font-semibold ${index->getStepperStyle} ${getTextStyle}`}>
@@ -322,7 +324,7 @@ module Resources = {
           {elements
           ->Array.mapWithIndex((item, index) => {
             <div
-              className="group bg-white border rounded-md p-10 flex flex-col gap-4 group-hover:shadow hover:shadow-homePageBoxShadow cursor-pointer"
+              className="group bg-white border rounded-lg p-10 flex flex-col gap-4 group-hover:shadow hover:shadow-homePageBoxShadow cursor-pointer"
               key={index->string_of_int}
               onClick={_ => {
                 if item.id === "openSource" {
@@ -336,7 +338,7 @@ module Resources = {
                 }
               }}>
               <img src={`/icons/${item.icon}`} className="h-6 w-6" />
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-5">
                 <p className=cardHeaderText> {item.headerText->React.string} </p>
                 <Icon
                   name="chevron-right"

@@ -183,8 +183,8 @@ module NoData = {
           text={"Make a Payment"}
           buttonSize={Small}
           onClick={_ => RescriptReactRouter.push("/home")}
-          buttonType=Secondary
-          customButtonStyle={`!bg-blue-800 mt-3`}
+          buttonType=Primary
+          customButtonStyle={`mt-3`}
           textStyle={`!text-white`}
         />
       </NoDataFound>

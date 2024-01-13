@@ -48,7 +48,7 @@ let make = (
   let form = shouldSubmitForm ? None : Some("fakeForm")
 
   let borderClass = roundedBorder
-    ? "border rounded-md pl-1 pr-2"
+    ? "border rounded-full pl-4 pr-4"
     : "border-b-2 focus-within:border-b"
 
   let exitCross = useLottieJson(exitSearchCross)
@@ -67,7 +67,7 @@ let make = (
       value=inputText
       onChange=handleSearch
       placeholder
-      className={`rounded-md w-full pl-2 focus:outline-none ${placeholderCss}`}
+      className={`rounded-full w-full pl-4 focus:outline-none ${placeholderCss}`}
       autoFocus
       ?form
       onKeyDown

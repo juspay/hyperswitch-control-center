@@ -945,7 +945,7 @@ let make = (
                   toolTipFor={<div className={`my-1 mx-2 ${tooltipStyling} showFilterButton`}>
                     <Button
                       text={isMobileView ? "" : hideFilters ? "Show Filters" : "Hide Filters"}
-                      buttonType=SecondaryFilled
+                      buttonType=Secondary
                       buttonSize=Small
                       leftIcon=CustomIcon(
                         <Icon

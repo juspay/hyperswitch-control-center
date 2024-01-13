@@ -72,7 +72,7 @@ module TabInfo = {
       onTabSelection()
     }, (index, handleSelectedIndex))
 
-    let lineStyle = showBottomBorder ? "bg-black w-full h-0.5 rounded-full" : ""
+    let lineStyle = showBottomBorder ? "bg-blue-800 w-full h-0.5 rounded-full" : ""
 
     React.useEffect2(() => {
       if isSelected && isScrollIntoViewRequired {
@@ -88,7 +88,9 @@ module TabInfo = {
     let tab =
       <div className={"flex flex-col cursor-pointer w-max"}>
         <div
-          className={`${defaultClasses} ${selectionClasses} select-none pb-2`}
+          className={`${defaultClasses} ${selectionClasses} select-none pb-2 hover:text-blue-700 ${isSelected
+              ? "text-blue-700"
+              : ""}`}
           onClick={handleClick}>
           {React.string(title)}
         </div>

@@ -199,7 +199,7 @@ let make = () => {
   let searchBoxBorderColor =
     arr->Array.length > 0
       ? "border border-transparent"
-      : "border border-blue-700 rounded-md !shadow-[0_0_8px_2px_rgba(0,_112,_255,_0.2)]"
+      : "border border-transparent rounded-md !shadow-[0_0_8px_2px_rgba(0,_112,_255,_0.2)]"
   let openModalOnClickHandler = _ => {
     setShowModal(_ => true)
   }
@@ -208,13 +208,17 @@ let make = () => {
       <Icon size=14 name="search" className="mx-2" onClick={openModalOnClickHandler} />
     } else {
       <div
-        className={`flex w-80 inline gap-2 items-center bg-white text-grey-700 text-opacity-30 font-semibold justify-between p-2 rounded-md border border-jp-gray-border_gray`}
+        className={`flex w-120 inline gap-2 items-center bg-jp-gray-50 text-grey-500 font-normal justify-between px-4 py-2 rounded-full cursor-pointer`}
         onClick={openModalOnClickHandler}>
-        <div className="flex gap-2 ">
-          <Icon size=14 name="search" />
-          <p className="hidden lg:inline-block text-sm"> {React.string("Search anything...")} </p>
+        <div className="flex">
+          <p className="hidden lg:inline-flex text-sm flex gap-2">
+            {React.string("Search anything")}
+            <span className="text-semibold text-sm hidden md:block">
+              {shortcutText->React.string}
+            </span>
+          </p>
         </div>
-        <div className="text-semibold text-sm hidden md:block"> {shortcutText->React.string} </div>
+        <Icon size=14 name="search" />
       </div>
     }}
     <UIUtils.RenderIf condition={showModal}>
@@ -238,7 +242,7 @@ let make = () => {
                     \"as"="input"
                     className="relative w-full py-3 text-left bg-transparent focus:outline-none cursor-default sm:text-sm"
                     autoFocus=true
-                    placeholder="Search anything..."
+                    placeholder="Search anything...."
                     autoComplete="off"
                     onChange={event => {
                       setSearchText(_ => event["target"]["value"])

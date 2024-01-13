@@ -32,7 +32,7 @@ let make = (
       }}>
       <svg
         onClick=handleClick
-        fill=customIconColor
+        fill="grey-900"
         className={`fill-current ${otherClasses}`}
         width={{
           customWidth->Belt.Option.isSome

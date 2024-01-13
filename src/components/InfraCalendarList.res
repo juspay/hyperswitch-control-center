@@ -46,6 +46,7 @@ let getMonthFromFloat = value => {
   let valueInt = value->Belt.Float.toInt
   months[valueInt]->Belt.Option.getWithDefault(Jan)
 }
+
 module YearItem = {
   @send external scrollIntoView: Dom.element => unit = "scrollIntoView"
 

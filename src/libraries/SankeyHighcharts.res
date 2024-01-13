@@ -63,7 +63,6 @@ type options = {
     "backgroundColor": string,
   },
 }
-
 type highcharts
 type highchartsSankey
 @module("highcharts") external highchartsModule: highcharts = "default"

@@ -30,7 +30,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
     (completedSteps->Array.length->Belt.Int.toFloat /.
     sidebarOptions->Array.length->Belt.Int.toFloat *. 100.0)->Belt.Float.toInt
 
-  <div className="w-[288px] xl:w-[364px] h-screen bg-white shadow-sm shrink-0">
+  <div className="w-22.7-rem h-screen bg-white shadow-sm">
     <div className="p-6 flex flex-col gap-3">
       <div className="text-xl font-semibold"> {heading->React.string} </div>
       <div className="text-blue-700 flex gap-3 cursor-pointer" onClick={handleBackButton}>
@@ -66,11 +66,13 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
         className={`p-6 border-y border-gray-200 cursor-pointer ${background}`}
         onClick>
         <div
-          key={i->Belt.Int.toString} className={`flex items-center ${textColor} font-medium gap-5`}>
+          key={i->Belt.Int.toString}
+          className={`grid grid-cols-12 items-center  ${textColor} font-medium gap-5`}>
           <span
-            className={`${indexBackground} ${indexColor} rounded-sm w-1.1-rem h-1.1-rem flex justify-center items-center text-sm`}>
+            className={`${indexBackground} ${indexColor} rounded-sm w-1.1-rem h-1.1-rem flex justify-center items-center col-span-1 text-sm`}>
             {(i + 1)->Belt.Int.toString->React.string}
           </span>
+          <span className="col-span-10"> {sidebarOption.title->React.string} </span>
           <div className="flex-1">
             <ToolTip
               description={sidebarOption.title}
@@ -80,7 +82,9 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
               </div>}
             />
           </div>
-          <Icon name=icon size=20 />
+          <div className="justify-center flex">
+            <Icon name=icon size=20 />
+          </div>
         </div>
         <UIUtils.RenderIf
           condition={sidebarOption.status === ONGOING && subOptionsArray->Array.length > 0}>

@@ -24,7 +24,7 @@ let make = (
       customStyle={`py-16 !m-0 ${customStyleForDefaultLandingPage} ${sectionHeight}`}
       overriddingStylesTitle="text-2xl font-semibold"
       buttonText="Refresh"
-      overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
+      overriddingStylesSubtitle="!w-3/4"
       subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
       onClickHandler={_ => Window.Location.reload()}
       isButton=true

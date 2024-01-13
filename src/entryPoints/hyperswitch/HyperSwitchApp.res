@@ -195,19 +195,22 @@ let make = () => {
       | #HOME =>
         <div className="relative">
           <div className={`h-screen flex flex-col`}>
-            <div className="flex relative overflow-auto h-screen ">
-              <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
-              <div
-                className="flex relative flex-col flex-1 overflow-hidden bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
-                <RenderIf condition={verificationDays > 0}>
-                  <DelayedVerificationBanner verificationDays={verificationDays} />
-                </RenderIf>
-                // TODO : To be removed after new navbar design
-                <div className="border-b shadow hyperswitch_box_shadow ">
-                  <div className="w-full max-w-fixedPageWidth px-9">
-                    <Navbar
-                      headerActions={<div className="relative flex items-center gap-4 my-2 ">
-                        <HSwitchGlobalSearchBar />
+            //            <div className="flex relative overflow-auto h-screen">
+            <div
+              className="flex relative flex-col flex-1 overflow-hidden bg-jp-gray-50 dark:bg-black overflow-scroll md:overflow-x-hidden">
+              <RenderIf condition={verificationDays > 0}>
+                <DelayedVerificationBanner verificationDays={verificationDays} />
+              </RenderIf>
+              // TODO : To be removed after new navbar design
+              <div className="border-b shadow hyperswitch_box_shadow bg-white">
+                <div className="w-full max-w-fixedPageWidth px-20">
+                  <Navbar
+                    headerActions={<div className="relative flex items-center gap-80">
+                      <Icon
+                        customWidth={"100"} customHeight={"50"} name="keoslogo" className="mb-8"
+                      />
+                      <HSwitchGlobalSearchBar />
+                      <div className="flex gap-4">
                         <RenderIf condition={featureFlagDetails.switchMerchant}>
                           <SwitchMerchant userRole={userRole} isAddMerchantEnabled=true />
                         </RenderIf>
@@ -215,9 +218,15 @@ let make = () => {
                           className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
                           {modeText->React.string}
                         </div>
-                      </div>}
-                    />
-                  </div>
+                      </div>
+                    </div>}
+                  />
+                </div>
+              </div>
+              //sidebar and page
+              <div className="flex relative overflow-auto h-screen">
+                <div className="flex overflow-auto h-screen">
+                  <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
                 </div>
                 <div
                   className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">

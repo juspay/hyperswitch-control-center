@@ -764,6 +764,7 @@ let make = (
     }
     None
   }, [updatedChartBody])
+
   let transformMetric = (arr: array<LineChartUtils.metricsConfig>) => {
     arr->Array.map(item => {
       let a: SelectBox.dropdownOption = {
@@ -773,6 +774,7 @@ let make = (
       a
     })
   }
+
   let inputMetricTop: ReactFinalForm.fieldRenderPropsInput = {
     name: "inputMetricTop",
     onChange: ev => {

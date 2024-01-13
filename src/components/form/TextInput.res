@@ -138,8 +138,7 @@ let make = (
     ? "border-red-500 focus:border-red-500  dark:border-red-500 dark:hover:border-red-500 dark:focus:border-red-500 focus:shadow-text_input_shadow focus:shadow-red-500"
     : "border-jp-gray-lightmode_steelgray focus:border-blue-800 dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:focus:border-blue-800 focus:shadow-text_input_shadow focus:shadow-blue-800"
 
-  let dashboardClass =
-    customDashboardClass->Belt.Option.getWithDefault("h-10 text-sm font-semibold")
+  let dashboardClass = customDashboardClass->Belt.Option.getWithDefault("h-10 text-sm font-normal")
   let rightPaddingClass = if description !== "" || isInValid {
     "pr-10"
   } else {
@@ -166,7 +165,7 @@ let make = (
   } else {
     onHoverCss
   }
-  let className = `${width} border border-opacity-75 ${textPaddingClass} ${textAndBgClass} placeholder-jp-gray-900 placeholder-opacity-25 focus:outline-none
+  let className = `${width} border border-opacity-75 ${textPaddingClass} ${textAndBgClass} placeholder-grey-600 placeholder-opacity-50 focus:outline-none
       focus:border-opacity-100 ${hoverCss} ${roundingClass} ${cursorClass} ${dashboardClass} ${inputStyle} ${borderClass} ${customStyle} ${placeholderClass} ${isDisabled
       ? onDisabledStyle
       : onActiveStyle}`
@@ -239,7 +238,7 @@ let make = (
         leftIconElement
         <input
           ref={inputRef->ReactDOM.Ref.domRef}
-          className={`${className} pr-10`}
+          className={`${className} pr-10 pl-4`}
           name=?inputName
           onBlur={input.onBlur}
           onChange={input.onChange}
