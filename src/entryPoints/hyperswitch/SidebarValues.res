@@ -52,7 +52,7 @@ let home = isHomeEnabled =>
   isHomeEnabled
     ? Link({
         name: "Home",
-        icon: "hswitch-home",
+        icon: "kd_desktop", //custom solid
         link: "/home",
         access: ReadWrite,
       })
@@ -90,7 +90,7 @@ let operations = (isOperationsEnabled, customersModule) => {
   isOperationsEnabled
     ? Section({
         name: "Operations",
-        icon: "hswitch-operations",
+        icon: "kd_control",
         showSection: true,
         links: customersModule
           ? [payments, refunds, disputes, customers]
@@ -104,7 +104,7 @@ let connectors = (isConnectorsEnabled, isLiveMode) => {
     ? Link({
         name: "Processors",
         link: `/connectors`,
-        icon: "connectors",
+        icon: "kd_chip",
         access: ReadWrite,
         searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
           ~processorList=isLiveMode
@@ -142,7 +142,7 @@ let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag) =>
   isAnalyticsEnabled
     ? Section({
         name: "Analytics",
-        icon: "analytics",
+        icon: "kd_analytics",
         showSection: true,
         links: userJourneyAnalyticsFlag
           ? [paymentAnalytcis, refundAnalytics, userJourneyAnalytics]
@@ -180,7 +180,7 @@ let workflow = (isWorkflowEnabled, isSurchargeEnabled) =>
   isWorkflowEnabled
     ? Section({
         name: "Workflow",
-        icon: "3ds",
+        icon: "kd_work",
         showSection: true,
         links: isSurchargeEnabled ? [routing, threeDs, surcharge] : [routing, threeDs],
       })
@@ -233,7 +233,7 @@ let settings = (~isSampleDataEnabled, ~isUserManagementEnabled, ~isBusinessProfi
 
   Section({
     name: "Settings",
-    icon: "hswitch-settings",
+    icon: "kd_setting",
     showSection: true,
     links: settingsLinkArray,
   })
@@ -267,7 +267,7 @@ let developers = (isDevelopersEnabled, userRole, systemMetrics) => {
   isDevelopersEnabled
     ? Section({
         name: "Developers",
-        icon: "developer",
+        icon: "kd_dev",
         showSection: true,
         links: isInternalUser && systemMetrics
           ? [apiKeys, paymentSettings, systemMetric]

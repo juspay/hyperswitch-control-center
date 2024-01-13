@@ -162,7 +162,7 @@ The `quick_start` feature flag enables the simplified onboarding flow for new us
 
 The `customers_module` feature flag enables the customers module in dashboard. Users can see the customers and their details via enabling this flag.
 
----
+
 
 ## Deployment
 

@@ -87,11 +87,13 @@ export function addTwo(n1: bigint, n2: bigint): bigint;
 */
 export function getDescriptionCategory(): any;
 /**
+
 * @param {string} key
 * @returns {any}
 */
 export function getConnectorConfig(key: string): any;
 /**
+
 * @param {any} input
 * @param {any} response
 * @returns {any}
@@ -132,6 +134,7 @@ export interface InitOutput {
   readonly getConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getRequestPayload: (a: number, b: number, c: number) => void;
   readonly getResponsePayload: (a: number, b: number) => void;
+
   readonly parse: (a: number, b: number, c: number) => void;
   readonly parseToString: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_0: (a: number, b: number) => number;

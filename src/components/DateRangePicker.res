@@ -10,6 +10,7 @@ let useErroryValueResetter = (value: string, setValue: (string => string) => uni
   React.useEffect0(() => {
     let isErroryTimeValue = _ => {
       try {
+
         false
       } catch {
       | _error => true
@@ -247,6 +248,7 @@ module Base = {
 
     useErroryValueResetter(startDateVal, setStartDateVal)
     useErroryValueResetter(endDateVal, setEndDateVal)
+
 
     let startDate = localStartDate->getDateStringForValue(isoStringToCustomTimeZone)
     let endDate = localEndDate->getDateStringForValue(isoStringToCustomTimeZone)

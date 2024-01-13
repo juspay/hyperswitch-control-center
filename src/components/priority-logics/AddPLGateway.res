@@ -20,6 +20,7 @@ module GatewayView = {
         </div>
       })
       ->React.array}
+
     </div>
   }
 }
@@ -56,6 +57,7 @@ let make = (
         )
       )
 
+
   let selectedOptions =
     gateWaysInput.value
     ->Js.Json.decodeArray
@@ -71,10 +73,12 @@ let make = (
             merchant_connector_id: connectorDict->LogicUtils.getString("merchant_connector_id", ""),
           },
           split: dict->LogicUtils.getInt("split", 100),
+
         }
         Some(obj)
       })
     )
+
 
   let input: ReactFinalForm.fieldRenderPropsInput = {
     name: "gateways",
@@ -97,6 +101,7 @@ let make = (
               merchant_connector_id: item,
             },
             split: sharePercent,
+
           }
           obj
         })
@@ -115,6 +120,7 @@ let make = (
       let newList = selectedOptions->Array.map(option => {
         if option.connector.connector === item.connector.connector {
           {...option, split: value}
+
         } else {
           option
         }
@@ -127,6 +133,7 @@ let make = (
     input.onChange(
       selectedOptions
       ->Array.map(selectedOption => selectedOption.connector.connector)
+
       ->Array.filterWithIndex((_, i) => i !== index)
       ->Identity.anyTypeToReactEvent,
     )
@@ -161,6 +168,7 @@ let make = (
 
             {
               <div className="flex flex-row" key>
+
                 <div
                   className="w-min flex flex-row items-center justify-around gap-2 h-10 rounded-md  border border-jp-gray-500 dark:border-jp-gray-960
                text-jp-gray-900 text-opacity-75 hover:text-opacity-100 dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme
@@ -169,6 +177,7 @@ let make = (
                dark:text-opacity-50 focus:outline-none px-1 ">
                   <NewThemeUtils.Badge number={i + 1} />
                   <div> {item.connector.connector->React.string} </div>
+
                   <Icon
                     name="close"
                     size=10
@@ -180,6 +189,7 @@ let make = (
                   />
                   <UIUtils.RenderIf condition={isDistribute && selectedOptions->Array.length > 0}>
                     {<>
+
                       <input
                         className="w-10 text-right outline-none bg-white dark:bg-jp-gray-970 px-1 border border-jp-gray-300 dark:border-jp-gray-850 rounded-md"
                         name=key
@@ -191,6 +201,7 @@ let make = (
                           )
                         }}
                         value={item.split->Belt.Int.toString}
+
                         type_="text"
                         inputMode="text"
                       />

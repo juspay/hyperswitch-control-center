@@ -5,7 +5,7 @@ module RequestConnector = {
   let make = (~connectorList, ~setShowModal) => {
     <UIUtils.RenderIf condition={connectorList->Array.length === 0}>
       <div
-        className="flex flex-col gap-6 items-center justify-center w-full bg-white rounded-lg border p-8">
+        className="flex flex-col gap-6 items-center justify-center w-full bg-white rounded-lg p-8">
         <div className="mb-8 mt-4 max-w-full h-auto">
           <img src={`${LogicUtils.useUrlPrefix()}/notfound.svg`} />
         </div>
@@ -75,7 +75,7 @@ module NewProcessorCards = {
               value=searchedConnector
               onChange=handleSearch
               placeholder="Search a processor"
-              className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
+              className={`flex w-1/3 inline gap-2 items-center bg-white text-grey-500 font-normal justify-between px-4 py-2 rounded-full cursor-pointer`}
             />
           </UIUtils.RenderIf>
           <UIUtils.RenderIf condition={showRequestConnectorBtn}>
@@ -93,27 +93,37 @@ module NewProcessorCards = {
             ->Array.mapWithIndex((connector, i) => {
               let connectorName = connector->ConnectorUtils.getConnectorNameString
               let connectorInfo = connector->ConnectorUtils.getConnectorInfo
-              let size = "w-14 h-14 rounded-sm"
+
+              let size = "w-14 h-14 rounded-lg"
 
               <div
                 key={i->string_of_int}
-                className="border p-6 gap-4 bg-white rounded flex flex-col justify-between">
+                className="border p-6 gap-5 bg-white rounded-lg flex flex-col justify-between">
                 <div className="flex flex-col gap-3 items-start">
                   <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
                   <p className={`${p1MediumTextStyle} break-all`}>
                     {connectorName->LogicUtils.capitalizeString->React.string}
                   </p>
                 </div>
-                <p className="overflow-hidden text-gray-400 flex-1 line-clamp-3">
+                <p className="overflow-hidden text-gray-400 flex-1 line-clamp-3 mb-2">
                   {connectorInfo.description->React.string}
                 </p>
                 <Button
-                  text="+ Connect"
+    
+                  text="Connect"
                   buttonType={Transparent}
-                  buttonSize={Small}
+                  customButtonStyle="group w-1/5"
                   onClick={_ => handleClick(connectorName)}
-                  textStyle="text-jp-gray-900"
+                  leftIcon={CustomIcon(
+                    <Icon
+                      name="kd_plus_circle"
+                      size=20
+                      className="group-hover:scale-125 cursor-pointer transition duration-200 ease-in-out"
+                    />,
+                  )}
+
                 />
+                
               </div>
             })
             ->React.array}

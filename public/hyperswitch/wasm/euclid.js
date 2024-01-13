@@ -501,6 +501,7 @@ export function getDescriptionCategory() {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         wasm.getDescriptionCategory(retptr);
+
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         var r2 = getInt32Memory0()[retptr / 4 + 2];
@@ -518,6 +519,7 @@ export function getDescriptionCategory() {
 * @returns {any}
 */
 export function getConnectorConfig(key) {
+
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         const ptr0 = passStringToWasm0(key, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
@@ -575,6 +577,7 @@ export function getResponsePayload(input) {
         wasm.__wbindgen_add_to_stack_pointer(16);
     }
 }
+
 
 function handleError(f, args) {
     try {
@@ -694,6 +697,7 @@ function __wbg_get_imports() {
         getInt32Memory0()[arg0 / 4 + 1] = len1;
         getInt32Memory0()[arg0 / 4 + 0] = ptr1;
     };
+
     imports.wbg.__wbindgen_jsval_loose_eq = function(arg0, arg1) {
         const ret = getObject(arg0) == getObject(arg1);
         return ret;
@@ -717,10 +721,12 @@ function __wbg_get_imports() {
         const ret = arg0;
         return addHeapObject(ret);
     };
+
     imports.wbg.__wbindgen_jsval_eq = function(arg0, arg1) {
         const ret = getObject(arg0) === getObject(arg1);
         return ret;
     };
+
     imports.wbg.__wbindgen_number_get = function(arg0, arg1) {
         const obj = getObject(arg1);
         const ret = typeof(obj) === 'number' ? obj : undefined;
@@ -751,6 +757,7 @@ function __wbg_get_imports() {
         const ret = arg0;
         return addHeapObject(ret);
     };
+
     imports.wbg.__wbg_new_898a68150f225f2e = function() {
         const ret = new Array();
         return addHeapObject(ret);
@@ -762,6 +769,7 @@ function __wbg_get_imports() {
         const ret = new Map();
         return addHeapObject(ret);
     };
+
     imports.wbg.__wbg_String_88810dfeb4021902 = function(arg0, arg1) {
         const ret = String(getObject(arg1));
         const ptr1 = passStringToWasm0(ret, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
@@ -918,7 +926,7 @@ async function __wbg_init(input) {
     if (wasm !== undefined) return wasm;
 
     if (typeof input === 'undefined') {
-        input = new URL('euclid_wasm_bg.wasm', import.meta.url);
+        input = new URL('euclid_bg.wasm', import.meta.url);
     }
     const imports = __wbg_get_imports();
 
