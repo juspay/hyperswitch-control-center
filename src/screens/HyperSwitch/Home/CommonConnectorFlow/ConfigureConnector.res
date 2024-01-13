@@ -7,6 +7,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
   open APIUtils
   let updateDetails = useUpdateMethod()
   let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {quickStartPageState, setQuickStartPageState, setDashboardPageState} = React.useContext(
     GlobalProvider.defaultContext,
   )
@@ -19,7 +20,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
     ->MerchantAccountUtils.getValueFromBusinessProfile
 
   let (selectedConnector, setSelectedConnector) = React.useState(_ => UnknownConnector(""))
-  let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
   let (connectorConfigureState, setConnectorConfigureState) = React.useState(_ => Select_processor)
   let (choiceState, setChoiceState) = React.useState(_ => #NotSelected)
   let (smartRoutingChoiceState, setSmartRoutingChoiceState) = React.useState(_ => #DefaultFallback)
@@ -50,7 +51,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
   React.useEffect2(() => {
     setInitialValues(prevJson => {
       let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
-      prevJsonDict->Js.Dict.set(
+      prevJsonDict->Dict.set(
         "connector_label",
         `${selectedConnector->ConnectorUtils.getConnectorNameString}_${activeBusinessProfile.profile_name}`->Js.Json.string,
       )
@@ -86,7 +87,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
         ~id=Some(activatingId),
         (),
       )
-      let _ = await updateDetails(activateRuleURL, Js.Dict.empty()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
       let _ = await updateEnumForRouting(activatingId)
       setButtonState(_ => Normal)
     } catch {
@@ -130,7 +131,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
           #MultipleProcessorWithSmartRouting->connectorChoiceVariantToString,
         )
         setQuickStartPageState(_ =>
-          typedEnumValue.firstProcessorConnected.processorID->Js.String2.length > 0
+          typedEnumValue.firstProcessorConnected.processorID->String.length > 0
             ? ConnectProcessor(CONFIGURE_SECONDARY)
             : ConnectProcessor(CONFIGURE_PRIMARY)
         )
@@ -139,7 +140,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
           #SinglePaymentProcessor->connectorChoiceVariantToString,
         )
         setQuickStartPageState(_ =>
-          typedEnumValue.firstProcessorConnected.processorID->Js.String2.length > 0
+          typedEnumValue.firstProcessorConnected.processorID->String.length > 0
             ? ConnectProcessor(CHECKOUT)
             : ConnectProcessor(CONFIGURE_PRIMARY)
         )
@@ -158,6 +159,11 @@ let make = (~connectProcessorValue: connectProcessor) => {
       let _ = await PaymentType(paymentBody)->usePostEnumDetails(#TestPayment)
       setQuickStartPageState(_ => IntegrateApp(LANDING))
       RescriptReactRouter.replace("/quick-start")
+      if paymentId->Option.isSome {
+        mixpanelEvent(~eventName=`quickstart_checkout_pay`, ())
+      } else {
+        mixpanelEvent(~eventName=`quickstart_checkout_skip`, ())
+      }
     } catch {
     | _ => ()
     }
@@ -180,7 +186,10 @@ let make = (~connectProcessorValue: connectProcessor) => {
           nextButton={<Button
             buttonType=Primary
             text="Proceed"
-            onClick={_ => handleConnectorChoiceClick()->ignore}
+            onClick={_ => {
+              mixpanelEvent(~eventName=`quickstart_landing`, ())
+              handleConnectorChoiceClick()->ignore
+            }}
             buttonSize=Small
             buttonState
           />}
@@ -242,6 +251,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
               buttonType=Primary
               text="Proceed"
               onClick={_ => {
+                mixpanelEvent(~eventName=`quickstart_configure_smart_routing`, ())
                 handleRouting()->ignore
               }}
               buttonSize=Small
@@ -269,7 +279,9 @@ let make = (~connectProcessorValue: connectProcessor) => {
               buttonSize={Small}
               buttonType={PrimaryOutline}
               customButtonStyle="!rounded-md"
-              onClick={_ => updateTestPaymentEnum(~paymentId=None)->ignore}
+              onClick={_ => {
+                updateTestPaymentEnum(~paymentId=None)->ignore
+              }}
             />}>
             <TestPayment
               initialValues={activeBusinessProfile->SDKPaymentUtils.initialValueForForm}

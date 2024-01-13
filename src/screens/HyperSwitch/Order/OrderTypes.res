@@ -51,6 +51,7 @@ type frmMessage = {
 type order = {
   payment_id: string,
   merchant_id: string,
+  net_amount: float,
   status: string,
   amount: float,
   amount_capturable: float,
@@ -93,6 +94,7 @@ type order = {
   payment_experience: string,
   frm_message: frmMessage,
   connector_transaction_id: string,
+  merchant_connector_id: string,
   merchant_decision: string,
   profile_id: string,
 }
@@ -181,6 +183,7 @@ type colType =
 
 type summaryColType =
   | Created
+  | NetAmount
   | LastUpdated
   | PaymentId
   | Currency
@@ -198,10 +201,10 @@ type aboutPaymentColType =
   | PaymentMethod
   | PaymentMethodType
   | CardBrand
+  | ConnectorLabel
   | Refunds
   | AuthenticationType
   | CaptureMethod
-  | MandateId
 
 type otherDetailsColType =
   | MandateData

@@ -1,5 +1,5 @@
 {
-  "name": "euclid_wasm",
+  "name": "euclid_wasm_vas",
   "description": "WASM bindings for Euclid DSL",
   "version": "0.1.0",
   "files": [

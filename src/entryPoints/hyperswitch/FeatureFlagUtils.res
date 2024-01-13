@@ -17,9 +17,13 @@ type featureFlag = {
   feedback: bool,
   generateReport: bool,
   businessProfile: bool,
-  mixPanel: bool,
+  mixpanel: bool,
+  mixpanelSdk: bool,
   verifyConnector: bool,
   forgetPassword: bool,
+  userJourneyAnalytics: bool,
+  surcharge: bool,
+  customersModule: bool,
 }
 
 let featureFlagType = (featureFlags: Js.Json.t) => {
@@ -44,9 +48,13 @@ let featureFlagType = (featureFlags: Js.Json.t) => {
     feedback: dict->getBool("feedback", false),
     generateReport: dict->getBool("generate_report", false),
     businessProfile: dict->getBool("business_profile", false),
-    mixPanel: dict->getBool("mixpanel", false),
+    mixpanel: dict->getBool("mixpanel", false),
+    mixpanelSdk: dict->getBool("mixpanel_sdk", false),
     verifyConnector: dict->getBool("verify_connector", false),
     forgetPassword: dict->getBool("forgot_password", false),
+    userJourneyAnalytics: dict->getBool("user_journey_analytics", false),
+    surcharge: dict->getBool("surcharge", false),
+    customersModule: dict->getBool("customers_module", false),
   }
   typedFeatureFlag
 }

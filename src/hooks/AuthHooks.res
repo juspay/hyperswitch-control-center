@@ -12,7 +12,7 @@ external dictToObj: Js.Dict.t<'a> => {..} = "%identity"
 
 let getHeaders = (~uri, ~headers, ()) => {
   let hyperSwitchToken = LocalStorage.getItem("login")->Js.Nullable.toOption
-  let isMixpanel = uri->Js.String2.includes("mixpanel")
+  let isMixpanel = uri->String.includes("mixpanel")
 
   if isMixpanel {
     let headerObj = {
@@ -21,13 +21,12 @@ let getHeaders = (~uri, ~headers, ()) => {
     }
     Fetch.HeadersInit.make(headerObj)
   } else {
-    let headerObj =
-      headers->Js.Dict.get("api-key")->Belt.Option.getWithDefault("")->Js.String2.length > 0
+    let headerObj = headers->Dict.get("api-key")->Belt.Option.getWithDefault("")->String.length > 0
 
     if headerObj {
       let headerObj = {
         "Content-Type": "application/json",
-        "api-key": headers->Js.Dict.get("api-key")->Belt.Option.getWithDefault(""),
+        "api-key": headers->Dict.get("api-key")->Belt.Option.getWithDefault(""),
       }
       Fetch.HeadersInit.make(headerObj)
     } else {
@@ -82,7 +81,7 @@ let useApiFetcher = () => {
     (
       uri,
       ~bodyStr: string="",
-      ~headers=Js.Dict.empty(),
+      ~headers=Dict.make(),
       ~bodyHeader as _=?,
       ~method_: Fetch.requestMethod,
       ~authToken as _=?,
@@ -93,7 +92,7 @@ let useApiFetcher = () => {
       (),
     ) => {
       let uri = switch betaEndpointConfig {
-      | Some(val) => Js.String2.replace(uri, val.replaceStr, val.originalApiStr)
+      | Some(val) => String.replace(uri, val.replaceStr, val.originalApiStr)
       | None => uri
       }
 

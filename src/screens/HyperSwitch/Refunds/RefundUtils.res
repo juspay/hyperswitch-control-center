@@ -16,16 +16,15 @@ let getRefundsList = async (
     let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
-    let arr = Belt.Array.make(offset, Js.Dict.empty())
+    let arr = Belt.Array.make(offset, Dict.make())
     if total <= offset {
       setOffset(_ => 0)
     }
 
     if total > 0 {
       let refundDataDictArr = data->Belt.Array.keepMap(Js.Json.decodeObject)
-      let refundData =
-        arr->Js.Array2.concat(refundDataDictArr)->Js.Array2.map(RefundEntity.itemToObjMapper)
-      let list = refundData->Js.Array2.map(Js.Nullable.return)
+      let refundData = arr->Array.concat(refundDataDictArr)->Array.map(RefundEntity.itemToObjMapper)
+      let list = refundData->Array.map(Js.Nullable.return)
       setRefundsData(_ => list)
       setTotalCount(_ => total)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -43,7 +42,6 @@ let customUI =
     buttonText="Take me to payments"
     onClickUrl="payments"
     moduleName=""
-    mixPanelEventName="refunds_takemetopayments"
   />
 
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
@@ -58,11 +56,11 @@ let filterByData = (txnArr, value) => {
     let valueArr =
       data
       ->Identity.genericTypeToDictOfJson
-      ->Js.Dict.entries
-      ->Js.Array2.map(item => {
+      ->Dict.toArray
+      ->Array.map(item => {
         let (_, value) = item
 
-        value->getStringFromJson("")->Js.String2.toLowerCase->Js.String2.includes(searchText)
+        value->getStringFromJson("")->String.toLowerCase->String.includes(searchText)
       })
       ->Array.reduce(false, (acc, item) => item || acc)
 
@@ -102,9 +100,9 @@ let initialFilters = json => {
   let filterDict = json->getDictFromJsonObject
 
   filterDict
-  ->Js.Dict.keys
+  ->Dict.keysToArray
   ->Array.filterWithIndex((_item, index) => index <= 2)
-  ->Js.Array2.map((key): EntityType.initialFilters<'t> => {
+  ->Array.map((key): EntityType.initialFilters<'t> => {
     let title = `Select ${key->snakeToTitle}`
     let values = filterDict->getArrayFromDict(key, [])->getStrArrayFromJsonArray
 

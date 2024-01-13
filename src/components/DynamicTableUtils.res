@@ -15,9 +15,9 @@ let visibilityColFunc = (
   | StartEndDate(start, end) => (
       `${dateFormatConvertor(start)
         ->Belt.Option.getWithDefault(""->Js.Json.string)
-        ->Js.String.make} ${dateFormatConvertor(end)
+        ->String.make} ${dateFormatConvertor(end)
         ->Belt.Option.getWithDefault(""->Js.Json.string)
-        ->Js.String.make}`
+        ->String.make}`
       ->Js.Json.string
       ->Some,
       dateFormatConvertor(end),
@@ -47,19 +47,19 @@ let filteredData = (
   entity: EntityType.entityType<'colType, 't>,
   dateFormatConvertor: string => option<Js.Json.t>,
 ) => {
-  let selectedFiltersKeys = columnFilter->Js.Dict.keys
-  if selectedFiltersKeys->Js.Array2.length > 0 {
-    actualData->Js.Array2.filter(item => {
+  let selectedFiltersKeys = columnFilter->Dict.keysToArray
+  if selectedFiltersKeys->Array.length > 0 {
+    actualData->Array.filter(item => {
       switch item->Js.Nullable.toOption {
       | Some(row) =>
         // either to take this row or not if any filter is present then take row or else drop
         let rowDict = row->Identity.genericTypeToDictOfJson
-        let anyMatch = selectedFiltersKeys->Js.Array2.find(keys => {
+        let anyMatch = selectedFiltersKeys->Array.find(keys => {
           // Selected fitler
-          switch Js.Dict.get(columnFilter, keys) {
+          switch Dict.get(columnFilter, keys) {
           | Some(selectedArr) => {
               // selected value of the fitler
-              let jsonVal = Js.Dict.get(
+              let jsonVal = Dict.get(
                 rowDict->Js.Json.object_->JsonFlattenUtils.flattenObject(false),
                 keys,
               )
@@ -90,13 +90,13 @@ let filteredData = (
                       let selectedArr =
                         selectedArr
                         ->Belt.Array.keepMap(item => item->Js.Json.decodeString)
-                        ->Js.Array2.map(Js.String.toLowerCase)
+                        ->Array.map(String.toLowerCase)
 
                       let currVal = switch jsonVal {
-                      | (Some(transformed), _) => transformed->Js.String.make->Js.String.toLowerCase
+                      | (Some(transformed), _) => transformed->String.make->String.toLowerCase
                       | (None, _) => ""
                       }
-                      !(selectedArr->Js.Array2.includes(currVal))
+                      !(selectedArr->Array.includes(currVal))
                     }
 
                   | LabelType | TextType => {
@@ -104,15 +104,15 @@ let filteredData = (
                         selectedArr->Belt.Array.keepMap(item => item->Js.Json.decodeString)
 
                       let currVal = switch jsonVal {
-                      | (Some(transformed), _) => transformed->Js.String.make
+                      | (Some(transformed), _) => transformed->String.make
                       | (None, _) => ""
                       }
 
                       let searchedText =
                         selectedArr1->Belt.Array.get(0)->Belt.Option.getWithDefault("")
-                      !Js.String.includes(
-                        searchedText->Js.String.toUpperCase,
-                        currVal->Js.String.toUpperCase,
+                      !String.includes(
+                        searchedText->String.toUpperCase,
+                        currVal->String.toUpperCase,
                       )
                     }
 
@@ -120,7 +120,7 @@ let filteredData = (
                       let selectedArr =
                         selectedArr->Belt.Array.keepMap(item => item->Js.Json.decodeNumber)
                       let currVal = switch jsonVal {
-                      | (_, Some(actualVal)) => actualVal->Js.String.make->Js.Float.fromString
+                      | (_, Some(actualVal)) => actualVal->String.make->Js.Float.fromString
                       | _ => 0.
                       }
                       !(
@@ -312,8 +312,6 @@ module ChooseColumns = {
 }
 
 module ChooseColumnsWrapper = {
-  let func = _ => false
-
   @react.component
   let make = (
     ~entity: EntityType.entityType<'colType, 't>,

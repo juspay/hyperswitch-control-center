@@ -8,7 +8,7 @@ let exitCheckBox = "uncheckbox.json"
 let enterSearchCross = "enterCross.json"
 let exitSearchCross = "exitCross.json"
 
-let lottieDict: Js.Dict.t<lottieFileJson> = Js.Dict.empty()
+let lottieDict: Js.Dict.t<lottieFileJson> = Dict.make()
 
 let useLottieJson = lottieFileName => {
   let (lottieJson, setlottieJson) = React.useState(_ => Js.Json.null)
@@ -18,7 +18,7 @@ let useLottieJson = lottieFileName => {
   let prefix = `${Window.Location.origin}${uriPrefix}`
 
   React.useEffect1(() => {
-    switch lottieDict->Js.Dict.get(lottieFileName) {
+    switch lottieDict->Dict.get(lottieFileName) {
     | Some(val) =>
       switch val {
       | Loaded(json) => setlottieJson(_ => json)
@@ -30,7 +30,7 @@ let useLottieJson = lottieFileName => {
           ->then(Fetch.Response.json)
           ->then(json => {
             setlottieJson(_ => json)
-            lottieDict->Js.Dict.set(lottieFileName, Loaded(json))
+            lottieDict->Dict.set(lottieFileName, Loaded(json))
             json->resolve
           })
           ->catch(_err => {
@@ -38,7 +38,7 @@ let useLottieJson = lottieFileName => {
             Js.Json.null->resolve
           })
 
-        lottieDict->Js.Dict.set(lottieFileName, Loading(fetchLottie))
+        lottieDict->Dict.set(lottieFileName, Loading(fetchLottie))
       }
     }
     None

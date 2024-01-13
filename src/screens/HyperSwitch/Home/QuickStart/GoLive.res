@@ -30,8 +30,9 @@ let make = (~goLive) => {
   open ProdVerifyModalUtils
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let email = HSLocalStorage.getFromMerchantDetails("email")
-  let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty())
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
   let (isSubmitBtnDisabled, setIsSubmitBtnDisabled) = React.useState(_ => false)
   let {setIsProdIntentCompleted, setQuickStartPageState, setDashboardPageState} = React.useContext(
@@ -55,7 +56,7 @@ let make = (~goLive) => {
       let hideHeader = valueForProdIntent->getBool(IsCompleted->getStringFromVariant, false)
       setIsProdIntentCompleted(_ => hideHeader)
       if !hideHeader {
-        valueForProdIntent->Js.Dict.set(POCemail->getStringFromVariant, email->Js.Json.string)
+        valueForProdIntent->Dict.set(POCemail->getStringFromVariant, email->Js.Json.string)
       }
       setQuickStartPageState(_ => FinalLandingPage)
       setInitialValues(_ => valueForProdIntent)
@@ -79,6 +80,7 @@ let make = (~goLive) => {
   }
 
   let onSubmit = (values, _) => {
+    mixpanelEvent(~eventName="quickstart_get_production_access_completed", ())
     updateProdDetails(values)
   }
 
@@ -88,7 +90,10 @@ let make = (~goLive) => {
         <Button
           text="Get Production Access"
           buttonType={Primary}
-          onClick={_ => setQuickStartPageState(_ => GoLive(GO_LIVE))}
+          onClick={_ => {
+            mixpanelEvent(~eventName="quickstart_get_production_access_landing", ())
+            setQuickStartPageState(_ => GoLive(GO_LIVE))
+          }}
         />
       </UIUtils.RenderIf>
       <Button

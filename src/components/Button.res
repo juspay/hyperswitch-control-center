@@ -346,10 +346,6 @@ let make = (
   ~customButtonStyle="",
   ~textStyleClass=?,
   ~customTextPaddingClass=?,
-  ~hswitchMixPanelDescription=?,
-  ~hswitchMixPanelPageName=?,
-  ~hswitchMixPanelContextName=?,
-  ~hswitchMixPanelActionName=?,
   ~allowButtonTextMinWidth=true,
   ~badge: badge={
     value: 1->Belt.Int.toString,
@@ -365,12 +361,12 @@ let make = (
   ~isPhoneDropdown=false,
   ~showBtnTextToolTip=false,
 ) => {
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let parentRef = React.useRef(Js.Nullable.null)
   let dummyRef = React.useRef(Js.Nullable.null)
   let buttonRef = disableRipple ? dummyRef : parentRef
+  let rippleEffect = RippleEffectBackground.useHorizontalRippleHook(buttonRef)
   if !isPhoneDropdown {
-    RippleEffectBackground.useHorizontalRippleHook(buttonRef)
+    rippleEffect
   }
 
   let customTextOverFlowClass = switch textStyleClass {
@@ -664,23 +660,7 @@ let make = (
   }
   let handleClick = ev => {
     switch onClick {
-    | Some(fn) => {
-        if (
-          hswitchMixPanelPageName->Belt.Option.isSome &&
-          hswitchMixPanelActionName->Belt.Option.isSome &&
-          hswitchMixPanelContextName->Belt.Option.isSome
-        ) {
-          hyperswitchMixPanel(
-            ~pageName=hswitchMixPanelPageName->Belt.Option.getWithDefault(""),
-            ~actionName=hswitchMixPanelActionName->Belt.Option.getWithDefault(""),
-            ~contextName=hswitchMixPanelContextName->Belt.Option.getWithDefault(""),
-            ~description=hswitchMixPanelDescription,
-            (),
-          )
-        }
-        fn(ev)
-      }
-
+    | Some(fn) => fn(ev)
     | None => ()
     }
   }
@@ -708,7 +688,7 @@ let make = (
 
   let dataAttrKey = isSelectBoxButton ? "data-value" : "data-button-for"
   let dataAttrStr =
-    textId === "" ? iconId : textId->Js.String2.concat(buttonFor)->LogicUtils.toCamelCase
+    textId === "" ? iconId : textId->String.concat(buttonFor)->LogicUtils.toCamelCase
   let relativeClass = isRelative ? "relative" : ""
   let conditionalButtonStyles = `${allowButtonTextMinWidth
       ? "min-w-min"
@@ -729,7 +709,7 @@ let make = (
           e->ReactEvent.Keyboard.preventDefault
         }
       }}
-      className={`flex group ${customButtonStyle->Js.String2.includes("justify")
+      className={`flex group ${customButtonStyle->String.includes("justify")
           ? ""
           : "justify-center"} ${relativeClass} ${heightClass} ${newThemeGap} ${conditionalButtonStyles} items-center ${borderStyle}  ${textColor} ${cursorType} ${paddingClass} ${lengthStyle} ${customButtonStyle}  ${customTextOverFlowClass}`}
       onClick=handleClick>

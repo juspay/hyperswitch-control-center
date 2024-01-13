@@ -17,7 +17,7 @@ module TooltipString = {
   let make = (~text, ~showTableBelow) => {
     let isMobileView = MatchMedia.useMobileChecker()
     let class = showTableBelow ? "w-fit" : "w-20"
-    if text->Js.String2.length > 15 && !showTableBelow {
+    if text->String.length > 15 && !showTableBelow {
       <ToolTip
         contentAlign=Left
         description=text
@@ -25,7 +25,7 @@ module TooltipString = {
         tooltipWidthClass={isMobileView ? "w-fit" : ""}
         toolTipFor={<div className={`whitespace-pre text-ellipsis overflow-x-hidden w-15`}>
           <AddDataAttributes attributes=[("data-text", text)]>
-            <div> {React.string(`${Js.String.slice(~from=0, ~to_=12, text)}...`)} </div>
+            <div> {React.string(`${String.slice(~start=0, ~end=12, text)}...`)} </div>
           </AddDataAttributes>
         </div>}
       />
@@ -75,7 +75,7 @@ module LineChart1D = {
 
     let (fistLegend, secondLegend) = switch selectedMetrics {
     | {legendOption} =>
-      legendData->Js.Array2.length > 0
+      legendData->Array.length > 0
         ? legendOption
         : LineChartUtils.legendTypeBasedOnMetric(selectedMetrics.metric_type)
     | _ => LineChartUtils.legendTypeBasedOnMetric(selectedMetrics.metric_type)
@@ -89,8 +89,8 @@ module LineChart1D = {
     let setClickedRowNames = React.useMemo1(() => {
       (legendData: LineChartUtils.legendTableData) => {
         setClickedRowNamesOrig(prev => {
-          prev->Js.Array2.includes(legendData.groupByName)
-            ? prev->Js.Array2.filter(item => item !== legendData.groupByName)
+          prev->Array.includes(legendData.groupByName)
+            ? prev->Array.filter(item => item !== legendData.groupByName)
             : [legendData.groupByName]
         })
       }
@@ -108,14 +108,13 @@ module LineChart1D = {
         (),
       )->Belt.Array.keepMap(item => {
         if (
-          ["run_date", "run_month", "run_week"]->Js.Array2.includes(groupKey) &&
-            item.name === "Others"
+          ["run_date", "run_month", "run_week"]->Array.includes(groupKey) && item.name === "Others"
         ) {
           None
         } else {
           Some({
             ...item,
-            data: item.data->Js.Array2.map(
+            data: item.data->Array.map(
               dataItem => {
                 let (xAxis, yAxis, xY) = dataItem
 
@@ -125,7 +124,7 @@ module LineChart1D = {
                     ->DateTimeUtils.toUtc
                     ->Js.Date.getHours
                     ->Belt.Float.toString}:00`
-                  ->Js.String2.sliceToEnd(~from=-5)
+                  ->String.sliceToEnd(~start=-5)
                   ->Js.Json.string
                 } else if "run_month" === groupKey {
                   xAxis
@@ -156,20 +155,20 @@ module LineChart1D = {
 
       let selectedChartData = switch selectedRow {
       | Some(data: LineChartUtils.chartData<Js.Json.t>) =>
-        chartdata->Js.Array2.filter(item => data.name == item.name)
+        chartdata->Array.filter(item => data.name == item.name)
       | None =>
-        clickedRowNames->Js.Array2.length > 0
-          ? chartdata->Js.Array2.filter(item => clickedRowNames->Js.Array2.includes(item.name))
+        clickedRowNames->Array.length > 0
+          ? chartdata->Array.filter(item => clickedRowNames->Array.includes(item.name))
           : chartdata
       }
 
-      let xAxisMapInfo = Js.Dict.empty()
-      selectedChartData->Js.Array2.forEach(item => {
-        item.data->Js.Array2.forEach(
+      let xAxisMapInfo = Dict.make()
+      selectedChartData->Array.forEach(item => {
+        item.data->Array.forEach(
           axes => {
             let (x, y, secondryMetrics) = axes
             xAxisMapInfo->LineChartUtils.appendToDictValue(
-              ["run_date", "run_month", "run_week"]->Js.Array2.includes(groupKey)
+              ["run_date", "run_month", "run_week"]->Array.includes(groupKey)
                 ? x->Js.Json.decodeString->Belt.Option.getWithDefault("")
                 : x->Js.Json.stringify,
               (
@@ -185,10 +184,10 @@ module LineChart1D = {
         )
       })
 
-      let data = if clickedRowNames->Js.Array2.length === 0 {
+      let data = if clickedRowNames->Array.length === 0 {
         switch hoverOnRows {
         | Some(hoverOnRows) =>
-          chartdata->Js.Array2.map(item => {
+          chartdata->Array.map(item => {
             let color = switch item.color {
             | Some(color) => Some(item.name !== hoverOnRows ? `${color}20` : color)
             | None => None
@@ -229,15 +228,15 @@ module LineChart1D = {
         let (fillColor, color) = (chartDataItem.fillColor, chartDataItem.color) // normal
         //always uses same color for same entity Upi live mode
         let val: option<seriesLine<Js.Json.t>> = if (
-          !(clickedRowNames->Js.Array2.includes(chartDataItem.name)) &&
-          clickedRowNames->Js.Array2.length > 0
+          !(clickedRowNames->Array.includes(chartDataItem.name)) &&
+          clickedRowNames->Array.length > 0
         ) {
           None
         } else {
           let value: Highcharts.seriesLine<Js.Json.t> = {
             color,
             name: chartDataItem.name,
-            data: chartDataItem.data->Js.Array2.map(
+            data: chartDataItem.data->Array.map(
               item => {
                 let (x, y, _) = item
                 (x, y->Js.Nullable.return)
@@ -269,7 +268,7 @@ module LineChart1D = {
         ~activeTab=groupKey,
       )->Belt.Array.keepMap(item => {
         if (
-          ["run_date", "run_month", "run_week"]->Js.Array2.includes(groupKey) &&
+          ["run_date", "run_month", "run_week"]->Array.includes(groupKey) &&
             item.groupByName === "Others"
         ) {
           None
@@ -316,8 +315,8 @@ module LineChart1D = {
         num->HSAnalyticsUtils.setPrecision()
       }
       let (nonSelectedClass, backgroundColor) =
-        clickedRowNames->Js.Array2.length === 0 ||
-          clickedRowNames->Js.Array2.includes(transactionTable.groupByName)
+        clickedRowNames->Array.length === 0 ||
+          clickedRowNames->Array.includes(transactionTable.groupByName)
           ? ("", `${color}`)
           : ("opacity-40", `${color}50`)
 
@@ -363,9 +362,7 @@ module LineChart1D = {
         CustomCell(
           {
             if (
-              !(transactionTable.groupByName->Js.String2.includes("Mid")) &&
-              isPartners &&
-              showIndicator
+              !(transactionTable.groupByName->String.includes("Mid")) && isPartners && showIndicator
             ) {
               <div className="flex items-stretch justify-start">
                 {if transactionTable.current < 20. {
@@ -414,7 +411,7 @@ module LineChart1D = {
 
       | val =>
         Table.makeHeaderInfo(
-          ~key=val->LineChartUtils.chartLegendTypeToStr->Js.String2.toLowerCase,
+          ~key=val->LineChartUtils.chartLegendTypeToStr->String.toLowerCase,
           ~title=val->LineChartUtils.chartLegendTypeToStr,
           ~dataType=NumericType,
           ~showSort={!isPartners},
@@ -588,9 +585,7 @@ module LineChart1D = {
           let defaultValue = {
             "type": "datetime",
           }->genericObjectOrRecordToJson
-          let defaultValue = if (
-            ["run_date", "run_month", "run_week"]->Js.Array2.includes(groupKey)
-          ) {
+          let defaultValue = if ["run_date", "run_month", "run_week"]->Array.includes(groupKey) {
             {
               "type": "category",
               "tickWidth": 0,
@@ -696,7 +691,7 @@ module LineChart1D = {
       ("flex flex-row", "w-1/5", "w-4/5")
     }
 
-    if chartData->Js.Array2.length > 0 {
+    if chartData->Array.length > 0 {
       <div className={isMobileView ? "w-full" : isMultiDimensional ? "w-1/3" : ""}>
         <div className={`${flexClass} ${class} px-4 pb-3`}>
           <AddDataAttributes attributes=[("data-chart", chartTitleText)]>
@@ -723,29 +718,29 @@ module LineChart1D = {
                   : [GroupBY, fistLegend, secondLegend]}
                 title="High Chart Time Series Chart"
                 hideTitle=true
-                actualData={legendData->Js.Array2.map(Js.Nullable.return)}
+                actualData={legendData->Array.map(Js.Nullable.return)}
                 entity=legendTableEntity
                 resultsPerPage=15
-                totalResults={legendData->Js.Array2.length}
+                totalResults={legendData->Array.length}
                 offset
                 setOffset
                 defaultSort
                 showPagination=false
-                currrentFetchCount={legendData->Js.Array2.length}
+                currrentFetchCount={legendData->Array.length}
                 onEntityClick={val => {
                   setClickedRowNames(val)
                 }}
                 onEntityDoubleClick={val => {
                   setClickedRowNamesOrig(_ => [])
-                  clickedRowNames->Js.Array2.length > 0 ? setHoverOnRows(_ => None) : ()
+                  clickedRowNames->Array.length > 0 ? setHoverOnRows(_ => None) : ()
                 }}
                 onMouseEnter={val => {
-                  clickedRowNames->Js.Array2.length === 0
+                  clickedRowNames->Array.length === 0
                     ? setHoverOnRows(_ => Some(val.groupByName))
                     : ()
                 }}
                 onMouseLeave={val => {
-                  clickedRowNames->Js.Array2.length === 0 ? setHoverOnRows(_ => None) : ()
+                  clickedRowNames->Array.length === 0 ? setHoverOnRows(_ => None) : ()
                 }}
                 isHighchartLegend=true
                 showTableOnMobileView=true
@@ -778,7 +773,7 @@ module LegendItem = {
       }
     <div className="flex flex-row m-5 gap-6 font-inter-style mobile:flex-wrap">
       {LineChartUtils.removeDuplicates(chartNames)
-      ->Js.Array2.map(legendItem => {
+      ->Array.map(legendItem => {
         let opacity = opacity(legendItem.name)
         <AddDataAttributes attributes=[("data-chart-legend", legendItem.name)]>
           <div
@@ -807,8 +802,8 @@ module LegendItem = {
 }
 
 module RenderMultiDimensionalChart = {
-  type props = {
-    chartDictData: Js.Dict.t<Belt.Array.t<Js.Json.t>>,
+  type config = {
+    chartDictData: Dict.t<Belt.Array.t<Js.Json.t>>,
     class: string,
     selectedMetrics: LineChartUtils.metricsConfig,
     groupBy: string,
@@ -817,23 +812,24 @@ module RenderMultiDimensionalChart = {
     legendType: legendType,
     chartType: string,
   }
-  let make = (props: props) => {
+  @react.component
+  let make = (~config: config) => {
     let (selectedRow, setSelectedRow) = React.useState(_ => None)
     let chartNames =
-      props.chartDictData
-      ->Js.Dict.entries
+      config.chartDictData
+      ->Dict.toArray
       ->Array.reduce([], (acc: array<LineChartUtils.chartData<Js.Json.t>>, (_, value)) => {
         let chartdata = LineChartUtils.timeSeriesDataMaker(
           ~data=value,
-          ~groupKey=props.groupBy,
-          ~xAxis=props.xAxis,
-          ~metricsConfig=props.selectedMetrics,
+          ~groupKey=config.groupBy,
+          ~xAxis=config.xAxis,
+          ~metricsConfig=config.selectedMetrics,
           (),
         )
         chartdata
-        ->Js.Array2.map(i =>
+        ->Array.map(i =>
           acc->Array.push({
-            data: i.data->Js.Array2.map(
+            data: i.data->Array.map(
               item => {
                 let (val1, val2, val3) = item
                 (val1->Js.Json.number, val2, val3)
@@ -853,28 +849,28 @@ module RenderMultiDimensionalChart = {
       <div className="flex flex-wrap">
         {
           let chartArr = {
-            props.chartDictData
-            ->Js.Dict.entries
+            config.chartDictData
+            ->Dict.toArray
             ->Array.mapWithIndex((item, index) => {
               let (key, value) = item
 
               <LineChart1D
                 key={index->Belt.Int.toString}
-                class=props.class
+                class=config.class
                 rawChartData=value
                 commonColorsArr={LineChartUtils.removeDuplicates(chartNames)}
-                selectedMetrics=props.selectedMetrics
-                xAxis=props.xAxis
-                groupKey=props.groupBy
+                selectedMetrics=config.selectedMetrics
+                xAxis=config.xAxis
+                groupKey=config.groupBy
                 chartTitle=true
                 chartTitleText=key
                 showTableLegend=false
                 showLegend=false
-                legendType=props.legendType
+                legendType=config.legendType
                 isMultiDimensional=true
-                chartKey=props.chartKey
+                chartKey=config.chartKey
                 selectedRow={selectedRow}
-                chartType=props.chartType
+                chartType=config.chartType
               />
             })
           }
@@ -906,8 +902,8 @@ module LineChart2D = {
     }
     let (groupBy1, groupBy2) = (groupBy2, groupBy1)
 
-    let chartDictData = Js.Dict.empty()
-    rawChartData->Js.Array2.forEach(item => {
+    let chartDictData = Dict.make()
+    rawChartData->Array.forEach(item => {
       let dict = item->getDictFromJsonObject
       let groupBy = dict->getString(groupBy1, "")
       let groupBy = groupBy === "" ? "NA" : groupBy
@@ -915,7 +911,7 @@ module LineChart2D = {
       chartDictData->LineChartUtils.appendToDictValue(groupBy, item)
     })
 
-    let compProps: RenderMultiDimensionalChart.props = {
+    let compProps: RenderMultiDimensionalChart.config = {
       chartDictData,
       class,
       selectedMetrics,
@@ -926,7 +922,7 @@ module LineChart2D = {
       chartType,
     }
 
-    <RenderMultiDimensionalChart {...compProps} />
+    <RenderMultiDimensionalChart config={compProps} />
   }
 }
 
@@ -952,8 +948,8 @@ module LineChart3D = {
     }
     let (groupBy1, groupBy2, groupby3) = (groupBy2, groupby3, groupBy1)
 
-    let chartDictData = Js.Dict.empty()
-    rawChartData->Js.Array2.forEach(item => {
+    let chartDictData = Dict.make()
+    rawChartData->Array.forEach(item => {
       let dict = item->getDictFromJsonObject
       let groupBy1 = dict->getString(groupBy1, "")
       let groupBy1 = groupBy1 === "" ? "NA" : groupBy1
@@ -963,7 +959,7 @@ module LineChart3D = {
       chartDictData->LineChartUtils.appendToDictValue(groupBy1 ++ " / " ++ groupBy2, item)
     })
 
-    let compProps: RenderMultiDimensionalChart.props = {
+    let compProps: RenderMultiDimensionalChart.config = {
       chartDictData,
       class,
       selectedMetrics,
@@ -974,6 +970,6 @@ module LineChart3D = {
       chartType,
     }
 
-    <RenderMultiDimensionalChart {...compProps} />
+    <RenderMultiDimensionalChart config=compProps />
   }
 }

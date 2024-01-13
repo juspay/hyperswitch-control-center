@@ -9,7 +9,7 @@ let make = (~isFromMilestoneCard=false) => {
   let {showProdIntentForm, setShowProdIntentForm, setIsProdIntentCompleted} = React.useContext(
     GlobalProvider.defaultContext,
   )
-  let (initialValues, setInitialValues) = React.useState(_ => Js.Dict.empty())
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
 
   let getProdVerifyDetails = async () => {
     open LogicUtils
@@ -27,7 +27,7 @@ let make = (~isFromMilestoneCard=false) => {
       let hideHeader = valueForProdIntent->getBool(IsCompleted->getStringFromVariant, false)
       setIsProdIntentCompleted(_ => hideHeader)
       if !hideHeader {
-        valueForProdIntent->Js.Dict.set(POCemail->getStringFromVariant, email->Js.Json.string)
+        valueForProdIntent->Dict.set(POCemail->getStringFromVariant, email->Js.Json.string)
       }
       setInitialValues(_ => valueForProdIntent)
     } catch {

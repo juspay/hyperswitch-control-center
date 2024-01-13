@@ -51,7 +51,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
     switch recur.byDay {
     | Some(days) => {
         let day = getDay(currentTime)
-        switch Js.Array.find(x => x == day, days) {
+        switch days->Array.find(x => x == day) {
         | Some(_a) => true
         | None => false
         }
@@ -70,7 +70,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
     switch recur.byDate {
     | Some(days) => {
         let day = getDate(currentTime)
-        switch Js.Array.find(x => x == day, days) {
+        switch days->Array.find(x => x == day) {
         | Some(_a) => true
         | None => false
         }
@@ -89,7 +89,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
     switch recur.byMonth {
     | Some(days) => {
         let day = getMonth(currentTime)
-        switch Js.Array.find(x => x == day, days) {
+        switch days->Array.find(x => x == day) {
         | Some(_a) => true
         | None => false
         }
@@ -108,7 +108,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
     switch recur.byYear {
     | Some(days) => {
         let day = getYear(currentTime)
-        switch Js.Array.find(x => x == day, days) {
+        switch days->Array.find(x => x == day) {
         | Some(_a) => true
         | None => false
         }
@@ -140,7 +140,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
     switch recur.byWeek {
     | Some(days) => {
         let day = getWeek(currentTime)
-        switch Js.Array.find(x => x == day, days) {
+        switch days->Array.find(x => x == day) {
         | Some(_a) => true
         | None => false
         }
@@ -191,7 +191,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
   let isWhitelist = rest => {
     switch recipe.dateWhitelist {
     | Some(whitelist) =>
-      switch Js.Array.find(x => x == currentTime, whitelist) {
+      switch whitelist->Array.find(x => x == currentTime) {
       | Some(_a) => true
       | None => rest
       }
@@ -201,7 +201,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
   let isBlackList = rest => {
     switch recipe.dateBlacklist {
     | Some(blacklist) =>
-      switch Js.Array.find(x => x == currentTime, blacklist) {
+      switch blacklist->Array.find(x => x == currentTime) {
       | Some(_a) => false
       | None => rest
       }

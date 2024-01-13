@@ -18,6 +18,7 @@ let make = (
 
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
   let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
@@ -36,8 +37,9 @@ let make = (
   let multipleConfigurationArrayLength = 2
 
   let handleSummaryProceed = () => {
+    mixpanelEvent(~eventName=`quickstart_connector_summary`, ())
     if (
-      connectorArray->Js.Array2.length === multipleConfigurationArrayLength &&
+      connectorArray->Array.length === multipleConfigurationArrayLength &&
         typedEnumValue.configurationType->connectorChoiceStringVariantMapper ===
           #MultipleProcessorWithSmartRouting
     ) {
@@ -49,7 +51,7 @@ let make = (
       setQuickStartPageState(_ => QuickStartTypes.ConnectProcessor(QuickStartTypes.CHECKOUT))
     } else {
       setSelectedConnector(_ => UnknownConnector(""))
-      setInitialValues(_ => Js.Dict.empty()->Js.Json.object_)
+      setInitialValues(_ => Dict.make()->Js.Json.object_)
       setConnectorConfigureState(_ => Select_processor)
       setQuickStartPageState(_ => ConnectProcessor(CONFIGURE_SECONDARY))
     }
@@ -105,16 +107,18 @@ let make = (
 
   let handleConnectorSubmit = () => {
     if choiceStateForTestConnector === #TestApiKeys {
+      mixpanelEvent(~eventName=`quickstart_select_configuration_type_test`, ())
       handleTestConnector()->ignore
     } else {
       setConnectorConfigureState(_ => Configure_keys)
+      mixpanelEvent(~eventName=`quickstart_select_configuration_type_keys`, ())
     }
   }
 
   React.useEffect1(() => {
     let defaultJsonOnNewConnector =
       [("profile_id", activeBusinessProfile.profile_id->Js.Json.string)]
-      ->Js.Dict.fromArray
+      ->Dict.fromArray
       ->Js.Json.object_
     setInitialValues(_ => defaultJsonOnNewConnector)
     None
@@ -134,13 +138,15 @@ let make = (
         headerText={`Connect ${connectorName->LogicUtils.capitalizeString}`}
         isHeaderLeftIcon=false
         customIcon={<GatewayIcon
-          gateway={connectorName->Js.String2.toUpperCase} className="w-6 h-6 rounded-md"
+          gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
         />}
         nextButton={<Button
           buttonType=Primary
           text="Proceed"
           buttonState
-          onClick={_ => handleConnectorSubmit()}
+          onClick={_ => {
+            handleConnectorSubmit()
+          }}
           buttonSize=Small
         />}
         backButton={<Button
@@ -169,7 +175,7 @@ let make = (
       <QuickStartUIUtils.BaseComponent
         headerText={connectorName->LogicUtils.capitalizeString}
         customIcon={<GatewayIcon
-          gateway={connectorName->Js.String2.toUpperCase} className="w-6 h-6 rounded-md"
+          gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
         />}
         customCss="show-scrollbar"
         nextButton={<Button

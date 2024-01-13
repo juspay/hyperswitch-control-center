@@ -21,6 +21,9 @@ external removeEventListener: (string, listener<'ev>) => unit = "removeEventList
 external postMessage: (Js.Json.t, string) => unit = "postMessage"
 
 @val @scope("window")
+external checkLoadHyper: option<HyperSwitchTypes.hyperloader> = "Hyper"
+
+@val @scope("window")
 external loadHyper: string => HyperSwitchTypes.hyperloader = "Hyper"
 
 type rec selectionObj = {\"type": string}
@@ -40,6 +43,9 @@ external getPayoutConnectorConfig: string => Js.Json.t = "getPayoutConnectorConf
 
 @val @scope("window")
 external getThreeDsKeys: unit => array<string> = "getThreeDsKeys"
+
+@val @scope("window")
+external getSurchargeKeys: unit => array<string> = "getSurchargeKeys"
 
 @val @scope("window")
 external getAllKeys: unit => array<string> = "getAllKeys"
@@ -70,6 +76,9 @@ external getParsedJson: string => Js.Json.t = "getParsedJson"
 @val @scope("window") external innerHeight: int = "innerHeight"
 
 @val @scope("window") external globalUrlPrefix: option<string> = "urlPrefix"
+
+@val @scope("window")
+external payPalCreateAccountWindow: unit => unit = "payPalCreateAccountWindow"
 
 module MatchMedia = {
   type matchEvent = {
@@ -192,13 +201,6 @@ module Notification = {
   @val @scope("window")
   external notification: Js.Null_undefined.t<notification> = "Notification"
 
-  let isNotificationAvailable = notification->Js.Null_undefined.toOption->Js.Option.isSome
-
-  let permission = switch notification->Js.Null_undefined.toOption {
-  | Some(notif) => notif.permission
-  | None => ""
-  }
-
   let requestPermission = switch notification->Js.Null_undefined.toOption {
   | Some(notif) => notif.requestPermission
   | None => () => Promise.resolve("")
@@ -221,6 +223,6 @@ external fcWidget: 'a = "fcWidget"
 type boundingClient = {x: int, y: int, width: int, height: int}
 @send external getBoundingClientRect: Dom.element => boundingClient = "getBoundingClientRect"
 
-type env = {apiBaseUrl?: string, sdkBaseUrl?: string}
+type env = {apiBaseUrl?: string, sdkBaseUrl?: string, mixpanelToken?: string}
 @val @scope("window")
 external env: env = "_env_"

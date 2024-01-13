@@ -54,7 +54,7 @@ let getContentBasedOnIndex = (~currentRoute, ~tabIndex) =>
   }
 
 let getLangauge = (str): languages => {
-  switch str->Js.String2.toLowerCase {
+  switch str->String.toLowerCase {
   | "reactjs" => #ReactJs
   | "node" => #Node
   | "ruby" => #Ruby
@@ -71,7 +71,7 @@ let getLangauge = (str): languages => {
   }
 }
 let getPlatform = (str): platforms => {
-  switch str->Js.String2.toLowerCase {
+  switch str->String.toLowerCase {
   | "web" => #Web
   | "ios" => #IOS
   | "android" => #Android
@@ -215,12 +215,12 @@ let getFilteredList = (
   backEndLang: languages,
   githubcodespaces: array<sectionContentType>,
 ) => {
-  let felang = Some((frontEndLang :> string)->Js.String2.toLowerCase)
-  let belang = Some((backEndLang :> string)->Js.String2.toLowerCase)
+  let felang = Some((frontEndLang :> string)->String.toLowerCase)
+  let belang = Some((backEndLang :> string)->String.toLowerCase)
   if felang === Some("chooselanguage") && belang === Some("chooselanguage") {
     githubcodespaces
   } else {
-    let filteredList = githubcodespaces->Js.Array2.filter(value => {
+    let filteredList = githubcodespaces->Array.filter(value => {
       if felang === Some("chooselanguage") {
         value.backEndLang === belang
       } else if belang === Some("chooselanguage") {
@@ -239,23 +239,6 @@ let variantToTextMapperForBuildHS = currentRoute => {
   | IntegrateFromScratch => "integrateFromScratch"
   | WooCommercePlugin => "wooCommercePlugin"
   | _ => "onboarding"
-  }
-}
-
-let getMixPanelEventName = (
-  ~url: RescriptReactRouter.url,
-  ~filtersFromUrl,
-  ~hyperswitchMixPanel: HSMixPanel.functionType,
-) => {
-  if filtersFromUrl->Js.String2.length > 0 {
-    hyperswitchMixPanel(
-      ~pageName=`${url.path->LogicUtils.getListHead}`,
-      ~contextName=filtersFromUrl,
-      ~actionName="skip&exploredashboard",
-      (),
-    )
-  } else {
-    hyperswitchMixPanel(~eventName=Some(`${url.path->LogicUtils.getListHead}_exploredashboard`), ())
   }
 }
 

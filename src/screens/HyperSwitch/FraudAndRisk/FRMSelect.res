@@ -5,14 +5,14 @@ module NewProcessorCards = {
   let make = (~configuredFRMs: array<frmName>, ~showIcons: bool) => {
     let frmAvailableForIntegration = frmList
     let unConfiguredFRMs =
-      frmAvailableForIntegration->Js.Array2.filter(total =>
-        configuredFRMs->Js.Array2.find(item => item === total)->Belt.Option.isNone
+      frmAvailableForIntegration->Array.filter(total =>
+        configuredFRMs->Array.find(item => item === total)->Belt.Option.isNone
       )
 
     let handleClick = frmName => {
       RescriptReactRouter.push(`/fraud-risk-management/new?name=${frmName}`)
     }
-    let unConfiguredFRMCount = unConfiguredFRMs->Js.Array2.length
+    let unConfiguredFRMCount = unConfiguredFRMs->Array.length
 
     let descriptedFRMs = (frmList, heading) => {
       <>
@@ -29,7 +29,7 @@ module NewProcessorCards = {
             <CardUtils.CardLayout key={Belt.Int.toString(i)} width="w-full">
               <div className="flex gap-2 items-center mb-3">
                 <GatewayIcon
-                  gateway={frmName->Js.String2.toUpperCase} className="w-10 h-10 rounded-lg"
+                  gateway={frmName->String.toUpperCase} className="w-10 h-10 rounded-lg"
                 />
                 <h1 className="text-xl font-semibold break-all">
                   {frmName->LogicUtils.capitalizeString->React.string}
@@ -69,7 +69,7 @@ module NewProcessorCards = {
               description={frmName->LogicUtils.capitalizeString}
               toolTipFor={<div
                 className="bg-white p-2 cursor-pointer" onClick={_ => handleClick(frmName)}>
-                <GatewayIcon gateway={frmName->Js.String2.toUpperCase} className=size />
+                <GatewayIcon gateway={frmName->String.toUpperCase} className=size />
               </div>}
               toolTipPosition={Top}
               tooltipWidthClass="w-30"
@@ -98,7 +98,7 @@ module NewProcessorCards = {
 let make = () => {
   open FRMInfo
   open UIUtils
-  let url = RescriptReactRouter.useUrl()
+
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchDetails = APIUtils.useGetMethod()
   let isMobileView = MatchMedia.useMatchMedia("(max-width: 844px)")
@@ -108,7 +108,7 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let detailedCardCount = 5
   let (searchText, setSearchText) = React.useState(_ => "")
-  let showFRMIcons = configuredFRMs->Js.Array2.length > detailedCardCount
+  let showFRMIcons = configuredFRMs->Array.length > detailedCardCount
 
   let customUI =
     <HelperComponents.BluredTableComponent
@@ -118,7 +118,6 @@ let make = () => {
       onClickUrl="connectors"
       moduleName="Fraud & Risk Management"
       moduleSubtitle="Connect and configure processors to screen transactions and mitigate fraud"
-      mixPanelEventName={`${url.path->LogicUtils.getListHead}_take_me_to_connectors`}
     />
 
   React.useEffect0(() => {
@@ -126,18 +125,18 @@ let make = () => {
     open LogicUtils
     fetchDetails(APIUtils.getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Get, ()))
     ->thenResolve(json => {
-      let processorsList = json->getArrayFromJson([])->Js.Array2.map(getDictFromJsonObject)
+      let processorsList = json->getArrayFromJson([])->Array.map(getDictFromJsonObject)
 
       let connectorsCount =
-        processorsList->FRMUtils.filterList(~removeFromList=FRMPlayer, ())->Js.Array2.length
+        processorsList->FRMUtils.filterList(~removeFromList=FRMPlayer, ())->Array.length
 
       if connectorsCount > 0 {
         let frmList = processorsList->FRMUtils.filterList(~removeFromList=Connector, ())
-        let previousData = frmList->Js.Array2.map(ConnectorTableUtils.getProcessorPayloadType)
-        setFilteredFRMData(_ => previousData->Js.Array2.map(Js.Nullable.return))
-        setPreviouslyConnectedData(_ => previousData->Js.Array2.map(Js.Nullable.return))
+        let previousData = frmList->Array.map(ConnectorTableUtils.getProcessorPayloadType)
+        setFilteredFRMData(_ => previousData->Array.map(Js.Nullable.return))
+        setPreviouslyConnectedData(_ => previousData->Array.map(Js.Nullable.return))
         let arr =
-          frmList->Js.Array2.map(
+          frmList->Array.map(
             paymentMethod =>
               paymentMethod->getString("connector_name", "")->getFRMNameTypeFromString,
           )
@@ -158,8 +157,8 @@ let make = () => {
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
     let (searchText, arr) = ob
-    let filteredList = if searchText->Js.String2.length > 0 {
-      arr->Js.Array2.filter((frmPlayer: Js.Nullable.t<ConnectorTypes.connectorPayload>) => {
+    let filteredList = if searchText->String.length > 0 {
+      arr->Array.filter((frmPlayer: Js.Nullable.t<ConnectorTypes.connectorPayload>) => {
         switch Js.Nullable.toOption(frmPlayer) {
         | Some(frmPlayer) => isContainingStringLowercase(frmPlayer.connector_name, searchText)
         | None => false
@@ -180,11 +179,11 @@ let make = () => {
       <RenderIf condition={showFRMIcons}>
         <NewProcessorCards configuredFRMs showIcons={showFRMIcons} />
       </RenderIf>
-      <RenderIf condition={configuredFRMs->Js.Array2.length > 0}>
+      <RenderIf condition={configuredFRMs->Array.length > 0}>
         <LoadedTable
           title="Previously Connected"
           actualData=filteredFRMData
-          totalResults={filteredFRMData->Js.Array2.length}
+          totalResults={filteredFRMData->Array.length}
           filters={<TableSearchFilter
             data={previouslyConnectedData}
             filterLogic
@@ -198,7 +197,7 @@ let make = () => {
           offset
           setOffset
           entity={FRMTableUtils.connectorEntity("fraud-risk-management")}
-          currrentFetchCount={filteredFRMData->Js.Array2.length}
+          currrentFetchCount={filteredFRMData->Array.length}
           collapseTableRow=false
         />
       </RenderIf>

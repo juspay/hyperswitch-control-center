@@ -31,7 +31,7 @@ let make = () => {
       let paymentUrl = getURL(~entityName=ORDERS, ~methodType=Get, ())
       let paymentDetails = await fetchDetails(paymentUrl)
       let data = paymentDetails->getDictFromJsonObject->getArrayFromDict("data", [])
-      if data->Js.Array2.length < 0 {
+      if data->Array.length < 0 {
         setScreenState(_ => PageLoaderWrapper.Custom)
       } else {
         await loadInfo()

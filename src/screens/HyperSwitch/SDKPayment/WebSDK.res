@@ -38,8 +38,6 @@ module CheckoutForm = {
     ~amount,
     ~setClientSecret,
   ) => {
-    let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-    let url = RescriptReactRouter.useUrl()
     let (error, setError) = React.useState(_ => None)
     let (btnState, setBtnState) = React.useState(_ => Button.Normal)
     let hyper = useHyper()
@@ -64,7 +62,7 @@ module CheckoutForm = {
         fetchApi(
           "https://4gla4dnvbg.execute-api.ap-south-1.amazonaws.com/default/hyperConfig",
           ~bodyStr=val->Js.Json.stringifyAny->Belt.Option.getWithDefault(""),
-          ~headers=[("Access-Control-Allow-Origin", "*")]->Js.Dict.fromArray,
+          ~headers=[("Access-Control-Allow-Origin", "*")]->Dict.fromArray,
           ~method_=Fetch.Post,
           (),
         )
@@ -73,7 +71,7 @@ module CheckoutForm = {
           json->resolve
         })
         ->catch(_e => {
-          Js.Dict.empty()->Js.Json.object_->resolve
+          Dict.make()->Js.Json.object_->resolve
         })
         ->ignore
       }
@@ -169,30 +167,30 @@ module CheckoutForm = {
         [
           (
             "confirmParams",
-            [("return_url", returnUrl->Js.Json.string)]->Js.Dict.fromArray->Js.Json.object_,
+            [("return_url", returnUrl->Js.Json.string)]->Dict.fromArray->Js.Json.object_,
           ),
           ("redirect", "always"->Js.Json.string),
         ]
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_
       hyper.confirmPayment(confirmParams)
       ->then(val => {
-        let resDict = val->Js.Json.decodeObject->Belt.Option.getWithDefault(Js.Dict.empty())
+        let resDict = val->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make())
         let errorDict =
           resDict
-          ->Js.Dict.get("error")
+          ->Dict.get("error")
           ->Belt.Option.flatMap(Js.Json.decodeObject)
-          ->Belt.Option.getWithDefault(Js.Dict.empty())
+          ->Belt.Option.getWithDefault(Dict.make())
 
-        let errorMsg = errorDict->Js.Dict.get("message")
+        let errorMsg = errorDict->Dict.get("message")
 
         switch errorMsg {
         | Some(val) => {
             let str =
               val
               ->LogicUtils.getStringFromJson("")
-              ->Js.String2.replace("\"", "")
-              ->Js.String2.replace("\"", "")
+              ->String.replace("\"", "")
+              ->String.replace("\"", "")
             if str == "Something went wrong" {
               setPaymentStatus(_ => CUSTOMSTATE)
               setError(_ => None)
@@ -242,12 +240,6 @@ module CheckoutForm = {
               onClick={_ => {
                 setBtnState(_ => Button.Loading)
                 handleSubmit()
-                hyperswitchMixPanel(
-                  ~pageName=`${url.path->LogicUtils.getListHead}`,
-                  ~contextName="sdk",
-                  ~actionName="testpayment",
-                  (),
-                )
               }}
             />
           </div>
@@ -257,8 +249,8 @@ module CheckoutForm = {
               {val
               ->Js.Json.stringifyAny
               ->Belt.Option.getWithDefault("")
-              ->Js.String2.replace("\"", "")
-              ->Js.String2.replace("\"", "")
+              ->String.replace("\"", "")
+              ->String.replace("\"", "")
               ->React.string}
             </div>
           | None => React.null
@@ -293,33 +285,66 @@ let make = (
   ~amount=65400,
   ~setClientSecret,
 ) => {
-  let hyperPromise = Js.Promise.make((~resolve, ~reject as _) => {
-    resolve(. Window.loadHyper(publishableKey))
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let loadDOM = async () => {
+    try {
+      let hyperswitchSdkPrefix =
+        Window.env.sdkBaseUrl->Belt.Option.getWithDefault(
+          "https://beta.hyperswitch.io/v1/HyperLoader.js?default=true",
+        )
+      let script = DOMUtils.document->DOMUtils.createElement("script")
+      script->DOMUtils.setAttribute("src", hyperswitchSdkPrefix)
+      DOMUtils.appendChild(script)
+      let _ = Some(_ => script->DOMUtils.remove())
+      await HyperSwitchUtils.delay(1000)
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } catch {
+    | _ => setScreenState(_ => Error(""))
+    }
+  }
+  React.useEffect0(() => {
+    loadDOM()->ignore
+    None
   })
-
-  <div>
-    <Elements options={elementOptions} stripe={hyperPromise}>
-      <CheckoutForm
-        clientSecret
-        sdkType
-        paymentStatus
-        currency
-        setPaymentStatus
-        paymentElementOptions
-        theme
-        primaryColor
-        bgColor
-        fontFamily
-        fontSizeBase
-        methodsOrder
-        layout
-        returnUrl
-        saveViewToSdk
-        publishableKey
-        isSpaceAccordion
-        amount
-        setClientSecret
-      />
-    </Elements>
-  </div>
+  let hyperPromise = React.useCallback1(async () => {
+    Window.loadHyper(publishableKey)
+  }, [publishableKey])
+  <PageLoaderWrapper
+    screenState={screenState}
+    customLoader={<div className="mt-60 w-scrren flex flex-col justify-center items-center">
+      <div className={`animate-spin mb-1`}>
+        <Icon name="spinner" size=20 />
+      </div>
+    </div>}
+    sectionHeight="!h-screen">
+    <div>
+      {switch Window.checkLoadHyper {
+      | Some(_) =>
+        <Elements options={elementOptions} stripe={hyperPromise()}>
+          <CheckoutForm
+            clientSecret
+            sdkType
+            paymentStatus
+            currency
+            setPaymentStatus
+            paymentElementOptions
+            theme
+            primaryColor
+            bgColor
+            fontFamily
+            fontSizeBase
+            methodsOrder
+            layout
+            returnUrl
+            saveViewToSdk
+            publishableKey
+            isSpaceAccordion
+            amount
+            setClientSecret
+          />
+        </Elements>
+      | None => React.null
+      }}
+    </div>
+  </PageLoaderWrapper>
 }

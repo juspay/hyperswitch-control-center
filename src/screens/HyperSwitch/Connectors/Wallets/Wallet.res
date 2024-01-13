@@ -10,7 +10,7 @@ let getConfigurationFields = (metadataInputs, method, connector) => {
     | _ => metadataInputs->getDictfromDict("apple_pay")->getDictfromDict("session_token_data")
     }
 
-  | _ => Js.Dict.empty()
+  | _ => Dict.make()
   }
 }
 module Wallets = {
@@ -32,7 +32,7 @@ module Wallets = {
       try {
         Window.getConnectorConfig(connector)->getDictFromJsonObject->getDictfromDict("metadata")
       } catch {
-      | _error => Js.Dict.empty()
+      | _error => Dict.make()
       }
     }, [connector])
 
@@ -42,7 +42,7 @@ module Wallets = {
     }
 
     let onSubmit = (values, _) => {
-      let json = switch method->getPaymentMethodTypeFromString {
+      let json = switch method.payment_method_type->getPaymentMethodTypeFromString {
       | GooglePay => values
       | ApplePay =>
         switch connector->getConnectorNameTypeFromString {
@@ -56,12 +56,12 @@ module Wallets = {
               values
               ->getDictFromJsonObject
               ->getDictfromDict("apple_pay")
-              ->Js.Dict.set("payment_request_data", paymentRequestData->Js.Json.object_)
+              ->Dict.set("payment_request_data", paymentRequestData->Js.Json.object_)
             values
           }
         }
 
-      | _ => Js.Dict.empty()->Js.Json.object_
+      | _ => Dict.make()->Js.Json.object_
       }
 
       let _ = update(json)
@@ -70,21 +70,26 @@ module Wallets = {
       Js.Nullable.null->Js.Promise.resolve
     }
 
-    let configurationFields = getConfigurationFields(metadataInputs, method, connector)
+    let configurationFields = getConfigurationFields(
+      metadataInputs,
+      method.payment_method_type,
+      connector,
+    )
 
     let validate = values => {
-      let dict = values->getDictFromJsonObject->getConfigurationFields(method, connector)
-      let mandateKyes = configurationFields->Js.Dict.keys->getUniqueArray
-      let errorDict = Js.Dict.empty()
-      mandateKyes->Js.Array2.forEach(key => {
+      let dict =
+        values->getDictFromJsonObject->getConfigurationFields(method.payment_method_type, connector)
+      let mandateKyes = configurationFields->Dict.keysToArray->getUniqueArray
+      let errorDict = Dict.make()
+      mandateKyes->Array.forEach(key => {
         if dict->getString(key, "") === "" {
-          errorDict->Js.Dict.set(key, `${key} cannot be empty!`->Js.Json.string)
+          errorDict->Dict.set(key, `${key} cannot be empty!`->Js.Json.string)
         }
       })
       errorDict->Js.Json.object_
     }
 
-    let name = switch method->getPaymentMethodTypeFromString {
+    let name = switch method.payment_method_type->getPaymentMethodTypeFromString {
     | GooglePay => `google_pay`
 
     | ApplePay =>
@@ -98,7 +103,7 @@ module Wallets = {
 
     let fields = {
       configurationFields
-      ->Js.Dict.keys
+      ->Dict.keysToArray
       ->Array.mapWithIndex((field, index) => {
         let label = configurationFields->LogicUtils.getString(field, "")
         <div key={index->Belt.Int.toString}>
@@ -118,7 +123,10 @@ module Wallets = {
       ->React.array
     }
     <div>
-      {switch (method->getPaymentMethodTypeFromString, connector->getConnectorNameTypeFromString) {
+      {switch (
+        method.payment_method_type->getPaymentMethodTypeFromString,
+        connector->getConnectorNameTypeFromString,
+      ) {
       | (ApplePay, STRIPE) | (ApplePay, BANKOFAMERICA) | (ApplePay, CYBERSOURCE) =>
         <ApplePayWalletIntegration metadataInputs update metaData setShowWalletConfigurationModal />
       | _ =>

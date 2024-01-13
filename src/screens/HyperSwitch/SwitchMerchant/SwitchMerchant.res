@@ -1,3 +1,27 @@
+type switchMerchantListResponse = {
+  merchant_id: string,
+  merchant_name: string,
+}
+
+let convertListResponseToTypedResponse = json => {
+  open LogicUtils
+  json
+  ->getArrayFromJson([])
+  ->Array.map(ele => {
+    let dictOfElement = ele->getDictFromJsonObject
+    let merchantId = dictOfElement->getString("merchant_id", "")
+    let merchantName =
+      dictOfElement->getString("merchant_name", merchantId)->String.length > 0
+        ? dictOfElement->getString("merchant_name", merchantId)
+        : merchantId
+
+    {
+      merchant_id: merchantId,
+      merchant_name: merchantName,
+    }
+  })
+}
+
 module NewAccountCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal, ~fetchMerchantIDs) => {
@@ -88,12 +112,41 @@ module NewAccountCreationModal = {
   }
 }
 
+module AddNewMerchantButton = {
+  @react.component
+  let make = (~setShowModal) => {
+    open HeadlessUI
+    <div className="px-1 py-1 ">
+      <Menu.Item>
+        {props =>
+          <button
+            onClick={_ => setShowModal(_ => true)}
+            className={
+              let activeClasses = if props["active"] {
+                "group flex rounded-md items-center px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+              } else {
+                "group flex rounded-md items-center px-2 py-2 text-sm"
+              }
+              `${activeClasses} text-blue-900 flex gap-2 font-medium w-56`
+            }>
+            <Icon name="plus-circle" size=15 />
+            {"Add a new merchant"->React.string}
+          </button>}
+      </Menu.Item>
+    </div>
+  }
+}
+
 module ExternalUser = {
   @react.component
-  let make = (~switchMerchant) => {
+  let make = (~switchMerchant, ~isAddMerchantEnabled) => {
     open APIUtils
     let fetchDetails = useGetMethod()
-    let (selectedMerchantID, setSelectedMerchantID) = React.useState(_ => "")
+    let defaultMerchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
+    let (selectedMerchantObject, setSelectedMerchantObject) = React.useState(_ => {
+      merchant_id: defaultMerchantId,
+      merchant_name: defaultMerchantId,
+    })
     let (showModal, setShowModal) = React.useState(_ => false)
     let (options, setOptions) = React.useState(_ => [])
 
@@ -101,16 +154,22 @@ module ExternalUser = {
       let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Get, ())
       try {
         let res = await fetchDetails(url)
-        let merchantIdsArray = res->LogicUtils.getStrArryFromJson
-        setOptions(_ => merchantIdsArray)
+        let typedValueOfResponse = res->convertListResponseToTypedResponse
+        setOptions(_ => typedValueOfResponse)
+        let extractMerchantObject =
+          typedValueOfResponse
+          ->Array.find(ele => ele.merchant_id === defaultMerchantId)
+          ->Option.getWithDefault({
+            merchant_id: defaultMerchantId,
+            merchant_name: defaultMerchantId,
+          })
+        setSelectedMerchantObject(_ => extractMerchantObject)
       } catch {
       | _ => ()
       }
     }
 
     React.useEffect0(() => {
-      open HSLocalStorage
-      setSelectedMerchantID(_ => getFromMerchantDetails("merchant_id"))
       fetchMerchantIDs()->ignore
       None
     })
@@ -124,7 +183,7 @@ module ExternalUser = {
               className="inline-flex whitespace-pre leading-5 justify-center text-sm font-medium px-4 py-2 font-medium rounded-md hover:bg-opacity-80 bg-white border">
               {buttonProps => {
                 <>
-                  {selectedMerchantID->React.string}
+                  {selectedMerchantObject.merchant_name->React.string}
                   <Icon className="rotate-180 ml-1 mt-1" name="arrow-without-tail" size=15 />
                 </>
               }}
@@ -142,12 +201,12 @@ module ExternalUser = {
                 {props => <>
                   <div className="px-1 py-1 ">
                     {options
-                    ->Js.Array2.mapi((option, i) =>
+                    ->Array.mapWithIndex((option, i) =>
                       <Menu.Item key={i->string_of_int}>
                         {props =>
                           <div className="relative">
                             <button
-                              onClick={_ => option->switchMerchant->ignore}
+                              onClick={_ => option.merchant_id->switchMerchant->ignore}
                               className={
                                 let activeClasses = if props["active"] {
                                   "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
@@ -156,9 +215,11 @@ module ExternalUser = {
                                 }
                                 `${activeClasses} font-medium`
                               }>
-                              <div className="mr-5"> {option->React.string} </div>
+                              <div className="mr-5"> {option.merchant_name->React.string} </div>
                             </button>
-                            <UIUtils.RenderIf condition={selectedMerchantID === option}>
+                            <UIUtils.RenderIf
+                              condition={selectedMerchantObject.merchant_name ===
+                                option.merchant_name}>
                               <Icon
                                 className="absolute top-2 right-2 text-blue-900"
                                 name="check"
@@ -170,24 +231,9 @@ module ExternalUser = {
                     )
                     ->React.array}
                   </div>
-                  <div className="px-1 py-1 ">
-                    <Menu.Item>
-                      {props =>
-                        <button
-                          onClick={_ => setShowModal(_ => true)}
-                          className={
-                            let activeClasses = if props["active"] {
-                              "group flex rounded-md items-center px-2 py-2 text-sm bg-gray-100 dark:bg-black"
-                            } else {
-                              "group flex rounded-md items-center px-2 py-2 text-sm"
-                            }
-                            `${activeClasses} text-blue-900 flex gap-2 font-medium w-56`
-                          }>
-                          <Icon name="plus-circle" size=15 />
-                          {"Add a new merchant"->React.string}
-                        </button>}
-                    </Menu.Item>
-                  </div>
+                  <UIUtils.RenderIf condition={isAddMerchantEnabled}>
+                    <AddNewMerchantButton setShowModal />
+                  </UIUtils.RenderIf>
                 </>}
               </Menu.Items>}
             </Transition>
@@ -201,18 +247,16 @@ module ExternalUser = {
 }
 
 @react.component
-let make = (~userRole) => {
+let make = (~userRole, ~isAddMerchantEnabled=false) => {
   open LogicUtils
   open HSLocalStorage
   open APIUtils
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
-  let url = RescriptReactRouter.useUrl()
   let (value, setValue) = React.useState(() => "")
   let merchantId = getFromMerchantDetails("merchant_id")
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
-  let isInternalUser = userRole->Js.String2.includes("internal_")
+  let isInternalUser = userRole->String.includes("internal_")
+  let (successModal, setSuccessModal) = React.useState(_ => false)
 
   let input = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
     {
@@ -220,7 +264,7 @@ let make = (~userRole) => {
       onBlur: _ev => (),
       onChange: ev => {
         let value = {ev->ReactEvent.Form.target}["value"]
-        if value->Js.String2.includes("<script>") || value->Js.String2.includes("</script>") {
+        if value->String.includes("<script>") || value->String.includes("</script>") {
           showPopUp({
             popUpType: (Warning, WithIcon),
             heading: `Script Tags are not allowed`,
@@ -228,7 +272,7 @@ let make = (~userRole) => {
             handleConfirm: {text: "OK"},
           })
         }
-        let val = value->Js.String2.replace("<script>", "")->Js.String2.replace("</script>", "")
+        let val = value->String.replace("<script>", "")->String.replace("</script>", "")
         setValue(_ => val)
       },
       onFocus: _ev => (),
@@ -240,16 +284,18 @@ let make = (~userRole) => {
   let switchMerchant = async value => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Post, ())
-      let body = Js.Dict.empty()
-      body->Js.Dict.set("merchant_id", value->Js.Json.string)
+      let body = Dict.make()
+      body->Dict.set("merchant_id", value->Js.Json.string)
       let res = await updateDetails(url, body->Js.Json.object_, Post)
       let responseDict = res->getDictFromJsonObject
       let token = responseDict->getString("token", "")
       let switchedMerchantId = responseDict->getString("merchant_id", "")
       LocalStorage.setItem("login", token)
       HSwitchUtils.setMerchantDetails("merchant_id", switchedMerchantId->Js.Json.string)
-      showToast(~message=`Merchant Switched Succesfully`, ~toastType=ToastSuccess, ())
+      setSuccessModal(_ => true)
+      await HyperSwitchUtils.delay(2000)
       Window.Location.reload()
+      setSuccessModal(_ => false)
     } catch {
     | _ => setValue(_ => "")
     }
@@ -257,9 +303,6 @@ let make = (~userRole) => {
 
   let handleKeyUp = event => {
     if event->ReactEvent.Keyboard.keyCode === 13 {
-      [`${url.path->LogicUtils.getListHead}`, `global`]->Js.Array2.forEach(ele =>
-        hyperswitchMixPanel(~eventName=Some(`${ele}_switch_merchant`), ())
-      )
       switchMerchant(value)->ignore
     }
   }
@@ -273,6 +316,18 @@ let make = (~userRole) => {
       <TextInput input customWidth="w-80" placeholder="Switch merchant" onKeyUp=handleKeyUp />
     </div>
   } else {
-    <ExternalUser switchMerchant />
+    <>
+      <ExternalUser switchMerchant isAddMerchantEnabled />
+      <Modal
+        showModal=successModal
+        setShowModal=setSuccessModal
+        modalClass="w-80 !h-48 flex items-center justify-center m-auto"
+        paddingClass=""
+        childClass="flex items-center justify-center h-full w-full">
+        {<div className="flex items-center gap-2">
+          <p className="text-xl font-semibold"> {"Switching merchant..."->React.string} </p>
+        </div>}
+      </Modal>
+    </>
   }
 }

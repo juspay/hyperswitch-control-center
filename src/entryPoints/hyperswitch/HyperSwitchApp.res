@@ -80,7 +80,15 @@ let make = () => {
       let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl
       let response = await fetchDetails(url)
 
-      if response->getDictFromJsonObject->getBool("ProductionAgreement", false) {
+      let productionAgreementResponse =
+        response
+        ->getArrayFromJson([])
+        ->Array.find(ele => {
+          ele->getDictFromJsonObject->getBool("ProductionAgreement", false)
+        })
+        ->Option.getWithDefault(Js.Json.null)
+
+      if productionAgreementResponse->getDictFromJsonObject->getBool("ProductionAgreement", false) {
         setDashboardPageState(_ => #PROD_ONBOARDING)
       } else {
         setDashboardPageState(_ => #AGREEMENT_SIGNATURE)
@@ -96,7 +104,7 @@ let make = () => {
     try {
       let response = await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray)
       let responseValueDict =
-        response->Js.Nullable.toOption->Belt.Option.getWithDefault(Js.Dict.empty())
+        response->Js.Nullable.toOption->Belt.Option.getWithDefault(Dict.make())
       let pageStateToSet = responseValueDict->QuickStartUtils.getCurrentStep
       setQuickStartPageState(_ => pageStateToSet->QuickStartUtils.enumToVarinatMapper)
       responseValueDict
@@ -166,7 +174,7 @@ let make = () => {
     if (
       isProdIntentCompleted &&
       enumDetails.integrationCompleted &&
-      enumDetails.testPayment.payment_id->Js.String2.length > 0
+      enumDetails.testPayment.payment_id->String.length > 0
     ) {
       RescriptReactRouter.replace("/home")
       React.null
@@ -201,7 +209,7 @@ let make = () => {
                       headerActions={<div className="relative flex items-center gap-4 my-2 ">
                         <HSwitchGlobalSearchBar />
                         <RenderIf condition={featureFlagDetails.switchMerchant}>
-                          <SwitchMerchant userRole={userRole} />
+                          <SwitchMerchant userRole={userRole} isAddMerchantEnabled=true />
                         </RenderIf>
                         <div
                           className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
@@ -214,146 +222,161 @@ let make = () => {
                 <div
                   className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
                   <div
-                    className="w-full h-full p-6 md:px-16 md:pb-16 pt-[3rem] overflow-scroll md:overflow-y-scroll md:overflow-x-hidden flex flex-col gap-10 show-scrollbar">
-                    <div className="h-full w-full max-w-fixedPageWidth">
-                      <ErrorBoundary>
-                        {switch url.path {
-                        | list{"home"} =>
-                          <FeatureFlagEnabledComponent isEnabled={featureFlagDetails.default}>
-                            {featureFlagDetails.quickStart ? <HomeV2 /> : <Home />}
-                          </FeatureFlagEnabledComponent>
-                        | list{"fraud-risk-management", ...remainingPath} =>
-                          <FeatureFlagEnabledComponent isEnabled={featureFlagDetails.frm}>
-                            <EntityScaffold
-                              entityName="risk-management"
-                              remainingPath
-                              renderList={() => <FRMSelect />}
-                              renderNewForm={() => <FRMConfigure />}
-                              renderShow={_ => <FRMConfigure />}
-                            />
-                          </FeatureFlagEnabledComponent>
-                        | list{"connectors", ...remainingPath} =>
+                    className="p-6 md:px-16 md:pb-16 pt-[3rem] flex flex-col gap-10 max-w-fixedPageWidth">
+                    <ErrorBoundary>
+                      {switch url.path {
+                      | list{"home"} =>
+                        <FeatureFlagEnabledComponent isEnabled={featureFlagDetails.default}>
+                          {featureFlagDetails.quickStart ? <HomeV2 /> : <Home />}
+                        </FeatureFlagEnabledComponent>
+                      | list{"fraud-risk-management", ...remainingPath} =>
+                        <FeatureFlagEnabledComponent isEnabled={featureFlagDetails.frm}>
                           <EntityScaffold
-                            entityName="Connectors"
+                            entityName="risk-management"
                             remainingPath
-                            renderList={() => <ConnectorList />}
-                            renderNewForm={() => <ConnectorHome />}
-                            renderShow={_ => <ConnectorHome />}
+                            renderList={() => <FRMSelect />}
+                            renderNewForm={() => <FRMConfigure />}
+                            renderShow={_ => <FRMConfigure />}
                           />
-                        | list{"payoutconnectors", ...remainingPath} =>
+                        </FeatureFlagEnabledComponent>
+                      | list{"connectors", ...remainingPath} =>
+                        <EntityScaffold
+                          entityName="Connectors"
+                          remainingPath
+                          renderList={() => <ConnectorList />}
+                          renderNewForm={() => <ConnectorHome />}
+                          renderShow={_ => <ConnectorHome />}
+                        />
+                      | list{"payoutconnectors", ...remainingPath} =>
+                        <EntityScaffold
+                          entityName="PayoutConnectors"
+                          remainingPath
+                          renderList={() => <ConnectorList isPayoutFlow=true />}
+                          renderNewForm={() => <ConnectorHome isPayoutFlow=true />}
+                          renderShow={_ => <ConnectorHome isPayoutFlow=true />}
+                        />
+                      | list{"payments", ...remainingPath} =>
+                        <FilterContext key="payments" index="payments" disableSessionStorage=true>
                           <EntityScaffold
-                            entityName="PayoutConnectors"
-                            remainingPath
-                            renderList={() => <ConnectorList isPayoutFlow=true />}
-                            renderNewForm={() => <ConnectorHome isPayoutFlow=true />}
-                            renderShow={_ => <ConnectorHome isPayoutFlow=true />}
-                          />
-                        | list{"payments", ...remainingPath} =>
-                          <AnalyticsUrlUpdaterContext key="payments">
-                            <EntityScaffold
-                              entityName="Payments"
-                              remainingPath
-                              access=ReadWrite
-                              renderList={() => <Orders />}
-                              renderShow={id => <ShowOrder id />}
-                            />
-                          </AnalyticsUrlUpdaterContext>
-                        | list{"refunds", ...remainingPath} =>
-                          <AnalyticsUrlUpdaterContext key="refunds">
-                            <EntityScaffold
-                              entityName="Refunds"
-                              remainingPath
-                              access=ReadWrite
-                              renderList={() => <Refund />}
-                              renderShow={id => <ShowRefund id />}
-                            />
-                          </AnalyticsUrlUpdaterContext>
-                        | list{"disputes", ...remainingPath} =>
-                          <EntityScaffold
-                            entityName="Disputes"
+                            entityName="Payments"
                             remainingPath
                             access=ReadWrite
-                            renderList={() => <Disputes />}
-                            renderShow={id => <ShowDisputes id />}
+                            renderList={() => <Orders />}
+                            renderShow={id => <ShowOrder id />}
                           />
-                        | list{"routing", ...remainingPath} =>
+                        </FilterContext>
+                      | list{"refunds", ...remainingPath} =>
+                        <FilterContext key="refunds" index="refunds" disableSessionStorage=true>
                           <EntityScaffold
-                            entityName="Routing"
-                            remainingPath
-                            renderList={() => <RoutingStack remainingPath />}
-                            renderShow={routingType => <RoutingConfigure routingType />}
-                          />
-                        | list{"users", "invite-users"} => <InviteUsers />
-                        | list{"users", ...remainingPath} =>
-                          <EntityScaffold
-                            entityName="UserManagement"
+                            entityName="Refunds"
                             remainingPath
                             access=ReadWrite
-                            renderList={() => <UserRoleEntry />}
-                            renderShow={_ => <UserRoleShowData />}
+                            renderList={() => <Refund />}
+                            renderShow={id => <ShowRefund id />}
                           />
-                        | list{"analytics-payments"} =>
-                          <AnalyticsUrlUpdaterContext key="PaymentsAnalytics">
-                            <PaymentAnalytics />
-                          </AnalyticsUrlUpdaterContext>
-                        | list{"analytics-refunds"} =>
-                          <AnalyticsUrlUpdaterContext key="PaymentsRefunds">
-                            <RefundsAnalytics />
-                          </AnalyticsUrlUpdaterContext>
-                        | list{"analytics-user-journey"} =>
-                          <AnalyticsUrlUpdaterContext key="UserJourneyAnalytics">
+                        </FilterContext>
+                      | list{"disputes", ...remainingPath} =>
+                        <EntityScaffold
+                          entityName="Disputes"
+                          remainingPath
+                          access=ReadWrite
+                          renderList={() => <Disputes />}
+                          renderShow={id => <ShowDisputes id />}
+                        />
+                      | list{"customers", ...remainingPath} =>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.customersModule>
+                          <EntityScaffold
+                            entityName="Customers"
+                            remainingPath
+                            access=ReadWrite
+                            renderList={() => <Customers />}
+                            renderShow={id => <ShowCustomers id />}
+                          />
+                        </FeatureFlagEnabledComponent>
+                      | list{"routing", ...remainingPath} =>
+                        <EntityScaffold
+                          entityName="Routing"
+                          remainingPath
+                          renderList={() => <RoutingStack remainingPath />}
+                          renderShow={routingType => <RoutingConfigure routingType />}
+                        />
+                      | list{"users", "invite-users"} => <InviteUsers />
+                      | list{"users", ...remainingPath} =>
+                        <EntityScaffold
+                          entityName="UserManagement"
+                          remainingPath
+                          access=ReadWrite
+                          renderList={() => <UserRoleEntry />}
+                          renderShow={_ => <UserRoleShowData />}
+                        />
+                      | list{"analytics-payments"} =>
+                        <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
+                          <PaymentAnalytics />
+                        </FilterContext>
+                      | list{"analytics-refunds"} =>
+                        <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
+                          <RefundsAnalytics />
+                        </FilterContext>
+                      | list{"analytics-user-journey"} =>
+                        <FeatureFlagEnabledComponent
+                          isEnabled=featureFlagDetails.userJourneyAnalytics>
+                          <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                             <UserJourneyAnalytics />
-                          </AnalyticsUrlUpdaterContext>
-                        | list{"monitoring"} => comingSoonPage
-                        | list{"developer-api-keys"} => <KeyManagement.KeysManagement />
-                        | list{"developer-system-metrics"} =>
-                          <UIUtils.RenderIf
-                            condition={userRole->Js.String2.includes("internal_") &&
-                              featureFlagDetails.systemMetrics}>
-                            <AnalyticsUrlUpdaterContext key="SystemMetrics">
-                              <SystemMetricsAnalytics />
-                            </AnalyticsUrlUpdaterContext>
-                          </UIUtils.RenderIf>
-                        | list{"payment-settings", ...remainingPath} =>
-                          <EntityScaffold
-                            entityName="PaymentSettings"
-                            remainingPath
-                            renderList={() => <PaymentSettingsList />}
-                            renderShow={profileId =>
-                              <PaymentSettings webhookOnly=false showFormOnly=false />}
-                          />
-                        | list{"recon"} =>
-                          <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.recon>
-                            <Recon />
-                          </FeatureFlagEnabledComponent>
-                        | list{"sdk"} =>
-                          <FeatureFlagEnabledComponent isEnabled={!featureFlagDetails.isLiveMode}>
-                            <SDKPage />
-                          </FeatureFlagEnabledComponent>
-                        | list{"3ds"} => <HSwitchThreeDS />
-                        | list{"account-settings"} =>
-                          <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.sampleData>
-                            <HSwitchSettings />
-                          </FeatureFlagEnabledComponent>
-                        | list{"account-settings", "profile"} => <HSwitchProfileSettings />
-                        | list{"business-details"} =>
-                          <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.default>
-                            <BusinessDetails />
-                          </FeatureFlagEnabledComponent>
-                        | list{"business-profiles"} =>
-                          <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.businessProfile>
-                            <BusinessProfile />
-                          </FeatureFlagEnabledComponent>
-                        | list{"quick-start"} => determineQuickStartPageState()
-                        | list{"woocommerce"} => determineWooCommerce()
-                        | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
+                          </FilterContext>
+                        </FeatureFlagEnabledComponent>
+                      | list{"monitoring"} => comingSoonPage
+                      | list{"developer-api-keys"} => <KeyManagement.KeysManagement />
+                      | list{"developer-system-metrics"} =>
+                        <UIUtils.RenderIf
+                          condition={userRole->String.includes("internal_") &&
+                            featureFlagDetails.systemMetrics}>
+                          <FilterContext key="SystemMetrics" index="SystemMetrics">
+                            <SystemMetricsAnalytics />
+                          </FilterContext>
+                        </UIUtils.RenderIf>
+                      | list{"payment-settings", ...remainingPath} =>
+                        <EntityScaffold
+                          entityName="PaymentSettings"
+                          remainingPath
+                          renderList={() => <PaymentSettingsList />}
+                          renderShow={profileId =>
+                            <PaymentSettings webhookOnly=false showFormOnly=false />}
+                        />
+                      | list{"recon"} =>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.recon>
+                          <Recon />
+                        </FeatureFlagEnabledComponent>
+                      | list{"sdk"} =>
+                        <FeatureFlagEnabledComponent isEnabled={!featureFlagDetails.isLiveMode}>
+                          <SDKPage />
+                        </FeatureFlagEnabledComponent>
+                      | list{"3ds"} => <HSwitchThreeDS />
+                      | list{"surcharge"} =>
+                        <FeatureFlagEnabledComponent isEnabled={featureFlagDetails.surcharge}>
+                          <Surcharge />
+                        </FeatureFlagEnabledComponent>
+                      | list{"account-settings"} =>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.sampleData>
+                          <HSwitchSettings />
+                        </FeatureFlagEnabledComponent>
+                      | list{"account-settings", "profile"} => <HSwitchProfileSettings />
+                      | list{"business-details"} =>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.default>
+                          <BusinessDetails />
+                        </FeatureFlagEnabledComponent>
+                      | list{"business-profiles"} =>
+                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.businessProfile>
+                          <BusinessProfile />
+                        </FeatureFlagEnabledComponent>
+                      | list{"quick-start"} => determineQuickStartPageState()
+                      | list{"woocommerce"} => determineWooCommerce()
+                      | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
 
-                        | _ =>
-                          RescriptReactRouter.replace(`${hyperSwitchFEPrefix}/home`)
-                          <Home />
-                        }}
-                      </ErrorBoundary>
-                    </div>
+                      | _ =>
+                        RescriptReactRouter.replace(`${hyperSwitchFEPrefix}/home`)
+                        <Home />
+                      }}
+                    </ErrorBoundary>
                   </div>
                 </div>
               </div>

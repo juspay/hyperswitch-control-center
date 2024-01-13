@@ -13,8 +13,8 @@ let make = (
   ~loaderType: AnalyticsUtils.loaderType=Shimmer,
   ~statChartColor: statChartColor=#blue,
   ~filterNullVals: bool=false,
-  ~statSentiment: Js.Dict.t<AnalyticsUtils.statSentiment>=Js.Dict.empty(),
-  ~statThreshold: Js.Dict.t<float>=Js.Dict.empty(),
+  ~statSentiment: Dict.t<AnalyticsUtils.statSentiment>=Dict.make(),
+  ~statThreshold: Dict.t<float>=Dict.make(),
   ~isHomePage=false,
 ) => {
   open Identity
@@ -33,7 +33,7 @@ let make = (
         1
       }
     })
-    ->Js.Array2.map(item => {
+    ->Array.map(item => {
       let (x, y) = item
       if y === 0. && filterNullVals {
         (x, Js.Nullable.null)
@@ -90,7 +90,7 @@ let make = (
       ),
       title: {
         "text": "",
-        "style": Js.Json.object_(Js.Dict.empty()),
+        "style": Js.Json.object_(Dict.make()),
       }->genericObjectOrRecordToJson,
       credits: {
         "enabled": false,
@@ -143,7 +143,7 @@ let make = (
         "visible": false,
         "title": {
           "text": "",
-          "style": Js.Json.object_(Js.Dict.empty()),
+          "style": Js.Json.object_(Dict.make()),
         }->genericObjectOrRecordToJson,
         "labels": {"formatter": None, "enabled": false, "useHTML": false}->Some,
         "zoomEnabled": false,
@@ -177,7 +177,7 @@ let make = (
         className={`h-full w-full flex flex-col border ${borderRounded} dark:border-jp-gray-850 bg-white dark:bg-jp-gray-lightgray_background overflow-hidden p-10 mb-7`}>
         <div className="h-full flex flex-col gap-1">
           <div className="font-bold text-[2.3rem]">
-            {statValue(statType)->Js.String2.toLowerCase->React.string}
+            {statValue(statType)->String.toLowerCase->React.string}
           </div>
           <div className={"flex gap-2 items-centertext-jp-gray-700 font-bold"}>
             <div
@@ -217,7 +217,7 @@ let make = (
           </UIUtils.RenderIf>
           <div className="flex flex-row h-1/2 items-end">
             <div className="font-bold text-3xl">
-              {statValue(statType)->Js.String2.toLowerCase->React.string}
+              {statValue(statType)->String.toLowerCase->React.string}
             </div>
             <div className="flex px-4 h-full items-center">
               <Highcharts.HighchartsReact

@@ -8,6 +8,7 @@ module SelectProcessor = {
     ~connectorArray,
   ) => {
     let url = RescriptReactRouter.useUrl()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
     let {setQuickStartPageState} = React.useContext(GlobalProvider.defaultContext)
 
@@ -23,6 +24,7 @@ module SelectProcessor = {
         text="Proceed"
         onClick={_ => {
           setConnectorConfigureState(_ => Select_configuration_type)
+          mixpanelEvent(~eventName=`quickstart_select_processor`, ())
           RescriptReactRouter.replace(`/${url.path->LogicUtils.getListHead}?name=${connectorName}`)
         }}
         buttonSize=Small
@@ -39,8 +41,8 @@ module SelectProcessor = {
       <QuickStartUIUtils.SelectConnectorGrid
         selectedConnector
         setSelectedConnector
-        connectorList={ConnectorUtils.connectorList->Js.Array2.filter(value =>
-          !(connectorArray->Js.Array2.includes(value->ConnectorUtils.getConnectorNameString))
+        connectorList={ConnectorUtils.connectorList->Array.filter(value =>
+          !(connectorArray->Array.includes(value->ConnectorUtils.getConnectorNameString))
         )}
       />
     </QuickStartUIUtils.BaseComponent>
@@ -56,19 +58,20 @@ module ConfigureProcessor = {
     ~setConnectorConfigureState,
     ~isBackButtonVisible=true,
   ) => {
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     open ConnectorUtils
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
 
     let connectorDetails = React.useMemo1(() => {
       try {
-        if connectorName->Js.String2.length > 0 {
+        if connectorName->String.length > 0 {
           Window.getConnectorConfig(connectorName)
         } else {
-          Js.Dict.empty()->Js.Json.object_
+          Dict.make()->Js.Json.object_
         }
       } catch {
-      | _ => Js.Dict.empty()->Js.Json.object_
+      | _ => Dict.make()->Js.Json.object_
       }
     }, [(connectorName, selectedConnector)])
 
@@ -91,20 +94,20 @@ module ConfigureProcessor = {
         (),
       )
       setInitialValues(_ => body)
+      mixpanelEvent(~eventName=`quickstart_connector_configuration`, ())
       setConnectorConfigureState(_ => Setup_payment_methods)
       Js.Nullable.null
     }
 
     let validateMandatoryField = values => {
-      let errors = Js.Dict.empty()
+      let errors = Dict.make()
       let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
       let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
-      if profileId->Js.String2.length === 0 {
-        Js.Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
+      if profileId->String.length === 0 {
+        Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
       }
 
       validateConnectorRequiredFields(
-        bodyType,
         connectorName->getConnectorNameTypeFromString,
         valuesFlattenJson,
         connectorAccountFields,
@@ -114,30 +117,26 @@ module ConfigureProcessor = {
         errors->Js.Json.object_,
       )
     }
-    let backButton = isBackButtonVisible
-      ? <Button
+    let backButton =
+      <UIUtils.RenderIf condition={isBackButtonVisible}>
+        <Button
           buttonType={PrimaryOutline}
           text="Back"
           onClick={_ => setConnectorConfigureState(_ => Select_configuration_type)}
           buttonSize=Small
         />
-      : React.null
+      </UIUtils.RenderIf>
 
     <Form initialValues onSubmit validate={validateMandatoryField}>
       <QuickStartUIUtils.BaseComponent
         headerText={`Connect ${connectorName->LogicUtils.capitalizeString}`}
         customIcon={<GatewayIcon
-          gateway={connectorName->Js.String2.toUpperCase} className="w-6 h-6 rounded-md"
+          gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
         />}
         backButton
         nextButton={<FormRenderer.SubmitButton
           loadingText="Processing..." text="Proceed" buttonSize={Small}
         />}>
-        <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
-          <ConnectorAccountDetailsHelper.BusinessProfileRender
-            isUpdateFlow=false selectedConnector={connectorName}
-          />
-        </UIUtils.RenderIf>
         <SetupConnectorCredentials.ConnectorDetailsForm
           connectorName
           connectorDetails
@@ -171,16 +170,17 @@ module SelectPaymentMethods = {
     let {quickStartPageState} = React.useContext(GlobalProvider.defaultContext)
     let updateAPIHook = APIUtils.useUpdateMethod()
     let showToast = ToastState.useShowToast()
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
 
     let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
-      Js.Dict.empty()->Js.Json.object_->ConnectorUtils.getPaymentMethodEnabled
+      Dict.make()->Js.Json.object_->ConnectorUtils.getPaymentMethodEnabled
     )
-    let (metaData, setMetaData) = React.useState(_ => Js.Dict.empty()->Js.Json.object_)
+    let (metaData, setMetaData) = React.useState(_ => Dict.make()->Js.Json.object_)
 
     let updateDetails = value => {
-      setPaymentMethods(_ => value->Js.Array2.copy)
+      setPaymentMethods(_ => value->Array.copy)
     }
 
     let updateEnumForConnector = async connectorResponse => {
@@ -221,6 +221,7 @@ module SelectPaymentMethods = {
           (),
         )
         setButtonState(_ => Button.Normal)
+        mixpanelEvent(~eventName=`quickstart_connector_payment_methods`, ())
       } catch {
       | _ => setButtonState(_ => Button.Normal)
       }
@@ -245,7 +246,7 @@ module SelectPaymentMethods = {
     <QuickStartUIUtils.BaseComponent
       headerText="Connect payment methods"
       customIcon={<GatewayIcon
-        gateway={connectorName->Js.String2.toUpperCase} className="w-6 h-6 rounded-md"
+        gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
       />}
       customCss="show-scrollbar"
       nextButton={<Button

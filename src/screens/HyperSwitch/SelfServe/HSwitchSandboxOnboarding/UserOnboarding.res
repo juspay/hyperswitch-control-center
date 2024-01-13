@@ -71,11 +71,10 @@ module DefaultDocsPage = {
 let make = () => {
   open UserOnboardingTypes
   let url = RescriptReactRouter.useUrl()
-  let hyperswitchMixPanel = HSMixPanel.useSendEvent()
   let searchParams = url.search
   let filtersFromUrl =
     LogicUtils.getDictFromUrlSearchParams(searchParams)
-    ->Js.Dict.get("type")
+    ->Dict.get("type")
     ->Belt.Option.getWithDefault("")
   let (currentRoute, setCurrentRoute) = React.useState(_ => OnboardingDefault)
   let {
@@ -109,10 +108,9 @@ let make = () => {
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
 
   let skipAndContinue = async () => {
-    UserOnboardingUtils.getMixPanelEventName(~url, ~filtersFromUrl, ~hyperswitchMixPanel)
     try {
       let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
-      let metaDataDict = Js.Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
+      let metaDataDict = Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
       let body = HSwitchUtils.constructOnboardingBody(
         ~dashboardPageState,
         ~integrationDetails,
@@ -142,7 +140,7 @@ let make = () => {
             currentRoute->UserOnboardingUtils.variantToTextMapperForBuildHS->Js.Json.string,
           ),
         ]
-        ->Js.Dict.fromArray
+        ->Dict.fromArray
         ->Js.Json.object_,
         (),
       )

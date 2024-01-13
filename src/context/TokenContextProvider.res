@@ -12,9 +12,9 @@ type tokenContextObjectType = {
 let defaultTokenObj = {
   token: None,
   setToken: defaultTokenSetter,
-  tokenDetailsDict: Js.Dict.empty(),
+  tokenDetailsDict: Dict.make(),
   setTokenDetailsDict: defaultDictSetter,
-  parentAuthInfo: HyperSwitchAuthTypes.getAuthInfo(Js.Json.object_(Js.Dict.empty()), ""),
+  parentAuthInfo: HyperSwitchAuthTypes.getAuthInfo(Js.Json.object_(Dict.make()), ""),
 }
 
 let tokenContext = React.createContext(defaultTokenObj)
@@ -27,7 +27,7 @@ module Parent = {
 let make = (~children) => {
   let currentToken = AuthWrapperUtils.useTokenParent(Default)
   let (token, setToken) = React.useState(_ => currentToken)
-  let (tokenDetailsDict, setTokenDetailsDict) = React.useState(_ => Js.Dict.empty())
+  let (tokenDetailsDict, setTokenDetailsDict) = React.useState(_ => Dict.make())
 
   let tokenContextObjext = React.useMemo4(() => {
     let parentAuthInfo = HyperSwitchAuthTypes.getAuthInfo(
@@ -45,19 +45,4 @@ let make = (~children) => {
   }, (token, tokenDetailsDict, setToken, setTokenDetailsDict))
 
   <Parent value=tokenContextObjext> children </Parent>
-}
-
-let useToken = (~ignoreContext=false, tokenType: AuthWrapperUtils.tokenType) => {
-  let currentToken = AuthWrapperUtils.useTokenParent(tokenType)
-  let {token, setToken} = React.useContext(tokenContext)
-  React.useEffect1(() => {
-    if token !== currentToken {
-      if !ignoreContext {
-        setToken(_ => currentToken)
-      }
-    }
-
-    None
-  }, [currentToken])
-  token
 }

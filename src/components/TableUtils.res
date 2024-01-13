@@ -3,19 +3,18 @@ let regex = searchString => {
 }
 let highlightedText = (str, searchedText) => {
   let shouldHighlight =
-    searchedText != "" &&
-      Js.String2.includes(str->Js.String.toLowerCase, searchedText->Js.String.toLowerCase)
+    searchedText != "" && String.includes(str->String.toLowerCase, searchedText->String.toLowerCase)
   if shouldHighlight {
     let re = regex(searchedText)
     let matchFn = (matchPart, _offset, _wholeString) => `@@${matchPart}@@`
-    let listText = Js.String.unsafeReplaceBy0(re, matchFn, str)->Js.String2.split("@@")
+    let listText = Js.String.unsafeReplaceBy0(re, matchFn, str)->String.split("@@")
 
     {
       listText
-      ->Js.Array2.mapi((item, i) => {
+      ->Array.mapWithIndex((item, i) => {
         if (
-          Js.String2.toLowerCase(item) == Js.String2.toLowerCase(searchedText) &&
-            Js.String2.length(searchedText) > 0
+          String.toLowerCase(item) == String.toLowerCase(searchedText) &&
+            String.length(searchedText) > 0
         ) {
           <mark key={i->string_of_int} className="bg-yellow"> {item->React.string} </mark>
         } else {
@@ -399,16 +398,16 @@ module Numeric = {
 
 module MoneyCell = {
   let getAmountValue = (amount, currency) => {
-    let amountSplitArr = Js.Float.toFixedWithPrecision(amount, ~digits=2)->Js.String2.split(".")
+    let amountSplitArr = Js.Float.toFixedWithPrecision(amount, ~digits=2)->String.split(".")
     let decimal = amountSplitArr[1]->Belt.Option.getWithDefault("00")
     let receivedValue = amountSplitArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
 
-    let formattedAmount = if receivedValue->Js.String2.includes("e") {
+    let formattedAmount = if receivedValue->String.includes("e") {
       receivedValue
     } else if currency === "INR" {
-      receivedValue->Js.String2.replaceByRe(%re("/(\d)(?=(?:(\d\d)+(\d)(?!\d))+(?!\d))/g"), "$1,")
+      receivedValue->String.replaceRegExp(%re("/(\d)(?=(?:(\d\d)+(\d)(?!\d))+(?!\d))/g"), "$1,")
     } else {
-      receivedValue->Js.String2.replaceByRe(%re("/(\d)(?=(\d{3})+(?!\d))/g"), "$1,")
+      receivedValue->String.replaceRegExp(%re("/(\d)(?=(\d{3})+(?!\d))/g"), "$1,")
     }
     let formatted_amount = `${formattedAmount}.${decimal}`
 
@@ -447,7 +446,7 @@ module LinkCell = {
     let trimData = switch trimLength {
     | Some(length) => {
         let length = isMobileView ? 36 : length
-        Js.String.concat("..", Js.String.substrAtMost(~from=0, ~length, data))
+        String.concat("..", Js.String.substrAtMost(~from=0, ~length, data))
       }
 
     | None => data
@@ -478,15 +477,6 @@ module LinkCell = {
 }
 
 module DateCell = {
-  let getFormattedDate = (dateStr, dateFormat) => {
-    try {
-      let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
-      let customTimeZone = isoStringToCustomTimeZone(dateStr)
-      TimeZoneHook.formattedDateTimeFloat(customTimeZone, dateFormat)
-    } catch {
-    | _ => `${dateStr} - unable to parse`
-    }
-  }
   @react.component
   let make = (
     ~timestamp,
@@ -499,6 +489,16 @@ module DateCell = {
     let isMobileView = MatchMedia.useMobileChecker()
     let dateFormat = React.useContext(DateFormatProvider.dateFormatContext)
     let dateFormat = isMobileView ? "DD MMM HH:mm" : dateFormat
+
+    let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
+    let getFormattedDate = dateStr => {
+      try {
+        let customTimeZone = isoStringToCustomTimeZone(dateStr)
+        TimeZoneHook.formattedDateTimeFloat(customTimeZone, dateFormat)
+      } catch {
+      | _ => `${dateStr} - unable to parse`
+      }
+    }
 
     let fontType = switch textStyle {
     | Some(font) => font
@@ -515,20 +515,11 @@ module DateCell = {
       ? fontType
       : `dark:text-jp-gray-text_darktheme dark:text-opacity-75 ${textAlignClass} ${fontStyle}`
 
-    <AddDataAttributes attributes=[("data-date", timestamp->getFormattedDate(dateFormat))]>
+    <AddDataAttributes attributes=[("data-date", timestamp->getFormattedDate)]>
       <div className={`${wrapperClass} whitespace-nowrap`}>
         {hideTime
-          ? {
-              React.string(
-                timestamp->getFormattedDate(dateFormat)->Js.String2.slice(~from=0, ~to_=12),
-              )
-            }
-          : <>
-              {React.string(timestamp->getFormattedDate(dateFormat))}
-              <span className={`text-xs text-jp-gray-700`}>
-                {React.string(` ${selectedTimeZoneAlias}`)}
-              </span>
-            </>}
+          ? React.string(timestamp->getFormattedDate->String.slice(~start=0, ~end=12))
+          : {React.string(`${timestamp->getFormattedDate} ${selectedTimeZoneAlias}`)}}
       </div>
     </AddDataAttributes>
   }
@@ -567,15 +558,15 @@ module EllipsisText = {
       ellipsisIdentifier !== ""
         ? {
             text
-            ->Js.String2.split(ellipsisIdentifier)
+            ->String.split(ellipsisIdentifier)
             ->Belt.Array.get(0)
             ->Belt.Option.getWithDefault("") ++ "..."
           }
         : text
     let ellipsesCondition =
       ellipsisIdentifier !== ""
-        ? Js.String.includes(ellipsisIdentifier, text)
-        : text->Js.String2.length > ellipsisThreshold
+        ? String.includes(ellipsisIdentifier, text)
+        : text->String.length > ellipsisThreshold
 
     // If text character count is greater than ellipsisThreshold, it will render tooltip else we will have whole text in cell
     if ellipsesCondition {
@@ -602,7 +593,7 @@ module TrimmedText = {
   let make = (~text, ~width, ~highlightText="", ~hideShowMore=false) => {
     let (show, setshow) = React.useState(_ => true)
     let breakWords = hideShowMore ? "" : "whitespace-nowrap text-ellipsis overflow-x-hidden"
-    if text->Js.String2.length > 40 {
+    if text->String.length > 40 {
       <div className={show ? `${breakWords}  justify-content ${width}` : "justify-content"}>
         <AddDataAttributes attributes=[("data-trimmed-text", text)]>
           <div className={hideShowMore ? "truncate" : ""}>
@@ -700,7 +691,7 @@ module TableCell = {
     | Text(x) | DropDown(x) => {
         let x = x === "" ? "NA" : x
         <AddDataAttributes attributes=[("data-desc", x)]>
-          <div className={"whitespace-nowrap"}> {highlightedText(x, highlightText)} </div>
+          <div> {highlightedText(x, highlightText)} </div>
         </AddDataAttributes>
       }
 
@@ -711,11 +702,11 @@ module TableCell = {
       <MoneyCell amount currency ?textAlign fontBold customMoneyStyle />
 
     | Date(timestamp) =>
-      timestamp->Js.String2.length > 0
+      timestamp->String.length > 0
         ? <DateCell timestamp textAlign=Left customDateStyle />
         : <div> {React.string("-")} </div>
     | DateWithoutTime(timestamp) =>
-      timestamp->Js.String2.length > 0
+      timestamp->String.length > 0
         ? <DateCell timestamp textAlign=Left customDateStyle hideTime=true />
         : <div> {React.string("-")} </div>
     | StartEndDate(startDate, endDate) => <StartEndDateCell startDate endDate />
@@ -760,11 +751,11 @@ module NewTableCell = {
       <MoneyCell amount currency ?textAlign fontBold customMoneyStyle />
 
     | Date(timestamp) =>
-      timestamp->Js.String2.length > 0
+      timestamp->String.length > 0
         ? <DateCell timestamp textAlign=Left customDateStyle />
         : <div> {React.string("-")} </div>
     | DateWithoutTime(timestamp) =>
-      timestamp->Js.String2.length > 0
+      timestamp->String.length > 0
         ? <DateCell timestamp textAlign=Left customDateStyle hideTime=true />
         : <div> {React.string("-")} </div>
     | StartEndDate(startDate, endDate) => <StartEndDateCell startDate endDate />

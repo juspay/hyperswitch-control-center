@@ -7,7 +7,7 @@ let defaultDraggableDest = {
 
 let reorder = (currentState, startIndex, endIndex) => {
   if startIndex !== endIndex {
-    let oldStateArray = Js.Array.copy(currentState)
+    let oldStateArray = Array.copy(currentState)
     let removed = Js.Array.removeCountInPlace(~pos=startIndex, ~count=1, oldStateArray)
     let _ = Js.Array.spliceInPlace(~pos=endIndex, ~remove=0, ~add=removed, oldStateArray)
     (oldStateArray, true)
@@ -90,7 +90,7 @@ let default = (props: props) => {
           {
             <div className={`flex ${directionClass}`} ref={provided["innerRef"]}>
               {values
-              ->Js.Array2.mapi((str, index) => {
+              ->Array.mapWithIndex((str, index) => {
                 <DraggableItem key={`item-${Belt.Int.toString(index)}`} directionClass str index />
               })
               ->React.array}
