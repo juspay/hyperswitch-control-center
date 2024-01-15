@@ -202,7 +202,7 @@ let make = () => {
                 <DelayedVerificationBanner verificationDays={verificationDays} />
               </RenderIf>
               // TODO : To be removed after new navbar design
-              <div className="border-b shadow hyperswitch_box_shadow bg-white">
+              <div className="border-b shadow-hyperswitch_box_shadow bg-white">
                 <div className="w-full max-w-fixedPageWidth px-20">
                   <Navbar
                     headerActions={<div className="relative flex items-center gap-80">
