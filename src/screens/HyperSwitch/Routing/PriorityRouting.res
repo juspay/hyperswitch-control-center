@@ -1,7 +1,6 @@
 open RoutingUtils
 open APIUtils
 open RoutingTypes
-open PriorityLogicUtils
 open RoutingPreviewer
 module SimpleRoutingView = {
   @react.component

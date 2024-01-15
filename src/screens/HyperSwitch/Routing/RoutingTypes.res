@@ -1,7 +1,18 @@
 type routingType = SINGLE | PRIORITY | VOLUME_SPLIT | ADVANCED | COST | DEFAULTFALLBACK | NO_ROUTING
-type modalValue = {conType: string, conText: React.element}
-type routingValueType = {heading: string, subHeading: string}
-type modalObj = (routingType, string) => modalValue
+type formState = CreateConfig | EditConfig | ViewConfig
+type status = ACTIVE | APPROVED | PENDING | REJECTED
+type pageState = Preview | Create | Edit
+
+type historyColType =
+  | Name
+  | Type
+  | ProfileId
+  | ProfileName
+  | Description
+  | Created
+  | LastUpdated
+  | Status
+
 type colType =
   | Name
   | Description
@@ -10,8 +21,6 @@ type colType =
   | DateCreated
   | LastUpdated
 
-type status = ACTIVE | APPROVED | PENDING | REJECTED
-type configType = RuleBased | CodeBased
 type operator =
   | IS
   | IS_NOT
@@ -22,28 +31,15 @@ type operator =
   | NOT_CONTAINS
   | NOT_EQUAL_TO
   | UnknownOperator(string)
+
 type variantType = Number | Enum_variant | Metadata_value | String_value | UnknownVariant(string)
 type logicalOperator = AND | OR | UnknownLogicalOperator(string)
 type val = StringArray(array<string>) | String(string) | Int(int)
-type logic = {
-  id: string,
-  name: string,
-  description: string,
-  isActiveLogic: bool,
-  status: status,
-  configType: configType,
-  version: string,
-  priorityLogic: string,
-  priorityLogicRules: string,
-  dateCreated: string,
-  lastUpdated: string,
-}
-type response = {
-  useCode: bool,
-  gatewayPriority: string,
-  gatewayPriorityLogic: string,
-  logics: array<logic>,
-}
+
+type modalValue = {conType: string, conText: React.element}
+type routingValueType = {heading: string, subHeading: string}
+type modalObj = (routingType, string) => modalValue
+
 type wasmModule = {
   getAllKeys: unit => array<string>,
   getKeyType: string => string,
@@ -59,7 +55,7 @@ type volumeDistribution = {
   connector: string,
   split: int,
 }
-type pageState = Preview | Create | Edit
+
 type condition = {
   field: string,
   metadata?: Js.Json.t,
@@ -77,20 +73,6 @@ type ruleInfoType = {
   rules: array<rule>,
   default_gateways: array<string>,
 }
-
-type gateWAY = {gateways: array<gateway>}
-type volumeDistributionType = {volumeBasedDistribution: gateWAY}
-type ruleDict = {json: volumeDistributionType}
-
-type historyColType =
-  | Name
-  | Type
-  | ProfileId
-  | ProfileName
-  | Description
-  | Created
-  | LastUpdated
-  | Status
 
 type historyData = {
   id: string,
