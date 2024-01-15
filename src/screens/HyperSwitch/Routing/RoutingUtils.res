@@ -1,9 +1,7 @@
 open RoutingTypes
 open LogicUtils
 external toWasm: Js.Dict.t<Js.Json.t> => wasmModule = "%identity"
-let getObjects = (_: Js.Json.t) => {
-  []
-}
+
 let defaultThreeDsObjectValue: routingOutputType = {
   override_3ds: "three_ds",
 }
@@ -17,20 +15,6 @@ let getCurrentUTCTime = () => {
   let currYear = currentDate->Js.Date.getUTCFullYear->Belt.Float.toString
 
   `${currYear}-${currMonth}-${currDay}`
-}
-
-let operatorMapper = value => {
-  switch value {
-  | "CONTAINS" => CONTAINS
-  | "NOT_CONTAINS" => NOT_CONTAINS
-  | "IS" => IS
-  | "IS_NOT" => IS_NOT
-  | "GREATER THAN" => GREATER_THAN
-  | "LESS THAN" => LESS_THAN
-  | "EQUAL TO" => EQUAL_TO
-  | "NOT EQUAL_TO" => NOT_EQUAL_TO
-  | _ => UnknownOperator("")
-  }
 }
 
 let variantTypeMapper = variantType => {
@@ -189,72 +173,6 @@ let getWasmGateway = wasm => {
   }
 }
 
-let advanceRoutingConditionMapper = (dict, wasm) => {
-  let variantType = wasm->getWasmKeyType(dict->getString("field", ""))
-  let obj: AdvancedRoutingTypes.statement = {
-    lhs: dict->getString("field", ""),
-    comparison: switch dict->getString("operator", "")->operatorMapper {
-    | IS => "equal"
-    | IS_NOT => "not_equal"
-    | CONTAINS => "equal"
-    | NOT_CONTAINS => "not_equal"
-    | EQUAL_TO => "equal"
-    | GREATER_THAN => "greater_than"
-    | LESS_THAN => "less_than"
-    | NOT_EQUAL_TO => "not_equal"
-    | UnknownOperator(str) => str
-    },
-    value: {
-      \"type": switch variantType->variantTypeMapper {
-      | Number => "number"
-      | Enum_variant =>
-        switch dict->getString("operator", "")->operatorMapper {
-        | IS => "enum_variant"
-        | CONTAINS => "enum_variant_array"
-        | IS_NOT => "enum_variant"
-        | NOT_CONTAINS => "enum_variant_array"
-        | _ => ""
-        }
-      | Metadata_value => "metadata_variant"
-      | String_value => "str_value"
-      | _ => ""
-      },
-      value: switch variantType->variantTypeMapper {
-      | Number => (dict->getString("value", "")->float_of_string *. 100.00)->Js.Json.number
-      | Enum_variant =>
-        switch dict->getString("operator", "")->operatorMapper {
-        | IS => dict->getString("value", "")->Js.Json.string
-        | CONTAINS => dict->getArrayFromDict("value", [])->Js.Json.array
-        | IS_NOT => dict->getString("value", "")->Js.Json.string
-        | NOT_CONTAINS => dict->getArrayFromDict("value", [])->Js.Json.array
-
-        | _ => ""->Js.Json.string
-        }
-      | Metadata_value => {
-          let key =
-            dict->getDictfromDict("metadata")->getString("key", "")->String.trim->Js.Json.string
-          let value = dict->getString("value", "")->String.trim->Js.Json.string
-          Dict.fromArray([("key", key), ("value", value)])->Js.Json.object_
-        }
-      | String_value => dict->getString("value", "")->Js.Json.string
-      | _ => ""->Js.Json.string
-      },
-    },
-  }
-  let value =
-    [("value", obj.value.value), ("type", obj.value.\"type"->Js.Json.string)]->Dict.fromArray
-
-  let dict =
-    [
-      ("lhs", obj.lhs->Js.Json.string),
-      ("comparison", obj.comparison->Js.Json.string),
-      ("value", value->Js.Json.object_),
-      ("metadata", Dict.make()->Js.Json.object_),
-    ]->Dict.fromArray
-
-  dict->Js.Json.object_
-}
-
 let getVolumeSplit = (
   dict_arr,
   objMapper,
@@ -275,62 +193,6 @@ let checkIfValuePresesent = valueRes => {
   | _ => false
   }
   conditionMatched
-}
-
-let generateStatement = (arr, wasm) => {
-  let conditionDict = Dict.make()
-  let statementDict = Dict.make()
-  arr->Array.forEachWithIndex((item, index) => {
-    let valueRes =
-      item->getDictFromJsonObject->Dict.get("value")->Belt.Option.getWithDefault([]->Js.Json.array)
-
-    if valueRes->checkIfValuePresesent {
-      let value = item->getDictFromJsonObject->advanceRoutingConditionMapper(wasm)
-      let logical = item->getDictFromJsonObject->getString("logical.operator", "")
-
-      switch logical->logicalOperatorMapper {
-      | OR => {
-          let copyDict = Js.Dict.map((. val) => val, conditionDict)
-          Dict.set(statementDict, Belt.Int.toString(index), copyDict)
-          conditionDict->Dict.set("condition", []->Js.Json.array)
-          let val =
-            conditionDict->Dict.get("condition")->Belt.Option.getWithDefault([]->Js.Json.array)
-          let arr = switch Js.Json.classify(val) {
-          | JSONArray(arr) => {
-              arr->Array.push(value)
-              arr
-            }
-          | _ => []
-          }
-          conditionDict->Dict.set("condition", arr->Js.Json.array)
-        }
-
-      | _ =>
-        let val =
-          conditionDict->Dict.get("condition")->Belt.Option.getWithDefault([]->Js.Json.array)
-        let arr = switch Js.Json.classify(val) {
-        | JSONArray(arr) => {
-            arr->Array.push(value)
-            arr
-          }
-
-        | _ => []
-        }
-        conditionDict->Dict.set("condition", arr->Js.Json.array)
-      }
-    }
-  })
-
-  let copyDict = Js.Dict.map((. val) => val, conditionDict)
-  Dict.set(statementDict, Belt.Int.toString(arr->Array.length), copyDict)
-  statementDict
-  ->Dict.keysToArray
-  ->Array.map(val => {
-    switch statementDict->Dict.get(val) {
-    | Some(dt) => dt->Js.Json.object_
-    | _ => Dict.make()->Js.Json.object_
-    }
-  })
 }
 
 let getDefaultSelection = dict => {
