@@ -722,7 +722,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                     customSumbitButtonStyle="w-1/5 rounded-lg"
                     tooltipWidthClass="w-48"
                   />}
-                  submitButton={<RoutingUtils.SaveAndActivateButton
+                  submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton
                     onSubmit handleActivateConfiguration
                   />}
                   headingText="Activate Current Configuration?"
