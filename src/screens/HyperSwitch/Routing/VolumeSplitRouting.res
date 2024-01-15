@@ -129,7 +129,7 @@ module VolumeRoutingView = {
                     dropDownButtonText="Add Processors"
                     connectorList
                   />
-                  <ConfigureRuleButton setShowModal isConfigButtonEnabled />
+                  <AdvancedRoutingUIUtils.ConfigureRuleButton setShowModal isConfigButtonEnabled />
                   <CustomModal.RoutingCustomModal
                     showModal
                     setShowModal

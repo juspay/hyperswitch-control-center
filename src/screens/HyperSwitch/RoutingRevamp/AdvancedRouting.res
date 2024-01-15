@@ -705,7 +705,9 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                         </UIUtils.RenderIf>
                       </div>
                     | Create =>
-                      <RoutingUtils.ConfigureRuleButton setShowModal isConfigButtonEnabled />
+                      <AdvancedRoutingUIUtils.ConfigureRuleButton
+                        setShowModal isConfigButtonEnabled
+                      />
                     | _ => React.null
                     }}
                   </div>

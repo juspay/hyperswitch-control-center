@@ -496,3 +496,22 @@ let descriptionInput = makeFieldInfo(
   ),
   (),
 )
+
+module ConfigureRuleButton = {
+  @react.component
+  let make = (~setShowModal, ~isConfigButtonEnabled) => {
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+    )
+
+    <Button
+      text={"Configure Rule"}
+      buttonType=Primary
+      buttonState={!formState.hasValidationErrors && isConfigButtonEnabled ? Normal : Disabled}
+      onClick={_ => {
+        setShowModal(_ => true)
+      }}
+      customButtonStyle="w-1/5"
+    />
+  }
+}

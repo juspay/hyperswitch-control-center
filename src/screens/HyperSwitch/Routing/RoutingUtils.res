@@ -41,54 +41,6 @@ let routingTypeName = routingType => {
   }
 }
 
-let itemGateWayObjMapper = (
-  dict,
-  _connectorList: option<array<ConnectorTypes.connectorPayload>>,
-) => {
-  let connectorId = dict->getDictfromDict("connector")->getString("merchant_connector_id", "")
-  [
-    ("distribution", dict->getFloat("split", 0.00)->Js.Json.number),
-    ("disableFallback", dict->getBool("disableFallback", false)->Js.Json.boolean),
-    ("gateway_name", connectorId->Js.Json.string),
-  ]->Dict.fromArray
-}
-
-let itemBodyGateWayObjMapper = (
-  dict,
-  connectorList: option<array<ConnectorTypes.connectorPayload>>,
-) => {
-  let merchantConnectorId =
-    dict->getDictfromDict("connector")->getString("merchant_connector_id", "")
-  let name =
-    connectorList
-    ->Belt.Option.getWithDefault([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
-    ->ConnectorTableUtils.getConnectorNameViaId(merchantConnectorId)
-  let newDict =
-    [
-      ("connector", name.connector_name->Js.Json.string),
-      ("merchant_connector_id", merchantConnectorId->Js.Json.string),
-    ]
-    ->Dict.fromArray
-    ->Js.Json.object_
-  [("split", dict->getFloat("split", 0.00)->Js.Json.number), ("connector", newDict)]->Dict.fromArray
-}
-
-let connectorPayload = (routingType, arr) => {
-  switch routingType->routingTypeMapper {
-  | VOLUME_SPLIT => {
-      let connectorData = arr->Array.reduce([], (acc, routingObj) => {
-        let routingDict = routingObj->getDictFromJsonObject
-        acc->Array.push(getString(routingDict, "connector", ""))
-        acc
-      })
-      connectorData
-    }
-
-  | PRIORITY => arr->Js.Json.array->getStrArryFromJson
-  | _ => []
-  }
-}
-
 let getRoutingPayload = (data, routingType, name, description, profileId) => {
   let connectorsOrder =
     [("data", data->Js.Json.array), ("type", routingType->Js.Json.string)]->Dict.fromArray
@@ -99,89 +51,6 @@ let getRoutingPayload = (data, routingType, name, description, profileId) => {
     ("profile_id", profileId->Js.Json.string),
     ("algorithm", connectorsOrder->Js.Json.object_),
   ]->Dict.fromArray
-}
-
-let getWasmKeyType = (wasm, value) => {
-  try {
-    switch wasm {
-    | Some(res) => res.getKeyType(value)
-    | None => ""
-    }
-  } catch {
-  | _ => ""
-  }
-}
-
-let getWasmVariantValues = (wasm, value) => {
-  try {
-    switch wasm {
-    | Some(res) => res.getVariantValues(value)
-    | None => []
-    }
-  } catch {
-  | _ => []
-  }
-}
-
-let getWasmGateway = wasm => {
-  try {
-    switch wasm {
-    | Some(res) => res.getAllConnectors()
-    | None => []
-    }
-  } catch {
-  | _ => []
-  }
-}
-
-let getVolumeSplit = (
-  dict_arr,
-  objMapper,
-  connectorList: option<array<ConnectorTypes.connectorPayload>>,
-) => {
-  dict_arr->Array.reduce([], (acc, routingObj) => {
-    let value = [routingObj->getDictFromJsonObject->objMapper(connectorList)->Js.Json.object_]
-    acc->Array.concat(value)->Array.map(value => value)
-  })
-}
-
-let checkIfValuePresesent = valueRes => {
-  // to check if the value is present only then add to the statement
-  let conditionMatched = switch Js.Json.classify(valueRes) {
-  | JSONArray(arr) => arr->Array.length > 0
-  | JSONString(str) => str->String.length > 0
-  | JSONNumber(num) => num > Belt.Int.toFloat(0)
-  | _ => false
-  }
-  conditionMatched
-}
-
-let getDefaultSelection = dict => {
-  [
-    ("data", dict->getArrayFromDict("default_gateways", [])->Js.Json.array),
-    ("type", "priority"->Js.Json.string),
-  ]->Dict.fromArray
-}
-let generateRuleObject = (index, connectorSelection, statement) => {
-  let ruleObj = Dict.fromArray([
-    ("name", `rule_${string_of_int(index + 1)}`->Js.Json.string),
-    ("statements", statement->Js.Json.array),
-    ("connectorSelection", connectorSelection->Js.Json.object_),
-  ])
-  ruleObj
-}
-let constuctAlgorithm = (dict, rules, metadata) => {
-  let body =
-    [
-      ("defaultSelection", getDefaultSelection(dict)->Js.Json.object_),
-      ("rules", rules->Js.Json.array),
-      ("metadata", metadata->Js.Json.object_),
-    ]->Dict.fromArray
-
-  let algorithm =
-    [("type", "advanced"->Js.Json.string), ("data", body->Js.Json.object_)]->Dict.fromArray
-
-  algorithm
 }
 
 let getModalObj = (routingType, text) => {
@@ -299,12 +168,6 @@ let constructNameDescription = routingType => {
   ])
 }
 
-let manipulateInitialValueJson = initialValueJson => {
-  let manipulatedJson = ADVANCED->constructNameDescription
-  manipulatedJson->Dict.set("code", initialValueJson->getString("code", "")->Js.Json.string)
-  manipulatedJson->Dict.set("json", initialValueJson->getObj("json", Dict.make())->Js.Json.object_)
-  manipulatedJson
-}
 let currentTabNameRecoilAtom = Recoil.atom(. "currentTabName", "ActiveTab")
 
 module SaveAndActivateButton = {
@@ -341,24 +204,6 @@ module SaveAndActivateButton = {
         handleSaveAndActivate()->ignore
       }}
       customButtonStyle="w-1/5 rounded-sm"
-    />
-  }
-}
-module ConfigureRuleButton = {
-  @react.component
-  let make = (~setShowModal, ~isConfigButtonEnabled) => {
-    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
-    )
-
-    <Button
-      text={"Configure Rule"}
-      buttonType=Primary
-      buttonState={!formState.hasValidationErrors && isConfigButtonEnabled ? Normal : Disabled}
-      onClick={_ => {
-        setShowModal(_ => true)
-      }}
-      customButtonStyle="w-1/5"
     />
   }
 }
