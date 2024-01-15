@@ -2,6 +2,9 @@ type routingType = SINGLE | PRIORITY | VOLUME_SPLIT | ADVANCED | COST | DEFAULTF
 type formState = CreateConfig | EditConfig | ViewConfig
 type status = ACTIVE | APPROVED | PENDING | REJECTED
 type pageState = Preview | Create | Edit
+type variantType = Number | Enum_variant | Metadata_value | String_value | UnknownVariant(string)
+type logicalOperator = AND | OR | UnknownLogicalOperator(string)
+type val = StringArray(array<string>) | String(string) | Int(int)
 
 type historyColType =
   | Name
@@ -32,10 +35,6 @@ type operator =
   | NOT_EQUAL_TO
   | UnknownOperator(string)
 
-type variantType = Number | Enum_variant | Metadata_value | String_value | UnknownVariant(string)
-type logicalOperator = AND | OR | UnknownLogicalOperator(string)
-type val = StringArray(array<string>) | String(string) | Int(int)
-
 type modalValue = {conType: string, conText: React.element}
 type routingValueType = {heading: string, subHeading: string}
 type modalObj = (routingType, string) => modalValue
@@ -46,11 +45,13 @@ type wasmModule = {
   getAllConnectors: unit => array<string>,
   getVariantValues: string => array<string>,
 }
+
 type gateway = {
   distribution: int,
   disableFallback: bool,
   gateway_name: string,
 }
+
 type volumeDistribution = {
   connector: string,
   split: int,
@@ -63,12 +64,15 @@ type condition = {
   value: val,
   logicalOperator: logicalOperator,
 }
+
 type routingOutputType = {override_3ds: string}
+
 type rule = {
   gateways: array<gateway>,
   conditions: array<condition>,
   routingOutput?: routingOutputType,
 }
+
 type ruleInfoType = {
   rules: array<rule>,
   default_gateways: array<string>,
@@ -85,6 +89,7 @@ type historyData = {
 }
 
 type value = {"type": Js.Json.t, "value": Js.Json.t}
+
 type payloadCondition = {
   lhs: string,
   comparison: string,
