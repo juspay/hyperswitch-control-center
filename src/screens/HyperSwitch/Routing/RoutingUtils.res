@@ -454,21 +454,6 @@ let valueTypeMapper = dict => {
   value
 }
 
-let conditionTypeMapper = (conditionArr: array<Js.Json.t>) => {
-  let conditionArray = []
-  conditionArr->Array.forEach(value => {
-    let val = value->getDictFromJsonObject
-    let tempval = {
-      field: val->getString("field", ""),
-      metadata: val->getDictfromDict("metadata")->Js.Json.object_,
-      operator: val->getString("operator", "")->operatorMapper,
-      value: val->valueTypeMapper,
-      logicalOperator: val->getString("logical.operator", "")->logicalOperatorMapper,
-    }
-    conditionArray->Array.push(tempval)
-  })
-  conditionArray
-}
 let threeDsTypeMapper = dict => {
   let getRoutingOutputval = dict->getString("override_3ds", "three_ds")
   let val = {
@@ -591,16 +576,6 @@ let validateConditionsFor3ds = dict => {
 
   conditionsArray->Array.every(value => {
     value->validateConditionJson(["comparison", "lhs"])
-  })
-}
-
-let filterEmptyValues = (arr: array<RoutingTypes.condition>) => {
-  arr->Array.filter(item => {
-    switch item.value {
-    | StringArray(arr) => arr->Array.length > 0
-    | String(str) => str->String.length > 0
-    | Int(int) => int > 0
-    }
   })
 }
 

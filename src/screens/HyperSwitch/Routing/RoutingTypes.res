@@ -57,14 +57,6 @@ type volumeDistribution = {
   split: int,
 }
 
-type condition = {
-  field: string,
-  metadata?: Js.Json.t,
-  operator: operator,
-  value: val,
-  logicalOperator: logicalOperator,
-}
-
 type routingOutputType = {override_3ds: string}
 
 type historyData = {
