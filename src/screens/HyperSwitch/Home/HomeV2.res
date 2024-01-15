@@ -381,6 +381,7 @@ let make = () => {
       } else {
         <HomePageOverviewComponent />
       }}
+      <ControlCenter />
       <RecipesAndPlugins />
       <Resources />
     </div>
