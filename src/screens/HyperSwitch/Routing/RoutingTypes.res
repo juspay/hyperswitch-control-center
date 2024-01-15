@@ -67,17 +67,6 @@ type condition = {
 
 type routingOutputType = {override_3ds: string}
 
-type rule = {
-  gateways: array<gateway>,
-  conditions: array<condition>,
-  routingOutput?: routingOutputType,
-}
-
-type ruleInfoType = {
-  rules: array<rule>,
-  default_gateways: array<string>,
-}
-
 type historyData = {
   id: string,
   name: string,
@@ -89,10 +78,3 @@ type historyData = {
 }
 
 type value = {"type": Js.Json.t, "value": Js.Json.t}
-
-type payloadCondition = {
-  lhs: string,
-  comparison: string,
-  value: value,
-  metadata: Js.Json.t,
-}

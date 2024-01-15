@@ -191,7 +191,7 @@ let getWasmGateway = wasm => {
 
 let advanceRoutingConditionMapper = (dict, wasm) => {
   let variantType = wasm->getWasmKeyType(dict->getString("field", ""))
-  let obj = {
+  let obj: AdvancedRoutingTypes.statement = {
     lhs: dict->getString("field", ""),
     comparison: switch dict->getString("operator", "")->operatorMapper {
     | IS => "equal"
@@ -205,7 +205,7 @@ let advanceRoutingConditionMapper = (dict, wasm) => {
     | UnknownOperator(str) => str
     },
     value: {
-      "type": switch variantType->variantTypeMapper {
+      \"type": switch variantType->variantTypeMapper {
       | Number => "number"
       | Enum_variant =>
         switch dict->getString("operator", "")->operatorMapper {
@@ -218,8 +218,8 @@ let advanceRoutingConditionMapper = (dict, wasm) => {
       | Metadata_value => "metadata_variant"
       | String_value => "str_value"
       | _ => ""
-      }->Js.Json.string,
-      "value": switch variantType->variantTypeMapper {
+      },
+      value: switch variantType->variantTypeMapper {
       | Number => (dict->getString("value", "")->float_of_string *. 100.00)->Js.Json.number
       | Enum_variant =>
         switch dict->getString("operator", "")->operatorMapper {
@@ -240,15 +240,16 @@ let advanceRoutingConditionMapper = (dict, wasm) => {
       | _ => ""->Js.Json.string
       },
     },
-    metadata: Dict.make()->Js.Json.object_,
   }
-  let value = [("value", obj.value["value"]), ("type", obj.value["type"])]->Dict.fromArray
+  let value =
+    [("value", obj.value.value), ("type", obj.value.\"type"->Js.Json.string)]->Dict.fromArray
+
   let dict =
     [
       ("lhs", obj.lhs->Js.Json.string),
       ("comparison", obj.comparison->Js.Json.string),
       ("value", value->Js.Json.object_),
-      ("metadata", obj.metadata),
+      ("metadata", Dict.make()->Js.Json.object_),
     ]->Dict.fromArray
 
   dict->Js.Json.object_
