@@ -17,24 +17,6 @@ let getCurrentUTCTime = () => {
   `${currYear}-${currMonth}-${currDay}`
 }
 
-let variantTypeMapper = variantType => {
-  switch variantType {
-  | "number" => Number
-  | "enum_variant" => Enum_variant
-  | "metadata_value" => Metadata_value
-  | "str_value" => String_value
-  | _ => UnknownVariant("")
-  }
-}
-
-let logicalOperatorMapper = logical => {
-  switch logical {
-  | "AND" => AND
-  | "OR" => OR
-  | _ => UnknownLogicalOperator("")
-  }
-}
-
 let routingTypeMapper = routingType => {
   switch routingType {
   | "single" => SINGLE
@@ -56,27 +38,6 @@ let routingTypeName = routingType => {
   | PRIORITY => "rank"
   | DEFAULTFALLBACK => "default"
   | NO_ROUTING => ""
-  }
-}
-
-let logicalOperatorTypeToStringMapper = logicalOperator => {
-  switch logicalOperator {
-  | AND => "AND"
-  | OR => "OR"
-  | UnknownLogicalOperator(str) => str
-  }
-}
-let operatorTypeToStringMapper = operator => {
-  switch operator {
-  | IS => "IS"
-  | CONTAINS => "CONTAINS"
-  | IS_NOT => "IS_NOT"
-  | NOT_CONTAINS => "NOT_CONTAINS"
-  | GREATER_THAN => "GREATER THAN"
-  | LESS_THAN => "LESS THAN"
-  | EQUAL_TO => "EQUAL TO"
-  | NOT_EQUAL_TO => "NOT EQUAL_TO"
-  | UnknownOperator(str) => str
   }
 }
 
