@@ -469,7 +469,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
     let errors = Dict.make()
 
-    RoutingUtils.validateNameAndDescription(~dict, ~errors)
+    AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
 
     let validateGateways = (connectorData: array<AdvancedRoutingTypes.connectorSelectionData>) => {
       if connectorData->Array.length === 0 {

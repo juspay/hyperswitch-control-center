@@ -170,14 +170,6 @@ let constructNameDescription = routingType => {
 
 let currentTabNameRecoilAtom = Recoil.atom(. "currentTabName", "ActiveTab")
 
-let validateNameAndDescription = (~dict, ~errors) => {
-  ["name", "description"]->Array.forEach(field => {
-    if dict->LogicUtils.getString(field, "")->String.trim === "" {
-      errors->Dict.set(field, `Please provide ${field} field`->Js.Json.string)
-    }
-  })
-}
-
 let checkIfValuePresent = dict => {
   let valueFromObject = dict->getDictfromDict("value")
 
