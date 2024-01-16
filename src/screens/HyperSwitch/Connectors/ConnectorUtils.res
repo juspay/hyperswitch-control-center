@@ -80,6 +80,7 @@ let connectorListForLive: array<connectorName> = [
   CHECKOUT,
   CRYPTOPAY,
   CASHTOCODE,
+  CYBERSOURCE,
   IATAPAY,
   PAYME,
   TRUSTPAY,
