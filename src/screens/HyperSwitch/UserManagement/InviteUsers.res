@@ -96,11 +96,20 @@ let make = () => {
         let passwordFromResponse = response->getDictFromJsonObject->getString("password", "")
         emailPasswordsArray->Array.push(
           [
-            ("email", body->LogicUtils.getDictFromJsonObject->LogicUtils.getString("email", "")),
-            ("password", passwordFromResponse),
-          ]->Dict.fromArray,
+            (
+              "email",
+              body
+              ->LogicUtils.getDictFromJsonObject
+              ->LogicUtils.getString("email", "")
+              ->Js.Json.string,
+            ),
+            ("password", passwordFromResponse->Js.Json.string),
+          ]
+          ->Dict.fromArray
+          ->Js.Json.object_,
         )
       }
+
       if index === 0 {
         showToast(
           ~message=magicLink
@@ -112,11 +121,7 @@ let make = () => {
         if !magicLink {
           DownloadUtils.download(
             ~fileName=`invited-users.txt`,
-            ~content=emailPasswordsArray
-            ->Js.Json.stringifyAny
-            ->Option.getWithDefault("")
-            ->Js.Json.parseExn
-            ->Js.Json.stringifyWithSpace(3),
+            ~content=emailPasswordsArray->Js.Json.array->Js.Json.stringifyWithSpace(3),
             ~fileType="application/json",
           )
         }
