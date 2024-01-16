@@ -71,7 +71,7 @@ module ApiEditModal = {
         | _ => APIUtils.getURL(~entityName=API_KEYS, ~methodType=Post, ())
         }
 
-        let json = await updateDetails(url, body->Js.Json.object_, Post)
+        let json = await updateDetails(url, body->Js.Json.object_, Post, ())
         let keyDict = json->LogicUtils.getDictFromJsonObject
 
         setApiKey(_ => keyDict->LogicUtils.getString("api_key", ""))
@@ -222,7 +222,7 @@ module TableActionsCell = {
           ~id=Some(keyId),
           (),
         )
-        (await deleteDetails(deleteUrl, body->Js.Json.object_, Delete))->ignore
+        (await deleteDetails(deleteUrl, body->Js.Json.object_, Delete, ()))->ignore
         getAPIKeyDetails()->ignore
       } catch {
       | Js.Exn.Error(e) =>

@@ -252,7 +252,7 @@ module TableWrapper = {
         (),
       )
 
-      fetchDetails(tableEntity.uri, weeklyTableReqBody, Post)
+      fetchDetails(tableEntity.uri, weeklyTableReqBody, Post, ())
       ->thenResolve(json => {
         setTableData(_ => getUpdatedData(data, json, cols))
         setTableDataLoading(_ => false)
@@ -285,7 +285,7 @@ module TableWrapper = {
           (),
         )
 
-        fetchDetails(tableEntity.uri, tableReqBody, Post)
+        fetchDetails(tableEntity.uri, tableReqBody, Post, ())
         ->thenResolve(json => {
           switch weeklyTableMetricsCols {
           | Some(cols) => getWeeklyData(json, cols)->ignore
@@ -612,7 +612,7 @@ let make = (
     setFilterDataJson(_ => None)
     if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
       try {
-        updateDetails(filterUri, filterBody->Js.Json.object_, Post)
+        updateDetails(filterUri, filterBody->Js.Json.object_, Post, ())
         ->thenResolve(json => setFilterDataJson(_ => json->Some))
         ->catch(_ => resolve())
         ->ignore

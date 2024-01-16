@@ -79,7 +79,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
           firstProcessorRoutingPayload,
           secondProcessorRoutingPayload,
         )
-      let routingResponse = await updateDetails(routingUrl, body, Post)
+      let routingResponse = await updateDetails(routingUrl, body, Post, ())
       let activatingId = routingResponse->getDictFromJsonObject->getString("id", "")
       let activateRuleURL = getURL(
         ~entityName=ROUTING,
@@ -87,7 +87,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
         ~id=Some(activatingId),
         (),
       )
-      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post, ())
       let _ = await updateEnumForRouting(activatingId)
       setButtonState(_ => Normal)
     } catch {

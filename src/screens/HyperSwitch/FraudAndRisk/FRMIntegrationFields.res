@@ -247,7 +247,7 @@ let make = (
       ->Js.Json.object_
     let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ())
     try {
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
     } catch {
     | _ => ()
     }
@@ -255,7 +255,7 @@ let make = (
   }
 
   let setFRMValues = async body => {
-    fetchApi(frmUrl, body, Fetch.Post)
+    fetchApi(frmUrl, body, Fetch.Post, ())
     ->thenResolve(res => {
       setCurrentStep(prev => prev->getNextStep)
       let _ = updateMerchantDetails()

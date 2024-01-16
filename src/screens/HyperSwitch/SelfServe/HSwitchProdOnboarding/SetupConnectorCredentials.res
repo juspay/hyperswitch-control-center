@@ -157,7 +157,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         ~connectorId,
         (),
       )
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
       setPageView(_ => pageView->ProdOnboardingUtils.getPageView)
     } catch {
     | _ => ()
@@ -205,7 +205,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
 
       let body = requestPayload->ConnectorUtils.constructConnectorRequestBody(payload)
 
-      let res = await updateDetails(url, body, Post)
+      let res = await updateDetails(url, body, Post, ())
       let connectorId = res->getDictFromJsonObject->getString("merchant_connector_id", "")
       setConnectorID(_ => connectorId)
       connectorId->updateSetupConnectorCredentials->ignore
@@ -268,7 +268,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         )->ignoreFields(connectorID, verifyConnectorIgnoreField)
 
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~connector=Some(connectorName), ())
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
       setShowVerifyModal(_ => false)
       onSubmitMain(values)->ignore
       setIsLoading(_ => false)

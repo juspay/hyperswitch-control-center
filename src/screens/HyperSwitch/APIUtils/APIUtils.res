@@ -202,6 +202,7 @@ let handleLogout = async (
   ~fetchApi as _: (
     Js.String2.t,
     ~bodyStr: string=?,
+    ~bodyFormData: option<Fetch.formData>=?,
     ~headers: Js.Dict.t<Js.String2.t>=?,
     ~bodyHeader: Js.Dict.t<Js.Json.t>=?,
     ~method_: Fetch.requestMethod,
@@ -386,9 +387,15 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
       },
     })
 
-  async (url, body, method) => {
+  async (url, body, method, ~bodyFormData=?, ()) => {
     try {
-      let res = await fetchApi(url, ~method_=method, ~bodyStr=body->Js.Json.stringify, ())
+      let res = await fetchApi(
+        url,
+        ~method_=method,
+        ~bodyStr=body->Js.Json.stringify,
+        ~bodyFormData,
+        (),
+      )
       await responseHandler(
         ~res,
         ~showErrorToast,

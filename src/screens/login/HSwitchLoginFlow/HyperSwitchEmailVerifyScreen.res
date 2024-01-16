@@ -24,7 +24,7 @@ let make = (~setAuthType, ~setAuthStatus, ~authType) => {
       let userType =
         authType == HyperSwitchAuthTypes.EmailVerify ? #VERIFY_EMAIL : #VERIFY_MAGIC_LINK
       let url = getURL(~entityName=USERS, ~methodType=Post, ~userType, ())
-      let res = await updateDetails(url, body, Post)
+      let res = await updateDetails(url, body, Post, ())
       let email =
         res
         ->Js.Json.decodeObject

@@ -102,6 +102,7 @@ let make = () => {
         postLoginSurveyUrl,
         values->generateSurveyJson->Js.Json.object_,
         Post,
+        (),
       )
       HSwitchUtils.setUserDetails("is_metadata_filled", "true"->Js.Json.string)
       setDashboardPageState(_ => #AUTO_CONNECTOR_INTEGRATION)

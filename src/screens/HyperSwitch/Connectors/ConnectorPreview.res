@@ -248,7 +248,7 @@ let make = (
         isConnectorDisabled,
       )
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
-      let _ = await updateDetails(url, disableConnectorPayload->Js.Json.object_, Post)
+      let _ = await updateDetails(url, disableConnectorPayload->Js.Json.object_, Post, ())
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
       RescriptReactRouter.push("/connectors")
     } catch {

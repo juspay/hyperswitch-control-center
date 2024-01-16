@@ -268,7 +268,7 @@ let make = () => {
       setButtonState(_ => Loading)
       let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
       let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#SetupComplete, ())
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
       setButtonState(_ => Normal)
       setDashboardPageState(_ => #HOME)
     } catch {

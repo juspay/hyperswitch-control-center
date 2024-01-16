@@ -55,7 +55,7 @@ let make = (
           ConnectorUtils.connectorIgnoredField,
         )
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID, ())
-      let response = await updateAPIHook(connectorUrl, body, Post)
+      let response = await updateAPIHook(connectorUrl, body, Post, ())
       setInitialValues(_ => response)
       setScreenState(_ => Success)
       setCurrentStep(_ => ConnectorTypes.SummaryAndTest)

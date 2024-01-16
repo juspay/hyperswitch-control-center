@@ -14,7 +14,7 @@ let make = () => {
   let onClickForReconRequest = async () => {
     try {
       let url = getURL(~entityName=RECON, ~reconType=#REQUEST, ~methodType=Get, ())
-      let _ = await updateDetails(url, Js.Json.null, Post)
+      let _ = await updateDetails(url, Js.Json.null, Post, ())
       let _ = await fetchMerchantAccountDetails()
       showToast(
         ~message=`Thank you for your interest in our reconciliation module. We are currently reviewing your request for access. We will follow up with you soon regarding next steps.`,

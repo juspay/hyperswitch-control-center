@@ -134,7 +134,7 @@ module HSiwtchPaymentConfirmLatency = {
     }
 
     let getOverallLatency = async () => {
-      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("Payment"), Fetch.Post)
+      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("Payment"), Fetch.Post, ())
       ->thenResolve(json => {
         setOverallrLatency(_ => json->parseJson)
       })
@@ -146,7 +146,7 @@ module HSiwtchPaymentConfirmLatency = {
     }
 
     let getConnectorLatency = () => {
-      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("OutgoingEvent"), Fetch.Post)
+      updateDetails(url, singleStatBodyEntity->singleStatBodyMake("OutgoingEvent"), Fetch.Post, ())
       ->thenResolve(json => {
         setConnectorLatency(_ => json->parseJson)
         setIsLoading(_ => false)
@@ -275,7 +275,7 @@ module SystemMetricsAnalytics = {
       setFilterDataJson(_ => None)
       if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
         try {
-          updateDetails(filterUri, filterBody->Js.Json.object_, Post)
+          updateDetails(filterUri, filterBody->Js.Json.object_, Post, ())
           ->thenResolve(json => setFilterDataJson(_ => json->Some))
           ->catch(_ => resolve())
           ->ignore

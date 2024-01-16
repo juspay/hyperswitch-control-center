@@ -62,7 +62,7 @@ module DownloadAPIKeyButton = {
             ("description", "Default Value of the API key"->Js.Json.string),
             ("expiration", "never"->Js.Json.string),
           ]->Dict.fromArray
-        let res = await updateDetails(url, body->Js.Json.object_, Post)
+        let res = await updateDetails(url, body->Js.Json.object_, Post, ())
         let apiKey = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("api_key", "")
         DownloadUtils.downloadOld(~fileName=`apiKey.txt`, ~content=apiKey)
         Clipboard.writeText(apiKey)
@@ -422,7 +422,7 @@ module LandingPageTileForIntegrateDocs = {
           ~metadata=metaDataDict,
           (),
         )
-        let _ = await updateDetails(url, body, Post)
+        let _ = await updateDetails(url, body, Post, ())
         setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       } catch {
       | _ => ()

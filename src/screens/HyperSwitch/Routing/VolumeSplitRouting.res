@@ -39,7 +39,7 @@ module VolumeRoutingView = {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-        let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
+        let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post, ())
         showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(`/routing?`)
         setScreenState(_ => Success)
@@ -69,7 +69,7 @@ module VolumeRoutingView = {
         setScreenState(_ => Loading)
         let deactivateRoutingURL = `${getURL(~entityName=ROUTING, ~methodType=Post, ())}/deactivate`
         let body = [("profile_id", profile->Js.Json.string)]->Dict.fromArray->Js.Json.object_
-        let _ = await updateDetails(deactivateRoutingURL, body, Post)
+        let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
         showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(`/routing?`)
         setScreenState(_ => Success)
@@ -299,7 +299,7 @@ let make = (~routingRuleId, ~isActive) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let updateUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
-      let res = await updateDetails(updateUrl, values, Post)
+      let res = await updateDetails(updateUrl, values, Post, ())
       showToast(
         ~message="Successfully Created a new Configuration !",
         ~toastType=ToastState.ToastSuccess,

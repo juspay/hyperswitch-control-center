@@ -74,6 +74,7 @@ let make = () => {
         accountUrl,
         values->getSettingsPayload(uid->Belt.Option.getWithDefault("")),
         Post,
+        (),
       )
       setFormState(_ => Preview)
       let merchantInfo = merchantDetails->getMerchantDetails->parseMerchantJson

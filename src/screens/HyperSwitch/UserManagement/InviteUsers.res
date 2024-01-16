@@ -88,7 +88,7 @@ let make = () => {
   let inviteUserReq = async (body, index) => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#INVITE, ~methodType=Post, ())
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
       if index === 0 {
         showToast(~message=`Invite(s) sent successfully via Email`, ~toastType=ToastSuccess, ())
       }

@@ -85,7 +85,7 @@ let make = (
         ~json=connectorName->Window.getConnectorConfig,
         ~profileId=activeBusinessProfile.profile_id,
       )
-      let res = await updateDetails(url, testConnectorBody, Post)
+      let res = await updateDetails(url, testConnectorBody, Post, ())
       connectorArray->Array.push(connectorName)
       setConnectorArray(_ => connectorArray)
       setInitialValues(_ => res)
