@@ -80,6 +80,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (roleTypeValue, setRoleTypeValue) = React.useState(_ => "merchant_view_only")
   let (roleDict, setRoleDict) = React.useState(_ => Dict.make())
+  let (loaderForInviteUsers, setLoaderForInviteUsers) = React.useState(_ => false)
 
   let initialValues = React.useMemo0(() => {
     [("roleType", ["merchant_view_only"->Js.Json.string]->Js.Json.array)]
@@ -126,6 +127,9 @@ let make = () => {
   }
 
   let inviteListOfUsers = async values => {
+    if !magicLink {
+      setLoaderForInviteUsers(_ => true)
+    }
     let valDict = values->getDictFromJsonObject
     let role = valDict->getStrArray("roleType")->LogicUtils.getValueFromArray(0, "")
     let emailPasswordsArray = []
@@ -144,7 +148,12 @@ let make = () => {
       let _ = inviteUserReq(body, index, emailPasswordsArray)
     })
 
-    await HyperSwitchUtils.delay(400)
+    if !magicLink {
+      await HyperSwitchUtils.delay(2000)
+      setLoaderForInviteUsers(_ => false)
+    } else {
+      await HyperSwitchUtils.delay(400)
+    }
     RescriptReactRouter.push("/users")
     Js.Nullable.null
   }
@@ -252,5 +261,12 @@ let make = () => {
         </div>
       </PageLoaderWrapper>
     </div>
+    <UIUtils.RenderIf condition={!magicLink}>
+      <LoaderModal
+        showModal={loaderForInviteUsers}
+        setShowModal={setLoaderForInviteUsers}
+        text="Inviting Users"
+      />
+    </UIUtils.RenderIf>
   </div>
 }
