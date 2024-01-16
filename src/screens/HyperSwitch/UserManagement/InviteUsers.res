@@ -88,7 +88,7 @@ let make = () => {
     ->Js.Json.object_
   })
 
-  let inviteUserReq = async (body, index, emailPasswordsArray) => {
+  let inviteUserReq = async (body, emailPasswordsArray) => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#INVITE, ~methodType=Post, ())
       let response = await updateDetails(url, body, Post)
@@ -109,23 +109,6 @@ let make = () => {
           ->Js.Json.object_,
         )
       }
-
-      if index === 0 {
-        showToast(
-          ~message=magicLink
-            ? `Invite(s) sent successfully via Email`
-            : `The user accounts have been successfully created. The file with their credentials has been downloaded.`,
-          ~toastType=ToastSuccess,
-          (),
-        )
-        if !magicLink {
-          DownloadUtils.download(
-            ~fileName=`invited-users.txt`,
-            ~content=emailPasswordsArray->Js.Json.array->Js.Json.stringifyWithSpace(3),
-            ~fileType="application/json",
-          )
-        }
-      }
     } catch {
     | _ => ()
     }
@@ -139,22 +122,40 @@ let make = () => {
     let role = valDict->getStrArray("roleType")->LogicUtils.getValueFromArray(0, "")
     let emailPasswordsArray = []
 
-    valDict
-    ->getStrArray("emailList")
-    ->Array.forEachWithIndex((ele, index) => {
-      let body =
-        [
-          ("email", ele->String.toLowerCase->Js.Json.string),
-          ("name", ele->getNameFromEmail->Js.Json.string),
-          ("role_id", role->Js.Json.string),
-        ]
-        ->Dict.fromArray
-        ->Js.Json.object_
-      let _ = inviteUserReq(body, index, emailPasswordsArray)
-    })
+    let arryPromises =
+      valDict
+      ->getStrArray("emailList")
+      ->Array.map(ele => {
+        let body =
+          [
+            ("email", ele->String.toLowerCase->Js.Json.string),
+            ("name", ele->getNameFromEmail->Js.Json.string),
+            ("role_id", role->Js.Json.string),
+          ]
+          ->Dict.fromArray
+          ->Js.Json.object_
+        inviteUserReq(body, emailPasswordsArray)
+      })
+
+    let _ = await PromiseUtils.allSettledPolyfill(arryPromises)
+
+    showToast(
+      ~message=magicLink
+        ? `Invite(s) sent successfully via Email`
+        : `The user accounts have been successfully created. The file with their credentials has been downloaded.`,
+      ~toastType=ToastSuccess,
+      (),
+    )
 
     if !magicLink {
-      await HyperSwitchUtils.delay(2000)
+      DownloadUtils.download(
+        ~fileName=`invited-users.txt`,
+        ~content=emailPasswordsArray->Js.Json.array->Js.Json.stringifyWithSpace(3),
+        ~fileType="application/json",
+      )
+    }
+
+    if !magicLink {
       setLoaderForInviteUsers(_ => false)
     } else {
       await HyperSwitchUtils.delay(400)
