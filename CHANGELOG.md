@@ -3,6 +3,63 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.24.2 (2024-01-12)
+
+### Bug Fixes
+
+- Currency change ([#249](https://github.com/juspay/hyperswitch-control-center/pull/249)) ([`f72f290`](https://github.com/juspay/hyperswitch-control-center/commit/f72f290468125c6763e89047b162642ab3bf27e6))
+- Currency change ([#250](https://github.com/juspay/hyperswitch-control-center/pull/250)) ([`89f4874`](https://github.com/juspay/hyperswitch-control-center/commit/89f487488a008dafd1e704f4e796048eda631429))
+
+**Full Changelog:** [`v1.24.1...v1.24.2`](https://github.com/juspay/hyperswitch-control-center/compare/v1.24.1...v1.24.2)
+
+- - -
+
+
+## 1.24.1 (2024-01-12)
+
+### Bug Fixes
+
+- Curruncy fix ([#248](https://github.com/juspay/hyperswitch-control-center/pull/248)) ([`12c72a7`](https://github.com/juspay/hyperswitch-control-center/commit/12c72a7cb95fd408737564111e324c44c0001626))
+
+**Full Changelog:** [`v1.24.0...v1.24.1`](https://github.com/juspay/hyperswitch-control-center/compare/v1.24.0...v1.24.1)
+
+- - -
+
+
+## 1.24.0 (2024-01-12)
+
+### Features
+
+- Zero payment added ([#246](https://github.com/juspay/hyperswitch-control-center/pull/246)) ([`90dbf28`](https://github.com/juspay/hyperswitch-control-center/commit/90dbf287265bf51920edc2666ead6b8bdd49f337))
+
+**Full Changelog:** [`v1.23.3...v1.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.23.3...v1.24.0)
+
+- - -
+
+
+## 1.23.3 (2024-01-11)
+
+### Bug Fixes
+
+- revert customer module flag removal ([#244](https://github.com/juspay/hyperswitch-control-center/pull/244)) ([`15d2e6e`](https://github.com/juspay/hyperswitch-control-center/commit/15d2e6e341f9336f69cb3d23fbaf0c90c8acce3e))
+- Business & Shipping Details Updated ([#245](https://github.com/juspay/hyperswitch-control-center/pull/245)) ([`8a91072`](https://github.com/juspay/hyperswitch-control-center/commit/8a91072733bc865a4078daa4c1d4034858629de1))
+
+**Full Changelog:** [`v1.23.2...v1.23.3`](https://github.com/juspay/hyperswitch-control-center/compare/v1.23.2...v1.23.3)
+
+- - -
+
+
+## 1.23.2 (2024-01-11)
+
+### Bug Fixes
+
+- Customer module flag removal ([#242](https://github.com/juspay/hyperswitch-control-center/pull/242)) ([`5b06a76`](https://github.com/juspay/hyperswitch-control-center/commit/5b06a7657e4605fe6b35fe506913ea429d97a204))
+
+**Full Changelog:** [`v1.23.1...v1.23.2`](https://github.com/juspay/hyperswitch-control-center/compare/v1.23.1...v1.23.2)
+
+- - -
+
+
 ## 1.23.1 (2024-01-11)
 
 ### Bug Fixes
