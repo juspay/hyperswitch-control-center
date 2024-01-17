@@ -116,14 +116,17 @@ let make = () => {
     let response = await PromiseUtils.allSettledPolyfill(arrayOfPromises)
     if !magicLink {
       response->Array.forEachWithIndex((ele, index) => {
-        if ele !== Js.Json.null {
-          let passwordFromResponse = ele->getDictFromJsonObject->getString("password", "")
-          emailPasswordsArray->Array.push(
-            [
-              ("email", emailList[index]->Option.getWithDefault("")->Js.Json.string),
-              ("password", passwordFromResponse->Js.Json.string),
-            ]->LogicUtils.getJsonFromArrayOfJson,
-          )
+        switch Js.Json.classify(ele) {
+        | Js.Json.JSONObject(jsonDict) => {
+            let passwordFromResponse = jsonDict->getString("password", "")
+            emailPasswordsArray->Array.push(
+              [
+                ("email", emailList[index]->Option.getWithDefault("")->Js.Json.string),
+                ("password", passwordFromResponse->Js.Json.string),
+              ]->LogicUtils.getJsonFromArrayOfJson,
+            )
+          }
+        | _ => ()
         }
       })
     }
