@@ -54,35 +54,35 @@ let home = isHomeEnabled =>
         name: "Home",
         icon: "hswitch-home",
         link: "/home",
-        access: ReadWrite,
+        access: Access,
       })
     : emptyComponent
 
 let payments = SubLevelLink({
   name: "Payments",
   link: `/payments`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [("View payment operations", "")],
 })
 
 let refunds = SubLevelLink({
   name: "Refunds",
   link: `/refunds`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [("View refund operations", "")],
 })
 
 let disputes = SubLevelLink({
   name: "Disputes",
   link: `/disputes`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [("View dispute operations", "")],
 })
 
 let customers = SubLevelLink({
   name: "Customers",
   link: `/customers`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [("View customers", "")],
 })
 
@@ -105,7 +105,7 @@ let connectors = (isConnectorsEnabled, isLiveMode) => {
         name: "Processors",
         link: `/connectors`,
         icon: "connectors",
-        access: ReadWrite,
+        access: Access,
         searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
           ~processorList=isLiveMode
             ? ConnectorUtils.connectorListForLive
@@ -119,21 +119,21 @@ let connectors = (isConnectorsEnabled, isLiveMode) => {
 let paymentAnalytcis = SubLevelLink({
   name: "Payments",
   link: `/analytics-payments`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [("View analytics", "")],
 })
 
 let refundAnalytics = SubLevelLink({
   name: "Refunds",
   link: `/analytics-refunds`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [("View analytics", "")],
 })
 
 let userJourneyAnalytics = SubLevelLink({
   name: "User Journey",
   link: `/analytics-user-journey`,
-  access: ReadWrite,
+  access: Access,
   iconTag: "betaTag",
   searchOptions: [("View analytics", "")],
 })
@@ -153,7 +153,7 @@ let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag) =>
 let routing = SubLevelLink({
   name: "Routing",
   link: `/routing`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [
     ("Manage default routing configuration", "/default"),
     ("Create new volume based routing", "/volume"),
@@ -165,14 +165,14 @@ let routing = SubLevelLink({
 let threeDs = SubLevelLink({
   name: "3DS Decision Manager",
   link: `/3ds`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [("Configure 3ds", "")],
 })
 
 let surcharge = SubLevelLink({
   name: "Surcharge",
   link: `/surcharge`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [("Add Surcharge", "")],
 })
 
@@ -189,14 +189,14 @@ let workflow = (isWorkflowEnabled, isSurchargeEnabled) =>
 let userManagement = SubLevelLink({
   name: "Team",
   link: `/users`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [("View team management", "")],
 })
 
 let accountSettings = SubLevelLink({
   name: "Account Settings",
   link: `/account-settings`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [
     ("View profile", "/profile"),
     ("Change password", "/profile"),
@@ -207,14 +207,14 @@ let accountSettings = SubLevelLink({
 let businessDetails = SubLevelLink({
   name: "Business Details",
   link: `/business-details`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [("Configure business details", "")],
 })
 
 let businessProfiles = SubLevelLink({
   name: "Business Profiles",
   link: `/business-profiles`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [("Configure business profiles", "")],
 })
 
@@ -242,14 +242,14 @@ let settings = (~isSampleDataEnabled, ~isUserManagementEnabled, ~isBusinessProfi
 let apiKeys = SubLevelLink({
   name: "API Keys",
   link: `/developer-api-keys`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [("View API Keys", "")],
 })
 
 let systemMetric = SubLevelLink({
   name: "System Metrics",
   link: `/developer-system-metrics`,
-  access: ReadWrite,
+  access: Access,
   iconTag: "betaTag",
   searchOptions: [("View System Metrics", "")],
 })
@@ -257,7 +257,7 @@ let systemMetric = SubLevelLink({
 let paymentSettings = SubLevelLink({
   name: "Payment Settings",
   link: `/payment-settings`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
 })
 
@@ -282,7 +282,7 @@ let fraudAndRisk = isfraudAndRiskEnabled =>
         name: "Fraud & Risk",
         icon: "shield-alt",
         link: `/fraud-risk-management`,
-        access: isfraudAndRiskEnabled ? ReadWrite : NoAccess,
+        access: isfraudAndRiskEnabled ? Access : NoAccess,
         searchOptions: [],
       })
     : emptyComponent
@@ -293,7 +293,7 @@ let payoutConnectors = isPayoutConnectorsEnabled =>
         name: "Payout Processors",
         link: `/payoutconnectors`,
         icon: "connectors",
-        access: ReadWrite,
+        access: Access,
         searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
           ~processorList=ConnectorUtils.payoutConnectorList,
           ~getNameFromString=ConnectorUtils.getConnectorNameString,
@@ -307,7 +307,7 @@ let reconTag = (recon, isReconEnabled) =>
         name: "Reconcilation",
         icon: isReconEnabled ? "recon" : "recon-lock",
         link: `/recon`,
-        access: ReadWrite,
+        access: Access,
       })
     : emptyComponent
 
