@@ -80,14 +80,22 @@ module PrettyPrintJson = {
 
 type logType = Sdk | Payment
 
+type logDetails = {
+  response: string,
+  request: string,
+}
+
+type selectedObj = {
+  value: string,
+  optionType: logType,
+}
+
 module ApiDetailsComponent = {
   @react.component
   let make = (
     ~paymentDetailsValue,
-    ~setRequestObject,
-    ~setResponseObject,
-    ~setCurrentSelected,
-    ~setCurrentSelectedType,
+    ~setLogDetails,
+    ~setSelectedOption,
     ~currentSelected,
     ~paymentId,
     ~index,
@@ -179,10 +187,14 @@ module ApiDetailsComponent = {
         className={`flex gap-6 items-start w-full p-4 cursor-pointer ${boxShadowOnSelection} -mt-8 mb-8`}
         key={currentSelected}
         onClick={_ => {
-          setCurrentSelected(_ => requestId)
-          setRequestObject(_ => requestObject)
-          setResponseObject(_ => responseObject)
-          setCurrentSelectedType(_ => logType)
+          setLogDetails(_ => {
+            response: responseObject,
+            request: requestObject,
+          })
+          setSelectedOption(_ => {
+            value: requestId,
+            optionType: logType,
+          })
         }}>
         <div className="flex flex-col gap-1">
           <div className=" flex gap-2">
@@ -207,17 +219,20 @@ module ApiDetailsComponent = {
 
 @react.component
 let make = (~paymentId, ~createdAt) => {
+  open HSwitchUtils
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let fetchPostDetils = useUpdateMethod()
   let logs = React.useMemo0(() => {ref([])})
-  let (responseObject, setResponseObject) = React.useState(_ => "")
-  let (requestObject, setRequestObject) = React.useState(_ => "")
-  let (currentSelected, setCurrentSelected) = React.useState(_ => "")
-  let (currentSelectedType, setCurrentSelectedType) = React.useState(_ => Payment)
+  let (logDetails, setLogDetails) = React.useState(_ => {
+    response: "",
+    request: "",
+  })
+  let (selectedOption, setSelectedOption) = React.useState(_ => {
+    value: "",
+    optionType: Payment,
+  })
   let (screenState1, setScreenState1) = React.useState(_ => PageLoaderWrapper.Loading)
   let (screenState2, setScreenState2) = React.useState(_ => PageLoaderWrapper.Loading)
-
-  Js.log2(">>", logs.contents)
 
   let fetchPaymentLogsData = async _ => {
     try {
@@ -231,19 +246,6 @@ let make = (~paymentId, ~createdAt) => {
       let paymentLogsArray = (await fetchDetails(paymentLogsUrl))->getArrayFromJson([])
       logs.contents = logs.contents->Array.concat(paymentLogsArray)
 
-      // setting initial data
-      let initialData =
-        paymentLogsArray
-        ->Belt.Array.get(0)
-        ->Belt.Option.getWithDefault(Js.Json.null)
-        ->getDictFromJsonObject
-      let intialValueRequest = initialData->getString("request", "")
-
-      let intialValueResponse = initialData->getString("response", "")
-      setRequestObject(_ => intialValueRequest)
-      setResponseObject(_ => intialValueResponse)
-      setCurrentSelected(_ => initialData->getString("request_id", ""))
-
       setScreenState1(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
@@ -252,7 +254,7 @@ let make = (~paymentId, ~createdAt) => {
     }
   }
 
-  let fetchConnectorLogsData = async _ => {
+  let _fetchConnectorLogsData = async _ => {
     try {
       setScreenState1(_ => PageLoaderWrapper.Loading)
       let connectorLogsUrl = APIUtils.getURL(
@@ -264,20 +266,6 @@ let make = (~paymentId, ~createdAt) => {
       let logsArray = (await fetchDetails(connectorLogsUrl))->getArrayFromJson([])
       logs.contents = logs.contents->Array.concat(logsArray)
 
-      // setting initial data
-      let initialData =
-        logsArray
-        ->Belt.Array.get(0)
-        ->Belt.Option.getWithDefault(Js.Json.null)
-        ->getDictFromJsonObject
-
-      let intialValueRequest = initialData->getString("request", "")
-      let intialValueResponse = initialData->getString("response", "")
-
-      setRequestObject(_ => intialValueRequest)
-      setResponseObject(_ => intialValueResponse)
-      setCurrentSelected(_ => initialData->getString("request_id", ""))
-
       setScreenState1(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
@@ -286,16 +274,16 @@ let make = (~paymentId, ~createdAt) => {
     }
   }
 
-  let sourceMapper = source => {
-    switch source {
-    | "ORCA-LOADER" => "HYPERLOADER"
-    | "ORCA-PAYMENT-PAGE"
-    | "STRIPE_PAYMENT_SHEET" => "PAYMENT_SHEET"
-    | other => other
-    }
-  }
-
   let fetchSdkLogsData = async _ => {
+    let sourceMapper = source => {
+      switch source {
+      | "ORCA-LOADER" => "HYPERLOADER"
+      | "ORCA-PAYMENT-PAGE"
+      | "STRIPE_PAYMENT_SHEET" => "PAYMENT_SHEET"
+      | other => other
+      }
+    }
+
     try {
       setScreenState2(_ => PageLoaderWrapper.Loading)
       let url = APIUtils.getURL(
@@ -366,19 +354,6 @@ let make = (~paymentId, ~createdAt) => {
       })
       logs.contents = logs.contents->Array.concat(logsArr)
 
-      // setting initial data
-      let initialData =
-        sdkLogsArray
-        ->Belt.Array.get(0)
-        ->Belt.Option.getWithDefault(Js.Json.null)
-        ->getDictFromJsonObject
-      let intialValueRequest = initialData->getString("event_name", "")
-
-      let intialValueResponse = initialData->getString("response", "")
-      setRequestObject(_ => intialValueRequest)
-      setResponseObject(_ => intialValueResponse)
-      setCurrentSelected(_ => initialData->getString("event_id", ""))
-
       setScreenState2(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
@@ -386,6 +361,7 @@ let make = (~paymentId, ~createdAt) => {
       setScreenState2(_ => PageLoaderWrapper.Error(err))
     }
   }
+
   let getDetails = async () => {
     try {
       if !(paymentId->HSwitchOrderUtils.isTestPayment) {
@@ -406,8 +382,10 @@ let make = (~paymentId, ~createdAt) => {
   }
 
   let sortByCreatedAt = (log1: Js.Json.t, log2: Js.Json.t) => {
-    let keyA = log1->getDictFromJsonObject->getString("created_at", "")->Js.Date.fromString
-    let keyB = log2->getDictFromJsonObject->getString("created_at", "")->Js.Date.fromString
+    let getKey = dict =>
+      dict->getDictFromJsonObject->getString("created_at", "")->Js.Date.fromString
+    let keyA = log1->getKey
+    let keyB = log2->getKey
     if keyA < keyB {
       1
     } else if keyA > keyB {
@@ -419,6 +397,38 @@ let make = (~paymentId, ~createdAt) => {
 
   let screenState = React.useMemo2(() => {
     logs.contents = logs.contents->Js.Array2.sortInPlaceWith(sortByCreatedAt)
+
+    switch logs.contents->Array.get(0) {
+    | Some(value) => {
+        let initialData = value->getDictFromJsonObject
+        if initialData->Dict.get("request_id")->Belt.Option.isSome {
+          // payment
+          let request = initialData->getString("request", "")
+          let response = initialData->getString("response", "")
+          setLogDetails(_ => {
+            response,
+            request,
+          })
+          setSelectedOption(_ => {
+            value: initialData->getString("request_id", ""),
+            optionType: Payment,
+          })
+        } else {
+          // sdk
+          let request = initialData->getString("event_name", "")
+          let response = initialData->getString("response", "")
+          setLogDetails(_ => {
+            response,
+            request,
+          })
+          setSelectedOption(_ => {
+            value: initialData->getString("event_id", ""),
+            optionType: Sdk,
+          })
+        }
+      }
+    | _ => ()
+    }
 
     switch (screenState1, screenState2) {
     | (PageLoaderWrapper.Success, _)
@@ -460,11 +470,9 @@ let make = (~paymentId, ~createdAt) => {
               <ApiDetailsComponent
                 key={index->string_of_int}
                 paymentDetailsValue={paymentDetailsValue->getDictFromJsonObject}
-                setResponseObject
-                setRequestObject
-                currentSelected
-                setCurrentSelected
-                setCurrentSelectedType
+                setLogDetails
+                setSelectedOption
+                currentSelected=selectedOption.value
                 paymentId
                 index
                 logsDataLength={logs.contents->Array.length - 1}
@@ -474,20 +482,23 @@ let make = (~paymentId, ~createdAt) => {
           </div>
         </div>
         <UIUtils.RenderIf
-          condition={responseObject->String.length > 0 || requestObject->String.length > 0}>
+          condition={logDetails.response->String.length > 0 ||
+            logDetails.request->String.length > 0}>
           <div
             className="flex flex-col gap-4 bg-hyperswitch_background rounded show-scrollbar scroll-smooth overflow-scroll px-8 py-4 w-1/2">
-            <UIUtils.RenderIf condition={requestObject->String.length > 0}>
+            <UIUtils.RenderIf condition={!(logDetails.request->isEmptyString)}>
               <PrettyPrintJson
-                jsonToDisplay=requestObject
-                headerText={Some(currentSelectedType === Payment ? "Request body" : "Event")}
-                maxHeightClass={responseObject->String.length > 0 ? "max-h-25-rem" : ""}
+                jsonToDisplay=logDetails.request
+                headerText={Some(selectedOption.optionType === Payment ? "Request body" : "Event")}
+                maxHeightClass={logDetails.response->String.length > 0 ? "max-h-25-rem" : ""}
               />
             </UIUtils.RenderIf>
-            <UIUtils.RenderIf condition={responseObject->String.length > 0}>
+            <UIUtils.RenderIf condition={!(logDetails.response->isEmptyString)}>
               <PrettyPrintJson
-                jsonToDisplay=responseObject
-                headerText={Some(currentSelectedType === Payment ? "Response body" : "Metadata")}
+                jsonToDisplay=logDetails.response
+                headerText={Some(
+                  selectedOption.optionType === Payment ? "Response body" : "Metadata",
+                )}
               />
             </UIUtils.RenderIf>
           </div>
