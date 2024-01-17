@@ -51,5 +51,7 @@ module UnauthorizedPage = {
 @react.component
 let make = (~isEnabled, ~acl=?, ~children) => {
   let isAllowed = isAccessAllowed(acl->Option.getWithDefault(UnknownPermission("")))
-  isEnabled && isAllowed ? children : <UnauthorizedPage />
+  isEnabled && isAllowed
+    ? children
+    : <UnauthorizedPage message="You don't have access to this module." />
 }
