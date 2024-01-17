@@ -104,9 +104,7 @@ let make = () => {
               ->Js.Json.string,
             ),
             ("password", passwordFromResponse->Js.Json.string),
-          ]
-          ->Dict.fromArray
-          ->Js.Json.object_,
+          ]->LogicUtils.getJsonFromArrayOfJson,
         )
       }
     } catch {
@@ -131,9 +129,7 @@ let make = () => {
             ("email", ele->String.toLowerCase->Js.Json.string),
             ("name", ele->getNameFromEmail->Js.Json.string),
             ("role_id", role->Js.Json.string),
-          ]
-          ->Dict.fromArray
-          ->Js.Json.object_
+          ]->LogicUtils.getJsonFromArrayOfJson
         inviteUserReq(body, emailPasswordsArray)
       })
 
