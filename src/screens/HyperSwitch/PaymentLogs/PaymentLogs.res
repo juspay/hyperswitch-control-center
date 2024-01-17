@@ -45,7 +45,6 @@ module PrettyPrintJson = {
               <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
                 {headerText->Belt.Option.getWithDefault("")->React.string}
               </p>
-              {copyParsedJson}
             </div>
           </UIUtils.RenderIf>
           <div className="flex items-start justify-between">
@@ -167,12 +166,13 @@ module ApiDetailsComponent = {
     | (Payment, "500") => "red-800"
     | _ => "grey-700 opacity-50"
     }
+    open HSwitchUtils
     let stepColor =
-      currentSelected->String.length > 0 && currentSelected === requestId
+      !(currentSelected->isEmptyString) && currentSelected === requestId
         ? background_color
         : "gray-300 "
     let boxShadowOnSelection =
-      currentSelected->String.length > 0 && currentSelected === requestId
+      !(currentSelected->isEmptyString) && currentSelected === requestId
         ? "border border-blue-700 rounded-md shadow-paymentLogsShadow"
         : "border border-transparent"
 
@@ -231,12 +231,10 @@ let make = (~paymentId, ~createdAt) => {
     value: "",
     optionType: Payment,
   })
-  let (screenState1, setScreenState1) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (screenState2, setScreenState2) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let fetchPaymentLogsData = async _ => {
     try {
-      setScreenState1(_ => PageLoaderWrapper.Loading)
       let paymentLogsUrl = APIUtils.getURL(
         ~entityName=PAYMENT_LOGS,
         ~methodType=Get,
@@ -246,31 +244,11 @@ let make = (~paymentId, ~createdAt) => {
       let paymentLogsArray = (await fetchDetails(paymentLogsUrl))->getArrayFromJson([])
       logs.contents = logs.contents->Array.concat(paymentLogsArray)
 
-      setScreenState1(_ => PageLoaderWrapper.Success)
+      PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
       let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
-      setScreenState1(_ => PageLoaderWrapper.Error(err))
-    }
-  }
-
-  let _fetchConnectorLogsData = async _ => {
-    try {
-      setScreenState1(_ => PageLoaderWrapper.Loading)
-      let connectorLogsUrl = APIUtils.getURL(
-        ~entityName=CONNECTOR_EVENT_LOGS,
-        ~methodType=Get,
-        ~id=Some(paymentId),
-        (),
-      )
-      let logsArray = (await fetchDetails(connectorLogsUrl))->getArrayFromJson([])
-      logs.contents = logs.contents->Array.concat(logsArray)
-
-      setScreenState1(_ => PageLoaderWrapper.Success)
-    } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
-      setScreenState1(_ => PageLoaderWrapper.Error(err))
+      PageLoaderWrapper.Error(err)
     }
   }
 
@@ -285,7 +263,6 @@ let make = (~paymentId, ~createdAt) => {
     }
 
     try {
-      setScreenState2(_ => PageLoaderWrapper.Loading)
       let url = APIUtils.getURL(
         ~entityName=SDK_EVENT_LOGS,
         ~methodType=Post,
@@ -354,30 +331,24 @@ let make = (~paymentId, ~createdAt) => {
       })
       logs.contents = logs.contents->Array.concat(logsArr)
 
-      setScreenState2(_ => PageLoaderWrapper.Success)
+      PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
       let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
-      setScreenState2(_ => PageLoaderWrapper.Error(err))
+      PageLoaderWrapper.Error(err)
     }
   }
 
   let getDetails = async () => {
-    try {
-      if !(paymentId->HSwitchOrderUtils.isTestPayment) {
-        fetchPaymentLogsData()->ignore
-        fetchSdkLogsData()->ignore
-        // fetchConnectorLogsData()->ignore
-      } else {
-        setScreenState1(_ => PageLoaderWrapper.Success)
-        setScreenState2(_ => PageLoaderWrapper.Success)
+    if !(paymentId->HSwitchOrderUtils.isTestPayment) {
+      let screenState = switch (await fetchPaymentLogsData(), await fetchSdkLogsData()) {
+      | (PageLoaderWrapper.Error(_), PageLoaderWrapper.Error(_)) =>
+        PageLoaderWrapper.Error("Failed to Fetch!")
+      | _ => PageLoaderWrapper.Success
       }
-    } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
-        setScreenState1(_ => PageLoaderWrapper.Error(err))
-        setScreenState2(_ => PageLoaderWrapper.Error(err))
-      }
+      setScreenState(_ => screenState)
+    } else {
+      setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
@@ -395,7 +366,7 @@ let make = (~paymentId, ~createdAt) => {
     }
   }
 
-  let screenState = React.useMemo2(() => {
+  let screenState = React.useMemo1(() => {
     logs.contents = logs.contents->Js.Array2.sortInPlaceWith(sortByCreatedAt)
 
     switch logs.contents->Array.get(0) {
@@ -430,17 +401,8 @@ let make = (~paymentId, ~createdAt) => {
     | _ => ()
     }
 
-    switch (screenState1, screenState2) {
-    | (PageLoaderWrapper.Success, _)
-    | (_, PageLoaderWrapper.Success) =>
-      PageLoaderWrapper.Success
-    | (PageLoaderWrapper.Loading, _)
-    | (_, PageLoaderWrapper.Loading) =>
-      PageLoaderWrapper.Loading
-    | (PageLoaderWrapper.Error(err), PageLoaderWrapper.Error(_)) => PageLoaderWrapper.Error(err)
-    | _ => PageLoaderWrapper.Loading
-    }
-  }, (screenState1, screenState2))
+    screenState
+  }, [screenState])
 
   React.useEffect0(() => {
     getDetails()->ignore
