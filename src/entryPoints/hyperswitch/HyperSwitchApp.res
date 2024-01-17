@@ -238,11 +238,8 @@ let make = () => {
                     className="p-6 md:px-16 md:pb-16 pt-[3rem] flex flex-col gap-10 max-w-fixedPageWidth">
                     <ErrorBoundary>
                       {switch url.path {
-                      | list{"home"} =>
-                        <AccessControl
-                          isEnabled={featureFlagDetails.default} acl={MerchantConnectorAccountRead}>
-                          {featureFlagDetails.quickStart ? <HomeV2 /> : <Home />}
-                        </AccessControl>
+                      | list{"home"} => featureFlagDetails.quickStart ? <HomeV2 /> : <Home />
+
                       | list{"fraud-risk-management", ...remainingPath} =>
                         <AccessControl
                           isEnabled={featureFlagDetails.frm} acl={MerchantConnectorAccountRead}>
@@ -255,7 +252,7 @@ let make = () => {
                           />
                         </AccessControl>
                       | list{"connectors", ...remainingPath} =>
-                        <AccessControl isEnabled={false} acl={MerchantConnectorAccountRead}>
+                        <AccessControl isEnabled={true} acl={MerchantConnectorAccountRead}>
                           <EntityScaffold
                             entityName="Connectors"
                             remainingPath
@@ -387,7 +384,7 @@ let make = () => {
                       // | list{"quick-start"} => determineQuickStartPageState()
                       // | list{"woocommerce"} => determineWooCommerce()
                       // | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
-
+                      | list{"unauthorized"} => <AccessControl.UnauthorizedPage />
                       | _ =>
                         RescriptReactRouter.replace(`${hyperSwitchFEPrefix}/home`)
                         <Home />
