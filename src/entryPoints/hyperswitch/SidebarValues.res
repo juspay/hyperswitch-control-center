@@ -1,5 +1,4 @@
 open SidebarTypes
-open PermissionHelper
 
 // * Custom Component
 
@@ -40,7 +39,6 @@ module GetProductionAccess = {
 let emptyComponent = CustomComponent({
   component: React.null,
 })
-
 let productionAccessComponent = isProductionAccessEnabled =>
   isProductionAccessEnabled
     ? CustomComponent({
@@ -60,59 +58,35 @@ let home = isHomeEnabled =>
       })
     : emptyComponent
 
-let payments = permissionList => {
-  let paymentPermission = PaymentRead
-  let accessValue = getAccessValue(~permissionValue=paymentPermission, permissionList)
+let payments = SubLevelLink({
+  name: "Payments",
+  link: `/payments`,
+  access: ReadWrite,
+  searchOptions: [("View payment operations", "")],
+})
 
-  SubLevelLink({
-    name: "Payments",
-    link: `/payments`,
-    access: accessValue,
-    searchOptions: [("View payment operations", "")],
-  })
-}
+let refunds = SubLevelLink({
+  name: "Refunds",
+  link: `/refunds`,
+  access: ReadWrite,
+  searchOptions: [("View refund operations", "")],
+})
 
-let refunds = permissionList => {
-  let refundPermission = RefundRead
-  let accessValue = getAccessValue(~permissionValue=refundPermission, permissionList)
+let disputes = SubLevelLink({
+  name: "Disputes",
+  link: `/disputes`,
+  access: ReadWrite,
+  searchOptions: [("View dispute operations", "")],
+})
 
-  SubLevelLink({
-    name: "Refunds",
-    link: `/refunds`,
-    access: accessValue,
-    searchOptions: [("View refund operations", "")],
-  })
-}
+let customers = SubLevelLink({
+  name: "Customers",
+  link: `/customers`,
+  access: ReadWrite,
+  searchOptions: [("View customers", "")],
+})
 
-let disputes = permissionList => {
-  let disputePermission = DisputeRead
-  let accessValue = getAccessValue(~permissionValue=disputePermission, permissionList)
-
-  SubLevelLink({
-    name: "Disputes",
-    link: `/disputes`,
-    access: accessValue,
-    searchOptions: [("View dispute operations", "")],
-  })
-}
-
-let customers = permissionList => {
-  let customersPermission = CustomerRead
-  let accessValue = getAccessValue(~permissionValue=customersPermission, permissionList)
-  SubLevelLink({
-    name: "Customers",
-    link: `/customers`,
-    access: accessValue,
-    searchOptions: [("View customers", "")],
-  })
-}
-
-let operations = (isOperationsEnabled, customersModule, ~permissionList) => {
-  let payments = payments(permissionList)
-  let refunds = refunds(permissionList)
-  let disputes = disputes(permissionList)
-  let customers = customers(permissionList)
-
+let operations = (isOperationsEnabled, customersModule) => {
   isOperationsEnabled
     ? Section({
         name: "Operations",
@@ -125,15 +99,13 @@ let operations = (isOperationsEnabled, customersModule, ~permissionList) => {
     : emptyComponent
 }
 
-let connectors = (isConnectorsEnabled, isLiveMode, ~permissionList) => {
-  let connectorPermission = MerchantConnectorAccountRead
-  let accessValue = getAccessValue(~permissionValue=connectorPermission, permissionList)
+let connectors = (isConnectorsEnabled, isLiveMode) => {
   isConnectorsEnabled
     ? Link({
         name: "Processors",
         link: `/connectors`,
         icon: "connectors",
-        access: accessValue,
+        access: ReadWrite,
         searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
           ~processorList=isLiveMode
             ? ConnectorUtils.connectorListForLive
@@ -166,63 +138,45 @@ let userJourneyAnalytics = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
-let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag, ~permissionList) => {
-  let analyticsPermission = Analytics
-  let accessValue = getAccessValue(~permissionValue=analyticsPermission, permissionList)
-
+let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag) =>
   isAnalyticsEnabled
     ? Section({
         name: "Analytics",
         icon: "analytics",
-        showSection: accessValue === Read,
+        showSection: true,
         links: userJourneyAnalyticsFlag
           ? [paymentAnalytcis, refundAnalytics, userJourneyAnalytics]
           : [paymentAnalytcis, refundAnalytics],
       })
     : emptyComponent
-}
-let routing = permissionList => {
-  let routingPermission = RoutingRead
-  let accessValue = getAccessValue(~permissionValue=routingPermission, permissionList)
-  SubLevelLink({
-    name: "Routing",
-    link: `/routing`,
-    access: accessValue,
-    searchOptions: [
-      ("Manage default routing configuration", "/default"),
-      ("Create new volume based routing", "/volume"),
-      ("Create new rule based routing", "/rule"),
-      ("Manage smart routing", ""),
-    ],
-  })
-}
 
-let threeDs = permissionList => {
-  let threeDsPermission = ThreeDsDecisionManagerRead
-  let accessValue = getAccessValue(~permissionValue=threeDsPermission, permissionList)
-  SubLevelLink({
-    name: "3DS Decision Manager",
-    link: `/3ds`,
-    access: accessValue,
-    searchOptions: [("Configure 3ds", "")],
-  })
-}
-let surcharge = permissionList => {
-  let surchargePermission = SurchargeDecisionManagerRead
-  let accessValue = getAccessValue(~permissionValue=surchargePermission, permissionList)
-  SubLevelLink({
-    name: "Surcharge",
-    link: `/surcharge`,
-    access: accessValue,
-    searchOptions: [("Add Surcharge", "")],
-  })
-}
+let routing = SubLevelLink({
+  name: "Routing",
+  link: `/routing`,
+  access: ReadWrite,
+  searchOptions: [
+    ("Manage default routing configuration", "/default"),
+    ("Create new volume based routing", "/volume"),
+    ("Create new rule based routing", "/rule"),
+    ("Manage smart routing", ""),
+  ],
+})
 
-let workflow = (isWorkflowEnabled, isSurchargeEnabled, ~permissionList) => {
-  let routing = routing(permissionList)
-  let threeDs = threeDs(permissionList)
-  let surcharge = surcharge(permissionList)
+let threeDs = SubLevelLink({
+  name: "3DS Decision Manager",
+  link: `/3ds`,
+  access: ReadWrite,
+  searchOptions: [("Configure 3ds", "")],
+})
 
+let surcharge = SubLevelLink({
+  name: "Surcharge",
+  link: `/surcharge`,
+  access: ReadWrite,
+  searchOptions: [("Add Surcharge", "")],
+})
+
+let workflow = (isWorkflowEnabled, isSurchargeEnabled) =>
   isWorkflowEnabled
     ? Section({
         name: "Workflow",
@@ -231,74 +185,50 @@ let workflow = (isWorkflowEnabled, isSurchargeEnabled, ~permissionList) => {
         links: isSurchargeEnabled ? [routing, threeDs, surcharge] : [routing, threeDs],
       })
     : emptyComponent
-}
 
-let userManagement = permissionList => {
-  let userPermission = UsersRead
-  let accessValue = getAccessValue(~permissionValue=userPermission, permissionList)
-  SubLevelLink({
-    name: "Team",
-    link: `/users`,
-    access: accessValue,
-    searchOptions: [("View team management", "")],
-  })
-}
+let userManagement = SubLevelLink({
+  name: "Team",
+  link: `/users`,
+  access: ReadWrite,
+  searchOptions: [("View team management", "")],
+})
 
-let accountSettings = permissionList => {
-  // Because it has delete sample data
-  let merchantAccountPermission = MerchantAccountWrite
-  let accessValue = getAccessValue(~permissionValue=merchantAccountPermission, permissionList)
+let accountSettings = SubLevelLink({
+  name: "Account Settings",
+  link: `/account-settings`,
+  access: ReadWrite,
+  searchOptions: [
+    ("View profile", "/profile"),
+    ("Change password", "/profile"),
+    ("Manage your personal profile and preferences", "/profile"),
+  ],
+})
 
-  SubLevelLink({
-    name: "Account Settings",
-    link: `/account-settings`,
-    access: accessValue,
-    searchOptions: [
-      ("View profile", "/profile"),
-      ("Change password", "/profile"),
-      ("Manage your personal profile and preferences", "/profile"),
-    ],
-  })
-}
+let businessDetails = SubLevelLink({
+  name: "Business Details",
+  link: `/business-details`,
+  access: ReadWrite,
+  searchOptions: [("Configure business details", "")],
+})
 
-let businessDetails = permissionList => {
-  let merchantAccountPermission = MerchantAccountRead
-  let accessValue = getAccessValue(~permissionValue=merchantAccountPermission, permissionList)
+let businessProfiles = SubLevelLink({
+  name: "Business Profiles",
+  link: `/business-profiles`,
+  access: ReadWrite,
+  searchOptions: [("Configure business profiles", "")],
+})
 
-  SubLevelLink({
-    name: "Business Details",
-    link: `/business-details`,
-    access: accessValue,
-    searchOptions: [("Configure business details", "")],
-  })
-}
-
-let businessProfiles = permissionList => {
-  let merchantAccountPermission = MerchantAccountRead
-  let accessValue = getAccessValue(~permissionValue=merchantAccountPermission, permissionList)
-  SubLevelLink({
-    name: "Business Profiles",
-    link: `/business-profiles`,
-    access: accessValue,
-    searchOptions: [("Configure business profiles", "")],
-  })
-}
-let settings = (
-  ~isSampleDataEnabled,
-  ~isUserManagementEnabled,
-  ~isBusinessProfileEnabled,
-  ~permissionList,
-) => {
-  let settingsLinkArray = [businessDetails(permissionList)]
+let settings = (~isSampleDataEnabled, ~isUserManagementEnabled, ~isBusinessProfileEnabled) => {
+  let settingsLinkArray = [businessDetails]
 
   if isBusinessProfileEnabled {
-    settingsLinkArray->Array.push(businessProfiles(permissionList))->ignore
+    settingsLinkArray->Array.push(businessProfiles)->ignore
   }
   if isSampleDataEnabled {
-    settingsLinkArray->Array.push(accountSettings(permissionList))->ignore
+    settingsLinkArray->Array.push(accountSettings)->ignore
   }
   if isUserManagementEnabled {
-    settingsLinkArray->Array.push(userManagement(permissionList))->ignore
+    settingsLinkArray->Array.push(userManagement)->ignore
   }
 
   Section({
@@ -309,48 +239,30 @@ let settings = (
   })
 }
 
-let apiKeys = permissionList => {
-  let apiKeyPermission = ApiKeyRead
-  let accessValue = getAccessValue(~permissionValue=apiKeyPermission, permissionList)
+let apiKeys = SubLevelLink({
+  name: "API Keys",
+  link: `/developer-api-keys`,
+  access: ReadWrite,
+  searchOptions: [("View API Keys", "")],
+})
 
-  SubLevelLink({
-    name: "API Keys",
-    link: `/developer-api-keys`,
-    access: accessValue,
-    searchOptions: [("View API Keys", "")],
-  })
-}
+let systemMetric = SubLevelLink({
+  name: "System Metrics",
+  link: `/developer-system-metrics`,
+  access: ReadWrite,
+  iconTag: "betaTag",
+  searchOptions: [("View System Metrics", "")],
+})
 
-let systemMetric = permissionList => {
-  let analyticsPermission = Analytics
-  let accessValue = getAccessValue(~permissionValue=analyticsPermission, permissionList)
+let paymentSettings = SubLevelLink({
+  name: "Payment Settings",
+  link: `/payment-settings`,
+  access: ReadWrite,
+  searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
+})
 
-  SubLevelLink({
-    name: "System Metrics",
-    link: `/developer-system-metrics`,
-    access: accessValue,
-    iconTag: "betaTag",
-    searchOptions: [("View System Metrics", "")],
-  })
-}
-
-let paymentSettings = permissionList => {
-  let merchantAccountPermission = MerchantAccountRead
-  let accessValue = getAccessValue(~permissionValue=merchantAccountPermission, permissionList)
-
-  SubLevelLink({
-    name: "Payment Settings",
-    link: `/payment-settings`,
-    access: accessValue,
-    searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
-  })
-}
-
-let developers = (isDevelopersEnabled, userRole, systemMetrics, ~permissionList) => {
+let developers = (isDevelopersEnabled, userRole, systemMetrics) => {
   let isInternalUser = userRole->String.includes("internal_")
-  let apiKeys = apiKeys(permissionList)
-  let paymentSettings = paymentSettings(permissionList)
-  let systemMetric = systemMetric(permissionList)
 
   isDevelopersEnabled
     ? Section({
@@ -364,38 +276,30 @@ let developers = (isDevelopersEnabled, userRole, systemMetrics, ~permissionList)
     : emptyComponent
 }
 
-let fraudAndRisk = (isfraudAndRiskEnabled, ~permissionList) => {
-  let connectorPermission = MerchantConnectorAccountRead
-  let accessValue = getAccessValue(~permissionValue=connectorPermission, permissionList)
-
+let fraudAndRisk = isfraudAndRiskEnabled =>
   isfraudAndRiskEnabled
     ? Link({
         name: "Fraud & Risk",
         icon: "shield-alt",
         link: `/fraud-risk-management`,
-        access: accessValue,
+        access: isfraudAndRiskEnabled ? ReadWrite : NoAccess,
         searchOptions: [],
       })
     : emptyComponent
-}
 
-let payoutConnectors = (isPayoutConnectorsEnabled, ~permissionList) => {
-  let connectorPermission = MerchantConnectorAccountRead
-  let accessValue = getAccessValue(~permissionValue=connectorPermission, permissionList)
-
+let payoutConnectors = isPayoutConnectorsEnabled =>
   isPayoutConnectorsEnabled
     ? Link({
         name: "Payout Processors",
         link: `/payoutconnectors`,
         icon: "connectors",
-        access: accessValue,
+        access: ReadWrite,
         searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
           ~processorList=ConnectorUtils.payoutConnectorList,
           ~getNameFromString=ConnectorUtils.getConnectorNameString,
         ),
       })
     : emptyComponent
-}
 
 let reconTag = (recon, isReconEnabled) =>
   recon
@@ -410,7 +314,6 @@ let reconTag = (recon, isReconEnabled) =>
 let useGetSidebarValues = (~isReconEnabled: bool) => {
   let userRole = HSLocalStorage.getFromUserDetails("user_role")
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let permissionList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
   let {
     productionAccess,
@@ -431,19 +334,18 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   let sidebar = [
     productionAccess->productionAccessComponent,
     default->home,
-    default->operations(customersModule, ~permissionList),
-    default->analytics(userJourneyAnalyticsFlag, ~permissionList),
-    default->connectors(isLiveMode, ~permissionList),
-    default->workflow(isSurchargeEnabled, ~permissionList),
-    frm->fraudAndRisk(~permissionList),
-    payOut->payoutConnectors(~permissionList),
+    default->operations(customersModule),
+    default->analytics(userJourneyAnalyticsFlag),
+    default->connectors(isLiveMode),
+    default->workflow(isSurchargeEnabled),
+    frm->fraudAndRisk,
+    payOut->payoutConnectors,
     recon->reconTag(isReconEnabled),
-    default->developers(userRole, systemMetrics, ~permissionList),
+    default->developers(userRole, systemMetrics),
     settings(
       ~isUserManagementEnabled=userManagement,
       ~isBusinessProfileEnabled=businessProfile,
       ~isSampleDataEnabled=sampleData,
-      ~permissionList,
     ),
   ]
   sidebar
