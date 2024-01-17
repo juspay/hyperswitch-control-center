@@ -420,7 +420,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     ApiKeyWrite,
     MerchantAccountRead,
     MerchantAccountWrite,
-    MerchantConnectorAccountRead,
+    // MerchantConnectorAccountRead,
     ForexRead,
     MerchantConnectorAccountWrite,
     RoutingRead,
