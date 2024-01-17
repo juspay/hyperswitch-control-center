@@ -28,9 +28,7 @@ let make = () => {
     ->QuickStartUtils.getTypedValueFromDict
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let (permissionList, setUserPermissionsList) = Recoil.useRecoilState(
-    HyperswitchAtom.userPermissionAtom,
-  )
+  let setUserPermissionsList = Recoil.useSetRecoilState(HyperswitchAtom.userPermissionAtom)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let verificationDays = getFromMerchantDetails("verification")->LogicUtils.getIntFromString(-1)
   let userRole = getFromUserDetails("user_role")
@@ -261,129 +259,129 @@ let make = () => {
                             renderShow={_ => <ConnectorHome />}
                           />
                         </AccessControl>
-                      // | list{"payoutconnectors", ...remainingPath} =>
-                      //   <EntityScaffold
-                      //     entityName="PayoutConnectors"
-                      //     remainingPath
-                      //     renderList={() => <ConnectorList isPayoutFlow=true />}
-                      //     renderNewForm={() => <ConnectorHome isPayoutFlow=true />}
-                      //     renderShow={_ => <ConnectorHome isPayoutFlow=true />}
-                      //   />
-                      // | list{"payments", ...remainingPath} =>
-                      //   <FilterContext key="payments" index="payments" disableSessionStorage=true>
-                      //     <EntityScaffold
-                      //       entityName="Payments"
-                      //       remainingPath
-                      //       access=ReadWrite
-                      //       renderList={() => <Orders />}
-                      //       renderShow={id => <ShowOrder id />}
-                      //     />
-                      //   </FilterContext>
-                      // | list{"refunds", ...remainingPath} =>
-                      //   <FilterContext key="refunds" index="refunds" disableSessionStorage=true>
-                      //     <EntityScaffold
-                      //       entityName="Refunds"
-                      //       remainingPath
-                      //       access=ReadWrite
-                      //       renderList={() => <Refund />}
-                      //       renderShow={id => <ShowRefund id />}
-                      //     />
-                      //   </FilterContext>
-                      // | list{"disputes", ...remainingPath} =>
-                      //   <EntityScaffold
-                      //     entityName="Disputes"
-                      //     remainingPath
-                      //     access=ReadWrite
-                      //     renderList={() => <Disputes />}
-                      //     renderShow={id => <ShowDisputes id />}
-                      //   />
-                      // | list{"customers", ...remainingPath} =>
-                      //   <AccessControl isEnabled=featureFlagDetails.customersModule>
-                      //     <EntityScaffold
-                      //       entityName="Customers"
-                      //       remainingPath
-                      //       access=ReadWrite
-                      //       renderList={() => <Customers />}
-                      //       renderShow={id => <ShowCustomers id />}
-                      //     />
-                      //   </AccessControl>
-                      // | list{"routing", ...remainingPath} =>
-                      //   <EntityScaffold
-                      //     entityName="Routing"
-                      //     remainingPath
-                      //     renderList={() => <RoutingStack remainingPath />}
-                      //     renderShow={routingType => <RoutingConfigure routingType />}
-                      //   />
-                      // | list{"users", "invite-users"} => <InviteUsers />
-                      // | list{"users", ...remainingPath} =>
-                      //   <EntityScaffold
-                      //     entityName="UserManagement"
-                      //     remainingPath
-                      //     access=ReadWrite
-                      //     renderList={() => <UserRoleEntry />}
-                      //     renderShow={_ => <UserRoleShowData />}
-                      //   />
-                      // | list{"analytics-payments"} =>
-                      //   <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
-                      //     <PaymentAnalytics />
-                      //   </FilterContext>
-                      // | list{"analytics-refunds"} =>
-                      //   <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
-                      //     <RefundsAnalytics />
-                      //   </FilterContext>
-                      // | list{"analytics-user-journey"} =>
-                      //   <AccessControl isEnabled=featureFlagDetails.userJourneyAnalytics>
-                      //     <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
-                      //       <UserJourneyAnalytics />
-                      //     </FilterContext>
-                      //   </AccessControl>
-                      // | list{"monitoring"} => comingSoonPage
-                      // | list{"developer-api-keys"} => <KeyManagement.KeysManagement />
-                      // | list{"developer-system-metrics"} =>
-                      //   <UIUtils.RenderIf
-                      //     condition={userRole->String.includes("internal_") &&
-                      //       featureFlagDetails.systemMetrics}>
-                      //     <FilterContext key="SystemMetrics" index="SystemMetrics">
-                      //       <SystemMetricsAnalytics />
-                      //     </FilterContext>
-                      //   </UIUtils.RenderIf>
-                      // | list{"payment-settings", ...remainingPath} =>
-                      //   <EntityScaffold
-                      //     entityName="PaymentSettings"
-                      //     remainingPath
-                      //     renderList={() => <PaymentSettingsList />}
-                      //     renderShow={profileId =>
-                      //       <PaymentSettings webhookOnly=false showFormOnly=false />}
-                      //   />
-                      // | list{"recon"} =>
-                      //   <AccessControl isEnabled=featureFlagDetails.recon>
-                      //     <Recon />
-                      //   </AccessControl>
-                      // | list{"sdk"} =>
-                      //   <AccessControl isEnabled={!featureFlagDetails.isLiveMode}>
-                      //     <SDKPage />
-                      //   </AccessControl>
-                      // | list{"3ds"} => <HSwitchThreeDS />
-                      // | list{"surcharge"} =>
-                      //   <AccessControl isEnabled={featureFlagDetails.surcharge}>
-                      //     <Surcharge />
-                      //   </AccessControl>
-                      // | list{"account-settings"} =>
-                      //   <AccessControl isEnabled=featureFlagDetails.sampleData>
-                      //     <HSwitchSettings />
-                      //   </AccessControl>
-                      // | list{"account-settings", "profile"} => <HSwitchProfileSettings />
-                      // | list{"business-details"} =>
-                      //   <AccessControl isEnabled=featureFlagDetails.default>
-                      //     <BusinessDetails />
-                      //   </AccessControl>
-                      // | list{"business-profiles"} =>
-                      //   <AccessControl isEnabled=featureFlagDetails.businessProfile>
-                      //     <BusinessProfile />
-                      //   </AccessControl>
-                      // | list{"quick-start"} => determineQuickStartPageState()
-                      // | list{"woocommerce"} => determineWooCommerce()
-                      // | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
+                      | list{"payoutconnectors", ...remainingPath} =>
+                        <EntityScaffold
+                          entityName="PayoutConnectors"
+                          remainingPath
+                          renderList={() => <ConnectorList isPayoutFlow=true />}
+                          renderNewForm={() => <ConnectorHome isPayoutFlow=true />}
+                          renderShow={_ => <ConnectorHome isPayoutFlow=true />}
+                        />
+                      | list{"payments", ...remainingPath} =>
+                        <FilterContext key="payments" index="payments" disableSessionStorage=true>
+                          <EntityScaffold
+                            entityName="Payments"
+                            remainingPath
+                            access=ReadWrite
+                            renderList={() => <Orders />}
+                            renderShow={id => <ShowOrder id />}
+                          />
+                        </FilterContext>
+                      | list{"refunds", ...remainingPath} =>
+                        <FilterContext key="refunds" index="refunds" disableSessionStorage=true>
+                          <EntityScaffold
+                            entityName="Refunds"
+                            remainingPath
+                            access=ReadWrite
+                            renderList={() => <Refund />}
+                            renderShow={id => <ShowRefund id />}
+                          />
+                        </FilterContext>
+                      | list{"disputes", ...remainingPath} =>
+                        <EntityScaffold
+                          entityName="Disputes"
+                          remainingPath
+                          access=ReadWrite
+                          renderList={() => <Disputes />}
+                          renderShow={id => <ShowDisputes id />}
+                        />
+                      | list{"customers", ...remainingPath} =>
+                        <AccessControl isEnabled=featureFlagDetails.customersModule>
+                          <EntityScaffold
+                            entityName="Customers"
+                            remainingPath
+                            access=ReadWrite
+                            renderList={() => <Customers />}
+                            renderShow={id => <ShowCustomers id />}
+                          />
+                        </AccessControl>
+                      | list{"routing", ...remainingPath} =>
+                        <EntityScaffold
+                          entityName="Routing"
+                          remainingPath
+                          renderList={() => <RoutingStack remainingPath />}
+                          renderShow={routingType => <RoutingConfigure routingType />}
+                        />
+                      | list{"users", "invite-users"} => <InviteUsers />
+                      | list{"users", ...remainingPath} =>
+                        <EntityScaffold
+                          entityName="UserManagement"
+                          remainingPath
+                          access=ReadWrite
+                          renderList={() => <UserRoleEntry />}
+                          renderShow={_ => <UserRoleShowData />}
+                        />
+                      | list{"analytics-payments"} =>
+                        <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
+                          <PaymentAnalytics />
+                        </FilterContext>
+                      | list{"analytics-refunds"} =>
+                        <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
+                          <RefundsAnalytics />
+                        </FilterContext>
+                      | list{"analytics-user-journey"} =>
+                        <AccessControl isEnabled=featureFlagDetails.userJourneyAnalytics>
+                          <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
+                            <UserJourneyAnalytics />
+                          </FilterContext>
+                        </AccessControl>
+                      | list{"monitoring"} => comingSoonPage
+                      | list{"developer-api-keys"} => <KeyManagement.KeysManagement />
+                      | list{"developer-system-metrics"} =>
+                        <UIUtils.RenderIf
+                          condition={userRole->String.includes("internal_") &&
+                            featureFlagDetails.systemMetrics}>
+                          <FilterContext key="SystemMetrics" index="SystemMetrics">
+                            <SystemMetricsAnalytics />
+                          </FilterContext>
+                        </UIUtils.RenderIf>
+                      | list{"payment-settings", ...remainingPath} =>
+                        <EntityScaffold
+                          entityName="PaymentSettings"
+                          remainingPath
+                          renderList={() => <PaymentSettingsList />}
+                          renderShow={profileId =>
+                            <PaymentSettings webhookOnly=false showFormOnly=false />}
+                        />
+                      | list{"recon"} =>
+                        <AccessControl isEnabled=featureFlagDetails.recon>
+                          <Recon />
+                        </AccessControl>
+                      | list{"sdk"} =>
+                        <AccessControl isEnabled={!featureFlagDetails.isLiveMode}>
+                          <SDKPage />
+                        </AccessControl>
+                      | list{"3ds"} => <HSwitchThreeDS />
+                      | list{"surcharge"} =>
+                        <AccessControl isEnabled={featureFlagDetails.surcharge}>
+                          <Surcharge />
+                        </AccessControl>
+                      | list{"account-settings"} =>
+                        <AccessControl isEnabled=featureFlagDetails.sampleData>
+                          <HSwitchSettings />
+                        </AccessControl>
+                      | list{"account-settings", "profile"} => <HSwitchProfileSettings />
+                      | list{"business-details"} =>
+                        <AccessControl isEnabled=featureFlagDetails.default>
+                          <BusinessDetails />
+                        </AccessControl>
+                      | list{"business-profiles"} =>
+                        <AccessControl isEnabled=featureFlagDetails.businessProfile>
+                          <BusinessProfile />
+                        </AccessControl>
+                      | list{"quick-start"} => determineQuickStartPageState()
+                      | list{"woocommerce"} => determineWooCommerce()
+                      | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
                       | list{"unauthorized"} =>
                         <AccessControl.UnauthorizedPage
                           message="You don't have access to this module."

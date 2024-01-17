@@ -1,44 +1,12 @@
 open PermissionUtils
-let isAccessAllowed = permission =>
-  getAccessValue(
-    ~permissionValue=permission,
-    ~permissionList=[
-      PaymentRead,
-      PaymentWrite,
-      RefundRead,
-      RefundWrite,
-      ApiKeyRead,
-      ApiKeyWrite,
-      MerchantAccountRead,
-      MerchantAccountWrite,
-      MerchantConnectorAccountRead,
-      ForexRead,
-      MerchantConnectorAccountWrite,
-      RoutingRead,
-      RoutingWrite,
-      ThreeDsDecisionManagerWrite,
-      ThreeDsDecisionManagerRead,
-      SurchargeDecisionManagerWrite,
-      SurchargeDecisionManagerRead,
-      DisputeRead,
-      DisputeWrite,
-      MandateRead,
-      MandateWrite,
-      CustomerRead,
-      CustomerWrite,
-      FileRead,
-      FileWrite,
-      Analytics,
-      UsersRead,
-      UsersWrite,
-    ],
-  ) === Access
+let isAccessAllowed = (permission, ~permissionList) =>
+  getAccessValue(~permissionValue=permission, ~permissionList) === Access
 
 module UnauthorizedPage = {
   @react.component
   let make = (
     ~message="You don't have access to this module. Contact admin for access",
-    ~customReqMsg=`It appears that you do not currently have access to the  module. To obtain access, kindly request it from your administrator using the "Request Access" action provided below.`,
+    ~customReqMsg=`It appears that you do not currently have access to the  module.`,
   ) => {
     React.useEffect0(() => {
       RescriptReactRouter.replace("/unauthorized")
@@ -50,7 +18,11 @@ module UnauthorizedPage = {
 
 @react.component
 let make = (~isEnabled, ~acl=?, ~children) => {
-  let isAllowed = isAccessAllowed(acl->Option.getWithDefault(UnknownPermission("")))
+  let permissionList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let isAllowed = isAccessAllowed(
+    acl->Option.getWithDefault(UnknownPermission("")),
+    ~permissionList,
+  )
   isEnabled && isAllowed
     ? children
     : <UnauthorizedPage message="You don't have access to this module." />
