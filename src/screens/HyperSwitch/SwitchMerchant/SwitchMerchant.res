@@ -318,7 +318,9 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   } else {
     <>
       <ExternalUser switchMerchant isAddMerchantEnabled />
-      <LoaderModal showModal={successModal} setShowModal={setSuccessModal} text="Switch Merchant" />
+      <LoaderModal
+        showModal={successModal} setShowModal={setSuccessModal} text="Switching merchant..."
+      />
     </>
   }
 }

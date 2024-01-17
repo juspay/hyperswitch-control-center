@@ -120,7 +120,7 @@ let make = () => {
     let role = valDict->getStrArray("roleType")->LogicUtils.getValueFromArray(0, "")
     let emailPasswordsArray = []
 
-    let arryPromises =
+    let arrayOfPromises =
       valDict
       ->getStrArray("emailList")
       ->Array.map(ele => {
@@ -133,7 +133,7 @@ let make = () => {
         inviteUserReq(body, emailPasswordsArray)
       })
 
-    let _ = await PromiseUtils.allSettledPolyfill(arryPromises)
+    let _ = await PromiseUtils.allSettledPolyfill(arrayOfPromises)
 
     showToast(
       ~message=magicLink
