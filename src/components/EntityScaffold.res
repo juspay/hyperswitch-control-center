@@ -52,7 +52,6 @@ let make = (
     | list{"new"} =>
       switch access {
       | ReadWrite => renderNewForm()
-      | Checker => isAdminAccount ? renderNewForm() : <UnauthorizedPage entityName />
       | _ => <UnauthorizedPage entityName />
       }
     | list{id, "clone"} =>
@@ -69,14 +68,11 @@ let make = (
     | list{id, "edit"} =>
       switch access {
       | ReadWrite => renderEdit(id)
-      | Checker => isAdminAccount ? renderEdit(id) : <UnauthorizedPage entityName />
       | _ => <UnauthorizedPage entityName />
       }
     | list{id1, id2, "edit"} =>
       switch access {
       | ReadWrite => renderEditWithMultiId(id1, id2)
-      | Checker =>
-        isAdminAccount ? renderEditWithMultiId(id1, id2) : <UnauthorizedPage entityName />
       | _ => <UnauthorizedPage entityName />
       }
     | list{"order", id} =>

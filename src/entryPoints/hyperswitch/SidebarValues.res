@@ -311,12 +311,10 @@ let reconTag = (recon, isReconEnabled) =>
       })
     : emptyComponent
 
-let getHyperSwitchAppSidebars = (
-  ~isReconEnabled: bool,
-  ~featureFlagDetails: FeatureFlagUtils.featureFlag,
-  ~userRole,
-  (),
-) => {
+let useGetSidebarValues = (~isReconEnabled: bool) => {
+  let userRole = HSLocalStorage.getFromUserDetails("user_role")
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
   let {
     productionAccess,
     frm,
@@ -332,6 +330,7 @@ let getHyperSwitchAppSidebars = (
     isLiveMode,
     customersModule,
   } = featureFlagDetails
+
   let sidebar = [
     productionAccess->productionAccessComponent,
     default->home,
