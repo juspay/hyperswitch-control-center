@@ -88,28 +88,15 @@ let make = () => {
     ->Js.Json.object_
   })
 
-  let inviteUserReq = async (body, emailPasswordsArray) => {
-    try {
-      let url = getURL(~entityName=USERS, ~userType=#INVITE, ~methodType=Post, ())
-      let response = await updateDetails(url, body, Post)
-      if !magicLink {
-        let passwordFromResponse = response->getDictFromJsonObject->getString("password", "")
-        emailPasswordsArray->Array.push(
-          [
-            (
-              "email",
-              body
-              ->LogicUtils.getDictFromJsonObject
-              ->LogicUtils.getString("email", "")
-              ->Js.Json.string,
-            ),
-            ("password", passwordFromResponse->Js.Json.string),
-          ]->LogicUtils.getJsonFromArrayOfJson,
-        )
-      }
-    } catch {
-    | _ => ()
-    }
+  let inviteUserReq = (body, emailPasswordsArray) => {
+    // try {
+    let url = getURL(~entityName=USERS, ~userType=#INVITE, ~methodType=Post, ())
+    let response = updateDetails(url, body, Post)
+
+    response
+    // } catch {
+    // | _ => Js.Json.null
+    // }
   }
 
   let inviteListOfUsers = async values => {
@@ -133,8 +120,25 @@ let make = () => {
         inviteUserReq(body, emailPasswordsArray)
       })
 
-    let _ = await PromiseUtils.allSettledPolyfill(arrayOfPromises)
+    let response = await PromiseUtils.allSettledPolyfill(arrayOfPromises)
+    Js.log(response)
 
+    // Js.log2(res, "res")/
+    // if !magicLink {
+    //   let passwordFromResponse = response->getDictFromJsonObject->getString("password", "")
+    //   emailPasswordsArray->Array.push(
+    //     [
+    //       (
+    //         "email",
+    //         body
+    //         ->LogicUtils.getDictFromJsonObject
+    //         ->LogicUtils.getString("email", "")
+    //         ->Js.Json.string,
+    //       ),
+    //       ("password", passwordFromResponse->Js.Json.string),
+    //     ]->LogicUtils.getJsonFromArrayOfJson,
+    //   )
+    // }
     showToast(
       ~message=magicLink
         ? `Invite(s) sent successfully via Email`
