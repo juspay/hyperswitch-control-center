@@ -7,7 +7,7 @@ let allSettledPolyfill = (arr: array<promise<Js.Json.t>>) => {
     ->Promise.then(val => {
       Promise.resolve(val)
     })
-    ->Promise.catch(_err => {
+    ->Promise.catch(_ => {
       Js.Json.null->Js.Promise.resolve
     })
   )
