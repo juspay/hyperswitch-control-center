@@ -40,7 +40,7 @@ let make = () => {
     ->QuickStartUtils.getTypedValueFromDict
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let setUserPermissions = Recoil.useSetRecoilState(HyperswitchAtom.userPermissionAtom)
+  let setUserPermissionsList = Recoil.useSetRecoilState(HyperswitchAtom.userPermissionAtom)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let verificationDays = getFromMerchantDetails("verification")->LogicUtils.getIntFromString(-1)
   let userRole = getFromUserDetails("user_role")
@@ -55,12 +55,7 @@ let make = () => {
   let isReconEnabled =
     (merchantDetailsValue->MerchantAccountUtils.getMerchantDetails).recon_status === Active
 
-  let hyperSwitchAppSidebars = SidebarValues.getHyperSwitchAppSidebars(
-    ~isReconEnabled,
-    ~featureFlagDetails,
-    ~userRole,
-    (),
-  )
+  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
 
   let comingSoonPage =
     <DefaultLandingPage
@@ -133,7 +128,9 @@ let make = () => {
         ->LogicUtils.getDictFromJsonObject
         ->LogicUtils.getArrayFromDict("permissions", [])
         ->Array.map(ele => ele->Js.Json.decodeString->Option.getWithDefault(""))
-      setUserPermissions(._ => permissionsValue)
+      let mapPermissionArrayToType =
+        permissionsValue->Array.map(ele => ele->PermissionHelper.mapStringToPermissionType)
+      setUserPermissionsList(._ => mapPermissionArrayToType)
     } catch {
     | Js.Exn.Error(e) => {
         let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
