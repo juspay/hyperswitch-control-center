@@ -56,7 +56,7 @@ let home = isHomeEnabled =>
         name: "Home",
         icon: "hswitch-home",
         link: "/home",
-        access: ReadWrite,
+        access: Access,
       })
     : emptyComponent
 
@@ -147,21 +147,21 @@ let connectors = (isConnectorsEnabled, isLiveMode, ~permissionList) => {
 let paymentAnalytcis = SubLevelLink({
   name: "Payments",
   link: `/analytics-payments`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [("View analytics", "")],
 })
 
 let refundAnalytics = SubLevelLink({
   name: "Refunds",
   link: `/analytics-refunds`,
-  access: ReadWrite,
+  access: Access,
   searchOptions: [("View analytics", "")],
 })
 
 let userJourneyAnalytics = SubLevelLink({
   name: "User Journey",
   link: `/analytics-user-journey`,
-  access: ReadWrite,
+  access: Access,
   iconTag: "betaTag",
   searchOptions: [("View analytics", "")],
 })
@@ -174,7 +174,7 @@ let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag, ~permissionList) 
     ? Section({
         name: "Analytics",
         icon: "analytics",
-        showSection: accessValue === Read,
+        showSection: accessValue === Access,
         links: userJourneyAnalyticsFlag
           ? [paymentAnalytcis, refundAnalytics, userJourneyAnalytics]
           : [paymentAnalytcis, refundAnalytics],
@@ -403,7 +403,7 @@ let reconTag = (recon, isReconEnabled) =>
         name: "Reconcilation",
         icon: isReconEnabled ? "recon" : "recon-lock",
         link: `/recon`,
-        access: ReadWrite,
+        access: Access,
       })
     : emptyComponent
 

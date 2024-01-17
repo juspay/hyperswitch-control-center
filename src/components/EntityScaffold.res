@@ -36,14 +36,14 @@ let make = (
   ~entityName="",
   ~remainingPath,
   ~isAdminAccount=false,
-  ~access: AuthTypes.authorization=ReadWrite,
-  ~renderList=() => <ComingSoon title="List" />,
-  ~renderNewForm=() => <ComingSoon title="New Form" />,
+  ~access: AuthTypes.authorization=Access,
+  ~renderList=_ => <ComingSoon title="List" />,
+  ~renderNewForm=_ => <ComingSoon title="New Form" />,
   ~renderShow=?,
   ~renderOrder=?,
-  ~renderEdit=_id => <ComingSoon title="Edit Form" />,
-  ~renderEditWithMultiId=(_id1, _id2) => <ComingSoon title="Edit Form" />,
-  ~renderClone=_id => <ComingSoon title="Clone Form" />,
+  ~renderEdit=_ => <ComingSoon title="Edit Form" />,
+  ~renderEditWithMultiId=(_, _) => <ComingSoon title="Edit Form" />,
+  ~renderClone=_ => <ComingSoon title="Clone Form" />,
 ) => {
   if access === NoAccess {
     <UnauthorizedPage entityName />
@@ -51,13 +51,13 @@ let make = (
     switch remainingPath {
     | list{"new"} =>
       switch access {
-      | ReadWrite => renderNewForm()
-      | _ => <UnauthorizedPage entityName />
+      | Access => renderNewForm()
+      | NoAccess => <UnauthorizedPage entityName />
       }
     | list{id, "clone"} =>
       switch access {
-      | ReadWrite => renderClone(id)
-      | _ => <UnauthorizedPage entityName />
+      | Access => renderClone(id)
+      | NoAccess => <UnauthorizedPage entityName />
       }
     | list{id} =>
       let page = switch renderShow {
@@ -67,13 +67,13 @@ let make = (
       page
     | list{id, "edit"} =>
       switch access {
-      | ReadWrite => renderEdit(id)
-      | _ => <UnauthorizedPage entityName />
+      | Access => renderEdit(id)
+      | NoAccess => <UnauthorizedPage entityName />
       }
     | list{id1, id2, "edit"} =>
       switch access {
-      | ReadWrite => renderEditWithMultiId(id1, id2)
-      | _ => <UnauthorizedPage entityName />
+      | Access => renderEditWithMultiId(id1, id2)
+      | NoAccess => <UnauthorizedPage entityName />
       }
     | list{"order", id} =>
       switch renderOrder {

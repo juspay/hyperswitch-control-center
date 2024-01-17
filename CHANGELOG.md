@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.25.1 (2024-01-17)
+
+### Miscellaneous Tasks
+
+- Sidebar refactoring & permissions added ([#264](https://github.com/juspay/hyperswitch-control-center/pull/264)) ([`f428679`](https://github.com/juspay/hyperswitch-control-center/commit/f428679fa9b98e002e8bb1f670af65595ae64845))
+- Access Control Module added ([#266](https://github.com/juspay/hyperswitch-control-center/pull/266)) ([`59d0b53`](https://github.com/juspay/hyperswitch-control-center/commit/59d0b5387476536ed3a7f6a9f3468a3bd115232f))
+
+**Full Changelog:** [`v1.25.0...v1.25.1`](https://github.com/juspay/hyperswitch-control-center/compare/v1.25.0...v1.25.1)
+
+- - -
+
+
 ## 1.25.0 (2024-01-16)
 
 ### Features
