@@ -144,6 +144,15 @@ let getURL = (
       }
     | _ => ""
     }
+  | CONNECTOR_EVENT_LOGS =>
+    switch methodType {
+    | Get =>
+      switch id {
+      | Some(payment_id) => `analytics/v1/outgoing_webhook_event_logs?payment_id=${payment_id}`
+      | None => ""
+      }
+    | _ => ""
+    }
   | USERS =>
     let userUrl = `user`
     switch userType {

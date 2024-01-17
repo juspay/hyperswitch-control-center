@@ -204,19 +204,20 @@ module ApiDetailsComponent = {
     </div>
   }
 }
+
 @react.component
 let make = (~paymentId, ~createdAt) => {
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let fetchPostDetils = useUpdateMethod()
-  let (paymentLogsData, setPaymentLogsData) = React.useState(_ => [])
-  let (sdkLogsData, setSdkLogsData) = React.useState(_ => [])
-  let (allLogsData, setAllLogsData) = React.useState(_ => [])
+  let logs = React.useMemo0(() => {ref([])})
   let (responseObject, setResponseObject) = React.useState(_ => "")
   let (requestObject, setRequestObject) = React.useState(_ => "")
   let (currentSelected, setCurrentSelected) = React.useState(_ => "")
   let (currentSelectedType, setCurrentSelectedType) = React.useState(_ => Payment)
   let (screenState1, setScreenState1) = React.useState(_ => PageLoaderWrapper.Loading)
   let (screenState2, setScreenState2) = React.useState(_ => PageLoaderWrapper.Loading)
+
+  Js.log2(">>", logs.contents)
 
   let fetchPaymentLogsData = async _ => {
     try {
@@ -228,7 +229,7 @@ let make = (~paymentId, ~createdAt) => {
         (),
       )
       let paymentLogsArray = (await fetchDetails(paymentLogsUrl))->getArrayFromJson([])
-      setPaymentLogsData(_ => paymentLogsArray)
+      logs.contents = logs.contents->Array.concat(paymentLogsArray)
 
       // setting initial data
       let initialData =
@@ -239,6 +240,40 @@ let make = (~paymentId, ~createdAt) => {
       let intialValueRequest = initialData->getString("request", "")
 
       let intialValueResponse = initialData->getString("response", "")
+      setRequestObject(_ => intialValueRequest)
+      setResponseObject(_ => intialValueResponse)
+      setCurrentSelected(_ => initialData->getString("request_id", ""))
+
+      setScreenState1(_ => PageLoaderWrapper.Success)
+    } catch {
+    | Js.Exn.Error(e) =>
+      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      setScreenState1(_ => PageLoaderWrapper.Error(err))
+    }
+  }
+
+  let fetchConnectorLogsData = async _ => {
+    try {
+      setScreenState1(_ => PageLoaderWrapper.Loading)
+      let connectorLogsUrl = APIUtils.getURL(
+        ~entityName=CONNECTOR_EVENT_LOGS,
+        ~methodType=Get,
+        ~id=Some(paymentId),
+        (),
+      )
+      let logsArray = (await fetchDetails(connectorLogsUrl))->getArrayFromJson([])
+      logs.contents = logs.contents->Array.concat(logsArray)
+
+      // setting initial data
+      let initialData =
+        logsArray
+        ->Belt.Array.get(0)
+        ->Belt.Option.getWithDefault(Js.Json.null)
+        ->getDictFromJsonObject
+
+      let intialValueRequest = initialData->getString("request", "")
+      let intialValueResponse = initialData->getString("response", "")
+
       setRequestObject(_ => intialValueRequest)
       setResponseObject(_ => intialValueResponse)
       setCurrentSelected(_ => initialData->getString("request_id", ""))
@@ -323,14 +358,13 @@ let make = (~paymentId, ~createdAt) => {
           eventDict->Dict.set("created_at", timestamp->Js.Json.string)
           eventDict->Js.Json.object_
         })
-      setSdkLogsData(_ =>
-        sdkLogsArray->Array.filter(sdkLog => {
-          let eventDict = sdkLog->getDictFromJsonObject
-          let eventName = eventDict->getString("event_name", "")
-          let filteredEventNames = ["StripeElementsCalled"]
-          filteredEventNames->Array.includes(eventName)->not
-        })
-      )
+      let logsArr = sdkLogsArray->Array.filter(sdkLog => {
+        let eventDict = sdkLog->getDictFromJsonObject
+        let eventName = eventDict->getString("event_name", "")
+        let filteredEventNames = ["StripeElementsCalled"]
+        filteredEventNames->Array.includes(eventName)->not
+      })
+      logs.contents = logs.contents->Array.concat(logsArr)
 
       // setting initial data
       let initialData =
@@ -354,10 +388,10 @@ let make = (~paymentId, ~createdAt) => {
   }
   let getDetails = async () => {
     try {
-      let _ = await Window.connectorWasmInit()
       if !(paymentId->HSwitchOrderUtils.isTestPayment) {
         fetchPaymentLogsData()->ignore
         fetchSdkLogsData()->ignore
+        // fetchConnectorLogsData()->ignore
       } else {
         setScreenState1(_ => PageLoaderWrapper.Success)
         setScreenState2(_ => PageLoaderWrapper.Success)
@@ -384,9 +418,8 @@ let make = (~paymentId, ~createdAt) => {
   }
 
   let screenState = React.useMemo2(() => {
-    setAllLogsData(_ =>
-      sdkLogsData->Array.concat(paymentLogsData)->Js.Array2.sortInPlaceWith(sortByCreatedAt)
-    )
+    logs.contents = logs.contents->Js.Array2.sortInPlaceWith(sortByCreatedAt)
+
     switch (screenState1, screenState2) {
     | (PageLoaderWrapper.Success, _)
     | (_, PageLoaderWrapper.Success) =>
@@ -422,7 +455,7 @@ let make = (~paymentId, ~createdAt) => {
             {"Audit Trail"->React.string}
           </p>
           <div className="flex flex-col">
-            {allLogsData
+            {logs.contents
             ->Array.mapWithIndex((paymentDetailsValue, index) => {
               <ApiDetailsComponent
                 key={index->string_of_int}
@@ -434,7 +467,7 @@ let make = (~paymentId, ~createdAt) => {
                 setCurrentSelectedType
                 paymentId
                 index
-                logsDataLength={allLogsData->Array.length - 1}
+                logsDataLength={logs.contents->Array.length - 1}
               />
             })
             ->React.array}
