@@ -61,7 +61,5 @@ let make = (~isEnabled, ~acl=?, ~children) => {
     acl->Option.getWithDefault(UnknownPermission("")),
     ~permissionList,
   )
-  isEnabled && isAllowed
-    ? children
-    : <UnauthorizedPage message="You don't have access to this module." />
+  isEnabled && isAllowed ? children : <UnauthorizedPage />
 }

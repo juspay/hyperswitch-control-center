@@ -382,10 +382,7 @@ let make = () => {
                       | list{"quick-start"} => determineQuickStartPageState()
                       | list{"woocommerce"} => determineWooCommerce()
                       | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
-                      | list{"unauthorized"} =>
-                        <AccessControl.UnauthorizedPage
-                          message="You don't have access to this module."
-                        />
+                      | list{"unauthorized"} => <AccessControl.UnauthorizedPage />
                       | _ =>
                         RescriptReactRouter.replace(`${hyperSwitchFEPrefix}/home`)
                         <Home />
