@@ -99,12 +99,9 @@ let mapStringToPermissionType = val => {
 
 let getAccessValue = (~permissionValue: permissionType, permissionList) => {
   open AuthTypes
-  let isPermissionFound =
-    permissionList
-    ->Array.find(ele => {
-      ele === permissionValue
-    })
-    ->Option.getWithDefault(UnknownPermission(""))
+  let isPermissionFound = permissionList->Array.find(ele => {
+    ele === permissionValue
+  })
 
-  isPermissionFound->mapPermissionTypeToString->String.length > 0 ? Read : NoAccess
+  isPermissionFound->Option.isSome ? Read : NoAccess
 }
