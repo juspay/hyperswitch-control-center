@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.25.0 (2024-01-16)
+
+### Features
+
+- Cybersource enabled in Prod ([#256](https://github.com/juspay/hyperswitch-control-center/pull/256)) ([`93f202e`](https://github.com/juspay/hyperswitch-control-center/commit/93f202e4c0b76e29de7e515e3b405692a09e3e40))
+
+### Bug Fixes
+
+- Make tax_on_surcharge optional and add description ([#259](https://github.com/juspay/hyperswitch-control-center/pull/259)) ([`498437b`](https://github.com/juspay/hyperswitch-control-center/commit/498437b94fe6f69c42708baca19ba9132714f467))
+
+**Full Changelog:** [`v1.24.2...v1.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.24.2...v1.25.0)
+
+- - -
+
+
 ## 1.24.2 (2024-01-12)
 
 ### Bug Fixes
