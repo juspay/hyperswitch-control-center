@@ -69,14 +69,18 @@ module NewProcessorCards = {
         </h2>
         <div className="flex w-full justify-between">
           <UIUtils.RenderIf condition={showSearch}>
-            <input
-              ref={searchRef->ReactDOM.Ref.domRef}
-              type_="text"
-              value=searchedConnector
-              onChange=handleSearch
-              placeholder="Search a processor"
-              className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
-            />
+            <AddDataAttributes attributes=[("data-testid", "search-connector")]>
+              <input
+                ref={searchRef->ReactDOM.Ref.domRef}
+                type_="text"
+                value=searchedConnector
+                onChange=handleSearch
+                placeholder="Search a processor"
+                className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
+                // dataTestid=dataTestId
+                id="search-connector"
+              />
+            </AddDataAttributes>
           </UIUtils.RenderIf>
           <UIUtils.RenderIf condition={showRequestConnectorBtn}>
             <div
@@ -138,6 +142,9 @@ module NewProcessorCards = {
         <div className="flex w-full justify-between">
           <UIUtils.RenderIf condition={showSearch}>
             <input
+              {...DOMUtils.domProps({
+                "data-testid": "search-processor",
+              })}
               ref={searchRef->ReactDOM.Ref.domRef}
               type_="text"
               value=searchedConnector

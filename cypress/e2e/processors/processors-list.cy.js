@@ -1,0 +1,20 @@
+describe.only("Processors Landing Module", () => {
+  beforeEach(() => {
+    cy.visit("http://localhost:9000/");
+  });
+  it("should successfully log in with valid credentials", () => {
+    cy.get("[data-testid=email]").type("jeeva.ramachandran+19@juspay.in");
+    cy.get("[data-testid=password]").type("Jeeva12#");
+    cy.get('button[type="submit"]').click({ force: true });
+    cy.get("[data-testid=processors]").click({ force: true });
+    cy.url().should("eq", "http://localhost:9000/connectors");
+    cy.contains("Processors").should("be.visible");
+    cy.contains(
+      "Connect and manage payment processors to enable payment acceptance",
+    ).should("be.visible");
+    cy.contains("Connect a new connector").should("be.visible");
+    cy.get("[data-testid=search-processor]")
+      .type("stripe", { force: true })
+      .should("have.value", "stripe");
+  });
+});
