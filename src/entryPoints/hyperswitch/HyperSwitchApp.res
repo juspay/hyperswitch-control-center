@@ -40,7 +40,6 @@ let make = () => {
     ->QuickStartUtils.getTypedValueFromDict
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let verificationDays = getFromMerchantDetails("verification")->LogicUtils.getIntFromString(-1)
   let userRole = getFromUserDetails("user_role")
@@ -55,12 +54,7 @@ let make = () => {
   let isReconEnabled =
     (merchantDetailsValue->MerchantAccountUtils.getMerchantDetails).recon_status === Active
 
-  let hyperSwitchAppSidebars = SidebarValues.getHyperSwitchAppSidebars(
-    ~isReconEnabled,
-    ~featureFlagDetails,
-    ~userRole,
-    (),
-  )
+  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
 
   let comingSoonPage =
     <DefaultLandingPage
