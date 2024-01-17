@@ -1,5 +1,5 @@
 open SidebarTypes
-open PermissionHelper
+open PermissionUtils
 
 // * Custom Component
 

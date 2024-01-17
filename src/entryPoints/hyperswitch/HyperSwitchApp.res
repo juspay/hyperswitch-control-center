@@ -129,7 +129,7 @@ let make = () => {
         ->LogicUtils.getArrayFromDict("permissions", [])
         ->Array.map(ele => ele->Js.Json.decodeString->Option.getWithDefault(""))
       let mapPermissionArrayToType =
-        permissionsValue->Array.map(ele => ele->PermissionHelper.mapStringToPermissionType)
+        permissionsValue->Array.map(ele => ele->PermissionUtils.mapStringToPermissionType)
       setUserPermissionsList(._ => mapPermissionArrayToType)
     } catch {
     | Js.Exn.Error(e) => {

@@ -106,9 +106,8 @@ let validateSurchargeRate = ruleDict => {
   } else {
     surchargeValueAmount == 0.0
   }
-  let taxOnSurcharge = surchargeType.tax_on_surcharge.percentage->Option.getWithDefault(0.0)
 
-  !(isSurchargeAmountValid || taxOnSurcharge == 0.0 || taxOnSurcharge > 100.0)
+  !isSurchargeAmountValid
 }
 
 let validateConditionsForSurcharge = dict => {
