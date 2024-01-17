@@ -3,8 +3,10 @@ describe.only("Processors Landing Module", () => {
     cy.visit("http://localhost:9000/");
   });
   it("should successfully log in with valid credentials", () => {
-    cy.get("[data-testid=email]").type("jeeva.ramachandran+19@juspay.in");
-    cy.get("[data-testid=password]").type("Jeeva12#");
+    const username = Cypress.env("CYPRESS_USERNAME");
+    const password = Cypress.env("CYPRESS_PASSWORD");
+    cy.get("[data-testid=email]").type(username);
+    cy.get("[data-testid=password]").type(password);
     cy.get('button[type="submit"]').click({ force: true });
     cy.get("[data-testid=processors]").click({ force: true });
     cy.url().should("eq", "http://localhost:9000/connectors");

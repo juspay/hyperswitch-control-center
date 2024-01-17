@@ -6,4 +6,8 @@ module.exports = defineConfig({
       // implement node event listeners here
     },
   },
+  env: {
+    CYPRESS_USERNAME: "",
+    CYPRESS_PASSWORD: "",
+  },
 });

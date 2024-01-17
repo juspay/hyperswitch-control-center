@@ -22,9 +22,11 @@ describe("Login Module", () => {
   });
 
   it("should successfully log in with valid credentials", () => {
+    const username = Cypress.env("CYPRESS_USERNAME");
+    const password = Cypress.env("CYPRESS_PASSWORD");
     cy.visit("http://localhost:9000/");
-    cy.get("[data-testid=email]").type("jeeva.ramachandran+19@juspay.in");
-    cy.get("[data-testid=password]").type("Jeeva12#");
+    cy.get("[data-testid=email]").type(username);
+    cy.get("[data-testid=password]").type(password);
     cy.get('button[type="submit"]').click({ force: true });
     cy.url().should("eq", "http://localhost:9000/home");
     cy.contains(
@@ -34,8 +36,8 @@ describe("Login Module", () => {
 
   it("should display an error message with invalid credentials", () => {
     cy.visit("http://localhost:9000/");
-    cy.get("[data-testid=email]").type("jeeva.ramachandran+19@juspay.in");
-    cy.get("[data-testid=password]").type("invalid_password");
+    cy.get("[data-testid=email]").type("xxx@gmail.com");
+    cy.get("[data-testid=password]").type("xxxx");
     cy.get('button[type="submit"]').click({ force: true });
     cy.contains("Incorrect email or password").should("be.visible");
   });

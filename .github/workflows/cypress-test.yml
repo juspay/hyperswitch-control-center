@@ -21,6 +21,9 @@ jobs:
         run: npm install --force
 
       - name: Cypress run
+        env:
+          cypressUserName: ${{ secrets.CYPRESS_USERNAME }}
+          cypressPassword: ${{ secrets.CYPRESS_PASSWORD }}
         uses: cypress-io/github-action@v6
         with:
           install: false
