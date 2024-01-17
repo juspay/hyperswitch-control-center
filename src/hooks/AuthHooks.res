@@ -23,7 +23,6 @@ let getHeaders = (~uri, ~headers, ~isFromFormData, ()) => {
   } else if isFromFormData {
     let headerObj = {
       "Authorization": `Bearer ${hyperSwitchToken->Belt.Option.getWithDefault("")}`,
-      "api-key": headers->Dict.get("api-key")->Belt.Option.getWithDefault("hyperswitch"),
     }
     Fetch.HeadersInit.make(headerObj)
   } else {
