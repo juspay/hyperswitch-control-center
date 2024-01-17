@@ -97,7 +97,7 @@ let mapStringToPermissionType = val => {
   }
 }
 
-let getAccessValue = (~permissionValue: permissionType, permissionList) => {
+let getAccessValue = (~permissionValue: permissionType, ~permissionList) => {
   open AuthTypes
   let isPermissionFound = permissionList->Array.find(ele => {
     ele === permissionValue
