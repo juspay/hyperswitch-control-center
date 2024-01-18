@@ -232,7 +232,7 @@ module CheckoutForm = {
             | WIDGET => <CardWidget id="card-widget" options={paymentElementOptions} />
             }}
             <Button
-              text={`Pay ${currency} ${(amount / 100)->Belt.Int.toString}`}
+              text={`Pay ${currency} ${(amount /. 100.00)->Belt.Float.toString}`}
               loadingText="Please wait..."
               buttonState=btnState
               buttonType={Primary}
@@ -282,7 +282,7 @@ let make = (
   ~methodsOrder=[],
   ~saveViewToSdk=false,
   ~isSpaceAccordion=false,
-  ~amount=65400,
+  ~amount=65400.00,
   ~setClientSecret,
 ) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
