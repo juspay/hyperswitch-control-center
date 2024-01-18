@@ -498,6 +498,9 @@ let numericArraySortComperator = (a, b) => {
 let isEmptyDict = dict => {
   dict->Dict.keysToArray->Array.length === 0
 }
+
+let isEmptyString = str => str->String.length === 0
+
 let stringReplaceAll = (str, old, new) => {
   str->String.split(old)->Array.joinWith(new)
 }

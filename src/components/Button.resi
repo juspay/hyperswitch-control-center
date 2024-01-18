@@ -75,7 +75,7 @@ let useGetTextColor: (
 ) => string
 @react.component
 let make: (
-  ~buttonFor: Js.String2.t=?,
+  ~buttonFor: string=?,
   ~loadingText: string=?,
   ~buttonState: buttonState=?,
   ~text: Js.String2.t=?,
@@ -101,7 +101,7 @@ let make: (
   ~textWeight: string=?,
   ~fullLength: bool=?,
   ~disableRipple: bool=?,
-  ~customButtonStyle: Js.String2.t=?,
+  ~customButtonStyle: string=?,
   ~textStyleClass: string=?,
   ~customTextPaddingClass: string=?,
   ~allowButtonTextMinWidth: bool=?,
@@ -115,4 +115,5 @@ let make: (
   ~customBackColor: string=?,
   ~isPhoneDropdown: bool=?,
   ~showBtnTextToolTip: bool=?,
+  ~access: AuthTypes.authorization=?,
 ) => React.element
