@@ -163,8 +163,8 @@ module ApiDetailsComponent = {
     | SDK =>
       switch statusCode {
       | "INFO" => "blue-700"
+      | "ERROR" => "red-600"
       | "WARNING" => "yellow-800"
-      | "ERROR" => "red-800"
       | _ => "grey-700 opacity-50"
       }
     | WEBHOOKS =>
@@ -182,14 +182,12 @@ module ApiDetailsComponent = {
     }
 
     open HSwitchUtils
-    let stepColor =
-      !(currentSelected->isEmptyString) && currentSelected === requestId
-        ? background_color
-        : "gray-300"
-    let boxShadowOnSelection =
-      !(currentSelected->isEmptyString) && currentSelected === requestId
-        ? "border border-blue-700 rounded-md shadow-paymentLogsShadow"
-        : "border border-transparent"
+    let isSelected = !(currentSelected->isEmptyString) && currentSelected === requestId
+    let stepColor = isSelected ? background_color : "gray-300"
+
+    let boxShadowOnSelection = isSelected
+      ? "border border-blue-700 rounded-md shadow-paymentLogsShadow"
+      : "border border-transparent"
 
     <div className="flex items-start gap-4">
       <div className="flex flex-col items-center h-full">
