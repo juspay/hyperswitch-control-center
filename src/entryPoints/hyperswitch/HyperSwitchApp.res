@@ -4,19 +4,6 @@ open HSLocalStorage
 open HSwitchGlobalVars
 open APIUtils
 
-module FeatureFlagEnabledComponent = {
-  @react.component
-  let make = (~isEnabled, ~children) => {
-    let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
-    let updateRoute = () => {
-      setDashboardPageState(_ => #HOME)
-      RescriptReactRouter.replace("/home")
-      React.null
-    }
-    <> {isEnabled ? children : updateRoute()} </>
-  }
-}
-
 @react.component
 let make = () => {
   let url = RescriptReactRouter.useUrl()
@@ -219,11 +206,11 @@ let make = () => {
                     <ErrorBoundary>
                       {switch url.path {
                       | list{"home"} =>
-                        <FeatureFlagEnabledComponent isEnabled={featureFlagDetails.default}>
+                        <AccessControl isEnabled={featureFlagDetails.default}>
                           {featureFlagDetails.quickStart ? <HomeV2 /> : <Home />}
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"fraud-risk-management", ...remainingPath} =>
-                        <FeatureFlagEnabledComponent isEnabled={featureFlagDetails.frm}>
+                        <AccessControl isEnabled={featureFlagDetails.frm}>
                           <EntityScaffold
                             entityName="risk-management"
                             remainingPath
@@ -231,7 +218,7 @@ let make = () => {
                             renderNewForm={() => <FRMConfigure />}
                             renderShow={_ => <FRMConfigure />}
                           />
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"connectors", ...remainingPath} =>
                         <EntityScaffold
                           entityName="Connectors"
@@ -277,7 +264,7 @@ let make = () => {
                           renderShow={id => <ShowDisputes id />}
                         />
                       | list{"customers", ...remainingPath} =>
-                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.customersModule>
+                        <AccessControl isEnabled=featureFlagDetails.customersModule>
                           <EntityScaffold
                             entityName="Customers"
                             remainingPath
@@ -285,7 +272,7 @@ let make = () => {
                             renderList={() => <Customers />}
                             renderShow={id => <ShowCustomers id />}
                           />
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"routing", ...remainingPath} =>
                         <EntityScaffold
                           entityName="Routing"
@@ -311,12 +298,11 @@ let make = () => {
                           <RefundsAnalytics />
                         </FilterContext>
                       | list{"analytics-user-journey"} =>
-                        <FeatureFlagEnabledComponent
-                          isEnabled=featureFlagDetails.userJourneyAnalytics>
+                        <AccessControl isEnabled=featureFlagDetails.userJourneyAnalytics>
                           <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                             <UserJourneyAnalytics />
                           </FilterContext>
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"monitoring"} => comingSoonPage
                       | list{"developer-api-keys"} => <KeyManagement.KeysManagement />
                       | list{"developer-system-metrics"} =>
@@ -336,31 +322,31 @@ let make = () => {
                             <PaymentSettings webhookOnly=false showFormOnly=false />}
                         />
                       | list{"recon"} =>
-                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.recon>
+                        <AccessControl isEnabled=featureFlagDetails.recon>
                           <Recon />
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"sdk"} =>
-                        <FeatureFlagEnabledComponent isEnabled={!featureFlagDetails.isLiveMode}>
+                        <AccessControl isEnabled={!featureFlagDetails.isLiveMode}>
                           <SDKPage />
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"3ds"} => <HSwitchThreeDS />
                       | list{"surcharge"} =>
-                        <FeatureFlagEnabledComponent isEnabled={featureFlagDetails.surcharge}>
+                        <AccessControl isEnabled={featureFlagDetails.surcharge}>
                           <Surcharge />
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"account-settings"} =>
-                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.sampleData>
+                        <AccessControl isEnabled=featureFlagDetails.sampleData>
                           <HSwitchSettings />
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"account-settings", "profile"} => <HSwitchProfileSettings />
                       | list{"business-details"} =>
-                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.default>
+                        <AccessControl isEnabled=featureFlagDetails.default>
                           <BusinessDetails />
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"business-profiles"} =>
-                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.businessProfile>
+                        <AccessControl isEnabled=featureFlagDetails.businessProfile>
                           <BusinessProfile />
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"quick-start"} => determineQuickStartPageState()
                       | list{"woocommerce"} => determineWooCommerce()
                       | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
