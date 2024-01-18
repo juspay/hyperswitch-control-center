@@ -49,13 +49,13 @@ module SDKConfiguarationFields = {
         InputFields.numericTextInput(
           ~input={
             ...input,
-            value: (initialValues.amount / 100)->string_of_int->Js.Json.string,
+            value: (initialValues.amount /. 100.00)->Js.Float.toString->Js.Json.string,
             onChange: {
               ev => {
-                let eventValueToInt =
-                  ev->Identity.formReactEventToString->LogicUtils.getIntFromString(0)
+                let eventValueToFloat =
+                  ev->Identity.formReactEventToString->LogicUtils.getFloatFromString(0.00)
                 let valInCents =
-                  (eventValueToInt * 100)->string_of_int->Identity.stringToFormReactEvent
+                  (eventValueToFloat *. 100.00)->Js.Float.toString->Identity.stringToFormReactEvent
                 input.onChange(valInCents)
               }
             },
@@ -63,6 +63,7 @@ module SDKConfiguarationFields = {
           ~isDisabled=false,
           ~customStyle="w-full",
           ~placeholder="Enter amount",
+          ~precision=2,
           (),
         ),
       (),
