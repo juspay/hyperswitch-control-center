@@ -1,3 +1,5 @@
+open AuthTypes
+
 type permissionType =
   | PaymentRead
   | PaymentWrite
@@ -28,6 +30,37 @@ type permissionType =
   | UsersRead
   | UsersWrite
   | UnknownPermission(string)
+
+type permissionJson = {
+  paymentRead: authorization,
+  paymentWrite: authorization,
+  refundRead: authorization,
+  refundWrite: authorization,
+  apiKeyRead: authorization,
+  apiKeyWrite: authorization,
+  merchantAccountRead: authorization,
+  merchantAccountWrite: authorization,
+  merchantConnectorAccountRead: authorization,
+  merchantConnectorAccountWrite: authorization,
+  forexRead: authorization,
+  routingRead: authorization,
+  routingWrite: authorization,
+  disputeRead: authorization,
+  disputeWrite: authorization,
+  mandateRead: authorization,
+  mandateWrite: authorization,
+  customerRead: authorization,
+  customerWrite: authorization,
+  fileRead: authorization,
+  fileWrite: authorization,
+  analytics: authorization,
+  threeDsDecisionManagerWrite: authorization,
+  threeDsDecisionManagerRead: authorization,
+  surchargeDecisionManagerWrite: authorization,
+  surchargeDecisionManagerRead: authorization,
+  usersRead: authorization,
+  usersWrite: authorization,
+}
 
 let mapPermissionTypeToString = permissionType => {
   switch permissionType {
@@ -98,10 +131,45 @@ let mapStringToPermissionType = val => {
 }
 
 let getAccessValue = (~permissionValue: permissionType, ~permissionList) => {
-  open AuthTypes
   let isPermissionFound = permissionList->Array.find(ele => {
     ele === permissionValue
   })
 
   isPermissionFound->Option.isSome ? Access : NoAccess
+}
+
+let getPermissionJson = permissionList => {
+  let getAccessValueFromPermission = permissionValue =>
+    getAccessValue(~permissionList, ~permissionValue)
+
+  {
+    paymentRead: PaymentRead->getAccessValueFromPermission,
+    paymentWrite: PaymentWrite->getAccessValueFromPermission,
+    refundRead: RefundRead->getAccessValueFromPermission,
+    refundWrite: RefundWrite->getAccessValueFromPermission,
+    apiKeyRead: ApiKeyRead->getAccessValueFromPermission,
+    apiKeyWrite: ApiKeyWrite->getAccessValueFromPermission,
+    merchantAccountRead: MerchantAccountRead->getAccessValueFromPermission,
+    merchantAccountWrite: MerchantAccountWrite->getAccessValueFromPermission,
+    merchantConnectorAccountRead: MerchantConnectorAccountRead->getAccessValueFromPermission,
+    merchantConnectorAccountWrite: MerchantConnectorAccountWrite->getAccessValueFromPermission,
+    forexRead: ForexRead->getAccessValueFromPermission,
+    routingRead: RoutingRead->getAccessValueFromPermission,
+    routingWrite: RoutingWrite->getAccessValueFromPermission,
+    disputeRead: DisputeRead->getAccessValueFromPermission,
+    disputeWrite: DisputeWrite->getAccessValueFromPermission,
+    mandateRead: MandateRead->getAccessValueFromPermission,
+    mandateWrite: MandateWrite->getAccessValueFromPermission,
+    customerRead: CustomerRead->getAccessValueFromPermission,
+    customerWrite: CustomerWrite->getAccessValueFromPermission,
+    fileRead: FileRead->getAccessValueFromPermission,
+    fileWrite: FileWrite->getAccessValueFromPermission,
+    analytics: Analytics->getAccessValueFromPermission,
+    threeDsDecisionManagerWrite: ThreeDsDecisionManagerWrite->getAccessValueFromPermission,
+    threeDsDecisionManagerRead: ThreeDsDecisionManagerRead->getAccessValueFromPermission,
+    surchargeDecisionManagerWrite: SurchargeDecisionManagerWrite->getAccessValueFromPermission,
+    surchargeDecisionManagerRead: SurchargeDecisionManagerRead->getAccessValueFromPermission,
+    usersRead: UsersRead->getAccessValueFromPermission,
+    usersWrite: UsersWrite->getAccessValueFromPermission,
+  }
 }
