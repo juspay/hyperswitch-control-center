@@ -57,9 +57,6 @@ let make = (~isEnabled, ~acl=?, ~children) => {
     UsersRead,
     UsersWrite,
   ]
-  let isAllowed = isAccessAllowed(
-    acl->Option.getWithDefault(UnknownPermission("")),
-    ~permissionList,
-  )
+  let isAllowed = isAccessAllowed(acl->Option.getWithDefault([]), ~permissionList)
   isEnabled && isAllowed ? children : <UnauthorizedPage />
 }

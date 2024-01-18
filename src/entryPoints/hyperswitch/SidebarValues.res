@@ -61,7 +61,7 @@ let home = isHomeEnabled =>
     : emptyComponent
 
 let payments = permissionList => {
-  let paymentPermission = PaymentRead
+  let paymentPermission = [PaymentRead]
   let accessValue = getAccessValue(~permissionValue=paymentPermission, ~permissionList)
 
   SubLevelLink({
@@ -73,7 +73,7 @@ let payments = permissionList => {
 }
 
 let refunds = permissionList => {
-  let refundPermission = RefundRead
+  let refundPermission = [RefundRead]
   let accessValue = getAccessValue(~permissionValue=refundPermission, ~permissionList)
 
   SubLevelLink({
@@ -85,7 +85,7 @@ let refunds = permissionList => {
 }
 
 let disputes = permissionList => {
-  let disputePermission = DisputeRead
+  let disputePermission = [DisputeRead]
   let accessValue = getAccessValue(~permissionValue=disputePermission, ~permissionList)
 
   SubLevelLink({
@@ -97,7 +97,7 @@ let disputes = permissionList => {
 }
 
 let customers = permissionList => {
-  let customersPermission = CustomerRead
+  let customersPermission = [CustomerRead]
   let accessValue = getAccessValue(~permissionValue=customersPermission, ~permissionList)
   SubLevelLink({
     name: "Customers",
@@ -126,7 +126,7 @@ let operations = (isOperationsEnabled, customersModule, ~permissionList) => {
 }
 
 let connectors = (isConnectorsEnabled, isLiveMode, ~permissionList) => {
-  let connectorPermission = MerchantConnectorAccountRead
+  let connectorPermission = [MerchantConnectorAccountRead]
   let accessValue = getAccessValue(~permissionValue=connectorPermission, ~permissionList)
   isConnectorsEnabled
     ? Link({
@@ -167,7 +167,7 @@ let userJourneyAnalytics = SubLevelLink({
 })
 
 let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag, ~permissionList) => {
-  let analyticsPermission = Analytics
+  let analyticsPermission = [Analytics]
   let accessValue = getAccessValue(~permissionValue=analyticsPermission, ~permissionList)
 
   isAnalyticsEnabled
@@ -182,7 +182,7 @@ let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag, ~permissionList) 
     : emptyComponent
 }
 let routing = permissionList => {
-  let routingPermission = RoutingRead
+  let routingPermission = [RoutingRead]
   let accessValue = getAccessValue(~permissionValue=routingPermission, ~permissionList)
   SubLevelLink({
     name: "Routing",
@@ -198,7 +198,7 @@ let routing = permissionList => {
 }
 
 let threeDs = permissionList => {
-  let threeDsPermission = ThreeDsDecisionManagerRead
+  let threeDsPermission = [ThreeDsDecisionManagerRead]
   let accessValue = getAccessValue(~permissionValue=threeDsPermission, ~permissionList)
   SubLevelLink({
     name: "3DS Decision Manager",
@@ -208,7 +208,7 @@ let threeDs = permissionList => {
   })
 }
 let surcharge = permissionList => {
-  let surchargePermission = SurchargeDecisionManagerRead
+  let surchargePermission = [SurchargeDecisionManagerRead]
   let accessValue = getAccessValue(~permissionValue=surchargePermission, ~permissionList)
   SubLevelLink({
     name: "Surcharge",
@@ -234,7 +234,7 @@ let workflow = (isWorkflowEnabled, isSurchargeEnabled, ~permissionList) => {
 }
 
 let userManagement = permissionList => {
-  let userPermission = UsersRead
+  let userPermission = [UsersRead]
   let accessValue = getAccessValue(~permissionValue=userPermission, ~permissionList)
   SubLevelLink({
     name: "Team",
@@ -246,7 +246,7 @@ let userManagement = permissionList => {
 
 let accountSettings = permissionList => {
   // Because it has delete sample data
-  let merchantAccountPermission = MerchantAccountWrite
+  let merchantAccountPermission = [MerchantAccountWrite]
   let accessValue = getAccessValue(~permissionValue=merchantAccountPermission, ~permissionList)
 
   SubLevelLink({
@@ -262,7 +262,7 @@ let accountSettings = permissionList => {
 }
 
 let businessDetails = permissionList => {
-  let merchantAccountPermission = MerchantAccountRead
+  let merchantAccountPermission = [MerchantAccountRead]
   let accessValue = getAccessValue(~permissionValue=merchantAccountPermission, ~permissionList)
 
   SubLevelLink({
@@ -274,7 +274,7 @@ let businessDetails = permissionList => {
 }
 
 let businessProfiles = permissionList => {
-  let merchantAccountPermission = MerchantAccountRead
+  let merchantAccountPermission = [MerchantAccountRead]
   let accessValue = getAccessValue(~permissionValue=merchantAccountPermission, ~permissionList)
   SubLevelLink({
     name: "Business Profiles",
@@ -310,7 +310,7 @@ let settings = (
 }
 
 let apiKeys = permissionList => {
-  let apiKeyPermission = ApiKeyRead
+  let apiKeyPermission = [ApiKeyRead]
   let accessValue = getAccessValue(~permissionValue=apiKeyPermission, ~permissionList)
 
   SubLevelLink({
@@ -322,7 +322,7 @@ let apiKeys = permissionList => {
 }
 
 let systemMetric = permissionList => {
-  let analyticsPermission = Analytics
+  let analyticsPermission = [Analytics]
   let accessValue = getAccessValue(~permissionValue=analyticsPermission, ~permissionList)
 
   SubLevelLink({
@@ -335,7 +335,7 @@ let systemMetric = permissionList => {
 }
 
 let paymentSettings = permissionList => {
-  let merchantAccountPermission = MerchantAccountRead
+  let merchantAccountPermission = [MerchantAccountRead]
   let accessValue = getAccessValue(~permissionValue=merchantAccountPermission, ~permissionList)
 
   SubLevelLink({
@@ -365,7 +365,7 @@ let developers = (isDevelopersEnabled, userRole, systemMetrics, ~permissionList)
 }
 
 let fraudAndRisk = (isfraudAndRiskEnabled, ~permissionList) => {
-  let connectorPermission = MerchantConnectorAccountRead
+  let connectorPermission = [MerchantConnectorAccountRead]
   let accessValue = getAccessValue(~permissionValue=connectorPermission, ~permissionList)
 
   isfraudAndRiskEnabled
@@ -380,7 +380,7 @@ let fraudAndRisk = (isfraudAndRiskEnabled, ~permissionList) => {
 }
 
 let payoutConnectors = (isPayoutConnectorsEnabled, ~permissionList) => {
-  let connectorPermission = MerchantConnectorAccountRead
+  let connectorPermission = [MerchantConnectorAccountRead]
   let accessValue = getAccessValue(~permissionValue=connectorPermission, ~permissionList)
 
   isPayoutConnectorsEnabled

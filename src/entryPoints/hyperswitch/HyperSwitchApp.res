@@ -240,7 +240,7 @@ let make = () => {
 
                       | list{"fraud-risk-management", ...remainingPath} =>
                         <AccessControl
-                          isEnabled={featureFlagDetails.frm} acl={MerchantConnectorAccountRead}>
+                          isEnabled={featureFlagDetails.frm} acl={[MerchantConnectorAccountRead]}>
                           <EntityScaffold
                             entityName="risk-management"
                             remainingPath
@@ -250,7 +250,7 @@ let make = () => {
                           />
                         </AccessControl>
                       | list{"connectors", ...remainingPath} =>
-                        <AccessControl isEnabled={true} acl={MerchantConnectorAccountRead}>
+                        <AccessControl isEnabled={true} acl={[MerchantConnectorAccountRead]}>
                           <EntityScaffold
                             entityName="Connectors"
                             remainingPath
