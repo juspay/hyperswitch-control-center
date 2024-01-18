@@ -15,6 +15,15 @@ type selectedObj = {
   optionType: logType,
 }
 
+let filteredKeys = [
+  "value",
+  "merchant_id",
+  "created_at_precise",
+  "component",
+  "platform",
+  "version",
+]
+
 module PrettyPrintJson = {
   @react.component
   let make = (
@@ -58,7 +67,7 @@ module PrettyPrintJson = {
 
     let copyParsedJson =
       <div onClick={_ => handleOnClickCopy(~parsedValue=parsedJson)} className="cursor-pointer">
-        <img src={`/assets/CopyToClipboard.svg`} />
+        <img src={`/assets/CopyToClipboard.svg`} className="w-9 h-5" />
       </div>
 
     <div className="flex flex-col gap-2  my-2">
@@ -117,10 +126,10 @@ module ApiDetailsComponent = {
     let headerStyle = "text-fs-13 font-medium text-grey-700 break-all"
     let logType = if paymentDetailsValue->Dict.get("request_id")->Belt.Option.isSome {
       Payment
-    } else if paymentDetailsValue->Dict.get("event_id")->Belt.Option.isSome {
-      Webhooks
-    } else {
+    } else if paymentDetailsValue->Dict.get("component")->Belt.Option.isSome {
       Sdk
+    } else {
+      Webhooks
     }
     let apiName = switch logType {
     | Payment => paymentDetailsValue->getString("api_flow", "default value")->camelCaseToTitle
@@ -134,14 +143,6 @@ module ApiDetailsComponent = {
     | Webhooks => paymentDetailsValue->getString("event_id", "")
     }
 
-    let filteredKeys = [
-      "value",
-      "merchant_id",
-      "created_at_precise",
-      "component",
-      "platform",
-      "version",
-    ]
     let requestObject = switch logType {
     | Payment => paymentDetailsValue->getString("request", "")
     | Sdk =>
@@ -451,7 +452,32 @@ let make = (~paymentId, ~createdAt) => {
             value: initialData->getString("request_id", ""),
             optionType: Payment,
           })
-        } else if initialData->Dict.get("event_id")->Belt.Option.isSome {
+        } else if initialData->Dict.get("component")->Belt.Option.isSome {
+          Js.log2(">>", initialData)
+          // sdk
+          let request =
+            initialData
+            ->Dict.toArray
+            ->Array.filter(entry => {
+              let (key, _) = entry
+              filteredKeys->Array.includes(key)->not
+            })
+            ->Dict.fromArray
+            ->Js.Json.object_
+            ->Js.Json.stringify
+          let response =
+            initialData->getString("log_type", "") === "ERROR"
+              ? initialData->getString("value", "")
+              : ""
+          setLogDetails(_ => {
+            response,
+            request,
+          })
+          setSelectedOption(_ => {
+            value: initialData->getString("event_id", ""),
+            optionType: Sdk,
+          })
+        } else {
           // webhooks
           let request = initialData->getString("outgoing_webhook_event_type", "")
           let response = initialData->getString("content", "")
@@ -462,18 +488,6 @@ let make = (~paymentId, ~createdAt) => {
           setSelectedOption(_ => {
             value: initialData->getString("event_id", ""),
             optionType: Webhooks,
-          })
-        } else {
-          // sdk
-          let request = initialData->getString("event_name", "")
-          let response = initialData->getString("response", "")
-          setLogDetails(_ => {
-            response,
-            request,
-          })
-          setSelectedOption(_ => {
-            value: initialData->getString("event_id", ""),
-            optionType: Sdk,
           })
         }
       }
