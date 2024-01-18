@@ -22,8 +22,8 @@ jobs:
 
       - name: Cypress run
         env:
-          cypressUserName: ${{ secrets.CYPRESS_USERNAME }}
-          cypressPassword: ${{ secrets.CYPRESS_PASSWORD }}
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
         uses: cypress-io/github-action@v6
         with:
           install: false
