@@ -1,5 +1,4 @@
 const { defineConfig } = require("cypress");
-console.log(process.env);
 module.exports = defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
@@ -7,7 +6,7 @@ module.exports = defineConfig({
     },
   },
   env: {
-    CYPRESS_USERNAME: process.env.CYPRESS_USERNAME,
-    CYPRESS_PASSWORD: process.env.CYPRESS_PASSWORD,
+    CYPRESS_USERNAME: process.env.CYPRESS_USERNAME || "",
+    CYPRESS_PASSWORD: process.env.CYPRESS_PASSWORD || "",
   },
 });
