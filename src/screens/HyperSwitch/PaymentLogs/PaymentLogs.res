@@ -1,5 +1,16 @@
 @module("js-sha256") external sha256: string => string = "sha256"
 
+open PaymentLogsTypes
+let getLogType = dict => {
+  if dict->Dict.get("request_id")->Belt.Option.isSome {
+    PAYMENTS
+  } else if dict->Dict.get("component")->Belt.Option.isSome {
+    SDK
+  } else {
+    WEBHOOKS
+  }
+}
+
 module PrettyPrintJson = {
   open HSwitchUtils
   @react.component
@@ -93,7 +104,6 @@ module PrettyPrintJson = {
 }
 
 module ApiDetailsComponent = {
-  open PaymentLogsTypes
   open LogicUtils
   open PaymentLogsUtils
   @react.component
@@ -241,8 +251,8 @@ let make = (~paymentId, ~createdAt) => {
   open APIUtils
   open HSwitchUtils
   open LogicUtils
-  open PaymentLogsTypes
   open PaymentLogsUtils
+
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let fetchPostDetils = useUpdateMethod()
   let logs = React.useMemo0(() => {ref([])})

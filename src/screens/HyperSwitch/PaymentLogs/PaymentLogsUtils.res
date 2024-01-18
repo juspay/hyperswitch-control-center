@@ -20,17 +20,6 @@ let filteredKeys = [
   "version",
 ]
 
-let getLogType = dict => {
-  open PaymentLogsTypes
-  if dict->Dict.get("request_id")->Belt.Option.isSome {
-    PAYMENTS
-  } else if dict->Dict.get("component")->Belt.Option.isSome {
-    SDK
-  } else {
-    WEBHOOKS
-  }
-}
-
 let sortByCreatedAt = (log1: Js.Json.t, log2: Js.Json.t) => {
   open LogicUtils
   let getKey = dict => dict->getDictFromJsonObject->getString("created_at", "")->Js.Date.fromString
