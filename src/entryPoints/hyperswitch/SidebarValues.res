@@ -410,37 +410,7 @@ let reconTag = (recon, isReconEnabled) =>
 let useGetSidebarValues = (~isReconEnabled: bool) => {
   let userRole = HSLocalStorage.getFromUserDetails("user_role")
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  // let permissionList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-  let permissionList = [
-    // PaymentRead,
-    PaymentWrite,
-    RefundRead,
-    RefundWrite,
-    ApiKeyRead,
-    ApiKeyWrite,
-    MerchantAccountRead,
-    MerchantAccountWrite,
-    // MerchantConnectorAccountRead,
-    ForexRead,
-    MerchantConnectorAccountWrite,
-    RoutingRead,
-    RoutingWrite,
-    ThreeDsDecisionManagerWrite,
-    ThreeDsDecisionManagerRead,
-    SurchargeDecisionManagerWrite,
-    SurchargeDecisionManagerRead,
-    DisputeRead,
-    DisputeWrite,
-    MandateRead,
-    MandateWrite,
-    CustomerRead,
-    CustomerWrite,
-    FileRead,
-    FileWrite,
-    Analytics,
-    UsersRead,
-    UsersWrite,
-  ]
+  let permissionList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
   let {
     productionAccess,

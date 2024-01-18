@@ -25,38 +25,8 @@ module UnauthorizedPage = {
 }
 
 @react.component
-let make = (~isEnabled, ~acl=?, ~children) => {
-  // let permissionList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-  let permissionList = [
-    PaymentRead,
-    PaymentWrite,
-    RefundRead,
-    RefundWrite,
-    ApiKeyRead,
-    ApiKeyWrite,
-    MerchantAccountRead,
-    MerchantAccountWrite,
-    // MerchantConnectorAccountRead,
-    ForexRead,
-    MerchantConnectorAccountWrite,
-    RoutingRead,
-    RoutingWrite,
-    ThreeDsDecisionManagerWrite,
-    ThreeDsDecisionManagerRead,
-    SurchargeDecisionManagerWrite,
-    SurchargeDecisionManagerRead,
-    DisputeRead,
-    DisputeWrite,
-    MandateRead,
-    MandateWrite,
-    CustomerRead,
-    CustomerWrite,
-    FileRead,
-    FileWrite,
-    Analytics,
-    UsersRead,
-    UsersWrite,
-  ]
-  let isAllowed = isAccessAllowed(acl->Option.getWithDefault([]), ~permissionList)
+let make = (~isEnabled=true, ~permissions=?, ~children) => {
+  let permissionList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let isAllowed = isAccessAllowed(permissions->Option.getWithDefault([]), ~permissionList)
   isEnabled && isAllowed ? children : <UnauthorizedPage />
 }
