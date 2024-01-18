@@ -1,5 +1,6 @@
 open FormRenderer
 open AdvancedRoutingTypes
+open LogicUtils
 
 let configurationNameInput = makeFieldInfo(
   ~label="Configuration Name",
@@ -89,26 +90,78 @@ let make = (
     )
     None
   })
-  if formState == ViewConfig {
-    <div />
-  } else {
-    <div
-      className={` mb-6 p-4 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850`}>
-      {<div className="flex">
-        <div className="w-full md:w-1/2 lg:w-1/3">
-          <UIUtils.RenderIf condition={!isThreeDs}>
-            <BusinessProfileInp
-              setProfile={setProfile->Belt.Option.getWithDefault(_ => ())}
-              profile={profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)}
-              options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
-              label="Profile"
-              routingType
-            />
-          </UIUtils.RenderIf>
-          <FieldRenderer field=configurationNameInput />
-          <FieldRenderer field=descriptionInput />
+
+  <div
+    className={` mb-6 p-4 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850`}>
+    {if formState === ViewConfig {
+      <div>
+        <div className="flex flex-row justify-between gap-4">
+          <div className="flex flex-row gap-40">
+            <AddDataAttributes attributes=[("data-field", "Configuration Name")]>
+              <div className="flex flex-col gap-2 items-start justify-between py-2">
+                <span className="text-gray-500 dark:text-gray-400">
+                  {React.string("Configuration Name")}
+                </span>
+                <AddDataAttributes attributes=[("data-text", getStringFromJson(ip1.value, ""))]>
+                  <span className="font-semibold">
+                    {React.string(getStringFromJson(ip1.value, ""))}
+                  </span>
+                </AddDataAttributes>
+              </div>
+            </AddDataAttributes>
+            <AddDataAttributes attributes=[("data-field", "Description")]>
+              <div className="flex flex-col gap-2 items-start justify-between py-2">
+                <span className="text-gray-500 dark:text-gray-400">
+                  {React.string("Description")}
+                </span>
+                <AddDataAttributes attributes=[("data-text", getStringFromJson(ip2.value, ""))]>
+                  <span className="font-semibold">
+                    {React.string(getStringFromJson(ip2.value, ""))}
+                  </span>
+                </AddDataAttributes>
+              </div>
+            </AddDataAttributes>
+          </div>
         </div>
-      </div>}
-    </div>
-  }
+        <div className="flex flex-row justify-between gap-4">
+          <div className={isMobileView ? "flex flex-row gap-10" : "flex flex-row gap-48 "}>
+            <AddDataAttributes attributes=[("data-field", "Profile Id")]>
+              <div className="flex flex-col gap-2 items-start justify-between py-2">
+                <span className="text-gray-500 dark:text-gray-400">
+                  {React.string("Profile")}
+                </span>
+                <AddDataAttributes attributes=[("data-text", getStringFromJson(ip3.value, ""))]>
+                  <span className="font-semibold">
+                    <MerchantAccountUtils.BusinessProfile
+                      profile_id={profile->Belt.Option.getWithDefault(
+                        defaultBusinessProfile.profile_id,
+                      )}
+                    />
+                  </span>
+                </AddDataAttributes>
+              </div>
+            </AddDataAttributes>
+          </div>
+        </div>
+      </div>
+    } else {
+      <>
+        <div className="flex">
+          <div className="w-full md:w-1/2 lg:w-1/3">
+            <UIUtils.RenderIf condition={!isThreeDs}>
+              <BusinessProfileInp
+                setProfile={setProfile->Belt.Option.getWithDefault(_ => ())}
+                profile={profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)}
+                options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
+                label="Profile"
+                routingType
+              />
+            </UIUtils.RenderIf>
+            <FieldRenderer field=configurationNameInput />
+            <FieldRenderer field=descriptionInput />
+          </div>
+        </div>
+      </>
+    }}
+  </div>
 }
