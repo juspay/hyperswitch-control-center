@@ -400,3 +400,11 @@ let initialValues: AdvancedRoutingTypes.advancedRouting = {
     \"type": "",
   },
 }
+
+let validateNameAndDescription = (~dict, ~errors) => {
+  ["name", "description"]->Array.forEach(field => {
+    if dict->LogicUtils.getString(field, "")->String.trim === "" {
+      errors->Dict.set(field, `Please provide ${field} field`->Js.Json.string)
+    }
+  })
+}
