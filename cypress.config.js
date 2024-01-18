@@ -6,7 +6,8 @@ module.exports = defineConfig({
     },
   },
   env: {
-    CYPRESS_USERNAME: process.env.CYPRESS_USERNAME || "",
-    CYPRESS_PASSWORD: process.env.CYPRESS_PASSWORD || "",
+    CYPRESS_USERNAME:
+      process.env.CYPRESS_USERNAME || "jeeva.ramachandran+19@juspay.in",
+    CYPRESS_PASSWORD: process.env.CYPRESS_PASSWORD || "Jeeva12#",
   },
 });
