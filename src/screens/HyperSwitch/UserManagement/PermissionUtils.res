@@ -103,5 +103,5 @@ let getAccessValue = (~permissionValue: permissionType, permissionList) => {
     ele === permissionValue
   })
 
-  isPermissionFound->Option.isSome ? Read : NoAccess
+  isPermissionFound->Option.isSome ? Access : NoAccess
 }

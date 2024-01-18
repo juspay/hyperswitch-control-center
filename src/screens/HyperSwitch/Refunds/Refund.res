@@ -2,7 +2,7 @@
 let make = () => {
   open APIUtils
   open HSwitchRemoteFilter
-  open HSwitchUtils
+  open LogicUtils
   open RefundUtils
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)

@@ -57,7 +57,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
       let token = parseResponseJson(~json=res, ~email)
 
       // home
-      if !(token->HSwitchUtils.isEmptyString) {
+      if !(token->isEmptyString) {
         setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
       } else {
         showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())

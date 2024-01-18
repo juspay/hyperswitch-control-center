@@ -1,7 +1,6 @@
 open APIUtils
 open RoutingTypes
 open RoutingPreviewer
-
 open LogicUtils
 
 module VolumeRoutingView = {
@@ -129,7 +128,7 @@ module VolumeRoutingView = {
                     dropDownButtonText="Add Processors"
                     connectorList
                   />
-                  <ConfigureRuleButton setShowModal isConfigButtonEnabled />
+                  <AdvancedRoutingUIUtils.ConfigureRuleButton setShowModal isConfigButtonEnabled />
                   <CustomModal.RoutingCustomModal
                     showModal
                     setShowModal
@@ -140,7 +139,9 @@ module VolumeRoutingView = {
                       customSumbitButtonStyle="w-1/5 rounded-lg"
                       tooltipWidthClass="w-48"
                     />}
-                    submitButton={<SaveAndActivateButton onSubmit handleActivateConfiguration />}
+                    submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton
+                      onSubmit handleActivateConfiguration
+                    />}
                     headingText="Activate Current Configuration?"
                     subHeadingText="Activating the current configuration will override the current active configuration. Alternatively, save this configuration to access / activate it later from the configuration history. Please confirm."
                     leftIcon="hswitch-warning"

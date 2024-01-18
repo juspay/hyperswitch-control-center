@@ -2,8 +2,8 @@
 let make = (~previewOnly=false) => {
   open APIUtils
   open HSwitchRemoteFilter
-  open HSwitchUtils
   open OrderUIUtils
+  open LogicUtils
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (orderData, setOrdersData) = React.useState(_ => [])
@@ -14,8 +14,8 @@ let make = (~previewOnly=false) => {
   let connectorList =
     HyperswitchAtom.connectorListAtom
     ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
-    ->LogicUtils.getObjectArrayFromJson
+    ->safeParse
+    ->getObjectArrayFromJson
   let isConfigureConnector = connectorList->Array.length > 0
 
   let (widthClass, heightClass) = React.useMemo1(() => {
