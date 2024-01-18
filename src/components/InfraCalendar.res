@@ -16,7 +16,7 @@ module TableRow = {
     switch obj {
     | Some(a) => {
         let day = String.split(a, "-")
-        React.string(day[2]->Belt.Option.getWithDefault(""))
+        React.string(day[2]->Option.getWithDefault(""))
       }
 
     | None => React.string("")
@@ -106,13 +106,11 @@ module TableRow = {
               if startDate != "" && obj != "" {
                 let getDate = date => {
                   let datevalue = Js.Date.makeWithYMD(
-                    ~year=Js.Float.fromString(date[0]->Belt.Option.getWithDefault("")),
+                    ~year=Js.Float.fromString(date[0]->Option.getWithDefault("")),
                     ~month=Js.Float.fromString(
-                      String.make(
-                        Js.Float.fromString(date[1]->Belt.Option.getWithDefault("")) -. 1.0,
-                      ),
+                      String.make(Js.Float.fromString(date[1]->Option.getWithDefault("")) -. 1.0),
                     ),
-                    ~date=Js.Float.fromString(date[2]->Belt.Option.getWithDefault("")),
+                    ~date=Js.Float.fromString(date[2]->Option.getWithDefault("")),
                     (),
                   )
                   datevalue

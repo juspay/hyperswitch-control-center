@@ -67,7 +67,7 @@ let make = (
       values
       ->Js.Json.decodeObject
       ->Belt.Option.map(Dict.toArray)
-      ->Belt.Option.getWithDefault([])
+      ->Option.getWithDefault([])
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
         switch value->Js.Json.classify {
@@ -78,19 +78,19 @@ let make = (
       })
       ->Dict.fromArray
     ["amount"]->Array.forEach(key => {
-      if Dict.get(valuesDict, key)->Js.Option.isNone {
+      if Dict.get(valuesDict, key)->Option.isNone {
         Dict.set(errors, key, "Required"->Js.Json.string)
       }
     })
     let amountValue = Dict.get(valuesDict, "amount")
 
-    switch amountValue->Belt.Option.flatMap(Js.Json.decodeNumber) {
+    switch amountValue->Option.flatMap(Js.Json.decodeNumber) {
     | Some(floatVal) =>
       if floatVal > amoutAvailableToRefund {
         let amountSplitArr =
           Js.Float.toFixedWithPrecision(amoutAvailableToRefund, ~digits=2)->String.split(".")
         let decimal = if amountSplitArr->Array.length > 1 {
-          amountSplitArr[1]->Belt.Option.getWithDefault("")
+          amountSplitArr[1]->Option.getWithDefault("")
         } else {
           "00"
         }

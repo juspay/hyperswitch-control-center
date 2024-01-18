@@ -30,7 +30,7 @@ let singleStatItemToObjMapper = json => {
     sdk_rendered_count: dict->getInt("sdk_rendered_count", 0),
     average_payment_time: dict->getFloat("average_payment_time", 0.0) /. 1000.,
   })
-  ->Belt.Option.getWithDefault({
+  ->Option.getWithDefault({
     singleStateInitialValue
   })
 }

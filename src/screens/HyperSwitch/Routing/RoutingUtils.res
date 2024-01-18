@@ -116,7 +116,7 @@ let itemBodyGateWayObjMapper = (
     dict->getDictfromDict("connector")->getString("merchant_connector_id", "")
   let name =
     connectorList
-    ->Belt.Option.getWithDefault([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
+    ->Option.getWithDefault([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
     ->ConnectorTableUtils.getConnectorNameViaId(merchantConnectorId)
   let newDict =
     [
@@ -281,7 +281,7 @@ let generateStatement = (arr, wasm) => {
   let statementDict = Dict.make()
   arr->Array.forEachWithIndex((item, index) => {
     let valueRes =
-      item->getDictFromJsonObject->Dict.get("value")->Belt.Option.getWithDefault([]->Js.Json.array)
+      item->getDictFromJsonObject->Dict.get("value")->Option.getWithDefault([]->Js.Json.array)
 
     if valueRes->checkIfValuePresesent {
       let value = item->getDictFromJsonObject->advanceRoutingConditionMapper(wasm)
@@ -292,8 +292,7 @@ let generateStatement = (arr, wasm) => {
           let copyDict = Js.Dict.map((. val) => val, conditionDict)
           Dict.set(statementDict, Belt.Int.toString(index), copyDict)
           conditionDict->Dict.set("condition", []->Js.Json.array)
-          let val =
-            conditionDict->Dict.get("condition")->Belt.Option.getWithDefault([]->Js.Json.array)
+          let val = conditionDict->Dict.get("condition")->Option.getWithDefault([]->Js.Json.array)
           let arr = switch Js.Json.classify(val) {
           | JSONArray(arr) => {
               arr->Array.push(value)
@@ -305,8 +304,7 @@ let generateStatement = (arr, wasm) => {
         }
 
       | _ =>
-        let val =
-          conditionDict->Dict.get("condition")->Belt.Option.getWithDefault([]->Js.Json.array)
+        let val = conditionDict->Dict.get("condition")->Option.getWithDefault([]->Js.Json.array)
         let arr = switch Js.Json.classify(val) {
         | JSONArray(arr) => {
             arr->Array.push(value)
@@ -512,16 +510,14 @@ module SaveAndActivateButton = {
       try {
         let onSubmitResponse = await onSubmit(formState.values, false)
         let currentActivatedFromJson =
-          onSubmitResponse->Js.Nullable.toOption->Belt.Option.getWithDefault(Js.Json.null)
+          onSubmitResponse->Js.Nullable.toOption->Option.getWithDefault(Js.Json.null)
         let currentActivatedId =
           currentActivatedFromJson->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
         let _ = await handleActivateConfiguration(Some(currentActivatedId))
       } catch {
       | Js.Exn.Error(e) =>
         let _err =
-          Js.Exn.message(e)->Belt.Option.getWithDefault(
-            "Failed to save and activate configuration!",
-          )
+          Js.Exn.message(e)->Option.getWithDefault("Failed to save and activate configuration!")
       }
     }
     <Button
@@ -580,7 +576,7 @@ let checkIfValuePresent = dict => {
 let validateConditionJson = (json, keys) => {
   switch json->Js.Json.decodeObject {
   | Some(dict) =>
-    keys->Array.every(key => dict->Dict.get(key)->Belt.Option.isSome) && dict->checkIfValuePresent
+    keys->Array.every(key => dict->Dict.get(key)->Option.isSome) && dict->checkIfValuePresent
   | None => false
   }
 }

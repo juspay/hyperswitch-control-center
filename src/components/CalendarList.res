@@ -30,7 +30,7 @@ let make = (
   // check whether month and date has value
   let getMonthFromFloat = value => {
     let valueInt = value->Belt.Float.toInt
-    months[valueInt]->Belt.Option.getWithDefault(Jan)
+    months[valueInt]->Option.getWithDefault(Jan)
   }
   let getMonthInFloat = mon => {
     Array.indexOf(months, mon)->Belt.Float.fromInt

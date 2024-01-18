@@ -35,13 +35,11 @@ let make = (
         fill=customIconColor
         className={`fill-current ${otherClasses}`}
         width={{
-          customWidth->Belt.Option.isSome
-            ? customWidth->Belt.Option.getWithDefault("")
-            : string_of_int(size)
+          customWidth->Option.isSome ? customWidth->Option.getWithDefault("") : string_of_int(size)
         } ++ "px"}
         height={{
-          customHeight->Belt.Option.isSome
-            ? customHeight->Belt.Option.getWithDefault("")
+          customHeight->Option.isSome
+            ? customHeight->Option.getWithDefault("")
             : string_of_int(size)
         } ++ "px"}>
         useUrl

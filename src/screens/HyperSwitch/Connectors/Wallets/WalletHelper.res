@@ -115,10 +115,10 @@ module SimplifiedHelper = {
           </div>
           <div>
             <p className={"font-medium text-base text-blue-800"}> {heading->React.string} </p>
-            <UIUtils.RenderIf condition={subText->Belt.Option.isSome}>
+            <UIUtils.RenderIf condition={subText->Option.isSome}>
               <p
                 className={`opacity-50 mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
-                {subText->Belt.Option.getWithDefault("")->React.string}
+                {subText->Option.getWithDefault("")->React.string}
               </p>
             </UIUtils.RenderIf>
             {switch customElement {

@@ -68,8 +68,7 @@ module RulePreviewer = {
           ->Array.mapWithIndex((rule, index) => {
             let headingText = `Rule ${string_of_int(index + 1)}`
             let marginStyle = index === ruleInfo.rules->Array.length - 1 ? "mt-2" : "my-2"
-            let threeDsType =
-              rule.routingOutput->Belt.Option.getWithDefault(defaultThreeDsObjectValue)
+            let threeDsType = rule.routingOutput->Option.getWithDefault(defaultThreeDsObjectValue)
             <div
               key={Belt.Int.toString(index)}
               className="flex flex-col items-center w-full px-4 pb-6">

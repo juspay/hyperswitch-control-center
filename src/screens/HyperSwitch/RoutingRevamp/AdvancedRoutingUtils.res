@@ -313,7 +313,7 @@ let generateStatements = statements => {
     let logicalOperator = statementDict->getString("logical", "")->String.toLowerCase
 
     let lastItem =
-      acc->Belt.Array.get(acc->Array.length - 1)->Belt.Option.getWithDefault({condition: []})
+      acc->Belt.Array.get(acc->Array.length - 1)->Option.getWithDefault({condition: []})
 
     let condition: AdvancedRoutingTypes.statement = {
       lhs: statementDict->getString("lhs", ""),

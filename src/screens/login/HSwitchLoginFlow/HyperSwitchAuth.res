@@ -154,7 +154,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
           }
         | (_, ResetPassword) => {
             let queryDict = url.search->getDictFromUrlSearchParams
-            let password_reset_token = queryDict->Dict.get("token")->Belt.Option.getWithDefault("")
+            let password_reset_token = queryDict->Dict.get("token")->Option.getWithDefault("")
             let password = getString(valuesDict, "create_password", "")
             let body = getResetpasswordBodyJson(password, password_reset_token)
             setResetPassword(body)
