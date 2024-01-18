@@ -76,6 +76,9 @@ let make = (
   ~routingType=ADVANCED,
 ) => {
   open MerchantAccountUtils
+  let ip1 = ReactFinalForm.useField(`name`).input
+  let ip2 = ReactFinalForm.useField(`description`).input
+  let ip3 = ReactFinalForm.useField(`profile_id`).input
 
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->getValueFromBusinessProfile
@@ -124,7 +127,7 @@ let make = (
           </div>
         </div>
         <div className="flex flex-row justify-between gap-4">
-          <div className={isMobileView ? "flex flex-row gap-10" : "flex flex-row gap-48 "}>
+          <div className="flex flex-row gap-48">
             <AddDataAttributes attributes=[("data-field", "Profile Id")]>
               <div className="flex flex-col gap-2 items-start justify-between py-2">
                 <span className="text-gray-500 dark:text-gray-400">

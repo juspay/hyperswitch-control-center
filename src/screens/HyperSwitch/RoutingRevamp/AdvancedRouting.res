@@ -669,7 +669,12 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
             initialValues={initialValues} validate onSubmit={(values, _) => onSubmit(values, true)}>
             <div className="w-full flex flex-row  justify-between">
               <div className="w-full">
-                <BasicDetailsForm currentTabName profile setProfile />
+                <BasicDetailsForm
+                  formState={pageState == Preview ? ViewConfig : CreateConfig}
+                  currentTabName
+                  profile
+                  setProfile
+                />
                 <UIUtils.RenderIf condition={formState != CreateConfig}>
                   <div className="mb-5">
                     <RuleBasedUI
