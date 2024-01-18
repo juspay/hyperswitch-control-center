@@ -696,8 +696,7 @@ let make = (
       : ""} ${customBackColor->Belt.Option.getWithDefault(
       backColor,
     )} ${customRoundedClass->Belt.Option.getWithDefault(roundedClass)}`
-
-  let newThemeGap = ""
+  let customJustifyStyle = customButtonStyle->String.includes("justify") ? "" : "justify-center"
 
   <UIUtils.RenderIf condition={access !== AuthTypes.NoAccess}>
     <AddDataAttributes attributes=[(dataAttrKey, dataAttrStr)]>
@@ -711,9 +710,7 @@ let make = (
             e->ReactEvent.Keyboard.preventDefault
           }
         }}
-        className={`flex group ${customButtonStyle->String.includes("justify")
-            ? ""
-            : "justify-center"} ${relativeClass} ${heightClass} ${newThemeGap} ${conditionalButtonStyles} items-center ${borderStyle}  ${textColor} ${cursorType} ${paddingClass} ${lengthStyle} ${customButtonStyle}  ${customTextOverFlowClass}`}
+        className={`flex group ${customJustifyStyle} ${relativeClass} ${heightClass} ${conditionalButtonStyles} items-center ${borderStyle}  ${textColor} ${cursorType} ${paddingClass} ${lengthStyle} ${customButtonStyle}  ${customTextOverFlowClass}`}
         onClick=handleClick>
         {if buttonState == Loading {
           <span className={iconPadding}>
@@ -742,7 +739,7 @@ let make = (
         }}
         {switch text {
         | Some(textStr) =>
-          if textStr !== "" {
+          if !(textStr->LogicUtils.isEmptyString) {
             let btnContent =
               <AddDataAttributes attributes=[("data-button-text", textStr)]>
                 <div
@@ -781,7 +778,7 @@ let make = (
         }}
         {switch buttonRightText {
         | Some(text) =>
-          <UIUtils.RenderIf condition={text !== ""}>
+          <UIUtils.RenderIf condition={!(text->LogicUtils.isEmptyString)}>
             <span className="text-jp-2-light-primary-600 font-semibold text-fs-14">
               {React.string(text)}
             </span>
