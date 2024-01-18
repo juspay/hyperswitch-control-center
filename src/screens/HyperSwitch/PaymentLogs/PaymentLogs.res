@@ -18,23 +18,11 @@ module PrettyPrintJson = {
     ~jsonToDisplay,
     ~headerText=None,
     ~maxHeightClass="max-h-25-rem",
-    ~maxVisibleLines=5,
     ~overrideBackgroundColor="bg-hyperswitch_background",
   ) => {
     let showToast = ToastState.useShowToast()
-    let (showExpand, setShowExpand) = React.useState(_ => true)
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
     let (parsedJson, setParsedJson) = React.useState(_ => "")
-
-    React.useEffect1(() => {
-      let flag =
-        Js.Array2.fromMap(parsedJson->Js.String2.castToArrayLike, char => char)
-        ->Js.Array2.filter(str => str == "\n")
-        ->Js.Array2.length > maxVisibleLines
-      setShowExpand(_ => flag)
-      None
-    }, [parsedJson])
-
     let parseJsonValue = () => {
       try {
         let parsedValue = jsonToDisplay->Js.Json.parseExn->Js.Json.stringifyWithSpace(3)
@@ -80,13 +68,11 @@ module PrettyPrintJson = {
             }
             {copyParsedJson}
           </div>
-          <UIUtils.RenderIf condition={showExpand}>
-            <Button
-              text={isTextVisible ? "Hide" : "See more"}
-              customButtonStyle="h-6 w-8 flex flex-1 justify-center m-1"
-              onClick={_ => setIsTextVisible(_ => !isTextVisible)}
-            />
-          </UIUtils.RenderIf>
+          <Button
+            text={isTextVisible ? "Hide" : "See more"}
+            customButtonStyle="h-6 w-8 flex flex-1 justify-center m-1"
+            onClick={_ => setIsTextVisible(_ => !isTextVisible)}
+          />
         </>}
       </UIUtils.RenderIf>
       <UIUtils.RenderIf condition={parsedJson->isEmptyString}>
@@ -199,7 +185,7 @@ module ApiDetailsComponent = {
     let stepColor =
       !(currentSelected->isEmptyString) && currentSelected === requestId
         ? background_color
-        : "gray-300 "
+        : "gray-300"
     let boxShadowOnSelection =
       !(currentSelected->isEmptyString) && currentSelected === requestId
         ? "border border-blue-700 rounded-md shadow-paymentLogsShadow"
@@ -526,7 +512,6 @@ let make = (~paymentId, ~createdAt) => {
                 jsonToDisplay=logDetails.request
                 headerText={Some(selectedOption.optionType === PAYMENTS ? "Request body" : "Event")}
                 maxHeightClass={logDetails.response->String.length > 0 ? "max-h-25-rem" : ""}
-                maxVisibleLines=22
               />
             </UIUtils.RenderIf>
             <UIUtils.RenderIf condition={!(logDetails.response->isEmptyString)}>
@@ -536,7 +521,7 @@ let make = (~paymentId, ~createdAt) => {
                 | WEBHOOKS => "Request body"
                 | SDK => "Metadata"
                 }->Some
-                <PrettyPrintJson maxVisibleLines=22 jsonToDisplay=logDetails.response headerText />
+                <PrettyPrintJson jsonToDisplay=logDetails.response headerText />
               }
             </UIUtils.RenderIf>
           </div>
