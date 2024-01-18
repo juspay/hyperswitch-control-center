@@ -114,7 +114,7 @@ let make = () => {
 
     let response = await PromiseUtils.allSettledPolyfill(promisesOfInvitedUsers)
     if !magicLink {
-      let emailPasswordsArray = response->Array.mapWithIndex((ele, index) => {
+      let invitedUserData = response->Array.mapWithIndex((ele, index) => {
         switch Js.Json.classify(ele) {
         | Js.Json.JSONObject(jsonDict) => {
             let passwordFromResponse = jsonDict->getString("password", "")
@@ -129,10 +129,10 @@ let make = () => {
 
       setLoaderForInviteUsers(_ => false)
 
-      if emailPasswordsArray->Array.length > 0 {
+      if invitedUserData->Array.length > 0 {
         DownloadUtils.download(
           ~fileName=`invited-users.txt`,
-          ~content=emailPasswordsArray
+          ~content=invitedUserData
           ->Array.filter(ele => ele !== Js.Json.null)
           ->Js.Json.array
           ->Js.Json.stringifyWithSpace(3),
@@ -148,10 +148,6 @@ let make = () => {
       ~toastType=ToastSuccess,
       (),
     )
-
-    if magicLink {
-      await HyperSwitchUtils.delay(400)
-    }
     RescriptReactRouter.push("/users")
     Js.Nullable.null
   }
