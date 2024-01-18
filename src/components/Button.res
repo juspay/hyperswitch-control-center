@@ -695,7 +695,7 @@ let make = (
       ? "min-w-min"
       : ""} ${customBackColor->Option.getWithDefault(
       backColor,
-    )} ${customRoundedClass->Belt.Option.getWithDefault(roundedClass)}`
+    )} ${customRoundedClass->Option.getWithDefault(roundedClass)}`
   let customJustifyStyle = customButtonStyle->String.includes("justify") ? "" : "justify-center"
 
   <UIUtils.RenderIf condition={access !== AuthTypes.NoAccess}>
