@@ -67,6 +67,7 @@ module BusinessProfileInp = {
 @react.component
 let make = (
   ~currentTabName="",
+  ~formState,
   ~setInitialValues=_ => (),
   ~isThreeDs=false,
   ~profile=?,
@@ -88,23 +89,26 @@ let make = (
     )
     None
   })
-
-  <div
-    className={` mb-6 p-4 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850`}>
-    {<div className="flex">
-      <div className="w-full md:w-1/2 lg:w-1/3">
-        <UIUtils.RenderIf condition={!isThreeDs}>
-          <BusinessProfileInp
-            setProfile={setProfile->Belt.Option.getWithDefault(_ => ())}
-            profile={profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)}
-            options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
-            label="Profile"
-            routingType
-          />
-        </UIUtils.RenderIf>
-        <FieldRenderer field=configurationNameInput />
-        <FieldRenderer field=descriptionInput />
-      </div>
-    </div>}
-  </div>
+  if formState == ViewConfig {
+    <div />
+  } else {
+    <div
+      className={` mb-6 p-4 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850`}>
+      {<div className="flex">
+        <div className="w-full md:w-1/2 lg:w-1/3">
+          <UIUtils.RenderIf condition={!isThreeDs}>
+            <BusinessProfileInp
+              setProfile={setProfile->Belt.Option.getWithDefault(_ => ())}
+              profile={profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)}
+              options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
+              label="Profile"
+              routingType
+            />
+          </UIUtils.RenderIf>
+          <FieldRenderer field=configurationNameInput />
+          <FieldRenderer field=descriptionInput />
+        </div>
+      </div>}
+    </div>
+  }
 }

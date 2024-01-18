@@ -331,7 +331,7 @@ let make = (~routingRuleId, ~isActive) => {
         <div className="w-full flex justify-between">
           <div className="w-full">
             <BasicDetailsForm
-              currentTabName setInitialValues profile setProfile routingType=VOLUME_SPLIT
+              currentTabName formState setInitialValues profile setProfile routingType=VOLUME_SPLIT
             />
           </div>
         </div>
