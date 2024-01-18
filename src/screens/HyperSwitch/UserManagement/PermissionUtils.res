@@ -97,13 +97,11 @@ let mapStringToPermissionType = val => {
   }
 }
 
-let getAccessValue = (~permissionValue: array<permissionType>, ~permissionList) => {
+let getAccessValue = (~permissionValue: permissionType, ~permissionList) => {
   open AuthTypes
-  let isPermissionFound =
-    permissionValue
-    ->Array.filter(permission => {
-      permissionList->Array.includes(permission)
-    })
-    ->Array.length > 0
-  isPermissionFound ? Access : NoAccess
+  let isPermissionFound = permissionList->Array.find(ele => {
+    ele === permissionValue
+  })
+
+  isPermissionFound->Option.isSome ? Access : NoAccess
 }
