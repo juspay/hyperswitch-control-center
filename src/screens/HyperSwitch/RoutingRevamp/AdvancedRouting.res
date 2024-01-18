@@ -397,7 +397,6 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let (pageState, setPageState) = React.useState(() => Create)
   let (showModal, setShowModal) = React.useState(_ => false)
   let currentTabName = Recoil.useRecoilValueFromAtom(RoutingUtils.currentTabNameRecoilAtom)
-  let (isConfigButtonEnabled, setIsConfigButtonEnabled) = React.useState(_ => false)
   let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let connectorList = React.useMemo0(() => {
     connectorListJson->safeParse->ConnectorTableUtils.getArrayOfConnectorListPayloadType
@@ -670,9 +669,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
             initialValues={initialValues} validate onSubmit={(values, _) => onSubmit(values, true)}>
             <div className="w-full flex flex-row  justify-between">
               <div className="w-full">
-                <BasicDetailsForm
-                  formState setFormState currentTabName setIsConfigButtonEnabled profile setProfile
-                />
+                <BasicDetailsForm currentTabName profile setProfile />
                 <UIUtils.RenderIf condition={formState != CreateConfig}>
                   <div className="mb-5">
                     <RuleBasedUI
@@ -704,8 +701,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                           />
                         </UIUtils.RenderIf>
                       </div>
-                    | Create =>
-                      <RoutingUtils.ConfigureRuleButton setShowModal isConfigButtonEnabled />
+                    | Create => <RoutingUtils.ConfigureRuleButton setShowModal />
                     | _ => React.null
                     }}
                   </div>

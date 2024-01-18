@@ -109,7 +109,6 @@ let make = () => {
   let (initialRule, setInitialRule) = React.useState(() => None)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (pageView, setPageView) = React.useState(_ => NEW)
-  let (formState, setFormState) = React.useState(_ => AdvancedRoutingTypes.EditReplica)
   let showPopUp = PopUpState.useShowPopUp()
   let (showWarning, setShowWarning) = React.useState(_ => true)
 
@@ -268,7 +267,7 @@ let make = () => {
       | NEW =>
         <div className="w-full border p-8 bg-white rounded-md ">
           <Form initialValues validate formClass="flex flex-col gap-6 justify-between" onSubmit>
-            <BasicDetailsForm formState setFormState isThreeDs=true />
+            <BasicDetailsForm isThreeDs=true />
             <Configure3DSRule wasm />
             <FormValuesSpy />
             <div className="flex gap-4">

@@ -537,7 +537,7 @@ module SaveAndActivateButton = {
 }
 module ConfigureRuleButton = {
   @react.component
-  let make = (~setShowModal, ~isConfigButtonEnabled) => {
+  let make = (~setShowModal) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
     )
@@ -545,7 +545,7 @@ module ConfigureRuleButton = {
     <Button
       text={"Configure Rule"}
       buttonType=Primary
-      buttonState={!formState.hasValidationErrors && isConfigButtonEnabled ? Normal : Disabled}
+      buttonState={!formState.hasValidationErrors ? Normal : Disabled}
       onClick={_ => {
         setShowModal(_ => true)
       }}

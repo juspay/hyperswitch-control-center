@@ -14,7 +14,6 @@ module VolumeRoutingView = {
     ~setPageState,
     ~connectors: array<ConnectorTypes.connectorPayload>,
     ~isActive,
-    ~isConfigButtonEnabled,
     ~profile,
     ~setFormState,
     ~initialValues,
@@ -129,7 +128,7 @@ module VolumeRoutingView = {
                     dropDownButtonText="Add Processors"
                     connectorList
                   />
-                  <ConfigureRuleButton setShowModal isConfigButtonEnabled />
+                  <ConfigureRuleButton setShowModal />
                   <CustomModal.RoutingCustomModal
                     showModal
                     setShowModal
@@ -208,7 +207,6 @@ let make = (~routingRuleId, ~isActive) => {
   let (pageState, setPageState) = React.useState(() => Create)
   let (connectors, setConnectors) = React.useState(_ => [])
   let currentTabName = Recoil.useRecoilValueFromAtom(RoutingUtils.currentTabNameRecoilAtom)
-  let (isConfigButtonEnabled, setIsConfigButtonEnabled) = React.useState(_ => false)
   let showToast = ToastState.useShowToast()
   let connectorListJson =
     HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->safeParse
@@ -333,14 +331,7 @@ let make = (~routingRuleId, ~isActive) => {
         <div className="w-full flex justify-between">
           <div className="w-full">
             <BasicDetailsForm
-              formState
-              setFormState
-              currentTabName
-              setInitialValues
-              setIsConfigButtonEnabled
-              profile
-              setProfile
-              routingType=VOLUME_SPLIT
+              currentTabName setInitialValues profile setProfile routingType=VOLUME_SPLIT
             />
           </div>
         </div>
@@ -352,7 +343,6 @@ let make = (~routingRuleId, ~isActive) => {
             connectors
             routingId={routingRuleId}
             isActive
-            isConfigButtonEnabled
             initialValues
             profile
             setFormState
