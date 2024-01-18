@@ -109,20 +109,20 @@ module ApiDetailsComponent = {
     let headerStyle = "text-fs-13 font-medium text-grey-700 break-all"
     let logType = paymentDetailsValue->getLogType
     let apiName = switch logType {
-    | Payment => paymentDetailsValue->getString("api_flow", "default value")->camelCaseToTitle
-    | Sdk => paymentDetailsValue->getString("event_name", "default value")
-    | Webhooks => paymentDetailsValue->getString("outgoing_webhook_event_type", "default value")
+    | PAYMENTS => paymentDetailsValue->getString("api_flow", "default value")->camelCaseToTitle
+    | SDK => paymentDetailsValue->getString("event_name", "default value")
+    | WEBHOOKS => paymentDetailsValue->getString("outgoing_webhook_event_type", "default value")
     }->PaymentLogsUtils.nameToURLMapper(~payment_id=paymentId, ())
     let createdTime = paymentDetailsValue->getString("created_at", "00000")
     let requestId = switch logType {
-    | Payment => paymentDetailsValue->getString("request_id", "")
-    | Sdk => paymentDetailsValue->getString("event_id", "")
-    | Webhooks => paymentDetailsValue->getString("event_id", "")
+    | PAYMENTS => paymentDetailsValue->getString("request_id", "")
+    | SDK => paymentDetailsValue->getString("event_id", "")
+    | WEBHOOKS => paymentDetailsValue->getString("event_id", "")
     }
 
     let requestObject = switch logType {
-    | Payment => paymentDetailsValue->getString("request", "")
-    | Sdk =>
+    | PAYMENTS => paymentDetailsValue->getString("request", "")
+    | SDK =>
       paymentDetailsValue
       ->Dict.toArray
       ->Array.filter(entry => {
@@ -132,51 +132,51 @@ module ApiDetailsComponent = {
       ->Dict.fromArray
       ->Js.Json.object_
       ->Js.Json.stringify
-    | Webhooks => paymentDetailsValue->getString("outgoing_webhook_event_type", "")
+    | WEBHOOKS => paymentDetailsValue->getString("outgoing_webhook_event_type", "")
     }
 
     let responseObject = switch logType {
-    | Payment => paymentDetailsValue->getString("response", "")
-    | Sdk => {
+    | PAYMENTS => paymentDetailsValue->getString("response", "")
+    | SDK => {
         let isErrorLog = paymentDetailsValue->getString("log_type", "") === "ERROR"
         isErrorLog ? paymentDetailsValue->getString("value", "") : ""
       }
-    | Webhooks => paymentDetailsValue->getString("content", "")
+    | WEBHOOKS => paymentDetailsValue->getString("content", "")
     }
 
     let statusCode = switch logType {
-    | Payment => paymentDetailsValue->getInt("status_code", 200)->Belt.Int.toString
-    | Sdk => paymentDetailsValue->getString("log_type", "INFO")
-    | Webhooks => paymentDetailsValue->getBool("is_error", false) ? "200" : "500"
+    | PAYMENTS => paymentDetailsValue->getInt("status_code", 200)->Belt.Int.toString
+    | SDK => paymentDetailsValue->getString("log_type", "INFO")
+    | WEBHOOKS => paymentDetailsValue->getBool("is_error", false) ? "200" : "500"
     }
 
     let method = switch logType {
-    | Payment => paymentDetailsValue->getString("http_method", "")
-    | Sdk => ""
-    | Webhooks => "POST"
+    | PAYMENTS => paymentDetailsValue->getString("http_method", "")
+    | SDK => ""
+    | WEBHOOKS => "POST"
     }
 
     let apiPath = switch logType {
-    | Payment => paymentDetailsValue->getString("url_path", "")
-    | Webhooks =>
+    | PAYMENTS => paymentDetailsValue->getString("url_path", "")
+    | WEBHOOKS =>
       paymentDetailsValue->getString("outgoing_webhook_event_type", "")->String.toLocaleUpperCase
-    | Sdk => ""
+    | SDK => ""
     }
 
     let background_color = switch logType {
-    | Sdk =>
+    | SDK =>
       switch statusCode {
       | "INFO" => "blue-700"
       | "WARNING" => "yellow-800"
       | "ERROR" => "red-800"
       | _ => "grey-700 opacity-50"
       }
-    | Webhooks =>
+    | WEBHOOKS =>
       switch statusCode {
       | "200" => "green-700"
       | "500" | _ => "grey-700 opacity-50"
       }
-    | Payment =>
+    | PAYMENTS =>
       switch statusCode {
       | "200" => "green-700"
       | "500" => "grey-700 opacity-50"
@@ -219,8 +219,8 @@ module ApiDetailsComponent = {
           <div className=" flex gap-2">
             <p className={`text-${background_color} font-bold `}> {statusCode->React.string} </p>
             {switch logType {
-            | Sdk => <p className=headerStyle> {apiName->React.string} </p>
-            | Payment | Webhooks =>
+            | SDK => <p className=headerStyle> {apiName->React.string} </p>
+            | PAYMENTS | WEBHOOKS =>
               <p className=headerStyle>
                 <span className="font-bold mr-2"> {method->String.toUpperCase->React.string} </span>
                 <span> {apiPath->React.string} </span>
@@ -252,7 +252,7 @@ let make = (~paymentId, ~createdAt) => {
   })
   let (selectedOption, setSelectedOption) = React.useState(_ => {
     value: "",
-    optionType: Payment,
+    optionType: PAYMENTS,
   })
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
@@ -301,7 +301,7 @@ let make = (~paymentId, ~createdAt) => {
     let sourceMapper = source => {
       switch source {
       | "ORCA-LOADER" => "HYPERLOADER"
-      | "ORCA-PAYMENT-PAGE"
+      | "ORCA-PAYMENTS-PAGE"
       | "STRIPE_PAYMENT_SHEET" => "PAYMENT_SHEET"
       | other => other
       }
@@ -408,7 +408,7 @@ let make = (~paymentId, ~createdAt) => {
     | Some(value) => {
         let initialData = value->getDictFromJsonObject
         switch initialData->getLogType {
-        | Payment => {
+        | PAYMENTS => {
             let request = initialData->getString("request", "")
             let response = initialData->getString("response", "")
             setLogDetails(_ => {
@@ -417,10 +417,10 @@ let make = (~paymentId, ~createdAt) => {
             })
             setSelectedOption(_ => {
               value: initialData->getString("request_id", ""),
-              optionType: Payment,
+              optionType: PAYMENTS,
             })
           }
-        | Sdk => {
+        | SDK => {
             let request =
               initialData
               ->Dict.toArray
@@ -441,10 +441,10 @@ let make = (~paymentId, ~createdAt) => {
             })
             setSelectedOption(_ => {
               value: initialData->getString("event_id", ""),
-              optionType: Sdk,
+              optionType: SDK,
             })
           }
-        | Webhooks => {
+        | WEBHOOKS => {
             let request = initialData->getString("outgoing_webhook_event_type", "")
             let response = initialData->getString("content", "")
             setLogDetails(_ => {
@@ -453,7 +453,7 @@ let make = (~paymentId, ~createdAt) => {
             })
             setSelectedOption(_ => {
               value: initialData->getString("event_id", ""),
-              optionType: Webhooks,
+              optionType: WEBHOOKS,
             })
           }
         }
@@ -471,13 +471,13 @@ let make = (~paymentId, ~createdAt) => {
 
   open OrderUtils
   <PageLoaderWrapper
-    screenState customUI={<NoDataFound message="No logs available for this payment" />}>
+    screenState customUI={<NoDataFound message="No logs available for this PAYMENTS" />}>
     {if paymentId->HSwitchOrderUtils.isTestPayment || logs.contents->Array.length === 0 {
       <div
         className="flex items-center gap-2 bg-white w-full border-2 p-3 !opacity-100 rounded-lg text-md font-medium">
         <Icon name="info-circle-unfilled" size=16 />
         <div className={`text-lg font-medium opacity-50`}>
-          {"No logs available for this payment"->React.string}
+          {"No logs available for this PAYMENTS"->React.string}
         </div>
       </div>
     } else {
@@ -511,10 +511,10 @@ let make = (~paymentId, ~createdAt) => {
             className="flex flex-col gap-4 bg-hyperswitch_background rounded show-scrollbar scroll-smooth overflow-scroll px-8 py-4 w-1/2">
             <UIUtils.RenderIf
               condition={!(logDetails.request->isEmptyString) &&
-              selectedOption.optionType !== Webhooks}>
+              selectedOption.optionType !== WEBHOOKS}>
               <PrettyPrintJson
                 jsonToDisplay=logDetails.request
-                headerText={Some(selectedOption.optionType === Payment ? "Request body" : "Event")}
+                headerText={Some(selectedOption.optionType === PAYMENTS ? "Request body" : "Event")}
                 maxHeightClass={logDetails.response->String.length > 0 ? "max-h-25-rem" : ""}
                 maxVisibleLines=22
               />
@@ -522,9 +522,9 @@ let make = (~paymentId, ~createdAt) => {
             <UIUtils.RenderIf condition={!(logDetails.response->isEmptyString)}>
               {
                 let headerText = switch selectedOption.optionType {
-                | Payment => "Response body"
-                | Webhooks => "Request body"
-                | Sdk => "Metadata"
+                | PAYMENTS => "Response body"
+                | WEBHOOKS => "Request body"
+                | SDK => "Metadata"
                 }->Some
                 <PrettyPrintJson maxVisibleLines=22 jsonToDisplay=logDetails.response headerText />
               }

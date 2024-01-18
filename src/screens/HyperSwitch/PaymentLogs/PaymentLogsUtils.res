@@ -23,11 +23,11 @@ let filteredKeys = [
 let getLogType = dict => {
   open PaymentLogsTypes
   if dict->Dict.get("request_id")->Belt.Option.isSome {
-    Payment
+    PAYMENTS
   } else if dict->Dict.get("component")->Belt.Option.isSome {
-    Sdk
+    SDK
   } else {
-    Webhooks
+    WEBHOOKS
   }
 }
 

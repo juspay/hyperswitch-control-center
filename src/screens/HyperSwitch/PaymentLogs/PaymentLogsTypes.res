@@ -1,4 +1,4 @@
-type logType = Sdk | Payment | Webhooks
+type logType = SDK | PAYMENTS | WEBHOOKS
 
 type logDetails = {
   response: string,
