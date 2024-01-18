@@ -132,7 +132,10 @@ let make = () => {
       if emailPasswordsArray->Array.length > 0 {
         DownloadUtils.download(
           ~fileName=`invited-users.txt`,
-          ~content=emailPasswordsArray->Js.Json.array->Js.Json.stringifyWithSpace(3),
+          ~content=emailPasswordsArray
+          ->Array.filter(ele => ele !== Js.Json.null)
+          ->Js.Json.array
+          ->Js.Json.stringifyWithSpace(3),
           ~fileType="application/json",
         )
       }
