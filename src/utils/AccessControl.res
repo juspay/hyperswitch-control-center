@@ -1,13 +1,6 @@
-open PermissionUtils
-let isAccessAllowed = (permission, ~permissionList) =>
-  getAccessValue(~permissionValue=permission, ~permissionList) === Access
-
+open AuthTypes
 @react.component
-let make = (~isEnabled=true, ~permissions=?, ~children) => {
-  let permissionList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-  let isAllowed = isAccessAllowed(
-    permissions->Option.getWithDefault(UnknownPermission("")),
-    ~permissionList,
-  )
-  isEnabled && isAllowed ? children : <UnauthorizedPage />
+let make = (~isEnabled=true, ~permission=NoAccess, ~children) => {
+  let isAccessAllowed = permission === Access
+  isEnabled && isAccessAllowed ? children : <UnauthorizedPage />
 }

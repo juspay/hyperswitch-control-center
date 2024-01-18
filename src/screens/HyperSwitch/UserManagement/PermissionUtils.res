@@ -138,6 +138,37 @@ let getAccessValue = (~permissionValue: permissionType, ~permissionList) => {
   isPermissionFound->Option.isSome ? Access : NoAccess
 }
 
+let defaultValueForPermission = {
+  paymentRead: NoAccess,
+  paymentWrite: NoAccess,
+  refundRead: NoAccess,
+  refundWrite: NoAccess,
+  apiKeyRead: NoAccess,
+  apiKeyWrite: NoAccess,
+  merchantAccountRead: NoAccess,
+  merchantAccountWrite: NoAccess,
+  merchantConnectorAccountRead: NoAccess,
+  merchantConnectorAccountWrite: NoAccess,
+  forexRead: NoAccess,
+  routingRead: NoAccess,
+  routingWrite: NoAccess,
+  disputeRead: NoAccess,
+  disputeWrite: NoAccess,
+  mandateRead: NoAccess,
+  mandateWrite: NoAccess,
+  customerRead: NoAccess,
+  customerWrite: NoAccess,
+  fileRead: NoAccess,
+  fileWrite: NoAccess,
+  analytics: NoAccess,
+  threeDsDecisionManagerWrite: NoAccess,
+  threeDsDecisionManagerRead: NoAccess,
+  surchargeDecisionManagerWrite: NoAccess,
+  surchargeDecisionManagerRead: NoAccess,
+  usersRead: NoAccess,
+  usersWrite: NoAccess,
+}
+
 let getPermissionJson = permissionList => {
   let getAccessValueFromPermission = permissionValue =>
     getAccessValue(~permissionList, ~permissionValue)
