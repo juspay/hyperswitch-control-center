@@ -33,7 +33,6 @@ module DisputesNoteComponent = {
   }
 }
 
-let showFieldsForPayments = ["amount", "reason", "dipsute_id"]
 module DisputesInfoBarComponent = {
   @react.component
   let make = (~disputeStatus, ~isFromPayments=false, ~disputeDataValue=None) => {
@@ -106,6 +105,7 @@ module DisputesInfo = {
       ~widthClass="w-1/4",
       ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
       ~children=?,
+      ~setDisputeData,
     ) => {
       open APIUtils
       let updateDetails = useUpdateMethod()
@@ -120,7 +120,8 @@ module DisputesInfo = {
             ~id=Some(data.dispute_id),
             (),
           )
-          let _ = await updateDetails(url, Dict.make()->Js.Json.object_, Post)
+          let response = await updateDetails(url, Dict.make()->Js.Json.object_, Post)
+          setDisputeData(_ => response)
           setDisputeStatus(_ => Accepted)
         } catch {
         | _ => ()
@@ -200,13 +201,13 @@ module DisputesInfo = {
     }
   }
   @react.component
-  let make = (~orderDict) => {
+  let make = (~orderDict, ~setDisputeData) => {
     let disputesData = DisputesEntity.itemToObjMapper(orderDict)
     <>
       <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Summary"->React.string}
       </div>
-      <Details data=disputesData getHeading getCell detailsFields=allColumns />
+      <Details data=disputesData getHeading getCell detailsFields=allColumns setDisputeData />
       <DisputesNoteComponent disputesData />
     </>
   }
@@ -252,7 +253,7 @@ let make = (~id) => {
           <div />
         </div>
       </div>
-      <DisputesInfo orderDict={disputeData->LogicUtils.getDictFromJsonObject} />
+      <DisputesInfo orderDict={disputeData->LogicUtils.getDictFromJsonObject} setDisputeData />
     </div>
   </PageLoaderWrapper>
 }
