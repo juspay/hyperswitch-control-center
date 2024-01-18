@@ -31,6 +31,29 @@ type orderDetails = {
 }
 type metadata = {order_details: orderDetails}
 
+type online = {
+  ip_address: string,
+  user_agent: string,
+}
+
+type customer_acceptance = {
+  acceptance_type: string,
+  accepted_at: string,
+  online: online,
+}
+
+type multi_use = {
+  amount: int,
+  currency: string,
+}
+
+type mandate_type = {multi_use: multi_use}
+
+type mandateData = {
+  customer_acceptance: customer_acceptance,
+  mandate_type: mandate_type,
+}
+
 type paymentType = {
   amount: int,
   mutable currency: string,
@@ -38,7 +61,7 @@ type paymentType = {
   customer_id: string,
   description: string,
   capture_method: string,
-  amount_to_capture: int,
+  amount_to_capture: Js.Nullable.t<int>,
   email: string,
   name: string,
   phone: string,
@@ -48,4 +71,7 @@ type paymentType = {
   billing: billing,
   metadata: metadata,
   return_url: string,
+  payment_type?: Js.Nullable.t<string>,
+  setup_future_usage?: Js.Nullable.t<string>,
+  mandate_data?: Js.Nullable.t<mandateData>,
 }

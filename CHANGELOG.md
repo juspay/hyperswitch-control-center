@@ -3,6 +3,67 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.25.1 (2024-01-17)
+
+### Miscellaneous Tasks
+
+- Sidebar refactoring & permissions added ([#264](https://github.com/juspay/hyperswitch-control-center/pull/264)) ([`f428679`](https://github.com/juspay/hyperswitch-control-center/commit/f428679fa9b98e002e8bb1f670af65595ae64845))
+- Access Control Module added ([#266](https://github.com/juspay/hyperswitch-control-center/pull/266)) ([`59d0b53`](https://github.com/juspay/hyperswitch-control-center/commit/59d0b5387476536ed3a7f6a9f3468a3bd115232f))
+
+**Full Changelog:** [`v1.25.0...v1.25.1`](https://github.com/juspay/hyperswitch-control-center/compare/v1.25.0...v1.25.1)
+
+- - -
+
+
+## 1.25.0 (2024-01-16)
+
+### Features
+
+- Cybersource enabled in Prod ([#256](https://github.com/juspay/hyperswitch-control-center/pull/256)) ([`93f202e`](https://github.com/juspay/hyperswitch-control-center/commit/93f202e4c0b76e29de7e515e3b405692a09e3e40))
+
+### Bug Fixes
+
+- Make tax_on_surcharge optional and add description ([#259](https://github.com/juspay/hyperswitch-control-center/pull/259)) ([`498437b`](https://github.com/juspay/hyperswitch-control-center/commit/498437b94fe6f69c42708baca19ba9132714f467))
+
+**Full Changelog:** [`v1.24.2...v1.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.24.2...v1.25.0)
+
+- - -
+
+
+## 1.24.2 (2024-01-12)
+
+### Bug Fixes
+
+- Currency change ([#249](https://github.com/juspay/hyperswitch-control-center/pull/249)) ([`f72f290`](https://github.com/juspay/hyperswitch-control-center/commit/f72f290468125c6763e89047b162642ab3bf27e6))
+- Currency change ([#250](https://github.com/juspay/hyperswitch-control-center/pull/250)) ([`89f4874`](https://github.com/juspay/hyperswitch-control-center/commit/89f487488a008dafd1e704f4e796048eda631429))
+
+**Full Changelog:** [`v1.24.1...v1.24.2`](https://github.com/juspay/hyperswitch-control-center/compare/v1.24.1...v1.24.2)
+
+- - -
+
+
+## 1.24.1 (2024-01-12)
+
+### Bug Fixes
+
+- Curruncy fix ([#248](https://github.com/juspay/hyperswitch-control-center/pull/248)) ([`12c72a7`](https://github.com/juspay/hyperswitch-control-center/commit/12c72a7cb95fd408737564111e324c44c0001626))
+
+**Full Changelog:** [`v1.24.0...v1.24.1`](https://github.com/juspay/hyperswitch-control-center/compare/v1.24.0...v1.24.1)
+
+- - -
+
+
+## 1.24.0 (2024-01-12)
+
+### Features
+
+- Zero payment added ([#246](https://github.com/juspay/hyperswitch-control-center/pull/246)) ([`90dbf28`](https://github.com/juspay/hyperswitch-control-center/commit/90dbf287265bf51920edc2666ead6b8bdd49f337))
+
+**Full Changelog:** [`v1.23.3...v1.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.23.3...v1.24.0)
+
+- - -
+
+
 ## 1.23.3 (2024-01-11)
 
 ### Bug Fixes
