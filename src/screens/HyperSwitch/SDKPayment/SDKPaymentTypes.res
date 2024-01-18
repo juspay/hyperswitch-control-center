@@ -27,7 +27,7 @@ type billing = {
 type orderDetails = {
   product_name: string,
   quantity: int,
-  amount: int,
+  amount: float,
 }
 type metadata = {order_details: orderDetails}
 
@@ -55,13 +55,13 @@ type mandateData = {
 }
 
 type paymentType = {
-  amount: int,
+  amount: float,
   mutable currency: string,
   profile_id: string,
   customer_id: string,
   description: string,
   capture_method: string,
-  amount_to_capture: Js.Nullable.t<int>,
+  amount_to_capture: Js.Nullable.t<float>,
   email: string,
   name: string,
   phone: string,
