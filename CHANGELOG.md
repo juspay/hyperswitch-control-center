@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.26.0 (2024-01-18)
+
+### Features
+
+- Add new user ([#237](https://github.com/juspay/hyperswitch-control-center/pull/237)) ([`3749e32`](https://github.com/juspay/hyperswitch-control-center/commit/3749e3278602c2ad514079db3d6d78226cfa9391))
+- Access added for Button ([#274](https://github.com/juspay/hyperswitch-control-center/pull/274)) ([`d5ecee6`](https://github.com/juspay/hyperswitch-control-center/commit/d5ecee626d3da87f6bda8495b7539ba8660a7618))
+
+### Bug Fixes
+
+- Floating point value fix for test payment ([#270](https://github.com/juspay/hyperswitch-control-center/pull/270)) ([`038a714`](https://github.com/juspay/hyperswitch-control-center/commit/038a71492de22f1a1a51b6de9f68f010bf872268))
+
+### Refactors
+
+- Routing types and utils ([#254](https://github.com/juspay/hyperswitch-control-center/pull/254)) ([`b8b5034`](https://github.com/juspay/hyperswitch-control-center/commit/b8b5034fbae6974e34c799e6f9333e3663247f7f))
+
+### Miscellaneous Tasks
+
+- Added Access Type & Remove the Read & ReadWrite Type ([#267](https://github.com/juspay/hyperswitch-control-center/pull/267)) ([`49e3eae`](https://github.com/juspay/hyperswitch-control-center/commit/49e3eaeb9bd14a3c788649b81cf561386a5ce006))
+- Refactor invite users ([#273](https://github.com/juspay/hyperswitch-control-center/pull/273)) ([`85b07d0`](https://github.com/juspay/hyperswitch-control-center/commit/85b07d0cf058dd0842b11acb7714cd85f8d9d6c6))
+
+**Full Changelog:** [`v1.25.1...v1.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.25.1...v1.26.0)
+
+- - -
+
+
 ## 1.25.1 (2024-01-17)
 
 ### Miscellaneous Tasks
