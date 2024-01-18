@@ -1,6 +1,6 @@
 let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.paymentType = defaultBusinessProfile => {
   {
-    amount: 10000,
+    amount: 10000.00,
     currency: "United States-USD",
     profile_id: defaultBusinessProfile.profile_id,
     description: "Default value",
@@ -48,11 +48,11 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
       order_details: {
         product_name: "Apple iphone 15",
         quantity: 1,
-        amount: 100,
+        amount: 100.00,
       },
     },
     capture_method: "automatic",
-    amount_to_capture: Js.Nullable.return(100),
+    amount_to_capture: Js.Nullable.return(100.00),
     return_url: `${Window.Location.origin}${Window.Location.pathName}`,
   }
 }
@@ -95,7 +95,7 @@ let getTypedValueForPayment: Js.Json.t => SDKPaymentTypes.paymentType = values =
       },
     },
   }
-  let amount = dictOfValues->getInt("amount", 100)
+  let amount = dictOfValues->getFloat("amount", 100.00)
 
   {
     amount,
@@ -150,10 +150,10 @@ let getTypedValueForPayment: Js.Json.t => SDKPaymentTypes.paymentType = values =
       },
     },
     capture_method: "automatic",
-    amount_to_capture: amount === 0 ? Js.Nullable.null : Js.Nullable.return(amount),
+    amount_to_capture: amount === 0.00 ? Js.Nullable.null : Js.Nullable.return(amount),
     return_url: dictOfValues->getString("return_url", ""),
-    payment_type: amount === 0 ? Js.Nullable.return("setup_mandate") : Js.Nullable.null,
-    setup_future_usage: amount === 0 ? Js.Nullable.return("off_session") : Js.Nullable.null,
-    mandate_data: amount === 0 ? Js.Nullable.return(mandateData) : Js.Nullable.null,
+    payment_type: amount === 0.00 ? Js.Nullable.return("setup_mandate") : Js.Nullable.null,
+    setup_future_usage: amount === 0.00 ? Js.Nullable.return("off_session") : Js.Nullable.null,
+    mandate_data: amount === 0.00 ? Js.Nullable.return(mandateData) : Js.Nullable.null,
   }
 }
