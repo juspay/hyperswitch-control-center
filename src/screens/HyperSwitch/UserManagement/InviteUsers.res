@@ -13,7 +13,7 @@ module InviteEmailForm = {
     let role =
       ReactFinalForm.useField(`roleType`).input.value
       ->getArrayFromJson([])
-      ->LogicUtils.getValueFromArray(0, ""->Js.Json.string)
+      ->getValueFromArray(0, ""->Js.Json.string)
       ->getStringFromJson("")
 
     let getRolesList = async () => {
@@ -26,7 +26,7 @@ module InviteEmailForm = {
         )
         let response = await fetchDetails(roleListUrl)
         let typedResponse: array<UserRoleEntity.roleListResponse> =
-          response->LogicUtils.getArrayDataFromJson(roleListResponseMapper)
+          response->getArrayDataFromJson(roleListResponseMapper)
         setRoleListData(_ => typedResponse)
       } catch {
       | _ => ()
@@ -99,36 +99,46 @@ let make = () => {
       setLoaderForInviteUsers(_ => true)
     }
     let valDict = values->getDictFromJsonObject
-    let role = valDict->getStrArray("roleType")->LogicUtils.getValueFromArray(0, "")
+    let role = valDict->getStrArray("roleType")->getValueFromArray(0, "")
     let emailList = valDict->getStrArray("emailList")
-    let emailPasswordsArray = []
 
-    let arrayOfPromises = emailList->Array.map(ele => {
+    let promisesOfInvitedUsers = emailList->Array.map(ele => {
       let body =
         [
           ("email", ele->String.toLowerCase->Js.Json.string),
           ("name", ele->getNameFromEmail->Js.Json.string),
           ("role_id", role->Js.Json.string),
-        ]->LogicUtils.getJsonFromArrayOfJson
+        ]->getJsonFromArrayOfJson
       inviteUserReq(body)
     })
 
-    let response = await PromiseUtils.allSettledPolyfill(arrayOfPromises)
+    let response = await PromiseUtils.allSettledPolyfill(promisesOfInvitedUsers)
     if !magicLink {
-      response->Array.forEachWithIndex((ele, index) => {
+      let invitedUserData = response->Array.mapWithIndex((ele, index) => {
         switch Js.Json.classify(ele) {
         | Js.Json.JSONObject(jsonDict) => {
             let passwordFromResponse = jsonDict->getString("password", "")
-            emailPasswordsArray->Array.push(
-              [
-                ("email", emailList[index]->Option.getWithDefault("")->Js.Json.string),
-                ("password", passwordFromResponse->Js.Json.string),
-              ]->LogicUtils.getJsonFromArrayOfJson,
-            )
+            [
+              ("email", emailList[index]->Option.getWithDefault("")->Js.Json.string),
+              ("password", passwordFromResponse->Js.Json.string),
+            ]->getJsonFromArrayOfJson
           }
-        | _ => ()
+        | _ => Js.Json.null
         }
       })
+
+      setLoaderForInviteUsers(_ => false)
+
+      if invitedUserData->Array.length > 0 {
+        DownloadUtils.download(
+          ~fileName=`invited-users.txt`,
+          ~content=invitedUserData
+          ->Array.filter(ele => ele !== Js.Json.null)
+          ->Js.Json.array
+          ->Js.Json.stringifyWithSpace(3),
+          ~fileType="application/json",
+        )
+      }
     }
 
     showToast(
@@ -138,20 +148,6 @@ let make = () => {
       ~toastType=ToastSuccess,
       (),
     )
-
-    if !magicLink && emailPasswordsArray->Array.length > 0 {
-      DownloadUtils.download(
-        ~fileName=`invited-users.txt`,
-        ~content=emailPasswordsArray->Js.Json.array->Js.Json.stringifyWithSpace(3),
-        ~fileType="application/json",
-      )
-    }
-
-    if !magicLink {
-      setLoaderForInviteUsers(_ => false)
-    } else {
-      await HyperSwitchUtils.delay(400)
-    }
     RescriptReactRouter.push("/users")
     Js.Nullable.null
   }
