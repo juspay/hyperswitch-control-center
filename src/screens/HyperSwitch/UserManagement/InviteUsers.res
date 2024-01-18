@@ -5,7 +5,6 @@ module InviteEmailForm = {
     open LogicUtils
     open APIUtils
     let fetchDetails = useGetMethod()
-    let {magicLink} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (roleListData, setRoleListData) = React.useState(_ => [])
 
     let emailList =
@@ -54,7 +53,7 @@ module InviteEmailForm = {
           <div className="text-sm text-grey-500"> {emailList->React.string} </div>
         </div>
         <div className="absolute top-10 right-5">
-          <FormRenderer.SubmitButton text={magicLink ? "Send Invite" : "Add User"} />
+          <FormRenderer.SubmitButton text="Send Invite" />
         </div>
       </div>
       <FormRenderer.FieldRenderer
@@ -75,12 +74,10 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
-  let {magicLink} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (roleTypeValue, setRoleTypeValue) = React.useState(_ => "merchant_view_only")
   let (roleDict, setRoleDict) = React.useState(_ => Dict.make())
-  let (loaderForInviteUsers, setLoaderForInviteUsers) = React.useState(_ => false)
 
   let initialValues = React.useMemo0(() => {
     [("roleType", ["merchant_view_only"->Js.Json.string]->Js.Json.array)]
@@ -88,70 +85,36 @@ let make = () => {
     ->Js.Json.object_
   })
 
-  let inviteUserReq = body => {
-    let url = getURL(~entityName=USERS, ~userType=#INVITE, ~methodType=Post, ())
-    let response = updateDetails(url, body, Post)
-    response
+  let inviteUserReq = async (body, index) => {
+    try {
+      let url = getURL(~entityName=USERS, ~userType=#INVITE, ~methodType=Post, ())
+      let _ = await updateDetails(url, body, Post)
+      if index === 0 {
+        showToast(~message=`Invite(s) sent successfully via Email`, ~toastType=ToastSuccess, ())
+      }
+    } catch {
+    | _ => ()
+    }
   }
 
   let inviteListOfUsers = async values => {
-    if !magicLink {
-      setLoaderForInviteUsers(_ => true)
-    }
     let valDict = values->getDictFromJsonObject
     let role = valDict->getStrArray("roleType")->LogicUtils.getValueFromArray(0, "")
-    let emailList = valDict->getStrArray("emailList")
-    let emailPasswordsArray = []
 
-    let arrayOfPromises = emailList->Array.map(ele => {
+    valDict
+    ->getStrArray("emailList")
+    ->Array.forEachWithIndex((ele, index) => {
       let body =
         [
           ("email", ele->String.toLowerCase->Js.Json.string),
           ("name", ele->getNameFromEmail->Js.Json.string),
           ("role_id", role->Js.Json.string),
-        ]->LogicUtils.getJsonFromArrayOfJson
-      inviteUserReq(body)
+        ]
+        ->Dict.fromArray
+        ->Js.Json.object_
+      let _ = inviteUserReq(body, index)
     })
-
-    let response = await PromiseUtils.allSettledPolyfill(arrayOfPromises)
-    if !magicLink {
-      response->Array.forEachWithIndex((ele, index) => {
-        switch Js.Json.classify(ele) {
-        | Js.Json.JSONObject(jsonDict) => {
-            let passwordFromResponse = jsonDict->getString("password", "")
-            emailPasswordsArray->Array.push(
-              [
-                ("email", emailList[index]->Option.getWithDefault("")->Js.Json.string),
-                ("password", passwordFromResponse->Js.Json.string),
-              ]->LogicUtils.getJsonFromArrayOfJson,
-            )
-          }
-        | _ => ()
-        }
-      })
-    }
-
-    showToast(
-      ~message=magicLink
-        ? `Invite(s) sent successfully via Email`
-        : `The user accounts have been successfully created. The file with their credentials has been downloaded.`,
-      ~toastType=ToastSuccess,
-      (),
-    )
-
-    if !magicLink && emailPasswordsArray->Array.length > 0 {
-      DownloadUtils.download(
-        ~fileName=`invited-users.txt`,
-        ~content=emailPasswordsArray->Js.Json.array->Js.Json.stringifyWithSpace(3),
-        ~fileType="application/json",
-      )
-    }
-
-    if !magicLink {
-      setLoaderForInviteUsers(_ => false)
-    } else {
-      await HyperSwitchUtils.delay(400)
-    }
+    await HyperSwitchUtils.delay(400)
     RescriptReactRouter.push("/users")
     Js.Nullable.null
   }
@@ -259,12 +222,5 @@ let make = () => {
         </div>
       </PageLoaderWrapper>
     </div>
-    <UIUtils.RenderIf condition={!magicLink}>
-      <LoaderModal
-        showModal={loaderForInviteUsers}
-        setShowModal={setLoaderForInviteUsers}
-        text="Inviting Users"
-      />
-    </UIUtils.RenderIf>
   </div>
 }
