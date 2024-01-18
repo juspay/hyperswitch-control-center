@@ -68,7 +68,7 @@ module BusinessProfileInp = {
 @react.component
 let make = (
   ~currentTabName="",
-  ~formState,
+  ~formState=CreateConfig,
   ~setInitialValues=_ => (),
   ~isThreeDs=false,
   ~profile=?,
