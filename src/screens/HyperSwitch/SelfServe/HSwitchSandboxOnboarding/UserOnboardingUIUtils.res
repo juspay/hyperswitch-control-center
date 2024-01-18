@@ -862,63 +862,6 @@ let getTabsForIntegration = (
             </div>
           </div>,
       },
-      // {
-      //   title: "3. Manage",
-      //   renderContent: () => {
-      //     let skipAndContinue = async () => {
-      //       try {
-      //         let url = APIUtils.getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
-      //         let metaDataDict =
-      //           Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
-      //         let body = HSwitchUtils.constructOnboardingBody(
-      //           ~dashboardPageState,
-      //           ~integrationDetails,
-      //           ~is_done=false,
-      //           ~metadata=metaDataDict,
-      //           (),
-      //         )
-      //         let _ = await updateDetails(url, body, Post)
-      //         setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
-      //       } catch {
-      //       | _ => ()
-      //       }
-      //     }
-      //     let skipOnboarding = async path => {
-      //       let _ = await skipAndContinue()
-      //       Window._open(path)
-      //     }
-      //     <div>
-      //       <TabsContentWrapper currentRoute tabIndex=7>
-      //         <div onClick={_ => skipOnboarding(`/connectors`)->ignore} className="cursor-pointer">
-      //           <div className="pointer-events-none">
-      //             <ConnectorList.NewProcessorCards
-      //               configuredConnectors=[] showIcons=true isPayoutFlow=false
-      //             />
-      //           </div>
-      //         </div>
-      //       </TabsContentWrapper>
-      //       <TabsContentWrapper currentRoute tabIndex=8>
-      //         <div onClick={_ => skipOnboarding(`/routing`)->ignore} className="cursor-pointer">
-      //           <div className="pointer-events-none">
-      //             <RoutingStack remainingPath={list{}} previewOnly=true />
-      //           </div>
-      //         </div>
-      //       </TabsContentWrapper>
-      //       <TabsContentWrapper currentRoute tabIndex=9>
-      //         <div onClick={_ => skipOnboarding(`/payments`)->ignore} className="cursor-pointer">
-      //           <div className="pointer-events-none overflow-hidden">
-      //             <Orders previewOnly=true />
-      //           </div>
-      //         </div>
-      //       </TabsContentWrapper>
-      //       // <MilestoneAchievedCard
-      //       //   headingModule="WooCommerce integration!"
-      //       //   subText="Test your integration by placing an order and completing a payment on your store!"
-      //       //   customBackButtonRoute=""
-      //       // />
-      //     </div>
-      //   },
-      // },
     ]
   | _ => []
   }

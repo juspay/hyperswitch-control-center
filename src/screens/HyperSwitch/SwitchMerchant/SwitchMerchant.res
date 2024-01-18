@@ -318,16 +318,9 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   } else {
     <>
       <ExternalUser switchMerchant isAddMerchantEnabled />
-      <Modal
-        showModal=successModal
-        setShowModal=setSuccessModal
-        modalClass="w-80 !h-48 flex items-center justify-center m-auto"
-        paddingClass=""
-        childClass="flex items-center justify-center h-full w-full">
-        {<div className="flex items-center gap-2">
-          <p className="text-xl font-semibold"> {"Switching merchant..."->React.string} </p>
-        </div>}
-      </Modal>
+      <LoaderModal
+        showModal={successModal} setShowModal={setSuccessModal} text="Switching merchant..."
+      />
     </>
   }
 }

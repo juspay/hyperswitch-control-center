@@ -469,7 +469,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
     let errors = Dict.make()
 
-    RoutingUtils.validateNameAndDescription(~dict, ~errors)
+    AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
 
     let validateGateways = (connectorData: array<AdvancedRoutingTypes.connectorSelectionData>) => {
       if connectorData->Array.length === 0 {
@@ -710,7 +710,9 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                         </UIUtils.RenderIf>
                       </div>
                     | Create =>
-                      <RoutingUtils.ConfigureRuleButton setShowModal isConfigButtonEnabled />
+                      <AdvancedRoutingUIUtils.ConfigureRuleButton
+                        setShowModal isConfigButtonEnabled
+                      />
                     | _ => React.null
                     }}
                   </div>
@@ -725,7 +727,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                     customSumbitButtonStyle="w-1/5 rounded-lg"
                     tooltipWidthClass="w-48"
                   />}
-                  submitButton={<RoutingUtils.SaveAndActivateButton
+                  submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton
                     onSubmit handleActivateConfiguration
                   />}
                   headingText="Activate Current Configuration?"
