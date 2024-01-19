@@ -230,13 +230,13 @@ let getOrdersList = async (
     let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
-    if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Belt.Option.isSome {
+    if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Option.isSome {
       let payment_id =
         filterValueJson
         ->Dict.get("payment_id")
-        ->Belt.Option.getWithDefault(""->Js.Json.string)
+        ->Option.getWithDefault(""->Js.Json.string)
         ->Js.Json.decodeString
-        ->Belt.Option.getWithDefault("")
+        ->Option.getWithDefault("")
 
       if Js.Re.test_(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
         let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")

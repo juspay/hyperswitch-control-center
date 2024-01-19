@@ -263,7 +263,7 @@ let refundMetaitemToObjMapper = dict => {
 }
 
 let getRefundMetaData: Js.Json.t => refundMetaData = json => {
-  json->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make())->refundMetaitemToObjMapper
+  json->Js.Json.decodeObject->Option.getWithDefault(Dict.make())->refundMetaitemToObjMapper
 }
 
 let refunditemToObjMapper = dict => {
@@ -489,6 +489,7 @@ let getStatus = order => {
 let getHeadingForSummary = summaryColType => {
   switch summaryColType {
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created", ~showSort=true, ())
+  | NetAmount => Table.makeHeaderInfo(~key="net_amount", ~title="Net Amount", ~showSort=true, ())
   | LastUpdated =>
     Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated", ~showSort=true, ())
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID", ~showSort=true, ())
@@ -611,6 +612,13 @@ let getCellForSummary = (order, summaryColType, _): Table.cell => {
   open HelperComponents
   switch summaryColType {
   | Created => Date(order.created)
+  | NetAmount =>
+    CustomCell(
+      <CurrencyCell
+        amount={(order.net_amount /. 100.0)->Belt.Float.toString} currency={order.currency}
+      />,
+      "",
+    )
   | LastUpdated => Date(order.last_updated)
   | PaymentId => CustomCell(<CopyTextCustomComp displayValue=order.payment_id />, "")
   | Currency => Text(order.currency)
@@ -675,11 +683,9 @@ let getCellForOtherDetails = (order, aboutPaymentColType, _): Table.cell => {
   | StatementDescriptorName => Text(order.statement_descriptor_name)
   | StatementDescriptorSuffix => Text(order.statement_descriptor_suffix)
   | PaymentExperience => Text(order.payment_experience)
-  | FirstName => Text(splittedName->Belt.Array.get(0)->Belt.Option.getWithDefault(""))
+  | FirstName => Text(splittedName->Belt.Array.get(0)->Option.getWithDefault(""))
   | LastName =>
-    Text(
-      splittedName->Belt.Array.get(splittedName->Array.length - 1)->Belt.Option.getWithDefault(""),
-    )
+    Text(splittedName->Belt.Array.get(splittedName->Array.length - 1)->Option.getWithDefault(""))
   | Phone => Text(order.phone)
   | Email => Text(order.email)
   | CustomerId => Text(order.customer_id)
@@ -788,10 +794,38 @@ let getFRMDetails = dict => {
   dict->getJsonObjectFromDict("frm_message")->getDictFromJsonObject->itemToObjMapperForFRMDetails
 }
 
+let concatValueOfGivenKeysOfDict = (dict, keys) => {
+  Array.reduceWithIndex(keys, "", (acc, key, i) => {
+    let val = dict->getString(key, "")
+    let delimiter = if val->String.length > 0 {
+      if key !== "first_name" {
+        i + 1 == keys->Array.length ? "." : ", "
+      } else {
+        " "
+      }
+    } else {
+      ""
+    }
+    String.concat(acc, `${val}${delimiter}`)
+  })
+}
+
 let itemToObjMapper = dict => {
+  let addressKeys = [
+    "first_name",
+    "last_name",
+    "line1",
+    "line2",
+    "line3",
+    "city",
+    "state",
+    "country",
+    "zip",
+  ]
   {
     payment_id: dict->getString("payment_id", ""),
     merchant_id: dict->getString("merchant_id", ""),
+    net_amount: dict->getFloat("net_amount", 0.0),
     connector: dict->getString("connector", ""),
     status: dict->getString("status", ""),
     amount: dict->getFloat("amount", 0.0),
@@ -813,8 +847,14 @@ let itemToObjMapper = dict => {
     payment_method_type: dict->getString("payment_method_type", ""),
     payment_method_data: dict->getString("payment_method_data", ""),
     payment_token: dict->getString("payment_token", ""),
-    shipping: dict->getString("shipping", ""),
-    billing: dict->getString("billing", ""),
+    shipping: dict
+    ->getDictfromDict("shipping")
+    ->getDictfromDict("address")
+    ->concatValueOfGivenKeysOfDict(addressKeys),
+    billing: dict
+    ->getDictfromDict("billing")
+    ->getDictfromDict("address")
+    ->concatValueOfGivenKeysOfDict(addressKeys),
     metadata: dict->getJsonObjectFromDict("metadata")->getDictFromJsonObject,
     email: dict->getString("email", ""),
     name: dict->getString("name", ""),

@@ -79,13 +79,13 @@ module ErrorValidation = {
     let errorDict = formState.values->validate->getDictFromJsonObject
     let {touched} = ReactFinalForm.useField(fieldName).meta
     let err = touched ? errorDict->Dict.get(fieldName) : None
-    <UIUtils.RenderIf condition={err->Belt.Option.isSome}>
+    <UIUtils.RenderIf condition={err->Option.isSome}>
       <div
         className={`flex flex-row items-center text-orange-950 dark:text-orange-400 pt-2 text-base font-medium text-start ml-1`}>
         <div className="flex mr-2">
           <img className=imageStyle src={`${appPrefix}/icons/warning.svg`} alt="warning" />
         </div>
-        {React.string(err->Belt.Option.getWithDefault(""->Js.Json.string)->getStringFromJson(""))}
+        {React.string(err->Option.getWithDefault(""->Js.Json.string)->getStringFromJson(""))}
       </div>
     </UIUtils.RenderIf>
   }
@@ -192,7 +192,7 @@ module CashToCodeSelectBox = {
 
       wasmValues
       ->Array.find(ele => formValues->getString(ele, "")->String.length <= 0)
-      ->Belt.Option.isNone
+      ->Option.isNone
     }
 
     <div>
@@ -364,7 +364,7 @@ module BusinessProfileRender = {
                       ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
                         ele.profile_id === ev->Identity.formReactEventToString
                       )
-                      ->Belt.Option.getWithDefault(defaultBusinessProfile)
+                      ->Option.getWithDefault(defaultBusinessProfile)
                     ).profile_name
                     connectorLabelOnChange(
                       `${selectedConnector}_${profileName}`->Identity.stringToFormReactEvent,
@@ -447,7 +447,7 @@ module VerifyConnectorModal = {
               </div>
               <div
                 className="whitespace-pre-line break-all flex flex-col gap-1 p-4 ml-6 text-base dark:text-jp-gray-text_darktheme dark:text-opacity-50 bg-red-50 rounded-md font-semibold">
-                {`${verifyErrorMessage->Belt.Option.getWithDefault("")}`->React.string}
+                {`${verifyErrorMessage->Option.getWithDefault("")}`->React.string}
               </div>
               <UIUtils.RenderIf condition={suggestedActionExists}>
                 {suggestedAction}

@@ -49,8 +49,7 @@ module AdvanceSearch = {
             let statusStr = getString(jsonDict, "status", "FAILURE")
 
             if statusStr === "SUCCESS" {
-              let payloadDict =
-                jsonDict->Dict.get(detailsKey)->Belt.Option.flatMap(Js.Json.decodeObject)
+              let payloadDict = jsonDict->Dict.get(detailsKey)->Option.flatMap(Js.Json.decodeObject)
 
               switch payloadDict {
               | Some(dict) => {
@@ -90,12 +89,12 @@ module AdvanceSearch = {
       }
       let errors = Dict.make()
       requiredSearchFieldsList->Array.forEach(key => {
-        if Dict.get(valuesDict, key)->Js.Option.isNone {
+        if Dict.get(valuesDict, key)->Option.isNone {
           Dict.set(errors, key, "Required"->Js.Json.string)
         }
       })
       let isSubmitEnabled = optionalSearchFieldsList->Array.some(key => {
-        Dict.get(valuesDict, key)->Js.Option.isSome
+        Dict.get(valuesDict, key)->Option.isSome
       })
 
       if !isSubmitEnabled {

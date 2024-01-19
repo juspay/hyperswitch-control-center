@@ -41,9 +41,9 @@ module OperatorInp = {
       input: ReactFinalForm.makeInputRecord(""->Js.Json.string, _e => ()),
       meta: ReactFinalForm.makeCustomError(None),
     }
-    let field = (fieldsArray->Belt.Array.get(0)->Belt.Option.getWithDefault(defaultInput)).input
-    let operator = (fieldsArray->Belt.Array.get(1)->Belt.Option.getWithDefault(defaultInput)).input
-    let valInp = (fieldsArray->Belt.Array.get(2)->Belt.Option.getWithDefault(defaultInput)).input
+    let field = (fieldsArray->Belt.Array.get(0)->Option.getWithDefault(defaultInput)).input
+    let operator = (fieldsArray->Belt.Array.get(1)->Option.getWithDefault(defaultInput)).input
+    let valInp = (fieldsArray->Belt.Array.get(2)->Option.getWithDefault(defaultInput)).input
     let (opVals, setOpVals) = React.useState(_ => [])
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -68,7 +68,7 @@ module OperatorInp = {
 
       setOpVals(_ => operatorVals)
 
-      if operator.value->Js.Json.decodeString->Belt.Option.isNone {
+      if operator.value->Js.Json.decodeString->Option.isNone {
         operator.onChange(operatorVals[0]->Identity.anyTypeToReactEvent)
       }
       None
@@ -81,7 +81,7 @@ module OperatorInp = {
         ("NOT_CONTAINS", "Includes results except any value for the filter property."),
       ]->Dict.fromArray
     let disableSelect =
-      field.value->Js.Json.decodeString->Belt.Option.getWithDefault("")->String.length === 0
+      field.value->Js.Json.decodeString->Option.getWithDefault("")->String.length === 0
 
     let operatorOptions = opVals->Array.map(opVal => {
       let obj: SelectBox.dropdownOption = {
@@ -111,13 +111,11 @@ module ValueInp = {
   @react.component
   let make = (~fieldsArray: array<ReactFinalForm.fieldRenderProps>, ~variantValues, ~keyType) => {
     let valueField = (
-      fieldsArray[1]->Belt.Option.getWithDefault(ReactFinalForm.fakeFieldRenderProps)
+      fieldsArray[1]->Option.getWithDefault(ReactFinalForm.fakeFieldRenderProps)
     ).input
-    let opField = (
-      fieldsArray[2]->Belt.Option.getWithDefault(ReactFinalForm.fakeFieldRenderProps)
-    ).input
+    let opField = (fieldsArray[2]->Option.getWithDefault(ReactFinalForm.fakeFieldRenderProps)).input
     let typeField = (
-      fieldsArray[3]->Belt.Option.getWithDefault(ReactFinalForm.fakeFieldRenderProps)
+      fieldsArray[3]->Option.getWithDefault(ReactFinalForm.fakeFieldRenderProps)
     ).input
 
     React.useEffect1(() => {
@@ -190,7 +188,7 @@ module MetadataInp = {
   @react.component
   let make = (~fieldsArray: array<ReactFinalForm.fieldRenderProps>, ~keyType) => {
     let valueField = (
-      fieldsArray[2]->Belt.Option.getWithDefault(ReactFinalForm.fakeFieldRenderProps)
+      fieldsArray[2]->Option.getWithDefault(ReactFinalForm.fakeFieldRenderProps)
     ).input
 
     let textInput: ReactFinalForm.fieldRenderPropsInput = {
@@ -419,7 +417,7 @@ module MakeRuleField = {
   let make = (~id, ~isExpanded, ~wasm, ~isFrom3ds, ~isFromSurcharge) => {
     let ruleJsonPath = `${id}.statements`
     let conditionsInput = ReactFinalForm.useField(ruleJsonPath).input
-    let fields = conditionsInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
+    let fields = conditionsInput.value->Js.Json.decodeArray->Option.getWithDefault([])
     let plusBtnEnabled = true
     //fields->Array.every(validateConditionJson)
     let onPlusClick = _ => {
@@ -496,3 +494,58 @@ let descriptionInput = makeFieldInfo(
   ),
   (),
 )
+
+module ConfigureRuleButton = {
+  @react.component
+  let make = (~setShowModal, ~isConfigButtonEnabled) => {
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+    )
+
+    <Button
+      text={"Configure Rule"}
+      buttonType=Primary
+      buttonState={!formState.hasValidationErrors && isConfigButtonEnabled ? Normal : Disabled}
+      onClick={_ => {
+        setShowModal(_ => true)
+      }}
+      customButtonStyle="w-1/5"
+    />
+  }
+}
+
+module SaveAndActivateButton = {
+  @react.component
+  let make = (
+    ~onSubmit: (Js.Json.t, 'a) => promise<Js.Nullable.t<Js.Json.t>>,
+    ~handleActivateConfiguration,
+  ) => {
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+    )
+
+    let handleSaveAndActivate = async _ev => {
+      try {
+        let onSubmitResponse = await onSubmit(formState.values, false)
+        let currentActivatedFromJson =
+          onSubmitResponse->Js.Nullable.toOption->Option.getWithDefault(Js.Json.null)
+        let currentActivatedId =
+          currentActivatedFromJson->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
+        let _ = await handleActivateConfiguration(Some(currentActivatedId))
+      } catch {
+      | Js.Exn.Error(e) =>
+        let _err =
+          Js.Exn.message(e)->Option.getWithDefault("Failed to save and activate configuration!")
+      }
+    }
+    <Button
+      text={"Save and Activate Rule"}
+      buttonType={Primary}
+      buttonSize=Button.Small
+      onClick={_ => {
+        handleSaveAndActivate()->ignore
+      }}
+      customButtonStyle="w-1/5 rounded-sm"
+    />
+  }
+}

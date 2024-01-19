@@ -5,6 +5,7 @@ module InviteEmailForm = {
     open LogicUtils
     open APIUtils
     let fetchDetails = useGetMethod()
+    let {magicLink} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (roleListData, setRoleListData) = React.useState(_ => [])
 
     let emailList =
@@ -12,7 +13,7 @@ module InviteEmailForm = {
     let role =
       ReactFinalForm.useField(`roleType`).input.value
       ->getArrayFromJson([])
-      ->LogicUtils.getValueFromArray(0, ""->Js.Json.string)
+      ->getValueFromArray(0, ""->Js.Json.string)
       ->getStringFromJson("")
 
     let getRolesList = async () => {
@@ -25,7 +26,7 @@ module InviteEmailForm = {
         )
         let response = await fetchDetails(roleListUrl)
         let typedResponse: array<UserRoleEntity.roleListResponse> =
-          response->LogicUtils.getArrayDataFromJson(roleListResponseMapper)
+          response->getArrayDataFromJson(roleListResponseMapper)
         setRoleListData(_ => typedResponse)
       } catch {
       | _ => ()
@@ -53,7 +54,7 @@ module InviteEmailForm = {
           <div className="text-sm text-grey-500"> {emailList->React.string} </div>
         </div>
         <div className="absolute top-10 right-5">
-          <FormRenderer.SubmitButton text="Send Invite" />
+          <FormRenderer.SubmitButton text={magicLink ? "Send Invite" : "Add User"} />
         </div>
       </div>
       <FormRenderer.FieldRenderer
@@ -74,10 +75,12 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
+  let {magicLink} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (roleTypeValue, setRoleTypeValue) = React.useState(_ => "merchant_view_only")
   let (roleDict, setRoleDict) = React.useState(_ => Dict.make())
+  let (loaderForInviteUsers, setLoaderForInviteUsers) = React.useState(_ => false)
 
   let initialValues = React.useMemo0(() => {
     [("roleType", ["merchant_view_only"->Js.Json.string]->Js.Json.array)]
@@ -85,36 +88,66 @@ let make = () => {
     ->Js.Json.object_
   })
 
-  let inviteUserReq = async (body, index) => {
-    try {
-      let url = getURL(~entityName=USERS, ~userType=#INVITE, ~methodType=Post, ())
-      let _ = await updateDetails(url, body, Post)
-      if index === 0 {
-        showToast(~message=`Invite(s) sent successfully via Email`, ~toastType=ToastSuccess, ())
-      }
-    } catch {
-    | _ => ()
-    }
+  let inviteUserReq = body => {
+    let url = getURL(~entityName=USERS, ~userType=#INVITE, ~methodType=Post, ())
+    let response = updateDetails(url, body, Post)
+    response
   }
 
   let inviteListOfUsers = async values => {
+    if !magicLink {
+      setLoaderForInviteUsers(_ => true)
+    }
     let valDict = values->getDictFromJsonObject
-    let role = valDict->getStrArray("roleType")->LogicUtils.getValueFromArray(0, "")
+    let role = valDict->getStrArray("roleType")->getValueFromArray(0, "")
+    let emailList = valDict->getStrArray("emailList")
 
-    valDict
-    ->getStrArray("emailList")
-    ->Array.forEachWithIndex((ele, index) => {
+    let promisesOfInvitedUsers = emailList->Array.map(ele => {
       let body =
         [
           ("email", ele->String.toLowerCase->Js.Json.string),
           ("name", ele->getNameFromEmail->Js.Json.string),
           ("role_id", role->Js.Json.string),
-        ]
-        ->Dict.fromArray
-        ->Js.Json.object_
-      let _ = inviteUserReq(body, index)
+        ]->getJsonFromArrayOfJson
+      inviteUserReq(body)
     })
-    await HyperSwitchUtils.delay(400)
+
+    let response = await PromiseUtils.allSettledPolyfill(promisesOfInvitedUsers)
+    if !magicLink {
+      let invitedUserData = response->Array.mapWithIndex((ele, index) => {
+        switch Js.Json.classify(ele) {
+        | Js.Json.JSONObject(jsonDict) => {
+            let passwordFromResponse = jsonDict->getString("password", "")
+            [
+              ("email", emailList[index]->Option.getWithDefault("")->Js.Json.string),
+              ("password", passwordFromResponse->Js.Json.string),
+            ]->getJsonFromArrayOfJson
+          }
+        | _ => Js.Json.null
+        }
+      })
+
+      setLoaderForInviteUsers(_ => false)
+
+      if invitedUserData->Array.length > 0 {
+        DownloadUtils.download(
+          ~fileName=`invited-users.txt`,
+          ~content=invitedUserData
+          ->Array.filter(ele => ele !== Js.Json.null)
+          ->Js.Json.array
+          ->Js.Json.stringifyWithSpace(3),
+          ~fileType="application/json",
+        )
+      }
+    }
+
+    showToast(
+      ~message=magicLink
+        ? `Invite(s) sent successfully via Email`
+        : `The user accounts have been successfully created. The file with their credentials has been downloaded.`,
+      ~toastType=ToastSuccess,
+      (),
+    )
     RescriptReactRouter.push("/users")
     Js.Nullable.null
   }
@@ -154,7 +187,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }
@@ -162,10 +195,10 @@ let make = () => {
 
   let getRoleInfo = permissionInfoValue => {
     let roleTypeValue = roleDict->Dict.get(roleTypeValue)
-    if roleTypeValue->Belt.Option.isNone {
+    if roleTypeValue->Option.isNone {
       getRoleForUser(permissionInfoValue)->ignore
     } else {
-      settingUpValues(roleTypeValue->Belt.Option.getWithDefault(Js.Json.null), permissionInfoValue)
+      settingUpValues(roleTypeValue->Option.getWithDefault(Js.Json.null), permissionInfoValue)
     }
   }
 
@@ -222,5 +255,12 @@ let make = () => {
         </div>
       </PageLoaderWrapper>
     </div>
+    <UIUtils.RenderIf condition={!magicLink}>
+      <LoaderModal
+        showModal={loaderForInviteUsers}
+        setShowModal={setLoaderForInviteUsers}
+        text="Inviting Users"
+      />
+    </UIUtils.RenderIf>
   </div>
 }

@@ -143,7 +143,7 @@ module ClearFilters = {
         let searchStr =
           formState.values
           ->Js.Json.decodeObject
-          ->Belt.Option.getWithDefault(Dict.make())
+          ->Option.getWithDefault(Dict.make())
           ->Dict.toArray
           ->Belt.Array.keepMap(entry => {
             let (key, value) = entry
@@ -167,7 +167,7 @@ module ClearFilters = {
     let hasExtraFilters = React.useMemo2(() => {
       formState.initialValues
       ->Js.Json.decodeObject
-      ->Belt.Option.getWithDefault(Dict.make())
+      ->Option.getWithDefault(Dict.make())
       ->Dict.toArray
       ->Array.filter(entry => {
         let (key, value) = entry
@@ -213,7 +213,7 @@ module AnalyticsClearFilters = {
         let searchStr =
           formState.values
           ->Js.Json.decodeObject
-          ->Belt.Option.getWithDefault(Dict.make())
+          ->Option.getWithDefault(Dict.make())
           ->Dict.toArray
           ->Belt.Array.keepMap(entry => {
             let (key, value) = entry
@@ -237,7 +237,7 @@ module AnalyticsClearFilters = {
     let hasExtraFilters = React.useMemo2(() => {
       formState.initialValues
       ->Js.Json.decodeObject
-      ->Belt.Option.getWithDefault(Dict.make())
+      ->Option.getWithDefault(Dict.make())
       ->Dict.toArray
       ->Array.filter(entry => {
         let (key, value) = entry
@@ -336,7 +336,7 @@ module AutoSubmitter = {
     React.useEffect1(() => {
       if formState.dirty {
         let defaultFieldsHaveChanged = defaultFilterKeys->Array.some(key => {
-          formState.dirtyFields->Dict.get(key)->Belt.Option.getWithDefault(false)
+          formState.dirtyFields->Dict.get(key)->Option.getWithDefault(false)
         })
 
         // if autoApply is false then still autoApply can work for the default filters
@@ -404,8 +404,7 @@ module ApplyFilterButton = {
       ->Dict.toArray
       ->Array.map(entry => {
         let (key, value) = entry
-        let inputField =
-          inputFieldsDict->Dict.get(key)->Belt.Option.getWithDefault(defaultinputField)
+        let inputField = inputFieldsDict->Dict.get(key)->Option.getWithDefault(defaultinputField)
         let formattor = inputField.format
         let value = switch formattor {
         | Some(fn) => fn(. ~value, ~name=key)
@@ -468,7 +467,7 @@ module FilterModal = {
     let formCurrentValues = formState.values->LogicUtils.getDictFromJsonObject
     let sortedSelectedFiltersList = React.useMemo1(_ => {
       let selectedFiltersListWithVal = selectedFiltersList->Array.filter(item => {
-        let inputName = item.inputNames->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+        let inputName = item.inputNames->Belt.Array.get(0)->Option.getWithDefault("")
         let selectedNo =
           formCurrentValues->LogicUtils.getStrArray(inputName)->Array.length->Belt.Int.toString
         selectedNo !== "0"
@@ -483,7 +482,7 @@ module FilterModal = {
     <div className="flex flex-col gap-4.5">
       {sortedSelectedFiltersList
       ->Array.mapWithIndex((item, i) => {
-        let inputName = item.inputNames->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+        let inputName = item.inputNames->Belt.Array.get(0)->Option.getWithDefault("")
         let selectedNo =
           formCurrentValues->LogicUtils.getStrArray(inputName)->Array.length->Belt.Int.toString
         let textcolor =
@@ -551,7 +550,7 @@ let make = (
   ~revampedFilter=false,
 ) => {
   let {query} = React.useContext(FilterContext.filterContext)
-  let alreadySelectedFiltersUserpref = `remote_filters_selected_keys_${tableName->Belt.Option.getWithDefault(
+  let alreadySelectedFiltersUserpref = `remote_filters_selected_keys_${tableName->Option.getWithDefault(
       "",
     )}`
   let {addConfig} = React.useContext(UserPrefContext.userPrefContext)
@@ -571,7 +570,7 @@ let make = (
   let updatedSelectedList = React.useMemo1(() => {
     selectedFiltersList
     ->Array.map(item => {
-      item.inputNames->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+      item.inputNames->Belt.Array.get(0)->Option.getWithDefault("")
     })
     ->Js.Json.stringArray
   }, [selectedFiltersList])
@@ -599,7 +598,7 @@ let make = (
 
   let countSelectedFilters = React.useMemo1(() => {
     Dict.keysToArray(
-      initialValueJson->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make()),
+      initialValueJson->Js.Json.decodeObject->Option.getWithDefault(Dict.make()),
     )->Array.length
   }, [initialValueJson])
 
@@ -679,7 +678,7 @@ let make = (
                 't,
               > = EntityType.getDefaultEntityOptionType()
               let optionObj =
-                remoteOptions[optionObjIdx]->Belt.Option.getWithDefault(defaultEntityOptionType)
+                remoteOptions[optionObjIdx]->Option.getWithDefault(defaultEntityOptionType)
               let optionObjUrlKey = optionObj.urlKey
               if !(popupUrlKeyArr->Array.includes(optionObjUrlKey)) {
                 Array.push(localSelectedFiltersList, optionObj.field)
@@ -702,11 +701,7 @@ let make = (
 
   let onSubmit = (values, _) => {
     let obj =
-      values
-      ->Js.Json.decodeObject
-      ->Belt.Option.getWithDefault(Dict.make())
-      ->Dict.toArray
-      ->Dict.fromArray
+      values->Js.Json.decodeObject->Option.getWithDefault(Dict.make())->Dict.toArray->Dict.fromArray
 
     let flattendDict = obj->Js.Json.object_->JsonFlattenUtils.flattenObject(false)
     let localFilterDict = localFilterJson->JsonFlattenUtils.flattenObject(false)
@@ -754,7 +749,7 @@ let make = (
       let defaultEntityOptionType: EntityType.optionType<
         't,
       > = EntityType.getDefaultEntityOptionType()
-      let optionObj = optionObjArry[0]->Belt.Option.getWithDefault(defaultEntityOptionType)
+      let optionObj = optionObjArry[0]->Option.getWithDefault(defaultEntityOptionType)
       let _ = Array.push(localSelectedFiltersList, optionObj.field)
       let _a = Array.push(localCheckedFilters, value)
     })
@@ -782,7 +777,7 @@ let make = (
       val.inputNames
       ->Belt.Array.get(0)
       ->Belt.Option.map(name => !Array.includes(toBeRemoved, name))
-      ->Belt.Option.getWithDefault(false)
+      ->Option.getWithDefault(false)
     })
     let filtersAfterRemoving =
       checkedFilters->Array.filter(val => !Array.includes(toBeRemoved, val))
@@ -791,7 +786,7 @@ let make = (
       initialValueJson
       ->Js.Json.decodeObject
       ->Belt.Option.map(Dict.toArray)
-      ->Belt.Option.getWithDefault([])
+      ->Option.getWithDefault([])
       ->Array.filter(entry => {
         let (key, _value) = entry
         !Array.includes(toBeRemoved, key)
@@ -809,7 +804,7 @@ let make = (
     let errors = Dict.make()
 
     requiredSearchFieldsList->Array.forEach(key => {
-      if Dict.get(valuesDict, key)->Js.Option.isNone {
+      if Dict.get(valuesDict, key)->Option.isNone {
         let key = if key == "filters.dateCreated.lte" || key == "filters.dateCreated.gte" {
           "Date Range"
         } else {
