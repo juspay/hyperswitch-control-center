@@ -7,6 +7,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
   open APIUtils
   let updateDetails = useUpdateMethod()
   let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {quickStartPageState, setQuickStartPageState, setDashboardPageState} = React.useContext(
     GlobalProvider.defaultContext,
   )
@@ -158,6 +159,11 @@ let make = (~connectProcessorValue: connectProcessor) => {
       let _ = await PaymentType(paymentBody)->usePostEnumDetails(#TestPayment)
       setQuickStartPageState(_ => IntegrateApp(LANDING))
       RescriptReactRouter.replace("/quick-start")
+      if paymentId->Option.isSome {
+        mixpanelEvent(~eventName=`quickstart_checkout_pay`, ())
+      } else {
+        mixpanelEvent(~eventName=`quickstart_checkout_skip`, ())
+      }
     } catch {
     | _ => ()
     }
@@ -180,7 +186,10 @@ let make = (~connectProcessorValue: connectProcessor) => {
           nextButton={<Button
             buttonType=Primary
             text="Proceed"
-            onClick={_ => handleConnectorChoiceClick()->ignore}
+            onClick={_ => {
+              mixpanelEvent(~eventName=`quickstart_landing`, ())
+              handleConnectorChoiceClick()->ignore
+            }}
             buttonSize=Small
             buttonState
           />}
@@ -242,6 +251,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
               buttonType=Primary
               text="Proceed"
               onClick={_ => {
+                mixpanelEvent(~eventName=`quickstart_configure_smart_routing`, ())
                 handleRouting()->ignore
               }}
               buttonSize=Small
@@ -269,7 +279,9 @@ let make = (~connectProcessorValue: connectProcessor) => {
               buttonSize={Small}
               buttonType={PrimaryOutline}
               customButtonStyle="!rounded-md"
-              onClick={_ => updateTestPaymentEnum(~paymentId=None)->ignore}
+              onClick={_ => {
+                updateTestPaymentEnum(~paymentId=None)->ignore
+              }}
             />}>
             <TestPayment
               initialValues={activeBusinessProfile->SDKPaymentUtils.initialValueForForm}

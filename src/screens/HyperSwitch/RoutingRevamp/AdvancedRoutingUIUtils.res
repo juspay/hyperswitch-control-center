@@ -496,3 +496,60 @@ let descriptionInput = makeFieldInfo(
   ),
   (),
 )
+
+module ConfigureRuleButton = {
+  @react.component
+  let make = (~setShowModal, ~isConfigButtonEnabled) => {
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+    )
+
+    <Button
+      text={"Configure Rule"}
+      buttonType=Primary
+      buttonState={!formState.hasValidationErrors && isConfigButtonEnabled ? Normal : Disabled}
+      onClick={_ => {
+        setShowModal(_ => true)
+      }}
+      customButtonStyle="w-1/5"
+    />
+  }
+}
+
+module SaveAndActivateButton = {
+  @react.component
+  let make = (
+    ~onSubmit: (Js.Json.t, 'a) => promise<Js.Nullable.t<Js.Json.t>>,
+    ~handleActivateConfiguration,
+  ) => {
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+    )
+
+    let handleSaveAndActivate = async _ev => {
+      try {
+        let onSubmitResponse = await onSubmit(formState.values, false)
+        let currentActivatedFromJson =
+          onSubmitResponse->Js.Nullable.toOption->Belt.Option.getWithDefault(Js.Json.null)
+        let currentActivatedId =
+          currentActivatedFromJson->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
+        let _ = await handleActivateConfiguration(Some(currentActivatedId))
+      } catch {
+      | Js.Exn.Error(e) =>
+        let _err =
+          Js.Exn.message(e)->Belt.Option.getWithDefault(
+            "Failed to save and activate configuration!",
+          )
+      }
+    }
+    <Button
+      text={"Save and Activate Rule"}
+      buttonType={Primary}
+      buttonSize=Button.Small
+      onClick={_ => {
+        handleSaveAndActivate()->ignore
+      }}
+      customButtonStyle="w-1/5 rounded-sm"
+    />
+  }
+}

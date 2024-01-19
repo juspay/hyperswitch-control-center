@@ -57,18 +57,11 @@ let make = () => {
   let (showModal, setShowModal) = React.useState(_ => false)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (arr, setArr) = React.useState(_ => [])
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
-  let userRole = HSLocalStorage.getFromUserDetails("user_role")
   let isReconEnabled =
     (merchentDetails->MerchantAccountUtils.getMerchantDetails).recon_status === Active
 
-  let hswitchTabs = SidebarValues.getHyperSwitchAppSidebars(
-    ~isReconEnabled,
-    ~featureFlagDetails,
-    ~userRole,
-    (),
-  )
+  let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let searchText = searchText->String.trim
   React.useEffect1(_ => {
     let matchedList = hswitchTabs->Array.reduce([], (acc, item) => {

@@ -188,7 +188,7 @@ let make = () => {
 
     let errors = Dict.make()
 
-    RoutingUtils.validateNameAndDescription(~dict, ~errors)
+    AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
 
     switch dict->Dict.get("algorithm")->Belt.Option.flatMap(Js.Json.decodeObject) {
     | Some(jsonDict) => {
@@ -211,7 +211,6 @@ let make = () => {
 
     | None => ()
     }
-
     errors->Js.Json.object_
   }
 
@@ -242,7 +241,9 @@ let make = () => {
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col overflow-scroll gap-6">
-      <PageUtils.PageHeading title={"Surcharge"} subTitle="Add your surcharge" />
+      <PageUtils.PageHeading
+        title={"Surcharge"} subTitle="Configure advanced rules to apply surcharges"
+      />
       {switch pageView {
       | NEW =>
         <div className="w-full border p-8 bg-white rounded-md ">
@@ -270,10 +271,10 @@ let make = () => {
           <ActiveRulePreview initialRule />
           <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
             <p className="text-base font-semibold text-grey-700">
-              {"Add Surcharge"->React.string}
+              {"Configure Surcharge"->React.string}
             </p>
             <p className="text-base font-normal text-grey-700 opacity-50">
-              {"Surcharge info description can come here"->React.string}
+              {"Create advanced rules using various payment parameters like amount, currency,payment method etc to enforce a surcharge on your payments"->React.string}
             </p>
             <Button
               text="Create New"

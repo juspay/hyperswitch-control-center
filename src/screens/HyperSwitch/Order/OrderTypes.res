@@ -51,6 +51,7 @@ type frmMessage = {
 type order = {
   payment_id: string,
   merchant_id: string,
+  net_amount: float,
   status: string,
   amount: float,
   amount_capturable: float,
@@ -182,6 +183,7 @@ type colType =
 
 type summaryColType =
   | Created
+  | NetAmount
   | LastUpdated
   | PaymentId
   | Currency
