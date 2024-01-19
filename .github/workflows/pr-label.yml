@@ -34,7 +34,7 @@ jobs:
               -H 'Accept: application/vnd.github.v3+json' \
               -H 'Authorization: Bearer ${{ secrets.AUTO_RELEASE_PAT }}' \
               "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels/${LABEL}"
-          don
+          done
 
       - name: Add new label
         run: |
