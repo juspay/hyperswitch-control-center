@@ -12,9 +12,22 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: PR Label
+      - name: Get existing labels
+        id: get-labels
+        run: echo "::set-output name=labels::$(curl -s -H \"Authorization: Bearer $GITHUB_TOKEN\" -H \"Accept: application/vnd.github.v3+json\" https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels | jq -r '.[].name' | paste -sd ',' -)"
+
+      - name: Remove existing labels
+        if: steps.get-labels.outputs.labels != ''
+        run: |
+          IFS=',' read -ra LABELS <<< "${{ steps.get-labels.outputs.labels }}"
+          for label in "${LABELS[@]}"; do
+            curl -X DELETE \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels/${label}"
+          done
+
+      - name: Add new label
         run: |
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          gh pr edit ${{ github.event.pull_request.number }} --add-label "closed" --remove-labels "*"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          gh pr edit ${{ github.event.pull_request.number }} --add-label "closed"
