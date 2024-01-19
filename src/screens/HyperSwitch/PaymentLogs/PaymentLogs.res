@@ -12,7 +12,7 @@ let getLogType = dict => {
 }
 
 module PrettyPrintJson = {
-  open HSwitchUtils
+  open LogicUtils
   @react.component
   let make = (
     ~jsonToDisplay,
@@ -181,7 +181,6 @@ module ApiDetailsComponent = {
       }
     }
 
-    open HSwitchUtils
     let isSelected = !(currentSelected->isEmptyString) && currentSelected === requestId
     let stepColor = isSelected ? background_color : "gray-300"
 
@@ -263,7 +262,6 @@ module ApiDetailsComponent = {
 @react.component
 let make = (~paymentId, ~createdAt) => {
   open APIUtils
-  open HSwitchUtils
   open LogicUtils
   open PaymentLogsUtils
 
