@@ -240,7 +240,7 @@ let make = () => {
                           <EntityScaffold
                             entityName="Payments"
                             remainingPath
-                            access=ReadWrite
+                            access=Access
                             renderList={() => <Orders />}
                             renderShow={id => <ShowOrder id />}
                           />
@@ -250,7 +250,7 @@ let make = () => {
                           <EntityScaffold
                             entityName="Refunds"
                             remainingPath
-                            access=ReadWrite
+                            access=Access
                             renderList={() => <Refund />}
                             renderShow={id => <ShowRefund id />}
                           />
@@ -259,7 +259,7 @@ let make = () => {
                         <EntityScaffold
                           entityName="Disputes"
                           remainingPath
-                          access=ReadWrite
+                          access=Access
                           renderList={() => <Disputes />}
                           renderShow={id => <ShowDisputes id />}
                         />
@@ -268,7 +268,7 @@ let make = () => {
                           <EntityScaffold
                             entityName="Customers"
                             remainingPath
-                            access=ReadWrite
+                            access=Access
                             renderList={() => <Customers />}
                             renderShow={id => <ShowCustomers id />}
                           />
@@ -285,7 +285,7 @@ let make = () => {
                         <EntityScaffold
                           entityName="UserManagement"
                           remainingPath
-                          access=ReadWrite
+                          access=Access
                           renderList={() => <UserRoleEntry />}
                           renderShow={_ => <UserRoleShowData />}
                         />
@@ -350,7 +350,7 @@ let make = () => {
                       | list{"quick-start"} => determineQuickStartPageState()
                       | list{"woocommerce"} => determineWooCommerce()
                       | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
-
+                      | list{"unauthorized"} => <UnauthorizedPage />
                       | _ =>
                         RescriptReactRouter.replace(`${hyperSwitchFEPrefix}/home`)
                         <Home />

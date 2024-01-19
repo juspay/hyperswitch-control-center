@@ -272,8 +272,6 @@ let constructOnboardingBody = (
   ])->Js.Json.object_
 }
 
-let isEmptyString = str => str->String.length <= 0
-
 type textVariantType =
   | H1
   | H2
