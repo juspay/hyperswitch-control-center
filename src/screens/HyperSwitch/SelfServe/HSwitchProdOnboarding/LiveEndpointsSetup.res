@@ -33,7 +33,7 @@ module ReplaceAPIKey = {
       />
       <div className={`${dividerColor} px-2`} />
       <UIUtils.RenderIf
-        condition={previewVariant->Belt.Option.isSome && webhookEndpoint->String.length > 0}>
+        condition={previewVariant->Option.isSome && webhookEndpoint->String.length > 0}>
         <ProdOnboardingUIUtils.SetupWebhookProcessor
           headerSectionText="Merchant Webhook Endpoint"
           subtextSectionText="Provide the endpoint where you would want us to send live payment events"
@@ -195,7 +195,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
         <p className=headerTextStyle> {headerText->React.string} </p>
         <p className=subTextStyle> {subHeaderText->React.string} </p>
       </div>
-      <UIUtils.RenderIf condition={previewState->Belt.Option.isNone}>
+      <UIUtils.RenderIf condition={previewState->Option.isNone}>
         <div className="flex gap-4">
           <UIUtils.RenderIf condition={backButtonEnabled}>
             <Button

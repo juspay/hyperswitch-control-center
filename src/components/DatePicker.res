@@ -32,9 +32,9 @@ let make = (
   let (date, setDate) = React.useState(_ => {
     if selectedDate !== "" {
       let date = String.split(selectedDate, "-")
-      let dateDay = date->Belt.Array.get(2)->Belt.Option.getWithDefault("1")
-      let dateMonth = date->Belt.Array.get(1)->Belt.Option.getWithDefault("1")
-      let dateYear = date->Belt.Array.get(0)->Belt.Option.getWithDefault("1970")
+      let dateDay = date->Belt.Array.get(2)->Option.getWithDefault("1")
+      let dateMonth = date->Belt.Array.get(1)->Option.getWithDefault("1")
+      let dateYear = date->Belt.Array.get(0)->Option.getWithDefault("1970")
 
       let timeSplit =
         switch input.value->Js.Json.decodeString {
@@ -44,11 +44,9 @@ let make = (
         ->DateRangePicker.getTimeStringForValue(isoStringToCustomTimeZone)
         ->String.split(":")
 
-      let timeHour = timeSplit->Belt.Array.get(0)->Belt.Option.getWithDefault(currentDateHourFormat)
-      let timeMinute =
-        timeSplit->Belt.Array.get(1)->Belt.Option.getWithDefault(currentDateMinuteFormat)
-      let timeSecond =
-        timeSplit->Belt.Array.get(2)->Belt.Option.getWithDefault(currentDateSecondsFormat)
+      let timeHour = timeSplit->Belt.Array.get(0)->Option.getWithDefault(currentDateHourFormat)
+      let timeMinute = timeSplit->Belt.Array.get(1)->Option.getWithDefault(currentDateMinuteFormat)
+      let timeSecond = timeSplit->Belt.Array.get(2)->Option.getWithDefault(currentDateSecondsFormat)
       let dateTimeCheck = customTimezoneToISOString(
         dateYear,
         dateMonth,
@@ -76,9 +74,9 @@ let make = (
     setSelectedDate(_ => str)
 
     let currentDateSplit = String.split(str, "-")
-    let currentDateDay = currentDateSplit->Belt.Array.get(2)->Belt.Option.getWithDefault("1")
-    let currentDateYear = currentDateSplit->Belt.Array.get(0)->Belt.Option.getWithDefault("1970")
-    let currentDateMonth = currentDateSplit->Belt.Array.get(1)->Belt.Option.getWithDefault("1")
+    let currentDateDay = currentDateSplit->Belt.Array.get(2)->Option.getWithDefault("1")
+    let currentDateYear = currentDateSplit->Belt.Array.get(0)->Option.getWithDefault("1970")
+    let currentDateMonth = currentDateSplit->Belt.Array.get(1)->Option.getWithDefault("1")
 
     let currentDateTimeCheck = customTimezoneToISOString(
       currentDateYear,
@@ -132,12 +130,10 @@ let make = (
           ? `${currentDateHourFormat}:${currentDateMinuteFormat}${showSeconds
                 ? ":" ++ currentDateSecondsFormat
                 : ""}`
-          : splitTime->Belt.Array.get(0)->Belt.Option.getWithDefault("NA") ++
+          : splitTime->Belt.Array.get(0)->Option.getWithDefault("NA") ++
             ":" ++
-            splitTime->Belt.Array.get(1)->Belt.Option.getWithDefault("NA") ++ (
-              showSeconds
-                ? ":" ++ splitTime->Belt.Array.get(2)->Belt.Option.getWithDefault("NA")
-                : ""
+            splitTime->Belt.Array.get(1)->Option.getWithDefault("NA") ++ (
+              showSeconds ? ":" ++ splitTime->Belt.Array.get(2)->Option.getWithDefault("NA") : ""
             )}`
     }
     startDateStr
@@ -158,7 +154,7 @@ let make = (
   | Some(icon) => icon
   | None => FontAwesome("calendar")
   }
-  let fullLengthWidthClass = fullLength->Belt.Option.getWithDefault(false) ? "2xl:w-full" : ""
+  let fullLengthWidthClass = fullLength->Option.getWithDefault(false) ? "2xl:w-full" : ""
 
   let startTimeInput: ReactFinalForm.fieldRenderPropsInput = {
     name: "string",
@@ -175,16 +171,15 @@ let make = (
           timeVal
         }
         let date = String.split(selectedDate, "-")
-        let dateDay = date->Belt.Array.get(2)->Belt.Option.getWithDefault("1")
-        let dateMonth = date->Belt.Array.get(1)->Belt.Option.getWithDefault("1")
-        let dateYear = date->Belt.Array.get(0)->Belt.Option.getWithDefault("1970")
+        let dateDay = date->Belt.Array.get(2)->Option.getWithDefault("1")
+        let dateMonth = date->Belt.Array.get(1)->Option.getWithDefault("1")
+        let dateYear = date->Belt.Array.get(0)->Option.getWithDefault("1970")
         let timeSplit = String.split(timeVal, ":")
-        let timeHour =
-          timeSplit->Belt.Array.get(0)->Belt.Option.getWithDefault(currentDateHourFormat)
+        let timeHour = timeSplit->Belt.Array.get(0)->Option.getWithDefault(currentDateHourFormat)
         let timeMinute =
-          timeSplit->Belt.Array.get(1)->Belt.Option.getWithDefault(currentDateMinuteFormat)
+          timeSplit->Belt.Array.get(1)->Option.getWithDefault(currentDateMinuteFormat)
         let timeSecond =
-          timeSplit->Belt.Array.get(2)->Belt.Option.getWithDefault(currentDateSecondsFormat)
+          timeSplit->Belt.Array.get(2)->Option.getWithDefault(currentDateSecondsFormat)
         let dateTimeCheck = customTimezoneToISOString(
           dateYear,
           dateMonth,

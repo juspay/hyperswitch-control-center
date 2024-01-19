@@ -194,7 +194,7 @@ module SystemMetricsInsights = {
       showPercentage=false
       isHomePage=true
       wrapperClass="flex flex-wrap w-full h-full"
-      statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(Dict.make())}
+      statSentiment={singleStatEntity.statSentiment->Option.getWithDefault(Dict.make())}
     />
   }
 }

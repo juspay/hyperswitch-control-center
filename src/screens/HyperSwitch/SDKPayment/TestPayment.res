@@ -64,8 +64,7 @@ let make = (
   }
 
   React.useEffect1(() => {
-    let status =
-      filtersFromUrl->Dict.get("status")->Belt.Option.getWithDefault("")->String.toLowerCase
+    let status = filtersFromUrl->Dict.get("status")->Option.getWithDefault("")->String.toLowerCase
     let paymentIdFromPaymemtIntentClientSecret = getClientSecretFromPaymentId(
       ~paymentIntentClientSecret=url.search
       ->LogicUtils.getDictFromUrlSearchParams
@@ -97,7 +96,7 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-green-success_page_bg"
-        isButtonVisible={paymentId->Belt.Option.isSome}
+        isButtonVisible={paymentId->Option.isSome}
       />
 
     | FAILED(_err) =>
@@ -108,7 +107,7 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-red-failed_page_bg"
-        isButtonVisible={paymentId->Belt.Option.isSome}
+        isButtonVisible={paymentId->Option.isSome}
       />
     | CHECKCONFIGURATION =>
       <ProdOnboardingUIUtils.BasicAccountSetupSuccessfulPage
@@ -118,7 +117,7 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-yellow-pending_page_bg"
-        isButtonVisible={paymentId->Belt.Option.isSome}
+        isButtonVisible={paymentId->Option.isSome}
       />
 
     | PROCESSING =>
@@ -129,7 +128,7 @@ let make = (
         buttonOnClick={_ => onProceed(~paymentId)->ignore}
         customWidth
         bgColor="bg-yellow-pending_page_bg"
-        isButtonVisible={paymentId->Belt.Option.isSome}
+        isButtonVisible={paymentId->Option.isSome}
       />
     | _ => React.null
     }}

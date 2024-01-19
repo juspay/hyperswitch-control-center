@@ -380,7 +380,7 @@ let responseDataMapper = (res: Js.Json.t) => {
 
   arrayFromJson->Array.forEach(value => {
     let value1 = value->getDictFromJsonObject
-    let key = value1->Dict.keysToArray->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+    let key = value1->Dict.keysToArray->Belt.Array.get(0)->Option.getWithDefault("")
     resDict->Dict.set(key, value1->getValueMapped(key))
   })
   resDict

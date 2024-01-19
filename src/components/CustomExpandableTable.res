@@ -23,7 +23,7 @@ let make = (
 
   let isMobileView = MatchMedia.useMobileChecker()
 
-  let filterPresent = heading->Array.find(head => head.showFilter)->Js.Option.isSome
+  let filterPresent = heading->Array.find(head => head.showFilter)->Option.isSome
   let highlightEnabledFieldsArray = heading->Array.reduceWithIndex([], (acc, item, index) => {
     if item.highlightCellOnHover {
       let _ = Array.push(acc, index)
@@ -147,13 +147,13 @@ let make = (
                           {if item.showFilter {
                             let (options, selected) =
                               filterObj
-                              ->Belt.Option.flatMap(obj =>
+                              ->Option.flatMap(obj =>
                                 switch obj[i] {
                                 | Some(ele) => (ele.options, ele.selected)
                                 | None => ([], [])
                                 }->Some
                               )
-                              ->Belt.Option.getWithDefault(([], []))
+                              ->Option.getWithDefault(([], []))
 
                             if options->Array.length > 1 {
                               let filterInput: ReactFinalForm.fieldRenderPropsInput = {

@@ -254,7 +254,7 @@ let make = (~routingRuleId, ~isActive) => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }
@@ -269,7 +269,7 @@ let make = (~routingRuleId, ~isActive) => {
         Some("Need atleast 1 Gateway")
       } else {
         let distributionPercentages = gateways->Belt.Array.keepMap(json => {
-          json->Js.Json.decodeObject->Belt.Option.flatMap(getOptionFloat(_, "split"))
+          json->Js.Json.decodeObject->Option.flatMap(getOptionFloat(_, "split"))
         })
         let distributionPercentageSum =
           distributionPercentages->Array.reduce(0., (sum, distribution) => sum +. distribution)
@@ -313,7 +313,7 @@ let make = (~routingRuleId, ~isActive) => {
       Js.Nullable.return(res)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong!")
       showToast(~message="Failed to Save the Configuration !", ~toastType=ToastState.ToastError, ())
       setScreenState(_ => PageLoaderWrapper.Error(err))
       Js.Exn.raiseError(err)

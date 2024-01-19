@@ -6,7 +6,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
+  let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -50,7 +50,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
     } catch {
     | Js.Exn.Error(e) => {
         Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
         setScreenState(_ => PageLoaderWrapper.Error(err))
         Dict.make()->Js.Json.object_
       }
@@ -112,7 +112,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
         switch Js.Exn.message(e) {
         | Some(message) => {
             let errMsg = message->parseIntoMyData
-            if errMsg.code->Belt.Option.getWithDefault("")->String.includes("HE_01") {
+            if errMsg.code->Option.getWithDefault("")->String.includes("HE_01") {
               showToast(
                 ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
                 ~toastType=ToastState.ToastError,

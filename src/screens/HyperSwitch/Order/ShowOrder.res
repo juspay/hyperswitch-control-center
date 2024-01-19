@@ -597,7 +597,7 @@ module FraudRiskBanner = {
         onClick={_ => {
           refElement.current
           ->Js.Nullable.toOption
-          ->Belt.Option.forEach(input =>
+          ->Option.forEach(input =>
             input->scrollIntoView(_, {behavior: "smooth", block: "start", inline: "nearest"})
           )
         }}>
@@ -806,7 +806,7 @@ let make = (~id) => {
                     <PaymentLogs.PrettyPrintJson
                       jsonToDisplay={order.metadata
                       ->Js.Json.stringifyAny
-                      ->Belt.Option.getWithDefault("")}
+                      ->Option.getWithDefault("")}
                       overrideBackgroundColor="bg-white"
                     />
                   </div>

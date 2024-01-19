@@ -73,9 +73,7 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let searchParams = url.search
   let filtersFromUrl =
-    LogicUtils.getDictFromUrlSearchParams(searchParams)
-    ->Dict.get("type")
-    ->Belt.Option.getWithDefault("")
+    LogicUtils.getDictFromUrlSearchParams(searchParams)->Dict.get("type")->Option.getWithDefault("")
   let (currentRoute, setCurrentRoute) = React.useState(_ => OnboardingDefault)
   let {
     integrationDetails,
@@ -149,7 +147,7 @@ let make = () => {
       setDashboardPageState(_ => #HOME)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
       Js.Exn.raiseError(err)
     }
   }

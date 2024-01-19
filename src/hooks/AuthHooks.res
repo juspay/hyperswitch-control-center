@@ -26,12 +26,12 @@ let getHeaders = (~uri, ~headers, ~isFromFormData, ()) => {
     }
     Fetch.HeadersInit.make(headerObj)
   } else {
-    let headerObj = headers->Dict.get("api-key")->Belt.Option.getWithDefault("")->String.length > 0
+    let headerObj = headers->Dict.get("api-key")->Option.getWithDefault("")->String.length > 0
 
     if headerObj {
       let headerObj = {
         "Content-Type": "application/json",
-        "api-key": headers->Dict.get("api-key")->Belt.Option.getWithDefault(""),
+        "api-key": headers->Dict.get("api-key")->Option.getWithDefault(""),
       }
       Fetch.HeadersInit.make(headerObj)
     } else {
@@ -40,7 +40,7 @@ let getHeaders = (~uri, ~headers, ~isFromFormData, ()) => {
         if token !== "" {
           let headerObj = {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${hyperSwitchToken->Belt.Option.getWithDefault("")}`,
+            "Authorization": `Bearer ${hyperSwitchToken->Option.getWithDefault("")}`,
             "api-key": "hyperswitch",
           }
 

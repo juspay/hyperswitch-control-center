@@ -64,7 +64,7 @@ module ApiEditModal = {
 
         let url = switch action {
         | Update => {
-            let key_id = keyId->Belt.Option.getWithDefault("")
+            let key_id = keyId->Option.getWithDefault("")
             APIUtils.getURL(~entityName=API_KEYS, ~methodType=Post, ~id=Some(key_id), ())
           }
 

@@ -54,14 +54,14 @@ module CheckoutForm = {
           paymentElement: paymentElem,
         }
         ->Js.Json.stringifyAny
-        ->Belt.Option.getWithDefault(""),
+        ->Option.getWithDefault(""),
       }
       setError(_ => None)
 
       if saveViewToSdk {
         fetchApi(
           "https://4gla4dnvbg.execute-api.ap-south-1.amazonaws.com/default/hyperConfig",
-          ~bodyStr=val->Js.Json.stringifyAny->Belt.Option.getWithDefault(""),
+          ~bodyStr=val->Js.Json.stringifyAny->Option.getWithDefault(""),
           ~headers=[("Access-Control-Allow-Origin", "*")]->Dict.fromArray,
           ~method_=Fetch.Post,
           (),
@@ -175,12 +175,12 @@ module CheckoutForm = {
         ->Js.Json.object_
       hyper.confirmPayment(confirmParams)
       ->then(val => {
-        let resDict = val->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make())
+        let resDict = val->Js.Json.decodeObject->Option.getWithDefault(Dict.make())
         let errorDict =
           resDict
           ->Dict.get("error")
-          ->Belt.Option.flatMap(Js.Json.decodeObject)
-          ->Belt.Option.getWithDefault(Dict.make())
+          ->Option.flatMap(Js.Json.decodeObject)
+          ->Option.getWithDefault(Dict.make())
 
         let errorMsg = errorDict->Dict.get("message")
 
@@ -248,7 +248,7 @@ module CheckoutForm = {
             <div className="text-red-500">
               {val
               ->Js.Json.stringifyAny
-              ->Belt.Option.getWithDefault("")
+              ->Option.getWithDefault("")
               ->String.replace("\"", "")
               ->String.replace("\"", "")
               ->React.string}
@@ -289,7 +289,7 @@ let make = (
   let loadDOM = async () => {
     try {
       let hyperswitchSdkPrefix =
-        Window.env.sdkBaseUrl->Belt.Option.getWithDefault(
+        Window.env.sdkBaseUrl->Option.getWithDefault(
           "https://beta.hyperswitch.io/v1/HyperLoader.js?default=true",
         )
       let script = DOMUtils.document->DOMUtils.createElement("script")
