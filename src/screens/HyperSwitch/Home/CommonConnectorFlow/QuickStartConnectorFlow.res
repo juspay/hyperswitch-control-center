@@ -99,7 +99,7 @@ let make = (
       )
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
       showToast(~message=err, ~toastType=ToastError, ())
       setButtonState(_ => Normal)
     }

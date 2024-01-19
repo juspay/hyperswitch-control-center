@@ -143,8 +143,7 @@ let make = (
           max={max->Belt.Float.toString}
           onBlur={ev => {
             let minVal = minSlideVal
-            let maxSliderValue =
-              maxSlide.value->Js.Json.decodeNumber->Belt.Option.getWithDefault(0.)
+            let maxSliderValue = maxSlide.value->Js.Json.decodeNumber->Option.getWithDefault(0.)
             if minVal >= min && minVal < maxSliderValue {
               setHasError(((_, max)) => (false, max))
               minSlide.onChange(ev->Identity.anyTypeToReactEvent)
@@ -161,8 +160,7 @@ let make = (
             let keyCode = ev->ReactEvent.Keyboard.keyCode
             if key === "Enter" || keyCode === 13 {
               let minVal = minSlideVal
-              let maxSliderValue =
-                maxSlide.value->Js.Json.decodeNumber->Belt.Option.getWithDefault(0.)
+              let maxSliderValue = maxSlide.value->Js.Json.decodeNumber->Option.getWithDefault(0.)
               if minVal >= min && minVal <= maxSliderValue {
                 setHasError(((_, max)) => (false, max))
                 minSlide.onChange(ev->Identity.anyTypeToReactEvent)
@@ -183,8 +181,7 @@ let make = (
           max={max->Belt.Float.toString}
           onBlur={ev => {
             let maxVal = maxSlideVal
-            let minSliderValue =
-              minSlide.value->Js.Json.decodeNumber->Belt.Option.getWithDefault(0.)
+            let minSliderValue = minSlide.value->Js.Json.decodeNumber->Option.getWithDefault(0.)
             if maxVal <= max && maxVal > minSliderValue {
               setHasError(((min, _)) => (min, false))
               maxSlide.onChange(ev->Identity.anyTypeToReactEvent)
@@ -201,8 +198,7 @@ let make = (
             let keyCode = ev->ReactEvent.Keyboard.keyCode
 
             let maxVal = maxSlideVal
-            let minSliderValue =
-              minSlide.value->Js.Json.decodeNumber->Belt.Option.getWithDefault(0.)
+            let minSliderValue = minSlide.value->Js.Json.decodeNumber->Option.getWithDefault(0.)
             if key === "Enter" || keyCode === 13 {
               if maxVal <= max && maxVal >= minSliderValue {
                 setHasError(((min, _)) => (min, false))

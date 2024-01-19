@@ -13,10 +13,7 @@ let make = (
     isMobileView ? (0.16, "w-full", "flex-col") : (size, "w-1/2", "flex-row")
   }, [isMobileView])
   let funnelData =
-    data
-    ->Belt.Array.get(0)
-    ->Belt.Option.getWithDefault(Js.Json.null)
-    ->LogicUtils.getDictFromJsonObject
+    data->Belt.Array.get(0)->Option.getWithDefault(Js.Json.null)->LogicUtils.getDictFromJsonObject
   let (hoverIndex, setHoverIndex) = React.useState(_ => -1.)
   let (selectedMetric, setSelectedMetric) = React.useState(_ => Volume)
   let length = metrics->Array.length->Belt.Float.fromInt
@@ -92,7 +89,7 @@ let make = (
               let nextWidthRatio = switch widths->Belt.Array.get(i->Belt.Float.toInt + 1) {
               | Some(width) => width
               | None =>
-                widths->Belt.Array.get(i->Belt.Float.toInt)->Belt.Option.getWithDefault(size *. 70.)
+                widths->Belt.Array.get(i->Belt.Float.toInt)->Option.getWithDefault(size *. 70.)
               }
 
               fixedWidth := currentWidthRatio *. fixedWidth.contents

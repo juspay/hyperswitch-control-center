@@ -47,7 +47,7 @@ let make = (
 
   let len = values->Array.length
   let buttonText =
-    submitButtonText->Belt.Option.getWithDefault(
+    submitButtonText->Option.getWithDefault(
       len > 0 ? `${len->Belt.Int.toString} ${title} Selected` : "Select",
     )
 
@@ -115,17 +115,17 @@ let make = (
             {React.string(
               `Conversion rate  = ${options
                 ->Array.filter(itm =>
-                  values->Belt.Array.get(0)->Belt.Option.getWithDefault("") == itm.value
+                  values->Belt.Array.get(0)->Option.getWithDefault("") == itm.value
                 )
                 ->Array.map(item => item.label)
                 ->Belt.Array.get(0)
-                ->Belt.Option.getWithDefault("Factor 1")} / ${options
+                ->Option.getWithDefault("Factor 1")} / ${options
                 ->Array.filter(itm =>
-                  values->Belt.Array.get(1)->Belt.Option.getWithDefault("") == itm.value
+                  values->Belt.Array.get(1)->Option.getWithDefault("") == itm.value
                 )
                 ->Array.map(item => item.label)
                 ->Belt.Array.get(0)
-                ->Belt.Option.getWithDefault("Factor 2")}`,
+                ->Option.getWithDefault("Factor 2")}`,
             )}
           </div>
         : React.null}

@@ -99,7 +99,7 @@ module TabInfo = {
                 : item !==
                     updatedStackAfterRemovingTab
                     ->Belt.Array.get(index - 1)
-                    ->Belt.Option.getWithDefault("")
+                    ->Option.getWithDefault("")
             )
           })
 
@@ -183,7 +183,7 @@ module IndicationArrow = {
       _ev =>
         refElement.current
         ->Js.Nullable.toOption
-        ->Belt.Option.forEach(input =>
+        ->Option.forEach(input =>
           input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"})
         )
     }
@@ -240,9 +240,7 @@ let make = (
   // this tabs will always loaded independent of user preference
   let isMobileView = MatchMedia.useMobileChecker()
   let defaultTabs =
-    defaultTabs->Belt.Option.getWithDefault(
-      tabs->Array.copy->Array.filter(item => !item.isRemovable),
-    )
+    defaultTabs->Option.getWithDefault(tabs->Array.copy->Array.filter(item => !item.isRemovable))
 
   let tabOuterClass = `gap-1.5`
   let bottomBorderClass = ""
@@ -264,7 +262,7 @@ let make = (
         item.value == key
       })
       ->Belt.Array.get(0)
-      ->Belt.Option.getWithDefault({title: "", value: "", isRemovable: false})
+      ->Option.getWithDefault({title: "", value: "", isRemovable: false})
     ).title
   }
 
@@ -306,7 +304,7 @@ let make = (
                 },
               ) {
               | Some(tabValue) =>
-                enableDescriptionHeader ? tabValue.description->Belt.Option.getWithDefault("") : ""
+                enableDescriptionHeader ? tabValue.description->Option.getWithDefault("") : ""
               | None => ""
               },
               isRemovable: switch tabs->Array.find(
@@ -439,7 +437,7 @@ let make = (
         tabValue !==
           tabStacksnames
           ->Belt.Array.get(tabStacksnames->Array.length - 1)
-          ->Belt.Option.getWithDefault("")
+          ->Option.getWithDefault("")
       ) {
         setTabStacksnames(prev => {
           Array.concat(prev, [tabValue])
@@ -457,14 +455,12 @@ let make = (
             "tabName",
             `[${tabStacksnames
               ->Belt.Array.get(tabStacksnames->Array.length - 1)
-              ->Belt.Option.getWithDefault("")}]`,
+              ->Option.getWithDefault("")}]`,
           ),
         ]),
       )
       setActiveTab(
-        tabStacksnames
-        ->Belt.Array.get(tabStacksnames->Array.length - 1)
-        ->Belt.Option.getWithDefault(""),
+        tabStacksnames->Belt.Array.get(tabStacksnames->Array.length - 1)->Option.getWithDefault(""),
       )
 
       setSelectedIndex(_ =>
@@ -475,7 +471,7 @@ let make = (
           ->Array.indexOf(
             tabStacksnames
             ->Belt.Array.get(tabStacksnames->Array.length - 1)
-            ->Belt.Option.getWithDefault(""),
+            ->Option.getWithDefault(""),
           ),
         )
       )
@@ -505,7 +501,7 @@ let make = (
       Js.Global.setTimeout(_ => {
         lastTabRef.current
         ->Js.Nullable.toOption
-        ->Belt.Option.forEach(input =>
+        ->Option.forEach(input =>
           input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"})
         )
       }, 200)->ignore

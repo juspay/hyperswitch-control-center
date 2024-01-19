@@ -23,7 +23,7 @@ let make = () => {
       }
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
       if err->String.includes("HE_02") {
         setScreenState(_ => Custom)
       } else {

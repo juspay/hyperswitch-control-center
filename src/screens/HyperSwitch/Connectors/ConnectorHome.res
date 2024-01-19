@@ -59,7 +59,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   open APIUtils
   let url = RescriptReactRouter.useUrl()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
+  let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
@@ -92,7 +92,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
         setScreenState(_ => Error(err))
       }
     }

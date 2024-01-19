@@ -33,7 +33,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
   rangeNum->Array.forEach(ele => {
     ranges->Array.push((ele - 9)->Belt.Int.toString ++ "-" ++ ele->Belt.Int.toString)->ignore
   })
-  let lastNum = rangeNum->Belt.Array.get(Array.length(rangeNum) - 1)->Belt.Option.getWithDefault(0)
+  let lastNum = rangeNum->Belt.Array.get(Array.length(rangeNum) - 1)->Option.getWithDefault(0)
   if totalResults > lastNum {
     let start = lastNum + (totalResults - lastNum)
     start === totalResults
@@ -110,8 +110,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
         name: "dummy-name",
         onBlur: _ev => (),
         onChange: _evt => {
-          let val =
-            ranges->Belt.Array.get(_evt->formEventToInt - 1)->Belt.Option.getWithDefault("1-10")
+          let val = ranges->Belt.Array.get(_evt->formEventToInt - 1)->Option.getWithDefault("1-10")
           setDropDownVal(_ => val)
           paginate(_evt->formEventToInt)
         },

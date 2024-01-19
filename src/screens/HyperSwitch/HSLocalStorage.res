@@ -1,13 +1,12 @@
 let getInfoFromLocalStorage = (~lStorageKey) => {
   let stringifiedJson =
-    LocalStorage.getItem(lStorageKey)->Js.Nullable.toOption->Belt.Option.getWithDefault("")
+    LocalStorage.getItem(lStorageKey)->Js.Nullable.toOption->Option.getWithDefault("")
 
   stringifiedJson->LogicUtils.safeParse->LogicUtils.getDictFromJsonObject
 }
 
 let getBooleanFromLocalStorage = (~key) => {
-  let stringifiedJson =
-    LocalStorage.getItem(key)->Js.Nullable.toOption->Belt.Option.getWithDefault("")
+  let stringifiedJson = LocalStorage.getItem(key)->Js.Nullable.toOption->Option.getWithDefault("")
 
   stringifiedJson->LogicUtils.safeParse->LogicUtils.getBoolFromJson(false)
 }

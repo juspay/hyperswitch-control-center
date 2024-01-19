@@ -17,9 +17,9 @@ let useLocalStorageToken = tokenType => {
   let lcToken = LocalStorage.useStorageValue("login")->getValidToken
   let switchToken = LocalStorage.useStorageValue("switchToken")->getValidToken
 
-  if switchToken->Js.Option.isSome && switchToken !== Some("__failed") && tokenType !== Original {
+  if switchToken->Option.isSome && switchToken !== Some("__failed") && tokenType !== Original {
     switchToken
-  } else if lcToken->Js.Option.isSome && lcToken !== Some("__failed") && tokenType !== SwitchOnly {
+  } else if lcToken->Option.isSome && lcToken !== Some("__failed") && tokenType !== SwitchOnly {
     lcToken
   } else {
     None
