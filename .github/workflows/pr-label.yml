@@ -32,7 +32,7 @@ jobs:
           for LABEL in $EXISTING_LABELS; do
             curl -X DELETE \
               -H 'Accept: application/vnd.github.v3+json' \
-              -H 'Authorization: Bearer ${{ secrets.AUTO_RELEASE_PAT }}' \
+              -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
               "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels/${LABEL}"
           done
 
