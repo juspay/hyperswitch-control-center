@@ -21,6 +21,9 @@ external removeEventListener: (string, listener<'ev>) => unit = "removeEventList
 external postMessage: (Js.Json.t, string) => unit = "postMessage"
 
 @val @scope("window")
+external checkLoadHyper: option<HyperSwitchTypes.hyperloader> = "Hyper"
+
+@val @scope("window")
 external loadHyper: string => HyperSwitchTypes.hyperloader = "Hyper"
 
 type rec selectionObj = {\"type": string}

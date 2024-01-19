@@ -23,7 +23,7 @@ let make = (~children) => {
     | _ =>
       switch LocalStorage.getItem("login")->Js.Nullable.toOption {
       | Some(token) =>
-        if !(token->HSwitchUtils.isEmptyString) {
+        if !(token->LogicUtils.isEmptyString) {
           setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
         } else {
           setAuthStatus(LoggedOut)
