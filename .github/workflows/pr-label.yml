@@ -1,8 +1,9 @@
-name: PR label
+name: Update PR Label to Closed
 
 on:
-  merge_group:
   pull_request:
+    types:
+      - closed
 
 jobs:
   pr-label:
