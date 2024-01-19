@@ -1,10 +1,11 @@
 name: Update PR Label
 
-on: [push]
-  # pull_request:
-  #   types:
-  #     - opened
-  #     - synchronize
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
 
 jobs:
   update-pr-label:
