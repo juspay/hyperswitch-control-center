@@ -102,7 +102,7 @@ module ApiDetailsComponent = {
     ~index,
     ~logsDataLength,
   ) => {
-    let headerStyle = "text-fs-13 font-medium text-grey-700 break-all"
+    let headerStyle = "text-sm font-medium text-grey-700 break-all"
     let logType = paymentDetailsValue->getLogType
     let apiName = switch logType {
     | PAYMENTS => paymentDetailsValue->getString("api_flow", "default value")->camelCaseToTitle
@@ -186,18 +186,18 @@ module ApiDetailsComponent = {
     let stepColor = isSelected ? background_color : "gray-300"
 
     let boxShadowOnSelection = isSelected
-      ? "border border-blue-700 rounded-md shadow-paymentLogsShadow"
+      ? "border border-blue-700 rounded-md"
       : "border border-transparent"
 
     <div className="flex items-start gap-4">
       <div className="flex flex-col items-center h-full">
-        <div className={`w-fit h-fit p-1.5  border rounded-full bg-${stepColor} border-gray-300`} />
+        <div className={`w-fit h-fit p-1.5  border rounded-md bg-${stepColor} border-gray-300`} />
         <UIUtils.RenderIf condition={index !== logsDataLength}>
           <div className={`h-full bg-${stepColor} w-0.5 my-1`} />
         </UIUtils.RenderIf>
       </div>
       <div
-        className={`flex gap-6 items-start w-full p-4 cursor-pointer ${boxShadowOnSelection} -mt-8 mb-8`}
+        className={`flex gap-6 items-start w-full py-3 px-3 cursor-pointer ${boxShadowOnSelection} -mt-5 mb-8`}
         key={currentSelected}
         onClick={_ => {
           setLogDetails(_ => {
@@ -210,18 +210,48 @@ module ApiDetailsComponent = {
           })
         }}>
         <div className="flex flex-col gap-1">
-          <div className=" flex gap-2">
-            <p className={`text-${background_color} font-bold `}> {statusCode->React.string} </p>
+          <div className=" flex gap-4">
+            {
+              let codeBg = switch logType {
+              | SDK =>
+                switch statusCode {
+                | "INFO" => "blue-100"
+                | "ERROR" => "red-200"
+                | "WARNING" => "yellow-100"
+                | _ => "grey-100 opacity-50"
+                }
+              | WEBHOOKS =>
+                switch statusCode {
+                | "200" => "green-100"
+                | "500" | _ => "grey-100 opacity-50"
+                }
+              | PAYMENTS =>
+                switch statusCode {
+                | "200" => "green-100"
+                | "500" => "grey-100 opacity-50"
+                | "400" => "yellow-100"
+                | _ => "grey-100 opacity-50"
+                }
+              }
+              <div className={`bg-${codeBg} h-fit w-fit px-2 py-1 rounded-md`}>
+                <p className={`text-${background_color} text-sm opacity-100  font-bold `}>
+                  {statusCode->React.string}
+                </p>
+              </div>
+            }
             {switch logType {
-            | SDK => <p className=headerStyle> {apiName->React.string} </p>
+            | SDK =>
+              <p className={`${headerStyle} mt-1 ${isSelected ? "" : "opacity-80"}`}>
+                {apiName->LogicUtils.camelCaseToTitle->React.string}
+              </p>
             | PAYMENTS | WEBHOOKS =>
-              <p className=headerStyle>
-                <span className="font-bold mr-2"> {method->String.toUpperCase->React.string} </span>
+              <p className={`${headerStyle} mt-1 ${isSelected ? "" : "opacity-80"}`}>
+                <span className="mr-3"> {method->String.toUpperCase->React.string} </span>
                 <span> {apiPath->React.string} </span>
               </p>
             }}
           </div>
-          <div className={`${headerStyle} opacity-50`}>
+          <div className={`${headerStyle} opacity-40`}>
             {createdTime->Js.Date.fromString->Js.Date.toUTCString->React.string}
           </div>
         </div>
