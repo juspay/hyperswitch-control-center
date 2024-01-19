@@ -1,4 +1,4 @@
-name: Update PR Label to Closed
+name: PR label
 
 on:
   pull_request:
