@@ -116,7 +116,7 @@ let make = (
     filterForRow,
   } = entity
   let tableName =
-    prefixAddition->Belt.Option.getWithDefault(false)
+    prefixAddition->Option.getWithDefault(false)
       ? title->String.replaceRegExp(_, %re("/ /g"), "-")->String.toLowerCase->Some
       : None
   let (defaultFilters, setDefaultFilters) = React.useState(() => entity.defaultFilters)
@@ -129,19 +129,15 @@ let make = (
   let searchParams = disableURIdecode ? url.search : url.search->Js.Global.decodeURI
   let (refreshData, _setRefreshData) = React.useContext(RefreshStateContext.refreshStateContext)
   let (offset, setOffset) = React.useState(() => 0)
-  let remoteFilters = initialFilters->Array.filter(item => item.localFilter->Js.Option.isNone)
+  let remoteFilters = initialFilters->Array.filter(item => item.localFilter->Option.isNone)
   let filtersFromUrl = LogicUtils.getDictFromUrlSearchParams(searchParams)
-  let localFilters = initialFilters->Array.filter(item => item.localFilter->Js.Option.isSome)
+  let localFilters = initialFilters->Array.filter(item => item.localFilter->Option.isSome)
   let showToast = ToastState.useShowToast()
 
   let localOptions =
-    Array.concat(options, popupFilterFields)->Array.filter(item =>
-      item.localFilter->Js.Option.isSome
-    )
+    Array.concat(options, popupFilterFields)->Array.filter(item => item.localFilter->Option.isSome)
   let remoteOptions =
-    Array.concat(options, popupFilterFields)->Array.filter(item =>
-      item.localFilter->Js.Option.isNone
-    )
+    Array.concat(options, popupFilterFields)->Array.filter(item => item.localFilter->Option.isNone)
   let remoteFiltersFromUrl = useRemoteFilter(
     ~searchParams,
     ~remoteFilters,
@@ -201,7 +197,7 @@ let make = (
       }
 
       setData(prevData => {
-        let newData = prevData->Belt.Option.getWithDefault([])->Array.concat(sampleRes)
+        let newData = prevData->Option.getWithDefault([])->Array.concat(sampleRes)
         Some(newData)
       })
     }
@@ -216,9 +212,7 @@ let make = (
           let x =
             filtersFromUrl
             ->Dict.get(val)
-            ->Belt.Option.getWithDefault(
-              searchValueDict->Dict.get(val)->Belt.Option.getWithDefault(""),
-            )
+            ->Option.getWithDefault(searchValueDict->Dict.get(val)->Option.getWithDefault(""))
           if requireDateFormatting && (val == "startTime" || val == "endTime") {
             (x->DayJs.getDayJsForString).format(. "YYYY-MM-DD+HH:mm:ss")
           } else if requireDateFormatting && (val == "start_date" || val == "end_date") {
@@ -301,15 +295,15 @@ let make = (
     setRefetchCounter(p => p + 1)
   }, [setRefetchCounter])
 
-  let visibleColumns = visibleColumnsProp->Belt.Option.getWithDefault(defaultColumns)
+  let visibleColumns = visibleColumnsProp->Option.getWithDefault(defaultColumns)
   let handleRefetch = () => {
-    let rowFetched = data->Belt.Option.getWithDefault([])->Array.length
+    let rowFetched = data->Option.getWithDefault([])->Array.length
     if rowFetched !== summary.totalCount {
       setTableDataLoading(_ => true)
       let newDefaultFilter =
         defaultFilters
         ->Js.Json.decodeObject
-        ->Belt.Option.getWithDefault(Dict.make())
+        ->Option.getWithDefault(Dict.make())
         ->Dict.toArray
         ->Dict.fromArray
 
@@ -320,14 +314,14 @@ let make = (
 
   let showLocalFilter =
     (localFilters->Array.length > 0 || localOptions->Array.length > 0) &&
-      (applyFilters ? finalData : data)->Belt.Option.getWithDefault([])->Array.length > 0
+      (applyFilters ? finalData : data)->Option.getWithDefault([])->Array.length > 0
   let showRemoteFilter = remoteFilters->Array.length > 0 || remoteOptions->Array.length > 0
 
   let filters = {
     if (
       (Array.length(initialFilters) > 0 || Array.length(options) > 0) &&
       (showLocalFilter || showRemoteFilter) &&
-      (!hideFiltersOnNoData || data->Belt.Option.getWithDefault([])->Array.length > 0)
+      (!hideFiltersOnNoData || data->Option.getWithDefault([])->Array.length > 0)
     ) {
       let children =
         <div className={`flex-1 ${customFilterStyle}`}>
@@ -422,7 +416,7 @@ let make = (
         for i in 0 to cols->Array.length - 1 {
           checkLength :=
             checkLength.contents &&
-            switch obj[cols[i]->Belt.Option.getWithDefault(0)] {
+            switch obj[cols[i]->Option.getWithDefault(0)] {
             | Some(ele) => Array.length(ele.selected) > 0
             | None => false
             }
@@ -473,9 +467,7 @@ let make = (
         currrentFetchCount
       }
       let customizeColumn = if (
-        activeColumnsAtom->Js.Option.isSome &&
-        entity.allColumns->Js.Option.isSome &&
-        totalResults > 0
+        activeColumnsAtom->Option.isSome && entity.allColumns->Option.isSome && totalResults > 0
       ) {
         <Button
           text="Customize Columns"

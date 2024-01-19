@@ -41,7 +41,7 @@ let make = (
   let gatewayName = name => {
     let res =
       connectorList
-      ->Belt.Option.getWithDefault([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
+      ->Option.getWithDefault([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
       ->ConnectorTableUtils.getConnectorNameViaId(name)
     res.connector_name
   }
@@ -59,11 +59,11 @@ let make = (
   let selectedOptions =
     gateWaysInput.value
     ->Js.Json.decodeArray
-    ->Belt.Option.getWithDefault([])
+    ->Option.getWithDefault([])
     ->Belt.Array.keepMap(item =>
       item
       ->Js.Json.decodeObject
-      ->Belt.Option.flatMap(dict => {
+      ->Option.flatMap(dict => {
         let connectorDict = dict->LogicUtils.getDictfromDict("connector")
         let obj: gateway = {
           connector: {
@@ -185,10 +185,7 @@ let make = (
                         name=key
                         onChange={ev => {
                           let val = ReactEvent.Form.target(ev)["value"]
-                          updatePercentage(
-                            item,
-                            val->Belt.Int.fromString->Belt.Option.getWithDefault(0),
-                          )
+                          updatePercentage(item, val->Belt.Int.fromString->Option.getWithDefault(0))
                         }}
                         value={item.split->Belt.Int.toString}
                         type_="text"

@@ -64,15 +64,15 @@ let formattedISOString = (dateTimeIsoString: string, format: string) => {
   let tempTimeDate = tempTimeDateString->String.split("T")
   let time = tempTimeDate[1]
   let date = tempTimeDate[0]
-  let dateComponents = date->Belt.Option.getWithDefault("")->String.split("-")
-  let timeComponents = time->Belt.Option.getWithDefault("")->String.split(":")
+  let dateComponents = date->Option.getWithDefault("")->String.split("-")
+  let timeComponents = time->Option.getWithDefault("")->String.split(":")
   let dateTimeObject: dateTimeFloat = {
-    year: dateComponents[0]->Belt.Option.getWithDefault("")->stringToFloat,
-    month: dateComponents[1]->Belt.Option.getWithDefault("")->stringToFloat,
-    date: dateComponents[2]->Belt.Option.getWithDefault("")->stringToFloat,
-    hour: timeComponents[0]->Belt.Option.getWithDefault("")->stringToFloat,
-    minute: timeComponents[1]->Belt.Option.getWithDefault("")->stringToFloat,
-    second: timeComponents[2]->Belt.Option.getWithDefault("")->stringToFloat,
+    year: dateComponents[0]->Option.getWithDefault("")->stringToFloat,
+    month: dateComponents[1]->Option.getWithDefault("")->stringToFloat,
+    date: dateComponents[2]->Option.getWithDefault("")->stringToFloat,
+    hour: timeComponents[0]->Option.getWithDefault("")->stringToFloat,
+    minute: timeComponents[1]->Option.getWithDefault("")->stringToFloat,
+    second: timeComponents[2]->Option.getWithDefault("")->stringToFloat,
   }
   formattedDateTimeFloat(dateTimeObject, format)
 }
@@ -83,30 +83,30 @@ let en_USStringToDateTimeObject = dateTimeIsoString => {
   let tempTimeDate =
     tempTimeDateString
     ->Js.String2.splitByRe(%re("/\s/"))
-    ->Array.map(val => val->Belt.Option.getWithDefault(""))
+    ->Array.map(val => val->Option.getWithDefault(""))
 
   let time = tempTimeDate[1]
   let date = tempTimeDate[0]
-  let dateComponents = date->Belt.Option.getWithDefault("")->String.split("/")
-  let timeComponents = time->Belt.Option.getWithDefault("")->String.split(":")
-  let tempHour = switch Belt.Float.fromString(timeComponents[0]->Belt.Option.getWithDefault("")) {
+  let dateComponents = date->Option.getWithDefault("")->String.split("/")
+  let timeComponents = time->Option.getWithDefault("")->String.split(":")
+  let tempHour = switch Belt.Float.fromString(timeComponents[0]->Option.getWithDefault("")) {
   | Some(a) => a
   | _ => 0.0
   }
   let fullTempHour =
-    tempTimeDate[2]->Belt.Option.getWithDefault("") === "AM"
+    tempTimeDate[2]->Option.getWithDefault("") === "AM"
       ? tempHour === 12.0 ? 0.0 : tempHour
       : tempHour < 12.0
       ? tempHour +. 12.0
       : tempHour
   let hourInString = Belt.Float.toString(fullTempHour)
   let dateTimeObject: dateTimeString = {
-    year: formatter(dateComponents[2]->Belt.Option.getWithDefault("")),
-    month: formatter(dateComponents[0]->Belt.Option.getWithDefault("")),
-    date: formatter(dateComponents[1]->Belt.Option.getWithDefault("")),
+    year: formatter(dateComponents[2]->Option.getWithDefault("")),
+    month: formatter(dateComponents[0]->Option.getWithDefault("")),
+    date: formatter(dateComponents[1]->Option.getWithDefault("")),
     hour: formatter(hourInString),
-    minute: formatter(timeComponents[1]->Belt.Option.getWithDefault("")),
-    second: formatter(timeComponents[2]->Belt.Option.getWithDefault("")),
+    minute: formatter(timeComponents[1]->Option.getWithDefault("")),
+    second: formatter(timeComponents[2]->Option.getWithDefault("")),
   }
   dateTimeObject
 }

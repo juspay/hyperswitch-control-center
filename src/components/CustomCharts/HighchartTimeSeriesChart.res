@@ -169,12 +169,12 @@ module LineChart1D = {
             let (x, y, secondryMetrics) = axes
             xAxisMapInfo->LineChartUtils.appendToDictValue(
               ["run_date", "run_month", "run_week"]->Array.includes(groupKey)
-                ? x->Js.Json.decodeString->Belt.Option.getWithDefault("")
+                ? x->Js.Json.decodeString->Option.getWithDefault("")
                 : x->Js.Json.stringify,
               (
                 item.name,
                 {
-                  item.color->Belt.Option.getWithDefault("#000000")
+                  item.color->Option.getWithDefault("#000000")
                 },
                 y,
                 secondryMetrics,
@@ -299,7 +299,7 @@ module LineChart1D = {
           }
         })
         ->Belt.Array.get(0)
-        ->Belt.Option.getWithDefault("")
+        ->Option.getWithDefault("")
       let color =
         chartData
         ->Belt.Array.keepMap(item => {
@@ -309,7 +309,7 @@ module LineChart1D = {
           }
         })
         ->Belt.Array.get(0)
-        ->Belt.Option.getWithDefault(`${colorOrig}`)
+        ->Option.getWithDefault(`${colorOrig}`)
 
       let transformValue = num => {
         num->HSAnalyticsUtils.setPrecision()
@@ -611,12 +611,12 @@ module LineChart1D = {
 
                   let upper_bound =
                     upper_bound <= threshold
-                      ? threshold +. stepUpFromThreshold->Belt.Option.getWithDefault(0.)
+                      ? threshold +. stepUpFromThreshold->Option.getWithDefault(0.)
                       : upper_bound
 
                   let lower_bound =
                     lower_bound >= threshold
-                      ? threshold -. stepUpFromThreshold->Belt.Option.getWithDefault(0.)
+                      ? threshold -. stepUpFromThreshold->Option.getWithDefault(0.)
                       : lower_bound
 
                   let positions = NumericUtils.pretty([lower_bound, upper_bound], 5)
@@ -661,8 +661,7 @@ module LineChart1D = {
             let labelsValue = {
               "formatter": Some(
                 @this
-                param =>
-                  formatLabels(selectedMetrics, param.value->Belt.Option.getWithDefault(0.0)),
+                param => formatLabels(selectedMetrics, param.value->Option.getWithDefault(0.0)),
               ),
               "enabled": true,
               "style": {
@@ -778,7 +777,7 @@ module LegendItem = {
         <AddDataAttributes attributes=[("data-chart-legend", legendItem.name)]>
           <div
             className={`flex flex-row gap-2 justify-center items-center cursor-pointer ${opacity} select-none`}
-            onDoubleClick={_ => selectedRow->Belt.Option.isSome ? setSelectedRow(_ => None) : ()}
+            onDoubleClick={_ => selectedRow->Option.isSome ? setSelectedRow(_ => None) : ()}
             onClick={_ =>
               setSelectedRow(prev => {
                 switch prev {
@@ -837,7 +836,7 @@ module RenderMultiDimensionalChart = {
             ),
             legendIndex: i.legendIndex,
             name: i.name,
-            color: i.color->Belt.Option.getWithDefault("#000000"),
+            color: i.color->Option.getWithDefault("#000000"),
           })
         )
         ->ignore
@@ -895,8 +894,8 @@ module LineChart2D = {
   ) => {
     let (groupBy1, groupBy2) = switch groupBy {
     | Some(value) => (
-        value->Belt.Array.get(0)->Belt.Option.getWithDefault(""),
-        value->Belt.Array.get(1)->Belt.Option.getWithDefault(""),
+        value->Belt.Array.get(0)->Option.getWithDefault(""),
+        value->Belt.Array.get(1)->Option.getWithDefault(""),
       )
     | None => ("", "")
     }
@@ -940,9 +939,9 @@ module LineChart3D = {
   ) => {
     let (groupBy1, groupBy2, groupby3) = switch groupBy {
     | Some(value) => (
-        value->Belt.Array.get(0)->Belt.Option.getWithDefault(""),
-        value->Belt.Array.get(1)->Belt.Option.getWithDefault(""),
-        value->Belt.Array.get(2)->Belt.Option.getWithDefault(""),
+        value->Belt.Array.get(0)->Option.getWithDefault(""),
+        value->Belt.Array.get(1)->Option.getWithDefault(""),
+        value->Belt.Array.get(2)->Option.getWithDefault(""),
       )
     | None => ("", "", "")
     }

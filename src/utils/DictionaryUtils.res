@@ -37,14 +37,14 @@ let equalDicts = (dictionary1, dictionary2) => {
     let (key, value) = item
     dictionary2->Dict.get(key) !== Some(value)
   })
-  ->Belt.Option.isNone &&
+  ->Option.isNone &&
     dictionary2
     ->Dict.toArray
     ->Array.find(item => {
       let (key, value) = item
       dictionary1->Dict.get(key) !== Some(value)
     })
-    ->Belt.Option.isNone
+    ->Option.isNone
 }
 
 let checkEqualJsonDicts = (~checkKeys, ~ignoreKeys, dictionary1, dictionary2) => {
@@ -73,7 +73,7 @@ let checkEqualJsonDicts = (~checkKeys, ~ignoreKeys, dictionary1, dictionary2) =>
       false
     }
   })
-  ->Belt.Option.isNone &&
+  ->Option.isNone &&
     dictionary2
     ->Dict.toArray
     ->Array.find(item => {
@@ -93,7 +93,7 @@ let checkEqualJsonDicts = (~checkKeys, ~ignoreKeys, dictionary1, dictionary2) =>
         false
       }
     })
-    ->Belt.Option.isNone
+    ->Option.isNone
 }
 
 let copyOfDict = dict => {

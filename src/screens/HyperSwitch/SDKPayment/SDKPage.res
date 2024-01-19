@@ -97,7 +97,7 @@ let make = () => {
 
   React.useEffect1(() => {
     let paymentIntentOptional = filtersFromUrl->Dict.get("payment_intent_client_secret")
-    if paymentIntentOptional->Belt.Option.isSome {
+    if paymentIntentOptional->Option.isSome {
       setIsSDKOpen(_ => true)
     }
     None

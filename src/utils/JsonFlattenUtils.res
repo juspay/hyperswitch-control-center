@@ -39,9 +39,9 @@ let rec setNested = (dict, keys, value) => {
   if keys->Array.length === 0 {
     ()
   } else if keys->Array.length === 1 {
-    Dict.set(dict, keys[0]->Belt.Option.getWithDefault(""), value)
+    Dict.set(dict, keys[0]->Option.getWithDefault(""), value)
   } else {
-    let key = keys[0]->Belt.Option.getWithDefault("")
+    let key = keys[0]->Option.getWithDefault("")
     let subDict = switch Dict.get(dict, key) {
     | Some(json) =>
       switch json->Js.Json.decodeObject {
