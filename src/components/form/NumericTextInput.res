@@ -1,4 +1,4 @@
-let getFloat = strJson => strJson->Js.Json.decodeString->Belt.Option.flatMap(Belt.Float.fromString)
+let getFloat = strJson => strJson->Js.Json.decodeString->Option.flatMap(Belt.Float.fromString)
 
 @react.component
 let make = (
@@ -53,18 +53,15 @@ let make = (
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
 
-        let strValue = value->Js.Json.decodeString->Belt.Option.getWithDefault("")
+        let strValue = value->Js.Json.decodeString->Option.getWithDefault("")
 
         let cleanedValue = switch strValue->Js.String2.match_(%re("/[\d\.]/g")) {
         | Some(strArr) =>
           let str = strArr->Array.joinWith("")->String.split(".")->Array.slice(~start=0, ~end=2)
           let result = if removeLeadingZeroes {
+            str[0] = str[0]->Option.getWithDefault("")->String.replaceRegExp(%re("/\b0+/g"), "")
             str[0] =
-              str[0]->Belt.Option.getWithDefault("")->String.replaceRegExp(%re("/\b0+/g"), "")
-            str[0] =
-              str[0]->Belt.Option.getWithDefault("") === ""
-                ? "0"
-                : str[0]->Belt.Option.getWithDefault("")
+              str[0]->Option.getWithDefault("") === "" ? "0" : str[0]->Option.getWithDefault("")
             str->Array.joinWith(".")
           } else {
             str->Array.joinWith(".")
@@ -102,9 +99,9 @@ let make = (
       let numericPrevLocalValue =
         prevLocalStr
         ->Js.Json.decodeString
-        ->Belt.Option.flatMap(Belt.Float.fromString)
+        ->Option.flatMap(Belt.Float.fromString)
         ->Belt.Option.map(Js.Json.number)
-        ->Belt.Option.getWithDefault(Js.Json.null)
+        ->Option.getWithDefault(Js.Json.null)
       if input.value === numericPrevLocalValue {
         prevLocalStr
       } else {

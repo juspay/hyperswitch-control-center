@@ -2,7 +2,7 @@
 let make = () => {
   open APIUtils
   open HSwitchRemoteFilter
-  open HSwitchUtils
+  open LogicUtils
   open RefundUtils
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -12,7 +12,7 @@ let make = () => {
   let (filters, setFilters) = React.useState(_ => None)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
-  let pageDetail = pageDetailDict->Dict.get("Refunds")->Belt.Option.getWithDefault(defaultValue)
+  let pageDetail = pageDetailDict->Dict.get("Refunds")->Option.getWithDefault(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
 
   React.useEffect3(() => {

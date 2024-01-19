@@ -1,1 +1,1 @@
-type authorization = NoAccess | Read | ReadWrite
+type authorization = NoAccess | Access

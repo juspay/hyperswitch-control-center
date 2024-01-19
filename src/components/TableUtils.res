@@ -399,8 +399,8 @@ module Numeric = {
 module MoneyCell = {
   let getAmountValue = (amount, currency) => {
     let amountSplitArr = Js.Float.toFixedWithPrecision(amount, ~digits=2)->String.split(".")
-    let decimal = amountSplitArr[1]->Belt.Option.getWithDefault("00")
-    let receivedValue = amountSplitArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+    let decimal = amountSplitArr[1]->Option.getWithDefault("00")
+    let receivedValue = amountSplitArr->Belt.Array.get(0)->Option.getWithDefault("")
 
     let formattedAmount = if receivedValue->String.includes("e") {
       receivedValue
@@ -560,7 +560,7 @@ module EllipsisText = {
             text
             ->String.split(ellipsisIdentifier)
             ->Belt.Array.get(0)
-            ->Belt.Option.getWithDefault("") ++ "..."
+            ->Option.getWithDefault("") ++ "..."
           }
         : text
     let ellipsesCondition =

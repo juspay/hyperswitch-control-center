@@ -24,7 +24,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
   let selectedOptions = React.useMemo1(() => {
     gateWaysInput.value
     ->Js.Json.decodeArray
-    ->Belt.Option.getWithDefault([])
+    ->Option.getWithDefault([])
     ->Belt.Array.keepMap(item => {
       Some(AdvancedRoutingUtils.connectorSelectionDataMapperFromJson(item))
     })
@@ -203,10 +203,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
                     name=key
                     onChange={ev => {
                       let val = ReactEvent.Form.target(ev)["value"]
-                      updatePercentage(
-                        item,
-                        val->Belt.Int.fromString->Belt.Option.getWithDefault(0),
-                      )
+                      updatePercentage(item, val->Belt.Int.fromString->Option.getWithDefault(0))
                     }}
                     value={item
                     ->AdvancedRoutingUtils.getSplitFromConnectorSelectionData

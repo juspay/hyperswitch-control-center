@@ -84,14 +84,13 @@ let make = () => {
   let fetchInitialEnums = async () => {
     try {
       let response = await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray)
-      let responseValueDict =
-        response->Js.Nullable.toOption->Belt.Option.getWithDefault(Dict.make())
+      let responseValueDict = response->Js.Nullable.toOption->Option.getWithDefault(Dict.make())
       let pageStateToSet = responseValueDict->QuickStartUtils.getCurrentStep
       setQuickStartPageState(_ => pageStateToSet->QuickStartUtils.enumToVarinatMapper)
       responseValueDict
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
         Js.Exn.raiseError(err)
       }
     }
@@ -240,7 +239,7 @@ let make = () => {
                           <EntityScaffold
                             entityName="Payments"
                             remainingPath
-                            access=ReadWrite
+                            access=Access
                             renderList={() => <Orders />}
                             renderShow={id => <ShowOrder id />}
                           />
@@ -250,7 +249,7 @@ let make = () => {
                           <EntityScaffold
                             entityName="Refunds"
                             remainingPath
-                            access=ReadWrite
+                            access=Access
                             renderList={() => <Refund />}
                             renderShow={id => <ShowRefund id />}
                           />
@@ -259,7 +258,7 @@ let make = () => {
                         <EntityScaffold
                           entityName="Disputes"
                           remainingPath
-                          access=ReadWrite
+                          access=Access
                           renderList={() => <Disputes />}
                           renderShow={id => <ShowDisputes id />}
                         />
@@ -268,7 +267,7 @@ let make = () => {
                           <EntityScaffold
                             entityName="Customers"
                             remainingPath
-                            access=ReadWrite
+                            access=Access
                             renderList={() => <Customers />}
                             renderShow={id => <ShowCustomers id />}
                           />
@@ -285,7 +284,7 @@ let make = () => {
                         <EntityScaffold
                           entityName="UserManagement"
                           remainingPath
-                          access=ReadWrite
+                          access=Access
                           renderList={() => <UserRoleEntry />}
                           renderShow={_ => <UserRoleShowData />}
                         />
@@ -350,7 +349,7 @@ let make = () => {
                       | list{"quick-start"} => determineQuickStartPageState()
                       | list{"woocommerce"} => determineWooCommerce()
                       | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
-
+                      | list{"unauthorized"} => <UnauthorizedPage />
                       | _ =>
                         RescriptReactRouter.replace(`${hyperSwitchFEPrefix}/home`)
                         <Home />

@@ -21,7 +21,7 @@ let make = (~routingType) => {
     let isActive =
       LogicUtils.getDictFromUrlSearchParams(searchParams)
       ->Dict.get("isActive")
-      ->Belt.Option.getWithDefault("")
+      ->Option.getWithDefault("")
       ->LogicUtils.getBoolFromString(false)
     setIsActive(_ => isActive)
     None

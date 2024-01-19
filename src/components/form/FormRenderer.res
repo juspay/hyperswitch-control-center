@@ -39,14 +39,14 @@ let makeInputFieldInfo = (
   ~validate: option<(option<string>, Js.Json.t) => Js.Promise.t<Js.Nullable.t<string>>>=?,
   (),
 ) => {
-  let label = label->Belt.Option.getWithDefault(name)
+  let label = label->Option.getWithDefault(name)
 
   let newCustomInput =
-    customInput->Belt.Option.getWithDefault(InputFields.textInput(~isDisabled=disabled, ()))
+    customInput->Option.getWithDefault(InputFields.textInput(~isDisabled=disabled, ()))
 
   {
     name,
-    placeholder: placeholder->Belt.Option.getWithDefault(label),
+    placeholder: placeholder->Option.getWithDefault(label),
     customInput: newCustomInput,
     disabled,
     format,
@@ -144,10 +144,10 @@ let makeFieldInfo = (
   ~validate: option<(option<string>, Js.Json.t) => Js.Promise.t<Js.Nullable.t<string>>>=?,
   (),
 ) => {
-  let label = label->Belt.Option.getWithDefault(name)
+  let label = label->Option.getWithDefault(name)
 
   let newCustomInput =
-    customInput->Belt.Option.getWithDefault(InputFields.textInput(~isDisabled=disabled, ()))
+    customInput->Option.getWithDefault(InputFields.textInput(~isDisabled=disabled, ()))
 
   makeMultiInputFieldInfo(
     ~label,
@@ -267,7 +267,7 @@ module FieldWrapper = {
           }}
         </>}
         children
-        {switch subText->Belt.Option.flatMap(LogicUtils.getNonEmptyString) {
+        {switch subText->Option.flatMap(LogicUtils.getNonEmptyString) {
         | Some(subText) => <div className=subTextClass> {React.string(subText)} </div>
         | None => React.null
         }}
@@ -398,8 +398,7 @@ module ComboFieldsRenderer3 = {
       if inputFields->Array.length === 0 {
         renderInputs(fieldsState)
       } else {
-        let inputField =
-          inputFields[0]->Belt.Option.getWithDefault(makeInputFieldInfo(~name="", ()))
+        let inputField = inputFields[0]->Option.getWithDefault(makeInputFieldInfo(~name="", ()))
 
         let restInputFields = Js.Array2.sliceFrom(inputFields, 1)
 
@@ -495,7 +494,7 @@ module FieldRenderer = {
               dataId=names>
               {if field.inputFields->Array.length === 1 {
                 let field =
-                  field.inputFields[0]->Belt.Option.getWithDefault(makeInputFieldInfo(~name="", ()))
+                  field.inputFields[0]->Option.getWithDefault(makeInputFieldInfo(~name="", ()))
 
                 <ErrorBoundary>
                   <FieldInputRenderer field errorClass showErrorOnChange />

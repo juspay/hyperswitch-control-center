@@ -57,7 +57,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
       let token = parseResponseJson(~json=res, ~email)
 
       // home
-      if !(token->HSwitchUtils.isEmptyString) {
+      if !(token->isEmptyString) {
         setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
       } else {
         showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())
@@ -154,7 +154,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
           }
         | (_, ResetPassword) => {
             let queryDict = url.search->getDictFromUrlSearchParams
-            let password_reset_token = queryDict->Dict.get("token")->Belt.Option.getWithDefault("")
+            let password_reset_token = queryDict->Dict.get("token")->Option.getWithDefault("")
             let password = getString(valuesDict, "create_password", "")
             let body = getResetpasswordBodyJson(password, password_reset_token)
             setResetPassword(body)

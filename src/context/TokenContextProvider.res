@@ -32,7 +32,7 @@ let make = (~children) => {
   let tokenContextObjext = React.useMemo4(() => {
     let parentAuthInfo = HyperSwitchAuthTypes.getAuthInfo(
       tokenDetailsDict->LogicUtils.getJsonObjectFromDict("tokenDict"),
-      token->Belt.Option.getWithDefault(""),
+      token->Option.getWithDefault(""),
     )
 
     {

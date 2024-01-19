@@ -30,7 +30,7 @@ module CheckListSection = {
           updatedCheckList
           ->Array.filter(ele => ele.itemsVariants->Array.includes(pageView))
           ->Belt.Array.get(0)
-          ->Belt.Option.getWithDefault(defaultValueOfCheckList),
+          ->Option.getWithDefault(defaultValueOfCheckList),
         )
 
       switch (currentViewindex, clickedVariant) {
