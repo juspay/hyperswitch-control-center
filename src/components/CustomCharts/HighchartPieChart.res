@@ -43,7 +43,7 @@ let make = (
   let color = theme === Dark ? "white" : "black"
   let borderColor = theme === Dark ? "black" : "white"
   let opacity = theme === Dark ? "0.5" : "1"
-  let titleKey = titleKey->Belt.Option.getWithDefault(groupKey)
+  let titleKey = titleKey->Option.getWithDefault(groupKey)
 
   let barOption: Js.Json.t = React.useMemo2(() => {
     let colors = {

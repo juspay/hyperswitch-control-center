@@ -78,7 +78,7 @@ module TabInfo = {
       if isSelected && isScrollIntoViewRequired {
         tabRef.current
         ->Js.Nullable.toOption
-        ->Belt.Option.forEach(input =>
+        ->Option.forEach(input =>
           input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"})
         )
       }
@@ -109,7 +109,7 @@ module IndicationArrow = {
       _ev =>
         refElement.current
         ->Js.Nullable.toOption
-        ->Belt.Option.forEach(input =>
+        ->Option.forEach(input =>
           input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"})
         )
     }
@@ -169,7 +169,7 @@ let make = (
   // ~icon=React.null,
 
   let _ = defaultClasses
-  let initialIndex = initialIndex->Belt.Option.getWithDefault(0)
+  let initialIndex = initialIndex->Option.getWithDefault(0)
   let (selectedIndex, setSelectedIndex) = React.useState(() => initialIndex)
   let tabOuterClass = `${tabBottomShadow} ${gapBetweenTabs}`
   let bottomBorderClass = "border-b border-jp-gray-500 dark:border-jp-gray-960"

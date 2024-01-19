@@ -98,7 +98,7 @@ let make = (
   React.useEffect0(() => {
     form.change(
       "profile_id",
-      profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)->Js.Json.string,
+      profile->Option.getWithDefault(defaultBusinessProfile.profile_id)->Js.Json.string,
     )
     None
   })
@@ -145,9 +145,7 @@ let make = (
                 <AddDataAttributes attributes=[("data-text", getStringFromJson(ip3.value, ""))]>
                   <span className="font-semibold">
                     <MerchantAccountUtils.BusinessProfile
-                      profile_id={profile->Belt.Option.getWithDefault(
-                        defaultBusinessProfile.profile_id,
-                      )}
+                      profile_id={profile->Option.getWithDefault(defaultBusinessProfile.profile_id)}
                     />
                   </span>
                 </AddDataAttributes>
@@ -162,8 +160,8 @@ let make = (
           <div className="w-full md:w-1/2 lg:w-1/3">
             <UIUtils.RenderIf condition={!isThreeDs}>
               <BusinessProfileInp
-                setProfile={setProfile->Belt.Option.getWithDefault(_ => ())}
-                profile={profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)}
+                setProfile={setProfile->Option.getWithDefault(_ => ())}
+                profile={profile->Option.getWithDefault(defaultBusinessProfile.profile_id)}
                 options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
                 label="Profile"
                 routingType

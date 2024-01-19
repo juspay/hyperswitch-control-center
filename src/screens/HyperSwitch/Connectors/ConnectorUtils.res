@@ -635,7 +635,7 @@ let getConnectorType = (connector, ~isPayoutFlow, ()) => {
 let getSelectedPaymentObj = (paymentMethodsEnabled: array<paymentMethodEnabled>, paymentMethod) => {
   paymentMethodsEnabled
   ->Array.find(item => item.payment_method_type->toLCase == paymentMethod->toLCase)
-  ->Belt.Option.getWithDefault({
+  ->Option.getWithDefault({
     payment_method: "unknown",
     payment_method_type: "unkonwn",
   })
@@ -648,7 +648,7 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
     pmts->Array.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->toLCase === paymentMethod->toLCase {
         val.card_provider
-        ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+        ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
         ->Array.push(method)
       }
     })
@@ -656,7 +656,7 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
     pmts->Array.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->toLCase === paymentMethod->toLCase {
         val.provider
-        ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+        ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
         ->Array.push(method)
       }
     })
@@ -672,12 +672,12 @@ let removeMethod = (paymentMethodsEnabled, paymentMethod, method: paymentMethodC
       if val.payment_method_type->toLCase === paymentMethod->toLCase {
         let indexOfRemovalItem =
           val.card_provider
-          ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+          ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
           ->Array.map(ele => ele.payment_method_type)
           ->Array.indexOf(method.payment_method_type)
 
         val.card_provider
-        ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+        ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
         ->Array.splice(
           ~start=indexOfRemovalItem,
           ~remove=1,
@@ -691,12 +691,12 @@ let removeMethod = (paymentMethodsEnabled, paymentMethod, method: paymentMethodC
       if val.payment_method_type->toLCase === paymentMethod->toLCase {
         let indexOfRemovalItem =
           val.provider
-          ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+          ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
           ->Array.map(ele => ele.payment_method_type)
           ->Array.indexOf(method.payment_method_type)
 
         val.provider
-        ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+        ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
         ->Array.splice(
           ~start=indexOfRemovalItem,
           ~remove=1,
@@ -741,7 +741,7 @@ let generateInitialValuesDict = (
 
   dict->Dict.set(
     "connector_webhook_details",
-    connectorWebHookDetails->getOptionString("merchant_secret")->Belt.Option.isSome
+    connectorWebHookDetails->getOptionString("merchant_secret")->Option.isSome
       ? connectorWebHookDetails->Js.Json.object_
       : Js.Json.null,
   )
@@ -898,7 +898,7 @@ let getConnectorFields = connectorDetails => {
   let connectorAccountDict =
     connectorDetails->LogicUtils.getDictFromJsonObject->LogicUtils.getDictfromDict("connector_auth")
   let bodyType =
-    connectorAccountDict->Dict.keysToArray->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+    connectorAccountDict->Dict.keysToArray->Belt.Array.get(0)->Option.getWithDefault("")
   let connectorAccountFields = connectorAccountDict->LogicUtils.getDictfromDict(bodyType)
   let connectorMetaDataFields =
     connectorDetails->LogicUtils.getDictFromJsonObject->LogicUtils.getDictfromDict("metadata")
@@ -927,7 +927,7 @@ let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {
   dict
   ->Dict.keysToArray
   ->Array.forEach(_value => {
-    let lastItem = fieldName->String.split(".")->Array.pop->Belt.Option.getWithDefault("")
+    let lastItem = fieldName->String.split(".")->Array.pop->Option.getWithDefault("")
     let errorKey = dict->getString(lastItem, "")
     let value = valuesFlattenJson->getString(`${fieldName}`, "")
     if value->String.length === 0 {
@@ -942,29 +942,29 @@ let validate = (values, ~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => {
   let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
   let labelArr = dict->Dict.valuesToArray
   selectedConnector.validate
-  ->Belt.Option.getWithDefault([])
+  ->Option.getWithDefault([])
   ->Array.forEachWithIndex((field, index) => {
     let key = field.name
     let value =
       valuesFlattenJson
       ->Dict.get(key)
-      ->Belt.Option.getWithDefault(""->Js.Json.string)
+      ->Option.getWithDefault(""->Js.Json.string)
       ->LogicUtils.getStringFromJson("")
     let regexToUse = isLiveMode ? field.liveValidationRegex : field.testValidationRegex
     let validationResult = switch regexToUse {
     | Some(regex) => regex->Js.Re.fromString->Js.Re.test_(value)
     | None => true
     }
-    if field.isRequired->Belt.Option.getWithDefault(true) && value->String.length === 0 {
+    if field.isRequired->Option.getWithDefault(true) && value->String.length === 0 {
       let errorLabel =
         labelArr
         ->Belt.Array.get(index)
-        ->Belt.Option.getWithDefault(""->Js.Json.string)
+        ->Option.getWithDefault(""->Js.Json.string)
         ->LogicUtils.getStringFromJson("")
       Dict.set(errors, key, `Please enter ${errorLabel}`->Js.Json.string)
     } else if !validationResult && value->String.length !== 0 {
       let expectedFormat = isLiveMode ? field.liveExpectedFormat : field.testExpectedFormat
-      let warningMessage = expectedFormat->Belt.Option.getWithDefault("")
+      let warningMessage = expectedFormat->Option.getWithDefault("")
       Dict.set(errors, key, warningMessage->Js.Json.string)
     }
   })
@@ -979,7 +979,7 @@ let validate = (values, ~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => {
 let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
   let (suggestedAction, suggestedActionExists) = {
     open SuggestedActionHelper
-    let msg = verifyErrorMessage->Belt.Option.getWithDefault("")
+    let msg = verifyErrorMessage->Option.getWithDefault("")
     switch connector->getConnectorNameTypeFromString {
     | STRIPE => (
         {
@@ -1074,7 +1074,7 @@ let useFetchConnectorList = () => {
       res
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
         Js.Exn.raiseError(err)
       }
     }
@@ -1106,11 +1106,9 @@ let defaultSelectAllCards = (
             ->getPaymentMethodMapper
 
           let length =
-            val.card_provider
-            ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
-            ->len
+            val.card_provider->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)->len
           val.card_provider
-          ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+          ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
           ->Array.splice(~start=0, ~remove=length, ~insert=arr)
         }
       | BankTransfer | BankRedirect => {
@@ -1121,9 +1119,9 @@ let defaultSelectAllCards = (
             ->getPaymentMethodMapper
 
           let length =
-            val.provider->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)->len
+            val.provider->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)->len
           val.provider
-          ->Belt.Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+          ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
           ->Array.splice(~start=0, ~remove=length, ~insert=arr)
         }
       | _ => ()
@@ -1164,7 +1162,7 @@ let getConnectorPaymentMethodDetails = async (
     )
   } catch {
   | Js.Exn.Error(e) => {
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }

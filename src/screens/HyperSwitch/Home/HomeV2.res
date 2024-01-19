@@ -87,12 +87,12 @@ module QuickStart = {
             let firstConnectorValue =
               typedConnectorValue
               ->Belt.Array.get(0)
-              ->Belt.Option.getWithDefault(getProcessorPayloadType(Dict.make()))
+              ->Option.getWithDefault(getProcessorPayloadType(Dict.make()))
 
             let secondConnectorValue =
               typedConnectorValue
               ->Belt.Array.get(1)
-              ->Belt.Option.getWithDefault(getProcessorPayloadType(Dict.make()))
+              ->Option.getWithDefault(getProcessorPayloadType(Dict.make()))
 
             let bodyOfFirstConnector: QuickStartTypes.processorType = {
               processorID: firstConnectorValue.merchant_connector_id,
@@ -128,7 +128,7 @@ module QuickStart = {
             let firstConnectorValue =
               typedConnectorValue
               ->Belt.Array.get(0)
-              ->Belt.Option.getWithDefault(getProcessorPayloadType(Dict.make()))
+              ->Option.getWithDefault(getProcessorPayloadType(Dict.make()))
 
             let bodyOfFirstConnector: QuickStartTypes.processorType = {
               processorID: firstConnectorValue.merchant_connector_id,

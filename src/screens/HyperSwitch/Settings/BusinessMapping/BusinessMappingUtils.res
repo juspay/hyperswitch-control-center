@@ -62,7 +62,7 @@ let validateForm = (
       let profileName = valuesDict->getUserEnteredProfileDetails
       item.profile_name === profileName
     })
-    ->Belt.Option.isSome
+    ->Option.isSome
   ) {
     errors->Dict.set(
       "profile_name",
