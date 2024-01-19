@@ -1,11 +1,8 @@
 name: PR label
 
 on:
+  merge_group:
   pull_request:
-    types:
-      - opened
-      - edited
-      - synchronize
 
 jobs:
   pr-label:
@@ -15,7 +12,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Update PR Label
+      - name: PR Label
         run: |
             echo "Pull Request Number: ${{ github.event.pull_request.number }}"
             echo "Pull Request Title: ${{ github.event.pull_request.title }}"
