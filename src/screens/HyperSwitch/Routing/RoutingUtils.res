@@ -188,7 +188,7 @@ let checkIfValuePresent = dict => {
 let validateConditionJson = (json, keys) => {
   switch json->Js.Json.decodeObject {
   | Some(dict) =>
-    keys->Array.every(key => dict->Dict.get(key)->Belt.Option.isSome) && dict->checkIfValuePresent
+    keys->Array.every(key => dict->Dict.get(key)->Option.isSome) && dict->checkIfValuePresent
   | None => false
   }
 }

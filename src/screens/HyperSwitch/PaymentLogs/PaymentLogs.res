@@ -49,10 +49,10 @@ module PrettyPrintJson = {
     <div className="flex flex-col gap-2  my-2">
       <UIUtils.RenderIf condition={!(parsedJson->isEmptyString)}>
         {<>
-          <UIUtils.RenderIf condition={headerText->Belt.Option.isSome}>
+          <UIUtils.RenderIf condition={headerText->Option.isSome}>
             <div className="flex justify-between items-center">
               <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
-                {headerText->Belt.Option.getWithDefault("")->React.string}
+                {headerText->Option.getWithDefault("")->React.string}
               </p>
             </div>
           </UIUtils.RenderIf>
@@ -78,7 +78,7 @@ module PrettyPrintJson = {
       <UIUtils.RenderIf condition={parsedJson->isEmptyString}>
         <div className="flex flex-col justify-start items-start gap-2 h-25-rem">
           <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
-            {headerText->Belt.Option.getWithDefault("")->React.string}
+            {headerText->Option.getWithDefault("")->React.string}
           </p>
           <p className="font-normal text-fs-14 text-jp-gray-900 text-opacity-50">
             {"Failed to load!"->React.string}

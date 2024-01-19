@@ -16,7 +16,7 @@ let options: Js.Json.t => array<EntityType.optionType<'t>> = json => {
   json
   ->getDictFromJsonObject
   ->getOptionalArrayFromDict("queryData")
-  ->Belt.Option.flatMap(arr => {
+  ->Option.flatMap(arr => {
     arr
     ->Array.map(dimensionObject => {
       let dimensionObject = dimensionObject->getDictFromJsonObject
@@ -58,7 +58,7 @@ let options: Js.Json.t => array<EntityType.optionType<'t>> = json => {
     })
     ->Some
   })
-  ->Belt.Option.getWithDefault([])
+  ->Option.getWithDefault([])
 }
 
 let filterByData = (txnArr, value) => {
@@ -76,7 +76,7 @@ let filterByData = (txnArr, value) => {
 
         value
         ->Js.Json.decodeString
-        ->Belt.Option.getWithDefault("")
+        ->Option.getWithDefault("")
         ->String.toLowerCase
         ->String.includes(searchText)
       })
@@ -96,7 +96,7 @@ let initialFilterFields = json => {
     json
     ->getDictFromJsonObject
     ->getOptionalArrayFromDict("queryData")
-    ->Belt.Option.flatMap(arr => {
+    ->Option.flatMap(arr => {
       arr
       ->Belt.Array.keepMap(item => {
         let dimensionObject = item->getDictFromJsonObject
@@ -130,7 +130,7 @@ let initialFilterFields = json => {
       })
       ->Some
     })
-    ->Belt.Option.getWithDefault([])
+    ->Option.getWithDefault([])
 
   dropdownValue
 }

@@ -15,7 +15,7 @@ module TableRow = {
     switch obj {
     | Some(a) => {
         let day = String.split(a, "-")
-        React.string(day->Belt.Array.get(2)->Belt.Option.getWithDefault(""))
+        React.string(day->Belt.Array.get(2)->Option.getWithDefault(""))
       }
 
     | None => React.string("")
@@ -132,19 +132,15 @@ module TableRow = {
               }
               let getDate = date => {
                 let datevalue = Js.Date.makeWithYMD(
-                  ~year=Js.Float.fromString(
-                    date->Belt.Array.get(0)->Belt.Option.getWithDefault("0"),
-                  ),
+                  ~year=Js.Float.fromString(date->Belt.Array.get(0)->Option.getWithDefault("0")),
                   ~month=Js.Float.fromString(
                     String.make(
                       Js.Float.fromString(
-                        date->Belt.Array.get(1)->Belt.Option.getWithDefault("0"),
+                        date->Belt.Array.get(1)->Option.getWithDefault("0"),
                       ) -. 1.0,
                     ),
                   ),
-                  ~date=Js.Float.fromString(
-                    date->Belt.Array.get(2)->Belt.Option.getWithDefault(""),
-                  ),
+                  ~date=Js.Float.fromString(date->Belt.Array.get(2)->Option.getWithDefault("")),
                   (),
                 )
                 datevalue
@@ -423,8 +419,8 @@ let make = (
       let startMonth =
         (startDate != "" ? (startDate->DayJs.getDayJsForString).format(. "MM") : "")
         ->Belt.Int.fromString
-        ->Belt.Option.getWithDefault(currentMonth)
-      let startYearDiff = year - startYear->Belt.Int.fromString->Belt.Option.getWithDefault(2022)
+        ->Option.getWithDefault(currentMonth)
+      let startYearDiff = year - startYear->Belt.Int.fromString->Option.getWithDefault(2022)
 
       let startIndex = 12 * startYearDiff + (currentMonth - startMonth)
 
@@ -437,8 +433,8 @@ let make = (
       let endMonth =
         (endDate != "" ? (endDate->DayJs.getDayJsForString).format(. "MM") : "")
         ->Belt.Int.fromString
-        ->Belt.Option.getWithDefault(currentMonth)
-      let endYearDiff = year - endYear->Belt.Int.fromString->Belt.Option.getWithDefault(2022)
+        ->Option.getWithDefault(currentMonth)
+      let endYearDiff = year - endYear->Belt.Int.fromString->Option.getWithDefault(2022)
 
       let endIndex = 12 * endYearDiff + (currentMonth - endMonth)
 
@@ -453,7 +449,7 @@ let make = (
     let windowIndex = totalMonths - index->LogicUtils.getInt("index", 0) - 1
     let newMonth = DayJs.getDayJs().subtract(. windowIndex, "month").month(.)
     let newYear = DayJs.getDayJs().subtract(. windowIndex, "month").year(.)
-    let updatedMonth = months->Belt.Array.get(newMonth)->Belt.Option.getWithDefault(Jan)
+    let updatedMonth = months->Belt.Array.get(newMonth)->Option.getWithDefault(Jan)
     // get first day
 
     let firstDay = Js.Date.getDay(

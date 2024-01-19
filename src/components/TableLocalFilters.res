@@ -96,7 +96,7 @@ module FilterDropDown = {
     let options =
       dummyDict->Dict.keysToArray->Array.filter(item => item != "")->SelectBox.makeOptions
 
-    let selectedValue = Dict.get(lclFiltrState, val)->Belt.Option.getWithDefault([])
+    let selectedValue = Dict.get(lclFiltrState, val)->Option.getWithDefault([])
 
     let filterInput: ReactFinalForm.fieldRenderPropsInput = {
       name: val,
@@ -176,9 +176,9 @@ module TextFilterCell = {
 
     let selectedValue =
       Dict.get(lclFiltrState, val)
-      ->Belt.Option.getWithDefault([])
+      ->Option.getWithDefault([])
       ->Belt.Array.get(0)
-      ->Belt.Option.getWithDefault(""->Js.Json.string)
+      ->Option.getWithDefault(""->Js.Json.string)
     let localInput = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
       {
         name: "--",
@@ -233,7 +233,7 @@ module RangeFilterCell = {
     let minVal = Js.Math.floor_float(minVal)
     let maxVal = Js.Math.ceil_float(maxVal)
     let selectedValueStr =
-      Dict.get(lclFiltrState, val)->Belt.Option.getWithDefault([
+      Dict.get(lclFiltrState, val)->Option.getWithDefault([
         minVal->Js.Json.number,
         maxVal->Js.Json.number,
       ])
@@ -246,14 +246,14 @@ module RangeFilterCell = {
           let value = {ev->ReactEvent.Form.target}["value"]
 
           let leftVal = value->Js.Float.fromString->Js.Json.number
-          let rightvalue = selectedValueStr[1]->Belt.Option.getWithDefault(Js.Json.null)
+          let rightvalue = selectedValueStr[1]->Option.getWithDefault(Js.Json.null)
           switch selectedValueStr[1] {
           | Some(ele) => setLclFltrState(val, [leftVal > rightvalue ? rightvalue : leftVal, ele])
           | None => ()
           }
         },
         onFocus: _ev => (),
-        value: selectedValueStr[0]->Belt.Option.getWithDefault(Js.Json.number(0.0)),
+        value: selectedValueStr[0]->Option.getWithDefault(Js.Json.number(0.0)),
         checked: false,
       }
     }, [selectedValueStr])
@@ -272,7 +272,7 @@ module RangeFilterCell = {
           }
         },
         onFocus: _ev => (),
-        value: selectedValueStr[1]->Belt.Option.getWithDefault(Js.Json.number(0.0)),
+        value: selectedValueStr[1]->Option.getWithDefault(Js.Json.number(0.0)),
         checked: false,
       }
     }, [selectedValueStr])

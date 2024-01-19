@@ -1,7 +1,7 @@
 let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName, ()) => {
   open LogicUtils
   searchOptions
-  ->Belt.Option.getWithDefault([])
+  ->Option.getWithDefault([])
   ->Array.filter(item => {
     let (searchKey, _redirection) = item
     checkStringStartsWithSubstring(~itemToCheck=searchKey, ~searchText)
@@ -274,7 +274,7 @@ let make = () => {
                               {elementsArray
                               ->Array.mapWithIndex((item, index) => {
                                 let elementValue =
-                                  item->Js.Json.decodeString->Belt.Option.getWithDefault("")
+                                  item->Js.Json.decodeString->Option.getWithDefault("")
                                 <UIUtils.RenderIf
                                   condition={elementValue->String.length > 0}
                                   key={index->string_of_int}>

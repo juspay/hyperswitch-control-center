@@ -58,11 +58,7 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
 }
 
 let getCurrencyValue = (countryCurrency: string) => {
-  countryCurrency
-  ->String.split("-")
-  ->Belt.Array.get(1)
-  ->Belt.Option.getWithDefault("USD")
-  ->String.trim
+  countryCurrency->String.split("-")->Belt.Array.get(1)->Option.getWithDefault("USD")->String.trim
 }
 
 let getTypedValueForPayment: Js.Json.t => SDKPaymentTypes.paymentType = values => {

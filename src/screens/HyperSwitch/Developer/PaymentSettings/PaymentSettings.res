@@ -33,7 +33,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open HSwitchUtils
   open MerchantAccountUtils
   let url = RescriptReactRouter.useUrl()
-  let id = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault(profileId)
+  let id = url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault(profileId)
   let businessProfileDetails = useGetBusinessProflile(id)
 
   let showToast = ToastState.useShowToast()
@@ -122,7 +122,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   />
                   <InfoViewForWebhooks
                     heading="Payment Response Hash Key"
-                    subHeading={businessProfileDetails.payment_response_hash_key->Belt.Option.getWithDefault(
+                    subHeading={businessProfileDetails.payment_response_hash_key->Option.getWithDefault(
                       "NA",
                     )}
                     isCopy=true

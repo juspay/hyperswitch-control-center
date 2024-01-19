@@ -293,7 +293,7 @@ module RuleBasedUI = {
     let addRule = (index, copy) => {
       let existingRules = ruleInput.value->getArrayFromJson([])
       let newRule = copy
-        ? existingRules[index]->Belt.Option.getWithDefault(defaultRule->Identity.genericTypeToJson)
+        ? existingRules[index]->Option.getWithDefault(defaultRule->Identity.genericTypeToJson)
         : defaultRule->Identity.genericTypeToJson
       let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
@@ -323,7 +323,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
           {
             let notFirstRule = ruleInput.value->getArrayFromJson([])->Array.length > 1
 
-            let rule = ruleInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
+            let rule = ruleInput.value->Js.Json.decodeArray->Option.getWithDefault([])
             let keyExtractor = (index, _rule, isDragging) => {
               let id = {`${rulesJsonPath}[${string_of_int(index)}]`}
 
@@ -422,7 +422,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       setFormState(_ => ViewConfig)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
       Js.Exn.raiseError(err)
     }
   }
@@ -454,7 +454,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
         setScreenState(_ => Success)
       } catch {
       | Js.Exn.Error(e) => {
-          let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+          let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
           setScreenState(_ => Error(err))
         }
       }
@@ -519,7 +519,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       errors->Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
     } else {
       rulesArray->Array.forEachWithIndex((rule, i) => {
-        let connectorDetails = rule.connectorSelection.data->Belt.Option.getWithDefault([])
+        let connectorDetails = rule.connectorSelection.data->Option.getWithDefault([])
 
         switch connectorDetails->validateGateways {
         | Some(error) =>
@@ -644,7 +644,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       Js.Nullable.return(response)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
       showToast(~message="Failed to Save the Configuration!", ~toastType=ToastState.ToastError, ())
       setShowModal(_ => false)
       setScreenState(_ => PageLoaderWrapper.Error(err))

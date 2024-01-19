@@ -17,7 +17,7 @@ let make = () => {
     } catch {
     | Js.Exn.Error(e) =>
       setScreenState(_ => PageLoaderWrapper.Error(
-        Js.Exn.message(e)->Belt.Option.getWithDefault("Error"),
+        Js.Exn.message(e)->Option.getWithDefault("Error"),
       ))
     }
   }
@@ -27,7 +27,7 @@ let make = () => {
     None
   })
 
-  let paymentResponsHashKey = merchantInfo.payment_response_hash_key->Belt.Option.getWithDefault("")
+  let paymentResponsHashKey = merchantInfo.payment_response_hash_key->Option.getWithDefault("")
 
   <PageLoaderWrapper screenState sectionHeight="h-40-vh">
     <div className="mt-10">

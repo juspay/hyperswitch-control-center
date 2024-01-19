@@ -19,7 +19,7 @@ let make = (
   }
 
   React.useEffect1(() => {
-    let val = input.value->Js.Json.decodeString->Belt.Option.getWithDefault("")
+    let val = input.value->Js.Json.decodeString->Option.getWithDefault("")
     if val->String.includes("<script>") || val->String.includes("</script>") {
       showPopUp({
         popUpType: (Warning, WithIcon),

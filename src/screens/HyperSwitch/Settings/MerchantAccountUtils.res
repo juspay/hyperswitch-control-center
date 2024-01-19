@@ -259,7 +259,7 @@ let getSettingsPayload = (values: Js.Json.t, merchantId) => {
     valuesDict->getOptionString("primary_contact_person"),
   )
   let primaryEmail = valuesDict->getOptionString("primary_email")
-  if primaryEmail->Belt.Option.getWithDefault("")->String.length > 0 {
+  if primaryEmail->Option.getWithDefault("")->String.length > 0 {
     merchantDetailsValue->setOptionString("primary_email", primaryEmail)
   }
   merchantDetailsValue->setOptionString(
@@ -271,7 +271,7 @@ let getSettingsPayload = (values: Js.Json.t, merchantId) => {
     valuesDict->getOptionString("secondary_contact_person"),
   )
   let secondaryEmail = valuesDict->getOptionString("secondary_email")
-  if secondaryEmail->Belt.Option.getWithDefault("")->String.length > 0 {
+  if secondaryEmail->Option.getWithDefault("")->String.length > 0 {
     merchantDetailsValue->setOptionString(
       "secondary_email",
       valuesDict->getOptionString("secondary_email"),
@@ -355,7 +355,7 @@ let checkValueChange = (~initialDict, ~valuesDict) => {
 
       initialValue !== updatedValue
     })
-  key->Belt.Option.isSome || updatedKeys > initialKeys
+  key->Option.isSome || updatedKeys > initialKeys
 }
 
 let validateEmptyValue = (key, errors) => {
@@ -462,7 +462,7 @@ let getValueFromBusinessProfile = businessProfileValue => {
     ->getArrayFromJson([])
     ->Js.Array2.reverseInPlace
     ->convertObjectToType
-  businessDetails->Belt.Array.get(0)->Belt.Option.getWithDefault(defaultValueForBusinessProfile)
+  businessDetails->Belt.Array.get(0)->Option.getWithDefault(defaultValueForBusinessProfile)
 }
 
 let useGetBusinessProflile = profileId => {
@@ -470,7 +470,7 @@ let useGetBusinessProflile = profileId => {
   ->Recoil.useRecoilValueFromAtom
   ->getArrayOfBusinessProfile
   ->Array.find(profile => profile.profile_id == profileId)
-  ->Belt.Option.getWithDefault(defaultValueForBusinessProfile)
+  ->Option.getWithDefault(defaultValueForBusinessProfile)
 }
 
 module BusinessProfile = {
@@ -504,7 +504,7 @@ let useFetchBusinessProfiles = () => {
       Js.Nullable.return(stringifiedResponse->getValueFromBusinessProfile)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
         Js.Exn.raiseError(err)
       }
     }
