@@ -25,11 +25,5 @@ let sortByCreatedAt = (log1: Js.Json.t, log2: Js.Json.t) => {
   let getKey = dict => dict->getDictFromJsonObject->getString("created_at", "")->Js.Date.fromString
   let keyA = log1->getKey
   let keyB = log2->getKey
-  if keyA < keyB {
-    1
-  } else if keyA > keyB {
-    -1
-  } else {
-    0
-  }
+  compareLogic(keyA, keyB)
 }

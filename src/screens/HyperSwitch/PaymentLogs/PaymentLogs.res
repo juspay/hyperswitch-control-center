@@ -2,9 +2,9 @@
 
 open PaymentLogsTypes
 let getLogType = dict => {
-  if dict->Dict.get("request_id")->Belt.Option.isSome {
+  if dict->Dict.get("request_id")->Option.isSome {
     PAYMENTS
-  } else if dict->Dict.get("component")->Belt.Option.isSome {
+  } else if dict->Dict.get("component")->Option.isSome {
     SDK
   } else {
     WEBHOOKS
@@ -46,8 +46,12 @@ module PrettyPrintJson = {
         <img src={`/assets/CopyToClipboard.svg`} className="w-9 h-5" />
       </div>
 
+    let copyBtnStyle = isTextVisible
+      ? "overflow-visible "
+      : `overflow-clip  h-fit ${maxHeightClass}`
+
     <div className="flex flex-col gap-2  my-2">
-      <UIUtils.RenderIf condition={!(parsedJson->isEmptyString)}>
+      <UIUtils.RenderIf condition={parsedJson->isNonEmptyString}>
         {<>
           <UIUtils.RenderIf condition={headerText->Option.isSome}>
             <div className="flex justify-between items-center">
@@ -57,15 +61,10 @@ module PrettyPrintJson = {
             </div>
           </UIUtils.RenderIf>
           <div className="flex items-start justify-between">
-            {
-              let style = isTextVisible
-                ? "overflow-visible "
-                : `overflow-clip  h-fit ${maxHeightClass}`
-              <pre
-                className={`${overrideBackgroundColor} p-3 text-jp-gray-900 dark:bg-jp-gray-950 dark:bg-opacity-100 ${style} text-fs-13 text font-medium`}>
-                {parsedJson->React.string}
-              </pre>
-            }
+            <pre
+              className={`${overrideBackgroundColor} p-3 text-jp-gray-900 dark:bg-jp-gray-950 dark:bg-opacity-100 ${copyBtnStyle} text-fs-13 text font-medium`}>
+              {parsedJson->React.string}
+            </pre>
             {copyParsedJson}
           </div>
           <Button
@@ -108,7 +107,7 @@ module ApiDetailsComponent = {
     | PAYMENTS => paymentDetailsValue->getString("api_flow", "default value")->camelCaseToTitle
     | SDK => paymentDetailsValue->getString("event_name", "default value")
     | WEBHOOKS => paymentDetailsValue->getString("outgoing_webhook_event_type", "default value")
-    }->PaymentLogsUtils.nameToURLMapper(~payment_id=paymentId, ())
+    }->nameToURLMapper(~payment_id=paymentId, ())
     let createdTime = paymentDetailsValue->getString("created_at", "00000")
     let requestId = switch logType {
     | PAYMENTS => paymentDetailsValue->getString("request_id", "")
@@ -125,8 +124,7 @@ module ApiDetailsComponent = {
         let (key, _) = entry
         filteredKeys->Array.includes(key)->not
       })
-      ->Dict.fromArray
-      ->Js.Json.object_
+      ->getJsonFromArrayOfJson
       ->Js.Json.stringify
     | WEBHOOKS => paymentDetailsValue->getString("outgoing_webhook_event_type", "")
     }
@@ -181,12 +179,34 @@ module ApiDetailsComponent = {
       }
     }
 
-    let isSelected = !(currentSelected->isEmptyString) && currentSelected === requestId
+    let isSelected = currentSelected->isNonEmptyString && currentSelected === requestId
     let stepColor = isSelected ? background_color : "gray-300"
 
     let boxShadowOnSelection = isSelected
       ? "border border-blue-700 rounded-md"
       : "border border-transparent"
+
+    let codeBg = switch logType {
+    | SDK =>
+      switch statusCode {
+      | "INFO" => "blue-100"
+      | "ERROR" => "red-200"
+      | "WARNING" => "yellow-100"
+      | _ => "grey-100 opacity-50"
+      }
+    | WEBHOOKS =>
+      switch statusCode {
+      | "200" => "green-100"
+      | "500" | _ => "grey-100 opacity-50"
+      }
+    | PAYMENTS =>
+      switch statusCode {
+      | "200" => "green-100"
+      | "500" => "grey-100 opacity-50"
+      | "400" => "yellow-100"
+      | _ => "grey-100 opacity-50"
+      }
+    }
 
     <div className="flex items-start gap-4">
       <div className="flex flex-col items-center h-full">
@@ -210,34 +230,11 @@ module ApiDetailsComponent = {
         }}>
         <div className="flex flex-col gap-1">
           <div className=" flex gap-4">
-            {
-              let codeBg = switch logType {
-              | SDK =>
-                switch statusCode {
-                | "INFO" => "blue-100"
-                | "ERROR" => "red-200"
-                | "WARNING" => "yellow-100"
-                | _ => "grey-100 opacity-50"
-                }
-              | WEBHOOKS =>
-                switch statusCode {
-                | "200" => "green-100"
-                | "500" | _ => "grey-100 opacity-50"
-                }
-              | PAYMENTS =>
-                switch statusCode {
-                | "200" => "green-100"
-                | "500" => "grey-100 opacity-50"
-                | "400" => "yellow-100"
-                | _ => "grey-100 opacity-50"
-                }
-              }
-              <div className={`bg-${codeBg} h-fit w-fit px-2 py-1 rounded-md`}>
-                <p className={`text-${background_color} text-sm opacity-100  font-bold `}>
-                  {statusCode->React.string}
-                </p>
-              </div>
-            }
+            <div className={`bg-${codeBg} h-fit w-fit px-2 py-1 rounded-md`}>
+              <p className={`text-${background_color} text-sm opacity-100  font-bold `}>
+                {statusCode->React.string}
+              </p>
+            </div>
             {switch logType {
             | SDK =>
               <p className={`${headerStyle} mt-1 ${isSelected ? "" : "opacity-80"}`}>
@@ -280,7 +277,7 @@ let make = (~paymentId, ~createdAt) => {
 
   let fetchPaymentLogsData = async _ => {
     try {
-      let paymentLogsUrl = APIUtils.getURL(
+      let paymentLogsUrl = getURL(
         ~entityName=PAYMENT_LOGS,
         ~methodType=Get,
         ~id=Some(paymentId),
@@ -299,7 +296,7 @@ let make = (~paymentId, ~createdAt) => {
 
   let fetchWebhooksLogsData = async _ => {
     try {
-      let webhooksLogsUrl = APIUtils.getURL(
+      let webhooksLogsUrl = getURL(
         ~entityName=CONNECTOR_EVENT_LOGS,
         ~methodType=Get,
         ~id=Some(paymentId),
@@ -330,12 +327,7 @@ let make = (~paymentId, ~createdAt) => {
     }
 
     try {
-      let url = APIUtils.getURL(
-        ~entityName=SDK_EVENT_LOGS,
-        ~methodType=Post,
-        ~id=Some(paymentId),
-        (),
-      )
+      let url = getURL(~entityName=SDK_EVENT_LOGS, ~methodType=Post, ~id=Some(paymentId), ())
       let startTime = createdAt->Js.Date.fromString->Js.Date.getTime -. 1000. *. 60. *. 5.
       let startTime = startTime->Js.Date.fromFloat->Js.Date.toISOString
 
@@ -408,11 +400,11 @@ let make = (~paymentId, ~createdAt) => {
 
   let getDetails = async () => {
     if !(paymentId->HSwitchOrderUtils.isTestPayment) {
-      let screenState = switch (
-        await fetchPaymentLogsData(),
-        await fetchSdkLogsData(),
-        await fetchWebhooksLogsData(),
-      ) {
+      let apiLogsStatus = await fetchPaymentLogsData()
+      let sdkLogsStatus = await fetchSdkLogsData()
+      let webhooksStatus = await fetchWebhooksLogsData()
+
+      let screenState = switch (apiLogsStatus, sdkLogsStatus, webhooksStatus) {
       | (PageLoaderWrapper.Error(_), PageLoaderWrapper.Error(_), PageLoaderWrapper.Error(_)) =>
         PageLoaderWrapper.Error("Failed to Fetch!")
       | _ => PageLoaderWrapper.Success
@@ -450,8 +442,7 @@ let make = (~paymentId, ~createdAt) => {
                 let (key, _) = entry
                 filteredKeys->Array.includes(key)->not
               })
-              ->Dict.fromArray
-              ->Js.Json.object_
+              ->getJsonFromArrayOfJson
               ->Js.Json.stringify
             let response =
               initialData->getString("log_type", "") === "ERROR"
@@ -491,15 +482,21 @@ let make = (~paymentId, ~createdAt) => {
     None
   })
 
+  let headerText = switch selectedOption.optionType {
+  | PAYMENTS => "Response body"
+  | WEBHOOKS => "Request body"
+  | SDK => "Metadata"
+  }->Some
+
   open OrderUtils
   <PageLoaderWrapper
-    screenState customUI={<NoDataFound message="No logs available for this PAYMENTS" />}>
+    screenState customUI={<NoDataFound message="No logs available for this payment" />}>
     {if paymentId->HSwitchOrderUtils.isTestPayment || logs.contents->Array.length === 0 {
       <div
         className="flex items-center gap-2 bg-white w-full border-2 p-3 !opacity-100 rounded-lg text-md font-medium">
         <Icon name="info-circle-unfilled" size=16 />
         <div className={`text-lg font-medium opacity-50`}>
-          {"No logs available for this PAYMENTS"->React.string}
+          {"No logs available for this payment"->React.string}
         </div>
       </div>
     } else {
@@ -527,28 +524,20 @@ let make = (~paymentId, ~createdAt) => {
           </div>
         </div>
         <UIUtils.RenderIf
-          condition={logDetails.response->String.length > 0 ||
-            logDetails.request->String.length > 0}>
+          condition={logDetails.response->isNonEmptyString || logDetails.request->isNonEmptyString}>
           <div
             className="flex flex-col gap-4 bg-hyperswitch_background rounded show-scrollbar scroll-smooth overflow-scroll px-8 py-4 w-1/2">
             <UIUtils.RenderIf
-              condition={!(logDetails.request->isEmptyString) &&
-              selectedOption.optionType !== WEBHOOKS}>
+              condition={logDetails.request->isNonEmptyString &&
+                selectedOption.optionType !== WEBHOOKS}>
               <PrettyPrintJson
                 jsonToDisplay=logDetails.request
                 headerText={Some(selectedOption.optionType === PAYMENTS ? "Request body" : "Event")}
                 maxHeightClass={logDetails.response->String.length > 0 ? "max-h-25-rem" : ""}
               />
             </UIUtils.RenderIf>
-            <UIUtils.RenderIf condition={!(logDetails.response->isEmptyString)}>
-              {
-                let headerText = switch selectedOption.optionType {
-                | PAYMENTS => "Response body"
-                | WEBHOOKS => "Request body"
-                | SDK => "Metadata"
-                }->Some
-                <PrettyPrintJson jsonToDisplay=logDetails.response headerText />
-              }
+            <UIUtils.RenderIf condition={logDetails.response->isNonEmptyString}>
+              <PrettyPrintJson jsonToDisplay=logDetails.response headerText />
             </UIUtils.RenderIf>
           </div>
         </UIUtils.RenderIf>
