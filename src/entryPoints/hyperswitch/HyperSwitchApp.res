@@ -4,19 +4,6 @@ open HSLocalStorage
 open HSwitchGlobalVars
 open APIUtils
 
-module FeatureFlagEnabledComponent = {
-  @react.component
-  let make = (~isEnabled, ~children) => {
-    let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
-    let updateRoute = () => {
-      setDashboardPageState(_ => #HOME)
-      RescriptReactRouter.replace("/home")
-      React.null
-    }
-    <> {isEnabled ? children : updateRoute()} </>
-  }
-}
-
 @react.component
 let make = () => {
   let url = RescriptReactRouter.useUrl()
@@ -40,7 +27,6 @@ let make = () => {
     ->QuickStartUtils.getTypedValueFromDict
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let verificationDays = getFromMerchantDetails("verification")->LogicUtils.getIntFromString(-1)
   let userRole = getFromUserDetails("user_role")
@@ -55,12 +41,7 @@ let make = () => {
   let isReconEnabled =
     (merchantDetailsValue->MerchantAccountUtils.getMerchantDetails).recon_status === Active
 
-  let hyperSwitchAppSidebars = SidebarValues.getHyperSwitchAppSidebars(
-    ~isReconEnabled,
-    ~featureFlagDetails,
-    ~userRole,
-    (),
-  )
+  let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
 
   let comingSoonPage =
     <DefaultLandingPage
@@ -103,14 +84,13 @@ let make = () => {
   let fetchInitialEnums = async () => {
     try {
       let response = await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray)
-      let responseValueDict =
-        response->Js.Nullable.toOption->Belt.Option.getWithDefault(Dict.make())
+      let responseValueDict = response->Js.Nullable.toOption->Option.getWithDefault(Dict.make())
       let pageStateToSet = responseValueDict->QuickStartUtils.getCurrentStep
       setQuickStartPageState(_ => pageStateToSet->QuickStartUtils.enumToVarinatMapper)
       responseValueDict
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
         Js.Exn.raiseError(err)
       }
     }
@@ -225,11 +205,11 @@ let make = () => {
                     <ErrorBoundary>
                       {switch url.path {
                       | list{"home"} =>
-                        <FeatureFlagEnabledComponent isEnabled={featureFlagDetails.default}>
+                        <AccessControl isEnabled={featureFlagDetails.default}>
                           {featureFlagDetails.quickStart ? <HomeV2 /> : <Home />}
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"fraud-risk-management", ...remainingPath} =>
-                        <FeatureFlagEnabledComponent isEnabled={featureFlagDetails.frm}>
+                        <AccessControl isEnabled={featureFlagDetails.frm}>
                           <EntityScaffold
                             entityName="risk-management"
                             remainingPath
@@ -237,7 +217,7 @@ let make = () => {
                             renderNewForm={() => <FRMConfigure />}
                             renderShow={_ => <FRMConfigure />}
                           />
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"connectors", ...remainingPath} =>
                         <EntityScaffold
                           entityName="Connectors"
@@ -259,7 +239,7 @@ let make = () => {
                           <EntityScaffold
                             entityName="Payments"
                             remainingPath
-                            access=ReadWrite
+                            access=Access
                             renderList={() => <Orders />}
                             renderShow={id => <ShowOrder id />}
                           />
@@ -269,7 +249,7 @@ let make = () => {
                           <EntityScaffold
                             entityName="Refunds"
                             remainingPath
-                            access=ReadWrite
+                            access=Access
                             renderList={() => <Refund />}
                             renderShow={id => <ShowRefund id />}
                           />
@@ -278,20 +258,20 @@ let make = () => {
                         <EntityScaffold
                           entityName="Disputes"
                           remainingPath
-                          access=ReadWrite
+                          access=Access
                           renderList={() => <Disputes />}
                           renderShow={id => <ShowDisputes id />}
                         />
                       | list{"customers", ...remainingPath} =>
-                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.customersModule>
+                        <AccessControl isEnabled=featureFlagDetails.customersModule>
                           <EntityScaffold
                             entityName="Customers"
                             remainingPath
-                            access=ReadWrite
+                            access=Access
                             renderList={() => <Customers />}
                             renderShow={id => <ShowCustomers id />}
                           />
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"routing", ...remainingPath} =>
                         <EntityScaffold
                           entityName="Routing"
@@ -304,7 +284,7 @@ let make = () => {
                         <EntityScaffold
                           entityName="UserManagement"
                           remainingPath
-                          access=ReadWrite
+                          access=Access
                           renderList={() => <UserRoleEntry />}
                           renderShow={_ => <UserRoleShowData />}
                         />
@@ -322,12 +302,11 @@ let make = () => {
                           <RefundsAnalytics />
                         </FilterContext>
                       | list{"analytics-user-journey"} =>
-                        <FeatureFlagEnabledComponent
-                          isEnabled=featureFlagDetails.userJourneyAnalytics>
+                        <AccessControl isEnabled=featureFlagDetails.userJourneyAnalytics>
                           <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                             <UserJourneyAnalytics />
                           </FilterContext>
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"monitoring"} => comingSoonPage
                       | list{"developer-api-keys"} => <KeyManagement.KeysManagement />
                       | list{"developer-system-metrics"} =>
@@ -347,35 +326,35 @@ let make = () => {
                             <PaymentSettings webhookOnly=false showFormOnly=false />}
                         />
                       | list{"recon"} =>
-                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.recon>
+                        <AccessControl isEnabled=featureFlagDetails.recon>
                           <Recon />
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"sdk"} =>
-                        <FeatureFlagEnabledComponent isEnabled={!featureFlagDetails.isLiveMode}>
+                        <AccessControl isEnabled={!featureFlagDetails.isLiveMode}>
                           <SDKPage />
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"3ds"} => <HSwitchThreeDS />
                       | list{"surcharge"} =>
-                        <FeatureFlagEnabledComponent isEnabled={featureFlagDetails.surcharge}>
+                        <AccessControl isEnabled={featureFlagDetails.surcharge}>
                           <Surcharge />
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"account-settings"} =>
-                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.sampleData>
+                        <AccessControl isEnabled=featureFlagDetails.sampleData>
                           <HSwitchSettings />
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"account-settings", "profile"} => <HSwitchProfileSettings />
                       | list{"business-details"} =>
-                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.default>
+                        <AccessControl isEnabled=featureFlagDetails.default>
                           <BusinessDetails />
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"business-profiles"} =>
-                        <FeatureFlagEnabledComponent isEnabled=featureFlagDetails.businessProfile>
+                        <AccessControl isEnabled=featureFlagDetails.businessProfile>
                           <BusinessProfile />
-                        </FeatureFlagEnabledComponent>
+                        </AccessControl>
                       | list{"quick-start"} => determineQuickStartPageState()
                       | list{"woocommerce"} => determineWooCommerce()
                       | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
-
+                      | list{"unauthorized"} => <UnauthorizedPage />
                       | _ =>
                         RescriptReactRouter.replace(`${hyperSwitchFEPrefix}/home`)
                         <Home />

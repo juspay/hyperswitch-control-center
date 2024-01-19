@@ -4,8 +4,8 @@ let parseUrlIntoDict = queryUrl => {
   let dict: Dict.t<string> = Dict.make()
   safeArray->Array.forEach(e => {
     dict->Dict.set(
-      e->Belt.Array.get(0)->Belt.Option.getWithDefault(""),
-      e->Belt.Array.get(1)->Belt.Option.getWithDefault(""),
+      e->Belt.Array.get(0)->Option.getWithDefault(""),
+      e->Belt.Array.get(1)->Option.getWithDefault(""),
     )
   })
 

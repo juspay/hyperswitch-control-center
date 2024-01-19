@@ -11,6 +11,7 @@ let make = (
   ~setPlatform,
   ~markAsDone,
 ) => {
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let (currentStep, setCurrentStep) = React.useState(_ => DownloadAPIKey)
   let {setQuickStartPageState} = React.useContext(GlobalProvider.defaultContext)
   let isLastStep = currentStep === LoadCheckout
@@ -47,6 +48,7 @@ let make = (
       text={isLastStep ? "Complete" : "Proceed"}
       onClick={_ => {
         if isLastStep {
+          mixpanelEvent(~eventName=`quickstart_integration_completed`, ())
           markAsDone()->ignore
         } else {
           let nextStep = getNavigationStepForMigrateFromStripe(~currentStep, ~forward=true, ())

@@ -51,7 +51,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         configuredRules
         ->Js.Json.array
         ->Js.Json.decodeArray
-        ->Belt.Option.getWithDefault([])
+        ->Option.getWithDefault([])
         ->Belt.Array.keepMap(Js.Json.decodeObject)
         ->Array.map(HistoryEntity.itemToObjMapper)
 
@@ -77,7 +77,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -108,7 +108,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
       }
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }

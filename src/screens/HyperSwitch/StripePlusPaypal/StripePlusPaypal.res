@@ -53,7 +53,7 @@ let make = () => {
       let enums =
         (await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray))
         ->Js.Nullable.toOption
-        ->Belt.Option.getWithDefault(Dict.make())
+        ->Option.getWithDefault(Dict.make())
         ->Js.Json.object_
         ->QuickStartUtils.getTypedValueFromDict
 

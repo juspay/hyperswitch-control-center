@@ -268,7 +268,7 @@ let singleStateItemToObjMapper = json => {
     payment_avg_ticket_size: dict->getFloat("avg_ticket_size", 0.0),
     connector_success_rate: dict->getFloat("connector_success_rate", 0.0),
   })
-  ->Belt.Option.getWithDefault({
+  ->Option.getWithDefault({
     singleStateInitialValue
   })
 }

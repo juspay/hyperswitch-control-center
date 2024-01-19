@@ -1,5 +1,5 @@
 let fetchRequestIdFromAPI = res => {
-  Fetch.Headers.get("x-request-id")(res->Fetch.Response.headers)->Belt.Option.getWithDefault("")
+  Fetch.Headers.get("x-request-id")(res->Fetch.Response.headers)->Option.getWithDefault("")
 }
 
 let getMixpanelRouteName = (pageTitle, url: RescriptReactRouter.url) => {
@@ -23,7 +23,7 @@ let getMixpanelRouteName = (pageTitle, url: RescriptReactRouter.url) => {
       let type_ =
         LogicUtils.getDictFromUrlSearchParams(searchParamValue)
         ->Dict.get("type")
-        ->Belt.Option.getWithDefault("")
+        ->Option.getWithDefault("")
       `/${pageTitle}/${type_}`
     }
 
@@ -31,7 +31,7 @@ let getMixpanelRouteName = (pageTitle, url: RescriptReactRouter.url) => {
       let type_ =
         LogicUtils.getDictFromUrlSearchParams(searchParamValue)
         ->Dict.get("type")
-        ->Belt.Option.getWithDefault("")
+        ->Option.getWithDefault("")
       `/${pageTitle}/${type_}`
     }
 
