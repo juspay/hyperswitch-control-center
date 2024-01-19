@@ -25,6 +25,8 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER" \
             | jq -r '.labels | map(.name) | join(" ")')
+          
+          echo EXISTING_LABELS
 
       - name: Add new label
         run: |
