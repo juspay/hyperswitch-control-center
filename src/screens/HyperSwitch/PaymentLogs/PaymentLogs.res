@@ -196,12 +196,12 @@ module ApiDetailsComponent = {
       }
     | WEBHOOKS =>
       switch statusCode {
-      | "200" => "green-100"
+      | "200" => "green-200"
       | "500" | _ => "grey-100 opacity-50"
       }
     | PAYMENTS =>
       switch statusCode {
-      | "200" => "green-100"
+      | "200" => "green-200"
       | "500" => "grey-100 opacity-50"
       | "400" => "yellow-100"
       | _ => "grey-100 opacity-50"
