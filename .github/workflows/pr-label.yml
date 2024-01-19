@@ -28,7 +28,7 @@ jobs:
 
           # Remove existing labels
           for LABEL in $EXISTING_LABELS; do
-            curl -X DELETE -H "Authorization: token $TOKEN" \
+            curl -X DELETE -H "Authorization: Bearer ${{ secrets.AUTO_RELEASE_PAT }}" \
               -H "Accept: application/vnd.github.v3+json" \
               "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/labels/$LABEL"
           done
