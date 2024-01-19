@@ -158,6 +158,10 @@ The `production_access` feature flag enables a flow for users to request live pr
 
 The `quick_start` feature flag enables the simplified onboarding flow for new users, where they connect to processors, configure payment routing and test a payment, all in one flow.
 
+#### Customers Module
+
+The `customers_module` feature flag enables the customers module in dashboard. Users can see the customers and their details via enabling this flag.
+
 ---
 
 ## Deployment

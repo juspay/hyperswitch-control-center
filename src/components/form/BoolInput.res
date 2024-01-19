@@ -114,7 +114,6 @@ let make = (
   ~boolCustomClass="",
   ~addAttributeId="",
 ) => {
-  let accessLevel = React.useContext(FormAuthContext.formAuthContext)
   let boolInput = baseInput->ffInputToBoolInput
   let boolValue: Js.Json.t = boolInput.value
 
@@ -126,14 +125,8 @@ let make = (
   let setIsSelected = boolInput.onChange
 
   isCheckBox
-    ? <CheckBoxIcon
-        isSelected setIsSelected isDisabled={isDisabled || accessLevel == AuthTypes.Read}
-      />
+    ? <CheckBoxIcon isSelected setIsSelected isDisabled={isDisabled} />
     : <BaseComponent
-        isSelected
-        setIsSelected
-        isDisabled={isDisabled || accessLevel == AuthTypes.Read}
-        boolCustomClass
-        addAttributeId
+        isSelected setIsSelected isDisabled={isDisabled} boolCustomClass addAttributeId
       />
 }

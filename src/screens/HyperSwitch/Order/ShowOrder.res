@@ -23,6 +23,7 @@ module OrderInfo = {
       ~paymentStatus,
       ~openRefundModal,
       ~paymentId,
+      ~connectorList=?,
       ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
     ) => {
       let typedPaymentStatus = paymentStatus->statusVariantMapper
@@ -63,7 +64,7 @@ module OrderInfo = {
               <div className=widthClass key={i->string_of_int}>
                 <DisplayKeyValueParams
                   heading={getHeading(colType)}
-                  value={getCell(data, colType)}
+                  value={getCell(data, colType, connectorList->Option.getWithDefault([]))}
                   customMoneyStyle="!font-normal !text-sm"
                   labelMargin="!py-0 mt-2"
                   overiddingHeadingStyles="text-black text-sm font-medium"
@@ -86,8 +87,13 @@ module OrderInfo = {
     ~isMetadata=false,
   ) => {
     let order = itemToObjMapper(orderDict)
-    let paymentStatus = orderDict->getString("status", "")
+    let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
+    let connectorList =
+      HyperswitchAtom.connectorListAtom
+      ->Recoil.useRecoilValueFromAtom
+      ->LogicUtils.safeParse
+      ->LogicUtils.getObjectArrayFromJson
     <div className="md:flex md:flex-col md:gap-5">
       <UIUtils.RenderIf condition={!isMetadata}>
         <div className="md:flex md:gap-10 md:items-stretch md:mt-5 mb-10">
@@ -99,6 +105,7 @@ module OrderInfo = {
               getCell=getCellForSummary
               detailsFields=[
                 Created,
+                NetAmount,
                 LastUpdated,
                 AmountReceived,
                 PaymentId,
@@ -124,18 +131,19 @@ module OrderInfo = {
                 ProfileId,
                 ProfileName,
                 Connector,
+                ConnectorLabel,
                 CardBrand,
                 PaymentMethodType,
                 PaymentMethod,
                 Refunds,
                 AuthenticationType,
                 CaptureMethod,
-                MandateId,
               ]
               isNonRefundConnector
               paymentStatus
               openRefundModal
               paymentId
+              connectorList
             />
           </div>
         </div>

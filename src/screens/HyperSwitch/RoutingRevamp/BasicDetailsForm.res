@@ -27,7 +27,7 @@ let descriptionInput = makeFieldInfo(
 
 module BusinessProfileInp = {
   @react.component
-  let make = (~setProfile, ~profile, ~options, ~label="") => {
+  let make = (~setProfile, ~profile, ~options, ~label="", ~routingType=ADVANCED) => {
     let selectedConnectorsInput = ReactFinalForm.useField("algorithm.data").input
 
     <FormRenderer.FieldRenderer
@@ -44,7 +44,12 @@ module BusinessProfileInp = {
                 ev => {
                   setProfile(_ => ev->Identity.formReactEventToString)
                   input.onChange(ev)
-                  selectedConnectorsInput.onChange([]->Identity.anyTypeToReactEvent)
+                  let defaultAlgorithm = if routingType == VOLUME_SPLIT {
+                    []->Identity.anyTypeToReactEvent
+                  } else {
+                    AdvancedRoutingUtils.defaultAlgorithmData->Identity.anyTypeToReactEvent
+                  }
+                  selectedConnectorsInput.onChange(defaultAlgorithm)
                 }
               },
             },
@@ -70,6 +75,7 @@ let make = (
   ~isThreeDs=false,
   ~profile=?,
   ~setProfile=?,
+  ~routingType=ADVANCED,
 ) => {
   open MerchantAccountUtils
   let ip1 = ReactFinalForm.useField(`name`).input
@@ -160,6 +166,7 @@ let make = (
                 profile={profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)}
                 options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
                 label="Profile"
+                routingType
               />
             </UIUtils.RenderIf>
             <FieldRenderer field=configurationNameInput />
