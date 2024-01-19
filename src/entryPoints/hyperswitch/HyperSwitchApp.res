@@ -1,12 +1,12 @@
-open UIUtils
-open HSwitchUtils
-open HSLocalStorage
-open HSwitchGlobalVars
-open APIUtils
-open PermissionUtils
-
 @react.component
 let make = () => {
+  open UIUtils
+  open HSwitchUtils
+  open HSwitchGlobalVars
+  open APIUtils
+  open PermissionUtils
+  open LogicUtils
+
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod()
   let {
@@ -24,7 +24,7 @@ let make = () => {
   let enumDetails =
     HyperswitchAtom.enumVariantAtom
     ->Recoil.useRecoilValueFromAtom
-    ->LogicUtils.safeParse
+    ->safeParse
     ->QuickStartUtils.getTypedValueFromDict
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -32,14 +32,14 @@ let make = () => {
     HyperswitchAtom.userPermissionAtom,
   )
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let verificationDays = getFromMerchantDetails("verification")->LogicUtils.getIntFromString(-1)
-  let userRole = getFromUserDetails("user_role")
+  let verificationDays = HSLocalStorage.getFromMerchantDetails("verification")->getIntFromString(-1)
+  let userRole = HSLocalStorage.getFromUserDetails("user_role")
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
     : "bg-orange-600/80 border-orange-500 text-grey-700"
 
-  let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
+  let merchantDetailsValue = useMerchantDetailsValue()
   let isReconEnabled =
     (merchantDetailsValue->MerchantAccountUtils.getMerchantDetails).recon_status === Active
 
@@ -48,7 +48,6 @@ let make = () => {
   sessionExpired := false
 
   let getAgreementEnum = async () => {
-    open LogicUtils
     try {
       let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl
       let response = await fetchDetails(url)
@@ -103,8 +102,8 @@ let make = () => {
       let response = await fetchDetails(url)
       let permissionsValue =
         response
-        ->LogicUtils.getDictFromJsonObject
-        ->LogicUtils.getArrayFromDict("permissions", [])
+        ->getDictFromJsonObject
+        ->getArrayFromDict("permissions", [])
         ->Array.map(ele => ele->Js.Json.decodeString->Option.getWithDefault(""))
       let permissionJson =
         permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
@@ -119,7 +118,9 @@ let make = () => {
 
   let setUpDashboard = async () => {
     try {
-      let _ = await fetchPermissionsForARole()
+      if featureFlagDetails.permissionBasedModule {
+        let _ = await fetchPermissionsForARole()
+      }
       let _ = await Window.connectorWasmInit()
       let _ = await fetchBusinessProfiles()
       let _ = await fetchConnectorListResponse()
