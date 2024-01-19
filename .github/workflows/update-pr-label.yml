@@ -1,4 +1,4 @@
-name: Update PR Label
+name: PR label
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
       - synchronize
 
 jobs:
-  update-pr-label:
+  pr-label:
     runs-on: ubuntu-latest
 
     steps:
