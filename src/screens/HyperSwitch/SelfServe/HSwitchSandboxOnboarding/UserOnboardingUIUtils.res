@@ -36,7 +36,7 @@ module PaymentResponseHashKeyArea = {
     let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
 
     <HelperComponents.KeyAndCopyArea
-      copyValue={detail.payment_response_hash_key->Belt.Option.getWithDefault("")}
+      copyValue={detail.payment_response_hash_key->Option.getWithDefault("")}
     />
   }
 }
@@ -399,9 +399,9 @@ module LandingPageTileForIntegrateDocs = {
       setDashboardPageState,
     } = React.useContext(GlobalProvider.defaultContext)
     let redirect = () => {
-      if customRedirection->Belt.Option.isSome {
+      if customRedirection->Option.isSome {
         RescriptReactRouter.replace(
-          `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${customRedirection->Belt.Option.getWithDefault(
+          `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${customRedirection->Option.getWithDefault(
               "",
             )}?type=${url}`,
         )
@@ -440,21 +440,21 @@ module LandingPageTileForIntegrateDocs = {
           } else {
             <Icon size=35 name=headerIcon className=customIconCss />
           }}
-          <UIUtils.RenderIf condition={rightIcon->Belt.Option.isSome}>
-            {rightIcon->Belt.Option.getWithDefault(React.null)}
+          <UIUtils.RenderIf condition={rightIcon->Option.isSome}>
+            {rightIcon->Option.getWithDefault(React.null)}
           </UIUtils.RenderIf>
           {leftSection}
         </div>
         <div className="flex flex-col gap-2">
           <p className=headerTextCss> {headerText->React.string} </p>
-          <UIUtils.RenderIf condition={subText->Belt.Option.isSome}>
-            <p className=subTextCss> {subText->Belt.Option.getWithDefault("")->React.string} </p>
+          <UIUtils.RenderIf condition={subText->Option.isSome}>
+            <p className=subTextCss> {subText->Option.getWithDefault("")->React.string} </p>
           </UIUtils.RenderIf>
           <div>
-            <UIUtils.RenderIf condition={subTextCustomValues->Belt.Option.isSome}>
+            <UIUtils.RenderIf condition={subTextCustomValues->Option.isSome}>
               <div className={`flex flex-col gap-3 mt-4`}>
                 {subTextCustomValues
-                ->Belt.Option.getWithDefault([])
+                ->Option.getWithDefault([])
                 ->Array.mapWithIndex((val, index) => {
                   <div key={index->string_of_int} className=subTextCss> {val->React.string} </div>
                 })
@@ -530,34 +530,30 @@ module Section = {
                 headerIcon=subSectionValue.headerIcon
                 customIconCss=subSectionValue.customIconCss
                 url=subSectionValue.url
-                displayFrontendLang={subSectionValue.displayFrontendLang->Belt.Option.getWithDefault(
-                  "",
-                )}
-                displayBackendLang={subSectionValue.displayBackendLang->Belt.Option.getWithDefault(
-                  "",
-                )}
+                displayFrontendLang={subSectionValue.displayFrontendLang->Option.getWithDefault("")}
+                displayBackendLang={subSectionValue.displayBackendLang->Option.getWithDefault("")}
               />
             : <LandingPageTileForIntegrateDocs
                 key={index->string_of_int}
                 headerIcon=subSectionValue.headerIcon
-                headerText={subSectionValue.headerText->Belt.Option.getWithDefault("")}
+                headerText={subSectionValue.headerText->Option.getWithDefault("")}
                 subText=subSectionValue.subText
                 buttonText=subSectionValue.buttonText
                 customIconCss=subSectionValue.customIconCss
                 url=subSectionValue.url
-                isIconImg={subSectionValue.isIconImg->Belt.Option.getWithDefault(false)}
-                imagePath={subSectionValue.imagePath->Belt.Option.getWithDefault("")}
+                isIconImg={subSectionValue.isIconImg->Option.getWithDefault(false)}
+                imagePath={subSectionValue.imagePath->Option.getWithDefault("")}
                 leftSection={<LanguageTag
-                  frontendLang={subSectionValue.frontEndLang->Belt.Option.getWithDefault("")}
-                  backendLang={subSectionValue.backEndLang->Belt.Option.getWithDefault("")}
+                  frontendLang={subSectionValue.frontEndLang->Option.getWithDefault("")}
+                  backendLang={subSectionValue.backEndLang->Option.getWithDefault("")}
                 />}
                 isFromOnboardingChecklist
                 subTextCustomValues=subSectionValue.subTextCustomValues
-                buttonType={subSectionValue.buttonType->Belt.Option.getWithDefault(Secondary)}
-                isSkipButton={subSectionValue.isSkipButton->Belt.Option.getWithDefault(false)}
-                isTileVisible={subSectionValue.isTileVisible->Belt.Option.getWithDefault(true)}
+                buttonType={subSectionValue.buttonType->Option.getWithDefault(Secondary)}
+                isSkipButton={subSectionValue.isSkipButton->Option.getWithDefault(false)}
+                isTileVisible={subSectionValue.isTileVisible->Option.getWithDefault(true)}
                 rightIcon={subSectionValue.rightIcon}
-                customRedirection={customRedirection->Belt.Option.getWithDefault("")}
+                customRedirection={customRedirection->Option.getWithDefault("")}
               />
         })
         ->React.array}
@@ -862,63 +858,6 @@ let getTabsForIntegration = (
             </div>
           </div>,
       },
-      // {
-      //   title: "3. Manage",
-      //   renderContent: () => {
-      //     let skipAndContinue = async () => {
-      //       try {
-      //         let url = APIUtils.getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
-      //         let metaDataDict =
-      //           Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
-      //         let body = HSwitchUtils.constructOnboardingBody(
-      //           ~dashboardPageState,
-      //           ~integrationDetails,
-      //           ~is_done=false,
-      //           ~metadata=metaDataDict,
-      //           (),
-      //         )
-      //         let _ = await updateDetails(url, body, Post)
-      //         setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
-      //       } catch {
-      //       | _ => ()
-      //       }
-      //     }
-      //     let skipOnboarding = async path => {
-      //       let _ = await skipAndContinue()
-      //       Window._open(path)
-      //     }
-      //     <div>
-      //       <TabsContentWrapper currentRoute tabIndex=7>
-      //         <div onClick={_ => skipOnboarding(`/connectors`)->ignore} className="cursor-pointer">
-      //           <div className="pointer-events-none">
-      //             <ConnectorList.NewProcessorCards
-      //               configuredConnectors=[] showIcons=true isPayoutFlow=false
-      //             />
-      //           </div>
-      //         </div>
-      //       </TabsContentWrapper>
-      //       <TabsContentWrapper currentRoute tabIndex=8>
-      //         <div onClick={_ => skipOnboarding(`/routing`)->ignore} className="cursor-pointer">
-      //           <div className="pointer-events-none">
-      //             <RoutingStack remainingPath={list{}} previewOnly=true />
-      //           </div>
-      //         </div>
-      //       </TabsContentWrapper>
-      //       <TabsContentWrapper currentRoute tabIndex=9>
-      //         <div onClick={_ => skipOnboarding(`/payments`)->ignore} className="cursor-pointer">
-      //           <div className="pointer-events-none overflow-hidden">
-      //             <Orders previewOnly=true />
-      //           </div>
-      //         </div>
-      //       </TabsContentWrapper>
-      //       // <MilestoneAchievedCard
-      //       //   headingModule="WooCommerce integration!"
-      //       //   subText="Test your integration by placing an order and completing a payment on your store!"
-      //       //   customBackButtonRoute=""
-      //       // />
-      //     </div>
-      //   },
-      // },
     ]
   | _ => []
   }

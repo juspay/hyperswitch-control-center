@@ -1,10 +1,7 @@
 let generateBody = (url: RescriptReactRouter.url) => {
   let body = Dict.make()
   let val =
-    url.search
-    ->LogicUtils.getDictFromUrlSearchParams
-    ->Dict.get("token")
-    ->Belt.Option.getWithDefault("")
+    url.search->LogicUtils.getDictFromUrlSearchParams->Dict.get("token")->Option.getWithDefault("")
 
   body->Dict.set("token", val->Js.Json.string)
   body->Js.Json.object_
@@ -14,7 +11,7 @@ let generateBody = (url: RescriptReactRouter.url) => {
 let make = (~setAuthType, ~setAuthStatus, ~authType) => {
   open HyperSwitchAuthTypes
   open APIUtils
-  open HSwitchUtils
+  open LogicUtils
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
@@ -26,10 +23,7 @@ let make = (~setAuthType, ~setAuthStatus, ~authType) => {
       let url = getURL(~entityName=USERS, ~methodType=Post, ~userType, ())
       let res = await updateDetails(url, body, Post)
       let email =
-        res
-        ->Js.Json.decodeObject
-        ->Belt.Option.getWithDefault(Dict.make())
-        ->LogicUtils.getString("email", "")
+        res->Js.Json.decodeObject->Option.getWithDefault(Dict.make())->getString("email", "")
       let token = HyperSwitchAuthUtils.parseResponseJson(~json=res, ~email)
       if !(token->isEmptyString) && !(email->isEmptyString) {
         setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
@@ -41,7 +35,7 @@ let make = (~setAuthType, ~setAuthStatus, ~authType) => {
       }
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Verification Failed")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Verification Failed")
         setErrorMessage(_ => err)
         setAuthStatus(LoggedOut)
       }

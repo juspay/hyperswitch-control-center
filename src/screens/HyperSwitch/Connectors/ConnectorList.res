@@ -37,7 +37,7 @@ module NewProcessorCards = {
 
     let unConfiguredConnectors =
       connectorsAvailableForIntegration->Array.filter(total =>
-        configuredConnectors->Array.find(item => item === total)->Belt.Option.isNone
+        configuredConnectors->Array.find(item => item === total)->Option.isNone
       )
 
     let (showModal, setShowModal) = React.useState(_ => false)

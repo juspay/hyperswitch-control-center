@@ -27,7 +27,7 @@ let descriptionInput = makeFieldInfo(
 
 module BusinessProfileInp = {
   @react.component
-  let make = (~setProfile, ~profile, ~options, ~label="") => {
+  let make = (~setProfile, ~profile, ~options, ~label="", ~routingType=ADVANCED) => {
     let selectedConnectorsInput = ReactFinalForm.useField("algorithm.data").input
 
     <FormRenderer.FieldRenderer
@@ -44,7 +44,12 @@ module BusinessProfileInp = {
                 ev => {
                   setProfile(_ => ev->Identity.formReactEventToString)
                   input.onChange(ev)
-                  selectedConnectorsInput.onChange([]->Identity.anyTypeToReactEvent)
+                  let defaultAlgorithm = if routingType == VOLUME_SPLIT {
+                    []->Identity.anyTypeToReactEvent
+                  } else {
+                    AdvancedRoutingUtils.defaultAlgorithmData->Identity.anyTypeToReactEvent
+                  }
+                  selectedConnectorsInput.onChange(defaultAlgorithm)
                 }
               },
             },
@@ -70,6 +75,7 @@ let make = (
   ~isThreeDs=false,
   ~profile=?,
   ~setProfile=?,
+  ~routingType=ADVANCED,
 ) => {
   open MerchantAccountUtils
   let ip1 = ReactFinalForm.useField(`name`).input
@@ -92,7 +98,7 @@ let make = (
   React.useEffect0(() => {
     form.change(
       "profile_id",
-      profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)->Js.Json.string,
+      profile->Option.getWithDefault(defaultBusinessProfile.profile_id)->Js.Json.string,
     )
     None
   })
@@ -139,9 +145,7 @@ let make = (
                 <AddDataAttributes attributes=[("data-text", getStringFromJson(ip3.value, ""))]>
                   <span className="font-semibold">
                     <MerchantAccountUtils.BusinessProfile
-                      profile_id={profile->Belt.Option.getWithDefault(
-                        defaultBusinessProfile.profile_id,
-                      )}
+                      profile_id={profile->Option.getWithDefault(defaultBusinessProfile.profile_id)}
                     />
                   </span>
                 </AddDataAttributes>
@@ -156,10 +160,11 @@ let make = (
           <div className="w-full md:w-1/2 lg:w-1/3">
             <UIUtils.RenderIf condition={!isThreeDs}>
               <BusinessProfileInp
-                setProfile={setProfile->Belt.Option.getWithDefault(_ => ())}
-                profile={profile->Belt.Option.getWithDefault(defaultBusinessProfile.profile_id)}
+                setProfile={setProfile->Option.getWithDefault(_ => ())}
+                profile={profile->Option.getWithDefault(defaultBusinessProfile.profile_id)}
                 options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
                 label="Profile"
+                routingType
               />
             </UIUtils.RenderIf>
             <FieldRenderer field=configurationNameInput />

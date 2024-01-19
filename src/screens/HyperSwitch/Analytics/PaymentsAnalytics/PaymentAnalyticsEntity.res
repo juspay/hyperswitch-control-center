@@ -273,7 +273,7 @@ let singleStateItemToObjMapper = json => {
     retries_amount_processe: dict->getFloat("retries_amount_processed", 0.0),
     connector_success_rate: dict->getFloat("connector_success_rate", 0.0),
   })
-  ->Belt.Option.getWithDefault({
+  ->Option.getWithDefault({
     singleStateInitialValue
   })
 }

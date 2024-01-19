@@ -48,7 +48,7 @@ let make = (
     onBlur: _ev => (),
     onChange: ev => {
       setResultsPerPage(_ => {
-        ev->Identity.formReactEventToString->Belt.Int.fromString->Belt.Option.getWithDefault(15)
+        ev->Identity.formReactEventToString->Belt.Int.fromString->Option.getWithDefault(15)
       })
     },
     onFocus: _ev => (),

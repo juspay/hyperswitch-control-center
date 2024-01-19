@@ -2,14 +2,14 @@ module ActiveRulePreview = {
   open LogicUtils
   @react.component
   let make = (~initialRule) => {
-    let rule = initialRule->Belt.Option.getWithDefault(Dict.make())
+    let rule = initialRule->Option.getWithDefault(Dict.make())
 
     let name = rule->getString("name", "")
     let description = rule->getString("description", "")
 
     let ruleInfo = rule->getDictfromDict("algorithm")->SurchargeUtils.ruleInfoTypeMapper
 
-    <UIUtils.RenderIf condition={initialRule->Belt.Option.isSome}>
+    <UIUtils.RenderIf condition={initialRule->Option.isSome}>
       <div className="relative flex flex-col gap-6 w-full border p-6 bg-white rounded-md">
         <div
           className="absolute top-0 right-0 bg-green-800 text-white py-2 px-4 rounded-bl font-semibold">
@@ -41,7 +41,7 @@ module ConfigureSurchargeRule = {
 
     let addRule = (index, _copy) => {
       let existingRules = ruleInput.value->LogicUtils.getArrayFromJson([])
-      let newRule = existingRules[index]->Belt.Option.getWithDefault(Js.Json.null)
+      let newRule = existingRules[index]->Option.getWithDefault(Js.Json.null)
       let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
@@ -55,7 +55,7 @@ module ConfigureSurchargeRule = {
     <div>
       {
         let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Array.length > 1
-        let rule = ruleInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
+        let rule = ruleInput.value->Js.Json.decodeArray->Option.getWithDefault([])
         let keyExtractor = (index, _rule, isDragging) => {
           let id = {`algorithm.rules[${string_of_int(index)}]`}
           <AdvancedRouting.Wrapper
@@ -135,7 +135,7 @@ let make = () => {
       setInitialRule(_ => Some(intitialValue))
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
       Js.Exn.raiseError(err)
     }
   }
@@ -148,7 +148,7 @@ let make = () => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
         if err->String.includes("HE_02") {
           setShowWarning(_ => false)
           setPageView(_ => LANDING)
@@ -177,7 +177,7 @@ let make = () => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
       showToast(~message=err, ~toastType=ToastError, ())
     }
     Js.Nullable.null
@@ -188,9 +188,9 @@ let make = () => {
 
     let errors = Dict.make()
 
-    RoutingUtils.validateNameAndDescription(~dict, ~errors)
+    AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
 
-    switch dict->Dict.get("algorithm")->Belt.Option.flatMap(Js.Json.decodeObject) {
+    switch dict->Dict.get("algorithm")->Option.flatMap(Js.Json.decodeObject) {
     | Some(jsonDict) => {
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
         if rules->Array.length === 0 {
@@ -211,7 +211,6 @@ let make = () => {
 
     | None => ()
     }
-
     errors->Js.Json.object_
   }
 
@@ -242,7 +241,9 @@ let make = () => {
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col overflow-scroll gap-6">
-      <PageUtils.PageHeading title={"Surcharge"} subTitle="Add your surcharge" />
+      <PageUtils.PageHeading
+        title={"Surcharge"} subTitle="Configure advanced rules to apply surcharges"
+      />
       {switch pageView {
       | NEW =>
         <div className="w-full border p-8 bg-white rounded-md ">
@@ -270,10 +271,10 @@ let make = () => {
           <ActiveRulePreview initialRule />
           <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
             <p className="text-base font-semibold text-grey-700">
-              {"Add Surcharge"->React.string}
+              {"Configure Surcharge"->React.string}
             </p>
             <p className="text-base font-normal text-grey-700 opacity-50">
-              {"Surcharge info description can come here"->React.string}
+              {"Create advanced rules using various payment parameters like amount, currency,payment method etc to enforce a surcharge on your payments"->React.string}
             </p>
             <Button
               text="Create New"

@@ -24,8 +24,8 @@ let getHeading = colType => {
 let getCell = (item: profileEntity, colType): Table.cell => {
   switch colType {
   | ProfileName => Text(item.profile_name)
-  | ReturnUrl => Text(item.return_url->Belt.Option.getWithDefault(""))
-  | WebhookUrl => Text(item.webhook_details.webhook_url->Belt.Option.getWithDefault(""))
+  | ReturnUrl => Text(item.return_url->Option.getWithDefault(""))
+  | WebhookUrl => Text(item.webhook_details.webhook_url->Option.getWithDefault(""))
   }
 }
 

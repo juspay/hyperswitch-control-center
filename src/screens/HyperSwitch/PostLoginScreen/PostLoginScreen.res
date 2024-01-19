@@ -107,7 +107,7 @@ let make = () => {
       setDashboardPageState(_ => #AUTO_CONNECTOR_INTEGRATION)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
       if err->String.includes("UR_19") {
         showToast(~toastType=ToastWarning, ~message="Please login again!", ~autoClose=false, ())
         setAuthStatus(LoggedOut)
@@ -158,7 +158,7 @@ let make = () => {
                   setCarouselDirection
                   currentQuestionDict={questionForSurvey
                   ->Belt.Array.get(currentStep)
-                  ->Belt.Option.getWithDefault(defaultValueForQuestions)}
+                  ->Option.getWithDefault(defaultValueForQuestions)}
                 />
               </FramerMotion.Motion.Div>
             </Form>
