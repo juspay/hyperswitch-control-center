@@ -30,14 +30,14 @@ let make = (
     fetchApi(url, ~bodyStr=Js.Json.stringify(values), ~method_=Fetch.Post, ())
     ->then(Fetch.Response.json)
     ->then(json => {
-      let jsonData = json->Js.Json.decodeObject->Belt.Option.flatMap(dict => dict->Dict.get("rows"))
+      let jsonData = json->Js.Json.decodeObject->Option.flatMap(dict => dict->Dict.get("rows"))
       let newData = switch jsonData {
       | Some(actualJson) => actualJson->getObjects->Array.map(obj => obj->Js.Nullable.return)
       | None => []
       }
 
       let summaryData =
-        json->Js.Json.decodeObject->Belt.Option.flatMap(dict => dict->Dict.get("summary"))
+        json->Js.Json.decodeObject->Option.flatMap(dict => dict->Dict.get("summary"))
 
       let summary = switch summaryData {
       | Some(x) => x->getSummary

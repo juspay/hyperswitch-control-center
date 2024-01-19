@@ -21,7 +21,7 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
   open ConnectorUtils
   let connectorAccountDict = json->getDictFromJsonObject->getDictfromDict("connector_auth")
   let bodyType =
-    connectorAccountDict->Dict.keysToArray->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+    connectorAccountDict->Dict.keysToArray->Belt.Array.get(0)->Option.getWithDefault("")
 
   let connectorAccountDetails =
     [("auth_type", bodyType->Js.Json.string), ("api_key", "test"->Js.Json.string)]

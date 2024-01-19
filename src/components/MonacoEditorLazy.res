@@ -18,12 +18,12 @@ let make = (
   ~onMount: option<Monaco.Editor.IStandaloneCodeEditor.t => unit>=?,
   ~headerComponent=?,
 ) => {
-  let copyValue = value->Belt.Option.isNone ? defaultValue : value
+  let copyValue = value->Option.isNone ? defaultValue : value
 
   <AddDataAttributes
-    attributes=[("data-editor", "Monaco Editor"), ("text", value->Belt.Option.getWithDefault(""))]>
+    attributes=[("data-editor", "Monaco Editor"), ("text", value->Option.getWithDefault(""))]>
     <div className={`flex flex-col ${outerWidth}`}>
-      {headerComponent->Belt.Option.getWithDefault(React.null)}
+      {headerComponent->Option.getWithDefault(React.null)}
       {showCopy ? <Clipboard.Copy data=copyValue /> : React.null}
       <MonacoEditor
         defaultLanguage

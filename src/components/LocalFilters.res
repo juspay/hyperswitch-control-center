@@ -122,7 +122,7 @@ let make = (
 
     initialValues
     ->Js.Json.decodeObject
-    ->Belt.Option.getWithDefault(Dict.make())
+    ->Option.getWithDefault(Dict.make())
     ->Dict.toArray
     ->Array.forEach(entry => {
       let (key, _value) = entry
@@ -170,7 +170,7 @@ let make = (
       let defaultEntityOptionType: EntityType.optionType<
         't,
       > = EntityType.getDefaultEntityOptionType()
-      let optionObj = optionObjArry[0]->Belt.Option.getWithDefault(defaultEntityOptionType)
+      let optionObj = optionObjArry[0]->Option.getWithDefault(defaultEntityOptionType)
       localSelectedFiltersList->Array.push(optionObj.field)->ignore
       localCheckedFilters->Array.push(value)->ignore
     })
@@ -184,7 +184,7 @@ let make = (
       val.inputNames
       ->Belt.Array.get(0)
       ->Belt.Option.map(name => !{toBeRemoved->Array.includes(name)})
-      ->Belt.Option.getWithDefault(false)
+      ->Option.getWithDefault(false)
     })
     let filtersAfterRemoving =
       checkedFilters->Array.filter(val => !Array.includes(toBeRemoved, val))
@@ -192,7 +192,7 @@ let make = (
     let newInitialValues =
       initialValueJson
       ->Js.Json.decodeObject
-      ->Belt.Option.getWithDefault(Dict.make())
+      ->Option.getWithDefault(Dict.make())
       ->Dict.toArray
       ->Array.filter(entry => {
         let (key, _value) = entry

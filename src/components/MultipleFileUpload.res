@@ -95,8 +95,8 @@ let make = (
     let files = input.value->LogicUtils.getArrayFromJson([])
 
     while !break.contents {
-      if target["files"]->Array.length > arr[0]->Belt.Option.getWithDefault(0) {
-        let index = arr->Belt.Array.get(0)->Belt.Option.getWithDefault(0)
+      if target["files"]->Array.length > arr[0]->Option.getWithDefault(0) {
+        let index = arr->Belt.Array.get(0)->Option.getWithDefault(0)
         switch target["files"][index] {
         | Some(value) => {
             let filename = value["name"]
@@ -104,7 +104,7 @@ let make = (
             let mimeType = value["type"]
             let fileFormat = String.concat(
               ".",
-              Array.pop(filename->String.split("."))->Belt.Option.getWithDefault(""),
+              Array.pop(filename->String.split("."))->Option.getWithDefault(""),
             )
             let fileTypeArr = fileType->String.split(",")
             let isCorrectFileFormat =
@@ -171,7 +171,7 @@ let make = (
                 toast("Invalid file", ToastError)
               }
             }
-            arr->Belt.Array.set(0, arr[0]->Belt.Option.getWithDefault(0) + 1)->ignore
+            arr->Belt.Array.set(0, arr[0]->Option.getWithDefault(0) + 1)->ignore
           }
         | None => ()
         }
@@ -191,7 +191,7 @@ let make = (
         ? try {
             val
             ->Belt.Array.get(indx)
-            ->Belt.Option.getWithDefault(Js.Json.null)
+            ->Option.getWithDefault(Js.Json.null)
             ->getStringFromJson("")
             ->atob
           } catch {
@@ -199,10 +199,7 @@ let make = (
             toast("Error : Unable to parse file", ToastError)
             ""
           }
-        : val
-          ->Belt.Array.get(indx)
-          ->Belt.Option.getWithDefault(Js.Json.null)
-          ->getStringFromJson(""),
+        : val->Belt.Array.get(indx)->Option.getWithDefault(Js.Json.null)->getStringFromJson(""),
     )
   }
 
@@ -262,7 +259,7 @@ let make = (
             className={pointerDisable
               ? "flex items-center gap-4 flex-1 pointer-events-none"
               : "flex items-center gap-4 flex-1"}>
-            {switch fileName->String.split(".")->Array.pop->Belt.Option.getWithDefault("") {
+            {switch fileName->String.split(".")->Array.pop->Option.getWithDefault("") {
             | "pdf" => <img src={`/icons/paIcons/pdfIcon.svg`} />
             | "csv" => <img src={`/icons/paIcons/csvIcon.svg`} />
             | _ => React.null

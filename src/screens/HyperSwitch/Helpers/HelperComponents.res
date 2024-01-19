@@ -62,8 +62,7 @@ module BluredTableComponent = {
 
     let dummyTableValue = Belt.Array.make(5, dummyTableValueDict)
 
-    let subTitle =
-      moduleSubtitle->Belt.Option.isSome ? moduleSubtitle->Belt.Option.getWithDefault("") : ""
+    let subTitle = moduleSubtitle->Option.isSome ? moduleSubtitle->Option.getWithDefault("") : ""
 
     <div className="relative flex flex-col gap-8">
       <div className="flex items-center justify-between ">
