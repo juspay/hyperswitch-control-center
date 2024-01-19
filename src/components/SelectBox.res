@@ -124,7 +124,7 @@ module ListItem = {
     }
 
     let labelStyle =
-      customLabelStyle->Belt.Option.isSome ? customLabelStyle->Belt.Option.getWithDefault("") : ""
+      customLabelStyle->Option.isSome ? customLabelStyle->Option.getWithDefault("") : ""
 
     let onToggleSelect = val => {
       if !isDisabled {
@@ -383,12 +383,12 @@ let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOpt
   {
     label: dropdownOption.label,
     value: dropdownOption.value,
-    isDisabled: dropdownOption.isDisabled->Belt.Option.getWithDefault(false),
-    icon: dropdownOption.icon->Belt.Option.getWithDefault(NoIcon),
+    isDisabled: dropdownOption.isDisabled->Option.getWithDefault(false),
+    icon: dropdownOption.icon->Option.getWithDefault(NoIcon),
     description: dropdownOption.description,
-    iconStroke: dropdownOption.iconStroke->Belt.Option.getWithDefault(""),
-    textColor: dropdownOption.textColor->Belt.Option.getWithDefault(""),
-    optGroup: dropdownOption.optGroup->Belt.Option.getWithDefault("-"),
+    iconStroke: dropdownOption.iconStroke->Option.getWithDefault(""),
+    textColor: dropdownOption.textColor->Option.getWithDefault(""),
+    optGroup: dropdownOption.optGroup->Option.getWithDefault("-"),
   }
 }
 
@@ -514,7 +514,7 @@ module BaseSelect = {
       if !isDisabled {
         let data = if Array.includes(saneValue, itemDataValue) {
           let values =
-            deselectDisable->Belt.Option.getWithDefault(false)
+            deselectDisable->Option.getWithDefault(false)
               ? saneValue
               : saneValue->Array.filter(x => x !== itemDataValue)
           onItemSelect(e, itemDataValue)->ignore
@@ -575,12 +575,12 @@ module BaseSelect = {
       `${minWidth} ${dropdownCustomWidth}`
     }
     let textIconPresent =
-      options->Array.some(op => op.icon->Belt.Option.getWithDefault(NoIcon) !== NoIcon)
+      options->Array.some(op => op.icon->Option.getWithDefault(NoIcon) !== NoIcon)
 
     let _ = if sortingBasedOnDisabled {
       options->Js.Array2.sortInPlaceWith((m1, m2) => {
-        let m1Disabled = m1.isDisabled->Belt.Option.getWithDefault(false)
-        let m2Disabled = m2.isDisabled->Belt.Option.getWithDefault(false)
+        let m1Disabled = m1.isDisabled->Option.getWithDefault(false)
+        let m2Disabled = m2.isDisabled->Option.getWithDefault(false)
         if m1Disabled === m2Disabled {
           0
         } else if m1Disabled {
@@ -620,7 +620,7 @@ module BaseSelect = {
     }
 
     React.useEffect2(() => {
-      searchRef.current->Js.Nullable.toOption->Belt.Option.forEach(input => input->focus)
+      searchRef.current->Js.Nullable.toOption->Option.forEach(input => input->focus)
       None
     }, (searchRef.current, showDropDown))
 
@@ -731,7 +731,7 @@ module BaseSelect = {
           let clearAllCondition = noOfSelected > 0
           <UIUtils.RenderIf
             condition={filteredOptions->Array.length > 1 &&
-              filteredOptions->Array.find(item => item.value === "Loading...")->Belt.Option.isNone}>
+              filteredOptions->Array.find(item => item.value === "Loading...")->Option.isNone}>
             <div
               onClick={selectAll(noOfSelected === 0)}
               className={`flex px-3 pt-2 pb-1 mx-1 rounded-lg gap-3 text-jp-2-gray-300 items-center text-fs-14 font-medium cursor-pointer`}>
@@ -821,9 +821,7 @@ module BaseSelect = {
           <div className="flex justify-center items-center m-4">
             {React.string("No matching records found")}
           </div>
-        } else if (
-          filteredOptions->Array.find(item => item.value === "Loading...")->Belt.Option.isSome
-        ) {
+        } else if filteredOptions->Array.find(item => item.value === "Loading...")->Option.isSome {
           <Loader />
         } else {
           {
@@ -959,7 +957,7 @@ module BaseSelectButton = {
     }
 
     React.useEffect2(() => {
-      searchRef.current->Js.Nullable.toOption->Belt.Option.forEach(input => input->focus)
+      searchRef.current->Js.Nullable.toOption->Option.forEach(input => input->focus)
       None
     }, (searchRef.current, showDropDown))
 
@@ -1242,7 +1240,7 @@ module BaseRadio = {
     }, [searchString])
 
     OutsideClick.useOutsideClick(
-      ~refs={ArrayOfRef([dropdownRef->Belt.Option.getWithDefault(React.useRef(Js.Nullable.null))])},
+      ~refs={ArrayOfRef([dropdownRef->Option.getWithDefault(React.useRef(Js.Nullable.null))])},
       ~isActive=showDropDown,
       ~callback=() => {
         setSearchString(_ => "")
@@ -1298,7 +1296,7 @@ module BaseRadio = {
     let textIconPresent = options->Array.some(op => op.icon !== NoIcon)
 
     React.useEffect2(() => {
-      searchRef.current->Js.Nullable.toOption->Belt.Option.forEach(input => input->focus)
+      searchRef.current->Js.Nullable.toOption->Option.forEach(input => input->focus)
       None
     }, (searchRef.current, showDropDown))
 
@@ -1624,8 +1622,8 @@ module BaseDropdown = {
       | None =>
         selectBoxRef.current
         ->Js.Nullable.toOption
-        ->Belt.Option.flatMap(elem => elem->getClientRects->toDict->Dict.get("0"))
-        ->Belt.Option.flatMap(firstEl => {
+        ->Option.flatMap(elem => elem->getClientRects->toDict->Dict.get("0"))
+        ->Option.flatMap(firstEl => {
           let bottomVacent = windowInnerHeight - firstEl["bottom"]->Belt.Float.toInt > 375
           let topVacent = firstEl["top"]->Belt.Float.toInt > 470
           let rightVacent = windowInnerWidth - firstEl["left"]->Belt.Float.toInt > 270
@@ -1643,7 +1641,7 @@ module BaseDropdown = {
             BottomMiddle
           }->Some
         })
-        ->Belt.Option.getWithDefault(BottomMiddle)
+        ->Option.getWithDefault(BottomMiddle)
       }
     }, [showDropDown])
 
@@ -1691,7 +1689,7 @@ module BaseDropdown = {
         color: condition ? BadgeBlue : NoBadge,
       }
     }, [newInputSelect.value])
-    let widthClass = isMobileView ? "w-full" : dropdownCustomWidth->Belt.Option.getWithDefault("")
+    let widthClass = isMobileView ? "w-full" : dropdownCustomWidth->Option.getWithDefault("")
 
     let optionsElement = if allowMultiSelect {
       <BaseSelect
@@ -1817,7 +1815,7 @@ module BaseDropdown = {
               | FilterAdd =>
                 <Button
                   text=buttonText
-                  leftIcon={customButtonLeftIcon->Belt.Option.getWithDefault(FontAwesome({"plus"}))}
+                  leftIcon={customButtonLeftIcon->Option.getWithDefault(FontAwesome({"plus"}))}
                   buttonType
                   isSelectBoxButton=true
                   buttonSize
@@ -1938,7 +1936,7 @@ module BaseDropdown = {
             )
             if actualValueIndex !== -1 {
               let (text, leftIcon) = switch options[actualValueIndex] {
-              | Some(ele) => (ele.label, ele.icon->Belt.Option.getWithDefault(NoIcon))
+              | Some(ele) => (ele.label, ele.icon->Option.getWithDefault(NoIcon))
               | None => ("", NoIcon)
               }
 

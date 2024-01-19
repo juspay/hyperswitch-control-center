@@ -331,7 +331,7 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
   open FRMInfo
   open FRMUtils
   open LogicUtils
-  let initialValues = retrivedValues->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
+  let initialValues = retrivedValues->Option.getWithDefault(Dict.make()->Js.Json.object_)
 
   let onSubmit = (values, _) => {
     open Promise

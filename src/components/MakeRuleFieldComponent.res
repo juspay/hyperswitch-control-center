@@ -15,7 +15,7 @@ let validateConditionJson = json => {
   }
   switch json->Js.Json.decodeObject {
   | Some(dict) =>
-    ["operator", "real_field"]->Array.every(key => dict->Dict.get(key)->Belt.Option.isSome) &&
+    ["operator", "real_field"]->Array.every(key => dict->Dict.get(key)->Option.isSome) &&
       dict->checkValue
   | None => false
   }
@@ -49,14 +49,14 @@ module CompressedView = {
     let condition =
       conditionInput.value
       ->Js.Json.decodeObject
-      ->Belt.Option.flatMap(dict => {
+      ->Option.flatMap(dict => {
         Some(
           dict->getString("logical.operator", ""),
           dict->getString("real_field", ""),
           dict->getString("operator", ""),
           dict
           ->getOptionStrArrayFromDict("value")
-          ->Belt.Option.getWithDefault([dict->getString("value", "")]),
+          ->Option.getWithDefault([dict->getString("value", "")]),
           dict->getDictfromDict("metadata")->getOptionString("key"),
         )
       })

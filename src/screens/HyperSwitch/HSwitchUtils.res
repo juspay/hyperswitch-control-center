@@ -52,7 +52,7 @@ let setMerchantDetails = (key, value) => {
   localStorageData->Dict.set(key, value)
 
   "merchant"->LocalStorage.setItem(
-    localStorageData->Js.Json.stringifyAny->Belt.Option.getWithDefault(""),
+    localStorageData->Js.Json.stringifyAny->Option.getWithDefault(""),
   )
 }
 
@@ -60,9 +60,7 @@ let setMerchantDetails = (key, value) => {
 let setUserDetails = (key, value) => {
   let localStorageData = getInfoFromLocalStorage(~lStorageKey="user")
   localStorageData->Dict.set(key, value)
-  "user"->LocalStorage.setItem(
-    localStorageData->Js.Json.stringifyAny->Belt.Option.getWithDefault(""),
-  )
+  "user"->LocalStorage.setItem(localStorageData->Js.Json.stringifyAny->Option.getWithDefault(""))
 }
 let getSearchOptionsForProcessors = (~processorList, ~getNameFromString) => {
   let searchOptionsForProcessors =
@@ -98,8 +96,8 @@ let useMerchantDetailsValue = () =>
 
 let getClientCountry = clientTimeZone => {
   Country.country
-  ->Array.find(item => item.timeZones->Array.find(i => i == clientTimeZone)->Belt.Option.isSome)
-  ->Belt.Option.getWithDefault(Country.defaultTimeZone)
+  ->Array.find(item => item.timeZones->Array.find(i => i == clientTimeZone)->Option.isSome)
+  ->Option.getWithDefault(Country.defaultTimeZone)
 }
 
 let getBrowswerDetails = () => {
@@ -130,7 +128,7 @@ module BackgroundImageWrapper = {
     ~isBackgroundFullScreen=true,
   ) => {
     let heightWidthCss = isBackgroundFullScreen ? "h-screen w-screen" : "h-full w-full"
-    <UIUtils.RenderIf condition={children->Belt.Option.isSome}>
+    <UIUtils.RenderIf condition={children->Option.isSome}>
       <div
         className={`bg-no-repeat bg-center bg-hyperswitch_dark_bg bg-fixed ${customPageCss} ${heightWidthCss}`}
         style={ReactDOMStyle.make(
@@ -138,7 +136,7 @@ module BackgroundImageWrapper = {
           ~backgroundSize=`cover`,
           (),
         )}>
-        {children->Belt.Option.getWithDefault(React.null)}
+        {children->Option.getWithDefault(React.null)}
       </div>
     </UIUtils.RenderIf>
   }
@@ -271,8 +269,6 @@ let constructOnboardingBody = (
     ("account_activation", copyOfIntegrationDetails.account_activation->returnIntegrationJson),
   ])->Js.Json.object_
 }
-
-let isEmptyString = str => str->String.length <= 0
 
 type textVariantType =
   | H1

@@ -90,11 +90,11 @@ let getStartEndDiff = (startDate, endDate) => {
 let isStartBeforeEndDate = (start, end) => {
   let getDate = date => {
     let datevalue = Js.Date.makeWithYMD(
-      ~year=Js.Float.fromString(date[0]->Belt.Option.getWithDefault("")),
+      ~year=Js.Float.fromString(date[0]->Option.getWithDefault("")),
       ~month=Js.Float.fromString(
-        String.make(Js.Float.fromString(date[1]->Belt.Option.getWithDefault("")) -. 1.0),
+        String.make(Js.Float.fromString(date[1]->Option.getWithDefault("")) -. 1.0),
       ),
-      ~date=Js.Float.fromString(date[2]->Belt.Option.getWithDefault("")),
+      ~date=Js.Float.fromString(date[2]->Option.getWithDefault("")),
       (),
     )
     datevalue

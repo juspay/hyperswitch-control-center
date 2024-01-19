@@ -35,7 +35,7 @@ module SelectPaymentMethods = {
         let _ = await StringEnumType(connectorChoiceValue)->postEnumDetails(configurationType)
       } catch {
       | Js.Exn.Error(e) => {
-          let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to update!")
+          let err = Js.Exn.message(e)->Option.getWithDefault("Failed to update!")
           Js.Exn.raiseError(err)
         }
       }

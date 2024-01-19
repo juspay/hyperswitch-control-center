@@ -137,20 +137,18 @@ let make = (
     let fromTimeArr = val->String.split(" ")
     let fromTime = `${fromTimeArr
       ->Belt.Array.get(0)
-      ->Belt.Option.getWithDefault("12:00")}:00 ${fromTimeArr
+      ->Option.getWithDefault("12:00")}:00 ${fromTimeArr
       ->Belt.Array.get(1)
-      ->Belt.Option.getWithDefault("AM")}`
+      ->Option.getWithDefault("AM")}`
 
     setFromTime(_ => fromTime->String.toUpperCase)
   }
 
   let setToTimeDropdown = val => {
     let toTimeArr = val->String.split(" ")
-    let toTime = `${toTimeArr
-      ->Belt.Array.get(0)
-      ->Belt.Option.getWithDefault("11:59")}:00 ${toTimeArr
+    let toTime = `${toTimeArr->Belt.Array.get(0)->Option.getWithDefault("11:59")}:00 ${toTimeArr
       ->Belt.Array.get(1)
-      ->Belt.Option.getWithDefault("PM")}`
+      ->Option.getWithDefault("PM")}`
     settoTime(_ => toTime->String.toUpperCase)
   }
 

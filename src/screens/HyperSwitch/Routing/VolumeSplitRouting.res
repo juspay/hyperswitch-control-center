@@ -1,7 +1,6 @@
 open APIUtils
 open RoutingTypes
 open RoutingPreviewer
-
 open LogicUtils
 
 module VolumeRoutingView = {
@@ -139,7 +138,9 @@ module VolumeRoutingView = {
                       customSumbitButtonStyle="w-1/5 rounded-lg"
                       tooltipWidthClass="w-48"
                     />}
-                    submitButton={<SaveAndActivateButton onSubmit handleActivateConfiguration />}
+                    submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton
+                      onSubmit handleActivateConfiguration
+                    />}
                     headingText="Activate Current Configuration?"
                     subHeadingText="Activating the current configuration will override the current active configuration. Alternatively, save this configuration to access / activate it later from the configuration history. Please confirm."
                     leftIcon="hswitch-warning"
@@ -251,7 +252,7 @@ let make = (~routingRuleId, ~isActive) => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }
@@ -266,7 +267,7 @@ let make = (~routingRuleId, ~isActive) => {
         Some("Need atleast 1 Gateway")
       } else {
         let distributionPercentages = gateways->Belt.Array.keepMap(json => {
-          json->Js.Json.decodeObject->Belt.Option.flatMap(getOptionFloat(_, "split"))
+          json->Js.Json.decodeObject->Option.flatMap(getOptionFloat(_, "split"))
         })
         let distributionPercentageSum =
           distributionPercentages->Array.reduce(0., (sum, distribution) => sum +. distribution)
@@ -310,7 +311,7 @@ let make = (~routingRuleId, ~isActive) => {
       Js.Nullable.return(res)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong!")
       showToast(~message="Failed to Save the Configuration !", ~toastType=ToastState.ToastError, ())
       setScreenState(_ => PageLoaderWrapper.Error(err))
       Js.Exn.raiseError(err)

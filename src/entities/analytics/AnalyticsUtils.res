@@ -449,8 +449,8 @@ let generatedeltaTablePayload = (
   let dictOfDates = Belt.Array.concatMany(deltaDateArr)
   let tablePayload = Belt.Array.zipBy(dictOfDates, deltaPrefixArr, (x, y) =>
     generatePayload(
-      ~startTime=x->Dict.get("fromTime")->Belt.Option.getWithDefault(""),
-      ~endTime=x->Dict.get("toTime")->Belt.Option.getWithDefault(""),
+      ~startTime=x->Dict.get("fromTime")->Option.getWithDefault(""),
+      ~endTime=x->Dict.get("toTime")->Option.getWithDefault(""),
       ~metrics,
       ~groupByNames,
       ~mode,
