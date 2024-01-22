@@ -184,16 +184,14 @@ module SaveAndActivateButton = {
       try {
         let onSubmitResponse = await onSubmit(formState.values, false)
         let currentActivatedFromJson =
-          onSubmitResponse->Js.Nullable.toOption->Belt.Option.getWithDefault(Js.Json.null)
+          onSubmitResponse->Js.Nullable.toOption->Option.getWithDefault(Js.Json.null)
         let currentActivatedId =
           currentActivatedFromJson->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
         let _ = await handleActivateConfiguration(Some(currentActivatedId))
       } catch {
       | Js.Exn.Error(e) =>
-        let _err =
-          Js.Exn.message(e)->Belt.Option.getWithDefault(
-            "Failed to save and activate configuration!",
-          )
+        let _ =
+          Js.Exn.message(e)->Option.getWithDefault("Failed to save and activate configuration!")
       }
     }
     <Button
