@@ -10,7 +10,6 @@ module SmartRetries = {
     ~moduleName: string,
   ) => {
     let {updateExistingKeys, filterValueJson} = React.useContext(FilterContext.filterContext)
-    let (_, setTotalVolume) = React.useState(_ => 0)
     let defaultFilters = [startTimeFilterKey, endTimeFilterKey]
 
     let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
@@ -51,7 +50,6 @@ module SmartRetries = {
           endTimeFilterKey
           filterKeys=[]
           moduleName
-          setTotalVolume
           showPercentage=false
           statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(Dict.make())}
         />
@@ -64,7 +62,7 @@ module SmartRetries = {
 let make = () => {
   open SmartRetriesAnalyticsEntity
 
-  let metrics = [[("name", "retries_count"->Js.Json.string)]->Dict.fromArray->Js.Json.object_]
+  let metrics = [[("name", "retries_count"->Js.Json.string)]->LogicUtils.getJsonFromArrayOfJson]
 
   <SmartRetries
     pageTitle="Smart Retries"

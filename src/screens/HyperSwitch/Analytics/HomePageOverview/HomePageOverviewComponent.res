@@ -93,8 +93,6 @@ module SystemMetricsInsights = {
   open AnalyticsTypes
   @react.component
   let make = () => {
-    let (_totalVolume, setTotalVolume) = React.useState(_ => 0)
-
     let getStatData = (
       singleStatData: systemMetricsObjectType,
       timeSeriesData: array<systemMetricsSingleStateSeries>,
@@ -190,7 +188,6 @@ module SystemMetricsInsights = {
       moduleName="SystemMetrics"
       defaultStartDate={dateDict.start_time}
       defaultEndDate={dateDict.end_time}
-      setTotalVolume
       showPercentage=false
       isHomePage=true
       wrapperClass="flex flex-wrap w-full h-full"

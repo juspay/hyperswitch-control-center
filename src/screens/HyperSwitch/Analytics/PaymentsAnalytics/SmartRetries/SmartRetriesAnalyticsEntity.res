@@ -55,11 +55,11 @@ let singleStateSeriesItemToObjMapper = json => {
 let timeSeriesObjMapper = json =>
   json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
 
-type colT =
+type metricsType =
   | RetriesCount
   | RetriesAmountProcessed
 
-let defaultColumns: array<DynamicSingleStat.columns<colT>> = [
+let defaultColumns: array<DynamicSingleStat.columns<metricsType>> = [
   {
     sectionName: "",
     columns: [RetriesCount, RetriesAmountProcessed],
