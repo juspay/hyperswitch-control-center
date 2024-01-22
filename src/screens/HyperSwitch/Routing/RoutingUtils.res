@@ -170,6 +170,70 @@ let constructNameDescription = routingType => {
 
 let currentTabNameRecoilAtom = Recoil.atom(. "currentTabName", "ActiveTab")
 
+module SaveAndActivateButton = {
+  @react.component
+  let make = (
+    ~onSubmit: (Js.Json.t, 'a) => promise<Js.Nullable.t<Js.Json.t>>,
+    ~handleActivateConfiguration,
+  ) => {
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+    )
+
+    let handleSaveAndActivate = async _ev => {
+      try {
+        let onSubmitResponse = await onSubmit(formState.values, false)
+        let currentActivatedFromJson =
+          onSubmitResponse->Js.Nullable.toOption->Belt.Option.getWithDefault(Js.Json.null)
+        let currentActivatedId =
+          currentActivatedFromJson->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
+        let _ = await handleActivateConfiguration(Some(currentActivatedId))
+      } catch {
+      | Js.Exn.Error(e) =>
+        let _err =
+          Js.Exn.message(e)->Belt.Option.getWithDefault(
+            "Failed to save and activate configuration!",
+          )
+      }
+    }
+    <Button
+      text={"Save and Activate Rule"}
+      buttonType={Primary}
+      buttonSize=Button.Small
+      onClick={_ => {
+        handleSaveAndActivate()->ignore
+      }}
+      customButtonStyle="w-1/5 rounded-sm"
+    />
+  }
+}
+module ConfigureRuleButton = {
+  @react.component
+  let make = (~setShowModal) => {
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+    )
+
+    <Button
+      text={"Configure Rule"}
+      buttonType=Primary
+      buttonState={!formState.hasValidationErrors ? Normal : Disabled}
+      onClick={_ => {
+        setShowModal(_ => true)
+      }}
+      customButtonStyle="w-1/5"
+    />
+  }
+}
+
+let validateNameAndDescription = (~dict, ~errors) => {
+  ["name", "description"]->Array.forEach(field => {
+    if dict->LogicUtils.getString(field, "")->String.trim === "" {
+      errors->Dict.set(field, `Please provide ${field} field`->Js.Json.string)
+    }
+  })
+}
+
 let checkIfValuePresent = dict => {
   let valueFromObject = dict->getDictfromDict("value")
 
