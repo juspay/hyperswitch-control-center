@@ -1,4 +1,4 @@
-type logType = SDK | PAYMENTS | WEBHOOKS
+type logType = SDK | PAYMENTS | WEBHOOKS | CONNECTOR
 
 type logDetails = {
   response: string,
@@ -6,6 +6,6 @@ type logDetails = {
 }
 
 type selectedObj = {
-  value: string,
+  value: int,
   optionType: logType,
 }

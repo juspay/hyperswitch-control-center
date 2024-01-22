@@ -2,7 +2,9 @@
 
 open PaymentLogsTypes
 let getLogType = dict => {
-  if dict->Dict.get("request_id")->Option.isSome {
+  if dict->Dict.get("connector_name")->Option.isSome {
+    CONNECTOR
+  } else if dict->Dict.get("request_id")->Option.isSome {
     PAYMENTS
   } else if dict->Dict.get("component")->Option.isSome {
     SDK
@@ -96,27 +98,22 @@ module ApiDetailsComponent = {
     ~paymentDetailsValue,
     ~setLogDetails,
     ~setSelectedOption,
-    ~currentSelected,
+    ~currentSelected: int,
     ~paymentId,
     ~index,
     ~logsDataLength,
   ) => {
-    let headerStyle = "text-sm font-medium text-grey-700 break-all"
+    let headerStyle = "text-sm font-medium text-gray-700 break-all"
     let logType = paymentDetailsValue->getLogType
     let apiName = switch logType {
     | PAYMENTS => paymentDetailsValue->getString("api_flow", "default value")->camelCaseToTitle
     | SDK => paymentDetailsValue->getString("event_name", "default value")
+    | CONNECTOR => paymentDetailsValue->getString("flow", "default value")->camelCaseToTitle
     | WEBHOOKS => paymentDetailsValue->getString("outgoing_webhook_event_type", "default value")
     }->nameToURLMapper(~payment_id=paymentId, ())
     let createdTime = paymentDetailsValue->getString("created_at", "00000")
-    let requestId = switch logType {
-    | PAYMENTS => paymentDetailsValue->getString("request_id", "")
-    | SDK => paymentDetailsValue->getString("event_id", "")
-    | WEBHOOKS => paymentDetailsValue->getString("event_id", "")
-    }
-
     let requestObject = switch logType {
-    | PAYMENTS => paymentDetailsValue->getString("request", "")
+    | PAYMENTS | CONNECTOR => paymentDetailsValue->getString("request", "")
     | SDK =>
       paymentDetailsValue
       ->Dict.toArray
@@ -130,7 +127,7 @@ module ApiDetailsComponent = {
     }
 
     let responseObject = switch logType {
-    | PAYMENTS => paymentDetailsValue->getString("response", "")
+    | PAYMENTS | CONNECTOR => paymentDetailsValue->getString("response", "")
     | SDK => {
         let isErrorLog = paymentDetailsValue->getString("log_type", "") === "ERROR"
         isErrorLog ? paymentDetailsValue->getString("value", "") : ""
@@ -139,19 +136,21 @@ module ApiDetailsComponent = {
     }
 
     let statusCode = switch logType {
-    | PAYMENTS => paymentDetailsValue->getInt("status_code", 200)->Belt.Int.toString
+    | PAYMENTS | CONNECTOR => paymentDetailsValue->getInt("status_code", 200)->Belt.Int.toString
     | SDK => paymentDetailsValue->getString("log_type", "INFO")
     | WEBHOOKS => paymentDetailsValue->getBool("is_error", false) ? "200" : "500"
     }
 
     let method = switch logType {
     | PAYMENTS => paymentDetailsValue->getString("http_method", "")
+    | CONNECTOR => paymentDetailsValue->getString("method", "")
     | SDK => ""
     | WEBHOOKS => "POST"
     }
 
     let apiPath = switch logType {
     | PAYMENTS => paymentDetailsValue->getString("url_path", "")
+    | CONNECTOR => paymentDetailsValue->getString("flow", "")
     | WEBHOOKS =>
       paymentDetailsValue->getString("outgoing_webhook_event_type", "")->String.toLocaleUpperCase
     | SDK => ""
@@ -163,23 +162,23 @@ module ApiDetailsComponent = {
       | "INFO" => "blue-700"
       | "ERROR" => "red-600"
       | "WARNING" => "yellow-800"
-      | _ => "grey-700 opacity-50"
+      | _ => "gray-700 opacity-50"
       }
     | WEBHOOKS =>
       switch statusCode {
       | "200" => "green-700"
-      | "500" | _ => "grey-700 opacity-50"
+      | "500" | _ => "gray-700 opacity-50"
       }
-    | PAYMENTS =>
+    | PAYMENTS | CONNECTOR =>
       switch statusCode {
       | "200" => "green-700"
-      | "500" => "grey-700 opacity-50"
+      | "500" => "gray-700 opacity-50"
       | "400" => "yellow-800"
-      | _ => "grey-700 opacity-50"
+      | _ => "gray-700 opacity-50"
       }
     }
 
-    let isSelected = currentSelected->isNonEmptyString && currentSelected === requestId
+    let isSelected = currentSelected === index
     let stepColor = isSelected ? background_color : "gray-300"
 
     let boxShadowOnSelection = isSelected
@@ -192,19 +191,19 @@ module ApiDetailsComponent = {
       | "INFO" => "blue-100"
       | "ERROR" => "red-200"
       | "WARNING" => "yellow-100"
-      | _ => "grey-100 opacity-50"
+      | _ => "gray-100"
       }
     | WEBHOOKS =>
       switch statusCode {
       | "200" => "green-200"
-      | "500" | _ => "grey-100 opacity-50"
+      | "500" | _ => "gray-100"
       }
-    | PAYMENTS =>
+    | PAYMENTS | CONNECTOR =>
       switch statusCode {
       | "200" => "green-200"
-      | "500" => "grey-100 opacity-50"
+      | "500" => "gray-100"
       | "400" => "yellow-100"
-      | _ => "grey-100 opacity-50"
+      | _ => "gray-100"
       }
     }
 
@@ -217,14 +216,14 @@ module ApiDetailsComponent = {
       </div>
       <div
         className={`flex gap-6 items-start w-full py-3 px-3 cursor-pointer ${boxShadowOnSelection} -mt-5 mb-8`}
-        key={currentSelected}
+        key={currentSelected->string_of_int}
         onClick={_ => {
           setLogDetails(_ => {
             response: responseObject,
             request: requestObject,
           })
           setSelectedOption(_ => {
-            value: requestId,
+            value: index,
             optionType: logType,
           })
         }}>
@@ -240,7 +239,7 @@ module ApiDetailsComponent = {
               <p className={`${headerStyle} mt-1 ${isSelected ? "" : "opacity-80"}`}>
                 {apiName->LogicUtils.camelCaseToTitle->React.string}
               </p>
-            | PAYMENTS | WEBHOOKS =>
+            | PAYMENTS | WEBHOOKS | CONNECTOR =>
               <p className={`${headerStyle} mt-1 ${isSelected ? "" : "opacity-80"}`}>
                 <span className="mr-3"> {method->String.toUpperCase->React.string} </span>
                 <span> {apiPath->React.string} </span>
@@ -261,7 +260,6 @@ let make = (~paymentId, ~createdAt) => {
   open APIUtils
   open LogicUtils
   open PaymentLogsUtils
-
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let fetchPostDetils = useUpdateMethod()
   let logs = React.useMemo0(() => {ref([])})
@@ -270,7 +268,7 @@ let make = (~paymentId, ~createdAt) => {
     request: "",
   })
   let (selectedOption, setSelectedOption) = React.useState(_ => {
-    value: "",
+    value: 0,
     optionType: PAYMENTS,
   })
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -297,7 +295,7 @@ let make = (~paymentId, ~createdAt) => {
   let fetchWebhooksLogsData = async _ => {
     try {
       let webhooksLogsUrl = getURL(
-        ~entityName=CONNECTOR_EVENT_LOGS,
+        ~entityName=WEBHOOKS_EVENT_LOGS,
         ~methodType=Get,
         ~id=Some(paymentId),
         (),
@@ -307,6 +305,25 @@ let make = (~paymentId, ~createdAt) => {
       | Some(val) => logs.contents = logs.contents->Array.concat([val])
       | _ => ()
       }
+
+      PageLoaderWrapper.Success
+    } catch {
+    | Js.Exn.Error(e) =>
+      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      PageLoaderWrapper.Error(err)
+    }
+  }
+
+  let fetchConnectorLogsData = async _ => {
+    try {
+      let connectorLogsUrl = getURL(
+        ~entityName=CONNECTOR_EVENT_LOGS,
+        ~methodType=Get,
+        ~id=Some(paymentId),
+        (),
+      )
+      let connectorLogsArray = (await fetchDetails(connectorLogsUrl))->getArrayFromJson([])
+      logs.contents = logs.contents->Array.concat(connectorLogsArray)
 
       PageLoaderWrapper.Success
     } catch {
@@ -403,9 +420,15 @@ let make = (~paymentId, ~createdAt) => {
       let apiLogsStatus = await fetchPaymentLogsData()
       let sdkLogsStatus = await fetchSdkLogsData()
       let webhooksStatus = await fetchWebhooksLogsData()
+      let connectorStatus = await fetchConnectorLogsData()
 
-      let screenState = switch (apiLogsStatus, sdkLogsStatus, webhooksStatus) {
-      | (PageLoaderWrapper.Error(_), PageLoaderWrapper.Error(_), PageLoaderWrapper.Error(_)) =>
+      let screenState = switch (apiLogsStatus, sdkLogsStatus, webhooksStatus, connectorStatus) {
+      | (
+          PageLoaderWrapper.Error(_),
+          PageLoaderWrapper.Error(_),
+          PageLoaderWrapper.Error(_),
+          PageLoaderWrapper.Error(_),
+        ) =>
         PageLoaderWrapper.Error("Failed to Fetch!")
       | _ => PageLoaderWrapper.Success
       }
@@ -430,7 +453,7 @@ let make = (~paymentId, ~createdAt) => {
               request,
             })
             setSelectedOption(_ => {
-              value: initialData->getString("request_id", ""),
+              value: 0,
               optionType: PAYMENTS,
             })
           }
@@ -453,8 +476,20 @@ let make = (~paymentId, ~createdAt) => {
               request,
             })
             setSelectedOption(_ => {
-              value: initialData->getString("event_id", ""),
+              value: 0,
               optionType: SDK,
+            })
+          }
+        | CONNECTOR => {
+            let request = initialData->getString("request", "")
+            let response = initialData->getString("response", "")
+            setLogDetails(_ => {
+              response,
+              request,
+            })
+            setSelectedOption(_ => {
+              value: 0,
+              optionType: CONNECTOR,
             })
           }
         | WEBHOOKS => {
@@ -465,7 +500,7 @@ let make = (~paymentId, ~createdAt) => {
               request,
             })
             setSelectedOption(_ => {
-              value: initialData->getString("event_id", ""),
+              value: 0,
               optionType: WEBHOOKS,
             })
           }
@@ -483,10 +518,50 @@ let make = (~paymentId, ~createdAt) => {
   })
 
   let headerText = switch selectedOption.optionType {
-  | PAYMENTS => "Response body"
+  | PAYMENTS | CONNECTOR => "Response body"
   | WEBHOOKS => "Request body"
   | SDK => "Metadata"
   }->Some
+
+  let timeLine =
+    <div className="flex flex-col w-1/2 overflow-y-scroll pt-7 pl-5">
+      <div className="flex flex-col">
+        {logs.contents
+        ->Array.mapWithIndex((paymentDetailsValue, index) => {
+          <ApiDetailsComponent
+            key={index->string_of_int}
+            paymentDetailsValue={paymentDetailsValue->getDictFromJsonObject}
+            setLogDetails
+            setSelectedOption
+            currentSelected=selectedOption.value
+            paymentId
+            index
+            logsDataLength={logs.contents->Array.length - 1}
+          />
+        })
+        ->React.array}
+      </div>
+    </div>
+
+  let codeBlock =
+    <UIUtils.RenderIf
+      condition={logDetails.response->isNonEmptyString || logDetails.request->isNonEmptyString}>
+      <div
+        className="flex flex-col gap-4 bg-hyperswitch_background rounded show-scrollbar scroll-smooth overflow-scroll p-5 w-1/2">
+        <UIUtils.RenderIf
+          condition={logDetails.request->isNonEmptyString &&
+            selectedOption.optionType !== WEBHOOKS}>
+          <PrettyPrintJson
+            jsonToDisplay=logDetails.request
+            headerText={Some(selectedOption.optionType === PAYMENTS ? "Request body" : "Event")}
+            maxHeightClass={logDetails.response->String.length > 0 ? "max-h-25-rem" : ""}
+          />
+        </UIUtils.RenderIf>
+        <UIUtils.RenderIf condition={logDetails.response->isNonEmptyString}>
+          <PrettyPrintJson jsonToDisplay={logDetails.response} headerText />
+        </UIUtils.RenderIf>
+      </div>
+    </UIUtils.RenderIf>
 
   open OrderUtils
   <PageLoaderWrapper
@@ -501,46 +576,9 @@ let make = (~paymentId, ~createdAt) => {
       </div>
     } else {
       <Section
-        customCssClass={`bg-white dark:bg-jp-gray-lightgray_background rounded-md pt-2 pb-4 px-10 flex gap-16 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] max-w-[72rem] overflow-scroll`}>
-        <div className="flex flex-col w-1/2 gap-12 overflow-y-scroll">
-          <p className="text-lightgray_background font-semibold text-fs-16">
-            {"Audit Trail"->React.string}
-          </p>
-          <div className="flex flex-col">
-            {logs.contents
-            ->Array.mapWithIndex((paymentDetailsValue, index) => {
-              <ApiDetailsComponent
-                key={index->string_of_int}
-                paymentDetailsValue={paymentDetailsValue->getDictFromJsonObject}
-                setLogDetails
-                setSelectedOption
-                currentSelected=selectedOption.value
-                paymentId
-                index
-                logsDataLength={logs.contents->Array.length - 1}
-              />
-            })
-            ->React.array}
-          </div>
-        </div>
-        <UIUtils.RenderIf
-          condition={logDetails.response->isNonEmptyString || logDetails.request->isNonEmptyString}>
-          <div
-            className="flex flex-col gap-4 bg-hyperswitch_background rounded show-scrollbar scroll-smooth overflow-scroll px-8 py-4 w-1/2">
-            <UIUtils.RenderIf
-              condition={logDetails.request->isNonEmptyString &&
-                selectedOption.optionType !== WEBHOOKS}>
-              <PrettyPrintJson
-                jsonToDisplay=logDetails.request
-                headerText={Some(selectedOption.optionType === PAYMENTS ? "Request body" : "Event")}
-                maxHeightClass={logDetails.response->String.length > 0 ? "max-h-25-rem" : ""}
-              />
-            </UIUtils.RenderIf>
-            <UIUtils.RenderIf condition={logDetails.response->isNonEmptyString}>
-              <PrettyPrintJson jsonToDisplay=logDetails.response headerText />
-            </UIUtils.RenderIf>
-          </div>
-        </UIUtils.RenderIf>
+        customCssClass={`bg-white dark:bg-jp-gray-lightgray_background rounded-md pt-2 pb-4 flex gap-5 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] max-w-[72rem] overflow-scroll`}>
+        {timeLine}
+        {codeBlock}
       </Section>
     }}
   </PageLoaderWrapper>
