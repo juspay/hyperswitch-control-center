@@ -115,5 +115,4 @@ let make: (
   ~customBackColor: string=?,
   ~isPhoneDropdown: bool=?,
   ~showBtnTextToolTip: bool=?,
-  ~access: AuthTypes.authorization=?,
 ) => React.element
