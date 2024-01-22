@@ -29,35 +29,44 @@ let make = (
   ~customBackColor=?,
   ~showBtnTextToolTip=false,
   ~access=AuthTypes.Access,
+  ~tooltipText="You do not have the required permissions to access this module. Please contact your administrator for necessary permissions.",
+  ~toolTipPosition=?,
 ) => {
-  <UIUtils.RenderIf condition={access === Access}>
-    <Button
-      buttonState
-      ?text
-      buttonType
-      buttonVariant
-      ?buttonSize
-      leftIcon
-      rightIcon
-      showBorder
-      type_
-      ?onClick
-      textStyle
-      ?customIconMargin
-      ?customTextSize
-      ?customIconSize
-      ?textWeight
-      fullLength
-      disableRipple
-      customButtonStyle
-      ?textStyleClass
-      ?customTextPaddingClass
-      allowButtonTextMinWidth
-      ?customPaddingClass
-      ?customRoundedClass
-      ?customHeightClass
-      ?customBackColor
-      showBtnTextToolTip
-    />
-  </UIUtils.RenderIf>
+  let buttonState = switch access {
+  | Access => buttonState
+  | NoAccess => Button.Disabled
+  }
+
+  let showBtnTextToolTip = access === NoAccess
+
+  <Button
+    buttonState
+    ?text
+    buttonType
+    buttonVariant
+    ?buttonSize
+    leftIcon
+    rightIcon
+    showBorder
+    type_
+    ?onClick
+    textStyle
+    ?customIconMargin
+    ?customTextSize
+    ?customIconSize
+    ?textWeight
+    fullLength
+    disableRipple
+    customButtonStyle
+    ?textStyleClass
+    ?customTextPaddingClass
+    allowButtonTextMinWidth
+    ?customPaddingClass
+    ?customRoundedClass
+    ?customHeightClass
+    ?customBackColor
+    showBtnTextToolTip
+    tooltipText
+    ?toolTipPosition
+  />
 }

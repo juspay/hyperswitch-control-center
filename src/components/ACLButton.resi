@@ -1,6 +1,6 @@
 @react.component
 let make: (
-  ~text: Js.String2.t=?,
+  ~text: string=?,
   ~buttonState: Button.buttonState=?,
   ~buttonType: Button.buttonType=?,
   ~buttonVariant: Button.buttonVariant=?,
@@ -27,4 +27,6 @@ let make: (
   ~customBackColor: string=?,
   ~showBtnTextToolTip: bool=?,
   ~access: AuthTypes.authorization=?,
+  ~tooltipText: Js.String2.t=?,
+  ~toolTipPosition: ToolTip.toolTipPosition=?,
 ) => React.element

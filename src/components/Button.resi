@@ -78,7 +78,7 @@ let make: (
   ~buttonFor: string=?,
   ~loadingText: string=?,
   ~buttonState: buttonState=?,
-  ~text: Js.String2.t=?,
+  ~text: string=?,
   ~isSelectBoxButton: bool=?,
   ~buttonType: buttonType=?,
   ~isDropdownOpen: bool=?,
@@ -115,4 +115,7 @@ let make: (
   ~customBackColor: string=?,
   ~isPhoneDropdown: bool=?,
   ~showBtnTextToolTip: bool=?,
+  ~showTooltip: bool=?,
+  ~tooltipText: Js.String2.t=?,
+  ~toolTipPosition: ToolTip.toolTipPosition=?,
 ) => React.element

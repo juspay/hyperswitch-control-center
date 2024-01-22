@@ -360,6 +360,9 @@ let make = (
   ~customBackColor=?,
   ~isPhoneDropdown=false,
   ~showBtnTextToolTip=false,
+  ~showTooltip=false,
+  ~tooltipText=?,
+  ~toolTipPosition=ToolTip.Top,
 ) => {
   let parentRef = React.useRef(Js.Nullable.null)
   let dummyRef = React.useRef(Js.Nullable.null)
@@ -749,10 +752,11 @@ let make = (
           if showBtnTextToolTip {
             <div className=ellipsisParentClass>
               <ToolTip
-                description=textStr
+                description={tooltipText->Option.getWithDefault("")}
                 toolTipFor=btnContent
                 contentAlign=Default
                 justifyClass="justify-start"
+                toolTipPosition
               />
             </div>
           } else {
