@@ -15,9 +15,9 @@ let make = () => {
     dashboardPageState,
     setDashboardPageState,
     setQuickStartPageState,
+    isProdIntentCompleted,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
   let fetchBusinessProfiles = MerchantAccountUtils.useFetchBusinessProfiles()
   let fetchMerchantAccountDetails = MerchantAccountUtils.useFetchMerchantDetails()
   let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
@@ -87,22 +87,13 @@ let make = () => {
     }
   }
 
-  let fetchPermissionsForARole = async () => {
+  let fetchPermissions = async () => {
     try {
-      let url = getURL(
-        ~entityName=USER_MANAGEMENT,
-        ~userRoleTypes=ROLE_ID,
-        ~id={
-          Some(userRole === "org_admin" ? "merchant_admin" : userRole)
-        },
-        ~methodType=Get,
-        (),
-      )
+      let url = getURL(~entityName=USERS, ~userType=#GET_PERMISSIONS, ~methodType=Get, ())
       let response = await fetchDetails(url)
       let permissionsValue =
         response
-        ->getDictFromJsonObject
-        ->getArrayFromDict("permissions", [])
+        ->getArrayFromJson([])
         ->Array.map(ele => ele->Js.Json.decodeString->Option.getWithDefault(""))
       let permissionJson =
         permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
@@ -118,7 +109,7 @@ let make = () => {
   let setUpDashboard = async () => {
     try {
       if featureFlagDetails.permissionBasedModule {
-        let _ = await fetchPermissionsForARole()
+        let _ = await fetchPermissions()
       }
       let _ = await Window.connectorWasmInit()
       let _ = await fetchBusinessProfiles()
