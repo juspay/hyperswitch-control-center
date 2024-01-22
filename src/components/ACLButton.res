@@ -30,7 +30,7 @@ let make = (
   ~showBtnTextToolTip=false,
   ~access=AuthTypes.Access,
 ) => {
-  <UIUtils.RenderIf condition={access === NoAccess}>
+  <UIUtils.RenderIf condition={access === Access}>
     <Button
       buttonState
       ?text
