@@ -111,10 +111,16 @@ let make = () => {
       if featureFlagDetails.permissionBasedModule {
         let _ = await fetchPermissions()
       }
-      let _ = await Window.connectorWasmInit()
-      let _ = await fetchBusinessProfiles()
-      let _ = await fetchConnectorListResponse()
-      let _ = await fetchMerchantAccountDetails()
+
+      if userPermissionJson.merchantConnectorAccountRead === Access {
+        let _ = await Window.connectorWasmInit()
+        let _ = await fetchConnectorListResponse()
+      }
+
+      if userPermissionJson.merchantAccountRead === Access {
+        let _ = await fetchBusinessProfiles()
+        let _ = await fetchMerchantAccountDetails()
+      }
 
       if featureFlagDetails.quickStart {
         let _ = await fetchInitialEnums()
@@ -139,40 +145,30 @@ let make = () => {
     None
   })
 
-  let setPageState = (pageState: ProviderTypes.dashboardPageStateTypes) => {
-    setDashboardPageState(_ => pageState)
+  let determineStripePlusPayPal = () => {
+    enumDetails->checkStripePlusPayPal
+      ? RescriptReactRouter.replace("/home")
+      : setDashboardPageState(_ => #STRIPE_PLUS_PAYPAL)
+
     React.null
   }
 
-  let determineStripePlusPayPal = () => {
-    if enumDetails->checkStripePlusPayPal {
-      RescriptReactRouter.replace("/home")
-      React.null
-    } else {
-      setPageState(#STRIPE_PLUS_PAYPAL)
-    }
-  }
-
   let determineWooCommerce = () => {
-    if enumDetails->checkWooCommerce {
-      RescriptReactRouter.replace("/home")
-      React.null
-    } else {
-      setPageState(#WOOCOMMERCE_FLOW)
-    }
+    enumDetails->checkWooCommerce
+      ? RescriptReactRouter.replace("/home")
+      : setDashboardPageState(_ => #WOOCOMMERCE_FLOW)
+
+    React.null
   }
 
   let determineQuickStartPageState = () => {
-    if (
-      isProdIntentCompleted &&
-      enumDetails.integrationCompleted &&
-      enumDetails.testPayment.payment_id->String.length > 0
-    ) {
-      RescriptReactRouter.replace("/home")
-      React.null
-    } else {
-      setPageState(#QUICK_START)
-    }
+    isProdIntentCompleted &&
+    enumDetails.integrationCompleted &&
+    !(enumDetails.testPayment.payment_id->isEmptyString)
+      ? RescriptReactRouter.replace("/home")
+      : setDashboardPageState(_ => #QUICK_START)
+
+    React.null
   }
 
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen">
