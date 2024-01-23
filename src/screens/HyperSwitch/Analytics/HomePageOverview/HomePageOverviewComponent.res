@@ -6,6 +6,7 @@ module ConnectorOverview = {
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
     let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
     let getConnectorList = async () => {
       open LogicUtils
@@ -71,8 +72,9 @@ module ConnectorOverview = {
                 ->Js.Int.toString} Active Processors`->React.string}
             </p>
           </div>
-          <Button
+          <ACLButton
             text="+ Add More"
+            access={userPermissionJson.merchantConnectorAccountRead}
             buttonType={PrimaryOutline}
             customButtonStyle="w-10 !px-3"
             buttonSize={Small}
@@ -242,12 +244,15 @@ module OverviewInfo = {
 @react.component
 let make = () => {
   let {systemMetrics} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
   <div className="flex flex-col gap-4">
     <p className=headingStyle> {"Overview"->React.string} </p>
     <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-4">
       <ConnectorOverview />
-      <PaymentOverview />
+      <UIUtils.RenderIf condition={userPermissionJson.analytics === Access}>
+        <PaymentOverview />
+      </UIUtils.RenderIf>
       <UIUtils.RenderIf condition={systemMetrics}>
         <SystemMetricsInsights />
       </UIUtils.RenderIf>
