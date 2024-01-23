@@ -105,9 +105,13 @@ module Details = {
     ~children=?,
     ~setDisputeData,
   ) => {
+    open DisputeTypes
+    open DisputesUtils
     open APIUtils
     let updateDetails = useUpdateMethod()
-    let (disputeStatus, setDisputeStatus) = React.useState(_ => DisputeTypes.Initiated)
+    let (disputeStatus, setDisputeStatus) = React.useState(_ =>
+      data.dispute_status->disputeStatusVariantMapper->disputeValueBasedOnStatus
+    )
     let showPopUp = PopUpState.useShowPopUp()
     let {disputeEvidenceUpload} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -151,7 +155,9 @@ module Details = {
         </div>
         <UIUtils.RenderIf
           condition={disputeEvidenceUpload &&
-          data.dispute_status->DisputesUtils.disputeStatusVariantMapper === DisputeOpened}>
+          showDisputeInfoStatus->Js.Array2.includes(
+            data.dispute_status->DisputesUtils.disputeStatusVariantMapper,
+          )}>
           <div className="flex gap-4">
             <Button
               buttonType={Secondary}
@@ -173,7 +179,9 @@ module Details = {
       <div className="h-px w-full bg-grey-200 opacity-30" />
       <UIUtils.RenderIf
         condition={disputeEvidenceUpload &&
-        data.dispute_status->DisputesUtils.disputeStatusVariantMapper === DisputeOpened}>
+        showDisputeInfoStatus->Js.Array2.includes(
+          data.dispute_status->DisputesUtils.disputeStatusVariantMapper,
+        )}>
         <DisputesInfoBarComponent disputeStatus />
       </UIUtils.RenderIf>
       <FormRenderer.DesktopRow>

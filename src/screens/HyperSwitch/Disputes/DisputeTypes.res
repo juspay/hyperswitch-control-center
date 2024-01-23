@@ -36,3 +36,15 @@ type disputesColsType =
   | CreatedAt
 
 type disputeStatusType = Initiated | Accepted | Countered
+
+type disputeStatus =
+  | DisputeOpened
+  | DisputeExpired
+  | DisputeAccepted
+  | DisputeCancelled
+  | DisputeChallenged
+  | DisputeWon
+  | DisputeLost
+  | NotFound(string)
+
+type disputeStage = PreDispute | Dispute | PreArbitration | NotFound
