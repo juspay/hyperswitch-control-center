@@ -1,6 +1,13 @@
 let getRefundsList = async (
   filterValueJson,
-  ~updateDetails: (string, Js.Json.t, Fetch.requestMethod, unit) => promise<Js.Json.t>,
+  ~updateDetails: (
+    string,
+    Js.Json.t,
+    Fetch.requestMethod,
+    ~bodyFormData: Fetch.formData=?,
+    ~headers: Js.Dict.t<'a>=?,
+    unit,
+  ) => promise<Js.Json.t>,
   ~setRefundsData,
   ~setScreenState,
   ~offset,
