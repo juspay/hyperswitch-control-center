@@ -911,7 +911,7 @@ let make = (
       </UIUtils.RenderIf>
     </>
   let fieldWrapperClass = None
-  <div className="rounded-lg">
+  <>
     <Form onSubmit initialValues=initialValueJson>
       <AutoSubmitter showModal autoApply submit=onSubmit defaultFilterKeys />
       {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
@@ -1127,5 +1127,5 @@ let make = (
         </Form>
       </TableFilterSectionContext>
     </LabelVisibilityContext>
-  </div>
+  </>
 }
