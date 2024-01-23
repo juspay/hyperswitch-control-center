@@ -50,7 +50,7 @@ module ActionButtons = {
           (),
         )
         let body = [("Feedback", requestedBody)]->LogicUtils.getJsonFromArrayOfJson
-        let _ = await updateDetails(feedbackUrl, body, Post)
+        let _ = await updateDetails(feedbackUrl, body, Post, ())
         showToast(
           ~toastType=ToastSuccess,
           ~message="Request submitted successfully!",

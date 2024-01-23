@@ -210,7 +210,7 @@ module SelectPaymentMethods = {
         let body = constructConnectorRequestBody(obj, initialValues)
         let connectorUrl = APIUtils.getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
 
-        let response = await updateAPIHook(connectorUrl, body, Post)
+        let response = await updateAPIHook(connectorUrl, body, Post, ())
 
         setInitialValues(_ => response)
         connectorArray->Array.push(connectorName)
