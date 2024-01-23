@@ -139,7 +139,7 @@ let make = (
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ())
-      let response = await updateDetails(url, body, Post)
+      let response = await updateDetails(url, body, Post, ())
       setUpdatedProfileId(_ =>
         response->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
       )

@@ -16,7 +16,7 @@ module UserHeading = {
       try {
         let url = getURL(~entityName=USERS, ~userType=#RESEND_INVITE, ~methodType=Post, ())
         let body = [("user_id", userId->Js.Json.string)]->Dict.fromArray->Js.Json.object_
-        let _ = await updateDetails(url, body, Post)
+        let _ = await updateDetails(url, body, Post, ())
         showToast(~message=`Invite resend. Please check your email.`, ~toastType=ToastSuccess, ())
       } catch {
       | _ => ()

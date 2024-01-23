@@ -392,7 +392,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
       },
     })
 
-  async (url, body, method) => {
+  async (url, body, method, ()) => {
     try {
       let res = await fetchApi(url, ~method_=method, ~bodyStr=body->Js.Json.stringify, ())
       await responseHandler(
