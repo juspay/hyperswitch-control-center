@@ -90,7 +90,7 @@ let make = () => {
 
   let inviteUserReq = body => {
     let url = getURL(~entityName=USERS, ~userType=#INVITE, ~methodType=Post, ())
-    let response = updateDetails(url, body, Post)
+    let response = updateDetails(url, body, Post, ())
     response
   }
 

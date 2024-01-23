@@ -168,7 +168,12 @@ let make = () => {
     try {
       let surchargePayload = values->buildSurchargePayloadBody
       let getActivateUrl = getURL(~entityName=SURCHARGE, ~methodType=Put, ())
-      let _ = await updateDetails(getActivateUrl, surchargePayload->Identity.genericTypeToJson, Put)
+      let _ = await updateDetails(
+        getActivateUrl,
+        surchargePayload->Identity.genericTypeToJson,
+        Put,
+        (),
+      )
       fetchDetails()->ignore
       setShowWarning(_ => true)
       RescriptReactRouter.replace(`/surcharge`)

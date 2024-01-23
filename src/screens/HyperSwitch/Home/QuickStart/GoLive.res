@@ -70,7 +70,7 @@ let make = (~goLive) => {
       let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
       let bodyValues = values->getBody->Js.Json.object_
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
 
       getProdVerifyDetails()->ignore
     } catch {
