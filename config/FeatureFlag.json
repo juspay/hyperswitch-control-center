@@ -1,7 +1,7 @@
 {
   "test_live_toggle": false,
   "is_live_mode": false,
-  "magic_link": true,
+  "magic_link": false,
   "production_access": false,
   "quick_start": true,
   "switch_merchant": true,
