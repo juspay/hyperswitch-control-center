@@ -218,6 +218,7 @@ let getOrdersList = async (
     Js.Json.t,
     Fetch.requestMethod,
     ~bodyFormData: Fetch.formData=?,
+    ~headers: Js.Dict.t<'a>=?,
     unit,
   ) => promise<Js.Json.t>,
   ~setOrdersData,

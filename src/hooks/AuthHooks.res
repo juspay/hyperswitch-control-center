@@ -10,56 +10,27 @@ type sessionStorage = {
 external dictToObj: Js.Dict.t<'a> => {..} = "%identity"
 @val external atob: string => string = "atob"
 
-let getHeaders = (~uri, ~headers, ~isFromFormData, ()) => {
+let getHeaders = (~uri, ~headers, ()) => {
   let hyperSwitchToken = LocalStorage.getItem("login")->Js.Nullable.toOption
   let isMixpanel = uri->String.includes("mixpanel")
 
-  if isMixpanel {
-    let headerObj = {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "accept": "application/json",
-    }
-    Fetch.HeadersInit.make(headerObj)
-  } else if isFromFormData {
-    let headerObj = {
-      "Authorization": `Bearer ${hyperSwitchToken->Belt.Option.getWithDefault("")}`,
-    }
-    Fetch.HeadersInit.make(headerObj)
+  let headerObj = if isMixpanel {
+    [
+      ("Content-Type", "application/x-www-form-urlencoded"),
+      ("accept", "application/json"),
+    ]->Dict.fromArray
   } else {
-    let headerObj = headers->Dict.get("api-key")->Option.getWithDefault("")->String.length > 0
-
-    if headerObj {
-      let headerObj = {
-        "Content-Type": "application/json",
-        "api-key": headers->Dict.get("api-key")->Option.getWithDefault(""),
+    let res = switch hyperSwitchToken {
+    | Some(token) => {
+        headers->Dict.set("authorization", `Bearer ${token}`)
+        headers
       }
-      Fetch.HeadersInit.make(headerObj)
-    } else {
-      switch hyperSwitchToken {
-      | Some(token) =>
-        if token !== "" {
-          let headerObj = {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${hyperSwitchToken->Option.getWithDefault("")}`,
-            "api-key": "hyperswitch",
-          }
 
-          Fetch.HeadersInit.make(headerObj)
-        } else {
-          let headerObj = {
-            "Content-Type": "application/json",
-          }
-          Fetch.HeadersInit.make(headerObj)
-        }
-
-      | None =>
-        let headerObj = {
-          "Content-Type": "application/json",
-        }
-        Fetch.HeadersInit.make(headerObj)
-      }
+    | None => headers
     }
+    res
   }
+  Fetch.HeadersInit.make(headerObj->dictToObj)
 }
 
 @val @scope(("window", "location"))
@@ -119,7 +90,7 @@ let useApiFetcher = () => {
             ~method_,
             ~body?,
             ~credentials=SameOrigin,
-            ~headers=getHeaders(~headers, ~uri, ~isFromFormData=bodyFormData->Option.isSome, ()),
+            ~headers=getHeaders(~headers, ~uri, ()),
             (),
           ),
         )

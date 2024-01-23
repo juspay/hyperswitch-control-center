@@ -388,13 +388,14 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
       },
     })
 
-  async (url, body, method, ~bodyFormData=?, ()) => {
+  async (url, body, method, ~bodyFormData=?, ~headers=Dict.make(), ()) => {
     try {
       let res = await fetchApi(
         url,
         ~method_=method,
         ~bodyStr=body->Js.Json.stringify,
         ~bodyFormData,
+        ~headers,
         (),
       )
       await responseHandler(
