@@ -161,6 +161,7 @@ let getURL = (
       | _ => `${userUrl}/${(userType :> string)->String.toLowerCase}`
       }
     | #CREATE_MERCHANT => `${userUrl}/create_merchant`
+    | #GET_PERMISSIONS => `${userUrl}/role`
     | #SIGNIN
     | #SIGNUP
     | #VERIFY_EMAIL
