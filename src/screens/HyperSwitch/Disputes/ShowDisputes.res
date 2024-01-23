@@ -164,6 +164,7 @@ module DisputesInfo = {
                 text="Counter Dispute"
                 buttonSize={Small}
                 customButtonStyle="!py-3 !px-2.5"
+                buttonState={Disabled}
               />
             </div>
           </UIUtils.RenderIf>
