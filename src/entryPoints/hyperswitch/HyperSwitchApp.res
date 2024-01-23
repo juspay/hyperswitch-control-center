@@ -89,12 +89,41 @@ let make = () => {
 
   let fetchPermissions = async () => {
     try {
-      let url = getURL(~entityName=USERS, ~userType=#GET_PERMISSIONS, ~methodType=Get, ())
-      let response = await fetchDetails(url)
-      let permissionsValue =
-        response
-        ->getArrayFromJson([])
-        ->Array.map(ele => ele->Js.Json.decodeString->Option.getWithDefault(""))
+      // let url = getURL(~entityName=USERS, ~userType=#GET_PERMISSIONS, ~methodType=Get, ())
+      // let response = await fetchDetails(url)
+      let permissionsValue = [
+        "PaymentRead",
+        "PaymentWrite",
+        "RefundRead",
+        "RefundWrite",
+        "ApiKeyRead",
+        "ApiKeyWrite",
+        "MerchantAccountRead",
+        "MerchantAccountWrite",
+        "MerchantConnectorAccountRead",
+        "ForexRead",
+        // "MerchantConnectorAccountWrite",
+        "RoutingRead",
+        "RoutingWrite",
+        "ThreeDsDecisionManagerWrite",
+        "ThreeDsDecisionManagerRead",
+        "SurchargeDecisionManagerWrite",
+        "SurchargeDecisionManagerRead",
+        "DisputeRead",
+        "DisputeWrite",
+        "MandateRead",
+        "MandateWrite",
+        "CustomerRead",
+        "CustomerWrite",
+        "FileRead",
+        "FileWrite",
+        "Analytics",
+        "UsersRead",
+        // "UsersWrite",
+      ]
+      // response
+      // ->getArrayFromJson([])
+      // ->Array.map(ele => ele->Js.Json.decodeString->Option.getWithDefault(""))
       let permissionJson =
         permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
       setuserPermissionJson(._ => permissionJson)

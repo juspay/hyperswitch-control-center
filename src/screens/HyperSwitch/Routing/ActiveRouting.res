@@ -30,6 +30,7 @@ module ActionButtons = {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let showToast = ToastState.useShowToast()
     let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
     let handleSubmitRequest = async _ => {
       try {
@@ -67,8 +68,9 @@ module ActionButtons = {
     | PRIORITY
     | VOLUME_SPLIT
     | ADVANCED =>
-      <Button
+      <ACLButton
         text={"Setup"}
+        access={userPermissionJson.routingWrite}
         buttonType=Secondary
         buttonSize={Small}
         customButtonStyle="border !border-blue-700 bg-white !text-blue-700"
@@ -78,8 +80,9 @@ module ActionButtons = {
         }}
       />
     | DEFAULTFALLBACK =>
-      <Button
+      <ACLButton
         text={"Manage"}
+        access={userPermissionJson.routingWrite}
         buttonType=Secondary
         customButtonStyle="border !border-blue-700 bg-white !text-blue-700"
         buttonSize={Small}
@@ -90,8 +93,9 @@ module ActionButtons = {
       />
 
     | COST =>
-      <Button
+      <ACLButton
         text={"I'm interested"}
+        access={userPermissionJson.merchantAccountWrite}
         buttonType=Secondary
         buttonSize={Small}
         customButtonStyle="!w-fit !px-14"
@@ -108,6 +112,7 @@ module ActiveSection = {
     open LogicUtils
     let activeRoutingType =
       activeRouting->getDictFromJsonObject->getString("kind", "")->routingTypeMapper
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
     let routingName = switch activeRoutingType {
     | DEFAULTFALLBACK => ""
@@ -148,7 +153,8 @@ module ActiveSection = {
             ).subHeading}`->React.string}
         </div>
         <div className="flex gap-5 pt-6 w-1/4">
-          <Button
+          <ACLButton
+            access={userPermissionJson.routingWrite}
             text="Manage"
             buttonType=Secondary
             customButtonStyle="w-2/3"

@@ -6,6 +6,7 @@ let make = () => {
   open APIUtils
   let fetchDetails = useGetMethod()
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let (usersData, setUsersData) = React.useState(_ => [])
   let (usersFilterData, setUsersFilterData) = React.useState(_ => [])
   let (screenStateUsers, setScreenStateUsers) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -124,7 +125,8 @@ let make = () => {
       />
       <div className="relative">
         <div className="absolute right-0 top-5">
-          <Button
+          <ACLButton
+            access={userPermissionJson.usersWrite}
             text={"Invite users"}
             buttonType=Primary
             onClick={_ => {

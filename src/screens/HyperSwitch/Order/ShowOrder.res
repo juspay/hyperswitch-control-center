@@ -26,6 +26,7 @@ module OrderInfo = {
       ~connectorList=?,
       ~border="border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960",
     ) => {
+      let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
       let typedPaymentStatus = paymentStatus->statusVariantMapper
       <Section customCssClass={`${border} ${bgColor} rounded-md p-5 h-full`}>
         <UIUtils.RenderIf condition=isButtonEnabled>
@@ -42,7 +43,8 @@ module OrderInfo = {
               />
             </div>
             {getStatus(data)}
-            <Button
+            <ACLButton
+              access={userPermissionJson.refundWrite}
               text="+ Refund"
               onClick={_ => {
                 openRefundModal()
@@ -624,6 +626,7 @@ module RenderAccordian = {
 @react.component
 let make = (~id) => {
   open APIUtils
+  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
@@ -702,7 +705,8 @@ let make = (~id) => {
           />
         </div>
         <UIUtils.RenderIf condition={showSyncButton()}>
-          <Button
+          <ACLButton
+            access={userPermissionJson.paymentRead}
             text="Sync"
             leftIcon={Button.CustomIcon(
               <Icon
