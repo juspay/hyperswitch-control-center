@@ -121,85 +121,57 @@ module LandingScreen = {
     </div>
   }
 }
-module RedirectionToPayPalFlow = {
+module ErrorPage = {
   @react.component
-  let make = (~actionUrl, ~setActionUrl, ~connectorId, ~getStatus) => {
-    open APIUtils
+  let make = (~setupAccountStatus, ~actionUrl, ~getStatus, ~setScreenState) => {
+    let errorPageDetails = setupAccountStatus->PayPalFlowUtils.getPageDetailsForAutomatic
 
-    let url = RescriptReactRouter.useUrl()
-    let path = url.path->Belt.List.toArray->Array.joinWith("/")
-    let updateDetails = useUpdateMethod(~showErrorToast=false, ())
-    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-
-    let getRedirectPaypalWindowUrl = async _ => {
-      open LogicUtils
-      try {
-        setScreenState(_ => PageLoaderWrapper.Loading)
-        let returnURL = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${path}?${url.search}&is_back=true&is_simplified_paypal=true`
-
-        let body = PayPalFlowUtils.generatePayPalBody(
-          ~connectorId={connectorId},
-          ~returnUrl=Some(returnURL),
-          (),
-        )
-        let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/action_url`
-
-        let response = await updateDetails(url, body, Post)
-        let actionURL =
-          response->getDictFromJsonObject->getDictfromDict("paypal")->getString("action_url", "")
-        setActionUrl(_ => actionURL)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      } catch {
-      | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
-      }
-    }
-
-    React.useEffect0(() => {
-      getRedirectPaypalWindowUrl()->ignore
-      None
-    })
-    <PageLoaderWrapper screenState>
-      <div className="flex flex-col gap-6">
-        <p className=h3Leading2TextClass>
-          {"Sign in / Sign up to auto-configure your credentials & webhooks"->React.string}
-        </p>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6 p-8 bg-jp-gray-light_gray_bg">
+        <Icon name="error-icon" size=24 />
         <div className="flex flex-col gap-2">
-          <p className={`${p1RegularTextClass} !opacity-100`}>
-            {"Things to keep in mind while signing up"->React.string}
-          </p>
-          {preRequisiteList
-          ->Array.mapWithIndex((item, index) =>
-            <p className=p1RegularTextClass>
-              {`${(index + 1)->string_of_int}. ${item}`->React.string}
+          <UIUtils.RenderIf condition={errorPageDetails.headerText->Js.String2.length > 0}>
+            <p className={`${p1RegularTextClass} !opacity-100`}>
+              {errorPageDetails.headerText->React.string}
             </p>
-          )
-          ->React.array}
+          </UIUtils.RenderIf>
+          <UIUtils.RenderIf condition={errorPageDetails.subText->Js.String2.length > 0}>
+            <p className=p1RegularTextClass> {errorPageDetails.subText->React.string} </p>
+          </UIUtils.RenderIf>
         </div>
         <div className="flex gap-4 items-center">
           <PayPalCreateNewAccountModal
             actionUrl butttonDisplayText="Sign in / Sign up on PayPal" setScreenState
           />
           <Button
-            text="Refresh status "
+            text="Refresh status"
             buttonType={Secondary}
             buttonSize=Small
             onClick={_ => getStatus()->ignore}
           />
         </div>
+        <UIUtils.RenderIf condition={errorPageDetails.buttonText->Belt.Option.isSome}>
+          <PayPalCreateNewAccountModal
+            butttonDisplayText={errorPageDetails.buttonText->Belt.Option.getWithDefault("")}
+            actionUrl
+            setScreenState
+          />
+        </UIUtils.RenderIf>
       </div>
-    </PageLoaderWrapper>
+    </div>
   }
 }
-
-module ErrorPage = {
+module RedirectionToPayPalFlow = {
   @react.component
-  let make = (~setupAccountStatus, ~actionUrl, ~getStatus, ~setActionUrl, ~connectorId) => {
+  let make = (~connectorId, ~getStatus) => {
     open APIUtils
+    open PayPalFlowTypes
+
     let url = RescriptReactRouter.useUrl()
-    let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let path = url.path->Belt.List.toArray->Array.joinWith("/")
-    let errorPageDetails = setupAccountStatus->PayPalFlowUtils.getPageDetailsForAutomatic
+    let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+    let (actionUrl, setActionUrl) = React.useState(_ => "")
 
     let getRedirectPaypalWindowUrl = async _ => {
       open LogicUtils
@@ -223,45 +195,45 @@ module ErrorPage = {
       | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
       }
     }
+    let setupAccountStatus = Recoil.useRecoilValueFromAtom(HyperswitchAtom.paypalAccountStatusAtom)
 
     React.useEffect0(() => {
       getRedirectPaypalWindowUrl()->ignore
       None
     })
     <PageLoaderWrapper screenState>
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-col gap-6 p-8 bg-jp-gray-light_gray_bg">
-          <Icon name="error-icon" size=24 />
+      {switch setupAccountStatus {
+      | Redirecting_to_paypal =>
+        <div className="flex flex-col gap-6">
+          <p className=h3Leading2TextClass>
+            {"Sign in / Sign up to auto-configure your credentials & webhooks"->React.string}
+          </p>
           <div className="flex flex-col gap-2">
-            <UIUtils.RenderIf condition={errorPageDetails.headerText->Js.String2.length > 0}>
-              <p className={`${p1RegularTextClass} !opacity-100`}>
-                {errorPageDetails.headerText->React.string}
+            <p className={`${p1RegularTextClass} !opacity-100`}>
+              {"Things to keep in mind while signing up"->React.string}
+            </p>
+            {preRequisiteList
+            ->Array.mapWithIndex((item, index) =>
+              <p className=p1RegularTextClass>
+                {`${(index + 1)->string_of_int}. ${item}`->React.string}
               </p>
-            </UIUtils.RenderIf>
-            <UIUtils.RenderIf condition={errorPageDetails.subText->Js.String2.length > 0}>
-              <p className=p1RegularTextClass> {errorPageDetails.subText->React.string} </p>
-            </UIUtils.RenderIf>
+            )
+            ->React.array}
           </div>
           <div className="flex gap-4 items-center">
             <PayPalCreateNewAccountModal
               actionUrl butttonDisplayText="Sign in / Sign up on PayPal" setScreenState
             />
             <Button
-              text="Refresh status"
+              text="Refresh status "
               buttonType={Secondary}
               buttonSize=Small
               onClick={_ => getStatus()->ignore}
             />
           </div>
-          <UIUtils.RenderIf condition={errorPageDetails.buttonText->Belt.Option.isSome}>
-            <PayPalCreateNewAccountModal
-              butttonDisplayText={errorPageDetails.buttonText->Belt.Option.getWithDefault("")}
-              actionUrl
-              setScreenState
-            />
-          </UIUtils.RenderIf>
         </div>
-      </div>
+      | _ => <ErrorPage setupAccountStatus actionUrl getStatus setScreenState />
+      }}
     </PageLoaderWrapper>
   }
 }
@@ -293,7 +265,6 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuartionType, setConfigurationType) = React.useState(_ => PayPalFlowTypes.NotSelected)
-  let (actionUrl, setActionUrl) = React.useState(_ => "")
 
   let (setupAccountStatus, setSetupAccountStatus) = Recoil.useRecoilState(
     HyperswitchAtom.paypalAccountStatusAtom,
@@ -400,6 +371,7 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
+    // TODO: check error cases
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }
   }
@@ -520,7 +492,6 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector
             headerButton={proceedButton}
-            // setShowModal
             conditionForIntegrationSteps={!(
               PayPalFlowUtils.conditionForIntegrationSteps->Array.includes(setupAccountStatus)
             )}>
@@ -546,16 +517,13 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
                   />
                   <LandingScreen configuartionType setConfigurationType />
                 </div>
-              | Redirecting_to_paypal =>
-                <RedirectionToPayPalFlow actionUrl setActionUrl connectorId getStatus />
-              | Manual_setup_flow => React.null
-
+              | Redirecting_to_paypal
               | Account_not_found
               | Payments_not_receivable
               | Ppcp_custom_denied
               | More_permissions_needed
               | Email_not_verified =>
-                <ErrorPage setupAccountStatus actionUrl getStatus setActionUrl connectorId />
+                <RedirectionToPayPalFlow connectorId getStatus />
               | _ => React.null
               }}
             </div>
