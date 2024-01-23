@@ -3,6 +3,37 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.28.0 (2024-01-22)
+
+### Features
+
+- Permission based sidebar navigation ([#265](https://github.com/juspay/hyperswitch-control-center/pull/265)) ([`d545a56`](https://github.com/juspay/hyperswitch-control-center/commit/d545a56ceed84777fac27c7b8ca0ce92042bddaf))
+- ACLButton Added ([#277](https://github.com/juspay/hyperswitch-control-center/pull/277)) ([`1032650`](https://github.com/juspay/hyperswitch-control-center/commit/1032650defeec0ef25eeb31735db116421b2bdfe))
+
+**Full Changelog:** [`v1.27.0...v1.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.27.0...v1.28.0)
+
+- - -
+
+
+## 1.27.0 (2024-01-21)
+
+### Features
+
+- Update pr label on merge to closed ([#207](https://github.com/juspay/hyperswitch-control-center/pull/207)) ([`f8994ff`](https://github.com/juspay/hyperswitch-control-center/commit/f8994ff8faadc73bf89c67048d2c798024701963))
+
+### Bug Fixes
+
+- Make basic details form to accept form input without Save button ([#271](https://github.com/juspay/hyperswitch-control-center/pull/271)) ([`3784090`](https://github.com/juspay/hyperswitch-control-center/commit/3784090a99cf67c4dee69b914b66fe7979a39620))
+
+### Miscellaneous Tasks
+
+- Option Core changes ([#268](https://github.com/juspay/hyperswitch-control-center/pull/268)) ([`94e70d3`](https://github.com/juspay/hyperswitch-control-center/commit/94e70d37fb3fc36104ea3ad412f03afc7d115369))
+
+**Full Changelog:** [`v1.26.0...v1.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.26.0...v1.27.0)
+
+- - -
+
+
 ## 1.26.0 (2024-01-18)
 
 ### Features
