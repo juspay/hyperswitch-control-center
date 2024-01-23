@@ -13,6 +13,11 @@ let listChoices: array<PayPalFlowTypes.choiceDetailsType> = [
 
 let getPageDetailsForAutomatic: PayPalFlowTypes.setupAccountStatus => PayPalFlowTypes.errorPageInfoType = setupAccountStatus => {
   switch setupAccountStatus {
+  | Account_not_found => {
+      headerText: "No account found for this email",
+      subText: "No account found for this email.",
+      refreshStatusText: "Issue Resolved?",
+    }
   | Payments_not_receivable => {
       headerText: "You currently cannot receive payments due to restriction on your PayPal account",
       subText: "An email has been sent to you explaining the issue. Please reach out to PayPal Customer Support for more information.",
@@ -102,11 +107,11 @@ let handleObjectResponse = (
   }
 }
 
-let getBodyType = (isUpdateFlow, configuartionType, setupAccountStatus) => {
+let getBodyType = (isUpdateFlow, configuartionType) => {
   open PayPalFlowTypes
-  switch (isUpdateFlow, setupAccountStatus) {
-  | (false, _) | (true, Account_not_found) => "TemporaryAuth"
-  | (true, _) =>
+  switch isUpdateFlow {
+  | false => "TemporaryAuth"
+  | true =>
     switch configuartionType {
     | Manual => "BodyKey"
     | Automatic | NotSelected => "SignatureKey"
@@ -118,9 +123,7 @@ let generateConnectorPayloadPayPal = (
   ~profileId,
   ~connectorId,
   ~connector,
-  ~isUpdateFlow,
-  ~configuartionType,
-  ~setupAccountStatus,
+  ~bodyType,
   ~connectorLabel,
 ) => {
   open ConnectorUtils
@@ -138,7 +141,7 @@ let generateConnectorPayloadPayPal = (
   generateInitialValuesDict(
     ~values={initialValues},
     ~connector,
-    ~bodyType=getBodyType(isUpdateFlow, configuartionType, setupAccountStatus),
+    ~bodyType,
     ~isPayoutFlow=false,
     (),
   )->ignoreFields(connectorId, connectorIgnoredField)
@@ -165,3 +168,60 @@ let conditionForIntegrationSteps: array<PayPalFlowTypes.setupAccountStatus> = [
   Account_not_found,
   Redirecting_to_paypal,
 ]
+
+let useDeleteTrackingDetails = () => {
+  open APIUtils
+  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+
+  async (connectorId, connector) => {
+    try {
+      let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/reset_tracking_id`
+      let body =
+        [
+          ("connector_id", connectorId->Js.Json.string),
+          ("connector", connector->Js.Json.string),
+        ]->LogicUtils.getJsonFromArrayOfJson
+      let _res = await updateDetails(url, body, Post)
+    } catch {
+    | Js.Exn.Error(e) => {
+        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+        Js.Exn.raiseError(err)
+      }
+    }
+  }
+}
+
+let useDeleteConnectorCredentials = () => {
+  open LogicUtils
+  open APIUtils
+  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+
+  async (initialValues, connectorId, connector, isUpdateFlow) => {
+    try {
+      let dictOfJson = initialValues->getDictFromJsonObject
+      let profileIdValue = dictOfJson->getString("profile_id", "")
+      let body = generateConnectorPayloadPayPal(
+        ~profileId=profileIdValue,
+        ~connectorId,
+        ~connector,
+        ~bodyType="TemporaryAuth",
+        ~connectorLabel={
+          dictOfJson->getString("connector_label", "")
+        },
+      )
+      let url = getURL(
+        ~entityName=CONNECTOR,
+        ~methodType=Post,
+        ~id=isUpdateFlow ? Some(connectorId) : None,
+        (),
+      )
+      let res = await updateDetails(url, body, Post)
+      res
+    } catch {
+    | Js.Exn.Error(e) => {
+        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+        Js.Exn.raiseError(err)
+      }
+    }
+  }
+}

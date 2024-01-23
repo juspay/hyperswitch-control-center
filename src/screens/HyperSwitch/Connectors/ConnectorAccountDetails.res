@@ -25,17 +25,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let activeBusinessProfile =
     defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
 
-  React.useEffect1(() => {
-    if !isUpdateFlow {
-      let defaultJsonOnNewConnector =
-        [("profile_id", activeBusinessProfile.profile_id->Js.Json.string)]
-        ->Dict.fromArray
-        ->Js.Json.object_
-      setInitialValues(_ => defaultJsonOnNewConnector)
-    }
-    None
-  }, [activeBusinessProfile.profile_id])
-
   let connectorDetails = React.useMemo1(() => {
     try {
       if connector->String.length > 0 {
@@ -70,11 +59,30 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
 
   let updatedInitialVal = React.useMemo1(() => {
     let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
+
     if !isUpdateFlow {
-      initialValuesToDict->Dict.set(
-        "connector_label",
-        `${connector}_${activeBusinessProfile.profile_name}`->Js.Json.string,
-      )
+      if connector === "paypal" {
+        initialValuesToDict->Dict.set(
+          "connector_label",
+          initialValues
+          ->LogicUtils.getDictFromJsonObject
+          ->LogicUtils.getString("connector_label", "")
+          ->Js.Json.string,
+        )
+        initialValuesToDict->Js.Dict.set(
+          "profile_id",
+          initialValuesToDict->LogicUtils.getString("profile_id", "")->Js.Json.string,
+        )
+      } else if connector->String.length > 0 {
+        initialValuesToDict->Dict.set(
+          "connector_label",
+          `${connector}_${activeBusinessProfile.profile_name}`->Js.Json.string,
+        )
+        initialValuesToDict->Js.Dict.set(
+          "profile_id",
+          activeBusinessProfile.profile_id->Js.Json.string,
+        )
+      }
     }
     if (
       connector
@@ -88,7 +96,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
     } else {
       initialValues
     }
-  }, [connector])
+  }, [connector, activeBusinessProfile.profile_id])
 
   let onSubmitMain = async values => {
     open ConnectorTypes
@@ -217,74 +225,52 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
       ~isVerifyConnectorFeatureEnabled=featureFlagDetails.verifyConnector,
     )
   }
-  let handleStateToNextPage = () => {
-    setCurrentStep(_ => PaymentMethods)
+
+  let handleShowModal = () => {
+    setShowModal(_ => true)
   }
 
   <PageLoaderWrapper screenState>
-    {switch connector->getConnectorNameTypeFromString {
-    | PAYPAL =>
-      <ConnectPayPal
+    <Form
+      initialValues={updatedInitialVal}
+      onSubmit={(values, _) => values->handleConnectorConnected}
+      validate={validateMandatoryField}
+      formClass="flex flex-col ">
+      <ConnectorHeaderWrapper
         connector
-        connectorAccountFields
-        selectedConnector
-        connectorMetaDataFields
-        connectorWebHookDetails
-        isUpdateFlow
-        setInitialValues
-        handleConnectorConnected
-        initialValues
-        setShowModal
+        headerButton={<FormRenderer.SubmitButton loadingText="Processing..." text=buttonText />}
+        handleShowModal>
+        <UIUtils.RenderIf condition={featureFlagDetails.businessProfile && connector !== "paypal"}>
+          <div className="flex flex-col gap-2 p-2 md:p-10">
+            <ConnectorAccountDetailsHelper.BusinessProfileRender
+              isUpdateFlow selectedConnector={connector}
+            />
+          </div>
+        </UIUtils.RenderIf>
+        <div className="flex flex-col gap-2 p-2 md:p-10">
+          <div className="grid grid-cols-2 flex-1">
+            <ConnectorConfigurationFields
+              connector={connector->getConnectorNameTypeFromString}
+              connectorAccountFields
+              selectedConnector
+              connectorMetaDataFields
+              connectorWebHookDetails
+              connectorLabelDetailField
+            />
+          </div>
+          <IntegrationHelp.Render connector setShowModal showModal />
+        </div>
+        <FormValuesSpy />
+      </ConnectorHeaderWrapper>
+      <VerifyConnectorModal
         showVerifyModal
         setShowVerifyModal
+        connector
         verifyErrorMessage
+        suggestedActionExists
+        suggestedAction
         setVerifyDone
-        handleStateToNextPage
-        connectorLabelDetailField
-        showModal
       />
-    | _ =>
-      <Form
-        initialValues={updatedInitialVal}
-        onSubmit={(values, _) => values->handleConnectorConnected}
-        validate={validateMandatoryField}
-        formClass="flex flex-col ">
-        <ConnectorHeaderWrapper
-          connector
-          headerButton={<FormRenderer.SubmitButton loadingText="Processing..." text=buttonText />}
-          setShowModal>
-          <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
-            <div className="flex flex-col gap-2 p-2 md:p-10">
-              <ConnectorAccountDetailsHelper.BusinessProfileRender
-                isUpdateFlow selectedConnector={connector}
-              />
-            </div>
-          </UIUtils.RenderIf>
-          <div className="flex flex-col gap-2 p-2 md:p-10">
-            <div className="grid grid-cols-2 flex-1">
-              <ConnectorConfigurationFields
-                connector={connector->getConnectorNameTypeFromString}
-                connectorAccountFields
-                selectedConnector
-                connectorMetaDataFields
-                connectorWebHookDetails
-                connectorLabelDetailField
-              />
-            </div>
-            <IntegrationHelp.Render connector setShowModal showModal />
-          </div>
-          <FormValuesSpy />
-        </ConnectorHeaderWrapper>
-        <VerifyConnectorModal
-          showVerifyModal
-          setShowVerifyModal
-          connector
-          verifyErrorMessage
-          suggestedActionExists
-          suggestedAction
-          setVerifyDone
-        />
-      </Form>
-    }}
+    </Form>
   </PageLoaderWrapper>
 }

@@ -46,7 +46,7 @@ module PayPalCreateNewAccountModal = {
     })
 
     <button
-      className="!w-fit rounded-md bg-blue-700 text-white py-2 h-fit border px-6 flex items-center justify-center gap-2"
+      className="!w-fit rounded-md bg-blue-700 text-white px-4  h-fit border py-3 flex items-center justify-center gap-2"
       onClick={e => {
         e->ReactEvent.Mouse.stopPropagation
       }}>
@@ -179,11 +179,12 @@ module RedirectionToPayPalFlow = {
           <PayPalCreateNewAccountModal
             actionUrl butttonDisplayText="Sign in / Sign up on PayPal" setScreenState
           />
-          <p
-            className={`${p1RegularTextClass} !text-blue-700 !opacity-80 cursor-pointer`}
-            onClick={_ => getStatus()->ignore}>
-            {"Refresh Status"->React.string}
-          </p>
+          <Button
+            text="Refresh status "
+            buttonType={Secondary}
+            buttonSize=Small
+            onClick={_ => getStatus()->ignore}
+          />
         </div>
       </div>
     </PageLoaderWrapper>
@@ -192,66 +193,81 @@ module RedirectionToPayPalFlow = {
 
 module ErrorPage = {
   @react.component
-  let make = (~setupAccountStatus, ~actionUrl, ~getStatus, ~setScreenState) => {
+  let make = (~setupAccountStatus, ~actionUrl, ~getStatus, ~setActionUrl, ~connectorId) => {
+    open APIUtils
+    let url = RescriptReactRouter.useUrl()
+    let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+    let path = url.path->Belt.List.toArray->Array.joinWith("/")
     let errorPageDetails = setupAccountStatus->PayPalFlowUtils.getPageDetailsForAutomatic
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-6 p-8 bg-jp-gray-light_gray_bg">
-        <Icon name="error-icon" size=24 />
-        <div className="flex flex-col gap-2">
-          <UIUtils.RenderIf condition={errorPageDetails.headerText->Js.String2.length > 0}>
-            <p className={`${p1RegularTextClass} !opacity-100`}>
-              {errorPageDetails.headerText->React.string}
-            </p>
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={errorPageDetails.subText->Js.String2.length > 0}>
-            <p className=p1RegularTextClass> {errorPageDetails.subText->React.string} </p>
+    let getRedirectPaypalWindowUrl = async _ => {
+      open LogicUtils
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let returnURL = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${path}?${url.search}&is_back=true&is_simplified_paypal=true`
+
+        let body = PayPalFlowUtils.generatePayPalBody(
+          ~connectorId={connectorId},
+          ~returnUrl=Some(returnURL),
+          (),
+        )
+        let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/action_url`
+
+        let response = await updateDetails(url, body, Post)
+        let actionURL =
+          response->getDictFromJsonObject->getDictfromDict("paypal")->getString("action_url", "")
+        setActionUrl(_ => actionURL)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
+      }
+    }
+
+    React.useEffect0(() => {
+      getRedirectPaypalWindowUrl()->ignore
+      None
+    })
+    <PageLoaderWrapper screenState>
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 p-8 bg-jp-gray-light_gray_bg">
+          <Icon name="error-icon" size=24 />
+          <div className="flex flex-col gap-2">
+            <UIUtils.RenderIf condition={errorPageDetails.headerText->Js.String2.length > 0}>
+              <p className={`${p1RegularTextClass} !opacity-100`}>
+                {errorPageDetails.headerText->React.string}
+              </p>
+            </UIUtils.RenderIf>
+            <UIUtils.RenderIf condition={errorPageDetails.subText->Js.String2.length > 0}>
+              <p className=p1RegularTextClass> {errorPageDetails.subText->React.string} </p>
+            </UIUtils.RenderIf>
+          </div>
+          <div className="flex gap-4 items-center">
+            <PayPalCreateNewAccountModal
+              actionUrl butttonDisplayText="Sign in / Sign up on PayPal" setScreenState
+            />
+            <Button
+              text="Refresh status"
+              buttonType={Secondary}
+              buttonSize=Small
+              onClick={_ => getStatus()->ignore}
+            />
+          </div>
+          <UIUtils.RenderIf condition={errorPageDetails.buttonText->Belt.Option.isSome}>
+            <PayPalCreateNewAccountModal
+              butttonDisplayText={errorPageDetails.buttonText->Belt.Option.getWithDefault("")}
+              actionUrl
+              setScreenState
+            />
           </UIUtils.RenderIf>
         </div>
-        <UIUtils.RenderIf condition={errorPageDetails.buttonText->Belt.Option.isSome}>
-          <PayPalCreateNewAccountModal
-            butttonDisplayText={errorPageDetails.buttonText->Belt.Option.getWithDefault("")}
-            actionUrl
-            setScreenState
-          />
-        </UIUtils.RenderIf>
       </div>
-      <UIUtils.RenderIf condition={errorPageDetails.refreshStatusText->Belt.Option.isSome}>
-        <div className="flex gap-2">
-          <p className=p1RegularTextClass>
-            {errorPageDetails.refreshStatusText->Belt.Option.getWithDefault("")->React.string}
-          </p>
-          <p
-            className={`${p1RegularTextClass} !text-blue-700 !opacity-80 cursor-pointer`}
-            onClick={_ => getStatus()->ignore}>
-            {"Refresh Status"->React.string}
-          </p>
-        </div>
-      </UIUtils.RenderIf>
-    </div>
+    </PageLoaderWrapper>
   }
 }
 
 @react.component
-let make = (
-  ~connector,
-  ~connectorAccountFields,
-  ~selectedConnector,
-  ~connectorMetaDataFields,
-  ~connectorWebHookDetails,
-  ~isUpdateFlow,
-  ~setInitialValues,
-  ~handleConnectorConnected,
-  ~initialValues,
-  ~setShowModal,
-  ~showVerifyModal,
-  ~setShowVerifyModal,
-  ~verifyErrorMessage,
-  ~setVerifyDone,
-  ~handleStateToNextPage,
-  ~connectorLabelDetailField,
-  ~showModal,
-) => {
+let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCurrentStep) => {
   open APIUtils
   open LogicUtils
   let url = RescriptReactRouter.useUrl()
@@ -266,6 +282,8 @@ let make = (
 
   let (connectorId, setConnectorId) = React.useState(_ => connectorValue)
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
+  let updateConnector = PayPalFlowUtils.useDeleteConnectorCredentials()
+  let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
   let isRedirectedFromPaypalModal =
     url.search
     ->getDictFromUrlSearchParams
@@ -280,36 +298,37 @@ let make = (
   let (setupAccountStatus, setSetupAccountStatus) = Recoil.useRecoilState(
     HyperswitchAtom.paypalAccountStatusAtom,
   )
-  let (suggestedAction, suggestedActionExists) = ConnectorUtils.getSuggestedAction(
-    ~verifyErrorMessage,
-    ~connector,
-  )
+  let selectedConnector =
+    connector->ConnectorUtils.getConnectorNameTypeFromString->ConnectorUtils.getConnectorInfo
+  let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
+
+  let activeBusinessProfile =
+    defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
+
+  let updatedInitialVal = React.useMemo1(() => {
+    let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
+    if !isUpdateFlow {
+      initialValuesToDict->Dict.set(
+        "connector_label",
+        initialValues
+        ->LogicUtils.getDictFromJsonObject
+        ->LogicUtils.getString("connector_label", "paypal_default")
+        ->Js.Json.string,
+      )
+      initialValuesToDict->Dict.set("profile_id", activeBusinessProfile.profile_id->Js.Json.string)
+
+      setInitialValues(_ => initialValuesToDict->Js.Json.object_)
+      initialValuesToDict->Js.Json.object_
+    } else {
+      initialValues
+    }
+  }, [connector])
 
   let onSubmitMain = async values => {
     open ConnectorUtils
-    open PayPalFlowUtils
     try {
       setScreenState(_ => Loading)
-      let profileIdValue = values->getDictFromJsonObject->getString("profile_id", "")
-      let body = generateConnectorPayloadPayPal(
-        ~profileId=profileIdValue,
-        ~connectorId,
-        ~connector,
-        ~isUpdateFlow,
-        ~configuartionType,
-        ~setupAccountStatus,
-        ~connectorLabel={
-          values->getDictFromJsonObject->getString("connector_label", "")
-        },
-      )
-
-      let url = getURL(
-        ~entityName=CONNECTOR,
-        ~methodType=Post,
-        ~id=isUpdateFlow ? Some(connectorId) : None,
-        (),
-      )
-      let res = await updateDetails(url, body, Post)
+      let res = await updateConnector(values, connectorId, connector, isUpdateFlow)
 
       setInitialValues(_ => res)
       let connectorId = res->getDictFromJsonObject->getString("merchant_connector_id", "")
@@ -318,10 +337,9 @@ let make = (
       if !isUpdateFlow {
         RescriptReactRouter.push(`/connectors/new?name=paypal&connectorId=${connectorId}`)
       }
+      setSetupAccountStatus(._ => Redirecting_to_paypal)
     } catch {
     | Js.Exn.Error(e) => {
-        setShowVerifyModal(_ => false)
-        setVerifyDone(_ => ConnectorTypes.NoAttempt)
         switch Js.Exn.message(e) {
         | Some(message) => {
             let errMsg = message->parseIntoMyData
@@ -331,7 +349,8 @@ let make = (
                 ~toastType=ToastState.ToastError,
                 (),
               )
-              // setCurrentStep(_ => IntegFields)
+              setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
+              setSetupAccountStatus(._ => Connect_paypal_landing)
               setScreenState(_ => Success)
             } else {
               showToast(
@@ -350,6 +369,9 @@ let make = (
     }
   }
 
+  let handleStateToNextPage = () => {
+    setCurrentStep(_ => ConnectorTypes.PaymentMethods)
+  }
   let getStatus = async () => {
     open PayPalFlowUtils
     try {
@@ -388,7 +410,7 @@ let make = (
     }
     if !isUpdateFlow {
       RescriptReactRouter.replace("/connectors/new?name=paypal")
-      setSetupAccountStatus(._ => Account_not_found)
+      setSetupAccountStatus(._ => Connect_paypal_landing)
     }
     None
   })
@@ -406,76 +428,119 @@ let make = (
   let handleConnector = async values => {
     try {
       await onSubmitMain(values)
-      setSetupAccountStatus(._ => Redirecting_to_paypal)
     } catch {
     | Js.Exn.Error(_e) => ()
     }
   }
 
-  let handleOnSubmit = (values, _) => {
-    switch setupAccountStatus {
-    | Account_not_found =>
-      switch configuartionType {
-      | Manual
-      | NotSelected => {
-          let authType =
-            initialValues
-            ->getDictFromJsonObject
-            ->getDictfromDict("connector_account_details")
-            ->getString("auth_type", "")
-            ->Js.String2.toLowerCase
-            ->ConnectorUtils.mapAuthType
-
-          let temporaryAuthDict =
-            [("auth_type", "TemporaryAuth"->Js.Json.string)]->getJsonFromArrayOfJson
-
-          let dictOfInitialValues = values->getDictFromJsonObject
-
-          setSetupAccountStatus(._ => Manual_setup_flow)
-          if isUpdateFlow && authType === #SignatureKey {
-            dictOfInitialValues->Dict.set("connector_account_details", temporaryAuthDict)
-            setInitialValues(_ => dictOfInitialValues->Js.Json.object_)
-          }
-        }
-
-      | Automatic => handleConnector(values)->ignore
-      }
-    | Manual_setup_flow => {
-        let dictOfInitialValues = values->getDictFromJsonObject
-        dictOfInitialValues->Dict.set("disabled", false->Js.Json.boolean)
-        dictOfInitialValues->Dict.set("status", "active"->Js.Json.string)
-        setInitialValues(_ => dictOfInitialValues->Js.Json.object_)
-        handleConnectorConnected(dictOfInitialValues->Js.Json.object_)->ignore
-      }
-    | _ => ()
-    }
-    Js.Nullable.null->Js.Promise.resolve
+  let setConnectorAsActive = values => {
+    // setting the status and diabled as false and active when clicking proceed button of manual flow
+    let dictOfInitialValues = values->getDictFromJsonObject
+    dictOfInitialValues->Dict.set("disabled", false->Js.Json.boolean)
+    dictOfInitialValues->Dict.set("status", "active"->Js.Json.string)
+    setInitialValues(_ => dictOfInitialValues->Js.Json.object_)
   }
 
-  let proceedButton =
-    <UIUtils.RenderIf condition={setupAccountStatus !== Redirecting_to_paypal}>
-      <FormRenderer.SubmitButton
-        loadingText="Processing..."
-        text="Proceed"
-        disabledParamter={configuartionType === NotSelected}
-      />
-    </UIUtils.RenderIf>
+  let handleOnSubmit = async (values, _) => {
+    if setupAccountStatus === Connect_paypal_landing {
+      let authType =
+        initialValues
+        ->getDictFromJsonObject
+        ->getDictfromDict("connector_account_details")
+        ->getString("auth_type", "")
+        ->Js.String2.toLowerCase
+        ->ConnectorUtils.mapAuthType
+
+      // delete tracking  details and updating the mca if the currnet and the next auth types are not same
+      if (
+        isUpdateFlow &&
+        authType !==
+          PayPalFlowUtils.getBodyType(isUpdateFlow, configuartionType)
+          ->String.toLowerCase
+          ->ConnectorUtils.mapAuthType
+      ) {
+        let _ = await deleteTrackingDetails(connectorId, connector)
+        let dictOfInitialValues = values->getDictFromJsonObject
+        let temporaryAuthDict =
+          [("auth_type", "TemporaryAuth"->Js.Json.string)]->getJsonFromArrayOfJson
+        dictOfInitialValues->Dict.set("connector_account_details", temporaryAuthDict)
+        setInitialValues(_ => dictOfInitialValues->Js.Json.object_)
+        let res = await updateConnector(
+          dictOfInitialValues->Js.Json.object_,
+          connectorId,
+          connector,
+          isUpdateFlow,
+        )
+        setInitialValues(_ => res)
+      }
+
+      // handling the proceed button
+      switch configuartionType {
+      | Automatic => {
+          setInitialValues(_ => values)
+          handleConnector(values)->ignore
+        }
+      | Manual | _ => {
+          setConnectorAsActive(values)
+          setInitialValues(_ => values)
+          setCurrentStep(_ => ConnectorTypes.IntegFields)
+        }
+      }
+    }
+    Js.Nullable.null
+  }
+
+  let proceedButton = switch setupAccountStatus {
+  | Redirecting_to_paypal
+  | Account_not_found
+  | Payments_not_receivable
+  | Ppcp_custom_denied
+  | More_permissions_needed
+  | Email_not_verified =>
+    <Button
+      text="Change configuration"
+      buttonType={Primary}
+      onClick={_ => setSetupAccountStatus(._ => Connect_paypal_landing)}
+    />
+  | _ =>
+    <FormRenderer.SubmitButton
+      loadingText="Processing..."
+      text="Proceed"
+      disabledParamter={configuartionType === NotSelected}
+    />
+  }
 
   <div className="w-full h-full flex flex-col justify-between">
     <PageLoaderWrapper screenState>
-      <Form initialValues validate={validateMandatoryFieldForPaypal} onSubmit={handleOnSubmit}>
+      <Form
+        initialValues={updatedInitialVal}
+        validate={validateMandatoryFieldForPaypal}
+        onSubmit={handleOnSubmit}>
         <div>
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector
             headerButton={proceedButton}
-            setShowModal
+            // setShowModal
             conditionForIntegrationSteps={!(
               PayPalFlowUtils.conditionForIntegrationSteps->Array.includes(setupAccountStatus)
             )}>
             <div className="flex flex-col gap-2 p-2 md:p-10">
               {switch setupAccountStatus {
-              | Account_not_found =>
-                <div className="flex flex-col gap-4">
+              | Connect_paypal_landing =>
+                <div className="flex flex-col gap-2">
+                  <div className="w-1/3">
+                    <ConnectorAccountDetailsHelper.RenderConnectorInputFields
+                      details={ConnectorUtils.connectorLabelDetailField}
+                      name={"connector_label"}
+                      keysToIgnore=ConnectorAccountDetailsHelper.metaDataInputKeysToIgnore
+                      checkRequiredFields={ConnectorUtils.getMetaDataRequiredFields}
+                      connector={connector->ConnectorUtils.getConnectorNameTypeFromString}
+                      selectedConnector
+                      isLabelNested=false
+                      disabled={isUpdateFlow ? true : false}
+                      description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
+                    />
+                  </div>
                   <ConnectorAccountDetailsHelper.BusinessProfileRender
                     isUpdateFlow selectedConnector={connector}
                   />
@@ -483,35 +548,19 @@ let make = (
                 </div>
               | Redirecting_to_paypal =>
                 <RedirectionToPayPalFlow actionUrl setActionUrl connectorId getStatus />
-              | Manual_setup_flow =>
-                <ManualSetupScreen
-                  connector
-                  connectorAccountFields
-                  selectedConnector
-                  connectorMetaDataFields
-                  connectorWebHookDetails
-                  connectorLabelDetailField
-                />
+              | Manual_setup_flow => React.null
+
+              | Account_not_found
               | Payments_not_receivable
               | Ppcp_custom_denied
               | More_permissions_needed
               | Email_not_verified =>
-                <ErrorPage setupAccountStatus actionUrl getStatus setScreenState />
+                <ErrorPage setupAccountStatus actionUrl getStatus setActionUrl connectorId />
               | _ => React.null
               }}
-              <IntegrationHelp.Render connector setShowModal showModal />
             </div>
             <FormValuesSpy />
           </ConnectorAccountDetailsHelper.ConnectorHeaderWrapper>
-          <ConnectorAccountDetailsHelper.VerifyConnectorModal
-            showVerifyModal
-            setShowVerifyModal
-            connector
-            verifyErrorMessage
-            suggestedActionExists
-            suggestedAction
-            setVerifyDone
-          />
         </div>
       </Form>
       <div className="bg-jp-gray-light_gray_bg flex py-4 px-10 gap-2">

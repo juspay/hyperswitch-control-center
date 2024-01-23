@@ -63,7 +63,7 @@ module MenuOption = {
     <Popover \"as"="div" className="relative inline-block text-left">
       {popoverProps => <>
         <Popover.Button> {buttonProps => <Icon name="menu-option" size=28 />} </Popover.Button>
-        <Popover.Panel className="absolute z-20 right-0">
+        <Popover.Panel className="absolute z-20 right-5 top-4">
           {panelProps => {
             <div
               id="neglectTopbarTheme"
@@ -89,6 +89,161 @@ module MenuOption = {
     </Popover>
   }
 }
+
+module MenuOptionForPayPal = {
+  @react.component
+  let make = (
+    ~updateStepValue=ConnectorTypes.IntegFields,
+    ~setCurrentStep,
+    ~disableConnector,
+    ~isConnectorDisabled,
+    ~pageName="connector",
+    ~connectorInfoDict,
+    ~setScreenState,
+    ~isUpdateFlow,
+    ~setInitialValues,
+  ) => {
+    open HeadlessUI
+    open APIUtils
+    let showPopUp = PopUpState.useShowPopUp()
+    let updateDetails = useUpdateMethod()
+    let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
+    let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
+    let connectorInfo = connectorInfoDict->ConnectorTableUtils.getProcessorPayloadType
+
+    let openConfirmationPopUp = _ => {
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Confirm Action ? ",
+        description: `You are about to ${isConnectorDisabled
+            ? "Enable"
+            : "Disable"->String.toLowerCase} this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
+        handleConfirm: {
+          text: "Confirm",
+          onClick: _ => disableConnector(isConnectorDisabled)->ignore,
+        },
+        handleCancel: {text: "Cancel"},
+      })
+    }
+
+    let connectorStatusAvailableToSwitch = isConnectorDisabled ? "Enable" : "Disable"
+
+    let onSubmitMain = async values => {
+      open PayPalFlowUtils
+      open LogicUtils
+
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let profileIdValue = values->getDictFromJsonObject->getString("profile_id", "")
+        let body = generateConnectorPayloadPayPal(
+          ~profileId=profileIdValue,
+          ~connectorId=connectorInfo.merchant_connector_id,
+          ~connector=connectorInfo.connector_name,
+          ~bodyType="TemporaryAuth",
+          ~connectorLabel={
+            values->getDictFromJsonObject->getString("connector_label", "")
+          },
+        )
+
+        let url = getURL(
+          ~entityName=CONNECTOR,
+          ~methodType=Post,
+          ~id=isUpdateFlow ? Some(connectorInfo.merchant_connector_id) : None,
+          (),
+        )
+        let res = await updateDetails(url, body, Post)
+
+        setInitialValues(_ => res)
+        let connectorId = res->getDictFromJsonObject->getString("merchant_connector_id", "")
+        setScreenState(_ => Success)
+        if !isUpdateFlow {
+          RescriptReactRouter.push(`/connectors/new?name=paypal&connectorId=${connectorId}`)
+        }
+      } catch {
+      | Js.Exn.Error(e) => ()
+      }
+    }
+
+    let handleNewPayPalAccount = async () => {
+      open LogicUtils
+      try {
+        await deleteTrackingDetails(
+          connectorInfo.merchant_connector_id,
+          connectorInfo.connector_name,
+        )
+        let temporaryAuthDict =
+          [("auth_type", "TemporaryAuth"->Js.Json.string)]->getJsonFromArrayOfJson
+        connectorInfoDict->Dict.set("connector_account_details", temporaryAuthDict)
+        onSubmitMain(connectorInfoDict->Js.Json.object_)->ignore
+      } catch {
+      | _ => ()
+      }
+    }
+
+    <Popover \"as"="div" className="relative inline-block text-left">
+      {popoverProps => <>
+        <Popover.Button> {buttonProps => <Icon name="menu-option" size=28 />} </Popover.Button>
+        <Popover.Panel className="absolute z-20 right-0 top-10">
+          {panelProps => {
+            <div
+              id="neglectTopbarTheme"
+              className="relative flex flex-col bg-white py-3 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-max">
+              {<>
+                <UIUtils.RenderIf
+                  condition={connectorInfo.connector_account_details.auth_type->ConnectorUtils.mapAuthType ===
+                    #SignatureKey}>
+                  <Navbar.MenuOption
+                    text="Create new PayPal account"
+                    onClick={_ => {
+                      handleNewPayPalAccount()->ignore
+                      setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
+                      setSetupAccountStatus(._ => PayPalFlowTypes.Redirecting_to_paypal)
+                    }}
+                  />
+                </UIUtils.RenderIf>
+                <Navbar.MenuOption
+                  text="Change configurations"
+                  onClick={_ => {
+                    setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
+                    setSetupAccountStatus(._ => PayPalFlowTypes.Connect_paypal_landing)
+                  }}
+                />
+                <UIUtils.RenderIf
+                  condition={connectorInfo.connector_account_details.auth_type->ConnectorUtils.mapAuthType ===
+                    #BodyKey}>
+                  <Navbar.MenuOption
+                    text="Update"
+                    onClick={_ => {
+                      setCurrentStep(_ => ConnectorTypes.IntegFields)
+                      setSetupAccountStatus(._ => PayPalFlowTypes.Manual_setup_flow)
+                    }}
+                  />
+                </UIUtils.RenderIf>
+                <UIUtils.RenderIf
+                  condition={connectorInfo.connector_account_details.auth_type->ConnectorUtils.mapAuthType ===
+                    #SignatureKey}>
+                  <Navbar.MenuOption
+                    text="Update Payment Methods"
+                    onClick={_ => {
+                      setCurrentStep(_ => updateStepValue)
+                    }}
+                  />
+                </UIUtils.RenderIf>
+                <Navbar.MenuOption
+                  text={connectorStatusAvailableToSwitch}
+                  onClick={_ => {
+                    openConfirmationPopUp()
+                  }}
+                />
+              </>}
+            </div>
+          }}
+        </Popover.Panel>
+      </>}
+    </Popover>
+  }
+}
+
 module ConnectorSummaryGrid = {
   open PageLoaderWrapper
   @react.component
@@ -229,6 +384,7 @@ let make = (
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let {setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let connectorInfoDict = connectorInfo->LogicUtils.getDictFromJsonObject
   let connectorInfo =
     connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorTableUtils.getProcessorPayloadType
   let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
@@ -279,7 +435,7 @@ let make = (
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
       switch paypalDict->Js.Json.classify {
       | JSONString(str) => {
-          setCurrentStep(_ => IntegFields)
+          setCurrentStep(_ => AutomaticFlow)
           setSetupAccountStatus(._ => str->PayPalFlowUtils.stringToVariantMapper)
         }
       | JSONObject(dict) =>
@@ -324,8 +480,23 @@ let make = (
                 className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
                 {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
               </div>
-              <UIUtils.RenderIf condition={showMenuOption}>
+              <UIUtils.RenderIf
+                condition={showMenuOption &&
+                !(connector->getConnectorNameTypeFromString === PAYPAL)}>
                 <MenuOption setCurrentStep disableConnector isConnectorDisabled />
+              </UIUtils.RenderIf>
+              <UIUtils.RenderIf
+                condition={showMenuOption && connector->getConnectorNameTypeFromString === PAYPAL}>
+                <MenuOptionForPayPal
+                  setCurrentStep
+                  disableConnector
+                  isConnectorDisabled
+                  updateStepValue={ConnectorTypes.PaymentMethods}
+                  connectorInfoDict
+                  setScreenState
+                  isUpdateFlow
+                  setInitialValues
+                />
               </UIUtils.RenderIf>
             </div>
 

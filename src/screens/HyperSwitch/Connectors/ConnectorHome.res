@@ -60,7 +60,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let url = RescriptReactRouter.useUrl()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
@@ -94,6 +94,13 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     try {
       setScreenState(_ => Loading)
       let _ = await Window.connectorWasmInit()
+      setCurrentStep(_ =>
+        connectorListWithAutomaticFlow->Js.Array2.includes(
+          connector->ConnectorUtils.getConnectorNameTypeFromString,
+        )
+          ? ConnectorTypes.AutomaticFlow
+          : ConnectorTypes.IntegFields
+      )
       if isUpdateFlow {
         await getConnectorDetails()
       }
@@ -109,6 +116,8 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   React.useEffect1(() => {
     if connector->String.length > 0 {
       getDetails()->ignore
+    } else {
+      setScreenState(_ => Error("Connector name not found"))
     }
     None
   }, [connector])
@@ -146,6 +155,12 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       <div
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">
         {switch currentStep {
+        | AutomaticFlow =>
+          switch connector->ConnectorUtils.getConnectorNameTypeFromString {
+          | PAYPAL =>
+            <ConnectPayPal connector isUpdateFlow setInitialValues initialValues setCurrentStep />
+          | _ => React.null
+          }
         | IntegFields =>
           <ConnectorAccountDetails
             setCurrentStep setInitialValues initialValues isUpdateFlow isPayoutFlow

@@ -14,6 +14,7 @@ let getStepName = step => {
   | PaymentMethods => "Payment Methods"
   | SummaryAndTest => "Summary"
   | Preview => "Preview"
+  | AutomaticFlow => "AutomaticFlow"
   }
 }
 
@@ -86,6 +87,8 @@ let connectorListForLive: array<connectorName> = [
   TRUSTPAY,
   ZEN,
 ]
+
+let connectorListWithAutomaticFlow = [PAYPAL]
 
 let getPaymentMethodFromString = paymentMethod => {
   switch paymentMethod->toLCase {
@@ -619,6 +622,7 @@ let mapAuthType = (authType: string) => {
   | "signaturekey" => #SignatureKey
   | "multiauthkey" => #MultiAuthKey
   | "currencyauthkey" => #CurrencyAuthKey
+  | "temporaryauth" => #TemporaryAuth
   | _ => #Nokey
   }
 }
@@ -893,7 +897,9 @@ let getConnectorDetailsValue = (connectorInfo: ConnectorTypes.connectorPayload, 
   | _ => Some("")
   }
 }
-
+let connectorLabelDetailField = Dict.fromArray([
+  ("connector_label", "Connector label"->Js.Json.string),
+])
 let getConnectorFields = connectorDetails => {
   let connectorAccountDict =
     connectorDetails->LogicUtils.getDictFromJsonObject->LogicUtils.getDictfromDict("connector_auth")
@@ -908,9 +914,6 @@ let getConnectorFields = connectorDetails => {
     connectorDetails
     ->LogicUtils.getDictFromJsonObject
     ->LogicUtils.getDictfromDict("connector_webhook_details")
-  let connectorLabelDetailField = Dict.fromArray([
-    ("connector_label", "Connector label"->Js.Json.string),
-  ])
   (
     bodyType,
     connectorAccountFields,

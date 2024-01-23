@@ -288,7 +288,6 @@ module ConnectorConfigurationFields = {
     ~isUpdateFlow=false,
     ~connectorLabelDetailField,
   ) => {
-    open ConnectorUtils
     <div className="flex flex-col">
       {if connector === CASHTOCODE {
         <CashToCodeMethods connectorAccountFields connector selectedConnector />
@@ -296,7 +295,7 @@ module ConnectorConfigurationFields = {
         <RenderConnectorInputFields
           details={connectorAccountFields}
           name={"connector_account_details"}
-          getPlaceholder={getPlaceHolder}
+          getPlaceholder={ConnectorUtils.getPlaceHolder}
           connector
           selectedConnector
         />
@@ -305,7 +304,7 @@ module ConnectorConfigurationFields = {
         details={connectorLabelDetailField}
         name={"connector_label"}
         keysToIgnore=metaDataInputKeysToIgnore
-        checkRequiredFields={getMetaDataRequiredFields}
+        checkRequiredFields={ConnectorUtils.getMetaDataRequiredFields}
         connector
         selectedConnector
         isLabelNested=false
@@ -316,14 +315,14 @@ module ConnectorConfigurationFields = {
         details={connectorMetaDataFields}
         name={"metadata"}
         keysToIgnore=metaDataInputKeysToIgnore
-        checkRequiredFields={getMetaDataRequiredFields}
+        checkRequiredFields={ConnectorUtils.getMetaDataRequiredFields}
         connector
         selectedConnector
       />
       <RenderConnectorInputFields
         details={connectorWebHookDetails}
         name={"connector_webhook_details"}
-        checkRequiredFields={getWebHookRequiredFields}
+        checkRequiredFields={ConnectorUtils.getWebHookRequiredFields}
         connector
         selectedConnector
       />
@@ -481,10 +480,15 @@ module ConnectorHeaderWrapper = {
     ~children,
     ~headerButton,
     ~connector,
-    ~setShowModal,
+    ~handleShowModal=?,
     ~conditionForIntegrationSteps=true,
   ) => {
     open ConnectorUtils
+
+    let setShowModalFunction = switch handleShowModal {
+    | Some(func) => func
+    | _ => _ => ()
+    }
     <>
       <div className="flex items-center justify-between border-b p-2 md:px-10 md:py-6">
         <div className="flex gap-2 items-center">
@@ -501,9 +505,7 @@ module ConnectorHeaderWrapper = {
             <a
               className={`flex cursor-pointer px-4 py-3 flex text-sm text-blue-900 items-center mx-4`}
               target="_blank"
-              onClick={_ => {
-                setShowModal(_ => true)
-              }}>
+              onClick={_ => setShowModalFunction()}>
               {React.string("View integration steps")}
               <Icon name="external-link-alt" size=14 className="ml-2" />
             </a>
