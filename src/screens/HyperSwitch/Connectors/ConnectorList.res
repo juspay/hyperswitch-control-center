@@ -233,7 +233,7 @@ let make = (~isPayoutFlow=false) => {
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let detailedCardCount = 5
-  let showConnectorIcons = configuredConnectors->len > detailedCardCount
+  let showConnectorIcons = configuredConnectors->Array.length > detailedCardCount
   let (searchText, setSearchText) = React.useState(_ => "")
   let fetchConnectorListResponse = useFetchConnectorList()
 

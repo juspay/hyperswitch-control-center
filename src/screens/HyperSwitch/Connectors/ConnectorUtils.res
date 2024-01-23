@@ -17,9 +17,6 @@ let getStepName = step => {
   }
 }
 
-let toLCase = str => str->String.toLowerCase
-let len = arr => arr->Array.length
-
 let payoutConnectorList: array<connectorName> = [ADYEN, WISE]
 
 let connectorList: array<connectorName> = [
@@ -88,7 +85,7 @@ let connectorListForLive: array<connectorName> = [
 ]
 
 let getPaymentMethodFromString = paymentMethod => {
-  switch paymentMethod->toLCase {
+  switch paymentMethod->String.toLowerCase {
   | "card" => Card
   | "debit" | "credit" => Card
   | "paylater" => PayLater
@@ -102,7 +99,7 @@ let getPaymentMethodFromString = paymentMethod => {
 }
 
 let getPaymentMethodTypeFromString = paymentMethodType => {
-  switch paymentMethodType->toLCase {
+  switch paymentMethodType->String.toLowerCase {
   | "credit" => Credit
   | "debit" => Debit
   | "google_pay" => GooglePay
@@ -613,7 +610,7 @@ let ignoreFields = (json, id, fields) => {
 }
 
 let mapAuthType = (authType: string) => {
-  switch authType->toLCase {
+  switch authType->String.toLowerCase {
   | "bodykey" => #BodyKey
   | "headerkey" => #HeaderKey
   | "signaturekey" => #SignatureKey
@@ -634,7 +631,9 @@ let getConnectorType = (connector, ~isPayoutFlow, ()) => {
 
 let getSelectedPaymentObj = (paymentMethodsEnabled: array<paymentMethodEnabled>, paymentMethod) => {
   paymentMethodsEnabled
-  ->Array.find(item => item.payment_method_type->toLCase == paymentMethod->toLCase)
+  ->Array.find(item =>
+    item.payment_method_type->String.toLowerCase == paymentMethod->String.toLowerCase
+  )
   ->Option.getWithDefault({
     payment_method: "unknown",
     payment_method_type: "unkonwn",
@@ -646,7 +645,7 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
   switch paymentMethod->getPaymentMethodFromString {
   | Card =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
-      if val.payment_method_type->toLCase === paymentMethod->toLCase {
+      if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
         val.card_provider
         ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
         ->Array.push(method)
@@ -654,7 +653,7 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
     })
   | _ =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
-      if val.payment_method_type->toLCase === paymentMethod->toLCase {
+      if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
         val.provider
         ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
         ->Array.push(method)
@@ -669,7 +668,7 @@ let removeMethod = (paymentMethodsEnabled, paymentMethod, method: paymentMethodC
   switch paymentMethod->getPaymentMethodFromString {
   | Card =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
-      if val.payment_method_type->toLCase === paymentMethod->toLCase {
+      if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
         let indexOfRemovalItem =
           val.card_provider
           ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
@@ -688,7 +687,7 @@ let removeMethod = (paymentMethodsEnabled, paymentMethod, method: paymentMethodC
 
   | _ =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
-      if val.payment_method_type->toLCase === paymentMethod->toLCase {
+      if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
         let indexOfRemovalItem =
           val.provider
           ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
@@ -882,7 +881,7 @@ let getPlaceHolder = (connector: connectorName, fieldName, label) => {
   }
 }
 
-let getConnectorDetailsValue = (connectorInfo: ConnectorTypes.connectorPayload, str) => {
+let getConnectorDetailsValue = (connectorInfo: connectorPayload, str) => {
   switch str {
   | "api_key" => connectorInfo.connector_account_details.api_key
   | "api_secret" => connectorInfo.connector_account_details.api_secret
@@ -1078,7 +1077,7 @@ let useFetchConnectorList = () => {
 }
 
 let defaultSelectAllCards = (
-  pmts: array<ConnectorTypes.paymentMethodEnabled>,
+  pmts: array<paymentMethodEnabled>,
   isUpdateFlow,
   isPayoutFlow,
   connector,
@@ -1102,7 +1101,9 @@ let defaultSelectAllCards = (
             ->getPaymentMethodMapper
 
           let length =
-            val.card_provider->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)->len
+            val.card_provider
+            ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+            ->Array.length
           val.card_provider
           ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
           ->Array.splice(~start=0, ~remove=length, ~insert=arr)
@@ -1115,7 +1116,9 @@ let defaultSelectAllCards = (
             ->getPaymentMethodMapper
 
           let length =
-            val.provider->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)->len
+            val.provider
+            ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+            ->Array.length
           val.provider
           ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
           ->Array.splice(~start=0, ~remove=length, ~insert=arr)
@@ -1164,7 +1167,7 @@ let getConnectorPaymentMethodDetails = async (
   }
 }
 
-let filterList = (items, ~removeFromList: ConnectorTypes.processors) => {
+let filterList = (items, ~removeFromList: processors) => {
   open LogicUtils
   items->Array.filter(dict => {
     let connectorType = dict->getString("connector_type", "")
@@ -1179,11 +1182,7 @@ let filterList = (items, ~removeFromList: ConnectorTypes.processors) => {
   })
 }
 
-let getProcessorsListFromJson = (
-  json,
-  ~removeFromList: ConnectorTypes.processors=FRMPlayer,
-  (),
-) => {
+let getProcessorsListFromJson = (json, ~removeFromList: processors=FRMPlayer, ()) => {
   open LogicUtils
   json->getArrayFromJson([])->Array.map(getDictFromJsonObject)->filterList(~removeFromList)
 }
