@@ -58,7 +58,7 @@ let useApiFetcher = () => {
       uri,
       ~bodyStr: string="",
       ~bodyFormData=None,
-      ~headers=Dict.make(),
+      ~headers=[("Content-Type", "application/json")]->Dict.fromArray,
       ~bodyHeader as _=?,
       ~method_: Fetch.requestMethod,
       ~authToken as _=?,
