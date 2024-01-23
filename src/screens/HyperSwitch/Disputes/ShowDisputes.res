@@ -150,7 +150,8 @@ module Details = {
           {getStatus(data)}
         </div>
         <UIUtils.RenderIf
-          condition={disputeEvidenceUpload && data.dispute_status === "dispute_opened"}>
+          condition={disputeEvidenceUpload &&
+          data.dispute_status->DisputesUtils.disputeStatusVariantMapper === DisputeOpened}>
           <div className="flex gap-4">
             <Button
               buttonType={Secondary}
@@ -171,7 +172,8 @@ module Details = {
       </div>
       <div className="h-px w-full bg-grey-200 opacity-30" />
       <UIUtils.RenderIf
-        condition={disputeEvidenceUpload && data.dispute_status === "dispute_opened"}>
+        condition={disputeEvidenceUpload &&
+        data.dispute_status->DisputesUtils.disputeStatusVariantMapper === DisputeOpened}>
         <DisputesInfoBarComponent disputeStatus />
       </UIUtils.RenderIf>
       <FormRenderer.DesktopRow>
