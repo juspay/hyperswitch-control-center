@@ -76,7 +76,10 @@ let make = () => {
           ~methodType=Post,
           (),
         )}/profile/${profile}`
-      (await updateDetails(defaultFallbackUpdateUrl, defaultPayload->Js.Json.array, Post))->ignore
+
+      (
+        await updateDetails(defaultFallbackUpdateUrl, defaultPayload->Js.Json.array, Post, ())
+      )->ignore
       RescriptReactRouter.replace(`/routing/default`)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

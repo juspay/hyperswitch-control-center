@@ -154,7 +154,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
         ~connector=Some(connector),
         (),
       )
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
       setShowVerifyModal(_ => false)
       onSubmitMain(values)->ignore
     } catch {

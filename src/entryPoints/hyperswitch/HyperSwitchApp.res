@@ -361,11 +361,11 @@ let make = () => {
                           />
                         </AccessControl>
                       | list{"recon"} =>
-                        <AccessControl isEnabled=featureFlagDetails.recon>
+                        <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
                           <Recon />
                         </AccessControl>
                       | list{"sdk"} =>
-                        <AccessControl isEnabled={!featureFlagDetails.isLiveMode}>
+                        <AccessControl isEnabled={!featureFlagDetails.isLiveMode} permission=Access>
                           <SDKPage />
                         </AccessControl>
                       | list{"3ds"} =>
@@ -397,7 +397,8 @@ let make = () => {
                           <BusinessDetails />
                         </AccessControl>
                       | list{"business-profiles"} =>
-                        <AccessControl isEnabled=featureFlagDetails.businessProfile>
+                        <AccessControl
+                          isEnabled=featureFlagDetails.businessProfile permission=Access>
                           <BusinessProfile />
                         </AccessControl>
                       | list{"quick-start"} => determineQuickStartPageState()
