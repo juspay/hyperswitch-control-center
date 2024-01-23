@@ -1,4 +1,5 @@
-let p1MediumTextStyle = HSwitchUtils.getTextClass(~textVariant=P1, ~paragraphTextVariant=Medium, ())
+open HSwitchUtils
+let p1MediumTextStyle = getTextClass(~textVariant=P1, ~paragraphTextVariant=Medium, ())
 
 module RequestConnector = {
   @react.component
@@ -16,6 +17,28 @@ module RequestConnector = {
           text={"Request a processor"} buttonType=Primary onClick={_ => setShowModal(_ => true)}
         />
       </div>
+    </UIUtils.RenderIf>
+  }
+}
+
+module CantFindProcessor = {
+  @react.component
+  let make = (~showRequestConnectorBtn, ~setShowModal) => {
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+
+    <UIUtils.RenderIf condition={showRequestConnectorBtn}>
+      <ToolTip
+        description={userPermissionJson.merchantAccountWrite === Access ? "" : noAccessControlText}
+        toolTipFor={<div
+          onClick={_ =>
+            userPermissionJson.merchantAccountWrite === Access ? setShowModal(_ => true) : ()}
+          className={`text-blue-900 ${userPermissionJson.merchantAccountWrite === Access
+              ? "cursor-pointer"
+              : "cursor-default"} underline underline-offset-4 font-medium`}>
+          {"Can't find the processor of your choice?"->React.string}
+        </div>}
+        toolTipPosition={Top}
+      />
     </UIUtils.RenderIf>
   }
 }
@@ -79,22 +102,7 @@ module NewProcessorCards = {
               className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
             />
           </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={showRequestConnectorBtn}>
-            <ToolTip
-              description={userPermissionJson.merchantAccountWrite === Access
-                ? ""
-                : "You do not have the required permissions. Please contact admin."}
-              toolTipFor={<div
-                onClick={_ =>
-                  userPermissionJson.merchantAccountWrite === Access ? setShowModal(_ => true) : ()}
-                className={`text-blue-900 ${userPermissionJson.merchantAccountWrite === Access
-                    ? "cursor-pointer"
-                    : "cursor-default"} underline underline-offset-4 font-medium`}>
-                {"Can't find the processor of your choice?"->React.string}
-              </div>}
-              toolTipPosition={Top}
-            />
-          </UIUtils.RenderIf>
+          <CantFindProcessor showRequestConnectorBtn setShowModal />
         </div>
         <UIUtils.RenderIf condition={connectorList->Array.length > 0}>
           <div
@@ -157,22 +165,7 @@ module NewProcessorCards = {
               className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
             />
           </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={showRequestConnectorBtn}>
-            <ToolTip
-              description={userPermissionJson.merchantAccountWrite === Access
-                ? ""
-                : "You do not have the required permissions. Please contact admin."}
-              toolTipFor={<div
-                onClick={_ =>
-                  userPermissionJson.merchantAccountWrite === Access ? setShowModal(_ => true) : ()}
-                className={`text-blue-900 ${userPermissionJson.merchantAccountWrite === Access
-                    ? "cursor-pointer"
-                    : "cursor-default"} underline underline-offset-4 font-medium`}>
-                {"Can't find the processor of your choice?"->React.string}
-              </div>}
-              toolTipPosition={Top}
-            />
-          </UIUtils.RenderIf>
+          <CantFindProcessor showRequestConnectorBtn setShowModal />
         </div>
         <UIUtils.RenderIf condition={connectorList->Array.length > 0}>
           <div className="bg-white rounded-md flex gap-2 flex-wrap p-4 border">
@@ -184,7 +177,7 @@ module NewProcessorCards = {
                 key={i->string_of_int}
                 description={userPermissionJson.merchantConnectorAccountWrite === Access
                   ? connectorName->LogicUtils.capitalizeString
-                  : "You do not have the required permissions to connect this processor. Please contact admin."}
+                  : noAccessControlTextForProcessors}
                 toolTipFor={<div
                   className="p-2 cursor-pointer"
                   onClick={_ =>
@@ -269,8 +262,8 @@ let make = (~isPayoutFlow=false) => {
     open LogicUtils
     try {
       let response = await fetchConnectorListResponse()
-      let removeFromList = isPayoutFlow ? HSwitchUtils.PayoutConnector : HSwitchUtils.FRMPlayer
-      let connectorsList = response->HSwitchUtils.getProcessorsListFromJson(~removeFromList, ())
+      let removeFromList = isPayoutFlow ? PayoutConnector : FRMPlayer
+      let connectorsList = response->getProcessorsListFromJson(~removeFromList, ())
       let previousData = connectorsList->Array.map(ConnectorTableUtils.getProcessorPayloadType)
 
       setFilteredConnectorData(_ => previousData->Array.map(Js.Nullable.return))
