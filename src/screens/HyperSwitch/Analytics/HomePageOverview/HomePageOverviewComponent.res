@@ -214,6 +214,7 @@ module OverviewInfo = {
           generateSampleDataUrl,
           [("record", 50.0->Js.Json.number)]->Dict.fromArray->Js.Json.object_,
           Post,
+          (),
         )
         showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess, ())
         Window.Location.reload()

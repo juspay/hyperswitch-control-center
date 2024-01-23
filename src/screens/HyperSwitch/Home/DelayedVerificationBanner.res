@@ -29,7 +29,7 @@ let make = React.memo((~merchantId="", ~verificationDays) => {
     let body = email->HyperSwitchAuthUtils.getEmailBody()
     try {
       let url = getURL(~entityName=USERS, ~userType=#VERIFY_EMAIL_REQUEST, ~methodType=Post, ())
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
       showToast(~message=`Email Send Successfully!`, ~toastType=ToastSuccess, ())
     } catch {
     | _ =>
