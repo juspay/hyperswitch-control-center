@@ -116,6 +116,15 @@ let make = (
   }
 
   React.useEffect1(() => {
+    if choiceStateForTestConnector === #NotSelected {
+      setButtonState(_ => Button.Disabled)
+    } else {
+      setButtonState(_ => Button.Normal)
+    }
+    None
+  }, [choiceStateForTestConnector])
+
+  React.useEffect1(() => {
     let defaultJsonOnNewConnector =
       [("profile_id", activeBusinessProfile.profile_id->Js.Json.string)]
       ->Dict.fromArray
@@ -144,6 +153,8 @@ let make = (
           buttonType=Primary
           text="Proceed"
           buttonState
+          showBtnTextToolTip={buttonState === Button.Disabled}
+          tooltipText="Please select one of the choices"
           onClick={_ => {
             handleConnectorSubmit()
           }}

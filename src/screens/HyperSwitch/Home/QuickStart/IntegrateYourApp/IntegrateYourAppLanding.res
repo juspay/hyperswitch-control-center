@@ -14,6 +14,8 @@ let make = (~integrateAppValue: integrateApp) => {
     typedValueOfEnum.integrationMethod.integration_type->textToVariantMapper
   )
 
+  Js.log2("sldjncjasndvnasfnv", choiceState)
+
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
   let currentRoute =
     typedValueOfEnum.integrationMethod.integration_type->textToVariantMapperForBuildHS
@@ -64,6 +66,15 @@ let make = (~integrateAppValue: integrateApp) => {
     setQuickStartPageState(_ => GoLive(LANDING))
   }
 
+  React.useEffect1(() => {
+    if choiceState === #NotSelected {
+      setButtonState(_ => Button.Disabled)
+    } else {
+      setButtonState(_ => Button.Normal)
+    }
+    None
+  }, [choiceState])
+
   <>
     {switch integrateAppValue {
     | LANDING =>
@@ -94,6 +105,8 @@ let make = (~integrateAppValue: integrateApp) => {
               buttonType=Primary
               text="Proceed"
               buttonState
+              showBtnTextToolTip={buttonState === Button.Disabled}
+              tooltipText="Please select one of the choices"
               onClick={_ => {
                 mixpanelEvent(~eventName=`quickstart_integration_landing_option`, ())
                 handleIntegration()->ignore
