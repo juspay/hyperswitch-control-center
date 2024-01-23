@@ -14,8 +14,6 @@ let make = (~integrateAppValue: integrateApp) => {
     typedValueOfEnum.integrationMethod.integration_type->textToVariantMapper
   )
 
-  Js.log2("sldjncjasndvnasfnv", choiceState)
-
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
   let currentRoute =
     typedValueOfEnum.integrationMethod.integration_type->textToVariantMapperForBuildHS
