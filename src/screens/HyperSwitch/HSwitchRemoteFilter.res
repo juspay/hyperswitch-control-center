@@ -211,7 +211,7 @@ module RemoteTableFilters = {
       setFilterDataJson(_ => None)
       if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
         try {
-          updateDetails(filterUrl, filterBody->Js.Json.object_, Post)
+          updateDetails(filterUrl, filterBody->Js.Json.object_, Post, ())
           ->thenResolve(json => setFilterDataJson(_ => json->Some))
           ->catch(_ => resolve())
           ->ignore

@@ -64,7 +64,7 @@ module HyperSwitchEntryComponent = {
         let url = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/config/merchant-access`
         let typedResponse =
           (
-            await postDetails(url, Dict.make()->Js.Json.object_, Post)
+            await postDetails(url, Dict.make()->Js.Json.object_, Post, ())
           )->FeatureFlagUtils.featureFlagType
         setFeatureFlag(._ => typedResponse)
         setScreenState(_ => PageLoaderWrapper.Success)

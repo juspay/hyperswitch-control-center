@@ -24,7 +24,7 @@ module RequestPage = {
           ->Js.Json.object_
 
         let body = [("Feedback", requestedBody)]->LogicUtils.getJsonFromArrayOfJson
-        let _ = await updateDetails(url, body, Post)
+        let _ = await updateDetails(url, body, Post, ())
         showToast(
           ~toastType=ToastSuccess,
           ~message="Request submitted successfully!",

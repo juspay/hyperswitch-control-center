@@ -508,7 +508,7 @@ module FraudRiskBannerDetails = {
             (),
           )}/${decision->String.toLowerCase}`
 
-        let _ = await updateDetails(ordersDecisionUrl, Dict.make()->Js.Json.object_, Post)
+        let _ = await updateDetails(ordersDecisionUrl, Dict.make()->Js.Json.object_, Post, ())
         showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
         refetch()
       } catch {
