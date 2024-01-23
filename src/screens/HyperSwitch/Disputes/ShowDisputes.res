@@ -91,116 +91,118 @@ module DisputesInfoBarComponent = {
     </div>
   }
 }
+module Details = {
+  @react.component
+  let make = (
+    ~data: DisputeTypes.disputes,
+    ~getHeading,
+    ~getCell,
+    ~excludeColKeys=[],
+    ~detailsFields,
+    ~justifyClassName="justify-start",
+    ~widthClass="w-1/4",
+    ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
+    ~children=?,
+    ~setDisputeData,
+  ) => {
+    open APIUtils
+    let updateDetails = useUpdateMethod()
+    let (disputeStatus, setDisputeStatus) = React.useState(_ => DisputeTypes.Initiated)
+    let showPopUp = PopUpState.useShowPopUp()
+    let {disputeEvidenceUpload} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-module DisputesInfo = {
-  module Details = {
-    @react.component
-    let make = (
-      ~data: DisputeTypes.disputes,
-      ~getHeading,
-      ~getCell,
-      ~excludeColKeys=[],
-      ~detailsFields,
-      ~justifyClassName="justify-start",
-      ~widthClass="w-1/4",
-      ~bgColor="bg-white dark:bg-jp-gray-lightgray_background",
-      ~children=?,
-      ~setDisputeData,
-    ) => {
-      open APIUtils
-      let updateDetails = useUpdateMethod()
-      let (disputeStatus, setDisputeStatus) = React.useState(_ => DisputeTypes.Initiated)
-      let showPopUp = PopUpState.useShowPopUp()
-
-      let handleAcceptDispute = async () => {
-        try {
-          let url = getURL(
-            ~entityName=ACCEPT_DISPUTE,
-            ~methodType=Post,
-            ~id=Some(data.dispute_id),
-            (),
-          )
-          let response = await updateDetails(url, Dict.make()->Js.Json.object_, Post)
-          setDisputeData(_ => response)
-          setDisputeStatus(_ => Accepted)
-        } catch {
-        | _ => ()
-        }
+    let handleAcceptDispute = async () => {
+      try {
+        let url = getURL(
+          ~entityName=ACCEPT_DISPUTE,
+          ~methodType=Post,
+          ~id=Some(data.dispute_id),
+          (),
+        )
+        let response = await updateDetails(url, Dict.make()->Js.Json.object_, Post)
+        setDisputeData(_ => response)
+        setDisputeStatus(_ => Accepted)
+      } catch {
+      | _ => ()
       }
-
-      let handlePopupOpen = () => {
-        showPopUp({
-          popUpType: (Warning, WithIcon),
-          heading: "Accept this dispute?",
-          description: "By accepting you will lose this dispute and will have to refund the amount to the user. You won’t be able to submit evidence once you accept"->React.string,
-          handleConfirm: {text: "Proceed", onClick: _ => handleAcceptDispute()->ignore},
-          handleCancel: {text: "Cancel"},
-        })
-      }
-
-      <OrderUtils.Section
-        customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-6 flex flex-col gap-6`}>
-        <div className="flex items-center justify-between">
-          <div className="flex gap-2 items-center">
-            <p className="font-bold text-3xl">
-              {DisputesEntity.amountValue(
-                data.amount,
-                data.currency->String.toUpperCase,
-              )->React.string}
-            </p>
-            {getStatus(data)}
-          </div>
-          <UIUtils.RenderIf condition={data.dispute_status === "dispute_opened"}>
-            <div className="flex gap-4">
-              <Button
-                buttonType={Secondary}
-                text="Accept Dispute"
-                buttonSize={Small}
-                customButtonStyle="!py-3 !px-2.5"
-                onClick={_ => handlePopupOpen()}
-              />
-              <Button
-                buttonType={Primary}
-                text="Counter Dispute"
-                buttonSize={Small}
-                customButtonStyle="!py-3 !px-2.5"
-                buttonState={Disabled}
-              />
-            </div>
-          </UIUtils.RenderIf>
-        </div>
-        <div className="h-px w-full bg-grey-200 opacity-30" />
-        <UIUtils.RenderIf condition={data.dispute_status === "dispute_opened"}>
-          <DisputesInfoBarComponent disputeStatus />
-        </UIUtils.RenderIf>
-        <FormRenderer.DesktopRow>
-          <div
-            className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
-            {detailsFields
-            ->Array.mapWithIndex((colType, i) => {
-              <UIUtils.RenderIf
-                condition={!(excludeColKeys->Array.includes(colType))} key={Belt.Int.toString(i)}>
-                <div className={`flex ${widthClass} items-center`}>
-                  <OrderUtils.DisplayKeyValueParams
-                    heading={getHeading(colType)}
-                    value={getCell(data, colType)}
-                    customMoneyStyle="!font-normal !text-sm"
-                    labelMargin="!py-0 mt-2"
-                    overiddingHeadingStyles="text-black text-sm font-medium"
-                    textColor="!font-normal !text-jp-gray-700"
-                  />
-                </div>
-              </UIUtils.RenderIf>
-            })
-            ->React.array}
-          </div>
-        </FormRenderer.DesktopRow>
-        <UIUtils.RenderIf condition={children->Option.isSome}>
-          {children->Option.getWithDefault(React.null)}
-        </UIUtils.RenderIf>
-      </OrderUtils.Section>
     }
+
+    let handlePopupOpen = () => {
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Accept this dispute?",
+        description: "By accepting you will lose this dispute and will have to refund the amount to the user. You won’t be able to submit evidence once you accept"->React.string,
+        handleConfirm: {text: "Proceed", onClick: _ => handleAcceptDispute()->ignore},
+        handleCancel: {text: "Cancel"},
+      })
+    }
+
+    <OrderUtils.Section
+      customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-6 flex flex-col gap-6`}>
+      <div className="flex items-center justify-between">
+        <div className="flex gap-2 items-center">
+          <p className="font-bold text-3xl">
+            {DisputesEntity.amountValue(
+              data.amount,
+              data.currency->String.toUpperCase,
+            )->React.string}
+          </p>
+          {getStatus(data)}
+        </div>
+        <UIUtils.RenderIf
+          condition={disputeEvidenceUpload && data.dispute_status === "dispute_opened"}>
+          <div className="flex gap-4">
+            <Button
+              buttonType={Secondary}
+              text="Accept Dispute"
+              buttonSize={Small}
+              customButtonStyle="!py-3 !px-2.5"
+              onClick={_ => handlePopupOpen()}
+            />
+            <Button
+              buttonType={Primary}
+              text="Counter Dispute"
+              buttonSize={Small}
+              customButtonStyle="!py-3 !px-2.5"
+              buttonState={Disabled}
+            />
+          </div>
+        </UIUtils.RenderIf>
+      </div>
+      <div className="h-px w-full bg-grey-200 opacity-30" />
+      <UIUtils.RenderIf
+        condition={disputeEvidenceUpload && data.dispute_status === "dispute_opened"}>
+        <DisputesInfoBarComponent disputeStatus />
+      </UIUtils.RenderIf>
+      <FormRenderer.DesktopRow>
+        <div
+          className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
+          {detailsFields
+          ->Array.mapWithIndex((colType, i) => {
+            <UIUtils.RenderIf
+              condition={!(excludeColKeys->Array.includes(colType))} key={Belt.Int.toString(i)}>
+              <div className={`flex ${widthClass} items-center`}>
+                <OrderUtils.DisplayKeyValueParams
+                  heading={getHeading(colType)}
+                  value={getCell(data, colType)}
+                  customMoneyStyle="!font-normal !text-sm"
+                  labelMargin="!py-0 mt-2"
+                  overiddingHeadingStyles="text-black text-sm font-medium"
+                  textColor="!font-normal !text-jp-gray-700"
+                />
+              </div>
+            </UIUtils.RenderIf>
+          })
+          ->React.array}
+        </div>
+      </FormRenderer.DesktopRow>
+      <UIUtils.RenderIf condition={children->Option.isSome}>
+        {children->Option.getWithDefault(React.null)}
+      </UIUtils.RenderIf>
+    </OrderUtils.Section>
   }
+}
+module DisputesInfo = {
   @react.component
   let make = (~orderDict, ~setDisputeData) => {
     let disputesData = DisputesEntity.itemToObjMapper(orderDict)

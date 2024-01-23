@@ -1,7 +1,7 @@
 {
   "test_live_toggle": false,
   "is_live_mode": false,
-  "magic_link": false,
+  "magic_link": true,
   "production_access": false,
   "quick_start": true,
   "switch_merchant": true,
@@ -23,5 +23,6 @@
   "user_journey_analytics": false,
   "surcharge": false,
   "customers_module": false,
-  "permission_based_module": false
+  "permission_based_module": false,
+  "dispute_evidence_upload": false
 }
