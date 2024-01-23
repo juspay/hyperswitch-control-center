@@ -9,7 +9,7 @@ module TermsAndCondition = {
         className="underline cursor-pointer"
         href="https://hyperswitch.io/terms-of-services"
         target="__blank">
-        {"Terms of Service "->React.string}
+        {"Terms of Service"->React.string}
       </a>
       {" & "->React.string}
       <a

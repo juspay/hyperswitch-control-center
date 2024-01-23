@@ -397,7 +397,6 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let (pageState, setPageState) = React.useState(() => Create)
   let (showModal, setShowModal) = React.useState(_ => false)
   let currentTabName = Recoil.useRecoilValueFromAtom(RoutingUtils.currentTabNameRecoilAtom)
-  let (isConfigButtonEnabled, setIsConfigButtonEnabled) = React.useState(_ => false)
   let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let connectorList = React.useMemo0(() => {
     connectorListJson->safeParse->ConnectorTableUtils.getArrayOfConnectorListPayloadType
@@ -540,7 +539,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     try {
       setScreenState(_ => Loading)
       let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post, ())
       showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
       RescriptReactRouter.replace(`/routing?`)
       setScreenState(_ => Success)
@@ -569,7 +568,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       setScreenState(_ => Loading)
       let deactivateRoutingURL = `${getURL(~entityName=ROUTING, ~methodType=Post, ())}/deactivate`
       let body = [("profile_id", profile->Js.Json.string)]->Dict.fromArray->Js.Json.object_
-      let _ = await updateDetails(deactivateRoutingURL, body, Post)
+      let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
       showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
       RescriptReactRouter.replace(`/routing?`)
       setScreenState(_ => Success)
@@ -629,7 +628,12 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       }
 
       let getActivateUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
-      let response = await updateDetails(getActivateUrl, payload->Identity.genericTypeToJson, Post)
+      let response = await updateDetails(
+        getActivateUrl,
+        payload->Identity.genericTypeToJson,
+        Post,
+        (),
+      )
 
       showToast(
         ~message="Successfully Created a new Configuration !",
@@ -671,7 +675,10 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
             <div className="w-full flex flex-row  justify-between">
               <div className="w-full">
                 <BasicDetailsForm
-                  formState setFormState currentTabName setIsConfigButtonEnabled profile setProfile
+                  formState={pageState == Preview ? ViewConfig : CreateConfig}
+                  currentTabName
+                  profile
+                  setProfile
                 />
                 <UIUtils.RenderIf condition={formState != CreateConfig}>
                   <div className="mb-5">
@@ -704,10 +711,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                           />
                         </UIUtils.RenderIf>
                       </div>
-                    | Create =>
-                      <AdvancedRoutingUIUtils.ConfigureRuleButton
-                        setShowModal isConfigButtonEnabled
-                      />
+                    | Create => <RoutingUtils.ConfigureRuleButton setShowModal />
                     | _ => React.null
                     }}
                   </div>

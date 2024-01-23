@@ -287,7 +287,7 @@ let make = (~paymentId, ~createdAt) => {
         ->Dict.fromArray
         ->Js.Json.object_
       let sdkLogsArray =
-        (await fetchPostDetils(url, body, Post))
+        (await fetchPostDetils(url, body, Post, ()))
         ->getArrayFromJson([])
         ->Array.map(event => {
           let eventDict = event->getDictFromJsonObject
