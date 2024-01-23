@@ -10,7 +10,7 @@ type sessionStorage = {
 external dictToObj: Js.Dict.t<'a> => {..} = "%identity"
 @val external atob: string => string = "atob"
 
-let getHeaders = (~uri, ~headers, ~isFromFormData, ()) => {
+let getHeaders = (~uri, ~headers, ()) => {
   let hyperSwitchToken = LocalStorage.getItem("login")->Js.Nullable.toOption
   let isMixpanel = uri->String.includes("mixpanel")
 
@@ -18,11 +18,6 @@ let getHeaders = (~uri, ~headers, ~isFromFormData, ()) => {
     let headerObj = {
       "Content-Type": "application/x-www-form-urlencoded",
       "accept": "application/json",
-    }
-    Fetch.HeadersInit.make(headerObj)
-  } else if isFromFormData {
-    let headerObj = {
-      "Authorization": `Bearer ${hyperSwitchToken->Belt.Option.getWithDefault("")}`,
     }
     Fetch.HeadersInit.make(headerObj)
   } else {
@@ -86,7 +81,6 @@ let useApiFetcher = () => {
     (
       uri,
       ~bodyStr: string="",
-      ~bodyFormData=None,
       ~headers=Dict.make(),
       ~bodyHeader as _=?,
       ~method_: Fetch.requestMethod,
@@ -104,11 +98,7 @@ let useApiFetcher = () => {
 
       let body = switch method_ {
       | Get => resolve(None)
-      | _ =>
-        switch bodyFormData {
-        | Some(formDataVal) => resolve(Some(Fetch.BodyInit.makeWithFormData(formDataVal)))
-        | None => resolve(Some(Fetch.BodyInit.make(bodyStr)))
-        }
+      | _ => resolve(Some(Fetch.BodyInit.make(bodyStr)))
       }
 
       body->then(body => {
@@ -119,7 +109,7 @@ let useApiFetcher = () => {
             ~method_,
             ~body?,
             ~credentials=SameOrigin,
-            ~headers=getHeaders(~headers, ~uri, ~isFromFormData=bodyFormData->Option.isSome, ()),
+            ~headers=getHeaders(~headers, ~uri, ()),
             (),
           ),
         )
