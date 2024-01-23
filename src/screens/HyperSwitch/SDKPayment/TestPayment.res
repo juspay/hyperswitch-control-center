@@ -53,7 +53,7 @@ let make = (
         ->getTypedValueForPayment
       paymentData.currency = paymentData.currency->getCurrencyValue
       let body = paymentData->Identity.genericTypeToJson
-      let response = await updateDetails(url, body, Post)
+      let response = await updateDetails(url, body, Post, ())
       let clientSecret = response->getDictFromJsonObject->getOptionString("client_secret")
       setPaymentId(_ => response->getDictFromJsonObject->getOptionString("payment_id"))
       setClientSecret(_ => clientSecret)

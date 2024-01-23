@@ -77,7 +77,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
       let frmID = initialValues->getDictFromJsonObject->getString("merchant_connector_id", "")
       let disableFRMPayload = initialValues->FRMTypes.getDisableConnectorPayload(isFRMDisabled)
       let url = getURL(~entityName=FRAUD_RISK_MANAGEMENT, ~methodType=Post, ~id=Some(frmID), ())
-      let _ = await updateDetails(url, disableFRMPayload->Js.Json.object_, Post)
+      let _ = await updateDetails(url, disableFRMPayload->Js.Json.object_, Post, ())
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
       RescriptReactRouter.push("/fraud-risk-management")
     } catch {
