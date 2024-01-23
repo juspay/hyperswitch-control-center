@@ -50,7 +50,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id), ())
       let body = values->getBusinessProfilePayload->Js.Json.object_
-      let res = await updateDetails(url, body, Post)
+      let res = await updateDetails(url, body, Post, ())
       let profileTypeInfo = res->businessProfileTypeMapper
       setProfileInfo(_ => profileTypeInfo)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess, ())
