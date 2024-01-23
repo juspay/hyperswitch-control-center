@@ -266,7 +266,7 @@ let make = (~routingRuleId, ~isActive) => {
   let getConnectorsList = () => {
     let arr =
       connectorListJson
-      ->HSwitchUtils.getProcessorsListFromJson()
+      ->ConnectorUtils.getProcessorsListFromJson()
       ->Array.map(connectorDict => connectorDict->getString("connector_name", ""))
       ->Array.filter(x => x !== "applepay")
       ->getUniqueArray

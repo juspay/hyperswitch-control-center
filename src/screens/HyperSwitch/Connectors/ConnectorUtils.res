@@ -845,8 +845,8 @@ let validateConnectorRequiredFields = (
     let walletType = fieldName->getPaymentMethodTypeFromString
     if walletType !== GooglePay && walletType !== ApplePay {
       let key = `metadata.${fieldName}`
-      let errorKey = connectorMetaDataFields->LogicUtils.getString(fieldName, "")
-      let value = valuesFlattenJson->LogicUtils.getString(`metadata.${fieldName}`, "")
+      let errorKey = connectorMetaDataFields->getString(fieldName, "")
+      let value = valuesFlattenJson->getString(`metadata.${fieldName}`, "")
       if value->String.length === 0 && connector->getMetaDataRequiredFields(fieldName) {
         Dict.set(newDict, key, `Please enter ${errorKey}`->Js.Json.string)
       }
@@ -857,9 +857,8 @@ let validateConnectorRequiredFields = (
   ->Dict.keysToArray
   ->Array.forEach(fieldName => {
     let key = `connector_webhook_details.${fieldName}`
-    let errorKey = connectorWebHookDetails->LogicUtils.getString(fieldName, "")
-    let value =
-      valuesFlattenJson->LogicUtils.getString(`connector_webhook_details.${fieldName}`, "")
+    let errorKey = connectorWebHookDetails->getString(fieldName, "")
+    let value = valuesFlattenJson->getString(`connector_webhook_details.${fieldName}`, "")
     if value->String.length === 0 && connector->getWebHookRequiredFields(fieldName) {
       Dict.set(newDict, key, `Please enter ${errorKey}`->Js.Json.string)
     }
@@ -867,8 +866,8 @@ let validateConnectorRequiredFields = (
   connectorLabelDetailField
   ->Dict.keysToArray
   ->Array.forEach(fieldName => {
-    let errorKey = connectorLabelDetailField->LogicUtils.getString(fieldName, "")
-    let value = valuesFlattenJson->LogicUtils.getString(fieldName, "")
+    let errorKey = connectorLabelDetailField->getString(fieldName, "")
+    let value = valuesFlattenJson->getString(fieldName, "")
     if value->String.length === 0 {
       Dict.set(newDict, fieldName, `Please enter ${errorKey}`->Js.Json.string)
     }
@@ -895,19 +894,16 @@ let getConnectorDetailsValue = (connectorInfo: ConnectorTypes.connectorPayload, 
 }
 
 let getConnectorFields = connectorDetails => {
+  open LogicUtils
   let connectorAccountDict =
-    connectorDetails->LogicUtils.getDictFromJsonObject->LogicUtils.getDictfromDict("connector_auth")
+    connectorDetails->getDictFromJsonObject->getDictfromDict("connector_auth")
   let bodyType =
     connectorAccountDict->Dict.keysToArray->Belt.Array.get(0)->Option.getWithDefault("")
-  let connectorAccountFields = connectorAccountDict->LogicUtils.getDictfromDict(bodyType)
-  let connectorMetaDataFields =
-    connectorDetails->LogicUtils.getDictFromJsonObject->LogicUtils.getDictfromDict("metadata")
-  let isVerifyConnector =
-    connectorDetails->LogicUtils.getDictFromJsonObject->LogicUtils.getBool("is_verifiable", false)
+  let connectorAccountFields = connectorAccountDict->getDictfromDict(bodyType)
+  let connectorMetaDataFields = connectorDetails->getDictFromJsonObject->getDictfromDict("metadata")
+  let isVerifyConnector = connectorDetails->getDictFromJsonObject->getBool("is_verifiable", false)
   let connectorWebHookDetails =
-    connectorDetails
-    ->LogicUtils.getDictFromJsonObject
-    ->LogicUtils.getDictfromDict("connector_webhook_details")
+    connectorDetails->getDictFromJsonObject->getDictfromDict("connector_webhook_details")
   let connectorLabelDetailField = Dict.fromArray([
     ("connector_label", "Connector label"->Js.Json.string),
   ])
@@ -1166,4 +1162,28 @@ let getConnectorPaymentMethodDetails = async (
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
+}
+
+let filterList = (items, ~removeFromList: ConnectorTypes.processors) => {
+  open LogicUtils
+  items->Array.filter(dict => {
+    let connectorType = dict->getString("connector_type", "")
+    let isPayoutConnector = connectorType == "payout_processor"
+    let isConnector = connectorType !== "payment_vas" && !isPayoutConnector
+
+    switch removeFromList {
+    | Connector => !isConnector
+    | FRMPlayer => isConnector
+    | PayoutConnector => isPayoutConnector
+    }
+  })
+}
+
+let getProcessorsListFromJson = (
+  json,
+  ~removeFromList: ConnectorTypes.processors=FRMPlayer,
+  (),
+) => {
+  open LogicUtils
+  json->getArrayFromJson([])->Array.map(getDictFromJsonObject)->filterList(~removeFromList)
 }

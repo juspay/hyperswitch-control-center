@@ -2,7 +2,6 @@
 let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, ~setAuthType) => {
   open HyperSwitchAuthUtils
   open APIUtils
-  open HSwitchUtils
   open HyperSwitchAuthForm
   open HSwitchGlobalVars
   open LogicUtils
