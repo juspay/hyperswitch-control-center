@@ -87,7 +87,7 @@ module OrderInfo = {
     ~isMetadata=false,
   ) => {
     let order = itemToObjMapper(orderDict)
-    let paymentStatus = orderDict->getString("status", "")
+    let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
     let connectorList =
       HyperswitchAtom.connectorListAtom
@@ -105,6 +105,7 @@ module OrderInfo = {
               getCell=getCellForSummary
               detailsFields=[
                 Created,
+                NetAmount,
                 LastUpdated,
                 AmountReceived,
                 PaymentId,
@@ -507,7 +508,7 @@ module FraudRiskBannerDetails = {
             (),
           )}/${decision->String.toLowerCase}`
 
-        let _ = await updateDetails(ordersDecisionUrl, Dict.make()->Js.Json.object_, Post)
+        let _ = await updateDetails(ordersDecisionUrl, Dict.make()->Js.Json.object_, Post, ())
         showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
         refetch()
       } catch {
@@ -596,7 +597,7 @@ module FraudRiskBanner = {
         onClick={_ => {
           refElement.current
           ->Js.Nullable.toOption
-          ->Belt.Option.forEach(input =>
+          ->Option.forEach(input =>
             input->scrollIntoView(_, {behavior: "smooth", block: "start", inline: "nearest"})
           )
         }}>
@@ -805,7 +806,7 @@ let make = (~id) => {
                     <PaymentLogs.PrettyPrintJson
                       jsonToDisplay={order.metadata
                       ->Js.Json.stringifyAny
-                      ->Belt.Option.getWithDefault("")}
+                      ->Option.getWithDefault("")}
                       overrideBackgroundColor="bg-white"
                     />
                   </div>

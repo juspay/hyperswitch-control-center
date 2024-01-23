@@ -30,7 +30,7 @@ module Simplified = {
     let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
     let fetchApi = AuthHooks.useApiFetcher()
-    let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
+    let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault("")
     let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
     let merchantId = merchantDetailsValue->getDictFromJsonObject->getString("merchant_id", "")
     let prefix = "apple_pay_combined.simplified.session_token_data.initiative_context"
@@ -91,7 +91,7 @@ module Simplified = {
       try {
         let (body, domainName) = values->constructVerifyApplePayReq(connectorID)
         let verifyAppleUrl = getURL(~entityName=VERIFY_APPLE_PAY, ~methodType=Post, ())
-        let _ = await updateAPIHook(`${verifyAppleUrl}/${merchantId}`, body, Post)
+        let _ = await updateAPIHook(`${verifyAppleUrl}/${merchantId}`, body, Post, ())
 
         let updatedValue = values->constructApplePayMetadata(metadataInputs, #simplified)
         update(updatedValue)

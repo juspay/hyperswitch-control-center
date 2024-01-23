@@ -49,7 +49,7 @@ type props = {
 let default = (props: props) => {
   let {listItems, setListItems, keyExtractor} = props
 
-  let isHorizontal = props.isHorizontal->Belt.Option.getWithDefault(true)
+  let isHorizontal = props.isHorizontal->Option.getWithDefault(true)
 
   let onDragEnd = result => {
     // dropped outside the list

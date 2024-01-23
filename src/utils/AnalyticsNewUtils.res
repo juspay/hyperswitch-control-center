@@ -59,10 +59,8 @@ let makeFilters = (~filters: Js.Json.t, ~cardinalityArr) => {
   if expressionArr->Array.length === 1 {
     expressionArr->Belt.Array.get(0)
   } else if expressionArr->Array.length > 1 {
-    let leftInitial =
-      Array.pop(expressionArr)->Belt.Option.getWithDefault(Dict.make())->Js.Json.object_
-    let rightInitial =
-      Array.pop(expressionArr)->Belt.Option.getWithDefault(Dict.make())->Js.Json.object_
+    let leftInitial = Array.pop(expressionArr)->Option.getWithDefault(Dict.make())->Js.Json.object_
+    let rightInitial = Array.pop(expressionArr)->Option.getWithDefault(Dict.make())->Js.Json.object_
 
     let complexFilterDict = Dict.fromArray([
       ("and", Dict.fromArray([("left", leftInitial), ("right", rightInitial)])->Js.Json.object_),
@@ -104,7 +102,7 @@ let getFilterBody = (
       let filterValueArr =
         value
         ->Array.mapWithIndex((item, _index) => {
-          if Js.String.match_(%re("/ != /gi"), item)->Belt.Option.isSome {
+          if Js.String.match_(%re("/ != /gi"), item)->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ != /gi"), "@@")
               ->String.split("@@")
@@ -112,12 +110,12 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
+                  ("field", value[0]->Option.getWithDefault("")->Js.Json.string),
                   ("condition", "NotEquals"->Js.Json.string),
                   (
                     "val",
                     value[1]
-                    ->Belt.Option.getWithDefault("")
+                    ->Option.getWithDefault("")
                     ->String.replaceRegExp(%re("/'/gi"), "")
                     ->Js.Json.string,
                   ),
@@ -126,7 +124,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ > /gi"), item)->Belt.Option.isSome {
+          } else if Js.String.match_(%re("/ > /gi"), item)->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ > /gi"), "@@")
               ->String.split("@@")
@@ -134,12 +132,12 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
+                  ("field", value[0]->Option.getWithDefault("")->Js.Json.string),
                   ("condition", "Greater"->Js.Json.string),
                   (
                     "val",
                     value[1]
-                    ->Belt.Option.getWithDefault("")
+                    ->Option.getWithDefault("")
                     ->String.replaceRegExp(%re("/'/gi"), "")
                     ->Js.Json.string,
                   ),
@@ -148,7 +146,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ < /gi"), item)->Belt.Option.isSome {
+          } else if Js.String.match_(%re("/ < /gi"), item)->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ < /gi"), "@@")
               ->String.split("@@")
@@ -156,12 +154,12 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
+                  ("field", value[0]->Option.getWithDefault("")->Js.Json.string),
                   ("condition", "Less"->Js.Json.string),
                   (
                     "val",
                     value[1]
-                    ->Belt.Option.getWithDefault("")
+                    ->Option.getWithDefault("")
                     ->String.replaceRegExp(%re("/'/gi"), "")
                     ->Js.Json.string,
                   ),
@@ -170,7 +168,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ >= /gi"), item)->Belt.Option.isSome {
+          } else if Js.String.match_(%re("/ >= /gi"), item)->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ >= /gi"), "@@")
               ->String.split("@@")
@@ -178,12 +176,12 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
+                  ("field", value[0]->Option.getWithDefault("")->Js.Json.string),
                   ("condition", "GreaterThanEquall"->Js.Json.string),
                   (
                     "val",
                     value[1]
-                    ->Belt.Option.getWithDefault("")
+                    ->Option.getWithDefault("")
                     ->String.replaceRegExp(%re("/'/gi"), "")
                     ->Js.Json.string,
                   ),
@@ -192,7 +190,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ <= /gi"), item)->Belt.Option.isSome {
+          } else if Js.String.match_(%re("/ <= /gi"), item)->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ <= /gi"), "@@")
               ->String.split("@@")
@@ -200,12 +198,12 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
+                  ("field", value[0]->Option.getWithDefault("")->Js.Json.string),
                   ("condition", "LessThanEqual"->Js.Json.string),
                   (
                     "val",
                     value[1]
-                    ->Belt.Option.getWithDefault("")
+                    ->Option.getWithDefault("")
                     ->String.replaceRegExp(%re("/'/gi"), "")
                     ->Js.Json.string,
                   ),
@@ -214,7 +212,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ = /gi"), item)->Belt.Option.isSome {
+          } else if Js.String.match_(%re("/ = /gi"), item)->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ = /gi"), "@@")
               ->String.split("@@")
@@ -222,12 +220,12 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
+                  ("field", value[0]->Option.getWithDefault("")->Js.Json.string),
                   ("condition", "Equals"->Js.Json.string),
                   (
                     "val",
                     value[1]
-                    ->Belt.Option.getWithDefault("")
+                    ->Option.getWithDefault("")
                     ->String.replaceRegExp(%re("/'/gi"), "")
                     ->Js.Json.string,
                   ),
@@ -236,7 +234,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ IN /gi"), item)->Belt.Option.isSome {
+          } else if Js.String.match_(%re("/ IN /gi"), item)->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ IN /gi"), "@@")
               ->String.split("@@")
@@ -244,12 +242,12 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
+                  ("field", value[0]->Option.getWithDefault("")->Js.Json.string),
                   ("condition", "In"->Js.Json.string),
                   (
                     "val",
                     value[1]
-                    ->Belt.Option.getWithDefault("")
+                    ->Option.getWithDefault("")
                     ->String.replaceRegExp(%re("/'/gi"), "")
                     ->String.replaceRegExp(%re("/\(/g"), "")
                     ->String.replaceRegExp(%re("/\)/g"), "")
@@ -262,7 +260,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ NOT IN /gi"), item)->Belt.Option.isSome {
+          } else if Js.String.match_(%re("/ NOT IN /gi"), item)->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ NOT IN /gi"), "@@")
               ->String.split("@@")
@@ -270,12 +268,12 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
+                  ("field", value[0]->Option.getWithDefault("")->Js.Json.string),
                   ("condition", "NotIn"->Js.Json.string),
                   (
                     "val",
                     value[1]
-                    ->Belt.Option.getWithDefault("")
+                    ->Option.getWithDefault("")
                     ->String.replaceRegExp(%re("/'/gi"), "")
                     ->String.replaceRegExp(%re("/\(/g"), "")
                     ->String.replaceRegExp(%re("/\)/g"), "")
@@ -288,7 +286,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ LIKE /gi"), item)->Belt.Option.isSome {
+          } else if Js.String.match_(%re("/ LIKE /gi"), item)->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ LIKE /gi"), "@@")
               ->String.split("@@")
@@ -296,12 +294,12 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Belt.Option.getWithDefault("")->Js.Json.string),
+                  ("field", value[0]->Option.getWithDefault("")->Js.Json.string),
                   ("condition", "Like"->Js.Json.string),
                   (
                     "val",
                     value[1]
-                    ->Belt.Option.getWithDefault("")
+                    ->Option.getWithDefault("")
                     ->String.replaceRegExp(%re("/'/gi"), "")
                     ->Js.Json.string,
                   ),
@@ -319,9 +317,9 @@ let getFilterBody = (
       if filterValueArr->Array.length === 1 {
         filterValueArr->Belt.Array.get(0)
       } else if filterValueArr->Array.length >= 2 {
-        let leftInitial = filterValueArr[0]->Belt.Option.getWithDefault(Dict.make())
-        let rightInitial = filterValueArr[1]->Belt.Option.getWithDefault(Dict.make())
-        let conditionInitital = andAndOr->Belt.Array.get(0)->Belt.Option.getWithDefault("and")
+        let leftInitial = filterValueArr[0]->Option.getWithDefault(Dict.make())
+        let rightInitial = filterValueArr[1]->Option.getWithDefault(Dict.make())
+        let conditionInitital = andAndOr->Belt.Array.get(0)->Option.getWithDefault("and")
         let complexFilterDict = Dict.fromArray([
           (
             conditionInitital,
@@ -337,7 +335,7 @@ let getFilterBody = (
         filterValueArr->Array.forEachWithIndex((item, index) => {
           let complextFilterDictCopy = complexFilterDict->Dict.toArray->Array.copy->Dict.fromArray
           complexFilterDict->Dict.set(
-            andAndOr->Belt.Array.get(index)->Belt.Option.getWithDefault("and"),
+            andAndOr->Belt.Array.get(index)->Option.getWithDefault("and"),
             Dict.fromArray([
               ("left", complextFilterDictCopy->Js.Json.object_),
               ("right", item->Js.Json.object_),
@@ -395,7 +393,7 @@ let getFilterBody = (
           ])->Js.Json.object_,
         ),
       ])
-    | false => jsonFormattedFilter->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make())
+    | false => jsonFormattedFilter->Js.Json.decodeObject->Option.getWithDefault(Dict.make())
     }
   | None => filterValue
   }
@@ -457,7 +455,7 @@ let apiBodyMaker = (
   | _ => []
   }
 
-  let activeTabArr = groupBy->Belt.Option.getWithDefault([])->Array.map(Js.Json.string)
+  let activeTabArr = groupBy->Option.getWithDefault([])->Array.map(Js.Json.string)
   finalBody->Dict.set("metric", metric->Js.Json.string)
   let filterVal = getFilterBody(
     filterValueFromUrl,

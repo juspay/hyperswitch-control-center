@@ -51,11 +51,11 @@ let make = (
       }
       let body =
         constructConnectorRequestBody(obj, initialValues)->ignoreFields(
-          connectorID->Belt.Option.getWithDefault(""),
+          connectorID->Option.getWithDefault(""),
           ConnectorUtils.connectorIgnoredField,
         )
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID, ())
-      let response = await updateAPIHook(connectorUrl, body, Post)
+      let response = await updateAPIHook(connectorUrl, body, Post, ())
       setInitialValues(_ => response)
       setScreenState(_ => Success)
       setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
@@ -66,7 +66,7 @@ let make = (
       )
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
 

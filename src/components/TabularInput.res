@@ -25,8 +25,8 @@ module TableCell = {
             onChange(elemIndex, i, event["value"])
           },
           onFocus: _ev => (),
-          value: (keyValue[elemIndex]->Belt.Option.getWithDefault([]))[i]
-          ->Belt.Option.getWithDefault("")
+          value: (keyValue[elemIndex]->Option.getWithDefault([]))[i]
+          ->Option.getWithDefault("")
           ->Js.Json.string,
           checked: true,
         }

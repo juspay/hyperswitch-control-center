@@ -10,11 +10,14 @@ let convertListResponseToTypedResponse = json => {
   ->Array.map(ele => {
     let dictOfElement = ele->getDictFromJsonObject
     let merchantId = dictOfElement->getString("merchant_id", "")
-    let merchantName = dictOfElement->getString("merchant_name", merchantId)
+    let merchantName =
+      dictOfElement->getString("merchant_name", merchantId)->String.length > 0
+        ? dictOfElement->getString("merchant_name", merchantId)
+        : merchantId
 
     {
       merchant_id: merchantId,
-      merchant_name: merchantName->String.length > 0 ? merchantName : merchantId,
+      merchant_name: merchantName,
     }
   })
 }
@@ -30,7 +33,7 @@ module NewAccountCreationModal = {
       try {
         let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Fetch.Post, ())
         let body = values
-        let _ = await updateDetails(url, body, Post)
+        let _ = await updateDetails(url, body, Post, ())
         let _ = await fetchMerchantIDs()
         showToast(
           ~toastType=ToastSuccess,
@@ -283,7 +286,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Post, ())
       let body = Dict.make()
       body->Dict.set("merchant_id", value->Js.Json.string)
-      let res = await updateDetails(url, body->Js.Json.object_, Post)
+      let res = await updateDetails(url, body->Js.Json.object_, Post, ())
       let responseDict = res->getDictFromJsonObject
       let token = responseDict->getString("token", "")
       let switchedMerchantId = responseDict->getString("merchant_id", "")
@@ -315,16 +318,9 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   } else {
     <>
       <ExternalUser switchMerchant isAddMerchantEnabled />
-      <Modal
-        showModal=successModal
-        setShowModal=setSuccessModal
-        modalClass="w-80 !h-48 flex items-center justify-center m-auto"
-        paddingClass=""
-        childClass="flex items-center justify-center h-full w-full">
-        {<div className="flex items-center gap-2">
-          <p className="text-xl font-semibold"> {"Switching merchant..."->React.string} </p>
-        </div>}
-      </Modal>
+      <LoaderModal
+        showModal={successModal} setShowModal={setSuccessModal} text="Switching merchant..."
+      />
     </>
   }
 }

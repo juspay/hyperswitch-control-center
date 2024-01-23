@@ -45,7 +45,7 @@ let make = (
           showPopUp({
             popUpType: (Warning, WithIcon),
             heading: "Heads up!",
-            description: {React.string(crumb.warning->Belt.Option.getWithDefault(""))},
+            description: {React.string(crumb.warning->Option.getWithDefault(""))},
             handleConfirm: {
               text: "Yes, go back",
               onClick: {

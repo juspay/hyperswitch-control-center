@@ -44,7 +44,7 @@ external execSync: (string, encodeType) => string = "execSync"
 
 @val external nullableGitCommitStr: option<string> = "GIT_COMMIT_HASH"
 
-let currentCommitHash = nullableGitCommitStr->Belt.Option.getWithDefault("no-commit-hash")
+let currentCommitHash = nullableGitCommitStr->Option.getWithDefault("no-commit-hash")
 
 let serverHandler: Http.serverHandler = (request, response) => {
   open Belt.Option
@@ -58,7 +58,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
 
   if path === "/config/merchant-access" && request.method === "POST" {
     let path =
-      env->Dict.get("configPath")->Belt.Option.getWithDefault("dist/server/config/FeatureFlag.json")
+      env->Dict.get("configPath")->Option.getWithDefault("dist/server/config/FeatureFlag.json")
     Promise.make((resolve, _reject) => {
       configHandler(request, response, true, path)
       ()->resolve(. _)
@@ -120,10 +120,7 @@ let serverHandlerWrapper = (req, res) => {
   try {serverHandler(req, res)} catch {
   | err => {
       let err =
-        err
-        ->Js.Exn.asJsExn
-        ->Belt.Option.flatMap(Js.Exn.message)
-        ->Belt.Option.getWithDefault("Error Found")
+        err->Js.Exn.asJsExn->Option.flatMap(Js.Exn.message)->Option.getWithDefault("Error Found")
       res.writeHead(. 200, Http.makeHeader({"Content-Type": "text/plain"}))
       `Error : ${err}`->res.write(. _)
       res.end(.)

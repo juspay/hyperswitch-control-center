@@ -35,7 +35,7 @@ module SelectPaymentMethods = {
         let _ = await StringEnumType(connectorChoiceValue)->postEnumDetails(configurationType)
       } catch {
       | Js.Exn.Error(e) => {
-          let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to update!")
+          let err = Js.Exn.message(e)->Option.getWithDefault("Failed to update!")
           Js.Exn.raiseError(err)
         }
       }
@@ -87,7 +87,7 @@ module SelectPaymentMethods = {
             #MultipleProcessorWithSmartRouting->QuickStartUtils.connectorChoiceVariantToString,
           )
         }
-        let response = await updateAPIHook(connectorUrl, body, Post)
+        let response = await updateAPIHook(connectorUrl, body, Post, ())
         setInitialValues(_ => response)
         response->LogicUtils.getDictFromJsonObject->updateEnumForConnector->ignore
         setConnectorConfigureState(_ => Summary)

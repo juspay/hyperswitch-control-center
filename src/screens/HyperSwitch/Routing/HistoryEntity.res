@@ -2,7 +2,17 @@ open LogicUtils
 open RoutingUtils
 open RoutingTypes
 
-let allColumns = [Name, Type, ProfileId, ProfileName, Description, Created, LastUpdated, Status]
+let allColumns: array<historyColType> = [
+  Name,
+  Type,
+  ProfileId,
+  ProfileName,
+  Description,
+  Created,
+  LastUpdated,
+  Status,
+]
+
 let itemToObjMapper = dict => {
   {
     id: getString(dict, "id", ""),
@@ -14,9 +24,17 @@ let itemToObjMapper = dict => {
     created_at: getString(dict, "created_at", ""),
   }
 }
-let defaultColumns = [Name, ProfileId, ProfileName, Type, Description, Status]
 
-let getHeading = colType => {
+let defaultColumns: array<historyColType> = [
+  Name,
+  ProfileId,
+  ProfileName,
+  Type,
+  Description,
+  Status,
+]
+
+let getHeading: historyColType => Table.header = colType => {
   switch colType {
   | Name => Table.makeHeaderInfo(~key="name", ~title="Name of Control", ~showSort=true, ())
   | Type => Table.makeHeaderInfo(~key="kind", ~title="Type of Control", ~showSort=true, ())
@@ -32,7 +50,7 @@ let getHeading = colType => {
   }
 }
 let getTableCell = activeRoutingIds => {
-  let getCell = (historyData, colType): Table.cell => {
+  let getCell = (historyData, colType: historyColType): Table.cell => {
     switch colType {
     | Name => Text(historyData.name)
     | Type =>

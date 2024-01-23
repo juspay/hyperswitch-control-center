@@ -64,11 +64,11 @@ let getFormattedDate = (date, format) => {
 let isStartBeforeEndDate = (start, end) => {
   let getDate = date => {
     let datevalue = Js.Date.makeWithYMD(
-      ~year=Js.Float.fromString(date[0]->Belt.Option.getWithDefault("")),
+      ~year=Js.Float.fromString(date[0]->Option.getWithDefault("")),
       ~month=Js.Float.fromString(
-        String.make(Js.Float.fromString(date[1]->Belt.Option.getWithDefault("")) -. 1.0),
+        String.make(Js.Float.fromString(date[1]->Option.getWithDefault("")) -. 1.0),
       ),
-      ~date=Js.Float.fromString(date[2]->Belt.Option.getWithDefault("")),
+      ~date=Js.Float.fromString(date[2]->Option.getWithDefault("")),
       (),
     )
     datevalue
@@ -291,9 +291,9 @@ module Base = {
         setEndDateVal(_ => "")
       } else {
         let endDateSplit = String.split(ele, "-")
-        let endDateDate = endDateSplit[2]->Belt.Option.getWithDefault("")
-        let endDateYear = endDateSplit[0]->Belt.Option.getWithDefault("")
-        let endDateMonth = endDateSplit[1]->Belt.Option.getWithDefault("")
+        let endDateDate = endDateSplit[2]->Option.getWithDefault("")
+        let endDateYear = endDateSplit[0]->Option.getWithDefault("")
+        let endDateMonth = endDateSplit[1]->Option.getWithDefault("")
         let splitTime = switch time {
         | Some(val) => val
         | None =>
@@ -305,9 +305,9 @@ module Base = {
         }
 
         let timeSplit = String.split(splitTime, ":")
-        let timeHour = timeSplit->Belt.Array.get(0)->Belt.Option.getWithDefault("00")
-        let timeMinute = timeSplit->Belt.Array.get(1)->Belt.Option.getWithDefault("00")
-        let timeSecond = timeSplit->Belt.Array.get(2)->Belt.Option.getWithDefault("00")
+        let timeHour = timeSplit->Belt.Array.get(0)->Option.getWithDefault("00")
+        let timeMinute = timeSplit->Belt.Array.get(1)->Option.getWithDefault("00")
+        let timeSecond = timeSplit->Belt.Array.get(2)->Option.getWithDefault("00")
         let endDateTimeCheck = customTimezoneToISOString(
           endDateYear,
           endDateMonth,
@@ -322,9 +322,9 @@ module Base = {
     let changeStartDate = (ele, isFromCustomInput, time) => {
       let setDate = str => {
         let startDateSplit = String.split(str, "-")
-        let startDateDay = startDateSplit[2]->Belt.Option.getWithDefault("")
-        let startDateYear = startDateSplit[0]->Belt.Option.getWithDefault("")
-        let startDateMonth = startDateSplit[1]->Belt.Option.getWithDefault("")
+        let startDateDay = startDateSplit[2]->Option.getWithDefault("")
+        let startDateYear = startDateSplit[0]->Option.getWithDefault("")
+        let startDateMonth = startDateSplit[1]->Option.getWithDefault("")
         let splitTime = switch time {
         | Some(val) => val
         | None =>
@@ -335,9 +335,9 @@ module Base = {
           }
         }
         let timeSplit = String.split(splitTime, ":")
-        let timeHour = timeSplit->Belt.Array.get(0)->Belt.Option.getWithDefault("00")
-        let timeMinute = timeSplit->Belt.Array.get(1)->Belt.Option.getWithDefault("00")
-        let timeSecond = timeSplit->Belt.Array.get(2)->Belt.Option.getWithDefault("00")
+        let timeHour = timeSplit->Belt.Array.get(0)->Option.getWithDefault("00")
+        let timeMinute = timeSplit->Belt.Array.get(1)->Option.getWithDefault("00")
+        let timeSecond = timeSplit->Belt.Array.get(2)->Option.getWithDefault("00")
         let startDateTimeCheck = customTimezoneToISOString(
           startDateYear,
           startDateMonth,
@@ -507,17 +507,17 @@ module Base = {
 
     let endTimeStr = {
       let timeArr = endTimeStr->String.split(":")
-      let endTimeTxt = `${timeArr[0]->Belt.Option.getWithDefault(
+      let endTimeTxt = `${timeArr[0]->Option.getWithDefault(
           "00",
-        )}:${timeArr[1]->Belt.Option.getWithDefault("00")}`
-      showSeconds ? `${endTimeTxt}:${timeArr[2]->Belt.Option.getWithDefault("00")}` : endTimeTxt
+        )}:${timeArr[1]->Option.getWithDefault("00")}`
+      showSeconds ? `${endTimeTxt}:${timeArr[2]->Option.getWithDefault("00")}` : endTimeTxt
     }
     let startTimeStr = {
       let timeArr = startTimeStr->String.split(":")
-      let startTimeTxt = `${timeArr[0]->Belt.Option.getWithDefault(
+      let startTimeTxt = `${timeArr[0]->Option.getWithDefault(
           "00",
-        )}:${timeArr[1]->Belt.Option.getWithDefault("00")}`
-      showSeconds ? `${startTimeTxt}:${timeArr[2]->Belt.Option.getWithDefault("00")}` : startTimeTxt
+        )}:${timeArr[1]->Option.getWithDefault("00")}`
+      showSeconds ? `${startTimeTxt}:${timeArr[2]->Option.getWithDefault("00")}` : startTimeTxt
     }
 
     let buttonText = {
@@ -615,7 +615,7 @@ module Base = {
       None
     }, (startDate, endDate, localStartDate, localEndDate))
 
-    let btnStyle = customButtonStyle->Belt.Option.getWithDefault("")
+    let btnStyle = customButtonStyle->Option.getWithDefault("")
 
     let customStyleForBtn = btnStyle->String.length > 0 ? btnStyle : ""
 
@@ -791,7 +791,7 @@ module Base = {
                     </div>
                   } else if showMsg {
                     let msg = `Date Range should not exceed ${dateRangeLimit
-                      ->Belt.Option.getWithDefault(0)
+                      ->Option.getWithDefault(0)
                       ->Belt.Int.toString} days`
                     <span className="w-full flex flex-row items-center mr-0 text-red-500">
                       <FormErrorIcon />
@@ -867,7 +867,7 @@ module Base = {
 
 let useStateForInput = (input: ReactFinalForm.fieldRenderPropsInput) => {
   React.useMemo1(() => {
-    let val = input.value->Js.Json.decodeString->Belt.Option.getWithDefault("")
+    let val = input.value->Js.Json.decodeString->Option.getWithDefault("")
     let onChange = fn => {
       let newVal = fn(val)
       input.onChange(newVal->Identity.stringToFormReactEvent)

@@ -3,7 +3,7 @@ let getUserTimeZoneString = () => {
   ->Js.Date.toTimeString
   ->String.split(" ")
   ->Belt.Array.get(1)
-  ->Belt.Option.getWithDefault("")
+  ->Option.getWithDefault("")
 }
 
 let getUserTimeZone = () => {

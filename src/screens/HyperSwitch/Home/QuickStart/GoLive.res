@@ -30,6 +30,7 @@ let make = (~goLive) => {
   open ProdVerifyModalUtils
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let email = HSLocalStorage.getFromMerchantDetails("email")
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
@@ -69,7 +70,7 @@ let make = (~goLive) => {
       let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
       let bodyValues = values->getBody->Js.Json.object_
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
 
       getProdVerifyDetails()->ignore
     } catch {
@@ -79,6 +80,7 @@ let make = (~goLive) => {
   }
 
   let onSubmit = (values, _) => {
+    mixpanelEvent(~eventName="quickstart_get_production_access_completed", ())
     updateProdDetails(values)
   }
 
@@ -88,7 +90,10 @@ let make = (~goLive) => {
         <Button
           text="Get Production Access"
           buttonType={Primary}
-          onClick={_ => setQuickStartPageState(_ => GoLive(GO_LIVE))}
+          onClick={_ => {
+            mixpanelEvent(~eventName="quickstart_get_production_access_landing", ())
+            setQuickStartPageState(_ => GoLive(GO_LIVE))
+          }}
         />
       </UIUtils.RenderIf>
       <Button

@@ -25,7 +25,7 @@ let make = () => {
     let connectorList =
       profileList
       ->Belt.Array.get(0)
-      ->Belt.Option.getWithDefault(Js.Json.null)
+      ->Option.getWithDefault(Js.Json.null)
       ->LogicUtils.getDictFromJsonObject
       ->LogicUtils.getArrayFromDict("connectors", [])
     if connectorList->Array.length > 0 {
@@ -50,7 +50,7 @@ let make = () => {
       settingUpConnectorsState(routingRespArray)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -76,12 +76,15 @@ let make = () => {
           ~methodType=Post,
           (),
         )}/profile/${profile}`
-      (await updateDetails(defaultFallbackUpdateUrl, defaultPayload->Js.Json.array, Post))->ignore
+
+      (
+        await updateDetails(defaultFallbackUpdateUrl, defaultPayload->Js.Json.array, Post, ())
+      )->ignore
       RescriptReactRouter.replace(`/routing/default`)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }->ignore
   }

@@ -5,39 +5,6 @@ open LogicUtils
 
 external toWasm: Js.Dict.t<Js.Json.t> => RoutingTypes.wasmModule = "%identity"
 
-let defaultRule = {
-  name: "rule_1",
-  connectorSelection: {
-    \"type": "priority",
-  },
-  statements: [
-    {
-      lhs: "",
-      comparison: "",
-      value: {
-        \"type": "",
-        value: ""->Js.Json.string,
-      },
-    },
-  ],
-}
-
-let initialValues = {
-  name: getRoutingNameString(~routingType=ADVANCED),
-  description: getRoutingDescriptionString(~routingType=ADVANCED),
-  algorithm: {
-    data: {
-      rules: [defaultRule],
-      metadata: Dict.make()->Js.Json.object_,
-      defaultSelection: {
-        \"type": "",
-        data: [],
-      },
-    },
-    \"type": "",
-  },
-}
-
 module Add3DSCondition = {
   @react.component
   let make = (~isFirst, ~id) => {
@@ -82,11 +49,26 @@ module AddSurchargeCondition = {
   //keep the rate only for now.
   let options: array<SelectBox.dropdownOption> = [
     {value: "rate", label: "Rate"},
-    // {value: "amount", label: "Amount"},
+    {value: "fixed", label: "Fixed"},
   ]
 
   @react.component
   let make = (~isFirst, ~id) => {
+    let (surchargeValueType, setSurchargeValueType) = React.useState(_ => "")
+    let surchargeTypeInput = ReactFinalForm.useField(
+      `${id}.connectorSelection.surcharge_details.surcharge.type`,
+    ).input
+
+    React.useEffect1(() => {
+      let valueType = switch surchargeTypeInput.value->LogicUtils.getStringFromJson("") {
+      | "rate" => "percentage"
+      | "fixed" => "amount"
+      | _ => "percentage"
+      }
+      setSurchargeValueType(_ => valueType)
+      None
+    }, [surchargeTypeInput.value])
+
     <div className="flex flex-row ml-2">
       <UIUtils.RenderIf condition={!isFirst}>
         <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
@@ -111,7 +93,7 @@ module AddSurchargeCondition = {
           <FormRenderer.FieldRenderer
             field={FormRenderer.makeFieldInfo(
               ~label="",
-              ~name=`${id}.connectorSelection.surcharge_details.surcharge.value.percentage`,
+              ~name=`${id}.connectorSelection.surcharge_details.surcharge.value.${surchargeValueType}`,
               ~customInput=InputFields.numericTextInput(~customStyle="!-mt-5", ~precision=2, ()),
               (),
             )}
@@ -311,7 +293,7 @@ module RuleBasedUI = {
     let addRule = (index, copy) => {
       let existingRules = ruleInput.value->getArrayFromJson([])
       let newRule = copy
-        ? existingRules[index]->Belt.Option.getWithDefault(defaultRule->Identity.genericTypeToJson)
+        ? existingRules[index]->Option.getWithDefault(defaultRule->Identity.genericTypeToJson)
         : defaultRule->Identity.genericTypeToJson
       let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
@@ -341,7 +323,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
           {
             let notFirstRule = ruleInput.value->getArrayFromJson([])->Array.length > 1
 
-            let rule = ruleInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
+            let rule = ruleInput.value->Js.Json.decodeArray->Option.getWithDefault([])
             let keyExtractor = (index, _rule, isDragging) => {
               let id = {`${rulesJsonPath}[${string_of_int(index)}]`}
 
@@ -415,7 +397,6 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let (pageState, setPageState) = React.useState(() => Create)
   let (showModal, setShowModal) = React.useState(_ => false)
   let currentTabName = Recoil.useRecoilValueFromAtom(RoutingUtils.currentTabNameRecoilAtom)
-  let (isConfigButtonEnabled, setIsConfigButtonEnabled) = React.useState(_ => false)
   let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let connectorList = React.useMemo0(() => {
     connectorListJson->safeParse->ConnectorTableUtils.getArrayOfConnectorListPayloadType
@@ -440,7 +421,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       setFormState(_ => ViewConfig)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
       Js.Exn.raiseError(err)
     }
   }
@@ -472,7 +453,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
         setScreenState(_ => Success)
       } catch {
       | Js.Exn.Error(e) => {
-          let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+          let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
           setScreenState(_ => Error(err))
         }
       }
@@ -487,7 +468,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
     let errors = Dict.make()
 
-    RoutingUtils.validateNameAndDescription(~dict, ~errors)
+    AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
 
     let validateGateways = (connectorData: array<AdvancedRoutingTypes.connectorSelectionData>) => {
       if connectorData->Array.length === 0 {
@@ -537,7 +518,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       errors->Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
     } else {
       rulesArray->Array.forEachWithIndex((rule, i) => {
-        let connectorDetails = rule.connectorSelection.data->Belt.Option.getWithDefault([])
+        let connectorDetails = rule.connectorSelection.data->Option.getWithDefault([])
 
         switch connectorDetails->validateGateways {
         | Some(error) =>
@@ -558,7 +539,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     try {
       setScreenState(_ => Loading)
       let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post, ())
       showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
       RescriptReactRouter.replace(`/routing?`)
       setScreenState(_ => Success)
@@ -587,7 +568,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       setScreenState(_ => Loading)
       let deactivateRoutingURL = `${getURL(~entityName=ROUTING, ~methodType=Post, ())}/deactivate`
       let body = [("profile_id", profile->Js.Json.string)]->Dict.fromArray->Js.Json.object_
-      let _ = await updateDetails(deactivateRoutingURL, body, Post)
+      let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
       showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
       RescriptReactRouter.replace(`/routing?`)
       setScreenState(_ => Success)
@@ -647,7 +628,12 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       }
 
       let getActivateUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
-      let response = await updateDetails(getActivateUrl, payload->Identity.genericTypeToJson, Post)
+      let response = await updateDetails(
+        getActivateUrl,
+        payload->Identity.genericTypeToJson,
+        Post,
+        (),
+      )
 
       showToast(
         ~message="Successfully Created a new Configuration !",
@@ -662,7 +648,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       Js.Nullable.return(response)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
       showToast(~message="Failed to Save the Configuration!", ~toastType=ToastState.ToastError, ())
       setShowModal(_ => false)
       setScreenState(_ => PageLoaderWrapper.Error(err))
@@ -689,7 +675,10 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
             <div className="w-full flex flex-row  justify-between">
               <div className="w-full">
                 <BasicDetailsForm
-                  formState setFormState currentTabName setIsConfigButtonEnabled profile setProfile
+                  formState={pageState == Preview ? ViewConfig : CreateConfig}
+                  currentTabName
+                  profile
+                  setProfile
                 />
                 <UIUtils.RenderIf condition={formState != CreateConfig}>
                   <div className="mb-5">
@@ -722,8 +711,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                           />
                         </UIUtils.RenderIf>
                       </div>
-                    | Create =>
-                      <RoutingUtils.ConfigureRuleButton setShowModal isConfigButtonEnabled />
+                    | Create => <RoutingUtils.ConfigureRuleButton setShowModal />
                     | _ => React.null
                     }}
                   </div>
@@ -738,7 +726,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                     customSumbitButtonStyle="w-1/5 rounded-lg"
                     tooltipWidthClass="w-48"
                   />}
-                  submitButton={<RoutingUtils.SaveAndActivateButton
+                  submitButton={<AdvancedRoutingUIUtils.SaveAndActivateButton
                     onSubmit handleActivateConfiguration
                   />}
                   headingText="Activate Current Configuration?"

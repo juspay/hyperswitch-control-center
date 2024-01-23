@@ -194,7 +194,7 @@ module SystemMetricsInsights = {
       showPercentage=false
       isHomePage=true
       wrapperClass="flex flex-wrap w-full h-full"
-      statSentiment={singleStatEntity.statSentiment->Belt.Option.getWithDefault(Dict.make())}
+      statSentiment={singleStatEntity.statSentiment->Option.getWithDefault(Dict.make())}
     />
   }
 }
@@ -214,6 +214,7 @@ module OverviewInfo = {
           generateSampleDataUrl,
           [("record", 50.0->Js.Json.number)]->Dict.fromArray->Js.Json.object_,
           Post,
+          (),
         )
         showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess, ())
         Window.Location.reload()

@@ -60,7 +60,7 @@ let useSendEvent = () => {
         ~method_=Fetch.Post,
         ~bodyStr=`data=${body
           ->Js.Json.stringifyAny
-          ->Belt.Option.getWithDefault("")
+          ->Option.getWithDefault("")
           ->Js.Global.encodeURI}`,
         (),
       )

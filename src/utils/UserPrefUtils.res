@@ -75,7 +75,7 @@ let getUserPref = () => {
     str
     ->LogicUtils.safeParse
     ->Js.Json.decodeObject
-    ->Belt.Option.getWithDefault(Dict.make())
+    ->Option.getWithDefault(Dict.make())
     ->converToUserPref
 
   | None => Dict.make()
@@ -83,7 +83,7 @@ let getUserPref = () => {
 }
 
 let getSearchParams = (moduleWisePref: Js.Dict.t<moduleVisePref>, ~key: string) => {
-  switch moduleWisePref->Dict.get(key)->Belt.Option.getWithDefault({}) {
+  switch moduleWisePref->Dict.get(key)->Option.getWithDefault({}) {
   | {searchParams} => searchParams
   | _ => ""
   }

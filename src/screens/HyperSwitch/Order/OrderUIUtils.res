@@ -48,6 +48,7 @@ module GenerateSampleDataButton = {
           generateSampleDataUrl,
           [("record", 50.0->Js.Json.number)]->Dict.fromArray->Js.Json.object_,
           Post,
+          (),
         )
         showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess, ())
         getOrdersList()->ignore
@@ -212,7 +213,14 @@ let setData = (
 
 let getOrdersList = async (
   filterValueJson,
-  ~updateDetails,
+  ~updateDetails: (
+    string,
+    Js.Json.t,
+    Fetch.requestMethod,
+    ~bodyFormData: Fetch.formData=?,
+    ~headers: Js.Dict.t<'a>=?,
+    unit,
+  ) => promise<Js.Json.t>,
   ~setOrdersData,
   ~previewOnly,
   ~setScreenState,
@@ -226,23 +234,23 @@ let getOrdersList = async (
 
   try {
     let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post, ())
-    let res = await updateDetails(ordersUrl, filterValueJson->Js.Json.object_, Fetch.Post)
+    let res = await updateDetails(ordersUrl, filterValueJson->Js.Json.object_, Fetch.Post, ())
     let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
-    if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Belt.Option.isSome {
+    if data->Array.length === 0 && filterValueJson->Dict.get("payment_id")->Option.isSome {
       let payment_id =
         filterValueJson
         ->Dict.get("payment_id")
-        ->Belt.Option.getWithDefault(""->Js.Json.string)
+        ->Option.getWithDefault(""->Js.Json.string)
         ->Js.Json.decodeString
-        ->Belt.Option.getWithDefault("")
+        ->Option.getWithDefault("")
 
       if Js.Re.test_(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
         let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
         filterValueJson->Dict.set("payment_id", newID->Js.Json.string)
 
-        let res = await updateDetails(ordersUrl, filterValueJson->Js.Json.object_, Fetch.Post)
+        let res = await updateDetails(ordersUrl, filterValueJson->Js.Json.object_, Fetch.Post, ())
         let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
         let total = res->getDictFromJsonObject->getInt("total_count", 0)
 

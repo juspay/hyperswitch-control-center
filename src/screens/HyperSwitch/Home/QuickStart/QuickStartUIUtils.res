@@ -17,11 +17,11 @@ module BaseComponent = {
       <div className="flex justify-between items-center px-10 pt-6">
         <div className="flex gap-2 items-center">
           <UIUtils.RenderIf
-            condition={customIcon->Belt.Option.isNone && headerLeftIcon->String.length > 0}>
+            condition={customIcon->Option.isNone && headerLeftIcon->String.length > 0}>
             <Icon name=headerLeftIcon size=25 />
           </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={customIcon->Belt.Option.isSome}>
-            {customIcon->Belt.Option.getWithDefault(React.null)}
+          <UIUtils.RenderIf condition={customIcon->Option.isSome}>
+            {customIcon->Option.getWithDefault(React.null)}
           </UIUtils.RenderIf>
           <p className=headerStyle> {headerText->React.string} </p>
         </div>
@@ -88,9 +88,9 @@ module VerticalChoiceTile = {
           className={`p-6 flex flex-col gap-8 rounded-md cursor-pointer ${items.variantType->getBlockColor} rounded-md justify-between`}
           onClick={_ => setChoiceState(_ => items.variantType)}>
           <div className="flex justify-between items-center">
-            <UIUtils.RenderIf condition={items.leftIcon->Belt.Option.isSome}>
+            <UIUtils.RenderIf condition={items.leftIcon->Option.isSome}>
               <Icon
-                name={items.leftIcon->Belt.Option.getWithDefault("hyperswitch-short")}
+                name={items.leftIcon->Option.getWithDefault("hyperswitch-short")}
                 size=40
                 className="cursor-pointer"
               />
@@ -105,10 +105,10 @@ module VerticalChoiceTile = {
             <p className=headerTextStyle> {items.displayText->React.string} </p>
             <p className=descriptionStyle> {items.description->React.string} </p>
           </div>
-          <UIUtils.RenderIf condition={items.footerTags->Belt.Option.isSome}>
+          <UIUtils.RenderIf condition={items.footerTags->Option.isSome}>
             <div className="flex gap-2 mt-6">
               {items.footerTags
-              ->Belt.Option.getWithDefault([])
+              ->Option.getWithDefault([])
               ->Array.map(value =>
                 <div
                   className="p-2 text-xs border border-blue-700 border-opacity-30 bg-blue-700 bg-opacity-10 rounded-md">
@@ -164,8 +164,8 @@ module HorizontalChoiceTile = {
             />
           </div>
           <UIUtils.RenderIf
-            condition={items.imageLink->Belt.Option.getWithDefault("")->String.length > 0}>
-            <img alt="" src={items.imageLink->Belt.Option.getWithDefault("")} />
+            condition={items.imageLink->Option.getWithDefault("")->String.length > 0}>
+            <img alt="" src={items.imageLink->Option.getWithDefault("")} />
           </UIUtils.RenderIf>
           <div className="flex gap-2 items-center ">
             <p className=descriptionStyle> {items.description->React.string} </p>
