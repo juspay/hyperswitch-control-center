@@ -3,9 +3,10 @@ open HomeUtils
 module ConnectorOverview = {
   @react.component
   let make = () => {
+    open ConnectorUtils
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
-    let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
+    let fetchConnectorListResponse = useFetchConnectorList()
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
     let getConnectorList = async () => {
@@ -13,16 +14,11 @@ module ConnectorOverview = {
       try {
         let response = await fetchConnectorListResponse()
         let connectorsList =
-          response->HSwitchUtils.getProcessorsListFromJson(
-            ~removeFromList=HSwitchUtils.FRMPlayer,
-            (),
-          )
+          response->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer, ())
 
         let arr =
           connectorsList->Array.map(paymentMethod =>
-            paymentMethod
-            ->getString("connector_name", "")
-            ->ConnectorUtils.getConnectorNameTypeFromString
+            paymentMethod->getString("connector_name", "")->getConnectorNameTypeFromString
           )
         setConfiguredConnectors(_ => arr)
         setScreenState(_ => Success)
@@ -43,7 +39,7 @@ module ConnectorOverview = {
         ->Array.mapWithIndex((connector, index) => {
           let iconStyle = `${index === 0 ? "" : "-ml-4"} z-${(30 - index * 10)->Js.Int.toString}`
           <GatewayIcon
-            gateway={connector->ConnectorUtils.getConnectorNameString->String.toUpperCase}
+            gateway={connector->getConnectorNameString->String.toUpperCase}
             className={`w-12 h-12 rounded-full border-3 border-white  ${iconStyle} bg-white`}
           />
         })
@@ -216,6 +212,7 @@ module OverviewInfo = {
           generateSampleDataUrl,
           [("record", 50.0->Js.Json.number)]->Dict.fromArray->Js.Json.object_,
           Post,
+          (),
         )
         showToast(~message="Sample data generated successfully.", ~toastType=ToastSuccess, ())
         Window.Location.reload()

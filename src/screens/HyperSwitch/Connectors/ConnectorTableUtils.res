@@ -208,11 +208,9 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
   }
 }
 
-let connectorsTableDefaultColumns = Recoil.atom(. "connectorsTableDefaultColumns", defaultColumns)
-
 let getArrayDataFromJson = (json, itemToObjMapper: Js.Dict.t<Js.Json.t> => connectorPayload) => {
   json
-  ->HSwitchUtils.getProcessorsListFromJson()
+  ->ConnectorUtils.getProcessorsListFromJson()
   ->Array.map(itemToObjMapper)
   ->Array.filter(item => !(item.connector_name->String.includes("apple")))
 }

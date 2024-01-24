@@ -45,6 +45,7 @@ module SimpleRoutingView = {
             "",
           )->Js.Json.object_,
           Post,
+          (),
         )
 
         showToast(
@@ -64,7 +65,7 @@ module SimpleRoutingView = {
       try {
         setScreenState(_ => Loading)
         let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=routingId, ())
-        let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
+        let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post, ())
         showToast(
           ~message="Successfully Activated Selected Configuration !",
           ~toastType=ToastState.ToastSuccess,
@@ -266,7 +267,7 @@ let make = (~routingRuleId, ~isActive) => {
   let getConnectorsList = () => {
     let arr =
       connectorListJson
-      ->HSwitchUtils.getProcessorsListFromJson()
+      ->ConnectorUtils.getProcessorsListFromJson()
       ->Array.map(connectorDict => connectorDict->getString("connector_name", ""))
       ->Array.filter(x => x !== "applepay")
       ->getUniqueArray

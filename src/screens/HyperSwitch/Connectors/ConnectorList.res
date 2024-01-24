@@ -50,14 +50,15 @@ module NewProcessorCards = {
     ~showIcons: bool,
     ~isPayoutFlow: bool,
   ) => {
+    open ConnectorUtils
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
     let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
-      ? ConnectorUtils.connectorListForLive
+      ? connectorListForLive
       : isPayoutFlow
-      ? ConnectorUtils.payoutConnectorList
-      : ConnectorUtils.connectorList
+      ? payoutConnectorList
+      : connectorList
 
     let unConfiguredConnectors =
       connectorsAvailableForIntegration->Array.filter(total =>
@@ -109,8 +110,8 @@ module NewProcessorCards = {
             className="grid gap-x-5 gap-y-6 2xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 mb-5">
             {connectorList
             ->Array.mapWithIndex((connector, i) => {
-              let connectorName = connector->ConnectorUtils.getConnectorNameString
-              let connectorInfo = connector->ConnectorUtils.getConnectorInfo
+              let connectorName = connector->getConnectorNameString
+              let connectorInfo = connector->getConnectorInfo
               let size = "w-14 h-14 rounded-sm"
 
               <div
@@ -171,7 +172,7 @@ module NewProcessorCards = {
           <div className="bg-white rounded-md flex gap-2 flex-wrap p-4 border">
             {connectorList
             ->Array.mapWithIndex((connector, i) => {
-              let connectorName = connector->ConnectorUtils.getConnectorNameString
+              let connectorName = connector->getConnectorNameString
               let size = "w-14 h-14 rounded-sm"
               <ToolTip
                 key={i->string_of_int}
@@ -200,9 +201,7 @@ module NewProcessorCards = {
     let connectorListFiltered = {
       if searchedConnector->String.length > 0 {
         connectorsAvailableForIntegration->Array.filter(item =>
-          item
-          ->ConnectorUtils.getConnectorNameString
-          ->String.includes(searchedConnector->String.toLowerCase)
+          item->getConnectorNameString->String.includes(searchedConnector->String.toLowerCase)
         )
       } else {
         connectorsAvailableForIntegration
@@ -215,7 +214,7 @@ module NewProcessorCards = {
             {connectorListFiltered->iconsConnectors("Connect a new connector", true, ())}
             {<UIUtils.RenderIf condition={featureFlagDetails.testProcessors && !isPayoutFlow}>
               {featureFlagDetails.testProcessors
-              ->ConnectorUtils.dummyConnectorList
+              ->dummyConnectorList
               ->iconsConnectors("Connect a test connector", false, ~showSearch=false, ())}
             </UIUtils.RenderIf>}
           </>
@@ -223,7 +222,7 @@ module NewProcessorCards = {
           <>
             <UIUtils.RenderIf condition={featureFlagDetails.testProcessors && !isPayoutFlow}>
               {featureFlagDetails.testProcessors
-              ->ConnectorUtils.dummyConnectorList
+              ->dummyConnectorList
               ->descriptedConnectors("Connect a test connector", false, ~showSearch=false, ())}
             </UIUtils.RenderIf>
             {connectorListFiltered->descriptedConnectors("Connect a new connector", true, ())}
@@ -253,16 +252,16 @@ let make = (~isPayoutFlow=false) => {
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let detailedCardCount = 5
-  let showConnectorIcons = configuredConnectors->len > detailedCardCount
+  let showConnectorIcons = configuredConnectors->Array.length > detailedCardCount
   let (searchText, setSearchText) = React.useState(_ => "")
-  let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
+  let fetchConnectorListResponse = useFetchConnectorList()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
   let getConnectorListAndUpdateState = async () => {
     open LogicUtils
     try {
       let response = await fetchConnectorListResponse()
-      let removeFromList = isPayoutFlow ? PayoutConnector : FRMPlayer
+      let removeFromList = isPayoutFlow ? ConnectorTypes.PayoutConnector : ConnectorTypes.FRMPlayer
       let connectorsList = response->getProcessorsListFromJson(~removeFromList, ())
       let previousData = connectorsList->Array.map(ConnectorTableUtils.getProcessorPayloadType)
 
