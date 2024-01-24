@@ -10,24 +10,17 @@ type sessionStorage = {
 external dictToObj: Js.Dict.t<'a> => {..} = "%identity"
 @val external atob: string => string = "atob"
 
+let headersForXFeature = (~uri, ~headers) => {
+  if uri->String.includes("lottie-files") || uri->String.includes("config/merchant-access") {
+    headers->Dict.set("Content-Type", `application/json`)
+  } else {
+    headers->Dict.set("x-feature", "hyperswitch-custom")
+  }
+}
+
 let getHeaders = (~uri, ~headers, ~xFeatureRoute, ()) => {
   let hyperSwitchToken = LocalStorage.getItem("login")->Js.Nullable.toOption
   let isMixpanel = uri->String.includes("mixpanel")
-
-  let headersForXFeature = (~token) =>
-    if (
-      uri->Js.String2.includes("lottie-files") || uri->Js.String2.includes("config/merchant-access")
-    ) {
-      headers->Dict.set("Content-Type", `application/json`)
-      headers->Dict.set("authorization", `Bearer ${token}`)
-      headers->Dict.set("api-key", `hyperswitch`)
-      headers
-    } else {
-      headers->Dict.set("authorization", `Bearer ${token}`)
-      headers->Dict.set("api-key", `hyperswitch`)
-      headers->Dict.set("x-feature", "hyperswitch-custom")
-      headers
-    }
 
   let headerObj = if isMixpanel {
     [
@@ -35,19 +28,17 @@ let getHeaders = (~uri, ~headers, ~xFeatureRoute, ()) => {
       ("accept", "application/json"),
     ]->Dict.fromArray
   } else {
-    let headersDict = switch hyperSwitchToken {
-    | Some(token) =>
-      xFeatureRoute
-        ? headersForXFeature(~token)
-        : {
-            headers->Dict.set("authorization", `Bearer ${token}`)
-            headers->Dict.set("api-key", `hyperswitch`)
-            headers
-          }
-
-    | None => xFeatureRoute ? headersForXFeature(~token="") : headers
+    if xFeatureRoute {
+      headersForXFeature(~headers, ~uri)
     }
-    headersDict
+    switch hyperSwitchToken {
+    | Some(token) => {
+        headers->Dict.set("authorization", `Bearer ${token}`)
+        headers->Dict.set("api-key", `hyperswitch`)
+      }
+    | None => ()
+    }
+    headers
   }
   Fetch.HeadersInit.make(headerObj->dictToObj)
 }
