@@ -33,6 +33,7 @@ let getHeaders = (~uri, ~headers, ()) => {
         ]->Dict.fromArray
       } else {
         headers->Dict.set("authorization", `Bearer ${token}`)
+        headers->Dict.set("api-key", `hyperswitch`)
         headers
       }
 
