@@ -53,29 +53,18 @@ module PrettyPrintJson = {
         {<>
           <UIUtils.RenderIf condition={headerText->Option.isSome}>
             <div className="flex justify-between items-center">
-              <p className="font-medium text-fs-16 text-jp-gray-900">
+              <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
                 {headerText->Option.getWithDefault("")->React.string}
               </p>
               {copyParsedJson}
             </div>
           </UIUtils.RenderIf>
-          <ReactSyntaxHighlighter.SyntaxHighlighter
-            style={ReactSyntaxHighlighter.lightfair}
-            language="json"
-            showLineNumbers={true}
-            lineNumberContainerStyle={{
-              paddingLeft: "0px",
-              backgroundColor: "red",
-              padding: "100px",
-            }}
-            customStyle={{
-              backgroundColor: "transparent",
-              lineHeight: "1.7rem",
-              fontSize: "0.875rem",
-              padding: "5px",
-            }}>
-            {parsedJson}
-          </ReactSyntaxHighlighter.SyntaxHighlighter>
+          <div className="flex items-start justify-between">
+            <pre
+              className={`${overrideBackgroundColor} p-3 text-jp-gray-900 dark:bg-jp-gray-950 dark:bg-opacity-100 text-fs-13 text font-medium`}>
+              {parsedJson->React.string}
+            </pre>
+          </div>
           <Button
             text={isTextVisible ? "Hide" : "See more"}
             customButtonStyle="h-6 w-8 flex flex-1 justify-center m-1"
@@ -167,7 +156,7 @@ module ApiDetailsComponent = {
     | SDK =>
       switch statusCode {
       | "INFO" => "blue-700"
-      | "ERROR" => "red-600"
+      | "ERROR" => "red-400"
       | "WARNING" => "yellow-800"
       | _ => "gray-700 opacity-50"
       }
