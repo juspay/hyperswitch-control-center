@@ -45,30 +45,37 @@ module PrettyPrintJson = {
 
     let copyParsedJson =
       <div onClick={_ => handleOnClickCopy(~parsedValue=parsedJson)} className="cursor-pointer">
-        <img src={`/assets/CopyToClipboard.svg`} className="w-9 h-5" />
+        <img src={`/assets/copy.svg`} className="w-9 h-5" />
       </div>
 
-    let copyBtnStyle = isTextVisible
-      ? "overflow-visible "
-      : `overflow-clip  h-fit ${maxHeightClass}`
-
-    <div className="flex flex-col gap-2  my-2">
+    <div className="flex flex-col gap-2">
       <UIUtils.RenderIf condition={parsedJson->isNonEmptyString}>
         {<>
           <UIUtils.RenderIf condition={headerText->Option.isSome}>
             <div className="flex justify-between items-center">
-              <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
+              <p className="font-medium text-fs-16 text-jp-gray-900">
                 {headerText->Option.getWithDefault("")->React.string}
               </p>
+              {copyParsedJson}
             </div>
           </UIUtils.RenderIf>
-          <div className="flex items-start justify-between">
-            <pre
-              className={`${overrideBackgroundColor} p-3 text-jp-gray-900 dark:bg-jp-gray-950 dark:bg-opacity-100 ${copyBtnStyle} text-fs-13 text font-medium`}>
-              {parsedJson->React.string}
-            </pre>
-            {copyParsedJson}
-          </div>
+          <ReactSyntaxHighlighter.SyntaxHighlighter
+            style={ReactSyntaxHighlighter.lightfair}
+            language="json"
+            showLineNumbers={true}
+            lineNumberContainerStyle={{
+              paddingLeft: "0px",
+              backgroundColor: "red",
+              padding: "100px",
+            }}
+            customStyle={{
+              backgroundColor: "transparent",
+              lineHeight: "1.7rem",
+              fontSize: "0.875rem",
+              padding: "5px",
+            }}>
+            {parsedJson}
+          </ReactSyntaxHighlighter.SyntaxHighlighter>
           <Button
             text={isTextVisible ? "Hide" : "See more"}
             customButtonStyle="h-6 w-8 flex flex-1 justify-center m-1"
@@ -136,9 +143,9 @@ module ApiDetailsComponent = {
     }
 
     let statusCode = switch logType {
-    | PAYMENTS | CONNECTOR => paymentDetailsValue->getInt("status_code", 200)->Belt.Int.toString
+    | PAYMENTS | CONNECTOR => paymentDetailsValue->getInt("status_code", 200)->Int.toString
     | SDK => paymentDetailsValue->getString("log_type", "INFO")
-    | WEBHOOKS => paymentDetailsValue->getBool("is_error", false) ? "200" : "500"
+    | WEBHOOKS => paymentDetailsValue->getBool("is_error", false) ? "500" : "200"
     }
 
     let method = switch logType {
@@ -209,9 +216,11 @@ module ApiDetailsComponent = {
 
     <div className="flex items-start gap-4">
       <div className="flex flex-col items-center h-full">
-        <div className={`w-fit h-fit p-1.5  border rounded-md bg-${stepColor} border-gray-300`} />
+        <div className={`w-fit h-fit p-1  border rounded-md bg-${stepColor} border-gray-300`} />
         <UIUtils.RenderIf condition={index !== logsDataLength}>
-          <div className={`h-full bg-${stepColor} w-0.5 my-1`} />
+          <div
+            className={`h-full border-${stepColor} border-dashed rounded divide-x-2 border-2 my-1`}
+          />
         </UIUtils.RenderIf>
       </div>
       <div
@@ -228,7 +237,7 @@ module ApiDetailsComponent = {
           })
         }}>
         <div className="flex flex-col gap-1">
-          <div className=" flex gap-4">
+          <div className=" flex gap-3">
             <div className={`bg-${codeBg} h-fit w-fit px-2 py-1 rounded-md`}>
               <p className={`text-${background_color} text-sm opacity-100  font-bold `}>
                 {statusCode->React.string}
@@ -237,12 +246,14 @@ module ApiDetailsComponent = {
             {switch logType {
             | SDK =>
               <p className={`${headerStyle} mt-1 ${isSelected ? "" : "opacity-80"}`}>
-                {apiName->LogicUtils.camelCaseToTitle->React.string}
+                {apiName->camelCaseToTitle->React.string}
               </p>
             | PAYMENTS | WEBHOOKS | CONNECTOR =>
-              <p className={`${headerStyle} mt-1 ${isSelected ? "" : "opacity-80"}`}>
-                <span className="mr-3"> {method->String.toUpperCase->React.string} </span>
-                <span> {apiPath->React.string} </span>
+              <p className={`${headerStyle} ${isSelected ? "" : "opacity-80"}`}>
+                <span className="mr-3 border-2 px-1 py-0.5 rounded text-sm">
+                  {method->String.toUpperCase->React.string}
+                </span>
+                <span className="leading-7"> {apiPath->React.string} </span>
               </p>
             }}
           </div>
@@ -287,7 +298,7 @@ let make = (~paymentId, ~createdAt) => {
       PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -309,7 +320,7 @@ let make = (~paymentId, ~createdAt) => {
       PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -328,7 +339,7 @@ let make = (~paymentId, ~createdAt) => {
       PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -410,7 +421,7 @@ let make = (~paymentId, ~createdAt) => {
       PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -524,7 +535,7 @@ let make = (~paymentId, ~createdAt) => {
   }->Some
 
   let timeLine =
-    <div className="flex flex-col w-1/2 overflow-y-scroll pt-7 pl-5">
+    <div className="flex flex-col w-2/5 overflow-y-scroll pt-7 pl-5">
       <div className="flex flex-col">
         {logs.contents
         ->Array.mapWithIndex((paymentDetailsValue, index) => {
@@ -543,17 +554,23 @@ let make = (~paymentId, ~createdAt) => {
       </div>
     </div>
 
+  let requestHeader = switch selectedOption.optionType {
+  | PAYMENTS | CONNECTOR => "Request body"
+  | SDK => "Event"
+  | WEBHOOKS => ""
+  }
+
   let codeBlock =
     <UIUtils.RenderIf
       condition={logDetails.response->isNonEmptyString || logDetails.request->isNonEmptyString}>
       <div
-        className="flex flex-col gap-4 bg-hyperswitch_background rounded show-scrollbar scroll-smooth overflow-scroll p-5 w-1/2">
+        className="flex flex-col gap-4 border-l-1 border-border-light-grey show-scrollbar scroll-smooth overflow-scroll px-5 py-3 w-3/5">
         <UIUtils.RenderIf
           condition={logDetails.request->isNonEmptyString &&
             selectedOption.optionType !== WEBHOOKS}>
           <PrettyPrintJson
             jsonToDisplay=logDetails.request
-            headerText={Some(selectedOption.optionType === PAYMENTS ? "Request body" : "Event")}
+            headerText={requestHeader->Some}
             maxHeightClass={logDetails.response->String.length > 0 ? "max-h-25-rem" : ""}
           />
         </UIUtils.RenderIf>
@@ -576,7 +593,7 @@ let make = (~paymentId, ~createdAt) => {
       </div>
     } else {
       <Section
-        customCssClass={`bg-white dark:bg-jp-gray-lightgray_background rounded-md pt-2 pb-4 flex gap-5 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] max-w-[72rem] overflow-scroll`}>
+        customCssClass={`bg-white dark:bg-jp-gray-lightgray_background rounded-md pt-2 pb-4 flex gap-7 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] max-w-[72rem] overflow-scroll`}>
         {timeLine}
         {codeBlock}
       </Section>
