@@ -28,7 +28,7 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
     ->Dict.fromArray
     ->Js.Json.object_
 
-  let initialValueForPayload = ConnectorUtils.generateInitialValuesDict(
+  let initialValueForPayload = generateInitialValuesDict(
     ~values=[
       ("profile_id", profileId->Js.Json.string),
       ("connector_account_details", connectorAccountDetails),
@@ -100,8 +100,7 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
     metadata: Dict.make()->Js.Json.object_,
   }
 
-  let requestPayloadDict =
-    requestPayload->ConnectorUtils.constructConnectorRequestBody(initialValueForPayload)
+  let requestPayloadDict = requestPayload->constructConnectorRequestBody(initialValueForPayload)
 
   requestPayloadDict
 }
