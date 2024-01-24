@@ -18,7 +18,6 @@ let useTheme = () => {
 }
 
 @val external window: Js.Nullable.t<'a> = "window"
-@val @scope("window") external parent: 't = "parent"
 
 @react.component
 let make = (~children) => {
@@ -33,7 +32,7 @@ let make = (~children) => {
   | Some("Dark") => Dark
   | Some(_val) => Light
   | None =>
-    if window !== parent {
+    if window !== Window.parent {
       Light
     } else {
       themeState
