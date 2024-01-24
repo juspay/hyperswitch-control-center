@@ -1,8 +1,20 @@
-open OrderUtils
-open APIUtils
-open LogicUtils
 @module("js-sha256") external sha256: string => string = "sha256"
+
+open PaymentLogsTypes
+let getLogType = dict => {
+  if dict->Dict.get("connector_name")->Option.isSome {
+    CONNECTOR
+  } else if dict->Dict.get("request_id")->Option.isSome {
+    PAYMENTS
+  } else if dict->Dict.get("component")->Option.isSome {
+    SDK
+  } else {
+    WEBHOOKS
+  }
+}
+
 module PrettyPrintJson = {
+  open LogicUtils
   @react.component
   let make = (
     ~jsonToDisplay,
@@ -13,7 +25,6 @@ module PrettyPrintJson = {
     let showToast = ToastState.useShowToast()
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
     let (parsedJson, setParsedJson) = React.useState(_ => "")
-
     let parseJsonValue = () => {
       try {
         let parsedValue = jsonToDisplay->Js.Json.parseExn->Js.Json.stringifyWithSpace(3)
@@ -34,11 +45,11 @@ module PrettyPrintJson = {
 
     let copyParsedJson =
       <div onClick={_ => handleOnClickCopy(~parsedValue=parsedJson)} className="cursor-pointer">
-        <img src={`/assets/CopyToClipboard.svg`} />
+        <Icon name="copy-code" />
       </div>
 
-    <div className="flex flex-col gap-2  my-2">
-      <UIUtils.RenderIf condition={parsedJson->String.length > 0}>
+    <div className="flex flex-col gap-2">
+      <UIUtils.RenderIf condition={parsedJson->isNonEmptyString}>
         {<>
           <UIUtils.RenderIf condition={headerText->Option.isSome}>
             <div className="flex justify-between items-center">
@@ -50,12 +61,9 @@ module PrettyPrintJson = {
           </UIUtils.RenderIf>
           <div className="flex items-start justify-between">
             <pre
-              className={`${overrideBackgroundColor} p-3 text-jp-gray-900 dark:bg-jp-gray-950 dark:bg-opacity-100 ${isTextVisible
-                  ? "overflow-visible "
-                  : `overflow-clip  h-fit ${maxHeightClass}`} text-fs-13 text font-medium`}>
+              className={`${overrideBackgroundColor} p-3 text-jp-gray-900 dark:bg-jp-gray-950 dark:bg-opacity-100 text-fs-13 text font-medium`}>
               {parsedJson->React.string}
             </pre>
-            {copyParsedJson}
           </div>
           <Button
             text={isTextVisible ? "Hide" : "See more"}
@@ -64,7 +72,7 @@ module PrettyPrintJson = {
           />
         </>}
       </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={parsedJson->String.length === 0}>
+      <UIUtils.RenderIf condition={parsedJson->isEmptyString}>
         <div className="flex flex-col justify-start items-start gap-2 h-25-rem">
           <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
             {headerText->Option.getWithDefault("")->React.string}
@@ -78,125 +86,167 @@ module PrettyPrintJson = {
   }
 }
 
-type logType = Sdk | Payment
-
 module ApiDetailsComponent = {
+  open LogicUtils
+  open PaymentLogsUtils
   @react.component
   let make = (
     ~paymentDetailsValue,
-    ~setRequestObject,
-    ~setResponseObject,
-    ~setCurrentSelected,
-    ~setCurrentSelectedType,
-    ~currentSelected,
+    ~setLogDetails,
+    ~setSelectedOption,
+    ~currentSelected: int,
     ~paymentId,
     ~index,
     ~logsDataLength,
   ) => {
-    let headerStyle = "text-fs-13 font-medium text-grey-700 break-all"
-    let logType = paymentDetailsValue->Dict.get("request_id")->Option.isSome ? Payment : Sdk
+    let headerStyle = "text-sm font-medium text-gray-700 break-all"
+    let logType = paymentDetailsValue->getLogType
     let apiName = switch logType {
-    | Payment => paymentDetailsValue->getString("api_flow", "default value")->camelCaseToTitle
-    | Sdk => paymentDetailsValue->getString("event_name", "default value")
-    }->PaymentUtils.nameToURLMapper(~payment_id=paymentId, ())
+    | PAYMENTS => paymentDetailsValue->getString("api_flow", "default value")->camelCaseToTitle
+    | SDK => paymentDetailsValue->getString("event_name", "default value")
+    | CONNECTOR => paymentDetailsValue->getString("flow", "default value")->camelCaseToTitle
+    | WEBHOOKS => paymentDetailsValue->getString("outgoing_webhook_event_type", "default value")
+    }->nameToURLMapper(~payment_id=paymentId, ())
     let createdTime = paymentDetailsValue->getString("created_at", "00000")
-    let requestId = switch logType {
-    | Payment => paymentDetailsValue->getString("request_id", "")
-    | Sdk => paymentDetailsValue->getString("event_id", "")
-    }
-
-    let filteredKeys = [
-      "value",
-      "merchant_id",
-      "created_at_precise",
-      "component",
-      "platform",
-      "version",
-    ]
     let requestObject = switch logType {
-    | Payment => paymentDetailsValue->getString("request", "")
-    | Sdk =>
+    | PAYMENTS | CONNECTOR => paymentDetailsValue->getString("request", "")
+    | SDK =>
       paymentDetailsValue
       ->Dict.toArray
       ->Array.filter(entry => {
         let (key, _) = entry
         filteredKeys->Array.includes(key)->not
       })
-      ->Dict.fromArray
-      ->Js.Json.object_
+      ->getJsonFromArrayOfJson
       ->Js.Json.stringify
+    | WEBHOOKS => paymentDetailsValue->getString("outgoing_webhook_event_type", "")
     }
 
     let responseObject = switch logType {
-    | Payment => paymentDetailsValue->getString("response", "")
-    | Sdk => {
+    | PAYMENTS | CONNECTOR => paymentDetailsValue->getString("response", "")
+    | SDK => {
         let isErrorLog = paymentDetailsValue->getString("log_type", "") === "ERROR"
         isErrorLog ? paymentDetailsValue->getString("value", "") : ""
       }
+    | WEBHOOKS => paymentDetailsValue->getString("content", "")
     }
 
     let statusCode = switch logType {
-    | Payment => paymentDetailsValue->getInt("status_code", 200)->Belt.Int.toString
-    | Sdk => paymentDetailsValue->getString("log_type", "INFO")
+    | PAYMENTS | CONNECTOR => paymentDetailsValue->getInt("status_code", 200)->Int.toString
+    | SDK => paymentDetailsValue->getString("log_type", "INFO")
+    | WEBHOOKS => paymentDetailsValue->getBool("is_error", false) ? "500" : "200"
     }
 
     let method = switch logType {
-    | Payment => paymentDetailsValue->getString("http_method", "")
-    | Sdk => ""
+    | PAYMENTS => paymentDetailsValue->getString("http_method", "")
+    | CONNECTOR => paymentDetailsValue->getString("method", "")
+    | SDK => ""
+    | WEBHOOKS => "POST"
     }
 
     let apiPath = switch logType {
-    | Payment => paymentDetailsValue->getString("url_path", "")
-    | Sdk => ""
+    | PAYMENTS => paymentDetailsValue->getString("url_path", "")
+    | CONNECTOR => paymentDetailsValue->getString("flow", "")
+    | WEBHOOKS =>
+      paymentDetailsValue->getString("outgoing_webhook_event_type", "")->String.toLocaleUpperCase
+    | SDK => ""
     }
 
-    let background_color = switch (logType, statusCode) {
-    | (Sdk, "INFO") => "blue-700"
-    | (Payment, "200") => "green-700"
-    | (Sdk, "WARNING")
-    | (Payment, "400") => "yellow-800"
-    | (Sdk, "ERROR")
-    | (Payment, "500") => "red-800"
-    | _ => "grey-700 opacity-50"
+    let background_color = switch logType {
+    | SDK =>
+      switch statusCode {
+      | "INFO" => "blue-700"
+      | "ERROR" => "red-400"
+      | "WARNING" => "yellow-800"
+      | _ => "gray-700 opacity-50"
+      }
+    | WEBHOOKS =>
+      switch statusCode {
+      | "200" => "green-700"
+      | "500" | _ => "gray-700 opacity-50"
+      }
+    | PAYMENTS | CONNECTOR =>
+      switch statusCode {
+      | "200" => "green-700"
+      | "500" => "gray-700 opacity-50"
+      | "400" => "yellow-800"
+      | _ => "gray-700 opacity-50"
+      }
     }
-    let stepColor =
-      currentSelected->String.length > 0 && currentSelected === requestId
-        ? background_color
-        : "gray-300 "
-    let boxShadowOnSelection =
-      currentSelected->String.length > 0 && currentSelected === requestId
-        ? "border border-blue-700 rounded-md shadow-paymentLogsShadow"
-        : "border border-transparent"
+
+    let isSelected = currentSelected === index
+    let stepColor = isSelected ? background_color : "gray-300"
+
+    let boxShadowOnSelection = isSelected
+      ? "border border-blue-700 rounded-md"
+      : "border border-transparent"
+
+    let codeBg = switch logType {
+    | SDK =>
+      switch statusCode {
+      | "INFO" => "blue-100"
+      | "ERROR" => "red-200"
+      | "WARNING" => "yellow-100"
+      | _ => "gray-100"
+      }
+    | WEBHOOKS =>
+      switch statusCode {
+      | "200" => "green-200"
+      | "500" | _ => "gray-100"
+      }
+    | PAYMENTS | CONNECTOR =>
+      switch statusCode {
+      | "200" => "green-200"
+      | "500" => "gray-100"
+      | "400" => "yellow-100"
+      | _ => "gray-100"
+      }
+    }
 
     <div className="flex items-start gap-4">
       <div className="flex flex-col items-center h-full">
-        <div className={`w-fit h-fit p-1.5  border rounded-full bg-${stepColor} border-gray-300`} />
+        <div className={`w-fit h-fit p-1  border rounded-md bg-${stepColor} border-gray-300`} />
         <UIUtils.RenderIf condition={index !== logsDataLength}>
-          <div className={`h-full bg-${stepColor} w-0.5 my-1`} />
+          <div
+            className={`h-full border-${stepColor} border-dashed rounded divide-x-2 border-2 my-1`}
+          />
         </UIUtils.RenderIf>
       </div>
       <div
-        className={`flex gap-6 items-start w-full p-4 cursor-pointer ${boxShadowOnSelection} -mt-8 mb-8`}
-        key={currentSelected}
+        className={`flex gap-6 items-start w-full py-3 px-3 cursor-pointer ${boxShadowOnSelection} -mt-5 mb-8`}
+        key={currentSelected->string_of_int}
         onClick={_ => {
-          setCurrentSelected(_ => requestId)
-          setRequestObject(_ => requestObject)
-          setResponseObject(_ => responseObject)
-          setCurrentSelectedType(_ => logType)
+          setLogDetails(_ => {
+            response: responseObject,
+            request: requestObject,
+          })
+          setSelectedOption(_ => {
+            value: index,
+            optionType: logType,
+          })
         }}>
         <div className="flex flex-col gap-1">
-          <div className=" flex gap-2">
-            <p className={`text-${background_color} font-bold `}> {statusCode->React.string} </p>
+          <div className=" flex gap-3">
+            <div className={`bg-${codeBg} h-fit w-fit px-2 py-1 rounded-md`}>
+              <p className={`text-${background_color} text-sm opacity-100  font-bold `}>
+                {statusCode->React.string}
+              </p>
+            </div>
             {switch logType {
-            | Sdk => <p className=headerStyle> {apiName->React.string} </p>
-            | Payment =>
-              <p className=headerStyle>
-                <span className="font-bold mr-2"> {method->String.toUpperCase->React.string} </span>
-                <span> {apiPath->React.string} </span>
+            | SDK =>
+              <p className={`${headerStyle} mt-1 ${isSelected ? "" : "opacity-80"}`}>
+                {apiName->camelCaseToTitle->React.string}
+              </p>
+            | PAYMENTS | WEBHOOKS | CONNECTOR =>
+              <p className={`${headerStyle} ${isSelected ? "" : "opacity-80"}`}>
+                <span className="mr-3 border-2 px-1 py-0.5 rounded text-sm">
+                  {method->String.toUpperCase->React.string}
+                </span>
+                <span className="leading-7"> {apiPath->React.string} </span>
               </p>
             }}
           </div>
-          <div className={`${headerStyle} opacity-50`}>
+          <div className={`${headerStyle} opacity-40`}>
             {createdTime->Js.Date.fromString->Js.Date.toUTCString->React.string}
           </div>
         </div>
@@ -204,71 +254,97 @@ module ApiDetailsComponent = {
     </div>
   }
 }
+
 @react.component
 let make = (~paymentId, ~createdAt) => {
+  open APIUtils
+  open LogicUtils
+  open PaymentLogsUtils
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let fetchPostDetils = useUpdateMethod()
-  let (paymentLogsData, setPaymentLogsData) = React.useState(_ => [])
-  let (sdkLogsData, setSdkLogsData) = React.useState(_ => [])
-  let (allLogsData, setAllLogsData) = React.useState(_ => [])
-  let (responseObject, setResponseObject) = React.useState(_ => "")
-  let (requestObject, setRequestObject) = React.useState(_ => "")
-  let (currentSelected, setCurrentSelected) = React.useState(_ => "")
-  let (currentSelectedType, setCurrentSelectedType) = React.useState(_ => Payment)
-  let (screenState1, setScreenState1) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (screenState2, setScreenState2) = React.useState(_ => PageLoaderWrapper.Loading)
+  let logs = React.useMemo0(() => {ref([])})
+  let (logDetails, setLogDetails) = React.useState(_ => {
+    response: "",
+    request: "",
+  })
+  let (selectedOption, setSelectedOption) = React.useState(_ => {
+    value: 0,
+    optionType: PAYMENTS,
+  })
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let fetchPaymentLogsData = async _ => {
     try {
-      setScreenState1(_ => PageLoaderWrapper.Loading)
-      let paymentLogsUrl = APIUtils.getURL(
+      let paymentLogsUrl = getURL(
         ~entityName=PAYMENT_LOGS,
         ~methodType=Get,
         ~id=Some(paymentId),
         (),
       )
       let paymentLogsArray = (await fetchDetails(paymentLogsUrl))->getArrayFromJson([])
-      setPaymentLogsData(_ => paymentLogsArray)
+      logs.contents = logs.contents->Array.concat(paymentLogsArray)
 
-      // setting initial data
-      let initialData =
-        paymentLogsArray
-        ->Belt.Array.get(0)
-        ->Option.getWithDefault(Js.Json.null)
-        ->getDictFromJsonObject
-      let intialValueRequest = initialData->getString("request", "")
-
-      let intialValueResponse = initialData->getString("response", "")
-      setRequestObject(_ => intialValueRequest)
-      setResponseObject(_ => intialValueResponse)
-      setCurrentSelected(_ => initialData->getString("request_id", ""))
-
-      setScreenState1(_ => PageLoaderWrapper.Success)
+      PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
       let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
-      setScreenState1(_ => PageLoaderWrapper.Error(err))
+      PageLoaderWrapper.Error(err)
     }
   }
 
-  let sourceMapper = source => {
-    switch source {
-    | "ORCA-LOADER" => "HYPERLOADER"
-    | "ORCA-PAYMENT-PAGE"
-    | "STRIPE_PAYMENT_SHEET" => "PAYMENT_SHEET"
-    | other => other
+  let fetchWebhooksLogsData = async _ => {
+    try {
+      let webhooksLogsUrl = getURL(
+        ~entityName=WEBHOOKS_EVENT_LOGS,
+        ~methodType=Get,
+        ~id=Some(paymentId),
+        (),
+      )
+      let webhooksLogsArray = (await fetchDetails(webhooksLogsUrl))->getArrayFromJson([])
+      switch webhooksLogsArray->Array.get(0) {
+      | Some(val) => logs.contents = logs.contents->Array.concat([val])
+      | _ => ()
+      }
+
+      PageLoaderWrapper.Success
+    } catch {
+    | Js.Exn.Error(e) =>
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      PageLoaderWrapper.Error(err)
+    }
+  }
+
+  let fetchConnectorLogsData = async _ => {
+    try {
+      let connectorLogsUrl = getURL(
+        ~entityName=CONNECTOR_EVENT_LOGS,
+        ~methodType=Get,
+        ~id=Some(paymentId),
+        (),
+      )
+      let connectorLogsArray = (await fetchDetails(connectorLogsUrl))->getArrayFromJson([])
+      logs.contents = logs.contents->Array.concat(connectorLogsArray)
+
+      PageLoaderWrapper.Success
+    } catch {
+    | Js.Exn.Error(e) =>
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      PageLoaderWrapper.Error(err)
     }
   }
 
   let fetchSdkLogsData = async _ => {
+    let sourceMapper = source => {
+      switch source {
+      | "ORCA-LOADER" => "HYPERLOADER"
+      | "ORCA-PAYMENTS-PAGE"
+      | "STRIPE_PAYMENT_SHEET" => "PAYMENT_SHEET"
+      | other => other
+      }
+    }
+
     try {
-      setScreenState2(_ => PageLoaderWrapper.Loading)
-      let url = APIUtils.getURL(
-        ~entityName=SDK_EVENT_LOGS,
-        ~methodType=Post,
-        ~id=Some(paymentId),
-        (),
-      )
+      let url = getURL(~entityName=SDK_EVENT_LOGS, ~methodType=Post, ~id=Some(paymentId), ())
       let startTime = createdAt->Js.Date.fromString->Js.Date.getTime -. 1000. *. 60. *. 5.
       let startTime = startTime->Js.Date.fromFloat->Js.Date.toISOString
 
@@ -323,87 +399,180 @@ let make = (~paymentId, ~createdAt) => {
           eventDict->Dict.set("created_at", timestamp->Js.Json.string)
           eventDict->Js.Json.object_
         })
-      setSdkLogsData(_ =>
-        sdkLogsArray->Array.filter(sdkLog => {
-          let eventDict = sdkLog->getDictFromJsonObject
-          let eventName = eventDict->getString("event_name", "")
-          let filteredEventNames = ["StripeElementsCalled"]
-          filteredEventNames->Array.includes(eventName)->not
-        })
-      )
+      let logsArr = sdkLogsArray->Array.filter(sdkLog => {
+        let eventDict = sdkLog->getDictFromJsonObject
+        let eventName = eventDict->getString("event_name", "")
+        let filteredEventNames = ["StripeElementsCalled"]
+        filteredEventNames->Array.includes(eventName)->not
+      })
+      logs.contents = logs.contents->Array.concat(logsArr)
 
-      // setting initial data
-      let initialData =
-        sdkLogsArray->Belt.Array.get(0)->Option.getWithDefault(Js.Json.null)->getDictFromJsonObject
-      let intialValueRequest = initialData->getString("event_name", "")
-
-      let intialValueResponse = initialData->getString("response", "")
-      setRequestObject(_ => intialValueRequest)
-      setResponseObject(_ => intialValueResponse)
-      setCurrentSelected(_ => initialData->getString("event_id", ""))
-
-      setScreenState2(_ => PageLoaderWrapper.Success)
+      PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
       let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
-      setScreenState2(_ => PageLoaderWrapper.Error(err))
+      PageLoaderWrapper.Error(err)
     }
   }
+
   let getDetails = async () => {
-    try {
-      let _ = await Window.connectorWasmInit()
-      if !(paymentId->HSwitchOrderUtils.isTestPayment) {
-        fetchPaymentLogsData()->ignore
-        fetchSdkLogsData()->ignore
-      } else {
-        setScreenState1(_ => PageLoaderWrapper.Success)
-        setScreenState2(_ => PageLoaderWrapper.Success)
-      }
-    } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
-        setScreenState1(_ => PageLoaderWrapper.Error(err))
-        setScreenState2(_ => PageLoaderWrapper.Error(err))
-      }
-    }
-  }
+    if !(paymentId->HSwitchOrderUtils.isTestPayment) {
+      let apiLogsStatus = await fetchPaymentLogsData()
+      let sdkLogsStatus = await fetchSdkLogsData()
+      let webhooksStatus = await fetchWebhooksLogsData()
+      let connectorStatus = await fetchConnectorLogsData()
 
-  let sortByCreatedAt = (log1: Js.Json.t, log2: Js.Json.t) => {
-    let keyA = log1->getDictFromJsonObject->getString("created_at", "")->Js.Date.fromString
-    let keyB = log2->getDictFromJsonObject->getString("created_at", "")->Js.Date.fromString
-    if keyA < keyB {
-      1
-    } else if keyA > keyB {
-      -1
+      let screenState = switch (apiLogsStatus, sdkLogsStatus, webhooksStatus, connectorStatus) {
+      | (
+          PageLoaderWrapper.Error(_),
+          PageLoaderWrapper.Error(_),
+          PageLoaderWrapper.Error(_),
+          PageLoaderWrapper.Error(_),
+        ) =>
+        PageLoaderWrapper.Error("Failed to Fetch!")
+      | _ => PageLoaderWrapper.Success
+      }
+      setScreenState(_ => screenState)
     } else {
-      0
+      setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
-  let screenState = React.useMemo2(() => {
-    setAllLogsData(_ =>
-      sdkLogsData->Array.concat(paymentLogsData)->Js.Array2.sortInPlaceWith(sortByCreatedAt)
-    )
-    switch (screenState1, screenState2) {
-    | (PageLoaderWrapper.Success, _)
-    | (_, PageLoaderWrapper.Success) =>
-      PageLoaderWrapper.Success
-    | (PageLoaderWrapper.Loading, _)
-    | (_, PageLoaderWrapper.Loading) =>
-      PageLoaderWrapper.Loading
-    | (PageLoaderWrapper.Error(err), PageLoaderWrapper.Error(_)) => PageLoaderWrapper.Error(err)
-    | _ => PageLoaderWrapper.Loading
+  let screenState = React.useMemo1(() => {
+    logs.contents = logs.contents->Js.Array2.sortInPlaceWith(sortByCreatedAt)
+
+    switch logs.contents->Array.get(0) {
+    | Some(value) => {
+        let initialData = value->getDictFromJsonObject
+        switch initialData->getLogType {
+        | PAYMENTS => {
+            let request = initialData->getString("request", "")
+            let response = initialData->getString("response", "")
+            setLogDetails(_ => {
+              response,
+              request,
+            })
+            setSelectedOption(_ => {
+              value: 0,
+              optionType: PAYMENTS,
+            })
+          }
+        | SDK => {
+            let request =
+              initialData
+              ->Dict.toArray
+              ->Array.filter(entry => {
+                let (key, _) = entry
+                filteredKeys->Array.includes(key)->not
+              })
+              ->getJsonFromArrayOfJson
+              ->Js.Json.stringify
+            let response =
+              initialData->getString("log_type", "") === "ERROR"
+                ? initialData->getString("value", "")
+                : ""
+            setLogDetails(_ => {
+              response,
+              request,
+            })
+            setSelectedOption(_ => {
+              value: 0,
+              optionType: SDK,
+            })
+          }
+        | CONNECTOR => {
+            let request = initialData->getString("request", "")
+            let response = initialData->getString("response", "")
+            setLogDetails(_ => {
+              response,
+              request,
+            })
+            setSelectedOption(_ => {
+              value: 0,
+              optionType: CONNECTOR,
+            })
+          }
+        | WEBHOOKS => {
+            let request = initialData->getString("outgoing_webhook_event_type", "")
+            let response = initialData->getString("content", "")
+            setLogDetails(_ => {
+              response,
+              request,
+            })
+            setSelectedOption(_ => {
+              value: 0,
+              optionType: WEBHOOKS,
+            })
+          }
+        }
+      }
+    | _ => ()
     }
-  }, (screenState1, screenState2))
+
+    screenState
+  }, [screenState])
 
   React.useEffect0(() => {
     getDetails()->ignore
     None
   })
 
+  let headerText = switch selectedOption.optionType {
+  | PAYMENTS | CONNECTOR => "Response body"
+  | WEBHOOKS => "Request body"
+  | SDK => "Metadata"
+  }->Some
+
+  let timeLine =
+    <div className="flex flex-col w-2/5 overflow-y-scroll pt-7 pl-5">
+      <div className="flex flex-col">
+        {logs.contents
+        ->Array.mapWithIndex((paymentDetailsValue, index) => {
+          <ApiDetailsComponent
+            key={index->string_of_int}
+            paymentDetailsValue={paymentDetailsValue->getDictFromJsonObject}
+            setLogDetails
+            setSelectedOption
+            currentSelected=selectedOption.value
+            paymentId
+            index
+            logsDataLength={logs.contents->Array.length - 1}
+          />
+        })
+        ->React.array}
+      </div>
+    </div>
+
+  let requestHeader = switch selectedOption.optionType {
+  | PAYMENTS | CONNECTOR => "Request body"
+  | SDK => "Event"
+  | WEBHOOKS => ""
+  }
+
+  let codeBlock =
+    <UIUtils.RenderIf
+      condition={logDetails.response->isNonEmptyString || logDetails.request->isNonEmptyString}>
+      <div
+        className="flex flex-col gap-4 border-l-1 border-border-light-grey show-scrollbar scroll-smooth overflow-scroll px-5 py-3 w-3/5">
+        <UIUtils.RenderIf
+          condition={logDetails.request->isNonEmptyString &&
+            selectedOption.optionType !== WEBHOOKS}>
+          <PrettyPrintJson
+            jsonToDisplay=logDetails.request
+            headerText={requestHeader->Some}
+            maxHeightClass={logDetails.response->String.length > 0 ? "max-h-25-rem" : ""}
+          />
+        </UIUtils.RenderIf>
+        <UIUtils.RenderIf condition={logDetails.response->isNonEmptyString}>
+          <PrettyPrintJson jsonToDisplay={logDetails.response} headerText />
+        </UIUtils.RenderIf>
+      </div>
+    </UIUtils.RenderIf>
+
+  open OrderUtils
   <PageLoaderWrapper
     screenState customUI={<NoDataFound message="No logs available for this payment" />}>
-    {if paymentId->HSwitchOrderUtils.isTestPayment {
+    {if paymentId->HSwitchOrderUtils.isTestPayment || logs.contents->Array.length === 0 {
       <div
         className="flex items-center gap-2 bg-white w-full border-2 p-3 !opacity-100 rounded-lg text-md font-medium">
         <Icon name="info-circle-unfilled" size=16 />
@@ -413,49 +582,9 @@ let make = (~paymentId, ~createdAt) => {
       </div>
     } else {
       <Section
-        customCssClass={`bg-white dark:bg-jp-gray-lightgray_background rounded-md pt-2 pb-4 px-10 flex gap-16 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] overflow-scroll`}>
-        <div className="flex flex-col w-1/2 gap-12 overflow-y-scroll">
-          <p className="text-lightgray_background font-semibold text-fs-16">
-            {"Audit Trail"->React.string}
-          </p>
-          <div className="flex flex-col">
-            {allLogsData
-            ->Array.mapWithIndex((paymentDetailsValue, index) => {
-              <ApiDetailsComponent
-                key={index->string_of_int}
-                paymentDetailsValue={paymentDetailsValue->getDictFromJsonObject}
-                setResponseObject
-                setRequestObject
-                currentSelected
-                setCurrentSelected
-                setCurrentSelectedType
-                paymentId
-                index
-                logsDataLength={allLogsData->Array.length - 1}
-              />
-            })
-            ->React.array}
-          </div>
-        </div>
-        <UIUtils.RenderIf
-          condition={responseObject->String.length > 0 || requestObject->String.length > 0}>
-          <div
-            className="flex flex-col gap-4 bg-hyperswitch_background rounded show-scrollbar scroll-smooth overflow-scroll px-8 py-4 w-1/2">
-            <UIUtils.RenderIf condition={requestObject->String.length > 0}>
-              <PrettyPrintJson
-                jsonToDisplay=requestObject
-                headerText={Some(currentSelectedType === Payment ? "Request body" : "Event")}
-                maxHeightClass={responseObject->String.length > 0 ? "max-h-25-rem" : ""}
-              />
-            </UIUtils.RenderIf>
-            <UIUtils.RenderIf condition={responseObject->String.length > 0}>
-              <PrettyPrintJson
-                jsonToDisplay=responseObject
-                headerText={Some(currentSelectedType === Payment ? "Response body" : "Metadata")}
-              />
-            </UIUtils.RenderIf>
-          </div>
-        </UIUtils.RenderIf>
+        customCssClass={`bg-white dark:bg-jp-gray-lightgray_background rounded-md pt-2 pb-4 flex gap-7 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] max-w-[72rem] overflow-scroll`}>
+        {timeLine}
+        {codeBlock}
       </Section>
     }}
   </PageLoaderWrapper>
