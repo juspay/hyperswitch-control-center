@@ -3,6 +3,19 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.28.1 (2024-01-23)
+
+### Bug Fixes
+
+- Use apifetcher function update ([#283](https://github.com/juspay/hyperswitch-control-center/pull/283)) ([`d587598`](https://github.com/juspay/hyperswitch-control-center/commit/d587598a1f13a234b68b5bc204780fda3c773e0e))
+- Changes for supporting form data type in api ([#257](https://github.com/juspay/hyperswitch-control-center/pull/257)) ([`84c283b`](https://github.com/juspay/hyperswitch-control-center/commit/84c283b8092e3296dc97c87725966d540f490d5b))
+- Access Control Issue ([#284](https://github.com/juspay/hyperswitch-control-center/pull/284)) ([`f35bcc5`](https://github.com/juspay/hyperswitch-control-center/commit/f35bcc524184c0c1bcc84a41198e81424bef7cc4))
+
+**Full Changelog:** [`v1.28.0...v1.28.1`](https://github.com/juspay/hyperswitch-control-center/compare/v1.28.0...v1.28.1)
+
+- - -
+
+
 ## 1.28.0 (2024-01-22)
 
 ### Features
