@@ -186,7 +186,7 @@ let setData = (
   setScreenState,
   previewOnly,
 ) => {
-  let arr = Belt.Array.make(offset, Dict.make())
+  let arr = Array.make(~length=offset, Dict.make())
   if total <= offset {
     setOffset(_ => 0)
   }

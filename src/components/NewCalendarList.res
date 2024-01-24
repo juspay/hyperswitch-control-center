@@ -138,7 +138,7 @@ let make = (
     Js.Date.makeWithYM(~year=startYear, ~month=startMonth, ())
   )
 
-  let dummyRow = Belt.Array.make(count, 1)
+  let dummyRow = Array.make(~length=count, 1)
   <div
     className={`flex flex-1 flex-row justify-center overflow-auto select-none ${calendarContaierStyle}`}>
     {dummyRow

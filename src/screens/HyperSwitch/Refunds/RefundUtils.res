@@ -23,7 +23,7 @@ let getRefundsList = async (
     let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
-    let arr = Belt.Array.make(offset, Dict.make())
+    let arr = Array.make(~length=offset, Dict.make())
     if total <= offset {
       setOffset(_ => 0)
     }

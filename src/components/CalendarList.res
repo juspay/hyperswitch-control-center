@@ -76,7 +76,7 @@ let make = (
     setCurrDate(_ => newDate)
   }
 
-  let dummyRow = Belt.Array.make(count, 1)
+  let dummyRow = Array.make(~length=count, 1)
   <div
     className={`flex flex-1 flex-row justify-center overflow-auto bg-jp-gray-50 dark:bg-jp-gray-950 rounded border border-jp-gray-500 dark:border-jp-gray-960 select-none ${calendarContaierStyle}`}>
     {dummyRow
@@ -96,7 +96,7 @@ let make = (
       let tempYear = Js.Date.getFullYear(Js.Date.fromFloat(tempDate))
       let showLeft = i == 0 && !secondCalendar
 
-      let showRight = i + 1 == Belt.Array.length(dummyRow) && !firstCalendar
+      let showRight = i + 1 == Array.length(dummyRow) && !firstCalendar
       let monthAndYear = String.concat(
         getMonthInStr(getMonthFromFloat(tempMonth)),
         Belt.Float.toString(tempYear),

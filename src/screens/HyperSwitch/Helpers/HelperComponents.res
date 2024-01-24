@@ -60,7 +60,7 @@ module BluredTableComponent = {
         ("amount_capturable", "####"->Js.Json.string),
       ]->Dict.fromArray
 
-    let dummyTableValue = Belt.Array.make(5, dummyTableValueDict)
+    let dummyTableValue = Array.make(~length=5, dummyTableValueDict)
 
     let subTitle = moduleSubtitle->Option.isSome ? moduleSubtitle->Option.getOr("") : ""
 

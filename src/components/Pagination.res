@@ -91,7 +91,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
           buttonType
           onClick={_evt => paginate(currentPage + 1)}
           customButtonStyle="!h-10"
-          buttonState={if currentPage < Belt.Array.length(pageNumbers) {
+          buttonState={if currentPage < Array.length(pageNumbers) {
             Normal
           } else {
             Disabled

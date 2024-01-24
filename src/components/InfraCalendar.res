@@ -41,7 +41,7 @@ module TableRow = {
     let highlight = cellHighlighter
 
     {
-      if item == Belt.Array.make(7, "") {
+      if item == Array.make(~length=7, "") {
         React.null
       } else {
         <tr className="transition duration-300 ease-in-out">
@@ -230,7 +230,7 @@ let make = (
   }
 
   // creating row info
-  let dummyRow = Belt.Array.make(6, Belt.Array.make(7, ""))
+  let dummyRow = Array.make(~length=6, Array.make(~length=7, ""))
 
   let rowMapper = (row, indexRow) => {
     Array.mapWithIndex(row, (_item, index) => {

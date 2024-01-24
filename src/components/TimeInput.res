@@ -15,7 +15,7 @@ module OptionVals = {
       onChange
       disabled=isDisabled
       className={`dark:bg-jp-gray-lightgray_background font-medium border border-gray-400 rounded-md self-start ${cursorClass} outline-none`}>
-      {Belt.Array.make(upto, 0)
+      {Array.make(~length=upto, 0)
       ->Array.mapWithIndex((_, i) => {
         <option key={Belt.Int.toString(i)} value={Belt.Int.toString(i)}>
           {i->padNum->React.string}
