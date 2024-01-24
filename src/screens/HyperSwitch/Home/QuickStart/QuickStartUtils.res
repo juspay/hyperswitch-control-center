@@ -44,12 +44,6 @@ let connectorChoiceVariantToString = variantValue =>
   | _ => ""
   }
 
-let defaultChoiceStateValue: landingChoiceType = {
-  displayText: "Not Selected",
-  description: "Not Selected",
-  variantType: #NotSelected,
-}
-
 let connectorChoiceArray: array<landingChoiceType> = [
   {
     displayText: "Single Payment Processor",
