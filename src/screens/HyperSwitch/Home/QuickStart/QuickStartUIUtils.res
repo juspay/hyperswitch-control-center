@@ -219,7 +219,7 @@ module SelectConnectorGrid = {
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom
       ->LogicUtils.safeParse
-      ->HSwitchUtils.getProcessorsListFromJson()
+      ->ConnectorUtils.getProcessorsListFromJson()
       ->Array.map(connectorDict =>
         connectorDict
         ->LogicUtils.getString("connector_name", "")

@@ -64,6 +64,15 @@ let make = (~integrateAppValue: integrateApp) => {
     setQuickStartPageState(_ => GoLive(LANDING))
   }
 
+  React.useEffect1(() => {
+    if choiceState === #NotSelected {
+      setButtonState(_ => Button.Disabled)
+    } else {
+      setButtonState(_ => Button.Normal)
+    }
+    None
+  }, [choiceState])
+
   <>
     {switch integrateAppValue {
     | LANDING =>
@@ -94,6 +103,8 @@ let make = (~integrateAppValue: integrateApp) => {
               buttonType=Primary
               text="Proceed"
               buttonState
+              showBtnTextToolTip={buttonState === Button.Disabled}
+              tooltipText="Please select one of the choices"
               onClick={_ => {
                 mixpanelEvent(~eventName=`quickstart_integration_landing_option`, ())
                 handleIntegration()->ignore
