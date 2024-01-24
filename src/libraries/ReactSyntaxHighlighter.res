@@ -11,16 +11,20 @@ type style = {
   padding?: string,
 }
 
+type props = {
+  language?: string,
+  style?: editorStyle,
+  customStyle?: style,
+  showLineNumbers?: bool,
+  wrapLines?: bool,
+  wrapLongLines?: bool,
+  lineNumberContainerStyle?: style,
+  children: string,
+}
+
+open LazyUtils
 module SyntaxHighlighter = {
-  @module("react-syntax-highlighter") @react.component
-  external make: (
-    ~language: string=?,
-    ~style: editorStyle=?,
-    ~customStyle: style=?,
-    ~showLineNumbers: bool=?,
-    ~wrapLines: bool=?,
-    ~wrapLongLines: bool=?,
-    ~lineNumberContainerStyle: style=?,
-    ~children: string,
-  ) => React.element = "default"
+  let make: props => React.element = reactLazy(.() => {
+    import_("react-syntax-highlighter")
+  })
 }
