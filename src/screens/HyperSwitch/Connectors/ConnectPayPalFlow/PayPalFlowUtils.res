@@ -85,25 +85,25 @@ let handleConnectorIntegrated = (
   handleStateToNextPage()->ignore
 }
 
-let handleObjectResponse = (
-  ~dict,
-  ~setSetupAccountStatus,
-  ~setInitialValues,
-  ~connector,
-  ~handleStateToNextPage,
-) => {
-  let dictkey = dict->Dict.keysToArray->LogicUtils.getValueFromArray(0, "")
-
-  switch dictkey->stringToVariantMapper {
-  | Ppcp_custom_denied => setSetupAccountStatus(._ => dictkey->stringToVariantMapper)
-  | Connector_integrated =>
-    handleConnectorIntegrated(
-      ~dictValue=dict,
-      ~setInitialValues,
+let handleObjectResponse = (~dict, ~setInitialValues, ~connector, ~handleStateToNextPage) => {
+  open LogicUtils
+  let dictkey = dict->Dict.keysToArray->getValueFromArray(0, "")
+  if dictkey->stringToVariantMapper === Connector_integrated {
+    let values = dict->getJsonObjectFromDict("connector_integrated")
+    let bodyTypeValue =
+      values
+      ->getDictFromJsonObject
+      ->getDictfromDict("connector_account_details")
+      ->getString("auth_type", "")
+    let body = ConnectorUtils.generateInitialValuesDict(
+      ~values,
       ~connector,
-      ~handleStateToNextPage,
+      ~bodyType=bodyTypeValue,
+      ~isPayoutFlow=false,
+      (),
     )
-  | _ => setSetupAccountStatus(._ => dictkey->stringToVariantMapper)
+    setInitialValues(_ => body)
+    handleStateToNextPage()
   }
 }
 

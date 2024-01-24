@@ -152,12 +152,8 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
           setCurrentStep(_ => AutomaticFlow)
         }
       | JSONObject(dict) =>
-        handleObjectResponse(
-          ~dict,
-          ~setSetupAccountStatus,
-          ~setInitialValues,
-          ~connector,
-          ~handleStateToNextPage={_ => setCurrentStep(_ => PaymentMethods)},
+        handleObjectResponse(~dict, ~setInitialValues, ~connector, ~handleStateToNextPage=_ =>
+          setCurrentStep(_ => PaymentMethods)
         )
       | _ => ()
       }
@@ -165,7 +161,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
-  }, (connector, setInitialValues, setSetupAccountStatus))
+  }, (connector, initialValues, setSetupAccountStatus))
 
   let customUiForPaypal =
     <DefaultLandingPage
