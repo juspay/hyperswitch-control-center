@@ -894,7 +894,7 @@ let getConnectorFields = connectorDetails => {
   open LogicUtils
   let connectorAccountDict =
     connectorDetails->getDictFromJsonObject->getDictfromDict("connector_auth")
-  let bodyType = connectorAccountDict->Dict.keysToArray->Belt.Array.get(0)->Option.getOr("")
+  let bodyType = connectorAccountDict->Dict.keysToArray->Array.get(0)->Option.getOr("")
   let connectorAccountFields = connectorAccountDict->getDictfromDict(bodyType)
   let connectorMetaDataFields = connectorDetails->getDictFromJsonObject->getDictfromDict("metadata")
   let isVerifyConnector = connectorDetails->getDictFromJsonObject->getBool("is_verifiable", false)
@@ -950,7 +950,7 @@ let validate = (values, ~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => {
     if field.isRequired->Option.getOr(true) && value->String.length === 0 {
       let errorLabel =
         labelArr
-        ->Belt.Array.get(index)
+        ->Array.get(index)
         ->Option.getOr(""->Js.Json.string)
         ->LogicUtils.getStringFromJson("")
       Dict.set(errors, key, `Please enter ${errorLabel}`->Js.Json.string)

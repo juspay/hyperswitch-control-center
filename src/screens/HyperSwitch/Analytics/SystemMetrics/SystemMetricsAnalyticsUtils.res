@@ -49,7 +49,7 @@ let singleStateSeriesItemToObjMapper = json => {
 let itemToObjMapper = json => {
   let data = json->getQueryData->Array.map(singleStateItemToObjMapper)
 
-  data->Belt.Array.get(0)->Option.getOr(singleStateInitialValue)
+  data->Array.get(0)->Option.getOr(singleStateInitialValue)
 }
 
 let timeSeriesObjMapper = json =>

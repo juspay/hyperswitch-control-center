@@ -312,7 +312,7 @@ let generateStatements = statements => {
     let statementDict = statement->getDictFromJsonObject
     let logicalOperator = statementDict->getString("logical", "")->String.toLowerCase
 
-    let lastItem = acc->Belt.Array.get(acc->Array.length - 1)->Option.getOr({condition: []})
+    let lastItem = acc->Array.get(acc->Array.length - 1)->Option.getOr({condition: []})
 
     let condition: AdvancedRoutingTypes.statement = {
       lhs: statementDict->getString("lhs", ""),

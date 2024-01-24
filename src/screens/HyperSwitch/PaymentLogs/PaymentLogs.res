@@ -232,7 +232,7 @@ let make = (~paymentId, ~createdAt) => {
 
       // setting initial data
       let initialData =
-        paymentLogsArray->Belt.Array.get(0)->Option.getOr(Js.Json.null)->getDictFromJsonObject
+        paymentLogsArray->Array.get(0)->Option.getOr(Js.Json.null)->getDictFromJsonObject
       let intialValueRequest = initialData->getString("request", "")
 
       let intialValueResponse = initialData->getString("response", "")
@@ -331,7 +331,7 @@ let make = (~paymentId, ~createdAt) => {
 
       // setting initial data
       let initialData =
-        sdkLogsArray->Belt.Array.get(0)->Option.getOr(Js.Json.null)->getDictFromJsonObject
+        sdkLogsArray->Array.get(0)->Option.getOr(Js.Json.null)->getDictFromJsonObject
       let intialValueRequest = initialData->getString("event_name", "")
 
       let intialValueResponse = initialData->getString("response", "")

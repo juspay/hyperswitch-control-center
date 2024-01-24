@@ -708,10 +708,10 @@ module NoDataFoundPage = {
   @react.component
   let make = () => {
     let filterOnClick = () => {
-      let element = document->getElementsByClassName("showFilterButton")->Belt.Array.get(0)
+      let element = document->getElementsByClassName("showFilterButton")->Array.get(0)
       switch element {
       | Some(domElement) => {
-          let nodeElement = domElement.childNodes->Belt.Array.get(0)
+          let nodeElement = domElement.childNodes->Array.get(0)
           switch nodeElement {
           | Some(btnElement) => btnElement->DOMUtils.click()
           | None => ()
@@ -723,13 +723,13 @@ module NoDataFoundPage = {
     }
 
     let dateRangeOnClick = () => {
-      let element = document->getElementsByClassName("daterangSelection")->Belt.Array.get(0)
+      let element = document->getElementsByClassName("daterangSelection")->Array.get(0)
       switch element {
       | Some(domElement) => {
-          let nodeElement = domElement.childNodes->Belt.Array.get(0)
+          let nodeElement = domElement.childNodes->Array.get(0)
           switch nodeElement {
           | Some(ele) => {
-              let nodeElement = (ele->toNode).childNodes->Belt.Array.get(0)
+              let nodeElement = (ele->toNode).childNodes->Array.get(0)
               switch nodeElement {
               | Some(btnElement) => btnElement->DOMUtils.click()
               | None => ()

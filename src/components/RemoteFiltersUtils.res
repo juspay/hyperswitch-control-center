@@ -236,15 +236,9 @@ let getLocalFiltersData = (
 
     let dateRange = dateRangeFilterDict->LogicUtils.getArrayFromDict("dateRange", [])
     let startKey =
-      dateRange
-      ->Belt.Array.get(0)
-      ->Option.getOr(""->Js.Json.string)
-      ->LogicUtils.getStringFromJson("")
+      dateRange->Array.get(0)->Option.getOr(""->Js.Json.string)->LogicUtils.getStringFromJson("")
     let endKey =
-      dateRange
-      ->Belt.Array.get(1)
-      ->Option.getOr(""->Js.Json.string)
-      ->LogicUtils.getStringFromJson("")
+      dateRange->Array.get(1)->Option.getOr(""->Js.Json.string)->LogicUtils.getStringFromJson("")
 
     let (keyList, valueList) = if (
       dateRangeFilterDict != Dict.make() &&

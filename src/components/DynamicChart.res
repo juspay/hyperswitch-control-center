@@ -329,8 +329,8 @@ let make = (
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
-      let prefix = keyArr->Belt.Array.get(0)->Option.getOr("")
-      let fitlerName = keyArr->Belt.Array.get(1)->Option.getOr("")
+      let prefix = keyArr->Array.get(0)->Option.getOr("")
+      let fitlerName = keyArr->Array.get(1)->Option.getOr("")
 
       // when chart id is not there then there won't be any prefix so the prefix will the filter name
       if chartId === "" {
@@ -351,7 +351,7 @@ let make = (
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
-      let prefix = keyArr->Belt.Array.get(0)->Option.getOr("")
+      let prefix = keyArr->Array.get(0)->Option.getOr("")
 
       if prefix === chartId && prefix !== "" {
         None
@@ -387,7 +387,7 @@ let make = (
     let chartType =
       getChartCompFilters->LogicUtils.getString(
         "chartType",
-        entity.chartTypes->Belt.Array.get(0)->Option.getOr(Line)->chartMapper,
+        entity.chartTypes->Array.get(0)->Option.getOr(Line)->chartMapper,
       )
     let chartTopMetric =
       getChartCompFilters->LogicUtils.getString("chartTopMetric", currentTopMatrix)
@@ -403,7 +403,7 @@ let make = (
     } else if cardinalityArr->Array.includes("TOP_5") {
       dict->Dict.set("cardinality", "TOP_5")
     } else {
-      dict->Dict.set("cardinality", cardinalityArr->Belt.Array.get(0)->Option.getOr(""))
+      dict->Dict.set("cardinality", cardinalityArr->Array.get(0)->Option.getOr(""))
     }
     chartTypeArr->Array.includes(chartType)
       ? dict->Dict.set("chartType", chartType)
@@ -414,7 +414,7 @@ let make = (
     } else if chartMatrixArr->Array.includes(currentTopMatrix) {
       dict->Dict.set("chartTopMetric", currentTopMatrix)
     } else {
-      dict->Dict.set("chartTopMetric", chartMatrixArr->Belt.Array.get(0)->Option.getOr(""))
+      dict->Dict.set("chartTopMetric", chartMatrixArr->Array.get(0)->Option.getOr(""))
     }
 
     if chartMatrixArr->Array.includes(chartBottomMetric) {
@@ -422,7 +422,7 @@ let make = (
     } else if chartMatrixArr->Array.includes(currentBottomMetrix) {
       dict->Dict.set("chartBottomMetric", currentBottomMetrix)
     } else {
-      dict->Dict.set("chartBottomMetric", chartMatrixArr->Belt.Array.get(0)->Option.getOr(""))
+      dict->Dict.set("chartBottomMetric", chartMatrixArr->Array.get(0)->Option.getOr(""))
     }
 
     updateChartCompFilters(dict)
@@ -540,7 +540,7 @@ let make = (
     setGranularity(prev => {
       current_granularity->Array.includes(prev->Option.getOr(""))
         ? prev
-        : current_granularity->Belt.Array.get(0)
+        : current_granularity->Array.get(0)
     })
     None
   }, (startTimeFromUrl, endTimeFromUrl))
@@ -560,7 +560,7 @@ let make = (
           },
         )
         ->Dict.fromArray
-      let activeTab = selectedTab->Option.getOr([])->Belt.Array.get(0)->Option.getOr("")
+      let activeTab = selectedTab->Option.getOr([])->Array.get(0)->Option.getOr("")
       let granularity = if activeTab === "run_date" {
         "G_ONEHOUR"->Some
       } else if activeTab === "run_week" {
@@ -627,12 +627,12 @@ let make = (
   let (groupKeyFromTab, titleKey) = React.useMemo1(() => {
     switch (tabTitleMapper, selectedTab) {
     | (Some(dict), Some(arr)) => {
-        let groupKey = arr->Belt.Array.get(0)->Option.getOr("")
+        let groupKey = arr->Array.get(0)->Option.getOr("")
         (groupKey, dict->Dict.get(groupKey)->Option.getOr(groupKey))
       }
     | (None, Some(arr)) => (
-        arr->Belt.Array.get(0)->Option.getOr(""),
-        arr->Belt.Array.get(0)->Option.getOr(""),
+        arr->Array.get(0)->Option.getOr(""),
+        arr->Array.get(0)->Option.getOr(""),
       )
     | _ => ("", "")
     }
@@ -736,7 +736,7 @@ let make = (
     let chartType =
       getChartCompFilters->LogicUtils.getString(
         "chartType",
-        entity.chartTypes->Belt.Array.get(0)->Option.getOr(Line)->chartMapper,
+        entity.chartTypes->Array.get(0)->Option.getOr(Line)->chartMapper,
       )
     if (
       startTimeFromUrl !== "" &&
@@ -861,7 +861,7 @@ let make = (
                 } else if isExpandedUpper {
                   switch entityAllMetrics
                   ->Array.filter(item => item.metric_label === chartTopMetricFromUrl)
-                  ->Belt.Array.get(0) {
+                  ->Array.get(0) {
                   | Some(selectedMetrics) =>
                     let metricsUri = uriConfig->Array.find(uriMetrics => {
                       uriMetrics.metrics
@@ -957,7 +957,7 @@ let make = (
       {if enableBottomChart {
         switch entityAllMetrics
         ->Array.filter(item => item.metric_label === chartBottomMetricFromUrl)
-        ->Belt.Array.get(0) {
+        ->Array.get(0) {
         | Some(selectedMetrics) =>
           let metricsUri = uriConfig->Array.find(uriMetrics => {
             uriMetrics.metrics

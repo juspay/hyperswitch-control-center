@@ -37,7 +37,7 @@ let useSendEvent = () => {
       "properties": {
         "token": mixpanelToken,
         "distinct_id": deviceId,
-        "$device_id": deviceId->String.split(":")->Belt.Array.get(1),
+        "$device_id": deviceId->String.split(":")->Array.get(1),
         "$screen_height": Screen.screenHeight,
         "$screen_width": Screen.screenWidth,
         "name": email,

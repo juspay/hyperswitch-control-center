@@ -106,7 +106,7 @@ let filteredData = (
                       | (None, _) => ""
                       }
 
-                      let searchedText = selectedArr1->Belt.Array.get(0)->Option.getOr("")
+                      let searchedText = selectedArr1->Array.get(0)->Option.getOr("")
                       !String.includes(
                         searchedText->String.toUpperCase,
                         currVal->String.toUpperCase,

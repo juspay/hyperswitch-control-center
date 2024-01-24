@@ -29,7 +29,7 @@ module CheckListSection = {
         updatedCheckList->Array.indexOf(
           updatedCheckList
           ->Array.filter(ele => ele.itemsVariants->Array.includes(pageView))
-          ->Belt.Array.get(0)
+          ->Array.get(0)
           ->Option.getOr(defaultValueOfCheckList),
         )
 

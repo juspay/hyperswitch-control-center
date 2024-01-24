@@ -43,9 +43,9 @@ let make = (
   }
   open Belt.Option
   let arr = value->String.split(":")
-  let hourVal = arr->Belt.Array.get(0)->flatMap(Belt.Int.fromString)->getWithDefault(0)
-  let minuteVal = arr->Belt.Array.get(1)->flatMap(Belt.Int.fromString)->getWithDefault(0)
-  let secondsVal = arr->Belt.Array.get(2)->flatMap(Belt.Int.fromString)->getWithDefault(0)
+  let hourVal = arr->Array.get(0)->flatMap(Belt.Int.fromString)->getWithDefault(0)
+  let minuteVal = arr->Array.get(1)->flatMap(Belt.Int.fromString)->getWithDefault(0)
+  let secondsVal = arr->Array.get(2)->flatMap(Belt.Int.fromString)->getWithDefault(0)
 
   let changeVal = React.useCallback4((index, ev: ReactEvent.Form.t) => {
     let newVal = {ev->ReactEvent.Form.target}["value"]->Belt.Int.fromString->getWithDefault(0)

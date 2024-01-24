@@ -51,7 +51,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
   let arr = request.url.toString(.)->String.split("?")
   let path =
     arr
-    ->Belt.Array.get(0)
+    ->Array.get(0)
     ->getWithDefault("")
     ->String.replaceRegExp(%re("/^\/\//"), "/")
     ->String.replaceRegExp(%re("/^\/v4\//"), "/")

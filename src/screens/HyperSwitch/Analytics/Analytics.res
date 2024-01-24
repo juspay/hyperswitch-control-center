@@ -130,7 +130,7 @@ module TableWrapper = {
       ->Belt.Array.keepMap(item => {
         let (key, value) = item
         let keyArr = key->String.split(".")
-        let prefix = keyArr->Belt.Array.get(0)->Option.getOr("")
+        let prefix = keyArr->Array.get(0)->Option.getOr("")
         if prefix === moduleName && prefix !== "" {
           None
         } else {
@@ -319,7 +319,7 @@ module TableWrapper = {
             val.key === item ? Some(columnItem) : None
           },
         )
-        ->Belt.Array.get(0)
+        ->Array.get(0)
       })
       ->Belt.Array.concat(allColumns)
     }, [activeTabStr])
@@ -531,7 +531,7 @@ let make = (
   let (activeTav, setActiveTab) = React.useState(_ =>
     filterValueDict->getStrArrayFromDict(
       `${moduleName}.tabName`,
-      [filteredTabKeys->Belt.Array.get(0)->Option.getOr("")],
+      [filteredTabKeys->Array.get(0)->Option.getOr("")],
     )
   )
   let setActiveTab = React.useMemo1(() => {

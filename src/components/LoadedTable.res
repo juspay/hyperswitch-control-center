@@ -567,8 +567,8 @@ let make = (
           ->Array.map(colType => {
             entity.getCell(item, colType)
           })
-        let startPoint = sNoArr->Belt.Array.get(0)->Option.getOr(1.->Js.Json.number)
-        let endPoint = sNoArr->Belt.Array.get(1)->Option.getOr(1.->Js.Json.number)
+        let startPoint = sNoArr->Array.get(0)->Option.getOr(1.->Js.Json.number)
+        let endPoint = sNoArr->Array.get(1)->Option.getOr(1.->Js.Json.number)
         let jsonIndex = (index + 1)->Belt.Int.toFloat->Js.Json.number
         sNoArr->Array.length > 0
           ? {
@@ -634,7 +634,7 @@ let make = (
 
   let dataExists = rows->Array.length > 0
   let heading = heading->Array.mapWithIndex((head, index) => {
-    let getValue = row => row->Belt.Array.get(index)->Option.mapOr("", Table.getTableCellValue)
+    let getValue = row => row->Array.get(index)->Option.mapOr("", Table.getTableCellValue)
 
     let default = switch rows[0] {
     | Some(ele) => getValue(ele)
@@ -921,7 +921,7 @@ let make = (
   } else {
     `${ignoreHeaderBg ? "" : backgroundClass} empty:hidden`
   }
-  let dataId = title->Js.String2.split("-")->Belt.Array.get(0)->Option.getOr("")
+  let dataId = title->Js.String2.split("-")->Array.get(0)->Option.getOr("")
   <AddDataAttributes attributes=[("data-loaded-table", dataId)]>
     <div className="w-full">
       <div className=addDataAttributesClass style={ReactDOMStyle.make(~zIndex="2", ())}>

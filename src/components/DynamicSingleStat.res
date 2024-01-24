@@ -139,7 +139,7 @@ let make = (
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
-      let prefix = keyArr->Belt.Array.get(0)->Option.getOr("")
+      let prefix = keyArr->Array.get(0)->Option.getOr("")
       if prefix === moduleName && prefix !== "" {
         None
       } else {
@@ -263,7 +263,7 @@ let make = (
       entity.urlConfig
       ->Array.map(urlConfig => {
         let {uri, metrics} = urlConfig
-        let domain = String.split("/", uri)->Belt.Array.get(4)->Option.getOr("")
+        let domain = String.split("/", uri)->Array.get(4)->Option.getOr("")
         let startTime = if domain === "mandate" {
           (endTimeFromUrl->DayJs.getDayJsForString).subtract(.
             1,
@@ -310,7 +310,7 @@ let make = (
                   ->LogicUtils.getDictFromJsonObject
                   ->LogicUtils.getJsonObjectFromDict("queryData")
                   ->LogicUtils.getArrayFromJson([])
-                  ->Belt.Array.get(0)
+                  ->Array.get(0)
                   ->Option.getOr(Js.Json.object_(Dict.make()))
                   ->LogicUtils.getDictFromJsonObject
                   ->Dict.toArray
@@ -362,7 +362,7 @@ let make = (
       entity.urlConfig
       ->Array.map(urlConfig => {
         let {uri, metrics} = urlConfig
-        let domain = String.split("/", uri)->Belt.Array.get(4)->Option.getOr("")
+        let domain = String.split("/", uri)->Array.get(4)->Option.getOr("")
         let startTime = if domain === "mandate" {
           (endTimeFromUrl->DayJs.getDayJsForString).subtract(.
             1,
@@ -379,7 +379,7 @@ let make = (
           delta: false,
           startDateTime: startTime,
           endDateTime: endTimeFromUrl,
-          granularity: ?granularity->Belt.Array.get(0),
+          granularity: ?granularity->Array.get(0),
           ?mode,
           customFilter,
           source,
@@ -449,7 +449,7 @@ let make = (
                 item.sectionUrl === uri
               },
             )
-            ->Belt.Array.get(0)
+            ->Array.get(0)
 
           switch sectiondata {
           | Some(data) => {

@@ -558,7 +558,7 @@ module TableHeadingRow = {
           {headingArray
           ->Array.mapWithIndex((item, i) => {
             let columnFilterRow: array<filterRow> = columnFilterRow->Option.getOr([])
-            let filterRow = columnFilterRow->Belt.Array.get(i)
+            let filterRow = columnFilterRow->Array.get(i)
             <TableHeadingCell
               key={Belt.Int.toString(i)}
               item
@@ -697,7 +697,7 @@ let make = (
     switch actualData {
     | Some(actualData) =>
       switch getRowDetails {
-      | Some(fn) => fn(actualData->Belt.Array.get(rowIndex)->Option.getOr(Js.Nullable.null))
+      | Some(fn) => fn(actualData->Array.get(rowIndex)->Option.getOr(Js.Nullable.null))
       | None => React.null
       }
     | None => React.null

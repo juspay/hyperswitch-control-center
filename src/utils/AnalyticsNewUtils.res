@@ -57,7 +57,7 @@ let makeFilters = (~filters: Js.Json.t, ~cardinalityArr) => {
     })
   let expressionArr = Array.concat(cardinalityArr, expressionArr)
   if expressionArr->Array.length === 1 {
-    expressionArr->Belt.Array.get(0)
+    expressionArr->Array.get(0)
   } else if expressionArr->Array.length > 1 {
     let leftInitial = Array.pop(expressionArr)->Option.getOr(Dict.make())->Js.Json.object_
     let rightInitial = Array.pop(expressionArr)->Option.getOr(Dict.make())->Js.Json.object_
@@ -315,11 +315,11 @@ let getFilterBody = (
         ->Belt.Array.keepMap(item => item)
 
       if filterValueArr->Array.length === 1 {
-        filterValueArr->Belt.Array.get(0)
+        filterValueArr->Array.get(0)
       } else if filterValueArr->Array.length >= 2 {
         let leftInitial = filterValueArr[0]->Option.getOr(Dict.make())
         let rightInitial = filterValueArr[1]->Option.getOr(Dict.make())
-        let conditionInitital = andAndOr->Belt.Array.get(0)->Option.getOr("and")
+        let conditionInitital = andAndOr->Array.get(0)->Option.getOr("and")
         let complexFilterDict = Dict.fromArray([
           (
             conditionInitital,
@@ -335,7 +335,7 @@ let getFilterBody = (
         filterValueArr->Array.forEachWithIndex((item, index) => {
           let complextFilterDictCopy = complexFilterDict->Dict.toArray->Array.copy->Dict.fromArray
           complexFilterDict->Dict.set(
-            andAndOr->Belt.Array.get(index)->Option.getOr("and"),
+            andAndOr->Array.get(index)->Option.getOr("and"),
             Dict.fromArray([
               ("left", complextFilterDictCopy->Js.Json.object_),
               ("right", item->Js.Json.object_),

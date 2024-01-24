@@ -827,11 +827,11 @@ module BaseSelect = {
             ->Array.mapWithIndex((item, indx) => {
               let valueToConsider = item.value
               let index = Array.findIndex(saneValue, sv => sv === valueToConsider)
-              let isPrevSelected = switch filteredOptions->Belt.Array.get(indx - 1) {
+              let isPrevSelected = switch filteredOptions->Array.get(indx - 1) {
               | Some(prevItem) => Array.findIndex(saneValue, sv => sv === prevItem.value) > -1
               | None => false
               }
-              let isNextSelected = switch filteredOptions->Belt.Array.get(indx + 1) {
+              let isNextSelected = switch filteredOptions->Array.get(indx + 1) {
               | Some(nextItem) => Array.findIndex(saneValue, sv => sv === nextItem.value) > -1
               | None => false
               }

@@ -51,7 +51,7 @@ module CustomFilters = {
           ->String.replaceRegExp(%re("/ LIKE /gi"), "@@")
           ->String.split("@@")
 
-        let firstEle = Belt.Array.get(mArr, 0)->Option.getOr("")
+        let firstEle = mArr[0]->Option.getOr("")
         if (
           firstEle != "" && tabNames->Array.indexOf(firstEle->String.trim->String.toLowerCase) < 0
         ) {

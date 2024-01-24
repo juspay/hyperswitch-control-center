@@ -182,7 +182,7 @@ let make = (
     let toBeRemoved = checkedFilters->Array.filter(oldVal => !Array.includes(fieldNameArr, oldVal))
     let finalFieldList = selectedFiltersList->Array.filter(val => {
       val.inputNames
-      ->Belt.Array.get(0)
+      ->Array.get(0)
       ->Belt.Option.map(name => !{toBeRemoved->Array.includes(name)})
       ->Option.getOr(false)
     })

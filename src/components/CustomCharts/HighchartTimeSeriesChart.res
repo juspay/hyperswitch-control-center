@@ -298,7 +298,7 @@ module LineChart1D = {
           | None => None
           }
         })
-        ->Belt.Array.get(0)
+        ->Array.get(0)
         ->Option.getOr("")
       let color =
         chartData
@@ -308,7 +308,7 @@ module LineChart1D = {
           | None => None
           }
         })
-        ->Belt.Array.get(0)
+        ->Array.get(0)
         ->Option.getOr(`${colorOrig}`)
 
       let transformValue = num => {
@@ -892,10 +892,7 @@ module LineChart2D = {
     ~chartType: string="area",
   ) => {
     let (groupBy1, groupBy2) = switch groupBy {
-    | Some(value) => (
-        value->Belt.Array.get(0)->Option.getOr(""),
-        value->Belt.Array.get(1)->Option.getOr(""),
-      )
+    | Some(value) => (value->Array.get(0)->Option.getOr(""), value->Array.get(1)->Option.getOr(""))
     | None => ("", "")
     }
     let (groupBy1, groupBy2) = (groupBy2, groupBy1)
@@ -938,9 +935,9 @@ module LineChart3D = {
   ) => {
     let (groupBy1, groupBy2, groupby3) = switch groupBy {
     | Some(value) => (
-        value->Belt.Array.get(0)->Option.getOr(""),
-        value->Belt.Array.get(1)->Option.getOr(""),
-        value->Belt.Array.get(2)->Option.getOr(""),
+        value->Array.get(0)->Option.getOr(""),
+        value->Array.get(1)->Option.getOr(""),
+        value->Array.get(2)->Option.getOr(""),
       )
     | None => ("", "", "")
     }

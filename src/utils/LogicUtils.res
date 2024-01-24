@@ -99,7 +99,7 @@ let toCamelCase = str => {
 let getNameFromEmail = email => {
   email
   ->String.split("@")
-  ->Belt.Array.get(0)
+  ->Array.get(0)
   ->Option.getOr("")
   ->String.split(".")
   ->Array.map(name => {
@@ -506,7 +506,7 @@ let getDictfromDict = (dict, key) => {
 
 let checkLeapYear = year => (mod(year, 4) === 0 && mod(year, 100) !== 0) || mod(year, 400) === 0
 
-let getValueFromArray = (arr, index, default) => arr->Belt.Array.get(index)->Option.getOr(default)
+let getValueFromArray = (arr, index, default) => arr->Array.get(index)->Option.getOr(default)
 
 let isEqualStringArr = (arr1, arr2) => {
   let arr1 = arr1->getUniqueArray

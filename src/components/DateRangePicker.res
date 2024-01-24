@@ -305,9 +305,9 @@ module Base = {
         }
 
         let timeSplit = String.split(splitTime, ":")
-        let timeHour = timeSplit->Belt.Array.get(0)->Option.getOr("00")
-        let timeMinute = timeSplit->Belt.Array.get(1)->Option.getOr("00")
-        let timeSecond = timeSplit->Belt.Array.get(2)->Option.getOr("00")
+        let timeHour = timeSplit->Array.get(0)->Option.getOr("00")
+        let timeMinute = timeSplit->Array.get(1)->Option.getOr("00")
+        let timeSecond = timeSplit->Array.get(2)->Option.getOr("00")
         let endDateTimeCheck = customTimezoneToISOString(
           endDateYear,
           endDateMonth,
@@ -335,9 +335,9 @@ module Base = {
           }
         }
         let timeSplit = String.split(splitTime, ":")
-        let timeHour = timeSplit->Belt.Array.get(0)->Option.getOr("00")
-        let timeMinute = timeSplit->Belt.Array.get(1)->Option.getOr("00")
-        let timeSecond = timeSplit->Belt.Array.get(2)->Option.getOr("00")
+        let timeHour = timeSplit->Array.get(0)->Option.getOr("00")
+        let timeMinute = timeSplit->Array.get(1)->Option.getOr("00")
+        let timeSecond = timeSplit->Array.get(2)->Option.getOr("00")
         let startDateTimeCheck = customTimezoneToISOString(
           startDateYear,
           startDateMonth,

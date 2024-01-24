@@ -41,9 +41,9 @@ module OperatorInp = {
       input: ReactFinalForm.makeInputRecord(""->Js.Json.string, _e => ()),
       meta: ReactFinalForm.makeCustomError(None),
     }
-    let field = (fieldsArray->Belt.Array.get(0)->Option.getOr(defaultInput)).input
-    let operator = (fieldsArray->Belt.Array.get(1)->Option.getOr(defaultInput)).input
-    let valInp = (fieldsArray->Belt.Array.get(2)->Option.getOr(defaultInput)).input
+    let field = (fieldsArray->Array.get(0)->Option.getOr(defaultInput)).input
+    let operator = (fieldsArray->Array.get(1)->Option.getOr(defaultInput)).input
+    let valInp = (fieldsArray->Array.get(2)->Option.getOr(defaultInput)).input
     let (opVals, setOpVals) = React.useState(_ => [])
 
     let input: ReactFinalForm.fieldRenderPropsInput = {

@@ -142,7 +142,7 @@ module NewCell = {
             "w-24"
           } else {
             columnWidthArr
-            ->Belt.Array.get(cellIndex)
+            ->Array.get(cellIndex)
             ->Option.getOr(`${cellIndex === 0 && customSerialNoColumn ? "w-24" : "w-64"}`)
           }
 
@@ -249,7 +249,7 @@ module ReactWindowTableComponent = {
       switch actualData {
       | Some(actualData) =>
         switch getRowDetails {
-        | Some(fn) => fn(actualData->Belt.Array.get(rowIndex)->Option.getOr(Js.Nullable.null))
+        | Some(fn) => fn(actualData->Array.get(rowIndex)->Option.getOr(Js.Nullable.null))
         | None => React.null
         }
       | None => React.null
@@ -320,7 +320,7 @@ module ReactWindowTableComponent = {
               "w-24"
             } else {
               arr
-              ->Belt.Array.get(i)
+              ->Array.get(i)
               ->Option.getOr(`${isFirstCol && customSerialNoColumn ? "w-24" : "w-64"}`)
             }
 
@@ -429,7 +429,7 @@ module ReactWindowTableComponent = {
               <div>
                 {
                   let len = colFilter->Array.length
-                  switch colFilter->Belt.Array.get(i) {
+                  switch colFilter->Array.get(i) {
                   | Some(fitlerRows) =>
                     <FilterRow
                       item=fitlerRows
@@ -460,7 +460,7 @@ module ReactWindowTableComponent = {
             let rowIndex = index->LogicUtils.getInt("index", 0)
             getIndex(rowIndex)
 
-            let item = rowInfo->Belt.Array.get(rowIndex)->Option.getOr([])
+            let item = rowInfo->Array.get(rowIndex)->Option.getOr([])
 
             let style =
               index->LogicUtils.getJsonObjectFromDict("style")->Identity.jsonToReactDOMStyle
@@ -935,8 +935,8 @@ let make = (
             ->Array.map(colType => {
               entity.getCell(item, colType)
             })
-          let startPoint = sNoArr->Belt.Array.get(0)->Option.getOr(1.->Js.Json.number)
-          let endPoint = sNoArr->Belt.Array.get(1)->Option.getOr(1.->Js.Json.number)
+          let startPoint = sNoArr->Array.get(0)->Option.getOr(1.->Js.Json.number)
+          let endPoint = sNoArr->Array.get(1)->Option.getOr(1.->Js.Json.number)
           let jsonIndex = (index + 1)->Belt.Int.toFloat->Js.Json.number
           sNoArr->Array.length > 0
             ? {
@@ -1009,7 +1009,7 @@ let make = (
 
   let dataExists = rows->Array.length > 0
   let heading = heading->Array.mapWithIndex((head, index) => {
-    let getValue = row => row->Belt.Array.get(index)->Option.mapOr("", Table.getTableCellValue)
+    let getValue = row => row->Array.get(index)->Option.mapOr("", Table.getTableCellValue)
 
     let default = switch rows[0] {
     | Some(ele) => getValue(ele)

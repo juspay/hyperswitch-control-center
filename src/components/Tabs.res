@@ -265,7 +265,7 @@ let make = (
       </UIUtils.RenderIf>
       <div className=renderedTabClassName>
         <ErrorBoundary key={string_of_int(selectedIndex)}>
-          {switch tabs->Belt.Array.get(selectedIndex) {
+          {switch tabs->Array.get(selectedIndex) {
           | Some(selectedTab) => {
               let component = selectedTab.renderContent()
               <FramerMotion.TransitionComponent

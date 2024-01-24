@@ -64,7 +64,7 @@ let make = (
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
-      let prefix = keyArr->Belt.Array.get(0)->Option.getOr("")
+      let prefix = keyArr->Array.get(0)->Option.getOr("")
       if prefix === moduleName && prefix !== "" {
         None
       } else {
@@ -174,7 +174,7 @@ let make = (
         startTime: startTimeFromUrl,
         endTime: endTimeFromUrl,
         customFilterValue: customFilter, // will add later
-        granularity: ?granularity->Belt.Array.get(0),
+        granularity: ?granularity->Array.get(0),
       }
 
       let (hStartTime, hEndTime) = AnalyticsNewUtils.calculateHistoricTime(
@@ -274,9 +274,7 @@ let make = (
                     Dict.set(
                       prevDict,
                       updatedMetrics,
-                      Loaded(
-                        jsonObj->Belt.Array.get(0)->Option.getOr(Js.Json.object_(Dict.make())),
-                      ),
+                      Loaded(jsonObj->Array.get(0)->Option.getOr(Js.Json.object_(Dict.make()))),
                     )
                     prevDict
                   },
@@ -325,7 +323,7 @@ let make = (
                   Dict.set(
                     prevDict,
                     updatedMetrics,
-                    Loaded(jsonObj->Belt.Array.get(0)->Option.getOr(Js.Json.object_(Dict.make()))),
+                    Loaded(jsonObj->Array.get(0)->Option.getOr(Js.Json.object_(Dict.make()))),
                   )
                   prevDict
                 },
@@ -414,9 +412,9 @@ let make = (
         ->Promise.all
         ->Promise.thenResolve(
           value => {
-            let ssH = value->Belt.Array.get(0)->Option.getOr(LoadedError)
-            let ssT = value->Belt.Array.get(1)->Option.getOr(LoadedError)
-            let ssD = value->Belt.Array.get(2)->Option.getOr(LoadedError)
+            let ssH = value->Array.get(0)->Option.getOr(LoadedError)
+            let ssT = value->Array.get(1)->Option.getOr(LoadedError)
+            let ssD = value->Array.get(2)->Option.getOr(LoadedError)
             let isLoaded = val => {
               switch val {
               | Loaded(_) => true

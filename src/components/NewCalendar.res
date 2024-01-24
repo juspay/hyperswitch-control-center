@@ -15,7 +15,7 @@ module TableRow = {
     switch obj {
     | Some(a) => {
         let day = String.split(a, "-")
-        React.string(day->Belt.Array.get(2)->Option.getOr(""))
+        React.string(day->Array.get(2)->Option.getOr(""))
       }
 
     | None => React.string("")
@@ -132,13 +132,11 @@ module TableRow = {
               }
               let getDate = date => {
                 let datevalue = Js.Date.makeWithYMD(
-                  ~year=Js.Float.fromString(date->Belt.Array.get(0)->Option.getOr("0")),
+                  ~year=Js.Float.fromString(date->Array.get(0)->Option.getOr("0")),
                   ~month=Js.Float.fromString(
-                    String.make(
-                      Js.Float.fromString(date->Belt.Array.get(1)->Option.getOr("0")) -. 1.0,
-                    ),
+                    String.make(Js.Float.fromString(date->Array.get(1)->Option.getOr("0")) -. 1.0),
                   ),
-                  ~date=Js.Float.fromString(date->Belt.Array.get(2)->Option.getOr("")),
+                  ~date=Js.Float.fromString(date->Array.get(2)->Option.getOr("")),
                   (),
                 )
                 datevalue
@@ -447,7 +445,7 @@ let make = (
     let windowIndex = totalMonths - index->LogicUtils.getInt("index", 0) - 1
     let newMonth = DayJs.getDayJs().subtract(. windowIndex, "month").month(.)
     let newYear = DayJs.getDayJs().subtract(. windowIndex, "month").year(.)
-    let updatedMonth = months->Belt.Array.get(newMonth)->Option.getOr(Jan)
+    let updatedMonth = months->Array.get(newMonth)->Option.getOr(Jan)
     // get first day
 
     let firstDay = Js.Date.getDay(

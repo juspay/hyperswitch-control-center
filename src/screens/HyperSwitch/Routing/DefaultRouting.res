@@ -24,7 +24,7 @@ let make = () => {
 
     let connectorList =
       profileList
-      ->Belt.Array.get(0)
+      ->Array.get(0)
       ->Option.getOr(Js.Json.null)
       ->LogicUtils.getDictFromJsonObject
       ->LogicUtils.getArrayFromDict("connectors", [])

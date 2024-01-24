@@ -114,13 +114,13 @@ let make = (
         ? <div className="bg-[#F6F6F6] p-4 border-b border-slate-300 text-center text-[#868686]">
             {React.string(
               `Conversion rate  = ${options
-                ->Array.filter(itm => values->Belt.Array.get(0)->Option.getOr("") == itm.value)
+                ->Array.filter(itm => values->Array.get(0)->Option.getOr("") == itm.value)
                 ->Array.map(item => item.label)
-                ->Belt.Array.get(0)
+                ->Array.get(0)
                 ->Option.getOr("Factor 1")} / ${options
-                ->Array.filter(itm => values->Belt.Array.get(1)->Option.getOr("") == itm.value)
+                ->Array.filter(itm => values->Array.get(1)->Option.getOr("") == itm.value)
                 ->Array.map(item => item.label)
-                ->Belt.Array.get(0)
+                ->Array.get(0)
                 ->Option.getOr("Factor 2")}`,
             )}
           </div>

@@ -111,7 +111,7 @@ let reduceOpacity = str => {
 
   switch match {
   | Some(val) => {
-      let opacity = val->Belt.Array.get(1)->Option.flatMap(a => a)->Option.getOr("0")
+      let opacity = val->Array.get(1)->Option.flatMap(a => a)->Option.getOr("0")
       let newOpacity = opacity->Belt.Float.fromString->Option.getOr(0.0) /. 10.0
       str->String.replace(opacity, newOpacity->Belt.Float.toString)
     }
@@ -390,7 +390,7 @@ let getLegendDataForCurrentMetrix = (
     currentAvgSortedDict
     ->Array.map(item => {
       let (_, value) = item
-      let (_, currentVal) = value->Belt.Array.get(value->Array.length - 1)->Option.getOr(("", 0.))
+      let (_, currentVal) = value->Array.get(value->Array.length - 1)->Option.getOr(("", 0.))
       currentVal
     })
     ->AnalyticsUtils.sumOfArrFloat
@@ -401,8 +401,7 @@ let getLegendDataForCurrentMetrix = (
       let (key, value) = item
       let sortedValueBasedOnTime = value->Js.Array2.sortInPlaceWith(sortBasedOnTimeLegend)
       let arrLen = sortedValueBasedOnTime->Array.length
-      let (_, currentVal) =
-        sortedValueBasedOnTime->Belt.Array.get(arrLen - 1)->Option.getOr(("", 1.0))
+      let (_, currentVal) = sortedValueBasedOnTime->Array.get(arrLen - 1)->Option.getOr(("", 1.0))
 
       let overall =
         sortedValueBasedOnTime

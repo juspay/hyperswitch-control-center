@@ -6,7 +6,7 @@ type tab = {
 }
 
 let getValueFromArrayTab = (tabsVal: array<tab>, index: int) => {
-  switch tabsVal->Belt.Array.get(index) {
+  switch tabsVal->Array.get(index) {
   | Some(val) => val.value
   | None => ""
   }
@@ -66,7 +66,7 @@ module TabInfo = {
     let handleClick = React.useCallback2(_ev => {
       handleSelectedTab(
         ~tabValue={
-          switch tabNames->Belt.Array.get(index) {
+          switch tabNames->Array.get(index) {
           | Some(tab) => tab.value
           | None => getValueFromArrayTab(tabNames, 0)
           }
@@ -96,7 +96,7 @@ module TabInfo = {
             updatedStackAfterRemovingTab->Array.filterWithIndex((item, index) =>
               index === 0
                 ? true
-                : item !== updatedStackAfterRemovingTab->Belt.Array.get(index - 1)->Option.getOr("")
+                : item !== updatedStackAfterRemovingTab->Array.get(index - 1)->Option.getOr("")
             )
           })
 
@@ -255,7 +255,7 @@ let make = (
       ->Array.filter(item => {
         item.value == key
       })
-      ->Belt.Array.get(0)
+      ->Array.get(0)
       ->Option.getOr({title: "", value: "", isRemovable: false})
     ).title
   }
@@ -428,8 +428,7 @@ let make = (
   ) => unit = (~tabValue: string, ~collapsibleTabs: array<tab>, ~removed: bool) => {
     if removed === false {
       if (
-        tabValue !==
-          tabStacksnames->Belt.Array.get(tabStacksnames->Array.length - 1)->Option.getOr("")
+        tabValue !== tabStacksnames->Array.get(tabStacksnames->Array.length - 1)->Option.getOr("")
       ) {
         setTabStacksnames(prev => {
           Array.concat(prev, [tabValue])
@@ -445,15 +444,11 @@ let make = (
         Dict.fromArray([
           (
             "tabName",
-            `[${tabStacksnames
-              ->Belt.Array.get(tabStacksnames->Array.length - 1)
-              ->Option.getOr("")}]`,
+            `[${tabStacksnames->Array.get(tabStacksnames->Array.length - 1)->Option.getOr("")}]`,
           ),
         ]),
       )
-      setActiveTab(
-        tabStacksnames->Belt.Array.get(tabStacksnames->Array.length - 1)->Option.getOr(""),
-      )
+      setActiveTab(tabStacksnames->Array.get(tabStacksnames->Array.length - 1)->Option.getOr(""))
 
       setSelectedIndex(_ =>
         Js.Math.max_int(
@@ -461,7 +456,7 @@ let make = (
           collapsibleTabs
           ->Array.map(item => item.value)
           ->Array.indexOf(
-            tabStacksnames->Belt.Array.get(tabStacksnames->Array.length - 1)->Option.getOr(""),
+            tabStacksnames->Array.get(tabStacksnames->Array.length - 1)->Option.getOr(""),
           ),
         )
       )

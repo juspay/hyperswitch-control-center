@@ -64,7 +64,7 @@ module ModalUI = {
           className="overflow-auto"
           style={ReactDOMStyle.make(~maxHeight="calc(100vh - 15rem)", ())}>
           <div className="flex flex-wrap h-fit">
-            {switch fieldsFromOption->Belt.Array.get(0) {
+            {switch fieldsFromOption->Array.get(0) {
             | Some(field) =>
               <FormRenderer.FieldRenderer
                 field fieldWrapperClass="w-full !min-w-[200px] p-4 -my-4"
@@ -73,14 +73,14 @@ module ModalUI = {
             }}
           </div>
           <div className="flex flex-wrap h-fit ">
-            {switch fieldsFromOption->Belt.Array.get(1) {
+            {switch fieldsFromOption->Array.get(1) {
             | Some(field) =>
               <FormRenderer.FieldRenderer
                 field fieldWrapperClass="w-full !min-w-[200px] p-4 -my-4"
               />
             | None => React.null
             }}
-            {switch fieldsFromOption->Belt.Array.get(3) {
+            {switch fieldsFromOption->Array.get(3) {
             | Some(field) =>
               <FormRenderer.FieldRenderer
                 field fieldWrapperClass="w-full !min-w-[200px] p-4 -my-4"
@@ -89,7 +89,7 @@ module ModalUI = {
             }}
           </div>
           <div className="flex flex-wrap h-fit mb-10">
-            {switch fieldsFromOption->Belt.Array.get(2) {
+            {switch fieldsFromOption->Array.get(2) {
             | Some(field) =>
               <FormRenderer.FieldRenderer
                 field fieldWrapperClass="w-full !min-w-[200px] p-4 -my-4"
@@ -467,7 +467,7 @@ module FilterModal = {
     let formCurrentValues = formState.values->LogicUtils.getDictFromJsonObject
     let sortedSelectedFiltersList = React.useMemo1(_ => {
       let selectedFiltersListWithVal = selectedFiltersList->Array.filter(item => {
-        let inputName = item.inputNames->Belt.Array.get(0)->Option.getOr("")
+        let inputName = item.inputNames->Array.get(0)->Option.getOr("")
         let selectedNo =
           formCurrentValues->LogicUtils.getStrArray(inputName)->Array.length->Belt.Int.toString
         selectedNo !== "0"
@@ -482,7 +482,7 @@ module FilterModal = {
     <div className="flex flex-col gap-4.5">
       {sortedSelectedFiltersList
       ->Array.mapWithIndex((item, i) => {
-        let inputName = item.inputNames->Belt.Array.get(0)->Option.getOr("")
+        let inputName = item.inputNames->Array.get(0)->Option.getOr("")
         let selectedNo =
           formCurrentValues->LogicUtils.getStrArray(inputName)->Array.length->Belt.Int.toString
         let textcolor =
@@ -568,7 +568,7 @@ let make = (
   let updatedSelectedList = React.useMemo1(() => {
     selectedFiltersList
     ->Array.map(item => {
-      item.inputNames->Belt.Array.get(0)->Option.getOr("")
+      item.inputNames->Array.get(0)->Option.getOr("")
     })
     ->Js.Json.stringArray
   }, [selectedFiltersList])
@@ -771,7 +771,7 @@ let make = (
 
     let finalFieldList = selectedFiltersList->Array.filter(val => {
       val.inputNames
-      ->Belt.Array.get(0)
+      ->Array.get(0)
       ->Belt.Option.map(name => !Array.includes(toBeRemoved, name))
       ->Option.getOr(false)
     })

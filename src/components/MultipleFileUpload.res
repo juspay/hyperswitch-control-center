@@ -96,7 +96,7 @@ let make = (
 
     while !break.contents {
       if target["files"]->Array.length > arr[0]->Option.getOr(0) {
-        let index = arr->Belt.Array.get(0)->Option.getOr(0)
+        let index = arr->Array.get(0)->Option.getOr(0)
         switch target["files"][index] {
         | Some(value) => {
             let filename = value["name"]
@@ -189,13 +189,13 @@ let make = (
       ~fileName,
       ~content=decodeParsedfile
         ? try {
-            val->Belt.Array.get(indx)->Option.getOr(Js.Json.null)->getStringFromJson("")->atob
+            val->Array.get(indx)->Option.getOr(Js.Json.null)->getStringFromJson("")->atob
           } catch {
           | _ =>
             toast("Error : Unable to parse file", ToastError)
             ""
           }
-        : val->Belt.Array.get(indx)->Option.getOr(Js.Json.null)->getStringFromJson(""),
+        : val->Array.get(indx)->Option.getOr(Js.Json.null)->getStringFromJson(""),
     )
   }
 

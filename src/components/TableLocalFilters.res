@@ -175,10 +175,7 @@ module TextFilterCell = {
     let showPopUp = PopUpState.useShowPopUp()
 
     let selectedValue =
-      Dict.get(lclFiltrState, val)
-      ->Option.getOr([])
-      ->Belt.Array.get(0)
-      ->Option.getOr(""->Js.Json.string)
+      Dict.get(lclFiltrState, val)->Option.getOr([])->Array.get(0)->Option.getOr(""->Js.Json.string)
     let localInput = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
       {
         name: "--",

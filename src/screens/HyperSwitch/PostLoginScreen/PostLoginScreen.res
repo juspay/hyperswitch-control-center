@@ -158,7 +158,7 @@ let make = () => {
                   setCurrentStep
                   setCarouselDirection
                   currentQuestionDict={questionForSurvey
-                  ->Belt.Array.get(currentStep)
+                  ->Array.get(currentStep)
                   ->Option.getOr(defaultValueForQuestions)}
                 />
               </FramerMotion.Motion.Div>

@@ -462,7 +462,7 @@ let getValueFromBusinessProfile = businessProfileValue => {
     ->getArrayFromJson([])
     ->Js.Array2.reverseInPlace
     ->convertObjectToType
-  businessDetails->Belt.Array.get(0)->Option.getOr(defaultValueForBusinessProfile)
+  businessDetails->Array.get(0)->Option.getOr(defaultValueForBusinessProfile)
 }
 
 let useGetBusinessProflile = profileId => {
