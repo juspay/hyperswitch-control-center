@@ -59,12 +59,23 @@ module PrettyPrintJson = {
               {copyParsedJson}
             </div>
           </UIUtils.RenderIf>
-          <div className="flex items-start justify-between">
-            <pre
-              className={`${overrideBackgroundColor} p-3 text-jp-gray-900 dark:bg-jp-gray-950 dark:bg-opacity-100 text-fs-13 text font-medium`}>
-              {parsedJson->React.string}
-            </pre>
-          </div>
+          <ReactSyntaxHighlighter.SyntaxHighlighter
+            style={ReactSyntaxHighlighter.lightfair}
+            language="json"
+            showLineNumbers={true}
+            lineNumberContainerStyle={{
+              paddingLeft: "0px",
+              backgroundColor: "red",
+              padding: "100px",
+            }}
+            customStyle={{
+              backgroundColor: "transparent",
+              lineHeight: "1.7rem",
+              fontSize: "0.875rem",
+              padding: "5px",
+            }}>
+            {parsedJson}
+          </ReactSyntaxHighlighter.SyntaxHighlighter>
           <Button
             text={isTextVisible ? "Hide" : "See more"}
             customButtonStyle="h-6 w-8 flex flex-1 justify-center m-1"
