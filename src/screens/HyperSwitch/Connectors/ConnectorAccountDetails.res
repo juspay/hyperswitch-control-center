@@ -202,16 +202,13 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   | _ => "Loading..."
   }
 
-  let (suggestedAction, suggestedActionExists) = ConnectorUtils.getSuggestedAction(
-    ~verifyErrorMessage,
-    ~connector,
-  )
+  let (suggestedAction, suggestedActionExists) = getSuggestedAction(~verifyErrorMessage, ~connector)
 
   <PageLoaderWrapper screenState>
     <Form
       initialValues={updatedInitialVal}
       onSubmit={(values, _) =>
-        ConnectorUtils.onSubmit(
+        onSubmit(
           ~values,
           ~onSubmitVerify,
           ~onSubmitMain,

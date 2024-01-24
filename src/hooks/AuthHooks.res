@@ -14,47 +14,24 @@ let getHeaders = (~uri, ~headers, ()) => {
   let hyperSwitchToken = LocalStorage.getItem("login")->Js.Nullable.toOption
   let isMixpanel = uri->String.includes("mixpanel")
 
-  if isMixpanel {
-    let headerObj = {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "accept": "application/json",
-    }
-    Fetch.HeadersInit.make(headerObj)
+  let headerObj = if isMixpanel {
+    [
+      ("Content-Type", "application/x-www-form-urlencoded"),
+      ("accept", "application/json"),
+    ]->Dict.fromArray
   } else {
-    let headerObj = headers->Dict.get("api-key")->Option.getWithDefault("")->String.length > 0
-
-    if headerObj {
-      let headerObj = {
-        "Content-Type": "application/json",
-        "api-key": headers->Dict.get("api-key")->Option.getWithDefault(""),
+    let res = switch hyperSwitchToken {
+    | Some(token) => {
+        headers->Dict.set("authorization", `Bearer ${token}`)
+        headers->Dict.set("api-key", `hyperswitch`)
+        headers
       }
-      Fetch.HeadersInit.make(headerObj)
-    } else {
-      switch hyperSwitchToken {
-      | Some(token) =>
-        if token !== "" {
-          let headerObj = {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${hyperSwitchToken->Option.getWithDefault("")}`,
-            "api-key": "hyperswitch",
-          }
 
-          Fetch.HeadersInit.make(headerObj)
-        } else {
-          let headerObj = {
-            "Content-Type": "application/json",
-          }
-          Fetch.HeadersInit.make(headerObj)
-        }
-
-      | None =>
-        let headerObj = {
-          "Content-Type": "application/json",
-        }
-        Fetch.HeadersInit.make(headerObj)
-      }
+    | None => headers
     }
+    res
   }
+  Fetch.HeadersInit.make(headerObj->dictToObj)
 }
 
 @val @scope(("window", "location"))
@@ -81,7 +58,8 @@ let useApiFetcher = () => {
     (
       uri,
       ~bodyStr: string="",
-      ~headers=Dict.make(),
+      ~bodyFormData=None,
+      ~headers=[("Content-Type", "application/json")]->Dict.fromArray,
       ~bodyHeader as _=?,
       ~method_: Fetch.requestMethod,
       ~authToken as _=?,
@@ -98,7 +76,11 @@ let useApiFetcher = () => {
 
       let body = switch method_ {
       | Get => resolve(None)
-      | _ => resolve(Some(Fetch.BodyInit.make(bodyStr)))
+      | _ =>
+        switch bodyFormData {
+        | Some(formDataVal) => resolve(Some(Fetch.BodyInit.makeWithFormData(formDataVal)))
+        | None => resolve(Some(Fetch.BodyInit.make(bodyStr)))
+        }
       }
 
       body->then(body => {
