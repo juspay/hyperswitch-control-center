@@ -45,7 +45,7 @@ module PrettyPrintJson = {
 
     let copyParsedJson =
       <div onClick={_ => handleOnClickCopy(~parsedValue=parsedJson)} className="cursor-pointer">
-        <img src={`/assets/copy.svg`} className="w-9 h-5" />
+        <Icon name="copy-code" />
       </div>
 
     <div className="flex flex-col gap-2">
