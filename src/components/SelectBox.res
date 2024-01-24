@@ -123,8 +123,7 @@ module ListItem = {
       ""
     }
 
-    let labelStyle =
-      customLabelStyle->Option.isSome ? customLabelStyle->Option.getWithDefault("") : ""
+    let labelStyle = customLabelStyle->Option.isSome ? customLabelStyle->Option.getOr("") : ""
 
     let onToggleSelect = val => {
       if !isDisabled {
@@ -383,12 +382,12 @@ let makeNonOptional = (dropdownOption: dropdownOption): dropdownOptionWithoutOpt
   {
     label: dropdownOption.label,
     value: dropdownOption.value,
-    isDisabled: dropdownOption.isDisabled->Option.getWithDefault(false),
-    icon: dropdownOption.icon->Option.getWithDefault(NoIcon),
+    isDisabled: dropdownOption.isDisabled->Option.getOr(false),
+    icon: dropdownOption.icon->Option.getOr(NoIcon),
     description: dropdownOption.description,
-    iconStroke: dropdownOption.iconStroke->Option.getWithDefault(""),
-    textColor: dropdownOption.textColor->Option.getWithDefault(""),
-    optGroup: dropdownOption.optGroup->Option.getWithDefault("-"),
+    iconStroke: dropdownOption.iconStroke->Option.getOr(""),
+    textColor: dropdownOption.textColor->Option.getOr(""),
+    optGroup: dropdownOption.optGroup->Option.getOr("-"),
   }
 }
 
@@ -514,7 +513,7 @@ module BaseSelect = {
       if !isDisabled {
         let data = if Array.includes(saneValue, itemDataValue) {
           let values =
-            deselectDisable->Option.getWithDefault(false)
+            deselectDisable->Option.getOr(false)
               ? saneValue
               : saneValue->Array.filter(x => x !== itemDataValue)
           onItemSelect(e, itemDataValue)->ignore
@@ -574,13 +573,12 @@ module BaseSelect = {
     } else {
       `${minWidth} ${dropdownCustomWidth}`
     }
-    let textIconPresent =
-      options->Array.some(op => op.icon->Option.getWithDefault(NoIcon) !== NoIcon)
+    let textIconPresent = options->Array.some(op => op.icon->Option.getOr(NoIcon) !== NoIcon)
 
     let _ = if sortingBasedOnDisabled {
       options->Js.Array2.sortInPlaceWith((m1, m2) => {
-        let m1Disabled = m1.isDisabled->Option.getWithDefault(false)
-        let m2Disabled = m2.isDisabled->Option.getWithDefault(false)
+        let m1Disabled = m1.isDisabled->Option.getOr(false)
+        let m2Disabled = m2.isDisabled->Option.getOr(false)
         if m1Disabled === m2Disabled {
           0
         } else if m1Disabled {
@@ -1164,7 +1162,7 @@ let getHashMappedOptionValues = (options: array<dropdownOptionWithoutOptional>) 
     if acc->Dict.get(ele.optGroup)->Option.isNone {
       acc->Dict.set(ele.optGroup, [ele])
     } else {
-      acc->Dict.get(ele.optGroup)->Option.getWithDefault([])->Array.push(ele)->ignore
+      acc->Dict.get(ele.optGroup)->Option.getOr([])->Array.push(ele)->ignore
     }
     acc
   })
@@ -1228,8 +1226,7 @@ module BaseRadio = {
     let hashMappedOptions = getHashMappedOptionValues(options)
 
     let isNonGrouped =
-      hashMappedOptions->Dict.get("-")->Option.getWithDefault([])->Array.length ===
-        options->Array.length
+      hashMappedOptions->Dict.get("-")->Option.getOr([])->Array.length === options->Array.length
 
     let (optgroupKeys, setOptgroupKeys) = React.useState(_ => getSortedKeys(hashMappedOptions))
 
@@ -1240,7 +1237,7 @@ module BaseRadio = {
     }, [searchString])
 
     OutsideClick.useOutsideClick(
-      ~refs={ArrayOfRef([dropdownRef->Option.getWithDefault(React.useRef(Js.Nullable.null))])},
+      ~refs={ArrayOfRef([dropdownRef->Option.getOr(React.useRef(Js.Nullable.null))])},
       ~isActive=showDropDown,
       ~callback=() => {
         setSearchString(_ => "")
@@ -1406,7 +1403,7 @@ module BaseRadio = {
                 <RenderListItemInBaseRadio
                   newOptions={getHashMappedOptionValues(newOptions)
                   ->Dict.get(ele)
-                  ->Option.getWithDefault([])}
+                  ->Option.getOr([])}
                   value
                   descriptionOnHover
                   isDropDown
@@ -1641,7 +1638,7 @@ module BaseDropdown = {
             BottomMiddle
           }->Some
         })
-        ->Option.getWithDefault(BottomMiddle)
+        ->Option.getOr(BottomMiddle)
       }
     }, [showDropDown])
 
@@ -1672,7 +1669,7 @@ module BaseDropdown = {
       ->Belt.Array.keepMap(str => {
         transformedOptions->Array.find(x => x.value == str)->map(x => x.label)
       })
-      ->Array.joinWith(", ")
+      ->Array.joinWithUnsafe(", ")
       ->LogicUtils.getNonEmptyString
       ->getWithDefault(buttonText)
     }, (transformedOptions, newInputSelect.value))
@@ -1689,7 +1686,7 @@ module BaseDropdown = {
         color: condition ? BadgeBlue : NoBadge,
       }
     }, [newInputSelect.value])
-    let widthClass = isMobileView ? "w-full" : dropdownCustomWidth->Option.getWithDefault("")
+    let widthClass = isMobileView ? "w-full" : dropdownCustomWidth->Option.getOr("")
 
     let optionsElement = if allowMultiSelect {
       <BaseSelect
@@ -1815,7 +1812,7 @@ module BaseDropdown = {
               | FilterAdd =>
                 <Button
                   text=buttonText
-                  leftIcon={customButtonLeftIcon->Option.getWithDefault(FontAwesome({"plus"}))}
+                  leftIcon={customButtonLeftIcon->Option.getOr(FontAwesome({"plus"}))}
                   buttonType
                   isSelectBoxButton=true
                   buttonSize
@@ -1874,7 +1871,7 @@ module BaseDropdown = {
                         ? `Select ${LogicUtils.snakeToTitle(newInputSelect.name)}`
                         : newInputSelect.value
                           ->LogicUtils.getStrArryFromJson
-                          ->Array.joinWith(",\n")}
+                          ->Array.joinWithUnsafe(",\n")}
                       toolTipFor=selectButton
                       toolTipPosition=Bottom
                       tooltipWidthClass=""
@@ -1936,7 +1933,7 @@ module BaseDropdown = {
             )
             if actualValueIndex !== -1 {
               let (text, leftIcon) = switch options[actualValueIndex] {
-              | Some(ele) => (ele.label, ele.icon->Option.getWithDefault(NoIcon))
+              | Some(ele) => (ele.label, ele.icon->Option.getOr(NoIcon))
               | None => ("", NoIcon)
               }
 

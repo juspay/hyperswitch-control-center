@@ -34,7 +34,7 @@ module AdvanceSearch = {
             None
           }
         })
-        ->Array.joinWith("&")
+        ->Array.joinWithUnsafe("&")
       | _ => ""
       }
       let finalUrl = otherQueries->String.length > 0 ? `${url}?${otherQueries}` : url
@@ -100,7 +100,7 @@ module AdvanceSearch = {
       if !isSubmitEnabled {
         Dict.set(
           errors,
-          optionalSearchFieldsList->Array.joinWith(","),
+          optionalSearchFieldsList->Array.joinWithUnsafe(","),
           "Atleast One of Optional fields is Required"->Js.Json.string,
         )
       }

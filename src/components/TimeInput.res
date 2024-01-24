@@ -53,7 +53,7 @@ let make = (
     let arr = [hourVal, minuteVal, secondsVal]
     Belt.Array.set(arr, index, newVal)->ignore
 
-    arr->Array.map(padNum)->Array.joinWith(":")->Identity.anyTypeToReactEvent->input.onChange
+    arr->Array.map(padNum)->Array.joinWithUnsafe(":")->Identity.anyTypeToReactEvent->input.onChange
   }, (hourVal, minuteVal, secondsVal, input.onChange))
   let onHourChange = React.useCallback1(changeVal(0), [changeVal])
   let onMinuteChange = React.useCallback1(changeVal(1), [changeVal])

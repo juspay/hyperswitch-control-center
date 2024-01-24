@@ -119,7 +119,7 @@ module TableWrapper = {
     let (_, setDefaultFilter) = Recoil.useRecoilState(AnalyticsHooks.defaultFilter)
     let (showTable, setShowTable) = React.useState(_ => false)
     let {getHeading, allColumns, defaultColumns} = tableEntity
-    let activeTabStr = activeTab->Option.getWithDefault([])->Array.joinWith("-")
+    let activeTabStr = activeTab->Option.getOr([])->Array.joinWithUnsafe("-")
     let (startTimeFilterKey, endTimeFilterKey) = dateKeys
     let (tableDataLoading, setTableDataLoading) = React.useState(_ => true)
     let (tableData, setTableData) = React.useState(_ => []->Array.map(Js.Nullable.return))
@@ -130,7 +130,7 @@ module TableWrapper = {
       ->Belt.Array.keepMap(item => {
         let (key, value) = item
         let keyArr = key->String.split(".")
-        let prefix = keyArr->Belt.Array.get(0)->Option.getWithDefault("")
+        let prefix = keyArr->Belt.Array.get(0)->Option.getOr("")
         if prefix === moduleName && prefix !== "" {
           None
         } else {
@@ -140,7 +140,7 @@ module TableWrapper = {
       ->Dict.fromArray
     }, [filterValueDict])
 
-    let allColumns = allColumns->Option.getWithDefault([])
+    let allColumns = allColumns->Option.getOr([])
     let allFilterKeys = Array.concat([startTimeFilterKey, endTimeFilterKey], filterKeys)
 
     let topFiltersToSearchParam = React.useMemo1(() => {
@@ -160,7 +160,7 @@ module TableWrapper = {
             None
           }
         })
-        ->Array.joinWith("&")
+        ->Array.joinWithUnsafe("&")
 
       filterSearchParam
     }, [getTopLevelFilter])
@@ -192,11 +192,11 @@ module TableWrapper = {
 
     let generateIDFromKeys = (keys, dict) => {
       keys
-      ->Option.getWithDefault([])
+      ->Option.getOr([])
       ->Array.map(key => {
         dict->Dict.get(key)
       })
-      ->Array.joinWith("")
+      ->Array.joinWithUnsafe("")
     }
 
     open AnalyticsTypes
@@ -310,7 +310,7 @@ module TableWrapper = {
     }, (topFiltersToSearchParam, activeTabStr, customFilter))
     let newDefaultCols = React.useMemo1(() => {
       activeTab
-      ->Option.getWithDefault([])
+      ->Option.getOr([])
       ->Belt.Array.keepMap(item => {
         defaultColumns
         ->Belt.Array.keepMap(
@@ -328,7 +328,7 @@ module TableWrapper = {
       defaultColumns
       ->Belt.Array.keepMap(item => {
         let val = item->getHeading
-        activeTab->Option.getWithDefault([])->Array.includes(val.key) ? Some(item) : None
+        activeTab->Option.getOr([])->Array.includes(val.key) ? Some(item) : None
       })
       ->Belt.Array.concat(allColumns)
     }, [activeTabStr])
@@ -343,7 +343,7 @@ module TableWrapper = {
         ("endTime", endTimeFromUrl->Js.Json.string),
       ]->Dict.fromArray
 
-    let filters = filterValueFromUrl->Option.getWithDefault(Dict.make()->Js.Json.object_)
+    let filters = filterValueFromUrl->Option.getOr(Dict.make()->Js.Json.object_)
 
     let defaultFilters =
       [
@@ -353,10 +353,7 @@ module TableWrapper = {
       ]->Dict.fromArray
     let dict =
       [
-        (
-          "activeTab",
-          activeTab->Option.getWithDefault([])->Array.map(Js.Json.string)->Js.Json.array,
-        ),
+        ("activeTab", activeTab->Option.getOr([])->Array.map(Js.Json.string)->Js.Json.array),
         ("filter", defaultFilters->Js.Json.object_),
       ]->Dict.fromArray
 
@@ -384,7 +381,7 @@ module TableWrapper = {
                 tableEntity
                 colMapper
                 tableGlobalFilter
-                activeTab={activeTab->Option.getWithDefault([])}
+                activeTab={activeTab->Option.getOr([])}
               />
             </Form>
           </div>
@@ -417,7 +414,7 @@ module TabDetails = {
 
     let id =
       activeTab
-      ->Option.getWithDefault(["tab"])
+      ->Option.getOr(["tab"])
       ->Array.reduce("", (acc, tabName) => {acc->String.concat(tabName)})
 
     let isMobileView = MatchMedia.useMobileChecker()
@@ -534,7 +531,7 @@ let make = (
   let (activeTav, setActiveTab) = React.useState(_ =>
     filterValueDict->getStrArrayFromDict(
       `${moduleName}.tabName`,
-      [filteredTabKeys->Belt.Array.get(0)->Option.getWithDefault("")],
+      [filteredTabKeys->Belt.Array.get(0)->Option.getOr("")],
     )
   )
   let setActiveTab = React.useMemo1(() => {
@@ -598,7 +595,7 @@ let make = (
       source: "BATCH",
     }
     AnalyticsUtils.filterBody(filterBodyEntity)
-  }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
+  }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWithUnsafe(",")))
 
   open APIUtils
   open Promise
@@ -622,7 +619,7 @@ let make = (
     }
     None
   }, (startTimeVal, endTimeVal, filterBody->Js.Json.object_->Js.Json.stringify))
-  let filterData = filterDataJson->Option.getWithDefault(Dict.make()->Js.Json.object_)
+  let filterData = filterDataJson->Option.getOr(Dict.make()->Js.Json.object_)
 
   let activeTab = React.useMemo1(() => {
     Some(
@@ -722,7 +719,7 @@ let make = (
               moduleName
               setTotalVolume
               showPercentage=false
-              statSentiment={singleStatEntity.statSentiment->Option.getWithDefault(Dict.make())}
+              statSentiment={singleStatEntity.statSentiment->Option.getOr(Dict.make())}
             />
           </div>
           <div className="flex flex-row">

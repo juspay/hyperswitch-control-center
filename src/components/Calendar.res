@@ -21,7 +21,7 @@ module TableRow = {
     switch obj {
     | Some(a) => {
         let day = String.split(a, "-")
-        React.string(day[2]->Option.getWithDefault(""))
+        React.string(day[2]->Option.getOr(""))
       }
 
     | None => React.string("")
@@ -149,11 +149,11 @@ module TableRow = {
             }
             let getDate = date => {
               let datevalue = Js.Date.makeWithYMD(
-                ~year=Js.Float.fromString(date[0]->Option.getWithDefault("")),
+                ~year=Js.Float.fromString(date[0]->Option.getOr("")),
                 ~month=Js.Float.fromString(
-                  String.make(Js.Float.fromString(date[1]->Option.getWithDefault("")) -. 1.0),
+                  String.make(Js.Float.fromString(date[1]->Option.getOr("")) -. 1.0),
                 ),
-                ~date=Js.Float.fromString(date[2]->Option.getWithDefault("")),
+                ~date=Js.Float.fromString(date[2]->Option.getOr("")),
                 (),
               )
               datevalue

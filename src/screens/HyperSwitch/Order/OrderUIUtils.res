@@ -242,9 +242,9 @@ let getOrdersList = async (
       let payment_id =
         filterValueJson
         ->Dict.get("payment_id")
-        ->Option.getWithDefault(""->Js.Json.string)
+        ->Option.getOr(""->Js.Json.string)
         ->Js.Json.decodeString
-        ->Option.getWithDefault("")
+        ->Option.getOr("")
 
       if Js.Re.test_(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
         let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")

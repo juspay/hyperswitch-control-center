@@ -11,14 +11,14 @@ let useFetchEnumDetails = () => {
           ~userType=#USER_DATA,
           ~methodType=Get,
           (),
-        )}?keys=${enumArray->Array.joinWith(",")}`
+        )}?keys=${enumArray->Array.joinWithUnsafe(",")}`
       let res = await fetchDetails(url)
       let responseDict = res->responseDataMapper
       setEnumVariantValues(._ => responseDict->Js.Json.object_->Js.Json.stringify)
       Js.Nullable.return(responseDict)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
         Js.Exn.raiseError(err)
       }
     }
@@ -77,7 +77,7 @@ let usePostEnumDetails = () => {
       Js.Nullable.return(updatedRecoilValueDict)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
         Js.Exn.raiseError(err)
       }
     }

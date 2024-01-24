@@ -65,7 +65,9 @@ let make = () => {
     usersList
     ->typeConversion
     ->Array.reduce(Dict.make()->UserRoleEntity.itemToObjMapperForUser, (acc, ele) => {
-      url.path->Belt.List.toArray->Array.joinWith("/")->String.includes(ele.user_id) ? ele : acc
+      url.path->Belt.List.toArray->Array.joinWithUnsafe("/")->String.includes(ele.user_id)
+        ? ele
+        : acc
     })
   }, [usersList])
 
@@ -91,7 +93,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }

@@ -43,7 +43,7 @@ module PrettyPrintJson = {
           <UIUtils.RenderIf condition={headerText->Option.isSome}>
             <div className="flex justify-between items-center">
               <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
-                {headerText->Option.getWithDefault("")->React.string}
+                {headerText->Option.getOr("")->React.string}
               </p>
               {copyParsedJson}
             </div>
@@ -67,7 +67,7 @@ module PrettyPrintJson = {
       <UIUtils.RenderIf condition={parsedJson->String.length === 0}>
         <div className="flex flex-col justify-start items-start gap-2 h-25-rem">
           <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
-            {headerText->Option.getWithDefault("")->React.string}
+            {headerText->Option.getOr("")->React.string}
           </p>
           <p className="font-normal text-fs-14 text-jp-gray-900 text-opacity-50">
             {"Failed to load!"->React.string}
@@ -232,10 +232,7 @@ let make = (~paymentId, ~createdAt) => {
 
       // setting initial data
       let initialData =
-        paymentLogsArray
-        ->Belt.Array.get(0)
-        ->Option.getWithDefault(Js.Json.null)
-        ->getDictFromJsonObject
+        paymentLogsArray->Belt.Array.get(0)->Option.getOr(Js.Json.null)->getDictFromJsonObject
       let intialValueRequest = initialData->getString("request", "")
 
       let intialValueResponse = initialData->getString("response", "")
@@ -246,7 +243,7 @@ let make = (~paymentId, ~createdAt) => {
       setScreenState1(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState1(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -334,7 +331,7 @@ let make = (~paymentId, ~createdAt) => {
 
       // setting initial data
       let initialData =
-        sdkLogsArray->Belt.Array.get(0)->Option.getWithDefault(Js.Json.null)->getDictFromJsonObject
+        sdkLogsArray->Belt.Array.get(0)->Option.getOr(Js.Json.null)->getDictFromJsonObject
       let intialValueRequest = initialData->getString("event_name", "")
 
       let intialValueResponse = initialData->getString("response", "")
@@ -345,7 +342,7 @@ let make = (~paymentId, ~createdAt) => {
       setScreenState2(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState2(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -361,7 +358,7 @@ let make = (~paymentId, ~createdAt) => {
       }
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
         setScreenState1(_ => PageLoaderWrapper.Error(err))
         setScreenState2(_ => PageLoaderWrapper.Error(err))
       }

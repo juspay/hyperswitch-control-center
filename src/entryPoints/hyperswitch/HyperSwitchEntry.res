@@ -70,7 +70,7 @@ module HyperSwitchEntryComponent = {
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | Js.Exn.Error(e) =>
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong!")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong!")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }

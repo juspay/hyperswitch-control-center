@@ -90,17 +90,17 @@ let ruleInfoTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithmDa
 
 let getDefaultSurchargeType = surchargeType => {
   surchargeType
-  ->Option.getWithDefault(Js.Nullable.null)
+  ->Option.getOr(Js.Nullable.null)
   ->Js.Nullable.toOption
-  ->Option.getWithDefault(defaultSurcharge)
+  ->Option.getOr(defaultSurcharge)
 }
 
 let validateSurchargeRate = ruleDict => {
   let connectorSelection = ruleDict->getTypedSurchargeConnectorSelection
 
   let surchargeType = getDefaultSurchargeType(connectorSelection.surcharge_details)
-  let surchargeValuePercent = surchargeType.surcharge.value.percentage->Option.getWithDefault(0.0)
-  let surchargeValueAmount = surchargeType.surcharge.value.amount->Option.getWithDefault(0.0)
+  let surchargeValuePercent = surchargeType.surcharge.value.percentage->Option.getOr(0.0)
+  let surchargeValueAmount = surchargeType.surcharge.value.amount->Option.getOr(0.0)
   let isSurchargeAmountValid = if surchargeType.surcharge.\"type" == "rate" {
     surchargeValuePercent == 0.0 || surchargeValuePercent > 100.0
   } else {

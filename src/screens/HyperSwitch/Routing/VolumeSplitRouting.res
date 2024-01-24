@@ -252,7 +252,7 @@ let make = (~routingRuleId, ~isActive) => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }
@@ -311,7 +311,7 @@ let make = (~routingRuleId, ~isActive) => {
       Js.Nullable.return(res)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong!")
+      let err = Js.Exn.message(e)->Option.getOr("Something went wrong!")
       showToast(~message="Failed to Save the Configuration !", ~toastType=ToastState.ToastError, ())
       setScreenState(_ => PageLoaderWrapper.Error(err))
       Js.Exn.raiseError(err)

@@ -169,12 +169,12 @@ module LineChart1D = {
             let (x, y, secondryMetrics) = axes
             xAxisMapInfo->LineChartUtils.appendToDictValue(
               ["run_date", "run_month", "run_week"]->Array.includes(groupKey)
-                ? x->Js.Json.decodeString->Option.getWithDefault("")
+                ? x->Js.Json.decodeString->Option.getOr("")
                 : x->Js.Json.stringify,
               (
                 item.name,
                 {
-                  item.color->Option.getWithDefault("#000000")
+                  item.color->Option.getOr("#000000")
                 },
                 y,
                 secondryMetrics,
@@ -299,7 +299,7 @@ module LineChart1D = {
           }
         })
         ->Belt.Array.get(0)
-        ->Option.getWithDefault("")
+        ->Option.getOr("")
       let color =
         chartData
         ->Belt.Array.keepMap(item => {
@@ -309,7 +309,7 @@ module LineChart1D = {
           }
         })
         ->Belt.Array.get(0)
-        ->Option.getWithDefault(`${colorOrig}`)
+        ->Option.getOr(`${colorOrig}`)
 
       let transformValue = num => {
         num->HSAnalyticsUtils.setPrecision()
@@ -611,12 +611,12 @@ module LineChart1D = {
 
                   let upper_bound =
                     upper_bound <= threshold
-                      ? threshold +. stepUpFromThreshold->Option.getWithDefault(0.)
+                      ? threshold +. stepUpFromThreshold->Option.getOr(0.)
                       : upper_bound
 
                   let lower_bound =
                     lower_bound >= threshold
-                      ? threshold -. stepUpFromThreshold->Option.getWithDefault(0.)
+                      ? threshold -. stepUpFromThreshold->Option.getOr(0.)
                       : lower_bound
 
                   let positions = NumericUtils.pretty([lower_bound, upper_bound], 5)
@@ -660,8 +660,7 @@ module LineChart1D = {
           "labels": {
             let labelsValue = {
               "formatter": Some(
-                @this
-                param => formatLabels(selectedMetrics, param.value->Option.getWithDefault(0.0)),
+                @this param => formatLabels(selectedMetrics, param.value->Option.getOr(0.0)),
               ),
               "enabled": true,
               "style": {
@@ -836,7 +835,7 @@ module RenderMultiDimensionalChart = {
             ),
             legendIndex: i.legendIndex,
             name: i.name,
-            color: i.color->Option.getWithDefault("#000000"),
+            color: i.color->Option.getOr("#000000"),
           })
         )
         ->ignore
@@ -894,8 +893,8 @@ module LineChart2D = {
   ) => {
     let (groupBy1, groupBy2) = switch groupBy {
     | Some(value) => (
-        value->Belt.Array.get(0)->Option.getWithDefault(""),
-        value->Belt.Array.get(1)->Option.getWithDefault(""),
+        value->Belt.Array.get(0)->Option.getOr(""),
+        value->Belt.Array.get(1)->Option.getOr(""),
       )
     | None => ("", "")
     }
@@ -939,9 +938,9 @@ module LineChart3D = {
   ) => {
     let (groupBy1, groupBy2, groupby3) = switch groupBy {
     | Some(value) => (
-        value->Belt.Array.get(0)->Option.getWithDefault(""),
-        value->Belt.Array.get(1)->Option.getWithDefault(""),
-        value->Belt.Array.get(2)->Option.getWithDefault(""),
+        value->Belt.Array.get(0)->Option.getOr(""),
+        value->Belt.Array.get(1)->Option.getOr(""),
+        value->Belt.Array.get(2)->Option.getOr(""),
       )
     | None => ("", "", "")
     }

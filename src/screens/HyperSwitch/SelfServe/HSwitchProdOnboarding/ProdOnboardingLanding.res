@@ -30,7 +30,7 @@ module CheckListSection = {
           updatedCheckList
           ->Array.filter(ele => ele.itemsVariants->Array.includes(pageView))
           ->Belt.Array.get(0)
-          ->Option.getWithDefault(defaultValueOfCheckList),
+          ->Option.getOr(defaultValueOfCheckList),
         )
 
       switch (currentViewindex, clickedVariant) {
@@ -173,12 +173,12 @@ let make = () => {
         ->Array.find(ele => {
           ele->getDictFromJsonObject->getBool("SetupComplete", false)
         })
-        ->Option.getWithDefault(Js.Json.null)
+        ->Option.getOr(Js.Json.null)
       if setupCompleteResponse->getDictFromJsonObject->getBool("SetupComplete", false) {
         setDashboardPageState(_ => #HOME)
         let baseUrlPath = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${routerUrl.path
           ->Belt.List.toArray
-          ->Array.joinWith("/")}`
+          ->Array.joinWithUnsafe("/")}`
         routerUrl.search->String.length > 0
           ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)
           : RescriptReactRouter.push(`${baseUrlPath}`)
@@ -203,7 +203,7 @@ let make = () => {
         ->Array.find(ele => {
           ele->getDictFromJsonObject->getBool("ConfigureEndpoint", false)
         })
-        ->Option.getWithDefault(Js.Json.null)
+        ->Option.getOr(Js.Json.null)
 
       if configureEndpointResponse->getDictFromJsonObject->getBool("ConfigureEndpoint", false) {
         getSetupCompleteEnum()->ignore
@@ -228,7 +228,7 @@ let make = () => {
         ->Array.find(ele => {
           ele->getDictFromJsonObject->getDictfromDict("SetupProcessor") != Dict.make()
         })
-        ->Option.getWithDefault(Js.Json.null)
+        ->Option.getOr(Js.Json.null)
 
       let connectorId =
         setupProcessorEnum

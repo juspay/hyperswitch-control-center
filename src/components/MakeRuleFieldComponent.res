@@ -54,9 +54,7 @@ module CompressedView = {
           dict->getString("logical.operator", ""),
           dict->getString("real_field", ""),
           dict->getString("operator", ""),
-          dict
-          ->getOptionStrArrayFromDict("value")
-          ->Option.getWithDefault([dict->getString("value", "")]),
+          dict->getOptionStrArrayFromDict("value")->Option.getOr([dict->getString("value", "")]),
           dict->getDictfromDict("metadata")->getOptionString("key"),
         )
       })
@@ -74,7 +72,7 @@ module CompressedView = {
         | None => React.null
         }}
         <TextView str=operator fontColor="text-red-500" fontWeight="font-semibold" />
-        <TextView str={value->Array.filter(ele => ele != "")->Array.joinWith(", ")} />
+        <TextView str={value->Array.filter(ele => ele != "")->Array.joinWithUnsafe(", ")} />
       </div>
     | None => React.null
     }

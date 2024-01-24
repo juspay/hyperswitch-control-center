@@ -3,7 +3,7 @@ open APIUtils
 let make = (~remainingPath, ~previewOnly=false) => {
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
-  let pathVar = url.path->Belt.List.toArray->Array.joinWith("/")
+  let pathVar = url.path->Belt.List.toArray->Array.joinWithUnsafe("/")
 
   let (records, setRecords) = React.useState(_ => [])
   let (activeRoutingIds, setActiveRoutingIds) = React.useState(_ => [])
@@ -51,7 +51,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         configuredRules
         ->Js.Json.array
         ->Js.Json.decodeArray
-        ->Option.getWithDefault([])
+        ->Option.getOr([])
         ->Belt.Array.keepMap(Js.Json.decodeObject)
         ->Array.map(HistoryEntity.itemToObjMapper)
 
@@ -77,7 +77,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -108,7 +108,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
       }
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }

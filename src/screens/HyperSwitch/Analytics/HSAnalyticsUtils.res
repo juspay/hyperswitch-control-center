@@ -58,7 +58,7 @@ let options: Js.Json.t => array<EntityType.optionType<'t>> = json => {
     })
     ->Some
   })
-  ->Option.getWithDefault([])
+  ->Option.getOr([])
 }
 
 let filterByData = (txnArr, value) => {
@@ -76,7 +76,7 @@ let filterByData = (txnArr, value) => {
 
         value
         ->Js.Json.decodeString
-        ->Option.getWithDefault("")
+        ->Option.getOr("")
         ->String.toLowerCase
         ->String.includes(searchText)
       })
@@ -130,7 +130,7 @@ let initialFilterFields = json => {
       })
       ->Some
     })
-    ->Option.getWithDefault([])
+    ->Option.getOr([])
 
   dropdownValue
 }

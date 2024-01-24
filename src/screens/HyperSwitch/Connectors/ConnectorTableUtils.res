@@ -86,7 +86,7 @@ let getPaymentMethodsEnabled: Js.Dict.t<Js.Json.t> => paymentMethodEnabledType =
     payment_method: dict->getString("payment_method", ""),
     payment_method_types: dict
     ->Dict.get("payment_method_types")
-    ->Option.getWithDefault(Dict.make()->Js.Json.object_)
+    ->Option.getOr(Dict.make()->Js.Json.object_)
     ->getArrayDataFromJson(getPaymentMethodTypes),
   }
 }
@@ -114,7 +114,7 @@ let getProcessorPayloadType = dict => {
     disabled: dict->getBool("disabled", true),
     payment_methods_enabled: dict
     ->Dict.get("payment_methods_enabled")
-    ->Option.getWithDefault(Dict.make()->Js.Json.object_)
+    ->Option.getOr(Dict.make()->Js.Json.object_)
     ->getArrayDataFromJson(getPaymentMethodsEnabled),
     profile_id: dict->getString("profile_id", ""),
     merchant_connector_id: dict->getString("merchant_connector_id", ""),
@@ -138,7 +138,7 @@ let getConnectorNameViaId = (
 ) => {
   connectorList
   ->Array.find(ele => {ele.merchant_connector_id == mca_id})
-  ->Option.getWithDefault(Dict.make()->getProcessorPayloadType)
+  ->Option.getOr(Dict.make()->getProcessorPayloadType)
 }
 
 let getAllPaymentMethods = (paymentMethodsArray: array<paymentMethodEnabledType>) => {
@@ -200,7 +200,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
       <div>
         {connector.payment_methods_enabled
         ->getAllPaymentMethods
-        ->Array.joinWith(", ")
+        ->Array.joinWithUnsafe(", ")
         ->React.string}
       </div>,
       "",

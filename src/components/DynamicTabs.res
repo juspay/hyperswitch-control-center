@@ -96,10 +96,7 @@ module TabInfo = {
             updatedStackAfterRemovingTab->Array.filterWithIndex((item, index) =>
               index === 0
                 ? true
-                : item !==
-                    updatedStackAfterRemovingTab
-                    ->Belt.Array.get(index - 1)
-                    ->Option.getWithDefault("")
+                : item !== updatedStackAfterRemovingTab->Belt.Array.get(index - 1)->Option.getOr("")
             )
           })
 
@@ -155,7 +152,7 @@ module TabInfo = {
             ->String.split("+")
             ->Array.map(String.trim)
             ->Array.map(LogicUtils.snakeToTitle)
-            ->Array.joinWith(" + "),
+            ->Array.joinWithUnsafe(" + "),
           )}
           crossIcon
         </div>
@@ -240,7 +237,7 @@ let make = (
   // this tabs will always loaded independent of user preference
   let isMobileView = MatchMedia.useMobileChecker()
   let defaultTabs =
-    defaultTabs->Option.getWithDefault(tabs->Array.copy->Array.filter(item => !item.isRemovable))
+    defaultTabs->Option.getOr(tabs->Array.copy->Array.filter(item => !item.isRemovable))
 
   let tabOuterClass = `gap-1.5`
   let bottomBorderClass = ""
@@ -262,7 +259,7 @@ let make = (
         item.value == key
       })
       ->Belt.Array.get(0)
-      ->Option.getWithDefault({title: "", value: "", isRemovable: false})
+      ->Option.getOr({title: "", value: "", isRemovable: false})
     ).title
   }
 
@@ -293,23 +290,23 @@ let make = (
             )
             ->Array.length === 0
 
-          let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
+          let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
           if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
             let newTab = {
               title: concatinatedTabNames,
-              value: tabName->Array.joinWith(","),
+              value: tabName->Array.joinWithUnsafe(","),
               description: switch tabs->Array.find(
                 item => {
-                  item.value === tabName->Array.joinWith(",")
+                  item.value === tabName->Array.joinWithUnsafe(",")
                 },
               ) {
               | Some(tabValue) =>
-                enableDescriptionHeader ? tabValue.description->Option.getWithDefault("") : ""
+                enableDescriptionHeader ? tabValue.description->Option.getOr("") : ""
               | None => ""
               },
               isRemovable: switch tabs->Array.find(
                 item => {
-                  item.value === tabName->Array.joinWith(",")
+                  item.value === tabName->Array.joinWithUnsafe(",")
                 },
               ) {
               | Some(tabValue) => tabValue.isRemovable
@@ -340,7 +337,7 @@ let make = (
       })
       ->Array.length === 0
 
-    let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWith(" + ")
+    let concatinatedTabNames = tabName->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
 
     if validated && tabName->Array.length <= maxSelection && tabName->Array.length > 0 {
       let concatinatedTabIndex =
@@ -350,7 +347,7 @@ let make = (
         let newTab = [
           {
             title: concatinatedTabNames,
-            value: tabName->Array.joinWith(","),
+            value: tabName->Array.joinWithUnsafe(","),
             isRemovable: true,
           },
         ]
@@ -435,9 +432,7 @@ let make = (
     if removed === false {
       if (
         tabValue !==
-          tabStacksnames
-          ->Belt.Array.get(tabStacksnames->Array.length - 1)
-          ->Option.getWithDefault("")
+          tabStacksnames->Belt.Array.get(tabStacksnames->Array.length - 1)->Option.getOr("")
       ) {
         setTabStacksnames(prev => {
           Array.concat(prev, [tabValue])
@@ -455,12 +450,12 @@ let make = (
             "tabName",
             `[${tabStacksnames
               ->Belt.Array.get(tabStacksnames->Array.length - 1)
-              ->Option.getWithDefault("")}]`,
+              ->Option.getOr("")}]`,
           ),
         ]),
       )
       setActiveTab(
-        tabStacksnames->Belt.Array.get(tabStacksnames->Array.length - 1)->Option.getWithDefault(""),
+        tabStacksnames->Belt.Array.get(tabStacksnames->Array.length - 1)->Option.getOr(""),
       )
 
       setSelectedIndex(_ =>
@@ -469,9 +464,7 @@ let make = (
           collapsibleTabs
           ->Array.map(item => item.value)
           ->Array.indexOf(
-            tabStacksnames
-            ->Belt.Array.get(tabStacksnames->Array.length - 1)
-            ->Option.getWithDefault(""),
+            tabStacksnames->Belt.Array.get(tabStacksnames->Array.length - 1)->Option.getOr(""),
           ),
         )
       )
@@ -479,8 +472,8 @@ let make = (
   }
 
   let onSubmit = values => {
-    let tabName = values->Array.map(getTitle)->Array.joinWith(" + ")
-    let tabValue = values->Array.joinWith(",")
+    let tabName = values->Array.map(getTitle)->Array.joinWithUnsafe(" + ")
+    let tabValue = values->Array.joinWithUnsafe(",")
     if !Array.includes(collapsibleTabs->Array.map(item => item.title), tabName) {
       let newTab = [
         {
@@ -507,8 +500,8 @@ let make = (
       }, 200)->ignore
     } else {
       setSelectedIndex(_ => Array.indexOf(collapsibleTabs->Array.map(item => item.value), tabValue))
-      updateTabNameWith(Dict.fromArray([("tabName", `[${values->Array.joinWith(",")}]`)]))
-      setActiveTab(values->Array.joinWith(","))
+      updateTabNameWith(Dict.fromArray([("tabName", `[${values->Array.joinWithUnsafe(",")}]`)]))
+      setActiveTab(values->Array.joinWithUnsafe(","))
     }
     setShowModal(_ => false)
   }

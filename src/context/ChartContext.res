@@ -47,12 +47,8 @@ let getGranularityMapper = (granularity: string) => {
     (1, "hour")
   } else {
     (
-      granularityArr
-      ->Belt.Array.get(0)
-      ->Option.getWithDefault("1")
-      ->Belt.Int.fromString
-      ->Option.getWithDefault(1),
-      granularityArr->Belt.Array.get(1)->Option.getWithDefault("week"),
+      granularityArr->Belt.Array.get(0)->Option.getOr("1")->Belt.Int.fromString->Option.getOr(1),
+      granularityArr->Belt.Array.get(1)->Option.getOr("week"),
     )
   }
 }
@@ -70,7 +66,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let (activeTab, activeTabStr) = React.useMemo1(() => {
     let activeTabOptionalArr =
       getAllFilter->getOptionStrArrayFromDict(`${chartEntity.moduleName}.tabName`)
-    (activeTabOptionalArr, activeTabOptionalArr->Option.getWithDefault([])->Array.joinWith(","))
+    (activeTabOptionalArr, activeTabOptionalArr->Option.getOr([])->Array.joinWithUnsafe(","))
   }, [getAllFilter])
 
   let parentToken = AuthWrapperUtils.useTokenParent(Original)
@@ -126,7 +122,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
-      let prefix = keyArr->Belt.Array.get(0)->Option.getWithDefault("")
+      let prefix = keyArr->Belt.Array.get(0)->Option.getOr("")
       if prefix === chartId && prefix !== "" {
         None
       } else {
@@ -153,7 +149,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
           None
         }
       })
-      ->Array.joinWith("&")
+      ->Array.joinWithUnsafe("&")
 
     (filterSearchParam, getTopLevelChartFilter->LogicUtils.getString(customFilterKey, ""))
   }, [getTopLevelChartFilter])
@@ -169,8 +165,8 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
-      let prefix = keyArr->Belt.Array.get(0)->Option.getWithDefault("")
-      let fitlerName = keyArr->Belt.Array.get(1)->Option.getWithDefault("")
+      let prefix = keyArr->Belt.Array.get(0)->Option.getOr("")
+      let fitlerName = keyArr->Belt.Array.get(1)->Option.getOr("")
 
       // when chart id is not there then there won't be any prefix so the prefix will the filter name
       if chartId === "" {
@@ -214,7 +210,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
 
   React.useEffect2(() => {
     setGranularity(prev => {
-      current_granularity->Array.includes(prev->Option.getWithDefault(""))
+      current_granularity->Array.includes(prev->Option.getOr(""))
         ? prev
         : current_granularity->Belt.Array.get(0)
     })
@@ -235,17 +231,14 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     let chartType =
       getChartCompFilters->getString(
         "chartType",
-        chartEntity.chartTypes
-        ->Belt.Array.get(0)
-        ->Option.getWithDefault(Line)
-        ->DynamicChart.chartMapper,
+        chartEntity.chartTypes->Belt.Array.get(0)->Option.getOr(Line)->DynamicChart.chartMapper,
       )
     if (
       startTimeFromUrl !== "" &&
       endTimeFromUrl !== "" &&
       parentToken->Option.isSome &&
       (granularity->Option.isSome || chartType !== "Line Chart") &&
-      current_granularity->Array.includes(granularity->Option.getWithDefault(""))
+      current_granularity->Array.includes(granularity->Option.getOr(""))
     ) {
       setTopChartFetchWithCurrentDependecyChange(_ => false)
     }
@@ -253,8 +246,8 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     None
   }, (
     parentToken,
-    current_granularity->Array.joinWith("-") ++
-    granularity->Option.getWithDefault("") ++
+    current_granularity->Array.joinWithUnsafe("-") ++
+    granularity->Option.getOr("") ++
     cardinalityFromUrl ++
     chartTopMetricFromUrl ++
     customFilter ++
@@ -269,17 +262,14 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     let chartType =
       getChartCompFilters->getString(
         "chartType",
-        chartEntity.chartTypes
-        ->Belt.Array.get(0)
-        ->Option.getWithDefault(Line)
-        ->DynamicChart.chartMapper,
+        chartEntity.chartTypes->Belt.Array.get(0)->Option.getOr(Line)->DynamicChart.chartMapper,
       )
     if (
       startTimeFromUrl !== "" &&
       endTimeFromUrl !== "" &&
       parentToken->Option.isSome &&
       (granularity->Option.isSome || chartType !== "Line Chart") &&
-      current_granularity->Array.includes(granularity->Option.getWithDefault(""))
+      current_granularity->Array.includes(granularity->Option.getOr(""))
     ) {
       setBottomChartFetchWithCurrentDependecyChange(_ => false)
     }
@@ -287,8 +277,8 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     None
   }, (
     parentToken,
-    current_granularity->Array.joinWith("-") ++
-    granularity->Option.getWithDefault("") ++
+    current_granularity->Array.joinWithUnsafe("-") ++
+    granularity->Option.getOr("") ++
     chartBottomMetricFromUrl ++
     startTimeFromUrl ++
     cardinalityFromUrl ++
@@ -329,7 +319,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
           | None => [metric]
           }
 
-          let granularityConfig = granularity->Option.getWithDefault("")->getGranularityMapper
+          let granularityConfig = granularity->Option.getOr("")->getGranularityMapper
 
           metricsArr
           ->Array.map(metric => {
@@ -346,7 +336,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 ~customFilterValue=customFilter,
                 ~sortingParams?,
                 ~timeCol,
-                ~domain=value.domain->Option.getWithDefault(""),
+                ~domain=value.domain->Option.getOr(""),
                 (),
               )->Js.Json.stringify,
               ~authToken=parentToken,
@@ -387,7 +377,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 _ => Loaded(
                   dataMerge(
                     ~dataArr=metricsArr->Array.map(item => item->getArrayFromJson([])),
-                    ~dictKey=Belt.Array.concat(activeTab->Option.getWithDefault([]), ["time"]),
+                    ~dictKey=Belt.Array.concat(activeTab->Option.getOr([]), ["time"]),
                   )->Js.Json.array,
                 ),
               ),
@@ -406,7 +396,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               ~filterValueFromUrl?,
               ~customFilterValue=customFilter,
               ~sortingParams?,
-              ~domain=value.domain->Option.getWithDefault(""),
+              ~domain=value.domain->Option.getOr(""),
               (),
             )->Js.Json.stringify,
             ~authToken=parentToken,
@@ -459,7 +449,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
           }
           let timeCol = value.timeCol
 
-          let granularityConfig = granularity->Option.getWithDefault("")->getGranularityMapper
+          let granularityConfig = granularity->Option.getOr("")->getGranularityMapper
           metricsArr
           ->Array.map(metric => {
             fetchApi(
@@ -475,7 +465,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 ~customFilterValue=customFilter,
                 ~sortingParams?,
                 ~timeCol=value.timeCol,
-                ~domain=value.domain->Option.getWithDefault(""),
+                ~domain=value.domain->Option.getOr(""),
                 (),
               )->Js.Json.stringify,
               ~authToken=parentToken,
@@ -514,7 +504,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
             let data =
               dataMerge(
                 ~dataArr=metricsArr->Array.map(item => item->getArrayFromJson([])),
-                ~dictKey=Belt.Array.concat(activeTab->Option.getWithDefault([]), ["time"]),
+                ~dictKey=Belt.Array.concat(activeTab->Option.getOr([]), ["time"]),
               )->Js.Json.array
 
             resolve(setBottomChartData(_ => Loaded(data)))
@@ -532,7 +522,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               ~filterValueFromUrl?,
               ~customFilterValue=customFilter,
               ~sortingParams?,
-              ~domain=value.domain->Option.getWithDefault(""),
+              ~domain=value.domain->Option.getOr(""),
               (),
             )->Js.Json.stringify,
             ~authToken=parentToken,
@@ -637,7 +627,7 @@ module SDKAnalyticsChartContext = {
       ->Belt.Array.keepMap(item => {
         let (key, value) = item
         let keyArr = key->String.split(".")
-        let prefix = keyArr->Belt.Array.get(0)->Option.getWithDefault("")
+        let prefix = keyArr->Belt.Array.get(0)->Option.getOr("")
         if prefix === chartId && prefix !== "" {
           None
         } else {
@@ -664,7 +654,7 @@ module SDKAnalyticsChartContext = {
             None
           }
         })
-        ->Array.joinWith("&")
+        ->Array.joinWithUnsafe("&")
 
       (filterSearchParam, getTopLevelChartFilter->LogicUtils.getString(customFilterKey, ""))
     }, [getTopLevelChartFilter])
@@ -680,8 +670,8 @@ module SDKAnalyticsChartContext = {
       ->Belt.Array.keepMap(item => {
         let (key, value) = item
         let keyArr = key->String.split(".")
-        let prefix = keyArr->Belt.Array.get(0)->Option.getWithDefault("")
-        let fitlerName = keyArr->Belt.Array.get(1)->Option.getWithDefault("")
+        let prefix = keyArr->Belt.Array.get(0)->Option.getOr("")
+        let fitlerName = keyArr->Belt.Array.get(1)->Option.getOr("")
 
         // when chart id is not there then there won't be any prefix so the prefix will the filter name
         if chartId === "" {
@@ -716,7 +706,7 @@ module SDKAnalyticsChartContext = {
     }
     let differentTimeValues = Belt.Array.concat(
       [currentTimeRanges],
-      differentTimeValues->Option.getWithDefault([]),
+      differentTimeValues->Option.getOr([]),
     )
     let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
     let _chartTopMetricFromUrl = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
@@ -732,7 +722,7 @@ module SDKAnalyticsChartContext = {
 
     React.useEffect2(() => {
       setGranularity(prev => {
-        current_granularity->Array.includes(prev->Option.getWithDefault(""))
+        current_granularity->Array.includes(prev->Option.getOr(""))
           ? prev
           : current_granularity->Belt.Array.get(0)
       })
@@ -748,17 +738,14 @@ module SDKAnalyticsChartContext = {
       let chartType =
         getChartCompFilters->getString(
           "chartType",
-          chartEntity.chartTypes
-          ->Belt.Array.get(0)
-          ->Option.getWithDefault(Line)
-          ->DynamicChart.chartMapper,
+          chartEntity.chartTypes->Belt.Array.get(0)->Option.getOr(Line)->DynamicChart.chartMapper,
         )
       if (
         startTimeFromUrl !== "" &&
         endTimeFromUrl !== "" &&
         parentToken->Option.isSome &&
         (granularity->Option.isSome || chartType !== "Line Chart") &&
-        current_granularity->Array.includes(granularity->Option.getWithDefault(""))
+        current_granularity->Array.includes(granularity->Option.getOr(""))
       ) {
         setTopChartFetchWithCurrentDependecyChange(_ => false)
       }
@@ -766,16 +753,18 @@ module SDKAnalyticsChartContext = {
       None
     }, (
       parentToken,
-      current_granularity->Array.joinWith("-") ++
-      granularity->Option.getWithDefault("") ++
+      current_granularity->Array.joinWithUnsafe("-") ++
+      granularity->Option.getOr("") ++
       cardinalityFromUrl ++
-      selectedTrends->Array.joinWith(",") ++
+      selectedTrends->Array.joinWithUnsafe(",") ++
       customFilter ++
       startTimeFromUrl ++
-      segmentValue->Option.getWithDefault([])->Array.joinWith(",") ++
+      segmentValue->Option.getOr([])->Array.joinWithUnsafe(",") ++
       endTimeFromUrl,
       filterValueFromUrl,
-      differentTimeValues->Array.map(item => `${item.fromTime}${item.toTime}`)->Array.joinWith(","),
+      differentTimeValues
+      ->Array.map(item => `${item.fromTime}${item.toTime}`)
+      ->Array.joinWithUnsafe(","),
     ))
 
     React.useEffect2(() => {
@@ -800,7 +789,7 @@ module SDKAnalyticsChartContext = {
             | None => ""
             }
 
-            let granularityConfig = granularity->Option.getWithDefault("")->getGranularityMapper
+            let granularityConfig = granularity->Option.getOr("")->getGranularityMapper
             switch differentTimeValues->Belt.Array.get(0) {
             | Some(timeObjOrig) => {
                 let timeObj = Dict.fromArray([
@@ -819,7 +808,7 @@ module SDKAnalyticsChartContext = {
                     ~filterValueFromUrl?,
                     ~customFilterValue=customFilter,
                     ~timeCol,
-                    ~domain=value.domain->Option.getWithDefault(""),
+                    ~domain=value.domain->Option.getOr(""),
                     (),
                   )->Js.Json.stringify,
                   ~authToken=parentToken,
@@ -836,12 +825,12 @@ module SDKAnalyticsChartContext = {
                       ->Belt.Array.keepMap(
                         dictOrigItem => {
                           let (key, value) = dictOrigItem
-                          segmentValue->Option.getWithDefault([])->Array.includes(key)
-                            ? Some(value->Js.Json.decodeString->Option.getWithDefault(""))
+                          segmentValue->Option.getOr([])->Array.includes(key)
+                            ? Some(value->Js.Json.decodeString->Option.getOr(""))
                             : None
                         },
                       )
-                      ->Array.joinWith("-dimension-")
+                      ->Array.joinWithUnsafe("-dimension-")
                     },
                   )
 
@@ -860,7 +849,7 @@ module SDKAnalyticsChartContext = {
                           ~customFilterValue=customFilter,
                           ~timeCol,
                           ~jsonFormattedFilter=item->filterMapper,
-                          ~domain=value.domain->Option.getWithDefault(""),
+                          ~domain=value.domain->Option.getOr(""),
                           (),
                         )->Js.Json.stringify,
                         ~authToken=parentToken,
@@ -884,16 +873,12 @@ module SDKAnalyticsChartContext = {
                                     ->Belt.Array.keepMap(
                                       origDictArrItem => {
                                         let (key, value) = origDictArrItem
-                                        segmentValue->Option.getWithDefault([])->Array.includes(key)
-                                          ? Some(
-                                              value
-                                              ->Js.Json.decodeString
-                                              ->Option.getWithDefault(""),
-                                            )
+                                        segmentValue->Option.getOr([])->Array.includes(key)
+                                          ? Some(value->Js.Json.decodeString->Option.getOr(""))
                                           : None
                                       },
                                     )
-                                    ->Array.joinWith("-dimension-")
+                                    ->Array.joinWithUnsafe("-dimension-")
 
                                   groupedArr->Array.includes(origDictArr)
                                     ? Some(
@@ -974,7 +959,7 @@ module SDKAnalyticsChartContext = {
     //         }
 
     //         let granularityConfig =
-    //           granularity->Option.getWithDefault("")->getGranularityMapper
+    //           granularity->Option.getOr("")->getGranularityMapper
 
     //         differentTimeValues
     //         ->Array.map(timeObjOrig => {
@@ -995,7 +980,7 @@ module SDKAnalyticsChartContext = {
     //                   ~cardinality,
     //                   ~customFilterValue=customFilter,
     //                   ~jsonFormattedFilter=item->filterMapper,
-    //                   ~domain=value.domain->Option.getWithDefault(""),
+    //                   ~domain=value.domain->Option.getOr(""),
     //                   (),
     //                 )->Js.Json.stringify,
     //                 ~authToken=parentToken,

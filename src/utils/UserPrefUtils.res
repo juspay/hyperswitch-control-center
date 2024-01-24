@@ -72,18 +72,14 @@ let saveUserPref = (userPref: Js.Dict.t<userPref>) => {
 let getUserPref = () => {
   switch LocalStorage.getItem(userPreferenceKeyInLocalStorage)->Js.Nullable.toOption {
   | Some(str) =>
-    str
-    ->LogicUtils.safeParse
-    ->Js.Json.decodeObject
-    ->Option.getWithDefault(Dict.make())
-    ->converToUserPref
+    str->LogicUtils.safeParse->Js.Json.decodeObject->Option.getOr(Dict.make())->converToUserPref
 
   | None => Dict.make()
   }
 }
 
 let getSearchParams = (moduleWisePref: Js.Dict.t<moduleVisePref>, ~key: string) => {
-  switch moduleWisePref->Dict.get(key)->Option.getWithDefault({}) {
+  switch moduleWisePref->Dict.get(key)->Option.getOr({}) {
   | {searchParams} => searchParams
   | _ => ""
   }
