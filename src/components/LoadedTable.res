@@ -277,7 +277,7 @@ let make = (
     setFirstRender(_ => false)
     setOffset(_ => pageDetail.offset)
     None
-  }, [url.path->Belt.List.toArray->Array.joinWithUnsafe("/")])
+  }, [url.path->Belt.List.toArray->Array.joinWith("/")])
 
   React.useEffect1(_ => {
     if pageDetail.offset !== offset && !firstRender {

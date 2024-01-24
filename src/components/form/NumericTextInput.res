@@ -62,9 +62,9 @@ let make = (
           let result = if removeLeadingZeroes {
             str[0] = str[0]->Option.getOr("")->String.replaceRegExp(%re("/\b0+/g"), "")
             str[0] = str[0]->Option.getOr("") === "" ? "0" : str[0]->Option.getOr("")
-            str->Array.joinWithUnsafe(".")
+            str->Array.joinWith(".")
           } else {
-            str->Array.joinWithUnsafe(".")
+            str->Array.joinWith(".")
           }
           result
         | None => ""

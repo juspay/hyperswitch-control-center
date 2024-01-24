@@ -200,7 +200,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
       <div>
         {connector.payment_methods_enabled
         ->getAllPaymentMethods
-        ->Array.joinWithUnsafe(", ")
+        ->Array.joinWith(", ")
         ->React.string}
       </div>,
       "",

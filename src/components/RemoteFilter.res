@@ -158,7 +158,7 @@ module ClearFilters = {
             | false => None
             }
           })
-          ->Array.joinWithUnsafe("&")
+          ->Array.joinWith("&")
 
         searchStr->FilterUtils.parseFilterString->updateExistingKeys
       }
@@ -228,7 +228,7 @@ module AnalyticsClearFilters = {
             | false => None
             }
           })
-          ->Array.joinWithUnsafe("&")
+          ->Array.joinWith("&")
 
         searchStr->FilterUtils.parseFilterString->updateExistingKeys
       }

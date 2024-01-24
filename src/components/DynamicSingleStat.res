@@ -196,7 +196,7 @@ let make = (
           None
         }
       })
-      ->Array.joinWithUnsafe("&")
+      ->Array.joinWith("&")
 
     (filterSearchParam, getTopLevelFilter->LogicUtils.getString(customFilterKey, ""))
   }, [getTopLevelFilter])

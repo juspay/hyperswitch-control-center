@@ -94,7 +94,7 @@ let toCamelCase = str => {
     }
     item->Js.String2.unsafeReplaceBy3(%re("/(?:^\w|[A-Z]|\b\w)/g"), matchFn)
   })
-  ->Array.joinWithUnsafe("")
+  ->Array.joinWith("")
 }
 let getNameFromEmail = email => {
   email
@@ -109,7 +109,7 @@ let getNameFromEmail = email => {
       name->String.get(0)->Option.getOr("")->String.toUpperCase ++ name->String.sliceToEnd(~start=1)
     }
   })
-  ->Array.joinWithUnsafe(" ")
+  ->Array.joinWith(" ")
 }
 
 let getOptionString = (dict, key) => {
@@ -336,7 +336,7 @@ let snakeToCamel = str => {
   str
   ->String.split("_")
   ->Array.mapWithIndex((x, i) => i == 0 ? x : capitalizeString(x))
-  ->Array.joinWithUnsafe("")
+  ->Array.joinWith("")
 }
 
 let camelToSnake = str => {
@@ -362,11 +362,11 @@ let snakeToTitle = str => {
     let second = x->Js.String2.substringToEnd(~from=1)
     first ++ second
   })
-  ->Array.joinWithUnsafe(" ")
+  ->Array.joinWith(" ")
 }
 
 let titleToSnake = str => {
-  str->String.split(" ")->Array.map(String.toLowerCase)->Array.joinWithUnsafe("_")
+  str->String.split(" ")->Array.map(String.toLowerCase)->Array.joinWith("_")
 }
 
 let getIntFromString = (str, default) => {
@@ -491,7 +491,7 @@ let isEmptyDict = dict => {
 let isEmptyString = str => str->String.length === 0
 
 let stringReplaceAll = (str, old, new) => {
-  str->String.split(old)->Array.joinWithUnsafe(new)
+  str->String.split(old)->Array.joinWith(new)
 }
 
 let getUniqueArray = (arr: array<'t>) => {
@@ -499,11 +499,7 @@ let getUniqueArray = (arr: array<'t>) => {
 }
 
 let getFirstLetterCaps = (str, ~splitBy="-", ()) => {
-  str
-  ->String.toLowerCase
-  ->String.split(splitBy)
-  ->Array.map(capitalizeString)
-  ->Array.joinWithUnsafe(" ")
+  str->String.toLowerCase->String.split(splitBy)->Array.map(capitalizeString)->Array.joinWith(" ")
 }
 
 let getDictfromDict = (dict, key) => {
@@ -562,7 +558,7 @@ let dataMerge = (~dataArr: array<array<Js.Json.t>>, ~dictKey: array<string>) => 
             dict->getString(ele, "")
           },
         )
-        ->Array.joinWithUnsafe("-")
+        ->Array.joinWith("-")
       let existingData = finalData->getObj(dictKey, Dict.make())->Dict.toArray
       let data = dict->Dict.toArray
 
@@ -602,11 +598,7 @@ let compareLogic = (firstValue, secondValue) => {
 let getJsonFromArrayOfJson = arr => arr->Dict.fromArray->Js.Json.object_
 
 let getTitle = name => {
-  name
-  ->String.toLowerCase
-  ->String.split("_")
-  ->Array.map(capitalizeString)
-  ->Array.joinWithUnsafe(" ")
+  name->String.toLowerCase->String.split("_")->Array.map(capitalizeString)->Array.joinWith(" ")
 }
 
 // Regex to check if a string contains a substring

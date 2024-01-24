@@ -119,7 +119,7 @@ module TableWrapper = {
     let (_, setDefaultFilter) = Recoil.useRecoilState(AnalyticsHooks.defaultFilter)
     let (showTable, setShowTable) = React.useState(_ => false)
     let {getHeading, allColumns, defaultColumns} = tableEntity
-    let activeTabStr = activeTab->Option.getOr([])->Array.joinWithUnsafe("-")
+    let activeTabStr = activeTab->Option.getOr([])->Array.joinWith("-")
     let (startTimeFilterKey, endTimeFilterKey) = dateKeys
     let (tableDataLoading, setTableDataLoading) = React.useState(_ => true)
     let (tableData, setTableData) = React.useState(_ => []->Array.map(Js.Nullable.return))
@@ -160,7 +160,7 @@ module TableWrapper = {
             None
           }
         })
-        ->Array.joinWithUnsafe("&")
+        ->Array.joinWith("&")
 
       filterSearchParam
     }, [getTopLevelFilter])
@@ -595,7 +595,7 @@ let make = (
       source: "BATCH",
     }
     AnalyticsUtils.filterBody(filterBodyEntity)
-  }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWithUnsafe(",")))
+  }, (startTimeVal, endTimeVal, filteredTabKeys->Array.joinWith(",")))
 
   open APIUtils
   open Promise

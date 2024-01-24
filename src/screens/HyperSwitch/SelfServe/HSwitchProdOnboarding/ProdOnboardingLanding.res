@@ -178,7 +178,7 @@ let make = () => {
         setDashboardPageState(_ => #HOME)
         let baseUrlPath = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${routerUrl.path
           ->Belt.List.toArray
-          ->Array.joinWithUnsafe("/")}`
+          ->Array.joinWith("/")}`
         routerUrl.search->String.length > 0
           ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)
           : RescriptReactRouter.push(`${baseUrlPath}`)

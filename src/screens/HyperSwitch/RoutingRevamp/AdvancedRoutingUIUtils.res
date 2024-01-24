@@ -193,7 +193,7 @@ module MetadataInp = {
         let arrStr = valSplit->Array.map(item => {
           String.trim(item)
         })
-        let finalVal = Array.joinWithUnsafe(arrStr, ",")->Js.Json.string
+        let finalVal = Array.joinWith(arrStr, ",")->Js.Json.string
 
         valueField.onChange(finalVal->Identity.anyTypeToReactEvent)
       },

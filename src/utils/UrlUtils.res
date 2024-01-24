@@ -11,7 +11,7 @@ let useGetFilterDictFromUrl = prefix => {
         ->Array.map(str => {
           let arr = str->String.split("=")
           let key = arr->Belt.Array.get(0)->Option.getOr("-")
-          let val = arr->Belt.Array.sliceToEnd(1)->Array.joinWithUnsafe("=")
+          let val = arr->Belt.Array.sliceToEnd(1)->Array.joinWith("=")
 
           (key, val->UrlFetchUtils.getFilterValue) // it will return the Json string, Json array
         })

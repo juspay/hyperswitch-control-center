@@ -5,7 +5,7 @@ let parseFilterString = queryString => {
   ->Belt.Array.keepMap(str => {
     let arr = str->String.split("=")
     let key = arr->Belt.Array.get(0)->Option.getOr("-")
-    let val = arr->Belt.Array.sliceToEnd(1)->Array.joinWithUnsafe("=")
+    let val = arr->Belt.Array.sliceToEnd(1)->Array.joinWith("=")
     key === "" || val === "" ? None : Some((key, val))
   })
   ->Dict.fromArray
@@ -18,5 +18,5 @@ let parseFilterDict = dict => {
     let (key, value) = item
     `${key}=${value}`
   })
-  ->Array.joinWithUnsafe("&")
+  ->Array.joinWith("&")
 }

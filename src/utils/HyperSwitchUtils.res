@@ -31,7 +31,7 @@ let getMixpanelRouteName = (pageTitle, url: RescriptReactRouter.url) => {
       `/${pageTitle}/${type_}`
     }
 
-  | _ => `/${url.path->Belt.List.toArray->Array.joinWithUnsafe("/")}`
+  | _ => `/${url.path->Belt.List.toArray->Array.joinWith("/")}`
   }
 }
 

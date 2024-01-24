@@ -1669,7 +1669,7 @@ module BaseDropdown = {
       ->Belt.Array.keepMap(str => {
         transformedOptions->Array.find(x => x.value == str)->map(x => x.label)
       })
-      ->Array.joinWithUnsafe(", ")
+      ->Array.joinWith(", ")
       ->LogicUtils.getNonEmptyString
       ->getWithDefault(buttonText)
     }, (transformedOptions, newInputSelect.value))
@@ -1871,7 +1871,7 @@ module BaseDropdown = {
                         ? `Select ${LogicUtils.snakeToTitle(newInputSelect.name)}`
                         : newInputSelect.value
                           ->LogicUtils.getStrArryFromJson
-                          ->Array.joinWithUnsafe(",\n")}
+                          ->Array.joinWith(",\n")}
                       toolTipFor=selectButton
                       toolTipPosition=Bottom
                       tooltipWidthClass=""

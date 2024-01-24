@@ -482,7 +482,7 @@ let make = (
           None
         }
       })
-      ->Array.joinWithUnsafe("&")
+      ->Array.joinWith("&")
 
     (filterSearchParam, getTopLevelFilter->LogicUtils.getString(customFilterKey, ""))
   }, [getTopLevelFilter])
@@ -525,7 +525,7 @@ let make = (
         | _ => None
         }
       })
-      ->Array.joinWithUnsafe("&")
+      ->Array.joinWith("&")
 
     filterSearchParam
   }, [topFiltersToSearchParam])
@@ -544,7 +544,7 @@ let make = (
     })
     None
   }, (startTimeFromUrl, endTimeFromUrl))
-  let selectedTabStr = selectedTab->Option.getOr([])->Array.joinWithUnsafe("")
+  let selectedTabStr = selectedTab->Option.getOr([])->Array.joinWith("")
 
   let updatedChartConfigArr = React.useMemo7(() => {
     uriConfig->Array.map(item => {

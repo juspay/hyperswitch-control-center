@@ -179,7 +179,7 @@ let getInitialValuesFromUrl = (
       let key = String.sliceToEnd(splitArray[0]->Option.getOr(""), ~start=keyStartIndex)
       Array.push(keyList, key)->ignore
       splitArray->Js.Array2.shift->ignore
-      let value = splitArray->Array.joinWithUnsafe("=")
+      let value = splitArray->Array.joinWith("=")
       Array.push(valueList, value)->ignore
 
       entriesList->Array.push((key, value))->ignore
@@ -333,7 +333,7 @@ let generateUrlFromDict = (~dict, ~options: array<EntityType.optionType<'t>>, ta
       None
     }
   })
-  ->Array.joinWithUnsafe("&")
+  ->Array.joinWith("&")
 }
 
 let applyFilters = (

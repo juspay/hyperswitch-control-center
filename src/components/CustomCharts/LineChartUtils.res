@@ -284,8 +284,7 @@ let timeSeriesDataMaker = (
         groupKey,
         Dict.get(dict, groupKey)->Option.getOr(""->Js.Json.string)->Js.Json.stringify,
       )
-    let xAxisDataPoint =
-      dict->getString(xAxis, "")->String.split(" ")->Array.joinWithUnsafe("T") ++ "Z" // right now it is time string
+    let xAxisDataPoint = dict->getString(xAxis, "")->String.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
     let yAxisDataPoint = dict->getFloat(yAxis, 0.)
 
     let secondryAxisPoint = switch secondryMetrics {
@@ -622,7 +621,7 @@ let tooltipFormatter = (
       ->Array.map(data => {
         getTooltipHTML(metrics, data, onCursorName)
       })
-      ->Array.joinWithUnsafe("")
+      ->Array.joinWith("")
     `<table>${htmlStr}</table>`
   }
 
