@@ -785,9 +785,9 @@ let checkCashtoCodeFields = (keys, country, valuesFlattenJson) => {
 
 let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool => {
   open LogicUtils
-  let value = dict->getDictfromDict(country)->Js.Dict.keys
+  let value = dict->getDictfromDict(country)->Dict.keysToArray
   let result = value->Array.map(method => {
-    let keys = dict->getDictfromDict(country)->getDictfromDict(method)->Js.Dict.keys
+    let keys = dict->getDictfromDict(country)->getDictfromDict(method)->Dict.keysToArray
     keys->checkCashtoCodeFields(country, valuesFlattenJson)->Array.includes(false) ? false : true
   })
 
@@ -808,7 +808,7 @@ let validateConnectorRequiredFields = (
   if connector === CASHTOCODE {
     let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
 
-    let indexLength = dict->Js.Dict.keys->Array.length
+    let indexLength = dict->Dict.keysToArray->Array.length
     let vector = Js.Vector.make(indexLength, false)
 
     dict

@@ -19,7 +19,7 @@ let checkBoxPropDefaultVal: checkBoxProps = {
   setSelectedData: _ => (),
 }
 
-let sortAtom: Recoil.recoilAtom<Js.Dict.t<sortOb>> = Recoil.atom(. "sortAtom", Dict.make())
+let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>> = Recoil.atom(. "sortAtom", Dict.make())
 
 let backgroundClass = "bg-gray-50 dark:bg-jp-gray-darkgray_background"
 
@@ -130,7 +130,7 @@ type pageDetails = {
   resultsPerPage: int,
 }
 
-let table_pageDetails: Recoil.recoilAtom<Js.Dict.t<pageDetails>> = Recoil.atom(.
+let table_pageDetails: Recoil.recoilAtom<Dict.t<pageDetails>> = Recoil.atom(.
   "table_pageDetails",
   Dict.make(),
 )

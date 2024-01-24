@@ -1,6 +1,6 @@
 open RoutingTypes
 open LogicUtils
-external toWasm: Js.Dict.t<Js.Json.t> => wasmModule = "%identity"
+external toWasm: Dict.t<Js.Json.t> => wasmModule = "%identity"
 
 let defaultThreeDsObjectValue: routingOutputType = {
   override_3ds: "three_ds",

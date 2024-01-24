@@ -80,7 +80,7 @@ let getPaymentMethodTypes = dict => {
   }
 }
 
-let getPaymentMethodsEnabled: Js.Dict.t<Js.Json.t> => paymentMethodEnabledType = dict => {
+let getPaymentMethodsEnabled: Dict.t<Js.Json.t> => paymentMethodEnabledType = dict => {
   open LogicUtils
   {
     payment_method: dict->getString("payment_method", ""),
@@ -208,7 +208,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
   }
 }
 
-let getArrayDataFromJson = (json, itemToObjMapper: Js.Dict.t<Js.Json.t> => connectorPayload) => {
+let getArrayDataFromJson = (json, itemToObjMapper: Dict.t<Js.Json.t> => connectorPayload) => {
   json
   ->ConnectorUtils.getProcessorsListFromJson()
   ->Array.map(itemToObjMapper)

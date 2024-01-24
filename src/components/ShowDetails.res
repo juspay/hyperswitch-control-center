@@ -1,5 +1,5 @@
 open LogicUtils
-type loadDataType = Loading | Loaded(Js.Dict.t<Js.Json.t>, Js.Dict.t<Js.Json.t>) | LoadError(string)
+type loadDataType = Loading | Loaded(Dict.t<Js.Json.t>, Dict.t<Js.Json.t>) | LoadError(string)
 
 type errorType = {
   error: bool,
@@ -10,7 +10,7 @@ type errorType = {
 module EntityData = {
   @react.component
   let make = (
-    ~dictData: Js.Dict.t<Js.Json.t>,
+    ~dictData: Dict.t<Js.Json.t>,
     ~syncData=Dict.make(),
     ~detailsKeyList,
     ~entity: EntityType.entityType<'colType, 't>,

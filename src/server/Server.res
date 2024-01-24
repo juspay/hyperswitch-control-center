@@ -1,5 +1,5 @@
 @val @scope("process")
-external env: Js.Dict.t<string> = "env"
+external env: Dict.t<string> = "env"
 
 let appName = env->Dict.get("appName")
 

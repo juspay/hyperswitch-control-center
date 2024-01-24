@@ -2,13 +2,13 @@
 // docfor the user preference https://docs.google.com/document/d/1BM_UgHLuN0U-cXfRYqN6wWSq-5KUiqojinCfBrUEiVo/edit
 open UserPrefUtils
 external userPrefToJson: userPref => Js.Json.t = "%identity"
-external dictUserPrefToStr: Js.Dict.t<userPref> => string = "%identity"
-let userPrefSetter: (Js.Dict.t<userPref> => Js.Dict.t<userPref>) => unit = _ => ()
-let defaultUserPref: Js.Dict.t<userPref> = Dict.make()
+external dictUserPrefToStr: Dict.t<userPref> => string = "%identity"
+let userPrefSetter: (Dict.t<userPref> => Dict.t<userPref>) => unit = _ => ()
+let defaultUserPref: Dict.t<userPref> = Dict.make()
 let defaultUserModuleWisePref: moduleVisePref = {}
 type filter = {
-  userPref: Js.Dict.t<userPref>,
-  setUserPref: (Js.Dict.t<userPref> => Js.Dict.t<userPref>) => unit,
+  userPref: Dict.t<userPref>,
+  setUserPref: (Dict.t<userPref> => Dict.t<userPref>) => unit,
   lastVisitedTab: string,
   getSearchParamByLink: string => string,
   addConfig: (string, Js.Json.t) => unit,
@@ -38,7 +38,7 @@ module Provider = {
 @react.component
 let make = (~children) => {
   // this fetch will only happen once after that context will be updated each time when url chnaged and it keep hitting the update api
-  let userPrefInitialVal: Js.Dict.t<userPref> = UserPrefUtils.getUserPref()
+  let userPrefInitialVal: Dict.t<userPref> = UserPrefUtils.getUserPref()
   let (authStatus, _setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
 
   let username = switch authStatus {

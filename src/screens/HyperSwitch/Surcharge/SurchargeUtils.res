@@ -59,7 +59,7 @@ let getTypedSurchargeConnectorSelection = ruleDict => {
   AdvancedRoutingUtils.getDefaultSelection(connectorsDict)
 }
 
-let ruleInfoTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithmData = json => {
+let ruleInfoTypeMapper: Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithmData = json => {
   open LogicUtils
   let rulesArray = json->getArrayFromDict("rules", [])
 

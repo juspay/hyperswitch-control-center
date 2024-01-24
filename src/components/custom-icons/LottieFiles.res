@@ -8,7 +8,7 @@ let exitCheckBox = "uncheckbox.json"
 let enterSearchCross = "enterCross.json"
 let exitSearchCross = "exitCross.json"
 
-let lottieDict: Js.Dict.t<lottieFileJson> = Dict.make()
+let lottieDict: Dict.t<lottieFileJson> = Dict.make()
 
 let useLottieJson = lottieFileName => {
   let (lottieJson, setlottieJson) = React.useState(_ => Js.Json.null)

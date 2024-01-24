@@ -259,7 +259,7 @@ let make = (~routingRuleId, ~isActive) => {
   }
 
   let validate = (values: Js.Json.t) => {
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
     let dict = values->getDictFromJsonObject
     let validateGateways = dict => {
       let gateways = dict->getArrayFromDict("data", [])
@@ -286,9 +286,9 @@ let make = (~routingRuleId, ~isActive) => {
       }
     }
 
-    let volumeBasedDistributionDict = dict->getObj("algorithm", Js.Dict.empty())
+    let volumeBasedDistributionDict = dict->getObj("algorithm", Dict.make())
     switch volumeBasedDistributionDict->validateGateways {
-    | Some(error) => errors->Js.Dict.set("Volume Based Distribution", error->Js.Json.string)
+    | Some(error) => errors->Dict.set("Volume Based Distribution", error->Js.Json.string)
     | None => ()
     }
     errors->Js.Json.object_

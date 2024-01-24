@@ -1,5 +1,5 @@
 open RoutingTypes
-external toWasm: Js.Dict.t<Js.Json.t> => wasmModule = "%identity"
+external toWasm: Dict.t<Js.Json.t> => wasmModule = "%identity"
 
 module ActiveRulePreview = {
   open LogicUtils

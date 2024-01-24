@@ -3,7 +3,7 @@ open AdvancedRoutingTypes
 open AdvancedRoutingUtils
 open LogicUtils
 
-external toWasm: Js.Dict.t<Js.Json.t> => RoutingTypes.wasmModule = "%identity"
+external toWasm: Dict.t<Js.Json.t> => RoutingTypes.wasmModule = "%identity"
 
 module Add3DSCondition = {
   @react.component
