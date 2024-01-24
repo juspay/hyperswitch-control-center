@@ -1009,8 +1009,7 @@ let make = (
 
   let dataExists = rows->Array.length > 0
   let heading = heading->Array.mapWithIndex((head, index) => {
-    let getValue = row =>
-      row->Belt.Array.get(index)->Belt.Option.mapWithDefault("", Table.getTableCellValue)
+    let getValue = row => row->Belt.Array.get(index)->Option.mapOr("", Table.getTableCellValue)
 
     let default = switch rows[0] {
     | Some(ele) => getValue(ele)

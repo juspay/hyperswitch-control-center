@@ -669,7 +669,7 @@ let make = (
   let totalTableWidth =
     Dom.document
     ->Dom.Document.getElementById(`table`)
-    ->Belt.Option.mapWithDefault(0, ele => ele->Document.offsetWidth)
+    ->Option.mapOr(0, ele => ele->Document.offsetWidth)
 
   let equalColWidth = (totalTableWidth / numberOfCols)->Belt.Int.toString
   let fixedWidthClass = enableEqualWidthCol ? `${equalColWidth}px` : ""

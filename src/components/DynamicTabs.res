@@ -211,10 +211,7 @@ module IndicationArrow = {
 }
 
 let getBoundingRectInfo = (ref: React.ref<Js.Nullable.t<Dom.element>>, getter) => {
-  ref.current
-  ->Js.Nullable.toOption
-  ->Belt.Option.map(getBoundingClientRect)
-  ->Belt.Option.mapWithDefault(0, getter)
+  ref.current->Js.Nullable.toOption->Belt.Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
 }
 
 @react.component

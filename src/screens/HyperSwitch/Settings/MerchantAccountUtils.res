@@ -405,7 +405,7 @@ let validateMerchantAccountForm = (
     value->String.length <= 0 ? key->validateEmptyValue(errors) : key->validateCustom(errors, value)
   })
 
-  setIsDisabled->Belt.Option.mapWithDefault((), disableBtn => {
+  setIsDisabled->Option.mapOr((), disableBtn => {
     let isValueChanged = checkValueChange(~initialDict, ~valuesDict)
     disableBtn(_ => !isValueChanged)
   })

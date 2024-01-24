@@ -315,18 +315,16 @@ let getDictFromUrlSearchParams = searchParams => {
   ->Dict.fromArray
 }
 let setOptionString = (dict, key, optionStr) =>
-  optionStr->Belt.Option.mapWithDefault((), str => dict->Dict.set(key, str->Js.Json.string))
+  optionStr->Option.mapOr((), str => dict->Dict.set(key, str->Js.Json.string))
 
 let setOptionBool = (dict, key, optionInt) =>
-  optionInt->Belt.Option.mapWithDefault((), bool => dict->Dict.set(key, bool->Js.Json.boolean))
+  optionInt->Option.mapOr((), bool => dict->Dict.set(key, bool->Js.Json.boolean))
 
 let setOptionArray = (dict, key, optionArray) =>
-  optionArray->Belt.Option.mapWithDefault((), array => dict->Dict.set(key, array->Js.Json.array))
+  optionArray->Option.mapOr((), array => dict->Dict.set(key, array->Js.Json.array))
 
 let setOptionDict = (dict, key, optionDictValue) =>
-  optionDictValue->Belt.Option.mapWithDefault((), value =>
-    dict->Dict.set(key, value->Js.Json.object_)
-  )
+  optionDictValue->Option.mapOr((), value => dict->Dict.set(key, value->Js.Json.object_))
 
 let capitalizeString = str => {
   String.toUpperCase(String.charAt(str, 0)) ++ Js.String2.substringToEnd(str, ~from=1)

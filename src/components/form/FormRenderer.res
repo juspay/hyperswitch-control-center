@@ -103,7 +103,7 @@ let makeMultiInputFieldInfo = (
 ) => {
   let inputNames =
     comboCustomInput
-    ->Belt.Option.mapWithDefault([], x => x.names)
+    ->Option.mapOr([], x => x.names)
     ->Array.concat(inputFields->Array.map(x => x.name))
   {
     label,

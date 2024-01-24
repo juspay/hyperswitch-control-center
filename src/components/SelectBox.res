@@ -935,8 +935,7 @@ module BaseSelectButton = {
     let searchRef = React.useRef(Js.Nullable.null)
     let onItemClick = (itemData, _ev) => {
       if !disableSelect {
-        let isSelected =
-          value->Js.Json.decodeString->Belt.Option.mapWithDefault(false, str => itemData === str)
+        let isSelected = value->Js.Json.decodeString->Option.mapOr(false, str => itemData === str)
 
         if isSelected && !deselectDisable {
           onSelect("")
@@ -1246,8 +1245,7 @@ module BaseRadio = {
     )
     let onItemClick = (itemData, isDisabled, _ev) => {
       if !isDisabled {
-        let isSelected =
-          value->Js.Json.decodeString->Belt.Option.mapWithDefault(false, str => itemData === str)
+        let isSelected = value->Js.Json.decodeString->Option.mapOr(false, str => itemData === str)
 
         if isSelected && !deselectDisable {
           setSelectedString(_ => "")
