@@ -1,34 +1,8 @@
 open LogicUtils
 open HSLocalStorage
 open HyperswitchAtom
+open UtilsTypes
 
-type browserDetailsObject = {
-  userAgent: string,
-  browserVersion: string,
-  platform: string,
-  browserName: string,
-  browserLanguage: string,
-  screenHeight: string,
-  screenWidth: string,
-  timeZoneOffset: string,
-  clientCountry: Country.timezoneType,
-}
-
-let feedbackModalOpenCountForConnectors = 4
-
-let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
-
-type pageLevelVariant =
-  | HOME
-  | PAYMENTS
-  | REFUNDS
-  | DISPUTES
-  | CONNECTOR
-  | ROUTING
-  | ANALYTICS_PAYMENTS
-  | ANALYTICS_REFUNDS
-  | SETTINGS
-  | DEVELOPERS
 module TextFieldRow = {
   @react.component
   let make = (~label, ~children, ~isRequired=true, ~labelWidth="w-72") => {
@@ -36,16 +10,55 @@ module TextFieldRow = {
       <div
         className={`mt-2 ${labelWidth} text-gray-900/50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 font-semibold text-fs-14`}>
         {label->React.string}
-        {if isRequired {
+        <UIUtils.RenderIf condition={isRequired}>
           <span className="text-red-500"> {"*"->React.string} </span>
-        } else {
-          React.null
-        }}
+        </UIUtils.RenderIf>
       </div>
       children
     </div>
   }
 }
+
+module ConnectorCustomCell = {
+  @react.component
+  let make = (~connectorName) => {
+    if connectorName->String.length > 0 {
+      <div className="flex items-center flex-nowrap break-all whitespace-nowrap mr-6">
+        <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-6 h-6 mr-2" />
+        <div className="capitalize"> {connectorName->React.string} </div>
+      </div>
+    } else {
+      "NA"->React.string
+    }
+  }
+}
+
+module BackgroundImageWrapper = {
+  @react.component
+  let make = (
+    ~children=?,
+    ~backgroundImageUrl="/images/hyperswitchImages/PostLoginBackground.svg",
+    ~customPageCss="",
+    ~isBackgroundFullScreen=true,
+  ) => {
+    let heightWidthCss = isBackgroundFullScreen ? "h-screen w-screen" : "h-full w-full"
+    <UIUtils.RenderIf condition={children->Option.isSome}>
+      <div
+        className={`bg-no-repeat bg-center bg-hyperswitch_dark_bg bg-fixed ${customPageCss} ${heightWidthCss}`}
+        style={ReactDOMStyle.make(
+          ~backgroundImage=`url(${backgroundImageUrl})`,
+          ~backgroundSize=`cover`,
+          (),
+        )}>
+        {children->Option.getWithDefault(React.null)}
+      </div>
+    </UIUtils.RenderIf>
+  }
+}
+
+let feedbackModalOpenCountForConnectors = 4
+
+let errorClass = "text-sm leading-4 font-medium text-start ml-1 mt-2"
 
 let setMerchantDetails = (key, value) => {
   let localStorageData = getInfoFromLocalStorage(~lStorageKey="merchant")
@@ -69,20 +82,6 @@ let getSearchOptionsForProcessors = (~processorList, ~getNameFromString) => {
       `/new?name=${item->getNameFromString}`,
     ))
   searchOptionsForProcessors
-}
-
-module ConnectorCustomCell = {
-  @react.component
-  let make = (~connectorName) => {
-    if connectorName->String.length > 0 {
-      <div className="flex items-center flex-nowrap break-all whitespace-nowrap mr-6">
-        <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-6 h-6 mr-2" />
-        <div className="capitalize"> {connectorName->React.string} </div>
-      </div>
-    } else {
-      "NA"->React.string
-    }
-  }
 }
 
 let isValidEmail = value =>
@@ -117,53 +116,6 @@ let getBrowswerDetails = () => {
     timeZoneOffset,
     clientCountry,
   }
-}
-
-module BackgroundImageWrapper = {
-  @react.component
-  let make = (
-    ~children=?,
-    ~backgroundImageUrl="/images/hyperswitchImages/PostLoginBackground.svg",
-    ~customPageCss="",
-    ~isBackgroundFullScreen=true,
-  ) => {
-    let heightWidthCss = isBackgroundFullScreen ? "h-screen w-screen" : "h-full w-full"
-    <UIUtils.RenderIf condition={children->Option.isSome}>
-      <div
-        className={`bg-no-repeat bg-center bg-hyperswitch_dark_bg bg-fixed ${customPageCss} ${heightWidthCss}`}
-        style={ReactDOMStyle.make(
-          ~backgroundImage=`url(${backgroundImageUrl})`,
-          ~backgroundSize=`cover`,
-          (),
-        )}>
-        {children->Option.getWithDefault(React.null)}
-      </div>
-    </UIUtils.RenderIf>
-  }
-}
-
-type processors = FRMPlayer | Connector | PayoutConnector
-
-let filterList = (items, ~removeFromList) => {
-  items->Array.filter(dict => {
-    let connectorType = dict->getString("connector_type", "")
-    let isPayoutConnector = connectorType == "payout_processor"
-    let isConnector = connectorType !== "payment_vas" && !isPayoutConnector
-
-    switch removeFromList {
-    | Connector => !isConnector
-    | FRMPlayer => isConnector
-    | PayoutConnector => isPayoutConnector
-    }
-  })
-}
-
-let getProcessorsListFromJson = (json, ~removeFromList=FRMPlayer, ()) => {
-  json->getArrayFromJson([])->Array.map(getDictFromJsonObject)->filterList(~removeFromList)
-}
-
-let getPageNameFromUrl = url => {
-  url->LogicUtils.getListHead
 }
 
 let getBodyForFeedBack = (values, ~modalType=HSwitchFeedBackModalUtils.FeedBackModal, ()) => {
@@ -209,10 +161,10 @@ let getMetaData = (newMetadata, metaData) => {
 }
 
 let returnIntegrationJson = (integrationData: ProviderTypes.integration): Js.Json.t => {
-  Dict.fromArray([
+  [
     ("is_done", integrationData.is_done->Js.Json.boolean),
     ("metadata", integrationData.metadata),
-  ])->Js.Json.object_
+  ]->getJsonFromArrayOfJson
 }
 
 let constructOnboardingBody = (
@@ -256,7 +208,7 @@ let constructOnboardingBody = (
   | _ => ()
   }
 
-  Dict.fromArray([
+  [
     (
       "integration_checklist",
       copyOfIntegrationDetails.integration_checklist->returnIntegrationJson,
@@ -267,18 +219,8 @@ let constructOnboardingBody = (
     ),
     ("pricing_plan", copyOfIntegrationDetails.pricing_plan->returnIntegrationJson),
     ("account_activation", copyOfIntegrationDetails.account_activation->returnIntegrationJson),
-  ])->Js.Json.object_
+  ]->getJsonFromArrayOfJson
 }
-
-type textVariantType =
-  | H1
-  | H2
-  | H3
-  | P1
-  | P2
-  | P3
-type paragraphTextType = Regular | Medium
-type h3TextType = Leading_1 | Leading_2
 
 let getTextClass = (~textVariant, ~h3TextVariant=Leading_1, ~paragraphTextVariant=Regular, ()) => {
   switch (textVariant, h3TextVariant, paragraphTextVariant) {
@@ -302,13 +244,9 @@ let checkStripePlusPayPal = (enumDetails: QuickStartTypes.responseType) => {
   enumDetails.stripeConnected.processorID->String.length > 0 &&
   enumDetails.paypalConnected.processorID->String.length > 0 &&
   enumDetails.sPTestPayment
-    ? true
-    : false
 }
 
 let checkWooCommerce = (enumDetails: QuickStartTypes.responseType) => {
   enumDetails.setupWoocomWebhook &&
   enumDetails.firstProcessorConnected.processorID->String.length > 0
-    ? true
-    : false
 }
