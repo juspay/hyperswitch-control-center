@@ -94,7 +94,7 @@ let useSetInitialFilters = (~updateExistingKeys, ~startTimeFilterKey, ~endTimeFi
       [
         (startTimeFilterKey, defaultDate.start_time),
         (endTimeFilterKey, defaultDate.end_time),
-      ]->Belt.Array.forEach(item => {
+      ]->Array.forEach(item => {
         let (key, defaultValue) = item
         switch inititalSearchParam->Dict.get(key) {
         | Some(_) => ()

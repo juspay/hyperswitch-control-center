@@ -799,9 +799,9 @@ let make = (
             )
           switch columToConsider {
           | Some(allCol) =>
-            newValues->Belt.Array.forEach(
+            newValues->Array.forEach(
               rows => {
-                allCol->Belt.Array.forEach(
+                allCol->Array.forEach(
                   item => {
                     let heading = {item->entity.getHeading}
                     let key = heading.key

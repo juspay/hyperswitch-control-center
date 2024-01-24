@@ -153,7 +153,7 @@ let getStrArray = (dict, key) => {
   dict
   ->getOptionalArrayFromDict(key)
   ->Option.getOr([])
-  ->Belt.Array.map(json => json->Js.Json.decodeString->Option.getOr(""))
+  ->Array.map(json => json->Js.Json.decodeString->Option.getOr(""))
 }
 
 let getStrArrayFromJsonArray = jsonArr => {

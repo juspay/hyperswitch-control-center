@@ -377,7 +377,7 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
   }
 }
 let generateDateArray = (~startTime, ~endTime, ~deltaPrefixArr) => {
-  let dateArray = Belt.Array.map(deltaPrefixArr, x =>
+  let dateArray = Array.map(deltaPrefixArr, x =>
     deltaDate(~fromTime=startTime, ~_toTime=endTime, ~typeTime=x)
   )
   dateArray
@@ -565,7 +565,7 @@ let generateTablePayload = (
 
   let distributionPayload = switch distributionArray {
   | Some(distributionArray) =>
-    distributionArray->Belt.Array.map(arr =>
+    distributionArray->Array.map(arr =>
       getFilterRequestBody(
         ~groupByNames=currenltySelectedTab,
         ~filter=filterValueFromUrl,
@@ -584,7 +584,7 @@ let generateTablePayload = (
 
   let tableBody =
     Belt.Array.concatMany([tableBodyValues, deltaPayload, distributionPayload])
-    ->Belt.Array.map(Js.Json.object_)
+    ->Array.map(Js.Json.object_)
     ->Js.Json.array
   tableBody
 }
@@ -697,11 +697,11 @@ let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statTy
 }
 
 let sumOfArr = (arr: array<int>) => {
-  arr->Belt.Array.reduce(0, (acc, value) => acc + value)
+  arr->Array.reduce(0, (acc, value) => acc + value)
 }
 
 let sumOfArrFloat = (arr: array<float>) => {
-  arr->Belt.Array.reduce(0., (acc, value) => acc +. value)
+  arr->Array.reduce(0., (acc, value) => acc +. value)
 }
 
 module NoDataFoundPage = {

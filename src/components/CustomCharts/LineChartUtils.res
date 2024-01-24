@@ -366,7 +366,7 @@ let getLegendDataForCurrentMetrix = (
       Dict.get(dict, activeTab)->Option.getOr(""->Js.Json.string)->Js.Json.stringify,
     )
   })
-  timeSeriesData->Belt.Array.forEach(item => {
+  timeSeriesData->Array.forEach(item => {
     let dict = item->getDictFromJsonObject
     let time_overall_statsAtTime = (getString(dict, xAxis, ""), getFloat(dict, yAxis, 0.)) // time_bucket // current value of the metrics will be used for calculation of avg and the current
     currentAvgDict->appendToDictValue(
@@ -409,7 +409,7 @@ let getLegendDataForCurrentMetrix = (
           let (_, value) = item
           value
         })
-        ->Belt.Array.reduce(0., (acc, value) => acc +. value)
+        ->Array.reduce(0., (acc, value) => acc +. value)
 
       let value: legendTableData = {
         groupByName: key,
@@ -421,7 +421,7 @@ let getLegendDataForCurrentMetrix = (
     })
   } else {
     let currentOverall = Dict.make()
-    groupedData->Belt.Array.forEach(item => {
+    groupedData->Array.forEach(item => {
       let dict = item->getDictFromJsonObject
       currentOverall->Dict.set(getString(dict, activeTab, ""), getFloat(dict, yAxis, 0.))
     })
@@ -527,7 +527,7 @@ let legendClickItem = (s: Highcharts.legendItem, e, setState) => {
   // whatever is there in selected array make it visible
   // edge case when nothing is selected make everyone visible
 
-  Belt.Array.forEach(s.chart.series, x => {
+  Array.forEach(s.chart.series, x => {
     if x === legendItemAsBool(s) {
       setState(prev => {
         let value =
@@ -536,14 +536,14 @@ let legendClickItem = (s: Highcharts.legendItem, e, setState) => {
             : Belt.Array.concat(prev, [x])
 
         if value->Array.length === 0 {
-          Belt.Array.forEach(
+          Array.forEach(
             s.chart.series,
             y => {
               y->Highcharts.show
             },
           )
         } else {
-          Belt.Array.forEach(
+          Array.forEach(
             s.chart.series,
             y => {
               value->Array.includes(y) ? y->Highcharts.show : y->Highcharts.hide
@@ -739,7 +739,7 @@ let getGranularityNew = (~startTime, ~endTime) => {
 }
 
 let getGranularityNewStr = (~startTime, ~endTime) => {
-  getGranularityNew(~startTime, ~endTime)->Belt.Array.map(item => {
+  getGranularityNew(~startTime, ~endTime)->Array.map(item => {
     let (val, unit) = item
     if val === 1 {
       if unit === "day" {

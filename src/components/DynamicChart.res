@@ -396,7 +396,7 @@ let make = (
       getChartCompFilters->LogicUtils.getString("chartBottomMetric", currentBottomMetrix)
 
     let dict = Dict.make()
-    let chartMatrixArr = entityAllMetrics->Belt.Array.map(item => item.metric_label)
+    let chartMatrixArr = entityAllMetrics->Array.map(item => item.metric_label)
 
     if cardinalityArr->Array.includes(cardinality) {
       dict->Dict.set("cardinality", cardinality)

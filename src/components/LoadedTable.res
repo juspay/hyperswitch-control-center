@@ -453,7 +453,7 @@ let make = (
 
           actualData
           ->filteredData(columnFilterCopy, visibleColumns, entity, dateFormatConvertor)
-          ->Belt.Array.forEach(
+          ->Array.forEach(
             rows => {
               switch rows->Js.Nullable.toOption {
               | Some(rows) =>

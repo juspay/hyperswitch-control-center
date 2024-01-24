@@ -253,7 +253,7 @@ let generateTablePayload = (
   let tableBodyWithDeltaMetrix = if deltaMetrics->Array.length > 0 {
     switch distributionArray {
     | Some(distributionArray) =>
-      distributionArray->Belt.Array.map(arr =>
+      distributionArray->Array.map(arr =>
         getFilterRequestBody(
           ~groupByNames=currenltySelectedTab,
           ~filter=filterValueFromUrl,
@@ -314,7 +314,7 @@ let generateTablePayload = (
 
   let tableBody =
     Belt.Array.concatMany([tableBodyValues, deltaPayload])
-    ->Belt.Array.map(Js.Json.object_)
+    ->Array.map(Js.Json.object_)
     ->Js.Json.array
   tableBody
 }
