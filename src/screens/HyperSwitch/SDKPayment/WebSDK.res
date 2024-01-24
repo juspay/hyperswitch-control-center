@@ -3,7 +3,6 @@ open HyperSwitchTypes
 open Promise
 
 @val external window: 'a = "window"
-@val @scope("window") external parent: 'a = "parent"
 
 type configElements = {
   appearanceElement: Js.Json.t,

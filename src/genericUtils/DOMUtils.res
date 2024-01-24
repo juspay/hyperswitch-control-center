@@ -6,7 +6,6 @@ type window
 @val external window: window = "window"
 @send external click: (Dom.element, unit) => unit = "click"
 @send external reset: (Dom.element, unit) => unit = "reset"
-@val @scope("window") external parent: window = "parent"
 type event
 @new
 external event: string => event = "Event"
