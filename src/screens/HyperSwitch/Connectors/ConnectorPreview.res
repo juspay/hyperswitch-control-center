@@ -432,6 +432,7 @@ let make = (
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }
   }
+
   let connectorStatusStyle = connectorStatus =>
     switch connectorStatus {
     | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-800"

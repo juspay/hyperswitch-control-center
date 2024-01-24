@@ -340,7 +340,7 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
   let handleStateToNextPage = () => {
     setCurrentStep(_ => ConnectorTypes.PaymentMethods)
   }
-  let getStatus = async () => {
+  let getStatus = React.useCallback0(async () => {
     open PayPalFlowUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -371,7 +371,7 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
     // TODO: check error cases
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }
-  }
+  })
 
   React.useEffect0(() => {
     if isRedirectedFromPaypalModal {
