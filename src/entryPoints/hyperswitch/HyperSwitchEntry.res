@@ -64,13 +64,13 @@ module HyperSwitchEntryComponent = {
         let url = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/config/merchant-access`
         let typedResponse =
           (
-            await postDetails(url, Dict.make()->Js.Json.object_, Post)
+            await postDetails(url, Dict.make()->Js.Json.object_, Post, ())
           )->FeatureFlagUtils.featureFlagType
         setFeatureFlag(._ => typedResponse)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | Js.Exn.Error(e) =>
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong!")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong!")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }

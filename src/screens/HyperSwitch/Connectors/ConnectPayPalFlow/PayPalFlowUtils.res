@@ -181,7 +181,7 @@ let useDeleteTrackingDetails = () => {
           ("connector_id", connectorId->Js.Json.string),
           ("connector", connector->Js.Json.string),
         ]->LogicUtils.getJsonFromArrayOfJson
-      let _res = await updateDetails(url, body, Post)
+      let _res = await updateDetails(url, body, Post, ())
     } catch {
     | Js.Exn.Error(e) => {
         let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
@@ -215,7 +215,7 @@ let useDeleteConnectorAccountDetails = () => {
         ~id=isUpdateFlow ? Some(connectorId) : None,
         (),
       )
-      let res = await updateDetails(url, body, Post)
+      let res = await updateDetails(url, body, Post, ())
       res
     } catch {
     | Js.Exn.Error(e) => {

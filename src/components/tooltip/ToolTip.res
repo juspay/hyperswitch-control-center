@@ -234,7 +234,7 @@ module TooltipWrapper = {
         ~tooltipArrowSize,
         ~componentWidth,
         ~componentHeight,
-        ~position=toolTipPosition->Belt.Option.getWithDefault(defaultPosition),
+        ~position=toolTipPosition->Option.getWithDefault(defaultPosition),
       )
     } else {
       getToolTipAbsoluteStyling(
@@ -244,7 +244,7 @@ module TooltipWrapper = {
         ~tooltipWidth,
         ~componentWidth,
         ~componentHeight,
-        ~position=toolTipPosition->Belt.Option.getWithDefault(defaultPosition),
+        ~position=toolTipPosition->Option.getWithDefault(defaultPosition),
       )
     }
 

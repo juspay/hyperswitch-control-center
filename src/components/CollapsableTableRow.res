@@ -81,7 +81,7 @@ let make = (
       <div className="px-3 py-4 bg-white dark:bg-jp-gray-lightgray_background">
         {item
         ->Array.mapWithIndex((obj, index) => {
-          let heading = headingArray->Belt.Array.get(index)->Belt.Option.getWithDefault("")
+          let heading = headingArray->Belt.Array.get(index)->Option.getWithDefault("")
           <UIUtils.RenderIf condition={index !== 0} key={index->string_of_int}>
             <div className="flex mb-5 justify-between">
               <div className="text-jp-gray-900 opacity-50 font-medium">

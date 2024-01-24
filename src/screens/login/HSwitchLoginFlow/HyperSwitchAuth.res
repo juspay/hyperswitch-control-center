@@ -2,7 +2,6 @@
 let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, ~setAuthType) => {
   open HyperSwitchAuthUtils
   open APIUtils
-  open HSwitchUtils
   open HyperSwitchAuthForm
   open HSwitchGlobalVars
   open LogicUtils
@@ -35,7 +34,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let getUserWithEmail = async body => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#CONNECT_ACCOUNT, ~methodType=Post, ())
-      let res = await updateDetails(url, body, Post)
+      let res = await updateDetails(url, body, Post, ())
       let valuesDict = res->getDictFromJsonObject
       let magicLinkSent = valuesDict->LogicUtils.getBool("is_email_sent", false)
 
@@ -53,11 +52,11 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let getUserWithEmailPassword = async (body, email, userType) => {
     try {
       let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
-      let res = await updateDetails(url, body, Post)
+      let res = await updateDetails(url, body, Post, ())
       let token = parseResponseJson(~json=res, ~email)
 
       // home
-      if !(token->HSwitchUtils.isEmptyString) {
+      if !(token->isEmptyString) {
         setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
       } else {
         showToast(~message="Failed to sign in, Try again", ~toastType=ToastError, ())
@@ -78,7 +77,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let setResetPassword = async body => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#RESET_PASSWORD, ~methodType=Post, ())
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
       RescriptReactRouter.push("/")
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
       setAuthType(_ => LoginWithEmail)
@@ -92,7 +91,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let setForgetPassword = async body => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#FORGOT_PASSWORD, ~methodType=Post, ())
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
       setAuthType(_ => ForgetPasswordEmailSent)
       showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
     } catch {
@@ -104,7 +103,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let resendVerifyEmail = async body => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#VERIFY_EMAIL_REQUEST, ~methodType=Post, ())
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
       setAuthType(_ => ResendVerifyEmailSent)
       showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
     } catch {
@@ -154,7 +153,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
           }
         | (_, ResetPassword) => {
             let queryDict = url.search->getDictFromUrlSearchParams
-            let password_reset_token = queryDict->Dict.get("token")->Belt.Option.getWithDefault("")
+            let password_reset_token = queryDict->Dict.get("token")->Option.getWithDefault("")
             let password = getString(valuesDict, "create_password", "")
             let body = getResetpasswordBodyJson(password, password_reset_token)
             setResetPassword(body)

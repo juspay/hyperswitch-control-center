@@ -3,6 +3,75 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.28.1 (2024-01-23)
+
+### Bug Fixes
+
+- Use apifetcher function update ([#283](https://github.com/juspay/hyperswitch-control-center/pull/283)) ([`d587598`](https://github.com/juspay/hyperswitch-control-center/commit/d587598a1f13a234b68b5bc204780fda3c773e0e))
+- Changes for supporting form data type in api ([#257](https://github.com/juspay/hyperswitch-control-center/pull/257)) ([`84c283b`](https://github.com/juspay/hyperswitch-control-center/commit/84c283b8092e3296dc97c87725966d540f490d5b))
+- Access Control Issue ([#284](https://github.com/juspay/hyperswitch-control-center/pull/284)) ([`f35bcc5`](https://github.com/juspay/hyperswitch-control-center/commit/f35bcc524184c0c1bcc84a41198e81424bef7cc4))
+
+**Full Changelog:** [`v1.28.0...v1.28.1`](https://github.com/juspay/hyperswitch-control-center/compare/v1.28.0...v1.28.1)
+
+- - -
+
+
+## 1.28.0 (2024-01-22)
+
+### Features
+
+- Permission based sidebar navigation ([#265](https://github.com/juspay/hyperswitch-control-center/pull/265)) ([`d545a56`](https://github.com/juspay/hyperswitch-control-center/commit/d545a56ceed84777fac27c7b8ca0ce92042bddaf))
+- ACLButton Added ([#277](https://github.com/juspay/hyperswitch-control-center/pull/277)) ([`1032650`](https://github.com/juspay/hyperswitch-control-center/commit/1032650defeec0ef25eeb31735db116421b2bdfe))
+
+**Full Changelog:** [`v1.27.0...v1.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.27.0...v1.28.0)
+
+- - -
+
+
+## 1.27.0 (2024-01-21)
+
+### Features
+
+- Update pr label on merge to closed ([#207](https://github.com/juspay/hyperswitch-control-center/pull/207)) ([`f8994ff`](https://github.com/juspay/hyperswitch-control-center/commit/f8994ff8faadc73bf89c67048d2c798024701963))
+
+### Bug Fixes
+
+- Make basic details form to accept form input without Save button ([#271](https://github.com/juspay/hyperswitch-control-center/pull/271)) ([`3784090`](https://github.com/juspay/hyperswitch-control-center/commit/3784090a99cf67c4dee69b914b66fe7979a39620))
+
+### Miscellaneous Tasks
+
+- Option Core changes ([#268](https://github.com/juspay/hyperswitch-control-center/pull/268)) ([`94e70d3`](https://github.com/juspay/hyperswitch-control-center/commit/94e70d37fb3fc36104ea3ad412f03afc7d115369))
+
+**Full Changelog:** [`v1.26.0...v1.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.26.0...v1.27.0)
+
+- - -
+
+
+## 1.26.0 (2024-01-18)
+
+### Features
+
+- Add new user ([#237](https://github.com/juspay/hyperswitch-control-center/pull/237)) ([`3749e32`](https://github.com/juspay/hyperswitch-control-center/commit/3749e3278602c2ad514079db3d6d78226cfa9391))
+- Access added for Button ([#274](https://github.com/juspay/hyperswitch-control-center/pull/274)) ([`d5ecee6`](https://github.com/juspay/hyperswitch-control-center/commit/d5ecee626d3da87f6bda8495b7539ba8660a7618))
+
+### Bug Fixes
+
+- Floating point value fix for test payment ([#270](https://github.com/juspay/hyperswitch-control-center/pull/270)) ([`038a714`](https://github.com/juspay/hyperswitch-control-center/commit/038a71492de22f1a1a51b6de9f68f010bf872268))
+
+### Refactors
+
+- Routing types and utils ([#254](https://github.com/juspay/hyperswitch-control-center/pull/254)) ([`b8b5034`](https://github.com/juspay/hyperswitch-control-center/commit/b8b5034fbae6974e34c799e6f9333e3663247f7f))
+
+### Miscellaneous Tasks
+
+- Added Access Type & Remove the Read & ReadWrite Type ([#267](https://github.com/juspay/hyperswitch-control-center/pull/267)) ([`49e3eae`](https://github.com/juspay/hyperswitch-control-center/commit/49e3eaeb9bd14a3c788649b81cf561386a5ce006))
+- Refactor invite users ([#273](https://github.com/juspay/hyperswitch-control-center/pull/273)) ([`85b07d0`](https://github.com/juspay/hyperswitch-control-center/commit/85b07d0cf058dd0842b11acb7714cd85f8d9d6c6))
+
+**Full Changelog:** [`v1.25.1...v1.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.25.1...v1.26.0)
+
+- - -
+
+
 ## 1.25.1 (2024-01-17)
 
 ### Miscellaneous Tasks

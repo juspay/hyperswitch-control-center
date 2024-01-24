@@ -1,7 +1,6 @@
 open RoutingUtils
 open APIUtils
 open RoutingTypes
-open PriorityLogicUtils
 open RoutingPreviewer
 module SimpleRoutingView = {
   @react.component
@@ -46,6 +45,7 @@ module SimpleRoutingView = {
             "",
           )->Js.Json.object_,
           Post,
+          (),
         )
 
         showToast(
@@ -57,7 +57,7 @@ module SimpleRoutingView = {
         setScreenState(_ => Success)
       } catch {
       | Js.Exn.Error(e) =>
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }->ignore
     }
@@ -65,7 +65,7 @@ module SimpleRoutingView = {
       try {
         setScreenState(_ => Loading)
         let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=routingId, ())
-        let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
+        let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post, ())
         showToast(
           ~message="Successfully Activated Selected Configuration !",
           ~toastType=ToastState.ToastSuccess,
@@ -259,7 +259,7 @@ let make = (~routingRuleId, ~isActive) => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -267,7 +267,7 @@ let make = (~routingRuleId, ~isActive) => {
   let getConnectorsList = () => {
     let arr =
       connectorListJson
-      ->HSwitchUtils.getProcessorsListFromJson()
+      ->ConnectorUtils.getProcessorsListFromJson()
       ->Array.map(connectorDict => connectorDict->getString("connector_name", ""))
       ->Array.filter(x => x !== "applepay")
       ->getUniqueArray

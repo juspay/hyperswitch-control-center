@@ -85,7 +85,7 @@ let make = (
         ~json=connectorName->Window.getConnectorConfig,
         ~profileId=activeBusinessProfile.profile_id,
       )
-      let res = await updateDetails(url, testConnectorBody, Post)
+      let res = await updateDetails(url, testConnectorBody, Post, ())
       connectorArray->Array.push(connectorName)
       setConnectorArray(_ => connectorArray)
       setInitialValues(_ => res)
@@ -99,7 +99,7 @@ let make = (
       )
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
       showToast(~message=err, ~toastType=ToastError, ())
       setButtonState(_ => Normal)
     }

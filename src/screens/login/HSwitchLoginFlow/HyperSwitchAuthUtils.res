@@ -9,7 +9,7 @@ module TermsAndCondition = {
         className="underline cursor-pointer"
         href="https://hyperswitch.io/terms-of-services"
         target="__blank">
-        {"Terms of Service "->React.string}
+        {"Terms of Service"->React.string}
       </a>
       {" & "->React.string}
       <a
@@ -108,7 +108,7 @@ let getEmailBody = (email, ~country=?, ()) => {
 let parseResponseJson = (~json, ~email) => {
   open HSwitchUtils
   open LogicUtils
-  let valuesDict = json->Js.Json.decodeObject->Belt.Option.getWithDefault(Dict.make())
+  let valuesDict = json->Js.Json.decodeObject->Option.getWithDefault(Dict.make())
 
   // * Setting all local storage values
   setMerchantDetails(
@@ -126,7 +126,7 @@ let parseResponseJson = (~json, ~email) => {
   // )
 
   let verificationValue =
-    valuesDict->getOptionInt("verification_days_left")->Belt.Option.getWithDefault(-1)
+    valuesDict->getOptionInt("verification_days_left")->Option.getWithDefault(-1)
 
   setMerchantDetails("verification", verificationValue->Belt.Int.toString->Js.Json.string)
   valuesDict->getString("token", "")

@@ -14,7 +14,7 @@ let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatu
   "paypalAccountStatusAtom",
   PayPalFlowTypes.Connect_paypal_landing,
 )
-let userPermissionAtom: Recoil.recoilAtom<array<PermissionUtils.permissionType>> = Recoil.atom(.
+let userPermissionAtom: Recoil.recoilAtom<PermissionUtils.permissionJson> = Recoil.atom(.
   "userPermissionAtom",
-  [],
+  PermissionUtils.defaultValueForPermission,
 )

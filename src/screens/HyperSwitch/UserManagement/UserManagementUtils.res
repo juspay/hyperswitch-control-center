@@ -37,7 +37,7 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
       key->validateEmptyValue(errors)
     } else {
       value->Array.forEach(ele => {
-        if ele->Js.Json.decodeString->Belt.Option.getWithDefault("")->HSwitchUtils.isValidEmail {
+        if ele->Js.Json.decodeString->Option.getWithDefault("")->HSwitchUtils.isValidEmail {
           errors->Dict.set("email", "Please enter a valid email"->Js.Json.string)
         }
       })
@@ -77,7 +77,7 @@ let getArrayOfPermissionData = json => {
   json
   ->LogicUtils.getDictFromJsonObject
   ->LogicUtils.getArrayFromDict("permissions", [])
-  ->Array.map(i => i->Js.Json.decodeString->Belt.Option.getWithDefault(""))
+  ->Array.map(i => i->Js.Json.decodeString->Option.getWithDefault(""))
 }
 
 let updatePresentInInfoList = (infoData, permissionsData) => {

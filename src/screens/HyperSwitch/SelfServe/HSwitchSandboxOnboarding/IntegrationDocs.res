@@ -5,8 +5,7 @@ module RequestPage = {
     open UserOnboardingUtils
     open APIUtils
 
-    let requestedValue =
-      requestedPlatform->Belt.Option.getWithDefault("")->LogicUtils.capitalizeString
+    let requestedValue = requestedPlatform->Option.getWithDefault("")->LogicUtils.capitalizeString
     let (isSubmitButtonEnabled, setIsSubmitButtonEnabled) = React.useState(_ => true)
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
@@ -25,7 +24,7 @@ module RequestPage = {
           ->Js.Json.object_
 
         let body = [("Feedback", requestedBody)]->LogicUtils.getJsonFromArrayOfJson
-        let _ = await updateDetails(url, body, Post)
+        let _ = await updateDetails(url, body, Post, ())
         showToast(
           ~toastType=ToastSuccess,
           ~message="Request submitted successfully!",
@@ -196,7 +195,7 @@ let make = (
           />
         </UIUtils.RenderIf>
       </div>
-      {if requestedPlatform->Belt.Option.isSome {
+      {if requestedPlatform->Option.isSome {
         <RequestPage requestedPlatform currentRoute />
       } else {
         <div className="flex flex-col my-4">

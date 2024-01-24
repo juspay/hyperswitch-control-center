@@ -33,7 +33,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open HSwitchUtils
   open MerchantAccountUtils
   let url = RescriptReactRouter.useUrl()
-  let id = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault(profileId)
+  let id = url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault(profileId)
   let businessProfileDetails = useGetBusinessProflile(id)
 
   let showToast = ToastState.useShowToast()
@@ -50,7 +50,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id), ())
       let body = values->getBusinessProfilePayload->Js.Json.object_
-      let res = await updateDetails(url, body, Post)
+      let res = await updateDetails(url, body, Post, ())
       let profileTypeInfo = res->businessProfileTypeMapper
       setProfileInfo(_ => profileTypeInfo)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess, ())
@@ -122,7 +122,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   />
                   <InfoViewForWebhooks
                     heading="Payment Response Hash Key"
-                    subHeading={businessProfileDetails.payment_response_hash_key->Belt.Option.getWithDefault(
+                    subHeading={businessProfileDetails.payment_response_hash_key->Option.getWithDefault(
                       "NA",
                     )}
                     isCopy=true

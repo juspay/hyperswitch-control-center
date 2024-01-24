@@ -42,7 +42,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
       setQuickStartPageState(_ => ConnectProcessor(CHECKOUT))
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to update!")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to update!")
         Js.Exn.raiseError(err)
       }
     }
@@ -79,7 +79,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
           firstProcessorRoutingPayload,
           secondProcessorRoutingPayload,
         )
-      let routingResponse = await updateDetails(routingUrl, body, Post)
+      let routingResponse = await updateDetails(routingUrl, body, Post, ())
       let activatingId = routingResponse->getDictFromJsonObject->getString("id", "")
       let activateRuleURL = getURL(
         ~entityName=ROUTING,
@@ -87,12 +87,12 @@ let make = (~connectProcessorValue: connectProcessor) => {
         ~id=Some(activatingId),
         (),
       )
-      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post, ())
       let _ = await updateEnumForRouting(activatingId)
       setButtonState(_ => Normal)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to update!")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to update!")
         Js.Exn.raiseError(err)
       }
     }
@@ -118,7 +118,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
       let _ = await StringEnumType(connectorChoiceValue)->usePostEnumDetails(configurationType)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to update!")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to update!")
         Js.Exn.raiseError(err)
       }
     }
@@ -154,7 +154,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
   let updateTestPaymentEnum = async (~paymentId) => {
     try {
       let paymentBody: paymentType = {
-        payment_id: paymentId->Belt.Option.getWithDefault("pay_default"),
+        payment_id: paymentId->Option.getWithDefault("pay_default"),
       }
       let _ = await PaymentType(paymentBody)->usePostEnumDetails(#TestPayment)
       setQuickStartPageState(_ => IntegrateApp(LANDING))

@@ -1,6 +1,6 @@
 @val external appVersion: string = "appVersion"
 
-let mixpanelToken = Window.env.mixpanelToken->Belt.Option.getWithDefault("mixpanel-token")
+let mixpanelToken = Window.env.mixpanelToken->Option.getWithDefault("mixpanel-token")
 
 type hostType = Live | Sandbox | Local | Netlify
 
@@ -28,7 +28,7 @@ let netlifyUrl = Netlify->getHostURLFromVariant
 
 let isHyperSwitchDashboard = GlobalVars.dashboardAppName === #hyperswitch
 
-let hyperSwitchApiPrefix = Window.env.apiBaseUrl->Belt.Option.getWithDefault("/api")
+let hyperSwitchApiPrefix = Window.env.apiBaseUrl->Option.getWithDefault("/api")
 
 let dashboardUrl = switch hostType {
 | Live => Live->getHostURLFromVariant

@@ -21,14 +21,14 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
   open ConnectorUtils
   let connectorAccountDict = json->getDictFromJsonObject->getDictfromDict("connector_auth")
   let bodyType =
-    connectorAccountDict->Dict.keysToArray->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+    connectorAccountDict->Dict.keysToArray->Belt.Array.get(0)->Option.getWithDefault("")
 
   let connectorAccountDetails =
     [("auth_type", bodyType->Js.Json.string), ("api_key", "test"->Js.Json.string)]
     ->Dict.fromArray
     ->Js.Json.object_
 
-  let initialValueForPayload = ConnectorUtils.generateInitialValuesDict(
+  let initialValueForPayload = generateInitialValuesDict(
     ~values=[
       ("profile_id", profileId->Js.Json.string),
       ("connector_account_details", connectorAccountDetails),
@@ -100,8 +100,7 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
     metadata: Dict.make()->Js.Json.object_,
   }
 
-  let requestPayloadDict =
-    requestPayload->ConnectorUtils.constructConnectorRequestBody(initialValueForPayload)
+  let requestPayloadDict = requestPayload->constructConnectorRequestBody(initialValueForPayload)
 
   requestPayloadDict
 }

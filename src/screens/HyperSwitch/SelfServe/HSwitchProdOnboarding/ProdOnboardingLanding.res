@@ -30,7 +30,7 @@ module CheckListSection = {
           updatedCheckList
           ->Array.filter(ele => ele.itemsVariants->Array.includes(pageView))
           ->Belt.Array.get(0)
-          ->Belt.Option.getWithDefault(defaultValueOfCheckList),
+          ->Option.getWithDefault(defaultValueOfCheckList),
         )
 
       switch (currentViewindex, clickedVariant) {
@@ -268,7 +268,7 @@ let make = () => {
       setButtonState(_ => Loading)
       let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
       let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#SetupComplete, ())
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
       setButtonState(_ => Normal)
       setDashboardPageState(_ => #HOME)
     } catch {

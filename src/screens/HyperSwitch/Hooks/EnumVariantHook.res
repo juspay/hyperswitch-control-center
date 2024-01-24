@@ -18,7 +18,7 @@ let useFetchEnumDetails = () => {
       Js.Nullable.return(responseDict)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
         Js.Exn.raiseError(err)
       }
     }
@@ -71,13 +71,13 @@ let usePostEnumDetails = () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
       let bodyValForApi = enumVariant->QuickStartUtils.generateBodyBasedOnType(body)
-      let _ = await updateDetails(url, bodyValForApi, Post)
+      let _ = await updateDetails(url, bodyValForApi, Post, ())
 
       let updatedRecoilValueDict = updateEnumInRecoil([(body, enumVariant)])
       Js.Nullable.return(updatedRecoilValueDict)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
         Js.Exn.raiseError(err)
       }
     }

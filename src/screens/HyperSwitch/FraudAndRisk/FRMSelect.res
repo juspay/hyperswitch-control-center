@@ -6,7 +6,7 @@ module NewProcessorCards = {
     let frmAvailableForIntegration = frmList
     let unConfiguredFRMs =
       frmAvailableForIntegration->Array.filter(total =>
-        configuredFRMs->Array.find(item => item === total)->Belt.Option.isNone
+        configuredFRMs->Array.find(item => item === total)->Option.isNone
       )
 
     let handleClick = frmName => {

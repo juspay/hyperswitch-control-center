@@ -186,7 +186,7 @@ module RedirectionToPayPalFlow = {
         )
         let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/action_url`
 
-        let response = await updateDetails(url, body, Post)
+        let response = await updateDetails(url, body, Post, ())
         let actionURL =
           response->getDictFromJsonObject->getDictfromDict("paypal")->getString("action_url", "")
         setActionUrl(_ => actionURL)
@@ -351,7 +351,7 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
         (),
       )
       let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/sync`
-      let responseValue = await updateDetails(url, paypalBody, Fetch.Post)
+      let responseValue = await updateDetails(url, paypalBody, Fetch.Post, ())
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
 
       switch paypalDict->Js.Json.classify {

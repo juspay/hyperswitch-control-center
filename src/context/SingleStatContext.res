@@ -64,7 +64,7 @@ let make = (
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
-      let prefix = keyArr->Belt.Array.get(0)->Belt.Option.getWithDefault("")
+      let prefix = keyArr->Belt.Array.get(0)->Option.getWithDefault("")
       if prefix === moduleName && prefix !== "" {
         None
       } else {
@@ -77,7 +77,7 @@ let make = (
   let (topFiltersToSearchParam, customFilter, modeValue) = React.useMemo1(() => {
     let modeValue = Some(getTopLevelSingleStatFilter->LogicUtils.getString(modeKey, ""))
     let allFilterKeys = Array.concat(
-      [startTimeFilterKey, endTimeFilterKey, modeValue->Belt.Option.getWithDefault("")],
+      [startTimeFilterKey, endTimeFilterKey, modeValue->Option.getWithDefault("")],
       filterKeys,
     )
     let filterSearchParam =
@@ -154,7 +154,7 @@ let make = (
   ) = React.useState(_ => false)
 
   React.useEffect6(() => {
-    if startTimeFromUrl !== "" && endTimeFromUrl !== "" && parentToken->Belt.Option.isSome {
+    if startTimeFromUrl !== "" && endTimeFromUrl !== "" && parentToken->Option.isSome {
       setIsSingleStatFetchedWithCurrentDependency(_ => false)
     }
     None
@@ -169,7 +169,7 @@ let make = (
       )
       let filterConfigCurrent = {
         source,
-        modeValue: modeValue->Belt.Option.getWithDefault(""),
+        modeValue: modeValue->Option.getWithDefault(""),
         filterValues: ?filterValueFromUrl,
         startTime: startTimeFromUrl,
         endTime: endTimeFromUrl,
@@ -277,7 +277,7 @@ let make = (
                       Loaded(
                         jsonObj
                         ->Belt.Array.get(0)
-                        ->Belt.Option.getWithDefault(Js.Json.object_(Dict.make())),
+                        ->Option.getWithDefault(Js.Json.object_(Dict.make())),
                       ),
                     )
                     prevDict
@@ -330,7 +330,7 @@ let make = (
                     Loaded(
                       jsonObj
                       ->Belt.Array.get(0)
-                      ->Belt.Option.getWithDefault(Js.Json.object_(Dict.make())),
+                      ->Option.getWithDefault(Js.Json.object_(Dict.make())),
                     ),
                   )
                   prevDict
@@ -420,9 +420,9 @@ let make = (
         ->Promise.all
         ->Promise.thenResolve(
           value => {
-            let ssH = value->Belt.Array.get(0)->Belt.Option.getWithDefault(LoadedError)
-            let ssT = value->Belt.Array.get(1)->Belt.Option.getWithDefault(LoadedError)
-            let ssD = value->Belt.Array.get(2)->Belt.Option.getWithDefault(LoadedError)
+            let ssH = value->Belt.Array.get(0)->Option.getWithDefault(LoadedError)
+            let ssT = value->Belt.Array.get(1)->Option.getWithDefault(LoadedError)
+            let ssD = value->Belt.Array.get(2)->Option.getWithDefault(LoadedError)
             let isLoaded = val => {
               switch val {
               | Loaded(_) => true
@@ -446,7 +446,7 @@ let make = (
                   Js.Date.now() -.
                   individualTime
                   ->Dict.get(index->Belt.Int.toString)
-                  ->Belt.Option.getWithDefault(Js.Date.now()),
+                  ->Option.getWithDefault(Js.Date.now()),
                 )
                 individualTime
               },

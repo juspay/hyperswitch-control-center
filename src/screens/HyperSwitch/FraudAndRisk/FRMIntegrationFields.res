@@ -75,7 +75,7 @@ module IntegrationFieldsForm = {
         let value =
           valuesFlattenJson
           ->Dict.get(key)
-          ->Belt.Option.getWithDefault(""->Js.Json.string)
+          ->Option.getWithDefault(""->Js.Json.string)
           ->LogicUtils.getStringFromJson("")
 
         if field.isRequired && value->String.length === 0 {
@@ -135,7 +135,7 @@ module IntegrationFieldsForm = {
                     ~name={field.name},
                     ~placeholder=field.placeholder,
                     ~customInput=field.inputType,
-                    ~description=field.description->Belt.Option.getWithDefault(""),
+                    ~description=field.description->Option.getWithDefault(""),
                     ~isRequired=true,
                     ~parse,
                     ~format?,
@@ -216,7 +216,7 @@ let make = (
 
   let frmID =
     retrivedValues
-    ->Belt.Option.getWithDefault(Dict.make()->Js.Json.object_)
+    ->Option.getWithDefault(Dict.make()->Js.Json.object_)
     ->LogicUtils.getDictFromJsonObject
     ->LogicUtils.getString("merchant_connector_id", "")
 
@@ -247,7 +247,7 @@ let make = (
       ->Js.Json.object_
     let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ())
     try {
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
     } catch {
     | _ => ()
     }
@@ -255,7 +255,7 @@ let make = (
   }
 
   let setFRMValues = async body => {
-    fetchApi(frmUrl, body, Fetch.Post)
+    fetchApi(frmUrl, body, Fetch.Post, ())
     ->thenResolve(res => {
       setCurrentStep(prev => prev->getNextStep)
       let _ = updateMerchantDetails()

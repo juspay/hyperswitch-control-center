@@ -73,9 +73,7 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let searchParams = url.search
   let filtersFromUrl =
-    LogicUtils.getDictFromUrlSearchParams(searchParams)
-    ->Dict.get("type")
-    ->Belt.Option.getWithDefault("")
+    LogicUtils.getDictFromUrlSearchParams(searchParams)->Dict.get("type")->Option.getWithDefault("")
   let (currentRoute, setCurrentRoute) = React.useState(_ => OnboardingDefault)
   let {
     integrationDetails,
@@ -118,7 +116,7 @@ let make = () => {
         ~metadata=metaDataDict,
         (),
       )
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
     } catch {
     | _ => ()
@@ -144,12 +142,12 @@ let make = () => {
         ->Js.Json.object_,
         (),
       )
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       setDashboardPageState(_ => #HOME)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
       Js.Exn.raiseError(err)
     }
   }

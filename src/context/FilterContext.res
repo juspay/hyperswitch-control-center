@@ -33,7 +33,7 @@ module Provider = {
 @react.component
 let make = (~index: string, ~children, ~disableSessionStorage=false) => {
   open FilterUtils
-  open HSwitchUtils
+  open LogicUtils
   let query = React.useMemo0(() => {ref("")})
   let searcParamsToDict = query.contents->parseFilterString
   let (filterDict, setfilterDict) = React.useState(_ => searcParamsToDict)
