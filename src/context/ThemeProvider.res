@@ -17,8 +17,6 @@ let useTheme = () => {
   theme
 }
 
-@val external window: Js.Nullable.t<'a> = "window"
-
 @react.component
 let make = (~children) => {
   let eventTheme = ThemeUtils.useThemeFromEvent()
