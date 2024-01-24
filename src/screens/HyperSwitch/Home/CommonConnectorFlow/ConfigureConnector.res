@@ -48,6 +48,24 @@ let make = (~connectProcessorValue: connectProcessor) => {
     }
   }
 
+  React.useEffect1(() => {
+    if choiceState === #NotSelected {
+      setButtonState(_ => Button.Disabled)
+    } else {
+      setButtonState(_ => Button.Normal)
+    }
+    None
+  }, [choiceState])
+
+  React.useEffect1(() => {
+    if smartRoutingChoiceState === #NotSelected {
+      setButtonState(_ => Button.Disabled)
+    } else {
+      setButtonState(_ => Button.Normal)
+    }
+    None
+  }, [smartRoutingChoiceState])
+
   React.useEffect2(() => {
     setInitialValues(prevJson => {
       let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
@@ -79,7 +97,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
           firstProcessorRoutingPayload,
           secondProcessorRoutingPayload,
         )
-      let routingResponse = await updateDetails(routingUrl, body, Post)
+      let routingResponse = await updateDetails(routingUrl, body, Post, ())
       let activatingId = routingResponse->getDictFromJsonObject->getString("id", "")
       let activateRuleURL = getURL(
         ~entityName=ROUTING,
@@ -87,7 +105,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
         ~id=Some(activatingId),
         (),
       )
-      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post, ())
       let _ = await updateEnumForRouting(activatingId)
       setButtonState(_ => Normal)
     } catch {
@@ -185,6 +203,8 @@ let make = (~connectProcessorValue: connectProcessor) => {
           listChoices={connectorChoiceArray}
           nextButton={<Button
             buttonType=Primary
+            showBtnTextToolTip={buttonState === Button.Disabled}
+            tooltipText="Please select one of the choices"
             text="Proceed"
             onClick={_ => {
               mixpanelEvent(~eventName=`quickstart_landing`, ())
@@ -249,6 +269,8 @@ let make = (~connectProcessorValue: connectProcessor) => {
             listChoices={getSmartRoutingConfigurationText}
             nextButton={<Button
               buttonType=Primary
+              showBtnTextToolTip={buttonState === Button.Disabled}
+              tooltipText="Please select one of the choices"
               text="Proceed"
               onClick={_ => {
                 mixpanelEvent(~eventName=`quickstart_configure_smart_routing`, ())

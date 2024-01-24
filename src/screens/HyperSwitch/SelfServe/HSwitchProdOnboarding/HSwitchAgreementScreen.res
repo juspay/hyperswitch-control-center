@@ -19,7 +19,7 @@ let make = () => {
     try {
       let agreementUrl = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
       let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#ProductionAgreement, ())
-      let _ = await updateDetails(agreementUrl, body, Post)
+      let _ = await updateDetails(agreementUrl, body, Post, ())
       setDashboardPageState(_ => #PROD_ONBOARDING)
     } catch {
     | _ =>

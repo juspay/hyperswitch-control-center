@@ -87,7 +87,7 @@ module SelectPaymentMethods = {
             #MultipleProcessorWithSmartRouting->QuickStartUtils.connectorChoiceVariantToString,
           )
         }
-        let response = await updateAPIHook(connectorUrl, body, Post)
+        let response = await updateAPIHook(connectorUrl, body, Post, ())
         setInitialValues(_ => response)
         response->LogicUtils.getDictFromJsonObject->updateEnumForConnector->ignore
         setConnectorConfigureState(_ => Summary)
