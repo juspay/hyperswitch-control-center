@@ -10,9 +10,24 @@ type sessionStorage = {
 external dictToObj: Js.Dict.t<'a> => {..} = "%identity"
 @val external atob: string => string = "atob"
 
-let getHeaders = (~uri, ~headers, ()) => {
+let getHeaders = (~uri, ~headers, ~xFeatureRoute, ()) => {
   let hyperSwitchToken = LocalStorage.getItem("login")->Js.Nullable.toOption
   let isMixpanel = uri->String.includes("mixpanel")
+
+  let headersForXFeature = (~token) =>
+    if (
+      uri->Js.String2.includes("lottie-files") || uri->Js.String2.includes("config/merchant-access")
+    ) {
+      headers->Dict.set("Content-Type", `application/json`)
+      headers->Dict.set("authorization", `Bearer ${token}`)
+      headers->Dict.set("api-key", `hyperswitch`)
+      headers
+    } else {
+      headers->Dict.set("authorization", `Bearer ${token}`)
+      headers->Dict.set("api-key", `hyperswitch`)
+      headers->Dict.set("x-feature", "hyperswitch-custom")
+      headers
+    }
 
   let headerObj = if isMixpanel {
     [
@@ -20,38 +35,19 @@ let getHeaders = (~uri, ~headers, ()) => {
       ("accept", "application/json"),
     ]->Dict.fromArray
   } else {
-    let res = switch hyperSwitchToken {
+    let headersDict = switch hyperSwitchToken {
     | Some(token) =>
-      if (
-        uri->Js.String2.includes("lottie-files") ||
-          uri->Js.String2.includes("config/merchant-access")
-      ) {
-        [
-          ("Content-Type", "application/json"),
-          ("Authorization", `Bearer ${hyperSwitchToken->Belt.Option.getWithDefault("")}`),
-          ("api-key", "hyperswitch"),
-        ]->Dict.fromArray
-      } else {
-        headers->Dict.set("authorization", `Bearer ${token}`)
-        headers->Dict.set("api-key", `hyperswitch`)
-        headers
-      }
+      xFeatureRoute
+        ? headersForXFeature(~token)
+        : {
+            headers->Dict.set("authorization", `Bearer ${token}`)
+            headers->Dict.set("api-key", `hyperswitch`)
+            headers
+          }
 
-    | None =>
-      if (
-        uri->Js.String2.includes("lottie-files") ||
-          uri->Js.String2.includes("config/merchant-access")
-      ) {
-        [
-          ("Content-Type", "application/json"),
-          ("Authorization", `Bearer ${hyperSwitchToken->Belt.Option.getWithDefault("")}`),
-          ("api-key", "hyperswitch"),
-        ]->Dict.fromArray
-      } else {
-        headers
-      }
+    | None => xFeatureRoute ? headersForXFeature(~token="") : headers
     }
-    res
+    headersDict
   }
   Fetch.HeadersInit.make(headerObj->dictToObj)
 }
@@ -67,6 +63,7 @@ type betaEndpoint = {
 
 let useApiFetcher = () => {
   let (authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let token = React.useMemo1(() => {
     switch authStatus {
@@ -113,7 +110,7 @@ let useApiFetcher = () => {
             ~method_,
             ~body?,
             ~credentials=SameOrigin,
-            ~headers=getHeaders(~headers, ~uri, ()),
+            ~headers=getHeaders(~headers, ~uri, ~xFeatureRoute, ()),
             (),
           ),
         )

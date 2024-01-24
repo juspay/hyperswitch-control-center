@@ -25,6 +25,7 @@ type featureFlag = {
   surcharge: bool,
   customersModule: bool,
   permissionBasedModule: bool,
+  xFeatureRoute: bool,
 }
 
 let featureFlagType = (featureFlags: Js.Json.t) => {
@@ -57,6 +58,7 @@ let featureFlagType = (featureFlags: Js.Json.t) => {
     surcharge: dict->getBool("surcharge", false),
     customersModule: dict->getBool("customers_module", false),
     permissionBasedModule: dict->getBool("permission_based_module", false),
+    xFeatureRoute: dict->getBool("x_feature_route", false),
   }
   typedFeatureFlag
 }
