@@ -22,6 +22,14 @@ module SelectProcessor = {
         | UnknownConnector(_) => Button.Disabled
         | _ => Button.Normal
         }}
+        showBtnTextToolTip={switch selectedConnector {
+        | UnknownConnector(_) => true
+        | _ => false
+        }}
+        tooltipText={switch selectedConnector {
+        | UnknownConnector(_) => "Please select one of the processor"
+        | _ => ""
+        }}
         text="Proceed"
         onClick={_ => {
           setConnectorConfigureState(_ => Select_configuration_type)
