@@ -492,6 +492,8 @@ let isEmptyDict = dict => {
 
 let isEmptyString = str => str->String.length === 0
 
+let isNonEmptyString = str => str->String.length > 0
+
 let stringReplaceAll = (str, old, new) => {
   str->String.split(old)->Array.joinWith(new)
 }
@@ -587,8 +589,8 @@ let getJsonFromStr = data => {
 external toExnJson: exn => Js.Json.t = "%identity"
 
 let compareLogic = (firstValue, secondValue) => {
-  let (temp1, _) = firstValue
-  let (temp2, _) = secondValue
+  let temp1 = firstValue
+  let temp2 = secondValue
   if temp1 == temp2 {
     0
   } else if temp1 > temp2 {

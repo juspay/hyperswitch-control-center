@@ -1,7 +1,5 @@
 let tableHeadingClass = "font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75"
 type view = Table | Card
-@val @scope(("window", "location"))
-external reload: unit => unit = "reload"
 
 let visibilityColFunc = (
   ~dateFormatConvertor: string => option<Js.Json.t>,
@@ -248,7 +246,10 @@ module TableLoadingErrorIndicator = {
                 {React.string("Oops, Something Went Wrong! Try again Later.")}
               </div>
               <Button
-                text="Refresh" leftIcon={FontAwesome("sync-alt")} onClick={_ => reload()} buttonType
+                text="Refresh"
+                leftIcon={FontAwesome("sync-alt")}
+                onClick={_ => Window.Location.reload()}
+                buttonType
               />
             </>}
       </div>

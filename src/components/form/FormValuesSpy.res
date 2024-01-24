@@ -8,14 +8,12 @@ module JsonBox = {
   }
 }
 
-@val @scope(("window", "location")) external hostname: string = "hostname"
-
 @react.component
 let make = (~wrapperClass="", ~jsonModifier=?, ~restrictToLocal=true, ~displayProps=true) => {
   let subs = ReactFinalForm.useFormSubscription(["values"])
 
   let canRender = if restrictToLocal {
-    hostname === "localhost"
+    Window.Location.hostname === "localhost"
   } else {
     true
   }
