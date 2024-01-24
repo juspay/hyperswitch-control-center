@@ -2,8 +2,6 @@ open HyperSwitch
 open HyperSwitchTypes
 open Promise
 
-@val external window: 'a = "window"
-
 type configElements = {
   appearanceElement: Js.Json.t,
   paymentElement: Js.Json.t,

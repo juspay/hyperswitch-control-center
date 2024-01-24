@@ -1,5 +1,3 @@
-@val external window: 'a = "window"
-
 let getValidToken = oStr => {
   if oStr !== Some("__failed") && oStr !== Some("") {
     oStr
