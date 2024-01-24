@@ -32,7 +32,7 @@ type resourcesTypes = {
   id: string,
 }
 
-let countries: array<HyperSwitchTypes.country> = [
+let countries: array<ReactHyperJs.country> = [
   {
     isoAlpha3: "USA",
     currency: "USD",

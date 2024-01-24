@@ -1,5 +1,4 @@
-open HyperSwitch
-open HyperSwitchTypes
+open ReactHyperJs
 open Promise
 
 @val external window: 'a = "window"
