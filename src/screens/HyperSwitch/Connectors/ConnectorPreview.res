@@ -104,10 +104,9 @@ module MenuOptionForPayPal = {
     ~setInitialValues,
   ) => {
     open HeadlessUI
-    open APIUtils
     let showPopUp = PopUpState.useShowPopUp()
-    let updateDetails = useUpdateMethod()
     let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
+    let updateConnectorAccountDetails = PayPalFlowUtils.useDeleteConnectorAccountDetails()
     let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
     let connectorInfo = connectorInfoDict->ConnectorTableUtils.getProcessorPayloadType
 
@@ -128,37 +127,17 @@ module MenuOptionForPayPal = {
 
     let connectorStatusAvailableToSwitch = isConnectorDisabled ? "Enable" : "Disable"
 
-    let onSubmitMain = async values => {
-      open PayPalFlowUtils
-      open LogicUtils
-
+    let updateConnectorAuthType = async values => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let profileIdValue = values->getDictFromJsonObject->getString("profile_id", "")
-        let body = generateConnectorPayloadPayPal(
-          ~profileId=profileIdValue,
-          ~connectorId=connectorInfo.merchant_connector_id,
-          ~connector=connectorInfo.connector_name,
-          ~bodyType="TemporaryAuth",
-          ~connectorLabel={
-            values->getDictFromJsonObject->getString("connector_label", "")
-          },
+        let res = await updateConnectorAccountDetails(
+          values,
+          connectorInfo.merchant_connector_id,
+          connectorInfo.connector_name,
+          isUpdateFlow,
         )
-
-        let url = getURL(
-          ~entityName=CONNECTOR,
-          ~methodType=Post,
-          ~id=isUpdateFlow ? Some(connectorInfo.merchant_connector_id) : None,
-          (),
-        )
-        let res = await updateDetails(url, body, Post)
-
         setInitialValues(_ => res)
-        let connectorId = res->getDictFromJsonObject->getString("merchant_connector_id", "")
         setScreenState(_ => Success)
-        if !isUpdateFlow {
-          RescriptReactRouter.push(`/connectors/new?name=paypal&connectorId=${connectorId}`)
-        }
       } catch {
       | Js.Exn.Error(e) => ()
       }
@@ -174,7 +153,7 @@ module MenuOptionForPayPal = {
         let temporaryAuthDict =
           [("auth_type", "TemporaryAuth"->Js.Json.string)]->getJsonFromArrayOfJson
         connectorInfoDict->Dict.set("connector_account_details", temporaryAuthDict)
-        onSubmitMain(connectorInfoDict->Js.Json.object_)->ignore
+        await updateConnectorAuthType(connectorInfoDict->Js.Json.object_)
       } catch {
       | _ => ()
       }

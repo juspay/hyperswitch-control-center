@@ -177,7 +177,7 @@ module RedirectionToPayPalFlow = {
       open LogicUtils
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let returnURL = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${path}?${url.search}&is_back=true&is_simplified_paypal=true`
+        let returnURL = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${path}?name=paypal&is_back=true&is_simplified_paypal=true`
 
         let body = PayPalFlowUtils.generatePayPalBody(
           ~connectorId={connectorId},
@@ -254,7 +254,7 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
 
   let (connectorId, setConnectorId) = React.useState(_ => connectorValue)
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
-  let updateConnector = PayPalFlowUtils.useDeleteConnectorCredentials()
+  let updateConnectorAccountDetails = PayPalFlowUtils.useDeleteConnectorAccountDetails()
   let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
   let isRedirectedFromPaypalModal =
     url.search
@@ -295,19 +295,16 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
     }
   }, [connector])
 
-  let onSubmitMain = async values => {
+  let updateConnectorDetails = async values => {
     open ConnectorUtils
     try {
       setScreenState(_ => Loading)
-      let res = await updateConnector(values, connectorId, connector, isUpdateFlow)
+      let res = await updateConnectorAccountDetails(values, connectorId, connector, isUpdateFlow)
 
       setInitialValues(_ => res)
       let connectorId = res->getDictFromJsonObject->getString("merchant_connector_id", "")
       setConnectorId(_ => connectorId)
       setScreenState(_ => Success)
-      if !isUpdateFlow {
-        RescriptReactRouter.push(`/connectors/new?name=paypal&connectorId=${connectorId}`)
-      }
       setSetupAccountStatus(._ => Redirecting_to_paypal)
     } catch {
     | Js.Exn.Error(e) => {
@@ -399,14 +396,14 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
 
   let handleConnector = async values => {
     try {
-      await onSubmitMain(values)
+      await updateConnectorDetails(values)
     } catch {
     | Js.Exn.Error(_e) => ()
     }
   }
 
   let setConnectorAsActive = values => {
-    // setting the status and diabled as false and active when clicking proceed button of manual flow
+    // sets the status as active and diabled as false
     let dictOfInitialValues = values->getDictFromJsonObject
     dictOfInitialValues->Dict.set("disabled", false->Js.Json.boolean)
     dictOfInitialValues->Dict.set("status", "active"->Js.Json.string)
@@ -423,7 +420,10 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
         ->Js.String2.toLowerCase
         ->ConnectorUtils.mapAuthType
 
-      // delete tracking  details and updating the mca if the currnet and the next auth types are not same
+      // This will only be called whenever there is a update flow
+      // And whenever we are changing the flow from Manual to Automatic or vice-versa
+      // To check if the flow is changed we are using auth type (BodyKey for Manual and SignatureKey for Automatic)
+      // It deletes the old tracking id associated with the connector id and deletes the connector credentials
       if (
         isUpdateFlow &&
         authType !==
@@ -437,7 +437,7 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
           [("auth_type", "TemporaryAuth"->Js.Json.string)]->getJsonFromArrayOfJson
         dictOfInitialValues->Dict.set("connector_account_details", temporaryAuthDict)
         setInitialValues(_ => dictOfInitialValues->Js.Json.object_)
-        let res = await updateConnector(
+        let res = await updateConnectorAccountDetails(
           dictOfInitialValues->Js.Json.object_,
           connectorId,
           connector,
@@ -446,7 +446,7 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
         setInitialValues(_ => res)
       }
 
-      // handling the proceed button
+      // Functionality when the proceed button is clicked
       switch configuartionType {
       | Automatic => {
           setInitialValues(_ => values)

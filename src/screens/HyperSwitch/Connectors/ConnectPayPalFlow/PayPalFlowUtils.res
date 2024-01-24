@@ -191,7 +191,7 @@ let useDeleteTrackingDetails = () => {
   }
 }
 
-let useDeleteConnectorCredentials = () => {
+let useDeleteConnectorAccountDetails = () => {
   open LogicUtils
   open APIUtils
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
