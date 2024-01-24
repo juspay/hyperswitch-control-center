@@ -125,6 +125,8 @@ let generateConnectorPayloadPayPal = (
   ~connector,
   ~bodyType,
   ~connectorLabel,
+  ~disabled,
+  ~status,
 ) => {
   open ConnectorUtils
   let initialValues =
@@ -132,9 +134,9 @@ let generateConnectorPayloadPayPal = (
       ("profile_id", profileId->Js.Json.string),
       ("connector_name", connector->String.toLowerCase->Js.Json.string),
       ("connector_type", "payment_processor"->Js.Json.string),
-      ("disabled", true->Js.Json.boolean),
+      ("disabled", disabled->Js.Json.boolean),
       ("test_mode", true->Js.Json.boolean),
-      ("status", "inactive"->Js.Json.string),
+      ("status", status->Js.Json.string),
       ("connector_label", connectorLabel->Js.Json.string),
     ]->LogicUtils.getJsonFromArrayOfJson
 
@@ -196,7 +198,7 @@ let useDeleteConnectorAccountDetails = () => {
   open APIUtils
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
 
-  async (initialValues, connectorId, connector, isUpdateFlow) => {
+  async (initialValues, connectorId, connector, isUpdateFlow, disabled, status) => {
     try {
       let dictOfJson = initialValues->getDictFromJsonObject
       let profileIdValue = dictOfJson->getString("profile_id", "")
@@ -208,6 +210,8 @@ let useDeleteConnectorAccountDetails = () => {
         ~connectorLabel={
           dictOfJson->getString("connector_label", "")
         },
+        ~disabled,
+        ~status,
       )
       let url = getURL(
         ~entityName=CONNECTOR,
@@ -224,4 +228,14 @@ let useDeleteConnectorAccountDetails = () => {
       }
     }
   }
+}
+
+let getAuthTypeFromConnectorDetails = json => {
+  open LogicUtils
+  json
+  ->getDictFromJsonObject
+  ->getDictfromDict("connector_account_details")
+  ->getString("auth_type", "")
+  ->Js.String2.toLowerCase
+  ->ConnectorUtils.mapAuthType
 }

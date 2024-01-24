@@ -58,6 +58,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   open ConnectorUtils
   open APIUtils
   let url = RescriptReactRouter.useUrl()
+  let updateDetails = useUpdateMethod()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -129,7 +130,61 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let stepsArr = isPayoutFlow ? payoutStepsArr : stepsArr
   let borderWidth = isPayoutFlow ? "w-8/12" : "w-9/12"
 
-  <PageLoaderWrapper screenState>
+  let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
+  let getPayPalStatus = React.useCallback2(async () => {
+    open PayPalFlowUtils
+    open LogicUtils
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let profileId = initialValues->getDictFromJsonObject->getString("profile_id", "")
+      let paypalBody = generatePayPalBody(
+        ~connectorId={connectorID},
+        ~profileId=Some(profileId),
+        (),
+      )
+      let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/sync`
+      let responseValue = await updateDetails(url, paypalBody, Fetch.Post, ())
+      let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
+
+      switch paypalDict->Js.Json.classify {
+      | JSONString(str) => {
+          setSetupAccountStatus(._ => str->stringToVariantMapper)
+          setCurrentStep(_ => AutomaticFlow)
+        }
+      | JSONObject(dict) =>
+        handleObjectResponse(
+          ~dict,
+          ~setSetupAccountStatus,
+          ~setInitialValues,
+          ~connector,
+          ~handleStateToNextPage={_ => setCurrentStep(_ => PaymentMethods)},
+        )
+      | _ => ()
+      }
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } catch {
+    // TODO: check error cases
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
+    }
+  }, (setInitialValues, setSetupAccountStatus))
+
+  let customUI =
+    <DefaultLandingPage
+      title="Oops, we hit a little bump on the road!"
+      customStyle={`py-16 !m-0 `}
+      overriddingStylesTitle="text-2xl font-semibold"
+      buttonText="Try again"
+      overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
+      subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
+      onClickHandler={_ => {
+        setCurrentStep(_ => AutomaticFlow)
+        setSetupAccountStatus(._ => PayPalFlowTypes.Connect_paypal_landing)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }}
+      isButton=true
+    />
+
+  <PageLoaderWrapper screenState customUI>
     <div className="flex flex-col gap-10 overflow-scroll h-full w-full">
       <UIUtils.RenderIf condition={showBreadCrumb}>
         <BreadCrumbNavigation
@@ -158,7 +213,9 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         | AutomaticFlow =>
           switch connector->ConnectorUtils.getConnectorNameTypeFromString {
           | PAYPAL =>
-            <ConnectPayPal connector isUpdateFlow setInitialValues initialValues setCurrentStep />
+            <ConnectPayPal
+              connector isUpdateFlow setInitialValues initialValues setCurrentStep getPayPalStatus
+            />
           | _ => React.null
           }
         | IntegFields =>
@@ -178,6 +235,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
             isUpdateFlow
             isPayoutFlow
             setInitialValues
+            getPayPalStatus
           />
         }}
       </div>

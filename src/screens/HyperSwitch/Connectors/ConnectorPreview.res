@@ -135,6 +135,8 @@ module MenuOptionForPayPal = {
           connectorInfo.merchant_connector_id,
           connectorInfo.connector_name,
           isUpdateFlow,
+          true,
+          "inactive",
         )
         setInitialValues(_ => res)
         setScreenState(_ => Success)
@@ -144,15 +146,11 @@ module MenuOptionForPayPal = {
     }
 
     let handleNewPayPalAccount = async () => {
-      open LogicUtils
       try {
         await deleteTrackingDetails(
           connectorInfo.merchant_connector_id,
           connectorInfo.connector_name,
         )
-        let temporaryAuthDict =
-          [("auth_type", "TemporaryAuth"->Js.Json.string)]->getJsonFromArrayOfJson
-        connectorInfoDict->Dict.set("connector_account_details", temporaryAuthDict)
         await updateConnectorAuthType(connectorInfoDict->Js.Json.object_)
       } catch {
       | _ => ()
@@ -353,6 +351,7 @@ let make = (
   ~isPayoutFlow,
   ~showMenuOption=true,
   ~setInitialValues,
+  ~getPayPalStatus,
 ) => {
   open APIUtils
   open ConnectorUtils
@@ -366,7 +365,6 @@ let make = (
   let connectorInfoDict = connectorInfo->LogicUtils.getDictFromJsonObject
   let connectorInfo =
     connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorTableUtils.getProcessorPayloadType
-  let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
 
   let connectorCount = ListHooks.useListCount(~entityName=CONNECTOR)
   let isFeedbackModalToBeOpen =
@@ -396,43 +394,6 @@ let make = (
     }
   }
 
-  let handleStateToNextPage = () => {
-    setCurrentStep(_ => ConnectorTypes.PaymentMethods)
-  }
-  let getStatus = async () => {
-    open PayPalFlowUtils
-    open LogicUtils
-    try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let paypalBody = PayPalFlowUtils.generatePayPalBody(
-        ~connectorId={connectorInfo.merchant_connector_id},
-        ~profileId=Some(connectorInfo.profile_id),
-        (),
-      )
-      let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/sync`
-      let responseValue = await updateDetails(url, paypalBody, Fetch.Post, ())
-      let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
-      switch paypalDict->Js.Json.classify {
-      | JSONString(str) => {
-          setCurrentStep(_ => AutomaticFlow)
-          setSetupAccountStatus(._ => str->PayPalFlowUtils.stringToVariantMapper)
-        }
-      | JSONObject(dict) =>
-        handleObjectResponse(
-          ~dict,
-          ~setSetupAccountStatus,
-          ~setInitialValues,
-          ~connector,
-          ~handleStateToNextPage,
-        )
-      | _ => ()
-      }
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
-    }
-  }
-
   let connectorStatusStyle = connectorStatus =>
     switch connectorStatus {
     | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-800"
@@ -453,7 +414,7 @@ let make = (
         <div className="self-center">
           {switch (currentStep, connector->getConnectorNameTypeFromString, connectorInfo.status) {
           | (Preview, PAYPAL, "inactive") =>
-            <Button text="Sync" buttonType={Primary} onClick={_ => getStatus()->ignore} />
+            <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
           | (Preview, _, _) =>
             <div className="flex gap-6 items-center">
               <div

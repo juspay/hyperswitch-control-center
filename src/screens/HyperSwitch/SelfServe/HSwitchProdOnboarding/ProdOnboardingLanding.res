@@ -306,6 +306,7 @@ let make = () => {
                     isPayoutFlow=false
                     showMenuOption=false
                     setInitialValues
+                    getPayPalStatus={_ => ()}
                   />
                 </div>
               | LIVE_ENDPOINTS_PREVIEW => <LiveEndpointsSetup pageView setPageView previewState />

@@ -123,7 +123,7 @@ module LandingScreen = {
 }
 module ErrorPage = {
   @react.component
-  let make = (~setupAccountStatus, ~actionUrl, ~getStatus, ~setScreenState) => {
+  let make = (~setupAccountStatus, ~actionUrl, ~getPayPalStatus, ~setScreenState) => {
     let errorPageDetails = setupAccountStatus->PayPalFlowUtils.getPageDetailsForAutomatic
 
     <div className="flex flex-col gap-6">
@@ -147,7 +147,7 @@ module ErrorPage = {
             text="Refresh status"
             buttonType={Secondary}
             buttonSize=Small
-            onClick={_ => getStatus()->ignore}
+            onClick={_ => getPayPalStatus()->ignore}
           />
         </div>
         <UIUtils.RenderIf condition={errorPageDetails.buttonText->Belt.Option.isSome}>
@@ -163,12 +163,13 @@ module ErrorPage = {
 }
 module RedirectionToPayPalFlow = {
   @react.component
-  let make = (~connectorId, ~getStatus) => {
+  let make = (~getPayPalStatus) => {
     open APIUtils
     open PayPalFlowTypes
 
     let url = RescriptReactRouter.useUrl()
     let path = url.path->Belt.List.toArray->Array.joinWith("/")
+    let connectorId = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (actionUrl, setActionUrl) = React.useState(_ => "")
@@ -228,23 +229,35 @@ module RedirectionToPayPalFlow = {
               text="Refresh status "
               buttonType={Secondary}
               buttonSize=Small
-              onClick={_ => getStatus()->ignore}
+              onClick={_ => getPayPalStatus()->ignore}
             />
           </div>
         </div>
-      | _ => <ErrorPage setupAccountStatus actionUrl getStatus setScreenState />
+      | _ => <ErrorPage setupAccountStatus actionUrl getPayPalStatus setScreenState />
       }}
     </PageLoaderWrapper>
   }
 }
 
 @react.component
-let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCurrentStep) => {
-  open APIUtils
+let make = (
+  ~connector,
+  ~isUpdateFlow,
+  ~setInitialValues,
+  ~initialValues,
+  ~setCurrentStep,
+  ~getPayPalStatus,
+) => {
   open LogicUtils
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
+  let showPopUp = PopUpState.useShowPopUp()
+  let updateConnectorAccountDetails = PayPalFlowUtils.useDeleteConnectorAccountDetails()
+  let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
 
+  let (setupAccountStatus, setSetupAccountStatus) = Recoil.useRecoilState(
+    HyperswitchAtom.paypalAccountStatusAtom,
+  )
   let connectorValue = isUpdateFlow
     ? url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
     : url.search
@@ -253,9 +266,6 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
       ->Belt.Option.getWithDefault("")
 
   let (connectorId, setConnectorId) = React.useState(_ => connectorValue)
-  let updateDetails = useUpdateMethod(~showErrorToast=false, ())
-  let updateConnectorAccountDetails = PayPalFlowUtils.useDeleteConnectorAccountDetails()
-  let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
   let isRedirectedFromPaypalModal =
     url.search
     ->getDictFromUrlSearchParams
@@ -266,9 +276,6 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuartionType, setConfigurationType) = React.useState(_ => PayPalFlowTypes.NotSelected)
 
-  let (setupAccountStatus, setSetupAccountStatus) = Recoil.useRecoilState(
-    HyperswitchAtom.paypalAccountStatusAtom,
-  )
   let selectedConnector =
     connector->ConnectorUtils.getConnectorNameTypeFromString->ConnectorUtils.getConnectorInfo
   let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
@@ -277,13 +284,13 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
     defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
 
   let updatedInitialVal = React.useMemo1(() => {
-    let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
+    let initialValuesToDict = initialValues->getDictFromJsonObject
     if !isUpdateFlow {
       initialValuesToDict->Dict.set(
         "connector_label",
         initialValues
-        ->LogicUtils.getDictFromJsonObject
-        ->LogicUtils.getString("connector_label", "paypal_default")
+        ->getDictFromJsonObject
+        ->getString("connector_label", "paypal_default")
         ->Js.Json.string,
       )
       initialValuesToDict->Dict.set("profile_id", activeBusinessProfile.profile_id->Js.Json.string)
@@ -293,89 +300,69 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
     } else {
       initialValues
     }
-  }, [connector])
+  }, [initialValues])
+
+  let setConnectorAsActive = values => {
+    // sets the status as active and diabled as false
+    let dictOfInitialValues = values->getDictFromJsonObject
+    dictOfInitialValues->Dict.set("disabled", false->Js.Json.boolean)
+    dictOfInitialValues->Dict.set("status", "active"->Js.Json.string)
+    setInitialValues(_ => dictOfInitialValues->Js.Json.object_)
+  }
 
   let updateConnectorDetails = async values => {
     open ConnectorUtils
     try {
       setScreenState(_ => Loading)
-      let res = await updateConnectorAccountDetails(values, connectorId, connector, isUpdateFlow)
-
-      setInitialValues(_ => res)
+      let res = await updateConnectorAccountDetails(
+        values,
+        connectorId,
+        connector,
+        isUpdateFlow,
+        true,
+        "inactive",
+      )
+      if configuartionType === Manual {
+        setConnectorAsActive(res)
+      } else {
+        setInitialValues(_ => res)
+      }
       let connectorId = res->getDictFromJsonObject->getString("merchant_connector_id", "")
       setConnectorId(_ => connectorId)
       setScreenState(_ => Success)
-      setSetupAccountStatus(._ => Redirecting_to_paypal)
+      RescriptReactRouter.replace(`/connectors/${connectorId}?name=paypal`)
     } catch {
-    | Js.Exn.Error(e) => {
-        switch Js.Exn.message(e) {
-        | Some(message) => {
-            let errMsg = message->parseIntoMyData
-            if errMsg.code->Belt.Option.getWithDefault("")->Js.String2.includes("HE_01") {
-              showToast(
-                ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
-                ~toastType=ToastState.ToastError,
-                (),
-              )
-              setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
-              setSetupAccountStatus(._ => Connect_paypal_landing)
-              setScreenState(_ => Success)
-            } else {
-              showToast(
-                ~message="Failed to Save the Configuration!",
-                ~toastType=ToastState.ToastError,
-                (),
-              )
-              setScreenState(_ => Error(message))
-            }
+    | Js.Exn.Error(e) =>
+      switch Js.Exn.message(e) {
+      | Some(message) => {
+          let errMsg = message->parseIntoMyData
+          if errMsg.code->Belt.Option.getWithDefault("")->Js.String2.includes("HE_01") {
+            showToast(
+              ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
+              ~toastType=ToastState.ToastError,
+              (),
+            )
+            setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
+            setSetupAccountStatus(._ => Connect_paypal_landing)
+            setScreenState(_ => Success)
+          } else {
+            showToast(
+              ~message="Failed to Save the Configuration!",
+              ~toastType=ToastState.ToastError,
+              (),
+            )
+            setScreenState(_ => Error(message))
           }
-
-        | None => setScreenState(_ => Error("Failed to Fetch!"))
         }
-        Js.Exn.raiseError("Failed to Fetch!")
+
+      | None => setScreenState(_ => Error("Failed to Fetch!"))
       }
     }
   }
-
-  let handleStateToNextPage = () => {
-    setCurrentStep(_ => ConnectorTypes.PaymentMethods)
-  }
-  let getStatus = React.useCallback0(async () => {
-    open PayPalFlowUtils
-    try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let profileId = initialValues->getDictFromJsonObject->getString("profile_id", "")
-      let paypalBody = generatePayPalBody(
-        ~connectorId={connectorId},
-        ~profileId=Some(profileId),
-        (),
-      )
-      let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/sync`
-      let responseValue = await updateDetails(url, paypalBody, Fetch.Post, ())
-      let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
-
-      switch paypalDict->Js.Json.classify {
-      | JSONString(str) => setSetupAccountStatus(._ => str->stringToVariantMapper)
-      | JSONObject(dict) =>
-        handleObjectResponse(
-          ~dict,
-          ~setSetupAccountStatus,
-          ~setInitialValues,
-          ~connector,
-          ~handleStateToNextPage,
-        )
-      | _ => ()
-      }
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    // TODO: check error cases
-    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
-    }
-  })
 
   React.useEffect0(() => {
     if isRedirectedFromPaypalModal {
-      getStatus()->ignore
+      getPayPalStatus()->ignore
     }
     if !isUpdateFlow {
       RescriptReactRouter.replace("/connectors/new?name=paypal")
@@ -394,67 +381,64 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
     errors->Js.Json.object_
   }
 
-  let handleConnector = async values => {
+  let handleChangeAuthType = async values => {
     try {
-      await updateConnectorDetails(values)
+      // This will only be called whenever there is a update flow
+      // And whenever we are changing the flow from Manual to Automatic or vice-versa
+      // To check if the flow is changed we are using auth type (BodyKey for Manual and SignatureKey for Automatic)
+      // It deletes the old tracking id associated with the connector id and deletes the connector credentials
+
+      let _ = await deleteTrackingDetails(connectorId, connector)
+      let _ = await updateConnectorDetails(values)
+
+      switch configuartionType {
+      | Automatic => setSetupAccountStatus(._ => Redirecting_to_paypal)
+      | Manual | _ => setCurrentStep(_ => ConnectorTypes.IntegFields)
+      }
     } catch {
     | Js.Exn.Error(_e) => ()
     }
   }
 
-  let setConnectorAsActive = values => {
-    // sets the status as active and diabled as false
-    let dictOfInitialValues = values->getDictFromJsonObject
-    dictOfInitialValues->Dict.set("disabled", false->Js.Json.boolean)
-    dictOfInitialValues->Dict.set("status", "active"->Js.Json.string)
-    setInitialValues(_ => dictOfInitialValues->Js.Json.object_)
-  }
+  let handleOnSubmitRevamp = async (values, _) => {
+    open PayPalFlowUtils
+    let authType = initialValues->getAuthTypeFromConnectorDetails
 
-  let handleOnSubmit = async (values, _) => {
-    if setupAccountStatus === Connect_paypal_landing {
-      let authType =
-        initialValues
-        ->getDictFromJsonObject
-        ->getDictfromDict("connector_account_details")
-        ->getString("auth_type", "")
-        ->Js.String2.toLowerCase
-        ->ConnectorUtils.mapAuthType
-
-      // This will only be called whenever there is a update flow
-      // And whenever we are changing the flow from Manual to Automatic or vice-versa
-      // To check if the flow is changed we are using auth type (BodyKey for Manual and SignatureKey for Automatic)
-      // It deletes the old tracking id associated with the connector id and deletes the connector credentials
-      if (
-        isUpdateFlow &&
-        authType !==
-          PayPalFlowUtils.getBodyType(isUpdateFlow, configuartionType)
-          ->String.toLowerCase
-          ->ConnectorUtils.mapAuthType
-      ) {
-        let _ = await deleteTrackingDetails(connectorId, connector)
-        let dictOfInitialValues = values->getDictFromJsonObject
-        let temporaryAuthDict =
-          [("auth_type", "TemporaryAuth"->Js.Json.string)]->getJsonFromArrayOfJson
-        dictOfInitialValues->Dict.set("connector_account_details", temporaryAuthDict)
-        setInitialValues(_ => dictOfInitialValues->Js.Json.object_)
-        let res = await updateConnectorAccountDetails(
-          dictOfInitialValues->Js.Json.object_,
-          connectorId,
-          connector,
-          isUpdateFlow,
-        )
-        setInitialValues(_ => res)
-      }
-
-      // Functionality when the proceed button is clicked
+    // create flow
+    if !isUpdateFlow {
       switch configuartionType {
       | Automatic => {
-          setInitialValues(_ => values)
-          handleConnector(values)->ignore
+          await updateConnectorDetails(values)
+          setSetupAccountStatus(._ => Redirecting_to_paypal)
         }
+
+      | Manual | _ =>
+        setConnectorAsActive(values)
+        setCurrentStep(_ => ConnectorTypes.IntegFields)
+      }
+    } // update flow if body type is changed
+    else if (
+      authType !==
+        PayPalFlowUtils.getBodyType(isUpdateFlow, configuartionType)
+        ->String.toLowerCase
+        ->ConnectorUtils.mapAuthType
+    ) {
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Warning changing configuration",
+        description: React.string(`Modifying the configuration will result in the loss of existing details associated with this connector. Are you certain you want to continue?`),
+        handleConfirm: {
+          text: "Proceed",
+          onClick: {_ => handleChangeAuthType(values)->ignore},
+        },
+        handleCancel: {text: "Cancel"},
+      })
+    } else {
+      // update flow if body type is not changed
+      switch configuartionType {
+      | Automatic => setCurrentStep(_ => ConnectorTypes.PaymentMethods)
       | Manual | _ => {
           setConnectorAsActive(values)
-          setInitialValues(_ => values)
           setCurrentStep(_ => ConnectorTypes.IntegFields)
         }
       }
@@ -487,7 +471,7 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
       <Form
         initialValues={updatedInitialVal}
         validate={validateMandatoryFieldForPaypal}
-        onSubmit={handleOnSubmit}>
+        onSubmit={handleOnSubmitRevamp}>
         <div>
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector
@@ -523,7 +507,7 @@ let make = (~connector, ~isUpdateFlow, ~setInitialValues, ~initialValues, ~setCu
               | Ppcp_custom_denied
               | More_permissions_needed
               | Email_not_verified =>
-                <RedirectionToPayPalFlow connectorId getStatus />
+                <RedirectionToPayPalFlow getPayPalStatus />
               | _ => React.null
               }}
             </div>
