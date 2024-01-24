@@ -3,6 +3,29 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 1.29.0 (2024-01-24)
+
+### Features
+
+- Added webhooks events ([#272](https://github.com/juspay/hyperswitch-control-center/pull/272)) ([`17efd52`](https://github.com/juspay/hyperswitch-control-center/commit/17efd52ad93f9b4350b68931d2dd43bf8dadb841))
+- Syntax highlighter ([#300](https://github.com/juspay/hyperswitch-control-center/pull/300)) ([`d4b800f`](https://github.com/juspay/hyperswitch-control-center/commit/d4b800f32927a6e28a991e574cf312124add26bc))
+
+### Bug Fixes
+
+- Headers issue ([#295](https://github.com/juspay/hyperswitch-control-center/pull/295)) ([`91f98c4`](https://github.com/juspay/hyperswitch-control-center/commit/91f98c4aedb7b744043e63405ed9189b14103fb9))
+- Quick start default selection issue ([#287](https://github.com/juspay/hyperswitch-control-center/pull/287)) ([`0ce1d05`](https://github.com/juspay/hyperswitch-control-center/commit/0ce1d055066453338b98b725fef5dcb5c8a402b6))
+- Content type fix ([#302](https://github.com/juspay/hyperswitch-control-center/pull/302)) ([`ad2ffb9`](https://github.com/juspay/hyperswitch-control-center/commit/ad2ffb9df736e6617a6ebfd3fb6e7cd1803458af))
+
+### Miscellaneous Tasks
+
+- Utils refactor ([#282](https://github.com/juspay/hyperswitch-control-center/pull/282)) ([`40954d2`](https://github.com/juspay/hyperswitch-control-center/commit/40954d25e225520d41bd2585f2b0fbfc4d9ee965))
+- Remove redundant code ([#298](https://github.com/juspay/hyperswitch-control-center/pull/298)) ([`d047ae7`](https://github.com/juspay/hyperswitch-control-center/commit/d047ae7905b3df6fc19679519ed29ad17c164e29))
+
+**Full Changelog:** [`v1.28.1...v1.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/v1.28.1...v1.29.0)
+
+- - -
+
+
 ## 1.28.1 (2024-01-23)
 
 ### Bug Fixes
