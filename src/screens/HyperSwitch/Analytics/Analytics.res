@@ -1,7 +1,4 @@
 @get external keyCode: 'a => int = "keyCode"
-type window
-@val external window: window = "window"
-@scope("window") @val external parent: window = "parent"
 
 open LogicUtils
 

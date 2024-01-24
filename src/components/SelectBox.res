@@ -4,9 +4,6 @@ external toDict: 'a => Dict.t<'t> = "%identity"
 @send external getClientRects: Dom.element => Dom.domRect = "getClientRects"
 @send external focus: Dom.element => unit = "focus"
 
-@val @scope("window") external windowInnerHeight: int = "innerHeight"
-@val @scope("window") external windowInnerWidth: int = "innerWidth"
-
 external ffInputToSelectInput: ReactFinalForm.fieldRenderPropsInput => ReactFinalForm.fieldRenderPropsCustomInput<
   array<string>,
 > = "%identity"
@@ -1624,9 +1621,9 @@ module BaseDropdown = {
         ->Js.Nullable.toOption
         ->Option.flatMap(elem => elem->getClientRects->toDict->Dict.get("0"))
         ->Option.flatMap(firstEl => {
-          let bottomVacent = windowInnerHeight - firstEl["bottom"]->Belt.Float.toInt > 375
+          let bottomVacent = Window.innerHeight - firstEl["bottom"]->Belt.Float.toInt > 375
           let topVacent = firstEl["top"]->Belt.Float.toInt > 470
-          let rightVacent = windowInnerWidth - firstEl["left"]->Belt.Float.toInt > 270
+          let rightVacent = Window.innerWidth - firstEl["left"]->Belt.Float.toInt > 270
           let leftVacent = firstEl["right"]->Belt.Float.toInt > 270
 
           if bottomVacent {
