@@ -131,7 +131,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let borderWidth = isPayoutFlow ? "w-8/12" : "w-9/12"
 
   let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
-  let getPayPalStatus = React.useCallback2(async () => {
+  let getPayPalStatus = React.useCallback3(async () => {
     open PayPalFlowUtils
     open LogicUtils
     try {
@@ -163,12 +163,11 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    // TODO: check error cases
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
-  }, (setInitialValues, setSetupAccountStatus))
+  }, (connector, setInitialValues, setSetupAccountStatus))
 
-  let customUI =
+  let customUiForPaypal =
     <DefaultLandingPage
       title="Oops, we hit a little bump on the road!"
       customStyle={`py-16 !m-0 `}
@@ -184,7 +183,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       isButton=true
     />
 
-  <PageLoaderWrapper screenState customUI>
+  <PageLoaderWrapper screenState customUI={customUiForPaypal}>
     <div className="flex flex-col gap-10 overflow-scroll h-full w-full">
       <UIUtils.RenderIf condition={showBreadCrumb}>
         <BreadCrumbNavigation

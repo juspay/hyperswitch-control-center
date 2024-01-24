@@ -387,7 +387,7 @@ let make = (
       // And whenever we are changing the flow from Manual to Automatic or vice-versa
       // To check if the flow is changed we are using auth type (BodyKey for Manual and SignatureKey for Automatic)
       // It deletes the old tracking id associated with the connector id and deletes the connector credentials
-
+      setScreenState(_ => Loading)
       let _ = await deleteTrackingDetails(connectorId, connector)
       let _ = await updateConnectorDetails(values)
 
@@ -395,53 +395,58 @@ let make = (
       | Automatic => setSetupAccountStatus(._ => Redirecting_to_paypal)
       | Manual | _ => setCurrentStep(_ => ConnectorTypes.IntegFields)
       }
+      setScreenState(_ => Success)
     } catch {
-    | Js.Exn.Error(_e) => ()
+    | Js.Exn.Error(_e) => setScreenState(_ => Error("Unable to change the configuartion"))
     }
   }
 
-  let handleOnSubmitRevamp = async (values, _) => {
+  let handleOnSubmit = async (values, _) => {
     open PayPalFlowUtils
-    let authType = initialValues->getAuthTypeFromConnectorDetails
+    try {
+      let authType = initialValues->getAuthTypeFromConnectorDetails
 
-    // create flow
-    if !isUpdateFlow {
-      switch configuartionType {
-      | Automatic => {
-          await updateConnectorDetails(values)
-          setSetupAccountStatus(._ => Redirecting_to_paypal)
-        }
+      // create flow
+      if !isUpdateFlow {
+        switch configuartionType {
+        | Automatic => {
+            await updateConnectorDetails(values)
+            setSetupAccountStatus(._ => Redirecting_to_paypal)
+          }
 
-      | Manual | _ =>
-        setConnectorAsActive(values)
-        setCurrentStep(_ => ConnectorTypes.IntegFields)
-      }
-    } // update flow if body type is changed
-    else if (
-      authType !==
-        PayPalFlowUtils.getBodyType(isUpdateFlow, configuartionType)
-        ->String.toLowerCase
-        ->ConnectorUtils.mapAuthType
-    ) {
-      showPopUp({
-        popUpType: (Warning, WithIcon),
-        heading: "Warning changing configuration",
-        description: React.string(`Modifying the configuration will result in the loss of existing details associated with this connector. Are you certain you want to continue?`),
-        handleConfirm: {
-          text: "Proceed",
-          onClick: {_ => handleChangeAuthType(values)->ignore},
-        },
-        handleCancel: {text: "Cancel"},
-      })
-    } else {
-      // update flow if body type is not changed
-      switch configuartionType {
-      | Automatic => setCurrentStep(_ => ConnectorTypes.PaymentMethods)
-      | Manual | _ => {
+        | Manual | _ =>
           setConnectorAsActive(values)
           setCurrentStep(_ => ConnectorTypes.IntegFields)
         }
+      } // update flow if body type is changed
+      else if (
+        authType !==
+          PayPalFlowUtils.getBodyType(isUpdateFlow, configuartionType)
+          ->String.toLowerCase
+          ->ConnectorUtils.mapAuthType
+      ) {
+        showPopUp({
+          popUpType: (Warning, WithIcon),
+          heading: "Warning changing configuration",
+          description: React.string(`Modifying the configuration will result in the loss of existing details associated with this connector. Are you certain you want to continue?`),
+          handleConfirm: {
+            text: "Proceed",
+            onClick: {_ => handleChangeAuthType(values)->ignore},
+          },
+          handleCancel: {text: "Cancel"},
+        })
+      } else {
+        // update flow if body type is not changed
+        switch configuartionType {
+        | Automatic => setCurrentStep(_ => ConnectorTypes.PaymentMethods)
+        | Manual | _ => {
+            setConnectorAsActive(values)
+            setCurrentStep(_ => ConnectorTypes.IntegFields)
+          }
+        }
       }
+    } catch {
+    | _ => setScreenState(_ => Error("Failed to submit"))
     }
     Js.Nullable.null
   }
@@ -471,7 +476,7 @@ let make = (
       <Form
         initialValues={updatedInitialVal}
         validate={validateMandatoryFieldForPaypal}
-        onSubmit={handleOnSubmitRevamp}>
+        onSubmit={handleOnSubmit}>
         <div>
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector

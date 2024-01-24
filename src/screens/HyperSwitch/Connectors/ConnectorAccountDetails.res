@@ -2,10 +2,11 @@
 let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~isPayoutFlow) => {
   open ConnectorUtils
   open APIUtils
+  open LogicUtils
   open ConnectorAccountDetailsHelper
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
-  let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+  let connector = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
   let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -58,20 +59,17 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let (showModal, setShowModal) = React.useState(_ => false)
 
   let updatedInitialVal = React.useMemo1(() => {
-    let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
+    let initialValuesToDict = initialValues->getDictFromJsonObject
 
     if !isUpdateFlow {
       if connector === "paypal" {
         initialValuesToDict->Dict.set(
           "connector_label",
-          initialValues
-          ->LogicUtils.getDictFromJsonObject
-          ->LogicUtils.getString("connector_label", "")
-          ->Js.Json.string,
+          initialValues->getDictFromJsonObject->getString("connector_label", "")->Js.Json.string,
         )
         initialValuesToDict->Js.Dict.set(
           "profile_id",
-          initialValuesToDict->LogicUtils.getString("profile_id", "")->Js.Json.string,
+          initialValuesToDict->getString("profile_id", "")->Js.Json.string,
         )
       } else if connector->String.length > 0 {
         initialValuesToDict->Dict.set(
@@ -183,7 +181,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let validateMandatoryField = values => {
     let errors = Dict.make()
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
-    let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
+    let profileId = valuesFlattenJson->getString("profile_id", "")
     if profileId->String.length === 0 {
       Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
     }

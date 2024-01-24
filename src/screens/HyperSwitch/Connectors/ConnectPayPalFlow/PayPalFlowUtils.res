@@ -186,7 +186,7 @@ let useDeleteTrackingDetails = () => {
       let _res = await updateDetails(url, body, Post, ())
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to update!")
         Js.Exn.raiseError(err)
       }
     }
