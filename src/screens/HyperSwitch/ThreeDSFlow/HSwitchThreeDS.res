@@ -186,7 +186,12 @@ let make = () => {
       let threeDsPayload = values->buildThreeDsPayloadBody
 
       let getActivateUrl = getURL(~entityName=THREE_DS, ~methodType=Put, ())
-      let _ = await updateDetails(getActivateUrl, threeDsPayload->Identity.genericTypeToJson, Put)
+      let _ = await updateDetails(
+        getActivateUrl,
+        threeDsPayload->Identity.genericTypeToJson,
+        Put,
+        (),
+      )
       fetchDetails()->ignore
       setShowWarning(_ => true)
       RescriptReactRouter.replace(`/3ds`)

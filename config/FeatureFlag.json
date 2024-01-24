@@ -22,5 +22,6 @@
   "forgot_password": false,
   "user_journey_analytics": false,
   "surcharge": false,
-  "customers_module": false
+  "customers_module": false,
+  "permission_based_module": false
 }
