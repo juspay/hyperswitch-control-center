@@ -34,9 +34,6 @@ let getHeaders = (~uri, ~headers, ()) => {
   Fetch.HeadersInit.make(headerObj->dictToObj)
 }
 
-@val @scope(("window", "location"))
-external hostName: string = "host"
-
 type betaEndpoint = {
   betaApiStr: string,
   originalApiStr: string,
