@@ -45,18 +45,15 @@ module PayPalCreateNewAccountModal = {
       None
     })
 
-    <button
-      className="!w-fit rounded-md bg-blue-700 text-white px-4  h-fit border py-3 flex items-center justify-center gap-2"
-      onClick={e => {
-        e->ReactEvent.Mouse.stopPropagation
-      }}>
-      <AddDataAttributes attributes=[("data-paypal-button", "true")]>
-        <a href={`${actionUrl}&displayMode=minibrowser`} target="PPFrame">
-          {butttonDisplayText->React.string}
-        </a>
-      </AddDataAttributes>
-      <Icon name="thin-right-arrow" size=20 />
-    </button>
+    <AddDataAttributes attributes=[("data-paypal-button", "true")]>
+      <a
+        className="!w-fit rounded-md bg-blue-700 text-white px-4  h-fit border py-3 flex items-center justify-center gap-2"
+        href={`${actionUrl}&displayMode=minibrowser`}
+        target="PPFrame">
+        {butttonDisplayText->React.string}
+        <Icon name="thin-right-arrow" size=20 />
+      </a>
+    </AddDataAttributes>
   }
 }
 module ManualSetupScreen = {

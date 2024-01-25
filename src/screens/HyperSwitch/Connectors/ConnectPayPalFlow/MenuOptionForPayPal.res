@@ -98,7 +98,11 @@ let make = (
                 condition={connectorInfo.connector_account_details.auth_type->ConnectorUtils.mapAuthType ===
                   #SignatureKey}>
                 <Navbar.MenuOption
-                  text="Create new PayPal account" onClick={_ => popupForNewPayPalAccount()}
+                  text="Create new PayPal account"
+                  onClick={_ => {
+                    popupForNewPayPalAccount()
+                    panelProps["close"]()
+                  }}
                 />
               </UIUtils.RenderIf>
               <Navbar.MenuOption
@@ -132,6 +136,7 @@ let make = (
               <Navbar.MenuOption
                 text={connectorStatusAvailableToSwitch}
                 onClick={_ => {
+                  panelProps["close"]()
                   openConfirmationPopUp()
                 }}
               />
