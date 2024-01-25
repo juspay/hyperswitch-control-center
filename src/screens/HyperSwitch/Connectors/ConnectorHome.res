@@ -83,7 +83,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID), ())
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
-      if isSimplifiedPayPalFlow->Js.String2.length === 0 {
+      if isSimplifiedPayPalFlow->String.length === 0 {
         setCurrentStep(_ => Preview)
       }
     } catch {
