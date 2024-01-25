@@ -208,6 +208,6 @@ let getAuthTypeFromConnectorDetails = json => {
   ->getDictFromJsonObject
   ->getDictfromDict("connector_account_details")
   ->getString("auth_type", "")
-  ->Js.String2.toLowerCase
+  ->String.toLowerCase
   ->ConnectorUtils.mapAuthType
 }
