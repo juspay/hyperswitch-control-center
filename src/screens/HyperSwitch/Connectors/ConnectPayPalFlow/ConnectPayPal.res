@@ -121,20 +121,21 @@ module LandingScreen = {
 module ErrorPage = {
   @react.component
   let make = (~setupAccountStatus, ~actionUrl, ~getPayPalStatus, ~setScreenState) => {
+    open UIUtils
     let errorPageDetails = setupAccountStatus->PayPalFlowUtils.getPageDetailsForAutomatic
 
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-6 p-8 bg-jp-gray-light_gray_bg">
         <Icon name="error-icon" size=24 />
         <div className="flex flex-col gap-2">
-          <UIUtils.RenderIf condition={errorPageDetails.headerText->Js.String2.length > 0}>
+          <RenderIf condition={errorPageDetails.headerText->String.length > 0}>
             <p className={`${p1RegularTextClass} !opacity-100`}>
               {errorPageDetails.headerText->React.string}
             </p>
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={errorPageDetails.subText->Js.String2.length > 0}>
+          </RenderIf>
+          <RenderIf condition={errorPageDetails.subText->String.length > 0}>
             <p className=p1RegularTextClass> {errorPageDetails.subText->React.string} </p>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
         <div className="flex gap-4 items-center">
           <PayPalCreateNewAccountModal
@@ -147,13 +148,13 @@ module ErrorPage = {
             onClick={_ => getPayPalStatus()->ignore}
           />
         </div>
-        <UIUtils.RenderIf condition={errorPageDetails.buttonText->Belt.Option.isSome}>
+        <RenderIf condition={errorPageDetails.buttonText->Belt.Option.isSome}>
           <PayPalCreateNewAccountModal
-            butttonDisplayText={errorPageDetails.buttonText->Belt.Option.getWithDefault("")}
+            butttonDisplayText={errorPageDetails.buttonText->Option.getWithDefault("")}
             actionUrl
             setScreenState
           />
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }
@@ -166,7 +167,7 @@ module RedirectionToPayPalFlow = {
 
     let url = RescriptReactRouter.useUrl()
     let path = url.path->Belt.List.toArray->Array.joinWith("/")
-    let connectorId = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
+    let connectorId = url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault("")
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (actionUrl, setActionUrl) = React.useState(_ => "")
@@ -256,18 +257,15 @@ let make = (
     HyperswitchAtom.paypalAccountStatusAtom,
   )
   let connectorValue = isUpdateFlow
-    ? url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
-    : url.search
-      ->getDictFromUrlSearchParams
-      ->Dict.get("connectorId")
-      ->Belt.Option.getWithDefault("")
+    ? url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault("")
+    : url.search->getDictFromUrlSearchParams->Dict.get("connectorId")->Option.getWithDefault("")
 
   let (connectorId, setConnectorId) = React.useState(_ => connectorValue)
   let isRedirectedFromPaypalModal =
     url.search
     ->getDictFromUrlSearchParams
     ->Dict.get("is_back")
-    ->Belt.Option.getWithDefault("")
+    ->Option.getWithDefault("")
     ->getBoolFromString(false)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
@@ -333,7 +331,7 @@ let make = (
       switch Js.Exn.message(e) {
       | Some(message) => {
           let errMsg = message->parseIntoMyData
-          if errMsg.code->Belt.Option.getWithDefault("")->Js.String2.includes("HE_01") {
+          if errMsg.code->Option.getWithDefault("")->Js.String2.includes("HE_01") {
             showToast(
               ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
               ~toastType=ToastState.ToastError,
@@ -372,7 +370,7 @@ let make = (
     let errors = Dict.make()
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
     let profileId = valuesFlattenJson->getString("profile_id", "")
-    if profileId->Js.String2.length === 0 {
+    if profileId->String.length === 0 {
       Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
     }
     errors->Js.Json.object_
@@ -394,7 +392,7 @@ let make = (
       }
       setScreenState(_ => Success)
     } catch {
-    | Js.Exn.Error(_e) => setScreenState(_ => Error("Unable to change the configuartion"))
+    | Js.Exn.Error(_) => setScreenState(_ => Error("Unable to change the configuartion"))
     }
   }
 

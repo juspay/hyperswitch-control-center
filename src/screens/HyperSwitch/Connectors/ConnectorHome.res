@@ -76,14 +76,14 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     url.search
     ->LogicUtils.getDictFromUrlSearchParams
     ->Dict.get("is_simplified_paypal")
-    ->Belt.Option.getWithDefault("")
+    ->Option.getWithDefault("")
 
   let getConnectorDetails = async () => {
     try {
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Get, ~id=Some(connectorID), ())
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
-      if isSimplifiedPayPalFlow->Js.String2.length === 0 {
+      if isSimplifiedPayPalFlow->String.length === 0 {
         setCurrentStep(_ => Preview)
       }
     } catch {

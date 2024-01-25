@@ -11,6 +11,7 @@ let make = (
   ~setInitialValues,
 ) => {
   open HeadlessUI
+  open UIUtils
   let showPopUp = PopUpState.useShowPopUp()
   let showToast = ToastState.useShowToast()
   let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
@@ -94,7 +95,7 @@ let make = (
             id="neglectTopbarTheme"
             className="relative flex flex-col bg-white py-3 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-max">
             {<>
-              <UIUtils.RenderIf
+              <RenderIf
                 condition={connectorInfo.connector_account_details.auth_type->ConnectorUtils.mapAuthType ===
                   #SignatureKey}>
                 <Navbar.MenuOption
@@ -104,7 +105,7 @@ let make = (
                     panelProps["close"]()
                   }}
                 />
-              </UIUtils.RenderIf>
+              </RenderIf>
               <Navbar.MenuOption
                 text="Change configurations"
                 onClick={_ => {
@@ -112,7 +113,7 @@ let make = (
                   setSetupAccountStatus(._ => PayPalFlowTypes.Connect_paypal_landing)
                 }}
               />
-              <UIUtils.RenderIf
+              <RenderIf
                 condition={connectorInfo.connector_account_details.auth_type->ConnectorUtils.mapAuthType ===
                   #BodyKey}>
                 <Navbar.MenuOption
@@ -122,8 +123,8 @@ let make = (
                     setSetupAccountStatus(._ => PayPalFlowTypes.Manual_setup_flow)
                   }}
                 />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf
+              </RenderIf>
+              <RenderIf
                 condition={connectorInfo.connector_account_details.auth_type->ConnectorUtils.mapAuthType ===
                   #SignatureKey}>
                 <Navbar.MenuOption
@@ -132,7 +133,7 @@ let make = (
                     setCurrentStep(_ => updateStepValue)
                   }}
                 />
-              </UIUtils.RenderIf>
+              </RenderIf>
               <Navbar.MenuOption
                 text={connectorStatusAvailableToSwitch}
                 onClick={_ => {

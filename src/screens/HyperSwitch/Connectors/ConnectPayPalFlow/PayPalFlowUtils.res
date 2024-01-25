@@ -133,7 +133,7 @@ let generatePayPalBody = (~returnUrl=None, ~connectorId, ~profileId=None, ()) =>
     [
       ("connector", "paypal"->Js.Json.string),
       ("connector_id", connectorId->Js.Json.string),
-      ("profile_id", profileId->Belt.Option.getWithDefault("")->Js.Json.string),
+      ("profile_id", profileId->Option.getWithDefault("")->Js.Json.string),
     ]->LogicUtils.getJsonFromArrayOfJson
   }
 }
@@ -158,7 +158,7 @@ let useDeleteTrackingDetails = () => {
       let _ = await updateDetails(url, body, Post, ())
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to update!")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to update!")
         Js.Exn.raiseError(err)
       }
     }
@@ -195,7 +195,7 @@ let useDeleteConnectorAccountDetails = () => {
       res
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
         Js.Exn.raiseError(err)
       }
     }
