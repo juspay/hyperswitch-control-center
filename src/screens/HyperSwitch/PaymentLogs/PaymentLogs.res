@@ -59,23 +59,28 @@ module PrettyPrintJson = {
               {copyParsedJson}
             </div>
           </UIUtils.RenderIf>
-          <ReactSyntaxHighlighter.SyntaxHighlighter
-            style={ReactSyntaxHighlighter.lightfair}
-            language="json"
-            showLineNumbers={true}
-            lineNumberContainerStyle={{
-              paddingLeft: "0px",
-              backgroundColor: "red",
-              padding: "100px",
-            }}
-            customStyle={{
-              backgroundColor: "transparent",
-              lineHeight: "1.7rem",
-              fontSize: "0.875rem",
-              padding: "5px",
-            }}>
-            {parsedJson}
-          </ReactSyntaxHighlighter.SyntaxHighlighter>
+          <div
+            className={isTextVisible
+              ? "overflow-visible "
+              : `overflow-clip  h-fit ${maxHeightClass}`}>
+            <ReactSyntaxHighlighter.SyntaxHighlighter
+              style={ReactSyntaxHighlighter.lightfair}
+              language="json"
+              showLineNumbers={true}
+              lineNumberContainerStyle={{
+                paddingLeft: "0px",
+                backgroundColor: "red",
+                padding: "100px",
+              }}
+              customStyle={{
+                backgroundColor: "transparent",
+                lineHeight: "1.7rem",
+                fontSize: "0.875rem",
+                padding: "5px",
+              }}>
+              {parsedJson}
+            </ReactSyntaxHighlighter.SyntaxHighlighter>
+          </div>
           <Button
             text={isTextVisible ? "Hide" : "See more"}
             customButtonStyle="h-6 w-8 flex flex-1 justify-center m-1"
