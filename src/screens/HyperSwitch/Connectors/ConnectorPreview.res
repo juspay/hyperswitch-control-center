@@ -72,12 +72,14 @@ module MenuOption = {
                 <Navbar.MenuOption
                   text="Update"
                   onClick={_ => {
+                    panelProps["close"]()
                     setCurrentStep(_ => updateStepValue)
                   }}
                 />
                 <Navbar.MenuOption
                   text={connectorStatusAvailableToSwitch}
                   onClick={_ => {
+                    panelProps["close"]()
                     openConfirmationPopUp()
                   }}
                 />

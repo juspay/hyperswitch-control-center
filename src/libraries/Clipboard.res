@@ -15,12 +15,9 @@ external prepend: 'a => unit = "prepend"
 @val @scope("document")
 external execCommand: string => unit = "execCommand"
 
-@val @scope("window")
-external isSecureContext: bool = "isSecureContext"
-
 let writeText = (str: string) => {
   try {
-    if isSecureContext {
+    if Window.isSecureContext {
       writeTextDoc(str)
     } else {
       let textArea = document->DOMUtils.createElement("textarea")

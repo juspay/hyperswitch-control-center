@@ -1,6 +1,3 @@
-@val @scope(("window", "location"))
-external reload: unit => unit = "reload"
-
 type status = COMPLETED | ONGOING | PENDING
 
 type subOption = {

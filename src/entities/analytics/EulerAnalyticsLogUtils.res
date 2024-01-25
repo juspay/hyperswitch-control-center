@@ -1,5 +1,3 @@
-@val @scope("window")
-external location: {..} = "location"
 external toJson: exn => Js.Json.t = "%identity"
 external toExn: string => exn = "%identity"
 

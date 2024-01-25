@@ -24,6 +24,7 @@ let getHeaders = (~uri, ~headers, ()) => {
     | Some(token) => {
         headers->Dict.set("authorization", `Bearer ${token}`)
         headers->Dict.set("api-key", `hyperswitch`)
+        headers->Dict.set("Content-Type", `application/json`)
         headers
       }
 
@@ -33,9 +34,6 @@ let getHeaders = (~uri, ~headers, ()) => {
   }
   Fetch.HeadersInit.make(headerObj->dictToObj)
 }
-
-@val @scope(("window", "location"))
-external hostName: string = "host"
 
 type betaEndpoint = {
   betaApiStr: string,
