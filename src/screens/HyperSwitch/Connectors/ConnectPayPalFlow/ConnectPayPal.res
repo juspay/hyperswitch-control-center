@@ -261,12 +261,6 @@ let make = (
     : url.search->getDictFromUrlSearchParams->Dict.get("connectorId")->Option.getWithDefault("")
 
   let (connectorId, setConnectorId) = React.useState(_ => connectorValue)
-  let isRedirectedFromPaypalModal =
-    url.search
-    ->getDictFromUrlSearchParams
-    ->Dict.get("is_back")
-    ->Option.getWithDefault("")
-    ->getBoolFromString(false)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuartionType, setConfigurationType) = React.useState(_ => PayPalFlowTypes.NotSelected)
@@ -333,13 +327,6 @@ let make = (
       }
     }
   }
-
-  React.useEffect0(() => {
-    if isRedirectedFromPaypalModal {
-      getPayPalStatus()->ignore
-    }
-    None
-  })
 
   let validateMandatoryFieldForPaypal = values => {
     let errors = Dict.make()
