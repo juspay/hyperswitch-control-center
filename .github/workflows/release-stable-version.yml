@@ -73,7 +73,7 @@ jobs:
             [[ status_code -eq 200 ]]
           }
 
-          allowed_teams=('hyperswitch-admins' 'hyperswitch-maintainers')
+          allowed_teams=('hyperswitch-control-center-maintainers')
           is_user_authorized=false
           username=${{ github.triggering_actor }}
 
