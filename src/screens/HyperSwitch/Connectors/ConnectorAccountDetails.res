@@ -62,7 +62,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
     let initialValuesToDict = initialValues->getDictFromJsonObject
 
     if !isUpdateFlow {
-      if connector === "paypal" {
+      if connector->getConnectorNameTypeFromString === PAYPAL {
         initialValuesToDict->Dict.set(
           "connector_label",
           initialValues->getDictFromJsonObject->getString("connector_label", "")->Js.Json.string,
@@ -231,7 +231,9 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
         connector
         headerButton={<FormRenderer.SubmitButton loadingText="Processing..." text=buttonText />}
         handleShowModal>
-        <UIUtils.RenderIf condition={featureFlagDetails.businessProfile && connector !== "paypal"}>
+        <UIUtils.RenderIf
+          condition={featureFlagDetails.businessProfile &&
+          connector->getConnectorNameTypeFromString !== PAYPAL}>
           <div className="flex flex-col gap-2 p-2 md:p-10">
             <ConnectorAccountDetailsHelper.BusinessProfileRender
               isUpdateFlow selectedConnector={connector}

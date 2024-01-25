@@ -65,6 +65,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
+  let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
 
   let isUpdateFlow = switch url.path {
   | list{"connectors", "new"} => false
@@ -94,6 +95,9 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let getDetails = async () => {
     try {
       setScreenState(_ => Loading)
+      if connector->getConnectorNameTypeFromString == PAYPAL {
+        setSetupAccountStatus(._ => PayPalFlowTypes.Connect_paypal_landing)
+      }
       let _ = await Window.connectorWasmInit()
       setCurrentStep(_ =>
         connectorListWithAutomaticFlow->Js.Array2.includes(
@@ -163,7 +167,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
-  }, (connector, profileId, setSetupAccountStatus))
+  }, (connector, profileId, connectorID))
 
   let customUiForPaypal =
     <DefaultLandingPage
