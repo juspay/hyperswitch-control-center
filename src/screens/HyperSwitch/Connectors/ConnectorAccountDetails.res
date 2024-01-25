@@ -67,7 +67,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
           "connector_label",
           initialValues->getDictFromJsonObject->getString("connector_label", "")->Js.Json.string,
         )
-        initialValuesToDict->Js.Dict.set(
+        initialValuesToDict->Dict.set(
           "profile_id",
           initialValuesToDict->getString("profile_id", "")->Js.Json.string,
         )
@@ -76,7 +76,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
           "connector_label",
           `${connector}_${activeBusinessProfile.profile_name}`->Js.Json.string,
         )
-        initialValuesToDict->Js.Dict.set(
+        initialValuesToDict->Dict.set(
           "profile_id",
           activeBusinessProfile.profile_id->Js.Json.string,
         )
