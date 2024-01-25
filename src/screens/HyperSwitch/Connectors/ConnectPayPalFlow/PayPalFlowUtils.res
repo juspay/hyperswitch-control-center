@@ -76,14 +76,12 @@ let handleObjectResponse = (~dict, ~setInitialValues, ~connector, ~handleStateTo
 
 let getBodyType = (isUpdateFlow, configuartionType) => {
   open PayPalFlowTypes
-  switch isUpdateFlow {
-  | false => "TemporaryAuth"
-  | true =>
-    switch configuartionType {
-    | Manual => "BodyKey"
-    | Automatic | NotSelected => "SignatureKey"
-    }
-  }
+  isUpdateFlow
+    ? switch configuartionType {
+      | Manual => "BodyKey"
+      | Automatic | NotSelected => "SignatureKey"
+      }
+    : "TemporaryAuth"
 }
 
 let generateConnectorPayloadPayPal = (
