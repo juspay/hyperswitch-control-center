@@ -1,0 +1,30 @@
+name: Release a new nightly hyperswitch control center version
+
+on:
+  schedule:
+    - cron: "30 14 * * 0-4" # Run workflow at 8 PM IST every Sunday-Thursday
+
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# on:
+#   pull_request_target:
+#     types:
+#       - closed
+
+env:
+  # Allow more retries for network requests in cargo (downloading crates) and
+  # rustup (installing toolchains). This should help to reduce flaky CI failures
+  # from transient network timeouts or other issues.
+  CARGO_NET_RETRY: 10
+  RUSTUP_MAX_RETRIES: 10
+
+jobs:
+  create-nightly-tag:
+    name: Create a nightly tag
+    uses: juspay/hyperswitch/.github/workflows/release-nightly-version-reusable.yml@main
+    secrets:
+      token: ${{ secrets.AUTO_RELEASE_PAT }}
