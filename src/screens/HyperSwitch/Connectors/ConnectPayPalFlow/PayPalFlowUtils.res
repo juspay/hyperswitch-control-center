@@ -16,29 +16,24 @@ let getPageDetailsForAutomatic: PayPalFlowTypes.setupAccountStatus => PayPalFlow
   | Account_not_found => {
       headerText: "No account found for this email",
       subText: "No account found for this email.",
-      refreshStatusText: "Issue Resolved?",
     }
   | Payments_not_receivable => {
       headerText: "You currently cannot receive payments due to restriction on your PayPal account",
       subText: "An email has been sent to you explaining the issue. Please reach out to PayPal Customer Support for more information.",
-      refreshStatusText: "Issue Resolved?",
     }
   | Ppcp_custom_denied => {
       headerText: "Your application has been denied by PayPal",
       subText: "PayPal denied your application to use Advanced Credit and Debit Card Payments.",
-      refreshStatusText: "Try again?",
     }
   | More_permissions_needed => {
       headerText: "PayPal requires you to grant all permissions",
       subText: "You need to grant all the permissions to create and receive payments. Please click on the Signup to PayPal button and grant the permissions.",
       buttonText: "Complete Signing up",
-      refreshStatusText: "Already granted all permissions?",
     }
 
   | Email_not_verified => {
       headerText: "Your email is yet to be confirmed!",
       subText: "Please confirm your email address on https://www.paypal.com/businessprofile/settings in order to receive payments.",
-      refreshStatusText: "Email already confirmed?",
     }
   | _ => {
       headerText: "",
