@@ -331,7 +331,7 @@ let make = (
       switch Js.Exn.message(e) {
       | Some(message) => {
           let errMsg = message->parseIntoMyData
-          if errMsg.code->Option.getWithDefault("")->Js.String2.includes("HE_01") {
+          if errMsg.code->Option.getWithDefault("")->String.includes("HE_01") {
             showToast(
               ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
               ~toastType=ToastState.ToastError,
