@@ -261,12 +261,6 @@ let make = (
     : url.search->getDictFromUrlSearchParams->Dict.get("connectorId")->Option.getWithDefault("")
 
   let (connectorId, setConnectorId) = React.useState(_ => connectorValue)
-  let isRedirectedFromPaypalModal =
-    url.search
-    ->getDictFromUrlSearchParams
-    ->Dict.get("is_back")
-    ->Option.getWithDefault("")
-    ->getBoolFromString(false)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuartionType, setConfigurationType) = React.useState(_ => PayPalFlowTypes.NotSelected)
@@ -306,7 +300,6 @@ let make = (
   }
 
   let updateConnectorDetails = async values => {
-    open ConnectorUtils
     try {
       setScreenState(_ => Loading)
       let res = await updateConnectorAccountDetails(
@@ -329,42 +322,11 @@ let make = (
     } catch {
     | Js.Exn.Error(e) =>
       switch Js.Exn.message(e) {
-      | Some(message) => {
-          let errMsg = message->parseIntoMyData
-          if errMsg.code->Option.getWithDefault("")->String.includes("HE_01") {
-            showToast(
-              ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
-              ~toastType=ToastState.ToastError,
-              (),
-            )
-            setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
-            setSetupAccountStatus(._ => Connect_paypal_landing)
-            setScreenState(_ => Success)
-          } else {
-            showToast(
-              ~message="Failed to Save the Configuration!",
-              ~toastType=ToastState.ToastError,
-              (),
-            )
-            setScreenState(_ => Error(message))
-          }
-        }
-
-      | None => setScreenState(_ => Error("Failed to Fetch!"))
+      | Some(message) => Js.Exn.raiseError(message)
+      | None => Js.Exn.raiseError("")
       }
     }
   }
-
-  React.useEffect0(() => {
-    if isRedirectedFromPaypalModal {
-      getPayPalStatus()->ignore
-    }
-    if !isUpdateFlow {
-      RescriptReactRouter.replace("/connectors/new?name=paypal")
-      setSetupAccountStatus(._ => Connect_paypal_landing)
-    }
-    None
-  })
 
   let validateMandatoryFieldForPaypal = values => {
     let errors = Dict.make()
@@ -398,6 +360,7 @@ let make = (
 
   let handleOnSubmit = async (values, _) => {
     open PayPalFlowUtils
+    open ConnectorUtils
     try {
       let authType = initialValues->getAuthTypeFromConnectorDetails
 
@@ -409,9 +372,10 @@ let make = (
             setSetupAccountStatus(._ => Redirecting_to_paypal)
           }
 
-        | Manual | _ =>
-          setConnectorAsActive(values)
-          setCurrentStep(_ => ConnectorTypes.IntegFields)
+        | Manual | _ => {
+            setConnectorAsActive(values)
+            setCurrentStep(_ => ConnectorTypes.IntegFields)
+          }
         }
       } // update flow if body type is changed
       else if (
@@ -441,7 +405,32 @@ let make = (
         }
       }
     } catch {
-    | _ => setScreenState(_ => Error("Failed to submit"))
+    | Js.Exn.Error(e) =>
+      switch Js.Exn.message(e) {
+      | Some(message) => {
+          let errMsg = message->parseIntoMyData
+          if errMsg.code->Option.getWithDefault("")->String.includes("HE_01") {
+            showToast(
+              ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
+              ~toastType=ToastState.ToastError,
+              (),
+            )
+
+            setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
+            setSetupAccountStatus(._ => Connect_paypal_landing)
+            setScreenState(_ => Success)
+          } else {
+            showToast(
+              ~message="Failed to Save the Configuration!",
+              ~toastType=ToastState.ToastError,
+              (),
+            )
+            setScreenState(_ => Error(message))
+          }
+        }
+
+      | None => setScreenState(_ => Error("Failed to Fetch!"))
+      }
     }
     Js.Nullable.null
   }
