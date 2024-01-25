@@ -60,18 +60,12 @@ let stringToVariantMapper = strValue => {
   }
 }
 
-let handleConnectorIntegrated = (
-  ~dictValue,
-  ~setInitialValues,
-  ~connector,
-  ~handleStateToNextPage,
-) => {
+let handleObjectResponse = (~dict, ~setInitialValues, ~connector, ~handleStateToNextPage) => {
   open LogicUtils
-
-  let values = dictValue->getJsonObjectFromDict("connector_integrated")
+  let values = dict->getJsonObjectFromDict("connector_integrated")
   let bodyTypeValue =
-    dictValue
-    ->getDictfromDict("connector_integrated")
+    values
+    ->getDictFromJsonObject
     ->getDictfromDict("connector_account_details")
     ->getString("auth_type", "")
   let body = ConnectorUtils.generateInitialValuesDict(
@@ -82,29 +76,7 @@ let handleConnectorIntegrated = (
     (),
   )
   setInitialValues(_ => body)
-  handleStateToNextPage()->ignore
-}
-
-let handleObjectResponse = (~dict, ~setInitialValues, ~connector, ~handleStateToNextPage) => {
-  open LogicUtils
-  let dictkey = dict->Dict.keysToArray->getValueFromArray(0, "")
-  if dictkey->stringToVariantMapper === Connector_integrated {
-    let values = dict->getJsonObjectFromDict("connector_integrated")
-    let bodyTypeValue =
-      values
-      ->getDictFromJsonObject
-      ->getDictfromDict("connector_account_details")
-      ->getString("auth_type", "")
-    let body = ConnectorUtils.generateInitialValuesDict(
-      ~values,
-      ~connector,
-      ~bodyType=bodyTypeValue,
-      ~isPayoutFlow=false,
-      (),
-    )
-    setInitialValues(_ => body)
-    handleStateToNextPage()
-  }
+  handleStateToNextPage()
 }
 
 let getBodyType = (isUpdateFlow, configuartionType) => {
@@ -183,7 +155,7 @@ let useDeleteTrackingDetails = () => {
           ("connector_id", connectorId->Js.Json.string),
           ("connector", connector->Js.Json.string),
         ]->LogicUtils.getJsonFromArrayOfJson
-      let _res = await updateDetails(url, body, Post, ())
+      let _ = await updateDetails(url, body, Post, ())
     } catch {
     | Js.Exn.Error(e) => {
         let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to update!")
