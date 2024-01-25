@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.01.25.0
+
+### Bug Fixes
+
+- Close connector drop down bydefault ([#303](https://github.com/juspay/hyperswitch-control-center/pull/303)) ([`7006d91`](https://github.com/juspay/hyperswitch-control-center/commit/7006d915dec69b2db96cf36a5399accd86f173c2))
+
+### Miscellaneous Tasks
+
+- Change tag creation ([#297](https://github.com/juspay/hyperswitch-control-center/pull/297)) ([`1466e6a`](https://github.com/juspay/hyperswitch-control-center/commit/1466e6adf9dac3d746c5105b5ccfb9b1a51f9c4c))
+
+- - -
+
 ## 1.29.0 (2024-01-24)
 
 ### Features
