@@ -148,7 +148,7 @@ module ErrorPage = {
             onClick={_ => getPayPalStatus()->ignore}
           />
         </div>
-        <RenderIf condition={errorPageDetails.buttonText->Belt.Option.isSome}>
+        <RenderIf condition={errorPageDetails.buttonText->Option.isSome}>
           <PayPalCreateNewAccountModal
             butttonDisplayText={errorPageDetails.buttonText->Option.getWithDefault("")}
             actionUrl
