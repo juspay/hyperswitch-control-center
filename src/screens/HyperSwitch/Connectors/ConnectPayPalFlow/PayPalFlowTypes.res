@@ -20,5 +20,4 @@ type errorPageInfoType = {
   headerText: string,
   subText: string,
   buttonText?: string,
-  refreshStatusText?: string,
 }

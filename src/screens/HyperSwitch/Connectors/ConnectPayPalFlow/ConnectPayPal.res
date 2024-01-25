@@ -166,8 +166,8 @@ module RedirectionToPayPalFlow = {
     open PayPalFlowTypes
 
     let url = RescriptReactRouter.useUrl()
-    let path = url.path->Belt.List.toArray->Array.joinWith("/")
-    let connectorId = url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault("")
+    let path = url.path->List.toArray->Array.joinWith("/")
+    let connectorId = url.path->List.toArray->LogicUtils.getValueFromArray(1, "")
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (actionUrl, setActionUrl) = React.useState(_ => "")
@@ -257,7 +257,7 @@ let make = (
     HyperswitchAtom.paypalAccountStatusAtom,
   )
   let connectorValue = isUpdateFlow
-    ? url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault("")
+    ? url.path->List.toArray->getValueFromArray(1, "")
     : url.search->getDictFromUrlSearchParams->Dict.get("connectorId")->Option.getWithDefault("")
 
   let (connectorId, setConnectorId) = React.useState(_ => connectorValue)
