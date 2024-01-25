@@ -197,7 +197,9 @@ module RedirectionToPayPalFlow = {
     let setupAccountStatus = Recoil.useRecoilValueFromAtom(HyperswitchAtom.paypalAccountStatusAtom)
 
     React.useEffect0(() => {
-      getRedirectPaypalWindowUrl()->ignore
+      if connectorId !== "new" && connectorId->String.length > 0 {
+        getRedirectPaypalWindowUrl()->ignore
+      }
       None
     })
     <PageLoaderWrapper screenState>
