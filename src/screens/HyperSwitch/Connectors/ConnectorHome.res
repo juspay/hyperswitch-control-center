@@ -76,7 +76,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     url.search
     ->LogicUtils.getDictFromUrlSearchParams
     ->Dict.get("is_simplified_paypal")
-    ->Belt.Option.getWithDefault("")
+    ->Option.getWithDefault("")
 
   let getConnectorDetails = async () => {
     try {

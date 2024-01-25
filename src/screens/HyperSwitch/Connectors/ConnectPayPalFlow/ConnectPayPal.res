@@ -149,7 +149,7 @@ module ErrorPage = {
         </div>
         <UIUtils.RenderIf condition={errorPageDetails.buttonText->Belt.Option.isSome}>
           <PayPalCreateNewAccountModal
-            butttonDisplayText={errorPageDetails.buttonText->Belt.Option.getWithDefault("")}
+            butttonDisplayText={errorPageDetails.buttonText->Option.getWithDefault("")}
             actionUrl
             setScreenState
           />
@@ -166,7 +166,7 @@ module RedirectionToPayPalFlow = {
 
     let url = RescriptReactRouter.useUrl()
     let path = url.path->Belt.List.toArray->Array.joinWith("/")
-    let connectorId = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
+    let connectorId = url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault("")
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (actionUrl, setActionUrl) = React.useState(_ => "")
@@ -256,18 +256,15 @@ let make = (
     HyperswitchAtom.paypalAccountStatusAtom,
   )
   let connectorValue = isUpdateFlow
-    ? url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
-    : url.search
-      ->getDictFromUrlSearchParams
-      ->Dict.get("connectorId")
-      ->Belt.Option.getWithDefault("")
+    ? url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault("")
+    : url.search->getDictFromUrlSearchParams->Dict.get("connectorId")->Option.getWithDefault("")
 
   let (connectorId, setConnectorId) = React.useState(_ => connectorValue)
   let isRedirectedFromPaypalModal =
     url.search
     ->getDictFromUrlSearchParams
     ->Dict.get("is_back")
-    ->Belt.Option.getWithDefault("")
+    ->Option.getWithDefault("")
     ->getBoolFromString(false)
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
@@ -333,7 +330,7 @@ let make = (
       switch Js.Exn.message(e) {
       | Some(message) => {
           let errMsg = message->parseIntoMyData
-          if errMsg.code->Belt.Option.getWithDefault("")->Js.String2.includes("HE_01") {
+          if errMsg.code->Option.getWithDefault("")->Js.String2.includes("HE_01") {
             showToast(
               ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
               ~toastType=ToastState.ToastError,
