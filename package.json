@@ -87,6 +87,7 @@
     "react-final-form": "^6.5.9",
     "react-ga4": "^2.0.0",
     "react-pdf": "^7.3.3",
+    "react-syntax-highlighter": "^15.5.0",
     "react-virtualized-auto-sizer": "^1.0.11",
     "react-window": "^1.8.8",
     "recoil": "^0.1.2",
