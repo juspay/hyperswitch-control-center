@@ -131,12 +131,14 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let borderWidth = isPayoutFlow ? "w-8/12" : "w-9/12"
 
   let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
+  let profileId =
+    initialValues->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
+
   let getPayPalStatus = React.useCallback3(async () => {
     open PayPalFlowUtils
     open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let profileId = initialValues->getDictFromJsonObject->getString("profile_id", "")
       let paypalBody = generatePayPalBody(
         ~connectorId={connectorID},
         ~profileId=Some(profileId),
@@ -161,7 +163,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
-  }, (connector, initialValues, setSetupAccountStatus))
+  }, (connector, profileId, setSetupAccountStatus))
 
   let customUiForPaypal =
     <DefaultLandingPage
