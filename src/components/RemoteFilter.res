@@ -1,10 +1,5 @@
 let makeFieldInfo = FormRenderer.makeFieldInfo
 
-@val @scope(("window", "location"))
-external reload: unit => unit = "reload"
-@val @scope(("window", "location"))
-external replace: string => unit = "replace"
-
 module ClearForm = {
   @react.component
   let make = () => {
@@ -835,7 +830,7 @@ let make = (
     let urlValue = `${path}?${newQueryStr}`
     setClearFilterAfterRefresh(_ => true)
     setInitialValueJson(_ => Dict.make()->Js.Json.object_)
-    replace(urlValue)
+    Window.Location.replace(urlValue)
   }
 
   let refreshFilterUi = {

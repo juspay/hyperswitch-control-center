@@ -413,6 +413,7 @@ module.exports = {
           1000: "#A7A0A0",
           failed_page_bg: "#FDEDE8",
         },
+        "error-red": "#DA0E0F",
         "status-green": "#36AF47",
         "popover-background": "#334264",
         "popover-background-hover": "#2E3B58",
