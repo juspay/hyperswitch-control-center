@@ -1,4 +1,3 @@
-external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
 let validateConditionJson = json => {
   open LogicUtils
   let checkValue = dict => {

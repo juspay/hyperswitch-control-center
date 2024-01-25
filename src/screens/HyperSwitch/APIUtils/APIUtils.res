@@ -211,14 +211,14 @@ let sessionExpired = ref(false)
 
 let handleLogout = async (
   ~fetchApi as _: (
-    Js.String2.t,
+    string,
     ~bodyStr: string=?,
     ~bodyFormData: option<Fetch.formData>=?,
-    ~headers: Dict.t<Js.String2.t>=?,
+    ~headers: Dict.t<string>=?,
     ~bodyHeader: Dict.t<Js.Json.t>=?,
     ~method_: Fetch.requestMethod,
-    ~authToken: option<Js.String2.t>=?,
-    ~requestId: Js.String.t=?,
+    ~authToken: option<string>=?,
+    ~requestId: string=?,
     ~disableEncryption: bool=?,
     ~storageKey: string=?,
     ~betaEndpointConfig: AuthHooks.betaEndpoint=?,

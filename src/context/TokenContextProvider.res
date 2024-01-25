@@ -2,7 +2,7 @@ let defaultTokenSetter = (_: option<string> => option<string>) => ()
 let defaultDictSetter = (_: Dict.t<Js.Json.t> => Dict.t<Js.Json.t>) => ()
 
 type tokenContextObjectType = {
-  token: option<Js.String2.t>,
+  token: option<string>,
   setToken: (option<string> => option<string>) => unit,
   tokenDetailsDict: Dict.t<Js.Json.t>,
   setTokenDetailsDict: (Dict.t<Js.Json.t> => Dict.t<Js.Json.t>) => unit,

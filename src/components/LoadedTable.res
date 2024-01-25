@@ -921,7 +921,7 @@ let make = (
   } else {
     `${ignoreHeaderBg ? "" : backgroundClass} empty:hidden`
   }
-  let dataId = title->Js.String2.split("-")->Array.get(0)->Option.getOr("")
+  let dataId = title->String.split("-")->Array.get(0)->Option.getOr("")
   <AddDataAttributes attributes=[("data-loaded-table", dataId)]>
     <div className="w-full">
       <div className=addDataAttributesClass style={ReactDOMStyle.make(~zIndex="2", ())}>

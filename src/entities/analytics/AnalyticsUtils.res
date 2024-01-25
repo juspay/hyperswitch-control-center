@@ -100,7 +100,7 @@ type newApiBodyEntity = {
   granularityConfig?: (int, string),
   cardinality?: float,
   filterValueFromUrl?: Js.Json.t,
-  customFilterValue?: Js.String2.t,
+  customFilterValue?: string,
   jsonFormattedFilter?: Js.Json.t,
   cardinalitySortDims?: string,
   domain: string,

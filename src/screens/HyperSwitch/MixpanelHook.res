@@ -1,6 +1,6 @@
 type functionType = (
-  ~eventName: Js.String2.t=?,
-  ~email: Js.String.t=?,
+  ~eventName: string=?,
+  ~email: string=?,
   ~description: option<string>=?,
   unit,
 ) => unit
