@@ -1,4 +1,4 @@
-describe.only("Processors Landing Module", () => {
+describe("Processors Landing Module", () => {
   beforeEach(() => {
     cy.visit("http://localhost:9000/");
   });
