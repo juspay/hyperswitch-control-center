@@ -217,7 +217,7 @@ let constructData = (key, singlestatTimeseriesData: array<refundsSingleStateSeri
       ->Js.Date.fromFloat
       ->DateTimeUtils.utcToISTDate
       ->Js.Date.valueOf,
-      ob.refund_count->Belt.Int.toFloat,
+      ob.refund_count->Int.toFloat,
     ))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "refund_success_count" =>
@@ -228,7 +228,7 @@ let constructData = (key, singlestatTimeseriesData: array<refundsSingleStateSeri
       ->Js.Date.fromFloat
       ->DateTimeUtils.utcToISTDate
       ->Js.Date.valueOf,
-      ob.refund_success_count->Belt.Int.toFloat,
+      ob.refund_success_count->Int.toFloat,
     ))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "refund_processed_amount" =>
@@ -275,13 +275,13 @@ let getStatData = (
       title: "Overall Refunds",
       tooltipText: "Total refund initiated",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.refund_count->Belt.Int.toFloat,
+        singleStatData.refund_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.refund_count->Belt.Int.toFloat,
+      value: singleStatData.refund_count->Int.toFloat,
       delta: {
         Js.Float.fromString(
-          Js.Float.toFixedWithPrecision(singleStatData.refund_count->Belt.Int.toFloat, ~digits=2),
+          Js.Float.toFixedWithPrecision(singleStatData.refund_count->Int.toFloat, ~digits=2),
         )
       },
       data: constructData("refund_count", timeSeriesData),
@@ -292,14 +292,14 @@ let getStatData = (
       title: "Success Refunds",
       tooltipText: "Total successful refunds",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.refund_success_count->Belt.Int.toFloat,
+        singleStatData.refund_success_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.refund_success_count->Belt.Int.toFloat,
+      value: singleStatData.refund_success_count->Int.toFloat,
       delta: {
         Js.Float.fromString(
           Js.Float.toFixedWithPrecision(
-            singleStatData.refund_success_count->Belt.Int.toFloat,
+            singleStatData.refund_success_count->Int.toFloat,
             ~digits=2,
           ),
         )

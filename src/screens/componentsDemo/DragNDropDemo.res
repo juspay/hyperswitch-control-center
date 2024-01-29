@@ -22,7 +22,7 @@ module DraggableItem = {
   @react.component
   let make = (~directionClass, ~str, ~index) => {
     open ReactBeautifulDND
-    <Draggable index={index} draggableId={`item-${Belt.Int.toString(index)}`}>
+    <Draggable index={index} draggableId={`item-${Int.toString(index)}`}>
       {(provided, _snapshot) => {
         {
           <span
@@ -91,7 +91,7 @@ let default = (props: props) => {
             <div className={`flex ${directionClass}`} ref={provided["innerRef"]}>
               {values
               ->Array.mapWithIndex((str, index) => {
-                <DraggableItem key={`item-${Belt.Int.toString(index)}`} directionClass str index />
+                <DraggableItem key={`item-${Int.toString(index)}`} directionClass str index />
               })
               ->React.array}
               {provided["placeholder"]}

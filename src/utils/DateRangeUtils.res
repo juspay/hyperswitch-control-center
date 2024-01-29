@@ -64,8 +64,7 @@ let getPredefinedStartAndEndDate = (
     ->Js.Date.fromString
     ->Js.Date.getDate
   let prevDate = (customDate->DayJs.getDayJsForJsDate).subtract(. 6, "month").toString(.)
-  let daysInSixMonth =
-    (customDate->DayJs.getDayJsForJsDate).diff(. prevDate, "day")->Belt.Int.toFloat
+  let daysInSixMonth = (customDate->DayJs.getDayJsForJsDate).diff(. prevDate, "day")->Int.toFloat
   let count = switch value {
   | Today => 1.0
   | Yesterday => 1.0

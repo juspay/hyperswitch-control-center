@@ -47,7 +47,7 @@ let getGranularityMapper = (granularity: string) => {
     (1, "hour")
   } else {
     (
-      granularityArr->Array.get(0)->Option.getOr("1")->Belt.Int.fromString->Option.getOr(1),
+      granularityArr->Array.get(0)->Option.getOr("1")->Int.fromString->Option.getOr(1),
       granularityArr->Array.get(1)->Option.getOr("week"),
     )
   }

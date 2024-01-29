@@ -128,6 +128,6 @@ let serverHandlerWrapper = (req, res) => {
 let server = Http.createServer(serverHandlerWrapper)
 
 server->Http.listen(port, () => {
-  let portStr = Belt.Int.toString(port)
+  let portStr = Int.toString(port)
   Js.log(`Running at http://localhost:${portStr}/`)
 })

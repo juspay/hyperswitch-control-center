@@ -853,7 +853,7 @@ module RenderMultiDimensionalChart = {
               let (key, value) = item
 
               <LineChart1D
-                key={index->Belt.Int.toString}
+                key={index->Int.toString}
                 class=config.class
                 rawChartData=value
                 commonColorsArr={LineChartUtils.removeDuplicates(chartNames)}

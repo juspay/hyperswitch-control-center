@@ -73,13 +73,13 @@ let constructData = (
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "api_count" =>
     singlestatTimeseriesData
-    ->Array.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.api_count->Belt.Int.toFloat))
+    ->Array.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.api_count->Int.toFloat))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "status_code_count" =>
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
-      ob.status_code_count->Belt.Int.toFloat,
+      ob.status_code_count->Int.toFloat,
     ))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | _ => []
@@ -113,12 +113,12 @@ let getStatData = (
       title: "API Count",
       tooltipText: "API request count is the tally of requests made to the Hyperswitch APIs, reflecting the volume of interactions and usage during a defined timeframe.",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.api_count->Belt.Int.toFloat,
+        singleStatData.api_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.api_count->Belt.Int.toFloat,
+      value: singleStatData.api_count->Int.toFloat,
       delta: {
-        singleStatData.api_count->Belt.Int.toFloat
+        singleStatData.api_count->Int.toFloat
       },
       data: constructData("api_count", timeSeriesData),
       statType: "Volume",

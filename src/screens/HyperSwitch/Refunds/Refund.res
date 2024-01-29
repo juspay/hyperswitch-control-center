@@ -20,7 +20,7 @@ let make = () => {
     | Some(dict) =>
       let filters = Dict.make()
 
-      filters->Dict.set("offset", offset->Belt.Int.toFloat->Js.Json.number)
+      filters->Dict.set("offset", offset->Int.toFloat->Js.Json.number)
       if !(searchText->isEmptyString) {
         filters->Dict.set("payment_id", searchText->String.trim->Js.Json.string)
         filters->Dict.set("refund_id", searchText->String.trim->Js.Json.string)

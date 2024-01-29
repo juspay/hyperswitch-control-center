@@ -127,7 +127,7 @@ let parseResponseJson = (~json, ~email) => {
 
   let verificationValue = valuesDict->getOptionInt("verification_days_left")->Option.getOr(-1)
 
-  setMerchantDetails("verification", verificationValue->Belt.Int.toString->Js.Json.string)
+  setMerchantDetails("verification", verificationValue->Int.toString->Js.Json.string)
   valuesDict->getString("token", "")
 }
 

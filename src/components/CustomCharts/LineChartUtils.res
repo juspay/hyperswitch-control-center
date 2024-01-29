@@ -414,7 +414,7 @@ let getLegendDataForCurrentMetrix = (
       let value: legendTableData = {
         groupByName: key,
         overall,
-        average: overall /. arrLen->Belt.Int.toFloat,
+        average: overall /. arrLen->Int.toFloat,
         current: currentVal,
       }
       value
@@ -461,7 +461,7 @@ let getLegendDataForCurrentMetrix = (
       let value: legendTableData = {
         groupByName: metricsName,
         overall,
-        average: overall /. arrLen->Belt.Int.toFloat,
+        average: overall /. arrLen->Int.toFloat,
         current: currentVal,
       }
       value
@@ -750,7 +750,7 @@ let getGranularityNewStr = (~startTime, ~endTime) => {
         unit
       }
     } else {
-      `${val->Belt.Int.toString} ${unit}`
+      `${val->Int.toString} ${unit}`
     }
   })
 }

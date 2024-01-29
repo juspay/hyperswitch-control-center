@@ -40,7 +40,7 @@ let make = (
   let rowInfo: array<array<cell>> = {
     let a = rows->Array.mapWithIndex((data, i) => {
       if showSerial {
-        data->Array.unshift(Text((i + 1)->Belt.Int.toString))->ignore
+        data->Array.unshift(Text((i + 1)->Int.toString))->ignore
       }
       data
     })

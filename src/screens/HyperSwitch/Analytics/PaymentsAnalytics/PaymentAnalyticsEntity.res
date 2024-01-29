@@ -366,16 +366,13 @@ let constructData = (
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "payment_count" =>
     singlestatTimeseriesData
-    ->Array.map(ob => (
-      ob.time_series->DateTimeUtils.parseAsFloat,
-      ob.payment_count->Belt.Int.toFloat,
-    ))
+    ->Array.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.payment_count->Int.toFloat))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "payment_success_count" =>
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
-      ob.payment_success_count->Belt.Int.toFloat,
+      ob.payment_success_count->Int.toFloat,
     ))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "payment_processed_amount" =>
@@ -395,7 +392,7 @@ let constructData = (
   | "retries_count" =>
     singlestatTimeseriesData->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
-      ob.retries_count->Belt.Int.toFloat,
+      ob.retries_count->Int.toFloat,
     ))
   | "retries_amount_processed" =>
     singlestatTimeseriesData
@@ -439,12 +436,12 @@ let getStatData = (
       title: "Overall Payments",
       tooltipText: "Total payments initiated",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.payment_count->Belt.Int.toFloat,
+        singleStatData.payment_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.payment_count->Belt.Int.toFloat,
+      value: singleStatData.payment_count->Int.toFloat,
       delta: {
-        singleStatData.payment_count->Belt.Int.toFloat
+        singleStatData.payment_count->Int.toFloat
       },
       data: constructData("payment_count", timeSeriesData),
       statType: "Volume",
@@ -454,14 +451,14 @@ let getStatData = (
       title: "Success Payments",
       tooltipText: "Total number of payments with status as succeeded. ",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.payment_success_count->Belt.Int.toFloat,
+        singleStatData.payment_success_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.payment_success_count->Belt.Int.toFloat,
+      value: singleStatData.payment_success_count->Int.toFloat,
       delta: {
         Js.Float.fromString(
           Js.Float.toFixedWithPrecision(
-            singleStatData.payment_success_count->Belt.Int.toFloat,
+            singleStatData.payment_success_count->Int.toFloat,
             ~digits=2,
           ),
         )
@@ -514,12 +511,12 @@ let getStatData = (
       title: "Smart Retries made",
       tooltipText: "Total number of retries that were attempted after a failed payment attempt (Note: Only date range filters are supoorted currently)",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.retries_count->Belt.Int.toFloat,
+        singleStatData.retries_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.retries_count->Belt.Int.toFloat,
+      value: singleStatData.retries_count->Int.toFloat,
       delta: {
-        singleStatData.retries_count->Belt.Int.toFloat
+        singleStatData.retries_count->Int.toFloat
       },
       data: constructData("retries_count", timeSeriesData),
       statType: "Volume",

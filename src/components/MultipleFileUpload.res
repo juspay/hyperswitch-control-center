@@ -136,7 +136,7 @@ let make = (
                   if size > sizeLimit {
                     showToast(
                       ~message=`File size too large, upload below ${(sizeLimit / 1000)
-                          ->Belt.Int.toString}kb`,
+                          ->Int.toString}kb`,
                       ~toastType=ToastError,
                       (),
                     )
@@ -249,8 +249,7 @@ let make = (
     <div className={`${heightClass} ${displayClass} justify-between gap-x-5`}>
       {fileNames
       ->Array.mapWithIndex((fileName, indx) => {
-        <div
-          key={indx->Belt.Int.toString} className="flex items-center border p-2 gap-4 rounded-lg">
+        <div key={indx->Int.toString} className="flex items-center border p-2 gap-4 rounded-lg">
           <div
             className={pointerDisable
               ? "flex items-center gap-4 flex-1 pointer-events-none"

@@ -337,7 +337,7 @@ module DevResources = {
 
 let getGreeting = () => {
   let dateTime = Js.Date.now()
-  let hours = Js.Date.fromFloat(dateTime)->Js.Date.getHours->Belt.Int.fromFloat
+  let hours = Js.Date.fromFloat(dateTime)->Js.Date.getHours->Int.fromFloat
 
   if hours < 12 {
     "Good morning"

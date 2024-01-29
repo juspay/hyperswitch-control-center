@@ -51,7 +51,7 @@ module YearItem = {
 
   @react.component
   let make = (~tempYear, ~year, ~handleChangeMonthBy, ~setCurrDate, ~tempMonth) => {
-    let isSelected = year->Belt.Int.toFloat === tempYear
+    let isSelected = year->Int.toFloat === tempYear
     let yearRef = React.useRef(Js.Nullable.null)
 
     React.useEffect1(() => {
@@ -68,7 +68,7 @@ module YearItem = {
       className={`p-2 ${year === tempYear->Belt.Float.toInt
           ? "bg-blue-950 text-white"
           : "dark:hover:bg-jp-gray-900 hover:bg-jp-gray-100"} cursor-pointer bg-opacity-100`}
-      value={year->Belt.Int.toString}
+      value={year->Int.toString}
       ref={yearRef->ReactDOM.Ref.domRef}
       onClick={e => {
         let tar: float = ReactEvent.Mouse.currentTarget(e)["value"]
@@ -78,7 +78,7 @@ module YearItem = {
           setCurrDate(_ => Js.Date.makeWithYM(~year=tar, ~month=tempMonth, ()))
         }
       }}>
-      {year->Belt.Int.toString->React.string}
+      {year->Int.toString->React.string}
     </li>
   }
 }
@@ -95,7 +95,7 @@ module MonthItem = {
     ~setCurrDate,
     ~mon: InfraCalendar.month,
   ) => {
-    let isSelected = index->Belt.Int.toFloat === tempMonth
+    let isSelected = index->Int.toFloat === tempMonth
     let monthRef = React.useRef(Js.Nullable.null)
 
     React.useEffect1(() => {
@@ -109,7 +109,7 @@ module MonthItem = {
     }, [isSelected])
 
     <li
-      value={index->Belt.Int.toString}
+      value={index->Int.toString}
       onClick={e => {
         let tar: float = ReactEvent.Mouse.currentTarget(e)["value"]
         let monthDiff = (tar -. tempMonth)->Belt.Float.toInt
@@ -150,7 +150,7 @@ let make = (
       let currDateTemp = Js.Date.fromFloat(Js.Date.valueOf(currDateIm))
       let tempDate = Js.Date.setMonth(
         currDateTemp,
-        Belt.Int.toFloat(Belt.Float.toInt(Js.Date.getMonth(currDateTemp))),
+        Int.toFloat(Belt.Float.toInt(Js.Date.getMonth(currDateTemp))),
       )
       let tempMonth = Js.Date.getMonth(Js.Date.fromFloat(tempDate))
       let tempYear = Js.Date.getFullYear(Js.Date.fromFloat(tempDate))
@@ -162,7 +162,7 @@ let make = (
                 {months
                 ->Array.mapWithIndex((mon, i) =>
                   <MonthItem
-                    key={i->Belt.Int.toString}
+                    key={i->Int.toString}
                     index=i
                     tempMonth
                     tempYear
@@ -177,12 +177,7 @@ let make = (
                 {years
                 ->Array.mapWithIndex((year, i) =>
                   <YearItem
-                    key={i->Belt.Int.toString}
-                    tempMonth
-                    tempYear
-                    handleChangeMonthBy
-                    year
-                    setCurrDate
+                    key={i->Int.toString} tempMonth tempYear handleChangeMonthBy year setCurrDate
                   />
                 )
                 ->React.array}

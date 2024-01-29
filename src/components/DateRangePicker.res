@@ -231,7 +231,7 @@ module Base = {
       switch dateRangeLimit {
       | Some(maxLen) => {
           let diff = getStartEndDiff(localStartDate, localEndDate)
-          if diff > (maxLen->Belt.Int.toFloat *. 24. *. 60. *. 60. -. 1.) *. 1000. {
+          if diff > (maxLen->Int.toFloat *. 24. *. 60. *. 60. -. 1.) *. 1000. {
             setShowMsg(_ => true)
             resetStartEndInput()
           }
@@ -788,7 +788,7 @@ module Base = {
                   } else if showMsg {
                     let msg = `Date Range should not exceed ${dateRangeLimit
                       ->Option.getOr(0)
-                      ->Belt.Int.toString} days`
+                      ->Int.toString} days`
                     <span className="w-full flex flex-row items-center mr-0 text-red-500">
                       <FormErrorIcon />
                       {React.string(msg)}

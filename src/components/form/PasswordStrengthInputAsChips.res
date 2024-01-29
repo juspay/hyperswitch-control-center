@@ -137,12 +137,12 @@ let make = (
             tooltipWidthClass="w-fit"
             description=specialCharatersInfoText
             toolTipFor={<PasswordChip
-              key={`check_${index->Belt.Int.toString}`} passwordChecks chipType customTextStyle
+              key={`check_${index->Int.toString}`} passwordChecks chipType customTextStyle
             />}
           />
         } else {
           <PasswordChip
-            key={`check_${index->Belt.Int.toString}`} passwordChecks chipType customTextStyle
+            key={`check_${index->Int.toString}`} passwordChecks chipType customTextStyle
           />
         }
       })

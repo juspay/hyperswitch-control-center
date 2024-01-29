@@ -216,13 +216,13 @@ let getStringFromBool = boolValue => {
   }
 }
 let getIntFromString = (str, default) => {
-  switch str->Belt.Int.fromString {
+  switch str->Int.fromString {
   | Some(int) => int
   | None => default
   }
 }
 let getOptionIntFromString = str => {
-  str->Belt.Int.fromString
+  str->Int.fromString
 }
 
 let getOptionFloatFromString = str => {
@@ -363,7 +363,7 @@ let titleToSnake = str => {
 }
 
 let getIntFromString = (str, default) => {
-  str->Belt.Int.fromString->Option.getOr(default)
+  str->Int.fromString->Option.getOr(default)
 }
 
 let removeTrailingZero = (numeric_str: string) => {
@@ -405,7 +405,7 @@ let shortNum = (
 
 let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?, ()) => {
   if labelValue !== 0.0 {
-    let value = Belt.Int.fromFloat(labelValue)
+    let value = Int.fromFloat(labelValue)
     let value_days = value / 86400
     let years = value_days / 365
     let months = mod(value_days, 365) / 30
@@ -443,7 +443,7 @@ let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?, ()) => {
       (labelValue < 1.0 || (includeMilliseconds->Option.getOr(false) && labelValue < 60.0)) &&
         labelValue > 0.0
     ) {
-      `.${String.make(mod((labelValue *. 1000.0)->Belt.Int.fromFloat, 1000))}`
+      `.${String.make(mod((labelValue *. 1000.0)->Int.fromFloat, 1000))}`
     } else {
       ""
     }

@@ -71,7 +71,7 @@ let make = (
           elem
           ->Webapi.Dom.Element.getAttribute("placeholder")
           ->Option.mapOr(length, str => Js.Math.max_int(length, str->String.length))
-          ->Belt.Int.toString
+          ->Int.toString
 
         elem->Webapi.Dom.Element.setAttribute("size", size)
       | None => ()

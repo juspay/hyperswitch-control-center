@@ -35,7 +35,7 @@ let make = (
   let (isDateClicked, setIsDateClicked) = React.useState(_ => false)
 
   let startYear = switch year {
-  | Some(y) => Belt.Int.toFloat(y)
+  | Some(y) => Int.toFloat(y)
   | None => Js.Date.getFullYear(Js.Date.make())
   }
   React.useEffect2(() => {
@@ -127,9 +127,9 @@ let make = (
   }
 
   let startMonth = switch month {
-  | Some(m) => Belt.Int.toFloat(Belt.Float.toInt(getMonthInFloat(m)))
+  | Some(m) => Int.toFloat(Belt.Float.toInt(getMonthInFloat(m)))
   | None => {
-      let tMonth = Belt.Int.toFloat(Belt.Float.toInt(Js.Date.getMonth(Js.Date.make())))
+      let tMonth = Int.toFloat(Belt.Float.toInt(Js.Date.getMonth(Js.Date.make())))
       disableFutureDates && count > 1 ? tMonth -. 1.0 : tMonth
     }
   }
@@ -146,7 +146,7 @@ let make = (
       let currDateTemp = Js.Date.fromFloat(Js.Date.valueOf(currDateIm))
       let tempDate = Js.Date.setMonth(
         currDateTemp,
-        Belt.Int.toFloat(Belt.Float.toInt(Js.Date.getMonth(currDateTemp)) + i),
+        Int.toFloat(Belt.Float.toInt(Js.Date.getMonth(currDateTemp)) + i),
       )
       let tempMonth = if disableFutureDates {
         (Js.Date.fromFloat(tempDate)->DayJs.getDayJsForJsDate).toString(.)

@@ -184,7 +184,7 @@ module HSiwtchPaymentConfirmLatency = {
             <div className="flex flex-row h-1/2 items-end">
               <div className="font-bold text-3xl">
                 {latencyShortNum(
-                  ~labelValue=latency->Belt.Int.toFloat /. 1000.0,
+                  ~labelValue=latency->Int.toFloat /. 1000.0,
                   ~includeMilliseconds=true,
                   (),
                 )

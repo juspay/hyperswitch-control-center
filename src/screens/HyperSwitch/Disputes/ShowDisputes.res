@@ -190,8 +190,7 @@ module Details = {
           className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
           {detailsFields
           ->Array.mapWithIndex((colType, i) => {
-            <RenderIf
-              condition={!(excludeColKeys->Array.includes(colType))} key={Belt.Int.toString(i)}>
+            <RenderIf condition={!(excludeColKeys->Array.includes(colType))} key={Int.toString(i)}>
               <div className={`flex ${widthClass} items-center`}>
                 <OrderUtils.DisplayKeyValueParams
                   heading={getHeading(colType)}

@@ -78,9 +78,9 @@ let make = (
 
   let barOption: Js.Json.t = React.useMemo2(() => {
     let colors = {
-      let length = barChartData->Array.length->Belt.Int.toFloat
+      let length = barChartData->Array.length->Int.toFloat
       barChartData->Array.mapWithIndex((_data, i) => {
-        let i = i->Belt.Int.toFloat
+        let i = i->Int.toFloat
         let opacity = (length -. i +. 1.) /. (length +. 1.)
         `rgb(0,109,249,${opacity->Belt.Float.toString})`
       })

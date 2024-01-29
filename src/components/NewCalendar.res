@@ -301,7 +301,7 @@ module TableRow = {
               }
 
               <td
-                key={`${windowIndex->Belt.Int.toString}X${cellIndex->Belt.Int.toString}`}
+                key={`${windowIndex->Int.toString}X${cellIndex->Int.toString}`}
                 className={`${classN} ${highlightBgClass} text-sm font-normal`}
                 onClick
                 onMouseOver={_ => handleHover()}
@@ -414,9 +414,9 @@ let make = (
       let startYear = startDate != "" ? (startDate->DayJs.getDayJsForString).format(. "YYYY") : ""
       let startMonth =
         (startDate != "" ? (startDate->DayJs.getDayJsForString).format(. "MM") : "")
-        ->Belt.Int.fromString
+        ->Int.fromString
         ->Option.getOr(currentMonth)
-      let startYearDiff = year - startYear->Belt.Int.fromString->Option.getOr(2022)
+      let startYearDiff = year - startYear->Int.fromString->Option.getOr(2022)
 
       let startIndex = 12 * startYearDiff + (currentMonth - startMonth)
 
@@ -428,9 +428,9 @@ let make = (
       let endYear = endDate != "" ? (endDate->DayJs.getDayJsForString).format(. "YYYY") : ""
       let endMonth =
         (endDate != "" ? (endDate->DayJs.getDayJsForString).format(. "MM") : "")
-        ->Belt.Int.fromString
+        ->Int.fromString
         ->Option.getOr(currentMonth)
-      let endYearDiff = year - endYear->Belt.Int.fromString->Option.getOr(2022)
+      let endYearDiff = year - endYear->Int.fromString->Option.getOr(2022)
 
       let endIndex = 12 * endYearDiff + (currentMonth - endMonth)
 
@@ -449,7 +449,7 @@ let make = (
     // get first day
 
     let firstDay = Js.Date.getDay(
-      Js.Date.makeWithYM(~year=Belt.Int.toFloat(newYear), ~month=getMonthInFloat(updatedMonth), ()),
+      Js.Date.makeWithYM(~year=Int.toFloat(newYear), ~month=getMonthInFloat(updatedMonth), ()),
     )
 
     // get Days in month
@@ -476,11 +476,11 @@ let make = (
         if indexRow == 0 && index < Belt.Float.toInt(firstDay) {
           ""
         } else if indexRow == 0 {
-          Belt.Int.toString(indexRow + (index + 1) - subFactor)
+          Int.toString(indexRow + (index + 1) - subFactor)
         } else if indexRow * 7 + (index + 1) - subFactor > daysInMonth {
           ""
         } else {
-          Belt.Int.toString(indexRow * 7 + (index + 1) - subFactor)
+          Int.toString(indexRow * 7 + (index + 1) - subFactor)
         }
       })
     }
@@ -488,14 +488,14 @@ let make = (
 
     <div style={index->LogicUtils.getJsonObjectFromDict("style")->Identity.jsonToReactDOMStyle}>
       <div className={`font-normal text-fs-16 text-[#344054] leading-6 mt-5`}>
-        {React.string(`${updatedMonth->getMonthInStr} ${newYear->Belt.Int.toString}`)}
+        {React.string(`${updatedMonth->getMonthInStr} ${newYear->Int.toString}`)}
       </div>
       <table className="table-auto min-w-full">
         <tbody>
           {rowInfo
           ->Array.mapWithIndex((item, rowIndex) => {
             <TableRow
-              key={rowIndex->Belt.Int.toString}
+              key={rowIndex->Int.toString}
               item
               rowIndex
               onDateClick
@@ -504,7 +504,7 @@ let make = (
               ?cellHighlighter
               ?cellRenderer
               month={getMonthInFloat(updatedMonth)}
-              year={Belt.Int.toFloat(newYear)}
+              year={Int.toFloat(newYear)}
               startDate
               endDate
               disablePastDates

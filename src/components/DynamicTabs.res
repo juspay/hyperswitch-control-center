@@ -609,7 +609,7 @@ let make = (
       </div>
       <SelectModal
         modalHeading="Add Segments"
-        modalHeadingDescription={`You can choose upto maximum of ${maxSelection->Belt.Int.toString} segments`}
+        modalHeadingDescription={`You can choose upto maximum of ${maxSelection->Int.toString} segments`}
         ?headerTextClass
         showModal
         setShowModal

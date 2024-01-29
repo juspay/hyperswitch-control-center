@@ -136,7 +136,7 @@ let make = (
                     }
 
                   <div
-                    key={`${i->Belt.Int.toString}funnelStageVol`}
+                    key={`${i->Int.toString}funnelStageVol`}
                     className={`flex flex-row gap-4 h-full items-center w-max`}
                     style={ReactDOMStyle.make(~marginBottom, ~paddingTop, ())}>
                     <div
@@ -160,7 +160,7 @@ let make = (
                 let marginBottom = `${(size *. 2.1)->Belt.Float.toString}rem`
                 let paddingTop = `${(size *. 3.4 *. 1.4)->Belt.Float.toString}rem`
                 <div
-                  key={`${i->Belt.Int.toString}funnelStageDesc`}
+                  key={`${i->Int.toString}funnelStageDesc`}
                   className={`flex flex-row gap-4 h-full items-center w-max items-start`}
                   style={ReactDOMStyle.make(~marginBottom, ~paddingTop, ())}>
                   <div

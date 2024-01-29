@@ -8,7 +8,7 @@ let pretty = (range: array<float>, n: int) => {
       range
     }
 
-    let min_n = Belt.Int.toFloat(n) /. 3.
+    let min_n = Int.toFloat(n) /. 3.
     let shrink_sml = 0.75
     let high_u_bias = 1.5
     let u5_bias = 0.5 +. 1.5 *. high_u_bias
@@ -17,7 +17,7 @@ let pretty = (range: array<float>, n: int) => {
     let c = if Js.Math.log(d) /. Js.Math._LN10 < -2. {
       Js.Math.abs_float(d) *. shrink_sml /. min_n
     } else {
-      d /. Belt.Int.toFloat(n)
+      d /. Int.toFloat(n)
     }
 
     let base = Js.Math.pow_float(

@@ -203,11 +203,11 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
                     name=key
                     onChange={ev => {
                       let val = ReactEvent.Form.target(ev)["value"]
-                      updatePercentage(item, val->Belt.Int.fromString->Option.getOr(0))
+                      updatePercentage(item, val->Int.fromString->Option.getOr(0))
                     }}
                     value={item
                     ->AdvancedRoutingUtils.getSplitFromConnectorSelectionData
-                    ->Belt.Int.toString}
+                    ->Int.toString}
                     type_="text"
                     inputMode="text"
                   />

@@ -195,8 +195,8 @@ module TableRow = {
           } else {
             `box-border ${paddingClass} ${lastColProp} ${alignCellContent}`
           }
-          let location = `${title}_tr${(rowIndex + 1)->Belt.Int.toString}_td${(cellIndex + 1)
-              ->Belt.Int.toString}`
+          let location = `${title}_tr${(rowIndex + 1)->Int.toString}_td${(cellIndex + 1)
+              ->Int.toString}`
           <AddDataAttributes
             key={cellIndex->string_of_int} attributes=[("data-table-location", location)]>
             <td
@@ -560,7 +560,7 @@ module TableHeadingRow = {
             let columnFilterRow: array<filterRow> = columnFilterRow->Option.getOr([])
             let filterRow = columnFilterRow->Array.get(i)
             <TableHeadingCell
-              key={Belt.Int.toString(i)}
+              key={Int.toString(i)}
               item
               index=i
               headingArray
@@ -671,7 +671,7 @@ let make = (
     ->Dom.Document.getElementById(`table`)
     ->Option.mapOr(0, ele => ele->Document.offsetWidth)
 
-  let equalColWidth = (totalTableWidth / numberOfCols)->Belt.Int.toString
+  let equalColWidth = (totalTableWidth / numberOfCols)->Int.toString
   let fixedWidthClass = enableEqualWidthCol ? `${equalColWidth}px` : ""
   let widthClass = if fullWidth {
     "min-w-full"

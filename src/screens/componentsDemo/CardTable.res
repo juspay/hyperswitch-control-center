@@ -66,7 +66,7 @@ module CardDetails = {
 
           itemArray
           ->Array.mapWithIndex((cell, cellIndex) => {
-            let key = Belt.Int.toString(cellIndex + offset) //webhooks UI
+            let key = Int.toString(cellIndex + offset) //webhooks UI
             switch heading[cellIndex] {
             | Some(label) =>
               if isAnalyticsModule {

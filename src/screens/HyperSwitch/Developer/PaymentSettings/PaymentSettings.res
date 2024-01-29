@@ -133,7 +133,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   ->Array.filter(urlField => urlField.label === "Webhook URL" || !webhookOnly)
                   ->Array.mapWithIndex((field, index) =>
                     <FormRenderer.FieldRenderer
-                      key={index->Belt.Int.toString}
+                      key={index->Int.toString}
                       field
                       errorClass
                       labelClass="!text-base !text-grey-700 font-semibold"

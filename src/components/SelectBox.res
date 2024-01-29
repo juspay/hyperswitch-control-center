@@ -187,7 +187,7 @@ module ListItem = {
     let comp =
       <AddDataAttributes
         attributes=[
-          ("data-dropdown-numeric", (dataId + 1)->Belt.Int.toString),
+          ("data-dropdown-numeric", (dataId + 1)->Int.toString),
           ("data-dropdown-value", labelText),
           ("data-dropdown-value-selected", {isSelected} ? "True" : "False"),
         ]>
@@ -891,7 +891,7 @@ module BaseSelect = {
         <UIUtils.RenderIf condition={isDropDown && noOfSelected > 0 && showSelectCountButton}>
           <Button
             buttonType=Primary
-            text={`Select ${noOfSelected->Belt.Int.toString}`}
+            text={`Select ${noOfSelected->Int.toString}`}
             flattenTop=true
             customButtonStyle="w-full items-center"
             onClick
@@ -1675,7 +1675,7 @@ module BaseDropdown = {
       let condition = count > 1
 
       {
-        value: count->Belt.Int.toString,
+        value: count->Int.toString,
         color: condition ? BadgeBlue : NoBadge,
       }
     }, [newInputSelect.value])
@@ -1834,7 +1834,7 @@ module BaseDropdown = {
                           ellipsisOnly={ellipsisOnly || !showSelectionAsChips}
                           badge={!showSelectionAsChips
                             ? badgeForSelect
-                            : {value: 0->Belt.Int.toString, color: NoBadge}}
+                            : {value: 0->Int.toString, color: NoBadge}}
                           rightIcon={CustomIcon(buttonIcon)}
                           buttonState={disableSelect ? Disabled : Normal}
                           fullLength

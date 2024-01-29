@@ -332,7 +332,7 @@ let make = (
   }
   // get first day
   let firstDay = Js.Date.getDay(
-    Js.Date.makeWithYM(~year=Belt.Int.toFloat(year), ~month=getMonthInFloat(month), ()),
+    Js.Date.makeWithYM(~year=Int.toFloat(year), ~month=getMonthInFloat(month), ()),
   )
   // get Days in month
   let daysInMonth = switch month {
@@ -359,11 +359,11 @@ let make = (
       if indexRow == 0 && index < Belt.Float.toInt(firstDay) {
         ""
       } else if indexRow == 0 {
-        Belt.Int.toString(indexRow + (index + 1) - subFactor)
+        Int.toString(indexRow + (index + 1) - subFactor)
       } else if indexRow * 7 + (index + 1) - subFactor > daysInMonth {
         ""
       } else {
-        Belt.Int.toString(indexRow * 7 + (index + 1) - subFactor)
+        Int.toString(indexRow * 7 + (index + 1) - subFactor)
       }
     })
   }
@@ -374,7 +374,7 @@ let make = (
       ? {
           <h3 className="text-center font-bold text-lg text-gray-500 ">
             {React.string(month->getMonthInStr)}
-            <span className="font-fira-code"> {React.string(year->Belt.Int.toString)} </span>
+            <span className="font-fira-code"> {React.string(year->Int.toString)} </span>
           </h3>
         }
       : {
@@ -412,7 +412,7 @@ let make = (
             ?cellHighlighter
             ?cellRenderer
             month={getMonthInFloat(month)}
-            year={Belt.Int.toFloat(year)}
+            year={Int.toFloat(year)}
             startDate
             endDate
             disablePastDates
