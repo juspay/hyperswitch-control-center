@@ -6,9 +6,7 @@ let useThemeFromEvent = () => {
       if eventName === "AuthenticationDetails" {
         let payloadDict = dict->Dict.get("payload")->Option.flatMap(Js.Json.decodeObject)
         let theme =
-          payloadDict->Belt.Option.mapWithDefault("", finalDict =>
-            LogicUtils.getString(finalDict, "theme", "")
-          )
+          payloadDict->Option.mapOr("", finalDict => LogicUtils.getString(finalDict, "theme", ""))
         setEventTheme(_ => Some(theme))
       } else if eventName == "themeToggle" {
         let theme = LogicUtils.getString(dict, "payload", "")

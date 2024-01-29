@@ -12,10 +12,8 @@ let visibilityColFunc = (
   | Date(x) => (dateFormatConvertor(x), dateFormatConvertor(x))
   | StartEndDate(start, end) => (
       `${dateFormatConvertor(start)
-        ->Option.getWithDefault(""->Js.Json.string)
-        ->String.make} ${dateFormatConvertor(end)
-        ->Option.getWithDefault(""->Js.Json.string)
-        ->String.make}`
+        ->Option.getOr(""->Js.Json.string)
+        ->String.make} ${dateFormatConvertor(end)->Option.getOr(""->Js.Json.string)->String.make}`
       ->Js.Json.string
       ->Some,
       dateFormatConvertor(end),
@@ -40,7 +38,7 @@ let useDateFormatConvertor = () => {
 
 let filteredData = (
   actualData: Js.Array2.t<Js.Nullable.t<'t>>,
-  columnFilter: Js.Dict.t<Js.Array2.t<Js.Json.t>>,
+  columnFilter: Dict.t<Js.Array2.t<Js.Json.t>>,
   visibleColumns: option<Js.Array2.t<'colType>>,
   entity: EntityType.entityType<'colType, 't>,
   dateFormatConvertor: string => option<Js.Json.t>,
@@ -63,7 +61,7 @@ let filteredData = (
               )
               let visibleColumns =
                 visibleColumns
-                ->Option.getWithDefault(entity.defaultColumns)
+                ->Option.getOr(entity.defaultColumns)
                 ->Belt.Array.keepMap(
                   item => {
                     let columnEntity = entity.getHeading(item)
@@ -106,7 +104,7 @@ let filteredData = (
                       | (None, _) => ""
                       }
 
-                      let searchedText = selectedArr1->Belt.Array.get(0)->Option.getWithDefault("")
+                      let searchedText = selectedArr1->Array.get(0)->Option.getOr("")
                       !String.includes(
                         searchedText->String.toUpperCase,
                         currVal->String.toUpperCase,
@@ -121,8 +119,8 @@ let filteredData = (
                       | _ => 0.
                       }
                       !(
-                        currVal >= selectedArr[0]->Option.getWithDefault(0.) &&
-                          currVal <= selectedArr[1]->Option.getWithDefault(0.)
+                        currVal >= selectedArr[0]->Option.getOr(0.) &&
+                          currVal <= selectedArr[1]->Option.getOr(0.)
                       )
                     }
                   }
@@ -149,7 +147,7 @@ let convertStrCellToFloat = (dataType: Table.cellType, str: string) => {
   switch dataType {
   | DropDown | LabelType | TextType => str->Js.Json.string
   | MoneyType | NumericType | ProgressType =>
-    str->Belt.Float.fromString->Option.getWithDefault(0.)->Js.Json.number
+    str->Belt.Float.fromString->Option.getOr(0.)->Js.Json.number
   }
 }
 

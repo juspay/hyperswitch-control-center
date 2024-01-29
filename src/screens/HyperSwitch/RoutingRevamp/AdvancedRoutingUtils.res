@@ -80,7 +80,7 @@ let variantTypeMapper: string => AdvancedRoutingTypes.variantType = variantType 
   }
 }
 
-let getStatementValue: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.value = valueDict => {
+let getStatementValue: Dict.t<Js.Json.t> => AdvancedRoutingTypes.value = valueDict => {
   open LogicUtils
   {
     \"type": valueDict->getString("type", ""),
@@ -88,7 +88,7 @@ let getStatementValue: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.value = valu
   }
 }
 
-let statementTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.statement = dict => {
+let statementTypeMapper: Dict.t<Js.Json.t> => AdvancedRoutingTypes.statement = dict => {
   open LogicUtils
   {
     lhs: dict->getString("lhs", ""),
@@ -119,7 +119,7 @@ let conditionTypeMapper = (statementArr: array<Js.Json.t>) => {
   statements
 }
 
-let volumeSplitConnectorSelectionDataMapper: Js.Dict.t<
+let volumeSplitConnectorSelectionDataMapper: Dict.t<
   Js.Json.t,
 > => AdvancedRoutingTypes.volumeSplitConnectorSelectionData = dict => {
   open LogicUtils
@@ -134,7 +134,7 @@ let volumeSplitConnectorSelectionDataMapper: Js.Dict.t<
   }
 }
 
-let priorityConnectorSelectionDataMapper: Js.Dict.t<
+let priorityConnectorSelectionDataMapper: Dict.t<
   Js.Json.t,
 > => AdvancedRoutingTypes.connector = dict => {
   open LogicUtils
@@ -154,7 +154,7 @@ let connectorSelectionDataMapperFromJson: Js.Json.t => AdvancedRoutingTypes.conn
   }
 }
 
-let getDefaultSelection: Js.Dict.t<
+let getDefaultSelection: Dict.t<
   Js.Json.t,
 > => AdvancedRoutingTypes.connectorSelection = defaultSelection => {
   open LogicUtils
@@ -218,7 +218,7 @@ let getSplitFromConnectorSelectionData = connectorSelectionData => {
   }
 }
 
-let ruleInfoTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithmData = json => {
+let ruleInfoTypeMapper: Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithmData = json => {
   open LogicUtils
   let rulesArray = json->getArrayFromDict("rules", [])
 
@@ -278,7 +278,7 @@ let isStatementMandatoryFieldsPresent = (statement: AdvancedRoutingTypes.stateme
   statement.lhs->String.length > 0 && (statement.value.\"type"->String.length > 0 && statementValue)
 }
 
-let algorithmTypeMapper: Js.Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithm = values => {
+let algorithmTypeMapper: Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithm = values => {
   open LogicUtils
   {
     data: values->getDictfromDict("data")->ruleInfoTypeMapper,
@@ -312,8 +312,7 @@ let generateStatements = statements => {
     let statementDict = statement->getDictFromJsonObject
     let logicalOperator = statementDict->getString("logical", "")->String.toLowerCase
 
-    let lastItem =
-      acc->Belt.Array.get(acc->Array.length - 1)->Option.getWithDefault({condition: []})
+    let lastItem = acc->Array.get(acc->Array.length - 1)->Option.getOr({condition: []})
 
     let condition: AdvancedRoutingTypes.statement = {
       lhs: statementDict->getString("lhs", ""),

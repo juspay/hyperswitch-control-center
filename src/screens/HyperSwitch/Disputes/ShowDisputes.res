@@ -208,7 +208,7 @@ module Details = {
         </div>
       </FormRenderer.DesktopRow>
       <RenderIf condition={children->Option.isSome}>
-        {children->Option.getWithDefault(React.null)}
+        {children->Option.getOr(React.null)}
       </RenderIf>
     </OrderUtils.Section>
   }
@@ -243,7 +243,7 @@ let make = (~id) => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }

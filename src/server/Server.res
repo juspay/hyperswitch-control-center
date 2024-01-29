@@ -1,5 +1,5 @@
 @val @scope("process")
-external env: Js.Dict.t<string> = "env"
+external env: Dict.t<string> = "env"
 
 let appName = env->Dict.get("appName")
 
@@ -44,21 +44,20 @@ external execSync: (string, encodeType) => string = "execSync"
 
 @val external nullableGitCommitStr: option<string> = "GIT_COMMIT_HASH"
 
-let currentCommitHash = nullableGitCommitStr->Option.getWithDefault("no-commit-hash")
+let currentCommitHash = nullableGitCommitStr->Option.getOr("no-commit-hash")
 
 let serverHandler: Http.serverHandler = (request, response) => {
   open Belt.Option
   let arr = request.url.toString(.)->String.split("?")
   let path =
     arr
-    ->Belt.Array.get(0)
+    ->Array.get(0)
     ->getWithDefault("")
     ->String.replaceRegExp(%re("/^\/\//"), "/")
     ->String.replaceRegExp(%re("/^\/v4\//"), "/")
 
   if path === "/config/merchant-access" && request.method === "POST" {
-    let path =
-      env->Dict.get("configPath")->Option.getWithDefault("dist/server/config/FeatureFlag.json")
+    let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/FeatureFlag.json")
     Promise.make((resolve, _reject) => {
       configHandler(request, response, true, path)
       ()->resolve(. _)
@@ -119,8 +118,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
 let serverHandlerWrapper = (req, res) => {
   try {serverHandler(req, res)} catch {
   | err => {
-      let err =
-        err->Js.Exn.asJsExn->Option.flatMap(Js.Exn.message)->Option.getWithDefault("Error Found")
+      let err = err->Js.Exn.asJsExn->Option.flatMap(Js.Exn.message)->Option.getOr("Error Found")
       res.writeHead(. 200, Http.makeHeader({"Content-Type": "text/plain"}))
       `Error : ${err}`->res.write(. _)
       res.end(.)

@@ -63,7 +63,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
       }
     })
     ->React.array}
-    {if currentPage < Belt.Array.length(pageNumbers) {
+    {if currentPage < Array.length(pageNumbers) {
       <Icon name="chevron-right" size=16 onClick={_evt => paginate(currentPage + 1)} />
     } else {
       <Icon name="rightDisabledPaginator" size=16 onClick={_evt => paginate(currentPage + 1)} />

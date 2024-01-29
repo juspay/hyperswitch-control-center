@@ -3,7 +3,7 @@ open ProviderTypes
 let setIsSidebarDetails = (key, value) => {
   let localStorageData = HSLocalStorage.getInfoFromLocalStorage(~lStorageKey="sidebar")
   localStorageData->Dict.set(key, value)
-  "sidebar"->LocalStorage.setItem(localStorageData->Js.Json.stringifyAny->Option.getWithDefault(""))
+  "sidebar"->LocalStorage.setItem(localStorageData->Js.Json.stringifyAny->Option.getOr(""))
 }
 
 let getFromSidebarDetails = key => {

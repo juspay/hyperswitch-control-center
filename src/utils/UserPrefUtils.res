@@ -2,11 +2,11 @@ open LogicUtils
 
 type moduleVisePref = {
   searchParams?: string,
-  moduleConfig?: Js.Dict.t<Js.Json.t>, // we store array of string here
+  moduleConfig?: Dict.t<Js.Json.t>, // we store array of string here
 }
 type userPref = {
   lastVisitedTab?: string,
-  moduleVisePref?: Js.Dict.t<moduleVisePref>,
+  moduleVisePref?: Dict.t<moduleVisePref>,
 }
 external userPrefToJson: userPref => Js.Json.t = "%identity"
 
@@ -53,7 +53,7 @@ let converToUserPref = dict => {
 }
 
 // this will be changed to api call on every change to url this save will happen
-let saveUserPref = (userPref: Js.Dict.t<userPref>) => {
+let saveUserPref = (userPref: Dict.t<userPref>) => {
   LocalStorage.setItem(
     userPreferenceKeyInLocalStorage,
     userPref
@@ -72,18 +72,14 @@ let saveUserPref = (userPref: Js.Dict.t<userPref>) => {
 let getUserPref = () => {
   switch LocalStorage.getItem(userPreferenceKeyInLocalStorage)->Js.Nullable.toOption {
   | Some(str) =>
-    str
-    ->LogicUtils.safeParse
-    ->Js.Json.decodeObject
-    ->Option.getWithDefault(Dict.make())
-    ->converToUserPref
+    str->LogicUtils.safeParse->Js.Json.decodeObject->Option.getOr(Dict.make())->converToUserPref
 
   | None => Dict.make()
   }
 }
 
-let getSearchParams = (moduleWisePref: Js.Dict.t<moduleVisePref>, ~key: string) => {
-  switch moduleWisePref->Dict.get(key)->Option.getWithDefault({}) {
+let getSearchParams = (moduleWisePref: Dict.t<moduleVisePref>, ~key: string) => {
+  switch moduleWisePref->Dict.get(key)->Option.getOr({}) {
   | {searchParams} => searchParams
   | _ => ""
   }

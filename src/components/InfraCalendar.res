@@ -16,7 +16,7 @@ module TableRow = {
     switch obj {
     | Some(a) => {
         let day = String.split(a, "-")
-        React.string(day[2]->Option.getWithDefault(""))
+        React.string(day[2]->Option.getOr(""))
       }
 
     | None => React.string("")
@@ -41,7 +41,7 @@ module TableRow = {
     let highlight = cellHighlighter
 
     {
-      if item == Belt.Array.make(7, "") {
+      if item == Array.make(~length=7, "") {
         React.null
       } else {
         <tr className="transition duration-300 ease-in-out">
@@ -106,11 +106,11 @@ module TableRow = {
               if startDate != "" && obj != "" {
                 let getDate = date => {
                   let datevalue = Js.Date.makeWithYMD(
-                    ~year=Js.Float.fromString(date[0]->Option.getWithDefault("")),
+                    ~year=Js.Float.fromString(date[0]->Option.getOr("")),
                     ~month=Js.Float.fromString(
-                      String.make(Js.Float.fromString(date[1]->Option.getWithDefault("")) -. 1.0),
+                      String.make(Js.Float.fromString(date[1]->Option.getOr("")) -. 1.0),
                     ),
-                    ~date=Js.Float.fromString(date[2]->Option.getWithDefault("")),
+                    ~date=Js.Float.fromString(date[2]->Option.getOr("")),
                     (),
                   )
                   datevalue
@@ -230,7 +230,7 @@ let make = (
   }
 
   // creating row info
-  let dummyRow = Belt.Array.make(6, Belt.Array.make(7, ""))
+  let dummyRow = Array.make(~length=6, Array.make(~length=7, ""))
 
   let rowMapper = (row, indexRow) => {
     Array.mapWithIndex(row, (_item, index) => {

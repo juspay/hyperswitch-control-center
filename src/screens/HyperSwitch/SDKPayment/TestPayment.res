@@ -64,7 +64,7 @@ let make = (
   }
 
   React.useEffect1(() => {
-    let status = filtersFromUrl->Dict.get("status")->Option.getWithDefault("")->String.toLowerCase
+    let status = filtersFromUrl->Dict.get("status")->Option.getOr("")->String.toLowerCase
     let paymentIdFromPaymemtIntentClientSecret = getClientSecretFromPaymentId(
       ~paymentIntentClientSecret=url.search
       ->LogicUtils.getDictFromUrlSearchParams

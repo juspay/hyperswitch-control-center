@@ -13,8 +13,8 @@ let useConstructQueryOnBasisOfOpt = () => {
       try {
         let arrQuery = queryString->String.split("&")
         let tempArr = arrQuery->Array.filter(x => x->String.includes(optKey))
-        let tempArr = tempArr[0]->Option.getWithDefault("")->String.split("=")
-        let optVal = tempArr[1]->Option.getWithDefault("")
+        let tempArr = tempArr[0]->Option.getOr("")->String.split("=")
+        let optVal = tempArr[1]->Option.getOr("")
 
         let customrange: customDateRange = switch optVal {
         | "today" => Today
@@ -25,13 +25,13 @@ let useConstructQueryOnBasisOfOpt = () => {
         | "next_month" => NextMonth
         | st => {
             let arr = st->String.split("_")
-            let _ = arr[0]->Option.getWithDefault("") == "next"
-            let anchor = arr[2]->Option.getWithDefault("")
-            let val = arr[1]->Option.getWithDefault("")
+            let _ = arr[0]->Option.getOr("") == "next"
+            let anchor = arr[2]->Option.getOr("")
+            let val = arr[1]->Option.getOr("")
             switch anchor {
-            | "days" => Day(val->Belt.Float.fromString->Option.getWithDefault(0.0))
-            | "hours" => Hour(val->Belt.Float.fromString->Option.getWithDefault(0.0))
-            | "mins" => Hour(val->Belt.Float.fromString->Option.getWithDefault(0.0) /. 60.0)
+            | "days" => Day(val->Belt.Float.fromString->Option.getOr(0.0))
+            | "hours" => Hour(val->Belt.Float.fromString->Option.getOr(0.0))
+            | "mins" => Hour(val->Belt.Float.fromString->Option.getOr(0.0) /. 60.0)
             | _ => Today
             }
           }

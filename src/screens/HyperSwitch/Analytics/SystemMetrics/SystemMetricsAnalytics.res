@@ -127,8 +127,8 @@ module HSiwtchPaymentConfirmLatency = {
       ->getDictFromJsonObject
       ->getJsonObjectFromDict("queryData")
       ->getArrayFromJson([])
-      ->Belt.Array.get(0)
-      ->Option.getWithDefault(Js.Json.object_(Dict.make()))
+      ->Array.get(0)
+      ->Option.getOr(Js.Json.object_(Dict.make()))
       ->getDictFromJsonObject
       ->getInt("latency", 0)
     }
@@ -285,7 +285,7 @@ module SystemMetricsAnalytics = {
       }
       None
     }, (startTimeVal, endTimeVal, filterBody->Js.Json.object_->Js.Json.stringify))
-    let filterData = filterDataJson->Option.getWithDefault(Dict.make()->Js.Json.object_)
+    let filterData = filterDataJson->Option.getOr(Dict.make()->Js.Json.object_)
 
     <UIUtils.RenderIf condition={getModuleFilters->Dict.toArray->Array.length > 0}>
       {switch chartEntity1 {
@@ -317,7 +317,7 @@ module SystemMetricsAnalytics = {
             moduleName
             setTotalVolume
             showPercentage=false
-            statSentiment={singleStatEntity.statSentiment->Option.getWithDefault(Dict.make())}
+            statSentiment={singleStatEntity.statSentiment->Option.getOr(Dict.make())}
           />
         </div>
       | _ => React.null
@@ -346,7 +346,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
