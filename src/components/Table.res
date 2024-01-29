@@ -127,7 +127,7 @@ module TableRow = {
         | _ => false
         }
       })
-      ->Belt.Option.isSome
+      ->Option.isSome
     let bgColor = coloredRow ? selectedRowColor : "bg-white dark:bg-jp-gray-lightgray_background"
     let fontSize = "text-fs-13"
     let fontWeight = ""
@@ -265,7 +265,7 @@ module SortAction = {
     ~isLastCol=false,
     ~filterRow: option<filterRow>,
   ) => {
-    if item.showSort || filterRow->Belt.Option.isSome {
+    if item.showSort || filterRow->Option.isSome {
       let order: sortOrder = switch sortedObj {
       | Some(obj: sortedObject) => obj.key === item.key ? obj.order : NONE
       | None => NONE
@@ -358,8 +358,8 @@ module TableHeadingCell = {
     }
 
     let headerBgColor =
-      headerCustomBgColor->Belt.Option.isSome
-        ? headerCustomBgColor->Belt.Option.getWithDefault("")
+      headerCustomBgColor->Option.isSome
+        ? headerCustomBgColor->Option.getOr("")
         : "bg-gray-50 dark:bg-jp-gray-darkgray_background"
     let paddingClass = "px-4 py-3"
     let roundedClass = if isFirstCol {
@@ -382,7 +382,7 @@ module TableHeadingCell = {
           : ""}`
     } else {
       let heightHeadingClass2 = frozenUpto == 0 ? "" : heightHeadingClass
-      `tableHeader ${lastColProp} ${item.customWidth->Belt.Option.getWithDefault(
+      `tableHeader ${lastColProp} ${item.customWidth->Option.getOr(
           "",
         )} justify-between items-center ${headerTextClass} whitespace-pre select-none ${headerBgColor} ${paddingClass} ${roundedClass} ${heightHeadingClass2} ${tableheadingClass} ${isLastCol
           ? lastHeadingClass
@@ -394,7 +394,7 @@ module TableHeadingCell = {
       `${fontWeight} ${fontSize} ${tableHeadingTextClass}`
     }
     let (isAllSelected, isSelectedStateMinus, checkboxDimension) = (
-      selectAllCheckBox->Belt.Option.isSome,
+      selectAllCheckBox->Option.isSome,
       selectAllCheckBox === Some(PARTIAL),
       "h-4 w-4",
     )
@@ -416,8 +416,7 @@ module TableHeadingCell = {
                 : justifyClass}`}>
             <div className="">
               <div className={"flex flex-row"}>
-                <UIUtils.RenderIf
-                  condition={item.showMultiSelectCheckBox->Belt.Option.getWithDefault(false)}>
+                <UIUtils.RenderIf condition={item.showMultiSelectCheckBox->Option.getOr(false)}>
                   <div className=" mt-1 mr-2">
                     <CheckBoxIcon
                       isSelected={isAllSelected}
@@ -432,18 +431,16 @@ module TableHeadingCell = {
                   | Some(headerElement) => headerElement
                   | _ => <div className=tableHeadingTextClass> {React.string(item.title)} </div>
                   }}
-                  <UIUtils.RenderIf condition={item.data->Belt.Option.isSome}>
+                  <UIUtils.RenderIf condition={item.data->Option.isSome}>
                     <AddDataAttributes
-                      attributes=[
-                        ("data-heading-value", item.data->Belt.Option.getWithDefault("")),
-                      ]>
+                      attributes=[("data-heading-value", item.data->Option.getOr(""))]>
                       <div
                         className="flex justify-start text-fs-10 font-medium text-gray-400 whitespace-pre text-ellipsis overflow-x-hidden">
-                        {React.string(` (${item.data->Belt.Option.getWithDefault("")})`)}
+                        {React.string(` (${item.data->Option.getOr("")})`)}
                       </div>
                     </AddDataAttributes>
                   </UIUtils.RenderIf>
-                  {if item.showFilter || item.showSort || filterRow->Belt.Option.isSome {
+                  {if item.showFilter || item.showSort || filterRow->Option.isSome {
                     let selfClass = "self-end"
                     <div className={`flex flex-row ${selfClass} items-center`}>
                       <SortAction
@@ -508,14 +505,13 @@ module TableHeadingCell = {
                     React.null
                   }}
                 </div>
-                <UIUtils.RenderIf condition={item.isMandatory->Belt.Option.getWithDefault(false)}>
+                <UIUtils.RenderIf condition={item.isMandatory->Option.getOr(false)}>
                   <div className="text-red-400 text-sm ml-1"> {React.string("*")} </div>
                 </UIUtils.RenderIf>
-                <UIUtils.RenderIf
-                  condition={item.description->Belt.Option.getWithDefault("") !== ""}>
+                <UIUtils.RenderIf condition={item.description->Option.getOr("") !== ""}>
                   <div className="text-sm text-gray-500 mx-2">
                     <ToolTip
-                      description={item.description->Belt.Option.getWithDefault("")}
+                      description={item.description->Option.getOr("")}
                       toolTipPosition={ToolTip.Bottom}
                     />
                   </div>
@@ -561,8 +557,8 @@ module TableHeadingRow = {
         <tr>
           {headingArray
           ->Array.mapWithIndex((item, i) => {
-            let columnFilterRow: array<filterRow> = columnFilterRow->Belt.Option.getWithDefault([])
-            let filterRow = columnFilterRow->Belt.Array.get(i)
+            let columnFilterRow: array<filterRow> = columnFilterRow->Option.getOr([])
+            let filterRow = columnFilterRow->Array.get(i)
             <TableHeadingCell
               key={Belt.Int.toString(i)}
               item
@@ -673,7 +669,7 @@ let make = (
   let totalTableWidth =
     Dom.document
     ->Dom.Document.getElementById(`table`)
-    ->Belt.Option.mapWithDefault(0, ele => ele->Document.offsetWidth)
+    ->Option.mapOr(0, ele => ele->Document.offsetWidth)
 
   let equalColWidth = (totalTableWidth / numberOfCols)->Belt.Int.toString
   let fixedWidthClass = enableEqualWidthCol ? `${equalColWidth}px` : ""
@@ -688,7 +684,7 @@ let make = (
   } else {
     ""
   }
-  let filterPresent = heading->Array.find(head => head.showFilter)->Js.Option.isSome
+  let filterPresent = heading->Array.find(head => head.showFilter)->Option.isSome
 
   let highlightEnabledFieldsArray = heading->Array.reduceWithIndex([], (acc, item, index) => {
     if item.highlightCellOnHover {
@@ -701,8 +697,7 @@ let make = (
     switch actualData {
     | Some(actualData) =>
       switch getRowDetails {
-      | Some(fn) =>
-        fn(actualData->Belt.Array.get(rowIndex)->Belt.Option.getWithDefault(Js.Nullable.null))
+      | Some(fn) => fn(actualData->Array.get(rowIndex)->Option.getOr(Js.Nullable.null))
       | None => React.null
       }
     | None => React.null
@@ -760,7 +755,7 @@ let make = (
     | None => None
     }
     let tableheadingClass =
-      customizeColumnNewTheme->Belt.Option.isSome
+      customizeColumnNewTheme->Option.isSome
         ? `${tableheadingClass} ${heightHeadingClass}`
         : tableheadingClass
 
@@ -896,7 +891,7 @@ let make = (
   let parentBorderRadius = !isHighchartLegend ? "rounded-t-lg" : ""
   let parentBorderClass = !isHighchartLegend ? "border border-jp-2-light-gray-300" : ""
   <div
-    className={`flex flex-row items-stretch ${scrollBarClass} loadedTable ${parentMinWidthClass} ${customBorderClass->Belt.Option.getWithDefault(
+    className={`flex flex-row items-stretch ${scrollBarClass} loadedTable ${parentMinWidthClass} ${customBorderClass->Option.getOr(
         parentBorderClass ++ " " ++ parentBorderRadius,
       )}`}
     style={ReactDOMStyle.make(

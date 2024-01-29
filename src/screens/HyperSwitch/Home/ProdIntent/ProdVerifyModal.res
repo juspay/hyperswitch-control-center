@@ -15,7 +15,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
       let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
       let bodyValues = values->getBody->Js.Json.object_
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
       showToast(
         ~toastType=ToastSuccess,
         ~message="Successfully sent for verification!",

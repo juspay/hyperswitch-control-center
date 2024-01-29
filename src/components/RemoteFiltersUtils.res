@@ -18,7 +18,7 @@ let getFinalDict = (
   switch filterJson->Js.Json.decodeObject {
   | Some(dict) => {
       // Hack for admin service config entity
-      let allowedDefaultKeys = if dict->Dict.get("sourceObject")->Js.Option.isSome {
+      let allowedDefaultKeys = if dict->Dict.get("sourceObject")->Option.isSome {
         Dict.keysToArray(dict)
       } else {
         defaultKeysAllowed
@@ -64,7 +64,7 @@ let getFinalDict = (
       | JSONArray(stringValueArr) =>
         stringValueArr
         ->Array.map(ele => {
-          getExpectedType(ele->Js.Json.decodeString->Option.getWithDefault(""))
+          getExpectedType(ele->Js.Json.decodeString->Option.getOr(""))
         })
         ->Js.Json.array
       | JSONString(ele) => getExpectedType(ele)
@@ -83,13 +83,10 @@ let getFinalDict = (
       if !isSearchKeyArray {
         let key =
           filterDict
-          ->LogicUtils.getString(dropdownSearchKeyValueNames[0]->Belt.Option.getWithDefault(""), "")
+          ->LogicUtils.getString(dropdownSearchKeyValueNames[0]->Option.getOr(""), "")
           ->LogicUtils.toCamelCase
         let value =
-          filterDict->LogicUtils.getString(
-            dropdownSearchKeyValueNames[1]->Belt.Option.getWithDefault(""),
-            "",
-          )
+          filterDict->LogicUtils.getString(dropdownSearchKeyValueNames[1]->Option.getOr(""), "")
         if value !== "" {
           let isformat = searchkeysDict !== Dict.make()
           let value = if isformat {
@@ -110,17 +107,14 @@ let getFinalDict = (
       } else {
         let key =
           filterDict
-          ->LogicUtils.getArrayFromDict(
-            dropdownSearchKeyValueNames[0]->Belt.Option.getWithDefault(""),
-            [],
-          )
+          ->LogicUtils.getArrayFromDict(dropdownSearchKeyValueNames[0]->Option.getOr(""), [])
           ->Array.map(item => item->LogicUtils.getStringFromJson("")->LogicUtils.toCamelCase)
         let value =
           filterDict
-          ->LogicUtils.getString(dropdownSearchKeyValueNames[1]->Belt.Option.getWithDefault(""), "")
+          ->LogicUtils.getString(dropdownSearchKeyValueNames[1]->Option.getOr(""), "")
           ->String.split(", ")
         value->Array.forEachWithIndex((value, indx) => {
-          let key = key->Array.length > indx ? key[indx]->Belt.Option.getWithDefault("") : ""
+          let key = key->Array.length > indx ? key[indx]->Option.getOr("") : ""
           if value !== "" && key != "" {
             let isformat = searchkeysDict !== Dict.make()
             let value = if isformat {
@@ -142,7 +136,7 @@ let getFinalDict = (
       }
     }
     if isEulerOrderEntity {
-      let arr = if filterDict->Dict.get("customerId")->Js.Option.isSome {
+      let arr = if filterDict->Dict.get("customerId")->Option.isSome {
         [["date_created", "DESC"]->Js.Json.stringArray]
       } else {
         []
@@ -157,7 +151,7 @@ let getFinalDict = (
 let getStrFromJson = (key, val) => {
   switch val->Js.Json.classify {
   | JSONString(str) => str
-  | JSONArray(array) => array->Array.length > 0 ? `[${array->Array.joinWith(",")}]` : ""
+  | JSONArray(array) => array->Array.length > 0 ? `[${array->Array.joinWithUnsafe(",")}]` : ""
   | JSONNumber(num) => key === "offset" ? "0" : num->Belt.Float.toInt->string_of_int
   | _ => ""
   }
@@ -181,11 +175,8 @@ let getInitialValuesFromUrl = (
 
     splitUrlArray->Array.forEach(filterKeyVal => {
       let splitArray = String.split(filterKeyVal, "=")
-      let keyStartIndex = String.lastIndexOf(splitArray[0]->Belt.Option.getWithDefault(""), "-") + 1
-      let key = String.sliceToEnd(
-        splitArray[0]->Belt.Option.getWithDefault(""),
-        ~start=keyStartIndex,
-      )
+      let keyStartIndex = String.lastIndexOf(splitArray[0]->Option.getOr(""), "-") + 1
+      let key = String.sliceToEnd(splitArray[0]->Option.getOr(""), ~start=keyStartIndex)
       Array.push(keyList, key)->ignore
       splitArray->Js.Array2.shift->ignore
       let value = splitArray->Array.joinWith("=")
@@ -237,26 +228,17 @@ let getLocalFiltersData = (
     let valueList = []
     splitUrlArray->Array.forEach(filterKeyVal => {
       let splitArray = String.split(filterKeyVal, "=")
-      let keyStartIndex = String.lastIndexOf(splitArray[0]->Belt.Option.getWithDefault(""), `-`) + 1
-      let key = String.sliceToEnd(
-        splitArray[0]->Belt.Option.getWithDefault(""),
-        ~start=keyStartIndex,
-      )
+      let keyStartIndex = String.lastIndexOf(splitArray[0]->Option.getOr(""), `-`) + 1
+      let key = String.sliceToEnd(splitArray[0]->Option.getOr(""), ~start=keyStartIndex)
       Array.push(keyList, key)->ignore
-      Array.push(valueList, splitArray[1]->Belt.Option.getWithDefault(""))->ignore
+      Array.push(valueList, splitArray[1]->Option.getOr(""))->ignore
     })
 
     let dateRange = dateRangeFilterDict->LogicUtils.getArrayFromDict("dateRange", [])
     let startKey =
-      dateRange
-      ->Belt.Array.get(0)
-      ->Belt.Option.getWithDefault(""->Js.Json.string)
-      ->LogicUtils.getStringFromJson("")
+      dateRange->Array.get(0)->Option.getOr(""->Js.Json.string)->LogicUtils.getStringFromJson("")
     let endKey =
-      dateRange
-      ->Belt.Array.get(1)
-      ->Belt.Option.getWithDefault(""->Js.Json.string)
-      ->LogicUtils.getStringFromJson("")
+      dateRange->Array.get(1)->Option.getOr(""->Js.Json.string)->LogicUtils.getStringFromJson("")
 
     let (keyList, valueList) = if (
       dateRangeFilterDict != Dict.make() &&
@@ -265,8 +247,8 @@ let getLocalFiltersData = (
       keyList->Array.includes(startKey) &&
       keyList->Array.includes(endKey)
     ) {
-      let start_Date = valueList[keyList->Array.indexOf(startKey)]->Belt.Option.getWithDefault("")
-      let end_Date = valueList[keyList->Array.indexOf(endKey)]->Belt.Option.getWithDefault("")
+      let start_Date = valueList[keyList->Array.indexOf(startKey)]->Option.getOr("")
+      let end_Date = valueList[keyList->Array.indexOf(endKey)]->Option.getOr("")
       let keyList = keyList->Array.filter(item => item != startKey && item != endKey)
       let valueList = valueList->Array.filter(item => item != start_Date && item != end_Date)
       keyList->Array.push(startKey)->ignore
@@ -283,7 +265,7 @@ let getLocalFiltersData = (
         field.inputNames->Array.forEach(
           name => {
             if name === key {
-              let value = valueList[idx]->Belt.Option.getWithDefault("")
+              let value = valueList[idx]->Option.getOr("")
               if String.includes(value, "[") {
                 let str = String.slice(~start=1, ~end=value->String.length - 1, value)
                 let splitArray = String.split(str, ",")
@@ -309,10 +291,7 @@ let getLocalFiltersData = (
         if fieldName === key {
           res.contents = switch localFilter {
           | Some(localFilter) =>
-            localFilter(
-              res.contents,
-              Js.Json.string(valueList[idx]->Belt.Option.getWithDefault("")),
-            )
+            localFilter(res.contents, Js.Json.string(valueList[idx]->Option.getOr("")))
           | None => res.contents
           }
         }

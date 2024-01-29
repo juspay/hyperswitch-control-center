@@ -1,5 +1,3 @@
-@val @scope("window")
-external location: {..} = "location"
 external toJson: exn => Js.Json.t = "%identity"
 external toExn: string => exn = "%identity"
 
@@ -85,7 +83,7 @@ let useAddLogsAroundFetchNew = () => {
     ->thenResolve(text => {
       // will add the check for n line saperated is the length is 0 then no data
       // if (
-      //   Belt.Array.length(
+      //   Array.length(
       //     json
       //     ->LogicUtils.getDictFromJsonObject
       //     ->LogicUtils.getJsonObjectFromDict("queryData")

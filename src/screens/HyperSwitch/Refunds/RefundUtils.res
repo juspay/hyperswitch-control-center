@@ -1,6 +1,13 @@
 let getRefundsList = async (
   filterValueJson,
-  ~updateDetails,
+  ~updateDetails: (
+    string,
+    Js.Json.t,
+    Fetch.requestMethod,
+    ~bodyFormData: Fetch.formData=?,
+    ~headers: Dict.t<'a>=?,
+    unit,
+  ) => promise<Js.Json.t>,
   ~setRefundsData,
   ~setScreenState,
   ~offset,
@@ -12,11 +19,11 @@ let getRefundsList = async (
   setScreenState(_ => PageLoaderWrapper.Loading)
   try {
     let refundsUrl = getURL(~entityName=REFUNDS, ~methodType=Post, ~id=Some("refund-post"), ())
-    let res = await updateDetails(refundsUrl, filterValueJson->Js.Json.object_, Fetch.Post)
+    let res = await updateDetails(refundsUrl, filterValueJson->Js.Json.object_, Fetch.Post, ())
     let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
-    let arr = Belt.Array.make(offset, Dict.make())
+    let arr = Array.make(~length=offset, Dict.make())
     if total <= offset {
       setOffset(_ => 0)
     }

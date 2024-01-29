@@ -33,7 +33,7 @@ module NewAccountCreationModal = {
       try {
         let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Fetch.Post, ())
         let body = values
-        let _ = await updateDetails(url, body, Post)
+        let _ = await updateDetails(url, body, Post, ())
         let _ = await fetchMerchantIDs()
         showToast(
           ~toastType=ToastSuccess,
@@ -159,7 +159,7 @@ module ExternalUser = {
         let extractMerchantObject =
           typedValueOfResponse
           ->Array.find(ele => ele.merchant_id === defaultMerchantId)
-          ->Option.getWithDefault({
+          ->Option.getOr({
             merchant_id: defaultMerchantId,
             merchant_name: defaultMerchantId,
           })
@@ -286,7 +286,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Post, ())
       let body = Dict.make()
       body->Dict.set("merchant_id", value->Js.Json.string)
-      let res = await updateDetails(url, body->Js.Json.object_, Post)
+      let res = await updateDetails(url, body->Js.Json.object_, Post, ())
       let responseDict = res->getDictFromJsonObject
       let token = responseDict->getString("token", "")
       let switchedMerchantId = responseDict->getString("merchant_id", "")

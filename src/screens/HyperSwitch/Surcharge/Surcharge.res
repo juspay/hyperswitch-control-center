@@ -2,14 +2,14 @@ module ActiveRulePreview = {
   open LogicUtils
   @react.component
   let make = (~initialRule) => {
-    let rule = initialRule->Belt.Option.getWithDefault(Dict.make())
+    let rule = initialRule->Option.getOr(Dict.make())
 
     let name = rule->getString("name", "")
     let description = rule->getString("description", "")
 
     let ruleInfo = rule->getDictfromDict("algorithm")->SurchargeUtils.ruleInfoTypeMapper
 
-    <UIUtils.RenderIf condition={initialRule->Belt.Option.isSome}>
+    <UIUtils.RenderIf condition={initialRule->Option.isSome}>
       <div className="relative flex flex-col gap-6 w-full border p-6 bg-white rounded-md">
         <div
           className="absolute top-0 right-0 bg-green-800 text-white py-2 px-4 rounded-bl font-semibold">
@@ -41,7 +41,7 @@ module ConfigureSurchargeRule = {
 
     let addRule = (index, _copy) => {
       let existingRules = ruleInput.value->LogicUtils.getArrayFromJson([])
-      let newRule = existingRules[index]->Belt.Option.getWithDefault(Js.Json.null)
+      let newRule = existingRules[index]->Option.getOr(Js.Json.null)
       let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
@@ -55,7 +55,7 @@ module ConfigureSurchargeRule = {
     <div>
       {
         let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Array.length > 1
-        let rule = ruleInput.value->Js.Json.decodeArray->Belt.Option.getWithDefault([])
+        let rule = ruleInput.value->Js.Json.decodeArray->Option.getOr([])
         let keyExtractor = (index, _rule, isDragging) => {
           let id = {`algorithm.rules[${string_of_int(index)}]`}
           <AdvancedRouting.Wrapper
@@ -103,7 +103,6 @@ let make = () => {
   let (initialRule, setInitialRule) = React.useState(() => None)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (pageView, setPageView) = React.useState(_ => LANDING)
-  let (formState, setFormState) = React.useState(_ => AdvancedRoutingTypes.EditReplica)
   let showPopUp = PopUpState.useShowPopUp()
   let (showWarning, setShowWarning) = React.useState(_ => true)
 
@@ -135,7 +134,7 @@ let make = () => {
       setInitialRule(_ => Some(intitialValue))
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+      let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
       Js.Exn.raiseError(err)
     }
   }
@@ -148,7 +147,7 @@ let make = () => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
         if err->String.includes("HE_02") {
           setShowWarning(_ => false)
           setPageView(_ => LANDING)
@@ -169,7 +168,12 @@ let make = () => {
     try {
       let surchargePayload = values->buildSurchargePayloadBody
       let getActivateUrl = getURL(~entityName=SURCHARGE, ~methodType=Put, ())
-      let _ = await updateDetails(getActivateUrl, surchargePayload->Identity.genericTypeToJson, Put)
+      let _ = await updateDetails(
+        getActivateUrl,
+        surchargePayload->Identity.genericTypeToJson,
+        Put,
+        (),
+      )
       fetchDetails()->ignore
       setShowWarning(_ => true)
       RescriptReactRouter.replace(`/surcharge`)
@@ -177,7 +181,7 @@ let make = () => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       showToast(~message=err, ~toastType=ToastError, ())
     }
     Js.Nullable.null
@@ -190,7 +194,7 @@ let make = () => {
 
     AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
 
-    switch dict->Dict.get("algorithm")->Belt.Option.flatMap(Js.Json.decodeObject) {
+    switch dict->Dict.get("algorithm")->Option.flatMap(Js.Json.decodeObject) {
     | Some(jsonDict) => {
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
         if rules->Array.length === 0 {
@@ -248,7 +252,7 @@ let make = () => {
       | NEW =>
         <div className="w-full border p-8 bg-white rounded-md ">
           <Form initialValues validate formClass="flex flex-col gap-6 justify-between" onSubmit>
-            <BasicDetailsForm formState setFormState isThreeDs=true />
+            <BasicDetailsForm isThreeDs=true />
             <ConfigureSurchargeRule wasm />
             <FormValuesSpy />
             <div className="flex gap-4">

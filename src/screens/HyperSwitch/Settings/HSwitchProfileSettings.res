@@ -73,7 +73,7 @@ module ResetPassword = {
       setIsLoading(_ => true)
       try {
         let url = getURL(~entityName=USERS, ~userType=#FORGOT_PASSWORD, ~methodType=Post, ())
-        let _ = await updateDetails(url, body, Post)
+        let _ = await updateDetails(url, body, Post, ())
         showToast(~message="Please check your registered e-mail", ~toastType=ToastSuccess, ())
         setIsLoading(_ => false)
       } catch {

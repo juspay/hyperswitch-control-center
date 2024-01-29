@@ -18,7 +18,7 @@ let make = (
         [
           ("Feedback", values->HSwitchUtils.getBodyForFeedBack(~modalType, ())->Js.Json.object_),
         ]->LogicUtils.getJsonFromArrayOfJson
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
       let successMessage = switch modalType {
       | FeedBackModal => "Thanks for feedback"
       | RequestConnectorModal => "Request submitted succesfully"

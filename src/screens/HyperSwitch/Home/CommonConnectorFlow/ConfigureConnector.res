@@ -42,11 +42,29 @@ let make = (~connectProcessorValue: connectProcessor) => {
       setQuickStartPageState(_ => ConnectProcessor(CHECKOUT))
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to update!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
         Js.Exn.raiseError(err)
       }
     }
   }
+
+  React.useEffect1(() => {
+    if choiceState === #NotSelected {
+      setButtonState(_ => Button.Disabled)
+    } else {
+      setButtonState(_ => Button.Normal)
+    }
+    None
+  }, [choiceState])
+
+  React.useEffect1(() => {
+    if smartRoutingChoiceState === #NotSelected {
+      setButtonState(_ => Button.Disabled)
+    } else {
+      setButtonState(_ => Button.Normal)
+    }
+    None
+  }, [smartRoutingChoiceState])
 
   React.useEffect2(() => {
     setInitialValues(prevJson => {
@@ -79,7 +97,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
           firstProcessorRoutingPayload,
           secondProcessorRoutingPayload,
         )
-      let routingResponse = await updateDetails(routingUrl, body, Post)
+      let routingResponse = await updateDetails(routingUrl, body, Post, ())
       let activatingId = routingResponse->getDictFromJsonObject->getString("id", "")
       let activateRuleURL = getURL(
         ~entityName=ROUTING,
@@ -87,12 +105,12 @@ let make = (~connectProcessorValue: connectProcessor) => {
         ~id=Some(activatingId),
         (),
       )
-      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
+      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post, ())
       let _ = await updateEnumForRouting(activatingId)
       setButtonState(_ => Normal)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to update!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
         Js.Exn.raiseError(err)
       }
     }
@@ -118,7 +136,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
       let _ = await StringEnumType(connectorChoiceValue)->usePostEnumDetails(configurationType)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to update!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
         Js.Exn.raiseError(err)
       }
     }
@@ -154,7 +172,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
   let updateTestPaymentEnum = async (~paymentId) => {
     try {
       let paymentBody: paymentType = {
-        payment_id: paymentId->Belt.Option.getWithDefault("pay_default"),
+        payment_id: paymentId->Option.getOr("pay_default"),
       }
       let _ = await PaymentType(paymentBody)->usePostEnumDetails(#TestPayment)
       setQuickStartPageState(_ => IntegrateApp(LANDING))
@@ -185,6 +203,8 @@ let make = (~connectProcessorValue: connectProcessor) => {
           listChoices={connectorChoiceArray}
           nextButton={<Button
             buttonType=Primary
+            showBtnTextToolTip={buttonState === Button.Disabled}
+            tooltipText="Please select one of the choices"
             text="Proceed"
             onClick={_ => {
               mixpanelEvent(~eventName=`quickstart_landing`, ())
@@ -249,6 +269,8 @@ let make = (~connectProcessorValue: connectProcessor) => {
             listChoices={getSmartRoutingConfigurationText}
             nextButton={<Button
               buttonType=Primary
+              showBtnTextToolTip={buttonState === Button.Disabled}
+              tooltipText="Please select one of the choices"
               text="Proceed"
               onClick={_ => {
                 mixpanelEvent(~eventName=`quickstart_configure_smart_routing`, ())

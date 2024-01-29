@@ -6,7 +6,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Belt.Option.getWithDefault("")
+  let connectorID = url.path->Belt.List.toArray->Array.get(1)->Option.getOr("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -50,7 +50,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
     } catch {
     | Js.Exn.Error(e) => {
         Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
         setScreenState(_ => PageLoaderWrapper.Error(err))
         Dict.make()->Js.Json.object_
       }
@@ -112,7 +112,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
         switch Js.Exn.message(e) {
         | Some(message) => {
             let errMsg = message->parseIntoMyData
-            if errMsg.code->Belt.Option.getWithDefault("")->String.includes("HE_01") {
+            if errMsg.code->Option.getOr("")->String.includes("HE_01") {
               showToast(
                 ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
                 ~toastType=ToastState.ToastError,
@@ -154,7 +154,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
         ~connector=Some(connector),
         (),
       )
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
       setShowVerifyModal(_ => false)
       onSubmitMain(values)->ignore
     } catch {
@@ -202,16 +202,13 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   | _ => "Loading..."
   }
 
-  let (suggestedAction, suggestedActionExists) = ConnectorUtils.getSuggestedAction(
-    ~verifyErrorMessage,
-    ~connector,
-  )
+  let (suggestedAction, suggestedActionExists) = getSuggestedAction(~verifyErrorMessage, ~connector)
 
   <PageLoaderWrapper screenState>
     <Form
       initialValues={updatedInitialVal}
       onSubmit={(values, _) =>
-        ConnectorUtils.onSubmit(
+        onSubmit(
           ~values,
           ~onSubmitVerify,
           ~onSubmitMain,

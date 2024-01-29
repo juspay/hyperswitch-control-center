@@ -13,7 +13,6 @@ module VolumeRoutingView = {
     ~setPageState,
     ~connectors: array<ConnectorTypes.connectorPayload>,
     ~isActive,
-    ~isConfigButtonEnabled,
     ~profile,
     ~setFormState,
     ~initialValues,
@@ -38,7 +37,7 @@ module VolumeRoutingView = {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-        let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post)
+        let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post, ())
         showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(`/routing?`)
         setScreenState(_ => Success)
@@ -68,7 +67,7 @@ module VolumeRoutingView = {
         setScreenState(_ => Loading)
         let deactivateRoutingURL = `${getURL(~entityName=ROUTING, ~methodType=Post, ())}/deactivate`
         let body = [("profile_id", profile->Js.Json.string)]->Dict.fromArray->Js.Json.object_
-        let _ = await updateDetails(deactivateRoutingURL, body, Post)
+        let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
         showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(`/routing?`)
         setScreenState(_ => Success)
@@ -128,7 +127,7 @@ module VolumeRoutingView = {
                     dropDownButtonText="Add Processors"
                     connectorList
                   />
-                  <AdvancedRoutingUIUtils.ConfigureRuleButton setShowModal isConfigButtonEnabled />
+                  <ConfigureRuleButton setShowModal />
                   <CustomModal.RoutingCustomModal
                     showModal
                     setShowModal
@@ -209,7 +208,6 @@ let make = (~routingRuleId, ~isActive) => {
   let (pageState, setPageState) = React.useState(() => Create)
   let (connectors, setConnectors) = React.useState(_ => [])
   let currentTabName = Recoil.useRecoilValueFromAtom(RoutingUtils.currentTabNameRecoilAtom)
-  let (isConfigButtonEnabled, setIsConfigButtonEnabled) = React.useState(_ => false)
   let showToast = ToastState.useShowToast()
   let connectorListJson =
     HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->safeParse
@@ -254,14 +252,14 @@ let make = (~routingRuleId, ~isActive) => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }
   }
 
   let validate = (values: Js.Json.t) => {
-    let errors = Js.Dict.empty()
+    let errors = Dict.make()
     let dict = values->getDictFromJsonObject
     let validateGateways = dict => {
       let gateways = dict->getArrayFromDict("data", [])
@@ -269,7 +267,7 @@ let make = (~routingRuleId, ~isActive) => {
         Some("Need atleast 1 Gateway")
       } else {
         let distributionPercentages = gateways->Belt.Array.keepMap(json => {
-          json->Js.Json.decodeObject->Belt.Option.flatMap(getOptionFloat(_, "split"))
+          json->Js.Json.decodeObject->Option.flatMap(getOptionFloat(_, "split"))
         })
         let distributionPercentageSum =
           distributionPercentages->Array.reduce(0., (sum, distribution) => sum +. distribution)
@@ -288,9 +286,9 @@ let make = (~routingRuleId, ~isActive) => {
       }
     }
 
-    let volumeBasedDistributionDict = dict->getObj("algorithm", Js.Dict.empty())
+    let volumeBasedDistributionDict = dict->getObj("algorithm", Dict.make())
     switch volumeBasedDistributionDict->validateGateways {
-    | Some(error) => errors->Js.Dict.set("Volume Based Distribution", error->Js.Json.string)
+    | Some(error) => errors->Dict.set("Volume Based Distribution", error->Js.Json.string)
     | None => ()
     }
     errors->Js.Json.object_
@@ -300,7 +298,7 @@ let make = (~routingRuleId, ~isActive) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let updateUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
-      let res = await updateDetails(updateUrl, values, Post)
+      let res = await updateDetails(updateUrl, values, Post, ())
       showToast(
         ~message="Successfully Created a new Configuration !",
         ~toastType=ToastState.ToastSuccess,
@@ -313,7 +311,7 @@ let make = (~routingRuleId, ~isActive) => {
       Js.Nullable.return(res)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Something went wrong!")
+      let err = Js.Exn.message(e)->Option.getOr("Something went wrong!")
       showToast(~message="Failed to Save the Configuration !", ~toastType=ToastState.ToastError, ())
       setScreenState(_ => PageLoaderWrapper.Error(err))
       Js.Exn.raiseError(err)
@@ -334,14 +332,7 @@ let make = (~routingRuleId, ~isActive) => {
         <div className="w-full flex justify-between">
           <div className="w-full">
             <BasicDetailsForm
-              formState
-              setFormState
-              currentTabName
-              setInitialValues
-              setIsConfigButtonEnabled
-              profile
-              setProfile
-              routingType=VOLUME_SPLIT
+              currentTabName formState setInitialValues profile setProfile routingType=VOLUME_SPLIT
             />
           </div>
         </div>
@@ -353,7 +344,6 @@ let make = (~routingRuleId, ~isActive) => {
             connectors
             routingId={routingRuleId}
             isActive
-            isConfigButtonEnabled
             initialValues
             profile
             setFormState

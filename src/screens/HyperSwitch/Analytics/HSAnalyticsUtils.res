@@ -1,5 +1,3 @@
-@val @scope(("window", "location")) external hostname: string = "hostname"
-
 let filterFieldsPortalName = "analytics"
 
 let setPrecision = (num, ~digit=2, ()) => {
@@ -16,7 +14,7 @@ let options: Js.Json.t => array<EntityType.optionType<'t>> = json => {
   json
   ->getDictFromJsonObject
   ->getOptionalArrayFromDict("queryData")
-  ->Belt.Option.flatMap(arr => {
+  ->Option.flatMap(arr => {
     arr
     ->Array.map(dimensionObject => {
       let dimensionObject = dimensionObject->getDictFromJsonObject
@@ -58,7 +56,7 @@ let options: Js.Json.t => array<EntityType.optionType<'t>> = json => {
     })
     ->Some
   })
-  ->Belt.Option.getWithDefault([])
+  ->Option.getOr([])
 }
 
 let filterByData = (txnArr, value) => {
@@ -76,7 +74,7 @@ let filterByData = (txnArr, value) => {
 
         value
         ->Js.Json.decodeString
-        ->Belt.Option.getWithDefault("")
+        ->Option.getOr("")
         ->String.toLowerCase
         ->String.includes(searchText)
       })
@@ -96,7 +94,7 @@ let initialFilterFields = json => {
     json
     ->getDictFromJsonObject
     ->getOptionalArrayFromDict("queryData")
-    ->Belt.Option.flatMap(arr => {
+    ->Option.flatMap(arr => {
       arr
       ->Belt.Array.keepMap(item => {
         let dimensionObject = item->getDictFromJsonObject
@@ -130,7 +128,7 @@ let initialFilterFields = json => {
       })
       ->Some
     })
-    ->Belt.Option.getWithDefault([])
+    ->Option.getOr([])
 
   dropdownValue
 }
@@ -253,7 +251,7 @@ let generateTablePayload = (
   let tableBodyWithDeltaMetrix = if deltaMetrics->Array.length > 0 {
     switch distributionArray {
     | Some(distributionArray) =>
-      distributionArray->Belt.Array.map(arr =>
+      distributionArray->Array.map(arr =>
         getFilterRequestBody(
           ~groupByNames=currenltySelectedTab,
           ~filter=filterValueFromUrl,
@@ -314,7 +312,7 @@ let generateTablePayload = (
 
   let tableBody =
     Belt.Array.concatMany([tableBodyValues, deltaPayload])
-    ->Belt.Array.map(Js.Json.object_)
+    ->Array.map(Js.Json.object_)
     ->Js.Json.array
   tableBody
 }

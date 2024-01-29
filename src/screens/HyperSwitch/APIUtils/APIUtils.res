@@ -82,7 +82,7 @@ let getURL = (
       | Some(key_id) => `api_keys/${merchantId}/${key_id}`
       | None => `api_keys/${merchantId}`
       }
-    | Delete => `api_keys/${merchantId}/${id->Belt.Option.getWithDefault("")}`
+    | Delete => `api_keys/${merchantId}/${id->Option.getOr("")}`
     | _ => ""
     }
   | ORDERS =>
@@ -144,6 +144,16 @@ let getURL = (
       }
     | _ => ""
     }
+  | WEBHOOKS_EVENT_LOGS =>
+    switch id {
+    | Some(payment_id) => `analytics/v1/outgoing_webhook_event_logs?payment_id=${payment_id}`
+    | None => ""
+    }
+  | CONNECTOR_EVENT_LOGS =>
+    switch id {
+    | Some(payment_id) => `analytics/v1/connector_event_logs?type=Payment&payment_id=${payment_id}`
+    | None => ""
+    }
   | USERS =>
     let userUrl = `user`
     switch userType {
@@ -161,6 +171,7 @@ let getURL = (
       | _ => `${userUrl}/${(userType :> string)->String.toLowerCase}`
       }
     | #CREATE_MERCHANT => `${userUrl}/create_merchant`
+    | #GET_PERMISSIONS => `${userUrl}/role`
     | #SIGNIN
     | #SIGNUP
     | #VERIFY_EMAIL
@@ -191,6 +202,11 @@ let getURL = (
     | Some(id) => `account/${merchantId}/business_profile/${id}`
     | None => `account/${merchantId}/business_profile`
     }
+  | ACCEPT_DISPUTE =>
+    switch id {
+    | Some(id) => `disputes/accept/${id}`
+    | None => `disputes`
+    }
   | PAYMENT | SETTINGS => ""
   }
   `${HSwitchGlobalVars.hyperSwitchApiPrefix}/${endpoint}`
@@ -200,13 +216,14 @@ let sessionExpired = ref(false)
 
 let handleLogout = async (
   ~fetchApi as _: (
-    Js.String2.t,
+    string,
     ~bodyStr: string=?,
-    ~headers: Js.Dict.t<Js.String2.t>=?,
-    ~bodyHeader: Js.Dict.t<Js.Json.t>=?,
+    ~bodyFormData: option<Fetch.formData>=?,
+    ~headers: Dict.t<string>=?,
+    ~bodyHeader: Dict.t<Js.Json.t>=?,
     ~method_: Fetch.requestMethod,
-    ~authToken: option<Js.String2.t>=?,
-    ~requestId: Js.String.t=?,
+    ~authToken: option<string>=?,
+    ~requestId: string=?,
     ~disableEncryption: bool=?,
     ~storageKey: string=?,
     ~betaEndpointConfig: AuthHooks.betaEndpoint=?,
@@ -386,9 +403,23 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
       },
     })
 
-  async (url, body, method) => {
+  async (
+    url,
+    body,
+    method,
+    ~bodyFormData=?,
+    ~headers=[("Content-Type", "application/json")]->Dict.fromArray,
+    (),
+  ) => {
     try {
-      let res = await fetchApi(url, ~method_=method, ~bodyStr=body->Js.Json.stringify, ())
+      let res = await fetchApi(
+        url,
+        ~method_=method,
+        ~bodyStr=body->Js.Json.stringify,
+        ~bodyFormData,
+        ~headers,
+        (),
+      )
       await responseHandler(
         ~res,
         ~showErrorToast,

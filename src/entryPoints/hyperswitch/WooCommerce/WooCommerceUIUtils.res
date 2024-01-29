@@ -112,7 +112,7 @@ module SelectPaymentMethods = {
         let body = ConnectorUtils.constructConnectorRequestBody(obj, initialValues)
         let connectorUrl = APIUtils.getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
 
-        let response = await updateAPIHook(connectorUrl, body, Post)
+        let response = await updateAPIHook(connectorUrl, body, Post, ())
         setInitialValues(_ => response)
         response->LogicUtils.getDictFromJsonObject->updateEnumForConnector->ignore
         setConnectorConfigureState(_ => Summary)

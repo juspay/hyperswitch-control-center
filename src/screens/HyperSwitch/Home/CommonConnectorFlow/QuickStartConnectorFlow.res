@@ -85,7 +85,7 @@ let make = (
         ~json=connectorName->Window.getConnectorConfig,
         ~profileId=activeBusinessProfile.profile_id,
       )
-      let res = await updateDetails(url, testConnectorBody, Post)
+      let res = await updateDetails(url, testConnectorBody, Post, ())
       connectorArray->Array.push(connectorName)
       setConnectorArray(_ => connectorArray)
       setInitialValues(_ => res)
@@ -99,7 +99,7 @@ let make = (
       )
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       showToast(~message=err, ~toastType=ToastError, ())
       setButtonState(_ => Normal)
     }
@@ -114,6 +114,15 @@ let make = (
       mixpanelEvent(~eventName=`quickstart_select_configuration_type_keys`, ())
     }
   }
+
+  React.useEffect1(() => {
+    if choiceStateForTestConnector === #NotSelected {
+      setButtonState(_ => Button.Disabled)
+    } else {
+      setButtonState(_ => Button.Normal)
+    }
+    None
+  }, [choiceStateForTestConnector])
 
   React.useEffect1(() => {
     let defaultJsonOnNewConnector =
@@ -144,6 +153,8 @@ let make = (
           buttonType=Primary
           text="Proceed"
           buttonState
+          showBtnTextToolTip={buttonState === Button.Disabled}
+          tooltipText="Please select one of the choices"
           onClick={_ => {
             handleConnectorSubmit()
           }}

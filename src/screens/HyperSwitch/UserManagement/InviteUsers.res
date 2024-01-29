@@ -9,7 +9,9 @@ module InviteEmailForm = {
     let (roleListData, setRoleListData) = React.useState(_ => [])
 
     let emailList =
-      ReactFinalForm.useField("emailList").input.value->getArrayFromJson([])->Array.joinWith(",")
+      ReactFinalForm.useField("emailList").input.value
+      ->getArrayFromJson([])
+      ->Array.joinWithUnsafe(",")
     let role =
       ReactFinalForm.useField(`roleType`).input.value
       ->getArrayFromJson([])
@@ -90,7 +92,7 @@ let make = () => {
 
   let inviteUserReq = body => {
     let url = getURL(~entityName=USERS, ~userType=#INVITE, ~methodType=Post, ())
-    let response = updateDetails(url, body, Post)
+    let response = updateDetails(url, body, Post, ())
     response
   }
 
@@ -119,7 +121,7 @@ let make = () => {
         | Js.Json.JSONObject(jsonDict) => {
             let passwordFromResponse = jsonDict->getString("password", "")
             [
-              ("email", emailList[index]->Option.getWithDefault("")->Js.Json.string),
+              ("email", emailList[index]->Option.getOr("")->Js.Json.string),
               ("password", passwordFromResponse->Js.Json.string),
             ]->getJsonFromArrayOfJson
           }
@@ -187,7 +189,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Belt.Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }
@@ -195,10 +197,10 @@ let make = () => {
 
   let getRoleInfo = permissionInfoValue => {
     let roleTypeValue = roleDict->Dict.get(roleTypeValue)
-    if roleTypeValue->Belt.Option.isNone {
+    if roleTypeValue->Option.isNone {
       getRoleForUser(permissionInfoValue)->ignore
     } else {
-      settingUpValues(roleTypeValue->Belt.Option.getWithDefault(Js.Json.null), permissionInfoValue)
+      settingUpValues(roleTypeValue->Option.getOr(Js.Json.null), permissionInfoValue)
     }
   }
 

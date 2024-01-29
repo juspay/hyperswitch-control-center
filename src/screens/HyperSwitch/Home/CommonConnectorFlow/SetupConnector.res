@@ -7,9 +7,10 @@ module SelectProcessor = {
     ~setConnectorConfigureState,
     ~connectorArray,
   ) => {
+    open ConnectorUtils
     let url = RescriptReactRouter.useUrl()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
+    let connectorName = selectedConnector->getConnectorNameString
     let {setQuickStartPageState} = React.useContext(GlobalProvider.defaultContext)
 
     <QuickStartUIUtils.BaseComponent
@@ -20,6 +21,14 @@ module SelectProcessor = {
         buttonState={switch selectedConnector {
         | UnknownConnector(_) => Button.Disabled
         | _ => Button.Normal
+        }}
+        showBtnTextToolTip={switch selectedConnector {
+        | UnknownConnector(_) => true
+        | _ => false
+        }}
+        tooltipText={switch selectedConnector {
+        | UnknownConnector(_) => "Please select one of the processor"
+        | _ => ""
         }}
         text="Proceed"
         onClick={_ => {
@@ -41,8 +50,8 @@ module SelectProcessor = {
       <QuickStartUIUtils.SelectConnectorGrid
         selectedConnector
         setSelectedConnector
-        connectorList={ConnectorUtils.connectorList->Array.filter(value =>
-          !(connectorArray->Array.includes(value->ConnectorUtils.getConnectorNameString))
+        connectorList={connectorList->Array.filter(value =>
+          !(connectorArray->Array.includes(value->getConnectorNameString))
         )}
       />
     </QuickStartUIUtils.BaseComponent>
@@ -61,7 +70,7 @@ module ConfigureProcessor = {
     open ConnectorUtils
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
+    let connectorName = selectedConnector->getConnectorNameString
 
     let connectorDetails = React.useMemo1(() => {
       try {
@@ -85,7 +94,7 @@ module ConfigureProcessor = {
     ) = getConnectorFields(connectorDetails)
 
     let onSubmit = async (values, _) => {
-      let body = ConnectorUtils.generateInitialValuesDict(
+      let body = generateInitialValuesDict(
         ~values,
         ~connector=connectorName,
         ~bodyType,
@@ -167,15 +176,16 @@ module SelectPaymentMethods = {
     ~setButtonState: (Button.buttonState => Button.buttonState) => unit,
     ~buttonState,
   ) => {
+    open ConnectorUtils
     let {quickStartPageState} = React.useContext(GlobalProvider.defaultContext)
     let updateAPIHook = APIUtils.useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let usePostEnumDetails = EnumVariantHook.usePostEnumDetails()
-    let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
+    let connectorName = selectedConnector->getConnectorNameString
 
     let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
-      Dict.make()->Js.Json.object_->ConnectorUtils.getPaymentMethodEnabled
+      Dict.make()->Js.Json.object_->getPaymentMethodEnabled
     )
     let (metaData, setMetaData) = React.useState(_ => Dict.make()->Js.Json.object_)
 
@@ -205,10 +215,10 @@ module SelectPaymentMethods = {
           payment_methods_enabled: paymentMethodsEnabled,
           metadata: metaData,
         }
-        let body = ConnectorUtils.constructConnectorRequestBody(obj, initialValues)
+        let body = constructConnectorRequestBody(obj, initialValues)
         let connectorUrl = APIUtils.getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=None, ())
 
-        let response = await updateAPIHook(connectorUrl, body, Post)
+        let response = await updateAPIHook(connectorUrl, body, Post, ())
 
         setInitialValues(_ => response)
         connectorArray->Array.push(connectorName)
@@ -229,7 +239,7 @@ module SelectPaymentMethods = {
 
     React.useEffect1(() => {
       initialValues
-      ->ConnectorUtils.getConnectorPaymentMethodDetails(
+      ->getConnectorPaymentMethodDetails(
         setPaymentMethods,
         setMetaData,
         _ => (),

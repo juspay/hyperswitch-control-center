@@ -33,7 +33,7 @@ module ReplaceAPIKey = {
       />
       <div className={`${dividerColor} px-2`} />
       <UIUtils.RenderIf
-        condition={previewVariant->Belt.Option.isSome && webhookEndpoint->String.length > 0}>
+        condition={previewVariant->Option.isSome && webhookEndpoint->String.length > 0}>
         <ProdOnboardingUIUtils.SetupWebhookProcessor
           headerSectionText="Merchant Webhook Endpoint"
           subtextSectionText="Provide the endpoint where you would want us to send live payment events"
@@ -159,7 +159,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
     try {
       let url = getURL(~entityName=USERS, ~userType=#MERCHANT_DATA, ~methodType=Post, ())
       let body = ProdOnboardingUtils.getProdApiBody(~parentVariant=#ConfigureEndpoint, ())
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateDetails(url, body, Post, ())
       setPageView(_ => pageView->ProdOnboardingUtils.getPageView)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess, ())
       setButtonState(_ => Normal)
@@ -175,7 +175,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
         [("webhook_url", webhookEndpoint->Js.Json.string)]->Dict.fromArray->Js.Json.object_
       let body = mercahantUpdateBody->MerchantAccountUtils.getSettingsPayload(merchantId)
       let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ())
-      let merchantInfo = await updateDetails(url, body, Post)
+      let merchantInfo = await updateDetails(url, body, Post, ())
       setMerchantDetailsValue(._ => merchantInfo->Js.Json.stringify)
       updateLiveEndpoint()->ignore
     } catch {
@@ -195,7 +195,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
         <p className=headerTextStyle> {headerText->React.string} </p>
         <p className=subTextStyle> {subHeaderText->React.string} </p>
       </div>
-      <UIUtils.RenderIf condition={previewState->Belt.Option.isNone}>
+      <UIUtils.RenderIf condition={previewState->Option.isNone}>
         <div className="flex gap-4">
           <UIUtils.RenderIf condition={backButtonEnabled}>
             <Button

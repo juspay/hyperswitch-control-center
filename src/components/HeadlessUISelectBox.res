@@ -164,7 +164,7 @@ let make = (
                               {switch option.leftIcon {
                               | FontAwesome(iconName) =>
                                 <Icon
-                                  className={`align-middle ${option.customIconStyle->Belt.Option.getWithDefault(
+                                  className={`align-middle ${option.customIconStyle->Option.getOr(
                                       "",
                                     )}`}
                                   size=12
@@ -177,10 +177,7 @@ let make = (
                               | _ => React.null
                               }}
                               <AddDataAttributes attributes=[("data-options", option.label)]>
-                                <div
-                                  className={option.customTextStyle->Belt.Option.getWithDefault(
-                                    "",
-                                  )}>
+                                <div className={option.customTextStyle->Option.getOr("")}>
                                   <span className={selected ? "text-blue-800 font-semibold" : ""}>
                                     {React.string(option.label)}
                                   </span>
@@ -189,7 +186,7 @@ let make = (
                               {switch option.rightIcon {
                               | FontAwesome(iconName) =>
                                 <Icon
-                                  className={`align-middle ${option.customIconStyle->Belt.Option.getWithDefault(
+                                  className={`align-middle ${option.customIconStyle->Option.getOr(
                                       "",
                                     )}`}
                                   size=12
