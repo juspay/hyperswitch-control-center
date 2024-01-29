@@ -3,6 +3,9 @@ type t
 type listener<'ev> = 'ev => unit
 
 @val @scope("window")
+external parent: 't = "parent"
+
+@val @scope("window")
 external addEventListener: (string, listener<'ev>) => unit = "addEventListener"
 
 @val @scope("window")
@@ -79,6 +82,9 @@ external getParsedJson: string => Js.Json.t = "getParsedJson"
 
 @val @scope("window")
 external payPalCreateAccountWindow: unit => unit = "payPalCreateAccountWindow"
+
+@val @scope("window")
+external isSecureContext: bool = "isSecureContext"
 
 module MatchMedia = {
   type matchEvent = {

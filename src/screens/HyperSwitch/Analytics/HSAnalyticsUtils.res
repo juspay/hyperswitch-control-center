@@ -1,5 +1,3 @@
-@val @scope(("window", "location")) external hostname: string = "hostname"
-
 let filterFieldsPortalName = "analytics"
 
 let setPrecision = (num, ~digit=2, ()) => {
