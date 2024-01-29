@@ -3,6 +3,29 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.01.25.1
+
+### Miscellaneous Tasks
+
+- Update release-stable-version.yml ([#306](https://github.com/juspay/hyperswitch-control-center/pull/306)) ([`a4f9dfa`](https://github.com/juspay/hyperswitch-control-center/commit/a4f9dfa4d0a327feb629621e4b270c19fa87a1df))
+- Remove old workflow ([#307](https://github.com/juspay/hyperswitch-control-center/pull/307)) ([`4b01c99`](https://github.com/juspay/hyperswitch-control-center/commit/4b01c99656ba7fc1bc93a8b76a786bdcf318f949))
+
+**Full Changelog:** [`2024.01.25.0...2024.01.25.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.01.25.0...2024.01.25.1)
+
+- - -
+
+## 2024.01.25.0
+
+### Bug Fixes
+
+- Close connector drop down bydefault ([#303](https://github.com/juspay/hyperswitch-control-center/pull/303)) ([`7006d91`](https://github.com/juspay/hyperswitch-control-center/commit/7006d915dec69b2db96cf36a5399accd86f173c2))
+
+### Miscellaneous Tasks
+
+- Change tag creation ([#297](https://github.com/juspay/hyperswitch-control-center/pull/297)) ([`1466e6a`](https://github.com/juspay/hyperswitch-control-center/commit/1466e6adf9dac3d746c5105b5ccfb9b1a51f9c4c))
+
+- - -
+
 ## 1.29.0 (2024-01-24)
 
 ### Features
