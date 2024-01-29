@@ -155,7 +155,7 @@ module Details = {
         </div>
         <UIUtils.RenderIf
           condition={disputeEvidenceUpload &&
-          showDisputeInfoStatus->Js.Array2.includes(
+          showDisputeInfoStatus->Array.includes(
             data.dispute_status->DisputesUtils.disputeStatusVariantMapper,
           )}>
           <div className="flex gap-4">
@@ -179,7 +179,7 @@ module Details = {
       <div className="h-px w-full bg-grey-200 opacity-30" />
       <UIUtils.RenderIf
         condition={disputeEvidenceUpload &&
-        showDisputeInfoStatus->Js.Array2.includes(
+        showDisputeInfoStatus->Array.includes(
           data.dispute_status->DisputesUtils.disputeStatusVariantMapper,
         )}>
         <DisputesInfoBarComponent disputeStatus />
