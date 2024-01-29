@@ -204,3 +204,54 @@ let getAuthTypeFromConnectorDetails = json => {
   ->String.toLowerCase
   ->ConnectorUtils.mapAuthType
 }
+
+let payPalLogics = async (
+  ~setScreenState: (PageLoaderWrapper.viewType => PageLoaderWrapper.viewType) => unit,
+  ~url: RescriptReactRouter.url,
+  ~setSetupAccountStatus,
+  ~getConnectorDetails,
+  ~getPayPalStatus,
+  ~setCurrentStep,
+  ~connector,
+  ~isUpdateFlow,
+) => {
+  open LogicUtils
+  try {
+    let isSimplifiedPayPalFlow =
+      url.search
+      ->getDictFromUrlSearchParams
+      ->Dict.get("is_simplified_paypal")
+      ->Option.getWithDefault("false")
+      ->getBoolFromString(false)
+    let isRedirectedFromPaypalModal =
+      url.search
+      ->getDictFromUrlSearchParams
+      ->Dict.get("is_back")
+      ->Option.getWithDefault("false")
+      ->getBoolFromString(false)
+    setSetupAccountStatus(._ => PayPalFlowTypes.Connect_paypal_landing)
+    if isRedirectedFromPaypalModal {
+      await getPayPalStatus()
+    } else {
+      let step =
+        ConnectorUtils.connectorListWithAutomaticFlow->Js.Array2.includes(
+          connector->ConnectorUtils.getConnectorNameTypeFromString,
+        )
+          ? ConnectorTypes.AutomaticFlow
+          : ConnectorTypes.IntegFields
+      setCurrentStep(_ => step)
+    }
+    if isUpdateFlow {
+      await getConnectorDetails()
+      if !(isSimplifiedPayPalFlow && isRedirectedFromPaypalModal) {
+        setCurrentStep(_ => Preview)
+      }
+    }
+  } catch {
+  | Js.Exn.Error(e) => {
+      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+      setScreenState(_ => Error(err))
+    }
+  | _ => setScreenState(_ => Error("Something went wrong"))
+  }
+}

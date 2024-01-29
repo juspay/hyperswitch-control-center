@@ -71,23 +71,10 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   | list{"payoutconnectors", "new"} => false
   | _ => true
   }
-  open LogicUtils
-  let isSimplifiedPayPalFlow =
-    url.search
-    ->LogicUtils.getDictFromUrlSearchParams
-    ->Dict.get("is_simplified_paypal")
-    ->Option.getWithDefault("false")
-    ->LogicUtils.getBoolFromString(false)
 
   let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
   let profileId =
     initialValues->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
-  let isRedirectedFromPaypalModal =
-    url.search
-    ->getDictFromUrlSearchParams
-    ->Dict.get("is_back")
-    ->Option.getWithDefault("false")
-    ->LogicUtils.getBoolFromString(false)
 
   let getConnectorDetails = async () => {
     try {
@@ -95,12 +82,17 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
     } catch {
-    | _ => ()
+    | Js.Exn.Error(e) => {
+        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to update!")
+        Js.Exn.raiseError(err)
+      }
+    | _ => Js.Exn.raiseError("Something went wrong")
     }
   }
 
   let getPayPalStatus = React.useCallback3(async () => {
     open PayPalFlowUtils
+    open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let paypalBody = generatePayPalBody(
@@ -129,34 +121,14 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     }
   }, (connector, profileId, connectorID))
 
-  let getDetails = async () => {
+  let commonLogic = async () => {
     try {
-      setScreenState(_ => Loading)
-      if connector->getConnectorNameTypeFromString == PAYPAL {
-        setSetupAccountStatus(._ => PayPalFlowTypes.Connect_paypal_landing)
-      }
-      let _ = await Window.connectorWasmInit()
-
-      if isRedirectedFromPaypalModal {
-        await getPayPalStatus()
-      } else {
-        setCurrentStep(_ =>
-          connectorListWithAutomaticFlow->Js.Array2.includes(
-            connector->ConnectorUtils.getConnectorNameTypeFromString,
-          )
-            ? ConnectorTypes.AutomaticFlow
-            : ConnectorTypes.IntegFields
-        )
-      }
-
       if isUpdateFlow {
         await getConnectorDetails()
-        if !(isSimplifiedPayPalFlow && isRedirectedFromPaypalModal) {
-          setCurrentStep(_ => Preview)
-        }
+        setCurrentStep(_ => Preview)
+      } else {
+        setCurrentStep(_ => ConnectorTypes.IntegFields)
       }
-
-      setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
         let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
@@ -164,6 +136,70 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       }
     }
   }
+
+  let getDetails = async () => {
+    try {
+      setScreenState(_ => Loading)
+      let _ = await Window.connectorWasmInit()
+
+      switch connector->getConnectorNameTypeFromString {
+      | PAYPAL =>
+        await PayPalFlowUtils.payPalLogics(
+          ~setScreenState,
+          ~url,
+          ~setSetupAccountStatus,
+          ~getConnectorDetails,
+          ~getPayPalStatus,
+          ~setCurrentStep,
+          ~connector,
+          ~isUpdateFlow,
+        )
+      | _ => await commonLogic()
+      }
+      setScreenState(_ => Success)
+    } catch {
+    | Js.Exn.Error(e) => {
+        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+        setScreenState(_ => Error(err))
+      }
+    | _ => setScreenState(_ => Error("Something went wrong"))
+    }
+  }
+
+  // let getDetails1 = async () => {
+  //   try {
+  //     setScreenState(_ => Loading)
+  //     if connector->getConnectorNameTypeFromString == PAYPAL {
+  //       setSetupAccountStatus(._ => PayPalFlowTypes.Connect_paypal_landing)
+  //     }
+
+  //     if isRedirectedFromPaypalModal {
+  //       await getPayPalStatus()
+  //     } else {
+  //       setCurrentStep(_ =>
+  //         connectorListWithAutomaticFlow->Js.Array2.includes(
+  //           connector->ConnectorUtils.getConnectorNameTypeFromString,
+  //         )
+  //           ? ConnectorTypes.AutomaticFlow
+  //           : ConnectorTypes.IntegFields
+  //       )
+  //     }
+
+  //     if isUpdateFlow {
+  //       await getConnectorDetails()
+  //       if !(isSimplifiedPayPalFlow && isRedirectedFromPaypalModal) {
+  //         setCurrentStep(_ => Preview)
+  //       }
+  //     }
+
+  //     setScreenState(_ => Success)
+  //   } catch {
+  //   | Js.Exn.Error(e) => {
+  //       let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+  //       setScreenState(_ => Error(err))
+  //     }
+  //   }
+  // }
 
   React.useEffect1(() => {
     if connector->String.length > 0 {
