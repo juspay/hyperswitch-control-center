@@ -12,13 +12,12 @@ let make = (
   let (size, widthClass, flexDirectionClass) = React.useMemo1(() => {
     isMobileView ? (0.16, "w-full", "flex-col") : (size, "w-1/2", "flex-row")
   }, [isMobileView])
-  let funnelData =
-    data->Belt.Array.get(0)->Option.getWithDefault(Js.Json.null)->LogicUtils.getDictFromJsonObject
+  let funnelData = data->Array.get(0)->Option.getOr(Js.Json.null)->LogicUtils.getDictFromJsonObject
   let (hoverIndex, setHoverIndex) = React.useState(_ => -1.)
   let (selectedMetric, setSelectedMetric) = React.useState(_ => Volume)
   let length = metrics->Array.length->Belt.Float.fromInt
   let widths = metrics->Array.mapWithIndex((metric, i) => {
-    let previousMetric = metrics->Belt.Array.get(i - 1)
+    let previousMetric = metrics->Array.get(i - 1)
     let previousMetric = switch previousMetric {
     | Some(prevMetric) => prevMetric.metric_name_db
     | None => ""
@@ -81,15 +80,14 @@ let make = (
               let borderTop = `${(size *. 14.)
                   ->Belt.Float.toString}rem solid rgb(0,109,249,${opacity->Belt.Float.toString})`
 
-              let currentWidthRatio = switch widths->Belt.Array.get(i->Belt.Float.toInt) {
+              let currentWidthRatio = switch widths->Array.get(i->Belt.Float.toInt) {
               | Some(width) => width
               | None => size *. 70.
               }
 
-              let nextWidthRatio = switch widths->Belt.Array.get(i->Belt.Float.toInt + 1) {
+              let nextWidthRatio = switch widths->Array.get(i->Belt.Float.toInt + 1) {
               | Some(width) => width
-              | None =>
-                widths->Belt.Array.get(i->Belt.Float.toInt)->Option.getWithDefault(size *. 70.)
+              | None => widths->Array.get(i->Belt.Float.toInt)->Option.getOr(size *. 70.)
               }
 
               fixedWidth := currentWidthRatio *. fixedWidth.contents

@@ -75,7 +75,7 @@ module IntegrationFieldsForm = {
         let value =
           valuesFlattenJson
           ->Dict.get(key)
-          ->Option.getWithDefault(""->Js.Json.string)
+          ->Option.getOr(""->Js.Json.string)
           ->LogicUtils.getStringFromJson("")
 
         if field.isRequired && value->String.length === 0 {
@@ -135,7 +135,7 @@ module IntegrationFieldsForm = {
                     ~name={field.name},
                     ~placeholder=field.placeholder,
                     ~customInput=field.inputType,
-                    ~description=field.description->Option.getWithDefault(""),
+                    ~description=field.description->Option.getOr(""),
                     ~isRequired=true,
                     ~parse,
                     ~format?,
@@ -216,7 +216,7 @@ let make = (
 
   let frmID =
     retrivedValues
-    ->Option.getWithDefault(Dict.make()->Js.Json.object_)
+    ->Option.getOr(Dict.make()->Js.Json.object_)
     ->LogicUtils.getDictFromJsonObject
     ->LogicUtils.getString("merchant_connector_id", "")
 

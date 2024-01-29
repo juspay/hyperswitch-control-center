@@ -35,7 +35,7 @@ let make = (
         let size =
           elem
           ->Webapi.Dom.Element.getAttribute("placeholder")
-          ->Belt.Option.mapWithDefault(length, str => Js.Math.max_int(length, str->String.length))
+          ->Option.mapOr(length, str => Js.Math.max_int(length, str->String.length))
           ->Belt.Int.toString
 
         elem->Webapi.Dom.Element.setAttribute("size", size)
@@ -53,15 +53,15 @@ let make = (
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
 
-        let strValue = value->Js.Json.decodeString->Option.getWithDefault("")
+        let strValue = value->Js.Json.decodeString->Option.getOr("")
 
         let cleanedValue = switch strValue->Js.String2.match_(%re("/[\d\.]/g")) {
         | Some(strArr) =>
-          let str = strArr->Array.joinWith("")->String.split(".")->Array.slice(~start=0, ~end=2)
+          let str =
+            strArr->Array.joinWithUnsafe("")->String.split(".")->Array.slice(~start=0, ~end=2)
           let result = if removeLeadingZeroes {
-            str[0] = str[0]->Option.getWithDefault("")->String.replaceRegExp(%re("/\b0+/g"), "")
-            str[0] =
-              str[0]->Option.getWithDefault("") === "" ? "0" : str[0]->Option.getWithDefault("")
+            str[0] = str[0]->Option.getOr("")->String.replaceRegExp(%re("/\b0+/g"), "")
+            str[0] = str[0]->Option.getOr("") === "" ? "0" : str[0]->Option.getOr("")
             str->Array.joinWith(".")
           } else {
             str->Array.joinWith(".")
@@ -101,7 +101,7 @@ let make = (
         ->Js.Json.decodeString
         ->Option.flatMap(Belt.Float.fromString)
         ->Belt.Option.map(Js.Json.number)
-        ->Option.getWithDefault(Js.Json.null)
+        ->Option.getOr(Js.Json.null)
       if input.value === numericPrevLocalValue {
         prevLocalStr
       } else {

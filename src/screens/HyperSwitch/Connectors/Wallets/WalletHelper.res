@@ -118,7 +118,7 @@ module SimplifiedHelper = {
             <UIUtils.RenderIf condition={subText->Option.isSome}>
               <p
                 className={`opacity-50 mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
-                {subText->Option.getWithDefault("")->React.string}
+                {subText->Option.getOr("")->React.string}
               </p>
             </UIUtils.RenderIf>
             {switch customElement {

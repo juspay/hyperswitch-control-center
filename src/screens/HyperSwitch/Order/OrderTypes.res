@@ -75,7 +75,7 @@ type order = {
   payment_token: string,
   shipping: string,
   billing: string,
-  metadata: Js.Dict.t<Js.Json.t>,
+  metadata: Dict.t<Js.Json.t>,
   email: string,
   name: string,
   phone: string,

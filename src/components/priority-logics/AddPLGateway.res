@@ -41,7 +41,7 @@ let make = (
   let gatewayName = name => {
     let res =
       connectorList
-      ->Option.getWithDefault([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
+      ->Option.getOr([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
       ->ConnectorTableUtils.getConnectorNameViaId(name)
     res.connector_name
   }
@@ -59,7 +59,7 @@ let make = (
   let selectedOptions =
     gateWaysInput.value
     ->Js.Json.decodeArray
-    ->Option.getWithDefault([])
+    ->Option.getOr([])
     ->Belt.Array.keepMap(item =>
       item
       ->Js.Json.decodeObject
@@ -185,7 +185,7 @@ let make = (
                         name=key
                         onChange={ev => {
                           let val = ReactEvent.Form.target(ev)["value"]
-                          updatePercentage(item, val->Belt.Int.fromString->Option.getWithDefault(0))
+                          updatePercentage(item, val->Belt.Int.fromString->Option.getOr(0))
                         }}
                         value={item.split->Belt.Int.toString}
                         type_="text"

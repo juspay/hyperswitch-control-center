@@ -42,10 +42,7 @@ let make = (
 ) => {
   let showPopUp = PopUpState.useShowPopUp()
   let currentTags = React.useMemo1(() => {
-    input.value
-    ->Js.Json.decodeArray
-    ->Option.getWithDefault([])
-    ->Belt.Array.keepMap(Js.Json.decodeString)
+    input.value->Js.Json.decodeArray->Option.getOr([])->Belt.Array.keepMap(Js.Json.decodeString)
   }, [input.value])
 
   let setTags = tags => {
@@ -53,7 +50,7 @@ let make = (
   }
 
   let (text, setText) = React.useState(_ => "")
-  let customStyleClass = customStyle->Option.getWithDefault("gap-2 w-full px-1 py-1")
+  let customStyleClass = customStyle->Option.getOr("gap-2 w-full px-1 py-1")
   let onTagRemove = text => {
     setTags(currentTags->Array.filter(tag => tag !== text))
   }
@@ -72,7 +69,7 @@ let make = (
     let isEmpty = text->String.length === 0
 
     if isEmpty && (e->key === "Backspace" || e->keyCode === 8) && currentTags->Array.length > 0 {
-      setText(_ => currentTags[currentTags->Array.length - 1]->Option.getWithDefault(""))
+      setText(_ => currentTags[currentTags->Array.length - 1]->Option.getOr(""))
       setTags(currentTags->Array.slice(~start=0, ~end=-1))
     } else if text->String.length !== 0 {
       if e->key === "Enter" || e->keyCode === 13 || e->key === "Tab" || e->keyCode === 9 {

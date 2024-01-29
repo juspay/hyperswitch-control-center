@@ -25,9 +25,7 @@ module TableCell = {
             onChange(elemIndex, i, event["value"])
           },
           onFocus: _ev => (),
-          value: (keyValue[elemIndex]->Option.getWithDefault([]))[i]
-          ->Option.getWithDefault("")
-          ->Js.Json.string,
+          value: (keyValue[elemIndex]->Option.getOr([]))[i]->Option.getOr("")->Js.Json.string,
           checked: true,
         }
         <FieldInputRenderer item=itm input key={Belt.Int.toString(i)} />

@@ -168,14 +168,14 @@ let convertTimeStamp = (~isoStringToCustomTimeZone, timestamp, format) => {
 
 let changeTimeFormat = (~customTimezoneToISOString, ~date, ~time, ~format) => {
   let dateSplit = String.split(date, "T")
-  let date = dateSplit[0]->Option.getWithDefault("")->String.split("-")
-  let dateDay = date[2]->Option.getWithDefault("")
-  let dateYear = date[0]->Option.getWithDefault("")
-  let dateMonth = date[1]->Option.getWithDefault("")
+  let date = dateSplit[0]->Option.getOr("")->String.split("-")
+  let dateDay = date[2]->Option.getOr("")
+  let dateYear = date[0]->Option.getOr("")
+  let dateMonth = date[1]->Option.getOr("")
   let timeSplit = String.split(time, ":")
-  let timeHour = timeSplit->Belt.Array.get(0)->Option.getWithDefault("00")
-  let timeMinute = timeSplit->Belt.Array.get(1)->Option.getWithDefault("00")
-  let timeSecond = timeSplit->Belt.Array.get(2)->Option.getWithDefault("00")
+  let timeHour = timeSplit->Array.get(0)->Option.getOr("00")
+  let timeMinute = timeSplit->Array.get(1)->Option.getOr("00")
+  let timeSecond = timeSplit->Array.get(2)->Option.getOr("00")
   let dateTimeCheck = customTimezoneToISOString(
     dateYear,
     dateMonth,

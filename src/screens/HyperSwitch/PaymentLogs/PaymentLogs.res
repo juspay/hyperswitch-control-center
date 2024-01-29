@@ -54,7 +54,7 @@ module PrettyPrintJson = {
           <UIUtils.RenderIf condition={headerText->Option.isSome}>
             <div className="flex justify-between items-center">
               <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
-                {headerText->Option.getWithDefault("")->React.string}
+                {headerText->Option.getOr("")->React.string}
               </p>
               {copyParsedJson}
             </div>
@@ -91,7 +91,7 @@ module PrettyPrintJson = {
       <UIUtils.RenderIf condition={parsedJson->isEmptyString}>
         <div className="flex flex-col justify-start items-start gap-2 h-25-rem">
           <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
-            {headerText->Option.getWithDefault("")->React.string}
+            {headerText->Option.getOr("")->React.string}
           </p>
           <p className="font-normal text-fs-14 text-jp-gray-900 text-opacity-50">
             {"Failed to load!"->React.string}
@@ -347,7 +347,7 @@ let make = (~paymentId, ~createdAt) => {
       PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -369,7 +369,7 @@ let make = (~paymentId, ~createdAt) => {
       PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -388,7 +388,7 @@ let make = (~paymentId, ~createdAt) => {
       PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -470,7 +470,7 @@ let make = (~paymentId, ~createdAt) => {
       PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }

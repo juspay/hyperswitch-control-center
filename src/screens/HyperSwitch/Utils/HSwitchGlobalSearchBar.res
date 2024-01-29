@@ -1,7 +1,7 @@
 let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName, ()) => {
   open LogicUtils
   searchOptions
-  ->Option.getWithDefault([])
+  ->Option.getOr([])
   ->Array.filter(item => {
     let (searchKey, _redirection) = item
     checkStringStartsWithSubstring(~itemToCheck=searchKey, ~searchText)
@@ -273,8 +273,7 @@ let make = () => {
                             <div className=activeClasses>
                               {elementsArray
                               ->Array.mapWithIndex((item, index) => {
-                                let elementValue =
-                                  item->Js.Json.decodeString->Option.getWithDefault("")
+                                let elementValue = item->Js.Json.decodeString->Option.getOr("")
                                 <UIUtils.RenderIf
                                   condition={elementValue->String.length > 0}
                                   key={index->string_of_int}>

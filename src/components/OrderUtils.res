@@ -42,7 +42,7 @@ module DisplayKeyValueParams = {
 
     let textColor = textColor === "" ? "text-jp-gray-900 dark:text-white" : textColor
 
-    let description = heading.description->Option.getWithDefault("")
+    let description = heading.description->Option.getOr("")
 
     {
       <AddDataAttributes attributes=[("data-label", heading.title)]>

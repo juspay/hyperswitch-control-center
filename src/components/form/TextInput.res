@@ -70,7 +70,7 @@ let make = (
         let size =
           elem
           ->Webapi.Dom.Element.getAttribute("placeholder")
-          ->Belt.Option.mapWithDefault(length, str => Js.Math.max_int(length, str->String.length))
+          ->Option.mapOr(length, str => Js.Math.max_int(length, str->String.length))
           ->Belt.Int.toString
 
         elem->Webapi.Dom.Element.setAttribute("size", size)
@@ -83,7 +83,7 @@ let make = (
   }, (inputRef.current, input.name))
 
   React.useEffect1(() => {
-    let val = input.value->Js.Json.decodeString->Option.getWithDefault("")
+    let val = input.value->Js.Json.decodeString->Option.getOr("")
 
     if val->String.includes("<script>") || val->String.includes("</script>") {
       showPopUp({
@@ -138,7 +138,7 @@ let make = (
     ? "border-red-500 focus:border-red-500  dark:border-red-500 dark:hover:border-red-500 dark:focus:border-red-500 focus:shadow-text_input_shadow focus:shadow-red-500"
     : "border-jp-gray-lightmode_steelgray focus:border-blue-800 dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:focus:border-blue-800 focus:shadow-text_input_shadow focus:shadow-blue-800"
 
-  let dashboardClass = customDashboardClass->Option.getWithDefault("h-10 text-sm font-semibold")
+  let dashboardClass = customDashboardClass->Option.getOr("h-10 text-sm font-semibold")
   let rightPaddingClass = if description !== "" || isInValid {
     "pr-10"
   } else {

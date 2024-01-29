@@ -37,7 +37,7 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
       key->validateEmptyValue(errors)
     } else {
       value->Array.forEach(ele => {
-        if ele->Js.Json.decodeString->Option.getWithDefault("")->HSwitchUtils.isValidEmail {
+        if ele->Js.Json.decodeString->Option.getOr("")->HSwitchUtils.isValidEmail {
           errors->Dict.set("email", "Please enter a valid email"->Js.Json.string)
         }
       })
@@ -77,7 +77,7 @@ let getArrayOfPermissionData = json => {
   json
   ->LogicUtils.getDictFromJsonObject
   ->LogicUtils.getArrayFromDict("permissions", [])
-  ->Array.map(i => i->Js.Json.decodeString->Option.getWithDefault(""))
+  ->Array.map(i => i->Js.Json.decodeString->Option.getOr(""))
 }
 
 let updatePresentInInfoList = (infoData, permissionsData) => {
@@ -151,7 +151,7 @@ module RolePermissionValueRenderer = {
   }
 }
 
-let roleListResponseMapper: Js.Dict.t<Js.Json.t> => UserRoleEntity.roleListResponse = dict => {
+let roleListResponseMapper: Dict.t<Js.Json.t> => UserRoleEntity.roleListResponse = dict => {
   open LogicUtils
   {
     role_id: dict->getString("role_id", ""),

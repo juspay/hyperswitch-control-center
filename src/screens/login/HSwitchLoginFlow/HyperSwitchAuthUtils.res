@@ -108,7 +108,7 @@ let getEmailBody = (email, ~country=?, ()) => {
 let parseResponseJson = (~json, ~email) => {
   open HSwitchUtils
   open LogicUtils
-  let valuesDict = json->Js.Json.decodeObject->Option.getWithDefault(Dict.make())
+  let valuesDict = json->Js.Json.decodeObject->Option.getOr(Dict.make())
 
   // * Setting all local storage values
   setMerchantDetails(
@@ -125,8 +125,7 @@ let parseResponseJson = (~json, ~email) => {
   //     : valuesDict->getBool("is_metadata_filled", true)->getStringFromBool->Js.Json.string,
   // )
 
-  let verificationValue =
-    valuesDict->getOptionInt("verification_days_left")->Option.getWithDefault(-1)
+  let verificationValue = valuesDict->getOptionInt("verification_days_left")->Option.getOr(-1)
 
   setMerchantDetails("verification", verificationValue->Belt.Int.toString->Js.Json.string)
   valuesDict->getString("token", "")

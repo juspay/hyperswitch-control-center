@@ -116,7 +116,7 @@ let make = (
     filterForRow,
   } = entity
   let tableName =
-    prefixAddition->Option.getWithDefault(false)
+    prefixAddition->Option.getOr(false)
       ? title->String.replaceRegExp(_, %re("/ /g"), "-")->String.toLowerCase->Some
       : None
   let (defaultFilters, setDefaultFilters) = React.useState(() => entity.defaultFilters)
@@ -197,7 +197,7 @@ let make = (
       }
 
       setData(prevData => {
-        let newData = prevData->Option.getWithDefault([])->Array.concat(sampleRes)
+        let newData = prevData->Option.getOr([])->Array.concat(sampleRes)
         Some(newData)
       })
     }
@@ -212,7 +212,7 @@ let make = (
           let x =
             filtersFromUrl
             ->Dict.get(val)
-            ->Option.getWithDefault(searchValueDict->Dict.get(val)->Option.getWithDefault(""))
+            ->Option.getOr(searchValueDict->Dict.get(val)->Option.getOr(""))
           if requireDateFormatting && (val == "startTime" || val == "endTime") {
             (x->DayJs.getDayJsForString).format(. "YYYY-MM-DD+HH:mm:ss")
           } else if requireDateFormatting && (val == "start_date" || val == "end_date") {
@@ -295,15 +295,15 @@ let make = (
     setRefetchCounter(p => p + 1)
   }, [setRefetchCounter])
 
-  let visibleColumns = visibleColumnsProp->Option.getWithDefault(defaultColumns)
+  let visibleColumns = visibleColumnsProp->Option.getOr(defaultColumns)
   let handleRefetch = () => {
-    let rowFetched = data->Option.getWithDefault([])->Array.length
+    let rowFetched = data->Option.getOr([])->Array.length
     if rowFetched !== summary.totalCount {
       setTableDataLoading(_ => true)
       let newDefaultFilter =
         defaultFilters
         ->Js.Json.decodeObject
-        ->Option.getWithDefault(Dict.make())
+        ->Option.getOr(Dict.make())
         ->Dict.toArray
         ->Dict.fromArray
 
@@ -314,14 +314,14 @@ let make = (
 
   let showLocalFilter =
     (localFilters->Array.length > 0 || localOptions->Array.length > 0) &&
-      (applyFilters ? finalData : data)->Option.getWithDefault([])->Array.length > 0
+      (applyFilters ? finalData : data)->Option.getOr([])->Array.length > 0
   let showRemoteFilter = remoteFilters->Array.length > 0 || remoteOptions->Array.length > 0
 
   let filters = {
     if (
       (Array.length(initialFilters) > 0 || Array.length(options) > 0) &&
       (showLocalFilter || showRemoteFilter) &&
-      (!hideFiltersOnNoData || data->Option.getWithDefault([])->Array.length > 0)
+      (!hideFiltersOnNoData || data->Option.getOr([])->Array.length > 0)
     ) {
       let children =
         <div className={`flex-1 ${customFilterStyle}`}>
@@ -416,7 +416,7 @@ let make = (
         for i in 0 to cols->Array.length - 1 {
           checkLength :=
             checkLength.contents &&
-            switch obj[cols[i]->Option.getWithDefault(0)] {
+            switch obj[cols[i]->Option.getOr(0)] {
             | Some(ele) => Array.length(ele.selected) > 0
             | None => false
             }
