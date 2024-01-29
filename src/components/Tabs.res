@@ -127,10 +127,7 @@ module IndicationArrow = {
 }
 
 let getBoundingRectInfo = (ref: React.ref<Js.Nullable.t<Dom.element>>, getter) => {
-  ref.current
-  ->Js.Nullable.toOption
-  ->Belt.Option.map(getBoundingClientRect)
-  ->Belt.Option.mapWithDefault(0, getter)
+  ref.current->Js.Nullable.toOption->Belt.Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
 }
 
 @react.component
@@ -169,7 +166,7 @@ let make = (
   // ~icon=React.null,
 
   let _ = defaultClasses
-  let initialIndex = initialIndex->Option.getWithDefault(0)
+  let initialIndex = initialIndex->Option.getOr(0)
   let (selectedIndex, setSelectedIndex) = React.useState(() => initialIndex)
   let tabOuterClass = `${tabBottomShadow} ${gapBetweenTabs}`
   let bottomBorderClass = "border-b border-jp-gray-500 dark:border-jp-gray-960"
@@ -268,7 +265,7 @@ let make = (
       </UIUtils.RenderIf>
       <div className=renderedTabClassName>
         <ErrorBoundary key={string_of_int(selectedIndex)}>
-          {switch tabs->Belt.Array.get(selectedIndex) {
+          {switch tabs->Array.get(selectedIndex) {
           | Some(selectedTab) => {
               let component = selectedTab.renderContent()
               <FramerMotion.TransitionComponent

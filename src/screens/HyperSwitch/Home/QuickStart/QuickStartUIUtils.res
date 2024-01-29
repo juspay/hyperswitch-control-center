@@ -21,7 +21,7 @@ module BaseComponent = {
             <Icon name=headerLeftIcon size=25 />
           </UIUtils.RenderIf>
           <UIUtils.RenderIf condition={customIcon->Option.isSome}>
-            {customIcon->Option.getWithDefault(React.null)}
+            {customIcon->Option.getOr(React.null)}
           </UIUtils.RenderIf>
           <p className=headerStyle> {headerText->React.string} </p>
         </div>
@@ -90,7 +90,7 @@ module VerticalChoiceTile = {
           <div className="flex justify-between items-center">
             <UIUtils.RenderIf condition={items.leftIcon->Option.isSome}>
               <Icon
-                name={items.leftIcon->Option.getWithDefault("hyperswitch-short")}
+                name={items.leftIcon->Option.getOr("hyperswitch-short")}
                 size=40
                 className="cursor-pointer"
               />
@@ -108,7 +108,7 @@ module VerticalChoiceTile = {
           <UIUtils.RenderIf condition={items.footerTags->Option.isSome}>
             <div className="flex gap-2 mt-6">
               {items.footerTags
-              ->Option.getWithDefault([])
+              ->Option.getOr([])
               ->Array.map(value =>
                 <div
                   className="p-2 text-xs border border-blue-700 border-opacity-30 bg-blue-700 bg-opacity-10 rounded-md">
@@ -163,9 +163,8 @@ module HorizontalChoiceTile = {
               className="cursor-pointer !text-blue-800"
             />
           </div>
-          <UIUtils.RenderIf
-            condition={items.imageLink->Option.getWithDefault("")->String.length > 0}>
-            <img alt="" src={items.imageLink->Option.getWithDefault("")} />
+          <UIUtils.RenderIf condition={items.imageLink->Option.getOr("")->String.length > 0}>
+            <img alt="" src={items.imageLink->Option.getOr("")} />
           </UIUtils.RenderIf>
           <div className="flex gap-2 items-center ">
             <p className=descriptionStyle> {items.description->React.string} </p>

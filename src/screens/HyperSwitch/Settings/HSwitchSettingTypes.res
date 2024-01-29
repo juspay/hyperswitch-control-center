@@ -84,8 +84,8 @@ type colType =
 type apiModalState = Create | Update | Loading | SettingApiModalError | Success
 
 type parseMerchantJson = {
-  apiKeys: Js.Dict.t<Js.Json.t>,
-  merchantInfo: Js.Dict.t<Js.Json.t>,
+  apiKeys: Dict.t<Js.Json.t>,
+  merchantInfo: Dict.t<Js.Json.t>,
 }
 
 type validationFields =

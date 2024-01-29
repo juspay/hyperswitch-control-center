@@ -21,7 +21,7 @@ let make = (
   let showPopUp = PopUpState.useShowPopUp()
 
   let defaultRef = React.useRef(Js.Nullable.null)
-  let searchRef = searchRef->Option.getWithDefault(defaultRef)
+  let searchRef = searchRef->Option.getOr(defaultRef)
 
   let handleSearch = e => {
     setPrevVal(_ => inputText)

@@ -359,7 +359,7 @@ module TableHeadingCell = {
 
     let headerBgColor =
       headerCustomBgColor->Option.isSome
-        ? headerCustomBgColor->Option.getWithDefault("")
+        ? headerCustomBgColor->Option.getOr("")
         : "bg-gray-50 dark:bg-jp-gray-darkgray_background"
     let paddingClass = "px-4 py-3"
     let roundedClass = if isFirstCol {
@@ -382,7 +382,7 @@ module TableHeadingCell = {
           : ""}`
     } else {
       let heightHeadingClass2 = frozenUpto == 0 ? "" : heightHeadingClass
-      `tableHeader ${lastColProp} ${item.customWidth->Option.getWithDefault(
+      `tableHeader ${lastColProp} ${item.customWidth->Option.getOr(
           "",
         )} justify-between items-center ${headerTextClass} whitespace-pre select-none ${headerBgColor} ${paddingClass} ${roundedClass} ${heightHeadingClass2} ${tableheadingClass} ${isLastCol
           ? lastHeadingClass
@@ -416,8 +416,7 @@ module TableHeadingCell = {
                 : justifyClass}`}>
             <div className="">
               <div className={"flex flex-row"}>
-                <UIUtils.RenderIf
-                  condition={item.showMultiSelectCheckBox->Option.getWithDefault(false)}>
+                <UIUtils.RenderIf condition={item.showMultiSelectCheckBox->Option.getOr(false)}>
                   <div className=" mt-1 mr-2">
                     <CheckBoxIcon
                       isSelected={isAllSelected}
@@ -434,10 +433,10 @@ module TableHeadingCell = {
                   }}
                   <UIUtils.RenderIf condition={item.data->Option.isSome}>
                     <AddDataAttributes
-                      attributes=[("data-heading-value", item.data->Option.getWithDefault(""))]>
+                      attributes=[("data-heading-value", item.data->Option.getOr(""))]>
                       <div
                         className="flex justify-start text-fs-10 font-medium text-gray-400 whitespace-pre text-ellipsis overflow-x-hidden">
-                        {React.string(` (${item.data->Option.getWithDefault("")})`)}
+                        {React.string(` (${item.data->Option.getOr("")})`)}
                       </div>
                     </AddDataAttributes>
                   </UIUtils.RenderIf>
@@ -506,13 +505,13 @@ module TableHeadingCell = {
                     React.null
                   }}
                 </div>
-                <UIUtils.RenderIf condition={item.isMandatory->Option.getWithDefault(false)}>
+                <UIUtils.RenderIf condition={item.isMandatory->Option.getOr(false)}>
                   <div className="text-red-400 text-sm ml-1"> {React.string("*")} </div>
                 </UIUtils.RenderIf>
-                <UIUtils.RenderIf condition={item.description->Option.getWithDefault("") !== ""}>
+                <UIUtils.RenderIf condition={item.description->Option.getOr("") !== ""}>
                   <div className="text-sm text-gray-500 mx-2">
                     <ToolTip
-                      description={item.description->Option.getWithDefault("")}
+                      description={item.description->Option.getOr("")}
                       toolTipPosition={ToolTip.Bottom}
                     />
                   </div>
@@ -558,8 +557,8 @@ module TableHeadingRow = {
         <tr>
           {headingArray
           ->Array.mapWithIndex((item, i) => {
-            let columnFilterRow: array<filterRow> = columnFilterRow->Option.getWithDefault([])
-            let filterRow = columnFilterRow->Belt.Array.get(i)
+            let columnFilterRow: array<filterRow> = columnFilterRow->Option.getOr([])
+            let filterRow = columnFilterRow->Array.get(i)
             <TableHeadingCell
               key={Belt.Int.toString(i)}
               item
@@ -670,7 +669,7 @@ let make = (
   let totalTableWidth =
     Dom.document
     ->Dom.Document.getElementById(`table`)
-    ->Belt.Option.mapWithDefault(0, ele => ele->Document.offsetWidth)
+    ->Option.mapOr(0, ele => ele->Document.offsetWidth)
 
   let equalColWidth = (totalTableWidth / numberOfCols)->Belt.Int.toString
   let fixedWidthClass = enableEqualWidthCol ? `${equalColWidth}px` : ""
@@ -698,8 +697,7 @@ let make = (
     switch actualData {
     | Some(actualData) =>
       switch getRowDetails {
-      | Some(fn) =>
-        fn(actualData->Belt.Array.get(rowIndex)->Option.getWithDefault(Js.Nullable.null))
+      | Some(fn) => fn(actualData->Array.get(rowIndex)->Option.getOr(Js.Nullable.null))
       | None => React.null
       }
     | None => React.null
@@ -893,7 +891,7 @@ let make = (
   let parentBorderRadius = !isHighchartLegend ? "rounded-t-lg" : ""
   let parentBorderClass = !isHighchartLegend ? "border border-jp-2-light-gray-300" : ""
   <div
-    className={`flex flex-row items-stretch ${scrollBarClass} loadedTable ${parentMinWidthClass} ${customBorderClass->Option.getWithDefault(
+    className={`flex flex-row items-stretch ${scrollBarClass} loadedTable ${parentMinWidthClass} ${customBorderClass->Option.getOr(
         parentBorderClass ++ " " ++ parentBorderRadius,
       )}`}
     style={ReactDOMStyle.make(

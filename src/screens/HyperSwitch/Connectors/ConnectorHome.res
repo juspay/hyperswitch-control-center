@@ -60,8 +60,8 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault("")
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let connectorID = url.path->Belt.List.toArray->Array.get(1)->Option.getOr("")
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
@@ -83,7 +83,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       setInitialValues(_ => json)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to update!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
         Js.Exn.raiseError(err)
       }
     | _ => Js.Exn.raiseError("Something went wrong")
@@ -131,7 +131,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       }
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
         setScreenState(_ => Error(err))
       }
     }
@@ -158,7 +158,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
         setScreenState(_ => Error(err))
       }
     | _ => setScreenState(_ => Error("Something went wrong"))

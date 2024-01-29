@@ -51,7 +51,7 @@ let make = (
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong!")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong!")
         Js.Exn.raiseError(err)
       }
     }
@@ -65,7 +65,7 @@ let make = (
       setSetupAccountStatus(._ => PayPalFlowTypes.Redirecting_to_paypal)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong!")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong!")
         showToast(~message=err, ~toastType=ToastError, ())
       }
     }

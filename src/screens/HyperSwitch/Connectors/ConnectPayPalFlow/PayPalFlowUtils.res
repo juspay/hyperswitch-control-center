@@ -126,7 +126,7 @@ let generatePayPalBody = (~returnUrl=None, ~connectorId, ~profileId=None, ()) =>
     [
       ("connector", "paypal"->Js.Json.string),
       ("connector_id", connectorId->Js.Json.string),
-      ("profile_id", profileId->Option.getWithDefault("")->Js.Json.string),
+      ("profile_id", profileId->Option.getOr("")->Js.Json.string),
     ]->LogicUtils.getJsonFromArrayOfJson
   }
 }
@@ -151,7 +151,7 @@ let useDeleteTrackingDetails = () => {
       let _ = await updateDetails(url, body, Post, ())
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to update!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
         Js.Exn.raiseError(err)
       }
     }
@@ -188,7 +188,7 @@ let useDeleteConnectorAccountDetails = () => {
       res
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
         Js.Exn.raiseError(err)
       }
     }
@@ -220,14 +220,14 @@ let payPalLogics = async (
       url.search
       ->getDictFromUrlSearchParams
       ->Dict.get("is_simplified_paypal")
-      ->Option.getWithDefault("false")
+      ->Option.getOr("false")
       ->getBoolFromString(false)
 
     let isRedirectedFromPaypalModal =
       url.search
       ->getDictFromUrlSearchParams
       ->Dict.get("is_back")
-      ->Option.getWithDefault("false")
+      ->Option.getOr("false")
       ->getBoolFromString(false)
 
     setSetupAccountStatus(._ => PayPalFlowTypes.Connect_paypal_landing)
@@ -244,7 +244,7 @@ let payPalLogics = async (
     }
   } catch {
   | Js.Exn.Error(e) => {
-      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+      let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
       setScreenState(_ => Error(err))
     }
   | _ => setScreenState(_ => Error("Something went wrong"))

@@ -234,7 +234,7 @@ module TooltipWrapper = {
         ~tooltipArrowSize,
         ~componentWidth,
         ~componentHeight,
-        ~position=toolTipPosition->Option.getWithDefault(defaultPosition),
+        ~position=toolTipPosition->Option.getOr(defaultPosition),
       )
     } else {
       getToolTipAbsoluteStyling(
@@ -244,7 +244,7 @@ module TooltipWrapper = {
         ~tooltipWidth,
         ~componentWidth,
         ~componentHeight,
-        ~position=toolTipPosition->Option.getWithDefault(defaultPosition),
+        ~position=toolTipPosition->Option.getOr(defaultPosition),
       )
     }
 
@@ -656,7 +656,7 @@ let make = (
     ref.current
     ->Js.Nullable.toOption
     ->Belt.Option.map(getBoundingClientRect)
-    ->Belt.Option.mapWithDefault(0, getter)
+    ->Option.mapOr(0, getter)
   }
 
   let tooltipWidth = toolTipRef->getBoundingRectInfo(val => val.width)

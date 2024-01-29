@@ -39,12 +39,12 @@ let xLabelFormatter: Js_OO.Callback.arity1<xAxisRecord => string> = {
       })
       ->Array.reduce(0, (acc, num) => {acc + num})
     let index = Array.findIndex(axis.categories, x => {x === value})
-    let firstSeries = series->Belt.Array.get(0)
+    let firstSeries = series->Array.get(0)
     let y = switch firstSeries {
     | Some(series) => {
         let options = series.options
         switch options {
-        | Some(options) => options.data->Belt.Array.get(index)->Option.getWithDefault(0)
+        | Some(options) => options.data->Array.get(index)->Option.getOr(0)
         | None => 0
         }
       }
@@ -74,7 +74,7 @@ let make = (
       selectedMetrics.metric_name_db,
     )
   }, (rawData, groupKey, selectedMetrics.metric_name_db))
-  let titleKey = titleKey->Option.getWithDefault(groupKey)
+  let titleKey = titleKey->Option.getOr(groupKey)
 
   let barOption: Js.Json.t = React.useMemo2(() => {
     let colors = {
