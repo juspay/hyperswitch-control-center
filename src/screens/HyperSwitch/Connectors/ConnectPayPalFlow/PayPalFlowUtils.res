@@ -212,7 +212,6 @@ let payPalLogics = async (
   ~getConnectorDetails,
   ~getPayPalStatus,
   ~setCurrentStep,
-  ~connector,
   ~isUpdateFlow,
 ) => {
   open LogicUtils
@@ -233,13 +232,7 @@ let payPalLogics = async (
     if isRedirectedFromPaypalModal {
       await getPayPalStatus()
     } else {
-      let step =
-        ConnectorUtils.connectorListWithAutomaticFlow->Js.Array2.includes(
-          connector->ConnectorUtils.getConnectorNameTypeFromString,
-        )
-          ? ConnectorTypes.AutomaticFlow
-          : ConnectorTypes.IntegFields
-      setCurrentStep(_ => step)
+      setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
     }
     if isUpdateFlow {
       await getConnectorDetails()

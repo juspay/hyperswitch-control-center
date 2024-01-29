@@ -151,7 +151,6 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
           ~getConnectorDetails,
           ~getPayPalStatus,
           ~setCurrentStep,
-          ~connector,
           ~isUpdateFlow,
         )
       | _ => await commonLogic()
