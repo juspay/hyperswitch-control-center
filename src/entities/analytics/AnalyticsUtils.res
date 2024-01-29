@@ -100,7 +100,7 @@ type newApiBodyEntity = {
   granularityConfig?: (int, string),
   cardinality?: float,
   filterValueFromUrl?: Js.Json.t,
-  customFilterValue?: Js.String2.t,
+  customFilterValue?: string,
   jsonFormattedFilter?: Js.Json.t,
   cardinalitySortDims?: string,
   domain: string,
@@ -377,7 +377,7 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
   }
 }
 let generateDateArray = (~startTime, ~endTime, ~deltaPrefixArr) => {
-  let dateArray = Belt.Array.map(deltaPrefixArr, x =>
+  let dateArray = Array.map(deltaPrefixArr, x =>
     deltaDate(~fromTime=startTime, ~_toTime=endTime, ~typeTime=x)
   )
   dateArray
@@ -449,8 +449,8 @@ let generatedeltaTablePayload = (
   let dictOfDates = Belt.Array.concatMany(deltaDateArr)
   let tablePayload = Belt.Array.zipBy(dictOfDates, deltaPrefixArr, (x, y) =>
     generatePayload(
-      ~startTime=x->Dict.get("fromTime")->Option.getWithDefault(""),
-      ~endTime=x->Dict.get("toTime")->Option.getWithDefault(""),
+      ~startTime=x->Dict.get("fromTime")->Option.getOr(""),
+      ~endTime=x->Dict.get("toTime")->Option.getOr(""),
       ~metrics,
       ~groupByNames,
       ~mode,
@@ -565,7 +565,7 @@ let generateTablePayload = (
 
   let distributionPayload = switch distributionArray {
   | Some(distributionArray) =>
-    distributionArray->Belt.Array.map(arr =>
+    distributionArray->Array.map(arr =>
       getFilterRequestBody(
         ~groupByNames=currenltySelectedTab,
         ~filter=filterValueFromUrl,
@@ -584,7 +584,7 @@ let generateTablePayload = (
 
   let tableBody =
     Belt.Array.concatMany([tableBodyValues, deltaPayload, distributionPayload])
-    ->Belt.Array.map(Js.Json.object_)
+    ->Array.map(Js.Json.object_)
     ->Js.Json.array
   tableBody
 }
@@ -697,21 +697,21 @@ let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statTy
 }
 
 let sumOfArr = (arr: array<int>) => {
-  arr->Belt.Array.reduce(0, (acc, value) => acc + value)
+  arr->Array.reduce(0, (acc, value) => acc + value)
 }
 
 let sumOfArrFloat = (arr: array<float>) => {
-  arr->Belt.Array.reduce(0., (acc, value) => acc +. value)
+  arr->Array.reduce(0., (acc, value) => acc +. value)
 }
 
 module NoDataFoundPage = {
   @react.component
   let make = () => {
     let filterOnClick = () => {
-      let element = document->getElementsByClassName("showFilterButton")->Belt.Array.get(0)
+      let element = document->getElementsByClassName("showFilterButton")->Array.get(0)
       switch element {
       | Some(domElement) => {
-          let nodeElement = domElement.childNodes->Belt.Array.get(0)
+          let nodeElement = domElement.childNodes->Array.get(0)
           switch nodeElement {
           | Some(btnElement) => btnElement->DOMUtils.click()
           | None => ()
@@ -723,13 +723,13 @@ module NoDataFoundPage = {
     }
 
     let dateRangeOnClick = () => {
-      let element = document->getElementsByClassName("daterangSelection")->Belt.Array.get(0)
+      let element = document->getElementsByClassName("daterangSelection")->Array.get(0)
       switch element {
       | Some(domElement) => {
-          let nodeElement = domElement.childNodes->Belt.Array.get(0)
+          let nodeElement = domElement.childNodes->Array.get(0)
           switch nodeElement {
           | Some(ele) => {
-              let nodeElement = (ele->toNode).childNodes->Belt.Array.get(0)
+              let nodeElement = (ele->toNode).childNodes->Array.get(0)
               switch nodeElement {
               | Some(btnElement) => btnElement->DOMUtils.click()
               | None => ()

@@ -39,14 +39,13 @@ let makeInputFieldInfo = (
   ~validate: option<(option<string>, Js.Json.t) => Js.Promise.t<Js.Nullable.t<string>>>=?,
   (),
 ) => {
-  let label = label->Option.getWithDefault(name)
+  let label = label->Option.getOr(name)
 
-  let newCustomInput =
-    customInput->Option.getWithDefault(InputFields.textInput(~isDisabled=disabled, ()))
+  let newCustomInput = customInput->Option.getOr(InputFields.textInput(~isDisabled=disabled, ()))
 
   {
     name,
-    placeholder: placeholder->Option.getWithDefault(label),
+    placeholder: placeholder->Option.getOr(label),
     customInput: newCustomInput,
     disabled,
     format,
@@ -104,7 +103,7 @@ let makeMultiInputFieldInfo = (
 ) => {
   let inputNames =
     comboCustomInput
-    ->Belt.Option.mapWithDefault([], x => x.names)
+    ->Option.mapOr([], x => x.names)
     ->Array.concat(inputFields->Array.map(x => x.name))
   {
     label,
@@ -144,10 +143,9 @@ let makeFieldInfo = (
   ~validate: option<(option<string>, Js.Json.t) => Js.Promise.t<Js.Nullable.t<string>>>=?,
   (),
 ) => {
-  let label = label->Option.getWithDefault(name)
+  let label = label->Option.getOr(name)
 
-  let newCustomInput =
-    customInput->Option.getWithDefault(InputFields.textInput(~isDisabled=disabled, ()))
+  let newCustomInput = customInput->Option.getOr(InputFields.textInput(~isDisabled=disabled, ()))
 
   makeMultiInputFieldInfo(
     ~label,
@@ -398,7 +396,7 @@ module ComboFieldsRenderer3 = {
       if inputFields->Array.length === 0 {
         renderInputs(fieldsState)
       } else {
-        let inputField = inputFields[0]->Option.getWithDefault(makeInputFieldInfo(~name="", ()))
+        let inputField = inputFields[0]->Option.getOr(makeInputFieldInfo(~name="", ()))
 
         let restInputFields = Js.Array2.sliceFrom(inputFields, 1)
 
@@ -493,8 +491,7 @@ module FieldRenderer = {
               subHeadingClass
               dataId=names>
               {if field.inputFields->Array.length === 1 {
-                let field =
-                  field.inputFields[0]->Option.getWithDefault(makeInputFieldInfo(~name="", ()))
+                let field = field.inputFields[0]->Option.getOr(makeInputFieldInfo(~name="", ()))
 
                 <ErrorBoundary>
                   <FieldInputRenderer field errorClass showErrorOnChange />

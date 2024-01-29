@@ -64,7 +64,7 @@ module OrderInfo = {
               <div className=widthClass key={i->string_of_int}>
                 <DisplayKeyValueParams
                   heading={getHeading(colType)}
-                  value={getCell(data, colType, connectorList->Option.getWithDefault([]))}
+                  value={getCell(data, colType, connectorList->Option.getOr([]))}
                   customMoneyStyle="!font-normal !text-sm"
                   labelMargin="!py-0 mt-2"
                   overiddingHeadingStyles="text-black text-sm font-medium"
@@ -235,7 +235,7 @@ module AttemptsSection = {
 
 module DisputesSection = {
   @react.component
-  let make = (~data: DisputesEntity.disputes) => {
+  let make = (~data: DisputeTypes.disputes) => {
     let widthClass = "w-4/12"
     <div className="flex flex-row flex-wrap">
       <div className="w-1/2 p-2">
@@ -804,9 +804,7 @@ let make = (~id) => {
                 renderContent: () => {
                   <div className="bg-white p-2">
                     <PaymentLogs.PrettyPrintJson
-                      jsonToDisplay={order.metadata
-                      ->Js.Json.stringifyAny
-                      ->Option.getWithDefault("")}
+                      jsonToDisplay={order.metadata->Js.Json.stringifyAny->Option.getOr("")}
                       overrideBackgroundColor="bg-white"
                     />
                   </div>

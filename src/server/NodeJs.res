@@ -34,7 +34,7 @@ module Http = {
 
   type on = (. string, unit => unit) => unit
   type read = (. unit) => Js.Nullable.t<string>
-  type headers = Js.Dict.t<string>
+  type headers = Dict.t<string>
   type server
   type request = {url: url, headers: headers, method: string, on: on, read: read}
 

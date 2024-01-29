@@ -26,7 +26,7 @@ let getPaymentExperience = (dict, str) => {
   dict
   ->Dict.get(str)
   ->Option.flatMap(Js.Json.decodeArray)
-  ->Option.getWithDefault([])
+  ->Option.getOr([])
   ->Belt.Array.keepMap(Js.Json.decodeObject)
   ->Array.map(json => {
     {
@@ -44,7 +44,7 @@ let getBankNames = (dict, str) => {
   dict
   ->Dict.get(str)
   ->Option.flatMap(Js.Json.decodeArray)
-  ->Option.getWithDefault([])
+  ->Option.getOr([])
   ->Belt.Array.keepMap(Js.Json.decodeObject)
   ->Array.map(json => {
     {
@@ -58,6 +58,6 @@ let getAchConnectors = (dict, str) => {
   dict
   ->Dict.get(str)
   ->Option.flatMap(Js.Json.decodeObject)
-  ->Option.getWithDefault(Dict.make())
+  ->Option.getOr(Dict.make())
   ->getStrArray("elligible_connectors")
 }

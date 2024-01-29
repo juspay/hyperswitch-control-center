@@ -1,23 +1,12 @@
-type disputeStage = PreDispute | Dispute | PreArbitration | Unknown
-
+open DisputeTypes
 let disputeStageVariantMapper = stage => {
   switch stage {
   | "pre_dispute" => PreDispute
   | "dispute" => Dispute
   | "pre-arbitration" => PreArbitration
-  | _ => Unknown
+  | _ => NotFound
   }
 }
-
-type disputeStatus =
-  | DisputeOpened
-  | DisputeExpired
-  | DisputeAccepted
-  | DisputeCancelled
-  | DisputeChallenged
-  | DisputeWon
-  | DisputeLost
-  | Unknown
 
 let disputeStatusVariantMapper = status => {
   switch status {
@@ -28,6 +17,16 @@ let disputeStatusVariantMapper = status => {
   | "dispute_challenged" => DisputeChallenged
   | "dispute_won" => DisputeWon
   | "dispute_lost" => DisputeLost
-  | _ => Unknown
+  | _ => NotFound(status)
   }
 }
+
+let showDisputeInfoStatus = [DisputeOpened, DisputeAccepted]
+
+let disputeValueBasedOnStatus = disputeStatus =>
+  switch disputeStatus {
+  | DisputeOpened => Initiated
+  | DisputeAccepted => Accepted
+  | DisputeChallenged => Countered
+  | _ => Initiated
+  }

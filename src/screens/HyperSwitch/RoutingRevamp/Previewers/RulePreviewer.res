@@ -17,7 +17,7 @@ module GatewayView = {
           {connectorStr->React.string}
           <UIUtils.RenderIf condition={percent->Option.isSome}>
             <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
-              {(percent->Option.getWithDefault(0)->string_of_int ++ "%")->React.string}
+              {(percent->Option.getOr(0)->string_of_int ++ "%")->React.string}
             </span>
           </UIUtils.RenderIf>
         </div>
@@ -41,13 +41,12 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
             let statementsArr = rule.statements
             let headingText = `Rule ${string_of_int(index + 1)}`
             let marginStyle = index === ruleInfo.rules->Array.length - 1 ? "mt-2" : "my-2"
-            let threeDsType = rule.connectorSelection.override_3ds->Option.getWithDefault("")
+            let threeDsType = rule.connectorSelection.override_3ds->Option.getOr("")
 
             let surchargeType =
               rule.connectorSelection.surcharge_details->SurchargeUtils.getDefaultSurchargeType
-            let surchargePercent =
-              surchargeType.surcharge.value.percentage->Option.getWithDefault(0.0)
-            let surchargeAmount = surchargeType.surcharge.value.amount->Option.getWithDefault(0.0)
+            let surchargePercent = surchargeType.surcharge.value.percentage->Option.getOr(0.0)
+            let surchargeAmount = surchargeType.surcharge.value.amount->Option.getOr(0.0)
             let surchargeTypeValue = if surchargeAmount > 0.0 {
               surchargeAmount
             } else {
@@ -68,16 +67,16 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
                     let comparison = statement.comparison
                     let typeString = statement.value.\"type"
 
-                    let logical = statement.logical->Option.getWithDefault("")
+                    let logical = statement.logical->Option.getOr("")
                     let operator = getOperatorFromComparisonType(comparison, typeString)
                     let field = statement.lhs
                     let metadataDict =
                       statement.metadata
-                      ->Option.getWithDefault(Dict.make()->Js.Json.object_)
+                      ->Option.getOr(Dict.make()->Js.Json.object_)
                       ->getDictFromJsonObject
 
                     let value = switch statement.value.value->Js.Json.classify {
-                    | JSONArray(arr) => arr->Array.joinWith(", ")
+                    | JSONArray(arr) => arr->Array.joinWithUnsafe(", ")
                     | JSONString(str) => str
                     | JSONNumber(num) => num->Belt.Float.toString
                     | JSONObject(obj) => obj->LogicUtils.getString("value", "")
@@ -102,9 +101,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
                         <MakeRuleFieldComponent.TextView str=metadataKeyValue />
                       </UIUtils.RenderIf>
                       <UIUtils.RenderIf condition={metadataKey->Option.isSome}>
-                        <MakeRuleFieldComponent.TextView
-                          str={metadataKey->Option.getWithDefault("")}
-                        />
+                        <MakeRuleFieldComponent.TextView str={metadataKey->Option.getOr("")} />
                       </UIUtils.RenderIf>
                       <MakeRuleFieldComponent.TextView
                         str=operator fontColor="text-red-500" fontWeight="font-semibold"
@@ -124,13 +121,13 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
                   </div>
                 </UIUtils.RenderIf>
                 <UIUtils.RenderIf condition={!isFrom3ds}>
-                  <GatewayView gateways={rule.connectorSelection.data->Option.getWithDefault([])} />
+                  <GatewayView gateways={rule.connectorSelection.data->Option.getOr([])} />
                 </UIUtils.RenderIf>
                 <UIUtils.RenderIf condition={isFromSurcharge}>
                   <div
                     className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium text-blue-800 hover:text-blue-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1">
                     {`${surchargeType.surcharge.\"type"} -> ${surchargeTypeValue->Belt.Float.toString} | Tax on Surcharge -> ${surchargeType.tax_on_surcharge.percentage
-                      ->Option.getWithDefault(0.0)
+                      ->Option.getOr(0.0)
                       ->Belt.Float.toString}`
                     ->LogicUtils.capitalizeString
                     ->React.string}

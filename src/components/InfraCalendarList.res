@@ -44,7 +44,7 @@ let getMonthInStr = (mon: InfraCalendar.month) => {
 
 let getMonthFromFloat = value => {
   let valueInt = value->Belt.Float.toInt
-  months[valueInt]->Option.getWithDefault(Jan)
+  months[valueInt]->Option.getOr(Jan)
 }
 module YearItem = {
   @send external scrollIntoView: Dom.element => unit = "scrollIntoView"

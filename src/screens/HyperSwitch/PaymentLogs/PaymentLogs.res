@@ -54,28 +54,33 @@ module PrettyPrintJson = {
           <UIUtils.RenderIf condition={headerText->Option.isSome}>
             <div className="flex justify-between items-center">
               <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
-                {headerText->Option.getWithDefault("")->React.string}
+                {headerText->Option.getOr("")->React.string}
               </p>
               {copyParsedJson}
             </div>
           </UIUtils.RenderIf>
-          <ReactSyntaxHighlighter.SyntaxHighlighter
-            style={ReactSyntaxHighlighter.lightfair}
-            language="json"
-            showLineNumbers={true}
-            lineNumberContainerStyle={{
-              paddingLeft: "0px",
-              backgroundColor: "red",
-              padding: "100px",
-            }}
-            customStyle={{
-              backgroundColor: "transparent",
-              lineHeight: "1.7rem",
-              fontSize: "0.875rem",
-              padding: "5px",
-            }}>
-            {parsedJson}
-          </ReactSyntaxHighlighter.SyntaxHighlighter>
+          <div
+            className={isTextVisible
+              ? "overflow-visible "
+              : `overflow-clip  h-fit ${maxHeightClass}`}>
+            <ReactSyntaxHighlighter.SyntaxHighlighter
+              style={ReactSyntaxHighlighter.lightfair}
+              language="json"
+              showLineNumbers={true}
+              lineNumberContainerStyle={{
+                paddingLeft: "0px",
+                backgroundColor: "red",
+                padding: "100px",
+              }}
+              customStyle={{
+                backgroundColor: "transparent",
+                lineHeight: "1.7rem",
+                fontSize: "0.875rem",
+                padding: "5px",
+              }}>
+              {parsedJson}
+            </ReactSyntaxHighlighter.SyntaxHighlighter>
+          </div>
           <Button
             text={isTextVisible ? "Hide" : "See more"}
             customButtonStyle="h-6 w-8 flex flex-1 justify-center m-1"
@@ -86,7 +91,7 @@ module PrettyPrintJson = {
       <UIUtils.RenderIf condition={parsedJson->isEmptyString}>
         <div className="flex flex-col justify-start items-start gap-2 h-25-rem">
           <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
-            {headerText->Option.getWithDefault("")->React.string}
+            {headerText->Option.getOr("")->React.string}
           </p>
           <p className="font-normal text-fs-14 text-jp-gray-900 text-opacity-50">
             {"Failed to load!"->React.string}
@@ -163,7 +168,7 @@ module ApiDetailsComponent = {
     | SDK => ""
     }
 
-    let background_color = switch logType {
+    let statusCodeTextColor = switch logType {
     | SDK =>
       switch statusCode {
       | "INFO" => "blue-700"
@@ -185,14 +190,7 @@ module ApiDetailsComponent = {
       }
     }
 
-    let isSelected = currentSelected === index
-    let stepColor = isSelected ? background_color : "gray-300"
-
-    let boxShadowOnSelection = isSelected
-      ? "border border-blue-700 rounded-md"
-      : "border border-transparent"
-
-    let codeBg = switch logType {
+    let statusCodeBg = switch logType {
     | SDK =>
       switch statusCode {
       | "INFO" => "blue-100"
@@ -209,22 +207,73 @@ module ApiDetailsComponent = {
       switch statusCode {
       | "200" => "green-200"
       | "500" => "gray-100"
-      | "400" => "yellow-100"
+      | "400" => "orange-100"
       | _ => "gray-100"
       }
     }
 
+    let isSelected = currentSelected === index
+
+    let stepperColor = isSelected
+      ? switch logType {
+        | SDK =>
+          switch statusCode {
+          | "INFO" => "blue-700"
+          | "ERROR" => "red-400"
+          | "WARNING" => "yellow-300"
+          | _ => "gray-700 opacity-50"
+          }
+        | WEBHOOKS =>
+          switch statusCode {
+          | "200" => "green-700"
+          | "500" | _ => "gray-700 opacity-50"
+          }
+        | PAYMENTS | CONNECTOR =>
+          switch statusCode {
+          | "200" => "green-700"
+          | "500" => "gray-700 opacity-50"
+          | "400" => "yellow-300"
+          | _ => "gray-700 opacity-50"
+          }
+        }
+      : "gray-200"
+    let stepperBorderColor = isSelected
+      ? switch logType {
+        | SDK =>
+          switch statusCode {
+          | "INFO" => "blue-700"
+          | "ERROR" => "red-400"
+          | "WARNING" => "orange-500"
+          | _ => "gray-600"
+          }
+        | WEBHOOKS =>
+          switch statusCode {
+          | "200" => "green-700"
+          | "500" | _ => "gray-600"
+          }
+        | PAYMENTS | CONNECTOR =>
+          switch statusCode {
+          | "200" => "green-700"
+          | "500" => "gray-600"
+          | "400" => "orange-500"
+          | _ => "gray-600"
+          }
+        }
+      : "gray-200"
+
+    let borderClass = isSelected ? "border border-blue-700 rounded-md" : "border border-transparent"
+
     <div className="flex items-start gap-4">
       <div className="flex flex-col items-center h-full">
-        <div className={`w-fit h-fit p-1  border rounded-md bg-${stepColor} border-gray-300`} />
+        <div className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-gray-300`} />
         <UIUtils.RenderIf condition={index !== logsDataLength}>
           <div
-            className={`h-full border-${stepColor} border-dashed rounded divide-x-2 border-2 my-1`}
+            className={`h-full border-${stepperBorderColor} border-dashed rounded divide-x-2 border-2 my-1`}
           />
         </UIUtils.RenderIf>
       </div>
       <div
-        className={`flex gap-6 items-start w-full py-3 px-3 cursor-pointer ${boxShadowOnSelection} -mt-5 mb-8`}
+        className={`flex gap-6 items-start w-full py-3 px-3 cursor-pointer ${borderClass} -mt-5 mb-8`}
         key={currentSelected->string_of_int}
         onClick={_ => {
           setLogDetails(_ => {
@@ -238,8 +287,8 @@ module ApiDetailsComponent = {
         }}>
         <div className="flex flex-col gap-1">
           <div className=" flex gap-3">
-            <div className={`bg-${codeBg} h-fit w-fit px-2 py-1 rounded-md`}>
-              <p className={`text-${background_color} text-sm opacity-100  font-bold `}>
+            <div className={`bg-${statusCodeBg} h-fit w-fit px-2 py-1 rounded-md`}>
+              <p className={`text-${statusCodeTextColor} text-sm opacity-100  font-bold `}>
                 {statusCode->React.string}
               </p>
             </div>
@@ -298,7 +347,7 @@ let make = (~paymentId, ~createdAt) => {
       PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -320,7 +369,7 @@ let make = (~paymentId, ~createdAt) => {
       PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -339,7 +388,7 @@ let make = (~paymentId, ~createdAt) => {
       PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -421,7 +470,7 @@ let make = (~paymentId, ~createdAt) => {
       PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
