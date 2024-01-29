@@ -1,7 +1,7 @@
 module InfoField = {
   @react.component
   let make = (~render, ~label) => {
-    let str = render->Option.getWithDefault("")
+    let str = render->Option.getOr("")
 
     <UIUtils.RenderIf condition={str->String.length > 0}>
       <div>
@@ -72,12 +72,14 @@ module MenuOption = {
                 <Navbar.MenuOption
                   text="Update"
                   onClick={_ => {
+                    panelProps["close"]()
                     setCurrentStep(_ => updateStepValue)
                   }}
                 />
                 <Navbar.MenuOption
                   text={connectorStatusAvailableToSwitch}
                   onClick={_ => {
+                    panelProps["close"]()
                     openConfirmationPopUp()
                   }}
                 />
@@ -106,7 +108,7 @@ module ConnectorSummaryGrid = {
       ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
         ele.profile_id === connectorInfo.profile_id
       )
-      ->Option.getWithDefault(defaultBusinessProfile)
+      ->Option.getOr(defaultBusinessProfile)
     let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
     let copyValueOfWebhookEndpoint = ConnectorUtils.getWebhooksUrl(
       ~connectorName={connectorInfo.merchant_connector_id},
@@ -126,7 +128,7 @@ module ConnectorSummaryGrid = {
       } catch {
       | Js.Exn.Error(e) => {
           Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
-          let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+          let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
           setScreenState(_ => PageLoaderWrapper.Error(err))
           Dict.make()->Js.Json.object_
         }

@@ -4,8 +4,8 @@ let parseFilterString = queryString => {
   ->String.split("&")
   ->Belt.Array.keepMap(str => {
     let arr = str->String.split("=")
-    let key = arr->Belt.Array.get(0)->Option.getWithDefault("-")
-    let val = arr->Belt.Array.sliceToEnd(1)->Array.joinWith("=")
+    let key = arr->Array.get(0)->Option.getOr("-")
+    let val = arr->Array.sliceToEnd(~start=1)->Array.joinWith("=")
     key === "" || val === "" ? None : Some((key, val))
   })
   ->Dict.fromArray

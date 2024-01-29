@@ -17,9 +17,6 @@ let getStepName = step => {
   }
 }
 
-let toLCase = str => str->String.toLowerCase
-let len = arr => arr->Array.length
-
 let payoutConnectorList: array<connectorName> = [ADYEN, WISE]
 
 let connectorList: array<connectorName> = [
@@ -88,7 +85,7 @@ let connectorListForLive: array<connectorName> = [
 ]
 
 let getPaymentMethodFromString = paymentMethod => {
-  switch paymentMethod->toLCase {
+  switch paymentMethod->String.toLowerCase {
   | "card" => Card
   | "debit" | "credit" => Card
   | "paylater" => PayLater
@@ -102,7 +99,7 @@ let getPaymentMethodFromString = paymentMethod => {
 }
 
 let getPaymentMethodTypeFromString = paymentMethodType => {
-  switch paymentMethodType->toLCase {
+  switch paymentMethodType->String.toLowerCase {
   | "credit" => Credit
   | "debit" => Debit
   | "google_pay" => GooglePay
@@ -611,7 +608,7 @@ let ignoreFields = (json, id, fields) => {
 }
 
 let mapAuthType = (authType: string) => {
-  switch authType->toLCase {
+  switch authType->String.toLowerCase {
   | "bodykey" => #BodyKey
   | "headerkey" => #HeaderKey
   | "signaturekey" => #SignatureKey
@@ -632,8 +629,10 @@ let getConnectorType = (connector, ~isPayoutFlow, ()) => {
 
 let getSelectedPaymentObj = (paymentMethodsEnabled: array<paymentMethodEnabled>, paymentMethod) => {
   paymentMethodsEnabled
-  ->Array.find(item => item.payment_method_type->toLCase == paymentMethod->toLCase)
-  ->Option.getWithDefault({
+  ->Array.find(item =>
+    item.payment_method_type->String.toLowerCase == paymentMethod->String.toLowerCase
+  )
+  ->Option.getOr({
     payment_method: "unknown",
     payment_method_type: "unkonwn",
   })
@@ -644,18 +643,16 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
   switch paymentMethod->getPaymentMethodFromString {
   | Card =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
-      if val.payment_method_type->toLCase === paymentMethod->toLCase {
+      if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
         val.card_provider
-        ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+        ->Option.getOr([]->Js.Json.array->getPaymentMethodMapper)
         ->Array.push(method)
       }
     })
   | _ =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
-      if val.payment_method_type->toLCase === paymentMethod->toLCase {
-        val.provider
-        ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
-        ->Array.push(method)
+      if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
+        val.provider->Option.getOr([]->Js.Json.array->getPaymentMethodMapper)->Array.push(method)
       }
     })
   }
@@ -667,15 +664,15 @@ let removeMethod = (paymentMethodsEnabled, paymentMethod, method: paymentMethodC
   switch paymentMethod->getPaymentMethodFromString {
   | Card =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
-      if val.payment_method_type->toLCase === paymentMethod->toLCase {
+      if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
         let indexOfRemovalItem =
           val.card_provider
-          ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+          ->Option.getOr([]->Js.Json.array->getPaymentMethodMapper)
           ->Array.map(ele => ele.payment_method_type)
           ->Array.indexOf(method.payment_method_type)
 
         val.card_provider
-        ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+        ->Option.getOr([]->Js.Json.array->getPaymentMethodMapper)
         ->Array.splice(
           ~start=indexOfRemovalItem,
           ~remove=1,
@@ -686,15 +683,15 @@ let removeMethod = (paymentMethodsEnabled, paymentMethod, method: paymentMethodC
 
   | _ =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
-      if val.payment_method_type->toLCase === paymentMethod->toLCase {
+      if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
         let indexOfRemovalItem =
           val.provider
-          ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+          ->Option.getOr([]->Js.Json.array->getPaymentMethodMapper)
           ->Array.map(ele => ele.payment_method_type)
           ->Array.indexOf(method.payment_method_type)
 
         val.provider
-        ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+        ->Option.getOr([]->Js.Json.array->getPaymentMethodMapper)
         ->Array.splice(
           ~start=indexOfRemovalItem,
           ~remove=1,
@@ -786,9 +783,9 @@ let checkCashtoCodeFields = (keys, country, valuesFlattenJson) => {
 
 let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool => {
   open LogicUtils
-  let value = dict->getDictfromDict(country)->Js.Dict.keys
+  let value = dict->getDictfromDict(country)->Dict.keysToArray
   let result = value->Array.map(method => {
-    let keys = dict->getDictfromDict(country)->getDictfromDict(method)->Js.Dict.keys
+    let keys = dict->getDictfromDict(country)->getDictfromDict(method)->Dict.keysToArray
     keys->checkCashtoCodeFields(country, valuesFlattenJson)->Array.includes(false) ? false : true
   })
 
@@ -809,7 +806,7 @@ let validateConnectorRequiredFields = (
   if connector === CASHTOCODE {
     let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
 
-    let indexLength = dict->Js.Dict.keys->Array.length
+    let indexLength = dict->Dict.keysToArray->Array.length
     let vector = Js.Vector.make(indexLength, false)
 
     dict
@@ -843,8 +840,8 @@ let validateConnectorRequiredFields = (
     let walletType = fieldName->getPaymentMethodTypeFromString
     if walletType !== GooglePay && walletType !== ApplePay {
       let key = `metadata.${fieldName}`
-      let errorKey = connectorMetaDataFields->LogicUtils.getString(fieldName, "")
-      let value = valuesFlattenJson->LogicUtils.getString(`metadata.${fieldName}`, "")
+      let errorKey = connectorMetaDataFields->getString(fieldName, "")
+      let value = valuesFlattenJson->getString(`metadata.${fieldName}`, "")
       if value->String.length === 0 && connector->getMetaDataRequiredFields(fieldName) {
         Dict.set(newDict, key, `Please enter ${errorKey}`->Js.Json.string)
       }
@@ -855,9 +852,8 @@ let validateConnectorRequiredFields = (
   ->Dict.keysToArray
   ->Array.forEach(fieldName => {
     let key = `connector_webhook_details.${fieldName}`
-    let errorKey = connectorWebHookDetails->LogicUtils.getString(fieldName, "")
-    let value =
-      valuesFlattenJson->LogicUtils.getString(`connector_webhook_details.${fieldName}`, "")
+    let errorKey = connectorWebHookDetails->getString(fieldName, "")
+    let value = valuesFlattenJson->getString(`connector_webhook_details.${fieldName}`, "")
     if value->String.length === 0 && connector->getWebHookRequiredFields(fieldName) {
       Dict.set(newDict, key, `Please enter ${errorKey}`->Js.Json.string)
     }
@@ -865,8 +861,8 @@ let validateConnectorRequiredFields = (
   connectorLabelDetailField
   ->Dict.keysToArray
   ->Array.forEach(fieldName => {
-    let errorKey = connectorLabelDetailField->LogicUtils.getString(fieldName, "")
-    let value = valuesFlattenJson->LogicUtils.getString(fieldName, "")
+    let errorKey = connectorLabelDetailField->getString(fieldName, "")
+    let value = valuesFlattenJson->getString(fieldName, "")
     if value->String.length === 0 {
       Dict.set(newDict, fieldName, `Please enter ${errorKey}`->Js.Json.string)
     }
@@ -881,7 +877,7 @@ let getPlaceHolder = (connector: connectorName, fieldName, label) => {
   }
 }
 
-let getConnectorDetailsValue = (connectorInfo: ConnectorTypes.connectorPayload, str) => {
+let getConnectorDetailsValue = (connectorInfo: connectorPayload, str) => {
   switch str {
   | "api_key" => connectorInfo.connector_account_details.api_key
   | "api_secret" => connectorInfo.connector_account_details.api_secret
@@ -893,19 +889,15 @@ let getConnectorDetailsValue = (connectorInfo: ConnectorTypes.connectorPayload, 
 }
 
 let getConnectorFields = connectorDetails => {
+  open LogicUtils
   let connectorAccountDict =
-    connectorDetails->LogicUtils.getDictFromJsonObject->LogicUtils.getDictfromDict("connector_auth")
-  let bodyType =
-    connectorAccountDict->Dict.keysToArray->Belt.Array.get(0)->Option.getWithDefault("")
-  let connectorAccountFields = connectorAccountDict->LogicUtils.getDictfromDict(bodyType)
-  let connectorMetaDataFields =
-    connectorDetails->LogicUtils.getDictFromJsonObject->LogicUtils.getDictfromDict("metadata")
-  let isVerifyConnector =
-    connectorDetails->LogicUtils.getDictFromJsonObject->LogicUtils.getBool("is_verifiable", false)
+    connectorDetails->getDictFromJsonObject->getDictfromDict("connector_auth")
+  let bodyType = connectorAccountDict->Dict.keysToArray->Array.get(0)->Option.getOr("")
+  let connectorAccountFields = connectorAccountDict->getDictfromDict(bodyType)
+  let connectorMetaDataFields = connectorDetails->getDictFromJsonObject->getDictfromDict("metadata")
+  let isVerifyConnector = connectorDetails->getDictFromJsonObject->getBool("is_verifiable", false)
   let connectorWebHookDetails =
-    connectorDetails
-    ->LogicUtils.getDictFromJsonObject
-    ->LogicUtils.getDictfromDict("connector_webhook_details")
+    connectorDetails->getDictFromJsonObject->getDictfromDict("connector_webhook_details")
   let connectorLabelDetailField = Dict.fromArray([
     ("connector_label", "Connector label"->Js.Json.string),
   ])
@@ -925,7 +917,7 @@ let validateRequiredFiled = (valuesFlattenJson, dict, fieldName, errors) => {
   dict
   ->Dict.keysToArray
   ->Array.forEach(_value => {
-    let lastItem = fieldName->String.split(".")->Array.pop->Option.getWithDefault("")
+    let lastItem = fieldName->String.split(".")->Array.pop->Option.getOr("")
     let errorKey = dict->getString(lastItem, "")
     let value = valuesFlattenJson->getString(`${fieldName}`, "")
     if value->String.length === 0 {
@@ -940,29 +932,29 @@ let validate = (values, ~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => {
   let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
   let labelArr = dict->Dict.valuesToArray
   selectedConnector.validate
-  ->Option.getWithDefault([])
+  ->Option.getOr([])
   ->Array.forEachWithIndex((field, index) => {
     let key = field.name
     let value =
       valuesFlattenJson
       ->Dict.get(key)
-      ->Option.getWithDefault(""->Js.Json.string)
+      ->Option.getOr(""->Js.Json.string)
       ->LogicUtils.getStringFromJson("")
     let regexToUse = isLiveMode ? field.liveValidationRegex : field.testValidationRegex
     let validationResult = switch regexToUse {
     | Some(regex) => regex->Js.Re.fromString->Js.Re.test_(value)
     | None => true
     }
-    if field.isRequired->Option.getWithDefault(true) && value->String.length === 0 {
+    if field.isRequired->Option.getOr(true) && value->String.length === 0 {
       let errorLabel =
         labelArr
-        ->Belt.Array.get(index)
-        ->Option.getWithDefault(""->Js.Json.string)
+        ->Array.get(index)
+        ->Option.getOr(""->Js.Json.string)
         ->LogicUtils.getStringFromJson("")
       Dict.set(errors, key, `Please enter ${errorLabel}`->Js.Json.string)
     } else if !validationResult && value->String.length !== 0 {
       let expectedFormat = isLiveMode ? field.liveExpectedFormat : field.testExpectedFormat
-      let warningMessage = expectedFormat->Option.getWithDefault("")
+      let warningMessage = expectedFormat->Option.getOr("")
       Dict.set(errors, key, warningMessage->Js.Json.string)
     }
   })
@@ -977,7 +969,7 @@ let validate = (values, ~selectedConnector, ~dict, ~fieldName, ~isLiveMode) => {
 let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
   let (suggestedAction, suggestedActionExists) = {
     open SuggestedActionHelper
-    let msg = verifyErrorMessage->Option.getWithDefault("")
+    let msg = verifyErrorMessage->Option.getOr("")
     switch connector->getConnectorNameTypeFromString {
     | STRIPE => (
         {
@@ -1072,7 +1064,7 @@ let useFetchConnectorList = () => {
       res
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
         Js.Exn.raiseError(err)
       }
     }
@@ -1080,7 +1072,7 @@ let useFetchConnectorList = () => {
 }
 
 let defaultSelectAllCards = (
-  pmts: array<ConnectorTypes.paymentMethodEnabled>,
+  pmts: array<paymentMethodEnabled>,
   isUpdateFlow,
   isPayoutFlow,
   connector,
@@ -1104,9 +1096,9 @@ let defaultSelectAllCards = (
             ->getPaymentMethodMapper
 
           let length =
-            val.card_provider->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)->len
+            val.card_provider->Option.getOr([]->Js.Json.array->getPaymentMethodMapper)->Array.length
           val.card_provider
-          ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+          ->Option.getOr([]->Js.Json.array->getPaymentMethodMapper)
           ->Array.splice(~start=0, ~remove=length, ~insert=arr)
         }
       | BankTransfer | BankRedirect => {
@@ -1117,9 +1109,9 @@ let defaultSelectAllCards = (
             ->getPaymentMethodMapper
 
           let length =
-            val.provider->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)->len
+            val.provider->Option.getOr([]->Js.Json.array->getPaymentMethodMapper)->Array.length
           val.provider
-          ->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+          ->Option.getOr([]->Js.Json.array->getPaymentMethodMapper)
           ->Array.splice(~start=0, ~remove=length, ~insert=arr)
         }
       | _ => ()
@@ -1160,8 +1152,28 @@ let getConnectorPaymentMethodDetails = async (
     )
   } catch {
   | Js.Exn.Error(e) => {
-      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+      let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
+}
+
+let filterList = (items, ~removeFromList: processors) => {
+  open LogicUtils
+  items->Array.filter(dict => {
+    let connectorType = dict->getString("connector_type", "")
+    let isPayoutConnector = connectorType == "payout_processor"
+    let isConnector = connectorType !== "payment_vas" && !isPayoutConnector
+
+    switch removeFromList {
+    | Connector => !isConnector
+    | FRMPlayer => isConnector
+    | PayoutConnector => isPayoutConnector
+    }
+  })
+}
+
+let getProcessorsListFromJson = (json, ~removeFromList: processors=FRMPlayer, ()) => {
+  open LogicUtils
+  json->getArrayFromJson([])->Array.map(getDictFromJsonObject)->filterList(~removeFromList)
 }

@@ -7,7 +7,7 @@ type sessionStorage = {
 
 @val external sessionStorage: sessionStorage = "sessionStorage"
 
-external dictToObj: Js.Dict.t<'a> => {..} = "%identity"
+external dictToObj: Dict.t<'a> => {..} = "%identity"
 @val external atob: string => string = "atob"
 
 let getHeaders = (~uri, ~headers, ()) => {
@@ -23,6 +23,8 @@ let getHeaders = (~uri, ~headers, ()) => {
     let res = switch hyperSwitchToken {
     | Some(token) => {
         headers->Dict.set("authorization", `Bearer ${token}`)
+        headers->Dict.set("api-key", `hyperswitch`)
+        headers->Dict.set("Content-Type", `application/json`)
         headers
       }
 
@@ -32,9 +34,6 @@ let getHeaders = (~uri, ~headers, ()) => {
   }
   Fetch.HeadersInit.make(headerObj->dictToObj)
 }
-
-@val @scope(("window", "location"))
-external hostName: string = "host"
 
 type betaEndpoint = {
   betaApiStr: string,

@@ -20,7 +20,7 @@ let make = (
 ) => {
   let {getObjects, searchUrl: url} = entity
   let fetchApi = AuthHooks.useApiFetcher()
-  let initialValueJson = Js.Json.object_(Js.Dict.empty())
+  let initialValueJson = Js.Json.object_(Dict.make())
   let showToast = ToastState.useShowToast()
   let (showModal, setShowModal) = React.useState(_ => false)
 

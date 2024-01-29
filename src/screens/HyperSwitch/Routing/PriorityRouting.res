@@ -57,7 +57,7 @@ module SimpleRoutingView = {
         setScreenState(_ => Success)
       } catch {
       | Js.Exn.Error(e) =>
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }->ignore
     }
@@ -259,7 +259,7 @@ let make = (~routingRuleId, ~isActive) => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -267,7 +267,7 @@ let make = (~routingRuleId, ~isActive) => {
   let getConnectorsList = () => {
     let arr =
       connectorListJson
-      ->HSwitchUtils.getProcessorsListFromJson()
+      ->ConnectorUtils.getProcessorsListFromJson()
       ->Array.map(connectorDict => connectorDict->getString("connector_name", ""))
       ->Array.filter(x => x !== "applepay")
       ->getUniqueArray

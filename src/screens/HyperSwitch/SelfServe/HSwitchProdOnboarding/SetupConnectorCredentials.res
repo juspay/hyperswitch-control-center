@@ -31,7 +31,7 @@ module ConnectorDetailsForm = {
       connectorVariant->getConnectorInfo
     }, [connectorName])
 
-    let (suggestedAction, suggestedActionExists) = ConnectorUtils.getSuggestedAction(
+    let (suggestedAction, suggestedActionExists) = getSuggestedAction(
       ~verifyErrorMessage,
       ~connector={connectorName},
     )
@@ -84,7 +84,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   open APIUtils
   let showToast = ToastState.useShowToast()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
+  let connectorName = selectedConnector->getConnectorNameString
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (isCheckboxSelected, setIsCheckboxSelected) = React.useState(_ => false)
   let connectorVariant = connectorName->getConnectorNameTypeFromString
@@ -102,7 +102,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong!")
+      let err = Js.Exn.message(e)->Option.getOr("Something went wrong!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -112,7 +112,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   let (verifyErrorMessage, setVerifyErrorMessage) = React.useState(_ => None)
   let (verifyDone, setVerifyDone) = React.useState(_ => ConnectorTypes.NoAttempt)
 
-  let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault("")
+  let connectorID = url.path->Belt.List.toArray->Array.get(1)->Option.getOr("")
   let checkboxText = connectorVariant->ProdOnboardingUtils.getCheckboxText
   let (
     bodyType,
@@ -135,7 +135,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
       prevJsonDict->Dict.set(
         "connector_label",
-        `${selectedConnector->ConnectorUtils.getConnectorNameString}_${defaultBusinessProfile.profile_name}`->Js.Json.string,
+        `${selectedConnector->getConnectorNameString}_${defaultBusinessProfile.profile_name}`->Js.Json.string,
       )
       prevJsonDict->Dict.set("profile_id", defaultBusinessProfile.profile_id->Js.Json.string)
       prevJsonDict->Js.Json.object_
@@ -203,7 +203,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         (),
       )
 
-      let body = requestPayload->ConnectorUtils.constructConnectorRequestBody(payload)
+      let body = requestPayload->constructConnectorRequestBody(payload)
 
       let res = await updateDetails(url, body, Post, ())
       let connectorId = res->getDictFromJsonObject->getString("merchant_connector_id", "")
@@ -342,7 +342,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     let dict = values->getDictFromJsonObject
     dict->Dict.set("profile_id", profile_id->Js.Json.string)
 
-    ConnectorUtils.onSubmit(
+    onSubmit(
       ~values={dict->Js.Json.object_},
       ~onSubmitVerify,
       ~onSubmitMain,

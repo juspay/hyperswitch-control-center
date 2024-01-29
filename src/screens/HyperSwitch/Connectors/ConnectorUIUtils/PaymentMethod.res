@@ -6,8 +6,11 @@ let isSelectedAll = (
   open ConnectorUtils
   let paymentMethodObj = selectedPaymentMethod->getSelectedPaymentObj(paymentMethod)
   switch paymentMethod->getPaymentMethodFromString {
-  | Card => paymentMethodObj.card_provider->Option.getWithDefault([])->len == allPaymentMethods->len
-  | _ => paymentMethodObj.provider->Option.getWithDefault([])->len == allPaymentMethods->len
+  | Card =>
+    paymentMethodObj.card_provider->Option.getOr([])->Array.length ==
+      allPaymentMethods->Array.length
+  | _ =>
+    paymentMethodObj.provider->Option.getOr([])->Array.length == allPaymentMethods->Array.length
   }
 }
 
@@ -33,9 +36,9 @@ module CardRenderer = {
 
     let paymentObj = paymentMethodsEnabled->getSelectedPaymentObj(paymentMethod)
     let standardProviders =
-      paymentObj.provider->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+      paymentObj.provider->Option.getOr([]->Js.Json.array->getPaymentMethodMapper)
     let cardProviders =
-      paymentObj.card_provider->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+      paymentObj.card_provider->Option.getOr([]->Js.Json.array->getPaymentMethodMapper)
 
     let checkPaymentMethodType = (
       obj: paymentMethodConfigType,
@@ -76,16 +79,16 @@ module CardRenderer = {
         if val.payment_method_type === paymentMethod {
           switch paymentMethod->getPaymentMethodTypeFromString {
           | Credit | Debit =>
-            let length = val.card_provider->Option.getWithDefault([])->len
+            let length = val.card_provider->Option.getOr([])->Array.length
             val.card_provider
-            ->Option.getWithDefault([])
+            ->Option.getOr([])
             ->Array.splice(~start=0, ~remove=length, ~insert=arr)
             ->ignore
           | _ =>
-            let length = val.provider->Option.getWithDefault([])->len
+            let length = val.provider->Option.getOr([])->Array.length
 
             val.provider
-            ->Option.getWithDefault([])
+            ->Option.getOr([])
             ->Array.splice(~start=0, ~remove=length, ~insert=arr)
             ->ignore
           }

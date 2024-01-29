@@ -3,7 +3,7 @@ open PopUpState
 @react.component
 let make = (~children) => {
   let (openPopUps, setOpenPopUp) = Recoil.useRecoilState(PopUpState.openPopUp)
-  let activePopUp = openPopUps->Belt.Array.get(0)
+  let activePopUp = openPopUps->Array.get(0)
   let popUp = switch activePopUp {
   | Some(popUp) => {
       let handleConfirm = ev => {

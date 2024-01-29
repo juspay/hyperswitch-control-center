@@ -1,11 +1,11 @@
 let defaultTokenSetter = (_: option<string> => option<string>) => ()
-let defaultDictSetter = (_: Js.Dict.t<Js.Json.t> => Js.Dict.t<Js.Json.t>) => ()
+let defaultDictSetter = (_: Dict.t<Js.Json.t> => Dict.t<Js.Json.t>) => ()
 
 type tokenContextObjectType = {
-  token: option<Js.String2.t>,
+  token: option<string>,
   setToken: (option<string> => option<string>) => unit,
-  tokenDetailsDict: Js.Dict.t<Js.Json.t>,
-  setTokenDetailsDict: (Js.Dict.t<Js.Json.t> => Js.Dict.t<Js.Json.t>) => unit,
+  tokenDetailsDict: Dict.t<Js.Json.t>,
+  setTokenDetailsDict: (Dict.t<Js.Json.t> => Dict.t<Js.Json.t>) => unit,
   parentAuthInfo: option<HyperSwitchAuthTypes.authInfo>,
 }
 
@@ -32,7 +32,7 @@ let make = (~children) => {
   let tokenContextObjext = React.useMemo4(() => {
     let parentAuthInfo = HyperSwitchAuthTypes.getAuthInfo(
       tokenDetailsDict->LogicUtils.getJsonObjectFromDict("tokenDict"),
-      token->Option.getWithDefault(""),
+      token->Option.getOr(""),
     )
 
     {

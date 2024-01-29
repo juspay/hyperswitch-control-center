@@ -28,7 +28,7 @@ let make = (
   React.useEffect1(() => {
     setScreenState(_ => Loading)
     initialValues
-    ->ConnectorUtils.getConnectorPaymentMethodDetails(
+    ->getConnectorPaymentMethodDetails(
       setPaymentMethods,
       setMetaData,
       setScreenState,
@@ -51,8 +51,8 @@ let make = (
       }
       let body =
         constructConnectorRequestBody(obj, initialValues)->ignoreFields(
-          connectorID->Option.getWithDefault(""),
-          ConnectorUtils.connectorIgnoredField,
+          connectorID->Option.getOr(""),
+          connectorIgnoredField,
         )
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID, ())
       let response = await updateAPIHook(connectorUrl, body, Post, ())
@@ -66,7 +66,7 @@ let make = (
       )
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
 
