@@ -122,7 +122,7 @@ let make = (
 
     initialValues
     ->Js.Json.decodeObject
-    ->Option.getWithDefault(Dict.make())
+    ->Option.getOr(Dict.make())
     ->Dict.toArray
     ->Array.forEach(entry => {
       let (key, _value) = entry
@@ -170,7 +170,7 @@ let make = (
       let defaultEntityOptionType: EntityType.optionType<
         't,
       > = EntityType.getDefaultEntityOptionType()
-      let optionObj = optionObjArry[0]->Option.getWithDefault(defaultEntityOptionType)
+      let optionObj = optionObjArry[0]->Option.getOr(defaultEntityOptionType)
       localSelectedFiltersList->Array.push(optionObj.field)->ignore
       localCheckedFilters->Array.push(value)->ignore
     })
@@ -182,9 +182,9 @@ let make = (
     let toBeRemoved = checkedFilters->Array.filter(oldVal => !Array.includes(fieldNameArr, oldVal))
     let finalFieldList = selectedFiltersList->Array.filter(val => {
       val.inputNames
-      ->Belt.Array.get(0)
+      ->Array.get(0)
       ->Belt.Option.map(name => !{toBeRemoved->Array.includes(name)})
-      ->Option.getWithDefault(false)
+      ->Option.getOr(false)
     })
     let filtersAfterRemoving =
       checkedFilters->Array.filter(val => !Array.includes(toBeRemoved, val))
@@ -192,7 +192,7 @@ let make = (
     let newInitialValues =
       initialValueJson
       ->Js.Json.decodeObject
-      ->Option.getWithDefault(Dict.make())
+      ->Option.getOr(Dict.make())
       ->Dict.toArray
       ->Array.filter(entry => {
         let (key, _value) = entry

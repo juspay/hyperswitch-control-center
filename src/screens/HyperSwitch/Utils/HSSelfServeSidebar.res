@@ -57,7 +57,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
           RescriptReactRouter.replace(sidebarOption.link)
         }
       }
-      let subOptionsArray = sidebarOption.subOptions->Option.getWithDefault([])
+      let subOptionsArray = sidebarOption.subOptions->Option.getOr([])
       <div
         key={i->string_of_int}
         className={`p-6 border-y border-gray-200 cursor-pointer ${background}`}

@@ -1,9 +1,5 @@
 let getUserTimeZoneString = () => {
-  Js.Date.make()
-  ->Js.Date.toTimeString
-  ->String.split(" ")
-  ->Belt.Array.get(1)
-  ->Option.getWithDefault("")
+  Js.Date.make()->Js.Date.toTimeString->String.split(" ")->Array.get(1)->Option.getOr("")
 }
 
 let getUserTimeZone = () => {

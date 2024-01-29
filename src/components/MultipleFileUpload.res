@@ -95,8 +95,8 @@ let make = (
     let files = input.value->LogicUtils.getArrayFromJson([])
 
     while !break.contents {
-      if target["files"]->Array.length > arr[0]->Option.getWithDefault(0) {
-        let index = arr->Belt.Array.get(0)->Option.getWithDefault(0)
+      if target["files"]->Array.length > arr[0]->Option.getOr(0) {
+        let index = arr->Array.get(0)->Option.getOr(0)
         switch target["files"][index] {
         | Some(value) => {
             let filename = value["name"]
@@ -104,7 +104,7 @@ let make = (
             let mimeType = value["type"]
             let fileFormat = String.concat(
               ".",
-              Array.pop(filename->String.split("."))->Option.getWithDefault(""),
+              Array.pop(filename->String.split("."))->Option.getOr(""),
             )
             let fileTypeArr = fileType->String.split(",")
             let isCorrectFileFormat =
@@ -171,7 +171,7 @@ let make = (
                 toast("Invalid file", ToastError)
               }
             }
-            arr->Belt.Array.set(0, arr[0]->Option.getWithDefault(0) + 1)->ignore
+            arr->Belt.Array.set(0, arr[0]->Option.getOr(0) + 1)->ignore
           }
         | None => ()
         }
@@ -189,17 +189,13 @@ let make = (
       ~fileName,
       ~content=decodeParsedfile
         ? try {
-            val
-            ->Belt.Array.get(indx)
-            ->Option.getWithDefault(Js.Json.null)
-            ->getStringFromJson("")
-            ->atob
+            val->Array.get(indx)->Option.getOr(Js.Json.null)->getStringFromJson("")->atob
           } catch {
           | _ =>
             toast("Error : Unable to parse file", ToastError)
             ""
           }
-        : val->Belt.Array.get(indx)->Option.getWithDefault(Js.Json.null)->getStringFromJson(""),
+        : val->Array.get(indx)->Option.getOr(Js.Json.null)->getStringFromJson(""),
     )
   }
 
@@ -259,7 +255,7 @@ let make = (
             className={pointerDisable
               ? "flex items-center gap-4 flex-1 pointer-events-none"
               : "flex items-center gap-4 flex-1"}>
-            {switch fileName->String.split(".")->Array.pop->Option.getWithDefault("") {
+            {switch fileName->String.split(".")->Array.pop->Option.getOr("") {
             | "pdf" => <img src={`/icons/paIcons/pdfIcon.svg`} />
             | "csv" => <img src={`/icons/paIcons/csvIcon.svg`} />
             | _ => React.null

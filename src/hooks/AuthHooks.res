@@ -7,7 +7,7 @@ type sessionStorage = {
 
 @val external sessionStorage: sessionStorage = "sessionStorage"
 
-external dictToObj: Js.Dict.t<'a> => {..} = "%identity"
+external dictToObj: Dict.t<'a> => {..} = "%identity"
 @val external atob: string => string = "atob"
 
 let getHeaders = (~uri, ~headers, ()) => {

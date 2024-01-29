@@ -2,13 +2,13 @@
 // docfor the user preference https://docs.google.com/document/d/1BM_UgHLuN0U-cXfRYqN6wWSq-5KUiqojinCfBrUEiVo/edit
 open UserPrefUtils
 external userPrefToJson: userPref => Js.Json.t = "%identity"
-external dictUserPrefToStr: Js.Dict.t<userPref> => string = "%identity"
-let userPrefSetter: (Js.Dict.t<userPref> => Js.Dict.t<userPref>) => unit = _ => ()
-let defaultUserPref: Js.Dict.t<userPref> = Dict.make()
+external dictUserPrefToStr: Dict.t<userPref> => string = "%identity"
+let userPrefSetter: (Dict.t<userPref> => Dict.t<userPref>) => unit = _ => ()
+let defaultUserPref: Dict.t<userPref> = Dict.make()
 let defaultUserModuleWisePref: moduleVisePref = {}
 type filter = {
-  userPref: Js.Dict.t<userPref>,
-  setUserPref: (Js.Dict.t<userPref> => Js.Dict.t<userPref>) => unit,
+  userPref: Dict.t<userPref>,
+  setUserPref: (Dict.t<userPref> => Dict.t<userPref>) => unit,
   lastVisitedTab: string,
   getSearchParamByLink: string => string,
   addConfig: (string, Js.Json.t) => unit,
@@ -38,7 +38,7 @@ module Provider = {
 @react.component
 let make = (~children) => {
   // this fetch will only happen once after that context will be updated each time when url chnaged and it keep hitting the update api
-  let userPrefInitialVal: Js.Dict.t<userPref> = UserPrefUtils.getUserPref()
+  let userPrefInitialVal: Dict.t<userPref> = UserPrefUtils.getUserPref()
   let (authStatus, _setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
 
   let username = switch authStatus {
@@ -55,10 +55,10 @@ let make = (~children) => {
   React.useEffect2(() => {
     if urlPathConcationation !== "/" {
       setUserPref(prev => {
-        let currentConfig = prev->Dict.get(username)->Option.getWithDefault({})
+        let currentConfig = prev->Dict.get(username)->Option.getOr({})
         let updatedPrev = currentConfig
         let updatedValue = if (
-          urlPathConcationation !== updatedPrev.lastVisitedTab->Option.getWithDefault("")
+          urlPathConcationation !== updatedPrev.lastVisitedTab->Option.getOr("")
         ) {
           {...updatedPrev, lastVisitedTab: urlPathConcationation}
         } else {
@@ -76,16 +76,14 @@ let make = (~children) => {
   // UPDATE THE searchParams IN LAST VISITED TAB
   React.useEffect2(() => {
     setUserPref(prev => {
-      let currentConfig = prev->Dict.get(username)->Option.getWithDefault({})
+      let currentConfig = prev->Dict.get(username)->Option.getOr({})
       let updatedPrev = currentConfig
       let moduleWisePref = switch updatedPrev {
       | {moduleVisePref} => moduleVisePref
       | _ => Dict.make()
       }
       let currentModulePerf =
-        moduleWisePref
-        ->Dict.get(urlPathConcationation)
-        ->Option.getWithDefault(defaultUserModuleWisePref)
+        moduleWisePref->Dict.get(urlPathConcationation)->Option.getOr(defaultUserModuleWisePref)
 
       let filteredUrlSearch =
         url.search
@@ -133,16 +131,14 @@ let make = (~children) => {
 
   let addConfig = (key, value) => {
     setUserPref(prev => {
-      let currentConfig = prev->Dict.get(username)->Option.getWithDefault({})
+      let currentConfig = prev->Dict.get(username)->Option.getOr({})
       let updatedPrev = currentConfig
       let moduleWisePref = switch updatedPrev {
       | {moduleVisePref} => moduleVisePref
       | _ => Dict.make()
       }
       let currentModulePerf =
-        moduleWisePref
-        ->Dict.get(urlPathConcationation)
-        ->Option.getWithDefault(defaultUserModuleWisePref)
+        moduleWisePref->Dict.get(urlPathConcationation)->Option.getOr(defaultUserModuleWisePref)
       let moduleConfig = switch currentModulePerf {
       | {moduleConfig} => moduleConfig
       | _ => Dict.make()
@@ -161,13 +157,13 @@ let make = (~children) => {
   }
 
   let getConfig = key => {
-    let currentConfig = userPref->Dict.get(username)->Option.getWithDefault({})
+    let currentConfig = userPref->Dict.get(username)->Option.getOr({})
     let updatedPrev = currentConfig
     switch updatedPrev {
     | {moduleVisePref} =>
       switch moduleVisePref
       ->Dict.get(urlPathConcationation)
-      ->Option.getWithDefault(defaultUserModuleWisePref) {
+      ->Option.getOr(defaultUserModuleWisePref) {
       | {moduleConfig} => moduleConfig->Dict.get(key)
       | _ => None
       }
@@ -187,7 +183,7 @@ let make = (~children) => {
     ->Js.Json.stringify
 
   let value = React.useMemo4(() => {
-    let currentConfig = userPref->Dict.get(username)->Option.getWithDefault({})
+    let currentConfig = userPref->Dict.get(username)->Option.getOr({})
     let updatedPrev = currentConfig
     let lastVisitedTab = switch updatedPrev {
     | {lastVisitedTab} => lastVisitedTab

@@ -153,7 +153,7 @@ let make = (
                                 | None => ([], [])
                                 }->Some
                               )
-                              ->Option.getWithDefault(([], []))
+                              ->Option.getOr(([], []))
 
                             if options->Array.length > 1 {
                               let filterInput: ReactFinalForm.fieldRenderPropsInput = {

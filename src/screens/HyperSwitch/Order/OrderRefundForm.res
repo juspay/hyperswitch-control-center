@@ -67,7 +67,7 @@ let make = (
       values
       ->Js.Json.decodeObject
       ->Belt.Option.map(Dict.toArray)
-      ->Option.getWithDefault([])
+      ->Option.getOr([])
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
         switch value->Js.Json.classify {
@@ -90,7 +90,7 @@ let make = (
         let amountSplitArr =
           Js.Float.toFixedWithPrecision(amoutAvailableToRefund, ~digits=2)->String.split(".")
         let decimal = if amountSplitArr->Array.length > 1 {
-          amountSplitArr[1]->Option.getWithDefault("")
+          amountSplitArr[1]->Option.getOr("")
         } else {
           "00"
         }

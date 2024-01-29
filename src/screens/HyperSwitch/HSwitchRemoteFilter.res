@@ -6,7 +6,7 @@ type filterBody = {
 let isStringNonEmpty = str => str->String.length > 0
 
 let getDateValue = (key, ~getModuleFilters) => {
-  getModuleFilters->Dict.get(key)->Option.getWithDefault("")
+  getModuleFilters->Dict.get(key)->Option.getOr("")
 }
 
 let formateDateString = date => {
@@ -94,7 +94,7 @@ let useSetInitialFilters = (~updateExistingKeys, ~startTimeFilterKey, ~endTimeFi
       [
         (startTimeFilterKey, defaultDate.start_time),
         (endTimeFilterKey, defaultDate.end_time),
-      ]->Belt.Array.forEach(item => {
+      ]->Array.forEach(item => {
         let (key, defaultValue) = item
         switch inititalSearchParam->Dict.get(key) {
         | Some(_) => ()
@@ -221,7 +221,7 @@ module RemoteTableFilters = {
       }
       None
     }, (startTimeVal, endTimeVal, filterBody->Js.Json.object_->Js.Json.stringify))
-    let filterData = filterDataJson->Option.getWithDefault(Dict.make()->Js.Json.object_)
+    let filterData = filterDataJson->Option.getOr(Dict.make()->Js.Json.object_)
 
     React.useEffect1(() => {
       if filterValueJson->Dict.keysToArray->Array.length != 0 {

@@ -3,10 +3,7 @@ let parseUrlIntoDict = queryUrl => {
   let safeArray = arr->Array.filter(e => e->Array.length == 2)
   let dict: Dict.t<string> = Dict.make()
   safeArray->Array.forEach(e => {
-    dict->Dict.set(
-      e->Belt.Array.get(0)->Option.getWithDefault(""),
-      e->Belt.Array.get(1)->Option.getWithDefault(""),
-    )
+    dict->Dict.set(e->Array.get(0)->Option.getOr(""), e->Array.get(1)->Option.getOr(""))
   })
 
   dict

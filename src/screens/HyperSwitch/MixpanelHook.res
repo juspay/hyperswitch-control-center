@@ -1,6 +1,6 @@
 type functionType = (
-  ~eventName: Js.String2.t=?,
-  ~email: Js.String.t=?,
+  ~eventName: string=?,
+  ~email: string=?,
   ~description: option<string>=?,
   unit,
 ) => unit
@@ -37,7 +37,7 @@ let useSendEvent = () => {
       "properties": {
         "token": mixpanelToken,
         "distinct_id": deviceId,
-        "$device_id": deviceId->String.split(":")->Belt.Array.get(1),
+        "$device_id": deviceId->String.split(":")->Array.get(1),
         "$screen_height": Screen.screenHeight,
         "$screen_width": Screen.screenWidth,
         "name": email,
@@ -58,10 +58,7 @@ let useSendEvent = () => {
       let _ = await fetchApi(
         `${dashboardUrl}/mixpanel/track`,
         ~method_=Fetch.Post,
-        ~bodyStr=`data=${body
-          ->Js.Json.stringifyAny
-          ->Option.getWithDefault("")
-          ->Js.Global.encodeURI}`,
+        ~bodyStr=`data=${body->Js.Json.stringifyAny->Option.getOr("")->Js.Global.encodeURI}`,
         (),
       )
     } catch {

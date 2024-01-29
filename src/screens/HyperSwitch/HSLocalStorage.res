@@ -1,12 +1,11 @@
 let getInfoFromLocalStorage = (~lStorageKey) => {
-  let stringifiedJson =
-    LocalStorage.getItem(lStorageKey)->Js.Nullable.toOption->Option.getWithDefault("")
+  let stringifiedJson = LocalStorage.getItem(lStorageKey)->Js.Nullable.toOption->Option.getOr("")
 
   stringifiedJson->LogicUtils.safeParse->LogicUtils.getDictFromJsonObject
 }
 
 let getBooleanFromLocalStorage = (~key) => {
-  let stringifiedJson = LocalStorage.getItem(key)->Js.Nullable.toOption->Option.getWithDefault("")
+  let stringifiedJson = LocalStorage.getItem(key)->Js.Nullable.toOption->Option.getOr("")
 
   stringifiedJson->LogicUtils.safeParse->LogicUtils.getBoolFromJson(false)
 }

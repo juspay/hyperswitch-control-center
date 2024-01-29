@@ -1,6 +1,6 @@
 open RoutingTypes
 open LogicUtils
-external toWasm: Js.Dict.t<Js.Json.t> => wasmModule = "%identity"
+external toWasm: Dict.t<Js.Json.t> => wasmModule = "%identity"
 
 let defaultThreeDsObjectValue: routingOutputType = {
   override_3ds: "three_ds",
@@ -184,14 +184,13 @@ module SaveAndActivateButton = {
       try {
         let onSubmitResponse = await onSubmit(formState.values, false)
         let currentActivatedFromJson =
-          onSubmitResponse->Js.Nullable.toOption->Option.getWithDefault(Js.Json.null)
+          onSubmitResponse->Js.Nullable.toOption->Option.getOr(Js.Json.null)
         let currentActivatedId =
           currentActivatedFromJson->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
         let _ = await handleActivateConfiguration(Some(currentActivatedId))
       } catch {
       | Js.Exn.Error(e) =>
-        let _ =
-          Js.Exn.message(e)->Option.getWithDefault("Failed to save and activate configuration!")
+        let _ = Js.Exn.message(e)->Option.getOr("Failed to save and activate configuration!")
       }
     }
     <Button

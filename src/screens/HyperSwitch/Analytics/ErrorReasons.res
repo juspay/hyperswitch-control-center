@@ -79,7 +79,7 @@ let make = (~errors: array<AnalyticsTypes.error_message_type>) => {
   }
 
   let getCellText = {
-    let errorStr = switch errors->Belt.Array.get(0) {
+    let errorStr = switch errors->Array.get(0) {
     | Some(val) => val.reason->String.slice(~start=0, ~end=15)
     | _ => "Error Reasons"
     }

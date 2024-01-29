@@ -120,7 +120,7 @@ let integrateYourAppArray: array<landingChoiceType> = [
   // },
 ]
 
-let getProcessorType: Js.Dict.t<'a> => processorType = value => {
+let getProcessorType: Dict.t<'a> => processorType = value => {
   open LogicUtils
   let processorID = value->getString("processor_id", "")
   let processorName = value->getString("processor_name", "")
@@ -129,18 +129,18 @@ let getProcessorType: Js.Dict.t<'a> => processorType = value => {
     processorName,
   }
 }
-let getRoutingType: Js.Dict.t<'a> => routingType = value => {
+let getRoutingType: Dict.t<'a> => routingType = value => {
   {
     routing_id: value->LogicUtils.getString("routing_id", ""),
   }
 }
-let getPaymentType: Js.Dict.t<'a> => paymentType = value => {
+let getPaymentType: Dict.t<'a> => paymentType = value => {
   {
     payment_id: value->LogicUtils.getString("payment_id", ""),
   }
 }
 
-let getIntegrationType: Js.Dict.t<'a> => integrationMethod = value => {
+let getIntegrationType: Dict.t<'a> => integrationMethod = value => {
   {
     integration_type: value->LogicUtils.getString("integration_type", ""),
   }

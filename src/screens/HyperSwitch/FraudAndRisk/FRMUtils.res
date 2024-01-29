@@ -5,16 +5,16 @@ open FRMTypes
 @val external atob: string => string = "atob"
 
 let leadingSpaceStrParser = (. ~value, ~name as _) => {
-  let str = value->Js.Json.decodeString->Option.getWithDefault("")
+  let str = value->Js.Json.decodeString->Option.getOr("")
   str->String.replaceRegExp(%re("/^[\s]+/"), "")->Js.Json.string
 }
 
 let base64Parse = (. ~value, ~name as _) => {
-  value->Js.Json.decodeString->Option.getWithDefault("")->btoa->Js.Json.string
+  value->Js.Json.decodeString->Option.getOr("")->btoa->Js.Json.string
 }
 
 let base64Format = (. ~value, ~name as _) => {
-  value->Js.Json.decodeString->Option.getWithDefault("")->atob->Js.Json.string
+  value->Js.Json.decodeString->Option.getOr("")->atob->Js.Json.string
 }
 
 let toggleDefaultStyle = "mb-2 relative inline-flex flex-shrink-0 h-6 w-12 border-2 rounded-full  transition-colors ease-in-out duration-200 focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75 items-center"
@@ -41,10 +41,7 @@ let generateInitialValuesDict = (~selectedFRMInfo, ~isLiveMode, ()) => {
 }
 
 let parseFRMConfig = json => {
-  json
-  ->Js.Json.decodeArray
-  ->Option.getWithDefault([])
-  ->ConnectorTableUtils.convertFRMConfigJsonToObj
+  json->Js.Json.decodeArray->Option.getOr([])->ConnectorTableUtils.convertFRMConfigJsonToObj
 }
 
 let getPaymentMethod = paymentMethod => {
@@ -94,7 +91,7 @@ let updateConfigDict = (configDict, connectorName, paymentMethodsDict) => {
       updatePaymentMethodsDict(
         prevPaymentMethodsDict,
         pmName,
-        paymentMethodsDict->Dict.get(pmName)->Option.getWithDefault([]),
+        paymentMethodsDict->Dict.get(pmName)->Option.getOr([]),
       )
     )
 
@@ -143,7 +140,7 @@ let generateFRMPaymentMethodsConfig = paymentMethodsDict => {
     let paymentMethodTypesArr =
       paymentMethodsDict
       ->Dict.get(paymentMethodName)
-      ->Option.getWithDefault([])
+      ->Option.getOr([])
       ->Array.map(paymentMethodType => {
         {
           payment_method_type: paymentMethodType,
