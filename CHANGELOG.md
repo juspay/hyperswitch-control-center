@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.01.29.0
+
+### Features
+
+- Accept dispute ([#214](https://github.com/juspay/hyperswitch-control-center/pull/214)) ([`4c0d56b`](https://github.com/juspay/hyperswitch-control-center/commit/4c0d56b134276787cfbc3b48d53c591f8dcc7ae1))
+
+### Bug Fixes
+
+- Audit log fix ([#305](https://github.com/juspay/hyperswitch-control-center/pull/305)) ([`6bffa75`](https://github.com/juspay/hyperswitch-control-center/commit/6bffa75d580896bb86122da823e94814516bdb41))
+- Enabling nmi in prod ([#309](https://github.com/juspay/hyperswitch-control-center/pull/309)) ([`30ebc24`](https://github.com/juspay/hyperswitch-control-center/commit/30ebc24a558969fbc2789700c93247d5dd586120))
+
+### Miscellaneous Tasks
+
+- Rescript core version upgrade ([#293](https://github.com/juspay/hyperswitch-control-center/pull/293)) ([`2d03f43`](https://github.com/juspay/hyperswitch-control-center/commit/2d03f43092cc8a7ed030a2f2ad8df663f081c15b))
+
+**Full Changelog:** [`2024.01.25.1...2024.01.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.01.25.1...2024.01.29.0)
+
+- - -
+
 ## 2024.01.25.1
 
 ### Miscellaneous Tasks
