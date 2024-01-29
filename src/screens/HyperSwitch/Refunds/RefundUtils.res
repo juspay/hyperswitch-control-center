@@ -5,7 +5,7 @@ let getRefundsList = async (
     Js.Json.t,
     Fetch.requestMethod,
     ~bodyFormData: Fetch.formData=?,
-    ~headers: Js.Dict.t<'a>=?,
+    ~headers: Dict.t<'a>=?,
     unit,
   ) => promise<Js.Json.t>,
   ~setRefundsData,
@@ -23,7 +23,7 @@ let getRefundsList = async (
     let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
-    let arr = Belt.Array.make(offset, Dict.make())
+    let arr = Array.make(~length=offset, Dict.make())
     if total <= offset {
       setOffset(_ => 0)
     }

@@ -99,8 +99,8 @@ type formState = {
   initialValues: Js.Json.t,
   errors: Js.Json.t,
   dirtySinceLastSubmit: bool,
-  dirtyFields: Js.Dict.t<bool>,
-  dirtyFieldsSinceLastSubmit: Js.Dict.t<bool>,
+  dirtyFields: Dict.t<bool>,
+  dirtyFieldsSinceLastSubmit: Dict.t<bool>,
   submitSucceeded: bool,
   modifiedSinceLastSubmit: bool,
 }
@@ -158,7 +158,7 @@ module Form = {
     ~mutators: bool=?,
     ~onSubmit: (formValues, formApi) => Promise.t<Js.Nullable.t<Js.Json.t>>,
     ~render: formRenderProps => React.element=?,
-    ~subscription: Js.Dict.t<bool>,
+    ~subscription: Dict.t<bool>,
     ~validate: Js.Json.t => Js.Json.t=?,
     ~validateOnBlur: bool=?,
   ) => React.element = "Form"

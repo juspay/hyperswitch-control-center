@@ -1,4 +1,4 @@
-let deleteKey = (dictionary: Js.Dict.t<'a>, key: string) => {
+let deleteKey = (dictionary: Dict.t<'a>, key: string) => {
   dictionary
   ->Dict.toArray
   ->Belt.Array.keepMap(entry => {
@@ -8,7 +8,7 @@ let deleteKey = (dictionary: Js.Dict.t<'a>, key: string) => {
   ->Dict.fromArray
 }
 
-let deleteKeys = (dictionary: Js.Dict.t<'a>, keys: array<string>) => {
+let deleteKeys = (dictionary: Dict.t<'a>, keys: array<string>) => {
   let updatedDict =
     dictionary
     ->Dict.toArray
@@ -21,7 +21,7 @@ let deleteKeys = (dictionary: Js.Dict.t<'a>, keys: array<string>) => {
   updatedDict
 }
 
-let mergeDicts = (arrDict: array<Js.Dict.t<'a>>) => {
+let mergeDicts = (arrDict: array<Dict.t<'a>>) => {
   arrDict
   ->Array.reduce([], (acc, dict) => {
     acc->Array.concat(dict->Dict.toArray)

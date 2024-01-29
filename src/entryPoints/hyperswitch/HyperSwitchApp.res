@@ -58,7 +58,7 @@ let make = () => {
         ->Array.find(ele => {
           ele->getDictFromJsonObject->getBool("ProductionAgreement", false)
         })
-        ->Option.getWithDefault(Js.Json.null)
+        ->Option.getOr(Js.Json.null)
 
       if productionAgreementResponse->getDictFromJsonObject->getBool("ProductionAgreement", false) {
         setDashboardPageState(_ => #PROD_ONBOARDING)
@@ -75,13 +75,13 @@ let make = () => {
   let fetchInitialEnums = async () => {
     try {
       let response = await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray)
-      let responseValueDict = response->Js.Nullable.toOption->Option.getWithDefault(Dict.make())
+      let responseValueDict = response->Js.Nullable.toOption->Option.getOr(Dict.make())
       let pageStateToSet = responseValueDict->QuickStartUtils.getCurrentStep
       setQuickStartPageState(_ => pageStateToSet->QuickStartUtils.enumToVarinatMapper)
       responseValueDict
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
         Js.Exn.raiseError(err)
       }
     }
@@ -94,13 +94,13 @@ let make = () => {
       let permissionsValue =
         response
         ->getArrayFromJson([])
-        ->Array.map(ele => ele->Js.Json.decodeString->Option.getWithDefault(""))
+        ->Array.map(ele => ele->Js.Json.decodeString->Option.getOr(""))
       let permissionJson =
         permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
       setuserPermissionJson(._ => permissionJson)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
         Js.Exn.raiseError(err)
       }
     }

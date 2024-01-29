@@ -26,7 +26,7 @@ let singleStateItemToObjMapper = json => {
     api_count: dict->getInt("api_count", 0),
     status_code_count: dict->getInt("status_code_count", 0),
   })
-  ->Option.getWithDefault({
+  ->Option.getOr({
     singleStateInitialValue
   })
 }
@@ -49,7 +49,7 @@ let singleStateSeriesItemToObjMapper = json => {
 let itemToObjMapper = json => {
   let data = json->getQueryData->Array.map(singleStateItemToObjMapper)
 
-  data->Belt.Array.get(0)->Option.getWithDefault(singleStateInitialValue)
+  data->Array.get(0)->Option.getOr(singleStateInitialValue)
 }
 
 let timeSeriesObjMapper = json =>

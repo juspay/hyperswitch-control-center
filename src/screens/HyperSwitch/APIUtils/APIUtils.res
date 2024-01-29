@@ -82,7 +82,7 @@ let getURL = (
       | Some(key_id) => `api_keys/${merchantId}/${key_id}`
       | None => `api_keys/${merchantId}`
       }
-    | Delete => `api_keys/${merchantId}/${id->Option.getWithDefault("")}`
+    | Delete => `api_keys/${merchantId}/${id->Option.getOr("")}`
     | _ => ""
     }
   | ORDERS =>
@@ -202,6 +202,11 @@ let getURL = (
     | Some(id) => `account/${merchantId}/business_profile/${id}`
     | None => `account/${merchantId}/business_profile`
     }
+  | ACCEPT_DISPUTE =>
+    switch id {
+    | Some(id) => `disputes/accept/${id}`
+    | None => `disputes`
+    }
   | PAYMENT | SETTINGS => ""
   }
   `${HSwitchGlobalVars.hyperSwitchApiPrefix}/${endpoint}`
@@ -211,14 +216,14 @@ let sessionExpired = ref(false)
 
 let handleLogout = async (
   ~fetchApi as _: (
-    Js.String2.t,
+    string,
     ~bodyStr: string=?,
     ~bodyFormData: option<Fetch.formData>=?,
-    ~headers: Js.Dict.t<Js.String2.t>=?,
-    ~bodyHeader: Js.Dict.t<Js.Json.t>=?,
+    ~headers: Dict.t<string>=?,
+    ~bodyHeader: Dict.t<Js.Json.t>=?,
     ~method_: Fetch.requestMethod,
-    ~authToken: option<Js.String2.t>=?,
-    ~requestId: Js.String.t=?,
+    ~authToken: option<string>=?,
+    ~requestId: string=?,
     ~disableEncryption: bool=?,
     ~storageKey: string=?,
     ~betaEndpointConfig: AuthHooks.betaEndpoint=?,

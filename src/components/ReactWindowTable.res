@@ -142,8 +142,8 @@ module NewCell = {
             "w-24"
           } else {
             columnWidthArr
-            ->Belt.Array.get(cellIndex)
-            ->Option.getWithDefault(`${cellIndex === 0 && customSerialNoColumn ? "w-24" : "w-64"}`)
+            ->Array.get(cellIndex)
+            ->Option.getOr(`${cellIndex === 0 && customSerialNoColumn ? "w-24" : "w-64"}`)
           }
 
           let overflowStyle = cellIndex === colsLen ? "overflow-hidden" : ""
@@ -249,8 +249,7 @@ module ReactWindowTableComponent = {
       switch actualData {
       | Some(actualData) =>
         switch getRowDetails {
-        | Some(fn) =>
-          fn(actualData->Belt.Array.get(rowIndex)->Option.getWithDefault(Js.Nullable.null))
+        | Some(fn) => fn(actualData->Array.get(rowIndex)->Option.getOr(Js.Nullable.null))
         | None => React.null
         }
       | None => React.null
@@ -294,7 +293,7 @@ module ReactWindowTableComponent = {
       }
       acc
     })
-    let colFilt = columnFilterRow->Option.getWithDefault([])
+    let colFilt = columnFilterRow->Option.getOr([])
     let colFilter = showCheckBox ? [TextFilter("")]->Array.concat(colFilt) : colFilt
     let arr = switch columnWidth {
     | Some(arr) => arr
@@ -321,8 +320,8 @@ module ReactWindowTableComponent = {
               "w-24"
             } else {
               arr
-              ->Belt.Array.get(i)
-              ->Option.getWithDefault(`${isFirstCol && customSerialNoColumn ? "w-24" : "w-64"}`)
+              ->Array.get(i)
+              ->Option.getOr(`${isFirstCol && customSerialNoColumn ? "w-24" : "w-64"}`)
             }
 
             let roundedClass = if isFirstCol {
@@ -370,14 +369,13 @@ module ReactWindowTableComponent = {
                     <UIUtils.RenderIf condition={item.description->Option.isSome}>
                       <div className="text-sm text-gray-500 mx-2">
                         <ToolTip
-                          description={item.description->Option.getWithDefault("")}
+                          description={item.description->Option.getOr("")}
                           toolTipPosition={ToolTip.Bottom}
                         />
                       </div>
                     </UIUtils.RenderIf>
                   </div>
-                  <UIUtils.RenderIf
-                    condition={item.showMultiSelectCheckBox->Option.getWithDefault(false)}>
+                  <UIUtils.RenderIf condition={item.showMultiSelectCheckBox->Option.getOr(false)}>
                     <div className=" mt-1 mr-2">
                       <CheckBoxIcon
                         isSelected={isAllSelected}
@@ -390,7 +388,7 @@ module ReactWindowTableComponent = {
                   <UIUtils.RenderIf condition={item.data->Option.isSome}>
                     <div
                       className="flex justify-start font-bold text-fs-10 whitespace-pre text-ellipsis overflow-x-hidden">
-                      {React.string(item.data->Option.getWithDefault(""))}
+                      {React.string(item.data->Option.getOr(""))}
                     </div>
                   </UIUtils.RenderIf>
                 </div>
@@ -431,7 +429,7 @@ module ReactWindowTableComponent = {
               <div>
                 {
                   let len = colFilter->Array.length
-                  switch colFilter->Belt.Array.get(i) {
+                  switch colFilter->Array.get(i) {
                   | Some(fitlerRows) =>
                     <FilterRow
                       item=fitlerRows
@@ -462,7 +460,7 @@ module ReactWindowTableComponent = {
             let rowIndex = index->LogicUtils.getInt("index", 0)
             getIndex(rowIndex)
 
-            let item = rowInfo->Belt.Array.get(rowIndex)->Option.getWithDefault([])
+            let item = rowInfo->Array.get(rowIndex)->Option.getOr([])
 
             let style =
               index->LogicUtils.getJsonObjectFromDict("style")->Identity.jsonToReactDOMStyle
@@ -536,7 +534,7 @@ type sortOb = {
   sortType: sortTyp,
 }
 
-let sortAtom: Recoil.recoilAtom<Js.Dict.t<sortOb>> = Recoil.atom(. "sortAtom", Dict.make())
+let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>> = Recoil.atom(. "sortAtom", Dict.make())
 
 let useSortedObj = (title: string, defaultSort) => {
   let (dict, setDict) = Recoil.useRecoilState(sortAtom)
@@ -600,8 +598,8 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
   }
   let sortedArrayByOrder = {
     let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
-      let item1 = i1->Js.Json.stringifyAny->Option.getWithDefault("")->LogicUtils.safeParse
-      let item2 = i2->Js.Json.stringifyAny->Option.getWithDefault("")->LogicUtils.safeParse
+      let item1 = i1->Js.Json.stringifyAny->Option.getOr("")->LogicUtils.safeParse
+      let item2 = i2->Js.Json.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       // flatten items and get data
 
       let val1 = item1->Js.Json.decodeObject->Option.flatMap(dict => dict->Dict.get(key))
@@ -751,8 +749,7 @@ let make = (
     (isFilterOpen, setIsFilterOpen)
   }, (isFilterOpen, setIsFilterOpen))
 
-  let heading =
-    visibleColumns->Option.getWithDefault(entity.defaultColumns)->Array.map(entity.getHeading)
+  let heading = visibleColumns->Option.getOr(entity.defaultColumns)->Array.map(entity.getHeading)
 
   if showSerialNumber {
     heading
@@ -785,7 +782,7 @@ let make = (
     if tableLocalFilter {
       let columnFilterRow =
         visibleColumns
-        ->Option.getWithDefault(entity.defaultColumns)
+        ->Option.getOr(entity.defaultColumns)
         ->Array.map(item => {
           let headingEntity = entity.getHeading(item)
           let key = headingEntity.key
@@ -802,9 +799,9 @@ let make = (
             )
           switch columToConsider {
           | Some(allCol) =>
-            newValues->Belt.Array.forEach(
+            newValues->Array.forEach(
               rows => {
-                allCol->Belt.Array.forEach(
+                allCol->Array.forEach(
                   item => {
                     let heading = {item->entity.getHeading}
                     let key = heading.key
@@ -837,29 +834,25 @@ let make = (
 
           | None => ()
           }
-          let filterValueArray = dictArrObj->Dict.get(key)->Option.getWithDefault([])
+          let filterValueArray = dictArrObj->Dict.get(key)->Option.getOr([])
           switch dataType {
           | DropDown => Table.DropDownFilter(key, filterValueArray) // TextDropDownColumn
           | LabelType | TextType => Table.TextFilter(key)
           | MoneyType | NumericType | ProgressType => {
               let newArr =
                 filterValueArray
-                ->Array.map(item => item->Js.Json.decodeNumber->Option.getWithDefault(0.))
+                ->Array.map(item => item->Js.Json.decodeNumber->Option.getOr(0.))
                 ->Js.Array2.sortInPlaceWith(LogicUtils.numericArraySortComperator)
               let lengthOfArr = newArr->Array.length
 
               if lengthOfArr >= 2 {
                 Table.Range(
                   key,
-                  newArr[0]->Option.getWithDefault(0.),
-                  newArr[lengthOfArr - 1]->Option.getWithDefault(0.),
+                  newArr[0]->Option.getOr(0.),
+                  newArr[lengthOfArr - 1]->Option.getOr(0.),
                 )
               } else if lengthOfArr >= 1 {
-                Table.Range(
-                  key,
-                  newArr[0]->Option.getWithDefault(0.),
-                  newArr[0]->Option.getWithDefault(0.),
-                )
+                Table.Range(key, newArr[0]->Option.getOr(0.), newArr[0]->Option.getOr(0.))
               } else {
                 Table.Range(key, 0.0, 0.0)
               }
@@ -929,7 +922,7 @@ let make = (
     }
     None
   }, [selectAllCheckBox])
-  let sNoArr = Dict.get(columnFilter, "s_no")->Option.getWithDefault([])
+  let sNoArr = Dict.get(columnFilter, "s_no")->Option.getOr([])
   // filtering for SNO
   let rows =
     filteredData
@@ -938,12 +931,12 @@ let make = (
       | Some(item) => {
           let visibleCell =
             visibleColumns
-            ->Option.getWithDefault(entity.defaultColumns)
+            ->Option.getOr(entity.defaultColumns)
             ->Array.map(colType => {
               entity.getCell(item, colType)
             })
-          let startPoint = sNoArr->Belt.Array.get(0)->Option.getWithDefault(1.->Js.Json.number)
-          let endPoint = sNoArr->Belt.Array.get(1)->Option.getWithDefault(1.->Js.Json.number)
+          let startPoint = sNoArr->Array.get(0)->Option.getOr(1.->Js.Json.number)
+          let endPoint = sNoArr->Array.get(1)->Option.getOr(1.->Js.Json.number)
           let jsonIndex = (index + 1)->Belt.Int.toFloat->Js.Json.number
           sNoArr->Array.length > 0
             ? {
@@ -955,7 +948,7 @@ let make = (
       | None => []
       }
       let getIdFromJson = json => {
-        let selectedPlanDict = json->Js.Json.decodeObject->Option.getWithDefault(Dict.make())
+        let selectedPlanDict = json->Js.Json.decodeObject->Option.getOr(Dict.make())
         selectedPlanDict->LogicUtils.getString("id", "")
       }
       let setIsSelected = isSelected => {
@@ -1016,8 +1009,7 @@ let make = (
 
   let dataExists = rows->Array.length > 0
   let heading = heading->Array.mapWithIndex((head, index) => {
-    let getValue = row =>
-      row->Belt.Array.get(index)->Belt.Option.mapWithDefault("", Table.getTableCellValue)
+    let getValue = row => row->Array.get(index)->Option.mapOr("", Table.getTableCellValue)
 
     let default = switch rows[0] {
     | Some(ele) => getValue(ele)

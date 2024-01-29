@@ -73,7 +73,7 @@ let make = () => {
       let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ~id=uid, ())
       let merchantDetails = await updateDetails(
         accountUrl,
-        values->getSettingsPayload(uid->Option.getWithDefault("")),
+        values->getSettingsPayload(uid->Option.getOr("")),
         Post,
         (),
       )

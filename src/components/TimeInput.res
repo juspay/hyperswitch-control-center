@@ -15,7 +15,7 @@ module OptionVals = {
       onChange
       disabled=isDisabled
       className={`dark:bg-jp-gray-lightgray_background font-medium border border-gray-400 rounded-md self-start ${cursorClass} outline-none`}>
-      {Belt.Array.make(upto, 0)
+      {Array.make(~length=upto, 0)
       ->Array.mapWithIndex((_, i) => {
         <option key={Belt.Int.toString(i)} value={Belt.Int.toString(i)}>
           {i->padNum->React.string}
@@ -43,9 +43,9 @@ let make = (
   }
   open Belt.Option
   let arr = value->String.split(":")
-  let hourVal = arr->Belt.Array.get(0)->flatMap(Belt.Int.fromString)->getWithDefault(0)
-  let minuteVal = arr->Belt.Array.get(1)->flatMap(Belt.Int.fromString)->getWithDefault(0)
-  let secondsVal = arr->Belt.Array.get(2)->flatMap(Belt.Int.fromString)->getWithDefault(0)
+  let hourVal = arr->Array.get(0)->flatMap(Belt.Int.fromString)->getWithDefault(0)
+  let minuteVal = arr->Array.get(1)->flatMap(Belt.Int.fromString)->getWithDefault(0)
+  let secondsVal = arr->Array.get(2)->flatMap(Belt.Int.fromString)->getWithDefault(0)
 
   let changeVal = React.useCallback4((index, ev: ReactEvent.Form.t) => {
     let newVal = {ev->ReactEvent.Form.target}["value"]->Belt.Int.fromString->getWithDefault(0)

@@ -1,4 +1,3 @@
-external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
 let validateConditionJson = json => {
   open LogicUtils
   let checkValue = dict => {
@@ -54,9 +53,7 @@ module CompressedView = {
           dict->getString("logical.operator", ""),
           dict->getString("real_field", ""),
           dict->getString("operator", ""),
-          dict
-          ->getOptionStrArrayFromDict("value")
-          ->Option.getWithDefault([dict->getString("value", "")]),
+          dict->getOptionStrArrayFromDict("value")->Option.getOr([dict->getString("value", "")]),
           dict->getDictfromDict("metadata")->getOptionString("key"),
         )
       })

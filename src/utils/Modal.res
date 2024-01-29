@@ -162,7 +162,7 @@ module ModalOverlay = {
     let attributeId =
       addAttributeId === ""
         ? switch modalHeading {
-          | Some(_heading) => `:${modalHeading->Option.getWithDefault("")}`
+          | Some(_heading) => `:${modalHeading->Option.getOr("")}`
           | None => ""
           }
         : `:${addAttributeId}`
