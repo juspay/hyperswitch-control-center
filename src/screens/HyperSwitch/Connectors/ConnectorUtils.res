@@ -79,6 +79,7 @@ let connectorListForLive: array<connectorName> = [
   CASHTOCODE,
   CYBERSOURCE,
   IATAPAY,
+  NMI,
   PAYME,
   TRUSTPAY,
   ZEN,
