@@ -108,6 +108,7 @@ module Details = {
     open DisputeTypes
     open DisputesUtils
     open APIUtils
+    open UIUtils
     let updateDetails = useUpdateMethod()
     let (disputeStatus, setDisputeStatus) = React.useState(_ =>
       data.dispute_status->disputeStatusVariantMapper->disputeValueBasedOnStatus
@@ -153,7 +154,7 @@ module Details = {
           </p>
           {getStatus(data)}
         </div>
-        <UIUtils.RenderIf
+        <RenderIf
           condition={disputeEvidenceUpload &&
           showDisputeInfoStatus->Array.includes(
             data.dispute_status->DisputesUtils.disputeStatusVariantMapper,
@@ -174,22 +175,22 @@ module Details = {
               buttonState={Disabled}
             />
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
       <div className="h-px w-full bg-grey-200 opacity-30" />
-      <UIUtils.RenderIf
+      <RenderIf
         condition={disputeEvidenceUpload &&
         showDisputeInfoStatus->Array.includes(
           data.dispute_status->DisputesUtils.disputeStatusVariantMapper,
         )}>
         <DisputesInfoBarComponent disputeStatus />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <FormRenderer.DesktopRow>
         <div
           className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
           {detailsFields
           ->Array.mapWithIndex((colType, i) => {
-            <UIUtils.RenderIf
+            <RenderIf
               condition={!(excludeColKeys->Array.includes(colType))} key={Belt.Int.toString(i)}>
               <div className={`flex ${widthClass} items-center`}>
                 <OrderUtils.DisplayKeyValueParams
@@ -201,14 +202,14 @@ module Details = {
                   textColor="!font-normal !text-jp-gray-700"
                 />
               </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           })
           ->React.array}
         </div>
       </FormRenderer.DesktopRow>
-      <UIUtils.RenderIf condition={children->Option.isSome}>
+      <RenderIf condition={children->Option.isSome}>
         {children->Option.getWithDefault(React.null)}
-      </UIUtils.RenderIf>
+      </RenderIf>
     </OrderUtils.Section>
   }
 }
