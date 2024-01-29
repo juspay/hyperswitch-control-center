@@ -235,7 +235,7 @@ module AttemptsSection = {
 
 module DisputesSection = {
   @react.component
-  let make = (~data: DisputesEntity.disputes) => {
+  let make = (~data: DisputeTypes.disputes) => {
     let widthClass = "w-4/12"
     <div className="flex flex-row flex-wrap">
       <div className="w-1/2 p-2">
