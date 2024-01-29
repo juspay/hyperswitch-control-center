@@ -120,7 +120,7 @@ let make = (
   // check whether month and date has value
   let getMonthFromFloat = value => {
     let valueInt = value->Belt.Float.toInt
-    months->Belt.Array.get(valueInt)->Option.getWithDefault(Jan)
+    months->Array.get(valueInt)->Option.getOr(Jan)
   }
   let getMonthInFloat = mon => {
     Array.indexOf(months, mon)->Belt.Float.fromInt
@@ -138,7 +138,7 @@ let make = (
     Js.Date.makeWithYM(~year=startYear, ~month=startMonth, ())
   )
 
-  let dummyRow = Belt.Array.make(count, 1)
+  let dummyRow = Array.make(~length=count, 1)
   <div
     className={`flex flex-1 flex-row justify-center overflow-auto select-none ${calendarContaierStyle}`}>
     {dummyRow

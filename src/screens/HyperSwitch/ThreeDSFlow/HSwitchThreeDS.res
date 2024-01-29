@@ -1,11 +1,11 @@
 open RoutingTypes
-external toWasm: Js.Dict.t<Js.Json.t> => wasmModule = "%identity"
+external toWasm: Dict.t<Js.Json.t> => wasmModule = "%identity"
 
 module ActiveRulePreview = {
   open LogicUtils
   @react.component
   let make = (~initialRule) => {
-    let ruleInfo = initialRule->Option.getWithDefault(Dict.make())
+    let ruleInfo = initialRule->Option.getOr(Dict.make())
     let name = ruleInfo->getString("name", "")
     let description = ruleInfo->getString("description", "")
 
@@ -46,7 +46,7 @@ module Configure3DSRule = {
     }, [rules])
     let addRule = (index, _copy) => {
       let existingRules = ruleInput.value->LogicUtils.getArrayFromJson([])
-      let newRule = existingRules[index]->Option.getWithDefault(Js.Json.null)
+      let newRule = existingRules[index]->Option.getOr(Js.Json.null)
       let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
@@ -60,7 +60,7 @@ module Configure3DSRule = {
     <div>
       {
         let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Array.length > 1
-        let rule = ruleInput.value->Js.Json.decodeArray->Option.getWithDefault([])
+        let rule = ruleInput.value->Js.Json.decodeArray->Option.getOr([])
         let keyExtractor = (index, _rule, isDragging) => {
           let id = {`algorithm.rules[${string_of_int(index)}]`}
           let i = 1
@@ -140,7 +140,7 @@ let make = () => {
       setInitialRule(_ => Some(intitialValue))
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+      let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
       Js.Exn.raiseError(err)
     }
   }
@@ -153,7 +153,7 @@ let make = () => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
         if err->String.includes("HE_02") {
           setShowWarning(_ => false)
           setPageView(_ => LANDING)
@@ -173,9 +173,7 @@ let make = () => {
   React.useEffect1(() => {
     let searchParams = url.search
     let filtersFromUrl =
-      LogicUtils.getDictFromUrlSearchParams(searchParams)
-      ->Dict.get("type")
-      ->Option.getWithDefault("")
+      LogicUtils.getDictFromUrlSearchParams(searchParams)->Dict.get("type")->Option.getOr("")
     setPageView(_ => filtersFromUrl->pageStateMapper)
     None
   }, [url.search])
@@ -199,7 +197,7 @@ let make = () => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => Error(err))
     }
     Js.Nullable.null

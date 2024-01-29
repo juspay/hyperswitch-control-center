@@ -36,7 +36,7 @@ module PaymentResponseHashKeyArea = {
     let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
 
     <HelperComponents.KeyAndCopyArea
-      copyValue={detail.payment_response_hash_key->Option.getWithDefault("")}
+      copyValue={detail.payment_response_hash_key->Option.getOr("")}
     />
   }
 }
@@ -401,7 +401,7 @@ module LandingPageTileForIntegrateDocs = {
     let redirect = () => {
       if customRedirection->Option.isSome {
         RescriptReactRouter.replace(
-          `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${customRedirection->Option.getWithDefault(
+          `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${customRedirection->Option.getOr(
               "",
             )}?type=${url}`,
         )
@@ -441,20 +441,20 @@ module LandingPageTileForIntegrateDocs = {
             <Icon size=35 name=headerIcon className=customIconCss />
           }}
           <UIUtils.RenderIf condition={rightIcon->Option.isSome}>
-            {rightIcon->Option.getWithDefault(React.null)}
+            {rightIcon->Option.getOr(React.null)}
           </UIUtils.RenderIf>
           {leftSection}
         </div>
         <div className="flex flex-col gap-2">
           <p className=headerTextCss> {headerText->React.string} </p>
           <UIUtils.RenderIf condition={subText->Option.isSome}>
-            <p className=subTextCss> {subText->Option.getWithDefault("")->React.string} </p>
+            <p className=subTextCss> {subText->Option.getOr("")->React.string} </p>
           </UIUtils.RenderIf>
           <div>
             <UIUtils.RenderIf condition={subTextCustomValues->Option.isSome}>
               <div className={`flex flex-col gap-3 mt-4`}>
                 {subTextCustomValues
-                ->Option.getWithDefault([])
+                ->Option.getOr([])
                 ->Array.mapWithIndex((val, index) => {
                   <div key={index->string_of_int} className=subTextCss> {val->React.string} </div>
                 })
@@ -530,30 +530,30 @@ module Section = {
                 headerIcon=subSectionValue.headerIcon
                 customIconCss=subSectionValue.customIconCss
                 url=subSectionValue.url
-                displayFrontendLang={subSectionValue.displayFrontendLang->Option.getWithDefault("")}
-                displayBackendLang={subSectionValue.displayBackendLang->Option.getWithDefault("")}
+                displayFrontendLang={subSectionValue.displayFrontendLang->Option.getOr("")}
+                displayBackendLang={subSectionValue.displayBackendLang->Option.getOr("")}
               />
             : <LandingPageTileForIntegrateDocs
                 key={index->string_of_int}
                 headerIcon=subSectionValue.headerIcon
-                headerText={subSectionValue.headerText->Option.getWithDefault("")}
+                headerText={subSectionValue.headerText->Option.getOr("")}
                 subText=subSectionValue.subText
                 buttonText=subSectionValue.buttonText
                 customIconCss=subSectionValue.customIconCss
                 url=subSectionValue.url
-                isIconImg={subSectionValue.isIconImg->Option.getWithDefault(false)}
-                imagePath={subSectionValue.imagePath->Option.getWithDefault("")}
+                isIconImg={subSectionValue.isIconImg->Option.getOr(false)}
+                imagePath={subSectionValue.imagePath->Option.getOr("")}
                 leftSection={<LanguageTag
-                  frontendLang={subSectionValue.frontEndLang->Option.getWithDefault("")}
-                  backendLang={subSectionValue.backEndLang->Option.getWithDefault("")}
+                  frontendLang={subSectionValue.frontEndLang->Option.getOr("")}
+                  backendLang={subSectionValue.backEndLang->Option.getOr("")}
                 />}
                 isFromOnboardingChecklist
                 subTextCustomValues=subSectionValue.subTextCustomValues
-                buttonType={subSectionValue.buttonType->Option.getWithDefault(Secondary)}
-                isSkipButton={subSectionValue.isSkipButton->Option.getWithDefault(false)}
-                isTileVisible={subSectionValue.isTileVisible->Option.getWithDefault(true)}
+                buttonType={subSectionValue.buttonType->Option.getOr(Secondary)}
+                isSkipButton={subSectionValue.isSkipButton->Option.getOr(false)}
+                isTileVisible={subSectionValue.isTileVisible->Option.getOr(true)}
                 rightIcon={subSectionValue.rightIcon}
-                customRedirection={customRedirection->Option.getWithDefault("")}
+                customRedirection={customRedirection->Option.getOr("")}
               />
         })
         ->React.array}

@@ -35,12 +35,10 @@ let make = (
         fill=customIconColor
         className={`fill-current ${otherClasses}`}
         width={{
-          customWidth->Option.isSome ? customWidth->Option.getWithDefault("") : string_of_int(size)
+          customWidth->Option.isSome ? customWidth->Option.getOr("") : string_of_int(size)
         } ++ "px"}
         height={{
-          customHeight->Option.isSome
-            ? customHeight->Option.getWithDefault("")
-            : string_of_int(size)
+          customHeight->Option.isSome ? customHeight->Option.getOr("") : string_of_int(size)
         } ++ "px"}>
         useUrl
       </svg>

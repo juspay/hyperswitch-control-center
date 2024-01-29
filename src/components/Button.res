@@ -385,9 +385,7 @@ let make = (
   }
 
   let buttonSize: buttonSize =
-    buttonSize->Option.getWithDefault(
-      MatchMedia.useMatchMedia("(max-width: 800px)") ? Small : Medium,
-    )
+    buttonSize->Option.getOr(MatchMedia.useMatchMedia("(max-width: 800px)") ? Small : Medium)
 
   let lengthStyle = if fullLength {
     "w-full justify-between"
@@ -422,7 +420,7 @@ let make = (
     }
   }
 
-  let heightClass = customHeightClass->Option.getWithDefault({
+  let heightClass = customHeightClass->Option.getOr({
     switch buttonSize {
     | XSmall => "h-fit"
     | Small => "h-fit"
@@ -436,7 +434,7 @@ let make = (
   | _ => "cursor-pointer"
   }
 
-  let paddingClass = customPaddingClass->Option.getWithDefault(
+  let paddingClass = customPaddingClass->Option.getOr(
     switch buttonSize {
     | XSmall => "py-3 px-4"
     | Small =>
@@ -450,7 +448,7 @@ let make = (
     },
   )
 
-  let textPaddingClass = customTextPaddingClass->Option.getWithDefault(
+  let textPaddingClass = customTextPaddingClass->Option.getOr(
     switch buttonSize {
     | XSmall => "px-1"
     | Small => "px-1"
@@ -459,7 +457,7 @@ let make = (
     },
   )
 
-  let textSize = customTextSize->Option.getWithDefault(
+  let textSize = customTextSize->Option.getOr(
     switch buttonSize {
     | XSmall => "text-fs-11"
     | Small => "text-fs-13"
@@ -471,7 +469,7 @@ let make = (
   let ellipsisClass = ellipsisOnly ? "truncate" : ""
   let ellipsisParentClass = ellipsisOnly ? "max-w-[250px] md:max-w-xs" : ""
 
-  let iconSize = customIconSize->Option.getWithDefault(
+  let iconSize = customIconSize->Option.getOr(
     switch buttonSize {
     | XSmall => 12
     | Small => 14
@@ -496,7 +494,7 @@ let make = (
   | Large => ""
   }
 
-  let iconMargin = customIconMargin->Option.getWithDefault(
+  let iconMargin = customIconMargin->Option.getOr(
     switch buttonSize {
     | XSmall
     | Small => "ml-1"
@@ -673,7 +671,7 @@ let make = (
   | _ => "text-sm font-medium leading-5"
   }
 
-  let textId = text->Option.getWithDefault("")
+  let textId = text->Option.getOr("")
   let iconId = switch leftIcon {
   | FontAwesome(iconName)
   | Euler(iconName) => iconName
@@ -695,9 +693,9 @@ let make = (
   let relativeClass = isRelative ? "relative" : ""
   let conditionalButtonStyles = `${allowButtonTextMinWidth
       ? "min-w-min"
-      : ""} ${customBackColor->Option.getWithDefault(
-      backColor,
-    )} ${customRoundedClass->Option.getWithDefault(roundedClass)}`
+      : ""} ${customBackColor->Option.getOr(backColor)} ${customRoundedClass->Option.getOr(
+      roundedClass,
+    )}`
   let customJustifyStyle = customButtonStyle->String.includes("justify") ? "" : "justify-center"
 
   <AddDataAttributes attributes=[(dataAttrKey, dataAttrStr)]>
@@ -752,7 +750,7 @@ let make = (
           if showBtnTextToolTip {
             <div className=ellipsisParentClass>
               <ToolTip
-                description={tooltipText->Option.getWithDefault("")}
+                description={tooltipText->Option.getOr("")}
                 toolTipFor=btnContent
                 contentAlign=Default
                 justifyClass="justify-start"

@@ -21,9 +21,9 @@ let make = (
   let copyValue = value->Option.isNone ? defaultValue : value
 
   <AddDataAttributes
-    attributes=[("data-editor", "Monaco Editor"), ("text", value->Option.getWithDefault(""))]>
+    attributes=[("data-editor", "Monaco Editor"), ("text", value->Option.getOr(""))]>
     <div className={`flex flex-col ${outerWidth}`}>
-      {headerComponent->Option.getWithDefault(React.null)}
+      {headerComponent->Option.getOr(React.null)}
       {showCopy ? <Clipboard.Copy data=copyValue /> : React.null}
       <MonacoEditor
         defaultLanguage

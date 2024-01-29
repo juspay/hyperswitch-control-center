@@ -159,7 +159,7 @@ module ExternalUser = {
         let extractMerchantObject =
           typedValueOfResponse
           ->Array.find(ele => ele.merchant_id === defaultMerchantId)
-          ->Option.getWithDefault({
+          ->Option.getOr({
             merchant_id: defaultMerchantId,
             merchant_name: defaultMerchantId,
           })

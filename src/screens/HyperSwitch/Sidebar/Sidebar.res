@@ -116,7 +116,7 @@ module SidebarItem = {
 
     | RemoteLink(tabOption) => {
         let {name, icon, link, access, ?remoteIcon} = tabOption
-        let (remoteUi, link) = if remoteIcon->Option.getWithDefault(false) {
+        let (remoteUi, link) = if remoteIcon->Option.getOr(false) {
           (<Icon name="external-link-alt" size=14 className="ml-3" />, link)
         } else {
           (React.null, `${link}${getSearchParamByLink(link)}`)
@@ -145,9 +145,9 @@ module SidebarItem = {
               <SidebarOption name icon isExpanded isSelected />
               <UIUtils.RenderIf condition={isExpanded}>
                 <Icon
-                  size={iconSize->Option.getWithDefault(26)}
+                  size={iconSize->Option.getOr(26)}
                   name=iconTag
-                  className={`ml-2 ${iconStyles->Option.getWithDefault("w-26 h-26")}`}
+                  className={`ml-2 ${iconStyles->Option.getOr("w-26 h-26")}`}
                 />
               </UIUtils.RenderIf>
             </div>
@@ -205,9 +205,9 @@ module NestedSidebarItem = {
                   <UIUtils.RenderIf condition={iconTag->Option.isSome && isSideBarExpanded}>
                     <div className=linkTagPadding>
                       <Icon
-                        size={iconSize->Option.getWithDefault(26)}
-                        name={iconTag->Option.getWithDefault("")}
-                        className={iconStyles->Option.getWithDefault("w-26 h-26")}
+                        size={iconSize->Option.getOr(26)}
+                        name={iconTag->Option.getOr("")}
+                        className={iconStyles->Option.getOr("w-26 h-26")}
                       />
                     </div>
                   </UIUtils.RenderIf>

@@ -102,7 +102,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong!")
+      let err = Js.Exn.message(e)->Option.getOr("Something went wrong!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -112,7 +112,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   let (verifyErrorMessage, setVerifyErrorMessage) = React.useState(_ => None)
   let (verifyDone, setVerifyDone) = React.useState(_ => ConnectorTypes.NoAttempt)
 
-  let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault("")
+  let connectorID = url.path->Belt.List.toArray->Array.get(1)->Option.getOr("")
   let checkboxText = connectorVariant->ProdOnboardingUtils.getCheckboxText
   let (
     bodyType,

@@ -50,7 +50,7 @@ module BackgroundImageWrapper = {
           ~backgroundSize=`cover`,
           (),
         )}>
-        {children->Option.getWithDefault(React.null)}
+        {children->Option.getOr(React.null)}
       </div>
     </UIUtils.RenderIf>
   }
@@ -64,16 +64,14 @@ let setMerchantDetails = (key, value) => {
   let localStorageData = getInfoFromLocalStorage(~lStorageKey="merchant")
   localStorageData->Dict.set(key, value)
 
-  "merchant"->LocalStorage.setItem(
-    localStorageData->Js.Json.stringifyAny->Option.getWithDefault(""),
-  )
+  "merchant"->LocalStorage.setItem(localStorageData->Js.Json.stringifyAny->Option.getOr(""))
 }
 
 // TODO : Remove once user-management flow introduces
 let setUserDetails = (key, value) => {
   let localStorageData = getInfoFromLocalStorage(~lStorageKey="user")
   localStorageData->Dict.set(key, value)
-  "user"->LocalStorage.setItem(localStorageData->Js.Json.stringifyAny->Option.getWithDefault(""))
+  "user"->LocalStorage.setItem(localStorageData->Js.Json.stringifyAny->Option.getOr(""))
 }
 let getSearchOptionsForProcessors = (~processorList, ~getNameFromString) => {
   let searchOptionsForProcessors =
@@ -96,7 +94,7 @@ let useMerchantDetailsValue = () =>
 let getClientCountry = clientTimeZone => {
   Country.country
   ->Array.find(item => item.timeZones->Array.find(i => i == clientTimeZone)->Option.isSome)
-  ->Option.getWithDefault(Country.defaultTimeZone)
+  ->Option.getOr(Country.defaultTimeZone)
 }
 
 let getBrowswerDetails = () => {

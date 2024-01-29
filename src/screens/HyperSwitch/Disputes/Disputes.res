@@ -4,9 +4,7 @@ open PageLoaderWrapper
 let make = () => {
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let (disputesData, setDisputesData) = React.useState(_ => [])
-  let (filteredDisputesData, setFilteredDisputesData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
-  let (searchText, setSearchText) = React.useState(_ => "")
   let fetchDetails = useGetMethod()
 
   let getDisputesList = async () => {
@@ -23,7 +21,7 @@ let make = () => {
       }
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       if err->String.includes("HE_02") {
         setScreenState(_ => Custom)
       } else {
@@ -35,20 +33,6 @@ let make = () => {
     getDisputesList()->ignore
     None
   })
-
-  // TODO: Convert it to remote filter
-  let filterLogic = ReactDebounce.useDebounced(ob => {
-    let (searchText, arr) = ob
-    let filteredList = Array.filter(arr, (ob: Js.Nullable.t<DisputesEntity.disputes>) => {
-      switch Js.Nullable.toOption(ob) {
-      | Some(obj) =>
-        String.includes(obj.payment_id->String.toLowerCase, searchText->String.toLowerCase) ||
-        String.includes(obj.dispute_id->String.toLowerCase, searchText->String.toLowerCase)
-      | None => false
-      }
-    })
-    setFilteredDisputesData(_ => filteredList)
-  }, ~wait=200)
 
   let customUI =
     <>
@@ -82,21 +66,14 @@ let make = () => {
         <LoadedTableWithCustomColumns
           title=" "
           hideTitle=true
-          actualData=filteredDisputesData
+          actualData=disputesData
           entity={DisputesEntity.disputesEntity}
           resultsPerPage=10
-          filters={<TableSearchFilter
-            data={disputesData}
-            filterLogic
-            placeholder="Search payment id or dispute id"
-            searchVal=searchText
-            setSearchVal=setSearchText
-          />}
           showSerialNumber=true
-          totalResults={filteredDisputesData->Array.length}
+          totalResults={disputesData->Array.length}
           offset
           setOffset
-          currrentFetchCount={filteredDisputesData->Array.length}
+          currrentFetchCount={disputesData->Array.length}
           defaultColumns={DisputesEntity.defaultColumns}
           customColumnMapper={DisputesEntity.disputesMapDefaultCols}
           showSerialNumberInCustomizeColumns=false

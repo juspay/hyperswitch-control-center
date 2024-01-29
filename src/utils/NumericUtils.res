@@ -3,7 +3,7 @@
 let pretty = (range: array<float>, n: int) => {
   if range->Array.length === 2 {
     let range = if range[0] === range[1] {
-      [0., range[1]->Option.getWithDefault(0.)]
+      [0., range[1]->Option.getOr(0.)]
     } else {
       range
     }
@@ -12,9 +12,7 @@ let pretty = (range: array<float>, n: int) => {
     let shrink_sml = 0.75
     let high_u_bias = 1.5
     let u5_bias = 0.5 +. 1.5 *. high_u_bias
-    let d = Js.Math.abs_float(
-      range[0]->Option.getWithDefault(0.) -. range[1]->Option.getWithDefault(0.),
-    )
+    let d = Js.Math.abs_float(range[0]->Option.getOr(0.) -. range[1]->Option.getOr(0.))
 
     let c = if Js.Math.log(d) /. Js.Math._LN10 < -2. {
       Js.Math.abs_float(d) *. shrink_sml /. min_n
@@ -44,21 +42,20 @@ let pretty = (range: array<float>, n: int) => {
     }
 
     let ticks = []
-    let i = if range[0]->Option.getWithDefault(0.) <= unit.contents {
+    let i = if range[0]->Option.getOr(0.) <= unit.contents {
       0.
     } else {
-      let i123 =
-        Js.Math.floor_float(range[0]->Option.getWithDefault(0.) /. unit.contents) *. unit.contents
+      let i123 = Js.Math.floor_float(range[0]->Option.getOr(0.) /. unit.contents) *. unit.contents
 
       i123
       ->Js.Float.toFixedWithPrecision(~digits=base_toFixed)
       ->Belt.Float.fromString
-      ->Option.getWithDefault(0.)
+      ->Option.getOr(0.)
     }
 
     let iRef = ref(i)
     let break = ref(false)
-    while iRef.contents < range[1]->Option.getWithDefault(0.) && unit.contents > 0. {
+    while iRef.contents < range[1]->Option.getOr(0.) && unit.contents > 0. {
       ticks->Array.push(iRef.contents)->ignore
       iRef := iRef.contents +. unit.contents
       if base_toFixed > 0 && unit.contents > 0. {
@@ -66,7 +63,7 @@ let pretty = (range: array<float>, n: int) => {
           iRef.contents
           ->Js.Float.toFixedWithPrecision(~digits=base_toFixed)
           ->Belt.Float.fromString
-          ->Option.getWithDefault(0.)
+          ->Option.getOr(0.)
       } else {
         break := true
       }

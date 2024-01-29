@@ -19,7 +19,7 @@ let checkBoxPropDefaultVal: checkBoxProps = {
   setSelectedData: _ => (),
 }
 
-let sortAtom: Recoil.recoilAtom<Js.Dict.t<sortOb>> = Recoil.atom(. "sortAtom", Dict.make())
+let sortAtom: Recoil.recoilAtom<Dict.t<sortOb>> = Recoil.atom(. "sortAtom", Dict.make())
 
 let backgroundClass = "bg-gray-50 dark:bg-jp-gray-darkgray_background"
 
@@ -85,8 +85,8 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
   }
   let sortedArrayByOrder = {
     let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
-      let item1 = i1->Js.Json.stringifyAny->Option.getWithDefault("")->LogicUtils.safeParse
-      let item2 = i2->Js.Json.stringifyAny->Option.getWithDefault("")->LogicUtils.safeParse
+      let item1 = i1->Js.Json.stringifyAny->Option.getOr("")->LogicUtils.safeParse
+      let item2 = i2->Js.Json.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       // flatten items and get data
 
       let val1 =
@@ -130,7 +130,7 @@ type pageDetails = {
   resultsPerPage: int,
 }
 
-let table_pageDetails: Recoil.recoilAtom<Js.Dict.t<pageDetails>> = Recoil.atom(.
+let table_pageDetails: Recoil.recoilAtom<Dict.t<pageDetails>> = Recoil.atom(.
   "table_pageDetails",
   Dict.make(),
 )
@@ -251,7 +251,7 @@ let make = (
   let (firstRender, setFirstRender) = React.useState(_ => true)
   let setPageDetails = Recoil.useSetRecoilState(table_pageDetails)
   let pageDetailDict = Recoil.useRecoilValueFromAtom(table_pageDetails)
-  let pageDetail = pageDetailDict->Dict.get(title)->Option.getWithDefault(defaultValue)
+  let pageDetail = pageDetailDict->Dict.get(title)->Option.getOr(defaultValue)
 
   let (
     selectAllCheckBox: option<TableUtils.multipleSelectRows>,
@@ -372,10 +372,9 @@ let make = (
     (isFilterOpen, setIsFilterOpen)
   }, (isFilterOpen, setIsFilterOpen))
 
-  let heading =
-    visibleColumns->Option.getWithDefault(entity.defaultColumns)->Array.map(entity.getHeading)
+  let heading = visibleColumns->Option.getOr(entity.defaultColumns)->Array.map(entity.getHeading)
 
-  let handleRemoveLines = removeVerticalLines->Option.getWithDefault(true)
+  let handleRemoveLines = removeVerticalLines->Option.getOr(true)
   if showSerialNumber {
     heading
     ->Array.unshift(
@@ -439,7 +438,7 @@ let make = (
     if tableLocalFilter {
       let columnFilterRow =
         visibleColumns
-        ->Option.getWithDefault(entity.defaultColumns)
+        ->Option.getOr(entity.defaultColumns)
         ->Array.map(item => {
           let headingEntity = entity.getHeading(item)
           let key = headingEntity.key
@@ -454,7 +453,7 @@ let make = (
 
           actualData
           ->filteredData(columnFilterCopy, visibleColumns, entity, dateFormatConvertor)
-          ->Belt.Array.forEach(
+          ->Array.forEach(
             rows => {
               switch rows->Js.Nullable.toOption {
               | Some(rows) =>
@@ -486,9 +485,7 @@ let make = (
           | LabelType | TextType => Table.TextFilter(key)
           | MoneyType | NumericType | ProgressType => {
               let newArr =
-                filterValueArray->Array.map(
-                  item => item->Js.Json.decodeNumber->Option.getWithDefault(0.),
-                )
+                filterValueArray->Array.map(item => item->Js.Json.decodeNumber->Option.getOr(0.))
 
               if newArr->Array.length >= 1 {
                 Table.Range(key, Js.Math.minMany_float(newArr), Js.Math.maxMany_float(newArr))
@@ -559,19 +556,19 @@ let make = (
     None
   }, [selectAllCheckBox])
 
-  let sNoArr = Dict.get(columnFilter, "s_no")->Option.getWithDefault([])
+  let sNoArr = Dict.get(columnFilter, "s_no")->Option.getOr([])
   // filtering for SNO
   let nullableRows = filteredData->Array.mapWithIndex((nullableItem, index) => {
     let actualRows = switch nullableItem->Js.Nullable.toOption {
     | Some(item) => {
         let visibleCell =
           visibleColumns
-          ->Option.getWithDefault(entity.defaultColumns)
+          ->Option.getOr(entity.defaultColumns)
           ->Array.map(colType => {
             entity.getCell(item, colType)
           })
-        let startPoint = sNoArr->Belt.Array.get(0)->Option.getWithDefault(1.->Js.Json.number)
-        let endPoint = sNoArr->Belt.Array.get(1)->Option.getWithDefault(1.->Js.Json.number)
+        let startPoint = sNoArr->Array.get(0)->Option.getOr(1.->Js.Json.number)
+        let endPoint = sNoArr->Array.get(1)->Option.getOr(1.->Js.Json.number)
         let jsonIndex = (index + 1)->Belt.Int.toFloat->Js.Json.number
         sNoArr->Array.length > 0
           ? {
@@ -637,8 +634,7 @@ let make = (
 
   let dataExists = rows->Array.length > 0
   let heading = heading->Array.mapWithIndex((head, index) => {
-    let getValue = row =>
-      row->Belt.Array.get(index)->Belt.Option.mapWithDefault("", Table.getTableCellValue)
+    let getValue = row => row->Array.get(index)->Option.mapOr("", Table.getTableCellValue)
 
     let default = switch rows[0] {
     | Some(ele) => getValue(ele)
@@ -925,7 +921,7 @@ let make = (
   } else {
     `${ignoreHeaderBg ? "" : backgroundClass} empty:hidden`
   }
-  let dataId = title->Js.String2.split("-")->Belt.Array.get(0)->Option.getWithDefault("")
+  let dataId = title->String.split("-")->Array.get(0)->Option.getOr("")
   <AddDataAttributes attributes=[("data-loaded-table", dataId)]>
     <div className="w-full">
       <div className=addDataAttributesClass style={ReactDOMStyle.make(~zIndex="2", ())}>

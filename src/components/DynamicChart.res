@@ -39,7 +39,7 @@ let getTimeSeriesChart = (chartEntity: chartEntity) => {
       ~endDateTime=chartEntity.end_time,
       ~cardinality=chartEntity.cardinality,
       ~mode=chartEntity.mode,
-      ~customFilter=chartEntity.customFilter->Option.getWithDefault(""),
+      ~customFilter=chartEntity.customFilter->Option.getOr(""),
       ~prefix=chartEntity.prefix,
       ~source=chartEntity.source,
       (),
@@ -63,7 +63,7 @@ let getLegendBody = (chartEntity: chartEntity) => {
       ~endDateTime=chartEntity.end_time,
       ~cardinality=chartEntity.cardinality,
       ~mode=chartEntity.mode,
-      ~customFilter=chartEntity.customFilter->Option.getWithDefault(""),
+      ~customFilter=chartEntity.customFilter->Option.getOr(""),
       ~prefix=chartEntity.prefix,
       ~source=chartEntity.source,
       (),
@@ -329,8 +329,8 @@ let make = (
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
-      let prefix = keyArr->Belt.Array.get(0)->Option.getWithDefault("")
-      let fitlerName = keyArr->Belt.Array.get(1)->Option.getWithDefault("")
+      let prefix = keyArr->Array.get(0)->Option.getOr("")
+      let fitlerName = keyArr->Array.get(1)->Option.getOr("")
 
       // when chart id is not there then there won't be any prefix so the prefix will the filter name
       if chartId === "" {
@@ -351,7 +351,7 @@ let make = (
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
-      let prefix = keyArr->Belt.Array.get(0)->Option.getWithDefault("")
+      let prefix = keyArr->Array.get(0)->Option.getOr("")
 
       if prefix === chartId && prefix !== "" {
         None
@@ -369,7 +369,7 @@ let make = (
 
   let {allFilterDimension, dateFilterKeys, currentMetrics, uriConfig, source} = entity
 
-  let enableLoaders = entity.enableLoaders->Option.getWithDefault(true)
+  let enableLoaders = entity.enableLoaders->Option.getOr(true)
 
   let entityAllMetrics = uriConfig->Array.reduce([], (acc, item) =>
     Array.concat(
@@ -387,7 +387,7 @@ let make = (
     let chartType =
       getChartCompFilters->LogicUtils.getString(
         "chartType",
-        entity.chartTypes->Belt.Array.get(0)->Option.getWithDefault(Line)->chartMapper,
+        entity.chartTypes->Array.get(0)->Option.getOr(Line)->chartMapper,
       )
     let chartTopMetric =
       getChartCompFilters->LogicUtils.getString("chartTopMetric", currentTopMatrix)
@@ -396,14 +396,14 @@ let make = (
       getChartCompFilters->LogicUtils.getString("chartBottomMetric", currentBottomMetrix)
 
     let dict = Dict.make()
-    let chartMatrixArr = entityAllMetrics->Belt.Array.map(item => item.metric_label)
+    let chartMatrixArr = entityAllMetrics->Array.map(item => item.metric_label)
 
     if cardinalityArr->Array.includes(cardinality) {
       dict->Dict.set("cardinality", cardinality)
     } else if cardinalityArr->Array.includes("TOP_5") {
       dict->Dict.set("cardinality", "TOP_5")
     } else {
-      dict->Dict.set("cardinality", cardinalityArr->Belt.Array.get(0)->Option.getWithDefault(""))
+      dict->Dict.set("cardinality", cardinalityArr->Array.get(0)->Option.getOr(""))
     }
     chartTypeArr->Array.includes(chartType)
       ? dict->Dict.set("chartType", chartType)
@@ -414,7 +414,7 @@ let make = (
     } else if chartMatrixArr->Array.includes(currentTopMatrix) {
       dict->Dict.set("chartTopMetric", currentTopMatrix)
     } else {
-      dict->Dict.set("chartTopMetric", chartMatrixArr->Belt.Array.get(0)->Option.getWithDefault(""))
+      dict->Dict.set("chartTopMetric", chartMatrixArr->Array.get(0)->Option.getOr(""))
     }
 
     if chartMatrixArr->Array.includes(chartBottomMetric) {
@@ -422,10 +422,7 @@ let make = (
     } else if chartMatrixArr->Array.includes(currentBottomMetrix) {
       dict->Dict.set("chartBottomMetric", currentBottomMetrix)
     } else {
-      dict->Dict.set(
-        "chartBottomMetric",
-        chartMatrixArr->Belt.Array.get(0)->Option.getWithDefault(""),
-      )
+      dict->Dict.set("chartBottomMetric", chartMatrixArr->Array.get(0)->Option.getOr(""))
     }
 
     updateChartCompFilters(dict)
@@ -541,13 +538,13 @@ let make = (
 
   React.useEffect2(() => {
     setGranularity(prev => {
-      current_granularity->Array.includes(prev->Option.getWithDefault(""))
+      current_granularity->Array.includes(prev->Option.getOr(""))
         ? prev
-        : current_granularity->Belt.Array.get(0)
+        : current_granularity->Array.get(0)
     })
     None
   }, (startTimeFromUrl, endTimeFromUrl))
-  let selectedTabStr = selectedTab->Option.getWithDefault([])->Array.joinWith("")
+  let selectedTabStr = selectedTab->Option.getOr([])->Array.joinWith("")
 
   let updatedChartConfigArr = React.useMemo7(() => {
     uriConfig->Array.map(item => {
@@ -563,8 +560,7 @@ let make = (
           },
         )
         ->Dict.fromArray
-      let activeTab =
-        selectedTab->Option.getWithDefault([])->Belt.Array.get(0)->Option.getWithDefault("")
+      let activeTab = selectedTab->Option.getOr([])->Array.get(0)->Option.getOr("")
       let granularity = if activeTab === "run_date" {
         "G_ONEHOUR"->Some
       } else if activeTab === "run_week" {
@@ -614,9 +610,7 @@ let make = (
             url: item.uri,
             body: item.timeSeriesBody(chartconfig),
             legendBody: ?(
-              chartconfig.groupByNames->Option.getWithDefault([])->Array.length === 1
-                ? legendBody
-                : None
+              chartconfig.groupByNames->Option.getOr([])->Array.length === 1 ? legendBody : None
             ),
             metrics: item.metrics,
             timeCol: item.timeCol,
@@ -633,12 +627,12 @@ let make = (
   let (groupKeyFromTab, titleKey) = React.useMemo1(() => {
     switch (tabTitleMapper, selectedTab) {
     | (Some(dict), Some(arr)) => {
-        let groupKey = arr->Belt.Array.get(0)->Option.getWithDefault("")
-        (groupKey, dict->Dict.get(groupKey)->Option.getWithDefault(groupKey))
+        let groupKey = arr->Array.get(0)->Option.getOr("")
+        (groupKey, dict->Dict.get(groupKey)->Option.getOr(groupKey))
       }
     | (None, Some(arr)) => (
-        arr->Belt.Array.get(0)->Option.getWithDefault(""),
-        arr->Belt.Array.get(0)->Option.getWithDefault(""),
+        arr->Array.get(0)->Option.getOr(""),
+        arr->Array.get(0)->Option.getOr(""),
       )
     | _ => ("", "")
     }
@@ -647,7 +641,7 @@ let make = (
   let setRawChartData = (data: array<urlToDataMap>) => {
     let chartData = data->Array.map(mappedData => {
       let rawdata = mappedData.rawData->Array.map(item => {
-        let dict = item->Js.Json.decodeObject->Option.getWithDefault(Dict.make())
+        let dict = item->Js.Json.decodeObject->Option.getOr(Dict.make())
 
         switch dict->Dict.get("time_range") {
         | Some(jsonObj) => {
@@ -655,7 +649,7 @@ let make = (
 
             switch timeDict->Dict.get("startTime") {
             | Some(startValue) => {
-                let sTime = startValue->Js.Json.decodeString->Option.getWithDefault("")
+                let sTime = startValue->Js.Json.decodeString->Option.getOr("")
 
                 if sTime->String.length > 0 {
                   let {date, hour, minute, month, second, year} =
@@ -674,14 +668,14 @@ let make = (
         }
 
         selectedTab
-        ->Option.getWithDefault([])
+        ->Option.getOr([])
         ->Array.forEach(
           tabName => {
             let metric =
               Dict.get(dict, tabName)
-              ->Option.getWithDefault(""->Js.Json.string)
+              ->Option.getOr(""->Js.Json.string)
               ->Js.Json.decodeString
-              ->Option.getWithDefault("")
+              ->Option.getOr("")
             let label = metric == "" ? "other" : metric
 
             Dict.set(dict, tabName, label->Js.Json.string)
@@ -691,9 +685,9 @@ let make = (
                 if key->String.includes("amount") {
                   let amount =
                     Dict.get(dict, key)
-                    ->Option.getWithDefault(Js.Json.number(0.0))
+                    ->Option.getOr(Js.Json.number(0.0))
                     ->Js.Json.decodeNumber
-                    ->Option.getWithDefault(0.0)
+                    ->Option.getOr(0.0)
 
                   let amount = (amount /. 100.0)->Js.Float.toFixedWithPrecision(~digits=2)
 
@@ -742,13 +736,13 @@ let make = (
     let chartType =
       getChartCompFilters->LogicUtils.getString(
         "chartType",
-        entity.chartTypes->Belt.Array.get(0)->Option.getWithDefault(Line)->chartMapper,
+        entity.chartTypes->Array.get(0)->Option.getOr(Line)->chartMapper,
       )
     if (
       startTimeFromUrl !== "" &&
       endTimeFilterKey !== "" &&
       (granularity->Option.isSome || chartType !== "Line Chart") &&
-      current_granularity->Array.includes(granularity->Option.getWithDefault(""))
+      current_granularity->Array.includes(granularity->Option.getOr(""))
     ) {
       setChartLoading(_ => enableLoaders)
       fetchChartData(updatedChartBody, setRawChartData)
@@ -867,7 +861,7 @@ let make = (
                 } else if isExpandedUpper {
                   switch entityAllMetrics
                   ->Array.filter(item => item.metric_label === chartTopMetricFromUrl)
-                  ->Belt.Array.get(0) {
+                  ->Array.get(0) {
                   | Some(selectedMetrics) =>
                     let metricsUri = uriConfig->Array.find(uriMetrics => {
                       uriMetrics.metrics
@@ -877,7 +871,7 @@ let make = (
                     let (data, legendData, timeCol) = switch metricsUri {
                     | Some(val) =>
                       switch rawChartData
-                      ->Option.getWithDefault([])
+                      ->Option.getOr([])
                       ->Array.find(item => item.metricsUrl === val.uri) {
                       | Some(dataVal) => (dataVal.rawData, dataVal.legendData, val.timeCol)
                       | None => ([], [], "")
@@ -963,7 +957,7 @@ let make = (
       {if enableBottomChart {
         switch entityAllMetrics
         ->Array.filter(item => item.metric_label === chartBottomMetricFromUrl)
-        ->Belt.Array.get(0) {
+        ->Array.get(0) {
         | Some(selectedMetrics) =>
           let metricsUri = uriConfig->Array.find(uriMetrics => {
             uriMetrics.metrics
@@ -972,9 +966,7 @@ let make = (
           })
           let (data, legendData, timeCol) = switch metricsUri {
           | Some(val) =>
-            switch rawChartData
-            ->Option.getWithDefault([])
-            ->Array.find(item => item.metricsUrl === val.uri) {
+            switch rawChartData->Option.getOr([])->Array.find(item => item.metricsUrl === val.uri) {
             | Some(dataVal) => (dataVal.rawData, dataVal.legendData, val.timeCol)
             | None => ([], [], "")
             }
