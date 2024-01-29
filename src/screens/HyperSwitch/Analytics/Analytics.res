@@ -318,7 +318,7 @@ module TableWrapper = {
         )
         ->Array.get(0)
       })
-      ->Belt.Array.concat(allColumns)
+      ->Array.concat(allColumns)
     }, [activeTabStr])
 
     let newAllCols = React.useMemo1(() => {
@@ -327,7 +327,7 @@ module TableWrapper = {
         let val = item->getHeading
         activeTab->Option.getOr([])->Array.includes(val.key) ? Some(item) : None
       })
-      ->Belt.Array.concat(allColumns)
+      ->Array.concat(allColumns)
     }, [activeTabStr])
 
     let transactionTableDefaultCols = React.useMemo2(() => {

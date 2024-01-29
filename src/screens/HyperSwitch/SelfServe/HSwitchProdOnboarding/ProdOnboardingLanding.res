@@ -177,7 +177,7 @@ let make = () => {
       if setupCompleteResponse->getDictFromJsonObject->getBool("SetupComplete", false) {
         setDashboardPageState(_ => #HOME)
         let baseUrlPath = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${routerUrl.path
-          ->Belt.List.toArray
+          ->List.toArray
           ->Array.joinWith("/")}`
         routerUrl.search->String.length > 0
           ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)

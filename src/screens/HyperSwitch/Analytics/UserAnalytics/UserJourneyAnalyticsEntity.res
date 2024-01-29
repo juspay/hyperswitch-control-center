@@ -22,10 +22,9 @@ let singleStateSeriesInitialValue = {
 }
 
 let singleStatItemToObjMapper = json => {
-  open Belt.Option
   json
   ->Js.Json.decodeObject
-  ->map(dict => {
+  ->Option.map(dict => {
     payment_attempts: dict->getInt("payment_attempts", 0),
     sdk_rendered_count: dict->getInt("sdk_rendered_count", 0),
     average_payment_time: dict->getFloat("average_payment_time", 0.0) /. 1000.,
@@ -36,16 +35,15 @@ let singleStatItemToObjMapper = json => {
 }
 
 let singleStateSeriesItemToObjMapper = json => {
-  open Belt.Option
   json
   ->Js.Json.decodeObject
-  ->map(dict => {
+  ->Option.map(dict => {
     payment_attempts: dict->getInt("payment_attempts", 0),
     time_series: dict->getString("time_bucket", ""),
     sdk_rendered_count: dict->getInt("sdk_rendered_count", 0),
     average_payment_time: dict->getFloat("average_payment_time", 0.0)->setPrecision() /. 1000.,
   })
-  ->getWithDefault({
+  ->Option.getOr({
     singleStateSeriesInitialValue
   })
 }

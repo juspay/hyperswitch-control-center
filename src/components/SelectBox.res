@@ -596,8 +596,8 @@ module BaseSelect = {
         })
 
     let searchRef = React.useRef(Js.Nullable.null)
-    let selectBtnRef = insertselectBtnRef->Belt.Option.map(ReactDOM.Ref.callbackDomRef)
-    let clearBtnRef = insertclearBtnRef->Belt.Option.map(ReactDOM.Ref.callbackDomRef)
+    let selectBtnRef = insertselectBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
+    let clearBtnRef = insertclearBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
     let (isChooseAllToggleSelected, setChooseAllToggleSelected) = React.useState(() => false)
     let gapClass = switch optionRigthElement {
     | Some(_) => "flex gap-4"
@@ -1656,24 +1656,22 @@ module BaseDropdown = {
     }
 
     let allSellectedOptions = React.useMemo2(() => {
-      open Belt.Option
       newInputSelect.value
       ->Js.Json.decodeArray
-      ->getWithDefault([])
+      ->Option.getOr([])
       ->Belt.Array.keepMap(Js.Json.decodeString)
       ->Belt.Array.keepMap(str => {
-        transformedOptions->Array.find(x => x.value == str)->map(x => x.label)
+        transformedOptions->Array.find(x => x.value == str)->Option.map(x => x.label)
       })
       ->Array.joinWith(", ")
       ->LogicUtils.getNonEmptyString
-      ->getWithDefault(buttonText)
+      ->Option.getOr(buttonText)
     }, (transformedOptions, newInputSelect.value))
 
     let title = showAllSelectedOptions ? allSellectedOptions : buttonText
 
     let badgeForSelect = React.useMemo1((): Button.badge => {
-      open Belt.Option
-      let count = newInputSelect.value->Js.Json.decodeArray->getWithDefault([])->Array.length
+      let count = newInputSelect.value->Js.Json.decodeArray->Option.getOr([])->Array.length
       let condition = count > 1
 
       {

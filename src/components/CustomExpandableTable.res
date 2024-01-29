@@ -57,7 +57,7 @@ let make = (
     switch setFilterObj {
     | Some(fn) =>
       fn((prevFilterObj: option<array<filterObject>>) => {
-        prevFilterObj->Belt.Option.map(prevObj => {
+        prevFilterObj->Option.map(prevObj => {
           prevObj->Array.map(
             obj => {
               if obj.key === string_of_int(i) {

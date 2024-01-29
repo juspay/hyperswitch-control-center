@@ -141,11 +141,9 @@ let getArrayFromDict = (dict, key, default) => {
 }
 
 let getArrayDataFromJson = (json, itemToObjMapper) => {
-  open Belt.Option
-
   json
   ->Js.Json.decodeArray
-  ->getWithDefault([])
+  ->Option.getOr([])
   ->Belt.Array.keepMap(Js.Json.decodeObject)
   ->Array.map(itemToObjMapper)
 }
@@ -161,11 +159,11 @@ let getStrArrayFromJsonArray = jsonArr => {
 }
 
 let getStrArryFromJson = arr => {
-  arr->Js.Json.decodeArray->Belt.Option.map(getStrArrayFromJsonArray)->Option.getOr([])
+  arr->Js.Json.decodeArray->Option.map(getStrArrayFromJsonArray)->Option.getOr([])
 }
 
 let getOptionStrArrayFromJson = json => {
-  json->Js.Json.decodeArray->Belt.Option.map(getStrArrayFromJsonArray)
+  json->Js.Json.decodeArray->Option.map(getStrArrayFromJsonArray)
 }
 
 let getStrArrayFromDict = (dict, key, default) => {
@@ -289,10 +287,7 @@ let getOptionFloat = (dict, key) => {
 }
 
 let getFloat = (dict, key, default) => {
-  dict
-  ->Dict.get(key)
-  ->Belt.Option.map(json => getFloatFromJson(json, default))
-  ->Option.getOr(default)
+  dict->Dict.get(key)->Option.map(json => getFloatFromJson(json, default))->Option.getOr(default)
 }
 
 let getObj = (dict, key, default) => {
@@ -543,7 +538,7 @@ let getObjectArrayFromJson = json => {
 }
 
 let getListHead = (~default="", list) => {
-  list->Belt.List.head->Option.getOr(default)
+  list->List.head->Option.getOr(default)
 }
 
 let dataMerge = (~dataArr: array<array<Js.Json.t>>, ~dictKey: array<string>) => {

@@ -824,7 +824,7 @@ let make = (
                       convertStrCellToFloat(dataType, "")
                     }
                     switch dictArrObj->Dict.get(key) {
-                    | Some(arr) => Dict.set(dictArrObj, key, Belt.Array.concat(arr, [value]))
+                    | Some(arr) => Dict.set(dictArrObj, key, Array.concat(arr, [value]))
                     | None => Dict.set(dictArrObj, key, [value])
                     }
                   },

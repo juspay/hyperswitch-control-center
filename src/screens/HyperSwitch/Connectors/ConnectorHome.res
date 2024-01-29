@@ -59,7 +59,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   open APIUtils
   let url = RescriptReactRouter.useUrl()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let connectorID = url.path->Belt.List.toArray->Array.get(1)->Option.getOr("")
+  let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)

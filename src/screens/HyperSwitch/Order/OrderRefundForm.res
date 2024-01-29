@@ -66,7 +66,7 @@ let make = (
     let valuesDict =
       values
       ->Js.Json.decodeObject
-      ->Belt.Option.map(Dict.toArray)
+      ->Option.map(Dict.toArray)
       ->Option.getOr([])
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry

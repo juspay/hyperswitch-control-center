@@ -767,7 +767,7 @@ let make = (
     let finalFieldList = selectedFiltersList->Array.filter(val => {
       val.inputNames
       ->Array.get(0)
-      ->Belt.Option.map(name => !Array.includes(toBeRemoved, name))
+      ->Option.map(name => !Array.includes(toBeRemoved, name))
       ->Option.getOr(false)
     })
     let filtersAfterRemoving =
@@ -776,7 +776,7 @@ let make = (
     let newValueJson =
       initialValueJson
       ->Js.Json.decodeObject
-      ->Belt.Option.map(Dict.toArray)
+      ->Option.map(Dict.toArray)
       ->Option.getOr([])
       ->Array.filter(entry => {
         let (key, _value) = entry

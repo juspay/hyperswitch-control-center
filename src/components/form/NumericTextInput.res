@@ -100,7 +100,7 @@ let make = (
         prevLocalStr
         ->Js.Json.decodeString
         ->Option.flatMap(Belt.Float.fromString)
-        ->Belt.Option.map(Js.Json.number)
+        ->Option.map(Js.Json.number)
         ->Option.getOr(Js.Json.null)
       if input.value === numericPrevLocalValue {
         prevLocalStr

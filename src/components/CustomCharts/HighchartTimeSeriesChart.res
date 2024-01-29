@@ -622,7 +622,7 @@ module LineChart1D = {
                   let positions = NumericUtils.pretty([lower_bound, upper_bound], 5)
 
                   let positionArr =
-                    Belt.Array.concat(positions, [threshold])->Js.Array2.sortInPlaceWith(
+                    Array.concat(positions, [threshold])->Js.Array2.sortInPlaceWith(
                       numericArraySortComperator,
                     )
                   positionArr

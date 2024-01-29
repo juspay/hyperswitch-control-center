@@ -190,7 +190,7 @@ let legendTypeBasedOnMetric = (metric_type: dropDownMetricType) => {
 }
 let appendToDictValue = (dict, key, value) => {
   let updatedValue = switch dict->Dict.get(key) {
-  | Some(val) => Belt.Array.concat(val, [value])
+  | Some(val) => Array.concat(val, [value])
   | None => [value]
   }
   dict->Dict.set(key, updatedValue)
@@ -531,9 +531,7 @@ let legendClickItem = (s: Highcharts.legendItem, e, setState) => {
     if x === legendItemAsBool(s) {
       setState(prev => {
         let value =
-          prev->Array.includes(x)
-            ? prev->Array.filter(item => item !== x)
-            : Belt.Array.concat(prev, [x])
+          prev->Array.includes(x) ? prev->Array.filter(item => item !== x) : Array.concat(prev, [x])
 
         if value->Array.length === 0 {
           Array.forEach(

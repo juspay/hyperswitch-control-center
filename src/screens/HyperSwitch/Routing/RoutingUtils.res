@@ -137,7 +137,7 @@ let getGatewayTypes = (arr: array<Js.Json.t>) => {
 
 // Advanced
 let valueTypeMapper = dict => {
-  let value = switch Dict.get(dict, "value")->Belt.Option.map(Js.Json.classify) {
+  let value = switch Dict.get(dict, "value")->Option.map(Js.Json.classify) {
   | Some(JSONArray(arr)) => StringArray(arr->getStrArrayFromJsonArray)
   | Some(JSONString(st)) => String(st)
   | Some(JSONNumber(num)) => Int(num->Belt.Float.toInt)

@@ -260,10 +260,9 @@ let singleStateSeriesInitialValue = {
 }
 
 let singleStateItemToObjMapper = json => {
-  open Belt.Option
   json
   ->Js.Json.decodeObject
-  ->map(dict => {
+  ->Option.map(dict => {
     payment_success_rate: dict->getFloat("payment_success_rate", 0.0),
     payment_count: dict->getInt("payment_count", 0),
     payment_success_count: dict->getInt("payment_success_count", 0),
@@ -279,10 +278,9 @@ let singleStateItemToObjMapper = json => {
 }
 
 let singleStateSeriesItemToObjMapper = json => {
-  open Belt.Option
   json
   ->Js.Json.decodeObject
-  ->map(dict => {
+  ->Option.map(dict => {
     payment_success_rate: dict->getFloat("payment_success_rate", 0.0)->setPrecision(),
     payment_count: dict->getInt("payment_count", 0),
     payment_success_count: dict->getInt("payment_success_count", 0),
@@ -293,7 +291,7 @@ let singleStateSeriesItemToObjMapper = json => {
     retries_amount_processe: dict->getFloat("retries_amount_processed", 0.0),
     connector_success_rate: dict->getFloat("connector_success_rate", 0.0),
   })
-  ->getWithDefault({
+  ->Option.getOr({
     singleStateSeriesInitialValue
   })
 }
