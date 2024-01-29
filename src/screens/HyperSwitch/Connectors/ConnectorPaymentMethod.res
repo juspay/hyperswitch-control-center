@@ -28,7 +28,7 @@ let make = (
   React.useEffect1(() => {
     setScreenState(_ => Loading)
     initialValues
-    ->ConnectorUtils.getConnectorPaymentMethodDetails(
+    ->getConnectorPaymentMethodDetails(
       setPaymentMethods,
       setMetaData,
       setScreenState,
@@ -52,7 +52,7 @@ let make = (
       let body =
         constructConnectorRequestBody(obj, initialValues)->ignoreFields(
           connectorID->Option.getWithDefault(""),
-          ConnectorUtils.connectorIgnoredField,
+          connectorIgnoredField,
         )
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID, ())
       let response = await updateAPIHook(connectorUrl, body, Post, ())
