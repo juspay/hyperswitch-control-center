@@ -165,41 +165,6 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     }
   }
 
-  // let getDetails1 = async () => {
-  //   try {
-  //     setScreenState(_ => Loading)
-  //     if connector->getConnectorNameTypeFromString == PAYPAL {
-  //       setSetupAccountStatus(._ => PayPalFlowTypes.Connect_paypal_landing)
-  //     }
-
-  //     if isRedirectedFromPaypalModal {
-  //       await getPayPalStatus()
-  //     } else {
-  //       setCurrentStep(_ =>
-  //         connectorListWithAutomaticFlow->Js.Array2.includes(
-  //           connector->ConnectorUtils.getConnectorNameTypeFromString,
-  //         )
-  //           ? ConnectorTypes.AutomaticFlow
-  //           : ConnectorTypes.IntegFields
-  //       )
-  //     }
-
-  //     if isUpdateFlow {
-  //       await getConnectorDetails()
-  //       if !(isSimplifiedPayPalFlow && isRedirectedFromPaypalModal) {
-  //         setCurrentStep(_ => Preview)
-  //       }
-  //     }
-
-  //     setScreenState(_ => Success)
-  //   } catch {
-  //   | Js.Exn.Error(e) => {
-  //       let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
-  //       setScreenState(_ => Error(err))
-  //     }
-  //   }
-  // }
-
   React.useEffect1(() => {
     if connector->String.length > 0 {
       getDetails()->ignore

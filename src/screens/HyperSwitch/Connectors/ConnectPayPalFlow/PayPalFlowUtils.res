@@ -222,12 +222,14 @@ let payPalLogics = async (
       ->Dict.get("is_simplified_paypal")
       ->Option.getWithDefault("false")
       ->getBoolFromString(false)
+
     let isRedirectedFromPaypalModal =
       url.search
       ->getDictFromUrlSearchParams
       ->Dict.get("is_back")
       ->Option.getWithDefault("false")
       ->getBoolFromString(false)
+
     setSetupAccountStatus(._ => PayPalFlowTypes.Connect_paypal_landing)
     if isRedirectedFromPaypalModal {
       await getPayPalStatus()
