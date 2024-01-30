@@ -26,7 +26,6 @@ let make = (
 ) => {
   let (list, setList) = React.useState(_ => listItems)
   let reorder = (currentState, startIndex, endIndex) => {
-    Js.log("reorder trigger")
     if startIndex !== endIndex {
       let oldStateArray = Array.copy(currentState)
       let removed = Js.Array.removeCountInPlace(~pos=startIndex, ~count=1, oldStateArray)
