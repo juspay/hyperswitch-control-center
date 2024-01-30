@@ -241,7 +241,9 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
               <Icon name="external-link-alt" size=14 className="ml-2" />
             </a>
           </UIUtils.RenderIf>
-          <FormRenderer.SubmitButton loadingText="Processing..." text=buttonText />
+          <AddDataAttributes attributes=[("data-testid", "connector-submit-button")]>
+            <FormRenderer.SubmitButton loadingText="Processing..." text=buttonText />
+          </AddDataAttributes>
         </div>
       </div>
       <div className="flex flex-col gap-2 p-2 md:p-10">

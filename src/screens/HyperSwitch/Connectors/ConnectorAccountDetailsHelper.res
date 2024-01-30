@@ -115,35 +115,37 @@ module RenderConnectorInputFields = {
       let label = details->getString(field, "")
       let formName = isLabelNested ? `${name}.${field}` : name
       <UIUtils.RenderIf condition={label->String.length > 0} key={i->string_of_int}>
-        <div key={label}>
-          <FormRenderer.FieldRenderer
-            labelClass="font-semibold !text-hyperswitch_black"
-            field={switch (connector, field) {
-            | (BRAINTREE, "merchant_config_currency") => currencyField(~name=formName, ())
-            | _ =>
-              inputField(
-                ~name=formName,
-                ~field,
-                ~label,
-                ~connector,
-                ~checkRequiredFields,
-                ~getPlaceholder,
-                ~disabled,
-                ~description,
-                (),
-              )
-            }}
-          />
-          <ErrorValidation
-            fieldName=formName
-            validate={validate(
-              ~selectedConnector,
-              ~dict=details,
-              ~fieldName=formName,
-              ~isLiveMode={featureFlagDetails.isLiveMode},
-            )}
-          />
-        </div>
+        <AddDataAttributes attributes=[("data-testid", label->titleToSnake->String.toLowerCase)]>
+          <div key={label}>
+            <FormRenderer.FieldRenderer
+              labelClass="font-semibold !text-hyperswitch_black"
+              field={switch (connector, field) {
+              | (BRAINTREE, "merchant_config_currency") => currencyField(~name=formName, ())
+              | _ =>
+                inputField(
+                  ~name=formName,
+                  ~field,
+                  ~label,
+                  ~connector,
+                  ~checkRequiredFields,
+                  ~getPlaceholder,
+                  ~disabled,
+                  ~description,
+                  (),
+                )
+              }}
+            />
+            <ErrorValidation
+              fieldName=formName
+              validate={validate(
+                ~selectedConnector,
+                ~dict=details,
+                ~fieldName=formName,
+                ~isLiveMode={featureFlagDetails.isLiveMode},
+              )}
+            />
+          </div>
+        </AddDataAttributes>
       </UIUtils.RenderIf>
     })
     ->React.array

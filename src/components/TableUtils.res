@@ -681,19 +681,28 @@ module TableCell = {
   ) => {
     switch cell {
     | Label(x) =>
-      <LabelCell
-        labelColor=x.color text=x.title showIcon=?{x.showIcon} ?labelMargin highlightText fontStyle
-      />
+      <AddDataAttributes attributes=[("data-testid", x.title->String.toLowerCase)]>
+        <LabelCell
+          labelColor=x.color
+          text=x.title
+          showIcon=?{x.showIcon}
+          ?labelMargin
+          highlightText
+          fontStyle
+        />
+      </AddDataAttributes>
 
     | Text(x) | DropDown(x) => {
         let x = x === "" ? "NA" : x
-        <AddDataAttributes attributes=[("data-desc", x)]>
+        <AddDataAttributes attributes=[("data-desc", x), ("data-testid", x->String.toLowerCase)]>
           <div> {highlightedText(x, highlightText)} </div>
         </AddDataAttributes>
       }
 
     | EllipsisText(text, width) =>
-      <EllipsisText text width highlightText isEllipsisTextRelative ellipseClass />
+      <AddDataAttributes attributes=[("data-testid", text->String.toLowerCase)]>
+        <EllipsisText text width highlightText isEllipsisTextRelative ellipseClass />
+      </AddDataAttributes>
     | TrimmedText(text, width) => <TrimmedText text width highlightText hideShowMore />
     | Currency(amount, currency) =>
       <MoneyCell amount currency ?textAlign fontBold customMoneyStyle />
