@@ -19,7 +19,7 @@ module RefundInfo = {
         customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5`}>
         <div className="flex items-center">
           <div className="font-bold text-4xl m-3">
-            {`${(data.amount /. 100.00)->Belt.Float.toString} ${data.currency} `->React.string}
+            {`${(data.amount /. 100.00)->Float.toString} ${data.currency} `->React.string}
           </div>
           {getStatus(data)}
         </div>

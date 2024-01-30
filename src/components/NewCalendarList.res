@@ -41,7 +41,7 @@ let make = (
   React.useEffect2(() => {
     let fromDateJs = fromDate->DayJs.getDayJsForString
     let toDateJs = toDate->DayJs.getDayJsForString
-    let permittedMaxYears = startYear->Belt.Float.toInt + 10
+    let permittedMaxYears = startYear->Float.toInt + 10
     let updatedFromDate =
       fromDate != "" &&
       fromDate->String.length >= 5 &&
@@ -119,17 +119,17 @@ let make = (
   let _ = onDateClick
   // check whether month and date has value
   let getMonthFromFloat = value => {
-    let valueInt = value->Belt.Float.toInt
+    let valueInt = value->Float.toInt
     months->Array.get(valueInt)->Option.getOr(Jan)
   }
   let getMonthInFloat = mon => {
-    Array.indexOf(months, mon)->Belt.Float.fromInt
+    Array.indexOf(months, mon)->Float.fromInt
   }
 
   let startMonth = switch month {
-  | Some(m) => Int.toFloat(Belt.Float.toInt(getMonthInFloat(m)))
+  | Some(m) => Int.toFloat(Float.toInt(getMonthInFloat(m)))
   | None => {
-      let tMonth = Int.toFloat(Belt.Float.toInt(Js.Date.getMonth(Js.Date.make())))
+      let tMonth = Int.toFloat(Float.toInt(Js.Date.getMonth(Js.Date.make())))
       disableFutureDates && count > 1 ? tMonth -. 1.0 : tMonth
     }
   }
@@ -146,7 +146,7 @@ let make = (
       let currDateTemp = Js.Date.fromFloat(Js.Date.valueOf(currDateIm))
       let tempDate = Js.Date.setMonth(
         currDateTemp,
-        Int.toFloat(Belt.Float.toInt(Js.Date.getMonth(currDateTemp)) + i),
+        Int.toFloat(Float.toInt(Js.Date.getMonth(currDateTemp)) + i),
       )
       let tempMonth = if disableFutureDates {
         (Js.Date.fromFloat(tempDate)->DayJs.getDayJsForJsDate).toString(.)
@@ -205,7 +205,7 @@ let make = (
         <NewCalendar
           key={string_of_int(i)}
           month={getMonthFromFloat(tempMonth)}
-          year={Belt.Float.toInt(tempYear)}
+          year={Float.toInt(tempYear)}
           showTitle=false
           hoverdDate
           setHoverdDate

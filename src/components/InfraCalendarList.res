@@ -4,7 +4,7 @@ external ffInputToSelectInput: ReactFinalForm.fieldRenderPropsInput => ReactFina
 
 let startYear = ref(2016)
 let years = []
-while Js.Date.make()->Js.Date.getFullYear->Belt.Float.toInt >= startYear.contents {
+while Js.Date.make()->Js.Date.getFullYear->Float.toInt >= startYear.contents {
   years->Array.push(startYear.contents)->ignore
   startYear := startYear.contents + 1
 }
@@ -43,7 +43,7 @@ let getMonthInStr = (mon: InfraCalendar.month) => {
 }
 
 let getMonthFromFloat = value => {
-  let valueInt = value->Belt.Float.toInt
+  let valueInt = value->Float.toInt
   months[valueInt]->Option.getOr(Jan)
 }
 module YearItem = {
@@ -65,14 +65,14 @@ module YearItem = {
     }, [isSelected])
 
     <li
-      className={`p-2 ${year === tempYear->Belt.Float.toInt
+      className={`p-2 ${year === tempYear->Float.toInt
           ? "bg-blue-950 text-white"
           : "dark:hover:bg-jp-gray-900 hover:bg-jp-gray-100"} cursor-pointer bg-opacity-100`}
       value={year->Int.toString}
       ref={yearRef->ReactDOM.Ref.domRef}
       onClick={e => {
         let tar: float = ReactEvent.Mouse.currentTarget(e)["value"]
-        let yearDiff = (tar -. tempYear)->Belt.Float.toInt
+        let yearDiff = (tar -. tempYear)->Float.toInt
         if yearDiff !== 0 {
           handleChangeMonthBy(yearDiff * 12)
           setCurrDate(_ => Js.Date.makeWithYM(~year=tar, ~month=tempMonth, ()))
@@ -112,14 +112,14 @@ module MonthItem = {
       value={index->Int.toString}
       onClick={e => {
         let tar: float = ReactEvent.Mouse.currentTarget(e)["value"]
-        let monthDiff = (tar -. tempMonth)->Belt.Float.toInt
+        let monthDiff = (tar -. tempMonth)->Float.toInt
         if monthDiff !== 0 {
           handleChangeMonthBy(monthDiff)
           setCurrDate(_ => Js.Date.makeWithYM(~year=tempYear, ~month=tar, ()))
         }
       }}
       ref={monthRef->ReactDOM.Ref.domRef}
-      className={`p-2 px-4 ${index === tempMonth->Belt.Float.toInt
+      className={`p-2 px-4 ${index === tempMonth->Float.toInt
           ? "bg-blue-950 text-white"
           : "dark:hover:bg-jp-gray-900 hover:bg-jp-gray-100"}  cursor-pointer`}>
       {mon->getMonthInStr->String.replaceRegExp(%re("/,/g"), "")->React.string}
@@ -150,7 +150,7 @@ let make = (
       let currDateTemp = Js.Date.fromFloat(Js.Date.valueOf(currDateIm))
       let tempDate = Js.Date.setMonth(
         currDateTemp,
-        Int.toFloat(Belt.Float.toInt(Js.Date.getMonth(currDateTemp))),
+        Int.toFloat(Float.toInt(Js.Date.getMonth(currDateTemp))),
       )
       let tempMonth = Js.Date.getMonth(Js.Date.fromFloat(tempDate))
       let tempYear = Js.Date.getFullYear(Js.Date.fromFloat(tempDate))
@@ -185,7 +185,7 @@ let make = (
             </div>
           : <InfraCalendar
               month={getMonthFromFloat(tempMonth)}
-              year={Belt.Float.toInt(tempYear)}
+              year={Float.toInt(tempYear)}
               showTitle=false
               ?cellHighlighter
               ?cellRenderer

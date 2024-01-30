@@ -27,7 +27,7 @@ let getTimeString = (value, isoStringToCustomTimeZone: string => TimeZoneHook.da
 let getMins = (val: float) => {
   let mins = val *. 60.0
 
-  mins->Belt.Float.toString
+  mins->Float.toString
 }
 let getPredefinedStartAndEndDate = (
   todayDayJsObj: DayJs.dayJs,
@@ -141,18 +141,14 @@ let datetext = (count, disableFutureDates) => {
     if val < 1.0 {
       disableFutureDates ? `Last ${getMins(val)} Mins` : `Next ${getMins(val)} Mins`
     } else if val === 1.0 {
-      disableFutureDates
-        ? `Last ${val->Belt.Float.toString} Hour`
-        : `Next ${val->Belt.Float.toString} Hour`
+      disableFutureDates ? `Last ${val->Float.toString} Hour` : `Next ${val->Float.toString} Hour`
     } else if disableFutureDates {
-      `Last ${val->Belt.Float.toString} Hours`
+      `Last ${val->Float.toString} Hours`
     } else {
-      `Next ${val->Belt.Float.toString} Hours`
+      `Next ${val->Float.toString} Hours`
     }
   | Day(val) =>
-    disableFutureDates
-      ? `Last ${val->Belt.Float.toString} Days`
-      : `Next ${val->Belt.Float.toString} Days`
+    disableFutureDates ? `Last ${val->Float.toString} Days` : `Next ${val->Float.toString} Days`
   }
 }
 

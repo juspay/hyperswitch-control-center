@@ -130,7 +130,7 @@ let getBodyForFeedBack = (values, ~modalType=HSwitchFeedBackModalUtils.FeedBackM
     ->Array.pushMany([
       ("category", valueDict->getString("category", "")->Js.Json.string),
       ("description", valueDict->getString("feedbacks", "")->Js.Json.string),
-      ("rating", rating->Belt.Float.fromInt->Js.Json.number),
+      ("rating", rating->Float.fromInt->Js.Json.number),
     ])
     ->ignore
   | RequestConnectorModal =>

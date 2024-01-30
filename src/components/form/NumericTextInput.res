@@ -1,4 +1,4 @@
-let getFloat = strJson => strJson->Js.Json.decodeString->Option.flatMap(Belt.Float.fromString)
+let getFloat = strJson => strJson->Js.Json.decodeString->Option.flatMap(Float.fromString)
 
 @react.component
 let make = (
@@ -99,7 +99,7 @@ let make = (
       let numericPrevLocalValue =
         prevLocalStr
         ->Js.Json.decodeString
-        ->Option.flatMap(Belt.Float.fromString)
+        ->Option.flatMap(Float.fromString)
         ->Option.map(Js.Json.number)
         ->Option.getOr(Js.Json.null)
       if input.value === numericPrevLocalValue {

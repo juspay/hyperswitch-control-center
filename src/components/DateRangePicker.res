@@ -663,8 +663,7 @@ module Base = {
       switch dateRangeLimit {
       | Some(limit) =>
         predefinedDays->Array.filter(item => {
-          getDiffForPredefined(item) <=
-          (limit->Belt.Float.fromInt *. 24. *. 60. *. 60. -. 1.) *. 1000.
+          getDiffForPredefined(item) <= (limit->Float.fromInt *. 24. *. 60. *. 60. -. 1.) *. 1000.
         })
       | None => predefinedDays
       }

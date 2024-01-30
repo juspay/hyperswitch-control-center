@@ -123,7 +123,7 @@ module LineChart1D = {
                     ->Js.Date.fromFloat
                     ->DateTimeUtils.toUtc
                     ->Js.Date.getHours
-                    ->Belt.Float.toString}:00`
+                    ->Float.toString}:00`
                   ->String.sliceToEnd(~start=-5)
                   ->Js.Json.string
                 } else if "run_month" === groupKey {
@@ -131,11 +131,11 @@ module LineChart1D = {
                   ->Js.Date.fromFloat
                   ->DateTimeUtils.toUtc
                   ->Js.Date.getDate
-                  ->Belt.Float.toString
+                  ->Float.toString
                   ->Js.Json.string
                 } else if "run_week" === groupKey {
                   switch DateTimeUtils.daysArr[
-                    xAxis->Js.Date.fromFloat->DateTimeUtils.toUtc->Js.Date.getDay->Belt.Float.toInt
+                    xAxis->Js.Date.fromFloat->DateTimeUtils.toUtc->Js.Date.getDay->Float.toInt
                   ] {
                   | Some(ele) => DateTimeUtils.dayMapper(ele)
                   | None => ""

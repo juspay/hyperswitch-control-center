@@ -459,8 +459,8 @@ module Arrow = {
     let borderLeftColor = position === Left ? arrowColor : "transparent"
 
     ReactDOMStyle.make(
-      ~top=`${arrowTopPosition->Belt.Float.toString}%`,
-      ~left=`${arrowLeftPosition->Belt.Float.toString}%`,
+      ~top=`${arrowTopPosition->Float.toString}%`,
+      ~left=`${arrowLeftPosition->Float.toString}%`,
       ~borderWidth,
       ~width="0",
       ~height="0",

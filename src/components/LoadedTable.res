@@ -597,7 +597,7 @@ let make = (
           Numeric(
             (1 + index)->Int.toFloat,
             (val: float) => {
-              val->Belt.Float.toString
+              val->Float.toString
             },
           ),
         )

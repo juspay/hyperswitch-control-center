@@ -143,8 +143,8 @@ module TableRow = {
                 startDate,
                 endDate,
                 obj,
-                Belt.Float.toString(month +. 1.0),
-                Belt.Float.toString(year),
+                Float.toString(month +. 1.0),
+                Float.toString(year),
               )
             }
             <td key={string_of_int(cellIndex)} className=classN onClick>
@@ -192,7 +192,7 @@ let make = (
   let _ = highLightList
   let months = [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
   let heading = ["S", "M", "T", "W", "T", "F", "S"]
-  let getMonthInFloat = mon => Array.indexOf(months, mon)->Belt.Float.fromInt
+  let getMonthInFloat = mon => Array.indexOf(months, mon)->Float.fromInt
   let getMonthInStr = mon => {
     switch mon {
     | Jan => "January, "
@@ -234,8 +234,8 @@ let make = (
 
   let rowMapper = (row, indexRow) => {
     Array.mapWithIndex(row, (_item, index) => {
-      let subFactor = Belt.Float.toInt(firstDay)
-      if indexRow == 0 && index < Belt.Float.toInt(firstDay) {
+      let subFactor = Float.toInt(firstDay)
+      if indexRow == 0 && index < Float.toInt(firstDay) {
         ""
       } else if indexRow == 0 {
         Int.toString(indexRow + (index + 1) - subFactor)

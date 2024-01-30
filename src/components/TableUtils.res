@@ -389,8 +389,8 @@ module Numeric = {
         <div> {React.string(num->mapper)} </div>
       </AddDataAttributes>
     } else {
-      <AddDataAttributes attributes=[("data-numeric", num->Belt.Float.toString)]>
-        <div> {React.string(num->Belt.Float.toString)} </div>
+      <AddDataAttributes attributes=[("data-numeric", num->Float.toString)]>
+        <div> {React.string(num->Float.toString)} </div>
       </AddDataAttributes>
     }
   }
@@ -775,11 +775,11 @@ let getTableCellValue = cell => {
   | Text(x) => x
   | Date(x) => x
   | DateWithoutTime(x) => x
-  | Currency(val, _) => val->Belt.Float.toString
+  | Currency(val, _) => val->Float.toString
   | Link(str) => str
   | CustomCell(_, value) => value
   | EllipsisText(x, _) => x
-  | DeltaPercentage(x, _) | Numeric(x, _) => x->Belt.Float.toString
+  | DeltaPercentage(x, _) | Numeric(x, _) => x->Float.toString
   | ColoredText(x) => x.title
   | _ => ""
   }

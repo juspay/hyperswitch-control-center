@@ -25,7 +25,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
 
   let completedPercentage =
     (completedSteps->Array.length->Int.toFloat /.
-    sidebarOptions->Array.length->Int.toFloat *. 100.0)->Belt.Float.toInt
+    sidebarOptions->Array.length->Int.toFloat *. 100.0)->Float.toInt
 
   <div className="w-[288px] xl:w-[364px] h-screen bg-white shadow-sm shrink-0">
     <div className="p-6 flex flex-col gap-3">

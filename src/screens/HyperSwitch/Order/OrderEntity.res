@@ -13,7 +13,7 @@ let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.ce
   | Amount =>
     CustomCell(
       <CurrencyCell
-        amount={(refunds.amount /. 100.0)->Belt.Float.toString} currency={refunds.currency}
+        amount={(refunds.amount /. 100.0)->Float.toString} currency={refunds.currency}
       />,
       "",
     )
@@ -50,7 +50,7 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   | Amount =>
     CustomCell(
       <CurrencyCell
-        amount={(attempt.amount /. 100.0)->Belt.Float.toString} currency={attempt.currency}
+        amount={(attempt.amount /. 100.0)->Float.toString} currency={attempt.currency}
       />,
       "",
     )
@@ -97,7 +97,7 @@ let getFrmCell = (orderDetais: order, frmColType: frmColType): Table.cell => {
   | Amount =>
     CustomCell(
       <CurrencyCell
-        amount={(orderDetais.amount /. 100.0)->Belt.Float.toString} currency={orderDetais.currency}
+        amount={(orderDetais.amount /. 100.0)->Float.toString} currency={orderDetais.currency}
       />,
       "",
     )
@@ -615,7 +615,7 @@ let getCellForSummary = (order, summaryColType, _): Table.cell => {
   | NetAmount =>
     CustomCell(
       <CurrencyCell
-        amount={(order.net_amount /. 100.0)->Belt.Float.toString} currency={order.currency}
+        amount={(order.net_amount /. 100.0)->Float.toString} currency={order.currency}
       />,
       "",
     )
@@ -625,7 +625,7 @@ let getCellForSummary = (order, summaryColType, _): Table.cell => {
   | AmountReceived =>
     CustomCell(
       <CurrencyCell
-        amount={(order.amount_received /. 100.0)->Belt.Float.toString} currency={order.currency}
+        amount={(order.amount_received /. 100.0)->Float.toString} currency={order.currency}
       />,
       "",
     )
@@ -727,9 +727,7 @@ let getCell = (order, colType: colType): Table.cell => {
     })
   | Amount =>
     CustomCell(
-      <CurrencyCell
-        amount={(order.amount /. 100.0)->Belt.Float.toString} currency={order.currency}
-      />,
+      <CurrencyCell amount={(order.amount /. 100.0)->Float.toString} currency={order.currency} />,
       "",
     )
   | AmountCapturable => Currency(order.amount_capturable /. 100.0, order.currency)

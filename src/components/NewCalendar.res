@@ -146,7 +146,7 @@ module TableRow = {
               )
 
               let renderingDate = (
-                getDate([Belt.Float.toString(year), Belt.Float.toString(month +. 1.0), obj])
+                getDate([Float.toString(year), Float.toString(month +. 1.0), obj])
                 ->Js.Date.toString
                 ->DayJs.getDayJsForString
               ).format(. "YYYY-MM-DD")
@@ -267,8 +267,8 @@ module TableRow = {
                   startDate,
                   endDate,
                   obj,
-                  Belt.Float.toString(month +. 1.0),
-                  Belt.Float.toString(year),
+                  Float.toString(month +. 1.0),
+                  Float.toString(year),
                 )
               }
 
@@ -277,8 +277,8 @@ module TableRow = {
                   startDate,
                   endDate,
                   obj,
-                  Belt.Float.toString(month +. 1.0),
-                  Belt.Float.toString(year),
+                  Float.toString(month +. 1.0),
+                  Float.toString(year),
                 )
               }
               let handleHover = () => {
@@ -375,10 +375,10 @@ let make = (
   let heading = ["Sun", "Mon", "Tue", "Wed", "Thr", "Fri", "Sat"]
 
   let isMobileView = MatchMedia.useMobileChecker()
-  let getMonthInFloat = mon => Array.indexOf(months, mon)->Belt.Float.fromInt
+  let getMonthInFloat = mon => Array.indexOf(months, mon)->Float.fromInt
   let totalMonths = disablePastDates
     ? 1
-    : (year - 1970) * 12 + getMonthInFloat(month)->Belt.Float.toInt + 1
+    : (year - 1970) * 12 + getMonthInFloat(month)->Float.toInt + 1
   let futureMonths = isFutureDate && !disableFutureDates ? 120 : 0
   let (lastStartDate, setLastStartDate) = React.useState(_ => "")
 
@@ -408,7 +408,7 @@ let make = (
   })
 
   React.useEffect2(() => {
-    let currentMonth = getMonthInFloat(month)->Belt.Float.toInt + 1
+    let currentMonth = getMonthInFloat(month)->Float.toInt + 1
 
     if startDate != lastStartDate {
       let startYear = startDate != "" ? (startDate->DayJs.getDayJsForString).format(. "YYYY") : ""
@@ -472,8 +472,8 @@ let make = (
 
     let rowMapper = (row, indexRow) => {
       Array.mapWithIndex(row, (_item, index) => {
-        let subFactor = Belt.Float.toInt(firstDay)
-        if indexRow == 0 && index < Belt.Float.toInt(firstDay) {
+        let subFactor = Float.toInt(firstDay)
+        if indexRow == 0 && index < Float.toInt(firstDay) {
           ""
         } else if indexRow == 0 {
           Int.toString(indexRow + (index + 1) - subFactor)

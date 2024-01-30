@@ -323,9 +323,7 @@ let make = (
                 switch totalVolumeKeyVal {
                 | Some(data) => {
                     let (_key, value) = data
-                    setTotalVolume(
-                      _ => value->Js.Json.decodeNumber->Option.getOr(0.)->Belt.Float.toInt,
-                    )
+                    setTotalVolume(_ => value->Js.Json.decodeNumber->Option.getOr(0.)->Float.toInt)
                   }
 
                 | None => ()

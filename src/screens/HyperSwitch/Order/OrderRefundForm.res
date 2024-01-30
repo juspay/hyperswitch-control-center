@@ -94,7 +94,7 @@ let make = (
         } else {
           "00"
         }
-        let receivedValue = amoutAvailableToRefund->Js.Math.floor_float->Belt.Float.toString
+        let receivedValue = amoutAvailableToRefund->Js.Math.floor_float->Float.toString
         let formatted_amount = `${receivedValue}.${decimal}`
         Dict.set(
           errors,

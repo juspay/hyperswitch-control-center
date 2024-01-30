@@ -606,7 +606,7 @@ let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statTy
     if statType === "Latency" || statType === "NegativeRate" {
       if value > 0. {
         let text = "Increased by "
-        let value = Js.Math.abs_float(value)->Belt.Float.toString ++ "%"
+        let value = Js.Math.abs_float(value)->Float.toString ++ "%"
         <div className="whitespace-pre-line">
           <AddDataAttributes attributes=[("data-text", text)]>
             <div> {React.string(text)} </div>
@@ -620,7 +620,7 @@ let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statTy
         </div>
       } else if value < 0. {
         let text = "Decreased by "
-        let value = value->Belt.Float.toString ++ "%"
+        let value = value->Float.toString ++ "%"
         <div className="whitespace-pre-line">
           <AddDataAttributes attributes=[("data-text", text)]>
             <div> {React.string(text)} </div>
@@ -634,7 +634,7 @@ let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statTy
         </div>
       } else {
         let text = "Changed by "
-        let value = value->Belt.Float.toString ++ "%"
+        let value = value->Float.toString ++ "%"
         <div className="whitespace-pre-line">
           <AddDataAttributes attributes=[("data-text", text)]>
             <div> {React.string(text)} </div>
@@ -649,7 +649,7 @@ let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statTy
       }
     } else if value < 0. {
       let text = "Decreased by "
-      let value = Js.Math.abs_float(value)->Belt.Float.toString ++ "%"
+      let value = Js.Math.abs_float(value)->Float.toString ++ "%"
       <div className="whitespace-pre-line">
         <AddDataAttributes attributes=[("data-text", text)]>
           <div> {React.string(text)} </div>
@@ -663,7 +663,7 @@ let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statTy
       </div>
     } else if value > 0. {
       let text = "Increased by "
-      let value = value->Belt.Float.toString ++ "%"
+      let value = value->Float.toString ++ "%"
       <div className="whitespace-pre-line">
         <AddDataAttributes attributes=[("data-text", text)]>
           <div> {React.string(text)} </div>
@@ -677,7 +677,7 @@ let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statTy
       </div>
     } else {
       let text = "Changed by "
-      let value = value->Belt.Float.toString ++ "%"
+      let value = value->Float.toString ++ "%"
       <div className="whitespace-pre-line">
         <AddDataAttributes attributes=[("data-text", text)]>
           <div> {React.string(text)} </div>

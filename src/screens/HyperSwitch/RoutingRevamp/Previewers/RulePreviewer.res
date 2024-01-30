@@ -76,7 +76,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
                     let value = switch statement.value.value->Js.Json.classify {
                     | JSONArray(arr) => arr->Array.joinWithUnsafe(", ")
                     | JSONString(str) => str
-                    | JSONNumber(num) => num->Belt.Float.toString
+                    | JSONNumber(num) => num->Float.toString
                     | JSONObject(obj) => obj->LogicUtils.getString("value", "")
                     | _ => ""
                     }
@@ -123,9 +123,9 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
                 <UIUtils.RenderIf condition={isFromSurcharge}>
                   <div
                     className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium text-blue-800 hover:text-blue-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1">
-                    {`${surchargeType.surcharge.\"type"} -> ${surchargeTypeValue->Belt.Float.toString} | Tax on Surcharge -> ${surchargeType.tax_on_surcharge.percentage
+                    {`${surchargeType.surcharge.\"type"} -> ${surchargeTypeValue->Float.toString} | Tax on Surcharge -> ${surchargeType.tax_on_surcharge.percentage
                       ->Option.getOr(0.0)
-                      ->Belt.Float.toString}`
+                      ->Float.toString}`
                     ->LogicUtils.capitalizeString
                     ->React.string}
                   </div>

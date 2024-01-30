@@ -226,11 +226,11 @@ let getOptionIntFromString = str => {
 }
 
 let getOptionFloatFromString = str => {
-  str->Belt.Float.fromString
+  str->Float.fromString
 }
 
 let getFloatFromString = (str, default) => {
-  switch str->Belt.Float.fromString {
+  switch str->Float.fromString {
   | Some(floatVal) => floatVal
   | None => default
   }
@@ -239,14 +239,14 @@ let getFloatFromString = (str, default) => {
 let getIntFromJson = (json, default) => {
   switch json->Js.Json.classify {
   | JSONString(str) => getIntFromString(str, default)
-  | JSONNumber(floatValue) => floatValue->Belt.Float.toInt
+  | JSONNumber(floatValue) => floatValue->Float.toInt
   | _ => default
   }
 }
 let getOptionIntFromJson = json => {
   switch json->Js.Json.classify {
   | JSONString(str) => getOptionIntFromString(str)
-  | JSONNumber(floatValue) => Some(floatValue->Belt.Float.toInt)
+  | JSONNumber(floatValue) => Some(floatValue->Float.toInt)
   | _ => None
   }
 }
@@ -367,7 +367,7 @@ let getIntFromString = (str, default) => {
 }
 
 let removeTrailingZero = (numeric_str: string) => {
-  numeric_str->Belt.Float.fromString->Option.getOr(0.)->Belt.Float.toString
+  numeric_str->Float.fromString->Option.getOr(0.)->Float.toString
 }
 
 let shortNum = (

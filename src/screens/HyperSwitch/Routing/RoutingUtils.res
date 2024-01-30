@@ -10,9 +10,9 @@ let getCurrentUTCTime = () => {
   let currentDate = Js.Date.now()->Js.Date.fromFloat
   let month = currentDate->Js.Date.getUTCMonth +. 1.0
   let day = currentDate->Js.Date.getUTCDate
-  let currMonth = month < 10.0 ? `0${month->Belt.Float.toString}` : month->Belt.Float.toString
-  let currDay = day < 10.0 ? `0${day->Belt.Float.toString}` : day->Belt.Float.toString
-  let currYear = currentDate->Js.Date.getUTCFullYear->Belt.Float.toString
+  let currMonth = month < 10.0 ? `0${month->Float.toString}` : month->Float.toString
+  let currDay = day < 10.0 ? `0${day->Float.toString}` : day->Float.toString
+  let currYear = currentDate->Js.Date.getUTCFullYear->Float.toString
 
   `${currYear}-${currMonth}-${currDay}`
 }
@@ -140,7 +140,7 @@ let valueTypeMapper = dict => {
   let value = switch Dict.get(dict, "value")->Option.map(Js.Json.classify) {
   | Some(JSONArray(arr)) => StringArray(arr->getStrArrayFromJsonArray)
   | Some(JSONString(st)) => String(st)
-  | Some(JSONNumber(num)) => Int(num->Belt.Float.toInt)
+  | Some(JSONNumber(num)) => Int(num->Float.toInt)
   | _ => String("")
   }
   value

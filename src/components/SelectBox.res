@@ -1173,7 +1173,7 @@ let getSortedKeys = hashMappedOptions => {
     switch (a, b) {
     | ("-", _) => 1
     | (_, "-") => -1
-    | (_, _) => String.compare(a, b)->Belt.Float.toInt
+    | (_, _) => String.compare(a, b)->Float.toInt
     }
   })
 }
@@ -1616,10 +1616,10 @@ module BaseDropdown = {
         ->Js.Nullable.toOption
         ->Option.flatMap(elem => elem->getClientRects->toDict->Dict.get("0"))
         ->Option.flatMap(firstEl => {
-          let bottomVacent = Window.innerHeight - firstEl["bottom"]->Belt.Float.toInt > 375
-          let topVacent = firstEl["top"]->Belt.Float.toInt > 470
-          let rightVacent = Window.innerWidth - firstEl["left"]->Belt.Float.toInt > 270
-          let leftVacent = firstEl["right"]->Belt.Float.toInt > 270
+          let bottomVacent = Window.innerHeight - firstEl["bottom"]->Float.toInt > 375
+          let topVacent = firstEl["top"]->Float.toInt > 470
+          let rightVacent = Window.innerWidth - firstEl["left"]->Float.toInt > 270
+          let leftVacent = firstEl["right"]->Float.toInt > 270
 
           if bottomVacent {
             rightVacent ? BottomRight : leftVacent ? BottomLeft : BottomMiddle
