@@ -57,7 +57,7 @@ let make = (
             },
           })
       }
-      <UIUtils.RenderIf key={Belt.Int.toString(index)} condition=showCrumb>
+      <UIUtils.RenderIf key={Int.toString(index)} condition=showCrumb>
         <div className={`flex ${flexDirection} ${childGapClass} items-center`}>
           {if collapse {
             <div

@@ -30,7 +30,7 @@ module Simplified = {
     let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
     let fetchApi = AuthHooks.useApiFetcher()
-    let connectorID = url.path->Belt.List.toArray->Array.get(1)->Option.getOr("")
+    let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
     let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
     let merchantId = merchantDetailsValue->getDictFromJsonObject->getString("merchant_id", "")
     let prefix = "apple_pay_combined.simplified.session_token_data.initiative_context"
@@ -166,7 +166,7 @@ module Manual = {
       ->Dict.keysToArray
       ->Array.mapWithIndex((field, index) => {
         let label = configurationFields->getString(field, "")
-        <div key={index->Belt.Int.toString}>
+        <div key={index->Int.toString}>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
             field={FormRenderer.makeFieldInfo(

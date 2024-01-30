@@ -121,7 +121,7 @@ let getHeading = colType => {
 }
 let amountValue = (amount, currency) => {
   let amountInFloat = amount->Js.Float.fromString /. 100.0
-  `${amountInFloat->Belt.Float.toString} ${currency}`
+  `${amountInFloat->Float.toString} ${currency}`
 }
 
 let getCell = (disputesData, colType): Table.cell => {

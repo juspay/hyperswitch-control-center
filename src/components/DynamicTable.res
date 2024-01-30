@@ -207,7 +207,7 @@ let make = (
         let defaultFilterOffset =
           defaultFilters->LogicUtils.getDictFromJsonObject->LogicUtils.getInt("offset", 0)
         let dictValue = if val === "offset" {
-          defaultFilterOffset->Belt.Int.toString
+          defaultFilterOffset->Int.toString
         } else {
           let x =
             filtersFromUrl

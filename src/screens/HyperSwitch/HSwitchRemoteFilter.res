@@ -25,7 +25,7 @@ let getDateFilteredObject = () => {
       ~date=currentDate->Js.Date.getDate,
       (),
     )
-    ->Js.Date.setDate((currentDate->Js.Date.getDate->Belt.Float.toInt - 7)->Belt.Int.toFloat)
+    ->Js.Date.setDate((currentDate->Js.Date.getDate->Float.toInt - 7)->Int.toFloat)
     ->Js.Date.fromFloat
     ->formateDateString
 

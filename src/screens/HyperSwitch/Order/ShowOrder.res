@@ -32,7 +32,7 @@ module OrderInfo = {
           <div className="flex items-center flex-wrap gap-3 m-3">
             <div className="flex items-start">
               <div className="md:text-5xl font-bold">
-                {`${(data.amount /. 100.00)->Belt.Float.toString} ${data.currency} `->React.string}
+                {`${(data.amount /. 100.00)->Float.toString} ${data.currency} `->React.string}
               </div>
               <ToolTip
                 description="Original amount that was authorized for the payment"

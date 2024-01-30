@@ -146,7 +146,7 @@ module Details = {
               {detailsFields
               ->Array.mapWithIndex((colType, i) => {
                 if !(excludeColKeys->Array.includes(colType)) {
-                  <div className=widthClass key={Belt.Int.toString(i)}>
+                  <div className=widthClass key={Int.toString(i)}>
                     <DisplayKeyValueParams
                       heading={getHeading(colType)}
                       value={getCell(data, colType)}

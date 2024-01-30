@@ -66,7 +66,7 @@ let make = (
     let valuesDict =
       values
       ->Js.Json.decodeObject
-      ->Belt.Option.map(Dict.toArray)
+      ->Option.map(Dict.toArray)
       ->Option.getOr([])
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
@@ -94,7 +94,7 @@ let make = (
         } else {
           "00"
         }
-        let receivedValue = amoutAvailableToRefund->Js.Math.floor_float->Belt.Float.toString
+        let receivedValue = amoutAvailableToRefund->Js.Math.floor_float->Float.toString
         let formatted_amount = `${receivedValue}.${decimal}`
         Dict.set(
           errors,

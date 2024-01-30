@@ -127,7 +127,7 @@ module IntegrationFieldsForm = {
               let parse = field.encodeToBase64 ? base64Parse : leadingSpaceStrParser
               let format = field.encodeToBase64 ? Some(base64Format) : None
 
-              <div key={index->Belt.Int.toString}>
+              <div key={index->Int.toString}>
                 <FormRenderer.FieldRenderer
                   labelClass="font-semibold !text-black"
                   field={FormRenderer.makeFieldInfo(

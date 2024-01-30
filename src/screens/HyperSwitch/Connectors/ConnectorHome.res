@@ -1,7 +1,7 @@
 module ConnectorCurrentStepIndicator = {
   @react.component
   let make = (~currentStep: ConnectorTypes.steps, ~stepsArr, ~borderWidth="w-8/12") => {
-    let cols = stepsArr->Array.length->Belt.Int.toString
+    let cols = stepsArr->Array.length->Int.toString
     let currIndex = stepsArr->Array.findIndex(item => item === currentStep)
     <div className=" w-full md:w-2/3">
       <div className={`grid grid-cols-${cols} relative gap-2`}>
@@ -27,7 +27,7 @@ module ConnectorCurrentStepIndicator = {
 
           let stepLineIndicator = isPreviousStepCompleted ? "bg-gray-700" : "bg-gray-200"
 
-          <div key={i->Belt.Int.toString} className="flex flex-col gap-2 font-semibold ">
+          <div key={i->Int.toString} className="flex flex-col gap-2 font-semibold ">
             <div className="flex items-center w-full">
               <div
                 className={`h-8 w-8 flex items-center justify-center border rounded-full ${stepNumberIndicator}`}>
@@ -59,7 +59,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   open APIUtils
   let url = RescriptReactRouter.useUrl()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let connectorID = url.path->Belt.List.toArray->Array.get(1)->Option.getOr("")
+  let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)

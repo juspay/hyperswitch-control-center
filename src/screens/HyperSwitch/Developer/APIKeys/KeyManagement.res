@@ -89,8 +89,7 @@ module ApiEditModal = {
         switch Js.Exn.message(e) {
         | Some(_error) =>
           showToast(~message="Api Key Generation Failed", ~toastType=ToastState.ToastError, ())
-
-        | None => Js.log("Something went wrong")
+        | None => ()
         }
         setModalState(_ => SettingApiModalError)
       }
@@ -229,8 +228,7 @@ module TableActionsCell = {
         switch Js.Exn.message(e) {
         | Some(_error) =>
           showToast(~message="Failed to delete API key", ~toastType=ToastState.ToastError, ())
-
-        | None => Js.log("Something went wrong")
+        | None => ()
         }
       }
     }

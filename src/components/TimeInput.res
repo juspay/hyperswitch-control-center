@@ -1,5 +1,5 @@
 let padNum = num => {
-  let str = num->Belt.Int.toString
+  let str = num->Int.toString
   if str->String.length === 1 {
     `0${str}`
   } else {
@@ -11,15 +11,13 @@ module OptionVals = {
   let make = (~upto=60, ~value, ~onChange, ~isDisabled) => {
     let cursorClass = isDisabled ? "cursor-not-allowed" : ""
     <select
-      value={value->Belt.Int.toString}
+      value={value->Int.toString}
       onChange
       disabled=isDisabled
       className={`dark:bg-jp-gray-lightgray_background font-medium border border-gray-400 rounded-md self-start ${cursorClass} outline-none`}>
       {Array.make(~length=upto, 0)
       ->Array.mapWithIndex((_, i) => {
-        <option key={Belt.Int.toString(i)} value={Belt.Int.toString(i)}>
-          {i->padNum->React.string}
-        </option>
+        <option key={Int.toString(i)} value={Int.toString(i)}> {i->padNum->React.string} </option>
       })
       ->React.array}
     </select>
@@ -41,17 +39,16 @@ let make = (
   | Some(str) => str
   | None => ""
   }
-  open Belt.Option
   let arr = value->String.split(":")
-  let hourVal = arr->Array.get(0)->flatMap(Belt.Int.fromString)->getWithDefault(0)
-  let minuteVal = arr->Array.get(1)->flatMap(Belt.Int.fromString)->getWithDefault(0)
-  let secondsVal = arr->Array.get(2)->flatMap(Belt.Int.fromString)->getWithDefault(0)
+  let hourVal = arr->Array.get(0)->Option.flatMap(Belt.Int.fromString)->Option.getOr(0)
+  let minuteVal = arr->Array.get(1)->Option.flatMap(Belt.Int.fromString)->Option.getOr(0)
+  let secondsVal = arr->Array.get(2)->Option.flatMap(Belt.Int.fromString)->Option.getOr(0)
 
   let changeVal = React.useCallback4((index, ev: ReactEvent.Form.t) => {
-    let newVal = {ev->ReactEvent.Form.target}["value"]->Belt.Int.fromString->getWithDefault(0)
+    let newVal = {ev->ReactEvent.Form.target}["value"]->Int.fromString->Option.getOr(0)
 
     let arr = [hourVal, minuteVal, secondsVal]
-    Belt.Array.set(arr, index, newVal)->ignore
+    arr[index] = newVal
 
     arr->Array.map(padNum)->Array.joinWith(":")->Identity.anyTypeToReactEvent->input.onChange
   }, (hourVal, minuteVal, secondsVal, input.onChange))

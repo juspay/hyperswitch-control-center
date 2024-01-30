@@ -106,7 +106,7 @@ module Wallets = {
       ->Dict.keysToArray
       ->Array.mapWithIndex((field, index) => {
         let label = configurationFields->LogicUtils.getString(field, "")
-        <div key={index->Belt.Int.toString}>
+        <div key={index->Int.toString}>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
             field={FormRenderer.makeFieldInfo(

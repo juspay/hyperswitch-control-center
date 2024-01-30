@@ -211,7 +211,7 @@ module IndicationArrow = {
 }
 
 let getBoundingRectInfo = (ref: React.ref<Js.Nullable.t<Dom.element>>, getter) => {
-  ref.current->Js.Nullable.toOption->Belt.Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
+  ref.current->Js.Nullable.toOption->Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
 }
 
 @react.component
@@ -272,7 +272,7 @@ let make = (
           ->Array.filter(item => !(defautTabValues->Array.includes(item)))
 
         let tabsFromPreference =
-          Belt.Array.concat(defautTabValues, tabsFromPreference)->Array.map(item =>
+          Array.concat(defautTabValues, tabsFromPreference)->Array.map(item =>
             item->String.split(",")
           )
 
@@ -609,7 +609,7 @@ let make = (
       </div>
       <SelectModal
         modalHeading="Add Segments"
-        modalHeadingDescription={`You can choose upto maximum of ${maxSelection->Belt.Int.toString} segments`}
+        modalHeadingDescription={`You can choose upto maximum of ${maxSelection->Int.toString} segments`}
         ?headerTextClass
         showModal
         setShowModal
