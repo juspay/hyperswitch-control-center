@@ -420,7 +420,7 @@ let make = (
     }
   }
 
-  let heightClass = customHeightClass->Option.getWithDefault("h-fit")
+  let heightClass = customHeightClass->Option.getOr("h-fit")
 
   let cursorType = switch buttonState {
   | Loading => "cursor-wait"
@@ -477,13 +477,6 @@ let make = (
   let iconPadding = switch buttonSize {
   | XSmall
   | Small => "pl-1"
-  | Medium
-  | Large => ""
-  }
-
-  let eulerIconPadding = switch buttonSize {
-  | XSmall
-  | Small => "gap-1"
   | Medium
   | Large => ""
   }
