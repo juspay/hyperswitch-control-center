@@ -12,7 +12,7 @@ let make = (
 ) => {
   open APIUtils
   open LogicUtils
-  open HyperSwitchTypes
+  open ReactHyperJs
 
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (clientSecret, setClientSecret) = React.useState(_ => None)
