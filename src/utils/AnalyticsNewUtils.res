@@ -312,7 +312,7 @@ let getFilterBody = (
             None
           }
         })
-        ->Array.filterMap(item => item)
+        ->Belt.Array.keepMap(item => item)
 
       if filterValueArr->Array.length === 1 {
         filterValueArr->Array.get(0)

@@ -106,7 +106,7 @@ module LineChart1D = {
         ~metricsConfig=selectedMetrics,
         ~commonColors=commonColorsArr,
         (),
-      )->Array.filterMap(item => {
+      )->Belt.Array.keepMap(item => {
         if (
           ["run_date", "run_month", "run_week"]->Array.includes(groupKey) && item.name === "Others"
         ) {
@@ -224,7 +224,7 @@ module LineChart1D = {
         selectedChartData
       }
 
-      let chartData = data->Array.filterMap(chartDataItem => {
+      let chartData = data->Belt.Array.keepMap(chartDataItem => {
         let (fillColor, color) = (chartDataItem.fillColor, chartDataItem.color) // normal
         //always uses same color for same entity Upi live mode
         let val: option<seriesLine<Js.Json.t>> = if (
@@ -266,7 +266,7 @@ module LineChart1D = {
         ~groupedData=legendData,
         ~metrixType=selectedMetrics.metric_type,
         ~activeTab=groupKey,
-      )->Array.filterMap(item => {
+      )->Belt.Array.keepMap(item => {
         if (
           ["run_date", "run_month", "run_week"]->Array.includes(groupKey) &&
             item.groupByName === "Others"
@@ -292,7 +292,7 @@ module LineChart1D = {
       }
       let colorOrig =
         chartDataOrig
-        ->Array.filterMap(item => {
+        ->Belt.Array.keepMap(item => {
           switch item.color {
           | Some(color) => transactionTable.groupByName === item.name ? Some(color) : None
           | None => None
@@ -302,7 +302,7 @@ module LineChart1D = {
         ->Option.getOr("")
       let color =
         chartData
-        ->Array.filterMap(item => {
+        ->Belt.Array.keepMap(item => {
           switch item.color {
           | Some(color) => transactionTable.groupByName === item.name ? Some(color) : None
           | None => None

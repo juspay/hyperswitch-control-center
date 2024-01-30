@@ -260,7 +260,7 @@ let useChartFetch = (~setStatusDict) => {
     })
     ->Promise.all
     ->thenResolve(dataArr => {
-      let data = dataArr->Array.filterMap(item => item)
+      let data = dataArr->Belt.Array.keepMap(item => item)
 
       setState(data)
     })
@@ -326,7 +326,7 @@ let make = (
   let getChartCompFilters = React.useMemo1(() => {
     getAllFilter
     ->Dict.toArray
-    ->Array.filterMap(item => {
+    ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
       let prefix = keyArr->Array.get(0)->Option.getOr("")
@@ -348,7 +348,7 @@ let make = (
   let getTopLevelFilter = React.useMemo1(() => {
     getAllFilter
     ->Dict.toArray
-    ->Array.filterMap(item => {
+    ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
       let prefix = keyArr->Array.get(0)->Option.getOr("")
@@ -469,7 +469,7 @@ let make = (
     let filterSearchParam =
       getTopLevelFilter
       ->Dict.toArray
-      ->Array.filterMap(entry => {
+      ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
         if allFilterKeys->Array.includes(key) {
           switch value->Js.Json.classify {
@@ -516,7 +516,7 @@ let make = (
     let filterSearchParam =
       getTopLevelFilter
       ->Dict.toArray
-      ->Array.filterMap(entry => {
+      ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
         switch value->Js.Json.classify {
         | JSONString(str) => `${key}=${str}`->Some
@@ -553,7 +553,7 @@ let make = (
       let filterValue =
         getTopLevelFilter
         ->Dict.toArray
-        ->Array.filterMap(
+        ->Belt.Array.keepMap(
           entries => {
             let (key, value) = entries
             filterKeys->Array.includes(key) ? Some((key, value)) : None
@@ -599,7 +599,7 @@ let make = (
   ))
 
   let updatedChartBody = React.useMemo1(() => {
-    uriConfig->Array.filterMap(item => {
+    uriConfig->Belt.Array.keepMap(item => {
       switch updatedChartConfigArr->Array.find(config => config.uri === item.uri) {
       | Some(chartconfig) => {
           let legendBody = switch item {

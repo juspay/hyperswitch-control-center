@@ -53,7 +53,7 @@ let make = (
       heading[index]
     }
 
-    let headers = values->Array.filterMap(getHeadingCol)
+    let headers = values->Belt.Array.keepMap(getHeadingCol)
     let headers = orderdColumnBasedOnDefaultCol
       ? headers->Array.copy->Js.Array2.sortInPlaceWith(sortByOrderOderedArr)
       : headers

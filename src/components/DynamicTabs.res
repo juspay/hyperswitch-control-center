@@ -276,7 +276,7 @@ let make = (
             item->String.split(",")
           )
 
-        tabsFromPreference->Array.filterMap(tabName => {
+        tabsFromPreference->Belt.Array.keepMap(tabName => {
           let tabName = tabName->LogicUtils.getUniqueArray
           let validated =
             tabName

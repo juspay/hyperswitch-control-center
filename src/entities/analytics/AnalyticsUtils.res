@@ -207,7 +207,7 @@ let getFilterRequestBody = (
         "groupByNames",
         groupByNames
         ->ArrayUtils.getUniqueStrArray
-        ->Array.filterMap(item => Some(item->Js.Json.string))
+        ->Belt.Array.keepMap(item => Some(item->Js.Json.string))
         ->Js.Json.array,
       )
     }
@@ -266,7 +266,7 @@ let getFilterRequestBody = (
         "metrics",
         metrics
         ->ArrayUtils.getUniqueStrArray
-        ->Array.filterMap(item => Some(item->Js.Json.string))
+        ->Belt.Array.keepMap(item => Some(item->Js.Json.string))
         ->Js.Json.array,
       )
     }

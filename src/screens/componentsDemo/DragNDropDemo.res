@@ -78,7 +78,7 @@ let default = (props: props) => {
   }
   let directionClass = isHorizontal ? "flex-row" : "flex-col"
   let droppableDirection = isHorizontal ? "horizontal" : "vertical"
-  let values = listItems->Array.filterMap(keyExtractor)
+  let values = listItems->Belt.Array.keepMap(keyExtractor)
 
   open ReactBeautifulDND
 

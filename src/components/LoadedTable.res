@@ -627,7 +627,7 @@ let make = (
   let rows = if allowNullableRows {
     nullableRows
   } else {
-    nullableRows->Array.filterMap(item => {
+    nullableRows->Belt.Array.keepMap(item => {
       item->Array.length == 0 ? None : Some(item)
     })
   }
@@ -843,7 +843,7 @@ let make = (
           | Some(renderer) =>
             <div className="overflow-auto flex flex-col">
               {paginatedData
-              ->Array.filterMap(Js.Nullable.toOption)
+              ->Belt.Array.keepMap(Js.Nullable.toOption)
               ->Array.mapWithIndex((item, rowIndex) => {
                 renderer(~index={rowIndex + offset}, ~item, ~onRowClick=handleRowClick)
               })

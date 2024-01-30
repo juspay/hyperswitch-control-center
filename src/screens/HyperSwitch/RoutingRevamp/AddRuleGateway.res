@@ -25,7 +25,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
     gateWaysInput.value
     ->Js.Json.decodeArray
     ->Option.getOr([])
-    ->Array.filterMap(item => {
+    ->Belt.Array.keepMap(item => {
       Some(AdvancedRoutingUtils.connectorSelectionDataMapperFromJson(item))
     })
   }, [gateWaysInput])

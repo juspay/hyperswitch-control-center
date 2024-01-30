@@ -72,10 +72,10 @@ module ListItem = {
         ? [text]
         : {
             switch Js.String2.match_(text, regex("\\b", searchString)) {
-            | Some(r) => Js.Array2.sliceFrom(r, 1)->Array.filterMap(x => x)
+            | Some(r) => Js.Array2.sliceFrom(r, 1)->Belt.Array.keepMap(x => x)
             | None =>
               switch Js.String2.match_(text, regex("_", searchString)) {
-              | Some(a) => Js.Array2.sliceFrom(a, 1)->Array.filterMap(x => x)
+              | Some(a) => Js.Array2.sliceFrom(a, 1)->Belt.Array.keepMap(x => x)
               | None => [text]
               }
             }
@@ -1659,8 +1659,8 @@ module BaseDropdown = {
       newInputSelect.value
       ->Js.Json.decodeArray
       ->Option.getOr([])
-      ->Array.filterMap(Js.Json.decodeString)
-      ->Array.filterMap(str => {
+      ->Belt.Array.keepMap(Js.Json.decodeString)
+      ->Belt.Array.keepMap(str => {
         transformedOptions->Array.find(x => x.value == str)->Option.map(x => x.label)
       })
       ->Array.joinWith(", ")

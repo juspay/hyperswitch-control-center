@@ -60,7 +60,7 @@ let make = (
     gateWaysInput.value
     ->Js.Json.decodeArray
     ->Option.getOr([])
-    ->Array.filterMap(item =>
+    ->Belt.Array.keepMap(item =>
       item
       ->Js.Json.decodeObject
       ->Option.flatMap(dict => {

@@ -477,7 +477,7 @@ let getLegendDataForCurrentMetrix = (
 }
 
 let barChartDataMaker = (~yAxis: string, ~rawData: array<Js.Json.t>, ~activeTab: string) => {
-  let value = rawData->Array.filterMap(item => {
+  let value = rawData->Belt.Array.keepMap(item => {
     let dict = item->getDictFromJsonObject
 
     let selectedSegmentVal = getString(

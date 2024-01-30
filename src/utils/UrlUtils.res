@@ -15,7 +15,7 @@ let useGetFilterDictFromUrl = prefix => {
 
           (key, val->UrlFetchUtils.getFilterValue) // it will return the Json string, Json array
         })
-        ->Array.filterMap(entry => {
+        ->Belt.Array.keepMap(entry => {
           let (key, val) = entry
           if prefix === "" {
             entry->Some

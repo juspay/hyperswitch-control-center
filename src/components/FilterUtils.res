@@ -2,7 +2,7 @@ let parseFilterString = queryString => {
   queryString
   ->Js.Global.decodeURI
   ->String.split("&")
-  ->Array.filterMap(str => {
+  ->Belt.Array.keepMap(str => {
     let arr = str->String.split("=")
     let key = arr->Array.get(0)->Option.getOr("-")
     let val = arr->Array.sliceToEnd(~start=1)->Array.joinWith("=")

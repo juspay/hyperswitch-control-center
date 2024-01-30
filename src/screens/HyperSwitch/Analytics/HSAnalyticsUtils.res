@@ -63,8 +63,8 @@ let filterByData = (txnArr, value) => {
   let searchText = LogicUtils.getStringFromJson(value, "")
 
   txnArr
-  ->Array.filterMap(Js.Nullable.toOption)
-  ->Array.filterMap((data: 't) => {
+  ->Belt.Array.keepMap(Js.Nullable.toOption)
+  ->Belt.Array.keepMap((data: 't) => {
     let valueArr =
       data
       ->Identity.genericTypeToDictOfJson
@@ -96,7 +96,7 @@ let initialFilterFields = json => {
     ->getOptionalArrayFromDict("queryData")
     ->Option.flatMap(arr => {
       arr
-      ->Array.filterMap(item => {
+      ->Belt.Array.keepMap(item => {
         let dimensionObject = item->getDictFromJsonObject
 
         let dimension = getString(dimensionObject, "dimension", "")

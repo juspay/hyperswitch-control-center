@@ -792,7 +792,7 @@ let make = (
           let newValues =
             actualData
             ->filteredData(columnFilterCopy, visibleColumns, entity, dateFormatConvertor)
-            ->Array.filterMap(
+            ->Belt.Array.keepMap(
               item => {
                 item->Js.Nullable.toOption
               },
@@ -1003,7 +1003,7 @@ let make = (
       }
       actualRows
     })
-    ->Array.filterMap(item => {
+    ->Belt.Array.keepMap(item => {
       item->Array.length == 0 ? None : Some(item)
     })
 

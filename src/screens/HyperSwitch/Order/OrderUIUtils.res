@@ -101,8 +101,8 @@ let filterByData = (txnArr, value) => {
   let searchText = value->getStringFromJson("")
 
   txnArr
-  ->Array.filterMap(Js.Nullable.toOption)
-  ->Array.filterMap(data => {
+  ->Belt.Array.keepMap(Js.Nullable.toOption)
+  ->Belt.Array.keepMap(data => {
     let valueArr =
       data
       ->Identity.genericTypeToDictOfJson
@@ -192,7 +192,7 @@ let setData = (
   }
 
   if total > 0 {
-    let orderDataDictArr = data->Array.filterMap(Js.Json.decodeObject)
+    let orderDataDictArr = data->Belt.Array.keepMap(Js.Json.decodeObject)
 
     let orderData =
       arr

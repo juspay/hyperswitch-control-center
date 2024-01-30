@@ -44,7 +44,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
         let prevDictArr =
           prev
           ->Dict.toArray
-          ->Array.filterMap(
+          ->Belt.Array.keepMap(
             item => {
               let (key, value) = item
               switch dict->Dict.get(key) {
