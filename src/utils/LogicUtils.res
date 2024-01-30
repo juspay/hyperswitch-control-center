@@ -295,14 +295,13 @@ let getObj = (dict, key, default) => {
 }
 
 let getDictFromUrlSearchParams = searchParams => {
-  open Belt.Array
   searchParams
   ->String.split("&")
-  ->keepMap(getNonEmptyString)
-  ->keepMap(keyVal => {
+  ->Array.filterMap(getNonEmptyString)
+  ->Array.filterMap(keyVal => {
     let splitArray = String.split(keyVal, "=")
 
-    switch (splitArray->get(0), splitArray->get(1)) {
+    switch (splitArray->Array.get(0), splitArray->Array.get(1)) {
     | (Some(key), Some(val)) => Some(key, val)
     | _ => None
     }

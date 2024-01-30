@@ -48,7 +48,7 @@ let make = (
     let newVal = {ev->ReactEvent.Form.target}["value"]->Int.fromString->Option.getOr(0)
 
     let arr = [hourVal, minuteVal, secondsVal]
-    Belt.Array.set(arr, index, newVal)->ignore
+    arr[index] = newVal
 
     arr->Array.map(padNum)->Array.joinWith(":")->Identity.anyTypeToReactEvent->input.onChange
   }, (hourVal, minuteVal, secondsVal, input.onChange))

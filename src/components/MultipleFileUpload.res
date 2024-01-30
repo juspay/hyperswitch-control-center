@@ -171,7 +171,7 @@ let make = (
                 toast("Invalid file", ToastError)
               }
             }
-            arr->Belt.Array.set(0, arr[0]->Option.getOr(0) + 1)->ignore
+            arr->Array.set(0, arr[0]->Option.getOr(0) + 1)->ignore
           }
         | None => ()
         }

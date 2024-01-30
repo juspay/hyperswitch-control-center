@@ -857,7 +857,10 @@ let make = (
         )}
       </UIUtils.RenderIf>
       <tbody>
-        {tableRows(Belt.Array.range(1, totalLength)->Array.map(_ => [Text("")]), true)}
+        {tableRows(
+          Array.fromInitializer(~length=totalLength, i => i + 1)->Array.map(_ => [Text("")]),
+          true,
+        )}
       </tbody>
     </table>
   }

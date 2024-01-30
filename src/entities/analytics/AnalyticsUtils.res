@@ -446,7 +446,7 @@ let generatedeltaTablePayload = (
   ~showDeltaMetrics=false,
   ~customFilter,
 ) => {
-  let dictOfDates = Belt.Array.concatMany(deltaDateArr)
+  let dictOfDates = Array.flat(deltaDateArr)
   let tablePayload = Belt.Array.zipBy(dictOfDates, deltaPrefixArr, (x, y) =>
     generatePayload(
       ~startTime=x->Dict.get("fromTime")->Option.getOr(""),
@@ -557,11 +557,8 @@ let generateTablePayload = (
   } else {
     []
   }
-  let tableBodyValues = Belt.Array.concatMany([
-    tableBodyWithNonDeltaMetrix,
-    tableBodyWithDeltaMetrix,
-    tableIndustryPayload,
-  ])
+  let tableBodyValues =
+    tableBodyWithNonDeltaMetrix->Array.concatMany([tableBodyWithDeltaMetrix, tableIndustryPayload])
 
   let distributionPayload = switch distributionArray {
   | Some(distributionArray) =>
@@ -583,7 +580,8 @@ let generateTablePayload = (
   }
 
   let tableBody =
-    Belt.Array.concatMany([tableBodyValues, deltaPayload, distributionPayload])
+    tableBodyValues
+    ->Array.concatMany([deltaPayload, distributionPayload])
     ->Array.map(Js.Json.object_)
     ->Js.Json.array
   tableBody

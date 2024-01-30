@@ -385,8 +385,8 @@ module Base = {
     }
 
     let onDateClick = str => {
-      let data = switch Belt.Array.getBy(clickedDates, x => x == str) {
-      | Some(_d) => Belt.Array.keep(clickedDates, x => x != str)
+      let data = switch Array.find(clickedDates, x => x == str) {
+      | Some(_d) => Array.filter(clickedDates, x => x != str)
       | None => Array.concat(clickedDates, [str])
       }
       let dat = data->Array.map(x => x)

@@ -304,15 +304,10 @@ let generateTablePayload = (
   } else {
     []
   }
-  let tableBodyValues = Belt.Array.concatMany([
-    tableBodyWithNonDeltaMetrix,
-    tableBodyWithDeltaMetrix,
-    tableIndustryPayload,
-  ])
+  let tableBodyValues =
+    tableBodyWithNonDeltaMetrix->Array.concatMany([tableBodyWithDeltaMetrix, tableIndustryPayload])
 
   let tableBody =
-    Belt.Array.concatMany([tableBodyValues, deltaPayload])
-    ->Array.map(Js.Json.object_)
-    ->Js.Json.array
+    tableBodyValues->Array.concat(deltaPayload)->Array.map(Js.Json.object_)->Js.Json.array
   tableBody
 }
