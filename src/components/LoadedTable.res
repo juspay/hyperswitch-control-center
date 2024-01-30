@@ -890,7 +890,6 @@ let make = (
       | None =>
         <UIUtils.RenderIf condition={searchFields->Array.length > 0}>
           <AdvancedSearchModal searchFields url=searchUrl entity />
-          // <PaymentLinkAdvancedSearch searchFields url=searchUrl />
         </UIUtils.RenderIf>
       }}
       <DesktopView>
@@ -926,7 +925,6 @@ let make = (
     <div className="w-full">
       <div className=addDataAttributesClass style={ReactDOMStyle.make(~zIndex="2", ())}>
         //removed "sticky" -> to be tested with master
-
         <div
           className={`flex flex-row justify-between items-center` ++ (
             hideTitle ? "" : ` mt-4 mb-2`

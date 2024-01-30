@@ -420,13 +420,7 @@ let make = (
     }
   }
 
-  let heightClass = customHeightClass->Option.getOr({
-    switch buttonSize {
-    | XSmall => "h-fit"
-    | Small => "h-fit"
-    | Medium | Large => "h-fit"
-    }
-  })
+  let heightClass = customHeightClass->Option.getOr("h-fit")
 
   let cursorType = switch buttonState {
   | Loading => "cursor-wait"
@@ -436,7 +430,7 @@ let make = (
 
   let paddingClass = customPaddingClass->Option.getOr(
     switch buttonSize {
-    | XSmall => "py-3 px-4"
+    | XSmall => "p-2"
     | Small =>
       switch buttonType {
       | Pagination => "py-3 px-4 mr-1"
@@ -483,13 +477,6 @@ let make = (
   let iconPadding = switch buttonSize {
   | XSmall
   | Small => "pl-1"
-  | Medium
-  | Large => ""
-  }
-
-  let eulerIconPadding = switch buttonSize {
-  | XSmall
-  | Small => "gap-1"
   | Medium
   | Large => ""
   }
@@ -728,7 +715,7 @@ let make = (
             />
           </span>
         | Euler(iconName) =>
-          <span className={`flex items-center ${iconColor} ${iconMargin} ${eulerIconPadding}`}>
+          <span className={`flex items-center ${iconColor} ${iconMargin}`}>
             <Icon className={`align-middle ${strokeColor}`} size=iconSize name=iconName />
           </span>
         | CustomIcon(element) =>
@@ -791,7 +778,7 @@ let make = (
           <Icon className={`align-middle ${strokeColor}`} size=iconSize name=iconName />
         </span>
       | Euler(iconName) =>
-        <span className={`flex items-center ${iconMargin} ${eulerIconPadding}`}>
+        <span className={`flex items-center ${iconMargin}`}>
           <Icon className={`align-middle ${strokeColor}`} size=iconSize name=iconName />
         </span>
       | CustomIcon(element) =>
