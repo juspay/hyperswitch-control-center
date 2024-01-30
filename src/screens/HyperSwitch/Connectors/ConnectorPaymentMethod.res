@@ -13,9 +13,9 @@ let make = (
   open LogicUtils
   let _showAdvancedConfiguration = false
   let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
-    Dict.make()->Js.Json.object_->getPaymentMethodEnabled
+    Dict.make()->JSON.Encode.object->getPaymentMethodEnabled
   )
-  let (metaData, setMetaData) = React.useState(_ => Dict.make()->Js.Json.object_)
+  let (metaData, setMetaData) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let showToast = ToastState.useShowToast()
   let connectorID = initialValues->getDictFromJsonObject->getOptionString("merchant_connector_id")
   let (screenState, setScreenState) = React.useState(_ => Loading)

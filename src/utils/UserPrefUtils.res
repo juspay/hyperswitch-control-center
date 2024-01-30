@@ -63,8 +63,8 @@ let saveUserPref = (userPref: Dict.t<userPref>) => {
       (key, value->userPrefToJson)
     })
     ->Dict.fromArray
-    ->Js.Json.object_
-    ->Js.Json.stringify,
+    ->JSON.Encode.object
+    ->JSON.stringify,
   )
 }
 
@@ -72,7 +72,7 @@ let saveUserPref = (userPref: Dict.t<userPref>) => {
 let getUserPref = () => {
   switch LocalStorage.getItem(userPreferenceKeyInLocalStorage)->Js.Nullable.toOption {
   | Some(str) =>
-    str->LogicUtils.safeParse->Js.Json.decodeObject->Option.getOr(Dict.make())->converToUserPref
+    str->LogicUtils.safeParse->JSON.Decode.object->Option.getOr(Dict.make())->converToUserPref
 
   | None => Dict.make()
   }

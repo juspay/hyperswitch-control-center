@@ -386,9 +386,9 @@ let make = (
     let collapsibleTabsValues =
       collapsibleTabs
       ->Array.map(item => {
-        item.value->Js.Json.string
+        item.value->JSON.Encode.string
       })
-      ->Js.Json.array
+      ->JSON.Encode.array
 
     addConfig(availableTabUserPrefKey, collapsibleTabsValues)
 

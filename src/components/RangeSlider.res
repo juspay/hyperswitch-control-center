@@ -26,8 +26,8 @@ let make = (
     ...maxSlide,
     value: maxSlide.value <= minSlide.value
       ? minSlide.value
-      : maxSlide.value > max->Js.Json.number
-      ? max->Js.Json.number
+      : maxSlide.value > max->JSON.Encode.float
+      ? max->JSON.Encode.float
       : maxSlide.value,
   }
 
@@ -35,8 +35,8 @@ let make = (
     ...minSlide,
     value: minSlide.value >= maxSlide.value
       ? maxSlide.value
-      : minSlide.value < min->Js.Json.number
-      ? min->Js.Json.number
+      : minSlide.value < min->JSON.Encode.float
+      ? min->JSON.Encode.float
       : minSlide.value,
   }
 
@@ -45,14 +45,14 @@ let make = (
   }, (max, min))
 
   let maxsliderVal = React.useMemo1(() => {
-    switch maxSlide.value->Js.Json.decodeNumber {
+    switch maxSlide.value->JSON.Decode.float {
     | Some(num) => Js.Math.ceil_float(num)->Js.Float.toString
     | None => "0"
     }
   }, [maxSlide.value])
 
   let minsliderVal = React.useMemo1(() => {
-    switch minSlide.value->Js.Json.decodeNumber {
+    switch minSlide.value->JSON.Decode.float {
     | Some(num) => Js.Math.floor_float(num)->Js.Float.toString
     | None => "0"
     }
@@ -143,7 +143,7 @@ let make = (
           max={max->Float.toString}
           onBlur={ev => {
             let minVal = minSlideVal
-            let maxSliderValue = maxSlide.value->Js.Json.decodeNumber->Option.getOr(0.)
+            let maxSliderValue = maxSlide.value->JSON.Decode.float->Option.getOr(0.)
             if minVal >= min && minVal < maxSliderValue {
               setHasError(((_, max)) => (false, max))
               minSlide.onChange(ev->Identity.anyTypeToReactEvent)
@@ -160,7 +160,7 @@ let make = (
             let keyCode = ev->ReactEvent.Keyboard.keyCode
             if key === "Enter" || keyCode === 13 {
               let minVal = minSlideVal
-              let maxSliderValue = maxSlide.value->Js.Json.decodeNumber->Option.getOr(0.)
+              let maxSliderValue = maxSlide.value->JSON.Decode.float->Option.getOr(0.)
               if minVal >= min && minVal <= maxSliderValue {
                 setHasError(((_, max)) => (false, max))
                 minSlide.onChange(ev->Identity.anyTypeToReactEvent)
@@ -181,7 +181,7 @@ let make = (
           max={max->Float.toString}
           onBlur={ev => {
             let maxVal = maxSlideVal
-            let minSliderValue = minSlide.value->Js.Json.decodeNumber->Option.getOr(0.)
+            let minSliderValue = minSlide.value->JSON.Decode.float->Option.getOr(0.)
             if maxVal <= max && maxVal > minSliderValue {
               setHasError(((min, _)) => (min, false))
               maxSlide.onChange(ev->Identity.anyTypeToReactEvent)
@@ -198,7 +198,7 @@ let make = (
             let keyCode = ev->ReactEvent.Keyboard.keyCode
 
             let maxVal = maxSlideVal
-            let minSliderValue = minSlide.value->Js.Json.decodeNumber->Option.getOr(0.)
+            let minSliderValue = minSlide.value->JSON.Decode.float->Option.getOr(0.)
             if key === "Enter" || keyCode === 13 {
               if maxVal <= max && maxVal >= minSliderValue {
                 setHasError(((min, _)) => (min, false))

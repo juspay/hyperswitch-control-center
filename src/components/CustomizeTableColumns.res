@@ -18,7 +18,7 @@ let make = (
     heading
     ->Array.mapWithIndex((item, index) => (
       getHeading(item).title,
-      index->Int.toFloat->Js.Json.number,
+      index->Int.toFloat->JSON.Encode.float,
     ))
     ->Dict.fromArray
 

@@ -25,7 +25,7 @@ module TableCell = {
             onChange(elemIndex, i, event["value"])
           },
           onFocus: _ev => (),
-          value: (keyValue[elemIndex]->Option.getOr([]))[i]->Option.getOr("")->Js.Json.string,
+          value: (keyValue[elemIndex]->Option.getOr([]))[i]->Option.getOr("")->JSON.Encode.string,
           checked: true,
         }
         <FieldInputRenderer item=itm input key={Int.toString(i)} />
@@ -83,10 +83,10 @@ module TableStructure = {
 let make = (~input: ReactFinalForm.fieldRenderPropsInput, ~headings, ~fields) => {
   let tableInput = input->ffInputToTableInput
   let currentValue = React.useMemo1(() => {
-    switch tableInput.value->Js.Json.decodeArray {
+    switch tableInput.value->JSON.Decode.array {
     | Some(str) =>
       str->Array.map(item => {
-        switch item->Js.Json.decodeArray {
+        switch item->JSON.Decode.array {
         | Some(a) =>
           a->Array.map(
             itm => {

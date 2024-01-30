@@ -58,7 +58,7 @@ let make = (
       input.value
       ->getArrayFromJson([])
       ->Array.filterWithIndex((_, i) => indx != i)
-      ->Js.Json.array
+      ->JSON.Encode.array
       ->Identity.anyTypeToReactEvent,
     )
     setKey(prev => prev + 1)
@@ -79,7 +79,7 @@ let make = (
         mimeArr
       })
 
-      files->Array.push(value->Js.Json.string)->ignore
+      files->Array.push(value->JSON.Encode.string)->ignore
       if showUploadtoast {
         toast("File Uploaded Successfully", ToastSuccess)
       }
@@ -154,7 +154,7 @@ let make = (
                           mimeArr
                         })
 
-                        files->Array.push(value->Js.Json.string)->ignore
+                        files->Array.push(value->JSON.Encode.string)->ignore
 
                         if showUploadtoast {
                           toast("File Uploaded Successfully", ToastSuccess)
@@ -189,13 +189,13 @@ let make = (
       ~fileName,
       ~content=decodeParsedfile
         ? try {
-            val->Array.get(indx)->Option.getOr(Js.Json.null)->getStringFromJson("")->atob
+            val->Array.get(indx)->Option.getOr(JSON.Encode.null)->getStringFromJson("")->atob
           } catch {
           | _ =>
             toast("Error : Unable to parse file", ToastError)
             ""
           }
-        : val->Array.get(indx)->Option.getOr(Js.Json.null)->getStringFromJson(""),
+        : val->Array.get(indx)->Option.getOr(JSON.Encode.null)->getStringFromJson(""),
     )
   }
 
@@ -218,7 +218,7 @@ let make = (
             setFileTypes(prev => prev->Array.concat(mimeType))
             input.onChange(
               Identity.anyTypeToReactEvent(
-                input.value->getArrayFromJson([])->Array.concat([file->Js.Json.string]),
+                input.value->getArrayFromJson([])->Array.concat([file->JSON.Encode.string]),
               ),
             )
           }

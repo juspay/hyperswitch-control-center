@@ -91,7 +91,7 @@ let make = (~id) => {
   React.useEffect1(() => {
     let jsonArray = [orderDataForPaymentId]
     let paymentArray =
-      jsonArray->Js.Json.array->LogicUtils.getArrayDataFromJson(OrderEntity.itemToObjMapper)
+      jsonArray->JSON.Encode.array->LogicUtils.getArrayDataFromJson(OrderEntity.itemToObjMapper)
     setOrdersData(_ => paymentArray->Array.map(Js.Nullable.return))
     None
   }, [orderDataForPaymentId])

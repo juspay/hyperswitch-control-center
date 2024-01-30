@@ -65,8 +65,8 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   let initialValues = {
     filters: {
       dateCreated: {
-        gte: getPreviousDate()->Js.Json.string,
-        lte: Js.Date.now()->Js.Date.fromFloat->Js.Date.toISOString->Js.Json.string,
+        gte: getPreviousDate()->JSON.Encode.string,
+        lte: Js.Date.now()->Js.Date.fromFloat->Js.Date.toISOString->JSON.Encode.string,
       },
     },
   }->Identity.genericTypeToJson

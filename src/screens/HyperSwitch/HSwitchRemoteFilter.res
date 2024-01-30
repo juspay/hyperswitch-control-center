@@ -140,7 +140,7 @@ module SearchBarFilter = {
       onBlur: _ev => (),
       onChange,
       onFocus: _ev => (),
-      value: searchValBase->Js.Json.string,
+      value: searchValBase->JSON.Encode.string,
       checked: true,
     }
 
@@ -177,7 +177,7 @@ module RemoteTableFilters = {
   ) => {
     let {filterValue, updateExistingKeys, filterValueJson, removeKeys} =
       FilterContext.filterContext->React.useContext
-    let defaultFilters = {""->Js.Json.string}
+    let defaultFilters = {""->JSON.Encode.string}
 
     let customViewTop = <SearchBarFilter placeholder setSearchVal searchVal />
 
@@ -194,8 +194,8 @@ module RemoteTableFilters = {
 
     let filterBody = React.useMemo3(() => {
       [
-        (startTimeFilterKey, startTimeVal->Js.Json.string),
-        (endTimeFilterKey, endTimeVal->Js.Json.string),
+        (startTimeFilterKey, startTimeVal->JSON.Encode.string),
+        (endTimeFilterKey, endTimeVal->JSON.Encode.string),
       ]->Dict.fromArray
     }, (startTimeVal, endTimeVal, filterValue))
 
@@ -211,7 +211,7 @@ module RemoteTableFilters = {
       setFilterDataJson(_ => None)
       if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
         try {
-          updateDetails(filterUrl, filterBody->Js.Json.object_, Post, ())
+          updateDetails(filterUrl, filterBody->JSON.Encode.object, Post, ())
           ->thenResolve(json => setFilterDataJson(_ => json->Some))
           ->catch(_ => resolve())
           ->ignore
@@ -220,8 +220,8 @@ module RemoteTableFilters = {
         }
       }
       None
-    }, (startTimeVal, endTimeVal, filterBody->Js.Json.object_->Js.Json.stringify))
-    let filterData = filterDataJson->Option.getOr(Dict.make()->Js.Json.object_)
+    }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
+    let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
     React.useEffect1(() => {
       if filterValueJson->Dict.keysToArray->Array.length != 0 {

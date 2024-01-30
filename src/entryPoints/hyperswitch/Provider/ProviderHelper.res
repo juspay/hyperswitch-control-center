@@ -4,7 +4,7 @@ let itemIntegrationDetailsMapper = dict => {
   open LogicUtils
   {
     is_done: dict->getBool("is_done", false),
-    metadata: dict->getDictfromDict("metadata")->Js.Json.object_,
+    metadata: dict->getDictfromDict("metadata")->JSON.Encode.object,
   }
 }
 

@@ -113,7 +113,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
           paginate(_evt->formEventToInt)
         },
         onFocus: _ev => (),
-        value: ""->Js.Json.string,
+        value: ""->JSON.Encode.string,
         checked: true,
       }
 

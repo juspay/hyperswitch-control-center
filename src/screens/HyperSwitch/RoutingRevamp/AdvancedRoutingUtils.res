@@ -269,9 +269,9 @@ let getOperatorFromComparisonType = (comparison, variantType) => {
 }
 
 let isStatementMandatoryFieldsPresent = (statement: AdvancedRoutingTypes.statement) => {
-  let statementValue = switch statement.value.value->Js.Json.classify {
-  | JSONArray(ele) => ele->Array.length > 0
-  | JSONString(str) => str->String.length > 0
+  let statementValue = switch statement.value.value->JSON.Classify.classify {
+  | Array(ele) => ele->Array.length > 0
+  | String(str) => str->String.length > 0
   | _ => false
   }
 
@@ -359,7 +359,7 @@ let generateRule = rulesDict => {
     {
       "name": ruleDict->getString("name", ""),
       "connectorSelection": ruleDict->getJsonObjectFromDict("connectorSelection"),
-      "statements": modifiedStatements->Array.map(Identity.genericTypeToJson)->Js.Json.array,
+      "statements": modifiedStatements->Array.map(Identity.genericTypeToJson)->JSON.Encode.array,
     }
   })
   modifiedRules
@@ -376,7 +376,7 @@ let defaultRule: AdvancedRoutingTypes.rule = {
       comparison: "",
       value: {
         \"type": "",
-        value: ""->Js.Json.string,
+        value: ""->JSON.Encode.string,
       },
     },
   ],
@@ -384,7 +384,7 @@ let defaultRule: AdvancedRoutingTypes.rule = {
 
 let defaultAlgorithmData: AdvancedRoutingTypes.algorithmData = {
   rules: [defaultRule],
-  metadata: Dict.make()->Js.Json.object_,
+  metadata: Dict.make()->JSON.Encode.object,
   defaultSelection: {
     \"type": "",
     data: [],
@@ -403,7 +403,7 @@ let initialValues: AdvancedRoutingTypes.advancedRouting = {
 let validateNameAndDescription = (~dict, ~errors) => {
   ["name", "description"]->Array.forEach(field => {
     if dict->LogicUtils.getString(field, "")->String.trim === "" {
-      errors->Dict.set(field, `Please provide ${field} field`->Js.Json.string)
+      errors->Dict.set(field, `Please provide ${field} field`->JSON.Encode.string)
     }
   })
 }

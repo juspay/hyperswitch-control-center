@@ -147,10 +147,10 @@ module TableWrapper = {
         ->Belt.Array.keepMap(entry => {
           let (key, value) = entry
           if allFilterKeys->Array.includes(key) {
-            switch value->Js.Json.classify {
-            | JSONString(str) => `${key}=${str}`->Some
-            | JSONNumber(num) => `${key}=${num->String.make}`->Some
-            | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
+            switch value->JSON.Classify.classify {
+            | String(str) => `${key}=${str}`->Some
+            | Number(num) => `${key}=${num->String.make}`->Some
+            | Array(arr) => `${key}=[${arr->String.make}]`->Some
             | _ => None
             }
           } else {
@@ -170,7 +170,7 @@ module TableWrapper = {
         filterKeys->Array.includes(key) ? Some((key, value)) : None
       })
       ->Dict.fromArray
-      ->Js.Json.object_
+      ->JSON.Encode.object
       ->Some
     }, [topFiltersToSearchParam])
 
@@ -221,9 +221,9 @@ module TableWrapper = {
             )
           }
         })
-        dataDict->Js.Json.object_
+        dataDict->JSON.Encode.object
       })
-      ->Js.Json.array
+      ->JSON.Encode.array
       ->getTable
       ->Array.map(Js.Nullable.return)
     }
@@ -336,25 +336,28 @@ module TableWrapper = {
 
     let timeRange =
       [
-        ("startTime", startTimeFromUrl->Js.Json.string),
-        ("endTime", endTimeFromUrl->Js.Json.string),
+        ("startTime", startTimeFromUrl->JSON.Encode.string),
+        ("endTime", endTimeFromUrl->JSON.Encode.string),
       ]->Dict.fromArray
 
-    let filters = filterValueFromUrl->Option.getOr(Dict.make()->Js.Json.object_)
+    let filters = filterValueFromUrl->Option.getOr(Dict.make()->JSON.Encode.object)
 
     let defaultFilters =
       [
-        ("timeRange", timeRange->Js.Json.object_),
+        ("timeRange", timeRange->JSON.Encode.object),
         ("filters", filters),
-        ("source", "BATCH"->Js.Json.string),
+        ("source", "BATCH"->JSON.Encode.string),
       ]->Dict.fromArray
     let dict =
       [
-        ("activeTab", activeTab->Option.getOr([])->Array.map(Js.Json.string)->Js.Json.array),
-        ("filter", defaultFilters->Js.Json.object_),
+        (
+          "activeTab",
+          activeTab->Option.getOr([])->Array.map(JSON.Encode.string)->JSON.Encode.array,
+        ),
+        ("filter", defaultFilters->JSON.Encode.object),
       ]->Dict.fromArray
 
-    setDefaultFilter(._ => dict->Js.Json.object_->Js.Json.stringify)
+    setDefaultFilter(._ => dict->JSON.Encode.object->JSON.stringify)
 
     showTable
       ? <>
@@ -606,7 +609,7 @@ let make = (
     setFilterDataJson(_ => None)
     if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
       try {
-        updateDetails(filterUri, filterBody->Js.Json.object_, Post, ())
+        updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
         ->thenResolve(json => setFilterDataJson(_ => json->Some))
         ->catch(_ => resolve())
         ->ignore
@@ -615,8 +618,8 @@ let make = (
       }
     }
     None
-  }, (startTimeVal, endTimeVal, filterBody->Js.Json.object_->Js.Json.stringify))
-  let filterData = filterDataJson->Option.getOr(Dict.make()->Js.Json.object_)
+  }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
+  let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
   let activeTab = React.useMemo1(() => {
     Some(
@@ -652,8 +655,8 @@ let make = (
               let dim = dimension->getDictFromJsonObject->getString("dimension", "")
               filteredDims->Array.includes(dim)->not
             })
-            ->Js.Json.array
-          [("queryData", queryData)]->Dict.fromArray->Js.Json.object_
+            ->JSON.Encode.array
+          [("queryData", queryData)]->Dict.fromArray->JSON.Encode.object
         }
       | _ => filterData
       }

@@ -27,7 +27,7 @@ let make = (
     onBlur: _ev => (),
     onChange,
     onFocus: _ev => (),
-    value: searchVal->Js.Json.string,
+    value: searchVal->JSON.Encode.string,
     checked: true,
   }
 
@@ -35,7 +35,7 @@ let make = (
     <ReactFinalForm.Form
       subscription=ReactFinalForm.subscribeToValues
       onSubmit=handleSubmit
-      initialValues={""->Js.Json.string}
+      initialValues={""->JSON.Encode.string}
       render={_handleSubmit => {
         InputFields.textInput(
           ~input=inputSearch,

@@ -14,7 +14,7 @@ let defaultTokenObj = {
   setToken: defaultTokenSetter,
   tokenDetailsDict: Dict.make(),
   setTokenDetailsDict: defaultDictSetter,
-  parentAuthInfo: HyperSwitchAuthTypes.getAuthInfo(Js.Json.object_(Dict.make()), ""),
+  parentAuthInfo: HyperSwitchAuthTypes.getAuthInfo(JSON.Encode.object(Dict.make()), ""),
 }
 
 let tokenContext = React.createContext(defaultTokenObj)

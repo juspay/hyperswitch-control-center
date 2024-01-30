@@ -8,10 +8,10 @@ let getEventDict = (ev: Dom.event) => {
   let objData = ev->convertToCustomEvent
   try {
     objData.data
-    ->Js.Json.decodeString
-    ->Option.map(Js.Json.parseExn)
+    ->JSON.Decode.string
+    ->Option.map(JSON.parseExn)
     ->Option.flatMap(parsedMsg => {
-      parsedMsg->Js.Json.decodeObject
+      parsedMsg->JSON.Decode.object
     })
   } catch {
   | _ => None

@@ -12,8 +12,8 @@ let allSettledPolyfill = (arr: array<promise<Js.Json.t>>) => {
       switch err {
       | Js.Exn.Error(e) =>
         let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
-        err->Js.Json.string
-      | _ => Js.Json.null
+        err->JSON.Encode.string
+      | _ => JSON.Encode.null
       }->Promise.resolve
     })
   )

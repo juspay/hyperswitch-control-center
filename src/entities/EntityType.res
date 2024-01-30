@@ -51,12 +51,12 @@ type entityType<'colType, 't> = {
 
 let emptyObj = {
   let dict = Dict.make()
-  Dict.set(dict, "offset", Js.Json.number(0.0))
-  Js.Json.object_(dict)
+  Dict.set(dict, "offset", JSON.Encode.float(0.0))
+  JSON.Encode.object(dict)
 }
 
 let defaultGetSummary = (json, totalCountKey) => {
-  switch json->Js.Json.decodeObject {
+  switch json->JSON.Decode.object {
   | Some(dict) => {
       let summary = {
         totalCount: LogicUtils.getInt(dict, totalCountKey, 0),

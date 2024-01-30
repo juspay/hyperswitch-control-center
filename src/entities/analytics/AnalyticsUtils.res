@@ -152,7 +152,7 @@ let getDateCreatedObject = () => {
   Dict.set(
     filterCreatedDict,
     endTimeFilterKey,
-    Js.Json.string(currentTimestamp->TimeZoneHook.formattedISOString(dateFormat)),
+    JSON.Encode.string(currentTimestamp->TimeZoneHook.formattedISOString(dateFormat)),
   )
 
   let prevTime = {
@@ -161,7 +161,7 @@ let getDateCreatedObject = () => {
   }
 
   let defaultStartTime = {
-    Js.Json.string(
+    JSON.Encode.string(
       prevTime
       ->Js.Date.fromFloat
       ->Js.Date.toISOString
@@ -169,7 +169,7 @@ let getDateCreatedObject = () => {
     )
   }
   Dict.set(filterCreatedDict, startTimeFilterKey, defaultStartTime)
-  Dict.set(filterCreatedDict, "opt", Js.Json.string("today"))
+  Dict.set(filterCreatedDict, "opt", JSON.Encode.string("today"))
 
   filterCreatedDict
 }
@@ -195,9 +195,9 @@ let getFilterRequestBody = (
   let timeRange = Dict.make()
   let timeSeries = Dict.make()
 
-  Dict.set(timeRange, "startTime", startDateTime->Js.Json.string)
-  Dict.set(timeRange, "endTime", endDateTime->Js.Json.string)
-  Dict.set(body, "timeRange", timeRange->Js.Json.object_)
+  Dict.set(timeRange, "startTime", startDateTime->JSON.Encode.string)
+  Dict.set(timeRange, "endTime", endDateTime->JSON.Encode.string)
+  Dict.set(body, "timeRange", timeRange->JSON.Encode.object)
 
   switch groupByNames {
   | Some(groupByNames) =>
@@ -207,8 +207,8 @@ let getFilterRequestBody = (
         "groupByNames",
         groupByNames
         ->ArrayUtils.getUniqueStrArray
-        ->Belt.Array.keepMap(item => Some(item->Js.Json.string))
-        ->Js.Json.array,
+        ->Belt.Array.keepMap(item => Some(item->JSON.Encode.string))
+        ->JSON.Encode.array,
       )
     }
   | None => ()
@@ -231,32 +231,32 @@ let getFilterRequestBody = (
   }
 
   if customFilter != "" {
-    Dict.set(body, "customFilter", customFilter->Js.Json.string)
+    Dict.set(body, "customFilter", customFilter->JSON.Encode.string)
   }
   switch granularity {
   | Some(granularity) => {
-      Dict.set(timeSeries, "granularity", granularity->Js.Json.string)
-      Dict.set(body, "timeSeries", timeSeries->Js.Json.object_)
+      Dict.set(timeSeries, "granularity", granularity->JSON.Encode.string)
+      Dict.set(body, "timeSeries", timeSeries->JSON.Encode.object)
     }
 
   | None => ()
   }
 
   switch cardinality {
-  | Some(cardinality) => Dict.set(body, "cardinality", cardinality->Js.Json.string)
+  | Some(cardinality) => Dict.set(body, "cardinality", cardinality->JSON.Encode.string)
   | None => ()
   }
   switch mode {
-  | Some(mode) => Dict.set(body, "mode", mode->Js.Json.string)
+  | Some(mode) => Dict.set(body, "mode", mode->JSON.Encode.string)
   | None => ()
   }
 
   switch prefix {
-  | Some(prefix) => Dict.set(body, "prefix", prefix->Js.Json.string)
+  | Some(prefix) => Dict.set(body, "prefix", prefix->JSON.Encode.string)
   | None => ()
   }
 
-  Dict.set(body, "source", source->Js.Json.string)
+  Dict.set(body, "source", source->JSON.Encode.string)
 
   switch metrics {
   | Some(metrics) =>
@@ -266,14 +266,14 @@ let getFilterRequestBody = (
         "metrics",
         metrics
         ->ArrayUtils.getUniqueStrArray
-        ->Belt.Array.keepMap(item => Some(item->Js.Json.string))
-        ->Js.Json.array,
+        ->Belt.Array.keepMap(item => Some(item->JSON.Encode.string))
+        ->JSON.Encode.array,
       )
     }
   | None => ()
   }
   if delta {
-    Dict.set(body, "delta", true->Js.Json.boolean)
+    Dict.set(body, "delta", true->JSON.Encode.bool)
   }
 
   body
@@ -395,35 +395,35 @@ let generatePayload = (
   ~customFilter,
 ) => {
   let timeArr = Dict.fromArray([
-    ("startTime", startTime->Js.Json.string),
-    ("endTime", endTime->Js.Json.string),
+    ("startTime", startTime->JSON.Encode.string),
+    ("endTime", endTime->JSON.Encode.string),
   ])
   let newDict = switch groupByNames {
   | Some(groupByNames) =>
     Dict.fromArray([
-      ("timeRange", timeArr->Js.Json.object_),
+      ("timeRange", timeArr->JSON.Encode.object),
       ("metrics", metrics->Js.Json.stringArray),
       ("groupByNames", groupByNames->Js.Json.stringArray),
-      ("prefix", prefix->Js.Json.string),
-      ("source", source->Js.Json.string),
-      ("delta", delta->Js.Json.boolean),
+      ("prefix", prefix->JSON.Encode.string),
+      ("source", source->JSON.Encode.string),
+      ("delta", delta->JSON.Encode.bool),
     ])
   | None =>
     Dict.fromArray([
-      ("timeRange", timeArr->Js.Json.object_),
+      ("timeRange", timeArr->JSON.Encode.object),
       ("metrics", metrics->Js.Json.stringArray),
-      ("prefix", prefix->Js.Json.string),
-      ("source", source->Js.Json.string),
-      ("delta", delta->Js.Json.boolean),
+      ("prefix", prefix->JSON.Encode.string),
+      ("source", source->JSON.Encode.string),
+      ("delta", delta->JSON.Encode.bool),
     ])
   }
 
   switch mode {
-  | Some(mode) => Dict.set(newDict, "mode", mode->Js.Json.string)
+  | Some(mode) => Dict.set(newDict, "mode", mode->JSON.Encode.string)
   | None => ()
   }
   if customFilter != "" {
-    Dict.set(newDict, "customFilter", customFilter->Js.Json.string)
+    Dict.set(newDict, "customFilter", customFilter->JSON.Encode.string)
   }
   switch filters {
   | Some(filters) =>
@@ -582,8 +582,8 @@ let generateTablePayload = (
   let tableBody =
     tableBodyValues
     ->Array.concatMany([deltaPayload, distributionPayload])
-    ->Array.map(Js.Json.object_)
-    ->Js.Json.array
+    ->Array.map(JSON.Encode.object)
+    ->JSON.Encode.array
   tableBody
 }
 

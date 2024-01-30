@@ -834,7 +834,7 @@ module HeaderActions = {
       onBlur: _ev => (),
       onChange,
       onFocus: _ev => (),
-      value: order->getSortOrderToString->Js.Json.string,
+      value: order->getSortOrderToString->JSON.Encode.string,
       checked: true,
     }
     let customButton = switch filterRow {

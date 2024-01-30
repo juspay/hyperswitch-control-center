@@ -90,7 +90,7 @@ let make = (
       ),
       title: {
         "text": "",
-        "style": Js.Json.object_(Dict.make()),
+        "style": JSON.Encode.object(Dict.make()),
       }->genericObjectOrRecordToJson,
       credits: {
         "enabled": false,
@@ -143,7 +143,7 @@ let make = (
         "visible": false,
         "title": {
           "text": "",
-          "style": Js.Json.object_(Dict.make()),
+          "style": JSON.Encode.object(Dict.make()),
         }->genericObjectOrRecordToJson,
         "labels": {"formatter": None, "enabled": false, "useHTML": false}->Some,
         "zoomEnabled": false,

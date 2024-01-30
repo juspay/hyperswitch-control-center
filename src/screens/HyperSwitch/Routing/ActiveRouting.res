@@ -35,13 +35,13 @@ module ActionButtons = {
       try {
         let requestedBody =
           [
-            ("rating", 5.0->Js.Json.number),
-            ("category", "Routing request"->Js.Json.string),
-            ("feedbacks", `Request for Cost based Routing`->Js.Json.string),
+            ("rating", 5.0->JSON.Encode.float),
+            ("category", "Routing request"->JSON.Encode.string),
+            ("feedbacks", `Request for Cost based Routing`->JSON.Encode.string),
           ]
           ->LogicUtils.getJsonFromArrayOfJson
           ->HSwitchUtils.getBodyForFeedBack()
-          ->Js.Json.object_
+          ->JSON.Encode.object
 
         let feedbackUrl = APIUtils.getURL(
           ~entityName=USERS,

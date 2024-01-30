@@ -125,23 +125,23 @@ module LineChart1D = {
                     ->Js.Date.getHours
                     ->Float.toString}:00`
                   ->String.sliceToEnd(~start=-5)
-                  ->Js.Json.string
+                  ->JSON.Encode.string
                 } else if "run_month" === groupKey {
                   xAxis
                   ->Js.Date.fromFloat
                   ->DateTimeUtils.toUtc
                   ->Js.Date.getDate
                   ->Float.toString
-                  ->Js.Json.string
+                  ->JSON.Encode.string
                 } else if "run_week" === groupKey {
                   switch DateTimeUtils.daysArr[
                     xAxis->Js.Date.fromFloat->DateTimeUtils.toUtc->Js.Date.getDay->Float.toInt
                   ] {
                   | Some(ele) => DateTimeUtils.dayMapper(ele)
                   | None => ""
-                  }->Js.Json.string
+                  }->JSON.Encode.string
                 } else {
-                  xAxis->Js.Json.number
+                  xAxis->JSON.Encode.float
                 }
 
                 (updatedXAxis, yAxis, xY)
@@ -169,8 +169,8 @@ module LineChart1D = {
             let (x, y, secondryMetrics) = axes
             xAxisMapInfo->LineChartUtils.appendToDictValue(
               ["run_date", "run_month", "run_week"]->Array.includes(groupKey)
-                ? x->Js.Json.decodeString->Option.getOr("")
-                : x->Js.Json.stringify,
+                ? x->JSON.Decode.string->Option.getOr("")
+                : x->JSON.stringify,
               (
                 item.name,
                 {
@@ -674,7 +674,7 @@ module LineChart1D = {
               },
             }->genericObjectOrRecordToJson
 
-            labelsValue->getDictFromJsonObject->deleteKey("style")->Js.Json.object_
+            labelsValue->getDictFromJsonObject->deleteKey("style")->JSON.Encode.object
           },
         }->genericObjectOrRecordToJson,
         series: chartData,
@@ -830,7 +830,7 @@ module RenderMultiDimensionalChart = {
             data: i.data->Array.map(
               item => {
                 let (val1, val2, val3) = item
-                (val1->Js.Json.number, val2, val3)
+                (val1->JSON.Encode.float, val2, val3)
               },
             ),
             legendIndex: i.legendIndex,

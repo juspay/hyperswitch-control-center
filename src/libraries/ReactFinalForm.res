@@ -71,7 +71,7 @@ let makeCustomError = error => {
     valid: true,
     validating: true,
     visited: true,
-    value: Js.Json.null,
+    value: JSON.Encode.null,
   }
 }
 
@@ -196,9 +196,9 @@ let useFormSubscription = (keys): formSubscription => {
   React.useMemo0(() => {
     let dict = Dict.make()
     Js.Array.forEach(key => {
-      Dict.set(dict, key, Js.Json.boolean(true))
+      Dict.set(dict, key, JSON.Encode.bool(true))
     }, keys)
-    dict->Js.Json.object_
+    dict->JSON.Encode.object
   })
 }
 
@@ -235,7 +235,7 @@ external makeUseFieldOption: (
 external useFieldWithOptions: (string, useFieldOption) => fieldRenderProps = "useField"
 
 let makeFakeInput = (
-  ~value=Js.Json.null,
+  ~value=JSON.Encode.null,
   ~onChange=_ev => (),
   ~onBlur=_ev => (),
   ~onFocus=_ev => (),

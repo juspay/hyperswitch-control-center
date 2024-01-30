@@ -2,7 +2,7 @@ module HostURL = {
   @react.component
   let make = (~prefix="") => {
     let fieldInputVal = ReactFinalForm.useField(`${prefix}`).input
-    let fieldInput = switch fieldInputVal.value->Js.Json.decodeString {
+    let fieldInput = switch fieldInputVal.value->JSON.Decode.string {
     | Some(val) => val->String.length > 0 ? val : "domain_name"
     | None => "domain_name"
     }

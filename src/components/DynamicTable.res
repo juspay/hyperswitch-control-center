@@ -1,6 +1,6 @@
 let useRemoteFilter = (~searchParams, ~remoteFilters, ~remoteOptions, ~mandatoryRemoteKeys) => {
   let (remoteFiltersFromUrl, setRemoteFiltersFromUrl) = React.useState(() =>
-    Js.Json.object_(Dict.make())
+    JSON.Encode.object(Dict.make())
   )
 
   let remoteFiltersFromUrlTemp = React.useMemo1(() => {
@@ -12,7 +12,7 @@ let useRemoteFilter = (~searchParams, ~remoteFilters, ~remoteOptions, ~mandatory
       (),
     )
   }, [searchParams])
-  if remoteFiltersFromUrlTemp->Js.Json.stringify !== remoteFiltersFromUrl->Js.Json.stringify {
+  if remoteFiltersFromUrlTemp->JSON.stringify !== remoteFiltersFromUrl->JSON.stringify {
     setRemoteFiltersFromUrl(_prev => remoteFiltersFromUrlTemp)
   }
   remoteFiltersFromUrl
@@ -177,7 +177,7 @@ let make = (
         DictionaryUtils.mergeDicts([
           b->LogicUtils.getDictFromJsonObject,
           remoteFilterDict,
-        ])->Js.Json.object_
+        ])->JSON.Encode.object
       } else {
         b
       }
@@ -239,7 +239,7 @@ let make = (
     }
     let uri = uri ++ getNewUrl(defaultFilters)
     setTableDataLoading(_ => true)
-    fetchApi(uri, ~bodyStr=Js.Json.stringify(finalJson), ~headers, ~method_=method, ())
+    fetchApi(uri, ~bodyStr=JSON.stringify(finalJson), ~headers, ~method_=method, ())
     ->then(resp => {
       let status = resp->Fetch.Response.status
       if status >= 300 {
@@ -250,9 +250,9 @@ let make = (
       Fetch.Response.json(resp)
     })
     ->then(json => {
-      switch json->Js.Json.classify {
-      | JSONArray(_arr) => json->getObjects->Array.map(obj => obj->Js.Nullable.return)->setNewData
-      | JSONObject(dict) => {
+      switch json->JSON.Classify.classify {
+      | Array(_arr) => json->getObjects->Array.map(obj => obj->Js.Nullable.return)->setNewData
+      | Object(dict) => {
           let flattenedObject = JsonFlattenUtils.flattenObject(json, false)
           switch Dict.get(flattenedObject, dataKey) {
           | Some(x) => x->getObjects->Array.map(obj => obj->Js.Nullable.return)->setNewData
@@ -260,7 +260,7 @@ let make = (
           }
           let summary = switch Dict.get(dict, summaryKey) {
           | Some(x) => x->getSummary
-          | None => dict->Js.Json.object_->getSummary
+          | None => dict->JSON.Encode.object->getSummary
           }
           setSummary(_ => summary)
         }
@@ -301,14 +301,10 @@ let make = (
     if rowFetched !== summary.totalCount {
       setTableDataLoading(_ => true)
       let newDefaultFilter =
-        defaultFilters
-        ->Js.Json.decodeObject
-        ->Option.getOr(Dict.make())
-        ->Dict.toArray
-        ->Dict.fromArray
+        defaultFilters->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
 
-      Dict.set(newDefaultFilter, "offset", rowFetched->Js.Int.toFloat->Js.Json.number)
-      setDefaultFilters(_ => newDefaultFilter->Js.Json.object_)
+      Dict.set(newDefaultFilter, "offset", rowFetched->Js.Int.toFloat->JSON.Encode.float)
+      setDefaultFilters(_ => newDefaultFilter->JSON.Encode.object)
     }
   }
 

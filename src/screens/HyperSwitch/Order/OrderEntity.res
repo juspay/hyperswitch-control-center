@@ -263,7 +263,7 @@ let refundMetaitemToObjMapper = dict => {
 }
 
 let getRefundMetaData: Js.Json.t => refundMetaData = json => {
-  json->Js.Json.decodeObject->Option.getOr(Dict.make())->refundMetaitemToObjMapper
+  json->JSON.Decode.object->Option.getOr(Dict.make())->refundMetaitemToObjMapper
 }
 
 let refunditemToObjMapper = dict => {
@@ -765,7 +765,7 @@ let getCell = (order, colType: colType): Table.cell => {
   | ProfileId => Text(order.profile_id)
   | Refunds =>
     Text(
-      switch order.refunds->Js.Json.stringifyAny {
+      switch order.refunds->JSON.stringifyAny {
       | None => "-"
       | Some(v) => v
       },
@@ -871,7 +871,7 @@ let itemToObjMapper = dict => {
     connector_transaction_id: dict->getString("connector_transaction_id", ""),
     refunds: dict
     ->getArrayFromDict("refunds", [])
-    ->Js.Json.array
+    ->JSON.Encode.array
     ->getArrayDataFromJson(refunditemToObjMapper),
     profile_id: dict->getString("profile_id", ""),
     frm_message: dict->getFRMDetails,

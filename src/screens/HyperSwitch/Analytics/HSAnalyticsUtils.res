@@ -72,11 +72,7 @@ let filterByData = (txnArr, value) => {
       ->Array.map(item => {
         let (_, value) = item
 
-        value
-        ->Js.Json.decodeString
-        ->Option.getOr("")
-        ->String.toLowerCase
-        ->String.includes(searchText)
+        value->JSON.Decode.string->Option.getOr("")->String.toLowerCase->String.includes(searchText)
       })
       ->Array.reduce(false, (acc, item) => item || acc)
     if valueArr {
@@ -308,6 +304,6 @@ let generateTablePayload = (
     tableBodyWithNonDeltaMetrix->Array.concatMany([tableBodyWithDeltaMetrix, tableIndustryPayload])
 
   let tableBody =
-    tableBodyValues->Array.concat(deltaPayload)->Array.map(Js.Json.object_)->Js.Json.array
+    tableBodyValues->Array.concat(deltaPayload)->Array.map(JSON.Encode.object)->JSON.Encode.array
   tableBody
 }

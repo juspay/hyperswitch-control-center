@@ -521,9 +521,9 @@ module FormError = {
     let subscriptionJson = {
       let subscriptionDict = Dict.make()
 
-      Dict.set(subscriptionDict, "submitErrors", Js.Json.boolean(true))
+      Dict.set(subscriptionDict, "submitErrors", JSON.Encode.bool(true))
 
-      Js.Json.object_(subscriptionDict)
+      JSON.Encode.object(subscriptionDict)
     }
 
     React.useEffect0(() => {
@@ -537,7 +537,7 @@ module FormError = {
     })
     switch submitErrors {
     | Some(errorsJson) =>
-      switch errorsJson->Js.Json.decodeObject {
+      switch errorsJson->JSON.Decode.object {
       | Some(dict) =>
         let errStr = switch Dict.get(dict, "FORM_ERROR") {
         | Some(err) => LogicUtils.getStringFromJson(err, "")
@@ -594,11 +594,11 @@ module SubmitButton = {
       "submitErrors",
       "submitting",
     ]->Array.forEach(item => {
-      Dict.set(dict, item, Js.Json.boolean(true))
+      Dict.set(dict, item, JSON.Encode.bool(true))
     })
 
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      dict->Js.Json.object_->Js.Nullable.return,
+      dict->JSON.Encode.object->Js.Nullable.return,
     )
     let {hasValidationErrors, hasSubmitErrors, submitting, dirtySinceLastSubmit, errors} = formState
 

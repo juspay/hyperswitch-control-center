@@ -124,7 +124,7 @@ module Details = {
           ~id=Some(data.dispute_id),
           (),
         )
-        let response = await updateDetails(url, Dict.make()->Js.Json.object_, Post, ())
+        let response = await updateDetails(url, Dict.make()->JSON.Encode.object, Post, ())
         setDisputeData(_ => response)
         setDisputeStatus(_ => Accepted)
       } catch {
@@ -231,7 +231,7 @@ let make = (~id) => {
   open APIUtils
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (disputeData, setDisputeData) = React.useState(_ => Js.Json.null)
+  let (disputeData, setDisputeData) = React.useState(_ => JSON.Encode.null)
 
   let fetchDisputesData = async () => {
     try {

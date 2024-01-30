@@ -59,18 +59,18 @@ let validateFields = (values, ~modalType) => {
   switch modalType {
   | FeedBackModal => {
       if values->getInt("rating", -1) === -1 {
-        errors->Dict.set("rating", "Please rate"->Js.Json.string)
+        errors->Dict.set("rating", "Please rate"->JSON.Encode.string)
       }
 
       if values->getString("category", "") !== "" && values->getString("feedbacks", "") === "" {
-        errors->Dict.set("feedbacks", "Please give the feedback"->Js.Json.string)
+        errors->Dict.set("feedbacks", "Please give the feedback"->JSON.Encode.string)
       }
     }
   | RequestConnectorModal =>
     if values->getString("connector_name", "")->String.length <= 0 {
-      errors->Dict.set("connector_name", "Please enter a connector name"->Js.Json.string)
+      errors->Dict.set("connector_name", "Please enter a connector name"->JSON.Encode.string)
     }
   }
 
-  errors->Js.Json.object_
+  errors->JSON.Encode.object
 }

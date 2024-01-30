@@ -25,7 +25,7 @@ let make = () => {
     let connectorList =
       profileList
       ->Array.get(0)
-      ->Option.getOr(Js.Json.null)
+      ->Option.getOr(JSON.Encode.null)
       ->LogicUtils.getDictFromJsonObject
       ->LogicUtils.getArrayFromDict("connectors", [])
     if connectorList->Array.length > 0 {
@@ -78,7 +78,7 @@ let make = () => {
         )}/profile/${profile}`
 
       (
-        await updateDetails(defaultFallbackUpdateUrl, defaultPayload->Js.Json.array, Post, ())
+        await updateDetails(defaultFallbackUpdateUrl, defaultPayload->JSON.Encode.array, Post, ())
       )->ignore
       RescriptReactRouter.replace(`/routing/default`)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -99,7 +99,7 @@ let make = () => {
   }
 
   <div>
-    <Form initialValues={Dict.make()->Js.Json.object_}>
+    <Form initialValues={Dict.make()->JSON.Encode.object}>
       <div className="w-full flex justify-between">
         <BasicDetailsForm.BusinessProfileInp
           setProfile={setProfile}

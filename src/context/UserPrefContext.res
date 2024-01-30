@@ -176,8 +176,8 @@ let make = (~children) => {
       (key, value->userPrefToJson)
     })
     ->Dict.fromArray
-    ->Js.Json.object_
-    ->Js.Json.stringify
+    ->JSON.Encode.object
+    ->JSON.stringify
 
   let value = React.useMemo4(() => {
     let currentConfig = userPref->Dict.get(username)->Option.getOr({})

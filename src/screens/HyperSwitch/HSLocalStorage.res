@@ -23,5 +23,5 @@ let getIsPlaygroundFromLocalStorage = () => {
 }
 
 let setIsPlaygroundInLocalStorage = (val: bool) => {
-  LocalStorage.setItem("isPlayground", val->Js.Json.boolean->Js.Json.stringify)
+  LocalStorage.setItem("isPlayground", val->JSON.Encode.bool->JSON.stringify)
 }
