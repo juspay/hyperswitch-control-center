@@ -4,9 +4,9 @@ let getCurrentDetailedUTCTime = () => {
 
 let getCurrentShortUTCTime = () => {
   let currentDate = Js.Date.now()->Js.Date.fromFloat
-  let currMonth = currentDate->Js.Date.getUTCMonth->Belt.Float.toString
-  let currDay = currentDate->Js.Date.getUTCDate->Belt.Float.toString
-  let currYear = currentDate->Js.Date.getUTCFullYear->Belt.Float.toString
+  let currMonth = currentDate->Js.Date.getUTCMonth->Float.toString
+  let currDay = currentDate->Js.Date.getUTCDate->Float.toString
+  let currYear = currentDate->Js.Date.getUTCFullYear->Float.toString
 
   `${currYear}-${currMonth}-${currDay}`
 }

@@ -107,14 +107,14 @@ module SidebarChecklist = {
 
     let getProgressText = switch progressState {
     | 2 => `0% completed`
-    | _ => `${progressState->Belt.Int.toString}% completed`
+    | _ => `${progressState->Int.toString}% completed`
     }
     <div className="flex flex-col h-full w-[30rem] border bg-white shadow shadow-sidebarShadow">
       <p className="font-semibold text-xl p-6"> {"Setup Basic Live Account"->React.string} </p>
       <div className=dividerColor />
       <div className="flex flex-col gap-4 px-6 py-8">
         <p className=" text-grey-700 text-base font-normal"> {getProgressText->React.string} </p>
-        <ProgressBar progressState={progressState->Belt.Int.toString} />
+        <ProgressBar progressState={progressState->Int.toString} />
       </div>
       <div className=dividerColor />
       {updatedCheckList
@@ -177,7 +177,7 @@ let make = () => {
       if setupCompleteResponse->getDictFromJsonObject->getBool("SetupComplete", false) {
         setDashboardPageState(_ => #HOME)
         let baseUrlPath = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${routerUrl.path
-          ->Belt.List.toArray
+          ->List.toArray
           ->Array.joinWith("/")}`
         routerUrl.search->String.length > 0
           ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)

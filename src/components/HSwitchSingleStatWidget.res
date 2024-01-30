@@ -67,7 +67,7 @@ let make = (
     } else if statType === "LatencyMs" {
       latencyShortNum(~labelValue=value, ~includeMilliseconds=true, ())
     } else {
-      value->Belt.Float.toString
+      value->Float.toString
     }
   }
 

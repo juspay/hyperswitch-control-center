@@ -21,7 +21,7 @@ module CustomerInfo = {
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
               <UIUtils.RenderIf condition={!(excludeColKeys->Array.includes(colType))}>
-                <div className={`flex ${widthClass} items-center`} key={Belt.Int.toString(i)}>
+                <div className={`flex ${widthClass} items-center`} key={Int.toString(i)}>
                   <OrderUtils.DisplayKeyValueParams
                     heading={getHeading(colType)}
                     value={getCell(data, colType)}

@@ -47,9 +47,7 @@ let make = (
 
   let len = values->Array.length
   let buttonText =
-    submitButtonText->Option.getOr(
-      len > 0 ? `${len->Belt.Int.toString} ${title} Selected` : "Select",
-    )
+    submitButtonText->Option.getOr(len > 0 ? `${len->Int.toString} ${title} Selected` : "Select")
 
   React.useEffect2(() => {
     if !showModal {

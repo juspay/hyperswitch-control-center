@@ -33,7 +33,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open HSwitchUtils
   open MerchantAccountUtils
   let url = RescriptReactRouter.useUrl()
-  let id = url.path->Belt.List.toArray->Array.get(1)->Option.getOr(profileId)
+  let id = url.path->List.toArray->Array.get(1)->Option.getOr(profileId)
   let businessProfileDetails = useGetBusinessProflile(id)
 
   let showToast = ToastState.useShowToast()
@@ -133,7 +133,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   ->Array.filter(urlField => urlField.label === "Webhook URL" || !webhookOnly)
                   ->Array.mapWithIndex((field, index) =>
                     <FormRenderer.FieldRenderer
-                      key={index->Belt.Int.toString}
+                      key={index->Int.toString}
                       field
                       errorClass
                       labelClass="!text-base !text-grey-700 font-semibold"

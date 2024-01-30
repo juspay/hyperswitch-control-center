@@ -183,7 +183,7 @@ let make = (
     let finalFieldList = selectedFiltersList->Array.filter(val => {
       val.inputNames
       ->Array.get(0)
-      ->Belt.Option.map(name => !{toBeRemoved->Array.includes(name)})
+      ->Option.map(name => !{toBeRemoved->Array.includes(name)})
       ->Option.getOr(false)
     })
     let filtersAfterRemoving =

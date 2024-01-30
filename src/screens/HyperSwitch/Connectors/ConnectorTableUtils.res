@@ -216,7 +216,7 @@ let getArrayDataFromJson = (json, itemToObjMapper: Dict.t<Js.Json.t> => connecto
 }
 
 let comparatorFunction = (connector1: connectorPayload, connector2: connectorPayload) => {
-  connector1.connector_name->String.localeCompare(connector2.connector_name)->Belt.Float.toInt
+  connector1.connector_name->String.localeCompare(connector2.connector_name)->Float.toInt
 }
 
 let sortPreviouslyConnectedList = arr => {

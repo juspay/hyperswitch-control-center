@@ -187,7 +187,7 @@ module ListItem = {
     let comp =
       <AddDataAttributes
         attributes=[
-          ("data-dropdown-numeric", (dataId + 1)->Belt.Int.toString),
+          ("data-dropdown-numeric", (dataId + 1)->Int.toString),
           ("data-dropdown-value", labelText),
           ("data-dropdown-value-selected", {isSelected} ? "True" : "False"),
         ]>
@@ -596,8 +596,8 @@ module BaseSelect = {
         })
 
     let searchRef = React.useRef(Js.Nullable.null)
-    let selectBtnRef = insertselectBtnRef->Belt.Option.map(ReactDOM.Ref.callbackDomRef)
-    let clearBtnRef = insertclearBtnRef->Belt.Option.map(ReactDOM.Ref.callbackDomRef)
+    let selectBtnRef = insertselectBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
+    let clearBtnRef = insertclearBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
     let (isChooseAllToggleSelected, setChooseAllToggleSelected) = React.useState(() => false)
     let gapClass = switch optionRigthElement {
     | Some(_) => "flex gap-4"
@@ -891,7 +891,7 @@ module BaseSelect = {
         <UIUtils.RenderIf condition={isDropDown && noOfSelected > 0 && showSelectCountButton}>
           <Button
             buttonType=Primary
-            text={`Select ${noOfSelected->Belt.Int.toString}`}
+            text={`Select ${noOfSelected->Int.toString}`}
             flattenTop=true
             customButtonStyle="w-full items-center"
             onClick
@@ -1173,7 +1173,7 @@ let getSortedKeys = hashMappedOptions => {
     switch (a, b) {
     | ("-", _) => 1
     | (_, "-") => -1
-    | (_, _) => String.compare(a, b)->Belt.Float.toInt
+    | (_, _) => String.compare(a, b)->Float.toInt
     }
   })
 }
@@ -1616,10 +1616,10 @@ module BaseDropdown = {
         ->Js.Nullable.toOption
         ->Option.flatMap(elem => elem->getClientRects->toDict->Dict.get("0"))
         ->Option.flatMap(firstEl => {
-          let bottomVacent = Window.innerHeight - firstEl["bottom"]->Belt.Float.toInt > 375
-          let topVacent = firstEl["top"]->Belt.Float.toInt > 470
-          let rightVacent = Window.innerWidth - firstEl["left"]->Belt.Float.toInt > 270
-          let leftVacent = firstEl["right"]->Belt.Float.toInt > 270
+          let bottomVacent = Window.innerHeight - firstEl["bottom"]->Float.toInt > 375
+          let topVacent = firstEl["top"]->Float.toInt > 470
+          let rightVacent = Window.innerWidth - firstEl["left"]->Float.toInt > 270
+          let leftVacent = firstEl["right"]->Float.toInt > 270
 
           if bottomVacent {
             rightVacent ? BottomRight : leftVacent ? BottomLeft : BottomMiddle
@@ -1656,28 +1656,26 @@ module BaseDropdown = {
     }
 
     let allSellectedOptions = React.useMemo2(() => {
-      open Belt.Option
       newInputSelect.value
       ->Js.Json.decodeArray
-      ->getWithDefault([])
+      ->Option.getOr([])
       ->Belt.Array.keepMap(Js.Json.decodeString)
       ->Belt.Array.keepMap(str => {
-        transformedOptions->Array.find(x => x.value == str)->map(x => x.label)
+        transformedOptions->Array.find(x => x.value == str)->Option.map(x => x.label)
       })
       ->Array.joinWith(", ")
       ->LogicUtils.getNonEmptyString
-      ->getWithDefault(buttonText)
+      ->Option.getOr(buttonText)
     }, (transformedOptions, newInputSelect.value))
 
     let title = showAllSelectedOptions ? allSellectedOptions : buttonText
 
     let badgeForSelect = React.useMemo1((): Button.badge => {
-      open Belt.Option
-      let count = newInputSelect.value->Js.Json.decodeArray->getWithDefault([])->Array.length
+      let count = newInputSelect.value->Js.Json.decodeArray->Option.getOr([])->Array.length
       let condition = count > 1
 
       {
-        value: count->Belt.Int.toString,
+        value: count->Int.toString,
         color: condition ? BadgeBlue : NoBadge,
       }
     }, [newInputSelect.value])
@@ -1836,7 +1834,7 @@ module BaseDropdown = {
                           ellipsisOnly={ellipsisOnly || !showSelectionAsChips}
                           badge={!showSelectionAsChips
                             ? badgeForSelect
-                            : {value: 0->Belt.Int.toString, color: NoBadge}}
+                            : {value: 0->Int.toString, color: NoBadge}}
                           rightIcon={CustomIcon(buttonIcon)}
                           buttonState={disableSelect ? Disabled : Normal}
                           fullLength

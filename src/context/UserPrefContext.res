@@ -47,10 +47,7 @@ let make = (~children) => {
   }
   let (userPref, setUserPref) = React.useState(_ => userPrefInitialVal)
   let url = RescriptReactRouter.useUrl()
-  let urlPathConcationation = `/${url.path
-    ->LogicUtils.stripV4
-    ->Belt.List.toArray
-    ->Array.joinWith("/")}`
+  let urlPathConcationation = `/${url.path->LogicUtils.stripV4->List.toArray->Array.joinWith("/")}`
   // UPDATE THE LAST VISITED TAB
   React.useEffect2(() => {
     if urlPathConcationation !== "/" {

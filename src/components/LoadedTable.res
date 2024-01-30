@@ -277,7 +277,7 @@ let make = (
     setFirstRender(_ => false)
     setOffset(_ => pageDetail.offset)
     None
-  }, [url.path->Belt.List.toArray->Array.joinWith("/")])
+  }, [url.path->List.toArray->Array.joinWith("/")])
 
   React.useEffect1(_ => {
     if pageDetail.offset !== offset && !firstRender {
@@ -499,7 +499,7 @@ let make = (
       Some(
         showSerialNumber && tableLocalFilter
           ? Array.concat(
-              [Table.Range("s_no", 0., actualData->Array.length->Belt.Int.toFloat)],
+              [Table.Range("s_no", 0., actualData->Array.length->Int.toFloat)],
               columnFilterRow,
             )
           : columnFilterRow,
@@ -569,7 +569,7 @@ let make = (
           })
         let startPoint = sNoArr->Array.get(0)->Option.getOr(1.->Js.Json.number)
         let endPoint = sNoArr->Array.get(1)->Option.getOr(1.->Js.Json.number)
-        let jsonIndex = (index + 1)->Belt.Int.toFloat->Js.Json.number
+        let jsonIndex = (index + 1)->Int.toFloat->Js.Json.number
         sNoArr->Array.length > 0
           ? {
               startPoint <= jsonIndex && endPoint >= jsonIndex ? visibleCell : []
@@ -595,9 +595,9 @@ let make = (
         actualRows
         ->Array.unshift(
           Numeric(
-            (1 + index)->Belt.Int.toFloat,
+            (1 + index)->Int.toFloat,
             (val: float) => {
-              val->Belt.Float.toString
+              val->Float.toString
             },
           ),
         )
@@ -890,7 +890,6 @@ let make = (
       | None =>
         <UIUtils.RenderIf condition={searchFields->Array.length > 0}>
           <AdvancedSearchModal searchFields url=searchUrl entity />
-          // <PaymentLinkAdvancedSearch searchFields url=searchUrl />
         </UIUtils.RenderIf>
       }}
       <DesktopView>
@@ -926,7 +925,6 @@ let make = (
     <div className="w-full">
       <div className=addDataAttributesClass style={ReactDOMStyle.make(~zIndex="2", ())}>
         //removed "sticky" -> to be tested with master
-
         <div
           className={`flex flex-row justify-between items-center` ++ (
             hideTitle ? "" : ` mt-4 mb-2`

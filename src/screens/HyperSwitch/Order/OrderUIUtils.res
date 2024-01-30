@@ -63,7 +63,6 @@ module GenerateSampleDataButton = {
         access={userPermissionJson.paymentWrite}
         buttonType={Secondary}
         text="Generate Sample Data"
-        customButtonStyle="!px-6 text-fs-13"
         onClick={_ => generateSampleData()->ignore}
         leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
       />

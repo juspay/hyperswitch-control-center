@@ -1,4 +1,4 @@
-let getFloat = strJson => strJson->Js.Json.decodeString->Option.flatMap(Belt.Float.fromString)
+let getFloat = strJson => strJson->Js.Json.decodeString->Option.flatMap(Float.fromString)
 
 @react.component
 let make = (
@@ -36,7 +36,7 @@ let make = (
           elem
           ->Webapi.Dom.Element.getAttribute("placeholder")
           ->Option.mapOr(length, str => Js.Math.max_int(length, str->String.length))
-          ->Belt.Int.toString
+          ->Int.toString
 
         elem->Webapi.Dom.Element.setAttribute("size", size)
       | None => ()
@@ -99,8 +99,8 @@ let make = (
       let numericPrevLocalValue =
         prevLocalStr
         ->Js.Json.decodeString
-        ->Option.flatMap(Belt.Float.fromString)
-        ->Belt.Option.map(Js.Json.number)
+        ->Option.flatMap(Float.fromString)
+        ->Option.map(Js.Json.number)
         ->Option.getOr(Js.Json.null)
       if input.value === numericPrevLocalValue {
         prevLocalStr

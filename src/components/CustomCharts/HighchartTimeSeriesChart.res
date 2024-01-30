@@ -123,7 +123,7 @@ module LineChart1D = {
                     ->Js.Date.fromFloat
                     ->DateTimeUtils.toUtc
                     ->Js.Date.getHours
-                    ->Belt.Float.toString}:00`
+                    ->Float.toString}:00`
                   ->String.sliceToEnd(~start=-5)
                   ->Js.Json.string
                 } else if "run_month" === groupKey {
@@ -131,11 +131,11 @@ module LineChart1D = {
                   ->Js.Date.fromFloat
                   ->DateTimeUtils.toUtc
                   ->Js.Date.getDate
-                  ->Belt.Float.toString
+                  ->Float.toString
                   ->Js.Json.string
                 } else if "run_week" === groupKey {
                   switch DateTimeUtils.daysArr[
-                    xAxis->Js.Date.fromFloat->DateTimeUtils.toUtc->Js.Date.getDay->Belt.Float.toInt
+                    xAxis->Js.Date.fromFloat->DateTimeUtils.toUtc->Js.Date.getDay->Float.toInt
                   ] {
                   | Some(ele) => DateTimeUtils.dayMapper(ele)
                   | None => ""
@@ -622,7 +622,7 @@ module LineChart1D = {
                   let positions = NumericUtils.pretty([lower_bound, upper_bound], 5)
 
                   let positionArr =
-                    Belt.Array.concat(positions, [threshold])->Js.Array2.sortInPlaceWith(
+                    Array.concat(positions, [threshold])->Js.Array2.sortInPlaceWith(
                       numericArraySortComperator,
                     )
                   positionArr
@@ -801,7 +801,7 @@ module LegendItem = {
 
 module RenderMultiDimensionalChart = {
   type config = {
-    chartDictData: Dict.t<Belt.Array.t<Js.Json.t>>,
+    chartDictData: Dict.t<Js.Array.t<Js.Json.t>>,
     class: string,
     selectedMetrics: LineChartUtils.metricsConfig,
     groupBy: string,
@@ -853,7 +853,7 @@ module RenderMultiDimensionalChart = {
               let (key, value) = item
 
               <LineChart1D
-                key={index->Belt.Int.toString}
+                key={index->Int.toString}
                 class=config.class
                 rawChartData=value
                 commonColorsArr={LineChartUtils.removeDuplicates(chartNames)}

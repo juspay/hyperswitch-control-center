@@ -112,8 +112,8 @@ let reduceOpacity = str => {
   switch match {
   | Some(val) => {
       let opacity = val->Array.get(1)->Option.flatMap(a => a)->Option.getOr("0")
-      let newOpacity = opacity->Belt.Float.fromString->Option.getOr(0.0) /. 10.0
-      str->String.replace(opacity, newOpacity->Belt.Float.toString)
+      let newOpacity = opacity->Float.fromString->Option.getOr(0.0) /. 10.0
+      str->String.replace(opacity, newOpacity->Float.toString)
     }
   | None => "0"
   }
@@ -190,7 +190,7 @@ let legendTypeBasedOnMetric = (metric_type: dropDownMetricType) => {
 }
 let appendToDictValue = (dict, key, value) => {
   let updatedValue = switch dict->Dict.get(key) {
-  | Some(val) => Belt.Array.concat(val, [value])
+  | Some(val) => Array.concat(val, [value])
   | None => [value]
   }
   dict->Dict.set(key, updatedValue)
@@ -297,7 +297,7 @@ let timeSeriesDataMaker = (
         (xAxisDataPoint->DateTimeUtils.parseAsFloat, yAxisDataPoint, secondryAxisPoint),
       )
       groupedByTime->addToDictValueFloat(
-        xAxisDataPoint->DateTimeUtils.parseAsFloat->Belt.Float.toString,
+        xAxisDataPoint->DateTimeUtils.parseAsFloat->Float.toString,
         yAxisDataPoint,
       )
     }
@@ -318,7 +318,7 @@ let timeSeriesDataMaker = (
       ->Array.map(item => {
         let (key, value, secondryMetrix) = item
         let trafficValue =
-          value *. 100. /. groupedByTime->Dict.get(key->Belt.Float.toString)->Option.getOr(1.)
+          value *. 100. /. groupedByTime->Dict.get(key->Float.toString)->Option.getOr(1.)
         (key, trafficValue, secondryMetrix)
       })
       ->Js.Array2.sortInPlaceWith(chartDataSortBasedOnTime)
@@ -414,7 +414,7 @@ let getLegendDataForCurrentMetrix = (
       let value: legendTableData = {
         groupByName: key,
         overall,
-        average: overall /. arrLen->Belt.Int.toFloat,
+        average: overall /. arrLen->Int.toFloat,
         current: currentVal,
       }
       value
@@ -447,7 +447,7 @@ let getLegendDataForCurrentMetrix = (
         Js.Math.max_float(totalOverall, 1.))
         ->Js.Float.toFixedWithPrecision(~digits=2)
         ->removeTrailingZero
-        ->Belt.Float.fromString
+        ->Float.fromString
         ->Option.getOr(0.)
       } else {
         currentOverall->Dict.get(metricsName)->Option.getOr(0.)
@@ -461,7 +461,7 @@ let getLegendDataForCurrentMetrix = (
       let value: legendTableData = {
         groupByName: metricsName,
         overall,
-        average: overall /. arrLen->Belt.Int.toFloat,
+        average: overall /. arrLen->Int.toFloat,
         current: currentVal,
       }
       value
@@ -531,9 +531,7 @@ let legendClickItem = (s: Highcharts.legendItem, e, setState) => {
     if x === legendItemAsBool(s) {
       setState(prev => {
         let value =
-          prev->Array.includes(x)
-            ? prev->Array.filter(item => item !== x)
-            : Belt.Array.concat(prev, [x])
+          prev->Array.includes(x) ? prev->Array.filter(item => item !== x) : Array.concat(prev, [x])
 
         if value->Array.length === 0 {
           Array.forEach(
@@ -752,7 +750,7 @@ let getGranularityNewStr = (~startTime, ~endTime) => {
         unit
       }
     } else {
-      `${val->Belt.Int.toString} ${unit}`
+      `${val->Int.toString} ${unit}`
     }
   })
 }

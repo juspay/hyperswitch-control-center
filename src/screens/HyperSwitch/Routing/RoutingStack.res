@@ -3,7 +3,7 @@ open APIUtils
 let make = (~remainingPath, ~previewOnly=false) => {
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
-  let pathVar = url.path->Belt.List.toArray->Array.joinWith("/")
+  let pathVar = url.path->List.toArray->Array.joinWith("/")
 
   let (records, setRecords) = React.useState(_ => [])
   let (activeRoutingIds, setActiveRoutingIds) = React.useState(_ => [])

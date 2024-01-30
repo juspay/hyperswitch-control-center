@@ -9,7 +9,7 @@ let getEventDict = (ev: Dom.event) => {
   try {
     objData.data
     ->Js.Json.decodeString
-    ->Belt.Option.map(Js.Json.parseExn)
+    ->Option.map(Js.Json.parseExn)
     ->Option.flatMap(parsedMsg => {
       parsedMsg->Js.Json.decodeObject
     })

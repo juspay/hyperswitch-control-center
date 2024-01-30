@@ -47,12 +47,11 @@ external execSync: (string, encodeType) => string = "execSync"
 let currentCommitHash = nullableGitCommitStr->Option.getOr("no-commit-hash")
 
 let serverHandler: Http.serverHandler = (request, response) => {
-  open Belt.Option
   let arr = request.url.toString(.)->String.split("?")
   let path =
     arr
     ->Array.get(0)
-    ->getWithDefault("")
+    ->Option.getOr("")
     ->String.replaceRegExp(%re("/^\/\//"), "/")
     ->String.replaceRegExp(%re("/^\/v4\//"), "/")
 
@@ -129,6 +128,6 @@ let serverHandlerWrapper = (req, res) => {
 let server = Http.createServer(serverHandlerWrapper)
 
 server->Http.listen(port, () => {
-  let portStr = Belt.Int.toString(port)
+  let portStr = Int.toString(port)
   Js.log(`Running at http://localhost:${portStr}/`)
 })

@@ -141,11 +141,9 @@ let getArrayFromDict = (dict, key, default) => {
 }
 
 let getArrayDataFromJson = (json, itemToObjMapper) => {
-  open Belt.Option
-
   json
   ->Js.Json.decodeArray
-  ->getWithDefault([])
+  ->Option.getOr([])
   ->Belt.Array.keepMap(Js.Json.decodeObject)
   ->Array.map(itemToObjMapper)
 }
@@ -161,11 +159,11 @@ let getStrArrayFromJsonArray = jsonArr => {
 }
 
 let getStrArryFromJson = arr => {
-  arr->Js.Json.decodeArray->Belt.Option.map(getStrArrayFromJsonArray)->Option.getOr([])
+  arr->Js.Json.decodeArray->Option.map(getStrArrayFromJsonArray)->Option.getOr([])
 }
 
 let getOptionStrArrayFromJson = json => {
-  json->Js.Json.decodeArray->Belt.Option.map(getStrArrayFromJsonArray)
+  json->Js.Json.decodeArray->Option.map(getStrArrayFromJsonArray)
 }
 
 let getStrArrayFromDict = (dict, key, default) => {
@@ -218,21 +216,21 @@ let getStringFromBool = boolValue => {
   }
 }
 let getIntFromString = (str, default) => {
-  switch str->Belt.Int.fromString {
+  switch str->Int.fromString {
   | Some(int) => int
   | None => default
   }
 }
 let getOptionIntFromString = str => {
-  str->Belt.Int.fromString
+  str->Int.fromString
 }
 
 let getOptionFloatFromString = str => {
-  str->Belt.Float.fromString
+  str->Float.fromString
 }
 
 let getFloatFromString = (str, default) => {
-  switch str->Belt.Float.fromString {
+  switch str->Float.fromString {
   | Some(floatVal) => floatVal
   | None => default
   }
@@ -241,14 +239,14 @@ let getFloatFromString = (str, default) => {
 let getIntFromJson = (json, default) => {
   switch json->Js.Json.classify {
   | JSONString(str) => getIntFromString(str, default)
-  | JSONNumber(floatValue) => floatValue->Belt.Float.toInt
+  | JSONNumber(floatValue) => floatValue->Float.toInt
   | _ => default
   }
 }
 let getOptionIntFromJson = json => {
   switch json->Js.Json.classify {
   | JSONString(str) => getOptionIntFromString(str)
-  | JSONNumber(floatValue) => Some(floatValue->Belt.Float.toInt)
+  | JSONNumber(floatValue) => Some(floatValue->Float.toInt)
   | _ => None
   }
 }
@@ -289,10 +287,7 @@ let getOptionFloat = (dict, key) => {
 }
 
 let getFloat = (dict, key, default) => {
-  dict
-  ->Dict.get(key)
-  ->Belt.Option.map(json => getFloatFromJson(json, default))
-  ->Option.getOr(default)
+  dict->Dict.get(key)->Option.map(json => getFloatFromJson(json, default))->Option.getOr(default)
 }
 
 let getObj = (dict, key, default) => {
@@ -300,14 +295,13 @@ let getObj = (dict, key, default) => {
 }
 
 let getDictFromUrlSearchParams = searchParams => {
-  open Belt.Array
   searchParams
   ->String.split("&")
-  ->keepMap(getNonEmptyString)
-  ->keepMap(keyVal => {
+  ->Belt.Array.keepMap(getNonEmptyString)
+  ->Belt.Array.keepMap(keyVal => {
     let splitArray = String.split(keyVal, "=")
 
-    switch (splitArray->get(0), splitArray->get(1)) {
+    switch (splitArray->Array.get(0), splitArray->Array.get(1)) {
     | (Some(key), Some(val)) => Some(key, val)
     | _ => None
     }
@@ -368,11 +362,11 @@ let titleToSnake = str => {
 }
 
 let getIntFromString = (str, default) => {
-  str->Belt.Int.fromString->Option.getOr(default)
+  str->Int.fromString->Option.getOr(default)
 }
 
 let removeTrailingZero = (numeric_str: string) => {
-  numeric_str->Belt.Float.fromString->Option.getOr(0.)->Belt.Float.toString
+  numeric_str->Float.fromString->Option.getOr(0.)->Float.toString
 }
 
 let shortNum = (
@@ -410,7 +404,7 @@ let shortNum = (
 
 let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?, ()) => {
   if labelValue !== 0.0 {
-    let value = Belt.Int.fromFloat(labelValue)
+    let value = Int.fromFloat(labelValue)
     let value_days = value / 86400
     let years = value_days / 365
     let months = mod(value_days, 365) / 30
@@ -448,7 +442,7 @@ let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?, ()) => {
       (labelValue < 1.0 || (includeMilliseconds->Option.getOr(false) && labelValue < 60.0)) &&
         labelValue > 0.0
     ) {
-      `.${String.make(mod((labelValue *. 1000.0)->Belt.Int.fromFloat, 1000))}`
+      `.${String.make(mod((labelValue *. 1000.0)->Int.fromFloat, 1000))}`
     } else {
       ""
     }
@@ -543,7 +537,7 @@ let getObjectArrayFromJson = json => {
 }
 
 let getListHead = (~default="", list) => {
-  list->Belt.List.head->Option.getOr(default)
+  list->List.head->Option.getOr(default)
 }
 
 let dataMerge = (~dataArr: array<array<Js.Json.t>>, ~dictKey: array<string>) => {

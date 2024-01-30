@@ -47,7 +47,7 @@ let getGranularityMapper = (granularity: string) => {
     (1, "hour")
   } else {
     (
-      granularityArr->Array.get(0)->Option.getOr("1")->Belt.Int.fromString->Option.getOr(1),
+      granularityArr->Array.get(0)->Option.getOr("1")->Int.fromString->Option.getOr(1),
       granularityArr->Array.get(1)->Option.getOr("week"),
     )
   }
@@ -377,7 +377,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 _ => Loaded(
                   dataMerge(
                     ~dataArr=metricsArr->Array.map(item => item->getArrayFromJson([])),
-                    ~dictKey=Belt.Array.concat(activeTab->Option.getOr([]), ["time"]),
+                    ~dictKey=Array.concat(activeTab->Option.getOr([]), ["time"]),
                   )->Js.Json.array,
                 ),
               ),
@@ -504,7 +504,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
             let data =
               dataMerge(
                 ~dataArr=metricsArr->Array.map(item => item->getArrayFromJson([])),
-                ~dictKey=Belt.Array.concat(activeTab->Option.getOr([]), ["time"]),
+                ~dictKey=Array.concat(activeTab->Option.getOr([]), ["time"]),
               )->Js.Json.array
 
             resolve(setBottomChartData(_ => Loaded(data)))
@@ -704,7 +704,7 @@ module SDKAnalyticsChartContext = {
       fromTime: startTimeFromUrl,
       toTime: endTimeFromUrl,
     }
-    let differentTimeValues = Belt.Array.concat(
+    let differentTimeValues = Array.concat(
       [currentTimeRanges],
       differentTimeValues->Option.getOr([]),
     )
@@ -998,7 +998,7 @@ module SDKAnalyticsChartContext = {
     //             },
     //           )
     //         })
-    //         ->Belt.Array.concatMany
+    //         ->Array.concatMany
     //         ->Promise.all
     //         ->Promise.thenResolve(dataArr => {
     //           setBottomChartData(

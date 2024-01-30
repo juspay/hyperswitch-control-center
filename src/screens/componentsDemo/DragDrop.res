@@ -26,7 +26,6 @@ let make = (
 ) => {
   let (list, setList) = React.useState(_ => listItems)
   let reorder = (currentState, startIndex, endIndex) => {
-    Js.log("reorder trigger")
     if startIndex !== endIndex {
       let oldStateArray = Array.copy(currentState)
       let removed = Js.Array.removeCountInPlace(~pos=startIndex, ~count=1, oldStateArray)
@@ -86,9 +85,9 @@ let make = (
                     switch val {
                     | Some(str) =>
                       <ReactBeautifulDND.Draggable
-                        key={`item-${Belt.Int.toString(index)}`}
+                        key={`item-${Int.toString(index)}`}
                         index={index}
-                        draggableId={`item-${Belt.Int.toString(index)}`}>
+                        draggableId={`item-${Int.toString(index)}`}>
                         {(provided, _snapshot) => {
                           React.cloneElement(
                             React.cloneElement(

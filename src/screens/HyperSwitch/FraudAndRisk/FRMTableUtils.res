@@ -1,8 +1,7 @@
 let getArrayDataFromJson = (json, itemToObjMapper) => {
-  open Belt.Option
   json
   ->Js.Json.decodeArray
-  ->getWithDefault([])
+  ->Option.getOr([])
   ->Belt.Array.keepMap(Js.Json.decodeObject)
   ->FRMUtils.filterList(~removeFromList=Connector, ())
   ->Array.map(itemToObjMapper)

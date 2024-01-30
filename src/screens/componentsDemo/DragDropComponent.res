@@ -42,9 +42,9 @@ let make = (~isHorizontal=true, ~listItems, ~gap="", ~setListItems, ~keyExtracto
             {listItems
             ->Array.mapWithIndex((item, index) => {
               <ReactBeautifulDND.Draggable
-                key={`item-${Belt.Int.toString(index)}`}
+                key={`item-${Int.toString(index)}`}
                 index={index}
-                draggableId={`item-${Belt.Int.toString(index)}`}>
+                draggableId={`item-${Int.toString(index)}`}>
                 {(provided, snapshot) => {
                   let draggableElement =
                     <div onDragStart={provided["onDragStart"]} ref={provided["innerRef"]}>

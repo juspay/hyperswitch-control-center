@@ -177,7 +177,7 @@ module ClearFilters = {
       })
       ->Array.length > 0
     }, (formState.initialValues, defaultFilterKeys))
-    let text = isCountRequired ? `Clear ${count->Belt.Int.toString} Filters` : "Clear Filters"
+    let text = isCountRequired ? `Clear ${count->Int.toString} Filters` : "Clear Filters"
     <UIUtils.RenderIf condition={hasExtraFilters || outsidefilter}>
       <div className={`${filterButtonStyle} ${outerClass}`}>
         <Button
@@ -351,7 +351,7 @@ let getStrFromJson = (key, val) => {
   switch val->Js.Json.classify {
   | JSONString(str) => str
   | JSONArray(array) => array->Array.length > 0 ? `[${array->Array.joinWithUnsafe(",")}]` : ""
-  | JSONNumber(num) => key === "offset" ? "0" : num->Belt.Float.toInt->string_of_int
+  | JSONNumber(num) => key === "offset" ? "0" : num->Float.toInt->string_of_int
   | _ => ""
   }
 }
@@ -464,7 +464,7 @@ module FilterModal = {
       let selectedFiltersListWithVal = selectedFiltersList->Array.filter(item => {
         let inputName = item.inputNames->Array.get(0)->Option.getOr("")
         let selectedNo =
-          formCurrentValues->LogicUtils.getStrArray(inputName)->Array.length->Belt.Int.toString
+          formCurrentValues->LogicUtils.getStrArray(inputName)->Array.length->Int.toString
         selectedNo !== "0"
       })
       let selectedFiltersListWithoutVal = selectedFiltersList->Array.filter(item => {
@@ -479,7 +479,7 @@ module FilterModal = {
       ->Array.mapWithIndex((item, i) => {
         let inputName = item.inputNames->Array.get(0)->Option.getOr("")
         let selectedNo =
-          formCurrentValues->LogicUtils.getStrArray(inputName)->Array.length->Belt.Int.toString
+          formCurrentValues->LogicUtils.getStrArray(inputName)->Array.length->Int.toString
         let textcolor =
           selectedNo !== "0" ? "text-jp-2-light-gray-2000" : "text-jp-2-light-gray-1000"
         <UIUtils.RenderIf condition={showAllFilter || i < 10}>
@@ -767,7 +767,7 @@ let make = (
     let finalFieldList = selectedFiltersList->Array.filter(val => {
       val.inputNames
       ->Array.get(0)
-      ->Belt.Option.map(name => !Array.includes(toBeRemoved, name))
+      ->Option.map(name => !Array.includes(toBeRemoved, name))
       ->Option.getOr(false)
     })
     let filtersAfterRemoving =
@@ -776,7 +776,7 @@ let make = (
     let newValueJson =
       initialValueJson
       ->Js.Json.decodeObject
-      ->Belt.Option.map(Dict.toArray)
+      ->Option.map(Dict.toArray)
       ->Option.getOr([])
       ->Array.filter(entry => {
         let (key, _value) = entry
@@ -851,7 +851,7 @@ let make = (
   }
   let (text, iconName) = if !showAllFilter {
     (
-      `View ${(selectedFiltersList->Array.length - 10)->Belt.Int.toString} more filters`,
+      `View ${(selectedFiltersList->Array.length - 10)->Int.toString} more filters`,
       "new-chevron-down",
     )
   } else {
@@ -863,7 +863,7 @@ let make = (
   let verticalGap = !isMobileView ? "gap-y-2" : ""
   let filterWidth = ""
   let (filterHovered, setFilterHovered) = React.useState(_ => false)
-  let badge: Button.badge = {value: countSelectedFilters->Belt.Int.toString, color: BadgeBlue}
+  let badge: Button.badge = {value: countSelectedFilters->Int.toString, color: BadgeBlue}
 
   let advacedAndClearButtons =
     <>
@@ -882,7 +882,7 @@ let make = (
               badge={countSelectedFilters > 0
                 ? badge
                 : {
-                    value: 1->Belt.Int.toString,
+                    value: 1->Int.toString,
                     color: NoBadge,
                   }}
             />
@@ -902,28 +902,26 @@ let make = (
       </UIUtils.RenderIf>
     </>
   let fieldWrapperClass = None
-  <div className="rounded-lg">
+  <>
     <Form onSubmit initialValues=initialValueJson>
       <AutoSubmitter showModal autoApply submit=onSubmit defaultFilterKeys />
       {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
         <div>
           <div className={`flex flex-wrap flex-1 ${verticalGap}`}>
-            {fixedFilters->Array.length > 0
-              ? <>
-                  <FormRenderer.FieldsRenderer
-                    fields={fixedFilters->Array.map(item => item.field)}
-                    labelClass="hidden"
-                    labelPadding="pb-2"
-                    ?fieldWrapperClass
-                  />
-                </>
-              : React.null}
+            <UIUtils.RenderIf condition={fixedFilters->Array.length > 0}>
+              <FormRenderer.FieldsRenderer
+                fields={fixedFilters->Array.map(item => item.field)}
+                labelClass="hidden"
+                labelPadding="pb-2"
+                ?fieldWrapperClass
+              />
+            </UIUtils.RenderIf>
             <UIUtils.RenderIf condition={hideFilters && isFilterSection}>
               <PortalCapture key={`customizedColumn-${title}`} name={`customizedColumn-${title}`} />
             </UIUtils.RenderIf>
             {customViewTop}
-            {if showFiltersBtn {
-              if !revampedFilter {
+            <UIUtils.RenderIf condition={showFiltersBtn}>
+              {if !revampedFilter {
                 <ToolTip
                   description={!hideFilters
                     ? "Hide filters control panel(this will not clear the filters)"
@@ -932,7 +930,7 @@ let make = (
                     <Button
                       text={isMobileView ? "" : hideFilters ? "Show Filters" : "Hide Filters"}
                       buttonType=SecondaryFilled
-                      buttonSize=Small
+                      buttonSize=XSmall
                       leftIcon=CustomIcon(
                         <Icon
                           name={hideFilters ? "show-filters" : "minus"}
@@ -962,7 +960,7 @@ let make = (
                         buttonSize=Small
                         leftIcon=CustomIcon(<Icon name="filter-funnel" size=20 />)
                         badge={
-                          value: count->Belt.Int.toString,
+                          value: count->Int.toString,
                           color: count > 0 ? BadgeBlue : NoBadge,
                         }
                         onClick={_ => {
@@ -1016,11 +1014,10 @@ let make = (
                     {customView}
                   </Portal>
                 </>
-              }
-            } else {
-              React.null
-            }}
-            {if !clearFilterAfterRefresh && hideFilters && count > 0 && !revampedFilter {
+              }}
+            </UIUtils.RenderIf>
+            <UIUtils.RenderIf
+              condition={!clearFilterAfterRefresh && hideFilters && count > 0 && !revampedFilter}>
               <ClearFilters
                 filterButtonStyle
                 defaultFilterKeys
@@ -1028,9 +1025,7 @@ let make = (
                 count
                 outsidefilter={initalCount > 0}
               />
-            } else {
-              React.null
-            }}
+            </UIUtils.RenderIf>
           </div>
           <div className="flex items-center">
             <Portal to=filterFieldsPortalName>
@@ -1040,9 +1035,7 @@ let make = (
                     : "flex-row justify-between"} w-full items-center gap-2`}>
                 <div
                   className={`md:justify-between flex items-center flex-wrap ${filterWidth} ${addFilterStyle}`}>
-                  {if hideFilters {
-                    React.null
-                  } else {
+                  <UIUtils.RenderIf condition={!hideFilters}>
                     <div className={`flex ${!isMobileView ? "w-full" : "flex-wrap"}`}>
                       <div
                         className={`flex flex-wrap ${!isMobileView
@@ -1051,16 +1044,16 @@ let make = (
                         <FormRenderer.FieldsRenderer
                           fields={selectedFiltersList} labelClass="hidden" labelPadding="pb-2"
                         />
-                        {fixedFilters->Array.length === 0 ? refreshFilterUi : React.null}
-                        advacedAndClearButtons
-                        <UIUtils.RenderIf condition={!hideFilters}>
-                          <PortalCapture
-                            key={`customizedColumn-${title}`} name={`customizedColumn-${title}`}
-                          />
+                        <UIUtils.RenderIf condition={fixedFilters->Array.length === 0}>
+                          {refreshFilterUi}
                         </UIUtils.RenderIf>
+                        advacedAndClearButtons
+                        <PortalCapture
+                          key={`customizedColumn-${title}`} name={`customizedColumn-${title}`}
+                        />
                       </div>
                     </div>
-                  }}
+                  </UIUtils.RenderIf>
                 </div>
                 <div className={`flex items-center justify-end flex-wrap`}>
                   <div>
@@ -1118,5 +1111,5 @@ let make = (
         </Form>
       </TableFilterSectionContext>
     </LabelVisibilityContext>
-  </div>
+  </>
 }
