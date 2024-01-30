@@ -144,13 +144,11 @@ module SearchBarFilter = {
       checked: true,
     }
 
-    <div className="w-1/4 flex">
-      {InputFields.textInput(~input=inputSearch, ~placeholder, ~customStyle=`!h-10 w-full`, ())}
+    <div className="w-1/3 flex items-center">
+      {InputFields.textInput(~input=inputSearch, ~placeholder, ~customStyle=`w-full`, ())}
       <Button
         leftIcon={FontAwesome("search")}
         buttonType={Secondary}
-        customButtonStyle="px-2 py-3 mt-2"
-        customIconSize=13
         onClick={_ => {
           setSearchVal(_ => searchValBase)
         }}

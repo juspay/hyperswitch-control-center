@@ -473,7 +473,7 @@ let make = (
           text="Customize Columns"
           leftIcon=Button.CustomIcon(<Icon name="vertical_slider" size=15 className="mr-1" />)
           buttonType=customizeColumnButtonType
-          buttonSize=Small
+          buttonSize=XSmall
           onClick={_ => setShowColumnSelector(_ => true)}
           customButtonStyle=customizedColumnsStyle
           showBorder={true}
