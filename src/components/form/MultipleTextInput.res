@@ -42,7 +42,7 @@ let make = (
 ) => {
   let showPopUp = PopUpState.useShowPopUp()
   let currentTags = React.useMemo1(() => {
-    input.value->Js.Json.decodeArray->Option.getOr([])->Belt.Array.keepMap(Js.Json.decodeString)
+    input.value->Js.Json.decodeArray->Option.getOr([])->Array.filterMap(Js.Json.decodeString)
   }, [input.value])
 
   let setTags = tags => {

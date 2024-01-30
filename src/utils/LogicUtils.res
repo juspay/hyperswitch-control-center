@@ -144,7 +144,7 @@ let getArrayDataFromJson = (json, itemToObjMapper) => {
   json
   ->Js.Json.decodeArray
   ->Option.getOr([])
-  ->Belt.Array.keepMap(Js.Json.decodeObject)
+  ->Array.filterMap(Js.Json.decodeObject)
   ->Array.map(itemToObjMapper)
 }
 let getStrArray = (dict, key) => {
@@ -155,7 +155,7 @@ let getStrArray = (dict, key) => {
 }
 
 let getStrArrayFromJsonArray = jsonArr => {
-  jsonArr->Belt.Array.keepMap(Js.Json.decodeString)
+  jsonArr->Array.filterMap(Js.Json.decodeString)
 }
 
 let getStrArryFromJson = arr => {
@@ -620,10 +620,10 @@ let checkStringStartsWithSubstring = (~itemToCheck, ~searchText) => {
 
 let listOfMatchedText = (text, searchText) => {
   switch Js.String2.match_(text, regex("\\b", searchText)) {
-  | Some(r) => r->Array.sliceToEnd(~start=1)->Belt.Array.keepMap(x => x)
+  | Some(r) => r->Array.sliceToEnd(~start=1)->Array.filterMap(x => x)
   | None =>
     switch Js.String2.match_(text, regex("_", searchText)) {
-    | Some(a) => a->Array.sliceToEnd(~start=1)->Belt.Array.keepMap(x => x)
+    | Some(a) => a->Array.sliceToEnd(~start=1)->Array.filterMap(x => x)
     | None => [text]
     }
   }

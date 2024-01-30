@@ -266,7 +266,7 @@ let make = (~routingRuleId, ~isActive) => {
       if gateways->Js.Array2.length === 0 {
         Some("Need atleast 1 Gateway")
       } else {
-        let distributionPercentages = gateways->Belt.Array.keepMap(json => {
+        let distributionPercentages = gateways->Array.filterMap(json => {
           json->Js.Json.decodeObject->Option.flatMap(getOptionFloat(_, "split"))
         })
         let distributionPercentageSum =

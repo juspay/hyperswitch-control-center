@@ -61,7 +61,7 @@ let make = (
   let getTopLevelSingleStatFilter = React.useMemo1(() => {
     getAllFilter
     ->Dict.toArray
-    ->Belt.Array.keepMap(item => {
+    ->Array.filterMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
       let prefix = keyArr->Array.get(0)->Option.getOr("")
@@ -83,7 +83,7 @@ let make = (
     let filterSearchParam =
       getTopLevelSingleStatFilter
       ->Dict.toArray
-      ->Belt.Array.keepMap(entry => {
+      ->Array.filterMap(entry => {
         let (key, value) = entry
         if allFilterKeys->Array.includes(key) {
           switch value->Js.Json.classify {
@@ -108,7 +108,7 @@ let make = (
   let filterValueFromUrl = React.useMemo1(() => {
     getTopLevelSingleStatFilter
     ->Dict.toArray
-    ->Belt.Array.keepMap(entries => {
+    ->Array.filterMap(entries => {
       let (key, value) = entries
       filterKeys->Array.includes(key) ? Some((key, value)) : None
     })

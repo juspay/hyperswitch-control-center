@@ -1,7 +1,7 @@
 let deleteKey = (dictionary: Dict.t<'a>, key: string) => {
   dictionary
   ->Dict.toArray
-  ->Belt.Array.keepMap(entry => {
+  ->Array.filterMap(entry => {
     let (filterKey, _) = entry
     key !== filterKey ? Some(entry) : None
   })
@@ -12,7 +12,7 @@ let deleteKeys = (dictionary: Dict.t<'a>, keys: array<string>) => {
   let updatedDict =
     dictionary
     ->Dict.toArray
-    ->Belt.Array.keepMap(entry => {
+    ->Array.filterMap(entry => {
       let (filterKey, _) = entry
       keys->Array.includes(filterKey) ? None : Some(entry)
     })

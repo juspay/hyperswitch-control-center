@@ -2,7 +2,7 @@ let getArrayDataFromJson = (json, itemToObjMapper) => {
   json
   ->Js.Json.decodeArray
   ->Option.getOr([])
-  ->Belt.Array.keepMap(Js.Json.decodeObject)
+  ->Array.filterMap(Js.Json.decodeObject)
   ->FRMUtils.filterList(~removeFromList=Connector, ())
   ->Array.map(itemToObjMapper)
 }

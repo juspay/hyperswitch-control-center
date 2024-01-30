@@ -119,7 +119,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let getTopLevelChartFilter = React.useMemo1(() => {
     getAllFilter
     ->Dict.toArray
-    ->Belt.Array.keepMap(item => {
+    ->Array.filterMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
       let prefix = keyArr->Array.get(0)->Option.getOr("")
@@ -136,7 +136,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     let filterSearchParam =
       getTopLevelChartFilter
       ->Dict.toArray
-      ->Belt.Array.keepMap(entry => {
+      ->Array.filterMap(entry => {
         let (key, value) = entry
         if allFilterKeys->Array.includes(key) {
           switch value->Js.Json.classify {
@@ -162,7 +162,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   let getChartCompFilters = React.useMemo1(() => {
     getAllFilter
     ->Dict.toArray
-    ->Belt.Array.keepMap(item => {
+    ->Array.filterMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
       let prefix = keyArr->Array.get(0)->Option.getOr("")
@@ -186,7 +186,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     let filterValueFromUrl =
       getTopLevelChartFilter
       ->Dict.toArray
-      ->Belt.Array.keepMap(entries => {
+      ->Array.filterMap(entries => {
         let (key, value) = entries
         chartEntity.allFilterDimension->Array.includes(key) ? Some((key, value)) : None
       })
@@ -624,7 +624,7 @@ module SDKAnalyticsChartContext = {
     let getTopLevelChartFilter = React.useMemo1(() => {
       getAllFilter
       ->Dict.toArray
-      ->Belt.Array.keepMap(item => {
+      ->Array.filterMap(item => {
         let (key, value) = item
         let keyArr = key->String.split(".")
         let prefix = keyArr->Array.get(0)->Option.getOr("")
@@ -641,7 +641,7 @@ module SDKAnalyticsChartContext = {
       let filterSearchParam =
         getTopLevelChartFilter
         ->Dict.toArray
-        ->Belt.Array.keepMap(entry => {
+        ->Array.filterMap(entry => {
           let (key, value) = entry
           if allFilterKeys->Array.includes(key) {
             switch value->Js.Json.classify {
@@ -667,7 +667,7 @@ module SDKAnalyticsChartContext = {
     let getChartCompFilters = React.useMemo1(() => {
       getAllFilter
       ->Dict.toArray
-      ->Belt.Array.keepMap(item => {
+      ->Array.filterMap(item => {
         let (key, value) = item
         let keyArr = key->String.split(".")
         let prefix = keyArr->Array.get(0)->Option.getOr("")
@@ -691,7 +691,7 @@ module SDKAnalyticsChartContext = {
       let filterValueFromUrl =
         getTopLevelChartFilter
         ->Dict.toArray
-        ->Belt.Array.keepMap(entries => {
+        ->Array.filterMap(entries => {
           let (key, value) = entries
           chartEntity.allFilterDimension->Array.includes(key) ? Some((key, value)) : None
         })
@@ -820,7 +820,7 @@ module SDKAnalyticsChartContext = {
                       item
                       ->getDictFromJsonObject
                       ->Dict.toArray
-                      ->Belt.Array.keepMap(
+                      ->Array.filterMap(
                         dictOrigItem => {
                           let (key, value) = dictOrigItem
                           segmentValue->Option.getOr([])->Array.includes(key)
@@ -862,13 +862,13 @@ module SDKAnalyticsChartContext = {
                             `${timeObjOrig.fromTime} to ${timeObjOrig.toTime}`,
                             jsonTransFormer(
                               metric,
-                              convertNewLineSaperatedDataToArrayOfJson(text)->Belt.Array.keepMap(
+                              convertNewLineSaperatedDataToArrayOfJson(text)->Array.filterMap(
                                 item => {
                                   let origDictArr =
                                     item
                                     ->getDictFromJsonObject
                                     ->Dict.toArray
-                                    ->Belt.Array.keepMap(
+                                    ->Array.filterMap(
                                       origDictArrItem => {
                                         let (key, value) = origDictArrItem
                                         segmentValue->Option.getOr([])->Array.includes(key)

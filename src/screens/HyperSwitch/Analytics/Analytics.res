@@ -124,7 +124,7 @@ module TableWrapper = {
     let getTopLevelFilter = React.useMemo1(() => {
       filterValueDict
       ->Dict.toArray
-      ->Belt.Array.keepMap(item => {
+      ->Array.filterMap(item => {
         let (key, value) = item
         let keyArr = key->String.split(".")
         let prefix = keyArr->Array.get(0)->Option.getOr("")
@@ -144,7 +144,7 @@ module TableWrapper = {
       let filterSearchParam =
         getTopLevelFilter
         ->Dict.toArray
-        ->Belt.Array.keepMap(entry => {
+        ->Array.filterMap(entry => {
           let (key, value) = entry
           if allFilterKeys->Array.includes(key) {
             switch value->Js.Json.classify {
@@ -165,7 +165,7 @@ module TableWrapper = {
     let filterValueFromUrl = React.useMemo1(() => {
       getTopLevelFilter
       ->Dict.toArray
-      ->Belt.Array.keepMap(entries => {
+      ->Array.filterMap(entries => {
         let (key, value) = entries
         filterKeys->Array.includes(key) ? Some((key, value)) : None
       })
@@ -308,9 +308,9 @@ module TableWrapper = {
     let newDefaultCols = React.useMemo1(() => {
       activeTab
       ->Option.getOr([])
-      ->Belt.Array.keepMap(item => {
+      ->Array.filterMap(item => {
         defaultColumns
-        ->Belt.Array.keepMap(
+        ->Array.filterMap(
           columnItem => {
             let val = columnItem->getHeading
             val.key === item ? Some(columnItem) : None
@@ -323,7 +323,7 @@ module TableWrapper = {
 
     let newAllCols = React.useMemo1(() => {
       defaultColumns
-      ->Belt.Array.keepMap(item => {
+      ->Array.filterMap(item => {
         let val = item->getHeading
         activeTab->Option.getOr([])->Array.includes(val.key) ? Some(item) : None
       })
@@ -548,7 +548,7 @@ let make = (
         let prevDictArr =
           prev
           ->Dict.toArray
-          ->Belt.Array.keepMap(item => {
+          ->Array.filterMap(item => {
             let (key, _) = item
             switch dict->Dict.get(key) {
             | Some(_) => None
@@ -559,7 +559,7 @@ let make = (
         let currentDict =
           dict
           ->Dict.toArray
-          ->Belt.Array.keepMap(item => {
+          ->Array.filterMap(item => {
             let (key, value) = item
             if value !== "" {
               Some((`${moduleName}${chartType}.${key}`, value))

@@ -52,7 +52,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         ->Js.Json.array
         ->Js.Json.decodeArray
         ->Option.getOr([])
-        ->Belt.Array.keepMap(Js.Json.decodeObject)
+        ->Array.filterMap(Js.Json.decodeObject)
         ->Array.map(HistoryEntity.itemToObjMapper)
 
       // To sort the data in a format that active routing always comes at top of the table

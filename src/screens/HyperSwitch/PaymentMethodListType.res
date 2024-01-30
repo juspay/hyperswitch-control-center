@@ -27,7 +27,7 @@ let getPaymentExperience = (dict, str) => {
   ->Dict.get(str)
   ->Option.flatMap(Js.Json.decodeArray)
   ->Option.getOr([])
-  ->Belt.Array.keepMap(Js.Json.decodeObject)
+  ->Array.filterMap(Js.Json.decodeObject)
   ->Array.map(json => {
     {
       payment_experience_type: getString(
@@ -45,7 +45,7 @@ let getBankNames = (dict, str) => {
   ->Dict.get(str)
   ->Option.flatMap(Js.Json.decodeArray)
   ->Option.getOr([])
-  ->Belt.Array.keepMap(Js.Json.decodeObject)
+  ->Array.filterMap(Js.Json.decodeObject)
   ->Array.map(json => {
     {
       bank_name: getStrArray(json, "bank_name"),

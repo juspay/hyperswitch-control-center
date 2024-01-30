@@ -304,7 +304,7 @@ let getLocalFiltersData = (
 let generateUrlFromDict = (~dict, ~options: array<EntityType.optionType<'t>>, tableName) => {
   dict
   ->Dict.toArray
-  ->Belt.Array.keepMap(entry => {
+  ->Array.filterMap(entry => {
     let (key, val) = entry
 
     let strValue = getStrFromJson(key, val)

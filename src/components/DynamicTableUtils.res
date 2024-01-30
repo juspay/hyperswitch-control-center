@@ -62,7 +62,7 @@ let filteredData = (
               let visibleColumns =
                 visibleColumns
                 ->Option.getOr(entity.defaultColumns)
-                ->Belt.Array.keepMap(
+                ->Array.filterMap(
                   item => {
                     let columnEntity = entity.getHeading(item)
                     let entityKey = entity.getHeading(item).key
@@ -85,7 +85,7 @@ let filteredData = (
                   | DropDown => {
                       let selectedArr =
                         selectedArr
-                        ->Belt.Array.keepMap(item => item->Js.Json.decodeString)
+                        ->Array.filterMap(item => item->Js.Json.decodeString)
                         ->Array.map(String.toLowerCase)
 
                       let currVal = switch jsonVal {
@@ -97,7 +97,7 @@ let filteredData = (
 
                   | LabelType | TextType => {
                       let selectedArr1 =
-                        selectedArr->Belt.Array.keepMap(item => item->Js.Json.decodeString)
+                        selectedArr->Array.filterMap(item => item->Js.Json.decodeString)
 
                       let currVal = switch jsonVal {
                       | (Some(transformed), _) => transformed->String.make
@@ -113,7 +113,7 @@ let filteredData = (
 
                   | MoneyType | NumericType | ProgressType => {
                       let selectedArr =
-                        selectedArr->Belt.Array.keepMap(item => item->Js.Json.decodeNumber)
+                        selectedArr->Array.filterMap(item => item->Js.Json.decodeNumber)
                       let currVal = switch jsonVal {
                       | (_, Some(actualVal)) => actualVal->String.make->Js.Float.fromString
                       | _ => 0.

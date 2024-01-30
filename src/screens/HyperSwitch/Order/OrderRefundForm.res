@@ -68,7 +68,7 @@ let make = (
       ->Js.Json.decodeObject
       ->Option.map(Dict.toArray)
       ->Option.getOr([])
-      ->Belt.Array.keepMap(entry => {
+      ->Array.filterMap(entry => {
         let (key, value) = entry
         switch value->Js.Json.classify {
         | JSONString(strVal) => Some((key, Js.Json.string(strVal)))

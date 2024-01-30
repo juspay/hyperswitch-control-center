@@ -29,7 +29,7 @@ let getRefundsList = async (
     }
 
     if total > 0 {
-      let refundDataDictArr = data->Belt.Array.keepMap(Js.Json.decodeObject)
+      let refundDataDictArr = data->Array.filterMap(Js.Json.decodeObject)
       let refundData = arr->Array.concat(refundDataDictArr)->Array.map(RefundEntity.itemToObjMapper)
       let list = refundData->Array.map(Js.Nullable.return)
       setRefundsData(_ => list)
@@ -58,8 +58,8 @@ let filterByData = (txnArr, value) => {
   let searchText = value->getStringFromJson("")
 
   txnArr
-  ->Belt.Array.keepMap(Js.Nullable.toOption)
-  ->Belt.Array.keepMap(data => {
+  ->Array.filterMap(Js.Nullable.toOption)
+  ->Array.filterMap(data => {
     let valueArr =
       data
       ->Identity.genericTypeToDictOfJson

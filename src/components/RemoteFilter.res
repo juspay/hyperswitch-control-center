@@ -140,7 +140,7 @@ module ClearFilters = {
           ->Js.Json.decodeObject
           ->Option.getOr(Dict.make())
           ->Dict.toArray
-          ->Belt.Array.keepMap(entry => {
+          ->Array.filterMap(entry => {
             let (key, value) = entry
             switch defaultFilterKeys->Array.includes(key) {
             | true =>
@@ -210,7 +210,7 @@ module AnalyticsClearFilters = {
           ->Js.Json.decodeObject
           ->Option.getOr(Dict.make())
           ->Dict.toArray
-          ->Belt.Array.keepMap(entry => {
+          ->Array.filterMap(entry => {
             let (key, value) = entry
             switch defaultFilterKeys->Array.includes(key) {
             | true =>

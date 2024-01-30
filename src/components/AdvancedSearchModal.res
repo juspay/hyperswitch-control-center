@@ -25,7 +25,7 @@ module AdvanceSearch = {
       | Some(dict) =>
         dict
         ->Dict.toArray
-        ->Belt.Array.keepMap(entry => {
+        ->Array.filterMap(entry => {
           let (key, value) = entry
           let stringVal = LogicUtils.getStringFromJson(value, "")
           if stringVal !== "" {
