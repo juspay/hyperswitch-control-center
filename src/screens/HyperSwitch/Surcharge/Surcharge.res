@@ -190,7 +190,7 @@ let make = () => {
     Js.Nullable.null
   }
 
-  let validate = (values: Js.Json.t) => {
+  let validate = (values: JSON.t) => {
     let dict = values->LogicUtils.getDictFromJsonObject
 
     let errors = Dict.make()

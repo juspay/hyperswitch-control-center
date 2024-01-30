@@ -22,7 +22,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let getIntegrationDetails: Js.Json.t => integrationDetailsType = json => {
+let getIntegrationDetails: JSON.t => integrationDetailsType = json => {
   open LogicUtils
   json->getDictFromJsonObject->itemToObjMapper
 }

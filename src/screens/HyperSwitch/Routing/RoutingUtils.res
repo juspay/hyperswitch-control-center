@@ -1,6 +1,6 @@
 open RoutingTypes
 open LogicUtils
-external toWasm: Dict.t<Js.Json.t> => wasmModule = "%identity"
+external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
 
 let defaultThreeDsObjectValue: routingOutputType = {
   override_3ds: "three_ds",
@@ -121,7 +121,7 @@ let getContent = routetype =>
   }
 
 //Volume
-let getGatewayTypes = (arr: array<Js.Json.t>) => {
+let getGatewayTypes = (arr: array<JSON.t>) => {
   let tempArr = arr->Array.map(value => {
     let val = value->getDictFromJsonObject
     let connectorDict = val->getDictfromDict("connector")
@@ -173,7 +173,7 @@ let currentTabNameRecoilAtom = Recoil.atom(. "currentTabName", "ActiveTab")
 module SaveAndActivateButton = {
   @react.component
   let make = (
-    ~onSubmit: (Js.Json.t, 'a) => promise<Js.Nullable.t<Js.Json.t>>,
+    ~onSubmit: (JSON.t, 'a) => promise<Js.Nullable.t<JSON.t>>,
     ~handleActivateConfiguration,
   ) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(

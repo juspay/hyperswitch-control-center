@@ -260,7 +260,7 @@ type timeSeriesDictWithSecondryMetrics<'a> = {
 }
 
 let timeSeriesDataMaker = (
-  ~data: array<Js.Json.t>,
+  ~data: array<JSON.t>,
   ~groupKey,
   ~xAxis,
   ~metricsConfig: metricsConfig,
@@ -351,8 +351,8 @@ let timeSeriesDataMaker = (
 
 let getLegendDataForCurrentMetrix = (
   ~yAxis: string,
-  ~timeSeriesData: array<Js.Json.t>,
-  ~groupedData: array<Js.Json.t>,
+  ~timeSeriesData: array<JSON.t>,
+  ~groupedData: array<JSON.t>,
   ~activeTab: string,
   ~xAxis: string,
   ~metrixType: dropDownMetricType,
@@ -476,7 +476,7 @@ let getLegendDataForCurrentMetrix = (
   })
 }
 
-let barChartDataMaker = (~yAxis: string, ~rawData: array<Js.Json.t>, ~activeTab: string) => {
+let barChartDataMaker = (~yAxis: string, ~rawData: array<JSON.t>, ~activeTab: string) => {
   let value = rawData->Belt.Array.keepMap(item => {
     let dict = item->getDictFromJsonObject
 
@@ -600,7 +600,7 @@ let tooltipFormatter = (
   groupKey: string,
 ) =>
   @this
-  (points: Js.Json.t) => {
+  (points: JSON.t) => {
     let points = points->getDictFromJsonObject
     let series = points->getJsonObjectFromDict("series")->getDictFromJsonObject
 

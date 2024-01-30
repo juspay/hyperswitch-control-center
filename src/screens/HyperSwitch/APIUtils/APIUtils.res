@@ -1,7 +1,7 @@
 open HSLocalStorage
 open LogicUtils
 open APIUtilsTypes
-exception JsonException(Js.Json.t)
+exception JsonException(JSON.t)
 
 let getURL = (
   ~entityName: entityName,
@@ -220,7 +220,7 @@ let handleLogout = async (
     ~bodyStr: string=?,
     ~bodyFormData: option<Fetch.formData>=?,
     ~headers: Dict.t<string>=?,
-    ~bodyHeader: Dict.t<Js.Json.t>=?,
+    ~bodyHeader: Dict.t<JSON.t>=?,
     ~method_: Fetch.requestMethod,
     ~authToken: option<string>=?,
     ~requestId: string=?,

@@ -20,9 +20,9 @@ let getItemStyle = (isDragging, _draggableStyle) => {
 @react.component
 let make = (
   ~isHorizontal=true,
-  ~listItems: array<Js.Json.t>,
-  ~setListItems: (array<Js.Json.t> => array<Js.Json.t>) => unit,
-  ~keyExtractor: Js.Json.t => option<string>,
+  ~listItems: array<JSON.t>,
+  ~setListItems: (array<JSON.t> => array<JSON.t>) => unit,
+  ~keyExtractor: JSON.t => option<string>,
 ) => {
   let (list, setList) = React.useState(_ => listItems)
   let reorder = (currentState, startIndex, endIndex) => {

@@ -140,7 +140,7 @@ let getFinalDict = (
     }
     if isEulerOrderEntity {
       let arr = if filterDict->Dict.get("customerId")->Option.isSome {
-        [["date_created", "DESC"]->Js.Json.stringArray]
+        [["date_created", "DESC"]->LogicUtils.getJsonFromArrayOfString]
       } else {
         []
       }
@@ -220,7 +220,7 @@ let getLocalFiltersData = (
   ~resArr: Js.Array2.t<Js.Nullable.t<'t>>,
   ~searchParams,
   ~initialFilters: array<EntityType.initialFilters<'t>>,
-  ~dateRangeFilterDict: Dict.t<Js.Json.t>,
+  ~dateRangeFilterDict: Dict.t<JSON.t>,
   ~options: array<EntityType.optionType<'t>>,
   (),
 ) => {

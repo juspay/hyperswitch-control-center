@@ -1,4 +1,4 @@
-external toJson: Js.Nullable.t<'a> => Js.Json.t = "%identity"
+external toJson: Js.Nullable.t<'a> => JSON.t = "%identity"
 open DynamicTableUtils
 open NewThemeUtils
 type sortTyp = ASC | DSC
@@ -9,8 +9,8 @@ type sortOb = {
 
 type checkBoxProps = {
   showCheckBox: bool,
-  selectedData: Js.Array2.t<Js.Json.t>,
-  setSelectedData: (Js.Array2.t<Js.Json.t> => Js.Array2.t<Js.Json.t>) => unit,
+  selectedData: Js.Array2.t<JSON.t>,
+  setSelectedData: (Js.Array2.t<JSON.t> => Js.Array2.t<JSON.t>) => unit,
 }
 
 let checkBoxPropDefaultVal: checkBoxProps = {
@@ -175,7 +175,7 @@ let make = (
   ~advancedSearchComponent=?,
   ~setData=?,
   ~setSummary=?,
-  ~customGetObjects: option<Js.Json.t => array<'a>>=?,
+  ~customGetObjects: option<JSON.t => array<'a>>=?,
   ~dataNotFoundComponent=?,
   ~renderCard=?,
   ~tableLocalFilter=false,
@@ -319,7 +319,7 @@ let make = (
   let localResultsPerPage = pageDetail.resultsPerPage
 
   let setColumnFilter = React.useMemo1(() => {
-    (filterKey, filterValue: array<Js.Json.t>) => {
+    (filterKey, filterValue: array<JSON.t>) => {
       setColumnFilterOrig(oldFitlers => {
         let newObj = oldFitlers->Dict.toArray->Dict.fromArray
         let filterValue = filterValue->Array.filter(

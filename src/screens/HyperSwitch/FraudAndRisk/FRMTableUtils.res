@@ -7,7 +7,7 @@ let getArrayDataFromJson = (json, itemToObjMapper) => {
   ->Array.map(itemToObjMapper)
 }
 
-let getPreviouslyConnectedList: Js.Json.t => array<ConnectorTypes.connectorPayload> = json => {
+let getPreviouslyConnectedList: JSON.t => array<ConnectorTypes.connectorPayload> = json => {
   getArrayDataFromJson(
     json,
     ConnectorTableUtils.getProcessorPayloadType,

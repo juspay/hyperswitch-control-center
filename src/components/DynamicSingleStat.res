@@ -16,7 +16,7 @@ type columns<'colType> = {
 }
 
 type singleStatBodyEntity = {
-  filter?: Js.Json.t,
+  filter?: JSON.t,
   metrics?: array<string>,
   delta?: bool,
   startDateTime: string,
@@ -39,8 +39,8 @@ type deltaRange = {currentSr: AnalyticsUtils.timeRanges}
 
 type entityType<'colType, 't, 't2> = {
   urlConfig: array<urlConfig>,
-  getObjects: Js.Json.t => 't,
-  getTimeSeriesObject: Js.Json.t => array<'t2>,
+  getObjects: JSON.t => 't,
+  getTimeSeriesObject: JSON.t => array<'t2>,
   defaultColumns: array<columns<'colType>>, // (sectionName, defaultColumns)
   getData: ('t, array<'t2>, deltaRange, 'colType, string) => singleStatData,
   totalVolumeCol: option<string>,
@@ -84,7 +84,7 @@ type singleStateData<'t, 't2> = {
   singleStatTimeData: option<Js.Array2.t<(string, Js.Array2.t<'t2>)>>,
 }
 
-let deltaTimeRangeMapper: array<Js.Json.t> => deltaRange = (arrJson: array<Js.Json.t>) => {
+let deltaTimeRangeMapper: array<JSON.t> => deltaRange = (arrJson: array<JSON.t>) => {
   open LogicUtils
   let emptyDict = Dict.make()
   let _ = arrJson->Array.map(item => {

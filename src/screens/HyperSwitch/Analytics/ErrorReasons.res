@@ -28,7 +28,7 @@ let tableItemToObjMapper: 'a => errorObject = dict => {
   }
 }
 
-let getObjects: Js.Json.t => array<errorObject> = json => {
+let getObjects: JSON.t => array<errorObject> = json => {
   open LogicUtils
   json
   ->LogicUtils.getArrayFromJson([])

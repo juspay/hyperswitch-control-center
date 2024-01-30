@@ -42,7 +42,7 @@ let getUserEnteredProfileDetails = valueDict => {
 }
 
 let validateForm = (
-  values: Js.Json.t,
+  values: JSON.t,
   ~fieldsToValidate: array<modalFields>,
   ~list: array<profileEntity>,
 ) => {

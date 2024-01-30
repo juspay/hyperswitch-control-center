@@ -35,9 +35,9 @@ type filterBodyEntity = {
 type filterEntity<'t> = {
   uri: string,
   moduleName: string,
-  initialFixedFilters: Js.Json.t => array<EntityType.initialFilters<'t>>,
-  initialFilters: Js.Json.t => array<EntityType.initialFilters<'t>>,
-  filterDropDownOptions: Js.Json.t => array<EntityType.optionType<'t>>,
+  initialFixedFilters: JSON.t => array<EntityType.initialFilters<'t>>,
+  initialFilters: JSON.t => array<EntityType.initialFilters<'t>>,
+  filterDropDownOptions: JSON.t => array<EntityType.optionType<'t>>,
   filterKeys: array<string>,
   timeKeys: timeKeys,
   defaultFilterKeys: array<string>,
@@ -49,8 +49,8 @@ type filterEntity<'t> = {
 type filterEntityNew<'t> = {
   uri: string,
   moduleName: string,
-  initialFixedFilters: Js.Json.t => array<EntityType.initialFilters<'t>>,
-  initialFilters: (Js.Json.t, string => unit) => array<EntityType.initialFilters<'t>>,
+  initialFixedFilters: JSON.t => array<EntityType.initialFilters<'t>>,
+  initialFilters: (JSON.t, string => unit) => array<EntityType.initialFilters<'t>>,
   filterKeys: array<string>,
   timeKeys: timeKeys,
   defaultFilterKeys: array<string>,
@@ -79,11 +79,11 @@ type downloadDataEntity = {
 type tableApiBodyEntity = {
   startTimeFromUrl: string,
   endTimeFromUrl: string,
-  filterValueFromUrl?: Js.Json.t,
+  filterValueFromUrl?: JSON.t,
   currenltySelectedTab?: array<string>,
   deltaMetrics: array<string>,
   isIndustry: bool,
-  distributionArray?: array<Js.Json.t>,
+  distributionArray?: array<JSON.t>,
   deltaPrefixArr: array<string>,
   tableMetrics: array<string>,
   mode?: string,
@@ -94,14 +94,14 @@ type tableApiBodyEntity = {
 }
 
 type newApiBodyEntity = {
-  timeObj: Dict.t<Js.Json.t>,
+  timeObj: Dict.t<JSON.t>,
   metric?: string,
   groupBy?: Js.Array2.t<Js_string.t>,
   granularityConfig?: (int, string),
   cardinality?: float,
-  filterValueFromUrl?: Js.Json.t,
+  filterValueFromUrl?: JSON.t,
   customFilterValue?: string,
-  jsonFormattedFilter?: Js.Json.t,
+  jsonFormattedFilter?: JSON.t,
   cardinalitySortDims?: string,
   domain: string,
 }
@@ -110,7 +110,7 @@ type analyticsTableEntity<'colType, 't> = {
   metrics: array<string>,
   deltaMetrics: array<string>,
   headerMetrics: array<string>,
-  distributionArray: option<array<Js.Json.t>>,
+  distributionArray: option<array<JSON.t>>,
   tableEntity: EntityType.entityType<'colType, 't>,
   deltaPrefixArr: array<string>,
   isIndustry: bool,
@@ -122,7 +122,7 @@ type analyticsTableEntity<'colType, 't> = {
       'colType,
     ) => Table.header,
   >,
-  tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, Js.Json.t) => array<Js.Nullable.t<'t>>>,
+  tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, JSON.t) => array<Js.Nullable.t<'t>>>,
   moduleName: string,
   defaultSortCol: string,
   filterKeys: array<string>,
@@ -137,8 +137,8 @@ type analyticsTableEntity<'colType, 't> = {
   tableBodyEntity?: tableApiBodyEntity => string,
   sampleApiBody?: tableApiBodyEntity => string,
   customFilterKey?: string,
-  newTableBodyMaker?: newApiBodyEntity => Js.Json.t,
-  jsonTransformer?: (string, array<Js.Json.t>, array<string>) => array<Js.Json.t>,
+  newTableBodyMaker?: newApiBodyEntity => JSON.t,
+  jsonTransformer?: (string, array<JSON.t>, array<string>) => array<JSON.t>,
 }
 
 type statSentiment = Positive | Negative | Neutral
@@ -178,11 +178,11 @@ open LogicUtils
 let getFilterRequestBody = (
   ~granularity: option<string>=None,
   ~groupByNames: option<array<string>>=None,
-  ~filter: option<Js.Json.t>=None,
+  ~filter: option<JSON.t>=None,
   ~metrics: option<array<string>>=None,
   ~delta: bool=true,
   ~prefix: option<string>=None,
-  ~distributionValues: option<Js.Json.t>=None,
+  ~distributionValues: option<JSON.t>=None,
   ~startDateTime,
   ~endDateTime,
   ~cardinality: option<string>=None,
@@ -191,7 +191,7 @@ let getFilterRequestBody = (
   ~source: string="BATCH",
   (),
 ) => {
-  let body: Dict.t<Js.Json.t> = Dict.make()
+  let body: Dict.t<JSON.t> = Dict.make()
   let timeRange = Dict.make()
   let timeSeries = Dict.make()
 
@@ -391,7 +391,7 @@ let generatePayload = (
   ~groupByNames,
   ~prefix,
   ~source,
-  ~filters: option<Js.Json.t>,
+  ~filters: option<JSON.t>,
   ~customFilter,
 ) => {
   let timeArr = Dict.fromArray([
@@ -402,8 +402,8 @@ let generatePayload = (
   | Some(groupByNames) =>
     Dict.fromArray([
       ("timeRange", timeArr->JSON.Encode.object),
-      ("metrics", metrics->Js.Json.stringArray),
-      ("groupByNames", groupByNames->Js.Json.stringArray),
+      ("metrics", metrics->LogicUtils.getJsonFromArrayOfString),
+      ("groupByNames", groupByNames->LogicUtils.getJsonFromArrayOfString),
       ("prefix", prefix->JSON.Encode.string),
       ("source", source->JSON.Encode.string),
       ("delta", delta->JSON.Encode.bool),
@@ -411,7 +411,7 @@ let generatePayload = (
   | None =>
     Dict.fromArray([
       ("timeRange", timeArr->JSON.Encode.object),
-      ("metrics", metrics->Js.Json.stringArray),
+      ("metrics", metrics->LogicUtils.getJsonFromArrayOfString),
       ("prefix", prefix->JSON.Encode.string),
       ("source", source->JSON.Encode.string),
       ("delta", delta->JSON.Encode.bool),
@@ -442,7 +442,7 @@ let generatedeltaTablePayload = (
   ~source,
   ~mode: option<string>,
   ~deltaPrefixArr,
-  ~filters: option<Js.Json.t>,
+  ~filters: option<JSON.t>,
   ~showDeltaMetrics=false,
   ~customFilter,
 ) => {
@@ -466,10 +466,10 @@ let generatedeltaTablePayload = (
 let generateTablePayload = (
   ~startTimeFromUrl: string,
   ~endTimeFromUrl: string,
-  ~filterValueFromUrl: option<Js.Json.t>,
+  ~filterValueFromUrl: option<JSON.t>,
   ~currenltySelectedTab: option<array<string>>,
   ~tableMetrics: array<string>,
-  ~distributionArray: option<array<Js.Json.t>>,
+  ~distributionArray: option<array<JSON.t>>,
   ~deltaMetrics: array<string>,
   ~deltaPrefixArr: array<string>,
   ~isIndustry: bool,
@@ -792,5 +792,5 @@ module NoDataFound = {
 type getFilters = {
   startTime: string,
   endTime: string,
-  filterValueFromUrl?: Js.Json.t,
+  filterValueFromUrl?: JSON.t,
 }

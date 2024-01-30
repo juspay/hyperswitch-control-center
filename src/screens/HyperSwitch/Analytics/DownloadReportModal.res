@@ -1,6 +1,6 @@
 type lteGte = {
-  gte: Js.Json.t,
-  lte: Js.Json.t,
+  gte: JSON.t,
+  lte: JSON.t,
 }
 
 type dateCreated = {dateCreated: lteGte}
@@ -8,8 +8,8 @@ type dateCreated = {dateCreated: lteGte}
 type filters = {filters: dateCreated}
 
 type startAndEndTime = {
-  startTime: Js.Json.t,
-  endTime: Js.Json.t,
+  startTime: JSON.t,
+  endTime: JSON.t,
 }
 
 type timeRange = {timeRange: startAndEndTime, dimensions: array<string>}

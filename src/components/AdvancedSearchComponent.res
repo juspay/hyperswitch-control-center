@@ -1,4 +1,4 @@
-let getSummary: Js.Json.t => EntityType.summary = json => {
+let getSummary: JSON.t => EntityType.summary = json => {
   switch json->JSON.Decode.object {
   | Some(dict) => {
       let rowsCount = LogicUtils.getArrayFromDict(dict, "rows", [])->Array.length
@@ -61,7 +61,7 @@ let make = (
     })
   }
 
-  let validateForm = (values: Js.Json.t) => {
+  let validateForm = (values: JSON.t) => {
     let finalValuesDict = switch values->JSON.Decode.object {
     | Some(dict) => dict
     | None => Dict.make()

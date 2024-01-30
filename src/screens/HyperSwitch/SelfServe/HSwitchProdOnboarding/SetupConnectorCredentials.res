@@ -164,7 +164,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     }
   }
 
-  let onSubmitMain = async (values: Js.Json.t) => {
+  let onSubmitMain = async (values: JSON.t) => {
     try {
       setIsLoading(_ => true)
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ())

@@ -1,6 +1,6 @@
 module RawHBarChart = {
   @react.component
-  let make = (~options: Js.Json.t) => {
+  let make = (~options: JSON.t) => {
     <HighchartsHorizontalBarChart.HBarChart
       highcharts={HighchartsHorizontalBarChart.highchartsModule} options
     />
@@ -59,7 +59,7 @@ let xLabelFormatter: Js_OO.Callback.arity1<xAxisRecord => string> = {
 
 @react.component
 let make = (
-  ~rawData: array<Js.Json.t>,
+  ~rawData: array<JSON.t>,
   ~groupKey,
   ~titleKey=?,
   ~selectedMetrics: LineChartUtils.metricsConfig,
@@ -76,7 +76,7 @@ let make = (
   }, (rawData, groupKey, selectedMetrics.metric_name_db))
   let titleKey = titleKey->Option.getOr(groupKey)
 
-  let barOption: Js.Json.t = React.useMemo2(() => {
+  let barOption: JSON.t = React.useMemo2(() => {
     let colors = {
       let length = barChartData->Array.length->Int.toFloat
       barChartData->Array.mapWithIndex((_data, i) => {

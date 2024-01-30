@@ -131,7 +131,7 @@ let parseResponseJson = (~json, ~email) => {
   valuesDict->getString("token", "")
 }
 
-let validateForm = (values: Js.Json.t, keys: array<string>) => {
+let validateForm = (values: JSON.t, keys: array<string>) => {
   let valuesDict = values->LogicUtils.getDictFromJsonObject
 
   let errors = Dict.make()

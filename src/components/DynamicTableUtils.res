@@ -2,8 +2,8 @@ let tableHeadingClass = "font-bold text-xl text-black text-opacity-75 dark:text-
 type view = Table | Card
 
 let visibilityColFunc = (
-  ~dateFormatConvertor: string => option<Js.Json.t>,
-  ~jsonVal: option<Js.Json.t>,
+  ~dateFormatConvertor: string => option<JSON.t>,
+  ~jsonVal: option<JSON.t>,
   ~tableCell: Table.cell,
 ) => {
   switch tableCell {
@@ -40,10 +40,10 @@ let useDateFormatConvertor = () => {
 
 let filteredData = (
   actualData: Js.Array2.t<Js.Nullable.t<'t>>,
-  columnFilter: Dict.t<Js.Array2.t<Js.Json.t>>,
+  columnFilter: Dict.t<Js.Array2.t<JSON.t>>,
   visibleColumns: option<Js.Array2.t<'colType>>,
   entity: EntityType.entityType<'colType, 't>,
-  dateFormatConvertor: string => option<Js.Json.t>,
+  dateFormatConvertor: string => option<JSON.t>,
 ) => {
   let selectedFiltersKeys = columnFilter->Dict.keysToArray
   if selectedFiltersKeys->Array.length > 0 {

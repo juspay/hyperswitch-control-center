@@ -258,7 +258,7 @@ let make = (~routingRuleId, ~isActive) => {
     }
   }
 
-  let validate = (values: Js.Json.t) => {
+  let validate = (values: JSON.t) => {
     let errors = Dict.make()
     let dict = values->getDictFromJsonObject
     let validateGateways = dict => {

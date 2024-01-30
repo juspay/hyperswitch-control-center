@@ -96,7 +96,7 @@ let getCell = (refundTable: refundTableType, colType: refundColType): Table.cell
   }
 }
 
-let getRefundTable: Js.Json.t => array<refundTableType> = json => {
+let getRefundTable: JSON.t => array<refundTableType> = json => {
   json
   ->LogicUtils.getArrayFromJson([])
   ->Array.map(item => {

@@ -80,7 +80,7 @@ let getPaymentMethodTypes = dict => {
   }
 }
 
-let getPaymentMethodsEnabled: Dict.t<Js.Json.t> => paymentMethodEnabledType = dict => {
+let getPaymentMethodsEnabled: Dict.t<JSON.t> => paymentMethodEnabledType = dict => {
   open LogicUtils
   {
     payment_method: dict->getString("payment_method", ""),
@@ -208,7 +208,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
   }
 }
 
-let getArrayDataFromJson = (json, itemToObjMapper: Dict.t<Js.Json.t> => connectorPayload) => {
+let getArrayDataFromJson = (json, itemToObjMapper: Dict.t<JSON.t> => connectorPayload) => {
   json
   ->ConnectorUtils.getProcessorsListFromJson()
   ->Array.map(itemToObjMapper)
@@ -223,7 +223,7 @@ let sortPreviouslyConnectedList = arr => {
   Js.Array2.sortInPlaceWith(arr, comparatorFunction)
 }
 
-let getPreviouslyConnectedList: Js.Json.t => array<connectorPayload> = json => {
+let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
   json->getArrayDataFromJson(getProcessorPayloadType)->sortPreviouslyConnectedList
 }
 

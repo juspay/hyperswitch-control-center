@@ -66,7 +66,7 @@ let make = (
       maxLengthArray(target, setValues)
     },
     onFocus: _ev => (),
-    value: values->Js.Json.stringArray,
+    value: values->LogicUtils.getJsonFromArrayOfString,
     checked: false,
   }
 
@@ -95,7 +95,7 @@ let make = (
           isDropDown=false
           options
           onSelect={arr => maxLengthArray(arr, setValues)}
-          value={values->Js.Json.stringArray}
+          value={values->LogicUtils.getJsonFromArrayOfString}
           showSelectAll={showSelectAll}
           showSerialNumber
           maxHeight="max-h-full"

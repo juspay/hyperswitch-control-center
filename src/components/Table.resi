@@ -22,7 +22,7 @@ type filterDataType = TableUtils.filterDataType =
   | Float(float, float)
   | String
   | DateTime
-external jsonToStr: Js.Json.t => string = "%identity"
+external jsonToStr: JSON.t => string = "%identity"
 type textAlign = TableUtils.textAlign = Left | Right
 type fontBold = bool
 type labelMargin = string
@@ -38,7 +38,7 @@ let getSortOrderString: sortOrder => string
 type label = TableUtils.label = {title: string, color: labelColor, showIcon?: bool}
 type currency = string
 type filterRow = TableUtils.filterRow =
-  | DropDownFilter(string, array<Js.Json.t>)
+  | DropDownFilter(string, array<JSON.t>)
   | TextFilter(string)
   | Range(string, float, float)
 type cell = TableUtils.cell =

@@ -2,13 +2,13 @@ open LogicUtils
 
 type moduleVisePref = {
   searchParams?: string,
-  moduleConfig?: Dict.t<Js.Json.t>, // we store array of string here
+  moduleConfig?: Dict.t<JSON.t>, // we store array of string here
 }
 type userPref = {
   lastVisitedTab?: string,
   moduleVisePref?: Dict.t<moduleVisePref>,
 }
-external userPrefToJson: userPref => Js.Json.t = "%identity"
+external userPrefToJson: userPref => JSON.t = "%identity"
 
 // DO NOT CHANGE THE KEYS
 let userPreferenceKeyInLocalStorage = "userPreferences"

@@ -156,7 +156,7 @@ let getJsonString = (valueDict, key) => {
   valueDict->getString(key->getStringFromVariant, "")->JSON.Encode.string
 }
 
-let getBody = (values: Js.Json.t) => {
+let getBody = (values: JSON.t) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
 

@@ -6,9 +6,9 @@ open LogicUtils
 open AnalyticsNewUtils
 
 type singleStatComponent = {
-  singleStatData: option<Dict.t<dataState<Js.Json.t>>>,
-  singleStatTimeSeries: option<Dict.t<dataState<Js.Json.t>>>,
-  singleStatDelta: option<Dict.t<dataState<Js.Json.t>>>,
+  singleStatData: option<Dict.t<dataState<JSON.t>>>,
+  singleStatTimeSeries: option<Dict.t<dataState<JSON.t>>>,
+  singleStatDelta: option<Dict.t<dataState<JSON.t>>>,
   singleStatLoader: Dict.t<AnalyticsUtils.loaderType>,
   singleStatIsVisible: (bool => bool) => unit,
 }

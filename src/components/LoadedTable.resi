@@ -1,10 +1,10 @@
-external toJson: Js.Nullable.t<'a> => Js.Json.t = "%identity"
+external toJson: Js.Nullable.t<'a> => JSON.t = "%identity"
 type sortTyp = ASC | DSC
 type sortOb = {sortKey: string, sortType: sortTyp}
 type checkBoxProps = {
   showCheckBox: bool,
-  selectedData: Js.Array2.t<Js.Json.t>,
-  setSelectedData: (Js.Array2.t<Js.Json.t> => Js.Array2.t<Js.Json.t>) => unit,
+  selectedData: Js.Array2.t<JSON.t>,
+  setSelectedData: (Js.Array2.t<JSON.t> => Js.Array2.t<JSON.t>) => unit,
 }
 let checkBoxPropDefaultVal: checkBoxProps
 let sortAtom: Recoil.recoilAtom<RescriptCore.Dict.t<sortOb>>
@@ -60,7 +60,7 @@ let make: (
   ~advancedSearchComponent: React.element=?,
   ~setData: ('e => option<array<Js.Nullable.t<'b>>>) => unit=?,
   ~setSummary: ('f => EntityType.summary) => unit=?,
-  ~customGetObjects: Js.Json.t => array<'g>=?,
+  ~customGetObjects: JSON.t => array<'g>=?,
   ~dataNotFoundComponent: React.element=?,
   ~renderCard: (~index: int, ~item: 'b, ~onRowClick: React.callback<int, unit>) => React.element=?,
   ~tableLocalFilter: bool=?,

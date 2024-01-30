@@ -373,7 +373,7 @@ let getValueMapped = (value, key) => {
   }
 }
 
-let responseDataMapper = (res: Js.Json.t) => {
+let responseDataMapper = (res: JSON.t) => {
   open LogicUtils
   let arrayFromJson = res->getArrayFromJson([])
   let resDict = Dict.make()

@@ -565,7 +565,7 @@ let make = (
     ->Array.map(item => {
       item.inputNames->Array.get(0)->Option.getOr("")
     })
-    ->Js.Json.stringArray
+    ->LogicUtils.getJsonFromArrayOfString
   }, [selectedFiltersList])
 
   React.useEffect1(() => {

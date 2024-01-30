@@ -15,14 +15,14 @@ type dataType = {
   collapsed: bool,
   value: dataValueType,
 }
-type paymentElement = {update: Js.Json.t => unit}
+type paymentElement = {update: JSON.t => unit}
 type hyperType = {
   clientSecret: string,
-  confirmPayment: Js.Json.t => Promise.t<Js.Json.t>,
-  retrievePaymentIntent: string => Promise.t<Js.Json.t>,
-  paymentRequest: Js.Json.t => Js.Json.t,
+  confirmPayment: JSON.t => Promise.t<JSON.t>,
+  retrievePaymentIntent: string => Promise.t<JSON.t>,
+  paymentRequest: JSON.t => JSON.t,
   getElement: string => Js.nullable<paymentElement>,
-  update: Js.Json.t => unit,
+  update: JSON.t => unit,
 }
 type layout = {
   \"type": string,
@@ -55,7 +55,7 @@ type variables = {
 type appearanceType = {
   theme: string,
   variables: variables,
-  rules: Js.Json.t,
+  rules: JSON.t,
 }
 type updateType = {appearance: appearanceType}
 

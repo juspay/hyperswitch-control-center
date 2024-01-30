@@ -128,7 +128,7 @@ let make = () => {
           </div>
         </div>
         {
-          let keyExtractor = (index, gateway: Js.Json.t, isDragging) => {
+          let keyExtractor = (index, gateway: JSON.t, isDragging) => {
             let style = isDragging ? "border rounded-md bg-jp-gray-100 dark:bg-jp-gray-950" : ""
             <div
               className={`h-14 px-3 flex flex-row items-center justify-between text-jp-gray-900 dark:text-jp-gray-600 border-jp-gray-500 dark:border-jp-gray-960

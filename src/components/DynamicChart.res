@@ -13,7 +13,7 @@ type chartEntity = {
   groupByNames: option<array<string>>,
   start_time: string,
   end_time: string,
-  filters: option<Js.Json.t>,
+  filters: option<JSON.t>,
   granularityOpts: option<string>,
   delta: bool,
   startDateTime: string,
@@ -73,7 +73,7 @@ let getLegendBody = (chartEntity: chartEntity) => {
   ->JSON.stringify
 }
 
-type chartUrl = String(string) | Func(Dict.t<Js.Json.t> => string)
+type chartUrl = String(string) | Func(Dict.t<JSON.t> => string)
 type chartType = Line | Bar | SemiDonut | HorizontalBar | Funnel
 
 type uriConfig = {
@@ -89,8 +89,8 @@ type uriConfig = {
 
 type urlToDataMap = {
   metricsUrl: string,
-  rawData: array<Js.Json.t>,
-  legendData: array<Js.Json.t>,
+  rawData: array<JSON.t>,
+  legendData: array<JSON.t>,
 }
 
 type fetchDataConfig = {
@@ -118,7 +118,7 @@ type entity = {
   enableLoaders?: bool,
   chartDescription?: string,
   sortingColumnLegend?: string,
-  jsonTransformer?: (string, array<Js.Json.t>) => array<Js.Json.t>,
+  jsonTransformer?: (string, array<JSON.t>) => array<JSON.t>,
 }
 
 let chartMapper = str => {
@@ -161,7 +161,7 @@ let makeEntity = (
   ~enableLoaders: bool=true,
   ~chartDescription: option<string>=?,
   ~sortingColumnLegend: option<string>=?,
-  ~jsonTransformer: option<(string, array<Js.Json.t>) => array<Js.Json.t>>=?,
+  ~jsonTransformer: option<(string, array<JSON.t>) => array<JSON.t>>=?,
   (),
 ) => {
   let granularity = granularity->Array.length === 0 ? [G_ONEDAY] : granularity

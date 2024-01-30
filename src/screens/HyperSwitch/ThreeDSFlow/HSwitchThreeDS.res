@@ -1,5 +1,5 @@
 open RoutingTypes
-external toWasm: Dict.t<Js.Json.t> => wasmModule = "%identity"
+external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
 
 module ActiveRulePreview = {
   open LogicUtils
@@ -206,7 +206,7 @@ let make = () => {
     Js.Nullable.null
   }
 
-  let validate = (values: Js.Json.t) => {
+  let validate = (values: JSON.t) => {
     let dict = values->LogicUtils.getDictFromJsonObject
 
     let errors = Dict.make()

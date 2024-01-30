@@ -1,4 +1,4 @@
-external formEventToJsonArr: ReactEvent.Form.t => array<Js.Json.t> = "%identity"
+external formEventToJsonArr: ReactEvent.Form.t => array<JSON.t> = "%identity"
 
 module RangeSliderLocalFilter = {
   @react.component
@@ -85,7 +85,7 @@ module RangeSliderLocalFilter = {
 
 module FilterDropDown = {
   @react.component
-  let make = (~val, ~arr: array<Js.Json.t>=[]) => {
+  let make = (~val, ~arr: array<JSON.t>=[]) => {
     let (lclFiltrState, setLclFltrState) = React.useContext(DatatableContext.datatableContext)
     let filterIconName = "bars-filter"
     let strokeColor = ""

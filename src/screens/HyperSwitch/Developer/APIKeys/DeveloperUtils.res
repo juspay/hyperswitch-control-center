@@ -1,7 +1,7 @@
 open HSwitchSettingTypes
 
 let validateAPIKeyForm = (
-  values: Js.Json.t,
+  values: JSON.t,
   ~setIsDisabled=_ => (),
   keys: array<string>,
   ~setShowCustomDate,
@@ -107,7 +107,7 @@ let allColumns = [Prefix, Name, Description, Created, Expiration, CustomCell]
 
 let apiDefaultCols = Recoil.atom(. "hyperSwitchApiDefaultCols", defaultColumns)
 
-let getItems: Js.Json.t => array<apiKey> = json => {
+let getItems: JSON.t => array<apiKey> = json => {
   LogicUtils.getArrayDataFromJson(json, itemToObjMapper)
 }
 

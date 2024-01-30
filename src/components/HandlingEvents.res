@@ -1,7 +1,7 @@
 @scope("JSON") @val
-external parseIntoMyData: string => Js.Json.t = "parse"
+external parseIntoMyData: string => JSON.t = "parse"
 
-type jsonData = {data: Js.Json.t}
+type jsonData = {data: JSON.t}
 external convertToCustomEvent: Webapi.Dom.Event.t => jsonData = "%identity"
 
 let getEventDict = (ev: Dom.event) => {
@@ -18,5 +18,5 @@ let getEventDict = (ev: Dom.event) => {
   }
 }
 
-type cookieData = {changed: Js.Array2.t<Js.Json.t>}
+type cookieData = {changed: Js.Array2.t<JSON.t>}
 external convertToCookieCustomEvent: Webapi.Dom.Event.t => cookieData = "%identity"

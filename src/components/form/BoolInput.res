@@ -115,7 +115,7 @@ let make = (
   ~addAttributeId="",
 ) => {
   let boolInput = baseInput->ffInputToBoolInput
-  let boolValue: Js.Json.t = boolInput.value
+  let boolValue: JSON.t = boolInput.value
 
   let isSelected = switch boolValue->JSON.Classify.classify {
   | Bool(_) => true

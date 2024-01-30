@@ -158,7 +158,7 @@ let getMetaData = (newMetadata, metaData) => {
   }
 }
 
-let returnIntegrationJson = (integrationData: ProviderTypes.integration): Js.Json.t => {
+let returnIntegrationJson = (integrationData: ProviderTypes.integration): JSON.t => {
   [
     ("is_done", integrationData.is_done->JSON.Encode.bool),
     ("metadata", integrationData.metadata),
@@ -169,7 +169,7 @@ let constructOnboardingBody = (
   ~dashboardPageState,
   ~integrationDetails: ProviderTypes.integrationDetailsType,
   ~is_done: bool,
-  ~metadata: option<Js.Json.t>=?,
+  ~metadata: option<JSON.t>=?,
   (),
 ) => {
   let copyOfIntegrationDetails = integrationDetails

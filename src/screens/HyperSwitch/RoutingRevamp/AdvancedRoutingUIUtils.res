@@ -510,7 +510,7 @@ module ConfigureRuleButton = {
 module SaveAndActivateButton = {
   @react.component
   let make = (
-    ~onSubmit: (Js.Json.t, 'a) => promise<Js.Nullable.t<Js.Json.t>>,
+    ~onSubmit: (JSON.t, 'a) => promise<Js.Nullable.t<JSON.t>>,
     ~handleActivateConfiguration,
   ) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(

@@ -35,7 +35,7 @@ let getDateFilteredObject = () => {
   }
 }
 
-let getFilterFields: Js.Json.t => array<EntityType.optionType<'t>> = json => {
+let getFilterFields: JSON.t => array<EntityType.optionType<'t>> = json => {
   open LogicUtils
   let filterDict = json->getDictFromJsonObject
 

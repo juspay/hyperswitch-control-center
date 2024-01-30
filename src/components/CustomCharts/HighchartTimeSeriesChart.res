@@ -45,7 +45,7 @@ module LineChart1D = {
   @react.component
   let make = (
     ~class: string="",
-    ~rawChartData: array<Js.Json.t>,
+    ~rawChartData: array<JSON.t>,
     ~selectedMetrics: LineChartUtils.metricsConfig,
     ~commonColorsArr: array<LineChartUtils.chartData<'a>>=[],
     ~chartPlace="",
@@ -59,7 +59,7 @@ module LineChart1D = {
     ~legendType: legendType=Table,
     ~isMultiDimensional: bool=false,
     ~chartKey: string="0",
-    ~legendData: array<Js.Json.t>=[],
+    ~legendData: array<JSON.t>=[],
     ~chartdataMaxRows: int=-1,
     ~selectedRow=None,
     ~showTableBelow: bool=false,
@@ -98,7 +98,7 @@ module LineChart1D = {
 
     let (chartData, xAxisMapInfo, chartDataOrig) = React.useMemo7(() => {
       let chartdata: array<
-        LineChartUtils.timeSeriesDictWithSecondryMetrics<Js.Json.t>,
+        LineChartUtils.timeSeriesDictWithSecondryMetrics<JSON.t>,
       > = LineChartUtils.timeSeriesDataMaker(
         ~data=rawChartData,
         ~groupKey,
@@ -154,7 +154,7 @@ module LineChart1D = {
       let chartDataOrig = chartdata
 
       let selectedChartData = switch selectedRow {
-      | Some(data: LineChartUtils.chartData<Js.Json.t>) =>
+      | Some(data: LineChartUtils.chartData<JSON.t>) =>
         chartdata->Array.filter(item => data.name == item.name)
       | None =>
         clickedRowNames->Array.length > 0
@@ -227,13 +227,13 @@ module LineChart1D = {
       let chartData = data->Belt.Array.keepMap(chartDataItem => {
         let (fillColor, color) = (chartDataItem.fillColor, chartDataItem.color) // normal
         //always uses same color for same entity Upi live mode
-        let val: option<seriesLine<Js.Json.t>> = if (
+        let val: option<seriesLine<JSON.t>> = if (
           !(clickedRowNames->Array.includes(chartDataItem.name)) &&
           clickedRowNames->Array.length > 0
         ) {
           None
         } else {
-          let value: Highcharts.seriesLine<Js.Json.t> = {
+          let value: Highcharts.seriesLine<JSON.t> = {
             color,
             name: chartDataItem.name,
             data: chartDataItem.data->Array.map(
@@ -461,7 +461,7 @@ module LineChart1D = {
         }->genericObjectOrRecordToJson
       }
 
-      let a: options<Js.Json.t> = {
+      let a: options<JSON.t> = {
         chart: {
           Some(
             {
@@ -801,7 +801,7 @@ module LegendItem = {
 
 module RenderMultiDimensionalChart = {
   type config = {
-    chartDictData: Dict.t<Js.Array.t<Js.Json.t>>,
+    chartDictData: Dict.t<Js.Array.t<JSON.t>>,
     class: string,
     selectedMetrics: LineChartUtils.metricsConfig,
     groupBy: string,
@@ -816,7 +816,7 @@ module RenderMultiDimensionalChart = {
     let chartNames =
       config.chartDictData
       ->Dict.toArray
-      ->Array.reduce([], (acc: array<LineChartUtils.chartData<Js.Json.t>>, (_, value)) => {
+      ->Array.reduce([], (acc: array<LineChartUtils.chartData<JSON.t>>, (_, value)) => {
         let chartdata = LineChartUtils.timeSeriesDataMaker(
           ~data=value,
           ~groupKey=config.groupBy,
@@ -883,7 +883,7 @@ module LineChart2D = {
   @react.component
   let make = (
     ~groupBy: option<array<string>>,
-    ~rawChartData: array<Js.Json.t>,
+    ~rawChartData: array<JSON.t>,
     ~selectedMetrics: LineChartUtils.metricsConfig,
     ~xAxis: string,
     ~legendType=Points,
@@ -925,7 +925,7 @@ module LineChart3D = {
   @react.component
   let make = (
     ~groupBy: option<array<string>>,
-    ~rawChartData: array<Js.Json.t>,
+    ~rawChartData: array<JSON.t>,
     ~selectedMetrics: LineChartUtils.metricsConfig,
     ~xAxis: string,
     ~legendType=Points,

@@ -49,10 +49,7 @@ let getBrowswerDetailsPayload = () => {
     ("isoAlpha3", clientCountry.isoAlpha3->JSON.Encode.string),
     ("countryName", clientCountry.countryName->getCountryNameFromVarient->JSON.Encode.string),
     ("isoAlpha2", clientCountry.isoAlpha2->getCountryCodeStringFromVarient->JSON.Encode.string),
-    (
-      "timeZones",
-      clientCountry.timeZones->Array.map(ele => ele->JSON.Encode.string)->JSON.Encode.array,
-    ),
+    ("timeZones", clientCountry.timeZones->LogicUtils.getJsonFromArrayOfString),
   ])
   [
     ("userAgent", browserDetails.userAgent->JSON.Encode.string),

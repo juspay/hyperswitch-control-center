@@ -1,6 +1,6 @@
 open ApplePayWalletIntegrationTypes
 
-let getSessionTokenDict = (values: Js.Json.t, applePayIntegrationType: applePayIntegrationType) => {
+let getSessionTokenDict = (values: JSON.t, applePayIntegrationType: applePayIntegrationType) => {
   open LogicUtils
   values
   ->getDictFromJsonObject
@@ -10,7 +10,7 @@ let getSessionTokenDict = (values: Js.Json.t, applePayIntegrationType: applePayI
 }
 
 let validate = (
-  values: Js.Json.t,
+  values: JSON.t,
   mandateKeys: array<string>,
   integrationType: ApplePayWalletIntegrationTypes.applePayIntegrationType,
 ) => {
@@ -27,7 +27,7 @@ let validate = (
 }
 
 let constructApplePayMetadata = (
-  values: Js.Json.t,
+  values: JSON.t,
   metadataInputs,
   integrationType: applePayIntegrationType,
 ) => {

@@ -21,7 +21,7 @@ external addEventListener3: (string, listener<'ev>, bool) => unit = "addEventLis
 external removeEventListener: (string, listener<'ev>) => unit = "removeEventListener"
 
 @val @scope("window")
-external postMessage: (Js.Json.t, string) => unit = "postMessage"
+external postMessage: (JSON.t, string) => unit = "postMessage"
 
 @val @scope("window")
 external checkLoadHyper: option<ReactHyperJs.hyperloader> = "Hyper"
@@ -33,16 +33,16 @@ type rec selectionObj = {\"type": string}
 @val @scope("window") external getSelection: unit => selectionObj = "getSelection"
 
 @val @scope("window")
-external navigator: Js.Json.t = "navigator"
+external navigator: JSON.t = "navigator"
 
 @val @scope("window")
-external connectorWasmInit: 'a => Js.Promise.t<Js.Json.t> = "init"
+external connectorWasmInit: 'a => Js.Promise.t<JSON.t> = "init"
 
 @val @scope("window")
-external getConnectorConfig: string => Js.Json.t = "getConnectorConfig"
+external getConnectorConfig: string => JSON.t = "getConnectorConfig"
 
 @val @scope("window")
-external getPayoutConnectorConfig: string => Js.Json.t = "getPayoutConnectorConfig"
+external getPayoutConnectorConfig: string => JSON.t = "getPayoutConnectorConfig"
 
 @val @scope("window")
 external getThreeDsKeys: unit => array<string> = "getThreeDsKeys"
@@ -63,17 +63,17 @@ external getAllConnectors: unit => array<string> = "getAllConnectors"
 external getVariantValues: string => array<string> = "getVariantValues"
 
 @val @scope("window")
-external getDescriptionCategory: unit => Js.Json.t = "getDescriptionCategory"
+external getDescriptionCategory: unit => JSON.t = "getDescriptionCategory"
 
 @val @scope("window")
 open ConnectorTypes
-external getRequestPayload: (wasmRequest, wasmExtraPayload) => Js.Json.t = "getRequestPayload"
+external getRequestPayload: (wasmRequest, wasmExtraPayload) => JSON.t = "getRequestPayload"
 
 @val @scope("window")
-external getResponsePayload: 'a => Js.Json.t = "getResponsePayload"
+external getResponsePayload: 'a => JSON.t = "getResponsePayload"
 
 @val @scope("window")
-external getParsedJson: string => Js.Json.t = "getParsedJson"
+external getParsedJson: string => JSON.t = "getParsedJson"
 
 @val @scope("window") external innerWidth: int = "innerWidth"
 @val @scope("window") external innerHeight: int = "innerHeight"

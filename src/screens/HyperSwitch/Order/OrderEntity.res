@@ -262,7 +262,7 @@ let refundMetaitemToObjMapper = dict => {
   }
 }
 
-let getRefundMetaData: Js.Json.t => refundMetaData = json => {
+let getRefundMetaData: JSON.t => refundMetaData = json => {
   json->JSON.Decode.object->Option.getOr(Dict.make())->refundMetaitemToObjMapper
 }
 
@@ -300,11 +300,11 @@ let attemptsItemToObjMapper = dict => {
   reference_id: dict->getString("reference_id", ""),
 }
 
-let getRefunds: Js.Json.t => array<refunds> = json => {
+let getRefunds: JSON.t => array<refunds> = json => {
   LogicUtils.getArrayDataFromJson(json, refunditemToObjMapper)
 }
 
-let getAttempts: Js.Json.t => array<attempts> = json => {
+let getAttempts: JSON.t => array<attempts> = json => {
   LogicUtils.getArrayDataFromJson(json, attemptsItemToObjMapper)
 }
 
@@ -880,7 +880,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let getOrders: Js.Json.t => array<order> = json => {
+let getOrders: JSON.t => array<order> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 

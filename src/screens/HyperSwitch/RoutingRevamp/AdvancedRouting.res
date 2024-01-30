@@ -3,7 +3,7 @@ open AdvancedRoutingTypes
 open AdvancedRoutingUtils
 open LogicUtils
 
-external toWasm: Dict.t<Js.Json.t> => RoutingTypes.wasmModule = "%identity"
+external toWasm: Dict.t<JSON.t> => RoutingTypes.wasmModule = "%identity"
 
 module Add3DSCondition = {
   @react.component
@@ -462,7 +462,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     None
   }, [routingRuleId])
 
-  let validate = (values: Js.Json.t) => {
+  let validate = (values: JSON.t) => {
     let dict = values->LogicUtils.getDictFromJsonObject
     let convertedObject = values->AdvancedRoutingUtils.getRoutingTypesFromJson
 

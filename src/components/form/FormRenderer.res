@@ -2,13 +2,13 @@ open InputFields
 type inputFieldType = {
   name: string,
   placeholder: string,
-  format: option<(. ~value: Js.Json.t, ~name: string) => Js.Json.t>,
-  parse: option<(. ~value: Js.Json.t, ~name: string) => Js.Json.t>,
+  format: option<(. ~value: JSON.t, ~name: string) => JSON.t>,
+  parse: option<(. ~value: JSON.t, ~name: string) => JSON.t>,
   disabled: bool,
   isRequired: bool,
   @as("type") type_: string,
   customInput: customInputFn,
-  validate: option<(option<string>, Js.Json.t) => Js.Promise.t<Js.Nullable.t<string>>>,
+  validate: option<(option<string>, JSON.t) => Js.Promise.t<Js.Nullable.t<string>>>,
 }
 type fieldInfoType = {
   label: string,
@@ -36,7 +36,7 @@ let makeInputFieldInfo = (
   ~parse=?,
   ~type_="text",
   ~isRequired=false,
-  ~validate: option<(option<string>, Js.Json.t) => Js.Promise.t<Js.Nullable.t<string>>>=?,
+  ~validate: option<(option<string>, JSON.t) => Js.Promise.t<Js.Nullable.t<string>>>=?,
   (),
 ) => {
   let label = label->Option.getOr(name)
@@ -140,7 +140,7 @@ let makeFieldInfo = (
   ~type_="text",
   ~isRequired=false,
   ~fieldPortalKey: option<string>=?,
-  ~validate: option<(option<string>, Js.Json.t) => Js.Promise.t<Js.Nullable.t<string>>>=?,
+  ~validate: option<(option<string>, JSON.t) => Js.Promise.t<Js.Nullable.t<string>>>=?,
   (),
 ) => {
   let label = label->Option.getOr(name)
@@ -797,7 +797,7 @@ let make = (
   ~onSubmit: (
     ReactFinalForm.formValues,
     ReactFinalForm.formApi,
-  ) => Promise.t<Js.Nullable.t<Js.Json.t>>,
+  ) => Promise.t<Js.Nullable.t<JSON.t>>,
   ~fieldsWrapperClass="",
   ~fieldWrapperClass="",
   ~formClass="",

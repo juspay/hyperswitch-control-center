@@ -2,8 +2,8 @@ open ReactHyperJs
 open Promise
 
 type configElements = {
-  appearanceElement: Js.Json.t,
-  paymentElement: Js.Json.t,
+  appearanceElement: JSON.t,
+  paymentElement: JSON.t,
 }
 
 type configData = {

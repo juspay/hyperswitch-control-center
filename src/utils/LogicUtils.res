@@ -120,7 +120,7 @@ let getString = (dict, key, default) => {
   getOptionString(dict, key)->Option.getOr(default)
 }
 
-let getStringFromJson = (json: Js.Json.t, default) => {
+let getStringFromJson = (json: JSON.t, default) => {
   json->JSON.Decode.string->Option.getOr(default)
 }
 
@@ -128,7 +128,7 @@ let getBoolFromJson = (json, defaultValue) => {
   json->JSON.Decode.bool->Option.getOr(defaultValue)
 }
 
-let getArrayFromJson = (json: Js.Json.t, default) => {
+let getArrayFromJson = (json: JSON.t, default) => {
   json->JSON.Decode.array->Option.getOr(default)
 }
 
@@ -540,7 +540,7 @@ let getListHead = (~default="", list) => {
   list->List.head->Option.getOr(default)
 }
 
-let dataMerge = (~dataArr: array<array<Js.Json.t>>, ~dictKey: array<string>) => {
+let dataMerge = (~dataArr: array<array<JSON.t>>, ~dictKey: array<string>) => {
   let finalData = Dict.make()
   dataArr->Array.forEach(jsonArr => {
     jsonArr->Array.forEach(jsonObj => {
@@ -623,4 +623,8 @@ let listOfMatchedText = (text, searchText) => {
     | None => [text]
     }
   }
+}
+
+let getJsonFromArrayOfString = arr => {
+  arr->Array.map(ele => ele->JSON.Encode.string)->JSON.Encode.array
 }

@@ -1,7 +1,7 @@
 // Pollyfill for Promise.allSettled()
 // Promise.allSettled() takes an iterable of promises and returns a single promise that is fulfilled with an array of promise settlement result
 
-let allSettledPolyfill = (arr: array<promise<Js.Json.t>>) => {
+let allSettledPolyfill = (arr: array<promise<JSON.t>>) => {
   arr
   ->Array.map(promise =>
     promise

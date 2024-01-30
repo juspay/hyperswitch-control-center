@@ -223,7 +223,7 @@ module SystemMetricsAnalytics = {
     ~endTimeFilterKey: string,
     ~chartEntity: nestedEntityType,
     ~filteredTabKeys: array<string>,
-    ~initialFixedFilters: Js.Json.t => array<EntityType.initialFilters<'t>>,
+    ~initialFixedFilters: JSON.t => array<EntityType.initialFilters<'t>>,
     ~singleStatEntity: DynamicSingleStat.entityType<'singleStatColType, 'b, 'b2>,
     ~filterUri,
     ~moduleName: string,

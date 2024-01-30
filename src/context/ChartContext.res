@@ -3,10 +3,10 @@ open Promise
 open LogicUtils
 
 type chartComponent = {
-  topChartData: option<dataState<Js.Json.t>>,
-  bottomChartData: option<dataState<Js.Json.t>>,
-  topChartLegendData: option<dataState<Js.Json.t>>,
-  bottomChartLegendData: option<dataState<Js.Json.t>>,
+  topChartData: option<dataState<JSON.t>>,
+  bottomChartData: option<dataState<JSON.t>>,
+  topChartLegendData: option<dataState<JSON.t>>,
+  bottomChartLegendData: option<dataState<JSON.t>>,
   setTopChartVisible: (bool => bool) => unit,
   setBottomChartVisible: (bool => bool) => unit,
   setGranularity: (option<string> => option<string>) => unit,

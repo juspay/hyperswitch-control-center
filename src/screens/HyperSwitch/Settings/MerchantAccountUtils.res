@@ -137,7 +137,7 @@ let constructWebhookDetailsObject = webhookDetailsDict => {
   webhookDetails
 }
 
-let getMerchantDetails = (values: Js.Json.t) => {
+let getMerchantDetails = (values: JSON.t) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
   let merchantDetails = valuesDict->getObj("merchant_details", Dict.make())
@@ -207,7 +207,7 @@ let getMerchantDetails = (values: Js.Json.t) => {
   payload
 }
 
-let getBusinessProfilePayload = (values: Js.Json.t) => {
+let getBusinessProfilePayload = (values: JSON.t) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
   let webhookSettingsValue = Dict.make()
@@ -246,7 +246,7 @@ let getBusinessProfilePayload = (values: Js.Json.t) => {
   profileDetailsDict
 }
 
-let getSettingsPayload = (values: Js.Json.t, merchantId) => {
+let getSettingsPayload = (values: JSON.t, merchantId) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
   let addressDetailsValue = Dict.make()
@@ -397,7 +397,7 @@ let validateCustom = (key, errors, value) => {
 }
 
 let validateMerchantAccountForm = (
-  ~values: Js.Json.t,
+  ~values: JSON.t,
   ~fieldsToValidate: array<validationFields>,
   ~setIsDisabled,
   ~initialData,

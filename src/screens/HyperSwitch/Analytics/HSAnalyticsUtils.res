@@ -9,7 +9,7 @@ let getQueryData = json => {
   json->getDictFromJsonObject->getArrayFromDict("queryData", [])
 }
 
-let options: Js.Json.t => array<EntityType.optionType<'t>> = json => {
+let options: JSON.t => array<EntityType.optionType<'t>> = json => {
   open LogicUtils
   json
   ->getDictFromJsonObject
@@ -189,10 +189,10 @@ module NoData = {
 let generateTablePayload = (
   ~startTimeFromUrl: string,
   ~endTimeFromUrl: string,
-  ~filterValueFromUrl: option<Js.Json.t>,
+  ~filterValueFromUrl: option<JSON.t>,
   ~currenltySelectedTab: option<array<string>>,
   ~tableMetrics: array<string>,
-  ~distributionArray: option<array<Js.Json.t>>,
+  ~distributionArray: option<array<JSON.t>>,
   ~deltaMetrics: array<string>,
   ~deltaPrefixArr: array<string>,
   ~isIndustry: bool,

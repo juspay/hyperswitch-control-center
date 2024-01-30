@@ -63,10 +63,10 @@ type highcharts
 
 module HBarChart = {
   @module("highcharts-react-official") @react.component
-  external make: (~highcharts: highcharts, ~options: Js.Json.t=?) => React.element = "default"
+  external make: (~highcharts: highcharts, ~options: JSON.t=?) => React.element = "default"
 }
 
 module Chart = {
   @module("highcharts-react-official") @react.component
-  external make: (~highcharts: highcharts, ~options: Js.Json.t=?) => React.element = "default"
+  external make: (~highcharts: highcharts, ~options: JSON.t=?) => React.element = "default"
 }

@@ -151,7 +151,7 @@ module RolePermissionValueRenderer = {
   }
 }
 
-let roleListResponseMapper: Dict.t<Js.Json.t> => UserRoleEntity.roleListResponse = dict => {
+let roleListResponseMapper: Dict.t<JSON.t> => UserRoleEntity.roleListResponse = dict => {
   open LogicUtils
   {
     role_id: dict->getString("role_id", ""),

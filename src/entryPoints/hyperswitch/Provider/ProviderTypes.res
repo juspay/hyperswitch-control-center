@@ -1,6 +1,6 @@
 type integration = {
   mutable is_done: bool,
-  mutable metadata: Js.Json.t,
+  mutable metadata: JSON.t,
 }
 type dashboardPageStateTypes = [
   | #POST_LOGIN_QUES_NOT_DONE
@@ -56,5 +56,5 @@ type sidebarContextType = {
   isSidebarExpanded: bool,
   setIsSidebarExpanded: (bool => bool) => unit,
   getFromSidebarDetails: Js.Dict.key => bool,
-  setIsSidebarDetails: (Js.Dict.key, Js.Json.t) => unit,
+  setIsSidebarDetails: (Js.Dict.key, JSON.t) => unit,
 }

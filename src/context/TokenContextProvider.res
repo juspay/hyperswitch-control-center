@@ -1,11 +1,11 @@
 let defaultTokenSetter = (_: option<string> => option<string>) => ()
-let defaultDictSetter = (_: Dict.t<Js.Json.t> => Dict.t<Js.Json.t>) => ()
+let defaultDictSetter = (_: Dict.t<JSON.t> => Dict.t<JSON.t>) => ()
 
 type tokenContextObjectType = {
   token: option<string>,
   setToken: (option<string> => option<string>) => unit,
-  tokenDetailsDict: Dict.t<Js.Json.t>,
-  setTokenDetailsDict: (Dict.t<Js.Json.t> => Dict.t<Js.Json.t>) => unit,
+  tokenDetailsDict: Dict.t<JSON.t>,
+  setTokenDetailsDict: (Dict.t<JSON.t> => Dict.t<JSON.t>) => unit,
   parentAuthInfo: option<HyperSwitchAuthTypes.authInfo>,
 }
 

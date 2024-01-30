@@ -41,7 +41,7 @@ let calculateHistoricTime = (
   }
 }
 
-let makeFilters = (~filters: Js.Json.t, ~cardinalityArr) => {
+let makeFilters = (~filters: JSON.t, ~cardinalityArr) => {
   let decodeFilter = filters->getDictFromJsonObject
 
   let expressionArr =
@@ -253,7 +253,7 @@ let getFilterBody = (
                     ->String.replaceRegExp(%re("/\)/g"), "")
                     ->String.split(",")
                     ->Array.map(item => item->String.trim)
-                    ->Js.Json.stringArray,
+                    ->LogicUtils.getJsonFromArrayOfString,
                   ),
                 ]),
               )
@@ -279,7 +279,7 @@ let getFilterBody = (
                     ->String.replaceRegExp(%re("/\)/g"), "")
                     ->String.split(",")
                     ->Array.map(item => item->String.trim)
-                    ->Js.Json.stringArray,
+                    ->LogicUtils.getJsonFromArrayOfString,
                   ),
                 ]),
               )
@@ -421,7 +421,7 @@ let apiBodyMaker = (
   ~filterValueFromUrl=?,
   ~customFilterValue=?,
   ~sortingParams: option<sortedBasedOn>=?,
-  ~jsonFormattedFilter: option<Js.Json.t>=?,
+  ~jsonFormattedFilter: option<JSON.t>=?,
   ~cardinalitySortDims="total_volume",
   ~timeZone: timeZone=IST,
   ~timeCol: string="txn_initiated",

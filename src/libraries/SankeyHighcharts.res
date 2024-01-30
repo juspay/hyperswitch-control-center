@@ -42,7 +42,7 @@ type series = {
   "nodes": array<node>,
   "nodeWidth": int,
   "minLinkWidth": int,
-  "dataLabels": Js.Json.t,
+  "dataLabels": JSON.t,
   "connectEnds": bool,
 }
 
@@ -50,7 +50,7 @@ type credits = {"enabled": bool}
 type chart = {"height": int, "backgroundColor": string}
 type options = {
   title: title,
-  series: array<Js.Json.t>,
+  series: array<JSON.t>,
   chart: chart,
   credits: credits,
   tooltip: {
@@ -72,10 +72,10 @@ external highchartsSankey: highcharts => unit = "default"
 
 module SankeyReact = {
   @module("highcharts-react-official") @react.component
-  external make: (~highcharts: highcharts, ~options: Js.Json.t=?) => React.element = "default"
+  external make: (~highcharts: highcharts, ~options: JSON.t=?) => React.element = "default"
 }
 
 module SankeyReactJsonOption = {
   @module("highcharts-react-official") @react.component
-  external make: (~highcharts: highcharts, ~options: Js.Json.t=?) => React.element = "default"
+  external make: (~highcharts: highcharts, ~options: JSON.t=?) => React.element = "default"
 }

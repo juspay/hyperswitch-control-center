@@ -544,7 +544,7 @@ let itemProviderMapper = dict => {
   }
 }
 
-let getPaymentMethodMapper: Js.Json.t => array<paymentMethodConfigType> = json => {
+let getPaymentMethodMapper: JSON.t => array<paymentMethodConfigType> = json => {
   open LogicUtils
   getArrayDataFromJson(json, itemProviderMapper)
 }
@@ -562,7 +562,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let getPaymentMethodEnabled: Js.Json.t => array<paymentMethodEnabled> = json => {
+let getPaymentMethodEnabled: JSON.t => array<paymentMethodEnabled> = json => {
   open LogicUtils
   getArrayDataFromJson(json, itemToObjMapper)
 }
@@ -1030,7 +1030,7 @@ let getWebhooksUrl = (~connectorName, ~merchantId) => {
   `${HSwitchGlobalVars.hyperSwitchApiPrefix}/webhooks/${merchantId}/${connectorName}`
 }
 
-let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: Js.Json.t) => {
+let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) => {
   open LogicUtils
   let dict = payload->getDictFromJsonObject
   let connectorAccountDetails =

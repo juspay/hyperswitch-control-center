@@ -82,7 +82,7 @@ module AdvanceSearch = {
       })
     }
 
-    let validateForm = (values: Js.Json.t) => {
+    let validateForm = (values: JSON.t) => {
       let valuesDict = switch values->JSON.Decode.object {
       | Some(dict) => dict->Dict.toArray->Dict.fromArray
       | None => Dict.make()
