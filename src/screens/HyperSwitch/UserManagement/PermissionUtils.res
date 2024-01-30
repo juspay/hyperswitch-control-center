@@ -140,7 +140,7 @@ let getAccessValue = (~permissionValue: permissionType, ~permissionList) => {
 
 let defaultValueForPermission = {
   paymentRead: Access,
-  paymentWrite: NoAccess,
+  paymentWrite: Access,
   refundRead: Access,
   refundWrite: Access,
   apiKeyRead: Access,
