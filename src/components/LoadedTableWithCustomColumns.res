@@ -86,19 +86,18 @@ let make = (
       {chooseCols}
     </div>
 
-  let customizeColumn = {
-    if !hideRightTitleElement {
-      <Button
-        text="Customize Columns"
-        leftIcon=Button.CustomIcon(<Icon name="vertical_slider" size=15 className="mr-1" />)
-        buttonType=SecondaryFilled
-        buttonSize=Small
-        onClick={_ => setShowColumnSelector(_ => true)}
-      />
-    } else {
-      React.null
-    }
-  }
+  let customizeColumn =
+    <UIUtils.RenderIf condition={!hideRightTitleElement}>
+      <Portal to={`${title}CustomizeColumn`}>
+        <Button
+          leftIcon=Button.CustomIcon(<Icon name="vertical_slider" />)
+          text="Customize Columns"
+          buttonType=SecondaryFilled
+          buttonSize=XSmall
+          onClick={_ => setShowColumnSelector(_ => true)}
+        />
+      </Portal>
+    </UIUtils.RenderIf>
 
   let rightTitleElement = !previewOnly ? customizeColumn : React.null
 
