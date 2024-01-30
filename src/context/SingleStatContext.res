@@ -203,7 +203,7 @@ let make = (
         setIndividualSingleStatTime(
           prev => {
             let individualTime = prev->Dict.toArray->Dict.fromArray
-            individualTime->Dict.set(index->Belt.Int.toString, Js.Date.now())
+            individualTime->Dict.set(index->Int.toString, Js.Date.now())
             individualTime
           },
         )
@@ -434,9 +434,9 @@ let make = (
               prev => {
                 let individualTime = prev->Dict.toArray->Dict.fromArray
                 individualTime->Dict.set(
-                  index->Belt.Int.toString,
+                  index->Int.toString,
                   Js.Date.now() -.
-                  individualTime->Dict.get(index->Belt.Int.toString)->Option.getOr(Js.Date.now()),
+                  individualTime->Dict.get(index->Int.toString)->Option.getOr(Js.Date.now()),
                 )
                 individualTime
               },

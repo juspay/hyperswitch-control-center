@@ -51,7 +51,7 @@ module HyperSwitchEntryComponent = {
       | list{"user", "set_password"} => "set_password"->setPageName
       | list{"user", "login"} => "magic_link_verify"->setPageName
       | _ =>
-        switch Belt.List.head(url.path) {
+        switch List.head(url.path) {
         | Some(pageTitle) => pageTitle->setPageName
         | _ => ()
         }

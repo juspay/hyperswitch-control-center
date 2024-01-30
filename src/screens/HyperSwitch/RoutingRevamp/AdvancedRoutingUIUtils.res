@@ -439,7 +439,7 @@ module MakeRuleField = {
           key={i->string_of_int}
           onClick={_ => onCrossClick(i)}
           isFirst={i === 0}
-          id={`${ruleJsonPath}[${i->Belt.Int.toString}]`}
+          id={`${ruleJsonPath}[${i->Int.toString}]`}
           isExpanded
           wasm
           isFrom3ds

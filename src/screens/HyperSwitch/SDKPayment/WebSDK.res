@@ -228,7 +228,7 @@ module CheckoutForm = {
             | WIDGET => <CardWidget id="card-widget" options={paymentElementOptions} />
             }}
             <Button
-              text={`Pay ${currency} ${(amount /. 100.00)->Belt.Float.toString}`}
+              text={`Pay ${currency} ${(amount /. 100.00)->Float.toString}`}
               loadingText="Please wait..."
               buttonState=btnState
               buttonType={Primary}

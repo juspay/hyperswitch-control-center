@@ -476,7 +476,7 @@ let make = (
   let sidebarWidth = isExpanded ? isMobileView ? "100%" : "270px" : "55px"
   let profileMaxWidth = "145px"
 
-  let firstPart = switch Belt.List.head(path) {
+  let firstPart = switch List.head(path) {
   | Some(x) => `/${x}`
   | None => "/"
   }

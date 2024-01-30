@@ -476,7 +476,7 @@ let apiBodyMaker = (
       Dict.set(granularityDimension, "timeZone", timeZone->timeZoneMapper->Js.Json.string)
       Dict.set(granularityDimension, "intervalCol", timeCol->Js.Json.string)
       Dict.set(granularity, "unit", granularityUnit->Js.Json.string)
-      Dict.set(granularity, "duration", granularityDuration->Belt.Int.toFloat->Js.Json.number)
+      Dict.set(granularity, "duration", granularityDuration->Int.toFloat->Js.Json.number)
       Dict.set(granularityDimension, "granularity", granularity->Js.Json.object_)
 
       finalBody->Dict.set(

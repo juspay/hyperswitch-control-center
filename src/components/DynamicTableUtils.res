@@ -147,13 +147,13 @@ let convertStrCellToFloat = (dataType: Table.cellType, str: string) => {
   switch dataType {
   | DropDown | LabelType | TextType => str->Js.Json.string
   | MoneyType | NumericType | ProgressType =>
-    str->Belt.Float.fromString->Option.getOr(0.)->Js.Json.number
+    str->Float.fromString->Option.getOr(0.)->Js.Json.number
   }
 }
 
 let convertFloatCellToStr = (dataType: Table.cellType, num: float) => {
   switch dataType {
-  | DropDown | LabelType | TextType => num->Belt.Float.toString->Js.Json.string
+  | DropDown | LabelType | TextType => num->Float.toString->Js.Json.string
   | MoneyType | NumericType | ProgressType => num->Js.Json.number
   }
 }

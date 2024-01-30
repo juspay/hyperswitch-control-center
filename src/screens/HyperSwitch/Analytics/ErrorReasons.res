@@ -51,8 +51,8 @@ let getHeading = colType => {
 let getCell = (errorObj, colType): Table.cell => {
   switch colType {
   | ErrorReason => Text(errorObj.error_reason)
-  | Count => Text(errorObj.count->Belt.Int.toString)
-  | Percentage => Text(errorObj.percentage->Belt.Float.toString)
+  | Count => Text(errorObj.count->Int.toString)
+  | Percentage => Text(errorObj.percentage->Float.toString)
   }
 }
 

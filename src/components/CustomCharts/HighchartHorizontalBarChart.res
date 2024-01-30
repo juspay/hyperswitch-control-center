@@ -52,7 +52,7 @@ let xLabelFormatter: Js_OO.Callback.arity1<xAxisRecord => string> = {
     | None => 0
     }
     `<div style="display: inline-block; margin-left: 10px;" class="text-black dark:text-white"><div class="font-semibold"> ${value} </div><div class="font-medium" style="display: inline-block;">` ++
-    (y->Belt.Float.fromInt *. 100. /. seriesSum->Belt.Float.fromInt)
+    (y->Float.fromInt *. 100. /. seriesSum->Float.fromInt)
       ->Js.Float.toFixedWithPrecision(~digits=2) ++ `%</div></div>`
   }
 }
@@ -78,11 +78,11 @@ let make = (
 
   let barOption: Js.Json.t = React.useMemo2(() => {
     let colors = {
-      let length = barChartData->Array.length->Belt.Int.toFloat
+      let length = barChartData->Array.length->Int.toFloat
       barChartData->Array.mapWithIndex((_data, i) => {
-        let i = i->Belt.Int.toFloat
+        let i = i->Int.toFloat
         let opacity = (length -. i +. 1.) /. (length +. 1.)
-        `rgb(0,109,249,${opacity->Belt.Float.toString})`
+        `rgb(0,109,249,${opacity->Float.toString})`
       })
     }
     let defaultOptions: HighchartsHorizontalBarChart.options = {

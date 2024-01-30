@@ -31,7 +31,7 @@ module DetailsSection = {
           let merchantName = merchantInfo->LogicUtils.getString(field.name, "Not Added")
           let defaultText = merchantName->String.length > 0 ? merchantName : "Not Added"
 
-          <div key={index->Belt.Int.toString}>
+          <div key={index->Int.toString}>
             {switch formState {
             | Preview => <InfoOnlyView heading={field.label} subHeading={defaultText} />
             | Edit =>

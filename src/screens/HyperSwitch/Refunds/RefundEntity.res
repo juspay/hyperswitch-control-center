@@ -114,7 +114,7 @@ let getCell = (refundData, colType): Table.cell => {
   | Amount =>
     CustomCell(
       <OrderEntity.CurrencyCell
-        amount={(refundData.amount /. 100.0)->Belt.Float.toString} currency={refundData.currency}
+        amount={(refundData.amount /. 100.0)->Float.toString} currency={refundData.currency}
       />,
       "",
     )

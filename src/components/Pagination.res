@@ -6,7 +6,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
 
   let isMobileView = MatchMedia.useMobileChecker()
   let (dropDownVal, setDropDownVal) = React.useState(_ => "1-10")
-  let total = Js.Math.ceil(Belt.Int.toFloat(totalResults) /. Belt.Int.toFloat(resultsPerPage))
+  let total = Js.Math.ceil(Int.toFloat(totalResults) /. Int.toFloat(resultsPerPage))
 
   for x in 1 to total {
     Array.push(pageNumbers, x)->ignore
@@ -31,16 +31,14 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
   let ranges = []
 
   rangeNum->Array.forEach(ele => {
-    ranges->Array.push((ele - 9)->Belt.Int.toString ++ "-" ++ ele->Belt.Int.toString)->ignore
+    ranges->Array.push((ele - 9)->Int.toString ++ "-" ++ ele->Int.toString)->ignore
   })
   let lastNum = rangeNum->Array.get(Array.length(rangeNum) - 1)->Option.getOr(0)
   if totalResults > lastNum {
     let start = lastNum + (totalResults - lastNum)
     start === totalResults
-      ? ranges->Array.push(start->Belt.Int.toString)->ignore
-      : ranges
-        ->Array.push(start->Belt.Int.toString ++ "-" ++ totalResults->Belt.Int.toString)
-        ->ignore
+      ? ranges->Array.push(start->Int.toString)->ignore
+      : ranges->Array.push(start->Int.toString ++ "-" ++ totalResults->Int.toString)->ignore
   }
 
   let startIndex = Js.Math.max_int(1, currentPage - pageToLeft)
@@ -102,7 +100,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
       let dropDownOptions = ranges->Array.mapWithIndex((item, idx): SelectBox.dropdownOption => {
         {
           label: item,
-          value: (idx + 1)->Belt.Int.toString,
+          value: (idx + 1)->Int.toString,
         }
       })
 

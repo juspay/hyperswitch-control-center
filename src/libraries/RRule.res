@@ -44,7 +44,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
 ) => {
   //check if date in date blacklist
   let getDay = date => {
-    Belt.Float.toInt(Js.Date.getDay(date))
+    Float.toInt(Js.Date.getDay(date))
   }
   let byDay = switch recipe.recurrence {
   | Some(recur) =>
@@ -62,7 +62,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
   | None => true
   }
   let getDate = date => {
-    Belt.Float.toInt(Js.Date.getDate(date))
+    Float.toInt(Js.Date.getDate(date))
   }
 
   let byDate = switch recipe.recurrence {
@@ -81,7 +81,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
   | None => true
   }
   let getMonth = date => {
-    Belt.Float.toInt(Js.Date.getMonth(date))
+    Float.toInt(Js.Date.getMonth(date))
   }
 
   let byMonth = switch recipe.recurrence {
@@ -100,7 +100,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
   | None => true
   }
   let getYear = date => {
-    Belt.Float.toInt(Js.Date.getFullYear(date))
+    Float.toInt(Js.Date.getFullYear(date))
   }
 
   let byYear = switch recipe.recurrence {
@@ -122,7 +122,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
   let getWeek = date => {
     // let dat = getDate(date)
     // let da = getDay(date)
-    // let a = Js.Math.ceil_int(Belt.Int.toFloat(dat + da)) / 7
+    // let a = Js.Math.ceil_int(Int.toFloat(dat + da)) / 7
     // a + 1
     let firstWeekDay = Js.Date.makeWithYMD(
       ~year=Js.Date.getFullYear(date),
@@ -131,9 +131,8 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
       (),
     )
     let offsetDate =
-      Belt.Int.fromFloat(Js.Date.getDate(date)) +
-      Belt.Int.fromFloat(Js.Date.getDay(firstWeekDay)) - 1
-    Js.Math.floor_int(Belt.Float.fromInt(offsetDate / 7)) + 1
+      Int.fromFloat(Js.Date.getDate(date)) + Int.fromFloat(Js.Date.getDay(firstWeekDay)) - 1
+    Js.Math.floor_int(Float.fromInt(offsetDate / 7)) + 1
   }
   let byWeek = switch recipe.recurrence {
   | Some(recur) =>
@@ -141,7 +140,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
     | Some(days) => {
         let day = getWeek(currentTime)
         switch days->Array.find(x => x == day) {
-        | Some(_a) => true
+        | Some(_) => true
         | None => false
         }
       }

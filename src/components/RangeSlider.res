@@ -99,8 +99,8 @@ let make = (
         className={`absolute bg-transparent pointer-events-none appearance-none slider hover:sliderFocus active:sliderFocus outline-none`}
         type_="range"
         value=minsliderVal
-        min={min->Belt.Float.toString}
-        max={max->Belt.Float.toString}
+        min={min->Float.toString}
+        max={max->Float.toString}
         onBlur={minSlide.onBlur}
         onChange={ev => {
           minSlide.onChange(ev)
@@ -118,8 +118,8 @@ let make = (
         className={`absolute bg-transparent pointer-events-none appearance-none slider hover:sliderFocus active:sliderFocus outline-none`}
         type_="range"
         value=maxsliderVal
-        min={min->Belt.Float.toString}
-        max={max->Belt.Float.toString}
+        min={min->Float.toString}
+        max={max->Float.toString}
         onBlur={maxSlide.onBlur}
         onChange={ev => {
           maxSlide.onChange(ev)
@@ -138,9 +138,9 @@ let make = (
         <input
           type_="number"
           className={inputClassname(hasMinError, isMinFocused)}
-          value={minSlideVal->Belt.Float.toString}
-          min={min->Belt.Float.toString}
-          max={max->Belt.Float.toString}
+          value={minSlideVal->Float.toString}
+          min={min->Float.toString}
+          max={max->Float.toString}
           onBlur={ev => {
             let minVal = minSlideVal
             let maxSliderValue = maxSlide.value->Js.Json.decodeNumber->Option.getOr(0.)
@@ -176,9 +176,9 @@ let make = (
         <input
           className={inputClassname(hasMaxError, isMaxFocused)}
           type_="number"
-          value={maxSlideVal->Belt.Float.toString}
-          min={min->Belt.Float.toString}
-          max={max->Belt.Float.toString}
+          value={maxSlideVal->Float.toString}
+          min={min->Float.toString}
+          max={max->Float.toString}
           onBlur={ev => {
             let maxVal = maxSlideVal
             let minSliderValue = minSlide.value->Js.Json.decodeNumber->Option.getOr(0.)

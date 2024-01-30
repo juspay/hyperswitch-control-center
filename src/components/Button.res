@@ -348,7 +348,7 @@ let make = (
   ~customTextPaddingClass=?,
   ~allowButtonTextMinWidth=true,
   ~badge: badge={
-    value: 1->Belt.Int.toString,
+    value: 1->Int.toString,
     color: NoBadge,
   },
   ~buttonRightText=?,

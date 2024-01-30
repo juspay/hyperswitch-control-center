@@ -115,7 +115,7 @@ let makeMultiInputFieldInfo = (
     descriptionComponent,
     subText,
     isRequired,
-    comboCustomInput: comboCustomInput->Belt.Option.map(x => x.fn),
+    comboCustomInput: comboCustomInput->Option.map(x => x.fn),
     inputFields,
     inputNames,
     ?fieldPortalKey,

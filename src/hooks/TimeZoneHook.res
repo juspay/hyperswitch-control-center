@@ -33,7 +33,7 @@ let dateTimeObjectToDate = (dateTimeObject: dateTimeFloat) => {
 }
 
 let stringToFloat = element => {
-  switch Belt.Float.fromString(element) {
+  switch Float.fromString(element) {
   | Some(a) => a
   | _ => 0.0
   }
@@ -87,7 +87,7 @@ let en_USStringToDateTimeObject = dateTimeIsoString => {
   let date = tempTimeDate[0]
   let dateComponents = date->Option.getOr("")->String.split("/")
   let timeComponents = time->Option.getOr("")->String.split(":")
-  let tempHour = switch Belt.Float.fromString(timeComponents[0]->Option.getOr("")) {
+  let tempHour = switch Float.fromString(timeComponents[0]->Option.getOr("")) {
   | Some(a) => a
   | _ => 0.0
   }
@@ -97,7 +97,7 @@ let en_USStringToDateTimeObject = dateTimeIsoString => {
       : tempHour < 12.0
       ? tempHour +. 12.0
       : tempHour
-  let hourInString = Belt.Float.toString(fullTempHour)
+  let hourInString = Float.toString(fullTempHour)
   let dateTimeObject: dateTimeString = {
     year: formatter(dateComponents[2]->Option.getOr("")),
     month: formatter(dateComponents[0]->Option.getOr("")),

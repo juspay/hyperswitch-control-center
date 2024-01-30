@@ -24,8 +24,8 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
     sidebarOptions->Array.filter(sidebarOption => sidebarOption.status === COMPLETED)
 
   let completedPercentage =
-    (completedSteps->Array.length->Belt.Int.toFloat /.
-    sidebarOptions->Array.length->Belt.Int.toFloat *. 100.0)->Belt.Float.toInt
+    (completedSteps->Array.length->Int.toFloat /.
+    sidebarOptions->Array.length->Int.toFloat *. 100.0)->Float.toInt
 
   <div className="w-[288px] xl:w-[364px] h-screen bg-white shadow-sm shrink-0">
     <div className="p-6 flex flex-col gap-3">
@@ -36,11 +36,11 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
       </div>
     </div>
     <div className="flex flex-col px-6 py-8 gap-2 border-y border-gray-200">
-      <span> {`${completedPercentage->Belt.Int.toString}% Completed`->React.string} </span>
+      <span> {`${completedPercentage->Int.toString}% Completed`->React.string} </span>
       <div className="h-2 bg-gray-200">
         <div
           className={"h-full bg-blue-700"}
-          style={ReactDOMStyle.make(~width=`${completedPercentage->Belt.Int.toString}%`, ())}
+          style={ReactDOMStyle.make(~width=`${completedPercentage->Int.toString}%`, ())}
         />
       </div>
     </div>
@@ -62,11 +62,10 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
         key={i->string_of_int}
         className={`p-6 border-y border-gray-200 cursor-pointer ${background}`}
         onClick>
-        <div
-          key={i->Belt.Int.toString} className={`flex items-center ${textColor} font-medium gap-5`}>
+        <div key={i->Int.toString} className={`flex items-center ${textColor} font-medium gap-5`}>
           <span
             className={`${indexBackground} ${indexColor} rounded-sm w-1.1-rem h-1.1-rem flex justify-center items-center text-sm`}>
-            {(i + 1)->Belt.Int.toString->React.string}
+            {(i + 1)->Int.toString->React.string}
           </span>
           <div className="flex-1">
             <ToolTip

@@ -824,7 +824,7 @@ let make = (
                       convertStrCellToFloat(dataType, "")
                     }
                     switch dictArrObj->Dict.get(key) {
-                    | Some(arr) => Dict.set(dictArrObj, key, Belt.Array.concat(arr, [value]))
+                    | Some(arr) => Dict.set(dictArrObj, key, Array.concat(arr, [value]))
                     | None => Dict.set(dictArrObj, key, [value])
                     }
                   },
@@ -863,7 +863,7 @@ let make = (
       Some(
         showSerialNumber && tableLocalFilter
           ? Array.concat(
-              [Table.Range("s_no", 0., actualData->Array.length->Belt.Int.toFloat)],
+              [Table.Range("s_no", 0., actualData->Array.length->Int.toFloat)],
               columnFilterRow,
             )
           : columnFilterRow,
@@ -937,7 +937,7 @@ let make = (
             })
           let startPoint = sNoArr->Array.get(0)->Option.getOr(1.->Js.Json.number)
           let endPoint = sNoArr->Array.get(1)->Option.getOr(1.->Js.Json.number)
-          let jsonIndex = (index + 1)->Belt.Int.toFloat->Js.Json.number
+          let jsonIndex = (index + 1)->Int.toFloat->Js.Json.number
           sNoArr->Array.length > 0
             ? {
                 startPoint <= jsonIndex && endPoint >= jsonIndex ? visibleCell : []
@@ -971,9 +971,9 @@ let make = (
         actualRows
         ->Array.unshift(
           Numeric(
-            (1 + index)->Belt.Int.toFloat,
+            (1 + index)->Int.toFloat,
             (val: float) => {
-              val->Belt.Float.toString
+              val->Float.toString
             },
           ),
         )
