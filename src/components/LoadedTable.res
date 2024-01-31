@@ -1,4 +1,4 @@
-external toJson: Js.Nullable.t<'a> => JSON.t = "%identity"
+external toJson: Nullable.t<'a> => JSON.t = "%identity"
 open DynamicTableUtils
 open NewThemeUtils
 type sortTyp = ASC | DSC
@@ -454,7 +454,7 @@ let make = (
           ->filteredData(columnFilterCopy, visibleColumns, entity, dateFormatConvertor)
           ->Array.forEach(
             rows => {
-              switch rows->Js.Nullable.toOption {
+              switch rows->Nullable.toOption {
               | Some(rows) =>
                 let value = switch entity.getCell(rows, item) {
                 | CustomCell(_, str)
@@ -558,7 +558,7 @@ let make = (
   let sNoArr = Dict.get(columnFilter, "s_no")->Option.getOr([])
   // filtering for SNO
   let nullableRows = filteredData->Array.mapWithIndex((nullableItem, index) => {
-    let actualRows = switch nullableItem->Js.Nullable.toOption {
+    let actualRows = switch nullableItem->Nullable.toOption {
     | Some(item) => {
         let visibleCell =
           visibleColumns
@@ -657,7 +657,7 @@ let make = (
 
   let handleRowClick = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
-    | Some(ele) => ele->Js.Nullable.toOption
+    | Some(ele) => ele->Nullable.toOption
     | None => None
     }
     switch actualVal {
@@ -681,7 +681,7 @@ let make = (
 
   let onRowDoubleClick = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
-    | Some(ele) => ele->Js.Nullable.toOption
+    | Some(ele) => ele->Nullable.toOption
     | None => None
     }
     switch actualVal {
@@ -705,7 +705,7 @@ let make = (
 
   let handleMouseEnter = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
-    | Some(ele) => ele->Js.Nullable.toOption
+    | Some(ele) => ele->Nullable.toOption
     | None => None
     }
     switch actualVal {
@@ -720,7 +720,7 @@ let make = (
 
   let handleMouseLeaeve = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
-    | Some(ele) => ele->Js.Nullable.toOption
+    | Some(ele) => ele->Nullable.toOption
     | None => None
     }
     switch actualVal {
@@ -842,7 +842,7 @@ let make = (
           | Some(renderer) =>
             <div className="overflow-auto flex flex-col">
               {paginatedData
-              ->Belt.Array.keepMap(Js.Nullable.toOption)
+              ->Belt.Array.keepMap(Nullable.toOption)
               ->Array.mapWithIndex((item, rowIndex) => {
                 renderer(~index={rowIndex + offset}, ~item, ~onRowClick=handleRowClick)
               })

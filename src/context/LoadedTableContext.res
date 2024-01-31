@@ -1,8 +1,8 @@
 type infoData
 
-external toInfoData: 'a => array<Js.Nullable.t<infoData>> = "%identity"
+external toInfoData: 'a => array<Nullable.t<infoData>> = "%identity"
 
-let arr: array<Js.Nullable.t<infoData>> = []
+let arr: array<Nullable.t<infoData>> = []
 
 let loadedTableContext = React.createContext(arr)
 

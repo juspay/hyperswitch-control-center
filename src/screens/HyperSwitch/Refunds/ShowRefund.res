@@ -92,7 +92,7 @@ let make = (~id) => {
     let jsonArray = [orderDataForPaymentId]
     let paymentArray =
       jsonArray->JSON.Encode.array->LogicUtils.getArrayDataFromJson(OrderEntity.itemToObjMapper)
-    setOrdersData(_ => paymentArray->Array.map(Js.Nullable.return))
+    setOrdersData(_ => paymentArray->Array.map(Nullable.make))
     None
   }, [orderDataForPaymentId])
 

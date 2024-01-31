@@ -52,7 +52,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let enums =
         (await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray))
-        ->Js.Nullable.toOption
+        ->Nullable.toOption
         ->Option.getOr(Dict.make())
         ->JSON.Encode.object
         ->QuickStartUtils.getTypedValueFromDict

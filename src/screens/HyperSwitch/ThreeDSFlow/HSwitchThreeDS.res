@@ -203,7 +203,7 @@ let make = () => {
       let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => Error(err))
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
   let validate = (values: JSON.t) => {

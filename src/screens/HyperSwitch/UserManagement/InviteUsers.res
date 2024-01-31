@@ -151,7 +151,7 @@ let make = () => {
       (),
     )
     RescriptReactRouter.push("/users")
-    Js.Nullable.null
+    Nullable.null
   }
 
   let onSubmit = (values, _) => {
