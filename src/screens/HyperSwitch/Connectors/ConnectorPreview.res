@@ -264,7 +264,8 @@ let make = (
 ) => {
   open APIUtils
   open ConnectorUtils
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {feedback, paypalAutomaticFlow} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
@@ -277,9 +278,7 @@ let make = (
 
   let connectorCount = ListHooks.useListCount(~entityName=CONNECTOR)
   let isFeedbackModalToBeOpen =
-    featureFlagDetails.feedback &&
-    !isUpdateFlow &&
-    connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
+    feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
   let redirectPath = switch url.path {
   | list{"payoutconnectors", _} => "/payoutconnectors"
   | _ => "/connectors"
@@ -321,32 +320,35 @@ let make = (
           </h2>
         </div>
         <div className="self-center">
-          {switch (currentStep, connector->getConnectorNameTypeFromString, connectorInfo.status) {
-          | (Preview, PAYPAL, "inactive") =>
+          {switch (
+            currentStep,
+            connector->getConnectorNameTypeFromString,
+            connectorInfo.status,
+            paypalAutomaticFlow,
+          ) {
+          | (Preview, PAYPAL, "inactive", true) =>
             <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
-          | (Preview, _, _) =>
+          | (Preview, _, _, _) =>
             <div className="flex gap-6 items-center">
               <div
                 className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
                 {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
               </div>
-              <UIUtils.RenderIf
-                condition={showMenuOption &&
-                !(connector->getConnectorNameTypeFromString === PAYPAL)}>
-                <MenuOption setCurrentStep disableConnector isConnectorDisabled />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf
-                condition={showMenuOption && connector->getConnectorNameTypeFromString === PAYPAL}>
-                <MenuOptionForPayPal
-                  setCurrentStep
-                  disableConnector
-                  isConnectorDisabled
-                  updateStepValue={ConnectorTypes.PaymentMethods}
-                  connectorInfoDict
-                  setScreenState
-                  isUpdateFlow
-                  setInitialValues
-                />
+              <UIUtils.RenderIf condition={showMenuOption}>
+                {switch (connector->getConnectorNameTypeFromString, paypalAutomaticFlow) {
+                | (PAYPAL, true) =>
+                  <MenuOptionForPayPal
+                    setCurrentStep
+                    disableConnector
+                    isConnectorDisabled
+                    updateStepValue={ConnectorTypes.PaymentMethods}
+                    connectorInfoDict
+                    setScreenState
+                    isUpdateFlow
+                    setInitialValues
+                  />
+                | (_, _) => <MenuOption setCurrentStep disableConnector isConnectorDisabled />
+                }}
               </UIUtils.RenderIf>
             </div>
 

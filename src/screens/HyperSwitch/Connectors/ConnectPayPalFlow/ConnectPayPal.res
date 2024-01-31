@@ -271,6 +271,7 @@ let make = (
 
   let activeBusinessProfile =
     defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let updatedInitialVal = React.useMemo1(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
@@ -488,9 +489,11 @@ let make = (
                       description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
                     />
                   </div>
-                  <ConnectorAccountDetailsHelper.BusinessProfileRender
-                    isUpdateFlow selectedConnector={connector}
-                  />
+                  <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
+                    <ConnectorAccountDetailsHelper.BusinessProfileRender
+                      isUpdateFlow selectedConnector={connector}
+                    />
+                  </UIUtils.RenderIf>
                   <LandingScreen configuartionType setConfigurationType />
                 </div>
               | Redirecting_to_paypal

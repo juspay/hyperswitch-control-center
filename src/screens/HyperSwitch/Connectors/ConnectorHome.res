@@ -59,6 +59,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   open APIUtils
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let profileIdFromUrl =
@@ -149,8 +150,8 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   }
 
   let determinePageState = () => {
-    switch connector->getConnectorNameTypeFromString {
-    | PAYPAL =>
+    switch (connector->getConnectorNameTypeFromString, featureFlagDetails.paypalAutomaticFlow) {
+    | (PAYPAL, true) =>
       PayPalFlowUtils.payPalPageState(
         ~setScreenState,
         ~url,
@@ -159,7 +160,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         ~setCurrentStep,
         ~isUpdateFlow,
       )->ignore
-    | _ => commonPageState()
+    | (_, _) => commonPageState()
     }
   }
 
