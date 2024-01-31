@@ -121,19 +121,27 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     }
   }, (connector, profileId, connectorID))
 
-  let commonLogic = async () => {
-    try {
-      if isUpdateFlow {
-        await getConnectorDetails()
-        setCurrentStep(_ => Preview)
-      } else {
-        setCurrentStep(_ => ConnectorTypes.IntegFields)
-      }
-    } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
-        setScreenState(_ => Error(err))
-      }
+  let commonPageState = () => {
+    if isUpdateFlow {
+      setCurrentStep(_ => Preview)
+    } else {
+      setCurrentStep(_ => ConnectorTypes.IntegFields)
+    }
+    setScreenState(_ => Success)
+  }
+
+  let determinePageState = () => {
+    switch connector->getConnectorNameTypeFromString {
+    | PAYPAL =>
+      PayPalFlowUtils.payPalPageState(
+        ~setScreenState,
+        ~url,
+        ~setSetupAccountStatus,
+        ~getPayPalStatus,
+        ~setCurrentStep,
+        ~isUpdateFlow,
+      )->ignore
+    | _ => commonPageState()
     }
   }
 
@@ -141,21 +149,11 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     try {
       setScreenState(_ => Loading)
       let _ = await Window.connectorWasmInit()
-
-      switch connector->getConnectorNameTypeFromString {
-      | PAYPAL =>
-        await PayPalFlowUtils.payPalLogics(
-          ~setScreenState,
-          ~url,
-          ~setSetupAccountStatus,
-          ~getConnectorDetails,
-          ~getPayPalStatus,
-          ~setCurrentStep,
-          ~isUpdateFlow,
-        )
-      | _ => await commonLogic()
+      if isUpdateFlow {
+        await getConnectorDetails()
+      } else {
+        determinePageState()
       }
-      setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
         let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
@@ -164,6 +162,13 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     | _ => setScreenState(_ => Error("Something went wrong"))
     }
   }
+
+  React.useEffect1(() => {
+    if profileId->String.length > 0 {
+      determinePageState()->ignore
+    }
+    None
+  }, [profileId])
 
   React.useEffect1(() => {
     if connector->String.length > 0 {
