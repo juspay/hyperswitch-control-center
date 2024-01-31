@@ -492,7 +492,7 @@ module ConfigureRuleButton = {
   @react.component
   let make = (~setShowModal, ~isConfigButtonEnabled) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
 
     <Button
@@ -510,18 +510,18 @@ module ConfigureRuleButton = {
 module SaveAndActivateButton = {
   @react.component
   let make = (
-    ~onSubmit: (JSON.t, 'a) => promise<Js.Nullable.t<JSON.t>>,
+    ~onSubmit: (JSON.t, 'a) => promise<Nullable.t<JSON.t>>,
     ~handleActivateConfiguration,
   ) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
 
     let handleSaveAndActivate = async _ev => {
       try {
         let onSubmitResponse = await onSubmit(formState.values, false)
         let currentActivatedFromJson =
-          onSubmitResponse->Js.Nullable.toOption->Option.getOr(JSON.Encode.null)
+          onSubmitResponse->Nullable.toOption->Option.getOr(JSON.Encode.null)
         let currentActivatedId =
           currentActivatedFromJson->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
         let _ = await handleActivateConfiguration(Some(currentActivatedId))

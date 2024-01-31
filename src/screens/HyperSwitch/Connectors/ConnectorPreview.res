@@ -283,10 +283,15 @@ let make = (
           </h2>
         </div>
         <div className="self-center">
-          {switch (currentStep, connector->getConnectorNameTypeFromString, connectorInfo.status) {
-          | (Preview, PAYPAL, "inactive") =>
+          {switch (
+            currentStep,
+            connector->getConnectorNameTypeFromString,
+            connectorInfo.status,
+            featureFlagDetails.paypalAutomaticFlow,
+          ) {
+          | (Preview, PAYPAL, "inactive", true) =>
             <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
-          | (Preview, _, _) =>
+          | (Preview, _, _, _) =>
             <div className="flex gap-6 items-center">
               <div
                 className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>

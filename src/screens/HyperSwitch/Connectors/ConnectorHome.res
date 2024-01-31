@@ -60,7 +60,10 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let showToast = ToastState.useShowToast()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+  let profileIdFromUrl =
+    UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getOptionString("profile_id")
   let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
@@ -74,8 +77,6 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   }
 
   let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
-  let profileId =
-    initialValues->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "")
 
   let getConnectorDetails = async () => {
     try {
@@ -91,11 +92,23 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     }
   }
 
-  let getPayPalStatus = React.useCallback3(async () => {
+  let profileID =
+    initialValues->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("profile_id")
+
+  let getPayPalStatus = React.useCallback4(async () => {
     open PayPalFlowUtils
     open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
+      let profileId = switch profileID {
+      | Some(value) => value
+      | _ =>
+        switch profileIdFromUrl {
+        | Some(profileIdValue) => profileIdValue
+        | _ => Js.Exn.raiseError("Profile Id not found!")
+        }
+      }
+
       let paypalBody = generatePayPalBody(
         ~connectorId={connectorID},
         ~profileId=Some(profileId),
@@ -118,23 +131,36 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
+    | Js.Exn.Error(e) =>
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+      if err->String.includes("Profile") {
+        showToast(~message="Profile Id not found. Try Again", ~toastType=ToastError, ())
+      }
+      setScreenState(_ => PageLoaderWrapper.Custom)
     }
-  }, (connector, profileId, connectorID))
+  }, (connector, profileID, profileIdFromUrl, connectorID))
 
-  let commonLogic = async () => {
-    try {
-      if isUpdateFlow {
-        await getConnectorDetails()
-        setCurrentStep(_ => Preview)
-      } else {
-        setCurrentStep(_ => ConnectorTypes.IntegFields)
-      }
-    } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
-        setScreenState(_ => Error(err))
-      }
+  let commonPageState = () => {
+    if isUpdateFlow {
+      setCurrentStep(_ => Preview)
+    } else {
+      setCurrentStep(_ => ConnectorTypes.IntegFields)
+    }
+    setScreenState(_ => Success)
+  }
+
+  let determinePageState = () => {
+    switch (connector->getConnectorNameTypeFromString, featureFlagDetails.paypalAutomaticFlow) {
+    | (PAYPAL, true) =>
+      PayPalFlowUtils.payPalPageState(
+        ~setScreenState,
+        ~url,
+        ~setSetupAccountStatus,
+        ~getPayPalStatus,
+        ~setCurrentStep,
+        ~isUpdateFlow,
+      )->ignore
+    | (_, _) => commonPageState()
     }
   }
 
@@ -142,21 +168,10 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
     try {
       setScreenState(_ => Loading)
       let _ = await Window.connectorWasmInit()
-
-      switch (connector->getConnectorNameTypeFromString, featureFlagDetails.paypalAutomaticFlow) {
-      | (PAYPAL, true) =>
-        await PayPalFlowUtils.payPalLogics(
-          ~setScreenState,
-          ~url,
-          ~setSetupAccountStatus,
-          ~getConnectorDetails,
-          ~getPayPalStatus,
-          ~setCurrentStep,
-          ~isUpdateFlow,
-        )
-      | (_, _) => await commonLogic()
+      if isUpdateFlow {
+        await getConnectorDetails()
       }
-      setScreenState(_ => Success)
+      determinePageState()
     } catch {
     | Js.Exn.Error(e) => {
         let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
@@ -187,12 +202,11 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       title="Oops, we hit a little bump on the road!"
       customStyle={`py-16 !m-0 `}
       overriddingStylesTitle="text-2xl font-semibold"
-      buttonText="Try again"
+      buttonText="Go back to processor"
       overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
       subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
       onClickHandler={_ => {
-        setCurrentStep(_ => AutomaticFlow)
-        setSetupAccountStatus(._ => PayPalFlowTypes.Connect_paypal_landing)
+        RescriptReactRouter.push("/connectors")
         setScreenState(_ => PageLoaderWrapper.Success)
       }}
       isButton=true

@@ -14,7 +14,7 @@ module BaseTableComponent = {
     ~newAllCols: array<'colType>,
     ~colMapper as _: 'colType => string,
     ~tableEntity: EntityType.entityType<'colType, 't>,
-    ~tableGlobalFilter as _: option<(array<Js.Nullable.t<'t>>, JSON.t) => array<Js.Nullable.t<'t>>>,
+    ~tableGlobalFilter as _: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
     ~activeTab as _,
   ) => {
     open DynamicTableUtils
@@ -102,7 +102,7 @@ module TableWrapper = {
     ~tableUpdatedHeading as _: option<
       (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
     >,
-    ~tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, JSON.t) => array<Js.Nullable.t<'t>>>,
+    ~tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
     ~moduleName,
     ~weeklyTableMetricsCols,
     ~distributionArray=None,
@@ -117,7 +117,7 @@ module TableWrapper = {
     let activeTabStr = activeTab->Option.getOr([])->Array.joinWith("-")
     let (startTimeFilterKey, endTimeFilterKey) = dateKeys
     let (tableDataLoading, setTableDataLoading) = React.useState(_ => true)
-    let (tableData, setTableData) = React.useState(_ => []->Array.map(Js.Nullable.return))
+    let (tableData, setTableData) = React.useState(_ => []->Array.map(Nullable.make))
 
     let getTopLevelFilter = React.useMemo1(() => {
       filterValueDict
@@ -223,7 +223,7 @@ module TableWrapper = {
       })
       ->JSON.Encode.array
       ->getTable
-      ->Array.map(Js.Nullable.return)
+      ->Array.map(Nullable.make)
     }
 
     open Promise
@@ -287,7 +287,7 @@ module TableWrapper = {
           | _ => {
               let data = json->getDictFromJsonObject
               let value =
-                data->getJsonObjectFromDict("queryData")->getTable->Array.map(Js.Nullable.return)
+                data->getJsonObjectFromDict("queryData")->getTable->Array.map(Nullable.make)
 
               setTableData(_ => value)
               setTableDataLoading(_ => false)
@@ -402,7 +402,7 @@ module TabDetails = {
     ~tableUpdatedHeading: option<
       (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
     >,
-    ~tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, JSON.t) => array<Js.Nullable.t<'t>>>,
+    ~tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
     ~moduleName,
     ~updateUrl: Dict.t<string> => unit,
     ~weeklyTableMetricsCols,
@@ -500,7 +500,7 @@ let make = (
   ~tableUpdatedHeading: option<
     (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
   >=?,
-  ~tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, JSON.t) => array<Js.Nullable.t<'t>>>=?,
+  ~tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>=?,
   ~moduleName: string,
   ~weeklyTableMetricsCols=?,
   ~distributionArray=None,

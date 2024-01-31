@@ -155,12 +155,12 @@ let make = (
     }
     setModalState(_ => Successful)
 
-    Js.Nullable.null
+    Nullable.null
   }
 
   let onSubmit = async (values, _) => {
     updateMerchantDetails(values)->ignore
-    Js.Nullable.null
+    Nullable.null
   }
 
   <PageLoaderWrapper screenState>
@@ -183,7 +183,7 @@ let make = (
             visibleColumns
             entity={businessProfileTableEntity}
             showSerialNumber=true
-            actualData={businessProfileValues->Array.map(Js.Nullable.return)}
+            actualData={businessProfileValues->Array.map(Nullable.make)}
             totalResults={businessProfileValues->Array.length}
             offset
             setOffset

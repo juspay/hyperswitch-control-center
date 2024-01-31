@@ -596,7 +596,7 @@ module FraudRiskBanner = {
         className="text-blue-700 font-semibold text-fs-16 cursor-pointer"
         onClick={_ => {
           refElement.current
-          ->Js.Nullable.toOption
+          ->Nullable.toOption
           ->Option.forEach(input =>
             input->scrollIntoView(_, {behavior: "smooth", block: "start", inline: "nearest"})
           )
@@ -632,7 +632,7 @@ let make = (~id) => {
   let (refetchCounter, setRefetchCounter) = React.useState(_ => 0)
   let (showModal, setShowModal) = React.useState(_ => false)
 
-  let frmDetailsRef = React.useRef(Js.Nullable.null)
+  let frmDetailsRef = React.useRef(Nullable.null)
 
   let orderData = OrderHooks.useGetOrdersData(id, refetchCounter, setScreenState)
   let order = OrderEntity.itemToObjMapper(orderData->getDictFromJsonObject)

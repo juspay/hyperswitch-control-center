@@ -1,4 +1,4 @@
-external toJson: Js.Nullable.t<'a> => JSON.t = "%identity"
+external toJson: Nullable.t<'a> => JSON.t = "%identity"
 type sortTyp = ASC | DSC
 type sortOb = {sortKey: string, sortType: sortTyp}
 type checkBoxProps = {
@@ -23,7 +23,7 @@ let table_pageDetails: Recoil.recoilAtom<RescriptCore.Dict.t<pageDetails>>
 let make: (
   ~visibleColumns: array<'a>=?,
   ~defaultSort: Table.sortedObject=?,
-  ~title: Js.String2.t,
+  ~title: string,
   ~titleSize: NewThemeUtils.headingSize=?,
   ~description: string=?,
   ~tableActions: React.element=?,
@@ -33,7 +33,7 @@ let make: (
   ~clearFormattedDataButton: React.element=?,
   ~bottomActions: React.element=?,
   ~showSerialNumber: bool=?,
-  ~actualData: array<Js.Nullable.t<'b>>,
+  ~actualData: array<Nullable.t<'b>>,
   ~totalResults: int,
   ~resultsPerPage: int,
   ~offset: int,
@@ -58,7 +58,7 @@ let make: (
   ~tableDataLoading: bool=?,
   ~dataLoading: bool=?,
   ~advancedSearchComponent: React.element=?,
-  ~setData: ('e => option<array<Js.Nullable.t<'b>>>) => unit=?,
+  ~setData: ('e => option<array<Nullable.t<'b>>>) => unit=?,
   ~setSummary: ('f => EntityType.summary) => unit=?,
   ~customGetObjects: JSON.t => array<'g>=?,
   ~dataNotFoundComponent: React.element=?,
@@ -68,12 +68,12 @@ let make: (
   ~tableBorderClass: string=?,
   ~tableDataBorderClass: string=?,
   ~collapseTableRow: bool=?,
-  ~getRowDetails: Js.Nullable.t<'b> => React.element=?,
+  ~getRowDetails: Nullable.t<'b> => React.element=?,
   ~onMouseEnter: 'b => unit=?,
   ~onMouseLeave: 'b => unit=?,
   ~frozenUpto: int=?,
   ~heightHeadingClass: string=?,
-  ~highlightText: Js.String.t=?,
+  ~highlightText: string=?,
   ~enableEqualWidthCol: bool=?,
   ~clearFormatting: bool=?,
   ~rowHeightClass: string=?,

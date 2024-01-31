@@ -1,5 +1,5 @@
 let regex: string => Js.Re.t
-let highlightedText: (Js.String.t, Js.String.t) => React.element
+let highlightedText: (string, string) => React.element
 type labelColor =
   | LabelGreen
   | LabelRed
@@ -101,9 +101,9 @@ module LabelCell: {
   @react.component
   let make: (
     ~labelColor: labelColor,
-    ~text: Js.String.t,
+    ~text: string,
     ~labelMargin: string=?,
-    ~highlightText: Js.String.t=?,
+    ~highlightText: string=?,
     ~fontStyle: string=?,
     ~showIcon: bool=?,
   ) => React.element
@@ -140,7 +140,7 @@ module MoneyCell: {
 }
 module LinkCell: {
   @react.component
-  let make: (~data: Js.String.t, ~trimLength: int=?) => React.element
+  let make: (~data: string, ~trimLength: int=?) => React.element
 }
 module DateCell: {
   // let getFormattedDate: (string, string) => string
@@ -150,7 +150,7 @@ module DateCell: {
     ~isCard: bool=?,
     ~textStyle: string=?,
     ~textAlign: textAlign=?,
-    ~customDateStyle: Js.String2.t=?,
+    ~customDateStyle: string=?,
     ~hideTime: bool=?,
   ) => React.element
 }
@@ -161,12 +161,12 @@ module StartEndDateCell: {
 module EllipsisText: {
   @react.component
   let make: (
-    ~text: Js.String2.t,
+    ~text: string,
     ~width: string,
-    ~highlightText: Js.String.t=?,
+    ~highlightText: string=?,
     ~isEllipsisTextRelative: bool=?,
     ~ellipseClass: string=?,
-    ~ellipsisIdentifier: Js.String2.t=?,
+    ~ellipsisIdentifier: string=?,
     ~ellipsisThreshold: int=?,
     ~toolTipPosition: ToolTip.toolTipPosition=?,
   ) => React.element
@@ -174,9 +174,9 @@ module EllipsisText: {
 module TrimmedText: {
   @react.component
   let make: (
-    ~text: Js.String2.t,
+    ~text: string,
     ~width: string,
-    ~highlightText: Js.String.t=?,
+    ~highlightText: string=?,
     ~hideShowMore: bool=?,
   ) => React.element
 }
@@ -196,8 +196,8 @@ module TableCell: {
     ~fontBold: bool=?,
     ~labelMargin: labelMargin=?,
     ~customMoneyStyle: string=?,
-    ~customDateStyle: Js.String2.t=?,
-    ~highlightText: Js.String.t=?,
+    ~customDateStyle: string=?,
+    ~highlightText: string=?,
     ~hideShowMore: bool=?,
     ~clearFormatting: bool=?,
     ~fontStyle: string=?,
@@ -213,8 +213,8 @@ module NewTableCell: {
     ~fontBold: bool=?,
     ~labelMargin: labelMargin=?,
     ~customMoneyStyle: string=?,
-    ~customDateStyle: Js.String2.t=?,
-    ~highlightText: Js.String.t=?,
+    ~customDateStyle: string=?,
+    ~highlightText: string=?,
     ~hideShowMore: bool=?,
     ~clearFormatting: bool=?,
     ~fontStyle: string=?,

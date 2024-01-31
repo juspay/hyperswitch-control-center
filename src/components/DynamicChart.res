@@ -802,7 +802,7 @@ let make = (
     <div>
       <ReactFinalForm.Form
         subscription=ReactFinalForm.subscribeToValues
-        onSubmit={(_, _) => Js.Nullable.null->Promise.resolve}
+        onSubmit={(_, _) => Nullable.null->Promise.resolve}
         render={({handleSubmit}) => {
           <form onSubmit={handleSubmit}>
             <AddDataAttributes attributes=[("data-chart-segment", "Chart-1")]>

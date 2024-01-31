@@ -161,7 +161,7 @@ module ErrorPage = {
 }
 module RedirectionToPayPalFlow = {
   @react.component
-  let make = (~getPayPalStatus) => {
+  let make = (~getPayPalStatus, ~profileId) => {
     open APIUtils
     open PayPalFlowTypes
 
@@ -176,7 +176,7 @@ module RedirectionToPayPalFlow = {
       open LogicUtils
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let returnURL = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${path}?name=paypal&is_back=true&is_simplified_paypal=true`
+        let returnURL = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${path}?name=paypal&is_back=true&is_simplified_paypal=true&profile_id=${profileId}`
 
         let body = PayPalFlowUtils.generatePayPalBody(
           ~connectorId={connectorId},
@@ -502,7 +502,10 @@ let make = (
               | Ppcp_custom_denied
               | More_permissions_needed
               | Email_not_verified =>
-                <RedirectionToPayPalFlow getPayPalStatus />
+                <RedirectionToPayPalFlow
+                  getPayPalStatus
+                  profileId={initialValues->getDictFromJsonObject->getString("profile_id", "")}
+                />
               | _ => React.null
               }}
             </div>

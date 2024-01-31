@@ -205,11 +205,10 @@ let getAuthTypeFromConnectorDetails = json => {
   ->ConnectorUtils.mapAuthType
 }
 
-let payPalLogics = async (
+let payPalPageState = async (
   ~setScreenState: (PageLoaderWrapper.viewType => PageLoaderWrapper.viewType) => unit,
   ~url: RescriptReactRouter.url,
   ~setSetupAccountStatus,
-  ~getConnectorDetails,
   ~getPayPalStatus,
   ~setCurrentStep,
   ~isUpdateFlow,
@@ -222,7 +221,6 @@ let payPalLogics = async (
       ->Dict.get("is_simplified_paypal")
       ->Option.getOr("false")
       ->getBoolFromString(false)
-
     let isRedirectedFromPaypalModal =
       url.search
       ->getDictFromUrlSearchParams
@@ -233,14 +231,12 @@ let payPalLogics = async (
     setSetupAccountStatus(._ => PayPalFlowTypes.Connect_paypal_landing)
     if isRedirectedFromPaypalModal {
       await getPayPalStatus()
+    } else if isUpdateFlow && !(isSimplifiedPayPalFlow && isRedirectedFromPaypalModal) {
+      setCurrentStep(_ => ConnectorTypes.Preview)
+      setScreenState(_ => Success)
     } else {
       setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
-    }
-    if isUpdateFlow {
-      await getConnectorDetails()
-      if !(isSimplifiedPayPalFlow && isRedirectedFromPaypalModal) {
-        setCurrentStep(_ => Preview)
-      }
+      setScreenState(_ => Success)
     }
   } catch {
   | Js.Exn.Error(e) => {

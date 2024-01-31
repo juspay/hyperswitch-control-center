@@ -14,7 +14,7 @@ let make = () => {
       let response = await fetchDetails(disputesUrl)
       let disputesValue = response->LogicUtils.getArrayDataFromJson(DisputesEntity.itemToObjMapper)
       if disputesValue->Array.length > 0 {
-        setDisputesData(_ => disputesValue->Array.map(Js.Nullable.return))
+        setDisputesData(_ => disputesValue->Array.map(Nullable.make))
         setScreenState(_ => Success)
       } else {
         setScreenState(_ => Custom)

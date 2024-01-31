@@ -1,5 +1,5 @@
 @val @scope("localStorage")
-external getItem: string => Js.Nullable.t<string> = "getItem"
+external getItem: string => Nullable.t<string> = "getItem"
 
 @val @scope("localStorage")
 external setItemOrig: (string, string) => unit = "setItem"
@@ -61,6 +61,6 @@ let useStorageValue = key => {
   })
 
   React.useMemo2(() => {
-    /* LocalStorage. */ getItem(key)->Js.Nullable.toOption
+    /* LocalStorage. */ getItem(key)->Nullable.toOption
   }, (key, value))
 }
