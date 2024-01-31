@@ -104,12 +104,12 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       let responseValue = await updateDetails(url, paypalBody, Fetch.Post, ())
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
 
-      switch paypalDict->Js.Json.classify {
-      | JSONString(str) => {
+      switch paypalDict->JSON.Classify.classify {
+      | String(str) => {
           setSetupAccountStatus(._ => str->stringToVariantMapper)
           setCurrentStep(_ => AutomaticFlow)
         }
-      | JSONObject(dict) =>
+      | Object(dict) =>
         handleObjectResponse(~dict, ~setInitialValues, ~connector, ~handleStateToNextPage=_ =>
           setCurrentStep(_ => PaymentMethods)
         )

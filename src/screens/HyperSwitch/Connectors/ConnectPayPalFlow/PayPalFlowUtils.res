@@ -118,15 +118,15 @@ let generatePayPalBody = (~returnUrl=None, ~connectorId, ~profileId=None, ()) =>
   switch returnUrl {
   | Some(returnURL) =>
     [
-      ("connector", "paypal"->Js.Json.string),
-      ("return_url", returnURL->Js.Json.string),
-      ("connector_id", connectorId->Js.Json.string),
+      ("connector", "paypal"->JSON.Encode.string),
+      ("return_url", returnURL->JSON.Encode.string),
+      ("connector_id", connectorId->JSON.Encode.string),
     ]->LogicUtils.getJsonFromArrayOfJson
   | _ =>
     [
-      ("connector", "paypal"->Js.Json.string),
-      ("connector_id", connectorId->Js.Json.string),
-      ("profile_id", profileId->Option.getOr("")->Js.Json.string),
+      ("connector", "paypal"->JSON.Encode.string),
+      ("connector_id", connectorId->JSON.Encode.string),
+      ("profile_id", profileId->Option.getOr("")->JSON.Encode.string),
     ]->LogicUtils.getJsonFromArrayOfJson
   }
 }
@@ -145,8 +145,8 @@ let useDeleteTrackingDetails = () => {
       let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/reset_tracking_id`
       let body =
         [
-          ("connector_id", connectorId->Js.Json.string),
-          ("connector", connector->Js.Json.string),
+          ("connector_id", connectorId->JSON.Encode.string),
+          ("connector", connector->JSON.Encode.string),
         ]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post, ())
     } catch {

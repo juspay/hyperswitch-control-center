@@ -60,7 +60,7 @@ let make = (
   let handleNewPayPalAccount = async () => {
     try {
       await deleteTrackingDetails(connectorInfo.merchant_connector_id, connectorInfo.connector_name)
-      await updateConnectorAuthType(connectorInfoDict->Js.Json.object_)
+      await updateConnectorAuthType(connectorInfoDict->JSON.Encode.object)
       setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
       setSetupAccountStatus(._ => PayPalFlowTypes.Redirecting_to_paypal)
     } catch {
