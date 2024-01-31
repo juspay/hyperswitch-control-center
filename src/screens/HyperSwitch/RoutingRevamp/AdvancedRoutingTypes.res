@@ -30,7 +30,7 @@ type connectorSelectionData =
   | VolumeObject(volumeSplitConnectorSelectionData)
   | PriorityObject(connector)
 
-type value = {\"type": string, value: Js.Json.t}
+type value = {\"type": string, value: JSON.t}
 
 type surchargeDetailsSurchargePropertyValueType = {percentage?: float, amount?: float}
 
@@ -56,7 +56,7 @@ type statement = {
   comparison: string,
   value: value,
   logical?: string,
-  metadata?: Js.Json.t,
+  metadata?: JSON.t,
 }
 
 type rule = {
@@ -68,7 +68,7 @@ type rule = {
 type algorithmData = {
   defaultSelection: connectorSelection,
   rules: array<rule>,
-  metadata: Js.Json.t,
+  metadata: JSON.t,
 }
 
 type algorithm = {data: algorithmData, \"type"?: string}

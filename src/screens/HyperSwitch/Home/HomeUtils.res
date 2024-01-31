@@ -115,11 +115,11 @@ module MerchantAuthInfo = {
     let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
     let dataDict =
       [
-        ("merchant_id", detail.merchant_id->Js.Json.string),
-        ("publishable_key", detail.publishable_key->Js.Json.string),
+        ("merchant_id", detail.merchant_id->JSON.Encode.string),
+        ("publishable_key", detail.publishable_key->JSON.Encode.string),
       ]->Dict.fromArray
 
-    <Form initialValues={dataDict->Js.Json.object_} formClass="md:ml-9 my-4">
+    <Form initialValues={dataDict->JSON.Encode.object} formClass="md:ml-9 my-4">
       <div className="flex flex-col md:flex-row gap-3">
         <div>
           <div className="font-semibold text-dark_black"> {"Merchant ID"->React.string} </div>
@@ -360,8 +360,8 @@ let getValueMapped = (value, key) => {
   | #DownloadWoocom
   | #ConfigureWoocom
   | #SetupWoocomWebhook =>
-    value->getBool(key, false)->Js.Json.boolean
-  | #ConfigurationType => value->getString(key, "")->Js.Json.string
+    value->getBool(key, false)->JSON.Encode.bool
+  | #ConfigurationType => value->getString(key, "")->JSON.Encode.string
   | #FirstProcessorConnected
   | #SecondProcessorConnected
   | #StripeConnected
@@ -373,7 +373,7 @@ let getValueMapped = (value, key) => {
   }
 }
 
-let responseDataMapper = (res: Js.Json.t) => {
+let responseDataMapper = (res: JSON.t) => {
   open LogicUtils
   let arrayFromJson = res->getArrayFromJson([])
   let resDict = Dict.make()

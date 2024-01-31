@@ -1,7 +1,7 @@
 // will be used in future
 // docfor the user preference https://docs.google.com/document/d/1BM_UgHLuN0U-cXfRYqN6wWSq-5KUiqojinCfBrUEiVo/edit
 open UserPrefUtils
-external userPrefToJson: userPref => Js.Json.t = "%identity"
+external userPrefToJson: userPref => JSON.t = "%identity"
 external dictUserPrefToStr: Dict.t<userPref> => string = "%identity"
 let userPrefSetter: (Dict.t<userPref> => Dict.t<userPref>) => unit = _ => ()
 let defaultUserPref: Dict.t<userPref> = Dict.make()
@@ -11,8 +11,8 @@ type filter = {
   setUserPref: (Dict.t<userPref> => Dict.t<userPref>) => unit,
   lastVisitedTab: string,
   getSearchParamByLink: string => string,
-  addConfig: (string, Js.Json.t) => unit,
-  getConfig: string => option<Js.Json.t>,
+  addConfig: (string, JSON.t) => unit,
+  getConfig: string => option<JSON.t>,
 }
 
 let userPrefObj: filter = {
@@ -176,8 +176,8 @@ let make = (~children) => {
       (key, value->userPrefToJson)
     })
     ->Dict.fromArray
-    ->Js.Json.object_
-    ->Js.Json.stringify
+    ->JSON.Encode.object
+    ->JSON.stringify
 
   let value = React.useMemo4(() => {
     let currentConfig = userPref->Dict.get(username)->Option.getOr({})

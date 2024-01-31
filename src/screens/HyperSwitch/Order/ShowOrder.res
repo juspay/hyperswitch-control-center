@@ -351,7 +351,7 @@ module Attempts = {
     }
 
     let attemptsData =
-      orderDict->getArrayFromDict("attempts", [])->Js.Json.array->OrderEntity.getAttempts
+      orderDict->getArrayFromDict("attempts", [])->JSON.Encode.array->OrderEntity.getAttempts
 
     let heading = attemptsColumns->Array.map(getAttemptHeading)
 
@@ -451,7 +451,7 @@ module OrderActions = {
   @react.component
   let make = (~orderDict, ~refetch, ~showModal, ~setShowModal) => {
     let (amoutAvailableToRefund, setAmoutAvailableToRefund) = React.useState(_ => 0.0)
-    let refundData = orderDict->getArrayFromDict("refunds", [])->Js.Json.array->getRefunds
+    let refundData = orderDict->getArrayFromDict("refunds", [])->JSON.Encode.array->getRefunds
 
     let amountRefunded = ref(0.0)
     let requestedRefundAmount = ref(0.0)
@@ -508,7 +508,7 @@ module FraudRiskBannerDetails = {
             (),
           )}/${decision->String.toLowerCase}`
 
-        let _ = await updateDetails(ordersDecisionUrl, Dict.make()->Js.Json.object_, Post, ())
+        let _ = await updateDetails(ordersDecisionUrl, Dict.make()->JSON.Encode.object, Post, ())
         showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
         refetch()
       } catch {
@@ -641,7 +641,7 @@ let make = (~id) => {
     orderData
     ->getDictFromJsonObject
     ->getArrayFromDict("refunds", [])
-    ->Js.Json.array
+    ->JSON.Encode.array
     ->OrderEntity.getRefunds
 
   let isRefundDataAvailable = refundData->Array.length !== 0
@@ -650,7 +650,7 @@ let make = (~id) => {
     orderData
     ->getDictFromJsonObject
     ->getArrayFromDict("disputes", [])
-    ->Js.Json.array
+    ->JSON.Encode.array
     ->DisputesEntity.getDisputes
 
   let isDisputeDataVisible = disputesData->Array.length !== 0
@@ -804,7 +804,7 @@ let make = (~id) => {
                 renderContent: () => {
                   <div className="bg-white p-2">
                     <PaymentLogs.PrettyPrintJson
-                      jsonToDisplay={order.metadata->Js.Json.stringifyAny->Option.getOr("")}
+                      jsonToDisplay={order.metadata->JSON.stringifyAny->Option.getOr("")}
                       overrideBackgroundColor="bg-white"
                     />
                   </div>

@@ -51,7 +51,7 @@ let make = (
       setQuickStartPageState(_ => QuickStartTypes.ConnectProcessor(QuickStartTypes.CHECKOUT))
     } else {
       setSelectedConnector(_ => UnknownConnector(""))
-      setInitialValues(_ => Dict.make()->Js.Json.object_)
+      setInitialValues(_ => Dict.make()->JSON.Encode.object)
       setConnectorConfigureState(_ => Select_processor)
       setQuickStartPageState(_ => ConnectProcessor(CONFIGURE_SECONDARY))
     }
@@ -126,9 +126,9 @@ let make = (
 
   React.useEffect1(() => {
     let defaultJsonOnNewConnector =
-      [("profile_id", activeBusinessProfile.profile_id->Js.Json.string)]
+      [("profile_id", activeBusinessProfile.profile_id->JSON.Encode.string)]
       ->Dict.fromArray
-      ->Js.Json.object_
+      ->JSON.Encode.object
     setInitialValues(_ => defaultJsonOnNewConnector)
     None
   }, [activeBusinessProfile.profile_id, connectorName])

@@ -45,9 +45,9 @@ module ApiEditModal = {
         let valuesDict = values->LogicUtils.getDictFromJsonObject
 
         let body = Dict.make()
-        Dict.set(body, "name", valuesDict->LogicUtils.getString("name", "")->Js.Json.string)
+        Dict.set(body, "name", valuesDict->LogicUtils.getString("name", "")->JSON.Encode.string)
         let description = valuesDict->LogicUtils.getString("description", "")
-        Dict.set(body, "description", description->Js.Json.string)
+        Dict.set(body, "description", description->JSON.Encode.string)
 
         let expirationDate = valuesDict->LogicUtils.getString("expiration_date", "")
 
@@ -58,7 +58,7 @@ module ApiEditModal = {
         | _ => Never->getStringFromRecordType
         }
 
-        Dict.set(body, "expiration", expriryValue->Js.Json.string)
+        Dict.set(body, "expiration", expriryValue->JSON.Encode.string)
 
         setModalState(_ => Loading)
 
@@ -71,7 +71,7 @@ module ApiEditModal = {
         | _ => APIUtils.getURL(~entityName=API_KEYS, ~methodType=Post, ())
         }
 
-        let json = await updateDetails(url, body->Js.Json.object_, Post, ())
+        let json = await updateDetails(url, body->JSON.Encode.object, Post, ())
         let keyDict = json->LogicUtils.getDictFromJsonObject
 
         setApiKey(_ => keyDict->LogicUtils.getString("api_key", ""))
@@ -104,7 +104,7 @@ module ApiEditModal = {
         | Create =>
           <ReactFinalForm.Form
             key="API-key"
-            initialValues={initialValues->Js.Json.object_}
+            initialValues={initialValues->JSON.Encode.object}
             subscription=ReactFinalForm.subscribeToPristine
             validate={values =>
               validateAPIKeyForm(values, ["name", "expiration"], ~setShowCustomDate, ())}
@@ -178,7 +178,7 @@ module ApiKeyAddBtn = {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let (showModal, setShowModal) = React.useState(_ => false)
     let initialValues = Dict.make()
-    initialValues->Dict.set("expiration", Never->getStringFromRecordType->Js.Json.string)
+    initialValues->Dict.set("expiration", Never->getStringFromRecordType->JSON.Encode.string)
 
     <>
       <ApiEditModal showModal setShowModal initialValues getAPIKeyDetails />
@@ -212,8 +212,8 @@ module TableActionsCell = {
     let deleteKey = async () => {
       try {
         let body = Dict.make()
-        Dict.set(body, "key_id", keyId->Js.Json.string)
-        Dict.set(body, "revoked", true->Js.Json.boolean)
+        Dict.set(body, "key_id", keyId->JSON.Encode.string)
+        Dict.set(body, "revoked", true->JSON.Encode.bool)
 
         let deleteUrl = APIUtils.getURL(
           ~entityName=API_KEYS,
@@ -221,7 +221,7 @@ module TableActionsCell = {
           ~id=Some(keyId),
           (),
         )
-        (await deleteDetails(deleteUrl, body->Js.Json.object_, Delete, ()))->ignore
+        (await deleteDetails(deleteUrl, body->JSON.Encode.object, Delete, ()))->ignore
         getAPIKeyDetails()->ignore
       } catch {
       | Js.Exn.Error(e) =>
@@ -248,15 +248,15 @@ module TableActionsCell = {
       })
     }
     let initialValues = Dict.fromArray([
-      ("name", data.name->Js.Json.string),
-      ("description", data.description->Js.Json.string),
+      ("name", data.name->JSON.Encode.string),
+      ("description", data.description->JSON.Encode.string),
     ])
 
     if data.expiration == Never {
-      initialValues->Dict.set("expiration", Never->getStringFromRecordType->Js.Json.string)
+      initialValues->Dict.set("expiration", Never->getStringFromRecordType->JSON.Encode.string)
     } else {
-      initialValues->Dict.set("expiration", Custom->getStringFromRecordType->Js.Json.string)
-      initialValues->Dict.set("expiration_date", data.expiration_date->Js.Json.string)
+      initialValues->Dict.set("expiration", Custom->getStringFromRecordType->JSON.Encode.string)
+      initialValues->Dict.set("expiration_date", data.expiration_date->JSON.Encode.string)
     }
 
     <div>

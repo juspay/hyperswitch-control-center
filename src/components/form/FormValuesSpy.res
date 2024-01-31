@@ -3,7 +3,7 @@ module JsonBox = {
   let make = (~json) => {
     <div
       className="flex-1 border border-purple-500 m-2  overflow-scroll whitespace-pre font-fira-code">
-      {json->Js.Json.stringifyWithSpace(2)->React.string}
+      {json->JSON.stringifyWithIndent(2)->React.string}
     </div>
   }
 }

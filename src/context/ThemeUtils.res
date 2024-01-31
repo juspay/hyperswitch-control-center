@@ -4,7 +4,7 @@ let useThemeFromEvent = () => {
   React.useEffect0(() => {
     let setEventThemeVal = (eventName, dict) => {
       if eventName === "AuthenticationDetails" {
-        let payloadDict = dict->Dict.get("payload")->Option.flatMap(Js.Json.decodeObject)
+        let payloadDict = dict->Dict.get("payload")->Option.flatMap(JSON.Decode.object)
         let theme =
           payloadDict->Option.mapOr("", finalDict => LogicUtils.getString(finalDict, "theme", ""))
         setEventTheme(_ => Some(theme))
@@ -20,7 +20,7 @@ let useThemeFromEvent = () => {
       let optionalDict = HandlingEvents.getEventDict(ev)
       switch optionalDict {
       | Some(dict) => {
-          let optionalEventName = dict->Dict.get("eventType")->Option.flatMap(Js.Json.decodeString)
+          let optionalEventName = dict->Dict.get("eventType")->Option.flatMap(JSON.Decode.string)
           switch optionalEventName {
           | Some(eventName) => setEventThemeVal(eventName, dict)
           | None => Js.log2("Event Data is not found", dict)

@@ -48,7 +48,7 @@ let make = (
       let paymentData =
         initialValues
         ->Identity.genericTypeToJson
-        ->Js.Json.stringify
+        ->JSON.stringify
         ->safeParse
         ->getTypedValueForPayment
       paymentData.currency = paymentData.currency->getCurrencyValue

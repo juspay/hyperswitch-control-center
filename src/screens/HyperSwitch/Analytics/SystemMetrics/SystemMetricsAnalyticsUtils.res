@@ -19,7 +19,7 @@ let singleStateSeriesInitialValue = {
 
 let singleStateItemToObjMapper = json => {
   json
-  ->Js.Json.decodeObject
+  ->JSON.Decode.object
   ->Option.map(dict => {
     latency: dict->getFloat("latency", 0.0),
     api_count: dict->getInt("api_count", 0),
@@ -32,7 +32,7 @@ let singleStateItemToObjMapper = json => {
 
 let singleStateSeriesItemToObjMapper = json => {
   json
-  ->Js.Json.decodeObject
+  ->JSON.Decode.object
   ->Option.map(dict => {
     latency: dict->getFloat("latency", 0.0),
     api_count: dict->getInt("api_count", 0),

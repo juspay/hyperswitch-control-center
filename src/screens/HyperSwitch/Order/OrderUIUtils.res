@@ -46,7 +46,7 @@ module GenerateSampleDataButton = {
         let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
         let _ = await updateDetails(
           generateSampleDataUrl,
-          [("record", 50.0->Js.Json.number)]->Dict.fromArray->Js.Json.object_,
+          [("record", 50.0->JSON.Encode.float)]->Dict.fromArray->JSON.Encode.object,
           Post,
           (),
         )
@@ -191,7 +191,7 @@ let setData = (
   }
 
   if total > 0 {
-    let orderDataDictArr = data->Belt.Array.keepMap(Js.Json.decodeObject)
+    let orderDataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
 
     let orderData =
       arr
@@ -214,12 +214,12 @@ let getOrdersList = async (
   filterValueJson,
   ~updateDetails: (
     string,
-    Js.Json.t,
+    JSON.t,
     Fetch.requestMethod,
     ~bodyFormData: Fetch.formData=?,
     ~headers: Dict.t<'a>=?,
     unit,
-  ) => promise<Js.Json.t>,
+  ) => promise<JSON.t>,
   ~setOrdersData,
   ~previewOnly,
   ~setScreenState,
@@ -233,7 +233,7 @@ let getOrdersList = async (
 
   try {
     let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post, ())
-    let res = await updateDetails(ordersUrl, filterValueJson->Js.Json.object_, Fetch.Post, ())
+    let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Fetch.Post, ())
     let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
@@ -241,15 +241,20 @@ let getOrdersList = async (
       let payment_id =
         filterValueJson
         ->Dict.get("payment_id")
-        ->Option.getOr(""->Js.Json.string)
-        ->Js.Json.decodeString
+        ->Option.getOr(""->JSON.Encode.string)
+        ->JSON.Decode.string
         ->Option.getOr("")
 
       if Js.Re.test_(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
         let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
-        filterValueJson->Dict.set("payment_id", newID->Js.Json.string)
+        filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
 
-        let res = await updateDetails(ordersUrl, filterValueJson->Js.Json.object_, Fetch.Post, ())
+        let res = await updateDetails(
+          ordersUrl,
+          filterValueJson->JSON.Encode.object,
+          Fetch.Post,
+          (),
+        )
         let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
         let total = res->getDictFromJsonObject->getInt("total_count", 0)
 

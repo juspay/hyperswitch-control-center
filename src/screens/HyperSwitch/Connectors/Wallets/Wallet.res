@@ -56,12 +56,12 @@ module Wallets = {
               values
               ->getDictFromJsonObject
               ->getDictfromDict("apple_pay")
-              ->Dict.set("payment_request_data", paymentRequestData->Js.Json.object_)
+              ->Dict.set("payment_request_data", paymentRequestData->JSON.Encode.object)
             values
           }
         }
 
-      | _ => Dict.make()->Js.Json.object_
+      | _ => Dict.make()->JSON.Encode.object
       }
 
       let _ = update(json)
@@ -83,10 +83,10 @@ module Wallets = {
       let errorDict = Dict.make()
       mandateKyes->Array.forEach(key => {
         if dict->getString(key, "") === "" {
-          errorDict->Dict.set(key, `${key} cannot be empty!`->Js.Json.string)
+          errorDict->Dict.set(key, `${key} cannot be empty!`->JSON.Encode.string)
         }
       })
-      errorDict->Js.Json.object_
+      errorDict->JSON.Encode.object
     }
 
     let name = switch method.payment_method_type->getPaymentMethodTypeFromString {

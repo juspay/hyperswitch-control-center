@@ -80,13 +80,13 @@ let getPaymentMethodTypes = dict => {
   }
 }
 
-let getPaymentMethodsEnabled: Dict.t<Js.Json.t> => paymentMethodEnabledType = dict => {
+let getPaymentMethodsEnabled: Dict.t<JSON.t> => paymentMethodEnabledType = dict => {
   open LogicUtils
   {
     payment_method: dict->getString("payment_method", ""),
     payment_method_types: dict
     ->Dict.get("payment_method_types")
-    ->Option.getOr(Dict.make()->Js.Json.object_)
+    ->Option.getOr(Dict.make()->JSON.Encode.object)
     ->getArrayDataFromJson(getPaymentMethodTypes),
   }
 }
@@ -114,7 +114,7 @@ let getProcessorPayloadType = dict => {
     disabled: dict->getBool("disabled", true),
     payment_methods_enabled: dict
     ->Dict.get("payment_methods_enabled")
-    ->Option.getOr(Dict.make()->Js.Json.object_)
+    ->Option.getOr(Dict.make()->JSON.Encode.object)
     ->getArrayDataFromJson(getPaymentMethodsEnabled),
     profile_id: dict->getString("profile_id", ""),
     merchant_connector_id: dict->getString("merchant_connector_id", ""),
@@ -208,7 +208,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
   }
 }
 
-let getArrayDataFromJson = (json, itemToObjMapper: Dict.t<Js.Json.t> => connectorPayload) => {
+let getArrayDataFromJson = (json, itemToObjMapper: Dict.t<JSON.t> => connectorPayload) => {
   json
   ->ConnectorUtils.getProcessorsListFromJson()
   ->Array.map(itemToObjMapper)
@@ -223,7 +223,7 @@ let sortPreviouslyConnectedList = arr => {
   Js.Array2.sortInPlaceWith(arr, comparatorFunction)
 }
 
-let getPreviouslyConnectedList: Js.Json.t => array<connectorPayload> = json => {
+let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
   json->getArrayDataFromJson(getProcessorPayloadType)->sortPreviouslyConnectedList
 }
 

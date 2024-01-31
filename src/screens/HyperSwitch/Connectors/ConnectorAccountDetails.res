@@ -35,14 +35,14 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
         setScreenState(_ => Success)
         dict
       } else {
-        Dict.make()->Js.Json.object_
+        Dict.make()->JSON.Encode.object
       }
     } catch {
     | Js.Exn.Error(e) => {
         Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
         let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
         setScreenState(_ => PageLoaderWrapper.Error(err))
-        Dict.make()->Js.Json.object_
+        Dict.make()->JSON.Encode.object
       }
     }
   }, [connector])
@@ -65,20 +65,23 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
       if connector->getConnectorNameTypeFromString === PAYPAL {
         initialValuesToDict->Dict.set(
           "connector_label",
-          initialValues->getDictFromJsonObject->getString("connector_label", "")->Js.Json.string,
+          initialValues
+          ->getDictFromJsonObject
+          ->getString("connector_label", "")
+          ->JSON.Encode.string,
         )
         initialValuesToDict->Dict.set(
           "profile_id",
-          initialValuesToDict->getString("profile_id", "")->Js.Json.string,
+          initialValuesToDict->getString("profile_id", "")->JSON.Encode.string,
         )
       } else if connector->String.length > 0 {
         initialValuesToDict->Dict.set(
           "connector_label",
-          `${connector}_${activeBusinessProfile.profile_name}`->Js.Json.string,
+          `${connector}_${activeBusinessProfile.profile_name}`->JSON.Encode.string,
         )
         initialValuesToDict->Dict.set(
           "profile_id",
-          activeBusinessProfile.profile_id->Js.Json.string,
+          activeBusinessProfile.profile_id->JSON.Encode.string,
         )
       }
     }
@@ -87,10 +90,10 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
       ->getConnectorNameTypeFromString
       ->checkIsDummyConnector(featureFlagDetails.testProcessors) && !isUpdateFlow
     ) {
-      let apiKeyDict = [("api_key", "test_key"->Js.Json.string)]->Dict.fromArray
-      initialValuesToDict->Dict.set("connector_account_details", apiKeyDict->Js.Json.object_)
+      let apiKeyDict = [("api_key", "test_key"->JSON.Encode.string)]->Dict.fromArray
+      initialValuesToDict->Dict.set("connector_account_details", apiKeyDict->JSON.Encode.object)
 
-      initialValuesToDict->Js.Json.object_
+      initialValuesToDict->JSON.Encode.object
     } else {
       initialValues
     }
@@ -183,7 +186,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
     let profileId = valuesFlattenJson->getString("profile_id", "")
     if profileId->String.length === 0 {
-      Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
+      Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
     }
 
     validateConnectorRequiredFields(
@@ -193,7 +196,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
       connectorMetaDataFields,
       connectorWebHookDetails,
       connectorLabelDetailField,
-      errors->Js.Json.object_,
+      errors->JSON.Encode.object,
     )
   }
 

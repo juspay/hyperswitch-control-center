@@ -1,6 +1,6 @@
 open RoutingTypes
 open LogicUtils
-external toWasm: Dict.t<Js.Json.t> => wasmModule = "%identity"
+external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
 
 let defaultThreeDsObjectValue: routingOutputType = {
   override_3ds: "three_ds",
@@ -43,13 +43,13 @@ let routingTypeName = routingType => {
 
 let getRoutingPayload = (data, routingType, name, description, profileId) => {
   let connectorsOrder =
-    [("data", data->Js.Json.array), ("type", routingType->Js.Json.string)]->Dict.fromArray
+    [("data", data->JSON.Encode.array), ("type", routingType->JSON.Encode.string)]->Dict.fromArray
 
   [
-    ("name", name->Js.Json.string),
-    ("description", description->Js.Json.string),
-    ("profile_id", profileId->Js.Json.string),
-    ("algorithm", connectorsOrder->Js.Json.object_),
+    ("name", name->JSON.Encode.string),
+    ("description", description->JSON.Encode.string),
+    ("profile_id", profileId->JSON.Encode.string),
+    ("algorithm", connectorsOrder->JSON.Encode.object),
   ]->Dict.fromArray
 }
 
@@ -121,7 +121,7 @@ let getContent = routetype =>
   }
 
 //Volume
-let getGatewayTypes = (arr: array<Js.Json.t>) => {
+let getGatewayTypes = (arr: array<JSON.t>) => {
   let tempArr = arr->Array.map(value => {
     let val = value->getDictFromJsonObject
     let connectorDict = val->getDictfromDict("connector")
@@ -137,10 +137,10 @@ let getGatewayTypes = (arr: array<Js.Json.t>) => {
 
 // Advanced
 let valueTypeMapper = dict => {
-  let value = switch Dict.get(dict, "value")->Option.map(Js.Json.classify) {
-  | Some(JSONArray(arr)) => StringArray(arr->getStrArrayFromJsonArray)
-  | Some(JSONString(st)) => String(st)
-  | Some(JSONNumber(num)) => Int(num->Float.toInt)
+  let value = switch Dict.get(dict, "value")->Option.map(JSON.Classify.classify) {
+  | Some(Array(arr)) => StringArray(arr->getStrArrayFromJsonArray)
+  | Some(String(st)) => String(st)
+  | Some(Number(num)) => Int(num->Float.toInt)
   | _ => String("")
   }
   value
@@ -159,11 +159,11 @@ let constructNameDescription = routingType => {
   Dict.fromArray([
     (
       "name",
-      `${routingText->LogicUtils.capitalizeString} Based Routing-${getCurrentUTCTime()}`->Js.Json.string,
+      `${routingText->LogicUtils.capitalizeString} Based Routing-${getCurrentUTCTime()}`->JSON.Encode.string,
     ),
     (
       "description",
-      `This is a ${routingText} based routing created at ${currentTimeInUTC}`->Js.Json.string,
+      `This is a ${routingText} based routing created at ${currentTimeInUTC}`->JSON.Encode.string,
     ),
   ])
 }
@@ -173,7 +173,7 @@ let currentTabNameRecoilAtom = Recoil.atom(. "currentTabName", "ActiveTab")
 module SaveAndActivateButton = {
   @react.component
   let make = (
-    ~onSubmit: (Js.Json.t, 'a) => promise<Js.Nullable.t<Js.Json.t>>,
+    ~onSubmit: (JSON.t, 'a) => promise<Js.Nullable.t<JSON.t>>,
     ~handleActivateConfiguration,
   ) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
@@ -184,7 +184,7 @@ module SaveAndActivateButton = {
       try {
         let onSubmitResponse = await onSubmit(formState.values, false)
         let currentActivatedFromJson =
-          onSubmitResponse->Js.Nullable.toOption->Option.getOr(Js.Json.null)
+          onSubmitResponse->Js.Nullable.toOption->Option.getOr(JSON.Encode.null)
         let currentActivatedId =
           currentActivatedFromJson->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
         let _ = await handleActivateConfiguration(Some(currentActivatedId))
@@ -226,7 +226,7 @@ module ConfigureRuleButton = {
 let validateNameAndDescription = (~dict, ~errors) => {
   ["name", "description"]->Array.forEach(field => {
     if dict->LogicUtils.getString(field, "")->String.trim === "" {
-      errors->Dict.set(field, `Please provide ${field} field`->Js.Json.string)
+      errors->Dict.set(field, `Please provide ${field} field`->JSON.Encode.string)
     }
   })
 }
@@ -237,7 +237,7 @@ let checkIfValuePresent = dict => {
   valueFromObject
   ->getArrayFromDict("value", [])
   ->Array.filter(ele => {
-    ele != ""->Js.Json.string
+    ele != ""->JSON.Encode.string
   })
   ->Array.length > 0 ||
   valueFromObject->getString("value", "")->String.length > 0 ||
@@ -247,7 +247,7 @@ let checkIfValuePresent = dict => {
 }
 
 let validateConditionJson = (json, keys) => {
-  switch json->Js.Json.decodeObject {
+  switch json->JSON.Decode.object {
   | Some(dict) =>
     keys->Array.every(key => dict->Dict.get(key)->Option.isSome) && dict->checkIfValuePresent
   | None => false
@@ -263,9 +263,9 @@ let validateConditionsFor3ds = dict => {
 }
 
 let getRecordsObject = json => {
-  switch Js.Json.classify(json) {
-  | JSONObject(jsonDict) => jsonDict->getArrayFromDict("records", [])
-  | JSONArray(jsonArray) => jsonArray
+  switch JSON.Classify.classify(json) {
+  | Object(jsonDict) => jsonDict->getArrayFromDict("records", [])
+  | Array(jsonArray) => jsonArray
   | _ => []
   }
 }

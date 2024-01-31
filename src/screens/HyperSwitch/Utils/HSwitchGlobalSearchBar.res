@@ -12,12 +12,12 @@ let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName, 
       (
         "elements",
         [
-          sectionName->Js.Json.string,
-          name->Js.Json.string,
-          searchKey->Js.Json.string,
-        ]->Js.Json.array,
+          sectionName->JSON.Encode.string,
+          name->JSON.Encode.string,
+          searchKey->JSON.Encode.string,
+        ]->JSON.Encode.array,
       ),
-      ("redirect_link", `${link}${redirection}`->Js.Json.string),
+      ("redirect_link", `${link}${redirection}`->JSON.Encode.string),
     ]->Dict.fromArray
   })
 }
@@ -71,8 +71,11 @@ let make = () => {
           if checkStringStartsWithSubstring(~itemToCheck=obj.name, ~searchText) {
             let matchedEle =
               [
-                ("elements", [""->Js.Json.string, obj.name->Js.Json.string]->Js.Json.array),
-                ("redirect_link", obj.link->Js.Json.string),
+                (
+                  "elements",
+                  [""->JSON.Encode.string, obj.name->JSON.Encode.string]->JSON.Encode.array,
+                ),
+                ("redirect_link", obj.link->JSON.Encode.string),
               ]->Dict.fromArray
             acc->Array.push(matchedEle)
           }
@@ -103,11 +106,11 @@ let make = () => {
                         (
                           "elements",
                           [
-                            sectionObj.name->Js.Json.string,
-                            obj.name->Js.Json.string,
-                          ]->Js.Json.array,
+                            sectionObj.name->JSON.Encode.string,
+                            obj.name->JSON.Encode.string,
+                          ]->JSON.Encode.array,
                         ),
-                        ("redirect_link", obj.link->Js.Json.string),
+                        ("redirect_link", obj.link->JSON.Encode.string),
                       ]->Dict.fromArray
                     insideAcc->Array.push(matchedEle)
                   }
@@ -131,8 +134,8 @@ let make = () => {
           if checkStringStartsWithSubstring(~itemToCheck=obj.name, ~searchText) {
             let matchedEle =
               [
-                ("elements", [obj.name->Js.Json.string]->Js.Json.array),
-                ("redirect_link", obj.link->Js.Json.string),
+                ("elements", [obj.name->JSON.Encode.string]->JSON.Encode.array),
+                ("redirect_link", obj.link->JSON.Encode.string),
               ]->Dict.fromArray
             acc->Array.push(matchedEle)
           }
@@ -273,7 +276,7 @@ let make = () => {
                             <div className=activeClasses>
                               {elementsArray
                               ->Array.mapWithIndex((item, index) => {
-                                let elementValue = item->Js.Json.decodeString->Option.getOr("")
+                                let elementValue = item->JSON.Decode.string->Option.getOr("")
                                 <UIUtils.RenderIf
                                   condition={elementValue->String.length > 0}
                                   key={index->string_of_int}>

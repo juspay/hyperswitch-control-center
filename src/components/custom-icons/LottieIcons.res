@@ -13,7 +13,7 @@ let useLottieIcon = (isSelected, selectedLottieJson, deselectLottieJson) => {
       let newVal = isSelected ? selectedLottieJson : deselectLottieJson
 
       setDefaultState(_ => newVal)
-    } else if selectedLottieJson != Js.Json.null && deselectLottieJson != Js.Json.null {
+    } else if selectedLottieJson != JSON.Encode.null && deselectLottieJson != JSON.Encode.null {
       setDefaultState(_ => isSelected ? deselectLottieJson : selectedLottieJson)
       hasRendered.current = true
     }

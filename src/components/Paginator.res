@@ -52,7 +52,7 @@ let make = (
       })
     },
     onFocus: _ev => (),
-    value: resultsPerPage->Int.toString->Js.Json.string,
+    value: resultsPerPage->Int.toString->JSON.Encode.string,
     checked: true,
   }
   let paginate = React.useCallback5(pageNumber => {

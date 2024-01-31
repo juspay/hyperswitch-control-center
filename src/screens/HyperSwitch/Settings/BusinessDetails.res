@@ -128,14 +128,14 @@ let make = () => {
       />
       <Form
         onSubmit
-        initialValues={merchantInfo->Js.Json.object_}
+        initialValues={merchantInfo->JSON.Encode.object}
         validate={values => {
           open HSwitchSettingTypes
           validateMerchantAccountForm(
             ~values,
             ~fieldsToValidate=[PrimaryPhone, PrimaryEmail, Website, SecondaryEmail, SecondaryPhone],
             ~setIsDisabled=Some(setIsDisabled),
-            ~initialData={merchantInfo->Js.Json.object_},
+            ~initialData={merchantInfo->JSON.Encode.object},
           )
         }}>
         <div

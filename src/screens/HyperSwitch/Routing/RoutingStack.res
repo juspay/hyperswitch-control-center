@@ -49,10 +49,10 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
       let recordsData =
         configuredRules
-        ->Js.Json.array
-        ->Js.Json.decodeArray
+        ->JSON.Encode.array
+        ->JSON.Decode.array
         ->Option.getOr([])
-        ->Belt.Array.keepMap(Js.Json.decodeObject)
+        ->Belt.Array.keepMap(JSON.Decode.object)
         ->Array.map(HistoryEntity.itemToObjMapper)
 
       // To sort the data in a format that active routing always comes at top of the table
@@ -102,8 +102,8 @@ let make = (~remainingPath, ~previewOnly=false) => {
         setRoutingType(_ => routingArr)
       } else {
         await fetchRoutingRecords([])
-        let defaultFallback = [("kind", "default"->Js.Json.string)]->Dict.fromArray
-        setRoutingType(_ => [defaultFallback->Js.Json.object_])
+        let defaultFallback = [("kind", "default"->JSON.Encode.string)]->Dict.fromArray
+        setRoutingType(_ => [defaultFallback->JSON.Encode.object])
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     } catch {

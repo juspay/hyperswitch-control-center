@@ -96,7 +96,7 @@ let getCell = (refundTable: refundTableType, colType: refundColType): Table.cell
   }
 }
 
-let getRefundTable: Js.Json.t => array<refundTableType> = json => {
+let getRefundTable: JSON.t => array<refundTableType> = json => {
   json
   ->LogicUtils.getArrayFromJson([])
   ->Array.map(item => {
@@ -133,7 +133,7 @@ let singleStateSeriesInitialValue = {
 
 let singleStateItemToObjMapper = json => {
   json
-  ->Js.Json.decodeObject
+  ->JSON.Decode.object
   ->Option.map(dict => {
     refund_success_rate: dict->getFloat("refund_success_rate", 0.0),
     refund_count: dict->getInt("refund_count", 0),
@@ -147,7 +147,7 @@ let singleStateItemToObjMapper = json => {
 
 let singleStateSeriesItemToObjMapper = json => {
   json
-  ->Js.Json.decodeObject
+  ->JSON.Decode.object
   ->Option.map(dict => {
     refund_success_rate: dict->getFloat("refund_success_rate", 0.0)->setPrecision(),
     refund_count: dict->getInt("refund_count", 0),

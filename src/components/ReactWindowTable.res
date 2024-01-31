@@ -1,9 +1,9 @@
 open TableUtils
-external toJson: Js.Nullable.t<'a> => Js.Json.t = "%identity"
+external toJson: Js.Nullable.t<'a> => JSON.t = "%identity"
 type checkBoxProps = {
   showCheckBox: bool,
-  selectedData: Js.Array2.t<Js.Json.t>,
-  setSelectedData: (Js.Array2.t<Js.Json.t> => Js.Array2.t<Js.Json.t>) => unit,
+  selectedData: array<JSON.t>,
+  setSelectedData: (array<JSON.t> => array<JSON.t>) => unit,
 }
 
 let checkBoxPropDefaultVal: checkBoxProps = {
@@ -243,7 +243,7 @@ module ReactWindowTableComponent = {
     ~customCellColor="",
     ~showCheckBox=false,
   ) => {
-    let actualData: option<Js.Array2.t<Js.Nullable.t<'t>>> = actualData
+    let actualData: option<array<Js.Nullable.t<'t>>> = actualData
 
     let getRowDetails = (rowIndex: int) => {
       switch actualData {
@@ -586,25 +586,24 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
   let getValue = val => {
     switch val {
     | Some(x) =>
-      switch x->Js.Json.classify {
-      | JSONString(_str) => x
-      | JSONNumber(_num) => x
-      | JSONFalse => "false"->Js.Json.string
-      | JSONTrue => "true"->Js.Json.string
-      | _ => ""->Js.Json.string
+      switch x->JSON.Classify.classify {
+      | String(_str) => x
+      | Number(_num) => x
+      | Bool(val) => val ? "true"->JSON.Encode.string : "false"->JSON.Encode.string
+      | _ => ""->JSON.Encode.string
       }
-    | None => ""->Js.Json.string
+    | None => ""->JSON.Encode.string
     }
   }
   let sortedArrayByOrder = {
     let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
-      let item1 = i1->Js.Json.stringifyAny->Option.getOr("")->LogicUtils.safeParse
-      let item2 = i2->Js.Json.stringifyAny->Option.getOr("")->LogicUtils.safeParse
+      let item1 = i1->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
+      let item2 = i2->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       // flatten items and get data
 
-      let val1 = item1->Js.Json.decodeObject->Option.flatMap(dict => dict->Dict.get(key))
+      let val1 = item1->JSON.Decode.object->Option.flatMap(dict => dict->Dict.get(key))
 
-      let val2 = item2->Js.Json.decodeObject->Option.flatMap(dict => dict->Dict.get(key))
+      let val2 = item2->JSON.Decode.object->Option.flatMap(dict => dict->Dict.get(key))
 
       let value1 = getValue(val1)
       let value2 = getValue(val2)
@@ -625,7 +624,7 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
 
 @react.component
 let make = (
-  ~actualData: Js.Array2.t<Js.Nullable.t<'t>>,
+  ~actualData: array<Js.Nullable.t<'t>>,
   ~defaultSort=?,
   ~title,
   ~visibleColumns=?,
@@ -641,7 +640,7 @@ let make = (
   ~downloadCsv=?,
   ~hideTitle=false,
   ~tableDataLoading=false,
-  ~customGetObjects: option<Js.Json.t => array<'a>>=?,
+  ~customGetObjects: option<JSON.t => array<'a>>=?,
   ~dataNotFoundComponent=?,
   ~tableLocalFilter=false,
   ~tableheadingClass="",
@@ -704,7 +703,7 @@ let make = (
   }
 
   let setColumnFilter = React.useMemo1(() => {
-    (filterKey, filterValue: array<Js.Json.t>) => {
+    (filterKey, filterValue: array<JSON.t>) => {
       setColumnFilterOrig(oldFitlers => {
         let newObj = oldFitlers->Dict.toArray->Dict.fromArray
         let filterValue = filterValue->Array.filter(
@@ -841,7 +840,7 @@ let make = (
           | MoneyType | NumericType | ProgressType => {
               let newArr =
                 filterValueArray
-                ->Array.map(item => item->Js.Json.decodeNumber->Option.getOr(0.))
+                ->Array.map(item => item->JSON.Decode.float->Option.getOr(0.))
                 ->Js.Array2.sortInPlaceWith(LogicUtils.numericArraySortComperator)
               let lengthOfArr = newArr->Array.length
 
@@ -935,9 +934,9 @@ let make = (
             ->Array.map(colType => {
               entity.getCell(item, colType)
             })
-          let startPoint = sNoArr->Array.get(0)->Option.getOr(1.->Js.Json.number)
-          let endPoint = sNoArr->Array.get(1)->Option.getOr(1.->Js.Json.number)
-          let jsonIndex = (index + 1)->Int.toFloat->Js.Json.number
+          let startPoint = sNoArr->Array.get(0)->Option.getOr(1.->JSON.Encode.float)
+          let endPoint = sNoArr->Array.get(1)->Option.getOr(1.->JSON.Encode.float)
+          let jsonIndex = (index + 1)->Int.toFloat->JSON.Encode.float
           sNoArr->Array.length > 0
             ? {
                 startPoint <= jsonIndex && endPoint >= jsonIndex ? visibleCell : []
@@ -948,7 +947,7 @@ let make = (
       | None => []
       }
       let getIdFromJson = json => {
-        let selectedPlanDict = json->Js.Json.decodeObject->Option.getOr(Dict.make())
+        let selectedPlanDict = json->JSON.Decode.object->Option.getOr(Dict.make())
         selectedPlanDict->LogicUtils.getString("id", "")
       }
       let setIsSelected = isSelected => {

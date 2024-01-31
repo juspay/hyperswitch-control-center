@@ -1,4 +1,4 @@
-type people = {set: (. Js.Json.t) => unit}
+type people = {set: (. JSON.t) => unit}
 
 type mixpanel = {people: people}
 

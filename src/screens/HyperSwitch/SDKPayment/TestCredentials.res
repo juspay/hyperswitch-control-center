@@ -1,7 +1,7 @@
 @react.component
 let make = () => {
   let initialValues = Dict.make()
-  Dict.set(initialValues, "dummy_card_number", "4242 4242 4242 4242"->Js.Json.string)
+  Dict.set(initialValues, "dummy_card_number", "4242 4242 4242 4242"->JSON.Encode.string)
   <div className="p-6 bg-jp-gray-test_credentials_bg w-full h-fit">
     <div className="mb-4">
       <div className="flex items-center gap-4">
@@ -17,7 +17,7 @@ let make = () => {
           <p className="text-gray-900 text-bold text-sm dark:text-gray-400 pt-2 pb-2 pl-2 ">
             {"4242 4242 4242 4242"->React.string}
           </p>
-          <Clipboard.Copy data={"4242424242424242"->Js.Json.string} />
+          <Clipboard.Copy data={"4242424242424242"->JSON.Encode.string} />
         </div>
         <div className="flex flex-row items-center">
           <p className="text-gray-500 dark:text-gray-400 pb-2 w-[40%] text-sm">

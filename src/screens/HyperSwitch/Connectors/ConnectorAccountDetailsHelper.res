@@ -85,7 +85,7 @@ module ErrorValidation = {
         <div className="flex mr-2">
           <img className=imageStyle src={`${appPrefix}/icons/warning.svg`} alt="warning" />
         </div>
-        {React.string(err->Option.getOr(""->Js.Json.string)->getStringFromJson(""))}
+        {React.string(err->Option.getOr(""->JSON.Encode.string)->getStringFromJson(""))}
       </div>
     </UIUtils.RenderIf>
   }
