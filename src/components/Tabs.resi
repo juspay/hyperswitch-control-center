@@ -45,7 +45,7 @@ module IndicationArrow: {
     ~isVisible: bool,
   ) => React.element
 }
-let getBoundingRectInfo: (React.ref<Js.Nullable.t<Dom.element>>, boundingClient => int) => int
+let getBoundingRectInfo: (React.ref<Nullable.t<Dom.element>>, boundingClient => int) => int
 @react.component
 let make: (
   ~tabs: array<tab>,

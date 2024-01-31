@@ -67,7 +67,7 @@ module Wallets = {
       let _ = update(json)
       setShowWalletConfigurationModal(_ => false)
 
-      Js.Nullable.null->Js.Promise.resolve
+      Nullable.null->Js.Promise.resolve
     }
 
     let configurationFields = getConfigurationFields(

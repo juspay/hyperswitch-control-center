@@ -648,7 +648,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       if isSaveRule {
         RescriptReactRouter.replace(`/routing`)
       }
-      Js.Nullable.return(response)
+      Nullable.make(response)
     } catch {
     | Js.Exn.Error(e) =>
       let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")

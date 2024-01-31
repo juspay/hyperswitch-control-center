@@ -105,7 +105,7 @@ module ConfigureProcessor = {
       setInitialValues(_ => body)
       mixpanelEvent(~eventName=`quickstart_connector_configuration`, ())
       setConnectorConfigureState(_ => Setup_payment_methods)
-      Js.Nullable.null
+      Nullable.null
     }
 
     let validateMandatoryField = values => {

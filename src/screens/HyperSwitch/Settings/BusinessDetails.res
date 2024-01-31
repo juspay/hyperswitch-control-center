@@ -88,7 +88,7 @@ let make = () => {
       | None => setFetchState(_ => Error("Something went wrong!"))
       }
     }
-    Js.Nullable.null
+    Nullable.null
   }
   let fetchMerchantInfo = async () => {
     let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")

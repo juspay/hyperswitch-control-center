@@ -85,7 +85,7 @@ module SimpleRoutingView = {
         | None => setScreenState(_ => Error("Failed to Fetch!"))
         }
       }->ignore
-      Js.Nullable.null
+      Nullable.null
     }
 
     let openConfirmPopUp = () => {

@@ -93,7 +93,7 @@ module ApiEditModal = {
         }
         setModalState(_ => SettingApiModalError)
       }
-      Js.Nullable.null
+      Nullable.null
     }
 
     let modalBody =
@@ -360,7 +360,7 @@ module ApiKeysTable = {
           visibleColumns
           entity=apiKeysTableEntity
           showSerialNumber=true
-          actualData={data->Array.map(Js.Nullable.return)}
+          actualData={data->Array.map(Nullable.make)}
           totalResults={data->Array.length}
           offset
           setOffset

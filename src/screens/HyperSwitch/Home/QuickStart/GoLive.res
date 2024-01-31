@@ -76,7 +76,7 @@ let make = (~goLive) => {
     } catch {
     | _ => ()
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
   let onSubmit = (values, _) => {

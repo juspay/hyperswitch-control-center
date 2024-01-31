@@ -72,7 +72,7 @@ module ErrorValidation = {
   let make = (~fieldName, ~validate) => {
     open LogicUtils
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let appPrefix = LogicUtils.useUrlPrefix()
     let imageStyle = "w-4 h-4 my-auto border-gray-100"
@@ -173,7 +173,7 @@ module CashToCodeSelectBox = {
       setSelectedCountry(_ => country)
     }
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
 
     let isSelected = (country): bool => {
