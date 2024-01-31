@@ -49,7 +49,7 @@ let getURL = (
       | Some(connectorID) => `${connectorBaseURL}/${connectorID}`
       | None => connectorBaseURL
       }
-    | Post =>
+    | Post | Delete =>
       switch connector {
       | Some(_con) => `account/connectors/verify`
       | None =>

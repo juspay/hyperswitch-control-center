@@ -3,6 +3,32 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.01.31.1
+
+### Miscellaneous Tasks
+
+- Add e2e testcase ([#262](https://github.com/juspay/hyperswitch-control-center/pull/262)) ([`be32a53`](https://github.com/juspay/hyperswitch-control-center/commit/be32a53b73bb12c617716d9f2bc1499e0d84c9f5))
+- Chore: feature flag addition for paypal automatic flow ([#316](https://github.com/juspay/hyperswitch-control-center/pull/316)) ([`4764a34`](https://github.com/juspay/hyperswitch-control-center/commit/4764a341fb23d650051f2650bdf1a3718c72f0b9))
+
+**Full Changelog:** [`2024.01.31.0...2024.01.31.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.01.31.0...2024.01.31.1)
+
+- - -
+
+## 2024.01.31.0
+
+### Features
+
+- Feat: paypal changes ([#285](https://github.com/juspay/hyperswitch-control-center/pull/285)) ([`2ecef9f`](https://github.com/juspay/hyperswitch-control-center/commit/2ecef9fc776ed27ae06c17c900ecf0126bfd799b))
+
+### Miscellaneous Tasks
+
+- Js.Json API removed - JSON Core API Used. ([#311](https://github.com/juspay/hyperswitch-control-center/pull/311)) ([`1ff05f8`](https://github.com/juspay/hyperswitch-control-center/commit/1ff05f803229ddc10178c4257b7cfd9a17609d95))
+- Nullable Core API Added.. ([#315](https://github.com/juspay/hyperswitch-control-center/pull/315)) ([`c8ae50b`](https://github.com/juspay/hyperswitch-control-center/commit/c8ae50b0f680c93e2ead174f328df4ab82d8e41d))
+
+**Full Changelog:** [`2024.01.30.0...2024.01.31.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.01.30.0...2024.01.31.0)
+
+- - -
+
 ## 2024.01.30.0
 
 ### Features

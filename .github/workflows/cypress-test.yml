@@ -1,6 +1,8 @@
 name: Cypress Tests
 
-on: [push]
+on:
+  merge_group:
+    types: [checks_requested]
 
 jobs:
   cypress-tests:
@@ -21,6 +23,9 @@ jobs:
         run: npm install --force
 
       - name: Cypress run
+        env:
+          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
+          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
         uses: cypress-io/github-action@v6
         with:
           install: false

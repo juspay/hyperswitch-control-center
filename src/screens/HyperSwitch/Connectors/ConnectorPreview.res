@@ -32,6 +32,42 @@ module KeyAndCopyArea = {
   }
 }
 
+module DeleteConnectorMenu = {
+  @react.component
+  let make = (~pageName="connector", ~connectorInfo: ConnectorTypes.connectorPayload) => {
+    open APIUtils
+    let updateDetails = useUpdateMethod()
+    let deleteConnector = async () => {
+      try {
+        let connectorID = connectorInfo.merchant_connector_id
+        let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
+        let _ = await updateDetails(url, Js.Dict.empty()->Js.Json.object_, Delete, ())
+        RescriptReactRouter.push("/connectors")
+      } catch {
+      | _ => ()
+      }
+    }
+    let showPopUp = PopUpState.useShowPopUp()
+    let openConfirmationPopUp = _ => {
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Confirm Action ? ",
+        description: `You are about to Delete this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
+        handleConfirm: {
+          text: "Confirm",
+          onClick: _ => deleteConnector()->ignore,
+        },
+        handleCancel: {text: "Cancel"},
+      })
+    }
+    <AddDataAttributes attributes=[("data-testid", "delete-button"->String.toLowerCase)]>
+      <div>
+        <Button text="Delete" onClick={_e => openConfirmationPopUp()} />
+      </div>
+    </AddDataAttributes>
+  }
+}
+
 module MenuOption = {
   open HeadlessUI
   @react.component
@@ -142,10 +178,12 @@ module ConnectorSummaryGrid = {
     <div className="p-2 md:px-10">
       <div className="grid grid-cols-4 my-12">
         <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
-        <div
-          className={`text-black font-semibold text-sm ${connectorInfo.status->ConnectorTableUtils.connectorStatusStyle}`}>
-          {connectorInfo.status->String.toUpperCase->React.string}
-        </div>
+        <AddDataAttributes attributes=[("data-testid", "connector_status"->String.toLowerCase)]>
+          <div
+            className={`text-black font-semibold text-sm ${connectorInfo.status->ConnectorTableUtils.connectorStatusStyle}`}>
+            {connectorInfo.status->String.toUpperCase->React.string}
+          </div>
+        </AddDataAttributes>
       </div>
       <div className="grid grid-cols-4 my-12">
         <div className="flex items-start">
@@ -226,7 +264,8 @@ let make = (
 ) => {
   open APIUtils
   open ConnectorUtils
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {feedback, paypalAutomaticFlow} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
@@ -239,9 +278,7 @@ let make = (
 
   let connectorCount = ListHooks.useListCount(~entityName=CONNECTOR)
   let isFeedbackModalToBeOpen =
-    featureFlagDetails.feedback &&
-    !isUpdateFlow &&
-    connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
+    feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
   let redirectPath = switch url.path {
   | list{"payoutconnectors", _} => "/payoutconnectors"
   | _ => "/connectors"
@@ -283,32 +320,35 @@ let make = (
           </h2>
         </div>
         <div className="self-center">
-          {switch (currentStep, connector->getConnectorNameTypeFromString, connectorInfo.status) {
-          | (Preview, PAYPAL, "inactive") =>
+          {switch (
+            currentStep,
+            connector->getConnectorNameTypeFromString,
+            connectorInfo.status,
+            paypalAutomaticFlow,
+          ) {
+          | (Preview, PAYPAL, "inactive", true) =>
             <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
-          | (Preview, _, _) =>
+          | (Preview, _, _, _) =>
             <div className="flex gap-6 items-center">
               <div
                 className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
                 {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
               </div>
-              <UIUtils.RenderIf
-                condition={showMenuOption &&
-                !(connector->getConnectorNameTypeFromString === PAYPAL)}>
-                <MenuOption setCurrentStep disableConnector isConnectorDisabled />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf
-                condition={showMenuOption && connector->getConnectorNameTypeFromString === PAYPAL}>
-                <MenuOptionForPayPal
-                  setCurrentStep
-                  disableConnector
-                  isConnectorDisabled
-                  updateStepValue={ConnectorTypes.PaymentMethods}
-                  connectorInfoDict
-                  setScreenState
-                  isUpdateFlow
-                  setInitialValues
-                />
+              <UIUtils.RenderIf condition={showMenuOption}>
+                {switch (connector->getConnectorNameTypeFromString, paypalAutomaticFlow) {
+                | (PAYPAL, true) =>
+                  <MenuOptionForPayPal
+                    setCurrentStep
+                    disableConnector
+                    isConnectorDisabled
+                    updateStepValue={ConnectorTypes.PaymentMethods}
+                    connectorInfoDict
+                    setScreenState
+                    isUpdateFlow
+                    setInitialValues
+                  />
+                | (_, _) => <MenuOption setCurrentStep disableConnector isConnectorDisabled />
+                }}
               </UIUtils.RenderIf>
             </div>
 
