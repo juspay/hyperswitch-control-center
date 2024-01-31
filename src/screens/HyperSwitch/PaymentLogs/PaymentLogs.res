@@ -27,7 +27,7 @@ module PrettyPrintJson = {
     let (parsedJson, setParsedJson) = React.useState(_ => "")
     let parseJsonValue = () => {
       try {
-        let parsedValue = jsonToDisplay->Js.Json.parseExn->Js.Json.stringifyWithSpace(3)
+        let parsedValue = jsonToDisplay->JSON.parseExn->JSON.stringifyWithIndent(3)
         setParsedJson(_ => parsedValue)
       } catch {
       | _ => setParsedJson(_ => jsonToDisplay)
@@ -134,7 +134,7 @@ module ApiDetailsComponent = {
         filteredKeys->Array.includes(key)->not
       })
       ->getJsonFromArrayOfJson
-      ->Js.Json.stringify
+      ->JSON.stringify
     | WEBHOOKS => paymentDetailsValue->getString("outgoing_webhook_event_type", "")
     }
 
@@ -412,16 +412,16 @@ let make = (~paymentId, ~createdAt) => {
       let endTime = endTime->Js.Date.fromFloat->Js.Date.toISOString
       let body =
         [
-          ("paymentId", paymentId->Js.Json.string),
+          ("paymentId", paymentId->JSON.Encode.string),
           (
             "timeRange",
-            [("startTime", startTime->Js.Json.string), ("endTime", endTime->Js.Json.string)]
+            [("startTime", startTime->JSON.Encode.string), ("endTime", endTime->JSON.Encode.string)]
             ->Dict.fromArray
-            ->Js.Json.object_,
+            ->JSON.Encode.object,
           ),
         ]
         ->Dict.fromArray
-        ->Js.Json.object_
+        ->JSON.Encode.object
       let sdkLogsArray =
         (await fetchPostDetils(url, body, Post, ()))
         ->getArrayFromJson([])
@@ -432,21 +432,24 @@ let make = (~paymentId, ~createdAt) => {
           let logType = eventDict->getString("log_type", "")
           let updatedEventName =
             logType === "INFO" ? eventName->String.replace("Call", "Response") : eventName
-          eventDict->Dict.set("event_name", updatedEventName->Js.Json.string)
-          eventDict->Dict.set("event_id", sha256(updatedEventName ++ timestamp)->Js.Json.string)
+          eventDict->Dict.set("event_name", updatedEventName->JSON.Encode.string)
+          eventDict->Dict.set("event_id", sha256(updatedEventName ++ timestamp)->JSON.Encode.string)
           eventDict->Dict.set(
             "source",
-            eventDict->getString("source", "")->sourceMapper->Js.Json.string,
+            eventDict->getString("source", "")->sourceMapper->JSON.Encode.string,
           )
           eventDict->Dict.set(
             "checkout_platform",
-            eventDict->getString("component", "")->Js.Json.string,
+            eventDict->getString("component", "")->JSON.Encode.string,
           )
           eventDict->Dict.set(
             "customer_device",
-            eventDict->getString("platform", "")->Js.Json.string,
+            eventDict->getString("platform", "")->JSON.Encode.string,
           )
-          eventDict->Dict.set("sdk_version", eventDict->getString("version", "")->Js.Json.string)
+          eventDict->Dict.set(
+            "sdk_version",
+            eventDict->getString("version", "")->JSON.Encode.string,
+          )
           eventDict->Dict.set(
             "event_name",
             updatedEventName
@@ -454,10 +457,10 @@ let make = (~paymentId, ~createdAt) => {
             ->titleToSnake
             ->snakeToCamel
             ->capitalizeString
-            ->Js.Json.string,
+            ->JSON.Encode.string,
           )
-          eventDict->Dict.set("created_at", timestamp->Js.Json.string)
-          eventDict->Js.Json.object_
+          eventDict->Dict.set("created_at", timestamp->JSON.Encode.string)
+          eventDict->JSON.Encode.object
         })
       let logsArr = sdkLogsArray->Array.filter(sdkLog => {
         let eventDict = sdkLog->getDictFromJsonObject
@@ -526,7 +529,7 @@ let make = (~paymentId, ~createdAt) => {
                 filteredKeys->Array.includes(key)->not
               })
               ->getJsonFromArrayOfJson
-              ->Js.Json.stringify
+              ->JSON.stringify
             let response =
               initialData->getString("log_type", "") === "ERROR"
                 ? initialData->getString("value", "")

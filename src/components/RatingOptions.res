@@ -14,7 +14,7 @@ let make = (~icons, ~size) => {
     ->Array.mapWithIndex((icon, index) => {
       let iconRating = index + 1
       <Icon
-        key={Belt.Int.toString(index)}
+        key={Int.toString(index)}
         className={isActive && rating === iconRating
           ? "rounded-full text-yellow-500"
           : "rounded-full text-gray-400 hover:text-yellow-500"}

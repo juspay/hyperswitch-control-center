@@ -84,7 +84,7 @@ module BaseSelect: {
     ~optionSize: CheckBoxIcon.size=?,
     ~isSelectedStateMinus: bool=?,
     ~onSelect: array<string> => unit,
-    ~value: Js.Json.t,
+    ~value: JSON.t,
     ~onBlur: ReactEvent.Focus.t => unit=?,
     ~showClearAll: bool=?,
     ~isHorizontal: bool=?,
@@ -140,7 +140,7 @@ module BaseSelectButton: {
     ~optionSize: CheckBoxIcon.size=?,
     ~isSelectedStateMinus: bool=?,
     ~onSelect: string => unit,
-    ~value: Js.Json.t,
+    ~value: JSON.t,
     ~deselectDisable: bool=?,
     ~onBlur: ReactEvent.Focus.t => unit=?,
     ~setShowDropDown: ('a => bool) => unit=?,
@@ -157,8 +157,8 @@ module BaseSelectButton: {
 module RenderListItemInBaseRadio: {
   @react.component
   let make: (
-    ~newOptions: Js.Array2.t<dropdownOptionWithoutOptional>,
-    ~value: Js.Json.t,
+    ~newOptions: array<dropdownOptionWithoutOptional>,
+    ~value: JSON.t,
     ~descriptionOnHover: bool,
     ~isDropDown: bool,
     ~textIconPresent: bool,
@@ -181,7 +181,7 @@ module RenderListItemInBaseRadio: {
 let getHashMappedOptionValues: array<dropdownOptionWithoutOptional> => RescriptCore.Dict.t<
   array<dropdownOptionWithoutOptional>,
 >
-let getSortedKeys: RescriptCore.Dict.t<'a> => Js.Array2.t<string>
+let getSortedKeys: RescriptCore.Dict.t<'a> => array<string>
 module BaseRadio: {
   @react.component
   let make: (
@@ -192,7 +192,7 @@ module BaseRadio: {
     ~optionSize: CheckBoxIcon.size=?,
     ~isSelectedStateMinus: bool=?,
     ~onSelect: string => unit,
-    ~value: Js.Json.t,
+    ~value: JSON.t,
     ~deselectDisable: bool=?,
     ~onBlur: ReactEvent.Focus.t => unit=?,
     ~fill: string=?,

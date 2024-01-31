@@ -33,7 +33,7 @@ let make = (~callBackFun) => {
     </a>
     <UIUtils.RenderIf condition={isDisabled}>
       <div className="text-blue-700">
-        {`(${mod(seconds, 60)->Belt.Int.toString}sec)`->React.string}
+        {`(${mod(seconds, 60)->Int.toString}sec)`->React.string}
       </div>
     </UIUtils.RenderIf>
   </div>

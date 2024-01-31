@@ -34,7 +34,7 @@ type profileSetting = {
   merchant_id: string,
   merchant_name: string,
   locker_id: string,
-  primary_business_details: array<Js.Json.t>,
+  primary_business_details: array<JSON.t>,
   merchant_details: merchantDetails,
 }
 
@@ -84,8 +84,8 @@ type colType =
 type apiModalState = Create | Update | Loading | SettingApiModalError | Success
 
 type parseMerchantJson = {
-  apiKeys: Dict.t<Js.Json.t>,
-  merchantInfo: Dict.t<Js.Json.t>,
+  apiKeys: Dict.t<JSON.t>,
+  merchantInfo: Dict.t<JSON.t>,
 }
 
 type validationFields =

@@ -77,12 +77,12 @@ let make = () => {
         ->getDictFromJsonObject
         ->getOptionString("id")
       let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post, ())
+      let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
       setStepCounter(_ => #ROUTING_ENABLED)
 
       // *GENERATE_SAMPLE_DATA
       let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
-      let _ = await updateDetails(generateSampleDataUrl, Dict.make()->Js.Json.object_, Post, ())
+      let _ = await updateDetails(generateSampleDataUrl, Dict.make()->JSON.Encode.object, Post, ())
       setStepCounter(_ => #GENERATE_SAMPLE_DATA)
       await delay(delayTime)
       setStepCounter(_ => #COMPLETED)

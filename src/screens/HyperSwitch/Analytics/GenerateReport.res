@@ -7,6 +7,7 @@ let make = (~entityName) => {
     <Button
       text="Generate Reports"
       buttonType={Primary}
+      buttonSize={XSmall}
       onClick={_ => {
         setReportModal(_ => true)
         mixpanelEvent(~eventName="generate_reports", ())

@@ -39,7 +39,7 @@ module BusinessProfileInp = {
           InputFields.selectInput(
             ~input={
               ...input,
-              value: profile->Js.Json.string,
+              value: profile->JSON.Encode.string,
               onChange: {
                 ev => {
                   setProfile(_ => ev->Identity.formReactEventToString)
@@ -89,7 +89,7 @@ let make = (
   React.useEffect0(() => {
     form.change(
       "profile_id",
-      profile->Option.getOr(defaultBusinessProfile.profile_id)->Js.Json.string,
+      profile->Option.getOr(defaultBusinessProfile.profile_id)->JSON.Encode.string,
     )
     None
   })

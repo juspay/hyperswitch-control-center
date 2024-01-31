@@ -7,7 +7,7 @@ module GatewayView = {
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {
         <div
-          key={Belt.Int.toString(index)}
+          key={Int.toString(index)}
           className="my-2 h-6 md:h-8 flex items-center rounded-md  border border-jp-gray-500 dark:border-jp-gray-960 font-medium
                             text-blue-800 hover:text-blue-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200
                             dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1">
@@ -58,11 +58,11 @@ let make = (
 
   let selectedOptions =
     gateWaysInput.value
-    ->Js.Json.decodeArray
+    ->JSON.Decode.array
     ->Option.getOr([])
     ->Belt.Array.keepMap(item =>
       item
-      ->Js.Json.decodeObject
+      ->JSON.Decode.object
       ->Option.flatMap(dict => {
         let connectorDict = dict->LogicUtils.getDictfromDict("connector")
         let obj: gateway = {
@@ -105,8 +105,10 @@ let make = (
     },
     onFocus: _ev => (),
     value: selectedOptions
-    ->Array.map(selectedOption => selectedOption.connector.merchant_connector_id->Js.Json.string)
-    ->Js.Json.array,
+    ->Array.map(selectedOption =>
+      selectedOption.connector.merchant_connector_id->JSON.Encode.string
+    )
+    ->JSON.Encode.array,
     checked: true,
   }
 
@@ -185,9 +187,9 @@ let make = (
                         name=key
                         onChange={ev => {
                           let val = ReactEvent.Form.target(ev)["value"]
-                          updatePercentage(item, val->Belt.Int.fromString->Option.getOr(0))
+                          updatePercentage(item, val->Int.fromString->Option.getOr(0))
                         }}
-                        value={item.split->Belt.Int.toString}
+                        value={item.split->Int.toString}
                         type_="text"
                         inputMode="text"
                       />

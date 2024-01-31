@@ -3,7 +3,7 @@ open AnalyticsTypesUtils
 type filterConfig = {
   source: string, // source can be BATCH, KVLOGS basically which DB to fetch
   modeValue: string, // modeValue can be ORDERS, TXN so here is the mode is orders we see data aggregated by the order_id and if mode is txn the data is aggregated by txn id simmilarly more mode can be added
-  filterValues?: Js.Json.t, // which all filters will be applicable for the single stats (those keys i.e merchant_id, payment_gateway etc.)
+  filterValues?: JSON.t, // which all filters will be applicable for the single stats (those keys i.e merchant_id, payment_gateway etc.)
   startTime: string, // start time from when data will fetch   (later can be moved to the parent level)
   endTime: string, // end time till when data should be fetched (later can be moved to the parent level)
   customFilterValue: string, // custome filter key is the key by which stores the value of the applied customfilter in the url
@@ -14,7 +14,7 @@ type dataFetcherObj<'a> = {
   metrics: 'a, // metrics are the stats i.e total volume, success rate etc.
   bodyMaker: (string, filterConfig) => string, // to make the single stat body
   timeSeriedBodyMaker: (string, filterConfig) => string, // to make the single stat timeseries body
-  transaformer: (string, Js.Json.t) => Dict.t<Js.Json.t>, // just in case if we are getting data from multiple places and we wanted to change the key or something so that we can identify it differently
+  transaformer: (string, JSON.t) => Dict.t<JSON.t>, // just in case if we are getting data from multiple places and we wanted to change the key or something so that we can identify it differently
   url: string, // url from where data need to be fetched
   domain: string,
   timeColumn: string,
@@ -40,9 +40,9 @@ type singleStatEntity<'a> = {
   getStatDetails: (
     'a,
     'a => string,
-    dataState<Js.Json.t>,
-    dataState<Js.Json.t>,
-    dataState<Js.Json.t>,
+    dataState<JSON.t>,
+    dataState<JSON.t>,
+    dataState<JSON.t>,
   ) => singleStatDataWidgetData,
-  jsonTransformer?: (string, array<Js.Json.t>) => array<Js.Json.t>,
+  jsonTransformer?: (string, array<JSON.t>) => array<JSON.t>,
 }

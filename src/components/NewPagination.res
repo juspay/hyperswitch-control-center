@@ -1,7 +1,7 @@
 @react.component
 let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4) => {
   let pageNumbers = []
-  let total = Js.Math.ceil(Belt.Int.toFloat(totalResults) /. Belt.Int.toFloat(resultsPerPage))
+  let total = Js.Math.ceil(Int.toFloat(totalResults) /. Int.toFloat(resultsPerPage))
 
   for x in 1 to total {
     Array.push(pageNumbers, x)->ignore

@@ -58,11 +58,11 @@ module DownloadAPIKeyButton = {
         let url = APIUtils.getURL(~entityName=API_KEYS, ~methodType=Post, ())
         let body =
           [
-            ("name", "DefaultAPIKey"->Js.Json.string),
-            ("description", "Default Value of the API key"->Js.Json.string),
-            ("expiration", "never"->Js.Json.string),
+            ("name", "DefaultAPIKey"->JSON.Encode.string),
+            ("description", "Default Value of the API key"->JSON.Encode.string),
+            ("expiration", "never"->JSON.Encode.string),
           ]->Dict.fromArray
-        let res = await updateDetails(url, body->Js.Json.object_, Post, ())
+        let res = await updateDetails(url, body->JSON.Encode.object, Post, ())
         let apiKey = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("api_key", "")
         DownloadUtils.downloadOld(~fileName=`apiKey.txt`, ~content=apiKey)
         Clipboard.writeText(apiKey)
@@ -244,7 +244,7 @@ module BackendFrontendPlatformLangDropDown = {
         setPlatform(_ => val)
       },
       onFocus: _ev => (),
-      value: (platform :> string)->Js.Json.string,
+      value: (platform :> string)->JSON.Encode.string,
       checked: true,
     }
     let options = platforms->Array.map((op): SelectBox.dropdownOption => {
@@ -259,7 +259,7 @@ module BackendFrontendPlatformLangDropDown = {
         setBackEndLang(_ => val)
       },
       onFocus: _ev => (),
-      value: (backEndLang :> string)->Js.Json.string,
+      value: (backEndLang :> string)->JSON.Encode.string,
       checked: true,
     }
     let frontendLangInput: ReactFinalForm.fieldRenderPropsInput = {
@@ -270,7 +270,7 @@ module BackendFrontendPlatformLangDropDown = {
         setFrontEndLang(_ => val)
       },
       onFocus: _ev => (),
-      value: (frontEndLang :> string)->Js.Json.string,
+      value: (frontEndLang :> string)->JSON.Encode.string,
       checked: true,
     }
     let (frontendLangauge, backendLangauge) = currentRoute->getLanguages
@@ -281,7 +281,7 @@ module BackendFrontendPlatformLangDropDown = {
       backEndLang === #ChooseLanguage ? "Choose Backend" : (backEndLang :> string)
     }
 
-    <Form initialValues={Dict.make()->Js.Json.object_}>
+    <Form initialValues={Dict.make()->JSON.Encode.object}>
       <div className="flex flex-row gap-4 flex-wrap">
         <UIUtils.RenderIf condition={!isFromLanding && currentRoute !== SampleProjects}>
           <SelectBox.BaseDropdown
@@ -414,7 +414,7 @@ module LandingPageTileForIntegrateDocs = {
     let skipAndContinue = async () => {
       try {
         let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
-        let metaDataDict = Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
+        let metaDataDict = Dict.fromArray([("is_skip", true->JSON.Encode.bool)])->JSON.Encode.object
         let body = HSwitchUtils.constructOnboardingBody(
           ~dashboardPageState,
           ~integrationDetails,

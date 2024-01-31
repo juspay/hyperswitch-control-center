@@ -23,7 +23,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
 
   let selectedOptions = React.useMemo1(() => {
     gateWaysInput.value
-    ->Js.Json.decodeArray
+    ->JSON.Decode.array
     ->Option.getOr([])
     ->Belt.Array.keepMap(item => {
       Some(AdvancedRoutingUtils.connectorSelectionDataMapperFromJson(item))
@@ -70,9 +70,9 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
     ->Array.map(option =>
       AdvancedRoutingUtils.getConnectorStringFromConnectorSelectionData(
         option,
-      ).merchant_connector_id->Js.Json.string
+      ).merchant_connector_id->JSON.Encode.string
     )
-    ->Js.Json.array,
+    ->JSON.Encode.array,
     checked: true,
   }
 
@@ -203,11 +203,11 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
                     name=key
                     onChange={ev => {
                       let val = ReactEvent.Form.target(ev)["value"]
-                      updatePercentage(item, val->Belt.Int.fromString->Option.getOr(0))
+                      updatePercentage(item, val->Int.fromString->Option.getOr(0))
                     }}
                     value={item
                     ->AdvancedRoutingUtils.getSplitFromConnectorSelectionData
-                    ->Belt.Int.toString}
+                    ->Int.toString}
                     type_="text"
                     inputMode="text"
                   />

@@ -35,7 +35,7 @@ module CardDetails = {
   @react.component
   let make = (
     ~itemArray,
-    ~heading: Js.Array.t<Table.header>,
+    ~heading: array<Table.header>,
     ~onRowClick,
     ~rowIndex,
     ~size=4,
@@ -66,7 +66,7 @@ module CardDetails = {
 
           itemArray
           ->Array.mapWithIndex((cell, cellIndex) => {
-            let key = Belt.Int.toString(cellIndex + offset) //webhooks UI
+            let key = Int.toString(cellIndex + offset) //webhooks UI
             switch heading[cellIndex] {
             | Some(label) =>
               if isAnalyticsModule {
@@ -111,7 +111,7 @@ module CardDetails = {
 
 @react.component
 let make = (
-  ~heading: Js.Array.t<Table.header>,
+  ~heading: array<Table.header>,
   ~rows,
   ~offset=0,
   ~onRowClick=?,

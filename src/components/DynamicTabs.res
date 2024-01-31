@@ -44,11 +44,7 @@ module TabInfo = {
     ~setCollapsibleTabs,
     ~selectedIndex,
     ~tabNames,
-    ~handleSelectedTab: (
-      ~tabValue: string,
-      ~collapsibleTabs: Js.Array2.t<tab>,
-      ~removed: bool,
-    ) => unit,
+    ~handleSelectedTab: (~tabValue: string, ~collapsibleTabs: array<tab>, ~removed: bool) => unit,
     ~tabStacksnames,
     ~setTabStacksnames,
     ~description="",
@@ -211,7 +207,7 @@ module IndicationArrow = {
 }
 
 let getBoundingRectInfo = (ref: React.ref<Js.Nullable.t<Dom.element>>, getter) => {
-  ref.current->Js.Nullable.toOption->Belt.Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
+  ref.current->Js.Nullable.toOption->Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
 }
 
 @react.component
@@ -272,7 +268,7 @@ let make = (
           ->Array.filter(item => !(defautTabValues->Array.includes(item)))
 
         let tabsFromPreference =
-          Belt.Array.concat(defautTabValues, tabsFromPreference)->Array.map(item =>
+          Array.concat(defautTabValues, tabsFromPreference)->Array.map(item =>
             item->String.split(",")
           )
 
@@ -386,9 +382,9 @@ let make = (
     let collapsibleTabsValues =
       collapsibleTabs
       ->Array.map(item => {
-        item.value->Js.Json.string
+        item.value->JSON.Encode.string
       })
-      ->Js.Json.array
+      ->JSON.Encode.array
 
     addConfig(availableTabUserPrefKey, collapsibleTabsValues)
 
@@ -423,7 +419,7 @@ let make = (
 
   let handleSelectedTab: (
     ~tabValue: string,
-    ~collapsibleTabs: Js.Array2.t<tab>,
+    ~collapsibleTabs: array<tab>,
     ~removed: bool,
   ) => unit = (~tabValue: string, ~collapsibleTabs: array<tab>, ~removed: bool) => {
     if removed === false {
@@ -609,7 +605,7 @@ let make = (
       </div>
       <SelectModal
         modalHeading="Add Segments"
-        modalHeadingDescription={`You can choose upto maximum of ${maxSelection->Belt.Int.toString} segments`}
+        modalHeadingDescription={`You can choose upto maximum of ${maxSelection->Int.toString} segments`}
         ?headerTextClass
         showModal
         setShowModal

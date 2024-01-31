@@ -416,7 +416,7 @@ module PinIconComponentStates = {
       ev->ReactEvent.Mouse.preventDefault
       ev->ReactEvent.Mouse.stopPropagation
       ev->toggleExpand
-      setIsSidebarDetails("isPinned", !isHSSidebarPinned->Js.Json.boolean)
+      setIsSidebarDetails("isPinned", !isHSSidebarPinned->JSON.Encode.bool)
     }
 
     <>
@@ -443,7 +443,7 @@ module PinIconComponentStates = {
 
 @react.component
 let make = (
-  ~sidebars: Js.Array2.t<topLevelItem>,
+  ~sidebars: array<topLevelItem>,
   ~path,
   ~linkSelectionCheck=defaultLinkSelectionCheck,
   ~verticalOffset="120px",
@@ -460,10 +460,10 @@ let make = (
 
   React.useEffect1(() => {
     if minWidthForPinnedState {
-      setIsSidebarDetails("isPinned", true->Js.Json.boolean)
+      setIsSidebarDetails("isPinned", true->JSON.Encode.bool)
       setIsSidebarExpanded(_ => true)
     } else {
-      setIsSidebarDetails("isPinned", false->Js.Json.boolean)
+      setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
       setIsSidebarExpanded(_ => false)
     }
 
@@ -476,7 +476,7 @@ let make = (
   let sidebarWidth = isExpanded ? isMobileView ? "100%" : "270px" : "55px"
   let profileMaxWidth = "145px"
 
-  let firstPart = switch Belt.List.head(path) {
+  let firstPart = switch List.head(path) {
   | Some(x) => `/${x}`
   | None => "/"
   }

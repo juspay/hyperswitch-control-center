@@ -28,7 +28,7 @@ type featureFlag = {
   disputeEvidenceUpload: bool,
 }
 
-let featureFlagType = (featureFlags: Js.Json.t) => {
+let featureFlagType = (featureFlags: JSON.t) => {
   open LogicUtils
   let dict = featureFlags->getDictFromJsonObject
   let typedFeatureFlag: featureFlag = {

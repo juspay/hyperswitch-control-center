@@ -58,9 +58,9 @@ module SelectPaymentMethods = {
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
 
     let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
-      Dict.make()->Js.Json.object_->ConnectorUtils.getPaymentMethodEnabled
+      Dict.make()->JSON.Encode.object->ConnectorUtils.getPaymentMethodEnabled
     )
-    let (metaData, setMetaData) = React.useState(_ => Dict.make()->Js.Json.object_)
+    let (metaData, setMetaData) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
     let updateDetails = value => {
       setPaymentMethods(_ => value->Array.copy)

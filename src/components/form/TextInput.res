@@ -71,7 +71,7 @@ let make = (
           elem
           ->Webapi.Dom.Element.getAttribute("placeholder")
           ->Option.mapOr(length, str => Js.Math.max_int(length, str->String.length))
-          ->Belt.Int.toString
+          ->Int.toString
 
         elem->Webapi.Dom.Element.setAttribute("size", size)
       | None => ()
@@ -83,7 +83,7 @@ let make = (
   }, (inputRef.current, input.name))
 
   React.useEffect1(() => {
-    let val = input.value->Js.Json.decodeString->Option.getOr("")
+    let val = input.value->JSON.Decode.string->Option.getOr("")
 
     if val->String.includes("<script>") || val->String.includes("</script>") {
       showPopUp({
@@ -169,9 +169,9 @@ let make = (
       focus:border-opacity-100 ${hoverCss} ${roundingClass} ${cursorClass} ${dashboardClass} ${inputStyle} ${borderClass} ${customStyle} ${placeholderClass} ${isDisabled
       ? onDisabledStyle
       : onActiveStyle}`
-  let value = switch input.value->Js.Json.classify {
-  | JSONString(str) => str
-  | JSONNumber(num) => num->Belt.Float.toString
+  let value = switch input.value->JSON.Classify.classify {
+  | String(str) => str
+  | Number(num) => num->Float.toString
   | _ => ""
   }
 

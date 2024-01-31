@@ -37,7 +37,7 @@ let make = (
       let dateYear = date->Array.get(0)->Option.getOr("1970")
 
       let timeSplit =
-        switch input.value->Js.Json.decodeString {
+        switch input.value->JSON.Decode.string {
         | Some(str) => str
         | None => ""
         }
@@ -90,7 +90,7 @@ let make = (
     input.onChange(currentDateTimeCheck->Identity.stringToFormReactEvent)
   }
   React.useEffect1(() => {
-    if input.value == ""->Js.Json.string {
+    if input.value == ""->JSON.Encode.string {
       setSelectedDate(_ => "")
     }
     None
@@ -198,7 +198,7 @@ let make = (
         time === ""
           ? `${currentDateHourFormat}:${currentDateMinuteFormat}:${currentDateSecondsFormat}`
           : time
-      time->Js.Json.string
+      time->JSON.Encode.string
     },
     checked: false,
   }

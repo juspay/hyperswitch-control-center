@@ -8,7 +8,7 @@ let enumVariantAtom = Recoil.atom(. "enumVariantDetails", "")
 
 let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.atom(.
   "featureFlag",
-  Js.Json.null->FeatureFlagUtils.featureFlagType,
+  JSON.Encode.null->FeatureFlagUtils.featureFlagType,
 )
 let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatus> = Recoil.atom(.
   "paypalAccountStatusAtom",

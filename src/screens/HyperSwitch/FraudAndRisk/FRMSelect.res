@@ -26,7 +26,7 @@ module NewProcessorCards = {
             let frmName = frm->getFRMNameString
             let frmInfo = frm->getFRMInfo
 
-            <CardUtils.CardLayout key={Belt.Int.toString(i)} width="w-full">
+            <CardUtils.CardLayout key={Int.toString(i)} width="w-full">
               <div className="flex gap-2 items-center mb-3">
                 <GatewayIcon
                   gateway={frmName->String.toUpperCase} className="w-10 h-10 rounded-lg"
