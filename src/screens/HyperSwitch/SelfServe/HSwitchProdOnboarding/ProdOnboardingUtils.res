@@ -146,24 +146,24 @@ let getProdApiBody = (
     [
       (
         (parentVariant :> string),
-        [("connector_id", connectorId->Js.Json.string)]->Dict.fromArray->Js.Json.object_,
+        [("connector_id", connectorId->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object,
       ),
     ]
     ->Dict.fromArray
-    ->Js.Json.object_
+    ->JSON.Encode.object
 
   | #ProductionAgreement =>
     [
       (
         (parentVariant :> string),
-        [("version", HSwitchGlobalVars.agreementVersion->Js.Json.string)]
+        [("version", HSwitchGlobalVars.agreementVersion->JSON.Encode.string)]
         ->Dict.fromArray
-        ->Js.Json.object_,
+        ->JSON.Encode.object,
       ),
     ]
     ->Dict.fromArray
-    ->Js.Json.object_
-  | _ => (parentVariant :> string)->Js.Json.string
+    ->JSON.Encode.object
+  | _ => (parentVariant :> string)->JSON.Encode.string
   }
 }
 

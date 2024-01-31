@@ -23,7 +23,7 @@ module AddEntryBtn = {
     open BusinessMappingUtils
     let initialValues =
       [
-        ("profile_name", `default${list->Array.length->string_of_int}`->Js.Json.string),
+        ("profile_name", `default${list->Array.length->string_of_int}`->JSON.Encode.string),
       ]->Dict.fromArray
     let modalBody =
       <div>
@@ -32,7 +32,7 @@ module AddEntryBtn = {
         | Edit =>
           <Form
             key="country-currency"
-            initialValues={initialValues->Js.Json.object_}
+            initialValues={initialValues->JSON.Encode.object}
             validate={values => values->validateForm(~fieldsToValidate=[ProfileName], ~list)}
             onSubmit>
             <LabelVisibilityContext showLabel=false>

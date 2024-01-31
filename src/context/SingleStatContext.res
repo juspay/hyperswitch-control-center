@@ -6,9 +6,9 @@ open LogicUtils
 open AnalyticsNewUtils
 
 type singleStatComponent = {
-  singleStatData: option<Dict.t<dataState<Js.Json.t>>>,
-  singleStatTimeSeries: option<Dict.t<dataState<Js.Json.t>>>,
-  singleStatDelta: option<Dict.t<dataState<Js.Json.t>>>,
+  singleStatData: option<Dict.t<dataState<JSON.t>>>,
+  singleStatTimeSeries: option<Dict.t<dataState<JSON.t>>>,
+  singleStatDelta: option<Dict.t<dataState<JSON.t>>>,
   singleStatLoader: Dict.t<AnalyticsUtils.loaderType>,
   singleStatIsVisible: (bool => bool) => unit,
 }
@@ -86,10 +86,10 @@ let make = (
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
         if allFilterKeys->Array.includes(key) {
-          switch value->Js.Json.classify {
-          | JSONString(str) => `${key}=${str}`->Some
-          | JSONNumber(num) => `${key}=${num->String.make}`->Some
-          | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
+          switch value->JSON.Classify.classify {
+          | String(str) => `${key}=${str}`->Some
+          | Number(num) => `${key}=${num->String.make}`->Some
+          | Array(arr) => `${key}=[${arr->String.make}]`->Some
           | _ => None
           }
         } else {
@@ -113,7 +113,7 @@ let make = (
       filterKeys->Array.includes(key) ? Some((key, value)) : None
     })
     ->Dict.fromArray
-    ->Js.Json.object_
+    ->JSON.Encode.object
     ->Some
   }, [topFiltersToSearchParam])
 
@@ -203,7 +203,7 @@ let make = (
         setIndividualSingleStatTime(
           prev => {
             let individualTime = prev->Dict.toArray->Dict.fromArray
-            individualTime->Dict.set(index->Belt.Int.toString, Js.Date.now())
+            individualTime->Dict.set(index->Int.toString, Js.Date.now())
             individualTime
           },
         )
@@ -231,12 +231,12 @@ let make = (
           },
         )
         let timeObj = Dict.fromArray([
-          ("start", filterConfigCurrent.startTime->Js.Json.string),
-          ("end", filterConfigCurrent.endTime->Js.Json.string),
+          ("start", filterConfigCurrent.startTime->JSON.Encode.string),
+          ("end", filterConfigCurrent.endTime->JSON.Encode.string),
         ])
         let historicTimeObj = Dict.fromArray([
-          ("start", filterConfigHistoric.startTime->Js.Json.string),
-          ("end", filterConfigHistoric.endTime->Js.Json.string),
+          ("start", filterConfigHistoric.startTime->JSON.Encode.string),
+          ("end", filterConfigHistoric.endTime->JSON.Encode.string),
         ])
 
         let granularityConfig = switch filterConfigCurrent {
@@ -255,7 +255,7 @@ let make = (
               ~customFilterValue=filterConfigHistoric.customFilterValue,
               ~domain=urlConfig.domain,
               (),
-            )->Js.Json.stringify,
+            )->JSON.stringify,
             ~authToken=parentToken,
             ~headers=[("QueryType", "SingleStatHistoric")]->Dict.fromArray,
             (),
@@ -274,12 +274,12 @@ let make = (
                     Dict.set(
                       prevDict,
                       updatedMetrics,
-                      Loaded(jsonObj->Array.get(0)->Option.getOr(Js.Json.object_(Dict.make()))),
+                      Loaded(jsonObj->Array.get(0)->Option.getOr(JSON.Encode.object(Dict.make()))),
                     )
                     prevDict
                   },
                 )
-                Loaded(Js.Json.object_(Dict.make()))
+                Loaded(JSON.Encode.object(Dict.make()))
               })
             },
           )
@@ -307,7 +307,7 @@ let make = (
               ~customFilterValue=filterConfigCurrent.customFilterValue,
               ~domain=urlConfig.domain,
               (),
-            )->Js.Json.stringify,
+            )->JSON.stringify,
             ~authToken=parentToken,
             ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
             (),
@@ -323,13 +323,13 @@ let make = (
                   Dict.set(
                     prevDict,
                     updatedMetrics,
-                    Loaded(jsonObj->Array.get(0)->Option.getOr(Js.Json.object_(Dict.make()))),
+                    Loaded(jsonObj->Array.get(0)->Option.getOr(JSON.Encode.object(Dict.make()))),
                   )
                   prevDict
                 },
               )
 
-              resolve(Loaded(Js.Json.object_(Dict.make())))
+              resolve(Loaded(JSON.Encode.object(Dict.make())))
             },
           )
           ->catch(
@@ -358,7 +358,7 @@ let make = (
               ~domain=urlConfig.domain,
               ~timeCol=urlConfig.timeColumn,
               (),
-            )->Js.Json.stringify,
+            )->JSON.stringify,
             ~authToken=parentToken,
             ~headers=[("QueryType", "SingleStat Time Series")]->Dict.fromArray,
             (),
@@ -380,18 +380,18 @@ let make = (
                     },
                   )
                   ->Dict.fromArray
-                  ->Js.Json.object_
+                  ->JSON.Encode.object
                 },
               )
               let jsonObj = jsonTransFormer(updatedMetrics, jsonObj)
               setSingleStatTimeSeries(
                 prev => {
                   let prevDict = prev->copyOfDict
-                  Dict.set(prevDict, updatedMetrics, Loaded(jsonObj->Js.Json.array))
+                  Dict.set(prevDict, updatedMetrics, Loaded(jsonObj->JSON.Encode.array))
                   prevDict
                 },
               )
-              resolve(Loaded(Js.Json.object_(Dict.make())))
+              resolve(Loaded(JSON.Encode.object(Dict.make())))
             },
           )
           ->catch(
@@ -434,9 +434,9 @@ let make = (
               prev => {
                 let individualTime = prev->Dict.toArray->Dict.fromArray
                 individualTime->Dict.set(
-                  index->Belt.Int.toString,
+                  index->Int.toString,
                   Js.Date.now() -.
-                  individualTime->Dict.get(index->Belt.Int.toString)->Option.getOr(Js.Date.now()),
+                  individualTime->Dict.get(index->Int.toString)->Option.getOr(Js.Date.now()),
                 )
                 individualTime
               },

@@ -36,9 +36,9 @@ module CardRenderer = {
 
     let paymentObj = paymentMethodsEnabled->getSelectedPaymentObj(paymentMethod)
     let standardProviders =
-      paymentObj.provider->Option.getOr([]->Js.Json.array->getPaymentMethodMapper)
+      paymentObj.provider->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
     let cardProviders =
-      paymentObj.card_provider->Option.getOr([]->Js.Json.array->getPaymentMethodMapper)
+      paymentObj.card_provider->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
 
     let checkPaymentMethodType = (
       obj: paymentMethodConfigType,
@@ -230,7 +230,7 @@ module PaymentMethodsRender = {
     <div className="flex flex-col gap-12">
       {keys
       ->Array.mapWithIndex((value, i) => {
-        let provider = pmts->getArrayFromDict(value, [])->Js.Json.array->getPaymentMethodMapper
+        let provider = pmts->getArrayFromDict(value, [])->JSON.Encode.array->getPaymentMethodMapper
 
         switch value->getPaymentMethodTypeFromString {
         | Credit | Debit =>

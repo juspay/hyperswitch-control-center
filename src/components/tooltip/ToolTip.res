@@ -141,35 +141,32 @@ module TooltipWrapper = {
   ) => {
     let toolTipTopPosition = switch position {
     | Top =>
-      tooltipArrowHeight /. componentHeight->Belt.Int.toFloat *. -100.0 +.
-        tooltipHeightFloat /. componentHeight->Belt.Int.toFloat *. -100.0
-    | Right => 50.0 -. tooltipHeightFloat /. componentHeight->Belt.Int.toFloat *. 50.0
-    | Bottom => 100.0 +. tooltipArrowHeight /. componentHeight->Belt.Int.toFloat *. 100.0
-    | BottomLeft => 100.0 +. tooltipArrowHeight /. componentHeight->Belt.Int.toFloat *. 100.0
-    | BottomRight => 100.0 +. tooltipArrowHeight /. componentHeight->Belt.Int.toFloat *. 100.0
-    | Left => 50.0 -. tooltipHeightFloat /. componentHeight->Belt.Int.toFloat *. 50.0
+      tooltipArrowHeight /. componentHeight->Int.toFloat *. -100.0 +.
+        tooltipHeightFloat /. componentHeight->Int.toFloat *. -100.0
+    | Right => 50.0 -. tooltipHeightFloat /. componentHeight->Int.toFloat *. 50.0
+    | Bottom => 100.0 +. tooltipArrowHeight /. componentHeight->Int.toFloat *. 100.0
+    | BottomLeft => 100.0 +. tooltipArrowHeight /. componentHeight->Int.toFloat *. 100.0
+    | BottomRight => 100.0 +. tooltipArrowHeight /. componentHeight->Int.toFloat *. 100.0
+    | Left => 50.0 -. tooltipHeightFloat /. componentHeight->Int.toFloat *. 50.0
     | TopLeft =>
-      tooltipArrowHeight /. componentHeight->Belt.Int.toFloat *. -100.0 +.
-        tooltipHeightFloat /. componentHeight->Belt.Int.toFloat *. -100.0
+      tooltipArrowHeight /. componentHeight->Int.toFloat *. -100.0 +.
+        tooltipHeightFloat /. componentHeight->Int.toFloat *. -100.0
     | TopRight =>
-      tooltipArrowHeight /. componentHeight->Belt.Int.toFloat *. -100.0 +.
-        tooltipHeightFloat /. componentHeight->Belt.Int.toFloat *. -100.0
+      tooltipArrowHeight /. componentHeight->Int.toFloat *. -100.0 +.
+        tooltipHeightFloat /. componentHeight->Int.toFloat *. -100.0
     }
 
     let toolTipLeftPosition = switch position {
-    | Top => 50.0 -. tooltipWidth->Belt.Int.toFloat /. componentWidth->Belt.Int.toFloat *. 50.0
-    | Right =>
-      100.0 +. tooltipArrowWidth->Belt.Int.toFloat /. componentWidth->Belt.Int.toFloat *. 100.0
-    | Bottom => 50.0 -. tooltipWidth->Belt.Int.toFloat /. componentWidth->Belt.Int.toFloat *. 50.0
+    | Top => 50.0 -. tooltipWidth->Int.toFloat /. componentWidth->Int.toFloat *. 50.0
+    | Right => 100.0 +. tooltipArrowWidth->Int.toFloat /. componentWidth->Int.toFloat *. 100.0
+    | Bottom => 50.0 -. tooltipWidth->Int.toFloat /. componentWidth->Int.toFloat *. 50.0
     | Left =>
-      tooltipArrowWidth->Belt.Int.toFloat /. componentWidth->Belt.Int.toFloat *. -100.0 +.
-        tooltipWidth->Belt.Int.toFloat /. componentWidth->Belt.Int.toFloat *. -100.0
-    | TopLeft => tooltipWidth->Belt.Int.toFloat /. componentWidth->Belt.Int.toFloat *. -50.0
-    | BottomLeft => tooltipWidth->Belt.Int.toFloat /. componentWidth->Belt.Int.toFloat *. -50.0
-    | TopRight =>
-      100.0 +. tooltipWidth->Belt.Int.toFloat /. componentWidth->Belt.Int.toFloat *. -60.0
-    | BottomRight =>
-      100.0 +. tooltipWidth->Belt.Int.toFloat /. componentWidth->Belt.Int.toFloat *. -60.0
+      tooltipArrowWidth->Int.toFloat /. componentWidth->Int.toFloat *. -100.0 +.
+        tooltipWidth->Int.toFloat /. componentWidth->Int.toFloat *. -100.0
+    | TopLeft => tooltipWidth->Int.toFloat /. componentWidth->Int.toFloat *. -50.0
+    | BottomLeft => tooltipWidth->Int.toFloat /. componentWidth->Int.toFloat *. -50.0
+    | TopRight => 100.0 +. tooltipWidth->Int.toFloat /. componentWidth->Int.toFloat *. -60.0
+    | BottomRight => 100.0 +. tooltipWidth->Int.toFloat /. componentWidth->Int.toFloat *. -60.0
     }
 
     ReactDOMStyle.make(
@@ -362,7 +359,7 @@ module Arrow = {
     | _ => positionX + componentWidth / 2 - 5
     }
 
-    let tooltipArrowpixel = `${tooltipArrowSize->Belt.Int.toString}px`
+    let tooltipArrowpixel = `${tooltipArrowSize->Int.toString}px`
     let borderWidth = switch position {
     | Top => `${tooltipArrowpixel} ${tooltipArrowpixel} 0`
     | TopLeft => `${tooltipArrowpixel} ${tooltipArrowpixel} 0`
@@ -427,9 +424,9 @@ module Arrow = {
     }
 
     let arrowLeftPosition = switch position {
-    | Left => 100.0 +. tooltipArrowWidth->Belt.Int.toFloat /. tooltipWidth->Belt.Int.toFloat
-    | Right => tooltipArrowWidth->Belt.Int.toFloat /. tooltipWidth->Belt.Int.toFloat *. -100.0
-    | _ => 50.0 -. tooltipArrowWidth->Belt.Int.toFloat /. tooltipWidth->Belt.Int.toFloat *. 50.0
+    | Left => 100.0 +. tooltipArrowWidth->Int.toFloat /. tooltipWidth->Int.toFloat
+    | Right => tooltipArrowWidth->Int.toFloat /. tooltipWidth->Int.toFloat *. -100.0
+    | _ => 50.0 -. tooltipArrowWidth->Int.toFloat /. tooltipWidth->Int.toFloat *. 50.0
     }
 
     let borderWidth = switch position {
@@ -462,8 +459,8 @@ module Arrow = {
     let borderLeftColor = position === Left ? arrowColor : "transparent"
 
     ReactDOMStyle.make(
-      ~top=`${arrowTopPosition->Belt.Float.toString}%`,
-      ~left=`${arrowLeftPosition->Belt.Float.toString}%`,
+      ~top=`${arrowTopPosition->Float.toString}%`,
+      ~left=`${arrowLeftPosition->Float.toString}%`,
       ~borderWidth,
       ~width="0",
       ~height="0",
@@ -653,17 +650,14 @@ let make = (
   }, [isToolTipVisible])
 
   let getBoundingRectInfo = (ref: React.ref<Js.Nullable.t<Dom.element>>, getter) => {
-    ref.current
-    ->Js.Nullable.toOption
-    ->Belt.Option.map(getBoundingClientRect)
-    ->Option.mapOr(0, getter)
+    ref.current->Js.Nullable.toOption->Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
   }
 
   let tooltipWidth = toolTipRef->getBoundingRectInfo(val => val.width)
   let tooltipHeight = toolTipRef->getBoundingRectInfo(val => val.height)
-  let tooltipHeightFloat = tooltipHeight->Belt.Int.toFloat
+  let tooltipHeightFloat = tooltipHeight->Int.toFloat
   let tooltipArrowWidth = toolTipArrowRef->getBoundingRectInfo(val => val.width)
-  let tooltipArrowHeight = toolTipArrowRef->getBoundingRectInfo(val => val.height)->Belt.Int.toFloat
+  let tooltipArrowHeight = toolTipArrowRef->getBoundingRectInfo(val => val.height)->Int.toFloat
   let positionX = componentRef->getBoundingRectInfo(val => val.x)
   let positionY = componentRef->getBoundingRectInfo(val => val.y)
   let componentWidth = componentRef->getBoundingRectInfo(val => val.width)

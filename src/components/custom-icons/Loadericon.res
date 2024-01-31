@@ -12,8 +12,8 @@ let make = (~iconColor=?, ~size=16) => {
   }
 
   <svg
-    width={Belt.Int.toString(size)}
-    height={Belt.Int.toString(size)}
+    width={Int.toString(size)}
+    height={Int.toString(size)}
     viewBox="0 0 12 12"
     className={`fill-current ${svgColor}`}
     xmlns="http://www.w3.org/2000/svg">

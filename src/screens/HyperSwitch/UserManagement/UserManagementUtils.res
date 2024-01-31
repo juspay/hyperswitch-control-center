@@ -21,8 +21,8 @@ let inviteEmail = FormRenderer.makeFieldInfo(
 
 let validateEmptyValue = (key, errors) => {
   switch key {
-  | "emailList" => Dict.set(errors, "email", "Please enter Invite mails"->Js.Json.string)
-  | _ => Dict.set(errors, key, `Please enter a ${key->LogicUtils.snakeToTitle}`->Js.Json.string)
+  | "emailList" => Dict.set(errors, "email", "Please enter Invite mails"->JSON.Encode.string)
+  | _ => Dict.set(errors, key, `Please enter a ${key->LogicUtils.snakeToTitle}`->JSON.Encode.string)
   }
 }
 
@@ -37,15 +37,15 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
       key->validateEmptyValue(errors)
     } else {
       value->Array.forEach(ele => {
-        if ele->Js.Json.decodeString->Option.getOr("")->HSwitchUtils.isValidEmail {
-          errors->Dict.set("email", "Please enter a valid email"->Js.Json.string)
+        if ele->JSON.Decode.string->Option.getOr("")->HSwitchUtils.isValidEmail {
+          errors->Dict.set("email", "Please enter a valid email"->JSON.Encode.string)
         }
       })
       ()
     }
   })
 
-  errors->Js.Json.object_
+  errors->JSON.Encode.object
 }
 
 let roleListDataMapper: UserRoleEntity.roleListResponse => SelectBox.dropdownOption = ele => {
@@ -77,7 +77,7 @@ let getArrayOfPermissionData = json => {
   json
   ->LogicUtils.getDictFromJsonObject
   ->LogicUtils.getArrayFromDict("permissions", [])
-  ->Array.map(i => i->Js.Json.decodeString->Option.getOr(""))
+  ->Array.map(i => i->JSON.Decode.string->Option.getOr(""))
 }
 
 let updatePresentInInfoList = (infoData, permissionsData) => {
@@ -151,7 +151,7 @@ module RolePermissionValueRenderer = {
   }
 }
 
-let roleListResponseMapper: Dict.t<Js.Json.t> => UserRoleEntity.roleListResponse = dict => {
+let roleListResponseMapper: Dict.t<JSON.t> => UserRoleEntity.roleListResponse = dict => {
   open LogicUtils
   {
     role_id: dict->getString("role_id", ""),

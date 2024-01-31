@@ -118,7 +118,7 @@ let getCellForUser = (data: userTableTypes, colType: userColTypes): Table.cell =
   }
 }
 
-let getUserData: Js.Json.t => array<userTableTypes> = json => {
+let getUserData: JSON.t => array<userTableTypes> = json => {
   getArrayDataFromJson(json, itemToObjMapperForUser)
 }
 

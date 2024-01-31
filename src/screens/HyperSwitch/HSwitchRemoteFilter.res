@@ -25,7 +25,7 @@ let getDateFilteredObject = () => {
       ~date=currentDate->Js.Date.getDate,
       (),
     )
-    ->Js.Date.setDate((currentDate->Js.Date.getDate->Belt.Float.toInt - 7)->Belt.Int.toFloat)
+    ->Js.Date.setDate((currentDate->Js.Date.getDate->Float.toInt - 7)->Int.toFloat)
     ->Js.Date.fromFloat
     ->formateDateString
 
@@ -35,7 +35,7 @@ let getDateFilteredObject = () => {
   }
 }
 
-let getFilterFields: Js.Json.t => array<EntityType.optionType<'t>> = json => {
+let getFilterFields: JSON.t => array<EntityType.optionType<'t>> = json => {
   open LogicUtils
   let filterDict = json->getDictFromJsonObject
 
@@ -140,17 +140,15 @@ module SearchBarFilter = {
       onBlur: _ev => (),
       onChange,
       onFocus: _ev => (),
-      value: searchValBase->Js.Json.string,
+      value: searchValBase->JSON.Encode.string,
       checked: true,
     }
 
-    <div className="w-1/4 flex">
-      {InputFields.textInput(~input=inputSearch, ~placeholder, ~customStyle=`!h-10 w-full`, ())}
+    <div className="w-1/3 flex items-center">
+      {InputFields.textInput(~input=inputSearch, ~placeholder, ~customStyle=`w-full`, ())}
       <Button
         leftIcon={FontAwesome("search")}
         buttonType={Secondary}
-        customButtonStyle="px-2 py-3 mt-2"
-        customIconSize=13
         onClick={_ => {
           setSearchVal(_ => searchValBase)
         }}
@@ -177,7 +175,7 @@ module RemoteTableFilters = {
   ) => {
     let {filterValue, updateExistingKeys, filterValueJson, removeKeys} =
       FilterContext.filterContext->React.useContext
-    let defaultFilters = {""->Js.Json.string}
+    let defaultFilters = {""->JSON.Encode.string}
 
     let customViewTop = <SearchBarFilter placeholder setSearchVal searchVal />
 
@@ -194,8 +192,8 @@ module RemoteTableFilters = {
 
     let filterBody = React.useMemo3(() => {
       [
-        (startTimeFilterKey, startTimeVal->Js.Json.string),
-        (endTimeFilterKey, endTimeVal->Js.Json.string),
+        (startTimeFilterKey, startTimeVal->JSON.Encode.string),
+        (endTimeFilterKey, endTimeVal->JSON.Encode.string),
       ]->Dict.fromArray
     }, (startTimeVal, endTimeVal, filterValue))
 
@@ -211,7 +209,7 @@ module RemoteTableFilters = {
       setFilterDataJson(_ => None)
       if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
         try {
-          updateDetails(filterUrl, filterBody->Js.Json.object_, Post, ())
+          updateDetails(filterUrl, filterBody->JSON.Encode.object, Post, ())
           ->thenResolve(json => setFilterDataJson(_ => json->Some))
           ->catch(_ => resolve())
           ->ignore
@@ -220,8 +218,8 @@ module RemoteTableFilters = {
         }
       }
       None
-    }, (startTimeVal, endTimeVal, filterBody->Js.Json.object_->Js.Json.stringify))
-    let filterData = filterDataJson->Option.getOr(Dict.make()->Js.Json.object_)
+    }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
+    let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
     React.useEffect1(() => {
       if filterValueJson->Dict.keysToArray->Array.length != 0 {

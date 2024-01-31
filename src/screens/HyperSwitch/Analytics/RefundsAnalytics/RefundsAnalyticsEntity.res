@@ -96,7 +96,7 @@ let getCell = (refundTable: refundTableType, colType: refundColType): Table.cell
   }
 }
 
-let getRefundTable: Js.Json.t => array<refundTableType> = json => {
+let getRefundTable: JSON.t => array<refundTableType> = json => {
   json
   ->LogicUtils.getArrayFromJson([])
   ->Array.map(item => {
@@ -132,10 +132,9 @@ let singleStateSeriesInitialValue = {
 }
 
 let singleStateItemToObjMapper = json => {
-  open Belt.Option
   json
-  ->Js.Json.decodeObject
-  ->map(dict => {
+  ->JSON.Decode.object
+  ->Option.map(dict => {
     refund_success_rate: dict->getFloat("refund_success_rate", 0.0),
     refund_count: dict->getInt("refund_count", 0),
     refund_success_count: dict->getInt("refund_success_count", 0),
@@ -147,17 +146,16 @@ let singleStateItemToObjMapper = json => {
 }
 
 let singleStateSeriesItemToObjMapper = json => {
-  open Belt.Option
   json
-  ->Js.Json.decodeObject
-  ->map(dict => {
+  ->JSON.Decode.object
+  ->Option.map(dict => {
     refund_success_rate: dict->getFloat("refund_success_rate", 0.0)->setPrecision(),
     refund_count: dict->getInt("refund_count", 0),
     refund_success_count: dict->getInt("refund_success_count", 0),
     time_series: dict->getString("time_bucket", ""),
     refund_processed_amount: dict->getFloat("refund_processed_amount", 0.0)->setPrecision(),
   })
-  ->getWithDefault({
+  ->Option.getOr({
     singleStateSeriesInitialValue
   })
 }
@@ -219,7 +217,7 @@ let constructData = (key, singlestatTimeseriesData: array<refundsSingleStateSeri
       ->Js.Date.fromFloat
       ->DateTimeUtils.utcToISTDate
       ->Js.Date.valueOf,
-      ob.refund_count->Belt.Int.toFloat,
+      ob.refund_count->Int.toFloat,
     ))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "refund_success_count" =>
@@ -230,7 +228,7 @@ let constructData = (key, singlestatTimeseriesData: array<refundsSingleStateSeri
       ->Js.Date.fromFloat
       ->DateTimeUtils.utcToISTDate
       ->Js.Date.valueOf,
-      ob.refund_success_count->Belt.Int.toFloat,
+      ob.refund_success_count->Int.toFloat,
     ))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "refund_processed_amount" =>
@@ -277,13 +275,13 @@ let getStatData = (
       title: "Overall Refunds",
       tooltipText: "Total refund initiated",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.refund_count->Belt.Int.toFloat,
+        singleStatData.refund_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.refund_count->Belt.Int.toFloat,
+      value: singleStatData.refund_count->Int.toFloat,
       delta: {
         Js.Float.fromString(
-          Js.Float.toFixedWithPrecision(singleStatData.refund_count->Belt.Int.toFloat, ~digits=2),
+          Js.Float.toFixedWithPrecision(singleStatData.refund_count->Int.toFloat, ~digits=2),
         )
       },
       data: constructData("refund_count", timeSeriesData),
@@ -294,14 +292,14 @@ let getStatData = (
       title: "Success Refunds",
       tooltipText: "Total successful refunds",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.refund_success_count->Belt.Int.toFloat,
+        singleStatData.refund_success_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.refund_success_count->Belt.Int.toFloat,
+      value: singleStatData.refund_success_count->Int.toFloat,
       delta: {
         Js.Float.fromString(
           Js.Float.toFixedWithPrecision(
-            singleStatData.refund_success_count->Belt.Int.toFloat,
+            singleStatData.refund_success_count->Int.toFloat,
             ~digits=2,
           ),
         )

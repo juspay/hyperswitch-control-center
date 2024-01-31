@@ -46,24 +46,24 @@ let getBrowswerDetailsPayload = () => {
   let browserDetails = HSwitchUtils.getBrowswerDetails()
   let clientCountry = browserDetails.clientCountry
   let clientCountryDict = Dict.fromArray([
-    ("isoAlpha3", clientCountry.isoAlpha3->Js.Json.string),
-    ("countryName", clientCountry.countryName->getCountryNameFromVarient->Js.Json.string),
-    ("isoAlpha2", clientCountry.isoAlpha2->getCountryCodeStringFromVarient->Js.Json.string),
-    ("timeZones", clientCountry.timeZones->Array.map(ele => ele->Js.Json.string)->Js.Json.array),
+    ("isoAlpha3", clientCountry.isoAlpha3->JSON.Encode.string),
+    ("countryName", clientCountry.countryName->getCountryNameFromVarient->JSON.Encode.string),
+    ("isoAlpha2", clientCountry.isoAlpha2->getCountryCodeStringFromVarient->JSON.Encode.string),
+    ("timeZones", clientCountry.timeZones->LogicUtils.getJsonFromArrayOfString),
   ])
   [
-    ("userAgent", browserDetails.userAgent->Js.Json.string),
-    ("browserVersion", browserDetails.browserVersion->Js.Json.string),
-    ("platform", browserDetails.platform->Js.Json.string),
-    ("browserName", browserDetails.browserName->Js.Json.string),
-    ("browserLanguage", browserDetails.browserLanguage->Js.Json.string),
-    ("screenHeight", browserDetails.screenHeight->Js.Json.string),
-    ("screenWidth", browserDetails.screenWidth->Js.Json.string),
-    ("timeZoneOffset", browserDetails.timeZoneOffset->Js.Json.string),
-    ("clientCountry", clientCountryDict->Js.Json.object_),
+    ("userAgent", browserDetails.userAgent->JSON.Encode.string),
+    ("browserVersion", browserDetails.browserVersion->JSON.Encode.string),
+    ("platform", browserDetails.platform->JSON.Encode.string),
+    ("browserName", browserDetails.browserName->JSON.Encode.string),
+    ("browserLanguage", browserDetails.browserLanguage->JSON.Encode.string),
+    ("screenHeight", browserDetails.screenHeight->JSON.Encode.string),
+    ("screenWidth", browserDetails.screenWidth->JSON.Encode.string),
+    ("timeZoneOffset", browserDetails.timeZoneOffset->JSON.Encode.string),
+    ("clientCountry", clientCountryDict->JSON.Encode.object),
   ]
   ->Dict.fromArray
-  ->Js.Json.object_
+  ->JSON.Encode.object
 }
 
 let generateSurveyJson = values => {
@@ -72,12 +72,12 @@ let generateSurveyJson = values => {
   let survey_json =
     questionForSurvey
     ->Array.map(value => {
-      (value.key, valuesDict->getString(value.key, "")->Js.Json.string)
+      (value.key, valuesDict->getString(value.key, "")->JSON.Encode.string)
     })
     ->Dict.fromArray
   let browserDetailsPayload = getBrowswerDetailsPayload()
   [
-    ("signin_survey", survey_json->Js.Json.object_),
+    ("signin_survey", survey_json->JSON.Encode.object),
     ("browser_details", browserDetailsPayload),
   ]->Dict.fromArray
 }
@@ -85,7 +85,7 @@ let generateSurveyJson = values => {
 let initialValueDict =
   questionForSurvey
   ->Array.map(value => {
-    (value.key, ""->Js.Json.string)
+    (value.key, ""->JSON.Encode.string)
   })
   ->Dict.fromArray
-  ->Js.Json.object_
+  ->JSON.Encode.object

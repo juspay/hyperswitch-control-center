@@ -14,7 +14,7 @@ let useFetchEnumDetails = () => {
         )}?keys=${enumArray->Array.joinWithUnsafe(",")}`
       let res = await fetchDetails(url)
       let responseDict = res->responseDataMapper
-      setEnumVariantValues(._ => responseDict->Js.Json.object_->Js.Json.stringify)
+      setEnumVariantValues(._ => responseDict->JSON.Encode.object->JSON.stringify)
       Js.Nullable.return(responseDict)
     } catch {
     | Js.Exn.Error(e) => {
@@ -45,11 +45,11 @@ let useUpdateEnumInRecoil = () => {
 
       switch body {
       | Boolean(_) => {
-          let booleanDict = [((enumVariant :> string), true->Js.Json.boolean)]->Dict.fromArray
+          let booleanDict = [((enumVariant :> string), true->JSON.Encode.bool)]->Dict.fromArray
           enumDictsArray->Array.push(booleanDict)
         }
       | String(str) => {
-          let stringDict = [((enumVariant :> string), str->Js.Json.string)]->Dict.fromArray
+          let stringDict = [((enumVariant :> string), str->JSON.Encode.string)]->Dict.fromArray
           enumDictsArray->Array.push(stringDict)
         }
       | _ => enumDictsArray->Array.push(bodyValForApi->getDictFromJsonObject)
@@ -57,7 +57,7 @@ let useUpdateEnumInRecoil = () => {
     })
 
     let updatedRecoilValueDict = DictionaryUtils.mergeDicts(enumDictsArray)
-    setEnumVariantValues(._ => updatedRecoilValueDict->Js.Json.object_->Js.Json.stringify)
+    setEnumVariantValues(._ => updatedRecoilValueDict->JSON.Encode.object->JSON.stringify)
     updatedRecoilValueDict
   }
 }

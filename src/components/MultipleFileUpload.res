@@ -58,7 +58,7 @@ let make = (
       input.value
       ->getArrayFromJson([])
       ->Array.filterWithIndex((_, i) => indx != i)
-      ->Js.Json.array
+      ->JSON.Encode.array
       ->Identity.anyTypeToReactEvent,
     )
     setKey(prev => prev + 1)
@@ -79,7 +79,7 @@ let make = (
         mimeArr
       })
 
-      files->Array.push(value->Js.Json.string)->ignore
+      files->Array.push(value->JSON.Encode.string)->ignore
       if showUploadtoast {
         toast("File Uploaded Successfully", ToastSuccess)
       }
@@ -136,7 +136,7 @@ let make = (
                   if size > sizeLimit {
                     showToast(
                       ~message=`File size too large, upload below ${(sizeLimit / 1000)
-                          ->Belt.Int.toString}kb`,
+                          ->Int.toString}kb`,
                       ~toastType=ToastError,
                       (),
                     )
@@ -154,7 +154,7 @@ let make = (
                           mimeArr
                         })
 
-                        files->Array.push(value->Js.Json.string)->ignore
+                        files->Array.push(value->JSON.Encode.string)->ignore
 
                         if showUploadtoast {
                           toast("File Uploaded Successfully", ToastSuccess)
@@ -171,7 +171,7 @@ let make = (
                 toast("Invalid file", ToastError)
               }
             }
-            arr->Belt.Array.set(0, arr[0]->Option.getOr(0) + 1)->ignore
+            arr->Array.set(0, arr[0]->Option.getOr(0) + 1)->ignore
           }
         | None => ()
         }
@@ -189,13 +189,13 @@ let make = (
       ~fileName,
       ~content=decodeParsedfile
         ? try {
-            val->Array.get(indx)->Option.getOr(Js.Json.null)->getStringFromJson("")->atob
+            val->Array.get(indx)->Option.getOr(JSON.Encode.null)->getStringFromJson("")->atob
           } catch {
           | _ =>
             toast("Error : Unable to parse file", ToastError)
             ""
           }
-        : val->Array.get(indx)->Option.getOr(Js.Json.null)->getStringFromJson(""),
+        : val->Array.get(indx)->Option.getOr(JSON.Encode.null)->getStringFromJson(""),
     )
   }
 
@@ -218,7 +218,7 @@ let make = (
             setFileTypes(prev => prev->Array.concat(mimeType))
             input.onChange(
               Identity.anyTypeToReactEvent(
-                input.value->getArrayFromJson([])->Array.concat([file->Js.Json.string]),
+                input.value->getArrayFromJson([])->Array.concat([file->JSON.Encode.string]),
               ),
             )
           }
@@ -249,8 +249,7 @@ let make = (
     <div className={`${heightClass} ${displayClass} justify-between gap-x-5`}>
       {fileNames
       ->Array.mapWithIndex((fileName, indx) => {
-        <div
-          key={indx->Belt.Int.toString} className="flex items-center border p-2 gap-4 rounded-lg">
+        <div key={indx->Int.toString} className="flex items-center border p-2 gap-4 rounded-lg">
           <div
             className={pointerDisable
               ? "flex items-center gap-4 flex-1 pointer-events-none"

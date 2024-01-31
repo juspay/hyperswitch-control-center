@@ -20,10 +20,10 @@ let make = () => {
     | Some(dict) =>
       let filters = Dict.make()
 
-      filters->Dict.set("offset", offset->Belt.Int.toFloat->Js.Json.number)
+      filters->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
       if !(searchText->isEmptyString) {
-        filters->Dict.set("payment_id", searchText->String.trim->Js.Json.string)
-        filters->Dict.set("refund_id", searchText->String.trim->Js.Json.string)
+        filters->Dict.set("payment_id", searchText->String.trim->JSON.Encode.string)
+        filters->Dict.set("refund_id", searchText->String.trim->JSON.Encode.string)
       }
 
       dict
@@ -53,23 +53,26 @@ let make = () => {
   <ErrorBoundary>
     <div className="min-h-[50vh]">
       <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
-      <div className="flex w-full justify-end pb-3 gap-3">
+      <div className="flex justify-between gap-3">
+        <div className="flex-1">
+          <RemoteTableFilters
+            placeholder="Search payment id or refund id"
+            setSearchVal=setSearchText
+            searchVal=searchText
+            filterUrl={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds/filter`}
+            setFilters
+            endTimeFilterKey
+            startTimeFilterKey
+            initialFilters
+            initialFixedFilter
+            setOffset
+          />
+        </div>
         <UIUtils.RenderIf condition={generateReport}>
           <GenerateReport entityName={REFUND_REPORT} />
         </UIUtils.RenderIf>
+        <PortalCapture key={`RefundsCustomizeColumn`} name={`RefundsCustomizeColumn`} />
       </div>
-      <RemoteTableFilters
-        placeholder="Search payment id or refund id"
-        setSearchVal=setSearchText
-        searchVal=searchText
-        filterUrl={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/refunds/filter`}
-        setFilters
-        endTimeFilterKey
-        startTimeFilterKey
-        initialFilters
-        initialFixedFilter
-        setOffset
-      />
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns
           hideTitle=true

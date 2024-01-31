@@ -3,10 +3,10 @@ open Promise
 open LogicUtils
 
 type chartComponent = {
-  topChartData: option<dataState<Js.Json.t>>,
-  bottomChartData: option<dataState<Js.Json.t>>,
-  topChartLegendData: option<dataState<Js.Json.t>>,
-  bottomChartLegendData: option<dataState<Js.Json.t>>,
+  topChartData: option<dataState<JSON.t>>,
+  bottomChartData: option<dataState<JSON.t>>,
+  topChartLegendData: option<dataState<JSON.t>>,
+  bottomChartLegendData: option<dataState<JSON.t>>,
   setTopChartVisible: (bool => bool) => unit,
   setBottomChartVisible: (bool => bool) => unit,
   setGranularity: (option<string> => option<string>) => unit,
@@ -47,7 +47,7 @@ let getGranularityMapper = (granularity: string) => {
     (1, "hour")
   } else {
     (
-      granularityArr->Array.get(0)->Option.getOr("1")->Belt.Int.fromString->Option.getOr(1),
+      granularityArr->Array.get(0)->Option.getOr("1")->Int.fromString->Option.getOr(1),
       granularityArr->Array.get(1)->Option.getOr("week"),
     )
   }
@@ -139,10 +139,10 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
         if allFilterKeys->Array.includes(key) {
-          switch value->Js.Json.classify {
-          | JSONString(str) => `${key}=${str}`->Some
-          | JSONNumber(num) => `${key}=${num->String.make}`->Some
-          | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
+          switch value->JSON.Classify.classify {
+          | String(str) => `${key}=${str}`->Some
+          | Number(num) => `${key}=${num->String.make}`->Some
+          | Array(arr) => `${key}=[${arr->String.make}]`->Some
           | _ => None
           }
         } else {
@@ -191,7 +191,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
         chartEntity.allFilterDimension->Array.includes(key) ? Some((key, value)) : None
       })
       ->Dict.fromArray
-      ->Js.Json.object_
+      ->JSON.Encode.object
       ->Some
     (startTimeFromUrl, endTimeFromUrl, filterValueFromUrl)
   }, [topFiltersToSearchParam])
@@ -305,8 +305,8 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
           setTopChartData(_ => Loading)
           let cardinality = cardinalityMapperToNumber(Some(cardinalityFromUrl))
           let timeObj = Dict.fromArray([
-            ("start", startTimeFromUrl->Js.Json.string),
-            ("end", endTimeFromUrl->Js.Json.string),
+            ("start", startTimeFromUrl->JSON.Encode.string),
+            ("end", endTimeFromUrl->JSON.Encode.string),
           ])
           let (metric, secondaryMetrics) = switch value.metrics->Array.get(0) {
           | Some(metrics) => (metrics.metric_name_db, metrics.secondryMetrics)
@@ -338,7 +338,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 ~timeCol,
                 ~domain=value.domain->Option.getOr(""),
                 (),
-              )->Js.Json.stringify,
+              )->JSON.stringify,
               ~authToken=parentToken,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
               (),
@@ -358,15 +358,15 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                       },
                     )
                     ->Dict.fromArray
-                    ->Js.Json.object_
+                    ->JSON.Encode.object
                   },
                 )
-                resolve(jsonTransFormer(metric, jsonObj)->Js.Json.array)
+                resolve(jsonTransFormer(metric, jsonObj)->JSON.Encode.array)
               },
             )
             ->catch(
               _err => {
-                resolve(Js.Json.null)
+                resolve(JSON.Encode.null)
               },
             )
           })
@@ -377,8 +377,8 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 _ => Loaded(
                   dataMerge(
                     ~dataArr=metricsArr->Array.map(item => item->getArrayFromJson([])),
-                    ~dictKey=Belt.Array.concat(activeTab->Option.getOr([]), ["time"]),
-                  )->Js.Json.array,
+                    ~dictKey=Array.concat(activeTab->Option.getOr([]), ["time"]),
+                  )->JSON.Encode.array,
                 ),
               ),
             )
@@ -398,14 +398,14 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               ~sortingParams?,
               ~domain=value.domain->Option.getOr(""),
               (),
-            )->Js.Json.stringify,
+            )->JSON.stringify,
             ~authToken=parentToken,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
             (),
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
           ->then(text => {
-            let jsonObj = convertNewLineSaperatedDataToArrayOfJson(text)->Js.Json.array
+            let jsonObj = convertNewLineSaperatedDataToArrayOfJson(text)->JSON.Encode.array
             resolve(setTopChartDataLegendData(_ => Loaded(jsonObj)))
           })
           ->catch(_err => {
@@ -436,8 +436,8 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
 
           let cardinality = cardinalityMapperToNumber(Some(cardinalityFromUrl))
           let timeObj = Dict.fromArray([
-            ("start", startTimeFromUrl->Js.Json.string),
-            ("end", endTimeFromUrl->Js.Json.string),
+            ("start", startTimeFromUrl->JSON.Encode.string),
+            ("end", endTimeFromUrl->JSON.Encode.string),
           ])
           let (metric, secondaryMetrics) = switch value.metrics->Array.get(0) {
           | Some(metrics) => (metrics.metric_name_db, metrics.secondryMetrics)
@@ -467,7 +467,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 ~timeCol=value.timeCol,
                 ~domain=value.domain->Option.getOr(""),
                 (),
-              )->Js.Json.stringify,
+              )->JSON.stringify,
               ~authToken=parentToken,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
               (),
@@ -487,15 +487,15 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                       },
                     )
                     ->Dict.fromArray
-                    ->Js.Json.object_
+                    ->JSON.Encode.object
                   },
                 )
-                resolve(jsonTransFormer(metric, jsonObj)->Js.Json.array)
+                resolve(jsonTransFormer(metric, jsonObj)->JSON.Encode.array)
               },
             )
             ->catch(
               _err => {
-                resolve(Js.Json.null)
+                resolve(JSON.Encode.null)
               },
             )
           })
@@ -504,8 +504,8 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
             let data =
               dataMerge(
                 ~dataArr=metricsArr->Array.map(item => item->getArrayFromJson([])),
-                ~dictKey=Belt.Array.concat(activeTab->Option.getOr([]), ["time"]),
-              )->Js.Json.array
+                ~dictKey=Array.concat(activeTab->Option.getOr([]), ["time"]),
+              )->JSON.Encode.array
 
             resolve(setBottomChartData(_ => Loaded(data)))
           })
@@ -524,14 +524,14 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               ~sortingParams?,
               ~domain=value.domain->Option.getOr(""),
               (),
-            )->Js.Json.stringify,
+            )->JSON.stringify,
             ~authToken=parentToken,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
             (),
           )
           ->addLogsAroundFetch(~logTitle=`Chart legend Data`)
           ->then(text => {
-            let jsonObj = convertNewLineSaperatedDataToArrayOfJson(text)->Js.Json.array
+            let jsonObj = convertNewLineSaperatedDataToArrayOfJson(text)->JSON.Encode.array
             resolve(setBottomChartDataLegendData(_ => Loaded(jsonObj)))
           })
           ->catch(_err => {
@@ -644,10 +644,10 @@ module SDKAnalyticsChartContext = {
         ->Belt.Array.keepMap(entry => {
           let (key, value) = entry
           if allFilterKeys->Array.includes(key) {
-            switch value->Js.Json.classify {
-            | JSONString(str) => `${key}=${str}`->Some
-            | JSONNumber(num) => `${key}=${num->String.make}`->Some
-            | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
+            switch value->JSON.Classify.classify {
+            | String(str) => `${key}=${str}`->Some
+            | Number(num) => `${key}=${num->String.make}`->Some
+            | Array(arr) => `${key}=[${arr->String.make}]`->Some
             | _ => None
             }
           } else {
@@ -696,7 +696,7 @@ module SDKAnalyticsChartContext = {
           chartEntity.allFilterDimension->Array.includes(key) ? Some((key, value)) : None
         })
         ->Dict.fromArray
-        ->Js.Json.object_
+        ->JSON.Encode.object
         ->Some
       (startTimeFromUrl, endTimeFromUrl, filterValueFromUrl)
     }, [topFiltersToSearchParam])
@@ -704,7 +704,7 @@ module SDKAnalyticsChartContext = {
       fromTime: startTimeFromUrl,
       toTime: endTimeFromUrl,
     }
-    let differentTimeValues = Belt.Array.concat(
+    let differentTimeValues = Array.concat(
       [currentTimeRanges],
       differentTimeValues->Option.getOr([]),
     )
@@ -791,8 +791,8 @@ module SDKAnalyticsChartContext = {
             switch differentTimeValues->Array.get(0) {
             | Some(timeObjOrig) => {
                 let timeObj = Dict.fromArray([
-                  ("start", timeObjOrig.fromTime->Js.Json.string),
-                  ("end", timeObjOrig.toTime->Js.Json.string),
+                  ("start", timeObjOrig.fromTime->JSON.Encode.string),
+                  ("end", timeObjOrig.toTime->JSON.Encode.string),
                 ])
 
                 fetchApi(
@@ -808,7 +808,7 @@ module SDKAnalyticsChartContext = {
                     ~timeCol,
                     ~domain=value.domain->Option.getOr(""),
                     (),
-                  )->Js.Json.stringify,
+                  )->JSON.stringify,
                   ~authToken=parentToken,
                   ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
                   (),
@@ -824,7 +824,7 @@ module SDKAnalyticsChartContext = {
                         dictOrigItem => {
                           let (key, value) = dictOrigItem
                           segmentValue->Option.getOr([])->Array.includes(key)
-                            ? Some(value->Js.Json.decodeString->Option.getOr(""))
+                            ? Some(value->JSON.Decode.string->Option.getOr(""))
                             : None
                         },
                       )
@@ -849,7 +849,7 @@ module SDKAnalyticsChartContext = {
                           ~jsonFormattedFilter=item->filterMapper,
                           ~domain=value.domain->Option.getOr(""),
                           (),
-                        )->Js.Json.stringify,
+                        )->JSON.stringify,
                         ~authToken=parentToken,
                         ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
                         (),
@@ -872,7 +872,7 @@ module SDKAnalyticsChartContext = {
                                       origDictArrItem => {
                                         let (key, value) = origDictArrItem
                                         segmentValue->Option.getOr([])->Array.includes(key)
-                                          ? Some(value->Js.Json.decodeString->Option.getOr(""))
+                                          ? Some(value->JSON.Decode.string->Option.getOr(""))
                                           : None
                                       },
                                     )
@@ -890,15 +890,15 @@ module SDKAnalyticsChartContext = {
                                           },
                                         )
                                         ->Dict.fromArray
-                                        ->Js.Json.object_,
+                                        ->JSON.Encode.object,
                                       )
                                     : None
                                 },
                               ),
-                            )->Js.Json.array,
+                            )->JSON.Encode.array,
                           )),
                       )
-                      ->catch(_err => resolve((item, "", []->Js.Json.array)))
+                      ->catch(_err => resolve((item, "", []->JSON.Encode.array)))
                     },
                   )
                   ->Promise.all
@@ -962,8 +962,8 @@ module SDKAnalyticsChartContext = {
     //         differentTimeValues
     //         ->Array.map(timeObjOrig => {
     //           let timeObj = Dict.fromArray([
-    //             ("start", timeObjOrig.fromTime->Js.Json.string),
-    //             ("end", timeObjOrig.toTime->Js.Json.string),
+    //             ("start", timeObjOrig.fromTime->JSON.Encode.string),
+    //             ("end", timeObjOrig.toTime->JSON.Encode.string),
     //           ])
     //           selectedTrends->Array.map(
     //             item => {
@@ -980,7 +980,7 @@ module SDKAnalyticsChartContext = {
     //                   ~jsonFormattedFilter=item->filterMapper,
     //                   ~domain=value.domain->Option.getOr(""),
     //                   (),
-    //                 )->Js.Json.stringify,
+    //                 )->JSON.stringify,
     //                 ~authToken=parentToken,
     //                 ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
     //                 (),
@@ -991,14 +991,14 @@ module SDKAnalyticsChartContext = {
     //                   resolve((
     //                     item,
     //                     `${timeObjOrig.fromTime} to ${timeObjOrig.toTime}`,
-    //                     convertNewLineSaperatedDataToArrayOfJson(text)->Js.Json.array,
+    //                     convertNewLineSaperatedDataToArrayOfJson(text)->JSON.Encode.array,
     //                   )),
     //               )
-    //               ->catch(_err => resolve((item, "", []->Js.Json.array)))
+    //               ->catch(_err => resolve((item, "", []->JSON.Encode.array)))
     //             },
     //           )
     //         })
-    //         ->Belt.Array.concatMany
+    //         ->Array.concatMany
     //         ->Promise.all
     //         ->Promise.thenResolve(dataArr => {
     //           setBottomChartData(

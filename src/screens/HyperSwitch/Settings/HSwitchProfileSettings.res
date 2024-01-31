@@ -18,11 +18,11 @@ module MerchantDetailsSection = {
           [
             (
               "merchant_id",
-              merchantInfoDict->LogicUtils.getString("merchant_id", "")->Js.Json.string,
+              merchantInfoDict->LogicUtils.getString("merchant_id", "")->JSON.Encode.string,
             ),
             (
               "merchant_name",
-              merchantInfoDict->LogicUtils.getString("merchant_name", "")->Js.Json.string,
+              merchantInfoDict->LogicUtils.getString("merchant_name", "")->JSON.Encode.string,
             ),
           ]->Dict.fromArray
         setMerchantInfo(_ => requiredInfo)

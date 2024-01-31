@@ -10,7 +10,7 @@ type event
 @new
 external event: string => event = "Event"
 @send external dispatchEvent: ('a, event) => unit = "dispatchEvent"
-@send external postMessage: (window, Js.Json.t, string) => unit = "postMessage"
+@send external postMessage: (window, JSON.t, string) => unit = "postMessage"
 @get external keyCode: 'a => int = "keyCode"
 @send external querySelectorAll: (document, string) => array<Dom.element> = "querySelectorAll"
 @send external setAttribute: (Dom.element, string, string) => unit = "setAttribute"
