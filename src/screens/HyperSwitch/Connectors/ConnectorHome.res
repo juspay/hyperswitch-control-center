@@ -94,7 +94,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let profileID =
     initialValues->LogicUtils.getDictFromJsonObject->LogicUtils.getOptionString("profile_id")
 
-  let getPayPalStatus = React.useCallback3(async () => {
+  let getPayPalStatus = React.useCallback4(async () => {
     open PayPalFlowUtils
     open LogicUtils
     try {
@@ -137,7 +137,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       }
       setScreenState(_ => PageLoaderWrapper.Custom)
     }
-  }, (connector, profileID, connectorID))
+  }, (connector, profileID, profileIdFromUrl, connectorID))
 
   let commonPageState = () => {
     if isUpdateFlow {
