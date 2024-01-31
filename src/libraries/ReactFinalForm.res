@@ -34,13 +34,13 @@ type fieldRenderPropsMeta = {
   data: bool,
   dirty: bool,
   dirtySinceLastSubmit: bool,
-  error: Js.Nullable.t<string>,
+  error: Nullable.t<string>,
   initial: bool,
   invalid: bool,
   modified: bool,
   modifiedSinceLastSubmit: bool,
   pristine: bool,
-  submitError: Js.Nullable.t<string>,
+  submitError: Nullable.t<string>,
   submitFailed: bool,
   submitSucceeded: bool,
   submitting: bool,
@@ -57,13 +57,13 @@ let makeCustomError = error => {
     data: true,
     dirty: true,
     dirtySinceLastSubmit: true,
-    error: Js.Nullable.fromOption(error),
+    error: Nullable.fromOption(error),
     initial: true,
     invalid: true,
     modified: true,
     modifiedSinceLastSubmit: true,
     pristine: true,
-    submitError: Js.Nullable.null,
+    submitError: Nullable.null,
     submitFailed: true,
     submitSucceeded: true,
     submitting: true,
@@ -90,8 +90,8 @@ type submitErrorResponse = {
 
 type formState = {
   dirty: bool,
-  submitError: Js.Nullable.t<string>,
-  submitErrors: Js.Nullable.t<JSON.t>,
+  submitError: Nullable.t<string>,
+  submitErrors: Nullable.t<JSON.t>,
   hasValidationErrors: bool,
   hasSubmitErrors: bool,
   submitting: bool,
@@ -121,11 +121,11 @@ type formApi = {
   mutators: bool,
   pauseValidation: bool,
   registerField: bool,
-  reset: Js.Nullable.t<JSON.t> => unit,
+  reset: Nullable.t<JSON.t> => unit,
   resetFieldState: string => unit,
   restart: bool,
   resumeValidation: bool,
-  submit: unit => Promise.t<Js.Nullable.t<JSON.t>>,
+  submit: unit => Promise.t<Nullable.t<JSON.t>>,
   subscribe: (formState => unit, JSON.t) => unsubscribeFn,
 }
 
@@ -134,7 +134,7 @@ type formRenderProps = {
   handleSubmit: ReactEvent.Form.t => unit,
   submitError: string,
   values: JSON.t,
-  // handleSubmit: ReactEvent.Form.t => Promise.t<Js.Nullable.t<JSON.t>>,
+  // handleSubmit: ReactEvent.Form.t => Promise.t<Nullable.t<JSON.t>>,
 }
 
 @module("final-form")
@@ -156,7 +156,7 @@ module Form = {
     ~initialValuesEqual: bool=?,
     ~keepDirtyOnReinitialize: bool=?,
     ~mutators: bool=?,
-    ~onSubmit: (formValues, formApi) => Promise.t<Js.Nullable.t<JSON.t>>,
+    ~onSubmit: (formValues, formApi) => Promise.t<Nullable.t<JSON.t>>,
     ~render: formRenderProps => React.element=?,
     ~subscription: Dict.t<bool>,
     ~validate: JSON.t => JSON.t=?,
@@ -184,7 +184,7 @@ module Field = {
     ~render: fieldRenderProps => React.element=?,
     ~subscription: bool=?,
     @as("type") ~type_: bool=?,
-    ~validate: (option<string>, JSON.t) => Js.Promise.t<Js.Nullable.t<string>>=?, // (field_vale, form_object)
+    ~validate: (option<string>, JSON.t) => Js.Promise.t<Nullable.t<string>>=?, // (field_vale, form_object)
     ~validateFields: bool=?,
     ~value: bool=?,
     ~placeholder: string=?,
@@ -214,7 +214,7 @@ module FormSpy = {
 }
 
 @module("react-final-form")
-external useFormState: Js.Nullable.t<JSON.t> => formState = "useFormState"
+external useFormState: Nullable.t<JSON.t> => formState = "useFormState"
 
 @module("react-final-form")
 external useForm: unit => formApi = "useForm"

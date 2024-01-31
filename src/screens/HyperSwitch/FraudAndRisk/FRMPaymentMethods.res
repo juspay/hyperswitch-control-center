@@ -348,7 +348,7 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
     setInitialValues(_ => valuesDict->JSON.Encode.object)
     setCurrentStep(prev => prev->getNextStep)
 
-    Js.Nullable.null->resolve
+    Nullable.null->resolve
   }
 
   let validate = _values => {

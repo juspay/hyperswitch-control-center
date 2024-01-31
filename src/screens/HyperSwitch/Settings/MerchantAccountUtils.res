@@ -508,7 +508,7 @@ let useFetchBusinessProfiles = () => {
       let res = await fetchDetails(url)
       let stringifiedResponse = res->JSON.stringify
       setBusinessProfiles(._ => stringifiedResponse)
-      Js.Nullable.return(stringifiedResponse->getValueFromBusinessProfile)
+      Nullable.make(stringifiedResponse->getValueFromBusinessProfile)
     } catch {
     | Js.Exn.Error(e) => {
         let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")

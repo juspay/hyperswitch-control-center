@@ -100,7 +100,7 @@ let filterByData = (txnArr, value) => {
   let searchText = value->getStringFromJson("")
 
   txnArr
-  ->Belt.Array.keepMap(Js.Nullable.toOption)
+  ->Belt.Array.keepMap(Nullable.toOption)
   ->Belt.Array.keepMap(data => {
     let valueArr =
       data
@@ -113,7 +113,7 @@ let filterByData = (txnArr, value) => {
       })
       ->Array.reduce(false, (acc, item) => item || acc)
 
-    valueArr ? data->Js.Nullable.return->Some : None
+    valueArr ? data->Nullable.make->Some : None
   })
 }
 
@@ -201,7 +201,7 @@ let setData = (
         !previewOnly || i <= 2
       })
 
-    let list = orderData->Array.map(Js.Nullable.return)
+    let list = orderData->Array.map(Nullable.make)
     setTotalCount(_ => total)
     setOrdersData(_ => list)
     setScreenState(_ => PageLoaderWrapper.Success)
