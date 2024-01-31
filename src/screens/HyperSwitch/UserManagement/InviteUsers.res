@@ -241,6 +241,7 @@ let make = () => {
         validate={values => values->validateForm(~fieldsToValidate=["emailList"])}
         onSubmit>
         <InviteEmailForm setRoleTypeValue />
+        <FormValuesSpy />
       </Form>
       <PageLoaderWrapper screenState={screenState}>
         <div className="flex flex-col justify-between gap-12 show-scrollbar overflow-scroll">

@@ -64,6 +64,7 @@ let make = (
       ev->keyCode === 9
     }
   })
+
   let handleKeyDown = e => {
     open ReactEvent.Keyboard
     let isEmpty = text->String.length === 0
@@ -71,7 +72,7 @@ let make = (
     if isEmpty && (e->key === "Backspace" || e->keyCode === 8) && currentTags->Array.length > 0 {
       setText(_ => currentTags[currentTags->Array.length - 1]->Option.getOr(""))
       setTags(currentTags->Array.slice(~start=0, ~end=-1))
-    } else if text->String.length !== 0 {
+    } else if !isEmpty {
       if e->key === "Enter" || e->keyCode === 13 || e->key === "Tab" || e->keyCode === 9 {
         if seperateByComma {
           let arr = text->String.split(",")
@@ -140,11 +141,9 @@ let make = (
   <div className>
     {currentTags
     ->Array.map(tag => {
-      if tag != "" && tag !== "<script>" && tag !== "</script>" {
+      <UIUtils.RenderIf condition={tag != "" && tag !== "<script>" && tag !== "</script>"}>
         <Tag key=tag text=tag remove=onTagRemove disabled ?customButtonStyle />
-      } else {
-        React.null
-      }
+      </UIUtils.RenderIf>
     })
     ->React.array}
     <TextInput

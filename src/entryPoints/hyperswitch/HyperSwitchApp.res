@@ -302,11 +302,15 @@ let make = () => {
                           />
                         </AccessControl>
                       | list{"users", "invite-users"} =>
-                        <AccessControl permission=userPermissionJson.usersWrite>
+                        <AccessControl
+                          isEnabled=featureFlagDetails.userManagement
+                          permission=userPermissionJson.usersWrite>
                           <InviteUsers />
                         </AccessControl>
                       | list{"users", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.usersRead>
+                        <AccessControl
+                          isEnabled=featureFlagDetails.userManagement
+                          permission=userPermissionJson.usersRead>
                           <EntityScaffold
                             entityName="UserManagement"
                             remainingPath

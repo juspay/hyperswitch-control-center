@@ -11,7 +11,7 @@
   "frm": false,
   "payout": false,
   "recon": false,
-  "user_management": false,
+  "user_management": true,
   "test_processors": true,
   "feedback": false,
   "verify_connector": false,
