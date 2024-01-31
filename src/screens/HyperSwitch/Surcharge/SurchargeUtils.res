@@ -28,7 +28,7 @@ let buildInitialSurchargeValue: threeDsRoutingType = {
     defaultSelection: {
       surcharge_details: Js.Nullable.null,
     },
-    metadata: Js.Json.null,
+    metadata: JSON.Encode.null,
   },
 }
 
@@ -44,7 +44,7 @@ let buildSurchargePayloadBody = values => {
     "algorithm": {
       "defaultSelection": algorithmDict->getJsonObjectFromDict("defaultSelection"),
       "rules": modifiedRules,
-      "metadata": Dict.make()->Js.Json.object_,
+      "metadata": Dict.make()->JSON.Encode.object,
     },
     "merchant_surcharge_configs": {
       "show_surcharge_breakup_screen": true,
@@ -59,7 +59,7 @@ let getTypedSurchargeConnectorSelection = ruleDict => {
   AdvancedRoutingUtils.getDefaultSelection(connectorsDict)
 }
 
-let ruleInfoTypeMapper: Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithmData = json => {
+let ruleInfoTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.algorithmData = json => {
   open LogicUtils
   let rulesArray = json->getArrayFromDict("rules", [])
 

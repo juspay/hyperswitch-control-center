@@ -29,9 +29,9 @@ let useConstructQueryOnBasisOfOpt = () => {
             let anchor = arr[2]->Option.getOr("")
             let val = arr[1]->Option.getOr("")
             switch anchor {
-            | "days" => Day(val->Belt.Float.fromString->Option.getOr(0.0))
-            | "hours" => Hour(val->Belt.Float.fromString->Option.getOr(0.0))
-            | "mins" => Hour(val->Belt.Float.fromString->Option.getOr(0.0) /. 60.0)
+            | "days" => Day(val->Float.fromString->Option.getOr(0.0))
+            | "hours" => Hour(val->Float.fromString->Option.getOr(0.0))
+            | "mins" => Hour(val->Float.fromString->Option.getOr(0.0) /. 60.0)
             | _ => Today
             }
           }

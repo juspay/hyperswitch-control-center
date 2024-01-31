@@ -29,7 +29,7 @@ module CustomInputBox = {
         placeholder-jp-gray-900 placeholder-opacity-50 dark:placeholder-jp-gray-700 dark:placeholder-opacity-50
          ${borderClass}
         focus:text-opacity-100 focus:outline-none dark:text-jp-gray-text_darktheme dark:text-opacity-75 dark:focus:text-opacity-100  ${fontClassName}`
-    let value = switch input.value->Js.Json.decodeString {
+    let value = switch input.value->JSON.Decode.string {
     | Some(str) => str
     | _ => ""
     }
@@ -117,7 +117,7 @@ let make = (
       setFromTime(_ => value)
     },
     onFocus: _ => (),
-    value: fromTime->Js.Json.string,
+    value: fromTime->JSON.Encode.string,
     checked: true,
   }
 
@@ -129,7 +129,7 @@ let make = (
       settoTime(_ => value)
     },
     onFocus: _ => (),
-    value: toTime->Js.Json.string,
+    value: toTime->JSON.Encode.string,
     checked: true,
   }
 

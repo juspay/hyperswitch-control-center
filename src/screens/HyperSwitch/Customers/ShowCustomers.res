@@ -21,7 +21,7 @@ module CustomerInfo = {
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
               <UIUtils.RenderIf condition={!(excludeColKeys->Array.includes(colType))}>
-                <div className={`flex ${widthClass} items-center`} key={Belt.Int.toString(i)}>
+                <div className={`flex ${widthClass} items-center`} key={Int.toString(i)}>
                   <OrderUtils.DisplayKeyValueParams
                     heading={getHeading(colType)}
                     value={getCell(data, colType)}
@@ -59,7 +59,7 @@ let make = (~id) => {
   open APIUtils
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (customersData, setCustomersData) = React.useState(_ => Js.Json.null)
+  let (customersData, setCustomersData) = React.useState(_ => JSON.Encode.null)
 
   let fetchCustomersData = async () => {
     try {

@@ -23,18 +23,18 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
   let bodyType = connectorAccountDict->Dict.keysToArray->Array.get(0)->Option.getOr("")
 
   let connectorAccountDetails =
-    [("auth_type", bodyType->Js.Json.string), ("api_key", "test"->Js.Json.string)]
+    [("auth_type", bodyType->JSON.Encode.string), ("api_key", "test"->JSON.Encode.string)]
     ->Dict.fromArray
-    ->Js.Json.object_
+    ->JSON.Encode.object
 
   let initialValueForPayload = generateInitialValuesDict(
     ~values=[
-      ("profile_id", profileId->Js.Json.string),
+      ("profile_id", profileId->JSON.Encode.string),
       ("connector_account_details", connectorAccountDetails),
-      ("connector_label", `${connectorName}_default`->Js.Json.string),
+      ("connector_label", `${connectorName}_default`->JSON.Encode.string),
     ]
     ->Dict.fromArray
-    ->Js.Json.object_,
+    ->JSON.Encode.object,
     ~connector=connectorName,
     ~bodyType,
     (),
@@ -44,26 +44,26 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
     json
     ->getDictFromJsonObject
     ->getArrayFromDict("credit", [])
-    ->Js.Json.array
+    ->JSON.Encode.array
     ->getPaymentMethodMapper
   let debitCardNetworkArray =
     json
     ->getDictFromJsonObject
     ->getArrayFromDict("debit", [])
-    ->Js.Json.array
+    ->JSON.Encode.array
     ->getPaymentMethodMapper
 
   let payLaterArray =
     json
     ->getDictFromJsonObject
     ->getArrayFromDict("pay_later", [])
-    ->Js.Json.array
+    ->JSON.Encode.array
     ->getPaymentMethodMapper
   let walletArray =
     json
     ->getDictFromJsonObject
     ->getArrayFromDict("wallet", [])
-    ->Js.Json.array
+    ->JSON.Encode.array
     ->getPaymentMethodMapper
 
   let paymentMethodsEnabledArray: array<ConnectorTypes.paymentMethodEnabled> = [
@@ -96,7 +96,7 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
   let requestPayload: ConnectorTypes.wasmRequest = {
     payment_methods_enabled: paymentMethodsEnabledArray,
     connector: connectorName,
-    metadata: Dict.make()->Js.Json.object_,
+    metadata: Dict.make()->JSON.Encode.object,
   }
 
   let requestPayloadDict = requestPayload->constructConnectorRequestBody(initialValueForPayload)
@@ -111,14 +111,14 @@ type routingData = {
 let constructRoutingPayload = (routingData: routingData) => {
   let innerRoutingDict =
     [
-      ("connector", routingData.connector_name->Js.Json.string),
-      ("merchant_connector_id", routingData.merchant_connector_id->Js.Json.string),
+      ("connector", routingData.connector_name->JSON.Encode.string),
+      ("merchant_connector_id", routingData.merchant_connector_id->JSON.Encode.string),
     ]
     ->Dict.fromArray
-    ->Js.Json.object_
-  [("split", 50.0->Js.Json.number), ("connector", innerRoutingDict)]
+    ->JSON.Encode.object
+  [("split", 50.0->JSON.Encode.float), ("connector", innerRoutingDict)]
   ->Dict.fromArray
-  ->Js.Json.object_
+  ->JSON.Encode.object
 }
 
 let routingPayload = (profileId, routingData1: routingData, routingData2: routingData) => {
@@ -129,5 +129,5 @@ let routingPayload = (profileId, routingData1: routingData, routingData2: routin
     "Initial volume based routing setup",
     "Volume based routing pre-configured by Hyperswitch",
     profileId,
-  )->Js.Json.object_
+  )->JSON.Encode.object
 }

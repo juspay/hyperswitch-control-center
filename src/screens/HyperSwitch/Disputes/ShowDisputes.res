@@ -124,7 +124,7 @@ module Details = {
           ~id=Some(data.dispute_id),
           (),
         )
-        let response = await updateDetails(url, Dict.make()->Js.Json.object_, Post, ())
+        let response = await updateDetails(url, Dict.make()->JSON.Encode.object, Post, ())
         setDisputeData(_ => response)
         setDisputeStatus(_ => Accepted)
       } catch {
@@ -190,8 +190,7 @@ module Details = {
           className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
           {detailsFields
           ->Array.mapWithIndex((colType, i) => {
-            <RenderIf
-              condition={!(excludeColKeys->Array.includes(colType))} key={Belt.Int.toString(i)}>
+            <RenderIf condition={!(excludeColKeys->Array.includes(colType))} key={Int.toString(i)}>
               <div className={`flex ${widthClass} items-center`}>
                 <OrderUtils.DisplayKeyValueParams
                   heading={getHeading(colType)}
@@ -232,7 +231,7 @@ let make = (~id) => {
   open APIUtils
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (disputeData, setDisputeData) = React.useState(_ => Js.Json.null)
+  let (disputeData, setDisputeData) = React.useState(_ => JSON.Encode.null)
 
   let fetchDisputesData = async () => {
     try {

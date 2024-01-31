@@ -13,7 +13,7 @@ module TableCell = {
   @react.component
   let make = (~onClick, ~elemIndex, ~isLast, ~fields, ~onChange, ~keyValue) => {
     <tr
-      key={Belt.Int.toString(elemIndex)}
+      key={Int.toString(elemIndex)}
       className=" h-full rounded-md bg-white dark:bg-jp-gray-lightgray_background transition duration-300 ease-in-out text-sm text-jp-gray-800 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
       {fields
       ->Array.mapWithIndex((itm, i) => {
@@ -25,10 +25,10 @@ module TableCell = {
             onChange(elemIndex, i, event["value"])
           },
           onFocus: _ev => (),
-          value: (keyValue[elemIndex]->Option.getOr([]))[i]->Option.getOr("")->Js.Json.string,
+          value: (keyValue[elemIndex]->Option.getOr([]))[i]->Option.getOr("")->JSON.Encode.string,
           checked: true,
         }
-        <FieldInputRenderer item=itm input key={Belt.Int.toString(i)} />
+        <FieldInputRenderer item=itm input key={Int.toString(i)} />
       })
       ->React.array}
       <td className="mt-2 ml-5">
@@ -83,10 +83,10 @@ module TableStructure = {
 let make = (~input: ReactFinalForm.fieldRenderPropsInput, ~headings, ~fields) => {
   let tableInput = input->ffInputToTableInput
   let currentValue = React.useMemo1(() => {
-    switch tableInput.value->Js.Json.decodeArray {
+    switch tableInput.value->JSON.Decode.array {
     | Some(str) =>
       str->Array.map(item => {
-        switch item->Js.Json.decodeArray {
+        switch item->JSON.Decode.array {
         | Some(a) =>
           a->Array.map(
             itm => {

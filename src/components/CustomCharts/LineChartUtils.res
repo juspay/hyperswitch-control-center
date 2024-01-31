@@ -112,8 +112,8 @@ let reduceOpacity = str => {
   switch match {
   | Some(val) => {
       let opacity = val->Array.get(1)->Option.flatMap(a => a)->Option.getOr("0")
-      let newOpacity = opacity->Belt.Float.fromString->Option.getOr(0.0) /. 10.0
-      str->String.replace(opacity, newOpacity->Belt.Float.toString)
+      let newOpacity = opacity->Float.fromString->Option.getOr(0.0) /. 10.0
+      str->String.replace(opacity, newOpacity->Float.toString)
     }
   | None => "0"
   }
@@ -190,7 +190,7 @@ let legendTypeBasedOnMetric = (metric_type: dropDownMetricType) => {
 }
 let appendToDictValue = (dict, key, value) => {
   let updatedValue = switch dict->Dict.get(key) {
-  | Some(val) => Belt.Array.concat(val, [value])
+  | Some(val) => Array.concat(val, [value])
   | None => [value]
   }
   dict->Dict.set(key, updatedValue)
@@ -260,7 +260,7 @@ type timeSeriesDictWithSecondryMetrics<'a> = {
 }
 
 let timeSeriesDataMaker = (
-  ~data: array<Js.Json.t>,
+  ~data: array<JSON.t>,
   ~groupKey,
   ~xAxis,
   ~metricsConfig: metricsConfig,
@@ -282,7 +282,7 @@ let timeSeriesDataMaker = (
     let groupByName =
       dict->getString(
         groupKey,
-        Dict.get(dict, groupKey)->Option.getOr(""->Js.Json.string)->Js.Json.stringify,
+        Dict.get(dict, groupKey)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
       )
     let xAxisDataPoint = dict->getString(xAxis, "")->String.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
     let yAxisDataPoint = dict->getFloat(yAxis, 0.)
@@ -297,7 +297,7 @@ let timeSeriesDataMaker = (
         (xAxisDataPoint->DateTimeUtils.parseAsFloat, yAxisDataPoint, secondryAxisPoint),
       )
       groupedByTime->addToDictValueFloat(
-        xAxisDataPoint->DateTimeUtils.parseAsFloat->Belt.Float.toString,
+        xAxisDataPoint->DateTimeUtils.parseAsFloat->Float.toString,
         yAxisDataPoint,
       )
     }
@@ -318,7 +318,7 @@ let timeSeriesDataMaker = (
       ->Array.map(item => {
         let (key, value, secondryMetrix) = item
         let trafficValue =
-          value *. 100. /. groupedByTime->Dict.get(key->Belt.Float.toString)->Option.getOr(1.)
+          value *. 100. /. groupedByTime->Dict.get(key->Float.toString)->Option.getOr(1.)
         (key, trafficValue, secondryMetrix)
       })
       ->Js.Array2.sortInPlaceWith(chartDataSortBasedOnTime)
@@ -351,8 +351,8 @@ let timeSeriesDataMaker = (
 
 let getLegendDataForCurrentMetrix = (
   ~yAxis: string,
-  ~timeSeriesData: array<Js.Json.t>,
-  ~groupedData: array<Js.Json.t>,
+  ~timeSeriesData: array<JSON.t>,
+  ~groupedData: array<JSON.t>,
   ~activeTab: string,
   ~xAxis: string,
   ~metrixType: dropDownMetricType,
@@ -363,7 +363,7 @@ let getLegendDataForCurrentMetrix = (
     getString(
       dict,
       activeTab,
-      Dict.get(dict, activeTab)->Option.getOr(""->Js.Json.string)->Js.Json.stringify,
+      Dict.get(dict, activeTab)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
     )
   })
   timeSeriesData->Array.forEach(item => {
@@ -373,7 +373,7 @@ let getLegendDataForCurrentMetrix = (
       getString(
         dict,
         activeTab,
-        Dict.get(dict, activeTab)->Option.getOr(""->Js.Json.string)->Js.Json.stringify,
+        Dict.get(dict, activeTab)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
       ),
       time_overall_statsAtTime,
     )
@@ -414,7 +414,7 @@ let getLegendDataForCurrentMetrix = (
       let value: legendTableData = {
         groupByName: key,
         overall,
-        average: overall /. arrLen->Belt.Int.toFloat,
+        average: overall /. arrLen->Int.toFloat,
         current: currentVal,
       }
       value
@@ -447,7 +447,7 @@ let getLegendDataForCurrentMetrix = (
         Js.Math.max_float(totalOverall, 1.))
         ->Js.Float.toFixedWithPrecision(~digits=2)
         ->removeTrailingZero
-        ->Belt.Float.fromString
+        ->Float.fromString
         ->Option.getOr(0.)
       } else {
         currentOverall->Dict.get(metricsName)->Option.getOr(0.)
@@ -461,7 +461,7 @@ let getLegendDataForCurrentMetrix = (
       let value: legendTableData = {
         groupByName: metricsName,
         overall,
-        average: overall /. arrLen->Belt.Int.toFloat,
+        average: overall /. arrLen->Int.toFloat,
         current: currentVal,
       }
       value
@@ -476,14 +476,14 @@ let getLegendDataForCurrentMetrix = (
   })
 }
 
-let barChartDataMaker = (~yAxis: string, ~rawData: array<Js.Json.t>, ~activeTab: string) => {
+let barChartDataMaker = (~yAxis: string, ~rawData: array<JSON.t>, ~activeTab: string) => {
   let value = rawData->Belt.Array.keepMap(item => {
     let dict = item->getDictFromJsonObject
 
     let selectedSegmentVal = getString(
       dict,
       activeTab,
-      Dict.get(dict, activeTab)->Option.getOr(""->Js.Json.string)->Js.Json.stringify,
+      Dict.get(dict, activeTab)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
     ) // groupby/ selected segment
 
     let stats = getFloat(dict, yAxis, 0.) // overall metrics
@@ -531,9 +531,7 @@ let legendClickItem = (s: Highcharts.legendItem, e, setState) => {
     if x === legendItemAsBool(s) {
       setState(prev => {
         let value =
-          prev->Array.includes(x)
-            ? prev->Array.filter(item => item !== x)
-            : Belt.Array.concat(prev, [x])
+          prev->Array.includes(x) ? prev->Array.filter(item => item !== x) : Array.concat(prev, [x])
 
         if value->Array.length === 0 {
           Array.forEach(
@@ -598,11 +596,11 @@ let getTooltipHTML = (metrics, data, onCursorName) => {
 
 let tooltipFormatter = (
   metrics: metricsConfig,
-  xAxisMapInfo: Dict.t<Js.Array2.t<(Js_string.t, string, float, option<float>)>>,
+  xAxisMapInfo: Dict.t<array<(Js_string.t, string, float, option<float>)>>,
   groupKey: string,
 ) =>
   @this
-  (points: Js.Json.t) => {
+  (points: JSON.t) => {
     let points = points->getDictFromJsonObject
     let series = points->getJsonObjectFromDict("series")->getDictFromJsonObject
 
@@ -752,7 +750,7 @@ let getGranularityNewStr = (~startTime, ~endTime) => {
         unit
       }
     } else {
-      `${val->Belt.Int.toString} ${unit}`
+      `${val->Int.toString} ${unit}`
     }
   })
 }

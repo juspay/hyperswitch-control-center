@@ -43,8 +43,8 @@ let make = (
           let borderClass = `${borderTop} border-jp-gray-500 dark:border-jp-gray-960`
           let hCell = highlightCell ? "hover:font-bold" : ""
           let cursorI = cellIndex == 0 ? "cursor-pointer" : ""
-          let location = `${title}_tr${(rowIndex + 1)->Belt.Int.toString}_td${(cellIndex + 1)
-              ->Belt.Int.toString}`
+          let location = `${title}_tr${(rowIndex + 1)->Int.toString}_td${(cellIndex + 1)
+              ->Int.toString}`
           <AddDataAttributes
             key={cellIndex->string_of_int} attributes=[("data-table-location", location)]>
             <td
@@ -69,8 +69,7 @@ let make = (
         ->React.array}
       </tr>
       <UIUtils.RenderIf condition=isCurrentRowExpanded>
-        <AddDataAttributes
-          attributes=[("data-table-row-expanded", (rowIndex + 1)->Belt.Int.toString)]>
+        <AddDataAttributes attributes=[("data-table-row-expanded", (rowIndex + 1)->Int.toString)]>
           <tr className="dark:border-jp-gray-dark_disable_border_color">
             <td colSpan=12 className=""> {getRowDetails(rowIndex)} </td>
           </tr>

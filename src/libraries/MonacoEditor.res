@@ -19,7 +19,7 @@ type props = {
   width?: string,
   options?: setOptions,
   onChange?: string => unit,
-  onValidate?: Js.Array2.t<array<Js.Json.t>> => unit,
+  onValidate?: array<array<JSON.t>> => unit,
   onMount?: Monaco.Editor.IStandaloneCodeEditor.t => unit,
 }
 

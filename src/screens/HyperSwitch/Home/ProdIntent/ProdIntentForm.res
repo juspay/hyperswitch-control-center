@@ -21,13 +21,13 @@ let make = (~isFromMilestoneCard=false) => {
           (),
         )}?keys=ProdIntent`
       let res = await fetchDetails(url)
-      let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, Js.Json.null)
+      let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
       let valueForProdIntent =
         firstValueFromArray->getDictFromJsonObject->getDictfromDict("ProdIntent")
       let hideHeader = valueForProdIntent->getBool(IsCompleted->getStringFromVariant, false)
       setIsProdIntentCompleted(_ => hideHeader)
       if !hideHeader {
-        valueForProdIntent->Dict.set(POCemail->getStringFromVariant, email->Js.Json.string)
+        valueForProdIntent->Dict.set(POCemail->getStringFromVariant, email->JSON.Encode.string)
       }
       setInitialValues(_ => valueForProdIntent)
     } catch {

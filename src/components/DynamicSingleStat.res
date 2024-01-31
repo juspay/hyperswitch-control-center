@@ -16,7 +16,7 @@ type columns<'colType> = {
 }
 
 type singleStatBodyEntity = {
-  filter?: Js.Json.t,
+  filter?: JSON.t,
   metrics?: array<string>,
   delta?: bool,
   startDateTime: string,
@@ -39,8 +39,8 @@ type deltaRange = {currentSr: AnalyticsUtils.timeRanges}
 
 type entityType<'colType, 't, 't2> = {
   urlConfig: array<urlConfig>,
-  getObjects: Js.Json.t => 't,
-  getTimeSeriesObject: Js.Json.t => array<'t2>,
+  getObjects: JSON.t => 't,
+  getTimeSeriesObject: JSON.t => array<'t2>,
   defaultColumns: array<columns<'colType>>, // (sectionName, defaultColumns)
   getData: ('t, array<'t2>, deltaRange, 'colType, string) => singleStatData,
   totalVolumeCol: option<string>,
@@ -74,17 +74,17 @@ let singleStatBodyMake = (singleStatBodyEntity: singleStatBodyEntity) => {
       ~granularity=singleStatBodyEntity.granularity,
       ~prefix=singleStatBodyEntity.prefix,
       (),
-    )->Js.Json.object_,
+    )->JSON.Encode.object,
   ]
-  ->Js.Json.array
-  ->Js.Json.stringify
+  ->JSON.Encode.array
+  ->JSON.stringify
 }
 type singleStateData<'t, 't2> = {
-  singleStatData: option<Js.Array2.t<singleStatDataObj<'t>>>,
-  singleStatTimeData: option<Js.Array2.t<(string, Js.Array2.t<'t2>)>>,
+  singleStatData: option<array<singleStatDataObj<'t>>>,
+  singleStatTimeData: option<array<(string, array<'t2>)>>,
 }
 
-let deltaTimeRangeMapper: array<Js.Json.t> => deltaRange = (arrJson: array<Js.Json.t>) => {
+let deltaTimeRangeMapper: array<JSON.t> => deltaRange = (arrJson: array<JSON.t>) => {
   open LogicUtils
   let emptyDict = Dict.make()
   let _ = arrJson->Array.map(item => {
@@ -186,10 +186,10 @@ let make = (
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
         if allFilterKeys->Array.includes(key) {
-          switch value->Js.Json.classify {
-          | JSONString(str) => `${key}=${str}`->Some
-          | JSONNumber(num) => `${key}=${num->String.make}`->Some
-          | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
+          switch value->JSON.Classify.classify {
+          | String(str) => `${key}=${str}`->Some
+          | Number(num) => `${key}=${num->String.make}`->Some
+          | Array(arr) => `${key}=[${arr->String.make}]`->Some
           | _ => None
           }
         } else {
@@ -209,7 +209,7 @@ let make = (
       filterKeys->Array.includes(key) ? Some((key, value)) : None
     })
     ->Dict.fromArray
-    ->Js.Json.object_
+    ->JSON.Encode.object
     ->Some
   }, [topFiltersToSearchParam])
 
@@ -296,7 +296,7 @@ let make = (
         )
         ->addLogsAroundFetch(~logTitle="SingleStat Data Api")
         ->then(json => resolve((`${urlConfig.prefix->Option.getOr("")}${uri}`, json)))
-        ->catch(_err => resolve(("", Js.Json.object_(Dict.make()))))
+        ->catch(_err => resolve(("", JSON.Encode.object(Dict.make()))))
       })
       ->Promise.all
       ->Promise.thenResolve(dataArr => {
@@ -311,7 +311,7 @@ let make = (
                   ->LogicUtils.getJsonObjectFromDict("queryData")
                   ->LogicUtils.getArrayFromJson([])
                   ->Array.get(0)
-                  ->Option.getOr(Js.Json.object_(Dict.make()))
+                  ->Option.getOr(JSON.Encode.object(Dict.make()))
                   ->LogicUtils.getDictFromJsonObject
                   ->Dict.toArray
                   ->Array.find(
@@ -323,9 +323,7 @@ let make = (
                 switch totalVolumeKeyVal {
                 | Some(data) => {
                     let (_key, value) = data
-                    setTotalVolume(
-                      _ => value->Js.Json.decodeNumber->Option.getOr(0.)->Belt.Float.toInt,
-                    )
+                    setTotalVolume(_ => value->JSON.Decode.float->Option.getOr(0.)->Float.toInt)
                   }
 
                 | None => ()
@@ -402,7 +400,7 @@ let make = (
         )
         ->catch(
           _err => {
-            resolve(("", Js.Json.object_(Dict.make())))
+            resolve(("", JSON.Encode.object(Dict.make())))
           },
         )
       })
