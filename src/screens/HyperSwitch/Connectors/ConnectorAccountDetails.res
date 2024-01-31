@@ -236,7 +236,9 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
       formClass="flex flex-col ">
       <ConnectorHeaderWrapper
         connector
-        headerButton={<FormRenderer.SubmitButton loadingText="Processing..." text=buttonText />}
+        headerButton={<AddDataAttributes attributes=[("data-testid", "connector-submit-button")]>
+          <FormRenderer.SubmitButton loadingText="Processing..." text=buttonText />
+        </AddDataAttributes>}
         handleShowModal>
         <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
           <div className="flex flex-col gap-2 p-2 md:p-10">

@@ -21,3 +21,4 @@ user_data.sh
 *.pem
 .bsb.lock
 package-lock.json
+screenshots

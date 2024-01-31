@@ -233,7 +233,11 @@ let make = (
 
   if type_ == "password" || type_ == "password_without_icon" {
     <AddDataAttributes
-      attributes=[("data-id-password", placeholder), ("data-input-name", input.name)]>
+      attributes=[
+        ("data-id-password", input.name),
+        ("data-input-name", input.name),
+        ("data-testid", input.name),
+      ]>
       <div className="flex flex-row items-center relative">
         leftIconElement
         <input
@@ -267,7 +271,12 @@ let make = (
       </div>
     </AddDataAttributes>
   } else {
-    <AddDataAttributes attributes=[("data-id", placeholder), ("data-input-name", input.name)]>
+    <AddDataAttributes
+      attributes=[
+        ("data-id", placeholder),
+        ("data-input-name", input.name),
+        ("data-testid", input.name),
+      ]>
       <div className="flex flex-row relative items-center grow">
         leftIconElement
         <input
