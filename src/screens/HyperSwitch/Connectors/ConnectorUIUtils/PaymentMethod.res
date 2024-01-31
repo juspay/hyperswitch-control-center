@@ -124,15 +124,20 @@ module CardRenderer = {
               {React.string(paymentMethod->snakeToTitle)}
             </p>
             <RenderIf condition={paymentMethod->getPaymentMethodFromString !== Wallet}>
-              <div className="flex gap-2 items-center">
-                <BoolInput.BaseComponent
-                  isSelected={selectedAll}
-                  setIsSelected={_ => updateSelectAll(paymentMethod, selectedAll)}
-                  isDisabled=false
-                  boolCustomClass="rounded-lg"
-                />
-                <p className=p2RegularTextStyle> {"Select all"->React.string} </p>
-              </div>
+              <AddDataAttributes
+                attributes=[
+                  ("data-testid", paymentMethod->String.concat("_")->String.concat("select_all")),
+                ]>
+                <div className="flex gap-2 items-center">
+                  <BoolInput.BaseComponent
+                    isSelected={selectedAll}
+                    setIsSelected={_ => updateSelectAll(paymentMethod, selectedAll)}
+                    isDisabled=false
+                    boolCustomClass="rounded-lg"
+                  />
+                  <p className=p2RegularTextStyle> {"Select all"->React.string} </p>
+                </div>
+              </AddDataAttributes>
             </RenderIf>
           </div>
         </RenderIf>
@@ -150,9 +155,20 @@ module CardRenderer = {
         ->Array.mapWithIndex((value, i) => {
           <div key={i->string_of_int}>
             <div className="flex items-center gap-2 break-words">
-              <div onClick={_e => removeOrAddMethods(value)}>
-                <CheckBoxIcon isSelected={isSelected(value)} />
-              </div>
+              <AddDataAttributes
+                attributes=[
+                  (
+                    "data-testid",
+                    `${paymentMethod
+                      ->String.concat("_")
+                      ->String.concat(value.payment_method_type)
+                      ->String.toLowerCase}`,
+                  ),
+                ]>
+                <div onClick={_e => removeOrAddMethods(value)}>
+                  <CheckBoxIcon isSelected={isSelected(value)} />
+                </div>
+              </AddDataAttributes>
               <p className=p2RegularTextStyle>
                 {React.string(value.payment_method_type->snakeToTitle)}
               </p>

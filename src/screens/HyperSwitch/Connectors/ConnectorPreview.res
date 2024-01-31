@@ -32,6 +32,42 @@ module KeyAndCopyArea = {
   }
 }
 
+module DeleteConnectorMenu = {
+  @react.component
+  let make = (~pageName="connector", ~connectorInfo: ConnectorTypes.connectorPayload) => {
+    open APIUtils
+    let updateDetails = useUpdateMethod()
+    let deleteConnector = async () => {
+      try {
+        let connectorID = connectorInfo.merchant_connector_id
+        let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
+        let _ = await updateDetails(url, Js.Dict.empty()->Js.Json.object_, Delete, ())
+        RescriptReactRouter.push("/connectors")
+      } catch {
+      | _ => ()
+      }
+    }
+    let showPopUp = PopUpState.useShowPopUp()
+    let openConfirmationPopUp = _ => {
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Confirm Action ? ",
+        description: `You are about to Delete this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
+        handleConfirm: {
+          text: "Confirm",
+          onClick: _ => deleteConnector()->ignore,
+        },
+        handleCancel: {text: "Cancel"},
+      })
+    }
+    <AddDataAttributes attributes=[("data-testid", "delete-button"->String.toLowerCase)]>
+      <div>
+        <Button text="Delete" onClick={_e => openConfirmationPopUp()} />
+      </div>
+    </AddDataAttributes>
+  }
+}
+
 module MenuOption = {
   open HeadlessUI
   @react.component
@@ -142,10 +178,12 @@ module ConnectorSummaryGrid = {
     <div className="p-2 md:px-10">
       <div className="grid grid-cols-4 my-12">
         <h4 className="text-lg font-semibold"> {"Integration status"->React.string} </h4>
-        <div
-          className={`text-black font-semibold text-sm ${connectorInfo.status->ConnectorTableUtils.connectorStatusStyle}`}>
-          {connectorInfo.status->String.toUpperCase->React.string}
-        </div>
+        <AddDataAttributes attributes=[("data-testid", "connector_status"->String.toLowerCase)]>
+          <div
+            className={`text-black font-semibold text-sm ${connectorInfo.status->ConnectorTableUtils.connectorStatusStyle}`}>
+            {connectorInfo.status->String.toUpperCase->React.string}
+          </div>
+        </AddDataAttributes>
       </div>
       <div className="grid grid-cols-4 my-12">
         <div className="flex items-start">
