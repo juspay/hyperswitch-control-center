@@ -61,6 +61,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let updatedInitialVal = React.useMemo1(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
 
+    // TODO: Refactor for generic case
     if !isUpdateFlow {
       if (
         connector->getConnectorNameTypeFromString === PAYPAL &&
@@ -237,11 +238,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
         connector
         headerButton={<FormRenderer.SubmitButton loadingText="Processing..." text=buttonText />}
         handleShowModal>
-        <UIUtils.RenderIf
-          condition={featureFlagDetails.businessProfile &&
-          (connector->getConnectorNameTypeFromString !== PAYPAL ||
-            (connector->getConnectorNameTypeFromString === PAYPAL &&
-              !featureFlagDetails.paypalAutomaticFlow))}>
+        <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
           <div className="flex flex-col gap-2 p-2 md:p-10">
             <ConnectorAccountDetailsHelper.BusinessProfileRender
               isUpdateFlow selectedConnector={connector}
