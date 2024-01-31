@@ -8,7 +8,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
 
   let url = RescriptReactRouter.useUrl()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let initialValues = Dict.make()->Js.Json.object_
+  let initialValues = Dict.make()->JSON.Encode.object
   let clientCountry = HSwitchUtils.getBrowswerDetails().clientCountry
   let country = clientCountry.isoAlpha2->CountryUtils.getCountryCodeStringFromVarient
   let showToast = ToastState.useShowToast()

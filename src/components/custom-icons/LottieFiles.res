@@ -1,5 +1,5 @@
 open Promise
-type lottieFileJson = Loading(Js.Promise.t<Js.Json.t>) | Loaded(Js.Json.t)
+type lottieFileJson = Loading(Js.Promise.t<JSON.t>) | Loaded(JSON.t)
 
 let selectedTick = "selectedTick.json"
 let deselectTick = "deselectTick.json"
@@ -11,7 +11,7 @@ let exitSearchCross = "exitCross.json"
 let lottieDict: Dict.t<lottieFileJson> = Dict.make()
 
 let useLottieJson = lottieFileName => {
-  let (lottieJson, setlottieJson) = React.useState(_ => Js.Json.null)
+  let (lottieJson, setlottieJson) = React.useState(_ => JSON.Encode.null)
   let fetchApi = AuthHooks.useApiFetcher()
   let uriPrefix = LogicUtils.useUrlPrefix()
   let showToast = ToastState.useShowToast()
@@ -35,7 +35,7 @@ let useLottieJson = lottieFileName => {
           })
           ->catch(_err => {
             showToast(~message="Error!", ~toastType=ToastError, ())
-            Js.Json.null->resolve
+            JSON.Encode.null->resolve
           })
 
         lottieDict->Dict.set(lottieFileName, Loading(fetchLottie))

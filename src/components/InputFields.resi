@@ -201,7 +201,7 @@ let dateRangeField: (
   ~disablePastDates: bool=?,
   ~disableFutureDates: bool=?,
   ~showTime: bool=?,
-  ~predefinedDays: Js.Array2.t<DateRangeUtils.customDateRange>=?,
+  ~predefinedDays: array<DateRangeUtils.customDateRange>=?,
   ~disableApply: bool=?,
   ~numMonths: int=?,
   ~dateRangeLimit: int=?,

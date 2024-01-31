@@ -22,7 +22,7 @@ type modalState = Loading | Edit | Successful
 let validateEmptyValue = (key, errors) => {
   switch key {
   | ProfileName =>
-    errors->Dict.set(key->getStringFromVariant, "Please enter a profile name"->Js.Json.string)
+    errors->Dict.set(key->getStringFromVariant, "Please enter a profile name"->JSON.Encode.string)
   }
 }
 
@@ -30,7 +30,7 @@ let validateCustom = (key, errors, value) => {
   switch key {
   | ProfileName =>
     if !Js.Re.test_(%re("/^[a-zA-Z][a-zA-Z0-9]*$/"), value) {
-      errors->Dict.set(key->getStringFromVariant, "Please enter a profile name"->Js.Json.string)
+      errors->Dict.set(key->getStringFromVariant, "Please enter a profile name"->JSON.Encode.string)
     }
   }
 }
@@ -42,7 +42,7 @@ let getUserEnteredProfileDetails = valueDict => {
 }
 
 let validateForm = (
-  values: Js.Json.t,
+  values: JSON.t,
   ~fieldsToValidate: array<modalFields>,
   ~list: array<profileEntity>,
 ) => {
@@ -66,9 +66,9 @@ let validateForm = (
   ) {
     errors->Dict.set(
       "profile_name",
-      "The entry you are trying to add already exists."->Js.Json.string,
+      "The entry you are trying to add already exists."->JSON.Encode.string,
     )
   }
 
-  errors->Js.Json.object_
+  errors->JSON.Encode.object
 }

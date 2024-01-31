@@ -25,9 +25,9 @@ open LogicUtils
 let getPaymentExperience = (dict, str) => {
   dict
   ->Dict.get(str)
-  ->Option.flatMap(Js.Json.decodeArray)
+  ->Option.flatMap(JSON.Decode.array)
   ->Option.getOr([])
-  ->Belt.Array.keepMap(Js.Json.decodeObject)
+  ->Belt.Array.keepMap(JSON.Decode.object)
   ->Array.map(json => {
     {
       payment_experience_type: getString(
@@ -43,9 +43,9 @@ let getPaymentExperience = (dict, str) => {
 let getBankNames = (dict, str) => {
   dict
   ->Dict.get(str)
-  ->Option.flatMap(Js.Json.decodeArray)
+  ->Option.flatMap(JSON.Decode.array)
   ->Option.getOr([])
-  ->Belt.Array.keepMap(Js.Json.decodeObject)
+  ->Belt.Array.keepMap(JSON.Decode.object)
   ->Array.map(json => {
     {
       bank_name: getStrArray(json, "bank_name"),
@@ -57,7 +57,7 @@ let getBankNames = (dict, str) => {
 let getAchConnectors = (dict, str) => {
   dict
   ->Dict.get(str)
-  ->Option.flatMap(Js.Json.decodeObject)
+  ->Option.flatMap(JSON.Decode.object)
   ->Option.getOr(Dict.make())
   ->getStrArray("elligible_connectors")
 }

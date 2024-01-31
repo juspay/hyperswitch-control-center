@@ -1,4 +1,4 @@
-external toJson: Js.Nullable.t<'a> => Js.Json.t = "%identity"
+external toJson: Js.Nullable.t<'a> => JSON.t = "%identity"
 open DynamicTableUtils
 open NewThemeUtils
 type sortTyp = ASC | DSC
@@ -9,8 +9,8 @@ type sortOb = {
 
 type checkBoxProps = {
   showCheckBox: bool,
-  selectedData: Js.Array2.t<Js.Json.t>,
-  setSelectedData: (Js.Array2.t<Js.Json.t> => Js.Array2.t<Js.Json.t>) => unit,
+  selectedData: array<JSON.t>,
+  setSelectedData: (array<JSON.t> => array<JSON.t>) => unit,
 }
 
 let checkBoxPropDefaultVal: checkBoxProps = {
@@ -73,38 +73,37 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
   let getValue = val => {
     switch val {
     | Some(x) =>
-      switch x->Js.Json.classify {
-      | JSONString(str) => str->String.toLowerCase->Js.Json.string
-      | JSONNumber(_num) => x
-      | JSONFalse => "false"->Js.Json.string
-      | JSONTrue => "true"->Js.Json.string
-      | _ => ""->Js.Json.string
+      switch x->JSON.Classify.classify {
+      | String(str) => str->String.toLowerCase->JSON.Encode.string
+      | Number(_num) => x
+      | Bool(val) => val ? "true"->JSON.Encode.string : "false"->JSON.Encode.string
+      | _ => ""->JSON.Encode.string
       }
-    | None => ""->Js.Json.string
+    | None => ""->JSON.Encode.string
     }
   }
   let sortedArrayByOrder = {
     let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
-      let item1 = i1->Js.Json.stringifyAny->Option.getOr("")->LogicUtils.safeParse
-      let item2 = i2->Js.Json.stringifyAny->Option.getOr("")->LogicUtils.safeParse
+      let item1 = i1->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
+      let item2 = i2->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       // flatten items and get data
 
       let val1 =
         JsonFlattenUtils.flattenObject(item1, true)
-        ->Js.Json.object_
-        ->Js.Json.decodeObject
+        ->JSON.Encode.object
+        ->JSON.Decode.object
         ->Option.flatMap(dict => dict->Dict.get(key))
       let val2 =
         JsonFlattenUtils.flattenObject(item2, true)
-        ->Js.Json.object_
-        ->Js.Json.decodeObject
+        ->JSON.Encode.object
+        ->JSON.Decode.object
         ->Option.flatMap(dict => dict->Dict.get(key))
       let value1 = getValue(val1)
       let value2 = getValue(val2)
-      if value1 === ""->Js.Json.string || value2 === ""->Js.Json.string {
+      if value1 === ""->JSON.Encode.string || value2 === ""->JSON.Encode.string {
         if value1 === value2 {
           0
-        } else if value2 === ""->Js.Json.string {
+        } else if value2 === ""->JSON.Encode.string {
           sortOrder === DEC ? 1 : -1
         } else if sortOrder === DEC {
           -1
@@ -176,7 +175,7 @@ let make = (
   ~advancedSearchComponent=?,
   ~setData=?,
   ~setSummary=?,
-  ~customGetObjects: option<Js.Json.t => array<'a>>=?,
+  ~customGetObjects: option<JSON.t => array<'a>>=?,
   ~dataNotFoundComponent=?,
   ~renderCard=?,
   ~tableLocalFilter=false,
@@ -320,7 +319,7 @@ let make = (
   let localResultsPerPage = pageDetail.resultsPerPage
 
   let setColumnFilter = React.useMemo1(() => {
-    (filterKey, filterValue: array<Js.Json.t>) => {
+    (filterKey, filterValue: array<JSON.t>) => {
       setColumnFilterOrig(oldFitlers => {
         let newObj = oldFitlers->Dict.toArray->Dict.fromArray
         let filterValue = filterValue->Array.filter(
@@ -485,7 +484,7 @@ let make = (
           | LabelType | TextType => Table.TextFilter(key)
           | MoneyType | NumericType | ProgressType => {
               let newArr =
-                filterValueArray->Array.map(item => item->Js.Json.decodeNumber->Option.getOr(0.))
+                filterValueArray->Array.map(item => item->JSON.Decode.float->Option.getOr(0.))
 
               if newArr->Array.length >= 1 {
                 Table.Range(key, Js.Math.minMany_float(newArr), Js.Math.maxMany_float(newArr))
@@ -567,9 +566,9 @@ let make = (
           ->Array.map(colType => {
             entity.getCell(item, colType)
           })
-        let startPoint = sNoArr->Array.get(0)->Option.getOr(1.->Js.Json.number)
-        let endPoint = sNoArr->Array.get(1)->Option.getOr(1.->Js.Json.number)
-        let jsonIndex = (index + 1)->Int.toFloat->Js.Json.number
+        let startPoint = sNoArr->Array.get(0)->Option.getOr(1.->JSON.Encode.float)
+        let endPoint = sNoArr->Array.get(1)->Option.getOr(1.->JSON.Encode.float)
+        let jsonIndex = (index + 1)->Int.toFloat->JSON.Encode.float
         sNoArr->Array.length > 0
           ? {
               startPoint <= jsonIndex && endPoint >= jsonIndex ? visibleCell : []

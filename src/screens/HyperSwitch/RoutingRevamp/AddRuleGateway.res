@@ -23,7 +23,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
 
   let selectedOptions = React.useMemo1(() => {
     gateWaysInput.value
-    ->Js.Json.decodeArray
+    ->JSON.Decode.array
     ->Option.getOr([])
     ->Belt.Array.keepMap(item => {
       Some(AdvancedRoutingUtils.connectorSelectionDataMapperFromJson(item))
@@ -70,9 +70,9 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
     ->Array.map(option =>
       AdvancedRoutingUtils.getConnectorStringFromConnectorSelectionData(
         option,
-      ).merchant_connector_id->Js.Json.string
+      ).merchant_connector_id->JSON.Encode.string
     )
-    ->Js.Json.array,
+    ->JSON.Encode.array,
     checked: true,
   }
 

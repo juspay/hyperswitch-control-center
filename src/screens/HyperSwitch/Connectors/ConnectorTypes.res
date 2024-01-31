@@ -151,17 +151,17 @@ type paymentMethodConfig = {
 type wasmRequest = {
   payment_methods_enabled: array<paymentMethodEnabled>,
   connector: string,
-  metadata: Js.Json.t,
+  metadata: JSON.t,
 }
 
 type wasmExtraPayload = {
   profile_id: string,
   connector_type: string,
   connector_name: string,
-  connector_account_details: Js.Json.t,
+  connector_account_details: JSON.t,
   disabled: bool,
   test_mode: bool,
-  connector_webhook_details: option<Js.Json.t>,
+  connector_webhook_details: option<JSON.t>,
 }
 
 // This type are used for FRM configuration which need to moved to wasm
@@ -206,7 +206,7 @@ type connectorPayload = {
   disabled: bool,
   payment_methods_enabled: payment_methods_enabled,
   profile_id: string,
-  metadata?: Js.Json.t,
+  metadata?: JSON.t,
   merchant_connector_id: string,
   frm_configs?: array<frm_config>,
   status: string,

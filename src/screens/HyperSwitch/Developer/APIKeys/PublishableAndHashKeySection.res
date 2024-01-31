@@ -2,7 +2,7 @@
 let make = () => {
   let fetchDetails = APIUtils.useGetMethod()
   let (merchantInfo, setMerchantInfo) = React.useState(() =>
-    Js.Json.null->MerchantAccountUtils.getMerchantDetails
+    JSON.Encode.null->MerchantAccountUtils.getMerchantDetails
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 

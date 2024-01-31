@@ -2,8 +2,8 @@ open ReactHyperJs
 open Promise
 
 type configElements = {
-  appearanceElement: Js.Json.t,
-  paymentElement: Js.Json.t,
+  appearanceElement: JSON.t,
+  paymentElement: JSON.t,
 }
 
 type configData = {
@@ -38,8 +38,8 @@ module CheckoutForm = {
     let (btnState, setBtnState) = React.useState(_ => Button.Normal)
     let hyper = useHyper()
     let elements = useElements()
-    let (appearanceElem, setAppearanceElem) = React.useState(() => Js.Json.null)
-    let (paymentElem, setPaymentElem) = React.useState(() => Js.Json.null)
+    let (appearanceElem, setAppearanceElem) = React.useState(() => JSON.Encode.null)
+    let (paymentElem, setPaymentElem) = React.useState(() => JSON.Encode.null)
 
     let fetchApi = AuthHooks.useApiFetcher()
     React.useEffect2(() => {
@@ -49,7 +49,7 @@ module CheckoutForm = {
           appearanceElement: appearanceElem,
           paymentElement: paymentElem,
         }
-        ->Js.Json.stringifyAny
+        ->JSON.stringifyAny
         ->Option.getOr(""),
       }
       setError(_ => None)
@@ -57,7 +57,7 @@ module CheckoutForm = {
       if saveViewToSdk {
         fetchApi(
           "https://4gla4dnvbg.execute-api.ap-south-1.amazonaws.com/default/hyperConfig",
-          ~bodyStr=val->Js.Json.stringifyAny->Option.getOr(""),
+          ~bodyStr=val->JSON.stringifyAny->Option.getOr(""),
           ~headers=[("Access-Control-Allow-Origin", "*")]->Dict.fromArray,
           ~method_=Fetch.Post,
           (),
@@ -67,7 +67,7 @@ module CheckoutForm = {
           json->resolve
         })
         ->catch(_e => {
-          Dict.make()->Js.Json.object_->resolve
+          Dict.make()->JSON.Encode.object->resolve
         })
         ->ignore
       }
@@ -163,20 +163,17 @@ module CheckoutForm = {
         [
           (
             "confirmParams",
-            [("return_url", returnUrl->Js.Json.string)]->Dict.fromArray->Js.Json.object_,
+            [("return_url", returnUrl->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object,
           ),
-          ("redirect", "always"->Js.Json.string),
+          ("redirect", "always"->JSON.Encode.string),
         ]
         ->Dict.fromArray
-        ->Js.Json.object_
+        ->JSON.Encode.object
       hyper.confirmPayment(confirmParams)
       ->then(val => {
-        let resDict = val->Js.Json.decodeObject->Option.getOr(Dict.make())
+        let resDict = val->JSON.Decode.object->Option.getOr(Dict.make())
         let errorDict =
-          resDict
-          ->Dict.get("error")
-          ->Option.flatMap(Js.Json.decodeObject)
-          ->Option.getOr(Dict.make())
+          resDict->Dict.get("error")->Option.flatMap(JSON.Decode.object)->Option.getOr(Dict.make())
 
         let errorMsg = errorDict->Dict.get("message")
 
@@ -243,7 +240,7 @@ module CheckoutForm = {
           | Some(val) =>
             <div className="text-red-500">
               {val
-              ->Js.Json.stringifyAny
+              ->JSON.stringifyAny
               ->Option.getOr("")
               ->String.replace("\"", "")
               ->String.replace("\"", "")

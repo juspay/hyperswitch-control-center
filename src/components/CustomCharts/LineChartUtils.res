@@ -260,7 +260,7 @@ type timeSeriesDictWithSecondryMetrics<'a> = {
 }
 
 let timeSeriesDataMaker = (
-  ~data: array<Js.Json.t>,
+  ~data: array<JSON.t>,
   ~groupKey,
   ~xAxis,
   ~metricsConfig: metricsConfig,
@@ -282,7 +282,7 @@ let timeSeriesDataMaker = (
     let groupByName =
       dict->getString(
         groupKey,
-        Dict.get(dict, groupKey)->Option.getOr(""->Js.Json.string)->Js.Json.stringify,
+        Dict.get(dict, groupKey)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
       )
     let xAxisDataPoint = dict->getString(xAxis, "")->String.split(" ")->Array.joinWith("T") ++ "Z" // right now it is time string
     let yAxisDataPoint = dict->getFloat(yAxis, 0.)
@@ -351,8 +351,8 @@ let timeSeriesDataMaker = (
 
 let getLegendDataForCurrentMetrix = (
   ~yAxis: string,
-  ~timeSeriesData: array<Js.Json.t>,
-  ~groupedData: array<Js.Json.t>,
+  ~timeSeriesData: array<JSON.t>,
+  ~groupedData: array<JSON.t>,
   ~activeTab: string,
   ~xAxis: string,
   ~metrixType: dropDownMetricType,
@@ -363,7 +363,7 @@ let getLegendDataForCurrentMetrix = (
     getString(
       dict,
       activeTab,
-      Dict.get(dict, activeTab)->Option.getOr(""->Js.Json.string)->Js.Json.stringify,
+      Dict.get(dict, activeTab)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
     )
   })
   timeSeriesData->Array.forEach(item => {
@@ -373,7 +373,7 @@ let getLegendDataForCurrentMetrix = (
       getString(
         dict,
         activeTab,
-        Dict.get(dict, activeTab)->Option.getOr(""->Js.Json.string)->Js.Json.stringify,
+        Dict.get(dict, activeTab)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
       ),
       time_overall_statsAtTime,
     )
@@ -476,14 +476,14 @@ let getLegendDataForCurrentMetrix = (
   })
 }
 
-let barChartDataMaker = (~yAxis: string, ~rawData: array<Js.Json.t>, ~activeTab: string) => {
+let barChartDataMaker = (~yAxis: string, ~rawData: array<JSON.t>, ~activeTab: string) => {
   let value = rawData->Belt.Array.keepMap(item => {
     let dict = item->getDictFromJsonObject
 
     let selectedSegmentVal = getString(
       dict,
       activeTab,
-      Dict.get(dict, activeTab)->Option.getOr(""->Js.Json.string)->Js.Json.stringify,
+      Dict.get(dict, activeTab)->Option.getOr(""->JSON.Encode.string)->JSON.stringify,
     ) // groupby/ selected segment
 
     let stats = getFloat(dict, yAxis, 0.) // overall metrics
@@ -596,11 +596,11 @@ let getTooltipHTML = (metrics, data, onCursorName) => {
 
 let tooltipFormatter = (
   metrics: metricsConfig,
-  xAxisMapInfo: Dict.t<Js.Array2.t<(Js_string.t, string, float, option<float>)>>,
+  xAxisMapInfo: Dict.t<array<(Js_string.t, string, float, option<float>)>>,
   groupKey: string,
 ) =>
   @this
-  (points: Js.Json.t) => {
+  (points: JSON.t) => {
     let points = points->getDictFromJsonObject
     let series = points->getJsonObjectFromDict("series")->getDictFromJsonObject
 

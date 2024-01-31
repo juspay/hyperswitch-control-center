@@ -161,7 +161,7 @@ let make = (
                                 onBlur: _ev => (),
                                 onChange: ev => handleUpdateFilterObj(ev, i),
                                 onFocus: _ev => (),
-                                value: selected->Array.map(Js.Json.string)->Js.Json.array,
+                                value: selected->Array.map(JSON.Encode.string)->JSON.Encode.array,
                                 checked: true,
                               }
 

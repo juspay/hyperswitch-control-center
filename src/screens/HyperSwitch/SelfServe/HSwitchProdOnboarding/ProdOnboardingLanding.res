@@ -151,7 +151,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
   let (previewState, setPreviewState) = React.useState(_ => None)
-  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (connectorID, setConnectorID) = React.useState(_ => "")
   let routerUrl = RescriptReactRouter.useUrl()
 
@@ -173,7 +173,7 @@ let make = () => {
         ->Array.find(ele => {
           ele->getDictFromJsonObject->getBool("SetupComplete", false)
         })
-        ->Option.getOr(Js.Json.null)
+        ->Option.getOr(JSON.Encode.null)
       if setupCompleteResponse->getDictFromJsonObject->getBool("SetupComplete", false) {
         setDashboardPageState(_ => #HOME)
         let baseUrlPath = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${routerUrl.path
@@ -203,7 +203,7 @@ let make = () => {
         ->Array.find(ele => {
           ele->getDictFromJsonObject->getBool("ConfigureEndpoint", false)
         })
-        ->Option.getOr(Js.Json.null)
+        ->Option.getOr(JSON.Encode.null)
 
       if configureEndpointResponse->getDictFromJsonObject->getBool("ConfigureEndpoint", false) {
         getSetupCompleteEnum()->ignore
@@ -228,7 +228,7 @@ let make = () => {
         ->Array.find(ele => {
           ele->getDictFromJsonObject->getDictfromDict("SetupProcessor") != Dict.make()
         })
-        ->Option.getOr(Js.Json.null)
+        ->Option.getOr(JSON.Encode.null)
 
       let connectorId =
         setupProcessorEnum

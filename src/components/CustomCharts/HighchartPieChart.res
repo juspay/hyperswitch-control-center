@@ -1,7 +1,7 @@
 %%raw(`require("./highcharts.css")`)
 module RawPieChart = {
   @react.component
-  let make = (~options: Js.Json.t) => {
+  let make = (~options: JSON.t) => {
     <HighchartsPieChart.PieChart highcharts={HighchartsPieChart.highchartsModule} options />
   }
 }
@@ -26,7 +26,7 @@ let formatter: Js_OO.Callback.arity1<yAxisRecord => string> = {
 
 @react.component
 let make = (
-  ~rawData: array<Js.Json.t>,
+  ~rawData: array<JSON.t>,
   ~groupKey,
   ~titleKey=?,
   ~selectedMetrics: LineChartUtils.metricsConfig,
@@ -45,7 +45,7 @@ let make = (
   let opacity = theme === Dark ? "0.5" : "1"
   let titleKey = titleKey->Option.getOr(groupKey)
 
-  let barOption: Js.Json.t = React.useMemo2(() => {
+  let barOption: JSON.t = React.useMemo2(() => {
     let colors = {
       let length = pieSeriesData->Array.length->Int.toFloat
       pieSeriesData->Array.mapWithIndex((_data, i) => {

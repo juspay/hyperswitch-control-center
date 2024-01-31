@@ -412,7 +412,7 @@ module BaseSelect = {
     ~optionSize: CheckBoxIcon.size=Small,
     ~isSelectedStateMinus=false,
     ~onSelect: array<string> => unit,
-    ~value as values: Js.Json.t,
+    ~value as values: JSON.t,
     ~onBlur=?,
     ~showClearAll=true,
     ~isHorizontal=false,
@@ -465,7 +465,7 @@ module BaseSelect = {
     }
 
     let saneValue = React.useMemo1(() =>
-      switch values->Js.Json.decodeArray {
+      switch values->JSON.Decode.array {
       | Some(jsonArr) => jsonArr->LogicUtils.getStrArrayFromJsonArray
       | _ => []
       }
@@ -912,7 +912,7 @@ module BaseSelectButton = {
     ~optionSize: CheckBoxIcon.size=Small,
     ~isSelectedStateMinus=false,
     ~onSelect: string => unit,
-    ~value: Js.Json.t,
+    ~value: JSON.t,
     ~deselectDisable=false,
     ~onBlur=?,
     ~setShowDropDown=?,
@@ -932,7 +932,7 @@ module BaseSelectButton = {
     let searchRef = React.useRef(Js.Nullable.null)
     let onItemClick = (itemData, _ev) => {
       if !disableSelect {
-        let isSelected = value->Js.Json.decodeString->Option.mapOr(false, str => itemData === str)
+        let isSelected = value->JSON.Decode.string->Option.mapOr(false, str => itemData === str)
 
         if isSelected && !deselectDisable {
           onSelect("")
@@ -1004,7 +1004,7 @@ module BaseSelectButton = {
       <div className={`${optionsOuterClass} ${listPadding} ${inlineClass}`}>
         {options
         ->Array.mapWithIndex((option, i) => {
-          let isSelected = switch value->Js.Json.decodeString {
+          let isSelected = switch value->JSON.Decode.string {
           | Some(str) => option.value === str
           | None => false
           }
@@ -1067,7 +1067,7 @@ module BaseSelectButton = {
 module RenderListItemInBaseRadio = {
   @react.component
   let make = (
-    ~newOptions: Js.Array2.t<dropdownOptionWithoutOptional>,
+    ~newOptions: array<dropdownOptionWithoutOptional>,
     ~value,
     ~descriptionOnHover,
     ~isDropDown,
@@ -1089,7 +1089,7 @@ module RenderListItemInBaseRadio = {
   ) => {
     newOptions
     ->Array.mapWithIndex((option, i) => {
-      let isSelected = switch value->Js.Json.decodeString {
+      let isSelected = switch value->JSON.Decode.string {
       | Some(str) => option.value === str
       | None => false
       }
@@ -1188,7 +1188,7 @@ module BaseRadio = {
     ~optionSize: CheckBoxIcon.size=Small,
     ~isSelectedStateMinus=false,
     ~onSelect: string => unit,
-    ~value: Js.Json.t,
+    ~value: JSON.t,
     ~deselectDisable=false,
     ~onBlur=?,
     ~fill="#0EB025",
@@ -1242,7 +1242,7 @@ module BaseRadio = {
     )
     let onItemClick = (itemData, isDisabled, _ev) => {
       if !isDisabled {
-        let isSelected = value->Js.Json.decodeString->Option.mapOr(false, str => itemData === str)
+        let isSelected = value->JSON.Decode.string->Option.mapOr(false, str => itemData === str)
 
         if isSelected && !deselectDisable {
           setSelectedString(_ => "")
@@ -1586,7 +1586,7 @@ module BaseDropdown = {
       | None => ""
       }
       newInputSelect.onChange(
-        switch newInputSelect.value->Js.Json.decodeArray {
+        switch newInputSelect.value->JSON.Decode.array {
         | Some(jsonArr) =>
           jsonArr->LogicUtils.getStrArrayFromJsonArray->Array.filter(str => str !== actualValue)
         | _ => []
@@ -1599,7 +1599,7 @@ module BaseDropdown = {
 
     let (dropDowntext, leftIcon: Button.iconType, iconStroke) = allowMultiSelect
       ? (buttonText, defaultLeftIcon, "")
-      : switch newInputRadio.value->Js.Json.decodeString {
+      : switch newInputRadio.value->JSON.Decode.string {
         | Some(str) =>
           switch transformedOptions->Array.find(x => x.value === str) {
           | Some(x) => (x.label, x.icon, x.iconStroke)
@@ -1657,9 +1657,9 @@ module BaseDropdown = {
 
     let allSellectedOptions = React.useMemo2(() => {
       newInputSelect.value
-      ->Js.Json.decodeArray
+      ->JSON.Decode.array
       ->Option.getOr([])
-      ->Belt.Array.keepMap(Js.Json.decodeString)
+      ->Belt.Array.keepMap(JSON.Decode.string)
       ->Belt.Array.keepMap(str => {
         transformedOptions->Array.find(x => x.value == str)->Option.map(x => x.label)
       })
@@ -1671,7 +1671,7 @@ module BaseDropdown = {
     let title = showAllSelectedOptions ? allSellectedOptions : buttonText
 
     let badgeForSelect = React.useMemo1((): Button.badge => {
-      let count = newInputSelect.value->Js.Json.decodeArray->Option.getOr([])->Array.length
+      let count = newInputSelect.value->JSON.Decode.array->Option.getOr([])->Array.length
       let condition = count > 1
 
       {
@@ -1855,7 +1855,7 @@ module BaseDropdown = {
                     </AddDataAttributes>
                   if (
                     showToolTip &&
-                    newInputSelect.value !== ""->Js.Json.string &&
+                    newInputSelect.value !== ""->JSON.Encode.string &&
                     !showDropDown &&
                     showNameAsToolTip
                   ) {
@@ -1916,7 +1916,7 @@ module BaseDropdown = {
         }}
       </div>
       {if allowMultiSelect && !hideMultiSelectButtons && showSelectionAsChips {
-        switch newInputSelect.value->Js.Json.decodeArray {
+        switch newInputSelect.value->JSON.Decode.array {
         | Some(jsonArr) =>
           jsonArr
           ->LogicUtils.getStrArrayFromJsonArray
@@ -1972,7 +1972,7 @@ module InfraSelectBox = {
     let newInputSelect = input->ffInputToSelectInput
     let values = newInputSelect.value
     let saneValue = React.useMemo1(() =>
-      switch values->Js.Json.decodeArray {
+      switch values->JSON.Decode.array {
       | Some(jsonArr) => jsonArr->LogicUtils.getStrArrayFromJsonArray
       | _ => []
       }

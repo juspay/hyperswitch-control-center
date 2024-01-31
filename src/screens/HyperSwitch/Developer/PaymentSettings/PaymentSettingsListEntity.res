@@ -42,7 +42,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let getItems: Js.Json.t => array<profileEntity> = json => {
+let getItems: JSON.t => array<profileEntity> = json => {
   LogicUtils.getArrayDataFromJson(json, itemToObjMapper)
 }
 

@@ -65,7 +65,7 @@ type customiseColumnConfig = {
 type selectAllSubmitActions = {
   btnText: string,
   showMultiSelectCheckBox: bool,
-  onClick: Js.Array2.t<Js.Json.t> => unit,
+  onClick: array<JSON.t> => unit,
   disableParam: disableField,
 }
 
@@ -74,7 +74,7 @@ type hideItem = {
   value: string,
 }
 
-external jsonToStr: Js.Json.t => string = "%identity"
+external jsonToStr: JSON.t => string = "%identity"
 
 type textAlign = Left | Right
 
@@ -109,7 +109,7 @@ type label = {
 
 type currency = string
 type filterRow =
-  | DropDownFilter(string, array<Js.Json.t>)
+  | DropDownFilter(string, array<JSON.t>)
   | TextFilter(string)
   | Range(string, float, float)
 
@@ -834,7 +834,7 @@ module HeaderActions = {
       onBlur: _ev => (),
       onChange,
       onFocus: _ev => (),
-      value: order->getSortOrderToString->Js.Json.string,
+      value: order->getSortOrderToString->JSON.Encode.string,
       checked: true,
     }
     let customButton = switch filterRow {

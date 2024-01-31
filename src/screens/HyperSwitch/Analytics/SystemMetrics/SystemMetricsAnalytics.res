@@ -98,12 +98,12 @@ module HSiwtchPaymentConfirmLatency = {
     let singleStatBodyMake = (singleStatBodyEntity: singleStatBodyEntity, flowType) => {
       let filters =
         [
-          ("api_name", ["PaymentsConfirm"->Js.Json.string]->Js.Json.array),
-          ("status_code", [200.0->Js.Json.number]->Js.Json.array),
-          ("flow_type", [flowType->Js.Json.string]->Js.Json.array),
+          ("api_name", ["PaymentsConfirm"->JSON.Encode.string]->JSON.Encode.array),
+          ("status_code", [200.0->JSON.Encode.float]->JSON.Encode.array),
+          ("flow_type", [flowType->JSON.Encode.string]->JSON.Encode.array),
         ]
         ->Dict.fromArray
-        ->Js.Json.object_
+        ->JSON.Encode.object
 
       [
         AnalyticsUtils.getFilterRequestBody(
@@ -118,8 +118,8 @@ module HSiwtchPaymentConfirmLatency = {
           ~granularity=singleStatBodyEntity.granularity,
           ~prefix=singleStatBodyEntity.prefix,
           (),
-        )->Js.Json.object_,
-      ]->Js.Json.array
+        )->JSON.Encode.object,
+      ]->JSON.Encode.array
     }
 
     let parseJson = json => {
@@ -128,7 +128,7 @@ module HSiwtchPaymentConfirmLatency = {
       ->getJsonObjectFromDict("queryData")
       ->getArrayFromJson([])
       ->Array.get(0)
-      ->Option.getOr(Js.Json.object_(Dict.make()))
+      ->Option.getOr(JSON.Encode.object(Dict.make()))
       ->getDictFromJsonObject
       ->getInt("latency", 0)
     }
@@ -223,7 +223,7 @@ module SystemMetricsAnalytics = {
     ~endTimeFilterKey: string,
     ~chartEntity: nestedEntityType,
     ~filteredTabKeys: array<string>,
-    ~initialFixedFilters: Js.Json.t => array<EntityType.initialFilters<'t>>,
+    ~initialFixedFilters: JSON.t => array<EntityType.initialFilters<'t>>,
     ~singleStatEntity: DynamicSingleStat.entityType<'singleStatColType, 'b, 'b2>,
     ~filterUri,
     ~moduleName: string,
@@ -275,7 +275,7 @@ module SystemMetricsAnalytics = {
       setFilterDataJson(_ => None)
       if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
         try {
-          updateDetails(filterUri, filterBody->Js.Json.object_, Post, ())
+          updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
           ->thenResolve(json => setFilterDataJson(_ => json->Some))
           ->catch(_ => resolve())
           ->ignore
@@ -284,8 +284,8 @@ module SystemMetricsAnalytics = {
         }
       }
       None
-    }, (startTimeVal, endTimeVal, filterBody->Js.Json.object_->Js.Json.stringify))
-    let filterData = filterDataJson->Option.getOr(Dict.make()->Js.Json.object_)
+    }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
+    let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
     <UIUtils.RenderIf condition={getModuleFilters->Dict.toArray->Array.length > 0}>
       {switch chartEntity1 {

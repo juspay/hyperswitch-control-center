@@ -21,7 +21,7 @@ module Fs = {
 }
 
 module Querystring = {
-  type parsedUrlQUery = Js.Json.t
+  type parsedUrlQUery = JSON.t
 
   @module("querystring")
   external parse: string => parsedUrlQUery = "parse"

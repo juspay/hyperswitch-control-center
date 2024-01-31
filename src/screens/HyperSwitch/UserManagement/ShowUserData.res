@@ -15,7 +15,7 @@ module UserHeading = {
     let _resendInvite = async () => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#RESEND_INVITE, ~methodType=Post, ())
-        let body = [("user_id", userId->Js.Json.string)]->Dict.fromArray->Js.Json.object_
+        let body = [("user_id", userId->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
         let _ = await updateDetails(url, body, Post, ())
         showToast(~message=`Invite resend. Please check your email.`, ~toastType=ToastSuccess, ())
       } catch {
@@ -56,7 +56,7 @@ let make = () => {
   open APIUtils
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
-  let (roleData, setRoleData) = React.useState(_ => Js.Json.null)
+  let (roleData, setRoleData) = React.useState(_ => JSON.Encode.null)
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (usersList, setUsersList) = React.useState(_ => [])

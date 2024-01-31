@@ -165,7 +165,7 @@ let make = (
           setFromDate(_ => value)
         },
         onFocus: _ => setFromDateOnFocus(_ => true),
-        value: fromDate->Js.Json.string,
+        value: fromDate->JSON.Encode.string,
         checked: true,
       }
 
@@ -177,7 +177,7 @@ let make = (
           setToDate(_ => value)
         },
         onFocus: _ => setToDateOnFocus(_ => true),
-        value: toDate->Js.Json.string,
+        value: toDate->JSON.Encode.string,
         checked: true,
       }
 

@@ -126,13 +126,13 @@ let generateConnectorPayloadPayPal = (
   open ConnectorUtils
   let initialValues =
     [
-      ("profile_id", profileId->Js.Json.string),
-      ("connector_name", connector->String.toLowerCase->Js.Json.string),
-      ("connector_type", "payment_processor"->Js.Json.string),
-      ("disabled", true->Js.Json.boolean),
-      ("test_mode", true->Js.Json.boolean),
-      ("status", "inactive"->Js.Json.string),
-      ("connector_label", connectorLabel->Js.Json.string),
+      ("profile_id", profileId->JSON.Encode.string),
+      ("connector_name", connector->String.toLowerCase->JSON.Encode.string),
+      ("connector_type", "payment_processor"->JSON.Encode.string),
+      ("disabled", true->JSON.Encode.bool),
+      ("test_mode", true->JSON.Encode.bool),
+      ("status", "inactive"->JSON.Encode.string),
+      ("connector_label", connectorLabel->JSON.Encode.string),
     ]->LogicUtils.getJsonFromArrayOfJson
 
   generateInitialValuesDict(

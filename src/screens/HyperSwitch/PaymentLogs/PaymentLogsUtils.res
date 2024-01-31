@@ -20,7 +20,7 @@ let filteredKeys = [
   "version",
 ]
 
-let sortByCreatedAt = (log1: Js.Json.t, log2: Js.Json.t) => {
+let sortByCreatedAt = (log1: JSON.t, log2: JSON.t) => {
   open LogicUtils
   let getKey = dict => dict->getDictFromJsonObject->getString("created_at", "")->Js.Date.fromString
   let keyA = log1->getKey

@@ -58,7 +58,7 @@ let make = () => {
         ->Array.find(ele => {
           ele->getDictFromJsonObject->getBool("ProductionAgreement", false)
         })
-        ->Option.getOr(Js.Json.null)
+        ->Option.getOr(JSON.Encode.null)
 
       if productionAgreementResponse->getDictFromJsonObject->getBool("ProductionAgreement", false) {
         setDashboardPageState(_ => #PROD_ONBOARDING)
@@ -92,9 +92,7 @@ let make = () => {
       let url = getURL(~entityName=USERS, ~userType=#GET_PERMISSIONS, ~methodType=Get, ())
       let response = await fetchDetails(url)
       let permissionsValue =
-        response
-        ->getArrayFromJson([])
-        ->Array.map(ele => ele->Js.Json.decodeString->Option.getOr(""))
+        response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
       let permissionJson =
         permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
       setuserPermissionJson(._ => permissionJson)

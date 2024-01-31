@@ -5,7 +5,7 @@ let statementObject: array<AdvancedRoutingTypes.statement> = [
     lhs: "amount",
     value: {
       \"type": "number",
-      value: ""->Js.Json.string,
+      value: ""->JSON.Encode.string,
     },
     comparison: "EQUAL TO",
   },
@@ -13,7 +13,7 @@ let statementObject: array<AdvancedRoutingTypes.statement> = [
     logical: "AND",
     value: {
       \"type": "number",
-      value: ""->Js.Json.string,
+      value: ""->JSON.Encode.string,
     },
     lhs: "currency",
     comparison: "IS",
@@ -42,7 +42,7 @@ let buildInitial3DSValue: threeDsRoutingType = {
     defaultSelection: {
       override_3ds: "",
     },
-    metadata: Js.Json.null,
+    metadata: JSON.Encode.null,
   },
 }
 
@@ -69,7 +69,7 @@ let buildThreeDsPayloadBody = values => {
         "override_3ds": null,
       },
       "rules": modifiedRules,
-      "metadata": Dict.make()->Js.Json.object_,
+      "metadata": Dict.make()->JSON.Encode.object,
     },
   }
 

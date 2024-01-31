@@ -2,12 +2,12 @@ let getRefundsList = async (
   filterValueJson,
   ~updateDetails: (
     string,
-    Js.Json.t,
+    JSON.t,
     Fetch.requestMethod,
     ~bodyFormData: Fetch.formData=?,
     ~headers: Dict.t<'a>=?,
     unit,
-  ) => promise<Js.Json.t>,
+  ) => promise<JSON.t>,
   ~setRefundsData,
   ~setScreenState,
   ~offset,
@@ -19,7 +19,7 @@ let getRefundsList = async (
   setScreenState(_ => PageLoaderWrapper.Loading)
   try {
     let refundsUrl = getURL(~entityName=REFUNDS, ~methodType=Post, ~id=Some("refund-post"), ())
-    let res = await updateDetails(refundsUrl, filterValueJson->Js.Json.object_, Fetch.Post, ())
+    let res = await updateDetails(refundsUrl, filterValueJson->JSON.Encode.object, Fetch.Post, ())
     let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
@@ -29,7 +29,7 @@ let getRefundsList = async (
     }
 
     if total > 0 {
-      let refundDataDictArr = data->Belt.Array.keepMap(Js.Json.decodeObject)
+      let refundDataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
       let refundData = arr->Array.concat(refundDataDictArr)->Array.map(RefundEntity.itemToObjMapper)
       let list = refundData->Array.map(Js.Nullable.return)
       setRefundsData(_ => list)

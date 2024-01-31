@@ -42,7 +42,7 @@ let make = (
 ) => {
   let showPopUp = PopUpState.useShowPopUp()
   let currentTags = React.useMemo1(() => {
-    input.value->Js.Json.decodeArray->Option.getOr([])->Belt.Array.keepMap(Js.Json.decodeString)
+    input.value->JSON.Decode.array->Option.getOr([])->Belt.Array.keepMap(JSON.Decode.string)
   }, [input.value])
 
   let setTags = tags => {
@@ -128,7 +128,7 @@ let make = (
         setText(_ => val)
       },
       onFocus: _ev => (),
-      value: Js.Json.string(text),
+      value: JSON.Encode.string(text),
       checked: false,
     }
   }

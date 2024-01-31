@@ -9,7 +9,7 @@ let getQueryData = json => {
   json->getDictFromJsonObject->getArrayFromDict("queryData", [])
 }
 
-let options: Js.Json.t => array<EntityType.optionType<'t>> = json => {
+let options: JSON.t => array<EntityType.optionType<'t>> = json => {
   open LogicUtils
   json
   ->getDictFromJsonObject
@@ -72,11 +72,7 @@ let filterByData = (txnArr, value) => {
       ->Array.map(item => {
         let (_, value) = item
 
-        value
-        ->Js.Json.decodeString
-        ->Option.getOr("")
-        ->String.toLowerCase
-        ->String.includes(searchText)
+        value->JSON.Decode.string->Option.getOr("")->String.toLowerCase->String.includes(searchText)
       })
       ->Array.reduce(false, (acc, item) => item || acc)
     if valueArr {
@@ -193,10 +189,10 @@ module NoData = {
 let generateTablePayload = (
   ~startTimeFromUrl: string,
   ~endTimeFromUrl: string,
-  ~filterValueFromUrl: option<Js.Json.t>,
+  ~filterValueFromUrl: option<JSON.t>,
   ~currenltySelectedTab: option<array<string>>,
   ~tableMetrics: array<string>,
-  ~distributionArray: option<array<Js.Json.t>>,
+  ~distributionArray: option<array<JSON.t>>,
   ~deltaMetrics: array<string>,
   ~deltaPrefixArr: array<string>,
   ~isIndustry: bool,
@@ -308,6 +304,6 @@ let generateTablePayload = (
     tableBodyWithNonDeltaMetrix->Array.concatMany([tableBodyWithDeltaMetrix, tableIndustryPayload])
 
   let tableBody =
-    tableBodyValues->Array.concat(deltaPayload)->Array.map(Js.Json.object_)->Js.Json.array
+    tableBodyValues->Array.concat(deltaPayload)->Array.map(JSON.Encode.object)->JSON.Encode.array
   tableBody
 }

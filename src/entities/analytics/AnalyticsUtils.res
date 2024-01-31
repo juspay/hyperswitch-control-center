@@ -35,9 +35,9 @@ type filterBodyEntity = {
 type filterEntity<'t> = {
   uri: string,
   moduleName: string,
-  initialFixedFilters: Js.Json.t => array<EntityType.initialFilters<'t>>,
-  initialFilters: Js.Json.t => array<EntityType.initialFilters<'t>>,
-  filterDropDownOptions: Js.Json.t => array<EntityType.optionType<'t>>,
+  initialFixedFilters: JSON.t => array<EntityType.initialFilters<'t>>,
+  initialFilters: JSON.t => array<EntityType.initialFilters<'t>>,
+  filterDropDownOptions: JSON.t => array<EntityType.optionType<'t>>,
   filterKeys: array<string>,
   timeKeys: timeKeys,
   defaultFilterKeys: array<string>,
@@ -49,8 +49,8 @@ type filterEntity<'t> = {
 type filterEntityNew<'t> = {
   uri: string,
   moduleName: string,
-  initialFixedFilters: Js.Json.t => array<EntityType.initialFilters<'t>>,
-  initialFilters: (Js.Json.t, string => unit) => array<EntityType.initialFilters<'t>>,
+  initialFixedFilters: JSON.t => array<EntityType.initialFilters<'t>>,
+  initialFilters: (JSON.t, string => unit) => array<EntityType.initialFilters<'t>>,
   filterKeys: array<string>,
   timeKeys: timeKeys,
   defaultFilterKeys: array<string>,
@@ -79,11 +79,11 @@ type downloadDataEntity = {
 type tableApiBodyEntity = {
   startTimeFromUrl: string,
   endTimeFromUrl: string,
-  filterValueFromUrl?: Js.Json.t,
+  filterValueFromUrl?: JSON.t,
   currenltySelectedTab?: array<string>,
   deltaMetrics: array<string>,
   isIndustry: bool,
-  distributionArray?: array<Js.Json.t>,
+  distributionArray?: array<JSON.t>,
   deltaPrefixArr: array<string>,
   tableMetrics: array<string>,
   mode?: string,
@@ -94,14 +94,14 @@ type tableApiBodyEntity = {
 }
 
 type newApiBodyEntity = {
-  timeObj: Dict.t<Js.Json.t>,
+  timeObj: Dict.t<JSON.t>,
   metric?: string,
-  groupBy?: Js.Array2.t<Js_string.t>,
+  groupBy?: array<Js_string.t>,
   granularityConfig?: (int, string),
   cardinality?: float,
-  filterValueFromUrl?: Js.Json.t,
+  filterValueFromUrl?: JSON.t,
   customFilterValue?: string,
-  jsonFormattedFilter?: Js.Json.t,
+  jsonFormattedFilter?: JSON.t,
   cardinalitySortDims?: string,
   domain: string,
 }
@@ -110,7 +110,7 @@ type analyticsTableEntity<'colType, 't> = {
   metrics: array<string>,
   deltaMetrics: array<string>,
   headerMetrics: array<string>,
-  distributionArray: option<array<Js.Json.t>>,
+  distributionArray: option<array<JSON.t>>,
   tableEntity: EntityType.entityType<'colType, 't>,
   deltaPrefixArr: array<string>,
   isIndustry: bool,
@@ -122,7 +122,7 @@ type analyticsTableEntity<'colType, 't> = {
       'colType,
     ) => Table.header,
   >,
-  tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, Js.Json.t) => array<Js.Nullable.t<'t>>>,
+  tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, JSON.t) => array<Js.Nullable.t<'t>>>,
   moduleName: string,
   defaultSortCol: string,
   filterKeys: array<string>,
@@ -137,8 +137,8 @@ type analyticsTableEntity<'colType, 't> = {
   tableBodyEntity?: tableApiBodyEntity => string,
   sampleApiBody?: tableApiBodyEntity => string,
   customFilterKey?: string,
-  newTableBodyMaker?: newApiBodyEntity => Js.Json.t,
-  jsonTransformer?: (string, array<Js.Json.t>, array<string>) => array<Js.Json.t>,
+  newTableBodyMaker?: newApiBodyEntity => JSON.t,
+  jsonTransformer?: (string, array<JSON.t>, array<string>) => array<JSON.t>,
 }
 
 type statSentiment = Positive | Negative | Neutral
@@ -152,7 +152,7 @@ let getDateCreatedObject = () => {
   Dict.set(
     filterCreatedDict,
     endTimeFilterKey,
-    Js.Json.string(currentTimestamp->TimeZoneHook.formattedISOString(dateFormat)),
+    JSON.Encode.string(currentTimestamp->TimeZoneHook.formattedISOString(dateFormat)),
   )
 
   let prevTime = {
@@ -161,7 +161,7 @@ let getDateCreatedObject = () => {
   }
 
   let defaultStartTime = {
-    Js.Json.string(
+    JSON.Encode.string(
       prevTime
       ->Js.Date.fromFloat
       ->Js.Date.toISOString
@@ -169,7 +169,7 @@ let getDateCreatedObject = () => {
     )
   }
   Dict.set(filterCreatedDict, startTimeFilterKey, defaultStartTime)
-  Dict.set(filterCreatedDict, "opt", Js.Json.string("today"))
+  Dict.set(filterCreatedDict, "opt", JSON.Encode.string("today"))
 
   filterCreatedDict
 }
@@ -178,11 +178,11 @@ open LogicUtils
 let getFilterRequestBody = (
   ~granularity: option<string>=None,
   ~groupByNames: option<array<string>>=None,
-  ~filter: option<Js.Json.t>=None,
+  ~filter: option<JSON.t>=None,
   ~metrics: option<array<string>>=None,
   ~delta: bool=true,
   ~prefix: option<string>=None,
-  ~distributionValues: option<Js.Json.t>=None,
+  ~distributionValues: option<JSON.t>=None,
   ~startDateTime,
   ~endDateTime,
   ~cardinality: option<string>=None,
@@ -191,13 +191,13 @@ let getFilterRequestBody = (
   ~source: string="BATCH",
   (),
 ) => {
-  let body: Dict.t<Js.Json.t> = Dict.make()
+  let body: Dict.t<JSON.t> = Dict.make()
   let timeRange = Dict.make()
   let timeSeries = Dict.make()
 
-  Dict.set(timeRange, "startTime", startDateTime->Js.Json.string)
-  Dict.set(timeRange, "endTime", endDateTime->Js.Json.string)
-  Dict.set(body, "timeRange", timeRange->Js.Json.object_)
+  Dict.set(timeRange, "startTime", startDateTime->JSON.Encode.string)
+  Dict.set(timeRange, "endTime", endDateTime->JSON.Encode.string)
+  Dict.set(body, "timeRange", timeRange->JSON.Encode.object)
 
   switch groupByNames {
   | Some(groupByNames) =>
@@ -207,8 +207,8 @@ let getFilterRequestBody = (
         "groupByNames",
         groupByNames
         ->ArrayUtils.getUniqueStrArray
-        ->Belt.Array.keepMap(item => Some(item->Js.Json.string))
-        ->Js.Json.array,
+        ->Belt.Array.keepMap(item => Some(item->JSON.Encode.string))
+        ->JSON.Encode.array,
       )
     }
   | None => ()
@@ -231,32 +231,32 @@ let getFilterRequestBody = (
   }
 
   if customFilter != "" {
-    Dict.set(body, "customFilter", customFilter->Js.Json.string)
+    Dict.set(body, "customFilter", customFilter->JSON.Encode.string)
   }
   switch granularity {
   | Some(granularity) => {
-      Dict.set(timeSeries, "granularity", granularity->Js.Json.string)
-      Dict.set(body, "timeSeries", timeSeries->Js.Json.object_)
+      Dict.set(timeSeries, "granularity", granularity->JSON.Encode.string)
+      Dict.set(body, "timeSeries", timeSeries->JSON.Encode.object)
     }
 
   | None => ()
   }
 
   switch cardinality {
-  | Some(cardinality) => Dict.set(body, "cardinality", cardinality->Js.Json.string)
+  | Some(cardinality) => Dict.set(body, "cardinality", cardinality->JSON.Encode.string)
   | None => ()
   }
   switch mode {
-  | Some(mode) => Dict.set(body, "mode", mode->Js.Json.string)
+  | Some(mode) => Dict.set(body, "mode", mode->JSON.Encode.string)
   | None => ()
   }
 
   switch prefix {
-  | Some(prefix) => Dict.set(body, "prefix", prefix->Js.Json.string)
+  | Some(prefix) => Dict.set(body, "prefix", prefix->JSON.Encode.string)
   | None => ()
   }
 
-  Dict.set(body, "source", source->Js.Json.string)
+  Dict.set(body, "source", source->JSON.Encode.string)
 
   switch metrics {
   | Some(metrics) =>
@@ -266,14 +266,14 @@ let getFilterRequestBody = (
         "metrics",
         metrics
         ->ArrayUtils.getUniqueStrArray
-        ->Belt.Array.keepMap(item => Some(item->Js.Json.string))
-        ->Js.Json.array,
+        ->Belt.Array.keepMap(item => Some(item->JSON.Encode.string))
+        ->JSON.Encode.array,
       )
     }
   | None => ()
   }
   if delta {
-    Dict.set(body, "delta", true->Js.Json.boolean)
+    Dict.set(body, "delta", true->JSON.Encode.bool)
   }
 
   body
@@ -391,39 +391,39 @@ let generatePayload = (
   ~groupByNames,
   ~prefix,
   ~source,
-  ~filters: option<Js.Json.t>,
+  ~filters: option<JSON.t>,
   ~customFilter,
 ) => {
   let timeArr = Dict.fromArray([
-    ("startTime", startTime->Js.Json.string),
-    ("endTime", endTime->Js.Json.string),
+    ("startTime", startTime->JSON.Encode.string),
+    ("endTime", endTime->JSON.Encode.string),
   ])
   let newDict = switch groupByNames {
   | Some(groupByNames) =>
     Dict.fromArray([
-      ("timeRange", timeArr->Js.Json.object_),
-      ("metrics", metrics->Js.Json.stringArray),
-      ("groupByNames", groupByNames->Js.Json.stringArray),
-      ("prefix", prefix->Js.Json.string),
-      ("source", source->Js.Json.string),
-      ("delta", delta->Js.Json.boolean),
+      ("timeRange", timeArr->JSON.Encode.object),
+      ("metrics", metrics->LogicUtils.getJsonFromArrayOfString),
+      ("groupByNames", groupByNames->LogicUtils.getJsonFromArrayOfString),
+      ("prefix", prefix->JSON.Encode.string),
+      ("source", source->JSON.Encode.string),
+      ("delta", delta->JSON.Encode.bool),
     ])
   | None =>
     Dict.fromArray([
-      ("timeRange", timeArr->Js.Json.object_),
-      ("metrics", metrics->Js.Json.stringArray),
-      ("prefix", prefix->Js.Json.string),
-      ("source", source->Js.Json.string),
-      ("delta", delta->Js.Json.boolean),
+      ("timeRange", timeArr->JSON.Encode.object),
+      ("metrics", metrics->LogicUtils.getJsonFromArrayOfString),
+      ("prefix", prefix->JSON.Encode.string),
+      ("source", source->JSON.Encode.string),
+      ("delta", delta->JSON.Encode.bool),
     ])
   }
 
   switch mode {
-  | Some(mode) => Dict.set(newDict, "mode", mode->Js.Json.string)
+  | Some(mode) => Dict.set(newDict, "mode", mode->JSON.Encode.string)
   | None => ()
   }
   if customFilter != "" {
-    Dict.set(newDict, "customFilter", customFilter->Js.Json.string)
+    Dict.set(newDict, "customFilter", customFilter->JSON.Encode.string)
   }
   switch filters {
   | Some(filters) =>
@@ -442,7 +442,7 @@ let generatedeltaTablePayload = (
   ~source,
   ~mode: option<string>,
   ~deltaPrefixArr,
-  ~filters: option<Js.Json.t>,
+  ~filters: option<JSON.t>,
   ~showDeltaMetrics=false,
   ~customFilter,
 ) => {
@@ -466,10 +466,10 @@ let generatedeltaTablePayload = (
 let generateTablePayload = (
   ~startTimeFromUrl: string,
   ~endTimeFromUrl: string,
-  ~filterValueFromUrl: option<Js.Json.t>,
+  ~filterValueFromUrl: option<JSON.t>,
   ~currenltySelectedTab: option<array<string>>,
   ~tableMetrics: array<string>,
-  ~distributionArray: option<array<Js.Json.t>>,
+  ~distributionArray: option<array<JSON.t>>,
   ~deltaMetrics: array<string>,
   ~deltaPrefixArr: array<string>,
   ~isIndustry: bool,
@@ -582,8 +582,8 @@ let generateTablePayload = (
   let tableBody =
     tableBodyValues
     ->Array.concatMany([deltaPayload, distributionPayload])
-    ->Array.map(Js.Json.object_)
-    ->Js.Json.array
+    ->Array.map(JSON.Encode.object)
+    ->JSON.Encode.array
   tableBody
 }
 
@@ -792,5 +792,5 @@ module NoDataFound = {
 type getFilters = {
   startTime: string,
   endTime: string,
-  filterValueFromUrl?: Js.Json.t,
+  filterValueFromUrl?: JSON.t,
 }

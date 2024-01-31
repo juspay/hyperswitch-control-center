@@ -12,7 +12,8 @@ let make = (
   let (size, widthClass, flexDirectionClass) = React.useMemo1(() => {
     isMobileView ? (0.16, "w-full", "flex-col") : (size, "w-1/2", "flex-row")
   }, [isMobileView])
-  let funnelData = data->Array.get(0)->Option.getOr(Js.Json.null)->LogicUtils.getDictFromJsonObject
+  let funnelData =
+    data->Array.get(0)->Option.getOr(JSON.Encode.null)->LogicUtils.getDictFromJsonObject
   let (hoverIndex, setHoverIndex) = React.useState(_ => -1.)
   let (selectedMetric, setSelectedMetric) = React.useState(_ => Volume)
   let length = metrics->Array.length->Float.fromInt

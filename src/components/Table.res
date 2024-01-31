@@ -466,7 +466,7 @@ module TableHeadingCell = {
                             onBlur: _ev => (),
                             onChange: ev => handleUpdateFilterObj(ev, i),
                             onFocus: _ev => (),
-                            value: selected->Array.map(Js.Json.string)->Js.Json.array,
+                            value: selected->Array.map(JSON.Encode.string)->JSON.Encode.array,
                             checked: true,
                           }
                           let icon = switch filterIcon {
@@ -663,7 +663,7 @@ let make = (
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
-  let actualData: option<Js.Array2.t<Js.Nullable.t<'t>>> = actualData
+  let actualData: option<array<Js.Nullable.t<'t>>> = actualData
   let numberOfCols = heading->Array.length
   open Webapi
   let totalTableWidth =

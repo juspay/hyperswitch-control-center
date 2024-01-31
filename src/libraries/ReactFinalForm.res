@@ -3,7 +3,7 @@ type fieldRenderPropsInput = {
   onBlur: ReactEvent.Focus.t => unit,
   onChange: ReactEvent.Form.t => unit,
   onFocus: ReactEvent.Focus.t => unit,
-  value: Js.Json.t,
+  value: JSON.t,
   checked: bool,
 }
 
@@ -12,7 +12,7 @@ type fieldRenderPropsCustomInput<'t> = {
   onBlur: ReactEvent.Focus.t => unit,
   onChange: 't => unit,
   onFocus: ReactEvent.Focus.t => unit,
-  value: Js.Json.t,
+  value: JSON.t,
   checked: bool,
 }
 
@@ -48,7 +48,7 @@ type fieldRenderPropsMeta = {
   valid: bool,
   validating: bool,
   visited: bool,
-  value: Js.Json.t,
+  value: JSON.t,
 }
 
 let makeCustomError = error => {
@@ -71,7 +71,7 @@ let makeCustomError = error => {
     valid: true,
     validating: true,
     visited: true,
-    value: Js.Json.null,
+    value: JSON.Encode.null,
   }
 }
 
@@ -80,7 +80,7 @@ type fieldRenderProps = {
   meta: fieldRenderPropsMeta,
 }
 
-type formValues = Js.Json.t
+type formValues = JSON.t
 
 type submitErrorResponse = {
   responseCode: string,
@@ -91,13 +91,13 @@ type submitErrorResponse = {
 type formState = {
   dirty: bool,
   submitError: Js.Nullable.t<string>,
-  submitErrors: Js.Nullable.t<Js.Json.t>,
+  submitErrors: Js.Nullable.t<JSON.t>,
   hasValidationErrors: bool,
   hasSubmitErrors: bool,
   submitting: bool,
-  values: Js.Json.t,
-  initialValues: Js.Json.t,
-  errors: Js.Json.t,
+  values: JSON.t,
+  initialValues: JSON.t,
+  errors: JSON.t,
   dirtySinceLastSubmit: bool,
   dirtyFields: Dict.t<bool>,
   dirtyFieldsSinceLastSubmit: Dict.t<bool>,
@@ -110,7 +110,7 @@ type unsubscribeFn = unit => unit
 type formApi = {
   batch: bool,
   blur: bool,
-  change: (string, Js.Json.t) => unit,
+  change: (string, JSON.t) => unit,
   destroyOnUnregister: bool,
   focus: bool,
   getFieldState: string => option<fieldRenderPropsMeta>,
@@ -121,20 +121,20 @@ type formApi = {
   mutators: bool,
   pauseValidation: bool,
   registerField: bool,
-  reset: Js.Nullable.t<Js.Json.t> => unit,
+  reset: Js.Nullable.t<JSON.t> => unit,
   resetFieldState: string => unit,
   restart: bool,
   resumeValidation: bool,
-  submit: unit => Promise.t<Js.Nullable.t<Js.Json.t>>,
-  subscribe: (formState => unit, Js.Json.t) => unsubscribeFn,
+  submit: unit => Promise.t<Js.Nullable.t<JSON.t>>,
+  subscribe: (formState => unit, JSON.t) => unsubscribeFn,
 }
 
 type formRenderProps = {
   form: formApi,
   handleSubmit: ReactEvent.Form.t => unit,
   submitError: string,
-  values: Js.Json.t,
-  // handleSubmit: ReactEvent.Form.t => Promise.t<Js.Nullable.t<Js.Json.t>>,
+  values: JSON.t,
+  // handleSubmit: ReactEvent.Form.t => Promise.t<Js.Nullable.t<JSON.t>>,
 }
 
 @module("final-form")
@@ -152,14 +152,14 @@ module Form = {
     ~debug: bool=?,
     ~decorators: bool=?,
     ~form: string=?,
-    ~initialValues: Js.Json.t=?,
+    ~initialValues: JSON.t=?,
     ~initialValuesEqual: bool=?,
     ~keepDirtyOnReinitialize: bool=?,
     ~mutators: bool=?,
-    ~onSubmit: (formValues, formApi) => Promise.t<Js.Nullable.t<Js.Json.t>>,
+    ~onSubmit: (formValues, formApi) => Promise.t<Js.Nullable.t<JSON.t>>,
     ~render: formRenderProps => React.element=?,
     ~subscription: Dict.t<bool>,
-    ~validate: Js.Json.t => Js.Json.t=?,
+    ~validate: JSON.t => JSON.t=?,
     ~validateOnBlur: bool=?,
   ) => React.element = "Form"
 }
@@ -173,32 +173,32 @@ module Field = {
     ~component: string=?,
     ~data: bool=?,
     ~defaultValue: bool=?,
-    ~format: (. ~value: Js.Json.t, ~name: string) => Js.Json.t=?,
+    ~format: (. ~value: JSON.t, ~name: string) => JSON.t=?,
     ~formatOnBlur: bool=?,
     ~initialValue: bool=?,
     ~isEqual: bool=?,
     ~multiple: bool=?,
     ~name: string,
-    ~parse: (. ~value: Js.Json.t, ~name: string) => Js.Json.t=?,
+    ~parse: (. ~value: JSON.t, ~name: string) => JSON.t=?,
     ~ref: bool=?,
     ~render: fieldRenderProps => React.element=?,
     ~subscription: bool=?,
     @as("type") ~type_: bool=?,
-    ~validate: (option<string>, Js.Json.t) => Js.Promise.t<Js.Nullable.t<string>>=?, // (field_vale, form_object)
+    ~validate: (option<string>, JSON.t) => Js.Promise.t<Js.Nullable.t<string>>=?, // (field_vale, form_object)
     ~validateFields: bool=?,
     ~value: bool=?,
     ~placeholder: string=?,
   ) => React.element = "Field"
 }
 
-type formSubscription = Js.Json.t
+type formSubscription = JSON.t
 let useFormSubscription = (keys): formSubscription => {
   React.useMemo0(() => {
     let dict = Dict.make()
-    Js.Array.forEach(key => {
-      Dict.set(dict, key, Js.Json.boolean(true))
-    }, keys)
-    dict->Js.Json.object_
+    keys->Array.forEach(key => {
+      Dict.set(dict, key, JSON.Encode.bool(true))
+    })
+    dict->JSON.Encode.object
   })
 }
 
@@ -214,7 +214,7 @@ module FormSpy = {
 }
 
 @module("react-final-form")
-external useFormState: Js.Nullable.t<Js.Json.t> => formState = "useFormState"
+external useFormState: Js.Nullable.t<JSON.t> => formState = "useFormState"
 
 @module("react-final-form")
 external useForm: unit => formApi = "useForm"
@@ -226,8 +226,8 @@ type useFieldOption
 
 @obj
 external makeUseFieldOption: (
-  ~format: (. ~value: Js.Json.t, ~name: string) => Js.Json.t=?,
-  ~parse: (. ~value: Js.Json.t, ~name: string) => Js.Json.t=?,
+  ~format: (. ~value: JSON.t, ~name: string) => JSON.t=?,
+  ~parse: (. ~value: JSON.t, ~name: string) => JSON.t=?,
   unit,
 ) => useFieldOption = ""
 
@@ -235,7 +235,7 @@ external makeUseFieldOption: (
 external useFieldWithOptions: (string, useFieldOption) => fieldRenderProps = "useField"
 
 let makeFakeInput = (
-  ~value=Js.Json.null,
+  ~value=JSON.Encode.null,
   ~onChange=_ev => (),
   ~onBlur=_ev => (),
   ~onFocus=_ev => (),

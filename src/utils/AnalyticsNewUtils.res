@@ -41,7 +41,7 @@ let calculateHistoricTime = (
   }
 }
 
-let makeFilters = (~filters: Js.Json.t, ~cardinalityArr) => {
+let makeFilters = (~filters: JSON.t, ~cardinalityArr) => {
   let decodeFilter = filters->getDictFromJsonObject
 
   let expressionArr =
@@ -50,8 +50,8 @@ let makeFilters = (~filters: Js.Json.t, ~cardinalityArr) => {
     ->Array.map(item => {
       let (key, value) = item
       Dict.fromArray([
-        ("field", key->Js.Json.string),
-        ("condition", "In"->Js.Json.string),
+        ("field", key->JSON.Encode.string),
+        ("condition", "In"->JSON.Encode.string),
         ("val", value),
       ])
     })
@@ -59,20 +59,20 @@ let makeFilters = (~filters: Js.Json.t, ~cardinalityArr) => {
   if expressionArr->Array.length === 1 {
     expressionArr->Array.get(0)
   } else if expressionArr->Array.length > 1 {
-    let leftInitial = Array.pop(expressionArr)->Option.getOr(Dict.make())->Js.Json.object_
-    let rightInitial = Array.pop(expressionArr)->Option.getOr(Dict.make())->Js.Json.object_
+    let leftInitial = Array.pop(expressionArr)->Option.getOr(Dict.make())->JSON.Encode.object
+    let rightInitial = Array.pop(expressionArr)->Option.getOr(Dict.make())->JSON.Encode.object
 
     let complexFilterDict = Dict.fromArray([
-      ("and", Dict.fromArray([("left", leftInitial), ("right", rightInitial)])->Js.Json.object_),
+      ("and", Dict.fromArray([("left", leftInitial), ("right", rightInitial)])->JSON.Encode.object),
     ])
     expressionArr->Array.forEach(item => {
       let complextFilterDictCopy = complexFilterDict->Dict.toArray->Array.copy->Dict.fromArray
       complexFilterDict->Dict.set(
         "and",
         Dict.fromArray([
-          ("left", complextFilterDictCopy->Js.Json.object_),
-          ("right", item->Js.Json.object_),
-        ])->Js.Json.object_,
+          ("left", complextFilterDictCopy->JSON.Encode.object),
+          ("right", item->JSON.Encode.object),
+        ])->JSON.Encode.object,
       )
     })
     Some(complexFilterDict)
@@ -110,14 +110,14 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Option.getOr("")->Js.Json.string),
-                  ("condition", "NotEquals"->Js.Json.string),
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "NotEquals"->JSON.Encode.string),
                   (
                     "val",
                     value[1]
                     ->Option.getOr("")
                     ->String.replaceRegExp(%re("/'/gi"), "")
-                    ->Js.Json.string,
+                    ->JSON.Encode.string,
                   ),
                 ]),
               )
@@ -132,14 +132,14 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Option.getOr("")->Js.Json.string),
-                  ("condition", "Greater"->Js.Json.string),
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "Greater"->JSON.Encode.string),
                   (
                     "val",
                     value[1]
                     ->Option.getOr("")
                     ->String.replaceRegExp(%re("/'/gi"), "")
-                    ->Js.Json.string,
+                    ->JSON.Encode.string,
                   ),
                 ]),
               )
@@ -154,14 +154,14 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Option.getOr("")->Js.Json.string),
-                  ("condition", "Less"->Js.Json.string),
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "Less"->JSON.Encode.string),
                   (
                     "val",
                     value[1]
                     ->Option.getOr("")
                     ->String.replaceRegExp(%re("/'/gi"), "")
-                    ->Js.Json.string,
+                    ->JSON.Encode.string,
                   ),
                 ]),
               )
@@ -176,14 +176,14 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Option.getOr("")->Js.Json.string),
-                  ("condition", "GreaterThanEquall"->Js.Json.string),
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "GreaterThanEquall"->JSON.Encode.string),
                   (
                     "val",
                     value[1]
                     ->Option.getOr("")
                     ->String.replaceRegExp(%re("/'/gi"), "")
-                    ->Js.Json.string,
+                    ->JSON.Encode.string,
                   ),
                 ]),
               )
@@ -198,14 +198,14 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Option.getOr("")->Js.Json.string),
-                  ("condition", "LessThanEqual"->Js.Json.string),
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "LessThanEqual"->JSON.Encode.string),
                   (
                     "val",
                     value[1]
                     ->Option.getOr("")
                     ->String.replaceRegExp(%re("/'/gi"), "")
-                    ->Js.Json.string,
+                    ->JSON.Encode.string,
                   ),
                 ]),
               )
@@ -220,14 +220,14 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Option.getOr("")->Js.Json.string),
-                  ("condition", "Equals"->Js.Json.string),
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "Equals"->JSON.Encode.string),
                   (
                     "val",
                     value[1]
                     ->Option.getOr("")
                     ->String.replaceRegExp(%re("/'/gi"), "")
-                    ->Js.Json.string,
+                    ->JSON.Encode.string,
                   ),
                 ]),
               )
@@ -242,8 +242,8 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Option.getOr("")->Js.Json.string),
-                  ("condition", "In"->Js.Json.string),
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "In"->JSON.Encode.string),
                   (
                     "val",
                     value[1]
@@ -253,7 +253,7 @@ let getFilterBody = (
                     ->String.replaceRegExp(%re("/\)/g"), "")
                     ->String.split(",")
                     ->Array.map(item => item->String.trim)
-                    ->Js.Json.stringArray,
+                    ->LogicUtils.getJsonFromArrayOfString,
                   ),
                 ]),
               )
@@ -268,8 +268,8 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Option.getOr("")->Js.Json.string),
-                  ("condition", "NotIn"->Js.Json.string),
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "NotIn"->JSON.Encode.string),
                   (
                     "val",
                     value[1]
@@ -279,7 +279,7 @@ let getFilterBody = (
                     ->String.replaceRegExp(%re("/\)/g"), "")
                     ->String.split(",")
                     ->Array.map(item => item->String.trim)
-                    ->Js.Json.stringArray,
+                    ->LogicUtils.getJsonFromArrayOfString,
                   ),
                 ]),
               )
@@ -294,14 +294,14 @@ let getFilterBody = (
             if value->Array.length >= 2 {
               Some(
                 Dict.fromArray([
-                  ("field", value[0]->Option.getOr("")->Js.Json.string),
-                  ("condition", "Like"->Js.Json.string),
+                  ("field", value[0]->Option.getOr("")->JSON.Encode.string),
+                  ("condition", "Like"->JSON.Encode.string),
                   (
                     "val",
                     value[1]
                     ->Option.getOr("")
                     ->String.replaceRegExp(%re("/'/gi"), "")
-                    ->Js.Json.string,
+                    ->JSON.Encode.string,
                   ),
                 ]),
               )
@@ -324,9 +324,9 @@ let getFilterBody = (
           (
             conditionInitital,
             Dict.fromArray([
-              ("left", leftInitial->Js.Json.object_),
-              ("right", rightInitial->Js.Json.object_),
-            ])->Js.Json.object_,
+              ("left", leftInitial->JSON.Encode.object),
+              ("right", rightInitial->JSON.Encode.object),
+            ])->JSON.Encode.object,
           ),
         ])
         let filterValueArr = Js.Array2.sliceFrom(filterValueArr->Array.copy, 2)
@@ -337,9 +337,9 @@ let getFilterBody = (
           complexFilterDict->Dict.set(
             andAndOr->Array.get(index)->Option.getOr("and"),
             Dict.fromArray([
-              ("left", complextFilterDictCopy->Js.Json.object_),
-              ("right", item->Js.Json.object_),
-            ])->Js.Json.object_,
+              ("left", complextFilterDictCopy->JSON.Encode.object),
+              ("right", item->JSON.Encode.object),
+            ])->JSON.Encode.object,
           )
         })
         Some(complexFilterDict)
@@ -358,9 +358,9 @@ let getFilterBody = (
           (
             "and",
             Dict.fromArray([
-              ("left", formattedFilters->Js.Json.object_),
-              ("right", customFilter->Js.Json.object_),
-            ])->Js.Json.object_,
+              ("left", formattedFilters->JSON.Encode.object),
+              ("right", customFilter->JSON.Encode.object),
+            ])->JSON.Encode.object,
           ),
         ])
         overallFilters
@@ -388,12 +388,12 @@ let getFilterBody = (
         (
           "and",
           Dict.fromArray([
-            ("left", filterValue->Js.Json.object_),
+            ("left", filterValue->JSON.Encode.object),
             ("right", jsonFormattedFilter),
-          ])->Js.Json.object_,
+          ])->JSON.Encode.object,
         ),
       ])
-    | false => jsonFormattedFilter->Js.Json.decodeObject->Option.getOr(Dict.make())
+    | false => jsonFormattedFilter->JSON.Decode.object->Option.getOr(Dict.make())
     }
   | None => filterValue
   }
@@ -421,7 +421,7 @@ let apiBodyMaker = (
   ~filterValueFromUrl=?,
   ~customFilterValue=?,
   ~sortingParams: option<sortedBasedOn>=?,
-  ~jsonFormattedFilter: option<Js.Json.t>=?,
+  ~jsonFormattedFilter: option<JSON.t>=?,
   ~cardinalitySortDims="total_volume",
   ~timeZone: timeZone=IST,
   ~timeCol: string="txn_initiated",
@@ -435,28 +435,28 @@ let apiBodyMaker = (
   | (Some(cardinality), Some(groupBy)) =>
     groupBy->Array.map(item => {
       Dict.fromArray([
-        ("field", item->Js.Json.string),
-        ("condition", "In"->Js.Json.string),
+        ("field", item->JSON.Encode.string),
+        ("condition", "In"->JSON.Encode.string),
         (
           "val",
           Dict.fromArray([
             (
               "sortedOn",
               Dict.fromArray([
-                ("sortDimension", cardinalitySortDims->Js.Json.string),
-                ("ordering", "Desc"->Js.Json.string),
-              ])->Js.Json.object_,
+                ("sortDimension", cardinalitySortDims->JSON.Encode.string),
+                ("ordering", "Desc"->JSON.Encode.string),
+              ])->JSON.Encode.object,
             ),
-            ("limit", cardinality->Js.Json.number),
-          ])->Js.Json.object_,
+            ("limit", cardinality->JSON.Encode.float),
+          ])->JSON.Encode.object,
         ),
       ])
     })
   | _ => []
   }
 
-  let activeTabArr = groupBy->Option.getOr([])->Array.map(Js.Json.string)
-  finalBody->Dict.set("metric", metric->Js.Json.string)
+  let activeTabArr = groupBy->Option.getOr([])->Array.map(JSON.Encode.string)
+  finalBody->Dict.set("metric", metric->JSON.Encode.string)
   let filterVal = getFilterBody(
     filterValueFromUrl,
     customFilterValue,
@@ -465,7 +465,7 @@ let apiBodyMaker = (
   )
 
   if filterVal->Dict.toArray->Array.length !== 0 {
-    finalBody->Dict.set("filters", filterVal->Js.Json.object_)
+    finalBody->Dict.set("filters", filterVal->JSON.Encode.object)
   }
 
   switch granularityConfig {
@@ -473,19 +473,19 @@ let apiBodyMaker = (
       let (granularityDuration, granularityUnit) = config
       let granularityDimension = Dict.make()
       let granularity = Dict.make()
-      Dict.set(granularityDimension, "timeZone", timeZone->timeZoneMapper->Js.Json.string)
-      Dict.set(granularityDimension, "intervalCol", timeCol->Js.Json.string)
-      Dict.set(granularity, "unit", granularityUnit->Js.Json.string)
-      Dict.set(granularity, "duration", granularityDuration->Int.toFloat->Js.Json.number)
-      Dict.set(granularityDimension, "granularity", granularity->Js.Json.object_)
+      Dict.set(granularityDimension, "timeZone", timeZone->timeZoneMapper->JSON.Encode.string)
+      Dict.set(granularityDimension, "intervalCol", timeCol->JSON.Encode.string)
+      Dict.set(granularity, "unit", granularityUnit->JSON.Encode.string)
+      Dict.set(granularity, "duration", granularityDuration->Int.toFloat->JSON.Encode.float)
+      Dict.set(granularityDimension, "granularity", granularity->JSON.Encode.object)
 
       finalBody->Dict.set(
         "dimensions",
-        Array.concat(activeTabArr, [granularityDimension->Js.Json.object_])->Js.Json.array,
+        Array.concat(activeTabArr, [granularityDimension->JSON.Encode.object])->JSON.Encode.array,
       )
     }
 
-  | None => finalBody->Dict.set("dimensions", activeTabArr->Js.Json.array)
+  | None => finalBody->Dict.set("dimensions", activeTabArr->JSON.Encode.array)
   }
 
   switch sortingParams {
@@ -493,18 +493,21 @@ let apiBodyMaker = (
     finalBody->Dict.set(
       "sortedOn",
       Dict.fromArray([
-        ("sortDimension", val.sortDimension->Js.Json.string),
-        ("ordering", val.ordering === #Desc ? "Desc"->Js.Json.string : "Asc"->Js.Json.string),
-      ])->Js.Json.object_,
+        ("sortDimension", val.sortDimension->JSON.Encode.string),
+        (
+          "ordering",
+          val.ordering === #Desc ? "Desc"->JSON.Encode.string : "Asc"->JSON.Encode.string,
+        ),
+      ])->JSON.Encode.object,
     )
   | None => ()
   }
   switch dataLimit {
-  | Some(dataLimit) => finalBody->Dict.set("limit", dataLimit->Js.Json.number)
+  | Some(dataLimit) => finalBody->Dict.set("limit", dataLimit->JSON.Encode.float)
   | None => ()
   }
 
-  finalBody->Dict.set("domain", domain->Js.Json.string)
-  finalBody->Dict.set("interval", timeObj->Js.Json.object_)
-  finalBody->Js.Json.object_
+  finalBody->Dict.set("domain", domain->JSON.Encode.string)
+  finalBody->Dict.set("interval", timeObj->JSON.Encode.object)
+  finalBody->JSON.Encode.object
 }

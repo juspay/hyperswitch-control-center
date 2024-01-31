@@ -11,7 +11,7 @@ type filterUpdater = {
   filterValue: Dict.t<string>,
   updateExistingKeys: Dict.t<string> => unit,
   removeKeys: array<string> => unit,
-  filterValueJson: Dict.t<Js.Json.t>,
+  filterValueJson: Dict.t<JSON.t>,
   reset: unit => unit,
 }
 

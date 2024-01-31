@@ -22,9 +22,9 @@ module HyperSwitchEntryComponent = {
           "batch_requests": true,
           "loaded": () => {
             let mixpanelUserInfo =
-              [("name", email->Js.Json.string), ("merchantName", name->Js.Json.string)]
+              [("name", email->JSON.Encode.string), ("merchantName", name->JSON.Encode.string)]
               ->Dict.fromArray
-              ->Js.Json.object_
+              ->JSON.Encode.object
 
             let userId = MixPanel.getDistinctId()
             LocalStorage.setItem("deviceid", userId)
@@ -64,7 +64,7 @@ module HyperSwitchEntryComponent = {
         let url = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/config/merchant-access`
         let typedResponse =
           (
-            await postDetails(url, Dict.make()->Js.Json.object_, Post, ())
+            await postDetails(url, Dict.make()->JSON.Encode.object, Post, ())
           )->FeatureFlagUtils.featureFlagType
         setFeatureFlag(._ => typedResponse)
         setScreenState(_ => PageLoaderWrapper.Success)

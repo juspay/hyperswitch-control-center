@@ -21,7 +21,7 @@ let make = (
   )
 
   let initiateValue = Dict.make()
-  let initiateValueJson = initiateValue->Js.Json.object_
+  let initiateValueJson = initiateValue->JSON.Encode.object
 
   let updateRefundDetails = async body => {
     try {
@@ -50,14 +50,14 @@ let make = (
     setShowModal(_ => false)
     let dict = values->LogicUtils.getDictFromJsonObject
     let amount = dict->LogicUtils.getFloat("amount", 0.0)
-    Dict.set(dict, "amount", Js.Math.round(amount *. 100.0)->Js.Json.number)
+    Dict.set(dict, "amount", Js.Math.round(amount *. 100.0)->JSON.Encode.float)
     let body = dict
-    Dict.set(body, "payment_id", order.payment_id->Js.Json.string)
-    Dict.set(body, "refund_type", "instant"->Js.Json.string)
+    Dict.set(body, "payment_id", order.payment_id->JSON.Encode.string)
+    Dict.set(body, "refund_type", "instant"->JSON.Encode.string)
     if !showRefundReason {
-      Dict.set(body, "reason", "RETURN"->Js.Json.string)
+      Dict.set(body, "reason", "RETURN"->JSON.Encode.string)
     }
-    updateRefundDetails(body->Js.Json.object_)->ignore
+    updateRefundDetails(body->JSON.Encode.object)->ignore
     Js.Nullable.null->resolve
   }
 
@@ -65,26 +65,26 @@ let make = (
     let errors = Dict.make()
     let valuesDict =
       values
-      ->Js.Json.decodeObject
+      ->JSON.Decode.object
       ->Option.map(Dict.toArray)
       ->Option.getOr([])
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
-        switch value->Js.Json.classify {
-        | JSONString(strVal) => Some((key, Js.Json.string(strVal)))
-        | JSONNumber(int) => Some((key, int->Js.Json.number))
+        switch value->JSON.Classify.classify {
+        | String(strVal) => Some((key, JSON.Encode.string(strVal)))
+        | Number(int) => Some((key, int->JSON.Encode.float))
         | _ => None
         }
       })
       ->Dict.fromArray
     ["amount"]->Array.forEach(key => {
       if Dict.get(valuesDict, key)->Option.isNone {
-        Dict.set(errors, key, "Required"->Js.Json.string)
+        Dict.set(errors, key, "Required"->JSON.Encode.string)
       }
     })
     let amountValue = Dict.get(valuesDict, "amount")
 
-    switch amountValue->Option.flatMap(Js.Json.decodeNumber) {
+    switch amountValue->Option.flatMap(JSON.Decode.float) {
     | Some(floatVal) =>
       if floatVal > amoutAvailableToRefund {
         let amountSplitArr =
@@ -99,14 +99,18 @@ let make = (
         Dict.set(
           errors,
           "amount",
-          `Refund amount should not exceed ${formatted_amount}`->Js.Json.string,
+          `Refund amount should not exceed ${formatted_amount}`->JSON.Encode.string,
         )
       } else if floatVal == 0.0 {
-        Dict.set(errors, "amount", "Please enter refund amount greater than zero"->Js.Json.string)
+        Dict.set(
+          errors,
+          "amount",
+          "Please enter refund amount greater than zero"->JSON.Encode.string,
+        )
       }
     | None => ()
     }
-    errors->Js.Json.object_
+    errors->JSON.Encode.object
   }
 
   <div>

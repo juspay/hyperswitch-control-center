@@ -23,7 +23,7 @@ let singleStateSeriesInitialValue = {
 
 let singleStatItemToObjMapper = json => {
   json
-  ->Js.Json.decodeObject
+  ->JSON.Decode.object
   ->Option.map(dict => {
     payment_attempts: dict->getInt("payment_attempts", 0),
     sdk_rendered_count: dict->getInt("sdk_rendered_count", 0),
@@ -36,7 +36,7 @@ let singleStatItemToObjMapper = json => {
 
 let singleStateSeriesItemToObjMapper = json => {
   json
-  ->Js.Json.decodeObject
+  ->JSON.Decode.object
   ->Option.map(dict => {
     payment_attempts: dict->getInt("payment_attempts", 0),
     time_series: dict->getString("time_bucket", ""),

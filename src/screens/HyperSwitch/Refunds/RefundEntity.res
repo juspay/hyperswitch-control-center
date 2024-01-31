@@ -164,7 +164,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let getRefunds: Js.Json.t => array<refunds> = json => {
+let getRefunds: JSON.t => array<refunds> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 

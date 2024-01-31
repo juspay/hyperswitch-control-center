@@ -7,7 +7,7 @@ let make = (~input: ReactFinalForm.fieldRenderPropsInput) => {
         label="Yes"
         value="yes"
         type_="radio"
-        checked={input.value == "yes"->Js.Json.string}
+        checked={input.value == "yes"->JSON.Encode.string}
         onChange=input.onChange
       />
       <label className="text-sm text-jp-gray-800"> {"Yes"->React.string} </label>
@@ -18,7 +18,7 @@ let make = (~input: ReactFinalForm.fieldRenderPropsInput) => {
         label="No"
         value="no"
         type_="radio"
-        checked={input.value == "no"->Js.Json.string}
+        checked={input.value == "no"->JSON.Encode.string}
         onChange=input.onChange
       />
       <label className="text-sm text-jp-gray-800"> {"No"->React.string} </label>
