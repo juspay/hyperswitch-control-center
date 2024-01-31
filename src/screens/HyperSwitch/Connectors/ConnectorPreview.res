@@ -294,11 +294,15 @@ let make = (
               </div>
               <UIUtils.RenderIf
                 condition={showMenuOption &&
-                !(connector->getConnectorNameTypeFromString === PAYPAL)}>
+                (connector->getConnectorNameTypeFromString !== PAYPAL ||
+                  (connector->getConnectorNameTypeFromString === PAYPAL &&
+                    !featureFlagDetails.paypalAutomaticFlow))}>
                 <MenuOption setCurrentStep disableConnector isConnectorDisabled />
               </UIUtils.RenderIf>
               <UIUtils.RenderIf
-                condition={showMenuOption && connector->getConnectorNameTypeFromString === PAYPAL}>
+                condition={showMenuOption &&
+                (connector->getConnectorNameTypeFromString === PAYPAL &&
+                featureFlagDetails.paypalAutomaticFlow)}>
                 <MenuOptionForPayPal
                   setCurrentStep
                   disableConnector

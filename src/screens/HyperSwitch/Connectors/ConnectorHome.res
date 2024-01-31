@@ -59,6 +59,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   open APIUtils
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
@@ -142,8 +143,8 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       setScreenState(_ => Loading)
       let _ = await Window.connectorWasmInit()
 
-      switch connector->getConnectorNameTypeFromString {
-      | PAYPAL =>
+      switch (connector->getConnectorNameTypeFromString, featureFlagDetails.paypalAutomaticFlow) {
+      | (PAYPAL, true) =>
         await PayPalFlowUtils.payPalLogics(
           ~setScreenState,
           ~url,
@@ -153,7 +154,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
           ~setCurrentStep,
           ~isUpdateFlow,
         )
-      | _ => await commonLogic()
+      | (_, _) => await commonLogic()
       }
       setScreenState(_ => Success)
     } catch {

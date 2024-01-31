@@ -62,7 +62,10 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
     let initialValuesToDict = initialValues->getDictFromJsonObject
 
     if !isUpdateFlow {
-      if connector->getConnectorNameTypeFromString === PAYPAL {
+      if (
+        connector->getConnectorNameTypeFromString === PAYPAL &&
+          featureFlagDetails.paypalAutomaticFlow
+      ) {
         initialValuesToDict->Dict.set(
           "connector_label",
           initialValues
@@ -236,7 +239,9 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
         handleShowModal>
         <UIUtils.RenderIf
           condition={featureFlagDetails.businessProfile &&
-          connector->getConnectorNameTypeFromString !== PAYPAL}>
+          (connector->getConnectorNameTypeFromString !== PAYPAL ||
+            (connector->getConnectorNameTypeFromString === PAYPAL &&
+              !featureFlagDetails.paypalAutomaticFlow))}>
           <div className="flex flex-col gap-2 p-2 md:p-10">
             <ConnectorAccountDetailsHelper.BusinessProfileRender
               isUpdateFlow selectedConnector={connector}
