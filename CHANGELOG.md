@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.01.30.0
+
+### Features
+
+- Made the customize columns to appear in Portal for same line ([#308](https://github.com/juspay/hyperswitch-control-center/pull/308)) ([`ea21b97`](https://github.com/juspay/hyperswitch-control-center/commit/ea21b97c5964d34ce335a8c69e43142a65eb25bf))
+
+### Refactors
+
+- Proper identification of reactHyperJs from hyperswitch ([#299](https://github.com/juspay/hyperswitch-control-center/pull/299)) ([`4038dff`](https://github.com/juspay/hyperswitch-control-center/commit/4038dff12c539382490752979b917f7790b08ca6))
+
+### Miscellaneous Tasks
+
+- Remove Belt API from codebase ([#310](https://github.com/juspay/hyperswitch-control-center/pull/310)) ([`089c051`](https://github.com/juspay/hyperswitch-control-center/commit/089c05142ad9591adac3ef94f66c48321fe6ec65))
+
+**Full Changelog:** [`2024.01.29.0...2024.01.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.01.29.0...2024.01.30.0)
+
+- - -
+
 ## 2024.01.29.0
 
 ### Features
