@@ -166,7 +166,7 @@ let make = (
 ) => {
   let localFilters = initialFilters->Array.filter(item => item.localFilter->Option.isSome)
   let remoteOptions = options->Array.filter(item => item.localFilter->Option.isNone)
-  let defaultFilters = ""->Js.Json.string
+  let defaultFilters = ""->JSON.Encode.string
   let (showModal, setShowModal) = React.useState(_ => false)
 
   let {updateExistingKeys, filterValue, removeKeys} = React.useContext(FilterContext.filterContext)

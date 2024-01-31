@@ -35,7 +35,7 @@ module CardDetails = {
   @react.component
   let make = (
     ~itemArray,
-    ~heading: Js.Array.t<Table.header>,
+    ~heading: array<Table.header>,
     ~onRowClick,
     ~rowIndex,
     ~size=4,
@@ -111,7 +111,7 @@ module CardDetails = {
 
 @react.component
 let make = (
-  ~heading: Js.Array.t<Table.header>,
+  ~heading: array<Table.header>,
   ~rows,
   ~offset=0,
   ~onRowClick=?,

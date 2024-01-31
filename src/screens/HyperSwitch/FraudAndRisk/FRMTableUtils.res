@@ -1,13 +1,13 @@
 let getArrayDataFromJson = (json, itemToObjMapper) => {
   json
-  ->Js.Json.decodeArray
+  ->JSON.Decode.array
   ->Option.getOr([])
-  ->Belt.Array.keepMap(Js.Json.decodeObject)
+  ->Belt.Array.keepMap(JSON.Decode.object)
   ->FRMUtils.filterList(~removeFromList=Connector, ())
   ->Array.map(itemToObjMapper)
 }
 
-let getPreviouslyConnectedList: Js.Json.t => array<ConnectorTypes.connectorPayload> = json => {
+let getPreviouslyConnectedList: JSON.t => array<ConnectorTypes.connectorPayload> = json => {
   getArrayDataFromJson(
     json,
     ConnectorTableUtils.getProcessorPayloadType,

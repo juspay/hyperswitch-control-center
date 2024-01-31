@@ -100,11 +100,11 @@ let make = () => {
 
       let _ = await updateDetails(
         postLoginSurveyUrl,
-        values->generateSurveyJson->Js.Json.object_,
+        values->generateSurveyJson->JSON.Encode.object,
         Post,
         (),
       )
-      HSwitchUtils.setUserDetails("is_metadata_filled", "true"->Js.Json.string)
+      HSwitchUtils.setUserDetails("is_metadata_filled", "true"->JSON.Encode.string)
       setDashboardPageState(_ => #AUTO_CONNECTOR_INTEGRATION)
     } catch {
     | Js.Exn.Error(e) =>

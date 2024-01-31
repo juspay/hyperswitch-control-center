@@ -262,8 +262,8 @@ let refundMetaitemToObjMapper = dict => {
   }
 }
 
-let getRefundMetaData: Js.Json.t => refundMetaData = json => {
-  json->Js.Json.decodeObject->Option.getOr(Dict.make())->refundMetaitemToObjMapper
+let getRefundMetaData: JSON.t => refundMetaData = json => {
+  json->JSON.Decode.object->Option.getOr(Dict.make())->refundMetaitemToObjMapper
 }
 
 let refunditemToObjMapper = dict => {
@@ -300,11 +300,11 @@ let attemptsItemToObjMapper = dict => {
   reference_id: dict->getString("reference_id", ""),
 }
 
-let getRefunds: Js.Json.t => array<refunds> = json => {
+let getRefunds: JSON.t => array<refunds> = json => {
   LogicUtils.getArrayDataFromJson(json, refunditemToObjMapper)
 }
 
-let getAttempts: Js.Json.t => array<attempts> = json => {
+let getAttempts: JSON.t => array<attempts> = json => {
   LogicUtils.getArrayDataFromJson(json, attemptsItemToObjMapper)
 }
 
@@ -765,7 +765,7 @@ let getCell = (order, colType: colType): Table.cell => {
   | ProfileId => Text(order.profile_id)
   | Refunds =>
     Text(
-      switch order.refunds->Js.Json.stringifyAny {
+      switch order.refunds->JSON.stringifyAny {
       | None => "-"
       | Some(v) => v
       },
@@ -871,7 +871,7 @@ let itemToObjMapper = dict => {
     connector_transaction_id: dict->getString("connector_transaction_id", ""),
     refunds: dict
     ->getArrayFromDict("refunds", [])
-    ->Js.Json.array
+    ->JSON.Encode.array
     ->getArrayDataFromJson(refunditemToObjMapper),
     profile_id: dict->getString("profile_id", ""),
     frm_message: dict->getFRMDetails,
@@ -880,7 +880,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let getOrders: Js.Json.t => array<order> = json => {
+let getOrders: JSON.t => array<order> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 

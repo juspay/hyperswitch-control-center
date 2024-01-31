@@ -7,7 +7,7 @@ module ClearForm = {
     <div className="ml-2">
       <Button
         text="Clear Form"
-        onClick={e => form.reset(Js.Json.object_(Dict.make())->Js.Nullable.return)}
+        onClick={e => form.reset(JSON.Encode.object(Dict.make())->Js.Nullable.return)}
       />
     </div>
   }
@@ -137,17 +137,17 @@ module ClearFilters = {
       _ => {
         let searchStr =
           formState.values
-          ->Js.Json.decodeObject
+          ->JSON.Decode.object
           ->Option.getOr(Dict.make())
           ->Dict.toArray
           ->Belt.Array.keepMap(entry => {
             let (key, value) = entry
             switch defaultFilterKeys->Array.includes(key) {
             | true =>
-              switch value->Js.Json.classify {
-              | JSONString(str) => `${key}=${str}`->Some
-              | JSONNumber(num) => `${key}=${num->String.make}`->Some
-              | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
+              switch value->JSON.Classify.classify {
+              | String(str) => `${key}=${str}`->Some
+              | Number(num) => `${key}=${num->String.make}`->Some
+              | Array(arr) => `${key}=[${arr->String.make}]`->Some
               | _ => None
               }
             | false => None
@@ -161,15 +161,15 @@ module ClearFilters = {
 
     let hasExtraFilters = React.useMemo2(() => {
       formState.initialValues
-      ->Js.Json.decodeObject
+      ->JSON.Decode.object
       ->Option.getOr(Dict.make())
       ->Dict.toArray
       ->Array.filter(entry => {
         let (key, value) = entry
-        let isEmptyValue = switch value->Js.Json.classify {
-        | JSONString(str) => str === ""
-        | JSONArray(arr) => arr->Array.length === 0
-        | JSONNull => true
+        let isEmptyValue = switch value->JSON.Classify.classify {
+        | String(str) => str === ""
+        | Array(arr) => arr->Array.length === 0
+        | Null => true
         | _ => false
         }
 
@@ -207,17 +207,17 @@ module AnalyticsClearFilters = {
       _ => {
         let searchStr =
           formState.values
-          ->Js.Json.decodeObject
+          ->JSON.Decode.object
           ->Option.getOr(Dict.make())
           ->Dict.toArray
           ->Belt.Array.keepMap(entry => {
             let (key, value) = entry
             switch defaultFilterKeys->Array.includes(key) {
             | true =>
-              switch value->Js.Json.classify {
-              | JSONString(str) => `${key}=${str}`->Some
-              | JSONNumber(num) => `${key}=${num->String.make}`->Some
-              | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
+              switch value->JSON.Classify.classify {
+              | String(str) => `${key}=${str}`->Some
+              | Number(num) => `${key}=${num->String.make}`->Some
+              | Array(arr) => `${key}=[${arr->String.make}]`->Some
               | _ => None
               }
             | false => None
@@ -231,15 +231,15 @@ module AnalyticsClearFilters = {
 
     let hasExtraFilters = React.useMemo2(() => {
       formState.initialValues
-      ->Js.Json.decodeObject
+      ->JSON.Decode.object
       ->Option.getOr(Dict.make())
       ->Dict.toArray
       ->Array.filter(entry => {
         let (key, value) = entry
-        let isEmptyValue = switch value->Js.Json.classify {
-        | JSONString(str) => str === ""
-        | JSONArray(arr) => arr->Array.length === 0
-        | JSONNull => true
+        let isEmptyValue = switch value->JSON.Classify.classify {
+        | String(str) => str === ""
+        | Array(arr) => arr->Array.length === 0
+        | Null => true
         | _ => false
         }
 
@@ -306,7 +306,7 @@ module CheckCustomFilters = {
             isDropDown=true
             hideMultiSelectButtons=true
             buttonType=Button.FilterAdd
-            value={checkedFilters->Js.Array.map(Js.Json.string, _)->Js.Json.array}
+            value={checkedFilters->Array.map(JSON.Encode.string)->JSON.Encode.array}
             searchable=showSelectFiltersSearch
           />
         </div>
@@ -348,10 +348,10 @@ module AutoSubmitter = {
 }
 
 let getStrFromJson = (key, val) => {
-  switch val->Js.Json.classify {
-  | JSONString(str) => str
-  | JSONArray(array) => array->Array.length > 0 ? `[${array->Array.joinWithUnsafe(",")}]` : ""
-  | JSONNumber(num) => key === "offset" ? "0" : num->Float.toInt->string_of_int
+  switch val->JSON.Classify.classify {
+  | String(str) => str
+  | Array(array) => array->Array.length > 0 ? `[${array->Array.joinWithUnsafe(",")}]` : ""
+  | Number(num) => key === "offset" ? "0" : num->Float.toInt->string_of_int
   | _ => ""
   }
 }
@@ -426,11 +426,11 @@ module ApplyFilterButton = {
         ->Dict.toArray
         ->Array.reduce(true, (acc, item) => {
           let (_, value) = item
-          switch value->Js.Json.classify {
-          | JSONString(str) => str === ""
-          | JSONArray(arr) => arr->Array.length === 0
-          | JSONObject(dict) => dict->Dict.toArray->Array.length === 0
-          | JSONNull => true
+          switch value->JSON.Classify.classify {
+          | String(str) => str === ""
+          | Array(arr) => arr->Array.length === 0
+          | Object(dict) => dict->Dict.toArray->Array.length === 0
+          | Null => true
           | _ => false
           } &&
           acc
@@ -454,7 +454,7 @@ module ApplyFilterButton = {
 
 module FilterModal = {
   @react.component
-  let make = (~selectedFiltersList: Js.Array2.t<FormRenderer.fieldInfoType>, ~showAllFilter) => {
+  let make = (~selectedFiltersList: array<FormRenderer.fieldInfoType>, ~showAllFilter) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Js.Nullable.return,
     )
@@ -565,7 +565,7 @@ let make = (
     ->Array.map(item => {
       item.inputNames->Array.get(0)->Option.getOr("")
     })
-    ->Js.Json.stringArray
+    ->LogicUtils.getJsonFromArrayOfString
   }, [selectedFiltersList])
 
   React.useEffect1(() => {
@@ -573,7 +573,7 @@ let make = (
       addConfig(alreadySelectedFiltersUserpref, updatedSelectedList)
     }
     None
-  }, [updatedSelectedList->Js.Json.stringify])
+  }, [updatedSelectedList->JSON.stringify])
 
   let getNewQuery = DateRefreshHooks.useConstructQueryOnBasisOfOpt()
   let (isButtonDisabled, setIsButtonDisabled) = React.useState(_ => false)
@@ -587,12 +587,10 @@ let make = (
 
   let isMobileView = MatchMedia.useMobileChecker()
 
-  let (initialValueJson, setInitialValueJson) = React.useState(_ => Js.Json.object_(Dict.make()))
+  let (initialValueJson, setInitialValueJson) = React.useState(_ => JSON.Encode.object(Dict.make()))
 
   let countSelectedFilters = React.useMemo1(() => {
-    Dict.keysToArray(
-      initialValueJson->Js.Json.decodeObject->Option.getOr(Dict.make()),
-    )->Array.length
+    Dict.keysToArray(initialValueJson->JSON.Decode.object->Option.getOr(Dict.make()))->Array.length
   }, [initialValueJson])
 
   let hideFiltersInit = switch hideFiltersDefaultValue {
@@ -645,7 +643,7 @@ let make = (
     | None => ()
     }
 
-    switch initialValues->Js.Json.decodeObject {
+    switch initialValues->JSON.Decode.object {
     | Some(dict) => {
         let localCheckedFilters = Array.map(checkedFilters, filter => {
           filter
@@ -682,7 +680,8 @@ let make = (
         setCount(_prev => clearFilterJson + initalCount)
         setCheckedFilters(_prev => localCheckedFilters)
         setSelectedFiltersList(_prev => localSelectedFiltersList)
-        let finalInitialValueJson = initialValues->JsonFlattenUtils.unflattenObject->Js.Json.object_
+        let finalInitialValueJson =
+          initialValues->JsonFlattenUtils.unflattenObject->JSON.Encode.object
         setInitialValueJson(_ => finalInitialValueJson)
       }
 
@@ -692,9 +691,9 @@ let make = (
   }, [searchParams])
 
   let onSubmit = (values, _) => {
-    let obj = values->Js.Json.decodeObject->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
+    let obj = values->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
 
-    let flattendDict = obj->Js.Json.object_->JsonFlattenUtils.flattenObject(false)
+    let flattendDict = obj->JSON.Encode.object->JsonFlattenUtils.flattenObject(false)
     let localFilterDict = localFilterJson->JsonFlattenUtils.flattenObject(false)
     switch updateUrlWith {
     | Some(updateUrlWith) =>
@@ -750,7 +749,7 @@ let make = (
 
   let removeFilters = (fieldNameArr, values) => {
     let toBeRemoved = checkedFilters->Array.filter(oldVal => !Array.includes(fieldNameArr, oldVal))
-    switch values->Js.Json.decodeObject {
+    switch values->JSON.Decode.object {
     | Some(dict) =>
       dict
       ->Dict.toArray
@@ -758,7 +757,7 @@ let make = (
         let (key, _val) = entry
 
         if toBeRemoved->Array.includes(key) {
-          dict->Dict.set(key, Js.Json.string(""))
+          dict->Dict.set(key, JSON.Encode.string(""))
         }
       })
     | None => ()
@@ -775,7 +774,7 @@ let make = (
 
     let newValueJson =
       initialValueJson
-      ->Js.Json.decodeObject
+      ->JSON.Decode.object
       ->Option.map(Dict.toArray)
       ->Option.getOr([])
       ->Array.filter(entry => {
@@ -783,7 +782,7 @@ let make = (
         !Array.includes(toBeRemoved, key)
       })
       ->Dict.fromArray
-      ->Js.Json.object_
+      ->JSON.Encode.object
 
     setInitialValueJson(_ => newValueJson)
     setCheckedFilters(_prev => filtersAfterRemoving)
@@ -801,7 +800,7 @@ let make = (
         } else {
           key
         }
-        Dict.set(errors, key, "Required"->Js.Json.string)
+        Dict.set(errors, key, "Required"->JSON.Encode.string)
       }
     })
     if errors->Dict.toArray->Array.length > 0 {
@@ -809,7 +808,7 @@ let make = (
     } else {
       setIsButtonDisabled(_ => false)
     }
-    errors->Js.Json.object_
+    errors->JSON.Encode.object
   }
 
   let fieldsFromOption = popupFilterFields->Array.map(option => {option.field})
@@ -825,7 +824,7 @@ let make = (
     )
     let urlValue = `${path}?${newQueryStr}`
     setClearFilterAfterRefresh(_ => true)
-    setInitialValueJson(_ => Dict.make()->Js.Json.object_)
+    setInitialValueJson(_ => Dict.make()->JSON.Encode.object)
     Window.Location.replace(urlValue)
   }
 

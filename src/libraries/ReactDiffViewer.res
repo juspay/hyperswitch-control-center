@@ -1,8 +1,8 @@
 let defaultStyles = Dict.make()
 let wordDiffStyle = Dict.make()
-Dict.set(wordDiffStyle, "padding", "0px"->Js.Json.string)
-Dict.set(defaultStyles, "wordDiff", wordDiffStyle->Js.Json.object_)
-let styles = defaultStyles->Js.Json.object_
+Dict.set(wordDiffStyle, "padding", "0px"->JSON.Encode.string)
+Dict.set(defaultStyles, "wordDiff", wordDiffStyle->JSON.Encode.object)
+let styles = defaultStyles->JSON.Encode.object
 
 @react.component
 let make = (

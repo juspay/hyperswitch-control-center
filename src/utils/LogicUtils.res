@@ -26,14 +26,14 @@ let stripV4 = path => {
 // parse a string into json and return optional json
 let safeParseOpt = st => {
   try {
-    Js.Json.parseExn(st)->Some
+    Some(JSON.parseExn(st))
   } catch {
-  | _e => None
+  | _ => None
   }
 }
 // parse a string into json and return json with null default
 let safeParse = st => {
-  safeParseOpt(st)->Option.getOr(Js.Json.null)
+  safeParseOpt(st)->Option.getOr(JSON.Encode.null)
 }
 
 type numericComparisionType =
@@ -56,7 +56,7 @@ and logic = {
 }
 
 let getDictFromJsonObject = json => {
-  switch json->Js.Json.decodeObject {
+  switch json->JSON.Decode.object {
   | Some(dict) => dict
   | None => Dict.make()
   }
@@ -113,27 +113,27 @@ let getNameFromEmail = email => {
 }
 
 let getOptionString = (dict, key) => {
-  dict->Dict.get(key)->Option.flatMap(Js.Json.decodeString)
+  dict->Dict.get(key)->Option.flatMap(JSON.Decode.string)
 }
 
 let getString = (dict, key, default) => {
   getOptionString(dict, key)->Option.getOr(default)
 }
 
-let getStringFromJson = (json: Js.Json.t, default) => {
-  json->Js.Json.decodeString->Option.getOr(default)
+let getStringFromJson = (json: JSON.t, default) => {
+  json->JSON.Decode.string->Option.getOr(default)
 }
 
 let getBoolFromJson = (json, defaultValue) => {
-  json->Js.Json.decodeBoolean->Option.getOr(defaultValue)
+  json->JSON.Decode.bool->Option.getOr(defaultValue)
 }
 
-let getArrayFromJson = (json: Js.Json.t, default) => {
-  json->Js.Json.decodeArray->Option.getOr(default)
+let getArrayFromJson = (json: JSON.t, default) => {
+  json->JSON.Decode.array->Option.getOr(default)
 }
 
 let getOptionalArrayFromDict = (dict, key) => {
-  dict->Dict.get(key)->Option.flatMap(Js.Json.decodeArray)
+  dict->Dict.get(key)->Option.flatMap(JSON.Decode.array)
 }
 
 let getArrayFromDict = (dict, key, default) => {
@@ -142,28 +142,28 @@ let getArrayFromDict = (dict, key, default) => {
 
 let getArrayDataFromJson = (json, itemToObjMapper) => {
   json
-  ->Js.Json.decodeArray
+  ->JSON.Decode.array
   ->Option.getOr([])
-  ->Belt.Array.keepMap(Js.Json.decodeObject)
+  ->Belt.Array.keepMap(JSON.Decode.object)
   ->Array.map(itemToObjMapper)
 }
 let getStrArray = (dict, key) => {
   dict
   ->getOptionalArrayFromDict(key)
   ->Option.getOr([])
-  ->Array.map(json => json->Js.Json.decodeString->Option.getOr(""))
+  ->Array.map(json => json->JSON.Decode.string->Option.getOr(""))
 }
 
 let getStrArrayFromJsonArray = jsonArr => {
-  jsonArr->Belt.Array.keepMap(Js.Json.decodeString)
+  jsonArr->Belt.Array.keepMap(JSON.Decode.string)
 }
 
 let getStrArryFromJson = arr => {
-  arr->Js.Json.decodeArray->Option.map(getStrArrayFromJsonArray)->Option.getOr([])
+  arr->JSON.Decode.array->Option.map(getStrArrayFromJsonArray)->Option.getOr([])
 }
 
 let getOptionStrArrayFromJson = json => {
-  json->Js.Json.decodeArray->Option.map(getStrArrayFromJsonArray)
+  json->JSON.Decode.array->Option.map(getStrArrayFromJsonArray)
 }
 
 let getStrArrayFromDict = (dict, key, default) => {
@@ -191,7 +191,7 @@ let getNonEmptyArray = arr => {
 }
 
 let getOptionBool = (dict, key) => {
-  dict->Dict.get(key)->Option.flatMap(Js.Json.decodeBoolean)
+  dict->Dict.get(key)->Option.flatMap(JSON.Decode.bool)
 }
 
 let getBool = (dict, key, default) => {
@@ -199,7 +199,7 @@ let getBool = (dict, key, default) => {
 }
 
 let getJsonObjectFromDict = (dict, key) => {
-  dict->Dict.get(key)->Option.getOr(Js.Json.object_(Dict.make()))
+  dict->Dict.get(key)->Option.getOr(JSON.Encode.object(Dict.make()))
 }
 
 let getBoolFromString = (boolString, default: bool) => {
@@ -237,31 +237,31 @@ let getFloatFromString = (str, default) => {
 }
 
 let getIntFromJson = (json, default) => {
-  switch json->Js.Json.classify {
-  | JSONString(str) => getIntFromString(str, default)
-  | JSONNumber(floatValue) => floatValue->Float.toInt
+  switch json->JSON.Classify.classify {
+  | String(str) => getIntFromString(str, default)
+  | Number(floatValue) => floatValue->Float.toInt
   | _ => default
   }
 }
 let getOptionIntFromJson = json => {
-  switch json->Js.Json.classify {
-  | JSONString(str) => getOptionIntFromString(str)
-  | JSONNumber(floatValue) => Some(floatValue->Float.toInt)
+  switch json->JSON.Classify.classify {
+  | String(str) => getOptionIntFromString(str)
+  | Number(floatValue) => Some(floatValue->Float.toInt)
   | _ => None
   }
 }
 let getOptionFloatFromJson = json => {
-  switch json->Js.Json.classify {
-  | JSONString(str) => getOptionFloatFromString(str)
-  | JSONNumber(floatValue) => Some(floatValue)
+  switch json->JSON.Classify.classify {
+  | String(str) => getOptionFloatFromString(str)
+  | Number(floatValue) => Some(floatValue)
   | _ => None
   }
 }
 
 let getFloatFromJson = (json, default) => {
-  switch json->Js.Json.classify {
-  | JSONString(str) => getFloatFromString(str, default)
-  | JSONNumber(floatValue) => floatValue
+  switch json->JSON.Classify.classify {
+  | String(str) => getFloatFromString(str, default)
+  | Number(floatValue) => floatValue
   | _ => default
   }
 }
@@ -291,7 +291,7 @@ let getFloat = (dict, key, default) => {
 }
 
 let getObj = (dict, key, default) => {
-  dict->Dict.get(key)->Option.flatMap(Js.Json.decodeObject)->Option.getOr(default)
+  dict->Dict.get(key)->Option.flatMap(JSON.Decode.object)->Option.getOr(default)
 }
 
 let getDictFromUrlSearchParams = searchParams => {
@@ -309,16 +309,16 @@ let getDictFromUrlSearchParams = searchParams => {
   ->Dict.fromArray
 }
 let setOptionString = (dict, key, optionStr) =>
-  optionStr->Option.mapOr((), str => dict->Dict.set(key, str->Js.Json.string))
+  optionStr->Option.mapOr((), str => dict->Dict.set(key, str->JSON.Encode.string))
 
 let setOptionBool = (dict, key, optionInt) =>
-  optionInt->Option.mapOr((), bool => dict->Dict.set(key, bool->Js.Json.boolean))
+  optionInt->Option.mapOr((), bool => dict->Dict.set(key, bool->JSON.Encode.bool))
 
 let setOptionArray = (dict, key, optionArray) =>
-  optionArray->Option.mapOr((), array => dict->Dict.set(key, array->Js.Json.array))
+  optionArray->Option.mapOr((), array => dict->Dict.set(key, array->JSON.Encode.array))
 
 let setOptionDict = (dict, key, optionDictValue) =>
-  optionDictValue->Option.mapOr((), value => dict->Dict.set(key, value->Js.Json.object_))
+  optionDictValue->Option.mapOr((), value => dict->Dict.set(key, value->JSON.Encode.object))
 
 let capitalizeString = str => {
   String.toUpperCase(String.charAt(str, 0)) ++ Js.String2.substringToEnd(str, ~from=1)
@@ -463,7 +463,7 @@ let latencyShortNum = (~labelValue: float, ~includeMilliseconds=?, ()) => {
 }
 
 let checkEmptyJson = json => {
-  json == Js.Json.object_(Dict.make())
+  json == JSON.Encode.object(Dict.make())
 }
 
 let numericArraySortComperator = (a, b) => {
@@ -540,7 +540,7 @@ let getListHead = (~default="", list) => {
   list->List.head->Option.getOr(default)
 }
 
-let dataMerge = (~dataArr: array<array<Js.Json.t>>, ~dictKey: array<string>) => {
+let dataMerge = (~dataArr: array<array<JSON.t>>, ~dictKey: array<string>) => {
   let finalData = Dict.make()
   dataArr->Array.forEach(jsonArr => {
     jsonArr->Array.forEach(jsonObj => {
@@ -558,7 +558,7 @@ let dataMerge = (~dataArr: array<array<Js.Json.t>>, ~dictKey: array<string>) => 
 
       finalData->Dict.set(
         dictKey,
-        existingData->Array.concat(data)->Dict.fromArray->Js.Json.object_,
+        existingData->Array.concat(data)->Dict.fromArray->JSON.Encode.object,
       )
     })
   })
@@ -568,14 +568,11 @@ let dataMerge = (~dataArr: array<array<Js.Json.t>>, ~dictKey: array<string>) => 
 
 let getJsonFromStr = data => {
   if data !== "" {
-    Js.Json.stringifyWithSpace(safeParse(data), 2)
+    JSON.stringifyWithIndent(safeParse(data), 2)
   } else {
     data
   }
 }
-
-//Extract Exn to Dict
-external toExnJson: exn => Js.Json.t = "%identity"
 
 let compareLogic = (firstValue, secondValue) => {
   let temp1 = firstValue
@@ -589,7 +586,7 @@ let compareLogic = (firstValue, secondValue) => {
   }
 }
 
-let getJsonFromArrayOfJson = arr => arr->Dict.fromArray->Js.Json.object_
+let getJsonFromArrayOfJson = arr => arr->Dict.fromArray->JSON.Encode.object
 
 let getTitle = name => {
   name->String.toLowerCase->String.split("_")->Array.map(capitalizeString)->Array.joinWith(" ")
@@ -626,4 +623,8 @@ let listOfMatchedText = (text, searchText) => {
     | None => [text]
     }
   }
+}
+
+let getJsonFromArrayOfString = arr => {
+  arr->Array.map(ele => ele->JSON.Encode.string)->JSON.Encode.array
 }

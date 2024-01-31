@@ -15,7 +15,7 @@ module InviteEmailForm = {
     let role =
       ReactFinalForm.useField(`roleType`).input.value
       ->getArrayFromJson([])
-      ->getValueFromArray(0, ""->Js.Json.string)
+      ->getValueFromArray(0, ""->JSON.Encode.string)
       ->getStringFromJson("")
 
     let getRolesList = async () => {
@@ -85,9 +85,9 @@ let make = () => {
   let (loaderForInviteUsers, setLoaderForInviteUsers) = React.useState(_ => false)
 
   let initialValues = React.useMemo0(() => {
-    [("roleType", ["merchant_view_only"->Js.Json.string]->Js.Json.array)]
+    [("roleType", ["merchant_view_only"->JSON.Encode.string]->JSON.Encode.array)]
     ->Dict.fromArray
-    ->Js.Json.object_
+    ->JSON.Encode.object
   })
 
   let inviteUserReq = body => {
@@ -107,9 +107,9 @@ let make = () => {
     let promisesOfInvitedUsers = emailList->Array.map(ele => {
       let body =
         [
-          ("email", ele->String.toLowerCase->Js.Json.string),
-          ("name", ele->getNameFromEmail->Js.Json.string),
-          ("role_id", role->Js.Json.string),
+          ("email", ele->String.toLowerCase->JSON.Encode.string),
+          ("name", ele->getNameFromEmail->JSON.Encode.string),
+          ("role_id", role->JSON.Encode.string),
         ]->getJsonFromArrayOfJson
       inviteUserReq(body)
     })
@@ -117,15 +117,15 @@ let make = () => {
     let response = await PromiseUtils.allSettledPolyfill(promisesOfInvitedUsers)
     if !magicLink {
       let invitedUserData = response->Array.mapWithIndex((ele, index) => {
-        switch Js.Json.classify(ele) {
-        | Js.Json.JSONObject(jsonDict) => {
+        switch JSON.Classify.classify(ele) {
+        | Object(jsonDict) => {
             let passwordFromResponse = jsonDict->getString("password", "")
             [
-              ("email", emailList[index]->Option.getOr("")->Js.Json.string),
-              ("password", passwordFromResponse->Js.Json.string),
+              ("email", emailList[index]->Option.getOr("")->JSON.Encode.string),
+              ("password", passwordFromResponse->JSON.Encode.string),
             ]->getJsonFromArrayOfJson
           }
-        | _ => Js.Json.null
+        | _ => JSON.Encode.null
         }
       })
 
@@ -135,9 +135,9 @@ let make = () => {
         DownloadUtils.download(
           ~fileName=`invited-users.txt`,
           ~content=invitedUserData
-          ->Array.filter(ele => ele !== Js.Json.null)
-          ->Js.Json.array
-          ->Js.Json.stringifyWithSpace(3),
+          ->Array.filter(ele => ele !== JSON.Encode.null)
+          ->JSON.Encode.array
+          ->JSON.stringifyWithIndent(3),
           ~fileType="application/json",
         )
       }
@@ -200,7 +200,7 @@ let make = () => {
     if roleTypeValue->Option.isNone {
       getRoleForUser(permissionInfoValue)->ignore
     } else {
-      settingUpValues(roleTypeValue->Option.getOr(Js.Json.null), permissionInfoValue)
+      settingUpValues(roleTypeValue->Option.getOr(JSON.Encode.null), permissionInfoValue)
     }
   }
 

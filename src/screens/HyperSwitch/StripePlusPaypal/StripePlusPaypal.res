@@ -11,7 +11,7 @@ let make = () => {
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let (selectedConnector, setSelectedConnector) = React.useState(_ => STRIPE)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (connectorConfigureState, setConnectorConfigureState) = React.useState(_ => Configure_keys)
   let (stepInView, setStepInView) = React.useState(_ => STRIPE_CONFIGURE)
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
@@ -32,7 +32,7 @@ let make = () => {
       if enums.paypalConnected.processorID->String.length === 0 {
         setSelectedConnector(_ => PAYPAL)
         setConnectorConfigureState(_ => Configure_keys)
-        setInitialValues(_ => Dict.make()->Js.Json.object_)
+        setInitialValues(_ => Dict.make()->JSON.Encode.object)
         setStepInView(prev => {
           switch prev {
           | STRIPE_CONFIGURE => forward ? PAYPAL_CONFIGURE : STRIPE_CONFIGURE
@@ -54,7 +54,7 @@ let make = () => {
         (await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray))
         ->Js.Nullable.toOption
         ->Option.getOr(Dict.make())
-        ->Js.Json.object_
+        ->JSON.Encode.object
         ->QuickStartUtils.getTypedValueFromDict
 
       let currentPending = steps->Array.find(step => {
@@ -83,9 +83,9 @@ let make = () => {
 
   React.useEffect1(() => {
     let defaultJsonOnNewConnector =
-      [("profile_id", activeBusinessProfile.profile_id->Js.Json.string)]
+      [("profile_id", activeBusinessProfile.profile_id->JSON.Encode.string)]
       ->Dict.fromArray
-      ->Js.Json.object_
+      ->JSON.Encode.object
     setInitialValues(_ => defaultJsonOnNewConnector)
     None
   }, [activeBusinessProfile.profile_id, connectorName])

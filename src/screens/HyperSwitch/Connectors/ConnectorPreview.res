@@ -123,14 +123,14 @@ module ConnectorSummaryGrid = {
           setScreenState(_ => Success)
           dict
         } else {
-          Dict.make()->Js.Json.object_
+          Dict.make()->JSON.Encode.object
         }
       } catch {
       | Js.Exn.Error(e) => {
           Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
           let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
           setScreenState(_ => PageLoaderWrapper.Error(err))
-          Dict.make()->Js.Json.object_
+          Dict.make()->JSON.Encode.object
         }
       }
     }, [connector])
@@ -250,7 +250,7 @@ let make = (
         isConnectorDisabled,
       )
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
-      let _ = await updateDetails(url, disableConnectorPayload->Js.Json.object_, Post, ())
+      let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post, ())
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
       RescriptReactRouter.push("/connectors")
     } catch {

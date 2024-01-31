@@ -115,11 +115,11 @@ let make = (
   ~addAttributeId="",
 ) => {
   let boolInput = baseInput->ffInputToBoolInput
-  let boolValue: Js.Json.t = boolInput.value
+  let boolValue: JSON.t = boolInput.value
 
-  let isSelected = switch boolValue->Js.Json.classify {
-  | JSONTrue => true
-  | JSONString(str) => str === "true"
+  let isSelected = switch boolValue->JSON.Classify.classify {
+  | Bool(_) => true
+  | String(str) => str === "true"
   | _ => false
   }
   let setIsSelected = boolInput.onChange

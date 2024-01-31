@@ -127,12 +127,12 @@ module SystemMetricsInsights = {
     let singleStatBodyMake = (singleStatBodyEntity: singleStatBodyEntity) => {
       let filters =
         [
-          ("api_name", ["PaymentsConfirm"->Js.Json.string]->Js.Json.array),
-          ("status_code", [200.0->Js.Json.number]->Js.Json.array),
-          ("flow_type", ["Payment"->Js.Json.string]->Js.Json.array),
+          ("api_name", ["PaymentsConfirm"->JSON.Encode.string]->JSON.Encode.array),
+          ("status_code", [200.0->JSON.Encode.float]->JSON.Encode.array),
+          ("flow_type", ["Payment"->JSON.Encode.string]->JSON.Encode.array),
         ]
         ->Dict.fromArray
-        ->Js.Json.object_
+        ->JSON.Encode.object
 
       [
         AnalyticsUtils.getFilterRequestBody(
@@ -147,10 +147,10 @@ module SystemMetricsInsights = {
           ~granularity=singleStatBodyEntity.granularity,
           ~prefix=singleStatBodyEntity.prefix,
           (),
-        )->Js.Json.object_,
+        )->JSON.Encode.object,
       ]
-      ->Js.Json.array
-      ->Js.Json.stringify
+      ->JSON.Encode.array
+      ->JSON.stringify
     }
 
     let getStatEntity: 'a => DynamicSingleStat.entityType<'colType, 't, 't2> = metrics => {
@@ -172,7 +172,7 @@ module SystemMetricsInsights = {
     }
 
     let metrics = ["latency"]->Array.map(key => {
-      [("name", key->Js.Json.string)]->Dict.fromArray->Js.Json.object_
+      [("name", key->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
     })
 
     let singleStatEntity = getStatEntity(metrics)
@@ -208,7 +208,7 @@ module OverviewInfo = {
         let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
         let _ = await updateDetails(
           generateSampleDataUrl,
-          [("record", 50.0->Js.Json.number)]->Dict.fromArray->Js.Json.object_,
+          [("record", 50.0->JSON.Encode.float)]->Dict.fromArray->JSON.Encode.object,
           Post,
           (),
         )

@@ -1,6 +1,3 @@
-external toJson: exn => Js.Json.t = "%identity"
-external toExn: string => exn = "%identity"
-
 let useAddLogsAroundFetch = () => {
   let addLogsAroundFetch = (~setStatusDict=?, ~logTitle, fetchPromise) => {
     let setStatusDict = switch setStatusDict {

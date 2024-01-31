@@ -28,7 +28,12 @@ module TileComponent = {
     let deleteSampleData = async () => {
       try {
         let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Delete, ())
-        let _ = await updateDetails(generateSampleDataUrl, Dict.make()->Js.Json.object_, Delete, ())
+        let _ = await updateDetails(
+          generateSampleDataUrl,
+          Dict.make()->JSON.Encode.object,
+          Delete,
+          (),
+        )
         showToast(~message="Sample data deleted successfully", ~toastType=ToastSuccess, ())
       } catch {
       | _ => ()

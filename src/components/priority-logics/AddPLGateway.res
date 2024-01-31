@@ -58,11 +58,11 @@ let make = (
 
   let selectedOptions =
     gateWaysInput.value
-    ->Js.Json.decodeArray
+    ->JSON.Decode.array
     ->Option.getOr([])
     ->Belt.Array.keepMap(item =>
       item
-      ->Js.Json.decodeObject
+      ->JSON.Decode.object
       ->Option.flatMap(dict => {
         let connectorDict = dict->LogicUtils.getDictfromDict("connector")
         let obj: gateway = {
@@ -105,8 +105,10 @@ let make = (
     },
     onFocus: _ev => (),
     value: selectedOptions
-    ->Array.map(selectedOption => selectedOption.connector.merchant_connector_id->Js.Json.string)
-    ->Js.Json.array,
+    ->Array.map(selectedOption =>
+      selectedOption.connector.merchant_connector_id->JSON.Encode.string
+    )
+    ->JSON.Encode.array,
     checked: true,
   }
 

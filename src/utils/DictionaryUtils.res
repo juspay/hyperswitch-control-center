@@ -48,8 +48,8 @@ let equalDicts = (dictionary1, dictionary2) => {
 }
 
 let checkEqualJsonDicts = (~checkKeys, ~ignoreKeys, dictionary1, dictionary2) => {
-  let dictionary1 = dictionary1->Js.Json.object_->JsonFlattenUtils.flattenObject(false)
-  let dictionary2 = dictionary2->Js.Json.object_->JsonFlattenUtils.flattenObject(false)
+  let dictionary1 = dictionary1->JSON.Encode.object->JsonFlattenUtils.flattenObject(false)
+  let dictionary2 = dictionary2->JSON.Encode.object->JsonFlattenUtils.flattenObject(false)
 
   dictionary1
   ->Dict.toArray
@@ -59,14 +59,14 @@ let checkEqualJsonDicts = (~checkKeys, ~ignoreKeys, dictionary1, dictionary2) =>
       (checkKeys->Array.includes(key) || checkKeys->Array.length === 0) &&
         !(ignoreKeys->Array.includes(key))
     ) {
-      switch value->Js.Json.classify {
-      | JSONArray(array) => {
+      switch value->JSON.Classify.classify {
+      | Array(array) => {
           let arr1 = array->LogicUtils.getStrArrayFromJsonArray
           let arr2 = dictionary2->LogicUtils.getStrArrayFromDict(key, [])
           !LogicUtils.isEqualStringArr(arr1, arr2)
         }
 
-      | JSONString(string) => string !== dictionary2->LogicUtils.getString(key, "")
+      | String(string) => string !== dictionary2->LogicUtils.getString(key, "")
       | _ => dictionary2->LogicUtils.getJsonObjectFromDict(key) !== value
       }
     } else {
@@ -79,14 +79,14 @@ let checkEqualJsonDicts = (~checkKeys, ~ignoreKeys, dictionary1, dictionary2) =>
     ->Array.find(item => {
       let (key, value) = item
       if checkKeys->Array.includes(key) && !(ignoreKeys->Array.includes(key)) {
-        switch value->Js.Json.classify {
-        | JSONArray(array) => {
+        switch value->JSON.Classify.classify {
+        | Array(array) => {
             let arr1 = array->LogicUtils.getStrArrayFromJsonArray
             let arr2 = dictionary1->LogicUtils.getStrArrayFromDict(key, [])
             !LogicUtils.isEqualStringArr(arr1, arr2)
           }
 
-        | JSONString(string) => string !== dictionary1->LogicUtils.getString(key, "")
+        | String(string) => string !== dictionary1->LogicUtils.getString(key, "")
         | _ => dictionary1->LogicUtils.getJsonObjectFromDict(key) !== value
         }
       } else {

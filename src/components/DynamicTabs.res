@@ -44,11 +44,7 @@ module TabInfo = {
     ~setCollapsibleTabs,
     ~selectedIndex,
     ~tabNames,
-    ~handleSelectedTab: (
-      ~tabValue: string,
-      ~collapsibleTabs: Js.Array2.t<tab>,
-      ~removed: bool,
-    ) => unit,
+    ~handleSelectedTab: (~tabValue: string, ~collapsibleTabs: array<tab>, ~removed: bool) => unit,
     ~tabStacksnames,
     ~setTabStacksnames,
     ~description="",
@@ -386,9 +382,9 @@ let make = (
     let collapsibleTabsValues =
       collapsibleTabs
       ->Array.map(item => {
-        item.value->Js.Json.string
+        item.value->JSON.Encode.string
       })
-      ->Js.Json.array
+      ->JSON.Encode.array
 
     addConfig(availableTabUserPrefKey, collapsibleTabsValues)
 
@@ -423,7 +419,7 @@ let make = (
 
   let handleSelectedTab: (
     ~tabValue: string,
-    ~collapsibleTabs: Js.Array2.t<tab>,
+    ~collapsibleTabs: array<tab>,
     ~removed: bool,
   ) => unit = (~tabValue: string, ~collapsibleTabs: array<tab>, ~removed: bool) => {
     if removed === false {

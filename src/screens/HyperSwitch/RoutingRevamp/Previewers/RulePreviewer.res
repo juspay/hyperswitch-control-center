@@ -70,19 +70,19 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
                     let field = statement.lhs
                     let metadataDict =
                       statement.metadata
-                      ->Option.getOr(Dict.make()->Js.Json.object_)
+                      ->Option.getOr(Dict.make()->JSON.Encode.object)
                       ->getDictFromJsonObject
 
-                    let value = switch statement.value.value->Js.Json.classify {
-                    | JSONArray(arr) => arr->Array.joinWithUnsafe(", ")
-                    | JSONString(str) => str
-                    | JSONNumber(num) => num->Float.toString
-                    | JSONObject(obj) => obj->LogicUtils.getString("value", "")
+                    let value = switch statement.value.value->JSON.Classify.classify {
+                    | Array(arr) => arr->Array.joinWithUnsafe(", ")
+                    | String(str) => str
+                    | Number(num) => num->Float.toString
+                    | Object(obj) => obj->LogicUtils.getString("value", "")
                     | _ => ""
                     }
 
-                    let metadataKeyValue = switch statement.value.value->Js.Json.classify {
-                    | JSONObject(obj) => obj->LogicUtils.getString("key", "")
+                    let metadataKeyValue = switch statement.value.value->JSON.Classify.classify {
+                    | Object(obj) => obj->LogicUtils.getString("key", "")
                     | _ => ""
                     }
 

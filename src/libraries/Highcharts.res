@@ -1,4 +1,4 @@
-type title = {"text": string, "style": Js.Json.t}
+type title = {"text": string, "style": JSON.t}
 type subtitle = {"text": string}
 type data_obj = {"name": string, "value": int, "color": string, "id": string}
 type new_series = {"type": string, "layoutAlgorithm": string, "data": array<data_obj>}
@@ -17,7 +17,7 @@ type dataLableStyle = {
 type yAxisRecord = {value: float, name: string}
 type dataLabels = {
   enabled: bool,
-  formatter: option<Js_OO.Callback.arity1<Js.Json.t => string>>,
+  formatter: option<Js_OO.Callback.arity1<JSON.t => string>>,
   useHTML: bool,
 }
 
@@ -50,7 +50,7 @@ external makeSomethingSeries: (~\"type": string, ~something: (float, int, string
 let x = makeAreaSeries(~\"type"="hello", ~something=false)
 let y = makeSomethingSeries(~\"type"="hello", ~something=(2., 1, "heloo"))
 
-type gridLine = {attr: (. Js.Json.t) => unit}
+type gridLine = {attr: (. JSON.t) => unit}
 type pos
 type tick = {
   gridLine: gridLine,
@@ -106,8 +106,8 @@ type eventClick = {
 }
 
 // type plotOptionPoint = {
-//   "mouseOver": option<Js_OO.Callback.arity1<Js.Json.t => unit>>,
-//   "mouseOut": option<Js_OO.Callback.arity1<Js.Json.t => unit>>,
+//   "mouseOver": option<Js_OO.Callback.arity1<JSON.t => unit>>,
+//   "mouseOut": option<Js_OO.Callback.arity1<JSON.t => unit>>,
 // }
 
 // type pointEvents = {"events": option<plotOptionPoint>}
@@ -127,7 +127,7 @@ type xAxis = {
   //   "enabled": bool,
   // }>,
   "type": string,
-  // "crosshair": option<Js.Json.t>,
+  // "crosshair": option<JSON.t>,
 }
 type plotLinesLablesStyle = {
   color: option<string>,
@@ -152,7 +152,7 @@ type tickPositionerYaxis = {dataMin: float, dataMax: float}
 type yAxis = {
   "tickPositioner": option<Js_OO.Callback.arity1<tickPositionerYaxis => array<float>>>,
   "visible": bool,
-  "title": Js.Json.t,
+  "title": JSON.t,
   "labels": option<{
     "formatter": option<Js_OO.Callback.arity1<yAxisRecord => string>>,
     "enabled": bool,
@@ -206,27 +206,27 @@ type tooltip = {
   >,
 }
 type optionsJson<'a> = {
-  chart: option<Js.Json.t>,
-  title: Js.Json.t,
+  chart: option<JSON.t>,
+  title: JSON.t,
   series: array<'a>,
-  plotOptions: option<Js.Json.t>,
-  xAxis: Js.Json.t,
-  yAxis: Js.Json.t,
+  plotOptions: option<JSON.t>,
+  xAxis: JSON.t,
+  yAxis: JSON.t,
   credits: credits,
-  legend: Js.Json.t,
-  tooltip?: Js.Json.t,
+  legend: JSON.t,
+  tooltip?: JSON.t,
 }
 
 type options<'a> = {
-  chart: option<Js.Json.t>,
-  title: Js.Json.t,
+  chart: option<JSON.t>,
+  title: JSON.t,
   series: array<seriesLine<'a>>,
-  plotOptions: option<Js.Json.t>,
-  xAxis: Js.Json.t,
-  yAxis: Js.Json.t,
+  plotOptions: option<JSON.t>,
+  xAxis: JSON.t,
+  yAxis: JSON.t,
   credits: credits,
-  legend: Js.Json.t,
-  tooltip?: Js.Json.t,
+  legend: JSON.t,
+  tooltip?: JSON.t,
 }
 
 type chartType = {
@@ -245,7 +245,7 @@ let makebarChart = (
   }
 }
 type barChart = {"type": string, "backgroundColor": Js.Nullable.t<string>}
-type barSeries = {data: array<Js.Json.t>}
+type barSeries = {data: array<JSON.t>}
 type xAxis1 = {"type": string}
 
 type barChartSeries = {
@@ -265,7 +265,7 @@ type barChartYaxis = {
 //NOTE this can be removed
 type barOptions = {
   chart: barChart,
-  title: Js.Json.t,
+  title: JSON.t,
   series: array<barSeries>,
   xAxis: barChartXAxis,
   yAxis: barChartYaxis,
@@ -291,7 +291,7 @@ type afterChartCreated
 // type chartCallback = {afterChartCreated: afterChartCreated}
 type ticks
 type callBackYaxis // = {ticks: ticks}
-type chartCallback = {yAxis: array<Js.Json.t>}
+type chartCallback = {yAxis: array<JSON.t>}
 
 module HighchartsReact = {
   @module("highcharts-react-official") @react.component
@@ -313,20 +313,20 @@ module HighchartsReactDataJson = {
 
 module BarChart = {
   @module("highcharts-react-official") @react.component
-  external make: (~highcharts: highcharts, ~options: Js.Json.t=?) => React.element = "default"
+  external make: (~highcharts: highcharts, ~options: JSON.t=?) => React.element = "default"
 }
 
 module PieChart = {
   @module("highcharts-react-official") @react.component
-  external make: (~highcharts: highcharts, ~options: Js.Json.t=?) => React.element = "default"
+  external make: (~highcharts: highcharts, ~options: JSON.t=?) => React.element = "default"
 }
 
 module Chart = {
   @module("highcharts-react-official") @react.component
-  external make: (~highcharts: highcharts, ~options: Js.Json.t=?) => React.element = "default"
+  external make: (~highcharts: highcharts, ~options: JSON.t=?) => React.element = "default"
 }
 
 module DonutChart = {
   @module("highcharts-react-official") @react.component
-  external make: (~highcharts: highcharts, ~options: Js.Json.t=?) => React.element = "default"
+  external make: (~highcharts: highcharts, ~options: JSON.t=?) => React.element = "default"
 }

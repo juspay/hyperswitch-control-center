@@ -35,7 +35,7 @@ let make = (
 ) => {
   let _ = position
   let _ = icon
-  let value = switch input.value->Js.Json.decodeString {
+  let value = switch input.value->JSON.Decode.string {
   | Some(str) => str
   | None => ""
   }

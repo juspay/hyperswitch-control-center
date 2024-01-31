@@ -13,7 +13,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
   let updateProdDetails = async values => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
-      let bodyValues = values->getBody->Js.Json.object_
+      let bodyValues = values->getBody->JSON.Encode.object
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post, ())
       showToast(
@@ -55,7 +55,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
           <PageLoaderWrapper screenState sectionHeight="h-30-vh">
             <Form
               key="prod-request-form"
-              initialValues={initialValues->Js.Json.object_}
+              initialValues={initialValues->JSON.Encode.object}
               validate={values =>
                 values->validateForm(
                   ~fieldsToValidate=formFields,

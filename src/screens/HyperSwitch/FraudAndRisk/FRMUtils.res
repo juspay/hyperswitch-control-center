@@ -5,16 +5,16 @@ open FRMTypes
 @val external atob: string => string = "atob"
 
 let leadingSpaceStrParser = (. ~value, ~name as _) => {
-  let str = value->Js.Json.decodeString->Option.getOr("")
-  str->String.replaceRegExp(%re("/^[\s]+/"), "")->Js.Json.string
+  let str = value->JSON.Decode.string->Option.getOr("")
+  str->String.replaceRegExp(%re("/^[\s]+/"), "")->JSON.Encode.string
 }
 
 let base64Parse = (. ~value, ~name as _) => {
-  value->Js.Json.decodeString->Option.getOr("")->btoa->Js.Json.string
+  value->JSON.Decode.string->Option.getOr("")->btoa->JSON.Encode.string
 }
 
 let base64Format = (. ~value, ~name as _) => {
-  value->Js.Json.decodeString->Option.getOr("")->atob->Js.Json.string
+  value->JSON.Decode.string->Option.getOr("")->atob->JSON.Encode.string
 }
 
 let toggleDefaultStyle = "mb-2 relative inline-flex flex-shrink-0 h-6 w-12 border-2 rounded-full  transition-colors ease-in-out duration-200 focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75 items-center"
@@ -24,24 +24,24 @@ let size = "w-14 h-14 rounded-full"
 
 let generateInitialValuesDict = (~selectedFRMInfo, ~isLiveMode, ()) => {
   let frmAccountDetailsDict =
-    [("auth_type", selectedFRMInfo.name->getFRMAuthType->Js.Json.string)]
+    [("auth_type", selectedFRMInfo.name->getFRMAuthType->JSON.Encode.string)]
     ->Dict.fromArray
-    ->Js.Json.object_
+    ->JSON.Encode.object
 
   [
-    ("connector_name", selectedFRMInfo.name->getFRMNameString->Js.Json.string),
-    ("connector_type", "payment_vas"->Js.Json.string),
-    ("disabled", false->Js.Json.boolean),
-    ("test_mode", !isLiveMode->Js.Json.boolean),
+    ("connector_name", selectedFRMInfo.name->getFRMNameString->JSON.Encode.string),
+    ("connector_type", "payment_vas"->JSON.Encode.string),
+    ("disabled", false->JSON.Encode.bool),
+    ("test_mode", !isLiveMode->JSON.Encode.bool),
     ("connector_account_details", frmAccountDetailsDict),
-    ("frm_configs", []->Js.Json.array),
+    ("frm_configs", []->JSON.Encode.array),
   ]
   ->Dict.fromArray
-  ->Js.Json.object_
+  ->JSON.Encode.object
 }
 
 let parseFRMConfig = json => {
-  json->Js.Json.decodeArray->Option.getOr([])->ConnectorTableUtils.convertFRMConfigJsonToObj
+  json->JSON.Decode.array->Option.getOr([])->ConnectorTableUtils.convertFRMConfigJsonToObj
 }
 
 let getPaymentMethod = paymentMethod => {
@@ -165,5 +165,5 @@ let ignoreFields = json => {
     !(ignoredField->Array.includes(key))
   })
   ->Dict.fromArray
-  ->Js.Json.object_
+  ->JSON.Encode.object
 }

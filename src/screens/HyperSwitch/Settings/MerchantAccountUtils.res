@@ -10,7 +10,7 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
       Dict.set(
         errors,
         key,
-        "Your password is not strong enough. Password size must be more than 8"->Js.Json.string,
+        "Your password is not strong enough. Password size must be more than 8"->JSON.Encode.string,
       )
     } else {
       if !Js.Re.test_(%re("/^(?=.*[A-Z])/"), value) {
@@ -31,7 +31,7 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
           key,
           `Your password is not strong enough. A good password must contain atleast ${mustHave->Array.joinWith(
               ",",
-            )} character`->Js.Json.string,
+            )} character`->JSON.Encode.string,
         )
       }
     }
@@ -48,7 +48,7 @@ let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, err
       Dict.get(valuesDict, key),
     )
   ) {
-    Dict.set(errors, key, "The New password does not match!"->Js.Json.string)
+    Dict.set(errors, key, "The New password does not match!"->JSON.Encode.string)
   }
 }
 
@@ -64,9 +64,9 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   } = profileRecord
   let profileInfo =
     [
-      ("merchant_id", merchant_id->Js.Json.string),
-      ("profile_id", profile_id->Js.Json.string),
-      ("profile_name", profile_name->Js.Json.string),
+      ("merchant_id", merchant_id->JSON.Encode.string),
+      ("profile_id", profile_id->JSON.Encode.string),
+      ("profile_name", profile_name->JSON.Encode.string),
     ]->Dict.fromArray
   profileInfo->setOptionString("return_url", return_url)
   profileInfo->setOptionString("webhook_version", webhook_details.webhook_version)
@@ -85,16 +85,19 @@ let parseMerchantJson = (merchantDict: merchantPayload) => {
   let {merchant_details, merchant_name, publishable_key, primary_business_details} = merchantDict
   let primary_business_details = primary_business_details->Array.map(detail => {
     let {country, business} = detail
-    let props = [("country", country->Js.Json.string), ("business", business->Js.Json.string)]
+    let props = [
+      ("country", country->JSON.Encode.string),
+      ("business", business->JSON.Encode.string),
+    ]
 
-    props->Dict.fromArray->Js.Json.object_
+    props->Dict.fromArray->JSON.Encode.object
   })
   let merchantInfo =
     [
-      ("primary_business_details", primary_business_details->Js.Json.array),
-      ("merchant_name", merchant_name->Js.Json.string),
-      ("publishable_key", publishable_key->Js.Json.string),
-      ("publishable_key_hide", publishable_key->parseKey->Js.Json.string),
+      ("primary_business_details", primary_business_details->JSON.Encode.array),
+      ("merchant_name", merchant_name->JSON.Encode.string),
+      ("publishable_key", publishable_key->JSON.Encode.string),
+      ("publishable_key_hide", publishable_key->parseKey->JSON.Encode.string),
     ]->Dict.fromArray
 
   merchantInfo->setOptionString("about_business", merchant_details.about_business)
@@ -134,7 +137,7 @@ let constructWebhookDetailsObject = webhookDetailsDict => {
   webhookDetails
 }
 
-let getMerchantDetails = (values: Js.Json.t) => {
+let getMerchantDetails = (values: JSON.t) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
   let merchantDetails = valuesDict->getObj("merchant_details", Dict.make())
@@ -204,7 +207,7 @@ let getMerchantDetails = (values: Js.Json.t) => {
   payload
 }
 
-let getBusinessProfilePayload = (values: Js.Json.t) => {
+let getBusinessProfilePayload = (values: JSON.t) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
   let webhookSettingsValue = Dict.make()
@@ -243,7 +246,7 @@ let getBusinessProfilePayload = (values: Js.Json.t) => {
   profileDetailsDict
 }
 
-let getSettingsPayload = (values: Js.Json.t, merchantId) => {
+let getSettingsPayload = (values: JSON.t, merchantId) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
   let addressDetailsValue = Dict.make()
@@ -292,7 +295,7 @@ let getSettingsPayload = (values: Js.Json.t, merchantId) => {
   )
 
   !(addressDetailsValue->isEmptyDict)
-    ? merchantDetailsValue->Dict.set("address", addressDetailsValue->Js.Json.object_)
+    ? merchantDetailsValue->Dict.set("address", addressDetailsValue->JSON.Encode.object)
     : ()
 
   let primary_business_details =
@@ -303,16 +306,16 @@ let getSettingsPayload = (values: Js.Json.t, merchantId) => {
 
       let detailDict =
         [
-          ("business", detailDict->getString("business", "")->Js.Json.string),
-          ("country", detailDict->getString("country", "")->Js.Json.string),
+          ("business", detailDict->getString("business", "")->JSON.Encode.string),
+          ("country", detailDict->getString("country", "")->JSON.Encode.string),
         ]->Dict.fromArray
 
-      detailDict->Js.Json.object_
+      detailDict->JSON.Encode.object
     })
 
   let settingsPayload = Dict.fromArray([
-    ("merchant_id", merchantId->Js.Json.string),
-    ("locker_id", "m0010"->Js.Json.string),
+    ("merchant_id", merchantId->JSON.Encode.string),
+    ("locker_id", "m0010"->JSON.Encode.string),
   ])
 
   settingsPayload->setOptionDict(
@@ -327,7 +330,7 @@ let getSettingsPayload = (values: Js.Json.t, merchantId) => {
     primary_business_details->getNonEmptyArray,
   )
 
-  settingsPayload->Js.Json.object_
+  settingsPayload->JSON.Encode.object
 }
 
 let validationFieldsMapper = key => {
@@ -361,7 +364,7 @@ let checkValueChange = (~initialDict, ~valuesDict) => {
 let validateEmptyValue = (key, errors) => {
   switch key {
   | ReturnUrl =>
-    Dict.set(errors, key->validationFieldsMapper, "Please enter a return url"->Js.Json.string)
+    Dict.set(errors, key->validationFieldsMapper, "Please enter a return url"->JSON.Encode.string)
   | _ => ()
   }
 }
@@ -370,19 +373,23 @@ let validateCustom = (key, errors, value) => {
   switch key {
   | PrimaryEmail | SecondaryEmail =>
     if value->HSwitchUtils.isValidEmail {
-      Dict.set(errors, key->validationFieldsMapper, "Please enter valid email id"->Js.Json.string)
+      Dict.set(
+        errors,
+        key->validationFieldsMapper,
+        "Please enter valid email id"->JSON.Encode.string,
+      )
     }
   | PrimaryPhone | SecondaryPhone =>
     if !Js.Re.test_(%re("/^(?:\+\d{1,15}?[.-])??\d{3}?[.-]?\d{3}[.-]?\d{3,9}$/"), value) {
       Dict.set(
         errors,
         key->validationFieldsMapper,
-        "Please enter valid phone number"->Js.Json.string,
+        "Please enter valid phone number"->JSON.Encode.string,
       )
     }
   | Website | WebhookUrl | ReturnUrl =>
     if !Js.Re.test_(%re("/^https:\/\//i"), value) || value->String.includes("localhost") {
-      Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->Js.Json.string)
+      Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->JSON.Encode.string)
     }
 
   | _ => ()
@@ -390,7 +397,7 @@ let validateCustom = (key, errors, value) => {
 }
 
 let validateMerchantAccountForm = (
-  ~values: Js.Json.t,
+  ~values: JSON.t,
   ~fieldsToValidate: array<validationFields>,
   ~setIsDisabled,
   ~initialData,
@@ -410,7 +417,7 @@ let validateMerchantAccountForm = (
     disableBtn(_ => !isValueChanged)
   })
 
-  errors->Js.Json.object_
+  errors->JSON.Encode.object
 }
 
 let businessProfileTypeMapper = values => {
@@ -499,7 +506,7 @@ let useFetchBusinessProfiles = () => {
     try {
       let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Get, ())
       let res = await fetchDetails(url)
-      let stringifiedResponse = res->Js.Json.stringify
+      let stringifiedResponse = res->JSON.stringify
       setBusinessProfiles(._ => stringifiedResponse)
       Js.Nullable.return(stringifiedResponse->getValueFromBusinessProfile)
     } catch {
@@ -520,7 +527,7 @@ let useFetchMerchantDetails = () => {
     try {
       let accountUrl = APIUtils.getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get, ())
       let merchantDetailsJSON = await fetchDetails(accountUrl)
-      setMerchantDetailsValue(._ => merchantDetailsJSON->Js.Json.stringify)
+      setMerchantDetailsValue(._ => merchantDetailsJSON->JSON.stringify)
     } catch {
     | _ => ()
     }

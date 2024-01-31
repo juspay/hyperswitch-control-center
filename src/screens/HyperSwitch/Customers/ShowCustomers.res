@@ -59,7 +59,7 @@ let make = (~id) => {
   open APIUtils
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (customersData, setCustomersData) = React.useState(_ => Js.Json.null)
+  let (customersData, setCustomersData) = React.useState(_ => JSON.Encode.null)
 
   let fetchCustomersData = async () => {
     try {

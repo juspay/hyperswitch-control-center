@@ -50,13 +50,13 @@ let make = (~goLive) => {
         )}?keys=ProdIntent`
       let res = await fetchDetails(url)
 
-      let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, Js.Json.null)
+      let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
       let valueForProdIntent =
         firstValueFromArray->getDictFromJsonObject->getDictfromDict("ProdIntent")
       let hideHeader = valueForProdIntent->getBool(IsCompleted->getStringFromVariant, false)
       setIsProdIntentCompleted(_ => hideHeader)
       if !hideHeader {
-        valueForProdIntent->Dict.set(POCemail->getStringFromVariant, email->Js.Json.string)
+        valueForProdIntent->Dict.set(POCemail->getStringFromVariant, email->JSON.Encode.string)
       }
       setQuickStartPageState(_ => FinalLandingPage)
       setInitialValues(_ => valueForProdIntent)
@@ -68,7 +68,7 @@ let make = (~goLive) => {
   let updateProdDetails = async values => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
-      let bodyValues = values->getBody->Js.Json.object_
+      let bodyValues = values->getBody->JSON.Encode.object
       let body = [("ProdIntent", bodyValues)]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post, ())
 
@@ -117,7 +117,7 @@ let make = (~goLive) => {
       | GO_LIVE =>
         <Form
           key="go-live-prod-intent-form"
-          initialValues={initialValues->Js.Json.object_}
+          initialValues={initialValues->JSON.Encode.object}
           validate={values =>
             values->validateForm(
               ~fieldsToValidate=formFields,

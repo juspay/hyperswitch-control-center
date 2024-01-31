@@ -66,13 +66,13 @@ let getWeeklySR = dict => {
 
 let distribution =
   [
-    ("distributionFor", "payment_error_message"->Js.Json.string),
-    ("distributionCardinality", "TOP_5"->Js.Json.string),
+    ("distributionFor", "payment_error_message"->JSON.Encode.string),
+    ("distributionCardinality", "TOP_5"->JSON.Encode.string),
   ]
   ->Dict.fromArray
-  ->Js.Json.object_
+  ->JSON.Encode.object
 
-let tableItemToObjMapper: Dict.t<Js.Json.t> => paymentTableType = dict => {
+let tableItemToObjMapper: Dict.t<JSON.t> => paymentTableType = dict => {
   let parseErrorReasons = dict => {
     dict
     ->getArrayFromDict(PaymentErrorMessage->colMapper, [])
@@ -214,7 +214,7 @@ let getCell = (paymentTable, colType): Table.cell => {
   }
 }
 
-let getPaymentTable: Js.Json.t => array<paymentTableType> = json => {
+let getPaymentTable: JSON.t => array<paymentTableType> = json => {
   json
   ->LogicUtils.getArrayFromJson([])
   ->Array.map(item => {
@@ -261,7 +261,7 @@ let singleStateSeriesInitialValue = {
 
 let singleStateItemToObjMapper = json => {
   json
-  ->Js.Json.decodeObject
+  ->JSON.Decode.object
   ->Option.map(dict => {
     payment_success_rate: dict->getFloat("payment_success_rate", 0.0),
     payment_count: dict->getInt("payment_count", 0),
@@ -279,7 +279,7 @@ let singleStateItemToObjMapper = json => {
 
 let singleStateSeriesItemToObjMapper = json => {
   json
-  ->Js.Json.decodeObject
+  ->JSON.Decode.object
   ->Option.map(dict => {
     payment_success_rate: dict->getFloat("payment_success_rate", 0.0)->setPrecision(),
     payment_count: dict->getInt("payment_count", 0),

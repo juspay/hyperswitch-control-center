@@ -452,7 +452,7 @@ module Base = {
         }
       },
       onFocus: _ev => (),
-      value: localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)->Js.Json.string,
+      value: localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)->JSON.Encode.string,
       checked: false,
     }
     let endTimeInput: ReactFinalForm.fieldRenderPropsInput = {
@@ -474,7 +474,7 @@ module Base = {
         }
       },
       onFocus: _ev => (),
-      value: localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)->Js.Json.string,
+      value: localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)->JSON.Encode.string,
       checked: false,
     }
 
@@ -862,7 +862,7 @@ module Base = {
 
 let useStateForInput = (input: ReactFinalForm.fieldRenderPropsInput) => {
   React.useMemo1(() => {
-    let val = input.value->Js.Json.decodeString->Option.getOr("")
+    let val = input.value->JSON.Decode.string->Option.getOr("")
     let onChange = fn => {
       let newVal = fn(val)
       input.onChange(newVal->Identity.stringToFormReactEvent)

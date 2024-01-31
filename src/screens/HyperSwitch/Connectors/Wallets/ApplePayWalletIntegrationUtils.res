@@ -1,6 +1,6 @@
 open ApplePayWalletIntegrationTypes
 
-let getSessionTokenDict = (values: Js.Json.t, applePayIntegrationType: applePayIntegrationType) => {
+let getSessionTokenDict = (values: JSON.t, applePayIntegrationType: applePayIntegrationType) => {
   open LogicUtils
   values
   ->getDictFromJsonObject
@@ -10,7 +10,7 @@ let getSessionTokenDict = (values: Js.Json.t, applePayIntegrationType: applePayI
 }
 
 let validate = (
-  values: Js.Json.t,
+  values: JSON.t,
   mandateKeys: array<string>,
   integrationType: ApplePayWalletIntegrationTypes.applePayIntegrationType,
 ) => {
@@ -20,14 +20,14 @@ let validate = (
   mandateKeys->Array.forEach(key => {
     let value = dict->getString(key, "")
     if value === "" {
-      errorDict->Dict.set(key, `${key} cannot be empty!`->Js.Json.string)
+      errorDict->Dict.set(key, `${key} cannot be empty!`->JSON.Encode.string)
     }
   })
-  errorDict->Js.Json.object_
+  errorDict->JSON.Encode.object
 }
 
 let constructApplePayMetadata = (
-  values: Js.Json.t,
+  values: JSON.t,
   metadataInputs,
   integrationType: applePayIntegrationType,
 ) => {
@@ -42,19 +42,19 @@ let constructApplePayMetadata = (
     ->getDictfromDict((integrationType: applePayIntegrationType :> string))
   // 1.remove existing apple_pay_combined
   // 2.At given time either #manual or #simplified can exists
-  dict->Dict.set("apple_pay_combined", Dict.make()->Js.Json.object_)->ignore
+  dict->Dict.set("apple_pay_combined", Dict.make()->JSON.Encode.object)->ignore
 
-  applePayDict->Dict.set("payment_request_data", paymentRequestData->Js.Json.object_)->ignore
+  applePayDict->Dict.set("payment_request_data", paymentRequestData->JSON.Encode.object)->ignore
 
   dict
   ->Dict.set(
     "apple_pay_combined",
     Dict.fromArray([
-      ((integrationType: applePayIntegrationType :> string), applePayDict->Js.Json.object_),
-    ])->Js.Json.object_,
+      ((integrationType: applePayIntegrationType :> string), applePayDict->JSON.Encode.object),
+    ])->JSON.Encode.object,
   )
   ->ignore
-  dict->Js.Json.object_
+  dict->JSON.Encode.object
 }
 
 let constructVerifyApplePayReq = (values, connectorID) => {
@@ -63,11 +63,11 @@ let constructVerifyApplePayReq = (values, connectorID) => {
   let data = {
     domain_names: [domainName],
     merchant_connector_account_id: connectorID,
-  }->Js.Json.stringifyAny
+  }->JSON.stringifyAny
 
   let body = switch data {
   | Some(val) => val->LogicUtils.safeParse
-  | None => Dict.make()->Js.Json.object_
+  | None => Dict.make()->JSON.Encode.object
   }
   (body, domainName)
 }
