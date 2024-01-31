@@ -1,12 +1,12 @@
 type initialFilters<'t> = {
   field: FormRenderer.fieldInfoType,
-  localFilter: option<(Js.Array.t<Js.Nullable.t<'t>>, JSON.t) => Js.Array.t<Js.Nullable.t<'t>>>,
+  localFilter: option<(array<Js.Nullable.t<'t>>, JSON.t) => array<Js.Nullable.t<'t>>>,
 }
 type optionType<'t> = {
   urlKey: string,
   field: FormRenderer.fieldInfoType,
   parser: JSON.t => JSON.t,
-  localFilter: option<(Js.Array.t<Js.Nullable.t<'t>>, JSON.t) => Js.Array.t<Js.Nullable.t<'t>>>,
+  localFilter: option<(array<Js.Nullable.t<'t>>, JSON.t) => array<Js.Nullable.t<'t>>>,
 }
 let getDefaultEntityOptionType = (): optionType<'t> => {
   urlKey: "",

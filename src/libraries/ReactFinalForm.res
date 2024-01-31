@@ -195,9 +195,9 @@ type formSubscription = JSON.t
 let useFormSubscription = (keys): formSubscription => {
   React.useMemo0(() => {
     let dict = Dict.make()
-    Js.Array.forEach(key => {
+    keys->Array.forEach(key => {
       Dict.set(dict, key, JSON.Encode.bool(true))
-    }, keys)
+    })
     dict->JSON.Encode.object
   })
 }

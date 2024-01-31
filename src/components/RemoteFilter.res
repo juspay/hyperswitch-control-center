@@ -306,7 +306,7 @@ module CheckCustomFilters = {
             isDropDown=true
             hideMultiSelectButtons=true
             buttonType=Button.FilterAdd
-            value={checkedFilters->Js.Array.map(JSON.Encode.string, _)->JSON.Encode.array}
+            value={checkedFilters->Array.map(JSON.Encode.string)->JSON.Encode.array}
             searchable=showSelectFiltersSearch
           />
         </div>

@@ -40,7 +40,7 @@ let make = (
 
   let disableSelectBtn = React.useMemo2(
     () =>
-      (initialValues->Js.Array.toString === values->Js.Array.toString && !enableSelect) ||
+      (initialValues->Array.toString === values->Array.toString && !enableSelect) ||
         values->Array.length === 0,
     (values, initialValues),
   )

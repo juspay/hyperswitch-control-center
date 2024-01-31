@@ -801,7 +801,7 @@ module LegendItem = {
 
 module RenderMultiDimensionalChart = {
   type config = {
-    chartDictData: Dict.t<Js.Array.t<JSON.t>>,
+    chartDictData: Dict.t<array<JSON.t>>,
     class: string,
     selectedMetrics: LineChartUtils.metricsConfig,
     groupBy: string,

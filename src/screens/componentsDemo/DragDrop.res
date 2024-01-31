@@ -80,7 +80,8 @@ let make = (
             {(provided, _snapshot) => {
               React.cloneElement(
                 <div className={`flex ${directionClass}`} ref={provided["innerRef"]}>
-                  {list->Js.Array.mapi((item, index) => {
+                  {list
+                  ->Array.mapWithIndex((item, index) => {
                     let val = keyExtractor(item)
                     switch val {
                     | Some(str) =>
@@ -106,7 +107,8 @@ let make = (
 
                     | None => React.null
                     }
-                  }, _)->React.array}
+                  })
+                  ->React.array}
                   {provided["placeholder"]}
                 </div>,
                 provided["droppableProps"],
