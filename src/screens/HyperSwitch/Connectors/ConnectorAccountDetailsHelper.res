@@ -288,7 +288,6 @@ module ConnectorConfigurationFields = {
     ~isUpdateFlow=false,
     ~connectorLabelDetailField,
   ) => {
-    open ConnectorUtils
     <div className="flex flex-col">
       {if connector === CASHTOCODE {
         <CashToCodeMethods connectorAccountFields connector selectedConnector />
@@ -296,7 +295,7 @@ module ConnectorConfigurationFields = {
         <RenderConnectorInputFields
           details={connectorAccountFields}
           name={"connector_account_details"}
-          getPlaceholder={getPlaceHolder}
+          getPlaceholder={ConnectorUtils.getPlaceHolder}
           connector
           selectedConnector
         />
@@ -305,7 +304,7 @@ module ConnectorConfigurationFields = {
         details={connectorLabelDetailField}
         name={"connector_label"}
         keysToIgnore=metaDataInputKeysToIgnore
-        checkRequiredFields={getMetaDataRequiredFields}
+        checkRequiredFields={ConnectorUtils.getMetaDataRequiredFields}
         connector
         selectedConnector
         isLabelNested=false
@@ -316,14 +315,14 @@ module ConnectorConfigurationFields = {
         details={connectorMetaDataFields}
         name={"metadata"}
         keysToIgnore=metaDataInputKeysToIgnore
-        checkRequiredFields={getMetaDataRequiredFields}
+        checkRequiredFields={ConnectorUtils.getMetaDataRequiredFields}
         connector
         selectedConnector
       />
       <RenderConnectorInputFields
         details={connectorWebHookDetails}
         name={"connector_webhook_details"}
-        checkRequiredFields={getWebHookRequiredFields}
+        checkRequiredFields={ConnectorUtils.getWebHookRequiredFields}
         connector
         selectedConnector
       />
@@ -471,5 +470,64 @@ module VerifyConnectorModal = {
         </div>
       </div>
     </Modal>
+  }
+}
+
+// Wraps the component with Connector Icon + ConnectorName + Integration Steps Modal
+module ConnectorHeaderWrapper = {
+  @react.component
+  let make = (
+    ~children,
+    ~headerButton,
+    ~connector,
+    ~handleShowModal=?,
+    ~conditionForIntegrationSteps=true,
+  ) => {
+    open ConnectorUtils
+
+    let setShowModalFunction = switch handleShowModal {
+    | Some(func) => func
+    | _ => _ => ()
+    }
+    <>
+      <div className="flex items-center justify-between border-b p-2 md:px-10 md:py-6">
+        <div className="flex gap-2 items-center">
+          <GatewayIcon gateway={connector->String.toUpperCase} />
+          <h2 className="text-xl font-semibold">
+            {connector->LogicUtils.capitalizeString->React.string}
+          </h2>
+        </div>
+        <div className="flex flex-row mt-6 md:mt-0 md:justify-self-end h-min">
+          <UIUtils.RenderIf
+            condition={connectorsWithIntegrationSteps->Array.includes(
+              connector->getConnectorNameTypeFromString,
+            ) && conditionForIntegrationSteps}>
+            <a
+              className={`flex cursor-pointer px-4 py-3 flex text-sm text-blue-900 items-center mx-4`}
+              target="_blank"
+              onClick={_ => setShowModalFunction()}>
+              {React.string("View integration steps")}
+              <Icon name="external-link-alt" size=14 className="ml-2" />
+            </a>
+          </UIUtils.RenderIf>
+          {headerButton}
+        </div>
+      </div>
+      <UIUtils.RenderIf condition={connector->getConnectorNameTypeFromString === BRAINTREE}>
+        <div className="flex flex-col gap-2 p-2 md:p-10">
+          <h1
+            className="flex items-center mx-12 leading-6 text-orange-950 bg-orange-100 border w-fit p-2 rounded-md ">
+            <div className="flex items-center text-orange-950 font-bold text-fs-14 mx-2">
+              <Icon name="hswitch-warning" size=18 className="mr-2" />
+              {"Disclaimer:"->React.string}
+            </div>
+            <div>
+              {"Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."->React.string}
+            </div>
+          </h1>
+        </div>
+      </UIUtils.RenderIf>
+      {children}
+    </>
   }
 }

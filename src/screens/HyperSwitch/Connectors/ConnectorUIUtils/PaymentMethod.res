@@ -19,6 +19,7 @@ module CardRenderer = {
   open ConnectorTypes
   open ConnectorUtils
   open Wallet
+  open UIUtils
   @react.component
   let make = (
     ~updateDetails,
@@ -116,13 +117,13 @@ module CardRenderer = {
 
     <div className="flex flex-col gap-4 border rounded-md p-6">
       <div>
-        <UIUtils.RenderIf
+        <RenderIf
           condition={paymentMethod->getPaymentMethodFromString->isNotVerifiablePaymentMethod}>
           <div className="flex items-center border-b gap-2 py-2 break-all justify-between">
             <p className="font-semibold text-bold text-lg">
               {React.string(paymentMethod->snakeToTitle)}
             </p>
-            <UIUtils.RenderIf condition={paymentMethod->getPaymentMethodFromString !== Wallet}>
+            <RenderIf condition={paymentMethod->getPaymentMethodFromString !== Wallet}>
               <div className="flex gap-2 items-center">
                 <BoolInput.BaseComponent
                   isSelected={selectedAll}
@@ -132,18 +133,18 @@ module CardRenderer = {
                 />
                 <p className=p2RegularTextStyle> {"Select all"->React.string} </p>
               </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
-      <UIUtils.RenderIf
+      <RenderIf
         condition={paymentMethod->getPaymentMethodFromString === Wallet &&
           connector->getConnectorNameTypeFromString === ZEN}>
         <div className="border rounded p-2 bg-jp-gray-100 flex gap-4">
           <Icon name="outage_icon" size=15 />
           {"Zen doesn't support Googlepay and Applepay in sandbox."->React.string}
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div className={`grid ${_showAdvancedConfiguration ? "grid-cols-2" : "grid-cols-4"} gap-4`}>
         {provider
         ->Array.mapWithIndex((value, i) => {
@@ -159,7 +160,7 @@ module CardRenderer = {
           </div>
         })
         ->React.array}
-        <UIUtils.RenderIf
+        <RenderIf
           condition={selectedWallet.payment_method_type->getPaymentMethodTypeFromString ===
             ApplePay ||
             selectedWallet.payment_method_type->getPaymentMethodTypeFromString === GooglePay}>
@@ -182,7 +183,7 @@ module CardRenderer = {
               paymentMethod
             />
           </Modal>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </div>
   }

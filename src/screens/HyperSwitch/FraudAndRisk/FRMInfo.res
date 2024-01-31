@@ -77,7 +77,7 @@ let getNextStep: ConnectorTypes.steps => ConnectorTypes.steps = currentStep => {
   | PaymentMethods => IntegFields
   | IntegFields => SummaryAndTest
   | SummaryAndTest => SummaryAndTest
-  | Preview => Preview
+  | _ => Preview
   }
 }
 
