@@ -15,7 +15,7 @@ let reorder = (currentState, startIndex, endIndex) => {
 let make = (~isHorizontal=true, ~listItems, ~gap="", ~setListItems, ~keyExtractor) => {
   let onDragEnd = result => {
     // dropped outside the list
-    let dest = Js.Nullable.toOption(result["destination"])
+    let dest = Nullable.toOption(result["destination"])
 
     switch dest {
     | Some(a) => {

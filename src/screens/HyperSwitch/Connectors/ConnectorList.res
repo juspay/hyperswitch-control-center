@@ -43,7 +43,7 @@ module NewProcessorCards = {
 
     let (showModal, setShowModal) = React.useState(_ => false)
     let (searchedConnector, setSearchedConnector) = React.useState(_ => "")
-    let searchRef = React.useRef(Js.Nullable.null)
+    let searchRef = React.useRef(Nullable.null)
 
     let urlPrefix = isPayoutFlow ? "payoutconnectors/new" : "connectors/new"
     let handleClick = connectorName => {
@@ -245,8 +245,8 @@ let make = (~isPayoutFlow=false) => {
       let connectorsList = response->getProcessorsListFromJson(~removeFromList, ())
       let previousData = connectorsList->Array.map(ConnectorTableUtils.getProcessorPayloadType)
 
-      setFilteredConnectorData(_ => previousData->Array.map(Js.Nullable.return))
-      setPreviouslyConnectedData(_ => previousData->Array.map(Js.Nullable.return))
+      setFilteredConnectorData(_ => previousData->Array.map(Nullable.make))
+      setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
       let arr =
         connectorsList->Array.map(paymentMethod =>
           paymentMethod->getString("connector_name", "")->getConnectorNameTypeFromString
@@ -267,8 +267,8 @@ let make = (~isPayoutFlow=false) => {
     open LogicUtils
     let (searchText, arr) = ob
     let filteredList = if searchText->String.length > 0 {
-      arr->Array.filter((obj: Js.Nullable.t<ConnectorTypes.connectorPayload>) => {
-        switch Js.Nullable.toOption(obj) {
+      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayload>) => {
+        switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.connector_name, searchText) ||
           isContainingStringLowercase(obj.profile_id, searchText)

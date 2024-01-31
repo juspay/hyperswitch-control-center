@@ -633,9 +633,9 @@ let make = (
   (),
 ) => {
   let (isToolTipVisible, setIsToolTipVisible) = React.useState(_ => false)
-  let toolTipRef = React.useRef(Js.Nullable.null)
-  let componentRef = React.useRef(Js.Nullable.null)
-  let toolTipArrowRef = React.useRef(Js.Nullable.null)
+  let toolTipRef = React.useRef(Nullable.null)
+  let componentRef = React.useRef(Nullable.null)
+  let toolTipArrowRef = React.useRef(Nullable.null)
 
   React.useEffect1(() => {
     if isToolTipVisible {
@@ -649,8 +649,8 @@ let make = (
     }
   }, [isToolTipVisible])
 
-  let getBoundingRectInfo = (ref: React.ref<Js.Nullable.t<Dom.element>>, getter) => {
-    ref.current->Js.Nullable.toOption->Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
+  let getBoundingRectInfo = (ref: React.ref<Nullable.t<Dom.element>>, getter) => {
+    ref.current->Nullable.toOption->Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
   }
 
   let tooltipWidth = toolTipRef->getBoundingRectInfo(val => val.width)

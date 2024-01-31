@@ -73,12 +73,12 @@ module AdvanceSearch = {
         | _ =>
           showToast(~message="Something went wrong. Please try again", ~toastType=ToastError, ())
         }
-        json->Js.Nullable.return->resolve
+        json->Nullable.make->resolve
       })
       ->catch(_err => {
         showToast(~message="Something went wrong. Please try again", ~toastType=ToastError, ())
 
-        Js.Nullable.null->resolve
+        Nullable.null->resolve
       })
     }
 

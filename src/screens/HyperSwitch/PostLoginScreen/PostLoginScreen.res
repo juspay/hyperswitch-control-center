@@ -114,7 +114,7 @@ let make = () => {
         setAuthStatus(LoggedOut)
       }
     }
-    Js.Nullable.null
+    Nullable.null
   }
   let xPositionBasedOnDirection = carouselDirection === RIGHT ? 100 : -100
   <HSwitchUtils.BackgroundImageWrapper>

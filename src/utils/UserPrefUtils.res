@@ -70,7 +70,7 @@ let saveUserPref = (userPref: Dict.t<userPref>) => {
 
 // this will be changed to api call for updatedUserPref the call will happen only once in initialLoad and we will store it in context
 let getUserPref = () => {
-  switch LocalStorage.getItem(userPreferenceKeyInLocalStorage)->Js.Nullable.toOption {
+  switch LocalStorage.getItem(userPreferenceKeyInLocalStorage)->Nullable.toOption {
   | Some(str) =>
     str->LogicUtils.safeParse->JSON.Decode.object->Option.getOr(Dict.make())->converToUserPref
 
