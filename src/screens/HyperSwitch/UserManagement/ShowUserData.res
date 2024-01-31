@@ -1,6 +1,6 @@
 open UserManagementUtils
 
-external typeConversion: array<Js.Nullable.t<UserRoleEntity.userTableTypes>> => array<
+external typeConversion: array<Nullable.t<UserRoleEntity.userTableTypes>> => array<
   UserRoleEntity.userTableTypes,
 > = "%identity"
 
@@ -121,7 +121,7 @@ let make = () => {
       )
       let res = await fetchDetails(userDataURL)
       let userData = res->LogicUtils.getArrayDataFromJson(UserRoleEntity.itemToObjMapperForUser)
-      setUsersList(_ => userData->Array.map(Js.Nullable.return))
+      setUsersList(_ => userData->Array.map(Nullable.make))
     } catch {
     | _ => ()
     }

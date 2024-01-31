@@ -58,7 +58,7 @@ let make = (
       Dict.set(body, "reason", "RETURN"->JSON.Encode.string)
     }
     updateRefundDetails(body->JSON.Encode.object)->ignore
-    Js.Nullable.null->resolve
+    Nullable.null->resolve
   }
 
   let validate = values => {

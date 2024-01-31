@@ -63,7 +63,7 @@ let filterByData = (txnArr, value) => {
   let searchText = LogicUtils.getStringFromJson(value, "")
 
   txnArr
-  ->Belt.Array.keepMap(Js.Nullable.toOption)
+  ->Belt.Array.keepMap(Nullable.toOption)
   ->Belt.Array.keepMap((data: 't) => {
     let valueArr =
       data
@@ -76,7 +76,7 @@ let filterByData = (txnArr, value) => {
       })
       ->Array.reduce(false, (acc, item) => item || acc)
     if valueArr {
-      data->Js.Nullable.return->Some
+      data->Nullable.make->Some
     } else {
       None
     }

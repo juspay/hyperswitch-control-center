@@ -40,7 +40,7 @@ module TabInfo = {
     ~showBottomBorder=true,
     ~onTabSelection=() => (),
   ) => {
-    let tabRef = React.useRef(Js.Nullable.null)
+    let tabRef = React.useRef(Nullable.null)
     let fontClass = "font-inter-style"
 
     let defaultBorderClass = "border-0"
@@ -77,7 +77,7 @@ module TabInfo = {
     React.useEffect2(() => {
       if isSelected && isScrollIntoViewRequired {
         tabRef.current
-        ->Js.Nullable.toOption
+        ->Nullable.toOption
         ->Option.forEach(input =>
           input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"})
         )
@@ -108,7 +108,7 @@ module IndicationArrow = {
     let onClick = {
       _ev =>
         refElement.current
-        ->Js.Nullable.toOption
+        ->Nullable.toOption
         ->Option.forEach(input =>
           input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"})
         )
@@ -126,8 +126,8 @@ module IndicationArrow = {
   }
 }
 
-let getBoundingRectInfo = (ref: React.ref<Js.Nullable.t<Dom.element>>, getter) => {
-  ref.current->Js.Nullable.toOption->Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
+let getBoundingRectInfo = (ref: React.ref<Nullable.t<Dom.element>>, getter) => {
+  ref.current->Nullable.toOption->Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
 }
 
 @react.component
@@ -180,9 +180,9 @@ let make = (
   let (_isLeftArrowVisible, setIsLeftArrowVisible) = React.useState(() => false)
   let (_isRightArrowVisible, setIsRightArrowVisible) = React.useState(() => true)
 
-  let firstTabRef = React.useRef(Js.Nullable.null)
-  let scrollRef = React.useRef(Js.Nullable.null)
-  let lastTabRef = React.useRef(Js.Nullable.null)
+  let firstTabRef = React.useRef(Nullable.null)
+  let scrollRef = React.useRef(Nullable.null)
+  let lastTabRef = React.useRef(Nullable.null)
   let numberOfTabs = Array.length(tabs)
   let onScroll = _ev => {
     let leftVal = firstTabRef->getBoundingRectInfo(val => val.x)

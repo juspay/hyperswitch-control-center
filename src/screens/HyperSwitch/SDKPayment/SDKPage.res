@@ -120,7 +120,7 @@ let make = () => {
     setInitialValues(_ => values->SDKPaymentUtils.getTypedValueForPayment)
     setIsSDKOpen(_ => true)
     RescriptReactRouter.push("/sdk")
-    Js.Nullable.null->Promise.resolve
+    Nullable.null->Promise.resolve
   }
 
   <>

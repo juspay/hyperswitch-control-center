@@ -31,7 +31,7 @@ let getRefundsList = async (
     if total > 0 {
       let refundDataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
       let refundData = arr->Array.concat(refundDataDictArr)->Array.map(RefundEntity.itemToObjMapper)
-      let list = refundData->Array.map(Js.Nullable.return)
+      let list = refundData->Array.map(Nullable.make)
       setRefundsData(_ => list)
       setTotalCount(_ => total)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -58,7 +58,7 @@ let filterByData = (txnArr, value) => {
   let searchText = value->getStringFromJson("")
 
   txnArr
-  ->Belt.Array.keepMap(Js.Nullable.toOption)
+  ->Belt.Array.keepMap(Nullable.toOption)
   ->Belt.Array.keepMap(data => {
     let valueArr =
       data
@@ -71,7 +71,7 @@ let filterByData = (txnArr, value) => {
       })
       ->Array.reduce(false, (acc, item) => item || acc)
 
-    valueArr ? data->Js.Nullable.return->Some : None
+    valueArr ? data->Nullable.make->Some : None
   })
 }
 
