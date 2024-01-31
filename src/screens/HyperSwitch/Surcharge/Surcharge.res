@@ -187,7 +187,7 @@ let make = () => {
       let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       showToast(~message=err, ~toastType=ToastError, ())
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
   let validate = (values: JSON.t) => {

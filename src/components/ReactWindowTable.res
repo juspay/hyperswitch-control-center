@@ -1,5 +1,5 @@
 open TableUtils
-external toJson: Js.Nullable.t<'a> => JSON.t = "%identity"
+external toJson: Nullable.t<'a> => JSON.t = "%identity"
 type checkBoxProps = {
   showCheckBox: bool,
   selectedData: array<JSON.t>,
@@ -243,13 +243,13 @@ module ReactWindowTableComponent = {
     ~customCellColor="",
     ~showCheckBox=false,
   ) => {
-    let actualData: option<array<Js.Nullable.t<'t>>> = actualData
+    let actualData: option<array<Nullable.t<'t>>> = actualData
 
     let getRowDetails = (rowIndex: int) => {
       switch actualData {
       | Some(actualData) =>
         switch getRowDetails {
-        | Some(fn) => fn(actualData->Array.get(rowIndex)->Option.getOr(Js.Nullable.null))
+        | Some(fn) => fn(actualData->Array.get(rowIndex)->Option.getOr(Nullable.null))
         | None => React.null
         }
       | None => React.null
@@ -624,7 +624,7 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
 
 @react.component
 let make = (
-  ~actualData: array<Js.Nullable.t<'t>>,
+  ~actualData: array<Nullable.t<'t>>,
   ~defaultSort=?,
   ~title,
   ~visibleColumns=?,
@@ -793,7 +793,7 @@ let make = (
             ->filteredData(columnFilterCopy, visibleColumns, entity, dateFormatConvertor)
             ->Belt.Array.keepMap(
               item => {
-                item->Js.Nullable.toOption
+                item->Nullable.toOption
               },
             )
           switch columToConsider {
@@ -926,7 +926,7 @@ let make = (
   let rows =
     filteredData
     ->Array.mapWithIndex((nullableItem, index) => {
-      let actualRows = switch nullableItem->Js.Nullable.toOption {
+      let actualRows = switch nullableItem->Nullable.toOption {
       | Some(item) => {
           let visibleCell =
             visibleColumns
@@ -1028,7 +1028,7 @@ let make = (
 
   let handleRowClick = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
-    | Some(ele) => ele->Js.Nullable.toOption
+    | Some(ele) => ele->Nullable.toOption
     | None => None
     }
     switch actualVal {
@@ -1052,7 +1052,7 @@ let make = (
 
   let handleMouseEnter = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
-    | Some(ele) => ele->Js.Nullable.toOption
+    | Some(ele) => ele->Nullable.toOption
     | None => None
     }
     switch actualVal {
@@ -1067,7 +1067,7 @@ let make = (
 
   let handleMouseLeave = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
-    | Some(ele) => ele->Js.Nullable.toOption
+    | Some(ele) => ele->Nullable.toOption
     | None => None
     }
     switch actualVal {

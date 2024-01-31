@@ -18,10 +18,10 @@ type domObj = {
 @send
 external removeEventListener: (Dom.element, string, event => unit) => unit = "removeEventListener"
 
-let useLinearRippleHook = (ref: React.ref<Js.Nullable.t<Dom.element>>, shouldRipple) => {
+let useLinearRippleHook = (ref: React.ref<Nullable.t<Dom.element>>, shouldRipple) => {
   React.useEffect1(() => {
     let handleMouseOver = _ev => {
-      switch ref.current->Js.Nullable.toOption {
+      switch ref.current->Nullable.toOption {
       | Some(splash) => {
           let link = document->DOMUtils.createElement("div")
           link->setAttribute(
@@ -42,7 +42,7 @@ let useLinearRippleHook = (ref: React.ref<Js.Nullable.t<Dom.element>>, shouldRip
       }
     }
 
-    switch ref.current->Js.Nullable.toOption {
+    switch ref.current->Nullable.toOption {
     | Some(elem) =>
       if shouldRipple {
         elem->addEventListener("mousedown", handleMouseOver)
@@ -60,10 +60,10 @@ let useLinearRippleHook = (ref: React.ref<Js.Nullable.t<Dom.element>>, shouldRip
   }, [ref])
 }
 
-let useHorizontalRippleHook = (ref: React.ref<Js.Nullable.t<Dom.element>>) => {
+let useHorizontalRippleHook = (ref: React.ref<Nullable.t<Dom.element>>) => {
   React.useEffect1(() => {
     let handleMouseOver = _ev => {
-      switch ref.current->Js.Nullable.toOption {
+      switch ref.current->Nullable.toOption {
       | Some(splash) => {
           let link = document->DOMUtils.createElement("div")
           link->setAttribute(
@@ -93,7 +93,7 @@ let useHorizontalRippleHook = (ref: React.ref<Js.Nullable.t<Dom.element>>) => {
       }
     }
 
-    switch ref.current->Js.Nullable.toOption {
+    switch ref.current->Nullable.toOption {
     | Some(elem) =>
       elem->addEventListener("mousedown", handleMouseOver)
 

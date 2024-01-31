@@ -29,7 +29,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
     } catch {
     | _ => showToast(~message="Something went wrong. Please try again.", ~toastType=ToastError, ())
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
   let onSubmit = (values, _) => {

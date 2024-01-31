@@ -144,7 +144,7 @@ module ListItem = {
     } else {
       onClick
     }
-    let parentRef = React.useRef(Js.Nullable.null)
+    let parentRef = React.useRef(Nullable.null)
 
     let textColor = "text-jp-gray-900 dark:text-jp-gray-text_darktheme"
 
@@ -595,7 +595,7 @@ module BaseSelect = {
           preservedAppliedOptions->Array.includes(val) && acc
         })
 
-    let searchRef = React.useRef(Js.Nullable.null)
+    let searchRef = React.useRef(Nullable.null)
     let selectBtnRef = insertselectBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
     let clearBtnRef = insertclearBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
     let (isChooseAllToggleSelected, setChooseAllToggleSelected) = React.useState(() => false)
@@ -615,7 +615,7 @@ module BaseSelect = {
     }
 
     React.useEffect2(() => {
-      searchRef.current->Js.Nullable.toOption->Option.forEach(input => input->focus)
+      searchRef.current->Nullable.toOption->Option.forEach(input => input->focus)
       None
     }, (searchRef.current, showDropDown))
 
@@ -929,7 +929,7 @@ module BaseSelectButton = {
     let (searchString, setSearchString) = React.useState(() => "")
     let (itemdata, setItemData) = React.useState(() => "")
     let (assignButtonState, setAssignButtonState) = React.useState(_ => false)
-    let searchRef = React.useRef(Js.Nullable.null)
+    let searchRef = React.useRef(Nullable.null)
     let onItemClick = (itemData, _ev) => {
       if !disableSelect {
         let isSelected = value->JSON.Decode.string->Option.mapOr(false, str => itemData === str)
@@ -951,7 +951,7 @@ module BaseSelectButton = {
     }
 
     React.useEffect2(() => {
-      searchRef.current->Js.Nullable.toOption->Option.forEach(input => input->focus)
+      searchRef.current->Nullable.toOption->Option.forEach(input => input->focus)
       None
     }, (searchRef.current, showDropDown))
 
@@ -1233,7 +1233,7 @@ module BaseRadio = {
     }, [searchString])
 
     OutsideClick.useOutsideClick(
-      ~refs={ArrayOfRef([dropdownRef->Option.getOr(React.useRef(Js.Nullable.null))])},
+      ~refs={ArrayOfRef([dropdownRef->Option.getOr(React.useRef(Nullable.null))])},
       ~isActive=showDropDown,
       ~callback=() => {
         setSearchString(_ => "")
@@ -1279,7 +1279,7 @@ module BaseRadio = {
     let widthClass =
       isMobileView || !isSearchable ? "w-auto" : fullLength ? "w-full" : dropdownCustomWidth
 
-    let searchRef = React.useRef(Js.Nullable.null)
+    let searchRef = React.useRef(Nullable.null)
 
     let width = isHorizontal || !isDropDown || customStyle === "" ? widthClass : customStyle
 
@@ -1288,7 +1288,7 @@ module BaseRadio = {
     let textIconPresent = options->Array.some(op => op.icon !== NoIcon)
 
     React.useEffect2(() => {
-      searchRef.current->Js.Nullable.toOption->Option.forEach(input => input->focus)
+      searchRef.current->Nullable.toOption->Option.forEach(input => input->focus)
       None
     }, (searchRef.current, showDropDown))
 
@@ -1524,9 +1524,9 @@ module BaseDropdown = {
     let (showDropDown, setShowDropDown) = React.useState(() => false)
     let (isGrowDown, setIsGrowDown) = React.useState(_ => false)
     let (isInitialRender, setIsInitialRender) = React.useState(_ => true)
-    let selectBoxRef = React.useRef(Js.Nullable.null)
-    let dropdownRef = React.useRef(Js.Nullable.null)
-    let selectBtnRef = React.useRef(Js.Nullable.null)
+    let selectBoxRef = React.useRef(Nullable.null)
+    let dropdownRef = React.useRef(Nullable.null)
+    let selectBtnRef = React.useRef(Nullable.null)
     let (preservedAppliedOptions, setPreservedAppliedOptions) = React.useState(_ =>
       newInputSelect.value->LogicUtils.getStrArryFromJson
     )
@@ -1540,7 +1540,7 @@ module BaseDropdown = {
       setPreservedAppliedOptions(_ => newInputSelect.value->LogicUtils.getStrArryFromJson)
     }
 
-    let clearBtnRef = React.useRef(Js.Nullable.null)
+    let clearBtnRef = React.useRef(Nullable.null)
     let insertselectBtnRef = element => {
       if !Js.Nullable.isNullable(element) {
         selectBtnRef.current = element
@@ -1613,7 +1613,7 @@ module BaseDropdown = {
       | Some(dropDownDirection) => dropDownDirection
       | None =>
         selectBoxRef.current
-        ->Js.Nullable.toOption
+        ->Nullable.toOption
         ->Option.flatMap(elem => elem->getClientRects->toDict->Dict.get("0"))
         ->Option.flatMap(firstEl => {
           let bottomVacent = Window.innerHeight - firstEl["bottom"]->Float.toInt > 375

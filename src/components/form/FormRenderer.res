@@ -8,7 +8,7 @@ type inputFieldType = {
   isRequired: bool,
   @as("type") type_: string,
   customInput: customInputFn,
-  validate: option<(option<string>, JSON.t) => Js.Promise.t<Js.Nullable.t<string>>>,
+  validate: option<(option<string>, JSON.t) => Js.Promise.t<Nullable.t<string>>>,
 }
 type fieldInfoType = {
   label: string,
@@ -36,7 +36,7 @@ let makeInputFieldInfo = (
   ~parse=?,
   ~type_="text",
   ~isRequired=false,
-  ~validate: option<(option<string>, JSON.t) => Js.Promise.t<Js.Nullable.t<string>>>=?,
+  ~validate: option<(option<string>, JSON.t) => Js.Promise.t<Nullable.t<string>>>=?,
   (),
 ) => {
   let label = label->Option.getOr(name)
@@ -140,7 +140,7 @@ let makeFieldInfo = (
   ~type_="text",
   ~isRequired=false,
   ~fieldPortalKey: option<string>=?,
-  ~validate: option<(option<string>, JSON.t) => Js.Promise.t<Js.Nullable.t<string>>>=?,
+  ~validate: option<(option<string>, JSON.t) => Js.Promise.t<Nullable.t<string>>>=?,
   (),
 ) => {
   let label = label->Option.getOr(name)
@@ -285,9 +285,9 @@ module FieldError = {
     let errorTextStyle = "text-red-950 dark:text-red-400 text-fs-10 font-medium ml-1"
     let error = if meta.touched || alwaysShow || (showErrorOnChange && meta.modified) {
       if !(meta.submitError->Js.Nullable.isNullable) && !meta.dirtySinceLastSubmit {
-        Js.Nullable.toOption(meta.submitError)
+        Nullable.toOption(meta.submitError)
       } else {
-        Js.Nullable.toOption(meta.error)
+        Nullable.toOption(meta.error)
       }
     } else {
       None
@@ -528,7 +528,7 @@ module FormError = {
 
     React.useEffect0(() => {
       let unsubscribe = form.subscribe(formState => {
-        setSubmitErrors(_ => formState.submitErrors->Js.Nullable.toOption)
+        setSubmitErrors(_ => formState.submitErrors->Nullable.toOption)
 
         ()
       }, subscriptionJson)
@@ -598,7 +598,7 @@ module SubmitButton = {
     })
 
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      dict->JSON.Encode.object->Js.Nullable.return,
+      dict->JSON.Encode.object->Nullable.make,
     )
     let {hasValidationErrors, hasSubmitErrors, submitting, dirtySinceLastSubmit, errors} = formState
 
@@ -794,10 +794,7 @@ let make = (
   ~initialValues,
   ~validate=?,
   ~submitButtonText=?,
-  ~onSubmit: (
-    ReactFinalForm.formValues,
-    ReactFinalForm.formApi,
-  ) => Promise.t<Js.Nullable.t<JSON.t>>,
+  ~onSubmit: (ReactFinalForm.formValues, ReactFinalForm.formApi) => Promise.t<Nullable.t<JSON.t>>,
   ~fieldsWrapperClass="",
   ~fieldWrapperClass="",
   ~formClass="",

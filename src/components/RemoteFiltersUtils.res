@@ -217,7 +217,7 @@ let getInitialValuesFromUrl = (
 }
 
 let getLocalFiltersData = (
-  ~resArr: array<Js.Nullable.t<'t>>,
+  ~resArr: array<Nullable.t<'t>>,
   ~searchParams,
   ~initialFilters: array<EntityType.initialFilters<'t>>,
   ~dateRangeFilterDict: Dict.t<JSON.t>,
