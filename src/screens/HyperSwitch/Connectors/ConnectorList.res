@@ -24,21 +24,12 @@ module RequestConnector = {
 module CantFindProcessor = {
   @react.component
   let make = (~showRequestConnectorBtn, ~setShowModal) => {
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-
     <UIUtils.RenderIf condition={showRequestConnectorBtn}>
-      <ToolTip
-        description={userPermissionJson.merchantAccountWrite === Access ? "" : noAccessControlText}
-        toolTipFor={<div
-          onClick={_ =>
-            userPermissionJson.merchantAccountWrite === Access ? setShowModal(_ => true) : ()}
-          className={`text-blue-900 ${userPermissionJson.merchantAccountWrite === Access
-              ? "cursor-pointer"
-              : "cursor-default"} underline underline-offset-4 font-medium`}>
-          {"Can't find the processor of your choice?"->React.string}
-        </div>}
-        toolTipPosition={Top}
-      />
+      <div
+        onClick={_ => setShowModal(_ => true)}
+        className={`text-blue-900 underline underline-offset-4 font-medium`}>
+        {"Can't find the processor of your choice?"->React.string}
+      </div>
     </UIUtils.RenderIf>
   }
 }
@@ -172,25 +163,17 @@ module NewProcessorCards = {
         <RenderIf condition={connectorList->Array.length > 0}>
           <div className="bg-white rounded-md flex gap-2 flex-wrap p-4 border">
             {connectorList
-            ->Array.mapWithIndex((connector, i) => {
+            ->Array.map(connector => {
               let connectorName = connector->getConnectorNameString
               let size = "w-14 h-14 rounded-sm"
-              <ToolTip
-                key={i->string_of_int}
-                description={userPermissionJson.merchantConnectorAccountWrite === Access
-                  ? connectorName->LogicUtils.capitalizeString
-                  : noAccessControlTextForProcessors}
-                toolTipFor={<div
-                  className="p-2 cursor-pointer"
-                  onClick={_ =>
-                    userPermissionJson.merchantConnectorAccountWrite === Access
-                      ? handleClick(connectorName)
-                      : ()}>
-                  <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
-                </div>}
-                toolTipPosition={Top}
-                tooltipWidthClass="w-30"
-              />
+              <div
+                className="p-2 cursor-pointer"
+                onClick={_ =>
+                  userPermissionJson.merchantConnectorAccountWrite === Access
+                    ? handleClick(connectorName)
+                    : ()}>
+                <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
+              </div>
             })
             ->React.array}
           </div>
@@ -256,7 +239,6 @@ let make = (~isPayoutFlow=false) => {
   let showConnectorIcons = configuredConnectors->Array.length > detailedCardCount
   let (searchText, setSearchText) = React.useState(_ => "")
   let fetchConnectorListResponse = useFetchConnectorList()
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
   let getConnectorListAndUpdateState = async () => {
     open LogicUtils
@@ -341,10 +323,7 @@ let make = (~isPayoutFlow=false) => {
             resultsPerPage=20
             offset
             setOffset
-            entity={ConnectorTableUtils.connectorEntity(
-              `${entityPrefix}connectors`,
-              ~permission=userPermissionJson.merchantConnectorAccountWrite,
-            )}
+            entity={ConnectorTableUtils.connectorEntity(`${entityPrefix}connectors`)}
             currrentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false
           />

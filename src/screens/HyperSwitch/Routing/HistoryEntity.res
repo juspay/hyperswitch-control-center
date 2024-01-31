@@ -85,7 +85,7 @@ let getHistoryRules: JSON.t => array<historyData> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let historyEntity = (activeRoutingIds: array<string>, ~permission: AuthTypes.authorization) => {
+let historyEntity = (activeRoutingIds: array<string>) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getHistoryRules,
@@ -96,13 +96,11 @@ let historyEntity = (activeRoutingIds: array<string>, ~permission: AuthTypes.aut
     ~dataKey="records",
     ~getShowLink={
       value => {
-        permission === Access
-          ? `/routing/${value.kind
-              ->routingTypeMapper
-              ->routingTypeName}?id=${value.id}${activeRoutingIds->Array.includes(value.id)
-                ? "&isActive=true"
-                : ""}`
-          : ""
+        `/routing/${value.kind
+          ->routingTypeMapper
+          ->routingTypeName}?id=${value.id}${activeRoutingIds->Array.includes(value.id)
+            ? "&isActive=true"
+            : ""}`
       }
     },
     (),

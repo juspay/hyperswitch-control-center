@@ -46,17 +46,16 @@ let getItems: JSON.t => array<profileEntity> = json => {
   LogicUtils.getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let webhookProfileTableEntity = (~permission: AuthTypes.authorization) =>
-  EntityType.makeEntity(
-    ~uri="",
-    ~getObjects=getItems,
-    ~defaultColumns,
-    ~allColumns,
-    ~getHeading,
-    ~dataKey="",
-    ~getCell,
-    ~getShowLink={
-      profile => permission === Access ? `/payment-settings/${profile.profile_id}` : ""
-    },
-    (),
-  )
+let webhookProfileTableEntity = EntityType.makeEntity(
+  ~uri="",
+  ~getObjects=getItems,
+  ~defaultColumns,
+  ~allColumns,
+  ~getHeading,
+  ~dataKey="",
+  ~getCell,
+  ~getShowLink={
+    profile => `/payment-settings/${profile.profile_id}`
+  },
+  (),
+)

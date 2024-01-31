@@ -102,7 +102,6 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchDetails = APIUtils.useGetMethod()
   let isMobileView = MatchMedia.useMatchMedia("(max-width: 844px)")
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let (configuredFRMs, setConfiguredFRMs) = React.useState(_ => [])
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
   let (filteredFRMData, setFilteredFRMData) = React.useState(_ => [])
@@ -197,10 +196,7 @@ let make = () => {
           resultsPerPage=20
           offset
           setOffset
-          entity={FRMTableUtils.connectorEntity(
-            "fraud-risk-management",
-            ~permission={userPermissionJson.merchantConnectorAccountWrite},
-          )}
+          entity={FRMTableUtils.connectorEntity("fraud-risk-management")}
           currrentFetchCount={filteredFRMData->Array.length}
           collapseTableRow=false
         />

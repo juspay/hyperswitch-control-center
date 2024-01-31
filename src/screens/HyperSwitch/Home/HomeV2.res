@@ -221,82 +221,62 @@ module RecipesAndPlugins = {
       ->QuickStartUtils.getTypedValueFromDict
     let isStripePlusPayPalCompleted = enumDetails->checkStripePlusPayPal
     let isWooCommercePalCompleted = enumDetails->checkWooCommerce
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-    let blockCondition =
-      userPermissionJson.merchantConnectorAccountRead === NoAccess &&
-        userPermissionJson.merchantConnectorAccountWrite === NoAccess
 
     <div className="flex flex-col gap-4">
       <p className=headingStyle> {"Recipes & Plugins"->React.string} </p>
       <div className="grid grid-cols-1 md:grid-cols-2 w-full gap-4">
-        <ToolTip
-          description={blockCondition ? noAccessControlText : ""}
-          toolTipPosition=Top
-          toolTipFor={<div
-            className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted, ())}
-            onClick={_ => {
-              blockCondition
-                ? ()
-                : {
-                    mixpanelEvent(~eventName=`stripe_plus_paypal`, ())
-                    RescriptReactRouter.push("stripe-plus-paypal")
-                  }
-            }}>
-            <div className="flex items-center gap-2">
-              <p className=cardHeaderTextStyle> {"Use PayPal with Stripe"->React.string} </p>
-              <Icon
-                name="chevron-right"
-                size=12
-                className="group-hover:scale-125 transition duration-200 ease-in-out"
-              />
-              <UIUtils.RenderIf condition={isStripePlusPayPalCompleted}>
-                <div className="flex ">
-                  <Icon name="success-tag" size=22 className="!w-32" />
-                </div>
-              </UIUtils.RenderIf>
-            </div>
-            <div className="flex gap-2 h-full">
-              <p className=paragraphTextVariant>
-                {"Get the best of Stripe's developer experience and Paypal's user base"->React.string}
-              </p>
-              <img src="/assets/StripePlusPaypal.svg" className=imageTransitionCss />
-            </div>
-          </div>}
-        />
-        <ToolTip
-          description={blockCondition ? noAccessControlText : ""}
-          toolTipPosition=Top
-          toolTipFor={<div
-            className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted, ())}
-            onClick={_ => {
-              blockCondition
-                ? ()
-                : {
-                    mixpanelEvent(~eventName=`woocommerce`, ())
-                    RescriptReactRouter.push("woocommerce")
-                  }
-            }}>
-            <div className="flex items-center gap-2">
-              <p className=cardHeaderTextStyle> {"WooCommerce plugin"->React.string} </p>
-              <Icon
-                name="chevron-right"
-                size=12
-                className="group-hover:scale-125 transition duration-200 ease-in-out"
-              />
-              <UIUtils.RenderIf condition={isWooCommercePalCompleted}>
-                <div className="flex ">
-                  <Icon name="success-tag" size=22 className="!w-32" />
-                </div>
-              </UIUtils.RenderIf>
-            </div>
-            <div className="flex gap-2 h-full">
-              <p className=paragraphTextVariant>
-                {"Give your shoppers a lightweight and embedded payment experience with our plugin"->React.string}
-              </p>
-              <img src="/assets/Woocommerce.svg" className=imageTransitionCss />
-            </div>
-          </div>}
-        />
+        <div
+          className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted, ())}
+          onClick={_ => {
+            mixpanelEvent(~eventName=`stripe_plus_paypal`, ())
+            RescriptReactRouter.push("stripe-plus-paypal")
+          }}>
+          <div className="flex items-center gap-2">
+            <p className=cardHeaderTextStyle> {"Use PayPal with Stripe"->React.string} </p>
+            <Icon
+              name="chevron-right"
+              size=12
+              className="group-hover:scale-125 transition duration-200 ease-in-out"
+            />
+            <UIUtils.RenderIf condition={isStripePlusPayPalCompleted}>
+              <div className="flex ">
+                <Icon name="success-tag" size=22 className="!w-32" />
+              </div>
+            </UIUtils.RenderIf>
+          </div>
+          <div className="flex gap-2 h-full">
+            <p className=paragraphTextVariant>
+              {"Get the best of Stripe's developer experience and Paypal's user base"->React.string}
+            </p>
+            <img src="/assets/StripePlusPaypal.svg" className=imageTransitionCss />
+          </div>
+        </div>
+        <div
+          className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted, ())}
+          onClick={_ => {
+            mixpanelEvent(~eventName=`woocommerce`, ())
+            RescriptReactRouter.push("woocommerce")
+          }}>
+          <div className="flex items-center gap-2">
+            <p className=cardHeaderTextStyle> {"WooCommerce plugin"->React.string} </p>
+            <Icon
+              name="chevron-right"
+              size=12
+              className="group-hover:scale-125 transition duration-200 ease-in-out"
+            />
+            <UIUtils.RenderIf condition={isWooCommercePalCompleted}>
+              <div className="flex ">
+                <Icon name="success-tag" size=22 className="!w-32" />
+              </div>
+            </UIUtils.RenderIf>
+          </div>
+          <div className="flex gap-2 h-full">
+            <p className=paragraphTextVariant>
+              {"Give your shoppers a lightweight and embedded payment experience with our plugin"->React.string}
+            </p>
+            <img src="/assets/Woocommerce.svg" className=imageTransitionCss />
+          </div>
+        </div>
       </div>
     </div>
   }
@@ -306,7 +286,6 @@ module Resources = {
   @react.component
   let make = () => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let elements: array<HomeUtils.resourcesTypes> = [
       {
         id: "tryTheDemo",
@@ -330,55 +309,37 @@ module Resources = {
         redirectLink: "",
       },
     ]
-
-    let onClickHandler = item => {
-      if item.id === "openSource" {
-        mixpanelEvent(~eventName=`contribute_in_open_source`, ())
-        "https://github.com/juspay/hyperswitch"->Window._open
-      } else if item.id === "developerdocs" {
-        mixpanelEvent(~eventName=`dev_docs`, ())
-        "https://hyperswitch.io/docs"->Window._open
-      } else if item.id === "tryTheDemo" {
-        if userPermissionJson.paymentWrite === Access {
-          RescriptReactRouter.replace("/sdk")
-        }
-      }
-    }
-
     <>
       <div className="flex flex-col gap-4">
         <p className=headingStyle> {"Resources"->React.string} </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {elements
           ->Array.mapWithIndex((item, index) => {
-            let content =
-              <div
-                className="h-full group bg-white border rounded-md p-10 flex flex-col gap-4 group-hover:shadow hover:shadow-homePageBoxShadow cursor-pointer"
-                key={index->string_of_int}
-                onClick={_ => onClickHandler(item)}>
-                <img src={`/icons/${item.icon}`} className="h-6 w-6" />
-                <div className="flex items-center gap-2">
-                  <p className=cardHeaderText> {item.headerText->React.string} </p>
-                  <Icon
-                    name="chevron-right"
-                    size=12
-                    className="group-hover:scale-125 transition duration-200 ease-in-out"
-                  />
-                </div>
-                <p className=paragraphTextVariant> {item.subText->React.string} </p>
+            <div
+              className="group bg-white border rounded-md p-10 flex flex-col gap-4 group-hover:shadow hover:shadow-homePageBoxShadow cursor-pointer"
+              key={index->string_of_int}
+              onClick={_ => {
+                if item.id === "openSource" {
+                  mixpanelEvent(~eventName=`contribute_in_open_source`, ())
+                  "https://github.com/juspay/hyperswitch"->Window._open
+                } else if item.id === "developerdocs" {
+                  mixpanelEvent(~eventName=`dev_docs`, ())
+                  "https://hyperswitch.io/docs"->Window._open
+                } else if item.id === "tryTheDemo" {
+                  RescriptReactRouter.replace("/sdk")
+                }
+              }}>
+              <img src={`/icons/${item.icon}`} className="h-6 w-6" />
+              <div className="flex items-center gap-2">
+                <p className=cardHeaderText> {item.headerText->React.string} </p>
+                <Icon
+                  name="chevron-right"
+                  size=12
+                  className="group-hover:scale-125 transition duration-200 ease-in-out"
+                />
               </div>
-
-            if item.id === "tryTheDemo" && userPermissionJson.paymentWrite === NoAccess {
-              <ToolTip
-                toolTipFor=content
-                description=noAccessControlText
-                toolTipPosition=Top
-                isRelative=false
-                tooltipForWidthClass="!h-full"
-              />
-            } else {
-              content
-            }
+              <p className=paragraphTextVariant> {item.subText->React.string} </p>
+            </div>
           })
           ->React.array}
         </div>

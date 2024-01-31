@@ -227,7 +227,7 @@ let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
   json->getArrayDataFromJson(getProcessorPayloadType)->sortPreviouslyConnectedList
 }
 
-let connectorEntity = (path: string, ~permission: AuthTypes.authorization) => {
+let connectorEntity = (path: string) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getPreviouslyConnectedList,
@@ -236,10 +236,7 @@ let connectorEntity = (path: string, ~permission: AuthTypes.authorization) => {
     ~getCell,
     ~dataKey="",
     ~getShowLink={
-      connec =>
-        permission === Access
-          ? `/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`
-          : ``
+      connec => `/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`
     },
     (),
   )
