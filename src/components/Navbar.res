@@ -43,7 +43,7 @@ let make = (
 
   let leftPortalName = isMobileView ? "mobileNavbarTitle" : "desktopNavbarLeft"
 
-  let ref = React.useRef(Js.Nullable.null)
+  let ref = React.useRef(Nullable.null)
   OutsideClick.useOutsideClick(
     ~refs=ArrayOfRef([ref]),
     ~isActive=isAppearancePopupOpen,

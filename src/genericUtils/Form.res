@@ -1,18 +1,18 @@
 let defaultSubmit = (_, _) => {
-  Js.Nullable.null->Js.Promise.resolve
+  Nullable.null->Js.Promise.resolve
 }
 module FormBody = {
   @react.component
   let make = (~children, ~formClass, ~handleSubmit, ~submitOnEnter) => {
     let form = ReactFinalForm.useForm()
-    let formRef = React.useRef(Js.Nullable.null)
+    let formRef = React.useRef(Nullable.null)
     React.useEffect0(() => {
       let onKeyDown = (ev: 'a) => {
         let keyCode = ev->ReactEvent.Keyboard.keyCode
 
         let tagName = Document.activeElement->Webapi.Dom.Element.tagName
         if keyCode === 13 {
-          let enterIsFromWithinForm = switch formRef.current->Js.Nullable.toOption {
+          let enterIsFromWithinForm = switch formRef.current->Nullable.toOption {
           | Some(element) => element->Webapi.Dom.Element.contains(~child=Document.activeElement)
           | None => false
           }

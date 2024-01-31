@@ -11,7 +11,7 @@ let useSendEvent = () => {
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
   let name = getFromUserDetails("name")
-  let deviceId = switch LocalStorage.getItem("deviceid")->Js.Nullable.toOption {
+  let deviceId = switch LocalStorage.getItem("deviceid")->Nullable.toOption {
   | Some(id) => id
   | None => getFromUserDetails("email")
   }

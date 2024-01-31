@@ -100,7 +100,7 @@ module Simplified = {
       } catch {
       | _ => showToast(~message="Failed to Verify", ~toastType=ToastState.ToastError, ())
       }
-      Js.Nullable.null
+      Nullable.null
     }
 
     <Form
@@ -189,7 +189,7 @@ module Manual = {
       update(updatedValue)
       setVefifiedDomainList(_ => [domainName])
       setApplePayIntegrationSteps(_ => ApplePayWalletIntegrationTypes.Verify)
-      Js.Nullable.null->Js.Promise.resolve
+      Nullable.null->Js.Promise.resolve
     }
 
     <div className="p-6 m-2">

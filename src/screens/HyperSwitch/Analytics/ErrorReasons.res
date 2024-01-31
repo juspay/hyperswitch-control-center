@@ -93,7 +93,7 @@ let make = (~errors: array<AnalyticsTypes.error_message_type>) => {
         error_reason: item.reason,
         percentage: item.percentage,
         count: item.count,
-      }->Js.Nullable.return
+      }->Nullable.make
     })
   } else {
     []

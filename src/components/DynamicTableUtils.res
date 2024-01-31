@@ -39,7 +39,7 @@ let useDateFormatConvertor = () => {
 }
 
 let filteredData = (
-  actualData: array<Js.Nullable.t<'t>>,
+  actualData: array<Nullable.t<'t>>,
   columnFilter: Dict.t<array<JSON.t>>,
   visibleColumns: option<array<'colType>>,
   entity: EntityType.entityType<'colType, 't>,
@@ -48,7 +48,7 @@ let filteredData = (
   let selectedFiltersKeys = columnFilter->Dict.keysToArray
   if selectedFiltersKeys->Array.length > 0 {
     actualData->Array.filter(item => {
-      switch item->Js.Nullable.toOption {
+      switch item->Nullable.toOption {
       | Some(row) =>
         // either to take this row or not if any filter is present then take row or else drop
         let rowDict = row->Identity.genericTypeToDictOfJson

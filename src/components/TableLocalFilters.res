@@ -10,7 +10,7 @@ module RangeSliderLocalFilter = {
     ~minSlide: ReactFinalForm.fieldRenderPropsInput,
   ) => {
     let (lclFiltrState, setLclFltrState) = React.useContext(DatatableContext.datatableContext)
-    let dropdownRef = React.useRef(Js.Nullable.null)
+    let dropdownRef = React.useRef(Nullable.null)
     let (showDropDown, setShowDropDown) = React.useState(() => false)
     let selectedFilterVal = Dict.get(lclFiltrState, filterKey)
     let filterIconName = "bars-filter"

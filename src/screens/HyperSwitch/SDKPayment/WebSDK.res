@@ -140,7 +140,7 @@ module CheckoutForm = {
 
     React.useEffect3(() => {
       let paymentElement = elements.getElement("payment")
-      switch paymentElement->Js.Nullable.toOption {
+      switch paymentElement->Nullable.toOption {
       | Some(ele) =>
         let paymentVal = {
           "layout": {

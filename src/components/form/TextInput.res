@@ -60,12 +60,12 @@ let make = (
 
   let {isFirst, isLast} = React.useContext(ButtonGroupContext.buttonGroupContext)
   let (showPassword, setShowPassword) = React.useState(_ => false)
-  let inputRef = React.useRef(Js.Nullable.null)
+  let inputRef = React.useRef(Nullable.null)
 
   React.useEffect2(() => {
     switch widthMatchwithPlaceholderLength {
     | Some(length) =>
-      switch inputRef.current->Js.Nullable.toOption {
+      switch inputRef.current->Nullable.toOption {
       | Some(elem) =>
         let size =
           elem
@@ -109,7 +109,7 @@ let make = (
         let keyDownFn = ev => {
           if func(ev) {
             ev->ReactEvent.Keyboard.preventDefault
-            switch inputRef.current->Js.Nullable.toOption {
+            switch inputRef.current->Nullable.toOption {
             | Some(elem) => elem->focus
             | None => ()
             }

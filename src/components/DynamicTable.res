@@ -251,11 +251,11 @@ let make = (
     })
     ->then(json => {
       switch json->JSON.Classify.classify {
-      | Array(_arr) => json->getObjects->Array.map(obj => obj->Js.Nullable.return)->setNewData
+      | Array(_arr) => json->getObjects->Array.map(obj => obj->Nullable.make)->setNewData
       | Object(dict) => {
           let flattenedObject = JsonFlattenUtils.flattenObject(json, false)
           switch Dict.get(flattenedObject, dataKey) {
-          | Some(x) => x->getObjects->Array.map(obj => obj->Js.Nullable.return)->setNewData
+          | Some(x) => x->getObjects->Array.map(obj => obj->Nullable.make)->setNewData
           | None => ()
           }
           let summary = switch Dict.get(dict, summaryKey) {
@@ -423,7 +423,7 @@ let make = (
         let newData = switch data {
         | Some(data) =>
           data->Array.filter(item => {
-            switch item->Js.Nullable.toOption {
+            switch item->Nullable.toOption {
             | Some(val) => filterCheck(val, keys)
             | _ => false
             }

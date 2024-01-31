@@ -47,7 +47,7 @@ module NewAccountCreationModal = {
       }
 
       setShowModal(_ => false)
-      Js.Nullable.null
+      Nullable.null
     }
 
     let onSubmit = (values, _) => {

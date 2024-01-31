@@ -175,7 +175,7 @@ module IndicationArrow = {
     let onClick = {
       _ev =>
         refElement.current
-        ->Js.Nullable.toOption
+        ->Nullable.toOption
         ->Option.forEach(input =>
           input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"})
         )
@@ -206,8 +206,8 @@ module IndicationArrow = {
   }
 }
 
-let getBoundingRectInfo = (ref: React.ref<Js.Nullable.t<Dom.element>>, getter) => {
-  ref.current->Js.Nullable.toOption->Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
+let getBoundingRectInfo = (ref: React.ref<Nullable.t<Dom.element>>, getter) => {
+  ref.current->Nullable.toOption->Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
 }
 
 @react.component
@@ -400,9 +400,9 @@ let make = (
   let (isLeftArrowVisible, setIsLeftArrowVisible) = React.useState(() => false)
   let (isRightArrowVisible, setIsRightArrowVisible) = React.useState(() => true)
 
-  let firstTabRef = React.useRef(Js.Nullable.null)
-  let scrollRef = React.useRef(Js.Nullable.null)
-  let lastTabRef = React.useRef(Js.Nullable.null)
+  let firstTabRef = React.useRef(Nullable.null)
+  let scrollRef = React.useRef(Nullable.null)
+  let lastTabRef = React.useRef(Nullable.null)
 
   let onScroll = _ev => {
     setTabScroll(
@@ -481,7 +481,7 @@ let make = (
 
       Js.Global.setTimeout(_ => {
         lastTabRef.current
-        ->Js.Nullable.toOption
+        ->Nullable.toOption
         ->Option.forEach(input =>
           input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"})
         )

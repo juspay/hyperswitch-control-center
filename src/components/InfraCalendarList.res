@@ -52,11 +52,11 @@ module YearItem = {
   @react.component
   let make = (~tempYear, ~year, ~handleChangeMonthBy, ~setCurrDate, ~tempMonth) => {
     let isSelected = year->Int.toFloat === tempYear
-    let yearRef = React.useRef(Js.Nullable.null)
+    let yearRef = React.useRef(Nullable.null)
 
     React.useEffect1(() => {
       if isSelected {
-        switch yearRef.current->Js.Nullable.toOption {
+        switch yearRef.current->Nullable.toOption {
         | Some(element) => element->scrollIntoView
         | None => ()
         }
@@ -96,11 +96,11 @@ module MonthItem = {
     ~mon: InfraCalendar.month,
   ) => {
     let isSelected = index->Int.toFloat === tempMonth
-    let monthRef = React.useRef(Js.Nullable.null)
+    let monthRef = React.useRef(Nullable.null)
 
     React.useEffect1(() => {
       if isSelected {
-        switch monthRef.current->Js.Nullable.toOption {
+        switch monthRef.current->Nullable.toOption {
         | Some(element) => element->scrollIntoView
         | None => ()
         }
