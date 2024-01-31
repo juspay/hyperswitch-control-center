@@ -3,7 +3,6 @@ module HistoryTable = {
   @react.component
   let make = (~records, ~activeRoutingIds: array<string>) => {
     let (offset, setOffset) = React.useState(_ => 0)
-
     <LoadedTable
       title="History"
       hideTitle=true
