@@ -226,7 +226,8 @@ let make = (
 ) => {
   open APIUtils
   open ConnectorUtils
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {feedback, paypalAutomaticFlow} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
@@ -239,9 +240,7 @@ let make = (
 
   let connectorCount = ListHooks.useListCount(~entityName=CONNECTOR)
   let isFeedbackModalToBeOpen =
-    featureFlagDetails.feedback &&
-    !isUpdateFlow &&
-    connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
+    feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
   let redirectPath = switch url.path {
   | list{"payoutconnectors", _} => "/payoutconnectors"
   | _ => "/connectors"
@@ -287,7 +286,7 @@ let make = (
             currentStep,
             connector->getConnectorNameTypeFromString,
             connectorInfo.status,
-            featureFlagDetails.paypalAutomaticFlow,
+            paypalAutomaticFlow,
           ) {
           | (Preview, PAYPAL, "inactive", true) =>
             <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
@@ -298,10 +297,7 @@ let make = (
                 {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
               </div>
               <UIUtils.RenderIf condition={showMenuOption}>
-                {switch (
-                  connector->getConnectorNameTypeFromString,
-                  featureFlagDetails.paypalAutomaticFlow,
-                ) {
+                {switch (connector->getConnectorNameTypeFromString, paypalAutomaticFlow) {
                 | (PAYPAL, true) =>
                   <MenuOptionForPayPal
                     setCurrentStep
