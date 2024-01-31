@@ -76,6 +76,7 @@ let make = (~id) => {
   let (screenStateForRefund, setScreenStateForRefund) = React.useState(_ =>
     PageLoaderWrapper.Loading
   )
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (_screenStateForOrder, setScreenStateForOrder) = React.useState(_ =>
     PageLoaderWrapper.Loading
   )
@@ -129,6 +130,21 @@ let make = (~id) => {
         setOffset
         currrentFetchCount=1
       />
+      <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
+        <OrderUIUtils.RenderAccordian
+          accordion={[
+            {
+              title: "Events and logs",
+              renderContent: () => {
+                <LogsWrapper>
+                  <RefundLogs paymentId={id} />
+                </LogsWrapper>
+              },
+              renderContentOnTop: None,
+            },
+          ]}
+        />
+      </UIUtils.RenderIf>
     </PageLoaderWrapper>
   </div>
 }

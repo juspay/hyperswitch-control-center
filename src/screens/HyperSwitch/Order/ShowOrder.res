@@ -607,23 +607,10 @@ module FraudRiskBanner = {
   }
 }
 
-module RenderAccordian = {
-  @react.component
-  let make = (~initialExpandedArray=[], ~accordion) => {
-    <Accordion
-      initialExpandedArray
-      accordion
-      accordianTopContainerCss="border"
-      accordianBottomContainerCss="p-5"
-      contentExpandCss="px-4 py-3 !border-t-0"
-      titleStyle="font-semibold text-bold text-md"
-    />
-  }
-}
-
 @react.component
 let make = (~id) => {
   open APIUtils
+  open OrderUIUtils
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchDetails = useGetMethod()
   let showToast = ToastState.useShowToast()
@@ -789,7 +776,9 @@ let make = (~id) => {
               {
                 title: "Events and logs",
                 renderContent: () => {
-                  <OrderUIUtils.PaymentLogs id createdAt />
+                  <LogsWrapper>
+                    <PaymentLogs paymentId={id} createdAt />
+                  </LogsWrapper>
                 },
                 renderContentOnTop: None,
               },
@@ -803,7 +792,7 @@ let make = (~id) => {
                 title: "Payment Metadata",
                 renderContent: () => {
                   <div className="bg-white p-2">
-                    <PaymentLogs.PrettyPrintJson
+                    <PrettyPrintJson
                       jsonToDisplay={order.metadata->JSON.stringifyAny->Option.getOr("")}
                       overrideBackgroundColor="bg-white"
                     />
