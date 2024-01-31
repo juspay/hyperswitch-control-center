@@ -233,10 +233,11 @@ let payPalPageState = async (
       await getPayPalStatus()
     } else if isUpdateFlow && !(isSimplifiedPayPalFlow && isRedirectedFromPaypalModal) {
       setCurrentStep(_ => ConnectorTypes.Preview)
+      setScreenState(_ => Success)
     } else {
       setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
+      setScreenState(_ => Success)
     }
-    setScreenState(_ => Success)
   } catch {
   | Js.Exn.Error(e) => {
       let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
