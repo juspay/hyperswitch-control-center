@@ -22,7 +22,7 @@ type disableField = {key: string, values: array<string>}
 type selectAllSubmitActions = {
   btnText: string,
   showMultiSelectCheckBox: bool,
-  onClick: Js.Array2.t<JSON.t> => unit,
+  onClick: array<JSON.t> => unit,
   disableParam: disableField,
 }
 type hideItem = {key: string, value: string}

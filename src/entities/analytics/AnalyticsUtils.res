@@ -96,7 +96,7 @@ type tableApiBodyEntity = {
 type newApiBodyEntity = {
   timeObj: Dict.t<JSON.t>,
   metric?: string,
-  groupBy?: Js.Array2.t<Js_string.t>,
+  groupBy?: array<Js_string.t>,
   granularityConfig?: (int, string),
   cardinality?: float,
   filterValueFromUrl?: JSON.t,

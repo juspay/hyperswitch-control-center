@@ -9,8 +9,8 @@ type sortOb = {
 
 type checkBoxProps = {
   showCheckBox: bool,
-  selectedData: Js.Array2.t<JSON.t>,
-  setSelectedData: (Js.Array2.t<JSON.t> => Js.Array2.t<JSON.t>) => unit,
+  selectedData: array<JSON.t>,
+  setSelectedData: (array<JSON.t> => array<JSON.t>) => unit,
 }
 
 let checkBoxPropDefaultVal: checkBoxProps = {

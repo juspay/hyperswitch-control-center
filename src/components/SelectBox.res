@@ -1067,7 +1067,7 @@ module BaseSelectButton = {
 module RenderListItemInBaseRadio = {
   @react.component
   let make = (
-    ~newOptions: Js.Array2.t<dropdownOptionWithoutOptional>,
+    ~newOptions: array<dropdownOptionWithoutOptional>,
     ~value,
     ~descriptionOnHover,
     ~isDropDown,

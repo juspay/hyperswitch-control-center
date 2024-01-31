@@ -65,7 +65,7 @@ type customiseColumnConfig = {
 type selectAllSubmitActions = {
   btnText: string,
   showMultiSelectCheckBox: bool,
-  onClick: Js.Array2.t<JSON.t> => unit,
+  onClick: array<JSON.t> => unit,
   disableParam: disableField,
 }
 

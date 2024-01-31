@@ -443,7 +443,7 @@ module PinIconComponentStates = {
 
 @react.component
 let make = (
-  ~sidebars: Js.Array2.t<topLevelItem>,
+  ~sidebars: array<topLevelItem>,
   ~path,
   ~linkSelectionCheck=defaultLinkSelectionCheck,
   ~verticalOffset="120px",

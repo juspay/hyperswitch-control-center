@@ -39,9 +39,9 @@ let useDateFormatConvertor = () => {
 }
 
 let filteredData = (
-  actualData: Js.Array2.t<Js.Nullable.t<'t>>,
-  columnFilter: Dict.t<Js.Array2.t<JSON.t>>,
-  visibleColumns: option<Js.Array2.t<'colType>>,
+  actualData: array<Js.Nullable.t<'t>>,
+  columnFilter: Dict.t<array<JSON.t>>,
+  visibleColumns: option<array<'colType>>,
   entity: EntityType.entityType<'colType, 't>,
   dateFormatConvertor: string => option<JSON.t>,
 ) => {

@@ -2,8 +2,8 @@ open TableUtils
 external toJson: Js.Nullable.t<'a> => JSON.t = "%identity"
 type checkBoxProps = {
   showCheckBox: bool,
-  selectedData: Js.Array2.t<JSON.t>,
-  setSelectedData: (Js.Array2.t<JSON.t> => Js.Array2.t<JSON.t>) => unit,
+  selectedData: array<JSON.t>,
+  setSelectedData: (array<JSON.t> => array<JSON.t>) => unit,
 }
 
 let checkBoxPropDefaultVal: checkBoxProps = {
@@ -243,7 +243,7 @@ module ReactWindowTableComponent = {
     ~customCellColor="",
     ~showCheckBox=false,
   ) => {
-    let actualData: option<Js.Array2.t<Js.Nullable.t<'t>>> = actualData
+    let actualData: option<array<Js.Nullable.t<'t>>> = actualData
 
     let getRowDetails = (rowIndex: int) => {
       switch actualData {
@@ -624,7 +624,7 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
 
 @react.component
 let make = (
-  ~actualData: Js.Array2.t<Js.Nullable.t<'t>>,
+  ~actualData: array<Js.Nullable.t<'t>>,
   ~defaultSort=?,
   ~title,
   ~visibleColumns=?,

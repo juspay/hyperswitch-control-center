@@ -157,7 +157,7 @@ module BaseSelectButton: {
 module RenderListItemInBaseRadio: {
   @react.component
   let make: (
-    ~newOptions: Js.Array2.t<dropdownOptionWithoutOptional>,
+    ~newOptions: array<dropdownOptionWithoutOptional>,
     ~value: JSON.t,
     ~descriptionOnHover: bool,
     ~isDropDown: bool,
@@ -181,7 +181,7 @@ module RenderListItemInBaseRadio: {
 let getHashMappedOptionValues: array<dropdownOptionWithoutOptional> => RescriptCore.Dict.t<
   array<dropdownOptionWithoutOptional>,
 >
-let getSortedKeys: RescriptCore.Dict.t<'a> => Js.Array2.t<string>
+let getSortedKeys: RescriptCore.Dict.t<'a> => array<string>
 module BaseRadio: {
   @react.component
   let make: (

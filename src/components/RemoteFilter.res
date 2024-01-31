@@ -454,7 +454,7 @@ module ApplyFilterButton = {
 
 module FilterModal = {
   @react.component
-  let make = (~selectedFiltersList: Js.Array2.t<FormRenderer.fieldInfoType>, ~showAllFilter) => {
+  let make = (~selectedFiltersList: array<FormRenderer.fieldInfoType>, ~showAllFilter) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Js.Nullable.return,
     )

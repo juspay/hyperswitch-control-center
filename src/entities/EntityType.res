@@ -45,8 +45,8 @@ type entityType<'colType, 't> = {
   popupFilterFields: array<optionType<'t>>,
   dateRangeFilterDict: Dict.t<JSON.t>,
   searchValueDict: option<Dict.t<string>>,
-  filterCheck: ('t, Js.Array2.t<string>) => bool,
-  filterForRow: (option<Js.Array2.t<Js.Nullable.t<'t>>>, int) => TableUtils.filterObject,
+  filterCheck: ('t, array<string>) => bool,
+  filterForRow: (option<array<Js.Nullable.t<'t>>>, int) => TableUtils.filterObject,
 }
 
 let emptyObj = {

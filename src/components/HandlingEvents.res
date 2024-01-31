@@ -18,5 +18,5 @@ let getEventDict = (ev: Dom.event) => {
   }
 }
 
-type cookieData = {changed: Js.Array2.t<JSON.t>}
+type cookieData = {changed: array<JSON.t>}
 external convertToCookieCustomEvent: Webapi.Dom.Event.t => cookieData = "%identity"

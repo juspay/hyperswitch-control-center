@@ -80,8 +80,8 @@ let singleStatBodyMake = (singleStatBodyEntity: singleStatBodyEntity) => {
   ->JSON.stringify
 }
 type singleStateData<'t, 't2> = {
-  singleStatData: option<Js.Array2.t<singleStatDataObj<'t>>>,
-  singleStatTimeData: option<Js.Array2.t<(string, Js.Array2.t<'t2>)>>,
+  singleStatData: option<array<singleStatDataObj<'t>>>,
+  singleStatTimeData: option<array<(string, array<'t2>)>>,
 }
 
 let deltaTimeRangeMapper: array<JSON.t> => deltaRange = (arrJson: array<JSON.t>) => {

@@ -663,7 +663,7 @@ let make = (
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
-  let actualData: option<Js.Array2.t<Js.Nullable.t<'t>>> = actualData
+  let actualData: option<array<Js.Nullable.t<'t>>> = actualData
   let numberOfCols = heading->Array.length
   open Webapi
   let totalTableWidth =
