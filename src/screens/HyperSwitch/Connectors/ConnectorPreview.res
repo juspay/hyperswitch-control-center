@@ -297,27 +297,24 @@ let make = (
                 className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
                 {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
               </div>
-              <UIUtils.RenderIf
-                condition={showMenuOption &&
-                (connector->getConnectorNameTypeFromString !== PAYPAL ||
-                  (connector->getConnectorNameTypeFromString === PAYPAL &&
-                    !featureFlagDetails.paypalAutomaticFlow))}>
-                <MenuOption setCurrentStep disableConnector isConnectorDisabled />
-              </UIUtils.RenderIf>
-              <UIUtils.RenderIf
-                condition={showMenuOption &&
-                (connector->getConnectorNameTypeFromString === PAYPAL &&
-                featureFlagDetails.paypalAutomaticFlow)}>
-                <MenuOptionForPayPal
-                  setCurrentStep
-                  disableConnector
-                  isConnectorDisabled
-                  updateStepValue={ConnectorTypes.PaymentMethods}
-                  connectorInfoDict
-                  setScreenState
-                  isUpdateFlow
-                  setInitialValues
-                />
+              <UIUtils.RenderIf condition={showMenuOption}>
+                {switch (
+                  connector->getConnectorNameTypeFromString,
+                  featureFlagDetails.paypalAutomaticFlow,
+                ) {
+                | (PAYPAL, true) =>
+                  <MenuOptionForPayPal
+                    setCurrentStep
+                    disableConnector
+                    isConnectorDisabled
+                    updateStepValue={ConnectorTypes.PaymentMethods}
+                    connectorInfoDict
+                    setScreenState
+                    isUpdateFlow
+                    setInitialValues
+                  />
+                | (_, _) => <MenuOption setCurrentStep disableConnector isConnectorDisabled />
+                }}
               </UIUtils.RenderIf>
             </div>
 
