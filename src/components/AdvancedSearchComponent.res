@@ -1,5 +1,5 @@
-let getSummary: Js.Json.t => EntityType.summary = json => {
-  switch json->Js.Json.decodeObject {
+let getSummary: JSON.t => EntityType.summary = json => {
+  switch json->JSON.Decode.object {
   | Some(dict) => {
       let rowsCount = LogicUtils.getArrayFromDict(dict, "rows", [])->Array.length
       let totalCount = LogicUtils.getInt(dict, "entries", 0)
@@ -20,24 +20,23 @@ let make = (
 ) => {
   let {getObjects, searchUrl: url} = entity
   let fetchApi = AuthHooks.useApiFetcher()
-  let initialValueJson = Js.Json.object_(Dict.make())
+  let initialValueJson = JSON.Encode.object(Dict.make())
   let showToast = ToastState.useShowToast()
   let (showModal, setShowModal) = React.useState(_ => false)
 
   let onSubmit = (values, form: ReactFinalForm.formApi) => {
     open Promise
 
-    fetchApi(url, ~bodyStr=Js.Json.stringify(values), ~method_=Fetch.Post, ())
+    fetchApi(url, ~bodyStr=JSON.stringify(values), ~method_=Fetch.Post, ())
     ->then(Fetch.Response.json)
     ->then(json => {
-      let jsonData = json->Js.Json.decodeObject->Option.flatMap(dict => dict->Dict.get("rows"))
+      let jsonData = json->JSON.Decode.object->Option.flatMap(dict => dict->Dict.get("rows"))
       let newData = switch jsonData {
-      | Some(actualJson) => actualJson->getObjects->Array.map(obj => obj->Js.Nullable.return)
+      | Some(actualJson) => actualJson->getObjects->Array.map(obj => obj->Nullable.make)
       | None => []
       }
 
-      let summaryData =
-        json->Js.Json.decodeObject->Option.flatMap(dict => dict->Dict.get("summary"))
+      let summaryData = json->JSON.Decode.object->Option.flatMap(dict => dict->Dict.get("summary"))
 
       let summary = switch summaryData {
       | Some(x) => x->getSummary
@@ -52,27 +51,27 @@ let make = (
       | None => ()
       }
       setShowModal(_ => false)
-      form.reset(Js.Json.object_(Dict.make())->Js.Nullable.return)
-      json->Js.Nullable.return->resolve
+      form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
+      json->Nullable.make->resolve
     })
     ->catch(_err => {
       showToast(~message="Something went wrong. Please try again", ~toastType=ToastError, ())
 
-      Js.Nullable.null->resolve
+      Nullable.null->resolve
     })
   }
 
-  let validateForm = (values: Js.Json.t) => {
-    let finalValuesDict = switch values->Js.Json.decodeObject {
+  let validateForm = (values: JSON.t) => {
+    let finalValuesDict = switch values->JSON.Decode.object {
     | Some(dict) => dict
     | None => Dict.make()
     }
     let keys = Dict.keysToArray(finalValuesDict)
     let errors = Dict.make()
     if keys->Array.length === 0 {
-      Dict.set(errors, "Please Choose One of the fields", ""->Js.Json.string)
+      Dict.set(errors, "Please Choose One of the fields", ""->JSON.Encode.string)
     }
-    errors->Js.Json.object_
+    errors->JSON.Encode.object
   }
   <div className="mr-2">
     <Button

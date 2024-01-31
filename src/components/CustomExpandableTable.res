@@ -40,7 +40,7 @@ let make = (
   let rowInfo: array<array<cell>> = {
     let a = rows->Array.mapWithIndex((data, i) => {
       if showSerial {
-        data->Array.unshift(Text((i + 1)->Belt.Int.toString))->ignore
+        data->Array.unshift(Text((i + 1)->Int.toString))->ignore
       }
       data
     })
@@ -57,7 +57,7 @@ let make = (
     switch setFilterObj {
     | Some(fn) =>
       fn((prevFilterObj: option<array<filterObject>>) => {
-        prevFilterObj->Belt.Option.map(prevObj => {
+        prevFilterObj->Option.map(prevObj => {
           prevObj->Array.map(
             obj => {
               if obj.key === string_of_int(i) {
@@ -161,7 +161,7 @@ let make = (
                                 onBlur: _ev => (),
                                 onChange: ev => handleUpdateFilterObj(ev, i),
                                 onFocus: _ev => (),
-                                value: selected->Array.map(Js.Json.string)->Js.Json.array,
+                                value: selected->Array.map(JSON.Encode.string)->JSON.Encode.array,
                                 checked: true,
                               }
 

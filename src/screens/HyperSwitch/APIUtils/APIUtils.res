@@ -1,7 +1,7 @@
 open HSLocalStorage
 open LogicUtils
 open APIUtilsTypes
-exception JsonException(Js.Json.t)
+exception JsonException(JSON.t)
 
 let getURL = (
   ~entityName: entityName,
@@ -220,7 +220,7 @@ let handleLogout = async (
     ~bodyStr: string=?,
     ~bodyFormData: option<Fetch.formData>=?,
     ~headers: Dict.t<string>=?,
-    ~bodyHeader: Dict.t<Js.Json.t>=?,
+    ~bodyHeader: Dict.t<JSON.t>=?,
     ~method_: Fetch.requestMethod,
     ~authToken: option<string>=?,
     ~requestId: string=?,
@@ -251,7 +251,7 @@ let responseHandler = async (
   let json = try {
     await res->Fetch.Response.json
   } catch {
-  | _ => Js.Json.null
+  | _ => JSON.Encode.null
   }
 
   let responseStatus = res->Fetch.Response.status
@@ -260,7 +260,7 @@ let responseHandler = async (
   | 200 => json
   | _ => {
       let errorDict = json->getDictFromJsonObject->getObj("error", Dict.make())
-      let errorStringifiedJson = errorDict->Js.Json.object_->Js.Json.stringify
+      let errorStringifiedJson = errorDict->JSON.Encode.object->JSON.stringify
 
       //TODO:-
       // errorCodes to be handled
@@ -415,7 +415,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
       let res = await fetchApi(
         url,
         ~method_=method,
-        ~bodyStr=body->Js.Json.stringify,
+        ~bodyStr=body->JSON.stringify,
         ~bodyFormData,
         ~headers,
         (),

@@ -538,8 +538,8 @@ let generateBodyBasedOnType = (parentVariant: sectionHeadingVariant, value: requ
       (
         (parentVariant :> string),
         [
-          ("processor_id", processorTypeVal.processorID->Js.Json.string),
-          ("processor_name", processorTypeVal.processorName->Js.Json.string),
+          ("processor_id", processorTypeVal.processorID->JSON.Encode.string),
+          ("processor_name", processorTypeVal.processorName->JSON.Encode.string),
         ]->getJsonFromArrayOfJson,
       ),
     ]->getJsonFromArrayOfJson
@@ -547,14 +547,14 @@ let generateBodyBasedOnType = (parentVariant: sectionHeadingVariant, value: requ
     [
       (
         (parentVariant :> string),
-        [("routing_id", routingTypeVal.routing_id->Js.Json.string)]->getJsonFromArrayOfJson,
+        [("routing_id", routingTypeVal.routing_id->JSON.Encode.string)]->getJsonFromArrayOfJson,
       ),
     ]->getJsonFromArrayOfJson
   | PaymentType(paymentTypeVal) =>
     [
       (
         (parentVariant :> string),
-        [("payment_id", paymentTypeVal.payment_id->Js.Json.string)]->getJsonFromArrayOfJson,
+        [("payment_id", paymentTypeVal.payment_id->JSON.Encode.string)]->getJsonFromArrayOfJson,
       ),
     ]->getJsonFromArrayOfJson
 
@@ -563,14 +563,14 @@ let generateBodyBasedOnType = (parentVariant: sectionHeadingVariant, value: requ
       (
         (parentVariant :> string),
         [
-          ("integration_type", integrationType.integration_type->Js.Json.string),
+          ("integration_type", integrationType.integration_type->JSON.Encode.string),
         ]->getJsonFromArrayOfJson,
       ),
     ]->getJsonFromArrayOfJson
-  | Boolean(_) => (parentVariant :> string)->Js.Json.string
-  | String(str) => str->Js.Json.string
+  | Boolean(_) => (parentVariant :> string)->JSON.Encode.string
+  | String(str) => str->JSON.Encode.string
   | StringEnumType(stringValue) =>
-    [((parentVariant :> string), stringValue->Js.Json.string)]->getJsonFromArrayOfJson
+    [((parentVariant :> string), stringValue->JSON.Encode.string)]->getJsonFromArrayOfJson
   }
 }
 

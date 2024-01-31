@@ -3,7 +3,7 @@ open HighchartsGanttChart
 
 type props = {
   highcharts: highcharts,
-  options?: Js.Json.t,
+  options?: JSON.t,
   constructorType: string,
 }
 

@@ -69,4 +69,4 @@ type historyData = {
   created_at: string,
 }
 
-type value = {"type": Js.Json.t, "value": Js.Json.t}
+type value = {"type": JSON.t, "value": JSON.t}

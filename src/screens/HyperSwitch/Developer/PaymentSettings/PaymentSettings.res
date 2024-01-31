@@ -33,7 +33,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open HSwitchUtils
   open MerchantAccountUtils
   let url = RescriptReactRouter.useUrl()
-  let id = url.path->Belt.List.toArray->Array.get(1)->Option.getOr(profileId)
+  let id = url.path->List.toArray->Array.get(1)->Option.getOr(profileId)
   let businessProfileDetails = useGetBusinessProflile(id)
 
   let showToast = ToastState.useShowToast()
@@ -49,7 +49,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id), ())
-      let body = values->getBusinessProfilePayload->Js.Json.object_
+      let body = values->getBusinessProfilePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post, ())
       let profileTypeInfo = res->businessProfileTypeMapper
       setProfileInfo(_ => profileTypeInfo)
@@ -62,7 +62,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
         showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError, ())
       }
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
   <PageLoaderWrapper screenState>
@@ -86,7 +86,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
               : "border border-jp-gray-500 rounded-md dark:border-jp-gray-960"} ${bgClass} `}>
           <ReactFinalForm.Form
             key="merchantAccount"
-            initialValues={businessProfileDetails->parseBussinessProfileJson->Js.Json.object_}
+            initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
             subscription=ReactFinalForm.subscribeToValues
             validate={values => {
               open HSwitchSettingTypes
@@ -98,7 +98,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                     urlField === WebhookUrl || !webhookOnly
                   )
                 },
-                ~initialData=profileInfo->parseBussinessProfileJson->Js.Json.object_,
+                ~initialData=profileInfo->parseBussinessProfileJson->JSON.Encode.object,
               )
             }}
             onSubmit
@@ -133,7 +133,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   ->Array.filter(urlField => urlField.label === "Webhook URL" || !webhookOnly)
                   ->Array.mapWithIndex((field, index) =>
                     <FormRenderer.FieldRenderer
-                      key={index->Belt.Int.toString}
+                      key={index->Int.toString}
                       field
                       errorClass
                       labelClass="!text-base !text-grey-700 font-semibold"

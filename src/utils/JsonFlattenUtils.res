@@ -1,6 +1,6 @@
 let rec flattenObject = (obj, addIndicatorForObject) => {
   let newDict = Dict.make()
-  switch obj->Js.Json.decodeObject {
+  switch obj->JSON.Decode.object {
   | Some(obj) =>
     obj
     ->Dict.toArray
@@ -10,10 +10,10 @@ let rec flattenObject = (obj, addIndicatorForObject) => {
       if value->Identity.jsonToNullableJson->Js.Nullable.isNullable {
         Dict.set(newDict, key, value)
       } else {
-        switch value->Js.Json.decodeObject {
+        switch value->JSON.Decode.object {
         | Some(_valueObj) => {
             if addIndicatorForObject {
-              Dict.set(newDict, key, Js.Json.object_(Dict.make()))
+              Dict.set(newDict, key, JSON.Encode.object(Dict.make()))
             }
 
             let flattenedSubObj = flattenObject(value, addIndicatorForObject)
@@ -44,13 +44,13 @@ let rec setNested = (dict, keys, value) => {
     let key = keys[0]->Option.getOr("")
     let subDict = switch Dict.get(dict, key) {
     | Some(json) =>
-      switch json->Js.Json.decodeObject {
+      switch json->JSON.Decode.object {
       | Some(obj) => obj
       | None => dict
       }
     | None => {
         let subDict = Dict.make()
-        Dict.set(dict, key, subDict->Js.Json.object_)
+        Dict.set(dict, key, subDict->JSON.Encode.object)
         subDict
       }
     }
@@ -62,7 +62,7 @@ let rec setNested = (dict, keys, value) => {
 let unflattenObject = obj => {
   let newDict = Dict.make()
 
-  switch obj->Js.Json.decodeObject {
+  switch obj->JSON.Decode.object {
   | Some(dict) =>
     dict
     ->Dict.toArray

@@ -4,9 +4,9 @@ let getCurrentDetailedUTCTime = () => {
 
 let getCurrentShortUTCTime = () => {
   let currentDate = Js.Date.now()->Js.Date.fromFloat
-  let currMonth = currentDate->Js.Date.getUTCMonth->Belt.Float.toString
-  let currDay = currentDate->Js.Date.getUTCDate->Belt.Float.toString
-  let currYear = currentDate->Js.Date.getUTCFullYear->Belt.Float.toString
+  let currMonth = currentDate->Js.Date.getUTCMonth->Float.toString
+  let currDay = currentDate->Js.Date.getUTCDate->Float.toString
+  let currYear = currentDate->Js.Date.getUTCFullYear->Float.toString
 
   `${currYear}-${currMonth}-${currDay}`
 }
@@ -80,7 +80,7 @@ let variantTypeMapper: string => AdvancedRoutingTypes.variantType = variantType 
   }
 }
 
-let getStatementValue: Dict.t<Js.Json.t> => AdvancedRoutingTypes.value = valueDict => {
+let getStatementValue: Dict.t<JSON.t> => AdvancedRoutingTypes.value = valueDict => {
   open LogicUtils
   {
     \"type": valueDict->getString("type", ""),
@@ -88,7 +88,7 @@ let getStatementValue: Dict.t<Js.Json.t> => AdvancedRoutingTypes.value = valueDi
   }
 }
 
-let statementTypeMapper: Dict.t<Js.Json.t> => AdvancedRoutingTypes.statement = dict => {
+let statementTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.statement = dict => {
   open LogicUtils
   {
     lhs: dict->getString("lhs", ""),
@@ -98,7 +98,7 @@ let statementTypeMapper: Dict.t<Js.Json.t> => AdvancedRoutingTypes.statement = d
   }
 }
 
-let conditionTypeMapper = (statementArr: array<Js.Json.t>) => {
+let conditionTypeMapper = (statementArr: array<JSON.t>) => {
   open LogicUtils
   let statements = statementArr->Array.reduce([], (acc, statementJson) => {
     let conditionArray = statementJson->getDictFromJsonObject->getArrayFromDict("condition", [])
@@ -120,7 +120,7 @@ let conditionTypeMapper = (statementArr: array<Js.Json.t>) => {
 }
 
 let volumeSplitConnectorSelectionDataMapper: Dict.t<
-  Js.Json.t,
+  JSON.t,
 > => AdvancedRoutingTypes.volumeSplitConnectorSelectionData = dict => {
   open LogicUtils
   {
@@ -135,7 +135,7 @@ let volumeSplitConnectorSelectionDataMapper: Dict.t<
 }
 
 let priorityConnectorSelectionDataMapper: Dict.t<
-  Js.Json.t,
+  JSON.t,
 > => AdvancedRoutingTypes.connector = dict => {
   open LogicUtils
   {
@@ -144,7 +144,7 @@ let priorityConnectorSelectionDataMapper: Dict.t<
   }
 }
 
-let connectorSelectionDataMapperFromJson: Js.Json.t => AdvancedRoutingTypes.connectorSelectionData = json => {
+let connectorSelectionDataMapperFromJson: JSON.t => AdvancedRoutingTypes.connectorSelectionData = json => {
   open LogicUtils
   let split = json->getDictFromJsonObject->getOptionInt("split")
   let dict = json->getDictFromJsonObject
@@ -155,7 +155,7 @@ let connectorSelectionDataMapperFromJson: Js.Json.t => AdvancedRoutingTypes.conn
 }
 
 let getDefaultSelection: Dict.t<
-  Js.Json.t,
+  JSON.t,
 > => AdvancedRoutingTypes.connectorSelection = defaultSelection => {
   open LogicUtils
   open AdvancedRoutingTypes
@@ -184,7 +184,7 @@ let getDefaultSelection: Dict.t<
           ->getDictfromDict("tax_on_surcharge")
           ->getFloat("percentage", 0.0),
         },
-      }->Js.Nullable.return,
+      }->Nullable.make,
     }
   } else {
     {
@@ -218,7 +218,7 @@ let getSplitFromConnectorSelectionData = connectorSelectionData => {
   }
 }
 
-let ruleInfoTypeMapper: Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithmData = json => {
+let ruleInfoTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.algorithmData = json => {
   open LogicUtils
   let rulesArray = json->getArrayFromDict("rules", [])
 
@@ -269,16 +269,16 @@ let getOperatorFromComparisonType = (comparison, variantType) => {
 }
 
 let isStatementMandatoryFieldsPresent = (statement: AdvancedRoutingTypes.statement) => {
-  let statementValue = switch statement.value.value->Js.Json.classify {
-  | JSONArray(ele) => ele->Array.length > 0
-  | JSONString(str) => str->String.length > 0
+  let statementValue = switch statement.value.value->JSON.Classify.classify {
+  | Array(ele) => ele->Array.length > 0
+  | String(str) => str->String.length > 0
   | _ => false
   }
 
   statement.lhs->String.length > 0 && (statement.value.\"type"->String.length > 0 && statementValue)
 }
 
-let algorithmTypeMapper: Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithm = values => {
+let algorithmTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.algorithm = values => {
   open LogicUtils
   {
     data: values->getDictfromDict("data")->ruleInfoTypeMapper,
@@ -286,7 +286,7 @@ let algorithmTypeMapper: Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithm = v
   }
 }
 
-let getRoutingTypesFromJson: Js.Json.t => AdvancedRoutingTypes.advancedRouting = values => {
+let getRoutingTypesFromJson: JSON.t => AdvancedRoutingTypes.advancedRouting = values => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
 
@@ -359,7 +359,7 @@ let generateRule = rulesDict => {
     {
       "name": ruleDict->getString("name", ""),
       "connectorSelection": ruleDict->getJsonObjectFromDict("connectorSelection"),
-      "statements": modifiedStatements->Array.map(Identity.genericTypeToJson)->Js.Json.array,
+      "statements": modifiedStatements->Array.map(Identity.genericTypeToJson)->JSON.Encode.array,
     }
   })
   modifiedRules
@@ -376,7 +376,7 @@ let defaultRule: AdvancedRoutingTypes.rule = {
       comparison: "",
       value: {
         \"type": "",
-        value: ""->Js.Json.string,
+        value: ""->JSON.Encode.string,
       },
     },
   ],
@@ -384,7 +384,7 @@ let defaultRule: AdvancedRoutingTypes.rule = {
 
 let defaultAlgorithmData: AdvancedRoutingTypes.algorithmData = {
   rules: [defaultRule],
-  metadata: Dict.make()->Js.Json.object_,
+  metadata: Dict.make()->JSON.Encode.object,
   defaultSelection: {
     \"type": "",
     data: [],
@@ -403,7 +403,7 @@ let initialValues: AdvancedRoutingTypes.advancedRouting = {
 let validateNameAndDescription = (~dict, ~errors) => {
   ["name", "description"]->Array.forEach(field => {
     if dict->LogicUtils.getString(field, "")->String.trim === "" {
-      errors->Dict.set(field, `Please provide ${field} field`->Js.Json.string)
+      errors->Dict.set(field, `Please provide ${field} field`->JSON.Encode.string)
     }
   })
 }

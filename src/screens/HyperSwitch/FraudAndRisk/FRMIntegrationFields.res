@@ -13,7 +13,7 @@ module AdvanceSettings = {
         setIsFRMSettings(_ => value)
       },
       onFocus: _ev => (),
-      value: {isFRMSettings->Js.Json.boolean},
+      value: {isFRMSettings->JSON.Encode.bool},
       checked: true,
     }
 
@@ -24,7 +24,7 @@ module AdvanceSettings = {
 
     React.useEffect1(() => {
       if !isUpdateFlow {
-        form.change("profile_id", businessProfileValue.profile_id->Js.Json.string)
+        form.change("profile_id", businessProfileValue.profile_id->JSON.Encode.string)
       }
       None
     }, [businessProfileValue.profile_id])
@@ -75,11 +75,11 @@ module IntegrationFieldsForm = {
         let value =
           valuesFlattenJson
           ->Dict.get(key)
-          ->Option.getOr(""->Js.Json.string)
+          ->Option.getOr(""->JSON.Encode.string)
           ->LogicUtils.getStringFromJson("")
 
         if field.isRequired && value->String.length === 0 {
-          Dict.set(errors, key, `Please enter ${field.label}`->Js.Json.string)
+          Dict.set(errors, key, `Please enter ${field.label}`->JSON.Encode.string)
         }
       })
     }
@@ -87,7 +87,7 @@ module IntegrationFieldsForm = {
     let validateCountryCurrency = (valuesFlattenJson, ~errors) => {
       let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
       if profileId->String.length <= 0 {
-        Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
+        Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
       }
     }
 
@@ -101,7 +101,7 @@ module IntegrationFieldsForm = {
         valuesFlattenJson->validateCountryCurrency(~errors)
       }
 
-      errors->Js.Json.object_
+      errors->JSON.Encode.object
     }
 
     let validateMandatoryField = values => {
@@ -114,7 +114,7 @@ module IntegrationFieldsForm = {
         valuesFlattenJson->validateCountryCurrency(~errors)
       }
 
-      errors->Js.Json.object_
+      errors->JSON.Encode.object
     }
 
     <Form initialValues onSubmit validate={validateMandatoryField}>
@@ -127,7 +127,7 @@ module IntegrationFieldsForm = {
               let parse = field.encodeToBase64 ? base64Parse : leadingSpaceStrParser
               let format = field.encodeToBase64 ? Some(base64Format) : None
 
-              <div key={index->Belt.Int.toString}>
+              <div key={index->Int.toString}>
                 <FormRenderer.FieldRenderer
                   labelClass="font-semibold !text-black"
                   field={FormRenderer.makeFieldInfo(
@@ -198,15 +198,15 @@ let make = (
 
         frmAccountDetailsObj->Dict.set(
           "auth_type",
-          selectedFRMInfo.name->getFRMAuthType->Js.Json.string,
+          selectedFRMInfo.name->getFRMAuthType->JSON.Encode.string,
         )
 
         initialValuesObj->Dict.set(
           "connector_account_details",
-          frmAccountDetailsObj->Js.Json.object_,
+          frmAccountDetailsObj->JSON.Encode.object,
         )
 
-        initialValuesObj->Js.Json.object_
+        initialValuesObj->JSON.Encode.object
       }
 
     | None =>
@@ -216,7 +216,7 @@ let make = (
 
   let frmID =
     retrivedValues
-    ->Option.getOr(Dict.make()->Js.Json.object_)
+    ->Option.getOr(Dict.make()->JSON.Encode.object)
     ->LogicUtils.getDictFromJsonObject
     ->LogicUtils.getString("merchant_connector_id", "")
 
@@ -237,21 +237,24 @@ let make = (
   let updateMerchantDetails = async () => {
     let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
     let info =
-      [("data", "signifyd"->Js.Json.string), ("type", "single"->Js.Json.string)]->Dict.fromArray
+      [
+        ("data", "signifyd"->JSON.Encode.string),
+        ("type", "single"->JSON.Encode.string),
+      ]->Dict.fromArray
     let body =
       [
-        ("frm_routing_algorithm", info->Js.Json.object_),
-        ("merchant_id", merchantId->Js.Json.string),
+        ("frm_routing_algorithm", info->JSON.Encode.object),
+        ("merchant_id", merchantId->JSON.Encode.string),
       ]
       ->Dict.fromArray
-      ->Js.Json.object_
+      ->JSON.Encode.object
     let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ())
     try {
       let _ = await updateDetails(url, body, Post, ())
     } catch {
     | _ => ()
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
   let setFRMValues = async body => {
@@ -268,14 +271,14 @@ let make = (
       resolve()
     })
     ->ignore
-    Js.Nullable.null
+    Nullable.null
   }
 
   let onSubmit = (values, _) => {
     setPageState(_ => Loading)
     let body = isUpdateFlow ? values->ignoreFields : values
     setFRMValues(body)->ignore
-    Js.Nullable.null->resolve
+    Nullable.null->resolve
   }
 
   <IntegrationFieldsForm

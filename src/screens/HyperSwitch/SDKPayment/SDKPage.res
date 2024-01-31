@@ -49,7 +49,7 @@ module SDKConfiguarationFields = {
         InputFields.numericTextInput(
           ~input={
             ...input,
-            value: (initialValues.amount /. 100.00)->Js.Float.toString->Js.Json.string,
+            value: (initialValues.amount /. 100.00)->Js.Float.toString->JSON.Encode.string,
             onChange: {
               ev => {
                 let eventValueToFloat =
@@ -120,7 +120,7 @@ let make = () => {
     setInitialValues(_ => values->SDKPaymentUtils.getTypedValueForPayment)
     setIsSDKOpen(_ => true)
     RescriptReactRouter.push("/sdk")
-    Js.Nullable.null->Promise.resolve
+    Nullable.null->Promise.resolve
   }
 
   <>

@@ -1,6 +1,6 @@
 module RawBarChart = {
   @react.component
-  let make = (~options: Js.Json.t) => {
+  let make = (~options: JSON.t) => {
     <Highcharts.BarChart highcharts={Highcharts.highchartsModule} options />
   }
 }
@@ -8,7 +8,7 @@ module RawBarChart = {
 module HighBarChart1D = {
   @react.component
   let make = (
-    ~rawData: array<Js.Json.t>,
+    ~rawData: array<JSON.t>,
     ~groupKey,
     ~isHrizonatalBar: bool=true,
     ~selectedMetrics: LineChartUtils.metricsConfig,
@@ -27,16 +27,16 @@ module HighBarChart1D = {
       )
     }, (rawData, groupKey, selectedMetrics.metric_name_db))
 
-    let barOption: Js.Json.t = React.useMemo2(() => {
-      let barOption: Js.Json.t = {
+    let barOption: JSON.t = React.useMemo2(() => {
+      let barOption: JSON.t = {
         "chart": Highcharts.makebarChart(
           ~chartType={isHrizonatalBar ? "bar" : "column"},
-          ~backgroundColor=Js.Nullable.null,
+          ~backgroundColor=Nullable.null,
           (),
         ),
         "title": {
           "text": "",
-          "style": Js.Json.object_(Dict.make()),
+          "style": JSON.Encode.object(Dict.make()),
         },
         "xAxis": {
           "categories": categories,

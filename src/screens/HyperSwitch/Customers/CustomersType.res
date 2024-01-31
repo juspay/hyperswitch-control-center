@@ -7,7 +7,7 @@ type customers = {
   description: string,
   address: string,
   created_at: string,
-  metadata: Js.Json.t,
+  metadata: JSON.t,
 }
 
 type customersColsType =

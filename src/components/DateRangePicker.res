@@ -231,7 +231,7 @@ module Base = {
       switch dateRangeLimit {
       | Some(maxLen) => {
           let diff = getStartEndDiff(localStartDate, localEndDate)
-          if diff > (maxLen->Belt.Int.toFloat *. 24. *. 60. *. 60. -. 1.) *. 1000. {
+          if diff > (maxLen->Int.toFloat *. 24. *. 60. *. 60. -. 1.) *. 1000. {
             setShowMsg(_ => true)
             resetStartEndInput()
           }
@@ -242,8 +242,8 @@ module Base = {
       None
     }, (localStartDate, localEndDate))
 
-    let dateRangeRef = React.useRef(Js.Nullable.null)
-    let dropdownRef = React.useRef(Js.Nullable.null)
+    let dateRangeRef = React.useRef(Nullable.null)
+    let dropdownRef = React.useRef(Nullable.null)
 
     useErroryValueResetter(startDateVal, setStartDateVal)
     useErroryValueResetter(endDateVal, setEndDateVal)
@@ -385,9 +385,9 @@ module Base = {
     }
 
     let onDateClick = str => {
-      let data = switch Belt.Array.getBy(clickedDates, x => x == str) {
+      let data = switch Array.find(clickedDates, x => x == str) {
       | Some(_d) => Belt.Array.keep(clickedDates, x => x != str)
-      | None => Belt.Array.concat(clickedDates, [str])
+      | None => Array.concat(clickedDates, [str])
       }
       let dat = data->Array.map(x => x)
       setClickedDates(_ => dat)
@@ -452,7 +452,7 @@ module Base = {
         }
       },
       onFocus: _ev => (),
-      value: localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)->Js.Json.string,
+      value: localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)->JSON.Encode.string,
       checked: false,
     }
     let endTimeInput: ReactFinalForm.fieldRenderPropsInput = {
@@ -474,7 +474,7 @@ module Base = {
         }
       },
       onFocus: _ev => (),
-      value: localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)->Js.Json.string,
+      value: localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)->JSON.Encode.string,
       checked: false,
     }
 
@@ -663,8 +663,7 @@ module Base = {
       switch dateRangeLimit {
       | Some(limit) =>
         predefinedDays->Array.filter(item => {
-          getDiffForPredefined(item) <=
-          (limit->Belt.Float.fromInt *. 24. *. 60. *. 60. -. 1.) *. 1000.
+          getDiffForPredefined(item) <= (limit->Float.fromInt *. 24. *. 60. *. 60. -. 1.) *. 1000.
         })
       | None => predefinedDays
       }
@@ -788,7 +787,7 @@ module Base = {
                   } else if showMsg {
                     let msg = `Date Range should not exceed ${dateRangeLimit
                       ->Option.getOr(0)
-                      ->Belt.Int.toString} days`
+                      ->Int.toString} days`
                     <span className="w-full flex flex-row items-center mr-0 text-red-500">
                       <FormErrorIcon />
                       {React.string(msg)}
@@ -830,7 +829,7 @@ module Base = {
               text={isMobileView && textHideInMobileView ? "" : buttonText}
               leftIcon={FontAwesome(calendarIcon)}
               rightIcon={CustomIcon(iconElement)}
-              buttonSize=Small
+              buttonSize=XSmall
               isDropdownOpen=isDropdownExpandedActual
               onClick={_ => handleDropdownClick()}
               iconBorderColor={customborderCSS}
@@ -863,7 +862,7 @@ module Base = {
 
 let useStateForInput = (input: ReactFinalForm.fieldRenderPropsInput) => {
   React.useMemo1(() => {
-    let val = input.value->Js.Json.decodeString->Option.getOr("")
+    let val = input.value->JSON.Decode.string->Option.getOr("")
     let onChange = fn => {
       let newVal = fn(val)
       input.onChange(newVal->Identity.stringToFormReactEvent)

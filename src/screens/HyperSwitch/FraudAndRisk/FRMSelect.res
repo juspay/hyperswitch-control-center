@@ -26,7 +26,7 @@ module NewProcessorCards = {
             let frmName = frm->getFRMNameString
             let frmInfo = frm->getFRMInfo
 
-            <CardUtils.CardLayout key={Belt.Int.toString(i)} width="w-full">
+            <CardUtils.CardLayout key={Int.toString(i)} width="w-full">
               <div className="flex gap-2 items-center mb-3">
                 <GatewayIcon
                   gateway={frmName->String.toUpperCase} className="w-10 h-10 rounded-lg"
@@ -133,8 +133,8 @@ let make = () => {
       if connectorsCount > 0 {
         let frmList = processorsList->FRMUtils.filterList(~removeFromList=Connector, ())
         let previousData = frmList->Array.map(ConnectorTableUtils.getProcessorPayloadType)
-        setFilteredFRMData(_ => previousData->Array.map(Js.Nullable.return))
-        setPreviouslyConnectedData(_ => previousData->Array.map(Js.Nullable.return))
+        setFilteredFRMData(_ => previousData->Array.map(Nullable.make))
+        setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
         let arr =
           frmList->Array.map(
             paymentMethod =>
@@ -158,8 +158,8 @@ let make = () => {
     open LogicUtils
     let (searchText, arr) = ob
     let filteredList = if searchText->String.length > 0 {
-      arr->Array.filter((frmPlayer: Js.Nullable.t<ConnectorTypes.connectorPayload>) => {
-        switch Js.Nullable.toOption(frmPlayer) {
+      arr->Array.filter((frmPlayer: Nullable.t<ConnectorTypes.connectorPayload>) => {
+        switch Nullable.toOption(frmPlayer) {
         | Some(frmPlayer) => isContainingStringLowercase(frmPlayer.connector_name, searchText)
         | None => false
         }

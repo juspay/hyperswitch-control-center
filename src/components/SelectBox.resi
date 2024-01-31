@@ -21,9 +21,9 @@ module ListItem: {
     ~isPrevSelected: bool=?,
     ~isNextSelected: bool=?,
     ~onClick: JsxEvent.Mouse.t => unit,
-    ~text: Js.String2.t,
+    ~text: string,
     ~fill: string=?,
-    ~labelValue: Js.String2.t=?,
+    ~labelValue: string=?,
     ~isDisabled: bool=?,
     ~icon: Button.iconType,
     ~leftVacennt: bool=?,
@@ -31,7 +31,7 @@ module ListItem: {
     ~customStyle: string=?,
     ~serialNumber: option<string>=?,
     ~isMobileView: bool=?,
-    ~description: option<Js.String2.t>=?,
+    ~description: option<string>=?,
     ~customLabelStyle: option<string>=?,
     ~customMarginStyle: string=?,
     ~listFlexDirection: string=?,
@@ -84,7 +84,7 @@ module BaseSelect: {
     ~optionSize: CheckBoxIcon.size=?,
     ~isSelectedStateMinus: bool=?,
     ~onSelect: array<string> => unit,
-    ~value: Js.Json.t,
+    ~value: JSON.t,
     ~onBlur: ReactEvent.Focus.t => unit=?,
     ~showClearAll: bool=?,
     ~isHorizontal: bool=?,
@@ -140,7 +140,7 @@ module BaseSelectButton: {
     ~optionSize: CheckBoxIcon.size=?,
     ~isSelectedStateMinus: bool=?,
     ~onSelect: string => unit,
-    ~value: Js.Json.t,
+    ~value: JSON.t,
     ~deselectDisable: bool=?,
     ~onBlur: ReactEvent.Focus.t => unit=?,
     ~setShowDropDown: ('a => bool) => unit=?,
@@ -157,8 +157,8 @@ module BaseSelectButton: {
 module RenderListItemInBaseRadio: {
   @react.component
   let make: (
-    ~newOptions: Js.Array2.t<dropdownOptionWithoutOptional>,
-    ~value: Js.Json.t,
+    ~newOptions: array<dropdownOptionWithoutOptional>,
+    ~value: JSON.t,
     ~descriptionOnHover: bool,
     ~isDropDown: bool,
     ~textIconPresent: bool,
@@ -181,7 +181,7 @@ module RenderListItemInBaseRadio: {
 let getHashMappedOptionValues: array<dropdownOptionWithoutOptional> => RescriptCore.Dict.t<
   array<dropdownOptionWithoutOptional>,
 >
-let getSortedKeys: RescriptCore.Dict.t<'a> => Js.Array2.t<string>
+let getSortedKeys: RescriptCore.Dict.t<'a> => array<string>
 module BaseRadio: {
   @react.component
   let make: (
@@ -192,7 +192,7 @@ module BaseRadio: {
     ~optionSize: CheckBoxIcon.size=?,
     ~isSelectedStateMinus: bool=?,
     ~onSelect: string => unit,
-    ~value: Js.Json.t,
+    ~value: JSON.t,
     ~deselectDisable: bool=?,
     ~onBlur: ReactEvent.Focus.t => unit=?,
     ~fill: string=?,
@@ -203,7 +203,7 @@ module BaseRadio: {
     ~descriptionOnHover: bool=?,
     ~addDynamicValue: bool=?,
     ~dropdownCustomWidth: string=?,
-    ~dropdownRef: React.ref<Js.Nullable.t<Dom.element>>=?,
+    ~dropdownRef: React.ref<Nullable.t<Dom.element>>=?,
     ~showMatchingRecordsText: bool=?,
     ~fullLength: bool=?,
     ~selectedString: string=?,

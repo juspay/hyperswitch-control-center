@@ -47,7 +47,7 @@ module NewAccountCreationModal = {
       }
 
       setShowModal(_ => false)
-      Js.Nullable.null
+      Nullable.null
     }
 
     let onSubmit = (values, _) => {
@@ -276,7 +276,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
         setValue(_ => val)
       },
       onFocus: _ev => (),
-      value: Js.Json.string(value),
+      value: JSON.Encode.string(value),
       checked: false,
     }
   }, [value])
@@ -285,13 +285,13 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Post, ())
       let body = Dict.make()
-      body->Dict.set("merchant_id", value->Js.Json.string)
-      let res = await updateDetails(url, body->Js.Json.object_, Post, ())
+      body->Dict.set("merchant_id", value->JSON.Encode.string)
+      let res = await updateDetails(url, body->JSON.Encode.object, Post, ())
       let responseDict = res->getDictFromJsonObject
       let token = responseDict->getString("token", "")
       let switchedMerchantId = responseDict->getString("merchant_id", "")
       LocalStorage.setItem("login", token)
-      HSwitchUtils.setMerchantDetails("merchant_id", switchedMerchantId->Js.Json.string)
+      HSwitchUtils.setMerchantDetails("merchant_id", switchedMerchantId->JSON.Encode.string)
       setSuccessModal(_ => true)
       await HyperSwitchUtils.delay(2000)
       Window.Location.reload()

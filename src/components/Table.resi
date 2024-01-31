@@ -1,5 +1,5 @@
 let regex: string => Js.Re.t
-let highlightedText: (Js.String.t, Js.String.t) => React.element
+let highlightedText: (string, string) => React.element
 type labelColor = TableUtils.labelColor =
   | LabelGreen
   | LabelRed
@@ -22,7 +22,7 @@ type filterDataType = TableUtils.filterDataType =
   | Float(float, float)
   | String
   | DateTime
-external jsonToStr: Js.Json.t => string = "%identity"
+external jsonToStr: JSON.t => string = "%identity"
 type textAlign = TableUtils.textAlign = Left | Right
 type fontBold = bool
 type labelMargin = string
@@ -38,7 +38,7 @@ let getSortOrderString: sortOrder => string
 type label = TableUtils.label = {title: string, color: labelColor, showIcon?: bool}
 type currency = string
 type filterRow = TableUtils.filterRow =
-  | DropDownFilter(string, array<Js.Json.t>)
+  | DropDownFilter(string, array<JSON.t>)
   | TextFilter(string)
   | Range(string, float, float)
 type cell = TableUtils.cell =
@@ -141,13 +141,13 @@ module TableRow: {
     ~removeVerticalLines: bool,
     ~removeHorizontalLines: bool,
     ~evenVertivalLines: bool,
-    ~highlightEnabledFieldsArray: Js.Array2.t<int>,
+    ~highlightEnabledFieldsArray: array<int>,
     ~tableDataBorderClass: string=?,
     ~collapseTableRow: bool=?,
     ~expandedRow: unit => React.element,
     ~onMouseEnter: option<int => unit>,
     ~onMouseLeave: option<int => unit>,
-    ~highlightText: Js.String.t,
+    ~highlightText: string,
     ~clearFormatting: bool=?,
     ~rowHeightClass: string=?,
     ~rowCustomClass: string=?,
@@ -189,7 +189,7 @@ module TableHeadingCell: {
     ~setSortedObj: option<('b => option<sortedObject>) => unit>,
     ~filterObj: option<array<filterObject>>,
     ~fixedWidthClass: string,
-    ~setFilterObj: option<(array<filterObject> => Js.Array2.t<filterObject>) => unit>,
+    ~setFilterObj: option<(array<filterObject> => array<filterObject>) => unit>,
     ~headingCenter: bool,
     ~filterIcon: React.element=?,
     ~filterDropdownClass: string=?,
@@ -210,7 +210,7 @@ module TableHeadingCell: {
 module TableHeadingRow: {
   @react.component
   let make: (
-    ~headingArray: Js.Array2.t<header>,
+    ~headingArray: array<header>,
     ~isHighchartLegend: bool,
     ~frozenUpto: int,
     ~heightHeadingClass: string,
@@ -219,7 +219,7 @@ module TableHeadingRow: {
     ~setSortedObj: option<('a => option<sortedObject>) => unit>,
     ~filterObj: option<array<filterObject>>,
     ~fixedWidthClass: string,
-    ~setFilterObj: option<(array<filterObject> => Js.Array2.t<filterObject>) => unit>,
+    ~setFilterObj: option<(array<filterObject> => array<filterObject>) => unit>,
     ~headingCenter: bool,
     ~filterIcon: React.element=?,
     ~filterDropdownClass: string=?,
@@ -232,7 +232,7 @@ module TableHeadingRow: {
     ~fixLastCol: bool=?,
     ~headerCustomBgColor: string=?,
     ~filterDropdownMaxHeight: string=?,
-    ~columnFilterRow: option<Js.Array2.t<filterRow>>,
+    ~columnFilterRow: option<array<filterRow>>,
     ~customizeColumnNewTheme: TableUtils.customiseColumnConfig=?,
     ~tableHeadingTextClass: string=?,
   ) => React.element
@@ -240,7 +240,7 @@ module TableHeadingRow: {
 @react.component
 let make: (
   ~title: string=?,
-  ~heading: Js.Array2.t<header>=?,
+  ~heading: array<header>=?,
   ~rows: array<array<cell>>,
   ~offset: int=?,
   ~onRowClick: int => unit=?,
@@ -253,19 +253,19 @@ let make: (
   ~showScrollBar: bool=?,
   ~setSortedObj: ('a => option<sortedObject>) => unit=?,
   ~sortedObj: TableUtils.sortedObject=?,
-  ~setFilterObj: (array<filterObject> => Js.Array2.t<filterObject>) => unit=?,
+  ~setFilterObj: (array<filterObject> => array<filterObject>) => unit=?,
   ~filterObj: array<filterObject>=?,
-  ~columnFilterRow: Js.Array2.t<filterRow>=?,
+  ~columnFilterRow: array<filterRow>=?,
   ~tableheadingClass: string=?,
   ~tableBorderClass: string=?,
   ~tableDataBorderClass: string=?,
   ~collapseTableRow: bool=?,
-  ~getRowDetails: Js.Nullable.t<'b> => React.element=?,
-  ~actualData: Js.Array2.t<Js.Nullable.t<'b>>=?,
+  ~getRowDetails: Nullable.t<'b> => React.element=?,
+  ~actualData: array<Nullable.t<'b>>=?,
   ~onExpandClickData: 'onExpandClickData=?,
   ~onMouseEnter: int => unit=?,
   ~onMouseLeave: int => unit=?,
-  ~highlightText: Js.String.t=?,
+  ~highlightText: string=?,
   ~heightHeadingClass: string=?,
   ~frozenUpto: int=?,
   ~clearFormatting: bool=?,

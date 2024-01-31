@@ -20,13 +20,12 @@ let getItemStyle = (isDragging, _draggableStyle) => {
 @react.component
 let make = (
   ~isHorizontal=true,
-  ~listItems: array<Js.Json.t>,
-  ~setListItems: (array<Js.Json.t> => array<Js.Json.t>) => unit,
-  ~keyExtractor: Js.Json.t => option<string>,
+  ~listItems: array<JSON.t>,
+  ~setListItems: (array<JSON.t> => array<JSON.t>) => unit,
+  ~keyExtractor: JSON.t => option<string>,
 ) => {
   let (list, setList) = React.useState(_ => listItems)
   let reorder = (currentState, startIndex, endIndex) => {
-    Js.log("reorder trigger")
     if startIndex !== endIndex {
       let oldStateArray = Array.copy(currentState)
       let removed = Js.Array.removeCountInPlace(~pos=startIndex, ~count=1, oldStateArray)
@@ -38,7 +37,7 @@ let make = (
   }
   let onDragEnd = result => {
     // dropped outside the list
-    let dest = Js.Nullable.toOption(result["destination"])
+    let dest = Nullable.toOption(result["destination"])
     let hasCorrectDestination = switch dest {
     | None => false
     | Some(_a) => true
@@ -81,14 +80,15 @@ let make = (
             {(provided, _snapshot) => {
               React.cloneElement(
                 <div className={`flex ${directionClass}`} ref={provided["innerRef"]}>
-                  {list->Js.Array.mapi((item, index) => {
+                  {list
+                  ->Array.mapWithIndex((item, index) => {
                     let val = keyExtractor(item)
                     switch val {
                     | Some(str) =>
                       <ReactBeautifulDND.Draggable
-                        key={`item-${Belt.Int.toString(index)}`}
+                        key={`item-${Int.toString(index)}`}
                         index={index}
-                        draggableId={`item-${Belt.Int.toString(index)}`}>
+                        draggableId={`item-${Int.toString(index)}`}>
                         {(provided, _snapshot) => {
                           React.cloneElement(
                             React.cloneElement(
@@ -107,7 +107,8 @@ let make = (
 
                     | None => React.null
                     }
-                  }, _)->React.array}
+                  })
+                  ->React.array}
                   {provided["placeholder"]}
                 </div>,
                 provided["droppableProps"],

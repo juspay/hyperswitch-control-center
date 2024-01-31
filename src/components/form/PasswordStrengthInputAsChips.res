@@ -54,7 +54,7 @@ let make = (
   }
   let (passwordChecks, setPasswordChecks) = React.useState(_ => initialPasswordState)
   let (showValidation, setShowValidation) = React.useState(_ => false)
-  let modalRef = React.useRef(Js.Nullable.null)
+  let modalRef = React.useRef(Nullable.null)
 
   OutsideClick.useOutsideClick(
     ~refs={ArrayOfRef([modalRef])},
@@ -137,12 +137,12 @@ let make = (
             tooltipWidthClass="w-fit"
             description=specialCharatersInfoText
             toolTipFor={<PasswordChip
-              key={`check_${index->Belt.Int.toString}`} passwordChecks chipType customTextStyle
+              key={`check_${index->Int.toString}`} passwordChecks chipType customTextStyle
             />}
           />
         } else {
           <PasswordChip
-            key={`check_${index->Belt.Int.toString}`} passwordChecks chipType customTextStyle
+            key={`check_${index->Int.toString}`} passwordChecks chipType customTextStyle
           />
         }
       })

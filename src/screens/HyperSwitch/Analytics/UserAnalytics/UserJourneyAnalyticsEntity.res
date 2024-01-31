@@ -22,10 +22,9 @@ let singleStateSeriesInitialValue = {
 }
 
 let singleStatItemToObjMapper = json => {
-  open Belt.Option
   json
-  ->Js.Json.decodeObject
-  ->map(dict => {
+  ->JSON.Decode.object
+  ->Option.map(dict => {
     payment_attempts: dict->getInt("payment_attempts", 0),
     sdk_rendered_count: dict->getInt("sdk_rendered_count", 0),
     average_payment_time: dict->getFloat("average_payment_time", 0.0) /. 1000.,
@@ -36,16 +35,15 @@ let singleStatItemToObjMapper = json => {
 }
 
 let singleStateSeriesItemToObjMapper = json => {
-  open Belt.Option
   json
-  ->Js.Json.decodeObject
-  ->map(dict => {
+  ->JSON.Decode.object
+  ->Option.map(dict => {
     payment_attempts: dict->getInt("payment_attempts", 0),
     time_series: dict->getString("time_bucket", ""),
     sdk_rendered_count: dict->getInt("sdk_rendered_count", 0),
     average_payment_time: dict->getFloat("average_payment_time", 0.0)->setPrecision() /. 1000.,
   })
-  ->getWithDefault({
+  ->Option.getOr({
     singleStateSeriesInitialValue
   })
 }
@@ -93,26 +91,25 @@ let constructData = (key, singlestatTimeseriesData) => {
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
-      ob.payment_attempts->Belt.Int.toFloat,
+      ob.payment_attempts->Int.toFloat,
     ))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "conversion_rate" =>
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
-      100. *. ob.payment_attempts->Belt.Int.toFloat /. ob.sdk_rendered_count->Belt.Int.toFloat,
+      100. *. ob.payment_attempts->Int.toFloat /. ob.sdk_rendered_count->Int.toFloat,
     ))
     ->Js.Array2.sortInPlaceWith(compareLogic)
   | "drop_out_rate" =>
     singlestatTimeseriesData->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
-      100. -.
-      100. *. ob.payment_attempts->Belt.Int.toFloat /. ob.sdk_rendered_count->Belt.Int.toFloat,
+      100. -. 100. *. ob.payment_attempts->Int.toFloat /. ob.sdk_rendered_count->Int.toFloat,
     ))
   | "sdk_rendered_count" =>
     singlestatTimeseriesData->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
-      ob.sdk_rendered_count->Belt.Int.toFloat,
+      ob.sdk_rendered_count->Int.toFloat,
     ))
   | "average_payment_time" =>
     singlestatTimeseriesData->Array.map(ob => (
@@ -135,16 +132,13 @@ let getStatData = (
       title: "Checkout Page Renders",
       tooltipText: "Total SDK Renders",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.sdk_rendered_count->Belt.Int.toFloat,
+        singleStatData.sdk_rendered_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.sdk_rendered_count->Belt.Int.toFloat,
+      value: singleStatData.sdk_rendered_count->Int.toFloat,
       delta: {
         Js.Float.fromString(
-          Js.Float.toFixedWithPrecision(
-            singleStatData.sdk_rendered_count->Belt.Int.toFloat,
-            ~digits=2,
-          ),
+          Js.Float.toFixedWithPrecision(singleStatData.sdk_rendered_count->Int.toFloat, ~digits=2),
         )
       },
       data: constructData("sdk_rendered_count", timeSeriesData),
@@ -155,12 +149,12 @@ let getStatData = (
       title: "Total Payments",
       tooltipText: "Sessions where users attempted a payment",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.payment_attempts->Belt.Int.toFloat,
+        singleStatData.payment_attempts->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.payment_attempts->Belt.Int.toFloat,
+      value: singleStatData.payment_attempts->Int.toFloat,
       delta: {
-        singleStatData.payment_attempts->Belt.Int.toFloat
+        singleStatData.payment_attempts->Int.toFloat
       },
       data: constructData("payment_attempts", timeSeriesData),
       statType: "Volume",
@@ -170,20 +164,20 @@ let getStatData = (
       title: "Converted User Sessions",
       tooltipText: "Percentage of sessions where users attempted a payment",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.payment_attempts->Belt.Int.toFloat *.
+        singleStatData.payment_attempts->Int.toFloat *.
         100. /.
-        singleStatData.sdk_rendered_count->Belt.Int.toFloat,
+        singleStatData.sdk_rendered_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
-      value: singleStatData.payment_attempts->Belt.Int.toFloat *.
+      value: singleStatData.payment_attempts->Int.toFloat *.
       100. /.
-      singleStatData.sdk_rendered_count->Belt.Int.toFloat,
+      singleStatData.sdk_rendered_count->Int.toFloat,
       delta: {
         Js.Float.fromString(
           Js.Float.toFixedWithPrecision(
-            singleStatData.payment_attempts->Belt.Int.toFloat *.
+            singleStatData.payment_attempts->Int.toFloat *.
             100. /.
-            singleStatData.sdk_rendered_count->Belt.Int.toFloat,
+            singleStatData.sdk_rendered_count->Int.toFloat,
             ~digits=2,
           ),
         )
@@ -197,21 +191,18 @@ let getStatData = (
       tooltipText: "Sessions where users did not attempt a payment",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         100. -.
-        singleStatData.payment_attempts->Belt.Int.toFloat *.
+        singleStatData.payment_attempts->Int.toFloat *.
         100. /.
-        singleStatData.sdk_rendered_count->Belt.Int.toFloat,
+        singleStatData.sdk_rendered_count->Int.toFloat,
         deltaTimestampData.currentSr,
       ),
       value: 100. -.
-      singleStatData.payment_attempts->Belt.Int.toFloat *.
+      singleStatData.payment_attempts->Int.toFloat *.
       100. /.
-      singleStatData.sdk_rendered_count->Belt.Int.toFloat,
+      singleStatData.sdk_rendered_count->Int.toFloat,
       delta: {
         Js.Float.fromString(
-          Js.Float.toFixedWithPrecision(
-            singleStatData.sdk_rendered_count->Belt.Int.toFloat,
-            ~digits=2,
-          ),
+          Js.Float.toFixedWithPrecision(singleStatData.sdk_rendered_count->Int.toFloat, ~digits=2),
         )
       },
       data: constructData("drop_out_rate", timeSeriesData),

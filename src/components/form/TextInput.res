@@ -60,18 +60,18 @@ let make = (
 
   let {isFirst, isLast} = React.useContext(ButtonGroupContext.buttonGroupContext)
   let (showPassword, setShowPassword) = React.useState(_ => false)
-  let inputRef = React.useRef(Js.Nullable.null)
+  let inputRef = React.useRef(Nullable.null)
 
   React.useEffect2(() => {
     switch widthMatchwithPlaceholderLength {
     | Some(length) =>
-      switch inputRef.current->Js.Nullable.toOption {
+      switch inputRef.current->Nullable.toOption {
       | Some(elem) =>
         let size =
           elem
           ->Webapi.Dom.Element.getAttribute("placeholder")
           ->Option.mapOr(length, str => Js.Math.max_int(length, str->String.length))
-          ->Belt.Int.toString
+          ->Int.toString
 
         elem->Webapi.Dom.Element.setAttribute("size", size)
       | None => ()
@@ -83,7 +83,7 @@ let make = (
   }, (inputRef.current, input.name))
 
   React.useEffect1(() => {
-    let val = input.value->Js.Json.decodeString->Option.getOr("")
+    let val = input.value->JSON.Decode.string->Option.getOr("")
 
     if val->String.includes("<script>") || val->String.includes("</script>") {
       showPopUp({
@@ -109,7 +109,7 @@ let make = (
         let keyDownFn = ev => {
           if func(ev) {
             ev->ReactEvent.Keyboard.preventDefault
-            switch inputRef.current->Js.Nullable.toOption {
+            switch inputRef.current->Nullable.toOption {
             | Some(elem) => elem->focus
             | None => ()
             }
@@ -169,9 +169,9 @@ let make = (
       focus:border-opacity-100 ${hoverCss} ${roundingClass} ${cursorClass} ${dashboardClass} ${inputStyle} ${borderClass} ${customStyle} ${placeholderClass} ${isDisabled
       ? onDisabledStyle
       : onActiveStyle}`
-  let value = switch input.value->Js.Json.classify {
-  | JSONString(str) => str
-  | JSONNumber(num) => num->Belt.Float.toString
+  let value = switch input.value->JSON.Classify.classify {
+  | String(str) => str
+  | Number(num) => num->Float.toString
   | _ => ""
   }
 

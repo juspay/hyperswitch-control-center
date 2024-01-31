@@ -52,7 +52,7 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
       },
     },
     capture_method: "automatic",
-    amount_to_capture: Js.Nullable.return(100.00),
+    amount_to_capture: Nullable.make(100.00),
     return_url: `${Window.Location.origin}${Window.Location.pathName}`,
   }
 }
@@ -61,7 +61,7 @@ let getCurrencyValue = (countryCurrency: string) => {
   countryCurrency->String.split("-")->Array.get(1)->Option.getOr("USD")->String.trim
 }
 
-let getTypedValueForPayment: Js.Json.t => SDKPaymentTypes.paymentType = values => {
+let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
   open LogicUtils
   let dictOfValues = values->getDictFromJsonObject
   let shippingAddress =
@@ -146,10 +146,10 @@ let getTypedValueForPayment: Js.Json.t => SDKPaymentTypes.paymentType = values =
       },
     },
     capture_method: "automatic",
-    amount_to_capture: amount === 0.00 ? Js.Nullable.null : Js.Nullable.return(amount),
+    amount_to_capture: amount === 0.00 ? Nullable.null : Nullable.make(amount),
     return_url: dictOfValues->getString("return_url", ""),
-    payment_type: amount === 0.00 ? Js.Nullable.return("setup_mandate") : Js.Nullable.null,
-    setup_future_usage: amount === 0.00 ? Js.Nullable.return("off_session") : Js.Nullable.null,
-    mandate_data: amount === 0.00 ? Js.Nullable.return(mandateData) : Js.Nullable.null,
+    payment_type: amount === 0.00 ? Nullable.make("setup_mandate") : Nullable.null,
+    setup_future_usage: amount === 0.00 ? Nullable.make("off_session") : Nullable.null,
+    mandate_data: amount === 0.00 ? Nullable.make(mandateData) : Nullable.null,
   }
 }

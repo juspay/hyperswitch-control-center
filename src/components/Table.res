@@ -117,7 +117,7 @@ module TableRow = {
     }, (onMouseLeave, actualIndex))
     let colsLen = item->Array.length
     let cursorClass = onRowClickPresent ? "cursor-pointer" : ""
-    let rowRef = React.useRef(Js.Nullable.null)
+    let rowRef = React.useRef(Nullable.null)
     let coloredRow =
       // colour based on custom cell's value
       item
@@ -195,8 +195,8 @@ module TableRow = {
           } else {
             `box-border ${paddingClass} ${lastColProp} ${alignCellContent}`
           }
-          let location = `${title}_tr${(rowIndex + 1)->Belt.Int.toString}_td${(cellIndex + 1)
-              ->Belt.Int.toString}`
+          let location = `${title}_tr${(rowIndex + 1)->Int.toString}_td${(cellIndex + 1)
+              ->Int.toString}`
           <AddDataAttributes
             key={cellIndex->string_of_int} attributes=[("data-table-location", location)]>
             <td
@@ -466,7 +466,7 @@ module TableHeadingCell = {
                             onBlur: _ev => (),
                             onChange: ev => handleUpdateFilterObj(ev, i),
                             onFocus: _ev => (),
-                            value: selected->Array.map(Js.Json.string)->Js.Json.array,
+                            value: selected->Array.map(JSON.Encode.string)->JSON.Encode.array,
                             checked: true,
                           }
                           let icon = switch filterIcon {
@@ -560,7 +560,7 @@ module TableHeadingRow = {
             let columnFilterRow: array<filterRow> = columnFilterRow->Option.getOr([])
             let filterRow = columnFilterRow->Array.get(i)
             <TableHeadingCell
-              key={Belt.Int.toString(i)}
+              key={Int.toString(i)}
               item
               index=i
               headingArray
@@ -663,7 +663,7 @@ let make = (
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
-  let actualData: option<Js.Array2.t<Js.Nullable.t<'t>>> = actualData
+  let actualData: option<array<Nullable.t<'t>>> = actualData
   let numberOfCols = heading->Array.length
   open Webapi
   let totalTableWidth =
@@ -671,7 +671,7 @@ let make = (
     ->Dom.Document.getElementById(`table`)
     ->Option.mapOr(0, ele => ele->Document.offsetWidth)
 
-  let equalColWidth = (totalTableWidth / numberOfCols)->Belt.Int.toString
+  let equalColWidth = (totalTableWidth / numberOfCols)->Int.toString
   let fixedWidthClass = enableEqualWidthCol ? `${equalColWidth}px` : ""
   let widthClass = if fullWidth {
     "min-w-full"
@@ -697,7 +697,7 @@ let make = (
     switch actualData {
     | Some(actualData) =>
       switch getRowDetails {
-      | Some(fn) => fn(actualData->Array.get(rowIndex)->Option.getOr(Js.Nullable.null))
+      | Some(fn) => fn(actualData->Array.get(rowIndex)->Option.getOr(Nullable.null))
       | None => React.null
       }
     | None => React.null
@@ -857,7 +857,10 @@ let make = (
         )}
       </UIUtils.RenderIf>
       <tbody>
-        {tableRows(Belt.Array.range(1, totalLength)->Array.map(_ => [Text("")]), true)}
+        {tableRows(
+          Array.fromInitializer(~length=totalLength, i => i + 1)->Array.map(_ => [Text("")]),
+          true,
+        )}
       </tbody>
     </table>
   }

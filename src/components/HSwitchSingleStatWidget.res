@@ -36,9 +36,9 @@ let make = (
     ->Array.map(item => {
       let (x, y) = item
       if y === 0. && filterNullVals {
-        (x, Js.Nullable.null)
+        (x, Nullable.null)
       } else {
-        (x, y->Js.Nullable.return)
+        (x, y->Nullable.make)
       }
     })
   }, [data])
@@ -67,7 +67,7 @@ let make = (
     } else if statType === "LatencyMs" {
       latencyShortNum(~labelValue=value, ~includeMilliseconds=true, ())
     } else {
-      value->Belt.Float.toString
+      value->Float.toString
     }
   }
 
@@ -82,7 +82,7 @@ let make = (
           "margin": Some([0, 0, 0, 0]),
           "marginLeft": isHomePage ? Some(-5) : None,
           "marginRight": isHomePage ? Some(-5) : None,
-          "backgroundColor": Js.Nullable.null,
+          "backgroundColor": Nullable.null,
           "height": (isHomePage ? "80" : "50")->Some,
           "width": isHomePage ? None : Some("105"),
           "events": None,
@@ -90,7 +90,7 @@ let make = (
       ),
       title: {
         "text": "",
-        "style": Js.Json.object_(Dict.make()),
+        "style": JSON.Encode.object(Dict.make()),
       }->genericObjectOrRecordToJson,
       credits: {
         "enabled": false,
@@ -143,7 +143,7 @@ let make = (
         "visible": false,
         "title": {
           "text": "",
-          "style": Js.Json.object_(Dict.make()),
+          "style": JSON.Encode.object(Dict.make()),
         }->genericObjectOrRecordToJson,
         "labels": {"formatter": None, "enabled": false, "useHTML": false}->Some,
         "zoomEnabled": false,

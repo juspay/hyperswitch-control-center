@@ -89,10 +89,10 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   let (isCheckboxSelected, setIsCheckboxSelected) = React.useState(_ => false)
   let connectorVariant = connectorName->getConnectorNameTypeFromString
   // TODO: Change the state to memo
-  let (connectorDetails, setConnectorDetails) = React.useState(_ => Js.Json.null)
+  let (connectorDetails, setConnectorDetails) = React.useState(_ => JSON.Encode.null)
   let (isLoading, setIsLoading) = React.useState(_ => false)
   let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
-  let (initialValues, setInitialValues) = React.useState(_ => Js.Json.null)
+  let (initialValues, setInitialValues) = React.useState(_ => JSON.Encode.null)
 
   let getDetails = async () => {
     try {
@@ -112,7 +112,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   let (verifyErrorMessage, setVerifyErrorMessage) = React.useState(_ => None)
   let (verifyDone, setVerifyDone) = React.useState(_ => ConnectorTypes.NoAttempt)
 
-  let connectorID = url.path->Belt.List.toArray->Array.get(1)->Option.getOr("")
+  let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
   let checkboxText = connectorVariant->ProdOnboardingUtils.getCheckboxText
   let (
     bodyType,
@@ -135,10 +135,10 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
       prevJsonDict->Dict.set(
         "connector_label",
-        `${selectedConnector->getConnectorNameString}_${defaultBusinessProfile.profile_name}`->Js.Json.string,
+        `${selectedConnector->getConnectorNameString}_${defaultBusinessProfile.profile_name}`->JSON.Encode.string,
       )
-      prevJsonDict->Dict.set("profile_id", defaultBusinessProfile.profile_id->Js.Json.string)
-      prevJsonDict->Js.Json.object_
+      prevJsonDict->Dict.set("profile_id", defaultBusinessProfile.profile_id->JSON.Encode.string)
+      prevJsonDict->JSON.Encode.object
     })
 
     None
@@ -164,15 +164,15 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     }
   }
 
-  let onSubmitMain = async (values: Js.Json.t) => {
+  let onSubmitMain = async (values: JSON.t) => {
     try {
       setIsLoading(_ => true)
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ())
       let dict = Window.getConnectorConfig(connectorName)->getDictFromJsonObject
       let creditCardNetworkArray =
-        dict->getArrayFromDict("credit", [])->Js.Json.array->getPaymentMethodMapper
+        dict->getArrayFromDict("credit", [])->JSON.Encode.array->getPaymentMethodMapper
       let debitCardNetworkArray =
-        dict->getArrayFromDict("debit", [])->Js.Json.array->getPaymentMethodMapper
+        dict->getArrayFromDict("debit", [])->JSON.Encode.array->getPaymentMethodMapper
 
       let paymentMethodsEnabledArray: array<ConnectorTypes.paymentMethodEnabled> = [
         {
@@ -192,7 +192,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       let requestPayload: ConnectorTypes.wasmRequest = {
         payment_methods_enabled: paymentMethodsEnabledArray,
         connector: connectorName,
-        metadata: Dict.make()->Js.Json.object_,
+        metadata: Dict.make()->JSON.Encode.object,
       }
 
       let payload = generateInitialValuesDict(
@@ -250,7 +250,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       connectorMetaDataFields,
       connectorWebHookDetails,
       connectorLabelDetailField,
-      errors->Js.Json.object_,
+      errors->JSON.Encode.object,
     )
   }
 
@@ -340,10 +340,10 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
 
   let onSubmit = values => {
     let dict = values->getDictFromJsonObject
-    dict->Dict.set("profile_id", profile_id->Js.Json.string)
+    dict->Dict.set("profile_id", profile_id->JSON.Encode.string)
 
     onSubmit(
-      ~values={dict->Js.Json.object_},
+      ~values={dict->JSON.Encode.object},
       ~onSubmitVerify,
       ~onSubmitMain,
       ~setVerifyDone,
@@ -358,7 +358,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     | SETUP_WEBHOOK_PROCESSOR => values->onSubmit
     | _ => setPageView(_ => pageView->ProdOnboardingUtils.getPageView)
     }
-    Js.Nullable.null->Promise.resolve
+    Nullable.null->Promise.resolve
   }
 
   let buttonText = switch verifyDone {

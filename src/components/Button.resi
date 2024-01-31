@@ -116,6 +116,6 @@ let make: (
   ~isPhoneDropdown: bool=?,
   ~showBtnTextToolTip: bool=?,
   ~showTooltip: bool=?,
-  ~tooltipText: Js.String2.t=?,
+  ~tooltipText: string=?,
   ~toolTipPosition: ToolTip.toolTipPosition=?,
 ) => React.element

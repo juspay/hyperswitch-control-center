@@ -2,13 +2,13 @@ open InputFields
 type inputFieldType = {
   name: string,
   placeholder: string,
-  format: option<(. ~value: Js.Json.t, ~name: string) => Js.Json.t>,
-  parse: option<(. ~value: Js.Json.t, ~name: string) => Js.Json.t>,
+  format: option<(. ~value: JSON.t, ~name: string) => JSON.t>,
+  parse: option<(. ~value: JSON.t, ~name: string) => JSON.t>,
   disabled: bool,
   isRequired: bool,
   @as("type") type_: string,
   customInput: customInputFn,
-  validate: option<(option<string>, Js.Json.t) => Js.Promise.t<Js.Nullable.t<string>>>,
+  validate: option<(option<string>, JSON.t) => Js.Promise.t<Nullable.t<string>>>,
 }
 type fieldInfoType = {
   label: string,
@@ -36,7 +36,7 @@ let makeInputFieldInfo = (
   ~parse=?,
   ~type_="text",
   ~isRequired=false,
-  ~validate: option<(option<string>, Js.Json.t) => Js.Promise.t<Js.Nullable.t<string>>>=?,
+  ~validate: option<(option<string>, JSON.t) => Js.Promise.t<Nullable.t<string>>>=?,
   (),
 ) => {
   let label = label->Option.getOr(name)
@@ -115,7 +115,7 @@ let makeMultiInputFieldInfo = (
     descriptionComponent,
     subText,
     isRequired,
-    comboCustomInput: comboCustomInput->Belt.Option.map(x => x.fn),
+    comboCustomInput: comboCustomInput->Option.map(x => x.fn),
     inputFields,
     inputNames,
     ?fieldPortalKey,
@@ -140,7 +140,7 @@ let makeFieldInfo = (
   ~type_="text",
   ~isRequired=false,
   ~fieldPortalKey: option<string>=?,
-  ~validate: option<(option<string>, Js.Json.t) => Js.Promise.t<Js.Nullable.t<string>>>=?,
+  ~validate: option<(option<string>, JSON.t) => Js.Promise.t<Nullable.t<string>>>=?,
   (),
 ) => {
   let label = label->Option.getOr(name)
@@ -285,9 +285,9 @@ module FieldError = {
     let errorTextStyle = "text-red-950 dark:text-red-400 text-fs-10 font-medium ml-1"
     let error = if meta.touched || alwaysShow || (showErrorOnChange && meta.modified) {
       if !(meta.submitError->Js.Nullable.isNullable) && !meta.dirtySinceLastSubmit {
-        Js.Nullable.toOption(meta.submitError)
+        Nullable.toOption(meta.submitError)
       } else {
-        Js.Nullable.toOption(meta.error)
+        Nullable.toOption(meta.error)
       }
     } else {
       None
@@ -521,14 +521,14 @@ module FormError = {
     let subscriptionJson = {
       let subscriptionDict = Dict.make()
 
-      Dict.set(subscriptionDict, "submitErrors", Js.Json.boolean(true))
+      Dict.set(subscriptionDict, "submitErrors", JSON.Encode.bool(true))
 
-      Js.Json.object_(subscriptionDict)
+      JSON.Encode.object(subscriptionDict)
     }
 
     React.useEffect0(() => {
       let unsubscribe = form.subscribe(formState => {
-        setSubmitErrors(_ => formState.submitErrors->Js.Nullable.toOption)
+        setSubmitErrors(_ => formState.submitErrors->Nullable.toOption)
 
         ()
       }, subscriptionJson)
@@ -537,7 +537,7 @@ module FormError = {
     })
     switch submitErrors {
     | Some(errorsJson) =>
-      switch errorsJson->Js.Json.decodeObject {
+      switch errorsJson->JSON.Decode.object {
       | Some(dict) =>
         let errStr = switch Dict.get(dict, "FORM_ERROR") {
         | Some(err) => LogicUtils.getStringFromJson(err, "")
@@ -594,11 +594,11 @@ module SubmitButton = {
       "submitErrors",
       "submitting",
     ]->Array.forEach(item => {
-      Dict.set(dict, item, Js.Json.boolean(true))
+      Dict.set(dict, item, JSON.Encode.bool(true))
     })
 
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      dict->Js.Json.object_->Js.Nullable.return,
+      dict->JSON.Encode.object->Nullable.make,
     )
     let {hasValidationErrors, hasSubmitErrors, submitting, dirtySinceLastSubmit, errors} = formState
 
@@ -794,10 +794,7 @@ let make = (
   ~initialValues,
   ~validate=?,
   ~submitButtonText=?,
-  ~onSubmit: (
-    ReactFinalForm.formValues,
-    ReactFinalForm.formApi,
-  ) => Promise.t<Js.Nullable.t<Js.Json.t>>,
+  ~onSubmit: (ReactFinalForm.formValues, ReactFinalForm.formApi) => Promise.t<Nullable.t<JSON.t>>,
   ~fieldsWrapperClass="",
   ~fieldWrapperClass="",
   ~formClass="",

@@ -1,12 +1,12 @@
 type initialFilters<'t> = {
   field: FormRenderer.fieldInfoType,
-  localFilter: option<(Js.Array.t<Js.Nullable.t<'t>>, Js.Json.t) => Js.Array.t<Js.Nullable.t<'t>>>,
+  localFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
 }
 type optionType<'t> = {
   urlKey: string,
   field: FormRenderer.fieldInfoType,
-  parser: Js.Json.t => Js.Json.t,
-  localFilter: option<(Js.Array.t<Js.Nullable.t<'t>>, Js.Json.t) => Js.Array.t<Js.Nullable.t<'t>>>,
+  parser: JSON.t => JSON.t,
+  localFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
 }
 let getDefaultEntityOptionType = (): optionType<'t> => {
   urlKey: "",
@@ -19,23 +19,23 @@ type summary = {totalCount: int, count: int}
 
 type entityType<'colType, 't> = {
   uri: string,
-  getObjects: Js.Json.t => array<'t>,
+  getObjects: JSON.t => array<'t>,
   defaultColumns: array<'colType>,
   allColumns: option<array<'colType>>,
   getHeading: 'colType => Table.header,
   getCell: ('t, 'colType) => Table.cell,
   dataKey: string,
   summaryKey: string,
-  getSummary: Js.Json.t => summary,
+  getSummary: JSON.t => summary,
   getShowLink: option<'t => string>,
-  defaultFilters: Js.Json.t,
+  defaultFilters: JSON.t,
   headers: Dict.t<string>,
   initialFilters: array<initialFilters<'t>>,
   options: array<optionType<'t>>,
   getDetailsUri: string => string,
-  getNewUrl: Js.Json.t => string,
+  getNewUrl: JSON.t => string,
   getSyncUrl: string => option<string>,
-  detailsPageLayout: (Js.Json.t, string) => React.element,
+  detailsPageLayout: (JSON.t, string) => React.element,
   searchFields: array<FormRenderer.fieldInfoType>,
   searchUrl: string,
   searchKeyList: array<string>,
@@ -43,20 +43,20 @@ type entityType<'colType, 't> = {
   requiredSearchFieldsList: array<string>,
   detailsKey: string,
   popupFilterFields: array<optionType<'t>>,
-  dateRangeFilterDict: Dict.t<Js.Json.t>,
+  dateRangeFilterDict: Dict.t<JSON.t>,
   searchValueDict: option<Dict.t<string>>,
-  filterCheck: ('t, Js.Array2.t<string>) => bool,
-  filterForRow: (option<Js.Array2.t<Js.Nullable.t<'t>>>, int) => TableUtils.filterObject,
+  filterCheck: ('t, array<string>) => bool,
+  filterForRow: (option<array<Nullable.t<'t>>>, int) => TableUtils.filterObject,
 }
 
 let emptyObj = {
   let dict = Dict.make()
-  Dict.set(dict, "offset", Js.Json.number(0.0))
-  Js.Json.object_(dict)
+  Dict.set(dict, "offset", JSON.Encode.float(0.0))
+  JSON.Encode.object(dict)
 }
 
 let defaultGetSummary = (json, totalCountKey) => {
-  switch json->Js.Json.decodeObject {
+  switch json->JSON.Decode.object {
   | Some(dict) => {
       let summary = {
         totalCount: LogicUtils.getInt(dict, totalCountKey, 0),

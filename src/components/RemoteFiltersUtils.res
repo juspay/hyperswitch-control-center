@@ -15,7 +15,7 @@ let getFinalDict = (
   let unflattenDict = filtersFromUrl->JsonFlattenUtils.unflattenObject
 
   let filterDict = Dict.make()
-  switch filterJson->Js.Json.decodeObject {
+  switch filterJson->JSON.Decode.object {
   | Some(dict) => {
       // Hack for admin service config entity
       let allowedDefaultKeys = if dict->Dict.get("sourceObject")->Option.isSome {
@@ -55,19 +55,19 @@ let getFinalDict = (
     | Some((_, value)) =>
       let getExpectedType = ele => {
         switch value {
-        | Boolean => ele->LogicUtils.getBoolFromString(false)->Js.Json.boolean
-        | Float => ele->LogicUtils.getFloatFromString(0.)->Js.Json.number
-        | Int => ele->LogicUtils.getIntFromString(0)->Int.toFloat->Js.Json.number
+        | Boolean => ele->LogicUtils.getBoolFromString(false)->JSON.Encode.bool
+        | Float => ele->LogicUtils.getFloatFromString(0.)->JSON.Encode.float
+        | Int => ele->LogicUtils.getIntFromString(0)->Int.toFloat->JSON.Encode.float
         }
       }
-      switch val->Js.Json.classify {
-      | JSONArray(stringValueArr) =>
+      switch val->JSON.Classify.classify {
+      | Array(stringValueArr) =>
         stringValueArr
         ->Array.map(ele => {
-          getExpectedType(ele->Js.Json.decodeString->Option.getOr(""))
+          getExpectedType(ele->JSON.Decode.string->Option.getOr(""))
         })
-        ->Js.Json.array
-      | JSONString(ele) => getExpectedType(ele)
+        ->JSON.Encode.array
+      | String(ele) => getExpectedType(ele)
       | _ => val
       }
 
@@ -92,15 +92,15 @@ let getFinalDict = (
           let value = if isformat {
             let intSearchKeys = searchkeysDict->LogicUtils.getArrayFromDict("intSearchKeys", [])
             let arrSearchKeys = searchkeysDict->LogicUtils.getArrayFromDict("arrSearchKeys", [])
-            if intSearchKeys->Array.includes(key->Js.Json.string) {
-              value->LogicUtils.getFloatFromString(0.00)->Js.Json.number
-            } else if arrSearchKeys->Array.includes(key->Js.Json.string) {
-              value->String.split(",")->Array.map(str => str->Js.Json.string)->Js.Json.array
+            if intSearchKeys->Array.includes(key->JSON.Encode.string) {
+              value->LogicUtils.getFloatFromString(0.00)->JSON.Encode.float
+            } else if arrSearchKeys->Array.includes(key->JSON.Encode.string) {
+              value->String.split(",")->Array.map(str => str->JSON.Encode.string)->JSON.Encode.array
             } else {
-              value->Js.Json.string
+              value->JSON.Encode.string
             }
           } else {
-            value->Js.Json.string
+            value->JSON.Encode.string
           }
           filterDict->Dict.set(key, value)
         }
@@ -120,15 +120,18 @@ let getFinalDict = (
             let value = if isformat {
               let intSearchKeys = searchkeysDict->LogicUtils.getArrayFromDict("intSearchKeys", [])
               let arrSearchKeys = searchkeysDict->LogicUtils.getArrayFromDict("arrSearchKeys", [])
-              if intSearchKeys->Array.includes(key->Js.Json.string) {
-                value->LogicUtils.getFloatFromString(0.00)->Js.Json.number
-              } else if arrSearchKeys->Array.includes(key->Js.Json.string) {
-                value->String.split(",")->Array.map(str => str->Js.Json.string)->Js.Json.array
+              if intSearchKeys->Array.includes(key->JSON.Encode.string) {
+                value->LogicUtils.getFloatFromString(0.00)->JSON.Encode.float
+              } else if arrSearchKeys->Array.includes(key->JSON.Encode.string) {
+                value
+                ->String.split(",")
+                ->Array.map(str => str->JSON.Encode.string)
+                ->JSON.Encode.array
               } else {
-                value->Js.Json.string
+                value->JSON.Encode.string
               }
             } else {
-              value->Js.Json.string
+              value->JSON.Encode.string
             }
             filterDict->Dict.set(key, value)
           }
@@ -137,22 +140,22 @@ let getFinalDict = (
     }
     if isEulerOrderEntity {
       let arr = if filterDict->Dict.get("customerId")->Option.isSome {
-        [["date_created", "DESC"]->Js.Json.stringArray]
+        [["date_created", "DESC"]->LogicUtils.getJsonFromArrayOfString]
       } else {
         []
       }
-      filterDict->Dict.set("order", arr->Js.Json.array)
+      filterDict->Dict.set("order", arr->JSON.Encode.array)
     }
 
-    filterDict->Js.Json.object_
+    filterDict->JSON.Encode.object
   }
 }
 
 let getStrFromJson = (key, val) => {
-  switch val->Js.Json.classify {
-  | JSONString(str) => str
-  | JSONArray(array) => array->Array.length > 0 ? `[${array->Array.joinWithUnsafe(",")}]` : ""
-  | JSONNumber(num) => key === "offset" ? "0" : num->Belt.Float.toInt->string_of_int
+  switch val->JSON.Classify.classify {
+  | String(str) => str
+  | Array(array) => array->Array.length > 0 ? `[${array->Array.joinWithUnsafe(",")}]` : ""
+  | Number(num) => key === "offset" ? "0" : num->Float.toInt->string_of_int
   | _ => ""
   }
 }
@@ -210,14 +213,14 @@ let getInitialValuesFromUrl = (
       })
     })
   }
-  Js.Json.object_(dict)
+  JSON.Encode.object(dict)
 }
 
 let getLocalFiltersData = (
-  ~resArr: Js.Array2.t<Js.Nullable.t<'t>>,
+  ~resArr: array<Nullable.t<'t>>,
   ~searchParams,
   ~initialFilters: array<EntityType.initialFilters<'t>>,
-  ~dateRangeFilterDict: Dict.t<Js.Json.t>,
+  ~dateRangeFilterDict: Dict.t<JSON.t>,
   ~options: array<EntityType.optionType<'t>>,
   (),
 ) => {
@@ -236,9 +239,15 @@ let getLocalFiltersData = (
 
     let dateRange = dateRangeFilterDict->LogicUtils.getArrayFromDict("dateRange", [])
     let startKey =
-      dateRange->Array.get(0)->Option.getOr(""->Js.Json.string)->LogicUtils.getStringFromJson("")
+      dateRange
+      ->Array.get(0)
+      ->Option.getOr(""->JSON.Encode.string)
+      ->LogicUtils.getStringFromJson("")
     let endKey =
-      dateRange->Array.get(1)->Option.getOr(""->Js.Json.string)->LogicUtils.getStringFromJson("")
+      dateRange
+      ->Array.get(1)
+      ->Option.getOr(""->JSON.Encode.string)
+      ->LogicUtils.getStringFromJson("")
 
     let (keyList, valueList) = if (
       dateRangeFilterDict != Dict.make() &&
@@ -269,14 +278,14 @@ let getLocalFiltersData = (
               if String.includes(value, "[") {
                 let str = String.slice(~start=1, ~end=value->String.length - 1, value)
                 let splitArray = String.split(str, ",")
-                let jsonarr = splitArray->Array.map(val => Js.Json.string(val))
+                let jsonarr = splitArray->Array.map(val => JSON.Encode.string(val))
                 res.contents = switch localFilter {
-                | Some(localFilter) => localFilter(res.contents, Js.Json.array(jsonarr))
+                | Some(localFilter) => localFilter(res.contents, JSON.Encode.array(jsonarr))
                 | None => res.contents
                 }
               } else {
                 res.contents = switch localFilter {
-                | Some(localFilter) => localFilter(res.contents, Js.Json.string(value))
+                | Some(localFilter) => localFilter(res.contents, JSON.Encode.string(value))
                 | None => res.contents
                 }
               }
@@ -291,7 +300,7 @@ let getLocalFiltersData = (
         if fieldName === key {
           res.contents = switch localFilter {
           | Some(localFilter) =>
-            localFilter(res.contents, Js.Json.string(valueList[idx]->Option.getOr("")))
+            localFilter(res.contents, JSON.Encode.string(valueList[idx]->Option.getOr("")))
           | None => res.contents
           }
         }
@@ -348,7 +357,7 @@ let applyFilters = (
   let currentFilterUrl = generateUrlFromDict(~dict=currentFilterDict, ~options, tableName)
 
   let existingFilterUrl = generateUrlFromDict(~dict=existingFilterDict, ~options, tableName)
-  switch defaultFilters->Js.Json.decodeObject {
+  switch defaultFilters->JSON.Decode.object {
   | Some(originalDict) =>
     originalDict
     ->Dict.toArray

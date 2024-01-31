@@ -1,4 +1,4 @@
-let getFloat = strJson => strJson->Js.Json.decodeString->Option.flatMap(Belt.Float.fromString)
+let getFloat = strJson => strJson->JSON.Decode.string->Option.flatMap(Float.fromString)
 
 @react.component
 let make = (
@@ -26,17 +26,17 @@ let make = (
   ~removeValidationCheck=?,
 ) => {
   let (localStrValue, setLocalStrValue) = React.useState(() => input.value)
-  let inputRef = React.useRef(Js.Nullable.null)
+  let inputRef = React.useRef(Nullable.null)
   React.useEffect2(() => {
     switch widthMatchwithPlaceholderLength {
     | Some(length) =>
-      switch inputRef.current->Js.Nullable.toOption {
+      switch inputRef.current->Nullable.toOption {
       | Some(elem) =>
         let size =
           elem
           ->Webapi.Dom.Element.getAttribute("placeholder")
           ->Option.mapOr(length, str => Js.Math.max_int(length, str->String.length))
-          ->Belt.Int.toString
+          ->Int.toString
 
         elem->Webapi.Dom.Element.setAttribute("size", size)
       | None => ()
@@ -53,7 +53,7 @@ let make = (
       onChange: ev => {
         let value = ReactEvent.Form.target(ev)["value"]
 
-        let strValue = value->Js.Json.decodeString->Option.getOr("")
+        let strValue = value->JSON.Decode.string->Option.getOr("")
 
         let cleanedValue = switch strValue->Js.String2.match_(%re("/[\d\.]/g")) {
         | Some(strArr) =>
@@ -81,13 +81,13 @@ let make = (
         }
 
         let finalVal = precisionCheckedVal !== "" ? precisionCheckedVal : cleanedValue
-        setLocalStrValue(_ => finalVal->Js.Json.string)
+        setLocalStrValue(_ => finalVal->JSON.Encode.string)
 
-        switch finalVal->Js.Json.string->getFloat {
+        switch finalVal->JSON.Encode.string->getFloat {
         | Some(num) => input.onChange(num->Identity.anyTypeToReactEvent)
         | None =>
           if value === "" {
-            input.onChange(Js.Json.null->Identity.anyTypeToReactEvent)
+            input.onChange(JSON.Encode.null->Identity.anyTypeToReactEvent)
           }
         }
       },
@@ -98,10 +98,10 @@ let make = (
     setLocalStrValue(prevLocalStr => {
       let numericPrevLocalValue =
         prevLocalStr
-        ->Js.Json.decodeString
-        ->Option.flatMap(Belt.Float.fromString)
-        ->Belt.Option.map(Js.Json.number)
-        ->Option.getOr(Js.Json.null)
+        ->JSON.Decode.string
+        ->Option.flatMap(Float.fromString)
+        ->Option.map(JSON.Encode.float)
+        ->Option.getOr(JSON.Encode.null)
       if input.value === numericPrevLocalValue {
         prevLocalStr
       } else {

@@ -31,7 +31,7 @@ module SimpleRoutingView = {
     let saveConfiguration = async () => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let data = gateways->Array.map(str => str->Js.Json.string)
+        let data = gateways->Array.map(str => str->JSON.Encode.string)
 
         let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
 
@@ -43,7 +43,7 @@ module SimpleRoutingView = {
             nameFromForm->LogicUtils.getStringFromJson(""),
             descriptionFromForm->LogicUtils.getStringFromJson(""),
             "",
-          )->Js.Json.object_,
+          )->JSON.Encode.object,
           Post,
           (),
         )
@@ -65,7 +65,7 @@ module SimpleRoutingView = {
       try {
         setScreenState(_ => Loading)
         let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=routingId, ())
-        let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post, ())
+        let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
         showToast(
           ~message="Successfully Activated Selected Configuration !",
           ~toastType=ToastState.ToastSuccess,
@@ -85,7 +85,7 @@ module SimpleRoutingView = {
         | None => setScreenState(_ => Error("Failed to Fetch!"))
         }
       }->ignore
-      Js.Nullable.null
+      Nullable.null
     }
 
     let openConfirmPopUp = () => {
@@ -243,14 +243,14 @@ let make = (~routingRuleId, ~isActive) => {
           routingJson
           ->getDictFromJsonObject
           ->getString("name", "This is a default text")
-          ->Js.Json.string,
+          ->JSON.Encode.string,
         ),
         (
           "description",
           routingJson
           ->getDictFromJsonObject
           ->getString("description", "This is a default text")
-          ->Js.Json.string,
+          ->JSON.Encode.string,
         ),
       ])
       setFormState(_ => ViewConfig)
@@ -290,7 +290,7 @@ let make = (~routingRuleId, ~isActive) => {
 
   <div>
     <PageLoaderWrapper screenState>
-      <Form initialValues={initialValues->Js.Json.object_}>
+      <Form initialValues={initialValues->JSON.Encode.object}>
         <div className="w-full flex flex-row  justify-between">
           <div className="w-full">
             {if formState != CreateConfig {

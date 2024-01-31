@@ -144,7 +144,7 @@ module ListItem = {
     } else {
       onClick
     }
-    let parentRef = React.useRef(Js.Nullable.null)
+    let parentRef = React.useRef(Nullable.null)
 
     let textColor = "text-jp-gray-900 dark:text-jp-gray-text_darktheme"
 
@@ -187,7 +187,7 @@ module ListItem = {
     let comp =
       <AddDataAttributes
         attributes=[
-          ("data-dropdown-numeric", (dataId + 1)->Belt.Int.toString),
+          ("data-dropdown-numeric", (dataId + 1)->Int.toString),
           ("data-dropdown-value", labelText),
           ("data-dropdown-value-selected", {isSelected} ? "True" : "False"),
         ]>
@@ -412,7 +412,7 @@ module BaseSelect = {
     ~optionSize: CheckBoxIcon.size=Small,
     ~isSelectedStateMinus=false,
     ~onSelect: array<string> => unit,
-    ~value as values: Js.Json.t,
+    ~value as values: JSON.t,
     ~onBlur=?,
     ~showClearAll=true,
     ~isHorizontal=false,
@@ -465,7 +465,7 @@ module BaseSelect = {
     }
 
     let saneValue = React.useMemo1(() =>
-      switch values->Js.Json.decodeArray {
+      switch values->JSON.Decode.array {
       | Some(jsonArr) => jsonArr->LogicUtils.getStrArrayFromJsonArray
       | _ => []
       }
@@ -595,9 +595,9 @@ module BaseSelect = {
           preservedAppliedOptions->Array.includes(val) && acc
         })
 
-    let searchRef = React.useRef(Js.Nullable.null)
-    let selectBtnRef = insertselectBtnRef->Belt.Option.map(ReactDOM.Ref.callbackDomRef)
-    let clearBtnRef = insertclearBtnRef->Belt.Option.map(ReactDOM.Ref.callbackDomRef)
+    let searchRef = React.useRef(Nullable.null)
+    let selectBtnRef = insertselectBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
+    let clearBtnRef = insertclearBtnRef->Option.map(ReactDOM.Ref.callbackDomRef)
     let (isChooseAllToggleSelected, setChooseAllToggleSelected) = React.useState(() => false)
     let gapClass = switch optionRigthElement {
     | Some(_) => "flex gap-4"
@@ -615,7 +615,7 @@ module BaseSelect = {
     }
 
     React.useEffect2(() => {
-      searchRef.current->Js.Nullable.toOption->Option.forEach(input => input->focus)
+      searchRef.current->Nullable.toOption->Option.forEach(input => input->focus)
       None
     }, (searchRef.current, showDropDown))
 
@@ -891,7 +891,7 @@ module BaseSelect = {
         <UIUtils.RenderIf condition={isDropDown && noOfSelected > 0 && showSelectCountButton}>
           <Button
             buttonType=Primary
-            text={`Select ${noOfSelected->Belt.Int.toString}`}
+            text={`Select ${noOfSelected->Int.toString}`}
             flattenTop=true
             customButtonStyle="w-full items-center"
             onClick
@@ -912,7 +912,7 @@ module BaseSelectButton = {
     ~optionSize: CheckBoxIcon.size=Small,
     ~isSelectedStateMinus=false,
     ~onSelect: string => unit,
-    ~value: Js.Json.t,
+    ~value: JSON.t,
     ~deselectDisable=false,
     ~onBlur=?,
     ~setShowDropDown=?,
@@ -929,10 +929,10 @@ module BaseSelectButton = {
     let (searchString, setSearchString) = React.useState(() => "")
     let (itemdata, setItemData) = React.useState(() => "")
     let (assignButtonState, setAssignButtonState) = React.useState(_ => false)
-    let searchRef = React.useRef(Js.Nullable.null)
+    let searchRef = React.useRef(Nullable.null)
     let onItemClick = (itemData, _ev) => {
       if !disableSelect {
-        let isSelected = value->Js.Json.decodeString->Option.mapOr(false, str => itemData === str)
+        let isSelected = value->JSON.Decode.string->Option.mapOr(false, str => itemData === str)
 
         if isSelected && !deselectDisable {
           onSelect("")
@@ -951,7 +951,7 @@ module BaseSelectButton = {
     }
 
     React.useEffect2(() => {
-      searchRef.current->Js.Nullable.toOption->Option.forEach(input => input->focus)
+      searchRef.current->Nullable.toOption->Option.forEach(input => input->focus)
       None
     }, (searchRef.current, showDropDown))
 
@@ -1004,7 +1004,7 @@ module BaseSelectButton = {
       <div className={`${optionsOuterClass} ${listPadding} ${inlineClass}`}>
         {options
         ->Array.mapWithIndex((option, i) => {
-          let isSelected = switch value->Js.Json.decodeString {
+          let isSelected = switch value->JSON.Decode.string {
           | Some(str) => option.value === str
           | None => false
           }
@@ -1067,7 +1067,7 @@ module BaseSelectButton = {
 module RenderListItemInBaseRadio = {
   @react.component
   let make = (
-    ~newOptions: Js.Array2.t<dropdownOptionWithoutOptional>,
+    ~newOptions: array<dropdownOptionWithoutOptional>,
     ~value,
     ~descriptionOnHover,
     ~isDropDown,
@@ -1089,7 +1089,7 @@ module RenderListItemInBaseRadio = {
   ) => {
     newOptions
     ->Array.mapWithIndex((option, i) => {
-      let isSelected = switch value->Js.Json.decodeString {
+      let isSelected = switch value->JSON.Decode.string {
       | Some(str) => option.value === str
       | None => false
       }
@@ -1173,7 +1173,7 @@ let getSortedKeys = hashMappedOptions => {
     switch (a, b) {
     | ("-", _) => 1
     | (_, "-") => -1
-    | (_, _) => String.compare(a, b)->Belt.Float.toInt
+    | (_, _) => String.compare(a, b)->Float.toInt
     }
   })
 }
@@ -1188,7 +1188,7 @@ module BaseRadio = {
     ~optionSize: CheckBoxIcon.size=Small,
     ~isSelectedStateMinus=false,
     ~onSelect: string => unit,
-    ~value: Js.Json.t,
+    ~value: JSON.t,
     ~deselectDisable=false,
     ~onBlur=?,
     ~fill="#0EB025",
@@ -1233,7 +1233,7 @@ module BaseRadio = {
     }, [searchString])
 
     OutsideClick.useOutsideClick(
-      ~refs={ArrayOfRef([dropdownRef->Option.getOr(React.useRef(Js.Nullable.null))])},
+      ~refs={ArrayOfRef([dropdownRef->Option.getOr(React.useRef(Nullable.null))])},
       ~isActive=showDropDown,
       ~callback=() => {
         setSearchString(_ => "")
@@ -1242,7 +1242,7 @@ module BaseRadio = {
     )
     let onItemClick = (itemData, isDisabled, _ev) => {
       if !isDisabled {
-        let isSelected = value->Js.Json.decodeString->Option.mapOr(false, str => itemData === str)
+        let isSelected = value->JSON.Decode.string->Option.mapOr(false, str => itemData === str)
 
         if isSelected && !deselectDisable {
           setSelectedString(_ => "")
@@ -1279,7 +1279,7 @@ module BaseRadio = {
     let widthClass =
       isMobileView || !isSearchable ? "w-auto" : fullLength ? "w-full" : dropdownCustomWidth
 
-    let searchRef = React.useRef(Js.Nullable.null)
+    let searchRef = React.useRef(Nullable.null)
 
     let width = isHorizontal || !isDropDown || customStyle === "" ? widthClass : customStyle
 
@@ -1288,7 +1288,7 @@ module BaseRadio = {
     let textIconPresent = options->Array.some(op => op.icon !== NoIcon)
 
     React.useEffect2(() => {
-      searchRef.current->Js.Nullable.toOption->Option.forEach(input => input->focus)
+      searchRef.current->Nullable.toOption->Option.forEach(input => input->focus)
       None
     }, (searchRef.current, showDropDown))
 
@@ -1524,9 +1524,9 @@ module BaseDropdown = {
     let (showDropDown, setShowDropDown) = React.useState(() => false)
     let (isGrowDown, setIsGrowDown) = React.useState(_ => false)
     let (isInitialRender, setIsInitialRender) = React.useState(_ => true)
-    let selectBoxRef = React.useRef(Js.Nullable.null)
-    let dropdownRef = React.useRef(Js.Nullable.null)
-    let selectBtnRef = React.useRef(Js.Nullable.null)
+    let selectBoxRef = React.useRef(Nullable.null)
+    let dropdownRef = React.useRef(Nullable.null)
+    let selectBtnRef = React.useRef(Nullable.null)
     let (preservedAppliedOptions, setPreservedAppliedOptions) = React.useState(_ =>
       newInputSelect.value->LogicUtils.getStrArryFromJson
     )
@@ -1540,7 +1540,7 @@ module BaseDropdown = {
       setPreservedAppliedOptions(_ => newInputSelect.value->LogicUtils.getStrArryFromJson)
     }
 
-    let clearBtnRef = React.useRef(Js.Nullable.null)
+    let clearBtnRef = React.useRef(Nullable.null)
     let insertselectBtnRef = element => {
       if !Js.Nullable.isNullable(element) {
         selectBtnRef.current = element
@@ -1586,7 +1586,7 @@ module BaseDropdown = {
       | None => ""
       }
       newInputSelect.onChange(
-        switch newInputSelect.value->Js.Json.decodeArray {
+        switch newInputSelect.value->JSON.Decode.array {
         | Some(jsonArr) =>
           jsonArr->LogicUtils.getStrArrayFromJsonArray->Array.filter(str => str !== actualValue)
         | _ => []
@@ -1599,7 +1599,7 @@ module BaseDropdown = {
 
     let (dropDowntext, leftIcon: Button.iconType, iconStroke) = allowMultiSelect
       ? (buttonText, defaultLeftIcon, "")
-      : switch newInputRadio.value->Js.Json.decodeString {
+      : switch newInputRadio.value->JSON.Decode.string {
         | Some(str) =>
           switch transformedOptions->Array.find(x => x.value === str) {
           | Some(x) => (x.label, x.icon, x.iconStroke)
@@ -1613,13 +1613,13 @@ module BaseDropdown = {
       | Some(dropDownDirection) => dropDownDirection
       | None =>
         selectBoxRef.current
-        ->Js.Nullable.toOption
+        ->Nullable.toOption
         ->Option.flatMap(elem => elem->getClientRects->toDict->Dict.get("0"))
         ->Option.flatMap(firstEl => {
-          let bottomVacent = Window.innerHeight - firstEl["bottom"]->Belt.Float.toInt > 375
-          let topVacent = firstEl["top"]->Belt.Float.toInt > 470
-          let rightVacent = Window.innerWidth - firstEl["left"]->Belt.Float.toInt > 270
-          let leftVacent = firstEl["right"]->Belt.Float.toInt > 270
+          let bottomVacent = Window.innerHeight - firstEl["bottom"]->Float.toInt > 375
+          let topVacent = firstEl["top"]->Float.toInt > 470
+          let rightVacent = Window.innerWidth - firstEl["left"]->Float.toInt > 270
+          let leftVacent = firstEl["right"]->Float.toInt > 270
 
           if bottomVacent {
             rightVacent ? BottomRight : leftVacent ? BottomLeft : BottomMiddle
@@ -1656,28 +1656,26 @@ module BaseDropdown = {
     }
 
     let allSellectedOptions = React.useMemo2(() => {
-      open Belt.Option
       newInputSelect.value
-      ->Js.Json.decodeArray
-      ->getWithDefault([])
-      ->Belt.Array.keepMap(Js.Json.decodeString)
+      ->JSON.Decode.array
+      ->Option.getOr([])
+      ->Belt.Array.keepMap(JSON.Decode.string)
       ->Belt.Array.keepMap(str => {
-        transformedOptions->Array.find(x => x.value == str)->map(x => x.label)
+        transformedOptions->Array.find(x => x.value == str)->Option.map(x => x.label)
       })
       ->Array.joinWith(", ")
       ->LogicUtils.getNonEmptyString
-      ->getWithDefault(buttonText)
+      ->Option.getOr(buttonText)
     }, (transformedOptions, newInputSelect.value))
 
     let title = showAllSelectedOptions ? allSellectedOptions : buttonText
 
     let badgeForSelect = React.useMemo1((): Button.badge => {
-      open Belt.Option
-      let count = newInputSelect.value->Js.Json.decodeArray->getWithDefault([])->Array.length
+      let count = newInputSelect.value->JSON.Decode.array->Option.getOr([])->Array.length
       let condition = count > 1
 
       {
-        value: count->Belt.Int.toString,
+        value: count->Int.toString,
         color: condition ? BadgeBlue : NoBadge,
       }
     }, [newInputSelect.value])
@@ -1836,7 +1834,7 @@ module BaseDropdown = {
                           ellipsisOnly={ellipsisOnly || !showSelectionAsChips}
                           badge={!showSelectionAsChips
                             ? badgeForSelect
-                            : {value: 0->Belt.Int.toString, color: NoBadge}}
+                            : {value: 0->Int.toString, color: NoBadge}}
                           rightIcon={CustomIcon(buttonIcon)}
                           buttonState={disableSelect ? Disabled : Normal}
                           fullLength
@@ -1857,7 +1855,7 @@ module BaseDropdown = {
                     </AddDataAttributes>
                   if (
                     showToolTip &&
-                    newInputSelect.value !== ""->Js.Json.string &&
+                    newInputSelect.value !== ""->JSON.Encode.string &&
                     !showDropDown &&
                     showNameAsToolTip
                   ) {
@@ -1918,7 +1916,7 @@ module BaseDropdown = {
         }}
       </div>
       {if allowMultiSelect && !hideMultiSelectButtons && showSelectionAsChips {
-        switch newInputSelect.value->Js.Json.decodeArray {
+        switch newInputSelect.value->JSON.Decode.array {
         | Some(jsonArr) =>
           jsonArr
           ->LogicUtils.getStrArrayFromJsonArray
@@ -1974,7 +1972,7 @@ module InfraSelectBox = {
     let newInputSelect = input->ffInputToSelectInput
     let values = newInputSelect.value
     let saneValue = React.useMemo1(() =>
-      switch values->Js.Json.decodeArray {
+      switch values->JSON.Decode.array {
       | Some(jsonArr) => jsonArr->LogicUtils.getStrArrayFromJsonArray
       | _ => []
       }

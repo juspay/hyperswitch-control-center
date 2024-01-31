@@ -63,7 +63,7 @@ module MenuOption = {
     <Popover \"as"="div" className="relative inline-block text-left">
       {popoverProps => <>
         <Popover.Button> {buttonProps => <Icon name="menu-option" size=28 />} </Popover.Button>
-        <Popover.Panel className="absolute z-20 right-0">
+        <Popover.Panel className="absolute z-20 right-5 top-4">
           {panelProps => {
             <div
               id="neglectTopbarTheme"
@@ -91,6 +91,7 @@ module MenuOption = {
     </Popover>
   }
 }
+
 module ConnectorSummaryGrid = {
   open PageLoaderWrapper
   @react.component
@@ -123,14 +124,14 @@ module ConnectorSummaryGrid = {
           setScreenState(_ => Success)
           dict
         } else {
-          Dict.make()->Js.Json.object_
+          Dict.make()->JSON.Encode.object
         }
       } catch {
       | Js.Exn.Error(e) => {
           Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
           let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
           setScreenState(_ => PageLoaderWrapper.Error(err))
-          Dict.make()->Js.Json.object_
+          Dict.make()->JSON.Encode.object
         }
       }
     }, [connector])
@@ -220,17 +221,22 @@ let make = (
   ~isUpdateFlow,
   ~isPayoutFlow,
   ~showMenuOption=true,
+  ~setInitialValues,
+  ~getPayPalStatus,
 ) => {
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   open APIUtils
+  open ConnectorUtils
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let {setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let connectorInfoDict = connectorInfo->LogicUtils.getDictFromJsonObject
   let connectorInfo =
     connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorTableUtils.getProcessorPayloadType
+
   let connectorCount = ListHooks.useListCount(~entityName=CONNECTOR)
   let isFeedbackModalToBeOpen =
     featureFlagDetails.feedback &&
@@ -250,7 +256,7 @@ let make = (
         isConnectorDisabled,
       )
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
-      let _ = await updateDetails(url, disableConnectorPayload->Js.Json.object_, Post, ())
+      let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post, ())
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
       RescriptReactRouter.push("/connectors")
     } catch {
@@ -277,15 +283,32 @@ let make = (
           </h2>
         </div>
         <div className="self-center">
-          {switch currentStep {
-          | Preview =>
+          {switch (currentStep, connector->getConnectorNameTypeFromString, connectorInfo.status) {
+          | (Preview, PAYPAL, "inactive") =>
+            <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
+          | (Preview, _, _) =>
             <div className="flex gap-6 items-center">
               <div
                 className={`px-4 py-2 rounded-full w-fit font-medium text-sm !text-black ${isConnectorDisabled->connectorStatusStyle}`}>
                 {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
               </div>
-              <UIUtils.RenderIf condition={showMenuOption}>
+              <UIUtils.RenderIf
+                condition={showMenuOption &&
+                !(connector->getConnectorNameTypeFromString === PAYPAL)}>
                 <MenuOption setCurrentStep disableConnector isConnectorDisabled />
+              </UIUtils.RenderIf>
+              <UIUtils.RenderIf
+                condition={showMenuOption && connector->getConnectorNameTypeFromString === PAYPAL}>
+                <MenuOptionForPayPal
+                  setCurrentStep
+                  disableConnector
+                  isConnectorDisabled
+                  updateStepValue={ConnectorTypes.PaymentMethods}
+                  connectorInfoDict
+                  setScreenState
+                  isUpdateFlow
+                  setInitialValues
+                />
               </UIUtils.RenderIf>
             </div>
 

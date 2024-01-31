@@ -31,7 +31,7 @@ module DetailsSection = {
           let merchantName = merchantInfo->LogicUtils.getString(field.name, "Not Added")
           let defaultText = merchantName->String.length > 0 ? merchantName : "Not Added"
 
-          <div key={index->Belt.Int.toString}>
+          <div key={index->Int.toString}>
             {switch formState {
             | Preview => <InfoOnlyView heading={field.label} subHeading={defaultText} />
             | Edit =>
@@ -88,7 +88,7 @@ let make = () => {
       | None => setFetchState(_ => Error("Something went wrong!"))
       }
     }
-    Js.Nullable.null
+    Nullable.null
   }
   let fetchMerchantInfo = async () => {
     let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
@@ -128,14 +128,14 @@ let make = () => {
       />
       <Form
         onSubmit
-        initialValues={merchantInfo->Js.Json.object_}
+        initialValues={merchantInfo->JSON.Encode.object}
         validate={values => {
           open HSwitchSettingTypes
           validateMerchantAccountForm(
             ~values,
             ~fieldsToValidate=[PrimaryPhone, PrimaryEmail, Website, SecondaryEmail, SecondaryPhone],
             ~setIsDisabled=Some(setIsDisabled),
-            ~initialData={merchantInfo->Js.Json.object_},
+            ~initialData={merchantInfo->JSON.Encode.object},
           )
         }}>
         <div

@@ -331,7 +331,7 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
   open FRMInfo
   open FRMUtils
   open LogicUtils
-  let initialValues = retrivedValues->Option.getOr(Dict.make()->Js.Json.object_)
+  let initialValues = retrivedValues->Option.getOr(Dict.make()->JSON.Encode.object)
 
   let onSubmit = (values, _) => {
     open Promise
@@ -345,15 +345,15 @@ let make = (~setCurrentStep, ~retrivedValues=None, ~setInitialValues, ~isUpdateF
       ->Array.filter(config => config.payment_methods->Array.length > 0)
 
     valuesDict->Dict.set("frm_configs", filteredArray->Identity.genericTypeToJson)
-    setInitialValues(_ => valuesDict->Js.Json.object_)
+    setInitialValues(_ => valuesDict->JSON.Encode.object)
     setCurrentStep(prev => prev->getNextStep)
 
-    Js.Nullable.null->resolve
+    Nullable.null->resolve
   }
 
   let validate = _values => {
     let errors = Dict.make()
-    errors->Js.Json.object_
+    errors->JSON.Encode.object
   }
 
   <Form initialValues onSubmit validate>

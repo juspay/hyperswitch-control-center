@@ -19,7 +19,7 @@ module RefundInfo = {
         customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-5`}>
         <div className="flex items-center">
           <div className="font-bold text-4xl m-3">
-            {`${(data.amount /. 100.00)->Belt.Float.toString} ${data.currency} `->React.string}
+            {`${(data.amount /. 100.00)->Float.toString} ${data.currency} `->React.string}
           </div>
           {getStatus(data)}
         </div>
@@ -29,7 +29,7 @@ module RefundInfo = {
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
               if !(excludeColKeys->Array.includes(colType)) {
-                <div className={`flex ${widthClass} items-center`} key={Belt.Int.toString(i)}>
+                <div className={`flex ${widthClass} items-center`} key={Int.toString(i)}>
                   <DisplayKeyValueParams
                     heading={getHeading(colType)}
                     value={getCell(data, colType)}
@@ -91,8 +91,8 @@ let make = (~id) => {
   React.useEffect1(() => {
     let jsonArray = [orderDataForPaymentId]
     let paymentArray =
-      jsonArray->Js.Json.array->LogicUtils.getArrayDataFromJson(OrderEntity.itemToObjMapper)
-    setOrdersData(_ => paymentArray->Array.map(Js.Nullable.return))
+      jsonArray->JSON.Encode.array->LogicUtils.getArrayDataFromJson(OrderEntity.itemToObjMapper)
+    setOrdersData(_ => paymentArray->Array.map(Nullable.make))
     None
   }, [orderDataForPaymentId])
 

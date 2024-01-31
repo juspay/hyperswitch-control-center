@@ -1,4 +1,4 @@
-external toJson: Js.Nullable.t<'a> => Js.Json.t = "%identity"
+external toJson: Nullable.t<'a> => JSON.t = "%identity"
 open DynamicTableUtils
 open NewThemeUtils
 type sortTyp = ASC | DSC
@@ -9,8 +9,8 @@ type sortOb = {
 
 type checkBoxProps = {
   showCheckBox: bool,
-  selectedData: Js.Array2.t<Js.Json.t>,
-  setSelectedData: (Js.Array2.t<Js.Json.t> => Js.Array2.t<Js.Json.t>) => unit,
+  selectedData: array<JSON.t>,
+  setSelectedData: (array<JSON.t> => array<JSON.t>) => unit,
 }
 
 let checkBoxPropDefaultVal: checkBoxProps = {
@@ -73,38 +73,37 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
   let getValue = val => {
     switch val {
     | Some(x) =>
-      switch x->Js.Json.classify {
-      | JSONString(str) => str->String.toLowerCase->Js.Json.string
-      | JSONNumber(_num) => x
-      | JSONFalse => "false"->Js.Json.string
-      | JSONTrue => "true"->Js.Json.string
-      | _ => ""->Js.Json.string
+      switch x->JSON.Classify.classify {
+      | String(str) => str->String.toLowerCase->JSON.Encode.string
+      | Number(_num) => x
+      | Bool(val) => val ? "true"->JSON.Encode.string : "false"->JSON.Encode.string
+      | _ => ""->JSON.Encode.string
       }
-    | None => ""->Js.Json.string
+    | None => ""->JSON.Encode.string
     }
   }
   let sortedArrayByOrder = {
     let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
-      let item1 = i1->Js.Json.stringifyAny->Option.getOr("")->LogicUtils.safeParse
-      let item2 = i2->Js.Json.stringifyAny->Option.getOr("")->LogicUtils.safeParse
+      let item1 = i1->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
+      let item2 = i2->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       // flatten items and get data
 
       let val1 =
         JsonFlattenUtils.flattenObject(item1, true)
-        ->Js.Json.object_
-        ->Js.Json.decodeObject
+        ->JSON.Encode.object
+        ->JSON.Decode.object
         ->Option.flatMap(dict => dict->Dict.get(key))
       let val2 =
         JsonFlattenUtils.flattenObject(item2, true)
-        ->Js.Json.object_
-        ->Js.Json.decodeObject
+        ->JSON.Encode.object
+        ->JSON.Decode.object
         ->Option.flatMap(dict => dict->Dict.get(key))
       let value1 = getValue(val1)
       let value2 = getValue(val2)
-      if value1 === ""->Js.Json.string || value2 === ""->Js.Json.string {
+      if value1 === ""->JSON.Encode.string || value2 === ""->JSON.Encode.string {
         if value1 === value2 {
           0
-        } else if value2 === ""->Js.Json.string {
+        } else if value2 === ""->JSON.Encode.string {
           sortOrder === DEC ? 1 : -1
         } else if sortOrder === DEC {
           -1
@@ -176,7 +175,7 @@ let make = (
   ~advancedSearchComponent=?,
   ~setData=?,
   ~setSummary=?,
-  ~customGetObjects: option<Js.Json.t => array<'a>>=?,
+  ~customGetObjects: option<JSON.t => array<'a>>=?,
   ~dataNotFoundComponent=?,
   ~renderCard=?,
   ~tableLocalFilter=false,
@@ -277,7 +276,7 @@ let make = (
     setFirstRender(_ => false)
     setOffset(_ => pageDetail.offset)
     None
-  }, [url.path->Belt.List.toArray->Array.joinWith("/")])
+  }, [url.path->List.toArray->Array.joinWith("/")])
 
   React.useEffect1(_ => {
     if pageDetail.offset !== offset && !firstRender {
@@ -320,7 +319,7 @@ let make = (
   let localResultsPerPage = pageDetail.resultsPerPage
 
   let setColumnFilter = React.useMemo1(() => {
-    (filterKey, filterValue: array<Js.Json.t>) => {
+    (filterKey, filterValue: array<JSON.t>) => {
       setColumnFilterOrig(oldFitlers => {
         let newObj = oldFitlers->Dict.toArray->Dict.fromArray
         let filterValue = filterValue->Array.filter(
@@ -455,7 +454,7 @@ let make = (
           ->filteredData(columnFilterCopy, visibleColumns, entity, dateFormatConvertor)
           ->Array.forEach(
             rows => {
-              switch rows->Js.Nullable.toOption {
+              switch rows->Nullable.toOption {
               | Some(rows) =>
                 let value = switch entity.getCell(rows, item) {
                 | CustomCell(_, str)
@@ -485,7 +484,7 @@ let make = (
           | LabelType | TextType => Table.TextFilter(key)
           | MoneyType | NumericType | ProgressType => {
               let newArr =
-                filterValueArray->Array.map(item => item->Js.Json.decodeNumber->Option.getOr(0.))
+                filterValueArray->Array.map(item => item->JSON.Decode.float->Option.getOr(0.))
 
               if newArr->Array.length >= 1 {
                 Table.Range(key, Js.Math.minMany_float(newArr), Js.Math.maxMany_float(newArr))
@@ -499,7 +498,7 @@ let make = (
       Some(
         showSerialNumber && tableLocalFilter
           ? Array.concat(
-              [Table.Range("s_no", 0., actualData->Array.length->Belt.Int.toFloat)],
+              [Table.Range("s_no", 0., actualData->Array.length->Int.toFloat)],
               columnFilterRow,
             )
           : columnFilterRow,
@@ -559,7 +558,7 @@ let make = (
   let sNoArr = Dict.get(columnFilter, "s_no")->Option.getOr([])
   // filtering for SNO
   let nullableRows = filteredData->Array.mapWithIndex((nullableItem, index) => {
-    let actualRows = switch nullableItem->Js.Nullable.toOption {
+    let actualRows = switch nullableItem->Nullable.toOption {
     | Some(item) => {
         let visibleCell =
           visibleColumns
@@ -567,9 +566,9 @@ let make = (
           ->Array.map(colType => {
             entity.getCell(item, colType)
           })
-        let startPoint = sNoArr->Array.get(0)->Option.getOr(1.->Js.Json.number)
-        let endPoint = sNoArr->Array.get(1)->Option.getOr(1.->Js.Json.number)
-        let jsonIndex = (index + 1)->Belt.Int.toFloat->Js.Json.number
+        let startPoint = sNoArr->Array.get(0)->Option.getOr(1.->JSON.Encode.float)
+        let endPoint = sNoArr->Array.get(1)->Option.getOr(1.->JSON.Encode.float)
+        let jsonIndex = (index + 1)->Int.toFloat->JSON.Encode.float
         sNoArr->Array.length > 0
           ? {
               startPoint <= jsonIndex && endPoint >= jsonIndex ? visibleCell : []
@@ -595,9 +594,9 @@ let make = (
         actualRows
         ->Array.unshift(
           Numeric(
-            (1 + index)->Belt.Int.toFloat,
+            (1 + index)->Int.toFloat,
             (val: float) => {
-              val->Belt.Float.toString
+              val->Float.toString
             },
           ),
         )
@@ -658,7 +657,7 @@ let make = (
 
   let handleRowClick = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
-    | Some(ele) => ele->Js.Nullable.toOption
+    | Some(ele) => ele->Nullable.toOption
     | None => None
     }
     switch actualVal {
@@ -682,7 +681,7 @@ let make = (
 
   let onRowDoubleClick = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
-    | Some(ele) => ele->Js.Nullable.toOption
+    | Some(ele) => ele->Nullable.toOption
     | None => None
     }
     switch actualVal {
@@ -706,7 +705,7 @@ let make = (
 
   let handleMouseEnter = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
-    | Some(ele) => ele->Js.Nullable.toOption
+    | Some(ele) => ele->Nullable.toOption
     | None => None
     }
     switch actualVal {
@@ -721,7 +720,7 @@ let make = (
 
   let handleMouseLeaeve = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
-    | Some(ele) => ele->Js.Nullable.toOption
+    | Some(ele) => ele->Nullable.toOption
     | None => None
     }
     switch actualVal {
@@ -843,7 +842,7 @@ let make = (
           | Some(renderer) =>
             <div className="overflow-auto flex flex-col">
               {paginatedData
-              ->Belt.Array.keepMap(Js.Nullable.toOption)
+              ->Belt.Array.keepMap(Nullable.toOption)
               ->Array.mapWithIndex((item, rowIndex) => {
                 renderer(~index={rowIndex + offset}, ~item, ~onRowClick=handleRowClick)
               })
@@ -890,7 +889,6 @@ let make = (
       | None =>
         <UIUtils.RenderIf condition={searchFields->Array.length > 0}>
           <AdvancedSearchModal searchFields url=searchUrl entity />
-          // <PaymentLinkAdvancedSearch searchFields url=searchUrl />
         </UIUtils.RenderIf>
       }}
       <DesktopView>
@@ -926,7 +924,6 @@ let make = (
     <div className="w-full">
       <div className=addDataAttributesClass style={ReactDOMStyle.make(~zIndex="2", ())}>
         //removed "sticky" -> to be tested with master
-
         <div
           className={`flex flex-row justify-between items-center` ++ (
             hideTitle ? "" : ` mt-4 mb-2`

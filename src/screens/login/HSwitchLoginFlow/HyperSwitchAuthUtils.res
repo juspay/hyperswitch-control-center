@@ -81,57 +81,57 @@ let passwordField = FormRenderer.makeFieldInfo(
 )
 
 let getResetpasswordBodyJson = (password, token) =>
-  [("password", password->Js.Json.string), ("token", token->Js.Json.string)]
+  [("password", password->JSON.Encode.string), ("token", token->JSON.Encode.string)]
   ->Dict.fromArray
-  ->Js.Json.object_
+  ->JSON.Encode.object
 
 let getEmailPasswordBody = (email, password, country) =>
   [
-    ("email", email->Js.Json.string),
-    ("password", password->Js.Json.string),
-    ("country", country->Js.Json.string),
+    ("email", email->JSON.Encode.string),
+    ("password", password->JSON.Encode.string),
+    ("country", country->JSON.Encode.string),
   ]
   ->Dict.fromArray
-  ->Js.Json.object_
+  ->JSON.Encode.object
 
 let getEmailBody = (email, ~country=?, ()) => {
-  let fields = [("email", email->Js.Json.string)]
+  let fields = [("email", email->JSON.Encode.string)]
 
   switch country {
-  | Some(value) => fields->Array.push(("country", value->Js.Json.string))->ignore
+  | Some(value) => fields->Array.push(("country", value->JSON.Encode.string))->ignore
   | _ => ()
   }
 
-  fields->Dict.fromArray->Js.Json.object_
+  fields->Dict.fromArray->JSON.Encode.object
 }
 
 let parseResponseJson = (~json, ~email) => {
   open HSwitchUtils
   open LogicUtils
-  let valuesDict = json->Js.Json.decodeObject->Option.getOr(Dict.make())
+  let valuesDict = json->JSON.Decode.object->Option.getOr(Dict.make())
 
   // * Setting all local storage values
   setMerchantDetails(
     "merchant_id",
-    valuesDict->LogicUtils.getString("merchant_id", "")->Js.Json.string,
+    valuesDict->LogicUtils.getString("merchant_id", "")->JSON.Encode.string,
   )
-  setMerchantDetails("email", email->Js.Json.string)
-  setUserDetails("name", valuesDict->getString("name", "")->Js.Json.string)
-  setUserDetails("user_role", valuesDict->getString("user_role", "")->Js.Json.string)
+  setMerchantDetails("email", email->JSON.Encode.string)
+  setUserDetails("name", valuesDict->getString("name", "")->JSON.Encode.string)
+  setUserDetails("user_role", valuesDict->getString("user_role", "")->JSON.Encode.string)
   // setUserDetails(
   //   "is_metadata_filled",
-  // "true"->Js.Json.string
-  //     ? "true"->Js.Json.string
-  //     : valuesDict->getBool("is_metadata_filled", true)->getStringFromBool->Js.Json.string,
+  // "true"->JSON.Encode.string
+  //     ? "true"->JSON.Encode.string
+  //     : valuesDict->getBool("is_metadata_filled", true)->getStringFromBool->JSON.Encode.string,
   // )
 
   let verificationValue = valuesDict->getOptionInt("verification_days_left")->Option.getOr(-1)
 
-  setMerchantDetails("verification", verificationValue->Belt.Int.toString->Js.Json.string)
+  setMerchantDetails("verification", verificationValue->Int.toString->JSON.Encode.string)
   valuesDict->getString("token", "")
 }
 
-let validateForm = (values: Js.Json.t, keys: array<string>) => {
+let validateForm = (values: JSON.t, keys: array<string>) => {
   let valuesDict = values->LogicUtils.getDictFromJsonObject
 
   let errors = Dict.make()
@@ -141,19 +141,23 @@ let validateForm = (values: Js.Json.t, keys: array<string>) => {
     // empty check
     if value == "" {
       switch key {
-      | "email" => Dict.set(errors, key, "Please enter your Email ID"->Js.Json.string)
-      | "password" => Dict.set(errors, key, "Please enter your Password"->Js.Json.string)
-      | "create_password" => Dict.set(errors, key, "Please enter your Password"->Js.Json.string)
+      | "email" => Dict.set(errors, key, "Please enter your Email ID"->JSON.Encode.string)
+      | "password" => Dict.set(errors, key, "Please enter your Password"->JSON.Encode.string)
+      | "create_password" => Dict.set(errors, key, "Please enter your Password"->JSON.Encode.string)
       | "comfirm_password" =>
-        Dict.set(errors, key, "Please enter your Password Once Again"->Js.Json.string)
+        Dict.set(errors, key, "Please enter your Password Once Again"->JSON.Encode.string)
       | _ =>
-        Dict.set(errors, key, `${key->LogicUtils.capitalizeString} cannot be empty`->Js.Json.string)
+        Dict.set(
+          errors,
+          key,
+          `${key->LogicUtils.capitalizeString} cannot be empty`->JSON.Encode.string,
+        )
       }
     }
 
     // email check
     if value !== "" && key === "email" && value->HSwitchUtils.isValidEmail {
-      Dict.set(errors, key, "Please enter valid Email ID"->Js.Json.string)
+      Dict.set(errors, key, "Please enter valid Email ID"->JSON.Encode.string)
     }
 
     // password check
@@ -170,7 +174,7 @@ let validateForm = (values: Js.Json.t, keys: array<string>) => {
     )
   })
 
-  errors->Js.Json.object_
+  errors->JSON.Encode.object
 }
 
 let note = (authType, setAuthType, isMagicLinkEnabled) => {
@@ -343,7 +347,7 @@ module Header = {
         <div
           onClick={_ => {
             form.resetFieldState("email")
-            form.reset(Js.Json.object_(Dict.make())->Js.Nullable.return)
+            form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
             setAuthType(_ => authType)
             path->RescriptReactRouter.push
           }}
@@ -420,12 +424,12 @@ let errorMapper = dict => {
 let parseErrorMessage = errorMessage => {
   let parsedValue = switch Js.Exn.message(errorMessage) {
   | Some(msg) => msg->LogicUtils.safeParse
-  | None => Js.Json.null
+  | None => JSON.Encode.null
   }
 
-  switch Js.Json.classify(parsedValue) {
-  | JSONObject(obj) => obj->errorMapper
-  | JSONString(_str) => Dict.make()->errorMapper
+  switch JSON.Classify.classify(parsedValue) {
+  | Object(obj) => obj->errorMapper
+  | String(_str) => Dict.make()->errorMapper
   | _ => Dict.make()->errorMapper
   }
 }

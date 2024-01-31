@@ -1,11 +1,11 @@
 let getInfoFromLocalStorage = (~lStorageKey) => {
-  let stringifiedJson = LocalStorage.getItem(lStorageKey)->Js.Nullable.toOption->Option.getOr("")
+  let stringifiedJson = LocalStorage.getItem(lStorageKey)->Nullable.toOption->Option.getOr("")
 
   stringifiedJson->LogicUtils.safeParse->LogicUtils.getDictFromJsonObject
 }
 
 let getBooleanFromLocalStorage = (~key) => {
-  let stringifiedJson = LocalStorage.getItem(key)->Js.Nullable.toOption->Option.getOr("")
+  let stringifiedJson = LocalStorage.getItem(key)->Nullable.toOption->Option.getOr("")
 
   stringifiedJson->LogicUtils.safeParse->LogicUtils.getBoolFromJson(false)
 }
@@ -23,5 +23,5 @@ let getIsPlaygroundFromLocalStorage = () => {
 }
 
 let setIsPlaygroundInLocalStorage = (val: bool) => {
-  LocalStorage.setItem("isPlayground", val->Js.Json.boolean->Js.Json.stringify)
+  LocalStorage.setItem("isPlayground", val->JSON.Encode.bool->JSON.stringify)
 }

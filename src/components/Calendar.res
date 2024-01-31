@@ -163,7 +163,7 @@ module TableRow = {
             )
 
             let renderingDate = (
-              getDate([Belt.Float.toString(year), Belt.Float.toString(month +. 1.0), obj])
+              getDate([Float.toString(year), Float.toString(month +. 1.0), obj])
               ->Js.Date.toString
               ->DayJs.getDayJsForString
             ).format(. "YYYY-MM-DD")
@@ -223,8 +223,8 @@ module TableRow = {
                 startDate,
                 endDate,
                 obj,
-                Belt.Float.toString(month +. 1.0),
-                Belt.Float.toString(year),
+                Float.toString(month +. 1.0),
+                Float.toString(year),
               )
             }
             let handleHover = () => {
@@ -313,7 +313,7 @@ let make = (
   let months = [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
   let heading = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
   let isMobileView = MatchMedia.useMobileChecker()
-  let getMonthInFloat = mon => Array.indexOf(months, mon)->Belt.Float.fromInt
+  let getMonthInFloat = mon => Array.indexOf(months, mon)->Float.fromInt
   let getMonthInStr = mon => {
     switch mon {
     | Jan => "January, "
@@ -332,7 +332,7 @@ let make = (
   }
   // get first day
   let firstDay = Js.Date.getDay(
-    Js.Date.makeWithYM(~year=Belt.Int.toFloat(year), ~month=getMonthInFloat(month), ()),
+    Js.Date.makeWithYM(~year=Int.toFloat(year), ~month=getMonthInFloat(month), ()),
   )
   // get Days in month
   let daysInMonth = switch month {
@@ -355,15 +355,15 @@ let make = (
 
   let rowMapper = (row, indexRow) => {
     Array.mapWithIndex(row, (_item, index) => {
-      let subFactor = Belt.Float.toInt(firstDay)
-      if indexRow == 0 && index < Belt.Float.toInt(firstDay) {
+      let subFactor = Float.toInt(firstDay)
+      if indexRow == 0 && index < Float.toInt(firstDay) {
         ""
       } else if indexRow == 0 {
-        Belt.Int.toString(indexRow + (index + 1) - subFactor)
+        Int.toString(indexRow + (index + 1) - subFactor)
       } else if indexRow * 7 + (index + 1) - subFactor > daysInMonth {
         ""
       } else {
-        Belt.Int.toString(indexRow * 7 + (index + 1) - subFactor)
+        Int.toString(indexRow * 7 + (index + 1) - subFactor)
       }
     })
   }
@@ -374,7 +374,7 @@ let make = (
       ? {
           <h3 className="text-center font-bold text-lg text-gray-500 ">
             {React.string(month->getMonthInStr)}
-            <span className="font-fira-code"> {React.string(year->Belt.Int.toString)} </span>
+            <span className="font-fira-code"> {React.string(year->Int.toString)} </span>
           </h3>
         }
       : {
@@ -412,7 +412,7 @@ let make = (
             ?cellHighlighter
             ?cellRenderer
             month={getMonthInFloat(month)}
-            year={Belt.Int.toFloat(year)}
+            year={Int.toFloat(year)}
             startDate
             endDate
             disablePastDates

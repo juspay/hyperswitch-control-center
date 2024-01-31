@@ -6,8 +6,7 @@ module ClearForm = {
     let form = ReactFinalForm.useForm()
     <div className="ml-2">
       <Button
-        text="Clear Form"
-        onClick={e => form.reset(Js.Json.object_(Dict.make())->Js.Nullable.return)}
+        text="Clear Form" onClick={e => form.reset(JSON.Encode.object(Dict.make())->Nullable.make)}
       />
     </div>
   }
@@ -34,7 +33,7 @@ module ModalUI = {
             buttonType=SecondaryFilled
             buttonSize=Small
             onClick={_ev => {
-              form.reset(initialValueJson->Js.Nullable.return)
+              form.reset(initialValueJson->Nullable.make)
               setShowModal(_ => false)
             }}
           />
@@ -50,7 +49,7 @@ module ModalUI = {
       childClass="p-2 m-2"
       modalClass="w-full md:w-2/3 mx-auto mt-0"
       onCloseClickCustomFun={_ev => {
-        form.reset(initialValueJson->Js.Nullable.return)
+        form.reset(initialValueJson->Nullable.make)
         setShowModal(_ => false)
       }}
       modalFooter=footerUi>
@@ -123,7 +122,7 @@ module ClearFilters = {
     let leftIcon: Button.iconType = CustomIcon(<Icon name="clear_filter_img" size=14 />)
 
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values", "initialValues"])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values", "initialValues"])->Nullable.make,
     )
 
     let handleClearFilter = switch clearFilters {
@@ -137,17 +136,17 @@ module ClearFilters = {
       _ => {
         let searchStr =
           formState.values
-          ->Js.Json.decodeObject
+          ->JSON.Decode.object
           ->Option.getOr(Dict.make())
           ->Dict.toArray
           ->Belt.Array.keepMap(entry => {
             let (key, value) = entry
             switch defaultFilterKeys->Array.includes(key) {
             | true =>
-              switch value->Js.Json.classify {
-              | JSONString(str) => `${key}=${str}`->Some
-              | JSONNumber(num) => `${key}=${num->String.make}`->Some
-              | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
+              switch value->JSON.Classify.classify {
+              | String(str) => `${key}=${str}`->Some
+              | Number(num) => `${key}=${num->String.make}`->Some
+              | Array(arr) => `${key}=[${arr->String.make}]`->Some
               | _ => None
               }
             | false => None
@@ -161,15 +160,15 @@ module ClearFilters = {
 
     let hasExtraFilters = React.useMemo2(() => {
       formState.initialValues
-      ->Js.Json.decodeObject
+      ->JSON.Decode.object
       ->Option.getOr(Dict.make())
       ->Dict.toArray
       ->Array.filter(entry => {
         let (key, value) = entry
-        let isEmptyValue = switch value->Js.Json.classify {
-        | JSONString(str) => str === ""
-        | JSONArray(arr) => arr->Array.length === 0
-        | JSONNull => true
+        let isEmptyValue = switch value->JSON.Classify.classify {
+        | String(str) => str === ""
+        | Array(arr) => arr->Array.length === 0
+        | Null => true
         | _ => false
         }
 
@@ -177,7 +176,7 @@ module ClearFilters = {
       })
       ->Array.length > 0
     }, (formState.initialValues, defaultFilterKeys))
-    let text = isCountRequired ? `Clear ${count->Belt.Int.toString} Filters` : "Clear Filters"
+    let text = isCountRequired ? `Clear ${count->Int.toString} Filters` : "Clear Filters"
     <UIUtils.RenderIf condition={hasExtraFilters || outsidefilter}>
       <div className={`${filterButtonStyle} ${outerClass}`}>
         <Button
@@ -193,7 +192,7 @@ module AnalyticsClearFilters = {
   let make = (~defaultFilterKeys=[], ~clearFilters=?, ~outsidefilter=false) => {
     let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values", "initialValues"])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values", "initialValues"])->Nullable.make,
     )
 
     let handleClearFilter = switch clearFilters {
@@ -207,17 +206,17 @@ module AnalyticsClearFilters = {
       _ => {
         let searchStr =
           formState.values
-          ->Js.Json.decodeObject
+          ->JSON.Decode.object
           ->Option.getOr(Dict.make())
           ->Dict.toArray
           ->Belt.Array.keepMap(entry => {
             let (key, value) = entry
             switch defaultFilterKeys->Array.includes(key) {
             | true =>
-              switch value->Js.Json.classify {
-              | JSONString(str) => `${key}=${str}`->Some
-              | JSONNumber(num) => `${key}=${num->String.make}`->Some
-              | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
+              switch value->JSON.Classify.classify {
+              | String(str) => `${key}=${str}`->Some
+              | Number(num) => `${key}=${num->String.make}`->Some
+              | Array(arr) => `${key}=[${arr->String.make}]`->Some
               | _ => None
               }
             | false => None
@@ -231,15 +230,15 @@ module AnalyticsClearFilters = {
 
     let hasExtraFilters = React.useMemo2(() => {
       formState.initialValues
-      ->Js.Json.decodeObject
+      ->JSON.Decode.object
       ->Option.getOr(Dict.make())
       ->Dict.toArray
       ->Array.filter(entry => {
         let (key, value) = entry
-        let isEmptyValue = switch value->Js.Json.classify {
-        | JSONString(str) => str === ""
-        | JSONArray(arr) => arr->Array.length === 0
-        | JSONNull => true
+        let isEmptyValue = switch value->JSON.Classify.classify {
+        | String(str) => str === ""
+        | Array(arr) => arr->Array.length === 0
+        | Null => true
         | _ => false
         }
 
@@ -273,7 +272,7 @@ module CheckCustomFilters = {
     ~showSelectFiltersSearch,
   ) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let values = formState.values
 
@@ -306,7 +305,7 @@ module CheckCustomFilters = {
             isDropDown=true
             hideMultiSelectButtons=true
             buttonType=Button.FilterAdd
-            value={checkedFilters->Js.Array.map(Js.Json.string, _)->Js.Json.array}
+            value={checkedFilters->Array.map(JSON.Encode.string)->JSON.Encode.array}
             searchable=showSelectFiltersSearch
           />
         </div>
@@ -323,7 +322,7 @@ module AutoSubmitter = {
   @react.component
   let make = (~showModal, ~autoApply, ~submit, ~defaultFilterKeys) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Nullable.make,
     )
 
     let values = formState.values
@@ -348,10 +347,10 @@ module AutoSubmitter = {
 }
 
 let getStrFromJson = (key, val) => {
-  switch val->Js.Json.classify {
-  | JSONString(str) => str
-  | JSONArray(array) => array->Array.length > 0 ? `[${array->Array.joinWithUnsafe(",")}]` : ""
-  | JSONNumber(num) => key === "offset" ? "0" : num->Belt.Float.toInt->string_of_int
+  switch val->JSON.Classify.classify {
+  | String(str) => str
+  | Array(array) => array->Array.length > 0 ? `[${array->Array.joinWithUnsafe(",")}]` : ""
+  | Number(num) => key === "offset" ? "0" : num->Float.toInt->string_of_int
   | _ => ""
   }
 }
@@ -377,11 +376,7 @@ module ApplyFilterButton = {
       ->Dict.fromArray
 
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription([
-        "values",
-        "dirtyFields",
-        "initialValues",
-      ])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values", "dirtyFields", "initialValues"])->Nullable.make,
     )
 
     let formCurrentValues =
@@ -426,11 +421,11 @@ module ApplyFilterButton = {
         ->Dict.toArray
         ->Array.reduce(true, (acc, item) => {
           let (_, value) = item
-          switch value->Js.Json.classify {
-          | JSONString(str) => str === ""
-          | JSONArray(arr) => arr->Array.length === 0
-          | JSONObject(dict) => dict->Dict.toArray->Array.length === 0
-          | JSONNull => true
+          switch value->JSON.Classify.classify {
+          | String(str) => str === ""
+          | Array(arr) => arr->Array.length === 0
+          | Object(dict) => dict->Dict.toArray->Array.length === 0
+          | Null => true
           | _ => false
           } &&
           acc
@@ -454,9 +449,9 @@ module ApplyFilterButton = {
 
 module FilterModal = {
   @react.component
-  let make = (~selectedFiltersList: Js.Array2.t<FormRenderer.fieldInfoType>, ~showAllFilter) => {
+  let make = (~selectedFiltersList: array<FormRenderer.fieldInfoType>, ~showAllFilter) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Nullable.make,
     )
 
     let formCurrentValues = formState.values->LogicUtils.getDictFromJsonObject
@@ -464,7 +459,7 @@ module FilterModal = {
       let selectedFiltersListWithVal = selectedFiltersList->Array.filter(item => {
         let inputName = item.inputNames->Array.get(0)->Option.getOr("")
         let selectedNo =
-          formCurrentValues->LogicUtils.getStrArray(inputName)->Array.length->Belt.Int.toString
+          formCurrentValues->LogicUtils.getStrArray(inputName)->Array.length->Int.toString
         selectedNo !== "0"
       })
       let selectedFiltersListWithoutVal = selectedFiltersList->Array.filter(item => {
@@ -479,7 +474,7 @@ module FilterModal = {
       ->Array.mapWithIndex((item, i) => {
         let inputName = item.inputNames->Array.get(0)->Option.getOr("")
         let selectedNo =
-          formCurrentValues->LogicUtils.getStrArray(inputName)->Array.length->Belt.Int.toString
+          formCurrentValues->LogicUtils.getStrArray(inputName)->Array.length->Int.toString
         let textcolor =
           selectedNo !== "0" ? "text-jp-2-light-gray-2000" : "text-jp-2-light-gray-1000"
         <UIUtils.RenderIf condition={showAllFilter || i < 10}>
@@ -565,7 +560,7 @@ let make = (
     ->Array.map(item => {
       item.inputNames->Array.get(0)->Option.getOr("")
     })
-    ->Js.Json.stringArray
+    ->LogicUtils.getJsonFromArrayOfString
   }, [selectedFiltersList])
 
   React.useEffect1(() => {
@@ -573,7 +568,7 @@ let make = (
       addConfig(alreadySelectedFiltersUserpref, updatedSelectedList)
     }
     None
-  }, [updatedSelectedList->Js.Json.stringify])
+  }, [updatedSelectedList->JSON.stringify])
 
   let getNewQuery = DateRefreshHooks.useConstructQueryOnBasisOfOpt()
   let (isButtonDisabled, setIsButtonDisabled) = React.useState(_ => false)
@@ -587,12 +582,10 @@ let make = (
 
   let isMobileView = MatchMedia.useMobileChecker()
 
-  let (initialValueJson, setInitialValueJson) = React.useState(_ => Js.Json.object_(Dict.make()))
+  let (initialValueJson, setInitialValueJson) = React.useState(_ => JSON.Encode.object(Dict.make()))
 
   let countSelectedFilters = React.useMemo1(() => {
-    Dict.keysToArray(
-      initialValueJson->Js.Json.decodeObject->Option.getOr(Dict.make()),
-    )->Array.length
+    Dict.keysToArray(initialValueJson->JSON.Decode.object->Option.getOr(Dict.make()))->Array.length
   }, [initialValueJson])
 
   let hideFiltersInit = switch hideFiltersDefaultValue {
@@ -645,7 +638,7 @@ let make = (
     | None => ()
     }
 
-    switch initialValues->Js.Json.decodeObject {
+    switch initialValues->JSON.Decode.object {
     | Some(dict) => {
         let localCheckedFilters = Array.map(checkedFilters, filter => {
           filter
@@ -682,7 +675,8 @@ let make = (
         setCount(_prev => clearFilterJson + initalCount)
         setCheckedFilters(_prev => localCheckedFilters)
         setSelectedFiltersList(_prev => localSelectedFiltersList)
-        let finalInitialValueJson = initialValues->JsonFlattenUtils.unflattenObject->Js.Json.object_
+        let finalInitialValueJson =
+          initialValues->JsonFlattenUtils.unflattenObject->JSON.Encode.object
         setInitialValueJson(_ => finalInitialValueJson)
       }
 
@@ -692,9 +686,9 @@ let make = (
   }, [searchParams])
 
   let onSubmit = (values, _) => {
-    let obj = values->Js.Json.decodeObject->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
+    let obj = values->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
 
-    let flattendDict = obj->Js.Json.object_->JsonFlattenUtils.flattenObject(false)
+    let flattendDict = obj->JSON.Encode.object->JsonFlattenUtils.flattenObject(false)
     let localFilterDict = localFilterJson->JsonFlattenUtils.flattenObject(false)
     switch updateUrlWith {
     | Some(updateUrlWith) =>
@@ -725,7 +719,7 @@ let make = (
     open Promise
     setShowFiltersModal(_ => false)
     setShowModal(_ => false)
-    Js.Nullable.null->resolve
+    Nullable.null->resolve
   }
 
   let addFilters = newlyAdded => {
@@ -750,7 +744,7 @@ let make = (
 
   let removeFilters = (fieldNameArr, values) => {
     let toBeRemoved = checkedFilters->Array.filter(oldVal => !Array.includes(fieldNameArr, oldVal))
-    switch values->Js.Json.decodeObject {
+    switch values->JSON.Decode.object {
     | Some(dict) =>
       dict
       ->Dict.toArray
@@ -758,7 +752,7 @@ let make = (
         let (key, _val) = entry
 
         if toBeRemoved->Array.includes(key) {
-          dict->Dict.set(key, Js.Json.string(""))
+          dict->Dict.set(key, JSON.Encode.string(""))
         }
       })
     | None => ()
@@ -767,7 +761,7 @@ let make = (
     let finalFieldList = selectedFiltersList->Array.filter(val => {
       val.inputNames
       ->Array.get(0)
-      ->Belt.Option.map(name => !Array.includes(toBeRemoved, name))
+      ->Option.map(name => !Array.includes(toBeRemoved, name))
       ->Option.getOr(false)
     })
     let filtersAfterRemoving =
@@ -775,15 +769,15 @@ let make = (
 
     let newValueJson =
       initialValueJson
-      ->Js.Json.decodeObject
-      ->Belt.Option.map(Dict.toArray)
+      ->JSON.Decode.object
+      ->Option.map(Dict.toArray)
       ->Option.getOr([])
       ->Array.filter(entry => {
         let (key, _value) = entry
         !Array.includes(toBeRemoved, key)
       })
       ->Dict.fromArray
-      ->Js.Json.object_
+      ->JSON.Encode.object
 
     setInitialValueJson(_ => newValueJson)
     setCheckedFilters(_prev => filtersAfterRemoving)
@@ -801,7 +795,7 @@ let make = (
         } else {
           key
         }
-        Dict.set(errors, key, "Required"->Js.Json.string)
+        Dict.set(errors, key, "Required"->JSON.Encode.string)
       }
     })
     if errors->Dict.toArray->Array.length > 0 {
@@ -809,7 +803,7 @@ let make = (
     } else {
       setIsButtonDisabled(_ => false)
     }
-    errors->Js.Json.object_
+    errors->JSON.Encode.object
   }
 
   let fieldsFromOption = popupFilterFields->Array.map(option => {option.field})
@@ -825,7 +819,7 @@ let make = (
     )
     let urlValue = `${path}?${newQueryStr}`
     setClearFilterAfterRefresh(_ => true)
-    setInitialValueJson(_ => Dict.make()->Js.Json.object_)
+    setInitialValueJson(_ => Dict.make()->JSON.Encode.object)
     Window.Location.replace(urlValue)
   }
 
@@ -851,7 +845,7 @@ let make = (
   }
   let (text, iconName) = if !showAllFilter {
     (
-      `View ${(selectedFiltersList->Array.length - 10)->Belt.Int.toString} more filters`,
+      `View ${(selectedFiltersList->Array.length - 10)->Int.toString} more filters`,
       "new-chevron-down",
     )
   } else {
@@ -863,7 +857,7 @@ let make = (
   let verticalGap = !isMobileView ? "gap-y-2" : ""
   let filterWidth = ""
   let (filterHovered, setFilterHovered) = React.useState(_ => false)
-  let badge: Button.badge = {value: countSelectedFilters->Belt.Int.toString, color: BadgeBlue}
+  let badge: Button.badge = {value: countSelectedFilters->Int.toString, color: BadgeBlue}
 
   let advacedAndClearButtons =
     <>
@@ -882,7 +876,7 @@ let make = (
               badge={countSelectedFilters > 0
                 ? badge
                 : {
-                    value: 1->Belt.Int.toString,
+                    value: 1->Int.toString,
                     color: NoBadge,
                   }}
             />
@@ -902,28 +896,26 @@ let make = (
       </UIUtils.RenderIf>
     </>
   let fieldWrapperClass = None
-  <div className="rounded-lg">
+  <>
     <Form onSubmit initialValues=initialValueJson>
       <AutoSubmitter showModal autoApply submit=onSubmit defaultFilterKeys />
       {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
         <div>
           <div className={`flex flex-wrap flex-1 ${verticalGap}`}>
-            {fixedFilters->Array.length > 0
-              ? <>
-                  <FormRenderer.FieldsRenderer
-                    fields={fixedFilters->Array.map(item => item.field)}
-                    labelClass="hidden"
-                    labelPadding="pb-2"
-                    ?fieldWrapperClass
-                  />
-                </>
-              : React.null}
+            <UIUtils.RenderIf condition={fixedFilters->Array.length > 0}>
+              <FormRenderer.FieldsRenderer
+                fields={fixedFilters->Array.map(item => item.field)}
+                labelClass="hidden"
+                labelPadding="pb-2"
+                ?fieldWrapperClass
+              />
+            </UIUtils.RenderIf>
             <UIUtils.RenderIf condition={hideFilters && isFilterSection}>
               <PortalCapture key={`customizedColumn-${title}`} name={`customizedColumn-${title}`} />
             </UIUtils.RenderIf>
             {customViewTop}
-            {if showFiltersBtn {
-              if !revampedFilter {
+            <UIUtils.RenderIf condition={showFiltersBtn}>
+              {if !revampedFilter {
                 <ToolTip
                   description={!hideFilters
                     ? "Hide filters control panel(this will not clear the filters)"
@@ -932,7 +924,7 @@ let make = (
                     <Button
                       text={isMobileView ? "" : hideFilters ? "Show Filters" : "Hide Filters"}
                       buttonType=SecondaryFilled
-                      buttonSize=Small
+                      buttonSize=XSmall
                       leftIcon=CustomIcon(
                         <Icon
                           name={hideFilters ? "show-filters" : "minus"}
@@ -962,7 +954,7 @@ let make = (
                         buttonSize=Small
                         leftIcon=CustomIcon(<Icon name="filter-funnel" size=20 />)
                         badge={
-                          value: count->Belt.Int.toString,
+                          value: count->Int.toString,
                           color: count > 0 ? BadgeBlue : NoBadge,
                         }
                         onClick={_ => {
@@ -1016,11 +1008,10 @@ let make = (
                     {customView}
                   </Portal>
                 </>
-              }
-            } else {
-              React.null
-            }}
-            {if !clearFilterAfterRefresh && hideFilters && count > 0 && !revampedFilter {
+              }}
+            </UIUtils.RenderIf>
+            <UIUtils.RenderIf
+              condition={!clearFilterAfterRefresh && hideFilters && count > 0 && !revampedFilter}>
               <ClearFilters
                 filterButtonStyle
                 defaultFilterKeys
@@ -1028,9 +1019,7 @@ let make = (
                 count
                 outsidefilter={initalCount > 0}
               />
-            } else {
-              React.null
-            }}
+            </UIUtils.RenderIf>
           </div>
           <div className="flex items-center">
             <Portal to=filterFieldsPortalName>
@@ -1040,9 +1029,7 @@ let make = (
                     : "flex-row justify-between"} w-full items-center gap-2`}>
                 <div
                   className={`md:justify-between flex items-center flex-wrap ${filterWidth} ${addFilterStyle}`}>
-                  {if hideFilters {
-                    React.null
-                  } else {
+                  <UIUtils.RenderIf condition={!hideFilters}>
                     <div className={`flex ${!isMobileView ? "w-full" : "flex-wrap"}`}>
                       <div
                         className={`flex flex-wrap ${!isMobileView
@@ -1051,16 +1038,16 @@ let make = (
                         <FormRenderer.FieldsRenderer
                           fields={selectedFiltersList} labelClass="hidden" labelPadding="pb-2"
                         />
-                        {fixedFilters->Array.length === 0 ? refreshFilterUi : React.null}
-                        advacedAndClearButtons
-                        <UIUtils.RenderIf condition={!hideFilters}>
-                          <PortalCapture
-                            key={`customizedColumn-${title}`} name={`customizedColumn-${title}`}
-                          />
+                        <UIUtils.RenderIf condition={fixedFilters->Array.length === 0}>
+                          {refreshFilterUi}
                         </UIUtils.RenderIf>
+                        advacedAndClearButtons
+                        <PortalCapture
+                          key={`customizedColumn-${title}`} name={`customizedColumn-${title}`}
+                        />
                       </div>
                     </div>
-                  }}
+                  </UIUtils.RenderIf>
                 </div>
                 <div className={`flex items-center justify-end flex-wrap`}>
                   <div>
@@ -1118,5 +1105,5 @@ let make = (
         </Form>
       </TableFilterSectionContext>
     </LabelVisibilityContext>
-  </div>
+  </>
 }

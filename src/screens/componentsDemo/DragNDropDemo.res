@@ -22,7 +22,7 @@ module DraggableItem = {
   @react.component
   let make = (~directionClass, ~str, ~index) => {
     open ReactBeautifulDND
-    <Draggable index={index} draggableId={`item-${Belt.Int.toString(index)}`}>
+    <Draggable index={index} draggableId={`item-${Int.toString(index)}`}>
       {(provided, _snapshot) => {
         {
           <span
@@ -41,9 +41,9 @@ module DraggableItem = {
 
 type props = {
   isHorizontal?: bool,
-  listItems: array<Js.Json.t>,
-  setListItems: (array<Js.Json.t> => array<Js.Json.t>) => unit,
-  keyExtractor: Js.Json.t => option<string>,
+  listItems: array<JSON.t>,
+  setListItems: (array<JSON.t> => array<JSON.t>) => unit,
+  keyExtractor: JSON.t => option<string>,
 }
 
 let default = (props: props) => {
@@ -53,7 +53,7 @@ let default = (props: props) => {
 
   let onDragEnd = result => {
     // dropped outside the list
-    let dest = Js.Nullable.toOption(result["destination"])
+    let dest = Nullable.toOption(result["destination"])
     let hasCorrectDestination = switch dest {
     | None => false
     | Some(_a) => true
@@ -91,7 +91,7 @@ let default = (props: props) => {
             <div className={`flex ${directionClass}`} ref={provided["innerRef"]}>
               {values
               ->Array.mapWithIndex((str, index) => {
-                <DraggableItem key={`item-${Belt.Int.toString(index)}`} directionClass str index />
+                <DraggableItem key={`item-${Int.toString(index)}`} directionClass str index />
               })
               ->React.array}
               {provided["placeholder"]}

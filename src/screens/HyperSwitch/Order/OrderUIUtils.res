@@ -46,7 +46,7 @@ module GenerateSampleDataButton = {
         let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Post, ())
         let _ = await updateDetails(
           generateSampleDataUrl,
-          [("record", 50.0->Js.Json.number)]->Dict.fromArray->Js.Json.object_,
+          [("record", 50.0->JSON.Encode.float)]->Dict.fromArray->JSON.Encode.object,
           Post,
           (),
         )
@@ -61,7 +61,6 @@ module GenerateSampleDataButton = {
       <Button
         buttonType={Secondary}
         text="Generate Sample Data"
-        customButtonStyle="!px-6 text-fs-13"
         onClick={_ => generateSampleData()->ignore}
         leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
       />
@@ -101,7 +100,7 @@ let filterByData = (txnArr, value) => {
   let searchText = value->getStringFromJson("")
 
   txnArr
-  ->Belt.Array.keepMap(Js.Nullable.toOption)
+  ->Belt.Array.keepMap(Nullable.toOption)
   ->Belt.Array.keepMap(data => {
     let valueArr =
       data
@@ -114,7 +113,7 @@ let filterByData = (txnArr, value) => {
       })
       ->Array.reduce(false, (acc, item) => item || acc)
 
-    valueArr ? data->Js.Nullable.return->Some : None
+    valueArr ? data->Nullable.make->Some : None
   })
 }
 
@@ -192,7 +191,7 @@ let setData = (
   }
 
   if total > 0 {
-    let orderDataDictArr = data->Belt.Array.keepMap(Js.Json.decodeObject)
+    let orderDataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
 
     let orderData =
       arr
@@ -202,7 +201,7 @@ let setData = (
         !previewOnly || i <= 2
       })
 
-    let list = orderData->Array.map(Js.Nullable.return)
+    let list = orderData->Array.map(Nullable.make)
     setTotalCount(_ => total)
     setOrdersData(_ => list)
     setScreenState(_ => PageLoaderWrapper.Success)
@@ -215,12 +214,12 @@ let getOrdersList = async (
   filterValueJson,
   ~updateDetails: (
     string,
-    Js.Json.t,
+    JSON.t,
     Fetch.requestMethod,
     ~bodyFormData: Fetch.formData=?,
     ~headers: Dict.t<'a>=?,
     unit,
-  ) => promise<Js.Json.t>,
+  ) => promise<JSON.t>,
   ~setOrdersData,
   ~previewOnly,
   ~setScreenState,
@@ -234,7 +233,7 @@ let getOrdersList = async (
 
   try {
     let ordersUrl = getURL(~entityName=ORDERS, ~methodType=Post, ())
-    let res = await updateDetails(ordersUrl, filterValueJson->Js.Json.object_, Fetch.Post, ())
+    let res = await updateDetails(ordersUrl, filterValueJson->JSON.Encode.object, Fetch.Post, ())
     let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
     let total = res->getDictFromJsonObject->getInt("total_count", 0)
 
@@ -242,15 +241,20 @@ let getOrdersList = async (
       let payment_id =
         filterValueJson
         ->Dict.get("payment_id")
-        ->Option.getOr(""->Js.Json.string)
-        ->Js.Json.decodeString
+        ->Option.getOr(""->JSON.Encode.string)
+        ->JSON.Decode.string
         ->Option.getOr("")
 
       if Js.Re.test_(%re(`/^[A-Za-z0-9]+_[A-Za-z0-9]+_[0-9]+/`), payment_id) {
         let newID = payment_id->String.replaceRegExp(%re("/_[0-9]$/g"), "")
-        filterValueJson->Dict.set("payment_id", newID->Js.Json.string)
+        filterValueJson->Dict.set("payment_id", newID->JSON.Encode.string)
 
-        let res = await updateDetails(ordersUrl, filterValueJson->Js.Json.object_, Fetch.Post, ())
+        let res = await updateDetails(
+          ordersUrl,
+          filterValueJson->JSON.Encode.object,
+          Fetch.Post,
+          (),
+        )
         let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("data", [])
         let total = res->getDictFromJsonObject->getInt("total_count", 0)
 

@@ -2,7 +2,7 @@ module HostURL = {
   @react.component
   let make = (~prefix="") => {
     let fieldInputVal = ReactFinalForm.useField(`${prefix}`).input
-    let fieldInput = switch fieldInputVal.value->Js.Json.decodeString {
+    let fieldInput = switch fieldInputVal.value->JSON.Decode.string {
     | Some(val) => val->String.length > 0 ? val : "domain_name"
     | None => "domain_name"
     }
@@ -30,7 +30,7 @@ module Simplified = {
     let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
     let fetchApi = AuthHooks.useApiFetcher()
-    let connectorID = url.path->Belt.List.toArray->Array.get(1)->Option.getOr("")
+    let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
     let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
     let merchantId = merchantDetailsValue->getDictFromJsonObject->getString("merchant_id", "")
     let prefix = "apple_pay_combined.simplified.session_token_data.initiative_context"
@@ -100,7 +100,7 @@ module Simplified = {
       } catch {
       | _ => showToast(~message="Failed to Verify", ~toastType=ToastState.ToastError, ())
       }
-      Js.Nullable.null
+      Nullable.null
     }
 
     <Form
@@ -166,7 +166,7 @@ module Manual = {
       ->Dict.keysToArray
       ->Array.mapWithIndex((field, index) => {
         let label = configurationFields->getString(field, "")
-        <div key={index->Belt.Int.toString}>
+        <div key={index->Int.toString}>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
             field={FormRenderer.makeFieldInfo(
@@ -189,7 +189,7 @@ module Manual = {
       update(updatedValue)
       setVefifiedDomainList(_ => [domainName])
       setApplePayIntegrationSteps(_ => ApplePayWalletIntegrationTypes.Verify)
-      Js.Nullable.null->Js.Promise.resolve
+      Nullable.null->Js.Promise.resolve
     }
 
     <div className="p-6 m-2">

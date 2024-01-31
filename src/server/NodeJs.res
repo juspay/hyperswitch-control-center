@@ -21,7 +21,7 @@ module Fs = {
 }
 
 module Querystring = {
-  type parsedUrlQUery = Js.Json.t
+  type parsedUrlQUery = JSON.t
 
   @module("querystring")
   external parse: string => parsedUrlQUery = "parse"
@@ -33,7 +33,7 @@ module Http = {
   external asUrl: string => url = "%identity"
 
   type on = (. string, unit => unit) => unit
-  type read = (. unit) => Js.Nullable.t<string>
+  type read = (. unit) => Nullable.t<string>
   type headers = Dict.t<string>
   type server
   type request = {url: url, headers: headers, method: string, on: on, read: read}

@@ -15,7 +15,7 @@ let defaultSurcharge: AdvancedRoutingTypes.surchargeDetailsType = {
 let surchargeRules: AdvancedRoutingTypes.rule = {
   name: "rule_1",
   connectorSelection: {
-    surcharge_details: defaultSurcharge->Js.Nullable.return,
+    surcharge_details: defaultSurcharge->Nullable.make,
   },
   statements: statementObject,
 }
@@ -26,9 +26,9 @@ let buildInitialSurchargeValue: threeDsRoutingType = {
   algorithm: {
     rules: [surchargeRules],
     defaultSelection: {
-      surcharge_details: Js.Nullable.null,
+      surcharge_details: Nullable.null,
     },
-    metadata: Js.Json.null,
+    metadata: JSON.Encode.null,
   },
 }
 
@@ -44,7 +44,7 @@ let buildSurchargePayloadBody = values => {
     "algorithm": {
       "defaultSelection": algorithmDict->getJsonObjectFromDict("defaultSelection"),
       "rules": modifiedRules,
-      "metadata": Dict.make()->Js.Json.object_,
+      "metadata": Dict.make()->JSON.Encode.object,
     },
     "merchant_surcharge_configs": {
       "show_surcharge_breakup_screen": true,
@@ -59,7 +59,7 @@ let getTypedSurchargeConnectorSelection = ruleDict => {
   AdvancedRoutingUtils.getDefaultSelection(connectorsDict)
 }
 
-let ruleInfoTypeMapper: Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithmData = json => {
+let ruleInfoTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.algorithmData = json => {
   open LogicUtils
   let rulesArray = json->getArrayFromDict("rules", [])
 
@@ -89,10 +89,7 @@ let ruleInfoTypeMapper: Dict.t<Js.Json.t> => AdvancedRoutingTypes.algorithmData 
 }
 
 let getDefaultSurchargeType = surchargeType => {
-  surchargeType
-  ->Option.getOr(Js.Nullable.null)
-  ->Js.Nullable.toOption
-  ->Option.getOr(defaultSurcharge)
+  surchargeType->Option.getOr(Nullable.null)->Nullable.toOption->Option.getOr(defaultSurcharge)
 }
 
 let validateSurchargeRate = ruleDict => {

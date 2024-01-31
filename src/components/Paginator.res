@@ -40,7 +40,7 @@ let make = (
   let selectInputOption = {
     [5, 10, 15, 25, 50, 100]
     ->Array.filter(val => val <= totalResults)
-    ->Array.map(Belt.Int.toString)
+    ->Array.map(Int.toString)
     ->SelectBox.makeOptions
   }
   let selectInput: ReactFinalForm.fieldRenderPropsInput = {
@@ -48,15 +48,15 @@ let make = (
     onBlur: _ev => (),
     onChange: ev => {
       setResultsPerPage(_ => {
-        ev->Identity.formReactEventToString->Belt.Int.fromString->Option.getOr(15)
+        ev->Identity.formReactEventToString->Int.fromString->Option.getOr(15)
       })
     },
     onFocus: _ev => (),
-    value: resultsPerPage->Belt.Int.toString->Js.Json.string,
+    value: resultsPerPage->Int.toString->JSON.Encode.string,
     checked: true,
   }
   let paginate = React.useCallback5(pageNumber => {
-    let total = Js.Math.ceil(Belt.Int.toFloat(totalResults) /. Belt.Int.toFloat(resultsPerPage))
+    let total = Js.Math.ceil(Int.toFloat(totalResults) /. Int.toFloat(resultsPerPage))
     //  for handling page count
     let defaultPageNumber = Js.Math.min_int(total, pageNumber)
     let page = defaultPageNumber

@@ -107,14 +107,14 @@ module SidebarChecklist = {
 
     let getProgressText = switch progressState {
     | 2 => `0% completed`
-    | _ => `${progressState->Belt.Int.toString}% completed`
+    | _ => `${progressState->Int.toString}% completed`
     }
     <div className="flex flex-col h-full w-[30rem] border bg-white shadow shadow-sidebarShadow">
       <p className="font-semibold text-xl p-6"> {"Setup Basic Live Account"->React.string} </p>
       <div className=dividerColor />
       <div className="flex flex-col gap-4 px-6 py-8">
         <p className=" text-grey-700 text-base font-normal"> {getProgressText->React.string} </p>
-        <ProgressBar progressState={progressState->Belt.Int.toString} />
+        <ProgressBar progressState={progressState->Int.toString} />
       </div>
       <div className=dividerColor />
       {updatedCheckList
@@ -151,7 +151,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
   let (previewState, setPreviewState) = React.useState(_ => None)
-  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (connectorID, setConnectorID) = React.useState(_ => "")
   let routerUrl = RescriptReactRouter.useUrl()
 
@@ -173,11 +173,11 @@ let make = () => {
         ->Array.find(ele => {
           ele->getDictFromJsonObject->getBool("SetupComplete", false)
         })
-        ->Option.getOr(Js.Json.null)
+        ->Option.getOr(JSON.Encode.null)
       if setupCompleteResponse->getDictFromJsonObject->getBool("SetupComplete", false) {
         setDashboardPageState(_ => #HOME)
         let baseUrlPath = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${routerUrl.path
-          ->Belt.List.toArray
+          ->List.toArray
           ->Array.joinWith("/")}`
         routerUrl.search->String.length > 0
           ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)
@@ -203,7 +203,7 @@ let make = () => {
         ->Array.find(ele => {
           ele->getDictFromJsonObject->getBool("ConfigureEndpoint", false)
         })
-        ->Option.getOr(Js.Json.null)
+        ->Option.getOr(JSON.Encode.null)
 
       if configureEndpointResponse->getDictFromJsonObject->getBool("ConfigureEndpoint", false) {
         getSetupCompleteEnum()->ignore
@@ -228,7 +228,7 @@ let make = () => {
         ->Array.find(ele => {
           ele->getDictFromJsonObject->getDictfromDict("SetupProcessor") != Dict.make()
         })
-        ->Option.getOr(Js.Json.null)
+        ->Option.getOr(JSON.Encode.null)
 
       let connectorId =
         setupProcessorEnum
@@ -305,6 +305,8 @@ let make = () => {
                     isUpdateFlow=true
                     isPayoutFlow=false
                     showMenuOption=false
+                    setInitialValues
+                    getPayPalStatus={_ => ()}
                   />
                 </div>
               | LIVE_ENDPOINTS_PREVIEW => <LiveEndpointsSetup pageView setPageView previewState />

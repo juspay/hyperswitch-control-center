@@ -11,7 +11,7 @@ let useSendEvent = () => {
   open Window
   let fetchApi = AuthHooks.useApiFetcher()
   let name = getFromUserDetails("name")
-  let deviceId = switch LocalStorage.getItem("deviceid")->Js.Nullable.toOption {
+  let deviceId = switch LocalStorage.getItem("deviceid")->Nullable.toOption {
   | Some(id) => id
   | None => getFromUserDetails("email")
   }
@@ -58,7 +58,7 @@ let useSendEvent = () => {
       let _ = await fetchApi(
         `${dashboardUrl}/mixpanel/track`,
         ~method_=Fetch.Post,
-        ~bodyStr=`data=${body->Js.Json.stringifyAny->Option.getOr("")->Js.Global.encodeURI}`,
+        ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->Js.Global.encodeURI}`,
         (),
       )
     } catch {

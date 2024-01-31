@@ -1,4 +1,4 @@
-external formEventToJsonArr: ReactEvent.Form.t => array<Js.Json.t> = "%identity"
+external formEventToJsonArr: ReactEvent.Form.t => array<JSON.t> = "%identity"
 
 module RangeSliderLocalFilter = {
   @react.component
@@ -10,7 +10,7 @@ module RangeSliderLocalFilter = {
     ~minSlide: ReactFinalForm.fieldRenderPropsInput,
   ) => {
     let (lclFiltrState, setLclFltrState) = React.useContext(DatatableContext.datatableContext)
-    let dropdownRef = React.useRef(Js.Nullable.null)
+    let dropdownRef = React.useRef(Nullable.null)
     let (showDropDown, setShowDropDown) = React.useState(() => false)
     let selectedFilterVal = Dict.get(lclFiltrState, filterKey)
     let filterIconName = "bars-filter"
@@ -85,7 +85,7 @@ module RangeSliderLocalFilter = {
 
 module FilterDropDown = {
   @react.component
-  let make = (~val, ~arr: array<Js.Json.t>=[]) => {
+  let make = (~val, ~arr: array<JSON.t>=[]) => {
     let (lclFiltrState, setLclFltrState) = React.useContext(DatatableContext.datatableContext)
     let filterIconName = "bars-filter"
     let strokeColor = ""
@@ -103,13 +103,13 @@ module FilterDropDown = {
       onBlur: _ev => (),
       onChange: ev => setLclFltrState(val, ev->formEventToJsonArr),
       onFocus: _ev => (),
-      value: selectedValue->Js.Json.array,
+      value: selectedValue->JSON.Encode.array,
       checked: true,
     }
 
     let (buttonText, icon) = switch selectedValue->Array.length > 0 {
     | true => (
-        selectedValue->Js.Json.array->Js.Json.stringify,
+        selectedValue->JSON.Encode.array->JSON.stringify,
         Button.CustomIcon(
           <div onClick={e => e->ReactEvent.Mouse.stopPropagation}>
             <span
@@ -175,7 +175,10 @@ module TextFilterCell = {
     let showPopUp = PopUpState.useShowPopUp()
 
     let selectedValue =
-      Dict.get(lclFiltrState, val)->Option.getOr([])->Array.get(0)->Option.getOr(""->Js.Json.string)
+      Dict.get(lclFiltrState, val)
+      ->Option.getOr([])
+      ->Array.get(0)
+      ->Option.getOr(""->JSON.Encode.string)
     let localInput = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
       {
         name: "--",
@@ -192,7 +195,7 @@ module TextFilterCell = {
           }
           let value = value->String.replace("<script>", "")->String.replace("</script>", "")
 
-          setLclFltrState(val, [value->Js.Json.string])
+          setLclFltrState(val, [value->JSON.Encode.string])
         },
         onFocus: _ev => (),
         value: selectedValue,
@@ -200,13 +203,13 @@ module TextFilterCell = {
       }
     }, [selectedValue])
     let rightIcon =
-      selectedValue === ""->Js.Json.string
+      selectedValue === ""->JSON.Encode.string
         ? <span className={`flex items-center `}>
             <Icon className={`align-middle ${strokeColor}`} size=12 name=filterIconName />
           </span>
         : <span
             className={`flex items-center `}
-            onClick={_ => setLclFltrState(val, [""->Js.Json.string])}>
+            onClick={_ => setLclFltrState(val, [""->JSON.Encode.string])}>
             <Icon className="align-middle" name="cross" />
           </span>
 
@@ -230,7 +233,10 @@ module RangeFilterCell = {
     let minVal = Js.Math.floor_float(minVal)
     let maxVal = Js.Math.ceil_float(maxVal)
     let selectedValueStr =
-      Dict.get(lclFiltrState, val)->Option.getOr([minVal->Js.Json.number, maxVal->Js.Json.number])
+      Dict.get(lclFiltrState, val)->Option.getOr([
+        minVal->JSON.Encode.float,
+        maxVal->JSON.Encode.float,
+      ])
 
     let minSlide = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
       {
@@ -239,15 +245,15 @@ module RangeFilterCell = {
         onChange: ev => {
           let value = {ev->ReactEvent.Form.target}["value"]
 
-          let leftVal = value->Js.Float.fromString->Js.Json.number
-          let rightvalue = selectedValueStr[1]->Option.getOr(Js.Json.null)
+          let leftVal = value->Js.Float.fromString->JSON.Encode.float
+          let rightvalue = selectedValueStr[1]->Option.getOr(JSON.Encode.null)
           switch selectedValueStr[1] {
           | Some(ele) => setLclFltrState(val, [leftVal > rightvalue ? rightvalue : leftVal, ele])
           | None => ()
           }
         },
         onFocus: _ev => (),
-        value: selectedValueStr[0]->Option.getOr(Js.Json.number(0.0)),
+        value: selectedValueStr[0]->Option.getOr(JSON.Encode.float(0.0)),
         checked: false,
       }
     }, [selectedValueStr])
@@ -259,14 +265,14 @@ module RangeFilterCell = {
         onChange: ev => {
           let value = {ev->ReactEvent.Form.target}["value"]
 
-          let rightvalue = value->Js.Float.fromString->Js.Json.number
+          let rightvalue = value->Js.Float.fromString->JSON.Encode.float
           switch selectedValueStr[0] {
           | Some(ele) => setLclFltrState(val, [ele, ele > rightvalue ? ele : rightvalue])
           | None => ()
           }
         },
         onFocus: _ev => (),
-        value: selectedValueStr[1]->Option.getOr(Js.Json.number(0.0)),
+        value: selectedValueStr[1]->Option.getOr(JSON.Encode.float(0.0)),
         checked: false,
       }
     }, [selectedValueStr])

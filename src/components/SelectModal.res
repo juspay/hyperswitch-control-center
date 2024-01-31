@@ -40,16 +40,14 @@ let make = (
 
   let disableSelectBtn = React.useMemo2(
     () =>
-      (initialValues->Js.Array.toString === values->Js.Array.toString && !enableSelect) ||
+      (initialValues->Array.toString === values->Array.toString && !enableSelect) ||
         values->Array.length === 0,
     (values, initialValues),
   )
 
   let len = values->Array.length
   let buttonText =
-    submitButtonText->Option.getOr(
-      len > 0 ? `${len->Belt.Int.toString} ${title} Selected` : "Select",
-    )
+    submitButtonText->Option.getOr(len > 0 ? `${len->Int.toString} ${title} Selected` : "Select")
 
   React.useEffect2(() => {
     if !showModal {
@@ -68,7 +66,7 @@ let make = (
       maxLengthArray(target, setValues)
     },
     onFocus: _ev => (),
-    value: values->Js.Json.stringArray,
+    value: values->LogicUtils.getJsonFromArrayOfString,
     checked: false,
   }
 
@@ -97,7 +95,7 @@ let make = (
           isDropDown=false
           options
           onSelect={arr => maxLengthArray(arr, setValues)}
-          value={values->Js.Json.stringArray}
+          value={values->LogicUtils.getJsonFromArrayOfString}
           showSelectAll={showSelectAll}
           showSerialNumber
           maxHeight="max-h-full"

@@ -13,7 +13,7 @@ type chartEntity = {
   groupByNames: option<array<string>>,
   start_time: string,
   end_time: string,
-  filters: option<Js.Json.t>,
+  filters: option<JSON.t>,
   granularityOpts: option<string>,
   delta: bool,
   startDateTime: string,
@@ -43,10 +43,10 @@ let getTimeSeriesChart = (chartEntity: chartEntity) => {
       ~prefix=chartEntity.prefix,
       ~source=chartEntity.source,
       (),
-    )->Js.Json.object_,
+    )->JSON.Encode.object,
   ]
-  ->Js.Json.array
-  ->Js.Json.stringify
+  ->JSON.Encode.array
+  ->JSON.stringify
 }
 
 let getLegendBody = (chartEntity: chartEntity) => {
@@ -67,13 +67,13 @@ let getLegendBody = (chartEntity: chartEntity) => {
       ~prefix=chartEntity.prefix,
       ~source=chartEntity.source,
       (),
-    )->Js.Json.object_,
+    )->JSON.Encode.object,
   ]
-  ->Js.Json.array
-  ->Js.Json.stringify
+  ->JSON.Encode.array
+  ->JSON.stringify
 }
 
-type chartUrl = String(string) | Func(Dict.t<Js.Json.t> => string)
+type chartUrl = String(string) | Func(Dict.t<JSON.t> => string)
 type chartType = Line | Bar | SemiDonut | HorizontalBar | Funnel
 
 type uriConfig = {
@@ -89,8 +89,8 @@ type uriConfig = {
 
 type urlToDataMap = {
   metricsUrl: string,
-  rawData: array<Js.Json.t>,
-  legendData: array<Js.Json.t>,
+  rawData: array<JSON.t>,
+  legendData: array<JSON.t>,
 }
 
 type fetchDataConfig = {
@@ -118,7 +118,7 @@ type entity = {
   enableLoaders?: bool,
   chartDescription?: string,
   sortingColumnLegend?: string,
-  jsonTransformer?: (string, array<Js.Json.t>) => array<Js.Json.t>,
+  jsonTransformer?: (string, array<JSON.t>) => array<JSON.t>,
 }
 
 let chartMapper = str => {
@@ -161,7 +161,7 @@ let makeEntity = (
   ~enableLoaders: bool=true,
   ~chartDescription: option<string>=?,
   ~sortingColumnLegend: option<string>=?,
-  ~jsonTransformer: option<(string, array<Js.Json.t>) => array<Js.Json.t>>=?,
+  ~jsonTransformer: option<(string, array<JSON.t>) => array<JSON.t>>=?,
   (),
 ) => {
   let granularity = granularity->Array.length === 0 ? [G_ONEDAY] : granularity
@@ -472,10 +472,10 @@ let make = (
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
         if allFilterKeys->Array.includes(key) {
-          switch value->Js.Json.classify {
-          | JSONString(str) => `${key}=${str}`->Some
-          | JSONNumber(num) => `${key}=${num->String.make}`->Some
-          | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
+          switch value->JSON.Classify.classify {
+          | String(str) => `${key}=${str}`->Some
+          | Number(num) => `${key}=${num->String.make}`->Some
+          | Array(arr) => `${key}=[${arr->String.make}]`->Some
           | _ => None
           }
         } else {
@@ -518,10 +518,10 @@ let make = (
       ->Dict.toArray
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
-        switch value->Js.Json.classify {
-        | JSONString(str) => `${key}=${str}`->Some
-        | JSONNumber(num) => `${key}=${num->String.make}`->Some
-        | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
+        switch value->JSON.Classify.classify {
+        | String(str) => `${key}=${str}`->Some
+        | Number(num) => `${key}=${num->String.make}`->Some
+        | Array(arr) => `${key}=[${arr->String.make}]`->Some
         | _ => None
         }
       })
@@ -577,7 +577,7 @@ let make = (
         groupByNames: selectedTab,
         start_time: startTimeFromUrl,
         end_time: endTimeFromUrl,
-        filters: Some(Js.Json.object_(filterValue)),
+        filters: Some(JSON.Encode.object(filterValue)),
         granularityOpts: granularity,
         delta: false,
         startDateTime: startTimeFromUrl,
@@ -641,7 +641,7 @@ let make = (
   let setRawChartData = (data: array<urlToDataMap>) => {
     let chartData = data->Array.map(mappedData => {
       let rawdata = mappedData.rawData->Array.map(item => {
-        let dict = item->Js.Json.decodeObject->Option.getOr(Dict.make())
+        let dict = item->JSON.Decode.object->Option.getOr(Dict.make())
 
         switch dict->Dict.get("time_range") {
         | Some(jsonObj) => {
@@ -649,7 +649,7 @@ let make = (
 
             switch timeDict->Dict.get("startTime") {
             | Some(startValue) => {
-                let sTime = startValue->Js.Json.decodeString->Option.getOr("")
+                let sTime = startValue->JSON.Decode.string->Option.getOr("")
 
                 if sTime->String.length > 0 {
                   let {date, hour, minute, month, second, year} =
@@ -657,7 +657,7 @@ let make = (
 
                   dict->Dict.set(
                     "time_bucket",
-                    `${year}-${month}-${date} ${hour}:${minute}:${second}`->Js.Json.string,
+                    `${year}-${month}-${date} ${hour}:${minute}:${second}`->JSON.Encode.string,
                   )
                 }
               }
@@ -673,34 +673,34 @@ let make = (
           tabName => {
             let metric =
               Dict.get(dict, tabName)
-              ->Option.getOr(""->Js.Json.string)
-              ->Js.Json.decodeString
+              ->Option.getOr(""->JSON.Encode.string)
+              ->JSON.Decode.string
               ->Option.getOr("")
             let label = metric == "" ? "other" : metric
 
-            Dict.set(dict, tabName, label->Js.Json.string)
+            Dict.set(dict, tabName, label->JSON.Encode.string)
 
             Dict.keysToArray(dict)->Array.forEach(
               key => {
                 if key->String.includes("amount") {
                   let amount =
                     Dict.get(dict, key)
-                    ->Option.getOr(Js.Json.number(0.0))
-                    ->Js.Json.decodeNumber
+                    ->Option.getOr(JSON.Encode.float(0.0))
+                    ->JSON.Decode.float
                     ->Option.getOr(0.0)
 
                   let amount = (amount /. 100.0)->Js.Float.toFixedWithPrecision(~digits=2)
 
-                  Dict.set(dict, key, amount->Js.Float.fromString->Js.Json.number)
+                  Dict.set(dict, key, amount->Js.Float.fromString->JSON.Encode.float)
                 } else if !(key->String.includes("time")) && key != tabName {
                   switch Dict.get(dict, key) {
                   | Some(val) =>
-                    switch val->Js.Json.decodeNumber {
+                    switch val->JSON.Decode.float {
                     | Some(val2) =>
                       Dict.set(
                         dict,
                         key,
-                        val2->Js.Float.toFixedWithPrecision(~digits=2)->Js.Json.string,
+                        val2->Js.Float.toFixedWithPrecision(~digits=2)->JSON.Encode.string,
                       )
                     | None => ()
                     }
@@ -711,7 +711,7 @@ let make = (
             )
           },
         )
-        dict->Js.Json.object_
+        dict->JSON.Encode.object
       })
       {
         metricsUrl: mappedData.metricsUrl,
@@ -765,7 +765,7 @@ let make = (
         Dict.fromArray([("chartTopMetric", ev->Identity.formReactEventToString)]),
       )
     },
-    value: chartTopMetricFromUrl->Js.Json.string,
+    value: chartTopMetricFromUrl->JSON.Encode.string,
     onBlur: _ev => (),
     onFocus: _ev => (),
     checked: true,
@@ -777,7 +777,7 @@ let make = (
         Dict.fromArray([("chartBottomMetric", ev->Identity.formReactEventToString)]),
       )
     },
-    value: chartBottomMetricFromUrl->Js.Json.string,
+    value: chartBottomMetricFromUrl->JSON.Encode.string,
     onBlur: _ev => (),
     onFocus: _ev => (),
     checked: true,
@@ -802,7 +802,7 @@ let make = (
     <div>
       <ReactFinalForm.Form
         subscription=ReactFinalForm.subscribeToValues
-        onSubmit={(_, _) => Js.Nullable.null->Promise.resolve}
+        onSubmit={(_, _) => Nullable.null->Promise.resolve}
         render={({handleSubmit}) => {
           <form onSubmit={handleSubmit}>
             <AddDataAttributes attributes=[("data-chart-segment", "Chart-1")]>

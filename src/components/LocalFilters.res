@@ -14,13 +14,13 @@ module CheckLocalFilters = {
   ) => {
     let isMobileView = MatchMedia.useMobileChecker()
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let values = formState.values
 
     React.useEffect1(() => {
       if formState.dirty {
-        switch formState.values->Js.Json.decodeObject {
+        switch formState.values->JSON.Decode.object {
         | Some(valuesDict) => valuesDict->applyFilters
         | None => ()
         }
@@ -61,7 +61,7 @@ module CheckLocalFilters = {
               isDropDown=true
               hideMultiSelectButtons=true
               buttonType=Button.FilterAdd
-              value={checkedFilters->Js.Array.map(Js.Json.string, _)->Js.Json.array}
+              value={checkedFilters->Array.map(JSON.Encode.string)->JSON.Encode.array}
               searchable=showSelectFiltersSearch
             />
           </div>
@@ -99,7 +99,7 @@ let make = (
   let (checkedFilters, setCheckedFilters) = React.useState(_ => [])
   let url = RescriptReactRouter.useUrl()
   let searchParams = disableURIdecode ? url.search : url.search->Js.Global.decodeURI
-  let (initialValueJson, setInitialValueJson) = React.useState(_ => Js.Json.object_(Dict.make()))
+  let (initialValueJson, setInitialValueJson) = React.useState(_ => JSON.Encode.object(Dict.make()))
   let remoteFiltersJson = RemoteFiltersUtils.getInitialValuesFromUrl(
     ~searchParams,
     ~initialFilters=remoteFilters,
@@ -121,7 +121,7 @@ let make = (
     let localSelectedFiltersList = selectedFiltersList->Array.copy
 
     initialValues
-    ->Js.Json.decodeObject
+    ->JSON.Decode.object
     ->Option.getOr(Dict.make())
     ->Dict.toArray
     ->Array.forEach(entry => {
@@ -183,7 +183,7 @@ let make = (
     let finalFieldList = selectedFiltersList->Array.filter(val => {
       val.inputNames
       ->Array.get(0)
-      ->Belt.Option.map(name => !{toBeRemoved->Array.includes(name)})
+      ->Option.map(name => !{toBeRemoved->Array.includes(name)})
       ->Option.getOr(false)
     })
     let filtersAfterRemoving =
@@ -191,7 +191,7 @@ let make = (
 
     let newInitialValues =
       initialValueJson
-      ->Js.Json.decodeObject
+      ->JSON.Decode.object
       ->Option.getOr(Dict.make())
       ->Dict.toArray
       ->Array.filter(entry => {
@@ -199,9 +199,9 @@ let make = (
         !Array.includes(toBeRemoved, key)
       })
       ->Dict.fromArray
-      ->Js.Json.object_
+      ->JSON.Encode.object
 
-    switch values->Js.Json.decodeObject {
+    switch values->JSON.Decode.object {
     | Some(dict) =>
       dict
       ->Dict.toArray
@@ -209,7 +209,7 @@ let make = (
         let (key, _val) = entry
 
         if toBeRemoved->Array.includes(key) {
-          dict->Dict.set(key, Js.Json.string(""))
+          dict->Dict.set(key, JSON.Encode.string(""))
         }
         dict->applyFilters
       })

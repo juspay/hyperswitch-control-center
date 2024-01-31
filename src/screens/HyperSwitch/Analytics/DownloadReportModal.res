@@ -1,6 +1,6 @@
 type lteGte = {
-  gte: Js.Json.t,
-  lte: Js.Json.t,
+  gte: JSON.t,
+  lte: JSON.t,
 }
 
 type dateCreated = {dateCreated: lteGte}
@@ -8,8 +8,8 @@ type dateCreated = {dateCreated: lteGte}
 type filters = {filters: dateCreated}
 
 type startAndEndTime = {
-  startTime: Js.Json.t,
-  endTime: Js.Json.t,
+  startTime: JSON.t,
+  endTime: JSON.t,
 }
 
 type timeRange = {timeRange: startAndEndTime, dimensions: array<string>}
@@ -29,7 +29,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
     } catch {
     | _ => showToast(~message="Something went wrong. Please try again.", ~toastType=ToastError, ())
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
   let onSubmit = (values, _) => {
@@ -65,8 +65,8 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   let initialValues = {
     filters: {
       dateCreated: {
-        gte: getPreviousDate()->Js.Json.string,
-        lte: Js.Date.now()->Js.Date.fromFloat->Js.Date.toISOString->Js.Json.string,
+        gte: getPreviousDate()->JSON.Encode.string,
+        lte: Js.Date.now()->Js.Date.fromFloat->Js.Date.toISOString->JSON.Encode.string,
       },
     },
   }->Identity.genericTypeToJson

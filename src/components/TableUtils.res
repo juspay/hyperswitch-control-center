@@ -65,7 +65,7 @@ type customiseColumnConfig = {
 type selectAllSubmitActions = {
   btnText: string,
   showMultiSelectCheckBox: bool,
-  onClick: Js.Array2.t<Js.Json.t> => unit,
+  onClick: array<JSON.t> => unit,
   disableParam: disableField,
 }
 
@@ -74,7 +74,7 @@ type hideItem = {
   value: string,
 }
 
-external jsonToStr: Js.Json.t => string = "%identity"
+external jsonToStr: JSON.t => string = "%identity"
 
 type textAlign = Left | Right
 
@@ -109,7 +109,7 @@ type label = {
 
 type currency = string
 type filterRow =
-  | DropDownFilter(string, array<Js.Json.t>)
+  | DropDownFilter(string, array<JSON.t>)
   | TextFilter(string)
   | Range(string, float, float)
 
@@ -196,8 +196,8 @@ module ProgressCell = {
     <div className="w-full bg-gray-200 rounded-full">
       <div
         className="bg-green-800 text font-medium text-blue-100 text-left pl-5 p-0.5 leading-none rounded-full"
-        style={ReactDOM.Style.make(~width=`${Belt.Int.toString(progressPercentage)}%`, ())}>
-        {React.string(Belt.Int.toString(progressPercentage) ++ "%")}
+        style={ReactDOM.Style.make(~width=`${Int.toString(progressPercentage)}%`, ())}>
+        {React.string(Int.toString(progressPercentage) ++ "%")}
       </div>
     </div>
   }
@@ -389,8 +389,8 @@ module Numeric = {
         <div> {React.string(num->mapper)} </div>
       </AddDataAttributes>
     } else {
-      <AddDataAttributes attributes=[("data-numeric", num->Belt.Float.toString)]>
-        <div> {React.string(num->Belt.Float.toString)} </div>
+      <AddDataAttributes attributes=[("data-numeric", num->Float.toString)]>
+        <div> {React.string(num->Float.toString)} </div>
       </AddDataAttributes>
     }
   }
@@ -775,11 +775,11 @@ let getTableCellValue = cell => {
   | Text(x) => x
   | Date(x) => x
   | DateWithoutTime(x) => x
-  | Currency(val, _) => val->Belt.Float.toString
+  | Currency(val, _) => val->Float.toString
   | Link(str) => str
   | CustomCell(_, value) => value
   | EllipsisText(x, _) => x
-  | DeltaPercentage(x, _) | Numeric(x, _) => x->Belt.Float.toString
+  | DeltaPercentage(x, _) | Numeric(x, _) => x->Float.toString
   | ColoredText(x) => x.title
   | _ => ""
   }
@@ -834,7 +834,7 @@ module HeaderActions = {
       onBlur: _ev => (),
       onChange,
       onFocus: _ev => (),
-      value: order->getSortOrderToString->Js.Json.string,
+      value: order->getSortOrderToString->JSON.Encode.string,
       checked: true,
     }
     let customButton = switch filterRow {
