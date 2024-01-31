@@ -37,8 +37,9 @@ module ConnectorOverview = {
         configuredConnectors
         ->Array.filterWithIndex((_, i) => i <= 2)
         ->Array.mapWithIndex((connector, index) => {
-          let iconStyle = `${index === 0 ? "" : "-ml-4"} z-${(30 - index * 10)->Js.Int.toString}`
+          let iconStyle = `${index === 0 ? "" : "-ml-4"} z-${(30 - index * 10)->Int.toString}`
           <GatewayIcon
+            key={index->string_of_int}
             gateway={connector->getConnectorNameString->String.toUpperCase}
             className={`w-12 h-12 rounded-full border-3 border-white  ${iconStyle} bg-white`}
           />
@@ -48,8 +49,9 @@ module ConnectorOverview = {
         configuredConnectors->Array.length > 3
           ? icons->Array.concat([
               <div
+                key="concat-number"
                 className={`w-12 h-12 flex items-center justify-center text-white font-medium rounded-full border-3 border-white -ml-3 z-0 bg-blue-900`}>
-                {`+${(configuredConnectors->Array.length - 3)->Js.Int.toString}`->React.string}
+                {`+${(configuredConnectors->Array.length - 3)->Int.toString}`->React.string}
               </div>,
             ])
           : icons
@@ -65,7 +67,7 @@ module ConnectorOverview = {
             <p className=cardHeaderTextStyle>
               {`${configuredConnectors
                 ->Array.length
-                ->Js.Int.toString} Active Processors`->React.string}
+                ->Int.toString} Active Processors`->React.string}
             </p>
           </div>
           <ACLButton
