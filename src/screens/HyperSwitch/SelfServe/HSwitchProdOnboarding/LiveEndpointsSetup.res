@@ -86,7 +86,7 @@ module SetupWebhookUser = {
         setWebhookEndpoint(_ => val)
       },
       onFocus: _ev => (),
-      value: webhookEndpoint->Js.Json.string,
+      value: webhookEndpoint->JSON.Encode.string,
       checked: true,
     }
 
@@ -172,11 +172,11 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
     try {
       setButtonState(_ => Loading)
       let mercahantUpdateBody =
-        [("webhook_url", webhookEndpoint->Js.Json.string)]->Dict.fromArray->Js.Json.object_
+        [("webhook_url", webhookEndpoint->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
       let body = mercahantUpdateBody->MerchantAccountUtils.getSettingsPayload(merchantId)
       let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ())
       let merchantInfo = await updateDetails(url, body, Post, ())
-      setMerchantDetailsValue(._ => merchantInfo->Js.Json.stringify)
+      setMerchantDetailsValue(._ => merchantInfo->JSON.stringify)
       updateLiveEndpoint()->ignore
     } catch {
     | _ => setButtonState(_ => Normal)

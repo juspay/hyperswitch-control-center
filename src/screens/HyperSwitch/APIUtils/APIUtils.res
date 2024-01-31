@@ -1,7 +1,7 @@
 open HSLocalStorage
 open LogicUtils
 open APIUtilsTypes
-exception JsonException(Js.Json.t)
+exception JsonException(JSON.t)
 
 let getURL = (
   ~entityName: entityName,
@@ -82,7 +82,7 @@ let getURL = (
       | Some(key_id) => `api_keys/${merchantId}/${key_id}`
       | None => `api_keys/${merchantId}`
       }
-    | Delete => `api_keys/${merchantId}/${id->Option.getWithDefault("")}`
+    | Delete => `api_keys/${merchantId}/${id->Option.getOr("")}`
     | _ => ""
     }
   | ORDERS =>
@@ -202,6 +202,11 @@ let getURL = (
     | Some(id) => `account/${merchantId}/business_profile/${id}`
     | None => `account/${merchantId}/business_profile`
     }
+  | ACCEPT_DISPUTE =>
+    switch id {
+    | Some(id) => `disputes/accept/${id}`
+    | None => `disputes`
+    }
   | PAYMENT | SETTINGS => ""
   }
   `${HSwitchGlobalVars.hyperSwitchApiPrefix}/${endpoint}`
@@ -211,14 +216,14 @@ let sessionExpired = ref(false)
 
 let handleLogout = async (
   ~fetchApi as _: (
-    Js.String2.t,
+    string,
     ~bodyStr: string=?,
     ~bodyFormData: option<Fetch.formData>=?,
-    ~headers: Js.Dict.t<Js.String2.t>=?,
-    ~bodyHeader: Js.Dict.t<Js.Json.t>=?,
+    ~headers: Dict.t<string>=?,
+    ~bodyHeader: Dict.t<JSON.t>=?,
     ~method_: Fetch.requestMethod,
-    ~authToken: option<Js.String2.t>=?,
-    ~requestId: Js.String.t=?,
+    ~authToken: option<string>=?,
+    ~requestId: string=?,
     ~disableEncryption: bool=?,
     ~storageKey: string=?,
     ~betaEndpointConfig: AuthHooks.betaEndpoint=?,
@@ -246,7 +251,7 @@ let responseHandler = async (
   let json = try {
     await res->Fetch.Response.json
   } catch {
-  | _ => Js.Json.null
+  | _ => JSON.Encode.null
   }
 
   let responseStatus = res->Fetch.Response.status
@@ -255,7 +260,7 @@ let responseHandler = async (
   | 200 => json
   | _ => {
       let errorDict = json->getDictFromJsonObject->getObj("error", Dict.make())
-      let errorStringifiedJson = errorDict->Js.Json.object_->Js.Json.stringify
+      let errorStringifiedJson = errorDict->JSON.Encode.object->JSON.stringify
 
       //TODO:-
       // errorCodes to be handled
@@ -410,7 +415,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
       let res = await fetchApi(
         url,
         ~method_=method,
-        ~bodyStr=body->Js.Json.stringify,
+        ~bodyStr=body->JSON.stringify,
         ~bodyFormData,
         ~headers,
         (),

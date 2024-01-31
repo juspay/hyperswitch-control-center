@@ -37,7 +37,7 @@ module VolumeRoutingView = {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-        let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post, ())
+        let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
         showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(`/routing?`)
         setScreenState(_ => Success)
@@ -66,7 +66,7 @@ module VolumeRoutingView = {
       try {
         setScreenState(_ => Loading)
         let deactivateRoutingURL = `${getURL(~entityName=ROUTING, ~methodType=Post, ())}/deactivate`
-        let body = [("profile_id", profile->Js.Json.string)]->Dict.fromArray->Js.Json.object_
+        let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
         let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
         showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(`/routing?`)
@@ -237,7 +237,7 @@ let make = (~routingRuleId, ~isActive) => {
       | None => {
           setInitialValues(_ => {
             let dict = VOLUME_SPLIT->RoutingUtils.constructNameDescription
-            dict->Dict.set("profile_id", profile->Js.Json.string)
+            dict->Dict.set("profile_id", profile->JSON.Encode.string)
             dict->Dict.set(
               "algorithm",
               {
@@ -252,14 +252,14 @@ let make = (~routingRuleId, ~isActive) => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }
   }
 
-  let validate = (values: Js.Json.t) => {
-    let errors = Js.Dict.empty()
+  let validate = (values: JSON.t) => {
+    let errors = Dict.make()
     let dict = values->getDictFromJsonObject
     let validateGateways = dict => {
       let gateways = dict->getArrayFromDict("data", [])
@@ -267,7 +267,7 @@ let make = (~routingRuleId, ~isActive) => {
         Some("Need atleast 1 Gateway")
       } else {
         let distributionPercentages = gateways->Belt.Array.keepMap(json => {
-          json->Js.Json.decodeObject->Option.flatMap(getOptionFloat(_, "split"))
+          json->JSON.Decode.object->Option.flatMap(getOptionFloat(_, "split"))
         })
         let distributionPercentageSum =
           distributionPercentages->Array.reduce(0., (sum, distribution) => sum +. distribution)
@@ -286,12 +286,12 @@ let make = (~routingRuleId, ~isActive) => {
       }
     }
 
-    let volumeBasedDistributionDict = dict->getObj("algorithm", Js.Dict.empty())
+    let volumeBasedDistributionDict = dict->getObj("algorithm", Dict.make())
     switch volumeBasedDistributionDict->validateGateways {
-    | Some(error) => errors->Js.Dict.set("Volume Based Distribution", error->Js.Json.string)
+    | Some(error) => errors->Dict.set("Volume Based Distribution", error->JSON.Encode.string)
     | None => ()
     }
-    errors->Js.Json.object_
+    errors->JSON.Encode.object
   }
 
   let onSubmit = async (values, isSaveRule) => {
@@ -311,7 +311,7 @@ let make = (~routingRuleId, ~isActive) => {
       Js.Nullable.return(res)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong!")
+      let err = Js.Exn.message(e)->Option.getOr("Something went wrong!")
       showToast(~message="Failed to Save the Configuration !", ~toastType=ToastState.ToastError, ())
       setScreenState(_ => PageLoaderWrapper.Error(err))
       Js.Exn.raiseError(err)
@@ -328,7 +328,7 @@ let make = (~routingRuleId, ~isActive) => {
       <Form
         onSubmit={(values, _) => onSubmit(values, true)}
         validate
-        initialValues={initialValues->Js.Json.object_}>
+        initialValues={initialValues->JSON.Encode.object}>
         <div className="w-full flex justify-between">
           <div className="w-full">
             <BasicDetailsForm

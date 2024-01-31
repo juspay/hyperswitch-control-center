@@ -32,7 +32,7 @@ module OrderInfo = {
           <div className="flex items-center flex-wrap gap-3 m-3">
             <div className="flex items-start">
               <div className="md:text-5xl font-bold">
-                {`${(data.amount /. 100.00)->Belt.Float.toString} ${data.currency} `->React.string}
+                {`${(data.amount /. 100.00)->Float.toString} ${data.currency} `->React.string}
               </div>
               <ToolTip
                 description="Original amount that was authorized for the payment"
@@ -64,7 +64,7 @@ module OrderInfo = {
               <div className=widthClass key={i->string_of_int}>
                 <DisplayKeyValueParams
                   heading={getHeading(colType)}
-                  value={getCell(data, colType, connectorList->Option.getWithDefault([]))}
+                  value={getCell(data, colType, connectorList->Option.getOr([]))}
                   customMoneyStyle="!font-normal !text-sm"
                   labelMargin="!py-0 mt-2"
                   overiddingHeadingStyles="text-black text-sm font-medium"
@@ -235,7 +235,7 @@ module AttemptsSection = {
 
 module DisputesSection = {
   @react.component
-  let make = (~data: DisputesEntity.disputes) => {
+  let make = (~data: DisputeTypes.disputes) => {
     let widthClass = "w-4/12"
     <div className="flex flex-row flex-wrap">
       <div className="w-1/2 p-2">
@@ -351,7 +351,7 @@ module Attempts = {
     }
 
     let attemptsData =
-      orderDict->getArrayFromDict("attempts", [])->Js.Json.array->OrderEntity.getAttempts
+      orderDict->getArrayFromDict("attempts", [])->JSON.Encode.array->OrderEntity.getAttempts
 
     let heading = attemptsColumns->Array.map(getAttemptHeading)
 
@@ -451,7 +451,7 @@ module OrderActions = {
   @react.component
   let make = (~orderDict, ~refetch, ~showModal, ~setShowModal) => {
     let (amoutAvailableToRefund, setAmoutAvailableToRefund) = React.useState(_ => 0.0)
-    let refundData = orderDict->getArrayFromDict("refunds", [])->Js.Json.array->getRefunds
+    let refundData = orderDict->getArrayFromDict("refunds", [])->JSON.Encode.array->getRefunds
 
     let amountRefunded = ref(0.0)
     let requestedRefundAmount = ref(0.0)
@@ -508,7 +508,7 @@ module FraudRiskBannerDetails = {
             (),
           )}/${decision->String.toLowerCase}`
 
-        let _ = await updateDetails(ordersDecisionUrl, Dict.make()->Js.Json.object_, Post, ())
+        let _ = await updateDetails(ordersDecisionUrl, Dict.make()->JSON.Encode.object, Post, ())
         showToast(~message="Details Updated", ~toastType=ToastSuccess, ())
         refetch()
       } catch {
@@ -641,7 +641,7 @@ let make = (~id) => {
     orderData
     ->getDictFromJsonObject
     ->getArrayFromDict("refunds", [])
-    ->Js.Json.array
+    ->JSON.Encode.array
     ->OrderEntity.getRefunds
 
   let isRefundDataAvailable = refundData->Array.length !== 0
@@ -650,7 +650,7 @@ let make = (~id) => {
     orderData
     ->getDictFromJsonObject
     ->getArrayFromDict("disputes", [])
-    ->Js.Json.array
+    ->JSON.Encode.array
     ->DisputesEntity.getDisputes
 
   let isDisputeDataVisible = disputesData->Array.length !== 0
@@ -804,9 +804,7 @@ let make = (~id) => {
                 renderContent: () => {
                   <div className="bg-white p-2">
                     <PaymentLogs.PrettyPrintJson
-                      jsonToDisplay={order.metadata
-                      ->Js.Json.stringifyAny
-                      ->Option.getWithDefault("")}
+                      jsonToDisplay={order.metadata->JSON.stringifyAny->Option.getOr("")}
                       overrideBackgroundColor="bg-white"
                     />
                   </div>

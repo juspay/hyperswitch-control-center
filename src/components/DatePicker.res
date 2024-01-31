@@ -32,21 +32,21 @@ let make = (
   let (date, setDate) = React.useState(_ => {
     if selectedDate !== "" {
       let date = String.split(selectedDate, "-")
-      let dateDay = date->Belt.Array.get(2)->Option.getWithDefault("1")
-      let dateMonth = date->Belt.Array.get(1)->Option.getWithDefault("1")
-      let dateYear = date->Belt.Array.get(0)->Option.getWithDefault("1970")
+      let dateDay = date->Array.get(2)->Option.getOr("1")
+      let dateMonth = date->Array.get(1)->Option.getOr("1")
+      let dateYear = date->Array.get(0)->Option.getOr("1970")
 
       let timeSplit =
-        switch input.value->Js.Json.decodeString {
+        switch input.value->JSON.Decode.string {
         | Some(str) => str
         | None => ""
         }
         ->DateRangePicker.getTimeStringForValue(isoStringToCustomTimeZone)
         ->String.split(":")
 
-      let timeHour = timeSplit->Belt.Array.get(0)->Option.getWithDefault(currentDateHourFormat)
-      let timeMinute = timeSplit->Belt.Array.get(1)->Option.getWithDefault(currentDateMinuteFormat)
-      let timeSecond = timeSplit->Belt.Array.get(2)->Option.getWithDefault(currentDateSecondsFormat)
+      let timeHour = timeSplit->Array.get(0)->Option.getOr(currentDateHourFormat)
+      let timeMinute = timeSplit->Array.get(1)->Option.getOr(currentDateMinuteFormat)
+      let timeSecond = timeSplit->Array.get(2)->Option.getOr(currentDateSecondsFormat)
       let dateTimeCheck = customTimezoneToISOString(
         dateYear,
         dateMonth,
@@ -74,9 +74,9 @@ let make = (
     setSelectedDate(_ => str)
 
     let currentDateSplit = String.split(str, "-")
-    let currentDateDay = currentDateSplit->Belt.Array.get(2)->Option.getWithDefault("1")
-    let currentDateYear = currentDateSplit->Belt.Array.get(0)->Option.getWithDefault("1970")
-    let currentDateMonth = currentDateSplit->Belt.Array.get(1)->Option.getWithDefault("1")
+    let currentDateDay = currentDateSplit->Array.get(2)->Option.getOr("1")
+    let currentDateYear = currentDateSplit->Array.get(0)->Option.getOr("1970")
+    let currentDateMonth = currentDateSplit->Array.get(1)->Option.getOr("1")
 
     let currentDateTimeCheck = customTimezoneToISOString(
       currentDateYear,
@@ -90,7 +90,7 @@ let make = (
     input.onChange(currentDateTimeCheck->Identity.stringToFormReactEvent)
   }
   React.useEffect1(() => {
-    if input.value == ""->Js.Json.string {
+    if input.value == ""->JSON.Encode.string {
       setSelectedDate(_ => "")
     }
     None
@@ -130,10 +130,10 @@ let make = (
           ? `${currentDateHourFormat}:${currentDateMinuteFormat}${showSeconds
                 ? ":" ++ currentDateSecondsFormat
                 : ""}`
-          : splitTime->Belt.Array.get(0)->Option.getWithDefault("NA") ++
+          : splitTime->Array.get(0)->Option.getOr("NA") ++
             ":" ++
-            splitTime->Belt.Array.get(1)->Option.getWithDefault("NA") ++ (
-              showSeconds ? ":" ++ splitTime->Belt.Array.get(2)->Option.getWithDefault("NA") : ""
+            splitTime->Array.get(1)->Option.getOr("NA") ++ (
+              showSeconds ? ":" ++ splitTime->Array.get(2)->Option.getOr("NA") : ""
             )}`
     }
     startDateStr
@@ -154,7 +154,7 @@ let make = (
   | Some(icon) => icon
   | None => FontAwesome("calendar")
   }
-  let fullLengthWidthClass = fullLength->Option.getWithDefault(false) ? "2xl:w-full" : ""
+  let fullLengthWidthClass = fullLength->Option.getOr(false) ? "2xl:w-full" : ""
 
   let startTimeInput: ReactFinalForm.fieldRenderPropsInput = {
     name: "string",
@@ -171,15 +171,13 @@ let make = (
           timeVal
         }
         let date = String.split(selectedDate, "-")
-        let dateDay = date->Belt.Array.get(2)->Option.getWithDefault("1")
-        let dateMonth = date->Belt.Array.get(1)->Option.getWithDefault("1")
-        let dateYear = date->Belt.Array.get(0)->Option.getWithDefault("1970")
+        let dateDay = date->Array.get(2)->Option.getOr("1")
+        let dateMonth = date->Array.get(1)->Option.getOr("1")
+        let dateYear = date->Array.get(0)->Option.getOr("1970")
         let timeSplit = String.split(timeVal, ":")
-        let timeHour = timeSplit->Belt.Array.get(0)->Option.getWithDefault(currentDateHourFormat)
-        let timeMinute =
-          timeSplit->Belt.Array.get(1)->Option.getWithDefault(currentDateMinuteFormat)
-        let timeSecond =
-          timeSplit->Belt.Array.get(2)->Option.getWithDefault(currentDateSecondsFormat)
+        let timeHour = timeSplit->Array.get(0)->Option.getOr(currentDateHourFormat)
+        let timeMinute = timeSplit->Array.get(1)->Option.getOr(currentDateMinuteFormat)
+        let timeSecond = timeSplit->Array.get(2)->Option.getOr(currentDateSecondsFormat)
         let dateTimeCheck = customTimezoneToISOString(
           dateYear,
           dateMonth,
@@ -200,7 +198,7 @@ let make = (
         time === ""
           ? `${currentDateHourFormat}:${currentDateMinuteFormat}:${currentDateSecondsFormat}`
           : time
-      time->Js.Json.string
+      time->JSON.Encode.string
     },
     checked: false,
   }

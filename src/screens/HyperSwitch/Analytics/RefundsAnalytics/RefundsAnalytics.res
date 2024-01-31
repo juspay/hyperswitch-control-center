@@ -20,7 +20,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }
@@ -32,8 +32,8 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let refundUrl = getURL(~entityName=REFUNDS, ~methodType=Post, ~id=Some("refund-post"), ())
       let body = Dict.make()
-      body->Dict.set("limit", 100->Belt.Int.toFloat->Js.Json.number)
-      let refundDetails = await updateDetails(refundUrl, body->Js.Json.object_, Post, ())
+      body->Dict.set("limit", 100->Int.toFloat->JSON.Encode.float)
+      let refundDetails = await updateDetails(refundUrl, body->JSON.Encode.object, Post, ())
       let data = refundDetails->getDictFromJsonObject->getArrayFromDict("data", [])
 
       if data->Array.length < 1 {
@@ -43,7 +43,7 @@ let make = () => {
       }
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }

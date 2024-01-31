@@ -5,7 +5,7 @@ module RequestPage = {
     open UserOnboardingUtils
     open APIUtils
 
-    let requestedValue = requestedPlatform->Option.getWithDefault("")->LogicUtils.capitalizeString
+    let requestedValue = requestedPlatform->Option.getOr("")->LogicUtils.capitalizeString
     let (isSubmitButtonEnabled, setIsSubmitButtonEnabled) = React.useState(_ => true)
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
@@ -15,13 +15,13 @@ module RequestPage = {
         let url = getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Post, ())
         let requestedBody =
           [
-            ("rating", 5.0->Js.Json.number),
-            ("category", "Platform Request"->Js.Json.string),
-            ("feedbacks", `Request for ${requestedValue}`->Js.Json.string),
+            ("rating", 5.0->JSON.Encode.float),
+            ("category", "Platform Request"->JSON.Encode.string),
+            ("feedbacks", `Request for ${requestedValue}`->JSON.Encode.string),
           ]
           ->LogicUtils.getJsonFromArrayOfJson
           ->HSwitchUtils.getBodyForFeedBack()
-          ->Js.Json.object_
+          ->JSON.Encode.object
 
         let body = [("Feedback", requestedBody)]->LogicUtils.getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post, ())

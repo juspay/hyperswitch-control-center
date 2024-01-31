@@ -3,6 +3,43 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.01.30.0
+
+### Features
+
+- Made the customize columns to appear in Portal for same line ([#308](https://github.com/juspay/hyperswitch-control-center/pull/308)) ([`ea21b97`](https://github.com/juspay/hyperswitch-control-center/commit/ea21b97c5964d34ce335a8c69e43142a65eb25bf))
+
+### Refactors
+
+- Proper identification of reactHyperJs from hyperswitch ([#299](https://github.com/juspay/hyperswitch-control-center/pull/299)) ([`4038dff`](https://github.com/juspay/hyperswitch-control-center/commit/4038dff12c539382490752979b917f7790b08ca6))
+
+### Miscellaneous Tasks
+
+- Remove Belt API from codebase ([#310](https://github.com/juspay/hyperswitch-control-center/pull/310)) ([`089c051`](https://github.com/juspay/hyperswitch-control-center/commit/089c05142ad9591adac3ef94f66c48321fe6ec65))
+
+**Full Changelog:** [`2024.01.29.0...2024.01.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.01.29.0...2024.01.30.0)
+
+- - -
+
+## 2024.01.29.0
+
+### Features
+
+- Accept dispute ([#214](https://github.com/juspay/hyperswitch-control-center/pull/214)) ([`4c0d56b`](https://github.com/juspay/hyperswitch-control-center/commit/4c0d56b134276787cfbc3b48d53c591f8dcc7ae1))
+
+### Bug Fixes
+
+- Audit log fix ([#305](https://github.com/juspay/hyperswitch-control-center/pull/305)) ([`6bffa75`](https://github.com/juspay/hyperswitch-control-center/commit/6bffa75d580896bb86122da823e94814516bdb41))
+- Enabling nmi in prod ([#309](https://github.com/juspay/hyperswitch-control-center/pull/309)) ([`30ebc24`](https://github.com/juspay/hyperswitch-control-center/commit/30ebc24a558969fbc2789700c93247d5dd586120))
+
+### Miscellaneous Tasks
+
+- Rescript core version upgrade ([#293](https://github.com/juspay/hyperswitch-control-center/pull/293)) ([`2d03f43`](https://github.com/juspay/hyperswitch-control-center/commit/2d03f43092cc8a7ed030a2f2ad8df663f081c15b))
+
+**Full Changelog:** [`2024.01.25.1...2024.01.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.01.25.1...2024.01.29.0)
+
+- - -
+
 ## 2024.01.25.1
 
 ### Miscellaneous Tasks

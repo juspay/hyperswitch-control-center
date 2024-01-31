@@ -58,10 +58,10 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
 }
 
 let getCurrencyValue = (countryCurrency: string) => {
-  countryCurrency->String.split("-")->Belt.Array.get(1)->Option.getWithDefault("USD")->String.trim
+  countryCurrency->String.split("-")->Array.get(1)->Option.getOr("USD")->String.trim
 }
 
-let getTypedValueForPayment: Js.Json.t => SDKPaymentTypes.paymentType = values => {
+let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
   open LogicUtils
   let dictOfValues = values->getDictFromJsonObject
   let shippingAddress =

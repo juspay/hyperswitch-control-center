@@ -13,9 +13,9 @@ let make = (
   open LogicUtils
   let _showAdvancedConfiguration = false
   let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
-    Dict.make()->Js.Json.object_->getPaymentMethodEnabled
+    Dict.make()->JSON.Encode.object->getPaymentMethodEnabled
   )
-  let (metaData, setMetaData) = React.useState(_ => Dict.make()->Js.Json.object_)
+  let (metaData, setMetaData) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let showToast = ToastState.useShowToast()
   let connectorID = initialValues->getDictFromJsonObject->getOptionString("merchant_connector_id")
   let (screenState, setScreenState) = React.useState(_ => Loading)
@@ -51,7 +51,7 @@ let make = (
       }
       let body =
         constructConnectorRequestBody(obj, initialValues)->ignoreFields(
-          connectorID->Option.getWithDefault(""),
+          connectorID->Option.getOr(""),
           connectorIgnoredField,
         )
       let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=connectorID, ())
@@ -66,7 +66,7 @@ let make = (
       )
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
 

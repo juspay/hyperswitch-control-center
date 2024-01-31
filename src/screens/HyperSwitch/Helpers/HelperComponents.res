@@ -53,16 +53,16 @@ module BluredTableComponent = {
   ) => {
     let dummyTableValueDict =
       [
-        ("payment_id", "##############"->Js.Json.string),
-        ("merchant_id", "####"->Js.Json.string),
-        ("status", "####"->Js.Json.string),
-        ("amount", "####"->Js.Json.string),
-        ("amount_capturable", "####"->Js.Json.string),
+        ("payment_id", "##############"->JSON.Encode.string),
+        ("merchant_id", "####"->JSON.Encode.string),
+        ("status", "####"->JSON.Encode.string),
+        ("amount", "####"->JSON.Encode.string),
+        ("amount_capturable", "####"->JSON.Encode.string),
       ]->Dict.fromArray
 
-    let dummyTableValue = Belt.Array.make(5, dummyTableValueDict)
+    let dummyTableValue = Array.make(~length=5, dummyTableValueDict)
 
-    let subTitle = moduleSubtitle->Option.isSome ? moduleSubtitle->Option.getWithDefault("") : ""
+    let subTitle = moduleSubtitle->Option.isSome ? moduleSubtitle->Option.getOr("") : ""
 
     <div className="relative flex flex-col gap-8">
       <div className="flex items-center justify-between ">

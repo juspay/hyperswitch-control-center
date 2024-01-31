@@ -7,7 +7,7 @@ external make: (
   ~codeFoldMessageRenderer: unit => string=?,
   ~hideLineNumbers: bool=?,
   ~useDarkTheme: bool=?,
-  ~styles: Js.Json.t=?,
+  ~styles: JSON.t=?,
   ~leftTitle: string=?,
   ~rightTitle: string=?,
   ~compareMethod: string=?,

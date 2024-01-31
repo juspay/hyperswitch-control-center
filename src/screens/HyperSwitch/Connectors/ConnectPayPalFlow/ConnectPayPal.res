@@ -150,7 +150,7 @@ module ErrorPage = {
         </div>
         <RenderIf condition={errorPageDetails.buttonText->Option.isSome}>
           <PayPalCreateNewAccountModal
-            butttonDisplayText={errorPageDetails.buttonText->Option.getWithDefault("")}
+            butttonDisplayText={errorPageDetails.buttonText->Option.getOr("")}
             actionUrl
             setScreenState
           />
@@ -258,7 +258,7 @@ let make = (
   )
   let connectorValue = isUpdateFlow
     ? url.path->List.toArray->getValueFromArray(1, "")
-    : url.search->getDictFromUrlSearchParams->Dict.get("connectorId")->Option.getWithDefault("")
+    : url.search->getDictFromUrlSearchParams->Dict.get("connectorId")->Option.getOr("")
 
   let (connectorId, setConnectorId) = React.useState(_ => connectorValue)
 
@@ -280,12 +280,15 @@ let make = (
         initialValues
         ->getDictFromJsonObject
         ->getString("connector_label", "paypal_default")
-        ->Js.Json.string,
+        ->JSON.Encode.string,
       )
-      initialValuesToDict->Dict.set("profile_id", activeBusinessProfile.profile_id->Js.Json.string)
+      initialValuesToDict->Dict.set(
+        "profile_id",
+        activeBusinessProfile.profile_id->JSON.Encode.string,
+      )
 
-      setInitialValues(_ => initialValuesToDict->Js.Json.object_)
-      initialValuesToDict->Js.Json.object_
+      setInitialValues(_ => initialValuesToDict->JSON.Encode.object)
+      initialValuesToDict->JSON.Encode.object
     } else {
       initialValues
     }
@@ -294,9 +297,9 @@ let make = (
   let setConnectorAsActive = values => {
     // sets the status as active and diabled as false
     let dictOfInitialValues = values->getDictFromJsonObject
-    dictOfInitialValues->Dict.set("disabled", false->Js.Json.boolean)
-    dictOfInitialValues->Dict.set("status", "active"->Js.Json.string)
-    setInitialValues(_ => dictOfInitialValues->Js.Json.object_)
+    dictOfInitialValues->Dict.set("disabled", false->JSON.Encode.bool)
+    dictOfInitialValues->Dict.set("status", "active"->JSON.Encode.string)
+    setInitialValues(_ => dictOfInitialValues->JSON.Encode.object)
   }
 
   let updateConnectorDetails = async values => {
@@ -333,9 +336,9 @@ let make = (
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
     let profileId = valuesFlattenJson->getString("profile_id", "")
     if profileId->String.length === 0 {
-      Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
+      Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
     }
-    errors->Js.Json.object_
+    errors->JSON.Encode.object
   }
 
   let handleChangeAuthType = async values => {
@@ -409,7 +412,7 @@ let make = (
       switch Js.Exn.message(e) {
       | Some(message) => {
           let errMsg = message->parseIntoMyData
-          if errMsg.code->Option.getWithDefault("")->String.includes("HE_01") {
+          if errMsg.code->Option.getOr("")->String.includes("HE_01") {
             showToast(
               ~message="This configuration already exists for the connector. Please try with a different country or label under advanced settings.",
               ~toastType=ToastState.ToastError,

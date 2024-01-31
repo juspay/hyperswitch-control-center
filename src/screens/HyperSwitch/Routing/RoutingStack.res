@@ -3,7 +3,7 @@ open APIUtils
 let make = (~remainingPath, ~previewOnly=false) => {
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
-  let pathVar = url.path->Belt.List.toArray->Array.joinWith("/")
+  let pathVar = url.path->List.toArray->Array.joinWith("/")
 
   let (records, setRecords) = React.useState(_ => [])
   let (activeRoutingIds, setActiveRoutingIds) = React.useState(_ => [])
@@ -49,10 +49,10 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
       let recordsData =
         configuredRules
-        ->Js.Json.array
-        ->Js.Json.decodeArray
-        ->Option.getWithDefault([])
-        ->Belt.Array.keepMap(Js.Json.decodeObject)
+        ->JSON.Encode.array
+        ->JSON.Decode.array
+        ->Option.getOr([])
+        ->Belt.Array.keepMap(JSON.Decode.object)
         ->Array.map(HistoryEntity.itemToObjMapper)
 
       // To sort the data in a format that active routing always comes at top of the table
@@ -77,7 +77,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -102,13 +102,13 @@ let make = (~remainingPath, ~previewOnly=false) => {
         setRoutingType(_ => routingArr)
       } else {
         await fetchRoutingRecords([])
-        let defaultFallback = [("kind", "default"->Js.Json.string)]->Dict.fromArray
-        setRoutingType(_ => [defaultFallback->Js.Json.object_])
+        let defaultFallback = [("kind", "default"->JSON.Encode.string)]->Dict.fromArray
+        setRoutingType(_ => [defaultFallback->JSON.Encode.object])
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }

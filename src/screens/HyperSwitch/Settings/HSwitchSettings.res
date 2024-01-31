@@ -28,7 +28,12 @@ module TileComponent = {
     let deleteSampleData = async () => {
       try {
         let generateSampleDataUrl = getURL(~entityName=GENERATE_SAMPLE_DATA, ~methodType=Delete, ())
-        let _ = await updateDetails(generateSampleDataUrl, Dict.make()->Js.Json.object_, Delete, ())
+        let _ = await updateDetails(
+          generateSampleDataUrl,
+          Dict.make()->JSON.Encode.object,
+          Delete,
+          (),
+        )
         showToast(~message="Sample data deleted successfully", ~toastType=ToastSuccess, ())
       } catch {
       | _ => ()
@@ -113,11 +118,11 @@ module PersonalSettings = {
           key={string_of_int(index)}
           heading={sections.heading}
           subHeading={sections.subHeading}
-          redirect={sections.redirect->Option.getWithDefault("")}
-          isComingSoon={sections.isComingSoon->Option.getWithDefault(false)}
-          buttonText={sections.buttonText->Option.getWithDefault("Add Details")}
+          redirect={sections.redirect->Option.getOr("")}
+          isComingSoon={sections.isComingSoon->Option.getOr(false)}
+          buttonText={sections.buttonText->Option.getOr("Add Details")}
           redirectUrl={sections.redirectUrl}
-          isApiCall={sections.isApiCall->Option.getWithDefault(false)}
+          isApiCall={sections.isApiCall->Option.getOr(false)}
           cardName={sections.cardName}
         />
       )

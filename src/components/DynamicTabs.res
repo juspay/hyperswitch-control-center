@@ -6,7 +6,7 @@ type tab = {
 }
 
 let getValueFromArrayTab = (tabsVal: array<tab>, index: int) => {
-  switch tabsVal->Belt.Array.get(index) {
+  switch tabsVal->Array.get(index) {
   | Some(val) => val.value
   | None => ""
   }
@@ -44,11 +44,7 @@ module TabInfo = {
     ~setCollapsibleTabs,
     ~selectedIndex,
     ~tabNames,
-    ~handleSelectedTab: (
-      ~tabValue: string,
-      ~collapsibleTabs: Js.Array2.t<tab>,
-      ~removed: bool,
-    ) => unit,
+    ~handleSelectedTab: (~tabValue: string, ~collapsibleTabs: array<tab>, ~removed: bool) => unit,
     ~tabStacksnames,
     ~setTabStacksnames,
     ~description="",
@@ -66,7 +62,7 @@ module TabInfo = {
     let handleClick = React.useCallback2(_ev => {
       handleSelectedTab(
         ~tabValue={
-          switch tabNames->Belt.Array.get(index) {
+          switch tabNames->Array.get(index) {
           | Some(tab) => tab.value
           | None => getValueFromArrayTab(tabNames, 0)
           }
@@ -96,10 +92,7 @@ module TabInfo = {
             updatedStackAfterRemovingTab->Array.filterWithIndex((item, index) =>
               index === 0
                 ? true
-                : item !==
-                    updatedStackAfterRemovingTab
-                    ->Belt.Array.get(index - 1)
-                    ->Option.getWithDefault("")
+                : item !== updatedStackAfterRemovingTab->Array.get(index - 1)->Option.getOr("")
             )
           })
 
@@ -214,10 +207,7 @@ module IndicationArrow = {
 }
 
 let getBoundingRectInfo = (ref: React.ref<Js.Nullable.t<Dom.element>>, getter) => {
-  ref.current
-  ->Js.Nullable.toOption
-  ->Belt.Option.map(getBoundingClientRect)
-  ->Belt.Option.mapWithDefault(0, getter)
+  ref.current->Js.Nullable.toOption->Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
 }
 
 @react.component
@@ -240,7 +230,7 @@ let make = (
   // this tabs will always loaded independent of user preference
   let isMobileView = MatchMedia.useMobileChecker()
   let defaultTabs =
-    defaultTabs->Option.getWithDefault(tabs->Array.copy->Array.filter(item => !item.isRemovable))
+    defaultTabs->Option.getOr(tabs->Array.copy->Array.filter(item => !item.isRemovable))
 
   let tabOuterClass = `gap-1.5`
   let bottomBorderClass = ""
@@ -261,8 +251,8 @@ let make = (
       ->Array.filter(item => {
         item.value == key
       })
-      ->Belt.Array.get(0)
-      ->Option.getWithDefault({title: "", value: "", isRemovable: false})
+      ->Array.get(0)
+      ->Option.getOr({title: "", value: "", isRemovable: false})
     ).title
   }
 
@@ -278,7 +268,7 @@ let make = (
           ->Array.filter(item => !(defautTabValues->Array.includes(item)))
 
         let tabsFromPreference =
-          Belt.Array.concat(defautTabValues, tabsFromPreference)->Array.map(item =>
+          Array.concat(defautTabValues, tabsFromPreference)->Array.map(item =>
             item->String.split(",")
           )
 
@@ -304,7 +294,7 @@ let make = (
                 },
               ) {
               | Some(tabValue) =>
-                enableDescriptionHeader ? tabValue.description->Option.getWithDefault("") : ""
+                enableDescriptionHeader ? tabValue.description->Option.getOr("") : ""
               | None => ""
               },
               isRemovable: switch tabs->Array.find(
@@ -392,9 +382,9 @@ let make = (
     let collapsibleTabsValues =
       collapsibleTabs
       ->Array.map(item => {
-        item.value->Js.Json.string
+        item.value->JSON.Encode.string
       })
-      ->Js.Json.array
+      ->JSON.Encode.array
 
     addConfig(availableTabUserPrefKey, collapsibleTabsValues)
 
@@ -429,15 +419,12 @@ let make = (
 
   let handleSelectedTab: (
     ~tabValue: string,
-    ~collapsibleTabs: Js.Array2.t<tab>,
+    ~collapsibleTabs: array<tab>,
     ~removed: bool,
   ) => unit = (~tabValue: string, ~collapsibleTabs: array<tab>, ~removed: bool) => {
     if removed === false {
       if (
-        tabValue !==
-          tabStacksnames
-          ->Belt.Array.get(tabStacksnames->Array.length - 1)
-          ->Option.getWithDefault("")
+        tabValue !== tabStacksnames->Array.get(tabStacksnames->Array.length - 1)->Option.getOr("")
       ) {
         setTabStacksnames(prev => {
           Array.concat(prev, [tabValue])
@@ -453,15 +440,11 @@ let make = (
         Dict.fromArray([
           (
             "tabName",
-            `[${tabStacksnames
-              ->Belt.Array.get(tabStacksnames->Array.length - 1)
-              ->Option.getWithDefault("")}]`,
+            `[${tabStacksnames->Array.get(tabStacksnames->Array.length - 1)->Option.getOr("")}]`,
           ),
         ]),
       )
-      setActiveTab(
-        tabStacksnames->Belt.Array.get(tabStacksnames->Array.length - 1)->Option.getWithDefault(""),
-      )
+      setActiveTab(tabStacksnames->Array.get(tabStacksnames->Array.length - 1)->Option.getOr(""))
 
       setSelectedIndex(_ =>
         Js.Math.max_int(
@@ -469,9 +452,7 @@ let make = (
           collapsibleTabs
           ->Array.map(item => item.value)
           ->Array.indexOf(
-            tabStacksnames
-            ->Belt.Array.get(tabStacksnames->Array.length - 1)
-            ->Option.getWithDefault(""),
+            tabStacksnames->Array.get(tabStacksnames->Array.length - 1)->Option.getOr(""),
           ),
         )
       )
@@ -624,7 +605,7 @@ let make = (
       </div>
       <SelectModal
         modalHeading="Add Segments"
-        modalHeadingDescription={`You can choose upto maximum of ${maxSelection->Belt.Int.toString} segments`}
+        modalHeadingDescription={`You can choose upto maximum of ${maxSelection->Int.toString} segments`}
         ?headerTextClass
         showModal
         setShowModal

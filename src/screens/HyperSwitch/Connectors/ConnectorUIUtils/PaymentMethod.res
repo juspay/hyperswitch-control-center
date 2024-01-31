@@ -7,11 +7,10 @@ let isSelectedAll = (
   let paymentMethodObj = selectedPaymentMethod->getSelectedPaymentObj(paymentMethod)
   switch paymentMethod->getPaymentMethodFromString {
   | Card =>
-    paymentMethodObj.card_provider->Option.getWithDefault([])->Array.length ==
+    paymentMethodObj.card_provider->Option.getOr([])->Array.length ==
       allPaymentMethods->Array.length
   | _ =>
-    paymentMethodObj.provider->Option.getWithDefault([])->Array.length ==
-      allPaymentMethods->Array.length
+    paymentMethodObj.provider->Option.getOr([])->Array.length == allPaymentMethods->Array.length
   }
 }
 
@@ -38,9 +37,9 @@ module CardRenderer = {
 
     let paymentObj = paymentMethodsEnabled->getSelectedPaymentObj(paymentMethod)
     let standardProviders =
-      paymentObj.provider->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+      paymentObj.provider->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
     let cardProviders =
-      paymentObj.card_provider->Option.getWithDefault([]->Js.Json.array->getPaymentMethodMapper)
+      paymentObj.card_provider->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
 
     let checkPaymentMethodType = (
       obj: paymentMethodConfigType,
@@ -81,16 +80,16 @@ module CardRenderer = {
         if val.payment_method_type === paymentMethod {
           switch paymentMethod->getPaymentMethodTypeFromString {
           | Credit | Debit =>
-            let length = val.card_provider->Option.getWithDefault([])->Array.length
+            let length = val.card_provider->Option.getOr([])->Array.length
             val.card_provider
-            ->Option.getWithDefault([])
+            ->Option.getOr([])
             ->Array.splice(~start=0, ~remove=length, ~insert=arr)
             ->ignore
           | _ =>
-            let length = val.provider->Option.getWithDefault([])->Array.length
+            let length = val.provider->Option.getOr([])->Array.length
 
             val.provider
-            ->Option.getWithDefault([])
+            ->Option.getOr([])
             ->Array.splice(~start=0, ~remove=length, ~insert=arr)
             ->ignore
           }
@@ -216,7 +215,7 @@ module PaymentMethodsRender = {
     <div className="flex flex-col gap-12">
       {keys
       ->Array.mapWithIndex((value, i) => {
-        let provider = pmts->getArrayFromDict(value, [])->Js.Json.array->getPaymentMethodMapper
+        let provider = pmts->getArrayFromDict(value, [])->JSON.Encode.array->getPaymentMethodMapper
 
         switch value->getPaymentMethodTypeFromString {
         | Credit | Debit =>

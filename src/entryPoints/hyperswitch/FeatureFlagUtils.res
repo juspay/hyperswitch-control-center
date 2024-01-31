@@ -25,9 +25,10 @@ type featureFlag = {
   surcharge: bool,
   customersModule: bool,
   permissionBasedModule: bool,
+  disputeEvidenceUpload: bool,
 }
 
-let featureFlagType = (featureFlags: Js.Json.t) => {
+let featureFlagType = (featureFlags: JSON.t) => {
   open LogicUtils
   let dict = featureFlags->getDictFromJsonObject
   let typedFeatureFlag: featureFlag = {
@@ -57,6 +58,7 @@ let featureFlagType = (featureFlags: Js.Json.t) => {
     surcharge: dict->getBool("surcharge", false),
     customersModule: dict->getBool("customers_module", false),
     permissionBasedModule: dict->getBool("permission_based_module", false),
+    disputeEvidenceUpload: dict->getBool("dispute_evidence_upload", false),
   }
   typedFeatureFlag
 }

@@ -45,7 +45,7 @@ let make = (
           showPopUp({
             popUpType: (Warning, WithIcon),
             heading: "Heads up!",
-            description: {React.string(crumb.warning->Option.getWithDefault(""))},
+            description: {React.string(crumb.warning->Option.getOr(""))},
             handleConfirm: {
               text: "Yes, go back",
               onClick: {
@@ -57,7 +57,7 @@ let make = (
             },
           })
       }
-      <UIUtils.RenderIf key={Belt.Int.toString(index)} condition=showCrumb>
+      <UIUtils.RenderIf key={Int.toString(index)} condition=showCrumb>
         <div className={`flex ${flexDirection} ${childGapClass} items-center`}>
           {if collapse {
             <div

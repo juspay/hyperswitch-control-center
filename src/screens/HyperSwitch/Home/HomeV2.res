@@ -85,14 +85,10 @@ module QuickStart = {
         ) {
           if typedConnectorValue->Array.length >= 2 {
             let firstConnectorValue =
-              typedConnectorValue
-              ->Belt.Array.get(0)
-              ->Option.getWithDefault(getProcessorPayloadType(Dict.make()))
+              typedConnectorValue->Array.get(0)->Option.getOr(getProcessorPayloadType(Dict.make()))
 
             let secondConnectorValue =
-              typedConnectorValue
-              ->Belt.Array.get(1)
-              ->Option.getWithDefault(getProcessorPayloadType(Dict.make()))
+              typedConnectorValue->Array.get(1)->Option.getOr(getProcessorPayloadType(Dict.make()))
 
             let bodyOfFirstConnector: QuickStartTypes.processorType = {
               processorID: firstConnectorValue.merchant_connector_id,
@@ -126,9 +122,7 @@ module QuickStart = {
             setQuickStartPageState(_ => ConnectProcessor(CONFIGURE_SMART_ROUTING))
           } else if typedConnectorValue->Array.length === 1 {
             let firstConnectorValue =
-              typedConnectorValue
-              ->Belt.Array.get(0)
-              ->Option.getWithDefault(getProcessorPayloadType(Dict.make()))
+              typedConnectorValue->Array.get(0)->Option.getOr(getProcessorPayloadType(Dict.make()))
 
             let bodyOfFirstConnector: QuickStartTypes.processorType = {
               processorID: firstConnectorValue.merchant_connector_id,

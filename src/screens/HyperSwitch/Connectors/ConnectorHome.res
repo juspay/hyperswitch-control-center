@@ -1,7 +1,7 @@
 module ConnectorCurrentStepIndicator = {
   @react.component
   let make = (~currentStep: ConnectorTypes.steps, ~stepsArr, ~borderWidth="w-8/12") => {
-    let cols = stepsArr->Array.length->Belt.Int.toString
+    let cols = stepsArr->Array.length->Int.toString
     let currIndex = stepsArr->Array.findIndex(item => item === currentStep)
     <div className=" w-full md:w-2/3">
       <div className={`grid grid-cols-${cols} relative gap-2`}>
@@ -27,7 +27,7 @@ module ConnectorCurrentStepIndicator = {
 
           let stepLineIndicator = isPreviousStepCompleted ? "bg-gray-700" : "bg-gray-200"
 
-          <div key={i->Belt.Int.toString} className="flex flex-col gap-2 font-semibold ">
+          <div key={i->Int.toString} className="flex flex-col gap-2 font-semibold ">
             <div className="flex items-center w-full">
               <div
                 className={`h-8 w-8 flex items-center justify-center border rounded-full ${stepNumberIndicator}`}>
@@ -60,9 +60,9 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let connectorID = url.path->Belt.List.toArray->Belt.Array.get(1)->Option.getWithDefault("")
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
+  let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConnectorTypes.IntegFields)
   let fetchDetails = useGetMethod()
 
@@ -83,7 +83,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       setInitialValues(_ => json)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to update!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
         Js.Exn.raiseError(err)
       }
     | _ => Js.Exn.raiseError("Something went wrong")
@@ -104,12 +104,12 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       let responseValue = await updateDetails(url, paypalBody, Fetch.Post, ())
       let paypalDict = responseValue->getDictFromJsonObject->getJsonObjectFromDict("paypal")
 
-      switch paypalDict->Js.Json.classify {
-      | JSONString(str) => {
+      switch paypalDict->JSON.Classify.classify {
+      | String(str) => {
           setSetupAccountStatus(._ => str->stringToVariantMapper)
           setCurrentStep(_ => AutomaticFlow)
         }
-      | JSONObject(dict) =>
+      | Object(dict) =>
         handleObjectResponse(~dict, ~setInitialValues, ~connector, ~handleStateToNextPage=_ =>
           setCurrentStep(_ => PaymentMethods)
         )
@@ -131,7 +131,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       }
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
         setScreenState(_ => Error(err))
       }
     }
@@ -158,47 +158,12 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
         setScreenState(_ => Error(err))
       }
     | _ => setScreenState(_ => Error("Something went wrong"))
     }
   }
-
-  // let getDetails1 = async () => {
-  //   try {
-  //     setScreenState(_ => Loading)
-  //     if connector->getConnectorNameTypeFromString == PAYPAL {
-  //       setSetupAccountStatus(._ => PayPalFlowTypes.Connect_paypal_landing)
-  //     }
-
-  //     if isRedirectedFromPaypalModal {
-  //       await getPayPalStatus()
-  //     } else {
-  //       setCurrentStep(_ =>
-  //         connectorListWithAutomaticFlow->Js.Array2.includes(
-  //           connector->ConnectorUtils.getConnectorNameTypeFromString,
-  //         )
-  //           ? ConnectorTypes.AutomaticFlow
-  //           : ConnectorTypes.IntegFields
-  //       )
-  //     }
-
-  //     if isUpdateFlow {
-  //       await getConnectorDetails()
-  //       if !(isSimplifiedPayPalFlow && isRedirectedFromPaypalModal) {
-  //         setCurrentStep(_ => Preview)
-  //       }
-  //     }
-
-  //     setScreenState(_ => Success)
-  //   } catch {
-  //   | Js.Exn.Error(e) => {
-  //       let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
-  //       setScreenState(_ => Error(err))
-  //     }
-  //   }
-  // }
 
   React.useEffect1(() => {
     if connector->String.length > 0 {

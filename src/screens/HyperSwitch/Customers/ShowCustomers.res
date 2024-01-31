@@ -21,7 +21,7 @@ module CustomerInfo = {
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
               <UIUtils.RenderIf condition={!(excludeColKeys->Array.includes(colType))}>
-                <div className={`flex ${widthClass} items-center`} key={Belt.Int.toString(i)}>
+                <div className={`flex ${widthClass} items-center`} key={Int.toString(i)}>
                   <OrderUtils.DisplayKeyValueParams
                     heading={getHeading(colType)}
                     value={getCell(data, colType)}
@@ -37,7 +37,7 @@ module CustomerInfo = {
           </div>
         </FormRenderer.DesktopRow>
         <UIUtils.RenderIf condition={children->Option.isSome}>
-          {children->Option.getWithDefault(React.null)}
+          {children->Option.getOr(React.null)}
         </UIUtils.RenderIf>
       </OrderUtils.Section>
     }
@@ -59,7 +59,7 @@ let make = (~id) => {
   open APIUtils
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (customersData, setCustomersData) = React.useState(_ => Js.Json.null)
+  let (customersData, setCustomersData) = React.useState(_ => JSON.Encode.null)
 
   let fetchCustomersData = async () => {
     try {
@@ -70,7 +70,7 @@ let make = (~id) => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }

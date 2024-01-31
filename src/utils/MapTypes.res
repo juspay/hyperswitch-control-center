@@ -1,5 +1,5 @@
 type rec map = {entries: (. unit) => map}
-external changeType: Js.Json.t => 't = "%identity"
+external changeType: JSON.t => 't = "%identity"
 @new external create: 't => map = "Map"
-type object = {fromEntries: (. map) => Js.Json.t}
+type object = {fromEntries: (. map) => JSON.t}
 external object: object = "Object"

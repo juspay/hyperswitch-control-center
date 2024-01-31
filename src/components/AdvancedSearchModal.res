@@ -17,11 +17,11 @@ module AdvanceSearch = {
   ) => {
     let {optionalSearchFieldsList, requiredSearchFieldsList, detailsKey} = entity
     let fetchApi = AuthHooks.useApiFetcher()
-    let initialValueJson = Js.Json.object_(Dict.make())
+    let initialValueJson = JSON.Encode.object(Dict.make())
     let showToast = ToastState.useShowToast()
 
     let onSubmit = (values, _) => {
-      let otherQueries = switch values->Js.Json.decodeObject {
+      let otherQueries = switch values->JSON.Decode.object {
       | Some(dict) =>
         dict
         ->Dict.toArray
@@ -41,15 +41,15 @@ module AdvanceSearch = {
 
       open Promise
       open LogicUtils
-      fetchApi(finalUrl, ~bodyStr=Js.Json.stringify(initialValueJson), ~method_=Fetch.Get, ())
+      fetchApi(finalUrl, ~bodyStr=JSON.stringify(initialValueJson), ~method_=Fetch.Get, ())
       ->then(Fetch.Response.json)
       ->then(json => {
-        switch Js.Json.classify(json) {
-        | Js.Json.JSONObject(jsonDict) => {
+        switch JSON.Classify.classify(json) {
+        | Object(jsonDict) => {
             let statusStr = getString(jsonDict, "status", "FAILURE")
 
             if statusStr === "SUCCESS" {
-              let payloadDict = jsonDict->Dict.get(detailsKey)->Option.flatMap(Js.Json.decodeObject)
+              let payloadDict = jsonDict->Dict.get(detailsKey)->Option.flatMap(JSON.Decode.object)
 
               switch payloadDict {
               | Some(dict) => {
@@ -82,15 +82,15 @@ module AdvanceSearch = {
       })
     }
 
-    let validateForm = (values: Js.Json.t) => {
-      let valuesDict = switch values->Js.Json.decodeObject {
+    let validateForm = (values: JSON.t) => {
+      let valuesDict = switch values->JSON.Decode.object {
       | Some(dict) => dict->Dict.toArray->Dict.fromArray
       | None => Dict.make()
       }
       let errors = Dict.make()
       requiredSearchFieldsList->Array.forEach(key => {
         if Dict.get(valuesDict, key)->Option.isNone {
-          Dict.set(errors, key, "Required"->Js.Json.string)
+          Dict.set(errors, key, "Required"->JSON.Encode.string)
         }
       })
       let isSubmitEnabled = optionalSearchFieldsList->Array.some(key => {
@@ -101,11 +101,11 @@ module AdvanceSearch = {
         Dict.set(
           errors,
           optionalSearchFieldsList->Array.joinWith(","),
-          "Atleast One of Optional fields is Required"->Js.Json.string,
+          "Atleast One of Optional fields is Required"->JSON.Encode.string,
         )
       }
 
-      errors->Js.Json.object_
+      errors->JSON.Encode.object
     }
 
     <FormRenderer

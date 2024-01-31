@@ -50,7 +50,7 @@ module BackgroundImageWrapper = {
           ~backgroundSize=`cover`,
           (),
         )}>
-        {children->Option.getWithDefault(React.null)}
+        {children->Option.getOr(React.null)}
       </div>
     </UIUtils.RenderIf>
   }
@@ -64,16 +64,14 @@ let setMerchantDetails = (key, value) => {
   let localStorageData = getInfoFromLocalStorage(~lStorageKey="merchant")
   localStorageData->Dict.set(key, value)
 
-  "merchant"->LocalStorage.setItem(
-    localStorageData->Js.Json.stringifyAny->Option.getWithDefault(""),
-  )
+  "merchant"->LocalStorage.setItem(localStorageData->JSON.stringifyAny->Option.getOr(""))
 }
 
 // TODO : Remove once user-management flow introduces
 let setUserDetails = (key, value) => {
   let localStorageData = getInfoFromLocalStorage(~lStorageKey="user")
   localStorageData->Dict.set(key, value)
-  "user"->LocalStorage.setItem(localStorageData->Js.Json.stringifyAny->Option.getWithDefault(""))
+  "user"->LocalStorage.setItem(localStorageData->JSON.stringifyAny->Option.getOr(""))
 }
 let getSearchOptionsForProcessors = (~processorList, ~getNameFromString) => {
   let searchOptionsForProcessors =
@@ -96,7 +94,7 @@ let useMerchantDetailsValue = () =>
 let getClientCountry = clientTimeZone => {
   Country.country
   ->Array.find(item => item.timeZones->Array.find(i => i == clientTimeZone)->Option.isSome)
-  ->Option.getWithDefault(Country.defaultTimeZone)
+  ->Option.getOr(Country.defaultTimeZone)
 }
 
 let getBrowswerDetails = () => {
@@ -124,27 +122,27 @@ let getBodyForFeedBack = (values, ~modalType=HSwitchFeedBackModalUtils.FeedBackM
   let valueDict = values->getDictFromJsonObject
   let rating = valueDict->getInt("rating", 1)
 
-  let bodyFields = [("email", email->Js.Json.string)]
+  let bodyFields = [("email", email->JSON.Encode.string)]
 
   switch modalType {
   | FeedBackModal =>
     bodyFields
     ->Array.pushMany([
-      ("category", valueDict->getString("category", "")->Js.Json.string),
-      ("description", valueDict->getString("feedbacks", "")->Js.Json.string),
-      ("rating", rating->Belt.Float.fromInt->Js.Json.number),
+      ("category", valueDict->getString("category", "")->JSON.Encode.string),
+      ("description", valueDict->getString("feedbacks", "")->JSON.Encode.string),
+      ("rating", rating->Float.fromInt->JSON.Encode.float),
     ])
     ->ignore
   | RequestConnectorModal =>
     bodyFields
     ->Array.pushMany([
-      ("category", "request_connector"->Js.Json.string),
+      ("category", "request_connector"->JSON.Encode.string),
       (
         "description",
         `[${valueDict->getString("connector_name", "")}]-[${valueDict->getString(
             "description",
             "",
-          )}]`->Js.Json.string,
+          )}]`->JSON.Encode.string,
       ),
     ])
     ->ignore
@@ -160,9 +158,9 @@ let getMetaData = (newMetadata, metaData) => {
   }
 }
 
-let returnIntegrationJson = (integrationData: ProviderTypes.integration): Js.Json.t => {
+let returnIntegrationJson = (integrationData: ProviderTypes.integration): JSON.t => {
   [
-    ("is_done", integrationData.is_done->Js.Json.boolean),
+    ("is_done", integrationData.is_done->JSON.Encode.bool),
     ("metadata", integrationData.metadata),
   ]->getJsonFromArrayOfJson
 }
@@ -171,7 +169,7 @@ let constructOnboardingBody = (
   ~dashboardPageState,
   ~integrationDetails: ProviderTypes.integrationDetailsType,
   ~is_done: bool,
-  ~metadata: option<Js.Json.t>=?,
+  ~metadata: option<JSON.t>=?,
   (),
 ) => {
   let copyOfIntegrationDetails = integrationDetails

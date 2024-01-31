@@ -14,9 +14,7 @@ module BaseTableComponent = {
     ~newAllCols: array<'colType>,
     ~colMapper as _: 'colType => string,
     ~tableEntity: EntityType.entityType<'colType, 't>,
-    ~tableGlobalFilter as _: option<
-      (array<Js.Nullable.t<'t>>, Js.Json.t) => array<Js.Nullable.t<'t>>,
-    >,
+    ~tableGlobalFilter as _: option<(array<Js.Nullable.t<'t>>, JSON.t) => array<Js.Nullable.t<'t>>>,
     ~activeTab as _,
   ) => {
     open DynamicTableUtils
@@ -96,7 +94,7 @@ module TableWrapper = {
     ~filterKeys,
     ~activeTab,
     ~defaultSort,
-    ~getTable: Js.Json.t => array<'t>,
+    ~getTable: JSON.t => array<'t>,
     ~colMapper: 'colType => string,
     ~tableEntity: EntityType.entityType<'colType, 't>,
     ~deltaMetrics: array<string>,
@@ -104,7 +102,7 @@ module TableWrapper = {
     ~tableUpdatedHeading as _: option<
       (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
     >,
-    ~tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, Js.Json.t) => array<Js.Nullable.t<'t>>>,
+    ~tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, JSON.t) => array<Js.Nullable.t<'t>>>,
     ~moduleName,
     ~weeklyTableMetricsCols,
     ~distributionArray=None,
@@ -116,7 +114,7 @@ module TableWrapper = {
     let (_, setDefaultFilter) = Recoil.useRecoilState(AnalyticsHooks.defaultFilter)
     let (showTable, setShowTable) = React.useState(_ => false)
     let {getHeading, allColumns, defaultColumns} = tableEntity
-    let activeTabStr = activeTab->Option.getWithDefault([])->Array.joinWith("-")
+    let activeTabStr = activeTab->Option.getOr([])->Array.joinWith("-")
     let (startTimeFilterKey, endTimeFilterKey) = dateKeys
     let (tableDataLoading, setTableDataLoading) = React.useState(_ => true)
     let (tableData, setTableData) = React.useState(_ => []->Array.map(Js.Nullable.return))
@@ -127,7 +125,7 @@ module TableWrapper = {
       ->Belt.Array.keepMap(item => {
         let (key, value) = item
         let keyArr = key->String.split(".")
-        let prefix = keyArr->Belt.Array.get(0)->Option.getWithDefault("")
+        let prefix = keyArr->Array.get(0)->Option.getOr("")
         if prefix === moduleName && prefix !== "" {
           None
         } else {
@@ -137,7 +135,7 @@ module TableWrapper = {
       ->Dict.fromArray
     }, [filterValueDict])
 
-    let allColumns = allColumns->Option.getWithDefault([])
+    let allColumns = allColumns->Option.getOr([])
     let allFilterKeys = Array.concat([startTimeFilterKey, endTimeFilterKey], filterKeys)
 
     let topFiltersToSearchParam = React.useMemo1(() => {
@@ -147,10 +145,10 @@ module TableWrapper = {
         ->Belt.Array.keepMap(entry => {
           let (key, value) = entry
           if allFilterKeys->Array.includes(key) {
-            switch value->Js.Json.classify {
-            | JSONString(str) => `${key}=${str}`->Some
-            | JSONNumber(num) => `${key}=${num->String.make}`->Some
-            | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
+            switch value->JSON.Classify.classify {
+            | String(str) => `${key}=${str}`->Some
+            | Number(num) => `${key}=${num->String.make}`->Some
+            | Array(arr) => `${key}=[${arr->String.make}]`->Some
             | _ => None
             }
           } else {
@@ -170,7 +168,7 @@ module TableWrapper = {
         filterKeys->Array.includes(key) ? Some((key, value)) : None
       })
       ->Dict.fromArray
-      ->Js.Json.object_
+      ->JSON.Encode.object
       ->Some
     }, [topFiltersToSearchParam])
 
@@ -189,11 +187,11 @@ module TableWrapper = {
 
     let generateIDFromKeys = (keys, dict) => {
       keys
-      ->Option.getWithDefault([])
+      ->Option.getOr([])
       ->Array.map(key => {
         dict->Dict.get(key)
       })
-      ->Array.joinWith("")
+      ->Array.joinWithUnsafe("")
     }
 
     open AnalyticsTypes
@@ -221,9 +219,9 @@ module TableWrapper = {
             )
           }
         })
-        dataDict->Js.Json.object_
+        dataDict->JSON.Encode.object
       })
-      ->Js.Json.array
+      ->JSON.Encode.array
       ->getTable
       ->Array.map(Js.Nullable.return)
     }
@@ -307,7 +305,7 @@ module TableWrapper = {
     }, (topFiltersToSearchParam, activeTabStr, customFilter))
     let newDefaultCols = React.useMemo1(() => {
       activeTab
-      ->Option.getWithDefault([])
+      ->Option.getOr([])
       ->Belt.Array.keepMap(item => {
         defaultColumns
         ->Belt.Array.keepMap(
@@ -316,18 +314,18 @@ module TableWrapper = {
             val.key === item ? Some(columnItem) : None
           },
         )
-        ->Belt.Array.get(0)
+        ->Array.get(0)
       })
-      ->Belt.Array.concat(allColumns)
+      ->Array.concat(allColumns)
     }, [activeTabStr])
 
     let newAllCols = React.useMemo1(() => {
       defaultColumns
       ->Belt.Array.keepMap(item => {
         let val = item->getHeading
-        activeTab->Option.getWithDefault([])->Array.includes(val.key) ? Some(item) : None
+        activeTab->Option.getOr([])->Array.includes(val.key) ? Some(item) : None
       })
-      ->Belt.Array.concat(allColumns)
+      ->Array.concat(allColumns)
     }, [activeTabStr])
 
     let transactionTableDefaultCols = React.useMemo2(() => {
@@ -336,28 +334,28 @@ module TableWrapper = {
 
     let timeRange =
       [
-        ("startTime", startTimeFromUrl->Js.Json.string),
-        ("endTime", endTimeFromUrl->Js.Json.string),
+        ("startTime", startTimeFromUrl->JSON.Encode.string),
+        ("endTime", endTimeFromUrl->JSON.Encode.string),
       ]->Dict.fromArray
 
-    let filters = filterValueFromUrl->Option.getWithDefault(Dict.make()->Js.Json.object_)
+    let filters = filterValueFromUrl->Option.getOr(Dict.make()->JSON.Encode.object)
 
     let defaultFilters =
       [
-        ("timeRange", timeRange->Js.Json.object_),
+        ("timeRange", timeRange->JSON.Encode.object),
         ("filters", filters),
-        ("source", "BATCH"->Js.Json.string),
+        ("source", "BATCH"->JSON.Encode.string),
       ]->Dict.fromArray
     let dict =
       [
         (
           "activeTab",
-          activeTab->Option.getWithDefault([])->Array.map(Js.Json.string)->Js.Json.array,
+          activeTab->Option.getOr([])->Array.map(JSON.Encode.string)->JSON.Encode.array,
         ),
-        ("filter", defaultFilters->Js.Json.object_),
+        ("filter", defaultFilters->JSON.Encode.object),
       ]->Dict.fromArray
 
-    setDefaultFilter(._ => dict->Js.Json.object_->Js.Json.stringify)
+    setDefaultFilter(._ => dict->JSON.Encode.object->JSON.stringify)
 
     showTable
       ? <>
@@ -381,7 +379,7 @@ module TableWrapper = {
                 tableEntity
                 colMapper
                 tableGlobalFilter
-                activeTab={activeTab->Option.getWithDefault([])}
+                activeTab={activeTab->Option.getOr([])}
               />
             </Form>
           </div>
@@ -395,7 +393,7 @@ module TabDetails = {
     ~chartEntity: DynamicChart.entity,
     ~activeTab,
     ~defaultSort: string,
-    ~getTable: Js.Json.t => array<'t>,
+    ~getTable: JSON.t => array<'t>,
     ~colMapper: 'colType => string,
     ~distributionArray,
     ~tableEntity: option<EntityType.entityType<'colType, 't>>,
@@ -404,7 +402,7 @@ module TabDetails = {
     ~tableUpdatedHeading: option<
       (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
     >,
-    ~tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, Js.Json.t) => array<Js.Nullable.t<'t>>>,
+    ~tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, JSON.t) => array<Js.Nullable.t<'t>>>,
     ~moduleName,
     ~updateUrl: Dict.t<string> => unit,
     ~weeklyTableMetricsCols,
@@ -414,7 +412,7 @@ module TabDetails = {
 
     let id =
       activeTab
-      ->Option.getWithDefault(["tab"])
+      ->Option.getOr(["tab"])
       ->Array.reduce("", (acc, tabName) => {acc->String.concat(tabName)})
 
     let isMobileView = MatchMedia.useMobileChecker()
@@ -489,10 +487,10 @@ let make = (
   ~defaultSort: string,
   ~tabKeys: array<string>,
   ~tabValues: array<DynamicTabs.tab>,
-  ~initialFilters: Js.Json.t => array<EntityType.initialFilters<'t>>,
-  ~initialFixedFilters: Js.Json.t => array<EntityType.initialFilters<'t>>,
-  ~options: Js.Json.t => array<EntityType.optionType<'t>>,
-  ~getTable: Js.Json.t => array<'a>,
+  ~initialFilters: JSON.t => array<EntityType.initialFilters<'t>>,
+  ~initialFixedFilters: JSON.t => array<EntityType.initialFilters<'t>>,
+  ~options: JSON.t => array<EntityType.optionType<'t>>,
+  ~getTable: JSON.t => array<'a>,
   ~colMapper: 'colType => string,
   ~tableEntity: option<EntityType.entityType<'colType, 't>>=?,
   ~deltaMetrics: array<string>,
@@ -502,7 +500,7 @@ let make = (
   ~tableUpdatedHeading: option<
     (~item: option<'t>, ~dateObj: option<AnalyticsUtils.prevDates>, 'colType) => Table.header,
   >=?,
-  ~tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, Js.Json.t) => array<Js.Nullable.t<'t>>>=?,
+  ~tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, JSON.t) => array<Js.Nullable.t<'t>>>=?,
   ~moduleName: string,
   ~weeklyTableMetricsCols=?,
   ~distributionArray=None,
@@ -531,7 +529,7 @@ let make = (
   let (activeTav, setActiveTab) = React.useState(_ =>
     filterValueDict->getStrArrayFromDict(
       `${moduleName}.tabName`,
-      [filteredTabKeys->Belt.Array.get(0)->Option.getWithDefault("")],
+      [filteredTabKeys->Array.get(0)->Option.getOr("")],
     )
   )
   let setActiveTab = React.useMemo1(() => {
@@ -609,7 +607,7 @@ let make = (
     setFilterDataJson(_ => None)
     if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
       try {
-        updateDetails(filterUri, filterBody->Js.Json.object_, Post, ())
+        updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
         ->thenResolve(json => setFilterDataJson(_ => json->Some))
         ->catch(_ => resolve())
         ->ignore
@@ -618,8 +616,8 @@ let make = (
       }
     }
     None
-  }, (startTimeVal, endTimeVal, filterBody->Js.Json.object_->Js.Json.stringify))
-  let filterData = filterDataJson->Option.getWithDefault(Dict.make()->Js.Json.object_)
+  }, (startTimeVal, endTimeVal, filterBody->JSON.Encode.object->JSON.stringify))
+  let filterData = filterDataJson->Option.getOr(Dict.make()->JSON.Encode.object)
 
   let activeTab = React.useMemo1(() => {
     Some(
@@ -655,8 +653,8 @@ let make = (
               let dim = dimension->getDictFromJsonObject->getString("dimension", "")
               filteredDims->Array.includes(dim)->not
             })
-            ->Js.Json.array
-          [("queryData", queryData)]->Dict.fromArray->Js.Json.object_
+            ->JSON.Encode.array
+          [("queryData", queryData)]->Dict.fromArray->JSON.Encode.object
         }
       | _ => filterData
       }
@@ -719,7 +717,7 @@ let make = (
               moduleName
               setTotalVolume
               showPercentage=false
-              statSentiment={singleStatEntity.statSentiment->Option.getWithDefault(Dict.make())}
+              statSentiment={singleStatEntity.statSentiment->Option.getOr(Dict.make())}
             />
           </div>
           <div className="flex flex-row">

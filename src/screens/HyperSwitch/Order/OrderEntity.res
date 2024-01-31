@@ -13,7 +13,7 @@ let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.ce
   | Amount =>
     CustomCell(
       <CurrencyCell
-        amount={(refunds.amount /. 100.0)->Belt.Float.toString} currency={refunds.currency}
+        amount={(refunds.amount /. 100.0)->Float.toString} currency={refunds.currency}
       />,
       "",
     )
@@ -50,7 +50,7 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
   | Amount =>
     CustomCell(
       <CurrencyCell
-        amount={(attempt.amount /. 100.0)->Belt.Float.toString} currency={attempt.currency}
+        amount={(attempt.amount /. 100.0)->Float.toString} currency={attempt.currency}
       />,
       "",
     )
@@ -97,7 +97,7 @@ let getFrmCell = (orderDetais: order, frmColType: frmColType): Table.cell => {
   | Amount =>
     CustomCell(
       <CurrencyCell
-        amount={(orderDetais.amount /. 100.0)->Belt.Float.toString} currency={orderDetais.currency}
+        amount={(orderDetais.amount /. 100.0)->Float.toString} currency={orderDetais.currency}
       />,
       "",
     )
@@ -262,8 +262,8 @@ let refundMetaitemToObjMapper = dict => {
   }
 }
 
-let getRefundMetaData: Js.Json.t => refundMetaData = json => {
-  json->Js.Json.decodeObject->Option.getWithDefault(Dict.make())->refundMetaitemToObjMapper
+let getRefundMetaData: JSON.t => refundMetaData = json => {
+  json->JSON.Decode.object->Option.getOr(Dict.make())->refundMetaitemToObjMapper
 }
 
 let refunditemToObjMapper = dict => {
@@ -300,11 +300,11 @@ let attemptsItemToObjMapper = dict => {
   reference_id: dict->getString("reference_id", ""),
 }
 
-let getRefunds: Js.Json.t => array<refunds> = json => {
+let getRefunds: JSON.t => array<refunds> = json => {
   LogicUtils.getArrayDataFromJson(json, refunditemToObjMapper)
 }
 
-let getAttempts: Js.Json.t => array<attempts> = json => {
+let getAttempts: JSON.t => array<attempts> = json => {
   LogicUtils.getArrayDataFromJson(json, attemptsItemToObjMapper)
 }
 
@@ -615,7 +615,7 @@ let getCellForSummary = (order, summaryColType, _): Table.cell => {
   | NetAmount =>
     CustomCell(
       <CurrencyCell
-        amount={(order.net_amount /. 100.0)->Belt.Float.toString} currency={order.currency}
+        amount={(order.net_amount /. 100.0)->Float.toString} currency={order.currency}
       />,
       "",
     )
@@ -625,7 +625,7 @@ let getCellForSummary = (order, summaryColType, _): Table.cell => {
   | AmountReceived =>
     CustomCell(
       <CurrencyCell
-        amount={(order.amount_received /. 100.0)->Belt.Float.toString} currency={order.currency}
+        amount={(order.amount_received /. 100.0)->Float.toString} currency={order.currency}
       />,
       "",
     )
@@ -656,7 +656,7 @@ let getCellForAboutPayment = (
         ->Array.find(ele =>
           order.merchant_connector_id === ele->getString("merchant_connector_id", "")
         )
-        ->Option.getWithDefault(Dict.make())
+        ->Option.getOr(Dict.make())
         ->getString("connector_label", "")
 
       Text(connectorLabel)
@@ -683,9 +683,8 @@ let getCellForOtherDetails = (order, aboutPaymentColType, _): Table.cell => {
   | StatementDescriptorName => Text(order.statement_descriptor_name)
   | StatementDescriptorSuffix => Text(order.statement_descriptor_suffix)
   | PaymentExperience => Text(order.payment_experience)
-  | FirstName => Text(splittedName->Belt.Array.get(0)->Option.getWithDefault(""))
-  | LastName =>
-    Text(splittedName->Belt.Array.get(splittedName->Array.length - 1)->Option.getWithDefault(""))
+  | FirstName => Text(splittedName->Array.get(0)->Option.getOr(""))
+  | LastName => Text(splittedName->Array.get(splittedName->Array.length - 1)->Option.getOr(""))
   | Phone => Text(order.phone)
   | Email => Text(order.email)
   | CustomerId => Text(order.customer_id)
@@ -728,9 +727,7 @@ let getCell = (order, colType: colType): Table.cell => {
     })
   | Amount =>
     CustomCell(
-      <CurrencyCell
-        amount={(order.amount /. 100.0)->Belt.Float.toString} currency={order.currency}
-      />,
+      <CurrencyCell amount={(order.amount /. 100.0)->Float.toString} currency={order.currency} />,
       "",
     )
   | AmountCapturable => Currency(order.amount_capturable /. 100.0, order.currency)
@@ -768,7 +765,7 @@ let getCell = (order, colType: colType): Table.cell => {
   | ProfileId => Text(order.profile_id)
   | Refunds =>
     Text(
-      switch order.refunds->Js.Json.stringifyAny {
+      switch order.refunds->JSON.stringifyAny {
       | None => "-"
       | Some(v) => v
       },
@@ -874,7 +871,7 @@ let itemToObjMapper = dict => {
     connector_transaction_id: dict->getString("connector_transaction_id", ""),
     refunds: dict
     ->getArrayFromDict("refunds", [])
-    ->Js.Json.array
+    ->JSON.Encode.array
     ->getArrayDataFromJson(refunditemToObjMapper),
     profile_id: dict->getString("profile_id", ""),
     frm_message: dict->getFRMDetails,
@@ -883,7 +880,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let getOrders: Js.Json.t => array<order> = json => {
+let getOrders: JSON.t => array<order> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 

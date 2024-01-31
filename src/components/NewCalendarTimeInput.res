@@ -29,7 +29,7 @@ module CustomInputBox = {
         placeholder-jp-gray-900 placeholder-opacity-50 dark:placeholder-jp-gray-700 dark:placeholder-opacity-50
          ${borderClass}
         focus:text-opacity-100 focus:outline-none dark:text-jp-gray-text_darktheme dark:text-opacity-75 dark:focus:text-opacity-100  ${fontClassName}`
-    let value = switch input.value->Js.Json.decodeString {
+    let value = switch input.value->JSON.Decode.string {
     | Some(str) => str
     | _ => ""
     }
@@ -117,7 +117,7 @@ let make = (
       setFromTime(_ => value)
     },
     onFocus: _ => (),
-    value: fromTime->Js.Json.string,
+    value: fromTime->JSON.Encode.string,
     checked: true,
   }
 
@@ -129,26 +129,24 @@ let make = (
       settoTime(_ => value)
     },
     onFocus: _ => (),
-    value: toTime->Js.Json.string,
+    value: toTime->JSON.Encode.string,
     checked: true,
   }
 
   let setFromTimeDropdown = val => {
     let fromTimeArr = val->String.split(" ")
-    let fromTime = `${fromTimeArr
-      ->Belt.Array.get(0)
-      ->Option.getWithDefault("12:00")}:00 ${fromTimeArr
-      ->Belt.Array.get(1)
-      ->Option.getWithDefault("AM")}`
+    let fromTime = `${fromTimeArr->Array.get(0)->Option.getOr("12:00")}:00 ${fromTimeArr
+      ->Array.get(1)
+      ->Option.getOr("AM")}`
 
     setFromTime(_ => fromTime->String.toUpperCase)
   }
 
   let setToTimeDropdown = val => {
     let toTimeArr = val->String.split(" ")
-    let toTime = `${toTimeArr->Belt.Array.get(0)->Option.getWithDefault("11:59")}:00 ${toTimeArr
-      ->Belt.Array.get(1)
-      ->Option.getWithDefault("PM")}`
+    let toTime = `${toTimeArr->Array.get(0)->Option.getOr("11:59")}:00 ${toTimeArr
+      ->Array.get(1)
+      ->Option.getOr("PM")}`
     settoTime(_ => toTime->String.toUpperCase)
   }
 

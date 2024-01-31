@@ -9,11 +9,13 @@ module InviteEmailForm = {
     let (roleListData, setRoleListData) = React.useState(_ => [])
 
     let emailList =
-      ReactFinalForm.useField("emailList").input.value->getArrayFromJson([])->Array.joinWith(",")
+      ReactFinalForm.useField("emailList").input.value
+      ->getArrayFromJson([])
+      ->Array.joinWithUnsafe(",")
     let role =
       ReactFinalForm.useField(`roleType`).input.value
       ->getArrayFromJson([])
-      ->getValueFromArray(0, ""->Js.Json.string)
+      ->getValueFromArray(0, ""->JSON.Encode.string)
       ->getStringFromJson("")
 
     let getRolesList = async () => {
@@ -83,9 +85,9 @@ let make = () => {
   let (loaderForInviteUsers, setLoaderForInviteUsers) = React.useState(_ => false)
 
   let initialValues = React.useMemo0(() => {
-    [("roleType", ["merchant_view_only"->Js.Json.string]->Js.Json.array)]
+    [("roleType", ["merchant_view_only"->JSON.Encode.string]->JSON.Encode.array)]
     ->Dict.fromArray
-    ->Js.Json.object_
+    ->JSON.Encode.object
   })
 
   let inviteUserReq = body => {
@@ -105,9 +107,9 @@ let make = () => {
     let promisesOfInvitedUsers = emailList->Array.map(ele => {
       let body =
         [
-          ("email", ele->String.toLowerCase->Js.Json.string),
-          ("name", ele->getNameFromEmail->Js.Json.string),
-          ("role_id", role->Js.Json.string),
+          ("email", ele->String.toLowerCase->JSON.Encode.string),
+          ("name", ele->getNameFromEmail->JSON.Encode.string),
+          ("role_id", role->JSON.Encode.string),
         ]->getJsonFromArrayOfJson
       inviteUserReq(body)
     })
@@ -115,15 +117,15 @@ let make = () => {
     let response = await PromiseUtils.allSettledPolyfill(promisesOfInvitedUsers)
     if !magicLink {
       let invitedUserData = response->Array.mapWithIndex((ele, index) => {
-        switch Js.Json.classify(ele) {
-        | Js.Json.JSONObject(jsonDict) => {
+        switch JSON.Classify.classify(ele) {
+        | Object(jsonDict) => {
             let passwordFromResponse = jsonDict->getString("password", "")
             [
-              ("email", emailList[index]->Option.getWithDefault("")->Js.Json.string),
-              ("password", passwordFromResponse->Js.Json.string),
+              ("email", emailList[index]->Option.getOr("")->JSON.Encode.string),
+              ("password", passwordFromResponse->JSON.Encode.string),
             ]->getJsonFromArrayOfJson
           }
-        | _ => Js.Json.null
+        | _ => JSON.Encode.null
         }
       })
 
@@ -133,9 +135,9 @@ let make = () => {
         DownloadUtils.download(
           ~fileName=`invited-users.txt`,
           ~content=invitedUserData
-          ->Array.filter(ele => ele !== Js.Json.null)
-          ->Js.Json.array
-          ->Js.Json.stringifyWithSpace(3),
+          ->Array.filter(ele => ele !== JSON.Encode.null)
+          ->JSON.Encode.array
+          ->JSON.stringifyWithIndent(3),
           ~fileType="application/json",
         )
       }
@@ -187,7 +189,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }
@@ -198,7 +200,7 @@ let make = () => {
     if roleTypeValue->Option.isNone {
       getRoleForUser(permissionInfoValue)->ignore
     } else {
-      settingUpValues(roleTypeValue->Option.getWithDefault(Js.Json.null), permissionInfoValue)
+      settingUpValues(roleTypeValue->Option.getOr(JSON.Encode.null), permissionInfoValue)
     }
   }
 

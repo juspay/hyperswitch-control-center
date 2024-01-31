@@ -96,13 +96,13 @@ let generateConnectorPayloadPayPal = (
   open ConnectorUtils
   let initialValues =
     [
-      ("profile_id", profileId->Js.Json.string),
-      ("connector_name", connector->String.toLowerCase->Js.Json.string),
-      ("connector_type", "payment_processor"->Js.Json.string),
-      ("disabled", disabled->Js.Json.boolean),
-      ("test_mode", true->Js.Json.boolean),
-      ("status", status->Js.Json.string),
-      ("connector_label", connectorLabel->Js.Json.string),
+      ("profile_id", profileId->JSON.Encode.string),
+      ("connector_name", connector->String.toLowerCase->JSON.Encode.string),
+      ("connector_type", "payment_processor"->JSON.Encode.string),
+      ("disabled", disabled->JSON.Encode.bool),
+      ("test_mode", true->JSON.Encode.bool),
+      ("status", status->JSON.Encode.string),
+      ("connector_label", connectorLabel->JSON.Encode.string),
     ]->LogicUtils.getJsonFromArrayOfJson
 
   generateInitialValuesDict(
@@ -118,15 +118,15 @@ let generatePayPalBody = (~returnUrl=None, ~connectorId, ~profileId=None, ()) =>
   switch returnUrl {
   | Some(returnURL) =>
     [
-      ("connector", "paypal"->Js.Json.string),
-      ("return_url", returnURL->Js.Json.string),
-      ("connector_id", connectorId->Js.Json.string),
+      ("connector", "paypal"->JSON.Encode.string),
+      ("return_url", returnURL->JSON.Encode.string),
+      ("connector_id", connectorId->JSON.Encode.string),
     ]->LogicUtils.getJsonFromArrayOfJson
   | _ =>
     [
-      ("connector", "paypal"->Js.Json.string),
-      ("connector_id", connectorId->Js.Json.string),
-      ("profile_id", profileId->Option.getWithDefault("")->Js.Json.string),
+      ("connector", "paypal"->JSON.Encode.string),
+      ("connector_id", connectorId->JSON.Encode.string),
+      ("profile_id", profileId->Option.getOr("")->JSON.Encode.string),
     ]->LogicUtils.getJsonFromArrayOfJson
   }
 }
@@ -145,13 +145,13 @@ let useDeleteTrackingDetails = () => {
       let url = `${getURL(~entityName=PAYPAL_ONBOARDING, ~methodType=Post, ())}/reset_tracking_id`
       let body =
         [
-          ("connector_id", connectorId->Js.Json.string),
-          ("connector", connector->Js.Json.string),
+          ("connector_id", connectorId->JSON.Encode.string),
+          ("connector", connector->JSON.Encode.string),
         ]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post, ())
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to update!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
         Js.Exn.raiseError(err)
       }
     }
@@ -188,7 +188,7 @@ let useDeleteConnectorAccountDetails = () => {
       res
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
         Js.Exn.raiseError(err)
       }
     }
@@ -220,14 +220,16 @@ let payPalLogics = async (
       url.search
       ->getDictFromUrlSearchParams
       ->Dict.get("is_simplified_paypal")
-      ->Option.getWithDefault("false")
+      ->Option.getOr("false")
       ->getBoolFromString(false)
+
     let isRedirectedFromPaypalModal =
       url.search
       ->getDictFromUrlSearchParams
       ->Dict.get("is_back")
-      ->Option.getWithDefault("false")
+      ->Option.getOr("false")
       ->getBoolFromString(false)
+
     setSetupAccountStatus(._ => PayPalFlowTypes.Connect_paypal_landing)
     if isRedirectedFromPaypalModal {
       await getPayPalStatus()
@@ -242,7 +244,7 @@ let payPalLogics = async (
     }
   } catch {
   | Js.Exn.Error(e) => {
-      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+      let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
       setScreenState(_ => Error(err))
     }
   | _ => setScreenState(_ => Error("Something went wrong"))

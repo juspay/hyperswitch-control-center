@@ -45,7 +45,7 @@ module LineChart1D = {
   @react.component
   let make = (
     ~class: string="",
-    ~rawChartData: array<Js.Json.t>,
+    ~rawChartData: array<JSON.t>,
     ~selectedMetrics: LineChartUtils.metricsConfig,
     ~commonColorsArr: array<LineChartUtils.chartData<'a>>=[],
     ~chartPlace="",
@@ -59,7 +59,7 @@ module LineChart1D = {
     ~legendType: legendType=Table,
     ~isMultiDimensional: bool=false,
     ~chartKey: string="0",
-    ~legendData: array<Js.Json.t>=[],
+    ~legendData: array<JSON.t>=[],
     ~chartdataMaxRows: int=-1,
     ~selectedRow=None,
     ~showTableBelow: bool=false,
@@ -98,7 +98,7 @@ module LineChart1D = {
 
     let (chartData, xAxisMapInfo, chartDataOrig) = React.useMemo7(() => {
       let chartdata: array<
-        LineChartUtils.timeSeriesDictWithSecondryMetrics<Js.Json.t>,
+        LineChartUtils.timeSeriesDictWithSecondryMetrics<JSON.t>,
       > = LineChartUtils.timeSeriesDataMaker(
         ~data=rawChartData,
         ~groupKey,
@@ -123,25 +123,25 @@ module LineChart1D = {
                     ->Js.Date.fromFloat
                     ->DateTimeUtils.toUtc
                     ->Js.Date.getHours
-                    ->Belt.Float.toString}:00`
+                    ->Float.toString}:00`
                   ->String.sliceToEnd(~start=-5)
-                  ->Js.Json.string
+                  ->JSON.Encode.string
                 } else if "run_month" === groupKey {
                   xAxis
                   ->Js.Date.fromFloat
                   ->DateTimeUtils.toUtc
                   ->Js.Date.getDate
-                  ->Belt.Float.toString
-                  ->Js.Json.string
+                  ->Float.toString
+                  ->JSON.Encode.string
                 } else if "run_week" === groupKey {
                   switch DateTimeUtils.daysArr[
-                    xAxis->Js.Date.fromFloat->DateTimeUtils.toUtc->Js.Date.getDay->Belt.Float.toInt
+                    xAxis->Js.Date.fromFloat->DateTimeUtils.toUtc->Js.Date.getDay->Float.toInt
                   ] {
                   | Some(ele) => DateTimeUtils.dayMapper(ele)
                   | None => ""
-                  }->Js.Json.string
+                  }->JSON.Encode.string
                 } else {
-                  xAxis->Js.Json.number
+                  xAxis->JSON.Encode.float
                 }
 
                 (updatedXAxis, yAxis, xY)
@@ -154,7 +154,7 @@ module LineChart1D = {
       let chartDataOrig = chartdata
 
       let selectedChartData = switch selectedRow {
-      | Some(data: LineChartUtils.chartData<Js.Json.t>) =>
+      | Some(data: LineChartUtils.chartData<JSON.t>) =>
         chartdata->Array.filter(item => data.name == item.name)
       | None =>
         clickedRowNames->Array.length > 0
@@ -169,12 +169,12 @@ module LineChart1D = {
             let (x, y, secondryMetrics) = axes
             xAxisMapInfo->LineChartUtils.appendToDictValue(
               ["run_date", "run_month", "run_week"]->Array.includes(groupKey)
-                ? x->Js.Json.decodeString->Option.getWithDefault("")
-                : x->Js.Json.stringify,
+                ? x->JSON.Decode.string->Option.getOr("")
+                : x->JSON.stringify,
               (
                 item.name,
                 {
-                  item.color->Option.getWithDefault("#000000")
+                  item.color->Option.getOr("#000000")
                 },
                 y,
                 secondryMetrics,
@@ -227,13 +227,13 @@ module LineChart1D = {
       let chartData = data->Belt.Array.keepMap(chartDataItem => {
         let (fillColor, color) = (chartDataItem.fillColor, chartDataItem.color) // normal
         //always uses same color for same entity Upi live mode
-        let val: option<seriesLine<Js.Json.t>> = if (
+        let val: option<seriesLine<JSON.t>> = if (
           !(clickedRowNames->Array.includes(chartDataItem.name)) &&
           clickedRowNames->Array.length > 0
         ) {
           None
         } else {
-          let value: Highcharts.seriesLine<Js.Json.t> = {
+          let value: Highcharts.seriesLine<JSON.t> = {
             color,
             name: chartDataItem.name,
             data: chartDataItem.data->Array.map(
@@ -298,8 +298,8 @@ module LineChart1D = {
           | None => None
           }
         })
-        ->Belt.Array.get(0)
-        ->Option.getWithDefault("")
+        ->Array.get(0)
+        ->Option.getOr("")
       let color =
         chartData
         ->Belt.Array.keepMap(item => {
@@ -308,8 +308,8 @@ module LineChart1D = {
           | None => None
           }
         })
-        ->Belt.Array.get(0)
-        ->Option.getWithDefault(`${colorOrig}`)
+        ->Array.get(0)
+        ->Option.getOr(`${colorOrig}`)
 
       let transformValue = num => {
         num->HSAnalyticsUtils.setPrecision()
@@ -461,7 +461,7 @@ module LineChart1D = {
         }->genericObjectOrRecordToJson
       }
 
-      let a: options<Js.Json.t> = {
+      let a: options<JSON.t> = {
         chart: {
           Some(
             {
@@ -611,18 +611,18 @@ module LineChart1D = {
 
                   let upper_bound =
                     upper_bound <= threshold
-                      ? threshold +. stepUpFromThreshold->Option.getWithDefault(0.)
+                      ? threshold +. stepUpFromThreshold->Option.getOr(0.)
                       : upper_bound
 
                   let lower_bound =
                     lower_bound >= threshold
-                      ? threshold -. stepUpFromThreshold->Option.getWithDefault(0.)
+                      ? threshold -. stepUpFromThreshold->Option.getOr(0.)
                       : lower_bound
 
                   let positions = NumericUtils.pretty([lower_bound, upper_bound], 5)
 
                   let positionArr =
-                    Belt.Array.concat(positions, [threshold])->Js.Array2.sortInPlaceWith(
+                    Array.concat(positions, [threshold])->Js.Array2.sortInPlaceWith(
                       numericArraySortComperator,
                     )
                   positionArr
@@ -660,8 +660,7 @@ module LineChart1D = {
           "labels": {
             let labelsValue = {
               "formatter": Some(
-                @this
-                param => formatLabels(selectedMetrics, param.value->Option.getWithDefault(0.0)),
+                @this param => formatLabels(selectedMetrics, param.value->Option.getOr(0.0)),
               ),
               "enabled": true,
               "style": {
@@ -675,7 +674,7 @@ module LineChart1D = {
               },
             }->genericObjectOrRecordToJson
 
-            labelsValue->getDictFromJsonObject->deleteKey("style")->Js.Json.object_
+            labelsValue->getDictFromJsonObject->deleteKey("style")->JSON.Encode.object
           },
         }->genericObjectOrRecordToJson,
         series: chartData,
@@ -802,7 +801,7 @@ module LegendItem = {
 
 module RenderMultiDimensionalChart = {
   type config = {
-    chartDictData: Dict.t<Belt.Array.t<Js.Json.t>>,
+    chartDictData: Dict.t<array<JSON.t>>,
     class: string,
     selectedMetrics: LineChartUtils.metricsConfig,
     groupBy: string,
@@ -817,7 +816,7 @@ module RenderMultiDimensionalChart = {
     let chartNames =
       config.chartDictData
       ->Dict.toArray
-      ->Array.reduce([], (acc: array<LineChartUtils.chartData<Js.Json.t>>, (_, value)) => {
+      ->Array.reduce([], (acc: array<LineChartUtils.chartData<JSON.t>>, (_, value)) => {
         let chartdata = LineChartUtils.timeSeriesDataMaker(
           ~data=value,
           ~groupKey=config.groupBy,
@@ -831,12 +830,12 @@ module RenderMultiDimensionalChart = {
             data: i.data->Array.map(
               item => {
                 let (val1, val2, val3) = item
-                (val1->Js.Json.number, val2, val3)
+                (val1->JSON.Encode.float, val2, val3)
               },
             ),
             legendIndex: i.legendIndex,
             name: i.name,
-            color: i.color->Option.getWithDefault("#000000"),
+            color: i.color->Option.getOr("#000000"),
           })
         )
         ->ignore
@@ -854,7 +853,7 @@ module RenderMultiDimensionalChart = {
               let (key, value) = item
 
               <LineChart1D
-                key={index->Belt.Int.toString}
+                key={index->Int.toString}
                 class=config.class
                 rawChartData=value
                 commonColorsArr={LineChartUtils.removeDuplicates(chartNames)}
@@ -884,7 +883,7 @@ module LineChart2D = {
   @react.component
   let make = (
     ~groupBy: option<array<string>>,
-    ~rawChartData: array<Js.Json.t>,
+    ~rawChartData: array<JSON.t>,
     ~selectedMetrics: LineChartUtils.metricsConfig,
     ~xAxis: string,
     ~legendType=Points,
@@ -893,10 +892,7 @@ module LineChart2D = {
     ~chartType: string="area",
   ) => {
     let (groupBy1, groupBy2) = switch groupBy {
-    | Some(value) => (
-        value->Belt.Array.get(0)->Option.getWithDefault(""),
-        value->Belt.Array.get(1)->Option.getWithDefault(""),
-      )
+    | Some(value) => (value->Array.get(0)->Option.getOr(""), value->Array.get(1)->Option.getOr(""))
     | None => ("", "")
     }
     let (groupBy1, groupBy2) = (groupBy2, groupBy1)
@@ -929,7 +925,7 @@ module LineChart3D = {
   @react.component
   let make = (
     ~groupBy: option<array<string>>,
-    ~rawChartData: array<Js.Json.t>,
+    ~rawChartData: array<JSON.t>,
     ~selectedMetrics: LineChartUtils.metricsConfig,
     ~xAxis: string,
     ~legendType=Points,
@@ -939,9 +935,9 @@ module LineChart3D = {
   ) => {
     let (groupBy1, groupBy2, groupby3) = switch groupBy {
     | Some(value) => (
-        value->Belt.Array.get(0)->Option.getWithDefault(""),
-        value->Belt.Array.get(1)->Option.getWithDefault(""),
-        value->Belt.Array.get(2)->Option.getWithDefault(""),
+        value->Array.get(0)->Option.getOr(""),
+        value->Array.get(1)->Option.getOr(""),
+        value->Array.get(2)->Option.getOr(""),
       )
     | None => ("", "", "")
     }

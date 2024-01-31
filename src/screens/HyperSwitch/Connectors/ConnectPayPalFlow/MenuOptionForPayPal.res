@@ -51,7 +51,7 @@ let make = (
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong!")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong!")
         Js.Exn.raiseError(err)
       }
     }
@@ -60,12 +60,12 @@ let make = (
   let handleNewPayPalAccount = async () => {
     try {
       await deleteTrackingDetails(connectorInfo.merchant_connector_id, connectorInfo.connector_name)
-      await updateConnectorAuthType(connectorInfoDict->Js.Json.object_)
+      await updateConnectorAuthType(connectorInfoDict->JSON.Encode.object)
       setCurrentStep(_ => ConnectorTypes.AutomaticFlow)
       setSetupAccountStatus(._ => PayPalFlowTypes.Redirecting_to_paypal)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong!")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong!")
         showToast(~message=err, ~toastType=ToastError, ())
       }
     }

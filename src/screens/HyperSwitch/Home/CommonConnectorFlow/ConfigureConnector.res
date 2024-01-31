@@ -20,7 +20,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
     ->MerchantAccountUtils.getValueFromBusinessProfile
 
   let (selectedConnector, setSelectedConnector) = React.useState(_ => UnknownConnector(""))
-  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->Js.Json.object_)
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (connectorConfigureState, setConnectorConfigureState) = React.useState(_ => Select_processor)
   let (choiceState, setChoiceState) = React.useState(_ => #NotSelected)
   let (smartRoutingChoiceState, setSmartRoutingChoiceState) = React.useState(_ => #DefaultFallback)
@@ -42,7 +42,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
       setQuickStartPageState(_ => ConnectProcessor(CHECKOUT))
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to update!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
         Js.Exn.raiseError(err)
       }
     }
@@ -71,9 +71,9 @@ let make = (~connectProcessorValue: connectProcessor) => {
       let prevJsonDict = prevJson->LogicUtils.getDictFromJsonObject
       prevJsonDict->Dict.set(
         "connector_label",
-        `${selectedConnector->ConnectorUtils.getConnectorNameString}_${activeBusinessProfile.profile_name}`->Js.Json.string,
+        `${selectedConnector->ConnectorUtils.getConnectorNameString}_${activeBusinessProfile.profile_name}`->JSON.Encode.string,
       )
-      prevJsonDict->Js.Json.object_
+      prevJsonDict->JSON.Encode.object
     })
 
     None
@@ -105,12 +105,12 @@ let make = (~connectProcessorValue: connectProcessor) => {
         ~id=Some(activatingId),
         (),
       )
-      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post, ())
+      let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
       let _ = await updateEnumForRouting(activatingId)
       setButtonState(_ => Normal)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to update!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
         Js.Exn.raiseError(err)
       }
     }
@@ -136,7 +136,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
       let _ = await StringEnumType(connectorChoiceValue)->usePostEnumDetails(configurationType)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to update!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
         Js.Exn.raiseError(err)
       }
     }
@@ -172,7 +172,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
   let updateTestPaymentEnum = async (~paymentId) => {
     try {
       let paymentBody: paymentType = {
-        payment_id: paymentId->Option.getWithDefault("pay_default"),
+        payment_id: paymentId->Option.getOr("pay_default"),
       }
       let _ = await PaymentType(paymentBody)->usePostEnumDetails(#TestPayment)
       setQuickStartPageState(_ => IntegrateApp(LANDING))

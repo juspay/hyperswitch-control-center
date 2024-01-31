@@ -2,21 +2,21 @@ let tableHeadingClass = "font-bold text-xl text-black text-opacity-75 dark:text-
 type view = Table | Card
 
 let visibilityColFunc = (
-  ~dateFormatConvertor: string => option<Js.Json.t>,
-  ~jsonVal: option<Js.Json.t>,
+  ~dateFormatConvertor: string => option<JSON.t>,
+  ~jsonVal: option<JSON.t>,
   ~tableCell: Table.cell,
 ) => {
   switch tableCell {
-  | Label(x) | ColoredText(x) => (x.title->Js.Json.string->Some, jsonVal) // wherever we are doing transformation only that transformed value for serch
-  | Text(x) | EllipsisText(x, _) | CustomCell(_, x) => (x->Js.Json.string->Some, jsonVal)
+  | Label(x) | ColoredText(x) => (x.title->JSON.Encode.string->Some, jsonVal) // wherever we are doing transformation only that transformed value for serch
+  | Text(x) | EllipsisText(x, _) | CustomCell(_, x) => (x->JSON.Encode.string->Some, jsonVal)
   | Date(x) => (dateFormatConvertor(x), dateFormatConvertor(x))
   | StartEndDate(start, end) => (
       `${dateFormatConvertor(start)
-        ->Option.getWithDefault(""->Js.Json.string)
+        ->Option.getOr(""->JSON.Encode.string)
         ->String.make} ${dateFormatConvertor(end)
-        ->Option.getWithDefault(""->Js.Json.string)
+        ->Option.getOr(""->JSON.Encode.string)
         ->String.make}`
-      ->Js.Json.string
+      ->JSON.Encode.string
       ->Some,
       dateFormatConvertor(end),
     )
@@ -30,7 +30,7 @@ let useDateFormatConvertor = () => {
   let dateFormatConvertor = dateStr => {
     try {
       let customTimeZone = isoStringToCustomTimeZone(dateStr)
-      TimeZoneHook.formattedDateTimeFloat(customTimeZone, dateFormat)->Js.Json.string->Some
+      TimeZoneHook.formattedDateTimeFloat(customTimeZone, dateFormat)->JSON.Encode.string->Some
     } catch {
     | _ => None
     }
@@ -39,11 +39,11 @@ let useDateFormatConvertor = () => {
 }
 
 let filteredData = (
-  actualData: Js.Array2.t<Js.Nullable.t<'t>>,
-  columnFilter: Js.Dict.t<Js.Array2.t<Js.Json.t>>,
-  visibleColumns: option<Js.Array2.t<'colType>>,
+  actualData: array<Js.Nullable.t<'t>>,
+  columnFilter: Dict.t<array<JSON.t>>,
+  visibleColumns: option<array<'colType>>,
   entity: EntityType.entityType<'colType, 't>,
-  dateFormatConvertor: string => option<Js.Json.t>,
+  dateFormatConvertor: string => option<JSON.t>,
 ) => {
   let selectedFiltersKeys = columnFilter->Dict.keysToArray
   if selectedFiltersKeys->Array.length > 0 {
@@ -58,12 +58,12 @@ let filteredData = (
           | Some(selectedArr) => {
               // selected value of the fitler
               let jsonVal = Dict.get(
-                rowDict->Js.Json.object_->JsonFlattenUtils.flattenObject(false),
+                rowDict->JSON.Encode.object->JsonFlattenUtils.flattenObject(false),
                 keys,
               )
               let visibleColumns =
                 visibleColumns
-                ->Option.getWithDefault(entity.defaultColumns)
+                ->Option.getOr(entity.defaultColumns)
                 ->Belt.Array.keepMap(
                   item => {
                     let columnEntity = entity.getHeading(item)
@@ -87,7 +87,7 @@ let filteredData = (
                   | DropDown => {
                       let selectedArr =
                         selectedArr
-                        ->Belt.Array.keepMap(item => item->Js.Json.decodeString)
+                        ->Belt.Array.keepMap(item => item->JSON.Decode.string)
                         ->Array.map(String.toLowerCase)
 
                       let currVal = switch jsonVal {
@@ -99,14 +99,14 @@ let filteredData = (
 
                   | LabelType | TextType => {
                       let selectedArr1 =
-                        selectedArr->Belt.Array.keepMap(item => item->Js.Json.decodeString)
+                        selectedArr->Belt.Array.keepMap(item => item->JSON.Decode.string)
 
                       let currVal = switch jsonVal {
                       | (Some(transformed), _) => transformed->String.make
                       | (None, _) => ""
                       }
 
-                      let searchedText = selectedArr1->Belt.Array.get(0)->Option.getWithDefault("")
+                      let searchedText = selectedArr1->Array.get(0)->Option.getOr("")
                       !String.includes(
                         searchedText->String.toUpperCase,
                         currVal->String.toUpperCase,
@@ -115,14 +115,14 @@ let filteredData = (
 
                   | MoneyType | NumericType | ProgressType => {
                       let selectedArr =
-                        selectedArr->Belt.Array.keepMap(item => item->Js.Json.decodeNumber)
+                        selectedArr->Belt.Array.keepMap(item => item->JSON.Decode.float)
                       let currVal = switch jsonVal {
                       | (_, Some(actualVal)) => actualVal->String.make->Js.Float.fromString
                       | _ => 0.
                       }
                       !(
-                        currVal >= selectedArr[0]->Option.getWithDefault(0.) &&
-                          currVal <= selectedArr[1]->Option.getWithDefault(0.)
+                        currVal >= selectedArr[0]->Option.getOr(0.) &&
+                          currVal <= selectedArr[1]->Option.getOr(0.)
                       )
                     }
                   }
@@ -147,16 +147,16 @@ let filteredData = (
 
 let convertStrCellToFloat = (dataType: Table.cellType, str: string) => {
   switch dataType {
-  | DropDown | LabelType | TextType => str->Js.Json.string
+  | DropDown | LabelType | TextType => str->JSON.Encode.string
   | MoneyType | NumericType | ProgressType =>
-    str->Belt.Float.fromString->Option.getWithDefault(0.)->Js.Json.number
+    str->Float.fromString->Option.getOr(0.)->JSON.Encode.float
   }
 }
 
 let convertFloatCellToStr = (dataType: Table.cellType, num: float) => {
   switch dataType {
-  | DropDown | LabelType | TextType => num->Belt.Float.toString->Js.Json.string
-  | MoneyType | NumericType | ProgressType => num->Js.Json.number
+  | DropDown | LabelType | TextType => num->Float.toString->JSON.Encode.string
+  | MoneyType | NumericType | ProgressType => num->JSON.Encode.float
   }
 }
 

@@ -27,7 +27,7 @@ module PrettyPrintJson = {
     let (parsedJson, setParsedJson) = React.useState(_ => "")
     let parseJsonValue = () => {
       try {
-        let parsedValue = jsonToDisplay->Js.Json.parseExn->Js.Json.stringifyWithSpace(3)
+        let parsedValue = jsonToDisplay->JSON.parseExn->JSON.stringifyWithIndent(3)
         setParsedJson(_ => parsedValue)
       } catch {
       | _ => setParsedJson(_ => jsonToDisplay)
@@ -54,7 +54,7 @@ module PrettyPrintJson = {
           <UIUtils.RenderIf condition={headerText->Option.isSome}>
             <div className="flex justify-between items-center">
               <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
-                {headerText->Option.getWithDefault("")->React.string}
+                {headerText->Option.getOr("")->React.string}
               </p>
               {copyParsedJson}
             </div>
@@ -91,7 +91,7 @@ module PrettyPrintJson = {
       <UIUtils.RenderIf condition={parsedJson->isEmptyString}>
         <div className="flex flex-col justify-start items-start gap-2 h-25-rem">
           <p className="font-bold text-fs-16 text-jp-gray-900 text-opacity-75">
-            {headerText->Option.getWithDefault("")->React.string}
+            {headerText->Option.getOr("")->React.string}
           </p>
           <p className="font-normal text-fs-14 text-jp-gray-900 text-opacity-50">
             {"Failed to load!"->React.string}
@@ -134,7 +134,7 @@ module ApiDetailsComponent = {
         filteredKeys->Array.includes(key)->not
       })
       ->getJsonFromArrayOfJson
-      ->Js.Json.stringify
+      ->JSON.stringify
     | WEBHOOKS => paymentDetailsValue->getString("outgoing_webhook_event_type", "")
     }
 
@@ -347,7 +347,7 @@ let make = (~paymentId, ~createdAt) => {
       PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -369,7 +369,7 @@ let make = (~paymentId, ~createdAt) => {
       PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -388,7 +388,7 @@ let make = (~paymentId, ~createdAt) => {
       PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -412,16 +412,16 @@ let make = (~paymentId, ~createdAt) => {
       let endTime = endTime->Js.Date.fromFloat->Js.Date.toISOString
       let body =
         [
-          ("paymentId", paymentId->Js.Json.string),
+          ("paymentId", paymentId->JSON.Encode.string),
           (
             "timeRange",
-            [("startTime", startTime->Js.Json.string), ("endTime", endTime->Js.Json.string)]
+            [("startTime", startTime->JSON.Encode.string), ("endTime", endTime->JSON.Encode.string)]
             ->Dict.fromArray
-            ->Js.Json.object_,
+            ->JSON.Encode.object,
           ),
         ]
         ->Dict.fromArray
-        ->Js.Json.object_
+        ->JSON.Encode.object
       let sdkLogsArray =
         (await fetchPostDetils(url, body, Post, ()))
         ->getArrayFromJson([])
@@ -432,21 +432,24 @@ let make = (~paymentId, ~createdAt) => {
           let logType = eventDict->getString("log_type", "")
           let updatedEventName =
             logType === "INFO" ? eventName->String.replace("Call", "Response") : eventName
-          eventDict->Dict.set("event_name", updatedEventName->Js.Json.string)
-          eventDict->Dict.set("event_id", sha256(updatedEventName ++ timestamp)->Js.Json.string)
+          eventDict->Dict.set("event_name", updatedEventName->JSON.Encode.string)
+          eventDict->Dict.set("event_id", sha256(updatedEventName ++ timestamp)->JSON.Encode.string)
           eventDict->Dict.set(
             "source",
-            eventDict->getString("source", "")->sourceMapper->Js.Json.string,
+            eventDict->getString("source", "")->sourceMapper->JSON.Encode.string,
           )
           eventDict->Dict.set(
             "checkout_platform",
-            eventDict->getString("component", "")->Js.Json.string,
+            eventDict->getString("component", "")->JSON.Encode.string,
           )
           eventDict->Dict.set(
             "customer_device",
-            eventDict->getString("platform", "")->Js.Json.string,
+            eventDict->getString("platform", "")->JSON.Encode.string,
           )
-          eventDict->Dict.set("sdk_version", eventDict->getString("version", "")->Js.Json.string)
+          eventDict->Dict.set(
+            "sdk_version",
+            eventDict->getString("version", "")->JSON.Encode.string,
+          )
           eventDict->Dict.set(
             "event_name",
             updatedEventName
@@ -454,10 +457,10 @@ let make = (~paymentId, ~createdAt) => {
             ->titleToSnake
             ->snakeToCamel
             ->capitalizeString
-            ->Js.Json.string,
+            ->JSON.Encode.string,
           )
-          eventDict->Dict.set("created_at", timestamp->Js.Json.string)
-          eventDict->Js.Json.object_
+          eventDict->Dict.set("created_at", timestamp->JSON.Encode.string)
+          eventDict->JSON.Encode.object
         })
       let logsArr = sdkLogsArray->Array.filter(sdkLog => {
         let eventDict = sdkLog->getDictFromJsonObject
@@ -470,7 +473,7 @@ let make = (~paymentId, ~createdAt) => {
       PageLoaderWrapper.Success
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -526,7 +529,7 @@ let make = (~paymentId, ~createdAt) => {
                 filteredKeys->Array.includes(key)->not
               })
               ->getJsonFromArrayOfJson
-              ->Js.Json.stringify
+              ->JSON.stringify
             let response =
               initialData->getString("log_type", "") === "ERROR"
                 ? initialData->getString("value", "")

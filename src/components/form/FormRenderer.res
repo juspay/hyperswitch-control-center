@@ -2,13 +2,13 @@ open InputFields
 type inputFieldType = {
   name: string,
   placeholder: string,
-  format: option<(. ~value: Js.Json.t, ~name: string) => Js.Json.t>,
-  parse: option<(. ~value: Js.Json.t, ~name: string) => Js.Json.t>,
+  format: option<(. ~value: JSON.t, ~name: string) => JSON.t>,
+  parse: option<(. ~value: JSON.t, ~name: string) => JSON.t>,
   disabled: bool,
   isRequired: bool,
   @as("type") type_: string,
   customInput: customInputFn,
-  validate: option<(option<string>, Js.Json.t) => Js.Promise.t<Js.Nullable.t<string>>>,
+  validate: option<(option<string>, JSON.t) => Js.Promise.t<Js.Nullable.t<string>>>,
 }
 type fieldInfoType = {
   label: string,
@@ -36,17 +36,16 @@ let makeInputFieldInfo = (
   ~parse=?,
   ~type_="text",
   ~isRequired=false,
-  ~validate: option<(option<string>, Js.Json.t) => Js.Promise.t<Js.Nullable.t<string>>>=?,
+  ~validate: option<(option<string>, JSON.t) => Js.Promise.t<Js.Nullable.t<string>>>=?,
   (),
 ) => {
-  let label = label->Option.getWithDefault(name)
+  let label = label->Option.getOr(name)
 
-  let newCustomInput =
-    customInput->Option.getWithDefault(InputFields.textInput(~isDisabled=disabled, ()))
+  let newCustomInput = customInput->Option.getOr(InputFields.textInput(~isDisabled=disabled, ()))
 
   {
     name,
-    placeholder: placeholder->Option.getWithDefault(label),
+    placeholder: placeholder->Option.getOr(label),
     customInput: newCustomInput,
     disabled,
     format,
@@ -104,7 +103,7 @@ let makeMultiInputFieldInfo = (
 ) => {
   let inputNames =
     comboCustomInput
-    ->Belt.Option.mapWithDefault([], x => x.names)
+    ->Option.mapOr([], x => x.names)
     ->Array.concat(inputFields->Array.map(x => x.name))
   {
     label,
@@ -116,7 +115,7 @@ let makeMultiInputFieldInfo = (
     descriptionComponent,
     subText,
     isRequired,
-    comboCustomInput: comboCustomInput->Belt.Option.map(x => x.fn),
+    comboCustomInput: comboCustomInput->Option.map(x => x.fn),
     inputFields,
     inputNames,
     ?fieldPortalKey,
@@ -141,13 +140,12 @@ let makeFieldInfo = (
   ~type_="text",
   ~isRequired=false,
   ~fieldPortalKey: option<string>=?,
-  ~validate: option<(option<string>, Js.Json.t) => Js.Promise.t<Js.Nullable.t<string>>>=?,
+  ~validate: option<(option<string>, JSON.t) => Js.Promise.t<Js.Nullable.t<string>>>=?,
   (),
 ) => {
-  let label = label->Option.getWithDefault(name)
+  let label = label->Option.getOr(name)
 
-  let newCustomInput =
-    customInput->Option.getWithDefault(InputFields.textInput(~isDisabled=disabled, ()))
+  let newCustomInput = customInput->Option.getOr(InputFields.textInput(~isDisabled=disabled, ()))
 
   makeMultiInputFieldInfo(
     ~label,
@@ -398,7 +396,7 @@ module ComboFieldsRenderer3 = {
       if inputFields->Array.length === 0 {
         renderInputs(fieldsState)
       } else {
-        let inputField = inputFields[0]->Option.getWithDefault(makeInputFieldInfo(~name="", ()))
+        let inputField = inputFields[0]->Option.getOr(makeInputFieldInfo(~name="", ()))
 
         let restInputFields = Js.Array2.sliceFrom(inputFields, 1)
 
@@ -493,8 +491,7 @@ module FieldRenderer = {
               subHeadingClass
               dataId=names>
               {if field.inputFields->Array.length === 1 {
-                let field =
-                  field.inputFields[0]->Option.getWithDefault(makeInputFieldInfo(~name="", ()))
+                let field = field.inputFields[0]->Option.getOr(makeInputFieldInfo(~name="", ()))
 
                 <ErrorBoundary>
                   <FieldInputRenderer field errorClass showErrorOnChange />
@@ -524,9 +521,9 @@ module FormError = {
     let subscriptionJson = {
       let subscriptionDict = Dict.make()
 
-      Dict.set(subscriptionDict, "submitErrors", Js.Json.boolean(true))
+      Dict.set(subscriptionDict, "submitErrors", JSON.Encode.bool(true))
 
-      Js.Json.object_(subscriptionDict)
+      JSON.Encode.object(subscriptionDict)
     }
 
     React.useEffect0(() => {
@@ -540,7 +537,7 @@ module FormError = {
     })
     switch submitErrors {
     | Some(errorsJson) =>
-      switch errorsJson->Js.Json.decodeObject {
+      switch errorsJson->JSON.Decode.object {
       | Some(dict) =>
         let errStr = switch Dict.get(dict, "FORM_ERROR") {
         | Some(err) => LogicUtils.getStringFromJson(err, "")
@@ -597,11 +594,11 @@ module SubmitButton = {
       "submitErrors",
       "submitting",
     ]->Array.forEach(item => {
-      Dict.set(dict, item, Js.Json.boolean(true))
+      Dict.set(dict, item, JSON.Encode.bool(true))
     })
 
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      dict->Js.Json.object_->Js.Nullable.return,
+      dict->JSON.Encode.object->Js.Nullable.return,
     )
     let {hasValidationErrors, hasSubmitErrors, submitting, dirtySinceLastSubmit, errors} = formState
 
@@ -800,7 +797,7 @@ let make = (
   ~onSubmit: (
     ReactFinalForm.formValues,
     ReactFinalForm.formApi,
-  ) => Promise.t<Js.Nullable.t<Js.Json.t>>,
+  ) => Promise.t<Js.Nullable.t<JSON.t>>,
   ~fieldsWrapperClass="",
   ~fieldWrapperClass="",
   ~formClass="",

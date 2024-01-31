@@ -40,16 +40,14 @@ let make = (
 
   let disableSelectBtn = React.useMemo2(
     () =>
-      (initialValues->Js.Array.toString === values->Js.Array.toString && !enableSelect) ||
+      (initialValues->Array.toString === values->Array.toString && !enableSelect) ||
         values->Array.length === 0,
     (values, initialValues),
   )
 
   let len = values->Array.length
   let buttonText =
-    submitButtonText->Option.getWithDefault(
-      len > 0 ? `${len->Belt.Int.toString} ${title} Selected` : "Select",
-    )
+    submitButtonText->Option.getOr(len > 0 ? `${len->Int.toString} ${title} Selected` : "Select")
 
   React.useEffect2(() => {
     if !showModal {
@@ -68,7 +66,7 @@ let make = (
       maxLengthArray(target, setValues)
     },
     onFocus: _ev => (),
-    value: values->Js.Json.stringArray,
+    value: values->LogicUtils.getJsonFromArrayOfString,
     checked: false,
   }
 
@@ -97,7 +95,7 @@ let make = (
           isDropDown=false
           options
           onSelect={arr => maxLengthArray(arr, setValues)}
-          value={values->Js.Json.stringArray}
+          value={values->LogicUtils.getJsonFromArrayOfString}
           showSelectAll={showSelectAll}
           showSerialNumber
           maxHeight="max-h-full"
@@ -114,18 +112,14 @@ let make = (
         ? <div className="bg-[#F6F6F6] p-4 border-b border-slate-300 text-center text-[#868686]">
             {React.string(
               `Conversion rate  = ${options
-                ->Array.filter(itm =>
-                  values->Belt.Array.get(0)->Option.getWithDefault("") == itm.value
-                )
+                ->Array.filter(itm => values->Array.get(0)->Option.getOr("") == itm.value)
                 ->Array.map(item => item.label)
-                ->Belt.Array.get(0)
-                ->Option.getWithDefault("Factor 1")} / ${options
-                ->Array.filter(itm =>
-                  values->Belt.Array.get(1)->Option.getWithDefault("") == itm.value
-                )
+                ->Array.get(0)
+                ->Option.getOr("Factor 1")} / ${options
+                ->Array.filter(itm => values->Array.get(1)->Option.getOr("") == itm.value)
                 ->Array.map(item => item.label)
-                ->Belt.Array.get(0)
-                ->Option.getWithDefault("Factor 2")}`,
+                ->Array.get(0)
+                ->Option.getOr("Factor 2")}`,
             )}
           </div>
         : React.null}

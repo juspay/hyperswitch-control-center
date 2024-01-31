@@ -38,12 +38,12 @@ module OperatorInp = {
   @react.component
   let make = (~fieldsArray: array<ReactFinalForm.fieldRenderProps>, ~keyType) => {
     let defaultInput: ReactFinalForm.fieldRenderProps = {
-      input: ReactFinalForm.makeInputRecord(""->Js.Json.string, _e => ()),
+      input: ReactFinalForm.makeInputRecord(""->JSON.Encode.string, _e => ()),
       meta: ReactFinalForm.makeCustomError(None),
     }
-    let field = (fieldsArray->Belt.Array.get(0)->Option.getWithDefault(defaultInput)).input
-    let operator = (fieldsArray->Belt.Array.get(1)->Option.getWithDefault(defaultInput)).input
-    let valInp = (fieldsArray->Belt.Array.get(2)->Option.getWithDefault(defaultInput)).input
+    let field = (fieldsArray->Array.get(0)->Option.getOr(defaultInput)).input
+    let operator = (fieldsArray->Array.get(1)->Option.getOr(defaultInput)).input
+    let valInp = (fieldsArray->Array.get(2)->Option.getOr(defaultInput)).input
     let (opVals, setOpVals) = React.useState(_ => [])
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
@@ -68,7 +68,7 @@ module OperatorInp = {
 
       setOpVals(_ => operatorVals)
 
-      if operator.value->Js.Json.decodeString->Option.isNone {
+      if operator.value->JSON.Decode.string->Option.isNone {
         operator.onChange(operatorVals[0]->Identity.anyTypeToReactEvent)
       }
       None
@@ -80,8 +80,7 @@ module OperatorInp = {
         ("IS_NOT", "Includes results that does not match the filter value(s)."),
         ("NOT_CONTAINS", "Includes results except any value for the filter property."),
       ]->Dict.fromArray
-    let disableSelect =
-      field.value->Js.Json.decodeString->Option.getWithDefault("")->String.length === 0
+    let disableSelect = field.value->JSON.Decode.string->Option.getOr("")->String.length === 0
 
     let operatorOptions = opVals->Array.map(opVal => {
       let obj: SelectBox.dropdownOption = {
@@ -110,13 +109,9 @@ module OperatorInp = {
 module ValueInp = {
   @react.component
   let make = (~fieldsArray: array<ReactFinalForm.fieldRenderProps>, ~variantValues, ~keyType) => {
-    let valueField = (
-      fieldsArray[1]->Option.getWithDefault(ReactFinalForm.fakeFieldRenderProps)
-    ).input
-    let opField = (fieldsArray[2]->Option.getWithDefault(ReactFinalForm.fakeFieldRenderProps)).input
-    let typeField = (
-      fieldsArray[3]->Option.getWithDefault(ReactFinalForm.fakeFieldRenderProps)
-    ).input
+    let valueField = (fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
+    let opField = (fieldsArray[2]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
+    let typeField = (fieldsArray[3]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
 
     React.useEffect1(() => {
       typeField.onChange(
@@ -187,9 +182,7 @@ module ValueInp = {
 module MetadataInp = {
   @react.component
   let make = (~fieldsArray: array<ReactFinalForm.fieldRenderProps>, ~keyType) => {
-    let valueField = (
-      fieldsArray[2]->Option.getWithDefault(ReactFinalForm.fakeFieldRenderProps)
-    ).input
+    let valueField = (fieldsArray[2]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
 
     let textInput: ReactFinalForm.fieldRenderPropsInput = {
       name: "string",
@@ -200,7 +193,7 @@ module MetadataInp = {
         let arrStr = valSplit->Array.map(item => {
           String.trim(item)
         })
-        let finalVal = Array.joinWith(arrStr, ",")->Js.Json.string
+        let finalVal = Array.joinWith(arrStr, ",")->JSON.Encode.string
 
         valueField.onChange(finalVal->Identity.anyTypeToReactEvent)
       },
@@ -417,7 +410,7 @@ module MakeRuleField = {
   let make = (~id, ~isExpanded, ~wasm, ~isFrom3ds, ~isFromSurcharge) => {
     let ruleJsonPath = `${id}.statements`
     let conditionsInput = ReactFinalForm.useField(ruleJsonPath).input
-    let fields = conditionsInput.value->Js.Json.decodeArray->Option.getWithDefault([])
+    let fields = conditionsInput.value->JSON.Decode.array->Option.getOr([])
     let plusBtnEnabled = true
     //fields->Array.every(validateConditionJson)
     let onPlusClick = _ => {
@@ -426,7 +419,7 @@ module MakeRuleField = {
         conditionsInput.onChange(
           Array.concat(
             fields,
-            [toAdd->Js.Json.object_],
+            [toAdd->JSON.Encode.object],
           )->Identity.arrayOfGenericTypeToFormReactEvent,
         )
       }
@@ -446,7 +439,7 @@ module MakeRuleField = {
           key={i->string_of_int}
           onClick={_ => onCrossClick(i)}
           isFirst={i === 0}
-          id={`${ruleJsonPath}[${i->Belt.Int.toString}]`}
+          id={`${ruleJsonPath}[${i->Int.toString}]`}
           isExpanded
           wasm
           isFrom3ds
@@ -517,7 +510,7 @@ module ConfigureRuleButton = {
 module SaveAndActivateButton = {
   @react.component
   let make = (
-    ~onSubmit: (Js.Json.t, 'a) => promise<Js.Nullable.t<Js.Json.t>>,
+    ~onSubmit: (JSON.t, 'a) => promise<Js.Nullable.t<JSON.t>>,
     ~handleActivateConfiguration,
   ) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
@@ -528,14 +521,13 @@ module SaveAndActivateButton = {
       try {
         let onSubmitResponse = await onSubmit(formState.values, false)
         let currentActivatedFromJson =
-          onSubmitResponse->Js.Nullable.toOption->Option.getWithDefault(Js.Json.null)
+          onSubmitResponse->Js.Nullable.toOption->Option.getOr(JSON.Encode.null)
         let currentActivatedId =
           currentActivatedFromJson->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
         let _ = await handleActivateConfiguration(Some(currentActivatedId))
       } catch {
       | Js.Exn.Error(e) =>
-        let _err =
-          Js.Exn.message(e)->Option.getWithDefault("Failed to save and activate configuration!")
+        let _err = Js.Exn.message(e)->Option.getOr("Failed to save and activate configuration!")
       }
     }
     <Button

@@ -16,7 +16,7 @@ type toastProps = {
 }
 
 let randomString = (length, chars) => {
-  Belt.Array.make(length, 0)->Array.reduce("", (acc, _) => {
+  Array.make(~length, 0)->Array.reduce("", (acc, _) => {
     let charIndex = Js.Math.random_int(0, chars->String.length)
     let newChar = chars->String.charAt(charIndex)
     acc ++ newChar
