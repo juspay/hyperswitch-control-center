@@ -1,6 +1,7 @@
 name: ESLint
 
 on:
+  merge_group:
   pull_request:
 
 jobs:
