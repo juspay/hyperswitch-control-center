@@ -42,8 +42,8 @@ let make = () => {
         Window._open(link)
       }
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to fetch Token!")
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to fetch Token!")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }

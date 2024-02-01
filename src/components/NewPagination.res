@@ -1,7 +1,7 @@
 @react.component
 let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4) => {
   let pageNumbers = []
-  let total = Js.Math.ceil(Int.toFloat(totalResults) /. Int.toFloat(resultsPerPage))
+  let total = Math.ceil(Int.toFloat(totalResults) /. Int.toFloat(resultsPerPage))->Float.toInt
 
   for x in 1 to total {
     Array.push(pageNumbers, x)->ignore
@@ -12,8 +12,8 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
       ? btnCount / 2
       : btnCount - (total - currentPage)
 
-  let startIndex = Js.Math.max_int(1, currentPage - pageToLeft)
-  let endIndex = Js.Math.min_int(startIndex + btnCount, total)
+  let startIndex = Math.Int.max(1, currentPage - pageToLeft)
+  let endIndex = Math.Int.min(startIndex + btnCount, total)
 
   let nonEmpty = s => s >= startIndex && s <= endIndex
 
@@ -23,13 +23,13 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
         name="chevron-left"
         className="fill-ardra-secondary-300"
         size=16
-        onClick={_evt => paginate(Js.Math.max_int(1, currentPage - 1))}
+        onClick={_evt => paginate(Math.Int.max(1, currentPage - 1))}
       />
     } else {
       <Icon
         name="leftDisabledPaginator"
         size=16
-        onClick={_evt => paginate(Js.Math.max_int(1, currentPage - 1))}
+        onClick={_evt => paginate(Math.Int.max(1, currentPage - 1))}
       />
     }}
     {pageNumbers

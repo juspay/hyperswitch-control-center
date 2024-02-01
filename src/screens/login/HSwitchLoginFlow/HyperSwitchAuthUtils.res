@@ -422,7 +422,7 @@ let errorMapper = dict => {
 }
 
 let parseErrorMessage = errorMessage => {
-  let parsedValue = switch Js.Exn.message(errorMessage) {
+  let parsedValue = switch Exn.message(errorMessage) {
   | Some(msg) => msg->LogicUtils.safeParse
   | None => JSON.Encode.null
   }

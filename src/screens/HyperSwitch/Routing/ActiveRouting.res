@@ -59,7 +59,7 @@ module ActionButtons = {
           (),
         )
       } catch {
-      | Js.Exn.Error(_e) =>
+      | Exn.Error(_e) =>
         showToast(~message="Failed to submit request !", ~toastType=ToastState.ToastError, ())
       }
     }

@@ -150,9 +150,9 @@ let useDeleteTrackingDetails = () => {
         ]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post, ())
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
-        Js.Exn.raiseError(err)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to update!")
+        Exn.raiseError(err)
       }
     }
   }
@@ -187,9 +187,9 @@ let useDeleteConnectorAccountDetails = () => {
       let res = await updateDetails(url, body, Post, ())
       res
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Js.Exn.raiseError(err)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
       }
     }
   }
@@ -239,8 +239,8 @@ let payPalPageState = async (
       setScreenState(_ => Success)
     }
   } catch {
-  | Js.Exn.Error(e) => {
-      let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
+  | Exn.Error(e) => {
+      let err = Exn.message(e)->Option.getOr("Something went wrong")
       setScreenState(_ => Error(err))
     }
   | _ => setScreenState(_ => Error("Something went wrong"))

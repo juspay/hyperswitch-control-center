@@ -27,7 +27,7 @@ let useAddLogsAroundFetch = () => {
       })
 
       if status >= 400 {
-        Js.Exn.raiseError("err")->reject
+        Exn.raiseError("err")->reject
       } else {
         resolve(resp)
       }
@@ -71,7 +71,7 @@ let useAddLogsAroundFetchNew = () => {
       })
 
       if status >= 400 {
-        Js.Exn.raiseError("err")->reject
+        Exn.raiseError("err")->reject
       } else {
         resolve(resp)
       }

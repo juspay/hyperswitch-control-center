@@ -81,8 +81,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
       RescriptReactRouter.push("/fraud-risk-management")
     } catch {
-    | Js.Exn.Error(_) =>
-      showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError, ())
+    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError, ())
     }
   }
 

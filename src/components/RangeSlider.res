@@ -6,8 +6,8 @@ let make = (
   ~maxSlide: ReactFinalForm.fieldRenderPropsInput,
   ~minSlide: ReactFinalForm.fieldRenderPropsInput,
 ) => {
-  let max = Js.Math.ceil_float(max->Js.Float.fromString)
-  let min = Js.Math.floor_float(min->Js.Float.fromString)
+  let max = Math.ceil(max->Js.Float.fromString)
+  let min = Math.floor(min->Js.Float.fromString)
   let (minSlideVal, setMinSlideVal) = React.useState(_ =>
     minSlide.value->LogicUtils.getFloatFromJson(min)
   )
@@ -41,19 +41,19 @@ let make = (
   }
 
   let diff = React.useMemo2(() => {
-    Js.Math.max_float(max -. min, 1.)
+    Math.max(max -. min, 1.)
   }, (max, min))
 
   let maxsliderVal = React.useMemo1(() => {
     switch maxSlide.value->JSON.Decode.float {
-    | Some(num) => Js.Math.ceil_float(num)->Js.Float.toString
+    | Some(num) => Math.ceil(num)->Js.Float.toString
     | None => "0"
     }
   }, [maxSlide.value])
 
   let minsliderVal = React.useMemo1(() => {
     switch minSlide.value->JSON.Decode.float {
-    | Some(num) => Js.Math.floor_float(num)->Js.Float.toString
+    | Some(num) => Math.floor(num)->Js.Float.toString
     | None => "0"
     }
   }, [minSlide.value])
