@@ -7,7 +7,7 @@ let generateBody = (url: RescriptReactRouter.url) => {
 }
 
 @react.component
-let make = (~setAuthType, ~setAuthStatus, ~authType) => {
+let make = (~setAuthType, ~setAuthStatus) => {
   open HyperSwitchAuthTypes
   open APIUtils
   open LogicUtils
@@ -17,9 +17,7 @@ let make = (~setAuthType, ~setAuthStatus, ~authType) => {
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let emailVerifyUpdate = async body => {
     try {
-      let userType =
-        authType == HyperSwitchAuthTypes.EmailVerify ? #VERIFY_EMAIL : #VERIFY_MAGIC_LINK
-      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType, ())
+      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#VERIFY_EMAILV2, ())
       let res = await updateDetails(url, body, Post, ())
       let email = res->JSON.Decode.object->Option.getOr(Dict.make())->getString("email", "")
       let token = HyperSwitchAuthUtils.parseResponseJson(~json=res, ~email)

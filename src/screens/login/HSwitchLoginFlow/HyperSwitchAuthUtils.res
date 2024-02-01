@@ -117,6 +117,7 @@ let parseResponseJson = (~json, ~email) => {
   )
   setMerchantDetails("email", email->JSON.Encode.string)
   setUserDetails("name", valuesDict->getString("name", "")->JSON.Encode.string)
+  setUserDetails("flow_type", valuesDict->getString("flow_type", "")->JSON.Encode.string)
   setUserDetails("user_role", valuesDict->getString("user_role", "")->JSON.Encode.string)
   // setUserDetails(
   //   "is_metadata_filled",
@@ -441,5 +442,13 @@ let errorSubCodeMapper = (subCode: string) => {
   | "UR_05" => UR_05
   | "UR_16" => UR_16
   | _ => UR_00
+  }
+}
+
+let flowTypeStrToVariantMapper = val => {
+  switch val {
+  | "merchant_select" => MERCHANT_SELECT
+  | "dashboard_entry" => DASHBOARD_ENTRY
+  | _ => MERCHANT_SELECT
   }
 }
