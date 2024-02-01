@@ -23,7 +23,7 @@ type dataLabels = {
 
 type seriesLine<'a> = {
   name: string,
-  data: array<('a, Js.Nullable.t<float>)>,
+  data: array<('a, Nullable.t<float>)>,
   color: option<string>,
   pointPlacement?: string,
   legendIndex: int,
@@ -63,7 +63,7 @@ type chart = {
   "type": string,
   "zoomType": string,
   "margin": option<array<int>>,
-  "backgroundColor": Js.Nullable.t<string>,
+  "backgroundColor": Nullable.t<string>,
   "height": option<int>,
   "width": option<int>,
   "events": option<chartEvent>,
@@ -76,7 +76,7 @@ type states = {"hover": hover}
 
 type area = {
   "fillColor": option<fillColor>,
-  "threshold": Js.Nullable.t<string>,
+  "threshold": Nullable.t<string>,
   "lineWidth": float,
   "states": states,
   "pointStart": option<int>,
@@ -231,12 +231,12 @@ type options<'a> = {
 
 type chartType = {
   chartType: string,
-  backgroundColor: Js.Nullable.t<string>,
+  backgroundColor: Nullable.t<string>,
 }
 
 let makebarChart = (
   ~chartType: string="",
-  ~backgroundColor: Js.Nullable.t<string>=Js.Nullable.null,
+  ~backgroundColor: Nullable.t<string>=Nullable.null,
   (),
 ) => {
   {
@@ -244,7 +244,7 @@ let makebarChart = (
     "backgroundColor": backgroundColor,
   }
 }
-type barChart = {"type": string, "backgroundColor": Js.Nullable.t<string>}
+type barChart = {"type": string, "backgroundColor": Nullable.t<string>}
 type barSeries = {data: array<JSON.t>}
 type xAxis1 = {"type": string}
 

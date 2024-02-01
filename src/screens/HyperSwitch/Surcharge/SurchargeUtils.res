@@ -15,7 +15,7 @@ let defaultSurcharge: AdvancedRoutingTypes.surchargeDetailsType = {
 let surchargeRules: AdvancedRoutingTypes.rule = {
   name: "rule_1",
   connectorSelection: {
-    surcharge_details: defaultSurcharge->Js.Nullable.return,
+    surcharge_details: defaultSurcharge->Nullable.make,
   },
   statements: statementObject,
 }
@@ -26,7 +26,7 @@ let buildInitialSurchargeValue: threeDsRoutingType = {
   algorithm: {
     rules: [surchargeRules],
     defaultSelection: {
-      surcharge_details: Js.Nullable.null,
+      surcharge_details: Nullable.null,
     },
     metadata: JSON.Encode.null,
   },
@@ -89,10 +89,7 @@ let ruleInfoTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.algorithmData = j
 }
 
 let getDefaultSurchargeType = surchargeType => {
-  surchargeType
-  ->Option.getOr(Js.Nullable.null)
-  ->Js.Nullable.toOption
-  ->Option.getOr(defaultSurcharge)
+  surchargeType->Option.getOr(Nullable.null)->Nullable.toOption->Option.getOr(defaultSurcharge)
 }
 
 let validateSurchargeRate = ruleDict => {

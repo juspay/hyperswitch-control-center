@@ -14,7 +14,7 @@ module CheckLocalFilters = {
   ) => {
     let isMobileView = MatchMedia.useMobileChecker()
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let values = formState.values
 

@@ -31,7 +31,7 @@ module HighBarChart1D = {
       let barOption: JSON.t = {
         "chart": Highcharts.makebarChart(
           ~chartType={isHrizonatalBar ? "bar" : "column"},
-          ~backgroundColor=Js.Nullable.null,
+          ~backgroundColor=Nullable.null,
           (),
         ),
         "title": {

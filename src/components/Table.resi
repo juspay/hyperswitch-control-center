@@ -1,5 +1,5 @@
 let regex: string => Js.Re.t
-let highlightedText: (Js.String.t, Js.String.t) => React.element
+let highlightedText: (string, string) => React.element
 type labelColor = TableUtils.labelColor =
   | LabelGreen
   | LabelRed
@@ -147,7 +147,7 @@ module TableRow: {
     ~expandedRow: unit => React.element,
     ~onMouseEnter: option<int => unit>,
     ~onMouseLeave: option<int => unit>,
-    ~highlightText: Js.String.t,
+    ~highlightText: string,
     ~clearFormatting: bool=?,
     ~rowHeightClass: string=?,
     ~rowCustomClass: string=?,
@@ -260,12 +260,12 @@ let make: (
   ~tableBorderClass: string=?,
   ~tableDataBorderClass: string=?,
   ~collapseTableRow: bool=?,
-  ~getRowDetails: Js.Nullable.t<'b> => React.element=?,
-  ~actualData: array<Js.Nullable.t<'b>>=?,
+  ~getRowDetails: Nullable.t<'b> => React.element=?,
+  ~actualData: array<Nullable.t<'b>>=?,
   ~onExpandClickData: 'onExpandClickData=?,
   ~onMouseEnter: int => unit=?,
   ~onMouseLeave: int => unit=?,
-  ~highlightText: Js.String.t=?,
+  ~highlightText: string=?,
   ~heightHeadingClass: string=?,
   ~frozenUpto: int=?,
   ~clearFormatting: bool=?,

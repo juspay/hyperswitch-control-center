@@ -5,7 +5,7 @@ type toolTipSize = Large | Medium | Small | XSmall
 type tooltipPositioning = [#absolute | #fixed | #static]
 @react.component
 let make: (
-  ~description: Js.String2.t=?,
+  ~description: string=?,
   ~descriptionComponent: React.element=?,
   ~tooltipPositioning: tooltipPositioning=?,
   ~toolTipFor: React.element=?,

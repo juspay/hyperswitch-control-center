@@ -308,7 +308,7 @@ let make = (~routingRuleId, ~isActive) => {
       if isSaveRule {
         RescriptReactRouter.replace(`/routing`)
       }
-      Js.Nullable.return(res)
+      Nullable.make(res)
     } catch {
     | Js.Exn.Error(e) =>
       let err = Js.Exn.message(e)->Option.getOr("Something went wrong!")

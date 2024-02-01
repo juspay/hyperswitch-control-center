@@ -32,7 +32,7 @@ let make = (
     ->then(json => {
       let jsonData = json->JSON.Decode.object->Option.flatMap(dict => dict->Dict.get("rows"))
       let newData = switch jsonData {
-      | Some(actualJson) => actualJson->getObjects->Array.map(obj => obj->Js.Nullable.return)
+      | Some(actualJson) => actualJson->getObjects->Array.map(obj => obj->Nullable.make)
       | None => []
       }
 
@@ -51,13 +51,13 @@ let make = (
       | None => ()
       }
       setShowModal(_ => false)
-      form.reset(JSON.Encode.object(Dict.make())->Js.Nullable.return)
-      json->Js.Nullable.return->resolve
+      form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
+      json->Nullable.make->resolve
     })
     ->catch(_err => {
       showToast(~message="Something went wrong. Please try again", ~toastType=ToastError, ())
 
-      Js.Nullable.null->resolve
+      Nullable.null->resolve
     })
   }
 

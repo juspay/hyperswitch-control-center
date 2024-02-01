@@ -358,7 +358,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     | SETUP_WEBHOOK_PROCESSOR => values->onSubmit
     | _ => setPageView(_ => pageView->ProdOnboardingUtils.getPageView)
     }
-    Js.Nullable.null->Promise.resolve
+    Nullable.null->Promise.resolve
   }
 
   let buttonText = switch verifyDone {

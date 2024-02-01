@@ -242,8 +242,8 @@ module Base = {
       None
     }, (localStartDate, localEndDate))
 
-    let dateRangeRef = React.useRef(Js.Nullable.null)
-    let dropdownRef = React.useRef(Js.Nullable.null)
+    let dateRangeRef = React.useRef(Nullable.null)
+    let dropdownRef = React.useRef(Nullable.null)
 
     useErroryValueResetter(startDateVal, setStartDateVal)
     useErroryValueResetter(endDateVal, setEndDateVal)

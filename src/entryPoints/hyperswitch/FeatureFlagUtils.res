@@ -26,6 +26,7 @@ type featureFlag = {
   customersModule: bool,
   permissionBasedModule: bool,
   disputeEvidenceUpload: bool,
+  paypalAutomaticFlow: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -59,6 +60,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     customersModule: dict->getBool("customers_module", false),
     permissionBasedModule: dict->getBool("permission_based_module", false),
     disputeEvidenceUpload: dict->getBool("dispute_evidence_upload", false),
+    paypalAutomaticFlow: dict->getBool("paypal_automatic_flow", false),
   }
   typedFeatureFlag
 }

@@ -122,7 +122,7 @@ type analyticsTableEntity<'colType, 't> = {
       'colType,
     ) => Table.header,
   >,
-  tableGlobalFilter: option<(array<Js.Nullable.t<'t>>, JSON.t) => array<Js.Nullable.t<'t>>>,
+  tableGlobalFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
   moduleName: string,
   defaultSortCol: string,
   filterKeys: array<string>,

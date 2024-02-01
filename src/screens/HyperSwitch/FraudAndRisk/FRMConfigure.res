@@ -103,6 +103,7 @@ let make = () => {
         | SummaryAndTest
         | Preview =>
           <FRMSummary initialValues currentStep setCurrentStep />
+        | _ => React.null
         }}
       </div>
     </div>

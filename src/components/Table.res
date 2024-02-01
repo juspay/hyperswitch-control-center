@@ -117,7 +117,7 @@ module TableRow = {
     }, (onMouseLeave, actualIndex))
     let colsLen = item->Array.length
     let cursorClass = onRowClickPresent ? "cursor-pointer" : ""
-    let rowRef = React.useRef(Js.Nullable.null)
+    let rowRef = React.useRef(Nullable.null)
     let coloredRow =
       // colour based on custom cell's value
       item
@@ -663,7 +663,7 @@ let make = (
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let rowInfo: array<array<cell>> = rows
-  let actualData: option<array<Js.Nullable.t<'t>>> = actualData
+  let actualData: option<array<Nullable.t<'t>>> = actualData
   let numberOfCols = heading->Array.length
   open Webapi
   let totalTableWidth =
@@ -697,7 +697,7 @@ let make = (
     switch actualData {
     | Some(actualData) =>
       switch getRowDetails {
-      | Some(fn) => fn(actualData->Array.get(rowIndex)->Option.getOr(Js.Nullable.null))
+      | Some(fn) => fn(actualData->Array.get(rowIndex)->Option.getOr(Nullable.null))
       | None => React.null
       }
     | None => React.null

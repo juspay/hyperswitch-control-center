@@ -60,12 +60,12 @@ let make = (
 
   let {isFirst, isLast} = React.useContext(ButtonGroupContext.buttonGroupContext)
   let (showPassword, setShowPassword) = React.useState(_ => false)
-  let inputRef = React.useRef(Js.Nullable.null)
+  let inputRef = React.useRef(Nullable.null)
 
   React.useEffect2(() => {
     switch widthMatchwithPlaceholderLength {
     | Some(length) =>
-      switch inputRef.current->Js.Nullable.toOption {
+      switch inputRef.current->Nullable.toOption {
       | Some(elem) =>
         let size =
           elem
@@ -109,7 +109,7 @@ let make = (
         let keyDownFn = ev => {
           if func(ev) {
             ev->ReactEvent.Keyboard.preventDefault
-            switch inputRef.current->Js.Nullable.toOption {
+            switch inputRef.current->Nullable.toOption {
             | Some(elem) => elem->focus
             | None => ()
             }
@@ -233,7 +233,11 @@ let make = (
 
   if type_ == "password" || type_ == "password_without_icon" {
     <AddDataAttributes
-      attributes=[("data-id-password", placeholder), ("data-input-name", input.name)]>
+      attributes=[
+        ("data-id-password", input.name),
+        ("data-input-name", input.name),
+        ("data-testid", input.name),
+      ]>
       <div className="flex flex-row items-center relative">
         leftIconElement
         <input
@@ -267,7 +271,12 @@ let make = (
       </div>
     </AddDataAttributes>
   } else {
-    <AddDataAttributes attributes=[("data-id", placeholder), ("data-input-name", input.name)]>
+    <AddDataAttributes
+      attributes=[
+        ("data-id", placeholder),
+        ("data-input-name", input.name),
+        ("data-testid", input.name),
+      ]>
       <div className="flex flex-row relative items-center grow">
         leftIconElement
         <input
