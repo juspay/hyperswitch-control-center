@@ -62,6 +62,7 @@ module GenerateSampleDataButton = {
       <ACLButton
         access={userPermissionJson.paymentWrite}
         buttonType={Secondary}
+        buttonSize={XSmall}
         text="Generate Sample Data"
         onClick={_ => generateSampleData()->ignore}
         leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
