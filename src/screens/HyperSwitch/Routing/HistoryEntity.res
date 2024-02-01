@@ -96,13 +96,14 @@ let historyEntity = (activeRoutingIds: array<string>, ~permission: AuthTypes.aut
     ~dataKey="records",
     ~getShowLink={
       value => {
-        permission === Access
-          ? `/routing/${value.kind
-              ->routingTypeMapper
-              ->routingTypeName}?id=${value.id}${activeRoutingIds->Array.includes(value.id)
-                ? "&isActive=true"
-                : ""}`
-          : ""
+        PermissionUtils.linkForGetShowLinkViaAccess(
+          ~url=`/routing/${value.kind
+            ->routingTypeMapper
+            ->routingTypeName}?id=${value.id}${activeRoutingIds->Array.includes(value.id)
+              ? "&isActive=true"
+              : ""}`,
+          ~permission,
+        )
       }
     },
     (),

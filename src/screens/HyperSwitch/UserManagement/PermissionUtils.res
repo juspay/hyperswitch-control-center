@@ -204,3 +204,7 @@ let getPermissionJson = permissionList => {
     usersWrite: UsersWrite->getAccessValueFromPermission,
   }
 }
+
+let linkForGetShowLinkViaAccess = (~permission, ~url) => {
+  permission === Access ? url : ``
+}
