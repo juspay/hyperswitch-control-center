@@ -28,14 +28,13 @@ let getHeaders = (~uri, ~headers, ~xFeatureRoute, ()) => {
       ("accept", "application/json"),
     ]->Dict.fromArray
   } else {
-    if xFeatureRoute {
-      headersForXFeature(~headers, ~uri)
-    }
     switch hyperSwitchToken {
     | Some(token) => {
         headers->Dict.set("authorization", `Bearer ${token}`)
         headers->Dict.set("api-key", `hyperswitch`)
-        headers->Dict.set("Content-Type", `application/json`)
+        if xFeatureRoute {
+          headersForXFeature(~headers, ~uri)
+        }
       }
     | None => ()
     }
