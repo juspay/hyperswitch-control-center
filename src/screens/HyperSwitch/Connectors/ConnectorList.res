@@ -1,4 +1,5 @@
-let p1MediumTextStyle = HSwitchUtils.getTextClass(~textVariant=P1, ~paragraphTextVariant=Medium, ())
+open HSwitchUtils
+let p1MediumTextStyle = getTextClass(~textVariant=P1, ~paragraphTextVariant=Medium, ())
 
 module RequestConnector = {
   @react.component
@@ -20,7 +21,21 @@ module RequestConnector = {
   }
 }
 
+module CantFindProcessor = {
+  @react.component
+  let make = (~showRequestConnectorBtn, ~setShowModal) => {
+    <UIUtils.RenderIf condition={showRequestConnectorBtn}>
+      <div
+        onClick={_ => setShowModal(_ => true)}
+        className={`text-blue-900 underline underline-offset-4 font-medium`}>
+        {"Can't find the processor of your choice?"->React.string}
+      </div>
+    </UIUtils.RenderIf>
+  }
+}
+
 module NewProcessorCards = {
+  open UIUtils
   @react.component
   let make = (
     ~configuredConnectors: array<ConnectorTypes.connectorName>,
@@ -72,7 +87,7 @@ module NewProcessorCards = {
           </h2>
         </AddDataAttributes>
         <div className="flex w-full justify-between">
-          <UIUtils.RenderIf condition={showSearch}>
+          <RenderIf condition={showSearch}>
             <AddDataAttributes attributes=[("data-testid", "search-processor")]>
               <input
                 ref={searchRef->ReactDOM.Ref.domRef}
@@ -84,16 +99,10 @@ module NewProcessorCards = {
                 id="search-processor"
               />
             </AddDataAttributes>
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={showRequestConnectorBtn}>
-            <div
-              onClick={_ => setShowModal(_ => true)}
-              className="text-blue-900 cursor-pointer underline underline-offset-4 font-medium">
-              {"Can't find the processor of your choice?"->React.string}
-            </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
+          <CantFindProcessor showRequestConnectorBtn setShowModal />
         </div>
-        <UIUtils.RenderIf condition={connectorList->Array.length > 0}>
+        <RenderIf condition={connectorList->Array.length > 0}>
           <div
             className="grid gap-x-5 gap-y-6 2xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 mb-5">
             {connectorList
@@ -126,7 +135,7 @@ module NewProcessorCards = {
             })
             ->React.array}
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
         <RequestConnector connectorList setShowModal />
       </>
     }
@@ -147,7 +156,7 @@ module NewProcessorCards = {
           </h2>
         </AddDataAttributes>
         <div className="flex w-full justify-between">
-          <UIUtils.RenderIf condition={showSearch}>
+          <RenderIf condition={showSearch}>
             <input
               {...DOMUtils.domProps({
                 "data-testid": "search-processor",
@@ -159,16 +168,10 @@ module NewProcessorCards = {
               placeholder="Search a processor"
               className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
             />
-          </UIUtils.RenderIf>
-          <UIUtils.RenderIf condition={showRequestConnectorBtn}>
-            <div
-              onClick={_ => setShowModal(_ => true)}
-              className="text-blue-900 cursor-pointer underline underline-offset-4 font-medium">
-              {"Can't find the processor of your choice?"->React.string}
-            </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
+          <CantFindProcessor showRequestConnectorBtn setShowModal />
         </div>
-        <UIUtils.RenderIf condition={connectorList->Array.length > 0}>
+        <RenderIf condition={connectorList->Array.length > 0}>
           <div className="bg-white rounded-md flex gap-2 flex-wrap p-4 border">
             {connectorList
             ->Array.mapWithIndex((connector, i) => {
@@ -189,7 +192,7 @@ module NewProcessorCards = {
             })
             ->React.array}
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
         <RequestConnector connectorList setShowModal />
       </>
     }
@@ -203,37 +206,37 @@ module NewProcessorCards = {
         connectorsAvailableForIntegration
       }
     }
-    <UIUtils.RenderIf condition={unConfiguredConnectorsCount > 0}>
+    <RenderIf condition={unConfiguredConnectorsCount > 0}>
       <div className="flex flex-col gap-4">
         {if showIcons {
           <>
             {connectorListFiltered->iconsConnectors("Connect a new connector", true, ())}
-            {<UIUtils.RenderIf condition={featureFlagDetails.testProcessors && !isPayoutFlow}>
+            {<RenderIf condition={featureFlagDetails.testProcessors && !isPayoutFlow}>
               {featureFlagDetails.testProcessors
               ->dummyConnectorList
               ->iconsConnectors("Connect a test connector", false, ~showSearch=false, ())}
-            </UIUtils.RenderIf>}
+            </RenderIf>}
           </>
         } else {
           <>
-            <UIUtils.RenderIf condition={featureFlagDetails.testProcessors && !isPayoutFlow}>
+            <RenderIf condition={featureFlagDetails.testProcessors && !isPayoutFlow}>
               {featureFlagDetails.testProcessors
               ->dummyConnectorList
               ->descriptedConnectors("Connect a test connector", false, ~showSearch=false, ())}
-            </UIUtils.RenderIf>
+            </RenderIf>
             {connectorListFiltered->descriptedConnectors("Connect a new connector", true, ())}
           </>
         }}
       </div>
-      <UIUtils.RenderIf condition={showModal}>
+      <RenderIf condition={showModal}>
         <HSwitchFeedBackModal
           modalHeading="Request a processor"
           setShowModal
           showModal
           modalType={RequestConnectorModal}
         />
-      </UIUtils.RenderIf>
-    </UIUtils.RenderIf>
+      </RenderIf>
+    </RenderIf>
   }
 }
 
@@ -306,14 +309,14 @@ let make = (~isPayoutFlow=false) => {
         : "Connect and manage payment processors to enable payment acceptance"}
     />
     <PageLoaderWrapper screenState>
-      <UIUtils.RenderIf condition={showFeedbackModal}>
+      <RenderIf condition={showFeedbackModal}>
         <HSwitchFeedBackModal
           showModal={showFeedbackModal}
           setShowModal={setShowFeedbackModal}
           modalHeading="Tell us about your integration experience"
           feedbackVia="connected_a_connector"
         />
-      </UIUtils.RenderIf>
+      </RenderIf>
       <div className="flex flex-col gap-10">
         <RenderIf condition={showConnectorIcons}>
           <NewProcessorCards configuredConnectors showIcons={showConnectorIcons} isPayoutFlow />

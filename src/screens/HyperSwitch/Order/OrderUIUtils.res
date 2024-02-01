@@ -39,6 +39,7 @@ module GenerateSampleDataButton = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
     let generateSampleData = async () => {
       mixpanelEvent(~eventName="generate_sample_data", ())
@@ -58,7 +59,8 @@ module GenerateSampleDataButton = {
     }
 
     <UIUtils.RenderIf condition={sampleData && !previewOnly}>
-      <Button
+      <ACLButton
+        access={userPermissionJson.paymentWrite}
         buttonType={Secondary}
         text="Generate Sample Data"
         onClick={_ => generateSampleData()->ignore}

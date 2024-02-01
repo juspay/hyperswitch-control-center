@@ -24,6 +24,7 @@ module TileComponent = {
     let showPopUp = PopUpState.useShowPopUp()
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
     let deleteSampleData = async () => {
       try {
@@ -79,6 +80,11 @@ module TileComponent = {
         }
       }
     }
+    let accessBasedOnCardName = switch cardName {
+    | #DELETE_SAMPLE_DATA => userPermissionJson.paymentWrite
+    | _ => Access
+    }
+
     <div
       className="flex flex-col bg-white pt-6 pl-6 pr-8 pb-8 justify-between gap-10 border border-jp-gray-border_gray rounded ">
       <div>
@@ -90,7 +96,8 @@ module TileComponent = {
           {subHeading->React.string}
         </p>
       </div>
-      <Button
+      <ACLButton
+        access=accessBasedOnCardName
         text=buttonText
         buttonType=Secondary
         customButtonStyle="w-2/3"
