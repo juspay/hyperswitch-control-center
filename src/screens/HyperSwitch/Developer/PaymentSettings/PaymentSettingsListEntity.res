@@ -56,7 +56,11 @@ let webhookProfileTableEntity = (~permission: AuthTypes.authorization) =>
     ~dataKey="",
     ~getCell,
     ~getShowLink={
-      profile => permission === Access ? `/payment-settings/${profile.profile_id}` : ""
+      profile =>
+        PermissionUtils.linkForGetShowLinkViaAccess(
+          ~url=`/payment-settings/${profile.profile_id}`,
+          ~permission,
+        )
     },
     (),
   )

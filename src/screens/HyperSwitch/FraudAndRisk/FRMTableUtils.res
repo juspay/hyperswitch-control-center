@@ -24,9 +24,10 @@ let connectorEntity = (path: string, ~permission: AuthTypes.authorization) => {
     ~dataKey="",
     ~getShowLink={
       connec =>
-        permission === Access
-          ? `/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`
-          : ""
+        PermissionUtils.linkForGetShowLinkViaAccess(
+          ~url=`/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`,
+          ~permission,
+        )
     },
     (),
   )
