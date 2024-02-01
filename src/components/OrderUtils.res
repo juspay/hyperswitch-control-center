@@ -42,7 +42,7 @@ module DisplayKeyValueParams = {
 
     let textColor = textColor === "" ? "text-jp-gray-900 dark:text-white" : textColor
 
-    let description = heading.description->Option.getWithDefault("")
+    let description = heading.description->Option.getOr("")
 
     {
       <AddDataAttributes attributes=[("data-label", heading.title)]>
@@ -146,7 +146,7 @@ module Details = {
               {detailsFields
               ->Array.mapWithIndex((colType, i) => {
                 if !(excludeColKeys->Array.includes(colType)) {
-                  <div className=widthClass key={Belt.Int.toString(i)}>
+                  <div className=widthClass key={Int.toString(i)}>
                     <DisplayKeyValueParams
                       heading={getHeading(colType)}
                       value={getCell(data, colType)}

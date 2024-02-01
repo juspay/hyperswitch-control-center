@@ -16,7 +16,7 @@ type columns<'colType> = {
 }
 
 type singleStatBodyEntity = {
-  filter?: Js.Json.t,
+  filter?: JSON.t,
   metrics?: array<string>,
   delta?: bool,
   startDateTime: string,
@@ -39,8 +39,8 @@ type deltaRange = {currentSr: AnalyticsUtils.timeRanges}
 
 type entityType<'colType, 't, 't2> = {
   urlConfig: array<urlConfig>,
-  getObjects: Js.Json.t => 't,
-  getTimeSeriesObject: Js.Json.t => array<'t2>,
+  getObjects: JSON.t => 't,
+  getTimeSeriesObject: JSON.t => array<'t2>,
   defaultColumns: array<columns<'colType>>, // (sectionName, defaultColumns)
   getData: ('t, array<'t2>, deltaRange, 'colType, string) => singleStatData,
   totalVolumeCol: option<string>,
@@ -74,17 +74,17 @@ let singleStatBodyMake = (singleStatBodyEntity: singleStatBodyEntity) => {
       ~granularity=singleStatBodyEntity.granularity,
       ~prefix=singleStatBodyEntity.prefix,
       (),
-    )->Js.Json.object_,
+    )->JSON.Encode.object,
   ]
-  ->Js.Json.array
-  ->Js.Json.stringify
+  ->JSON.Encode.array
+  ->JSON.stringify
 }
 type singleStateData<'t, 't2> = {
-  singleStatData: option<Js.Array2.t<singleStatDataObj<'t>>>,
-  singleStatTimeData: option<Js.Array2.t<(string, Js.Array2.t<'t2>)>>,
+  singleStatData: option<array<singleStatDataObj<'t>>>,
+  singleStatTimeData: option<array<(string, array<'t2>)>>,
 }
 
-let deltaTimeRangeMapper: array<Js.Json.t> => deltaRange = (arrJson: array<Js.Json.t>) => {
+let deltaTimeRangeMapper: array<JSON.t> => deltaRange = (arrJson: array<JSON.t>) => {
   open LogicUtils
   let emptyDict = Dict.make()
   let _ = arrJson->Array.map(item => {
@@ -100,7 +100,7 @@ let deltaTimeRangeMapper: array<Js.Json.t> => deltaRange = (arrJson: array<Js.Js
   {
     currentSr: emptyDict
     ->Dict.get("currentSr")
-    ->Option.getWithDefault({
+    ->Option.getOr({
       fromTime: "",
       toTime: "",
     }),
@@ -139,7 +139,7 @@ let make = (
     ->Belt.Array.keepMap(item => {
       let (key, value) = item
       let keyArr = key->String.split(".")
-      let prefix = keyArr->Belt.Array.get(0)->Option.getWithDefault("")
+      let prefix = keyArr->Array.get(0)->Option.getOr("")
       if prefix === moduleName && prefix !== "" {
         None
       } else {
@@ -159,14 +159,14 @@ let make = (
   | _ => "BATCH"
   }
 
-  let enableLoaders = entity.enableLoaders->Option.getWithDefault(true)
+  let enableLoaders = entity.enableLoaders->Option.getOr(true)
 
   let customFilterKey = switch entity {
   | {customFilterKey} => customFilterKey
   | _ => ""
   }
   let allFilterKeys = Array.concat(
-    [startTimeFilterKey, endTimeFilterKey, mode->Option.getWithDefault("")],
+    [startTimeFilterKey, endTimeFilterKey, mode->Option.getOr("")],
     filterKeys,
   )
 
@@ -186,10 +186,10 @@ let make = (
       ->Belt.Array.keepMap(entry => {
         let (key, value) = entry
         if allFilterKeys->Array.includes(key) {
-          switch value->Js.Json.classify {
-          | JSONString(str) => `${key}=${str}`->Some
-          | JSONNumber(num) => `${key}=${num->String.make}`->Some
-          | JSONArray(arr) => `${key}=[${arr->String.make}]`->Some
+          switch value->JSON.Classify.classify {
+          | String(str) => `${key}=${str}`->Some
+          | Number(num) => `${key}=${num->String.make}`->Some
+          | Array(arr) => `${key}=[${arr->String.make}]`->Some
           | _ => None
           }
         } else {
@@ -209,7 +209,7 @@ let make = (
       filterKeys->Array.includes(key) ? Some((key, value)) : None
     })
     ->Dict.fromArray
-    ->Js.Json.object_
+    ->JSON.Encode.object
     ->Some
   }, [topFiltersToSearchParam])
 
@@ -222,7 +222,7 @@ let make = (
 
   let homePageCss = isHomePage || chartAlignment === #row ? "flex-col" : "flex-row"
   let wrapperClass =
-    wrapperClass->Option.getWithDefault(
+    wrapperClass->Option.getOr(
       `flex mt-5 flex-col md:${homePageCss} flex-wrap justify-start items-stretch relative`,
     )
 
@@ -263,7 +263,7 @@ let make = (
       entity.urlConfig
       ->Array.map(urlConfig => {
         let {uri, metrics} = urlConfig
-        let domain = String.split("/", uri)->Belt.Array.get(4)->Option.getWithDefault("")
+        let domain = String.split("/", uri)->Array.get(4)->Option.getOr("")
         let startTime = if domain === "mandate" {
           (endTimeFromUrl->DayJs.getDayJsForString).subtract(.
             1,
@@ -284,8 +284,7 @@ let make = (
           source,
           prefix: ?urlConfig.prefix,
         }
-        let singleStatBodyMakerFn =
-          urlConfig.singleStatBody->Option.getWithDefault(singleStatBodyMake)
+        let singleStatBodyMakerFn = urlConfig.singleStatBody->Option.getOr(singleStatBodyMake)
 
         let singleStatBody = singleStatBodyMakerFn(singleStatBodyEntity)
         fetchApi(
@@ -296,8 +295,8 @@ let make = (
           (),
         )
         ->addLogsAroundFetch(~logTitle="SingleStat Data Api")
-        ->then(json => resolve((`${urlConfig.prefix->Option.getWithDefault("")}${uri}`, json)))
-        ->catch(_err => resolve(("", Js.Json.object_(Dict.make()))))
+        ->then(json => resolve((`${urlConfig.prefix->Option.getOr("")}${uri}`, json)))
+        ->catch(_err => resolve(("", JSON.Encode.object(Dict.make()))))
       })
       ->Promise.all
       ->Promise.thenResolve(dataArr => {
@@ -311,8 +310,8 @@ let make = (
                   ->LogicUtils.getDictFromJsonObject
                   ->LogicUtils.getJsonObjectFromDict("queryData")
                   ->LogicUtils.getArrayFromJson([])
-                  ->Belt.Array.get(0)
-                  ->Option.getWithDefault(Js.Json.object_(Dict.make()))
+                  ->Array.get(0)
+                  ->Option.getOr(JSON.Encode.object(Dict.make()))
                   ->LogicUtils.getDictFromJsonObject
                   ->Dict.toArray
                   ->Array.find(
@@ -324,9 +323,7 @@ let make = (
                 switch totalVolumeKeyVal {
                 | Some(data) => {
                     let (_key, value) = data
-                    setTotalVolume(
-                      _ => value->Js.Json.decodeNumber->Option.getWithDefault(0.)->Belt.Float.toInt,
-                    )
+                    setTotalVolume(_ => value->JSON.Decode.float->Option.getOr(0.)->Float.toInt)
                   }
 
                 | None => ()
@@ -363,7 +360,7 @@ let make = (
       entity.urlConfig
       ->Array.map(urlConfig => {
         let {uri, metrics} = urlConfig
-        let domain = String.split("/", uri)->Belt.Array.get(4)->Option.getWithDefault("")
+        let domain = String.split("/", uri)->Array.get(4)->Option.getOr("")
         let startTime = if domain === "mandate" {
           (endTimeFromUrl->DayJs.getDayJsForString).subtract(.
             1,
@@ -380,14 +377,14 @@ let make = (
           delta: false,
           startDateTime: startTime,
           endDateTime: endTimeFromUrl,
-          granularity: ?granularity->Belt.Array.get(0),
+          granularity: ?granularity->Array.get(0),
           ?mode,
           customFilter,
           source,
           prefix: ?urlConfig.prefix,
         }
         let singleStatBodyMakerFn =
-          urlConfig.singleStatTimeSeriesBody->Option.getWithDefault(singleStatBodyMake)
+          urlConfig.singleStatTimeSeriesBody->Option.getOr(singleStatBodyMake)
         fetchApi(
           uri,
           ~method_=Post,
@@ -398,12 +395,12 @@ let make = (
         ->addLogsAroundFetch(~logTitle="SingleStatTimeseries Data Api")
         ->then(
           json => {
-            resolve((`${urlConfig.prefix->Option.getWithDefault("")}${uri}`, json))
+            resolve((`${urlConfig.prefix->Option.getOr("")}${uri}`, json))
           },
         )
         ->catch(
           _err => {
-            resolve(("", Js.Json.object_(Dict.make())))
+            resolve(("", JSON.Encode.object(Dict.make())))
           },
         )
       })
@@ -433,7 +430,7 @@ let make = (
       let uri = col->entity.matrixUriMapper
       let timeSeriesData =
         singlestatDataCombined.singleStatTimeData
-        ->Option.getWithDefault([("--", [])])
+        ->Option.getOr([("--", [])])
         ->Belt.Array.keepMap(
           item => {
             let (timeSectionName, timeSeriesObj) = item
@@ -450,7 +447,7 @@ let make = (
                 item.sectionUrl === uri
               },
             )
-            ->Belt.Array.get(0)
+            ->Array.get(0)
 
           switch sectiondata {
           | Some(data) => {
@@ -459,7 +456,7 @@ let make = (
                 timeSeriesData,
                 data.deltaTime,
                 col,
-                mode->Option.getWithDefault("ORDER"),
+                mode->Option.getOr("ORDER"),
               )
 
               <HSwitchSingleStatWidget

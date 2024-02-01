@@ -100,21 +100,21 @@ let make = () => {
 
       let _ = await updateDetails(
         postLoginSurveyUrl,
-        values->generateSurveyJson->Js.Json.object_,
+        values->generateSurveyJson->JSON.Encode.object,
         Post,
         (),
       )
-      HSwitchUtils.setUserDetails("is_metadata_filled", "true"->Js.Json.string)
+      HSwitchUtils.setUserDetails("is_metadata_filled", "true"->JSON.Encode.string)
       setDashboardPageState(_ => #AUTO_CONNECTOR_INTEGRATION)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       if err->String.includes("UR_19") {
         showToast(~toastType=ToastWarning, ~message="Please login again!", ~autoClose=false, ())
         setAuthStatus(LoggedOut)
       }
     }
-    Js.Nullable.null
+    Nullable.null
   }
   let xPositionBasedOnDirection = carouselDirection === RIGHT ? 100 : -100
   <HSwitchUtils.BackgroundImageWrapper>
@@ -158,8 +158,8 @@ let make = () => {
                   setCurrentStep
                   setCarouselDirection
                   currentQuestionDict={questionForSurvey
-                  ->Belt.Array.get(currentStep)
-                  ->Option.getWithDefault(defaultValueForQuestions)}
+                  ->Array.get(currentStep)
+                  ->Option.getOr(defaultValueForQuestions)}
                 />
               </FramerMotion.Motion.Div>
             </Form>

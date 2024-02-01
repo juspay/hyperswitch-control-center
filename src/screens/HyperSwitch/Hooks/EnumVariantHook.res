@@ -11,14 +11,14 @@ let useFetchEnumDetails = () => {
           ~userType=#USER_DATA,
           ~methodType=Get,
           (),
-        )}?keys=${enumArray->Array.joinWith(",")}`
+        )}?keys=${enumArray->Array.joinWithUnsafe(",")}`
       let res = await fetchDetails(url)
       let responseDict = res->responseDataMapper
-      setEnumVariantValues(._ => responseDict->Js.Json.object_->Js.Json.stringify)
-      Js.Nullable.return(responseDict)
+      setEnumVariantValues(._ => responseDict->JSON.Encode.object->JSON.stringify)
+      Nullable.make(responseDict)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
         Js.Exn.raiseError(err)
       }
     }
@@ -45,11 +45,11 @@ let useUpdateEnumInRecoil = () => {
 
       switch body {
       | Boolean(_) => {
-          let booleanDict = [((enumVariant :> string), true->Js.Json.boolean)]->Dict.fromArray
+          let booleanDict = [((enumVariant :> string), true->JSON.Encode.bool)]->Dict.fromArray
           enumDictsArray->Array.push(booleanDict)
         }
       | String(str) => {
-          let stringDict = [((enumVariant :> string), str->Js.Json.string)]->Dict.fromArray
+          let stringDict = [((enumVariant :> string), str->JSON.Encode.string)]->Dict.fromArray
           enumDictsArray->Array.push(stringDict)
         }
       | _ => enumDictsArray->Array.push(bodyValForApi->getDictFromJsonObject)
@@ -57,7 +57,7 @@ let useUpdateEnumInRecoil = () => {
     })
 
     let updatedRecoilValueDict = DictionaryUtils.mergeDicts(enumDictsArray)
-    setEnumVariantValues(._ => updatedRecoilValueDict->Js.Json.object_->Js.Json.stringify)
+    setEnumVariantValues(._ => updatedRecoilValueDict->JSON.Encode.object->JSON.stringify)
     updatedRecoilValueDict
   }
 }
@@ -74,10 +74,10 @@ let usePostEnumDetails = () => {
       let _ = await updateDetails(url, bodyValForApi, Post, ())
 
       let updatedRecoilValueDict = updateEnumInRecoil([(body, enumVariant)])
-      Js.Nullable.return(updatedRecoilValueDict)
+      Nullable.make(updatedRecoilValueDict)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
         Js.Exn.raiseError(err)
       }
     }

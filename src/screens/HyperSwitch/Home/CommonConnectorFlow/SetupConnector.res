@@ -77,10 +77,10 @@ module ConfigureProcessor = {
         if connectorName->String.length > 0 {
           Window.getConnectorConfig(connectorName)
         } else {
-          Dict.make()->Js.Json.object_
+          Dict.make()->JSON.Encode.object
         }
       } catch {
-      | _ => Dict.make()->Js.Json.object_
+      | _ => Dict.make()->JSON.Encode.object
       }
     }, [(connectorName, selectedConnector)])
 
@@ -105,7 +105,7 @@ module ConfigureProcessor = {
       setInitialValues(_ => body)
       mixpanelEvent(~eventName=`quickstart_connector_configuration`, ())
       setConnectorConfigureState(_ => Setup_payment_methods)
-      Js.Nullable.null
+      Nullable.null
     }
 
     let validateMandatoryField = values => {
@@ -113,7 +113,7 @@ module ConfigureProcessor = {
       let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
       let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
       if profileId->String.length === 0 {
-        Dict.set(errors, "Profile Id", `Please select your business profile`->Js.Json.string)
+        Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
       }
 
       validateConnectorRequiredFields(
@@ -123,7 +123,7 @@ module ConfigureProcessor = {
         connectorMetaDataFields,
         connectorWebHookDetails,
         connectorLabelDetailField,
-        errors->Js.Json.object_,
+        errors->JSON.Encode.object,
       )
     }
     let backButton =
@@ -185,9 +185,9 @@ module SelectPaymentMethods = {
     let connectorName = selectedConnector->getConnectorNameString
 
     let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
-      Dict.make()->Js.Json.object_->getPaymentMethodEnabled
+      Dict.make()->JSON.Encode.object->getPaymentMethodEnabled
     )
-    let (metaData, setMetaData) = React.useState(_ => Dict.make()->Js.Json.object_)
+    let (metaData, setMetaData) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
     let updateDetails = value => {
       setPaymentMethods(_ => value->Array.copy)

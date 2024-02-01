@@ -24,8 +24,8 @@ let make = () => {
 
     let connectorList =
       profileList
-      ->Belt.Array.get(0)
-      ->Option.getWithDefault(Js.Json.null)
+      ->Array.get(0)
+      ->Option.getOr(JSON.Encode.null)
       ->LogicUtils.getDictFromJsonObject
       ->LogicUtils.getArrayFromDict("connectors", [])
     if connectorList->Array.length > 0 {
@@ -50,7 +50,7 @@ let make = () => {
       settingUpConnectorsState(routingRespArray)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -78,13 +78,13 @@ let make = () => {
         )}/profile/${profile}`
 
       (
-        await updateDetails(defaultFallbackUpdateUrl, defaultPayload->Js.Json.array, Post, ())
+        await updateDetails(defaultFallbackUpdateUrl, defaultPayload->JSON.Encode.array, Post, ())
       )->ignore
       RescriptReactRouter.replace(`/routing/default`)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+      let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }->ignore
   }
@@ -99,7 +99,7 @@ let make = () => {
   }
 
   <div>
-    <Form initialValues={Dict.make()->Js.Json.object_}>
+    <Form initialValues={Dict.make()->JSON.Encode.object}>
       <div className="w-full flex justify-between">
         <BasicDetailsForm.BusinessProfileInp
           setProfile={setProfile}
@@ -128,7 +128,7 @@ let make = () => {
           </div>
         </div>
         {
-          let keyExtractor = (index, gateway: Js.Json.t, isDragging) => {
+          let keyExtractor = (index, gateway: JSON.t, isDragging) => {
             let style = isDragging ? "border rounded-md bg-jp-gray-100 dark:bg-jp-gray-950" : ""
             <div
               className={`h-14 px-3 flex flex-row items-center justify-between text-jp-gray-900 dark:text-jp-gray-600 border-jp-gray-500 dark:border-jp-gray-960

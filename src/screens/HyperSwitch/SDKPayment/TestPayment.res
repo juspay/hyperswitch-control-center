@@ -12,7 +12,7 @@ let make = (
 ) => {
   open APIUtils
   open LogicUtils
-  open HyperSwitchTypes
+  open ReactHyperJs
 
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (clientSecret, setClientSecret) = React.useState(_ => None)
@@ -48,7 +48,7 @@ let make = (
       let paymentData =
         initialValues
         ->Identity.genericTypeToJson
-        ->Js.Json.stringify
+        ->JSON.stringify
         ->safeParse
         ->getTypedValueForPayment
       paymentData.currency = paymentData.currency->getCurrencyValue
@@ -64,7 +64,7 @@ let make = (
   }
 
   React.useEffect1(() => {
-    let status = filtersFromUrl->Dict.get("status")->Option.getWithDefault("")->String.toLowerCase
+    let status = filtersFromUrl->Dict.get("status")->Option.getOr("")->String.toLowerCase
     let paymentIdFromPaymemtIntentClientSecret = getClientSecretFromPaymentId(
       ~paymentIntentClientSecret=url.search
       ->LogicUtils.getDictFromUrlSearchParams

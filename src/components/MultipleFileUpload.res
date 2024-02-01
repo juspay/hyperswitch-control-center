@@ -58,7 +58,7 @@ let make = (
       input.value
       ->getArrayFromJson([])
       ->Array.filterWithIndex((_, i) => indx != i)
-      ->Js.Json.array
+      ->JSON.Encode.array
       ->Identity.anyTypeToReactEvent,
     )
     setKey(prev => prev + 1)
@@ -79,7 +79,7 @@ let make = (
         mimeArr
       })
 
-      files->Array.push(value->Js.Json.string)->ignore
+      files->Array.push(value->JSON.Encode.string)->ignore
       if showUploadtoast {
         toast("File Uploaded Successfully", ToastSuccess)
       }
@@ -95,8 +95,8 @@ let make = (
     let files = input.value->LogicUtils.getArrayFromJson([])
 
     while !break.contents {
-      if target["files"]->Array.length > arr[0]->Option.getWithDefault(0) {
-        let index = arr->Belt.Array.get(0)->Option.getWithDefault(0)
+      if target["files"]->Array.length > arr[0]->Option.getOr(0) {
+        let index = arr->Array.get(0)->Option.getOr(0)
         switch target["files"][index] {
         | Some(value) => {
             let filename = value["name"]
@@ -104,7 +104,7 @@ let make = (
             let mimeType = value["type"]
             let fileFormat = String.concat(
               ".",
-              Array.pop(filename->String.split("."))->Option.getWithDefault(""),
+              Array.pop(filename->String.split("."))->Option.getOr(""),
             )
             let fileTypeArr = fileType->String.split(",")
             let isCorrectFileFormat =
@@ -136,7 +136,7 @@ let make = (
                   if size > sizeLimit {
                     showToast(
                       ~message=`File size too large, upload below ${(sizeLimit / 1000)
-                          ->Belt.Int.toString}kb`,
+                          ->Int.toString}kb`,
                       ~toastType=ToastError,
                       (),
                     )
@@ -154,7 +154,7 @@ let make = (
                           mimeArr
                         })
 
-                        files->Array.push(value->Js.Json.string)->ignore
+                        files->Array.push(value->JSON.Encode.string)->ignore
 
                         if showUploadtoast {
                           toast("File Uploaded Successfully", ToastSuccess)
@@ -171,7 +171,7 @@ let make = (
                 toast("Invalid file", ToastError)
               }
             }
-            arr->Belt.Array.set(0, arr[0]->Option.getWithDefault(0) + 1)->ignore
+            arr->Array.set(0, arr[0]->Option.getOr(0) + 1)->ignore
           }
         | None => ()
         }
@@ -189,17 +189,13 @@ let make = (
       ~fileName,
       ~content=decodeParsedfile
         ? try {
-            val
-            ->Belt.Array.get(indx)
-            ->Option.getWithDefault(Js.Json.null)
-            ->getStringFromJson("")
-            ->atob
+            val->Array.get(indx)->Option.getOr(JSON.Encode.null)->getStringFromJson("")->atob
           } catch {
           | _ =>
             toast("Error : Unable to parse file", ToastError)
             ""
           }
-        : val->Belt.Array.get(indx)->Option.getWithDefault(Js.Json.null)->getStringFromJson(""),
+        : val->Array.get(indx)->Option.getOr(JSON.Encode.null)->getStringFromJson(""),
     )
   }
 
@@ -222,7 +218,7 @@ let make = (
             setFileTypes(prev => prev->Array.concat(mimeType))
             input.onChange(
               Identity.anyTypeToReactEvent(
-                input.value->getArrayFromJson([])->Array.concat([file->Js.Json.string]),
+                input.value->getArrayFromJson([])->Array.concat([file->JSON.Encode.string]),
               ),
             )
           }
@@ -253,13 +249,12 @@ let make = (
     <div className={`${heightClass} ${displayClass} justify-between gap-x-5`}>
       {fileNames
       ->Array.mapWithIndex((fileName, indx) => {
-        <div
-          key={indx->Belt.Int.toString} className="flex items-center border p-2 gap-4 rounded-lg">
+        <div key={indx->Int.toString} className="flex items-center border p-2 gap-4 rounded-lg">
           <div
             className={pointerDisable
               ? "flex items-center gap-4 flex-1 pointer-events-none"
               : "flex items-center gap-4 flex-1"}>
-            {switch fileName->String.split(".")->Array.pop->Option.getWithDefault("") {
+            {switch fileName->String.split(".")->Array.pop->Option.getOr("") {
             | "pdf" => <img src={`/icons/paIcons/pdfIcon.svg`} />
             | "csv" => <img src={`/icons/paIcons/csvIcon.svg`} />
             | _ => React.null

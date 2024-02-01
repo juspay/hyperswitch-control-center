@@ -28,7 +28,7 @@ let makeStartOfDayDate = date => {
 }
 let getStartOfWeek = (dayJs: Js.Date.t, startOfday: days) => {
   let day = Js.Date.getDay(dayJs)
-  let startWeekDay = daysArr->Array.indexOf(startOfday)->Belt.Int.toFloat
+  let startWeekDay = daysArr->Array.indexOf(startOfday)->Int.toFloat
   let diff = (day < startWeekDay ? 7. : 0.) +. day -. startWeekDay
   Js.Date.setDate(cloneDate(dayJs), Js.Date.getDate(dayJs) -. diff)
   ->Js.Date.fromFloat
@@ -76,7 +76,7 @@ let parseAsFloat = (dateStr: string) => {
 }
 
 let toUtc = (datetime: Js.Date.t) => {
-  let offset = Js.Date.getTimezoneOffset(Js.Date.now()->Js.Date.fromFloat)->Belt.Int.fromFloat
+  let offset = Js.Date.getTimezoneOffset(Js.Date.now()->Js.Date.fromFloat)->Int.fromFloat
   (datetime->DayJs.getDayJsForJsDate).add(. offset, "minute").toDate(.)
 }
 
@@ -90,11 +90,11 @@ let getStartEndDiff = (startDate, endDate) => {
 let isStartBeforeEndDate = (start, end) => {
   let getDate = date => {
     let datevalue = Js.Date.makeWithYMD(
-      ~year=Js.Float.fromString(date[0]->Option.getWithDefault("")),
+      ~year=Js.Float.fromString(date[0]->Option.getOr("")),
       ~month=Js.Float.fromString(
-        String.make(Js.Float.fromString(date[1]->Option.getWithDefault("")) -. 1.0),
+        String.make(Js.Float.fromString(date[1]->Option.getOr("")) -. 1.0),
       ),
-      ~date=Js.Float.fromString(date[2]->Option.getWithDefault("")),
+      ~date=Js.Float.fromString(date[2]->Option.getOr("")),
       (),
     )
     datevalue

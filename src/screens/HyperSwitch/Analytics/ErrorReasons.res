@@ -28,7 +28,7 @@ let tableItemToObjMapper: 'a => errorObject = dict => {
   }
 }
 
-let getObjects: Js.Json.t => array<errorObject> = json => {
+let getObjects: JSON.t => array<errorObject> = json => {
   open LogicUtils
   json
   ->LogicUtils.getArrayFromJson([])
@@ -51,8 +51,8 @@ let getHeading = colType => {
 let getCell = (errorObj, colType): Table.cell => {
   switch colType {
   | ErrorReason => Text(errorObj.error_reason)
-  | Count => Text(errorObj.count->Belt.Int.toString)
-  | Percentage => Text(errorObj.percentage->Belt.Float.toString)
+  | Count => Text(errorObj.count->Int.toString)
+  | Percentage => Text(errorObj.percentage->Float.toString)
   }
 }
 
@@ -79,7 +79,7 @@ let make = (~errors: array<AnalyticsTypes.error_message_type>) => {
   }
 
   let getCellText = {
-    let errorStr = switch errors->Belt.Array.get(0) {
+    let errorStr = switch errors->Array.get(0) {
     | Some(val) => val.reason->String.slice(~start=0, ~end=15)
     | _ => "Error Reasons"
     }
@@ -93,7 +93,7 @@ let make = (~errors: array<AnalyticsTypes.error_message_type>) => {
         error_reason: item.reason,
         percentage: item.percentage,
         count: item.count,
-      }->Js.Nullable.return
+      }->Nullable.make
     })
   } else {
     []

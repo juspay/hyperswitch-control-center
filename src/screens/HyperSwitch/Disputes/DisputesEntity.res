@@ -1,41 +1,5 @@
 open LogicUtils
-
-type disputes = {
-  dispute_id: string,
-  payment_id: string,
-  attempt_id: string,
-  amount: string,
-  currency: string,
-  dispute_stage: string,
-  dispute_status: string,
-  connector: string,
-  connector_status: string,
-  connector_dispute_id: string,
-  connector_reason: string,
-  connector_reason_code: string,
-  challenge_required_by: string,
-  connector_created_at: string,
-  connector_updated_at: string,
-  created_at: string,
-}
-
-type disputesColsType =
-  | DisputeId
-  | PaymentId
-  | AttemptId
-  | Amount
-  | Currency
-  | DisputeStage
-  | DisputeStatus
-  | Connector
-  | ConnectorStatus
-  | ConnectorDisputeId
-  | ConnectorReason
-  | ConnectorReasonCode
-  | ChallengeRequiredBy
-  | ConnectorCreatedAt
-  | ConnectorUpdatedAt
-  | CreatedAt
+open DisputeTypes
 
 let defaultColumns = [DisputeId, Amount, DisputeStage, DisputeStatus, PaymentId, CreatedAt]
 let columnsInPaymentPage = [DisputeId, DisputeStage, ConnectorReason, DisputeStatus, CreatedAt]
@@ -157,7 +121,7 @@ let getHeading = colType => {
 }
 let amountValue = (amount, currency) => {
   let amountInFloat = amount->Js.Float.fromString /. 100.0
-  `${amountInFloat->Belt.Float.toString} ${currency}`
+  `${amountInFloat->Float.toString} ${currency}`
 }
 
 let getCell = (disputesData, colType): Table.cell => {
@@ -228,7 +192,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let getDisputes: Js.Json.t => array<disputes> = json => {
+let getDisputes: JSON.t => array<disputes> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 

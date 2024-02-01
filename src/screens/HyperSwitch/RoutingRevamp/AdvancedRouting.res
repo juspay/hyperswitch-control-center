@@ -3,7 +3,7 @@ open AdvancedRoutingTypes
 open AdvancedRoutingUtils
 open LogicUtils
 
-external toWasm: Js.Dict.t<Js.Json.t> => RoutingTypes.wasmModule = "%identity"
+external toWasm: Dict.t<JSON.t> => RoutingTypes.wasmModule = "%identity"
 
 module Add3DSCondition = {
   @react.component
@@ -293,7 +293,7 @@ module RuleBasedUI = {
     let addRule = (index, copy) => {
       let existingRules = ruleInput.value->getArrayFromJson([])
       let newRule = copy
-        ? existingRules[index]->Option.getWithDefault(defaultRule->Identity.genericTypeToJson)
+        ? existingRules[index]->Option.getOr(defaultRule->Identity.genericTypeToJson)
         : defaultRule->Identity.genericTypeToJson
       let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
@@ -323,7 +323,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
           {
             let notFirstRule = ruleInput.value->getArrayFromJson([])->Array.length > 1
 
-            let rule = ruleInput.value->Js.Json.decodeArray->Option.getWithDefault([])
+            let rule = ruleInput.value->JSON.Decode.array->Option.getOr([])
             let keyExtractor = (index, _rule, isDragging) => {
               let id = {`${rulesJsonPath}[${string_of_int(index)}]`}
 
@@ -421,7 +421,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       setFormState(_ => ViewConfig)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+      let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
       Js.Exn.raiseError(err)
     }
   }
@@ -453,7 +453,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
         setScreenState(_ => Success)
       } catch {
       | Js.Exn.Error(e) => {
-          let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+          let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
           setScreenState(_ => Error(err))
         }
       }
@@ -462,7 +462,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     None
   }, [routingRuleId])
 
-  let validate = (values: Js.Json.t) => {
+  let validate = (values: JSON.t) => {
     let dict = values->LogicUtils.getDictFromJsonObject
     let convertedObject = values->AdvancedRoutingUtils.getRoutingTypesFromJson
 
@@ -515,31 +515,34 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     let rulesArray = convertedObject.algorithm.data.rules
 
     if rulesArray->Array.length === 0 {
-      errors->Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
+      errors->Dict.set(`Rules`, "Minimum 1 rule needed"->JSON.Encode.string)
     } else {
       rulesArray->Array.forEachWithIndex((rule, i) => {
-        let connectorDetails = rule.connectorSelection.data->Option.getWithDefault([])
+        let connectorDetails = rule.connectorSelection.data->Option.getOr([])
 
         switch connectorDetails->validateGateways {
         | Some(error) =>
-          errors->Dict.set(`Rule ${(i + 1)->string_of_int} - Gateway`, error->Js.Json.string)
+          errors->Dict.set(`Rule ${(i + 1)->string_of_int} - Gateway`, error->JSON.Encode.string)
         | None => ()
         }
 
         if !AdvancedRoutingUtils.validateStatements(rule.statements) {
-          errors->Dict.set(`Rule ${(i + 1)->string_of_int} - Condition`, `Invalid`->Js.Json.string)
+          errors->Dict.set(
+            `Rule ${(i + 1)->string_of_int} - Condition`,
+            `Invalid`->JSON.Encode.string,
+          )
         }
       })
     }
 
-    errors->Js.Json.object_
+    errors->JSON.Encode.object
   }
 
   let handleActivateConfiguration = async activatingId => {
     try {
       setScreenState(_ => Loading)
       let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
-      let _ = await updateDetails(activateRuleURL, Dict.make()->Js.Json.object_, Post, ())
+      let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
       showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
       RescriptReactRouter.replace(`/routing?`)
       setScreenState(_ => Success)
@@ -567,7 +570,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     try {
       setScreenState(_ => Loading)
       let deactivateRoutingURL = `${getURL(~entityName=ROUTING, ~methodType=Post, ())}/deactivate`
-      let body = [("profile_id", profile->Js.Json.string)]->Dict.fromArray->Js.Json.object_
+      let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
       let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
       showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
       RescriptReactRouter.replace(`/routing?`)
@@ -645,10 +648,10 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       if isSaveRule {
         RescriptReactRouter.replace(`/routing`)
       }
-      Js.Nullable.return(response)
+      Nullable.make(response)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       showToast(~message="Failed to Save the Configuration!", ~toastType=ToastState.ToastError, ())
       setShowModal(_ => false)
       setScreenState(_ => PageLoaderWrapper.Error(err))

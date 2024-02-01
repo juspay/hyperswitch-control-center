@@ -2,7 +2,7 @@ module ActiveRulePreview = {
   open LogicUtils
   @react.component
   let make = (~initialRule) => {
-    let rule = initialRule->Option.getWithDefault(Dict.make())
+    let rule = initialRule->Option.getOr(Dict.make())
 
     let name = rule->getString("name", "")
     let description = rule->getString("description", "")
@@ -41,7 +41,7 @@ module ConfigureSurchargeRule = {
 
     let addRule = (index, _copy) => {
       let existingRules = ruleInput.value->LogicUtils.getArrayFromJson([])
-      let newRule = existingRules[index]->Option.getWithDefault(Js.Json.null)
+      let newRule = existingRules[index]->Option.getOr(JSON.Encode.null)
       let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
@@ -55,7 +55,7 @@ module ConfigureSurchargeRule = {
     <div>
       {
         let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Array.length > 1
-        let rule = ruleInput.value->Js.Json.decodeArray->Option.getWithDefault([])
+        let rule = ruleInput.value->JSON.Decode.array->Option.getOr([])
         let keyExtractor = (index, _rule, isDragging) => {
           let id = {`algorithm.rules[${string_of_int(index)}]`}
           <AdvancedRouting.Wrapper
@@ -126,15 +126,18 @@ let make = () => {
 
       let intitialValue =
         [
-          ("name", responseDict->LogicUtils.getString("name", "")->Js.Json.string),
-          ("description", responseDict->LogicUtils.getString("description", "")->Js.Json.string),
-          ("algorithm", programValue->Js.Json.object_),
+          ("name", responseDict->LogicUtils.getString("name", "")->JSON.Encode.string),
+          (
+            "description",
+            responseDict->LogicUtils.getString("description", "")->JSON.Encode.string,
+          ),
+          ("algorithm", programValue->JSON.Encode.object),
         ]->Dict.fromArray
 
       setInitialRule(_ => Some(intitialValue))
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+      let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
       Js.Exn.raiseError(err)
     }
   }
@@ -147,7 +150,7 @@ let make = () => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
         if err->String.includes("HE_02") {
           setShowWarning(_ => false)
           setPageView(_ => LANDING)
@@ -181,24 +184,24 @@ let make = () => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       showToast(~message=err, ~toastType=ToastError, ())
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
-  let validate = (values: Js.Json.t) => {
+  let validate = (values: JSON.t) => {
     let dict = values->LogicUtils.getDictFromJsonObject
 
     let errors = Dict.make()
 
     AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
 
-    switch dict->Dict.get("algorithm")->Option.flatMap(Js.Json.decodeObject) {
+    switch dict->Dict.get("algorithm")->Option.flatMap(JSON.Decode.object) {
     | Some(jsonDict) => {
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
         if rules->Array.length === 0 {
-          errors->Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
+          errors->Dict.set(`Rules`, "Minimum 1 rule needed"->JSON.Encode.string)
         } else {
           rules->Array.forEachWithIndex((rule, i) => {
             let ruleDict = rule->LogicUtils.getDictFromJsonObject
@@ -206,7 +209,7 @@ let make = () => {
             if !validateConditionsForSurcharge(ruleDict) {
               errors->Dict.set(
                 `Rule ${(i + 1)->string_of_int} - Condition`,
-                `Invalid`->Js.Json.string,
+                `Invalid`->JSON.Encode.string,
               )
             }
           })
@@ -215,7 +218,7 @@ let make = () => {
 
     | None => ()
     }
-    errors->Js.Json.object_
+    errors->JSON.Encode.object
   }
 
   let redirectToNewRule = () => {

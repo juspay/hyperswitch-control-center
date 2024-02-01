@@ -1,11 +1,10 @@
-external strToFormEvent: Js.String.t => ReactEvent.Form.t = "%identity"
 let validateConditionJson = json => {
   open LogicUtils
   let checkValue = dict => {
     dict
     ->getArrayFromDict("value", [])
     ->Array.filter(ele => {
-      ele != ""->Js.Json.string
+      ele != ""->JSON.Encode.string
     })
     ->Array.length > 0 ||
     dict->getString("value", "") !== "" ||
@@ -13,7 +12,7 @@ let validateConditionJson = json => {
     dict->getString("operator", "") == "IS NULL" ||
     dict->getString("operator", "") == "IS NOT NULL"
   }
-  switch json->Js.Json.decodeObject {
+  switch json->JSON.Decode.object {
   | Some(dict) =>
     ["operator", "real_field"]->Array.every(key => dict->Dict.get(key)->Option.isSome) &&
       dict->checkValue
@@ -48,15 +47,13 @@ module CompressedView = {
     let conditionInput = ReactFinalForm.useField(id).input
     let condition =
       conditionInput.value
-      ->Js.Json.decodeObject
+      ->JSON.Decode.object
       ->Option.flatMap(dict => {
         Some(
           dict->getString("logical.operator", ""),
           dict->getString("real_field", ""),
           dict->getString("operator", ""),
-          dict
-          ->getOptionStrArrayFromDict("value")
-          ->Option.getWithDefault([dict->getString("value", "")]),
+          dict->getOptionStrArrayFromDict("value")->Option.getOr([dict->getString("value", "")]),
           dict->getDictfromDict("metadata")->getOptionString("key"),
         )
       })

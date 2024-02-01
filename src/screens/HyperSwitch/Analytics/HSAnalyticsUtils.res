@@ -1,5 +1,3 @@
-@val @scope(("window", "location")) external hostname: string = "hostname"
-
 let filterFieldsPortalName = "analytics"
 
 let setPrecision = (num, ~digit=2, ()) => {
@@ -11,7 +9,7 @@ let getQueryData = json => {
   json->getDictFromJsonObject->getArrayFromDict("queryData", [])
 }
 
-let options: Js.Json.t => array<EntityType.optionType<'t>> = json => {
+let options: JSON.t => array<EntityType.optionType<'t>> = json => {
   open LogicUtils
   json
   ->getDictFromJsonObject
@@ -58,14 +56,14 @@ let options: Js.Json.t => array<EntityType.optionType<'t>> = json => {
     })
     ->Some
   })
-  ->Option.getWithDefault([])
+  ->Option.getOr([])
 }
 
 let filterByData = (txnArr, value) => {
   let searchText = LogicUtils.getStringFromJson(value, "")
 
   txnArr
-  ->Belt.Array.keepMap(Js.Nullable.toOption)
+  ->Belt.Array.keepMap(Nullable.toOption)
   ->Belt.Array.keepMap((data: 't) => {
     let valueArr =
       data
@@ -74,15 +72,11 @@ let filterByData = (txnArr, value) => {
       ->Array.map(item => {
         let (_, value) = item
 
-        value
-        ->Js.Json.decodeString
-        ->Option.getWithDefault("")
-        ->String.toLowerCase
-        ->String.includes(searchText)
+        value->JSON.Decode.string->Option.getOr("")->String.toLowerCase->String.includes(searchText)
       })
       ->Array.reduce(false, (acc, item) => item || acc)
     if valueArr {
-      data->Js.Nullable.return->Some
+      data->Nullable.make->Some
     } else {
       None
     }
@@ -130,7 +124,7 @@ let initialFilterFields = json => {
       })
       ->Some
     })
-    ->Option.getWithDefault([])
+    ->Option.getOr([])
 
   dropdownValue
 }
@@ -195,10 +189,10 @@ module NoData = {
 let generateTablePayload = (
   ~startTimeFromUrl: string,
   ~endTimeFromUrl: string,
-  ~filterValueFromUrl: option<Js.Json.t>,
+  ~filterValueFromUrl: option<JSON.t>,
   ~currenltySelectedTab: option<array<string>>,
   ~tableMetrics: array<string>,
-  ~distributionArray: option<array<Js.Json.t>>,
+  ~distributionArray: option<array<JSON.t>>,
   ~deltaMetrics: array<string>,
   ~deltaPrefixArr: array<string>,
   ~isIndustry: bool,
@@ -253,7 +247,7 @@ let generateTablePayload = (
   let tableBodyWithDeltaMetrix = if deltaMetrics->Array.length > 0 {
     switch distributionArray {
     | Some(distributionArray) =>
-      distributionArray->Belt.Array.map(arr =>
+      distributionArray->Array.map(arr =>
         getFilterRequestBody(
           ~groupByNames=currenltySelectedTab,
           ~filter=filterValueFromUrl,
@@ -306,15 +300,10 @@ let generateTablePayload = (
   } else {
     []
   }
-  let tableBodyValues = Belt.Array.concatMany([
-    tableBodyWithNonDeltaMetrix,
-    tableBodyWithDeltaMetrix,
-    tableIndustryPayload,
-  ])
+  let tableBodyValues =
+    tableBodyWithNonDeltaMetrix->Array.concatMany([tableBodyWithDeltaMetrix, tableIndustryPayload])
 
   let tableBody =
-    Belt.Array.concatMany([tableBodyValues, deltaPayload])
-    ->Belt.Array.map(Js.Json.object_)
-    ->Js.Json.array
+    tableBodyValues->Array.concat(deltaPayload)->Array.map(JSON.Encode.object)->JSON.Encode.array
   tableBody
 }

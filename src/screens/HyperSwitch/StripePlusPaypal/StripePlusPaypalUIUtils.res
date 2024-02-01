@@ -21,9 +21,9 @@ module SelectPaymentMethods = {
     let connectorName = selectedConnector->ConnectorUtils.getConnectorNameString
 
     let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
-      Dict.make()->Js.Json.object_->ConnectorUtils.getPaymentMethodEnabled
+      Dict.make()->JSON.Encode.object->ConnectorUtils.getPaymentMethodEnabled
     )
-    let (metaData, setMetaData) = React.useState(_ => Dict.make()->Js.Json.object_)
+    let (metaData, setMetaData) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
     let updateDetails = value => {
       setPaymentMethods(_ => value->Array.copy)
@@ -35,7 +35,7 @@ module SelectPaymentMethods = {
         let _ = await StringEnumType(connectorChoiceValue)->postEnumDetails(configurationType)
       } catch {
       | Js.Exn.Error(e) => {
-          let err = Js.Exn.message(e)->Option.getWithDefault("Failed to update!")
+          let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
           Js.Exn.raiseError(err)
         }
       }

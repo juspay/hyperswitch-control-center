@@ -1,7 +1,7 @@
 open HSwitchSettingTypes
 
 let validateAPIKeyForm = (
-  values: Js.Json.t,
+  values: JSON.t,
   ~setIsDisabled=_ => (),
   keys: array<string>,
   ~setShowCustomDate,
@@ -16,9 +16,9 @@ let validateAPIKeyForm = (
 
     if value == "" {
       switch key {
-      | "name" => Dict.set(errors, key, "Please enter name"->Js.Json.string)
-      | "description" => Dict.set(errors, key, "Please enter description"->Js.Json.string)
-      | "expiration" => Dict.set(errors, key, "Please select expiry"->Js.Json.string)
+      | "name" => Dict.set(errors, key, "Please enter name"->JSON.Encode.string)
+      | "description" => Dict.set(errors, key, "Please enter description"->JSON.Encode.string)
+      | "expiration" => Dict.set(errors, key, "Please select expiry"->JSON.Encode.string)
       | _ => ()
       }
     } else if key == "expiration" && value->String.toLowerCase != "never" {
@@ -26,7 +26,7 @@ let validateAPIKeyForm = (
       let date = LogicUtils.getString(valuesDict, "expiration_date", "")
 
       if date == "" {
-        Dict.set(errors, "expiration_date", "Please select expiry date"->Js.Json.string)
+        Dict.set(errors, "expiration_date", "Please select expiry date"->JSON.Encode.string)
       }
     } else if key == "expiration" && value->String.toLowerCase == "never" {
       setShowCustomDate(false)
@@ -41,14 +41,14 @@ let validateAPIKeyForm = (
         value,
       )
     ) {
-      Dict.set(errors, key, "Please Enter Valid URL"->Js.Json.string)
+      Dict.set(errors, key, "Please Enter Valid URL"->JSON.Encode.string)
     } else if (key === "webhook_url" || key === "return_url") && value->String.length <= 0 {
-      Dict.set(errors, key, "Please Enter Valid URL"->Js.Json.string)
+      Dict.set(errors, key, "Please Enter Valid URL"->JSON.Encode.string)
     }
   })
   errors == Dict.make() ? setIsDisabled(_ => false) : setIsDisabled(_ => true)
 
-  errors->Js.Json.object_
+  errors->JSON.Encode.object
 }
 
 type apiKeyExpiryType = Never | Custom
@@ -107,7 +107,7 @@ let allColumns = [Prefix, Name, Description, Created, Expiration, CustomCell]
 
 let apiDefaultCols = Recoil.atom(. "hyperSwitchApiDefaultCols", defaultColumns)
 
-let getItems: Js.Json.t => array<apiKey> = json => {
+let getItems: JSON.t => array<apiKey> = json => {
   LogicUtils.getArrayDataFromJson(json, itemToObjMapper)
 }
 

@@ -13,11 +13,11 @@ let make = () => {
       let customersUrl = getURL(~entityName=CUSTOMERS, ~methodType=Get, ())
       let response = await fetchDetails(customersUrl)
       let data = response->LogicUtils.getArrayDataFromJson(itemToObjMapper)
-      setCustomersData(_ => data->Array.map(Js.Nullable.return))
+      setCustomersData(_ => data->Array.map(Nullable.make))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }

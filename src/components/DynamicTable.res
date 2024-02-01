@@ -1,6 +1,6 @@
 let useRemoteFilter = (~searchParams, ~remoteFilters, ~remoteOptions, ~mandatoryRemoteKeys) => {
   let (remoteFiltersFromUrl, setRemoteFiltersFromUrl) = React.useState(() =>
-    Js.Json.object_(Dict.make())
+    JSON.Encode.object(Dict.make())
   )
 
   let remoteFiltersFromUrlTemp = React.useMemo1(() => {
@@ -12,7 +12,7 @@ let useRemoteFilter = (~searchParams, ~remoteFilters, ~remoteOptions, ~mandatory
       (),
     )
   }, [searchParams])
-  if remoteFiltersFromUrlTemp->Js.Json.stringify !== remoteFiltersFromUrl->Js.Json.stringify {
+  if remoteFiltersFromUrlTemp->JSON.stringify !== remoteFiltersFromUrl->JSON.stringify {
     setRemoteFiltersFromUrl(_prev => remoteFiltersFromUrlTemp)
   }
   remoteFiltersFromUrl
@@ -116,7 +116,7 @@ let make = (
     filterForRow,
   } = entity
   let tableName =
-    prefixAddition->Option.getWithDefault(false)
+    prefixAddition->Option.getOr(false)
       ? title->String.replaceRegExp(_, %re("/ /g"), "-")->String.toLowerCase->Some
       : None
   let (defaultFilters, setDefaultFilters) = React.useState(() => entity.defaultFilters)
@@ -177,7 +177,7 @@ let make = (
         DictionaryUtils.mergeDicts([
           b->LogicUtils.getDictFromJsonObject,
           remoteFilterDict,
-        ])->Js.Json.object_
+        ])->JSON.Encode.object
       } else {
         b
       }
@@ -197,7 +197,7 @@ let make = (
       }
 
       setData(prevData => {
-        let newData = prevData->Option.getWithDefault([])->Array.concat(sampleRes)
+        let newData = prevData->Option.getOr([])->Array.concat(sampleRes)
         Some(newData)
       })
     }
@@ -207,12 +207,12 @@ let make = (
         let defaultFilterOffset =
           defaultFilters->LogicUtils.getDictFromJsonObject->LogicUtils.getInt("offset", 0)
         let dictValue = if val === "offset" {
-          defaultFilterOffset->Belt.Int.toString
+          defaultFilterOffset->Int.toString
         } else {
           let x =
             filtersFromUrl
             ->Dict.get(val)
-            ->Option.getWithDefault(searchValueDict->Dict.get(val)->Option.getWithDefault(""))
+            ->Option.getOr(searchValueDict->Dict.get(val)->Option.getOr(""))
           if requireDateFormatting && (val == "startTime" || val == "endTime") {
             (x->DayJs.getDayJsForString).format(. "YYYY-MM-DD+HH:mm:ss")
           } else if requireDateFormatting && (val == "start_date" || val == "end_date") {
@@ -239,7 +239,7 @@ let make = (
     }
     let uri = uri ++ getNewUrl(defaultFilters)
     setTableDataLoading(_ => true)
-    fetchApi(uri, ~bodyStr=Js.Json.stringify(finalJson), ~headers, ~method_=method, ())
+    fetchApi(uri, ~bodyStr=JSON.stringify(finalJson), ~headers, ~method_=method, ())
     ->then(resp => {
       let status = resp->Fetch.Response.status
       if status >= 300 {
@@ -250,17 +250,17 @@ let make = (
       Fetch.Response.json(resp)
     })
     ->then(json => {
-      switch json->Js.Json.classify {
-      | JSONArray(_arr) => json->getObjects->Array.map(obj => obj->Js.Nullable.return)->setNewData
-      | JSONObject(dict) => {
+      switch json->JSON.Classify.classify {
+      | Array(_arr) => json->getObjects->Array.map(obj => obj->Nullable.make)->setNewData
+      | Object(dict) => {
           let flattenedObject = JsonFlattenUtils.flattenObject(json, false)
           switch Dict.get(flattenedObject, dataKey) {
-          | Some(x) => x->getObjects->Array.map(obj => obj->Js.Nullable.return)->setNewData
+          | Some(x) => x->getObjects->Array.map(obj => obj->Nullable.make)->setNewData
           | None => ()
           }
           let summary = switch Dict.get(dict, summaryKey) {
           | Some(x) => x->getSummary
-          | None => dict->Js.Json.object_->getSummary
+          | None => dict->JSON.Encode.object->getSummary
           }
           setSummary(_ => summary)
         }
@@ -295,33 +295,29 @@ let make = (
     setRefetchCounter(p => p + 1)
   }, [setRefetchCounter])
 
-  let visibleColumns = visibleColumnsProp->Option.getWithDefault(defaultColumns)
+  let visibleColumns = visibleColumnsProp->Option.getOr(defaultColumns)
   let handleRefetch = () => {
-    let rowFetched = data->Option.getWithDefault([])->Array.length
+    let rowFetched = data->Option.getOr([])->Array.length
     if rowFetched !== summary.totalCount {
       setTableDataLoading(_ => true)
       let newDefaultFilter =
-        defaultFilters
-        ->Js.Json.decodeObject
-        ->Option.getWithDefault(Dict.make())
-        ->Dict.toArray
-        ->Dict.fromArray
+        defaultFilters->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
 
-      Dict.set(newDefaultFilter, "offset", rowFetched->Js.Int.toFloat->Js.Json.number)
-      setDefaultFilters(_ => newDefaultFilter->Js.Json.object_)
+      Dict.set(newDefaultFilter, "offset", rowFetched->Js.Int.toFloat->JSON.Encode.float)
+      setDefaultFilters(_ => newDefaultFilter->JSON.Encode.object)
     }
   }
 
   let showLocalFilter =
     (localFilters->Array.length > 0 || localOptions->Array.length > 0) &&
-      (applyFilters ? finalData : data)->Option.getWithDefault([])->Array.length > 0
+      (applyFilters ? finalData : data)->Option.getOr([])->Array.length > 0
   let showRemoteFilter = remoteFilters->Array.length > 0 || remoteOptions->Array.length > 0
 
   let filters = {
     if (
       (Array.length(initialFilters) > 0 || Array.length(options) > 0) &&
       (showLocalFilter || showRemoteFilter) &&
-      (!hideFiltersOnNoData || data->Option.getWithDefault([])->Array.length > 0)
+      (!hideFiltersOnNoData || data->Option.getOr([])->Array.length > 0)
     ) {
       let children =
         <div className={`flex-1 ${customFilterStyle}`}>
@@ -416,7 +412,7 @@ let make = (
         for i in 0 to cols->Array.length - 1 {
           checkLength :=
             checkLength.contents &&
-            switch obj[cols[i]->Option.getWithDefault(0)] {
+            switch obj[cols[i]->Option.getOr(0)] {
             | Some(ele) => Array.length(ele.selected) > 0
             | None => false
             }
@@ -427,7 +423,7 @@ let make = (
         let newData = switch data {
         | Some(data) =>
           data->Array.filter(item => {
-            switch item->Js.Nullable.toOption {
+            switch item->Nullable.toOption {
             | Some(val) => filterCheck(val, keys)
             | _ => false
             }
@@ -473,7 +469,7 @@ let make = (
           text="Customize Columns"
           leftIcon=Button.CustomIcon(<Icon name="vertical_slider" size=15 className="mr-1" />)
           buttonType=customizeColumnButtonType
-          buttonSize=Small
+          buttonSize=XSmall
           onClick={_ => setShowColumnSelector(_ => true)}
           customButtonStyle=customizedColumnsStyle
           showBorder={true}

@@ -35,13 +35,13 @@ module ActionButtons = {
       try {
         let requestedBody =
           [
-            ("rating", 5.0->Js.Json.number),
-            ("category", "Routing request"->Js.Json.string),
-            ("feedbacks", `Request for Cost based Routing`->Js.Json.string),
+            ("rating", 5.0->JSON.Encode.float),
+            ("category", "Routing request"->JSON.Encode.string),
+            ("feedbacks", `Request for Cost based Routing`->JSON.Encode.string),
           ]
           ->LogicUtils.getJsonFromArrayOfJson
           ->HSwitchUtils.getBodyForFeedBack()
-          ->Js.Json.object_
+          ->JSON.Encode.object
 
         let feedbackUrl = APIUtils.getURL(
           ~entityName=USERS,
@@ -206,7 +206,7 @@ module LevelWiseRoutingSection = {
 }
 
 @react.component
-let make = (~routingType: array<Js.Json.t>) => {
+let make = (~routingType: array<JSON.t>) => {
   <div className="mt-4 flex flex-col gap-6">
     {routingType
     ->Array.mapWithIndex((ele, i) => {

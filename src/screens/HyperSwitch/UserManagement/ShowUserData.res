@@ -1,6 +1,6 @@
 open UserManagementUtils
 
-external typeConversion: array<Js.Nullable.t<UserRoleEntity.userTableTypes>> => array<
+external typeConversion: array<Nullable.t<UserRoleEntity.userTableTypes>> => array<
   UserRoleEntity.userTableTypes,
 > = "%identity"
 
@@ -15,7 +15,7 @@ module UserHeading = {
     let _resendInvite = async () => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#RESEND_INVITE, ~methodType=Post, ())
-        let body = [("user_id", userId->Js.Json.string)]->Dict.fromArray->Js.Json.object_
+        let body = [("user_id", userId->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
         let _ = await updateDetails(url, body, Post, ())
         showToast(~message=`Invite resend. Please check your email.`, ~toastType=ToastSuccess, ())
       } catch {
@@ -56,7 +56,7 @@ let make = () => {
   open APIUtils
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
-  let (roleData, setRoleData) = React.useState(_ => Js.Json.null)
+  let (roleData, setRoleData) = React.useState(_ => JSON.Encode.null)
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (usersList, setUsersList) = React.useState(_ => [])
@@ -65,7 +65,7 @@ let make = () => {
     usersList
     ->typeConversion
     ->Array.reduce(Dict.make()->UserRoleEntity.itemToObjMapperForUser, (acc, ele) => {
-      url.path->Belt.List.toArray->Array.joinWith("/")->String.includes(ele.user_id) ? ele : acc
+      url.path->List.toArray->Array.joinWith("/")->String.includes(ele.user_id) ? ele : acc
     })
   }, [usersList])
 
@@ -91,7 +91,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -121,7 +121,7 @@ let make = () => {
       )
       let res = await fetchDetails(userDataURL)
       let userData = res->LogicUtils.getArrayDataFromJson(UserRoleEntity.itemToObjMapperForUser)
-      setUsersList(_ => userData->Array.map(Js.Nullable.return))
+      setUsersList(_ => userData->Array.map(Nullable.make))
     } catch {
     | _ => ()
     }

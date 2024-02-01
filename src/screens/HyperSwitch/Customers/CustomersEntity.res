@@ -58,7 +58,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let getCustomers: Js.Json.t => array<customers> = json => {
+let getCustomers: JSON.t => array<customers> = json => {
   open LogicUtils
   getArrayDataFromJson(json, itemToObjMapper)
 }

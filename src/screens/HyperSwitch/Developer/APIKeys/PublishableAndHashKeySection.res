@@ -2,7 +2,7 @@
 let make = () => {
   let fetchDetails = APIUtils.useGetMethod()
   let (merchantInfo, setMerchantInfo) = React.useState(() =>
-    Js.Json.null->MerchantAccountUtils.getMerchantDetails
+    JSON.Encode.null->MerchantAccountUtils.getMerchantDetails
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
@@ -16,9 +16,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Js.Exn.Error(e) =>
-      setScreenState(_ => PageLoaderWrapper.Error(
-        Js.Exn.message(e)->Option.getWithDefault("Error"),
-      ))
+      setScreenState(_ => PageLoaderWrapper.Error(Js.Exn.message(e)->Option.getOr("Error")))
     }
   }
 
@@ -27,7 +25,7 @@ let make = () => {
     None
   })
 
-  let paymentResponsHashKey = merchantInfo.payment_response_hash_key->Option.getWithDefault("")
+  let paymentResponsHashKey = merchantInfo.payment_response_hash_key->Option.getOr("")
 
   <PageLoaderWrapper screenState sectionHeight="h-40-vh">
     <div className="mt-10">

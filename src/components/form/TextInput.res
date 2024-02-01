@@ -60,18 +60,18 @@ let make = (
 
   let {isFirst, isLast} = React.useContext(ButtonGroupContext.buttonGroupContext)
   let (showPassword, setShowPassword) = React.useState(_ => false)
-  let inputRef = React.useRef(Js.Nullable.null)
+  let inputRef = React.useRef(Nullable.null)
 
   React.useEffect2(() => {
     switch widthMatchwithPlaceholderLength {
     | Some(length) =>
-      switch inputRef.current->Js.Nullable.toOption {
+      switch inputRef.current->Nullable.toOption {
       | Some(elem) =>
         let size =
           elem
           ->Webapi.Dom.Element.getAttribute("placeholder")
-          ->Belt.Option.mapWithDefault(length, str => Js.Math.max_int(length, str->String.length))
-          ->Belt.Int.toString
+          ->Option.mapOr(length, str => Js.Math.max_int(length, str->String.length))
+          ->Int.toString
 
         elem->Webapi.Dom.Element.setAttribute("size", size)
       | None => ()
@@ -83,7 +83,7 @@ let make = (
   }, (inputRef.current, input.name))
 
   React.useEffect1(() => {
-    let val = input.value->Js.Json.decodeString->Option.getWithDefault("")
+    let val = input.value->JSON.Decode.string->Option.getOr("")
 
     if val->String.includes("<script>") || val->String.includes("</script>") {
       showPopUp({
@@ -109,7 +109,7 @@ let make = (
         let keyDownFn = ev => {
           if func(ev) {
             ev->ReactEvent.Keyboard.preventDefault
-            switch inputRef.current->Js.Nullable.toOption {
+            switch inputRef.current->Nullable.toOption {
             | Some(elem) => elem->focus
             | None => ()
             }
@@ -138,7 +138,7 @@ let make = (
     ? "border-red-500 focus:border-red-500  dark:border-red-500 dark:hover:border-red-500 dark:focus:border-red-500 focus:shadow-text_input_shadow focus:shadow-red-500"
     : "border-jp-gray-lightmode_steelgray focus:border-blue-800 dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:focus:border-blue-800 focus:shadow-text_input_shadow focus:shadow-blue-800"
 
-  let dashboardClass = customDashboardClass->Option.getWithDefault("h-10 text-sm font-semibold")
+  let dashboardClass = customDashboardClass->Option.getOr("h-10 text-sm font-semibold")
   let rightPaddingClass = if description !== "" || isInValid {
     "pr-10"
   } else {
@@ -169,9 +169,9 @@ let make = (
       focus:border-opacity-100 ${hoverCss} ${roundingClass} ${cursorClass} ${dashboardClass} ${inputStyle} ${borderClass} ${customStyle} ${placeholderClass} ${isDisabled
       ? onDisabledStyle
       : onActiveStyle}`
-  let value = switch input.value->Js.Json.classify {
-  | JSONString(str) => str
-  | JSONNumber(num) => num->Belt.Float.toString
+  let value = switch input.value->JSON.Classify.classify {
+  | String(str) => str
+  | Number(num) => num->Float.toString
   | _ => ""
   }
 
@@ -233,7 +233,11 @@ let make = (
 
   if type_ == "password" || type_ == "password_without_icon" {
     <AddDataAttributes
-      attributes=[("data-id-password", placeholder), ("data-input-name", input.name)]>
+      attributes=[
+        ("data-id-password", input.name),
+        ("data-input-name", input.name),
+        ("data-testid", input.name),
+      ]>
       <div className="flex flex-row items-center relative">
         leftIconElement
         <input
@@ -267,7 +271,12 @@ let make = (
       </div>
     </AddDataAttributes>
   } else {
-    <AddDataAttributes attributes=[("data-id", placeholder), ("data-input-name", input.name)]>
+    <AddDataAttributes
+      attributes=[
+        ("data-id", placeholder),
+        ("data-input-name", input.name),
+        ("data-testid", input.name),
+      ]>
       <div className="flex flex-row relative items-center grow">
         leftIconElement
         <input

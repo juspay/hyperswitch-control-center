@@ -348,7 +348,7 @@ let make = (
   ~customTextPaddingClass=?,
   ~allowButtonTextMinWidth=true,
   ~badge: badge={
-    value: 1->Belt.Int.toString,
+    value: 1->Int.toString,
     color: NoBadge,
   },
   ~buttonRightText=?,
@@ -364,8 +364,8 @@ let make = (
   ~tooltipText=?,
   ~toolTipPosition=ToolTip.Top,
 ) => {
-  let parentRef = React.useRef(Js.Nullable.null)
-  let dummyRef = React.useRef(Js.Nullable.null)
+  let parentRef = React.useRef(Nullable.null)
+  let dummyRef = React.useRef(Nullable.null)
   let buttonRef = disableRipple ? dummyRef : parentRef
   let rippleEffect = RippleEffectBackground.useHorizontalRippleHook(buttonRef)
   if !isPhoneDropdown {
@@ -385,9 +385,7 @@ let make = (
   }
 
   let buttonSize: buttonSize =
-    buttonSize->Option.getWithDefault(
-      MatchMedia.useMatchMedia("(max-width: 800px)") ? Small : Medium,
-    )
+    buttonSize->Option.getOr(MatchMedia.useMatchMedia("(max-width: 800px)") ? Small : Medium)
 
   let lengthStyle = if fullLength {
     "w-full justify-between"
@@ -422,13 +420,7 @@ let make = (
     }
   }
 
-  let heightClass = customHeightClass->Option.getWithDefault({
-    switch buttonSize {
-    | XSmall => "h-fit"
-    | Small => "h-fit"
-    | Medium | Large => "h-fit"
-    }
-  })
+  let heightClass = customHeightClass->Option.getOr("h-fit")
 
   let cursorType = switch buttonState {
   | Loading => "cursor-wait"
@@ -436,9 +428,9 @@ let make = (
   | _ => "cursor-pointer"
   }
 
-  let paddingClass = customPaddingClass->Option.getWithDefault(
+  let paddingClass = customPaddingClass->Option.getOr(
     switch buttonSize {
-    | XSmall => "py-3 px-4"
+    | XSmall => "p-2"
     | Small =>
       switch buttonType {
       | Pagination => "py-3 px-4 mr-1"
@@ -450,7 +442,7 @@ let make = (
     },
   )
 
-  let textPaddingClass = customTextPaddingClass->Option.getWithDefault(
+  let textPaddingClass = customTextPaddingClass->Option.getOr(
     switch buttonSize {
     | XSmall => "px-1"
     | Small => "px-1"
@@ -459,7 +451,7 @@ let make = (
     },
   )
 
-  let textSize = customTextSize->Option.getWithDefault(
+  let textSize = customTextSize->Option.getOr(
     switch buttonSize {
     | XSmall => "text-fs-11"
     | Small => "text-fs-13"
@@ -471,7 +463,7 @@ let make = (
   let ellipsisClass = ellipsisOnly ? "truncate" : ""
   let ellipsisParentClass = ellipsisOnly ? "max-w-[250px] md:max-w-xs" : ""
 
-  let iconSize = customIconSize->Option.getWithDefault(
+  let iconSize = customIconSize->Option.getOr(
     switch buttonSize {
     | XSmall => 12
     | Small => 14
@@ -489,14 +481,7 @@ let make = (
   | Large => ""
   }
 
-  let eulerIconPadding = switch buttonSize {
-  | XSmall
-  | Small => "gap-1"
-  | Medium
-  | Large => ""
-  }
-
-  let iconMargin = customIconMargin->Option.getWithDefault(
+  let iconMargin = customIconMargin->Option.getOr(
     switch buttonSize {
     | XSmall
     | Small => "ml-1"
@@ -673,7 +658,7 @@ let make = (
   | _ => "text-sm font-medium leading-5"
   }
 
-  let textId = text->Option.getWithDefault("")
+  let textId = text->Option.getOr("")
   let iconId = switch leftIcon {
   | FontAwesome(iconName)
   | Euler(iconName) => iconName
@@ -695,9 +680,9 @@ let make = (
   let relativeClass = isRelative ? "relative" : ""
   let conditionalButtonStyles = `${allowButtonTextMinWidth
       ? "min-w-min"
-      : ""} ${customBackColor->Option.getWithDefault(
-      backColor,
-    )} ${customRoundedClass->Option.getWithDefault(roundedClass)}`
+      : ""} ${customBackColor->Option.getOr(backColor)} ${customRoundedClass->Option.getOr(
+      roundedClass,
+    )}`
   let customJustifyStyle = customButtonStyle->String.includes("justify") ? "" : "justify-center"
 
   <AddDataAttributes attributes=[(dataAttrKey, dataAttrStr)]>
@@ -730,7 +715,7 @@ let make = (
             />
           </span>
         | Euler(iconName) =>
-          <span className={`flex items-center ${iconColor} ${iconMargin} ${eulerIconPadding}`}>
+          <span className={`flex items-center ${iconColor} ${iconMargin}`}>
             <Icon className={`align-middle ${strokeColor}`} size=iconSize name=iconName />
           </span>
         | CustomIcon(element) =>
@@ -752,7 +737,7 @@ let make = (
           if showBtnTextToolTip {
             <div className=ellipsisParentClass>
               <ToolTip
-                description={tooltipText->Option.getWithDefault("")}
+                description={tooltipText->Option.getOr("")}
                 toolTipFor=btnContent
                 contentAlign=Default
                 justifyClass="justify-start"
@@ -793,7 +778,7 @@ let make = (
           <Icon className={`align-middle ${strokeColor}`} size=iconSize name=iconName />
         </span>
       | Euler(iconName) =>
-        <span className={`flex items-center ${iconMargin} ${eulerIconPadding}`}>
+        <span className={`flex items-center ${iconMargin}`}>
           <Icon className={`align-middle ${strokeColor}`} size=iconSize name=iconName />
         </span>
       | CustomIcon(element) =>

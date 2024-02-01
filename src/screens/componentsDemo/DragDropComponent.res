@@ -15,7 +15,7 @@ let reorder = (currentState, startIndex, endIndex) => {
 let make = (~isHorizontal=true, ~listItems, ~gap="", ~setListItems, ~keyExtractor) => {
   let onDragEnd = result => {
     // dropped outside the list
-    let dest = Js.Nullable.toOption(result["destination"])
+    let dest = Nullable.toOption(result["destination"])
 
     switch dest {
     | Some(a) => {
@@ -42,9 +42,9 @@ let make = (~isHorizontal=true, ~listItems, ~gap="", ~setListItems, ~keyExtracto
             {listItems
             ->Array.mapWithIndex((item, index) => {
               <ReactBeautifulDND.Draggable
-                key={`item-${Belt.Int.toString(index)}`}
+                key={`item-${Int.toString(index)}`}
                 index={index}
-                draggableId={`item-${Belt.Int.toString(index)}`}>
+                draggableId={`item-${Int.toString(index)}`}>
                 {(provided, snapshot) => {
                   let draggableElement =
                     <div onDragStart={provided["onDragStart"]} ref={provided["innerRef"]}>

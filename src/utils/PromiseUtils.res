@@ -1,7 +1,7 @@
 // Pollyfill for Promise.allSettled()
 // Promise.allSettled() takes an iterable of promises and returns a single promise that is fulfilled with an array of promise settlement result
 
-let allSettledPolyfill = (arr: array<promise<Js.Json.t>>) => {
+let allSettledPolyfill = (arr: array<promise<JSON.t>>) => {
   arr
   ->Array.map(promise =>
     promise
@@ -11,9 +11,9 @@ let allSettledPolyfill = (arr: array<promise<Js.Json.t>>) => {
     ->Promise.catch(err => {
       switch err {
       | Js.Exn.Error(e) =>
-        let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
-        err->Js.Json.string
-      | _ => Js.Json.null
+        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+        err->JSON.Encode.string
+      | _ => JSON.Encode.null
       }->Promise.resolve
     })
   )

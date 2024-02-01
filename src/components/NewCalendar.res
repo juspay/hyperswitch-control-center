@@ -15,7 +15,7 @@ module TableRow = {
     switch obj {
     | Some(a) => {
         let day = String.split(a, "-")
-        React.string(day->Belt.Array.get(2)->Option.getWithDefault(""))
+        React.string(day->Array.get(2)->Option.getOr(""))
       }
 
     | None => React.string("")
@@ -48,7 +48,7 @@ module TableRow = {
     let highlight = cellHighlighter
 
     {
-      if item == Belt.Array.make(7, "") {
+      if item == Array.make(~length=7, "") {
         <tr className="h-0" />
       } else {
         <>
@@ -132,15 +132,11 @@ module TableRow = {
               }
               let getDate = date => {
                 let datevalue = Js.Date.makeWithYMD(
-                  ~year=Js.Float.fromString(date->Belt.Array.get(0)->Option.getWithDefault("0")),
+                  ~year=Js.Float.fromString(date->Array.get(0)->Option.getOr("0")),
                   ~month=Js.Float.fromString(
-                    String.make(
-                      Js.Float.fromString(
-                        date->Belt.Array.get(1)->Option.getWithDefault("0"),
-                      ) -. 1.0,
-                    ),
+                    String.make(Js.Float.fromString(date->Array.get(1)->Option.getOr("0")) -. 1.0),
                   ),
-                  ~date=Js.Float.fromString(date->Belt.Array.get(2)->Option.getWithDefault("")),
+                  ~date=Js.Float.fromString(date->Array.get(2)->Option.getOr("")),
                   (),
                 )
                 datevalue
@@ -150,7 +146,7 @@ module TableRow = {
               )
 
               let renderingDate = (
-                getDate([Belt.Float.toString(year), Belt.Float.toString(month +. 1.0), obj])
+                getDate([Float.toString(year), Float.toString(month +. 1.0), obj])
                 ->Js.Date.toString
                 ->DayJs.getDayJsForString
               ).format(. "YYYY-MM-DD")
@@ -271,8 +267,8 @@ module TableRow = {
                   startDate,
                   endDate,
                   obj,
-                  Belt.Float.toString(month +. 1.0),
-                  Belt.Float.toString(year),
+                  Float.toString(month +. 1.0),
+                  Float.toString(year),
                 )
               }
 
@@ -281,8 +277,8 @@ module TableRow = {
                   startDate,
                   endDate,
                   obj,
-                  Belt.Float.toString(month +. 1.0),
-                  Belt.Float.toString(year),
+                  Float.toString(month +. 1.0),
+                  Float.toString(year),
                 )
               }
               let handleHover = () => {
@@ -305,7 +301,7 @@ module TableRow = {
               }
 
               <td
-                key={`${windowIndex->Belt.Int.toString}X${cellIndex->Belt.Int.toString}`}
+                key={`${windowIndex->Int.toString}X${cellIndex->Int.toString}`}
                 className={`${classN} ${highlightBgClass} text-sm font-normal`}
                 onClick
                 onMouseOver={_ => handleHover()}
@@ -379,10 +375,10 @@ let make = (
   let heading = ["Sun", "Mon", "Tue", "Wed", "Thr", "Fri", "Sat"]
 
   let isMobileView = MatchMedia.useMobileChecker()
-  let getMonthInFloat = mon => Array.indexOf(months, mon)->Belt.Float.fromInt
+  let getMonthInFloat = mon => Array.indexOf(months, mon)->Float.fromInt
   let totalMonths = disablePastDates
     ? 1
-    : (year - 1970) * 12 + getMonthInFloat(month)->Belt.Float.toInt + 1
+    : (year - 1970) * 12 + getMonthInFloat(month)->Float.toInt + 1
   let futureMonths = isFutureDate && !disableFutureDates ? 120 : 0
   let (lastStartDate, setLastStartDate) = React.useState(_ => "")
 
@@ -412,15 +408,15 @@ let make = (
   })
 
   React.useEffect2(() => {
-    let currentMonth = getMonthInFloat(month)->Belt.Float.toInt + 1
+    let currentMonth = getMonthInFloat(month)->Float.toInt + 1
 
     if startDate != lastStartDate {
       let startYear = startDate != "" ? (startDate->DayJs.getDayJsForString).format(. "YYYY") : ""
       let startMonth =
         (startDate != "" ? (startDate->DayJs.getDayJsForString).format(. "MM") : "")
-        ->Belt.Int.fromString
-        ->Option.getWithDefault(currentMonth)
-      let startYearDiff = year - startYear->Belt.Int.fromString->Option.getWithDefault(2022)
+        ->Int.fromString
+        ->Option.getOr(currentMonth)
+      let startYearDiff = year - startYear->Int.fromString->Option.getOr(2022)
 
       let startIndex = 12 * startYearDiff + (currentMonth - startMonth)
 
@@ -432,9 +428,9 @@ let make = (
       let endYear = endDate != "" ? (endDate->DayJs.getDayJsForString).format(. "YYYY") : ""
       let endMonth =
         (endDate != "" ? (endDate->DayJs.getDayJsForString).format(. "MM") : "")
-        ->Belt.Int.fromString
-        ->Option.getWithDefault(currentMonth)
-      let endYearDiff = year - endYear->Belt.Int.fromString->Option.getWithDefault(2022)
+        ->Int.fromString
+        ->Option.getOr(currentMonth)
+      let endYearDiff = year - endYear->Int.fromString->Option.getOr(2022)
 
       let endIndex = 12 * endYearDiff + (currentMonth - endMonth)
 
@@ -449,11 +445,11 @@ let make = (
     let windowIndex = totalMonths - index->LogicUtils.getInt("index", 0) - 1
     let newMonth = DayJs.getDayJs().subtract(. windowIndex, "month").month(.)
     let newYear = DayJs.getDayJs().subtract(. windowIndex, "month").year(.)
-    let updatedMonth = months->Belt.Array.get(newMonth)->Option.getWithDefault(Jan)
+    let updatedMonth = months->Array.get(newMonth)->Option.getOr(Jan)
     // get first day
 
     let firstDay = Js.Date.getDay(
-      Js.Date.makeWithYM(~year=Belt.Int.toFloat(newYear), ~month=getMonthInFloat(updatedMonth), ()),
+      Js.Date.makeWithYM(~year=Int.toFloat(newYear), ~month=getMonthInFloat(updatedMonth), ()),
     )
 
     // get Days in month
@@ -472,19 +468,19 @@ let make = (
     | Dec => 31
     }
     // creating row info
-    let dummyRow = Belt.Array.make(6, Belt.Array.make(7, ""))
+    let dummyRow = Array.make(~length=6, Array.make(~length=7, ""))
 
     let rowMapper = (row, indexRow) => {
       Array.mapWithIndex(row, (_item, index) => {
-        let subFactor = Belt.Float.toInt(firstDay)
-        if indexRow == 0 && index < Belt.Float.toInt(firstDay) {
+        let subFactor = Float.toInt(firstDay)
+        if indexRow == 0 && index < Float.toInt(firstDay) {
           ""
         } else if indexRow == 0 {
-          Belt.Int.toString(indexRow + (index + 1) - subFactor)
+          Int.toString(indexRow + (index + 1) - subFactor)
         } else if indexRow * 7 + (index + 1) - subFactor > daysInMonth {
           ""
         } else {
-          Belt.Int.toString(indexRow * 7 + (index + 1) - subFactor)
+          Int.toString(indexRow * 7 + (index + 1) - subFactor)
         }
       })
     }
@@ -492,14 +488,14 @@ let make = (
 
     <div style={index->LogicUtils.getJsonObjectFromDict("style")->Identity.jsonToReactDOMStyle}>
       <div className={`font-normal text-fs-16 text-[#344054] leading-6 mt-5`}>
-        {React.string(`${updatedMonth->getMonthInStr} ${newYear->Belt.Int.toString}`)}
+        {React.string(`${updatedMonth->getMonthInStr} ${newYear->Int.toString}`)}
       </div>
       <table className="table-auto min-w-full">
         <tbody>
           {rowInfo
           ->Array.mapWithIndex((item, rowIndex) => {
             <TableRow
-              key={rowIndex->Belt.Int.toString}
+              key={rowIndex->Int.toString}
               item
               rowIndex
               onDateClick
@@ -508,7 +504,7 @@ let make = (
               ?cellHighlighter
               ?cellRenderer
               month={getMonthInFloat(updatedMonth)}
-              year={Belt.Int.toFloat(newYear)}
+              year={Int.toFloat(newYear)}
               startDate
               endDate
               disablePastDates

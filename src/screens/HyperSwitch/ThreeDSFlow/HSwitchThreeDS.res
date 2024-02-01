@@ -1,11 +1,11 @@
 open RoutingTypes
-external toWasm: Js.Dict.t<Js.Json.t> => wasmModule = "%identity"
+external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
 
 module ActiveRulePreview = {
   open LogicUtils
   @react.component
   let make = (~initialRule) => {
-    let ruleInfo = initialRule->Option.getWithDefault(Dict.make())
+    let ruleInfo = initialRule->Option.getOr(Dict.make())
     let name = ruleInfo->getString("name", "")
     let description = ruleInfo->getString("description", "")
 
@@ -46,7 +46,7 @@ module Configure3DSRule = {
     }, [rules])
     let addRule = (index, _copy) => {
       let existingRules = ruleInput.value->LogicUtils.getArrayFromJson([])
-      let newRule = existingRules[index]->Option.getWithDefault(Js.Json.null)
+      let newRule = existingRules[index]->Option.getOr(JSON.Encode.null)
       let newRules = existingRules->Array.concat([newRule])
       ruleInput.onChange(newRules->Identity.arrayOfGenericTypeToFormReactEvent)
     }
@@ -60,7 +60,7 @@ module Configure3DSRule = {
     <div>
       {
         let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Array.length > 1
-        let rule = ruleInput.value->Js.Json.decodeArray->Option.getWithDefault([])
+        let rule = ruleInput.value->JSON.Decode.array->Option.getOr([])
         let keyExtractor = (index, _rule, isDragging) => {
           let id = {`algorithm.rules[${string_of_int(index)}]`}
           let i = 1
@@ -132,15 +132,18 @@ let make = () => {
 
       let intitialValue =
         [
-          ("name", responseDict->LogicUtils.getString("name", "")->Js.Json.string),
-          ("description", responseDict->LogicUtils.getString("description", "")->Js.Json.string),
-          ("algorithm", programValue->Js.Json.object_),
+          ("name", responseDict->LogicUtils.getString("name", "")->JSON.Encode.string),
+          (
+            "description",
+            responseDict->LogicUtils.getString("description", "")->JSON.Encode.string,
+          ),
+          ("algorithm", programValue->JSON.Encode.object),
         ]->Dict.fromArray
 
       setInitialRule(_ => Some(intitialValue))
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+      let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
       Js.Exn.raiseError(err)
     }
   }
@@ -153,7 +156,7 @@ let make = () => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getWithDefault("Something went wrong")
+        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
         if err->String.includes("HE_02") {
           setShowWarning(_ => false)
           setPageView(_ => LANDING)
@@ -173,9 +176,7 @@ let make = () => {
   React.useEffect1(() => {
     let searchParams = url.search
     let filtersFromUrl =
-      LogicUtils.getDictFromUrlSearchParams(searchParams)
-      ->Dict.get("type")
-      ->Option.getWithDefault("")
+      LogicUtils.getDictFromUrlSearchParams(searchParams)->Dict.get("type")->Option.getOr("")
     setPageView(_ => filtersFromUrl->pageStateMapper)
     None
   }, [url.search])
@@ -199,32 +200,32 @@ let make = () => {
       setScreenState(_ => Success)
     } catch {
     | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getWithDefault("Failed to Fetch!")
+      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => Error(err))
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
-  let validate = (values: Js.Json.t) => {
+  let validate = (values: JSON.t) => {
     let dict = values->LogicUtils.getDictFromJsonObject
 
     let errors = Dict.make()
 
     AdvancedRoutingUtils.validateNameAndDescription(~dict, ~errors)
 
-    switch dict->Dict.get("algorithm")->Option.flatMap(Js.Json.decodeObject) {
+    switch dict->Dict.get("algorithm")->Option.flatMap(JSON.Decode.object) {
     | Some(jsonDict) => {
         let index = 1
         let rules = jsonDict->LogicUtils.getArrayFromDict("rules", [])
         if index === 1 && rules->Array.length === 0 {
-          errors->Dict.set(`Rules`, "Minimum 1 rule needed"->Js.Json.string)
+          errors->Dict.set(`Rules`, "Minimum 1 rule needed"->JSON.Encode.string)
         } else {
           rules->Array.forEachWithIndex((rule, i) => {
             let ruleDict = rule->LogicUtils.getDictFromJsonObject
             if !RoutingUtils.validateConditionsFor3ds(ruleDict) {
               errors->Dict.set(
                 `Rule ${(i + 1)->string_of_int} - Condition`,
-                `Invalid`->Js.Json.string,
+                `Invalid`->JSON.Encode.string,
               )
             }
           })
@@ -234,7 +235,7 @@ let make = () => {
     | None => ()
     }
 
-    errors->Js.Json.object_
+    errors->JSON.Encode.object
   }
   let redirectToNewRule = () => {
     setPageView(_ => NEW)

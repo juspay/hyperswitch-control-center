@@ -43,7 +43,7 @@ module NewProcessorCards = {
 
     let (showModal, setShowModal) = React.useState(_ => false)
     let (searchedConnector, setSearchedConnector) = React.useState(_ => "")
-    let searchRef = React.useRef(Js.Nullable.null)
+    let searchRef = React.useRef(Nullable.null)
 
     let urlPrefix = isPayoutFlow ? "payoutconnectors/new" : "connectors/new"
     let handleClick = connectorName => {
@@ -64,20 +64,26 @@ module NewProcessorCards = {
       (),
     ) => {
       <>
-        <h2
-          className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
-          {heading->React.string}
-        </h2>
+        <AddDataAttributes
+          attributes=[("data-testid", heading->LogicUtils.titleToSnake->String.toLowerCase)]>
+          <h2
+            className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+            {heading->React.string}
+          </h2>
+        </AddDataAttributes>
         <div className="flex w-full justify-between">
           <UIUtils.RenderIf condition={showSearch}>
-            <input
-              ref={searchRef->ReactDOM.Ref.domRef}
-              type_="text"
-              value=searchedConnector
-              onChange=handleSearch
-              placeholder="Search a processor"
-              className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
-            />
+            <AddDataAttributes attributes=[("data-testid", "search-processor")]>
+              <input
+                ref={searchRef->ReactDOM.Ref.domRef}
+                type_="text"
+                value=searchedConnector
+                onChange=handleSearch
+                placeholder="Search a processor"
+                className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
+                id="search-processor"
+              />
+            </AddDataAttributes>
           </UIUtils.RenderIf>
           <UIUtils.RenderIf condition={showRequestConnectorBtn}>
             <div
@@ -95,27 +101,28 @@ module NewProcessorCards = {
               let connectorName = connector->getConnectorNameString
               let connectorInfo = connector->getConnectorInfo
               let size = "w-14 h-14 rounded-sm"
-
-              <div
-                key={i->string_of_int}
-                className="border p-6 gap-4 bg-white rounded flex flex-col justify-between">
-                <div className="flex flex-col gap-3 items-start">
-                  <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
-                  <p className={`${p1MediumTextStyle} break-all`}>
-                    {connectorName->LogicUtils.capitalizeString->React.string}
-                  </p>
-                </div>
-                <p className="overflow-hidden text-gray-400 flex-1 line-clamp-3">
-                  {connectorInfo.description->React.string}
-                </p>
-                <Button
-                  text="+ Connect"
-                  buttonType={Transparent}
-                  buttonSize={Small}
+              <AddDataAttributes attributes=[("data-testid", connectorName->String.toLowerCase)]>
+                <div
                   onClick={_ => handleClick(connectorName)}
-                  textStyle="text-jp-gray-900"
-                />
-              </div>
+                  key={i->string_of_int}
+                  className="border p-6 gap-4 bg-white rounded flex flex-col justify-between">
+                  <div className="flex flex-col gap-3 items-start">
+                    <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
+                    <p className={`${p1MediumTextStyle} break-all`}>
+                      {connectorName->LogicUtils.capitalizeString->React.string}
+                    </p>
+                  </div>
+                  <p className="overflow-hidden text-gray-400 flex-1 line-clamp-3">
+                    {connectorInfo.description->React.string}
+                  </p>
+                  <Button
+                    text="+ Connect"
+                    buttonType={Transparent}
+                    buttonSize={Small}
+                    textStyle="text-jp-gray-900"
+                  />
+                </div>
+              </AddDataAttributes>
             })
             ->React.array}
           </div>
@@ -132,13 +139,19 @@ module NewProcessorCards = {
       (),
     ) => {
       <>
-        <h2
-          className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
-          {heading->React.string}
-        </h2>
+        <AddDataAttributes
+          attributes=[("data-testid", heading->LogicUtils.titleToSnake->String.toLowerCase)]>
+          <h2
+            className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+            {heading->React.string}
+          </h2>
+        </AddDataAttributes>
         <div className="flex w-full justify-between">
           <UIUtils.RenderIf condition={showSearch}>
             <input
+              {...DOMUtils.domProps({
+                "data-testid": "search-processor",
+              })}
               ref={searchRef->ReactDOM.Ref.domRef}
               type_="text"
               value=searchedConnector
@@ -164,10 +177,12 @@ module NewProcessorCards = {
               <ToolTip
                 key={i->string_of_int}
                 description={connectorName->LogicUtils.capitalizeString}
-                toolTipFor={<div
-                  className="p-2 cursor-pointer" onClick={_ => handleClick(connectorName)}>
-                  <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
-                </div>}
+                toolTipFor={<AddDataAttributes
+                  attributes=[("data-testid", connectorName->String.toLowerCase)]>
+                  <div className="p-2 cursor-pointer" onClick={_ => handleClick(connectorName)}>
+                    <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
+                  </div>
+                </AddDataAttributes>}
                 toolTipPosition={Top}
                 tooltipWidthClass="w-30"
               />
@@ -245,8 +260,8 @@ let make = (~isPayoutFlow=false) => {
       let connectorsList = response->getProcessorsListFromJson(~removeFromList, ())
       let previousData = connectorsList->Array.map(ConnectorTableUtils.getProcessorPayloadType)
 
-      setFilteredConnectorData(_ => previousData->Array.map(Js.Nullable.return))
-      setPreviouslyConnectedData(_ => previousData->Array.map(Js.Nullable.return))
+      setFilteredConnectorData(_ => previousData->Array.map(Nullable.make))
+      setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
       let arr =
         connectorsList->Array.map(paymentMethod =>
           paymentMethod->getString("connector_name", "")->getConnectorNameTypeFromString
@@ -267,8 +282,8 @@ let make = (~isPayoutFlow=false) => {
     open LogicUtils
     let (searchText, arr) = ob
     let filteredList = if searchText->String.length > 0 {
-      arr->Array.filter((obj: Js.Nullable.t<ConnectorTypes.connectorPayload>) => {
-        switch Js.Nullable.toOption(obj) {
+      arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayload>) => {
+        switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.connector_name, searchText) ||
           isContainingStringLowercase(obj.profile_id, searchText)

@@ -29,11 +29,11 @@ let make = (
   let _ = onDateClick
   // check whether month and date has value
   let getMonthFromFloat = value => {
-    let valueInt = value->Belt.Float.toInt
-    months[valueInt]->Option.getWithDefault(Jan)
+    let valueInt = value->Float.toInt
+    months[valueInt]->Option.getOr(Jan)
   }
   let getMonthInFloat = mon => {
-    Array.indexOf(months, mon)->Belt.Float.fromInt
+    Array.indexOf(months, mon)->Float.fromInt
   }
   let getMonthInStr = mon => {
     switch mon {
@@ -52,14 +52,14 @@ let make = (
     }
   }
   let startMonth = switch month {
-  | Some(m) => Belt.Int.toFloat(Belt.Float.toInt(getMonthInFloat(m)))
+  | Some(m) => Int.toFloat(Float.toInt(getMonthInFloat(m)))
   | None => {
-      let tMonth = Belt.Int.toFloat(Belt.Float.toInt(Js.Date.getMonth(Js.Date.make())))
+      let tMonth = Int.toFloat(Float.toInt(Js.Date.getMonth(Js.Date.make())))
       disableFutureDates && count > 1 ? tMonth -. 1.0 : tMonth
     }
   }
   let startYear = switch year {
-  | Some(y) => Belt.Int.toFloat(y)
+  | Some(y) => Int.toFloat(y)
   | None => Js.Date.getFullYear(Js.Date.make())
   }
   let (currDateIm, setCurrDate) = React.useState(() =>
@@ -70,13 +70,13 @@ let make = (
     let newDate = Js.Date.fromFloat(
       Js.Date.setMonth(
         currDateTemp,
-        Belt.Int.toFloat(Belt.Float.toInt(Js.Date.getMonth(currDateTemp)) + month),
+        Int.toFloat(Float.toInt(Js.Date.getMonth(currDateTemp)) + month),
       ),
     )
     setCurrDate(_ => newDate)
   }
 
-  let dummyRow = Belt.Array.make(count, 1)
+  let dummyRow = Array.make(~length=count, 1)
   <div
     className={`flex flex-1 flex-row justify-center overflow-auto bg-jp-gray-50 dark:bg-jp-gray-950 rounded border border-jp-gray-500 dark:border-jp-gray-960 select-none ${calendarContaierStyle}`}>
     {dummyRow
@@ -84,7 +84,7 @@ let make = (
       let currDateTemp = Js.Date.fromFloat(Js.Date.valueOf(currDateIm))
       let tempDate = Js.Date.setMonth(
         currDateTemp,
-        Belt.Int.toFloat(Belt.Float.toInt(Js.Date.getMonth(currDateTemp)) + i),
+        Int.toFloat(Float.toInt(Js.Date.getMonth(currDateTemp)) + i),
       )
       let tempMonth = if disableFutureDates {
         (Js.Date.fromFloat(tempDate)->DayJs.getDayJsForJsDate).toString(.)
@@ -96,10 +96,10 @@ let make = (
       let tempYear = Js.Date.getFullYear(Js.Date.fromFloat(tempDate))
       let showLeft = i == 0 && !secondCalendar
 
-      let showRight = i + 1 == Belt.Array.length(dummyRow) && !firstCalendar
+      let showRight = i + 1 == Array.length(dummyRow) && !firstCalendar
       let monthAndYear = String.concat(
         getMonthInStr(getMonthFromFloat(tempMonth)),
-        Belt.Float.toString(tempYear),
+        Float.toString(tempYear),
       )
 
       let iconClass = "inline-block text-jp-gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-25 cursor-pointer"
@@ -142,7 +142,7 @@ let make = (
         <Calendar
           key={string_of_int(i)}
           month={getMonthFromFloat(tempMonth)}
-          year={Belt.Float.toInt(tempYear)}
+          year={Float.toInt(tempYear)}
           showTitle=false
           hoverdDate
           setHoverdDate

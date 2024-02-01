@@ -40,7 +40,7 @@ module TabInfo = {
     ~showBottomBorder=true,
     ~onTabSelection=() => (),
   ) => {
-    let tabRef = React.useRef(Js.Nullable.null)
+    let tabRef = React.useRef(Nullable.null)
     let fontClass = "font-inter-style"
 
     let defaultBorderClass = "border-0"
@@ -77,7 +77,7 @@ module TabInfo = {
     React.useEffect2(() => {
       if isSelected && isScrollIntoViewRequired {
         tabRef.current
-        ->Js.Nullable.toOption
+        ->Nullable.toOption
         ->Option.forEach(input =>
           input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"})
         )
@@ -108,7 +108,7 @@ module IndicationArrow = {
     let onClick = {
       _ev =>
         refElement.current
-        ->Js.Nullable.toOption
+        ->Nullable.toOption
         ->Option.forEach(input =>
           input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"})
         )
@@ -126,11 +126,8 @@ module IndicationArrow = {
   }
 }
 
-let getBoundingRectInfo = (ref: React.ref<Js.Nullable.t<Dom.element>>, getter) => {
-  ref.current
-  ->Js.Nullable.toOption
-  ->Belt.Option.map(getBoundingClientRect)
-  ->Belt.Option.mapWithDefault(0, getter)
+let getBoundingRectInfo = (ref: React.ref<Nullable.t<Dom.element>>, getter) => {
+  ref.current->Nullable.toOption->Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
 }
 
 @react.component
@@ -169,7 +166,7 @@ let make = (
   // ~icon=React.null,
 
   let _ = defaultClasses
-  let initialIndex = initialIndex->Option.getWithDefault(0)
+  let initialIndex = initialIndex->Option.getOr(0)
   let (selectedIndex, setSelectedIndex) = React.useState(() => initialIndex)
   let tabOuterClass = `${tabBottomShadow} ${gapBetweenTabs}`
   let bottomBorderClass = "border-b border-jp-gray-500 dark:border-jp-gray-960"
@@ -183,9 +180,9 @@ let make = (
   let (_isLeftArrowVisible, setIsLeftArrowVisible) = React.useState(() => false)
   let (_isRightArrowVisible, setIsRightArrowVisible) = React.useState(() => true)
 
-  let firstTabRef = React.useRef(Js.Nullable.null)
-  let scrollRef = React.useRef(Js.Nullable.null)
-  let lastTabRef = React.useRef(Js.Nullable.null)
+  let firstTabRef = React.useRef(Nullable.null)
+  let scrollRef = React.useRef(Nullable.null)
+  let lastTabRef = React.useRef(Nullable.null)
   let numberOfTabs = Array.length(tabs)
   let onScroll = _ev => {
     let leftVal = firstTabRef->getBoundingRectInfo(val => val.x)
@@ -268,7 +265,7 @@ let make = (
       </UIUtils.RenderIf>
       <div className=renderedTabClassName>
         <ErrorBoundary key={string_of_int(selectedIndex)}>
-          {switch tabs->Belt.Array.get(selectedIndex) {
+          {switch tabs->Array.get(selectedIndex) {
           | Some(selectedTab) => {
               let component = selectedTab.renderContent()
               <FramerMotion.TransitionComponent

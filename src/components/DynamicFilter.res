@@ -51,7 +51,7 @@ module CustomFilters = {
           ->String.replaceRegExp(%re("/ LIKE /gi"), "@@")
           ->String.split("@@")
 
-        let firstEle = Belt.Array.get(mArr, 0)->Option.getWithDefault("")
+        let firstEle = mArr[0]->Option.getOr("")
         if (
           firstEle != "" && tabNames->Array.indexOf(firstEle->String.trim->String.toLowerCase) < 0
         ) {
@@ -166,12 +166,12 @@ let make = (
 ) => {
   let localFilters = initialFilters->Array.filter(item => item.localFilter->Option.isSome)
   let remoteOptions = options->Array.filter(item => item.localFilter->Option.isNone)
-  let defaultFilters = ""->Js.Json.string
+  let defaultFilters = ""->JSON.Encode.string
   let (showModal, setShowModal) = React.useState(_ => false)
 
   let {updateExistingKeys, filterValue, removeKeys} = React.useContext(FilterContext.filterContext)
 
-  let currentCustomFilterValue = filterValue->Dict.get(customFilterKey)->Option.getWithDefault("")
+  let currentCustomFilterValue = filterValue->Dict.get(customFilterKey)->Option.getOr("")
 
   let setCustomFilter = customFilter => {
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))

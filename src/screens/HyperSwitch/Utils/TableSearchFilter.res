@@ -20,14 +20,14 @@ let make = (
     setSearchVal(_ => value)
   }
 
-  let handleSubmit = (_, _) => {Js.Nullable.null->Js.Promise.resolve}
+  let handleSubmit = (_, _) => {Nullable.null->Js.Promise.resolve}
 
   let inputSearch: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",
     onBlur: _ev => (),
     onChange,
     onFocus: _ev => (),
-    value: searchVal->Js.Json.string,
+    value: searchVal->JSON.Encode.string,
     checked: true,
   }
 
@@ -35,7 +35,7 @@ let make = (
     <ReactFinalForm.Form
       subscription=ReactFinalForm.subscribeToValues
       onSubmit=handleSubmit
-      initialValues={""->Js.Json.string}
+      initialValues={""->JSON.Encode.string}
       render={_handleSubmit => {
         InputFields.textInput(
           ~input=inputSearch,

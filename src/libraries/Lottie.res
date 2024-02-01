@@ -1,10 +1,10 @@
 open LazyUtils
 
 type props = {
-  animationData: Js.Json.t,
+  animationData: JSON.t,
   autoplay: bool,
   loop: bool,
-  lottieRef?: React.ref<Js.Nullable.t<Dom.element>>,
+  lottieRef?: React.ref<Nullable.t<Dom.element>>,
   initialSegment?: array<int>,
 }
 

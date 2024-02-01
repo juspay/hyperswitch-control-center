@@ -1,12 +1,13 @@
+external toJson: Nullable.t<'a> => JSON.t = "%identity"
 type sortTyp = ASC | DSC
 type sortOb = {sortKey: string, sortType: sortTyp}
 type checkBoxProps = {
   showCheckBox: bool,
-  selectedData: Js.Array2.t<Js.Json.t>,
-  setSelectedData: (Js.Array2.t<Js.Json.t> => Js.Array2.t<Js.Json.t>) => unit,
+  selectedData: array<JSON.t>,
+  setSelectedData: (array<JSON.t> => array<JSON.t>) => unit,
 }
 let checkBoxPropDefaultVal: checkBoxProps
-let sortAtom: Recoil.recoilAtom<Js.Dict.t<sortOb>>
+let sortAtom: Recoil.recoilAtom<RescriptCore.Dict.t<sortOb>>
 let backgroundClass: string
 let useSortedObj: (
   string,
@@ -15,16 +16,16 @@ let useSortedObj: (
   option<Table.sortedObject>,
   (option<Table.sortedObject> => option<Table.sortedObject>) => unit,
 )
-// let sortArray: (Js.Array2.t<'a>, RescriptCoreFuture.Dict.key, Table.sortOrder) => Js.Array2.t<'a>
+let sortArray: (array<'a>, string, Table.sortOrder) => array<'a>
 type pageDetails = {offset: int, resultsPerPage: int}
-let table_pageDetails: Recoil.recoilAtom<Js.Dict.t<pageDetails>>
+let table_pageDetails: Recoil.recoilAtom<RescriptCore.Dict.t<pageDetails>>
 @react.component
 let make: (
-  ~visibleColumns: Js.Array2.t<'colType>=?,
+  ~visibleColumns: array<'a>=?,
   ~defaultSort: Table.sortedObject=?,
-  ~title: Js.Dict.key,
+  ~title: string,
   ~titleSize: NewThemeUtils.headingSize=?,
-  ~description: Js.String2.t=?,
+  ~description: string=?,
   ~tableActions: React.element=?,
   ~isTableActionBesideFilters: bool=?,
   ~hideFilterTopPortals: bool=?,
@@ -32,16 +33,16 @@ let make: (
   ~clearFormattedDataButton: React.element=?,
   ~bottomActions: React.element=?,
   ~showSerialNumber: bool=?,
-  ~actualData: Js.Array2.t<Js.Nullable.t<'t>>,
+  ~actualData: array<Nullable.t<'b>>,
   ~totalResults: int,
   ~resultsPerPage: int,
   ~offset: int,
-  ~setOffset: ('b => int) => unit,
+  ~setOffset: ('c => int) => unit,
   ~handleRefetch: unit => unit=?,
-  ~entity: EntityType.entityType<'colType, 't>,
-  ~onEntityClick: 't => unit=?,
-  ~onEntityDoubleClick: 't => unit=?,
-  ~onExpandClickData: 'onExpandClickData=?,
+  ~entity: EntityType.entityType<'a, 'b>,
+  ~onEntityClick: 'b => unit=?,
+  ~onEntityDoubleClick: 'b => unit=?,
+  ~onExpandClickData: 'd=?,
   ~currrentFetchCount: int,
   ~filters: React.element=?,
   ~showFilterBorder: bool=?,
@@ -57,22 +58,22 @@ let make: (
   ~tableDataLoading: bool=?,
   ~dataLoading: bool=?,
   ~advancedSearchComponent: React.element=?,
-  ~setData: ('c => option<Js.Array2.t<Js.Nullable.t<'t>>>) => unit=?,
-  ~setSummary: ('d => EntityType.summary) => unit=?,
-  ~customGetObjects: Js.Json.t => array<'a>=?,
+  ~setData: ('e => option<array<Nullable.t<'b>>>) => unit=?,
+  ~setSummary: ('f => EntityType.summary) => unit=?,
+  ~customGetObjects: JSON.t => array<'g>=?,
   ~dataNotFoundComponent: React.element=?,
-  ~renderCard: (~index: int, ~item: 't, ~onRowClick: React.callback<int, unit>) => React.element=?,
+  ~renderCard: (~index: int, ~item: 'b, ~onRowClick: React.callback<int, unit>) => React.element=?,
   ~tableLocalFilter: bool=?,
   ~tableheadingClass: string=?,
   ~tableBorderClass: string=?,
   ~tableDataBorderClass: string=?,
   ~collapseTableRow: bool=?,
-  ~getRowDetails: Js.Nullable.t<'t> => React.element=?,
-  ~onMouseEnter: 't => unit=?,
-  ~onMouseLeave: 't => unit=?,
+  ~getRowDetails: Nullable.t<'b> => React.element=?,
+  ~onMouseEnter: 'b => unit=?,
+  ~onMouseLeave: 'b => unit=?,
   ~frozenUpto: int=?,
   ~heightHeadingClass: string=?,
-  ~highlightText: Js.String.t=?,
+  ~highlightText: string=?,
   ~enableEqualWidthCol: bool=?,
   ~clearFormatting: bool=?,
   ~rowHeightClass: string=?,
@@ -82,7 +83,7 @@ let make: (
   ~rowCustomClass: string=?,
   ~isHighchartLegend: bool=?,
   ~filterObj: array<Table.filterObject>=?,
-  ~setFilterObj: (array<Table.filterObject> => Js.Array2.t<Table.filterObject>) => unit=?,
+  ~setFilterObj: (array<Table.filterObject> => array<Table.filterObject>) => unit=?,
   ~headingCenter: bool=?,
   ~filterIcon: React.element=?,
   ~filterDropdownClass: string=?,
@@ -104,7 +105,7 @@ let make: (
   ~headerCustomBgColor: string=?,
   ~alignCellContent: string=?,
   ~minTableHeightClass: string=?,
-  ~setExtFilteredDataLength: ('f => int) => unit=?,
+  ~setExtFilteredDataLength: ('h => int) => unit=?,
   ~filterDropdownMaxHeight: string=?,
   ~showResultsPerPageSelector: bool=?,
   ~customCellColor: string=?,

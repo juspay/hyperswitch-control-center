@@ -1,13 +1,13 @@
 open Promise
 type sessionStorage = {
-  getItem: (. string) => Js.Nullable.t<string>,
+  getItem: (. string) => Nullable.t<string>,
   setItem: (. string, string) => unit,
   removeItem: (. string) => unit,
 }
 
 @val external sessionStorage: sessionStorage = "sessionStorage"
 
-external dictToObj: Js.Dict.t<'a> => {..} = "%identity"
+external dictToObj: Dict.t<'a> => {..} = "%identity"
 @val external atob: string => string = "atob"
 
 let headersForXFeature = (~uri, ~headers) => {
@@ -19,7 +19,7 @@ let headersForXFeature = (~uri, ~headers) => {
 }
 
 let getHeaders = (~uri, ~headers, ~xFeatureRoute, ()) => {
-  let hyperSwitchToken = LocalStorage.getItem("login")->Js.Nullable.toOption
+  let hyperSwitchToken = LocalStorage.getItem("login")->Nullable.toOption
   let isMixpanel = uri->String.includes("mixpanel")
 
   let headerObj = if isMixpanel {
@@ -35,6 +35,7 @@ let getHeaders = (~uri, ~headers, ~xFeatureRoute, ()) => {
     | Some(token) => {
         headers->Dict.set("authorization", `Bearer ${token}`)
         headers->Dict.set("api-key", `hyperswitch`)
+        headers->Dict.set("Content-Type", `application/json`)
       }
     | None => ()
     }
@@ -42,9 +43,6 @@ let getHeaders = (~uri, ~headers, ~xFeatureRoute, ()) => {
   }
   Fetch.HeadersInit.make(headerObj->dictToObj)
 }
-
-@val @scope(("window", "location"))
-external hostName: string = "host"
 
 type betaEndpoint = {
   betaApiStr: string,

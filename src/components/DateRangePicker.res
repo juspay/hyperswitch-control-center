@@ -64,11 +64,11 @@ let getFormattedDate = (date, format) => {
 let isStartBeforeEndDate = (start, end) => {
   let getDate = date => {
     let datevalue = Js.Date.makeWithYMD(
-      ~year=Js.Float.fromString(date[0]->Option.getWithDefault("")),
+      ~year=Js.Float.fromString(date[0]->Option.getOr("")),
       ~month=Js.Float.fromString(
-        String.make(Js.Float.fromString(date[1]->Option.getWithDefault("")) -. 1.0),
+        String.make(Js.Float.fromString(date[1]->Option.getOr("")) -. 1.0),
       ),
-      ~date=Js.Float.fromString(date[2]->Option.getWithDefault("")),
+      ~date=Js.Float.fromString(date[2]->Option.getOr("")),
       (),
     )
     datevalue
@@ -231,7 +231,7 @@ module Base = {
       switch dateRangeLimit {
       | Some(maxLen) => {
           let diff = getStartEndDiff(localStartDate, localEndDate)
-          if diff > (maxLen->Belt.Int.toFloat *. 24. *. 60. *. 60. -. 1.) *. 1000. {
+          if diff > (maxLen->Int.toFloat *. 24. *. 60. *. 60. -. 1.) *. 1000. {
             setShowMsg(_ => true)
             resetStartEndInput()
           }
@@ -242,8 +242,8 @@ module Base = {
       None
     }, (localStartDate, localEndDate))
 
-    let dateRangeRef = React.useRef(Js.Nullable.null)
-    let dropdownRef = React.useRef(Js.Nullable.null)
+    let dateRangeRef = React.useRef(Nullable.null)
+    let dropdownRef = React.useRef(Nullable.null)
 
     useErroryValueResetter(startDateVal, setStartDateVal)
     useErroryValueResetter(endDateVal, setEndDateVal)
@@ -291,9 +291,9 @@ module Base = {
         setEndDateVal(_ => "")
       } else {
         let endDateSplit = String.split(ele, "-")
-        let endDateDate = endDateSplit[2]->Option.getWithDefault("")
-        let endDateYear = endDateSplit[0]->Option.getWithDefault("")
-        let endDateMonth = endDateSplit[1]->Option.getWithDefault("")
+        let endDateDate = endDateSplit[2]->Option.getOr("")
+        let endDateYear = endDateSplit[0]->Option.getOr("")
+        let endDateMonth = endDateSplit[1]->Option.getOr("")
         let splitTime = switch time {
         | Some(val) => val
         | None =>
@@ -305,9 +305,9 @@ module Base = {
         }
 
         let timeSplit = String.split(splitTime, ":")
-        let timeHour = timeSplit->Belt.Array.get(0)->Option.getWithDefault("00")
-        let timeMinute = timeSplit->Belt.Array.get(1)->Option.getWithDefault("00")
-        let timeSecond = timeSplit->Belt.Array.get(2)->Option.getWithDefault("00")
+        let timeHour = timeSplit->Array.get(0)->Option.getOr("00")
+        let timeMinute = timeSplit->Array.get(1)->Option.getOr("00")
+        let timeSecond = timeSplit->Array.get(2)->Option.getOr("00")
         let endDateTimeCheck = customTimezoneToISOString(
           endDateYear,
           endDateMonth,
@@ -322,9 +322,9 @@ module Base = {
     let changeStartDate = (ele, isFromCustomInput, time) => {
       let setDate = str => {
         let startDateSplit = String.split(str, "-")
-        let startDateDay = startDateSplit[2]->Option.getWithDefault("")
-        let startDateYear = startDateSplit[0]->Option.getWithDefault("")
-        let startDateMonth = startDateSplit[1]->Option.getWithDefault("")
+        let startDateDay = startDateSplit[2]->Option.getOr("")
+        let startDateYear = startDateSplit[0]->Option.getOr("")
+        let startDateMonth = startDateSplit[1]->Option.getOr("")
         let splitTime = switch time {
         | Some(val) => val
         | None =>
@@ -335,9 +335,9 @@ module Base = {
           }
         }
         let timeSplit = String.split(splitTime, ":")
-        let timeHour = timeSplit->Belt.Array.get(0)->Option.getWithDefault("00")
-        let timeMinute = timeSplit->Belt.Array.get(1)->Option.getWithDefault("00")
-        let timeSecond = timeSplit->Belt.Array.get(2)->Option.getWithDefault("00")
+        let timeHour = timeSplit->Array.get(0)->Option.getOr("00")
+        let timeMinute = timeSplit->Array.get(1)->Option.getOr("00")
+        let timeSecond = timeSplit->Array.get(2)->Option.getOr("00")
         let startDateTimeCheck = customTimezoneToISOString(
           startDateYear,
           startDateMonth,
@@ -385,9 +385,9 @@ module Base = {
     }
 
     let onDateClick = str => {
-      let data = switch Belt.Array.getBy(clickedDates, x => x == str) {
+      let data = switch Array.find(clickedDates, x => x == str) {
       | Some(_d) => Belt.Array.keep(clickedDates, x => x != str)
-      | None => Belt.Array.concat(clickedDates, [str])
+      | None => Array.concat(clickedDates, [str])
       }
       let dat = data->Array.map(x => x)
       setClickedDates(_ => dat)
@@ -452,7 +452,7 @@ module Base = {
         }
       },
       onFocus: _ev => (),
-      value: localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)->Js.Json.string,
+      value: localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)->JSON.Encode.string,
       checked: false,
     }
     let endTimeInput: ReactFinalForm.fieldRenderPropsInput = {
@@ -474,7 +474,7 @@ module Base = {
         }
       },
       onFocus: _ev => (),
-      value: localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)->Js.Json.string,
+      value: localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)->JSON.Encode.string,
       checked: false,
     }
 
@@ -507,17 +507,13 @@ module Base = {
 
     let endTimeStr = {
       let timeArr = endTimeStr->String.split(":")
-      let endTimeTxt = `${timeArr[0]->Option.getWithDefault(
-          "00",
-        )}:${timeArr[1]->Option.getWithDefault("00")}`
-      showSeconds ? `${endTimeTxt}:${timeArr[2]->Option.getWithDefault("00")}` : endTimeTxt
+      let endTimeTxt = `${timeArr[0]->Option.getOr("00")}:${timeArr[1]->Option.getOr("00")}`
+      showSeconds ? `${endTimeTxt}:${timeArr[2]->Option.getOr("00")}` : endTimeTxt
     }
     let startTimeStr = {
       let timeArr = startTimeStr->String.split(":")
-      let startTimeTxt = `${timeArr[0]->Option.getWithDefault(
-          "00",
-        )}:${timeArr[1]->Option.getWithDefault("00")}`
-      showSeconds ? `${startTimeTxt}:${timeArr[2]->Option.getWithDefault("00")}` : startTimeTxt
+      let startTimeTxt = `${timeArr[0]->Option.getOr("00")}:${timeArr[1]->Option.getOr("00")}`
+      showSeconds ? `${startTimeTxt}:${timeArr[2]->Option.getOr("00")}` : startTimeTxt
     }
 
     let buttonText = {
@@ -615,7 +611,7 @@ module Base = {
       None
     }, (startDate, endDate, localStartDate, localEndDate))
 
-    let btnStyle = customButtonStyle->Option.getWithDefault("")
+    let btnStyle = customButtonStyle->Option.getOr("")
 
     let customStyleForBtn = btnStyle->String.length > 0 ? btnStyle : ""
 
@@ -667,8 +663,7 @@ module Base = {
       switch dateRangeLimit {
       | Some(limit) =>
         predefinedDays->Array.filter(item => {
-          getDiffForPredefined(item) <=
-          (limit->Belt.Float.fromInt *. 24. *. 60. *. 60. -. 1.) *. 1000.
+          getDiffForPredefined(item) <= (limit->Float.fromInt *. 24. *. 60. *. 60. -. 1.) *. 1000.
         })
       | None => predefinedDays
       }
@@ -791,8 +786,8 @@ module Base = {
                     </div>
                   } else if showMsg {
                     let msg = `Date Range should not exceed ${dateRangeLimit
-                      ->Option.getWithDefault(0)
-                      ->Belt.Int.toString} days`
+                      ->Option.getOr(0)
+                      ->Int.toString} days`
                     <span className="w-full flex flex-row items-center mr-0 text-red-500">
                       <FormErrorIcon />
                       {React.string(msg)}
@@ -834,7 +829,7 @@ module Base = {
               text={isMobileView && textHideInMobileView ? "" : buttonText}
               leftIcon={FontAwesome(calendarIcon)}
               rightIcon={CustomIcon(iconElement)}
-              buttonSize=Small
+              buttonSize=XSmall
               isDropdownOpen=isDropdownExpandedActual
               onClick={_ => handleDropdownClick()}
               iconBorderColor={customborderCSS}
@@ -867,7 +862,7 @@ module Base = {
 
 let useStateForInput = (input: ReactFinalForm.fieldRenderPropsInput) => {
   React.useMemo1(() => {
-    let val = input.value->Js.Json.decodeString->Option.getWithDefault("")
+    let val = input.value->JSON.Decode.string->Option.getOr("")
     let onChange = fn => {
       let newVal = fn(val)
       input.onChange(newVal->Identity.stringToFormReactEvent)

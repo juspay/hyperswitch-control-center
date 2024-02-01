@@ -36,7 +36,7 @@ module PaymentResponseHashKeyArea = {
     let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
 
     <HelperComponents.KeyAndCopyArea
-      copyValue={detail.payment_response_hash_key->Option.getWithDefault("")}
+      copyValue={detail.payment_response_hash_key->Option.getOr("")}
     />
   }
 }
@@ -58,11 +58,11 @@ module DownloadAPIKeyButton = {
         let url = APIUtils.getURL(~entityName=API_KEYS, ~methodType=Post, ())
         let body =
           [
-            ("name", "DefaultAPIKey"->Js.Json.string),
-            ("description", "Default Value of the API key"->Js.Json.string),
-            ("expiration", "never"->Js.Json.string),
+            ("name", "DefaultAPIKey"->JSON.Encode.string),
+            ("description", "Default Value of the API key"->JSON.Encode.string),
+            ("expiration", "never"->JSON.Encode.string),
           ]->Dict.fromArray
-        let res = await updateDetails(url, body->Js.Json.object_, Post, ())
+        let res = await updateDetails(url, body->JSON.Encode.object, Post, ())
         let apiKey = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("api_key", "")
         DownloadUtils.downloadOld(~fileName=`apiKey.txt`, ~content=apiKey)
         Clipboard.writeText(apiKey)
@@ -244,7 +244,7 @@ module BackendFrontendPlatformLangDropDown = {
         setPlatform(_ => val)
       },
       onFocus: _ev => (),
-      value: (platform :> string)->Js.Json.string,
+      value: (platform :> string)->JSON.Encode.string,
       checked: true,
     }
     let options = platforms->Array.map((op): SelectBox.dropdownOption => {
@@ -259,7 +259,7 @@ module BackendFrontendPlatformLangDropDown = {
         setBackEndLang(_ => val)
       },
       onFocus: _ev => (),
-      value: (backEndLang :> string)->Js.Json.string,
+      value: (backEndLang :> string)->JSON.Encode.string,
       checked: true,
     }
     let frontendLangInput: ReactFinalForm.fieldRenderPropsInput = {
@@ -270,7 +270,7 @@ module BackendFrontendPlatformLangDropDown = {
         setFrontEndLang(_ => val)
       },
       onFocus: _ev => (),
-      value: (frontEndLang :> string)->Js.Json.string,
+      value: (frontEndLang :> string)->JSON.Encode.string,
       checked: true,
     }
     let (frontendLangauge, backendLangauge) = currentRoute->getLanguages
@@ -281,7 +281,7 @@ module BackendFrontendPlatformLangDropDown = {
       backEndLang === #ChooseLanguage ? "Choose Backend" : (backEndLang :> string)
     }
 
-    <Form initialValues={Dict.make()->Js.Json.object_}>
+    <Form initialValues={Dict.make()->JSON.Encode.object}>
       <div className="flex flex-row gap-4 flex-wrap">
         <UIUtils.RenderIf condition={!isFromLanding && currentRoute !== SampleProjects}>
           <SelectBox.BaseDropdown
@@ -401,7 +401,7 @@ module LandingPageTileForIntegrateDocs = {
     let redirect = () => {
       if customRedirection->Option.isSome {
         RescriptReactRouter.replace(
-          `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${customRedirection->Option.getWithDefault(
+          `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${customRedirection->Option.getOr(
               "",
             )}?type=${url}`,
         )
@@ -414,7 +414,7 @@ module LandingPageTileForIntegrateDocs = {
     let skipAndContinue = async () => {
       try {
         let url = getURL(~entityName=INTEGRATION_DETAILS, ~methodType=Post, ())
-        let metaDataDict = Dict.fromArray([("is_skip", true->Js.Json.boolean)])->Js.Json.object_
+        let metaDataDict = Dict.fromArray([("is_skip", true->JSON.Encode.bool)])->JSON.Encode.object
         let body = HSwitchUtils.constructOnboardingBody(
           ~dashboardPageState,
           ~integrationDetails,
@@ -441,20 +441,20 @@ module LandingPageTileForIntegrateDocs = {
             <Icon size=35 name=headerIcon className=customIconCss />
           }}
           <UIUtils.RenderIf condition={rightIcon->Option.isSome}>
-            {rightIcon->Option.getWithDefault(React.null)}
+            {rightIcon->Option.getOr(React.null)}
           </UIUtils.RenderIf>
           {leftSection}
         </div>
         <div className="flex flex-col gap-2">
           <p className=headerTextCss> {headerText->React.string} </p>
           <UIUtils.RenderIf condition={subText->Option.isSome}>
-            <p className=subTextCss> {subText->Option.getWithDefault("")->React.string} </p>
+            <p className=subTextCss> {subText->Option.getOr("")->React.string} </p>
           </UIUtils.RenderIf>
           <div>
             <UIUtils.RenderIf condition={subTextCustomValues->Option.isSome}>
               <div className={`flex flex-col gap-3 mt-4`}>
                 {subTextCustomValues
-                ->Option.getWithDefault([])
+                ->Option.getOr([])
                 ->Array.mapWithIndex((val, index) => {
                   <div key={index->string_of_int} className=subTextCss> {val->React.string} </div>
                 })
@@ -530,30 +530,30 @@ module Section = {
                 headerIcon=subSectionValue.headerIcon
                 customIconCss=subSectionValue.customIconCss
                 url=subSectionValue.url
-                displayFrontendLang={subSectionValue.displayFrontendLang->Option.getWithDefault("")}
-                displayBackendLang={subSectionValue.displayBackendLang->Option.getWithDefault("")}
+                displayFrontendLang={subSectionValue.displayFrontendLang->Option.getOr("")}
+                displayBackendLang={subSectionValue.displayBackendLang->Option.getOr("")}
               />
             : <LandingPageTileForIntegrateDocs
                 key={index->string_of_int}
                 headerIcon=subSectionValue.headerIcon
-                headerText={subSectionValue.headerText->Option.getWithDefault("")}
+                headerText={subSectionValue.headerText->Option.getOr("")}
                 subText=subSectionValue.subText
                 buttonText=subSectionValue.buttonText
                 customIconCss=subSectionValue.customIconCss
                 url=subSectionValue.url
-                isIconImg={subSectionValue.isIconImg->Option.getWithDefault(false)}
-                imagePath={subSectionValue.imagePath->Option.getWithDefault("")}
+                isIconImg={subSectionValue.isIconImg->Option.getOr(false)}
+                imagePath={subSectionValue.imagePath->Option.getOr("")}
                 leftSection={<LanguageTag
-                  frontendLang={subSectionValue.frontEndLang->Option.getWithDefault("")}
-                  backendLang={subSectionValue.backEndLang->Option.getWithDefault("")}
+                  frontendLang={subSectionValue.frontEndLang->Option.getOr("")}
+                  backendLang={subSectionValue.backEndLang->Option.getOr("")}
                 />}
                 isFromOnboardingChecklist
                 subTextCustomValues=subSectionValue.subTextCustomValues
-                buttonType={subSectionValue.buttonType->Option.getWithDefault(Secondary)}
-                isSkipButton={subSectionValue.isSkipButton->Option.getWithDefault(false)}
-                isTileVisible={subSectionValue.isTileVisible->Option.getWithDefault(true)}
+                buttonType={subSectionValue.buttonType->Option.getOr(Secondary)}
+                isSkipButton={subSectionValue.isSkipButton->Option.getOr(false)}
+                isTileVisible={subSectionValue.isTileVisible->Option.getOr(true)}
                 rightIcon={subSectionValue.rightIcon}
-                customRedirection={customRedirection->Option.getWithDefault("")}
+                customRedirection={customRedirection->Option.getOr("")}
               />
         })
         ->React.array}

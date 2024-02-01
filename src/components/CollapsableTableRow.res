@@ -43,8 +43,8 @@ let make = (
           let borderClass = `${borderTop} border-jp-gray-500 dark:border-jp-gray-960`
           let hCell = highlightCell ? "hover:font-bold" : ""
           let cursorI = cellIndex == 0 ? "cursor-pointer" : ""
-          let location = `${title}_tr${(rowIndex + 1)->Belt.Int.toString}_td${(cellIndex + 1)
-              ->Belt.Int.toString}`
+          let location = `${title}_tr${(rowIndex + 1)->Int.toString}_td${(cellIndex + 1)
+              ->Int.toString}`
           <AddDataAttributes
             key={cellIndex->string_of_int} attributes=[("data-table-location", location)]>
             <td
@@ -69,8 +69,7 @@ let make = (
         ->React.array}
       </tr>
       <UIUtils.RenderIf condition=isCurrentRowExpanded>
-        <AddDataAttributes
-          attributes=[("data-table-row-expanded", (rowIndex + 1)->Belt.Int.toString)]>
+        <AddDataAttributes attributes=[("data-table-row-expanded", (rowIndex + 1)->Int.toString)]>
           <tr className="dark:border-jp-gray-dark_disable_border_color">
             <td colSpan=12 className=""> {getRowDetails(rowIndex)} </td>
           </tr>
@@ -81,7 +80,7 @@ let make = (
       <div className="px-3 py-4 bg-white dark:bg-jp-gray-lightgray_background">
         {item
         ->Array.mapWithIndex((obj, index) => {
-          let heading = headingArray->Belt.Array.get(index)->Option.getWithDefault("")
+          let heading = headingArray->Array.get(index)->Option.getOr("")
           <UIUtils.RenderIf condition={index !== 0} key={index->string_of_int}>
             <div className="flex mb-5 justify-between">
               <div className="text-jp-gray-900 opacity-50 font-medium">

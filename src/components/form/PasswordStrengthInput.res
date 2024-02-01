@@ -52,8 +52,8 @@ let make = (
         let localVariety = nonEmptyResult ? accVariety + 1 : 0
         let localScore =
           accScore +.
-          (test.weight *. result->Array.length->Belt.Int.toFloat +.
-          strVal->String.length->Belt.Int.toFloat *. 1.2)
+          (test.weight *. result->Array.length->Int.toFloat +.
+          strVal->String.length->Int.toFloat *. 1.2)
         (localVariety, localScore)
       })
 
