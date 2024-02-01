@@ -54,7 +54,7 @@ let make = (
   }
   let (passwordChecks, setPasswordChecks) = React.useState(_ => initialPasswordState)
   let (showValidation, setShowValidation) = React.useState(_ => false)
-  let modalRef = React.useRef(Js.Nullable.null)
+  let modalRef = React.useRef(Nullable.null)
 
   OutsideClick.useOutsideClick(
     ~refs={ArrayOfRef([modalRef])},

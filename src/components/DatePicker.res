@@ -20,7 +20,7 @@ let make = (
   ~showSeconds=true,
   ~fullLength=?,
 ) => {
-  let dropdownRef = React.useRef(Js.Nullable.null)
+  let dropdownRef = React.useRef(Nullable.null)
   let (isExpanded, setIsExpanded) = React.useState(_ => false)
   let customTimezoneToISOString = TimeZoneHook.useCustomTimeZoneToIsoString()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()

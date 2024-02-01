@@ -347,7 +347,7 @@ module Header = {
         <div
           onClick={_ => {
             form.resetFieldState("email")
-            form.reset(JSON.Encode.object(Dict.make())->Js.Nullable.return)
+            form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
             setAuthType(_ => authType)
             path->RescriptReactRouter.push
           }}

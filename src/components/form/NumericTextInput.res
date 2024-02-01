@@ -26,11 +26,11 @@ let make = (
   ~removeValidationCheck=?,
 ) => {
   let (localStrValue, setLocalStrValue) = React.useState(() => input.value)
-  let inputRef = React.useRef(Js.Nullable.null)
+  let inputRef = React.useRef(Nullable.null)
   React.useEffect2(() => {
     switch widthMatchwithPlaceholderLength {
     | Some(length) =>
-      switch inputRef.current->Js.Nullable.toOption {
+      switch inputRef.current->Nullable.toOption {
       | Some(elem) =>
         let size =
           elem

@@ -6,8 +6,7 @@ module ClearForm = {
     let form = ReactFinalForm.useForm()
     <div className="ml-2">
       <Button
-        text="Clear Form"
-        onClick={e => form.reset(JSON.Encode.object(Dict.make())->Js.Nullable.return)}
+        text="Clear Form" onClick={e => form.reset(JSON.Encode.object(Dict.make())->Nullable.make)}
       />
     </div>
   }
@@ -34,7 +33,7 @@ module ModalUI = {
             buttonType=SecondaryFilled
             buttonSize=Small
             onClick={_ev => {
-              form.reset(initialValueJson->Js.Nullable.return)
+              form.reset(initialValueJson->Nullable.make)
               setShowModal(_ => false)
             }}
           />
@@ -50,7 +49,7 @@ module ModalUI = {
       childClass="p-2 m-2"
       modalClass="w-full md:w-2/3 mx-auto mt-0"
       onCloseClickCustomFun={_ev => {
-        form.reset(initialValueJson->Js.Nullable.return)
+        form.reset(initialValueJson->Nullable.make)
         setShowModal(_ => false)
       }}
       modalFooter=footerUi>
@@ -123,7 +122,7 @@ module ClearFilters = {
     let leftIcon: Button.iconType = CustomIcon(<Icon name="clear_filter_img" size=14 />)
 
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values", "initialValues"])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values", "initialValues"])->Nullable.make,
     )
 
     let handleClearFilter = switch clearFilters {
@@ -193,7 +192,7 @@ module AnalyticsClearFilters = {
   let make = (~defaultFilterKeys=[], ~clearFilters=?, ~outsidefilter=false) => {
     let {updateExistingKeys} = React.useContext(FilterContext.filterContext)
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values", "initialValues"])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values", "initialValues"])->Nullable.make,
     )
 
     let handleClearFilter = switch clearFilters {
@@ -273,7 +272,7 @@ module CheckCustomFilters = {
     ~showSelectFiltersSearch,
   ) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let values = formState.values
 
@@ -323,7 +322,7 @@ module AutoSubmitter = {
   @react.component
   let make = (~showModal, ~autoApply, ~submit, ~defaultFilterKeys) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Nullable.make,
     )
 
     let values = formState.values
@@ -377,11 +376,7 @@ module ApplyFilterButton = {
       ->Dict.fromArray
 
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription([
-        "values",
-        "dirtyFields",
-        "initialValues",
-      ])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values", "dirtyFields", "initialValues"])->Nullable.make,
     )
 
     let formCurrentValues =
@@ -456,7 +451,7 @@ module FilterModal = {
   @react.component
   let make = (~selectedFiltersList: array<FormRenderer.fieldInfoType>, ~showAllFilter) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Js.Nullable.return,
+      ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Nullable.make,
     )
 
     let formCurrentValues = formState.values->LogicUtils.getDictFromJsonObject
@@ -724,7 +719,7 @@ let make = (
     open Promise
     setShowFiltersModal(_ => false)
     setShowModal(_ => false)
-    Js.Nullable.null->resolve
+    Nullable.null->resolve
   }
 
   let addFilters = newlyAdded => {
