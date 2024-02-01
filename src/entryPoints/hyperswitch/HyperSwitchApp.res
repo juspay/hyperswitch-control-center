@@ -382,12 +382,7 @@ let make = () => {
                           permission=userPermissionJson.merchantAccountWrite>
                           <HSwitchSettings />
                         </AccessControl>
-                      | list{"account-settings", "profile"} =>
-                        <AccessControl
-                          isEnabled=featureFlagDetails.sampleData
-                          permission=userPermissionJson.merchantAccountWrite>
-                          <HSwitchProfileSettings />
-                        </AccessControl>
+                      | list{"account-settings", "profile"} => <HSwitchProfileSettings />
                       | list{"business-details"} =>
                         <AccessControl
                           isEnabled=featureFlagDetails.default
