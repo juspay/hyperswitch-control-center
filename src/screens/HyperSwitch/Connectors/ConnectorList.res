@@ -24,21 +24,12 @@ module RequestConnector = {
 module CantFindProcessor = {
   @react.component
   let make = (~showRequestConnectorBtn, ~setShowModal) => {
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-
     <UIUtils.RenderIf condition={showRequestConnectorBtn}>
-      <ToolTip
-        description={userPermissionJson.merchantAccountWrite === Access ? "" : noAccessControlText}
-        toolTipFor={<div
-          onClick={_ =>
-            userPermissionJson.merchantAccountWrite === Access ? setShowModal(_ => true) : ()}
-          className={`text-blue-900 ${userPermissionJson.merchantAccountWrite === Access
-              ? "cursor-pointer"
-              : "cursor-default"} underline underline-offset-4 font-medium`}>
-          {"Can't find the processor of your choice?"->React.string}
-        </div>}
-        toolTipPosition={Top}
-      />
+      <div
+        onClick={_ => setShowModal(_ => true)}
+        className={`text-blue-900 underline underline-offset-4 font-medium`}>
+        {"Can't find the processor of your choice?"->React.string}
+      </div>
     </UIUtils.RenderIf>
   }
 }
@@ -122,6 +113,7 @@ module NewProcessorCards = {
               let size = "w-14 h-14 rounded-sm"
               <AddDataAttributes attributes=[("data-testid", connectorName->String.toLowerCase)]>
                 <div
+                  onClick={_ => handleClick(connectorName)}
                   key={i->string_of_int}
                   className="border p-6 gap-4 bg-white rounded flex flex-col justify-between">
                   <div className="flex flex-col gap-3 items-start">
@@ -138,6 +130,7 @@ module NewProcessorCards = {
                     text="+ Connect"
                     buttonType={Transparent}
                     buttonSize={Small}
+                    textStyle="text-jp-gray-900"
                   />
                 </div>
               </AddDataAttributes>
@@ -188,17 +181,13 @@ module NewProcessorCards = {
               let size = "w-14 h-14 rounded-sm"
               <ToolTip
                 key={i->string_of_int}
-                description={userPermissionJson.merchantConnectorAccountWrite === Access
-                  ? connectorName->LogicUtils.capitalizeString
-                  : noAccessControlTextForProcessors}
-                toolTipFor={<div
-                  className="p-2 cursor-pointer"
-                  onClick={_ =>
-                    userPermissionJson.merchantConnectorAccountWrite === Access
-                      ? handleClick(connectorName)
-                      : ()}>
-                  <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
-                </div>}
+                description={connectorName->LogicUtils.capitalizeString}
+                toolTipFor={<AddDataAttributes
+                  attributes=[("data-testid", connectorName->String.toLowerCase)]>
+                  <div className="p-2 cursor-pointer" onClick={_ => handleClick(connectorName)}>
+                    <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
+                  </div>
+                </AddDataAttributes>}
                 toolTipPosition={Top}
                 tooltipWidthClass="w-30"
               />
