@@ -480,7 +480,7 @@ module SelectBoxHeadlessUI = {
                     | Array(arr) => arr->Array.includes(option.value)
                     }
 
-                    <Menu.Item key={index->Js.Int.toString}>
+                    <Menu.Item key={index->Int.toString}>
                       {props =>
                         <div
                           onClick={ev => {

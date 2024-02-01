@@ -282,7 +282,7 @@ let responseHandler = async (
             popUpType: (Warning, WithIcon),
             heading: "Access Forbidden",
             description: {
-              "You do not have the required permissions to access this module. Please contact your administrator for necessary permissions."->React.string
+              HSwitchUtils.noAccessControlText->React.string
             },
             handleConfirm: {
               text: "Close",

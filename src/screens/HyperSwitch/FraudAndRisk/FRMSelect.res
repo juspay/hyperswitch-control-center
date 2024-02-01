@@ -3,6 +3,7 @@ module NewProcessorCards = {
   open FRMInfo
   @react.component
   let make = (~configuredFRMs: array<frmName>, ~showIcons: bool) => {
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let frmAvailableForIntegration = frmList
     let unConfiguredFRMs =
       frmAvailableForIntegration->Array.filter(total =>
@@ -38,13 +39,12 @@ module NewProcessorCards = {
               <div className="overflow-hidden text-gray-400 flex-1 mb-6">
                 {frmInfo.description->React.string}
               </div>
-              <Button
-                text="+  Connect"
-                buttonType={Secondary}
-                buttonSize={Small}
-                onClick={_ => {
-                  handleClick(frmName)
-                }}
+              <ACLButton
+                text="+ Connect"
+                access=userPermissionJson.merchantConnectorAccountWrite
+                buttonType=Secondary
+                buttonSize=Small
+                onClick={_ => handleClick(frmName)}
               />
             </CardUtils.CardLayout>
           })

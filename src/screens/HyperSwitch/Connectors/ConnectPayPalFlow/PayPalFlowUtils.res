@@ -46,7 +46,7 @@ let stringToVariantMapper = strValue => {
   open PayPalFlowTypes
   switch strValue {
   | "account_not_found" => Account_not_found
-  | "payments_not_receivables" => Payments_not_receivable
+  | "payments_not_receivable" => Payments_not_receivable
   | "ppcp_custom_denied" => Ppcp_custom_denied
   | "more_permissions_needed" => More_permissions_needed
   | "email_not_verified" => Email_not_verified

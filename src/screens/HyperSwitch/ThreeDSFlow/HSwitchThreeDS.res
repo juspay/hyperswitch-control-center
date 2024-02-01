@@ -111,6 +111,7 @@ let make = () => {
   let (pageView, setPageView) = React.useState(_ => NEW)
   let showPopUp = PopUpState.useShowPopUp()
   let (showWarning, setShowWarning) = React.useState(_ => true)
+  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
   let getWasm = async () => {
     try {
@@ -301,11 +302,12 @@ let make = () => {
             <p className="text-base font-normal text-grey-700 opacity-50">
               {"Create advanced rules using various payment parameters like amount, currency,payment method etc to enforce 3DS authentication for specific payments to reduce fraudulent transactions"->React.string}
             </p>
-            <Button
+            <ACLButton
               text="Create New"
-              buttonType={Primary}
+              access=userPermissionJson.threeDsDecisionManagerWrite
+              buttonType=Primary
               customButtonStyle="!w-1/6"
-              leftIcon={FontAwesome("plus")}
+              leftIcon=FontAwesome("plus")
               onClick={_ => handleCreateNew()}
             />
           </div>

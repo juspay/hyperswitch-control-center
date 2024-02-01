@@ -60,6 +60,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
+  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let (uid, setUid) = React.useState(() => None)
   let (merchantInfo, setMerchantInfo) = React.useState(() => Dict.make())
   let (formState, setFormState) = React.useState(_ => Preview)
@@ -149,7 +150,8 @@ let make = () => {
           </div>
           {switch formState {
           | Preview =>
-            <Button
+            <ACLButton
+              access={userPermissionJson.merchantAccountWrite}
               text="Edit"
               onClick={_ => setFormState(_ => Edit)}
               buttonType=Primary

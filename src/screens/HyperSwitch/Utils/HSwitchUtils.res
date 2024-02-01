@@ -248,3 +248,6 @@ let checkWooCommerce = (enumDetails: QuickStartTypes.responseType) => {
   enumDetails.setupWoocomWebhook &&
   enumDetails.firstProcessorConnected.processorID->String.length > 0
 }
+
+let noAccessControlText = "You do not have the required permissions to access this module. Please contact your admin."
+let noAccessControlTextForProcessors = "You do not have the required permissions to connect this processor. Please contact admin."
