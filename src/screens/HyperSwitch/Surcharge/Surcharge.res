@@ -137,9 +137,9 @@ let make = () => {
 
       setInitialRule(_ => Some(intitialValue))
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
-      Js.Exn.raiseError(err)
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Something went wrong")
+      Exn.raiseError(err)
     }
   }
 
@@ -150,8 +150,8 @@ let make = () => {
       await activeRoutingDetails()
       setScreenState(_ => Success)
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
         if err->String.includes("HE_02") {
           setShowWarning(_ => false)
           setPageView(_ => LANDING)
@@ -184,8 +184,8 @@ let make = () => {
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       showToast(~message=err, ~toastType=ToastError, ())
     }
     Nullable.null

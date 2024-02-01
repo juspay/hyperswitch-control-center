@@ -98,8 +98,8 @@ let make = (
         (),
       )
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       showToast(~message=err, ~toastType=ToastError, ())
       setButtonState(_ => Normal)
     }

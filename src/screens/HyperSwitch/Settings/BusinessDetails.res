@@ -83,8 +83,8 @@ let make = () => {
       showToast(~message=`Successfully updated business details`, ~toastType=ToastSuccess, ())
       setFetchState(_ => Success)
     } catch {
-    | Js.Exn.Error(e) =>
-      switch Js.Exn.message(e) {
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
       | Some(message) => setFetchState(_ => Error(message))
       | None => setFetchState(_ => Error("Something went wrong!"))
       }
@@ -102,8 +102,8 @@ let make = () => {
       setMerchantInfo(_ => merchantInfo)
       setFetchState(_ => Success)
     } catch {
-    | Js.Exn.Error(e) =>
-      switch Js.Exn.message(e) {
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
       | Some(message) => setFetchState(_ => Error(message))
       | None => setFetchState(_ => Error("Something went wrong!"))
       }

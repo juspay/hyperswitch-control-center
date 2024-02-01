@@ -6,7 +6,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
 
   let isMobileView = MatchMedia.useMobileChecker()
   let (dropDownVal, setDropDownVal) = React.useState(_ => "1-10")
-  let total = Js.Math.ceil(Int.toFloat(totalResults) /. Int.toFloat(resultsPerPage))
+  let total = Math.ceil(Int.toFloat(totalResults) /. Int.toFloat(resultsPerPage))->Float.toInt
 
   for x in 1 to total {
     Array.push(pageNumbers, x)->ignore
@@ -41,8 +41,8 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
       : ranges->Array.push(start->Int.toString ++ "-" ++ totalResults->Int.toString)->ignore
   }
 
-  let startIndex = Js.Math.max_int(1, currentPage - pageToLeft)
-  let endIndex = Js.Math.min_int(startIndex + btnCount, total)
+  let startIndex = Math.Int.max(1, currentPage - pageToLeft)
+  let endIndex = Math.Int.min(startIndex + btnCount, total)
 
   let nonEmpty = s => s >= startIndex && s <= endIndex
 
@@ -63,7 +63,7 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
             Disabled
           }}
           customButtonStyle="!h-10"
-          onClick={_evt => paginate(Js.Math.max_int(1, currentPage - 1))}
+          onClick={_evt => paginate(Math.Int.max(1, currentPage - 1))}
         />
         {pageNumbers
         ->Array.filter(nonEmpty)

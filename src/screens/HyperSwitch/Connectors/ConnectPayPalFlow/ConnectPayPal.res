@@ -32,8 +32,8 @@ module PayPalCreateNewAccountModal = {
       try {
         Window.payPalCreateAccountWindow()
       } catch {
-      | Js.Exn.Error(e) =>
-        switch Js.Exn.message(e) {
+      | Exn.Error(e) =>
+        switch Exn.message(e) {
         | Some(message) => setScreenState(_ => PageLoaderWrapper.Error(message))
         | None => setScreenState(_ => PageLoaderWrapper.Error("Failed to load paypal window!"))
         }
@@ -324,10 +324,10 @@ let make = (
       setScreenState(_ => Success)
       RescriptReactRouter.replace(`/connectors/${connectorId}?name=paypal`)
     } catch {
-    | Js.Exn.Error(e) =>
-      switch Js.Exn.message(e) {
-      | Some(message) => Js.Exn.raiseError(message)
-      | None => Js.Exn.raiseError("")
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
+      | Some(message) => Exn.raiseError(message)
+      | None => Exn.raiseError("")
       }
     }
   }
@@ -358,7 +358,7 @@ let make = (
       }
       setScreenState(_ => Success)
     } catch {
-    | Js.Exn.Error(_) => setScreenState(_ => Error("Unable to change the configuartion"))
+    | Exn.Error(_) => setScreenState(_ => Error("Unable to change the configuartion"))
     }
   }
 
@@ -409,8 +409,8 @@ let make = (
         }
       }
     } catch {
-    | Js.Exn.Error(e) =>
-      switch Js.Exn.message(e) {
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
       | Some(message) => {
           let errMsg = message->parseIntoMyData
           if errMsg.code->Option.getOr("")->String.includes("HE_01") {

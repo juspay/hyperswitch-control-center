@@ -376,7 +376,7 @@ let shortNum = (
   (),
 ) => {
   open CurrencyFormatUtils
-  let value = Js.Math.abs_float(labelValue)
+  let value = Math.abs(labelValue)
 
   switch numberFormat {
   | IND =>

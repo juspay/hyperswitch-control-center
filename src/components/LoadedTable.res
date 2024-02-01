@@ -487,7 +487,7 @@ let make = (
                 filterValueArray->Array.map(item => item->JSON.Decode.float->Option.getOr(0.))
 
               if newArr->Array.length >= 1 {
-                Table.Range(key, Js.Math.minMany_float(newArr), Js.Math.maxMany_float(newArr))
+                Table.Range(key, Math.minMany(newArr), Math.maxMany(newArr))
               } else {
                 Table.Range(key, 0.0, 0.0)
               }

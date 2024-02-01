@@ -44,7 +44,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
         showToast(~message="Failed to send an email, Try again", ~toastType=ToastError, ())
       }
     } catch {
-    | Js.Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
+    | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
     }
     Nullable.null
   }
@@ -63,7 +63,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
         setAuthStatus(LoggedOut)
       }
     } catch {
-    | Js.Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
+    | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
     }
     Nullable.null
   }
