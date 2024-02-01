@@ -20,8 +20,8 @@ let useGetOrdersData = (orderId, refetchCounter, setScreenState) => {
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     } catch {
-    | Js.Exn.Error(e) =>
-      switch Js.Exn.message(e) {
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
       | Some(message) =>
         if message->String.includes("HE_02") {
           setScreenState(_ => Custom)

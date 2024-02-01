@@ -117,7 +117,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
 let serverHandlerWrapper = (req, res) => {
   try {serverHandler(req, res)} catch {
   | err => {
-      let err = err->Js.Exn.asJsExn->Option.flatMap(Js.Exn.message)->Option.getOr("Error Found")
+      let err = err->Exn.asJsExn->Option.flatMap(Exn.message)->Option.getOr("Error Found")
       res.writeHead(. 200, Http.makeHeader({"Content-Type": "text/plain"}))
       `Error : ${err}`->res.write(. _)
       res.end(.)

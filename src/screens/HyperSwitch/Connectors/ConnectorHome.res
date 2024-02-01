@@ -84,11 +84,11 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       let json = await fetchDetails(connectorUrl)
       setInitialValues(_ => json)
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
-        Js.Exn.raiseError(err)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to update!")
+        Exn.raiseError(err)
       }
-    | _ => Js.Exn.raiseError("Something went wrong")
+    | _ => Exn.raiseError("Something went wrong")
     }
   }
 
@@ -105,7 +105,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       | _ =>
         switch profileIdFromUrl {
         | Some(profileIdValue) => profileIdValue
-        | _ => Js.Exn.raiseError("Profile Id not found!")
+        | _ => Exn.raiseError("Profile Id not found!")
         }
       }
 
@@ -131,8 +131,8 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       if err->String.includes("Profile") {
         showToast(~message="Profile Id not found. Try Again", ~toastType=ToastError, ())
       }
@@ -173,8 +173,8 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       }
       determinePageState()
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
         setScreenState(_ => Error(err))
       }
     | _ => setScreenState(_ => Error("Something went wrong"))

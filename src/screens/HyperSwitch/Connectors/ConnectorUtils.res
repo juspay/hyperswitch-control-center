@@ -1076,9 +1076,9 @@ let useFetchConnectorList = () => {
       setConnectorList(._ => stringifiedResponse)
       res
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Js.Exn.raiseError(err)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
       }
     }
   }
@@ -1166,8 +1166,8 @@ let getConnectorPaymentMethodDetails = async (
       updateDetails,
     )
   } catch {
-  | Js.Exn.Error(e) => {
-      let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
+  | Exn.Error(e) => {
+      let err = Exn.message(e)->Option.getOr("Something went wrong")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }

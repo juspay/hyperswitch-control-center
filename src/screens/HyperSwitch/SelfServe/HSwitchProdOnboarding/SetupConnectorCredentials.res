@@ -101,8 +101,8 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       setConnectorDetails(_ => val)
       setScreenState(_ => Success)
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Something went wrong!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Something went wrong!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -211,12 +211,12 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       connectorId->updateSetupConnectorCredentials->ignore
       setIsLoading(_ => false)
     } catch {
-    | Js.Exn.Error(e) => {
+    | Exn.Error(e) => {
         setIsLoading(_ => false)
         setShowVerifyModal(_ => false)
         setVerifyDone(_ => ConnectorTypes.NoAttempt)
         setPageView(_ => SELECT_PROCESSOR)
-        switch Js.Exn.message(e) {
+        switch Exn.message(e) {
         | Some(message) =>
           if message->String.includes("HE_01") {
             showToast(
@@ -273,9 +273,9 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       onSubmitMain(values)->ignore
       setIsLoading(_ => false)
     } catch {
-    | Js.Exn.Error(e) =>
+    | Exn.Error(e) =>
       setIsLoading(_ => false)
-      switch Js.Exn.message(e) {
+      switch Exn.message(e) {
       | Some(message) => {
           let errorMessage = message->parseIntoMyData
           setVerifyErrorMessage(_ => errorMessage.message)

@@ -163,9 +163,9 @@ module ConnectorSummaryGrid = {
           Dict.make()->JSON.Encode.object
         }
       } catch {
-      | Js.Exn.Error(e) => {
+      | Exn.Error(e) => {
           Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
-          let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
+          let err = Exn.message(e)->Option.getOr("Something went wrong")
           setScreenState(_ => PageLoaderWrapper.Error(err))
           Dict.make()->JSON.Encode.object
         }
@@ -297,8 +297,7 @@ let make = (
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
       RescriptReactRouter.push("/connectors")
     } catch {
-    | Js.Exn.Error(_) =>
-      showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError, ())
+    | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError, ())
     }
   }
 

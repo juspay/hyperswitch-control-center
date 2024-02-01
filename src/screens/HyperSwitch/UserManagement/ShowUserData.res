@@ -90,8 +90,8 @@ let make = () => {
       await HyperSwitchUtils.delay(300)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }

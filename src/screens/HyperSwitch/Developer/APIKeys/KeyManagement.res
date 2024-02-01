@@ -85,8 +85,8 @@ module ApiEditModal = {
 
         let _ = getAPIKeyDetails()
       } catch {
-      | Js.Exn.Error(e) =>
-        switch Js.Exn.message(e) {
+      | Exn.Error(e) =>
+        switch Exn.message(e) {
         | Some(_error) =>
           showToast(~message="Api Key Generation Failed", ~toastType=ToastState.ToastError, ())
         | None => ()
@@ -226,8 +226,8 @@ module TableActionsCell = {
         (await deleteDetails(deleteUrl, body->JSON.Encode.object, Delete, ()))->ignore
         getAPIKeyDetails()->ignore
       } catch {
-      | Js.Exn.Error(e) =>
-        switch Js.Exn.message(e) {
+      | Exn.Error(e) =>
+        switch Exn.message(e) {
         | Some(_error) =>
           showToast(~message="Failed to delete API key", ~toastType=ToastState.ToastError, ())
         | None => ()
@@ -305,8 +305,8 @@ module ApiKeysTable = {
         setData(_ => apiKeys->getItems)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | Js.Exn.Error(e) =>
-        switch Js.Exn.message(e) {
+      | Exn.Error(e) =>
+        switch Exn.message(e) {
         | Some(msg) => setScreenState(_ => PageLoaderWrapper.Error(msg))
         | None => setScreenState(_ => PageLoaderWrapper.Error("Error"))
         }

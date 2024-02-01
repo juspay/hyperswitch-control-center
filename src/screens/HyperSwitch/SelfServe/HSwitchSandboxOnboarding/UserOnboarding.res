@@ -146,9 +146,9 @@ let make = () => {
       setIntegrationDetails(_ => body->ProviderHelper.getIntegrationDetails)
       setDashboardPageState(_ => #HOME)
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
-      Js.Exn.raiseError(err)
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Something went wrong")
+      Exn.raiseError(err)
     }
   }
 

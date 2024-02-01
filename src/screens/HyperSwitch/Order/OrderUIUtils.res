@@ -287,6 +287,6 @@ let getOrdersList = async (
       )
     }
   } catch {
-  | Js.Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
+  | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
   }
 }

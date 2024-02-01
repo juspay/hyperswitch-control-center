@@ -17,9 +17,9 @@ let useFetchEnumDetails = () => {
       setEnumVariantValues(._ => responseDict->JSON.Encode.object->JSON.stringify)
       Nullable.make(responseDict)
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Js.Exn.raiseError(err)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
       }
     }
   }
@@ -76,9 +76,9 @@ let usePostEnumDetails = () => {
       let updatedRecoilValueDict = updateEnumInRecoil([(body, enumVariant)])
       Nullable.make(updatedRecoilValueDict)
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Js.Exn.raiseError(err)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
       }
     }
   }
