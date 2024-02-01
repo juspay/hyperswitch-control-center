@@ -66,7 +66,7 @@ module TableStructure = {
             className="h-full rounded-md bg-white dark:bg-jp-gray-lightgray_background hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-100 dark:hover:bg-opacity-10 transition duration-300 ease-in-out text-sm text-jp-gray-800 dark:text-jp-gray-text_darktheme dark:text-opacity-75">
             {headings
             ->Array.mapWithIndex((heading, i) => {
-              <TableHeading heading key={Js.Int.toString(i)} />
+              <TableHeading heading key={Int.toString(i)} />
             })
             ->React.array}
           </tr>

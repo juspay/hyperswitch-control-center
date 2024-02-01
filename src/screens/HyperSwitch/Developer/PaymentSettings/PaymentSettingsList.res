@@ -20,7 +20,7 @@ let make = (
           subTitle="Set up and monitor transaction webhooks for real-time notifications."
         />
         <LoadedTable
-          title="Payment settings"
+          title=" "
           hideTitle=true
           resultsPerPage=7
           visibleColumns
