@@ -131,19 +131,21 @@ let make = (~id) => {
         currrentFetchCount=1
       />
       <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
-        <OrderUIUtils.RenderAccordian
-          accordion={[
-            {
-              title: "Events and logs",
-              renderContent: () => {
-                <LogsWrapper>
-                  <RefundLogs paymentId={id} />
-                </LogsWrapper>
+        <div className="mt-5">
+          <OrderUIUtils.RenderAccordian
+            accordion={[
+              {
+                title: "Events and logs",
+                renderContent: () => {
+                  <LogsWrapper wrapperFor={#REFUND}>
+                    <RefundLogs refundID=id />
+                  </LogsWrapper>
+                },
+                renderContentOnTop: None,
               },
-              renderContentOnTop: None,
-            },
-          ]}
-        />
+            ]}
+          />
+        </div>
       </UIUtils.RenderIf>
     </PageLoaderWrapper>
   </div>

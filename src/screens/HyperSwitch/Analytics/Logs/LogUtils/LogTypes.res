@@ -1,4 +1,6 @@
-type logType = SDK | PAYMENTS | WEBHOOKS | CONNECTOR
+type logType = SDK | API_EVENTS | WEBHOOKS | CONNECTOR
+
+type pageType = [#PAYMENT | #REFUND]
 
 type logDetails = {
   response: string,

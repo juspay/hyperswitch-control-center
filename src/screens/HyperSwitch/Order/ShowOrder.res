@@ -776,7 +776,7 @@ let make = (~id) => {
               {
                 title: "Events and logs",
                 renderContent: () => {
-                  <LogsWrapper>
+                  <LogsWrapper wrapperFor={#PAYMENT}>
                     <PaymentLogs paymentId={id} createdAt />
                   </LogsWrapper>
                 },

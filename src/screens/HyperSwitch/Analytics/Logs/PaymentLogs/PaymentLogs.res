@@ -1,228 +1,15 @@
 @module("js-sha256") external sha256: string => string = "sha256"
 
-open PaymentLogsTypes
 let getLogType = dict => {
+  open LogTypes
   if dict->Dict.get("connector_name")->Option.isSome {
     CONNECTOR
   } else if dict->Dict.get("request_id")->Option.isSome {
-    PAYMENTS
+    API_EVENTS
   } else if dict->Dict.get("component")->Option.isSome {
     SDK
   } else {
     WEBHOOKS
-  }
-}
-
-module ApiDetailsComponent = {
-  open LogicUtils
-  open PaymentLogsUtils
-  @react.component
-  let make = (
-    ~paymentDetailsValue,
-    ~setLogDetails,
-    ~setSelectedOption,
-    ~currentSelected: int,
-    ~paymentId,
-    ~index,
-    ~logsDataLength,
-  ) => {
-    let headerStyle = "text-sm font-medium text-gray-700 break-all"
-    let logType = paymentDetailsValue->getLogType
-    let apiName = switch logType {
-    | PAYMENTS => paymentDetailsValue->getString("api_flow", "default value")->camelCaseToTitle
-    | SDK => paymentDetailsValue->getString("event_name", "default value")
-    | CONNECTOR => paymentDetailsValue->getString("flow", "default value")->camelCaseToTitle
-    | WEBHOOKS => paymentDetailsValue->getString("outgoing_webhook_event_type", "default value")
-    }->nameToURLMapper(~payment_id=paymentId, ())
-    let createdTime = paymentDetailsValue->getString("created_at", "00000")
-    let requestObject = switch logType {
-    | PAYMENTS | CONNECTOR => paymentDetailsValue->getString("request", "")
-    | SDK =>
-      paymentDetailsValue
-      ->Dict.toArray
-      ->Array.filter(entry => {
-        let (key, _) = entry
-        filteredKeys->Array.includes(key)->not
-      })
-      ->getJsonFromArrayOfJson
-      ->JSON.stringify
-    | WEBHOOKS => paymentDetailsValue->getString("outgoing_webhook_event_type", "")
-    }
-
-    let responseObject = switch logType {
-    | PAYMENTS | CONNECTOR => paymentDetailsValue->getString("response", "")
-    | SDK => {
-        let isErrorLog = paymentDetailsValue->getString("log_type", "") === "ERROR"
-        isErrorLog ? paymentDetailsValue->getString("value", "") : ""
-      }
-    | WEBHOOKS => paymentDetailsValue->getString("content", "")
-    }
-
-    let statusCode = switch logType {
-    | PAYMENTS | CONNECTOR => paymentDetailsValue->getInt("status_code", 200)->Int.toString
-    | SDK => paymentDetailsValue->getString("log_type", "INFO")
-    | WEBHOOKS => paymentDetailsValue->getBool("is_error", false) ? "500" : "200"
-    }
-
-    let method = switch logType {
-    | PAYMENTS => paymentDetailsValue->getString("http_method", "")
-    | CONNECTOR => paymentDetailsValue->getString("method", "")
-    | SDK => ""
-    | WEBHOOKS => "POST"
-    }
-
-    let apiPath = switch logType {
-    | PAYMENTS => paymentDetailsValue->getString("url_path", "")
-    | CONNECTOR => paymentDetailsValue->getString("flow", "")
-    | WEBHOOKS =>
-      paymentDetailsValue->getString("outgoing_webhook_event_type", "")->String.toLocaleUpperCase
-    | SDK => ""
-    }
-
-    let statusCodeTextColor = switch logType {
-    | SDK =>
-      switch statusCode {
-      | "INFO" => "blue-700"
-      | "ERROR" => "red-400"
-      | "WARNING" => "yellow-800"
-      | _ => "gray-700 opacity-50"
-      }
-    | WEBHOOKS =>
-      switch statusCode {
-      | "200" => "green-700"
-      | "500" | _ => "gray-700 opacity-50"
-      }
-    | PAYMENTS | CONNECTOR =>
-      switch statusCode {
-      | "200" => "green-700"
-      | "500" => "gray-700 opacity-50"
-      | "400" => "yellow-800"
-      | _ => "gray-700 opacity-50"
-      }
-    }
-
-    let statusCodeBg = switch logType {
-    | SDK =>
-      switch statusCode {
-      | "INFO" => "blue-100"
-      | "ERROR" => "red-200"
-      | "WARNING" => "yellow-100"
-      | _ => "gray-100"
-      }
-    | WEBHOOKS =>
-      switch statusCode {
-      | "200" => "green-200"
-      | "500" | _ => "gray-100"
-      }
-    | PAYMENTS | CONNECTOR =>
-      switch statusCode {
-      | "200" => "green-200"
-      | "500" => "gray-100"
-      | "400" => "orange-100"
-      | _ => "gray-100"
-      }
-    }
-
-    let isSelected = currentSelected === index
-
-    let stepperColor = isSelected
-      ? switch logType {
-        | SDK =>
-          switch statusCode {
-          | "INFO" => "blue-700"
-          | "ERROR" => "red-400"
-          | "WARNING" => "yellow-300"
-          | _ => "gray-700 opacity-50"
-          }
-        | WEBHOOKS =>
-          switch statusCode {
-          | "200" => "green-700"
-          | "500" | _ => "gray-700 opacity-50"
-          }
-        | PAYMENTS | CONNECTOR =>
-          switch statusCode {
-          | "200" => "green-700"
-          | "500" => "gray-700 opacity-50"
-          | "400" => "yellow-300"
-          | _ => "gray-700 opacity-50"
-          }
-        }
-      : "gray-200"
-    let stepperBorderColor = isSelected
-      ? switch logType {
-        | SDK =>
-          switch statusCode {
-          | "INFO" => "blue-700"
-          | "ERROR" => "red-400"
-          | "WARNING" => "orange-500"
-          | _ => "gray-600"
-          }
-        | WEBHOOKS =>
-          switch statusCode {
-          | "200" => "green-700"
-          | "500" | _ => "gray-600"
-          }
-        | PAYMENTS | CONNECTOR =>
-          switch statusCode {
-          | "200" => "green-700"
-          | "500" => "gray-600"
-          | "400" => "orange-500"
-          | _ => "gray-600"
-          }
-        }
-      : "gray-200"
-
-    let borderClass = isSelected ? "border border-blue-700 rounded-md" : "border border-transparent"
-
-    <div className="flex items-start gap-4">
-      <div className="flex flex-col items-center h-full">
-        <div className={`w-fit h-fit p-1  border rounded-md bg-${stepperColor} border-gray-300`} />
-        <UIUtils.RenderIf condition={index !== logsDataLength}>
-          <div
-            className={`h-full border-${stepperBorderColor} border-dashed rounded divide-x-2 border-2 my-1`}
-          />
-        </UIUtils.RenderIf>
-      </div>
-      <div
-        className={`flex gap-6 items-start w-full py-3 px-3 cursor-pointer ${borderClass} -mt-5 mb-8`}
-        key={currentSelected->string_of_int}
-        onClick={_ => {
-          setLogDetails(_ => {
-            response: responseObject,
-            request: requestObject,
-          })
-          setSelectedOption(_ => {
-            value: index,
-            optionType: logType,
-          })
-        }}>
-        <div className="flex flex-col gap-1">
-          <div className=" flex gap-3">
-            <div className={`bg-${statusCodeBg} h-fit w-fit px-2 py-1 rounded-md`}>
-              <p className={`text-${statusCodeTextColor} text-sm opacity-100  font-bold `}>
-                {statusCode->React.string}
-              </p>
-            </div>
-            {switch logType {
-            | SDK =>
-              <p className={`${headerStyle} mt-1 ${isSelected ? "" : "opacity-80"}`}>
-                {apiName->camelCaseToTitle->React.string}
-              </p>
-            | PAYMENTS | WEBHOOKS | CONNECTOR =>
-              <p className={`${headerStyle} ${isSelected ? "" : "opacity-80"}`}>
-                <span className="mr-3 border-2 px-1 py-0.5 rounded text-sm">
-                  {method->String.toUpperCase->React.string}
-                </span>
-                <span className="leading-7"> {apiPath->React.string} </span>
-              </p>
-            }}
-          </div>
-          <div className={`${headerStyle} opacity-40`}>
-            {createdTime->Js.Date.fromString->Js.Date.toUTCString->React.string}
-          </div>
-        </div>
-      </div>
-    </div>
   }
 }
 
@@ -231,6 +18,7 @@ let make = (~paymentId, ~createdAt) => {
   open APIUtils
   open LogicUtils
   open PaymentLogsUtils
+  open LogTypes
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let fetchPostDetils = useUpdateMethod()
   let logs = React.useMemo0(() => {ref([])})
@@ -240,7 +28,7 @@ let make = (~paymentId, ~createdAt) => {
   })
   let (selectedOption, setSelectedOption) = React.useState(_ => {
     value: 0,
-    optionType: PAYMENTS,
+    optionType: API_EVENTS,
   })
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
@@ -419,7 +207,7 @@ let make = (~paymentId, ~createdAt) => {
     | Some(value) => {
         let initialData = value->getDictFromJsonObject
         switch initialData->getLogType {
-        | PAYMENTS => {
+        | API_EVENTS => {
             let request = initialData->getString("request", "")
             let response = initialData->getString("response", "")
             setLogDetails(_ => {
@@ -428,7 +216,7 @@ let make = (~paymentId, ~createdAt) => {
             })
             setSelectedOption(_ => {
               value: 0,
-              optionType: PAYMENTS,
+              optionType: API_EVENTS,
             })
           }
         | SDK => {
@@ -492,7 +280,7 @@ let make = (~paymentId, ~createdAt) => {
   })
 
   let headerText = switch selectedOption.optionType {
-  | PAYMENTS | CONNECTOR => "Response body"
+  | API_EVENTS | CONNECTOR => "Response body"
   | WEBHOOKS => "Request body"
   | SDK => "Metadata"
   }->Some
@@ -504,13 +292,15 @@ let make = (~paymentId, ~createdAt) => {
         ->Array.mapWithIndex((paymentDetailsValue, index) => {
           <ApiDetailsComponent
             key={index->string_of_int}
-            paymentDetailsValue={paymentDetailsValue->getDictFromJsonObject}
+            dataDict={paymentDetailsValue->getDictFromJsonObject}
             setLogDetails
             setSelectedOption
             currentSelected=selectedOption.value
-            paymentId
             index
             logsDataLength={logs.contents->Array.length - 1}
+            getLogType
+            nameToURLMapper={nameToURLMapper(~id={paymentId})}
+            filteredKeys
           />
         })
         ->React.array}
@@ -518,7 +308,7 @@ let make = (~paymentId, ~createdAt) => {
     </div>
 
   let requestHeader = switch selectedOption.optionType {
-  | PAYMENTS | CONNECTOR => "Request body"
+  | API_EVENTS | CONNECTOR => "Request body"
   | SDK => "Event"
   | WEBHOOKS => ""
   }
