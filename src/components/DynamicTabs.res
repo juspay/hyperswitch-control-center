@@ -433,7 +433,7 @@ let make = (
       updateTabNameWith(Dict.fromArray([("tabName", `[${tabValue}]`)]))
       setActiveTab(tabValue)
       setSelectedIndex(_ =>
-        Js.Math.max_int(0, collapsibleTabs->Array.map(item => item.value)->Array.indexOf(tabValue))
+        Math.Int.max(0, collapsibleTabs->Array.map(item => item.value)->Array.indexOf(tabValue))
       )
     } else {
       updateTabNameWith(
@@ -447,7 +447,7 @@ let make = (
       setActiveTab(tabStacksnames->Array.get(tabStacksnames->Array.length - 1)->Option.getOr(""))
 
       setSelectedIndex(_ =>
-        Js.Math.max_int(
+        Math.Int.max(
           0,
           collapsibleTabs
           ->Array.map(item => item.value)

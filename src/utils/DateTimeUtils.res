@@ -81,7 +81,7 @@ let toUtc = (datetime: Js.Date.t) => {
 }
 
 let getStartEndDiff = (startDate, endDate) => {
-  let diffTime = Js.Math.abs_float(
+  let diffTime = Math.abs(
     endDate->Js.Date.fromString->Js.Date.getTime -. startDate->Js.Date.fromString->Js.Date.getTime,
   )
   diffTime

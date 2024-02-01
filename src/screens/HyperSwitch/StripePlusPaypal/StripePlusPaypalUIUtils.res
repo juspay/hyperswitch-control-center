@@ -34,9 +34,9 @@ module SelectPaymentMethods = {
         let configurationType = #ConfigurationType
         let _ = await StringEnumType(connectorChoiceValue)->postEnumDetails(configurationType)
       } catch {
-      | Js.Exn.Error(e) => {
-          let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
-          Js.Exn.raiseError(err)
+      | Exn.Error(e) => {
+          let err = Exn.message(e)->Option.getOr("Failed to update!")
+          Exn.raiseError(err)
         }
       }
     }

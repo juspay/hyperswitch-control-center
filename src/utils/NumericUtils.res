@@ -12,20 +12,17 @@ let pretty = (range: array<float>, n: int) => {
     let shrink_sml = 0.75
     let high_u_bias = 1.5
     let u5_bias = 0.5 +. 1.5 *. high_u_bias
-    let d = Js.Math.abs_float(range[0]->Option.getOr(0.) -. range[1]->Option.getOr(0.))
+    let d = Math.abs(range[0]->Option.getOr(0.) -. range[1]->Option.getOr(0.))
 
-    let c = if Js.Math.log(d) /. Js.Math._LN10 < -2. {
-      Js.Math.abs_float(d) *. shrink_sml /. min_n
+    let c = if Math.log(d) /. Math.Constants.ln10 < -2. {
+      Math.abs(d) *. shrink_sml /. min_n
     } else {
       d /. Int.toFloat(n)
     }
 
-    let base = Js.Math.pow_float(
-      ~base=10.,
-      ~exp=Js.Math.floor_float(Js.Math.log(c) /. Js.Math._LN10),
-    )
+    let base = Math.pow(10., ~exp=Math.floor(Math.log(c) /. Math.Constants.ln10))
     let base_toFixed = if base < 1. {
-      Js.Math.abs_float(Js.Math.round(Js.Math.log(base) /. Js.Math._LN10))->Float.toInt
+      Math.abs(Math.round(Math.log(base) /. Math.Constants.ln10))->Float.toInt
     } else {
       0
     }
@@ -45,7 +42,7 @@ let pretty = (range: array<float>, n: int) => {
     let i = if range[0]->Option.getOr(0.) <= unit.contents {
       0.
     } else {
-      let i123 = Js.Math.floor_float(range[0]->Option.getOr(0.) /. unit.contents) *. unit.contents
+      let i123 = Math.floor(range[0]->Option.getOr(0.) /. unit.contents) *. unit.contents
 
       i123->Js.Float.toFixedWithPrecision(~digits=base_toFixed)->Float.fromString->Option.getOr(0.)
     }

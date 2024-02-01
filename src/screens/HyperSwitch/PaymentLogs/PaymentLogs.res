@@ -346,8 +346,8 @@ let make = (~paymentId, ~createdAt) => {
 
       PageLoaderWrapper.Success
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -368,8 +368,8 @@ let make = (~paymentId, ~createdAt) => {
 
       PageLoaderWrapper.Success
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -387,8 +387,8 @@ let make = (~paymentId, ~createdAt) => {
 
       PageLoaderWrapper.Success
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }
@@ -472,8 +472,8 @@ let make = (~paymentId, ~createdAt) => {
 
       PageLoaderWrapper.Success
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       PageLoaderWrapper.Error(err)
     }
   }

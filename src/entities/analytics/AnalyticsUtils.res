@@ -604,7 +604,7 @@ let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statTy
     if statType === "Latency" || statType === "NegativeRate" {
       if value > 0. {
         let text = "Increased by "
-        let value = Js.Math.abs_float(value)->Float.toString ++ "%"
+        let value = Math.abs(value)->Float.toString ++ "%"
         <div className="whitespace-pre-line">
           <AddDataAttributes attributes=[("data-text", text)]>
             <div> {React.string(text)} </div>
@@ -647,7 +647,7 @@ let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statTy
       }
     } else if value < 0. {
       let text = "Decreased by "
-      let value = Js.Math.abs_float(value)->Float.toString ++ "%"
+      let value = Math.abs(value)->Float.toString ++ "%"
       <div className="whitespace-pre-line">
         <AddDataAttributes attributes=[("data-text", text)]>
           <div> {React.string(text)} </div>

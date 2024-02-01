@@ -139,11 +139,10 @@ let removeDuplicates = (arr: array<chartData<'a>>) => {
 }
 
 let calculateOpacity = (~length, ~originalOpacity) => {
-  let reducedOpacity =
-    originalOpacity *. Js.Math.pow_float(~base=0.4, ~exp=length->Js.Int.toFloat /. 13.0)
+  let reducedOpacity = originalOpacity *. Math.pow(0.4, ~exp=length->Js.Int.toFloat /. 13.0)
   // Calculate the reduced opacity based on the formula: originalOpacity * (0.4 ^ (length / 13))
 
-  Js.Math.max_float(reducedOpacity, 0.0)->Js.Float.toString
+  Math.max(reducedOpacity, 0.0)->Js.Float.toString
 }
 
 type dropDownMetricType = Latency | Volume | Rate | Amount | Traffic // traffic string can be any column which is of type Volume, Amount
@@ -444,7 +443,7 @@ let getLegendDataForCurrentMetrix = (
       let overall = if metrixType === Traffic {
         (currentOverall->Dict.get(metricsName)->Option.getOr(0.) *.
         100. /.
-        Js.Math.max_float(totalOverall, 1.))
+        Math.max(totalOverall, 1.))
         ->Js.Float.toFixedWithPrecision(~digits=2)
         ->removeTrailingZero
         ->Float.fromString

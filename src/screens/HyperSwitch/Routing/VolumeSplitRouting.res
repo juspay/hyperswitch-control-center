@@ -42,8 +42,8 @@ module VolumeRoutingView = {
         RescriptReactRouter.replace(`/routing?`)
         setScreenState(_ => Success)
       } catch {
-      | Js.Exn.Error(e) =>
-        switch Js.Exn.message(e) {
+      | Exn.Error(e) =>
+        switch Exn.message(e) {
         | Some(message) =>
           if message->String.includes("IR_16") {
             showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
@@ -72,8 +72,8 @@ module VolumeRoutingView = {
         RescriptReactRouter.replace(`/routing?`)
         setScreenState(_ => Success)
       } catch {
-      | Js.Exn.Error(e) =>
-        switch Js.Exn.message(e) {
+      | Exn.Error(e) =>
+        switch Exn.message(e) {
         | Some(message) => {
             showToast(
               ~message="Failed to Deactivate the Configuration!",
@@ -251,8 +251,8 @@ let make = (~routingRuleId, ~isActive) => {
       }
       setScreenState(_ => Success)
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }
@@ -310,11 +310,11 @@ let make = (~routingRuleId, ~isActive) => {
       }
       Nullable.make(res)
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Something went wrong!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Something went wrong!")
       showToast(~message="Failed to Save the Configuration !", ~toastType=ToastState.ToastError, ())
       setScreenState(_ => PageLoaderWrapper.Error(err))
-      Js.Exn.raiseError(err)
+      Exn.raiseError(err)
     }
   }
 
