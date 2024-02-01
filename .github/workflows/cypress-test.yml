@@ -1,7 +1,6 @@
 name: Cypress Tests
 
 on:
-  workflow_dispatch:
   merge_group:
 
 
