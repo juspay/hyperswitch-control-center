@@ -228,7 +228,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
                   link,
                 },
           ]
-          currentPageTitle={connector->LogicUtils.capitalizeString}
+          currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnectors}
           cursorStyle="cursor-pointer"
         />
       </UIUtils.RenderIf>

@@ -143,7 +143,7 @@ let getCell = (refundData, colType): Table.cell => {
   | LastUpdated => Date(refundData.updated_at)
   | MetaData => Text(refundData.metadata)
   | ConnectorName =>
-    CustomCell(<HSwitchUtils.ConnectorCustomCell connectorName=refundData.connector />, "")
+    CustomCell(<HelperComponents.ConnectorCustomCell connectorName=refundData.connector />, "")
   }
 }
 

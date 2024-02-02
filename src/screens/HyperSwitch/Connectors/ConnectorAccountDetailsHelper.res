@@ -496,7 +496,7 @@ module ConnectorHeaderWrapper = {
         <div className="flex gap-2 items-center">
           <GatewayIcon gateway={connector->String.toUpperCase} />
           <h2 className="text-xl font-semibold">
-            {connector->LogicUtils.capitalizeString->React.string}
+            {connector->getDisplayNameForConnectors->React.string}
           </h2>
         </div>
         <div className="flex flex-row mt-6 md:mt-0 md:justify-self-end h-min">

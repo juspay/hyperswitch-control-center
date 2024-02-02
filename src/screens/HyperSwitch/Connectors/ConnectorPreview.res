@@ -315,7 +315,7 @@ let make = (
             gateway={connectorInfo.connector_name->String.toUpperCase} className="w-14 h-14"
           />
           <h2 className="text-xl font-semibold">
-            {connectorInfo.connector_name->LogicUtils.capitalizeString->React.string}
+            {connectorInfo.connector_name->getDisplayNameForConnectors->React.string}
           </h2>
         </div>
         <div className="self-center">
