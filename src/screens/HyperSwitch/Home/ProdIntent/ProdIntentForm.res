@@ -25,10 +25,10 @@ let make = (~isFromMilestoneCard=false) => {
       let valueForProdIntent =
         firstValueFromArray->getDictFromJsonObject->getDictfromDict("ProdIntent")
       let hideHeader = valueForProdIntent->getBool(IsCompleted->getStringFromVariant, false)
-      setIsProdIntentCompleted(_ => hideHeader)
       if !hideHeader {
         valueForProdIntent->Dict.set(POCemail->getStringFromVariant, email->JSON.Encode.string)
       }
+      setIsProdIntentCompleted(_ => Some(hideHeader))
       setInitialValues(_ => valueForProdIntent)
     } catch {
     | _ => ()
