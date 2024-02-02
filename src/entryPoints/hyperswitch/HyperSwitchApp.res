@@ -215,7 +215,7 @@ let make = () => {
                       | list{"fraud-risk-management", ...remainingPath} =>
                         <AccessControl
                           isEnabled={featureFlagDetails.frm}
-                          permission=userPermissionJson.merchantAccountRead>
+                          permission=userPermissionJson.merchantConnectorAccountRead>
                           <EntityScaffold
                             entityName="risk-management"
                             remainingPath
@@ -225,7 +225,7 @@ let make = () => {
                           />
                         </AccessControl>
                       | list{"connectors", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.merchantAccountRead>
+                        <AccessControl permission=userPermissionJson.merchantConnectorAccountRead>
                           <EntityScaffold
                             entityName="Connectors"
                             remainingPath
@@ -237,7 +237,7 @@ let make = () => {
                       | list{"payoutconnectors", ...remainingPath} =>
                         <AccessControl
                           isEnabled={featureFlagDetails.payOut}
-                          permission=userPermissionJson.merchantAccountRead>
+                          permission=userPermissionJson.merchantConnectorAccountRead>
                           <EntityScaffold
                             entityName="PayoutConnectors"
                             remainingPath
