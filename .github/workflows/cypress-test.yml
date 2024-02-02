@@ -3,7 +3,6 @@ name: Cypress Tests
 on:
   merge_group:
 
-
 jobs:
   cypress-tests:
     runs-on: ubuntu-latest

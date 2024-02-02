@@ -160,7 +160,7 @@ let make = () => {
   }
 
   let determineQuickStartPageState = () => {
-    isProdIntentCompleted &&
+    isProdIntentCompleted->Option.getOr(false) &&
     enumDetails.integrationCompleted &&
     !(enumDetails.testPayment.payment_id->isEmptyString)
       ? RescriptReactRouter.replace("/home")
