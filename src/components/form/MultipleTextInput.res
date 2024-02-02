@@ -1,3 +1,51 @@
+module EditableTag = {
+  @react.component
+  let make = (~text, ~edit, ~remove, ~customButtonStyle=?, ~disabled=false) => {
+    let (val, setVal) = React.useState(_ => text)
+    let handleOnRemove = e => {
+      e->ReactEvent.Mouse.stopPropagation
+      remove(text)
+    }
+
+    let buttonStyle = customButtonStyle->Option.getOr("")
+
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      {
+        name: "",
+        onBlur: _ev => (),
+        onChange: ev => {
+          let value = {ev->ReactEvent.Form.target}["value"]
+          // if value->String.includes("<script>") || value->String.includes("</script>") {
+          //   showPopUp({
+          //     popUpType: (Warning, WithIcon),
+          //     heading: `Script Tags are not allowed`,
+          //     description: React.string(`Input cannot contain <script>, </script> tags`),
+          //     handleConfirm: {text: "OK"},
+          //   })
+          // }
+          edit(value)
+          let val = value->String.replace("<script>", "")->String.replace("</script>", "")
+          setVal(_ => val)
+        },
+        onFocus: _ev => (),
+        value: JSON.Encode.string(val),
+        checked: false,
+      }
+    }
+
+    <UIUtils.RenderIf condition={!disabled}>
+      <TextInput
+        customStyle=buttonStyle
+        input
+        placeholder=""
+        rightIcon={<Icon
+          name="close" size=10 className="hover:cursor-pointer mr-1" onClick={handleOnRemove}
+        />}
+      />
+    </UIUtils.RenderIf>
+  }
+}
+
 module Tag = {
   @react.component
   let make = (~text, ~remove, ~customButtonStyle=?, ~disabled=false) => {
@@ -6,12 +54,9 @@ module Tag = {
       remove(text)
     }
 
-    let buttonStyle = switch customButtonStyle {
-    | Some(buttonStyle) => buttonStyle
-    | None => ""
-    }
+    let buttonStyle = customButtonStyle->Option.getOr("")
 
-    if !disabled {
+    <UIUtils.RenderIf condition={!disabled}>
       <Button
         customButtonStyle={`h-8 ${buttonStyle}`}
         text
@@ -22,9 +67,7 @@ module Tag = {
           <Icon name="close" size=10 className="mr-1" onClick={handleOnRemove} />,
         )}
       />
-    } else {
-      React.null
-    }
+    </UIUtils.RenderIf>
   }
 }
 
@@ -51,9 +94,11 @@ let make = (
 
   let (text, setText) = React.useState(_ => "")
   let customStyleClass = customStyle->Option.getOr("gap-2 w-full px-1 py-1")
+
   let onTagRemove = text => {
     setTags(currentTags->Array.filter(tag => tag !== text))
   }
+
   let keyDownCondition = React.useMemo0(() => {
     open ReactEvent.Keyboard
     ev => {
@@ -69,10 +114,11 @@ let make = (
     open ReactEvent.Keyboard
     let isEmpty = text->String.length === 0
 
-    if isEmpty && (e->key === "Backspace" || e->keyCode === 8) && currentTags->Array.length > 0 {
-      setText(_ => currentTags[currentTags->Array.length - 1]->Option.getOr(""))
-      setTags(currentTags->Array.slice(~start=0, ~end=-1))
-    } else if !isEmpty {
+    // if isEmpty && (e->key === "Backspace" || e->keyCode === 8) && currentTags->Array.length > 0 {
+    //   setText(_ => currentTags[currentTags->Array.length - 1]->Option.getOr(""))
+    //   setTags(currentTags->Array.slice(~start=0, ~end=-1))
+    // } else
+    if !isEmpty {
       if e->key === "Enter" || e->keyCode === 13 || e->key === "Tab" || e->keyCode === 9 {
         if seperateByComma {
           let arr = text->String.split(",")
@@ -114,7 +160,9 @@ let make = (
   let input1: ReactFinalForm.fieldRenderPropsInput = {
     {
       name,
-      onBlur: _ev => (),
+      onBlur: _ev => {
+        Console.log("Found")
+      },
       onChange: ev => {
         let value = {ev->ReactEvent.Form.target}["value"]
         if value->String.includes("<script>") || value->String.includes("</script>") {
@@ -126,7 +174,16 @@ let make = (
           })
         }
         let val = value->String.replace("<script>", "")->String.replace("</script>", "")
-        setText(_ => val)
+        switch String.match(
+          value,
+          %re(`/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/`),
+        ) {
+        | Some(_) => {
+            setTags(currentTags->Array.concat([val]))
+            setText(_ => "")
+          }
+        | None => setText(_ => val)
+        }
       },
       onFocus: _ev => (),
       value: JSON.Encode.string(text),
@@ -140,9 +197,19 @@ let make = (
                   border rounded border-opacity-75 border-jp-gray-lightmode_steelgray hover:border-jp-gray-600 dark:border-jp-gray-960 dark:hover:border-jp-gray-900`
   <div className>
     {currentTags
-    ->Array.map(tag => {
+    ->Array.mapWithIndex((tag, i) => {
+      let onTagEdit = text => {
+        let updatedTags =
+          currentTags->Array.mapWithIndex((presentTag, presentIndex) =>
+            presentIndex === i ? text : presentTag
+          )
+        setTags(updatedTags)
+      }
+
       <UIUtils.RenderIf condition={tag != "" && tag !== "<script>" && tag !== "</script>"}>
-        <Tag key=tag text=tag remove=onTagRemove disabled ?customButtonStyle />
+        <EditableTag
+          edit=onTagEdit key=tag text=tag remove=onTagRemove disabled ?customButtonStyle
+        />
       </UIUtils.RenderIf>
     })
     ->React.array}
