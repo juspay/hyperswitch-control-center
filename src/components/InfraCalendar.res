@@ -55,7 +55,7 @@ module TableRow = {
                 "00",
                 "00",
                 "00",
-              )->Js.Date.fromString
+              )->Date.fromString
             let dateToday = Js.Date.make()
             let todayInitial = Js.Date.setHoursMSMs(
               dateToday,

@@ -171,6 +171,7 @@ module TabInfo = {
 module IndicationArrow = {
   @react.component
   let make = (~iconName, ~side, ~refElement: React.ref<Js.nullable<Dom.element>>, ~isVisible) => {
+    open UIUtils
     let isMobileView = MatchMedia.useMobileChecker()
     let onClick = {
       _ev =>
@@ -191,7 +192,7 @@ module IndicationArrow = {
     }
 
     let customButtonStyle = "text-black cursor-pointer border-2 border-black-900 !px-2 py-1.5 !rounded-lg"
-    <UIUtils.RenderIf condition={isMobileView}>
+    <RenderIf condition={isMobileView}>
       <div className>
         <Button
           buttonType=Secondary
@@ -202,7 +203,7 @@ module IndicationArrow = {
           flattenBottom=true
         />
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 

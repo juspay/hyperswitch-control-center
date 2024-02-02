@@ -307,7 +307,7 @@ module ApiDetailsComponent = {
             }}
           </div>
           <div className={`${headerStyle} opacity-40`}>
-            {createdTime->Js.Date.fromString->Js.Date.toUTCString->React.string}
+            {createdTime->Date.fromString->Js.Date.toUTCString->React.string}
           </div>
         </div>
       </div>
@@ -405,10 +405,10 @@ let make = (~paymentId, ~createdAt) => {
 
     try {
       let url = getURL(~entityName=SDK_EVENT_LOGS, ~methodType=Post, ~id=Some(paymentId), ())
-      let startTime = createdAt->Js.Date.fromString->Js.Date.getTime -. 1000. *. 60. *. 5.
+      let startTime = createdAt->Date.fromString->Js.Date.getTime -. 1000. *. 60. *. 5.
       let startTime = startTime->Js.Date.fromFloat->Js.Date.toISOString
 
-      let endTime = createdAt->Js.Date.fromString->Js.Date.getTime +. 1000. *. 60. *. 60. *. 3.
+      let endTime = createdAt->Date.fromString->Js.Date.getTime +. 1000. *. 60. *. 60. *. 3.
       let endTime = endTime->Js.Date.fromFloat->Js.Date.toISOString
       let body =
         [

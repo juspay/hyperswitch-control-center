@@ -112,7 +112,7 @@ let en_USStringToDateTimeObject = dateTimeIsoString => {
 type timeZoneObject = {timeZone: string}
 @send external toLocaleString: (Js.Date.t, string, timeZoneObject) => string = "toLocaleString"
 let convertTimeZone = (date, timezoneString) => {
-  let localTimeString = Js.Date.fromString(date)
+  let localTimeString = Date.fromString(date)
   localTimeString
   ->toLocaleString("en-US", {timeZone: timezoneString})
   ->String.replaceRegExp(%re("/\s/g"), " ")
@@ -147,7 +147,7 @@ let useCustomTimeZoneToIsoString = () => {
         ":" ++
         secondsString ++
         timezone
-      let newFormedDate = Js.Date.fromString(fullTimeManagedString)
+      let newFormedDate = Date.fromString(fullTimeManagedString)
       let isoFormattedDate = Js.Date.toISOString(newFormedDate)
       isoFormattedDate
     },

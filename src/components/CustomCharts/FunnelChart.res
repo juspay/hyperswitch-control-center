@@ -145,7 +145,7 @@ let make = (
                         shortNum(~labelValue=metricVal, ~numberFormat=getDefaultNumberFormat(), ())
                       | Percentage =>
                         (metricVal *. 100. /. prevMetricVolume)
-                          ->Js.Float.toFixedWithPrecision(~digits=2) ++ "%"
+                          ->Float.toFixedWithPrecision(~digits=2) ++ "%"
                       }->React.string}
                     </div>
                   </div>

@@ -81,7 +81,7 @@ let getCell = (refundTable: refundTableType, colType: refundColType): Table.cell
   }
 
   let percentFormat = value => {
-    `${value->Js.Float.toFixedWithPrecision(~digits=2)}%`
+    `${value->Float.toFixedWithPrecision(~digits=2)}%`
   }
   switch colType {
   | SuccessRate => Numeric(refundTable.refund_success_rate, percentFormat)
@@ -264,7 +264,7 @@ let getStatData = (
       value: singleStatData.refund_success_rate,
       delta: {
         Js.Float.fromString(
-          Js.Float.toFixedWithPrecision(singleStatData.refund_success_rate, ~digits=2),
+          Float.toFixedWithPrecision(singleStatData.refund_success_rate, ~digits=2),
         )
       },
       data: constructData("refund_success_rate", timeSeriesData),
@@ -281,7 +281,7 @@ let getStatData = (
       value: singleStatData.refund_count->Int.toFloat,
       delta: {
         Js.Float.fromString(
-          Js.Float.toFixedWithPrecision(singleStatData.refund_count->Int.toFloat, ~digits=2),
+          Float.toFixedWithPrecision(singleStatData.refund_count->Int.toFloat, ~digits=2),
         )
       },
       data: constructData("refund_count", timeSeriesData),
@@ -298,10 +298,7 @@ let getStatData = (
       value: singleStatData.refund_success_count->Int.toFloat,
       delta: {
         Js.Float.fromString(
-          Js.Float.toFixedWithPrecision(
-            singleStatData.refund_success_count->Int.toFloat,
-            ~digits=2,
-          ),
+          Float.toFixedWithPrecision(singleStatData.refund_success_count->Int.toFloat, ~digits=2),
         )
       },
       data: constructData("refund_success_count", timeSeriesData),
@@ -318,10 +315,7 @@ let getStatData = (
       value: singleStatData.refund_processed_amount /. 100.00,
       delta: {
         Js.Float.fromString(
-          Js.Float.toFixedWithPrecision(
-            singleStatData.refund_processed_amount /. 100.00,
-            ~digits=2,
-          ),
+          Float.toFixedWithPrecision(singleStatData.refund_processed_amount /. 100.00, ~digits=2),
         )
       },
       data: constructData("refund_processed_amount", timeSeriesData),

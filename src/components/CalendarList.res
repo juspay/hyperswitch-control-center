@@ -88,7 +88,7 @@ let make = (
       )
       let tempMonth = if disableFutureDates {
         (Js.Date.fromFloat(tempDate)->DayJs.getDayJsForJsDate).toString(.)
-        ->Js.Date.fromString
+        ->Date.fromString
         ->Js.Date.getMonth
       } else {
         Js.Date.getMonth(Js.Date.fromFloat(tempDate))

@@ -1,16 +1,6 @@
 open Highcharts
-type domElement
 open LogicUtils
 open DictionaryUtils
-
-type ele
-external toElement: Dom.element => ele = "%identity"
-
-@send
-external querySelectorAll: (DOMUtils.document, string) => array<Nullable.t<domElement>> =
-  "querySelectorAll"
-
-@send external addEventListener: ('a, string, unit => unit) => unit = "addEventListener"
 
 module TooltipString = {
   @react.component

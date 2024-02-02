@@ -53,6 +53,7 @@ module RenderedComponent = {
 let make = () => {
   open HeadlessUI
   open LogicUtils
+  open UIUtils
 
   let (showModal, setShowModal) = React.useState(_ => false)
   let (searchText, setSearchText) = React.useState(_ => "")
@@ -213,7 +214,7 @@ let make = () => {
         <div className="text-semibold text-sm hidden md:block"> {shortcutText->React.string} </div>
       </div>
     }}
-    <UIUtils.RenderIf condition={showModal}>
+    <RenderIf condition={showModal}>
       <Modal
         showModal
         setShowModal
@@ -277,18 +278,18 @@ let make = () => {
                               {elementsArray
                               ->Array.mapWithIndex((item, index) => {
                                 let elementValue = item->JSON.Decode.string->Option.getOr("")
-                                <UIUtils.RenderIf
+                                <RenderIf
                                   condition={elementValue->String.length > 0}
                                   key={index->string_of_int}>
                                   <RenderedComponent ele=elementValue searchText />
-                                  <UIUtils.RenderIf
+                                  <RenderIf
                                     condition={index >= 0 &&
                                       index < elementsArray->Array.length - 1}>
                                     <span className="mx-2 text-lightgray_background opacity-50">
                                       {">"->React.string}
                                     </span>
-                                  </UIUtils.RenderIf>
-                                </UIUtils.RenderIf>
+                                  </RenderIf>
+                                </RenderIf>
                               })
                               ->React.array}
                             </div>
@@ -302,14 +303,14 @@ let make = () => {
               </div>
             }}
           </Combobox>
-          <UIUtils.RenderIf condition={searchText->String.length > 0 && arr->Array.length === 0}>
+          <RenderIf condition={searchText->String.length > 0 && arr->Array.length === 0}>
             <div className="flex flex-col w-full h-72 p-2 justify-center items-center gap-1">
               <img className="w-1/3" src={`${prefix}/icons/globalSearchNoResult.svg`} />
               <div> {`No Results for ${searchText}`->React.string} </div>
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       </Modal>
-    </UIUtils.RenderIf>
+    </RenderIf>
   </div>
 }
