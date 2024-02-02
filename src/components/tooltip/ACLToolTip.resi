@@ -1,6 +1,6 @@
 @react.component
 let make: (
-  ~access: AuthTypes.authorization=?,
+  ~access: AuthTypes.authorization,
   ~noAccessDescription: string=?,
   ~description: string=?,
   ~descriptionComponent: React.element=?,

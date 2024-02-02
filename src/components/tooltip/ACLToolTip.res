@@ -2,7 +2,7 @@ open ToolTip
 
 @react.component
 let make = (
-  ~access=AuthTypes.Access,
+  ~access,
   ~noAccessDescription=HSwitchUtils.noAccessControlText,
   ~description="",
   ~descriptionComponent=React.null,

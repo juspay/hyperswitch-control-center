@@ -29,15 +29,12 @@ module CantFindProcessor = {
       userPermissionJson.merchantAccountWrite === Access ? "cursor-pointer" : "cursor-default"
 
     <UIUtils.RenderIf condition={showRequestConnectorBtn}>
-      <ACLToolTip
-        toolTipFor={<div
-          onClick={_ =>
-            userPermissionJson.merchantAccountWrite === Access ? setShowModal(_ => true) : ()}
-          className={`text-blue-900 underline underline-offset-4 font-medium ${cursorStyles}`}>
-          {"Can't find the processor of your choice?"->React.string}
-        </div>}
-        toolTipPosition={Top}
-      />
+      <ACLDiv
+        permission=userPermissionJson.merchantAccountWrite
+        onClick={_ => setShowModal(_ => true)}
+        className={`text-blue-900 underline underline-offset-4 font-medium ${cursorStyles}`}>
+        {"Can't find the processor of your choice?"->React.string}
+      </ACLDiv>
     </UIUtils.RenderIf>
   }
 }
@@ -186,23 +183,18 @@ module NewProcessorCards = {
             {connectorList
             ->Array.mapWithIndex((connector, i) => {
               let connectorName = connector->getConnectorNameString
-              let size = "w-14 h-14 rounded-sm"
-              <ACLToolTip
+              <ACLDiv
                 key={i->string_of_int}
-                access=userPermissionJson.merchantConnectorAccountWrite
+                permission=userPermissionJson.merchantConnectorAccountWrite
+                className="p-2 cursor-pointer"
                 noAccessDescription=noAccessControlTextForProcessors
-                description={connectorName->LogicUtils.capitalizeString}
-                toolTipFor={<div
-                  className="p-2 cursor-pointer"
-                  onClick={_ =>
-                    userPermissionJson.merchantConnectorAccountWrite === Access
-                      ? handleClick(connectorName)
-                      : ()}>
-                  <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
-                </div>}
-                toolTipPosition={Top}
                 tooltipWidthClass="w-30"
-              />
+                description={connectorName->LogicUtils.capitalizeString}
+                onClick={_ => handleClick(connectorName)}>
+                <GatewayIcon
+                  gateway={connectorName->String.toUpperCase} className="w-14 h-14 rounded-sm"
+                />
+              </ACLDiv>
             })
             ->React.array}
           </div>
