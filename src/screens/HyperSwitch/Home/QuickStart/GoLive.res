@@ -53,11 +53,11 @@ let make = (~goLive) => {
       let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
       let valueForProdIntent =
         firstValueFromArray->getDictFromJsonObject->getDictfromDict("ProdIntent")
-      let hideHeader = valueForProdIntent->getBool(IsCompleted->getStringFromVariant, false)
-      setIsProdIntentCompleted(_ => hideHeader)
-      if !hideHeader {
+      let hideHeader = valueForProdIntent->getOptionBool(IsCompleted->getStringFromVariant)
+      if !(hideHeader->Option.getOr(false)) {
         valueForProdIntent->Dict.set(POCemail->getStringFromVariant, email->JSON.Encode.string)
       }
+      setIsProdIntentCompleted(_ => hideHeader)
       setQuickStartPageState(_ => FinalLandingPage)
       setInitialValues(_ => valueForProdIntent)
     } catch {
@@ -86,7 +86,7 @@ let make = (~goLive) => {
 
   let landingButtonGroup = {
     <div className="flex flex-col gap-4 w-full">
-      <UIUtils.RenderIf condition={!isProdIntentCompleted}>
+      <UIUtils.RenderIf condition={!(isProdIntentCompleted->Option.getOr(false))}>
         <Button
           text="Get Production Access"
           buttonType={Primary}

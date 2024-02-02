@@ -348,19 +348,36 @@ module Resources = {
   }
 }
 
+module QuickStartModule = {
+  @react.component
+  let make = () => {
+    let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
+    let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
+    let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
+    let isMobileView = MatchMedia.useMobileChecker()
+    <div>
+      {switch isProdIntentCompleted {
+      | Some(prodIntent) =>
+        if (
+          [
+            typedEnumValue.testPayment.payment_id->String.length > 0,
+            typedEnumValue.integrationCompleted,
+            prodIntent,
+          ]->Array.includes(false)
+        ) {
+          <QuickStart isMobileView />
+        } else {
+          <HomePageOverviewComponent />
+        }
+      | None => <Shimmer styleClass="w-2/3 h-64 dark:bg-black bg-white" shimmerType={Small} />
+      }}
+    </div>
+  }
+}
+
 @react.component
 let make = () => {
   let greeting = HomeUtils.getGreeting()
-  let isMobileView = MatchMedia.useMobileChecker()
-  let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
-  let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
-  let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
-
-  let checkingConditions = [
-    typedEnumValue.testPayment.payment_id->String.length > 0,
-    typedEnumValue.integrationCompleted,
-    isProdIntentCompleted,
-  ]
 
   <>
     <PageUtils.PageHeading
@@ -368,11 +385,7 @@ let make = () => {
       subTitle="Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments."
     />
     <div className="w-full flex flex-col gap-14">
-      {if checkingConditions->Array.includes(false) {
-        <QuickStart isMobileView />
-      } else {
-        <HomePageOverviewComponent />
-      }}
+      <QuickStartModule />
       <RecipesAndPlugins />
       <Resources />
     </div>

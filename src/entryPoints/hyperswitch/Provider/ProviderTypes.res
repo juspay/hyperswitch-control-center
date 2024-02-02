@@ -44,8 +44,8 @@ type contextType = {
   setIntegrationDetails: (integrationDetailsType => integrationDetailsType) => unit,
   permissionInfo: array<getInfoType>,
   setPermissionInfo: (array<getInfoType> => array<getInfoType>) => unit,
-  isProdIntentCompleted: bool,
-  setIsProdIntentCompleted: (bool => bool) => unit,
+  isProdIntentCompleted: option<bool>,
+  setIsProdIntentCompleted: (option<bool> => option<bool>) => unit,
   quickStartPageState: QuickStartTypes.quickStartType,
   setQuickStartPageState: (
     QuickStartTypes.quickStartType => QuickStartTypes.quickStartType

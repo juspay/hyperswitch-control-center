@@ -11,29 +11,37 @@ module GetProductionAccess = {
     let {isProdIntentCompleted, setShowProdIntentForm} = React.useContext(
       GlobalProvider.defaultContext,
     )
-    let backgroundColor = isProdIntentCompleted ? "bg-light_green" : "bg-light_blue"
-    let cursorStyles = isProdIntentCompleted ? "cursor-default" : "cursor-pointer"
-    let productionAccessString = isProdIntentCompleted
+    let isProdIntent = isProdIntentCompleted->Option.getOr(false)
+    let backgroundColor = isProdIntent ? "bg-light_green" : "bg-light_blue"
+    let cursorStyles = isProdIntent ? "cursor-default" : "cursor-pointer"
+    let productionAccessString = isProdIntent
       ? "Production Access Requested"
       : "Get Production Access"
 
-    <div
-      className={`flex items-center gap-2 ${backgroundColor} ${cursorStyles} px-4 py-3 m-2 ml-2 mb-3 !mx-4 whitespace-nowrap rounded`}
-      onClick={_ => {
-        isProdIntentCompleted
-          ? ()
-          : {
-              setShowProdIntentForm(_ => true)
-              mixpanelEvent(~eventName="get_production_access", ())
-            }
-      }}>
-      <div className={`text-white ${textStyles} !font-semibold`}>
-        {productionAccessString->React.string}
+    switch isProdIntentCompleted {
+    | Some(_) =>
+      <div
+        className={`flex items-center gap-2 ${backgroundColor} ${cursorStyles} px-4 py-3 m-2 ml-2 mb-3 !mx-4 whitespace-nowrap rounded`}
+        onClick={_ => {
+          isProdIntent
+            ? ()
+            : {
+                setShowProdIntentForm(_ => true)
+                mixpanelEvent(~eventName="get_production_access", ())
+              }
+        }}>
+        <div className={`text-white ${textStyles} !font-semibold`}>
+          {productionAccessString->React.string}
+        </div>
+        <UIUtils.RenderIf condition={!isProdIntent}>
+          <Icon name="thin-right-arrow" customIconColor="white" size=20 />
+        </UIUtils.RenderIf>
       </div>
-      <UIUtils.RenderIf condition={!isProdIntentCompleted}>
-        <Icon name="thin-right-arrow" customIconColor="white" size=20 />
-      </UIUtils.RenderIf>
-    </div>
+    | None =>
+      <Shimmer
+        styleClass="h-10 px-4 py-3 m-2 ml-2 mb-3 dark:bg-black bg-white rounded" shimmerType={Small}
+      />
+    }
   }
 }
 
