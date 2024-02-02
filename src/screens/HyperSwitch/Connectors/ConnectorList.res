@@ -25,16 +25,15 @@ module CantFindProcessor = {
   @react.component
   let make = (~showRequestConnectorBtn, ~setShowModal) => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let cursorStyles =
+      userPermissionJson.merchantAccountWrite === Access ? "cursor-pointer" : "cursor-default"
 
     <UIUtils.RenderIf condition={showRequestConnectorBtn}>
-      <ToolTip
-        description={userPermissionJson.merchantAccountWrite === Access ? "" : noAccessControlText}
+      <ACLToolTip
         toolTipFor={<div
           onClick={_ =>
             userPermissionJson.merchantAccountWrite === Access ? setShowModal(_ => true) : ()}
-          className={`text-blue-900 ${userPermissionJson.merchantAccountWrite === Access
-              ? "cursor-pointer"
-              : "cursor-default"} underline underline-offset-4 font-medium`}>
+          className={`text-blue-900 underline underline-offset-4 font-medium ${cursorStyles}`}>
           {"Can't find the processor of your choice?"->React.string}
         </div>}
         toolTipPosition={Top}
@@ -122,6 +121,7 @@ module NewProcessorCards = {
               let size = "w-14 h-14 rounded-sm"
               <AddDataAttributes attributes=[("data-testid", connectorName->String.toLowerCase)]>
                 <div
+                  onClick={_ => handleClick(connectorName)}
                   key={i->string_of_int}
                   className="border p-6 gap-4 bg-white rounded flex flex-col justify-between">
                   <div className="flex flex-col gap-3 items-start">
@@ -138,6 +138,7 @@ module NewProcessorCards = {
                     text="+ Connect"
                     buttonType={Transparent}
                     buttonSize={Small}
+                    textStyle="text-jp-gray-900"
                   />
                 </div>
               </AddDataAttributes>
@@ -186,11 +187,11 @@ module NewProcessorCards = {
             ->Array.mapWithIndex((connector, i) => {
               let connectorName = connector->getConnectorNameString
               let size = "w-14 h-14 rounded-sm"
-              <ToolTip
+              <ACLToolTip
                 key={i->string_of_int}
-                description={userPermissionJson.merchantConnectorAccountWrite === Access
-                  ? connectorName->LogicUtils.capitalizeString
-                  : noAccessControlTextForProcessors}
+                access=userPermissionJson.merchantConnectorAccountWrite
+                noAccessDescription=noAccessControlTextForProcessors
+                description={connectorName->LogicUtils.capitalizeString}
                 toolTipFor={<div
                   className="p-2 cursor-pointer"
                   onClick={_ =>

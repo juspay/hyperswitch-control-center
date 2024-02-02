@@ -222,20 +222,23 @@ module RecipesAndPlugins = {
     let isStripePlusPayPalCompleted = enumDetails->checkStripePlusPayPal
     let isWooCommercePalCompleted = enumDetails->checkWooCommerce
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-    let blockCondition =
+    let blockConditionAccessVal =
       userPermissionJson.merchantConnectorAccountRead === NoAccess &&
         userPermissionJson.merchantConnectorAccountWrite === NoAccess
+        ? AuthTypes.NoAccess
+        : AuthTypes.Access
 
     <div className="flex flex-col gap-4">
       <p className=headingStyle> {"Recipes & Plugins"->React.string} </p>
       <div className="grid grid-cols-1 md:grid-cols-2 w-full gap-4">
-        <ToolTip
-          description={blockCondition ? noAccessControlText : ""}
+        <ACLToolTip
+          access=blockConditionAccessVal
+          noAccessDescription=noAccessControlText
           toolTipPosition=Top
           toolTipFor={<div
             className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted, ())}
             onClick={_ => {
-              blockCondition
+              blockConditionAccessVal == NoAccess
                 ? ()
                 : {
                     mixpanelEvent(~eventName=`stripe_plus_paypal`, ())
@@ -263,13 +266,14 @@ module RecipesAndPlugins = {
             </div>
           </div>}
         />
-        <ToolTip
-          description={blockCondition ? noAccessControlText : ""}
+        <ACLToolTip
+          access=blockConditionAccessVal
+          noAccessDescription=noAccessControlText
           toolTipPosition=Top
           toolTipFor={<div
             className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted, ())}
             onClick={_ => {
-              blockCondition
+              blockConditionAccessVal == NoAccess
                 ? ()
                 : {
                     mixpanelEvent(~eventName=`woocommerce`, ())
