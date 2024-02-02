@@ -231,76 +231,62 @@ module RecipesAndPlugins = {
     <div className="flex flex-col gap-4">
       <p className=headingStyle> {"Recipes & Plugins"->React.string} </p>
       <div className="grid grid-cols-1 md:grid-cols-2 w-full gap-4">
-        <ACLToolTip
-          access=blockConditionAccessVal
+        <ACLDiv
+          permission=blockConditionAccessVal
           noAccessDescription=noAccessControlText
-          toolTipPosition=Top
-          toolTipFor={<div
-            className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted, ())}
-            onClick={_ => {
-              blockConditionAccessVal == NoAccess
-                ? ()
-                : {
-                    mixpanelEvent(~eventName=`stripe_plus_paypal`, ())
-                    RescriptReactRouter.push("stripe-plus-paypal")
-                  }
-            }}>
-            <div className="flex items-center gap-2">
-              <p className=cardHeaderTextStyle> {"Use PayPal with Stripe"->React.string} </p>
-              <Icon
-                name="chevron-right"
-                size=12
-                className="group-hover:scale-125 transition duration-200 ease-in-out"
-              />
-              <UIUtils.RenderIf condition={isStripePlusPayPalCompleted}>
-                <div className="flex ">
-                  <Icon name="success-tag" size=22 className="!w-32" />
-                </div>
-              </UIUtils.RenderIf>
-            </div>
-            <div className="flex gap-2 h-full">
-              <p className=paragraphTextVariant>
-                {"Get the best of Stripe's developer experience and Paypal's user base"->React.string}
-              </p>
-              <img src="/assets/StripePlusPaypal.svg" className=imageTransitionCss />
-            </div>
-          </div>}
-        />
-        <ACLToolTip
-          access=blockConditionAccessVal
+          className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted, ())}
+          onClick={_ => {
+            mixpanelEvent(~eventName=`stripe_plus_paypal`, ())
+            RescriptReactRouter.push("stripe-plus-paypal")
+          }}>
+          <div className="flex items-center gap-2">
+            <p className=cardHeaderTextStyle> {"Use PayPal with Stripe"->React.string} </p>
+            <Icon
+              name="chevron-right"
+              size=12
+              className="group-hover:scale-125 transition duration-200 ease-in-out"
+            />
+            <UIUtils.RenderIf condition={isStripePlusPayPalCompleted}>
+              <div className="flex ">
+                <Icon name="success-tag" size=22 className="!w-32" />
+              </div>
+            </UIUtils.RenderIf>
+          </div>
+          <div className="flex gap-2 h-full">
+            <p className=paragraphTextVariant>
+              {"Get the best of Stripe's developer experience and Paypal's user base"->React.string}
+            </p>
+            <img src="/assets/StripePlusPaypal.svg" className=imageTransitionCss />
+          </div>
+        </ACLDiv>
+        <ACLDiv
+          permission=blockConditionAccessVal
           noAccessDescription=noAccessControlText
-          toolTipPosition=Top
-          toolTipFor={<div
-            className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted, ())}
-            onClick={_ => {
-              blockConditionAccessVal == NoAccess
-                ? ()
-                : {
-                    mixpanelEvent(~eventName=`woocommerce`, ())
-                    RescriptReactRouter.push("woocommerce")
-                  }
-            }}>
-            <div className="flex items-center gap-2">
-              <p className=cardHeaderTextStyle> {"WooCommerce plugin"->React.string} </p>
-              <Icon
-                name="chevron-right"
-                size=12
-                className="group-hover:scale-125 transition duration-200 ease-in-out"
-              />
-              <UIUtils.RenderIf condition={isWooCommercePalCompleted}>
-                <div className="flex ">
-                  <Icon name="success-tag" size=22 className="!w-32" />
-                </div>
-              </UIUtils.RenderIf>
-            </div>
-            <div className="flex gap-2 h-full">
-              <p className=paragraphTextVariant>
-                {"Give your shoppers a lightweight and embedded payment experience with our plugin"->React.string}
-              </p>
-              <img src="/assets/Woocommerce.svg" className=imageTransitionCss />
-            </div>
-          </div>}
-        />
+          className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted, ())}
+          onClick={_ => {
+            mixpanelEvent(~eventName=`woocommerce`, ())
+            RescriptReactRouter.push("woocommerce")
+          }}>
+          <div className="flex items-center gap-2">
+            <p className=cardHeaderTextStyle> {"WooCommerce plugin"->React.string} </p>
+            <Icon
+              name="chevron-right"
+              size=12
+              className="group-hover:scale-125 transition duration-200 ease-in-out"
+            />
+            <UIUtils.RenderIf condition={isWooCommercePalCompleted}>
+              <div className="flex ">
+                <Icon name="success-tag" size=22 className="!w-32" />
+              </div>
+            </UIUtils.RenderIf>
+          </div>
+          <div className="flex gap-2 h-full">
+            <p className=paragraphTextVariant>
+              {"Give your shoppers a lightweight and embedded payment experience with our plugin"->React.string}
+            </p>
+            <img src="/assets/Woocommerce.svg" className=imageTransitionCss />
+          </div>
+        </ACLDiv>
       </div>
     </div>
   }
