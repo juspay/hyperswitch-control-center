@@ -3,6 +3,47 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.01.1
+
+### Features
+
+- Table access block ([#323](https://github.com/juspay/hyperswitch-control-center/pull/323)) ([`4950084`](https://github.com/juspay/hyperswitch-control-center/commit/4950084b4bce57eac9fb183f65e773ee86cfd567))
+
+### Bug Fixes
+
+- UI css fixes ([#320](https://github.com/juspay/hyperswitch-control-center/pull/320)) ([`07ff876`](https://github.com/juspay/hyperswitch-control-center/commit/07ff876051a9bd86b1ab4c4f5423dcf0d5c54015))
+- Switch Merchant Issue ([#324](https://github.com/juspay/hyperswitch-control-center/pull/324)) ([`780c93b`](https://github.com/juspay/hyperswitch-control-center/commit/780c93b57d14b400dd3be2ab064e544844a04c3d))
+
+### Miscellaneous Tasks
+
+- Exn & Math Core API use ([#319](https://github.com/juspay/hyperswitch-control-center/pull/319)) ([`b063a78`](https://github.com/juspay/hyperswitch-control-center/commit/b063a78a8d9a2eeafc58b416ff987d801e328f6c))
+
+**Full Changelog:** [`2024.02.01.0...2024.02.01.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.01.0...2024.02.01.1)
+
+- - -
+
+## 2024.02.01.0
+
+### Features
+
+- Acl button access block ([#314](https://github.com/juspay/hyperswitch-control-center/pull/314)) ([`2fd2436`](https://github.com/juspay/hyperswitch-control-center/commit/2fd2436febf71f0a3bc4b6413fa6b4ce06375fa5))
+
+### Bug Fixes
+
+- Profile access control ([#317](https://github.com/juspay/hyperswitch-control-center/pull/317)) ([`50db59f`](https://github.com/juspay/hyperswitch-control-center/commit/50db59f25b564edb2826a2b1130b0dd8ec04e1c9))
+
+### Miscellaneous Tasks
+
+- Add workflow dispatch for cypress ([`f65ca5a`](https://github.com/juspay/hyperswitch-control-center/commit/f65ca5aab56ffc3876902787f3d526363a68f062))
+- Add workflow dispatch for cypress ([`8349f61`](https://github.com/juspay/hyperswitch-control-center/commit/8349f614a931767001e259e9b27d3148938f40e8))
+- Add workflow dispatch for cypress ([`c01bbc5`](https://github.com/juspay/hyperswitch-control-center/commit/c01bbc591b72e7b8498b4f4cc67444bab9f27382))
+- Add workflow dispatch for cypress ([`0c94ac8`](https://github.com/juspay/hyperswitch-control-center/commit/0c94ac8b02c3978ba75fa8c5a5422e4ca4adc46b))
+- Add workflow dispatch for cypress ([`de87a7b`](https://github.com/juspay/hyperswitch-control-center/commit/de87a7bfe57eeda2391c5205028fc0cd55691cc5))
+
+**Full Changelog:** [`2024.01.31.1...2024.02.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.01.31.1...2024.02.01.0)
+
+- - -
+
 ## 2024.01.31.1
 
 ### Miscellaneous Tasks

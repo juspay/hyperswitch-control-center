@@ -301,7 +301,7 @@ let responseHandler = async (
           )
         }
       }
-      Js.Exn.raiseError(errorStringifiedJson)
+      Exn.raiseError(errorStringifiedJson)
     }
   }
 }
@@ -313,15 +313,15 @@ let catchHandler = (
   ~isPlayground,
   ~popUpCallBack,
 ) => {
-  switch Js.Exn.message(err) {
-  | Some(msg) => Js.Exn.raiseError(msg)
+  switch Exn.message(err) {
+  | Some(msg) => Exn.raiseError(msg)
   | None => {
       if isPlayground {
         popUpCallBack()
       } else if showErrorToast {
         showToast(~toastType=ToastError, ~message="Something Went Wrong", ~autoClose=false, ())
       }
-      Js.Exn.raiseError("Failed to Fetch")
+      Exn.raiseError("Failed to Fetch")
     }
   }
 }
@@ -363,7 +363,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
         ~popUpCallBack,
       )
     } catch {
-    | Js.Exn.Error(e) =>
+    | Exn.Error(e) =>
       catchHandler(
         ~err={e},
         ~requestMethod={Fetch.Get},
@@ -373,7 +373,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
         ~isPlayground,
         ~popUpCallBack,
       )
-    | _ => Js.Exn.raiseError("Something went wrong")
+    | _ => Exn.raiseError("Something went wrong")
     }
   }
 }
@@ -429,7 +429,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
         ~popUpCallBack,
       )
     } catch {
-    | Js.Exn.Error(e) =>
+    | Exn.Error(e) =>
       catchHandler(
         ~err={e},
         ~requestMethod={method},
@@ -438,7 +438,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
         ~isPlayground,
         ~popUpCallBack,
       )
-    | _ => Js.Exn.raiseError("Something went wrong")
+    | _ => Exn.raiseError("Something went wrong")
     }
   }
 }

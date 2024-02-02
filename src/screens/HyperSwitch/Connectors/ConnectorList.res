@@ -44,6 +44,7 @@ module NewProcessorCards = {
   ) => {
     open ConnectorUtils
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
     let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
       ? connectorListForLive
@@ -124,7 +125,8 @@ module NewProcessorCards = {
                   <p className="overflow-hidden text-gray-400 flex-1 line-clamp-3">
                     {connectorInfo.description->React.string}
                   </p>
-                  <Button
+                  <ACLButton
+                    access={userPermissionJson.merchantConnectorAccountWrite}
                     text="+ Connect"
                     buttonType={Transparent}
                     buttonSize={Small}
@@ -254,6 +256,7 @@ let make = (~isPayoutFlow=false) => {
   let showConnectorIcons = configuredConnectors->Array.length > detailedCardCount
   let (searchText, setSearchText) = React.useState(_ => "")
   let fetchConnectorListResponse = useFetchConnectorList()
+  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
   let getConnectorListAndUpdateState = async () => {
     open LogicUtils
@@ -338,7 +341,10 @@ let make = (~isPayoutFlow=false) => {
             resultsPerPage=20
             offset
             setOffset
-            entity={ConnectorTableUtils.connectorEntity(`${entityPrefix}connectors`)}
+            entity={ConnectorTableUtils.connectorEntity(
+              `${entityPrefix}connectors`,
+              ~permission=userPermissionJson.merchantConnectorAccountWrite,
+            )}
             currrentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false
           />

@@ -510,9 +510,9 @@ let useFetchBusinessProfiles = () => {
       setBusinessProfiles(._ => stringifiedResponse)
       Nullable.make(stringifiedResponse->getValueFromBusinessProfile)
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Js.Exn.raiseError(err)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
       }
     }
   }

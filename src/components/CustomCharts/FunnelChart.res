@@ -26,7 +26,7 @@ let make = (
     let currentVol = funnelData->LogicUtils.getInt(metric.metric_name_db, 0)->Float.fromInt
     let previousVol =
       funnelData->LogicUtils.getInt(previousMetric, currentVol->Float.toInt)->Float.fromInt
-    Js.Math.log10(currentVol *. 100. /. previousVol) /. 2.0
+    Math.log10(currentVol *. 100. /. previousVol) /. 2.0
   })
 
   let fixedWidth = ref(size *. 70.)

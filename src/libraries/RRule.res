@@ -122,7 +122,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
   let getWeek = date => {
     // let dat = getDate(date)
     // let da = getDay(date)
-    // let a = Js.Math.ceil_int(Int.toFloat(dat + da)) / 7
+    // let a = Math.ceil(Int.toFloat(dat + da)) / 7
     // a + 1
     let firstWeekDay = Js.Date.makeWithYMD(
       ~year=Js.Date.getFullYear(date),
@@ -132,7 +132,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
     )
     let offsetDate =
       Int.fromFloat(Js.Date.getDate(date)) + Int.fromFloat(Js.Date.getDay(firstWeekDay)) - 1
-    Js.Math.floor_int(Float.fromInt(offsetDate / 7)) + 1
+    Math.Int.floor(Float.fromInt(offsetDate / 7)) + 1
   }
   let byWeek = switch recipe.recurrence {
   | Some(recur) =>

@@ -288,8 +288,11 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       body->Dict.set("merchant_id", value->JSON.Encode.string)
       let res = await updateDetails(url, body->JSON.Encode.object, Post, ())
       let responseDict = res->getDictFromJsonObject
-      let token = responseDict->getString("token", "")
       let switchedMerchantId = responseDict->getString("merchant_id", "")
+      let token = HyperSwitchAuthUtils.parseResponseJson(
+        ~json=res,
+        ~email=responseDict->LogicUtils.getString("email", ""),
+      )
       LocalStorage.setItem("login", token)
       HSwitchUtils.setMerchantDetails("merchant_id", switchedMerchantId->JSON.Encode.string)
       setSuccessModal(_ => true)

@@ -50,7 +50,7 @@ let make = (
     setShowModal(_ => false)
     let dict = values->LogicUtils.getDictFromJsonObject
     let amount = dict->LogicUtils.getFloat("amount", 0.0)
-    Dict.set(dict, "amount", Js.Math.round(amount *. 100.0)->JSON.Encode.float)
+    Dict.set(dict, "amount", Math.round(amount *. 100.0)->JSON.Encode.float)
     let body = dict
     Dict.set(body, "payment_id", order.payment_id->JSON.Encode.string)
     Dict.set(body, "refund_type", "instant"->JSON.Encode.string)
@@ -94,7 +94,7 @@ let make = (
         } else {
           "00"
         }
-        let receivedValue = amoutAvailableToRefund->Js.Math.floor_float->Float.toString
+        let receivedValue = amoutAvailableToRefund->Math.floor->Float.toString
         let formatted_amount = `${receivedValue}.${decimal}`
         Dict.set(
           errors,
