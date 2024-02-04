@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.04.0
+
+### Bug Fixes
+
+- Glitch in homepage ([#325](https://github.com/juspay/hyperswitch-control-center/pull/325)) ([`a3116ed`](https://github.com/juspay/hyperswitch-control-center/commit/a3116ed23cd226cd4257b8df7e27531c4150aa84))
+
+**Full Changelog:** [`2024.02.01.1...2024.02.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.01.1...2024.02.04.0)
+
+- - -
+
 ## 2024.02.01.1
 
 ### Features
