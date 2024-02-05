@@ -1,5 +1,5 @@
 import * as Fs from "fs";
-
+import fetch from "node-fetch";
 const errorHandler = (res, result) => {
   res.writeHead(500, { "Content-Type": "application/json" });
   res.write(JSON.stringify(result));
@@ -11,10 +11,13 @@ let checkHealth = async (res) => {
     env_config: false,
     app_file: false,
     wasm_file: false,
+    api_check: false,
   };
   try {
-    let configFile = "dist/hyperswitch/index.html";
-    let data = Fs.readFileSync(configFile, { encoding: "utf8" });
+    let indexFile = "dist/hyperswitch/index.html";
+    let envFile = "dist/hyperswitch/env-config.js";
+
+    let data = Fs.readFileSync(indexFile, { encoding: "utf8" });
     if (data.includes(`<script src="/env-config.js"></script>`)) {
       output.env_config = true;
     }
@@ -25,6 +28,18 @@ let checkHealth = async (res) => {
       data.includes(`<script type="module" src="/wasm/euclid.js"></script>`)
     ) {
       output.wasm_file = true;
+    }
+
+    let envString = Fs.readFileSync(envFile, { encoding: "utf8" });
+    const match = envString.match(/apiBaseUrl:\s*"([^"]*)"/);
+
+    // Check if match is found and extract the value
+    const apiBaseUrl = match ? match[1] : null;
+
+    let api = await fetch("https://sandbox.hyperswitch.io/health");
+
+    if (api && api.ok) {
+      output.api_check = true;
     }
     let values = Object.values(output);
     if (values.includes(false)) {
