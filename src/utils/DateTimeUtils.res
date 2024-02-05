@@ -82,7 +82,7 @@ let toUtc = (datetime: Js.Date.t) => {
 
 let getStartEndDiff = (startDate, endDate) => {
   let diffTime = Math.abs(
-    endDate->Js.Date.fromString->Js.Date.getTime -. startDate->Js.Date.fromString->Js.Date.getTime,
+    endDate->Date.fromString->Js.Date.getTime -. startDate->Date.fromString->Js.Date.getTime,
   )
   diffTime
 }
@@ -105,7 +105,7 @@ let isStartBeforeEndDate = (start, end) => {
 }
 
 let getFormattedDate = (date, format) => {
-  date->Js.Date.fromString->Js.Date.toISOString->TimeZoneHook.formattedISOString(format)
+  date->Date.fromString->Js.Date.toISOString->TimeZoneHook.formattedISOString(format)
 }
 type month = Jan | Feb | Mar | Apr | May | Jun | Jul | Aug | Sep | Oct | Nov | Dec
 

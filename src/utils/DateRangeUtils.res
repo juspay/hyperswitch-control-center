@@ -61,7 +61,7 @@ let getPredefinedStartAndEndDate = (
 
   let daysInMonth =
     (customDate->DayJs.getDayJsForJsDate).endOf(. "month").toString(.)
-    ->Js.Date.fromString
+    ->Date.fromString
     ->Js.Date.getDate
   let prevDate = (customDate->DayJs.getDayJsForJsDate).subtract(. 6, "month").toString(.)
   let daysInSixMonth = (customDate->DayJs.getDayJsForJsDate).diff(. prevDate, "day")->Int.toFloat
@@ -85,7 +85,7 @@ let getPredefinedStartAndEndDate = (
       String.make(customDate->Js.Date.getHours),
       String.make(customDate->Js.Date.getMinutes),
       String.make(customDate->Js.Date.getSeconds),
-    )->Js.Date.fromString
+    )->Date.fromString
 
   let todayInitial = date
   let today =

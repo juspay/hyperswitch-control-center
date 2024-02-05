@@ -1,7 +1,7 @@
 let filterFieldsPortalName = "analytics"
 
 let setPrecision = (num, ~digit=2, ()) => {
-  num->Js.Float.toFixedWithPrecision(~digits=digit)->Js.Float.fromString
+  num->Float.toFixedWithPrecision(~digits=digit)->Js.Float.fromString
 }
 
 let getQueryData = json => {

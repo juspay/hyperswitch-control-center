@@ -278,7 +278,7 @@ module FieldInp = {
     let val = ReactFinalForm.useField(`${prefix}.value.value`).input
 
     let convertedValue = React.useMemo0(() => {
-      let keyDescriptionMapper = Window.getDescriptionCategory()->MapTypes.changeType
+      let keyDescriptionMapper = Window.getDescriptionCategory()->Identity.jsonToAnyType
       keyDescriptionMapper->LogicUtils.convertMapObjectToDict
     })
 

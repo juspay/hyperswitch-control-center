@@ -1,4 +1,3 @@
-external toJson: Nullable.t<'a> => JSON.t = "%identity"
 open DynamicTableUtils
 open NewThemeUtils
 type sortTyp = ASC | DSC
@@ -545,7 +544,7 @@ let make = (
       checkBoxProps.setSelectedData(_ => {
         filteredData->Array.map(
           ele => {
-            ele->toJson
+            ele->Identity.nullableOfAnyTypeToJsonType
           },
         )
       })
@@ -581,10 +580,12 @@ let make = (
 
     let setIsSelected = isSelected => {
       if isSelected {
-        checkBoxProps.setSelectedData(prev => prev->Array.concat([nullableItem->toJson]))
+        checkBoxProps.setSelectedData(prev =>
+          prev->Array.concat([nullableItem->Identity.nullableOfAnyTypeToJsonType])
+        )
       } else {
         checkBoxProps.setSelectedData(prev =>
-          prev->Array.filter(item => item !== nullableItem->toJson)
+          prev->Array.filter(item => item !== nullableItem->Identity.nullableOfAnyTypeToJsonType)
         )
       }
     }
@@ -604,7 +605,9 @@ let make = (
       }
       if checkBoxProps.showCheckBox {
         let selectedRowIndex =
-          checkBoxProps.selectedData->Array.findIndex(item => item === nullableItem->toJson)
+          checkBoxProps.selectedData->Array.findIndex(item =>
+            item === nullableItem->Identity.nullableOfAnyTypeToJsonType
+          )
         actualRows
         ->Array.unshift(
           CustomCell(

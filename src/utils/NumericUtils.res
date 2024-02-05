@@ -44,7 +44,7 @@ let pretty = (range: array<float>, n: int) => {
     } else {
       let i123 = Math.floor(range[0]->Option.getOr(0.) /. unit.contents) *. unit.contents
 
-      i123->Js.Float.toFixedWithPrecision(~digits=base_toFixed)->Float.fromString->Option.getOr(0.)
+      i123->Float.toFixedWithPrecision(~digits=base_toFixed)->Float.fromString->Option.getOr(0.)
     }
 
     let iRef = ref(i)
@@ -55,7 +55,7 @@ let pretty = (range: array<float>, n: int) => {
       if base_toFixed > 0 && unit.contents > 0. {
         iRef :=
           iRef.contents
-          ->Js.Float.toFixedWithPrecision(~digits=base_toFixed)
+          ->Float.toFixedWithPrecision(~digits=base_toFixed)
           ->Float.fromString
           ->Option.getOr(0.)
       } else {

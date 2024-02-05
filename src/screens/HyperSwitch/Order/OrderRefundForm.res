@@ -88,7 +88,7 @@ let make = (
     | Some(floatVal) =>
       if floatVal > amoutAvailableToRefund {
         let amountSplitArr =
-          Js.Float.toFixedWithPrecision(amoutAvailableToRefund, ~digits=2)->String.split(".")
+          Float.toFixedWithPrecision(amoutAvailableToRefund, ~digits=2)->String.split(".")
         let decimal = if amountSplitArr->Array.length > 1 {
           amountSplitArr[1]->Option.getOr("")
         } else {

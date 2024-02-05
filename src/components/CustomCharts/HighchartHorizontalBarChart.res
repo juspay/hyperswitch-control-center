@@ -53,7 +53,7 @@ let xLabelFormatter: Js_OO.Callback.arity1<xAxisRecord => string> = {
     }
     `<div style="display: inline-block; margin-left: 10px;" class="text-black dark:text-white"><div class="font-semibold"> ${value} </div><div class="font-medium" style="display: inline-block;">` ++
     (y->Float.fromInt *. 100. /. seriesSum->Float.fromInt)
-      ->Js.Float.toFixedWithPrecision(~digits=2) ++ `%</div></div>`
+      ->Float.toFixedWithPrecision(~digits=2) ++ `%</div></div>`
   }
 }
 

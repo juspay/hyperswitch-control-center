@@ -20,7 +20,7 @@ let make = (
     setSearchVal(_ => value)
   }
 
-  let handleSubmit = (_, _) => {Nullable.null->Js.Promise.resolve}
+  let handleSubmit = (_, _) => {Nullable.null->Promise.resolve}
 
   let inputSearch: ReactFinalForm.fieldRenderPropsInput = {
     name: "name",

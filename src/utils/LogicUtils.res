@@ -382,22 +382,22 @@ let shortNum = (
   | IND =>
     switch value {
     | v if v >= 1.0e+7 =>
-      `${Js.Float.toFixedWithPrecision(v /. 1.0e+7, ~digits=presision)->removeTrailingZero}Cr`
+      `${Float.toFixedWithPrecision(v /. 1.0e+7, ~digits=presision)->removeTrailingZero}Cr`
     | v if v >= 1.0e+5 =>
-      `${Js.Float.toFixedWithPrecision(v /. 1.0e+5, ~digits=presision)->removeTrailingZero}L`
+      `${Float.toFixedWithPrecision(v /. 1.0e+5, ~digits=presision)->removeTrailingZero}L`
     | v if v >= 1.0e+3 =>
-      `${Js.Float.toFixedWithPrecision(v /. 1.0e+3, ~digits=presision)->removeTrailingZero}K`
-    | _ => Js.Float.toFixedWithPrecision(labelValue, ~digits=presision)->removeTrailingZero
+      `${Float.toFixedWithPrecision(v /. 1.0e+3, ~digits=presision)->removeTrailingZero}K`
+    | _ => Float.toFixedWithPrecision(labelValue, ~digits=presision)->removeTrailingZero
     }
   | USD | DefaultConvert =>
     switch value {
     | v if v >= 1.0e+9 =>
-      `${Js.Float.toFixedWithPrecision(v /. 1.0e+9, ~digits=presision)->removeTrailingZero}B`
+      `${Float.toFixedWithPrecision(v /. 1.0e+9, ~digits=presision)->removeTrailingZero}B`
     | v if v >= 1.0e+6 =>
-      `${Js.Float.toFixedWithPrecision(v /. 1.0e+6, ~digits=presision)->removeTrailingZero}M`
+      `${Float.toFixedWithPrecision(v /. 1.0e+6, ~digits=presision)->removeTrailingZero}M`
     | v if v >= 1.0e+3 =>
-      `${Js.Float.toFixedWithPrecision(v /. 1.0e+3, ~digits=presision)->removeTrailingZero}K`
-    | _ => Js.Float.toFixedWithPrecision(labelValue, ~digits=presision)->removeTrailingZero
+      `${Float.toFixedWithPrecision(v /. 1.0e+3, ~digits=presision)->removeTrailingZero}K`
+    | _ => Float.toFixedWithPrecision(labelValue, ~digits=presision)->removeTrailingZero
     }
   }
 }
