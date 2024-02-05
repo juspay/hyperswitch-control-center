@@ -172,7 +172,7 @@ let connectorStatusStyle = connectorStatus =>
 
 let getCell = (connector: connectorPayload, colType): Table.cell => {
   switch colType {
-  | Name => Text(connector.connector_name->LogicUtils.getTitle)
+  | Name => Text(connector.connector_name->ConnectorUtils.getDisplayNameForConnectors)
   | TestMode => Text(connector.test_mode ? "True" : "False")
   | Disabled =>
     Label({

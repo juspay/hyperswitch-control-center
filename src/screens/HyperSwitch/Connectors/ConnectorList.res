@@ -119,7 +119,7 @@ module NewProcessorCards = {
                   <div className="flex flex-col gap-3 items-start">
                     <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
                     <p className={`${p1MediumTextStyle} break-all`}>
-                      {connectorName->LogicUtils.capitalizeString->React.string}
+                      {connectorName->getDisplayNameForConnectors->React.string}
                     </p>
                   </div>
                   <p className="overflow-hidden text-gray-400 flex-1 line-clamp-3">
@@ -181,7 +181,7 @@ module NewProcessorCards = {
               let size = "w-14 h-14 rounded-sm"
               <ToolTip
                 key={i->string_of_int}
-                description={connectorName->LogicUtils.capitalizeString}
+                description={connectorName->getDisplayNameForConnectors}
                 toolTipFor={<AddDataAttributes
                   attributes=[("data-testid", connectorName->String.toLowerCase)]>
                   <div className="p-2 cursor-pointer" onClick={_ => handleClick(connectorName)}>
