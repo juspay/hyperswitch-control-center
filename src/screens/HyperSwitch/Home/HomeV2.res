@@ -29,7 +29,7 @@ module HomePageHorizontalStepper = {
       }
     }
 
-    let getTextStyle = `${getTextClass(~textVariant=P2, ~paragraphTextVariant=Medium, ())} `
+    let getTextStyle = getTextClass((P2, Medium))
 
     <div className="flex w-full gap-2 justify-evenly">
       {stepperItemsArray
@@ -177,7 +177,7 @@ module QuickStart = {
     <div className="flex flex-col md:flex-row pt-10 border rounded-md bg-white gap-4">
       <div className="flex flex-col justify-evenly gap-8 pl-10 pb-10 pr-2 md:pr-0">
         <div className="flex flex-col gap-2">
-          <p className={getTextClass(~textVariant=H2, ())}> {"Quick Start"->React.string} </p>
+          <p className={getTextClass((H2, Optional))}> {"Quick Start"->React.string} </p>
           <p className=subtextStyle>
             {"Configure and start using Hyperswitch to get an overview of our offerings and how hyperswitch can help you control your payments"->React.string}
           </p>
