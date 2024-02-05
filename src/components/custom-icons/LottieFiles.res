@@ -1,5 +1,5 @@
 open Promise
-type lottieFileJson = Loading(Js.Promise.t<JSON.t>) | Loaded(JSON.t)
+type lottieFileJson = Loading(Promise.t<JSON.t>) | Loaded(JSON.t)
 
 let selectedTick = "selectedTick.json"
 let deselectTick = "deselectTick.json"

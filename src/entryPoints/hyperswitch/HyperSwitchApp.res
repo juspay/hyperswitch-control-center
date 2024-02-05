@@ -281,9 +281,7 @@ let make = () => {
                           />
                         </AccessControl>
                       | list{"customers", ...remainingPath} =>
-                        <AccessControl
-                          isEnabled=featureFlagDetails.customersModule
-                          permission=userPermissionJson.customerRead>
+                        <AccessControl permission=userPermissionJson.customerRead>
                           <EntityScaffold
                             entityName="Customers"
                             remainingPath

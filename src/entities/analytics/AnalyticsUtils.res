@@ -147,7 +147,7 @@ let (startTimeFilterKey, endTimeFilterKey, optFilterKey) = ("startTime", "endTim
 let getDateCreatedObject = () => {
   let currentDate = Js.Date.now()
   let filterCreatedDict = Dict.make()
-  let currentTimestamp = currentDate->Js.Date.fromFloat->Js.Date.toISOString
+  let currentTimestamp = currentDate->Js.Date.fromFloat->Date.toISOString
   let dateFormat = "YYYY-MM-DDTHH:mm:[00][Z]"
   Dict.set(
     filterCreatedDict,
@@ -164,7 +164,7 @@ let getDateCreatedObject = () => {
     JSON.Encode.string(
       prevTime
       ->Js.Date.fromFloat
-      ->Js.Date.toISOString
+      ->Date.toISOString
       ->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]"),
     )
   }
@@ -285,11 +285,11 @@ let filterBody = (filterBodyEntity: filterBodyEntity) => {
       (filterBodyEntity.startTime->DayJs.getDayJsForString).subtract(.
         1,
         "day",
-      ).toDate(.)->Js.Date.toISOString,
+      ).toDate(.)->Date.toISOString,
       (filterBodyEntity.endTime->DayJs.getDayJsForString).add(.
         1,
         "day",
-      ).toDate(.)->Js.Date.toISOString,
+      ).toDate(.)->Date.toISOString,
     )
   } catch {
   | _ => (filterBodyEntity.startTime, filterBodyEntity.endTime)
@@ -306,7 +306,7 @@ let filterBody = (filterBodyEntity: filterBodyEntity) => {
 
 let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
   let fromTime = fromTime
-  let nowtime = Js.Date.make()->Js.Date.toString->DayJs.getDayJsForString
+  let nowtime = Date.make()->Date.toString->DayJs.getDayJsForString
   let dateTimeFormat = "YYYY-MM-DDTHH:mm:ss[Z]"
   if typeTime == "last7" {
     let last7FromTime = (fromTime->DayJs.getDayJsForString).subtract(. 7, "day")
@@ -347,12 +347,12 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
 
     [timeArray]
   } else if typeTime == "currentmonth" {
-    let currentMonth = Js.Date.fromFloat(Js.Date.setDate(Js.Date.make(), 1.0))
+    let currentMonth = Js.Date.fromFloat(Js.Date.setDate(Date.make(), 1.0))
     let currentMonthFromTime =
       Js.Date.fromFloat(
         Js.Date.setHoursMS(currentMonth, ~hours=0.0, ~minutes=0.0, ~seconds=0.0, ()),
       )
-      ->Js.Date.toString
+      ->Date.toString
       ->DayJs.getDayJsForString
     let currentMonthToTime = nowtime
     let timeArray = Dict.fromArray([
@@ -362,8 +362,8 @@ let deltaDate = (~fromTime: string, ~_toTime: string, ~typeTime: string) => {
 
     [timeArray]
   } else if typeTime == "currentweek" {
-    let currentWeekFromTime = Js.Date.make()->DateTimeUtils.getStartOfWeek(Monday)
-    let currentWeekToTime = Js.Date.make()->DayJs.getDayJsForJsDate
+    let currentWeekFromTime = Date.make()->DateTimeUtils.getStartOfWeek(Monday)
+    let currentWeekToTime = Date.make()->DayJs.getDayJsForJsDate
 
     let timeArray = Dict.fromArray([
       ("fromTime", currentWeekFromTime.format(. dateTimeFormat)),
@@ -590,10 +590,10 @@ let generateTablePayload = (
 let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statType: string) => {
   let timeText = if timeRanges.fromTime !== "" && timeRanges.toTime !== "" {
     `${"\n"} ${timeRanges.fromTime
-      ->Js.Date.fromString
+      ->Date.fromString
       ->DateTimeUtils.utcToIST
       ->TimeZoneHook.formattedISOString("YYYY-MM-DD HH:mm:ss")}- ${"\n"} ${timeRanges.toTime
-      ->Js.Date.fromString
+      ->Date.fromString
       ->DateTimeUtils.utcToIST
       ->TimeZoneHook.formattedISOString("YYYY-MM-DD HH:mm:ss")}`
   } else {

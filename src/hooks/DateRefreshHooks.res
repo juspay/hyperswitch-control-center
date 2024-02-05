@@ -4,7 +4,7 @@ let useConstructQueryOnBasisOfOpt = () => {
   let customTimezoneToISOString = TimeZoneHook.useCustomTimeZoneToIsoString()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let isoStringToCustomTimezoneInFloat = TimeZoneHook.useIsoStringToCustomTimeZoneInFloat()
-  let todayDayJsObj = Js.Date.make()->Js.Date.toString->getDayJsForString
+  let todayDayJsObj = Date.make()->Date.toString->getDayJsForString
 
   let todayDate = todayDayJsObj.format(. "YYYY-MM-DD")
   let todayTime = todayDayJsObj.format(. "HH:mm:ss")

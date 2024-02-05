@@ -36,6 +36,6 @@ let getMixpanelRouteName = (pageTitle, url: RescriptReactRouter.url) => {
 }
 
 let delay = ms =>
-  Js.Promise.make((~resolve, ~reject as _) => {
+  Promise.make((resolve, _) => {
     let _ = Js.Global.setTimeout(() => resolve(. ()), ms)
   })

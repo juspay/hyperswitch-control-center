@@ -51,7 +51,7 @@ let dateTimeStringToDateTimeFloat = (dateTime: dateTimeString) => {
 }
 
 let formattedDateTimeFloat = (dateTime: dateTimeFloat, format: string) => {
-  (dateTime->dateTimeObjectToDate->Js.Date.toString->DayJs.getDayJsForString).format(. format)
+  (dateTime->dateTimeObjectToDate->Date.toString->DayJs.getDayJsForString).format(. format)
 }
 
 let formattedDateTimeString = (dateTime: dateTimeString, format: string) => {
@@ -110,9 +110,9 @@ let en_USStringToDateTimeObject = dateTimeIsoString => {
 }
 
 type timeZoneObject = {timeZone: string}
-@send external toLocaleString: (Js.Date.t, string, timeZoneObject) => string = "toLocaleString"
+@send external toLocaleString: (Date.t, string, timeZoneObject) => string = "toLocaleString"
 let convertTimeZone = (date, timezoneString) => {
-  let localTimeString = Js.Date.fromString(date)
+  let localTimeString = Date.fromString(date)
   localTimeString
   ->toLocaleString("en-US", {timeZone: timezoneString})
   ->String.replaceRegExp(%re("/\s/g"), " ")
@@ -147,8 +147,8 @@ let useCustomTimeZoneToIsoString = () => {
         ":" ++
         secondsString ++
         timezone
-      let newFormedDate = Js.Date.fromString(fullTimeManagedString)
-      let isoFormattedDate = Js.Date.toISOString(newFormedDate)
+      let newFormedDate = Date.fromString(fullTimeManagedString)
+      let isoFormattedDate = Date.toISOString(newFormedDate)
       isoFormattedDate
     },
     [zone],

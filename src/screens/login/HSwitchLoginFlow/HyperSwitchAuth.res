@@ -164,7 +164,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
             let body = email->getEmailBody()
 
             setForgetPassword(body)
-          | _ => Js.Promise.make((~resolve, ~reject as _: _) => resolve(. Nullable.null))
+          | _ => Promise.make((resolve, _) => resolve(. Nullable.null))
           }
         }
       )

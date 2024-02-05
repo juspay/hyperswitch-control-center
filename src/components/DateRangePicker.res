@@ -58,7 +58,7 @@ let getTimeStringForValue = (
 }
 
 let getFormattedDate = (date, format) => {
-  date->Js.Date.fromString->Js.Date.toISOString->TimeZoneHook.formattedISOString(format)
+  date->Date.fromString->Date.toISOString->TimeZoneHook.formattedISOString(format)
 }
 
 let isStartBeforeEndDate = (start, end) => {
@@ -80,7 +80,7 @@ let isStartBeforeEndDate = (start, end) => {
 
 let getStartEndDiff = (startDate, endDate) => {
   let diffTime = Math.abs(
-    endDate->Js.Date.fromString->Js.Date.getTime -. startDate->Js.Date.fromString->Js.Date.getTime,
+    endDate->Date.fromString->Date.getTime -. startDate->Date.fromString->Date.getTime,
   )
   diffTime
 }
@@ -203,7 +203,7 @@ module Base = {
     let dropdownPosition = isFilterSection && !isMobileView && isCustomSelected ? "right-0" : ""
 
     let todayDayJsObj = React.useMemo1(() => {
-      Js.Date.make()->Js.Date.toString->DayJs.getDayJsForString
+      Date.make()->Date.toString->DayJs.getDayJsForString
     }, [isDropdownExpanded])
 
     let currentTime = todayDayJsObj.format(. "HH:mm")

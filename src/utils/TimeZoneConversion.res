@@ -1,5 +1,5 @@
 type timeZoneObject = {timeZone: string}
-@send external toLocaleString: (Js.Date.t, string, timeZoneObject) => string = "toLocaleString"
+@send external toLocaleString: (Date.t, string, timeZoneObject) => string = "toLocaleString"
 
 type dateTime = {
   year: float,
@@ -18,7 +18,7 @@ let formatter = str => {
 }
 
 let convertTimeZone = (date, timezoneString) => {
-  let localTimeString = Js.Date.fromString(date)
+  let localTimeString = Date.fromString(date)
   toLocaleString(localTimeString, "en-US", {timeZone: timezoneString})
 }
 
@@ -31,7 +31,7 @@ let isoStringToCustomTimezone = isoString => {
   }
 
   let timezoneConvertedString = convertTimeZone(isoString, timezoneString)
-  let timezoneConverted = Js.Date.fromString(timezoneConvertedString)
+  let timezoneConverted = Date.fromString(timezoneConvertedString)
   let timeZoneYear = Js.Date.getFullYear(timezoneConverted)
   let timeZoneMonth = Js.Date.getMonth(timezoneConverted)
   let timeZoneDate = Js.Date.getDate(timezoneConverted)

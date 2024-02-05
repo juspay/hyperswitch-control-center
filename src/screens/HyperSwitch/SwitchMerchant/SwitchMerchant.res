@@ -140,6 +140,7 @@ module AddNewMerchantButton = {
 module ExternalUser = {
   @react.component
   let make = (~switchMerchant, ~isAddMerchantEnabled) => {
+    open UIUtils
     open APIUtils
     let fetchDetails = useGetMethod()
     let defaultMerchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
@@ -217,7 +218,7 @@ module ExternalUser = {
                               }>
                               <div className="mr-5"> {option.merchant_name->React.string} </div>
                             </button>
-                            <UIUtils.RenderIf
+                            <RenderIf
                               condition={selectedMerchantObject.merchant_name ===
                                 option.merchant_name}>
                               <Icon
@@ -225,23 +226,23 @@ module ExternalUser = {
                                 name="check"
                                 size=15
                               />
-                            </UIUtils.RenderIf>
+                            </RenderIf>
                           </div>}
                       </Menu.Item>
                     )
                     ->React.array}
                   </div>
-                  <UIUtils.RenderIf condition={isAddMerchantEnabled}>
+                  <RenderIf condition={isAddMerchantEnabled}>
                     <AddNewMerchantButton setShowModal />
-                  </UIUtils.RenderIf>
+                  </RenderIf>
                 </>}
               </Menu.Items>}
             </Transition>
           </div>}
       </Menu>
-      <UIUtils.RenderIf condition={showModal}>
+      <RenderIf condition={showModal}>
         <NewAccountCreationModal setShowModal showModal fetchMerchantIDs />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </>
   }
 }

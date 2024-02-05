@@ -56,9 +56,9 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   }
 
   let getPreviousDate = () => {
-    let currentDate = Js.Date.getTime(Js.Date.make())
+    let currentDate = Date.getTime(Date.make())
     let previousDateMilliseconds = currentDate -. 86400000.0
-    let previousDate = Js.Date.fromFloat(previousDateMilliseconds)->Js.Date.toISOString
+    let previousDate = Js.Date.fromFloat(previousDateMilliseconds)->Date.toISOString
     previousDate->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:ss[Z]")
   }
 
@@ -66,7 +66,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
     filters: {
       dateCreated: {
         gte: getPreviousDate()->JSON.Encode.string,
-        lte: Js.Date.now()->Js.Date.fromFloat->Js.Date.toISOString->JSON.Encode.string,
+        lte: Js.Date.now()->Js.Date.fromFloat->Date.toISOString->JSON.Encode.string,
       },
     },
   }->Identity.genericTypeToJson

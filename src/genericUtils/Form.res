@@ -1,5 +1,5 @@
 let defaultSubmit = (_, _) => {
-  Nullable.null->Js.Promise.resolve
+  Nullable.null->Promise.resolve
 }
 module FormBody = {
   @react.component

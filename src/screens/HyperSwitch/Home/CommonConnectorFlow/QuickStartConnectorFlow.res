@@ -144,7 +144,7 @@ let make = (
         choiceState={choiceStateForTestConnector}
         setChoiceState={setChoiceStateForTestConnector}
         listChoices={selectedConnector->getTypeOfConfigurationArray}
-        headerText={`Connect ${connectorName->LogicUtils.capitalizeString}`}
+        headerText={`Connect ${connectorName->ConnectorUtils.getDisplayNameForConnectors}`}
         isHeaderLeftIcon=false
         customIcon={<GatewayIcon
           gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
@@ -184,7 +184,7 @@ let make = (
       />
     | Summary =>
       <QuickStartUIUtils.BaseComponent
-        headerText={connectorName->LogicUtils.capitalizeString}
+        headerText={connectorName->ConnectorUtils.getDisplayNameForConnectors}
         customIcon={<GatewayIcon
           gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
         />}
