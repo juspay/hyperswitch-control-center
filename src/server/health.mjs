@@ -1,6 +1,4 @@
-import { error } from "console";
 import * as Fs from "fs";
-import fetch from "node-fetch";
 
 const errorHandler = (res, result) => {
   res.writeHead(500, { "Content-Type": "application/json" });
@@ -15,16 +13,16 @@ let checkHealth = async (res) => {
     wasm_file: false,
   };
   try {
-    let response = await fetch("http://localhost:9000", { method: "GET" });
-    let parsedText = await response.text();
-    if (parsedText.includes(`<script src="/env-config.js"></script>`)) {
+    let configFile = "dist/hyperswitch/index.html";
+    let data = Fs.readFileSync(configFile, { encoding: "utf8" })
+    if (data.includes(`<script src="/env-config.js"></script>`)) {
       output.env_config = true;
     }
-    if (parsedText.includes(`<div id="app"></div>`)) {
+    if (data.includes(`<div id="app"></div>`)) {
       output.app_file = true;
     }
     if (
-      parsedText.includes(
+      data.includes(
         `<script type="module" src="/wasm/euclid.js"></script>`,
       )
     ) {
