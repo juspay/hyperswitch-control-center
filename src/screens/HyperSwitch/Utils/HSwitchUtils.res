@@ -19,20 +19,6 @@ module TextFieldRow = {
   }
 }
 
-module ConnectorCustomCell = {
-  @react.component
-  let make = (~connectorName) => {
-    if connectorName->String.length > 0 {
-      <div className="flex items-center flex-nowrap break-all whitespace-nowrap mr-6">
-        <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-6 h-6 mr-2" />
-        <div className="capitalize"> {connectorName->React.string} </div>
-      </div>
-    } else {
-      "NA"->React.string
-    }
-  }
-}
-
 module BackgroundImageWrapper = {
   @react.component
   let make = (
