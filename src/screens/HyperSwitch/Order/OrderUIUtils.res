@@ -39,6 +39,7 @@ module GenerateSampleDataButton = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
     let generateSampleData = async () => {
       mixpanelEvent(~eventName="generate_sample_data", ())
@@ -58,8 +59,10 @@ module GenerateSampleDataButton = {
     }
 
     <UIUtils.RenderIf condition={sampleData && !previewOnly}>
-      <Button
+      <ACLButton
+        access={userPermissionJson.paymentWrite}
         buttonType={Secondary}
+        buttonSize={XSmall}
         text="Generate Sample Data"
         onClick={_ => generateSampleData()->ignore}
         leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
@@ -100,7 +103,7 @@ let filterByData = (txnArr, value) => {
   let searchText = value->getStringFromJson("")
 
   txnArr
-  ->Belt.Array.keepMap(Js.Nullable.toOption)
+  ->Belt.Array.keepMap(Nullable.toOption)
   ->Belt.Array.keepMap(data => {
     let valueArr =
       data
@@ -113,7 +116,7 @@ let filterByData = (txnArr, value) => {
       })
       ->Array.reduce(false, (acc, item) => item || acc)
 
-    valueArr ? data->Js.Nullable.return->Some : None
+    valueArr ? data->Nullable.make->Some : None
   })
 }
 
@@ -201,7 +204,7 @@ let setData = (
         !previewOnly || i <= 2
       })
 
-    let list = orderData->Array.map(Js.Nullable.return)
+    let list = orderData->Array.map(Nullable.make)
     setTotalCount(_ => total)
     setOrdersData(_ => list)
     setScreenState(_ => PageLoaderWrapper.Success)
@@ -284,6 +287,6 @@ let getOrdersList = async (
       )
     }
   } catch {
-  | Js.Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
+  | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
   }
 }

@@ -14,14 +14,14 @@ let make = () => {
       let response = await fetchDetails(disputesUrl)
       let disputesValue = response->LogicUtils.getArrayDataFromJson(DisputesEntity.itemToObjMapper)
       if disputesValue->Array.length > 0 {
-        setDisputesData(_ => disputesValue->Array.map(Js.Nullable.return))
+        setDisputesData(_ => disputesValue->Array.map(Nullable.make))
         setScreenState(_ => Success)
       } else {
         setScreenState(_ => Custom)
       }
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       if err->String.includes("HE_02") {
         setScreenState(_ => Custom)
       } else {

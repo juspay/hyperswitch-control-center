@@ -85,15 +85,15 @@ module ApiEditModal = {
 
         let _ = getAPIKeyDetails()
       } catch {
-      | Js.Exn.Error(e) =>
-        switch Js.Exn.message(e) {
+      | Exn.Error(e) =>
+        switch Exn.message(e) {
         | Some(_error) =>
           showToast(~message="Api Key Generation Failed", ~toastType=ToastState.ToastError, ())
         | None => ()
         }
         setModalState(_ => SettingApiModalError)
       }
-      Js.Nullable.null
+      Nullable.null
     }
 
     let modalBody =
@@ -176,19 +176,21 @@ module ApiKeyAddBtn = {
   @react.component
   let make = (~getAPIKeyDetails) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let (showModal, setShowModal) = React.useState(_ => false)
     let initialValues = Dict.make()
     initialValues->Dict.set("expiration", Never->getStringFromRecordType->JSON.Encode.string)
 
     <>
       <ApiEditModal showModal setShowModal initialValues getAPIKeyDetails />
-      <Button
+      <ACLButton
+        text="Create New API Key"
         leftIcon={CustomIcon(
           <Icon
             name="plus" size=12 className="jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
           />,
         )}
-        text="Create New API Key"
+        access=userPermissionJson.apiKeyWrite
         buttonType=Secondary
         buttonSize=Small
         onClick={_ => {
@@ -224,8 +226,8 @@ module TableActionsCell = {
         (await deleteDetails(deleteUrl, body->JSON.Encode.object, Delete, ()))->ignore
         getAPIKeyDetails()->ignore
       } catch {
-      | Js.Exn.Error(e) =>
-        switch Js.Exn.message(e) {
+      | Exn.Error(e) =>
+        switch Exn.message(e) {
         | Some(_error) =>
           showToast(~message="Failed to delete API key", ~toastType=ToastState.ToastError, ())
         | None => ()
@@ -303,8 +305,8 @@ module ApiKeysTable = {
         setData(_ => apiKeys->getItems)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | Js.Exn.Error(e) =>
-        switch Js.Exn.message(e) {
+      | Exn.Error(e) =>
+        switch Exn.message(e) {
         | Some(msg) => setScreenState(_ => PageLoaderWrapper.Error(msg))
         | None => setScreenState(_ => PageLoaderWrapper.Error("Error"))
         }
@@ -360,7 +362,7 @@ module ApiKeysTable = {
           visibleColumns
           entity=apiKeysTableEntity
           showSerialNumber=true
-          actualData={data->Array.map(Js.Nullable.return)}
+          actualData={data->Array.map(Nullable.make)}
           totalResults={data->Array.length}
           offset
           setOffset

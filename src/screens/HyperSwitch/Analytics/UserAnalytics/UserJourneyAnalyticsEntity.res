@@ -138,7 +138,7 @@ let getStatData = (
       value: singleStatData.sdk_rendered_count->Int.toFloat,
       delta: {
         Js.Float.fromString(
-          Js.Float.toFixedWithPrecision(singleStatData.sdk_rendered_count->Int.toFloat, ~digits=2),
+          Float.toFixedWithPrecision(singleStatData.sdk_rendered_count->Int.toFloat, ~digits=2),
         )
       },
       data: constructData("sdk_rendered_count", timeSeriesData),
@@ -174,7 +174,7 @@ let getStatData = (
       singleStatData.sdk_rendered_count->Int.toFloat,
       delta: {
         Js.Float.fromString(
-          Js.Float.toFixedWithPrecision(
+          Float.toFixedWithPrecision(
             singleStatData.payment_attempts->Int.toFloat *.
             100. /.
             singleStatData.sdk_rendered_count->Int.toFloat,
@@ -202,7 +202,7 @@ let getStatData = (
       singleStatData.sdk_rendered_count->Int.toFloat,
       delta: {
         Js.Float.fromString(
-          Js.Float.toFixedWithPrecision(singleStatData.sdk_rendered_count->Int.toFloat, ~digits=2),
+          Float.toFixedWithPrecision(singleStatData.sdk_rendered_count->Int.toFloat, ~digits=2),
         )
       },
       data: constructData("drop_out_rate", timeSeriesData),
@@ -221,7 +221,7 @@ let getStatData = (
       },
       delta: {
         Js.Float.fromString(
-          Js.Float.toFixedWithPrecision(singleStatData.average_payment_time, ~digits=2),
+          Float.toFixedWithPrecision(singleStatData.average_payment_time, ~digits=2),
         )
       },
       data: constructData("average_payment_time", timeSeriesData),

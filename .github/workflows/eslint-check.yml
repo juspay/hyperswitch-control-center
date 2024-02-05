@@ -1,6 +1,8 @@
 name: ESLint
 
-on: [push]
+on:
+  merge_group:
+  pull_request:
 
 jobs:
   eslint:

@@ -60,6 +60,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
+  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let (uid, setUid) = React.useState(() => None)
   let (merchantInfo, setMerchantInfo) = React.useState(() => Dict.make())
   let (formState, setFormState) = React.useState(_ => Preview)
@@ -82,13 +83,13 @@ let make = () => {
       showToast(~message=`Successfully updated business details`, ~toastType=ToastSuccess, ())
       setFetchState(_ => Success)
     } catch {
-    | Js.Exn.Error(e) =>
-      switch Js.Exn.message(e) {
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
       | Some(message) => setFetchState(_ => Error(message))
       | None => setFetchState(_ => Error("Something went wrong!"))
       }
     }
-    Js.Nullable.null
+    Nullable.null
   }
   let fetchMerchantInfo = async () => {
     let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
@@ -101,8 +102,8 @@ let make = () => {
       setMerchantInfo(_ => merchantInfo)
       setFetchState(_ => Success)
     } catch {
-    | Js.Exn.Error(e) =>
-      switch Js.Exn.message(e) {
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
       | Some(message) => setFetchState(_ => Error(message))
       | None => setFetchState(_ => Error("Something went wrong!"))
       }
@@ -149,7 +150,8 @@ let make = () => {
           </div>
           {switch formState {
           | Preview =>
-            <Button
+            <ACLButton
+              access={userPermissionJson.merchantAccountWrite}
               text="Edit"
               onClick={_ => setFormState(_ => Edit)}
               buttonType=Primary

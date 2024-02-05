@@ -364,8 +364,8 @@ let make = (
   ~tooltipText=?,
   ~toolTipPosition=ToolTip.Top,
 ) => {
-  let parentRef = React.useRef(Js.Nullable.null)
-  let dummyRef = React.useRef(Js.Nullable.null)
+  let parentRef = React.useRef(Nullable.null)
+  let dummyRef = React.useRef(Nullable.null)
   let buttonRef = disableRipple ? dummyRef : parentRef
   let rippleEffect = RippleEffectBackground.useHorizontalRippleHook(buttonRef)
   if !isPhoneDropdown {

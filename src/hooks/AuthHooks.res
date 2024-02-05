@@ -1,17 +1,16 @@
 open Promise
 type sessionStorage = {
-  getItem: (. string) => Js.Nullable.t<string>,
+  getItem: (. string) => Nullable.t<string>,
   setItem: (. string, string) => unit,
   removeItem: (. string) => unit,
 }
 
 @val external sessionStorage: sessionStorage = "sessionStorage"
 
-external dictToObj: Dict.t<'a> => {..} = "%identity"
 @val external atob: string => string = "atob"
 
 let getHeaders = (~uri, ~headers, ()) => {
-  let hyperSwitchToken = LocalStorage.getItem("login")->Js.Nullable.toOption
+  let hyperSwitchToken = LocalStorage.getItem("login")->Nullable.toOption
   let isMixpanel = uri->String.includes("mixpanel")
 
   let headerObj = if isMixpanel {
@@ -32,7 +31,7 @@ let getHeaders = (~uri, ~headers, ()) => {
     }
     res
   }
-  Fetch.HeadersInit.make(headerObj->dictToObj)
+  Fetch.HeadersInit.make(headerObj->Identity.dictOfAnyTypeToObj)
 }
 
 type betaEndpoint = {

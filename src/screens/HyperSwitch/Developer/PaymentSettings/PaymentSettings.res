@@ -62,7 +62,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
         showToast(~message=`Failed to updated`, ~toastType=ToastState.ToastError, ())
       }
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
   <PageLoaderWrapper screenState>

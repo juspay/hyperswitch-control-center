@@ -6,6 +6,7 @@ let make = (
 ) => {
   open PaymentSettingsListEntity
   let (offset, setOffset) = React.useState(_ => 0)
+  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
   let businessProfileValues =
     HyperswitchAtom.businessProfilesAtom
@@ -20,13 +21,13 @@ let make = (
           subTitle="Set up and monitor transaction webhooks for real-time notifications."
         />
         <LoadedTable
-          title="Payment settings"
+          title=" "
           hideTitle=true
           resultsPerPage=7
           visibleColumns
-          entity={webhookProfileTableEntity}
+          entity={webhookProfileTableEntity(~permission=userPermissionJson.merchantAccountWrite)}
           showSerialNumber=true
-          actualData={businessProfileValues->Array.map(Js.Nullable.return)}
+          actualData={businessProfileValues->Array.map(Nullable.make)}
           totalResults={businessProfileValues->Array.length}
           offset
           setOffset

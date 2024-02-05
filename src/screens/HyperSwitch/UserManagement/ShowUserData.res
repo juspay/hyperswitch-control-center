@@ -1,6 +1,6 @@
 open UserManagementUtils
 
-external typeConversion: array<Js.Nullable.t<UserRoleEntity.userTableTypes>> => array<
+external typeConversion: array<Nullable.t<UserRoleEntity.userTableTypes>> => array<
   UserRoleEntity.userTableTypes,
 > = "%identity"
 
@@ -90,8 +90,8 @@ let make = () => {
       await HyperSwitchUtils.delay(300)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -121,7 +121,7 @@ let make = () => {
       )
       let res = await fetchDetails(userDataURL)
       let userData = res->LogicUtils.getArrayDataFromJson(UserRoleEntity.itemToObjMapperForUser)
-      setUsersList(_ => userData->Array.map(Js.Nullable.return))
+      setUsersList(_ => userData->Array.map(Nullable.make))
     } catch {
     | _ => ()
     }

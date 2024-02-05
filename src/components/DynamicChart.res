@@ -653,7 +653,7 @@ let make = (
 
                 if sTime->String.length > 0 {
                   let {date, hour, minute, month, second, year} =
-                    sTime->Js.Date.fromString->Js.Date.toISOString->isoStringToCustomTimeZone
+                    sTime->Date.fromString->Date.toISOString->isoStringToCustomTimeZone
 
                   dict->Dict.set(
                     "time_bucket",
@@ -689,7 +689,7 @@ let make = (
                     ->JSON.Decode.float
                     ->Option.getOr(0.0)
 
-                  let amount = (amount /. 100.0)->Js.Float.toFixedWithPrecision(~digits=2)
+                  let amount = (amount /. 100.0)->Float.toFixedWithPrecision(~digits=2)
 
                   Dict.set(dict, key, amount->Js.Float.fromString->JSON.Encode.float)
                 } else if !(key->String.includes("time")) && key != tabName {
@@ -700,7 +700,7 @@ let make = (
                       Dict.set(
                         dict,
                         key,
-                        val2->Js.Float.toFixedWithPrecision(~digits=2)->JSON.Encode.string,
+                        val2->Float.toFixedWithPrecision(~digits=2)->JSON.Encode.string,
                       )
                     | None => ()
                     }
@@ -802,7 +802,7 @@ let make = (
     <div>
       <ReactFinalForm.Form
         subscription=ReactFinalForm.subscribeToValues
-        onSubmit={(_, _) => Js.Nullable.null->Promise.resolve}
+        onSubmit={(_, _) => Nullable.null->Promise.resolve}
         render={({handleSubmit}) => {
           <form onSubmit={handleSubmit}>
             <AddDataAttributes attributes=[("data-chart-segment", "Chart-1")]>

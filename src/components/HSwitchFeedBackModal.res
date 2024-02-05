@@ -28,7 +28,7 @@ let make = (
     | _ => ()
     }
     setShowModal(_ => false)
-    Js.Nullable.null
+    Nullable.null
   }
 
   let showLabel = switch modalType {

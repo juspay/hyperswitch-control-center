@@ -2,6 +2,7 @@
 let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~isPayoutFlow) => {
   open ConnectorUtils
   open APIUtils
+  open LogicUtils
   open ConnectorAccountDetailsHelper
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
@@ -25,17 +26,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let activeBusinessProfile =
     defaultBusinessProfile->MerchantAccountUtils.getValueFromBusinessProfile
 
-  React.useEffect1(() => {
-    if !isUpdateFlow {
-      let defaultJsonOnNewConnector =
-        [("profile_id", activeBusinessProfile.profile_id->JSON.Encode.string)]
-        ->Dict.fromArray
-        ->JSON.Encode.object
-      setInitialValues(_ => defaultJsonOnNewConnector)
-    }
-    None
-  }, [activeBusinessProfile.profile_id])
-
   let connectorDetails = React.useMemo1(() => {
     try {
       if connector->String.length > 0 {
@@ -48,9 +38,9 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
         Dict.make()->JSON.Encode.object
       }
     } catch {
-    | Js.Exn.Error(e) => {
+    | Exn.Error(e) => {
         Js.log2("FAILED TO LOAD CONNECTOR CONFIG", e)
-        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
         setScreenState(_ => PageLoaderWrapper.Error(err))
         Dict.make()->JSON.Encode.object
       }
@@ -69,12 +59,35 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let (showModal, setShowModal) = React.useState(_ => false)
 
   let updatedInitialVal = React.useMemo1(() => {
-    let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
+    let initialValuesToDict = initialValues->getDictFromJsonObject
+
+    // TODO: Refactor for generic case
     if !isUpdateFlow {
-      initialValuesToDict->Dict.set(
-        "connector_label",
-        `${connector}_${activeBusinessProfile.profile_name}`->JSON.Encode.string,
-      )
+      if (
+        connector->getConnectorNameTypeFromString === PAYPAL &&
+          featureFlagDetails.paypalAutomaticFlow
+      ) {
+        initialValuesToDict->Dict.set(
+          "connector_label",
+          initialValues
+          ->getDictFromJsonObject
+          ->getString("connector_label", "")
+          ->JSON.Encode.string,
+        )
+        initialValuesToDict->Dict.set(
+          "profile_id",
+          initialValuesToDict->getString("profile_id", "")->JSON.Encode.string,
+        )
+      } else if connector->String.length > 0 {
+        initialValuesToDict->Dict.set(
+          "connector_label",
+          `${connector}_${activeBusinessProfile.profile_name}`->JSON.Encode.string,
+        )
+        initialValuesToDict->Dict.set(
+          "profile_id",
+          activeBusinessProfile.profile_id->JSON.Encode.string,
+        )
+      }
     }
     if (
       connector
@@ -88,7 +101,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
     } else {
       initialValues
     }
-  }, [connector])
+  }, [connector, activeBusinessProfile.profile_id])
 
   let onSubmitMain = async values => {
     open ConnectorTypes
@@ -106,10 +119,10 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
       setScreenState(_ => Success)
       setInitialValues(_ => body)
     } catch {
-    | Js.Exn.Error(e) => {
+    | Exn.Error(e) => {
         setShowVerifyModal(_ => false)
         setVerifyDone(_ => ConnectorTypes.NoAttempt)
-        switch Js.Exn.message(e) {
+        switch Exn.message(e) {
         | Some(message) => {
             let errMsg = message->parseIntoMyData
             if errMsg.code->Option.getOr("")->String.includes("HE_01") {
@@ -158,8 +171,8 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
       setShowVerifyModal(_ => false)
       onSubmitMain(values)->ignore
     } catch {
-    | Js.Exn.Error(e) =>
-      switch Js.Exn.message(e) {
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
       | Some(message) => {
           let errorMessage = message->parseIntoMyData
           setVerifyErrorMessage(_ => errorMessage.message)
@@ -175,7 +188,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let validateMandatoryField = values => {
     let errors = Dict.make()
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
-    let profileId = valuesFlattenJson->LogicUtils.getString("profile_id", "")
+    let profileId = valuesFlattenJson->getString("profile_id", "")
     if profileId->String.length === 0 {
       Dict.set(errors, "Profile Id", `Please select your business profile`->JSON.Encode.string)
     }
@@ -203,7 +216,9 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   }
 
   let (suggestedAction, suggestedActionExists) = getSuggestedAction(~verifyErrorMessage, ~connector)
-
+  let handleShowModal = () => {
+    setShowModal(_ => true)
+  }
   <PageLoaderWrapper screenState>
     <Form
       initialValues={updatedInitialVal}
@@ -219,48 +234,23 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
         )}
       validate={validateMandatoryField}
       formClass="flex flex-col ">
-      <div className="flex items-center justify-between border-b p-2 md:px-10 md:py-6">
-        <div className="flex gap-2 items-center">
-          <GatewayIcon gateway={connector->String.toUpperCase} />
-          <h2 className="text-xl font-semibold">
-            {connector->LogicUtils.capitalizeString->React.string}
-          </h2>
-        </div>
-        <div className="flex flex-row mt-6 md:mt-0 md:justify-self-end h-min">
-          <UIUtils.RenderIf
-            condition={connectorsWithIntegrationSteps->Array.includes(
-              connector->getConnectorNameTypeFromString,
-            )}>
-            <a
-              className={`flex cursor-pointer px-4 py-3 flex text-sm text-blue-900 items-center mx-4`}
-              target="_blank"
-              onClick={_ => {
-                setShowModal(_ => true)
-              }}>
-              {React.string("View integration steps")}
-              <Icon name="external-link-alt" size=14 className="ml-2" />
-            </a>
-          </UIUtils.RenderIf>
+      <ConnectorHeaderWrapper
+        connector
+        headerButton={<AddDataAttributes attributes=[("data-testid", "connector-submit-button")]>
           <FormRenderer.SubmitButton loadingText="Processing..." text=buttonText />
-        </div>
-      </div>
-      <div className="flex flex-col gap-2 p-2 md:p-10">
-        <UIUtils.RenderIf condition={connector->getConnectorNameTypeFromString === BRAINTREE}>
-          <h1
-            className="flex items-center leading-6 text-orange-950 bg-orange-100 border w-fit p-2 rounded-md ">
-            <div className="flex items-center text-orange-950 font-bold text-fs-14 mx-2">
-              <Icon name="hswitch-warning" size=18 className="mr-2" />
-              {"Disclaimer:"->React.string}
-            </div>
-            <div>
-              {"Please ensure the payment currency matches the Braintree-configured currency for the given Merchant Account ID."->React.string}
-            </div>
-          </h1>
-        </UIUtils.RenderIf>
+        </AddDataAttributes>}
+        handleShowModal>
         <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
-          <BusinessProfileRender isUpdateFlow selectedConnector={connector} />
+          <div className="flex flex-col gap-2 p-2 md:px-10">
+            <ConnectorAccountDetailsHelper.BusinessProfileRender
+              isUpdateFlow selectedConnector={connector}
+            />
+          </div>
         </UIUtils.RenderIf>
-        <div className="flex ">
+        <div
+          className={`flex flex-col gap-2 p-2 md:${featureFlagDetails.businessProfile
+              ? "px-10"
+              : "p-10"}`}>
           <div className="grid grid-cols-2 flex-1">
             <ConnectorConfigurationFields
               connector={connector->getConnectorNameTypeFromString}
@@ -268,23 +258,22 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
               selectedConnector
               connectorMetaDataFields
               connectorWebHookDetails
-              isUpdateFlow
               connectorLabelDetailField
             />
           </div>
           <IntegrationHelp.Render connector setShowModal showModal />
         </div>
         <FormValuesSpy />
-        <VerifyConnectorModal
-          showVerifyModal
-          setShowVerifyModal
-          connector
-          verifyErrorMessage
-          suggestedActionExists
-          suggestedAction
-          setVerifyDone
-        />
-      </div>
+      </ConnectorHeaderWrapper>
+      <VerifyConnectorModal
+        showVerifyModal
+        setShowVerifyModal
+        connector
+        verifyErrorMessage
+        suggestedActionExists
+        suggestedAction
+        setVerifyDone
+      />
     </Form>
   </PageLoaderWrapper>
 }

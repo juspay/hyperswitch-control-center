@@ -56,9 +56,9 @@ let make = (
     checked: true,
   }
   let paginate = React.useCallback5(pageNumber => {
-    let total = Js.Math.ceil(Int.toFloat(totalResults) /. Int.toFloat(resultsPerPage))
+    let total = Math.ceil(Int.toFloat(totalResults) /. Int.toFloat(resultsPerPage))->Float.toInt
     //  for handling page count
-    let defaultPageNumber = Js.Math.min_int(total, pageNumber)
+    let defaultPageNumber = Math.Int.min(total, pageNumber)
     let page = defaultPageNumber
 
     let newOffset = (page - 1) * resultsPerPage

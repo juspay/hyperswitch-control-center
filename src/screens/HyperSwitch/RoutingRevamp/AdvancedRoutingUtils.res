@@ -184,7 +184,7 @@ let getDefaultSelection: Dict.t<
           ->getDictfromDict("tax_on_surcharge")
           ->getFloat("percentage", 0.0),
         },
-      }->Js.Nullable.return,
+      }->Nullable.make,
     }
   } else {
     {

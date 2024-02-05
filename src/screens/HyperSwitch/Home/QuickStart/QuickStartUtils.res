@@ -61,7 +61,7 @@ let getTypeOfConfigurationArray: ConnectorTypes.connectorName => array<
   landingChoiceType,
 > = selectedConnector => {
   open ConnectorUtils
-  let connectorName = selectedConnector->getConnectorNameString->LogicUtils.capitalizeString
+  let connectorName = selectedConnector->getConnectorNameString->getDisplayNameForConnectors
   let testAPIDescription = switch selectedConnector {
   | STRIPE | PAYPAL =>
     `We've got you covered. Try connecting with our test processor modeled like ${connectorName} to continue your setup.`

@@ -44,9 +44,9 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
         showToast(~message="Failed to send an email, Try again", ~toastType=ToastError, ())
       }
     } catch {
-    | Js.Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
+    | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
   let getUserWithEmailPassword = async (body, email, userType) => {
@@ -63,9 +63,9 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
         setAuthStatus(LoggedOut)
       }
     } catch {
-    | Js.Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
+    | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError, ())
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
   let openPlayground = _ => {
@@ -85,7 +85,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     } catch {
     | _ => showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError, ())
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
   let setForgetPassword = async body => {
@@ -97,7 +97,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     } catch {
     | _ => showToast(~message="Forgot Password Failed, Try again", ~toastType=ToastError, ())
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
   let resendVerifyEmail = async body => {
@@ -109,7 +109,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     } catch {
     | _ => showToast(~message="Resend mail failed, Try again", ~toastType=ToastError, ())
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
   let logMixpanelEvents = email => {
@@ -164,14 +164,14 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
             let body = email->getEmailBody()
 
             setForgetPassword(body)
-          | _ => Js.Promise.make((~resolve, ~reject as _: _) => resolve(. Js.Nullable.null))
+          | _ => Promise.make((resolve, _) => resolve(. Nullable.null))
           }
         }
       )
     } catch {
     | _ => showToast(~message="Something went wrong, Try again", ~toastType=ToastError, ())
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
   let resendEmail = () => {

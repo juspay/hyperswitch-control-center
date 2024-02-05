@@ -65,8 +65,8 @@ let make = (
         (),
       )
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
         let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
 
@@ -87,7 +87,7 @@ let make = (
         <div className="flex gap-2 items-center">
           <GatewayIcon gateway={connector->String.toUpperCase} />
           <h2 className="text-xl font-semibold">
-            {connector->LogicUtils.capitalizeString->React.string}
+            {connector->getDisplayNameForConnectors->React.string}
           </h2>
         </div>
         <div className="self-center">

@@ -109,25 +109,14 @@ let parseResponseJson = (~json, ~email) => {
   open HSwitchUtils
   open LogicUtils
   let valuesDict = json->JSON.Decode.object->Option.getOr(Dict.make())
-
-  // * Setting all local storage values
-  setMerchantDetails(
-    "merchant_id",
-    valuesDict->LogicUtils.getString("merchant_id", "")->JSON.Encode.string,
-  )
-  setMerchantDetails("email", email->JSON.Encode.string)
-  setUserDetails("name", valuesDict->getString("name", "")->JSON.Encode.string)
-  setUserDetails("user_role", valuesDict->getString("user_role", "")->JSON.Encode.string)
-  // setUserDetails(
-  //   "is_metadata_filled",
-  // "true"->JSON.Encode.string
-  //     ? "true"->JSON.Encode.string
-  //     : valuesDict->getBool("is_metadata_filled", true)->getStringFromBool->JSON.Encode.string,
-  // )
-
   let verificationValue = valuesDict->getOptionInt("verification_days_left")->Option.getOr(-1)
 
+  // * Setting all local storage values
+  setMerchantDetails("merchant_id", valuesDict->getString("merchant_id", "")->JSON.Encode.string)
+  setMerchantDetails("email", email->JSON.Encode.string)
   setMerchantDetails("verification", verificationValue->Int.toString->JSON.Encode.string)
+  setUserDetails("name", valuesDict->getString("name", "")->JSON.Encode.string)
+  setUserDetails("user_role", valuesDict->getString("user_role", "")->JSON.Encode.string)
   valuesDict->getString("token", "")
 }
 
@@ -178,6 +167,7 @@ let validateForm = (values: JSON.t, keys: array<string>) => {
 }
 
 let note = (authType, setAuthType, isMagicLinkEnabled) => {
+  open UIUtils
   let getFooterLinkComponent = (~btnText, ~authType, ~path) => {
     <div
       onClick={_ => {
@@ -198,19 +188,19 @@ let note = (authType, setAuthType, isMagicLinkEnabled) => {
         ~path="/login",
       )
     | LoginWithPassword =>
-      <UIUtils.RenderIf condition={isMagicLinkEnabled}>
+      <RenderIf condition={isMagicLinkEnabled}>
         {getFooterLinkComponent(
           ~btnText="or sign in with an email",
           ~authType=LoginWithEmail,
           ~path="/login",
         )}
-      </UIUtils.RenderIf>
+      </RenderIf>
     | SignUP =>
-      <UIUtils.RenderIf condition={isMagicLinkEnabled}>
+      <RenderIf condition={isMagicLinkEnabled}>
         <p className="text-center text-sm">
           {"We'll be emailing you a magic link for a password-free experience, you can always choose to setup a password later."->React.string}
         </p>
-      </UIUtils.RenderIf>
+      </RenderIf>
     | ForgetPassword | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
       <div className="w-full flex justify-center">
         <div
@@ -347,7 +337,7 @@ module Header = {
         <div
           onClick={_ => {
             form.resetFieldState("email")
-            form.reset(JSON.Encode.object(Dict.make())->Js.Nullable.return)
+            form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
             setAuthType(_ => authType)
             path->RescriptReactRouter.push
           }}
@@ -422,7 +412,7 @@ let errorMapper = dict => {
 }
 
 let parseErrorMessage = errorMessage => {
-  let parsedValue = switch Js.Exn.message(errorMessage) {
+  let parsedValue = switch Exn.message(errorMessage) {
   | Some(msg) => msg->LogicUtils.safeParse
   | None => JSON.Encode.null
   }

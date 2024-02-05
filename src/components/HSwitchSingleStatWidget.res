@@ -36,9 +36,9 @@ let make = (
     ->Array.map(item => {
       let (x, y) = item
       if y === 0. && filterNullVals {
-        (x, Js.Nullable.null)
+        (x, Nullable.null)
       } else {
-        (x, y->Js.Nullable.return)
+        (x, y->Nullable.make)
       }
     })
   }, [data])
@@ -51,7 +51,7 @@ let make = (
   }, [singleStatLoading])
 
   let percentFormat = value => {
-    `${Js.Float.toFixedWithPrecision(value, ~digits=2)}%`
+    `${Float.toFixedWithPrecision(value, ~digits=2)}%`
   }
   // if day > then only date else time
   let statValue = statType => {
@@ -82,7 +82,7 @@ let make = (
           "margin": Some([0, 0, 0, 0]),
           "marginLeft": isHomePage ? Some(-5) : None,
           "marginRight": isHomePage ? Some(-5) : None,
-          "backgroundColor": Js.Nullable.null,
+          "backgroundColor": Nullable.null,
           "height": (isHomePage ? "80" : "50")->Some,
           "width": isHomePage ? None : Some("105"),
           "events": None,

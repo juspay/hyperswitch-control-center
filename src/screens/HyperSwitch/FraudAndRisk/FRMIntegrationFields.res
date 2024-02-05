@@ -254,7 +254,7 @@ let make = (
     } catch {
     | _ => ()
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
   let setFRMValues = async body => {
@@ -271,14 +271,14 @@ let make = (
       resolve()
     })
     ->ignore
-    Js.Nullable.null
+    Nullable.null
   }
 
   let onSubmit = (values, _) => {
     setPageState(_ => Loading)
     let body = isUpdateFlow ? values->ignoreFields : values
     setFRMValues(body)->ignore
-    Js.Nullable.null->resolve
+    Nullable.null->resolve
   }
 
   <IntegrationFieldsForm

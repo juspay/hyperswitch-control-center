@@ -6,6 +6,7 @@ let make = () => {
   open APIUtils
   let fetchDetails = useGetMethod()
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let (usersData, setUsersData) = React.useState(_ => [])
   let (usersFilterData, setUsersFilterData) = React.useState(_ => [])
   let (screenStateUsers, setScreenStateUsers) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -25,8 +26,8 @@ let make = () => {
       )
       let res = await fetchDetails(userDataURL)
       let userData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForUser)
-      setUsersData(_ => userData->Array.map(Js.Nullable.return))
-      setUsersFilterData(_ => userData->Array.map(Js.Nullable.return))
+      setUsersData(_ => userData->Array.map(Nullable.make))
+      setUsersFilterData(_ => userData->Array.map(Nullable.make))
       setScreenStateUsers(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenStateUsers(_ => PageLoaderWrapper.Error(""))
@@ -60,8 +61,8 @@ let make = () => {
     open LogicUtils
     let (searchText, arr) = ob
     let filteredList = if searchText->String.length > 0 {
-      arr->Array.filter((obj: Js.Nullable.t<userTableTypes>) => {
-        switch Js.Nullable.toOption(obj) {
+      arr->Array.filter((obj: Nullable.t<userTableTypes>) => {
+        switch Nullable.toOption(obj) {
         | Some(obj) =>
           isContainingStringLowercase(obj.email, searchText) ||
           isContainingStringLowercase(obj.name, searchText)
@@ -124,7 +125,8 @@ let make = () => {
       />
       <div className="relative">
         <div className="absolute right-0 top-5">
-          <Button
+          <ACLButton
+            access={userPermissionJson.usersWrite}
             text={"Invite users"}
             buttonType=Primary
             onClick={_ => {

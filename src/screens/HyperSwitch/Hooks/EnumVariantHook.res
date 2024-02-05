@@ -15,11 +15,11 @@ let useFetchEnumDetails = () => {
       let res = await fetchDetails(url)
       let responseDict = res->responseDataMapper
       setEnumVariantValues(._ => responseDict->JSON.Encode.object->JSON.stringify)
-      Js.Nullable.return(responseDict)
+      Nullable.make(responseDict)
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Js.Exn.raiseError(err)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
       }
     }
   }
@@ -74,11 +74,11 @@ let usePostEnumDetails = () => {
       let _ = await updateDetails(url, bodyValForApi, Post, ())
 
       let updatedRecoilValueDict = updateEnumInRecoil([(body, enumVariant)])
-      Js.Nullable.return(updatedRecoilValueDict)
+      Nullable.make(updatedRecoilValueDict)
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Js.Exn.raiseError(err)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
       }
     }
   }

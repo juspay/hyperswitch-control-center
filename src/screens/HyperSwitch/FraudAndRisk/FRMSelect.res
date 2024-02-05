@@ -3,6 +3,7 @@ module NewProcessorCards = {
   open FRMInfo
   @react.component
   let make = (~configuredFRMs: array<frmName>, ~showIcons: bool) => {
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let frmAvailableForIntegration = frmList
     let unConfiguredFRMs =
       frmAvailableForIntegration->Array.filter(total =>
@@ -38,13 +39,12 @@ module NewProcessorCards = {
               <div className="overflow-hidden text-gray-400 flex-1 mb-6">
                 {frmInfo.description->React.string}
               </div>
-              <Button
-                text="+  Connect"
-                buttonType={Secondary}
-                buttonSize={Small}
-                onClick={_ => {
-                  handleClick(frmName)
-                }}
+              <ACLButton
+                text="+ Connect"
+                access=userPermissionJson.merchantConnectorAccountWrite
+                buttonType=Secondary
+                buttonSize=Small
+                onClick={_ => handleClick(frmName)}
               />
             </CardUtils.CardLayout>
           })
@@ -102,6 +102,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchDetails = APIUtils.useGetMethod()
   let isMobileView = MatchMedia.useMatchMedia("(max-width: 844px)")
+  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let (configuredFRMs, setConfiguredFRMs) = React.useState(_ => [])
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
   let (filteredFRMData, setFilteredFRMData) = React.useState(_ => [])
@@ -133,8 +134,8 @@ let make = () => {
       if connectorsCount > 0 {
         let frmList = processorsList->FRMUtils.filterList(~removeFromList=Connector, ())
         let previousData = frmList->Array.map(ConnectorTableUtils.getProcessorPayloadType)
-        setFilteredFRMData(_ => previousData->Array.map(Js.Nullable.return))
-        setPreviouslyConnectedData(_ => previousData->Array.map(Js.Nullable.return))
+        setFilteredFRMData(_ => previousData->Array.map(Nullable.make))
+        setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
         let arr =
           frmList->Array.map(
             paymentMethod =>
@@ -158,8 +159,8 @@ let make = () => {
     open LogicUtils
     let (searchText, arr) = ob
     let filteredList = if searchText->String.length > 0 {
-      arr->Array.filter((frmPlayer: Js.Nullable.t<ConnectorTypes.connectorPayload>) => {
-        switch Js.Nullable.toOption(frmPlayer) {
+      arr->Array.filter((frmPlayer: Nullable.t<ConnectorTypes.connectorPayload>) => {
+        switch Nullable.toOption(frmPlayer) {
         | Some(frmPlayer) => isContainingStringLowercase(frmPlayer.connector_name, searchText)
         | None => false
         }
@@ -196,7 +197,10 @@ let make = () => {
           resultsPerPage=20
           offset
           setOffset
-          entity={FRMTableUtils.connectorEntity("fraud-risk-management")}
+          entity={FRMTableUtils.connectorEntity(
+            "fraud-risk-management",
+            ~permission={userPermissionJson.merchantConnectorAccountWrite},
+          )}
           currrentFetchCount={filteredFRMData->Array.length}
           collapseTableRow=false
         />

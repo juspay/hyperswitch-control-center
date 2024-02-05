@@ -107,14 +107,14 @@ let make = () => {
       HSwitchUtils.setUserDetails("is_metadata_filled", "true"->JSON.Encode.string)
       setDashboardPageState(_ => #AUTO_CONNECTOR_INTEGRATION)
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       if err->String.includes("UR_19") {
         showToast(~toastType=ToastWarning, ~message="Please login again!", ~autoClose=false, ())
         setAuthStatus(LoggedOut)
       }
     }
-    Js.Nullable.null
+    Nullable.null
   }
   let xPositionBasedOnDirection = carouselDirection === RIGHT ? 100 : -100
   <HSwitchUtils.BackgroundImageWrapper>

@@ -172,7 +172,7 @@ let connectorStatusStyle = connectorStatus =>
 
 let getCell = (connector: connectorPayload, colType): Table.cell => {
   switch colType {
-  | Name => Text(connector.connector_name->LogicUtils.getTitle)
+  | Name => Text(connector.connector_name->ConnectorUtils.getDisplayNameForConnectors)
   | TestMode => Text(connector.test_mode ? "True" : "False")
   | Disabled =>
     Label({
@@ -227,7 +227,7 @@ let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
   json->getArrayDataFromJson(getProcessorPayloadType)->sortPreviouslyConnectedList
 }
 
-let connectorEntity = (path: string) => {
+let connectorEntity = (path: string, ~permission: AuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getPreviouslyConnectedList,
@@ -236,7 +236,11 @@ let connectorEntity = (path: string) => {
     ~getCell,
     ~dataKey="",
     ~getShowLink={
-      connec => `/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`
+      connec =>
+        PermissionUtils.linkForGetShowLinkViaAccess(
+          ~url=`/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`,
+          ~permission,
+        )
     },
     (),
   )

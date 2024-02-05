@@ -5,7 +5,7 @@ type chart = {
   "type": string,
   "zoomType": string,
   "margin": option<array<int>>,
-  "backgroundColor": Js.Nullable.t<string>,
+  "backgroundColor": Nullable.t<string>,
   "height": option<int>,
 }
 type linearGradient = {"x1": int, "y1": int, "x2": int, "y2": int}
@@ -16,7 +16,7 @@ type states = {"hover": hover}
 
 type area = {
   "fillColor": option<fillColor>,
-  "threshold": Js.Nullable.t<string>,
+  "threshold": Nullable.t<string>,
   "lineWidth": int,
   "states": states,
   "pointStart": option<int>,

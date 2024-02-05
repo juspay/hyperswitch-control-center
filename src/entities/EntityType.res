@@ -1,12 +1,12 @@
 type initialFilters<'t> = {
   field: FormRenderer.fieldInfoType,
-  localFilter: option<(array<Js.Nullable.t<'t>>, JSON.t) => array<Js.Nullable.t<'t>>>,
+  localFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
 }
 type optionType<'t> = {
   urlKey: string,
   field: FormRenderer.fieldInfoType,
   parser: JSON.t => JSON.t,
-  localFilter: option<(array<Js.Nullable.t<'t>>, JSON.t) => array<Js.Nullable.t<'t>>>,
+  localFilter: option<(array<Nullable.t<'t>>, JSON.t) => array<Nullable.t<'t>>>,
 }
 let getDefaultEntityOptionType = (): optionType<'t> => {
   urlKey: "",
@@ -46,7 +46,7 @@ type entityType<'colType, 't> = {
   dateRangeFilterDict: Dict.t<JSON.t>,
   searchValueDict: option<Dict.t<string>>,
   filterCheck: ('t, array<string>) => bool,
-  filterForRow: (option<array<Js.Nullable.t<'t>>>, int) => TableUtils.filterObject,
+  filterForRow: (option<array<Nullable.t<'t>>>, int) => TableUtils.filterObject,
 }
 
 let emptyObj = {
