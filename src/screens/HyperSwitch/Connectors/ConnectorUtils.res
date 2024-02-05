@@ -780,9 +780,11 @@ let getMetaDataRequiredFields = (connector: connectorName, fieldName: string) =>
 
 let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
   open LogicUtils
-  open MapTypes
   let authKeyMap =
-    connectorAccountFields->getDictfromDict("auth_key_map")->JSON.Encode.object->changeType
+    connectorAccountFields
+    ->getDictfromDict("auth_key_map")
+    ->JSON.Encode.object
+    ->Identity.jsonToAnyType
   convertMapObjectToDict(authKeyMap)
 }
 let checkCashtoCodeFields = (keys, country, valuesFlattenJson) => {

@@ -58,7 +58,7 @@ let getTimeStringForValue = (
 }
 
 let getFormattedDate = (date, format) => {
-  date->Js.Date.fromString->Js.Date.toISOString->TimeZoneHook.formattedISOString(format)
+  date->Date.fromString->Js.Date.toISOString->TimeZoneHook.formattedISOString(format)
 }
 
 let isStartBeforeEndDate = (start, end) => {
@@ -80,7 +80,7 @@ let isStartBeforeEndDate = (start, end) => {
 
 let getStartEndDiff = (startDate, endDate) => {
   let diffTime = Math.abs(
-    endDate->Js.Date.fromString->Js.Date.getTime -. startDate->Js.Date.fromString->Js.Date.getTime,
+    endDate->Date.fromString->Js.Date.getTime -. startDate->Date.fromString->Js.Date.getTime,
   )
   diffTime
 }

@@ -1,4 +1,3 @@
-external toJson: Nullable.t<'a> => JSON.t = "%identity"
 type sortTyp = ASC | DSC
 type sortOb = {sortKey: string, sortType: sortTyp}
 type checkBoxProps = {

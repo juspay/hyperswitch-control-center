@@ -51,7 +51,7 @@ let make = (
   }, [singleStatLoading])
 
   let percentFormat = value => {
-    `${Js.Float.toFixedWithPrecision(value, ~digits=2)}%`
+    `${Float.toFixedWithPrecision(value, ~digits=2)}%`
   }
   // if day > then only date else time
   let statValue = statType => {

@@ -15,3 +15,6 @@ external arrayOfGenericTypeToFormReactEvent: array<'a> => ReactEvent.Form.t = "%
 external webAPIFocusEventToReactEventFocus: Webapi.Dom.FocusEvent.t => ReactEvent.Focus.t =
   "%identity"
 external toWasm: Dict.t<JSON.t> => RoutingTypes.wasmModule = "%identity"
+external jsonToAnyType: JSON.t => 't = "%identity"
+external nullableOfAnyTypeToJsonType: Nullable.t<'a> => JSON.t = "%identity"
+external dictOfAnyTypeToObj: Dict.t<'a> => {..} = "%identity"
