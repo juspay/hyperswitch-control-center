@@ -14,7 +14,7 @@ let checkHealth = async (res) => {
   };
   try {
     let configFile = "dist/hyperswitch/index.html";
-    let data = Fs.readFileSync(configFile, { encoding: "utf8" })
+    let data = Fs.readFileSync(configFile, { encoding: "utf8" });
     if (data.includes(`<script src="/env-config.js"></script>`)) {
       output.env_config = true;
     }
@@ -22,9 +22,7 @@ let checkHealth = async (res) => {
       output.app_file = true;
     }
     if (
-      data.includes(
-        `<script type="module" src="/wasm/euclid.js"></script>`,
-      )
+      data.includes(`<script type="module" src="/wasm/euclid.js"></script>`)
     ) {
       output.wasm_file = true;
     }
