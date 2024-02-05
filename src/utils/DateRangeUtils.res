@@ -61,7 +61,7 @@ let getPredefinedStartAndEndDate = (
 
   let daysInMonth =
     (customDate->DayJs.getDayJsForJsDate).endOf(. "month").toString(.)
-    ->Js.Date.fromString
+    ->Date.fromString
     ->Js.Date.getDate
   let prevDate = (customDate->DayJs.getDayJsForJsDate).subtract(. 6, "month").toString(.)
   let daysInSixMonth = (customDate->DayJs.getDayJsForJsDate).diff(. prevDate, "day")->Int.toFloat
@@ -85,38 +85,38 @@ let getPredefinedStartAndEndDate = (
       String.make(customDate->Js.Date.getHours),
       String.make(customDate->Js.Date.getMinutes),
       String.make(customDate->Js.Date.getSeconds),
-    )->Js.Date.fromString
+    )->Date.fromString
 
   let todayInitial = date
   let today =
     todayInitial
-    ->Js.Date.toISOString
+    ->Date.toISOString
     ->isoStringToCustomTimezoneInFloat
     ->TimeZoneHook.dateTimeObjectToDate
   let msInADay = 24.0 *. 60.0 *. 60.0 *. 1000.0
   let durationSecs: float = (count -. 1.0) *. msInADay
-  let dateBeforeDuration = today->Js.Date.getTime->Js.Date.fromFloat
+  let dateBeforeDuration = today->Date.getTime->Js.Date.fromFloat
   let msInterval = disableFutureDates
-    ? dateBeforeDuration->Js.Date.getTime -. durationSecs
-    : dateBeforeDuration->Js.Date.getTime +. durationSecs
+    ? dateBeforeDuration->Date.getTime -. durationSecs
+    : dateBeforeDuration->Date.getTime +. durationSecs
   let dateAfterDuration = msInterval->Js.Date.fromFloat
 
   let (finalStartDate, finalEndDate) = disableFutureDates
     ? (dateAfterDuration, dateBeforeDuration)
     : (dateBeforeDuration, dateAfterDuration)
-  let startDate = getDateString(finalStartDate->Js.Date.toString, isoStringToCustomTimeZone)
-  let endDate = getDateString(finalEndDate->Js.Date.toString, isoStringToCustomTimeZone)
+  let startDate = getDateString(finalStartDate->Date.toString, isoStringToCustomTimeZone)
+  let endDate = getDateString(finalEndDate->Date.toString, isoStringToCustomTimeZone)
 
   let endTime = {
     let eTime = switch value {
-    | Hour(_) => getTimeString(finalEndDate->Js.Date.toString, isoStringToCustomTimeZone)
+    | Hour(_) => getTimeString(finalEndDate->Date.toString, isoStringToCustomTimeZone)
     | _ => "23:59:59"
     }
     disableFutureDates && endDate == todayDate ? todayTime : eTime
   }
   let startTime = {
     let sTime = switch value {
-    | Hour(_) => getTimeString(finalStartDate->Js.Date.toString, isoStringToCustomTimeZone)
+    | Hour(_) => getTimeString(finalStartDate->Date.toString, isoStringToCustomTimeZone)
     | _ => "00:00:00"
     }
     !disableFutureDates && (value !== Today || disablePastDates) && startDate == todayDate

@@ -26,7 +26,7 @@ let make = (
     let currentVol = funnelData->LogicUtils.getInt(metric.metric_name_db, 0)->Float.fromInt
     let previousVol =
       funnelData->LogicUtils.getInt(previousMetric, currentVol->Float.toInt)->Float.fromInt
-    Js.Math.log10(currentVol *. 100. /. previousVol) /. 2.0
+    Math.log10(currentVol *. 100. /. previousVol) /. 2.0
   })
 
   let fixedWidth = ref(size *. 70.)
@@ -145,7 +145,7 @@ let make = (
                         shortNum(~labelValue=metricVal, ~numberFormat=getDefaultNumberFormat(), ())
                       | Percentage =>
                         (metricVal *. 100. /. prevMetricVolume)
-                          ->Js.Float.toFixedWithPrecision(~digits=2) ++ "%"
+                          ->Float.toFixedWithPrecision(~digits=2) ++ "%"
                       }->React.string}
                     </div>
                   </div>

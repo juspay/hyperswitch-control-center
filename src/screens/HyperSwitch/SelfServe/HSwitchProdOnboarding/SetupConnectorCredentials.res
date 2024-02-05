@@ -101,8 +101,8 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       setConnectorDetails(_ => val)
       setScreenState(_ => Success)
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Something went wrong!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Something went wrong!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -211,12 +211,12 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       connectorId->updateSetupConnectorCredentials->ignore
       setIsLoading(_ => false)
     } catch {
-    | Js.Exn.Error(e) => {
+    | Exn.Error(e) => {
         setIsLoading(_ => false)
         setShowVerifyModal(_ => false)
         setVerifyDone(_ => ConnectorTypes.NoAttempt)
         setPageView(_ => SELECT_PROCESSOR)
-        switch Js.Exn.message(e) {
+        switch Exn.message(e) {
         | Some(message) =>
           if message->String.includes("HE_01") {
             showToast(
@@ -273,9 +273,9 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       onSubmitMain(values)->ignore
       setIsLoading(_ => false)
     } catch {
-    | Js.Exn.Error(e) =>
+    | Exn.Error(e) =>
       setIsLoading(_ => false)
-      switch Js.Exn.message(e) {
+      switch Exn.message(e) {
       | Some(message) => {
           let errorMessage = message->parseIntoMyData
           setVerifyErrorMessage(_ => errorMessage.message)
@@ -294,8 +294,10 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   })
   let getHeaderTextofPage = () =>
     switch pageView {
-    | SETUP_CREDS => `Setup ${connectorName->capitalizeString} credentials`
-    | SETUP_WEBHOOK_PROCESSOR => `Setup Webhooks on ${connectorName->capitalizeString}`
+    | SETUP_CREDS =>
+      `Setup ${connectorName->ConnectorUtils.getDisplayNameForConnectors} credentials`
+    | SETUP_WEBHOOK_PROCESSOR =>
+      `Setup Webhooks on ${connectorName->ConnectorUtils.getDisplayNameForConnectors}`
     | _ => ""
     }
   let getSubTextOfPage = () =>
@@ -373,7 +375,9 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
         <div className="flex justify-between px-11 py-8 flex-wrap gap-4">
           <div className="flex gap-4 items-center">
             <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-8 h-8" />
-            <p className=headerTextStyle> {connectorName->capitalizeString->React.string} </p>
+            <p className=headerTextStyle>
+              {connectorName->ConnectorUtils.getDisplayNameForConnectors->React.string}
+            </p>
           </div>
           <div className="flex gap-4">
             <Button

@@ -110,7 +110,7 @@ module T = {
 
     //   fetchRequestInit?: 'a, //todo
   }
-  type t = (. ~node: Webapi.Dom.Element.t, ~options: options) => Js.Promise.t<string>
+  type t = (. ~node: Webapi.Dom.Element.t, ~options: options) => Promise.t<string>
 }
 // not utilizing this
 // module Utils = {

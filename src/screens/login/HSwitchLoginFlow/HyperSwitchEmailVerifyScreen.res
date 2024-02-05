@@ -30,8 +30,8 @@ let make = (~setAuthType, ~setAuthStatus) => {
         RescriptReactRouter.replace(`${HSwitchGlobalVars.hyperSwitchFEPrefix}/login`)
       }
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Verification Failed")
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Verification Failed")
         setErrorMessage(_ => err)
         setAuthStatus(LoggedOut)
       }

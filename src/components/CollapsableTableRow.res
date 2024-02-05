@@ -10,8 +10,8 @@ let make = (
   ~heading,
   ~title,
 ) => {
+  open UIUtils
   let isCurrentRowExpanded = expandedRowIndexArray->Array.includes(rowIndex)
-
   let headingArray = []
 
   heading->Array.forEach((item: TableUtils.header) => {
@@ -57,9 +57,9 @@ let make = (
               }}>
               <div className={`h-full box-border px-4 ${paddingClass}`}>
                 <div className="flex flex-row gap-4 items-center">
-                  <UIUtils.RenderIf condition={cellIndex === 0}>
+                  <RenderIf condition={cellIndex === 0}>
                     <Icon name={isCurrentRowExpanded ? "caret-down" : "caret-right"} size=14 />
-                  </UIUtils.RenderIf>
+                  </RenderIf>
                   <Table.TableCell cell=obj />
                 </div>
               </div>
@@ -68,20 +68,20 @@ let make = (
         })
         ->React.array}
       </tr>
-      <UIUtils.RenderIf condition=isCurrentRowExpanded>
+      <RenderIf condition=isCurrentRowExpanded>
         <AddDataAttributes attributes=[("data-table-row-expanded", (rowIndex + 1)->Int.toString)]>
           <tr className="dark:border-jp-gray-dark_disable_border_color">
             <td colSpan=12 className=""> {getRowDetails(rowIndex)} </td>
           </tr>
         </AddDataAttributes>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </DesktopView>
     <MobileView>
       <div className="px-3 py-4 bg-white dark:bg-jp-gray-lightgray_background">
         {item
         ->Array.mapWithIndex((obj, index) => {
           let heading = headingArray->Array.get(index)->Option.getOr("")
-          <UIUtils.RenderIf condition={index !== 0} key={index->string_of_int}>
+          <RenderIf condition={index !== 0} key={index->string_of_int}>
             <div className="flex mb-5 justify-between">
               <div className="text-jp-gray-900 opacity-50 font-medium">
                 {React.string(heading)}
@@ -90,7 +90,7 @@ let make = (
                 <Table.TableCell cell=obj />
               </div>
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         })
         ->React.array}
         {getRowDetails(rowIndex)}

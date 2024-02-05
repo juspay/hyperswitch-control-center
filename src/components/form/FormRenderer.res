@@ -8,7 +8,7 @@ type inputFieldType = {
   isRequired: bool,
   @as("type") type_: string,
   customInput: customInputFn,
-  validate: option<(option<string>, JSON.t) => Js.Promise.t<Nullable.t<string>>>,
+  validate: option<(option<string>, JSON.t) => Promise.t<Nullable.t<string>>>,
 }
 type fieldInfoType = {
   label: string,
@@ -36,7 +36,7 @@ let makeInputFieldInfo = (
   ~parse=?,
   ~type_="text",
   ~isRequired=false,
-  ~validate: option<(option<string>, JSON.t) => Js.Promise.t<Nullable.t<string>>>=?,
+  ~validate: option<(option<string>, JSON.t) => Promise.t<Nullable.t<string>>>=?,
   (),
 ) => {
   let label = label->Option.getOr(name)
@@ -140,7 +140,7 @@ let makeFieldInfo = (
   ~type_="text",
   ~isRequired=false,
   ~fieldPortalKey: option<string>=?,
-  ~validate: option<(option<string>, JSON.t) => Js.Promise.t<Nullable.t<string>>>=?,
+  ~validate: option<(option<string>, JSON.t) => Promise.t<Nullable.t<string>>>=?,
   (),
 ) => {
   let label = label->Option.getOr(name)

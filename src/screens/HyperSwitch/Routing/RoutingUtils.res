@@ -189,8 +189,8 @@ module SaveAndActivateButton = {
           currentActivatedFromJson->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
         let _ = await handleActivateConfiguration(Some(currentActivatedId))
       } catch {
-      | Js.Exn.Error(e) =>
-        let _ = Js.Exn.message(e)->Option.getOr("Failed to save and activate configuration!")
+      | Exn.Error(e) =>
+        let _ = Exn.message(e)->Option.getOr("Failed to save and activate configuration!")
       }
     }
     <Button
