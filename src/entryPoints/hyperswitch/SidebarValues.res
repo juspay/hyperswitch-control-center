@@ -104,7 +104,7 @@ let customers = permissionJson => {
   })
 }
 
-let operations = (isOperationsEnabled, customersModule, ~permissionJson) => {
+let operations = (isOperationsEnabled, ~permissionJson) => {
   let payments = payments(permissionJson)
   let refunds = refunds(permissionJson)
   let disputes = disputes(permissionJson)
@@ -115,9 +115,7 @@ let operations = (isOperationsEnabled, customersModule, ~permissionJson) => {
         name: "Operations",
         icon: "hswitch-operations",
         showSection: true,
-        links: customersModule
-          ? [payments, refunds, disputes, customers]
-          : [payments, refunds, disputes],
+        links: [payments, refunds, disputes, customers],
       })
     : emptyComponent
 }
@@ -387,13 +385,12 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     userJourneyAnalytics: userJourneyAnalyticsFlag,
     surcharge: isSurchargeEnabled,
     isLiveMode,
-    customersModule,
   } = featureFlagDetails
 
   let sidebar = [
     productionAccess->productionAccessComponent,
     default->home,
-    default->operations(customersModule, ~permissionJson),
+    default->operations(~permissionJson),
     default->analytics(userJourneyAnalyticsFlag, ~permissionJson),
     default->connectors(isLiveMode, ~permissionJson),
     default->workflow(isSurchargeEnabled, ~permissionJson),

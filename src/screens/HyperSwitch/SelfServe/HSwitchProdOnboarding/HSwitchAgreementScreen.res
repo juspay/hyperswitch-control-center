@@ -31,7 +31,7 @@ let make = () => {
     let currentDate =
       Js.Date.now()
       ->Js.Date.fromFloat
-      ->Js.Date.toISOString
+      ->Date.toISOString
       ->TimeZoneHook.formattedISOString("YYYY-MM-DD HH:mm:ss")
 
     //? - For localtesting this condn added

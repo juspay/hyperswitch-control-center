@@ -19,7 +19,7 @@ let calculateHistoricTime = (
     let endDateTime = endTime->DateTimeUtils.parseAsFloat->Js.Date.fromFloat->toUtc
 
     let endDateTimeJs = endDateTime->DayJs.getDayJsForJsDate
-    let timediff = endDateTimeJs.diff(. Js.Date.toString(startDateTime), "hours")
+    let timediff = endDateTimeJs.diff(. Date.toString(startDateTime), "hours")
 
     if timediff < 24 {
       (
