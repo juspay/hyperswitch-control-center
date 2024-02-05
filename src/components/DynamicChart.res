@@ -653,7 +653,7 @@ let make = (
 
                 if sTime->String.length > 0 {
                   let {date, hour, minute, month, second, year} =
-                    sTime->Date.fromString->Js.Date.toISOString->isoStringToCustomTimeZone
+                    sTime->Date.fromString->Date.toISOString->isoStringToCustomTimeZone
 
                   dict->Dict.set(
                     "time_bucket",

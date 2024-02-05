@@ -56,7 +56,7 @@ module TableRow = {
                 "00",
                 "00",
               )->Date.fromString
-            let dateToday = Js.Date.make()
+            let dateToday = Date.make()
             let todayInitial = Js.Date.setHoursMSMs(
               dateToday,
               ~hours=0.0,
@@ -65,7 +65,7 @@ module TableRow = {
               ~milliseconds=0.0,
               (),
             )
-            let isFutureDate = todayInitial -. date->Js.Date.getTime < 0.0
+            let isFutureDate = todayInitial -. date->Date.getTime < 0.0
 
             let onClick = _evt => {
               let isClickDisabled = isFutureDate ? disableFutureDates : disablePastDates
@@ -74,7 +74,7 @@ module TableRow = {
                 switch onDateClick {
                 | Some(fn) =>
                   if obj !== "" {
-                    fn((Js.Date.toISOString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"))
+                    fn((Date.toISOString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"))
                   }
                 | None => ()
                 }
@@ -82,7 +82,7 @@ module TableRow = {
               }
             }
             let hSelf = highlight(
-              (Js.Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"),
+              (Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"),
             )
 
             let dayClass = if (
@@ -159,9 +159,7 @@ module TableRow = {
                   {cellRenderer(
                     obj == ""
                       ? None
-                      : Some(
-                          (Js.Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"),
-                        ),
+                      : Some((Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD")),
                   )}
                 </span>
               </span>
@@ -188,7 +186,7 @@ let make = (
   ~disablePastDates=true,
   ~disableFutureDates=false,
 ) => {
-  // ~cellHighlighter: option<(~date: Js.Date.t) => highlighter>=None,
+  // ~cellHighlighter: option<(~date: Date.t) => highlighter>=None,
   let _ = highLightList
   let months = [Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec]
   let heading = ["S", "M", "T", "W", "T", "F", "S"]

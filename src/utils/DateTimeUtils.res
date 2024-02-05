@@ -13,7 +13,7 @@ let dayMapper = (days: days) => {
   | Saturday => "Saturday"
   }
 }
-let cloneDate = date => date->Js.Date.getTime->Js.Date.fromFloat
+let cloneDate = date => date->Date.getTime->Js.Date.fromFloat
 let makeStartOfDayDate = date => {
   let date = Js.Date.setHoursMSMs(
     cloneDate(date),
@@ -26,7 +26,7 @@ let makeStartOfDayDate = date => {
 
   Js.Date.fromFloat(date)
 }
-let getStartOfWeek = (dayJs: Js.Date.t, startOfday: days) => {
+let getStartOfWeek = (dayJs: Date.t, startOfday: days) => {
   let day = Js.Date.getDay(dayJs)
   let startWeekDay = daysArr->Array.indexOf(startOfday)->Int.toFloat
   let diff = (day < startWeekDay ? 7. : 0.) +. day -. startWeekDay
@@ -43,9 +43,9 @@ let utcToIST = timeStr => {
 
   let istTime = Js.Date.setHoursM(timeStr, ~hours=updatedHour, ~minutes=updatedMin, ())
   if isEU {
-    timeStr->Js.Date.toISOString
+    timeStr->Date.toISOString
   } else {
-    Js.Date.fromFloat(istTime)->Js.Date.toISOString
+    Js.Date.fromFloat(istTime)->Date.toISOString
   }
 }
 
@@ -75,14 +75,14 @@ let parseAsFloat = (dateStr: string) => {
   )->Js.Date.valueOf
 }
 
-let toUtc = (datetime: Js.Date.t) => {
+let toUtc = (datetime: Date.t) => {
   let offset = Js.Date.getTimezoneOffset(Js.Date.now()->Js.Date.fromFloat)->Int.fromFloat
   (datetime->DayJs.getDayJsForJsDate).add(. offset, "minute").toDate(.)
 }
 
 let getStartEndDiff = (startDate, endDate) => {
   let diffTime = Math.abs(
-    endDate->Date.fromString->Js.Date.getTime -. startDate->Date.fromString->Js.Date.getTime,
+    endDate->Date.fromString->Date.getTime -. startDate->Date.fromString->Date.getTime,
   )
   diffTime
 }
@@ -105,7 +105,7 @@ let isStartBeforeEndDate = (start, end) => {
 }
 
 let getFormattedDate = (date, format) => {
-  date->Date.fromString->Js.Date.toISOString->TimeZoneHook.formattedISOString(format)
+  date->Date.fromString->Date.toISOString->TimeZoneHook.formattedISOString(format)
 }
 type month = Jan | Feb | Mar | Apr | May | Jun | Jul | Aug | Sep | Oct | Nov | Dec
 

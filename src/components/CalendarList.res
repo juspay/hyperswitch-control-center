@@ -54,13 +54,13 @@ let make = (
   let startMonth = switch month {
   | Some(m) => Int.toFloat(Float.toInt(getMonthInFloat(m)))
   | None => {
-      let tMonth = Int.toFloat(Float.toInt(Js.Date.getMonth(Js.Date.make())))
+      let tMonth = Int.toFloat(Float.toInt(Js.Date.getMonth(Date.make())))
       disableFutureDates && count > 1 ? tMonth -. 1.0 : tMonth
     }
   }
   let startYear = switch year {
   | Some(y) => Int.toFloat(y)
-  | None => Js.Date.getFullYear(Js.Date.make())
+  | None => Js.Date.getFullYear(Date.make())
   }
   let (currDateIm, setCurrDate) = React.useState(() =>
     Js.Date.makeWithYM(~year=startYear, ~month=startMonth, ())
