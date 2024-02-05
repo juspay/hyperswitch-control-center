@@ -12,7 +12,7 @@ external customParseFormat: relativeTime = "default"
 type rec dayJs = {
   isValid: (. unit) => bool,
   toString: (. unit) => string,
-  toDate: (. unit) => Js.Date.t,
+  toDate: (. unit) => Date.t,
   add: (. int, string) => dayJs,
   isSame: (. string, string) => bool,
   subtract: (. int, string) => dayJs,
@@ -41,5 +41,5 @@ external getDayJsForString: string => dayJs = "default"
 external getDayJsFromCustromFormat: (string, string, bool) => dayJs = "default"
 
 let getDayJsForJsDate = date => {
-  date->Js.Date.toString->getDayJsForString
+  date->Date.toString->getDayJsForString
 }

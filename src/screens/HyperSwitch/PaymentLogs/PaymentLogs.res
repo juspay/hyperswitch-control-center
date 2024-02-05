@@ -405,11 +405,11 @@ let make = (~paymentId, ~createdAt) => {
 
     try {
       let url = getURL(~entityName=SDK_EVENT_LOGS, ~methodType=Post, ~id=Some(paymentId), ())
-      let startTime = createdAt->Date.fromString->Js.Date.getTime -. 1000. *. 60. *. 5.
-      let startTime = startTime->Js.Date.fromFloat->Js.Date.toISOString
+      let startTime = createdAt->Date.fromString->Date.getTime -. 1000. *. 60. *. 5.
+      let startTime = startTime->Js.Date.fromFloat->Date.toISOString
 
-      let endTime = createdAt->Date.fromString->Js.Date.getTime +. 1000. *. 60. *. 60. *. 3.
-      let endTime = endTime->Js.Date.fromFloat->Js.Date.toISOString
+      let endTime = createdAt->Date.fromString->Date.getTime +. 1000. *. 60. *. 60. *. 3.
+      let endTime = endTime->Js.Date.fromFloat->Date.toISOString
       let body =
         [
           ("paymentId", paymentId->JSON.Encode.string),

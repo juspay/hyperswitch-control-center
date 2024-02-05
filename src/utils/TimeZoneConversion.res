@@ -1,5 +1,5 @@
 type timeZoneObject = {timeZone: string}
-@send external toLocaleString: (Js.Date.t, string, timeZoneObject) => string = "toLocaleString"
+@send external toLocaleString: (Date.t, string, timeZoneObject) => string = "toLocaleString"
 
 type dateTime = {
   year: float,
