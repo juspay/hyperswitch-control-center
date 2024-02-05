@@ -63,7 +63,7 @@ module TableRow = {
                   "00",
                   "00",
                   "00",
-                )->Js.Date.fromString
+                )->Date.fromString
               let dateToday = Js.Date.make()
               let todayInitial = Js.Date.setHoursMSMs(
                 dateToday,
@@ -88,7 +88,7 @@ module TableRow = {
               let isInLimit = switch dateRangeLimit {
               | Some(limit) =>
                 if startDate !== "" {
-                  date->Js.Date.getTime -. startDate->Js.Date.fromString->Js.Date.getTime <
+                  date->Js.Date.getTime -. startDate->Date.fromString->Js.Date.getTime <
                     ((limit->Js.Int.toFloat -. 1.) *. 24. *. 60. *. 60. -. 60.) *. 1000.
                 } else {
                   true
@@ -188,7 +188,7 @@ module TableRow = {
                       hoverdDate != "" &&
                       endDate == "" &&
                       z > parsedStartDate &&
-                      z <= hoverdDate->Js.Date.fromString &&
+                      z <= hoverdDate->Date.fromString &&
                       !(
                         (isFutureDate && disableFutureDates) ||
                         !isFutureDate && disablePastDates ||
@@ -218,7 +218,7 @@ module TableRow = {
                     hoverdDate != "" &&
                     endDate == "" &&
                     zObj > parsedStartDate &&
-                    zObj <= hoverdDate->Js.Date.fromString &&
+                    zObj <= hoverdDate->Date.fromString &&
                     !(
                       (isFutureDate && disableFutureDates) ||
                       !isFutureDate && disablePastDates ||

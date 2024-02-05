@@ -444,7 +444,7 @@ let getLegendDataForCurrentMetrix = (
         (currentOverall->Dict.get(metricsName)->Option.getOr(0.) *.
         100. /.
         Math.max(totalOverall, 1.))
-        ->Js.Float.toFixedWithPrecision(~digits=2)
+        ->Float.toFixedWithPrecision(~digits=2)
         ->removeTrailingZero
         ->Float.fromString
         ->Option.getOr(0.)
@@ -556,7 +556,7 @@ let formatStatsAccToMetrix = (metric: dropDownMetricType, value: float) => {
   switch metric {
   | Latency => latencyShortNum(~labelValue=value, ())
   | Volume => shortNum(~labelValue=value, ~numberFormat=getDefaultNumberFormat(), ())
-  | Rate | Traffic => value->Js.Float.toFixedWithPrecision(~digits=2)->removeTrailingZero ++ "%"
+  | Rate | Traffic => value->Float.toFixedWithPrecision(~digits=2)->removeTrailingZero ++ "%"
   | Amount => shortNum(~labelValue=value, ~numberFormat=getDefaultNumberFormat(), ())
   }
 }

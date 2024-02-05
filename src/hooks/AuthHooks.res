@@ -7,7 +7,6 @@ type sessionStorage = {
 
 @val external sessionStorage: sessionStorage = "sessionStorage"
 
-external dictToObj: Dict.t<'a> => {..} = "%identity"
 @val external atob: string => string = "atob"
 
 let getHeaders = (~uri, ~headers, ()) => {
@@ -32,7 +31,7 @@ let getHeaders = (~uri, ~headers, ()) => {
     }
     res
   }
-  Fetch.HeadersInit.make(headerObj->dictToObj)
+  Fetch.HeadersInit.make(headerObj->Identity.dictOfAnyTypeToObj)
 }
 
 type betaEndpoint = {

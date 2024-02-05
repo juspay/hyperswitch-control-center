@@ -75,6 +75,7 @@ module SidebarSubOption = {
 module SidebarItem = {
   @react.component
   let make = (~tabInfo, ~isSelected, ~isExpanded) => {
+    open UIUtils
     let sidebarItemRef = React.useRef(Nullable.null)
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
     let getSearchParamByLink = link => getSearchParamByLink(String.substringToEnd(link, ~start=0))
@@ -99,7 +100,7 @@ module SidebarItem = {
     | Link(tabOption) => {
         let {name, icon, link, access} = tabOption
         let redirectionLink = `${link}${getSearchParamByLink(link)}`
-        <UIUtils.RenderIf condition={access !== NoAccess}>
+        <RenderIf condition={access !== NoAccess}>
           <Link to_=redirectionLink>
             <AddDataAttributes attributes=[("data-testid", name->String.toLowerCase)]>
               <div
@@ -112,7 +113,7 @@ module SidebarItem = {
               </div>
             </AddDataAttributes>
           </Link>
-        </UIUtils.RenderIf>
+        </RenderIf>
       }
 
     | RemoteLink(tabOption) => {
@@ -122,7 +123,7 @@ module SidebarItem = {
         } else {
           (React.null, `${link}${getSearchParamByLink(link)}`)
         }
-        <UIUtils.RenderIf condition={access !== NoAccess}>
+        <RenderIf condition={access !== NoAccess}>
           <a
             href={link}
             target="_blank"
@@ -130,13 +131,13 @@ module SidebarItem = {
             <SidebarOption name icon isExpanded isSelected />
             remoteUi
           </a>
-        </UIUtils.RenderIf>
+        </RenderIf>
       }
 
     | LinkWithTag(tabOption) => {
         let {name, icon, iconTag, link, access, ?iconStyles, ?iconSize} = tabOption
 
-        <UIUtils.RenderIf condition={access !== NoAccess}>
+        <RenderIf condition={access !== NoAccess}>
           <Link to_={`${link}${getSearchParamByLink(link)}`}>
             <div
               onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
@@ -144,16 +145,16 @@ module SidebarItem = {
                   ? "mx-2"
                   : "mx-1"} hover:bg-light_white my-0.5`}>
               <SidebarOption name icon isExpanded isSelected />
-              <UIUtils.RenderIf condition={isExpanded}>
+              <RenderIf condition={isExpanded}>
                 <Icon
                   size={iconSize->Option.getOr(26)}
                   name=iconTag
                   className={`ml-2 ${iconStyles->Option.getOr("w-26 h-26")}`}
                 />
-              </UIUtils.RenderIf>
+              </RenderIf>
             </div>
           </Link>
-        </UIUtils.RenderIf>
+        </RenderIf>
       }
 
     | Heading(_) | Section(_) | CustomComponent(_) => React.null
@@ -166,6 +167,7 @@ module SidebarItem = {
 module NestedSidebarItem = {
   @react.component
   let make = (~tabInfo, ~isSelected, ~isSideBarExpanded, ~isSectionExpanded) => {
+    open UIUtils
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
     let getSearchParamByLink = link => getSearchParamByLink(Js.String2.substr(link, ~from=0))
 
@@ -190,13 +192,13 @@ module NestedSidebarItem = {
 
     let nestedSidebarItemRef = React.useRef(Nullable.null)
 
-    <UIUtils.RenderIf condition={isSideBarExpanded}>
+    <RenderIf condition={isSideBarExpanded}>
       {switch tabInfo {
       | SubLevelLink(tabOption) => {
           let {name, link, access, ?iconTag, ?iconStyles, ?iconSize} = tabOption
           let linkTagPadding = "pl-2"
 
-          <UIUtils.RenderIf condition={access !== NoAccess}>
+          <RenderIf condition={access !== NoAccess}>
             <Link to_={`${link}${getSearchParamByLink(link)}`}>
               <AddDataAttributes attributes=[("data-testid", name->String.toLowerCase)]>
                 <div
@@ -204,7 +206,7 @@ module NestedSidebarItem = {
                   onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
                   className={`${textColor} relative overflow-hidden flex flex-row items-center cursor-pointer rounded-lg ${paddingClass} ${selectedClass}`}>
                   <SidebarSubOption name isSectionExpanded isSelected isSideBarExpanded>
-                    <UIUtils.RenderIf condition={iconTag->Belt.Option.isSome && isSideBarExpanded}>
+                    <RenderIf condition={iconTag->Belt.Option.isSome && isSideBarExpanded}>
                       <div className=linkTagPadding>
                         <Icon
                           size={iconSize->Belt.Option.getWithDefault(26)}
@@ -212,15 +214,15 @@ module NestedSidebarItem = {
                           className={iconStyles->Belt.Option.getWithDefault("w-26 h-26")}
                         />
                       </div>
-                    </UIUtils.RenderIf>
+                    </RenderIf>
                   </SidebarSubOption>
                 </div>
               </AddDataAttributes>
             </Link>
-          </UIUtils.RenderIf>
+          </RenderIf>
         }
       }}
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -238,6 +240,7 @@ module NestedSectionItem = {
     ~isSubLevelItemSelected,
     ~isSideBarExpanded,
   ) => {
+    open UIUtils
     let iconColor = isAnySubItemSelected ? "text-white" : "text-white opacity-60"
 
     let iconOuterClass = if !isSideBarExpanded {
@@ -276,13 +279,13 @@ module NestedSectionItem = {
             } else {
               <Icon size={getIconSize("small")} name=section.icon className=iconColor />
             }}
-            <UIUtils.RenderIf condition={isSideBarExpanded}>
+            <RenderIf condition={isSideBarExpanded}>
               <div className={`font-semibold text-sm ${expandedTextColor} whitespace-nowrap`}>
                 {React.string(section.name)}
               </div>
-            </UIUtils.RenderIf>
+            </RenderIf>
           </div>
-          <UIUtils.RenderIf condition={isSideBarExpanded}>
+          <RenderIf condition={isSideBarExpanded}>
             <Icon
               name={"Nested_arrow_down"}
               className={isSectionExpanded
@@ -290,9 +293,9 @@ module NestedSectionItem = {
                 : `-rotate-0 transition duration-[250ms] mr-2 text-white opacity-60`}
               size=16
             />
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
-        <UIUtils.RenderIf condition={isElementShown}>
+        <RenderIf condition={isElementShown}>
           {section.links
           ->Array.mapWithIndex((subLevelItem, index) => {
             let isSelected = subLevelItem->isSubLevelItemSelected
@@ -305,7 +308,7 @@ module NestedSectionItem = {
             />
           })
           ->React.array}
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </AddDataAttributes>
   }
@@ -320,6 +323,7 @@ module SidebarNestedSection = {
     ~isSideBarExpanded,
     ~setIsSidebarExpanded,
   ) => {
+    open UIUtils
     let isSubLevelItemSelected = tabInfo => {
       switch tabInfo {
       | SubLevelLink(item) => linkSelectionCheck(firstPart, item.link)
@@ -390,7 +394,7 @@ module SidebarNestedSection = {
       | SubLevelLink({access}) => access === NoAccess
       }
     })
-    <UIUtils.RenderIf condition={!areAllSubLevelsHidden}>
+    <RenderIf condition={!areAllSubLevelsHidden}>
       <NestedSectionItem
         section
         isSectionExpanded
@@ -403,13 +407,14 @@ module SidebarNestedSection = {
         isSubLevelItemSelected
         isSideBarExpanded
       />
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
 module PinIconComponentStates = {
   @react.component
   let make = (~isHSSidebarPinned, ~setIsSidebarExpanded, ~isSidebarExpanded) => {
+    open UIUtils
     let isMobileView = MatchMedia.useMobileChecker()
     let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
 
@@ -425,13 +430,13 @@ module PinIconComponentStates = {
     }
 
     <>
-      <UIUtils.RenderIf condition={isSidebarExpanded && !isHSSidebarPinned && !isMobileView}>
+      <RenderIf condition={isSidebarExpanded && !isHSSidebarPinned && !isMobileView}>
         <Icon size=35 name="sidebar-pin-default" onClick className="cursor-pointer" />
-      </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={isHSSidebarPinned && !isMobileView}>
+      </RenderIf>
+      <RenderIf condition={isHSSidebarPinned && !isMobileView}>
         <Icon size=35 name="sidebar-pin-pinned" onClick className="cursor-pointer" />
-      </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={isMobileView}>
+      </RenderIf>
+      <RenderIf condition={isMobileView}>
         <div className="flex align-center mt-4 pl-3 mb-6 pr-4 ml-1 gap-5 cursor-default">
           <Icon
             className="mr-1"
@@ -441,7 +446,7 @@ module PinIconComponentStates = {
             onClick={_ => setIsSidebarExpanded(_ => false)}
           />
         </div>
-      </UIUtils.RenderIf>
+      </RenderIf>
     </>
   }
 }
@@ -453,6 +458,7 @@ let make = (
   ~linkSelectionCheck=defaultLinkSelectionCheck,
   ~verticalOffset="120px",
 ) => {
+  open UIUtils
   let fetchApi = AuthHooks.useApiFetcher()
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
@@ -561,7 +567,7 @@ let make = (
               }
 
             | Section(section) =>
-              <UIUtils.RenderIf condition={section.showSection} key={string_of_int(index)}>
+              <RenderIf condition={section.showSection} key={string_of_int(index)}>
                 <SidebarNestedSection
                   key={string_of_int(index)}
                   section
@@ -570,7 +576,7 @@ let make = (
                   isSideBarExpanded={isExpanded}
                   setIsSidebarExpanded
                 />
-              </UIUtils.RenderIf>
+              </RenderIf>
             | Heading(headingOptions) =>
               <div
                 key={string_of_int(index)}
@@ -581,15 +587,15 @@ let make = (
               </div>
 
             | CustomComponent(customComponentOptions) =>
-              <UIUtils.RenderIf condition={isExpanded} key={string_of_int(index)}>
+              <RenderIf condition={isExpanded} key={string_of_int(index)}>
                 customComponentOptions.component
-              </UIUtils.RenderIf>
+              </RenderIf>
             }
           })
           ->React.array}
         </div>
         <div className="flex items-center justify-between mb-5 mt-2 mx-2 mr-2 hover:bg-[#334264]">
-          <UIUtils.RenderIf condition={isExpanded}>
+          <RenderIf condition={isExpanded}>
             <Popover className="relative inline-block text-left">
               {popoverProps => <>
                 <Popover.Button
@@ -609,12 +615,12 @@ let make = (
                       </div>
                       <ToolTip
                         description=email
-                        toolTipFor={<UIUtils.RenderIf condition={isExpanded}>
+                        toolTipFor={<RenderIf condition={isExpanded}>
                           <div
                             className={`w-[${profileMaxWidth}] text-sm font-medium text-gray-400 dark:text-gray-600 text-ellipsis overflow-hidden`}>
                             {email->React.string}
                           </div>
-                        </UIUtils.RenderIf>}
+                        </RenderIf>}
                         toolTipPosition=ToolTip.Top
                         tooltipWidthClass="!w-fit !z-50"
                       />
@@ -653,7 +659,7 @@ let make = (
                 </Transition>
               </>}
             </Popover>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
       </div>
     </div>

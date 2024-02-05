@@ -167,6 +167,7 @@ let validateForm = (values: JSON.t, keys: array<string>) => {
 }
 
 let note = (authType, setAuthType, isMagicLinkEnabled) => {
+  open UIUtils
   let getFooterLinkComponent = (~btnText, ~authType, ~path) => {
     <div
       onClick={_ => {
@@ -187,19 +188,19 @@ let note = (authType, setAuthType, isMagicLinkEnabled) => {
         ~path="/login",
       )
     | LoginWithPassword =>
-      <UIUtils.RenderIf condition={isMagicLinkEnabled}>
+      <RenderIf condition={isMagicLinkEnabled}>
         {getFooterLinkComponent(
           ~btnText="or sign in with an email",
           ~authType=LoginWithEmail,
           ~path="/login",
         )}
-      </UIUtils.RenderIf>
+      </RenderIf>
     | SignUP =>
-      <UIUtils.RenderIf condition={isMagicLinkEnabled}>
+      <RenderIf condition={isMagicLinkEnabled}>
         <p className="text-center text-sm">
           {"We'll be emailing you a magic link for a password-free experience, you can always choose to setup a password later."->React.string}
         </p>
-      </UIUtils.RenderIf>
+      </RenderIf>
     | ForgetPassword | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
       <div className="w-full flex justify-center">
         <div

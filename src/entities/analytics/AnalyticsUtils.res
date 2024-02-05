@@ -590,10 +590,10 @@ let generateTablePayload = (
 let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statType: string) => {
   let timeText = if timeRanges.fromTime !== "" && timeRanges.toTime !== "" {
     `${"\n"} ${timeRanges.fromTime
-      ->Js.Date.fromString
+      ->Date.fromString
       ->DateTimeUtils.utcToIST
       ->TimeZoneHook.formattedISOString("YYYY-MM-DD HH:mm:ss")}- ${"\n"} ${timeRanges.toTime
-      ->Js.Date.fromString
+      ->Date.fromString
       ->DateTimeUtils.utcToIST
       ->TimeZoneHook.formattedISOString("YYYY-MM-DD HH:mm:ss")}`
   } else {

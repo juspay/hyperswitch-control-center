@@ -189,7 +189,7 @@ module Manual = {
       update(updatedValue)
       setVefifiedDomainList(_ => [domainName])
       setApplePayIntegrationSteps(_ => ApplePayWalletIntegrationTypes.Verify)
-      Nullable.null->Js.Promise.resolve
+      Nullable.null->Promise.resolve
     }
 
     <div className="p-6 m-2">

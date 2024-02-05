@@ -36,7 +36,7 @@ type rec selectionObj = {\"type": string}
 external navigator: JSON.t = "navigator"
 
 @val @scope("window")
-external connectorWasmInit: 'a => Js.Promise.t<JSON.t> = "init"
+external connectorWasmInit: 'a => Promise.t<JSON.t> = "init"
 
 @val @scope("window")
 external getConnectorConfig: string => JSON.t = "getConnectorConfig"
@@ -201,7 +201,7 @@ external prompt: string => string = "prompt"
 module Notification = {
   type notification = {
     permission: string,
-    requestPermission: unit => Js.Promise.t<string>,
+    requestPermission: unit => Promise.t<string>,
   }
 
   @val @scope("window")
@@ -216,10 +216,10 @@ module Notification = {
 module FcWidget = {
   module User = {
     @val @scope(("window", "fcWidget", "user"))
-    external setEmail: string => Js.Promise.t<string> = "setEmail"
+    external setEmail: string => Promise.t<string> = "setEmail"
 
     @val @scope(("window", "fcWidget", "user"))
-    external setFirstName: string => Js.Promise.t<string> = "setFirstName"
+    external setFirstName: string => Promise.t<string> = "setFirstName"
   }
 }
 
