@@ -162,7 +162,7 @@ let make = (
     onChange: timeValEv => {
       let timeVal = timeValEv->Identity.formReactEventToString
       if selectedDate !== "" {
-        let todayDayJsObj = Js.Date.make()->Js.Date.toString->DayJs.getDayJsForString
+        let todayDayJsObj = Date.make()->Date.toString->DayJs.getDayJsForString
         let todayTime = todayDayJsObj.format(. "HH:mm:ss")
         let todayDate = todayDayJsObj.format(. "YYYY-MM-DD")
         let timeVal = if disableFutureDates && selectedDate == todayDate && timeVal > todayTime {

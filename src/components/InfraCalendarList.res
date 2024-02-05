@@ -4,7 +4,7 @@ external ffInputToSelectInput: ReactFinalForm.fieldRenderPropsInput => ReactFina
 
 let startYear = ref(2016)
 let years = []
-while Js.Date.make()->Js.Date.getFullYear->Float.toInt >= startYear.contents {
+while Date.make()->Js.Date.getFullYear->Float.toInt >= startYear.contents {
   years->Array.push(startYear.contents)->ignore
   startYear := startYear.contents + 1
 }

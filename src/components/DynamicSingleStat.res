@@ -269,7 +269,7 @@ let make = (
           (endTimeFromUrl->DayJs.getDayJsForString).subtract(.
             1,
             "hour",
-          ).toDate(.)->Js.Date.toISOString
+          ).toDate(.)->Date.toISOString
         } else {
           startTimeFromUrl
         }
@@ -366,7 +366,7 @@ let make = (
           (endTimeFromUrl->DayJs.getDayJsForString).subtract(.
             1,
             "hour",
-          ).toDate(.)->Js.Date.toISOString
+          ).toDate(.)->Date.toISOString
         } else {
           startTimeFromUrl
         }
