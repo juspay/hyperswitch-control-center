@@ -36,7 +36,7 @@ let checkHealth = async (res) => {
     // Check if match is found and extract the value
     const apiBaseUrl = match ? match[1] : null;
 
-    let api = await fetch("https://sandbox.hyperswitch.io/health");
+    let api = await fetch(apiBaseUrl);
 
     if (api && api.ok) {
       output.api_check = true;
