@@ -11,11 +11,9 @@ let checkHealth = async (res) => {
     env_config: false,
     app_file: false,
     wasm_file: false,
-    api_check: false,
   };
   try {
     let indexFile = "dist/hyperswitch/index.html";
-    let envFile = "dist/hyperswitch/env-config.js";
 
     let data = Fs.readFileSync(indexFile, { encoding: "utf8" });
     if (data.includes(`<script src="/env-config.js"></script>`)) {
@@ -30,16 +28,6 @@ let checkHealth = async (res) => {
       output.wasm_file = true;
     }
 
-    let envString = Fs.readFileSync(envFile, { encoding: "utf8" });
-    const match = envString.match(/apiBaseUrl:\s*"([^"]*)"/);
-
-    // Check if match is found and extract the value
-    const apiBaseUrl = match ? match[1] : null;
-
-    let api = await fetch(`${apiBaseUrl}/health`);
-    if (api && api.ok) {
-      output.api_check = true;
-    }
     let values = Object.values(output);
     if (values.includes(false)) {
       throw "Server Error";
