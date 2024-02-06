@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.06.1
+
+### Bug Fixes
+
+- UI connector icon ([#348](https://github.com/juspay/hyperswitch-control-center/pull/348)) ([`b66af59`](https://github.com/juspay/hyperswitch-control-center/commit/b66af594a230e33c5e0eb6642ed4b8c5649e1d70))
+
+**Full Changelog:** [`2024.02.06.0...2024.02.06.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.06.0...2024.02.06.1)
+
+- - -
+
 ## 2024.02.06.0
 
 ### Features
