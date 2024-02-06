@@ -344,6 +344,7 @@ module Resources = {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {elements
           ->Array.mapWithIndex((item, index) => {
+            let cursorStyles = PermissionUtils.cursorStyles(item.access)
             <ACLDiv
               key={index->string_of_int}
               permission=item.access
@@ -351,7 +352,7 @@ module Resources = {
               contentAlign=Default
               tooltipForWidthClass="!h-full"
               justifyClass=""
-              className="!h-full group bg-white border rounded-md p-10 flex flex-col gap-4 group-hover:shadow hover:shadow-homePageBoxShadow cursor-pointer"
+              className={`!h-full group bg-white border rounded-md p-10 flex flex-col gap-4 group-hover:shadow hover:shadow-homePageBoxShadow ${cursorStyles}`}
               onClick={_ => onClickHandler(item)}>
               <img src={`/icons/${item.icon}`} className="h-6 w-6" />
               <div className="flex items-center gap-2">
