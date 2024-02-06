@@ -23,6 +23,7 @@ module ModalHeading: {
     ~modalHeadingClass: string,
     ~modalParentHeadingClass: string,
     ~customIcon: option<React.element>,
+    ~modalHeaderIconSize: int,
   ) => React.element
 }
 module ModalContent: {
@@ -92,4 +93,5 @@ let make: (
   ~addAttributeId: string=?,
   ~customIcon: option<React.element>=?,
   ~alignModal: string=?,
+  ~modalHeaderIconSize: int=?,
 ) => React.element

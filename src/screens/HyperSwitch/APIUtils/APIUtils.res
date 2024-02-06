@@ -207,6 +207,11 @@ let getURL = (
     | Some(id) => `disputes/accept/${id}`
     | None => `disputes`
     }
+  | DISPUTES_ATTACH_EVIDENCE =>
+    switch id {
+    | Some(id) => `disputes/evidence/${id}`
+    | _ => `disputes/evidence`
+    }
   | PAYMENT | SETTINGS => ""
   }
   `${HSwitchGlobalVars.hyperSwitchApiPrefix}/${endpoint}`

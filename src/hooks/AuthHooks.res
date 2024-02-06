@@ -9,8 +9,9 @@ type sessionStorage = {
 
 @val external atob: string => string = "atob"
 
-let getHeaders = (~uri, ~headers, ()) => {
-  let hyperSwitchToken = LocalStorage.getItem("login")->Nullable.toOption
+// TODO : Temporary change for supporting disputes. When getHeaders PR gets merged, the changes will be reverted
+let getHeaders = (~uri, ~headers, ~isFromFormData, ()) => {
+  let hyperSwitchToken = LocalStorage.getItem("login")->Js.Nullable.toOption
   let isMixpanel = uri->String.includes("mixpanel")
 
   let headerObj = if isMixpanel {
@@ -20,7 +21,13 @@ let getHeaders = (~uri, ~headers, ()) => {
     ]->Dict.fromArray
   } else {
     let res = switch hyperSwitchToken {
-    | Some(token) => {
+    | Some(token) =>
+      if isFromFormData {
+        headers->Dict.set("authorization", `Bearer ${token}`)
+        headers->Dict.set("api-key", `hyperswitch`)
+
+        headers
+      } else {
         headers->Dict.set("authorization", `Bearer ${token}`)
         headers->Dict.set("api-key", `hyperswitch`)
         headers->Dict.set("Content-Type", `application/json`)
@@ -80,6 +87,7 @@ let useApiFetcher = () => {
         }
       }
 
+      // TODO : Temporary change for supporting disputes. When getHeaders PR gets merged, the changes will be reverted
       body->then(body => {
         setReqProgress(. p => p + 1)
         Fetch.fetchWithInit(
@@ -88,7 +96,7 @@ let useApiFetcher = () => {
             ~method_,
             ~body?,
             ~credentials=SameOrigin,
-            ~headers=getHeaders(~headers, ~uri, ()),
+            ~headers=getHeaders(~headers, ~uri, ~isFromFormData=bodyFormData->Option.isSome, ()),
             (),
           ),
         )

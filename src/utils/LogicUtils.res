@@ -628,3 +628,26 @@ let listOfMatchedText = (text, searchText) => {
 let getJsonFromArrayOfString = arr => {
   arr->Array.map(ele => ele->JSON.Encode.string)->JSON.Encode.array
 }
+
+let truncateFileNameWithEllipses = (~fileName, ~maxTextLength) => {
+  let lastIndex = fileName->String.lastIndexOf(".")
+  let beforeDotFileName = fileName->String.substring(~start=0, ~end=lastIndex)
+  let afterDotFileType = fileName->String.substringToEnd(~start=lastIndex + 1)
+
+  if beforeDotFileName->String.length + afterDotFileType->String.length + 1 <= maxTextLength {
+    fileName
+  } else {
+    let truncatedText =
+      beforeDotFileName->String.slice(~start=0, ~end=maxTextLength)->String.concat("...")
+    truncatedText ++ "." ++ afterDotFileType
+  }
+}
+
+let getDaysDiffForDates = (~startDate, ~endDate) => {
+  let startDate = startDate->Js.Date.fromFloat
+  let endDate = endDate->Js.Date.fromFloat
+  let daysDiff = Math.abs(endDate->Js.Date.getTime -. startDate->Js.Date.getTime)
+  let noOfmiliiseconds = 1000.0 *. 60.0 *. 60.0 *. 24.0
+
+  Math.floor(daysDiff /. noOfmiliiseconds)
+}
