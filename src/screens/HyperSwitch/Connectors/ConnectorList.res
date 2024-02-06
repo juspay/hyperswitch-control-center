@@ -25,8 +25,7 @@ module CantFindProcessor = {
   @react.component
   let make = (~showRequestConnectorBtn, ~setShowModal) => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-    let cursorStyles =
-      userPermissionJson.merchantAccountWrite === Access ? "cursor-pointer" : "cursor-not-allowed"
+    let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantAccountWrite)
 
     <UIUtils.RenderIf condition={showRequestConnectorBtn}>
       <ACLDiv
@@ -183,10 +182,10 @@ module NewProcessorCards = {
             {connectorList
             ->Array.mapWithIndex((connector, i) => {
               let connectorName = connector->getConnectorNameString
-              let cursorStyles =
-                userPermissionJson.merchantConnectorAccountWrite === Access
-                  ? "cursor-pointer"
-                  : "cursor-not-allowed"
+              let cursorStyles = PermissionUtils.cursorStyles(
+                userPermissionJson.merchantConnectorAccountWrite,
+              )
+
               <ACLDiv
                 key={i->string_of_int}
                 permission=userPermissionJson.merchantConnectorAccountWrite

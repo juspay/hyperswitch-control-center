@@ -304,6 +304,7 @@ module Resources = {
         headerText: "Try a test payment",
         subText: "Experience the Hyperswitch Unified checkout using test credentials",
         redirectLink: "",
+        access: userPermissionJson.paymentWrite,
       },
       {
         id: "openSource",
@@ -311,6 +312,7 @@ module Resources = {
         headerText: "Contribute in open source",
         subText: "We welcome all your suggestions, feedbacks, and queries. Hop on to the Open source rail!",
         redirectLink: "",
+        access: Access,
       },
       {
         id: "developerdocs",
@@ -318,6 +320,7 @@ module Resources = {
         headerText: "Developer docs",
         subText: "Everything you need to know to get to get the SDK up and running resides in here.",
         redirectLink: "",
+        access: Access,
       },
     ]
 
@@ -341,34 +344,26 @@ module Resources = {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {elements
           ->Array.mapWithIndex((item, index) => {
-            let content =
-              <div
-                className="h-full group bg-white border rounded-md p-10 flex flex-col gap-4 group-hover:shadow hover:shadow-homePageBoxShadow cursor-pointer"
-                key={index->string_of_int}
-                onClick={_ => onClickHandler(item)}>
-                <img src={`/icons/${item.icon}`} className="h-6 w-6" />
-                <div className="flex items-center gap-2">
-                  <p className=cardHeaderText> {item.headerText->React.string} </p>
-                  <Icon
-                    name="chevron-right"
-                    size=12
-                    className="group-hover:scale-125 transition duration-200 ease-in-out"
-                  />
-                </div>
-                <p className=paragraphTextVariant> {item.subText->React.string} </p>
+            <ACLDiv
+              key={index->string_of_int}
+              permission=item.access
+              isRelative=false
+              contentAlign=Default
+              tooltipForWidthClass="!h-full"
+              justifyClass=""
+              className="!h-full group bg-white border rounded-md p-10 flex flex-col gap-4 group-hover:shadow hover:shadow-homePageBoxShadow cursor-pointer"
+              onClick={_ => onClickHandler(item)}>
+              <img src={`/icons/${item.icon}`} className="h-6 w-6" />
+              <div className="flex items-center gap-2">
+                <p className=cardHeaderText> {item.headerText->React.string} </p>
+                <Icon
+                  name="chevron-right"
+                  size=12
+                  className="group-hover:scale-125 transition duration-200 ease-in-out"
+                />
               </div>
-
-            if item.id === "tryTheDemo" && userPermissionJson.paymentWrite === NoAccess {
-              <ToolTip
-                toolTipFor=content
-                description=noAccessControlText
-                toolTipPosition=Top
-                isRelative=false
-                tooltipForWidthClass="!h-full"
-              />
-            } else {
-              content
-            }
+              <p className=paragraphTextVariant> {item.subText->React.string} </p>
+            </ACLDiv>
           })
           ->React.array}
         </div>
