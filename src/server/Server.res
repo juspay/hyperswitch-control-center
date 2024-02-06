@@ -11,6 +11,9 @@ open NodeJs
 @module("./config.mjs")
 external configHandler: (Http.request, Http.response, bool, string) => unit = "configHandler"
 
+@module("./health.mjs")
+external healthHandler: (Http.request, Http.response) => unit = "healthHandler"
+
 module ServerHandler = {
   type rewrite = {source: string, destination: string}
   type header = {key: string, value: string}
@@ -59,6 +62,11 @@ let serverHandler: Http.serverHandler = (request, response) => {
     let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/FeatureFlag.json")
     Promise.make((resolve, _reject) => {
       configHandler(request, response, true, path)
+      ()->resolve(. _)
+    })
+  } else if path === "/health" && request.method === "GET" {
+    Promise.make((resolve, _reject) => {
+      healthHandler(request, response)
       ()->resolve(. _)
     })
   } else {

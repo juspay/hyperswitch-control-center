@@ -11,7 +11,7 @@ module BaseComponent = {
     ~customIcon=?,
     ~customCss="",
   ) => {
-    let headerStyle = getTextClass(~textVariant=H3, ~h3TextVariant=Leading_1, ())
+    let headerStyle = getTextClass((H3, Leading_1))
     <div
       className="w-standardPageWidth h-45-rem bg-white rounded-md flex flex-col gap-6 shadow-boxShadowMultiple overflow-scroll ">
       <div className="flex justify-between items-center px-10 pt-6">
@@ -43,7 +43,7 @@ module BaseComponent = {
 module StepCompletedPage = {
   @react.component
   let make = (~buttonGroup=React.null, ~headerText="") => {
-    let textClass = `${HSwitchUtils.getTextClass(~textVariant=H2, ())} text-center`
+    let textClass = `${HSwitchUtils.getTextClass((H2, Optional))} text-center`
     <div
       className="w-[40rem] p-16 flex flex-col gap-20 border rounded-md items-center bg-white shadow-boxShadowMultiple">
       <div className="flex flex-col gap-10 items-center">
@@ -69,16 +69,11 @@ module VerticalChoiceTile = {
   ) => {
     let getBlockColor = value =>
       choiceState === value ? "border border-blue-700 bg-blue-700 bg-opacity-10 " : "border"
-    let headerTextStyle = `${HSwitchUtils.getTextClass(
-        ~textVariant=P1,
-        ~paragraphTextVariant=Medium,
-        (),
-      )} text-grey-700`
-    let descriptionStyle = `${HSwitchUtils.getTextClass(
-        ~textVariant=P2,
-        ~paragraphTextVariant=Medium,
-        (),
-      )} text-grey-700 text-opacity-50`
+    let headerTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700`
+    let descriptionStyle = `${HSwitchUtils.getTextClass((
+        P2,
+        Medium,
+      ))} text-grey-700 text-opacity-50`
 
     <div className={`grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-4 ${customLayoutCss}`}>
       {listChoices
@@ -135,16 +130,11 @@ module HorizontalChoiceTile = {
   ) => {
     let getBlockColor = value =>
       choiceState === value ? "border border-blue-700 bg-blue-700 bg-opacity-10 " : "border"
-    let headerTextStyle = `${HSwitchUtils.getTextClass(
-        ~textVariant=P1,
-        ~paragraphTextVariant=Medium,
-        (),
-      )} text-grey-700`
-    let descriptionStyle = `${HSwitchUtils.getTextClass(
-        ~textVariant=P2,
-        ~paragraphTextVariant=Medium,
-        (),
-      )} text-grey-700 text-opacity-50`
+    let headerTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700`
+    let descriptionStyle = `${HSwitchUtils.getTextClass((
+        P2,
+        Medium,
+      ))} text-grey-700 text-opacity-50`
 
     <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8 ${customLayoutCss}`}>
       {listChoices
@@ -235,7 +225,7 @@ module SelectConnectorGrid = {
         )
       )
 
-    let headerClass = HSwitchUtils.getTextClass(~textVariant=P1, ~paragraphTextVariant=Medium, ())
+    let headerClass = HSwitchUtils.getTextClass((P1, Medium))
 
     let subheaderText = "text-base font-semibold text-grey-700"
     let getBlockColor = connector =>
