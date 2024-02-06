@@ -3,11 +3,11 @@ type formData
 @send external append: (Fetch.formData, string, 'a) => unit = "append"
 
 open HSwitchUtils
-let h3Leading2Text = getTextClass(~textVariant=H3, ~h3TextVariant=Leading_2, ())
-let p1RegularText = getTextClass(~textVariant=P1, ~paragraphTextVariant=Regular, ())
-let p1MediumText = getTextClass(~textVariant=P1, ~paragraphTextVariant=Medium, ())
-let p2RegularText = getTextClass(~textVariant=P2, ~paragraphTextVariant=Regular, ())
-let p3RegularText = getTextClass(~textVariant=P3, ~paragraphTextVariant=Regular, ())
+let h3Leading2Text = getTextClass((H3, Leading_2))
+let p1RegularText = getTextClass((P1, Regular))
+let p1MediumText = getTextClass((P1, Medium))
+let p2RegularText = getTextClass((P2, Regular))
+let p3RegularText = getTextClass((P3, Regular))
 
 module EvidenceUploadForm = {
   @react.component

@@ -1,5 +1,5 @@
 open HSwitchUtils
-let p1MediumTextStyle = getTextClass(~textVariant=P1, ~paragraphTextVariant=Medium, ())
+let p1MediumTextStyle = getTextClass((P1, Medium))
 
 module RequestConnector = {
   @react.component

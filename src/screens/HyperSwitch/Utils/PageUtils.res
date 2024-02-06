@@ -11,7 +11,7 @@ module PageHeading = {
     ~leftIcon=None,
   ) => {
     open UIUtils
-    let headerTextStyle = HSwitchUtils.getTextClass(~textVariant=H1, ())
+    let headerTextStyle = HSwitchUtils.getTextClass((H1, Optional))
     <div className="py-2">
       {switch leftIcon {
       | Some(icon) => <Icon name={icon} size=56 />

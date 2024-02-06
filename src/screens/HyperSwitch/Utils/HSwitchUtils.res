@@ -1,7 +1,7 @@
 open LogicUtils
 open HSLocalStorage
 open HyperswitchAtom
-open UtilsTypes
+// open UtilsTypes
 
 module TextFieldRow = {
   @react.component
@@ -87,6 +87,7 @@ let getBrowswerDetails = () => {
   open Window
   open Window.Navigator
   open Window.Screen
+  open UtilsTypes
   let clientTimeZone = dateTimeFormat(.).resolvedOptions(.).timeZone
   let clientCountry = clientTimeZone->getClientCountry
   {
@@ -206,21 +207,23 @@ let constructOnboardingBody = (
   ]->getJsonFromArrayOfJson
 }
 
-let getTextClass = (~textVariant, ~h3TextVariant=Leading_1, ~paragraphTextVariant=Regular, ()) => {
-  switch (textVariant, h3TextVariant, paragraphTextVariant) {
-  | (H1, _, _) => "text-fs-28 font-semibold leading-10"
-  | (H2, _, _) => "text-2xl font-semibold leading-8"
-  | (H3, Leading_1, _) => "text-xl font-semibold leading-7"
-  | (H3, Leading_2, _) => "text-lg font-semibold leading-7"
+let getTextClass = variantType => {
+  open UtilsTypes
+  switch variantType {
+  | (H1, Optional) => "text-fs-28 font-semibold leading-10"
+  | (H2, Optional) => "text-2xl font-semibold leading-8"
+  | (H3, Leading_1) => "text-xl font-semibold leading-7"
+  | (H3, Leading_2) => "text-lg font-semibold leading-7"
 
-  | (P1, _, Regular) => "text-base font-normal leading-6"
-  | (P1, _, Medium) => "text-base font-medium leading-6"
+  | (P1, Regular) => "text-base font-normal leading-6"
+  | (P1, Medium) => "text-base font-medium leading-6"
 
-  | (P2, _, Regular) => "text-sm font-normal leading-5"
-  | (P2, _, Medium) => "text-sm font-medium leading-5"
+  | (P2, Regular) => "text-sm font-normal leading-5"
+  | (P2, Medium) => "text-sm font-medium leading-5"
 
-  | (P3, _, Regular) => "text-xs font-normal leading-4"
-  | (P3, _, Medium) => "text-xs font-medium leading-4"
+  | (P3, Regular) => "text-xs font-normal leading-4"
+  | (P3, Medium) => "text-xs font-medium leading-4"
+  | (_, _) => ""
   }
 }
 

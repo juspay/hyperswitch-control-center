@@ -163,11 +163,7 @@ module CashToCodeSelectBox = {
     ~selectedConnector,
   ) => {
     open LogicUtils
-    let p2RegularTextStyle = `${HSwitchUtils.getTextClass(
-        ~textVariant=P2,
-        ~paragraphTextVariant=Medium,
-        (),
-      )} text-grey-700 opacity-50`
+    let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (country, setSelectedCountry) = React.useState(_ => "")
     let selectedCountry = country => {

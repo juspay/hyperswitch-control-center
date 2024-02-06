@@ -180,12 +180,7 @@ let make = (
             {statValue(statType)->String.toLowerCase->React.string}
           </div>
           <div className={"flex gap-2 items-centertext-jp-gray-700 font-bold"}>
-            <div
-              className={`${HSwitchUtils.getTextClass(
-                  ~textVariant=H3,
-                  ~h3TextVariant=Leading_2,
-                  (),
-                )} text-grey-700`}>
+            <div className={`${HSwitchUtils.getTextClass((H3, Leading_2))} text-grey-700`}>
               {title->React.string}
             </div>
             <ToolTip
