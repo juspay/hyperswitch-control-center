@@ -3,6 +3,44 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.06.0
+
+### Features
+
+- Add access control all over codebase ([#281](https://github.com/juspay/hyperswitch-control-center/pull/281)) ([`7c6beec`](https://github.com/juspay/hyperswitch-control-center/commit/7c6beecdcbcfdda9c93aaffd85d7a526ab4a137d))
+
+### Bug Fixes
+
+- Global search bar no-data found page fix ([#346](https://github.com/juspay/hyperswitch-control-center/pull/346)) ([`c52318e`](https://github.com/juspay/hyperswitch-control-center/commit/c52318e80d00b2f1b020b64a908f0b74089f7205))
+
+### Refactors
+
+- Font css function refactor ([#342](https://github.com/juspay/hyperswitch-control-center/pull/342)) ([`1c8109a`](https://github.com/juspay/hyperswitch-control-center/commit/1c8109a8e5e12b610e0e46eaadd42f71bff37c2b))
+
+### Miscellaneous Tasks
+
+- Add health endpoint ([#341](https://github.com/juspay/hyperswitch-control-center/pull/341)) ([`e194250`](https://github.com/juspay/hyperswitch-control-center/commit/e19425092b2019f5623f3b09a2772182a2ed5f51))
+
+**Full Changelog:** [`2024.02.05.0...2024.02.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.05.0...2024.02.06.0)
+
+- - -
+
+## 2024.02.05.0
+
+### Bug Fixes
+
+- Added connector display name ([#329](https://github.com/juspay/hyperswitch-control-center/pull/329)) ([`f3ea262`](https://github.com/juspay/hyperswitch-control-center/commit/f3ea262e1b6995dcbf8023fbd3e7e392b9cd481d))
+
+### Miscellaneous Tasks
+
+- Refactor code ([#331](https://github.com/juspay/hyperswitch-control-center/pull/331)) ([`e9de547`](https://github.com/juspay/hyperswitch-control-center/commit/e9de5473855e12f22d18ba9fa137fb94f05b6f0f))
+- Remove Customers Module Feature flag ([#336](https://github.com/juspay/hyperswitch-control-center/pull/336)) ([`da9a7fa`](https://github.com/juspay/hyperswitch-control-center/commit/da9a7fa5ce03ded823a5cd45d5eea2871704b5f4))
+- Date core api changes ([#334](https://github.com/juspay/hyperswitch-control-center/pull/334)) ([`85c784f`](https://github.com/juspay/hyperswitch-control-center/commit/85c784fcdd906bc96dc42fbbfab289923044e907))
+
+**Full Changelog:** [`2024.02.04.0...2024.02.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.04.0...2024.02.05.0)
+
+- - -
+
 ## 2024.02.04.0
 
 ### Bug Fixes

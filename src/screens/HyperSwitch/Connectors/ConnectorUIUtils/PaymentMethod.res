@@ -109,11 +109,7 @@ module CardRenderer = {
       | _ => true
       }
     }
-    let p2RegularTextStyle = `${HSwitchUtils.getTextClass(
-        ~textVariant=P2,
-        ~paragraphTextVariant=Medium,
-        (),
-      )} text-grey-700 opacity-50`
+    let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
 
     <div className="flex flex-col gap-4 border rounded-md p-6">
       <div>

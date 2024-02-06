@@ -1,5 +1,5 @@
 open HSwitchUtils
-let p1MediumTextStyle = getTextClass(~textVariant=P1, ~paragraphTextVariant=Medium, ())
+let p1MediumTextStyle = getTextClass((P1, Medium))
 
 module RequestConnector = {
   @react.component
@@ -24,12 +24,16 @@ module RequestConnector = {
 module CantFindProcessor = {
   @react.component
   let make = (~showRequestConnectorBtn, ~setShowModal) => {
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantAccountWrite)
+
     <UIUtils.RenderIf condition={showRequestConnectorBtn}>
-      <div
+      <ACLDiv
+        permission=userPermissionJson.merchantAccountWrite
         onClick={_ => setShowModal(_ => true)}
-        className={`text-blue-900 underline underline-offset-4 font-medium`}>
+        className={`text-blue-900 underline underline-offset-4 font-medium ${cursorStyles}`}>
         {"Can't find the processor of your choice?"->React.string}
-      </div>
+      </ACLDiv>
     </UIUtils.RenderIf>
   }
 }
@@ -178,19 +182,26 @@ module NewProcessorCards = {
             {connectorList
             ->Array.mapWithIndex((connector, i) => {
               let connectorName = connector->getConnectorNameString
-              let size = "w-14 h-14 rounded-sm"
-              <ToolTip
+              let cursorStyles = PermissionUtils.cursorStyles(
+                userPermissionJson.merchantConnectorAccountWrite,
+              )
+
+              <ACLDiv
                 key={i->string_of_int}
-                description={connectorName->getDisplayNameForConnectors}
-                toolTipFor={<AddDataAttributes
-                  attributes=[("data-testid", connectorName->String.toLowerCase)]>
-                  <div className="p-2 cursor-pointer" onClick={_ => handleClick(connectorName)}>
-                    <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
-                  </div>
-                </AddDataAttributes>}
-                toolTipPosition={Top}
+                permission=userPermissionJson.merchantConnectorAccountWrite
+                className={`p-2 ${cursorStyles}`}
+                noAccessDescription=noAccessControlTextForProcessors
                 tooltipWidthClass="w-30"
-              />
+                description={connectorName->getDisplayNameForConnectors}
+                onClick={_ => handleClick(connectorName)}>
+                <AddDataAttributes attributes=[("data-testid", connectorName->String.toLowerCase)]>
+                  <div className="p-2 cursor-pointer" onClick={_ => handleClick(connectorName)}>
+                    <GatewayIcon
+                      gateway={connectorName->String.toUpperCase} className="w-14 h-14 rounded-sm"
+                    />
+                  </div>
+                </AddDataAttributes>
+              </ACLDiv>
             })
             ->React.array}
           </div>
