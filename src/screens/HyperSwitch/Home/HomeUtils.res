@@ -21,6 +21,7 @@ type resourcesTypes = {
   subText: string,
   redirectLink: string,
   id: string,
+  access: AuthTypes.authorization,
 }
 
 let countries: array<ReactHyperJs.country> = [
