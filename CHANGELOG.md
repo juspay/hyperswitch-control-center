@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.05.0
+
+### Bug Fixes
+
+- Added connector display name ([#329](https://github.com/juspay/hyperswitch-control-center/pull/329)) ([`f3ea262`](https://github.com/juspay/hyperswitch-control-center/commit/f3ea262e1b6995dcbf8023fbd3e7e392b9cd481d))
+
+### Miscellaneous Tasks
+
+- Refactor code ([#331](https://github.com/juspay/hyperswitch-control-center/pull/331)) ([`e9de547`](https://github.com/juspay/hyperswitch-control-center/commit/e9de5473855e12f22d18ba9fa137fb94f05b6f0f))
+- Remove Customers Module Feature flag ([#336](https://github.com/juspay/hyperswitch-control-center/pull/336)) ([`da9a7fa`](https://github.com/juspay/hyperswitch-control-center/commit/da9a7fa5ce03ded823a5cd45d5eea2871704b5f4))
+- Date core api changes ([#334](https://github.com/juspay/hyperswitch-control-center/pull/334)) ([`85c784f`](https://github.com/juspay/hyperswitch-control-center/commit/85c784fcdd906bc96dc42fbbfab289923044e907))
+
+**Full Changelog:** [`2024.02.04.0...2024.02.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.04.0...2024.02.05.0)
+
+- - -
+
 ## 2024.02.04.0
 
 ### Bug Fixes

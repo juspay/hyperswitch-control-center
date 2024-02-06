@@ -306,7 +306,9 @@ let make = () => {
           <RenderIf condition={searchText->String.length > 0 && arr->Array.length === 0}>
             <div className="flex flex-col w-full h-72 p-2 justify-center items-center gap-1">
               <img className="w-1/3" src={`${prefix}/icons/globalSearchNoResult.svg`} />
-              <div> {`No Results for ${searchText}`->React.string} </div>
+              <div className="w-1/2 text-wrap text-center break-all">
+                {`No Results for ${searchText}`->React.string}
+              </div>
             </div>
           </RenderIf>
         </div>
