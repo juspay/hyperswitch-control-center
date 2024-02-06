@@ -38,18 +38,9 @@ module DisputesInfoBarComponent = {
   let make = (~disputeStatus, ~isFromPayments=false, ~disputeDataValue=None) => {
     open DisputeTypes
 
-    let subStyle = `${HSwitchUtils.getTextClass(
-        ~textVariant=P1,
-        ~paragraphTextVariant=Regular,
-        (),
-      )} opacity-60`
-    let redirectionTextStyle = `${HSwitchUtils.getTextClass(
-        ~textVariant=P1,
-        ~paragraphTextVariant=Medium,
-        (),
-      )} text-blue-900`
-
-    let headerStyle = HSwitchUtils.getTextClass(~textVariant=H3, ~h3TextVariant=Leading_2, ())
+    let subStyle = `${HSwitchUtils.getTextClass((P1, Regular))} opacity-60`
+    let redirectionTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-blue-900`
+    let headerStyle = HSwitchUtils.getTextClass((H3, Leading_2))
 
     <div
       className="border w-full rounded-md border-blue-700 border-opacity-40 bg-blue-700 bg-opacity-10 p-6 flex gap-6">

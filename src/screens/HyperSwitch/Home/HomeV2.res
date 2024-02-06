@@ -29,7 +29,7 @@ module HomePageHorizontalStepper = {
       }
     }
 
-    let getTextStyle = `${getTextClass(~textVariant=P2, ~paragraphTextVariant=Medium, ())} `
+    let getTextStyle = getTextClass((P2, Medium))
 
     <div className="flex w-full gap-2 justify-evenly">
       {stepperItemsArray
@@ -177,7 +177,7 @@ module QuickStart = {
     <div className="flex flex-col md:flex-row pt-10 border rounded-md bg-white gap-4">
       <div className="flex flex-col justify-evenly gap-8 pl-10 pb-10 pr-2 md:pr-0">
         <div className="flex flex-col gap-2">
-          <p className={getTextClass(~textVariant=H2, ())}> {"Quick Start"->React.string} </p>
+          <p className={getTextClass((H2, Optional))}> {"Quick Start"->React.string} </p>
           <p className=subtextStyle>
             {"Configure and start using Hyperswitch to get an overview of our offerings and how hyperswitch can help you control your payments"->React.string}
           </p>
@@ -221,11 +221,20 @@ module RecipesAndPlugins = {
       ->QuickStartUtils.getTypedValueFromDict
     let isStripePlusPayPalCompleted = enumDetails->checkStripePlusPayPal
     let isWooCommercePalCompleted = enumDetails->checkWooCommerce
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    // TODO :: Need to re-evaluate the condition
+    let blockConditionAccessVal =
+      userPermissionJson.merchantConnectorAccountRead === NoAccess &&
+        userPermissionJson.merchantConnectorAccountWrite === NoAccess
+        ? AuthTypes.NoAccess
+        : AuthTypes.Access
 
     <div className="flex flex-col gap-4">
       <p className=headingStyle> {"Recipes & Plugins"->React.string} </p>
       <div className="grid grid-cols-1 md:grid-cols-2 w-full gap-4">
-        <div
+        <ACLDiv
+          permission=blockConditionAccessVal
+          noAccessDescription=noAccessControlText
           className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted, ())}
           onClick={_ => {
             mixpanelEvent(~eventName=`stripe_plus_paypal`, ())
@@ -250,8 +259,10 @@ module RecipesAndPlugins = {
             </p>
             <img src="/assets/StripePlusPaypal.svg" className=imageTransitionCss />
           </div>
-        </div>
-        <div
+        </ACLDiv>
+        <ACLDiv
+          permission=blockConditionAccessVal
+          noAccessDescription=noAccessControlText
           className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted, ())}
           onClick={_ => {
             mixpanelEvent(~eventName=`woocommerce`, ())
@@ -276,7 +287,7 @@ module RecipesAndPlugins = {
             </p>
             <img src="/assets/Woocommerce.svg" className=imageTransitionCss />
           </div>
-        </div>
+        </ACLDiv>
       </div>
     </div>
   }
@@ -286,6 +297,7 @@ module Resources = {
   @react.component
   let make = () => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let elements: array<HomeUtils.resourcesTypes> = [
       {
         id: "tryTheDemo",
@@ -293,6 +305,7 @@ module Resources = {
         headerText: "Try a test payment",
         subText: "Experience the Hyperswitch Unified checkout using test credentials",
         redirectLink: "",
+        access: userPermissionJson.paymentWrite,
       },
       {
         id: "openSource",
@@ -300,6 +313,7 @@ module Resources = {
         headerText: "Contribute in open source",
         subText: "We welcome all your suggestions, feedbacks, and queries. Hop on to the Open source rail!",
         redirectLink: "",
+        access: Access,
       },
       {
         id: "developerdocs",
@@ -307,28 +321,38 @@ module Resources = {
         headerText: "Developer docs",
         subText: "Everything you need to know to get to get the SDK up and running resides in here.",
         redirectLink: "",
+        access: Access,
       },
     ]
+
+    let onClickHandler = item => {
+      if item.id === "openSource" {
+        mixpanelEvent(~eventName=`contribute_in_open_source`, ())
+        "https://github.com/juspay/hyperswitch"->Window._open
+      } else if item.id === "developerdocs" {
+        mixpanelEvent(~eventName=`dev_docs`, ())
+        "https://hyperswitch.io/docs"->Window._open
+      } else if item.id === "tryTheDemo" {
+        RescriptReactRouter.replace("/sdk")
+      }
+    }
+
     <>
       <div className="flex flex-col gap-4">
         <p className=headingStyle> {"Resources"->React.string} </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {elements
           ->Array.mapWithIndex((item, index) => {
-            <div
-              className="group bg-white border rounded-md p-10 flex flex-col gap-4 group-hover:shadow hover:shadow-homePageBoxShadow cursor-pointer"
+            let cursorStyles = PermissionUtils.cursorStyles(item.access)
+            <ACLDiv
               key={index->string_of_int}
-              onClick={_ => {
-                if item.id === "openSource" {
-                  mixpanelEvent(~eventName=`contribute_in_open_source`, ())
-                  "https://github.com/juspay/hyperswitch"->Window._open
-                } else if item.id === "developerdocs" {
-                  mixpanelEvent(~eventName=`dev_docs`, ())
-                  "https://hyperswitch.io/docs"->Window._open
-                } else if item.id === "tryTheDemo" {
-                  RescriptReactRouter.replace("/sdk")
-                }
-              }}>
+              permission=item.access
+              isRelative=false
+              contentAlign=Default
+              tooltipForWidthClass="!h-full"
+              justifyClass=""
+              className={`!h-full group bg-white border rounded-md p-10 flex flex-col gap-4 group-hover:shadow hover:shadow-homePageBoxShadow ${cursorStyles}`}
+              onClick={_ => onClickHandler(item)}>
               <img src={`/icons/${item.icon}`} className="h-6 w-6" />
               <div className="flex items-center gap-2">
                 <p className=cardHeaderText> {item.headerText->React.string} </p>
@@ -339,7 +363,7 @@ module Resources = {
                 />
               </div>
               <p className=paragraphTextVariant> {item.subText->React.string} </p>
-            </div>
+            </ACLDiv>
           })
           ->React.array}
         </div>

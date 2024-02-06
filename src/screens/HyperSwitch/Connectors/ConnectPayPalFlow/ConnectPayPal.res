@@ -1,24 +1,8 @@
-let h3Leading2TextClass = `${HSwitchUtils.getTextClass(
-    ~textVariant=H3,
-    ~h3TextVariant=Leading_2,
-    (),
-  )} text-grey-700`
-let p1RegularTextClass = `${HSwitchUtils.getTextClass(
-    ~textVariant=P1,
-    ~paragraphTextVariant=Regular,
-    (),
-  )} text-grey-700 opacity-50`
+let h3Leading2TextClass = `${HSwitchUtils.getTextClass((H3, Leading_2))} text-grey-700`
+let p1RegularTextClass = `${HSwitchUtils.getTextClass((P1, Regular))} text-grey-700 opacity-50`
 
-let p1MediumTextClass = `${HSwitchUtils.getTextClass(
-    ~textVariant=P1,
-    ~paragraphTextVariant=Medium,
-    (),
-  )} text-grey-700`
-let p2RedularTextClass = `${HSwitchUtils.getTextClass(
-    ~textVariant=P2,
-    ~paragraphTextVariant=Regular,
-    (),
-  )} text-grey-700 opacity-50`
+let p1MediumTextClass = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700`
+let p2RedularTextClass = `${HSwitchUtils.getTextClass((P2, Regular))} text-grey-700 opacity-50`
 
 let preRequisiteList = [
   "You need to grant all the permissions to create and receive payments",
