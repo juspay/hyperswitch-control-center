@@ -36,8 +36,7 @@ let checkHealth = async (res) => {
     // Check if match is found and extract the value
     const apiBaseUrl = match ? match[1] : null;
 
-    let api = await fetch(apiBaseUrl);
-
+    let api = await fetch(`${apiBaseUrl}/health`);
     if (api && api.ok) {
       output.api_check = true;
     }
