@@ -49,16 +49,25 @@ module Details = {
         </div>
         <RenderIf
           condition={disputeEvidenceUpload &&
+          DisputesUtils.connectorSupportCounterDispute->Array.includes(
+            data.connector->ConnectorUtils.getConnectorNameTypeFromString,
+          ) &&
           data.dispute_status->DisputesUtils.disputeStatusVariantMapper === DisputeOpened &&
           disputeEvidenceStatus === Landing}>
           <UploadEvidenceForDisputes
-            setUploadEvidenceModal disputeID={data.dispute_id} setDisputeData
+            setUploadEvidenceModal
+            disputeID={data.dispute_id}
+            setDisputeData
+            connector={data.connector}
           />
         </RenderIf>
       </div>
       <div className="h-px w-full bg-grey-200 opacity-30" />
       <RenderIf
         condition={disputeEvidenceUpload &&
+        DisputesUtils.connectorSupportCounterDispute->Array.includes(
+          data.connector->ConnectorUtils.getConnectorNameTypeFromString,
+        ) &&
         showDisputeInfoStatus->Array.includes(
           data.dispute_status->DisputesUtils.disputeStatusVariantMapper,
         )}>

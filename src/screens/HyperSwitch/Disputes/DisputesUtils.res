@@ -1,3 +1,7 @@
+open ConnectorTypes
+let connectorsSupportAcceptDispute = [CHECKOUT]
+let connectorSupportCounterDispute = [CHECKOUT, STRIPE]
+
 open DisputeTypes
 let disputeStageVariantMapper = stage => {
   switch stage {

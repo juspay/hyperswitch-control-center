@@ -391,8 +391,9 @@ module DisputesInfoBarComponent = {
 }
 
 @react.component
-let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData) => {
+let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData, ~connector) => {
   open APIUtils
+  open DisputesUtils
 
   let updateDetails = useUpdateMethod()
   let showPopUp = PopUpState.useShowPopUp()
@@ -419,13 +420,18 @@ let make = (~disputeID, ~setUploadEvidenceModal, ~setDisputeData) => {
   }
 
   <div className="flex gap-2">
-    <Button
-      buttonType={Secondary}
-      text="Accept Dispute"
-      buttonSize={Small}
-      customButtonStyle="!py-3 !px-2.5"
-      onClick={_ => handlePopupOpen()}
-    />
+    <UIUtils.RenderIf
+      condition={connectorsSupportAcceptDispute->Array.includes(
+        connector->ConnectorUtils.getConnectorNameTypeFromString,
+      )}>
+      <Button
+        buttonType={Secondary}
+        text="Accept Dispute"
+        buttonSize={Small}
+        customButtonStyle="!py-3 !px-2.5"
+        onClick={_ => handlePopupOpen()}
+      />
+    </UIUtils.RenderIf>
     <Button
       buttonType={Primary}
       text="Counter Dispute"
