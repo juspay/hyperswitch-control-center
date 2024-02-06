@@ -24,6 +24,7 @@ type featureFlag = {
   userJourneyAnalytics: bool,
   surcharge: bool,
   permissionBasedModule: bool,
+  xFeatureRoute: bool,
   disputeEvidenceUpload: bool,
   paypalAutomaticFlow: bool,
 }
@@ -57,6 +58,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     userJourneyAnalytics: dict->getBool("user_journey_analytics", false),
     surcharge: dict->getBool("surcharge", false),
     permissionBasedModule: dict->getBool("permission_based_module", false),
+    xFeatureRoute: dict->getBool("x_feature_route", false),
     disputeEvidenceUpload: dict->getBool("dispute_evidence_upload", false),
     paypalAutomaticFlow: dict->getBool("paypal_automatic_flow", false),
   }

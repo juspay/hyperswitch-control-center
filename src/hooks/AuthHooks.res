@@ -9,7 +9,15 @@ type sessionStorage = {
 
 @val external atob: string => string = "atob"
 
-let getHeaders = (~uri, ~headers, ()) => {
+let headersForXFeature = (~uri, ~headers) => {
+  if uri->String.includes("lottie-files") || uri->String.includes("config/merchant-access") {
+    headers->Dict.set("Content-Type", `application/json`)
+  } else {
+    headers->Dict.set("x-feature", "hyperswitch-custom")
+  }
+}
+
+let getHeaders = (~uri, ~headers, ~xFeatureRoute, ()) => {
   let hyperSwitchToken = LocalStorage.getItem("login")->Nullable.toOption
   let isMixpanel = uri->String.includes("mixpanel")
 
@@ -19,17 +27,17 @@ let getHeaders = (~uri, ~headers, ()) => {
       ("accept", "application/json"),
     ]->Dict.fromArray
   } else {
-    let res = switch hyperSwitchToken {
+    switch hyperSwitchToken {
     | Some(token) => {
         headers->Dict.set("authorization", `Bearer ${token}`)
         headers->Dict.set("api-key", `hyperswitch`)
-        headers->Dict.set("Content-Type", `application/json`)
-        headers
+        if xFeatureRoute {
+          headersForXFeature(~headers, ~uri)
+        }
       }
-
-    | None => headers
+    | None => ()
     }
-    res
+    headers
   }
   Fetch.HeadersInit.make(headerObj->Identity.dictOfAnyTypeToObj)
 }
@@ -42,6 +50,7 @@ type betaEndpoint = {
 
 let useApiFetcher = () => {
   let (authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
+  let {xFeatureRoute} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let token = React.useMemo1(() => {
     switch authStatus {
@@ -88,7 +97,7 @@ let useApiFetcher = () => {
             ~method_,
             ~body?,
             ~credentials=SameOrigin,
-            ~headers=getHeaders(~headers, ~uri, ()),
+            ~headers=getHeaders(~headers, ~uri, ~xFeatureRoute, ()),
             (),
           ),
         )
