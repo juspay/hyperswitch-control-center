@@ -56,8 +56,8 @@ module SimpleRoutingView = {
         RescriptReactRouter.replace(`/routing`)
         setScreenState(_ => Success)
       } catch {
-      | Js.Exn.Error(e) =>
-        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+      | Exn.Error(e) =>
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }->ignore
     }
@@ -74,8 +74,8 @@ module SimpleRoutingView = {
         RescriptReactRouter.replace(`/routing`)
         setScreenState(_ => Success)
       } catch {
-      | Js.Exn.Error(e) =>
-        switch Js.Exn.message(e) {
+      | Exn.Error(e) =>
+        switch Exn.message(e) {
         | Some(message) =>
           if message->String.includes("IR_16") {
             setScreenState(_ => Success)
@@ -258,8 +258,8 @@ let make = (~routingRuleId, ~isActive) => {
       setGateways(_ => connectorsOrder)
       setScreenState(_ => Success)
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }

@@ -44,8 +44,8 @@ let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.ce
 }
 
 let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.cell => {
-  open HSwitchUtils
   open HelperComponents
+
   switch attemptColType {
   | Amount =>
     CustomCell(
@@ -643,7 +643,7 @@ let getCellForAboutPayment = (
   aboutPaymentColType: aboutPaymentColType,
   connectorList,
 ): Table.cell => {
-  open HSwitchUtils
+  open HelperComponents
   switch aboutPaymentColType {
   | Connector => CustomCell(<ConnectorCustomCell connectorName=order.connector />, "")
   | PaymentMethod => Text(order.payment_method)
@@ -701,12 +701,12 @@ let getCellForOtherDetails = (order, aboutPaymentColType, _): Table.cell => {
 }
 
 let getCell = (order, colType: colType): Table.cell => {
-  open HSwitchUtils
+  open HelperComponents
   let orderStatus = order.status->HSwitchOrderUtils.statusVariantMapper
   switch colType {
   | PaymentId => Text(order.payment_id)
   | MerchantId => Text(order.merchant_id)
-  | Connector => CustomCell(<ConnectorCustomCell connectorName=order.connector />, "")
+  | Connector => CustomCell(<ConnectorCustomCell connectorName={order.connector} />, "")
   | Status =>
     Label({
       title: order.status->String.toUpperCase,

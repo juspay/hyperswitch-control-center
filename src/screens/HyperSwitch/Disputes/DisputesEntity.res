@@ -126,13 +126,11 @@ let amountValue = (amount, currency) => {
 
 let getCell = (disputesData, colType): Table.cell => {
   open DisputesUtils
+  open HelperComponents
   switch colType {
-  | DisputeId =>
-    CustomCell(<HelperComponents.CopyTextCustomComp displayValue=disputesData.dispute_id />, "")
-  | PaymentId =>
-    CustomCell(<HelperComponents.CopyTextCustomComp displayValue=disputesData.payment_id />, "")
-  | AttemptId =>
-    CustomCell(<HelperComponents.CopyTextCustomComp displayValue=disputesData.attempt_id />, "")
+  | DisputeId => CustomCell(<CopyTextCustomComp displayValue=disputesData.dispute_id />, "")
+  | PaymentId => CustomCell(<CopyTextCustomComp displayValue=disputesData.payment_id />, "")
+  | AttemptId => CustomCell(<CopyTextCustomComp displayValue=disputesData.attempt_id />, "")
   | Amount => Text(amountValue(disputesData.amount, disputesData.currency))
   | Currency => Text(disputesData.currency)
   | DisputeStage =>
@@ -159,7 +157,7 @@ let getCell = (disputesData, colType): Table.cell => {
       | _ => LabelWhite
       },
     })
-  | Connector => Text(disputesData.connector)
+  | Connector => CustomCell(<ConnectorCustomCell connectorName={disputesData.connector} />, "")
   | ConnectorStatus => Text(disputesData.connector_status)
   | ConnectorDisputeId => Text(disputesData.connector_dispute_id)
   | ConnectorReason => Text(disputesData.connector_reason)

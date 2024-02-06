@@ -41,9 +41,9 @@ let make = (~connectProcessorValue: connectProcessor) => {
       let _ = await RoutingType(routingVal)->usePostEnumDetails(enumVariant)
       setQuickStartPageState(_ => ConnectProcessor(CHECKOUT))
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
-        Js.Exn.raiseError(err)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to update!")
+        Exn.raiseError(err)
       }
     }
   }
@@ -109,9 +109,9 @@ let make = (~connectProcessorValue: connectProcessor) => {
       let _ = await updateEnumForRouting(activatingId)
       setButtonState(_ => Normal)
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
-        Js.Exn.raiseError(err)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to update!")
+        Exn.raiseError(err)
       }
     }
   }
@@ -135,9 +135,9 @@ let make = (~connectProcessorValue: connectProcessor) => {
       let configurationType = #ConfigurationType
       let _ = await StringEnumType(connectorChoiceValue)->usePostEnumDetails(configurationType)
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to update!")
-        Js.Exn.raiseError(err)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to update!")
+        Exn.raiseError(err)
       }
     }
   }

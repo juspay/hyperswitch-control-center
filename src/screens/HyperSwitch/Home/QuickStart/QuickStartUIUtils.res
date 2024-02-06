@@ -257,7 +257,7 @@ module SelectConnectorGrid = {
                 <div className="flex flex-col gap-2 items-start ">
                   <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-12 h-12" />
                   <p className=subheaderText>
-                    {connectorName->LogicUtils.capitalizeString->React.string}
+                    {connectorName->ConnectorUtils.getDisplayNameForConnectors->React.string}
                   </p>
                 </div>
                 <Icon
@@ -285,7 +285,7 @@ module SelectConnectorGrid = {
                 <div className="flex gap-2 items-center ">
                   <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-8 h-8" />
                   <p className=subheaderText>
-                    {connectorName->LogicUtils.capitalizeString->React.string}
+                    {connectorName->ConnectorUtils.getDisplayNameForConnectors->React.string}
                   </p>
                 </div>
                 <Icon

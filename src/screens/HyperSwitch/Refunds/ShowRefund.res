@@ -73,6 +73,7 @@ module RefundInfo = {
 
 @react.component
 let make = (~id) => {
+  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let (screenStateForRefund, setScreenStateForRefund) = React.useState(_ =>
     PageLoaderWrapper.Loading
   )
@@ -118,17 +119,19 @@ let make = (~id) => {
         overriddingStylesTitle={`text-3xl font-semibold`}
       />}>
       <RefundInfo orderDict={refundData->LogicUtils.getDictFromJsonObject} />
-      <LoadedTable
-        title="Payment"
-        actualData=orderData
-        entity={OrderEntity.orderEntity}
-        resultsPerPage=1
-        showSerialNumber=true
-        totalResults=1
-        offset
-        setOffset
-        currrentFetchCount=1
-      />
+      <UIUtils.RenderIf condition={userPermissionJson.paymentRead !== NoAccess}>
+        <LoadedTable
+          title="Payment"
+          actualData=orderData
+          entity={OrderEntity.orderEntity}
+          resultsPerPage=1
+          showSerialNumber=true
+          totalResults=1
+          offset
+          setOffset
+          currrentFetchCount=1
+        />
+      </UIUtils.RenderIf>
     </PageLoaderWrapper>
   </div>
 }

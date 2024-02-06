@@ -780,9 +780,11 @@ let getMetaDataRequiredFields = (connector: connectorName, fieldName: string) =>
 
 let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
   open LogicUtils
-  open MapTypes
   let authKeyMap =
-    connectorAccountFields->getDictfromDict("auth_key_map")->JSON.Encode.object->changeType
+    connectorAccountFields
+    ->getDictfromDict("auth_key_map")
+    ->JSON.Encode.object
+    ->Identity.jsonToAnyType
   convertMapObjectToDict(authKeyMap)
 }
 let checkCashtoCodeFields = (keys, country, valuesFlattenJson) => {
@@ -1076,9 +1078,9 @@ let useFetchConnectorList = () => {
       setConnectorList(._ => stringifiedResponse)
       res
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Js.Exn.raiseError(err)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
       }
     }
   }
@@ -1166,8 +1168,8 @@ let getConnectorPaymentMethodDetails = async (
       updateDetails,
     )
   } catch {
-  | Js.Exn.Error(e) => {
-      let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
+  | Exn.Error(e) => {
+      let err = Exn.message(e)->Option.getOr("Something went wrong")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -1191,4 +1193,62 @@ let filterList = (items, ~removeFromList: processors) => {
 let getProcessorsListFromJson = (json, ~removeFromList: processors=FRMPlayer, ()) => {
   open LogicUtils
   json->getArrayFromJson([])->Array.map(getDictFromJsonObject)->filterList(~removeFromList)
+}
+
+let getDisplayNameForConnectors = connector => {
+  let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString
+  switch connectorType {
+  | ADYEN => "Adyen"
+  | CHECKOUT => "Checkout"
+  | BRAINTREE => "Braintree"
+  | AUTHORIZEDOTNET => "Authorize.net"
+  | STRIPE => "Stripe"
+  | KLARNA => "Klarna"
+  | GLOBALPAY => "Global Payments"
+  | BLUESNAP => "Bluesnap"
+  | AIRWALLEX => "Airwallex"
+  | WORLDPAY => "Worldpay"
+  | CYBERSOURCE => "Cybersource"
+  | ACI => "ACI Worldwide"
+  | WORLDLINE => "Worldline"
+  | FISERV => "Fiserv"
+  | SHIFT4 => "Shift4"
+  | RAPYD => "Rapyd"
+  | PAYU => "PayU"
+  | NUVEI => "Nuvei"
+  | MULTISAFEPAY => "MultiSafepay"
+  | DLOCAL => "dLocal"
+  | BAMBORA => "Bambora"
+  | MOLLIE => "Mollie"
+  | TRUSTPAY => "TrustPay"
+  | ZEN => "Zen"
+  | PAYPAL => "PayPal"
+  | COINBASE => "Coinbase"
+  | OPENNODE => "Opennode"
+  | NMI => "NMI"
+  | FORTE => "Forte"
+  | NEXINETS => "Nexinets"
+  | IATAPAY => "IATA Pay"
+  | BITPAY => "Bitpay"
+  | PHONYPAY => "Phony Pay"
+  | FAUXPAY => "Faux Pay"
+  | PRETENDPAY => "Pretend Pay"
+  | CRYPTOPAY => "Cryptopay"
+  | CASHTOCODE => "CashtoCode"
+  | PAYME => "PayMe"
+  | GLOBEPAY => "GlobePay"
+  | POWERTRANZ => "Powertranz"
+  | TSYS => "TSYS"
+  | NOON => "Noon"
+  | STRIPE_TEST => "Stripe Test"
+  | PAYPAL_TEST => "PayPal Test"
+  | WISE => "Wise"
+  | STAX => "Stax"
+  | GOCARDLESS => "GoCardless"
+  | VOLT => "Volt"
+  | PROPHETPAY => "Prophet Pay"
+  | BANKOFAMERICA => "Bank of America"
+  | HELCIM => "Helcim"
+  | UnknownConnector(str) => str
+  }
 }

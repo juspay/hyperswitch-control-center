@@ -184,7 +184,7 @@ module Field = {
     ~render: fieldRenderProps => React.element=?,
     ~subscription: bool=?,
     @as("type") ~type_: bool=?,
-    ~validate: (option<string>, JSON.t) => Js.Promise.t<Nullable.t<string>>=?, // (field_vale, form_object)
+    ~validate: (option<string>, JSON.t) => Promise.t<Nullable.t<string>>=?, // (field_vale, form_object)
     ~validateFields: bool=?,
     ~value: bool=?,
     ~placeholder: string=?,

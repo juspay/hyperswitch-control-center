@@ -111,6 +111,7 @@ let make = () => {
   let (pageView, setPageView) = React.useState(_ => NEW)
   let showPopUp = PopUpState.useShowPopUp()
   let (showWarning, setShowWarning) = React.useState(_ => true)
+  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
   let getWasm = async () => {
     try {
@@ -142,9 +143,9 @@ let make = () => {
 
       setInitialRule(_ => Some(intitialValue))
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
-      Js.Exn.raiseError(err)
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Something went wrong")
+      Exn.raiseError(err)
     }
   }
 
@@ -155,8 +156,8 @@ let make = () => {
       await activeRoutingDetails()
       setScreenState(_ => Success)
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
         if err->String.includes("HE_02") {
           setShowWarning(_ => false)
           setPageView(_ => LANDING)
@@ -199,8 +200,8 @@ let make = () => {
       setPageView(_ => LANDING)
       setScreenState(_ => Success)
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => Error(err))
     }
     Nullable.null
@@ -301,11 +302,12 @@ let make = () => {
             <p className="text-base font-normal text-grey-700 opacity-50">
               {"Create advanced rules using various payment parameters like amount, currency,payment method etc to enforce 3DS authentication for specific payments to reduce fraudulent transactions"->React.string}
             </p>
-            <Button
+            <ACLButton
               text="Create New"
-              buttonType={Primary}
+              access=userPermissionJson.threeDsDecisionManagerWrite
+              buttonType=Primary
               customButtonStyle="!w-1/6"
-              leftIcon={FontAwesome("plus")}
+              leftIcon=FontAwesome("plus")
               onClick={_ => handleCreateNew()}
             />
           </div>

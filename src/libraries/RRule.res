@@ -21,8 +21,8 @@ type durationUnit =
 
 type scheduleRuleRecipe = {
   recurrence: option<recurrenceRule>,
-  dateWhitelist: option<array<Js.Date.t>>,
-  dateBlacklist: option<array<Js.Date.t>>,
+  dateWhitelist: option<array<Date.t>>,
+  dateBlacklist: option<array<Date.t>>,
   durationUnit: durationUnit,
   durationAmount: int,
 }
@@ -36,7 +36,7 @@ let durationSeconds: (durationUnit, int) => int = (dUnit, dAmount) => {
   }
 }
 
-let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool = (
+let isScheduled: (scheduleRuleRecipe, Date.t, Date.t, Date.t) => bool = (
   recipe,
   startTime,
   endTime,
@@ -122,7 +122,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
   let getWeek = date => {
     // let dat = getDate(date)
     // let da = getDay(date)
-    // let a = Js.Math.ceil_int(Int.toFloat(dat + da)) / 7
+    // let a = Math.ceil(Int.toFloat(dat + da)) / 7
     // a + 1
     let firstWeekDay = Js.Date.makeWithYMD(
       ~year=Js.Date.getFullYear(date),
@@ -132,7 +132,7 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
     )
     let offsetDate =
       Int.fromFloat(Js.Date.getDate(date)) + Int.fromFloat(Js.Date.getDay(firstWeekDay)) - 1
-    Js.Math.floor_int(Float.fromInt(offsetDate / 7)) + 1
+    Math.Int.floor(Float.fromInt(offsetDate / 7)) + 1
   }
   let byWeek = switch recipe.recurrence {
   | Some(recur) =>
@@ -159,17 +159,17 @@ let isScheduled: (scheduleRuleRecipe, Js.Date.t, Js.Date.t, Js.Date.t) => bool =
       | Yearly => mod(getYear(currentTime) - getYear(startTime), recur.interval) == 0
       | Monthly =>
         mod(
-          (currentTime->DayJs.getDayJsForJsDate).diff(. Js.Date.toString(startTime), "month"),
+          (currentTime->DayJs.getDayJsForJsDate).diff(. Date.toString(startTime), "month"),
           recur.interval,
         ) == 0
       | Weekly =>
         mod(
-          (currentTime->DayJs.getDayJsForJsDate).diff(. Js.Date.toString(startTime), "week"),
+          (currentTime->DayJs.getDayJsForJsDate).diff(. Date.toString(startTime), "week"),
           recur.interval,
         ) == 0
       | Daily =>
         mod(
-          (currentTime->DayJs.getDayJsForJsDate).diff(. Js.Date.toString(startTime), "day"),
+          (currentTime->DayJs.getDayJsForJsDate).diff(. Date.toString(startTime), "day"),
           recur.interval,
         ) == 0
       }

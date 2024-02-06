@@ -15,8 +15,8 @@ let make = () => {
       setMerchantInfo(_ => merchantInfo)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | Js.Exn.Error(e) =>
-      setScreenState(_ => PageLoaderWrapper.Error(Js.Exn.message(e)->Option.getOr("Error")))
+    | Exn.Error(e) =>
+      setScreenState(_ => PageLoaderWrapper.Error(Exn.message(e)->Option.getOr("Error")))
     }
   }
 

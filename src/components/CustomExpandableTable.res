@@ -17,6 +17,7 @@ let make = (
   ~getRowDetails,
   ~showSerial=false,
 ) => {
+  open UIUtils
   if showSerial {
     heading->Array.unshift(makeHeaderInfo(~key="serial_number", ~title="S.No", ()))->ignore
   }
@@ -85,7 +86,7 @@ let make = (
     style={ReactDOMStyle.make(~minHeight={filterPresent ? "30rem" : ""}, ())}>
     <AddDataAttributes attributes=[("data-expandable-table", title)]>
       <table className={`table-auto ${widthClass} h-full ${borderClass}`} colSpan=0>
-        <UIUtils.RenderIf condition={heading->Array.length !== 0 && !isMobileView}>
+        <RenderIf condition={heading->Array.length !== 0 && !isMobileView}>
           <thead>
             <tr>
               {heading
@@ -115,9 +116,9 @@ let make = (
                       <div className={`${fontWeight} ${fontSize}`}>
                         {React.string(item.title)}
                       </div>
-                      <UIUtils.RenderIf condition={item.showFilter || item.showSort}>
+                      <RenderIf condition={item.showFilter || item.showSort}>
                         <div className="flex flex-row items-center select-none">
-                          <UIUtils.RenderIf condition={item.showSort}>
+                          <RenderIf condition={item.showSort}>
                             {
                               let order: sortOrder = switch sortedObj {
                               | Some(obj: sortedObject) => obj.key === item.key ? obj.order : NONE
@@ -143,7 +144,7 @@ let make = (
                                 </div>
                               </AddDataAttributes>
                             }
-                          </UIUtils.RenderIf>
+                          </RenderIf>
                           {if item.showFilter {
                             let (options, selected) =
                               filterObj
@@ -184,7 +185,7 @@ let make = (
                             React.null
                           }}
                         </div>
-                      </UIUtils.RenderIf>
+                      </RenderIf>
                     </div>
                   </th>
                 </AddDataAttributes>
@@ -192,7 +193,7 @@ let make = (
               ->React.array}
             </tr>
           </thead>
-        </UIUtils.RenderIf>
+        </RenderIf>
         <tbody>
           {rowInfo
           ->Array.mapWithIndex((item: array<cell>, rowIndex) => {

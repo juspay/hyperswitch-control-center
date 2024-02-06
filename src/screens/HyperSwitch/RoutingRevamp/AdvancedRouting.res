@@ -420,9 +420,9 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       setProfile(_ => schemaValue->getString("profile_id", defaultBusinessProfile.profile_id))
       setFormState(_ => ViewConfig)
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
-      Js.Exn.raiseError(err)
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Something went wrong")
+      Exn.raiseError(err)
     }
   }
 
@@ -452,8 +452,8 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
         }
         setScreenState(_ => Success)
       } catch {
-      | Js.Exn.Error(e) => {
-          let err = Js.Exn.message(e)->Option.getOr("Something went wrong")
+      | Exn.Error(e) => {
+          let err = Exn.message(e)->Option.getOr("Something went wrong")
           setScreenState(_ => Error(err))
         }
       }
@@ -547,8 +547,8 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       RescriptReactRouter.replace(`/routing?`)
       setScreenState(_ => Success)
     } catch {
-    | Js.Exn.Error(e) =>
-      switch Js.Exn.message(e) {
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
       | Some(message) =>
         if message->String.includes("IR_16") {
           showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
@@ -576,8 +576,8 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       RescriptReactRouter.replace(`/routing?`)
       setScreenState(_ => Success)
     } catch {
-    | Js.Exn.Error(e) =>
-      switch Js.Exn.message(e) {
+    | Exn.Error(e) =>
+      switch Exn.message(e) {
       | Some(message) => {
           showToast(
             ~message="Failed to Deactivate the Configuration!",
@@ -650,12 +650,12 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       }
       Nullable.make(response)
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       showToast(~message="Failed to Save the Configuration!", ~toastType=ToastState.ToastError, ())
       setShowModal(_ => false)
       setScreenState(_ => PageLoaderWrapper.Error(err))
-      Js.Exn.raiseError(err)
+      Exn.raiseError(err)
     }
   }
 

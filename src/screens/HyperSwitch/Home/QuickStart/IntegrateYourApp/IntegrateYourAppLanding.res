@@ -17,6 +17,7 @@ let make = (~integrateAppValue: integrateApp) => {
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
   let currentRoute =
     typedValueOfEnum.integrationMethod.integration_type->textToVariantMapperForBuildHS
+  let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
 
   let landingButtonGroup = {
     <div className="flex flex-col gap-4 w-full">
@@ -47,6 +48,7 @@ let make = (~integrateAppValue: integrateApp) => {
       }
       let enumVariant = quickStartPageState->variantToEnumMapper
       let _ = await IntegrationMethod(integartionValue)->usePostEnumDetails(enumVariant)
+      let _ = fetchConnectorListResponse()->ignore
       setQuickStartPageState(_ => IntegrateApp(CUSTOM_INTEGRATION))
       setButtonState(_ => Normal)
     } catch {

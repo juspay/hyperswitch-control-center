@@ -171,6 +171,7 @@ module TabInfo = {
 module IndicationArrow = {
   @react.component
   let make = (~iconName, ~side, ~refElement: React.ref<Js.nullable<Dom.element>>, ~isVisible) => {
+    open UIUtils
     let isMobileView = MatchMedia.useMobileChecker()
     let onClick = {
       _ev =>
@@ -191,7 +192,7 @@ module IndicationArrow = {
     }
 
     let customButtonStyle = "text-black cursor-pointer border-2 border-black-900 !px-2 py-1.5 !rounded-lg"
-    <UIUtils.RenderIf condition={isMobileView}>
+    <RenderIf condition={isMobileView}>
       <div className>
         <Button
           buttonType=Secondary
@@ -202,7 +203,7 @@ module IndicationArrow = {
           flattenBottom=true
         />
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -433,7 +434,7 @@ let make = (
       updateTabNameWith(Dict.fromArray([("tabName", `[${tabValue}]`)]))
       setActiveTab(tabValue)
       setSelectedIndex(_ =>
-        Js.Math.max_int(0, collapsibleTabs->Array.map(item => item.value)->Array.indexOf(tabValue))
+        Math.Int.max(0, collapsibleTabs->Array.map(item => item.value)->Array.indexOf(tabValue))
       )
     } else {
       updateTabNameWith(
@@ -447,7 +448,7 @@ let make = (
       setActiveTab(tabStacksnames->Array.get(tabStacksnames->Array.length - 1)->Option.getOr(""))
 
       setSelectedIndex(_ =>
-        Js.Math.max_int(
+        Math.Int.max(
           0,
           collapsibleTabs
           ->Array.map(item => item.value)
