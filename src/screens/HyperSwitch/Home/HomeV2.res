@@ -222,6 +222,7 @@ module RecipesAndPlugins = {
     let isStripePlusPayPalCompleted = enumDetails->checkStripePlusPayPal
     let isWooCommercePalCompleted = enumDetails->checkWooCommerce
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    // TODO :: Need to re-evaluate the condition
     let blockConditionAccessVal =
       userPermissionJson.merchantConnectorAccountRead === NoAccess &&
         userPermissionJson.merchantConnectorAccountWrite === NoAccess
@@ -332,9 +333,7 @@ module Resources = {
         mixpanelEvent(~eventName=`dev_docs`, ())
         "https://hyperswitch.io/docs"->Window._open
       } else if item.id === "tryTheDemo" {
-        if userPermissionJson.paymentWrite === Access {
-          RescriptReactRouter.replace("/sdk")
-        }
+        RescriptReactRouter.replace("/sdk")
       }
     }
 
