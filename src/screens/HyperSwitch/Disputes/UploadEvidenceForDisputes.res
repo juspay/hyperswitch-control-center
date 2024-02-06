@@ -317,9 +317,13 @@ module DisputesInfoBarComponent = {
                     ->Array.map(value => {
                       let fileName =
                         fileUploadedDict->getDictfromDict(value)->getString("fileName", "")
+                      let iconName = switch fileName->getFileTypeFromFileName {
+                      | "jpeg" | "jpg" | "png" => "image-icon"
+                      | _ => `${fileName->getFileTypeFromFileName}-icon`
+                      }
                       <div
                         className={`p-2 border rounded-md bg-white w-fit flex gap-2 items-center border-grey-200`}>
-                        <Icon name={`${fileName->getFileTypeFromFileName}-icon`} size=16 />
+                        <Icon name=iconName size=16 />
                         <p className={`${p3RegularText} text-grey-700 `}>
                           {fileName->React.string}
                         </p>
