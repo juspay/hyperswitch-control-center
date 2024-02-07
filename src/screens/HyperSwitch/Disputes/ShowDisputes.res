@@ -33,26 +33,22 @@ module Details = {
       <div className="flex items-center justify-between">
         <div className="flex gap-2 items-center">
           <p className="flex font-bold text-3xl gap-2">
-            {DisputesEntity.amountValue(
-              data.amount,
-              data.currency->String.toUpperCase,
-            )->React.string}
+            {amountValue(data.amount, data.currency->String.toUpperCase)->React.string}
           </p>
           {getStatus(data)}
-          <UIUtils.RenderIf
-            condition={data.dispute_status->disputeStatusVariantMapper === DisputeOpened}>
+          <RenderIf condition={data.dispute_status->disputeStatusVariantMapper === DisputeOpened}>
             <div
               className="border text-orange-950 bg-orange-200 text-sm px-2 py-1 rounded-md font-semibold">
               {`${daysToRespond->Float.toString} days to respond`->React.string}
             </div>
-          </UIUtils.RenderIf>
+          </RenderIf>
         </div>
         <RenderIf
           condition={disputeEvidenceUpload &&
-          DisputesUtils.connectorSupportCounterDispute->Array.includes(
+          connectorSupportCounterDispute->Array.includes(
             data.connector->ConnectorUtils.getConnectorNameTypeFromString,
           ) &&
-          data.dispute_status->DisputesUtils.disputeStatusVariantMapper === DisputeOpened &&
+          data.dispute_status->disputeStatusVariantMapper === DisputeOpened &&
           disputeEvidenceStatus === Landing}>
           <UploadEvidenceForDisputes
             setUploadEvidenceModal
@@ -65,19 +61,17 @@ module Details = {
       <div className="h-px w-full bg-grey-200 opacity-30" />
       <RenderIf
         condition={disputeEvidenceUpload &&
-        DisputesUtils.connectorSupportCounterDispute->Array.includes(
+        connectorSupportCounterDispute->Array.includes(
           data.connector->ConnectorUtils.getConnectorNameTypeFromString,
         ) &&
-        showDisputeInfoStatus->Array.includes(
-          data.dispute_status->DisputesUtils.disputeStatusVariantMapper,
-        )}>
+        showDisputeInfoStatus->Array.includes(data.dispute_status->disputeStatusVariantMapper)}>
         <UploadEvidenceForDisputes.DisputesInfoBarComponent
           disputeEvidenceStatus
           fileUploadedDict
           disputeId={data.dispute_id}
           setDisputeEvidenceStatus
           setUploadEvidenceModal
-          disputeStatus={data.dispute_status->DisputesUtils.disputeStatusVariantMapper}
+          disputeStatus={data.dispute_status->disputeStatusVariantMapper}
           setFileUploadedDict
           setDisputeData
         />

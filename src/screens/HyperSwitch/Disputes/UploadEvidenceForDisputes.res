@@ -1,8 +1,6 @@
-type formData
-@new external formData: unit => Fetch.formData = "FormData"
-@send external append: (Fetch.formData, string, 'a) => unit = "append"
-
 open HSwitchUtils
+open FormDataUtils
+
 let h3Leading2Text = getTextClass((H3, Leading_2))
 let p1RegularText = getTextClass((P1, Regular))
 let p1MediumText = getTextClass((P1, Medium))
@@ -33,7 +31,7 @@ module EvidenceUploadForm = {
         <Icon name="file-icon" size=22 />
         <p> {uploadEvidenceType->stringReplaceAll("_", " ")->capitalizeString->React.string} </p>
       </div>
-      {if fileUploadedDict->Dict.get(uploadEvidenceType)->Belt.Option.isNone {
+      {if fileUploadedDict->Dict.get(uploadEvidenceType)->Option.isNone {
         <label>
           <p className="text-blue-700 underline cursor-pointer">
             {"Upload"->React.string}
@@ -49,10 +47,7 @@ module EvidenceUploadForm = {
       } else {
         let fileName =
           fileUploadedDict->getDictfromDict(uploadEvidenceType)->getString("fileName", "")
-        let truncatedFileName = LogicUtils.truncateFileNameWithEllipses(
-          ~fileName,
-          ~maxTextLength=10,
-        )
+        let truncatedFileName = truncateFileNameWithEllipses(~fileName, ~maxTextLength=10)
 
         <div className="flex gap-4 items-center ">
           <p className={`${p1RegularText} text-grey-700`}> {truncatedFileName->React.string} </p>
@@ -63,7 +58,8 @@ module EvidenceUploadForm = {
             onClick={_ => {
               setFileUploadedDict(prev => {
                 let prevCopy = prev->Dict.copy
-                prevCopy->DictionaryUtils.deleteKey(uploadEvidenceType)
+                prevCopy->Dict.delete(uploadEvidenceType)
+                prevCopy
               })
             }}
           />
@@ -172,7 +168,7 @@ module UploadDisputeEvidenceModal = {
               index
               fileUploadedDict
               setFileUploadedDict
-              key={Belt.Int.toString(index)}
+              key={Int.toString(index)}
             />
           })
           ->React.array}
