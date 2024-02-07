@@ -23,14 +23,13 @@ let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ()) 
     | Some(token) => {
         headers->Dict.set("authorization", `Bearer ${token}`)
         headers->Dict.set("api-key", `hyperswitch`)
-        switch contentType {
-        | Headers(headerString) => headers->Dict.set("Content-Type", headerString)
-        | Unknown => ()
-        }
         headers
       }
-
     | None => headers
+    }
+    switch contentType {
+    | Headers(headerString) => headers->Dict.set("Content-Type", headerString)
+    | Unknown => ()
     }
     res
   }
