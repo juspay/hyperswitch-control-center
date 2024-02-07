@@ -27,7 +27,12 @@ let checkHealth = async (res) => {
     ) {
       output.wasm_file = true;
     }
-
+    let api = await fetch("https://integ-api.hyperswitch.io/health", {
+      agent: new HttpsProxyAgent(
+        "http://squid-nlb-02916f71c737f6d6.elb.eu-central-1.amazonaws.com:80",
+      ),
+    });
+    console.log(api, "api");
     let values = Object.values(output);
     if (values.includes(false)) {
       throw "Server Error";
@@ -50,6 +55,18 @@ const healthHandler = (_req, res) => {
     checkHealth(res);
   } catch (error) {
     console.log(error);
+    errorHandler(res);
+  }
+};
+
+const healthReadiness = async (_req, res) => {
+  try {
+    let api = await fetch("https://integ-api.hyperswitch.io/health", {
+      agent: new HttpsProxyAgent(
+        "http://squid-nlb-02916f71c737f6d6.elb.eu-central-1.amazonaws.com:80",
+      ),
+    });
+  } catch (error) {
     errorHandler(res);
   }
 };
