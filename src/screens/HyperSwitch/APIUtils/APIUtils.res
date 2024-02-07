@@ -222,13 +222,9 @@ let handleLogout = async (
     ~bodyStr: string=?,
     ~bodyFormData: option<Fetch.formData>=?,
     ~headers: Dict.t<string>=?,
-    ~bodyHeader: Dict.t<JSON.t>=?,
     ~method_: Fetch.requestMethod,
-    ~authToken: option<string>=?,
-    ~requestId: string=?,
-    ~disableEncryption: bool=?,
-    ~storageKey: string=?,
     ~betaEndpointConfig: AuthHooks.betaEndpoint=?,
+    ~contentType: AuthHooks.contentType=?,
     unit,
   ) => Promise.t<Fetch.Response.t>,
   ~setAuthStatus,
@@ -410,7 +406,8 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
     body,
     method,
     ~bodyFormData=?,
-    ~headers=[("Content-Type", "application/json")]->Dict.fromArray,
+    ~headers=Dict.make(),
+    ~contentType=AuthHooks.Headers("application/json"),
     (),
   ) => {
     try {
@@ -420,6 +417,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
         ~bodyStr=body->JSON.stringify,
         ~bodyFormData,
         ~headers,
+        ~contentType,
         (),
       )
       await responseHandler(

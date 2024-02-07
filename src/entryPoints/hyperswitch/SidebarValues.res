@@ -7,7 +7,7 @@ module GetProductionAccess = {
   @react.component
   let make = () => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let textStyles = HSwitchUtils.getTextClass(~textVariant=P2, ~paragraphTextVariant=Medium, ())
+    let textStyles = HSwitchUtils.getTextClass((P2, Medium))
     let {isProdIntentCompleted, setShowProdIntentForm} = React.useContext(
       GlobalProvider.defaultContext,
     )

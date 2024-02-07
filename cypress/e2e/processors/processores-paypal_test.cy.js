@@ -39,7 +39,7 @@ describe("Processors Create Module", () => {
         .eq(1)
         .find("td")
         .eq(0)
-        .contains("Paypal Test")
+        .contains("PayPal Test")
         .click({ force: true });
 
       cy.location("pathname").then((pathname) => {

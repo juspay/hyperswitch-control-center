@@ -4,12 +4,12 @@ type sessionStorage = {
   setItem: (. string, string) => unit,
   removeItem: (. string) => unit,
 }
+type contentType = Headers(string) | Unknown
 
 @val external sessionStorage: sessionStorage = "sessionStorage"
 
 @val external atob: string => string = "atob"
-
-let getHeaders = (~uri, ~headers, ()) => {
+let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ()) => {
   let hyperSwitchToken = LocalStorage.getItem("login")->Nullable.toOption
   let isMixpanel = uri->String.includes("mixpanel")
 
@@ -23,11 +23,13 @@ let getHeaders = (~uri, ~headers, ()) => {
     | Some(token) => {
         headers->Dict.set("authorization", `Bearer ${token}`)
         headers->Dict.set("api-key", `hyperswitch`)
-        headers->Dict.set("Content-Type", `application/json`)
         headers
       }
-
     | None => headers
+    }
+    switch contentType {
+    | Headers(headerString) => headers->Dict.set("Content-Type", headerString)
+    | Unknown => ()
     }
     res
   }
@@ -56,14 +58,10 @@ let useApiFetcher = () => {
       uri,
       ~bodyStr: string="",
       ~bodyFormData=None,
-      ~headers=[("Content-Type", "application/json")]->Dict.fromArray,
-      ~bodyHeader as _=?,
+      ~headers=Dict.make(),
       ~method_: Fetch.requestMethod,
-      ~authToken as _=?,
-      ~requestId as _=?,
-      ~disableEncryption as _=false,
-      ~storageKey as _=?,
       ~betaEndpointConfig=?,
+      ~contentType=Headers("application/json"),
       (),
     ) => {
       let uri = switch betaEndpointConfig {
@@ -88,7 +86,7 @@ let useApiFetcher = () => {
             ~method_,
             ~body?,
             ~credentials=SameOrigin,
-            ~headers=getHeaders(~headers, ~uri, ()),
+            ~headers=getHeaders(~headers, ~uri, ~contentType, ()),
             (),
           ),
         )
