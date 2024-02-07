@@ -49,6 +49,7 @@ let make = () => {
       let email = HSLocalStorage.getFromMerchantDetails("email")
       let token = HyperSwitchAuthUtils.parseResponseJson(~json=res, ~email)
       LocalStorage.setItem("login", token)
+      LocalStorage.removeItem("accept_invite_data")
       setUserDetails("flow_type", "dashboard_entry"->JSON.Encode.string)
     } catch {
     | _ => ()
