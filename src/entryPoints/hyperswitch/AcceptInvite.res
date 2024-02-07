@@ -14,8 +14,8 @@ let make = () => {
     ->Option.getOr([])
 
   let (merchantData, setMerchantData) = React.useState(_ => merchantDataFromLocalStorage)
-  let textHeadingClass = getTextClass(~textVariant=H2, ())
-  let textSubHeadingClass = getTextClass(~textVariant=P1, ~paragraphTextVariant=Regular, ())
+  let textHeadingClass = getTextClass((H2, Optional))
+  let textSubHeadingClass = getTextClass((P1, Regular))
 
   let onClickLoginToDashboard = async () => {
     try {
