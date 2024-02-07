@@ -12,7 +12,10 @@ open NodeJs
 external configHandler: (Http.request, Http.response, bool, string) => unit = "configHandler"
 
 @module("./health.mjs")
-external healthHandler: (Http.request, Http.response) => unit = "healthHandler"
+external healthReadiness: (Http.request, Http.response) => unit = "healthReadiness"
+
+@module("./health.mjs")
+external health: (Http.request, Http.response) => unit = "health"
 
 module ServerHandler = {
   type rewrite = {source: string, destination: string}
@@ -66,7 +69,12 @@ let serverHandler: Http.serverHandler = (request, response) => {
     })
   } else if path === "/health" && request.method === "GET" {
     Promise.make((resolve, _reject) => {
-      healthHandler(request, response)
+      health(request, response)
+      ()->resolve(. _)
+    })
+  } else if path === "/health/ready" && request.method === "GET" {
+    Promise.make((resolve, _reject) => {
+      healthReadiness(request, response)
       ()->resolve(. _)
     })
   } else {
