@@ -377,6 +377,7 @@ module.exports = {
           950: "#79A779",
           960: "#3A833A",
           success_page_bg: "#E8FDF2",
+          accepted_green_800: "#39934F",
         },
         orange: {
           50: "#FEF2E9",

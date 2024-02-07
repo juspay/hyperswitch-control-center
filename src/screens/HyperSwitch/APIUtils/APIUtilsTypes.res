@@ -60,6 +60,7 @@ type userType = [
   | #INVITE
   | #RESEND_INVITE
   | #CREATE_MERCHANT
+  | #ACCEPT_INVITE
   | #GET_PERMISSIONS
   | #NONE
 ]

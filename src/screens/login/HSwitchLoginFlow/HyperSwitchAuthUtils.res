@@ -22,6 +22,14 @@ module TermsAndCondition = {
   }
 }
 
+let flowTypeStrToVariantMapper = val => {
+  switch val {
+  | "merchant_select" => MERCHANT_SELECT
+  | "dashboard_entry" => DASHBOARD_ENTRY
+  | _ => MERCHANT_SELECT
+  }
+}
+
 let emailField = FormRenderer.makeFieldInfo(
   ~label="Email",
   ~name="email",
@@ -110,14 +118,21 @@ let parseResponseJson = (~json, ~email) => {
   open LogicUtils
   let valuesDict = json->JSON.Decode.object->Option.getOr(Dict.make())
   let verificationValue = valuesDict->getOptionInt("verification_days_left")->Option.getOr(-1)
+  let flowType = valuesDict->getString("flow_type", "")
 
   // * Setting all local storage values
+  if flowType->String.length > 0 && flowType->flowTypeStrToVariantMapper === MERCHANT_SELECT {
+    LocalStorage.setItem(
+      "accept_invite_data",
+      valuesDict->getArrayFromDict("merchants", [])->JSON.stringifyAny->Option.getOr(""),
+    )
+  }
   setMerchantDetails("merchant_id", valuesDict->getString("merchant_id", "")->JSON.Encode.string)
   setMerchantDetails("email", email->JSON.Encode.string)
   setMerchantDetails("verification", verificationValue->Int.toString->JSON.Encode.string)
   setUserDetails("name", valuesDict->getString("name", "")->JSON.Encode.string)
   setUserDetails("user_role", valuesDict->getString("user_role", "")->JSON.Encode.string)
-  setUserDetails("flow_type", valuesDict->getString("flow_type", "")->JSON.Encode.string)
+  setUserDetails("flow_type", flowType->JSON.Encode.string)
   valuesDict->getString("token", "")
 }
 
@@ -432,13 +447,5 @@ let errorSubCodeMapper = (subCode: string) => {
   | "UR_05" => UR_05
   | "UR_16" => UR_16
   | _ => UR_00
-  }
-}
-
-let flowTypeStrToVariantMapper = val => {
-  switch val {
-  | "merchant_select" => MERCHANT_SELECT
-  | "dashboard_entry" => DASHBOARD_ENTRY
-  | _ => MERCHANT_SELECT
   }
 }

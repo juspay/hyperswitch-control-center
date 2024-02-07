@@ -173,6 +173,7 @@ let getURL = (
     | #GET_PERMISSIONS => `${userUrl}/role`
     | #SIGNINV2 => `${userUrl}/v2/signin`
     | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
+    | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`
     | #SIGNIN
     | #SIGNUP
     | #VERIFY_EMAIL

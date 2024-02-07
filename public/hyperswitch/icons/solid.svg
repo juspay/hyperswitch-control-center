@@ -8994,4 +8994,28 @@ License)
       />
     </g>
   </symbol>
+  <symbol
+    id="green-tick-without-background"
+    viewBox="0 0 17 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <mask
+      id="mask0_16130_50247"
+      style="mask-type: alpha"
+      maskUnits="userSpaceOnUse"
+      x="0"
+      y="0"
+      width="17"
+      height="16"
+    >
+      <rect x="0.5" width="16" height="16" fill="#D9D9D9" />
+    </mask>
+    <g mask="url(#mask0_16130_50247)">
+      <path
+        d="M6.86641 11.9991L3.06641 8.19909L4.01641 7.24909L6.86641 10.0991L12.9831 3.98242L13.9331 4.93242L6.86641 11.9991Z"
+        fill="#39934F"
+      />
+    </g>
+  </symbol>
 </svg>
