@@ -30,10 +30,10 @@ let checkHealth = async (res) => {
     }
     let api = await fetch("https://integ-api.hyperswitch.io/health", {
       agent: new HttpsProxyAgent(
-        // "http://squid-nlb-02916f71c737f6d6.elb.eu-central-1.amazonaws.com:80",
         {
           host: "http://squid-nlb-02916f71c737f6d6.elb.eu-central-1.amazonaws.com",
-          port: "80"
+          port: "80",
+          secureProxy: true
         }
       ),
     });
