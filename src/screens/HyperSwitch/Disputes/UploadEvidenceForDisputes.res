@@ -225,14 +225,8 @@ module DisputesInfoBarComponent = {
         setDisputeData(_ => response)
         setDisputeEvidenceStatus(_ => EvidencePresent)
       } catch {
-      | Exn.Error(e) => {
-          let _err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-          showToast(
-            ~message=`Failed to submit the evidence. Try again !`,
-            ~toastType=ToastError,
-            (),
-          )
-        }
+      | Exn.Error(_) =>
+        showToast(~message=`Failed to submit the evidence. Try again !`, ~toastType=ToastError, ())
       }
     }
 
