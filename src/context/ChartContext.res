@@ -339,7 +339,6 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 ~domain=value.domain->Option.getOr(""),
                 (),
               )->JSON.stringify,
-              ~authToken=parentToken,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
               (),
             )
@@ -399,7 +398,6 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               ~domain=value.domain->Option.getOr(""),
               (),
             )->JSON.stringify,
-            ~authToken=parentToken,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
             (),
           )
@@ -468,7 +466,6 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
                 ~domain=value.domain->Option.getOr(""),
                 (),
               )->JSON.stringify,
-              ~authToken=parentToken,
               ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
               (),
             )
@@ -525,7 +522,6 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
               ~domain=value.domain->Option.getOr(""),
               (),
             )->JSON.stringify,
-            ~authToken=parentToken,
             ~headers=[("QueryType", "Chart Legend")]->Dict.fromArray,
             (),
           )
@@ -809,7 +805,6 @@ module SDKAnalyticsChartContext = {
                     ~domain=value.domain->Option.getOr(""),
                     (),
                   )->JSON.stringify,
-                  ~authToken=parentToken,
                   ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
                   (),
                 )
@@ -850,7 +845,6 @@ module SDKAnalyticsChartContext = {
                           ~domain=value.domain->Option.getOr(""),
                           (),
                         )->JSON.stringify,
-                        ~authToken=parentToken,
                         ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
                         (),
                       )
@@ -981,7 +975,6 @@ module SDKAnalyticsChartContext = {
     //                   ~domain=value.domain->Option.getOr(""),
     //                   (),
     //                 )->JSON.stringify,
-    //                 ~authToken=parentToken,
     //                 ~headers=[("QueryType", "Chart Time Series")]->Dict.fromArray,
     //                 (),
     //               )

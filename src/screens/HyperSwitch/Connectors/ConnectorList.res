@@ -195,11 +195,9 @@ module NewProcessorCards = {
                 description={connectorName->getDisplayNameForConnectors}
                 onClick={_ => handleClick(connectorName)}>
                 <AddDataAttributes attributes=[("data-testid", connectorName->String.toLowerCase)]>
-                  <div className="p-2 cursor-pointer" onClick={_ => handleClick(connectorName)}>
-                    <GatewayIcon
-                      gateway={connectorName->String.toUpperCase} className="w-14 h-14 rounded-sm"
-                    />
-                  </div>
+                  <GatewayIcon
+                    gateway={connectorName->String.toUpperCase} className="w-14 h-14 rounded-sm"
+                  />
                 </AddDataAttributes>
               </ACLDiv>
             })
