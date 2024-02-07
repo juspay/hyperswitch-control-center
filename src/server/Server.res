@@ -64,12 +64,14 @@ let serverHandler: Http.serverHandler = (request, response) => {
       configHandler(request, response, true, path)
       ()->resolve(. _)
     })
-  } else if path === "/health" && request.method === "GET" {
-    Promise.make((resolve, _reject) => {
-      healthHandler(request, response)
-      ()->resolve(. _)
-    })
   } else {
+    // else if path === "/health" && request.method === "GET" {
+    //   Promise.make((resolve, _reject) => {
+    //     healthHandler(request, response)
+    //     ()->resolve(. _)
+    //   })
+    // }
+
     open ServerHandler
 
     let cache = if request.url.toString(.)->String.endsWith(".svg") {
