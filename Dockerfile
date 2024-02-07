@@ -28,7 +28,7 @@ COPY --from=base /usr/src/app/.env ./
 RUN apk add --no-cache bash
 
 RUN ls -l /usr/src/app/dist
-
+RUN yarn global add https-proxy-agent
 RUN chmod +x replace_env.sh
 EXPOSE 8080 9000
 CMD [ "/bin/bash", "-c", "/usr/src/app/replace_env.sh && yarn serve" ]

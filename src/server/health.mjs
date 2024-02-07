@@ -1,6 +1,6 @@
 import * as Fs from "fs";
 import fetch from "node-fetch";
-const HttpsProxyAgent = require("https-proxy-agent")
+const http = require('http');
 const errorHandler = (res, result) => {
   res.writeHead(500, { "Content-Type": "application/json" });
   res.write(JSON.stringify(result));
@@ -28,16 +28,26 @@ let checkHealth = async (res) => {
     ) {
       output.wasm_file = true;
     }
-    let api = await fetch("https://integ-api.hyperswitch.io/health", {
-      agent: new HttpsProxyAgent(
-        {
-          host: "",
-          port: "",
-          secureProxy: true
-        }
-      ),
+    const proxyHost = 'squid-nlb-02916f71c737f6d6.elb.eu-central-1.amazonaws.com';
+    const proxyPort = 80;
+
+    // Create a new http.Agent with custom proxy host and port
+    const customAgent = new http.Agent({
+      keepAlive: true,
+      keepAliveMsecs: 1000,
+      maxSockets: 10,
+      timeout: 60000,
+      proxy: {
+        host: proxyHost,
+        port: proxyPort,
+      },
+      // Other options...
     });
-    console.log(api, "api");
+    let res = await fetch("https://integ.hyperswitch.io/health", {
+      method: 'GET',
+      agent: customAgent,
+    })
+    console.log(res, "res res res")
     let values = Object.values(output);
     if (values.includes(false)) {
       throw "Server Error";
