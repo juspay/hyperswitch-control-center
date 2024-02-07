@@ -644,9 +644,9 @@ let truncateFileNameWithEllipses = (~fileName, ~maxTextLength) => {
 }
 
 let getDaysDiffForDates = (~startDate, ~endDate) => {
-  let startDate = startDate->Js.Date.fromFloat
-  let endDate = endDate->Js.Date.fromFloat
-  let daysDiff = Math.abs(endDate->Js.Date.getTime -. startDate->Js.Date.getTime)
+  let startDate = startDate->Date.fromTime
+  let endDate = endDate->Date.fromTime
+  let daysDiff = Math.abs(endDate->Date.getTime -. startDate->Date.getTime)
   let noOfmiliiseconds = 1000.0 *. 60.0 *. 60.0 *. 24.0
 
   Math.floor(daysDiff /. noOfmiliiseconds)
