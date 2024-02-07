@@ -14,6 +14,17 @@ let make = () => {
     ->Option.getOr([])
 
   let (merchantData, setMerchantData) = React.useState(_ => merchantDataFromLocalStorage)
+  let isAtleastOneAccept = React.useMemo1(() => {
+    merchantData
+    ->Array.find(ele => {
+      let merchantDataDict = ele->getDictFromJsonObject
+      merchantDataDict->getBool("is_active", false) === true
+    })
+    ->Option.getOr(JSON.Encode.null)
+    ->getDictFromJsonObject
+    ->getBool("is_active", false)
+  }, [merchantData])
+
   let textHeadingClass = getTextClass((H2, Optional))
   let textSubHeadingClass = getTextClass((P1, Regular))
 
@@ -118,6 +129,7 @@ let make = () => {
             text="Login to Dashboard"
             buttonType={Primary}
             onClick={_ => onClickLoginToDashboard()->ignore}
+            buttonState={isAtleastOneAccept ? Normal : Disabled}
           />
         </div>
       </div>
