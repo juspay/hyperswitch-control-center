@@ -7,11 +7,9 @@ type sessionStorage = {
 
 @val external sessionStorage: sessionStorage = "sessionStorage"
 
-@val external atob: string => string = "atob"
-
 // TODO : Temporary change for supporting disputes. When getHeaders PR gets merged, the changes will be reverted
 let getHeaders = (~uri, ~headers, ~isFromFormData, ()) => {
-  let hyperSwitchToken = LocalStorage.getItem("login")->Js.Nullable.toOption
+  let hyperSwitchToken = LocalStorage.getItem("login")->Nullable.toOption
   let isMixpanel = uri->String.includes("mixpanel")
 
   let headerObj = if isMixpanel {

@@ -50,9 +50,9 @@ let getDictFromFilesAvailable = arrayValue => {
 
     let fileVal =
       [
-        ("fileId", file_id->Js.Json.string),
-        ("fileName", file_name->Js.Json.string),
-      ]->LogicUtils.getJsonFromArrayOfJson
+        ("fileId", file_id->JSON.Encode.string),
+        ("fileName", file_name->JSON.Encode.string),
+      ]->getJsonFromArrayOfJson
 
     manipulatedDict->Dict.set(evidenceTypekey, fileVal)
   })

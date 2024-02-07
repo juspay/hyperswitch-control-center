@@ -18,7 +18,7 @@ module EvidenceUploadForm = {
       let fileDict =
         [
           ("uploadedFile", target["files"]["0"]->Identity.genericTypeToJson),
-          ("fileName", target["files"]["0"]["name"]->Js.Json.string),
+          ("fileName", target["files"]["0"]["name"]->JSON.Encode.string),
         ]->getJsonFromArrayOfJson
 
       setFileUploadedDict(prev => {
@@ -96,7 +96,7 @@ module UploadDisputeEvidenceModal = {
         ~bodyFormData=formData,
         ~headers=Dict.make(),
         url,
-        Js.Dict.empty()->Js.Json.object_,
+        Dict.make()->JSON.Encode.object,
         Put,
         (),
       )
@@ -112,7 +112,7 @@ module UploadDisputeEvidenceModal = {
       })
 
       let promisesOfAttachEvidence = dictToIterate->Array.map(ele => {
-        let jsonObject = fileUploadedDict->Js.Dict.get(ele)->Option.getOr(Js.Json.null)
+        let jsonObject = fileUploadedDict->Dict.get(ele)->Option.getOr(JSON.Encode.null)
         let fileValue = jsonObject->getDictFromJsonObject->getJsonObjectFromDict("uploadedFile")
         let res = acceptFile(ele, fileValue)
         res
@@ -124,11 +124,11 @@ module UploadDisputeEvidenceModal = {
       response->Array.forEachWithIndex((ele, index) => {
         let keyValue = keyFromDictArray[index]->Option.getOr("")
         let dictValue = fileUploadedDict->getDictfromDict(keyValue)
-        switch Js.Json.classify(ele) {
-        | Js.Json.JSONObject(jsonDict) => {
+        switch JSON.Classify.classify(ele) {
+        | Object(jsonDict) => {
             let fileId = jsonDict->getString("file_id", "")
-            dictValue->Dict.set("fileId", fileId->Js.Json.string)
-            copyFileUploadedDict->Dict.set(keyValue, dictValue->Js.Json.object_)
+            dictValue->Dict.set("fileId", fileId->JSON.Encode.string)
+            copyFileUploadedDict->Dict.set(keyValue, dictValue->JSON.Encode.object)
           }
         | _ => copyFileUploadedDict->Dict.delete(keyValue)
         }
@@ -166,7 +166,7 @@ module UploadDisputeEvidenceModal = {
         <div className="flex flex-col gap-4">
           {DisputesUtils.evidenceList
           ->Array.mapWithIndex((value, index) => {
-            let uploadEvidenceType = value->Js.String2.toLowerCase->titleToSnake
+            let uploadEvidenceType = value->String.toLowerCase->titleToSnake
             <EvidenceUploadForm
               uploadEvidenceType
               index
@@ -344,7 +344,7 @@ module DisputesInfoBarComponent = {
                     text="Attach More"
                     buttonSize={Small}
                     customButtonStyle="!bg-white"
-                    leftIcon={Euler("paper-clip")}
+                    leftIcon={FontAwesome("paper-clip")}
                     onClick={_ => setUploadEvidenceModal(_ => true)}
                   />
                 </div>
@@ -360,7 +360,7 @@ module DisputesInfoBarComponent = {
                 ->Dict.keysToArray
                 ->Array.map(eachFileValue => {
                   let jsonObject =
-                    fileUploadedDict->Js.Dict.get(eachFileValue)->Option.getOr(Js.Json.null)
+                    fileUploadedDict->Dict.get(eachFileValue)->Option.getOr(JSON.Encode.null)
                   let fileName = jsonObject->getDictFromJsonObject->getString("fileName", "")
 
                   <div
