@@ -256,7 +256,6 @@ let make = (
               ~domain=urlConfig.domain,
               (),
             )->JSON.stringify,
-            ~authToken=parentToken,
             ~headers=[("QueryType", "SingleStatHistoric")]->Dict.fromArray,
             (),
           )
@@ -308,7 +307,6 @@ let make = (
               ~domain=urlConfig.domain,
               (),
             )->JSON.stringify,
-            ~authToken=parentToken,
             ~headers=[("QueryType", "SingleStat")]->Dict.fromArray,
             (),
           )
@@ -359,7 +357,6 @@ let make = (
               ~timeCol=urlConfig.timeColumn,
               (),
             )->JSON.stringify,
-            ~authToken=parentToken,
             ~headers=[("QueryType", "SingleStat Time Series")]->Dict.fromArray,
             (),
           )
