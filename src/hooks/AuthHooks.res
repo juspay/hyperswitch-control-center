@@ -4,11 +4,11 @@ type sessionStorage = {
   setItem: (. string, string) => unit,
   removeItem: (. string) => unit,
 }
+type contentType = Headers(string) | Unknown
 
 @val external sessionStorage: sessionStorage = "sessionStorage"
 
-// TODO : Temporary change for supporting disputes. When getHeaders PR gets merged, the changes will be reverted
-let getHeaders = (~uri, ~headers, ~isFromFormData, ()) => {
+let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ()) => {
   let hyperSwitchToken = LocalStorage.getItem("login")->Nullable.toOption
   let isMixpanel = uri->String.includes("mixpanel")
 
@@ -19,16 +19,13 @@ let getHeaders = (~uri, ~headers, ~isFromFormData, ()) => {
     ]->Dict.fromArray
   } else {
     let res = switch hyperSwitchToken {
-    | Some(token) =>
-      if isFromFormData {
+    | Some(token) => {
         headers->Dict.set("authorization", `Bearer ${token}`)
         headers->Dict.set("api-key", `hyperswitch`)
-
-        headers
-      } else {
-        headers->Dict.set("authorization", `Bearer ${token}`)
-        headers->Dict.set("api-key", `hyperswitch`)
-        headers->Dict.set("Content-Type", `application/json`)
+        switch contentType {
+        | Headers(headerString) => headers->Dict.set("Content-Type", headerString)
+        | Unknown => ()
+        }
         headers
       }
 
@@ -61,14 +58,10 @@ let useApiFetcher = () => {
       uri,
       ~bodyStr: string="",
       ~bodyFormData=None,
-      ~headers=[("Content-Type", "application/json")]->Dict.fromArray,
-      ~bodyHeader as _=?,
+      ~headers=Dict.make(),
       ~method_: Fetch.requestMethod,
-      ~authToken as _=?,
-      ~requestId as _=?,
-      ~disableEncryption as _=false,
-      ~storageKey as _=?,
       ~betaEndpointConfig=?,
+      ~contentType=Headers("application/json"),
       (),
     ) => {
       let uri = switch betaEndpointConfig {
@@ -85,7 +78,6 @@ let useApiFetcher = () => {
         }
       }
 
-      // TODO : Temporary change for supporting disputes. When getHeaders PR gets merged, the changes will be reverted
       body->then(body => {
         setReqProgress(. p => p + 1)
         Fetch.fetchWithInit(
@@ -94,7 +86,7 @@ let useApiFetcher = () => {
             ~method_,
             ~body?,
             ~credentials=SameOrigin,
-            ~headers=getHeaders(~headers, ~uri, ~isFromFormData=bodyFormData->Option.isSome, ()),
+            ~headers=getHeaders(~headers, ~uri, ~contentType, ()),
             (),
           ),
         )

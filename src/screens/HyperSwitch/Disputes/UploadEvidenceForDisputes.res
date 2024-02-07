@@ -94,6 +94,7 @@ module UploadDisputeEvidenceModal = {
         url,
         Dict.make()->JSON.Encode.object,
         Put,
+        ~contentType=AuthHooks.Unknown,
         (),
       )
       response
