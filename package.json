@@ -71,6 +71,7 @@
     "highcharts": "^9.3.0",
     "highcharts-react-official": "^3.1.0",
     "html-to-image": "^1.11.11",
+    "https-proxy-agent": "^5.0.1",
     "intro.js": "^5.0.0",
     "intro.js-react": "^0.5.0",
     "js-datepicker": "^5.18.2",

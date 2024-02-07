@@ -1,5 +1,6 @@
 import * as Fs from "fs";
 import fetch from "node-fetch";
+const HttpsProxyAgent = require("https-proxy-agent")
 const errorHandler = (res, result) => {
   res.writeHead(500, { "Content-Type": "application/json" });
   res.write(JSON.stringify(result));
@@ -29,7 +30,11 @@ let checkHealth = async (res) => {
     }
     let api = await fetch("https://integ-api.hyperswitch.io/health", {
       agent: new HttpsProxyAgent(
-        "http://squid-nlb-02916f71c737f6d6.elb.eu-central-1.amazonaws.com:80",
+        // "http://squid-nlb-02916f71c737f6d6.elb.eu-central-1.amazonaws.com:80",
+        {
+          host: "http://squid-nlb-02916f71c737f6d6.elb.eu-central-1.amazonaws.com",
+          port: "80"
+        }
       ),
     });
     console.log(api, "api");
