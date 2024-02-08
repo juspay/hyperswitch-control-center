@@ -62,7 +62,7 @@ let make = (~showModal, ~setShowModal) => {
     modalHeading="Welcome aboard! Let's get started"
     setShowModal
     showCloseIcon=false
-    modalHeadingDescription="Start by creating your business profile"
+    modalHeadingDescription="Start by creating your business name"
     modalClass="w-full max-w-lg m-auto !bg-white dark:!bg-jp-gray-lightgray_background">
     <Form
       key="merchant_name-validation"
