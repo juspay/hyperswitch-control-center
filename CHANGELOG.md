@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.07.0
+
+### Bug Fixes
+
+- Added support for other content-type ([#337](https://github.com/juspay/hyperswitch-control-center/pull/337)) ([`06002c6`](https://github.com/juspay/hyperswitch-control-center/commit/06002c6eafb2160a381c7d7fe8bef27bdb6da627))
+- Headers object issue ([#350](https://github.com/juspay/hyperswitch-control-center/pull/350)) ([`f9dd029`](https://github.com/juspay/hyperswitch-control-center/commit/f9dd02998d1669a72c72689290e0412454a35f1a))
+
+### Miscellaneous Tasks
+
+- Update test ([`bde52da`](https://github.com/juspay/hyperswitch-control-center/commit/bde52da31270b8a9eb16ac3b50f2f044bbec88e1))
+- Payout Enabled ([#357](https://github.com/juspay/hyperswitch-control-center/pull/357)) ([`6095b05`](https://github.com/juspay/hyperswitch-control-center/commit/6095b05fb4008a1c484ae139cbd61aeb57fc7e6d))
+
+**Full Changelog:** [`2024.02.06.1...2024.02.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.06.1...2024.02.07.0)
+
+- - -
+
 ## 2024.02.06.1
 
 ### Bug Fixes

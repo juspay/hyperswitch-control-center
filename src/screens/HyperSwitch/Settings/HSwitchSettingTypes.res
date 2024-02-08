@@ -62,7 +62,7 @@ type merchantPayload = {
   locker_id: string,
   merchant_details: merchantDetails,
   merchant_id: string,
-  merchant_name: string,
+  merchant_name: option<string>,
   primary_business_details: array<businessEntity>,
   metadata: string,
   parent_merchant_id: string,
