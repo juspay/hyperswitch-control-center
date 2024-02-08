@@ -95,11 +95,10 @@ let parseMerchantJson = (merchantDict: merchantPayload) => {
   let merchantInfo =
     [
       ("primary_business_details", primary_business_details->JSON.Encode.array),
-      ("merchant_name", merchant_name->JSON.Encode.string),
       ("publishable_key", publishable_key->JSON.Encode.string),
       ("publishable_key_hide", publishable_key->parseKey->JSON.Encode.string),
     ]->Dict.fromArray
-
+  merchantInfo->setOptionString("merchant_name", merchant_name)
   merchantInfo->setOptionString("about_business", merchant_details.about_business)
   merchantInfo->setOptionString("primary_email", merchant_details.primary_email)
   merchantInfo->setOptionString("primary_phone", merchant_details.primary_phone)
@@ -168,7 +167,7 @@ let getMerchantDetails = (values: JSON.t) => {
   }
 
   let payload: merchantPayload = {
-    merchant_name: valuesDict->getString("merchant_name", ""),
+    merchant_name: valuesDict->getOptionString("merchant_name"),
     api_key: valuesDict->getString("api_key", ""),
     publishable_key: valuesDict->getString("publishable_key", ""),
     merchant_id: valuesDict->getString("merchant_id", ""),
@@ -519,7 +518,7 @@ let useFetchBusinessProfiles = () => {
 }
 
 let useFetchMerchantDetails = () => {
-  let setMerchantDetailsValue = Recoil.useSetRecoilState(HyperswitchAtom.merchantDetailsValueAtom)
+  let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
 
   let fetchDetails = APIUtils.useGetMethod()
 
