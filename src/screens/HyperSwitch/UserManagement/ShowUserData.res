@@ -59,29 +59,17 @@ let make = () => {
   let (roleData, setRoleData) = React.useState(_ => JSON.Encode.null)
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (usersList, setUsersList) = React.useState(_ => [])
+  let (currentSelectedUser, setCurrentSelectedUser) = React.useState(_ =>
+    Dict.make()->UserRoleEntity.itemToObjMapperForUser
+  )
 
-  let currentSelectedUser = React.useMemo1(() => {
-    usersList
-    ->typeConversion
-    ->Array.reduce(Dict.make()->UserRoleEntity.itemToObjMapperForUser, (acc, ele) => {
-      url.search
-      ->LogicUtils.getDictFromUrlSearchParams
-      ->Dict.get("email")
-      ->Option.getOr("")
-      ->String.includes(ele.email)
-        ? ele
-        : acc
-    })
-  }, [usersList])
-
-  let getRoleForUser = async () => {
+  let getRoleForUser = async (~role_id) => {
     try {
       let url = getURL(
         ~entityName=USER_MANAGEMENT,
         ~userRoleTypes=ROLE_ID,
         ~id={
-          Some(currentSelectedUser.role_id)
+          Some(role_id)
         },
         ~methodType=Get,
         (),
@@ -104,9 +92,6 @@ let make = () => {
       let permissionInfoValue =
         res->LogicUtils.getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
       setPermissionInfo(_ => permissionInfoValue)
-      if currentSelectedUser.role_id->String.length !== 0 {
-        getRoleForUser()->ignore
-      }
     } catch {
     | _ => ()
     }
@@ -122,23 +107,37 @@ let make = () => {
       )
       let res = await fetchDetails(userDataURL)
       let userData = res->LogicUtils.getArrayDataFromJson(UserRoleEntity.itemToObjMapperForUser)
-      setUsersList(_ => userData->Array.map(Nullable.make))
+      let localCurrentSelectedUser =
+        userData
+        ->Array.map(Nullable.make)
+        ->typeConversion
+        ->Array.reduce(Dict.make()->UserRoleEntity.itemToObjMapperForUser, (acc, ele) => {
+          url.search
+          ->LogicUtils.getDictFromUrlSearchParams
+          ->Dict.get("email")
+          ->Option.getOr("")
+          ->String.includes(ele.email)
+            ? ele
+            : acc
+        })
+      setCurrentSelectedUser(_ => localCurrentSelectedUser)
+      if localCurrentSelectedUser.role_id->String.length > 0 {
+        getRoleForUser(~role_id=localCurrentSelectedUser.role_id)->ignore
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Error(""))
+      }
     } catch {
     | _ => ()
     }
   }
 
-  React.useEffect1(() => {
-    if usersList->Array.length === 0 {
-      getUserData()->ignore
-    }
+  React.useEffect0(() => {
+    getUserData()->ignore
     if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
-    } else if currentSelectedUser.role_id->String.length !== 0 {
-      getRoleForUser()->ignore
     }
     None
-  }, [currentSelectedUser])
+  })
 
   React.useEffect1(() => {
     let defaultList = defaultPresentInInfoList(permissionInfo)
