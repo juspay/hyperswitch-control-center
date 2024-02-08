@@ -111,10 +111,10 @@ let make = (~previewOnly=false) => {
           <div className="flex-1"> {filtersUI} </div>
         </UIUtils.RenderIf>
         <div className="flex justify-end gap-3">
-          <GenerateSampleDataButton previewOnly getOrdersList={fetchOrders} />
           <UIUtils.RenderIf condition={generateReport}>
             <GenerateReport entityName={PAYMENT_REPORT} />
           </UIUtils.RenderIf>
+          <GenerateSampleDataButton previewOnly getOrdersList={fetchOrders} />
           <PortalCapture key={`OrdersCustomizeColumn`} name={`OrdersCustomizeColumn`} />
         </div>
       </div>
