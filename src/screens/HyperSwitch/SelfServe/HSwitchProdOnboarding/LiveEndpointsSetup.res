@@ -135,7 +135,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
   let (webhookEndpoint, setWebhookEndpoint) = React.useState(_ => webhookUrl)
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
 
-  let setMerchantDetailsValue = Recoil.useSetRecoilState(HyperswitchAtom.merchantDetailsValueAtom)
+  let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
   let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
 
   let headerText = switch pageView {
