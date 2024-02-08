@@ -225,7 +225,7 @@ module DisputesInfoBarComponent = {
         setDisputeData(_ => response)
         setDisputeEvidenceStatus(_ => EvidencePresent)
       } catch {
-      | Exn.Error(_) =>
+      | _ =>
         showToast(~message=`Failed to submit the evidence. Try again !`, ~toastType=ToastError, ())
       }
     }
