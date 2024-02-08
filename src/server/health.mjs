@@ -35,46 +35,39 @@ let doProxy = () => {
 
     const proxyHost = routerProxyUrl;
     const proxyPort = routerProxyPort;
-    // http.request({
-    //   host: proxyHost, // IP address of proxy server
-    //   port: proxyPort, // port of proxy server
-    //   method: 'CONNECT',
-    //   path: `${proxyHost}:${proxyPort}`,
-    // }).on('connect', (res, socket) => {
-    //   if (res.statusCode === 200) { // connected to proxy server
-    //     https.get({
-    //       host: apiBaseUrl,
-    //       socket: socket,    // using a tunnel
-    //       agent: false,      // cannot use a default agent
-    //       path: '/health'  // specify path to get from server
-    //     }, (res) => {
-    //       let chunks = []
-    //       res.on('data', chunk => chunks.push(chunk))
-    //       res.on('end', () => {
-    //         console.log('DONE', Buffer.concat(chunks).toString('utf8'))
-    //         resolve(Buffer.concat(chunks).toString('utf8'))
-    //       })
-    //     })
-    //   }
-    // }).on('error', (err) => {
-    //   console.log(err)
-    //   reject(err)
-    // }).end()
-    request(
-      {
-        url: `${apiBaseUrl}/health`,
-        method: "GET",
-        proxy: `http://${proxyHost}:${proxyPort}`,
-      },
-      (error, response, body) => {
-        if (!error && response.statusCode == 200) {
-          console.log(body);
-          resolve(body);
-        } else {
-          reject(error);
+    http
+      .request({
+        host: proxyHost, // IP address of proxy server
+        port: proxyPort, // port of proxy server
+        method: "CONNECT",
+        path: `${proxyHost}:${proxyPort}`,
+      })
+      .on("connect", (res, socket) => {
+        if (res.statusCode === 200) {
+          // connected to proxy server
+          https.get(
+            {
+              host: apiBaseUrl,
+              socket: socket, // using a tunnel
+              agent: false, // cannot use a default agent
+              path: "/health", // specify path to get from server
+            },
+            (res) => {
+              let chunks = [];
+              res.on("data", (chunk) => chunks.push(chunk));
+              res.on("end", () => {
+                console.log("DONE", Buffer.concat(chunks).toString("utf8"));
+                resolve(Buffer.concat(chunks).toString("utf8"));
+              });
+            },
+          );
         }
-      },
-    );
+      })
+      .on("error", (err) => {
+        console.log(err);
+        reject(err);
+      })
+      .end();
   });
 };
 
