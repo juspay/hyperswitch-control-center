@@ -421,8 +421,9 @@ let make = () => {
               <ProdIntentForm />
             </RenderIf>
             <RenderIf
-              condition={userPermissionJson.merchantAccountWrite === Access &&
-                merchantDetailsTypedValue.merchant_name->Option.isNone}>
+              condition={featureFlagDetails.permissionBasedModule &&
+              userPermissionJson.merchantAccountWrite === Access &&
+              merchantDetailsTypedValue.merchant_name->Option.isNone}>
               <CompanyNameModal showModal=companyNameModal setShowModal=setCompanyNameModal />
             </RenderIf>
           </div>
