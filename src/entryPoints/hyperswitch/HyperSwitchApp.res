@@ -420,7 +420,9 @@ let make = () => {
               condition={featureFlagDetails.productionAccess || featureFlagDetails.quickStart}>
               <ProdIntentForm />
             </RenderIf>
-            <RenderIf condition={merchantDetailsTypedValue.merchant_name->Option.isNone}>
+            <RenderIf
+              condition={userPermissionJson.merchantAccountWrite === Access &&
+                merchantDetailsTypedValue.merchant_name->Option.isNone}>
               <CompanyNameModal showModal=companyNameModal setShowModal=setCompanyNameModal />
             </RenderIf>
           </div>

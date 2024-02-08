@@ -518,7 +518,7 @@ let useFetchBusinessProfiles = () => {
 }
 
 let useFetchMerchantDetails = () => {
-  let setMerchantDetailsValue = Recoil.useSetRecoilState(HyperswitchAtom.merchantDetailsValueAtom)
+  let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
 
   let fetchDetails = APIUtils.useGetMethod()
 

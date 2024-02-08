@@ -55,6 +55,15 @@ module NewAccountCreationModal = {
       createNewAccount(values)
     }
 
+    let companyName = FormRenderer.makeFieldInfo(
+      ~label="Company Name",
+      ~name="company_name",
+      ~placeholder="Eg: HyperSwitch Pvt Ltd",
+      ~customInput=InputFields.textInput(),
+      ~isRequired=true,
+      (),
+    )
+
     let modalBody = {
       <div className="p-2 m-2">
         <div className="py-5 px-3 flex justify-between align-top">
@@ -75,14 +84,7 @@ module NewAccountCreationModal = {
               <div className="flex flex-col gap-5">
                 <FormRenderer.FieldRenderer
                   fieldWrapperClass="w-full"
-                  field={FormRenderer.makeFieldInfo(
-                    ~label="Company Name",
-                    ~name="company_name",
-                    ~placeholder="Eg: HyperSwitch Pvt Ltd",
-                    ~customInput=InputFields.textInput(),
-                    ~isRequired=true,
-                    (),
-                  )}
+                  field={companyName}
                   errorClass={ProdVerifyModalUtils.errorClass}
                   labelClass="!text-black font-medium !-ml-[0.5px]"
                 />

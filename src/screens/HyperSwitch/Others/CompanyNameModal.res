@@ -5,9 +5,12 @@ let make = (~showModal, ~setShowModal) => {
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
-  let setMerchantDetailsValue = Recoil.useSetRecoilState(HyperswitchAtom.merchantDetailsValueAtom)
+  let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
 
   let (isDisabled, setIsDisabled) = React.useState(_ => false)
+
+  let getMerchantNameFromJson = values =>
+    values->getDictFromJsonObject->getString("merchant_name", "")
 
   let onSubmit = async (values, _) => {
     try {
@@ -20,13 +23,8 @@ let make = (~showModal, ~setShowModal) => {
       let body =
         [
           ("merchant_id", merchantId->JSON.Encode.string),
-          (
-            "merchant_name",
-            values->getDictFromJsonObject->getString("merchant_name", "")->JSON.Encode.string,
-          ),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
+          ("merchant_name", values->getMerchantNameFromJson->JSON.Encode.string),
+        ]->getJsonFromArrayOfJson
       let merchantDetails = await updateDetails(accountUrl, body, Post, ())
       setMerchantDetailsValue(._ => merchantDetails->JSON.stringify)
       showToast(~message=`Successfully updated business details`, ~toastType=ToastSuccess, ())
@@ -41,14 +39,22 @@ let make = (~showModal, ~setShowModal) => {
   }
 
   let validateForm = values => {
-    let merchantNameVal = values->getDictFromJsonObject->getString("merchant_name", "")
-    if merchantNameVal->isEmptyString {
+    if values->getMerchantNameFromJson->isEmptyString {
       setIsDisabled(_ => true)
     } else {
       setIsDisabled(_ => false)
     }
     JSON.Encode.null
   }
+
+  let businessName = FormRenderer.makeFieldInfo(
+    ~label="Business name",
+    ~name="merchant_name",
+    ~placeholder="Eg: HyperSwitch Pvt Ltd",
+    ~customInput=InputFields.textInput(),
+    ~isRequired=true,
+    (),
+  )
 
   <Modal
     showModal
@@ -67,14 +73,7 @@ let make = (~showModal, ~setShowModal) => {
         <FormRenderer.DesktopRow>
           <FormRenderer.FieldRenderer
             fieldWrapperClass="w-full"
-            field={FormRenderer.makeFieldInfo(
-              ~label="Business name",
-              ~name="merchant_name",
-              ~placeholder="Eg: HyperSwitch Pvt Ltd",
-              ~customInput=InputFields.textInput(),
-              ~isRequired=true,
-              (),
-            )}
+            field={businessName}
             labelClass="!text-black font-medium !-ml-[0.5px]"
           />
         </FormRenderer.DesktopRow>
