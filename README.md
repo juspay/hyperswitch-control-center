@@ -102,10 +102,6 @@ The `feedback` feature flag enables the ability for users to provide direct prod
 
 The `test_processors` feature flag allows enabling sandbox/test payment processors for testing purposes. When enabled, developers and testers can add test payment processors like Stripe Test or PayPal Test to trial payment flows without touching live transactions or making processor API calls.
 
-#### User Management / Team
-
-The `user_management` feature flag enables user administration capabilities. When enabled, administrators can add, edit, and remove user accounts from the organization. They can also manage user roles and permissions that control access to different features and data.
-
 #### Recon
 
 The `recon` feature flag enables access to reconciliation capabilities in the Hyperswitch dashboard. When turned on, this unlocks the Reconciliation module that allows users to match payment transactions with bank/ledger entries for accounting purposes.

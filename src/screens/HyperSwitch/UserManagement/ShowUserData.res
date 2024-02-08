@@ -12,7 +12,7 @@ module UserHeading = {
     let updateDetails = useUpdateMethod()
     let status = infoValue.status->UserRoleEntity.statusToVariantMapper
 
-    let _resendInvite = async () => {
+    let resendInvite = async () => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#RESEND_INVITE, ~methodType=Post, ())
         let body = [("user_id", userId->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
@@ -38,14 +38,14 @@ module UserHeading = {
           | _ => infoValue.status->String.toUpperCase->React.string
           }}
         </div>
-        // <UIUtils.RenderIf condition={status !== Active}>
-        //   <Button
-        //     text="Resend Invite"
-        //     buttonType={SecondaryFilled}
-        //     customButtonStyle="!px-2"
-        //     onClick={_ => resendInvite()->ignore}
-        //   />
-        // </UIUtils.RenderIf>
+        <UIUtils.RenderIf condition={status !== Active}>
+          <Button
+            text="Resend Invite"
+            buttonType={SecondaryFilled}
+            customButtonStyle="!px-2"
+            onClick={_ => resendInvite()->ignore}
+          />
+        </UIUtils.RenderIf>
       </div>
     </div>
   }
@@ -65,22 +65,23 @@ let make = () => {
     usersList
     ->typeConversion
     ->Array.reduce(Dict.make()->UserRoleEntity.itemToObjMapperForUser, (acc, ele) => {
-      url.path->List.toArray->Array.joinWith("/")->String.includes(ele.user_id) ? ele : acc
+      url.search
+      ->LogicUtils.getDictFromUrlSearchParams
+      ->Dict.get("email")
+      ->Option.getOr("")
+      ->String.includes(ele.email)
+        ? ele
+        : acc
     })
   }, [usersList])
 
   let getRoleForUser = async () => {
     try {
-      // TODO - Temp fix - Backend fix awaited
       let url = getURL(
         ~entityName=USER_MANAGEMENT,
         ~userRoleTypes=ROLE_ID,
         ~id={
-          Some(
-            currentSelectedUser.role_id === "org_admin"
-              ? "merchant_admin"
-              : currentSelectedUser.role_id,
-          )
+          Some(currentSelectedUser.role_id)
         },
         ~methodType=Get,
         (),

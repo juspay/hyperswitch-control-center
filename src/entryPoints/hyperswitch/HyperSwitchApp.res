@@ -308,8 +308,7 @@ let make = () => {
                           <EntityScaffold
                             entityName="UserManagement"
                             remainingPath
-                            access=Access
-                            renderList={() => <UserRoleEntry />}
+                            renderList={_ => <UserRoleEntry />}
                             renderShow={_ => <UserRoleShowData />}
                           />
                         </AccessControl>
