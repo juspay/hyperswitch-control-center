@@ -124,7 +124,7 @@ let make = () => {
       if localCurrentSelectedUser.role_id->String.length > 0 {
         getRoleForUser(~role_id=localCurrentSelectedUser.role_id)->ignore
       } else {
-        setScreenState(_ => PageLoaderWrapper.Error(""))
+        setScreenState(_ => PageLoaderWrapper.Custom)
       }
     } catch {
     | _ => ()
@@ -151,7 +151,19 @@ let make = () => {
     None
   }, [roleData])
 
-  <PageLoaderWrapper screenState>
+  let customUrlErrorScreen =
+    <DefaultLandingPage
+      title="Oops, we hit a little bump on the road!"
+      customStyle={`py-16 !m-0 h-80-vh`}
+      overriddingStylesTitle="text-2xl font-semibold"
+      buttonText="Back"
+      overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
+      subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
+      onClickHandler={_ => RescriptReactRouter.replace("/users")}
+      isButton=true
+    />
+
+  <PageLoaderWrapper screenState customUI={customUrlErrorScreen}>
     <div className="h-full">
       <BreadCrumbNavigation
         path=[{title: "Users", link: "/users"}] currentPageTitle=currentSelectedUser.name
