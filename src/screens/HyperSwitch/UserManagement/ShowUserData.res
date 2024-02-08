@@ -6,7 +6,7 @@ external typeConversion: array<Nullable.t<UserRoleEntity.userTableTypes>> => arr
 
 module UserHeading = {
   @react.component
-  let make = (~infoValue: UserRoleEntity.userTableTypes, ~userId) => {
+  let make = (~infoValue: UserRoleEntity.userTableTypes) => {
     open APIUtils
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
@@ -15,7 +15,8 @@ module UserHeading = {
     let resendInvite = async () => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#RESEND_INVITE, ~methodType=Post, ())
-        let body = [("user_id", userId->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
+        let body =
+          [("email", infoValue.email->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
         let _ = await updateDetails(url, body, Post, ())
         showToast(~message=`Invite resend. Please check your email.`, ~toastType=ToastSuccess, ())
       } catch {
@@ -169,7 +170,7 @@ let make = () => {
         path=[{title: "Users", link: "/users"}] currentPageTitle=currentSelectedUser.name
       />
       <div className="h-4/5 bg-white mt-5 p-10 relative flex flex-col gap-8">
-        <UserHeading infoValue={currentSelectedUser} userId={currentSelectedUser.user_id} />
+        <UserHeading infoValue={currentSelectedUser} />
         <div className="flex flex-col justify-between gap-12 show-scrollbar overflow-scroll">
           {permissionInfo
           ->Array.mapWithIndex((ele, index) => {
