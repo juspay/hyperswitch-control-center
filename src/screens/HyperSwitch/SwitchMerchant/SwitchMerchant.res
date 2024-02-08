@@ -165,7 +165,6 @@ module ExternalUser = {
             merchant_id: defaultMerchantId,
             merchant_name: defaultMerchantId,
           })
-        Js.log2("typedValueOfResponse", typedValueOfResponse)
         setSelectedMerchantObject(_ => extractMerchantObject)
       } catch {
       | _ => ()
