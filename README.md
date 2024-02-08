@@ -134,10 +134,6 @@ The `audit_trail` feature flag enables access to payment and refund audit logs w
 
 The `switch_merchant` feature flag allows organizations to create and manage multiple merchant accounts within a single dashboard instance. When enabled, users can set up and configure separate merchants for different business lines, products, or brands. Users can switch between merchant profiles which have independent settings, connectors, and reporting.
 
-#### Home page
-
-The `home_page` feature flag controls whether the dashboard home page is enabled or hidden. When turned on, the home page displaying summary metrics and quick links will be visible after logging in.
-
 #### Test Live Toggle
 
 The `test_live_toggle` feature flag enables users to toggle between test and live modes when signing in. When enabled, users will see an option during sign-in to actively switch between test and live environments.
@@ -157,6 +153,14 @@ The `production_access` feature flag enables a flow for users to request live pr
 #### Quick Start
 
 The `quick_start` feature flag enables the simplified onboarding flow for new users, where they connect to processors, configure payment routing and test a payment, all in one flow.
+
+### Surcharge
+
+The `surcharge` feature flag enables the ability to apply surcharges to payments. When enabled, you can create advanced rules based on payment parameters like amount, currency, and payment method to enforce surcharges as needed.
+
+### User Journey
+
+Enabling `user_journey_analytics` grants access to the user journey module within the analytics section of the dashboard. This feature provides comprehensive graphical representations of payment analytics, facilitating a deeper understanding of user behavior and usage patterns.
 
 ---
 
