@@ -139,7 +139,7 @@ let make = () => {
   })
 
   React.useEffect1(() => {
-    if merchantDetailsTypedValue.merchant_name->isEmptyString {
+    if merchantDetailsTypedValue.merchant_name->Option.isNone {
       setCompanyNameModal(_ => true)
     } else {
       setCompanyNameModal(_ => false)
@@ -420,7 +420,7 @@ let make = () => {
               condition={featureFlagDetails.productionAccess || featureFlagDetails.quickStart}>
               <ProdIntentForm />
             </RenderIf>
-            <RenderIf condition={merchantDetailsTypedValue.merchant_name->isEmptyString}>
+            <RenderIf condition={merchantDetailsTypedValue.merchant_name->Option.isNone}>
               <CompanyNameModal showModal=companyNameModal setShowModal=setCompanyNameModal />
             </RenderIf>
           </div>
