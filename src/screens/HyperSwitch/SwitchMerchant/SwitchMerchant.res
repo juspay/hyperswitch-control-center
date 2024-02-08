@@ -7,6 +7,7 @@ let convertListResponseToTypedResponse = json => {
   open LogicUtils
   json
   ->getArrayFromJson([])
+  ->Array.filter(ele => ele->getDictFromJsonObject->getBool("is_active", false))
   ->Array.map(ele => {
     let dictOfElement = ele->getDictFromJsonObject
     let merchantId = dictOfElement->getString("merchant_id", "")
