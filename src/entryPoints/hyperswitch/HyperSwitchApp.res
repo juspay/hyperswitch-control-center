@@ -313,7 +313,7 @@ let make = () => {
                             entityName="UserManagement"
                             remainingPath
                             renderList={_ => <UserRoleEntry />}
-                            renderShow={_ => <UserRoleShowData />}
+                            renderShow={_ => <ShowUserData />}
                           />
                         </AccessControl>
                       | list{"analytics-payments"} =>
