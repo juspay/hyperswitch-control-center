@@ -126,6 +126,7 @@ let make = (
   ~statThreshold=?,
   ~wrapperClass=?,
 ) => {
+  open UIUtils
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let getAllFilter = filterValueJson
@@ -268,7 +269,7 @@ let make = (
           (endTimeFromUrl->DayJs.getDayJsForString).subtract(.
             1,
             "hour",
-          ).toDate(.)->Js.Date.toISOString
+          ).toDate(.)->Date.toISOString
         } else {
           startTimeFromUrl
         }
@@ -365,7 +366,7 @@ let make = (
           (endTimeFromUrl->DayJs.getDayJsForString).subtract(.
             1,
             "hour",
-          ).toDate(.)->Js.Date.toISOString
+          ).toDate(.)->Date.toISOString
         } else {
           startTimeFromUrl
         }
@@ -520,12 +521,12 @@ let make = (
     <AddDataAttributes
       attributes=[("data-dynamic-single-stats", "dynamic stats")] key={index->string_of_int}>
       <div>
-        <UIUtils.RenderIf condition={sectionName !== ""}>
+        <RenderIf condition={sectionName !== ""}>
           <div
             className="mb-5 block pl-5 pt-5 not-italic font-bold text-fs-18 text-black dark:text-white">
             {sectionName->React.string}
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
         {switch urlConfig.sectionInfo {
         | Some(info) =>
           <div
@@ -545,9 +546,9 @@ let make = (
               <div className="flex flex-wrap w-full">
                 {singleStateArr
                 ->Array.mapWithIndex((element, index) => {
-                  <UIUtils.RenderIf condition={index < 4 || showStats} key={index->string_of_int}>
+                  <RenderIf condition={index < 4 || showStats} key={index->string_of_int}>
                     <div className="w-full md:w-1/2"> element </div>
-                  </UIUtils.RenderIf>
+                  </RenderIf>
                 })
                 ->React.array}
               </div>

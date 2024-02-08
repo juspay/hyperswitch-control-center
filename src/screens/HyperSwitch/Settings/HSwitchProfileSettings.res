@@ -28,7 +28,7 @@ module MerchantDetailsSection = {
         setMerchantInfo(_ => requiredInfo)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | Js.Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Custom)
+      | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Custom)
       }
     }
     React.useEffect0(() => {

@@ -58,7 +58,7 @@ let getTimeStringForValue = (
 }
 
 let getFormattedDate = (date, format) => {
-  date->Js.Date.fromString->Js.Date.toISOString->TimeZoneHook.formattedISOString(format)
+  date->Date.fromString->Date.toISOString->TimeZoneHook.formattedISOString(format)
 }
 
 let isStartBeforeEndDate = (start, end) => {
@@ -79,8 +79,8 @@ let isStartBeforeEndDate = (start, end) => {
 }
 
 let getStartEndDiff = (startDate, endDate) => {
-  let diffTime = Js.Math.abs_float(
-    endDate->Js.Date.fromString->Js.Date.getTime -. startDate->Js.Date.fromString->Js.Date.getTime,
+  let diffTime = Math.abs(
+    endDate->Date.fromString->Date.getTime -. startDate->Date.fromString->Date.getTime,
   )
   diffTime
 }
@@ -203,7 +203,7 @@ module Base = {
     let dropdownPosition = isFilterSection && !isMobileView && isCustomSelected ? "right-0" : ""
 
     let todayDayJsObj = React.useMemo1(() => {
-      Js.Date.make()->Js.Date.toString->DayJs.getDayJsForString
+      Date.make()->Date.toString->DayJs.getDayJsForString
     }, [isDropdownExpanded])
 
     let currentTime = todayDayJsObj.format(. "HH:mm")
@@ -242,8 +242,8 @@ module Base = {
       None
     }, (localStartDate, localEndDate))
 
-    let dateRangeRef = React.useRef(Js.Nullable.null)
-    let dropdownRef = React.useRef(Js.Nullable.null)
+    let dateRangeRef = React.useRef(Nullable.null)
+    let dropdownRef = React.useRef(Nullable.null)
 
     useErroryValueResetter(startDateVal, setStartDateVal)
     useErroryValueResetter(endDateVal, setEndDateVal)

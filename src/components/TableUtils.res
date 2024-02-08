@@ -398,7 +398,7 @@ module Numeric = {
 
 module MoneyCell = {
   let getAmountValue = (amount, currency) => {
-    let amountSplitArr = Js.Float.toFixedWithPrecision(amount, ~digits=2)->String.split(".")
+    let amountSplitArr = Float.toFixedWithPrecision(amount, ~digits=2)->String.split(".")
     let decimal = amountSplitArr[1]->Option.getOr("00")
     let receivedValue = amountSplitArr->Array.get(0)->Option.getOr("")
 
@@ -630,7 +630,7 @@ module TableFilterCell = {
 module DeltaColumn = {
   @react.component
   let make = (~value, ~delta) => {
-    let detlaStr = Js.Float.toFixedWithPrecision(delta, ~digits=2) ++ "%"
+    let detlaStr = Float.toFixedWithPrecision(delta, ~digits=2) ++ "%"
     let (deltaText, textColor, _, _, _) = if delta == 0. {
       let textColor = ""
       ("", textColor, "", "", "bg-jp-2-gray-30")
@@ -648,7 +648,7 @@ module DeltaColumn = {
       <div className="flex justify-between">
         <div className=paraparentCss>
           <p className="px-2 py-0.5 fira-code text-fs-13">
-            {React.string(Js.Float.toFixedWithPrecision(value, ~digits=2) ++ "%")}
+            {React.string(Float.toFixedWithPrecision(value, ~digits=2) ++ "%")}
           </p>
         </div>
         <UIUtils.RenderIf condition={delta !== value}>
@@ -681,19 +681,28 @@ module TableCell = {
   ) => {
     switch cell {
     | Label(x) =>
-      <LabelCell
-        labelColor=x.color text=x.title showIcon=?{x.showIcon} ?labelMargin highlightText fontStyle
-      />
+      <AddDataAttributes attributes=[("data-testid", x.title->String.toLowerCase)]>
+        <LabelCell
+          labelColor=x.color
+          text=x.title
+          showIcon=?{x.showIcon}
+          ?labelMargin
+          highlightText
+          fontStyle
+        />
+      </AddDataAttributes>
 
     | Text(x) | DropDown(x) => {
         let x = x === "" ? "NA" : x
-        <AddDataAttributes attributes=[("data-desc", x)]>
+        <AddDataAttributes attributes=[("data-desc", x), ("data-testid", x->String.toLowerCase)]>
           <div> {highlightedText(x, highlightText)} </div>
         </AddDataAttributes>
       }
 
     | EllipsisText(text, width) =>
-      <EllipsisText text width highlightText isEllipsisTextRelative ellipseClass />
+      <AddDataAttributes attributes=[("data-testid", text->String.toLowerCase)]>
+        <EllipsisText text width highlightText isEllipsisTextRelative ellipseClass />
+      </AddDataAttributes>
     | TrimmedText(text, width) => <TrimmedText text width highlightText hideShowMore />
     | Currency(amount, currency) =>
       <MoneyCell amount currency ?textAlign fontBold customMoneyStyle />

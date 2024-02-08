@@ -8,10 +8,6 @@ module InviteEmailForm = {
     let {magicLink} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (roleListData, setRoleListData) = React.useState(_ => [])
 
-    let emailList =
-      ReactFinalForm.useField("emailList").input.value
-      ->getArrayFromJson([])
-      ->Array.joinWithUnsafe(",")
     let role =
       ReactFinalForm.useField(`roleType`).input.value
       ->getArrayFromJson([])
@@ -53,7 +49,6 @@ module InviteEmailForm = {
             fieldWrapperClass="w-4/5"
             labelClass="!text-black !text-base !-ml-[0.5px]"
           />
-          <div className="text-sm text-grey-500"> {emailList->React.string} </div>
         </div>
         <div className="absolute top-10 right-5">
           <FormRenderer.SubmitButton text={magicLink ? "Send Invite" : "Add User"} />
@@ -151,7 +146,7 @@ let make = () => {
       (),
     )
     RescriptReactRouter.push("/users")
-    Js.Nullable.null
+    Nullable.null
   }
 
   let onSubmit = (values, _) => {
@@ -188,8 +183,8 @@ let make = () => {
       await HyperSwitchUtils.delay(200)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
         setScreenState(_ => PageLoaderWrapper.Error(err))
       }
     }

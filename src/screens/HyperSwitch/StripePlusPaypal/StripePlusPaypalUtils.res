@@ -40,7 +40,7 @@ let getSidebarOptionsForStripePayalIntegration: (
       link: "",
     },
     {
-      title: "Setup Paypal Processor",
+      title: "Setup PayPal Processor",
       status: String(enumValue.paypalConnected.processorID)->getStatusValue(
         #PaypalConnected,
         currentPageStateEnum,

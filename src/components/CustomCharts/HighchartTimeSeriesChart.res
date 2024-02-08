@@ -1,16 +1,6 @@
 open Highcharts
-type domElement
 open LogicUtils
 open DictionaryUtils
-
-type ele
-external toElement: Dom.element => ele = "%identity"
-
-@send
-external querySelectorAll: (DOMUtils.document, string) => array<Js.Nullable.t<domElement>> =
-  "querySelectorAll"
-
-@send external addEventListener: ('a, string, unit => unit) => unit = "addEventListener"
 
 module TooltipString = {
   @react.component
@@ -239,7 +229,7 @@ module LineChart1D = {
             data: chartDataItem.data->Array.map(
               item => {
                 let (x, y, _) = item
-                (x, y->Js.Nullable.return)
+                (x, y->Nullable.make)
               },
             ),
             legendIndex: chartDataItem.legendIndex,
@@ -468,7 +458,7 @@ module LineChart1D = {
               "type": chartType,
               "margin": None,
               "zoomType": "x",
-              "backgroundColor": Js.Nullable.null,
+              "backgroundColor": Nullable.null,
               "height": Some(chartHeight),
               "events": {
                 render: (
@@ -538,7 +528,7 @@ module LineChart1D = {
                 },
               },
               "lineWidth": 1.2,
-              "threshold": Js.Nullable.null,
+              "threshold": Nullable.null,
             }->genericObjectOrRecordToJson,
             "line": {
               "pointStart": None,
@@ -550,7 +540,7 @@ module LineChart1D = {
                 },
               },
               "lineWidth": 1.2,
-              "threshold": Js.Nullable.null,
+              "threshold": Nullable.null,
             }->genericObjectOrRecordToJson,
             "boxplot": {
               "visible": false,
@@ -716,7 +706,7 @@ module LineChart1D = {
                   : [GroupBY, fistLegend, secondLegend]}
                 title="High Chart Time Series Chart"
                 hideTitle=true
-                actualData={legendData->Array.map(Js.Nullable.return)}
+                actualData={legendData->Array.map(Nullable.make)}
                 entity=legendTableEntity
                 resultsPerPage=15
                 totalResults={legendData->Array.length}

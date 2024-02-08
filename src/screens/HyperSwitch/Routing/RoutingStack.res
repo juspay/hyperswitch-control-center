@@ -69,15 +69,15 @@ let make = (~remainingPath, ~previewOnly=false) => {
             0
           }
         })
-        ->Array.map(Js.Nullable.return)
+        ->Array.map(Nullable.make)
 
       setRecords(_ => sortedHistoryRecords)
       setScreenState(_ => PageLoaderWrapper.Success)
 
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
@@ -107,8 +107,8 @@ let make = (~remainingPath, ~previewOnly=false) => {
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     } catch {
-    | Js.Exn.Error(e) =>
-      let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
+    | Exn.Error(e) =>
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }

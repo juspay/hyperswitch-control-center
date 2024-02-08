@@ -7,33 +7,41 @@ module GetProductionAccess = {
   @react.component
   let make = () => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let textStyles = HSwitchUtils.getTextClass(~textVariant=P2, ~paragraphTextVariant=Medium, ())
+    let textStyles = HSwitchUtils.getTextClass((P2, Medium))
     let {isProdIntentCompleted, setShowProdIntentForm} = React.useContext(
       GlobalProvider.defaultContext,
     )
-    let backgroundColor = isProdIntentCompleted ? "bg-light_green" : "bg-light_blue"
-    let cursorStyles = isProdIntentCompleted ? "cursor-default" : "cursor-pointer"
-    let productionAccessString = isProdIntentCompleted
+    let isProdIntent = isProdIntentCompleted->Option.getOr(false)
+    let backgroundColor = isProdIntent ? "bg-light_green" : "bg-light_blue"
+    let cursorStyles = isProdIntent ? "cursor-default" : "cursor-pointer"
+    let productionAccessString = isProdIntent
       ? "Production Access Requested"
       : "Get Production Access"
 
-    <div
-      className={`flex items-center gap-2 ${backgroundColor} ${cursorStyles} px-4 py-3 m-2 ml-2 mb-3 !mx-4 whitespace-nowrap rounded`}
-      onClick={_ => {
-        isProdIntentCompleted
-          ? ()
-          : {
-              setShowProdIntentForm(_ => true)
-              mixpanelEvent(~eventName="get_production_access", ())
-            }
-      }}>
-      <div className={`text-white ${textStyles} !font-semibold`}>
-        {productionAccessString->React.string}
+    switch isProdIntentCompleted {
+    | Some(_) =>
+      <div
+        className={`flex items-center gap-2 ${backgroundColor} ${cursorStyles} px-4 py-3 m-2 ml-2 mb-3 !mx-4 whitespace-nowrap rounded`}
+        onClick={_ => {
+          isProdIntent
+            ? ()
+            : {
+                setShowProdIntentForm(_ => true)
+                mixpanelEvent(~eventName="get_production_access", ())
+              }
+        }}>
+        <div className={`text-white ${textStyles} !font-semibold`}>
+          {productionAccessString->React.string}
+        </div>
+        <UIUtils.RenderIf condition={!isProdIntent}>
+          <Icon name="thin-right-arrow" customIconColor="white" size=20 />
+        </UIUtils.RenderIf>
       </div>
-      <UIUtils.RenderIf condition={!isProdIntentCompleted}>
-        <Icon name="thin-right-arrow" customIconColor="white" size=20 />
-      </UIUtils.RenderIf>
-    </div>
+    | None =>
+      <Shimmer
+        styleClass="h-10 px-4 py-3 m-2 ml-2 mb-3 dark:bg-black bg-white rounded" shimmerType={Small}
+      />
+    }
   }
 }
 
@@ -96,7 +104,7 @@ let customers = permissionJson => {
   })
 }
 
-let operations = (isOperationsEnabled, customersModule, ~permissionJson) => {
+let operations = (isOperationsEnabled, ~permissionJson) => {
   let payments = payments(permissionJson)
   let refunds = refunds(permissionJson)
   let disputes = disputes(permissionJson)
@@ -107,9 +115,7 @@ let operations = (isOperationsEnabled, customersModule, ~permissionJson) => {
         name: "Operations",
         icon: "hswitch-operations",
         showSection: true,
-        links: customersModule
-          ? [payments, refunds, disputes, customers]
-          : [payments, refunds, disputes],
+        links: [payments, refunds, disputes, customers],
       })
     : emptyComponent
 }
@@ -379,13 +385,12 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     userJourneyAnalytics: userJourneyAnalyticsFlag,
     surcharge: isSurchargeEnabled,
     isLiveMode,
-    customersModule,
   } = featureFlagDetails
 
   let sidebar = [
     productionAccess->productionAccessComponent,
     default->home,
-    default->operations(customersModule, ~permissionJson),
+    default->operations(~permissionJson),
     default->analytics(userJourneyAnalyticsFlag, ~permissionJson),
     default->connectors(isLiveMode, ~permissionJson),
     default->workflow(isSurchargeEnabled, ~permissionJson),

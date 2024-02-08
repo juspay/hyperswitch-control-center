@@ -10,7 +10,7 @@ module RangeSliderLocalFilter = {
     ~minSlide: ReactFinalForm.fieldRenderPropsInput,
   ) => {
     let (lclFiltrState, setLclFltrState) = React.useContext(DatatableContext.datatableContext)
-    let dropdownRef = React.useRef(Js.Nullable.null)
+    let dropdownRef = React.useRef(Nullable.null)
     let (showDropDown, setShowDropDown) = React.useState(() => false)
     let selectedFilterVal = Dict.get(lclFiltrState, filterKey)
     let filterIconName = "bars-filter"
@@ -230,8 +230,8 @@ module RangeFilterCell = {
   @react.component
   let make = (~minVal, ~maxVal, ~val) => {
     let (lclFiltrState, setLclFltrState) = React.useContext(DatatableContext.datatableContext)
-    let minVal = Js.Math.floor_float(minVal)
-    let maxVal = Js.Math.ceil_float(maxVal)
+    let minVal = Math.floor(minVal)
+    let maxVal = Math.ceil(maxVal)
     let selectedValueStr =
       Dict.get(lclFiltrState, val)->Option.getOr([
         minVal->JSON.Encode.float,

@@ -50,7 +50,7 @@ let make = (
     setShowModal(_ => false)
     let dict = values->LogicUtils.getDictFromJsonObject
     let amount = dict->LogicUtils.getFloat("amount", 0.0)
-    Dict.set(dict, "amount", Js.Math.round(amount *. 100.0)->JSON.Encode.float)
+    Dict.set(dict, "amount", Math.round(amount *. 100.0)->JSON.Encode.float)
     let body = dict
     Dict.set(body, "payment_id", order.payment_id->JSON.Encode.string)
     Dict.set(body, "refund_type", "instant"->JSON.Encode.string)
@@ -58,7 +58,7 @@ let make = (
       Dict.set(body, "reason", "RETURN"->JSON.Encode.string)
     }
     updateRefundDetails(body->JSON.Encode.object)->ignore
-    Js.Nullable.null->resolve
+    Nullable.null->resolve
   }
 
   let validate = values => {
@@ -88,13 +88,13 @@ let make = (
     | Some(floatVal) =>
       if floatVal > amoutAvailableToRefund {
         let amountSplitArr =
-          Js.Float.toFixedWithPrecision(amoutAvailableToRefund, ~digits=2)->String.split(".")
+          Float.toFixedWithPrecision(amoutAvailableToRefund, ~digits=2)->String.split(".")
         let decimal = if amountSplitArr->Array.length > 1 {
           amountSplitArr[1]->Option.getOr("")
         } else {
           "00"
         }
-        let receivedValue = amoutAvailableToRefund->Js.Math.floor_float->Float.toString
+        let receivedValue = amoutAvailableToRefund->Math.floor->Float.toString
         let formatted_amount = `${receivedValue}.${decimal}`
         Dict.set(
           errors,

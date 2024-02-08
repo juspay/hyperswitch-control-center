@@ -17,3 +17,4 @@ external event: string => event = "Event"
 @send external remove: (Dom.element, unit) => unit = "remove"
 @scope(("document", "body"))
 external appendChild: Dom.element => unit = "appendChild"
+external domProps: {..} => JsxDOM.domProps = "%identity"

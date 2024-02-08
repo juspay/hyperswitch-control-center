@@ -21,7 +21,7 @@ let make = (~children) => {
     | list{"register"} =>
       setAuthStatus(LoggedOut)
     | _ =>
-      switch LocalStorage.getItem("login")->Js.Nullable.toOption {
+      switch LocalStorage.getItem("login")->Nullable.toOption {
       | Some(token) =>
         if !(token->LogicUtils.isEmptyString) {
           setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))

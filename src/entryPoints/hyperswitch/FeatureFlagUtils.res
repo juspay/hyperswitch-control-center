@@ -23,9 +23,9 @@ type featureFlag = {
   forgetPassword: bool,
   userJourneyAnalytics: bool,
   surcharge: bool,
-  customersModule: bool,
   permissionBasedModule: bool,
   disputeEvidenceUpload: bool,
+  paypalAutomaticFlow: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -56,9 +56,9 @@ let featureFlagType = (featureFlags: JSON.t) => {
     forgetPassword: dict->getBool("forgot_password", false),
     userJourneyAnalytics: dict->getBool("user_journey_analytics", false),
     surcharge: dict->getBool("surcharge", false),
-    customersModule: dict->getBool("customers_module", false),
     permissionBasedModule: dict->getBool("permission_based_module", false),
     disputeEvidenceUpload: dict->getBool("dispute_evidence_upload", false),
+    paypalAutomaticFlow: dict->getBool("paypal_automatic_flow", false),
   }
   typedFeatureFlag
 }

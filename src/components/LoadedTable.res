@@ -1,4 +1,3 @@
-external toJson: Js.Nullable.t<'a> => JSON.t = "%identity"
 open DynamicTableUtils
 open NewThemeUtils
 type sortTyp = ASC | DSC
@@ -454,7 +453,7 @@ let make = (
           ->filteredData(columnFilterCopy, visibleColumns, entity, dateFormatConvertor)
           ->Array.forEach(
             rows => {
-              switch rows->Js.Nullable.toOption {
+              switch rows->Nullable.toOption {
               | Some(rows) =>
                 let value = switch entity.getCell(rows, item) {
                 | CustomCell(_, str)
@@ -487,7 +486,7 @@ let make = (
                 filterValueArray->Array.map(item => item->JSON.Decode.float->Option.getOr(0.))
 
               if newArr->Array.length >= 1 {
-                Table.Range(key, Js.Math.minMany_float(newArr), Js.Math.maxMany_float(newArr))
+                Table.Range(key, Math.minMany(newArr), Math.maxMany(newArr))
               } else {
                 Table.Range(key, 0.0, 0.0)
               }
@@ -545,7 +544,7 @@ let make = (
       checkBoxProps.setSelectedData(_ => {
         filteredData->Array.map(
           ele => {
-            ele->toJson
+            ele->Identity.nullableOfAnyTypeToJsonType
           },
         )
       })
@@ -558,7 +557,7 @@ let make = (
   let sNoArr = Dict.get(columnFilter, "s_no")->Option.getOr([])
   // filtering for SNO
   let nullableRows = filteredData->Array.mapWithIndex((nullableItem, index) => {
-    let actualRows = switch nullableItem->Js.Nullable.toOption {
+    let actualRows = switch nullableItem->Nullable.toOption {
     | Some(item) => {
         let visibleCell =
           visibleColumns
@@ -581,10 +580,12 @@ let make = (
 
     let setIsSelected = isSelected => {
       if isSelected {
-        checkBoxProps.setSelectedData(prev => prev->Array.concat([nullableItem->toJson]))
+        checkBoxProps.setSelectedData(prev =>
+          prev->Array.concat([nullableItem->Identity.nullableOfAnyTypeToJsonType])
+        )
       } else {
         checkBoxProps.setSelectedData(prev =>
-          prev->Array.filter(item => item !== nullableItem->toJson)
+          prev->Array.filter(item => item !== nullableItem->Identity.nullableOfAnyTypeToJsonType)
         )
       }
     }
@@ -604,7 +605,9 @@ let make = (
       }
       if checkBoxProps.showCheckBox {
         let selectedRowIndex =
-          checkBoxProps.selectedData->Array.findIndex(item => item === nullableItem->toJson)
+          checkBoxProps.selectedData->Array.findIndex(item =>
+            item === nullableItem->Identity.nullableOfAnyTypeToJsonType
+          )
         actualRows
         ->Array.unshift(
           CustomCell(
@@ -657,7 +660,7 @@ let make = (
 
   let handleRowClick = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
-    | Some(ele) => ele->Js.Nullable.toOption
+    | Some(ele) => ele->Nullable.toOption
     | None => None
     }
     switch actualVal {
@@ -681,7 +684,7 @@ let make = (
 
   let onRowDoubleClick = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
-    | Some(ele) => ele->Js.Nullable.toOption
+    | Some(ele) => ele->Nullable.toOption
     | None => None
     }
     switch actualVal {
@@ -705,7 +708,7 @@ let make = (
 
   let handleMouseEnter = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
-    | Some(ele) => ele->Js.Nullable.toOption
+    | Some(ele) => ele->Nullable.toOption
     | None => None
     }
     switch actualVal {
@@ -720,7 +723,7 @@ let make = (
 
   let handleMouseLeaeve = React.useCallback4(index => {
     let actualVal = switch filteredData[index] {
-    | Some(ele) => ele->Js.Nullable.toOption
+    | Some(ele) => ele->Nullable.toOption
     | None => None
     }
     switch actualVal {
@@ -842,7 +845,7 @@ let make = (
           | Some(renderer) =>
             <div className="overflow-auto flex flex-col">
               {paginatedData
-              ->Belt.Array.keepMap(Js.Nullable.toOption)
+              ->Belt.Array.keepMap(Nullable.toOption)
               ->Array.mapWithIndex((item, rowIndex) => {
                 renderer(~index={rowIndex + offset}, ~item, ~onRowClick=handleRowClick)
               })

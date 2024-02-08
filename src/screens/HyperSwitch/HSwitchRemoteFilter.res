@@ -10,11 +10,11 @@ let getDateValue = (key, ~getModuleFilters) => {
 }
 
 let formateDateString = date => {
-  date->Js.Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]")
+  date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]")
 }
 
 let getDateFilteredObject = () => {
-  let currentDate = Js.Date.make()
+  let currentDate = Date.make()
 
   let end_time = currentDate->formateDateString
 

@@ -53,7 +53,7 @@ let default = (props: props) => {
 
   let onDragEnd = result => {
     // dropped outside the list
-    let dest = Js.Nullable.toOption(result["destination"])
+    let dest = Nullable.toOption(result["destination"])
     let hasCorrectDestination = switch dest {
     | None => false
     | Some(_a) => true

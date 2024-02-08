@@ -1,5 +1,5 @@
 type sessionStorage = {
-  getItem: (. string) => Js.Nullable.t<string>,
+  getItem: (. string) => Nullable.t<string>,
   setItem: (. string, string) => unit,
   removeItem: (. string) => unit,
 }
@@ -110,7 +110,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
   }, (filterDict, setfilterDict))
 
   React.useEffect0(() => {
-    switch sessionStorage.getItem(. index)->Js.Nullable.toOption {
+    switch sessionStorage.getItem(. index)->Nullable.toOption {
     | Some(value) =>
       !disableSessionStorage
         ? value->FilterUtils.parseFilterString->updateFilter.updateExistingKeys

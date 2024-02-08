@@ -1,4 +1,4 @@
-let h3Leading2Style = HSwitchUtils.getTextClass(~textVariant=H3, ~h3TextVariant=Leading_2, ())
+let h3Leading2Style = HSwitchUtils.getTextClass((H3, Leading_2))
 
 module SDKConfiguarationFields = {
   open MerchantAccountUtils
@@ -120,7 +120,7 @@ let make = () => {
     setInitialValues(_ => values->SDKPaymentUtils.getTypedValueForPayment)
     setIsSDKOpen(_ => true)
     RescriptReactRouter.push("/sdk")
-    Js.Nullable.null->Promise.resolve
+    Nullable.null->Promise.resolve
   }
 
   <>

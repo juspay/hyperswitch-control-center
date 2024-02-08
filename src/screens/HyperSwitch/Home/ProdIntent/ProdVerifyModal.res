@@ -28,7 +28,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
     } catch {
     | _ => setShowModal(_ => false)
     }
-    Js.Nullable.null
+    Nullable.null
   }
 
   let onSubmit = (values, _) => {

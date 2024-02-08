@@ -67,8 +67,8 @@ module TableRow = {
                 "00",
                 "00",
                 "00",
-              )->Js.Date.fromString
-            let dateToday = Js.Date.make()
+              )->Date.fromString
+            let dateToday = Date.make()
             let todayInitial = Js.Date.setHoursMSMs(
               dateToday,
               ~hours=0.0,
@@ -78,7 +78,7 @@ module TableRow = {
               (),
             )
             let isInCustomDisable = if customDisabledFutureDays > 0.0 {
-              date->Js.Date.getTime -. todayInitial <=
+              date->Date.getTime -. todayInitial <=
                 customDisabledFutureDays *. 24.0 *. 3600.0 *. 1000.0
             } else {
               false
@@ -87,9 +87,8 @@ module TableRow = {
             | Some(obj) =>
               if obj.startDate !== "" && obj.endDate !== "" {
                 !(
-                  date->Js.Date.getTime -.
-                    obj.startDate->Js.Date.fromString->Js.Date.getTime >= 0.0 &&
-                    obj.endDate->Js.Date.fromString->Js.Date.getTime -. date->Js.Date.getTime >= 0.0
+                  date->Date.getTime -. obj.startDate->Date.fromString->Date.getTime >= 0.0 &&
+                    obj.endDate->Date.fromString->Date.getTime -. date->Date.getTime >= 0.0
                 )
               } else {
                 false
@@ -99,15 +98,15 @@ module TableRow = {
             }
 
             let isFutureDate = if disablePastDates {
-              todayInitial -. date->Js.Date.getTime <= 0.0
+              todayInitial -. date->Date.getTime <= 0.0
             } else {
-              todayInitial -. date->Js.Date.getTime < 0.0
+              todayInitial -. date->Date.getTime < 0.0
             }
 
             let isInLimit = switch dateRangeLimit {
             | Some(limit) =>
               if startDate !== "" {
-                date->Js.Date.getTime -. startDate->Js.Date.fromString->Js.Date.getTime <
+                date->Date.getTime -. startDate->Date.fromString->Date.getTime <
                   ((limit->Js.Int.toFloat -. 1.) *. 24. *. 60. *. 60. -. 60.) *. 1000.
               } else {
                 true
@@ -125,7 +124,7 @@ module TableRow = {
               | true =>
                 switch onDateClick {
                 | Some(fn) =>
-                  fn((Js.Date.toISOString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"))
+                  fn((Date.toISOString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"))
 
                 | None => ()
                 }
@@ -133,7 +132,7 @@ module TableRow = {
               }
             }
             let hSelf = highlight(
-              (Js.Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"),
+              (Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"),
             )
 
             let dayClass = if (
@@ -158,13 +157,11 @@ module TableRow = {
               )
               datevalue
             }
-            let today = (Js.Date.make()->Js.Date.toString->DayJs.getDayJsForString).format(.
-              "YYYY-MM-DD",
-            )
+            let today = (Date.make()->Date.toString->DayJs.getDayJsForString).format(. "YYYY-MM-DD")
 
             let renderingDate = (
               getDate([Float.toString(year), Float.toString(month +. 1.0), obj])
-              ->Js.Date.toString
+              ->Date.toString
               ->DayJs.getDayJsForString
             ).format(. "YYYY-MM-DD")
 
@@ -202,7 +199,7 @@ module TableRow = {
                   hoverdDate != "" &&
                   endDate == "" &&
                   z > parsedStartDate &&
-                  z <= hoverdDate->Js.Date.fromString &&
+                  z <= hoverdDate->Date.fromString &&
                   !(
                     (isFutureDate && disableFutureDates) ||
                     !isFutureDate && disablePastDates ||
@@ -228,9 +225,9 @@ module TableRow = {
               )
             }
             let handleHover = () => {
-              let date = (Js.Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD")
+              let date = (Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD")
               let parsedDate = getDate(String.split(date, "-"))
-              setHoverdDate(_ => parsedDate->Js.Date.toString)
+              setHoverdDate(_ => parsedDate->Date.toString)
               switch setShowMsg {
               | Some(setMsg) =>
                 if (
@@ -272,9 +269,7 @@ module TableRow = {
                   {cellRenderer(
                     obj == ""
                       ? None
-                      : Some(
-                          (Js.Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"),
-                        ),
+                      : Some((Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD")),
                   )}
                 </span>
               </AddDataAttributes>

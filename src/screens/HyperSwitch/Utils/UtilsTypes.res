@@ -29,6 +29,5 @@ type textVariantType =
   | P1
   | P2
   | P3
-type paragraphTextType = Regular | Medium
 
-type h3TextType = Leading_1 | Leading_2
+type subVariantType = Regular | Medium | Leading_1 | Leading_2 | Optional

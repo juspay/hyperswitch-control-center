@@ -7,6 +7,7 @@ let convertListResponseToTypedResponse = json => {
   open LogicUtils
   json
   ->getArrayFromJson([])
+  ->Array.filter(ele => ele->getDictFromJsonObject->getBool("is_active", false))
   ->Array.map(ele => {
     let dictOfElement = ele->getDictFromJsonObject
     let merchantId = dictOfElement->getString("merchant_id", "")
@@ -47,7 +48,7 @@ module NewAccountCreationModal = {
       }
 
       setShowModal(_ => false)
-      Js.Nullable.null
+      Nullable.null
     }
 
     let onSubmit = (values, _) => {
@@ -140,6 +141,7 @@ module AddNewMerchantButton = {
 module ExternalUser = {
   @react.component
   let make = (~switchMerchant, ~isAddMerchantEnabled) => {
+    open UIUtils
     open APIUtils
     let fetchDetails = useGetMethod()
     let defaultMerchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
@@ -217,7 +219,7 @@ module ExternalUser = {
                               }>
                               <div className="mr-5"> {option.merchant_name->React.string} </div>
                             </button>
-                            <UIUtils.RenderIf
+                            <RenderIf
                               condition={selectedMerchantObject.merchant_name ===
                                 option.merchant_name}>
                               <Icon
@@ -225,23 +227,23 @@ module ExternalUser = {
                                 name="check"
                                 size=15
                               />
-                            </UIUtils.RenderIf>
+                            </RenderIf>
                           </div>}
                       </Menu.Item>
                     )
                     ->React.array}
                   </div>
-                  <UIUtils.RenderIf condition={isAddMerchantEnabled}>
+                  <RenderIf condition={isAddMerchantEnabled}>
                     <AddNewMerchantButton setShowModal />
-                  </UIUtils.RenderIf>
+                  </RenderIf>
                 </>}
               </Menu.Items>}
             </Transition>
           </div>}
       </Menu>
-      <UIUtils.RenderIf condition={showModal}>
+      <RenderIf condition={showModal}>
         <NewAccountCreationModal setShowModal showModal fetchMerchantIDs />
-      </UIUtils.RenderIf>
+      </RenderIf>
     </>
   }
 }
@@ -288,8 +290,11 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       body->Dict.set("merchant_id", value->JSON.Encode.string)
       let res = await updateDetails(url, body->JSON.Encode.object, Post, ())
       let responseDict = res->getDictFromJsonObject
-      let token = responseDict->getString("token", "")
       let switchedMerchantId = responseDict->getString("merchant_id", "")
+      let token = HyperSwitchAuthUtils.parseResponseJson(
+        ~json=res,
+        ~email=responseDict->LogicUtils.getString("email", ""),
+      )
       LocalStorage.setItem("login", token)
       HSwitchUtils.setMerchantDetails("merchant_id", switchedMerchantId->JSON.Encode.string)
       setSuccessModal(_ => true)

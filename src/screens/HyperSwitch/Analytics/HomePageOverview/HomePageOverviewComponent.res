@@ -4,40 +4,25 @@ module ConnectorOverview = {
   @react.component
   let make = () => {
     open ConnectorUtils
-    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-    let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
-    let fetchConnectorListResponse = useFetchConnectorList()
-
-    let getConnectorList = async () => {
-      open LogicUtils
-      try {
-        let response = await fetchConnectorListResponse()
-        let connectorsList =
-          response->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer, ())
-
-        let arr =
-          connectorsList->Array.map(paymentMethod =>
-            paymentMethod->getString("connector_name", "")->getConnectorNameTypeFromString
-          )
-        setConfiguredConnectors(_ => arr)
-        setScreenState(_ => Success)
-      } catch {
-      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
-      }
-    }
-
-    React.useEffect0(() => {
-      getConnectorList()->ignore
-      None
-    })
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let connectorsList =
+      HyperswitchAtom.connectorListAtom
+      ->Recoil.useRecoilValueFromAtom
+      ->LogicUtils.safeParse
+      ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer, ())
+    let configuredConnectors =
+      connectorsList->Array.map(paymentMethod =>
+        paymentMethod->LogicUtils.getString("connector_name", "")->getConnectorNameTypeFromString
+      )
 
     let getConnectorIconsList = () => {
       let icons =
         configuredConnectors
         ->Array.filterWithIndex((_, i) => i <= 2)
         ->Array.mapWithIndex((connector, index) => {
-          let iconStyle = `${index === 0 ? "" : "-ml-4"} z-${(30 - index * 10)->Js.Int.toString}`
+          let iconStyle = `${index === 0 ? "" : "-ml-4"} z-${(30 - index * 10)->Int.toString}`
           <GatewayIcon
+            key={index->string_of_int}
             gateway={connector->getConnectorNameString->String.toUpperCase}
             className={`w-12 h-12 rounded-full border-3 border-white  ${iconStyle} bg-white`}
           />
@@ -47,8 +32,9 @@ module ConnectorOverview = {
         configuredConnectors->Array.length > 3
           ? icons->Array.concat([
               <div
+                key="concat-number"
                 className={`w-12 h-12 flex items-center justify-center text-white font-medium rounded-full border-3 border-white -ml-3 z-0 bg-blue-900`}>
-                {`+${(configuredConnectors->Array.length - 3)->Js.Int.toString}`->React.string}
+                {`+${(configuredConnectors->Array.length - 3)->Int.toString}`->React.string}
               </div>,
             ])
           : icons
@@ -57,27 +43,24 @@ module ConnectorOverview = {
     }
 
     <UIUtils.RenderIf condition={configuredConnectors->Array.length > 0}>
-      <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="w-full h-full" />}>
-        <div className=boxCss>
-          {getConnectorIconsList()}
-          <div className="flex items-center gap-2">
-            <p className=cardHeaderTextStyle>
-              {`${configuredConnectors
-                ->Array.length
-                ->Js.Int.toString} Active Processors`->React.string}
-            </p>
-          </div>
-          <Button
-            text="+ Add More"
-            buttonType={PrimaryOutline}
-            customButtonStyle="w-10 !px-3"
-            buttonSize={Small}
-            onClick={_ => {
-              "/connectors"->RescriptReactRouter.push
-            }}
-          />
+      <div className=boxCss>
+        {getConnectorIconsList()}
+        <div className="flex items-center gap-2">
+          <p className=cardHeaderTextStyle>
+            {`${configuredConnectors->Array.length->Int.toString} Active Processors`->React.string}
+          </p>
         </div>
-      </PageLoaderWrapper>
+        <ACLButton
+          text="+ Add More"
+          access={userPermissionJson.merchantConnectorAccountRead}
+          buttonType={PrimaryOutline}
+          customButtonStyle="w-10 !px-3"
+          buttonSize={Small}
+          onClick={_ => {
+            "/connectors"->RescriptReactRouter.push
+          }}
+        />
+      </div>
     </UIUtils.RenderIf>
   }
 }
@@ -239,12 +222,13 @@ module OverviewInfo = {
 @react.component
 let make = () => {
   let {systemMetrics} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
+  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   <div className="flex flex-col gap-4">
-    <p className=headingStyle> {"Overview"->React.string} </p>
     <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-4">
       <ConnectorOverview />
-      <PaymentOverview />
+      <UIUtils.RenderIf condition={userPermissionJson.analytics === Access}>
+        <PaymentOverview />
+      </UIUtils.RenderIf>
       <UIUtils.RenderIf condition={systemMetrics}>
         <SystemMetricsInsights />
       </UIUtils.RenderIf>

@@ -171,11 +171,12 @@ module TabInfo = {
 module IndicationArrow = {
   @react.component
   let make = (~iconName, ~side, ~refElement: React.ref<Js.nullable<Dom.element>>, ~isVisible) => {
+    open UIUtils
     let isMobileView = MatchMedia.useMobileChecker()
     let onClick = {
       _ev =>
         refElement.current
-        ->Js.Nullable.toOption
+        ->Nullable.toOption
         ->Option.forEach(input =>
           input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"})
         )
@@ -191,7 +192,7 @@ module IndicationArrow = {
     }
 
     let customButtonStyle = "text-black cursor-pointer border-2 border-black-900 !px-2 py-1.5 !rounded-lg"
-    <UIUtils.RenderIf condition={isMobileView}>
+    <RenderIf condition={isMobileView}>
       <div className>
         <Button
           buttonType=Secondary
@@ -202,12 +203,12 @@ module IndicationArrow = {
           flattenBottom=true
         />
       </div>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
-let getBoundingRectInfo = (ref: React.ref<Js.Nullable.t<Dom.element>>, getter) => {
-  ref.current->Js.Nullable.toOption->Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
+let getBoundingRectInfo = (ref: React.ref<Nullable.t<Dom.element>>, getter) => {
+  ref.current->Nullable.toOption->Option.map(getBoundingClientRect)->Option.mapOr(0, getter)
 }
 
 @react.component
@@ -400,9 +401,9 @@ let make = (
   let (isLeftArrowVisible, setIsLeftArrowVisible) = React.useState(() => false)
   let (isRightArrowVisible, setIsRightArrowVisible) = React.useState(() => true)
 
-  let firstTabRef = React.useRef(Js.Nullable.null)
-  let scrollRef = React.useRef(Js.Nullable.null)
-  let lastTabRef = React.useRef(Js.Nullable.null)
+  let firstTabRef = React.useRef(Nullable.null)
+  let scrollRef = React.useRef(Nullable.null)
+  let lastTabRef = React.useRef(Nullable.null)
 
   let onScroll = _ev => {
     setTabScroll(
@@ -433,7 +434,7 @@ let make = (
       updateTabNameWith(Dict.fromArray([("tabName", `[${tabValue}]`)]))
       setActiveTab(tabValue)
       setSelectedIndex(_ =>
-        Js.Math.max_int(0, collapsibleTabs->Array.map(item => item.value)->Array.indexOf(tabValue))
+        Math.Int.max(0, collapsibleTabs->Array.map(item => item.value)->Array.indexOf(tabValue))
       )
     } else {
       updateTabNameWith(
@@ -447,7 +448,7 @@ let make = (
       setActiveTab(tabStacksnames->Array.get(tabStacksnames->Array.length - 1)->Option.getOr(""))
 
       setSelectedIndex(_ =>
-        Js.Math.max_int(
+        Math.Int.max(
           0,
           collapsibleTabs
           ->Array.map(item => item.value)
@@ -481,7 +482,7 @@ let make = (
 
       Js.Global.setTimeout(_ => {
         lastTabRef.current
-        ->Js.Nullable.toOption
+        ->Nullable.toOption
         ->Option.forEach(input =>
           input->scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"})
         )

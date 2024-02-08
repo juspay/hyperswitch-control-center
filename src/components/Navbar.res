@@ -3,17 +3,20 @@ let bgClass = "bg-white hover:bg-jp-gray-100"
 module MenuOption = {
   @react.component
   let make = (~text=?, ~children=?, ~onClick=?) => {
-    <button
-      className={`px-4 py-3 flex text-sm w-full text-gray-700 cursor-pointer ${bgClass}`} ?onClick>
-      {switch text {
-      | Some(str) => React.string(str)
-      | None => React.null
-      }}
-      {switch children {
-      | Some(elem) => elem
-      | None => React.null
-      }}
-    </button>
+    <AddDataAttributes attributes=[("data-testid", text->Option.getOr("")->String.toLowerCase)]>
+      <button
+        className={`px-4 py-3 flex text-sm w-full text-gray-700 cursor-pointer ${bgClass}`}
+        ?onClick>
+        {switch text {
+        | Some(str) => React.string(str)
+        | None => React.null
+        }}
+        {switch children {
+        | Some(elem) => elem
+        | None => React.null
+        }}
+      </button>
+    </AddDataAttributes>
   }
 }
 
@@ -40,7 +43,7 @@ let make = (
 
   let leftPortalName = isMobileView ? "mobileNavbarTitle" : "desktopNavbarLeft"
 
-  let ref = React.useRef(Js.Nullable.null)
+  let ref = React.useRef(Nullable.null)
   OutsideClick.useOutsideClick(
     ~refs=ArrayOfRef([ref]),
     ~isActive=isAppearancePopupOpen,

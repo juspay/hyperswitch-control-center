@@ -26,16 +26,16 @@ let make = (
   ~removeValidationCheck=?,
 ) => {
   let (localStrValue, setLocalStrValue) = React.useState(() => input.value)
-  let inputRef = React.useRef(Js.Nullable.null)
+  let inputRef = React.useRef(Nullable.null)
   React.useEffect2(() => {
     switch widthMatchwithPlaceholderLength {
     | Some(length) =>
-      switch inputRef.current->Js.Nullable.toOption {
+      switch inputRef.current->Nullable.toOption {
       | Some(elem) =>
         let size =
           elem
           ->Webapi.Dom.Element.getAttribute("placeholder")
-          ->Option.mapOr(length, str => Js.Math.max_int(length, str->String.length))
+          ->Option.mapOr(length, str => Math.Int.max(length, str->String.length))
           ->Int.toString
 
         elem->Webapi.Dom.Element.setAttribute("size", size)

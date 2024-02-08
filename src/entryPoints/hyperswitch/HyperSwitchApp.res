@@ -75,14 +75,14 @@ let make = () => {
   let fetchInitialEnums = async () => {
     try {
       let response = await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray)
-      let responseValueDict = response->Js.Nullable.toOption->Option.getOr(Dict.make())
+      let responseValueDict = response->Nullable.toOption->Option.getOr(Dict.make())
       let pageStateToSet = responseValueDict->QuickStartUtils.getCurrentStep
       setQuickStartPageState(_ => pageStateToSet->QuickStartUtils.enumToVarinatMapper)
       responseValueDict
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Js.Exn.raiseError(err)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
       }
     }
   }
@@ -97,9 +97,9 @@ let make = () => {
         permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
       setuserPermissionJson(._ => permissionJson)
     } catch {
-    | Js.Exn.Error(e) => {
-        let err = Js.Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Js.Exn.raiseError(err)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        Exn.raiseError(err)
       }
     }
   }
@@ -160,7 +160,7 @@ let make = () => {
   }
 
   let determineQuickStartPageState = () => {
-    isProdIntentCompleted &&
+    isProdIntentCompleted->Option.getOr(false) &&
     enumDetails.integrationCompleted &&
     !(enumDetails.testPayment.payment_id->isEmptyString)
       ? RescriptReactRouter.replace("/home")
@@ -215,7 +215,7 @@ let make = () => {
                       | list{"fraud-risk-management", ...remainingPath} =>
                         <AccessControl
                           isEnabled={featureFlagDetails.frm}
-                          permission=userPermissionJson.merchantAccountRead>
+                          permission=userPermissionJson.merchantConnectorAccountRead>
                           <EntityScaffold
                             entityName="risk-management"
                             remainingPath
@@ -225,7 +225,7 @@ let make = () => {
                           />
                         </AccessControl>
                       | list{"connectors", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.merchantAccountRead>
+                        <AccessControl permission=userPermissionJson.merchantConnectorAccountRead>
                           <EntityScaffold
                             entityName="Connectors"
                             remainingPath
@@ -237,7 +237,7 @@ let make = () => {
                       | list{"payoutconnectors", ...remainingPath} =>
                         <AccessControl
                           isEnabled={featureFlagDetails.payOut}
-                          permission=userPermissionJson.merchantAccountRead>
+                          permission=userPermissionJson.merchantConnectorAccountRead>
                           <EntityScaffold
                             entityName="PayoutConnectors"
                             remainingPath
@@ -281,9 +281,7 @@ let make = () => {
                           />
                         </AccessControl>
                       | list{"customers", ...remainingPath} =>
-                        <AccessControl
-                          isEnabled=featureFlagDetails.customersModule
-                          permission=userPermissionJson.customerRead>
+                        <AccessControl permission=userPermissionJson.customerRead>
                           <EntityScaffold
                             entityName="Customers"
                             remainingPath
@@ -382,12 +380,7 @@ let make = () => {
                           permission=userPermissionJson.merchantAccountWrite>
                           <HSwitchSettings />
                         </AccessControl>
-                      | list{"account-settings", "profile"} =>
-                        <AccessControl
-                          isEnabled=featureFlagDetails.sampleData
-                          permission=userPermissionJson.merchantAccountWrite>
-                          <HSwitchProfileSettings />
-                        </AccessControl>
+                      | list{"account-settings", "profile"} => <HSwitchProfileSettings />
                       | list{"business-details"} =>
                         <AccessControl
                           isEnabled=featureFlagDetails.default

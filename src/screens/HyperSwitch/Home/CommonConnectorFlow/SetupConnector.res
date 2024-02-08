@@ -105,7 +105,7 @@ module ConfigureProcessor = {
       setInitialValues(_ => body)
       mixpanelEvent(~eventName=`quickstart_connector_configuration`, ())
       setConnectorConfigureState(_ => Setup_payment_methods)
-      Js.Nullable.null
+      Nullable.null
     }
 
     let validateMandatoryField = values => {
@@ -138,7 +138,7 @@ module ConfigureProcessor = {
 
     <Form initialValues onSubmit validate={validateMandatoryField}>
       <QuickStartUIUtils.BaseComponent
-        headerText={`Connect ${connectorName->LogicUtils.capitalizeString}`}
+        headerText={`Connect ${connectorName->ConnectorUtils.getDisplayNameForConnectors}`}
         customIcon={<GatewayIcon
           gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
         />}

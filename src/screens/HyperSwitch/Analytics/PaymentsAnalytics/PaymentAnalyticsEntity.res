@@ -54,7 +54,7 @@ let weeklyTableMetricsCols = [
 ]
 
 let percentFormat = value => {
-  `${value->Js.Float.toFixedWithPrecision(~digits=2)}%`
+  `${value->Float.toFixedWithPrecision(~digits=2)}%`
 }
 
 let getWeeklySR = dict => {
@@ -457,10 +457,7 @@ let getStatData = (
       value: singleStatData.payment_success_count->Int.toFloat,
       delta: {
         Js.Float.fromString(
-          Js.Float.toFixedWithPrecision(
-            singleStatData.payment_success_count->Int.toFloat,
-            ~digits=2,
-          ),
+          Float.toFixedWithPrecision(singleStatData.payment_success_count->Int.toFloat, ~digits=2),
         )
       },
       data: constructData("payment_success_count", timeSeriesData),
@@ -477,10 +474,7 @@ let getStatData = (
       value: singleStatData.payment_processed_amount /. 100.00,
       delta: {
         Js.Float.fromString(
-          Js.Float.toFixedWithPrecision(
-            singleStatData.payment_processed_amount /. 100.00,
-            ~digits=2,
-          ),
+          Float.toFixedWithPrecision(singleStatData.payment_processed_amount /. 100.00, ~digits=2),
         )
       },
       data: constructData("payment_processed_amount", timeSeriesData),
@@ -497,10 +491,7 @@ let getStatData = (
       value: singleStatData.payment_avg_ticket_size /. 100.00,
       delta: {
         Js.Float.fromString(
-          Js.Float.toFixedWithPrecision(
-            singleStatData.payment_avg_ticket_size /. 100.00,
-            ~digits=2,
-          ),
+          Float.toFixedWithPrecision(singleStatData.payment_avg_ticket_size /. 100.00, ~digits=2),
         )
       },
       data: constructData("payment_avg_ticket_size", timeSeriesData),
@@ -532,10 +523,7 @@ let getStatData = (
       value: singleStatData.retries_amount_processe /. 100.00,
       delta: {
         Js.Float.fromString(
-          Js.Float.toFixedWithPrecision(
-            singleStatData.retries_amount_processe /. 100.00,
-            ~digits=2,
-          ),
+          Float.toFixedWithPrecision(singleStatData.retries_amount_processe /. 100.00, ~digits=2),
         )
       },
       data: constructData("retries_amount_processe", timeSeriesData),

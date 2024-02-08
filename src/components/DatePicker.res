@@ -20,7 +20,7 @@ let make = (
   ~showSeconds=true,
   ~fullLength=?,
 ) => {
-  let dropdownRef = React.useRef(Js.Nullable.null)
+  let dropdownRef = React.useRef(Nullable.null)
   let (isExpanded, setIsExpanded) = React.useState(_ => false)
   let customTimezoneToISOString = TimeZoneHook.useCustomTimeZoneToIsoString()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
@@ -162,7 +162,7 @@ let make = (
     onChange: timeValEv => {
       let timeVal = timeValEv->Identity.formReactEventToString
       if selectedDate !== "" {
-        let todayDayJsObj = Js.Date.make()->Js.Date.toString->DayJs.getDayJsForString
+        let todayDayJsObj = Date.make()->Date.toString->DayJs.getDayJsForString
         let todayTime = todayDayJsObj.format(. "HH:mm:ss")
         let todayDate = todayDayJsObj.format(. "YYYY-MM-DD")
         let timeVal = if disableFutureDates && selectedDate == todayDate && timeVal > todayTime {

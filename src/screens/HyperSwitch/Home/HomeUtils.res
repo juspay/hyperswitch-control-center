@@ -2,19 +2,10 @@ open CardUtils
 open PageUtils
 open HSwitchUtils
 
-let headingStyle = `${getTextClass(~textVariant=H3, ~h3TextVariant=Leading_1, ())} `
-let paragraphTextVariant = `${getTextClass(
-    ~textVariant=P2,
-    ~paragraphTextVariant=Medium,
-    (),
-  )} text-grey-700 opacity-50`
-
-let subtextStyle = `${getTextClass(
-    ~textVariant=P1,
-    ~paragraphTextVariant=Regular,
-    (),
-  )} text-grey-700 opacity-50`
-let cardHeaderText = `${getTextClass(~textVariant=H3, ~h3TextVariant=Leading_2, ())} `
+let headingStyle = getTextClass((H3, Leading_1))
+let paragraphTextVariant = `${getTextClass((P2, Medium))} text-grey-700 opacity-50`
+let subtextStyle = `${getTextClass((P1, Regular))} text-grey-700 opacity-50`
+let cardHeaderText = getTextClass((H3, Leading_2))
 let hoverStyle = "cursor-pointer group-hover:shadow hover:shadow-homePageBoxShadow group"
 let boxCssHover = (~ishoverStyleRequired, ()) =>
   `flex flex-col  bg-white border rounded-md pt-10 pl-10 gap-2 h-12.5-rem ${ishoverStyleRequired
@@ -30,6 +21,7 @@ type resourcesTypes = {
   subText: string,
   redirectLink: string,
   id: string,
+  access: AuthTypes.authorization,
 }
 
 let countries: array<ReactHyperJs.country> = [

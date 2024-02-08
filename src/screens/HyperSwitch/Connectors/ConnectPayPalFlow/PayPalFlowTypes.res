@@ -1,6 +1,7 @@
 type configurationTypes = Manual | Automatic | NotSelected
 
 type setupAccountStatus =
+  | Connect_paypal_landing
   | Redirecting_to_paypal
   | Manual_setup_flow
   | Account_not_found
@@ -19,5 +20,4 @@ type errorPageInfoType = {
   headerText: string,
   subText: string,
   buttonText?: string,
-  refreshStatusText?: string,
 }
