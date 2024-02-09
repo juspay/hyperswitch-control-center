@@ -51,6 +51,7 @@ let make = () => {
       LocalStorage.setItem("login", token)
       LocalStorage.removeItem("accept_invite_data")
       setUserDetails("flow_type", "dashboard_entry"->JSON.Encode.string)
+      setDashboardPageState(_ => #HOME)
     } catch {
     | _ => ()
     }
