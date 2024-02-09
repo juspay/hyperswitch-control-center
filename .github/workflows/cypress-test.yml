@@ -35,7 +35,6 @@ jobs:
           echo "$response"
 
       - name: Cypress run
-        env:
         uses: cypress-io/github-action@v6
         with:
           install: false
