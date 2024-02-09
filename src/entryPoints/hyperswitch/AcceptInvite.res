@@ -42,9 +42,7 @@ let make = () => {
         [
           ("merchant_ids", acceptedMerchantIds->JSON.Encode.array),
           ("need_dashboard_entry_response", true->JSON.Encode.bool),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
+        ]->getJsonFromArrayOfJson
       let res = await updateDetails(url, body, Post, ())
       let email = HSLocalStorage.getFromMerchantDetails("email")
       let token = HyperSwitchAuthUtils.parseResponseJson(~json=res, ~email)
@@ -66,8 +64,7 @@ let make = () => {
       ->Option.getOr([])
 
     merchantDataUpdated
-    ->Array.get(index)
-    ->Option.getOr(JSON.Encode.null)
+    ->getValueFromArray(index, JSON.Encode.null)
     ->getDictFromJsonObject
     ->Dict.set("is_active", true->JSON.Encode.bool)
 
@@ -84,7 +81,7 @@ let make = () => {
           <p className={`${textHeadingClass} text-grey-900`}>
             {"Hey there, welcome to Hyperswitch!"->React.string}
           </p>
-          <p className={`${textSubHeadingClass}`}>
+          <p className=textSubHeadingClass>
             {"Please accept the your pending invitations"->React.string}
           </p>
         </div>
