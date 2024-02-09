@@ -163,7 +163,7 @@ let getDefaultSelection: Dict.t<
   let surchargeDetailsOptionalValue = defaultSelection->Dict.get("surcharge_details")
   let surchargeDetailsValue = defaultSelection->getDictfromDict("surcharge_details")
 
-  if override3dsValue->String.length > 0 {
+  if override3dsValue->isNonEmptyString {
     {
       override_3ds: override3dsValue,
     }
@@ -271,11 +271,13 @@ let getOperatorFromComparisonType = (comparison, variantType) => {
 let isStatementMandatoryFieldsPresent = (statement: AdvancedRoutingTypes.statement) => {
   let statementValue = switch statement.value.value->JSON.Classify.classify {
   | Array(ele) => ele->Array.length > 0
-  | String(str) => str->String.length > 0
+  | String(str) => str->LogicUtils.isNonEmptyString
   | _ => false
   }
 
-  statement.lhs->String.length > 0 && (statement.value.\"type"->String.length > 0 && statementValue)
+  statement.lhs->LogicUtils.isNonEmptyString &&
+    (statement.value.\"type"->LogicUtils.isNonEmptyString &&
+    statementValue)
 }
 
 let algorithmTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.algorithm = values => {

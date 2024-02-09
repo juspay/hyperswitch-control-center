@@ -708,11 +708,11 @@ module TableCell = {
       <MoneyCell amount currency ?textAlign fontBold customMoneyStyle />
 
     | Date(timestamp) =>
-      timestamp->String.length > 0
+      timestamp->LogicUtils.isNonEmptyString
         ? <DateCell timestamp textAlign=Left customDateStyle />
         : <div> {React.string("-")} </div>
     | DateWithoutTime(timestamp) =>
-      timestamp->String.length > 0
+      timestamp->LogicUtils.isNonEmptyString
         ? <DateCell timestamp textAlign=Left customDateStyle hideTime=true />
         : <div> {React.string("-")} </div>
     | StartEndDate(startDate, endDate) => <StartEndDateCell startDate endDate />
@@ -757,11 +757,11 @@ module NewTableCell = {
       <MoneyCell amount currency ?textAlign fontBold customMoneyStyle />
 
     | Date(timestamp) =>
-      timestamp->String.length > 0
+      timestamp->LogicUtils.isNonEmptyString
         ? <DateCell timestamp textAlign=Left customDateStyle />
         : <div> {React.string("-")} </div>
     | DateWithoutTime(timestamp) =>
-      timestamp->String.length > 0
+      timestamp->LogicUtils.isNonEmptyString
         ? <DateCell timestamp textAlign=Left customDateStyle hideTime=true />
         : <div> {React.string("-")} </div>
     | StartEndDate(startDate, endDate) => <StartEndDateCell startDate endDate />

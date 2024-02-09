@@ -94,7 +94,7 @@ module ListItem = {
     }
     let backgroundClass = if showToggle {
       ""
-    } else if isSelected && customStyle->String.length > 0 {
+    } else if isSelected && customStyle->LogicUtils.isNonEmptyString {
       customSelectStyle
     } else if isDropDown && isSelected && !isDisabled {
       `${bgClass} transition ease-[cubic-bezier(0.33, 1, 0.68, 1)]`
@@ -148,7 +148,7 @@ module ListItem = {
 
     let textColor = "text-jp-gray-900 dark:text-jp-gray-text_darktheme"
 
-    let textColor = if textColorClass->String.length > 0 {
+    let textColor = if textColorClass->LogicUtils.isNonEmptyString {
       textColorClass
     } else {
       textColor

@@ -37,7 +37,7 @@ module AdvanceSearch = {
         ->Array.joinWith("&")
       | _ => ""
       }
-      let finalUrl = otherQueries->String.length > 0 ? `${url}?${otherQueries}` : url
+      let finalUrl = otherQueries->LogicUtils.isNonEmptyString ? `${url}?${otherQueries}` : url
 
       open Promise
       open LogicUtils

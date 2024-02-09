@@ -209,7 +209,7 @@ module FieldWrapper = {
     let labelPadding = labelPadding === "" ? "pt-2 pb-2" : labelPadding
 
     let labelTextClass =
-      labelTextStyleClass->String.length > 0
+      labelTextStyleClass->LogicUtils.isNonEmptyString
         ? labelTextStyleClass
         : "text-fs-13 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1"
 

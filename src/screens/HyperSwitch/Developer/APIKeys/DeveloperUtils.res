@@ -31,7 +31,7 @@ let validateAPIKeyForm = (
     } else if key == "expiration" && value->String.toLowerCase == "never" {
       setShowCustomDate(false)
     } else if (
-      value->String.length > 0 &&
+      value->LogicUtils.isNonEmptyString &&
       (key === "webhook_url" || key === "return_url") &&
       !(value->String.includes("localhost")) &&
       !Js.Re.test_(

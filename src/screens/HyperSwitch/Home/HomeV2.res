@@ -8,7 +8,7 @@ module HomePageHorizontalStepper = {
     let typedValueOfEnum = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
 
     // TODO : To be used when Test Payment flow if is integrated
-    let step = if !(typedValueOfEnum.testPayment.payment_id->String.length > 0) {
+    let step = if !(typedValueOfEnum.testPayment.payment_id->LogicUtils.isNonEmptyString) {
       0
     } else if !typedValueOfEnum.integrationCompleted {
       1
@@ -157,7 +157,7 @@ module QuickStart = {
       }
     }
 
-    let buttonText = if !(typedValueOfEnum.testPayment.payment_id->String.length > 0) {
+    let buttonText = if !(typedValueOfEnum.testPayment.payment_id->LogicUtils.isNonEmptyString) {
       "Configure (Test mode)"
     } else if !typedValueOfEnum.integrationCompleted {
       "Start Integration on app"
@@ -166,7 +166,7 @@ module QuickStart = {
     }
 
     let mixpanelEventForQuickStart = () =>
-      if !(typedValueOfEnum.testPayment.payment_id->String.length > 0) {
+      if !(typedValueOfEnum.testPayment.payment_id->LogicUtils.isNonEmptyString) {
         mixpanelEvent(~eventName=`quickstart_configure_test_mode`, ())
       } else if !typedValueOfEnum.integrationCompleted {
         mixpanelEvent(~eventName=`quickstart_start_integration_on_app`, ())
@@ -384,7 +384,7 @@ module QuickStartModule = {
       | Some(prodIntent) =>
         if (
           [
-            typedEnumValue.testPayment.payment_id->String.length > 0,
+            typedEnumValue.testPayment.payment_id->LogicUtils.isNonEmptyString,
             typedEnumValue.integrationCompleted,
             prodIntent,
           ]->Array.includes(false)

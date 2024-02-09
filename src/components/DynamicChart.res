@@ -651,7 +651,7 @@ let make = (
             | Some(startValue) => {
                 let sTime = startValue->JSON.Decode.string->Option.getOr("")
 
-                if sTime->String.length > 0 {
+                if sTime->LogicUtils.isNonEmptyString {
                   let {date, hour, minute, month, second, year} =
                     sTime->Date.fromString->Date.toISOString->isoStringToCustomTimeZone
 

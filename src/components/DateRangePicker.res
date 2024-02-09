@@ -517,7 +517,7 @@ module Base = {
     }
 
     let buttonText = {
-      startDateVal->String.length === 0 && endDateVal->String.length === 0
+      startDateVal->LogicUtils.isEmptyString && endDateVal->LogicUtils.isEmptyString
         ? `Select Date ${showTime ? "and Time" : ""}`
         : showTime
         ? `${startDateStr} ${startTimeStr} - ${endDateStr} ${endTimeStr}`
@@ -613,7 +613,7 @@ module Base = {
 
     let btnStyle = customButtonStyle->Option.getOr("")
 
-    let customStyleForBtn = btnStyle->String.length > 0 ? btnStyle : ""
+    let customStyleForBtn = btnStyle->LogicUtils.isNonEmptyString ? btnStyle : ""
 
     let timeVisibilityClass = showTime ? "block" : "hidden"
 

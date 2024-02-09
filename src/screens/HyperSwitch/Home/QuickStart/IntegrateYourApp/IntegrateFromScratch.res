@@ -101,7 +101,7 @@ let make = (
             <UIUtils.RenderIf
               condition={backEndLang
               ->UserOnboardingUtils.getInstallDependencies
-              ->String.length > 0}>
+              ->LogicUtils.isNonEmptyString}>
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getMigrateFromStripeDX(backEndLang)}
                 theme
@@ -141,7 +141,9 @@ let make = (
             setPlatform
           />
           <UIUtils.RenderIf
-            condition={frontEndLang->UserOnboardingUtils.getInstallDependencies->String.length > 0}>
+            condition={frontEndLang
+            ->UserOnboardingUtils.getInstallDependencies
+            ->LogicUtils.isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getInstallDependencies}
@@ -152,7 +154,9 @@ let make = (
             </div>
           </UIUtils.RenderIf>
           <UIUtils.RenderIf
-            condition={frontEndLang->UserOnboardingUtils.getInstallDependencies->String.length > 0}>
+            condition={frontEndLang
+            ->UserOnboardingUtils.getInstallDependencies
+            ->LogicUtils.isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getImports}
@@ -163,7 +167,7 @@ let make = (
             </div>
           </UIUtils.RenderIf>
           <UIUtils.RenderIf
-            condition={frontEndLang->UserOnboardingUtils.getLoad->String.length > 0}>
+            condition={frontEndLang->UserOnboardingUtils.getLoad->LogicUtils.isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getLoad}
@@ -174,7 +178,9 @@ let make = (
             </div>
           </UIUtils.RenderIf>
           <UIUtils.RenderIf
-            condition={frontEndLang->UserOnboardingUtils.getInitialize->String.length > 0}>
+            condition={frontEndLang
+            ->UserOnboardingUtils.getInitialize
+            ->LogicUtils.isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getInitialize}
@@ -187,7 +193,7 @@ let make = (
           <UIUtils.RenderIf
             condition={frontEndLang
             ->UserOnboardingUtils.getCheckoutFormForDisplayCheckoutPage
-            ->String.length > 0}>
+            ->LogicUtils.isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getCheckoutFormForDisplayCheckoutPage}
@@ -219,7 +225,9 @@ let make = (
             setPlatform
           />
           <UIUtils.RenderIf
-            condition={frontEndLang->UserOnboardingUtils.getHandleEvents->String.length > 0}>
+            condition={frontEndLang
+            ->UserOnboardingUtils.getHandleEvents
+            ->LogicUtils.isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getHandleEvents}
@@ -231,7 +239,9 @@ let make = (
             </div>
           </UIUtils.RenderIf>
           <UIUtils.RenderIf
-            condition={frontEndLang->UserOnboardingUtils.getDisplayConformation->String.length > 0}>
+            condition={frontEndLang
+            ->UserOnboardingUtils.getDisplayConformation
+            ->LogicUtils.isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getDisplayConformation}

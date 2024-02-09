@@ -373,7 +373,7 @@ let applyFilters = (
   }
 
   let (localSearchUrl, localSearchDict) = if (
-    existingFilterUrl->String.length > 0 && currentFilterUrl->String.length > 0
+    existingFilterUrl->LogicUtils.isNonEmptyString && currentFilterUrl->LogicUtils.isNonEmptyString
   ) {
     (
       `${existingFilterUrl}&${currentFilterUrl}`,
@@ -381,9 +381,9 @@ let applyFilters = (
         Array.concat(existingFilterDict->Dict.toArray, currentFilterDict->Dict.toArray),
       ),
     )
-  } else if existingFilterUrl->String.length > 0 {
+  } else if existingFilterUrl->LogicUtils.isNonEmptyString {
     (existingFilterUrl, existingFilterDict)
-  } else if currentFilterUrl->String.length > 0 {
+  } else if currentFilterUrl->LogicUtils.isNonEmptyString {
     (currentFilterUrl, currentFilterDict)
   } else {
     ("", Dict.make())
@@ -395,7 +395,8 @@ let applyFilters = (
     | _ => ()
     }
   } else {
-    let finalCompleteUrl = localSearchUrl->String.length > 0 ? `${path}?${localSearchUrl}` : path
+    let finalCompleteUrl =
+      localSearchUrl->LogicUtils.isNonEmptyString ? `${path}?${localSearchUrl}` : path
     switch updateUrlWith {
     | Some(fn) =>
       fn(

@@ -239,7 +239,8 @@ let make = () => {
 
   let handleNavigation = async (~forward: bool) => {
     let enums = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
-    let isAnyConnectorConfigured = enums.firstProcessorConnected.processorID->String.length > 0
+    let isAnyConnectorConfigured =
+      enums.firstProcessorConnected.processorID->LogicUtils.isNonEmptyString
 
     try {
       if forward && !(stepInView->enumToValueMapper(enums)) {

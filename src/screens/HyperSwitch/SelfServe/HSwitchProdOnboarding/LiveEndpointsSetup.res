@@ -33,7 +33,7 @@ module ReplaceAPIKey = {
       />
       <div className={`${dividerColor} px-2`} />
       <UIUtils.RenderIf
-        condition={previewVariant->Option.isSome && webhookEndpoint->String.length > 0}>
+        condition={previewVariant->Option.isSome && webhookEndpoint->LogicUtils.isNonEmptyString}>
         <ProdOnboardingUIUtils.SetupWebhookProcessor
           headerSectionText="Merchant Webhook Endpoint"
           subtextSectionText="Provide the endpoint where you would want us to send live payment events"
@@ -42,7 +42,7 @@ module ReplaceAPIKey = {
           />}
         />
         <div className={`${dividerColor} px-2`} />
-        <UIUtils.RenderIf condition={paymentResponseHashKey->String.length > 0}>
+        <UIUtils.RenderIf condition={paymentResponseHashKey->LogicUtils.isNonEmptyString}>
           <ProdOnboardingUIUtils.SetupWebhookProcessor
             headerSectionText="Payment Response Hash Key"
             subtextSectionText="Download the provided key to authenticate and verify live events sent by Hyperswitch. Learn more"
@@ -98,7 +98,7 @@ module SetupWebhookUser = {
           <TextInput input=webhookEndpoint placeholder="Enter your webhook endpoint here " />
         </FormRenderer.FieldWrapper>}
       />
-      <UIUtils.RenderIf condition={paymentResponseHashKey->String.length > 0}>
+      <UIUtils.RenderIf condition={paymentResponseHashKey->LogicUtils.isNonEmptyString}>
         <ProdOnboardingUIUtils.SetupWebhookProcessor
           headerSectionText="Payment Response Hash Key"
           subtextSectionText="Download the provided key to authenticate and verify live events sent by Hyperswitch. Learn more"

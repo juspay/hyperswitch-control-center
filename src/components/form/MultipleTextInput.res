@@ -66,7 +66,7 @@ let make = (
   })
   let handleKeyDown = e => {
     open ReactEvent.Keyboard
-    let isEmpty = text->String.length === 0
+    let isEmpty = text->LogicUtils.isEmptyString
 
     if isEmpty && (e->key === "Backspace" || e->keyCode === 8) && currentTags->Array.length > 0 {
       setText(_ => currentTags[currentTags->Array.length - 1]->Option.getOr(""))

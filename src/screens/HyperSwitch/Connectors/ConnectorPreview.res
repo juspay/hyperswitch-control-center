@@ -3,7 +3,7 @@ module InfoField = {
   let make = (~render, ~label) => {
     let str = render->Option.getOr("")
 
-    <UIUtils.RenderIf condition={str->String.length > 0}>
+    <UIUtils.RenderIf condition={str->LogicUtils.isNonEmptyString}>
       <div>
         <h2 className="text-lg font-semibold"> {label->React.string} </h2>
         <h3 className=" break-words"> {str->React.string} </h3>
@@ -29,42 +29,6 @@ module KeyAndCopyArea = {
         <img src={`/assets/CopyToClipboard.svg`} />
       </div>
     </div>
-  }
-}
-
-module DeleteConnectorMenu = {
-  @react.component
-  let make = (~pageName="connector", ~connectorInfo: ConnectorTypes.connectorPayload) => {
-    open APIUtils
-    let updateDetails = useUpdateMethod()
-    let deleteConnector = async () => {
-      try {
-        let connectorID = connectorInfo.merchant_connector_id
-        let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
-        let _ = await updateDetails(url, Js.Dict.empty()->Js.Json.object_, Delete, ())
-        RescriptReactRouter.push("/connectors")
-      } catch {
-      | _ => ()
-      }
-    }
-    let showPopUp = PopUpState.useShowPopUp()
-    let openConfirmationPopUp = _ => {
-      showPopUp({
-        popUpType: (Warning, WithIcon),
-        heading: "Confirm Action ? ",
-        description: `You are about to Delete this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
-        handleConfirm: {
-          text: "Confirm",
-          onClick: _ => deleteConnector()->ignore,
-        },
-        handleCancel: {text: "Cancel"},
-      })
-    }
-    <AddDataAttributes attributes=[("data-testid", "delete-button"->String.toLowerCase)]>
-      <div>
-        <Button text="Delete" onClick={_e => openConfirmationPopUp()} />
-      </div>
-    </AddDataAttributes>
   }
 }
 
@@ -153,7 +117,7 @@ module ConnectorSummaryGrid = {
     )
     let connectorDetails = React.useMemo1(() => {
       try {
-        if connector->String.length > 0 {
+        if connector->LogicUtils.isNonEmptyString {
           let dict = isPayoutFlow
             ? Window.getPayoutConnectorConfig(connector)
             : Window.getConnectorConfig(connector)

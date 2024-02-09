@@ -671,7 +671,7 @@ let make = (
         switch getShowLink {
         | Some(fn) => {
             let link = fn(value)
-            let finalUrl = url.search->String.length > 0 ? `${link}?${url.search}` : link
+            let finalUrl = url.search->LogicUtils.isNonEmptyString ? `${link}?${url.search}` : link
             RescriptReactRouter.push(finalUrl)
           }
 
@@ -695,7 +695,7 @@ let make = (
         switch getShowLink {
         | Some(fn) => {
             let link = fn(value)
-            let finalUrl = url.search->String.length > 0 ? `${link}?${url.search}` : link
+            let finalUrl = url.search->LogicUtils.isNonEmptyString ? `${link}?${url.search}` : link
             RescriptReactRouter.push(finalUrl)
           }
 

@@ -122,7 +122,7 @@ let make = () => {
             : acc
         })
       setCurrentSelectedUser(_ => localCurrentSelectedUser)
-      if localCurrentSelectedUser.role_id->String.length > 0 {
+      if localCurrentSelectedUser.role_id->LogicUtils.isNonEmptyString {
         getRoleForUser(~role_id=localCurrentSelectedUser.role_id)->ignore
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)

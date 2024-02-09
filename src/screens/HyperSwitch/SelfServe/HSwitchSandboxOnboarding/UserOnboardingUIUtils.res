@@ -359,7 +359,9 @@ module BackendFrontendPlatformLangDropDown = {
 module LanguageTag = {
   @react.component
   let make = (~frontendLang="", ~backendLang="") => {
-    <UIUtils.RenderIf condition={frontendLang->String.length > 0 && backendLang->String.length > 0}>
+    <UIUtils.RenderIf
+      condition={frontendLang->LogicUtils.isNonEmptyString &&
+        backendLang->LogicUtils.isNonEmptyString}>
       <div className="flex gap-2 items-center">
         <Icon name={`${frontendLang}`} size=25 />
         <Icon name={`${backendLang}`} size=25 />
@@ -649,7 +651,8 @@ let getTabsForIntegration = (
               </p>
             </p>}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf condition={backEndLang->getInstallDependencies->String.length > 0}>
+              <UIUtils.RenderIf
+                condition={backEndLang->getInstallDependencies->LogicUtils.isNonEmptyString}>
                 <ShowCodeEditor
                   value={backEndLang->getInstallDependencies}
                   theme
@@ -673,7 +676,8 @@ let getTabsForIntegration = (
         renderContent: () =>
           <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea />}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf condition={frontEndLang->getInstallDependencies->String.length > 0}>
+              <UIUtils.RenderIf
+                condition={frontEndLang->getInstallDependencies->LogicUtils.isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getInstallDependencies}
                   theme
@@ -682,19 +686,21 @@ let getTabsForIntegration = (
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getInstallDependencies->String.length > 0}>
+              <UIUtils.RenderIf
+                condition={frontEndLang->getInstallDependencies->LogicUtils.isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getImports} theme headerText="Imports" langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getLoad->String.length > 0}>
+              <UIUtils.RenderIf condition={frontEndLang->getLoad->LogicUtils.isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getLoad} theme headerText="Load" langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getInitialize->String.length > 0}>
+              <UIUtils.RenderIf
+                condition={frontEndLang->getInitialize->LogicUtils.isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getInitialize}
                   theme
@@ -704,7 +710,9 @@ let getTabsForIntegration = (
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
               <UIUtils.RenderIf
-                condition={frontEndLang->getCheckoutFormForDisplayCheckoutPage->String.length > 0}>
+                condition={frontEndLang
+                ->getCheckoutFormForDisplayCheckoutPage
+                ->LogicUtils.isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getCheckoutFormForDisplayCheckoutPage}
                   theme
@@ -720,7 +728,8 @@ let getTabsForIntegration = (
         renderContent: () =>
           <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea />}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf condition={frontEndLang->getHandleEvents->String.length > 0}>
+              <UIUtils.RenderIf
+                condition={frontEndLang->getHandleEvents->LogicUtils.isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getHandleEvents}
                   theme
@@ -730,7 +739,8 @@ let getTabsForIntegration = (
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getDisplayConformation->String.length > 0}>
+              <UIUtils.RenderIf
+                condition={frontEndLang->getDisplayConformation->LogicUtils.isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getDisplayConformation}
                   theme
