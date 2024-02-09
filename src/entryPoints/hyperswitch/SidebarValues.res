@@ -144,6 +144,13 @@ let paymentAnalytcis = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
+let demoCharts = SubLevelLink({
+  name: "Charts Demo",
+  link: `/analytics-demo`,
+  access: Access,
+  searchOptions: [("View analytics", "")],
+})
+
 let refundAnalytics = SubLevelLink({
   name: "Refunds",
   link: `/analytics-refunds`,
@@ -167,7 +174,7 @@ let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag, ~permissionJson) 
         showSection: permissionJson.analytics === Access,
         links: userJourneyAnalyticsFlag
           ? [paymentAnalytcis, refundAnalytics, userJourneyAnalytics]
-          : [paymentAnalytcis, refundAnalytics],
+          : [demoCharts, paymentAnalytcis, refundAnalytics],
       })
     : emptyComponent
 }

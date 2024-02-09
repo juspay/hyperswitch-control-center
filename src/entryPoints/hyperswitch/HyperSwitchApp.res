@@ -313,6 +313,7 @@ let make = () => {
                             renderShow={_ => <UserRoleShowData />}
                           />
                         </AccessControl>
+                      | list{"analytics-demo"} =><DemoCharts />
                       | list{"analytics-payments"} =>
                         <AccessControl permission=userPermissionJson.analytics>
                           <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
