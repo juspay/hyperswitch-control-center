@@ -12,8 +12,7 @@ let make = () => {
     ->Nullable.toOption
     ->Option.getOr("")
     ->safeParse
-    ->JSON.Decode.array
-    ->Option.getOr([])
+    ->getArrayFromJson([])
 
   let (merchantData, setMerchantData) = React.useState(_ => merchantDataFromLocalStorage)
   let isAtleastOneAccept = React.useMemo1(() => {
