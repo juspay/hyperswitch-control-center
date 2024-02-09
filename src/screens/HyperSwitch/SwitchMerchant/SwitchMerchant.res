@@ -114,24 +114,34 @@ module AddNewMerchantButton = {
   @react.component
   let make = (~setShowModal) => {
     open HeadlessUI
-    <div className="px-1 py-1 ">
-      <Menu.Item>
-        {props =>
-          <button
-            onClick={_ => setShowModal(_ => true)}
-            className={
-              let activeClasses = if props["active"] {
-                "group flex rounded-md items-center px-2 py-2 text-sm bg-gray-100 dark:bg-black"
-              } else {
-                "group flex rounded-md items-center px-2 py-2 text-sm"
-              }
-              `${activeClasses} text-blue-900 flex gap-2 font-medium w-56`
-            }>
-            <Icon name="plus-circle" size=15 />
-            {"Add a new merchant"->React.string}
-          </button>}
-      </Menu.Item>
-    </div>
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantAccountWrite)
+    <ACLDiv
+      permission={userPermissionJson.merchantAccountWrite}
+      onClick={_ => setShowModal(_ => true)}
+      isRelative=false
+      contentAlign=Default
+      tooltipForWidthClass="!h-full"
+      className={`!h-full group bg-white border rounded-md flex flex-col gap-4 group-hover:shadow hover:shadow-homePageBoxShadow ${cursorStyles}`}>
+      <div className="px-1 py-1 ">
+        <Menu.Item>
+          {props =>
+            <button
+              onClick={_ => setShowModal(_ => true)}
+              className={
+                let activeClasses = if props["active"] {
+                  "group flex rounded-md items-center px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+                } else {
+                  "group flex rounded-md items-center px-2 py-2 text-sm"
+                }
+                `${activeClasses} text-blue-900 flex gap-2 font-medium w-56 ${cursorStyles}`
+              }>
+              <Icon name="plus-circle" size=15 />
+              {"Add a new merchant"->React.string}
+            </button>}
+        </Menu.Item>
+      </div>
+    </ACLDiv>
   }
 }
 
