@@ -224,7 +224,7 @@ module ConfigureRuleButton = {
 
 let validateNameAndDescription = (~dict, ~errors) => {
   ["name", "description"]->Array.forEach(field => {
-    if dict->getString(field, "")->String.trim === "" {
+    if dict->getString(field, "")->isEmptyString {
       errors->Dict.set(field, `Please provide ${field} field`->JSON.Encode.string)
     }
   })
