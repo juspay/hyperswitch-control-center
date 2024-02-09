@@ -34,10 +34,13 @@ jobs:
           echo "Response:"
           echo "$response"
 
-      - name: Cypress run
+      - name: Build dashboard
         run: |
           npm run build:prod
           npm run serve
+
+      - name: Run cypress
+        run: |
           npm run cy:run
         env:
           CYPRESS_DEBUG: true
