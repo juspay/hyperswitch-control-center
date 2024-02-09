@@ -39,6 +39,9 @@ jobs:
           npm run build:prod
           npm run serve
 
+      - name: Wait for Server to Start (if needed)
+        run: sleep 10
+        
       - name: Run cypress
         run: |
           npm run cy:run
