@@ -1,18 +1,5 @@
 @module("js-sha256") external sha256: string => string = "sha256"
 
-let getLogType = dict => {
-  open LogTypes
-  if dict->Dict.get("connector_name")->Option.isSome {
-    CONNECTOR
-  } else if dict->Dict.get("request_id")->Option.isSome {
-    API_EVENTS
-  } else if dict->Dict.get("component")->Option.isSome {
-    SDK
-  } else {
-    WEBHOOKS
-  }
-}
-
 @react.component
 let make = (~refundId) => {
   open APIUtils
