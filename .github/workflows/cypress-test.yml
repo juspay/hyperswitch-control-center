@@ -1,7 +1,6 @@
 name: Cypress Tests
 
-on:
-  merge_group:
+on: [push]
 
 jobs:
   cypress-tests:
@@ -13,6 +12,12 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.AUTO_RELEASE_PAT }}
+
+      - name: Execute Shell Script
+        run: |
+          chmod +x start_hyperswit.sh
+          start_hyperswit.sh
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:

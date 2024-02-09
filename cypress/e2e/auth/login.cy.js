@@ -22,8 +22,8 @@ describe("Login Module", () => {
   });
 
   it("should successfully log in with valid credentials", () => {
-    const username = Cypress.env("CYPRESS_USERNAME");
-    const password = Cypress.env("CYPRESS_PASSWORD");
+    const username = "test@gmail.com";
+    const password = "test";
     cy.visit("http://localhost:9000/");
     cy.get("[data-testid=email]").type(username);
     cy.get("[data-testid=password]").type(password);
