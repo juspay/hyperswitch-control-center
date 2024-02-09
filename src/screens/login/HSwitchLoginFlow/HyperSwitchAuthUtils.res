@@ -26,7 +26,7 @@ let flowTypeStrToVariantMapper = val => {
   switch val {
   | "merchant_select" => MERCHANT_SELECT
   | "dashboard_entry" => DASHBOARD_ENTRY
-  | _ => MERCHANT_SELECT
+  | _ => DASHBOARD_ENTRY
   }
 }
 

@@ -3,7 +3,9 @@ let make = () => {
   open HSwitchUtils
   open APIUtils
   open LogicUtils
-
+  let flowType =
+    HSLocalStorage.getFromUserDetails("flow_type")->HyperSwitchAuthUtils.flowTypeStrToVariantMapper
+  let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
   let updateDetails = useUpdateMethod()
   let merchantDataFromLocalStorage =
     LocalStorage.getItem("accept_invite_data")
@@ -70,6 +72,16 @@ let make = () => {
 
     setMerchantData(_ => merchantDataUpdated)
   }
+
+  React.useEffect1(() => {
+    if flowType === MERCHANT_SELECT {
+      RescriptReactRouter.replace("/accept-invite")
+    } else {
+      setDashboardPageState(_ => #HOME)
+      RescriptReactRouter.replace("/home")
+    }
+    None
+  }, [flowType])
 
   <BackgroundImageWrapper>
     <div className="h-full w-full flex items-center justify-center">
