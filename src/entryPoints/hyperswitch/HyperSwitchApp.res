@@ -312,9 +312,8 @@ let make = () => {
                           <EntityScaffold
                             entityName="UserManagement"
                             remainingPath
-                            access=Access
-                            renderList={() => <UserRoleEntry />}
-                            renderShow={_ => <UserRoleShowData />}
+                            renderList={_ => <UserRoleEntry />}
+                            renderShow={_ => <ShowUserData />}
                           />
                         </AccessControl>
                       | list{"analytics-payments"} =>
