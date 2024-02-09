@@ -34,12 +34,10 @@ jobs:
           echo "Response:"
           echo "$response"
 
-      # - name: Cypress run
-      #   env:
-      #     CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
-      #     CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
-      #   uses: cypress-io/github-action@v6
-      #   with:
-      #     install: false
-      #     build: npm run build:prod
-      #     start: npm run serve
+      - name: Cypress run
+        env:
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          build: npm run build:prod
+          start: npm run serve
