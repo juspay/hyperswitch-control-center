@@ -146,17 +146,18 @@ let make = () => {
         ele->getDictFromJsonObject->getOptionString("error")->Option.isSome
       )
     ) {
-      ("Please try again. Something went wrong.", ToastState.ToastError)
+      (
+        "We've faced some problem while sending emails or creating users. Please check and try again.",
+        ToastState.ToastError,
+      )
     } else if (
       decodedResponse->Array.some(ele =>
         ele->getDictFromJsonObject->getOptionString("error")->Option.isSome
       )
     ) {
       (
-        magicLink
-          ? `Invite(s) sent successfully via Email. However, we encountered issues with some email addresses.`
-          : `The user accounts have been successfully created. The file with their credentials has been downloaded. However, we faced difficulties sending invitations to some email addresses.`,
-        ToastState.ToastSuccess,
+        "We faced difficulties sending some invitations. Please check and try again.",
+        ToastState.ToastWarning,
       )
     } else {
       (
