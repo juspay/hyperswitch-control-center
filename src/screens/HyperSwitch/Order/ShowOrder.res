@@ -52,7 +52,7 @@ module OrderInfo = {
               buttonType={Secondary}
               buttonState={!isNonRefundConnector &&
               (typedPaymentStatus === Succeeded || typedPaymentStatus === PartiallyCaptured) &&
-              !(paymentId->isTestPayment)
+              !(paymentId->isTestData)
                 ? Normal
                 : Disabled}
             />
@@ -660,7 +660,7 @@ let make = (~id) => {
   let showSyncButton = React.useCallback1(_ => {
     let status = orderData->getDictFromJsonObject->getString("status", "")->statusVariantMapper
 
-    !(id->isTestPayment) && status !== Succeeded && status !== Failed
+    !(id->isTestData) && status !== Succeeded && status !== Failed
   }, [orderData])
 
   let refreshStatus = async () => {

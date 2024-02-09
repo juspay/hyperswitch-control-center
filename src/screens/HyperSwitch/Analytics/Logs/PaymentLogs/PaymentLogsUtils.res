@@ -1,15 +1,54 @@
+type flowType =
+  | PaymentsCancel
+  | PaymentsCapture
+  | PaymentsConfirm
+  | PaymentsCreate
+  | PaymentsStart
+  | PaymentsUpdate
+  | RefundsCreate
+  | RefundsUpdate
+  | DisputesEvidenceSubmit
+  | AttachDisputeEvidence
+  | RetrieveDisputeEvidence
+  | IncomingWebhookReceive
+  | NotDefined
+
+let itemToObjMapper = flowString => {
+  switch flowString {
+  | "PaymentsCancel" => PaymentsCancel
+  | "PaymentsCapture" => PaymentsCapture
+  | "PaymentsConfirm" => PaymentsConfirm
+  | "PaymentsCreate" => PaymentsCreate
+  | "PaymentsStart" => PaymentsStart
+  | "PaymentsUpdate" => PaymentsUpdate
+  | "RefundsCreate" => RefundsCreate
+  | "RefundsUpdate" => RefundsUpdate
+  | "DisputesEvidenceSubmit" => DisputesEvidenceSubmit
+  | "AttachDisputeEvidence" => AttachDisputeEvidence
+  | "RetrieveDisputeEvidence" => RetrieveDisputeEvidence
+  | "IncomingWebhookReceive" => IncomingWebhookReceive
+  | _ => NotDefined
+  }
+}
+
 // will be removed once the backend does the URl mapping
 let nameToURLMapper = (~id) => {
   let merchant_id = HSLocalStorage.getFromMerchantDetails("merchant_id")
   urlName =>
-    switch urlName {
-    | "PaymentsCreate" => "/payments"
-    | "PaymentsStart" => `/payments/redirect/${id}/${merchant_id}`
-    | "PaymentsCancel" => `/payments/${id}/cancel`
-    | "PaymentsUpdate" => `/payments/${id}`
-    | "PaymentsConfirm" => `/payments/${id}/confirm`
-    | "PaymentsCapture" => `/payments/${id}/capture`
-    | _ => urlName
+    switch urlName->itemToObjMapper {
+    | PaymentsCancel => `/payments/${id}/cancel`
+    | PaymentsCapture => `/payments/${id}/capture`
+    | PaymentsConfirm => `/payments/${id}/confirm`
+    | PaymentsCreate => "/payments"
+    | PaymentsStart => `/payments/redirect/${id}/${merchant_id}`
+    | PaymentsUpdate => `/payments/${id}`
+    | RefundsCreate
+    | RefundsUpdate
+    | DisputesEvidenceSubmit
+    | AttachDisputeEvidence
+    | RetrieveDisputeEvidence
+    | IncomingWebhookReceive
+    | NotDefined => urlName
     }
 }
 
@@ -21,11 +60,3 @@ let filteredKeys = [
   "platform",
   "version",
 ]
-
-let sortByCreatedAt = (log1: JSON.t, log2: JSON.t) => {
-  open LogicUtils
-  let getKey = dict => dict->getDictFromJsonObject->getString("created_at", "")->Date.fromString
-  let keyA = log1->getKey
-  let keyB = log2->getKey
-  compareLogic(keyA, keyB)
-}

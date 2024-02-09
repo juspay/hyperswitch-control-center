@@ -77,7 +77,7 @@ let paymentAttemptStatusVariantMapper: string => paymentAttemptStatus = statusLa
   | _ => #NONE
   }
 
-let isTestPayment = id => id->String.includes("test_")
+let isTestData = id => id->String.includes("test_")
 
 let amountField = FormRenderer.makeFieldInfo(
   ~name="amount",
