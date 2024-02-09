@@ -16,7 +16,7 @@ jobs:
       - name: Execute Shell Script
         run: |
           chmod +x start_hyperswitch.sh
-          start_hyperswitch.sh
+          sh start_hyperswitch.sh
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
