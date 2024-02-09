@@ -39,6 +39,8 @@ jobs:
           npm run build:prod
           npm run serve
           npm run cy:run
+        env:
+          CYPRESS_DEBUG: true
 
         # uses: cypress-io/github-action@v6
         # with:
