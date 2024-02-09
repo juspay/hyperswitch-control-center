@@ -7,7 +7,7 @@ let validateConditionJson = json => {
       ele != ""->JSON.Encode.string
     })
     ->Array.length > 0 ||
-    dict->getString("value", "") !== "" ||
+    dict->getString("value", "")->LogicUtils.isNonEmptyString ||
     dict->getFloat("value", -1.0) !== -1.0 ||
     dict->getString("operator", "") == "IS NULL" ||
     dict->getString("operator", "") == "IS NOT NULL"

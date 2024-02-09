@@ -41,7 +41,7 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
 let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, errors) => {
   if (
     key === confirmKey &&
-    value !== "" &&
+    value->LogicUtils.isNonEmptyString &&
     !Js.Option.equal(
       (. a, b) => a == b,
       Dict.get(valuesDict, passwordKey),

@@ -206,7 +206,7 @@ module FieldWrapper = {
     }
     let subTextClass = `pt-2 pb-2 text-sm text-bold text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ${subTextClass}`
 
-    let labelPadding = labelPadding === "" ? "pt-2 pb-2" : labelPadding
+    let labelPadding = labelPadding->LogicUtils.isEmptyString ? "pt-2 pb-2" : labelPadding
 
     let labelTextClass =
       labelTextStyleClass->LogicUtils.isNonEmptyString
@@ -665,7 +665,11 @@ module SubmitButton = {
       />
 
     let buttonState: Button.buttonState =
-      loadingText !== "" && submitting ? Loading : !avoidDisable && disabled ? Disabled : Normal
+      loadingText->LogicUtils.isNonEmptyString && submitting
+        ? Loading
+        : !avoidDisable && disabled
+        ? Disabled
+        : Normal
 
     let submitBtn =
       <>

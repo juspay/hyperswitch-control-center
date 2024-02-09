@@ -145,7 +145,7 @@ let validateForm = (values: JSON.t, keys: array<string>) => {
     }
 
     // email check
-    if value !== "" && key === "email" && value->HSwitchUtils.isValidEmail {
+    if value->LogicUtils.isNonEmptyString && key === "email" && value->HSwitchUtils.isValidEmail {
       Dict.set(errors, key, "Please enter valid Email ID"->JSON.Encode.string)
     }
 

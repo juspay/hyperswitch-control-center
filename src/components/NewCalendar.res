@@ -87,7 +87,7 @@ module TableRow = {
 
               let isInLimit = switch dateRangeLimit {
               | Some(limit) =>
-                if startDate !== "" {
+                if startDate->LogicUtils.isNonEmptyString {
                   date->Date.getTime -. startDate->Date.fromString->Date.getTime <
                     ((limit->Js.Int.toFloat -. 1.) *. 24. *. 60. *. 60. -. 60.) *. 1000.
                 } else {
@@ -102,7 +102,7 @@ module TableRow = {
                 | _ => ()
                 }
                 let isClickDisabled =
-                  (endDate === "" && !isInLimit) ||
+                  (endDate->LogicUtils.isEmptyString && !isInLimit) ||
                   (isFutureDate ? disableFutureDates : disablePastDates) ||
                   (customDisabledFutureDays > 0.0 && isInCustomDisable)
                 switch !isClickDisabled {
@@ -124,7 +124,7 @@ module TableRow = {
                 (isFutureDate && disableFutureDates) ||
                 customDisabledFutureDays > 0.0 && isInCustomDisable ||
                 !isFutureDate && disablePastDates ||
-                (endDate === "" && !isInLimit)
+                (endDate->LogicUtils.isEmptyString && !isInLimit)
               ) {
                 "cursor-not-allowed"
               } else {
@@ -192,7 +192,7 @@ module TableRow = {
                       !(
                         (isFutureDate && disableFutureDates) ||
                         !isFutureDate && disablePastDates ||
-                        (endDate === "" && !isInLimit)
+                        (endDate->LogicUtils.isEmptyString && !isInLimit)
                       )
                     ) {
                       `${cellHoverHighlight} bg-jp-2-light-primary-100 dark:bg-jp-2-dark-primary-100 ${cellIndex == 0
@@ -222,7 +222,7 @@ module TableRow = {
                     !(
                       (isFutureDate && disableFutureDates) ||
                       !isFutureDate && disablePastDates ||
-                      (endDate === "" && !isInLimit)
+                      (endDate->LogicUtils.isEmptyString && !isInLimit)
                     )
                   ) {
                     `${cellHoverHighlight}
@@ -288,9 +288,12 @@ module TableRow = {
                 switch setShowMsg {
                 | Some(setMsg) =>
                   if (
-                    hoverdDate !== "" &&
-                      ((!isInLimit && endDate === "" && !isFutureDate && disableFutureDates) ||
-                        (!disableFutureDates && !isInLimit && endDate === ""))
+                    hoverdDate->LogicUtils.isNonEmptyString &&
+                      ((!isInLimit &&
+                      endDate->LogicUtils.isEmptyString &&
+                      !isFutureDate &&
+                      disableFutureDates) ||
+                        (!disableFutureDates && !isInLimit && endDate->LogicUtils.isEmptyString))
                   ) {
                     setMsg(_ => true)
                   } else {
@@ -317,7 +320,7 @@ module TableRow = {
                       (isFutureDate && disableFutureDates) ||
                       customDisabledFutureDays > 0.0 && isInCustomDisable ||
                       !isFutureDate && disablePastDates ||
-                      (endDate === "" && !isInLimit)
+                      (endDate->LogicUtils.isEmptyString && !isInLimit)
                         ? "disabled"
                         : "enabled",
                     ),

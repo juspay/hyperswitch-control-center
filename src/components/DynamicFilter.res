@@ -24,7 +24,7 @@ module CustomFilters = {
       setShowModal(_ => false)
     }
     let onChange = str => {
-      if str === "" {
+      if str->LogicUtils.isEmptyString {
         setPlaceHolder(_ => placeholderText)
       }
       setLocalData(_ => str)
@@ -103,7 +103,11 @@ module CustomFilters = {
       onClick={_ => {setPlaceHolder(_ => "")}}
       onKeyPress={_ => {setMouseEnter(_ => true)}}
       onMouseLeave={_ => {setMouseEnter(_ => false)}}>
-      {if placeholderTextSt !== "" && localData === "" && !mounseEnter {
+      {if (
+        placeholderTextSt->LogicUtils.isNonEmptyString &&
+        localData->LogicUtils.isEmptyString &&
+        !mounseEnter
+      ) {
         <div className="monaco-placeholder text-black opacity-50 ml-6 ">
           {placeholderTextSt->React.string}
         </div>
@@ -177,7 +181,7 @@ let make = (
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
   }
 
-  let customFilters = if customFilterKey !== "" {
+  let customFilters = if customFilterKey->LogicUtils.isNonEmptyString {
     <>
       <div className="mx-2">
         <Button
@@ -236,7 +240,7 @@ let make = (
       ?updateUrlWith
       clearFilters
       filterFieldsPortalName
-      initalCount={currentCustomFilterValue !== "" ? 1 : 0}
+      initalCount={currentCustomFilterValue->LogicUtils.isNonEmptyString ? 1 : 0}
       showFiltersBtn=filtersDisplayOption
       showSelectFiltersSearch
       tableName=moduleName

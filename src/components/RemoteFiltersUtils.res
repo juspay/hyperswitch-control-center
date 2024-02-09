@@ -87,7 +87,7 @@ let getFinalDict = (
           ->LogicUtils.toCamelCase
         let value =
           filterDict->LogicUtils.getString(dropdownSearchKeyValueNames[1]->Option.getOr(""), "")
-        if value !== "" {
+        if value->LogicUtils.isNonEmptyString {
           let isformat = searchkeysDict !== Dict.make()
           let value = if isformat {
             let intSearchKeys = searchkeysDict->LogicUtils.getArrayFromDict("intSearchKeys", [])
@@ -115,7 +115,7 @@ let getFinalDict = (
           ->String.split(", ")
         value->Array.forEachWithIndex((value, indx) => {
           let key = key->Array.length > indx ? key[indx]->Option.getOr("") : ""
-          if value !== "" && key != "" {
+          if value->LogicUtils.isNonEmptyString && key != "" {
             let isformat = searchkeysDict !== Dict.make()
             let value = if isformat {
               let intSearchKeys = searchkeysDict->LogicUtils.getArrayFromDict("intSearchKeys", [])
@@ -317,7 +317,7 @@ let generateUrlFromDict = (~dict, ~options: array<EntityType.optionType<'t>>, ta
     let (key, val) = entry
 
     let strValue = getStrFromJson(key, val)
-    if strValue !== "" {
+    if strValue->LogicUtils.isNonEmptyString {
       let requiredOption = options->Array.find(option => option.urlKey === key)
       switch requiredOption {
       | Some(option) => {

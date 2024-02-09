@@ -73,7 +73,7 @@ module TableRow = {
               | true =>
                 switch onDateClick {
                 | Some(fn) =>
-                  if obj !== "" {
+                  if obj->LogicUtils.isNonEmptyString {
                     fn((Date.toISOString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD"))
                   }
                 | None => ()

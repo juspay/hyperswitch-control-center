@@ -693,7 +693,7 @@ module TableCell = {
       </AddDataAttributes>
 
     | Text(x) | DropDown(x) => {
-        let x = x === "" ? "NA" : x
+        let x = x->LogicUtils.isEmptyString ? "NA" : x
         <AddDataAttributes attributes=[("data-desc", x), ("data-testid", x->String.toLowerCase)]>
           <div> {highlightedText(x, highlightText)} </div>
         </AddDataAttributes>
@@ -745,7 +745,7 @@ module NewTableCell = {
     | Label(x) =>
       <NewLabelCell labelColor=x.color text=x.title ?labelMargin highlightText fontStyle />
     | Text(x) | DropDown(x) => {
-        let x = x === "" ? "NA" : x
+        let x = x->LogicUtils.isEmptyString ? "NA" : x
         <AddDataAttributes attributes=[("data-desc", x)]>
           <div> {highlightedText(x, highlightText)} </div>
         </AddDataAttributes>

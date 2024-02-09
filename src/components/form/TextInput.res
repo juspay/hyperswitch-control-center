@@ -139,7 +139,7 @@ let make = (
     : "border-jp-gray-lightmode_steelgray focus:border-blue-800 dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:focus:border-blue-800 focus:shadow-text_input_shadow focus:shadow-blue-800"
 
   let dashboardClass = customDashboardClass->Option.getOr("h-10 text-sm font-semibold")
-  let rightPaddingClass = if description !== "" || isInValid {
+  let rightPaddingClass = if description->LogicUtils.isNonEmptyString || isInValid {
     "pr-10"
   } else {
     switch rightIcon {

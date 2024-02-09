@@ -141,7 +141,7 @@ let make = (
       let (key, value) = item
       let keyArr = key->String.split(".")
       let prefix = keyArr->Array.get(0)->Option.getOr("")
-      if prefix === moduleName && prefix !== "" {
+      if prefix === moduleName && prefix->LogicUtils.isNonEmptyString {
         None
       } else {
         Some((prefix, value))
@@ -257,7 +257,9 @@ let make = (
   }, (singleStatData, singleStatTimeData))
 
   React.useEffect5(() => {
-    if startTimeFromUrl !== "" && endTimeFromUrl !== "" {
+    if (
+      startTimeFromUrl->LogicUtils.isNonEmptyString && endTimeFromUrl->LogicUtils.isNonEmptyString
+    ) {
       open Promise
       setSingleStatLoading(_ => enableLoaders)
 
@@ -354,7 +356,9 @@ let make = (
   }, (endTimeFromUrl, startTimeFromUrl, filterValueFromUrl, customFilter, mode))
 
   React.useEffect5(() => {
-    if startTimeFromUrl !== "" && endTimeFromUrl !== "" {
+    if (
+      startTimeFromUrl->LogicUtils.isNonEmptyString && endTimeFromUrl->LogicUtils.isNonEmptyString
+    ) {
       setSingleStatLoadingTimeSeries(_ => enableLoaders)
 
       open Promise

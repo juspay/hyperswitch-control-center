@@ -40,7 +40,8 @@ module DisplayKeyValueParams = {
       ""
     }
 
-    let textColor = textColor === "" ? "text-jp-gray-900 dark:text-white" : textColor
+    let textColor =
+      textColor->LogicUtils.isEmptyString ? "text-jp-gray-900 dark:text-white" : textColor
 
     let description = heading.description->Option.getOr("")
 
@@ -81,7 +82,7 @@ type topic =
 module Heading = {
   @react.component
   let make = (~topic: topic, ~children=?, ~borderClass="border-b", ~headingCss="") => {
-    let widthClass = headingCss === "" ? "" : "w-full"
+    let widthClass = headingCss->LogicUtils.isEmptyString ? "" : "w-full"
     <div
       className={`${borderClass} border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 flex justify justify-between dark:bg-jp-gray-lightgray_background ${headingCss}`}>
       <div className={`p-2 m-2 flex flex-row justify-start ${widthClass}`}>

@@ -333,9 +333,9 @@ let make = (
       let fitlerName = keyArr->Array.get(1)->Option.getOr("")
 
       // when chart id is not there then there won't be any prefix so the prefix will the filter name
-      if chartId === "" {
+      if chartId->LogicUtils.isEmptyString {
         Some((prefix, value))
-      } else if prefix === chartId && fitlerName !== "" {
+      } else if prefix === chartId && fitlerName->LogicUtils.isNonEmptyString {
         Some((fitlerName, value))
       } else {
         None
@@ -353,7 +353,7 @@ let make = (
       let keyArr = key->String.split(".")
       let prefix = keyArr->Array.get(0)->Option.getOr("")
 
-      if prefix === chartId && prefix !== "" {
+      if prefix === chartId && prefix->LogicUtils.isNonEmptyString {
         None
       } else {
         Some((prefix, value))
@@ -530,7 +530,9 @@ let make = (
     filterSearchParam
   }, [topFiltersToSearchParam])
 
-  let current_granularity = if startTimeFromUrl !== "" && endTimeFromUrl !== "" {
+  let current_granularity = if (
+    startTimeFromUrl->LogicUtils.isNonEmptyString && endTimeFromUrl->LogicUtils.isNonEmptyString
+  ) {
     getGranularity(~startTime=startTimeFromUrl, ~endTime=endTimeFromUrl)
   } else {
     []
@@ -739,8 +741,8 @@ let make = (
         entity.chartTypes->Array.get(0)->Option.getOr(Line)->chartMapper,
       )
     if (
-      startTimeFromUrl !== "" &&
-      endTimeFilterKey !== "" &&
+      startTimeFromUrl->LogicUtils.isNonEmptyString &&
+      endTimeFilterKey->LogicUtils.isNonEmptyString &&
       (granularity->Option.isSome || chartType !== "Line Chart") &&
       current_granularity->Array.includes(granularity->Option.getOr(""))
     ) {

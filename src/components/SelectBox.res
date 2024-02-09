@@ -68,7 +68,7 @@ module ListItem = {
     }
     let (toggleSelect, setToggleSelect) = React.useState(() => isSelected)
     let listText =
-      searchString === ""
+      searchString->LogicUtils.isEmptyString
         ? [text]
         : {
             switch Js.String2.match_(text, regex("\\b", searchString)) {
@@ -182,7 +182,8 @@ module ListItem = {
     | None => "overflow-hidden"
     }
 
-    let customCss = listFlexDirection === "" ? `flex-row ${paddingClass}` : listFlexDirection
+    let customCss =
+      listFlexDirection->LogicUtils.isEmptyString ? `flex-row ${paddingClass}` : listFlexDirection
     RippleEffectBackground.useLinearRippleHook(parentRef, isDropDown)
     let comp =
       <AddDataAttributes
@@ -653,7 +654,9 @@ module BaseSelect = {
             inputText=searchString
             searchRef
             onChange=handleSearch
-            placeholder={searchInputPlaceHolder === "" ? "Search..." : searchInputPlaceHolder}
+            placeholder={searchInputPlaceHolder->LogicUtils.isEmptyString
+              ? "Search..."
+              : searchInputPlaceHolder}
             showSearchIcon
           />
         </div>
@@ -993,7 +996,9 @@ module BaseSelectButton = {
               inputText=searchString
               onChange=handleSearch
               searchRef
-              placeholder={searchInputPlaceHolder === "" ? "Search..." : searchInputPlaceHolder}
+              placeholder={searchInputPlaceHolder->LogicUtils.isEmptyString
+                ? "Search..."
+                : searchInputPlaceHolder}
               showSearchIcon
             />
           </div>
@@ -1252,7 +1257,7 @@ module BaseRadio = {
             addDynamicValue && !(options->Array.map(item => item.value)->Array.includes(itemData))
           ) {
             setSelectedString(_ => itemData)
-          } else if selectedString !== "" {
+          } else if selectedString->LogicUtils.isNonEmptyString {
             setSelectedString(_ => "")
           }
 
@@ -1281,7 +1286,10 @@ module BaseRadio = {
 
     let searchRef = React.useRef(Nullable.null)
 
-    let width = isHorizontal || !isDropDown || customStyle === "" ? widthClass : customStyle
+    let width =
+      isHorizontal || !isDropDown || customStyle->LogicUtils.isEmptyString
+        ? widthClass
+        : customStyle
 
     let inlineClass = isHorizontal ? "inline-flex" : ""
 
@@ -1308,7 +1316,7 @@ module BaseRadio = {
     }
 
     let newOptions = React.useMemo3(() => {
-      let options = if selectedString !== "" {
+      let options = if selectedString->LogicUtils.isNonEmptyString {
         options->Array.concat([selectedString]->makeOptions->Array.map(makeNonOptional))
       } else {
         options
@@ -1346,7 +1354,9 @@ module BaseRadio = {
             inputText=searchString
             onChange=handleSearch
             searchRef
-            placeholder={searchInputPlaceHolder === "" ? "Search..." : searchInputPlaceHolder}
+            placeholder={searchInputPlaceHolder->LogicUtils.isEmptyString
+              ? "Search..."
+              : searchInputPlaceHolder}
             showSearchIcon
           />
         </div>
@@ -1769,7 +1779,7 @@ module BaseDropdown = {
 
     let selectButtonText = if !showSelectionAsChips {
       title
-    } else if selectedString !== "" {
+    } else if selectedString->LogicUtils.isNonEmptyString {
       selectedString
     } else {
       dropDowntext

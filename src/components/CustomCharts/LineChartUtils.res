@@ -290,7 +290,7 @@ let timeSeriesDataMaker = (
     | Some(secondryMetrics) => Some(dict->getFloat(secondryMetrics.metric_name_db, 0.))
     | None => None
     }
-    if dict->getString(xAxis, "") !== "" {
+    if dict->getString(xAxis, "")->LogicUtils.isNonEmptyString {
       timeSeriesDict->appendToDictValue(
         groupByName,
         (xAxisDataPoint->DateTimeUtils.parseAsFloat, yAxisDataPoint, secondryAxisPoint),
@@ -486,7 +486,7 @@ let barChartDataMaker = (~yAxis: string, ~rawData: array<JSON.t>, ~activeTab: st
     ) // groupby/ selected segment
 
     let stats = getFloat(dict, yAxis, 0.) // overall metrics
-    selectedSegmentVal !== "" ? Some(selectedSegmentVal, stats) : None
+    selectedSegmentVal->LogicUtils.isNonEmptyString ? Some(selectedSegmentVal, stats) : None
   })
 
   let val: Highcharts.barChartSeries = {

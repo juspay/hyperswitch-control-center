@@ -588,7 +588,10 @@ let generateTablePayload = (
 }
 
 let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statType: string) => {
-  let timeText = if timeRanges.fromTime !== "" && timeRanges.toTime !== "" {
+  let timeText = if (
+    timeRanges.fromTime->LogicUtils.isNonEmptyString &&
+      timeRanges.toTime->LogicUtils.isNonEmptyString
+  ) {
     `${"\n"} ${timeRanges.fromTime
       ->Date.fromString
       ->DateTimeUtils.utcToIST
@@ -600,7 +603,7 @@ let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statTy
     ""
   }
 
-  let tooltipComp = if timeText !== "" {
+  let tooltipComp = if timeText->LogicUtils.isNonEmptyString {
     if statType === "Latency" || statType === "NegativeRate" {
       if value > 0. {
         let text = "Increased by "

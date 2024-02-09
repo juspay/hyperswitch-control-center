@@ -27,7 +27,7 @@ let getDateStringForValue = (
   value,
   isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
 ) => {
-  if value === "" {
+  if value->LogicUtils.isEmptyString {
     ""
   } else {
     try {
@@ -44,7 +44,7 @@ let getTimeStringForValue = (
   value,
   isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
 ) => {
-  if value === "" {
+  if value->LogicUtils.isEmptyString {
     ""
   } else {
     try {
@@ -179,6 +179,7 @@ module Base = {
     ~isTooltipVisible=true,
   ) => {
     open DateRangeUtils
+    open LogicUtils
     let (isCustomSelected, setIsCustomSelected) = React.useState(_ =>
       predefinedDays->Array.length === 0
     )
@@ -259,7 +260,7 @@ module Base = {
       "hidden"
     }
     let saveDates = () => {
-      if localStartDate !== "" && localEndDate !== "" {
+      if localStartDate->isNonEmptyString && localEndDate->isNonEmptyString {
         setStartDateVal(_ => localStartDate)
         setEndDateVal(_ => localEndDate)
       }
@@ -439,7 +440,7 @@ module Base = {
         let startTimeVal = timeValEv->Identity.formReactEventToString
         let endTime = localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)
 
-        if localStartDate !== "" {
+        if localStartDate->isNonEmptyString {
           if disableFutureDates && selectedStartDate == todayDate && startTimeVal > todayTime {
             setStartDate(~date=startDate, ~time=todayTime)
           } else if (
@@ -461,7 +462,7 @@ module Base = {
       onChange: timeValEv => {
         let endTimeVal = timeValEv->Identity.formReactEventToString
         let startTime = localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)
-        if localEndDate !== "" {
+        if localEndDate->isNonEmptyString {
           if disableFutureDates && selectedEndDate == todayDate && endTimeVal > todayTime {
             setEndDate(~date=startDate, ~time=todayTime)
           } else if (
@@ -479,7 +480,7 @@ module Base = {
     }
 
     let startDateStr =
-      startDateVal !== ""
+      startDateVal->isNonEmptyString
         ? getFormattedDate(
             startDateVal->getDateStringForValue(isoStringToCustomTimeZone),
             "MMM DD, YYYY",
@@ -488,7 +489,7 @@ module Base = {
         ? buttonText
         : "[From-Date]"
     let endDateStr =
-      endDateVal !== ""
+      endDateVal->isNonEmptyString
         ? getFormattedDate(
             endDateVal->getDateStringForValue(isoStringToCustomTimeZone),
             "MMM DD, YYYY",
@@ -497,11 +498,11 @@ module Base = {
         ? ""
         : "[To-Date]"
     let startTimeStr =
-      startDateVal !== ""
+      startDateVal->isNonEmptyString
         ? startDateVal->getTimeStringForValue(isoStringToCustomTimeZone)
         : "00:00:00"
     let endTimeStr =
-      startDateVal !== ""
+      startDateVal->isNonEmptyString
         ? endDateVal->getTimeStringForValue(isoStringToCustomTimeZone)
         : "23:59:59"
 
@@ -517,7 +518,7 @@ module Base = {
     }
 
     let buttonText = {
-      startDateVal->LogicUtils.isEmptyString && endDateVal->LogicUtils.isEmptyString
+      startDateVal->isEmptyString && endDateVal->isEmptyString
         ? `Select Date ${showTime ? "and Time" : ""}`
         : showTime
         ? `${startDateStr} ${startTimeStr} - ${endDateStr} ${endTimeStr}`
@@ -599,8 +600,12 @@ module Base = {
     }
 
     React.useEffect4(() => {
-      if startDate !== "" && endDate !== "" {
-        if localStartDate !== "" && localEndDate !== "" && (disableApply || !isCustomSelected) {
+      if startDate->isNonEmptyString && endDate->isNonEmptyString {
+        if (
+          localStartDate->isNonEmptyString &&
+          localEndDate->isNonEmptyString &&
+          (disableApply || !isCustomSelected)
+        ) {
           saveDates()
         }
 
@@ -613,7 +618,7 @@ module Base = {
 
     let btnStyle = customButtonStyle->Option.getOr("")
 
-    let customStyleForBtn = btnStyle->LogicUtils.isNonEmptyString ? btnStyle : ""
+    let customStyleForBtn = btnStyle->isNonEmptyString ? btnStyle : ""
 
     let timeVisibilityClass = showTime ? "block" : "hidden"
 
@@ -695,7 +700,7 @@ module Base = {
     let iconElement = {
       <div className="flex flex-row gap-2">
         <Icon className=strokeColor name=buttonIcon size=arrowIconSize />
-        {if removeFilterOption && startDateVal !== "" && endDateVal !== "" {
+        {if removeFilterOption && startDateVal->isNonEmptyString && endDateVal->isNonEmptyString {
           <Icon name="crossicon" size=16 onClick=removeApplyFilter />
         } else {
           React.null

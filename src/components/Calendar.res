@@ -85,7 +85,10 @@ module TableRow = {
             }
             let dateNotInRange = switch allowedDateRange {
             | Some(obj) =>
-              if obj.startDate !== "" && obj.endDate !== "" {
+              if (
+                obj.startDate->LogicUtils.isNonEmptyString &&
+                  obj.endDate->LogicUtils.isNonEmptyString
+              ) {
                 !(
                   date->Date.getTime -. obj.startDate->Date.fromString->Date.getTime >= 0.0 &&
                     obj.endDate->Date.fromString->Date.getTime -. date->Date.getTime >= 0.0
@@ -105,7 +108,7 @@ module TableRow = {
 
             let isInLimit = switch dateRangeLimit {
             | Some(limit) =>
-              if startDate !== "" {
+              if startDate->LogicUtils.isNonEmptyString {
                 date->Date.getTime -. startDate->Date.fromString->Date.getTime <
                   ((limit->Js.Int.toFloat -. 1.) *. 24. *. 60. *. 60. -. 60.) *. 1000.
               } else {
@@ -116,7 +119,7 @@ module TableRow = {
 
             let onClick = _evt => {
               let isClickDisabled =
-                (endDate === "" && !isInLimit) ||
+                (endDate->LogicUtils.isEmptyString && !isInLimit) ||
                 (isFutureDate ? disableFutureDates : disablePastDates) ||
                 customDisabledFutureDays > 0.0 && isInCustomDisable ||
                 dateNotInRange
@@ -139,7 +142,7 @@ module TableRow = {
               (isFutureDate && disableFutureDates) ||
               customDisabledFutureDays > 0.0 && isInCustomDisable ||
               !isFutureDate && disablePastDates ||
-              endDate === "" && !isInLimit ||
+              endDate->LogicUtils.isEmptyString && !isInLimit ||
               dateNotInRange
             ) {
               "cursor-not-allowed"
@@ -203,7 +206,7 @@ module TableRow = {
                   !(
                     (isFutureDate && disableFutureDates) ||
                     !isFutureDate && disablePastDates ||
-                    (endDate === "" && !isInLimit)
+                    (endDate->LogicUtils.isEmptyString && !isInLimit)
                   )
                 ) {
                   "h-full w-full flex flex-1 justify-center items-center bg-blue-100 dark:bg-gray-700 dark:bg-opacity-100"
@@ -231,9 +234,12 @@ module TableRow = {
               switch setShowMsg {
               | Some(setMsg) =>
                 if (
-                  hoverdDate !== "" &&
-                    ((!isInLimit && endDate === "" && !isFutureDate && disableFutureDates) ||
-                      (!disableFutureDates && !isInLimit && endDate === ""))
+                  hoverdDate->LogicUtils.isNonEmptyString &&
+                    ((!isInLimit &&
+                    endDate->LogicUtils.isEmptyString &&
+                    !isFutureDate &&
+                    disableFutureDates) ||
+                      (!disableFutureDates && !isInLimit && endDate->LogicUtils.isEmptyString))
                 ) {
                   setMsg(_ => true)
                 } else {
@@ -259,7 +265,7 @@ module TableRow = {
                     (isFutureDate && disableFutureDates) ||
                     customDisabledFutureDays > 0.0 && isInCustomDisable ||
                     !isFutureDate && disablePastDates ||
-                    endDate === "" && !isInLimit ||
+                    endDate->LogicUtils.isEmptyString && !isInLimit ||
                     dateNotInRange
                       ? "disabled"
                       : "enabled",

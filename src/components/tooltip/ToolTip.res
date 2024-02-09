@@ -499,7 +499,9 @@ module Arrow = {
     | Dark => "#fff"
     }
 
-    let arrowColor = if arrowBgClass !== "" && bgColor !== "" {
+    let arrowColor = if (
+      arrowBgClass->LogicUtils.isNonEmptyString && bgColor->LogicUtils.isNonEmptyString
+    ) {
       arrowBgClass
     } else {
       arrowBackGroundClass
@@ -665,7 +667,7 @@ let make = (
 
   let tooltipBgClass = "dark:bg-jp-gray-tooltip_bg_dark bg-jp-gray-tooltip_bg_light dark:text-jp-gray-lightgray_background dark:text-opacity-75 text-jp-gray-text_darktheme text-opacity-75"
 
-  let bgColor = bgColor === "" ? tooltipBgClass : bgColor
+  let bgColor = bgColor->LogicUtils.isEmptyString ? tooltipBgClass : bgColor
 
   let defaultPosition = getDefaultPosition(
     ~positionX,

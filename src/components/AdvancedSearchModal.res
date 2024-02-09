@@ -28,7 +28,7 @@ module AdvanceSearch = {
         ->Belt.Array.keepMap(entry => {
           let (key, value) = entry
           let stringVal = LogicUtils.getStringFromJson(value, "")
-          if stringVal !== "" {
+          if stringVal->LogicUtils.isNonEmptyString {
             Some(`${key}=${stringVal}`)
           } else {
             None

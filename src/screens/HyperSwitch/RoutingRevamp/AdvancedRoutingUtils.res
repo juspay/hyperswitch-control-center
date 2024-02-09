@@ -269,15 +269,14 @@ let getOperatorFromComparisonType = (comparison, variantType) => {
 }
 
 let isStatementMandatoryFieldsPresent = (statement: AdvancedRoutingTypes.statement) => {
+  open LogicUtils
   let statementValue = switch statement.value.value->JSON.Classify.classify {
   | Array(ele) => ele->Array.length > 0
-  | String(str) => str->LogicUtils.isNonEmptyString
+  | String(str) => str->isNonEmptyString
   | _ => false
   }
 
-  statement.lhs->LogicUtils.isNonEmptyString &&
-    (statement.value.\"type"->LogicUtils.isNonEmptyString &&
-    statementValue)
+  statement.lhs->isNonEmptyString && (statement.value.\"type"->isNonEmptyString && statementValue)
 }
 
 let algorithmTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.algorithm = values => {
@@ -403,8 +402,9 @@ let initialValues: AdvancedRoutingTypes.advancedRouting = {
 }
 
 let validateNameAndDescription = (~dict, ~errors) => {
+  open LogicUtils
   ["name", "description"]->Array.forEach(field => {
-    if dict->LogicUtils.getString(field, "")->String.trim === "" {
+    if dict->getString(field, "")->String.trim->isEmptyString {
       errors->Dict.set(field, `Please provide ${field} field`->JSON.Encode.string)
     }
   })
