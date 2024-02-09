@@ -42,13 +42,11 @@ let nameToURLMapper = (~id) => {
     | PaymentsCreate => "/payments"
     | PaymentsStart => `/payments/redirect/${id}/${merchant_id}`
     | PaymentsUpdate => `/payments/${id}`
-    | RefundsCreate
-    | RefundsUpdate
-    | DisputesEvidenceSubmit
-    | AttachDisputeEvidence
-    | RetrieveDisputeEvidence
-    | IncomingWebhookReceive
-    | NotDefined => urlName
+    | RefundsCreate => "/refunds"
+    | RefundsUpdate => `/refunds/${id}`
+    | DisputesEvidenceSubmit | AttachDisputeEvidence => "/disputes/evidence"
+    | RetrieveDisputeEvidence => `/disputes/evidence/${id}`
+    | IncomingWebhookReceive | NotDefined => urlName
     }
 }
 
