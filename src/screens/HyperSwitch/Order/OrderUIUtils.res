@@ -1,33 +1,14 @@
-module EventLogMobileView = {
+module RenderAccordian = {
   @react.component
-  let make = () => {
-    <>
-      {HSwitchOrderUtils.eventLogHeader}
-      <div
-        className="flex items-center gap-2 bg-white w-fit border-2 p-3 !opacity-100 rounded-lg text-md font-medium">
-        <Icon name="info-circle-unfilled" size=16 />
-        <div className={`text-lg font-medium opacity-50`}>
-          {"To view payment logs for this payment please switch to desktop mode"->React.string}
-        </div>
-      </div>
-    </>
-  }
-}
-
-module PaymentLogs = {
-  @react.component
-  let make = (~id, ~createdAt) => {
-    let {auditTrail} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let isSmallDevice = MatchMedia.useMatchMedia("(max-width: 700px)")
-
-    <div className="overflow-x-scroll">
-      <UIUtils.RenderIf condition={isSmallDevice}>
-        <EventLogMobileView />
-      </UIUtils.RenderIf>
-      <UIUtils.RenderIf condition={!isSmallDevice && auditTrail}>
-        <PaymentLogs paymentId=id createdAt />
-      </UIUtils.RenderIf>
-    </div>
+  let make = (~initialExpandedArray=[], ~accordion) => {
+    <Accordion
+      initialExpandedArray
+      accordion
+      accordianTopContainerCss="border"
+      accordianBottomContainerCss="p-5"
+      contentExpandCss="px-4 py-3 !border-t-0"
+      titleStyle="font-semibold text-bold text-md"
+    />
   }
 }
 
