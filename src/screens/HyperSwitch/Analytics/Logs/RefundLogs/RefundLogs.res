@@ -1,7 +1,7 @@
 @module("js-sha256") external sha256: string => string = "sha256"
 
 @react.component
-let make = (~refundId) => {
+let make = (~refundId, ~paymentId) => {
   open APIUtils
   open LogicUtils
   open PaymentLogsUtils
@@ -20,7 +20,7 @@ let make = (~refundId) => {
 
   let fetchRefundLogsData = async _ => {
     try {
-      let refundsLogsUrl = getURL(~entityName=PAYMENT_LOGS, ~methodType=Get, ~id=Some(refundId), ())
+      let refundsLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/api_event_logs?type=Refund&payment_id=${paymentId}&refund_id=${refundId}`
       let refundLogsArray = (await fetchDetails(refundsLogsUrl))->getArrayFromJson([])
       logs.contents = logs.contents->Array.concat(refundLogsArray)
 
@@ -34,12 +34,7 @@ let make = (~refundId) => {
 
   let fetchWebhooksLogsData = async _ => {
     try {
-      let webhooksLogsUrl = getURL(
-        ~entityName=WEBHOOKS_EVENT_LOGS,
-        ~methodType=Get,
-        ~id=Some(refundId),
-        (),
-      )
+      let webhooksLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/outgoing_webhook_event_logs?&payment_id=${paymentId}&refund_id=${refundId}`
       let webhooksLogsArray = (await fetchDetails(webhooksLogsUrl))->getArrayFromJson([])
       switch webhooksLogsArray->Array.get(0) {
       | Some(val) => logs.contents = logs.contents->Array.concat([val])
@@ -56,12 +51,7 @@ let make = (~refundId) => {
 
   let fetchConnectorLogsData = async _ => {
     try {
-      let connectorLogsUrl = getURL(
-        ~entityName=CONNECTOR_EVENT_LOGS,
-        ~methodType=Get,
-        ~id=Some(refundId),
-        (),
-      )
+      let connectorLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/connector_event_logs?payment_id=${paymentId}&refund_id=${refundId}`
       let connectorLogsArray = (await fetchDetails(connectorLogsUrl))->getArrayFromJson([])
       logs.contents = logs.contents->Array.concat(connectorLogsArray)
 
