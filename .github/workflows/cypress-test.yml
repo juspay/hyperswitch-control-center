@@ -35,8 +35,13 @@ jobs:
           echo "$response"
 
       - name: Cypress run
-        uses: cypress-io/github-action@v6
-        with:
-          install: false
-          build: npm run build:prod
-          start: npm run serve
+        run: |
+          npm run build:prod
+          npm run serve
+          npm run cy:run
+
+        # uses: cypress-io/github-action@v6
+        # with:
+        #   install: false
+        #   build: npm run build:prod
+        #   start: npm run serve
