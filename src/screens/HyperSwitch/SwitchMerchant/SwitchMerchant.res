@@ -55,50 +55,47 @@ module NewAccountCreationModal = {
       createNewAccount(values)
     }
 
+    let companyName = FormRenderer.makeFieldInfo(
+      ~label="Company Name",
+      ~name="company_name",
+      ~placeholder="Eg: HyperSwitch Pvt Ltd",
+      ~customInput=InputFields.textInput(),
+      ~isRequired=true,
+      (),
+    )
+
     let modalBody = {
-      <>
-        <div className="p-2 m-2">
-          <div className="py-5 px-3 flex justify-between align-top">
-            <CardUtils.CardHeader
-              heading="Create a New Merchant Account"
-              subHeading="Enter your company name and get started"
-              customSubHeadingStyle="w-full !max-w-none pr-10"
+      <div className="p-2 m-2">
+        <div className="py-5 px-3 flex justify-between align-top">
+          <CardUtils.CardHeader
+            heading="Create a New Merchant Account"
+            subHeading="Enter your company name and get started"
+            customSubHeadingStyle="w-full !max-w-none pr-10"
+          />
+          <div className="h-fit" onClick={_ => setShowModal(_ => false)}>
+            <Icon
+              name="close" className="border-2 p-2 rounded-2xl bg-gray-100 cursor-pointer" size=30
             />
-            <div className="h-fit" onClick={_ => setShowModal(_ => false)}>
-              <Icon
-                name="close" className="border-2 p-2 rounded-2xl bg-gray-100 cursor-pointer" size=30
-              />
-            </div>
-          </div>
-          <div className="min-h-96">
-            <Form key="new-account-creation" onSubmit>
-              <div className="flex flex-col gap-12 h-full w-full">
-                <FormRenderer.DesktopRow>
-                  <div className="flex flex-col gap-5">
-                    <FormRenderer.FieldRenderer
-                      fieldWrapperClass="w-full"
-                      field={FormRenderer.makeFieldInfo(
-                        ~label="Company Name",
-                        ~name="company_name",
-                        ~placeholder="Eg: HyperSwitch Pvt Ltd",
-                        ~customInput=InputFields.textInput(),
-                        ~isRequired=true,
-                        (),
-                      )}
-                      errorClass={ProdVerifyModalUtils.errorClass}
-                      labelClass="!text-black font-medium !-ml-[0.5px]"
-                    />
-                  </div>
-                </FormRenderer.DesktopRow>
-                <div className="flex justify-end w-full pr-5 pb-3">
-                  <FormRenderer.SubmitButton text="Create Account" buttonSize={Small} />
-                </div>
-              </div>
-              <FormValuesSpy />
-            </Form>
           </div>
         </div>
-      </>
+        <Form key="new-account-creation" onSubmit>
+          <div className="flex flex-col gap-12 h-full w-full">
+            <FormRenderer.DesktopRow>
+              <div className="flex flex-col gap-5">
+                <FormRenderer.FieldRenderer
+                  fieldWrapperClass="w-full"
+                  field={companyName}
+                  errorClass={ProdVerifyModalUtils.errorClass}
+                  labelClass="!text-black font-medium !-ml-[0.5px]"
+                />
+              </div>
+            </FormRenderer.DesktopRow>
+            <div className="flex justify-end w-full pr-5 pb-3">
+              <FormRenderer.SubmitButton text="Create Account" buttonSize={Small} />
+            </div>
+          </div>
+        </Form>
+      </div>
     }
 
     <Modal
@@ -107,7 +104,7 @@ module NewAccountCreationModal = {
       setShowModal
       childClass="p-0"
       borderBottom=true
-      modalClass="w-full max-w-2xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
+      modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
       modalBody
     </Modal>
   }
@@ -145,6 +142,8 @@ module ExternalUser = {
     open APIUtils
     let fetchDetails = useGetMethod()
     let defaultMerchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
+    let merchantDetailsTypedValue =
+      HSwitchUtils.useMerchantDetailsValue()->MerchantAccountUtils.getMerchantDetails
     let (selectedMerchantObject, setSelectedMerchantObject) = React.useState(_ => {
       merchant_id: defaultMerchantId,
       merchant_name: defaultMerchantId,
@@ -171,10 +170,10 @@ module ExternalUser = {
       }
     }
 
-    React.useEffect0(() => {
+    React.useEffect1(() => {
       fetchMerchantIDs()->ignore
       None
-    })
+    }, [merchantDetailsTypedValue.merchant_name])
 
     open HeadlessUI
     <>
