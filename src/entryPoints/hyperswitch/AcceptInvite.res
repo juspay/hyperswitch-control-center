@@ -9,8 +9,7 @@ let make = () => {
   let updateDetails = useUpdateMethod()
   let merchantDataFromLocalStorage =
     LocalStorage.getItem("accept_invite_data")
-    ->Nullable.toOption
-    ->Option.getOr("")
+    ->getValFromNullableValue("")
     ->safeParse
     ->getArrayFromJson([])
 
