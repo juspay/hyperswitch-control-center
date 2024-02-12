@@ -221,11 +221,15 @@ let make = (
             x
           }
         }
-        let urii = dictValue == "" || dictValue == "NA" ? "" : `${val}=${dictValue}`
+        let urii =
+          dictValue->LogicUtils.isEmptyString || dictValue == "NA" ? "" : `${val}=${dictValue}`
 
         urii
       })
-      let uri = uri ++ "?" ++ uriList->Array.filter(val => val !== "")->Array.joinWith("&")
+      let uri =
+        uri ++
+        "?" ++
+        uriList->Array.filter(val => val->LogicUtils.isNonEmptyString)->Array.joinWith("&")
       uri
     }
 

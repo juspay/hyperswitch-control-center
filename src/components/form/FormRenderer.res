@@ -199,7 +199,7 @@ module FieldWrapper = {
     ~subHeadingClass="",
   ) => {
     let showLabel = React.useContext(LabelVisibilityContext.formLabelRenderContext)
-    let fieldWrapperClass = if fieldWrapperClass == "" {
+    let fieldWrapperClass = if fieldWrapperClass->LogicUtils.isEmptyString {
       "p-1 flex flex-col"
     } else {
       fieldWrapperClass
@@ -229,7 +229,7 @@ module FieldWrapper = {
             </UIUtils.RenderIf>
             {switch description {
             | Some(description) =>
-              <UIUtils.RenderIf condition={description !== ""}>
+              <UIUtils.RenderIf condition={description->LogicUtils.isNonEmptyString}>
                 <div className="text-sm text-gray-500 mx-2">
                   <ToolTip description toolTipPosition />
                 </div>

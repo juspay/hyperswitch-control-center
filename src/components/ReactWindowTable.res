@@ -117,7 +117,7 @@ module NewCell = {
       ->Array.includes(true)
 
     let customcellColouredCell =
-      customcellColouredCellCheck && customCellColor !== ""
+      customcellColouredCellCheck && customCellColor->LogicUtils.isNonEmptyString
         ? customCellColor
         : "bg-white hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-850"
 
@@ -708,7 +708,7 @@ let make = (
         let filterValue = filterValue->Array.filter(
           item => {
             let updatedItem = item->String.make
-            updatedItem !== ""
+            updatedItem->LogicUtils.isNonEmptyString
           },
         )
         if filterValue->Array.length === 0 {

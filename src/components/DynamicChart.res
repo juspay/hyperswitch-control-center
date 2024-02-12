@@ -678,7 +678,7 @@ let make = (
               ->Option.getOr(""->JSON.Encode.string)
               ->JSON.Decode.string
               ->Option.getOr("")
-            let label = metric == "" ? "other" : metric
+            let label = metric->LogicUtils.isEmptyString ? "other" : metric
 
             Dict.set(dict, tabName, label->JSON.Encode.string)
 

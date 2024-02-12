@@ -43,7 +43,7 @@ let make = (
     let toDateJs = toDate->DayJs.getDayJsForString
     let permittedMaxYears = startYear->Float.toInt + 10
     let updatedFromDate =
-      fromDate != "" &&
+      fromDate->LogicUtils.isNonEmptyString &&
       fromDate->String.length >= 5 &&
       fromDateJs.isValid(.) &&
       fromDateJs.year(.) <= permittedMaxYears
@@ -54,7 +54,7 @@ let make = (
           }
         : ""
     let updatedToDate =
-      toDate != "" &&
+      toDate->LogicUtils.isNonEmptyString &&
       toDate->String.length >= 5 &&
       toDateJs.isValid(.) &&
       toDateJs.year(.) <= permittedMaxYears
@@ -65,7 +65,7 @@ let make = (
           }
         : ""
 
-    if updatedFromDate != "" && updatedFromDate != startDate {
+    if updatedFromDate->LogicUtils.isNonEmptyString && updatedFromDate != startDate {
       switch changeStartDate {
       | Some(changeStartDate) => changeStartDate(updatedFromDate, false, false, None)
       | None => ()
@@ -73,8 +73,8 @@ let make = (
     }
 
     if (
-      updatedFromDate != "" &&
-      updatedToDate != "" &&
+      updatedFromDate->LogicUtils.isNonEmptyString &&
+      updatedToDate->LogicUtils.isNonEmptyString &&
       updatedToDate != endDate &&
       toDateJs >= fromDateJs
     ) {
@@ -88,10 +88,10 @@ let make = (
   }, (fromDate, toDate))
 
   React.useEffect2(() => {
-    if startDate != "" && !fromDateOnFocus {
+    if startDate->LogicUtils.isNonEmptyString && !fromDateOnFocus {
       setFromDate(_ => (startDate->DayJs.getDayJsForString).format(. "MMM DD, YYYY"))
     }
-    if endDate != "" && !toDateOnFocus {
+    if endDate->LogicUtils.isNonEmptyString && !toDateOnFocus {
       setToDate(_ => (endDate->DayJs.getDayJsForString).format(. "MMM DD, YYYY"))
     } else {
       setToDate(_ => "")
@@ -101,10 +101,10 @@ let make = (
 
   React.useEffect1(() => {
     if isDateClicked {
-      if startDate != "" && !fromDateOnFocus {
+      if startDate->LogicUtils.isNonEmptyString && !fromDateOnFocus {
         setFromDate(_ => (startDate->DayJs.getDayJsForString).format(. "MMM DD, YYYY"))
       }
-      if endDate != "" && !toDateOnFocus {
+      if endDate->LogicUtils.isNonEmptyString && !toDateOnFocus {
         setToDate(_ => (endDate->DayJs.getDayJsForString).format(. "MMM DD, YYYY"))
       } else {
         setToDate(_ => "")

@@ -155,7 +155,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
   }, [getTopLevelChartFilter])
   let customFilter = switch defaultFilter {
   | Some(defaultFilter) =>
-    customFilter == "" ? defaultFilter : `${defaultFilter} and ${customFilter}`
+    customFilter->LogicUtils.isEmptyString ? defaultFilter : `${defaultFilter} and ${customFilter}`
   | _ => customFilter
   }
 
@@ -658,7 +658,9 @@ module SDKAnalyticsChartContext = {
     }, [getTopLevelChartFilter])
     let customFilter = switch defaultFilter {
     | Some(defaultFilter) =>
-      customFilter == "" ? defaultFilter : `${defaultFilter} and ${customFilter}`
+      customFilter->LogicUtils.isEmptyString
+        ? defaultFilter
+        : `${defaultFilter} and ${customFilter}`
     | _ => customFilter
     }
 

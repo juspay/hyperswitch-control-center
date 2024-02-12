@@ -232,7 +232,7 @@ let make = (
 ) => {
   let showPopUp = PopUpState.useShowPopUp()
   React.useEffect0(_ => {
-    if title === "" && GlobalVars.isLocalhost {
+    if title->LogicUtils.isEmptyString && GlobalVars.isLocalhost {
       showPopUp({
         popUpType: (Denied, WithIcon),
         heading: `Title cannot be empty!`,
@@ -324,7 +324,7 @@ let make = (
         let filterValue = filterValue->Array.filter(
           item => {
             let updatedItem = item->String.make
-            updatedItem !== ""
+            updatedItem->LogicUtils.isNonEmptyString
           },
         )
         if filterValue->Array.length === 0 {

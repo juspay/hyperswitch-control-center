@@ -230,7 +230,7 @@ let getFilterRequestBody = (
   | None => ()
   }
 
-  if customFilter != "" {
+  if customFilter->LogicUtils.isNonEmptyString {
     Dict.set(body, "customFilter", customFilter->JSON.Encode.string)
   }
   switch granularity {
@@ -422,7 +422,7 @@ let generatePayload = (
   | Some(mode) => Dict.set(newDict, "mode", mode->JSON.Encode.string)
   | None => ()
   }
-  if customFilter != "" {
+  if customFilter->LogicUtils.isNonEmptyString {
     Dict.set(newDict, "customFilter", customFilter->JSON.Encode.string)
   }
   switch filters {

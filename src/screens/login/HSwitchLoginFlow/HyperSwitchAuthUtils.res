@@ -128,7 +128,7 @@ let validateForm = (values: JSON.t, keys: array<string>) => {
     let value = LogicUtils.getString(valuesDict, key, "")
 
     // empty check
-    if value == "" {
+    if value->LogicUtils.isEmptyString {
       switch key {
       | "email" => Dict.set(errors, key, "Please enter your Email ID"->JSON.Encode.string)
       | "password" => Dict.set(errors, key, "Please enter your Password"->JSON.Encode.string)

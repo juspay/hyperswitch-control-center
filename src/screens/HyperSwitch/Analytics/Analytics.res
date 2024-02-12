@@ -624,7 +624,7 @@ let make = (
     Some(
       filterValueDict
       ->getStrArrayFromDict(`${moduleName}.tabName`, activeTav)
-      ->Array.filter(item => item !== ""),
+      ->Array.filter(item => item->LogicUtils.isNonEmptyString),
     )
   }, [filterValueDict])
 

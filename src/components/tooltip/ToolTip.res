@@ -202,7 +202,8 @@ module TooltipWrapper = {
     ~defaultPosition,
     ~children,
   ) => {
-    let descriptionExists = description != "" || descriptionComponent != React.null
+    let descriptionExists =
+      description->LogicUtils.isNonEmptyString || descriptionComponent != React.null
 
     let textStyle = textStyle
     let fontWeight = "font-semibold"
@@ -272,7 +273,7 @@ module DescriptionSection = {
     <div className={textStyleGap}>
       {description
       ->String.split("\n")
-      ->Array.filter(str => str !== "")
+      ->Array.filter(str => str->LogicUtils.isNonEmptyString)
       ->Array.mapWithIndex((item, i) => {
         <AddDataAttributes attributes=[("data-text", item)] key={i->string_of_int}>
           <div key={item} className="flex flex-col gap-1"> {React.string(item)} </div>

@@ -104,7 +104,9 @@ let make = (
       input.onChange(ev)
       setPasswordChecks(_ => initialPasswordState)
       let strVal = ReactEvent.Form.target(ev)["value"]
-      strVal != "" ? setShowValidation(_ => true) : setShowValidation(_ => false)
+      strVal->LogicUtils.isNonEmptyString
+        ? setShowValidation(_ => true)
+        : setShowValidation(_ => false)
       strVal->validateFunc
     },
     onBlur: ev => {
@@ -132,7 +134,7 @@ let make = (
           : "hidden"} flex flex-row flex-wrap gap-y-3 gap-x-2 mt-3`}>
       {passwordChips
       ->Array.mapWithIndex((chipType, index) => {
-        if specialCharatersInfoText != "" && chipType === SpecialChar {
+        if specialCharatersInfoText->LogicUtils.isNonEmptyString && chipType === SpecialChar {
           <ToolTip
             tooltipWidthClass="w-fit"
             description=specialCharatersInfoText

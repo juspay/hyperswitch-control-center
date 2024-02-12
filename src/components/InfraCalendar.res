@@ -51,7 +51,7 @@ module TableRow = {
               customTimezoneToISOString(
                 String.make(year),
                 String.make(month +. 1.0),
-                String.make(obj == "" ? "01" : obj),
+                String.make(obj->LogicUtils.isEmptyString ? "01" : obj),
                 "00",
                 "00",
                 "00",
@@ -94,16 +94,16 @@ module TableRow = {
             }
 
             let classN =
-              obj == "" || hSelf.highlightSelf
+              obj->LogicUtils.isEmptyString || hSelf.highlightSelf
                 ? `h-12 w-12 font-fira-code text-center dark:text-jp-gray-text_darktheme text-opacity-75 ${dayClass} p-0 pb-1`
                 : `cursor-pointer h-12 w-12 text-center font-fira-code font-medium dark:text-jp-gray-text_darktheme text-opacity-75 dark:hover:bg-opacity-100 ${dayClass} p-0 pb-1`
             let c2 =
-              obj != "" && hSelf.highlightSelf
+              obj->LogicUtils.isNonEmptyString && hSelf.highlightSelf
                 ? "h-full w-full cursor-pointer flex border flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-opacity-100 rounded-full"
                 : "h-full w-full"
 
             let shouldHighlight = (startDate, endDate, obj, month, year) => {
-              if startDate != "" && obj != "" {
+              if startDate->LogicUtils.isNonEmptyString && obj->LogicUtils.isNonEmptyString {
                 let getDate = date => {
                   let datevalue = Js.Date.makeWithYMD(
                     ~year=Js.Float.fromString(date[0]->Option.getOr("")),
@@ -117,7 +117,7 @@ module TableRow = {
                 }
                 let parsedStartDate = getDate(String.split(startDate, "-"))
                 let z = getDate([year, month, obj])
-                if endDate != "" {
+                if endDate->LogicUtils.isNonEmptyString {
                   let parsedEndDate = getDate(String.split(endDate, "-"))
                   z == parsedStartDate && z == parsedEndDate
                     ? "h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white dark:hover:text-jp-gray-text_darktheme rounded-full"
@@ -149,15 +149,17 @@ module TableRow = {
             }
             <td key={string_of_int(cellIndex)} className=classN onClick>
               <span
-                className={`${startDate == "" ? c2 : c3} ${obj != ""
+                className={`${startDate->LogicUtils.isEmptyString
+                    ? c2
+                    : c3} ${obj->LogicUtils.isNonEmptyString
                     ? "dark:hover:border-jp-gray-400 dark:text-jp-gray-text_darktheme dark:hover:text-white"
                     : ""}`}>
                 <span
-                  className={obj == ""
+                  className={obj->LogicUtils.isEmptyString
                     ? ""
                     : "border border-transparent hover:text-jp-gray-950 hover:border-jp-gray-950 p-3 hover:bg-white dark:hover:bg-jp-gray-950 dark:hover:text-white rounded-full"}>
                   {cellRenderer(
-                    obj == ""
+                    obj->LogicUtils.isEmptyString
                       ? None
                       : Some((Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD")),
                   )}

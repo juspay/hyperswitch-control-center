@@ -14,7 +14,7 @@ let validateAPIKeyForm = (
   keys->Array.forEach(key => {
     let value = LogicUtils.getString(valuesDict, key, "")
 
-    if value == "" {
+    if value->LogicUtils.isEmptyString {
       switch key {
       | "name" => Dict.set(errors, key, "Please enter name"->JSON.Encode.string)
       | "description" => Dict.set(errors, key, "Please enter description"->JSON.Encode.string)
@@ -25,7 +25,7 @@ let validateAPIKeyForm = (
       setShowCustomDate(true)
       let date = LogicUtils.getString(valuesDict, "expiration_date", "")
 
-      if date == "" {
+      if date->LogicUtils.isEmptyString {
         Dict.set(errors, "expiration_date", "Please select expiry date"->JSON.Encode.string)
       }
     } else if key == "expiration" && value->String.toLowerCase == "never" {

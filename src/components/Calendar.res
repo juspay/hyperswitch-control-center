@@ -63,7 +63,7 @@ module TableRow = {
               customTimezoneToISOString(
                 String.make(year),
                 String.make(month +. 1.0),
-                String.make(obj == "" ? "01" : obj),
+                String.make(obj->LogicUtils.isEmptyString ? "01" : obj),
                 "00",
                 "00",
                 "00",
@@ -172,22 +172,22 @@ module TableRow = {
               today == renderingDate
                 ? "text-blue-800"
                 : "text-jp-gray-900 text-opacity-75 dark:text-opacity-75"
-            let classN = if obj == "" || hSelf.highlightSelf {
+            let classN = if obj->LogicUtils.isEmptyString || hSelf.highlightSelf {
               `h-9 p-0 w-9 font-semibold font-fira-code text-center ${textColor}  dark:text-jp-gray-text_darktheme  ${dayClass}`
             } else {
               `h-9 p-0 w-9 font-semibold text-center font-fira-code ${textColor}  dark:text-jp-gray-text_darktheme hover:text-opacity-100 dark:hover:text-opacity-100 hover:bg-jp-gray-lightmode_steelgray hover:bg-opacity-75 hover:rounded-lg dark:hover:bg-jp-gray-850 dark:hover:bg-opacity-100 ${dayClass} `
             }
             let c2 =
-              obj != "" && hSelf.highlightSelf
+              obj->LogicUtils.isNonEmptyString && hSelf.highlightSelf
                 ? "h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white rounded-full"
                 : "h-full w-full"
 
             let shouldHighlight = (startDate, endDate, obj, month, year) => {
-              if startDate != "" && obj != "" {
+              if startDate->LogicUtils.isNonEmptyString && obj->LogicUtils.isNonEmptyString {
                 let parsedStartDate = getDate(String.split(startDate, "-"))
                 let z = getDate([year, month, obj])
 
-                if endDate != "" {
+                if endDate->LogicUtils.isNonEmptyString {
                   let parsedEndDate = getDate(String.split(endDate, "-"))
                   z == parsedStartDate
                     ? `h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white rounded-l-lg `
@@ -199,8 +199,8 @@ module TableRow = {
                 } else if z == parsedStartDate {
                   `h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white rounded-lg ${changeHighlightCellStyle}`
                 } else if (
-                  hoverdDate != "" &&
-                  endDate == "" &&
+                  hoverdDate->LogicUtils.isNonEmptyString &&
+                  endDate->LogicUtils.isEmptyString &&
                   z > parsedStartDate &&
                   z <= hoverdDate->Date.fromString &&
                   !(
@@ -258,7 +258,9 @@ module TableRow = {
                 attributes=[
                   (
                     "data-calender-date",
-                    hSelf.highlightSelf || startDate != "" ? "selected" : "normal",
+                    hSelf.highlightSelf || startDate->LogicUtils.isNonEmptyString
+                      ? "selected"
+                      : "normal",
                   ),
                   (
                     "data-calender-date-disabled",
@@ -271,9 +273,9 @@ module TableRow = {
                       : "enabled",
                   ),
                 ]>
-                <span className={startDate == "" ? c2 : c3}>
+                <span className={startDate->LogicUtils.isEmptyString ? c2 : c3}>
                   {cellRenderer(
-                    obj == ""
+                    obj->LogicUtils.isEmptyString
                       ? None
                       : Some((Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-DD")),
                   )}

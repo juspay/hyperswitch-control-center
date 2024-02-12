@@ -23,7 +23,7 @@ module DisplayKeyValueParams = {
     ~textColor="",
     ~overiddingHeadingStyles="",
   ) => {
-    let marginClass = if labelMargin == "" {
+    let marginClass = if labelMargin->LogicUtils.isEmptyString {
       "mt-4 py-0"
     } else {
       labelMargin
@@ -53,7 +53,7 @@ module DisplayKeyValueParams = {
             <div className={`${overiddingHeadingStyles}`}>
               {React.string(showTitle ? heading.title : "")}
             </div>
-            <UIUtils.RenderIf condition={description != ""}>
+            <UIUtils.RenderIf condition={description->LogicUtils.isNonEmptyString}>
               <div className="text-sm text-gray-500 mx-2 -mt-1">
                 <ToolTip description={description} toolTipPosition={ToolTip.Top} />
               </div>

@@ -53,7 +53,8 @@ module CustomFilters = {
 
         let firstEle = mArr[0]->Option.getOr("")
         if (
-          firstEle != "" && tabNames->Array.indexOf(firstEle->String.trim->String.toLowerCase) < 0
+          firstEle->LogicUtils.isNonEmptyString &&
+            tabNames->Array.indexOf(firstEle->String.trim->String.toLowerCase) < 0
         ) {
           setErrMessage(str => `${str} ${firstEle} is not a valid dimension.`)
         }
@@ -131,7 +132,7 @@ module CustomFilters = {
       />
       <div>
         <span className="flex break-words text-red-800">
-          {errMessage == "" ? React.null : React.string(errMessage)}
+          {errMessage->LogicUtils.isEmptyString ? React.null : React.string(errMessage)}
         </span>
         <div className="mt-6">
           <Button
@@ -139,7 +140,7 @@ module CustomFilters = {
             buttonType=Primary
             buttonSize=Small
             onClick=onSubmit
-            buttonState={errMessage == "" ? Normal : Disabled}
+            buttonState={errMessage->LogicUtils.isEmptyString ? Normal : Disabled}
           />
         </div>
       </div>

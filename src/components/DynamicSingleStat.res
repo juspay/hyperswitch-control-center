@@ -525,7 +525,7 @@ let make = (
     <AddDataAttributes
       attributes=[("data-dynamic-single-stats", "dynamic stats")] key={index->string_of_int}>
       <div>
-        <RenderIf condition={sectionName !== ""}>
+        <RenderIf condition={sectionName->LogicUtils.isNonEmptyString}>
           <div
             className="mb-5 block pl-5 pt-5 not-italic font-bold text-fs-18 text-black dark:text-white">
             {sectionName->React.string}

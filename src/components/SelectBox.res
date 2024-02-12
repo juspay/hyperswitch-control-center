@@ -205,7 +205,7 @@ module ListItem = {
               </div>
             } else if multiSelect {
               <span className=toggleClass>
-                {checkboxDimension != ""
+                {checkboxDimension->LogicUtils.isNonEmptyString
                   ? <CheckBoxIcon
                       isSelected isDisabled size=optionSize isSelectedStateMinus checkboxDimension
                     />
@@ -230,7 +230,9 @@ module ListItem = {
               {switch icon {
               | FontAwesome(iconName) =>
                 <Icon
-                  className={`align-middle ${iconStroke == "" ? optionIconStroke : iconStroke} `}
+                  className={`align-middle ${iconStroke->LogicUtils.isEmptyString
+                      ? optionIconStroke
+                      : iconStroke} `}
                   size={20}
                   name=iconName
                 />
@@ -241,7 +243,7 @@ module ListItem = {
               }}
               <div className="w-full">
                 {listText
-                ->Array.filter(str => str !== "")
+                ->Array.filter(str => str->LogicUtils.isNonEmptyString)
                 ->Array.mapWithIndex((item, i) => {
                   if (
                     (String.toLowerCase(item) == String.toLowerCase(searchString) ||
@@ -639,7 +641,7 @@ module BaseSelect = {
     }
     let disabledClass = disableSelect ? "cursor-not-allowed" : ""
 
-    let marginClass = if customMargin == "" {
+    let marginClass = if customMargin->LogicUtils.isEmptyString {
       "mt-4"
     } else {
       customMargin
@@ -813,7 +815,7 @@ module BaseSelect = {
         className={`overflow-auto ${listPadding} ${isHorizontal
             ? "flex flex-row grow"
             : ""}  ${showToggle ? "ml-3" : maxHeight}` ++ {
-          wrapBasis == "" ? "" : " flex flex-wrap justify-between"
+          wrapBasis->LogicUtils.isEmptyString ? "" : " flex flex-wrap justify-between"
         }}>
         {if filteredOptions->Array.length === 0 {
           <div className="flex justify-center items-center m-4">
@@ -2078,7 +2080,8 @@ module ChipFilterSelectBox = {
       ->Array.mapWithIndex((option, i) => {
         let isSelected = saneValue->Array.includes(option.value)
         let selectedClass = isSelected ? passedClassName : initalClassName
-        let chipsCss = customStyleForChips == "" ? selectedClass : customStyleForChips
+        let chipsCss =
+          customStyleForChips->LogicUtils.isEmptyString ? selectedClass : customStyleForChips
 
         <div
           key={string_of_int(i)}

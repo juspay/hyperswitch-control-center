@@ -320,7 +320,9 @@ let make = (
     let tabName = switch initalTab {
     | Some(value) => value
     | None =>
-      getTabNames->LogicUtils.getStrArrayFromDict("tabName", [])->Array.filter(item => item !== "")
+      getTabNames
+      ->LogicUtils.getStrArrayFromDict("tabName", [])
+      ->Array.filter(item => item->LogicUtils.isNonEmptyString)
     }
     let tabName = tabName->LogicUtils.getUniqueArray
 
@@ -501,7 +503,7 @@ let make = (
         label: x.title,
         value: x.value,
         icon: CustomRightIcon(
-          description !== ""
+          description->LogicUtils.isNonEmptyString
             ? <ToolTip
                 customStyle="-mr-1.5"
                 arrowCustomStyle={isMobileView ? "" : "ml-1.5"}

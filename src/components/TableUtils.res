@@ -3,7 +3,8 @@ let regex = searchString => {
 }
 let highlightedText = (str, searchedText) => {
   let shouldHighlight =
-    searchedText != "" && String.includes(str->String.toLowerCase, searchedText->String.toLowerCase)
+    searchedText->LogicUtils.isNonEmptyString &&
+      String.includes(str->String.toLowerCase, searchedText->String.toLowerCase)
   if shouldHighlight {
     let re = regex(searchedText)
     let matchFn = (matchPart, _offset, _wholeString) => `@@${matchPart}@@`
@@ -555,13 +556,13 @@ module EllipsisText = {
     ~toolTipPosition: ToolTip.toolTipPosition=ToolTip.Right,
   ) => {
     let modifiedText =
-      ellipsisIdentifier !== ""
+      ellipsisIdentifier->LogicUtils.isNonEmptyString
         ? {
             text->String.split(ellipsisIdentifier)->Array.get(0)->Option.getOr("") ++ "..."
           }
         : text
     let ellipsesCondition =
-      ellipsisIdentifier !== ""
+      ellipsisIdentifier->LogicUtils.isNonEmptyString
         ? String.includes(ellipsisIdentifier, text)
         : text->String.length > ellipsisThreshold
 

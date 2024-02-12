@@ -27,7 +27,7 @@ module TextView = {
     ~fontColor="text-jp-gray-800 dark:text-jp-gray-600",
     ~fontWeight="font-medium",
   ) => {
-    str !== ""
+    str->LogicUtils.isNonEmptyString
       ? <AddDataAttributes attributes=[("data-plc-text", str)]>
           <div
             className={`text-opacity-75 dark:text-opacity-75 
@@ -71,7 +71,7 @@ module CompressedView = {
         | None => React.null
         }}
         <TextView str=operator fontColor="text-red-500" fontWeight="font-semibold" />
-        <TextView str={value->Array.filter(ele => ele != "")->Array.joinWith(", ")} />
+        <TextView str={value->Array.filter(ele => ele->isNonEmptyString)->Array.joinWith(", ")} />
       </div>
     | None => React.null
     }
