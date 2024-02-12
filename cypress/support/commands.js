@@ -46,7 +46,6 @@ Cypress.Commands.add("singup_curl", () => {
     body: { email: username, password: password, country: "IN" },
   })
     .then((response) => {
-      console.log(response);
       expect(response.status).to.be.within(200, 299);
     })
     .should((response) => {
