@@ -1,6 +1,6 @@
 describe("Login Module", () => {
   beforeEach(() => {
-    // cy.visit("http://localhost:9000/");
+    cy.visit("http://localhost:9000/");
     cy.singup_curl();
   });
 
