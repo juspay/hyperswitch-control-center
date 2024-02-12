@@ -58,12 +58,12 @@ Cypress.Commands.add("singup_curl", () => {
 });
 
 Cypress.Commands.add("login_curl", () => {
-  const username = Cypress.env("CYPRESS_USERNAME");
-  const password = Cypress.env("CYPRESS_PASSWORD");
+  const username = "test@gmail.com";
+  const password = "test12#";
   // /user/signin
   cy.request({
     method: "POST",
-    url: `https://sandbox-router.juspay.io/user/signin`,
+    url: `http://localhost:8080/user/signin`,
     headers: {
       "Content-Type": "application/json",
     },
@@ -78,7 +78,7 @@ Cypress.Commands.add("deleteConnector", (mca_id) => {
   );
   cy.request({
     method: "DELETE",
-    url: `https://sandbox-router.juspay.io/account/${merchant_id}/connectors/${mca_id}`,
+    url: `http://localhost:8080/account/${merchant_id}/connectors/${mca_id}`,
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,

@@ -5,34 +5,13 @@ describe("Login Module", () => {
   });
 
   it("check the components in the sign up page", () => {
-    // cy.get("#card-subtitle").click();
-    // cy.url().should("include", "/register");
-    // cy.get("#card-header").should("contain", "Welcome to Hyperswitch");
-    // cy.get("#card-subtitle").should("contain", "Sign in");
-    // cy.get("#auth-submit-btn").should("exist");
-    // cy.get("#tc-text").should("exist");
-    // cy.get("#footer").should("exist");
-    const username = "test@gmail.com";
-    const password = "test12#";
-    // /user/signin
-    cy.request({
-      method: "POST",
-      url: `http://localhost:8080/user/signup`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: { email: username, password: password, country: "IN" },
-    })
-      .then((response) => {
-        console.log(response);
-        expect(response.status).to.be.within(200, 299);
-      })
-      .should((response) => {
-        // Check if there was an error in the response
-        if (response.status >= 400) {
-          throw new Error(`Request failed with status: ${response.status}`);
-        }
-      });
+    cy.get("#card-subtitle").click();
+    cy.url().should("include", "/register");
+    cy.get("#card-header").should("contain", "Welcome to Hyperswitch");
+    cy.get("#card-subtitle").should("contain", "Sign in");
+    cy.get("#auth-submit-btn").should("exist");
+    cy.get("#tc-text").should("exist");
+    cy.get("#footer").should("exist");
   });
 
   // it("should successfully singup in with valid credentials", () => {
@@ -69,11 +48,11 @@ describe("Login Module", () => {
     ).should("be.visible");
   });
 
-  // it("should display an error message with invalid credentials", () => {
-  //   cy.visit("http://localhost:9000/");
-  //   cy.get("[data-testid=email]").type("xxx@gmail.com");
-  //   cy.get("[data-testid=password]").type("xxxx");
-  //   cy.get('button[type="submit"]').click({ force: true });
-  //   cy.contains("Incorrect email or password").should("be.visible");
-  // });
+  it("should display an error message with invalid credentials", () => {
+    cy.visit("http://localhost:9000/");
+    cy.get("[data-testid=email]").type("xxx@gmail.com");
+    cy.get("[data-testid=password]").type("xxxx");
+    cy.get('button[type="submit"]').click({ force: true });
+    cy.contains("Incorrect email or password").should("be.visible");
+  });
 });
