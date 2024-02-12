@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.11.0
+
+### Features
+
+- User_id remove from URL & feature flag removal of user management ([#371](https://github.com/juspay/hyperswitch-control-center/pull/371)) ([`08baca8`](https://github.com/juspay/hyperswitch-control-center/commit/08baca8df8a85df6985eb0cd47c675cecdfa8711))
+
+**Full Changelog:** [`2024.02.08.0...2024.02.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.08.0...2024.02.11.0)
+
+- - -
+
 ## 2024.02.08.0
 
 ### Features
