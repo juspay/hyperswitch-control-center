@@ -161,7 +161,7 @@ let getURL = (
     | #VERIFY_MAGIC_LINK => `${userUrl}/verify_email`
     | #USER_DATA => `${userUrl}/data`
     | #MERCHANT_DATA => `${userUrl}/data`
-    | #INVITE
+    | #INVITE_MULTIPLE
     | #RESEND_INVITE =>
       `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
     | #CONNECT_ACCOUNT => `${userUrl}/connect_account`
