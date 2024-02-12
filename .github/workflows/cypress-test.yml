@@ -34,23 +34,9 @@ jobs:
           echo "Response:"
           echo "$response"
 
-        # - name: Build dashboard
-        #   run: |
-        #     npm run build:prod
-        #     npm run serve &
-
-        # - name: Wait for Server to Start (if needed)
-        #   run: sleep 10
-
-        # - name: Run cypress
-        #   run: |
-        #     npm run cy:run
-        #   env:
-        #     CYPRESS_DEBUG: true
-
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
           install: false
-          build: npm run build:prod
+          build: npm run build:test
           start: npm run serve
