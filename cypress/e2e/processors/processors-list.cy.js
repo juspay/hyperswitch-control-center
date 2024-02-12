@@ -3,8 +3,8 @@ describe("Processors Landing Module", () => {
     cy.visit("http://localhost:9000/");
   });
   it("should successfully land in the process list page", () => {
-    const username = "cypress@gmail.com";
-    const password = "cypress12#";
+    const username = Cypress.env("CYPRESS_USERNAME");
+    const password = Cypress.env("CYPRESS_PASSWORD");
     cy.get("[data-testid=email]").type(username);
     cy.get("[data-testid=password]").type(password);
     cy.get('button[type="submit"]').click({ force: true });

@@ -11,8 +11,8 @@ describe("Auth Module", () => {
   });
 
   it("check singup flow", () => {
-    const username = "cypress@gmail.com";
-    const password = "cypress12#";
+    const username = Cypress.env("CYPRESS_USERNAME");
+    const password = Cypress.env("CYPRESS_PASSWORD");
     cy.visit("http://localhost:9000/");
     cy.get("#card-subtitle").click();
     cy.url().should("include", "/register");
@@ -23,24 +23,6 @@ describe("Auth Module", () => {
     cy.contains(
       "Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments.",
     ).should("be.visible");
-    // cy.request({
-    //   method: "POST",
-    //   url: `http://localhost:8080/user/signup`,
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: { email: username, password: password, country: "IN" },
-    // })
-    //   .then((response) => {
-    //     console.log(response);
-    //     expect(response.status).to.be.within(200, 299);
-    //   })
-    //   .should((response) => {
-    //     // Check if there was an error in the response
-    //     if (response.status >= 400) {
-    //       throw new Error(`Request failed with status: ${response.status}`);
-    //     }
-    //   });
   });
 
   it("check the components in the login page", () => {
@@ -54,8 +36,8 @@ describe("Auth Module", () => {
   });
 
   it("should successfully log in with valid credentials", () => {
-    const username = "cypress@gmail.com";
-    const password = "cypress12#";
+    const username = Cypress.env("CYPRESS_USERNAME");
+    const password = Cypress.env("CYPRESS_PASSWORD");
     cy.visit("http://localhost:9000/login");
     cy.get("[data-testid=email]").type(username);
     cy.get("[data-testid=password]").type(password);
