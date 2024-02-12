@@ -1,9 +1,4 @@
-describe("Login Module", () => {
-  // beforeEach(() => {
-  //   cy.visit("http://localhost:9000/");
-  //   cy.singup_curl();
-  // });
-
+describe("Auth Module", () => {
   it("check the components in the sign up page", () => {
     cy.visit("http://localhost:9000/");
     cy.get("#card-subtitle").click();
@@ -15,27 +10,37 @@ describe("Login Module", () => {
     cy.get("#footer").should("exist");
   });
 
-  it("singup", () => {
+  it("check singup flow", () => {
     const username = "cypress@gmail.com";
     const password = "cypress12#";
-    cy.request({
-      method: "POST",
-      url: `http://localhost:8080/user/signup`,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: { email: username, password: password, country: "IN" },
-    })
-      .then((response) => {
-        console.log(response);
-        expect(response.status).to.be.within(200, 299);
-      })
-      .should((response) => {
-        // Check if there was an error in the response
-        if (response.status >= 400) {
-          throw new Error(`Request failed with status: ${response.status}`);
-        }
-      });
+    cy.visit("http://localhost:9000/");
+    cy.get("#card-subtitle").click();
+    cy.url().should("include", "/register");
+    cy.get("[data-testid=email]").type(username);
+    cy.get("[data-testid=password]").type(password);
+    cy.get('button[type="submit"]').click({ force: true });
+    cy.url().should("eq", "http://localhost:9000/home");
+    cy.contains(
+      "Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments.",
+    ).should("be.visible");
+    // cy.request({
+    //   method: "POST",
+    //   url: `http://localhost:8080/user/signup`,
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: { email: username, password: password, country: "IN" },
+    // })
+    //   .then((response) => {
+    //     console.log(response);
+    //     expect(response.status).to.be.within(200, 299);
+    //   })
+    //   .should((response) => {
+    //     // Check if there was an error in the response
+    //     if (response.status >= 400) {
+    //       throw new Error(`Request failed with status: ${response.status}`);
+    //     }
+    //   });
   });
 
   it("check the components in the login page", () => {
