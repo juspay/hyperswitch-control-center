@@ -1,10 +1,11 @@
 describe("Login Module", () => {
-  beforeEach(() => {
-    cy.visit("http://localhost:9000/");
-    cy.singup_curl();
-  });
+  // beforeEach(() => {
+  //   cy.visit("http://localhost:9000/");
+  //   cy.singup_curl();
+  // });
 
   it("check the components in the sign up page", () => {
+    cy.visit("http://localhost:9000/");
     cy.get("#card-subtitle").click();
     cy.url().should("include", "/register");
     cy.get("#card-header").should("contain", "Welcome to Hyperswitch");
@@ -14,7 +15,31 @@ describe("Login Module", () => {
     cy.get("#footer").should("exist");
   });
 
+  it("singup", () => {
+    const username = "cypress@gmail.com";
+    const password = "cypress12#";
+    cy.request({
+      method: "POST",
+      url: `http://localhost:8080/user/signup`,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: { email: username, password: password, country: "IN" },
+    })
+      .then((response) => {
+        console.log(response);
+        expect(response.status).to.be.within(200, 299);
+      })
+      .should((response) => {
+        // Check if there was an error in the response
+        if (response.status >= 400) {
+          throw new Error(`Request failed with status: ${response.status}`);
+        }
+      });
+  });
+
   it("check the components in the login page", () => {
+    cy.visit("http://localhost:9000/login");
     cy.url().should("include", "/login");
     cy.get("#card-header").should("contain", "Hey there, Welcome back!");
     cy.get("#card-subtitle").should("contain", "Sign up");
@@ -26,7 +51,7 @@ describe("Login Module", () => {
   it("should successfully log in with valid credentials", () => {
     const username = "cypress@gmail.com";
     const password = "cypress12#";
-    cy.visit("http://localhost:9000/");
+    cy.visit("http://localhost:9000/login");
     cy.get("[data-testid=email]").type(username);
     cy.get("[data-testid=password]").type(password);
     cy.get('button[type="submit"]').click({ force: true });
