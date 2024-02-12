@@ -130,6 +130,6 @@ let userEntity = EntityType.makeEntity(
   ~getHeading=getHeadingForUser,
   ~getCell=getCellForUser,
   ~dataKey="",
-  ~getShowLink={userId => `/users/${userId.user_id}?state=user`},
+  ~getShowLink=userId => `/users/details?email=${userId.email}`,
   (),
 )
