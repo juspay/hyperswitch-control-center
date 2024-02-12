@@ -1,5 +1,6 @@
 open UserOnboardingTypes
 open UserOnboardingUtils
+open LogicUtils
 
 module ProgressBar = {
   @react.component
@@ -63,7 +64,7 @@ module DownloadAPIKeyButton = {
             ("expiration", "never"->JSON.Encode.string),
           ]->Dict.fromArray
         let res = await updateDetails(url, body->JSON.Encode.object, Post, ())
-        let apiKey = res->LogicUtils.getDictFromJsonObject->LogicUtils.getString("api_key", "")
+        let apiKey = res->getDictFromJsonObject->getString("api_key", "")
         DownloadUtils.downloadOld(~fileName=`apiKey.txt`, ~content=apiKey)
         Clipboard.writeText(apiKey)
         await HyperSwitchUtils.delay(1000)
@@ -359,9 +360,7 @@ module BackendFrontendPlatformLangDropDown = {
 module LanguageTag = {
   @react.component
   let make = (~frontendLang="", ~backendLang="") => {
-    <UIUtils.RenderIf
-      condition={frontendLang->LogicUtils.isNonEmptyString &&
-        backendLang->LogicUtils.isNonEmptyString}>
+    <UIUtils.RenderIf condition={frontendLang->isNonEmptyString && backendLang->isNonEmptyString}>
       <div className="flex gap-2 items-center">
         <Icon name={`${frontendLang}`} size=25 />
         <Icon name={`${backendLang}`} size=25 />
@@ -651,8 +650,7 @@ let getTabsForIntegration = (
               </p>
             </p>}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf
-                condition={backEndLang->getInstallDependencies->LogicUtils.isNonEmptyString}>
+              <UIUtils.RenderIf condition={backEndLang->getInstallDependencies->isNonEmptyString}>
                 <ShowCodeEditor
                   value={backEndLang->getInstallDependencies}
                   theme
@@ -676,8 +674,7 @@ let getTabsForIntegration = (
         renderContent: () =>
           <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea />}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf
-                condition={frontEndLang->getInstallDependencies->LogicUtils.isNonEmptyString}>
+              <UIUtils.RenderIf condition={frontEndLang->getInstallDependencies->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getInstallDependencies}
                   theme
@@ -686,21 +683,19 @@ let getTabsForIntegration = (
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf
-                condition={frontEndLang->getInstallDependencies->LogicUtils.isNonEmptyString}>
+              <UIUtils.RenderIf condition={frontEndLang->getInstallDependencies->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getImports} theme headerText="Imports" langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf condition={frontEndLang->getLoad->LogicUtils.isNonEmptyString}>
+              <UIUtils.RenderIf condition={frontEndLang->getLoad->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getLoad} theme headerText="Load" langauge=frontEndLang
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf
-                condition={frontEndLang->getInitialize->LogicUtils.isNonEmptyString}>
+              <UIUtils.RenderIf condition={frontEndLang->getInitialize->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getInitialize}
                   theme
@@ -710,9 +705,7 @@ let getTabsForIntegration = (
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
               <UIUtils.RenderIf
-                condition={frontEndLang
-                ->getCheckoutFormForDisplayCheckoutPage
-                ->LogicUtils.isNonEmptyString}>
+                condition={frontEndLang->getCheckoutFormForDisplayCheckoutPage->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getCheckoutFormForDisplayCheckoutPage}
                   theme
@@ -728,8 +721,7 @@ let getTabsForIntegration = (
         renderContent: () =>
           <TabsContentWrapper currentRoute tabIndex customUi={<PublishableKeyArea />}>
             <div className=defaultEditorStyle>
-              <UIUtils.RenderIf
-                condition={frontEndLang->getHandleEvents->LogicUtils.isNonEmptyString}>
+              <UIUtils.RenderIf condition={frontEndLang->getHandleEvents->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getHandleEvents}
                   theme
@@ -739,8 +731,7 @@ let getTabsForIntegration = (
                 />
                 <div className="w-full h-px bg-jp-gray-700" />
               </UIUtils.RenderIf>
-              <UIUtils.RenderIf
-                condition={frontEndLang->getDisplayConformation->LogicUtils.isNonEmptyString}>
+              <UIUtils.RenderIf condition={frontEndLang->getDisplayConformation->isNonEmptyString}>
                 <ShowCodeEditor
                   value={frontEndLang->getDisplayConformation}
                   theme

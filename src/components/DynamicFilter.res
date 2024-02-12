@@ -7,6 +7,7 @@ module CustomFilters = {
     ~setCustomFilter,
     ~currentFilterValue,
   ) => {
+    open LogicUtils
     let (errMessage, setErrMessage) = React.useState(_ => "")
 
     let (completionDisposable, setCompletionDisposable) = Recoil.useRecoilState(
@@ -24,7 +25,7 @@ module CustomFilters = {
       setShowModal(_ => false)
     }
     let onChange = str => {
-      if str->LogicUtils.isEmptyString {
+      if str->isEmptyString {
         setPlaceHolder(_ => placeholderText)
       }
       setLocalData(_ => str)
@@ -53,7 +54,7 @@ module CustomFilters = {
 
         let firstEle = mArr[0]->Option.getOr("")
         if (
-          firstEle->LogicUtils.isNonEmptyString &&
+          firstEle->isNonEmptyString &&
             tabNames->Array.indexOf(firstEle->String.trim->String.toLowerCase) < 0
         ) {
           setErrMessage(str => `${str} ${firstEle} is not a valid dimension.`)
@@ -104,11 +105,7 @@ module CustomFilters = {
       onClick={_ => {setPlaceHolder(_ => "")}}
       onKeyPress={_ => {setMouseEnter(_ => true)}}
       onMouseLeave={_ => {setMouseEnter(_ => false)}}>
-      {if (
-        placeholderTextSt->LogicUtils.isNonEmptyString &&
-        localData->LogicUtils.isEmptyString &&
-        !mounseEnter
-      ) {
+      {if placeholderTextSt->isNonEmptyString && localData->isEmptyString && !mounseEnter {
         <div className="monaco-placeholder text-black opacity-50 ml-6 ">
           {placeholderTextSt->React.string}
         </div>
@@ -132,7 +129,7 @@ module CustomFilters = {
       />
       <div>
         <span className="flex break-words text-red-800">
-          {errMessage->LogicUtils.isEmptyString ? React.null : React.string(errMessage)}
+          {errMessage->isEmptyString ? React.null : React.string(errMessage)}
         </span>
         <div className="mt-6">
           <Button
@@ -140,7 +137,7 @@ module CustomFilters = {
             buttonType=Primary
             buttonSize=Small
             onClick=onSubmit
-            buttonState={errMessage->LogicUtils.isEmptyString ? Normal : Disabled}
+            buttonState={errMessage->isEmptyString ? Normal : Disabled}
           />
         </div>
       </div>
@@ -169,6 +166,7 @@ let make = (
   ~hideFiltersDefaultValue=?,
   ~refreshFilters=true,
 ) => {
+  open LogicUtils
   let localFilters = initialFilters->Array.filter(item => item.localFilter->Option.isSome)
   let remoteOptions = options->Array.filter(item => item.localFilter->Option.isNone)
   let defaultFilters = ""->JSON.Encode.string
@@ -182,7 +180,7 @@ let make = (
     updateExistingKeys(Dict.fromArray([(customFilterKey, customFilter)]))
   }
 
-  let customFilters = if customFilterKey->LogicUtils.isNonEmptyString {
+  let customFilters = if customFilterKey->isNonEmptyString {
     <>
       <div className="mx-2">
         <Button
@@ -241,7 +239,7 @@ let make = (
       ?updateUrlWith
       clearFilters
       filterFieldsPortalName
-      initalCount={currentCustomFilterValue->LogicUtils.isNonEmptyString ? 1 : 0}
+      initalCount={currentCustomFilterValue->isNonEmptyString ? 1 : 0}
       showFiltersBtn=filtersDisplayOption
       showSelectFiltersSearch
       tableName=moduleName

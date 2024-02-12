@@ -1,4 +1,5 @@
 open IntegrateYourAppUtils
+open LogicUtils
 
 @react.component
 let make = (
@@ -99,9 +100,7 @@ let make = (
           />
           <div className="bg-white border rounded">
             <UIUtils.RenderIf
-              condition={backEndLang
-              ->UserOnboardingUtils.getInstallDependencies
-              ->LogicUtils.isNonEmptyString}>
+              condition={backEndLang->UserOnboardingUtils.getInstallDependencies->isNonEmptyString}>
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getMigrateFromStripeDX(backEndLang)}
                 theme
@@ -141,9 +140,7 @@ let make = (
             setPlatform
           />
           <UIUtils.RenderIf
-            condition={frontEndLang
-            ->UserOnboardingUtils.getInstallDependencies
-            ->LogicUtils.isNonEmptyString}>
+            condition={frontEndLang->UserOnboardingUtils.getInstallDependencies->isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getInstallDependencies}
@@ -154,9 +151,7 @@ let make = (
             </div>
           </UIUtils.RenderIf>
           <UIUtils.RenderIf
-            condition={frontEndLang
-            ->UserOnboardingUtils.getInstallDependencies
-            ->LogicUtils.isNonEmptyString}>
+            condition={frontEndLang->UserOnboardingUtils.getInstallDependencies->isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getImports}
@@ -166,8 +161,7 @@ let make = (
               />
             </div>
           </UIUtils.RenderIf>
-          <UIUtils.RenderIf
-            condition={frontEndLang->UserOnboardingUtils.getLoad->LogicUtils.isNonEmptyString}>
+          <UIUtils.RenderIf condition={frontEndLang->UserOnboardingUtils.getLoad->isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getLoad}
@@ -178,9 +172,7 @@ let make = (
             </div>
           </UIUtils.RenderIf>
           <UIUtils.RenderIf
-            condition={frontEndLang
-            ->UserOnboardingUtils.getInitialize
-            ->LogicUtils.isNonEmptyString}>
+            condition={frontEndLang->UserOnboardingUtils.getInitialize->isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getInitialize}
@@ -193,7 +185,7 @@ let make = (
           <UIUtils.RenderIf
             condition={frontEndLang
             ->UserOnboardingUtils.getCheckoutFormForDisplayCheckoutPage
-            ->LogicUtils.isNonEmptyString}>
+            ->isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getCheckoutFormForDisplayCheckoutPage}
@@ -225,9 +217,7 @@ let make = (
             setPlatform
           />
           <UIUtils.RenderIf
-            condition={frontEndLang
-            ->UserOnboardingUtils.getHandleEvents
-            ->LogicUtils.isNonEmptyString}>
+            condition={frontEndLang->UserOnboardingUtils.getHandleEvents->isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getHandleEvents}
@@ -239,9 +229,7 @@ let make = (
             </div>
           </UIUtils.RenderIf>
           <UIUtils.RenderIf
-            condition={frontEndLang
-            ->UserOnboardingUtils.getDisplayConformation
-            ->LogicUtils.isNonEmptyString}>
+            condition={frontEndLang->UserOnboardingUtils.getDisplayConformation->isNonEmptyString}>
             <div className="bg-white border rounded">
               <UserOnboardingUIUtils.ShowCodeEditor
                 value={frontEndLang->UserOnboardingUtils.getDisplayConformation}
