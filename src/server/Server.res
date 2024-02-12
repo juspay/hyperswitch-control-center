@@ -14,6 +14,9 @@ external configHandler: (Http.request, Http.response, bool, string) => unit = "c
 @module("./health.mjs")
 external healthHandler: (Http.request, Http.response) => unit = "healthHandler"
 
+@module("./health.mjs")
+external healthReadinessHandler: (Http.request, Http.response) => unit = "healthReadinessHandler"
+
 module ServerHandler = {
   type rewrite = {source: string, destination: string}
   type header = {key: string, value: string}
@@ -67,6 +70,11 @@ let serverHandler: Http.serverHandler = (request, response) => {
   } else if path === "/health" && request.method === "GET" {
     Promise.make((resolve, _reject) => {
       healthHandler(request, response)
+      ()->resolve(. _)
+    })
+  } else if path === "/health/ready" && request.method === "GET" {
+    Promise.make((resolve, _reject) => {
+      healthReadinessHandler(request, response)
       ()->resolve(. _)
     })
   } else {

@@ -83,6 +83,7 @@ let connectorListForLive: array<connectorName> = [
   NMI,
   PAYME,
   TRUSTPAY,
+  VOLT,
   ZEN,
 ]
 
