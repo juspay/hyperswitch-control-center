@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.12.0
+
+### Features
+
+- Invite_multiple API Support added ([#376](https://github.com/juspay/hyperswitch-control-center/pull/376)) ([`26a502e`](https://github.com/juspay/hyperswitch-control-center/commit/26a502e840c592eac14d430f438fed88defa59f9))
+- Enable VOLT in Live ([#384](https://github.com/juspay/hyperswitch-control-center/pull/384)) ([`4a7274b`](https://github.com/juspay/hyperswitch-control-center/commit/4a7274ba4628c02b2fc2dc0e5b6985f0478706ca))
+
+### Miscellaneous Tasks
+
+- Add health readiness endpoint ([#375](https://github.com/juspay/hyperswitch-control-center/pull/375)) ([`3e31ae1`](https://github.com/juspay/hyperswitch-control-center/commit/3e31ae174b4ae5a8a4c758b7022148e4c123508d))
+
+**Full Changelog:** [`2024.02.11.0...2024.02.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.11.0...2024.02.12.0)
+
+- - -
+
 ## 2024.02.11.0
 
 ### Features
