@@ -34,22 +34,22 @@ jobs:
           echo "Response:"
           echo "$response"
 
-      - name: Build dashboard
-        run: |
-          npm run build:prod
-          npm run serve &
+        # - name: Build dashboard
+        #   run: |
+        #     npm run build:prod
+        #     npm run serve &
 
-      - name: Wait for Server to Start (if needed)
-        run: sleep 10
+        # - name: Wait for Server to Start (if needed)
+        #   run: sleep 10
 
-      - name: Run cypress
-        run: |
-          npm run cy:run
-        env:
-          CYPRESS_DEBUG: true
+        # - name: Run cypress
+        #   run: |
+        #     npm run cy:run
+        #   env:
+        #     CYPRESS_DEBUG: true
 
-        # uses: cypress-io/github-action@v6
-        # with:
-        #   install: false
-        #   build: npm run build:prod
-        #   start: npm run serve
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          build: npm run build:prod
+          start: npm run serve
