@@ -691,8 +691,7 @@ module SDKAnalyticsChartContext = {
           let (key, value) = entries
           chartEntity.allFilterDimension->Array.includes(key) ? Some((key, value)) : None
         })
-        ->Dict.fromArray
-        ->JSON.Encode.object
+        ->getJsonFromArrayOfJson
         ->Some
       (startTimeFromUrl, endTimeFromUrl, filterValueFromUrl)
     }, [topFiltersToSearchParam])
