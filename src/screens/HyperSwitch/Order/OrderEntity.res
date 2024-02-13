@@ -658,7 +658,6 @@ let getCellForAboutPayment = (
         )
         ->Option.getOr(Dict.make())
         ->getString("connector_label", "")
-
       Text(connectorLabel)
     }
   | CardBrand => Text(order.card_brand)
@@ -745,6 +744,7 @@ let getCell = (order, colType: colType): Table.cell => {
   | CaptureOn => Date(order.off_session)
   | CaptureMethod => Text(order.capture_method)
   | PaymentMethod => Text(order.payment_method)
+  | PaymentMethodData => Text(order.payment_method_data->JSON.stringifyAny->Option.getOr(""))
   | PaymentMethodType => Text(order.payment_method_type)
   | PaymentToken => Text(order.payment_token)
   | Shipping => Text(order.shipping)
@@ -769,7 +769,6 @@ let getCell = (order, colType: colType): Table.cell => {
       | Some(v) => v
       },
     )
-  | _ => Text("")
   }
 }
 
@@ -845,7 +844,7 @@ let itemToObjMapper = dict => {
     payment_method_data: {
       let paymentMethodData = dict->getJsonObjectFromDict("payment_method_data")
       switch paymentMethodData->JSON.Classify.classify {
-      | Object(value) => Some(value->getDictfromDict("card"))
+      | Object(value) => Some(value->getJsonObjectFromDict("card"))
       | _ => None
       }
     },
