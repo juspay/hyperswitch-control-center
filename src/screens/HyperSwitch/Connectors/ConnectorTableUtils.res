@@ -132,7 +132,7 @@ let getArrayOfConnectorListPayloadType = json => {
   })
 }
 
-let getConnectorNameViaId = (
+let getConnectorObjectFromListViaId = (
   connectorList: array<ConnectorTypes.connectorPayload>,
   mca_id: string,
 ) => {

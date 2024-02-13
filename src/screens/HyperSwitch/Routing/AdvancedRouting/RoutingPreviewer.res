@@ -31,7 +31,8 @@ module GatewayView = {
   let make = (~gateways, ~connectorList=?) => {
     let getGatewayName = name => {
       switch connectorList {
-      | Some(list) => (list->ConnectorTableUtils.getConnectorNameViaId(name)).connector_label
+      | Some(list) =>
+        (list->ConnectorTableUtils.getConnectorObjectFromListViaId(name)).connector_label
       | None => name
       }
     }
