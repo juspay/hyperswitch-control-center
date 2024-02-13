@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.12.1
+
+### Miscellaneous Tasks
+
+- Add signup cypress test ([#381](https://github.com/juspay/hyperswitch-control-center/pull/381)) ([`d39a5e2`](https://github.com/juspay/hyperswitch-control-center/commit/d39a5e28ac76268c41f2ccea78dc766b8f950928))
+
+**Full Changelog:** [`2024.02.12.0...2024.02.12.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.12.0...2024.02.12.1)
+
+- - -
+
 ## 2024.02.12.0
 
 ### Features
