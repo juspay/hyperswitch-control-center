@@ -91,7 +91,6 @@
     "react-virtualized-auto-sizer": "^1.0.11",
     "react-window": "^1.8.8",
     "recoil": "^0.1.2",
-    "rescript-debounce-react": "^1.0.0",
     "rescript-webapi": "^0.7.0",
     "tailwindcss": "^3.0.0"
   },
