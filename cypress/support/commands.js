@@ -33,13 +33,36 @@ Cypress.Commands.add("login_UI", () => {
   cy.get('button[type="submit"]').click({ force: true });
 });
 
+Cypress.Commands.add("singup_curl", () => {
+  const username = Cypress.env("CYPRESS_USERNAME");
+  const password = Cypress.env("CYPRESS_PASSWORD");
+  // /user/signin
+  cy.request({
+    method: "POST",
+    url: `http://localhost:8080/user/signup`,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: { email: username, password: password, country: "IN" },
+  })
+    .then((response) => {
+      expect(response.status).to.be.within(200, 299);
+    })
+    .should((response) => {
+      // Check if there was an error in the response
+      if (response.status >= 400) {
+        throw new Error(`Request failed with status: ${response.status}`);
+      }
+    });
+});
+
 Cypress.Commands.add("login_curl", () => {
   const username = Cypress.env("CYPRESS_USERNAME");
   const password = Cypress.env("CYPRESS_PASSWORD");
   // /user/signin
   cy.request({
     method: "POST",
-    url: `https://sandbox-router.juspay.io/user/signin`,
+    url: `http://localhost:8080/user/signin`,
     headers: {
       "Content-Type": "application/json",
     },
@@ -54,7 +77,7 @@ Cypress.Commands.add("deleteConnector", (mca_id) => {
   );
   cy.request({
     method: "DELETE",
-    url: `https://sandbox-router.juspay.io/account/${merchant_id}/connectors/${mca_id}`,
+    url: `http://localhost:8080/account/${merchant_id}/connectors/${mca_id}`,
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
