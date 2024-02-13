@@ -746,7 +746,6 @@ let getCell = (order, colType: colType): Table.cell => {
   | CaptureMethod => Text(order.capture_method)
   | PaymentMethod => Text(order.payment_method)
   | PaymentMethodType => Text(order.payment_method_type)
-  | PaymentMethodData => Text(order.payment_method_data)
   | PaymentToken => Text(order.payment_token)
   | Shipping => Text(order.shipping)
   | Billing => Text(order.billing)
@@ -770,6 +769,7 @@ let getCell = (order, colType: colType): Table.cell => {
       | Some(v) => v
       },
     )
+  | _ => Text("")
   }
 }
 
@@ -842,7 +842,13 @@ let itemToObjMapper = dict => {
     capture_method: dict->getString("capture_method", ""),
     payment_method: dict->getString("payment_method", ""),
     payment_method_type: dict->getString("payment_method_type", ""),
-    payment_method_data: dict->getString("payment_method_data", ""),
+    payment_method_data: {
+      let paymentMethodData = dict->getJsonObjectFromDict("payment_method_data")
+      switch paymentMethodData->JSON.Classify.classify {
+      | Object(value) => Some(value->getDictfromDict("card"))
+      | _ => None
+      }
+    },
     payment_token: dict->getString("payment_token", ""),
     shipping: dict
     ->getDictfromDict("shipping")
@@ -889,11 +895,9 @@ let orderEntity = EntityType.makeEntity(
   ~getObjects=getOrders,
   ~defaultColumns,
   ~allColumns,
-  //~defaultFilters=getDefaultFilters(getDateCreatedObject()),
   ~getHeading,
   ~getCell,
   ~dataKey="",
   ~getShowLink={order => `/payments/${order.payment_id}`},
-  //~initialFilters=initialFilterFields,
   (),
 )
