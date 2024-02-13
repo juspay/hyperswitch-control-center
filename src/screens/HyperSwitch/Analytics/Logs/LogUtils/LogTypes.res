@@ -24,6 +24,15 @@ let getLogType = dict => {
   }
 }
 
+let getTagName = tag => {
+  switch tag {
+  | SDK => "SDK"
+  | API_EVENTS => "API"
+  | WEBHOOKS => "WEBHOOKS"
+  | CONNECTOR => "CONNECTOR"
+  }
+}
+
 let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
   open LogicUtils
   switch initialData->getLogType {
