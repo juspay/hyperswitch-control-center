@@ -47,7 +47,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
             {
               connector: {
                 connector: (
-                  connectorList->ConnectorTableUtils.getConnectorNameViaId(item)
+                  connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(item)
                 ).connector_name,
                 merchant_connector_id: item,
               },
@@ -56,7 +56,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
           } else {
             {
               connector: (
-                connectorList->ConnectorTableUtils.getConnectorNameViaId(item)
+                connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(item)
               ).connector_name,
               merchant_connector_id: item,
             }->Identity.genericTypeToJson
@@ -91,7 +91,9 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
         {
           connector: {
             connector: (
-              connectorList->ConnectorTableUtils.getConnectorNameViaId(obj.merchant_connector_id)
+              connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(
+                obj.merchant_connector_id,
+              )
             ).connector_name,
             merchant_connector_id: obj.merchant_connector_id,
           },
@@ -179,7 +181,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
               <div>
                 {React.string(
                   (
-                    connectorList->ConnectorTableUtils.getConnectorNameViaId(
+                    connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(
                       (
                         item->AdvancedRoutingUtils.getConnectorStringFromConnectorSelectionData
                       ).merchant_connector_id,
