@@ -7,7 +7,7 @@ let make = (~paymentId, ~disputeId) => {
   open PaymentLogsUtils
   open LogTypes
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
-  let logs = React.useMemo0(() => {ref([])})
+  let (data, setData) = React.useState(_ => [])
   let (logDetails, setLogDetails) = React.useState(_ => {
     response: "",
     request: "",
@@ -24,6 +24,7 @@ let make = (~paymentId, ~disputeId) => {
   let connectorLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/connector_event_logs?payment_id=${paymentId}&dispute_id=${disputeId}`
 
   let getDetails = async () => {
+    let logs = ref([])
     if !(paymentId->HSwitchOrderUtils.isTestData) {
       let resArr = await PromiseUtils.allSettledPolyfill([
         fetchDetails(disputesLogsUrl),
@@ -53,25 +54,21 @@ let make = (~paymentId, ~disputeId) => {
       if logs.contents->Array.length === 0 && isError.contents {
         setScreenState(_ => PageLoaderWrapper.Error("Failed to Fetch!"))
       } else {
+        logs.contents = logs.contents->Js.Array2.sortInPlaceWith(LogUtils.sortByCreatedAt)
+        setData(_ => logs.contents)
+        switch logs.contents->Array.get(0) {
+        | Some(value) => {
+            let initialData = value->getDictFromJsonObject
+            initialData->setDefaultValue(setLogDetails, setSelectedOption)
+          }
+        | _ => ()
+        }
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     } else {
       setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
-
-  React.useEffect1(() => {
-    logs.contents = logs.contents->Js.Array2.sortInPlaceWith(LogUtils.sortByCreatedAt)
-
-    switch logs.contents->Array.get(0) {
-    | Some(value) => {
-        let initialData = value->getDictFromJsonObject
-        initialData->setDefaultValue(setLogDetails, setSelectedOption)
-      }
-    | _ => ()
-    }
-    None
-  }, [screenState])
 
   React.useEffect0(() => {
     getDetails()->ignore
@@ -87,7 +84,7 @@ let make = (~paymentId, ~disputeId) => {
   let timeLine =
     <div className="flex flex-col w-2/5 overflow-y-scroll pt-7 pl-5">
       <div className="flex flex-col">
-        {logs.contents
+        {data
         ->Array.mapWithIndex((disputeDetailsValue, index) => {
           <ApiDetailsComponent
             key={index->string_of_int}
@@ -96,7 +93,7 @@ let make = (~paymentId, ~disputeId) => {
             setSelectedOption
             currentSelected=selectedOption.value
             index
-            logsDataLength={logs.contents->Array.length - 1}
+            logsDataLength={data->Array.length - 1}
             getLogType
             nameToURLMapper={nameToURLMapper(~id={disputeId})}
             filteredKeys
@@ -135,7 +132,7 @@ let make = (~paymentId, ~disputeId) => {
   open OrderUtils
   <PageLoaderWrapper
     screenState customUI={<NoDataFound message="No logs available for this dispute" />}>
-    {if disputeId->HSwitchOrderUtils.isTestData || logs.contents->Array.length === 0 {
+    {if disputeId->HSwitchOrderUtils.isTestData || data->Array.length === 0 {
       <div
         className="flex items-center gap-2 bg-white w-full border-2 p-3 !opacity-100 rounded-lg text-md font-medium">
         <Icon name="info-circle-unfilled" size=16 />

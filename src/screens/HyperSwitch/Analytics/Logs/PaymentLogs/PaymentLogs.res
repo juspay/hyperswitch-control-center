@@ -6,7 +6,7 @@ let make = (~paymentId, ~createdAt) => {
   open LogTypes
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let fetchPostDetils = useUpdateMethod()
-  let logs = React.useMemo0(() => {ref([])})
+  let (data, setData) = React.useState(_ => [])
   let isError = React.useMemo0(() => {ref(false)})
   let (logDetails, setLogDetails) = React.useState(_ => {
     response: "",
@@ -50,6 +50,7 @@ let make = (~paymentId, ~createdAt) => {
   )
 
   let getDetails = async () => {
+    let logs = ref([])
     if !(paymentId->HSwitchOrderUtils.isTestData) {
       let resArr = await PromiseUtils.allSettledPolyfill([
         fetchDetails(apiLogsUrl),
@@ -81,24 +82,20 @@ let make = (~paymentId, ~createdAt) => {
         setScreenState(_ => PageLoaderWrapper.Error("Failed to Fetch!"))
       } else {
         setScreenState(_ => PageLoaderWrapper.Success)
+        logs.contents = logs.contents->Js.Array2.sortInPlaceWith(LogUtils.sortByCreatedAt)
+        setData(_ => logs.contents)
+        switch logs.contents->Array.get(0) {
+        | Some(value) => {
+            let initialData = value->getDictFromJsonObject
+            initialData->setDefaultValue(setLogDetails, setSelectedOption)
+          }
+        | _ => ()
+        }
       }
     } else {
       setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
-
-  React.useEffect1(() => {
-    logs.contents = logs.contents->Js.Array2.sortInPlaceWith(LogUtils.sortByCreatedAt)
-
-    switch logs.contents->Array.get(0) {
-    | Some(value) => {
-        let initialData = value->getDictFromJsonObject
-        initialData->setDefaultValue(setLogDetails, setSelectedOption)
-      }
-    | _ => ()
-    }
-    None
-  }, [screenState])
 
   React.useEffect0(() => {
     getDetails()->ignore
@@ -114,7 +111,7 @@ let make = (~paymentId, ~createdAt) => {
   let timeLine =
     <div className="flex flex-col w-2/5 overflow-y-scroll pt-7 pl-5">
       <div className="flex flex-col">
-        {logs.contents
+        {data
         ->Array.mapWithIndex((paymentDetailsValue, index) => {
           <ApiDetailsComponent
             key={index->string_of_int}
@@ -123,7 +120,7 @@ let make = (~paymentId, ~createdAt) => {
             setSelectedOption
             currentSelected=selectedOption.value
             index
-            logsDataLength={logs.contents->Array.length - 1}
+            logsDataLength={data->Array.length - 1}
             getLogType
             nameToURLMapper={nameToURLMapper(~id={paymentId})}
             filteredKeys
@@ -162,7 +159,7 @@ let make = (~paymentId, ~createdAt) => {
   open OrderUtils
   <PageLoaderWrapper
     screenState customUI={<NoDataFound message="No logs available for this payment" />}>
-    {if paymentId->HSwitchOrderUtils.isTestData || logs.contents->Array.length === 0 {
+    {if paymentId->HSwitchOrderUtils.isTestData || data->Array.length === 0 {
       <div
         className="flex items-center gap-2 bg-white w-full border-2 p-3 !opacity-100 rounded-lg text-md font-medium">
         <Icon name="info-circle-unfilled" size=16 />
