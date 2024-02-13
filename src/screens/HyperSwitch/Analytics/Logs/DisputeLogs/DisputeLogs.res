@@ -16,71 +16,51 @@ let make = (~paymentId, ~disputeId) => {
     value: 0,
     optionType: API_EVENTS,
   })
+  let isError = React.useMemo0(() => {ref(false)})
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
-  let fetchDisputeLogsData = async _ => {
-    try {
-      let disputesLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/api_event_logs?type=Dispute&payment_id=${paymentId}&dispute_id=${disputeId}`
-      let disputeLogsArray = (await fetchDetails(disputesLogsUrl))->getArrayFromJson([])
-      logs.contents = logs.contents->Array.concat(disputeLogsArray)
-
-      PageLoaderWrapper.Success
-    } catch {
-    | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      PageLoaderWrapper.Error(err)
-    }
-  }
-
-  let fetchWebhooksLogsData = async _ => {
-    try {
-      let webhooksLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/outgoing_webhook_event_logs?&payment_id=${paymentId}&dispute_id=${disputeId}`
-      let webhooksLogsArray = (await fetchDetails(webhooksLogsUrl))->getArrayFromJson([])
-      switch webhooksLogsArray->Array.get(0) {
-      | Some(val) => logs.contents = logs.contents->Array.concat([val])
-      | _ => ()
-      }
-
-      PageLoaderWrapper.Success
-    } catch {
-    | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      PageLoaderWrapper.Error(err)
-    }
-  }
-
-  let fetchConnectorLogsData = async _ => {
-    try {
-      let connectorLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/connector_event_logs?payment_id=${paymentId}&dispute_id=${disputeId}`
-      let connectorLogsArray = (await fetchDetails(connectorLogsUrl))->getArrayFromJson([])
-      logs.contents = logs.contents->Array.concat(connectorLogsArray)
-
-      PageLoaderWrapper.Success
-    } catch {
-    | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      PageLoaderWrapper.Error(err)
-    }
-  }
+  let disputesLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/api_event_logs?type=Dispute&payment_id=${paymentId}&dispute_id=${disputeId}`
+  let webhooksLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/outgoing_webhook_event_logs?&payment_id=${paymentId}&dispute_id=${disputeId}`
+  let connectorLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/connector_event_logs?payment_id=${paymentId}&dispute_id=${disputeId}`
 
   let getDetails = async () => {
-    if !(disputeId->HSwitchOrderUtils.isTestData) {
-      let apiLogsStatus = await fetchDisputeLogsData()
-      let webhooksStatus = await fetchWebhooksLogsData()
-      let connectorStatus = await fetchConnectorLogsData()
+    if !(paymentId->HSwitchOrderUtils.isTestData) {
+      let resArr = await PromiseUtils.allSettledPolyfill([
+        fetchDetails(disputesLogsUrl),
+        fetchDetails(webhooksLogsUrl),
+        fetchDetails(connectorLogsUrl),
+      ])
 
-      let screenState = switch (apiLogsStatus, webhooksStatus, connectorStatus) {
-      | (PageLoaderWrapper.Error(_), PageLoaderWrapper.Error(_), PageLoaderWrapper.Error(_)) =>
-        PageLoaderWrapper.Error("Failed to Fetch!")
-      | _ => PageLoaderWrapper.Success
+      resArr->Array.forEach(json => {
+        // clasify btw json value and error response
+        switch JSON.Classify.classify(json) {
+        | Array(arr) =>
+          // add to the logs only if array is non empty
+          switch arr->Array.get(0) {
+          | Some(dict) =>
+            switch dict->getDictFromJsonObject->getLogType {
+            | SDK => logs.contents = logs.contents->Array.concat(arr->parseSdkResponse)
+            | CONNECTOR | API_EVENTS => logs.contents = logs.contents->Array.concat(arr)
+            | WEBHOOKS => logs.contents = logs.contents->Array.concat([dict])
+            }
+          | _ => ()
+          }
+        | String(_) => isError.contents = true
+        | _ => ()
+        }
+      })
+
+      if logs.contents->Array.length === 0 && isError.contents {
+        setScreenState(_ => PageLoaderWrapper.Error("Failed to Fetch!"))
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Success)
       }
-      setScreenState(_ => screenState)
     } else {
       setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
-  let screenState = React.useMemo1(() => {
+  React.useEffect1(() => {
     logs.contents = logs.contents->Js.Array2.sortInPlaceWith(LogUtils.sortByCreatedAt)
 
     switch logs.contents->Array.get(0) {
@@ -150,8 +130,7 @@ let make = (~paymentId, ~disputeId) => {
       }
     | _ => ()
     }
-
-    screenState
+    None
   }, [screenState])
 
   React.useEffect0(() => {

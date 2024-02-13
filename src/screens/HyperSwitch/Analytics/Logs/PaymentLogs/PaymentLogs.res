@@ -1,5 +1,3 @@
-@module("js-sha256") external sha256: string => string = "sha256"
-
 @react.component
 let make = (~paymentId, ~createdAt) => {
   open APIUtils
@@ -9,6 +7,7 @@ let make = (~paymentId, ~createdAt) => {
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let fetchPostDetils = useUpdateMethod()
   let logs = React.useMemo0(() => {ref([])})
+  let isError = React.useMemo0(() => {ref(false)})
   let (logDetails, setLogDetails) = React.useState(_ => {
     response: "",
     request: "",
@@ -19,175 +18,76 @@ let make = (~paymentId, ~createdAt) => {
   })
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
-  let fetchPaymentLogsData = async _ => {
-    try {
-      let paymentLogsUrl = getURL(
-        ~entityName=PAYMENT_LOGS,
-        ~methodType=Get,
-        ~id=Some(paymentId),
-        (),
-      )
-      let paymentLogsArray = (await fetchDetails(paymentLogsUrl))->getArrayFromJson([])
-      logs.contents = logs.contents->Array.concat(paymentLogsArray)
-
-      PageLoaderWrapper.Success
-    } catch {
-    | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      PageLoaderWrapper.Error(err)
-    }
-  }
-
-  let fetchWebhooksLogsData = async _ => {
-    try {
-      let webhooksLogsUrl = getURL(
-        ~entityName=WEBHOOKS_EVENT_LOGS,
-        ~methodType=Get,
-        ~id=Some(paymentId),
-        (),
-      )
-      let webhooksLogsArray = (await fetchDetails(webhooksLogsUrl))->getArrayFromJson([])
-      switch webhooksLogsArray->Array.get(0) {
-      | Some(val) => logs.contents = logs.contents->Array.concat([val])
-      | _ => ()
-      }
-
-      PageLoaderWrapper.Success
-    } catch {
-    | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      PageLoaderWrapper.Error(err)
-    }
-  }
-
-  let fetchConnectorLogsData = async _ => {
-    try {
-      let connectorLogsUrl = getURL(
-        ~entityName=CONNECTOR_EVENT_LOGS,
-        ~methodType=Get,
-        ~id=Some(paymentId),
-        (),
-      )
-      let connectorLogsArray = (await fetchDetails(connectorLogsUrl))->getArrayFromJson([])
-      logs.contents = logs.contents->Array.concat(connectorLogsArray)
-
-      PageLoaderWrapper.Success
-    } catch {
-    | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      PageLoaderWrapper.Error(err)
-    }
-  }
-
-  let fetchSdkLogsData = async _ => {
-    let sourceMapper = source => {
-      switch source {
-      | "ORCA-LOADER" => "HYPERLOADER"
-      | "ORCA-PAYMENTS-PAGE"
-      | "STRIPE_PAYMENT_SHEET" => "PAYMENT_SHEET"
-      | other => other
-      }
-    }
-
-    try {
-      let url = getURL(~entityName=SDK_EVENT_LOGS, ~methodType=Post, ~id=Some(paymentId), ())
-      let startTime = createdAt->Date.fromString->Date.getTime -. 1000. *. 60. *. 5.
-      let startTime = startTime->Js.Date.fromFloat->Date.toISOString
-
-      let endTime = createdAt->Date.fromString->Date.getTime +. 1000. *. 60. *. 60. *. 3.
-      let endTime = endTime->Js.Date.fromFloat->Date.toISOString
-      let body =
-        [
-          ("paymentId", paymentId->JSON.Encode.string),
-          (
-            "timeRange",
-            [("startTime", startTime->JSON.Encode.string), ("endTime", endTime->JSON.Encode.string)]
-            ->Dict.fromArray
-            ->JSON.Encode.object,
-          ),
-        ]
+  let apiLogsUrl = getURL(~entityName=PAYMENT_LOGS, ~methodType=Get, ~id=Some(paymentId), ())
+  let sdkLogsUrl = getURL(~entityName=SDK_EVENT_LOGS, ~methodType=Post, ~id=Some(paymentId), ())
+  let startTime = createdAt->Date.fromString->Date.getTime -. 1000. *. 60. *. 5.
+  let startTime = startTime->Js.Date.fromFloat->Date.toISOString
+  let endTime = createdAt->Date.fromString->Date.getTime +. 1000. *. 60. *. 60. *. 3.
+  let endTime = endTime->Js.Date.fromFloat->Date.toISOString
+  let sdkPostBody =
+    [
+      ("paymentId", paymentId->JSON.Encode.string),
+      (
+        "timeRange",
+        [("startTime", startTime->JSON.Encode.string), ("endTime", endTime->JSON.Encode.string)]
         ->Dict.fromArray
-        ->JSON.Encode.object
-      let sdkLogsArray =
-        (await fetchPostDetils(url, body, Post, ()))
-        ->getArrayFromJson([])
-        ->Array.map(event => {
-          let eventDict = event->getDictFromJsonObject
-          let eventName = eventDict->getString("event_name", "")
-          let timestamp = eventDict->getString("created_at_precise", "")
-          let logType = eventDict->getString("log_type", "")
-          let updatedEventName =
-            logType === "INFO" ? eventName->String.replace("Call", "Response") : eventName
-          eventDict->Dict.set("event_name", updatedEventName->JSON.Encode.string)
-          eventDict->Dict.set("event_id", sha256(updatedEventName ++ timestamp)->JSON.Encode.string)
-          eventDict->Dict.set(
-            "source",
-            eventDict->getString("source", "")->sourceMapper->JSON.Encode.string,
-          )
-          eventDict->Dict.set(
-            "checkout_platform",
-            eventDict->getString("component", "")->JSON.Encode.string,
-          )
-          eventDict->Dict.set(
-            "customer_device",
-            eventDict->getString("platform", "")->JSON.Encode.string,
-          )
-          eventDict->Dict.set(
-            "sdk_version",
-            eventDict->getString("version", "")->JSON.Encode.string,
-          )
-          eventDict->Dict.set(
-            "event_name",
-            updatedEventName
-            ->snakeToTitle
-            ->titleToSnake
-            ->snakeToCamel
-            ->capitalizeString
-            ->JSON.Encode.string,
-          )
-          eventDict->Dict.set("created_at", timestamp->JSON.Encode.string)
-          eventDict->JSON.Encode.object
-        })
-      let logsArr = sdkLogsArray->Array.filter(sdkLog => {
-        let eventDict = sdkLog->getDictFromJsonObject
-        let eventName = eventDict->getString("event_name", "")
-        let filteredEventNames = ["StripeElementsCalled"]
-        filteredEventNames->Array.includes(eventName)->not
-      })
-      logs.contents = logs.contents->Array.concat(logsArr)
-
-      PageLoaderWrapper.Success
-    } catch {
-    | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      PageLoaderWrapper.Error(err)
-    }
-  }
+        ->JSON.Encode.object,
+      ),
+    ]
+    ->Dict.fromArray
+    ->JSON.Encode.object
+  let webhookLogsUrl = getURL(
+    ~entityName=WEBHOOKS_EVENT_LOGS,
+    ~methodType=Get,
+    ~id=Some(paymentId),
+    (),
+  )
+  let connectorLogsUrl = getURL(
+    ~entityName=CONNECTOR_EVENT_LOGS,
+    ~methodType=Get,
+    ~id=Some(paymentId),
+    (),
+  )
 
   let getDetails = async () => {
     if !(paymentId->HSwitchOrderUtils.isTestData) {
-      let apiLogsStatus = await fetchPaymentLogsData()
-      let sdkLogsStatus = await fetchSdkLogsData()
-      let webhooksStatus = await fetchWebhooksLogsData()
-      let connectorStatus = await fetchConnectorLogsData()
+      let resArr = await PromiseUtils.allSettledPolyfill([
+        fetchDetails(apiLogsUrl),
+        fetchPostDetils(sdkLogsUrl, sdkPostBody, Post, ()),
+        fetchDetails(webhookLogsUrl),
+        fetchDetails(connectorLogsUrl),
+      ])
 
-      let screenState = switch (apiLogsStatus, sdkLogsStatus, webhooksStatus, connectorStatus) {
-      | (
-          PageLoaderWrapper.Error(_),
-          PageLoaderWrapper.Error(_),
-          PageLoaderWrapper.Error(_),
-          PageLoaderWrapper.Error(_),
-        ) =>
-        PageLoaderWrapper.Error("Failed to Fetch!")
-      | _ => PageLoaderWrapper.Success
+      resArr->Array.forEach(json => {
+        // clasify btw json value and error response
+        switch JSON.Classify.classify(json) {
+        | Array(arr) =>
+          // add to the logs only if array is non empty
+          switch arr->Array.get(0) {
+          | Some(dict) =>
+            switch dict->getDictFromJsonObject->getLogType {
+            | SDK => logs.contents = logs.contents->Array.concat(arr->parseSdkResponse)
+            | CONNECTOR | API_EVENTS => logs.contents = logs.contents->Array.concat(arr)
+            | WEBHOOKS => logs.contents = logs.contents->Array.concat([dict])
+            }
+          | _ => ()
+          }
+        | String(_) => isError.contents = true
+        | _ => ()
+        }
+      })
+
+      if logs.contents->Array.length === 0 && isError.contents {
+        setScreenState(_ => PageLoaderWrapper.Error("Failed to Fetch!"))
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Success)
       }
-      setScreenState(_ => screenState)
     } else {
       setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
 
-  let screenState = React.useMemo1(() => {
+  React.useEffect1(() => {
     logs.contents = logs.contents->Js.Array2.sortInPlaceWith(LogUtils.sortByCreatedAt)
 
     switch logs.contents->Array.get(0) {
@@ -257,8 +157,7 @@ let make = (~paymentId, ~createdAt) => {
       }
     | _ => ()
     }
-
-    screenState
+    None
   }, [screenState])
 
   React.useEffect0(() => {
