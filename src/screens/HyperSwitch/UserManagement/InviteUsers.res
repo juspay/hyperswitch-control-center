@@ -51,7 +51,9 @@ module InviteEmailForm = {
           />
         </div>
         <div className="absolute top-10 right-5">
-          <FormRenderer.SubmitButton text={magicLink ? "Send Invite" : "Add User"} />
+          <FormRenderer.SubmitButton
+            text={magicLink ? "Send Invite" : "Add User"} loadingText="Loading..."
+          />
         </div>
       </div>
       <FormRenderer.FieldRenderer
@@ -85,13 +87,8 @@ let make = () => {
     ->JSON.Encode.object
   })
 
-  let inviteUserReq = body => {
-    let url = getURL(~entityName=USERS, ~userType=#INVITE, ~methodType=Post, ())
-    let response = updateDetails(url, body, Post, ())
-    response
-  }
-
   let inviteListOfUsers = async values => {
+    let url = getURL(~entityName=USERS, ~userType=#INVITE_MULTIPLE, ~methodType=Post, ())
     if !magicLink {
       setLoaderForInviteUsers(_ => true)
     }
@@ -99,52 +96,80 @@ let make = () => {
     let role = valDict->getStrArray("roleType")->getValueFromArray(0, "")
     let emailList = valDict->getStrArray("emailList")
 
-    let promisesOfInvitedUsers = emailList->Array.map(ele => {
-      let body =
+    let body =
+      emailList
+      ->Array.map(ele =>
         [
           ("email", ele->String.toLowerCase->JSON.Encode.string),
           ("name", ele->getNameFromEmail->JSON.Encode.string),
           ("role_id", role->JSON.Encode.string),
         ]->getJsonFromArrayOfJson
-      inviteUserReq(body)
-    })
+      )
+      ->JSON.Encode.array
 
-    let response = await PromiseUtils.allSettledPolyfill(promisesOfInvitedUsers)
+    let response = await updateDetails(url, body, Post, ())
+    let decodedResponse = response->getArrayFromJson([])
+
     if !magicLink {
-      let invitedUserData = response->Array.mapWithIndex((ele, index) => {
-        switch JSON.Classify.classify(ele) {
-        | Object(jsonDict) => {
-            let passwordFromResponse = jsonDict->getString("password", "")
+      let invitedUserData =
+        decodedResponse
+        ->Array.mapWithIndex((ele, index) => {
+          let responseDict = ele->getDictFromJsonObject
+          if (
+            responseDict->getOptionString("error")->Option.isNone &&
+              responseDict->getString("password", "")->String.length > 0
+          ) {
+            let passwordFromResponse = responseDict->getString("password", "")
             [
-              ("email", emailList[index]->Option.getOr("")->JSON.Encode.string),
+              ("email", emailList->getValueFromArray(index, "")->JSON.Encode.string),
               ("password", passwordFromResponse->JSON.Encode.string),
             ]->getJsonFromArrayOfJson
+          } else {
+            JSON.Encode.null
           }
-        | _ => JSON.Encode.null
-        }
-      })
+        })
+        ->Array.filter(ele => ele !== JSON.Encode.null)
 
       setLoaderForInviteUsers(_ => false)
 
       if invitedUserData->Array.length > 0 {
         DownloadUtils.download(
           ~fileName=`invited-users.txt`,
-          ~content=invitedUserData
-          ->Array.filter(ele => ele !== JSON.Encode.null)
-          ->JSON.Encode.array
-          ->JSON.stringifyWithIndent(3),
+          ~content=invitedUserData->JSON.Encode.array->JSON.stringifyWithIndent(3),
           ~fileType="application/json",
         )
       }
     }
 
-    showToast(
-      ~message=magicLink
-        ? `Invite(s) sent successfully via Email`
-        : `The user accounts have been successfully created. The file with their credentials has been downloaded.`,
-      ~toastType=ToastSuccess,
-      (),
-    )
+    let (message, toastType) = if (
+      decodedResponse->Array.every(ele =>
+        ele->getDictFromJsonObject->getOptionString("error")->Option.isSome
+      )
+    ) {
+      (
+        "We've faced some problem while sending emails or creating users. Please check and try again.",
+        ToastState.ToastError,
+      )
+    } else if (
+      decodedResponse->Array.some(ele =>
+        ele->getDictFromJsonObject->getOptionString("error")->Option.isSome
+      )
+    ) {
+      (
+        "We faced difficulties sending some invitations. Please check and try again.",
+        ToastState.ToastWarning,
+      )
+    } else {
+      (
+        magicLink
+          ? `Invite(s) sent successfully via Email`
+          : `The user accounts have been successfully created. The file with their credentials has been downloaded.`,
+        ToastState.ToastSuccess,
+      )
+    }
+
+    showToast(~message, ~toastType, ())
+
     RescriptReactRouter.push("/users")
     Nullable.null
   }

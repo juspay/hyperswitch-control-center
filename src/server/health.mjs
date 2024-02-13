@@ -47,6 +47,16 @@ let checkHealth = async (res) => {
 
 const healthHandler = (_req, res) => {
   try {
+    res.write("health is good");
+    res.end();
+  } catch (error) {
+    console.log(error);
+    errorHandler(res);
+  }
+};
+
+const healthReadinessHandler = (_req, res) => {
+  try {
     checkHealth(res);
   } catch (error) {
     console.log(error);
@@ -54,4 +64,4 @@ const healthHandler = (_req, res) => {
   }
 };
 
-export { healthHandler };
+export { healthHandler, healthReadinessHandler };
