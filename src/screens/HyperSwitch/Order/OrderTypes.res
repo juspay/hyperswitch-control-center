@@ -71,7 +71,7 @@ type order = {
   capture_method: string,
   payment_method: string,
   payment_method_type: string,
-  payment_method_data: string,
+  payment_method_data: option<Js.Json.t>,
   payment_token: string,
   shipping: string,
   billing: string,
