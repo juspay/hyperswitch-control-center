@@ -32,6 +32,42 @@ module KeyAndCopyArea = {
   }
 }
 
+module DeleteConnectorMenu = {
+  @react.component
+  let make = (~pageName="connector", ~connectorInfo: ConnectorTypes.connectorPayload) => {
+    open APIUtils
+    let updateDetails = useUpdateMethod()
+    let deleteConnector = async () => {
+      try {
+        let connectorID = connectorInfo.merchant_connector_id
+        let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
+        let _ = await updateDetails(url, Dict.make()->Js.Json.object_, Delete, ())
+        RescriptReactRouter.push("/connectors")
+      } catch {
+      | _ => ()
+      }
+    }
+    let showPopUp = PopUpState.useShowPopUp()
+    let openConfirmationPopUp = _ => {
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Confirm Action ? ",
+        description: `You are about to Delete this connector. This might impact your desired routing configurations. Please confirm to proceed.`->React.string,
+        handleConfirm: {
+          text: "Confirm",
+          onClick: _ => deleteConnector()->ignore,
+        },
+        handleCancel: {text: "Cancel"},
+      })
+    }
+    <AddDataAttributes attributes=[("data-testid", "delete-button"->String.toLowerCase)]>
+      <div>
+        <Button text="Delete" onClick={_e => openConfirmationPopUp()} />
+      </div>
+    </AddDataAttributes>
+  }
+}
+
 module MenuOption = {
   open HeadlessUI
   @react.component

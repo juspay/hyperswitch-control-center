@@ -3,6 +3,45 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.13.0
+
+### Bug Fixes
+
+- Minor Ui changes ([#392](https://github.com/juspay/hyperswitch-control-center/pull/392)) ([`66dc8ee`](https://github.com/juspay/hyperswitch-control-center/commit/66dc8ee5cc0ccec2cd11a19a9c206aaa188a95f2))
+
+### Miscellaneous Tasks
+
+- Chore: ui changes dashboard ([#380](https://github.com/juspay/hyperswitch-control-center/pull/380)) ([`090ff59`](https://github.com/juspay/hyperswitch-control-center/commit/090ff5943f3edc3de7e6e0e7c085ff80c976cf95))
+
+**Full Changelog:** [`2024.02.12.1...2024.02.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.12.1...2024.02.13.0)
+
+- - -
+
+## 2024.02.12.1
+
+### Miscellaneous Tasks
+
+- Add signup cypress test ([#381](https://github.com/juspay/hyperswitch-control-center/pull/381)) ([`d39a5e2`](https://github.com/juspay/hyperswitch-control-center/commit/d39a5e28ac76268c41f2ccea78dc766b8f950928))
+
+**Full Changelog:** [`2024.02.12.0...2024.02.12.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.12.0...2024.02.12.1)
+
+- - -
+
+## 2024.02.12.0
+
+### Features
+
+- Invite_multiple API Support added ([#376](https://github.com/juspay/hyperswitch-control-center/pull/376)) ([`26a502e`](https://github.com/juspay/hyperswitch-control-center/commit/26a502e840c592eac14d430f438fed88defa59f9))
+- Enable VOLT in Live ([#384](https://github.com/juspay/hyperswitch-control-center/pull/384)) ([`4a7274b`](https://github.com/juspay/hyperswitch-control-center/commit/4a7274ba4628c02b2fc2dc0e5b6985f0478706ca))
+
+### Miscellaneous Tasks
+
+- Add health readiness endpoint ([#375](https://github.com/juspay/hyperswitch-control-center/pull/375)) ([`3e31ae1`](https://github.com/juspay/hyperswitch-control-center/commit/3e31ae174b4ae5a8a4c758b7022148e4c123508d))
+
+**Full Changelog:** [`2024.02.11.0...2024.02.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.11.0...2024.02.12.0)
+
+- - -
+
 ## 2024.02.11.0
 
 ### Features

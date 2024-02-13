@@ -521,7 +521,7 @@ module SaveAndActivateButton = {
       try {
         let onSubmitResponse = await onSubmit(formState.values, false)
         let currentActivatedFromJson =
-          onSubmitResponse->Nullable.toOption->Option.getOr(JSON.Encode.null)
+          onSubmitResponse->LogicUtils.getValFromNullableValue(JSON.Encode.null)
         let currentActivatedId =
           currentActivatedFromJson->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
         let _ = await handleActivateConfiguration(Some(currentActivatedId))

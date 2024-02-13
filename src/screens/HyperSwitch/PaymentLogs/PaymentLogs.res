@@ -419,9 +419,7 @@ let make = (~paymentId, ~createdAt) => {
             ->Dict.fromArray
             ->JSON.Encode.object,
           ),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
+        ]->getJsonFromArrayOfJson
       let sdkLogsArray =
         (await fetchPostDetils(url, body, Post, ()))
         ->getArrayFromJson([])

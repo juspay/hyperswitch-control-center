@@ -91,14 +91,7 @@ let make = () => {
           </div>
         } else {
           <div
-            className={`flex flex-col gap-5 bg-white dark:bg-jp-gray-lightgray_background border-2 rounded dark:border-jp-gray-850 md:gap-5 p-2 md:p-8 h-2/3 items-center`}>
-            <div className="justify-self-center h-full w-full">
-              <iframe
-                className="w-full h-full"
-                src="https://www.youtube.com/embed/YW61xAtQsJo?autoplay=1&loop=1&rel=0&showinfo=0&color=white&playlist=YW61xAtQsJo"
-                title="JUSPAY Recon"
-              />
-            </div>
+            className={`flex flex-col gap-5 bg-white dark:bg-jp-gray-lightgray_background border-2 rounded dark:border-jp-gray-850 md:gap-5 p-2 md:p-8 h-2/3 items-center justify-center`}>
             {if merchentDetails.recon_status === Requested {
               <div
                 className={`text-center text-semibold text-s text-grey-700 opacity-60 dark:text-white`}>

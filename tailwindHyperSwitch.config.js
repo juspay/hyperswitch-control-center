@@ -21,6 +21,7 @@ module.exports = {
         128: "31.25rem",
         133: "35rem",
         135: "35.625rem",
+        200: "58rem",
         "1.1-rem": "1.125rem",
         "45-vw": "45vw",
         "77-rem": "77rem",
@@ -52,6 +53,7 @@ module.exports = {
         "12.5-rem": "12.5rem",
         "25-rem": "25rem",
         "30-rem": "30rem",
+        "35-rem": "35rem",
         "40-rem": "40rem",
         "45-rem": "45rem",
         "48-rem": "48rem",
@@ -377,6 +379,7 @@ module.exports = {
           950: "#79A779",
           960: "#3A833A",
           success_page_bg: "#E8FDF2",
+          accepted_green_800: "#39934F",
         },
         orange: {
           50: "#FEF2E9",

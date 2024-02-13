@@ -13,6 +13,12 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.AUTO_RELEASE_PAT }}
+
+      - name: Execute Shell Script
+        run: |
+          chmod +x cypress/start_hyperswitch.sh
+          sh cypress/start_hyperswitch.sh
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -21,12 +27,17 @@ jobs:
       - name: Install dependencies
         run: npm install --force
 
+      - name: Make Curl Request
+        run: |
+          # Replace the URL with your actual endpoint
+          response=$(curl --location --request GET 'http://localhost:8080/health')
+
+          echo "Response:"
+          echo "$response"
+
       - name: Cypress run
-        env:
-          CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
-          CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
         uses: cypress-io/github-action@v6
         with:
           install: false
-          build: npm run build:prod
+          build: npm run build:test
           start: npm run serve

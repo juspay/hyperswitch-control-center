@@ -608,7 +608,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
         ->Array.map(id => {
           {
             "connector": (
-              connectorList->ConnectorTableUtils.getConnectorNameViaId(id)
+              connectorList->ConnectorTableUtils.getConnectorObjectFromListViaId(id)
             ).connector_name,
             "merchant_connector_id": id,
           }
