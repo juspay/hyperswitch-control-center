@@ -107,13 +107,10 @@ module OrderInfo = {
               getCell=getCellForSummary
               detailsFields=[
                 Created,
-                NetAmount,
                 LastUpdated,
                 AmountReceived,
                 PaymentId,
-                Currency,
                 ConnectorTransactionID,
-                ClientSecret,
                 ErrorMessage,
               ]
               isButtonEnabled=true
@@ -134,12 +131,9 @@ module OrderInfo = {
                 ProfileName,
                 Connector,
                 ConnectorLabel,
-                CardBrand,
                 PaymentMethodType,
                 PaymentMethod,
-                Refunds,
                 AuthenticationType,
-                CaptureMethod,
               ]
               isNonRefundConnector
               paymentStatus
@@ -783,6 +777,25 @@ let make = (~id) => {
                   <LogsWrapper wrapperFor={#PAYMENT}>
                     <PaymentLogs paymentId={id} createdAt />
                   </LogsWrapper>
+                },
+                renderContentOnTop: None,
+              },
+            ]}
+          />
+        </UIUtils.RenderIf>
+        <UIUtils.RenderIf
+          condition={order.payment_method === "card" && order.payment_method_data->Option.isSome}>
+          <RenderAccordian
+            accordion={[
+              {
+                title: "Payment Method Details",
+                renderContent: () => {
+                  <div className="bg-white p-2">
+                    <PaymentLogs.PrettyPrintJson
+                      jsonToDisplay={order.payment_method_data->JSON.stringifyAny->Option.getOr("")}
+                      overrideBackgroundColor="bg-white"
+                    />
+                  </div>
                 },
                 renderContentOnTop: None,
               },
