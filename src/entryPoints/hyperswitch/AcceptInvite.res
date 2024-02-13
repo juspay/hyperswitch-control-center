@@ -6,14 +6,41 @@ let make = () => {
   let flowType =
     HSLocalStorage.getFromUserDetails("flow_type")->HyperSwitchAuthUtils.flowTypeStrToVariantMapper
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
+  let (_, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
   let updateDetails = useUpdateMethod()
-  let merchantDataFromLocalStorage =
-    LocalStorage.getItem("accept_invite_data")
-    ->getValFromNullableValue("")
-    ->safeParse
-    ->getArrayFromJson([])
+  let (merchantData, setMerchantData) = React.useState(_ => [])
+  let merchantDataJsonFromLocalStorage =
+    LocalStorage.getItem("accept_invite_data")->getValFromNullableValue("")->safeParse
 
-  let (merchantData, setMerchantData) = React.useState(_ => merchantDataFromLocalStorage)
+  let logoutUser = () => {
+    LocalStorage.clear()
+    setAuthStatus(LoggedOut)
+  }
+
+  React.useEffect1(() => {
+    switch JSON.Classify.classify(merchantDataJsonFromLocalStorage) {
+    | Array(arr) =>
+      if arr->Array.length > 0 {
+        setMerchantData(_ => arr)
+      } else {
+        logoutUser()
+      }
+    | _ => logoutUser()
+    }
+
+    None
+  }, [merchantDataJsonFromLocalStorage])
+
+  React.useEffect1(() => {
+    if flowType === MERCHANT_SELECT {
+      RescriptReactRouter.replace("/accept-invite")
+    } else {
+      setDashboardPageState(_ => #HOME)
+      RescriptReactRouter.replace("/home")
+    }
+    None
+  }, [flowType])
+
   let isAtleastOneAccept = React.useMemo1(() => {
     merchantData
     ->Array.find(ele => {
@@ -71,16 +98,6 @@ let make = () => {
 
     setMerchantData(_ => merchantDataUpdated)
   }
-
-  React.useEffect1(() => {
-    if flowType === MERCHANT_SELECT {
-      RescriptReactRouter.replace("/accept-invite")
-    } else {
-      setDashboardPageState(_ => #HOME)
-      RescriptReactRouter.replace("/home")
-    }
-    None
-  }, [flowType])
 
   <BackgroundImageWrapper>
     <div className="h-full w-full flex items-center justify-center">
