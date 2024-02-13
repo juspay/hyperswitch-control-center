@@ -139,7 +139,7 @@ let make = () => {
             let connectorName = gateway->getDictFromJsonObject->getString("connector", "")
             let merchantConnectorId =
               gateway->getDictFromJsonObject->getString("merchant_connector_id", "")
-            let connectorLabel = ConnectorTableUtils.getConnectorNameViaId(
+            let connectorLabel = ConnectorTableUtils.getConnectorObjectFromListViaId(
               typedConnectorValue,
               merchantConnectorId,
             ).connector_label
