@@ -4,7 +4,9 @@ let make = () => {
   open APIUtils
   open LogicUtils
   let flowType =
-    HSLocalStorage.getFromUserDetails("flow_type")->HyperSwitchAuthUtils.flowTypeStrToVariantMapper
+    Some(
+      HSLocalStorage.getFromUserDetails("flow_type"),
+    )->HyperSwitchAuthUtils.flowTypeStrToVariantMapper
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
   let (_, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
   let updateDetails = useUpdateMethod()

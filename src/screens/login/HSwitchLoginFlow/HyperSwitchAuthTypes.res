@@ -57,4 +57,4 @@ type subCode =
   | UR_05
   | UR_16
 
-type flowType = MERCHANT_SELECT | DASHBOARD_ENTRY
+type flowType = MERCHANT_SELECT | DASHBOARD_ENTRY | ERROR
