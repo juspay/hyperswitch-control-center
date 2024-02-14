@@ -342,6 +342,7 @@ module.exports = {
           970: "#F5F9FF",
           primary_hover: "#005ED6",
           background_blue: "#EAEEF9",
+          info_blue_background: "#F6F8FA",
         },
         grey: {
           0: "#FEFEFE",

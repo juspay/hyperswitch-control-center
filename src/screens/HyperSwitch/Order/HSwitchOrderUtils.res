@@ -77,10 +77,7 @@ let paymentAttemptStatusVariantMapper: string => paymentAttemptStatus = statusLa
   | _ => #NONE
   }
 
-let isTestPayment = id => id->String.includes("test_")
-
-let eventLogHeader =
-  <div className="font-bold text-lg mb-5"> {"Events and logs"->React.string} </div>
+let isTestData = id => id->String.includes("test_")
 
 let amountField = FormRenderer.makeFieldInfo(
   ~name="amount",

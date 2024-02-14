@@ -74,6 +74,7 @@ module RefundInfo = {
 @react.component
 let make = (~id) => {
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (screenStateForRefund, setScreenStateForRefund) = React.useState(_ =>
     PageLoaderWrapper.Loading
   )
@@ -130,6 +131,22 @@ let make = (~id) => {
           offset
           setOffset
           currrentFetchCount=1
+        />
+      </UIUtils.RenderIf>
+      <div className="mt-5" />
+      <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
+        <OrderUIUtils.RenderAccordian
+          accordion={[
+            {
+              title: "Events and logs",
+              renderContent: () => {
+                <LogsWrapper wrapperFor={#REFUND}>
+                  <RefundLogs refundId=id paymentId />
+                </LogsWrapper>
+              },
+              renderContentOnTop: None,
+            },
+          ]}
         />
       </UIUtils.RenderIf>
     </PageLoaderWrapper>
