@@ -28,7 +28,7 @@ type objPoints = {
 }
 
 let intArrToJson = arr => {
-  arr->Array.map(Js.Json.number)
+  arr->Array.map(JSON.Encode.float)
 }
 
 external userObjToJson: objPoints => JSON.t = "%identity"
@@ -39,6 +39,6 @@ let objToJson = (arr: array<objPoints>) => {
 
 module ReactApexChart = {
   @module("react-apexcharts") @react.component
-  external make: (~options: options, ~series: array<Js.Json.t>, ~\"type": string) => React.element =
+  external make: (~options: options, ~series: array<JSON.t>, ~\"type": string) => React.element =
     "default"
 }
