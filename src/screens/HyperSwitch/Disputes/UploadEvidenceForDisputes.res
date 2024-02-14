@@ -81,14 +81,14 @@ module UploadDisputeEvidenceModal = {
     open APIUtils
     open LogicUtils
     let updateDetails = useUpdateMethod()
-    let acceptFile = async (keyValue, fileValue) => {
+    let acceptFile = (keyValue, fileValue) => {
       let url = getURL(~entityName=DISPUTES_ATTACH_EVIDENCE, ~methodType=Put, ())
       let formData = formData()
       append(formData, "dispute_id", disputeId)
       append(formData, "evidence_type", keyValue)
       append(formData, "file", fileValue)
 
-      let response = await updateDetails(
+      updateDetails(
         ~bodyFormData=formData,
         ~headers=Dict.make(),
         url,
@@ -97,7 +97,6 @@ module UploadDisputeEvidenceModal = {
         ~contentType=AuthHooks.Unknown,
         (),
       )
-      response
     }
 
     let onAttachEvidence = async () => {
