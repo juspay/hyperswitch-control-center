@@ -24,7 +24,7 @@ let make = (~paymentId, ~disputeId) => {
   let connectorLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/connector_event_logs?payment_id=${paymentId}&dispute_id=${disputeId}`
 
   let getDetails = async () => {
-    let logs = ref([])
+    let logs = []
     if !(paymentId->HSwitchOrderUtils.isTestData) {
       let resArr = await PromiseUtils.allSettledPolyfill([
         fetchDetails(disputesLogsUrl),
@@ -40,9 +40,9 @@ let make = (~paymentId, ~disputeId) => {
           switch arr->Array.get(0) {
           | Some(dict) =>
             switch dict->getDictFromJsonObject->getLogType {
-            | SDK => logs.contents = logs.contents->Array.concat(arr->parseSdkResponse)
-            | CONNECTOR | API_EVENTS => logs.contents = logs.contents->Array.concat(arr)
-            | WEBHOOKS => logs.contents = logs.contents->Array.concat([dict])
+            | SDK => logs->Array.pushMany(arr->parseSdkResponse)->ignore
+            | CONNECTOR | API_EVENTS => logs->Array.pushMany(arr)->ignore
+            | WEBHOOKS => logs->Array.pushMany([dict])->ignore
             }
           | _ => ()
           }
@@ -51,19 +51,19 @@ let make = (~paymentId, ~disputeId) => {
         }
       })
 
-      if logs.contents->Array.length === 0 && isError.contents {
+      if logs->Array.length === 0 && isError.contents {
         setScreenState(_ => PageLoaderWrapper.Error("Failed to Fetch!"))
       } else {
-        logs.contents = logs.contents->Js.Array2.sortInPlaceWith(LogUtils.sortByCreatedAt)
-        setData(_ => logs.contents)
-        switch logs.contents->Array.get(0) {
+        setScreenState(_ => PageLoaderWrapper.Success)
+        let newLogs = logs->Js.Array2.sortInPlaceWith(LogUtils.sortByCreatedAt)
+        setData(_ => newLogs)
+        switch logs->Array.get(0) {
         | Some(value) => {
             let initialData = value->getDictFromJsonObject
             initialData->setDefaultValue(setLogDetails, setSelectedOption)
           }
         | _ => ()
         }
-        setScreenState(_ => PageLoaderWrapper.Success)
       }
     } else {
       setScreenState(_ => PageLoaderWrapper.Custom)

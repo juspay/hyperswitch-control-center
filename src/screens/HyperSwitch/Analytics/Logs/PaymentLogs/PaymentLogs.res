@@ -50,7 +50,7 @@ let make = (~paymentId, ~createdAt) => {
   )
 
   let getDetails = async () => {
-    let logs = ref([])
+    let logs = []
     if !(paymentId->HSwitchOrderUtils.isTestData) {
       let resArr = await PromiseUtils.allSettledPolyfill([
         fetchDetails(apiLogsUrl),
@@ -67,9 +67,9 @@ let make = (~paymentId, ~createdAt) => {
           switch arr->Array.get(0) {
           | Some(dict) =>
             switch dict->getDictFromJsonObject->getLogType {
-            | SDK => logs.contents = logs.contents->Array.concat(arr->parseSdkResponse)
-            | CONNECTOR | API_EVENTS => logs.contents = logs.contents->Array.concat(arr)
-            | WEBHOOKS => logs.contents = logs.contents->Array.concat([dict])
+            | SDK => logs->Array.pushMany(arr->parseSdkResponse)->ignore
+            | CONNECTOR | API_EVENTS => logs->Array.pushMany(arr)->ignore
+            | WEBHOOKS => logs->Array.pushMany([dict])->ignore
             }
           | _ => ()
           }
@@ -78,13 +78,13 @@ let make = (~paymentId, ~createdAt) => {
         }
       })
 
-      if logs.contents->Array.length === 0 && isError.contents {
+      if logs->Array.length === 0 && isError.contents {
         setScreenState(_ => PageLoaderWrapper.Error("Failed to Fetch!"))
       } else {
         setScreenState(_ => PageLoaderWrapper.Success)
-        logs.contents = logs.contents->Js.Array2.sortInPlaceWith(LogUtils.sortByCreatedAt)
-        setData(_ => logs.contents)
-        switch logs.contents->Array.get(0) {
+        let newLogs = logs->Js.Array2.sortInPlaceWith(LogUtils.sortByCreatedAt)
+        setData(_ => newLogs)
+        switch logs->Array.get(0) {
         | Some(value) => {
             let initialData = value->getDictFromJsonObject
             initialData->setDefaultValue(setLogDetails, setSelectedOption)
