@@ -171,6 +171,7 @@ let getURL = (
       | _ => `${userUrl}/${(userType :> string)->String.toLowerCase}`
       }
     | #GET_PERMISSIONS => `${userUrl}/role`
+    | #USER_DELETE => `${userUrl}/user/delete`
     | #SIGNINV2 => `${userUrl}/v2/signin`
     | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
     | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`
