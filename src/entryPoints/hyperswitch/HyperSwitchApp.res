@@ -7,6 +7,7 @@ let make = () => {
   open PermissionUtils
   open LogicUtils
   open HyperswitchAtom
+  open HSLocalStorage
 
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod()
@@ -28,8 +29,9 @@ let make = () => {
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
   let (companyNameModal, setCompanyNameModal) = React.useState(_ => false)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let verificationDays = HSLocalStorage.getFromMerchantDetails("verification")->getIntFromString(-1)
-  let userRole = HSLocalStorage.getFromUserDetails("user_role")
+  let verificationDays = getFromMerchantDetails("verification")->getIntFromString(-1)
+  let merchantId = getFromMerchantDetails("merchant_id")
+  let userRole = getFromUserDetails("user_role")
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
@@ -70,7 +72,7 @@ let make = () => {
   let fetchInitialEnums = async () => {
     try {
       let response = await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray)
-      let responseValueDict = response->Nullable.toOption->Option.getOr(Dict.make())
+      let responseValueDict = response->getValFromNullableValue(Dict.make())
       let pageStateToSet = responseValueDict->QuickStartUtils.getCurrentStep
       setQuickStartPageState(_ => pageStateToSet->QuickStartUtils.enumToVarinatMapper)
       responseValueDict
@@ -106,15 +108,16 @@ let make = () => {
         let _ = await fetchPermissions()
       }
 
-      if userPermissionJson.merchantConnectorAccountRead === Access {
-        let _ = await fetchConnectorListResponse()
-      }
+      if merchantId->isNonEmptyString {
+        if userPermissionJson.merchantConnectorAccountRead === Access {
+          let _ = await fetchConnectorListResponse()
+        }
 
-      if userPermissionJson.merchantAccountRead === Access {
-        let _ = await fetchBusinessProfiles()
-        let _ = await fetchMerchantAccountDetails()
+        if userPermissionJson.merchantAccountRead === Access {
+          let _ = await fetchBusinessProfiles()
+          let _ = await fetchMerchantAccountDetails()
+        }
       }
-
       if featureFlagDetails.quickStart {
         let _ = await fetchInitialEnums()
       }
