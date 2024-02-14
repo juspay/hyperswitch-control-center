@@ -101,9 +101,7 @@ module HSiwtchPaymentConfirmLatency = {
           ("api_name", ["PaymentsConfirm"->JSON.Encode.string]->JSON.Encode.array),
           ("status_code", [200.0->JSON.Encode.float]->JSON.Encode.array),
           ("flow_type", [flowType->JSON.Encode.string]->JSON.Encode.array),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
+        ]->getJsonFromArrayOfJson
 
       [
         AnalyticsUtils.getFilterRequestBody(

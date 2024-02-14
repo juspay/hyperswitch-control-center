@@ -41,7 +41,7 @@ module DeleteConnectorMenu = {
       try {
         let connectorID = connectorInfo.merchant_connector_id
         let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
-        let _ = await updateDetails(url, Js.Dict.empty()->Js.Json.object_, Delete, ())
+        let _ = await updateDetails(url, Dict.make()->Js.Json.object_, Delete, ())
         RescriptReactRouter.push("/connectors")
       } catch {
       | _ => ()

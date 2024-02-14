@@ -159,7 +159,7 @@ let constructNameDescription = routingType => {
   Dict.fromArray([
     (
       "name",
-      `${routingText->LogicUtils.capitalizeString} Based Routing-${getCurrentUTCTime()}`->JSON.Encode.string,
+      `${routingText->capitalizeString} Based Routing-${getCurrentUTCTime()}`->JSON.Encode.string,
     ),
     (
       "description",
@@ -183,10 +183,9 @@ module SaveAndActivateButton = {
     let handleSaveAndActivate = async _ev => {
       try {
         let onSubmitResponse = await onSubmit(formState.values, false)
-        let currentActivatedFromJson =
-          onSubmitResponse->Nullable.toOption->Option.getOr(JSON.Encode.null)
+        let currentActivatedFromJson = onSubmitResponse->getValFromNullableValue(JSON.Encode.null)
         let currentActivatedId =
-          currentActivatedFromJson->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
+          currentActivatedFromJson->getDictFromJsonObject->getString("id", "")
         let _ = await handleActivateConfiguration(Some(currentActivatedId))
       } catch {
       | Exn.Error(e) =>
@@ -225,7 +224,7 @@ module ConfigureRuleButton = {
 
 let validateNameAndDescription = (~dict, ~errors) => {
   ["name", "description"]->Array.forEach(field => {
-    if dict->LogicUtils.getString(field, "")->String.trim === "" {
+    if dict->getString(field, "")->isEmptyString {
       errors->Dict.set(field, `Please provide ${field} field`->JSON.Encode.string)
     }
   })
@@ -255,7 +254,7 @@ let validateConditionJson = (json, keys) => {
 }
 
 let validateConditionsFor3ds = dict => {
-  let conditionsArray = dict->LogicUtils.getArrayFromDict("statements", [])
+  let conditionsArray = dict->getArrayFromDict("statements", [])
 
   conditionsArray->Array.every(value => {
     value->validateConditionJson(["comparison", "lhs"])

@@ -81,7 +81,6 @@ let make = () => {
       )
       let res = await fetchDetails(url)
       setRoleData(_ => res)
-      await HyperSwitchUtils.delay(300)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) =>
