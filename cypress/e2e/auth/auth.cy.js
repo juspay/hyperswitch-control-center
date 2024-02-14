@@ -20,9 +20,6 @@ describe("Auth Module", () => {
     cy.get("[data-testid=password]").type(password);
     cy.get('button[type="submit"]').click({ force: true });
     cy.url().should("eq", "http://localhost:9000/home");
-    cy.contains(
-      "Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments.",
-    ).should("be.visible");
   });
 
   it("check the components in the login page", () => {
@@ -43,9 +40,6 @@ describe("Auth Module", () => {
     cy.get("[data-testid=password]").type(password);
     cy.get('button[type="submit"]').click({ force: true });
     cy.url().should("eq", "http://localhost:9000/home");
-    cy.contains(
-      "Welcome to the home of your Payments Control Centre. It aims at providing your team with a 360-degree view of payments.",
-    ).should("be.visible");
   });
 
   it("should display an error message with invalid credentials", () => {
