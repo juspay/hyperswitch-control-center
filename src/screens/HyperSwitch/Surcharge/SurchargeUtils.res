@@ -89,7 +89,7 @@ let ruleInfoTypeMapper: Dict.t<JSON.t> => AdvancedRoutingTypes.algorithmData = j
 }
 
 let getDefaultSurchargeType = surchargeType => {
-  surchargeType->Option.getOr(Nullable.null)->Nullable.toOption->Option.getOr(defaultSurcharge)
+  surchargeType->Option.getOr(Nullable.null)->LogicUtils.getValFromNullableValue(defaultSurcharge)
 }
 
 let validateSurchargeRate = ruleDict => {

@@ -100,8 +100,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
     None
   }, [authType])
   switch authType {
-  | EmailVerify | MagicLinkVerify =>
-    <HyperSwitchEmailVerifyScreen setAuthType setAuthStatus authType />
+  | EmailVerify | MagicLinkVerify => <HyperSwitchEmailVerifyScreen setAuthType setAuthStatus />
   | _ => <AuthPage authType setAuthType setAuthStatus mode setMode />
   }
 }
