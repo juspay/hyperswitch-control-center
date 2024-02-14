@@ -35,8 +35,6 @@ type disputesColsType =
   | ConnectorUpdatedAt
   | CreatedAt
 
-type disputeStatusType = Initiated | Accepted | Countered
-
 type disputeStatus =
   | DisputeOpened
   | DisputeExpired
@@ -48,3 +46,4 @@ type disputeStatus =
   | NotFound(string)
 
 type disputeStage = PreDispute | Dispute | PreArbitration | NotFound
+type disputeStatusType = Landing | EvidencePresent

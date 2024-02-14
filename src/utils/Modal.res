@@ -38,12 +38,12 @@ module ModalHeading = {
     ~modalHeadingClass,
     ~modalParentHeadingClass,
     ~customIcon,
+    ~modalHeaderIconSize,
   ) => {
     let isHyperSwitchDashboard = HSwitchGlobalVars.isHyperSwitchDashboard
-    let borderClass =
-      showBorderBottom && !isHyperSwitchDashboard
-        ? "border-b border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75"
-        : ""
+    let borderClass = showBorderBottom
+      ? "border-b border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75"
+      : ""
 
     let isMobileView = MatchMedia.useMatchMedia("(max-width: 700px)")
 
@@ -87,11 +87,11 @@ module ModalHeading = {
             <div className="flex items-center gap-4">
               {switch customIcon {
               | Some(icon) => icon
-              | None => <Icon name=showModalHeadingIconName size=35 className="" />
+              | None => <Icon name=showModalHeadingIconName size=modalHeaderIconSize className="" />
               }}
               <AddDataAttributes attributes=[("data-modal-header-text", modalHeading)]>
                 <div
-                  className="font-inter-style font-semibold text-fs-16 leading-6 text-jp-2-gray-600">
+                  className={`font-inter-style font-semibold text-fs-16 leading-6 text-jp-2-gray-600 ${modalHeadingClass}`}>
                   {React.string(modalHeading)}
                 </div>
               </AddDataAttributes>
@@ -224,6 +224,7 @@ let make = (
   ~addAttributeId="",
   ~customIcon=None,
   ~alignModal="justify-end",
+  ~modalHeaderIconSize=35,
 ) => {
   let showBorderBottom = borderBottom
   let _ = revealFrom
@@ -322,6 +323,7 @@ let make = (
           modalHeadingClass
           modalParentHeadingClass
           customIcon
+          modalHeaderIconSize
         />
 
       | None => React.null
