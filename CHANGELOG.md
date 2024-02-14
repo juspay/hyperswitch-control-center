@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.14.0
+
+### Features
+
+- Accept invite flow ([#353](https://github.com/juspay/hyperswitch-control-center/pull/353)) ([`657487f`](https://github.com/juspay/hyperswitch-control-center/commit/657487f214cb837a17345f40f58c33d744252d55))
+- React Debounce Package removal & adding own functionality ([#391](https://github.com/juspay/hyperswitch-control-center/pull/391)) ([`82fb611`](https://github.com/juspay/hyperswitch-control-center/commit/82fb6114e01709ae3507a94fac72d1233dbc2a53))
+- Added new graph library ([#394](https://github.com/juspay/hyperswitch-control-center/pull/394)) ([`98213a6`](https://github.com/juspay/hyperswitch-control-center/commit/98213a6bd9867819aa0f0504272e2d25c313d7f7))
+- Feature flag accept invite ([#396](https://github.com/juspay/hyperswitch-control-center/pull/396)) ([`5803fe1`](https://github.com/juspay/hyperswitch-control-center/commit/5803fe155d69515349aae0d8645c484acef7b88f))
+- Feature flag addition for Invite Multiple ([#397](https://github.com/juspay/hyperswitch-control-center/pull/397)) ([`087226e`](https://github.com/juspay/hyperswitch-control-center/commit/087226e73777024a00b1f281dc02719515b92380))
+- Audit log enhancement ([#379](https://github.com/juspay/hyperswitch-control-center/pull/379)) ([`ced590c`](https://github.com/juspay/hyperswitch-control-center/commit/ced590c3b186664e2ac3a78cebde359f2afb2367))
+- Added Counter disputes ([#347](https://github.com/juspay/hyperswitch-control-center/pull/347)) ([`d080614`](https://github.com/juspay/hyperswitch-control-center/commit/d080614356df05119e747897088d76a0e4753fd1))
+
+### Bug Fixes
+
+- Connector label update ([#279](https://github.com/juspay/hyperswitch-control-center/pull/279)) ([`4442ae4`](https://github.com/juspay/hyperswitch-control-center/commit/4442ae4c5dfd580c5e049e96ad1b9534bb61b0f6))
+- Reset password local storage issue ([#401](https://github.com/juspay/hyperswitch-control-center/pull/401)) ([`534e3a9`](https://github.com/juspay/hyperswitch-control-center/commit/534e3a903e404a5c2ffb03d0bc33983821f970b4))
+
+### Miscellaneous Tasks
+
+- Empty & Non empty string logic_utils ([#378](https://github.com/juspay/hyperswitch-control-center/pull/378)) ([`c567b72`](https://github.com/juspay/hyperswitch-control-center/commit/c567b72f01120334d248c2f11abe7f4a897e87ab))
+
+**Full Changelog:** [`2024.02.13.0...2024.02.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.13.0...2024.02.14.0)
+
+- - -
+
 ## 2024.02.13.0
 
 ### Bug Fixes
