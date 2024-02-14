@@ -74,7 +74,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
-  let {magicLink} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {magicLink, inviteMultiple} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (roleTypeValue, setRoleTypeValue) = React.useState(_ => "merchant_view_only")
@@ -87,7 +87,7 @@ let make = () => {
     ->JSON.Encode.object
   })
 
-  let inviteListOfUsers = async values => {
+  let inviteListOfUsersWithInviteMultiple = async values => {
     let url = getURL(~entityName=USERS, ~userType=#INVITE_MULTIPLE, ~methodType=Post, ())
     if !magicLink {
       setLoaderForInviteUsers(_ => true)
@@ -174,8 +174,73 @@ let make = () => {
     Nullable.null
   }
 
+  // TODO : TO remove when Invite Multiple API is deployed
+  let inviteUserReq = body => {
+    let url = getURL(~entityName=USERS, ~userType=#INVITE, ~methodType=Post, ())
+    let response = updateDetails(url, body, Post, ())
+    response
+  }
+
+  let inviteListOfUsers = async values => {
+    if !magicLink {
+      setLoaderForInviteUsers(_ => true)
+    }
+    let valDict = values->getDictFromJsonObject
+    let role = valDict->getStrArray("roleType")->getValueFromArray(0, "")
+    let emailList = valDict->getStrArray("emailList")
+
+    let promisesOfInvitedUsers = emailList->Array.map(ele => {
+      let body =
+        [
+          ("email", ele->String.toLowerCase->JSON.Encode.string),
+          ("name", ele->getNameFromEmail->JSON.Encode.string),
+          ("role_id", role->JSON.Encode.string),
+        ]->getJsonFromArrayOfJson
+      inviteUserReq(body)
+    })
+
+    let response = await PromiseUtils.allSettledPolyfill(promisesOfInvitedUsers)
+    if !magicLink {
+      let invitedUserData = response->Array.mapWithIndex((ele, index) => {
+        switch JSON.Classify.classify(ele) {
+        | Object(jsonDict) => {
+            let passwordFromResponse = jsonDict->getString("password", "")
+            [
+              ("email", emailList[index]->Option.getOr("")->JSON.Encode.string),
+              ("password", passwordFromResponse->JSON.Encode.string),
+            ]->getJsonFromArrayOfJson
+          }
+        | _ => JSON.Encode.null
+        }
+      })
+
+      setLoaderForInviteUsers(_ => false)
+
+      if invitedUserData->Array.length > 0 {
+        DownloadUtils.download(
+          ~fileName=`invited-users.txt`,
+          ~content=invitedUserData
+          ->Array.filter(ele => ele !== JSON.Encode.null)
+          ->JSON.Encode.array
+          ->JSON.stringifyWithIndent(3),
+          ~fileType="application/json",
+        )
+      }
+    }
+
+    showToast(
+      ~message=magicLink
+        ? `Invite(s) sent successfully via Email`
+        : `The user accounts have been successfully created. The file with their credentials has been downloaded.`,
+      ~toastType=ToastSuccess,
+      (),
+    )
+    RescriptReactRouter.push("/users")
+    Nullable.null
+  }
+
   let onSubmit = (values, _) => {
-    inviteListOfUsers(values)
+    inviteMultiple ? inviteListOfUsersWithInviteMultiple(values) : inviteListOfUsers(values)
   }
 
   let settingUpValues = (json, permissionInfoValue) => {
