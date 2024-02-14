@@ -791,7 +791,7 @@ let make = (~id) => {
                 title: "Payment Method Details",
                 renderContent: () => {
                   <div className="bg-white p-2">
-                    <PaymentLogs.PrettyPrintJson
+                    <PrettyPrintJson
                       jsonToDisplay={order.payment_method_data->JSON.stringifyAny->Option.getOr("")}
                       overrideBackgroundColor="bg-white"
                     />

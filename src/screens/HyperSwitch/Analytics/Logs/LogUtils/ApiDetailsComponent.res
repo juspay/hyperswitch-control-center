@@ -204,7 +204,7 @@ let make = (
         </div>
         <div className={`${headerStyle} opacity-40 flex gap-1`}>
           {createdTime->Js.Date.fromString->Js.Date.toUTCString->React.string}
-          <span className="text-sm italic"> {`, ${logType->getTagName}`->React.string} </span>
+          <span> {`, [ ${logType->getTagName} ]`->React.string} </span>
         </div>
       </div>
     </div>
