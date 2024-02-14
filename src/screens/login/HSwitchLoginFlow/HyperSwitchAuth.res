@@ -78,10 +78,9 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     try {
       let url = getURL(~entityName=USERS, ~userType=#RESET_PASSWORD, ~methodType=Post, ())
       let _ = await updateDetails(url, body, Post, ())
-      RescriptReactRouter.push("/")
+      LocalStorage.clear()
       showToast(~message=`Password Changed Successfully`, ~toastType=ToastSuccess, ())
       setAuthType(_ => LoginWithEmail)
-      Window.Location.reload()
     } catch {
     | _ => showToast(~message="Password Reset Failed, Try again", ~toastType=ToastError, ())
     }
