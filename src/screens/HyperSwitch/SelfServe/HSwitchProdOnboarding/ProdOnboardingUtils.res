@@ -156,9 +156,9 @@ let getProdApiBody = (
     [
       (
         (parentVariant :> string),
-        [("version", HSwitchGlobalVars.agreementVersion->JSON.Encode.string)]
-        ->Dict.fromArray
-        ->JSON.Encode.object,
+        [
+          ("version", HSwitchGlobalVars.agreementVersion->JSON.Encode.string),
+        ]->LogicUtils.getJsonFromArrayOfJson,
       ),
     ]
     ->Dict.fromArray

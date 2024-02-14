@@ -42,7 +42,7 @@ let make = (
     let res =
       connectorList
       ->Option.getOr([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
-      ->ConnectorTableUtils.getConnectorNameViaId(name)
+      ->ConnectorTableUtils.getConnectorObjectFromListViaId(name)
     res.connector_name
   }
 

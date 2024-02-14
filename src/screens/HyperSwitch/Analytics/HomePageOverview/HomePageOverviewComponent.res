@@ -113,9 +113,7 @@ module SystemMetricsInsights = {
           ("api_name", ["PaymentsConfirm"->JSON.Encode.string]->JSON.Encode.array),
           ("status_code", [200.0->JSON.Encode.float]->JSON.Encode.array),
           ("flow_type", ["Payment"->JSON.Encode.string]->JSON.Encode.array),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
+        ]->LogicUtils.getJsonFromArrayOfJson
 
       [
         AnalyticsUtils.getFilterRequestBody(

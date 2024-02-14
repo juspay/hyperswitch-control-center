@@ -4,6 +4,7 @@ open MerchantAccountUtils
 
 @react.component
 let make = () => {
+  open LogicUtils
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
   let showPopUp = PopUpState.useShowPopUp()
@@ -15,19 +16,23 @@ let make = () => {
   let (gateways, setGateways) = React.useState(() => [])
   let (defaultRoutingResponse, setDefaultRoutingResponse) = React.useState(_ => [])
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
+  let connectorListJson =
+    HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->safeParse
+  let typedConnectorValue =
+    connectorListJson->ConnectorTableUtils.getArrayOfConnectorListPayloadType
 
   let settingUpConnectorsState = routingRespArray => {
     let profileList =
       routingRespArray->Array.filter(value =>
-        value->LogicUtils.getDictFromJsonObject->LogicUtils.getString("profile_id", "") === profile
+        value->getDictFromJsonObject->getString("profile_id", "") === profile
       )
 
     let connectorList =
       profileList
       ->Array.get(0)
       ->Option.getOr(JSON.Encode.null)
-      ->LogicUtils.getDictFromJsonObject
-      ->LogicUtils.getArrayFromDict("connectors", [])
+      ->getDictFromJsonObject
+      ->getArrayFromDict("connectors", [])
     if connectorList->Array.length > 0 {
       setGateways(_ => connectorList)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -45,7 +50,7 @@ let make = () => {
           (),
         )}/profile`
       let response = await fetchDetails(defaultFallbackUrl)
-      let routingRespArray = response->LogicUtils.getArrayFromJson([])
+      let routingRespArray = response->getArrayFromJson([])
       setDefaultRoutingResponse(_ => routingRespArray)
       settingUpConnectorsState(routingRespArray)
     } catch {
@@ -130,6 +135,15 @@ let make = () => {
         {
           let keyExtractor = (index, gateway: JSON.t, isDragging) => {
             let style = isDragging ? "border rounded-md bg-jp-gray-100 dark:bg-jp-gray-950" : ""
+
+            let connectorName = gateway->getDictFromJsonObject->getString("connector", "")
+            let merchantConnectorId =
+              gateway->getDictFromJsonObject->getString("merchant_connector_id", "")
+            let connectorLabel = ConnectorTableUtils.getConnectorObjectFromListViaId(
+              typedConnectorValue,
+              merchantConnectorId,
+            ).connector_label
+
             <div
               className={`h-14 px-3 flex flex-row items-center justify-between text-jp-gray-900 dark:text-jp-gray-600 border-jp-gray-500 dark:border-jp-gray-960
             ${index !== 0 ? "border-t" : ""} ${style}`}>
@@ -138,12 +152,9 @@ let make = () => {
                 <div className="px-1.5 rounded-full bg-blue-800 text-white font-semibold text-sm">
                   {React.string(string_of_int(index + 1))}
                 </div>
-                <div>
-                  {React.string(
-                    gateway
-                    ->LogicUtils.getDictFromJsonObject
-                    ->LogicUtils.getString("connector", ""),
-                  )}
+                <div className="flex gap-1 items-center">
+                  <p> {connectorName->React.string} </p>
+                  <p className="text-sm opacity-50 "> {`(${connectorLabel})`->React.string} </p>
                 </div>
               </div>
             </div>

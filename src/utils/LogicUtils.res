@@ -628,3 +628,11 @@ let listOfMatchedText = (text, searchText) => {
 let getJsonFromArrayOfString = arr => {
   arr->Array.map(ele => ele->JSON.Encode.string)->JSON.Encode.array
 }
+
+let getOptionalFromNullable = val => {
+  val->Nullable.toOption
+}
+
+let getValFromNullableValue = (val, default) => {
+  val->getOptionalFromNullable->Option.getOr(default)
+}
