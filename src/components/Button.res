@@ -676,7 +676,9 @@ let make = (
 
   let dataAttrKey = isSelectBoxButton ? "data-value" : "data-button-for"
   let dataAttrStr =
-    textId === "" ? iconId : textId->String.concat(buttonFor)->LogicUtils.toCamelCase
+    textId->LogicUtils.isEmptyString
+      ? iconId
+      : textId->String.concat(buttonFor)->LogicUtils.toCamelCase
   let relativeClass = isRelative ? "relative" : ""
   let conditionalButtonStyles = `${allowButtonTextMinWidth
       ? "min-w-min"

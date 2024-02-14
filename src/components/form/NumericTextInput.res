@@ -61,7 +61,8 @@ let make = (
             strArr->Array.joinWithUnsafe("")->String.split(".")->Array.slice(~start=0, ~end=2)
           let result = if removeLeadingZeroes {
             str[0] = str[0]->Option.getOr("")->String.replaceRegExp(%re("/\b0+/g"), "")
-            str[0] = str[0]->Option.getOr("") === "" ? "0" : str[0]->Option.getOr("")
+            str[0] =
+              str[0]->Option.getOr("")->LogicUtils.isEmptyString ? "0" : str[0]->Option.getOr("")
             str->Array.joinWith(".")
           } else {
             str->Array.joinWith(".")
@@ -80,13 +81,14 @@ let make = (
         | None => ""
         }
 
-        let finalVal = precisionCheckedVal !== "" ? precisionCheckedVal : cleanedValue
+        let finalVal =
+          precisionCheckedVal->LogicUtils.isNonEmptyString ? precisionCheckedVal : cleanedValue
         setLocalStrValue(_ => finalVal->JSON.Encode.string)
 
         switch finalVal->JSON.Encode.string->getFloat {
         | Some(num) => input.onChange(num->Identity.anyTypeToReactEvent)
         | None =>
-          if value === "" {
+          if value->LogicUtils.isEmptyString {
             input.onChange(JSON.Encode.null->Identity.anyTypeToReactEvent)
           }
         }

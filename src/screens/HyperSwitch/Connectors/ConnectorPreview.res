@@ -3,7 +3,7 @@ module InfoField = {
   let make = (~render, ~label) => {
     let str = render->Option.getOr("")
 
-    <UIUtils.RenderIf condition={str->String.length > 0}>
+    <UIUtils.RenderIf condition={str->LogicUtils.isNonEmptyString}>
       <div>
         <h2 className="text-lg font-semibold"> {label->React.string} </h2>
         <h3 className=" break-words"> {str->React.string} </h3>
@@ -153,7 +153,7 @@ module ConnectorSummaryGrid = {
     )
     let connectorDetails = React.useMemo1(() => {
       try {
-        if connector->String.length > 0 {
+        if connector->LogicUtils.isNonEmptyString {
           let dict = isPayoutFlow
             ? Window.getPayoutConnectorConfig(connector)
             : Window.getConnectorConfig(connector)

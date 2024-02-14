@@ -76,7 +76,9 @@ let make = (
       <div className="h-6 my-auto w-6" onClick=clearSearch>
         <ReactSuspenseWrapper loadingText="">
           <Lottie
-            animationData={(prevVal != "" && inputText == "") || (prevVal == "" && inputText == "")
+            animationData={(prevVal->LogicUtils.isNonEmptyString &&
+              inputText->LogicUtils.isEmptyString) ||
+              (prevVal->LogicUtils.isEmptyString && inputText->LogicUtils.isEmptyString)
               ? exitCross
               : enterCross}
             autoplay=true

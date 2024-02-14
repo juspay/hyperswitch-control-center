@@ -65,7 +65,7 @@ let make = (
       let (key, value) = item
       let keyArr = key->String.split(".")
       let prefix = keyArr->Array.get(0)->Option.getOr("")
-      if prefix === moduleName && prefix !== "" {
+      if prefix === moduleName && prefix->LogicUtils.isNonEmptyString {
         None
       } else {
         Some((prefix, value))
@@ -154,7 +154,11 @@ let make = (
   ) = React.useState(_ => false)
 
   React.useEffect6(() => {
-    if startTimeFromUrl !== "" && endTimeFromUrl !== "" && parentToken->Option.isSome {
+    if (
+      startTimeFromUrl->LogicUtils.isNonEmptyString &&
+      endTimeFromUrl->LogicUtils.isNonEmptyString &&
+      parentToken->Option.isSome
+    ) {
       setIsSingleStatFetchedWithCurrentDependency(_ => false)
     }
     None

@@ -11,7 +11,7 @@ let make = (~to_, ~children, ~openInNewTab=false, ~className=?, ~onClick=?) => {
     RescriptReactRouter.push(to_)
   }, [to_])
   if openInNewTab {
-    if to_->String.trim === "" {
+    if to_->String.trim->LogicUtils.isEmptyString {
       children
     } else {
       <a href=to_ onClick={ev => ev->ReactEvent.Mouse.stopPropagation} target="_blank" ?className>

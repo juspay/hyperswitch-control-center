@@ -149,7 +149,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
           #MultipleProcessorWithSmartRouting->connectorChoiceVariantToString,
         )
         setQuickStartPageState(_ =>
-          typedEnumValue.firstProcessorConnected.processorID->String.length > 0
+          typedEnumValue.firstProcessorConnected.processorID->LogicUtils.isNonEmptyString
             ? ConnectProcessor(CONFIGURE_SECONDARY)
             : ConnectProcessor(CONFIGURE_PRIMARY)
         )
@@ -158,7 +158,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
           #SinglePaymentProcessor->connectorChoiceVariantToString,
         )
         setQuickStartPageState(_ =>
-          typedEnumValue.firstProcessorConnected.processorID->String.length > 0
+          typedEnumValue.firstProcessorConnected.processorID->LogicUtils.isNonEmptyString
             ? ConnectProcessor(CHECKOUT)
             : ConnectProcessor(CONFIGURE_PRIMARY)
         )

@@ -621,7 +621,7 @@ let make = (~paymentId, ~createdAt) => {
           <PrettyPrintJson
             jsonToDisplay=logDetails.request
             headerText={requestHeader->Some}
-            maxHeightClass={logDetails.response->String.length > 0 ? "max-h-25-rem" : ""}
+            maxHeightClass={logDetails.response->isNonEmptyString ? "max-h-25-rem" : ""}
           />
         </UIUtils.RenderIf>
         <UIUtils.RenderIf condition={logDetails.response->isNonEmptyString}>

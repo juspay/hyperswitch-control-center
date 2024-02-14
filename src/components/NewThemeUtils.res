@@ -25,8 +25,9 @@ module NewThemeHeading = {
     | XSmall => "text-fs-14"
     }
 
-    let headingColor = headingColor === "" ? "text-jp-gray-900" : headingColor
-    let descriptionColor = descriptionColor === "" ? "text-jp-2-light-gray-1000" : descriptionColor
+    let headingColor = headingColor->LogicUtils.isEmptyString ? "text-jp-gray-900" : headingColor
+    let descriptionColor =
+      descriptionColor->LogicUtils.isEmptyString ? "text-jp-2-light-gray-1000" : descriptionColor
 
     <div className={`flex flex-col ${outerMargin} w-full items-start`}>
       <div className={`flex w-full justify-between ${alignItems} gap-10`}>
