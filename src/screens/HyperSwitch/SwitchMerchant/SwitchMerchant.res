@@ -12,7 +12,7 @@ let convertListResponseToTypedResponse = json => {
     let dictOfElement = ele->getDictFromJsonObject
     let merchantId = dictOfElement->getString("merchant_id", "")
     let merchantName =
-      dictOfElement->getString("merchant_name", merchantId)->String.length > 0
+      dictOfElement->getString("merchant_name", merchantId)->isNonEmptyString
         ? dictOfElement->getString("merchant_name", merchantId)
         : merchantId
 

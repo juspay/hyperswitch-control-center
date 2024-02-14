@@ -24,7 +24,7 @@ let useListCount = (~entityName) => {
   }
 
   React.useEffect0(() => {
-    HSLocalStorage.getFromMerchantDetails("merchant_id")->String.length > 0
+    HSLocalStorage.getFromMerchantDetails("merchant_id")->LogicUtils.isNonEmptyString
       ? fetchData()->ignore
       : ()
     None

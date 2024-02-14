@@ -230,7 +230,7 @@ let getFilterRequestBody = (
   | None => ()
   }
 
-  if customFilter != "" {
+  if customFilter->isNonEmptyString {
     Dict.set(body, "customFilter", customFilter->JSON.Encode.string)
   }
   switch granularity {
@@ -402,8 +402,8 @@ let generatePayload = (
   | Some(groupByNames) =>
     Dict.fromArray([
       ("timeRange", timeArr->JSON.Encode.object),
-      ("metrics", metrics->LogicUtils.getJsonFromArrayOfString),
-      ("groupByNames", groupByNames->LogicUtils.getJsonFromArrayOfString),
+      ("metrics", metrics->getJsonFromArrayOfString),
+      ("groupByNames", groupByNames->getJsonFromArrayOfString),
       ("prefix", prefix->JSON.Encode.string),
       ("source", source->JSON.Encode.string),
       ("delta", delta->JSON.Encode.bool),
@@ -411,7 +411,7 @@ let generatePayload = (
   | None =>
     Dict.fromArray([
       ("timeRange", timeArr->JSON.Encode.object),
-      ("metrics", metrics->LogicUtils.getJsonFromArrayOfString),
+      ("metrics", metrics->getJsonFromArrayOfString),
       ("prefix", prefix->JSON.Encode.string),
       ("source", source->JSON.Encode.string),
       ("delta", delta->JSON.Encode.bool),
@@ -422,7 +422,7 @@ let generatePayload = (
   | Some(mode) => Dict.set(newDict, "mode", mode->JSON.Encode.string)
   | None => ()
   }
-  if customFilter != "" {
+  if customFilter->isNonEmptyString {
     Dict.set(newDict, "customFilter", customFilter->JSON.Encode.string)
   }
   switch filters {
@@ -588,7 +588,7 @@ let generateTablePayload = (
 }
 
 let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statType: string) => {
-  let timeText = if timeRanges.fromTime !== "" && timeRanges.toTime !== "" {
+  let timeText = if timeRanges.fromTime->isNonEmptyString && timeRanges.toTime->isNonEmptyString {
     `${"\n"} ${timeRanges.fromTime
       ->Date.fromString
       ->DateTimeUtils.utcToIST
@@ -600,7 +600,7 @@ let singlestatDeltaTooltipFormat = (value: float, timeRanges: timeRanges, statTy
     ""
   }
 
-  let tooltipComp = if timeText !== "" {
+  let tooltipComp = if timeText->isNonEmptyString {
     if statType === "Latency" || statType === "NegativeRate" {
       if value > 0. {
         let text = "Increased by "

@@ -5,7 +5,7 @@ let parseKey = api_key => {
 
 let passwordKeyValidation = (value, key, keyVal, errors) => {
   let mustHave: array<string> = []
-  if value->String.length > 0 && key === keyVal {
+  if value->LogicUtils.isNonEmptyString && key === keyVal {
     if value->String.length < 8 {
       Dict.set(
         errors,
@@ -41,7 +41,7 @@ let passwordKeyValidation = (value, key, keyVal, errors) => {
 let confirmPasswordCheck = (value, key, confirmKey, passwordKey, valuesDict, errors) => {
   if (
     key === confirmKey &&
-    value !== "" &&
+    value->LogicUtils.isNonEmptyString &&
     !Js.Option.equal(
       (. a, b) => a == b,
       Dict.get(valuesDict, passwordKey),
@@ -261,7 +261,7 @@ let getSettingsPayload = (values: JSON.t, merchantId) => {
     valuesDict->getOptionString("primary_contact_person"),
   )
   let primaryEmail = valuesDict->getOptionString("primary_email")
-  if primaryEmail->Option.getOr("")->String.length > 0 {
+  if primaryEmail->Option.getOr("")->isNonEmptyString {
     merchantDetailsValue->setOptionString("primary_email", primaryEmail)
   }
   merchantDetailsValue->setOptionString(
@@ -273,7 +273,7 @@ let getSettingsPayload = (values: JSON.t, merchantId) => {
     valuesDict->getOptionString("secondary_contact_person"),
   )
   let secondaryEmail = valuesDict->getOptionString("secondary_email")
-  if secondaryEmail->Option.getOr("")->String.length > 0 {
+  if secondaryEmail->Option.getOr("")->isNonEmptyString {
     merchantDetailsValue->setOptionString(
       "secondary_email",
       valuesDict->getOptionString("secondary_email"),
@@ -483,7 +483,9 @@ module BusinessProfile = {
   @react.component
   let make = (~profile_id: string, ~className="") => {
     let {profile_name} = useGetBusinessProflile(profile_id)
-    <div className> {(profile_name->String.length > 0 ? profile_name : "NA")->React.string} </div>
+    <div className>
+      {(profile_name->LogicUtils.isNonEmptyString ? profile_name : "NA")->React.string}
+    </div>
   }
 }
 

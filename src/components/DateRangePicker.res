@@ -27,7 +27,7 @@ let getDateStringForValue = (
   value,
   isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
 ) => {
-  if value === "" {
+  if value->LogicUtils.isEmptyString {
     ""
   } else {
     try {
@@ -44,7 +44,7 @@ let getTimeStringForValue = (
   value,
   isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
 ) => {
-  if value === "" {
+  if value->LogicUtils.isEmptyString {
     ""
   } else {
     try {
@@ -179,6 +179,7 @@ module Base = {
     ~isTooltipVisible=true,
   ) => {
     open DateRangeUtils
+    open LogicUtils
     let (isCustomSelected, setIsCustomSelected) = React.useState(_ =>
       predefinedDays->Array.length === 0
     )
@@ -259,7 +260,7 @@ module Base = {
       "hidden"
     }
     let saveDates = () => {
-      if localStartDate !== "" && localEndDate !== "" {
+      if localStartDate->isNonEmptyString && localEndDate->isNonEmptyString {
         setStartDateVal(_ => localStartDate)
         setEndDateVal(_ => localEndDate)
       }
@@ -353,30 +354,39 @@ module Base = {
         resetStartEndInput()
         setDate(ele)
       }
-      if startDate != "" && startDate == ele && isFromCustomInput {
+      if startDate->isNonEmptyString && startDate == ele && isFromCustomInput {
         changeEndDate(ele, isFromCustomInput, None)
-      } else if startDate != "" && startDate > ele && isFromCustomInput {
+      } else if startDate->isNonEmptyString && startDate > ele && isFromCustomInput {
         resetStartDate()
-      } else if endDate != "" && startDate == ele && isFromCustomInput {
+      } else if endDate->isNonEmptyString && startDate == ele && isFromCustomInput {
         resetStartDate()
       } else if (
-        ele > startDate && ele < endDate && startDate != "" && endDate != "" && isFromCustomInput
+        ele > startDate &&
+        ele < endDate &&
+        startDate->isNonEmptyString &&
+        endDate->isNonEmptyString &&
+        isFromCustomInput
       ) {
         resetStartDate()
-      } else if startDate != "" && endDate != "" && ele > endDate && isFromCustomInput {
+      } else if (
+        startDate->isNonEmptyString &&
+        endDate->isNonEmptyString &&
+        ele > endDate &&
+        isFromCustomInput
+      ) {
         resetStartDate()
       } else {
         ()
       }
 
-      if !isFromCustomInput || startDate == "" {
+      if !isFromCustomInput || startDate->isEmptyString {
         setDate(ele)
       }
 
       if (
-        (startDate != "" && endDate == "" && !isFromCustomInput) ||
-          (startDate != "" &&
-          endDate == "" &&
+        (startDate->isNonEmptyString && endDate->isEmptyString && !isFromCustomInput) ||
+          (startDate->isNonEmptyString &&
+          endDate->isEmptyString &&
           isStartBeforeEndDate(startDate, ele) &&
           isFromCustomInput)
       ) {
@@ -407,7 +417,7 @@ module Base = {
       setIsDropdownExpanded(_ => false)
     }
 
-    let selectedStartDate = if localStartDate != "" {
+    let selectedStartDate = if localStartDate->isNonEmptyString {
       getFormattedDate(
         localStartDate->getDateStringForValue(isoStringToCustomTimeZone),
         "YYYY-MM-DD",
@@ -415,19 +425,19 @@ module Base = {
     } else {
       ""
     }
-    let selectedEndDate = if localEndDate != "" {
+    let selectedEndDate = if localEndDate->isNonEmptyString {
       getFormattedDate(localEndDate->getDateStringForValue(isoStringToCustomTimeZone), "YYYY-MM-DD")
     } else {
       ""
     }
     let setStartDate = (~date, ~time) => {
-      if date != "" {
+      if date->isNonEmptyString {
         let timestamp = changeTimeFormat(~date, ~time, ~customTimezoneToISOString, ~format)
         setLocalStartDate(_ => timestamp)
       }
     }
     let setEndDate = (~date, ~time) => {
-      if date != "" {
+      if date->isNonEmptyString {
         let timestamp = changeTimeFormat(~date, ~time, ~customTimezoneToISOString, ~format)
         setLocalEndDate(_ => timestamp)
       }
@@ -439,7 +449,7 @@ module Base = {
         let startTimeVal = timeValEv->Identity.formReactEventToString
         let endTime = localEndDate->getTimeStringForValue(isoStringToCustomTimeZone)
 
-        if localStartDate !== "" {
+        if localStartDate->isNonEmptyString {
           if disableFutureDates && selectedStartDate == todayDate && startTimeVal > todayTime {
             setStartDate(~date=startDate, ~time=todayTime)
           } else if (
@@ -461,7 +471,7 @@ module Base = {
       onChange: timeValEv => {
         let endTimeVal = timeValEv->Identity.formReactEventToString
         let startTime = localStartDate->getTimeStringForValue(isoStringToCustomTimeZone)
-        if localEndDate !== "" {
+        if localEndDate->isNonEmptyString {
           if disableFutureDates && selectedEndDate == todayDate && endTimeVal > todayTime {
             setEndDate(~date=startDate, ~time=todayTime)
           } else if (
@@ -479,29 +489,29 @@ module Base = {
     }
 
     let startDateStr =
-      startDateVal !== ""
+      startDateVal->isNonEmptyString
         ? getFormattedDate(
             startDateVal->getDateStringForValue(isoStringToCustomTimeZone),
             "MMM DD, YYYY",
           )
-        : buttonText != ""
+        : buttonText->isNonEmptyString
         ? buttonText
         : "[From-Date]"
     let endDateStr =
-      endDateVal !== ""
+      endDateVal->isNonEmptyString
         ? getFormattedDate(
             endDateVal->getDateStringForValue(isoStringToCustomTimeZone),
             "MMM DD, YYYY",
           )
-        : buttonText != ""
+        : buttonText->isNonEmptyString
         ? ""
         : "[To-Date]"
     let startTimeStr =
-      startDateVal !== ""
+      startDateVal->isNonEmptyString
         ? startDateVal->getTimeStringForValue(isoStringToCustomTimeZone)
         : "00:00:00"
     let endTimeStr =
-      startDateVal !== ""
+      startDateVal->isNonEmptyString
         ? endDateVal->getTimeStringForValue(isoStringToCustomTimeZone)
         : "23:59:59"
 
@@ -517,7 +527,7 @@ module Base = {
     }
 
     let buttonText = {
-      startDateVal->String.length === 0 && endDateVal->String.length === 0
+      startDateVal->isEmptyString && endDateVal->isEmptyString
         ? `Select Date ${showTime ? "and Time" : ""}`
         : showTime
         ? `${startDateStr} ${startTimeStr} - ${endDateStr} ${endTimeStr}`
@@ -599,8 +609,12 @@ module Base = {
     }
 
     React.useEffect4(() => {
-      if startDate !== "" && endDate !== "" {
-        if localStartDate !== "" && localEndDate !== "" && (disableApply || !isCustomSelected) {
+      if startDate->isNonEmptyString && endDate->isNonEmptyString {
+        if (
+          localStartDate->isNonEmptyString &&
+          localEndDate->isNonEmptyString &&
+          (disableApply || !isCustomSelected)
+        ) {
           saveDates()
         }
 
@@ -613,7 +627,7 @@ module Base = {
 
     let btnStyle = customButtonStyle->Option.getOr("")
 
-    let customStyleForBtn = btnStyle->String.length > 0 ? btnStyle : ""
+    let customStyleForBtn = btnStyle->isNonEmptyString ? btnStyle : ""
 
     let timeVisibilityClass = showTime ? "block" : "hidden"
 
@@ -695,7 +709,7 @@ module Base = {
     let iconElement = {
       <div className="flex flex-row gap-2">
         <Icon className=strokeColor name=buttonIcon size=arrowIconSize />
-        {if removeFilterOption && startDateVal !== "" && endDateVal !== "" {
+        {if removeFilterOption && startDateVal->isNonEmptyString && endDateVal->isNonEmptyString {
           <Icon name="crossicon" size=16 onClick=removeApplyFilter />
         } else {
           React.null
@@ -775,7 +789,12 @@ module Base = {
                 className="flex flex-row flex-wrap gap-4 bg-white dark:bg-jp-gray-lightgray_background p-3 align-center justify-end ">
                 <div
                   className="text-gray-700 font-fira-code dark:text-gray-400 flex-wrap font-medium self-center text-sm">
-                  {if displayStartDate != "" && displayEndDate != "" && !disableApply && !hideDate {
+                  {if (
+                    displayStartDate->isNonEmptyString &&
+                    displayEndDate->isNonEmptyString &&
+                    !disableApply &&
+                    !hideDate
+                  ) {
                     <div className="flex flex-col">
                       <AddDataAttributes attributes=[("data-date-range-start", displayStartDate)]>
                         <div> {React.string(modifiedStartDate)} </div>
@@ -806,7 +825,7 @@ module Base = {
                 <Button
                   text="Apply"
                   buttonType=Primary
-                  buttonState={endDate == "" ? Disabled : Normal}
+                  buttonState={endDate->LogicUtils.isEmptyString ? Disabled : Normal}
                   buttonSize=Small
                   onClick={handleApply}
                 />

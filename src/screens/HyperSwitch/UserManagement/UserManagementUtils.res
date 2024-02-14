@@ -138,7 +138,7 @@ module RolePermissionValueRenderer = {
         <div className="mt-2 text-base text-hyperswitch_black opacity-50 w-1/2">
           {description->React.string}
         </div>
-        <UIUtils.RenderIf condition={writeValue->String.length > 0}>
+        <UIUtils.RenderIf condition={writeValue->LogicUtils.isNonEmptyString}>
           <div className="flex items-center gap-3 w-1/2">
             <Icon size=14 name={isPermissionAllowedForWrite ? "permitted" : "not-permitted"} />
             <div className="text-base text-hyperswitch_black opacity-50">

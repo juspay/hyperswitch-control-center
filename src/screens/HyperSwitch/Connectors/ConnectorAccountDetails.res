@@ -28,7 +28,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
 
   let connectorDetails = React.useMemo1(() => {
     try {
-      if connector->String.length > 0 {
+      if connector->isNonEmptyString {
         let dict = isPayoutFlow
           ? Window.getPayoutConnectorConfig(connector)
           : Window.getConnectorConfig(connector)
@@ -78,7 +78,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
           "profile_id",
           initialValuesToDict->getString("profile_id", "")->JSON.Encode.string,
         )
-      } else if connector->String.length > 0 {
+      } else if connector->isNonEmptyString {
         initialValuesToDict->Dict.set(
           "connector_label",
           `${connector}_${activeBusinessProfile.profile_name}`->JSON.Encode.string,

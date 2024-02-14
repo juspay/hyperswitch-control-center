@@ -268,10 +268,9 @@ module SystemMetricsAnalytics = {
     let {filterValueJson} = FilterContext.filterContext->React.useContext
     let startTimeVal = filterValueJson->getString("startTime", "")
     let endTimeVal = filterValueJson->getString("endTime", "")
-    open HSwitchRemoteFilter
     React.useEffect3(() => {
       setFilterDataJson(_ => None)
-      if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
+      if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
         try {
           updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
           ->thenResolve(json => setFilterDataJson(_ => json->Some))

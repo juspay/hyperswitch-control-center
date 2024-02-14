@@ -228,14 +228,14 @@ let getTextClass = variantType => {
 }
 
 let checkStripePlusPayPal = (enumDetails: QuickStartTypes.responseType) => {
-  enumDetails.stripeConnected.processorID->String.length > 0 &&
-  enumDetails.paypalConnected.processorID->String.length > 0 &&
+  enumDetails.stripeConnected.processorID->isNonEmptyString &&
+  enumDetails.paypalConnected.processorID->isNonEmptyString &&
   enumDetails.sPTestPayment
 }
 
 let checkWooCommerce = (enumDetails: QuickStartTypes.responseType) => {
   enumDetails.setupWoocomWebhook &&
-  enumDetails.firstProcessorConnected.processorID->String.length > 0
+  enumDetails.firstProcessorConnected.processorID->isNonEmptyString
 }
 
 let noAccessControlText = "You do not have the required permissions to access this module. Please contact your admin."
