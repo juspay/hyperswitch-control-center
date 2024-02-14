@@ -12,7 +12,7 @@ let convertListResponseToTypedResponse = json => {
     let dictOfElement = ele->getDictFromJsonObject
     let merchantId = dictOfElement->getString("merchant_id", "")
     let merchantName =
-      dictOfElement->getString("merchant_name", merchantId)->String.length > 0
+      dictOfElement->getString("merchant_name", merchantId)->isNonEmptyString
         ? dictOfElement->getString("merchant_name", merchantId)
         : merchantId
 
@@ -265,6 +265,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   let showPopUp = PopUpState.useShowPopUp()
   let isInternalUser = userRole->String.includes("internal_")
   let (successModal, setSuccessModal) = React.useState(_ => false)
+  let {acceptInvite} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let input = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
     {
@@ -300,6 +301,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       let token = HyperSwitchAuthUtils.parseResponseJson(
         ~json=res,
         ~email=responseDict->LogicUtils.getString("email", ""),
+        ~isAcceptInvite=acceptInvite,
       )
       LocalStorage.setItem("login", token)
       HSwitchUtils.setMerchantDetails("merchant_id", switchedMerchantId->JSON.Encode.string)

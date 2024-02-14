@@ -44,6 +44,7 @@ module TableRow = {
     ~windowIndex,
     ~setIsDateClicked=?,
   ) => {
+    open LogicUtils
     let customTimezoneToISOString = TimeZoneHook.useCustomTimeZoneToIsoString()
     let highlight = cellHighlighter
 
@@ -59,7 +60,7 @@ module TableRow = {
                 customTimezoneToISOString(
                   String.make(year),
                   String.make(month +. 1.0),
-                  String.make(obj == "" ? "01" : obj),
+                  String.make(obj->isEmptyString ? "01" : obj),
                   "00",
                   "00",
                   "00",
@@ -87,7 +88,7 @@ module TableRow = {
 
               let isInLimit = switch dateRangeLimit {
               | Some(limit) =>
-                if startDate !== "" {
+                if startDate->isNonEmptyString {
                   date->Date.getTime -. startDate->Date.fromString->Date.getTime <
                     ((limit->Js.Int.toFloat -. 1.) *. 24. *. 60. *. 60. -. 60.) *. 1000.
                 } else {
@@ -102,7 +103,7 @@ module TableRow = {
                 | _ => ()
                 }
                 let isClickDisabled =
-                  (endDate === "" && !isInLimit) ||
+                  (endDate->isEmptyString && !isInLimit) ||
                   (isFutureDate ? disableFutureDates : disablePastDates) ||
                   (customDisabledFutureDays > 0.0 && isInCustomDisable)
                 switch !isClickDisabled {
@@ -124,7 +125,7 @@ module TableRow = {
                 (isFutureDate && disableFutureDates) ||
                 customDisabledFutureDays > 0.0 && isInCustomDisable ||
                 !isFutureDate && disablePastDates ||
-                (endDate === "" && !isInLimit)
+                (endDate->isEmptyString && !isInLimit)
               ) {
                 "cursor-not-allowed"
               } else {
@@ -158,20 +159,21 @@ module TableRow = {
               let classN = `h-10 w-10 p-0  text-center ${textColor}  dark:text-jp-gray-text_darktheme  ${dayClass}`
 
               let selectedcellClass = `h-10 w-10 flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white rounded-full `
-              let c2 = obj != "" && hSelf.highlightSelf ? selectedcellClass : "h-10 w-10"
+              let c2 =
+                obj->isNonEmptyString && hSelf.highlightSelf ? selectedcellClass : "h-10 w-10"
 
               let shouldHighlight = (startDate, endDate, obj, month, year) => {
                 let cellSelectedHiglight = "h-full w-full flex flex-1 justify-center items-center  dark:bg-opacity-100 text-gray-600 dark:text-gray-400"
                 let cellHoverHighlight = `h-full w-full flex flex-1 justify-center items-center  dark:bg-opacity-100`
 
-                if startDate != "" {
+                if startDate->isNonEmptyString {
                   let parsedStartDate = getDate(String.split(startDate, "-"))
 
                   let zObj = getDate([year, month, obj])
 
-                  if obj != "" {
+                  if obj->isNonEmptyString {
                     let z = getDate([year, month, obj])
-                    if endDate != "" {
+                    if endDate->isNonEmptyString {
                       let parsedEndDate = getDate(String.split(endDate, "-"))
                       z == parsedStartDate
                         ? selectedcellClass
@@ -185,14 +187,14 @@ module TableRow = {
                     } else if z == parsedStartDate {
                       `${selectedcellClass} ${changeHighlightCellStyle}`
                     } else if (
-                      hoverdDate != "" &&
-                      endDate == "" &&
+                      hoverdDate->isNonEmptyString &&
+                      endDate->isEmptyString &&
                       z > parsedStartDate &&
                       z <= hoverdDate->Date.fromString &&
                       !(
                         (isFutureDate && disableFutureDates) ||
                         !isFutureDate && disablePastDates ||
-                        (endDate === "" && !isInLimit)
+                        (endDate->isEmptyString && !isInLimit)
                       )
                     ) {
                       `${cellHoverHighlight} bg-jp-2-light-primary-100 dark:bg-jp-2-dark-primary-100 ${cellIndex == 0
@@ -201,7 +203,7 @@ module TableRow = {
                     } else {
                       "h-full w-full"
                     }
-                  } else if endDate != "" {
+                  } else if endDate->isNonEmptyString {
                     let parsedEndDate = getDate(String.split(endDate, "-"))
 
                     zObj > parsedStartDate && zObj < parsedEndDate
@@ -215,14 +217,14 @@ module TableRow = {
                        `
                       : "h-full w-full "
                   } else if (
-                    hoverdDate != "" &&
-                    endDate == "" &&
+                    hoverdDate->isNonEmptyString &&
+                    endDate->isEmptyString &&
                     zObj > parsedStartDate &&
                     zObj <= hoverdDate->Date.fromString &&
                     !(
                       (isFutureDate && disableFutureDates) ||
                       !isFutureDate && disablePastDates ||
-                      (endDate === "" && !isInLimit)
+                      (endDate->isEmptyString && !isInLimit)
                     )
                   ) {
                     `${cellHoverHighlight}
@@ -242,17 +244,17 @@ module TableRow = {
               }
 
               let shouldHighlightBackground = (startDate, endDate, obj, month, year) => {
-                if startDate != "" && obj != "" {
+                if startDate->isNonEmptyString && obj->isNonEmptyString {
                   let parsedStartDate = getDate(String.split(startDate, "-"))
                   let z = getDate([year, month, obj])
-                  if endDate != "" {
+                  if endDate->isNonEmptyString {
                     let parsedEndDate = getDate(String.split(endDate, "-"))
                     z == parsedStartDate && parsedStartDate != parsedEndDate
                       ? "bg-jp-2-light-primary-100 dark:bg-jp-2-dark-primary-100  rounded-l-full hover:rounded-l-full"
                       : z == parsedEndDate && parsedStartDate != parsedEndDate
                       ? "bg-jp-2-light-primary-100 dark:bg-jp-2-dark-primary-100  rounded-r-full  hover:rounded-r-full flex justify-between"
                       : ""
-                  } else if hoverdDate != "" && z == parsedStartDate {
+                  } else if hoverdDate->isNonEmptyString && z == parsedStartDate {
                     "bg-jp-2-light-primary-100 dark:bg-jp-2-dark-primary-100  rounded-l-full hover:rounded-l-full"
                   } else {
                     ""
@@ -288,9 +290,12 @@ module TableRow = {
                 switch setShowMsg {
                 | Some(setMsg) =>
                   if (
-                    hoverdDate !== "" &&
-                      ((!isInLimit && endDate === "" && !isFutureDate && disableFutureDates) ||
-                        (!disableFutureDates && !isInLimit && endDate === ""))
+                    hoverdDate->isNonEmptyString &&
+                      ((!isInLimit &&
+                      endDate->isEmptyString &&
+                      !isFutureDate &&
+                      disableFutureDates) ||
+                        (!disableFutureDates && !isInLimit && endDate->isEmptyString))
                   ) {
                     setMsg(_ => true)
                   } else {
@@ -310,24 +315,24 @@ module TableRow = {
                   attributes=[
                     (
                       "data-calender-date",
-                      hSelf.highlightSelf || startDate != "" ? "selected" : "normal",
+                      hSelf.highlightSelf || startDate->isNonEmptyString ? "selected" : "normal",
                     ),
                     (
                       "data-calender-date-disabled",
                       (isFutureDate && disableFutureDates) ||
                       customDisabledFutureDays > 0.0 && isInCustomDisable ||
                       !isFutureDate && disablePastDates ||
-                      (endDate === "" && !isInLimit)
+                      (endDate->isEmptyString && !isInLimit)
                         ? "disabled"
                         : "enabled",
                     ),
                   ]>
                   <span
-                    className={`${startDate == "" ? c2 : c3} ${isTodayHighlight
+                    className={`${startDate->isEmptyString ? c2 : c3} ${isTodayHighlight
                         ? "flex flex-col justify-center items-center pl-0.5"
                         : ""}`}>
                     {cellRenderer(
-                      obj == ""
+                      obj->isEmptyString
                         ? None
                         : Some(
                             (Date.toString(date)->DayJs.getDayJsForString).format(. "YYYY-MM-D"),
@@ -372,6 +377,7 @@ let make = (
   ~isFutureDate=true,
   ~setIsDateClicked=?,
 ) => {
+  open LogicUtils
   let heading = ["Sun", "Mon", "Tue", "Wed", "Thr", "Fri", "Sat"]
 
   let isMobileView = MatchMedia.useMobileChecker()
@@ -411,30 +417,32 @@ let make = (
     let currentMonth = getMonthInFloat(month)->Float.toInt + 1
 
     if startDate != lastStartDate {
-      let startYear = startDate != "" ? (startDate->DayJs.getDayJsForString).format(. "YYYY") : ""
+      let startYear =
+        startDate->isNonEmptyString ? (startDate->DayJs.getDayJsForString).format(. "YYYY") : ""
       let startMonth =
-        (startDate != "" ? (startDate->DayJs.getDayJsForString).format(. "MM") : "")
+        (startDate->isNonEmptyString ? (startDate->DayJs.getDayJsForString).format(. "MM") : "")
         ->Int.fromString
         ->Option.getOr(currentMonth)
       let startYearDiff = year - startYear->Int.fromString->Option.getOr(2022)
 
       let startIndex = 12 * startYearDiff + (currentMonth - startMonth)
 
-      if startDate != "" {
+      if startDate->isNonEmptyString {
         handleExpand(totalMonths - startIndex - 1, "center")
       }
       setLastStartDate(_ => startDate)
     } else {
-      let endYear = endDate != "" ? (endDate->DayJs.getDayJsForString).format(. "YYYY") : ""
+      let endYear =
+        endDate->isNonEmptyString ? (endDate->DayJs.getDayJsForString).format(. "YYYY") : ""
       let endMonth =
-        (endDate != "" ? (endDate->DayJs.getDayJsForString).format(. "MM") : "")
+        (endDate->isNonEmptyString ? (endDate->DayJs.getDayJsForString).format(. "MM") : "")
         ->Int.fromString
         ->Option.getOr(currentMonth)
       let endYearDiff = year - endYear->Int.fromString->Option.getOr(2022)
 
       let endIndex = 12 * endYearDiff + (currentMonth - endMonth)
 
-      if endDate != "" {
+      if endDate->isNonEmptyString {
         handleExpand(totalMonths - endIndex - 1, "center")
       }
     }
@@ -442,7 +450,7 @@ let make = (
   }, (startDate, endDate))
 
   let rows = index => {
-    let windowIndex = totalMonths - index->LogicUtils.getInt("index", 0) - 1
+    let windowIndex = totalMonths - index->getInt("index", 0) - 1
     let newMonth = DayJs.getDayJs().subtract(. windowIndex, "month").month(.)
     let newYear = DayJs.getDayJs().subtract(. windowIndex, "month").year(.)
     let updatedMonth = months->Array.get(newMonth)->Option.getOr(Jan)
@@ -455,7 +463,7 @@ let make = (
     // get Days in month
     let daysInMonth = switch updatedMonth {
     | Jan => 31
-    | Feb => LogicUtils.checkLeapYear(newYear) ? 29 : 28
+    | Feb => checkLeapYear(newYear) ? 29 : 28
     | Mar => 31
     | Apr => 30
     | May => 31
@@ -486,7 +494,7 @@ let make = (
     }
     let rowInfo = Array.mapWithIndex(dummyRow, rowMapper)
 
-    <div style={index->LogicUtils.getJsonObjectFromDict("style")->Identity.jsonToReactDOMStyle}>
+    <div style={index->getJsonObjectFromDict("style")->Identity.jsonToReactDOMStyle}>
       <div className={`font-normal text-fs-16 text-[#344054] leading-6 mt-5`}>
         {React.string(`${updatedMonth->getMonthInStr} ${newYear->Int.toString}`)}
       </div>

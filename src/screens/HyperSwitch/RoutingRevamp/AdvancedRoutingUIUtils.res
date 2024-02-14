@@ -353,7 +353,7 @@ module RuleFieldBase = {
 
     let methodKeys = React.useMemo0(() => {
       let value = field.value->LogicUtils.getStringFromJson("")
-      if value->String.length > 0 {
+      if value->LogicUtils.isNonEmptyString {
         setKeyTypeAndVariants(wasm, value)
       }
       if isFrom3ds {

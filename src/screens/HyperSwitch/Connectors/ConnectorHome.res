@@ -182,7 +182,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   }
 
   React.useEffect1(() => {
-    if connector->String.length > 0 {
+    if connector->LogicUtils.isNonEmptyString {
       getDetails()->ignore
     } else {
       setScreenState(_ => Error("Connector name not found"))

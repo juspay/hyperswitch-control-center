@@ -3,7 +3,7 @@ let useGetFilterDictFromUrl = prefix => {
   let (searchParamsDict, setSearchParamDict) = React.useState(_ => Dict.make())
 
   React.useEffect1(() => {
-    if url.search !== "" {
+    if url.search->LogicUtils.isNonEmptyString {
       let searcParamsToDict =
         url.search
         ->Js.Global.decodeURI
@@ -17,7 +17,7 @@ let useGetFilterDictFromUrl = prefix => {
         })
         ->Belt.Array.keepMap(entry => {
           let (key, val) = entry
-          if prefix === "" {
+          if prefix->LogicUtils.isEmptyString {
             entry->Some
           } else if key->String.indexOf(`${prefix}.`) === 0 {
             let transformedKey = key->String.replace(`${prefix}.`, "")

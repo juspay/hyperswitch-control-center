@@ -19,7 +19,7 @@ let validate = (
   let errorDict = Dict.make()
   mandateKeys->Array.forEach(key => {
     let value = dict->getString(key, "")
-    if value === "" {
+    if value->isEmptyString {
       errorDict->Dict.set(key, `${key} cannot be empty!`->JSON.Encode.string)
     }
   })

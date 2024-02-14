@@ -68,7 +68,7 @@ module ListItem = {
     }
     let (toggleSelect, setToggleSelect) = React.useState(() => isSelected)
     let listText =
-      searchString === ""
+      searchString->LogicUtils.isEmptyString
         ? [text]
         : {
             switch Js.String2.match_(text, regex("\\b", searchString)) {
@@ -94,7 +94,7 @@ module ListItem = {
     }
     let backgroundClass = if showToggle {
       ""
-    } else if isSelected && customStyle->String.length > 0 {
+    } else if isSelected && customStyle->LogicUtils.isNonEmptyString {
       customSelectStyle
     } else if isDropDown && isSelected && !isDisabled {
       `${bgClass} transition ease-[cubic-bezier(0.33, 1, 0.68, 1)]`
@@ -148,7 +148,7 @@ module ListItem = {
 
     let textColor = "text-jp-gray-900 dark:text-jp-gray-text_darktheme"
 
-    let textColor = if textColorClass->String.length > 0 {
+    let textColor = if textColorClass->LogicUtils.isNonEmptyString {
       textColorClass
     } else {
       textColor
@@ -182,7 +182,8 @@ module ListItem = {
     | None => "overflow-hidden"
     }
 
-    let customCss = listFlexDirection === "" ? `flex-row ${paddingClass}` : listFlexDirection
+    let customCss =
+      listFlexDirection->LogicUtils.isEmptyString ? `flex-row ${paddingClass}` : listFlexDirection
     RippleEffectBackground.useLinearRippleHook(parentRef, isDropDown)
     let comp =
       <AddDataAttributes
@@ -204,7 +205,7 @@ module ListItem = {
               </div>
             } else if multiSelect {
               <span className=toggleClass>
-                {checkboxDimension != ""
+                {checkboxDimension->LogicUtils.isNonEmptyString
                   ? <CheckBoxIcon
                       isSelected isDisabled size=optionSize isSelectedStateMinus checkboxDimension
                     />
@@ -229,7 +230,9 @@ module ListItem = {
               {switch icon {
               | FontAwesome(iconName) =>
                 <Icon
-                  className={`align-middle ${iconStroke == "" ? optionIconStroke : iconStroke} `}
+                  className={`align-middle ${iconStroke->LogicUtils.isEmptyString
+                      ? optionIconStroke
+                      : iconStroke} `}
                   size={20}
                   name=iconName
                 />
@@ -240,7 +243,7 @@ module ListItem = {
               }}
               <div className="w-full">
                 {listText
-                ->Array.filter(str => str !== "")
+                ->Array.filter(str => str->LogicUtils.isNonEmptyString)
                 ->Array.mapWithIndex((item, i) => {
                   if (
                     (String.toLowerCase(item) == String.toLowerCase(searchString) ||
@@ -638,7 +641,7 @@ module BaseSelect = {
     }
     let disabledClass = disableSelect ? "cursor-not-allowed" : ""
 
-    let marginClass = if customMargin == "" {
+    let marginClass = if customMargin->LogicUtils.isEmptyString {
       "mt-4"
     } else {
       customMargin
@@ -653,7 +656,9 @@ module BaseSelect = {
             inputText=searchString
             searchRef
             onChange=handleSearch
-            placeholder={searchInputPlaceHolder === "" ? "Search..." : searchInputPlaceHolder}
+            placeholder={searchInputPlaceHolder->LogicUtils.isEmptyString
+              ? "Search..."
+              : searchInputPlaceHolder}
             showSearchIcon
           />
         </div>
@@ -810,7 +815,7 @@ module BaseSelect = {
         className={`overflow-auto ${listPadding} ${isHorizontal
             ? "flex flex-row grow"
             : ""}  ${showToggle ? "ml-3" : maxHeight}` ++ {
-          wrapBasis == "" ? "" : " flex flex-wrap justify-between"
+          wrapBasis->LogicUtils.isEmptyString ? "" : " flex flex-wrap justify-between"
         }}>
         {if filteredOptions->Array.length === 0 {
           <div className="flex justify-center items-center m-4">
@@ -993,7 +998,9 @@ module BaseSelectButton = {
               inputText=searchString
               onChange=handleSearch
               searchRef
-              placeholder={searchInputPlaceHolder === "" ? "Search..." : searchInputPlaceHolder}
+              placeholder={searchInputPlaceHolder->LogicUtils.isEmptyString
+                ? "Search..."
+                : searchInputPlaceHolder}
               showSearchIcon
             />
           </div>
@@ -1252,7 +1259,7 @@ module BaseRadio = {
             addDynamicValue && !(options->Array.map(item => item.value)->Array.includes(itemData))
           ) {
             setSelectedString(_ => itemData)
-          } else if selectedString !== "" {
+          } else if selectedString->LogicUtils.isNonEmptyString {
             setSelectedString(_ => "")
           }
 
@@ -1281,7 +1288,10 @@ module BaseRadio = {
 
     let searchRef = React.useRef(Nullable.null)
 
-    let width = isHorizontal || !isDropDown || customStyle === "" ? widthClass : customStyle
+    let width =
+      isHorizontal || !isDropDown || customStyle->LogicUtils.isEmptyString
+        ? widthClass
+        : customStyle
 
     let inlineClass = isHorizontal ? "inline-flex" : ""
 
@@ -1308,7 +1318,7 @@ module BaseRadio = {
     }
 
     let newOptions = React.useMemo3(() => {
-      let options = if selectedString !== "" {
+      let options = if selectedString->LogicUtils.isNonEmptyString {
         options->Array.concat([selectedString]->makeOptions->Array.map(makeNonOptional))
       } else {
         options
@@ -1346,7 +1356,9 @@ module BaseRadio = {
             inputText=searchString
             onChange=handleSearch
             searchRef
-            placeholder={searchInputPlaceHolder === "" ? "Search..." : searchInputPlaceHolder}
+            placeholder={searchInputPlaceHolder->LogicUtils.isEmptyString
+              ? "Search..."
+              : searchInputPlaceHolder}
             showSearchIcon
           />
         </div>
@@ -1769,7 +1781,7 @@ module BaseDropdown = {
 
     let selectButtonText = if !showSelectionAsChips {
       title
-    } else if selectedString !== "" {
+    } else if selectedString->LogicUtils.isNonEmptyString {
       selectedString
     } else {
       dropDowntext
@@ -2068,7 +2080,8 @@ module ChipFilterSelectBox = {
       ->Array.mapWithIndex((option, i) => {
         let isSelected = saneValue->Array.includes(option.value)
         let selectedClass = isSelected ? passedClassName : initalClassName
-        let chipsCss = customStyleForChips == "" ? selectedClass : customStyleForChips
+        let chipsCss =
+          customStyleForChips->LogicUtils.isEmptyString ? selectedClass : customStyleForChips
 
         <div
           key={string_of_int(i)}

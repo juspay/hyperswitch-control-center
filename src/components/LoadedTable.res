@@ -230,9 +230,10 @@ let make = (
   ~showborderColor=?,
   ~tableHeadingTextClass="",
 ) => {
+  open LogicUtils
   let showPopUp = PopUpState.useShowPopUp()
   React.useEffect0(_ => {
-    if title === "" && GlobalVars.isLocalhost {
+    if title->isEmptyString && GlobalVars.isLocalhost {
       showPopUp({
         popUpType: (Denied, WithIcon),
         heading: `Title cannot be empty!`,
@@ -324,7 +325,7 @@ let make = (
         let filterValue = filterValue->Array.filter(
           item => {
             let updatedItem = item->String.make
-            updatedItem !== ""
+            updatedItem->isNonEmptyString
           },
         )
         if filterValue->Array.length === 0 {
@@ -616,7 +617,7 @@ let make = (
                 isSelected={selectedRowIndex !== -1} setIsSelected checkboxDimension="h-4 w-4"
               />
             </div>,
-            (selectedRowIndex !== -1)->LogicUtils.getStringFromBool,
+            (selectedRowIndex !== -1)->getStringFromBool,
           ),
         )
         ->ignore
@@ -671,7 +672,7 @@ let make = (
         switch getShowLink {
         | Some(fn) => {
             let link = fn(value)
-            let finalUrl = url.search->String.length > 0 ? `${link}?${url.search}` : link
+            let finalUrl = url.search->isNonEmptyString ? `${link}?${url.search}` : link
             RescriptReactRouter.push(finalUrl)
           }
 
@@ -695,7 +696,7 @@ let make = (
         switch getShowLink {
         | Some(fn) => {
             let link = fn(value)
-            let finalUrl = url.search->String.length > 0 ? `${link}?${url.search}` : link
+            let finalUrl = url.search->isNonEmptyString ? `${link}?${url.search}` : link
             RescriptReactRouter.push(finalUrl)
           }
 

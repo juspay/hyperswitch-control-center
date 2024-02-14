@@ -15,12 +15,22 @@ let make = (~setAuthType, ~setAuthStatus) => {
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
+  let {acceptInvite} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let emailVerifyUpdate = async body => {
     try {
-      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#VERIFY_EMAILV2, ())
+      let url = getURL(
+        ~entityName=USERS,
+        ~methodType=Post,
+        ~userType={acceptInvite ? #VERIFY_EMAILV2 : #VERIFY_EMAIL},
+        (),
+      )
       let res = await updateDetails(url, body, Post, ())
       let email = res->JSON.Decode.object->Option.getOr(Dict.make())->getString("email", "")
-      let token = HyperSwitchAuthUtils.parseResponseJson(~json=res, ~email)
+      let token = HyperSwitchAuthUtils.parseResponseJson(
+        ~json=res,
+        ~email,
+        ~isAcceptInvite=acceptInvite,
+      )
       await HyperSwitchUtils.delay(1000)
       if !(token->isEmptyString) && !(email->isEmptyString) {
         setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))

@@ -27,6 +27,12 @@ describe("Processors Create Module", () => {
     cy.get("[data-testid=wallet_paypal]").click();
     cy.get("[data-button-for=proceed]").click({ force: true });
     cy.get("[data-testid=connector_status]").should("contain", "ACTIVE");
+    cy.get("[data-button-for=done]").click({ force: true });
+    cy.get("[data-testid=table-search-filter]").type("VOLT");
+    cy.get("[data-component=no-data-available]").should("exist");
+    cy.get('input[name="search"]').clear();
+    cy.get("[data-testid=table-search-filter]").type("paypal");
+    cy.get("[data-table-heading=Processor]").should("exist");
   });
 
   it("should successfully delete the paypal test processor", () => {

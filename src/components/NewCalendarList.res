@@ -28,6 +28,7 @@ let make = (
   ~firstCalendar=false,
   ~customDisabledFutureDays=0.0,
 ) => {
+  open LogicUtils
   let (fromDate, setFromDate) = React.useState(_ => "")
   let (toDate, setToDate) = React.useState(_ => "")
   let (fromDateOnFocus, setFromDateOnFocus) = React.useState(_ => false)
@@ -43,7 +44,7 @@ let make = (
     let toDateJs = toDate->DayJs.getDayJsForString
     let permittedMaxYears = startYear->Float.toInt + 10
     let updatedFromDate =
-      fromDate != "" &&
+      fromDate->isNonEmptyString &&
       fromDate->String.length >= 5 &&
       fromDateJs.isValid(.) &&
       fromDateJs.year(.) <= permittedMaxYears
@@ -54,7 +55,7 @@ let make = (
           }
         : ""
     let updatedToDate =
-      toDate != "" &&
+      toDate->isNonEmptyString &&
       toDate->String.length >= 5 &&
       toDateJs.isValid(.) &&
       toDateJs.year(.) <= permittedMaxYears
@@ -65,7 +66,7 @@ let make = (
           }
         : ""
 
-    if updatedFromDate != "" && updatedFromDate != startDate {
+    if updatedFromDate->isNonEmptyString && updatedFromDate != startDate {
       switch changeStartDate {
       | Some(changeStartDate) => changeStartDate(updatedFromDate, false, false, None)
       | None => ()
@@ -73,8 +74,8 @@ let make = (
     }
 
     if (
-      updatedFromDate != "" &&
-      updatedToDate != "" &&
+      updatedFromDate->isNonEmptyString &&
+      updatedToDate->isNonEmptyString &&
       updatedToDate != endDate &&
       toDateJs >= fromDateJs
     ) {
@@ -88,10 +89,10 @@ let make = (
   }, (fromDate, toDate))
 
   React.useEffect2(() => {
-    if startDate != "" && !fromDateOnFocus {
+    if startDate->isNonEmptyString && !fromDateOnFocus {
       setFromDate(_ => (startDate->DayJs.getDayJsForString).format(. "MMM DD, YYYY"))
     }
-    if endDate != "" && !toDateOnFocus {
+    if endDate->isNonEmptyString && !toDateOnFocus {
       setToDate(_ => (endDate->DayJs.getDayJsForString).format(. "MMM DD, YYYY"))
     } else {
       setToDate(_ => "")
@@ -101,10 +102,10 @@ let make = (
 
   React.useEffect1(() => {
     if isDateClicked {
-      if startDate != "" && !fromDateOnFocus {
+      if startDate->isNonEmptyString && !fromDateOnFocus {
         setFromDate(_ => (startDate->DayJs.getDayJsForString).format(. "MMM DD, YYYY"))
       }
-      if endDate != "" && !toDateOnFocus {
+      if endDate->isNonEmptyString && !toDateOnFocus {
         setToDate(_ => (endDate->DayJs.getDayJsForString).format(. "MMM DD, YYYY"))
       } else {
         setToDate(_ => "")

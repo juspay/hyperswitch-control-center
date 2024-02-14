@@ -59,7 +59,7 @@ module ModalHeading = {
       : "text-sm empty:hidden"
 
     <div
-      className={`!p-4 ${headBgClass !== ""
+      className={`!p-4 ${headBgClass->LogicUtils.isNonEmptyString
           ? headBgClass
           : "bg-jp-gray-200 dark:bg-jp-gray-darkgray_background"} rounded-t-lg z-10  w-full  m-0 md:!pl-6  ${headingClass} ${borderClass} `}>
       {switch leftHeadingIcon {
@@ -83,7 +83,7 @@ module ModalHeading = {
           } else {
             React.null
           }}
-          {if showModalHeadingIconName !== "" {
+          {if showModalHeadingIconName->LogicUtils.isNonEmptyString {
             <div className="flex items-center gap-4">
               {switch customIcon {
               | Some(icon) => icon
@@ -160,7 +160,7 @@ module ModalOverlay = {
     let backgroundDropStyles = isBackdropBlurReq ? "backdrop-blur-sm" : ""
 
     let attributeId =
-      addAttributeId === ""
+      addAttributeId->LogicUtils.isEmptyString
         ? switch modalHeading {
           | Some(_heading) => `:${modalHeading->Option.getOr("")}`
           | None => ""

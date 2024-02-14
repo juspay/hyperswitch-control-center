@@ -117,7 +117,7 @@ module NewCell = {
       ->Array.includes(true)
 
     let customcellColouredCell =
-      customcellColouredCellCheck && customCellColor !== ""
+      customcellColouredCellCheck && customCellColor->LogicUtils.isNonEmptyString
         ? customCellColor
         : "bg-white hover:bg-jp-gray-table_hover dark:hover:bg-jp-gray-850"
 
@@ -708,7 +708,7 @@ let make = (
         let filterValue = filterValue->Array.filter(
           item => {
             let updatedItem = item->String.make
-            updatedItem !== ""
+            updatedItem->LogicUtils.isNonEmptyString
           },
         )
         if filterValue->Array.length === 0 {
@@ -1044,7 +1044,7 @@ let make = (
         switch getShowLink {
         | Some(fn) => {
             let link = fn(value)
-            let finalUrl = url.search->String.length > 0 ? `${link}?${url.search}` : link
+            let finalUrl = url.search->LogicUtils.isNonEmptyString ? `${link}?${url.search}` : link
             RescriptReactRouter.push(finalUrl)
           }
 

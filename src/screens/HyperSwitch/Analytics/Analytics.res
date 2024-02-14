@@ -126,7 +126,7 @@ module TableWrapper = {
         let (key, value) = item
         let keyArr = key->String.split(".")
         let prefix = keyArr->Array.get(0)->Option.getOr("")
-        if prefix === moduleName && prefix !== "" {
+        if prefix === moduleName && prefix->LogicUtils.isNonEmptyString {
           None
         } else {
           Some((prefix, value))
@@ -262,7 +262,9 @@ module TableWrapper = {
 
     React.useEffect3(() => {
       setShowTable(_ => false)
-      if startTimeFromUrl !== "" && endTimeFromUrl !== "" {
+      if (
+        startTimeFromUrl->LogicUtils.isNonEmptyString && endTimeFromUrl->LogicUtils.isNonEmptyString
+      ) {
         let tableReqBody = HSAnalyticsUtils.generateTablePayload(
           ~startTimeFromUrl,
           ~endTimeFromUrl,
@@ -562,7 +564,7 @@ let make = (
           ->Dict.toArray
           ->Belt.Array.keepMap(item => {
             let (key, value) = item
-            if value !== "" {
+            if value->LogicUtils.isNonEmptyString {
               Some((`${moduleName}${chartType}.${key}`, value))
             } else {
               None
@@ -602,10 +604,9 @@ let make = (
   let {filterValueJson} = FilterContext.filterContext->React.useContext
   let startTimeVal = filterValueJson->getString("startTime", "")
   let endTimeVal = filterValueJson->getString("endTime", "")
-  open HSwitchRemoteFilter
   React.useEffect3(() => {
     setFilterDataJson(_ => None)
-    if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
+    if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
       try {
         updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
         ->thenResolve(json => setFilterDataJson(_ => json->Some))
@@ -623,7 +624,7 @@ let make = (
     Some(
       filterValueDict
       ->getStrArrayFromDict(`${moduleName}.tabName`, activeTav)
-      ->Array.filter(item => item !== ""),
+      ->Array.filter(item => item->LogicUtils.isNonEmptyString),
     )
   }, [filterValueDict])
 
