@@ -17,7 +17,7 @@ module BaseComponent = {
       <div className="flex justify-between items-center px-10 pt-6">
         <div className="flex gap-2 items-center">
           <UIUtils.RenderIf
-            condition={customIcon->Option.isNone && headerLeftIcon->String.length > 0}>
+            condition={customIcon->Option.isNone && headerLeftIcon->LogicUtils.isNonEmptyString}>
             <Icon name=headerLeftIcon size=25 />
           </UIUtils.RenderIf>
           <UIUtils.RenderIf condition={customIcon->Option.isSome}>
@@ -153,7 +153,8 @@ module HorizontalChoiceTile = {
               className="cursor-pointer !text-blue-800"
             />
           </div>
-          <UIUtils.RenderIf condition={items.imageLink->Option.getOr("")->String.length > 0}>
+          <UIUtils.RenderIf
+            condition={items.imageLink->Option.getOr("")->LogicUtils.isNonEmptyString}>
             <img alt="" src={items.imageLink->Option.getOr("")} />
           </UIUtils.RenderIf>
           <div className="flex gap-2 items-center ">

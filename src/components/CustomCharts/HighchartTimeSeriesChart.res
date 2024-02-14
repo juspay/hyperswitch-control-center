@@ -891,7 +891,7 @@ module LineChart2D = {
     rawChartData->Array.forEach(item => {
       let dict = item->getDictFromJsonObject
       let groupBy = dict->getString(groupBy1, "")
-      let groupBy = groupBy === "" ? "NA" : groupBy
+      let groupBy = groupBy->LogicUtils.isEmptyString ? "NA" : groupBy
 
       chartDictData->LineChartUtils.appendToDictValue(groupBy, item)
     })
@@ -937,9 +937,9 @@ module LineChart3D = {
     rawChartData->Array.forEach(item => {
       let dict = item->getDictFromJsonObject
       let groupBy1 = dict->getString(groupBy1, "")
-      let groupBy1 = groupBy1 === "" ? "NA" : groupBy1
+      let groupBy1 = groupBy1->LogicUtils.isEmptyString ? "NA" : groupBy1
       let groupBy2 = dict->getString(groupBy2, "")
-      let groupBy2 = groupBy2 === "" ? "NA" : groupBy2
+      let groupBy2 = groupBy2->LogicUtils.isEmptyString ? "NA" : groupBy2
 
       chartDictData->LineChartUtils.appendToDictValue(groupBy1 ++ " / " ++ groupBy2, item)
     })

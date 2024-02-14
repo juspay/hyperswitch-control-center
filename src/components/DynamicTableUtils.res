@@ -176,9 +176,9 @@ module TableHeading = {
     } else {
       "lg:mb-4 lg:mt-8"
     }
-    if title !== "" || description->Option.isSome {
+    if title->LogicUtils.isNonEmptyString || description->Option.isSome {
       <div className={`flex ${tooltipFlexDir} ${marginClass}`}>
-        {if title !== "" {
+        {if title->LogicUtils.isNonEmptyString {
           <AddDataAttributes attributes=[("data-table-heading-title", title)]>
             <div className=tableHeadingClass> {React.string(title)} </div>
           </AddDataAttributes>

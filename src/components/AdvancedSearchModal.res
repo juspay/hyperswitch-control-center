@@ -15,6 +15,7 @@ module AdvanceSearch = {
     ~setSearchDataDict,
     ~setShowSearchDetailsModal,
   ) => {
+    open LogicUtils
     let {optionalSearchFieldsList, requiredSearchFieldsList, detailsKey} = entity
     let fetchApi = AuthHooks.useApiFetcher()
     let initialValueJson = JSON.Encode.object(Dict.make())
@@ -27,8 +28,8 @@ module AdvanceSearch = {
         ->Dict.toArray
         ->Belt.Array.keepMap(entry => {
           let (key, value) = entry
-          let stringVal = LogicUtils.getStringFromJson(value, "")
-          if stringVal !== "" {
+          let stringVal = getStringFromJson(value, "")
+          if stringVal->isNonEmptyString {
             Some(`${key}=${stringVal}`)
           } else {
             None
@@ -37,10 +38,9 @@ module AdvanceSearch = {
         ->Array.joinWith("&")
       | _ => ""
       }
-      let finalUrl = otherQueries->String.length > 0 ? `${url}?${otherQueries}` : url
+      let finalUrl = otherQueries->isNonEmptyString ? `${url}?${otherQueries}` : url
 
       open Promise
-      open LogicUtils
       fetchApi(finalUrl, ~bodyStr=JSON.stringify(initialValueJson), ~method_=Fetch.Get, ())
       ->then(Fetch.Response.json)
       ->then(json => {

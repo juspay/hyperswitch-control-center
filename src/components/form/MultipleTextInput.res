@@ -66,7 +66,7 @@ let make = (
   })
   let handleKeyDown = e => {
     open ReactEvent.Keyboard
-    let isEmpty = text->String.length === 0
+    let isEmpty = text->LogicUtils.isEmptyString
 
     if isEmpty && (e->key === "Backspace" || e->keyCode === 8) && currentTags->Array.length > 0 {
       setText(_ => currentTags[currentTags->Array.length - 1]->Option.getOr(""))
@@ -81,7 +81,7 @@ let make = (
               !(newArr->Array.includes(ele->String.trim)) &&
               !(currentTags->Array.includes(ele->String.trim))
             ) {
-              if ele->String.trim != "" {
+              if ele->String.trim->LogicUtils.isNonEmptyString {
                 newArr->Array.push(ele->String.trim)->ignore
               }
             }
@@ -96,7 +96,7 @@ let make = (
               !(newArr->Array.includes(ele->String.trim)) &&
               !(currentTags->Array.includes(ele->String.trim))
             ) {
-              if ele->String.trim != "" {
+              if ele->String.trim->LogicUtils.isNonEmptyString {
                 newArr->Array.push(ele->String.trim)->ignore
               }
             }
@@ -140,7 +140,7 @@ let make = (
   <div className>
     {currentTags
     ->Array.map(tag => {
-      if tag != "" && tag !== "<script>" && tag !== "</script>" {
+      if tag->LogicUtils.isNonEmptyString && tag !== "<script>" && tag !== "</script>" {
         <Tag key=tag text=tag remove=onTagRemove disabled ?customButtonStyle />
       } else {
         React.null

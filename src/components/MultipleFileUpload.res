@@ -69,7 +69,7 @@ let make = (
   }
 
   let fileEmptyCheckUpload = (~value, ~files, ~filename, ~mimeType) => {
-    if value !== "" {
+    if value->LogicUtils.isNonEmptyString {
       setFilenames(prev => {
         let fileArr = prev->Array.copy->Array.concat(filename)
         fileArr
@@ -144,7 +144,7 @@ let make = (
                     switch rowsLimit {
                     | Some(val) =>
                       let rows = String.split(file, "\n")->Array.length
-                      if value !== "" && rows - 1 < val {
+                      if value->LogicUtils.isNonEmptyString && rows - 1 < val {
                         setFilenames(prev => {
                           let fileArr = prev->Array.copy->Array.concat(filename)
                           fileArr

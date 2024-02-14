@@ -1,3 +1,5 @@
+open LogicUtils
+
 type urlKEyType = Boolean | Float | Int
 
 let getFinalDict = (
@@ -55,9 +57,9 @@ let getFinalDict = (
     | Some((_, value)) =>
       let getExpectedType = ele => {
         switch value {
-        | Boolean => ele->LogicUtils.getBoolFromString(false)->JSON.Encode.bool
-        | Float => ele->LogicUtils.getFloatFromString(0.)->JSON.Encode.float
-        | Int => ele->LogicUtils.getIntFromString(0)->Int.toFloat->JSON.Encode.float
+        | Boolean => ele->getBoolFromString(false)->JSON.Encode.bool
+        | Float => ele->getFloatFromString(0.)->JSON.Encode.float
+        | Int => ele->getIntFromString(0)->Int.toFloat->JSON.Encode.float
         }
       }
       switch val->JSON.Classify.classify {
@@ -82,18 +84,15 @@ let getFinalDict = (
     if dropdownSearchKeyValueNames->Array.length === 2 {
       if !isSearchKeyArray {
         let key =
-          filterDict
-          ->LogicUtils.getString(dropdownSearchKeyValueNames[0]->Option.getOr(""), "")
-          ->LogicUtils.toCamelCase
-        let value =
-          filterDict->LogicUtils.getString(dropdownSearchKeyValueNames[1]->Option.getOr(""), "")
-        if value !== "" {
+          filterDict->getString(dropdownSearchKeyValueNames[0]->Option.getOr(""), "")->toCamelCase
+        let value = filterDict->getString(dropdownSearchKeyValueNames[1]->Option.getOr(""), "")
+        if value->isNonEmptyString {
           let isformat = searchkeysDict !== Dict.make()
           let value = if isformat {
-            let intSearchKeys = searchkeysDict->LogicUtils.getArrayFromDict("intSearchKeys", [])
-            let arrSearchKeys = searchkeysDict->LogicUtils.getArrayFromDict("arrSearchKeys", [])
+            let intSearchKeys = searchkeysDict->getArrayFromDict("intSearchKeys", [])
+            let arrSearchKeys = searchkeysDict->getArrayFromDict("arrSearchKeys", [])
             if intSearchKeys->Array.includes(key->JSON.Encode.string) {
-              value->LogicUtils.getFloatFromString(0.00)->JSON.Encode.float
+              value->getFloatFromString(0.00)->JSON.Encode.float
             } else if arrSearchKeys->Array.includes(key->JSON.Encode.string) {
               value->String.split(",")->Array.map(str => str->JSON.Encode.string)->JSON.Encode.array
             } else {
@@ -107,21 +106,21 @@ let getFinalDict = (
       } else {
         let key =
           filterDict
-          ->LogicUtils.getArrayFromDict(dropdownSearchKeyValueNames[0]->Option.getOr(""), [])
-          ->Array.map(item => item->LogicUtils.getStringFromJson("")->LogicUtils.toCamelCase)
+          ->getArrayFromDict(dropdownSearchKeyValueNames[0]->Option.getOr(""), [])
+          ->Array.map(item => item->getStringFromJson("")->toCamelCase)
         let value =
           filterDict
-          ->LogicUtils.getString(dropdownSearchKeyValueNames[1]->Option.getOr(""), "")
+          ->getString(dropdownSearchKeyValueNames[1]->Option.getOr(""), "")
           ->String.split(", ")
         value->Array.forEachWithIndex((value, indx) => {
           let key = key->Array.length > indx ? key[indx]->Option.getOr("") : ""
-          if value !== "" && key != "" {
+          if value->isNonEmptyString && key->isNonEmptyString {
             let isformat = searchkeysDict !== Dict.make()
             let value = if isformat {
-              let intSearchKeys = searchkeysDict->LogicUtils.getArrayFromDict("intSearchKeys", [])
-              let arrSearchKeys = searchkeysDict->LogicUtils.getArrayFromDict("arrSearchKeys", [])
+              let intSearchKeys = searchkeysDict->getArrayFromDict("intSearchKeys", [])
+              let arrSearchKeys = searchkeysDict->getArrayFromDict("arrSearchKeys", [])
               if intSearchKeys->Array.includes(key->JSON.Encode.string) {
-                value->LogicUtils.getFloatFromString(0.00)->JSON.Encode.float
+                value->getFloatFromString(0.00)->JSON.Encode.float
               } else if arrSearchKeys->Array.includes(key->JSON.Encode.string) {
                 value
                 ->String.split(",")
@@ -140,7 +139,7 @@ let getFinalDict = (
     }
     if isEulerOrderEntity {
       let arr = if filterDict->Dict.get("customerId")->Option.isSome {
-        [["date_created", "DESC"]->LogicUtils.getJsonFromArrayOfString]
+        [["date_created", "DESC"]->getJsonFromArrayOfString]
       } else {
         []
       }
@@ -169,7 +168,7 @@ let getInitialValuesFromUrl = (
 ) => {
   let initialFilters = initialFilters->Array.map(item => item.field)
   let dict = Dict.make()
-  let searchParams = searchParams->LogicUtils.stringReplaceAll("%20", " ")
+  let searchParams = searchParams->stringReplaceAll("%20", " ")
   if String.length(searchParams) > 0 {
     let splitUrlArray = String.split(searchParams, "&")
     let entriesList = []
@@ -237,22 +236,16 @@ let getLocalFiltersData = (
       Array.push(valueList, splitArray[1]->Option.getOr(""))->ignore
     })
 
-    let dateRange = dateRangeFilterDict->LogicUtils.getArrayFromDict("dateRange", [])
+    let dateRange = dateRangeFilterDict->getArrayFromDict("dateRange", [])
     let startKey =
-      dateRange
-      ->Array.get(0)
-      ->Option.getOr(""->JSON.Encode.string)
-      ->LogicUtils.getStringFromJson("")
+      dateRange->Array.get(0)->Option.getOr(""->JSON.Encode.string)->getStringFromJson("")
     let endKey =
-      dateRange
-      ->Array.get(1)
-      ->Option.getOr(""->JSON.Encode.string)
-      ->LogicUtils.getStringFromJson("")
+      dateRange->Array.get(1)->Option.getOr(""->JSON.Encode.string)->getStringFromJson("")
 
     let (keyList, valueList) = if (
       dateRangeFilterDict != Dict.make() &&
-      startKey != "" &&
-      endKey != "" &&
+      startKey->isNonEmptyString &&
+      endKey->isNonEmptyString &&
       keyList->Array.includes(startKey) &&
       keyList->Array.includes(endKey)
     ) {
@@ -317,7 +310,7 @@ let generateUrlFromDict = (~dict, ~options: array<EntityType.optionType<'t>>, ta
     let (key, val) = entry
 
     let strValue = getStrFromJson(key, val)
-    if strValue !== "" {
+    if strValue->isNonEmptyString {
       let requiredOption = options->Array.find(option => option.urlKey === key)
       switch requiredOption {
       | Some(option) => {
@@ -373,7 +366,7 @@ let applyFilters = (
   }
 
   let (localSearchUrl, localSearchDict) = if (
-    existingFilterUrl->String.length > 0 && currentFilterUrl->String.length > 0
+    existingFilterUrl->isNonEmptyString && currentFilterUrl->isNonEmptyString
   ) {
     (
       `${existingFilterUrl}&${currentFilterUrl}`,
@@ -381,9 +374,9 @@ let applyFilters = (
         Array.concat(existingFilterDict->Dict.toArray, currentFilterDict->Dict.toArray),
       ),
     )
-  } else if existingFilterUrl->String.length > 0 {
+  } else if existingFilterUrl->isNonEmptyString {
     (existingFilterUrl, existingFilterDict)
-  } else if currentFilterUrl->String.length > 0 {
+  } else if currentFilterUrl->isNonEmptyString {
     (currentFilterUrl, currentFilterDict)
   } else {
     ("", Dict.make())
@@ -395,7 +388,7 @@ let applyFilters = (
     | _ => ()
     }
   } else {
-    let finalCompleteUrl = localSearchUrl->String.length > 0 ? `${path}?${localSearchUrl}` : path
+    let finalCompleteUrl = localSearchUrl->isNonEmptyString ? `${path}?${localSearchUrl}` : path
     switch updateUrlWith {
     | Some(fn) =>
       fn(

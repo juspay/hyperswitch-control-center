@@ -24,7 +24,7 @@ module BaseComponent = {
     let toggleBorder = "border border-green-950"
     let toggleColor = "bg-gradient-to-t from-jp-gray-200 to-jp-gray-250 dark:from-jp-gray-darkgray_background dark:to-jp-gray-darkgray_background"
 
-    let boolCustomClass = if boolCustomClass == "" {
+    let boolCustomClass = if boolCustomClass->LogicUtils.isEmptyString {
       if isMobileView {
         ""
       } else {

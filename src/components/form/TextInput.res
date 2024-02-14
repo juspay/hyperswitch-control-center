@@ -139,7 +139,7 @@ let make = (
     : "border-jp-gray-lightmode_steelgray focus:border-blue-800 dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:focus:border-blue-800 focus:shadow-text_input_shadow focus:shadow-blue-800"
 
   let dashboardClass = customDashboardClass->Option.getOr("h-10 text-sm font-semibold")
-  let rightPaddingClass = if description !== "" || isInValid {
+  let rightPaddingClass = if description->LogicUtils.isNonEmptyString || isInValid {
     "pr-10"
   } else {
     switch rightIcon {
@@ -157,10 +157,10 @@ let make = (
 
   let width = widthMatchwithPlaceholderLength->Option.isSome ? "" : customWidth
   let textPaddingClass =
-    type_ !== "range" && customPaddingClass == ""
+    type_ !== "range" && customPaddingClass->LogicUtils.isEmptyString
       ? `${rightPaddingClass} ${leftPaddingClass} ${verticalPadding}`
       : customPaddingClass
-  let hoverCss = if onHoverCss == "" {
+  let hoverCss = if onHoverCss->LogicUtils.isEmptyString {
     "hover:bg-jp-gray-lightmode_steelgray hover:bg-opacity-20 hover:border-opacity-20 dark:hover:bg-jp-gray-970"
   } else {
     onHoverCss
@@ -190,7 +190,9 @@ let make = (
   | None => ""
   }
   let rightIconStyle =
-    rightIconCustomStyle == "" ? `-ml-10 ${rightIconCursorClass}` : rightIconCustomStyle
+    rightIconCustomStyle->LogicUtils.isEmptyString
+      ? `-ml-10 ${rightIconCursorClass}`
+      : rightIconCustomStyle
   let rightIconClick = ev => {
     switch rightIconOnClick {
     | Some(fn) => fn(ev)
@@ -301,7 +303,7 @@ let make = (
           autoFocus
           ?form
         />
-        {description !== ""
+        {description->LogicUtils.isNonEmptyString
           ? <ToolTip
               description
               toolTipPosition=Right
