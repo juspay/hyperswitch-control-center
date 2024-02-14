@@ -222,6 +222,7 @@ let make = (~id) => {
   open APIUtils
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (disputeData, setDisputeData) = React.useState(_ => JSON.Encode.null)
 
   let fetchDisputesData = async () => {
@@ -242,6 +243,10 @@ let make = (~id) => {
     fetchDisputesData()->ignore
     None
   })
+
+  let data = disputeData->LogicUtils.getDictFromJsonObject
+  let paymentId = data->LogicUtils.getString("payment_id", "")
+
   <PageLoaderWrapper screenState>
     <div className="flex flex-col overflow-scroll">
       <div className="mb-4 flex justify-between">
@@ -257,7 +262,23 @@ let make = (~id) => {
           <div />
         </div>
       </div>
-      <DisputesInfo orderDict={disputeData->LogicUtils.getDictFromJsonObject} setDisputeData />
+      <DisputesInfo orderDict={data} setDisputeData />
+      <div className="mt-5" />
+      <UIUtils.RenderIf condition={featureFlagDetails.auditTrail}>
+        <OrderUIUtils.RenderAccordian
+          accordion={[
+            {
+              title: "Events and logs",
+              renderContent: () => {
+                <LogsWrapper wrapperFor={#REFUND}>
+                  <DisputeLogs disputeId=id paymentId />
+                </LogsWrapper>
+              },
+              renderContentOnTop: None,
+            },
+          ]}
+        />
+      </UIUtils.RenderIf>
     </div>
   </PageLoaderWrapper>
 }
