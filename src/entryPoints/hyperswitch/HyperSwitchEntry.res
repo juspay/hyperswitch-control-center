@@ -84,7 +84,7 @@ module HyperSwitchEntryComponent = {
       <div className="text-black">
         <HyperSwitchAuthWrapper>
           <GlobalProvider>
-            <DecisionScreen />
+            {featureFlagDetails.acceptInvite ? <DecisionScreen /> : <HyperSwitchApp />}
           </GlobalProvider>
         </HyperSwitchAuthWrapper>
       </div>

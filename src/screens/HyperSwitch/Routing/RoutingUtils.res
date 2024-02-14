@@ -222,14 +222,6 @@ module ConfigureRuleButton = {
   }
 }
 
-let validateNameAndDescription = (~dict, ~errors) => {
-  ["name", "description"]->Array.forEach(field => {
-    if dict->getString(field, "")->isEmptyString {
-      errors->Dict.set(field, `Please provide ${field} field`->JSON.Encode.string)
-    }
-  })
-}
-
 let checkIfValuePresent = dict => {
   let valueFromObject = dict->getDictfromDict("value")
 
@@ -239,10 +231,10 @@ let checkIfValuePresent = dict => {
     ele != ""->JSON.Encode.string
   })
   ->Array.length > 0 ||
-  valueFromObject->getString("value", "")->String.length > 0 ||
+  valueFromObject->getString("value", "")->isNonEmptyString ||
   valueFromObject->getFloat("value", -1.0) !== -1.0 ||
-  (valueFromObject->getDictfromDict("value")->getString("key", "")->String.length > 0 &&
-    valueFromObject->getDictfromDict("value")->getString("value", "")->String.length > 0)
+  (valueFromObject->getDictfromDict("value")->getString("key", "")->isNonEmptyString &&
+    valueFromObject->getDictfromDict("value")->getString("value", "")->isNonEmptyString)
 }
 
 let validateConditionJson = (json, keys) => {

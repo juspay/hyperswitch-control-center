@@ -163,7 +163,7 @@ let make = () => {
 
   let redirectOnSelect = element => {
     let redirectLink = element->LogicUtils.getString("redirect_link", "")
-    if redirectLink->String.length > 0 {
+    if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
       RescriptReactRouter.push(redirectLink)
     }
@@ -279,7 +279,7 @@ let make = () => {
                               ->Array.mapWithIndex((item, index) => {
                                 let elementValue = item->JSON.Decode.string->Option.getOr("")
                                 <RenderIf
-                                  condition={elementValue->String.length > 0}
+                                  condition={elementValue->isNonEmptyString}
                                   key={index->string_of_int}>
                                   <RenderedComponent ele=elementValue searchText />
                                   <RenderIf
@@ -303,7 +303,7 @@ let make = () => {
               </div>
             }}
           </Combobox>
-          <RenderIf condition={searchText->String.length > 0 && arr->Array.length === 0}>
+          <RenderIf condition={searchText->isNonEmptyString && arr->Array.length === 0}>
             <div className="flex flex-col w-full h-72 p-2 justify-center items-center gap-1">
               <img className="w-1/3" src={`${prefix}/icons/globalSearchNoResult.svg`} />
               <div className="w-1/2 text-wrap text-center break-all">

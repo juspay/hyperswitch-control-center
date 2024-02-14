@@ -226,6 +226,7 @@ let make = (
   ~enableDescriptionHeader: bool=false,
   ~toolTipDescription="Add more tabs",
 ) => {
+  open LogicUtils
   let eulerBgClass = "bg-jp-gray-100 dark:bg-jp-gray-darkgray_background"
   let bgClass = eulerBgClass
   // this tabs will always loaded independent of user preference
@@ -265,7 +266,7 @@ let make = (
     | Some(jsonVal) => {
         let tabsFromPreference =
           jsonVal
-          ->LogicUtils.getStrArryFromJson
+          ->getStrArryFromJson
           ->Array.filter(item => !(defautTabValues->Array.includes(item)))
 
         let tabsFromPreference =
@@ -274,7 +275,7 @@ let make = (
           )
 
         tabsFromPreference->Belt.Array.keepMap(tabName => {
-          let tabName = tabName->LogicUtils.getUniqueArray
+          let tabName = tabName->getUniqueArray
           let validated =
             tabName
             ->Array.filter(
@@ -320,7 +321,7 @@ let make = (
     let tabName = switch initalTab {
     | Some(value) => value
     | None =>
-      getTabNames->LogicUtils.getStrArrayFromDict("tabName", [])->Array.filter(item => item !== "")
+      getTabNames->getStrArrayFromDict("tabName", [])->Array.filter(item => item->isNonEmptyString)
     }
     let tabName = tabName->LogicUtils.getUniqueArray
 
@@ -501,7 +502,7 @@ let make = (
         label: x.title,
         value: x.value,
         icon: CustomRightIcon(
-          description !== ""
+          description->LogicUtils.isNonEmptyString
             ? <ToolTip
                 customStyle="-mr-1.5"
                 arrowCustomStyle={isMobileView ? "" : "ml-1.5"}

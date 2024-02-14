@@ -1,3 +1,5 @@
+open LogicUtils
+
 type cardinality = Top_5 | Top_10
 type granularity =
   | G_THIRTYSEC
@@ -207,10 +209,7 @@ let useChartFetch = (~setStatusDict) => {
       ->then(json => {
         // get total volume and time series and pass that on
         let dataRawTimeSeries =
-          json
-          ->LogicUtils.getDictFromJsonObject
-          ->LogicUtils.getJsonObjectFromDict("queryData")
-          ->LogicUtils.getArrayFromJson([])
+          json->getDictFromJsonObject->getJsonObjectFromDict("queryData")->getArrayFromJson([])
 
         switch item {
         | {legendBody} =>
@@ -226,9 +225,9 @@ let useChartFetch = (~setStatusDict) => {
             legendJson => {
               let dataRawLegend =
                 legendJson
-                ->LogicUtils.getDictFromJsonObject
-                ->LogicUtils.getJsonObjectFromDict("queryData")
-                ->LogicUtils.getArrayFromJson([])
+                ->getDictFromJsonObject
+                ->getJsonObjectFromDict("queryData")
+                ->getArrayFromJson([])
 
               resolve(
                 Some({
@@ -333,9 +332,9 @@ let make = (
       let fitlerName = keyArr->Array.get(1)->Option.getOr("")
 
       // when chart id is not there then there won't be any prefix so the prefix will the filter name
-      if chartId === "" {
+      if chartId->isEmptyString {
         Some((prefix, value))
-      } else if prefix === chartId && fitlerName !== "" {
+      } else if prefix === chartId && fitlerName->isNonEmptyString {
         Some((fitlerName, value))
       } else {
         None
@@ -353,7 +352,7 @@ let make = (
       let keyArr = key->String.split(".")
       let prefix = keyArr->Array.get(0)->Option.getOr("")
 
-      if prefix === chartId && prefix !== "" {
+      if prefix === chartId && prefix->isNonEmptyString {
         None
       } else {
         Some((prefix, value))
@@ -363,7 +362,7 @@ let make = (
   }, [getAllFilter])
 
   let mode = switch modeKey {
-  | Some(modeKey) => Some(getTopLevelFilter->LogicUtils.getString(modeKey, ""))
+  | Some(modeKey) => Some(getTopLevelFilter->getString(modeKey, ""))
   | None => Some("ORDER")
   }
 
@@ -383,17 +382,15 @@ let make = (
   let (currentTopMatrix, currentBottomMetrix) = currentMetrics
   // if we won't see anything in the url then we will update the url
   React.useEffect0(() => {
-    let cardinality = getChartCompFilters->LogicUtils.getString("cardinality", "TOP_5")
+    let cardinality = getChartCompFilters->getString("cardinality", "TOP_5")
     let chartType =
-      getChartCompFilters->LogicUtils.getString(
+      getChartCompFilters->getString(
         "chartType",
         entity.chartTypes->Array.get(0)->Option.getOr(Line)->chartMapper,
       )
-    let chartTopMetric =
-      getChartCompFilters->LogicUtils.getString("chartTopMetric", currentTopMatrix)
+    let chartTopMetric = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
 
-    let chartBottomMetric =
-      getChartCompFilters->LogicUtils.getString("chartBottomMetric", currentBottomMetrix)
+    let chartBottomMetric = getChartCompFilters->getString("chartBottomMetric", currentBottomMetrix)
 
     let dict = Dict.make()
     let chartMatrixArr = entityAllMetrics->Array.map(item => item.metric_label)
@@ -438,12 +435,11 @@ let make = (
     }
   | None => No_Dims
   }
-  let cardinalityFromUrl = getChartCompFilters->LogicUtils.getString("cardinality", "TOP_5")
-  let chartTypeFromUrl = getChartCompFilters->LogicUtils.getString("chartType", "Line chart")
-  let chartTopMetricFromUrl =
-    getChartCompFilters->LogicUtils.getString("chartTopMetric", currentTopMatrix)
+  let cardinalityFromUrl = getChartCompFilters->getString("cardinality", "TOP_5")
+  let chartTypeFromUrl = getChartCompFilters->getString("chartType", "Line chart")
+  let chartTopMetricFromUrl = getChartCompFilters->getString("chartTopMetric", currentTopMatrix)
   let chartBottomMetricFromUrl =
-    getChartCompFilters->LogicUtils.getString("chartBottomMetric", currentBottomMetrix)
+    getChartCompFilters->getString("chartBottomMetric", currentBottomMetrix)
   let (granularity, setGranularity) = React.useState(_ => None)
   let (rawChartData, setRawChartData) = React.useState(_ => None)
   let (shimmerType, setShimmerType) = React.useState(_ => AnalyticsUtils.Shimmer)
@@ -484,7 +480,7 @@ let make = (
       })
       ->Array.joinWith("&")
 
-    (filterSearchParam, getTopLevelFilter->LogicUtils.getString(customFilterKey, ""))
+    (filterSearchParam, getTopLevelFilter->getString(customFilterKey, ""))
   }, [getTopLevelFilter])
 
   let (startTimeFilterKey, endTimeFilterKey) = dateFilterKeys
@@ -506,10 +502,10 @@ let make = (
   let fetchChartData = useChartFetch(~setStatusDict)
 
   let startTimeFromUrl = React.useMemo1(() => {
-    getTopLevelFilter->LogicUtils.getString(startTimeFilterKey, "")
+    getTopLevelFilter->getString(startTimeFilterKey, "")
   }, [topFiltersToSearchParam])
   let endTimeFromUrl = React.useMemo1(() => {
-    getTopLevelFilter->LogicUtils.getString(endTimeFilterKey, "")
+    getTopLevelFilter->getString(endTimeFilterKey, "")
   }, [topFiltersToSearchParam])
 
   let topFiltersToSearchParam = React.useMemo1(() => {
@@ -530,7 +526,9 @@ let make = (
     filterSearchParam
   }, [topFiltersToSearchParam])
 
-  let current_granularity = if startTimeFromUrl !== "" && endTimeFromUrl !== "" {
+  let current_granularity = if (
+    startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString
+  ) {
     getGranularity(~startTime=startTimeFromUrl, ~endTime=endTimeFromUrl)
   } else {
     []
@@ -645,13 +643,13 @@ let make = (
 
         switch dict->Dict.get("time_range") {
         | Some(jsonObj) => {
-            let timeDict = jsonObj->LogicUtils.getDictFromJsonObject
+            let timeDict = jsonObj->getDictFromJsonObject
 
             switch timeDict->Dict.get("startTime") {
             | Some(startValue) => {
                 let sTime = startValue->JSON.Decode.string->Option.getOr("")
 
-                if sTime->String.length > 0 {
+                if sTime->isNonEmptyString {
                   let {date, hour, minute, month, second, year} =
                     sTime->Date.fromString->Date.toISOString->isoStringToCustomTimeZone
 
@@ -676,7 +674,7 @@ let make = (
               ->Option.getOr(""->JSON.Encode.string)
               ->JSON.Decode.string
               ->Option.getOr("")
-            let label = metric == "" ? "other" : metric
+            let label = metric->isEmptyString ? "other" : metric
 
             Dict.set(dict, tabName, label->JSON.Encode.string)
 
@@ -734,13 +732,13 @@ let make = (
 
   React.useEffect1(() => {
     let chartType =
-      getChartCompFilters->LogicUtils.getString(
+      getChartCompFilters->getString(
         "chartType",
         entity.chartTypes->Array.get(0)->Option.getOr(Line)->chartMapper,
       )
     if (
-      startTimeFromUrl !== "" &&
-      endTimeFilterKey !== "" &&
+      startTimeFromUrl->isNonEmptyString &&
+      endTimeFilterKey->isNonEmptyString &&
       (granularity->Option.isSome || chartType !== "Line Chart") &&
       current_granularity->Array.includes(granularity->Option.getOr(""))
     ) {

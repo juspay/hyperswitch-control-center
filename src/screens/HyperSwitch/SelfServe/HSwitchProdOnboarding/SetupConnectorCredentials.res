@@ -61,7 +61,7 @@ module ConnectorDetailsForm = {
         suggestedAction
         setVerifyDone
       />
-      <UIUtils.RenderIf condition={checkboxText->String.length > 0}>
+      <UIUtils.RenderIf condition={checkboxText->LogicUtils.isNonEmptyString}>
         <div className="flex gap-2 items-center">
           <CheckBoxIcon
             isSelected=isCheckboxSelected
@@ -394,7 +394,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
               text=buttonText
               customSumbitButtonStyle="!rounded-md"
               loadingText={isLoading ? "Loading ..." : ""}
-              disabledParamter={checkboxText->String.length > 0 && !isCheckboxSelected}
+              disabledParamter={checkboxText->LogicUtils.isNonEmptyString && !isCheckboxSelected}
             />
           </div>
         </div>

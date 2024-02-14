@@ -27,7 +27,10 @@ let make = (
     ? `text-l text-center mt-4 ${customMessageCss}`
     : `px-3 text-2xl mt-32 ${customMessageCss}`
 
-  <AddDataAttributes attributes=[("data-component", message)]>
+  <AddDataAttributes
+    attributes=[
+      ("data-component", message->LogicUtils.stringReplaceAll(" ", "-")->String.toLowerCase),
+    ]>
     {<div className={`${customCssClass} rounded-md`}>
       {switch title {
       | Some(val) =>

@@ -17,7 +17,7 @@ let enumToValueMapper = (variantValue, typedValue: QuickStartTypes.responseType)
   | PLUGIN_INSTALL => typedValue.downloadWoocom
   | PLUGIN_CONFIGURE => typedValue.configureWoocom
   | WEBHOOK_SETUP => typedValue.setupWoocomWebhook
-  | PROCESSOR_SETUP => typedValue.firstProcessorConnected.processorID->String.length > 0
+  | PROCESSOR_SETUP => typedValue.firstProcessorConnected.processorID->LogicUtils.isNonEmptyString
   | COMPLETED_WOOCOMMERCE => true
   }
 }

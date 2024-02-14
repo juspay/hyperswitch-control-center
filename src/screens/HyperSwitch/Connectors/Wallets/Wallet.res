@@ -82,7 +82,7 @@ module Wallets = {
       let mandateKyes = configurationFields->Dict.keysToArray->getUniqueArray
       let errorDict = Dict.make()
       mandateKyes->Array.forEach(key => {
-        if dict->getString(key, "") === "" {
+        if dict->getString(key, "")->isEmptyString {
           errorDict->Dict.set(key, `${key} cannot be empty!`->JSON.Encode.string)
         }
       })
@@ -105,14 +105,14 @@ module Wallets = {
       configurationFields
       ->Dict.keysToArray
       ->Array.mapWithIndex((field, index) => {
-        let label = configurationFields->LogicUtils.getString(field, "")
+        let label = configurationFields->getString(field, "")
         <div key={index->Int.toString}>
           <FormRenderer.FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
             field={FormRenderer.makeFieldInfo(
               ~label,
               ~name={`${name}.${field}`},
-              ~placeholder={`Enter ${label->LogicUtils.snakeToTitle}`},
+              ~placeholder={`Enter ${label->snakeToTitle}`},
               ~customInput=InputFields.textInput(),
               ~isRequired=true,
               (),

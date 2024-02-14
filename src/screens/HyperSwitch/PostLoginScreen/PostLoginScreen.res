@@ -5,7 +5,7 @@ module SurveyComponent = {
   let make = (~currentStep, ~setCurrentStep, ~currentQuestionDict, ~setCarouselDirection) => {
     let currentQuestionValue =
       ReactFinalForm.useField(currentQuestionDict.key).input.value->LogicUtils.getStringFromJson("")
-    let isNextButtonEnabled = currentQuestionValue->String.length > 0
+    let isNextButtonEnabled = currentQuestionValue->LogicUtils.isNonEmptyString
 
     <div className="flex flex-col gap-2 h-full ">
       <div className="flex flex-col gap-2">
@@ -50,7 +50,7 @@ module SurveyComponent = {
           <FormRenderer.SubmitButton
             text="Submit"
             customSumbitButtonStyle="!rounded-md w-full"
-            disabledParamter={currentQuestionValue->String.length > 0 ? false : true}
+            disabledParamter={currentQuestionValue->LogicUtils.isNonEmptyString ? false : true}
           />
         } else {
           <Button

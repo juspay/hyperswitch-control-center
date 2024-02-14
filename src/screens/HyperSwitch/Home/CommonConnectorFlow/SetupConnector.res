@@ -74,7 +74,7 @@ module ConfigureProcessor = {
 
     let connectorDetails = React.useMemo1(() => {
       try {
-        if connectorName->String.length > 0 {
+        if connectorName->LogicUtils.isNonEmptyString {
           Window.getConnectorConfig(connectorName)
         } else {
           Dict.make()->JSON.Encode.object

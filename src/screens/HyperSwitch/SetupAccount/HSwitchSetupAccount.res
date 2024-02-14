@@ -108,7 +108,7 @@ let make = () => {
   }
 
   let getDetails = async () => {
-    if activeBusinessProfile.profile_id->String.length > 0 {
+    if activeBusinessProfile.profile_id->LogicUtils.isNonEmptyString {
       apiCalls()->ignore
     }
   }
