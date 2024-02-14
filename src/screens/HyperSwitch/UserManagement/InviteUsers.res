@@ -51,7 +51,9 @@ module InviteEmailForm = {
           />
         </div>
         <div className="absolute top-10 right-5">
-          <FormRenderer.SubmitButton text={magicLink ? "Send Invite" : "Add User"} />
+          <FormRenderer.SubmitButton
+            text={magicLink ? "Send Invite" : "Add User"} loadingText="Loading..."
+          />
         </div>
       </div>
       <FormRenderer.FieldRenderer
@@ -72,7 +74,7 @@ let make = () => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
-  let {magicLink} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {magicLink, inviteMultiple} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (roleTypeValue, setRoleTypeValue) = React.useState(_ => "merchant_view_only")
@@ -85,6 +87,94 @@ let make = () => {
     ->JSON.Encode.object
   })
 
+  let inviteListOfUsersWithInviteMultiple = async values => {
+    let url = getURL(~entityName=USERS, ~userType=#INVITE_MULTIPLE, ~methodType=Post, ())
+    if !magicLink {
+      setLoaderForInviteUsers(_ => true)
+    }
+    let valDict = values->getDictFromJsonObject
+    let role = valDict->getStrArray("roleType")->getValueFromArray(0, "")
+    let emailList = valDict->getStrArray("emailList")
+
+    let body =
+      emailList
+      ->Array.map(ele =>
+        [
+          ("email", ele->String.toLowerCase->JSON.Encode.string),
+          ("name", ele->getNameFromEmail->JSON.Encode.string),
+          ("role_id", role->JSON.Encode.string),
+        ]->getJsonFromArrayOfJson
+      )
+      ->JSON.Encode.array
+
+    let response = await updateDetails(url, body, Post, ())
+    let decodedResponse = response->getArrayFromJson([])
+
+    if !magicLink {
+      let invitedUserData =
+        decodedResponse
+        ->Array.mapWithIndex((ele, index) => {
+          let responseDict = ele->getDictFromJsonObject
+          if (
+            responseDict->getOptionString("error")->Option.isNone &&
+              responseDict->getString("password", "")->String.length > 0
+          ) {
+            let passwordFromResponse = responseDict->getString("password", "")
+            [
+              ("email", emailList->getValueFromArray(index, "")->JSON.Encode.string),
+              ("password", passwordFromResponse->JSON.Encode.string),
+            ]->getJsonFromArrayOfJson
+          } else {
+            JSON.Encode.null
+          }
+        })
+        ->Array.filter(ele => ele !== JSON.Encode.null)
+
+      setLoaderForInviteUsers(_ => false)
+
+      if invitedUserData->Array.length > 0 {
+        DownloadUtils.download(
+          ~fileName=`invited-users.txt`,
+          ~content=invitedUserData->JSON.Encode.array->JSON.stringifyWithIndent(3),
+          ~fileType="application/json",
+        )
+      }
+    }
+
+    let (message, toastType) = if (
+      decodedResponse->Array.every(ele =>
+        ele->getDictFromJsonObject->getOptionString("error")->Option.isSome
+      )
+    ) {
+      (
+        "We've faced some problem while sending emails or creating users. Please check and try again.",
+        ToastState.ToastError,
+      )
+    } else if (
+      decodedResponse->Array.some(ele =>
+        ele->getDictFromJsonObject->getOptionString("error")->Option.isSome
+      )
+    ) {
+      (
+        "We faced difficulties sending some invitations. Please check and try again.",
+        ToastState.ToastWarning,
+      )
+    } else {
+      (
+        magicLink
+          ? `Invite(s) sent successfully via Email`
+          : `The user accounts have been successfully created. The file with their credentials has been downloaded.`,
+        ToastState.ToastSuccess,
+      )
+    }
+
+    showToast(~message, ~toastType, ())
+
+    RescriptReactRouter.push("/users")
+    Nullable.null
+  }
+
+  // TODO : TO remove when Invite Multiple API is deployed
   let inviteUserReq = body => {
     let url = getURL(~entityName=USERS, ~userType=#INVITE, ~methodType=Post, ())
     let response = updateDetails(url, body, Post, ())
@@ -150,7 +240,7 @@ let make = () => {
   }
 
   let onSubmit = (values, _) => {
-    inviteListOfUsers(values)
+    inviteMultiple ? inviteListOfUsersWithInviteMultiple(values) : inviteListOfUsers(values)
   }
 
   let settingUpValues = (json, permissionInfoValue) => {

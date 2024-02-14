@@ -137,9 +137,7 @@ let make = () => {
             "integrationType",
             currentRoute->UserOnboardingUtils.variantToTextMapperForBuildHS->JSON.Encode.string,
           ),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object,
+        ]->LogicUtils.getJsonFromArrayOfJson,
         (),
       )
       let _ = await updateDetails(url, body, Post, ())

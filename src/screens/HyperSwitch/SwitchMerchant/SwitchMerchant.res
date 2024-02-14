@@ -12,7 +12,7 @@ let convertListResponseToTypedResponse = json => {
     let dictOfElement = ele->getDictFromJsonObject
     let merchantId = dictOfElement->getString("merchant_id", "")
     let merchantName =
-      dictOfElement->getString("merchant_name", merchantId)->String.length > 0
+      dictOfElement->getString("merchant_name", merchantId)->isNonEmptyString
         ? dictOfElement->getString("merchant_name", merchantId)
         : merchantId
 
@@ -114,11 +114,18 @@ module AddNewMerchantButton = {
   @react.component
   let make = (~setShowModal) => {
     open HeadlessUI
-    <div className="px-1 py-1 ">
+    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantAccountWrite)
+    <ACLDiv
+      permission={userPermissionJson.merchantAccountWrite}
+      onClick={_ => setShowModal(_ => true)}
+      isRelative=false
+      contentAlign=Default
+      tooltipForWidthClass="!h-full"
+      className={`${cursorStyles} px-1 py-1`}>
       <Menu.Item>
         {props =>
-          <button
-            onClick={_ => setShowModal(_ => true)}
+          <div
             className={
               let activeClasses = if props["active"] {
                 "group flex rounded-md items-center px-2 py-2 text-sm bg-gray-100 dark:bg-black"
@@ -129,9 +136,9 @@ module AddNewMerchantButton = {
             }>
             <Icon name="plus-circle" size=15 />
             {"Add a new merchant"->React.string}
-          </button>}
+          </div>}
       </Menu.Item>
-    </div>
+    </ACLDiv>
   }
 }
 
@@ -258,6 +265,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
   let showPopUp = PopUpState.useShowPopUp()
   let isInternalUser = userRole->String.includes("internal_")
   let (successModal, setSuccessModal) = React.useState(_ => false)
+  let {acceptInvite} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let input = React.useMemo1((): ReactFinalForm.fieldRenderPropsInput => {
     {
@@ -293,6 +301,7 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       let token = HyperSwitchAuthUtils.parseResponseJson(
         ~json=res,
         ~email=responseDict->LogicUtils.getString("email", ""),
+        ~isAcceptInvite=acceptInvite,
       )
       LocalStorage.setItem("login", token)
       HSwitchUtils.setMerchantDetails("merchant_id", switchedMerchantId->JSON.Encode.string)

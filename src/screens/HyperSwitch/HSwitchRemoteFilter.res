@@ -3,12 +3,6 @@ type filterBody = {
   end_time: string,
 }
 
-let isStringNonEmpty = str => str->String.length > 0
-
-let getDateValue = (key, ~getModuleFilters) => {
-  getModuleFilters->Dict.get(key)->Option.getOr("")
-}
-
 let formateDateString = date => {
   date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:[00][Z]")
 }
@@ -129,7 +123,7 @@ module SearchBarFilter = {
     }, [searchValBase])
 
     React.useEffect1(() => {
-      if searchValBase->String.length < 1 && searchVal->String.length > 0 {
+      if searchValBase->String.length < 1 && searchVal->LogicUtils.isNonEmptyString {
         setSearchVal(_ => searchValBase)
       }
       None
@@ -207,7 +201,7 @@ module RemoteTableFilters = {
 
     React.useEffect3(() => {
       setFilterDataJson(_ => None)
-      if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
+      if startTimeVal->isNonEmptyString && endTimeVal->isNonEmptyString {
         try {
           updateDetails(filterUrl, filterBody->JSON.Encode.object, Post, ())
           ->thenResolve(json => setFilterDataJson(_ => json->Some))

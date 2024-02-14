@@ -209,7 +209,7 @@ module NewProcessorCards = {
     }
 
     let connectorListFiltered = {
-      if searchedConnector->String.length > 0 {
+      if searchedConnector->LogicUtils.isNonEmptyString {
         connectorsAvailableForIntegration->Array.filter(item =>
           item->getConnectorNameString->String.includes(searchedConnector->String.toLowerCase)
         )
@@ -296,7 +296,7 @@ let make = (~isPayoutFlow=false) => {
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
     let (searchText, arr) = ob
-    let filteredList = if searchText->String.length > 0 {
+    let filteredList = if searchText->isNonEmptyString {
       arr->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayload>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>

@@ -29,7 +29,7 @@ module DetailsSection = {
         {details.inputFields
         ->Array.mapWithIndex((field, index) => {
           let merchantName = merchantInfo->LogicUtils.getString(field.name, "Not Added")
-          let defaultText = merchantName->String.length > 0 ? merchantName : "Not Added"
+          let defaultText = merchantName->LogicUtils.isNonEmptyString ? merchantName : "Not Added"
 
           <div key={index->Int.toString}>
             {switch formState {

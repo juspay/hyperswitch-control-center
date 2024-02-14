@@ -359,7 +359,7 @@ module DisputesInfoBarComponent = {
                       <Icon name="pdf-icon" size=20 />
                       <p className={`${p2RegularText} text-grey-700`}> {fileName->React.string} </p>
                     </div>
-                    <Icon name="remove-icon" size=12 />
+                    <Icon name="cross-skeleton" size=12 />
                   </div>
                 })
                 ->React.array}

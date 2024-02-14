@@ -23,7 +23,7 @@ let make = (
   let handleSubmit = (_, _) => {Nullable.null->Promise.resolve}
 
   let inputSearch: ReactFinalForm.fieldRenderPropsInput = {
-    name: "name",
+    name: "search",
     onBlur: _ev => (),
     onChange,
     onFocus: _ev => (),
@@ -31,20 +31,22 @@ let make = (
     checked: true,
   }
 
-  <div className=customSearchBarWrapperWidth>
-    <ReactFinalForm.Form
-      subscription=ReactFinalForm.subscribeToValues
-      onSubmit=handleSubmit
-      initialValues={""->JSON.Encode.string}
-      render={_handleSubmit => {
-        InputFields.textInput(
-          ~input=inputSearch,
-          ~placeholder,
-          ~leftIcon=<Icon name="search" size=16 />,
-          ~customStyle=`!h-10 ${customInputBoxWidth}`,
-          (),
-        )
-      }}
-    />
-  </div>
+  <AddDataAttributes attributes=[("data-testid", "table-search-filter")]>
+    <div className=customSearchBarWrapperWidth>
+      <ReactFinalForm.Form
+        subscription=ReactFinalForm.subscribeToValues
+        onSubmit=handleSubmit
+        initialValues={""->JSON.Encode.string}
+        render={_handleSubmit => {
+          InputFields.textInput(
+            ~input=inputSearch,
+            ~placeholder,
+            ~leftIcon=<Icon name="search" size=16 />,
+            ~customStyle=`!h-10 ${customInputBoxWidth}`,
+            (),
+          )
+        }}
+      />
+    </div>
+  </AddDataAttributes>
 }

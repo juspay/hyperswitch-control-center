@@ -234,7 +234,11 @@ let getStatusValue = (comparator: valueType, enumVariant, dashboardPageState) =>
   open HSSelfServeSidebar
   switch comparator {
   | String(strValue) =>
-    strValue->String.length > 0 ? COMPLETED : dashboardPageState === enumVariant ? ONGOING : PENDING
+    strValue->LogicUtils.isNonEmptyString
+      ? COMPLETED
+      : dashboardPageState === enumVariant
+      ? ONGOING
+      : PENDING
   | Boolean(boolValue) =>
     boolValue ? COMPLETED : dashboardPageState === enumVariant ? ONGOING : PENDING
   }
@@ -362,7 +366,7 @@ let getSidebarOptionsForIntegrateYourApp: (
 
 let getConnectorStatus = (enumValueToCheck, connectorConfigureState, checkValue, currentEnum) => {
   open HSSelfServeSidebar
-  let isConnectorConnected = enumValueToCheck->String.length > 0
+  let isConnectorConnected = enumValueToCheck->LogicUtils.isNonEmptyString
   if isConnectorConnected || connectorConfigureState === checkValue {
     COMPLETED
   } else if connectorConfigureState == currentEnum {
@@ -576,10 +580,10 @@ let generateBodyBasedOnType = (parentVariant: sectionHeadingVariant, value: requ
 
 let getInitialValueForConnector = enumValue => {
   let arr = []
-  if enumValue.firstProcessorConnected.processorID->String.length > 0 {
+  if enumValue.firstProcessorConnected.processorID->LogicUtils.isNonEmptyString {
     arr->Array.push(enumValue.firstProcessorConnected.processorName)
   }
-  if enumValue.secondProcessorConnected.processorID->String.length > 0 {
+  if enumValue.secondProcessorConnected.processorID->LogicUtils.isNonEmptyString {
     arr->Array.push(enumValue.secondProcessorConnected.processorName)
   }
   arr

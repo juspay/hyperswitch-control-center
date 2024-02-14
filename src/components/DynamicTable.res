@@ -98,6 +98,7 @@ let make = (
   ~defaultKeysAllowed=?,
   ~urlKeyTypeDict: Dict.t<RemoteFiltersUtils.urlKEyType>=Dict.make(),
 ) => {
+  open LogicUtils
   let {
     getObjects,
     dataKey,
@@ -130,7 +131,7 @@ let make = (
   let (refreshData, _setRefreshData) = React.useContext(RefreshStateContext.refreshStateContext)
   let (offset, setOffset) = React.useState(() => 0)
   let remoteFilters = initialFilters->Array.filter(item => item.localFilter->Option.isNone)
-  let filtersFromUrl = LogicUtils.getDictFromUrlSearchParams(searchParams)
+  let filtersFromUrl = getDictFromUrlSearchParams(searchParams)
   let localFilters = initialFilters->Array.filter(item => item.localFilter->Option.isSome)
   let showToast = ToastState.useShowToast()
 
@@ -172,12 +173,9 @@ let make = (
     open Promise
     let finalJson = switch body {
     | Some(b) =>
-      let remoteFilterDict = remoteFilterDict->LogicUtils.getDictFromJsonObject
+      let remoteFilterDict = remoteFilterDict->getDictFromJsonObject
       if mergeBodytoRemoteFilterDict {
-        DictionaryUtils.mergeDicts([
-          b->LogicUtils.getDictFromJsonObject,
-          remoteFilterDict,
-        ])->JSON.Encode.object
+        DictionaryUtils.mergeDicts([b->getDictFromJsonObject, remoteFilterDict])->JSON.Encode.object
       } else {
         b
       }
@@ -190,7 +188,7 @@ let make = (
 
     let setNewData = sampleRes => {
       if (
-        (remoteFiltersFromUrl->LogicUtils.getDictFromJsonObject != Dict.make() && offset == 0) ||
+        (remoteFiltersFromUrl->getDictFromJsonObject != Dict.make() && offset == 0) ||
           forcePreventConcatData
       ) {
         clearData()
@@ -204,8 +202,7 @@ let make = (
 
     let getCustomUri = (uri, searchValueDict) => {
       let uriList = Dict.keysToArray(searchValueDict)->Array.map(val => {
-        let defaultFilterOffset =
-          defaultFilters->LogicUtils.getDictFromJsonObject->LogicUtils.getInt("offset", 0)
+        let defaultFilterOffset = defaultFilters->getDictFromJsonObject->getInt("offset", 0)
         let dictValue = if val === "offset" {
           defaultFilterOffset->Int.toString
         } else {
@@ -221,11 +218,12 @@ let make = (
             x
           }
         }
-        let urii = dictValue == "" || dictValue == "NA" ? "" : `${val}=${dictValue}`
+        let urii = dictValue->isEmptyString || dictValue == "NA" ? "" : `${val}=${dictValue}`
 
         urii
       })
-      let uri = uri ++ "?" ++ uriList->Array.filter(val => val !== "")->Array.joinWith("&")
+      let uri =
+        uri ++ "?" ++ uriList->Array.filter(val => val->isNonEmptyString)->Array.joinWith("&")
       uri
     }
 

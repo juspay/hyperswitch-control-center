@@ -127,6 +127,7 @@ let make = (
   ~wrapperClass=?,
 ) => {
   open UIUtils
+  open LogicUtils
   let {filterValueJson} = React.useContext(FilterContext.filterContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let getAllFilter = filterValueJson
@@ -141,7 +142,7 @@ let make = (
       let (key, value) = item
       let keyArr = key->String.split(".")
       let prefix = keyArr->Array.get(0)->Option.getOr("")
-      if prefix === moduleName && prefix !== "" {
+      if prefix === moduleName && prefix->isNonEmptyString {
         None
       } else {
         Some((prefix, value))
@@ -151,7 +152,7 @@ let make = (
   }, [getAllFilter])
 
   let mode = switch modeKey {
-  | Some(modeKey) => Some(getTopLevelFilter->LogicUtils.getString(modeKey, ""))
+  | Some(modeKey) => Some(getTopLevelFilter->getString(modeKey, ""))
   | None => Some("ORDER")
   }
 
@@ -173,10 +174,7 @@ let make = (
 
   let deltaItemToObjMapper = json => {
     let metaData =
-      json
-      ->LogicUtils.getDictFromJsonObject
-      ->LogicUtils.getArrayFromDict("metaData", [])
-      ->deltaTimeRangeMapper
+      json->getDictFromJsonObject->getArrayFromDict("metaData", [])->deltaTimeRangeMapper
     metaData
   }
 
@@ -199,7 +197,7 @@ let make = (
       })
       ->Array.joinWith("&")
 
-    (filterSearchParam, getTopLevelFilter->LogicUtils.getString(customFilterKey, ""))
+    (filterSearchParam, getTopLevelFilter->getString(customFilterKey, ""))
   }, [getTopLevelFilter])
 
   let filterValueFromUrl = React.useMemo1(() => {
@@ -215,10 +213,10 @@ let make = (
   }, [topFiltersToSearchParam])
 
   let startTimeFromUrl = React.useMemo1(() => {
-    getTopLevelFilter->LogicUtils.getString(startTimeFilterKey, defaultStartDate)
+    getTopLevelFilter->getString(startTimeFilterKey, defaultStartDate)
   }, [topFiltersToSearchParam])
   let endTimeFromUrl = React.useMemo1(() => {
-    getTopLevelFilter->LogicUtils.getString(endTimeFilterKey, defaultEndDate)
+    getTopLevelFilter->getString(endTimeFilterKey, defaultEndDate)
   }, [topFiltersToSearchParam])
 
   let homePageCss = isHomePage || chartAlignment === #row ? "flex-col" : "flex-row"
@@ -257,7 +255,7 @@ let make = (
   }, (singleStatData, singleStatTimeData))
 
   React.useEffect5(() => {
-    if startTimeFromUrl !== "" && endTimeFromUrl !== "" {
+    if startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString {
       open Promise
       setSingleStatLoading(_ => enableLoaders)
 
@@ -308,12 +306,12 @@ let make = (
             | Some(val) => {
                 let totalVolumeKeyVal =
                   json
-                  ->LogicUtils.getDictFromJsonObject
-                  ->LogicUtils.getJsonObjectFromDict("queryData")
-                  ->LogicUtils.getArrayFromJson([])
+                  ->getDictFromJsonObject
+                  ->getJsonObjectFromDict("queryData")
+                  ->getArrayFromJson([])
                   ->Array.get(0)
                   ->Option.getOr(JSON.Encode.object(Dict.make()))
-                  ->LogicUtils.getDictFromJsonObject
+                  ->getDictFromJsonObject
                   ->Dict.toArray
                   ->Array.find(
                     item => {
@@ -354,7 +352,7 @@ let make = (
   }, (endTimeFromUrl, startTimeFromUrl, filterValueFromUrl, customFilter, mode))
 
   React.useEffect5(() => {
-    if startTimeFromUrl !== "" && endTimeFromUrl !== "" {
+    if startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString {
       setSingleStatLoadingTimeSeries(_ => enableLoaders)
 
       open Promise
@@ -521,7 +519,7 @@ let make = (
     <AddDataAttributes
       attributes=[("data-dynamic-single-stats", "dynamic stats")] key={index->string_of_int}>
       <div>
-        <RenderIf condition={sectionName !== ""}>
+        <RenderIf condition={sectionName->isNonEmptyString}>
           <div
             className="mb-5 block pl-5 pt-5 not-italic font-bold text-fs-18 text-black dark:text-white">
             {sectionName->React.string}

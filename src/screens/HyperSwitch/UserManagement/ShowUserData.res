@@ -11,16 +11,19 @@ module UserHeading = {
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
     let status = infoValue.status->UserRoleEntity.statusToVariantMapper
+    let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
 
     let resendInvite = async () => {
       try {
+        setButtonState(_ => Button.Loading)
         let url = getURL(~entityName=USERS, ~userType=#RESEND_INVITE, ~methodType=Post, ())
         let body =
           [("email", infoValue.email->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
         let _ = await updateDetails(url, body, Post, ())
         showToast(~message=`Invite resend. Please check your email.`, ~toastType=ToastSuccess, ())
+        setButtonState(_ => Button.Normal)
       } catch {
-      | _ => ()
+      | _ => setButtonState(_ => Button.Normal)
       }
     }
 
@@ -42,6 +45,7 @@ module UserHeading = {
         <UIUtils.RenderIf condition={status !== Active}>
           <Button
             text="Resend Invite"
+            buttonState
             buttonType={SecondaryFilled}
             customButtonStyle="!px-2"
             onClick={_ => resendInvite()->ignore}
@@ -77,7 +81,6 @@ let make = () => {
       )
       let res = await fetchDetails(url)
       setRoleData(_ => res)
-      await HyperSwitchUtils.delay(300)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) =>
@@ -122,7 +125,7 @@ let make = () => {
             : acc
         })
       setCurrentSelectedUser(_ => localCurrentSelectedUser)
-      if localCurrentSelectedUser.role_id->String.length > 0 {
+      if localCurrentSelectedUser.role_id->LogicUtils.isNonEmptyString {
         getRoleForUser(~role_id=localCurrentSelectedUser.role_id)->ignore
       } else {
         setScreenState(_ => PageLoaderWrapper.Custom)

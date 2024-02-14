@@ -158,9 +158,9 @@ let getURL = (
     let userUrl = `user`
     switch userType {
     | #NONE => ""
-    | #VERIFY_MAGIC_LINK => `${userUrl}/verify_email`
     | #USER_DATA => `${userUrl}/data`
     | #MERCHANT_DATA => `${userUrl}/data`
+    | #INVITE_MULTIPLE
     | #INVITE
     | #RESEND_INVITE =>
       `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
@@ -170,8 +170,10 @@ let getURL = (
       | Get => `${userUrl}/switch/list`
       | _ => `${userUrl}/${(userType :> string)->String.toLowerCase}`
       }
-    | #CREATE_MERCHANT => `${userUrl}/create_merchant`
     | #GET_PERMISSIONS => `${userUrl}/role`
+    | #SIGNINV2 => `${userUrl}/v2/signin`
+    | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
+    | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`
     | #SIGNIN
     | #SIGNUP
     | #VERIFY_EMAIL
@@ -180,6 +182,7 @@ let getURL = (
     | #SET_METADATA
     | #VERIFY_EMAIL_REQUEST
     | #FORGOT_PASSWORD
+    | #CREATE_MERCHANT
     | #PERMISSION_INFO =>
       `${userUrl}/${(userType :> string)->String.toLowerCase}`
     }

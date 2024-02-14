@@ -22,3 +22,5 @@ user_data.sh
 .bsb.lock
 package-lock.json
 screenshots
+hyperswitch/
+downloads

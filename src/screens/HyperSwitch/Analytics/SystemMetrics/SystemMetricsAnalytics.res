@@ -101,9 +101,7 @@ module HSiwtchPaymentConfirmLatency = {
           ("api_name", ["PaymentsConfirm"->JSON.Encode.string]->JSON.Encode.array),
           ("status_code", [200.0->JSON.Encode.float]->JSON.Encode.array),
           ("flow_type", [flowType->JSON.Encode.string]->JSON.Encode.array),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
+        ]->getJsonFromArrayOfJson
 
       [
         AnalyticsUtils.getFilterRequestBody(
@@ -270,10 +268,9 @@ module SystemMetricsAnalytics = {
     let {filterValueJson} = FilterContext.filterContext->React.useContext
     let startTimeVal = filterValueJson->getString("startTime", "")
     let endTimeVal = filterValueJson->getString("endTime", "")
-    open HSwitchRemoteFilter
     React.useEffect3(() => {
       setFilterDataJson(_ => None)
-      if startTimeVal->isStringNonEmpty && endTimeVal->isStringNonEmpty {
+      if startTimeVal->LogicUtils.isNonEmptyString && endTimeVal->LogicUtils.isNonEmptyString {
         try {
           updateDetails(filterUri, filterBody->JSON.Encode.object, Post, ())
           ->thenResolve(json => setFilterDataJson(_ => json->Some))

@@ -28,7 +28,7 @@ module PageHeading = {
       </div>
       {switch subTitle {
       | Some(text) =>
-        <RenderIf condition={text->String.length > 0}>
+        <RenderIf condition={text->LogicUtils.isNonEmptyString}>
           <div className={`opacity-50 mt-2 ${customSubTitleStyle}`}> {text->React.string} </div>
         </RenderIf>
       | None => React.null
