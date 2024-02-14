@@ -161,6 +161,7 @@ let getURL = (
     | #USER_DATA => `${userUrl}/data`
     | #MERCHANT_DATA => `${userUrl}/data`
     | #INVITE_MULTIPLE
+    | #INVITE
     | #RESEND_INVITE =>
       `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
     | #CONNECT_ACCOUNT => `${userUrl}/connect_account`
