@@ -1,4 +1,5 @@
 open ConnectorTypes
+let connectorsSupportEvidenceUpload = [CHECKOUT, STRIPE]
 let connectorsSupportAcceptDispute = [CHECKOUT]
 let connectorSupportCounterDispute = [CHECKOUT, STRIPE]
 
