@@ -75,7 +75,7 @@ module SDKConfiguarationFields = {
       <FormRenderer.FieldRenderer field=enterAmountField fieldWrapperClass="!w-full" />
       <FormRenderer.SubmitButton
         text="Show preview"
-        disabledParamter={!(initialValues.profile_id->String.length > 0)}
+        disabledParamter={!(initialValues.profile_id->LogicUtils.isNonEmptyString)}
         customSumbitButtonStyle="!mt-5"
       />
     </div>

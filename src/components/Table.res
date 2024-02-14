@@ -508,7 +508,8 @@ module TableHeadingCell = {
                 <UIUtils.RenderIf condition={item.isMandatory->Option.getOr(false)}>
                   <div className="text-red-400 text-sm ml-1"> {React.string("*")} </div>
                 </UIUtils.RenderIf>
-                <UIUtils.RenderIf condition={item.description->Option.getOr("") !== ""}>
+                <UIUtils.RenderIf
+                  condition={item.description->Option.getOr("")->LogicUtils.isNonEmptyString}>
                   <div className="text-sm text-gray-500 mx-2">
                     <ToolTip
                       description={item.description->Option.getOr("")}
@@ -899,7 +900,7 @@ let make = (
       )}`}
     style={ReactDOMStyle.make(
       ~minHeight={
-        minTableHeightClass != ""
+        minTableHeightClass->LogicUtils.isNonEmptyString
           ? minTableHeightClass
           : filterPresent || isMinHeightRequired
           ? "25rem"

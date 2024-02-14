@@ -20,17 +20,18 @@ let make = (
   ~showSeconds=true,
   ~fullLength=?,
 ) => {
+  open LogicUtils
   let dropdownRef = React.useRef(Nullable.null)
   let (isExpanded, setIsExpanded) = React.useState(_ => false)
   let customTimezoneToISOString = TimeZoneHook.useCustomTimeZoneToIsoString()
   let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let (selectedDate, setSelectedDate) = React.useState(_ =>
     input.value
-    ->LogicUtils.getStringFromJson("")
+    ->getStringFromJson("")
     ->DateRangePicker.getDateStringForValue(isoStringToCustomTimeZone)
   )
   let (date, setDate) = React.useState(_ => {
-    if selectedDate !== "" {
+    if selectedDate->isNonEmptyString {
       let date = String.split(selectedDate, "-")
       let dateDay = date->Array.get(2)->Option.getOr("1")
       let dateMonth = date->Array.get(1)->Option.getOr("1")
@@ -119,14 +120,14 @@ let make = (
   }
 
   let buttonText = {
-    let startDateStr = if selectedDate === "" {
+    let startDateStr = if selectedDate->isEmptyString {
       "Select Date"
     } else if !showTime {
       selectedDate
     } else {
       let time = date->DateRangePicker.getTimeStringForValue(isoStringToCustomTimeZone)
       let splitTime = time->String.split(":")
-      `${selectedDate} ${time === ""
+      `${selectedDate} ${time->isEmptyString
           ? `${currentDateHourFormat}:${currentDateMinuteFormat}${showSeconds
                 ? ":" ++ currentDateSecondsFormat
                 : ""}`
@@ -161,7 +162,7 @@ let make = (
     onBlur: _ev => (),
     onChange: timeValEv => {
       let timeVal = timeValEv->Identity.formReactEventToString
-      if selectedDate !== "" {
+      if selectedDate->isNonEmptyString {
         let todayDayJsObj = Date.make()->Date.toString->DayJs.getDayJsForString
         let todayTime = todayDayJsObj.format(. "HH:mm:ss")
         let todayDate = todayDayJsObj.format(. "YYYY-MM-DD")
@@ -195,7 +196,7 @@ let make = (
     value: {
       let time = date->DateRangePicker.getTimeStringForValue(isoStringToCustomTimeZone)
       let time =
-        time === ""
+        time->isEmptyString
           ? `${currentDateHourFormat}:${currentDateMinuteFormat}:${currentDateSecondsFormat}`
           : time
       time->JSON.Encode.string
@@ -220,7 +221,7 @@ let make = (
       />
       {if showTime {
         <div className={`w-fit dark:text-gray-400 text-gray-700 `}>
-          <TimeInput input=startTimeInput isDisabled={selectedDate === ""} showSeconds />
+          <TimeInput input=startTimeInput isDisabled={selectedDate->isEmptyString} showSeconds />
         </div>
       } else {
         React.null

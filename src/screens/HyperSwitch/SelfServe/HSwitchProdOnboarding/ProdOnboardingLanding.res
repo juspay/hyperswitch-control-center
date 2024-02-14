@@ -179,7 +179,7 @@ let make = () => {
         let baseUrlPath = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${routerUrl.path
           ->List.toArray
           ->Array.joinWith("/")}`
-        routerUrl.search->String.length > 0
+        routerUrl.search->isNonEmptyString
           ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)
           : RescriptReactRouter.push(`${baseUrlPath}`)
       } else {
@@ -236,7 +236,7 @@ let make = () => {
         ->getDictfromDict("SetupProcessor")
         ->getString("connector_id", "")
 
-      if connectorId->String.length > 0 {
+      if connectorId->isNonEmptyString {
         setConnectorID(_ => connectorId)
         getConfigureEndpointEnum()->ignore
       } else {

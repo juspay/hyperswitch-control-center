@@ -114,7 +114,7 @@ module RenderConnectorInputFields = {
     ->Array.mapWithIndex((field, i) => {
       let label = details->getString(field, "")
       let formName = isLabelNested ? `${name}.${field}` : name
-      <UIUtils.RenderIf condition={label->String.length > 0} key={i->string_of_int}>
+      <UIUtils.RenderIf condition={label->isNonEmptyString} key={i->string_of_int}>
         <AddDataAttributes attributes=[("data-testid", label->titleToSnake->String.toLowerCase)]>
           <div key={label}>
             <FormRenderer.FieldRenderer
@@ -306,7 +306,6 @@ module ConnectorConfigurationFields = {
         connector
         selectedConnector
         isLabelNested=false
-        disabled={isUpdateFlow ? true : false}
         description="This is an unique label you can generate and pass in order to identify this connector account on your Hyperswitch dashboard and reports. Eg: if your profile label is 'default', connector label can be 'stripe_default'"
       />
       <RenderConnectorInputFields

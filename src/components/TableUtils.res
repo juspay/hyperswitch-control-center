@@ -3,7 +3,8 @@ let regex = searchString => {
 }
 let highlightedText = (str, searchedText) => {
   let shouldHighlight =
-    searchedText != "" && String.includes(str->String.toLowerCase, searchedText->String.toLowerCase)
+    searchedText->LogicUtils.isNonEmptyString &&
+      String.includes(str->String.toLowerCase, searchedText->String.toLowerCase)
   if shouldHighlight {
     let re = regex(searchedText)
     let matchFn = (matchPart, _offset, _wholeString) => `@@${matchPart}@@`
@@ -554,14 +555,15 @@ module EllipsisText = {
     ~ellipsisThreshold=20,
     ~toolTipPosition: ToolTip.toolTipPosition=ToolTip.Right,
   ) => {
+    open LogicUtils
     let modifiedText =
-      ellipsisIdentifier !== ""
+      ellipsisIdentifier->isNonEmptyString
         ? {
             text->String.split(ellipsisIdentifier)->Array.get(0)->Option.getOr("") ++ "..."
           }
         : text
     let ellipsesCondition =
-      ellipsisIdentifier !== ""
+      ellipsisIdentifier->isNonEmptyString
         ? String.includes(ellipsisIdentifier, text)
         : text->String.length > ellipsisThreshold
 
@@ -679,6 +681,7 @@ module TableCell = {
     ~isEllipsisTextRelative=true,
     ~ellipseClass="",
   ) => {
+    open LogicUtils
     switch cell {
     | Label(x) =>
       <AddDataAttributes attributes=[("data-testid", x.title->String.toLowerCase)]>
@@ -693,7 +696,7 @@ module TableCell = {
       </AddDataAttributes>
 
     | Text(x) | DropDown(x) => {
-        let x = x === "" ? "NA" : x
+        let x = x->isEmptyString ? "NA" : x
         <AddDataAttributes attributes=[("data-desc", x), ("data-testid", x->String.toLowerCase)]>
           <div> {highlightedText(x, highlightText)} </div>
         </AddDataAttributes>
@@ -708,11 +711,11 @@ module TableCell = {
       <MoneyCell amount currency ?textAlign fontBold customMoneyStyle />
 
     | Date(timestamp) =>
-      timestamp->String.length > 0
+      timestamp->isNonEmptyString
         ? <DateCell timestamp textAlign=Left customDateStyle />
         : <div> {React.string("-")} </div>
     | DateWithoutTime(timestamp) =>
-      timestamp->String.length > 0
+      timestamp->isNonEmptyString
         ? <DateCell timestamp textAlign=Left customDateStyle hideTime=true />
         : <div> {React.string("-")} </div>
     | StartEndDate(startDate, endDate) => <StartEndDateCell startDate endDate />
@@ -741,11 +744,12 @@ module NewTableCell = {
     ~clearFormatting=false,
     ~fontStyle="",
   ) => {
+    open LogicUtils
     switch cell {
     | Label(x) =>
       <NewLabelCell labelColor=x.color text=x.title ?labelMargin highlightText fontStyle />
     | Text(x) | DropDown(x) => {
-        let x = x === "" ? "NA" : x
+        let x = x->isEmptyString ? "NA" : x
         <AddDataAttributes attributes=[("data-desc", x)]>
           <div> {highlightedText(x, highlightText)} </div>
         </AddDataAttributes>
@@ -757,11 +761,11 @@ module NewTableCell = {
       <MoneyCell amount currency ?textAlign fontBold customMoneyStyle />
 
     | Date(timestamp) =>
-      timestamp->String.length > 0
+      timestamp->isNonEmptyString
         ? <DateCell timestamp textAlign=Left customDateStyle />
         : <div> {React.string("-")} </div>
     | DateWithoutTime(timestamp) =>
-      timestamp->String.length > 0
+      timestamp->isNonEmptyString
         ? <DateCell timestamp textAlign=Left customDateStyle hideTime=true />
         : <div> {React.string("-")} </div>
     | StartEndDate(startDate, endDate) => <StartEndDateCell startDate endDate />

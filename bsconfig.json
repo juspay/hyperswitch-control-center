@@ -22,7 +22,6 @@
     "rescript-webapi",
     "bs-fetch",
     "@ryyppy/rescript-promise",
-    "rescript-debounce-react",
     "@rescript/core"
   ]
 }

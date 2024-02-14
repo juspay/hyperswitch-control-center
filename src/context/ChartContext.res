@@ -123,7 +123,7 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
       let (key, value) = item
       let keyArr = key->String.split(".")
       let prefix = keyArr->Array.get(0)->Option.getOr("")
-      if prefix === chartId && prefix !== "" {
+      if prefix === chartId && prefix->isNonEmptyString {
         None
       } else {
         Some((prefix, value))
@@ -151,11 +151,11 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
       })
       ->Array.joinWith("&")
 
-    (filterSearchParam, getTopLevelChartFilter->LogicUtils.getString(customFilterKey, ""))
+    (filterSearchParam, getTopLevelChartFilter->getString(customFilterKey, ""))
   }, [getTopLevelChartFilter])
   let customFilter = switch defaultFilter {
   | Some(defaultFilter) =>
-    customFilter == "" ? defaultFilter : `${defaultFilter} and ${customFilter}`
+    customFilter->isEmptyString ? defaultFilter : `${defaultFilter} and ${customFilter}`
   | _ => customFilter
   }
 
@@ -169,9 +169,9 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
       let fitlerName = keyArr->Array.get(1)->Option.getOr("")
 
       // when chart id is not there then there won't be any prefix so the prefix will the filter name
-      if chartId === "" {
+      if chartId->isEmptyString {
         Some((prefix, value))
-      } else if prefix === chartId && fitlerName !== "" {
+      } else if prefix === chartId && fitlerName->isNonEmptyString {
         Some((fitlerName, value))
       } else {
         None
@@ -202,7 +202,9 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
     getChartCompFilters->getString("chartBottomMetric", currentBottomMetrix)
 
   let (granularity, setGranularity) = React.useState(_ => None)
-  let current_granularity = if startTimeFromUrl !== "" && endTimeFromUrl !== "" {
+  let current_granularity = if (
+    startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString
+  ) {
     getGranularity(~startTime=startTimeFromUrl, ~endTime=endTimeFromUrl)
   } else {
     []
@@ -234,8 +236,8 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
         chartEntity.chartTypes->Array.get(0)->Option.getOr(Line)->DynamicChart.chartMapper,
       )
     if (
-      startTimeFromUrl !== "" &&
-      endTimeFromUrl !== "" &&
+      startTimeFromUrl->isNonEmptyString &&
+      endTimeFromUrl->isNonEmptyString &&
       parentToken->Option.isSome &&
       (granularity->Option.isSome || chartType !== "Line Chart") &&
       current_granularity->Array.includes(granularity->Option.getOr(""))
@@ -265,8 +267,8 @@ let make = (~children, ~chartEntity: DynamicChart.entity, ~chartId="", ~defaultF
         chartEntity.chartTypes->Array.get(0)->Option.getOr(Line)->DynamicChart.chartMapper,
       )
     if (
-      startTimeFromUrl !== "" &&
-      endTimeFromUrl !== "" &&
+      startTimeFromUrl->isNonEmptyString &&
+      endTimeFromUrl->isNonEmptyString &&
       parentToken->Option.isSome &&
       (granularity->Option.isSome || chartType !== "Line Chart") &&
       current_granularity->Array.includes(granularity->Option.getOr(""))
@@ -624,7 +626,7 @@ module SDKAnalyticsChartContext = {
         let (key, value) = item
         let keyArr = key->String.split(".")
         let prefix = keyArr->Array.get(0)->Option.getOr("")
-        if prefix === chartId && prefix !== "" {
+        if prefix === chartId && prefix->isNonEmptyString {
           None
         } else {
           Some((prefix, value))
@@ -652,11 +654,11 @@ module SDKAnalyticsChartContext = {
         })
         ->Array.joinWith("&")
 
-      (filterSearchParam, getTopLevelChartFilter->LogicUtils.getString(customFilterKey, ""))
+      (filterSearchParam, getTopLevelChartFilter->getString(customFilterKey, ""))
     }, [getTopLevelChartFilter])
     let customFilter = switch defaultFilter {
     | Some(defaultFilter) =>
-      customFilter == "" ? defaultFilter : `${defaultFilter} and ${customFilter}`
+      customFilter->isEmptyString ? defaultFilter : `${defaultFilter} and ${customFilter}`
     | _ => customFilter
     }
 
@@ -670,9 +672,9 @@ module SDKAnalyticsChartContext = {
         let fitlerName = keyArr->Array.get(1)->Option.getOr("")
 
         // when chart id is not there then there won't be any prefix so the prefix will the filter name
-        if chartId === "" {
+        if chartId->isEmptyString {
           Some((prefix, value))
-        } else if prefix === chartId && fitlerName !== "" {
+        } else if prefix === chartId && fitlerName->isNonEmptyString {
           Some((fitlerName, value))
         } else {
           None
@@ -709,7 +711,9 @@ module SDKAnalyticsChartContext = {
       getChartCompFilters->getString("chartBottomMetric", currentBottomMetrix)
 
     let (granularity, setGranularity) = React.useState(_ => None)
-    let current_granularity = if startTimeFromUrl !== "" && endTimeFromUrl !== "" {
+    let current_granularity = if (
+      startTimeFromUrl->isNonEmptyString && endTimeFromUrl->isNonEmptyString
+    ) {
       getGranularity(~startTime=startTimeFromUrl, ~endTime=endTimeFromUrl)
     } else {
       []
@@ -736,8 +740,8 @@ module SDKAnalyticsChartContext = {
           chartEntity.chartTypes->Array.get(0)->Option.getOr(Line)->DynamicChart.chartMapper,
         )
       if (
-        startTimeFromUrl !== "" &&
-        endTimeFromUrl !== "" &&
+        startTimeFromUrl->isNonEmptyString &&
+        endTimeFromUrl->isNonEmptyString &&
         parentToken->Option.isSome &&
         (granularity->Option.isSome || chartType !== "Line Chart") &&
         current_granularity->Array.includes(granularity->Option.getOr(""))

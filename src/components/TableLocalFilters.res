@@ -94,7 +94,10 @@ module FilterDropDown = {
     let dummyDict = Dict.make()
     arr->LogicUtils.getStrArrayFromJsonArray->Array.forEach(item => Dict.set(dummyDict, item, ""))
     let options =
-      dummyDict->Dict.keysToArray->Array.filter(item => item != "")->SelectBox.makeOptions
+      dummyDict
+      ->Dict.keysToArray
+      ->Array.filter(item => item->LogicUtils.isNonEmptyString)
+      ->SelectBox.makeOptions
 
     let selectedValue = Dict.get(lclFiltrState, val)->Option.getOr([])
 

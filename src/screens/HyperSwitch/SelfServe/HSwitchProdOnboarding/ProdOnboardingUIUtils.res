@@ -71,7 +71,7 @@ module SetupWebhookProcessor = {
 
     <div className="flex flex-col gap-8">
       // TODO To pick up when Product Team will give all the Docs
-      // <UIUtils.RenderIf condition={connectorName->String.length > 0}>
+      // <UIUtils.RenderIf condition={connectorName->isNonEmptyString}>
       //   <p
       //     className={`${highlightedText} underline`}
       //     onClick={_ => {
