@@ -1,5 +1,4 @@
 open DisputesEntity
-
 module DisputesNoteComponent = {
   open ConnectorUtils
   @react.component
@@ -32,56 +31,6 @@ module DisputesNoteComponent = {
     </div>
   }
 }
-
-module DisputesInfoBarComponent = {
-  @react.component
-  let make = (~disputeStatus, ~isFromPayments=false, ~disputeDataValue=None) => {
-    open DisputeTypes
-
-    let subStyle = `${HSwitchUtils.getTextClass((P1, Regular))} opacity-60`
-    let redirectionTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-blue-900`
-    let headerStyle = HSwitchUtils.getTextClass((H3, Leading_2))
-
-    <div
-      className="border w-full rounded-md border-blue-700 border-opacity-40 bg-blue-700 bg-opacity-10 p-6 flex gap-6">
-      <div className="flex gap-3 items-start justify-start">
-        <Icon name="note-icon" size=22 />
-        {switch disputeStatus {
-        | Initiated =>
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-2">
-              <p className=headerStyle> {"Why was the dispute raised?"->React.string} </p>
-              <p className=subStyle>
-                {"The customer claims that they did not authorise this purchase."->React.string}
-              </p>
-            </div>
-            <div
-              className="flex gap-2 group items-center cursor-pointer"
-              onClick={_ =>
-                Window._open("https://docs.hyperswitch.io/features/merchant-controls/disputes")}>
-              <p className=redirectionTextStyle> {"Learn how to respond"->React.string} </p>
-              <Icon
-                name="thin-right-arrow"
-                size=20
-                className="group-hover:scale-125 transition duration-200 ease-in-out"
-                customIconColor="#006DF9"
-              />
-            </div>
-          </div>
-        | Accepted =>
-          <div className="flex flex-col gap-2">
-            <p className=headerStyle> {"You accepted this dispute"->React.string} </p>
-            <p className=subStyle>
-              {"A refund is issued for the customer. No further action is required from you."->React.string}
-            </p>
-          </div>
-
-        | _ => React.null
-        }}
-      </div>
-    </div>
-  }
-}
 module Details = {
   @react.component
   let make = (
@@ -98,84 +47,74 @@ module Details = {
   ) => {
     open DisputeTypes
     open DisputesUtils
-    open APIUtils
+
     open UIUtils
-    let updateDetails = useUpdateMethod()
-    let (disputeStatus, setDisputeStatus) = React.useState(_ =>
-      data.dispute_status->disputeStatusVariantMapper->disputeValueBasedOnStatus
-    )
-    let showPopUp = PopUpState.useShowPopUp()
+
     let {disputeEvidenceUpload} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
-    let handleAcceptDispute = async () => {
-      try {
-        let url = getURL(
-          ~entityName=ACCEPT_DISPUTE,
-          ~methodType=Post,
-          ~id=Some(data.dispute_id),
-          (),
-        )
-        let response = await updateDetails(url, Dict.make()->JSON.Encode.object, Post, ())
-        setDisputeData(_ => response)
-        setDisputeStatus(_ => Accepted)
-      } catch {
-      | _ => ()
-      }
-    }
-
-    let handlePopupOpen = () => {
-      showPopUp({
-        popUpType: (Warning, WithIcon),
-        heading: "Accept this dispute?",
-        description: "By accepting you will lose this dispute and will have to refund the amount to the user. You won’t be able to submit evidence once you accept"->React.string,
-        handleConfirm: {text: "Proceed", onClick: _ => handleAcceptDispute()->ignore},
-        handleCancel: {text: "Cancel"},
-      })
-    }
+    let (uploadEvidenceModal, setUploadEvidenceModal) = React.useState(_ => false)
+    let (fileUploadedDict, setFileUploadedDict) = React.useState(_ => Dict.make())
+    let (disputeEvidenceStatus, setDisputeEvidenceStatus) = React.useState(_ => Landing)
+    let daysToRespond = LogicUtils.getDaysDiffForDates(
+      ~startDate=Date.now(),
+      ~endDate=data.challenge_required_by->DateTimeUtils.parseAsFloat,
+    )
 
     <OrderUtils.Section
       customCssClass={`border border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 ${bgColor} rounded-md p-6 flex flex-col gap-6`}>
       <div className="flex items-center justify-between">
         <div className="flex gap-2 items-center">
-          <p className="font-bold text-3xl">
-            {DisputesEntity.amountValue(
-              data.amount,
-              data.currency->String.toUpperCase,
-            )->React.string}
+          <p className="flex font-bold text-3xl gap-2">
+            {amountValue(data.amount, data.currency->String.toUpperCase)->React.string}
           </p>
           {getStatus(data)}
+          <RenderIf condition={data.dispute_status->disputeStatusVariantMapper === DisputeOpened}>
+            <div
+              className="border text-orange-950 bg-orange-200 text-sm px-2 py-1 rounded-md font-semibold">
+              {`${daysToRespond->Float.toString} days to respond`->React.string}
+            </div>
+          </RenderIf>
         </div>
         <RenderIf
           condition={disputeEvidenceUpload &&
-          showDisputeInfoStatus->Array.includes(
-            data.dispute_status->DisputesUtils.disputeStatusVariantMapper,
-          )}>
-          <div className="flex gap-4">
-            <Button
-              buttonType={Secondary}
-              text="Accept Dispute"
-              buttonSize={Small}
-              customButtonStyle="!py-3 !px-2.5"
-              onClick={_ => handlePopupOpen()}
-            />
-            <Button
-              buttonType={Primary}
-              text="Counter Dispute"
-              buttonSize={Small}
-              customButtonStyle="!py-3 !px-2.5"
-              buttonState={Disabled}
-            />
-          </div>
+          connectorSupportCounterDispute->Array.includes(
+            data.connector->ConnectorUtils.getConnectorNameTypeFromString,
+          ) &&
+          data.dispute_status->disputeStatusVariantMapper === DisputeOpened &&
+          disputeEvidenceStatus === Landing}>
+          <UploadEvidenceForDisputes
+            setUploadEvidenceModal
+            disputeID={data.dispute_id}
+            setDisputeData
+            connector={data.connector}
+          />
         </RenderIf>
       </div>
       <div className="h-px w-full bg-grey-200 opacity-30" />
       <RenderIf
         condition={disputeEvidenceUpload &&
-        showDisputeInfoStatus->Array.includes(
-          data.dispute_status->DisputesUtils.disputeStatusVariantMapper,
-        )}>
-        <DisputesInfoBarComponent disputeStatus />
+        connectorSupportCounterDispute->Array.includes(
+          data.connector->ConnectorUtils.getConnectorNameTypeFromString,
+        ) &&
+        showDisputeInfoStatus->Array.includes(data.dispute_status->disputeStatusVariantMapper)}>
+        <UploadEvidenceForDisputes.DisputesInfoBarComponent
+          disputeEvidenceStatus
+          fileUploadedDict
+          disputeId={data.dispute_id}
+          setDisputeEvidenceStatus
+          setUploadEvidenceModal
+          disputeStatus={data.dispute_status->disputeStatusVariantMapper}
+          setFileUploadedDict
+          setDisputeData
+        />
       </RenderIf>
+      <UploadEvidenceForDisputes.UploadDisputeEvidenceModal
+        uploadEvidenceModal
+        setUploadEvidenceModal
+        disputeId={data.dispute_id}
+        setDisputeEvidenceStatus
+        fileUploadedDict
+        setFileUploadedDict
+      />
       <FormRenderer.DesktopRow>
         <div
           className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
@@ -207,12 +146,19 @@ module DisputesInfo = {
   @react.component
   let make = (~orderDict, ~setDisputeData) => {
     let disputesData = DisputesEntity.itemToObjMapper(orderDict)
+
+    let showNoteComponentCondition =
+      DisputesUtils.connectorsSupportEvidenceUpload->Array.includes(
+        disputesData.connector->ConnectorUtils.getConnectorNameTypeFromString,
+      )
     <>
       <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Summary"->React.string}
       </div>
       <Details data=disputesData getHeading getCell detailsFields=allColumns setDisputeData />
-      <DisputesNoteComponent disputesData />
+      <UIUtils.RenderIf condition={!showNoteComponentCondition}>
+        <DisputesNoteComponent disputesData />
+      </UIUtils.RenderIf>
     </>
   }
 }
