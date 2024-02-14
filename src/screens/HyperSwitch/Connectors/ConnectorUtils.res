@@ -575,7 +575,6 @@ let connectorIgnoredField = [
   "business_country",
   "business_label",
   "business_sub_label",
-  "connector_label",
   "merchant_connector_id",
   "connector_name",
   "profile_id",
@@ -593,7 +592,6 @@ let verifyConnectorIgnoreField = [
   "business_country",
   "business_label",
   "business_sub_label",
-  "connector_label",
   "merchant_connector_id",
   "applepay_verified_domains",
 ]
