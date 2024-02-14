@@ -157,7 +157,7 @@ let make = (
     if startDateTime.isValid(.) {
       let startTimeVal = startDateTime.format(. "HH:mm:ss")
 
-      if localStartDate !== "" {
+      if localStartDate->LogicUtils.isNonEmptyString {
         if disableFutureDates && startDate == todayDate && startTimeVal > todayTime {
           setStartDate(~date=startDate, ~time=todayTime)
         } else if disableFutureDates && startDate == endDate && startTimeVal > endTime {
@@ -176,7 +176,7 @@ let make = (
 
     if endDateTime.isValid(.) {
       let endTimeVal = endDateTime.format(. "HH:mm:ss")
-      if localEndDate !== "" {
+      if localEndDate->LogicUtils.isNonEmptyString {
         if disableFutureDates && endDate == todayDate && endTimeVal > todayTime {
           setEndDate(~date=startDate, ~time=todayTime)
         } else if disableFutureDates && startDate == endDate && endTimeVal < startTime {

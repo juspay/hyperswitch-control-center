@@ -20,7 +20,7 @@ module CopyTextCustomComp = {
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
     }
 
-    if displayValue->String.length > 0 {
+    if displayValue->LogicUtils.isNonEmptyString {
       <div className=customParentClass>
         <div className=customTextCss> {displayValue->React.string} </div>
         <img
@@ -96,7 +96,7 @@ module BluredTableComponent = {
             text=buttonText
             buttonType={Primary}
             onClick={_ => {
-              onClickUrl->String.length > 0
+              onClickUrl->LogicUtils.isNonEmptyString
                 ? RescriptReactRouter.push(onClickUrl)
                 : setPaymentModal(_ => true)
             }}
@@ -133,7 +133,7 @@ module KeyAndCopyArea = {
 module ConnectorCustomCell = {
   @react.component
   let make = (~connectorName) => {
-    if connectorName->String.length > 0 {
+    if connectorName->LogicUtils.isNonEmptyString {
       <div className="flex items-center flex-nowrap break-all whitespace-nowrap mr-6">
         <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-6 h-6 mr-2" />
         <div className="capitalize">

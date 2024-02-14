@@ -112,12 +112,12 @@ module ErrorPage = {
       <div className="flex flex-col gap-6 p-8 bg-jp-gray-light_gray_bg">
         <Icon name="error-icon" size=24 />
         <div className="flex flex-col gap-2">
-          <RenderIf condition={errorPageDetails.headerText->String.length > 0}>
+          <RenderIf condition={errorPageDetails.headerText->LogicUtils.isNonEmptyString}>
             <p className={`${p1RegularTextClass} !opacity-100`}>
               {errorPageDetails.headerText->React.string}
             </p>
           </RenderIf>
-          <RenderIf condition={errorPageDetails.subText->String.length > 0}>
+          <RenderIf condition={errorPageDetails.subText->LogicUtils.isNonEmptyString}>
             <p className=p1RegularTextClass> {errorPageDetails.subText->React.string} </p>
           </RenderIf>
         </div>
