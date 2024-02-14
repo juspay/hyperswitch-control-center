@@ -258,12 +258,7 @@ let businessProfiles = permissionJson => {
     searchOptions: [("Configure business profiles", "")],
   })
 }
-let settings = (
-  ~isSampleDataEnabled,
-  ~isUserManagementEnabled,
-  ~isBusinessProfileEnabled,
-  ~permissionJson,
-) => {
+let settings = (~isSampleDataEnabled, ~isBusinessProfileEnabled, ~permissionJson) => {
   let settingsLinkArray = [businessDetails(permissionJson)]
 
   if isBusinessProfileEnabled {
@@ -272,9 +267,7 @@ let settings = (
   if isSampleDataEnabled {
     settingsLinkArray->Array.push(accountSettings(permissionJson))->ignore
   }
-  if isUserManagementEnabled {
-    settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
-  }
+  settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
 
   Section({
     name: "Settings",
@@ -378,7 +371,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     payOut,
     recon,
     default,
-    userManagement,
     sampleData,
     businessProfile,
     systemMetrics,
@@ -399,7 +391,6 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     recon->reconTag(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),
     settings(
-      ~isUserManagementEnabled=userManagement,
       ~isBusinessProfileEnabled=businessProfile,
       ~isSampleDataEnabled=sampleData,
       ~permissionJson,

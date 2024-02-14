@@ -646,6 +646,7 @@ let make = (
                         className="relative flex flex-col py-3 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 w-60 bg-popover-background">
                         <MenuOption
                           onClick={_ => {
+                            panelProps["close"]()
                             RescriptReactRouter.replace(
                               `${HSwitchGlobalVars.hyperSwitchFEPrefix}/account-settings/profile`,
                             )

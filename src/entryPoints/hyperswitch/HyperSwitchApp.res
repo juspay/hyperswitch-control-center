@@ -6,6 +6,8 @@ let make = () => {
   open APIUtils
   open PermissionUtils
   open LogicUtils
+  open HyperswitchAtom
+  open HSLocalStorage
 
   let url = RescriptReactRouter.useUrl()
   let fetchDetails = useGetMethod()
@@ -22,26 +24,21 @@ let make = () => {
   let fetchMerchantAccountDetails = MerchantAccountUtils.useFetchMerchantDetails()
   let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
   let enumDetails =
-    HyperswitchAtom.enumVariantAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->safeParse
-    ->QuickStartUtils.getTypedValueFromDict
-
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(
-    HyperswitchAtom.userPermissionAtom,
-  )
+    enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
+  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
+  let (companyNameModal, setCompanyNameModal) = React.useState(_ => false)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let verificationDays = HSLocalStorage.getFromMerchantDetails("verification")->getIntFromString(-1)
-  let userRole = HSLocalStorage.getFromUserDetails("user_role")
+  let verificationDays = getFromMerchantDetails("verification")->getIntFromString(-1)
+  let merchantId = getFromMerchantDetails("merchant_id")
+  let userRole = getFromUserDetails("user_role")
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
     : "bg-orange-600/80 border-orange-500 text-grey-700"
 
-  let merchantDetailsValue = useMerchantDetailsValue()
-  let isReconEnabled =
-    (merchantDetailsValue->MerchantAccountUtils.getMerchantDetails).recon_status === Active
+  let merchantDetailsTypedValue = useMerchantDetailsValue()->MerchantAccountUtils.getMerchantDetails
+  let isReconEnabled = merchantDetailsTypedValue.recon_status === Active
 
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
 
@@ -75,7 +72,7 @@ let make = () => {
   let fetchInitialEnums = async () => {
     try {
       let response = await getEnumDetails(QuickStartUtils.quickStartEnumIntialArray)
-      let responseValueDict = response->Nullable.toOption->Option.getOr(Dict.make())
+      let responseValueDict = response->getValFromNullableValue(Dict.make())
       let pageStateToSet = responseValueDict->QuickStartUtils.getCurrentStep
       setQuickStartPageState(_ => pageStateToSet->QuickStartUtils.enumToVarinatMapper)
       responseValueDict
@@ -106,20 +103,21 @@ let make = () => {
 
   let setUpDashboard = async () => {
     try {
+      let _ = await Window.connectorWasmInit()
       if featureFlagDetails.permissionBasedModule {
         let _ = await fetchPermissions()
       }
 
-      if userPermissionJson.merchantConnectorAccountRead === Access {
-        let _ = await Window.connectorWasmInit()
-        let _ = await fetchConnectorListResponse()
-      }
+      if merchantId->isNonEmptyString {
+        if userPermissionJson.merchantConnectorAccountRead === Access {
+          let _ = await fetchConnectorListResponse()
+        }
 
-      if userPermissionJson.merchantAccountRead === Access {
-        let _ = await fetchBusinessProfiles()
-        let _ = await fetchMerchantAccountDetails()
+        if userPermissionJson.merchantAccountRead === Access {
+          let _ = await fetchBusinessProfiles()
+          let _ = await fetchMerchantAccountDetails()
+        }
       }
-
       if featureFlagDetails.quickStart {
         let _ = await fetchInitialEnums()
       }
@@ -142,6 +140,15 @@ let make = () => {
     setUpDashboard()->ignore
     None
   })
+
+  React.useEffect1(() => {
+    if merchantDetailsTypedValue.merchant_name->Option.isNone {
+      setCompanyNameModal(_ => true)
+    } else {
+      setCompanyNameModal(_ => false)
+    }
+    None
+  }, [merchantDetailsTypedValue.merchant_name])
 
   let determineStripePlusPayPal = () => {
     enumDetails->checkStripePlusPayPal
@@ -308,9 +315,8 @@ let make = () => {
                           <EntityScaffold
                             entityName="UserManagement"
                             remainingPath
-                            access=Access
-                            renderList={() => <UserRoleEntry />}
-                            renderShow={_ => <UserRoleShowData />}
+                            renderList={_ => <UserRoleEntry />}
+                            renderShow={_ => <ShowUserData />}
                           />
                         </AccessControl>
                       | list{"analytics-payments"} =>
@@ -415,6 +421,12 @@ let make = () => {
             <RenderIf
               condition={featureFlagDetails.productionAccess || featureFlagDetails.quickStart}>
               <ProdIntentForm />
+            </RenderIf>
+            <RenderIf
+              condition={featureFlagDetails.permissionBasedModule &&
+              userPermissionJson.merchantAccountWrite === Access &&
+              merchantDetailsTypedValue.merchant_name->Option.isNone}>
+              <CompanyNameModal showModal=companyNameModal setShowModal=setCompanyNameModal />
             </RenderIf>
           </div>
         </div>
