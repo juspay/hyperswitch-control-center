@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.15.0
+
+### Bug Fixes
+
+- Page forwarding issue for access forbidden in quick start ([#405](https://github.com/juspay/hyperswitch-control-center/pull/405)) ([`4b9c219`](https://github.com/juspay/hyperswitch-control-center/commit/4b9c219642d41082bfb2bf31c277590cbb13fdc1))
+
+**Full Changelog:** [`2024.02.14.0...2024.02.15.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.14.0...2024.02.15.0)
+
+- - -
+
 ## 2024.02.14.0
 
 ### Features
