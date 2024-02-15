@@ -13,6 +13,7 @@ module UserUtilsPopover = {
 
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
+    let merchantEmail = HSLocalStorage.getFromMerchantDetails("email")
 
     let deleteUser = async () => {
       try {
@@ -27,52 +28,54 @@ module UserUtilsPopover = {
       }
     }
 
-    <Popover className="relative inline-block text-left">
-      {popoverProps => <>
-        <Popover.Button
-          className={
-            let openClasses = if popoverProps["open"] {
-              `group border py-2 rounded-md inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
-            } else {
-              `text-opacity-90 group border py-2 rounded-md inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
-            }
-            `${openClasses} border-none`
-          }>
-          {buttonProps => <Icon name="menu-option" size=28 />}
-        </Popover.Button>
-        <Transition
-          \"as"="span"
-          enter={"transition ease-out duration-200"}
-          enterFrom="opacity-0 translate-y-1"
-          enterTo="opacity-100 translate-y-0"
-          leave={"transition ease-in duration-150"}
-          leaveFrom="opacity-100 translate-y-0"
-          leaveTo="opacity-0 translate-y-1">
-          <Popover.Panel className={`absolute !z-30 right-2`}>
-            {panelProps => {
-              <div
-                className="relative flex flex-col py-3 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 w-40">
-                <Navbar.MenuOption
-                  text="Update role"
-                  onClick={_ => {
-                    panelProps["close"]()
-                    setIsUpdateRoleSelected(_ => true)
-                  }}
-                />
-                <RenderIf condition={infoValue.role_id !== "org_admin"}>
+    <UIUtils.RenderIf condition={infoValue.email !== merchantEmail}>
+      <Popover className="relative inline-block text-left">
+        {popoverProps => <>
+          <Popover.Button
+            className={
+              let openClasses = if popoverProps["open"] {
+                `group border py-2 rounded-md inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
+              } else {
+                `text-opacity-90 group border py-2 rounded-md inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
+              }
+              `${openClasses} border-none`
+            }>
+            {buttonProps => <Icon name="menu-option" size=28 />}
+          </Popover.Button>
+          <Transition
+            \"as"="span"
+            enter={"transition ease-out duration-200"}
+            enterFrom="opacity-0 translate-y-1"
+            enterTo="opacity-100 translate-y-0"
+            leave={"transition ease-in duration-150"}
+            leaveFrom="opacity-100 translate-y-0"
+            leaveTo="opacity-0 translate-y-1">
+            <Popover.Panel className={`absolute !z-30 right-2`}>
+              {panelProps => {
+                <div
+                  className="relative flex flex-col py-3 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 w-40">
                   <Navbar.MenuOption
-                    text="Delete user"
+                    text="Update role"
                     onClick={_ => {
-                      deleteUser()->ignore
+                      panelProps["close"]()
+                      setIsUpdateRoleSelected(_ => true)
                     }}
                   />
-                </RenderIf>
-              </div>
-            }}
-          </Popover.Panel>
-        </Transition>
-      </>}
-    </Popover>
+                  <RenderIf condition={infoValue.role_id !== "org_admin"}>
+                    <Navbar.MenuOption
+                      text="Delete user"
+                      onClick={_ => {
+                        deleteUser()->ignore
+                      }}
+                    />
+                  </RenderIf>
+                </div>
+              }}
+            </Popover.Panel>
+          </Transition>
+        </>}
+      </Popover>
+    </UIUtils.RenderIf>
   }
 }
 
