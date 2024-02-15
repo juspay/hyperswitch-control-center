@@ -2,7 +2,7 @@ open CardUtils
 open PageUtils
 open HSwitchUtils
 
-let headingStyle = getTextClass((H3, Leading_1))
+let headingStyle = `${getTextClass((P2, Medium))} text-grey-700 uppercase opacity-50 px-2`
 let paragraphTextVariant = `${getTextClass((P2, Medium))} text-grey-700 opacity-50`
 let subtextStyle = `${getTextClass((P1, Regular))} text-grey-700 opacity-50`
 let cardHeaderText = getTextClass((H3, Leading_2))
