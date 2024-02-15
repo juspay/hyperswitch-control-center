@@ -246,26 +246,26 @@ let make = () => {
       if forward && !(stepInView->enumToValueMapper(enums)) {
         let currentStepVariant = stepInView->variantToEnumMapper
         let _ = await Boolean(true)->usePostEnumDetails(currentStepVariant)
+        setStepInView(prev => {
+          switch prev {
+          | PLUGIN_INSTALL => forward ? PLUGIN_CONFIGURE : PLUGIN_INSTALL
+          | PLUGIN_CONFIGURE => forward ? WEBHOOK_SETUP : PLUGIN_INSTALL
+          | WEBHOOK_SETUP =>
+            if forward && isAnyConnectorConfigured {
+              COMPLETED_WOOCOMMERCE
+            } else if forward {
+              PROCESSOR_SETUP
+            } else {
+              PLUGIN_CONFIGURE
+            }
+          | PROCESSOR_SETUP => forward ? PROCESSOR_SETUP : WEBHOOK_SETUP
+          | COMPLETED_WOOCOMMERCE => COMPLETED_WOOCOMMERCE
+          }
+        })
       }
     } catch {
     | _ => ()
     }
-    setStepInView(prev => {
-      switch prev {
-      | PLUGIN_INSTALL => forward ? PLUGIN_CONFIGURE : PLUGIN_INSTALL
-      | PLUGIN_CONFIGURE => forward ? WEBHOOK_SETUP : PLUGIN_INSTALL
-      | WEBHOOK_SETUP =>
-        if forward && isAnyConnectorConfigured {
-          COMPLETED_WOOCOMMERCE
-        } else if forward {
-          PROCESSOR_SETUP
-        } else {
-          PLUGIN_CONFIGURE
-        }
-      | PROCESSOR_SETUP => forward ? PROCESSOR_SETUP : WEBHOOK_SETUP
-      | COMPLETED_WOOCOMMERCE => COMPLETED_WOOCOMMERCE
-      }
-    })
   }
 
   React.useEffect1(() => {
