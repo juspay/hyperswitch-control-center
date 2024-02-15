@@ -60,6 +60,7 @@ type userType = [
   | #USER_DATA
   | #INVITE
   | #USER_DELETE
+  | #UPDATE_ROLE
   | #INVITE_MULTIPLE
   | #RESEND_INVITE
   | #CREATE_MERCHANT

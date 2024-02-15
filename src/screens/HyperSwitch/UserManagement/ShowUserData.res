@@ -1,4 +1,5 @@
 open UserManagementUtils
+open UIUtils
 
 external typeConversion: array<Nullable.t<UserRoleEntity.userTableTypes>> => array<
   UserRoleEntity.userTableTypes,
@@ -6,7 +7,7 @@ external typeConversion: array<Nullable.t<UserRoleEntity.userTableTypes>> => arr
 
 module UserUtilsPopover = {
   @react.component
-  let make = (~infoValue: UserRoleEntity.userTableTypes) => {
+  let make = (~infoValue: UserRoleEntity.userTableTypes, ~setIsUpdateRoleSelected) => {
     open HeadlessUI
     open APIUtils
 
@@ -55,16 +56,17 @@ module UserUtilsPopover = {
                   text="Update role"
                   onClick={_ => {
                     panelProps["close"]()
+                    setIsUpdateRoleSelected(_ => true)
                   }}
                 />
-                <UIUtils.RenderIf condition={infoValue.role_id !== "org_admin"}>
+                <RenderIf condition={infoValue.role_id !== "org_admin"}>
                   <Navbar.MenuOption
                     text="Delete user"
                     onClick={_ => {
                       deleteUser()->ignore
                     }}
                   />
-                </UIUtils.RenderIf>
+                </RenderIf>
               </div>
             }}
           </Popover.Panel>
@@ -76,7 +78,12 @@ module UserUtilsPopover = {
 
 module UserHeading = {
   @react.component
-  let make = (~infoValue: UserRoleEntity.userTableTypes) => {
+  let make = (
+    ~infoValue: UserRoleEntity.userTableTypes,
+    ~isUpdateRoleSelected,
+    ~setIsUpdateRoleSelected,
+    ~newRoleSelected,
+  ) => {
     open APIUtils
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
@@ -97,6 +104,20 @@ module UserHeading = {
       }
     }
 
+    let updateRole = async () => {
+      try {
+        let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#UPDATE_ROLE}, ())
+        let body =
+          [
+            ("email", infoValue.email->JSON.Encode.string),
+            ("role_id", newRoleSelected->JSON.Encode.string),
+          ]->LogicUtils.getJsonFromArrayOfJson
+        let _ = await updateDetails(url, body, Post, ())
+      } catch {
+      | _ => ()
+      }
+    }
+
     <div className="flex justify-between flex-wrap">
       <PageUtils.PageHeading
         title=infoValue.name
@@ -105,26 +126,31 @@ module UserHeading = {
         isTag=true
         tagText={infoValue.role_name->String.toUpperCase}
       />
-      <div className="flex items-center gap-4">
-        <div className={`font-semibold text-green-700`}>
-          {switch status {
-          | InviteSent => "INVITE SENT"->String.toUpperCase->React.string
-          | _ => infoValue.status->String.toUpperCase->React.string
-          }}
+      <RenderIf condition={isUpdateRoleSelected}>
+        <Button buttonType={Primary} text="Update" onClick={_ => updateRole()->ignore} />
+      </RenderIf>
+      <RenderIf condition={!isUpdateRoleSelected}>
+        <div className="flex items-center gap-4">
+          <div className={`font-semibold text-green-700`}>
+            {switch status {
+            | InviteSent => "INVITE SENT"->String.toUpperCase->React.string
+            | _ => infoValue.status->String.toUpperCase->React.string
+            }}
+          </div>
+          <div className="flex items-center gap-2">
+            <RenderIf condition={status !== Active}>
+              <Button
+                text="Resend Invite"
+                buttonState
+                buttonType={SecondaryFilled}
+                customButtonStyle="!px-2"
+                onClick={_ => resendInvite()->ignore}
+              />
+            </RenderIf>
+            <UserUtilsPopover infoValue setIsUpdateRoleSelected />
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <UIUtils.RenderIf condition={status !== Active}>
-            <Button
-              text="Resend Invite"
-              buttonState
-              buttonType={SecondaryFilled}
-              customButtonStyle="!px-2"
-              onClick={_ => resendInvite()->ignore}
-            />
-          </UIUtils.RenderIf>
-          <UserUtilsPopover infoValue />
-        </div>
-      </div>
+      </RenderIf>
     </div>
   }
 }
@@ -137,6 +163,8 @@ let make = () => {
   let (roleData, setRoleData) = React.useState(_ => JSON.Encode.null)
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (isUpdateRoleSelected, setIsUpdateRoleSelected) = React.useState(_ => false)
+  let (newRoleSelected, setNewRoleSelected) = React.useState(_ => "")
   let (currentSelectedUser, setCurrentSelectedUser) = React.useState(_ =>
     Dict.make()->UserRoleEntity.itemToObjMapperForUser
   )
@@ -246,19 +274,29 @@ let make = () => {
         path=[{title: "Users", link: "/users"}] currentPageTitle=currentSelectedUser.name
       />
       <div className="h-4/5 bg-white mt-5 p-10 relative flex flex-col gap-8">
-        <UserHeading infoValue={currentSelectedUser} />
-        <div className="flex flex-col justify-between gap-12 show-scrollbar overflow-scroll">
-          {permissionInfo
-          ->Array.mapWithIndex((ele, index) => {
-            <RolePermissionValueRenderer
-              key={index->string_of_int}
-              heading={`${ele.module_} module`}
-              description={ele.description}
-              readWriteValues={ele.permissions}
-            />
-          })
-          ->React.array}
-        </div>
+        <UserHeading
+          infoValue={currentSelectedUser}
+          isUpdateRoleSelected
+          setIsUpdateRoleSelected
+          newRoleSelected
+        />
+        <RenderIf condition={!isUpdateRoleSelected}>
+          <div className="flex flex-col justify-between gap-12 show-scrollbar overflow-scroll">
+            {permissionInfo
+            ->Array.mapWithIndex((ele, index) => {
+              <RolePermissionValueRenderer
+                key={index->string_of_int}
+                heading={`${ele.module_} module`}
+                description={ele.description}
+                readWriteValues={ele.permissions}
+              />
+            })
+            ->React.array}
+          </div>
+        </RenderIf>
+        <RenderIf condition={isUpdateRoleSelected}>
+          <InviteUsers isInviteUserFlow=false setNewRoleSelected />
+        </RenderIf>
       </div>
     </div>
   </PageLoaderWrapper>
