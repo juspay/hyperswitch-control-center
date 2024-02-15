@@ -36,6 +36,7 @@ type entityName =
   | SURCHARGE
   | CUSTOMERS
   | ACCEPT_DISPUTE
+  | DISPUTES_ATTACH_EVIDENCE
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 

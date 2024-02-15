@@ -8,7 +8,6 @@ type contentType = Headers(string) | Unknown
 
 @val external sessionStorage: sessionStorage = "sessionStorage"
 
-@val external atob: string => string = "atob"
 let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ()) => {
   let hyperSwitchToken = LocalStorage.getItem("login")->Nullable.toOption
   let isMixpanel = uri->String.includes("mixpanel")
