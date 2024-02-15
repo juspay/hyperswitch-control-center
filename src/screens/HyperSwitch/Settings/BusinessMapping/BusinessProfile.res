@@ -23,7 +23,7 @@ module AddEntryBtn = {
     open BusinessMappingUtils
     let initialValues =
       [
-        ("profile_name", `default${list->Array.length->string_of_int}`->JSON.Encode.string),
+        ("profile_name", `default${list->Array.length->Int.toString}`->JSON.Encode.string),
       ]->Dict.fromArray
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let modalBody =

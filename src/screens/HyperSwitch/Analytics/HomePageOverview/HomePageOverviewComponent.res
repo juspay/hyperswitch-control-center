@@ -22,7 +22,7 @@ module ConnectorOverview = {
         ->Array.mapWithIndex((connector, index) => {
           let iconStyle = `${index === 0 ? "" : "-ml-4"} z-${(30 - index * 10)->Int.toString}`
           <GatewayIcon
-            key={index->string_of_int}
+            key={index->Int.toString}
             gateway={connector->getConnectorNameString->String.toUpperCase}
             className={`w-12 h-12 rounded-full border-3 border-white  ${iconStyle} bg-white`}
           />

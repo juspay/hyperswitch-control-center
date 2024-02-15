@@ -118,7 +118,7 @@ module NewProcessorCards = {
               <AddDataAttributes attributes=[("data-testid", connectorName->String.toLowerCase)]>
                 <div
                   onClick={_ => handleClick(connectorName)}
-                  key={i->string_of_int}
+                  key={i->Int.toString}
                   className="border p-6 gap-4 bg-white rounded flex flex-col justify-between">
                   <div className="flex flex-col gap-3 items-start">
                     <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
@@ -187,7 +187,7 @@ module NewProcessorCards = {
               )
 
               <ACLDiv
-                key={i->string_of_int}
+                key={i->Int.toString}
                 permission=userPermissionJson.merchantConnectorAccountWrite
                 className={`p-2 ${cursorStyles}`}
                 noAccessDescription=noAccessControlTextForProcessors

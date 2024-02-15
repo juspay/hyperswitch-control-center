@@ -325,12 +325,12 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
 
             let rule = ruleInput.value->JSON.Decode.array->Option.getOr([])
             let keyExtractor = (index, _rule, isDragging) => {
-              let id = {`${rulesJsonPath}[${string_of_int(index)}]`}
+              let id = {`${rulesJsonPath}[${Int.toString(index)}]`}
 
               <Wrapper
-                key={index->string_of_int}
+                key={index->Int.toString}
                 id
-                heading={`Rule ${string_of_int(index + 1)}`}
+                heading={`Rule ${Int.toString(index + 1)}`}
                 onClickAdd={_ => addRule(index, false)}
                 onClickCopy={_ => addRule(index, true)}
                 onClickRemove={_ => removeRule(index)}
@@ -522,13 +522,13 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
         switch connectorDetails->validateGateways {
         | Some(error) =>
-          errors->Dict.set(`Rule ${(i + 1)->string_of_int} - Gateway`, error->JSON.Encode.string)
+          errors->Dict.set(`Rule ${(i + 1)->Int.toString} - Gateway`, error->JSON.Encode.string)
         | None => ()
         }
 
         if !AdvancedRoutingUtils.validateStatements(rule.statements) {
           errors->Dict.set(
-            `Rule ${(i + 1)->string_of_int} - Condition`,
+            `Rule ${(i + 1)->Int.toString} - Condition`,
             `Invalid`->JSON.Encode.string,
           )
         }

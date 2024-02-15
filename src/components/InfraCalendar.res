@@ -148,7 +148,7 @@ module TableRow = {
                 Float.toString(year),
               )
             }
-            <td key={string_of_int(cellIndex)} className=classN onClick>
+            <td key={Int.toString(cellIndex)} className=classN onClick>
               <span
                 className={`${startDate->isEmptyString ? c2 : c3} ${obj->isNonEmptyString
                     ? "dark:hover:border-jp-gray-400 dark:text-jp-gray-text_darktheme dark:hover:text-white"
@@ -259,7 +259,7 @@ let make = (
         <tr>
           {heading
           ->Array.mapWithIndex((item, i) => {
-            <th key={string_of_int(i)} className="p-0">
+            <th key={Int.toString(i)} className="p-0">
               <div
                 className="flex flex-1 justify-center py-2 font-medium text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
                 {React.string(item)}
@@ -273,7 +273,7 @@ let make = (
         {rowInfo
         ->Array.mapWithIndex((item, rowIndex) => {
           <TableRow
-            key={string_of_int(rowIndex)}
+            key={Int.toString(rowIndex)}
             item
             rowIndex
             onDateClick

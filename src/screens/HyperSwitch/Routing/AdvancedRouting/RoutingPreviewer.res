@@ -14,7 +14,7 @@ module SimplePreview = {
               className="h-12 flex flex-row items-center gap-4
              text-jp-gray-900 dark:text-jp-gray-text_darktheme px-3 ">
               <div className="px-1.5 rounded-full bg-blue-800 text-white font-semibold text-sm">
-                {React.string(string_of_int(i + 1))}
+                {React.string(Int.toString(i + 1))}
               </div>
               <div> {React.string(item)} </div>
             </div>
@@ -46,7 +46,7 @@ module GatewayView = {
           {ruleGateway.gateway_name->getGatewayName->React.string}
           {if ruleGateway.distribution !== 100 {
             <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
-              {(ruleGateway.distribution->string_of_int ++ "%")->React.string}
+              {(ruleGateway.distribution->Int.toString ++ "%")->React.string}
             </span>
           } else {
             React.null

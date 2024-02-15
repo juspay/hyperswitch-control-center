@@ -124,8 +124,8 @@ module TooltipWrapper = {
     }
 
     ReactDOMStyle.make(
-      ~top=`${toolTipTopPosition->string_of_int}px`,
-      ~left=`${toolTipLeftPosition->string_of_int}px`,
+      ~top=`${toolTipTopPosition->Int.toString}px`,
+      ~left=`${toolTipLeftPosition->Int.toString}px`,
       (),
     )
   }
@@ -275,7 +275,7 @@ module DescriptionSection = {
       ->String.split("\n")
       ->Array.filter(str => str->LogicUtils.isNonEmptyString)
       ->Array.mapWithIndex((item, i) => {
-        <AddDataAttributes attributes=[("data-text", item)] key={i->string_of_int}>
+        <AddDataAttributes attributes=[("data-text", item)] key={i->Int.toString}>
           <div key={item} className="flex flex-col gap-1"> {React.string(item)} </div>
         </AddDataAttributes>
       })
@@ -391,8 +391,8 @@ module Arrow = {
     let borderLeftColor = position === Left ? arrowColor : "transparent"
 
     ReactDOMStyle.make(
-      ~top=`${arrowTopPosition->string_of_int}px`,
-      ~left=`${arrowLeftPosition->string_of_int}px`,
+      ~top=`${arrowTopPosition->Int.toString}px`,
+      ~left=`${arrowLeftPosition->Int.toString}px`,
       ~borderWidth,
       ~width="0",
       ~height="0",

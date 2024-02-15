@@ -71,8 +71,8 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
           let isSelected = number == currentPage
 
           <Button
-            key={idx->string_of_int}
-            text={number->string_of_int}
+            key={idx->Int.toString}
+            text={number->Int.toString}
             onClick={_evt => paginate(number)}
             buttonType
             customButtonStyle="!h-10 border-left-1 border-right-1"

@@ -210,7 +210,7 @@ module ExternalUser = {
                   <div className="px-1 py-1 ">
                     {options
                     ->Array.mapWithIndex((option, i) =>
-                      <Menu.Item key={i->string_of_int}>
+                      <Menu.Item key={i->Int.toString}>
                         {props =>
                           <div className="relative">
                             <button
