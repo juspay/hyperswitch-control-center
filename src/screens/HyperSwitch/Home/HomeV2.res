@@ -158,7 +158,7 @@ module QuickStart = {
     }
 
     let buttonText = if !(typedValueOfEnum.testPayment.payment_id->LogicUtils.isNonEmptyString) {
-      "Configure (Test mode)"
+      "Get Started Now"
     } else if !typedValueOfEnum.integrationCompleted {
       "Start Integration on app"
     } else {
@@ -189,11 +189,7 @@ module QuickStart = {
           buttonType={Primary}
           customButtonStyle="group w-1/5"
           rightIcon={CustomIcon(
-            <Icon
-              name="thin-right-arrow"
-              size=20
-              className="group-hover:scale-125 cursor-pointer transition duration-200 ease-in-out"
-            />,
+            <Icon name="thin-right-arrow" size=20 className="cursor-pointer" />,
           )}
           onClick={_ => {
             mixpanelEventForQuickStart()
