@@ -113,6 +113,8 @@ module UserHeading = {
             ("role_id", newRoleSelected->JSON.Encode.string),
           ]->LogicUtils.getJsonFromArrayOfJson
         let _ = await updateDetails(url, body, Post, ())
+        showToast(~message=`Role successfully updated!`, ~toastType=ToastSuccess, ())
+        RescriptReactRouter.replace("/users")
       } catch {
       | _ => ()
       }
@@ -127,7 +129,20 @@ module UserHeading = {
         tagText={infoValue.role_name->String.toUpperCase}
       />
       <RenderIf condition={isUpdateRoleSelected}>
-        <Button buttonType={Primary} text="Update" onClick={_ => updateRole()->ignore} />
+        <div className="flex items-center gap-2">
+          <Button
+            buttonType={Secondary}
+            text="Back"
+            onClick={_ => setIsUpdateRoleSelected(_ => false)}
+            customButtonStyle="!p-3"
+          />
+          <Button
+            buttonType={Primary}
+            text="Update role"
+            onClick={_ => updateRole()->ignore}
+            customButtonStyle="!p-3"
+          />
+        </div>
       </RenderIf>
       <RenderIf condition={!isUpdateRoleSelected}>
         <div className="flex items-center gap-4">
