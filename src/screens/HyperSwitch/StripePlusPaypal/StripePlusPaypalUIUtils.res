@@ -162,13 +162,13 @@ module TestPayment = {
     let updateTestPaymentEnum = async _ => {
       try {
         let _ = await Boolean(true)->postEnumDetails(#SPTestPayment)
+        setStepInView(_ => COMPLETED_STRIPE_PAYPAL)
       } catch {
       | _ => ()
       }
     }
 
     let sptestPaymentProceed = async (~paymentId as _) => {
-      setStepInView(_ => COMPLETED_STRIPE_PAYPAL)
       updateTestPaymentEnum()->ignore
     }
     React.useEffect0(() => {
@@ -184,7 +184,6 @@ module TestPayment = {
         buttonType={PrimaryOutline}
         customButtonStyle="!rounded-md"
         onClick={_ => {
-          setStepInView(_ => COMPLETED_STRIPE_PAYPAL)
           updateTestPaymentEnum()->ignore
         }}
       />}>
