@@ -42,19 +42,15 @@ module NewProcessorCards = {
   open UIUtils
   @react.component
   let make = (
+    ~connectorsAvailableForIntegration: array<ConnectorTypes.connectorName>,
     ~configuredConnectors: array<ConnectorTypes.connectorName>,
     ~showIcons: bool,
-    ~isPayoutFlow: bool,
+    ~showTestProcessor: bool,
+    ~urlPrefix: string,
   ) => {
     open ConnectorUtils
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-
-    let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
-      ? connectorListForLive
-      : isPayoutFlow
-      ? payoutConnectorList
-      : connectorList
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     let unConfiguredConnectors =
       connectorsAvailableForIntegration->Array.filter(total =>
@@ -65,7 +61,6 @@ module NewProcessorCards = {
     let (searchedConnector, setSearchedConnector) = React.useState(_ => "")
     let searchRef = React.useRef(Nullable.null)
 
-    let urlPrefix = isPayoutFlow ? "payoutconnectors/new" : "connectors/new"
     let handleClick = connectorName => {
       RescriptReactRouter.push(`${urlPrefix}?name=${connectorName}`)
     }
@@ -222,7 +217,7 @@ module NewProcessorCards = {
         {if showIcons {
           <>
             {connectorListFiltered->iconsConnectors("Connect a new connector", true, ())}
-            {<RenderIf condition={featureFlagDetails.testProcessors && !isPayoutFlow}>
+            {<RenderIf condition={featureFlagDetails.testProcessors && showTestProcessor}>
               {featureFlagDetails.testProcessors
               ->dummyConnectorList
               ->iconsConnectors("Connect a test connector", false, ~showSearch=false, ())}
@@ -230,7 +225,7 @@ module NewProcessorCards = {
           </>
         } else {
           <>
-            <RenderIf condition={featureFlagDetails.testProcessors && !isPayoutFlow}>
+            <RenderIf condition={featureFlagDetails.testProcessors && showTestProcessor}>
               {featureFlagDetails.testProcessors
               ->dummyConnectorList
               ->descriptedConnectors("Connect a test connector", false, ~showSearch=false, ())}
@@ -266,9 +261,9 @@ let make = (~isPayoutFlow=false) => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let fetchConnectorListResponse = useFetchConnectorList()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let getConnectorListAndUpdateState = async () => {
-    open LogicUtils
     try {
       let response = await fetchConnectorListResponse()
       let removeFromList = isPayoutFlow ? ConnectorTypes.PayoutConnector : ConnectorTypes.FRMPlayer
@@ -277,11 +272,13 @@ let make = (~isPayoutFlow=false) => {
 
       setFilteredConnectorData(_ => previousData->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
-      let arr =
-        connectorsList->Array.map(paymentMethod =>
-          paymentMethod->getString("connector_name", "")->getConnectorNameTypeFromString
-        )
-      setConfiguredConnectors(_ => arr)
+      // let arr =
+      //   connectorsList->Array.map(paymentMethod =>
+      //     paymentMethod->getString("connector_name", "")->getConnectorNameTypeFromString
+      //   )
+      setConfiguredConnectors(_ =>
+        previousData->ConnectorUtils.getConnectorTypeArrayFromListConnectors
+      )
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -312,6 +309,13 @@ let make = (~isPayoutFlow=false) => {
   }, ~wait=200)
 
   let entityPrefix = isPayoutFlow ? "payout" : ""
+  let urlPrefix = isPayoutFlow ? "payoutconnectors/new" : "connectors/new"
+
+  let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
+    ? connectorListForLive
+    : isPayoutFlow
+    ? payoutConnectorList
+    : connectorList
 
   <div>
     <PageUtils.PageHeading
@@ -331,7 +335,13 @@ let make = (~isPayoutFlow=false) => {
       </RenderIf>
       <div className="flex flex-col gap-10">
         <RenderIf condition={showConnectorIcons}>
-          <NewProcessorCards configuredConnectors showIcons={showConnectorIcons} isPayoutFlow />
+          <NewProcessorCards
+            configuredConnectors
+            showIcons={showConnectorIcons}
+            connectorsAvailableForIntegration
+            showTestProcessor={!isPayoutFlow}
+            urlPrefix
+          />
         </RenderIf>
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
@@ -359,7 +369,13 @@ let make = (~isPayoutFlow=false) => {
           />
         </RenderIf>
         <RenderIf condition={!showConnectorIcons}>
-          <NewProcessorCards configuredConnectors showIcons={showConnectorIcons} isPayoutFlow />
+          <NewProcessorCards
+            configuredConnectors
+            showIcons={showConnectorIcons}
+            connectorsAvailableForIntegration
+            showTestProcessor={!isPayoutFlow}
+            urlPrefix
+          />
         </RenderIf>
       </div>
     </PageLoaderWrapper>
