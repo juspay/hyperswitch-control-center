@@ -20,7 +20,7 @@ let make = () => {
     setAuthStatus(LoggedOut)
   }
 
-  React.useEffect1(() => {
+  React.useEffect0(() => {
     switch JSON.Classify.classify(merchantDataJsonFromLocalStorage) {
     | Array(arr) =>
       if arr->Array.length > 0 {
@@ -32,7 +32,7 @@ let make = () => {
     }
 
     None
-  }, [merchantDataJsonFromLocalStorage])
+  })
 
   React.useEffect1(() => {
     if flowType === MERCHANT_SELECT {
