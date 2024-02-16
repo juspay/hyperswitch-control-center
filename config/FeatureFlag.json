@@ -1,6 +1,6 @@
 {
   "test_live_toggle": false,
-  "is_live_mode": false,
+  "is_live_mode": true,
   "magic_link": false,
   "production_access": false,
   "quick_start": true,
