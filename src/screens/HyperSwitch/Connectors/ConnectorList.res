@@ -24,10 +24,6 @@ let make = (~isPayoutFlow=false) => {
 
       setFilteredConnectorData(_ => previousData->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
-      // let arr =
-      //   connectorsList->Array.map(paymentMethod =>
-      //     paymentMethod->getString("connector_name", "")->getConnectorNameTypeFromString
-      //   )
       setConfiguredConnectors(_ =>
         previousData->ConnectorUtils.getConnectorTypeArrayFromListConnectors
       )
