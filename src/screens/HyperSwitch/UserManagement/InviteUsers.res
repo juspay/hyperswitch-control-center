@@ -75,7 +75,7 @@ module InviteEmailForm = {
 }
 
 @react.component
-let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
+let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?) => {
   open UserManagementUtils
   open APIUtils
   open LogicUtils
@@ -83,17 +83,23 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
+
+  let defaultRole = switch currentRole {
+  | Some(val) => val
+  | None => "merchant_view_only"
+  }
+
   let {magicLink, inviteMultiple} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (roleTypeValue, setRoleTypeValue) = React.useState(_ => "merchant_view_only")
+  let (roleTypeValue, setRoleTypeValue) = React.useState(_ => defaultRole)
   let (roleDict, setRoleDict) = React.useState(_ => Dict.make())
   let (loaderForInviteUsers, setLoaderForInviteUsers) = React.useState(_ => false)
   let paddingClass = isInviteUserFlow ? "p-10" : ""
   let marginClass = isInviteUserFlow ? "mt-5" : ""
 
   let initialValues = React.useMemo0(() => {
-    [("roleType", ["merchant_view_only"->JSON.Encode.string]->JSON.Encode.array)]
+    [("roleType", [defaultRole->JSON.Encode.string]->JSON.Encode.array)]
     ->Dict.fromArray
     ->JSON.Encode.object
   })

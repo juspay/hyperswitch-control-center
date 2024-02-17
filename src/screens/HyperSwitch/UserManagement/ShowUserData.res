@@ -88,10 +88,12 @@ module UserHeading = {
     ~newRoleSelected,
   ) => {
     open APIUtils
+    let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
     let status = infoValue.status->UserRoleEntity.statusToVariantMapper
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
+    let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
 
     let resendInvite = async () => {
       try {
@@ -104,6 +106,30 @@ module UserHeading = {
         setButtonState(_ => Button.Normal)
       } catch {
       | _ => setButtonState(_ => Button.Normal)
+      }
+    }
+
+    let updatePermissionInfoOnBack = async () => {
+      try {
+        let url = getURL(
+          ~entityName=USER_MANAGEMENT,
+          ~userRoleTypes=ROLE_ID,
+          ~id=Some(infoValue.role_id),
+          ~methodType=Get,
+          (),
+        )
+        let res = await fetchDetails(url)
+
+        let defaultList = defaultPresentInInfoList(permissionInfo)
+        setPermissionInfo(_ => defaultList)
+        let updatedPermissionListForGivenRole = updatePresentInInfoList(
+          defaultList,
+          res->getArrayOfPermissionData,
+        )
+        setPermissionInfo(_ => updatedPermissionListForGivenRole)
+        setIsUpdateRoleSelected(_ => false)
+      } catch {
+      | _ => RescriptReactRouter.replace("/users")
       }
     }
 
@@ -136,7 +162,13 @@ module UserHeading = {
           <Button
             buttonType={Secondary}
             text="Back"
-            onClick={_ => setIsUpdateRoleSelected(_ => false)}
+            onClick={_ => {
+              if newRoleSelected === infoValue.role_id {
+                setIsUpdateRoleSelected(_ => false)
+              } else {
+                updatePermissionInfoOnBack()->ignore
+              }
+            }}
             customButtonStyle="!p-3"
           />
           <Button
@@ -160,7 +192,7 @@ module UserHeading = {
               <Button
                 text="Resend Invite"
                 buttonState
-                buttonType={SecondaryFilled}
+                buttonType={Primary}
                 customButtonStyle="!px-2"
                 onClick={_ => resendInvite()->ignore}
               />
@@ -313,7 +345,9 @@ let make = () => {
           </div>
         </RenderIf>
         <RenderIf condition={isUpdateRoleSelected}>
-          <InviteUsers isInviteUserFlow=false setNewRoleSelected />
+          <InviteUsers
+            isInviteUserFlow=false setNewRoleSelected currentRole={currentSelectedUser.role_id}
+          />
         </RenderIf>
       </div>
     </div>
