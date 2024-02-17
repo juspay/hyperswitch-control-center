@@ -22,12 +22,12 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchBusinessProfiles = MerchantAccountUtils.useFetchBusinessProfiles()
   let fetchMerchantAccountDetails = MerchantAccountUtils.useFetchMerchantDetails()
+  let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
   let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
   let enumDetails =
     enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
-  let setSwitchMerchantListAtom = Recoil.useSetRecoilState(switchMerchantListAtom)
   let (companyNameModal, setCompanyNameModal) = React.useState(_ => false)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let verificationDays = getFromMerchantDetails("verification")->getIntFromString(-1)
@@ -99,17 +99,6 @@ let make = () => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
         Exn.raiseError(err)
       }
-    }
-  }
-
-  let fetchSwitchMerchantList = async () => {
-    let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Get, ())
-    try {
-      let res = await fetchDetails(url)
-      let typedValueOfResponse = res->SwitchMerchantUtils.convertListResponseToTypedResponse
-      setSwitchMerchantListAtom(._ => typedValueOfResponse)
-    } catch {
-    | _ => ()
     }
   }
 

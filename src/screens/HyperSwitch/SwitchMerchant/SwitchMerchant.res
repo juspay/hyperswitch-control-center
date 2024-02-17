@@ -4,22 +4,9 @@ module NewAccountCreationModal = {
   @react.component
   let make = (~setShowModal, ~showModal) => {
     open APIUtils
-    let fetchDetails = useGetMethod()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-    let setSwitchMerchantListAtom = Recoil.useSetRecoilState(HyperswitchAtom.switchMerchantListAtom)
-
-    let fetchSwitchMerchantList = async () => {
-      let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Get, ())
-      try {
-        let res = await fetchDetails(url)
-        let typedValueOfResponse = res->SwitchMerchantUtils.convertListResponseToTypedResponse
-        setSwitchMerchantListAtom(._ => typedValueOfResponse)
-      } catch {
-      | _ => ()
-      }
-    }
-
+    let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
     let createNewAccount = async values => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Fetch.Post, ())
@@ -162,10 +149,10 @@ module ExternalUser = {
       setSelectedMerchantObject(_ => extractMerchantObject)
     }
 
-    React.useEffect1(() => {
+    React.useEffect2(() => {
       fetchMerchantIDs()
       None
-    }, [merchantDetailsTypedValue.merchant_name])
+    }, (merchantDetailsTypedValue.merchant_name, switchMerchantList))
 
     open HeadlessUI
     <>
