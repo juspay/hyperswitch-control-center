@@ -27,6 +27,7 @@ let make = () => {
     enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userPermissionJson, setuserPermissionJson) = Recoil.useRecoilState(userPermissionAtom)
+  let setSwitchMerchantListAtom = Recoil.useSetRecoilState(switchMerchantListAtom)
   let (companyNameModal, setCompanyNameModal) = React.useState(_ => false)
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
   let verificationDays = getFromMerchantDetails("verification")->getIntFromString(-1)
@@ -101,8 +102,20 @@ let make = () => {
     }
   }
 
+  let fetchSwitchMerchantList = async () => {
+    let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Get, ())
+    try {
+      let res = await fetchDetails(url)
+      let typedValueOfResponse = res->SwitchMerchantUtils.convertListResponseToTypedResponse
+      setSwitchMerchantListAtom(._ => typedValueOfResponse)
+    } catch {
+    | _ => ()
+    }
+  }
+
   let setUpDashboard = async () => {
     try {
+      let _ = await fetchSwitchMerchantList()
       let _ = await Window.connectorWasmInit()
       if featureFlagDetails.permissionBasedModule {
         let _ = await fetchPermissions()
