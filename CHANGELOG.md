@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.18.0
+
+### Bug Fixes
+
+- Prod start command ([#414](https://github.com/juspay/hyperswitch-control-center/pull/414)) ([`4bdebb0`](https://github.com/juspay/hyperswitch-control-center/commit/4bdebb012b1bc9277723826cb6f27e51aa1a266c))
+
+**Full Changelog:** [`2024.02.16.0...2024.02.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.16.0...2024.02.18.0)
+
+- - -
+
 ## 2024.02.16.0
 
 ### Bug Fixes
