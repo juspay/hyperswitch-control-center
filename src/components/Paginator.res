@@ -74,7 +74,7 @@ let make = (
           <div
             className="flex self-center text-center text-gray-400 dark:text-gray-500 font-medium">
             {React.string(
-              `Showing ${start->string_of_int} to ${toNum->string_of_int} of ${totalResults->string_of_int} entries`,
+              `Showing ${start->Int.toString} to ${toNum->Int.toString} of ${totalResults->Int.toString} entries`,
             )}
             <SelectBox.BaseDropdown
               options=selectInputOption

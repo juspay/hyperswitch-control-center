@@ -149,7 +149,7 @@ module CardRenderer = {
       <div className={`grid ${_showAdvancedConfiguration ? "grid-cols-2" : "grid-cols-4"} gap-4`}>
         {provider
         ->Array.mapWithIndex((value, i) => {
-          <div key={i->string_of_int}>
+          <div key={i->Int.toString}>
             <div className="flex items-center gap-2 break-words">
               <AddDataAttributes
                 attributes=[
@@ -231,7 +231,7 @@ module PaymentMethodsRender = {
 
         switch value->getPaymentMethodTypeFromString {
         | Credit | Debit =>
-          <div key={i->string_of_int}>
+          <div key={i->Int.toString}>
             <CardRenderer
               updateDetails
               paymentMethodsEnabled
@@ -244,7 +244,7 @@ module PaymentMethodsRender = {
             />
           </div>
         | _ =>
-          <div key={i->string_of_int}>
+          <div key={i->Int.toString}>
             <CardRenderer
               updateDetails
               paymentMethodsEnabled

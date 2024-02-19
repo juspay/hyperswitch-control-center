@@ -302,7 +302,7 @@ module Verified = {
         {verifiedDomainList
         ->Array.mapWithIndex((domainUrl, index) => {
           <div
-            key={string_of_int(index)}
+            key={Int.toString(index)}
             className="mt-4 cursor-pointer"
             onClick={_e => setApplePayIntegrationType(_ => #manual)}>
             <div className={`relative w-full  p-6 rounded flex flex-col justify-between border `}>

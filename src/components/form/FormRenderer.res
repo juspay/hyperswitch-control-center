@@ -361,7 +361,7 @@ module ComboFieldsRenderer = {
       <ButtonGroup wrapperClass="flex flex-row items-center">
         {field.inputFields
         ->Array.mapWithIndex((field, i) => {
-          <ErrorBoundary key={string_of_int(i)}>
+          <ErrorBoundary key={Int.toString(i)}>
             <FieldInputRenderer field showError=false />
           </ErrorBoundary>
         })
@@ -370,7 +370,7 @@ module ComboFieldsRenderer = {
       <div>
         {field.inputFields
         ->Array.mapWithIndex((field, i) => {
-          <ErrorBoundary key={string_of_int(i)}>
+          <ErrorBoundary key={Int.toString(i)}>
             <FieldErrorRenderer field />
           </ErrorBoundary>
         })
@@ -736,7 +736,7 @@ module FieldsRenderer = {
   ) => {
     Array.mapWithIndex(fields, (field, i) => {
       <FieldRenderer
-        key={string_of_int(i)}
+        key={Int.toString(i)}
         field
         fieldWrapperClass
         labelClass

@@ -79,7 +79,7 @@ module VerticalChoiceTile = {
       {listChoices
       ->Array.mapWithIndex((items, index) => {
         <div
-          key={index->string_of_int}
+          key={index->Int.toString}
           className={`p-6 flex flex-col gap-8 rounded-md cursor-pointer ${items.variantType->getBlockColor} rounded-md justify-between`}
           onClick={_ => setChoiceState(_ => items.variantType)}>
           <div className="flex justify-between items-center">
@@ -140,7 +140,7 @@ module HorizontalChoiceTile = {
       {listChoices
       ->Array.mapWithIndex((items, index) => {
         <div
-          key={index->string_of_int}
+          key={index->Int.toString}
           className={`p-6 flex flex-col gap-4 rounded-md cursor-pointer ${items.variantType->getBlockColor} rounded-md`}
           onClick={_ => setChoiceState(_ => items.variantType)}>
           <div className="flex justify-between items-center">
@@ -242,7 +242,7 @@ module SelectConnectorGrid = {
             ->Array.mapWithIndex((connector, index) => {
               let connectorName = connector->ConnectorUtils.getConnectorNameString
               <div
-                key={index->string_of_int}
+                key={index->Int.toString}
                 className={`py-4 px-6 flex gap-4 rounded-md cursor-pointer justify-between items-start ${connector->getBlockColor}`}
                 onClick={_ => setSelectedConnector(_ => connector)}>
                 <div className="flex flex-col gap-2 items-start ">
@@ -269,7 +269,7 @@ module SelectConnectorGrid = {
           ->Array.mapWithIndex((connector, index) => {
             let connectorName = connector->ConnectorUtils.getConnectorNameString
             <div
-              key={index->string_of_int}
+              key={index->Int.toString}
               className={`py-4 px-6 flex flex-col gap-4 rounded-md cursor-pointer ${connector->getBlockColor}`}
               onClick={_ => setSelectedConnector(_ => connector)}>
               <div className="flex justify-between items-center">

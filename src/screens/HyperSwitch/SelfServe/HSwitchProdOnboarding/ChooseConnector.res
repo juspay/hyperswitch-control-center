@@ -32,7 +32,7 @@ let make = (~selectedConnector, ~setSelectedConnector, ~pageView, ~setPageView) 
           ->ConnectorUtils.getConnectorNameString
           ->ConnectorUtils.getDisplayNameForConnectors
         <div
-          key={index->string_of_int}
+          key={index->Int.toString}
           className={`py-4 px-6 flex flex-col gap-4 rounded-md cursor-pointer ${connector->getBlockColor}`}
           onClick={_ => setSelectedConnector(_ => connector)}>
           <div className="flex justify-between items-center">
