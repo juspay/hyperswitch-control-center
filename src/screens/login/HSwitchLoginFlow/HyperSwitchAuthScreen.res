@@ -84,6 +84,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
     | (
         LoginWithEmail | LoginWithPassword,
         list{"user", "verify_email"}
+        | list{"user", "activate_from_email"}
         | list{"user", "login"}
         | list{"user", "set_password"}
         | list{"register", ..._},
