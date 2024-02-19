@@ -184,7 +184,7 @@ let make = (
 
       let topPadding = !showTime ? "pt-6" : ""
 
-      <div key={string_of_int(i)}>
+      <div key={Int.toString(i)}>
         <div className={`flex flex-row justify-between items-center px-6 pb-5 ${topPadding}`}>
           <TextInput
             customDashboardClass="h-11 text-base font-normal shadow-jp-2-xs"
@@ -204,7 +204,7 @@ let make = (
           />
         </div>
         <NewCalendar
-          key={string_of_int(i)}
+          key={Int.toString(i)}
           month={getMonthFromFloat(tempMonth)}
           year={Float.toInt(tempYear)}
           showTitle=false

@@ -17,7 +17,7 @@ let make = (
       let active = input.value->LogicUtils.getStringFromJson("") === op.value
       if isSeparate {
         <Button
-          key={i->string_of_int}
+          key={i->Int.toString}
           text={op.label}
           onClick={_ => onChange(op.value)}
           buttonType={active ? Primary : SecondaryFilled}
@@ -27,7 +27,7 @@ let make = (
         />
       } else {
         <Button
-          key={i->string_of_int}
+          key={i->Int.toString}
           text={op.label}
           onClick={_ => onChange(op.value)}
           textStyle={active ? "text-blue-800" : ""}

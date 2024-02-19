@@ -150,7 +150,7 @@ let make = () => {
               <div className="flex flex-row items-center gap-4 ml-2">
                 <Icon name="grip-vertical" size=14 className={"cursor-pointer"} />
                 <div className="px-1.5 rounded-full bg-blue-800 text-white font-semibold text-sm">
-                  {React.string(string_of_int(index + 1))}
+                  {React.string(Int.toString(index + 1))}
                 </div>
                 <div className="flex gap-1 items-center">
                   <p> {connectorName->React.string} </p>

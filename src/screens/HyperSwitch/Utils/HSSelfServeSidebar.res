@@ -59,7 +59,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
       }
       let subOptionsArray = sidebarOption.subOptions->Option.getOr([])
       <div
-        key={i->string_of_int}
+        key={i->Int.toString}
         className={`p-6 border-y border-gray-200 cursor-pointer ${background}`}
         onClick>
         <div key={i->Int.toString} className={`flex items-center ${textColor} font-medium gap-5`}>
@@ -90,7 +90,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
               }
 
               <div
-                key={i->string_of_int}
+                key={i->Int.toString}
                 className={`flex gap-1 items-center pl-6 py-2 rounded-md my-1 ${subBackground} ${subFont}`}>
                 <Icon name=subIcon customIconColor=subIconColor customHeight="14" />
                 <span className="flex-1"> {subOption.title->React.string} </span>

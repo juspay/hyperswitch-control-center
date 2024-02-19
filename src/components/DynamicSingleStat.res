@@ -459,7 +459,7 @@ let make = (
               )
 
               <HSwitchSingleStatWidget
-                key={singleStatArrIndex->string_of_int}
+                key={singleStatArrIndex->Int.toString}
                 title=info.title
                 tooltipText=info.tooltipText
                 deltaTooltipComponent={info.deltaTooltipComponent(info.statType)}
@@ -479,7 +479,7 @@ let make = (
 
           | None =>
             <HSwitchSingleStatWidget
-              key={singleStatArrIndex->string_of_int}
+              key={singleStatArrIndex->Int.toString}
               title=""
               tooltipText=""
               deltaTooltipComponent=React.null
@@ -499,7 +499,7 @@ let make = (
 
       | None =>
         <HSwitchSingleStatWidget
-          key={singleStatArrIndex->string_of_int}
+          key={singleStatArrIndex->Int.toString}
           title=""
           tooltipText=""
           deltaTooltipComponent=React.null
@@ -517,7 +517,7 @@ let make = (
     })
 
     <AddDataAttributes
-      attributes=[("data-dynamic-single-stats", "dynamic stats")] key={index->string_of_int}>
+      attributes=[("data-dynamic-single-stats", "dynamic stats")] key={index->Int.toString}>
       <div>
         <RenderIf condition={sectionName->isNonEmptyString}>
           <div
@@ -544,7 +544,7 @@ let make = (
               <div className="flex flex-wrap w-full">
                 {singleStateArr
                 ->Array.mapWithIndex((element, index) => {
-                  <RenderIf condition={index < 4 || showStats} key={index->string_of_int}>
+                  <RenderIf condition={index < 4 || showStats} key={index->Int.toString}>
                     <div className="w-full md:w-1/2"> element </div>
                   </RenderIf>
                 })

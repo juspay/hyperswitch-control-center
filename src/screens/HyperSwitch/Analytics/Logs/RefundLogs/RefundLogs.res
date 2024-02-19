@@ -87,7 +87,7 @@ let make = (~refundId, ~paymentId) => {
         {data
         ->Array.mapWithIndex((refundDetailsValue, index) => {
           <ApiDetailsComponent
-            key={index->string_of_int}
+            key={index->Int.toString}
             dataDict={refundDetailsValue->getDictFromJsonObject}
             setLogDetails
             setSelectedOption

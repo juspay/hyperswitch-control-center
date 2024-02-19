@@ -247,7 +247,7 @@ module TableRow = {
               }
             }
             <td
-              key={string_of_int(cellIndex)}
+              key={Int.toString(cellIndex)}
               className={classN}
               onClick
               onMouseOver={_ => handleHover()}
@@ -385,7 +385,7 @@ let make = (
           <tr>
             {heading
             ->Array.mapWithIndex((item, i) => {
-              <th key={string_of_int(i)}>
+              <th key={Int.toString(i)}>
                 <div
                   className="flex flex-1 justify-center py-1 text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
                   {React.string(isMobileView ? item->String.charAt(0) : item)}
@@ -402,7 +402,7 @@ let make = (
         {rowInfo
         ->Array.mapWithIndex((item, rowIndex) => {
           <TableRow
-            key={string_of_int(rowIndex)}
+            key={Int.toString(rowIndex)}
             item
             rowIndex
             onDateClick

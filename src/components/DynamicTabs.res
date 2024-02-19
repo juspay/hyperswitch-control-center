@@ -556,7 +556,7 @@ let make = (
                   }, 200)->ignore
                   lastTabRef->ReactDOM.Ref.domRef->Some
                 }
-                <div ?ref key={string_of_int(i)}>
+                <div ?ref key={Int.toString(i)}>
                   <TabInfo
                     title={tab.title}
                     isSelected={selectedIndex === i}

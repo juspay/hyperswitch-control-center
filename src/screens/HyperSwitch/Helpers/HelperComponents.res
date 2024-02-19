@@ -72,12 +72,11 @@ module BluredTableComponent = {
       <div className="blur bg-white p-8">
         {dummyTableValue
         ->Array.mapWithIndex((value, index) => {
-          <div className="flex gap-8 my-10 justify-between" key={index->string_of_int}>
+          <div className="flex gap-8 my-10 justify-between" key={index->Int.toString}>
             {value
             ->Dict.keysToArray
             ->Array.mapWithIndex((tableVal, ind) =>
-              <div
-                className="flex justify-center text-grey-700 opacity-50" key={ind->string_of_int}>
+              <div className="flex justify-center text-grey-700 opacity-50" key={ind->Int.toString}>
                 {value->LogicUtils.getString(tableVal, "")->React.string}
               </div>
             )

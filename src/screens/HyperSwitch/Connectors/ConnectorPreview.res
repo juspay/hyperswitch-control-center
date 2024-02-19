@@ -215,7 +215,7 @@ module ConnectorSummaryGrid = {
             open LogicUtils
             let label = connectorAccountFields->getString(field, "")
             <InfoField
-              key={index->string_of_int}
+              key={index->Int.toString}
               label={label}
               render={connectorInfo->ConnectorUtils.getConnectorDetailsValue(field)}
             />
@@ -229,7 +229,7 @@ module ConnectorSummaryGrid = {
           {connectorInfo.payment_methods_enabled
           ->Array.mapWithIndex((field, index) => {
             <InfoField
-              key={index->string_of_int}
+              key={index->Int.toString}
               label={field.payment_method->LogicUtils.snakeToTitle}
               render={Some(
                 field.payment_method_types

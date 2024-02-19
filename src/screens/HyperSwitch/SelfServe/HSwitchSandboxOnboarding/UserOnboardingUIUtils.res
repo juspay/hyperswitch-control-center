@@ -13,7 +13,7 @@ module ProgressBar = {
     <div className="flex w-full">
       {tabs
       ->Array.mapWithIndex((_val, i) =>
-        <div key={string_of_int(i)} className={`${i->defaultStyle}`} />
+        <div key={Int.toString(i)} className={`${i->defaultStyle}`} />
       )
       ->React.array}
     </div>
@@ -457,7 +457,7 @@ module LandingPageTileForIntegrateDocs = {
                 {subTextCustomValues
                 ->Option.getOr([])
                 ->Array.mapWithIndex((val, index) => {
-                  <div key={index->string_of_int} className=subTextCss> {val->React.string} </div>
+                  <div key={index->Int.toString} className=subTextCss> {val->React.string} </div>
                 })
                 ->React.array}
               </div>
@@ -527,7 +527,7 @@ module Section = {
         ->Array.mapWithIndex((subSectionValue, index) => {
           isGithubSection
             ? <LandingPageTileForGithub
-                key={index->string_of_int}
+                key={index->Int.toString}
                 headerIcon=subSectionValue.headerIcon
                 customIconCss=subSectionValue.customIconCss
                 url=subSectionValue.url
@@ -535,7 +535,7 @@ module Section = {
                 displayBackendLang={subSectionValue.displayBackendLang->Option.getOr("")}
               />
             : <LandingPageTileForIntegrateDocs
-                key={index->string_of_int}
+                key={index->Int.toString}
                 headerIcon=subSectionValue.headerIcon
                 headerText={subSectionValue.headerText->Option.getOr("")}
                 subText=subSectionValue.subText
