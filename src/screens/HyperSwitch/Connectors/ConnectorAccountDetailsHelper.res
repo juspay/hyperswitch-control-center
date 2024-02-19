@@ -114,7 +114,7 @@ module RenderConnectorInputFields = {
     ->Array.mapWithIndex((field, i) => {
       let label = details->getString(field, "")
       let formName = isLabelNested ? `${name}.${field}` : name
-      <UIUtils.RenderIf condition={label->isNonEmptyString} key={i->string_of_int}>
+      <UIUtils.RenderIf condition={label->isNonEmptyString} key={i->Int.toString}>
         <AddDataAttributes attributes=[("data-testid", label->titleToSnake->String.toLowerCase)]>
           <div key={label}>
             <FormRenderer.FieldRenderer

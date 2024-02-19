@@ -232,7 +232,7 @@ let make = (
               } else {
                 None
               }
-              <div className=tabClass ?ref key={string_of_int(i)}>
+              <div className=tabClass ?ref key={Int.toString(i)}>
                 <TabInfo
                   title={tab.title}
                   tabElement=tab.tabElement
@@ -264,12 +264,12 @@ let make = (
         <div className=bottomBorderClass />
       </UIUtils.RenderIf>
       <div className=renderedTabClassName>
-        <ErrorBoundary key={string_of_int(selectedIndex)}>
+        <ErrorBoundary key={Int.toString(selectedIndex)}>
           {switch tabs->Array.get(selectedIndex) {
           | Some(selectedTab) => {
               let component = selectedTab.renderContent()
               <FramerMotion.TransitionComponent
-                id={string_of_int(selectedIndex)} className=contentHeight>
+                id={Int.toString(selectedIndex)} className=contentHeight>
                 {component}
               </FramerMotion.TransitionComponent>
             }

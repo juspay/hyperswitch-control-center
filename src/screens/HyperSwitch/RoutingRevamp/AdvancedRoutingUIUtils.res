@@ -20,7 +20,7 @@ module LogicalOps = {
       ->Array.mapWithIndex((text, i) => {
         let active = logicalOpsInput.value->LogicUtils.getStringFromJson("") === text
         <Button
-          key={i->string_of_int}
+          key={i->Int.toString}
           text
           onClick={_ => onChange(text)}
           textStyle={active ? "text-blue-800" : ""}
@@ -436,7 +436,7 @@ module MakeRuleField = {
     <div className="flex flex-wrap items-center">
       {Array.mapWithIndex(fields, (_, i) =>
         <RuleFieldBase
-          key={i->string_of_int}
+          key={i->Int.toString}
           onClick={_ => onCrossClick(i)}
           isFirst={i === 0}
           id={`${ruleJsonPath}[${i->Int.toString}]`}

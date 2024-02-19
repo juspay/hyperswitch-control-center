@@ -65,7 +65,7 @@ module NewProcessorCards = {
             let frmName = frm->getFRMNameString
             let size = "w-14 h-14 rounded-full"
             <ToolTip
-              key={i->string_of_int}
+              key={i->Int.toString}
               description={frmName->LogicUtils.capitalizeString}
               toolTipFor={<div
                 className="bg-white p-2 cursor-pointer" onClick={_ => handleClick(frmName)}>

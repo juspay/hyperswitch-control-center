@@ -11,7 +11,7 @@ open HighchartsHorizontalBarChart
 let valueFormatter = {
   @this
   (this: tooltipRecord) => {
-    `<div class='text-white'>${this.category} count: <b>${this.y->string_of_int}</b></div>`
+    `<div class='text-white'>${this.category} count: <b>${this.y->Int.toString}</b></div>`
   }
 }
 
