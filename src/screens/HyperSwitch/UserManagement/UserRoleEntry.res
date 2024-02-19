@@ -102,7 +102,6 @@ let make = () => {
               currrentFetchCount={usersFilterData->Array.length}
               showSerialNumber=true
               collapseTableRow=false
-              rowHeightClass="h-20"
               tableheadingClass="h-16"
             />
           </div>
