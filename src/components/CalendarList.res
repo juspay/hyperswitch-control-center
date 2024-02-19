@@ -104,7 +104,7 @@ let make = (
 
       let iconClass = "inline-block text-jp-gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-25 cursor-pointer"
 
-      <div key={string_of_int(i)}>
+      <div key={Int.toString(i)}>
         <div className="flex flex-row justify-between items-center p-3">
           {showLeft
             ? <>
@@ -140,7 +140,7 @@ let make = (
             : React.null}
         </div>
         <Calendar
-          key={string_of_int(i)}
+          key={Int.toString(i)}
           month={getMonthFromFloat(tempMonth)}
           year={Float.toInt(tempYear)}
           showTitle=false

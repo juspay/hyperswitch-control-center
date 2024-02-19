@@ -19,11 +19,10 @@ module EntityData = {
       {detailsKeyList
       ->Array.mapWithIndex((key: string, idx) => {
         switch Dict.get(syncData, key) {
-        | Some(json) => <div key={idx->string_of_int}> {entity.detailsPageLayout(json, key)} </div>
+        | Some(json) => <div key={idx->Int.toString}> {entity.detailsPageLayout(json, key)} </div>
         | _ =>
           switch Dict.get(dictData, key) {
-          | Some(json) =>
-            <div key={idx->string_of_int}> {entity.detailsPageLayout(json, key)} </div>
+          | Some(json) => <div key={idx->Int.toString}> {entity.detailsPageLayout(json, key)} </div>
           | _ => React.null
           }
         }

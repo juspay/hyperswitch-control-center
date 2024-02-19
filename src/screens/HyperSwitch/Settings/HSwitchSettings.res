@@ -122,7 +122,7 @@ module PersonalSettings = {
       {personalSettings
       ->Array.mapWithIndex((sections, index) =>
         <TileComponent
-          key={string_of_int(index)}
+          key={Int.toString(index)}
           heading={sections.heading}
           subHeading={sections.subHeading}
           redirect={sections.redirect->Option.getOr("")}

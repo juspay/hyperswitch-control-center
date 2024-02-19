@@ -33,13 +33,13 @@ module RenderedComponent = {
         String.toLowerCase(item) == String.toLowerCase(searchText) && String.length(searchText) > 0
       ) {
         <mark
-          key={i->string_of_int}
+          key={i->Int.toString}
           className="border-searched_text_border bg-yellow-searched_text ml-1 font-medium text-fs-14 text-lightgray_background opacity-50">
           {item->React.string}
         </mark>
       } else {
         <span
-          key={i->string_of_int}
+          key={i->Int.toString}
           className="font-medium text-fs-14 text-lightgray_background opacity-50">
           {item->React.string}
         </span>
@@ -265,7 +265,7 @@ let make = () => {
                         <Combobox.Option
                           className="flex flex-row border-b dark:border-jp-gray-960 p-2 cursor-pointer"
                           onClick={_ => redirectOnSelect(ele)}
-                          key={i->string_of_int}
+                          key={i->Int.toString}
                           value=ele>
                           {props => {
                             let activeClasses = if props["active"] {
@@ -280,7 +280,7 @@ let make = () => {
                                 let elementValue = item->JSON.Decode.string->Option.getOr("")
                                 <RenderIf
                                   condition={elementValue->isNonEmptyString}
-                                  key={index->string_of_int}>
+                                  key={index->Int.toString}>
                                   <RenderedComponent ele=elementValue searchText />
                                   <RenderIf
                                     condition={index >= 0 &&

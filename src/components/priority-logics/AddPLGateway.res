@@ -14,7 +14,7 @@ module GatewayView = {
           {React.string(ruleGateway.connector.connector)}
           <UIUtils.RenderIf condition={ruleGateway.split !== 0}>
             <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
-              {React.string(ruleGateway.split->string_of_int ++ "%")}
+              {React.string(ruleGateway.split->Int.toString ++ "%")}
             </span>
           </UIUtils.RenderIf>
         </div>
@@ -159,7 +159,7 @@ let make = (
           </div>
           {selectedOptions
           ->Array.mapWithIndex((item, i) => {
-            let key = string_of_int(i + 1)
+            let key = Int.toString(i + 1)
 
             {
               <div className="flex flex-row" key>

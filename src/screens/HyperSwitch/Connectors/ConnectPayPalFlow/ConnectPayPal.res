@@ -78,7 +78,7 @@ module LandingScreen = {
           {PayPalFlowUtils.listChoices
           ->Array.mapWithIndex((items, index) => {
             <div
-              key={index->string_of_int}
+              key={index->Int.toString}
               className={`p-6 flex flex-col gap-4 rounded-md cursor-pointer ${items.variantType->getBlockColor} rounded-md`}
               onClick={_ => setConfigurationType(_ => items.variantType)}>
               <div className="flex justify-between items-center">
@@ -198,7 +198,7 @@ module RedirectionToPayPalFlow = {
             {preRequisiteList
             ->Array.mapWithIndex((item, index) =>
               <p className=p1RegularTextClass>
-                {`${(index + 1)->string_of_int}. ${item}`->React.string}
+                {`${(index + 1)->Int.toString}. ${item}`->React.string}
               </p>
             )
             ->React.array}

@@ -39,8 +39,8 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
       if isSelected {
         <div className="p-2">
           <Button
-            key={idx->string_of_int}
-            text={number->string_of_int}
+            key={idx->Int.toString}
+            text={number->Int.toString}
             buttonType={UpiPaginator}
             onClick={_evt => paginate(number)}
             customButtonStyle="rounded-[4px] w-[39px] h-[36px] border-[1px] border-[#3674E0]"
@@ -51,8 +51,8 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
       } else {
         <div className="p-2">
           <Button
-            key={idx->string_of_int}
-            text={number->string_of_int}
+            key={idx->Int.toString}
+            text={number->Int.toString}
             onClick={_evt => paginate(number)}
             buttonType={Pill}
             customButtonStyle="rounded-[4px] w-[39px] h-[36px]"
