@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.18.0
+
+### Bug Fixes
+
+- Prod start command ([#414](https://github.com/juspay/hyperswitch-control-center/pull/414)) ([`4bdebb0`](https://github.com/juspay/hyperswitch-control-center/commit/4bdebb012b1bc9277723826cb6f27e51aa1a266c))
+
+**Full Changelog:** [`2024.02.16.0...2024.02.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.16.0...2024.02.18.0)
+
+- - -
+
+## 2024.02.16.0
+
+### Bug Fixes
+
+- Fix accept invite re-render issue ([#411](https://github.com/juspay/hyperswitch-control-center/pull/411)) ([`d990e18`](https://github.com/juspay/hyperswitch-control-center/commit/d990e1831d9b151d24f5b86731904986f175629d))
+
+**Full Changelog:** [`2024.02.15.0...2024.02.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.15.0...2024.02.16.0)
+
+- - -
+
 ## 2024.02.15.0
 
 ### Bug Fixes

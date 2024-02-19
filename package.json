@@ -8,7 +8,7 @@
     "setup-env": "chmod +x ./replace_env.sh && ./replace_env.sh",
     "pre-commit": "bash .githooks/commit-msg",
     "start": "npm run setup-env && cp env-config.js ./public/hyperswitch && APP_VERSION=$npm_package_version && appName=hyperswitch webpack serve --config webpack.dev.js",
-    "serve": "npm run setup-env && cp env-config.js ./public/hyperswitch && node dist/server/server.js",
+    "serve": "npm run setup-env && cp env-config.js ./dist/hyperswitch && node dist/server/server.js",
     "prod:start": "webpack serve --config webpack.dev.js",
     "build:netlify": "webpack --config webpack.prod.js --env netlifyHosted",
     "build:prod": "npm run re:clean && npm run re:build && npm run setup-env && cp env-config.js ./public/hyperswitch && APP_VERSION=$npm_package_version && webpack --config webpack.prod.js",
