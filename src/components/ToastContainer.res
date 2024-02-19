@@ -24,7 +24,6 @@ module ToastHeading = {
     | ToastWarning => "bg-orange-950 border-orange-950 rounded-md"
     | ToastInfo => "bg-blue-950 border-blue-950 rounded-md"
     | ToastSuccess => "bg-green-800 border-green-800 rounded-md"
-    | ToastReject => "bg-red-960 border-red-960 rounded-md"
     }
 
     let toastIconName = switch toastProps.toastType {
@@ -32,7 +31,6 @@ module ToastHeading = {
     | ToastError => "times-circle"
     | ToastWarning => "exclamation-triangle"
     | ToastInfo => "info-circle"
-    | ToastReject => "check-circle"
     }
 
     let toastClass = "p-4 font-semibold"
