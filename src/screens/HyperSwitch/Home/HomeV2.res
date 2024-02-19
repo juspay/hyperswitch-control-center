@@ -397,9 +397,21 @@ module QuickStartModule = {
 
 @react.component
 let make = () => {
+  let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
+  let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
+  let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
   <div className="w-full flex flex-col gap-14">
     <QuickStartModule />
-    <RecipesAndPlugins />
+    <UIUtils.RenderIf
+      condition={!(
+        [
+          typedEnumValue.testPayment.payment_id->LogicUtils.isNonEmptyString,
+          typedEnumValue.integrationCompleted,
+          isProdIntentCompleted->Option.getOr(false),
+        ]->Array.includes(false)
+      )}>
+      <RecipesAndPlugins />
+    </UIUtils.RenderIf>
     <Resources />
   </div>
 }
