@@ -457,3 +457,11 @@ let errorSubCodeMapper = (subCode: string) => {
   | _ => UR_00
   }
 }
+
+let generateBody = (url: RescriptReactRouter.url) => {
+  let body = Dict.make()
+  let val = url.search->LogicUtils.getDictFromUrlSearchParams->Dict.get("token")->Option.getOr("")
+
+  body->Dict.set("token", val->JSON.Encode.string)
+  body->JSON.Encode.object
+}
