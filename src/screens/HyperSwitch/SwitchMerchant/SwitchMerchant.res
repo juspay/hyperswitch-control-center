@@ -127,13 +127,16 @@ module ExternalUser = {
     let switchMerchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.switchMerchantListAtom)
     let merchantDetailsTypedValue =
       HSwitchUtils.useMerchantDetailsValue()->MerchantAccountUtils.getMerchantDetails
-    let (selectedMerchantObject, setSelectedMerchantObject) = React.useState(_ => {
+    let defaultSelectedMerchantType = {
       merchant_id: defaultMerchantId,
       merchant_name: defaultMerchantId,
       is_active: false,
-    })
+    }
     let (showModal, setShowModal) = React.useState(_ => false)
     let (options, setOptions) = React.useState(_ => [])
+    let (selectedMerchantObject, setSelectedMerchantObject) = React.useState(_ =>
+      defaultSelectedMerchantType
+    )
 
     let fetchMerchantIDs = () => {
       let filteredSwitchMerchantList = switchMerchantList->Array.filter(ele => ele.is_active)
@@ -141,11 +144,7 @@ module ExternalUser = {
       let extractMerchantObject =
         switchMerchantList
         ->Array.find(ele => ele.merchant_id === defaultMerchantId)
-        ->Option.getOr({
-          merchant_id: defaultMerchantId,
-          merchant_name: defaultMerchantId,
-          is_active: false,
-        })
+        ->Option.getOr(defaultSelectedMerchantType)
       setSelectedMerchantObject(_ => extractMerchantObject)
     }
 
