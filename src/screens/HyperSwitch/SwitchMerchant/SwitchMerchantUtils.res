@@ -1,7 +1,7 @@
 type switchMerchantListResponse = {
   merchant_id: string,
   merchant_name: string,
-  mutable is_active: bool,
+  is_active: bool,
 }
 
 let defaultValue = {

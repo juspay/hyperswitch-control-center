@@ -144,7 +144,7 @@ let make = () => {
           <div className="w-full flex flex-col gap-5 md:gap-10">
             {renderingArray
             ->Array.mapWithIndex((details, i) =>
-              <DetailsSection key={i->string_of_int} details formState merchantInfo />
+              <DetailsSection key={i->Int.toString} details formState merchantInfo />
             )
             ->React.array}
           </div>

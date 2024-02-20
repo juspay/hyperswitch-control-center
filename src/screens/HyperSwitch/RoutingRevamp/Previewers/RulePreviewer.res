@@ -17,7 +17,7 @@ module GatewayView = {
           {connectorStr->React.string}
           <UIUtils.RenderIf condition={percent->Option.isSome}>
             <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
-              {(percent->Option.getOr(0)->string_of_int ++ "%")->React.string}
+              {(percent->Option.getOr(0)->Int.toString ++ "%")->React.string}
             </span>
           </UIUtils.RenderIf>
         </div>
@@ -39,7 +39,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
           {ruleInfo.rules
           ->Array.mapWithIndex((rule, index) => {
             let statementsArr = rule.statements
-            let headingText = `Rule ${string_of_int(index + 1)}`
+            let headingText = `Rule ${Int.toString(index + 1)}`
             let marginStyle = index === ruleInfo.rules->Array.length - 1 ? "mt-2" : "my-2"
             let threeDsType = rule.connectorSelection.override_3ds->Option.getOr("")
 

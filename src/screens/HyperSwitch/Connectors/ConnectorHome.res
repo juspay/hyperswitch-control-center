@@ -34,7 +34,7 @@ module ConnectorCurrentStepIndicator = {
                 {if isPreviousStepCompleted {
                   <Icon name="check-black" size=20 />
                 } else {
-                  <p className=textColor> {(i + 1)->string_of_int->React.string} </p>
+                  <p className=textColor> {(i + 1)->Int.toString->React.string} </p>
                 }}
               </div>
               <UIUtils.RenderIf condition={i !== stepsArr->Array.length - 1}>

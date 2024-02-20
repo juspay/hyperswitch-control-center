@@ -46,9 +46,9 @@ let make = (
           let location = `${title}_tr${(rowIndex + 1)->Int.toString}_td${(cellIndex + 1)
               ->Int.toString}`
           <AddDataAttributes
-            key={cellIndex->string_of_int} attributes=[("data-table-location", location)]>
+            key={cellIndex->Int.toString} attributes=[("data-table-location", location)]>
             <td
-              key={string_of_int(cellIndex)}
+              key={Int.toString(cellIndex)}
               className={`h-full p-0 align-top ${borderClass} ${hCell} ${cursorI}`}
               onClick={_ => {
                 if cellIndex == 0 {
@@ -81,7 +81,7 @@ let make = (
         {item
         ->Array.mapWithIndex((obj, index) => {
           let heading = headingArray->Array.get(index)->Option.getOr("")
-          <RenderIf condition={index !== 0} key={index->string_of_int}>
+          <RenderIf condition={index !== 0} key={index->Int.toString}>
             <div className="flex mb-5 justify-between">
               <div className="text-jp-gray-900 opacity-50 font-medium">
                 {React.string(heading)}

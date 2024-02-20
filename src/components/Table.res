@@ -36,7 +36,7 @@ module TableFilterRow = {
           `${borderTop} border-r ${borderColor}`
         }
         <td
-          key={string_of_int(cellIndex)}
+          key={Int.toString(cellIndex)}
           className={`align-top ${borderClass} ${tableDataBorderClass}`}>
           <div className={`box-border ${paddingClass}`}>
             <TableFilterCell cell=obj />
@@ -198,9 +198,9 @@ module TableRow = {
           let location = `${title}_tr${(rowIndex + 1)->Int.toString}_td${(cellIndex + 1)
               ->Int.toString}`
           <AddDataAttributes
-            key={cellIndex->string_of_int} attributes=[("data-table-location", location)]>
+            key={cellIndex->Int.toString} attributes=[("data-table-location", location)]>
             <td
-              key={string_of_int(cellIndex)}
+              key={Int.toString(cellIndex)}
               className={`${tableRowBorderClass} ${customColorCell}`}
               style={ReactDOMStyle.make(~width=fixedWidthClass, ())}
               onClick={_ => {
@@ -330,9 +330,9 @@ module TableHeadingCell = {
       | Some(fn) =>
         fn((prevFilterObj: array<filterObject>) => {
           prevFilterObj->Array.map(obj => {
-            obj.key === string_of_int(i)
+            obj.key === Int.toString(i)
               ? {
-                  key: string_of_int(i),
+                  key: Int.toString(i),
                   options: obj.options,
                   selected: ev->Identity.formReactEventToArrayOfString,
                 }
@@ -403,7 +403,7 @@ module TableHeadingCell = {
     let justifyClass = ""
     <AddDataAttributes attributes=[("data-table-heading", item.title)]>
       <th
-        key={string_of_int(i)}
+        key={Int.toString(i)}
         className=tableHeaderClass
         style={ReactDOMStyle.make(~width=fixedWidthClass, ())}>
         {switch customizeColumnNewTheme {
@@ -710,7 +710,7 @@ let make = (
     ->Array.mapWithIndex((item: array<cell>, rowIndex) => {
       <TableRow
         title
-        key={string_of_int(offset + rowIndex)}
+        key={Int.toString(offset + rowIndex)}
         item
         rowIndex
         offset

@@ -57,11 +57,11 @@ module ConfigureSurchargeRule = {
         let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Array.length > 1
         let rule = ruleInput.value->JSON.Decode.array->Option.getOr([])
         let keyExtractor = (index, _rule, isDragging) => {
-          let id = {`algorithm.rules[${string_of_int(index)}]`}
+          let id = {`algorithm.rules[${Int.toString(index)}]`}
           <AdvancedRouting.Wrapper
-            key={index->string_of_int}
+            key={index->Int.toString}
             id
-            heading={`Rule ${string_of_int(index + 1)}`}
+            heading={`Rule ${Int.toString(index + 1)}`}
             onClickAdd={_ => addRule(index, false)}
             onClickCopy={_ => addRule(index, true)}
             onClickRemove={_ => removeRule(index)}
@@ -209,7 +209,7 @@ let make = () => {
 
             if !validateConditionsForSurcharge(ruleDict) {
               errors->Dict.set(
-                `Rule ${(i + 1)->string_of_int} - Condition`,
+                `Rule ${(i + 1)->Int.toString} - Condition`,
                 `Invalid`->JSON.Encode.string,
               )
             }
