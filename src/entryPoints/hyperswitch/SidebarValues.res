@@ -120,19 +120,64 @@ let operations = (isOperationsEnabled, ~permissionJson) => {
     : emptyComponent
 }
 
-let connectors = (isConnectorsEnabled, isLiveMode, ~permissionJson) => {
+let paymentProcessor = (isLiveMode, permissionJson) => {
+  SubLevelLink({
+    name: "Payment Processor",
+    link: `/connectors`,
+    access: permissionJson.merchantConnectorAccountRead,
+    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
+      ~processorList=isLiveMode
+        ? ConnectorUtils.connectorListForLive
+        : ConnectorUtils.connectorList,
+      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    ),
+  })
+}
+
+let payoutConnectors = (~permissionJson) => {
+  SubLevelLink({
+    name: "Payout Processors",
+    link: `/payoutconnectors`,
+    access: permissionJson.merchantConnectorAccountRead,
+    searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
+      ~processorList=ConnectorUtils.payoutConnectorList,
+      ~getNameFromString=ConnectorUtils.getConnectorNameString,
+    ),
+  })
+}
+
+let fraudAndRisk = (~permissionJson) => {
+  SubLevelLink({
+    name: "Fraud & Risk",
+    link: `/fraud-risk-management`,
+    access: permissionJson.merchantConnectorAccountRead,
+    searchOptions: [],
+  })
+}
+
+let connectors = (
+  isConnectorsEnabled,
+  ~isLiveMode,
+  ~isFrmEnabled,
+  ~isPayoutsEnabled,
+  ~permissionJson,
+) => {
+  let connectorLinkArray = [paymentProcessor(isLiveMode, permissionJson)]
+
+  if isPayoutsEnabled {
+    connectorLinkArray->Array.push(payoutConnectors(~permissionJson))->ignore
+  }
+
+  if isFrmEnabled {
+    connectorLinkArray->Array.push(fraudAndRisk(~permissionJson))->ignore
+  }
+
   isConnectorsEnabled
-    ? Link({
-        name: "Processors",
-        link: `/connectors`,
+    ? Section({
+        name: "Connectors",
         icon: "connectors",
-        access: permissionJson.merchantConnectorAccountRead,
-        searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-          ~processorList=isLiveMode
-            ? ConnectorUtils.connectorListForLive
-            : ConnectorUtils.connectorList,
-          ~getNameFromString=ConnectorUtils.getConnectorNameString,
-        ),
+        showSection: true,
+        links: connectorLinkArray,
       })
     : emptyComponent
 }
@@ -323,33 +368,6 @@ let developers = (isDevelopersEnabled, userRole, systemMetrics, ~permissionJson)
     : emptyComponent
 }
 
-let fraudAndRisk = (isfraudAndRiskEnabled, ~permissionJson) => {
-  isfraudAndRiskEnabled
-    ? Link({
-        name: "Fraud & Risk",
-        icon: "shield-alt",
-        link: `/fraud-risk-management`,
-        access: permissionJson.merchantConnectorAccountRead,
-        searchOptions: [],
-      })
-    : emptyComponent
-}
-
-let payoutConnectors = (isPayoutConnectorsEnabled, ~permissionJson) => {
-  isPayoutConnectorsEnabled
-    ? Link({
-        name: "Payout Processors",
-        link: `/payoutconnectors`,
-        icon: "connectors",
-        access: permissionJson.merchantConnectorAccountRead,
-        searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
-          ~processorList=ConnectorUtils.payoutConnectorList,
-          ~getNameFromString=ConnectorUtils.getConnectorNameString,
-        ),
-      })
-    : emptyComponent
-}
-
 let reconTag = (recon, isReconEnabled) =>
   recon
     ? Link({
@@ -383,11 +401,9 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     productionAccess->productionAccessComponent,
     default->home,
     default->operations(~permissionJson),
+    default->connectors(~isLiveMode, ~isFrmEnabled=frm, ~isPayoutsEnabled=payOut, ~permissionJson),
     default->analytics(userJourneyAnalyticsFlag, ~permissionJson),
-    default->connectors(isLiveMode, ~permissionJson),
     default->workflow(isSurchargeEnabled, ~permissionJson),
-    frm->fraudAndRisk(~permissionJson),
-    payOut->payoutConnectors(~permissionJson),
     recon->reconTag(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),
     settings(
