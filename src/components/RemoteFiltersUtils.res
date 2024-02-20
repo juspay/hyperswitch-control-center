@@ -154,7 +154,7 @@ let getStrFromJson = (key, val) => {
   switch val->JSON.Classify.classify {
   | String(str) => str
   | Array(array) => array->Array.length > 0 ? `[${array->Array.joinWithUnsafe(",")}]` : ""
-  | Number(num) => key === "offset" ? "0" : num->Float.toInt->string_of_int
+  | Number(num) => key === "offset" ? "0" : num->Float.toInt->Int.toString
   | _ => ""
   }
 }

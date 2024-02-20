@@ -62,12 +62,12 @@ module Configure3DSRule = {
         let notFirstRule = ruleInput.value->LogicUtils.getArrayFromJson([])->Array.length > 1
         let rule = ruleInput.value->JSON.Decode.array->Option.getOr([])
         let keyExtractor = (index, _rule, isDragging) => {
-          let id = {`algorithm.rules[${string_of_int(index)}]`}
+          let id = {`algorithm.rules[${Int.toString(index)}]`}
           let i = 1
           <AdvancedRouting.Wrapper
-            key={index->string_of_int}
+            key={index->Int.toString}
             id
-            heading={`Rule ${string_of_int(index + i)}`}
+            heading={`Rule ${Int.toString(index + i)}`}
             onClickAdd={_ => addRule(index, false)}
             onClickCopy={_ => addRule(index, true)}
             onClickRemove={_ => removeRule(index)}
@@ -225,7 +225,7 @@ let make = () => {
             let ruleDict = rule->LogicUtils.getDictFromJsonObject
             if !RoutingUtils.validateConditionsFor3ds(ruleDict) {
               errors->Dict.set(
-                `Rule ${(i + 1)->string_of_int} - Condition`,
+                `Rule ${(i + 1)->Int.toString} - Condition`,
                 `Invalid`->JSON.Encode.string,
               )
             }

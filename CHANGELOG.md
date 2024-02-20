@@ -3,6 +3,30 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.19.0
+
+### Features
+
+- Switch merchant API Recoil Addition ([#417](https://github.com/juspay/hyperswitch-control-center/pull/417)) ([`4207423`](https://github.com/juspay/hyperswitch-control-center/commit/4207423f6f28bb6e89581c0a8481b77bac3c6fe3))
+
+### Miscellaneous Tasks
+
+- Code changes Int.ToString added ([#407](https://github.com/juspay/hyperswitch-control-center/pull/407)) ([`ad6c0e8`](https://github.com/juspay/hyperswitch-control-center/commit/ad6c0e82f1c6660447a8e62e14aa42377f8e1b2d))
+
+**Full Changelog:** [`2024.02.18.0...2024.02.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.18.0...2024.02.19.0)
+
+- - -
+
+## 2024.02.18.0
+
+### Bug Fixes
+
+- Prod start command ([#414](https://github.com/juspay/hyperswitch-control-center/pull/414)) ([`4bdebb0`](https://github.com/juspay/hyperswitch-control-center/commit/4bdebb012b1bc9277723826cb6f27e51aa1a266c))
+
+**Full Changelog:** [`2024.02.16.0...2024.02.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.16.0...2024.02.18.0)
+
+- - -
+
 ## 2024.02.16.0
 
 ### Bug Fixes

@@ -68,7 +68,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
                     {formFields
                     ->Array.mapWithIndex((column, index) =>
                       <FormRenderer.FieldRenderer
-                        key={index->string_of_int}
+                        key={index->Int.toString}
                         fieldWrapperClass="w-full"
                         field={column->getFormField}
                         errorClass

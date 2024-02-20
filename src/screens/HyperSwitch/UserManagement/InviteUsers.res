@@ -354,7 +354,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
           {permissionInfo
           ->Array.mapWithIndex((ele, index) => {
             <RolePermissionValueRenderer
-              key={index->string_of_int}
+              key={index->Int.toString}
               heading={`${ele.module_} module`}
               description={ele.description}
               readWriteValues={ele.permissions}

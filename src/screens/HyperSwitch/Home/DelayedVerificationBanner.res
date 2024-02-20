@@ -7,7 +7,7 @@ let make = React.memo((~merchantId="", ~verificationDays) => {
   let showToast = ToastState.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let email = getFromMerchantDetails("email")
-  let verificationMessage = `${verificationDays->string_of_int} ${verificationDays === 1
+  let verificationMessage = `${verificationDays->Int.toString} ${verificationDays === 1
       ? "day"
       : "days"} to go!`
 

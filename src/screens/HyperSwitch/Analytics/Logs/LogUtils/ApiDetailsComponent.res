@@ -170,7 +170,7 @@ let make = (
     </div>
     <div
       className={`flex gap-6 items-start w-full py-3 px-3 cursor-pointer ${borderClass} -mt-5 mb-8`}
-      key={currentSelected->string_of_int}
+      key={currentSelected->Int.toString}
       onClick={_ => {
         setLogDetails(_ => {
           response: responseObject,

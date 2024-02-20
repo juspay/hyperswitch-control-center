@@ -26,7 +26,7 @@ module EvidenceUploadForm = {
       })
     }
 
-    <div className="flex justify-between items-center" key={index->string_of_int}>
+    <div className="flex justify-between items-center" key={index->Int.toString}>
       <div className="flex gap-2">
         <Icon name="file-icon" size=22 />
         <p> {uploadEvidenceType->stringReplaceAll("_", " ")->capitalizeString->React.string} </p>
@@ -36,7 +36,7 @@ module EvidenceUploadForm = {
           <p className="text-blue-700 underline cursor-pointer">
             {"Upload"->React.string}
             <input
-              key={string_of_int(index)}
+              key={Int.toString(index)}
               type_="file"
               accept=".pdf,.csv,.img,.jpeg"
               onChange={ev => ev->handleBrowseChange(uploadEvidenceType)}
