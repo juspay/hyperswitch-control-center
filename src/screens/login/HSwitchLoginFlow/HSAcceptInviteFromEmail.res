@@ -11,7 +11,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
 
   let emailVerifyUpdate = async body => {
     try {
-      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACTIVATE_FROM_EMAIL, ())
+      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACCEPT_INVITE_FROM_EMAIL, ())
       let res = await updateDetails(url, body, Post, ())
       let email = res->JSON.Decode.object->Option.getOr(Dict.make())->getString("email", "")
       let token = HyperSwitchAuthUtils.parseResponseJson(
@@ -80,7 +80,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
       </div>
     } else {
       <div className="h-full w-full flex justify-center items-center text-white opacity-50">
-        {"Activating... You will be redirecting to the Dashboard.."->React.string}
+        {"Accepting invite... You will be redirecting to the Dashboard.."->React.string}
       </div>
     }}
   </HSwitchUtils.BackgroundImageWrapper>
