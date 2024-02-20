@@ -397,9 +397,12 @@ module QuickStartModule = {
 
 @react.component
 let make = () => {
-  <div className="w-full flex flex-col gap-14">
-    <QuickStartModule />
-    <RecipesAndPlugins />
-    <Resources />
+  <div className="flex flex-col gap-5">
+    <AcceptInviteHome />
+    <div className="w-full flex flex-col gap-14">
+      <QuickStartModule />
+      <RecipesAndPlugins />
+      <Resources />
+    </div>
   </div>
 }

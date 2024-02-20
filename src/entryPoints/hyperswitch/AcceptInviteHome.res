@@ -90,6 +90,7 @@ let make = () => {
           setShowModal
           paddingClass=""
           closeOnOutsideClick=true
+          onCloseClickCustomFun={_ => setAcceptedMerchantId(_ => [])}
           modalHeading="Pending Invitations"
           modalHeadingDescription="Please accept your pending merchant invitations"
           modalClass="w-1/2 m-auto !bg-white"
