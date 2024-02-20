@@ -6,7 +6,7 @@ describe("Processors Create Module", () => {
     cy.get("[data-testid=processors]").click({ force: true });
     cy.url().should("eq", "http://localhost:9000/connectors");
     cy.get("[data-testid=connect_a_test_connector]").contains(
-      "Connect a test connector",
+      "Connect a test processor",
     );
     cy.get("[data-testid=paypal_test]").click({ force: true });
     cy.get('input[name="connector_account_details.api_key"]').clear();

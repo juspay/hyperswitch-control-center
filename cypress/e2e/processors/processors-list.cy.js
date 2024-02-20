@@ -15,7 +15,7 @@ describe("Processors Landing Module", () => {
       "Connect and manage payment processors to enable payment acceptance",
     ).should("be.visible");
     cy.get("[data-testid=connect_a_new_connector]").contains(
-      "Connect a new connector",
+      "Connect a new processor",
     );
     cy.get("[data-testid=search-processor]")
       .type("stripe", { force: true })

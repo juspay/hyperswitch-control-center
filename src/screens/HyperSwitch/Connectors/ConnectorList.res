@@ -221,11 +221,11 @@ module NewProcessorCards = {
       <div className="flex flex-col gap-4">
         {if showIcons {
           <>
-            {connectorListFiltered->iconsConnectors("Connect a new connector", true, ())}
+            {connectorListFiltered->iconsConnectors("Connect a new processor", true, ())}
             {<RenderIf condition={featureFlagDetails.testProcessors && !isPayoutFlow}>
               {featureFlagDetails.testProcessors
               ->dummyConnectorList
-              ->iconsConnectors("Connect a test connector", false, ~showSearch=false, ())}
+              ->iconsConnectors("Connect a test processor", false, ~showSearch=false, ())}
             </RenderIf>}
           </>
         } else {
@@ -233,9 +233,9 @@ module NewProcessorCards = {
             <RenderIf condition={featureFlagDetails.testProcessors && !isPayoutFlow}>
               {featureFlagDetails.testProcessors
               ->dummyConnectorList
-              ->descriptedConnectors("Connect a test connector", false, ~showSearch=false, ())}
+              ->descriptedConnectors("Connect a test processor", false, ~showSearch=false, ())}
             </RenderIf>
-            {connectorListFiltered->descriptedConnectors("Connect a new connector", true, ())}
+            {connectorListFiltered->descriptedConnectors("Connect a new processor", true, ())}
           </>
         }}
       </div>
@@ -315,7 +315,7 @@ let make = (~isPayoutFlow=false) => {
 
   <div>
     <PageUtils.PageHeading
-      title={isPayoutFlow ? "Payout Processors" : `Processors`}
+      title={isPayoutFlow ? "Payout Processors" : `Payment Processors`}
       subTitle={isPayoutFlow
         ? "Connect and manage payout processors for disbursements and settlements"
         : "Connect and manage payment processors to enable payment acceptance"}
