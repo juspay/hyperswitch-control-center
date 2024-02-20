@@ -26,17 +26,17 @@ module ConfigInfo = {
   let make = (~frmConfigs) => {
     frmConfigs
     ->Array.mapWithIndex((config, i) => {
-      <div className="grid grid-cols-2 md:w-1/2 ml-12 my-12" key={i->string_of_int}>
+      <div className="grid grid-cols-2 md:w-1/2 ml-12 my-12" key={i->Int.toString}>
         <h4 className="text-lg font-semibold"> {config.gateway->snakeToTitle->React.string} </h4>
         <div>
           {config.payment_methods
           ->Array.mapWithIndex((paymentMethod, ind) => {
-            <div key={ind->string_of_int}>
+            <div key={ind->Int.toString}>
               {paymentMethod.payment_method_types
               ->Array.mapWithIndex(
                 (paymentMethodType, index) => {
                   <InfoField
-                    key={index->string_of_int}
+                    key={index->Int.toString}
                     label={paymentMethodType.payment_method_type}
                     flowTypeValue={paymentMethodType.flow}
                     actionTypeValue={paymentMethodType.action}

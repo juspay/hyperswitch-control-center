@@ -3,7 +3,7 @@ type toastType =
   | ToastWarning
   | ToastInfo
   | ToastSuccess
-  | ToastReject
+
 type toastProps = {
   toastKey: string,
   message: string,

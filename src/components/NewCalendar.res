@@ -537,7 +537,7 @@ let make = (
         <div className="flex flex-row justify-between">
           {heading
           ->Array.mapWithIndex((item, i) => {
-            <div className="w-10" key={string_of_int(i)}>
+            <div className="w-10" key={Int.toString(i)}>
               <div
                 className="flex flex-1 justify-center pb-2.5 pt-0.5 text-jp-gray-700 dark:text-jp-gray-text_darktheme dark:text-opacity-50">
                 {React.string(isMobileView ? item->String.charAt(0) : item)}

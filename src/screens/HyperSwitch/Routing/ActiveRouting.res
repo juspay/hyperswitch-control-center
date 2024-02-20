@@ -186,7 +186,7 @@ module LevelWiseRoutingSection = {
         {types
         ->Array.mapWithIndex((value, index) =>
           <div
-            key={index->string_of_int}
+            key={index->Int.toString}
             className="flex flex-1 flex-col  bg-white border rounded px-5 py-5 gap-8">
             <div className="flex flex-1 flex-col gap-7">
               <div className="flex w-full items-center flex-wrap justify-between ">
@@ -217,7 +217,7 @@ let make = (~routingType: array<JSON.t>) => {
     {routingType
     ->Array.mapWithIndex((ele, i) => {
       let id = ele->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
-      <ActiveSection key={i->string_of_int} activeRouting={ele} activeRoutingId={id} />
+      <ActiveSection key={i->Int.toString} activeRouting={ele} activeRoutingId={id} />
     })
     ->React.array}
   </div>

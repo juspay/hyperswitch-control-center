@@ -63,7 +63,7 @@ module OrderInfo = {
             className={`flex flex-wrap ${justifyClassName} dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
             {detailsFields
             ->Array.mapWithIndex((colType, i) => {
-              <div className=widthClass key={i->string_of_int}>
+              <div className=widthClass key={i->Int.toString}>
                 <DisplayKeyValueParams
                   heading={getHeading(colType)}
                   value={getCell(data, colType, connectorList->Option.getOr([]))}
@@ -536,7 +536,7 @@ module FraudRiskBannerDetails = {
         className={`flex flex-wrap dark:bg-jp-gray-lightgray_background dark:border-jp-gray-no_data_border`}>
         {frmColumns
         ->Array.mapWithIndex((colType, i) => {
-          <div className="w-1/3" key={i->string_of_int}>
+          <div className="w-1/3" key={i->Int.toString}>
             <DisplayKeyValueParams
               heading={getFrmHeading(colType)}
               value={getFrmCell(order, colType)}

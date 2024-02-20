@@ -34,11 +34,11 @@ module HomePageHorizontalStepper = {
     <div className="flex w-full gap-2 justify-evenly">
       {stepperItemsArray
       ->Array.mapWithIndex((value, index) => {
-        <div className="flex flex-col gap-2.5 w-full" key={index->string_of_int}>
+        <div className="flex flex-col gap-2.5 w-full" key={index->Int.toString}>
           <div className="flex items-center gap-2">
             <span
               className={`h-6 w-6 flex items-center justify-center border-2 rounded-md font-semibold ${index->getStepperStyle} ${getTextStyle}`}>
-              {(index + 1)->string_of_int->React.string}
+              {(index + 1)->Int.toString->React.string}
             </span>
             <UIUtils.RenderIf condition={index !== stepperItemsArray->Array.length - 1}>
               <div className="relative w-full">
@@ -341,7 +341,7 @@ module Resources = {
           ->Array.mapWithIndex((item, index) => {
             let cursorStyles = PermissionUtils.cursorStyles(item.access)
             <ACLDiv
-              key={index->string_of_int}
+              key={index->Int.toString}
               permission=item.access
               isRelative=false
               contentAlign=Default

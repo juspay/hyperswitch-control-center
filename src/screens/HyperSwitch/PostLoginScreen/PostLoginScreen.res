@@ -10,7 +10,7 @@ module SurveyComponent = {
     <div className="flex flex-col gap-2 h-full ">
       <div className="flex flex-col gap-2">
         <p className="text-fs-12 text-jp-grey-700 opacity-50">
-          {`${(currentStep + 1)->string_of_int} of 3`->React.string}
+          {`${(currentStep + 1)->Int.toString} of 3`->React.string}
         </p>
         <div className="flex gap-2">
           <p className="text-fs-20 text-jp-grey-700 font-semibold">
@@ -147,7 +147,7 @@ let make = () => {
           <FramerMotion.AnimatePresence initial={false} custom={currentStep}>
             <Form onSubmit initialValues={initialValueDict} formClass="!w-full">
               <FramerMotion.Motion.Div
-                key={currentStep->string_of_int}
+                key={currentStep->Int.toString}
                 initial={{opacity: 0, x: xPositionBasedOnDirection}}
                 animate={{opacity: 1, x: 0}}
                 exit={{opacity: 0, x: -100}}

@@ -27,7 +27,7 @@ let make = (~url, ~className, ~loading, ~height=700, ~width=800, ~error) => {
     {Array.fromInitializer(~length=numPages, i => i + 1)
     ->Array.mapWithIndex((ele, index) => {
       <Page
-        key={`page_${index->string_of_int}`}
+        key={`page_${index->Int.toString}`}
         pageNumber={ele}
         renderAnnotationLayer={true}
         renderTextLayer={false}

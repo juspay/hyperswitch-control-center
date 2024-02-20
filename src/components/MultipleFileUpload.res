@@ -225,7 +225,7 @@ let make = (
         }}>
         {if !isDisabled {
           <input
-            key={string_of_int(key)}
+            key={Int.toString(key)}
             type_="file"
             accept={fileType}
             hidden=true

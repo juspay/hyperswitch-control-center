@@ -97,7 +97,7 @@ module FormField = {
         {options
         ->Array.mapWithIndex((option, i) => {
           <RadioSection
-            key={i->string_of_int} option paymentMethodTypeInfo frmConfigs sectionType setConfigJson
+            key={i->Int.toString} option paymentMethodTypeInfo frmConfigs sectionType setConfigJson
           />
         })
         ->React.array}
@@ -213,11 +213,11 @@ module CheckBoxRenderer = {
       </div>
       {frmConfigInfo.payment_methods
       ->Array.mapWithIndex((paymentMethodInfo, index) => {
-        <UIUtils.RenderIf condition={isOpen} key={index->string_of_int}>
+        <UIUtils.RenderIf condition={isOpen} key={index->Int.toString}>
           {paymentMethodInfo.payment_method_types
           ->Array.mapWithIndex((paymentMethodTypeInfo, i) => {
             <Accordion
-              key={i->string_of_int}
+              key={i->Int.toString}
               initialExpandedArray=[0]
               accordion={[
                 {
@@ -313,7 +313,7 @@ module PaymentMethodsRenderer = {
         {frmConfigs
         ->Array.mapWithIndex((configInfo, i) => {
           <CheckBoxRenderer
-            key={i->string_of_int}
+            key={i->Int.toString}
             frmConfigInfo={configInfo}
             frmConfigs
             connectorPaymentMethods={connectorConfig->Dict.get(configInfo.gateway)}

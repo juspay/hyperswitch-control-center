@@ -62,7 +62,7 @@ let make = (~children) => {
     <div>
       {openModals
       ->Array.mapWithIndex((modalProps, i) => {
-        <Modal key={string_of_int(i)} modalProps index=i hideModalAtIndex />
+        <Modal key={Int.toString(i)} modalProps index=i hideModalAtIndex />
       })
       ->React.array}
     </div>
