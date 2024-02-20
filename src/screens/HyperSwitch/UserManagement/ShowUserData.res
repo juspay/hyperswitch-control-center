@@ -72,6 +72,7 @@ module UserUtilsPopover = {
                           heading: `Confirm Deletion!`,
                           description: React.string(`Are you sure you want to delete this user? Press Confirm to delete the user.`),
                           handleConfirm: {text: "Confirm", onClick: _ => deleteUser()->ignore},
+                          handleCancel: {text: "Back"},
                         })
                       }}
                     />
