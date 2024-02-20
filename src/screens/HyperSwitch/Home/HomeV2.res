@@ -397,9 +397,15 @@ module QuickStartModule = {
 
 @react.component
 let make = () => {
-  <div className="w-full flex flex-col gap-14">
-    <QuickStartModule />
-    <RecipesAndPlugins />
-    <Resources />
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  <div className="flex flex-col gap-5">
+    <UIUtils.RenderIf condition={featureFlagDetails.acceptInvite}>
+      <AcceptInviteHome />
+    </UIUtils.RenderIf>
+    <div className="w-full flex flex-col gap-14">
+      <QuickStartModule />
+      <RecipesAndPlugins />
+      <Resources />
+    </div>
   </div>
 }
