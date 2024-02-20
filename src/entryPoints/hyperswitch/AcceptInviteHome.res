@@ -13,8 +13,7 @@ let make = () => {
   React.useEffect1(() => {
     let filteredSwitchMerchantList = switchMerchantListValue->Array.filter(ele => !ele.is_active)
     setMerchantListValue(_ => filteredSwitchMerchantList)
-    let arr = Array.make(~length=filteredSwitchMerchantList->Array.length, false)
-    setAcceptedMerchantId(_ => arr)
+    setAcceptedMerchantId(_ => Array.make(~length=filteredSwitchMerchantList->Array.length, false))
     None
   }, [switchMerchantListValue])
 
@@ -89,8 +88,8 @@ let make = () => {
         setShowModal
         paddingClass=""
         closeOnOutsideClick=true
-        modalHeading="Welcome aboard! Let's get started"
-        modalHeadingDescription="Start by creating your business name"
+        modalHeading="Pending Invitations"
+        modalHeadingDescription="Please accept your pending merchant invitations"
         modalClass="w-1/2 m-auto !bg-white"
         childClass="my-5 mx-4 overflow-scroll !h-[35%]">
         <div className="flex flex-col gap-4">
