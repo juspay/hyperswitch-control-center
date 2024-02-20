@@ -42,7 +42,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
   }
 
   React.useEffect0(() => {
-    let body = HyperSwitchAuthUtils.generateBody(url)
+    let body = HyperSwitchAuthUtils.generateBodyForEmailRedirection(url)
     emailVerifyUpdate(body)->ignore
     None
   })

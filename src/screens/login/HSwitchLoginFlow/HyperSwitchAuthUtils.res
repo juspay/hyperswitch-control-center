@@ -458,10 +458,8 @@ let errorSubCodeMapper = (subCode: string) => {
   }
 }
 
-let generateBody = (url: RescriptReactRouter.url) => {
-  let body = Dict.make()
-  let val = url.search->LogicUtils.getDictFromUrlSearchParams->Dict.get("token")->Option.getOr("")
-
-  body->Dict.set("token", val->JSON.Encode.string)
-  body->JSON.Encode.object
+let generateBodyForEmailRedirection = (url: RescriptReactRouter.url) => {
+  let tokenFromUrl =
+    url.search->LogicUtils.getDictFromUrlSearchParams->Dict.get("token")->Option.getOr("")
+  [("token", tokenFromUrl->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
 }

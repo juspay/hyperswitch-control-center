@@ -21,7 +21,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
       )
 
       if !(token->isEmptyString) && !(email->isEmptyString) {
-        setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
+        setAuthStatus(LoggedIn(getDummyAuthInfoForToken(token)))
         setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
         RescriptReactRouter.replace(`${HSwitchGlobalVars.hyperSwitchFEPrefix}/home`)
       } else {
@@ -38,7 +38,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
   }
 
   React.useEffect0(() => {
-    let body = HyperSwitchAuthUtils.generateBody(url)
+    let body = HyperSwitchAuthUtils.generateBodyForEmailRedirection(url)
     emailVerifyUpdate(body)->ignore
     None
   })
@@ -73,7 +73,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
             customButtonStyle="cursor-pointer cursor-pointer w-5 rounded-md"
             onClick={_ => {
               RescriptReactRouter.replace(`${HSwitchGlobalVars.hyperSwitchFEPrefix}/login`)
-              setAuthType(_ => HyperSwitchAuthTypes.LoginWithEmail)
+              setAuthType(_ => LoginWithEmail)
             }}
           />
         </div>
