@@ -7,8 +7,12 @@ beforeEach(() => {
 });
 describe("Processors Create Module", () => {
   it("should successfully create the paypal test processor", () => {
-    cy.get("[data-testid=processors]").click({ force: true });
-    cy.url().should("eq", "http://localhost:9000/connectors");
+    cy.url().should("eq", "http://localhost:9000/home");
+    cy.get("[data-testid=connectors]")
+      .find(".justify-center")
+      .click({ force: true });
+    cy.get("[data-testid=paymentprocessor]").click({ force: true });
+
     cy.get("[data-testid=connect_a_test_connector]").contains(
       "Connect a test connector",
     );
@@ -42,8 +46,10 @@ describe("Processors Create Module", () => {
   it("should successfully delete the paypal test processor", () => {
     cy.intercept("/accounts/*").as("getAccount");
     cy.wait("@getAccount").then(() => {
-      cy.get("[data-testid=processors]").click({ force: true });
-      cy.url().should("eq", "http://localhost:9000/connectors");
+      cy.get("[data-testid=connectors]")
+        .find(".justify-center")
+        .click({ force: true });
+      cy.get("[data-testid=paymentprocessor]").click({ force: true });
       const targetValue = "PayPal Test";
       cy.get("table")
         .find("td")
@@ -71,7 +77,10 @@ describe("Processors Create Module", () => {
   });
 
   it("should successfully land in the process list page", () => {
-    cy.get("[data-testid=processors]").click({ force: true });
+    cy.get("[data-testid=connectors]")
+      .find(".justify-center")
+      .click({ force: true });
+    cy.get("[data-testid=paymentprocessor]").click({ force: true });
     cy.url().should("eq", "http://localhost:9000/connectors");
     cy.contains("Processors").should("be.visible");
     cy.contains(
