@@ -300,7 +300,7 @@ module NestedSectionItem = {
           ->Array.mapWithIndex((subLevelItem, index) => {
             let isSelected = subLevelItem->isSubLevelItemSelected
             <NestedSidebarItem
-              key={string_of_int(index)}
+              key={Int.toString(index)}
               isSelected
               isSideBarExpanded
               isSectionExpanded
@@ -554,22 +554,18 @@ let make = (
             | RemoteLink(record)
             | Link(record) => {
                 let isSelected = linkSelectionCheck(firstPart, record.link)
-                <SidebarItem
-                  key={string_of_int(index)} tabInfo isSelected isExpanded={isExpanded}
-                />
+                <SidebarItem key={Int.toString(index)} tabInfo isSelected isExpanded={isExpanded} />
               }
 
             | LinkWithTag(record) => {
                 let isSelected = linkSelectionCheck(firstPart, record.link)
-                <SidebarItem
-                  key={string_of_int(index)} tabInfo isSelected isExpanded={isExpanded}
-                />
+                <SidebarItem key={Int.toString(index)} tabInfo isSelected isExpanded={isExpanded} />
               }
 
             | Section(section) =>
-              <RenderIf condition={section.showSection} key={string_of_int(index)}>
+              <RenderIf condition={section.showSection} key={Int.toString(index)}>
                 <SidebarNestedSection
-                  key={string_of_int(index)}
+                  key={Int.toString(index)}
                   section
                   linkSelectionCheck
                   firstPart
@@ -579,7 +575,7 @@ let make = (
               </RenderIf>
             | Heading(headingOptions) =>
               <div
-                key={string_of_int(index)}
+                key={Int.toString(index)}
                 className={`text-xs font-semibold leading-5 text-[#5B6376] overflow-hidden border-l-2 rounded-sm border-transparent px-3 ${isExpanded
                     ? "mx-2"
                     : "mx-1"} mt-5 mb-3`}>
@@ -587,7 +583,7 @@ let make = (
               </div>
 
             | CustomComponent(customComponentOptions) =>
-              <RenderIf condition={isExpanded} key={string_of_int(index)}>
+              <RenderIf condition={isExpanded} key={Int.toString(index)}>
                 customComponentOptions.component
               </RenderIf>
             }

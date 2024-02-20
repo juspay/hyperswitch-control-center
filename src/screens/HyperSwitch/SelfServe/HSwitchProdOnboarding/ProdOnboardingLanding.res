@@ -48,7 +48,7 @@ module CheckListSection = {
       <div className={"flex justify-between "}>
         <div className="flex gap-4">
           <p className={`${stepColor} font-bold`}>
-            {(sectionIndex + 1)->string_of_int->React.string}
+            {(sectionIndex + 1)->Int.toString->React.string}
           </p>
           <p className=unselectedSubHeading> {headerText->React.string} </p>
         </div>
@@ -59,7 +59,7 @@ module CheckListSection = {
       {checkListItems
       ->Array.mapWithIndex((value, index) => {
         <div
-          key={index->string_of_int}
+          key={index->Int.toString}
           className={`flex pl-10 gap-2 py-2 cursor-pointer ${value->selectedItemColor}`}>
           <Icon
             name={value->getIndexFromVariant < pageView->getIndexFromVariant
@@ -68,7 +68,7 @@ module CheckListSection = {
             size=14
           />
           <p
-            key={index->string_of_int}
+            key={index->Int.toString}
             className={`${value->getIndexFromVariant === pageView->getIndexFromVariant
                 ? selectedNormalText
                 : unselectedNormalText}  `}>
@@ -119,7 +119,7 @@ module SidebarChecklist = {
       <div className=dividerColor />
       {updatedCheckList
       ->Array.mapWithIndex((items, sectionIndex) =>
-        <div key={sectionIndex->string_of_int}>
+        <div key={sectionIndex->Int.toString}>
           <CheckListSection
             headerText={items.headerText}
             checkListItems={items.itemsVariants}

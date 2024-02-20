@@ -169,7 +169,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
         </div>
         {selectedOptions
         ->Array.mapWithIndex((item, i) => {
-          let key = string_of_int(i + 1)
+          let key = Int.toString(i + 1)
           <div key className="flex flex-row">
             <div
               className="w-min flex flex-row items-center justify-around gap-2 h-10 rounded-md  border border-jp-gray-500 dark:border-jp-gray-960
