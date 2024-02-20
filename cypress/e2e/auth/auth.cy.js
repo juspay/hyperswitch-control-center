@@ -1,4 +1,4 @@
-let username = `cypressquickstart+${Math.round(+new Date() / 1000)}@gmail.com`;
+let username = `cypress+${Math.round(+new Date() / 1000)}@gmail.com`;
 describe("Auth Module", () => {
   it("check the components in the sign up page", () => {
     cy.visit("http://localhost:9000/");
