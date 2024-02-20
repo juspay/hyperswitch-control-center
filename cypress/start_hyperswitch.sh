@@ -6,7 +6,7 @@ cd hyperswitch
 # sed 's|juspaydotin/hyperswitch-router:standalone|juspaydotin/hyperswitch-router:nightly-standalone|g' docker-compose.yml > docker-compose.tmp
 # mv docker-compose.tmp docker-compose.yml
 docker --version
-chmod +x /usr/local/bin/docker-compose
+# chmod +x /usr/local/bin/docker-compose
 # docker-compose
 # docker-compose --version
 # # Start Docker Compose services in detached mode
