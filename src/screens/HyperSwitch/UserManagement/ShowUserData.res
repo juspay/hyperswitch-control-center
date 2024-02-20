@@ -69,8 +69,8 @@ module UserUtilsPopover = {
                         panelProps["close"]()
                         showPopUp({
                           popUpType: (Warning, WithIcon),
-                          heading: `Confirm Deletion!`,
-                          description: React.string(`Are you sure you want to delete this user? Press Confirm to delete the user.`),
+                          heading: `Are you sure you want to delete this user?`,
+                          description: React.string(`This action cannot be undone. Deleting the user will permanently remove all associated data from this account. Press Confirm to delete.`),
                           handleConfirm: {text: "Confirm", onClick: _ => deleteUser()->ignore},
                           handleCancel: {text: "Back"},
                         })
