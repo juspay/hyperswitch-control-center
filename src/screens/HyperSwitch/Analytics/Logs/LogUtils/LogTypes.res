@@ -54,7 +54,7 @@ let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
         ->Dict.toArray
         ->Array.filter(entry => {
           let (key, _) = entry
-          PaymentLogsUtils.filteredKeys->Array.includes(key)->not
+          LogUtils.filteredKeys->Array.includes(key)->not
         })
         ->getJsonFromArrayOfJson
         ->JSON.stringify
