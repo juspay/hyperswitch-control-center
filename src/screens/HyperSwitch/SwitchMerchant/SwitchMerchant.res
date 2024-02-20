@@ -151,7 +151,7 @@ module ExternalUser = {
     React.useEffect2(() => {
       fetchMerchantIDs()
       None
-    }, (merchantDetailsTypedValue.merchant_name, switchMerchantList))
+    }, (merchantDetailsTypedValue.merchant_name, switchMerchantList->Array.length))
 
     open HeadlessUI
     <>
