@@ -14,6 +14,7 @@ module UserUtilsPopover = {
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
     let merchantEmail = HSLocalStorage.getFromMerchantDetails("email")
+    let showPopUp = PopUpState.useShowPopUp()
 
     let deleteUser = async () => {
       try {
@@ -28,7 +29,7 @@ module UserUtilsPopover = {
       }
     }
 
-    <UIUtils.RenderIf condition={infoValue.email !== merchantEmail}>
+    <RenderIf condition={infoValue.email !== merchantEmail}>
       <Popover className="relative inline-block text-left">
         {popoverProps => <>
           <Popover.Button
@@ -65,7 +66,13 @@ module UserUtilsPopover = {
                     <Navbar.MenuOption
                       text="Delete user"
                       onClick={_ => {
-                        deleteUser()->ignore
+                        panelProps["close"]()
+                        showPopUp({
+                          popUpType: (Warning, WithIcon),
+                          heading: `Confirm Deletion!`,
+                          description: React.string(`Are you sure you want to delete this user? Press Confirm to delete the user.`),
+                          handleConfirm: {text: "Confirm", onClick: _ => deleteUser()->ignore},
+                        })
                       }}
                     />
                   </RenderIf>
@@ -75,7 +82,7 @@ module UserUtilsPopover = {
           </Transition>
         </>}
       </Popover>
-    </UIUtils.RenderIf>
+    </RenderIf>
   }
 }
 
@@ -94,6 +101,7 @@ module UserHeading = {
     let status = infoValue.status->UserRoleEntity.statusToVariantMapper
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
     let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
+    let userPermissionJson = HyperswitchAtom.userPermissionAtom->Recoil.useRecoilValueFromAtom
 
     let resendInvite = async () => {
       try {
@@ -187,18 +195,20 @@ module UserHeading = {
             | _ => infoValue.status->String.toUpperCase->React.string
             }}
           </div>
-          <div className="flex items-center gap-2">
-            <RenderIf condition={status !== Active}>
-              <Button
-                text="Resend Invite"
-                buttonState
-                buttonType={Primary}
-                customButtonStyle="!px-2"
-                onClick={_ => resendInvite()->ignore}
-              />
-            </RenderIf>
-            <UserUtilsPopover infoValue setIsUpdateRoleSelected />
-          </div>
+          <RenderIf condition={userPermissionJson.usersWrite === Access}>
+            <div className="flex items-center gap-2">
+              <RenderIf condition={status !== Active}>
+                <Button
+                  text="Resend Invite"
+                  buttonState
+                  buttonType={Primary}
+                  customButtonStyle="!px-2"
+                  onClick={_ => resendInvite()->ignore}
+                />
+              </RenderIf>
+              <UserUtilsPopover infoValue setIsUpdateRoleSelected />
+            </div>
+          </RenderIf>
         </div>
       </RenderIf>
     </div>
