@@ -1,5 +1,5 @@
 {
-  "test_live_toggle": false,
+  "test_live_toggle": true,
   "is_live_mode": true,
   "magic_link": false,
   "production_access": false,
