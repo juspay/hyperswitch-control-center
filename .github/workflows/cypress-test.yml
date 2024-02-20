@@ -15,6 +15,10 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.AUTO_RELEASE_PAT }}
 
+      - name: Clear Docker cache
+        run: |
+          docker builder prune -af
+
       - name: Execute Shell Script
         run: |
           chmod +x cypress/start_hyperswitch.sh

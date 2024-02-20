@@ -49,9 +49,8 @@ describe("Prod quick start", () => {
     cy.get(".show-scrollbar").scrollTo(0, 300);
     cy.get("[data-selected-checkbox=NotSelected]").click({ force: true });
     cy.get("[data-button-for='accept&Proceed']").click({ force: true });
-    cy.get("[data-testid=adyen]").click();
-    cy.get("[data-button-for='proceed']").click({ force: true });
   });
+
   it("should successfully setup first processor", () => {
     cy.get("[data-button-for='accept&Proceed']").click({ force: true });
     cy.get("[data-testid=adyen]").click();
