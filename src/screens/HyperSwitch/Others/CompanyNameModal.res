@@ -6,6 +6,7 @@ let make = (~showModal, ~setShowModal) => {
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
   let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
+  let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
 
   let (isDisabled, setIsDisabled) = React.useState(_ => false)
 
@@ -26,6 +27,7 @@ let make = (~showModal, ~setShowModal) => {
           ("merchant_name", values->getMerchantNameFromJson->JSON.Encode.string),
         ]->getJsonFromArrayOfJson
       let merchantDetails = await updateDetails(accountUrl, body, Post, ())
+      let _ = await fetchSwitchMerchantList()
       setMerchantDetailsValue(._ => merchantDetails->JSON.stringify)
       showToast(~message=`Successfully updated business details`, ~toastType=ToastSuccess, ())
       setShowModal(_ => false)
