@@ -22,6 +22,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let fetchBusinessProfiles = MerchantAccountUtils.useFetchBusinessProfiles()
   let fetchMerchantAccountDetails = MerchantAccountUtils.useFetchMerchantDetails()
+  let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
   let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
   let enumDetails =
     enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
@@ -103,6 +104,7 @@ let make = () => {
 
   let setUpDashboard = async () => {
     try {
+      let _ = await fetchSwitchMerchantList()
       let _ = await Window.connectorWasmInit()
       if featureFlagDetails.permissionBasedModule {
         let _ = await fetchPermissions()

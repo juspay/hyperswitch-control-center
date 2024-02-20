@@ -1,41 +1,18 @@
-type switchMerchantListResponse = {
-  merchant_id: string,
-  merchant_name: string,
-}
-
-let convertListResponseToTypedResponse = json => {
-  open LogicUtils
-  json
-  ->getArrayFromJson([])
-  ->Array.filter(ele => ele->getDictFromJsonObject->getBool("is_active", false))
-  ->Array.map(ele => {
-    let dictOfElement = ele->getDictFromJsonObject
-    let merchantId = dictOfElement->getString("merchant_id", "")
-    let merchantName =
-      dictOfElement->getString("merchant_name", merchantId)->isNonEmptyString
-        ? dictOfElement->getString("merchant_name", merchantId)
-        : merchantId
-
-    {
-      merchant_id: merchantId,
-      merchant_name: merchantName,
-    }
-  })
-}
+open SwitchMerchantUtils
 
 module NewAccountCreationModal = {
   @react.component
-  let make = (~setShowModal, ~showModal, ~fetchMerchantIDs) => {
+  let make = (~setShowModal, ~showModal) => {
     open APIUtils
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
-
+    let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
     let createNewAccount = async values => {
       try {
         let url = getURL(~entityName=USERS, ~userType=#CREATE_MERCHANT, ~methodType=Fetch.Post, ())
         let body = values
         let _ = await updateDetails(url, body, Post, ())
-        let _ = await fetchMerchantIDs()
+        let _ = await fetchSwitchMerchantList()
         showToast(
           ~toastType=ToastSuccess,
           ~message="Account Created Successfully!",
@@ -146,41 +123,35 @@ module ExternalUser = {
   @react.component
   let make = (~switchMerchant, ~isAddMerchantEnabled) => {
     open UIUtils
-    open APIUtils
-    let fetchDetails = useGetMethod()
     let defaultMerchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
+    let switchMerchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.switchMerchantListAtom)
     let merchantDetailsTypedValue =
       HSwitchUtils.useMerchantDetailsValue()->MerchantAccountUtils.getMerchantDetails
-    let (selectedMerchantObject, setSelectedMerchantObject) = React.useState(_ => {
+    let defaultSelectedMerchantType = {
       merchant_id: defaultMerchantId,
       merchant_name: defaultMerchantId,
-    })
+      is_active: false,
+    }
     let (showModal, setShowModal) = React.useState(_ => false)
     let (options, setOptions) = React.useState(_ => [])
+    let (selectedMerchantObject, setSelectedMerchantObject) = React.useState(_ =>
+      defaultSelectedMerchantType
+    )
 
-    let fetchMerchantIDs = async () => {
-      let url = getURL(~entityName=USERS, ~userType=#SWITCH_MERCHANT, ~methodType=Get, ())
-      try {
-        let res = await fetchDetails(url)
-        let typedValueOfResponse = res->convertListResponseToTypedResponse
-        setOptions(_ => typedValueOfResponse)
-        let extractMerchantObject =
-          typedValueOfResponse
-          ->Array.find(ele => ele.merchant_id === defaultMerchantId)
-          ->Option.getOr({
-            merchant_id: defaultMerchantId,
-            merchant_name: defaultMerchantId,
-          })
-        setSelectedMerchantObject(_ => extractMerchantObject)
-      } catch {
-      | _ => ()
-      }
+    let fetchMerchantIDs = () => {
+      let filteredSwitchMerchantList = switchMerchantList->Array.filter(ele => ele.is_active)
+      setOptions(_ => filteredSwitchMerchantList)
+      let extractMerchantObject =
+        switchMerchantList
+        ->Array.find(ele => ele.merchant_id === defaultMerchantId)
+        ->Option.getOr(defaultSelectedMerchantType)
+      setSelectedMerchantObject(_ => extractMerchantObject)
     }
 
-    React.useEffect1(() => {
-      fetchMerchantIDs()->ignore
+    React.useEffect2(() => {
+      fetchMerchantIDs()
       None
-    }, [merchantDetailsTypedValue.merchant_name])
+    }, (merchantDetailsTypedValue.merchant_name, switchMerchantList))
 
     open HeadlessUI
     <>
@@ -248,7 +219,7 @@ module ExternalUser = {
           </div>}
       </Menu>
       <RenderIf condition={showModal}>
-        <NewAccountCreationModal setShowModal showModal fetchMerchantIDs />
+        <NewAccountCreationModal setShowModal showModal />
       </RenderIf>
     </>
   }
