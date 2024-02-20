@@ -45,4 +45,4 @@ jobs:
         with:
           install: false
           build: npm run build:test
-          start: npm run serve
+          start: npm run test:start
