@@ -19,7 +19,7 @@ module HomePageHorizontalStepper = {
     let getStepperStyle = index => {
       if index < step {
         "bg-white text-pink border-blue-700"
-      } else if index == step {
+      } else if index === step {
         "bg-blue-700 text-white border-transparent"
       } else {
         "border-gray-500 text-gray-500"
