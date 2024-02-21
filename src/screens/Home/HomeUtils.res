@@ -342,6 +342,19 @@ let getGreeting = () => {
 
 let homepageStepperItems = ["Configure control center", "Integrate into your app", "Go Live"]
 
+let responseDataMapper = (res: JSON.t, mapper: (Dict.t<JSON.t>, string) => Js.Json.t) => {
+  open LogicUtils
+  let arrayFromJson = res->getArrayFromJson([])
+  let resDict = Dict.make()
+
+  arrayFromJson->Array.forEach(value => {
+    let value1 = value->getDictFromJsonObject
+    let key = value1->Dict.keysToArray->Array.get(0)->Option.getOr("")
+    resDict->Dict.set(key, value1->mapper(key))
+  })
+  resDict
+}
+
 let getValueMapped = (value, key) => {
   open LogicUtils
   let keyVariant = key->QuickStartUtils.stringToVariantMapperForUserData
@@ -365,15 +378,14 @@ let getValueMapped = (value, key) => {
   }
 }
 
-let responseDataMapper = (res: JSON.t) => {
+let getValueMappedForProd = (value, key) => {
   open LogicUtils
-  let arrayFromJson = res->getArrayFromJson([])
-  let resDict = Dict.make()
-
-  arrayFromJson->Array.forEach(value => {
-    let value1 = value->getDictFromJsonObject
-    let key = value1->Dict.keysToArray->Array.get(0)->Option.getOr("")
-    resDict->Dict.set(key, value1->getValueMapped(key))
-  })
-  resDict
+  let keyVariant = key->ProdOnboardingUtils.stringToVariantMapperForUserData
+  switch keyVariant {
+  | #ProductionAgreement
+  | #ConfigureEndpoint
+  | #SetupComplete =>
+    value->getBool(key, false)->JSON.Encode.bool
+  | #SetupProcessor => value->getJsonObjectFromDict(key)
+  }
 }

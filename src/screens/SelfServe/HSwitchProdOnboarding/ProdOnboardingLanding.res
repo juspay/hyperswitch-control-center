@@ -162,90 +162,43 @@ let make = () => {
   let userRole = HSLocalStorage.getFromUserDetails("user_role")
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let getSetupCompleteEnum = async () => {
+  let getSetupCompleteEnum = (prodEnums: ProdOnboardingTypes.prodOnboading) => {
     open LogicUtils
-    try {
-      let url = #SetupComplete->ProdOnboardingUtils.getProdOnboardingUrl
-      let response = await fetchDetails(url)
-      let setupCompleteResponse =
-        response
-        ->getArrayFromJson([])
-        ->Array.find(ele => {
-          ele->getDictFromJsonObject->getBool("SetupComplete", false)
-        })
-        ->Option.getOr(JSON.Encode.null)
-      if setupCompleteResponse->getDictFromJsonObject->getBool("SetupComplete", false) {
-        setDashboardPageState(_ => #HOME)
-        let baseUrlPath = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${routerUrl.path
-          ->List.toArray
-          ->Array.joinWith("/")}`
-        routerUrl.search->isNonEmptyString
-          ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)
-          : RescriptReactRouter.push(`${baseUrlPath}`)
-      } else {
-        RescriptReactRouter.push(urlPush)
-        setPageView(_ => SETUP_COMPLETED)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      }
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
+    if prodEnums.setupComplete {
+      setDashboardPageState(_ => #HOME)
+      let baseUrlPath = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${routerUrl.path
+        ->List.toArray
+        ->Array.joinWith("/")}`
+      routerUrl.search->isNonEmptyString
+        ? RescriptReactRouter.push(`${baseUrlPath}?${routerUrl.search}`)
+        : RescriptReactRouter.push(`${baseUrlPath}`)
+    } else {
+      RescriptReactRouter.push(urlPush)
+      setPageView(_ => SETUP_COMPLETED)
+      setScreenState(_ => PageLoaderWrapper.Success)
     }
   }
 
-  let getConfigureEndpointEnum = async () => {
-    open LogicUtils
-    try {
-      let url = #ConfigureEndpoint->ProdOnboardingUtils.getProdOnboardingUrl
-      let response = await fetchDetails(url)
-      let configureEndpointResponse =
-        response
-        ->getArrayFromJson([])
-        ->Array.find(ele => {
-          ele->getDictFromJsonObject->getBool("ConfigureEndpoint", false)
-        })
-        ->Option.getOr(JSON.Encode.null)
-
-      if configureEndpointResponse->getDictFromJsonObject->getBool("ConfigureEndpoint", false) {
-        getSetupCompleteEnum()->ignore
-      } else {
-        RescriptReactRouter.push(urlPush)
-        setPageView(_ => REPLACE_API_KEYS)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      }
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
+  let getConfigureEndpointEnum = (prodEnums: ProdOnboardingTypes.prodOnboading) => {
+    if prodEnums.configureEndpoint {
+      getSetupCompleteEnum(prodEnums)->ignore
+    } else {
+      RescriptReactRouter.push(urlPush)
+      setPageView(_ => REPLACE_API_KEYS)
+      setScreenState(_ => PageLoaderWrapper.Success)
     }
   }
 
-  let getSetupProcessorEnum = async () => {
+  let getSetupProcessorEnum = (prodEnums: ProdOnboardingTypes.prodOnboading) => {
     open LogicUtils
-    try {
-      let url = #SetupProcessor->ProdOnboardingUtils.getProdOnboardingUrl
-      let response = await fetchDetails(url)
-      let setupProcessorEnum =
-        response
-        ->getArrayFromJson([])
-        ->Array.find(ele => {
-          ele->getDictFromJsonObject->getDictfromDict("SetupProcessor") != Dict.make()
-        })
-        ->Option.getOr(JSON.Encode.null)
-
-      let connectorId =
-        setupProcessorEnum
-        ->getDictFromJsonObject
-        ->getDictfromDict("SetupProcessor")
-        ->getString("connector_id", "")
-
-      if connectorId->isNonEmptyString {
-        setConnectorID(_ => connectorId)
-        getConfigureEndpointEnum()->ignore
-      } else {
-        RescriptReactRouter.push(urlPush)
-        setPageView(_ => SELECT_PROCESSOR)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      }
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
+    let connectorId = prodEnums.setupProcessor.connector_id
+    if connectorId->isNonEmptyString {
+      setConnectorID(_ => connectorId)
+      getConfigureEndpointEnum(prodEnums)->ignore
+    } else {
+      RescriptReactRouter.push(urlPush)
+      setPageView(_ => SELECT_PROCESSOR)
+      setScreenState(_ => PageLoaderWrapper.Success)
     }
   }
 
@@ -259,7 +212,25 @@ let make = () => {
       setPreviewState(_ => Some(headerVariant->ProdOnboardingUtils.getPreviewState))
       RescriptReactRouter.replace(`prod-onboarding?name=${connectorName}`)
     } catch {
-    | _ => ()
+    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
+    }
+  }
+
+  let getStatus = async () => {
+    open ProdOnboardingUtils
+    open HomeUtils
+    try {
+      let url = `${getURL(
+          ~entityName=USERS,
+          ~userType=#USER_DATA,
+          ~methodType=Get,
+          (),
+        )}?keys=${prodOnboardingEnumIntialArray->Array.joinWithUnsafe(",")}`
+      let response = await fetchDetails(url)
+      let prodEnums = response->responseDataMapper(getValueMappedForProd)->getTypedValue
+      getSetupProcessorEnum(prodEnums)
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }
   }
 
@@ -277,7 +248,8 @@ let make = () => {
   }
 
   React.useEffect0(() => {
-    getSetupProcessorEnum()->ignore
+    // getSetupProcessorEnum()->ignore
+    getStatus()->ignore
     None
   })
 

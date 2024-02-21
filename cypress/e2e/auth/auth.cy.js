@@ -1,3 +1,4 @@
+let username = `cypress+${Math.round(+new Date() / 1000)}@gmail.com`;
 describe("Auth Module", () => {
   it("check the components in the sign up page", () => {
     cy.visit("http://localhost:9000/");
@@ -11,8 +12,7 @@ describe("Auth Module", () => {
   });
 
   it("check singup flow", () => {
-    const username = Cypress.env("CYPRESS_USERNAME");
-    const password = Cypress.env("CYPRESS_PASSWORD");
+    const password = "cypress98#";
     cy.visit("http://localhost:9000/");
     cy.get("#card-subtitle").click();
     cy.url().should("include", "/register");
@@ -33,8 +33,7 @@ describe("Auth Module", () => {
   });
 
   it("should successfully log in with valid credentials", () => {
-    const username = Cypress.env("CYPRESS_USERNAME");
-    const password = Cypress.env("CYPRESS_PASSWORD");
+    const password = "cypress98#";
     cy.visit("http://localhost:9000/login");
     cy.get("[data-testid=email]").type(username);
     cy.get("[data-testid=password]").type(password);
