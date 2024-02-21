@@ -1251,3 +1251,11 @@ let getDisplayNameForConnectors = connector => {
   | UnknownConnector(str) => str
   }
 }
+
+let getConnectorTypeArrayFromListConnectors = (
+  connectorsList: array<ConnectorTypes.connectorPayload>,
+) => {
+  connectorsList->Array.map(connectorDetail =>
+    connectorDetail.connector_name->getConnectorNameTypeFromString
+  )
+}
