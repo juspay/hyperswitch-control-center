@@ -40,12 +40,11 @@ let emailField = FormRenderer.makeFieldInfo(
     InputFields.textInput(
       ~input={
         ...input,
-        onChange: event => {
+        onChange: event =>
           ReactEvent.Form.target(event)["value"]
           ->String.trim
           ->Identity.stringToFormReactEvent
-          ->input.onChange
-        },
+          ->input.onChange,
       },
       ~placeholder="Enter your Email",
       ~autoComplete="off",
