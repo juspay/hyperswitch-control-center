@@ -11,10 +11,10 @@ describe("Processors Create Module", () => {
     cy.get("[data-testid=connectors]")
       .find(".justify-center")
       .click({ force: true });
-    cy.get("[data-testid=paymentprocessor]").click({ force: true });
+    cy.get("[data-testid=paymentprocessors]").click({ force: true });
 
-    cy.get("[data-testid=connect_a_test_connector]").contains(
-      "Connect a test connector",
+    cy.get("[data-testid=connect_a_test_processor]").contains(
+      "Connect a test processor",
     );
     cy.get("[data-testid=paypal_test]").click({ force: true });
     cy.get('input[name="connector_account_details.api_key"]').clear();
@@ -49,7 +49,7 @@ describe("Processors Create Module", () => {
       cy.get("[data-testid=connectors]")
         .find(".justify-center")
         .click({ force: true });
-      cy.get("[data-testid=paymentprocessor]").click({ force: true });
+      cy.get("[data-testid=paymentprocessors]").click({ force: true });
       const targetValue = "PayPal Test";
       cy.get("table")
         .find("td")
@@ -80,14 +80,14 @@ describe("Processors Create Module", () => {
     cy.get("[data-testid=connectors]")
       .find(".justify-center")
       .click({ force: true });
-    cy.get("[data-testid=paymentprocessor]").click({ force: true });
+    cy.get("[data-testid=paymentprocessors]").click({ force: true });
     cy.url().should("eq", "http://localhost:9000/connectors");
     cy.contains("Processors").should("be.visible");
     cy.contains(
       "Connect and manage payment processors to enable payment acceptance",
     ).should("be.visible");
-    cy.get("[data-testid=connect_a_new_connector]").contains(
-      "Connect a new connector",
+    cy.get("[data-testid=connect_a_new_processor]").contains(
+      "Connect a new processor",
     );
     cy.get("[data-testid=search-processor]")
       .type("stripe", { force: true })
