@@ -122,7 +122,7 @@ let operations = (isOperationsEnabled, ~permissionJson) => {
 
 let paymentProcessor = (isLiveMode, permissionJson) => {
   SubLevelLink({
-    name: "Payment Processor",
+    name: "Payment Processors",
     link: `/connectors`,
     access: permissionJson.merchantConnectorAccountRead,
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
