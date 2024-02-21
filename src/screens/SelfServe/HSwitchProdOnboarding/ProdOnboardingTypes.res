@@ -4,6 +4,13 @@ type sectionHeadingVariant = [
   | #ConfigureEndpoint
   | #SetupComplete
 ]
+type setupProcessor = {connector_id: string}
+type prodOnboading = {
+  configureEndpoint: bool,
+  productionAgreement: bool,
+  setupComplete: bool,
+  setupProcessor: setupProcessor,
+}
 
 type subsectionVariant =
   | SELECT_PROCESSOR
