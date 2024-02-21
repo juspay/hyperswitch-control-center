@@ -150,8 +150,8 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   }
 
   let determinePageState = () => {
-    switch (connector->getConnectorNameTypeFromString, featureFlagDetails.paypalAutomaticFlow) {
-    | (PAYPAL, true) =>
+    switch (connector->getConnectorNameTypeFromString(), featureFlagDetails.paypalAutomaticFlow) {
+    | (Processors(PAYPAL), true) =>
       PayPalFlowUtils.payPalPageState(
         ~setScreenState,
         ~url,
@@ -228,7 +228,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
                   link,
                 },
           ]
-          currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnectors}
+          currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnector}
           cursorStyle="cursor-pointer"
         />
       </UIUtils.RenderIf>
@@ -239,8 +239,8 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">
         {switch currentStep {
         | AutomaticFlow =>
-          switch connector->ConnectorUtils.getConnectorNameTypeFromString {
-          | PAYPAL =>
+          switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+          | Processors(PAYPAL) =>
             <ConnectPayPal
               connector isUpdateFlow setInitialValues initialValues setCurrentStep getPayPalStatus
             />

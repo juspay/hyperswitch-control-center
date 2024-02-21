@@ -213,9 +213,14 @@ module SelectConnectorGrid = {
       ->Array.map(connectorDict =>
         connectorDict
         ->LogicUtils.getString("connector_name", "")
-        ->ConnectorUtils.getConnectorNameTypeFromString
+        ->ConnectorUtils.getConnectorNameTypeFromString()
       )
-    let popularConnectorList = [STRIPE, PAYPAL, ADYEN, CHECKOUT]->Array.filter(connector => {
+    let popularConnectorList = [
+      Processors(STRIPE),
+      Processors(PAYPAL),
+      Processors(ADYEN),
+      Processors(CHECKOUT),
+    ]->Array.filter(connector => {
       !(typedConnectedConnectorList->Array.includes(connector))
     })
     let remainingConnectorList =
@@ -233,6 +238,7 @@ module SelectConnectorGrid = {
       selectedConnector === connector
         ? "border border-blue-700 bg-blue-700 bg-opacity-10 "
         : "border"
+
     <div className="flex flex-col gap-12">
       <UIUtils.RenderIf condition={popularConnectorList->Array.length > 0}>
         <div className="flex flex-col gap-4">
@@ -248,7 +254,7 @@ module SelectConnectorGrid = {
                 <div className="flex flex-col gap-2 items-start ">
                   <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-12 h-12" />
                   <p className=subheaderText>
-                    {connectorName->ConnectorUtils.getDisplayNameForConnectors->React.string}
+                    {connectorName->ConnectorUtils.getDisplayNameForConnector->React.string}
                   </p>
                 </div>
                 <Icon
@@ -276,7 +282,7 @@ module SelectConnectorGrid = {
                 <div className="flex gap-2 items-center ">
                   <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-8 h-8" />
                   <p className=subheaderText>
-                    {connectorName->ConnectorUtils.getDisplayNameForConnectors->React.string}
+                    {connectorName->ConnectorUtils.getDisplayNameForConnector->React.string}
                   </p>
                 </div>
                 <Icon
