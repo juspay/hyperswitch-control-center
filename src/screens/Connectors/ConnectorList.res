@@ -67,7 +67,7 @@ let make = (~isPayoutFlow=false) => {
 
   <div>
     <PageUtils.PageHeading
-      title={isPayoutFlow ? "Payout Processors" : `Processors`}
+      title={isPayoutFlow ? "Payout Processors" : `Payment Processors`}
       subTitle={isPayoutFlow
         ? "Connect and manage payout processors for disbursements and settlements"
         : "Connect and manage payment processors to enable payment acceptance"}
