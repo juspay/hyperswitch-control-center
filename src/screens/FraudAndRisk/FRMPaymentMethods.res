@@ -22,8 +22,6 @@ module RadioSection = {
         }
       | ActionType => paymentMethodTypeInfo.action = option
       }
-
-      Js.Console.warn(paymentMethodTypeInfo)
       setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
     }
 
@@ -98,22 +96,25 @@ module FormField = {
         </div>
       </div>
       <div className={`grid grid-cols-2 md:grid-cols-4 gap-4`}>
-        {sectionType == ActionType
-          ? <div className="flex items-center gap-2 break-all">
-              {paymentMethodTypeInfo.action->getActionTypeLabel->Jsx.string}
-            </div>
-          : options
-            ->Array.mapWithIndex((option, i) => {
-              <RadioSection
-                key={i->Int.toString}
-                option
-                paymentMethodTypeInfo
-                frmConfigs
-                sectionType
-                setConfigJson
-              />
-            })
-            ->React.array}
+        <UIUtils.RenderIf condition={sectionType == ActionType}>
+          <div className="flex items-center gap-2 break-all">
+            {paymentMethodTypeInfo.action->getActionTypeLabel->Jsx.string}
+          </div>
+        </UIUtils.RenderIf>
+        <UIUtils.RenderIf condition={sectionType != ActionType}>
+          {options
+          ->Array.mapWithIndex((option, i) => {
+            <RadioSection
+              key={i->Int.toString}
+              option
+              paymentMethodTypeInfo
+              frmConfigs
+              sectionType
+              setConfigJson
+            />
+          })
+          ->React.array}
+        </UIUtils.RenderIf>
       </div>
     </div>
   }
