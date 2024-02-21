@@ -20,7 +20,7 @@ let make = () => {
     setMerchantListValue(_ => filteredSwitchMerchantList)
     setAcceptedMerchantId(_ => Array.make(~length=filteredSwitchMerchantList->Array.length, false))
     None
-  }, [switchMerchantListValue->Array.length])
+  }, [switchMerchantListValue])
 
   let acceptInvite = async _ => {
     try {
