@@ -18,7 +18,7 @@ module HomePageHorizontalStepper = {
 
     let getStepperStyle = index => {
       if index < step {
-        "bg-white text-pink border-blue-700"
+        "bg-white border-blue-700"
       } else if index === step {
         "bg-blue-700 text-white border-transparent"
       } else {
@@ -42,9 +42,12 @@ module HomePageHorizontalStepper = {
           <div className="flex items-center gap-2">
             <span
               className={`h-6 w-7 flex items-center justify-center border-1 rounded-md font-semibold ${index->getStepperStyle} ${getTextStyle}`}>
-              {index < step
-                ? <Icon name="check" size=12 customIconColor="#006DF9" />
-                : (index + 1)->Int.toString->React.string}
+              <UIUtils.RenderIf condition={index < step}>
+                <Icon name="check" size=12 customIconColor="#006DF9" />
+              </UIUtils.RenderIf>
+              <UIUtils.RenderIf condition={index >= step}>
+                {(index + 1)->Int.toString->React.string}
+              </UIUtils.RenderIf>
             </span>
             <UIUtils.RenderIf condition={index <= stepperItemsArray->Array.length - 1}>
               <div className="relative w-full">
