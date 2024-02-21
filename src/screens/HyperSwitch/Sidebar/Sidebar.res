@@ -98,11 +98,15 @@ module SidebarItem = {
 
     let tabLinklement = switch tabInfo {
     | Link(tabOption) => {
+        Js.log("options")
         let {name, icon, link, access} = tabOption
         let redirectionLink = `${link}${getSearchParamByLink(link)}`
         <RenderIf condition={access !== NoAccess}>
           <Link to_=redirectionLink>
-            <AddDataAttributes attributes=[("data-testid", name->String.toLowerCase)]>
+            <AddDataAttributes
+              attributes=[
+                ("data-testid", name->String.replaceRegExp(%re("/\s/g"), "")->String.toLowerCase),
+              ]>
               <div
                 ref={sidebarItemRef->ReactDOM.Ref.domRef}
                 onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
@@ -200,7 +204,10 @@ module NestedSidebarItem = {
 
           <RenderIf condition={access !== NoAccess}>
             <Link to_={`${link}${getSearchParamByLink(link)}`}>
-              <AddDataAttributes attributes=[("data-testid", name->String.toLowerCase)]>
+              <AddDataAttributes
+                attributes=[
+                  ("data-testid", name->String.replaceRegExp(%re("/\s/g"), "")->String.toLowerCase),
+                ]>
                 <div
                   ref={nestedSidebarItemRef->ReactDOM.Ref.domRef}
                   onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
@@ -259,7 +266,10 @@ module NestedSectionItem = {
 
     let sectionExpandedAnimation = `rounded-sm transition duration-[250ms] ease-in-out`
 
-    <AddDataAttributes attributes=[("data-testid", section.name->String.toLowerCase)]>
+    <AddDataAttributes
+      attributes=[
+        ("data-testid", section.name->String.replaceRegExp(%re("/\s/g"), "")->String.toLowerCase),
+      ]>
       <div className={`transition duration-300`}>
         <div
           ref={sidebarNestedSectionRef->ReactDOM.Ref.domRef}

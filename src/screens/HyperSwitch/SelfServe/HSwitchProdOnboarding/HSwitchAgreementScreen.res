@@ -118,7 +118,9 @@ let make = () => {
               buttonSize={Small}
               customButtonStyle="!px-2 rounded-lg"
               onClick={_ =>
-                GlobalVars.isLocalhost ? setDashboardPageState(_ => #HOME) : downloadPDF()}
+                GlobalVars.isLocalhost
+                  ? setDashboardPageState(_ => #PROD_ONBOARDING)
+                  : downloadPDF()}
               buttonState
             />}
             toolTipPosition=ToolTip.Top

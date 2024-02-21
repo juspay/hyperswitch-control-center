@@ -1,10 +1,18 @@
+let username = `cypressprocessores+${Math.round(+new Date() / 1000)}@gmail.com`;
+before(() => {
+  cy.singup_curl(username, "cypress98#");
+});
 beforeEach(() => {
-  cy.login_UI();
+  cy.login_UI(username, "cypress98#");
 });
 describe("Processors Create Module", () => {
   it("should successfully create the paypal test processor", () => {
-    cy.get("[data-testid=processors]").click({ force: true });
-    cy.url().should("eq", "http://localhost:9000/connectors");
+    cy.url().should("eq", "http://localhost:9000/home");
+    cy.get("[data-testid=connectors]")
+      .find(".justify-center")
+      .click({ force: true });
+    cy.get("[data-testid=paymentprocessor]").click({ force: true });
+
     cy.get("[data-testid=connect_a_test_connector]").contains(
       "Connect a test connector",
     );
@@ -38,15 +46,27 @@ describe("Processors Create Module", () => {
   it("should successfully delete the paypal test processor", () => {
     cy.intercept("/accounts/*").as("getAccount");
     cy.wait("@getAccount").then(() => {
-      cy.get("[data-testid=processors]").click({ force: true });
-      cy.url().should("eq", "http://localhost:9000/connectors");
-      cy.get("table")
-        .find("tr")
-        .eq(1)
-        .find("td")
-        .eq(0)
-        .contains("PayPal Test")
+      cy.get("[data-testid=connectors]")
+        .find(".justify-center")
         .click({ force: true });
+      cy.get("[data-testid=paymentprocessor]").click({ force: true });
+      const targetValue = "PayPal Test";
+      cy.get("table")
+        .find("td")
+        .each(($td) => {
+          // Use .invoke('text') to get the text content of each td
+          cy.wrap($td)
+            .invoke("text")
+            .then((text) => {
+              // Check if the text content of the current td matches the target value
+              if (text === targetValue) {
+                // Perform actions/assertions on the found td
+                cy.wrap($td)
+                  .should("have.text", targetValue)
+                  .click({ force: true });
+              }
+            });
+        });
 
       cy.location("pathname").then((pathname) => {
         let mca_id = pathname.split("/")[2];
@@ -54,5 +74,26 @@ describe("Processors Create Module", () => {
         cy.visit("http://localhost:9000/connectors");
       });
     });
+  });
+
+  it("should successfully land in the process list page", () => {
+    cy.get("[data-testid=connectors]")
+      .find(".justify-center")
+      .click({ force: true });
+    cy.get("[data-testid=paymentprocessor]").click({ force: true });
+    cy.url().should("eq", "http://localhost:9000/connectors");
+    cy.contains("Processors").should("be.visible");
+    cy.contains(
+      "Connect and manage payment processors to enable payment acceptance",
+    ).should("be.visible");
+    cy.get("[data-testid=connect_a_new_connector]").contains(
+      "Connect a new connector",
+    );
+    cy.get("[data-testid=search-processor]")
+      .type("stripe", { force: true })
+      .should("have.value", "stripe");
+    cy.get("[data-testid=stripe]")
+      .find("img")
+      .should("have.attr", "src", "/Gateway/STRIPE.svg");
   });
 });
