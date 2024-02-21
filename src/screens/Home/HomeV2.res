@@ -400,18 +400,22 @@ let make = () => {
   let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
-  let showRecipesAndPlugins =
-    [
-      typedEnumValue.testPayment.payment_id->LogicUtils.isNonEmptyString,
-      typedEnumValue.integrationCompleted,
-      isProdIntentCompleted->Option.getOr(false),
-    ]->Array.includes(false)
 
   <div className="w-full flex flex-col gap-14">
     <QuickStartModule />
-    <UIUtils.RenderIf condition={!showRecipesAndPlugins}>
-      <RecipesAndPlugins />
-    </UIUtils.RenderIf>
+    <div>
+      {switch isProdIntentCompleted {
+      | Some(prodIntent) => {
+          let showRecipesAndPlugins =
+            [typedEnumValue.integrationCompleted, prodIntent]->Array.includes(false)
+
+          <UIUtils.RenderIf condition={!showRecipesAndPlugins}>
+            <RecipesAndPlugins />
+          </UIUtils.RenderIf>
+        }
+      | None => React.null
+      }}
+    </div>
     <Resources />
   </div>
 }
