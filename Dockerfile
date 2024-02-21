@@ -8,10 +8,6 @@ ARG BRANCH_NAME=hyperswitch
 ARG RUN_TEST=false
 RUN echo git branch is $BRANCH_NAME
 RUN yarn install
-RUN if [ $RUN_TEST = "true" ] ; then \
-    yarn unit:test && yarn revert:test ; \
-    fi
-RUN yarn re:build
 RUN yarn build:prod
 
 

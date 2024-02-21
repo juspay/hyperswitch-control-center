@@ -4,6 +4,7 @@ let make = () => {
   open UIUtils
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
+  let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
   let (showModal, setShowModal) = React.useState(_ => false)
   let switchMerchantListValue = Recoil.useRecoilValueFromAtom(
     HyperswitchAtom.switchMerchantListAtom,
@@ -24,16 +25,22 @@ let make = () => {
   let acceptInvite = async _ => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#ACCEPT_INVITE, ~methodType=Post, ())
-      let merchantIds = acceptedMerchantId->Array.reduceWithIndex([], (acc, ele, index) => {
-        ele
-          ? acc->Array.push(
-              (
-                merchantListValue->Array.get(index)->Option.getOr(SwitchMerchantUtils.defaultValue)
-              ).merchant_id->JSON.Encode.string,
-            )
-          : ()
-        acc
-      })
+      let merchantIds = if merchantListValue->Array.length === 1 {
+        [merchantValueatZeroIndex.merchant_id->JSON.Encode.string]
+      } else {
+        acceptedMerchantId->Array.reduceWithIndex([], (acc, ele, index) => {
+          ele
+            ? acc->Array.push(
+                (
+                  merchantListValue
+                  ->Array.get(index)
+                  ->Option.getOr(SwitchMerchantUtils.defaultValue)
+                ).merchant_id->JSON.Encode.string,
+              )
+            : ()
+          acc
+        })
+      }
 
       let body =
         [
@@ -41,7 +48,9 @@ let make = () => {
           ("need_dashboard_entry_response", false->JSON.Encode.bool),
         ]->LogicUtils.getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post, ())
+      let _ = await fetchSwitchMerchantList()
       showToast(~toastType=ToastSuccess, ~message="Invite Accepted Successfully", ())
+      setAcceptedMerchantId(_ => Array.make(~length=merchantListValue->Array.length, false))
     } catch {
     | _ => ()
     }
@@ -64,8 +73,7 @@ let make = () => {
           text="Accept"
           buttonType={PrimaryOutline}
           customButtonStyle="!p-2"
-          onClick={_ =>
-            acceptInvite([merchantValueatZeroIndex.merchant_id->JSON.Encode.string])->ignore}
+          onClick={_ => acceptInvite()->ignore}
         />
       </div>
     </RenderIf>
@@ -90,7 +98,8 @@ let make = () => {
           setShowModal
           paddingClass=""
           closeOnOutsideClick=true
-          onCloseClickCustomFun={_ => setAcceptedMerchantId(_ => [])}
+          onCloseClickCustomFun={_ =>
+            setAcceptedMerchantId(_ => Array.make(~length=merchantListValue->Array.length, false))}
           modalHeading="Pending Invitations"
           modalHeadingDescription="Please accept your pending merchant invitations"
           modalClass="w-1/2 m-auto !bg-white"
@@ -100,7 +109,7 @@ let make = () => {
               {merchantListValue
               ->Array.mapWithIndex((ele, index) => {
                 <div
-                  className="w-full bg-white p-6 flex items-center justify-between border-2 rounded-xl">
+                  className="w-full bg-white p-6 flex items-center justify-between border-1 rounded-xl !shadow-[0_2px_4px_0_rgba(0,0,0,_0.05)]">
                   <div className="flex items-center gap-3">
                     <Icon size=40 name="group-users-without-circle" />
                     <div>
@@ -115,10 +124,8 @@ let make = () => {
                       buttonType={PrimaryOutline}
                       customButtonStyle="!p-2"
                       onClick={_ =>
-                        setAcceptedMerchantId(_ =>
-                          acceptedMerchantId->Array.mapWithIndex(
-                            (ele, i) => index === i ? true : ele,
-                          )
+                        setAcceptedMerchantId(prev =>
+                          prev->Array.mapWithIndex((ele, i) => index === i ? true : ele)
                         )}
                     />
                   </RenderIf>
