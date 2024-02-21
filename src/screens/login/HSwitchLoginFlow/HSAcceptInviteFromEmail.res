@@ -11,7 +11,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
 
   let emailVerifyUpdate = async body => {
     try {
-      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACTIVATE_FROM_EMAIL, ())
+      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACCEPT_INVITE_FROM_EMAIL, ())
       let res = await updateDetails(url, body, Post, ())
       let email = res->JSON.Decode.object->Option.getOr(Dict.make())->getString("email", "")
       let token = HyperSwitchAuthUtils.parseResponseJson(
@@ -21,7 +21,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
       )
 
       if !(token->isEmptyString) && !(email->isEmptyString) {
-        setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
+        setAuthStatus(LoggedIn(getDummyAuthInfoForToken(token)))
         setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
         RescriptReactRouter.replace(`${HSwitchGlobalVars.hyperSwitchFEPrefix}/home`)
       } else {
@@ -38,7 +38,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
   }
 
   React.useEffect0(() => {
-    let body = HyperSwitchAuthUtils.generateBody(url)
+    let body = HyperSwitchAuthUtils.generateBodyForEmailRedirection(url)
     emailVerifyUpdate(body)->ignore
     None
   })
@@ -50,7 +50,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
           name="hyperswitch-text-icon"
           size=40
           className="cursor-pointer w-60"
-          parentClass="flex flex-col justify-center items-center"
+          parentClass="flex flex-col justify-center items-center bg-white"
         />
         <div className="flex flex-col justify-between items-center gap-12 ">
           <img src={`/assets/WorkInProgress.svg`} />
@@ -58,11 +58,11 @@ let make = (~setAuthType, ~setAuthStatus) => {
             className={`leading-4 ml-1 mt-2 text-center flex items-center flex-col gap-6 w-full md:w-133 flex-wrap`}>
             <div className="flex gap-2.5 items-center">
               <Icon name="exclamation-circle" size=22 className="fill-red-500 mr-1.5" />
-              <p className="text-fs-20 font-bold text-gray-700">
+              <p className="text-fs-20 font-bold text-white">
                 {React.string("Invalid Link or session expired")}
               </p>
             </div>
-            <p className="text-fs-14 text-gray-700 opacity-50 font-semibold ">
+            <p className="text-fs-14 text-white opacity-60 font-semibold ">
               {"It appears that the link you were trying to access has expired or is no longer valid. Please try again ."->React.string}
             </p>
           </div>
@@ -73,14 +73,14 @@ let make = (~setAuthType, ~setAuthStatus) => {
             customButtonStyle="cursor-pointer cursor-pointer w-5 rounded-md"
             onClick={_ => {
               RescriptReactRouter.replace(`${HSwitchGlobalVars.hyperSwitchFEPrefix}/login`)
-              setAuthType(_ => HyperSwitchAuthTypes.LoginWithEmail)
+              setAuthType(_ => LoginWithEmail)
             }}
           />
         </div>
       </div>
     } else {
-      <div className="h-full w-full flex justify-center items-center">
-        {"Activating... You will be redirecting to the Dashboard.."->React.string}
+      <div className="h-full w-full flex justify-center items-center text-white opacity-50">
+        {"Accepting invite... You will be redirecting to the Dashboard.."->React.string}
       </div>
     }}
   </HSwitchUtils.BackgroundImageWrapper>
