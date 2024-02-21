@@ -14,7 +14,7 @@ describe("Processors Create Module", () => {
     cy.get("[data-testid=paymentprocessor]").click({ force: true });
 
     cy.get("[data-testid=connect_a_test_connector]").contains(
-      "Connect a test processor",
+      "Connect a test connector",
     );
     cy.get("[data-testid=paypal_test]").click({ force: true });
     cy.get('input[name="connector_account_details.api_key"]').clear();
