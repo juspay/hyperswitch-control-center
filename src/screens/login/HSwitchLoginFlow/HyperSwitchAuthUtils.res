@@ -41,8 +41,10 @@ let emailField = FormRenderer.makeFieldInfo(
       ~input={
         ...input,
         onChange: event => {
-          let newString = String.trim(ReactEvent.Form.target(event)["value"])
-          input.onChange(newString->Identity.stringToFormReactEvent)
+          ReactEvent.Form.target(event)["value"]
+          ->String.trim
+          ->Identity.stringToFormReactEvent
+          ->input.onChange
         },
       },
       ~placeholder="Enter your Email",
