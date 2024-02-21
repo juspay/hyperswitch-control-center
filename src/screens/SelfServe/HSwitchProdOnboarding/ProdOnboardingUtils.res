@@ -172,6 +172,44 @@ let getProdOnboardingUrl = (enum: ProdOnboardingTypes.sectionHeadingVariant) => 
   `${getURL(~entityName=USERS, ~userType=#USER_DATA, ~methodType=Get, ())}?keys=${(enum :> string)}`
 }
 
+let prodOnboardingEnumIntialArray: array<ProdOnboardingTypes.sectionHeadingVariant> = [
+  #ProductionAgreement,
+  #SetupProcessor,
+  #ConfigureEndpoint,
+  #SetupComplete,
+]
+let getSetupProcessorType: Dict.t<'a> => ProdOnboardingTypes.setupProcessor = value => {
+  {
+    connector_id: value->LogicUtils.getString("connector_id", ""),
+  }
+}
+
+let stringToVariantMapperForUserData = str =>
+  switch str {
+  | "ProductionAgreement" => #ProductionAgreement
+  | "SetupProcessor" => #SetupProcessor
+  | "SetupComplete" => #SetupComplete
+  | "ConfigureEndpoint" => #ConfigureEndpoint
+  | _ => #ProductionAgreement
+  }
+
+let getStringFromVariant = variant => {
+  (variant: ProdOnboardingTypes.sectionHeadingVariant :> string)
+}
+
+let getTypedValue = dict => {
+  open ProdOnboardingTypes
+  open LogicUtils
+  {
+    productionAgreement: dict->getBool(#ProductionAgreement->getStringFromVariant, false),
+    configureEndpoint: dict->getBool(#ConfigureEndpoint->getStringFromVariant, false),
+    setupComplete: dict->getBool(#SetupComplete->getStringFromVariant, false),
+    setupProcessor: dict
+    ->getDictfromDict(#SetupProcessor->getStringFromVariant)
+    ->getSetupProcessorType,
+  }
+}
+
 let getPreviewState = headerVariant => {
   open ProdOnboardingTypes
   switch headerVariant {
