@@ -16,13 +16,12 @@ module RadioSection = {
         if paymentMethodTypeInfo.flow !== option {
           switch option->getFlowTypeVariantFromString {
           | PreAuth => paymentMethodTypeInfo.action = CancelTxn->getActionTypeNameString
-          | PostAuth => paymentMethodTypeInfo.action = AutoRefund->getActionTypeNameString
+          | PostAuth => paymentMethodTypeInfo.action = ManualReview->getActionTypeNameString
           }
           paymentMethodTypeInfo.flow = option
         }
       | ActionType => paymentMethodTypeInfo.action = option
       }
-
       setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
     }
 
@@ -69,6 +68,9 @@ module ToggleSwitch = {
 }
 
 module FormField = {
+  open ConnectorTypes
+  open FRMInfo
+  open FRMTypes
   @react.component
   let make = (
     ~options,
@@ -94,13 +96,25 @@ module FormField = {
         </div>
       </div>
       <div className={`grid grid-cols-2 md:grid-cols-4 gap-4`}>
-        {options
-        ->Array.mapWithIndex((option, i) => {
-          <RadioSection
-            key={i->Int.toString} option paymentMethodTypeInfo frmConfigs sectionType setConfigJson
-          />
-        })
-        ->React.array}
+        <UIUtils.RenderIf condition={sectionType == ActionType}>
+          <div className="flex items-center gap-2 break-all">
+            {paymentMethodTypeInfo.action->getActionTypeLabel->Jsx.string}
+          </div>
+        </UIUtils.RenderIf>
+        <UIUtils.RenderIf condition={sectionType != ActionType}>
+          {options
+          ->Array.mapWithIndex((option, i) => {
+            <RadioSection
+              key={i->Int.toString}
+              option
+              paymentMethodTypeInfo
+              frmConfigs
+              sectionType
+              setConfigJson
+            />
+          })
+          ->React.array}
+        </UIUtils.RenderIf>
       </div>
     </div>
   }
@@ -109,6 +123,7 @@ module FormField = {
 module CheckBoxRenderer = {
   open FRMUtils
   open FRMInfo
+  open FRMTypes
   @react.component
   let make = (
     ~frmConfigInfo: ConnectorTypes.frm_config,
@@ -231,18 +246,19 @@ module CheckBoxRenderer = {
                         frmConfigs
                         sectionType={FlowType}
                         setConfigJson
-                        description="i. \"PreAuth\" flow is used to verify the transactions before authorizing payment.
-                        ii. \"PostAuth\" flow is triggered post the transaction is processed by the gateway."
+                        description="i. \"PreAuth\" - facilitate transaction verification prior to payment authorization.
+                        ii. \"PostAuth\" - facilitate transaction validation post-authorization, before amount capture."
                       />
                       <FormField
                         options={paymentMethodTypeInfo.flow->getActionTypeAllOptions}
-                        label="Choose one of the actions"
+                        label="Preferred Action"
                         paymentMethodTypeInfo
                         frmConfigs
                         sectionType={ActionType}
                         setConfigJson
-                        description="i. \"Actions [Pre]\" If FRM deems a transaction as risky, consider cancelling the transaction or process the transaction but flag it for manual review.
-                        ii. \"Actions [Post]\" If FRM deems a transaction as risky, consider auto-refunding or flag the processed transaction for manual review."
+                        description={paymentMethodTypeInfo.flow
+                        ->getFlowTypeVariantFromString
+                        ->actionDescriptionForFlow}
                       />
                     </div>
                   },
