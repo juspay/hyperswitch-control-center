@@ -110,8 +110,8 @@ let getFlowTypeLabel = flowType => {
   }
 }
 
-let frmPreActionList = [CancelTxn, ManualReview]
-let frmPostActionList = [AutoRefund, ManualReview]
+let frmPreActionList = [CancelTxn]
+let frmPostActionList = [ManualReview]
 
 let getActionTypeNameString = flowType => {
   switch flowType {
@@ -159,3 +159,10 @@ let ignoredField = [
   "profile_id",
   "applepay_verified_domains",
 ]
+
+let actionDescriptionForFlow = flowType => {
+  switch flowType {
+  | PreAuth => "PreAuth flow - fraudulent transactions are cancelled before authorization."
+  | PostAuth => "PostAuth flow - fraudulent transactions are flagged for a manual review before amount capture."
+  }
+}
