@@ -725,7 +725,7 @@ module Base = {
               {filteredPredefinedDays
               ->Array.mapWithIndex((value, i) => {
                 <div
-                  key={i->string_of_int}
+                  key={i->Int.toString}
                   className="w-1/3 md:w-full md:min-w-max text-center md:text-start">
                   <PredefinedOption
                     predefinedOptionSelected

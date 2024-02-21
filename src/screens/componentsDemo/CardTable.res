@@ -70,7 +70,7 @@ module CardDetails = {
             switch heading[cellIndex] {
             | Some(label) =>
               if isAnalyticsModule {
-                <div className="w-full flex jutify-end" key={cellIndex->string_of_int}>
+                <div className="w-full flex jutify-end" key={cellIndex->Int.toString}>
                   <p className="mt-2 md:inline inline-block w-1/2 ">
                     {React.string(label.title)}
                   </p>
@@ -79,7 +79,7 @@ module CardDetails = {
                   </div>
                 </div>
               } else {
-                <div className="w-full" key={cellIndex->string_of_int}>
+                <div className="w-full" key={cellIndex->Int.toString}>
                   <p className="mt-2 md:inline inline-block w-1/2 ">
                     {React.string(label.title)}
                   </p>
@@ -125,7 +125,7 @@ let make = (
       ->Array.mapWithIndex((itemArray, rowIndex) => {
         <AddDataAttributes attributes=[("data-card-details", "cardDetails")]>
           <CardDetails
-            key={(rowIndex + offset)->string_of_int}
+            key={(rowIndex + offset)->Int.toString}
             size
             itemArray
             isBorderEnabled

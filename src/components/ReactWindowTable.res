@@ -39,7 +39,7 @@ module FilterRow = {
             React.null
           } else {
             <div
-              key={string_of_int(cellIndex)}
+              key={Int.toString(cellIndex)}
               className={`h-full p-0 align-top ${borderClass} ${tableDataBorderClass} ${cellWidth}`}>
               <div className={`h-full box-border ${paddingClass}`}>
                 <TableFilterCell cell=item />
@@ -164,7 +164,7 @@ module NewCell = {
           let cursorI = cellIndex == 0 ? "cursor-pointer" : ""
 
           <div
-            key={string_of_int(cellIndex)}
+            key={Int.toString(cellIndex)}
             className={`${cellWidth} ${overflowStyle}  h-auto align-top ${borderClass}  ${highlightCell
                 ? "hover:font-bold"
                 : ""} ${tableDataBorderClass} 
@@ -358,7 +358,7 @@ module ReactWindowTableComponent = {
             }
 
             <div
-              key={string_of_int(i)}
+              key={Int.toString(i)}
               className={` ${cellWidth} ${borderClass} justify-between items-center  bg-white dark:bg-jp-gray-darkgray_background text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 whitespace-pre select-none ${roundedClass} ${tableheadingClass}`}>
               <div
                 className={`flex flex-row ${cellWidth} pl-2 py-4 bg-gradient-to-b from-jp-gray-450 to-jp-gray-350 dark:from-jp-gray-950  dark:to-jp-gray-950 text-jp-gray-900`}>
@@ -466,7 +466,7 @@ module ReactWindowTableComponent = {
 
             <>
               <NewCell
-                key={string_of_int(rowIndex)}
+                key={Int.toString(rowIndex)}
                 item
                 rowIndex
                 onRowClick

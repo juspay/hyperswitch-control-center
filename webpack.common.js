@@ -9,7 +9,7 @@ const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 module.exports = (appName = "hyperswitch", publicPath = "auto") => {
   const isDevelopment = process.env.NODE_ENV !== "production";
   let entryObj = {
-    app: `./src/entryPoints/hyperswitch/HyperSwitchEntry.bs.js`,
+    app: `./src/entryPoints/HyperSwitchEntry.bs.js`,
   };
   return {
     entry: entryObj,

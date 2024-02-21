@@ -17,10 +17,10 @@ let highlightedText = (str, searchedText) => {
           String.toLowerCase(item) == String.toLowerCase(searchedText) &&
             String.length(searchedText) > 0
         ) {
-          <mark key={i->string_of_int} className="bg-yellow"> {item->React.string} </mark>
+          <mark key={i->Int.toString} className="bg-yellow"> {item->React.string} </mark>
         } else {
           let className = ""
-          <span key={i->string_of_int} className value=str> {item->React.string} </span>
+          <span key={i->Int.toString} className value=str> {item->React.string} </span>
         }
       })
       ->React.array
