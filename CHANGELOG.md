@@ -3,6 +3,34 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.20.0
+
+### Features
+
+- Accept Invite Home Page Changes ([#419](https://github.com/juspay/hyperswitch-control-center/pull/419)) ([`38e4cb3`](https://github.com/juspay/hyperswitch-control-center/commit/38e4cb38d99a1cd6e6df16f9fd98785066a78632))
+
+### Miscellaneous Tasks
+
+- Sidebar Connector Hierarchy changes ([#426](https://github.com/juspay/hyperswitch-control-center/pull/426)) ([`c2d505c`](https://github.com/juspay/hyperswitch-control-center/commit/c2d505c2baa1ed6ca6b24ecee95a6f9d4d7a9a73))
+
+**Full Changelog:** [`2024.02.19.0...2024.02.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.19.0...2024.02.20.0)
+
+- - -
+
+## 2024.02.19.0
+
+### Features
+
+- Switch merchant API Recoil Addition ([#417](https://github.com/juspay/hyperswitch-control-center/pull/417)) ([`4207423`](https://github.com/juspay/hyperswitch-control-center/commit/4207423f6f28bb6e89581c0a8481b77bac3c6fe3))
+
+### Miscellaneous Tasks
+
+- Code changes Int.ToString added ([#407](https://github.com/juspay/hyperswitch-control-center/pull/407)) ([`ad6c0e8`](https://github.com/juspay/hyperswitch-control-center/commit/ad6c0e82f1c6660447a8e62e14aa42377f8e1b2d))
+
+**Full Changelog:** [`2024.02.18.0...2024.02.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.18.0...2024.02.19.0)
+
+- - -
+
 ## 2024.02.18.0
 
 ### Bug Fixes

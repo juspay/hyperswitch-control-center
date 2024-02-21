@@ -18,3 +18,7 @@ let userPermissionAtom: Recoil.recoilAtom<PermissionUtils.permissionJson> = Reco
   "userPermissionAtom",
   PermissionUtils.defaultValueForPermission,
 )
+
+let switchMerchantListAtom: Recoil.recoilAtom<
+  array<SwitchMerchantUtils.switchMerchantListResponse>,
+> = Recoil.atom(. "switchMerchantListAtom", [SwitchMerchantUtils.defaultValue])

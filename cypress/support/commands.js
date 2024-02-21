@@ -24,18 +24,18 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-Cypress.Commands.add("login_UI", () => {
+Cypress.Commands.add("login_UI", (name = "", pass = "") => {
   cy.visit("http://localhost:9000/");
-  const username = Cypress.env("CYPRESS_USERNAME");
-  const password = Cypress.env("CYPRESS_PASSWORD");
+  const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
+  const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
   cy.get("[data-testid=email]").type(username);
   cy.get("[data-testid=password]").type(password);
   cy.get('button[type="submit"]').click({ force: true });
 });
 
-Cypress.Commands.add("singup_curl", () => {
-  const username = Cypress.env("CYPRESS_USERNAME");
-  const password = Cypress.env("CYPRESS_PASSWORD");
+Cypress.Commands.add("singup_curl", (name = "", pass = "") => {
+  const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
+  const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
   // /user/signin
   cy.request({
     method: "POST",
@@ -56,9 +56,9 @@ Cypress.Commands.add("singup_curl", () => {
     });
 });
 
-Cypress.Commands.add("login_curl", () => {
-  const username = Cypress.env("CYPRESS_USERNAME");
-  const password = Cypress.env("CYPRESS_PASSWORD");
+Cypress.Commands.add("login_curl", (name = "", pass = "") => {
+  const username = name.length > 0 ? name : Cypress.env("CYPRESS_USERNAME");
+  const password = pass.length > 0 ? pass : Cypress.env("CYPRESS_PASSWORD");
   // /user/signin
   cy.request({
     method: "POST",

@@ -13,7 +13,7 @@ let useFetchEnumDetails = () => {
           (),
         )}?keys=${enumArray->Array.joinWithUnsafe(",")}`
       let res = await fetchDetails(url)
-      let responseDict = res->responseDataMapper
+      let responseDict = res->responseDataMapper(getValueMapped)
       setEnumVariantValues(._ => responseDict->JSON.Encode.object->JSON.stringify)
       Nullable.make(responseDict)
     } catch {

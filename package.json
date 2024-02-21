@@ -57,8 +57,8 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.2.0",
-    "@juspay-tech/hyper-js": "^1.0.0",
-    "@juspay-tech/react-hyper-js": "^1.0.1",
+    "@juspay-tech/hyper-js": "^1.6.0",
+    "@juspay-tech/react-hyper-js": "^1.0.2",
     "@monaco-editor/react": "^4.4.5",
     "@rescript/core": "^0.6.0",
     "@rescript/react": "^0.11.0",
