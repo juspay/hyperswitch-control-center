@@ -3,6 +3,28 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.21.0
+
+### Bug Fixes
+
+- Accept invite accept button issue ([#429](https://github.com/juspay/hyperswitch-control-center/pull/429)) ([`b77897a`](https://github.com/juspay/hyperswitch-control-center/commit/b77897a6340e1f9b7a678f3fad4481de040ff9c5))
+- Accept invite issue ([#430](https://github.com/juspay/hyperswitch-control-center/pull/430)) ([`ee9120f`](https://github.com/juspay/hyperswitch-control-center/commit/ee9120f3652d93cf3ed180af5ab40d696afa4dc5))
+
+### Refactors
+
+- Connector show processor card code refactor for usability ([#415](https://github.com/juspay/hyperswitch-control-center/pull/415)) ([`bbba268`](https://github.com/juspay/hyperswitch-control-center/commit/bbba268f77b05c28a26768af131ce05e68d58d7d))
+- Refactor: frm - update info for FRM flows ([#421](https://github.com/juspay/hyperswitch-control-center/pull/421)) ([`0892d58`](https://github.com/juspay/hyperswitch-control-center/commit/0892d581ff6a5f9ddcb9443498149cfcba1c6ac9))
+
+### Miscellaneous Tasks
+
+- Add cypress test for prod onboarding ([#424](https://github.com/juspay/hyperswitch-control-center/pull/424)) ([`1a659a3`](https://github.com/juspay/hyperswitch-control-center/commit/1a659a35404db66372dad322282931558f5ead0d))
+- Hyperswitch git ignore file changes ([#420](https://github.com/juspay/hyperswitch-control-center/pull/420)) ([`7eca110`](https://github.com/juspay/hyperswitch-control-center/commit/7eca1108c97d7d31e32b728795f07328c428cdfe))
+- Minor text changes ([#428](https://github.com/juspay/hyperswitch-control-center/pull/428)) ([`a046c8c`](https://github.com/juspay/hyperswitch-control-center/commit/a046c8c393aa98ab89a4927947fca9e99e799ff4))
+
+**Full Changelog:** [`2024.02.20.0...2024.02.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.20.0...2024.02.21.0)
+
+- - -
+
 ## 2024.02.20.0
 
 ### Features
