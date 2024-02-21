@@ -36,7 +36,19 @@ let emailField = FormRenderer.makeFieldInfo(
   ~name="email",
   ~placeholder="Enter your Email",
   ~isRequired=false,
-  ~customInput=InputFields.textInput(~autoComplete="off", ()),
+  ~customInput=(~input, ~placeholder as _) =>
+    InputFields.textInput(
+      ~input={
+        ...input,
+        onChange: event => {
+          let newString = String.trim(ReactEvent.Form.target(event)["value"])
+          input.onChange(newString->Identity.stringToFormReactEvent)
+        },
+      },
+      ~placeholder="Enter your Email",
+      ~autoComplete="off",
+      (),
+    ),
   (),
 )
 
