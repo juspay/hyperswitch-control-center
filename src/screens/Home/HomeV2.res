@@ -49,9 +49,9 @@ module HomePageHorizontalStepper = {
             <UIUtils.RenderIf condition={index <= stepperItemsArray->Array.length - 1}>
               <div className="relative w-full">
                 <div className={`absolute h-1 rounded-full z-1 ${index->getProgressBarStyle}`} />
-                {index != stepperItemsArray->Array.length - 1
-                  ? <div className="w-full h-1 rounded-full bg-grey-700 bg-opacity-10" />
-                  : React.null}
+                <UIUtils.RenderIf condition={index != stepperItemsArray->Array.length - 1}>
+                  <div className="w-full h-1 rounded-full bg-grey-700 bg-opacity-10" />
+                </UIUtils.RenderIf>
               </div>
             </UIUtils.RenderIf>
           </div>
