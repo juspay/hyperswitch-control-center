@@ -5,7 +5,7 @@
   "production_access": false,
   "quick_start": true,
   "switch_merchant": true,
-  "audit_trail": true,
+  "audit_trail": false,
   "system_metrics": false,
   "sample_data": false,
   "frm": false,
