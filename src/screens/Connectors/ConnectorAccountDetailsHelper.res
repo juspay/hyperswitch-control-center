@@ -482,7 +482,7 @@ module ConnectorHeaderWrapper = {
     ~conditionForIntegrationSteps=true,
   ) => {
     open ConnectorUtils
-
+    let connectorNameFromType = connector->getConnectorNameTypeFromString()
     let setShowModalFunction = switch handleShowModal {
     | Some(func) => func
     | _ => _ => ()
@@ -497,9 +497,8 @@ module ConnectorHeaderWrapper = {
         </div>
         <div className="flex flex-row mt-6 md:mt-0 md:justify-self-end h-min">
           <UIUtils.RenderIf
-            condition={connectorsWithIntegrationSteps->Array.includes(
-              connector->getConnectorNameTypeFromString(),
-            ) && conditionForIntegrationSteps}>
+            condition={connectorsWithIntegrationSteps->Array.includes(connectorNameFromType) &&
+              conditionForIntegrationSteps}>
             <a
               className={`flex cursor-pointer px-4 py-3 flex text-sm text-blue-900 items-center mx-4`}
               target="_blank"
@@ -511,8 +510,7 @@ module ConnectorHeaderWrapper = {
           {headerButton}
         </div>
       </div>
-      <UIUtils.RenderIf
-        condition={connector->getConnectorNameTypeFromString() === Processors(BRAINTREE)}>
+      <UIUtils.RenderIf condition={connectorNameFromType === Processors(BRAINTREE)}>
         <div className="flex flex-col gap-2 p-2 md:p-10">
           <h1
             className="flex items-center mx-12 leading-6 text-orange-950 bg-orange-100 border w-fit p-2 rounded-md ">
