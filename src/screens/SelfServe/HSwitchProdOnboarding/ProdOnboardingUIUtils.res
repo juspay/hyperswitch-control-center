@@ -18,9 +18,9 @@ module WarningBlock = {
 
 module ModalChildElementsForSpecificConnector = {
   @react.component
-  let make = (~connector: ConnectorTypes.connectorName) => {
+  let make = (~connector: ConnectorTypes.connectorTypes) => {
     switch connector {
-    | STRIPE =>
+    | Processors(STRIPE) =>
       // TODO - Will Add for the rest if given
       <>
         <ol className="list-decimal pl-4">
@@ -95,7 +95,7 @@ module SetupWebhookProcessor = {
         modalHeading="Steps to Setup Webook"
         headerTextClass="!text-xl !font-semibold !ml-3.5"
         element={<ModalChildElementsForSpecificConnector
-          connector={connectorName->ConnectorUtils.getConnectorNameTypeFromString}
+          connector={connectorName->ConnectorUtils.getConnectorNameTypeFromString()}
         />}
         showModal
         setShowModal

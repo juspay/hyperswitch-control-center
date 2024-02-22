@@ -1,10 +1,10 @@
 let metaDataInputKeysToIgnore = ["google_pay", "apple_pay", "zen_apple_pay"]
 
-let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorName> = [
-  ADYEN,
-  CHECKOUT,
-  STRIPE,
-  PAYPAL,
+let connectorsWithIntegrationSteps: array<ConnectorTypes.connectorTypes> = [
+  Processors(ADYEN),
+  Processors(CHECKOUT),
+  Processors(STRIPE),
+  Processors(PAYPAL),
 ]
 
 let getCurrencyOption: CurrencyUtils.currencyCode => SelectBox.dropdownOption = currencyType => {
@@ -95,7 +95,7 @@ module RenderConnectorInputFields = {
   open ConnectorTypes
   @react.component
   let make = (
-    ~connector: connectorName,
+    ~connector: connectorTypes,
     ~selectedConnector,
     ~details,
     ~name,
@@ -120,7 +120,8 @@ module RenderConnectorInputFields = {
             <FormRenderer.FieldRenderer
               labelClass="font-semibold !text-hyperswitch_black"
               field={switch (connector, field) {
-              | (BRAINTREE, "merchant_config_currency") => currencyField(~name=formName, ())
+              | (Processors(BRAINTREE), "merchant_config_currency") =>
+                currencyField(~name=formName, ())
               | _ =>
                 inputField(
                   ~name=formName,
@@ -279,7 +280,7 @@ module ConnectorConfigurationFields = {
   @react.component
   let make = (
     ~connectorAccountFields,
-    ~connector: connectorName,
+    ~connector: connectorTypes,
     ~selectedConnector: integrationFields,
     ~connectorMetaDataFields,
     ~connectorWebHookDetails,
@@ -287,7 +288,7 @@ module ConnectorConfigurationFields = {
     ~connectorLabelDetailField,
   ) => {
     <div className="flex flex-col">
-      {if connector === CASHTOCODE {
+      {if connector === Processors(CASHTOCODE) {
         <CashToCodeMethods connectorAccountFields connector selectedConnector />
       } else {
         <RenderConnectorInputFields
@@ -481,7 +482,7 @@ module ConnectorHeaderWrapper = {
     ~conditionForIntegrationSteps=true,
   ) => {
     open ConnectorUtils
-
+    let connectorNameFromType = connector->getConnectorNameTypeFromString()
     let setShowModalFunction = switch handleShowModal {
     | Some(func) => func
     | _ => _ => ()
@@ -491,14 +492,13 @@ module ConnectorHeaderWrapper = {
         <div className="flex gap-2 items-center">
           <GatewayIcon gateway={connector->String.toUpperCase} />
           <h2 className="text-xl font-semibold">
-            {connector->getDisplayNameForConnectors->React.string}
+            {connector->getDisplayNameForConnector->React.string}
           </h2>
         </div>
         <div className="flex flex-row mt-6 md:mt-0 md:justify-self-end h-min">
           <UIUtils.RenderIf
-            condition={connectorsWithIntegrationSteps->Array.includes(
-              connector->getConnectorNameTypeFromString,
-            ) && conditionForIntegrationSteps}>
+            condition={connectorsWithIntegrationSteps->Array.includes(connectorNameFromType) &&
+              conditionForIntegrationSteps}>
             <a
               className={`flex cursor-pointer px-4 py-3 flex text-sm text-blue-900 items-center mx-4`}
               target="_blank"
@@ -510,7 +510,7 @@ module ConnectorHeaderWrapper = {
           {headerButton}
         </div>
       </div>
-      <UIUtils.RenderIf condition={connector->getConnectorNameTypeFromString === BRAINTREE}>
+      <UIUtils.RenderIf condition={connectorNameFromType === Processors(BRAINTREE)}>
         <div className="flex flex-col gap-2 p-2 md:p-10">
           <h1
             className="flex items-center mx-12 leading-6 text-orange-950 bg-orange-100 border w-fit p-2 rounded-md ">
