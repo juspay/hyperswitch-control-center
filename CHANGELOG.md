@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.22.1
+
+### Bug Fixes
+
+- Homev2 accept invite ([#442](https://github.com/juspay/hyperswitch-control-center/pull/442)) ([`9209d2b`](https://github.com/juspay/hyperswitch-control-center/commit/9209d2b07a686af1986bce7492513b59143c87cd))
+- Stepper UI fix on Home page ([#432](https://github.com/juspay/hyperswitch-control-center/pull/432)) ([`84adad4`](https://github.com/juspay/hyperswitch-control-center/commit/84adad4eaa32f50c01aaa23d033043c4e8ec9296))
+
+**Full Changelog:** [`2024.02.22.0...2024.02.22.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.22.0...2024.02.22.1)
+
+- - -
+
 ## 2024.02.22.0
 
 ### Features
