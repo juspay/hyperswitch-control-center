@@ -117,7 +117,7 @@ module ConfigureProcessor = {
       }
 
       validateConnectorRequiredFields(
-        connectorName->getConnectorNameTypeFromString,
+        connectorName->getConnectorNameTypeFromString(),
         valuesFlattenJson,
         connectorAccountFields,
         connectorMetaDataFields,
@@ -138,7 +138,7 @@ module ConfigureProcessor = {
 
     <Form initialValues onSubmit validate={validateMandatoryField}>
       <QuickStartUIUtils.BaseComponent
-        headerText={`Connect ${connectorName->ConnectorUtils.getDisplayNameForConnectors}`}
+        headerText={`Connect ${connectorName->ConnectorUtils.getDisplayNameForConnector}`}
         customIcon={<GatewayIcon
           gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
         />}

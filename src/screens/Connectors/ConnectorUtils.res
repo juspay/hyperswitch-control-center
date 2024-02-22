@@ -18,73 +18,73 @@ let getStepName = step => {
   }
 }
 
-let payoutConnectorList: array<connectorName> = [ADYEN, WISE]
+let payoutConnectorList: array<connectorTypes> = [Processors(ADYEN), Processors(WISE)]
 
-let connectorList: array<connectorName> = [
-  STRIPE,
-  PAYPAL,
-  ACI,
-  ADYEN,
-  AIRWALLEX,
-  AUTHORIZEDOTNET,
-  BANKOFAMERICA,
-  BAMBORA,
-  BITPAY,
-  BLUESNAP,
-  BRAINTREE,
-  CASHTOCODE,
-  CHECKOUT,
-  COINBASE,
-  CRYPTOPAY,
-  CYBERSOURCE,
-  DLOCAL,
-  FISERV,
-  FORTE,
-  GLOBALPAY,
-  GLOBEPAY,
-  GOCARDLESS,
-  HELCIM,
-  IATAPAY,
-  KLARNA,
-  MOLLIE,
-  MULTISAFEPAY,
-  NEXINETS,
-  NMI,
-  NOON,
-  NUVEI,
-  OPENNODE,
-  PAYME,
-  PAYU,
-  POWERTRANZ,
-  PROPHETPAY,
-  RAPYD,
-  SHIFT4,
-  STAX,
-  TRUSTPAY,
-  TSYS,
-  VOLT,
-  WORLDLINE,
-  WORLDPAY,
-  ZEN,
+let connectorList: array<connectorTypes> = [
+  Processors(STRIPE),
+  Processors(PAYPAL),
+  Processors(ACI),
+  Processors(ADYEN),
+  Processors(AIRWALLEX),
+  Processors(AUTHORIZEDOTNET),
+  Processors(BANKOFAMERICA),
+  Processors(BAMBORA),
+  Processors(BITPAY),
+  Processors(BLUESNAP),
+  Processors(BRAINTREE),
+  Processors(CASHTOCODE),
+  Processors(CHECKOUT),
+  Processors(COINBASE),
+  Processors(CRYPTOPAY),
+  Processors(CYBERSOURCE),
+  Processors(DLOCAL),
+  Processors(FISERV),
+  Processors(FORTE),
+  Processors(GLOBALPAY),
+  Processors(GLOBEPAY),
+  Processors(GOCARDLESS),
+  Processors(HELCIM),
+  Processors(IATAPAY),
+  Processors(KLARNA),
+  Processors(MOLLIE),
+  Processors(MULTISAFEPAY),
+  Processors(NEXINETS),
+  Processors(NMI),
+  Processors(NOON),
+  Processors(NUVEI),
+  Processors(OPENNODE),
+  Processors(PAYME),
+  Processors(PAYU),
+  Processors(POWERTRANZ),
+  Processors(PROPHETPAY),
+  Processors(RAPYD),
+  Processors(SHIFT4),
+  Processors(STAX),
+  Processors(TRUSTPAY),
+  Processors(TSYS),
+  Processors(VOLT),
+  Processors(WORLDLINE),
+  Processors(WORLDPAY),
+  Processors(ZEN),
 ]
 
-let connectorListForLive: array<connectorName> = [
-  STRIPE,
-  ADYEN,
-  PAYPAL,
-  BANKOFAMERICA,
-  BLUESNAP,
-  BRAINTREE,
-  CHECKOUT,
-  CRYPTOPAY,
-  CASHTOCODE,
-  CYBERSOURCE,
-  IATAPAY,
-  NMI,
-  PAYME,
-  TRUSTPAY,
-  VOLT,
-  ZEN,
+let connectorListForLive: array<connectorTypes> = [
+  Processors(STRIPE),
+  Processors(ADYEN),
+  Processors(PAYPAL),
+  Processors(BANKOFAMERICA),
+  Processors(BLUESNAP),
+  Processors(BRAINTREE),
+  Processors(CHECKOUT),
+  Processors(CRYPTOPAY),
+  Processors(CASHTOCODE),
+  Processors(CYBERSOURCE),
+  Processors(IATAPAY),
+  Processors(NMI),
+  Processors(PAYME),
+  Processors(TRUSTPAY),
+  Processors(VOLT),
+  Processors(ZEN),
 ]
 
 let connectorListWithAutomaticFlow = [PAYPAL]
@@ -114,7 +114,14 @@ let getPaymentMethodTypeFromString = paymentMethodType => {
 }
 
 let dummyConnectorList = isTestProcessorsEnabled =>
-  isTestProcessorsEnabled ? [STRIPE_TEST, PAYPAL_TEST, FAUXPAY, PRETENDPAY] : []
+  isTestProcessorsEnabled
+    ? [
+        Processors(STRIPE_TEST),
+        Processors(PAYPAL_TEST),
+        Processors(FAUXPAY),
+        Processors(PRETENDPAY),
+      ]
+    : []
 
 let checkIsDummyConnector = (connectorName, isTestProcessorsEnabled) =>
   isTestProcessorsEnabled->dummyConnectorList->Array.includes(connectorName)
@@ -353,7 +360,7 @@ let bankOfAmericaInfo = {
   description: "A top financial firm offering banking, investing, and risk solutions to individuals and businesses.",
 }
 
-let getConnectorNameString = connector => {
+let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
   | CHECKOUT => "checkout"
@@ -406,68 +413,89 @@ let getConnectorNameString = connector => {
   | PROPHETPAY => "prophetpay"
   | BANKOFAMERICA => "bankofamerica"
   | HELCIM => "helcim"
+  }
+
+let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
+  switch threeDsAuthenticator {
+  | THREEDSECUREIO => "threedsecureio"
+  }
+
+let getConnectorNameString = (connector: connectorTypes) => {
+  switch connector {
+  | Processors(connector) => connector->getConnectorNameString
+  | ThreeDsAuthenticator(threeDsAuthenticator) =>
+    threeDsAuthenticator->getThreeDsAuthenticatorNameString
   | UnknownConnector(str) => str
   }
 }
 
-let getConnectorNameTypeFromString = connector => {
-  switch connector {
-  | "adyen" => ADYEN
-  | "checkout" => CHECKOUT
-  | "braintree" => BRAINTREE
-  | "authorizedotnet" => AUTHORIZEDOTNET
-  | "stripe" => STRIPE
-  | "klarna" => KLARNA
-  | "globalpay" => GLOBALPAY
-  | "bluesnap" => BLUESNAP
-  | "airwallex" => AIRWALLEX
-  | "worldpay" => WORLDPAY
-  | "cybersource" => CYBERSOURCE
-  | "aci" => ACI
-  | "worldline" => WORLDLINE
-  | "fiserv" => FISERV
-  | "shift4" => SHIFT4
-  | "rapyd" => RAPYD
-  | "payu" => PAYU
-  | "nuvei" => NUVEI
-  | "multisafepay" => MULTISAFEPAY
-  | "dlocal" => DLOCAL
-  | "bambora" => BAMBORA
-  | "mollie" => MOLLIE
-  | "trustpay" => TRUSTPAY
-  | "zen" => ZEN
-  | "paypal" => PAYPAL
-  | "coinbase" => COINBASE
-  | "opennode" => OPENNODE
-  | "nmi" => NMI
-  | "forte" => FORTE
-  | "nexinets" => NEXINETS
-  | "iatapay" => IATAPAY
-  | "bitpay" => BITPAY
-  | "phonypay" => PHONYPAY
-  | "fauxpay" => FAUXPAY
-  | "pretendpay" => PRETENDPAY
-  | "stripe_test" => STRIPE_TEST
-  | "paypal_test" => PAYPAL_TEST
-  | "cashtocode" => CASHTOCODE
-  | "payme" => PAYME
-  | "globepay" => GLOBEPAY
-  | "powertranz" => POWERTRANZ
-  | "tsys" => TSYS
-  | "noon" => NOON
-  | "wise" => WISE
-  | "stax" => STAX
-  | "cryptopay" => CRYPTOPAY
-  | "gocardless" => GOCARDLESS
-  | "volt" => VOLT
-  | "bankofamerica" => BANKOFAMERICA
-  | "prophetpay" => PROPHETPAY
-  | "helcim" => HELCIM
+let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.Connector, ()) => {
+  switch connectorType {
+  | Connector =>
+    switch connector {
+    | "adyen" => Processors(ADYEN)
+    | "checkout" => Processors(CHECKOUT)
+    | "braintree" => Processors(BRAINTREE)
+    | "authorizedotnet" => Processors(AUTHORIZEDOTNET)
+    | "stripe" => Processors(STRIPE)
+    | "klarna" => Processors(KLARNA)
+    | "globalpay" => Processors(GLOBALPAY)
+    | "bluesnap" => Processors(BLUESNAP)
+    | "airwallex" => Processors(AIRWALLEX)
+    | "worldpay" => Processors(WORLDPAY)
+    | "cybersource" => Processors(CYBERSOURCE)
+    | "aci" => Processors(ACI)
+    | "worldline" => Processors(WORLDLINE)
+    | "fiserv" => Processors(FISERV)
+    | "shift4" => Processors(SHIFT4)
+    | "rapyd" => Processors(RAPYD)
+    | "payu" => Processors(PAYU)
+    | "nuvei" => Processors(NUVEI)
+    | "multisafepay" => Processors(MULTISAFEPAY)
+    | "dlocal" => Processors(DLOCAL)
+    | "bambora" => Processors(BAMBORA)
+    | "mollie" => Processors(MOLLIE)
+    | "trustpay" => Processors(TRUSTPAY)
+    | "zen" => Processors(ZEN)
+    | "paypal" => Processors(PAYPAL)
+    | "coinbase" => Processors(COINBASE)
+    | "opennode" => Processors(OPENNODE)
+    | "nmi" => Processors(NMI)
+    | "forte" => Processors(FORTE)
+    | "nexinets" => Processors(NEXINETS)
+    | "iatapay" => Processors(IATAPAY)
+    | "bitpay" => Processors(BITPAY)
+    | "phonypay" => Processors(PHONYPAY)
+    | "fauxpay" => Processors(FAUXPAY)
+    | "pretendpay" => Processors(PRETENDPAY)
+    | "stripe_test" => Processors(STRIPE_TEST)
+    | "paypal_test" => Processors(PAYPAL_TEST)
+    | "cashtocode" => Processors(CASHTOCODE)
+    | "payme" => Processors(PAYME)
+    | "globepay" => Processors(GLOBEPAY)
+    | "powertranz" => Processors(POWERTRANZ)
+    | "tsys" => Processors(TSYS)
+    | "noon" => Processors(NOON)
+    | "wise" => Processors(WISE)
+    | "stax" => Processors(STAX)
+    | "cryptopay" => Processors(CRYPTOPAY)
+    | "gocardless" => Processors(GOCARDLESS)
+    | "volt" => Processors(VOLT)
+    | "bankofamerica" => Processors(BANKOFAMERICA)
+    | "prophetpay" => Processors(PROPHETPAY)
+    | "helcim" => Processors(HELCIM)
+    | _ => UnknownConnector("Not known")
+    }
+  | ThreeDsAuthenticator =>
+    switch connector {
+    | "threedsio" => ThreeDsAuthenticator(THREEDSECUREIO)
+    | _ => UnknownConnector("Not known")
+    }
   | _ => UnknownConnector("Not known")
   }
 }
 
-let getConnectorInfo = (connector: connectorName) => {
+let getProcessorInfo = connector => {
   switch connector {
   | STRIPE => stripeInfo
   | ADYEN => adyenInfo
@@ -520,6 +548,17 @@ let getConnectorInfo = (connector: connectorName) => {
   | PROPHETPAY => prophetpayInfo
   | BANKOFAMERICA => bankOfAmericaInfo
   | HELCIM => helcimInfo
+  }
+}
+let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
+  switch threeDsAuthenticator {
+  | THREEDSECUREIO => helcimInfo
+  }
+
+let getConnectorInfo = connector => {
+  switch connector {
+  | Processors(connector) => connector->getProcessorInfo
+  | ThreeDsAuthenticator(threeDsAuthenticator) => threeDsAuthenticator->getThreedsAuthenticatorInfo
   | UnknownConnector(_) => unknownConnectorInfo
   }
 }
@@ -734,7 +773,7 @@ let generateInitialValuesDict = (
   dict->Dict.set(
     "connector_type",
     getConnectorType(
-      connector->getConnectorNameTypeFromString,
+      connector->getConnectorNameTypeFromString(),
       ~isPayoutFlow,
       (),
     )->JSON.Encode.string,
@@ -763,16 +802,16 @@ let getDisableConnectorPayload = (connectorType, previousConnectorState) => {
   ]->Dict.fromArray
 }
 
-let getWebHookRequiredFields = (connector: connectorName, fieldName: string) => {
+let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
-  | (ADYEN, "merchant_secret") => true
+  | (Processors(ADYEN), "merchant_secret") => true
   | _ => false
   }
 }
 
-let getMetaDataRequiredFields = (connector: connectorName, fieldName: string) => {
+let getMetaDataRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
-  | (BLUESNAP, "merchant_id") => false
+  | (Processors(BLUESNAP), "merchant_id") => false
   | _ => true
   }
 }
@@ -807,7 +846,7 @@ let checkCashtoCodeInnerField = (valuesFlattenJson, dict, country: string): bool
 }
 
 let validateConnectorRequiredFields = (
-  connector: connectorName,
+  connector: connectorTypes,
   valuesFlattenJson,
   connectorAccountFields,
   connectorMetaDataFields,
@@ -817,7 +856,7 @@ let validateConnectorRequiredFields = (
 ) => {
   open LogicUtils
   let newDict = getDictFromJsonObject(errors)
-  if connector === CASHTOCODE {
+  if connector === Processors(CASHTOCODE) {
     let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
 
     let indexLength = dict->Dict.keysToArray->Array.length
@@ -884,9 +923,9 @@ let validateConnectorRequiredFields = (
   newDict->JSON.Encode.object
 }
 
-let getPlaceHolder = (connector: connectorName, fieldName, label) => {
+let getPlaceHolder = (connector: connectorTypes, fieldName, label) => {
   switch (connector, fieldName) {
-  | (KLARNA, "api_key") => "Enter as:-Basic{API Key}"
+  | (Processors(KLARNA), "api_key") => "Enter as:-Basic{API Key}"
   | _ => `Enter ${label->LogicUtils.snakeToTitle}`
   }
 }
@@ -983,8 +1022,8 @@ let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
   let (suggestedAction, suggestedActionExists) = {
     open SuggestedActionHelper
     let msg = verifyErrorMessage->Option.getOr("")
-    switch connector->getConnectorNameTypeFromString {
-    | STRIPE => (
+    switch connector->getConnectorNameTypeFromString() {
+    | Processors(STRIPE) => (
         {
           if msg->String.includes("Sending credit card numbers directly") {
             <StripSendingCreditCard />
@@ -996,7 +1035,7 @@ let getSuggestedAction = (~verifyErrorMessage, ~connector) => {
         },
         true,
       )
-    | PAYPAL => (
+    | Processors(PAYPAL) => (
         {
           if msg->String.includes("Client Authentication failed") {
             <PaypalClientAuthenticationFalied />
@@ -1180,11 +1219,13 @@ let filterList = (items, ~removeFromList: processors) => {
     let connectorType = dict->getString("connector_type", "")
     let isPayoutConnector = connectorType == "payout_processor"
     let isConnector = connectorType !== "payment_vas" && !isPayoutConnector
+    let isThreeDsAuthenticator = connectorType == "authentication_processor"
 
     switch removeFromList {
     | Connector => !isConnector
     | FRMPlayer => isConnector
     | PayoutConnector => isPayoutConnector
+    | ThreeDsAuthenticator => isThreeDsAuthenticator
     }
   })
 }
@@ -1194,9 +1235,8 @@ let getProcessorsListFromJson = (json, ~removeFromList: processors=FRMPlayer, ()
   json->getArrayFromJson([])->Array.map(getDictFromJsonObject)->filterList(~removeFromList)
 }
 
-let getDisplayNameForConnectors = connector => {
-  let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString
-  switch connectorType {
+let getDisplayNameForConnector = connector =>
+  switch connector {
   | ADYEN => "Adyen"
   | CHECKOUT => "Checkout"
   | BRAINTREE => "Braintree"
@@ -1248,6 +1288,19 @@ let getDisplayNameForConnectors = connector => {
   | PROPHETPAY => "Prophet Pay"
   | BANKOFAMERICA => "Bank of America"
   | HELCIM => "Helcim"
+  }
+
+let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
+  switch threeDsAuthenticator {
+  | THREEDSECUREIO => "3dsecure.io"
+  }
+
+let getDisplayNameForConnector = connector => {
+  let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString()
+  switch connectorType {
+  | Processors(connector) => connector->getDisplayNameForConnector
+  | ThreeDsAuthenticator(threeDsAuthenticator) =>
+    threeDsAuthenticator->getDisplayNameForThreedsAuthenticator
   | UnknownConnector(str) => str
   }
 }
@@ -1256,6 +1309,6 @@ let getConnectorTypeArrayFromListConnectors = (
   connectorsList: array<ConnectorTypes.connectorPayload>,
 ) => {
   connectorsList->Array.map(connectorDetail =>
-    connectorDetail.connector_name->getConnectorNameTypeFromString
+    connectorDetail.connector_name->getConnectorNameTypeFromString()
   )
 }

@@ -63,6 +63,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
     | list{"user", "login"} =>
       setAuthType(_ => isMagicLinkEnabled ? MagicLinkVerify : LoginWithPassword)
     | list{"user", "set_password"} => setAuthType(_ => ResetPassword)
+    | list{"user", "accept_invite_from_email"} => setAuthType(_ => ActivateFromEmail)
     | list{"register", ..._remainingPath} => setAuthType(_ => SignUP)
     | _ => ()
     }
@@ -83,6 +84,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
     | (
         LoginWithEmail | LoginWithPassword,
         list{"user", "verify_email"}
+        | list{"user", "accept_invite_from_email"}
         | list{"user", "login"}
         | list{"user", "set_password"}
         | list{"register", ..._},
@@ -101,6 +103,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
   }, [authType])
   switch authType {
   | EmailVerify | MagicLinkVerify => <HyperSwitchEmailVerifyScreen setAuthType setAuthStatus />
+  | ActivateFromEmail => <HSAcceptInviteFromEmail setAuthType setAuthStatus />
   | _ => <AuthPage authType setAuthType setAuthStatus mode setMode />
   }
 }
