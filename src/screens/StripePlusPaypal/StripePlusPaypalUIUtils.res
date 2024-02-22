@@ -61,9 +61,9 @@ module SelectPaymentMethods = {
           enumRecoilUpdateArr->Array.push((body, #SecondProcessorConnected))
         }
 
-        if selectedConnector === STRIPE {
+        if selectedConnector === Processors(STRIPE) {
           enumRecoilUpdateArr->Array.push((body, #StripeConnected))
-        } else if selectedConnector === PAYPAL {
+        } else if selectedConnector === Processors(PAYPAL) {
           enumRecoilUpdateArr->Array.push((body, #PaypalConnected))
         }
         let _ = updateEnumInRecoil(enumRecoilUpdateArr)

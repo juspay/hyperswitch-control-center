@@ -8,14 +8,10 @@ let make = (~setAuthType, ~setAuthStatus) => {
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let {acceptInvite} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let emailVerifyUpdate = async body => {
+
+  let acceptInviteFormEmail = async body => {
     try {
-      let url = getURL(
-        ~entityName=USERS,
-        ~methodType=Post,
-        ~userType={acceptInvite ? #VERIFY_EMAILV2 : #VERIFY_EMAIL},
-        (),
-      )
+      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACCEPT_INVITE_FROM_EMAIL, ())
       let res = await updateDetails(url, body, Post, ())
       let email = res->JSON.Decode.object->Option.getOr(Dict.make())->getString("email", "")
       let token = HyperSwitchAuthUtils.parseResponseJson(
@@ -23,9 +19,9 @@ let make = (~setAuthType, ~setAuthStatus) => {
         ~email,
         ~isAcceptInvite=acceptInvite,
       )
-      await HyperSwitchUtils.delay(1000)
+
       if !(token->isEmptyString) && !(email->isEmptyString) {
-        setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
+        setAuthStatus(LoggedIn(getDummyAuthInfoForToken(token)))
         setIsSidebarDetails("isPinned", false->JSON.Encode.bool)
         RescriptReactRouter.replace(`${HSwitchGlobalVars.hyperSwitchFEPrefix}/home`)
       } else {
@@ -46,9 +42,10 @@ let make = (~setAuthType, ~setAuthStatus) => {
     let tokenFromUrl = url.search->getDictFromUrlSearchParams->Dict.get("token")
 
     switch tokenFromUrl {
-    | Some(token) => token->generateBodyForEmailRedirection->emailVerifyUpdate->ignore
+    | Some(token) => token->generateBodyForEmailRedirection->acceptInviteFormEmail->ignore
     | None => setErrorMessage(_ => "Token not received")
     }
+
     None
   })
 
@@ -82,14 +79,14 @@ let make = (~setAuthType, ~setAuthStatus) => {
             customButtonStyle="cursor-pointer cursor-pointer w-5 rounded-md"
             onClick={_ => {
               RescriptReactRouter.replace(`${HSwitchGlobalVars.hyperSwitchFEPrefix}/login`)
-              setAuthType(_ => HyperSwitchAuthTypes.LoginWithEmail)
+              setAuthType(_ => LoginWithEmail)
             }}
           />
         </div>
       </div>
     } else {
-      <div className="h-full w-full flex justify-center items-center text-white opacity-90">
-        {"Verifing... You will be redirecting.."->React.string}
+      <div className="h-full w-full flex justify-center items-center text-white opacity-50">
+        {"Accepting invite... You will be redirecting to the Dashboard.."->React.string}
       </div>
     }}
   </HSwitchUtils.BackgroundImageWrapper>
