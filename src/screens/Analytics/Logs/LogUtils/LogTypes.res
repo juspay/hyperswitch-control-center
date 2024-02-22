@@ -5,6 +5,7 @@ type pageType = [#PAYMENT | #REFUND]
 type logDetails = {
   response: string,
   request: string,
+  data: Dict.t<JSON.t>,
 }
 
 type selectedObj = {
@@ -42,6 +43,7 @@ let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
       setLogDetails(_ => {
         response,
         request,
+        data: initialData,
       })
       setSelectedOption(_ => {
         value: 0,
@@ -65,6 +67,7 @@ let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
       setLogDetails(_ => {
         response,
         request,
+        data: initialData,
       })
       setSelectedOption(_ => {
         value: 0,
@@ -77,6 +80,7 @@ let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
       setLogDetails(_ => {
         response,
         request,
+        data: initialData,
       })
       setSelectedOption(_ => {
         value: 0,
@@ -89,6 +93,7 @@ let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
       setLogDetails(_ => {
         response,
         request,
+        data: initialData,
       })
       setSelectedOption(_ => {
         value: 0,

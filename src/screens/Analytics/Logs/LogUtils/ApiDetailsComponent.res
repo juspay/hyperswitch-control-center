@@ -18,7 +18,7 @@ let make = (
   | API_EVENTS => dataDict->getString("api_flow", "default value")->camelCaseToTitle
   | SDK => dataDict->getString("event_name", "default value")
   | CONNECTOR => dataDict->getString("flow", "default value")->camelCaseToTitle
-  | WEBHOOKS => dataDict->getString("outgoing_webhook_event_type", "default value")
+  | WEBHOOKS => dataDict->getString("event_type", "default value")->snakeToTitle
   }->nameToURLMapper
   let createdTime = dataDict->getString("created_at", "00000")
   let requestObject = switch logType {
@@ -55,13 +55,6 @@ let make = (
   | CONNECTOR => dataDict->getString("method", "")
   | SDK => ""
   | WEBHOOKS => "POST"
-  }
-
-  let apiPath = switch logType {
-  | API_EVENTS => dataDict->getString("url_path", "")
-  | CONNECTOR => dataDict->getString("flow", "")
-  | WEBHOOKS => dataDict->getString("outgoing_webhook_event_type", "")->String.toLocaleUpperCase
-  | SDK => ""
   }
 
   let statusCodeTextColor = switch logType {
@@ -175,6 +168,7 @@ let make = (
         setLogDetails(_ => {
           response: responseObject,
           request: requestObject,
+          data: dataDict,
         })
         setSelectedOption(_ => {
           value: index,
@@ -198,7 +192,7 @@ let make = (
               <span className="mr-3 border-2 px-1 py-0.5 rounded text-sm">
                 {method->String.toUpperCase->React.string}
               </span>
-              <span className="leading-7"> {apiPath->React.string} </span>
+              <span className="leading-7"> {apiName->React.string} </span>
             </p>
           }}
         </div>

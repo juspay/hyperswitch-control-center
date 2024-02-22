@@ -5,9 +5,11 @@ let make = (~id, ~promiseArr, ~logType: LogTypes.pageType) => {
   open LogTypes
   let (data, setData) = React.useState(_ => [])
   let isError = React.useMemo0(() => {ref(false)})
+  let showToast = ToastState.useShowToast()
   let (logDetails, setLogDetails) = React.useState(_ => {
     response: "",
     request: "",
+    data: Dict.make(),
   })
   let (selectedOption, setSelectedOption) = React.useState(_ => {
     value: 0,
@@ -97,11 +99,85 @@ let make = (~id, ~promiseArr, ~logType: LogTypes.pageType) => {
   | WEBHOOKS => ""
   }
 
+  let handleOnClickCopy = (~parsedValue) => {
+    Clipboard.writeText(parsedValue)
+    showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
+  }
+
   let codeBlock =
     <UIUtils.RenderIf
       condition={logDetails.response->isNonEmptyString || logDetails.request->isNonEmptyString}>
       <div
         className="flex flex-col gap-4 border-l-1 border-border-light-grey show-scrollbar scroll-smooth overflow-scroll px-5 py-3 w-3/5">
+        <div className="border-b-1 border-border-light-grey pb-3">
+          {logDetails.data
+          ->Dict.toArray
+          ->Array.filter(item => {
+            let (key, value) = item
+
+            let flag = switch JSON.Classify.classify(value) {
+            | Bool(_) => true
+            | String(_) => true
+            | Number(_) => true
+            | Object(_) => true
+            | _ => false
+            }
+
+            !(
+              [
+                "content",
+                "created_at",
+                "event_type",
+                "flow_type",
+                "api_flow",
+                "request",
+                "response",
+                "user_agent",
+                "ip_addr",
+                "flow",
+                "masked_response",
+                "http_method",
+                "hs_latency",
+                "status_code",
+              ]->Array.includes(key)
+            ) &&
+            flag
+          })
+          ->Array.map(item => {
+            let (key, value) = item
+            <div className="text-sm font-medium text-gray-700 flex">
+              <span className="w-2/5"> {key->snakeToTitle->React.string} </span>
+              <span
+                className="w-3/5 overflow-scroll cursor-pointer relative hover:bg-gray-50 p-1 rounded">
+                <div
+                  onClick={_ => handleOnClickCopy(~parsedValue=value->JSON.stringify)}
+                  className="w-full h-full absolute top-0 flex justify-end opacity-0 hover:opacity-100 p-1">
+                  <div className="cursor-pointer">
+                    <Icon name="copy-code" />
+                  </div>
+                </div>
+                <ReactSyntaxHighlighter.SyntaxHighlighter
+                  wrapLines={true}
+                  style={ReactSyntaxHighlighter.lightfair}
+                  language="json"
+                  showLineNumbers={false}
+                  lineNumberContainerStyle={{
+                    paddingLeft: "0px",
+                    backgroundColor: "red",
+                    padding: "0px",
+                  }}
+                  customStyle={{
+                    backgroundColor: "transparent",
+                    fontSize: "0.875rem",
+                    padding: "0px",
+                  }}>
+                  {value->JSON.stringify}
+                </ReactSyntaxHighlighter.SyntaxHighlighter>
+              </span>
+            </div>
+          })
+          ->React.array}
+        </div>
         <UIUtils.RenderIf
           condition={logDetails.request->isNonEmptyString &&
             selectedOption.optionType !== WEBHOOKS}>
