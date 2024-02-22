@@ -458,9 +458,7 @@ let errorSubCodeMapper = (subCode: string) => {
   }
 }
 
-let generateBodyForEmailRedirection = (url: RescriptReactRouter.url) => {
+let generateBodyForEmailRedirection = token => {
   open LogicUtils
-
-  let tokenFromUrl = url.search->getDictFromUrlSearchParams->Dict.get("token")->Option.getOr("")
-  [("token", tokenFromUrl->JSON.Encode.string)]->getJsonFromArrayOfJson
+  [("token", token->JSON.Encode.string)]->getJsonFromArrayOfJson
 }

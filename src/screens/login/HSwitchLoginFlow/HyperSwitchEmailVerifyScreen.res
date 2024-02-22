@@ -42,8 +42,13 @@ let make = (~setAuthType, ~setAuthStatus) => {
   }
 
   React.useEffect0(() => {
-    let body = HyperSwitchAuthUtils.generateBodyForEmailRedirection(url)
-    emailVerifyUpdate(body)->ignore
+    open HyperSwitchAuthUtils
+    let tokenFromUrl = url.search->getDictFromUrlSearchParams->Dict.get("token")
+
+    switch tokenFromUrl {
+    | Some(token) => token->generateBodyForEmailRedirection->emailVerifyUpdate->ignore
+    | None => setErrorMessage(_ => "Token not received")
+    }
     None
   })
 

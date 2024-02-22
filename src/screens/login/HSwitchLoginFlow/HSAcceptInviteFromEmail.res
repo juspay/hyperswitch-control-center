@@ -9,7 +9,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let {acceptInvite} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let emailVerifyUpdate = async body => {
+  let acceptInviteFormEmail = async body => {
     try {
       let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACCEPT_INVITE_FROM_EMAIL, ())
       let res = await updateDetails(url, body, Post, ())
@@ -38,8 +38,14 @@ let make = (~setAuthType, ~setAuthStatus) => {
   }
 
   React.useEffect0(() => {
-    let body = HyperSwitchAuthUtils.generateBodyForEmailRedirection(url)
-    emailVerifyUpdate(body)->ignore
+    open HyperSwitchAuthUtils
+    let tokenFromUrl = url.search->getDictFromUrlSearchParams->Dict.get("token")
+
+    switch tokenFromUrl {
+    | Some(token) => token->generateBodyForEmailRedirection->acceptInviteFormEmail->ignore
+    | None => setErrorMessage(_ => "Token not received")
+    }
+
     None
   })
 
