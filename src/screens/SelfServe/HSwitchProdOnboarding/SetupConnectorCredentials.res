@@ -46,7 +46,7 @@ module ConnectorDetailsForm = {
       </UIUtils.RenderIf>
       <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
         connectorAccountFields
-        connector={connectorName->getConnectorNameTypeFromString()}
+        connector={connectorVariant}
         selectedConnector
         connectorMetaDataFields
         connectorWebHookDetails
@@ -244,7 +244,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
 
     validateConnectorRequiredFields(
-      connectorName->getConnectorNameTypeFromString(),
+      connectorVariant,
       valuesFlattenJson,
       connectorAccountFields,
       connectorMetaDataFields,
