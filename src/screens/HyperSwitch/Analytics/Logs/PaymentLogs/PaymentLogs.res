@@ -35,7 +35,7 @@ let make = (~paymentId, ~createdAt) => {
     (),
   )
 
-  <LogUI
+  <AuditLogUI
     id={paymentId}
     promiseArr={[
       fetchDetails(apiLogsUrl),

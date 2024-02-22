@@ -7,7 +7,7 @@ let make = (~refundId, ~paymentId) => {
   let webhooksLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/outgoing_webhook_event_logs?&payment_id=${paymentId}&refund_id=${refundId}`
   let connectorLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/connector_event_logs?payment_id=${paymentId}&refund_id=${refundId}`
 
-  <LogUI
+  <AuditLogUI
     id={paymentId}
     promiseArr={[
       fetchDetails(refundsLogsUrl),
