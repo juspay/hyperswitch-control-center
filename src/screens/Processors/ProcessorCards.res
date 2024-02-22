@@ -208,11 +208,11 @@ let make = (
     <div className="flex flex-col gap-4">
       {if showIcons {
         <>
-          {connectorListFiltered->iconsConnectors("Connect a new connector", true, ())}
+          {connectorListFiltered->iconsConnectors("Connect a new processor", true, ())}
           {<RenderIf condition={featureFlagDetails.testProcessors && showTestProcessor}>
             {featureFlagDetails.testProcessors
             ->dummyConnectorList
-            ->iconsConnectors("Connect a test connector", false, ~showSearch=false, ())}
+            ->iconsConnectors("Connect a test processor", false, ~showSearch=false, ())}
           </RenderIf>}
         </>
       } else {
@@ -220,9 +220,9 @@ let make = (
           <RenderIf condition={featureFlagDetails.testProcessors && showTestProcessor}>
             {featureFlagDetails.testProcessors
             ->dummyConnectorList
-            ->descriptedConnectors("Connect a test connector", false, ~showSearch=false, ())}
+            ->descriptedConnectors("Connect a test processor", false, ~showSearch=false, ())}
           </RenderIf>
-          {connectorListFiltered->descriptedConnectors("Connect a new connector", true, ())}
+          {connectorListFiltered->descriptedConnectors("Connect a new processor", true, ())}
         </>
       }}
     </div>
