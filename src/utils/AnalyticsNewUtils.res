@@ -12,7 +12,7 @@ let calculateHistoricTime = (
   | UTC => toUtc
   | IST => val => val
   }
-  if startTime !== "" && endTime !== "" {
+  if startTime->LogicUtils.isNonEmptyString && endTime->LogicUtils.isNonEmptyString {
     let startDateTime = startTime->DateTimeUtils.parseAsFloat->Js.Date.fromFloat->toUtc
 
     let startTimeDayJs = startDateTime->DayJs.getDayJsForJsDate

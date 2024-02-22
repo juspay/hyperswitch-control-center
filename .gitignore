@@ -24,4 +24,5 @@ package-lock.json
 screenshots
 hyperswitch/
 downloads
+.env
 coverage

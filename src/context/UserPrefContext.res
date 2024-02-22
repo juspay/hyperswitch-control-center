@@ -192,7 +192,7 @@ let make = (~children) => {
     }
     let getSearchParamByLink = link => {
       let searchParam = UserPrefUtils.getSearchParams(moduleVisePref, ~key=link) // this is for removing the v4 from the link
-      searchParam !== "" ? `?${searchParam}` : ""
+      searchParam->LogicUtils.isNonEmptyString ? `?${searchParam}` : ""
     }
 
     {

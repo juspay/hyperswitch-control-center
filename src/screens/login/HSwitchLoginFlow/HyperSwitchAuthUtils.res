@@ -114,7 +114,7 @@ let getEmailBody = (email, ~country=?, ()) => {
   fields->Dict.fromArray->JSON.Encode.object
 }
 
-let parseResponseJson = (~json, ~email) => {
+let parseResponseJson = (~json, ~email, ~isAcceptInvite) => {
   open HSwitchUtils
   open LogicUtils
   let valuesDict = json->JSON.Decode.object->Option.getOr(Dict.make())
@@ -126,18 +126,21 @@ let parseResponseJson = (~json, ~email) => {
   }
 
   // * Setting all local storage values
-  if flowType->Option.isSome && flowType->flowTypeStrToVariantMapper === MERCHANT_SELECT {
-    LocalStorage.setItem(
-      "accept_invite_data",
-      valuesDict->getArrayFromDict("merchants", [])->JSON.stringifyAny->Option.getOr(""),
-    )
+  if isAcceptInvite {
+    if flowType->Option.isSome && flowType->flowTypeStrToVariantMapper === MERCHANT_SELECT {
+      LocalStorage.setItem(
+        "accept_invite_data",
+        valuesDict->getArrayFromDict("merchants", [])->JSON.stringifyAny->Option.getOr(""),
+      )
+    }
+    setUserDetails("flow_type", flowTypeVal)
   }
+
   setMerchantDetails("merchant_id", valuesDict->getString("merchant_id", "")->JSON.Encode.string)
   setMerchantDetails("email", email->JSON.Encode.string)
   setMerchantDetails("verification", verificationValue->Int.toString->JSON.Encode.string)
   setUserDetails("name", valuesDict->getString("name", "")->JSON.Encode.string)
   setUserDetails("user_role", valuesDict->getString("user_role", "")->JSON.Encode.string)
-  setUserDetails("flow_type", flowTypeVal)
   valuesDict->getString("token", "")
 }
 
@@ -149,7 +152,7 @@ let validateForm = (values: JSON.t, keys: array<string>) => {
     let value = LogicUtils.getString(valuesDict, key, "")
 
     // empty check
-    if value == "" {
+    if value->LogicUtils.isEmptyString {
       switch key {
       | "email" => Dict.set(errors, key, "Please enter your Email ID"->JSON.Encode.string)
       | "password" => Dict.set(errors, key, "Please enter your Password"->JSON.Encode.string)
@@ -166,7 +169,7 @@ let validateForm = (values: JSON.t, keys: array<string>) => {
     }
 
     // email check
-    if value !== "" && key === "email" && value->HSwitchUtils.isValidEmail {
+    if value->LogicUtils.isNonEmptyString && key === "email" && value->HSwitchUtils.isValidEmail {
       Dict.set(errors, key, "Please enter valid Email ID"->JSON.Encode.string)
     }
 

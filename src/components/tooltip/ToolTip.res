@@ -124,8 +124,8 @@ module TooltipWrapper = {
     }
 
     ReactDOMStyle.make(
-      ~top=`${toolTipTopPosition->string_of_int}px`,
-      ~left=`${toolTipLeftPosition->string_of_int}px`,
+      ~top=`${toolTipTopPosition->Int.toString}px`,
+      ~left=`${toolTipLeftPosition->Int.toString}px`,
       (),
     )
   }
@@ -202,7 +202,8 @@ module TooltipWrapper = {
     ~defaultPosition,
     ~children,
   ) => {
-    let descriptionExists = description != "" || descriptionComponent != React.null
+    let descriptionExists =
+      description->LogicUtils.isNonEmptyString || descriptionComponent != React.null
 
     let textStyle = textStyle
     let fontWeight = "font-semibold"
@@ -272,9 +273,9 @@ module DescriptionSection = {
     <div className={textStyleGap}>
       {description
       ->String.split("\n")
-      ->Array.filter(str => str !== "")
+      ->Array.filter(str => str->LogicUtils.isNonEmptyString)
       ->Array.mapWithIndex((item, i) => {
-        <AddDataAttributes attributes=[("data-text", item)] key={i->string_of_int}>
+        <AddDataAttributes attributes=[("data-text", item)] key={i->Int.toString}>
           <div key={item} className="flex flex-col gap-1"> {React.string(item)} </div>
         </AddDataAttributes>
       })
@@ -390,8 +391,8 @@ module Arrow = {
     let borderLeftColor = position === Left ? arrowColor : "transparent"
 
     ReactDOMStyle.make(
-      ~top=`${arrowTopPosition->string_of_int}px`,
-      ~left=`${arrowLeftPosition->string_of_int}px`,
+      ~top=`${arrowTopPosition->Int.toString}px`,
+      ~left=`${arrowLeftPosition->Int.toString}px`,
       ~borderWidth,
       ~width="0",
       ~height="0",
@@ -499,7 +500,9 @@ module Arrow = {
     | Dark => "#fff"
     }
 
-    let arrowColor = if arrowBgClass !== "" && bgColor !== "" {
+    let arrowColor = if (
+      arrowBgClass->LogicUtils.isNonEmptyString && bgColor->LogicUtils.isNonEmptyString
+    ) {
       arrowBgClass
     } else {
       arrowBackGroundClass
@@ -665,7 +668,7 @@ let make = (
 
   let tooltipBgClass = "dark:bg-jp-gray-tooltip_bg_dark bg-jp-gray-tooltip_bg_light dark:text-jp-gray-lightgray_background dark:text-opacity-75 text-jp-gray-text_darktheme text-opacity-75"
 
-  let bgColor = bgColor === "" ? tooltipBgClass : bgColor
+  let bgColor = bgColor->LogicUtils.isEmptyString ? tooltipBgClass : bgColor
 
   let defaultPosition = getDefaultPosition(
     ~positionX,

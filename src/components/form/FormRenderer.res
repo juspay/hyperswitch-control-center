@@ -199,17 +199,17 @@ module FieldWrapper = {
     ~subHeadingClass="",
   ) => {
     let showLabel = React.useContext(LabelVisibilityContext.formLabelRenderContext)
-    let fieldWrapperClass = if fieldWrapperClass == "" {
+    let fieldWrapperClass = if fieldWrapperClass->LogicUtils.isEmptyString {
       "p-1 flex flex-col"
     } else {
       fieldWrapperClass
     }
     let subTextClass = `pt-2 pb-2 text-sm text-bold text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ${subTextClass}`
 
-    let labelPadding = labelPadding === "" ? "pt-2 pb-2" : labelPadding
+    let labelPadding = labelPadding->LogicUtils.isEmptyString ? "pt-2 pb-2" : labelPadding
 
     let labelTextClass =
-      labelTextStyleClass->String.length > 0
+      labelTextStyleClass->LogicUtils.isNonEmptyString
         ? labelTextStyleClass
         : "text-fs-13 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1"
 
@@ -229,7 +229,7 @@ module FieldWrapper = {
             </UIUtils.RenderIf>
             {switch description {
             | Some(description) =>
-              <UIUtils.RenderIf condition={description !== ""}>
+              <UIUtils.RenderIf condition={description->LogicUtils.isNonEmptyString}>
                 <div className="text-sm text-gray-500 mx-2">
                   <ToolTip description toolTipPosition />
                 </div>
@@ -361,7 +361,7 @@ module ComboFieldsRenderer = {
       <ButtonGroup wrapperClass="flex flex-row items-center">
         {field.inputFields
         ->Array.mapWithIndex((field, i) => {
-          <ErrorBoundary key={string_of_int(i)}>
+          <ErrorBoundary key={Int.toString(i)}>
             <FieldInputRenderer field showError=false />
           </ErrorBoundary>
         })
@@ -370,7 +370,7 @@ module ComboFieldsRenderer = {
       <div>
         {field.inputFields
         ->Array.mapWithIndex((field, i) => {
-          <ErrorBoundary key={string_of_int(i)}>
+          <ErrorBoundary key={Int.toString(i)}>
             <FieldErrorRenderer field />
           </ErrorBoundary>
         })
@@ -665,7 +665,11 @@ module SubmitButton = {
       />
 
     let buttonState: Button.buttonState =
-      loadingText !== "" && submitting ? Loading : !avoidDisable && disabled ? Disabled : Normal
+      loadingText->LogicUtils.isNonEmptyString && submitting
+        ? Loading
+        : !avoidDisable && disabled
+        ? Disabled
+        : Normal
 
     let submitBtn =
       <>
@@ -732,7 +736,7 @@ module FieldsRenderer = {
   ) => {
     Array.mapWithIndex(fields, (field, i) => {
       <FieldRenderer
-        key={string_of_int(i)}
+        key={Int.toString(i)}
         field
         fieldWrapperClass
         labelClass

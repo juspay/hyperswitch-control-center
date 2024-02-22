@@ -62,7 +62,10 @@ let validateFields = (values, ~modalType) => {
         errors->Dict.set("rating", "Please rate"->JSON.Encode.string)
       }
 
-      if values->getString("category", "") !== "" && values->getString("feedbacks", "") === "" {
+      if (
+        values->getString("category", "")->LogicUtils.isNonEmptyString &&
+          values->getString("feedbacks", "")->LogicUtils.isEmptyString
+      ) {
         errors->Dict.set("feedbacks", "Please give the feedback"->JSON.Encode.string)
       }
     }

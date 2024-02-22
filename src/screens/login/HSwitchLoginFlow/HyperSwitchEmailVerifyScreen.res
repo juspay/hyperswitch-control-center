@@ -15,12 +15,22 @@ let make = (~setAuthType, ~setAuthStatus) => {
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
+  let {acceptInvite} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let emailVerifyUpdate = async body => {
     try {
-      let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#VERIFY_EMAILV2, ())
+      let url = getURL(
+        ~entityName=USERS,
+        ~methodType=Post,
+        ~userType={acceptInvite ? #VERIFY_EMAILV2 : #VERIFY_EMAIL},
+        (),
+      )
       let res = await updateDetails(url, body, Post, ())
       let email = res->JSON.Decode.object->Option.getOr(Dict.make())->getString("email", "")
-      let token = HyperSwitchAuthUtils.parseResponseJson(~json=res, ~email)
+      let token = HyperSwitchAuthUtils.parseResponseJson(
+        ~json=res,
+        ~email,
+        ~isAcceptInvite=acceptInvite,
+      )
       await HyperSwitchUtils.delay(1000)
       if !(token->isEmptyString) && !(email->isEmptyString) {
         setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
@@ -52,7 +62,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
           name="hyperswitch-text-icon"
           size=40
           className="cursor-pointer w-60"
-          parentClass="flex flex-col justify-center items-center"
+          parentClass="flex flex-col justify-center items-center bg-white"
         />
         <div className="flex flex-col justify-between items-center gap-12 ">
           <img src={`/assets/WorkInProgress.svg`} />
@@ -60,11 +70,11 @@ let make = (~setAuthType, ~setAuthStatus) => {
             className={`leading-4 ml-1 mt-2 text-center flex items-center flex-col gap-6 w-full md:w-133 flex-wrap`}>
             <div className="flex gap-2.5 items-center">
               <Icon name="exclamation-circle" size=22 className="fill-red-500 mr-1.5" />
-              <p className="text-fs-20 font-bold text-gray-700">
+              <p className="text-fs-20 font-bold text-white">
                 {React.string("Invalid Link or session expired")}
               </p>
             </div>
-            <p className="text-fs-14 text-gray-700 opacity-50 font-semibold ">
+            <p className="text-fs-14 text-white opacity-60 font-semibold ">
               {"It appears that the link you were trying to access has expired or is no longer valid. Please try again ."->React.string}
             </p>
           </div>

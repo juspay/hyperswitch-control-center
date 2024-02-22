@@ -38,12 +38,12 @@ module ModalHeading = {
     ~modalHeadingClass,
     ~modalParentHeadingClass,
     ~customIcon,
+    ~modalHeaderIconSize,
   ) => {
     let isHyperSwitchDashboard = HSwitchGlobalVars.isHyperSwitchDashboard
-    let borderClass =
-      showBorderBottom && !isHyperSwitchDashboard
-        ? "border-b border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75"
-        : ""
+    let borderClass = showBorderBottom
+      ? "border-b border-jp-gray-940 border-opacity-75 dark:border-jp-gray-960 dark:border-opacity-75"
+      : ""
 
     let isMobileView = MatchMedia.useMatchMedia("(max-width: 700px)")
 
@@ -59,7 +59,7 @@ module ModalHeading = {
       : "text-sm empty:hidden"
 
     <div
-      className={`!p-4 ${headBgClass !== ""
+      className={`!p-4 ${headBgClass->LogicUtils.isNonEmptyString
           ? headBgClass
           : "bg-jp-gray-200 dark:bg-jp-gray-darkgray_background"} rounded-t-lg z-10  w-full  m-0 md:!pl-6  ${headingClass} ${borderClass} `}>
       {switch leftHeadingIcon {
@@ -83,15 +83,15 @@ module ModalHeading = {
           } else {
             React.null
           }}
-          {if showModalHeadingIconName !== "" {
+          {if showModalHeadingIconName->LogicUtils.isNonEmptyString {
             <div className="flex items-center gap-4">
               {switch customIcon {
               | Some(icon) => icon
-              | None => <Icon name=showModalHeadingIconName size=35 className="" />
+              | None => <Icon name=showModalHeadingIconName size=modalHeaderIconSize className="" />
               }}
               <AddDataAttributes attributes=[("data-modal-header-text", modalHeading)]>
                 <div
-                  className="font-inter-style font-semibold text-fs-16 leading-6 text-jp-2-gray-600">
+                  className={`font-inter-style font-semibold text-fs-16 leading-6 text-jp-2-gray-600 ${modalHeadingClass}`}>
                   {React.string(modalHeading)}
                 </div>
               </AddDataAttributes>
@@ -160,7 +160,7 @@ module ModalOverlay = {
     let backgroundDropStyles = isBackdropBlurReq ? "backdrop-blur-sm" : ""
 
     let attributeId =
-      addAttributeId === ""
+      addAttributeId->LogicUtils.isEmptyString
         ? switch modalHeading {
           | Some(_heading) => `:${modalHeading->Option.getOr("")}`
           | None => ""
@@ -224,6 +224,7 @@ let make = (
   ~addAttributeId="",
   ~customIcon=None,
   ~alignModal="justify-end",
+  ~modalHeaderIconSize=35,
 ) => {
   let showBorderBottom = borderBottom
   let _ = revealFrom
@@ -322,6 +323,7 @@ let make = (
           modalHeadingClass
           modalParentHeadingClass
           customIcon
+          modalHeaderIconSize
         />
 
       | None => React.null

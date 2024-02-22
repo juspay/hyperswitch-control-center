@@ -68,7 +68,7 @@ module ListItem = {
     }
     let (toggleSelect, setToggleSelect) = React.useState(() => isSelected)
     let listText =
-      searchString === ""
+      searchString->LogicUtils.isEmptyString
         ? [text]
         : {
             switch Js.String2.match_(text, regex("\\b", searchString)) {
@@ -94,7 +94,7 @@ module ListItem = {
     }
     let backgroundClass = if showToggle {
       ""
-    } else if isSelected && customStyle->String.length > 0 {
+    } else if isSelected && customStyle->LogicUtils.isNonEmptyString {
       customSelectStyle
     } else if isDropDown && isSelected && !isDisabled {
       `${bgClass} transition ease-[cubic-bezier(0.33, 1, 0.68, 1)]`
@@ -148,7 +148,7 @@ module ListItem = {
 
     let textColor = "text-jp-gray-900 dark:text-jp-gray-text_darktheme"
 
-    let textColor = if textColorClass->String.length > 0 {
+    let textColor = if textColorClass->LogicUtils.isNonEmptyString {
       textColorClass
     } else {
       textColor
@@ -182,7 +182,8 @@ module ListItem = {
     | None => "overflow-hidden"
     }
 
-    let customCss = listFlexDirection === "" ? `flex-row ${paddingClass}` : listFlexDirection
+    let customCss =
+      listFlexDirection->LogicUtils.isEmptyString ? `flex-row ${paddingClass}` : listFlexDirection
     RippleEffectBackground.useLinearRippleHook(parentRef, isDropDown)
     let comp =
       <AddDataAttributes
@@ -204,7 +205,7 @@ module ListItem = {
               </div>
             } else if multiSelect {
               <span className=toggleClass>
-                {checkboxDimension != ""
+                {checkboxDimension->LogicUtils.isNonEmptyString
                   ? <CheckBoxIcon
                       isSelected isDisabled size=optionSize isSelectedStateMinus checkboxDimension
                     />
@@ -229,7 +230,9 @@ module ListItem = {
               {switch icon {
               | FontAwesome(iconName) =>
                 <Icon
-                  className={`align-middle ${iconStroke == "" ? optionIconStroke : iconStroke} `}
+                  className={`align-middle ${iconStroke->LogicUtils.isEmptyString
+                      ? optionIconStroke
+                      : iconStroke} `}
                   size={20}
                   name=iconName
                 />
@@ -240,7 +243,7 @@ module ListItem = {
               }}
               <div className="w-full">
                 {listText
-                ->Array.filter(str => str !== "")
+                ->Array.filter(str => str->LogicUtils.isNonEmptyString)
                 ->Array.mapWithIndex((item, i) => {
                   if (
                     (String.toLowerCase(item) == String.toLowerCase(searchString) ||
@@ -248,9 +251,9 @@ module ListItem = {
                       String.length(searchString) > 0
                   ) {
                     <AddDataAttributes
-                      key={i->string_of_int} attributes=[("data-searched-text", item)]>
+                      key={i->Int.toString} attributes=[("data-searched-text", item)]>
                       <mark
-                        key={i->string_of_int} className={`${searchMatchTextColor} bg-transparent`}>
+                        key={i->Int.toString} className={`${searchMatchTextColor} bg-transparent`}>
                         {item->React.string}
                       </mark>
                     </AddDataAttributes>
@@ -265,8 +268,8 @@ module ListItem = {
 
                     let selectOptions =
                       <AddDataAttributes
-                        attributes=[("data-text", labelText)] key={i->string_of_int}>
-                        <span key={i->string_of_int} className=textClass value=labelText>
+                        attributes=[("data-text", labelText)] key={i->Int.toString}>
+                        <span key={i->Int.toString} className=textClass value=labelText>
                           {item->React.string}
                         </span>
                       </AddDataAttributes>
@@ -274,7 +277,7 @@ module ListItem = {
                     {
                       if showToolTipOptions {
                         <ToolTip
-                          key={i->string_of_int}
+                          key={i->Int.toString}
                           description=item
                           toolTipFor=selectOptions
                           contentAlign=Default
@@ -638,7 +641,7 @@ module BaseSelect = {
     }
     let disabledClass = disableSelect ? "cursor-not-allowed" : ""
 
-    let marginClass = if customMargin == "" {
+    let marginClass = if customMargin->LogicUtils.isEmptyString {
       "mt-4"
     } else {
       customMargin
@@ -653,7 +656,9 @@ module BaseSelect = {
             inputText=searchString
             searchRef
             onChange=handleSearch
-            placeholder={searchInputPlaceHolder === "" ? "Search..." : searchInputPlaceHolder}
+            placeholder={searchInputPlaceHolder->LogicUtils.isEmptyString
+              ? "Search..."
+              : searchInputPlaceHolder}
             showSearchIcon
           />
         </div>
@@ -713,9 +718,9 @@ module BaseSelect = {
             ) {
               <div className="text-sm text-gray-500 text-start mt-1 ml-1.5 font-bold">
                 {React.string(
-                  `${noOfSelected->string_of_int} items selected out of ${options
+                  `${noOfSelected->Int.toString} items selected out of ${options
                     ->Array.length
-                    ->string_of_int} options`,
+                    ->Int.toString} options`,
                 )}
               </div>
             } else {
@@ -810,7 +815,7 @@ module BaseSelect = {
         className={`overflow-auto ${listPadding} ${isHorizontal
             ? "flex flex-row grow"
             : ""}  ${showToggle ? "ml-3" : maxHeight}` ++ {
-          wrapBasis == "" ? "" : " flex flex-wrap justify-between"
+          wrapBasis->LogicUtils.isEmptyString ? "" : " flex flex-wrap justify-between"
         }}>
         {if filteredOptions->Array.length === 0 {
           <div className="flex justify-center items-center m-4">
@@ -834,7 +839,7 @@ module BaseSelect = {
               }
               let isSelected = index > -1
               let serialNumber =
-                isSelected && showSerialNumber ? Some(string_of_int(index + 1)) : None
+                isSelected && showSerialNumber ? Some(Int.toString(index + 1)) : None
               let leftVacennt = isDropDown && textIconPresent && item.icon === NoIcon
               <div className={`${gapClass} ${wrapBasis}`} key={item.value}>
                 <ListItem
@@ -993,7 +998,9 @@ module BaseSelectButton = {
               inputText=searchString
               onChange=handleSearch
               searchRef
-              placeholder={searchInputPlaceHolder === "" ? "Search..." : searchInputPlaceHolder}
+              placeholder={searchInputPlaceHolder->LogicUtils.isEmptyString
+                ? "Search..."
+                : searchInputPlaceHolder}
               showSearchIcon
             />
           </div>
@@ -1023,7 +1030,7 @@ module BaseSelectButton = {
           let leftVacennt = isDropDown && textIconPresent && option.icon === NoIcon
           if shouldDisplay {
             <ListItem
-              key={string_of_int(i)}
+              key={Int.toString(i)}
               isDropDown
               isSelected
               optionSize
@@ -1098,7 +1105,7 @@ module RenderListItemInBaseRadio = {
       let leftVacennt = isDropDown && textIconPresent && option.icon === NoIcon
       let listItemComponent =
         <ListItem
-          key={string_of_int(i)}
+          key={Int.toString(i)}
           isDropDown
           isSelected
           fill
@@ -1129,7 +1136,7 @@ module RenderListItemInBaseRadio = {
       if !descriptionOnHover {
         switch option.description {
         | Some(str) =>
-          <div key={i->string_of_int} className="flex flex-row">
+          <div key={i->Int.toString} className="flex flex-row">
             listItemComponent
             <UIUtils.RenderIf condition={!isHorizontal}>
               <ToolTip
@@ -1252,7 +1259,7 @@ module BaseRadio = {
             addDynamicValue && !(options->Array.map(item => item.value)->Array.includes(itemData))
           ) {
             setSelectedString(_ => itemData)
-          } else if selectedString !== "" {
+          } else if selectedString->LogicUtils.isNonEmptyString {
             setSelectedString(_ => "")
           }
 
@@ -1281,7 +1288,10 @@ module BaseRadio = {
 
     let searchRef = React.useRef(Nullable.null)
 
-    let width = isHorizontal || !isDropDown || customStyle === "" ? widthClass : customStyle
+    let width =
+      isHorizontal || !isDropDown || customStyle->LogicUtils.isEmptyString
+        ? widthClass
+        : customStyle
 
     let inlineClass = isHorizontal ? "inline-flex" : ""
 
@@ -1308,7 +1318,7 @@ module BaseRadio = {
     }
 
     let newOptions = React.useMemo3(() => {
-      let options = if selectedString !== "" {
+      let options = if selectedString->LogicUtils.isNonEmptyString {
         options->Array.concat([selectedString]->makeOptions->Array.map(makeNonOptional))
       } else {
         options
@@ -1346,7 +1356,9 @@ module BaseRadio = {
             inputText=searchString
             onChange=handleSearch
             searchRef
-            placeholder={searchInputPlaceHolder === "" ? "Search..." : searchInputPlaceHolder}
+            placeholder={searchInputPlaceHolder->LogicUtils.isEmptyString
+              ? "Search..."
+              : searchInputPlaceHolder}
             showSearchIcon
           />
         </div>
@@ -1393,7 +1405,7 @@ module BaseRadio = {
           {
             optgroupKeys
             ->Array.mapWithIndex((ele, index) => {
-              <React.Fragment key={index->string_of_int}>
+              <React.Fragment key={index->Int.toString}>
                 <h2 className="p-3 font-bold"> {ele->React.string} </h2>
                 <RenderListItemInBaseRadio
                   newOptions={getHashMappedOptionValues(newOptions)
@@ -1769,7 +1781,7 @@ module BaseDropdown = {
 
     let selectButtonText = if !showSelectionAsChips {
       title
-    } else if selectedString !== "" {
+    } else if selectedString->LogicUtils.isNonEmptyString {
       selectedString
     } else {
       dropDowntext
@@ -1930,7 +1942,7 @@ module BaseDropdown = {
               | None => ("", NoIcon)
               }
 
-              <div key={string_of_int(i)} className="m-2">
+              <div key={Int.toString(i)} className="m-2">
                 <Button
                   buttonFor=buttonText
                   buttonSize=Small
@@ -2004,7 +2016,7 @@ module InfraSelectBox = {
         let selectedClass = isSelected ? selectedClass : nonSelectedClass
 
         <div
-          key={string_of_int(i)}
+          key={Int.toString(i)}
           onClick={_ => onItemClick(option.value, option.isDisabled)}
           className={`px-4 py-1 border ${borderRadius} flex flex-row gap-2 items-center cursor-pointer ${selectedClass}`}>
           {if isSelected && showTickMark {
@@ -2068,10 +2080,11 @@ module ChipFilterSelectBox = {
       ->Array.mapWithIndex((option, i) => {
         let isSelected = saneValue->Array.includes(option.value)
         let selectedClass = isSelected ? passedClassName : initalClassName
-        let chipsCss = customStyleForChips == "" ? selectedClass : customStyleForChips
+        let chipsCss =
+          customStyleForChips->LogicUtils.isEmptyString ? selectedClass : customStyleForChips
 
         <div
-          key={string_of_int(i)}
+          key={Int.toString(i)}
           onClick={_ => onItemClick(option.value, option.isDisabled)}
           className={`px-4 py-1 mr-1 mt-0.5 border rounded-full flex flex-row gap-2 items-center cursor-pointer ${chipsCss}`}>
           {if isTickRequired {

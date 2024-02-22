@@ -166,7 +166,7 @@ module ClearFilters = {
       ->Array.filter(entry => {
         let (key, value) = entry
         let isEmptyValue = switch value->JSON.Classify.classify {
-        | String(str) => str === ""
+        | String(str) => str->LogicUtils.isEmptyString
         | Array(arr) => arr->Array.length === 0
         | Null => true
         | _ => false
@@ -236,7 +236,7 @@ module AnalyticsClearFilters = {
       ->Array.filter(entry => {
         let (key, value) = entry
         let isEmptyValue = switch value->JSON.Classify.classify {
-        | String(str) => str === ""
+        | String(str) => str->LogicUtils.isEmptyString
         | Array(arr) => arr->Array.length === 0
         | Null => true
         | _ => false
@@ -350,7 +350,7 @@ let getStrFromJson = (key, val) => {
   switch val->JSON.Classify.classify {
   | String(str) => str
   | Array(array) => array->Array.length > 0 ? `[${array->Array.joinWithUnsafe(",")}]` : ""
-  | Number(num) => key === "offset" ? "0" : num->Float.toInt->string_of_int
+  | Number(num) => key === "offset" ? "0" : num->Float.toInt->Int.toString
   | _ => ""
   }
 }
@@ -422,7 +422,7 @@ module ApplyFilterButton = {
         ->Array.reduce(true, (acc, item) => {
           let (_, value) = item
           switch value->JSON.Classify.classify {
-          | String(str) => str === ""
+          | String(str) => str->LogicUtils.isEmptyString
           | Array(arr) => arr->Array.length === 0
           | Object(dict) => dict->Dict.toArray->Array.length === 0
           | Null => true

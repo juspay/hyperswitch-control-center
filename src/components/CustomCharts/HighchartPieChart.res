@@ -10,7 +10,7 @@ open HighchartsPieChart
 let valueFormatter = {
   @this
   (this: tooltipRecord) => {
-    `<div class='text-white'>${this.name} count: <b>${this.y->string_of_int}</b></div>`
+    `<div class='text-white'>${this.name} count: <b>${this.y->Int.toString}</b></div>`
   }
 }
 
