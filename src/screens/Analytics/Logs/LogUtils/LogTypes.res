@@ -76,7 +76,7 @@ let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
     }
   | CONNECTOR => {
       let request = initialData->getString("request", "")
-      let response = initialData->getString("response", "")
+      let response = initialData->getString("masked_response", "")
       setLogDetails(_ => {
         response,
         request,

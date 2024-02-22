@@ -36,7 +36,8 @@ let make = (
   }
 
   let responseObject = switch logType {
-  | API_EVENTS | CONNECTOR => dataDict->getString("response", "")
+  | API_EVENTS => dataDict->getString("response", "")
+  | CONNECTOR => dataDict->getString("masked_response", "")
   | SDK => {
       let isErrorLog = dataDict->getString("log_type", "") === "ERROR"
       isErrorLog ? dataDict->getString("value", "") : ""
