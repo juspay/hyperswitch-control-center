@@ -100,7 +100,7 @@ let make = (
           showSerialNumber
           maxHeight="max-h-full"
           searchable=true
-          searchInputPlaceHolder={`Search in ${options->Array.length->string_of_int} options`}
+          searchInputPlaceHolder={`Search in ${options->Array.length->Int.toString} options`}
           customStyle="px-2 py-1"
           customSearchStyle="bg-white dark:bg-jp-gray-lightgray_background"
           disableSelect

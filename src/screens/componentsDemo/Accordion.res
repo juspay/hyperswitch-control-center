@@ -174,7 +174,7 @@ let make = (
       {accordion
       ->Array.mapWithIndex((accordion, i) => {
         <AccordionInfo
-          key={string_of_int(i)}
+          key={Int.toString(i)}
           accordion
           arrowFillColor
           arrowPosition

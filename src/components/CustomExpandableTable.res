@@ -61,9 +61,9 @@ let make = (
         prevFilterObj->Option.map(prevObj => {
           prevObj->Array.map(
             obj => {
-              if obj.key === string_of_int(i) {
+              if obj.key === Int.toString(i) {
                 {
-                  key: string_of_int(i),
+                  key: Int.toString(i),
                   options: obj.options,
                   selected: ev->Identity.formReactEventToArrayOfString,
                 }
@@ -109,7 +109,7 @@ let make = (
                 let fontSize = "text-sm"
                 let paddingClass = "px-4 py-3"
                 <AddDataAttributes
-                  attributes=[("data-table-heading", item.title)] key={i->string_of_int}>
+                  attributes=[("data-table-heading", item.title)] key={i->Int.toString}>
                   <th className="p-0">
                     <div
                       className={`flex flex-row ${borderClass} justify-between items-center ${paddingClass} ${bgColor} ${headerTextClass} whitespace-pre ${roundedClass}`}>
@@ -198,7 +198,7 @@ let make = (
           {rowInfo
           ->Array.mapWithIndex((item: array<cell>, rowIndex) => {
             <CollapsableTableRow
-              key={string_of_int(rowIndex)}
+              key={Int.toString(rowIndex)}
               item
               rowIndex
               offset
