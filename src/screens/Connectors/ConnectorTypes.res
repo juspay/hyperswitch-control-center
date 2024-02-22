@@ -78,11 +78,11 @@ type processorTypes =
   | PROPHETPAY
   | HELCIM
 
-type threeDsConnectorTypes = THREEDSECUREIO
+type threeDsAuthenticatorTypes = THREEDSECUREIO
 
 type connectorTypes =
   | Processors(processorTypes)
-  | ThreeDsConnectors(threeDsConnectorTypes)
+  | ThreeDsAuthenticator(threeDsAuthenticatorTypes)
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -219,4 +219,4 @@ type connectorPayload = {
   status: string,
 }
 
-type processors = FRMPlayer | Connector | PayoutConnector | ThreeDsConnector
+type processors = FRMPlayer | Connector | PayoutConnector | ThreeDsAuthenticator

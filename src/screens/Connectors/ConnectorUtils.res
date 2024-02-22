@@ -415,15 +415,16 @@ let getConnectorNameString = (connector: processorTypes) =>
   | HELCIM => "helcim"
   }
 
-let getThreeDsConnectorNameString = (threedsConnector: threeDsConnectorTypes) =>
-  switch threedsConnector {
+let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
+  switch threeDsAuthenticator {
   | THREEDSECUREIO => "threedsecureio"
   }
 
 let getConnectorNameString = (connector: connectorTypes) => {
   switch connector {
   | Processors(connector) => connector->getConnectorNameString
-  | ThreeDsConnectors(threeDsConnector) => threeDsConnector->getThreeDsConnectorNameString
+  | ThreeDsAuthenticator(threeDsAuthenticator) =>
+    threeDsAuthenticator->getThreeDsAuthenticatorNameString
   | UnknownConnector(str) => str
   }
 }
@@ -485,16 +486,16 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.C
     | "helcim" => Processors(HELCIM)
     | _ => UnknownConnector("Not known")
     }
-  | ThreeDsConnector =>
+  | ThreeDsAuthenticator =>
     switch connector {
-    | "threedsio" => ThreeDsConnectors(THREEDSECUREIO)
+    | "threedsio" => ThreeDsAuthenticator(THREEDSECUREIO)
     | _ => UnknownConnector("Not known")
     }
   | _ => UnknownConnector("Not known")
   }
 }
 
-let getConnectorInfo = connector => {
+let getProcessorInfo = connector => {
   switch connector {
   | STRIPE => stripeInfo
   | ADYEN => adyenInfo
@@ -549,15 +550,15 @@ let getConnectorInfo = connector => {
   | HELCIM => helcimInfo
   }
 }
-let getThreedsConnectorInfo = threedsConnector =>
-  switch threedsConnector {
+let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
+  switch threeDsAuthenticator {
   | THREEDSECUREIO => helcimInfo
   }
 
 let getConnectorInfo = connector => {
   switch connector {
-  | Processors(connector) => connector->getConnectorInfo
-  | ThreeDsConnectors(threedsConnector) => threedsConnector->getThreedsConnectorInfo
+  | Processors(connector) => connector->getProcessorInfo
+  | ThreeDsAuthenticator(threeDsAuthenticator) => threeDsAuthenticator->getThreedsAuthenticatorInfo
   | UnknownConnector(_) => unknownConnectorInfo
   }
 }
@@ -1218,13 +1219,13 @@ let filterList = (items, ~removeFromList: processors) => {
     let connectorType = dict->getString("connector_type", "")
     let isPayoutConnector = connectorType == "payout_processor"
     let isConnector = connectorType !== "payment_vas" && !isPayoutConnector
-    let isThreeDsConnector = connectorType == "authentication_processor"
+    let isThreeDsAuthenticator = connectorType == "authentication_processor"
 
     switch removeFromList {
     | Connector => !isConnector
     | FRMPlayer => isConnector
     | PayoutConnector => isPayoutConnector
-    | ThreeDsConnector => isThreeDsConnector
+    | ThreeDsAuthenticator => isThreeDsAuthenticator
     }
   })
 }
@@ -1289,8 +1290,8 @@ let getDisplayNameForConnector = connector =>
   | HELCIM => "Helcim"
   }
 
-let getDisplayNameForThreedsConnector = threedsConnector =>
-  switch threedsConnector {
+let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
+  switch threeDsAuthenticator {
   | THREEDSECUREIO => "3dsecure.io"
   }
 
@@ -1298,7 +1299,8 @@ let getDisplayNameForConnector = connector => {
   let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString()
   switch connectorType {
   | Processors(connector) => connector->getDisplayNameForConnector
-  | ThreeDsConnectors(threedsConnector) => threedsConnector->getDisplayNameForThreedsConnector
+  | ThreeDsAuthenticator(threeDsAuthenticator) =>
+    threeDsAuthenticator->getDisplayNameForThreedsAuthenticator
   | UnknownConnector(str) => str
   }
 }
