@@ -4,43 +4,28 @@ module LogDetailsSection = {
   @react.component
   let make = (~logDetails) => {
     let showToast = ToastState.useShowToast()
+
     let handleOnClickCopy = (~parsedValue) => {
       Clipboard.writeText(parsedValue)
       showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
     }
+
+    let isValidNonEmptyValue = value => {
+      switch value->JSON.Classify.classify {
+      | Bool(_) => true
+      | String(_) => true
+      | Number(_) => true
+      | Object(_) => true
+      | _ => false
+      }
+    }
+
     <div className="border-b-1 border-border-light-grey pb-3">
       {logDetails.data
       ->Dict.toArray
       ->Array.filter(item => {
         let (key, value) = item
-
-        let flag = switch JSON.Classify.classify(value) {
-        | Bool(_) => true
-        | String(_) => true
-        | Number(_) => true
-        | Object(_) => true
-        | _ => false
-        }
-
-        !(
-          [
-            "content",
-            "created_at",
-            "event_type",
-            "flow_type",
-            "api_flow",
-            "request",
-            "response",
-            "user_agent",
-            "ip_addr",
-            "flow",
-            "masked_response",
-            "http_method",
-            "hs_latency",
-            "status_code",
-          ]->Array.includes(key)
-        ) &&
-        flag
+        !(LogUtils.detailsSectionFilterKeys->Array.includes(key)) && value->isValidNonEmptyValue
       })
       ->Array.map(item => {
         let (key, value) = item

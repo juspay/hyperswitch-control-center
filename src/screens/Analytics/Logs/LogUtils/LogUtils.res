@@ -67,6 +67,23 @@ let filteredKeys = [
   "version",
 ]
 
+let detailsSectionFilterKeys = [
+  "content",
+  "created_at",
+  "event_type",
+  "flow_type",
+  "api_flow",
+  "request",
+  "response",
+  "user_agent",
+  "ip_addr",
+  "flow",
+  "masked_response",
+  "http_method",
+  "hs_latency",
+  "status_code",
+]
+
 @module("js-sha256") external sha256: string => string = "sha256"
 let parseSdkResponse = arr => {
   open LogicUtils
