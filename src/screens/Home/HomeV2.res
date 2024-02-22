@@ -400,22 +400,28 @@ let make = () => {
   let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  <div className="w-full flex flex-col gap-14">
-    <QuickStartModule />
-    <div>
-      {switch isProdIntentCompleted {
-      | Some(prodIntent) => {
-          let showRecipesAndPlugins =
-            [typedEnumValue.integrationCompleted, prodIntent]->Array.includes(false)
+  <div className="w-full flex flex-col gap-6">
+    <UIUtils.RenderIf condition={featureFlagDetails.acceptInvite}>
+      <AcceptInviteHome />
+    </UIUtils.RenderIf>
+    <div className="w-full flex flex-col gap-14">
+      <QuickStartModule />
+      <div>
+        {switch isProdIntentCompleted {
+        | Some(prodIntent) => {
+            let showRecipesAndPlugins =
+              [typedEnumValue.integrationCompleted, prodIntent]->Array.includes(false)
 
-          <UIUtils.RenderIf condition={!showRecipesAndPlugins}>
-            <RecipesAndPlugins />
-          </UIUtils.RenderIf>
-        }
-      | None => React.null
-      }}
+            <UIUtils.RenderIf condition={!showRecipesAndPlugins}>
+              <RecipesAndPlugins />
+            </UIUtils.RenderIf>
+          }
+        | None => React.null
+        }}
+      </div>
+      <Resources />
     </div>
-    <Resources />
   </div>
 }
