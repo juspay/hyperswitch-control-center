@@ -73,12 +73,12 @@ let sidebarTextFromVariant = pageView => {
 let getCheckboxText = connectorName => {
   open ConnectorTypes
   switch connectorName {
-  | STRIPE | CHECKOUT =>
+  | Processors(STRIPE) | Processors(CHECKOUT) =>
     `I have enabled raw cards on ${connectorName
       ->ConnectorUtils.getConnectorNameString
       ->LogicUtils.capitalizeString}`
-  | BLUESNAP => `I have uploaded PCI DSS Certificate`
-  | ADYEN => "I have submitted Hyperswitch's PCI Certificates to Adyen"
+  | Processors(BLUESNAP) => `I have uploaded PCI DSS Certificate`
+  | Processors(ADYEN) => "I have submitted Hyperswitch's PCI Certificates to Adyen"
   | _ => ""
   }
 }
@@ -88,7 +88,7 @@ let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
 let getWarningBlockForConnector = connectorName => {
   open ConnectorTypes
   switch connectorName {
-  | STRIPE =>
+  | Processors(STRIPE) =>
     Some(
       <span>
         <span className={`${subTextStyle} !opacity-100`}>
@@ -104,21 +104,21 @@ let getWarningBlockForConnector = connectorName => {
         </span>
       </span>,
     )
-  | ADYEN =>
+  | Processors(ADYEN) =>
     Some(<>
       <p className=highlightedText> {"Download"->React.string} </p>
       <p className={`${subTextStyle} !opacity-100`}>
         {`and submit our PCI Certificates to Adyen's support team to enable raw cards`->React.string}
       </p>
     </>)
-  | CHECKOUT =>
+  | Processors(CHECKOUT) =>
     Some(<>
       <p className={`${subTextStyle} !opacity-100`}>
         {`Enable Raw Cards: To enable full card processing on your account, drop an email to`->React.string}
       </p>
       <p className=highlightedText> {`support@checkout.com`->React.string} </p>
     </>)
-  | BLUESNAP =>
+  | Processors(BLUESNAP) =>
     Some(<>
       <p className=highlightedText> {"Download"->React.string} </p>
       <p className={`${subTextStyle} !opacity-100`}>

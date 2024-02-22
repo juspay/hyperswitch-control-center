@@ -5,8 +5,8 @@ let getConfigurationFields = (metadataInputs, method, connector) => {
   | GooglePay => metadataInputs->getDictfromDict("google_pay")
 
   | ApplePay =>
-    switch connector->getConnectorNameTypeFromString {
-    | ZEN => metadataInputs->getDictfromDict("apple_pay")
+    switch connector->getConnectorNameTypeFromString() {
+    | Processors(ZEN) => metadataInputs->getDictfromDict("apple_pay")
     | _ => metadataInputs->getDictfromDict("apple_pay")->getDictfromDict("session_token_data")
     }
 
@@ -45,8 +45,8 @@ module Wallets = {
       let json = switch method.payment_method_type->getPaymentMethodTypeFromString {
       | GooglePay => values
       | ApplePay =>
-        switch connector->getConnectorNameTypeFromString {
-        | ZEN => values
+        switch connector->getConnectorNameTypeFromString() {
+        | Processors(ZEN) => values
 
         | _ => {
             let paymentRequestData =
@@ -93,8 +93,8 @@ module Wallets = {
     | GooglePay => `google_pay`
 
     | ApplePay =>
-      switch connector->getConnectorNameTypeFromString {
-      | ZEN => `apple_pay`
+      switch connector->getConnectorNameTypeFromString() {
+      | Processors(ZEN) => `apple_pay`
       | _ => `apple_pay.session_token_data`
       }
 
@@ -125,9 +125,11 @@ module Wallets = {
     <div>
       {switch (
         method.payment_method_type->getPaymentMethodTypeFromString,
-        connector->getConnectorNameTypeFromString,
+        connector->getConnectorNameTypeFromString(),
       ) {
-      | (ApplePay, STRIPE) | (ApplePay, BANKOFAMERICA) | (ApplePay, CYBERSOURCE) =>
+      | (ApplePay, Processors(STRIPE))
+      | (ApplePay, Processors(BANKOFAMERICA))
+      | (ApplePay, Processors(CYBERSOURCE)) =>
         <ApplePayWalletIntegration metadataInputs update metaData setShowWalletConfigurationModal />
       | _ =>
         <Form initialValues={metaData} onSubmit validate>

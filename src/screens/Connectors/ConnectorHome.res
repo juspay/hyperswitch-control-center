@@ -62,6 +62,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
+  let connectorTypeFromName = connector->getConnectorNameTypeFromString()
   let profileIdFromUrl =
     UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getOptionString("profile_id")
   let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
@@ -150,8 +151,8 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   }
 
   let determinePageState = () => {
-    switch (connector->getConnectorNameTypeFromString, featureFlagDetails.paypalAutomaticFlow) {
-    | (PAYPAL, true) =>
+    switch (connectorTypeFromName, featureFlagDetails.paypalAutomaticFlow) {
+    | (Processors(PAYPAL), true) =>
       PayPalFlowUtils.payPalPageState(
         ~setScreenState,
         ~url,
@@ -228,7 +229,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
                   link,
                 },
           ]
-          currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnectors}
+          currentPageTitle={connector->ConnectorUtils.getDisplayNameForConnector}
           cursorStyle="cursor-pointer"
         />
       </UIUtils.RenderIf>
@@ -239,8 +240,8 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">
         {switch currentStep {
         | AutomaticFlow =>
-          switch connector->ConnectorUtils.getConnectorNameTypeFromString {
-          | PAYPAL =>
+          switch connectorTypeFromName {
+          | Processors(PAYPAL) =>
             <ConnectPayPal
               connector isUpdateFlow setInitialValues initialValues setCurrentStep getPayPalStatus
             />

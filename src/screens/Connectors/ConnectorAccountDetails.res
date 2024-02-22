@@ -16,9 +16,10 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let (verifyDone, setVerifyDone) = React.useState(_ => ConnectorTypes.NoAttempt)
   let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
   let (verifyErrorMessage, setVerifyErrorMessage) = React.useState(_ => None)
+  let connectorTypeFromName = connector->getConnectorNameTypeFromString()
 
   let selectedConnector = React.useMemo1(() => {
-    connector->getConnectorNameTypeFromString->getConnectorInfo
+    connectorTypeFromName->getConnectorInfo
   }, [connector])
 
   let defaultBusinessProfile = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
@@ -63,10 +64,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
 
     // TODO: Refactor for generic case
     if !isUpdateFlow {
-      if (
-        connector->getConnectorNameTypeFromString === PAYPAL &&
-          featureFlagDetails.paypalAutomaticFlow
-      ) {
+      if connectorTypeFromName === Processors(PAYPAL) && featureFlagDetails.paypalAutomaticFlow {
         initialValuesToDict->Dict.set(
           "connector_label",
           initialValues
@@ -90,9 +88,8 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
       }
     }
     if (
-      connector
-      ->getConnectorNameTypeFromString
-      ->checkIsDummyConnector(featureFlagDetails.testProcessors) && !isUpdateFlow
+      connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors) &&
+        !isUpdateFlow
     ) {
       let apiKeyDict = [("api_key", "test_key"->JSON.Encode.string)]->Dict.fromArray
       initialValuesToDict->Dict.set("connector_account_details", apiKeyDict->JSON.Encode.object)
@@ -194,7 +191,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
     }
 
     validateConnectorRequiredFields(
-      connector->getConnectorNameTypeFromString,
+      connectorTypeFromName,
       valuesFlattenJson,
       connectorAccountFields,
       connectorMetaDataFields,
@@ -253,7 +250,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
               : "p-10"}`}>
           <div className="grid grid-cols-2 flex-1">
             <ConnectorConfigurationFields
-              connector={connector->getConnectorNameTypeFromString}
+              connector={connectorTypeFromName}
               connectorAccountFields
               selectedConnector
               connectorMetaDataFields

@@ -315,17 +315,17 @@ let make = (
             gateway={connectorInfo.connector_name->String.toUpperCase} className="w-14 h-14"
           />
           <h2 className="text-xl font-semibold">
-            {connectorInfo.connector_name->getDisplayNameForConnectors->React.string}
+            {connectorInfo.connector_name->getDisplayNameForConnector->React.string}
           </h2>
         </div>
         <div className="self-center">
           {switch (
             currentStep,
-            connector->getConnectorNameTypeFromString,
+            connector->getConnectorNameTypeFromString(),
             connectorInfo.status,
             paypalAutomaticFlow,
           ) {
-          | (Preview, PAYPAL, "inactive", true) =>
+          | (Preview, Processors(PAYPAL), "inactive", true) =>
             <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
           | (Preview, _, _, _) =>
             <div className="flex gap-6 items-center">
@@ -334,8 +334,8 @@ let make = (
                 {(isConnectorDisabled ? "DISABLED" : "ENABLED")->React.string}
               </div>
               <UIUtils.RenderIf condition={showMenuOption}>
-                {switch (connector->getConnectorNameTypeFromString, paypalAutomaticFlow) {
-                | (PAYPAL, true) =>
+                {switch (connector->getConnectorNameTypeFromString(), paypalAutomaticFlow) {
+                | (Processors(PAYPAL), true) =>
                   <MenuOptionForPayPal
                     setCurrentStep
                     disableConnector

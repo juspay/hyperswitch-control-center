@@ -87,7 +87,7 @@ let make = (
         <div className="flex gap-2 items-center">
           <GatewayIcon gateway={connector->String.toUpperCase} />
           <h2 className="text-xl font-semibold">
-            {connector->getDisplayNameForConnectors->React.string}
+            {connector->getDisplayNameForConnector->React.string}
           </h2>
         </div>
         <div className="self-center">
