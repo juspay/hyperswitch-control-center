@@ -457,3 +457,8 @@ let errorSubCodeMapper = (subCode: string) => {
   | _ => UR_00
   }
 }
+
+let generateBodyForEmailRedirection = token => {
+  open LogicUtils
+  [("token", token->JSON.Encode.string)]->getJsonFromArrayOfJson
+}

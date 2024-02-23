@@ -17,13 +17,17 @@ module HomePageHorizontalStepper = {
     }
 
     let getStepperStyle = index => {
-      index <= step ? "bg-blue-700 text-white border-transparent" : "border-blue-700 text-blue-700 "
+      if index < step {
+        "bg-white border-blue-700"
+      } else if index === step {
+        "bg-blue-700 text-white border-transparent"
+      } else {
+        "border-gray-500 text-gray-500"
+      }
     }
     let getProgressBarStyle = index => {
       if index < step {
         "bg-blue-700  w-full"
-      } else if index === step {
-        "bg-blue-700  w-1/2"
       } else {
         ""
       }
@@ -37,13 +41,20 @@ module HomePageHorizontalStepper = {
         <div className="flex flex-col gap-2.5 w-full" key={index->Int.toString}>
           <div className="flex items-center gap-2">
             <span
-              className={`h-6 w-6 flex items-center justify-center border-2 rounded-md font-semibold ${index->getStepperStyle} ${getTextStyle}`}>
-              {(index + 1)->Int.toString->React.string}
+              className={`h-6 w-7 flex items-center justify-center border-1 rounded-md font-semibold ${index->getStepperStyle} ${getTextStyle}`}>
+              <UIUtils.RenderIf condition={index < step}>
+                <Icon name="check" size=12 customIconColor="#006DF9" />
+              </UIUtils.RenderIf>
+              <UIUtils.RenderIf condition={index >= step}>
+                {(index + 1)->Int.toString->React.string}
+              </UIUtils.RenderIf>
             </span>
-            <UIUtils.RenderIf condition={index !== stepperItemsArray->Array.length - 1}>
+            <UIUtils.RenderIf condition={index <= stepperItemsArray->Array.length - 1}>
               <div className="relative w-full">
                 <div className={`absolute h-1 rounded-full z-1 ${index->getProgressBarStyle}`} />
-                <div className="w-full h-1 rounded-full bg-grey-700 bg-opacity-10" />
+                <UIUtils.RenderIf condition={index != stepperItemsArray->Array.length - 1}>
+                  <div className="w-full h-1 rounded-full bg-grey-700 bg-opacity-10" />
+                </UIUtils.RenderIf>
               </div>
             </UIUtils.RenderIf>
           </div>
@@ -400,22 +411,28 @@ let make = () => {
   let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  <div className="w-full flex flex-col gap-14">
-    <QuickStartModule />
-    <div>
-      {switch isProdIntentCompleted {
-      | Some(prodIntent) => {
-          let showRecipesAndPlugins =
-            [typedEnumValue.integrationCompleted, prodIntent]->Array.includes(false)
+  <div className="w-full flex flex-col gap-6">
+    <UIUtils.RenderIf condition={featureFlagDetails.acceptInvite}>
+      <AcceptInviteHome />
+    </UIUtils.RenderIf>
+    <div className="w-full flex flex-col gap-14">
+      <QuickStartModule />
+      <div>
+        {switch isProdIntentCompleted {
+        | Some(prodIntent) => {
+            let showRecipesAndPlugins =
+              [typedEnumValue.integrationCompleted, prodIntent]->Array.includes(false)
 
-          <UIUtils.RenderIf condition={!showRecipesAndPlugins}>
-            <RecipesAndPlugins />
-          </UIUtils.RenderIf>
-        }
-      | None => React.null
-      }}
+            <UIUtils.RenderIf condition={!showRecipesAndPlugins}>
+              <RecipesAndPlugins />
+            </UIUtils.RenderIf>
+          }
+        | None => React.null
+        }}
+      </div>
+      <Resources />
     </div>
-    <Resources />
   </div>
 }

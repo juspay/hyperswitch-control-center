@@ -45,6 +45,7 @@ type authType =
   | ResetPassword
   | ResendVerifyEmail
   | LiveMode
+  | ActivateFromEmail
 
 type modeType = TestButtonMode | LiveButtonMode
 

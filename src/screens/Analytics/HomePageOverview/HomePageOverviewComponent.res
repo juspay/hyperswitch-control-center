@@ -12,7 +12,7 @@ module ConnectorOverview = {
       ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer, ())
     let configuredConnectors =
       connectorsList->Array.map(paymentMethod =>
-        paymentMethod->LogicUtils.getString("connector_name", "")->getConnectorNameTypeFromString
+        paymentMethod->LogicUtils.getString("connector_name", "")->getConnectorNameTypeFromString()
       )
 
     let getConnectorIconsList = () => {

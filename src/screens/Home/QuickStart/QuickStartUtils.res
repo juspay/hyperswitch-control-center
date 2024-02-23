@@ -5,7 +5,7 @@ let getTestConnectorName = (connector, quickStartPageState) => {
   open QuickStartTypes
   open ConnectorTypes
   switch connector {
-  | STRIPE | PAYPAL => `${connector->getConnectorNameString}_test`
+  | Processors(STRIPE) | Processors(PAYPAL) => `${connector->getConnectorNameString}_test`
   | _ =>
     switch quickStartPageState {
     | ConnectProcessor(CONFIGURE_PRIMARY) => "fauxpay"
@@ -57,13 +57,13 @@ let connectorChoiceArray: array<landingChoiceType> = [
   },
 ]
 
-let getTypeOfConfigurationArray: ConnectorTypes.connectorName => array<
+let getTypeOfConfigurationArray: ConnectorTypes.connectorTypes => array<
   landingChoiceType,
 > = selectedConnector => {
   open ConnectorUtils
-  let connectorName = selectedConnector->getConnectorNameString->getDisplayNameForConnectors
+  let connectorName = selectedConnector->getConnectorNameString->getDisplayNameForConnector
   let testAPIDescription = switch selectedConnector {
-  | STRIPE | PAYPAL =>
+  | Processors(STRIPE) | Processors(PAYPAL) =>
     `We've got you covered. Try connecting with our test processor modeled like ${connectorName} to continue your setup.`
   | _ => "We've got you covered. Try connecting with one of Hyperswitch's test processor to continue your setup."
   }

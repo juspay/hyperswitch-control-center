@@ -40,8 +40,8 @@ module CantFindProcessor = {
 
 @react.component
 let make = (
-  ~connectorsAvailableForIntegration: array<ConnectorTypes.connectorName>,
-  ~configuredConnectors: array<ConnectorTypes.connectorName>,
+  ~connectorsAvailableForIntegration: array<ConnectorTypes.connectorTypes>,
+  ~configuredConnectors: array<ConnectorTypes.connectorTypes>,
   ~showIcons: bool,
   ~showTestProcessor: bool,
   ~urlPrefix: string,
@@ -70,7 +70,7 @@ let make = (
   }
 
   let descriptedConnectors = (
-    connectorList,
+    connectorList: array<ConnectorTypes.connectorTypes>,
     heading,
     showRequestConnectorBtn,
     ~showSearch=true,
@@ -104,7 +104,7 @@ let make = (
         <div
           className="grid gap-x-5 gap-y-6 2xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 mb-5">
           {connectorList
-          ->Array.mapWithIndex((connector, i) => {
+          ->Array.mapWithIndex((connector: ConnectorTypes.connectorTypes, i) => {
             let connectorName = connector->getConnectorNameString
             let connectorInfo = connector->getConnectorInfo
             let size = "w-14 h-14 rounded-sm"
@@ -116,7 +116,7 @@ let make = (
                 <div className="flex flex-col gap-3 items-start">
                   <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
                   <p className={`${p1MediumTextStyle} break-all`}>
-                    {connectorName->getDisplayNameForConnectors->React.string}
+                    {connectorName->getDisplayNameForConnector->React.string}
                   </p>
                 </div>
                 <p className="overflow-hidden text-gray-400 flex-1 line-clamp-3">
@@ -139,7 +139,13 @@ let make = (
     </>
   }
 
-  let iconsConnectors = (connectorList, heading, showRequestConnectorBtn, ~showSearch=true, ()) => {
+  let iconsConnectors = (
+    connectorList: array<ConnectorTypes.connectorTypes>,
+    heading,
+    showRequestConnectorBtn,
+    ~showSearch=true,
+    (),
+  ) => {
     <>
       <AddDataAttributes
         attributes=[("data-testid", heading->LogicUtils.titleToSnake->String.toLowerCase)]>
@@ -179,7 +185,7 @@ let make = (
               className={`p-2 ${cursorStyles}`}
               noAccessDescription=HSwitchUtils.noAccessControlTextForProcessors
               tooltipWidthClass="w-30"
-              description={connectorName->getDisplayNameForConnectors}
+              description={connectorName->getDisplayNameForConnector}
               onClick={_ => handleClick(connectorName)}>
               <AddDataAttributes attributes=[("data-testid", connectorName->String.toLowerCase)]>
                 <GatewayIcon

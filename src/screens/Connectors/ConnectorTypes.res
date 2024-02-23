@@ -24,7 +24,8 @@ type integrationFields = {
 type verifyResponse = Success | Failure | NoAttempt | Loading
 type authType = [#HeaderKey | #BodyKey | #SignatureKey | #MultiAuthKey | #CurrencyAuthKey | #Nokey]
 type cashToCodeMthd = [#Classic | #Evoucher]
-type connectorName =
+
+type processorTypes =
   | ADYEN
   | CHECKOUT
   | BRAINTREE
@@ -67,15 +68,21 @@ type connectorName =
   | GLOBEPAY
   | POWERTRANZ
   | TSYS
-  | WISE
   | NOON
   | STRIPE_TEST
   | PAYPAL_TEST
   | STAX
+  | WISE
   | GOCARDLESS
   | VOLT
   | PROPHETPAY
   | HELCIM
+
+type threeDsAuthenticatorTypes = THREEDSECUREIO
+
+type connectorTypes =
+  | Processors(processorTypes)
+  | ThreeDsAuthenticator(threeDsAuthenticatorTypes)
   | UnknownConnector(string)
 
 type paymentMethod =
@@ -212,4 +219,4 @@ type connectorPayload = {
   status: string,
 }
 
-type processors = FRMPlayer | Connector | PayoutConnector
+type processors = FRMPlayer | Connector | PayoutConnector | ThreeDsAuthenticator
