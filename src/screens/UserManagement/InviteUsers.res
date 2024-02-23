@@ -99,9 +99,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   let marginClass = isInviteUserFlow ? "mt-5" : ""
 
   let initialValues = React.useMemo0(() => {
-    [("roleType", [defaultRole->JSON.Encode.string]->JSON.Encode.array)]
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    [("roleType", [defaultRole->JSON.Encode.string]->JSON.Encode.array)]->getJsonFromArrayOfJson
   })
 
   let inviteListOfUsersWithInviteMultiple = async values => {
