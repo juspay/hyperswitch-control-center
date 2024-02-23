@@ -25,7 +25,7 @@ module ConnectorDetailsForm = {
       connectorWebHookDetails,
       connectorLabelDetailField,
     ) = getConnectorFields(connectorDetails)
-    let connectorVariant = connectorName->getConnectorNameTypeFromString
+    let connectorVariant = connectorName->getConnectorNameTypeFromString()
 
     let selectedConnector = React.useMemo1(() => {
       connectorVariant->getConnectorInfo
@@ -46,7 +46,7 @@ module ConnectorDetailsForm = {
       </UIUtils.RenderIf>
       <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
         connectorAccountFields
-        connector={connectorName->getConnectorNameTypeFromString}
+        connector={connectorVariant}
         selectedConnector
         connectorMetaDataFields
         connectorWebHookDetails
@@ -87,7 +87,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   let connectorName = selectedConnector->getConnectorNameString
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (isCheckboxSelected, setIsCheckboxSelected) = React.useState(_ => false)
-  let connectorVariant = connectorName->getConnectorNameTypeFromString
+  let connectorVariant = connectorName->getConnectorNameTypeFromString()
   // TODO: Change the state to memo
   let (connectorDetails, setConnectorDetails) = React.useState(_ => JSON.Encode.null)
   let (isLoading, setIsLoading) = React.useState(_ => false)
@@ -244,7 +244,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     let valuesFlattenJson = values->JsonFlattenUtils.flattenObject(true)
 
     validateConnectorRequiredFields(
-      connectorName->getConnectorNameTypeFromString,
+      connectorVariant,
       valuesFlattenJson,
       connectorAccountFields,
       connectorMetaDataFields,
@@ -294,10 +294,9 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
   })
   let getHeaderTextofPage = () =>
     switch pageView {
-    | SETUP_CREDS =>
-      `Setup ${connectorName->ConnectorUtils.getDisplayNameForConnectors} credentials`
+    | SETUP_CREDS => `Setup ${connectorName->ConnectorUtils.getDisplayNameForConnector} credentials`
     | SETUP_WEBHOOK_PROCESSOR =>
-      `Setup Webhooks on ${connectorName->ConnectorUtils.getDisplayNameForConnectors}`
+      `Setup Webhooks on ${connectorName->ConnectorUtils.getDisplayNameForConnector}`
     | _ => ""
     }
   let getSubTextOfPage = () =>
@@ -376,7 +375,7 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
           <div className="flex gap-4 items-center">
             <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-8 h-8" />
             <p className=headerTextStyle>
-              {connectorName->ConnectorUtils.getDisplayNameForConnectors->React.string}
+              {connectorName->ConnectorUtils.getDisplayNameForConnector->React.string}
             </p>
           </div>
           <div className="flex gap-4">

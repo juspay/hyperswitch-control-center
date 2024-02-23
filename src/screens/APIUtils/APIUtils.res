@@ -183,7 +183,8 @@ let getURL = (
     | #VERIFY_EMAIL_REQUEST
     | #FORGOT_PASSWORD
     | #CREATE_MERCHANT
-    | #PERMISSION_INFO =>
+    | #PERMISSION_INFO
+    | #ACCEPT_INVITE_FROM_EMAIL =>
       `${userUrl}/${(userType :> string)->String.toLowerCase}`
     }
   | RECON => `recon/${(reconType :> string)->String.toLowerCase}`

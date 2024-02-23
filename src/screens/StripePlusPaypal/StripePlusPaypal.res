@@ -9,7 +9,7 @@ let make = () => {
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let enums = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
   let getEnumDetails = EnumVariantHook.useFetchEnumDetails()
-  let (selectedConnector, setSelectedConnector) = React.useState(_ => STRIPE)
+  let (selectedConnector, setSelectedConnector) = React.useState(_ => Processors(STRIPE))
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (connectorConfigureState, setConnectorConfigureState) = React.useState(_ => Configure_keys)
@@ -28,9 +28,9 @@ let make = () => {
   }
 
   let handleNavigation = async (~forward: bool) => {
-    if selectedConnector === STRIPE {
+    if selectedConnector === Processors(STRIPE) {
       if enums.paypalConnected.processorID->String.length === 0 {
-        setSelectedConnector(_ => PAYPAL)
+        setSelectedConnector(_ => Processors(PAYPAL))
         setConnectorConfigureState(_ => Configure_keys)
         setInitialValues(_ => Dict.make()->JSON.Encode.object)
         setStepInView(prev => {
@@ -64,7 +64,7 @@ let make = () => {
       switch currentPending {
       | Some(step) => {
           if step === PAYPAL_CONFIGURE {
-            setSelectedConnector(_ => PAYPAL)
+            setSelectedConnector(_ => Processors(PAYPAL))
           }
           setStepInView(_ => step)
         }
