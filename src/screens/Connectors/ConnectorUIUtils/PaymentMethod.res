@@ -165,7 +165,7 @@ module CardRenderer = {
                   <div>
                     <CheckBoxIcon isSelected={isSelected(value)} />
                   </div>
-                  <p className={p2RegularTextStyle}>
+                  <p className=p2RegularTextStyle>
                     {React.string(value.payment_method_type->snakeToTitle)}
                   </p>
                 </div>
