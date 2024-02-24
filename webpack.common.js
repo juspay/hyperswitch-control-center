@@ -47,6 +47,15 @@ module.exports = (appName = "hyperswitch", publicPath = "auto") => {
           test: /\.ttf$/,
           use: ["file-loader"],
         },
+        {
+          test: /\.js$/,
+          use: {
+            loader: "istanbul-instrumenter-loader",
+            options: { esModules: true },
+          },
+          enforce: "post",
+          exclude: /node_modules|\.spec\.js$/,
+        },
       ],
     },
     plugins: [
