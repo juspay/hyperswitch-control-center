@@ -94,6 +94,7 @@ let make = () => {
       let permissionJson =
         permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
       setuserPermissionJson(._ => permissionJson)
+      permissionJson
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -106,16 +107,14 @@ let make = () => {
     try {
       let _ = await fetchSwitchMerchantList()
       let _ = await Window.connectorWasmInit()
-      if featureFlagDetails.permissionBasedModule {
-        let _ = await fetchPermissions()
-      }
+      let permissionJson = await fetchPermissions()
 
       if merchantId->isNonEmptyString {
-        if userPermissionJson.merchantConnectorAccountRead === Access {
+        if permissionJson.merchantConnectorAccountRead === Access {
           let _ = await fetchConnectorListResponse()
         }
 
-        if userPermissionJson.merchantAccountRead === Access {
+        if permissionJson.merchantAccountRead === Access {
           let _ = await fetchBusinessProfiles()
           let _ = await fetchMerchantAccountDetails()
         }
@@ -425,9 +424,8 @@ let make = () => {
               <ProdIntentForm />
             </RenderIf>
             <RenderIf
-              condition={featureFlagDetails.permissionBasedModule &&
-              userPermissionJson.merchantAccountWrite === Access &&
-              merchantDetailsTypedValue.merchant_name->Option.isNone}>
+              condition={userPermissionJson.merchantAccountWrite === Access &&
+                merchantDetailsTypedValue.merchant_name->Option.isNone}>
               <CompanyNameModal showModal=companyNameModal setShowModal=setCompanyNameModal />
             </RenderIf>
           </div>

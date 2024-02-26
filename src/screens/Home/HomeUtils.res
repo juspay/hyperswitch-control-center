@@ -147,6 +147,8 @@ module CheckoutCard = {
     let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
     let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
+    let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
+
     let connectorList =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom
@@ -166,7 +168,12 @@ module CheckoutCard = {
             text: "Sign up Now",
             onClick: {
               _ => {
-                let _ = APIUtils.handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
+                let _ = APIUtils.handleLogout(
+                  ~fetchApi,
+                  ~setAuthStatus,
+                  ~setIsSidebarExpanded,
+                  ~clearRecoilValue,
+                )
               }
             },
           },

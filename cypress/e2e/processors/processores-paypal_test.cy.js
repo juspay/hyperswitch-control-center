@@ -8,6 +8,8 @@ beforeEach(() => {
 describe("Processors Create Module", () => {
   it("should successfully create the paypal test processor", () => {
     cy.url().should("eq", "http://localhost:9000/home");
+    cy.get('input[name="merchant_name"]').type("paypal_test_cypress_api_key");
+    cy.get("[data-button-for=startExploring]").click({ force: true });
     cy.get("[data-testid=connectors]")
       .find(".justify-center")
       .click({ force: true });
