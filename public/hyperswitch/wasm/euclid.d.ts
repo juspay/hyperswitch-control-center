@@ -83,6 +83,10 @@ export function getVariantValues(key: string): any;
 */
 export function addTwo(n1: bigint, n2: bigint): bigint;
 /**
+* @returns {any}
+*/
+export function getDescriptionCategory(): any;
+/**
 * @param {string} key
 * @returns {any}
 */
@@ -92,6 +96,11 @@ export function getConnectorConfig(key: string): any;
 * @returns {any}
 */
 export function getPayoutConnectorConfig(key: string): any;
+/**
+* @param {string} key
+* @returns {any}
+*/
+export function getThreedsConnectorConfig(key: string): any;
 /**
 * @param {any} input
 * @param {any} response
@@ -103,10 +112,6 @@ export function getRequestPayload(input: any, response: any): any;
 * @returns {any}
 */
 export function getResponsePayload(input: any): any;
-/**
-* @returns {any}
-*/
-export function getDescriptionCategory(): any;
 /**
 *
 * Function exposed as `wasm` function in js `parse`. Allowing use to extend the functionality and
@@ -133,11 +138,12 @@ export interface InitOutput {
   readonly getSurchargeKeys: (a: number) => void;
   readonly getVariantValues: (a: number, b: number, c: number) => void;
   readonly addTwo: (a: number, b: number) => number;
+  readonly getDescriptionCategory: (a: number) => void;
   readonly getConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getPayoutConnectorConfig: (a: number, b: number, c: number) => void;
+  readonly getThreedsConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getRequestPayload: (a: number, b: number, c: number) => void;
   readonly getResponsePayload: (a: number, b: number) => void;
-  readonly getDescriptionCategory: (a: number) => void;
   readonly parse: (a: number, b: number, c: number) => void;
   readonly parseToString: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_0: (a: number, b: number) => number;

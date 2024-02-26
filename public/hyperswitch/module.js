@@ -133,3 +133,12 @@ function payPalCreateAccountWindow() {
     }
   })(document, "script", "paypal-js");
 }
+
+
+function getThreedsConnectorConfig(connectorName) {
+  if (wasm) {
+    return wasm.getThreedsConnectorConfig(connectorName);
+  } else {
+    return {};
+  }
+}

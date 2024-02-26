@@ -86,6 +86,9 @@ external payPalCreateAccountWindow: unit => unit = "payPalCreateAccountWindow"
 @val @scope("window")
 external isSecureContext: bool = "isSecureContext"
 
+@val @scope("window")
+external getThreedsConnectorConfig: string => JSON.t = "getThreedsConnectorConfig"
+
 module MatchMedia = {
   type matchEvent = {
     matches: bool,

@@ -155,17 +155,30 @@ let fraudAndRisk = (~permissionJson) => {
   })
 }
 
+let threeDsConnector = (~permissionJson) => {
+  SubLevelLink({
+    name: "Threeds Processors",
+    link: "/threeds-processors",
+    access: permissionJson.merchantConnectorAccountRead,
+    searchOptions: [],
+  })
+}
+
 let connectors = (
   isConnectorsEnabled,
   ~isLiveMode,
   ~isFrmEnabled,
   ~isPayoutsEnabled,
+  ~isThreedsConnectorEnabled,
   ~permissionJson,
 ) => {
   let connectorLinkArray = [paymentProcessor(isLiveMode, permissionJson)]
 
   if isPayoutsEnabled {
     connectorLinkArray->Array.push(payoutConnectors(~permissionJson))->ignore
+  }
+  if isThreedsConnectorEnabled {
+    connectorLinkArray->Array.push(threeDsConnector(~permissionJson))->ignore
   }
 
   if isFrmEnabled {
@@ -401,7 +414,13 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     productionAccess->productionAccessComponent,
     default->home,
     default->operations(~permissionJson),
-    default->connectors(~isLiveMode, ~isFrmEnabled=frm, ~isPayoutsEnabled=payOut, ~permissionJson),
+    default->connectors(
+      ~isLiveMode,
+      ~isFrmEnabled=frm,
+      ~isPayoutsEnabled=payOut,
+      ~isThreedsConnectorEnabled=true,
+      ~permissionJson,
+    ),
     default->analytics(userJourneyAnalyticsFlag, ~permissionJson),
     default->workflow(isSurchargeEnabled, ~permissionJson),
     recon->reconTag(isReconEnabled),

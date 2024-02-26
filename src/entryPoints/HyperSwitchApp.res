@@ -255,6 +255,20 @@ let make = () => {
                             renderShow={_ => <ConnectorHome isPayoutFlow=true />}
                           />
                         </AccessControl>
+
+                      | list{"threeds-processors", ...remainingPath} =>
+                        <AccessControl
+                          isEnabled={featureFlagDetails.payOut}
+                          permission=userPermissionJson.merchantConnectorAccountRead>
+                          <EntityScaffold
+                            entityName="ThreeDsProcessors"
+                            remainingPath
+                            renderList={() => <ThreeDsConnectorList />}
+                            renderNewForm={() => <ThreeDsProcessorHome />}
+                            renderShow={_ => <ThreeDsProcessorHome />}
+                          />
+                        </AccessControl>
+
                       | list{"payments", ...remainingPath} =>
                         <AccessControl permission=userPermissionJson.paymentRead>
                           <FilterContext key="payments" index="payments" disableSessionStorage=true>

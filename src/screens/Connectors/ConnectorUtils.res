@@ -20,6 +20,8 @@ let getStepName = step => {
 
 let payoutConnectorList: array<connectorTypes> = [Processors(ADYEN), Processors(WISE)]
 
+let threedsAuthenticatorList: array<connectorTypes> = [ThreeDsAuthenticator(THREEDSECUREIO)]
+
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(PAYPAL),
@@ -352,6 +354,10 @@ let helcimInfo = {
   description: "Helcim is the easy and affordable solution for small businesses accepting credit card payments.",
 }
 
+let threedsecuredotioInfo = {
+  description: "Authenticate cardholders with the new improved 3-D Secure 2 and use the previous 3-D Secure 1 as fallback.",
+}
+
 let unknownConnectorInfo = {
   description: "unkown connector",
 }
@@ -552,7 +558,7 @@ let getProcessorInfo = connector => {
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
   switch threeDsAuthenticator {
-  | THREEDSECUREIO => helcimInfo
+  | THREEDSECUREIO => threedsecuredotioInfo
   }
 
 let getConnectorInfo = connector => {
