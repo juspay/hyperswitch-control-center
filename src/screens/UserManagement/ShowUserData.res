@@ -158,6 +158,14 @@ module UserHeading = {
       }
     }
 
+    let onClickHandler = () => {
+      if newRoleSelected === infoValue.role_id {
+        setIsUpdateRoleSelected(_ => false)
+      } else {
+        updatePermissionInfoOnBack()->ignore
+      }
+    }
+
     <div className="flex justify-between flex-wrap">
       <PageUtils.PageHeading
         title=infoValue.name
@@ -171,13 +179,7 @@ module UserHeading = {
           <Button
             buttonType={Secondary}
             text="Back"
-            onClick={_ => {
-              if newRoleSelected === infoValue.role_id {
-                setIsUpdateRoleSelected(_ => false)
-              } else {
-                updatePermissionInfoOnBack()->ignore
-              }
-            }}
+            onClick={_ => onClickHandler()}
             customButtonStyle="!p-3"
           />
           <Button
