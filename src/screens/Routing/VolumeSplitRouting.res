@@ -207,7 +207,7 @@ let make = (~routingRuleId, ~isActive) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (pageState, setPageState) = React.useState(() => Create)
   let (connectors, setConnectors) = React.useState(_ => [])
-  let currentTabName = Recoil.useRecoilValueFromAtom(RoutingUtils.currentTabNameRecoilAtom)
+  let currentTabName = Recoil.useRecoilValueFromAtom(HyperswitchAtom.currentTabNameRecoilAtom)
   let showToast = ToastState.useShowToast()
   let connectorListJson =
     HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->safeParse

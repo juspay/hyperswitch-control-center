@@ -33,8 +33,6 @@ type refundsColType =
 
 let defaultColumns = [RefundId, Amount, RefundStatus, PaymentId, Created]
 
-let refundsMapDefaultCols = Recoil.atom(. "refundsMapDefaultCols", defaultColumns)
-
 let allColumns = [
   Amount,
   ConnectorName,

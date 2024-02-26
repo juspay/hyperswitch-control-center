@@ -79,8 +79,6 @@ let getTableCell = activeRoutingIds => {
   getCell
 }
 
-let historyDefaultCols = Recoil.atom(. "hyperSwitchHistoryDefaultCols", defaultColumns)
-
 let getHistoryRules: JSON.t => array<historyData> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }

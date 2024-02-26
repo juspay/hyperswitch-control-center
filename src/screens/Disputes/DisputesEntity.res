@@ -4,8 +4,6 @@ open DisputeTypes
 let defaultColumns = [DisputeId, Amount, DisputeStage, DisputeStatus, PaymentId, CreatedAt]
 let columnsInPaymentPage = [DisputeId, DisputeStage, ConnectorReason, DisputeStatus, CreatedAt]
 
-let disputesMapDefaultCols = Recoil.atom(. "disputesMapDefaultCols", defaultColumns)
-
 let allColumns = [
   Amount,
   AttemptId,
