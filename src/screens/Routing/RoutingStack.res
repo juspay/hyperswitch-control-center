@@ -11,7 +11,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
 
-  let setCurrentTabName = Recoil.useSetRecoilState(RoutingUtils.currentTabNameRecoilAtom)
+  let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
 
   let (widthClass, marginClass) = React.useMemo1(() => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
