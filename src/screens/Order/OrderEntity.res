@@ -341,8 +341,6 @@ let allColumns = [
   Status,
 ]
 
-let ordersMapDefaultCols = Recoil.atom(. "ordersMapDefaultCols", defaultColumns)
-
 let getHeading = (colType: colType) => {
   switch colType {
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID", ~showSort=false, ())
@@ -771,8 +769,6 @@ let getCell = (order, colType: colType): Table.cell => {
     )
   }
 }
-
-let _ = Recoil.atom(. "hyperSwitchOrderDefaultCols", defaultColumns)
 
 let itemToObjMapperForFRMDetails = dict => {
   {
