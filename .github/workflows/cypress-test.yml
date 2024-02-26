@@ -53,6 +53,8 @@ jobs:
       - name: Extract Coverage Metrics
         id: extract_coverage
         run: |
+          npx nyc report --reporter=text-summary
+
           statements=$(npx nyc report --reporter=text-summary | awk '/Statements/{print $3}' | sed 's/%//')
           branches=$(npx nyc report --reporter=text-summary | awk '/Branches/{print $3}' | sed 's/%//')
           functions=$(npx nyc report --reporter=text-summary | awk '/Functions/{print $3}' | sed 's/%//')
@@ -63,24 +65,31 @@ jobs:
           echo "FUNCTIONS=$functions" >> $GITHUB_ENV
           echo "LINES=$lines" >> $GITHUB_ENV
 
+      - name: Debug Coverage Metrics
+        run: |
+          echo "Debug - Statements: $statements"
+          echo "Debug - Branches: $branches"
+          echo "Debug - Functions: $functions"
+          echo "Debug - Lines: $lines"
+
       - name: Check Coverage Thresholds
         run: |
-          if [ "$(expr "$STATEMENTS" + 0)" -lt 90 ]; then
+          if [ "$(expr "$statements" + 0)" -lt 90 ]; then
             echo "Statements coverage is below the threshold (90%)"
             exit 1
           fi
-      
-          if [ "$(expr "$BRANCHES" + 0)" -lt 90 ]; then
+
+          if [ "$(expr "$branches" + 0)" -lt 90 ]; then
             echo "Branches coverage is below the threshold (90%)"
             exit 1
           fi
-      
-          if [ "$(expr "$FUNCTIONS" + 0)" -lt 90 ]; then
+
+          if [ "$(expr "$functions" + 0)" -lt 90 ]; then
             echo "Functions coverage is below the threshold (90%)"
             exit 1
           fi
-      
-          if [ "$(expr "$LINES" + 0)" -lt 90 ]; then
+
+          if [ "$(expr "$lines" + 0)" -lt 90 ]; then
             echo "Lines coverage is below the threshold (90%)"
             exit 1
           fi
