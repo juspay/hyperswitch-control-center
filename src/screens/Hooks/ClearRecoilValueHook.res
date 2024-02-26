@@ -9,6 +9,7 @@ let useClearRecoilValue = () => {
   let setPaypalAccountStatusAtom = paypalAccountStatusAtom->Recoil.useSetRecoilState
   let setUserPermissionAtom = userPermissionAtom->Recoil.useSetRecoilState
   let setSwitchMerchantListAtom = switchMerchantListAtom->Recoil.useSetRecoilState
+  let setCurrentTabNameRecoilAtom = currentTabNameRecoilAtom->Recoil.useSetRecoilState
 
   let clearRecoilValue = () => {
     setMerchantDetailsValue(._ => "")
@@ -19,6 +20,7 @@ let useClearRecoilValue = () => {
     setPaypalAccountStatusAtom(._ => PayPalFlowTypes.Connect_paypal_landing)
     setUserPermissionAtom(._ => PermissionUtils.defaultValueForPermission)
     setSwitchMerchantListAtom(._ => [SwitchMerchantUtils.defaultValue])
+    setCurrentTabNameRecoilAtom(._ => "ActiveTab")
   }
   clearRecoilValue
 }
