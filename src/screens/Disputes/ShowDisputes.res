@@ -3,15 +3,16 @@ module DisputesNoteComponent = {
   open ConnectorUtils
   @react.component
   let make = (~disputesData: DisputeTypes.disputes) => {
+    let connectorTypeFromName = disputesData.connector->getConnectorNameTypeFromString()
     let dashboardLink = {
-      switch disputesData.connector->getConnectorNameTypeFromString {
-      | BLUESNAP | STRIPE =>
+      switch connectorTypeFromName {
+      | Processors(BLUESNAP) | Processors(STRIPE) =>
         <span
           className="underline underline-offset-2 cursor-pointer"
           onClick={_ => {
-            let link = switch disputesData.connector->getConnectorNameTypeFromString {
-            | BLUESNAP => "https://cp.bluesnap.com/jsp/developer_login.jsp"
-            | STRIPE | _ => " https://dashboard.stripe.com/disputes"
+            let link = switch connectorTypeFromName {
+            | Processors(BLUESNAP) => "https://cp.bluesnap.com/jsp/developer_login.jsp"
+            | Processors(STRIPE) | _ => " https://dashboard.stripe.com/disputes"
             }
             link->Window._open
           }}>
@@ -50,6 +51,7 @@ module Details = {
 
     open UIUtils
 
+    let connectorTypeFromName = data.connector->ConnectorUtils.getConnectorNameTypeFromString()
     let {disputeEvidenceUpload} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (uploadEvidenceModal, setUploadEvidenceModal) = React.useState(_ => false)
     let (fileUploadedDict, setFileUploadedDict) = React.useState(_ => Dict.make())
@@ -76,9 +78,7 @@ module Details = {
         </div>
         <RenderIf
           condition={disputeEvidenceUpload &&
-          connectorSupportCounterDispute->Array.includes(
-            data.connector->ConnectorUtils.getConnectorNameTypeFromString,
-          ) &&
+          connectorSupportCounterDispute->Array.includes(connectorTypeFromName) &&
           data.dispute_status->disputeStatusVariantMapper === DisputeOpened &&
           disputeEvidenceStatus === Landing}>
           <UploadEvidenceForDisputes
@@ -92,9 +92,7 @@ module Details = {
       <div className="h-px w-full bg-grey-200 opacity-30" />
       <RenderIf
         condition={disputeEvidenceUpload &&
-        connectorSupportCounterDispute->Array.includes(
-          data.connector->ConnectorUtils.getConnectorNameTypeFromString,
-        ) &&
+        connectorSupportCounterDispute->Array.includes(connectorTypeFromName) &&
         showDisputeInfoStatus->Array.includes(data.dispute_status->disputeStatusVariantMapper)}>
         <UploadEvidenceForDisputes.DisputesInfoBarComponent
           disputeEvidenceStatus
@@ -149,7 +147,7 @@ module DisputesInfo = {
 
     let showNoteComponentCondition =
       DisputesUtils.connectorsSupportEvidenceUpload->Array.includes(
-        disputesData.connector->ConnectorUtils.getConnectorNameTypeFromString,
+        disputesData.connector->ConnectorUtils.getConnectorNameTypeFromString(),
       )
     <>
       <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>

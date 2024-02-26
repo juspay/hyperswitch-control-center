@@ -183,7 +183,8 @@ let getURL = (
     | #VERIFY_EMAIL_REQUEST
     | #FORGOT_PASSWORD
     | #CREATE_MERCHANT
-    | #PERMISSION_INFO =>
+    | #PERMISSION_INFO
+    | #ACCEPT_INVITE_FROM_EMAIL =>
       `${userUrl}/${(userType :> string)->String.toLowerCase}`
     }
   | RECON => `recon/${(reconType :> string)->String.toLowerCase}`
@@ -235,12 +236,14 @@ let handleLogout = async (
   ) => Promise.t<Fetch.Response.t>,
   ~setAuthStatus,
   ~setIsSidebarExpanded,
+  ~clearRecoilValue,
 ) => {
   // let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
   // let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
   setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
   setIsSidebarExpanded(_ => false)
   LocalStorage.clear()
+  clearRecoilValue()
   RescriptReactRouter.push("/login")
 }
 
@@ -337,6 +340,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
   let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
+  let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
   let popUpCallBack = () =>
     showPopUp({
@@ -349,7 +353,12 @@ let useGetMethod = (~showErrorToast=true, ()) => {
         text: "Sign up Now",
         onClick: {
           _ => {
-            let _ = handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
+            let _ = handleLogout(
+              ~fetchApi,
+              ~setAuthStatus,
+              ~setIsSidebarExpanded,
+              ~clearRecoilValue,
+            )
           }
         },
       },
@@ -389,6 +398,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
   let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
+  let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
   let popUpCallBack = () =>
     showPopUp({
@@ -401,7 +411,12 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
         text: "Sign up Now",
         onClick: {
           _ => {
-            let _ = handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
+            let _ = handleLogout(
+              ~fetchApi,
+              ~setAuthStatus,
+              ~setIsSidebarExpanded,
+              ~clearRecoilValue,
+            )
           }
         },
       },

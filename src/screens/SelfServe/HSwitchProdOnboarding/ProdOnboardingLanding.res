@@ -143,7 +143,7 @@ let make = () => {
   open APIUtils
   let fetchDetails = useGetMethod()
   let (pageView, setPageView) = React.useState(_ => SELECT_PROCESSOR)
-  let (selectedConnector, setSelectedConnector) = React.useState(_ => STRIPE)
+  let (selectedConnector, setSelectedConnector) = React.useState(_ => Processors(STRIPE))
   let (_paymentId, _setPaymentId) = React.useState(_ => "")
   let updateDetails = useUpdateMethod()
 

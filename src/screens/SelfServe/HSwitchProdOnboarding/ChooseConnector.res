@@ -27,18 +27,16 @@ let make = (~selectedConnector, ~setSelectedConnector, ~pageView, ~setPageView) 
       {ConnectorUtils.connectorListForLive
       ->Array.mapWithIndex((connector, index) => {
         let connectorInfo = connector->ConnectorUtils.getConnectorInfo
-        <AddDataAttributes
-          attributes=[("data-testid", connector->ConnectorUtils.getConnectorNameString)]>
+        let connectorName = connector->ConnectorUtils.getConnectorNameString
+
+        <AddDataAttributes attributes=[("data-testid", connectorName)]>
           <div
             key={index->Int.toString}
             className={`py-4 px-6 flex flex-col gap-4 rounded-md cursor-pointer ${connector->getBlockColor}`}
             onClick={_ => setSelectedConnector(_ => connector)}>
             <div className="flex justify-between items-center">
               <div className="flex gap-2 items-center ">
-                <GatewayIcon
-                  gateway={connector->ConnectorUtils.getConnectorNameString->String.toUpperCase}
-                  className="w-8 h-8"
-                />
+                <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-8 h-8" />
               </div>
               <p className=subTextStyle> {connectorInfo.description->React.string} </p>
             </div>

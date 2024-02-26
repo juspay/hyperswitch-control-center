@@ -89,7 +89,7 @@ let make = (
       connectorArray->Array.push(connectorName)
       setConnectorArray(_ => connectorArray)
       setInitialValues(_ => res)
-      setSelectedConnector(_ => connectorName->ConnectorUtils.getConnectorNameTypeFromString)
+      setSelectedConnector(_ => connectorName->ConnectorUtils.getConnectorNameTypeFromString())
       setConnectorConfigureState(_ => Summary)
       updateEnumForTestConnector(res->LogicUtils.getDictFromJsonObject)->ignore
       showToast(
@@ -144,7 +144,7 @@ let make = (
         choiceState={choiceStateForTestConnector}
         setChoiceState={setChoiceStateForTestConnector}
         listChoices={selectedConnector->getTypeOfConfigurationArray}
-        headerText={`Connect ${connectorName->ConnectorUtils.getDisplayNameForConnectors}`}
+        headerText={`Connect ${connectorName->ConnectorUtils.getDisplayNameForConnector}`}
         isHeaderLeftIcon=false
         customIcon={<GatewayIcon
           gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
@@ -184,7 +184,7 @@ let make = (
       />
     | Summary =>
       <QuickStartUIUtils.BaseComponent
-        headerText={connectorName->ConnectorUtils.getDisplayNameForConnectors}
+        headerText={connectorName->ConnectorUtils.getDisplayNameForConnector}
         customIcon={<GatewayIcon
           gateway={connectorName->String.toUpperCase} className="w-6 h-6 rounded-md"
         />}

@@ -3,6 +3,31 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.22.1
+
+### Bug Fixes
+
+- Homev2 accept invite ([#442](https://github.com/juspay/hyperswitch-control-center/pull/442)) ([`9209d2b`](https://github.com/juspay/hyperswitch-control-center/commit/9209d2b07a686af1986bce7492513b59143c87cd))
+- Stepper UI fix on Home page ([#432](https://github.com/juspay/hyperswitch-control-center/pull/432)) ([`84adad4`](https://github.com/juspay/hyperswitch-control-center/commit/84adad4eaa32f50c01aaa23d033043c4e8ec9296))
+
+**Full Changelog:** [`2024.02.22.0...2024.02.22.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.22.0...2024.02.22.1)
+
+- - -
+
+## 2024.02.22.0
+
+### Features
+
+- Accept from email intermediate screen ([#422](https://github.com/juspay/hyperswitch-control-center/pull/422)) ([`e13c6ca`](https://github.com/juspay/hyperswitch-control-center/commit/e13c6ca1d45aabb38b967c6fa51ebe57ff38cc30))
+
+### Refactors
+
+- Added connector types and renamed the connector util functions ([#433](https://github.com/juspay/hyperswitch-control-center/pull/433)) ([`8cdf723`](https://github.com/juspay/hyperswitch-control-center/commit/8cdf72333e0d3d52f5156835a96214a1846a3b86))
+
+**Full Changelog:** [`2024.02.21.0...2024.02.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.21.0...2024.02.22.0)
+
+- - -
+
 ## 2024.02.21.0
 
 ### Bug Fixes

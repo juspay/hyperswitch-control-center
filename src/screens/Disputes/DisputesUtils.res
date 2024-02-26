@@ -1,7 +1,7 @@
 open ConnectorTypes
-let connectorsSupportEvidenceUpload = [CHECKOUT, STRIPE]
-let connectorsSupportAcceptDispute = [CHECKOUT]
-let connectorSupportCounterDispute = [CHECKOUT, STRIPE]
+let connectorsSupportEvidenceUpload = [Processors(CHECKOUT), Processors(STRIPE)]
+let connectorsSupportAcceptDispute = [Processors(CHECKOUT)]
+let connectorSupportCounterDispute = [Processors(CHECKOUT), Processors(STRIPE)]
 
 open DisputeTypes
 let disputeStageVariantMapper = stage => {

@@ -1,8 +1,8 @@
 module Render = {
   @react.component
   let make = (~connector, ~showModal, ~setShowModal) => {
-    let integrationSteps = switch connector->ConnectorUtils.getConnectorNameTypeFromString {
-    | STRIPE =>
+    let integrationSteps = switch connector->ConnectorUtils.getConnectorNameTypeFromString() {
+    | Processors(STRIPE) =>
       <div className="">
         <ol className="list-decimal pl-4">
           <li className="mb-8">
@@ -62,7 +62,7 @@ module Render = {
           />
         </a>
       </div>
-    | ADYEN =>
+    | Processors(ADYEN) =>
       <div className="">
         <ol className="list-decimal pl-4">
           <li className="mb-8">
@@ -96,7 +96,7 @@ module Render = {
           {React.string("Click on the top-right corner to find your Merchant ID.")}
         </div>
       </div>
-    | CHECKOUT =>
+    | Processors(CHECKOUT) =>
       <div className="">
         <ol className="list-decimal pl-4">
           <li className="mb-8">
@@ -124,7 +124,7 @@ module Render = {
               New Checkout Public key and Secret key can be created in Developers > Keys > Create a new key.")}
         </div>
       </div>
-    | PAYPAL =>
+    | Processors(PAYPAL) =>
       <div className="">
         <ol className="list-decimal pl-4">
           <li className="mb-8">
