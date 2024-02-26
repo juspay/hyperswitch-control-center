@@ -169,39 +169,55 @@ let defaultValueForPermission = {
   usersWrite: NoAccess,
 }
 
+// TODO: Refactor to not call function for every permission
 let getPermissionJson = permissionList => {
-  let getAccessValueFromPermission = permissionValue =>
-    getAccessValue(~permissionList, ~permissionValue)
-
   {
-    paymentRead: PaymentRead->getAccessValueFromPermission,
-    paymentWrite: PaymentWrite->getAccessValueFromPermission,
-    refundRead: RefundRead->getAccessValueFromPermission,
-    refundWrite: RefundWrite->getAccessValueFromPermission,
-    apiKeyRead: ApiKeyRead->getAccessValueFromPermission,
-    apiKeyWrite: ApiKeyWrite->getAccessValueFromPermission,
-    merchantAccountRead: MerchantAccountRead->getAccessValueFromPermission,
-    merchantAccountWrite: MerchantAccountWrite->getAccessValueFromPermission,
-    merchantConnectorAccountRead: MerchantConnectorAccountRead->getAccessValueFromPermission,
-    merchantConnectorAccountWrite: MerchantConnectorAccountWrite->getAccessValueFromPermission,
-    forexRead: ForexRead->getAccessValueFromPermission,
-    routingRead: RoutingRead->getAccessValueFromPermission,
-    routingWrite: RoutingWrite->getAccessValueFromPermission,
-    disputeRead: DisputeRead->getAccessValueFromPermission,
-    disputeWrite: DisputeWrite->getAccessValueFromPermission,
-    mandateRead: MandateRead->getAccessValueFromPermission,
-    mandateWrite: MandateWrite->getAccessValueFromPermission,
-    customerRead: CustomerRead->getAccessValueFromPermission,
-    customerWrite: CustomerWrite->getAccessValueFromPermission,
-    fileRead: FileRead->getAccessValueFromPermission,
-    fileWrite: FileWrite->getAccessValueFromPermission,
-    analytics: Analytics->getAccessValueFromPermission,
-    threeDsDecisionManagerWrite: ThreeDsDecisionManagerWrite->getAccessValueFromPermission,
-    threeDsDecisionManagerRead: ThreeDsDecisionManagerRead->getAccessValueFromPermission,
-    surchargeDecisionManagerWrite: SurchargeDecisionManagerWrite->getAccessValueFromPermission,
-    surchargeDecisionManagerRead: SurchargeDecisionManagerRead->getAccessValueFromPermission,
-    usersRead: UsersRead->getAccessValueFromPermission,
-    usersWrite: UsersWrite->getAccessValueFromPermission,
+    paymentRead: getAccessValue(~permissionValue=PaymentRead, ~permissionList),
+    paymentWrite: getAccessValue(~permissionValue=PaymentWrite, ~permissionList),
+    refundRead: getAccessValue(~permissionValue=RefundRead, ~permissionList),
+    refundWrite: getAccessValue(~permissionValue=RefundWrite, ~permissionList),
+    apiKeyRead: getAccessValue(~permissionValue=ApiKeyRead, ~permissionList),
+    apiKeyWrite: getAccessValue(~permissionValue=ApiKeyWrite, ~permissionList),
+    merchantAccountRead: getAccessValue(~permissionValue=MerchantAccountRead, ~permissionList),
+    merchantAccountWrite: getAccessValue(~permissionValue=MerchantAccountWrite, ~permissionList),
+    merchantConnectorAccountRead: getAccessValue(
+      ~permissionValue=MerchantConnectorAccountRead,
+      ~permissionList,
+    ),
+    merchantConnectorAccountWrite: getAccessValue(
+      ~permissionValue=MerchantConnectorAccountWrite,
+      ~permissionList,
+    ),
+    forexRead: getAccessValue(~permissionValue=ForexRead, ~permissionList),
+    routingRead: getAccessValue(~permissionValue=RoutingRead, ~permissionList),
+    routingWrite: getAccessValue(~permissionValue=RoutingWrite, ~permissionList),
+    disputeRead: getAccessValue(~permissionValue=DisputeRead, ~permissionList),
+    disputeWrite: getAccessValue(~permissionValue=DisputeWrite, ~permissionList),
+    mandateRead: getAccessValue(~permissionValue=MandateRead, ~permissionList),
+    mandateWrite: getAccessValue(~permissionValue=MandateWrite, ~permissionList),
+    customerRead: getAccessValue(~permissionValue=CustomerRead, ~permissionList),
+    customerWrite: getAccessValue(~permissionValue=CustomerWrite, ~permissionList),
+    fileRead: getAccessValue(~permissionValue=FileRead, ~permissionList),
+    fileWrite: getAccessValue(~permissionValue=FileWrite, ~permissionList),
+    analytics: getAccessValue(~permissionValue=Analytics, ~permissionList),
+    threeDsDecisionManagerWrite: getAccessValue(
+      ~permissionValue=ThreeDsDecisionManagerWrite,
+      ~permissionList,
+    ),
+    threeDsDecisionManagerRead: getAccessValue(
+      ~permissionValue=ThreeDsDecisionManagerRead,
+      ~permissionList,
+    ),
+    surchargeDecisionManagerWrite: getAccessValue(
+      ~permissionValue=SurchargeDecisionManagerWrite,
+      ~permissionList,
+    ),
+    surchargeDecisionManagerRead: getAccessValue(
+      ~permissionValue=SurchargeDecisionManagerRead,
+      ~permissionList,
+    ),
+    usersRead: getAccessValue(~permissionValue=UsersRead, ~permissionList),
+    usersWrite: getAccessValue(~permissionValue=UsersWrite, ~permissionList),
   }
 }
 
