@@ -207,8 +207,7 @@ let make = (
       let (key, value) = entries
       filterKeys->Array.includes(key) ? Some((key, value)) : None
     })
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    ->getJsonFromArrayOfJson
     ->Some
   }, [topFiltersToSearchParam])
 

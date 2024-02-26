@@ -168,8 +168,6 @@ let constructNameDescription = routingType => {
   ])
 }
 
-let currentTabNameRecoilAtom = Recoil.atom(. "currentTabName", "ActiveTab")
-
 module SaveAndActivateButton = {
   @react.component
   let make = (

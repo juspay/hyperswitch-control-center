@@ -646,8 +646,7 @@ let ignoreFields = (json, id, fields) => {
       let (key, _val) = entry
       !(fields->Array.includes(key))
     })
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    ->LogicUtils.getJsonFromArrayOfJson
   }
 }
 

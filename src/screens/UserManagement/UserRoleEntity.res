@@ -5,7 +5,6 @@ type role = Admin | ViewOnly | Operations | Developer | None
 type userStatus = Active | InviteSent | None
 
 type userTableTypes = {
-  user_id: string,
   email: string,
   name: string,
   role_id: string,
@@ -32,7 +31,6 @@ type roleColTypes =
 
 let itemToObjMapperForUser = dict => {
   {
-    user_id: getString(dict, "user_id", ""),
     email: getString(dict, "email", ""),
     name: getString(dict, "name", ""),
     role_id: getString(dict, "role_id", ""),
