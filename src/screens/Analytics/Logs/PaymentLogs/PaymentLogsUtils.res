@@ -13,7 +13,7 @@ type flowType =
   | IncomingWebhookReceive
   | NotDefined
 
-let itemToObjMapper = flowString => {
+let getFlowTypeVariantFromString = flowString => {
   switch flowString {
   | "PaymentsCancel" => PaymentsCancel
   | "PaymentsCapture" => PaymentsCapture
@@ -35,7 +35,7 @@ let itemToObjMapper = flowString => {
 let nameToURLMapper = (~id) => {
   let merchant_id = HSLocalStorage.getFromMerchantDetails("merchant_id")
   urlName =>
-    switch urlName->itemToObjMapper {
+    switch urlName->getFlowTypeVariantFromString {
     | PaymentsCancel => `/payments/${id}/cancel`
     | PaymentsCapture => `/payments/${id}/capture`
     | PaymentsConfirm => `/payments/${id}/confirm`
