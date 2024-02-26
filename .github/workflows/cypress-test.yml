@@ -47,8 +47,8 @@ jobs:
           build: npm run build:test
           start: npm run test:start
 
-      - name: Generate Code Coverage Report
-        run: npx nyc report --reporter=text-summary
+      - name: Run Tests and Collect Coverage
+        run: npx cypress run && npx nyc --reporter=text-summary npx cypress run
 
       - name: Extract Coverage Metrics
         id: extract_coverage
@@ -57,30 +57,30 @@ jobs:
           branches=$(npx nyc report --reporter=text-summary | awk '/Branches/{print $3}' | sed 's/%//')
           functions=$(npx nyc report --reporter=text-summary | awk '/Functions/{print $3}' | sed 's/%//')
           lines=$(npx nyc report --reporter=text-summary | awk '/Lines/{print $3}' | sed 's/%//')
-          
-          echo "::set-output name=statements::$statements"
-          echo "::set-output name=branches::$branches"
-          echo "::set-output name=functions::$functions"
-          echo "::set-output name=lines::$lines"
 
-      - name: Check Coverage Threshold
+          echo "STATEMENTS=$statements" >> $GITHUB_ENV
+          echo "BRANCHES=$branches" >> $GITHUB_ENV
+          echo "FUNCTIONS=$functions" >> $GITHUB_ENV
+          echo "LINES=$lines" >> $GITHUB_ENV
+
+      - name: Check Coverage Thresholds
         run: |
-          if [ "${{ steps.extract_coverage.outputs.statements }}" -lt 90 ]; then
+          if [ "${{ env.STATEMENTS }}" -lt 90 ]; then
             echo "Statements coverage is below the threshold (90%)"
             exit 1
           fi
 
-          if [ "${{ steps.extract_coverage.outputs.branches }}" -lt 90 ]; then
+          if [ "${{ env.BRANCHES }}" -lt 90 ]; then
             echo "Branches coverage is below the threshold (90%)"
             exit 1
           fi
 
-          if [ "${{ steps.extract_coverage.outputs.functions }}" -lt 90 ]; then
+          if [ "${{ env.FUNCTIONS }}" -lt 90 ]; then
             echo "Functions coverage is below the threshold (90%)"
             exit 1
           fi
 
-          if [ "${{ steps.extract_coverage.outputs.lines }}" -lt 90 ]; then
+          if [ "${{ env.LINES }}" -lt 90 ]; then
             echo "Lines coverage is below the threshold (90%)"
             exit 1
           fi
