@@ -13,8 +13,6 @@ let defaultColumns = [
 
 let allColumns = [CustomerId, Name, Email, Phone, PhoneCountryCode, Description, Address, CreatedAt]
 
-let customersMapDefaultCols = Recoil.atom(. "customersMapDefaultCols", defaultColumns)
-
 let getHeading = colType => {
   switch colType {
   | CustomerId => Table.makeHeaderInfo(~key="customer_id", ~title="Customer Id", ~showSort=true, ())
