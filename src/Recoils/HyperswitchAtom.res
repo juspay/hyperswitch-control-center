@@ -22,3 +22,5 @@ let userPermissionAtom: Recoil.recoilAtom<PermissionUtils.permissionJson> = Reco
 let switchMerchantListAtom: Recoil.recoilAtom<
   array<SwitchMerchantUtils.switchMerchantListResponse>,
 > = Recoil.atom(. "switchMerchantListAtom", [SwitchMerchantUtils.defaultValue])
+
+let currentTabNameRecoilAtom = Recoil.atom(. "currentTabName", "ActiveTab")

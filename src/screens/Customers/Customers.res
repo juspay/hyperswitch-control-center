@@ -40,7 +40,7 @@ let make = () => {
       setOffset
       currrentFetchCount={customersData->Array.length}
       defaultColumns={defaultColumns}
-      customColumnMapper={customersMapDefaultCols}
+      customColumnMapper={TableAtoms.customersMapDefaultCols}
       showSerialNumberInCustomizeColumns=false
       sortingBasedOnDisabled=false
     />

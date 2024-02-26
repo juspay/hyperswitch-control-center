@@ -337,7 +337,7 @@ module ApiKeysTable = {
       }
     }
 
-    let visibleColumns = Recoil.useRecoilValueFromAtom(apiDefaultCols)
+    let visibleColumns = Recoil.useRecoilValueFromAtom(TableAtoms.apiDefaultCols)
 
     let apiKeysTableEntity = EntityType.makeEntity(
       ~uri="",

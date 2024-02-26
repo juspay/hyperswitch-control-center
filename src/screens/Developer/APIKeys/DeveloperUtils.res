@@ -105,8 +105,6 @@ let defaultColumns = [Prefix, Name, Description, Created, Expiration, CustomCell
 
 let allColumns = [Prefix, Name, Description, Created, Expiration, CustomCell]
 
-let apiDefaultCols = Recoil.atom(. "hyperSwitchApiDefaultCols", defaultColumns)
-
 let getItems: JSON.t => array<apiKey> = json => {
   LogicUtils.getArrayDataFromJson(json, itemToObjMapper)
 }
