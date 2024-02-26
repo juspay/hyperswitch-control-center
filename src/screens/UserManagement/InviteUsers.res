@@ -1,9 +1,10 @@
 module InviteEmailForm = {
   open UserManagementUtils
   @react.component
-  let make = (~setRoleTypeValue) => {
+  let make = (~setRoleTypeValue, ~isEmailTextInputVisible, ~setNewRoleSelected) => {
     open LogicUtils
     open APIUtils
+    open UIUtils
     let fetchDetails = useGetMethod()
     let {magicLink} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (roleListData, setRoleListData) = React.useState(_ => [])
@@ -13,6 +14,11 @@ module InviteEmailForm = {
       ->getArrayFromJson([])
       ->getValueFromArray(0, ""->JSON.Encode.string)
       ->getStringFromJson("")
+
+    React.useEffect1(() => {
+      setNewRoleSelected(_ => role)
+      None
+    }, [role])
 
     let getRolesList = async () => {
       try {
@@ -42,22 +48,24 @@ module InviteEmailForm = {
     }, [role])
 
     <>
-      <div className="flex justify-between">
-        <div className="flex flex-col w-full">
-          <FormRenderer.FieldRenderer
-            field=inviteEmail
-            fieldWrapperClass="w-4/5"
-            labelClass="!text-black !text-base !-ml-[0.5px]"
-          />
+      <RenderIf condition={isEmailTextInputVisible}>
+        <div className="flex justify-between">
+          <div className="flex flex-col w-full">
+            <FormRenderer.FieldRenderer
+              field=inviteEmail
+              fieldWrapperClass="w-4/5"
+              labelClass="!text-black !text-base !-ml-[0.5px]"
+            />
+          </div>
+          <div className="absolute top-10 right-5">
+            <FormRenderer.SubmitButton
+              text={magicLink ? "Send Invite" : "Add User"} loadingText="Loading..."
+            />
+          </div>
         </div>
-        <div className="absolute top-10 right-5">
-          <FormRenderer.SubmitButton
-            text={magicLink ? "Send Invite" : "Add User"} loadingText="Loading..."
-          />
-        </div>
-      </div>
+      </RenderIf>
       <FormRenderer.FieldRenderer
-        fieldWrapperClass="w-full mt-5"
+        fieldWrapperClass={`w-full ${isEmailTextInputVisible ? "mt-5" : ""}`}
         field={roleType(roleListData)}
         errorClass
         labelClass="!text-black !font-semibold"
@@ -67,24 +75,31 @@ module InviteEmailForm = {
 }
 
 @react.component
-let make = () => {
+let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?) => {
   open UserManagementUtils
   open APIUtils
   open LogicUtils
+  open UIUtils
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
+
+  let defaultRole = switch currentRole {
+  | Some(val) => val
+  | None => "merchant_view_only"
+  }
+
   let {magicLink, inviteMultiple} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (roleTypeValue, setRoleTypeValue) = React.useState(_ => "merchant_view_only")
+  let (roleTypeValue, setRoleTypeValue) = React.useState(_ => defaultRole)
   let (roleDict, setRoleDict) = React.useState(_ => Dict.make())
   let (loaderForInviteUsers, setLoaderForInviteUsers) = React.useState(_ => false)
+  let paddingClass = isInviteUserFlow ? "p-10" : ""
+  let marginClass = isInviteUserFlow ? "mt-5" : ""
 
   let initialValues = React.useMemo0(() => {
-    [("roleType", ["merchant_view_only"->JSON.Encode.string]->JSON.Encode.array)]
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    [("roleType", [defaultRole->JSON.Encode.string]->JSON.Encode.array)]->getJsonFromArrayOfJson
   })
 
   let inviteListOfUsersWithInviteMultiple = async values => {
@@ -312,20 +327,25 @@ let make = () => {
   }, [roleTypeValue])
 
   <div className="flex flex-col overflow-y-scroll h-full">
-    <BreadCrumbNavigation
-      path=[{title: "Users", link: "/users"}] currentPageTitle="Invite new users"
-    />
-    <PageUtils.PageHeading
-      title="Invite New Users"
-      subTitle="An invite will be sent to the email addresses to set up a new account"
-    />
-    <div className="h-4/5 bg-white mt-5 p-10 relative overflow-y-scroll flex flex-col gap-10">
+    <RenderIf condition={isInviteUserFlow}>
+      <BreadCrumbNavigation
+        path=[{title: "Users", link: "/users"}] currentPageTitle="Invite new users"
+      />
+      <PageUtils.PageHeading
+        title="Invite New Users"
+        subTitle="An invite will be sent to the email addresses to set up a new account"
+      />
+    </RenderIf>
+    <div
+      className={`h-4/5 bg-white relative overflow-y-scroll flex flex-col gap-10 ${paddingClass} ${marginClass}`}>
       <Form
         key="invite-user-management"
         initialValues={initialValues}
         validate={values => values->validateForm(~fieldsToValidate=["emailList"])}
         onSubmit>
-        <InviteEmailForm setRoleTypeValue />
+        <InviteEmailForm
+          setRoleTypeValue isEmailTextInputVisible=isInviteUserFlow setNewRoleSelected
+        />
       </Form>
       <PageLoaderWrapper screenState={screenState}>
         <div className="flex flex-col justify-between gap-12 show-scrollbar overflow-scroll">
@@ -342,12 +362,12 @@ let make = () => {
         </div>
       </PageLoaderWrapper>
     </div>
-    <UIUtils.RenderIf condition={!magicLink}>
+    <RenderIf condition={!magicLink}>
       <LoaderModal
         showModal={loaderForInviteUsers}
         setShowModal={setLoaderForInviteUsers}
         text="Inviting Users"
       />
-    </UIUtils.RenderIf>
+    </RenderIf>
   </div>
 }

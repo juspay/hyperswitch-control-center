@@ -24,9 +24,9 @@ let size = "w-14 h-14 rounded-full"
 
 let generateInitialValuesDict = (~selectedFRMInfo, ~isLiveMode, ()) => {
   let frmAccountDetailsDict =
-    [("auth_type", selectedFRMInfo.name->getFRMAuthType->JSON.Encode.string)]
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    [
+      ("auth_type", selectedFRMInfo.name->getFRMAuthType->JSON.Encode.string),
+    ]->LogicUtils.getJsonFromArrayOfJson
 
   [
     ("connector_name", selectedFRMInfo.name->getFRMNameString->JSON.Encode.string),
