@@ -37,6 +37,9 @@ type entityName =
   | CUSTOMERS
   | ACCEPT_DISPUTE
   | DISPUTES_ATTACH_EVIDENCE
+  // Payouts related
+  | PAYOUT_DEFAULT_FALLBACK
+  | PAYOUT_ROUTING
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 

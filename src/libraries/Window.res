@@ -54,6 +54,9 @@ external getSurchargeKeys: unit => array<string> = "getSurchargeKeys"
 external getAllKeys: unit => array<string> = "getAllKeys"
 
 @val @scope("window")
+external getAllPayoutKeys: unit => array<string> = "getAllPayoutKeys"
+
+@val @scope("window")
 external getKeyType: string => string = "getKeyType"
 
 @val @scope("window")

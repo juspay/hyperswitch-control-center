@@ -95,6 +95,14 @@ function getAllKeys() {
   }
 }
 
+function getAllPayoutKeys() {
+  if (wasm) {
+    return wasm.getAllPayoutKeys();
+  } else {
+    return [];
+  }
+}
+
 function getKeyType(str) {
   if (wasm) {
     return wasm.getKeyType(str);

@@ -3,7 +3,7 @@ open APIUtilsTypes
 open MerchantAccountUtils
 
 @react.component
-let make = () => {
+let make = (~isPayoutFlow=false) => {
   open LogicUtils
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
@@ -32,6 +32,7 @@ let make = () => {
       ->Option.getOr(JSON.Encode.null)
       ->getDictFromJsonObject
       ->getArrayFromDict("connectors", [])
+
     if connectorList->Array.length > 0 {
       setGateways(_ => connectorList)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -44,7 +45,7 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let defaultFallbackUrl = `${getURL(
-          ~entityName=DEFAULT_FALLBACK,
+          ~entityName=isPayoutFlow ? PAYOUT_DEFAULT_FALLBACK : DEFAULT_FALLBACK,
           ~methodType=Get,
           (),
         )}/profile`
@@ -76,7 +77,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let defaultPayload = gateways
       let defaultFallbackUpdateUrl = `${getURL(
-          ~entityName=DEFAULT_FALLBACK,
+          ~entityName=isPayoutFlow ? PAYOUT_DEFAULT_FALLBACK : DEFAULT_FALLBACK,
           ~methodType=Post,
           (),
         )}/profile/${profile}`
@@ -84,7 +85,7 @@ let make = () => {
       (
         await updateDetails(defaultFallbackUpdateUrl, defaultPayload->JSON.Encode.array, Post, ())
       )->ignore
-      RescriptReactRouter.replace(`/routing/default`)
+      RescriptReactRouter.replace(`/${isPayoutFlow ? "payout" : ""}routing/default`)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) =>

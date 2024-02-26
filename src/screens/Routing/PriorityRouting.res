@@ -16,6 +16,7 @@ module SimpleRoutingView = {
     ~connectors,
     ~setFormState,
     ~isActive,
+    ~isPayoutFlow=false,
   ) => {
     let nameFromForm = ReactFinalForm.useField(`name`).input.value
     let descriptionFromForm = ReactFinalForm.useField(`description`).input.value
@@ -53,7 +54,7 @@ module SimpleRoutingView = {
           ~toastType=ToastState.ToastSuccess,
           (),
         )
-        RescriptReactRouter.replace(`/routing`)
+        RescriptReactRouter.replace(`${isPayoutFlow ? "/payout" : "/"}routing`)
         setScreenState(_ => Success)
       } catch {
       | Exn.Error(e) =>
@@ -71,7 +72,7 @@ module SimpleRoutingView = {
           ~toastType=ToastState.ToastSuccess,
           (),
         )
-        RescriptReactRouter.replace(`/routing`)
+        RescriptReactRouter.replace(`${isPayoutFlow ? "/payout" : "/"}routing`)
         setScreenState(_ => Success)
       } catch {
       | Exn.Error(e) =>
@@ -211,7 +212,7 @@ module SimpleRoutingView = {
   }
 }
 @react.component
-let make = (~routingRuleId, ~isActive) => {
+let make = (~routingRuleId, ~isActive, ~isPayoutFlow=false) => {
   open LogicUtils
   let fetchDetails = useGetMethod()
   let (formState, setFormState) = React.useState(_ => CreateConfig)
@@ -267,10 +268,11 @@ let make = (~routingRuleId, ~isActive) => {
   let getConnectorsList = () => {
     let arr =
       connectorListJson
-      ->ConnectorUtils.getProcessorsListFromJson()
+      ->filterConnectorListJson(~retainInList=isPayoutFlow ? PayoutConnector : PaymentConnector)
       ->Array.map(connectorDict => connectorDict->getString("connector_name", ""))
       ->Array.filter(x => x !== "applepay")
       ->getUniqueArray
+    Js.Console.warn2("HEREERERHEAGKJUBDSJHBDSIU", arr)
     setConnectors(_ => arr)
     setScreenState(_ => Success)
   }
@@ -306,6 +308,7 @@ let make = (~routingRuleId, ~isActive) => {
                 setFormState
                 routingId=routingRuleId
                 isActive
+                isPayoutFlow
               />
             } else {
               React.null

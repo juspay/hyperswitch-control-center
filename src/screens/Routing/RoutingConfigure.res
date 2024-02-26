@@ -1,7 +1,7 @@
 open RoutingTypes
 open RoutingUtils
 @react.component
-let make = (~routingType) => {
+let make = (~routingType, ~isPayoutFlow=false) => {
   let url = RescriptReactRouter.useUrl()
   let (currentRouting, setCurrentRouting) = React.useState(() => NO_ROUTING)
   let (id, setId) = React.useState(() => None)
@@ -29,12 +29,14 @@ let make = (~routingType) => {
 
   <div className="flex flex-col overflow-auto gap-2">
     <PageUtils.PageHeading title="Smart routing configuration" />
-    <History.BreadCrumbWrapper pageTitle={getContent(currentRouting).heading}>
+    <History.BreadCrumbWrapper
+      pageTitle={getContent(currentRouting).heading}
+      baseLink={isPayoutFlow ? "/payoutrouting" : "/routing"}>
       {switch currentRouting {
-      | PRIORITY => <PriorityRouting routingRuleId=id isActive />
-      | VOLUME_SPLIT => <VolumeSplitRouting routingRuleId=id isActive />
-      | ADVANCED => <AdvancedRouting routingRuleId=id isActive setCurrentRouting />
-      | DEFAULTFALLBACK => <DefaultRouting />
+      | PRIORITY => <PriorityRouting routingRuleId=id isActive isPayoutFlow />
+      | VOLUME_SPLIT => <VolumeSplitRouting routingRuleId=id isActive isPayoutFlow />
+      | ADVANCED => <AdvancedRouting routingRuleId=id isActive setCurrentRouting isPayoutFlow />
+      | DEFAULTFALLBACK => <DefaultRouting isPayoutFlow={isPayoutFlow} />
       | _ => <> </>
       }}
     </History.BreadCrumbWrapper>

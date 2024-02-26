@@ -1,6 +1,14 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
+*
+* Function exposed as `wasm` function in js `parse`. Allowing use to extend the functionality and
+* usage for web
+* @param {string} val
+* @returns {string}
+*/
+export function parse(val: string): string;
+/**
 * This function can be used by the frontend to educate wasm about the forex rates data.
 * The input argument is a struct fields base_currency and conversion where later is all the conversions associated with the base_currency
 * to all different currencies present.
@@ -108,18 +116,24 @@ export function getRequestPayload(input: any, response: any): any;
 */
 export function getResponsePayload(input: any): any;
 /**
-*
-* Function exposed as `wasm` function in js `parse`. Allowing use to extend the functionality and
-* usage for web
-* @param {string} val
-* @returns {string}
+* @returns {any}
 */
-export function parse(val: string): string;
+export function getAllPayoutKeys(): any;
+/**
+* @param {string} key
+* @returns {any}
+*/
+export function getPayoutVariantValues(key: string): any;
+/**
+* @returns {any}
+*/
+export function getPayoutDescriptionCategory(): any;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly parse: (a: number, b: number, c: number) => void;
   readonly setForexData: (a: number, b: number) => void;
   readonly convertCurrency: (a: number, b: number, c: number, d: number) => void;
   readonly seedKnowledgeGraph: (a: number, b: number) => void;
@@ -131,6 +145,7 @@ export interface InitOutput {
   readonly getKeyType: (a: number, b: number, c: number) => void;
   readonly getThreeDsKeys: (a: number) => void;
   readonly getSurchargeKeys: (a: number) => void;
+  readonly parseToString: (a: number, b: number, c: number) => void;
   readonly getVariantValues: (a: number, b: number, c: number) => void;
   readonly addTwo: (a: number, b: number) => number;
   readonly getDescriptionCategory: (a: number) => void;
@@ -138,8 +153,9 @@ export interface InitOutput {
   readonly getPayoutConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getRequestPayload: (a: number, b: number, c: number) => void;
   readonly getResponsePayload: (a: number, b: number) => void;
-  readonly parse: (a: number, b: number, c: number) => void;
-  readonly parseToString: (a: number, b: number, c: number) => void;
+  readonly getAllPayoutKeys: (a: number) => void;
+  readonly getPayoutVariantValues: (a: number, b: number, c: number) => void;
+  readonly getPayoutDescriptionCategory: (a: number) => void;
   readonly __wbindgen_export_0: (a: number, b: number) => number;
   readonly __wbindgen_export_1: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;

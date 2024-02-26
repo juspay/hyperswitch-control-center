@@ -233,6 +233,20 @@ let routing = permissionJson => {
   })
 }
 
+let payoutRouting = permissionJson => {
+  SubLevelLink({
+    name: "Payout Routing",
+    link: `/payoutrouting`,
+    access: permissionJson.routingRead,
+    searchOptions: [
+      ("Manage default routing configuration", "/default"),
+      ("Create new volume based routing", "/volume"),
+      ("Create new rule based routing", "/rule"),
+      ("Manage smart routing", ""),
+    ],
+  })
+}
+
 let threeDs = permissionJson => {
   SubLevelLink({
     name: "3DS Decision Manager",
@@ -253,6 +267,7 @@ let surcharge = permissionJson => {
 let workflow = (isWorkflowEnabled, isSurchargeEnabled, ~permissionJson) => {
   let routing = routing(permissionJson)
   let threeDs = threeDs(permissionJson)
+  let payoutRouting = payoutRouting(permissionJson)
   let surcharge = surcharge(permissionJson)
 
   isWorkflowEnabled
@@ -260,7 +275,9 @@ let workflow = (isWorkflowEnabled, isSurchargeEnabled, ~permissionJson) => {
         name: "Workflow",
         icon: "3ds",
         showSection: true,
-        links: isSurchargeEnabled ? [routing, threeDs, surcharge] : [routing, threeDs],
+        links: isSurchargeEnabled
+          ? [routing, payoutRouting, threeDs, surcharge]
+          : [routing, payoutRouting, threeDs],
       })
     : emptyComponent
 }

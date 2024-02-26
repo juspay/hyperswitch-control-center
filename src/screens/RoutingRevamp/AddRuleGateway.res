@@ -1,7 +1,7 @@
 external anyToEnum: 'a => AdvancedRoutingTypes.connectorSelectionData = "%identity"
 
 @react.component
-let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
+let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false, ~isPayoutFlow=false) => {
   let gateWaysInput = ReactFinalForm.useField(`${id}.connectorSelection.data`).input
   let gateWaysType = ReactFinalForm.useField(`${id}.connectorSelection.type`).input
   let isDistributeInput = ReactFinalForm.useField(`${id}.isDistribute`).input
@@ -9,7 +9,9 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
   let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let connectorList = React.useMemo0(() => {
     connectorListJson->LogicUtils.safeParse->ConnectorTableUtils.getArrayOfConnectorListPayloadType
-  })
+  })->RoutingUtils.filterConnectorList(
+    ~retainInList=isPayoutFlow ? PayoutConnector : PaymentConnector,
+  )
 
   React.useEffect1(() => {
     let typeString = if isDistribute {

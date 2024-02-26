@@ -1,6 +1,6 @@
 open APIUtils
 @react.component
-let make = (~remainingPath, ~previewOnly=false) => {
+let make = (~remainingPath, ~previewOnly=false, ~isPayoutFlow=false) => {
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
   let pathVar = url.path->List.toArray->Array.joinWith("/")
@@ -24,7 +24,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         title: "Manage rules",
         renderContent: () => {
           records->Array.length > 0
-            ? <History records activeRoutingIds />
+            ? <History records activeRoutingIds isPayoutFlow />
             : <DefaultLandingPage
                 height="90%"
                 title="No Routing Rule Configured!"
@@ -35,7 +35,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
       },
       {
         title: "Active configuration",
-        renderContent: () => <ActiveRouting routingType />,
+        renderContent: () => <ActiveRouting routingType isPayoutFlow />,
       },
     ]
   })
@@ -43,7 +43,11 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let fetchRoutingRecords = async activeIds => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let routingUrl = `${getURL(~entityName=ROUTING, ~methodType=Get, ())}?limit=100`
+      let routingUrl = `${getURL(
+          ~entityName=isPayoutFlow ? PAYOUT_ROUTING : ROUTING,
+          ~methodType=Get,
+          (),
+        )}?limit=100`
       let routingJson = await fetchDetails(routingUrl)
       let configuredRules = routingJson->RoutingUtils.getRecordsObject
 
@@ -86,7 +90,11 @@ let make = (~remainingPath, ~previewOnly=false) => {
     open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let activeRoutingUrl = `${getURL(~entityName=ROUTING, ~methodType=Get, ())}/active`
+      let activeRoutingUrl = `${getURL(
+          ~entityName=isPayoutFlow ? PAYOUT_ROUTING : ROUTING,
+          ~methodType=Get,
+          (),
+        )}/active`
       let routingJson = await fetchDetails(activeRoutingUrl)
 
       let routingArr = routingJson->getArrayFromJson([])
@@ -127,7 +135,9 @@ let make = (~remainingPath, ~previewOnly=false) => {
           title="Smart routing configuration"
           subTitle="Smart routing stack helps you to increase success rates and reduce costs by optimising your payment traffic across the various processors in the most customised yet reliable way. Set it up based on the preferred level of control"
         />
-        <ActiveRouting.LevelWiseRoutingSection types=[VOLUME_SPLIT, ADVANCED, DEFAULTFALLBACK] />
+        <ActiveRouting.LevelWiseRoutingSection
+          types=[VOLUME_SPLIT, ADVANCED, DEFAULTFALLBACK] isPayoutFlow
+        />
       </div>
       <UIUtils.RenderIf condition={!previewOnly}>
         <div className="flex flex-col gap-12">

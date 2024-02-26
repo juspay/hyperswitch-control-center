@@ -135,6 +135,7 @@ module Wrapper = {
     ~wasm,
     ~isFrom3ds=false,
     ~isFromSurcharge=false,
+    ~isPayoutFlow=false,
   ) => {
     let showToast = ToastState.useShowToast()
     let isMobileView = MatchMedia.useMobileChecker()
@@ -262,10 +263,12 @@ module Wrapper = {
             ${border} 
             border-blue-700`}>
         <UIUtils.RenderIf condition={!isFirst}>
-          <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm isFrom3ds isFromSurcharge />
+          <AdvancedRoutingUIUtils.MakeRuleField
+            id isExpanded wasm isFrom3ds isFromSurcharge isPayoutFlow
+          />
         </UIUtils.RenderIf>
         <UIUtils.RenderIf condition={!isFrom3ds && !isFromSurcharge}>
-          <AddRuleGateway id gatewayOptions isExpanded isFirst />
+          <AddRuleGateway id gatewayOptions isExpanded isFirst isPayoutFlow />
         </UIUtils.RenderIf>
         <UIUtils.RenderIf condition={isFrom3ds}>
           <Add3DSCondition isFirst id />
@@ -280,7 +283,14 @@ module Wrapper = {
 
 module RuleBasedUI = {
   @react.component
-  let make = (~gatewayOptions, ~wasm, ~initialRule, ~pageState, ~setCurrentRouting) => {
+  let make = (
+    ~gatewayOptions,
+    ~wasm,
+    ~initialRule,
+    ~pageState,
+    ~setCurrentRouting,
+    ~isPayoutFlow=false,
+  ) => {
     let rulesJsonPath = `algorithm.data.rules`
     let ruleInput = ReactFinalForm.useField(rulesJsonPath).input
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
@@ -338,6 +348,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
                 notFirstRule
                 isDragging
                 wasm
+                isPayoutFlow
               />
             }
             if notFirstRule {
@@ -369,7 +380,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
           className="text-blue-700 cursor-pointer"
           onClick={_ => {
             setCurrentRouting(_ => RoutingTypes.DEFAULTFALLBACK)
-            RescriptReactRouter.push("/routing/default")
+            RescriptReactRouter.replace(`/${isPayoutFlow ? "payout" : ""}routing/default`)
           }}>
           {"here"->React.string}
         </p>
@@ -379,7 +390,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
 }
 
 @react.component
-let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
+let make = (~routingRuleId, ~isActive, ~setCurrentRouting, ~isPayoutFlow=false) => {
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
@@ -400,7 +411,9 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let connectorList = React.useMemo0(() => {
     connectorListJson->safeParse->ConnectorTableUtils.getArrayOfConnectorListPayloadType
-  })
+  })->RoutingUtils.filterConnectorList(
+    ~retainInList=isPayoutFlow ? PayoutConnector : PaymentConnector,
+  )
 
   let getConnectorsList = () => {
     setConnectors(_ =>
@@ -410,7 +423,12 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
   let activeRoutingDetails = async () => {
     try {
-      let routingUrl = getURL(~entityName=ROUTING, ~methodType=Get, ~id=routingRuleId, ())
+      let routingUrl = getURL(
+        ~entityName=isPayoutFlow ? PAYOUT_ROUTING : ROUTING,
+        ~methodType=Get,
+        ~id=routingRuleId,
+        (),
+      )
       let routingJson = await fetchDetails(routingUrl)
       let schemaValue = routingJson->getDictFromJsonObject
       let rulesValue = schemaValue->getObj("algorithm", Dict.make())->getDictfromDict("data")
@@ -541,10 +559,15 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let handleActivateConfiguration = async activatingId => {
     try {
       setScreenState(_ => Loading)
-      let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
+      let activateRuleURL = getURL(
+        ~entityName=isPayoutFlow ? PAYOUT_ROUTING : ROUTING,
+        ~methodType=Post,
+        ~id=activatingId,
+        (),
+      )
       let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
       showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
-      RescriptReactRouter.replace(`/routing?`)
+      RescriptReactRouter.replace(`${isPayoutFlow ? "/payout" : "/"}routing?`)
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -552,7 +575,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       | Some(message) =>
         if message->String.includes("IR_16") {
           showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
-          RescriptReactRouter.replace(`/routing`)
+          RescriptReactRouter.replace(`${isPayoutFlow ? "/payout" : "/"}routing`)
           setScreenState(_ => Success)
         } else {
           showToast(
@@ -569,11 +592,15 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let handleDeactivateConfiguration = async _ => {
     try {
       setScreenState(_ => Loading)
-      let deactivateRoutingURL = `${getURL(~entityName=ROUTING, ~methodType=Post, ())}/deactivate`
+      let deactivateRoutingURL = `${getURL(
+          ~entityName=isPayoutFlow ? PAYOUT_ROUTING : ROUTING,
+          ~methodType=Post,
+          (),
+        )}/deactivate`
       let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
       let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
       showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
-      RescriptReactRouter.replace(`/routing?`)
+      RescriptReactRouter.replace(`${isPayoutFlow ? "/payout" : "/"}routing?`)
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -630,7 +657,12 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
         },
       }
 
-      let getActivateUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
+      let getActivateUrl = getURL(
+        ~entityName=isPayoutFlow ? PAYOUT_ROUTING : ROUTING,
+        ~methodType=Post,
+        ~id=None,
+        (),
+      )
       let response = await updateDetails(
         getActivateUrl,
         payload->Identity.genericTypeToJson,
@@ -661,6 +693,9 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
   let connectorOptions = React.useMemo2(() => {
     connectors
+    ->RoutingUtils.filterConnectorList(
+      ~retainInList=isPayoutFlow ? PayoutConnector : PaymentConnector,
+    )
     ->Array.filter(item => item.profile_id === profile)
     ->Array.map((item): SelectBox.dropdownOption => {
       {
@@ -686,7 +721,12 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                 <UIUtils.RenderIf condition={formState != CreateConfig}>
                   <div className="mb-5">
                     <RuleBasedUI
-                      gatewayOptions=connectorOptions wasm initialRule pageState setCurrentRouting
+                      gatewayOptions=connectorOptions
+                      wasm
+                      initialRule
+                      pageState
+                      setCurrentRouting
+                      isPayoutFlow
                     />
                     {switch pageState {
                     | Preview =>

@@ -259,7 +259,18 @@ let make = () => {
                             renderShow={_ => <ConnectorHome isPayoutFlow=true />}
                           />
                         </AccessControl>
-
+                      | list{"payoutrouting", ...remainingPath} =>
+                        <AccessControl
+                          isEnabled={featureFlagDetails.payOut}
+                          permission=userPermissionJson.workflowsView>
+                          <EntityScaffold
+                            entityName="PayoutRouting"
+                            remainingPath
+                            renderList={() => <RoutingStack isPayoutFlow=true remainingPath />}
+                            renderShow={routingType =>
+                              <RoutingConfigure isPayoutFlow=true routingType />}
+                          />
+                        </AccessControl>
                       | list{"payments", ...remainingPath} =>
                         <AccessControl permission=userPermissionJson.operationsView>
                           <FilterContext key="payments" index="payments" disableSessionStorage=true>
