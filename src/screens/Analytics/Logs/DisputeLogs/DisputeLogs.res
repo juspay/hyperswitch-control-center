@@ -9,12 +9,12 @@ let make = (~paymentId, ~disputeId, ~data: DisputeTypes.disputes) => {
 
   let promiseArr = [fetchDetails(disputesLogsUrl), fetchDetails(webhooksLogsUrl)]
 
-  if (
-    LogUtils.responseMaskingSupportedConectors->Array.includes(
-      data.connector->ConnectorUtils.getConnectorNameTypeFromString,
-    )
-  ) {
-    promiseArr->Array.concat([fetchDetails(connectorLogsUrl)])->ignore
+  switch data.connector->ConnectorUtils.getConnectorNameTypeFromString() {
+  | Processors(connector) =>
+    if LogUtils.responseMaskingSupportedConectors->Array.includes(connector) {
+      promiseArr->Array.concat([fetchDetails(connectorLogsUrl)])->ignore
+    }
+  | _ => ()
   }
 
   <AuditLogUI id={paymentId} promiseArr logType={#DISPUTE} />

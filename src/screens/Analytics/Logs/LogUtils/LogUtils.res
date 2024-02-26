@@ -132,7 +132,7 @@ let parseSdkResponse = arr => {
   logsArr
 }
 
-let responseMaskingSupportedConectors: array<ConnectorTypes.connectorName> = [
+let responseMaskingSupportedConectors: array<ConnectorTypes.processorTypes> = [
   BAMBORA,
   BANKOFAMERICA,
   BITPAY,
