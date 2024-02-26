@@ -338,6 +338,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
   let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
+  let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
   let popUpCallBack = () =>
     showPopUp({
@@ -351,6 +352,7 @@ let useGetMethod = (~showErrorToast=true, ()) => {
         onClick: {
           _ => {
             let _ = handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
+            clearRecoilValue()
           }
         },
       },
@@ -390,6 +392,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
   let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
   let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
   let {setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
+  let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
   let popUpCallBack = () =>
     showPopUp({
@@ -403,6 +406,7 @@ let useUpdateMethod = (~showErrorToast=true, ()) => {
         onClick: {
           _ => {
             let _ = handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
+            clearRecoilValue()
           }
         },
       },
