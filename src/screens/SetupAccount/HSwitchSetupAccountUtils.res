@@ -23,18 +23,17 @@ let constructBody = (~connectorName, ~json, ~profileId) => {
   let bodyType = connectorAccountDict->Dict.keysToArray->Array.get(0)->Option.getOr("")
 
   let connectorAccountDetails =
-    [("auth_type", bodyType->JSON.Encode.string), ("api_key", "test"->JSON.Encode.string)]
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    [
+      ("auth_type", bodyType->JSON.Encode.string),
+      ("api_key", "test"->JSON.Encode.string),
+    ]->getJsonFromArrayOfJson
 
   let initialValueForPayload = generateInitialValuesDict(
     ~values=[
       ("profile_id", profileId->JSON.Encode.string),
       ("connector_account_details", connectorAccountDetails),
       ("connector_label", `${connectorName}_default`->JSON.Encode.string),
-    ]
-    ->Dict.fromArray
-    ->JSON.Encode.object,
+    ]->getJsonFromArrayOfJson,
     ~connector=connectorName,
     ~bodyType,
     (),
@@ -113,9 +112,7 @@ let constructRoutingPayload = (routingData: routingData) => {
     [
       ("connector", routingData.connector_name->JSON.Encode.string),
       ("merchant_connector_id", routingData.merchant_connector_id->JSON.Encode.string),
-    ]
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    ]->LogicUtils.getJsonFromArrayOfJson
   [("split", 50.0->JSON.Encode.float), ("connector", innerRoutingDict)]
   ->Dict.fromArray
   ->JSON.Encode.object
