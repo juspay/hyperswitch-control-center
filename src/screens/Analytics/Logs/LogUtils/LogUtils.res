@@ -117,12 +117,7 @@ let parseSdkResponse = arr => {
     eventDict->Dict.set("sdk_version", eventDict->getString("version", "")->JSON.Encode.string)
     eventDict->Dict.set(
       "event_name",
-      updatedEventName
-      ->snakeToTitle
-      ->titleToSnake
-      ->snakeToCamel
-      ->capitalizeString
-      ->JSON.Encode.string,
+      updatedEventName->snakeToTitle->snakeToCamel->capitalizeString->JSON.Encode.string,
     )
     eventDict->Dict.set("created_at", timestamp->JSON.Encode.string)
     eventDict->JSON.Encode.object

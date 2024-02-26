@@ -12,10 +12,7 @@ module LogDetailsSection = {
 
     let isValidNonEmptyValue = value => {
       switch value->JSON.Classify.classify {
-      | Bool(_) => true
-      | String(_) => true
-      | Number(_) => true
-      | Object(_) => true
+      | Bool(_) | String(_) | Number(_) | Object(_) => true
       | _ => false
       }
     }
