@@ -65,22 +65,22 @@ jobs:
 
       - name: Check Coverage Thresholds
         run: |
-          if [ "$((env.STATEMENTS))" -lt 90 ]; then
+          if [ "$(expr "$STATEMENTS" + 0)" -lt 90 ]; then
             echo "Statements coverage is below the threshold (90%)"
             exit 1
           fi
-
-          if [ "$((env.BRANCHES))" -lt 90 ]; then
+      
+          if [ "$(expr "$BRANCHES" + 0)" -lt 90 ]; then
             echo "Branches coverage is below the threshold (90%)"
             exit 1
           fi
-
-          if [ "$((env.FUNCTIONS))" -lt 90 ]; then
+      
+          if [ "$(expr "$FUNCTIONS" + 0)" -lt 90 ]; then
             echo "Functions coverage is below the threshold (90%)"
             exit 1
           fi
-
-          if [ "$((env.LINES))" -lt 90 ]; then
+      
+          if [ "$(expr "$LINES" + 0)" -lt 90 ]; then
             echo "Lines coverage is below the threshold (90%)"
             exit 1
           fi
