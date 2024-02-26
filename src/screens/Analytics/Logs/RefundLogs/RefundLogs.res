@@ -1,5 +1,5 @@
 @react.component
-let make = (~refundId, ~paymentId) => {
+let make = (~refundId, ~paymentId, ~data: RefundEntity.refunds) => {
   open APIUtils
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
 
@@ -7,13 +7,15 @@ let make = (~refundId, ~paymentId) => {
   let webhooksLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/outgoing_webhook_event_logs?&payment_id=${paymentId}&refund_id=${refundId}`
   let connectorLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/connector_event_logs?payment_id=${paymentId}&refund_id=${refundId}`
 
-  <AuditLogUI
-    id={paymentId}
-    promiseArr={[
-      fetchDetails(refundsLogsUrl),
-      fetchDetails(webhooksLogsUrl),
-      fetchDetails(connectorLogsUrl),
-    ]}
-    logType={#PAYMENT}
-  />
+  let promiseArr = [fetchDetails(refundsLogsUrl), fetchDetails(webhooksLogsUrl)]
+
+  if (
+    LogUtils.responseMaskingSupportedConectors->Array.includes(
+      data.connector->ConnectorUtils.getConnectorNameTypeFromString,
+    )
+  ) {
+    promiseArr->Array.concat([fetchDetails(connectorLogsUrl)])->ignore
+  }
+
+  <AuditLogUI id={paymentId} promiseArr logType={#REFUND} />
 }

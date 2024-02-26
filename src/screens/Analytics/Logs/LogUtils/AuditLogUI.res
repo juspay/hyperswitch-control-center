@@ -85,6 +85,7 @@ let make = (~id, ~promiseArr, ~logType: LogTypes.pageType) => {
 
   let getDetails = async () => {
     let logs = []
+
     if !(id->HSwitchOrderUtils.isTestData) {
       let resArr = await PromiseUtils.allSettledPolyfill(promiseArr)
 

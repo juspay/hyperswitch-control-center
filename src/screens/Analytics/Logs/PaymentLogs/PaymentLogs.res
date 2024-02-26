@@ -1,9 +1,8 @@
 @react.component
-let make = (~paymentId, ~createdAt) => {
+let make = (~paymentId, ~createdAt, ~data: OrderTypes.order) => {
   open APIUtils
   let fetchDetails = useGetMethod(~showErrorToast=false, ())
   let fetchPostDetils = useUpdateMethod()
-
   let apiLogsUrl = getURL(~entityName=PAYMENT_LOGS, ~methodType=Get, ~id=Some(paymentId), ())
   let sdkLogsUrl = getURL(~entityName=SDK_EVENT_LOGS, ~methodType=Post, ~id=Some(paymentId), ())
   let startTime = createdAt->Date.fromString->Date.getTime -. 1000. *. 60. *. 5.
@@ -35,14 +34,19 @@ let make = (~paymentId, ~createdAt) => {
     (),
   )
 
-  <AuditLogUI
-    id={paymentId}
-    promiseArr={[
-      fetchDetails(apiLogsUrl),
-      fetchPostDetils(sdkLogsUrl, sdkPostBody, Post, ()),
-      fetchDetails(webhookLogsUrl),
-      fetchDetails(connectorLogsUrl),
-    ]}
-    logType={#PAYMENT}
-  />
+  let promiseArr = [
+    fetchDetails(apiLogsUrl),
+    fetchPostDetils(sdkLogsUrl, sdkPostBody, Post, ()),
+    fetchDetails(webhookLogsUrl),
+  ]
+
+  if (
+    LogUtils.responseMaskingSupportedConectors->Array.includes(
+      data.connector->ConnectorUtils.getConnectorNameTypeFromString,
+    )
+  ) {
+    promiseArr->Array.concat([fetchDetails(connectorLogsUrl)])->ignore
+  }
+
+  <AuditLogUI id={paymentId} promiseArr logType={#PAYMENT} />
 }
