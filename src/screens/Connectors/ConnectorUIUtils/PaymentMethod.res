@@ -161,11 +161,11 @@ module CardRenderer = {
                       ->String.toLowerCase}`,
                   ),
                 ]>
-                <div className="flex items-center gap-2" onClick={_ => removeOrAddMethods(value)}>
-                  <div>
+                <div className="flex items-center gap-2">
+                  <div onClick={_ => removeOrAddMethods(value)}>
                     <CheckBoxIcon isSelected={isSelected(value)} />
                   </div>
-                  <p className=p2RegularTextStyle>
+                  <p className=p2RegularTextStyle onClick={_ => removeOrAddMethods(value)}>
                     {React.string(value.payment_method_type->snakeToTitle)}
                   </p>
                 </div>
