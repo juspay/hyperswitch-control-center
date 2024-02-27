@@ -150,7 +150,7 @@ module CardRenderer = {
         {provider
         ->Array.mapWithIndex((value, i) => {
           <div key={i->Int.toString}>
-            <div className="flex items-center gap-2 break-words">
+            <div className="flex">
               <AddDataAttributes
                 attributes=[
                   (
@@ -161,13 +161,15 @@ module CardRenderer = {
                       ->String.toLowerCase}`,
                   ),
                 ]>
-                <div onClick={_e => removeOrAddMethods(value)}>
-                  <CheckBoxIcon isSelected={isSelected(value)} />
+                <div className="flex items-center gap-2">
+                  <div onClick={_ => removeOrAddMethods(value)}>
+                    <CheckBoxIcon isSelected={isSelected(value)} />
+                  </div>
+                  <p className=p2RegularTextStyle onClick={_ => removeOrAddMethods(value)}>
+                    {React.string(value.payment_method_type->snakeToTitle)}
+                  </p>
                 </div>
               </AddDataAttributes>
-              <p className=p2RegularTextStyle>
-                {React.string(value.payment_method_type->snakeToTitle)}
-              </p>
             </div>
           </div>
         })

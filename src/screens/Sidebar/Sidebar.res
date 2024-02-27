@@ -478,6 +478,7 @@ let make = (
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let minWidthForPinnedState = MatchMedia.useMatchMedia("(min-width: 1280px)")
+  let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
   React.useEffect1(() => {
     if minWidthForPinnedState {
@@ -527,7 +528,12 @@ let make = (
   let transformClass = "transform md:translate-x-0 transition"
 
   let handleLogout = _ => {
-    let _ = APIUtils.handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
+    let _ = APIUtils.handleLogout(
+      ~fetchApi,
+      ~setAuthStatus,
+      ~setIsSidebarExpanded,
+      ~clearRecoilValue,
+    )
   }
 
   <div className={`bg-sidebar-blue flex group border-r border-jp-gray-500 relative`}>
