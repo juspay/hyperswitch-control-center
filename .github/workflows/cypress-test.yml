@@ -1,7 +1,6 @@
 name: Cypress Tests
 
 on:
-  merge_group:
   pull_request:
 
 jobs:
