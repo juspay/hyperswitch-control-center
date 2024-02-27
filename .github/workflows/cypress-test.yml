@@ -67,10 +67,10 @@ jobs:
 
       - name: Debug Coverage Metrics
         run: |
-          echo "Debug - Statements: $statements"
-          echo "Debug - Branches: $branches"
-          echo "Debug - Functions: $functions"
-          echo "Debug - Lines: $lines"
+          echo "Debug - Statements: ${{ env.Statements }}"
+          echo "Debug - Branches: ${{ env.Branches }}"
+          echo "Debug - Functions: ${{ env.Functions }}"
+          echo "Debug - Lines: ${{ env.Lines }}"
 
       - name: Check Coverage Thresholds
         run: |
