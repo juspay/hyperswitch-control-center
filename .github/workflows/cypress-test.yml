@@ -1,7 +1,6 @@
 name: Cypress Tests
 
 on:
-  merge_group:
   pull_request:
 
 jobs:
@@ -46,3 +45,7 @@ jobs:
           install: false
           build: npm run build:test
           start: npm run test:start
+
+      - name: Check Coverage Thresholds
+        run: |
+          npx nyc check-coverage --lines 50 --functions 50 --branches 50 --statements 50
