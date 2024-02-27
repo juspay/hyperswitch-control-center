@@ -135,7 +135,7 @@ let make = (
     ->Recoil.useRecoilValueFromAtom
     ->MerchantAccountUtils.getArrayOfBusinessProfile
 
-  let fetchBusinessProfiles = MerchantAccountUtils.useFetchBusinessProfiles()
+  let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
 
   let updateMerchantDetails = async body => {
     try {

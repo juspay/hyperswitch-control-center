@@ -660,8 +660,7 @@ let getCellForAboutPayment = (
     }
   | CardBrand => Text(order.card_brand)
   | ProfileId => Text(order.profile_id)
-  | ProfileName =>
-    Table.CustomCell(<MerchantAccountUtils.BusinessProfile profile_id={order.profile_id} />, "")
+  | ProfileName => Table.CustomCell(<BusinessProfileComponent profile_id={order.profile_id} />, "")
   | CaptureMethod => Text(order.capture_method)
   }
 }

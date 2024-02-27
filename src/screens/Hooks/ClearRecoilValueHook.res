@@ -12,7 +12,7 @@ let useClearRecoilValue = () => {
   let setCurrentTabNameRecoilAtom = currentTabNameRecoilAtom->Recoil.useSetRecoilState
 
   let clearRecoilValue = () => {
-    setMerchantDetailsValue(._ => "")
+    setMerchantDetailsValue(._ => JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails)
     setBusinessProfilesAtom(._ => "")
     setConnectorListAtom(._ => "")
     setEnumVariantAtom(._ => "")
