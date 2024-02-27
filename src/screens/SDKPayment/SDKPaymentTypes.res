@@ -23,6 +23,7 @@ type shipping = {
 type billing = {
   address: address,
   phone: phone,
+  email: string,
 }
 type orderDetails = {
   product_name: string,
