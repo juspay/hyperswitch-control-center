@@ -603,6 +603,8 @@ let getHeadingForOtherDetails = otherDetailsColType => {
       (),
     )
   | FRMStatus => Table.makeHeaderInfo(~key="frm_status", ~title="FRM Message", ~showSort=true, ())
+  | BillingEmail =>
+    Table.makeHeaderInfo(~key="billing_email", ~title="Billing Email", ~showSort=true, ())
   }
 }
 
@@ -694,6 +696,7 @@ let getCellForOtherDetails = (order, aboutPaymentColType, _): Table.cell => {
   | FRMName => Text(order.frm_message.frm_name)
   | FRMTransactionType => Text(order.frm_message.frm_transaction_type)
   | FRMStatus => Text(order.frm_message.frm_status)
+  | BillingEmail => Text(order.billingEmail)
   }
 }
 
@@ -853,6 +856,7 @@ let itemToObjMapper = dict => {
     ->getDictfromDict("billing")
     ->getDictfromDict("address")
     ->concatValueOfGivenKeysOfDict(addressKeys),
+    billingEmail: dict->getDictfromDict("billing")->getString("email", ""),
     metadata: dict->getJsonObjectFromDict("metadata")->getDictFromJsonObject,
     email: dict->getString("email", ""),
     name: dict->getString("name", ""),
