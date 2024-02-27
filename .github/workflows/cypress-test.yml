@@ -65,6 +65,12 @@ jobs:
           echo "FUNCTIONS=$functions" >> $GITHUB_ENV
           echo "LINES=$lines" >> $GITHUB_ENV
 
+          echo "After setting values:"
+          echo "STATEMENTS=$STATEMENTS"
+          echo "BRANCHES=$BRANCHES"
+          echo "FUNCTIONS=$FUNCTIONS"
+          echo "LINES=$LINES"
+
       - name: Debug Coverage Metrics
         run: |
           echo "Debug - Statements: ${{ env.Statements }}"
