@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.26.0
+
+### Features
+
+- Update Role & Delete user added ([#403](https://github.com/juspay/hyperswitch-control-center/pull/403)) ([`e79e5ea`](https://github.com/juspay/hyperswitch-control-center/commit/e79e5eab681b6c29a248886eb5b57b22ad2caa0f))
+
+### Bug Fixes
+
+- Email_trim_fix ([#435](https://github.com/juspay/hyperswitch-control-center/pull/435)) ([`f14a257`](https://github.com/juspay/hyperswitch-control-center/commit/f14a257ffbe649e8e670d1db18a28804ad4fedc1))
+- Clear recoil state on logout ([#445](https://github.com/juspay/hyperswitch-control-center/pull/445)) ([`35c48f9`](https://github.com/juspay/hyperswitch-control-center/commit/35c48f9d6651be814386de6e8854bf8c0c5e2c90))
+- Dashboard default permission and signout fix ([#451](https://github.com/juspay/hyperswitch-control-center/pull/451)) ([`75b6c42`](https://github.com/juspay/hyperswitch-control-center/commit/75b6c427dedd040c2c9a17eaad417e7f23721258))
+
+### Refactors
+
+- Moved all the atoms to one folder ([#447](https://github.com/juspay/hyperswitch-control-center/pull/447)) ([`91b5290`](https://github.com/juspay/hyperswitch-control-center/commit/91b529023b30a6c0cf6c0186c49f0778cb97b612))
+
+**Full Changelog:** [`2024.02.22.1...2024.02.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.22.1...2024.02.26.0)
+
+- - -
+
 ## 2024.02.22.1
 
 ### Bug Fixes
