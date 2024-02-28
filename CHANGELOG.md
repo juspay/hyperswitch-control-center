@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.27.0
+
+### Features
+
+- Enable label clickling ([#437](https://github.com/juspay/hyperswitch-control-center/pull/437)) ([`bc517e2`](https://github.com/juspay/hyperswitch-control-center/commit/bc517e2391918387cd8c832eba5300381a5c1385))
+
+### Bug Fixes
+
+- Live onboarding webhook url update fix ([#452](https://github.com/juspay/hyperswitch-control-center/pull/452)) ([`ebbe843`](https://github.com/juspay/hyperswitch-control-center/commit/ebbe843dc49a6ae8a2a1715c83a92242ecf43702))
+
+### Miscellaneous Tasks
+
+- Add cypress coverage ([#443](https://github.com/juspay/hyperswitch-control-center/pull/443)) ([`e3b5f1d`](https://github.com/juspay/hyperswitch-control-center/commit/e3b5f1d918c8733cf3bd351d386d6265ebf3b940))
+
+**Full Changelog:** [`2024.02.26.0...2024.02.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.26.0...2024.02.27.0)
+
+- - -
+
 ## 2024.02.26.0
 
 ### Features
