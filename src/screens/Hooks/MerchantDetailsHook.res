@@ -11,7 +11,10 @@ let useFetchMerchantDetails = () => {
         merchantDetailsJSON->MerchantAccountDetailsMapper.getMerchantDetails
       )
     } catch {
-    | _ => ()
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Failed to fetch merchant details!")
+        Exn.raiseError(err)
+      }
     }
   }
 }
