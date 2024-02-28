@@ -407,22 +407,35 @@ module SidebarNestedSection = {
       | SubLevelLink({access}) => access === NoAccess
       }
     })
+
+    let isSectionExpanded_ = if isSectionAutoCollapseEnabled {
+      openItem === section.name || isAnySubItemSelected
+    } else {
+      isSectionExpanded
+    }
+
+    let toggleSectionExpansion_ = if isSectionAutoCollapseEnabled {
+      _ => setOpenItem(prev => {prev == section.name ? "" : section.name})
+    } else {
+      toggleSectionExpansion
+    }
+
+    let isElementShown_ = if isSectionAutoCollapseEnabled {
+      openItem == section.name || isAnySubItemSelected
+    } else {
+      isElementShown
+    }
+
     <RenderIf condition={!areAllSubLevelsHidden}>
       <NestedSectionItem
         section
-        isSectionExpanded={isSectionAutoCollapseEnabled
-          ? openItem === section.name || isAnySubItemSelected
-          : isSectionExpanded}
+        isSectionExpanded=isSectionExpanded_
         isAnySubItemSelected
         textColor
         cursor
-        toggleSectionExpansion={isSectionAutoCollapseEnabled
-          ? _ => setOpenItem(prev => {prev == section.name ? "" : section.name})
-          : toggleSectionExpansion}
+        toggleSectionExpansion=toggleSectionExpansion_
         expandedTextColor
-        isElementShown={isSectionAutoCollapseEnabled
-          ? openItem === section.name || isAnySubItemSelected
-          : isElementShown}
+        isElementShown=isElementShown_
         isSubLevelItemSelected
         isSideBarExpanded
       />
@@ -482,10 +495,14 @@ let make = (
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
   let email = HSLocalStorage.getFromMerchantDetails("email")
+
+  let (openItem, setOpenItem) = React.useState(_ => "")
+
   let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
   let {getFromSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
+
   let minWidthForPinnedState = MatchMedia.useMatchMedia("(min-width: 1280px)")
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
@@ -544,8 +561,6 @@ let make = (
       ~clearRecoilValue,
     )
   }
-
-  let (openItem, setOpenItem) = React.useState(_ => "")
 
   <div className={`bg-sidebar-blue flex group border-r border-jp-gray-500 relative`}>
     <div
