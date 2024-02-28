@@ -118,11 +118,10 @@ let make = (
     currentRoute === SampleProjects ? #ChooseLanguage : #Node
   )
   let (platform, setPlatform) = React.useState(_ => #Web)
-  let merchantDetails =
-    Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantDetailsValueAtom)
-    ->LogicUtils.safeParse
-    ->LogicUtils.getDictFromJsonObject
-  let publishablekeyMerchant = merchantDetails->LogicUtils.getString("publishable_key", "")
+
+  let merchantDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantDetailsValueAtom)
+
+  let publishablekeyMerchant = merchantDetails.publishable_key
   let theme = switch ThemeProvider.useTheme() {
   | Dark => "vs-dark"
   | Light => "light"
