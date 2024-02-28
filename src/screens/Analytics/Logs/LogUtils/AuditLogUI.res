@@ -190,7 +190,7 @@ let make = (~id, ~promiseArr, ~logType: LogTypes.pageType) => {
     customUI={<NoDataFound
       message={`No logs available for this ${(logType :> string)->String.toLowerCase}`}
     />}>
-    {if id->HSwitchOrderUtils.isTestData || data->Array.length === 0 {
+    <UIUtils.RenderIf condition={id->HSwitchOrderUtils.isTestData || data->Array.length === 0}>
       <div
         className="flex items-center gap-2 bg-white w-full border-2 p-3 !opacity-100 rounded-lg text-md font-medium">
         <Icon name="info-circle-unfilled" size=16 />
@@ -198,12 +198,13 @@ let make = (~id, ~promiseArr, ~logType: LogTypes.pageType) => {
           {`No logs available for this ${(logType :> string)->String.toLowerCase}`->React.string}
         </div>
       </div>
-    } else {
+    </UIUtils.RenderIf>
+    <UIUtils.RenderIf condition={!(id->HSwitchOrderUtils.isTestData || data->Array.length === 0)}>
       <Section
         customCssClass={`bg-white dark:bg-jp-gray-lightgray_background rounded-md pt-2 pb-4 flex gap-7 justify-between h-48-rem !max-h-50-rem !min-w-[55rem] max-w-[72rem] overflow-scroll`}>
         {timeLine}
         {codeBlock}
       </Section>
-    }}
+    </UIUtils.RenderIf>
   </PageLoaderWrapper>
 }
