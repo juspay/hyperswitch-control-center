@@ -332,6 +332,9 @@ module SidebarNestedSection = {
     ~firstPart,
     ~isSideBarExpanded,
     ~setIsSidebarExpanded,
+    ~openItem="",
+    ~setOpenItem=_ => (),
+    ~isSectionAutoCollapseEnabled=false,
   ) => {
     open UIUtils
     let isSubLevelItemSelected = tabInfo => {
@@ -407,13 +410,19 @@ module SidebarNestedSection = {
     <RenderIf condition={!areAllSubLevelsHidden}>
       <NestedSectionItem
         section
-        isSectionExpanded
+        isSectionExpanded={isSectionAutoCollapseEnabled
+          ? openItem === section.name || isAnySubItemSelected
+          : isSectionExpanded}
         isAnySubItemSelected
         textColor
         cursor
-        toggleSectionExpansion
+        toggleSectionExpansion={isSectionAutoCollapseEnabled
+          ? _ => setOpenItem(prev => {prev == section.name ? "" : section.name})
+          : toggleSectionExpansion}
         expandedTextColor
-        isElementShown
+        isElementShown={isSectionAutoCollapseEnabled
+          ? openItem === section.name || isAnySubItemSelected
+          : isElementShown}
         isSubLevelItemSelected
         isSideBarExpanded
       />
@@ -530,6 +539,8 @@ let make = (
     let _ = APIUtils.handleLogout(~fetchApi, ~setAuthStatus, ~setIsSidebarExpanded)
   }
 
+  let (openItem, setOpenItem) = React.useState(_ => "")
+
   <div className={`bg-sidebar-blue flex group border-r border-jp-gray-500 relative`}>
     <div
       ref={sideBarRef->ReactDOM.Ref.domRef}
@@ -581,6 +592,9 @@ let make = (
                   firstPart
                   isSideBarExpanded={isExpanded}
                   setIsSidebarExpanded
+                  openItem
+                  setOpenItem
+                  isSectionAutoCollapseEnabled=true
                 />
               </RenderIf>
             | Heading(headingOptions) =>
