@@ -129,7 +129,7 @@ let make = (~previewOnly=false) => {
           offset
           setOffset
           currrentFetchCount={orderData->Array.length}
-          customColumnMapper=OrderEntity.ordersMapDefaultCols
+          customColumnMapper=TableAtoms.ordersMapDefaultCols
           defaultColumns={OrderEntity.defaultColumns}
           showSerialNumberInCustomizeColumns=false
           sortingBasedOnDisabled=false

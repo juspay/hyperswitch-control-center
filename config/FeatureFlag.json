@@ -21,7 +21,6 @@
   "forgot_password": false,
   "user_journey_analytics": false,
   "surcharge": false,
-  "permission_based_module": false,
   "dispute_evidence_upload": false,
   "paypal_automatic_flow": false,
   "invite_multiple": false,

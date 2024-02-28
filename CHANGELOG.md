@@ -3,6 +3,91 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.27.0
+
+### Features
+
+- Enable label clickling ([#437](https://github.com/juspay/hyperswitch-control-center/pull/437)) ([`bc517e2`](https://github.com/juspay/hyperswitch-control-center/commit/bc517e2391918387cd8c832eba5300381a5c1385))
+
+### Bug Fixes
+
+- Live onboarding webhook url update fix ([#452](https://github.com/juspay/hyperswitch-control-center/pull/452)) ([`ebbe843`](https://github.com/juspay/hyperswitch-control-center/commit/ebbe843dc49a6ae8a2a1715c83a92242ecf43702))
+
+### Miscellaneous Tasks
+
+- Add cypress coverage ([#443](https://github.com/juspay/hyperswitch-control-center/pull/443)) ([`e3b5f1d`](https://github.com/juspay/hyperswitch-control-center/commit/e3b5f1d918c8733cf3bd351d386d6265ebf3b940))
+
+**Full Changelog:** [`2024.02.26.0...2024.02.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.26.0...2024.02.27.0)
+
+- - -
+
+## 2024.02.26.0
+
+### Features
+
+- Update Role & Delete user added ([#403](https://github.com/juspay/hyperswitch-control-center/pull/403)) ([`e79e5ea`](https://github.com/juspay/hyperswitch-control-center/commit/e79e5eab681b6c29a248886eb5b57b22ad2caa0f))
+
+### Bug Fixes
+
+- Email_trim_fix ([#435](https://github.com/juspay/hyperswitch-control-center/pull/435)) ([`f14a257`](https://github.com/juspay/hyperswitch-control-center/commit/f14a257ffbe649e8e670d1db18a28804ad4fedc1))
+- Clear recoil state on logout ([#445](https://github.com/juspay/hyperswitch-control-center/pull/445)) ([`35c48f9`](https://github.com/juspay/hyperswitch-control-center/commit/35c48f9d6651be814386de6e8854bf8c0c5e2c90))
+- Dashboard default permission and signout fix ([#451](https://github.com/juspay/hyperswitch-control-center/pull/451)) ([`75b6c42`](https://github.com/juspay/hyperswitch-control-center/commit/75b6c427dedd040c2c9a17eaad417e7f23721258))
+
+### Refactors
+
+- Moved all the atoms to one folder ([#447](https://github.com/juspay/hyperswitch-control-center/pull/447)) ([`91b5290`](https://github.com/juspay/hyperswitch-control-center/commit/91b529023b30a6c0cf6c0186c49f0778cb97b612))
+
+**Full Changelog:** [`2024.02.22.1...2024.02.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.22.1...2024.02.26.0)
+
+- - -
+
+## 2024.02.22.1
+
+### Bug Fixes
+
+- Homev2 accept invite ([#442](https://github.com/juspay/hyperswitch-control-center/pull/442)) ([`9209d2b`](https://github.com/juspay/hyperswitch-control-center/commit/9209d2b07a686af1986bce7492513b59143c87cd))
+- Stepper UI fix on Home page ([#432](https://github.com/juspay/hyperswitch-control-center/pull/432)) ([`84adad4`](https://github.com/juspay/hyperswitch-control-center/commit/84adad4eaa32f50c01aaa23d033043c4e8ec9296))
+
+**Full Changelog:** [`2024.02.22.0...2024.02.22.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.22.0...2024.02.22.1)
+
+- - -
+
+## 2024.02.22.0
+
+### Features
+
+- Accept from email intermediate screen ([#422](https://github.com/juspay/hyperswitch-control-center/pull/422)) ([`e13c6ca`](https://github.com/juspay/hyperswitch-control-center/commit/e13c6ca1d45aabb38b967c6fa51ebe57ff38cc30))
+
+### Refactors
+
+- Added connector types and renamed the connector util functions ([#433](https://github.com/juspay/hyperswitch-control-center/pull/433)) ([`8cdf723`](https://github.com/juspay/hyperswitch-control-center/commit/8cdf72333e0d3d52f5156835a96214a1846a3b86))
+
+**Full Changelog:** [`2024.02.21.0...2024.02.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.21.0...2024.02.22.0)
+
+- - -
+
+## 2024.02.21.0
+
+### Bug Fixes
+
+- Accept invite accept button issue ([#429](https://github.com/juspay/hyperswitch-control-center/pull/429)) ([`b77897a`](https://github.com/juspay/hyperswitch-control-center/commit/b77897a6340e1f9b7a678f3fad4481de040ff9c5))
+- Accept invite issue ([#430](https://github.com/juspay/hyperswitch-control-center/pull/430)) ([`ee9120f`](https://github.com/juspay/hyperswitch-control-center/commit/ee9120f3652d93cf3ed180af5ab40d696afa4dc5))
+
+### Refactors
+
+- Connector show processor card code refactor for usability ([#415](https://github.com/juspay/hyperswitch-control-center/pull/415)) ([`bbba268`](https://github.com/juspay/hyperswitch-control-center/commit/bbba268f77b05c28a26768af131ce05e68d58d7d))
+- Refactor: frm - update info for FRM flows ([#421](https://github.com/juspay/hyperswitch-control-center/pull/421)) ([`0892d58`](https://github.com/juspay/hyperswitch-control-center/commit/0892d581ff6a5f9ddcb9443498149cfcba1c6ac9))
+
+### Miscellaneous Tasks
+
+- Add cypress test for prod onboarding ([#424](https://github.com/juspay/hyperswitch-control-center/pull/424)) ([`1a659a3`](https://github.com/juspay/hyperswitch-control-center/commit/1a659a35404db66372dad322282931558f5ead0d))
+- Hyperswitch git ignore file changes ([#420](https://github.com/juspay/hyperswitch-control-center/pull/420)) ([`7eca110`](https://github.com/juspay/hyperswitch-control-center/commit/7eca1108c97d7d31e32b728795f07328c428cdfe))
+- Minor text changes ([#428](https://github.com/juspay/hyperswitch-control-center/pull/428)) ([`a046c8c`](https://github.com/juspay/hyperswitch-control-center/commit/a046c8c393aa98ab89a4927947fca9e99e799ff4))
+
+**Full Changelog:** [`2024.02.20.0...2024.02.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.20.0...2024.02.21.0)
+
+- - -
+
 ## 2024.02.20.0
 
 ### Features

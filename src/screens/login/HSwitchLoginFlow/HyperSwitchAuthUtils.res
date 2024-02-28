@@ -36,7 +36,20 @@ let emailField = FormRenderer.makeFieldInfo(
   ~name="email",
   ~placeholder="Enter your Email",
   ~isRequired=false,
-  ~customInput=InputFields.textInput(~autoComplete="off", ()),
+  ~customInput=(~input, ~placeholder as _) =>
+    InputFields.textInput(
+      ~input={
+        ...input,
+        onChange: event =>
+          ReactEvent.Form.target(event)["value"]
+          ->String.trim
+          ->Identity.stringToFormReactEvent
+          ->input.onChange,
+      },
+      ~placeholder="Enter your Email",
+      ~autoComplete="off",
+      (),
+    ),
   (),
 )
 
@@ -456,4 +469,9 @@ let errorSubCodeMapper = (subCode: string) => {
   | "UR_16" => UR_16
   | _ => UR_00
   }
+}
+
+let generateBodyForEmailRedirection = token => {
+  open LogicUtils
+  [("token", token->JSON.Encode.string)]->getJsonFromArrayOfJson
 }

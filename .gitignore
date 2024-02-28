@@ -25,3 +25,5 @@ screenshots
 hyperswitch/
 downloads
 .env
+.nyc_output
+coverage

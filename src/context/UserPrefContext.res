@@ -175,8 +175,7 @@ let make = (~children) => {
       let (key, value) = item
       (key, value->userPrefToJson)
     })
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    ->LogicUtils.getJsonFromArrayOfJson
     ->JSON.stringify
 
   let value = React.useMemo4(() => {
