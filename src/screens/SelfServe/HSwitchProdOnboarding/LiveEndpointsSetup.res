@@ -118,20 +118,15 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
   open ProdOnboardingTypes
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
-  let merchantDetails =
-    Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantDetailsValueAtom)
-    ->LogicUtils.safeParse
-    ->LogicUtils.getDictFromJsonObject
-  let setBusinessProfiles = Recoil.useSetRecoilState(HyperswitchAtom.businessProfilesAtom)
+  let merchantDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantDetailsValueAtom)
 
-  let publishablekeyMerchant = merchantDetails->LogicUtils.getString("publishable_key", "")
-  let paymentResponseHashKey =
-    merchantDetails->LogicUtils.getString("payment_response_hash_key", "")
+  let publishablekeyMerchant = merchantDetails.publishable_key
+  let paymentResponseHashKey = merchantDetails.payment_response_hash_key->Option.getOr("")
 
-  let activeBusinessProfile =
-    Recoil.useRecoilValueFromAtom(
-      HyperswitchAtom.businessProfilesAtom,
-    )->MerchantAccountUtils.getValueFromBusinessProfile
+  let (businessProfile, setBusinessProfiles) =
+    HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilState
+
+  let activeBusinessProfile = businessProfile->MerchantAccountUtils.getValueFromBusinessProfile
 
   let webhookUrl = activeBusinessProfile.webhook_details.webhook_url->Option.getOr("")
 

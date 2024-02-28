@@ -134,7 +134,7 @@ let make = (
                 </span>
                 <AddDataAttributes attributes=[("data-text", getStringFromJson(ip3.value, ""))]>
                   <span className="font-semibold">
-                    <MerchantAccountUtils.BusinessProfile
+                    <HelperComponents.BusinessProfileComponent
                       profile_id={profile->Option.getOr(defaultBusinessProfile.profile_id)}
                     />
                   </span>

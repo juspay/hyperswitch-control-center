@@ -103,12 +103,11 @@ let isDefaultBusinessProfile = details => details->Array.length === 1
 
 module MerchantAuthInfo = {
   @react.component
-  let make = (~merchantDetailsValue) => {
-    let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
+  let make = (~merchantDetailsValue: HSwitchSettingTypes.merchantPayload) => {
     let dataDict =
       [
-        ("merchant_id", detail.merchant_id->JSON.Encode.string),
-        ("publishable_key", detail.publishable_key->JSON.Encode.string),
+        ("merchant_id", merchantDetailsValue.merchant_id->JSON.Encode.string),
+        ("publishable_key", merchantDetailsValue.publishable_key->JSON.Encode.string),
       ]->Dict.fromArray
 
     <Form initialValues={dataDict->JSON.Encode.object} formClass="md:ml-9 my-4">
@@ -117,7 +116,7 @@ module MerchantAuthInfo = {
           <div className="font-semibold text-dark_black"> {"Merchant ID"->React.string} </div>
           <div className="flex items-center">
             <div className="font-medium text-dark_black opacity-40">
-              {detail.merchant_id->React.string}
+              {merchantDetailsValue.merchant_id->React.string}
             </div>
             <CopyFieldValue fieldkey="merchant_id" />
           </div>
@@ -128,7 +127,7 @@ module MerchantAuthInfo = {
             <div
               className="font-medium text-dark_black opacity-40"
               style={ReactDOMStyle.make(~overflowWrap="anywhere", ())}>
-              {detail.publishable_key->React.string}
+              {merchantDetailsValue.publishable_key->React.string}
             </div>
             <CopyFieldValue fieldkey="publishable_key" />
           </div>

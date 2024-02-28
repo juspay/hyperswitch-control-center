@@ -137,7 +137,7 @@ module ActiveSection = {
           </div>
           <UIUtils.RenderIf condition={profileId->isNonEmptyString}>
             <div className="flex gap-2">
-              <MerchantAccountUtils.BusinessProfile
+              <HelperComponents.BusinessProfileComponent
                 profile_id={profileId}
                 className="text-lightgray_background text-base opacity-50 text-sm"
               />

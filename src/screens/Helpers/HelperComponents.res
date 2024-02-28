@@ -144,3 +144,13 @@ module ConnectorCustomCell = {
     }
   }
 }
+
+module BusinessProfileComponent = {
+  @react.component
+  let make = (~profile_id: string, ~className="") => {
+    let {profile_name} = BusinessProfileHook.useGetBusinessProflile(profile_id)
+    <div className>
+      {(profile_name->LogicUtils.isNonEmptyString ? profile_name : "NA")->React.string}
+    </div>
+  }
+}
