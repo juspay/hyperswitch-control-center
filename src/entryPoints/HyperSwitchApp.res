@@ -20,8 +20,8 @@ let make = () => {
     isProdIntentCompleted,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let fetchBusinessProfiles = MerchantAccountUtils.useFetchBusinessProfiles()
-  let fetchMerchantAccountDetails = MerchantAccountUtils.useFetchMerchantDetails()
+  let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
+  let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
   let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
   let enumDetails =
@@ -38,7 +38,7 @@ let make = () => {
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
     : "bg-orange-600/80 border-orange-500 text-grey-700"
 
-  let merchantDetailsTypedValue = useMerchantDetailsValue()->MerchantAccountUtils.getMerchantDetails
+  let merchantDetailsTypedValue = useMerchantDetailsValue()
   let isReconEnabled = merchantDetailsTypedValue.recon_status === Active
 
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
