@@ -18,9 +18,7 @@ let make = (~paymentId, ~createdAt, ~data: OrderTypes.order) => {
         ->Dict.fromArray
         ->JSON.Encode.object,
       ),
-    ]
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    ]->getJsonFromArrayOfJson
   let webhookLogsUrl = getURL(
     ~entityName=WEBHOOKS_EVENT_LOGS,
     ~methodType=Get,

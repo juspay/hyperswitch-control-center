@@ -174,6 +174,8 @@ let getURL = (
     | #SIGNINV2 => `${userUrl}/v2/signin`
     | #VERIFY_EMAILV2 => `${userUrl}/v2/verify_email`
     | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`
+    | #USER_DELETE => `${userUrl}/user/delete`
+    | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
     | #SIGNIN
     | #SIGNUP
     | #VERIFY_EMAIL
@@ -242,8 +244,8 @@ let handleLogout = async (
   // let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
   setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
   setIsSidebarExpanded(_ => false)
-  LocalStorage.clear()
   clearRecoilValue()
+  LocalStorage.clear()
   RescriptReactRouter.push("/login")
 }
 

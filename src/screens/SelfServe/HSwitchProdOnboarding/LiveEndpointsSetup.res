@@ -122,21 +122,21 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
     Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantDetailsValueAtom)
     ->LogicUtils.safeParse
     ->LogicUtils.getDictFromJsonObject
+  let setBusinessProfiles = Recoil.useSetRecoilState(HyperswitchAtom.businessProfilesAtom)
 
   let publishablekeyMerchant = merchantDetails->LogicUtils.getString("publishable_key", "")
   let paymentResponseHashKey =
     merchantDetails->LogicUtils.getString("payment_response_hash_key", "")
-  let webhookUrl =
-    merchantDetails
-    ->LogicUtils.getJsonObjectFromDict("webhook_details")
-    ->LogicUtils.getDictFromJsonObject
-    ->LogicUtils.getString("webhook_url", "")
+
+  let activeBusinessProfile =
+    Recoil.useRecoilValueFromAtom(
+      HyperswitchAtom.businessProfilesAtom,
+    )->MerchantAccountUtils.getValueFromBusinessProfile
+
+  let webhookUrl = activeBusinessProfile.webhook_details.webhook_url->Option.getOr("")
 
   let (webhookEndpoint, setWebhookEndpoint) = React.useState(_ => webhookUrl)
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
-
-  let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
-  let merchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
 
   let headerText = switch pageView {
   | REPLACE_API_KEYS => "Replace API keys & Live Endpoints"
@@ -168,24 +168,36 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
     }
   }
 
-  let updateMerchantDetails = async _ => {
+  let updateWebhookDetails = async () => {
     try {
       setButtonState(_ => Loading)
-      let mercahantUpdateBody =
+      let url = getURL(
+        ~entityName=BUSINESS_PROFILE,
+        ~methodType=Post,
+        ~id=Some(activeBusinessProfile.profile_id),
+        (),
+      )
+      let merchantUpdateBody =
         [("webhook_url", webhookEndpoint->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
-      let body = mercahantUpdateBody->MerchantAccountUtils.getSettingsPayload(merchantId)
-      let url = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Post, ())
-      let merchantInfo = await updateDetails(url, body, Post, ())
-      setMerchantDetailsValue(._ => merchantInfo->JSON.stringify)
+
+      let body =
+        merchantUpdateBody->MerchantAccountUtils.getBusinessProfilePayload->JSON.Encode.object
+      let res = await updateDetails(url, body, Post, ())
+
+      let stringifiedResponse = res->JSON.stringify
+      setBusinessProfiles(._ => stringifiedResponse)
+      showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess, ())
       updateLiveEndpoint()->ignore
+      setButtonState(_ => Normal)
     } catch {
     | _ => setButtonState(_ => Normal)
     }
+    Nullable.null
   }
 
   let handleSubmit = _ => {
     switch pageView {
-    | SETUP_WEBHOOK_USER => updateMerchantDetails()->ignore
+    | SETUP_WEBHOOK_USER => updateWebhookDetails()->ignore
     | _ => setPageView(_ => pageView->ProdOnboardingUtils.getPageView)
     }
   }

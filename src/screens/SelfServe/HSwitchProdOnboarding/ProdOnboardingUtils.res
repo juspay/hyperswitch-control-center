@@ -148,9 +148,7 @@ let getProdApiBody = (
         (parentVariant :> string),
         [("connector_id", connectorId->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object,
       ),
-    ]
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    ]->LogicUtils.getJsonFromArrayOfJson
 
   | #ProductionAgreement =>
     [
@@ -160,9 +158,7 @@ let getProdApiBody = (
           ("version", HSwitchGlobalVars.agreementVersion->JSON.Encode.string),
         ]->LogicUtils.getJsonFromArrayOfJson,
       ),
-    ]
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    ]->LogicUtils.getJsonFromArrayOfJson
   | _ => (parentVariant :> string)->JSON.Encode.string
   }
 }
