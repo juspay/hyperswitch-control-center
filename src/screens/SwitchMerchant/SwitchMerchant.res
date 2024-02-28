@@ -125,8 +125,7 @@ module ExternalUser = {
     open UIUtils
     let defaultMerchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
     let switchMerchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.switchMerchantListAtom)
-    let merchantDetailsTypedValue =
-      HSwitchUtils.useMerchantDetailsValue()->MerchantAccountUtils.getMerchantDetails
+    let merchantDetailsTypedValue = HSwitchUtils.useMerchantDetailsValue()
     let defaultSelectedMerchantType = {
       merchant_id: defaultMerchantId,
       merchant_name: defaultMerchantId,

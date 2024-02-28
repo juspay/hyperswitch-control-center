@@ -43,6 +43,7 @@ let initialValueForForm: HSwitchSettingTypes.profileEntity => SDKPaymentTypes.pa
         number: "1234567890",
         country_code: "+1",
       },
+      email: "billing_email@gmail.com",
     },
     metadata: {
       order_details: {
@@ -72,6 +73,8 @@ let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
     values->getDictFromJsonObject->getDictfromDict("billing")->getDictfromDict("address")
   let billingPhone =
     values->getDictFromJsonObject->getDictfromDict("shipping")->getDictfromDict("phone")
+  let billingEmail =
+    values->getDictFromJsonObject->getDictfromDict("billing")->getString("email", "")
   let metaData =
     values->getDictFromJsonObject->getDictfromDict("metadata")->getDictfromDict("order_details")
 
@@ -137,6 +140,7 @@ let getTypedValueForPayment: JSON.t => SDKPaymentTypes.paymentType = values => {
         number: billingPhone->getString("number", ""),
         country_code: billingPhone->getString("country_code", ""),
       },
+      email: billingEmail,
     },
     metadata: {
       order_details: {

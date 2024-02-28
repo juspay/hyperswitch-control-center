@@ -74,8 +74,7 @@ let isValidEmail = value =>
     value,
   )
 
-let useMerchantDetailsValue = () =>
-  Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)->safeParse
+let useMerchantDetailsValue = () => Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
 
 let getClientCountry = clientTimeZone => {
   Country.country
