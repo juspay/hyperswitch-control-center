@@ -13,7 +13,7 @@ let useClearRecoilValue = () => {
 
   let clearRecoilValue = () => {
     setMerchantDetailsValue(._ => "")
-    setBusinessProfilesAtom(._ => "")
+    setBusinessProfilesAtom(._ => JSON.Encode.null->BusinessProfileMapper.getArrayOfBusinessProfile)
     setConnectorListAtom(._ => "")
     setEnumVariantAtom(._ => "")
     setFeatureFlagAtom(._ => JSON.Encode.null->FeatureFlagUtils.featureFlagType)

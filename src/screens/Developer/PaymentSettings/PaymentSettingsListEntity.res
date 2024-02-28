@@ -31,14 +31,15 @@ let getCell = (item: profileEntity, colType): Table.cell => {
 
 let itemToObjMapper = dict => {
   open LogicUtils
-  open MerchantAccountUtils
   {
     profile_id: getString(dict, "profile_id", ""),
     profile_name: getString(dict, ProfileName->getStringFromVariant, ""),
     merchant_id: getString(dict, "merchant_id", ""),
     return_url: getOptionString(dict, "return_url"),
     payment_response_hash_key: getOptionString(dict, "payment_response_hash_key"),
-    webhook_details: dict->getObj("webhook_details", Dict.make())->constructWebhookDetailsObject,
+    webhook_details: dict
+    ->getObj("webhook_details", Dict.make())
+    ->BusinessProfileMapper.constructWebhookDetailsObject,
   }
 }
 

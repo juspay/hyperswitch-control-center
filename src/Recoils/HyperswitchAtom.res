@@ -1,6 +1,9 @@
 let merchantDetailsValueAtom = Recoil.atom(. "merchantDetailsValue", "")
 
-let businessProfilesAtom = Recoil.atom(. "businessProfileDetails", "")
+let businessProfilesAtom = Recoil.atom(.
+  "businessProfileDetails",
+  JSON.Encode.null->BusinessProfileMapper.getArrayOfBusinessProfile,
+)
 
 let connectorListAtom: Recoil.recoilAtom<string> = Recoil.atom(. "connectorListAtom", "")
 

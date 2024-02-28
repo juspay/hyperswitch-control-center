@@ -82,7 +82,6 @@ let make = (
 
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->getValueFromBusinessProfile
-  let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
 
   //Need to check if necessary
   let form = ReactFinalForm.useForm()
@@ -153,7 +152,7 @@ let make = (
               <BusinessProfileInp
                 setProfile={setProfile->Option.getOr(_ => ())}
                 profile={profile->Option.getOr(defaultBusinessProfile.profile_id)}
-                options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
+                options={businessProfiles->businessProfileNameDropDownOption}
                 label="Profile"
                 routingType
               />
