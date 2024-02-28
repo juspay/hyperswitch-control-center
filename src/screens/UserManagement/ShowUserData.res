@@ -1,17 +1,108 @@
 open UserManagementUtils
+open UIUtils
 
 external typeConversion: array<Nullable.t<UserRoleEntity.userTableTypes>> => array<
   UserRoleEntity.userTableTypes,
 > = "%identity"
 
+module UserUtilsPopover = {
+  @react.component
+  let make = (~infoValue: UserRoleEntity.userTableTypes, ~setIsUpdateRoleSelected) => {
+    open HeadlessUI
+    open APIUtils
+
+    let updateDetails = useUpdateMethod()
+    let showToast = ToastState.useShowToast()
+    let merchantEmail = HSLocalStorage.getFromMerchantDetails("email")
+    let showPopUp = PopUpState.useShowPopUp()
+
+    let deleteUser = async () => {
+      try {
+        let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#USER_DELETE}, ())
+        let body =
+          [("email", infoValue.email->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+        let _ = await updateDetails(url, body, Delete, ())
+        showToast(~message=`User has been successfully deleted.`, ~toastType=ToastSuccess, ())
+        RescriptReactRouter.replace("/users")
+      } catch {
+      | _ => ()
+      }
+    }
+
+    <RenderIf condition={infoValue.email !== merchantEmail}>
+      <Popover className="relative inline-block text-left">
+        {popoverProps => <>
+          <Popover.Button
+            className={
+              let openClasses = if popoverProps["open"] {
+                `group border py-2 rounded-md inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
+              } else {
+                `text-opacity-90 group border py-2 rounded-md inline-flex items-center text-base font-medium hover:text-opacity-100 focus:outline-none`
+              }
+              `${openClasses} border-none`
+            }>
+            {buttonProps => <Icon name="menu-option" size=28 />}
+          </Popover.Button>
+          <Transition
+            \"as"="span"
+            enter={"transition ease-out duration-200"}
+            enterFrom="opacity-0 translate-y-1"
+            enterTo="opacity-100 translate-y-0"
+            leave={"transition ease-in duration-150"}
+            leaveFrom="opacity-100 translate-y-0"
+            leaveTo="opacity-0 translate-y-1">
+            <Popover.Panel className={`absolute !z-30 right-2`}>
+              {panelProps => {
+                <div
+                  className="relative flex flex-col py-3 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 w-40">
+                  <Navbar.MenuOption
+                    text="Update role"
+                    onClick={_ => {
+                      panelProps["close"]()
+                      setIsUpdateRoleSelected(_ => true)
+                    }}
+                  />
+                  <RenderIf condition={infoValue.role_id !== "org_admin"}>
+                    <Navbar.MenuOption
+                      text="Delete user"
+                      onClick={_ => {
+                        panelProps["close"]()
+                        showPopUp({
+                          popUpType: (Warning, WithIcon),
+                          heading: `Are you sure you want to delete this user?`,
+                          description: React.string(`This action cannot be undone. Deleting the user will permanently remove all associated data from this account. Press Confirm to delete.`),
+                          handleConfirm: {text: "Confirm", onClick: _ => deleteUser()->ignore},
+                          handleCancel: {text: "Back"},
+                        })
+                      }}
+                    />
+                  </RenderIf>
+                </div>
+              }}
+            </Popover.Panel>
+          </Transition>
+        </>}
+      </Popover>
+    </RenderIf>
+  }
+}
+
 module UserHeading = {
   @react.component
-  let make = (~infoValue: UserRoleEntity.userTableTypes) => {
+  let make = (
+    ~infoValue: UserRoleEntity.userTableTypes,
+    ~isUpdateRoleSelected,
+    ~setIsUpdateRoleSelected,
+    ~newRoleSelected,
+  ) => {
     open APIUtils
+    let fetchDetails = useGetMethod()
     let showToast = ToastState.useShowToast()
     let updateDetails = useUpdateMethod()
     let status = infoValue.status->UserRoleEntity.statusToVariantMapper
     let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
+    let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
+    let userPermissionJson = HyperswitchAtom.userPermissionAtom->Recoil.useRecoilValueFromAtom
 
     let resendInvite = async () => {
       try {
@@ -27,6 +118,54 @@ module UserHeading = {
       }
     }
 
+    let updatePermissionInfoOnBack = async () => {
+      try {
+        let url = getURL(
+          ~entityName=USER_MANAGEMENT,
+          ~userRoleTypes=ROLE_ID,
+          ~id=Some(infoValue.role_id),
+          ~methodType=Get,
+          (),
+        )
+        let res = await fetchDetails(url)
+
+        let defaultList = defaultPresentInInfoList(permissionInfo)
+        setPermissionInfo(_ => defaultList)
+        let updatedPermissionListForGivenRole = updatePresentInInfoList(
+          defaultList,
+          res->getArrayOfPermissionData,
+        )
+        setPermissionInfo(_ => updatedPermissionListForGivenRole)
+        setIsUpdateRoleSelected(_ => false)
+      } catch {
+      | _ => RescriptReactRouter.replace("/users")
+      }
+    }
+
+    let updateRole = async () => {
+      try {
+        let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#UPDATE_ROLE}, ())
+        let body =
+          [
+            ("email", infoValue.email->JSON.Encode.string),
+            ("role_id", newRoleSelected->JSON.Encode.string),
+          ]->LogicUtils.getJsonFromArrayOfJson
+        let _ = await updateDetails(url, body, Post, ())
+        showToast(~message=`Role successfully updated!`, ~toastType=ToastSuccess, ())
+        RescriptReactRouter.replace("/users")
+      } catch {
+      | _ => ()
+      }
+    }
+
+    let onClickHandler = () => {
+      if newRoleSelected === infoValue.role_id {
+        setIsUpdateRoleSelected(_ => false)
+      } else {
+        updatePermissionInfoOnBack()->ignore
+      }
+    }
+
     <div className="flex justify-between flex-wrap">
       <PageUtils.PageHeading
         title=infoValue.name
@@ -35,23 +174,46 @@ module UserHeading = {
         isTag=true
         tagText={infoValue.role_name->String.toUpperCase}
       />
-      <div className="flex items-center gap-4">
-        <div className={`font-semibold text-green-700`}>
-          {switch status {
-          | InviteSent => "INVITE SENT"->String.toUpperCase->React.string
-          | _ => infoValue.status->String.toUpperCase->React.string
-          }}
-        </div>
-        <UIUtils.RenderIf condition={status !== Active}>
+      <RenderIf condition={isUpdateRoleSelected}>
+        <div className="flex items-center gap-2">
           <Button
-            text="Resend Invite"
-            buttonState
-            buttonType={SecondaryFilled}
-            customButtonStyle="!px-2"
-            onClick={_ => resendInvite()->ignore}
+            buttonType={Secondary}
+            text="Back"
+            onClick={_ => onClickHandler()}
+            customButtonStyle="!p-3"
           />
-        </UIUtils.RenderIf>
-      </div>
+          <Button
+            buttonType={Primary}
+            text="Update role"
+            onClick={_ => updateRole()->ignore}
+            customButtonStyle="!p-3"
+          />
+        </div>
+      </RenderIf>
+      <RenderIf condition={!isUpdateRoleSelected}>
+        <div className="flex items-center gap-4">
+          <div className={`font-semibold text-green-700`}>
+            {switch status {
+            | InviteSent => "INVITE SENT"->String.toUpperCase->React.string
+            | _ => infoValue.status->String.toUpperCase->React.string
+            }}
+          </div>
+          <RenderIf condition={userPermissionJson.usersWrite === Access}>
+            <div className="flex items-center gap-2">
+              <RenderIf condition={status !== Active}>
+                <Button
+                  text="Resend Invite"
+                  buttonState
+                  buttonType={Primary}
+                  customButtonStyle="!px-2"
+                  onClick={_ => resendInvite()->ignore}
+                />
+              </RenderIf>
+              <UserUtilsPopover infoValue setIsUpdateRoleSelected />
+            </div>
+          </RenderIf>
+        </div>
+      </RenderIf>
     </div>
   }
 }
@@ -64,6 +226,8 @@ let make = () => {
   let (roleData, setRoleData) = React.useState(_ => JSON.Encode.null)
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (isUpdateRoleSelected, setIsUpdateRoleSelected) = React.useState(_ => false)
+  let (newRoleSelected, setNewRoleSelected) = React.useState(_ => "")
   let (currentSelectedUser, setCurrentSelectedUser) = React.useState(_ =>
     Dict.make()->UserRoleEntity.itemToObjMapperForUser
   )
@@ -173,19 +337,31 @@ let make = () => {
         path=[{title: "Users", link: "/users"}] currentPageTitle=currentSelectedUser.name
       />
       <div className="h-4/5 bg-white mt-5 p-10 relative flex flex-col gap-8">
-        <UserHeading infoValue={currentSelectedUser} />
-        <div className="flex flex-col justify-between gap-12 show-scrollbar overflow-scroll">
-          {permissionInfo
-          ->Array.mapWithIndex((ele, index) => {
-            <RolePermissionValueRenderer
-              key={index->Int.toString}
-              heading={`${ele.module_} module`}
-              description={ele.description}
-              readWriteValues={ele.permissions}
-            />
-          })
-          ->React.array}
-        </div>
+        <UserHeading
+          infoValue={currentSelectedUser}
+          isUpdateRoleSelected
+          setIsUpdateRoleSelected
+          newRoleSelected
+        />
+        <RenderIf condition={!isUpdateRoleSelected}>
+          <div className="flex flex-col justify-between gap-12 show-scrollbar overflow-scroll">
+            {permissionInfo
+            ->Array.mapWithIndex((ele, index) => {
+              <RolePermissionValueRenderer
+                key={index->string_of_int}
+                heading={`${ele.module_} module`}
+                description={ele.description}
+                readWriteValues={ele.permissions}
+              />
+            })
+            ->React.array}
+          </div>
+        </RenderIf>
+        <RenderIf condition={isUpdateRoleSelected}>
+          <InviteUsers
+            isInviteUserFlow=false setNewRoleSelected currentRole={currentSelectedUser.role_id}
+          />
+        </RenderIf>
       </div>
     </div>
   </PageLoaderWrapper>

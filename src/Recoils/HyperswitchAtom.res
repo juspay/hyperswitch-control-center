@@ -1,4 +1,7 @@
-let merchantDetailsValueAtom = Recoil.atom(. "merchantDetailsValue", "")
+let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayload> = Recoil.atom(.
+  "merchantDetailsValue",
+  JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
+)
 
 let businessProfilesAtom = Recoil.atom(. "businessProfileDetails", "")
 

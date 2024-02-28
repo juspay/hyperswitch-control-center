@@ -62,8 +62,7 @@ let saveUserPref = (userPref: Dict.t<userPref>) => {
       let (key, value) = item
       (key, value->userPrefToJson)
     })
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    ->LogicUtils.getJsonFromArrayOfJson
     ->JSON.stringify,
   )
 }

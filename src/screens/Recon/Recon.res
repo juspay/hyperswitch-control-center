@@ -1,13 +1,13 @@
 @react.component
 let make = () => {
   open APIUtils
-  open MerchantAccountUtils
+
   let (redirectToken, setRedirecToken) = React.useState(_ => "")
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
-  let fetchMerchantAccountDetails = useFetchMerchantDetails()
-  let merchentDetails = HSwitchUtils.useMerchantDetailsValue()->getMerchantDetails
+  let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
+  let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let isReconEnabled = merchentDetails.recon_status === Active
 

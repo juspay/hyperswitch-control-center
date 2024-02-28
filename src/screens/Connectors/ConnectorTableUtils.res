@@ -189,7 +189,10 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
     )
   | ProfileId => Text(connector.profile_id)
   | ProfileName =>
-    Table.CustomCell(<MerchantAccountUtils.BusinessProfile profile_id={connector.profile_id} />, "")
+    Table.CustomCell(
+      <HelperComponents.BusinessProfileComponent profile_id={connector.profile_id} />,
+      "",
+    )
   | ConnectorLabel => Text(connector.connector_label)
 
   // | Actions =>

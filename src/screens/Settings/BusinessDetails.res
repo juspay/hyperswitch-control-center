@@ -78,7 +78,8 @@ let make = () => {
         (),
       )
       setFormState(_ => Preview)
-      let merchantInfo = merchantDetails->getMerchantDetails->parseMerchantJson
+      let merchantInfo =
+        merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails->parseMerchantJson
       setMerchantInfo(_ => merchantInfo)
       showToast(~message=`Successfully updated business details`, ~toastType=ToastSuccess, ())
       setFetchState(_ => Success)
@@ -98,7 +99,8 @@ let make = () => {
       setFetchState(_ => Loading)
       let accountUrl = getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get, ())
       let merchantDetails = await fetchDetails(accountUrl)
-      let merchantInfo = merchantDetails->getMerchantDetails->parseMerchantJson
+      let merchantInfo =
+        merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails->parseMerchantJson
       setMerchantInfo(_ => merchantInfo)
       setFetchState(_ => Success)
     } catch {
@@ -132,7 +134,7 @@ let make = () => {
         initialValues={merchantInfo->JSON.Encode.object}
         validate={values => {
           open HSwitchSettingTypes
-          validateMerchantAccountForm(
+          MerchantAccountUtils.validateMerchantAccountForm(
             ~values,
             ~fieldsToValidate=[PrimaryPhone, PrimaryEmail, Website, SecondaryEmail, SecondaryPhone],
             ~setIsDisabled=Some(setIsDisabled),

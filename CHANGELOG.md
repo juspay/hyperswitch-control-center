@@ -3,6 +3,58 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.28.0
+
+### Features
+
+- Email from billing 448 ([#454](https://github.com/juspay/hyperswitch-control-center/pull/454)) ([`322220c`](https://github.com/juspay/hyperswitch-control-center/commit/322220c772ad7dcda4d78e09a40703ef8ad63ad1))
+
+### Refactors
+
+- MerchantDetails recoil value from string to typed ([#455](https://github.com/juspay/hyperswitch-control-center/pull/455)) ([`2e461f8`](https://github.com/juspay/hyperswitch-control-center/commit/2e461f823bc84f9f599c2a45558ec999829b73e4))
+
+**Full Changelog:** [`2024.02.27.0...2024.02.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.27.0...2024.02.28.0)
+
+- - -
+
+## 2024.02.27.0
+
+### Features
+
+- Enable label clickling ([#437](https://github.com/juspay/hyperswitch-control-center/pull/437)) ([`bc517e2`](https://github.com/juspay/hyperswitch-control-center/commit/bc517e2391918387cd8c832eba5300381a5c1385))
+
+### Bug Fixes
+
+- Live onboarding webhook url update fix ([#452](https://github.com/juspay/hyperswitch-control-center/pull/452)) ([`ebbe843`](https://github.com/juspay/hyperswitch-control-center/commit/ebbe843dc49a6ae8a2a1715c83a92242ecf43702))
+
+### Miscellaneous Tasks
+
+- Add cypress coverage ([#443](https://github.com/juspay/hyperswitch-control-center/pull/443)) ([`e3b5f1d`](https://github.com/juspay/hyperswitch-control-center/commit/e3b5f1d918c8733cf3bd351d386d6265ebf3b940))
+
+**Full Changelog:** [`2024.02.26.0...2024.02.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.26.0...2024.02.27.0)
+
+- - -
+
+## 2024.02.26.0
+
+### Features
+
+- Update Role & Delete user added ([#403](https://github.com/juspay/hyperswitch-control-center/pull/403)) ([`e79e5ea`](https://github.com/juspay/hyperswitch-control-center/commit/e79e5eab681b6c29a248886eb5b57b22ad2caa0f))
+
+### Bug Fixes
+
+- Email_trim_fix ([#435](https://github.com/juspay/hyperswitch-control-center/pull/435)) ([`f14a257`](https://github.com/juspay/hyperswitch-control-center/commit/f14a257ffbe649e8e670d1db18a28804ad4fedc1))
+- Clear recoil state on logout ([#445](https://github.com/juspay/hyperswitch-control-center/pull/445)) ([`35c48f9`](https://github.com/juspay/hyperswitch-control-center/commit/35c48f9d6651be814386de6e8854bf8c0c5e2c90))
+- Dashboard default permission and signout fix ([#451](https://github.com/juspay/hyperswitch-control-center/pull/451)) ([`75b6c42`](https://github.com/juspay/hyperswitch-control-center/commit/75b6c427dedd040c2c9a17eaad417e7f23721258))
+
+### Refactors
+
+- Moved all the atoms to one folder ([#447](https://github.com/juspay/hyperswitch-control-center/pull/447)) ([`91b5290`](https://github.com/juspay/hyperswitch-control-center/commit/91b529023b30a6c0cf6c0186c49f0778cb97b612))
+
+**Full Changelog:** [`2024.02.22.1...2024.02.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.22.1...2024.02.26.0)
+
+- - -
+
 ## 2024.02.22.1
 
 ### Bug Fixes
