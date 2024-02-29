@@ -353,8 +353,7 @@ let defaultValueForBusinessProfile = {
 }
 
 let getValueFromBusinessProfile = businessProfileValue => {
-  let businessDetails = businessProfileValue->Js.Array2.reverseInPlace
-  businessDetails->Array.get(0)->Option.getOr(defaultValueForBusinessProfile)
+  businessProfileValue->Array.get(0)->Option.getOr(defaultValueForBusinessProfile)
 }
 
 let businessProfileNameDropDownOption = arrBusinessProfile =>
