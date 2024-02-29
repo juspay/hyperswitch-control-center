@@ -288,9 +288,11 @@ module ConnectorConfigurationFields = {
     ~connectorLabelDetailField,
   ) => {
     <div className="flex flex-col">
-      {if connector === Processors(CASHTOCODE) {
+      {switch connector {
+      | Processors(CASHTOCODE) =>
         <CashToCodeMethods connectorAccountFields connector selectedConnector />
-      } else {
+
+      | _ =>
         <RenderConnectorInputFields
           details={connectorAccountFields}
           name={"connector_account_details"}
@@ -509,7 +511,11 @@ module ConnectorHeaderWrapper = {
           {headerButton}
         </div>
       </div>
-      <UIUtils.RenderIf condition={connectorNameFromType === Processors(BRAINTREE)}>
+      <UIUtils.RenderIf
+        condition={switch connectorNameFromType {
+        | Processors(BRAINTREE) => true
+        | _ => false
+        }}>
         <div className="flex flex-col gap-2 p-2 md:p-10">
           <h1
             className="flex items-center mx-12 leading-6 text-orange-950 bg-orange-100 border w-fit p-2 rounded-md ">

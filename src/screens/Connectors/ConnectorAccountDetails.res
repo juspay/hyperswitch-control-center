@@ -64,7 +64,13 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
 
     // TODO: Refactor for generic case
     if !isUpdateFlow {
-      if connectorTypeFromName === Processors(PAYPAL) && featureFlagDetails.paypalAutomaticFlow {
+      if (
+        switch connectorTypeFromName {
+        | Processors(PAYPAL) => true
+        | _ => false
+        } &&
+        featureFlagDetails.paypalAutomaticFlow
+      ) {
         initialValuesToDict->Dict.set(
           "connector_label",
           initialValues

@@ -61,9 +61,14 @@ module CardRenderer = {
           let methodVariant = method.payment_method_type->getPaymentMethodTypeFromString
           if (
             (methodVariant === GooglePay || methodVariant === ApplePay) &&
-              (connector->getConnectorNameTypeFromString() !== Processors(TRUSTPAY) &&
-              connector->getConnectorNameTypeFromString() !== Processors(AIRWALLEX) &&
-              connector->getConnectorNameTypeFromString() !== Processors(STRIPE_TEST))
+              {
+                switch connector->getConnectorNameTypeFromString() {
+                | Processors(TRUSTPAY) => false
+                | Processors(AIRWALLEX) => false
+                | Processors(STRIPE_TEST) => false
+                | _ => true
+                }
+              }
           ) {
             setShowWalletConfigurationModal(_ => !showWalletConfigurationModal)
             setSelectedWallet(_ => method)
@@ -140,7 +145,12 @@ module CardRenderer = {
       </div>
       <RenderIf
         condition={paymentMethod->getPaymentMethodFromString === Wallet &&
-          connector->getConnectorNameTypeFromString() === Processors(ZEN)}>
+          {
+            switch connector->getConnectorNameTypeFromString() {
+            | Processors(ZEN) => true
+            | _ => false
+            }
+          }}>
         <div className="border rounded p-2 bg-jp-gray-100 flex gap-4">
           <Icon name="outage_icon" size=15 />
           {"Zen doesn't support Googlepay and Applepay in sandbox."->React.string}
