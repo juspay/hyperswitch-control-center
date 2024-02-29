@@ -31,7 +31,6 @@ module CardRenderer = {
     ~setMetaData,
     ~connector,
   ) => {
-    Js.log2(connector, "connector")
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
     let selectedAll = isSelectedAll(paymentMethodsEnabled, provider, paymentMethod)
