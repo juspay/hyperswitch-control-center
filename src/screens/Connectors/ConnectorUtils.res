@@ -855,26 +855,28 @@ let validateConnectorRequiredFields = (
 ) => {
   open LogicUtils
   let newDict = getDictFromJsonObject(errors)
-  if connector === Processors(CASHTOCODE) {
-    let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
+  switch connector {
+  | Processors(CASHTOCODE) => {
+      let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
 
-    let indexLength = dict->Dict.keysToArray->Array.length
-    let vector = Js.Vector.make(indexLength, false)
+      let indexLength = dict->Dict.keysToArray->Array.length
+      let vector = Js.Vector.make(indexLength, false)
 
-    dict
-    ->Dict.keysToArray
-    ->Array.forEachWithIndex((country, index) => {
-      let res = checkCashtoCodeInnerField(valuesFlattenJson, dict, country)
+      dict
+      ->Dict.keysToArray
+      ->Array.forEachWithIndex((country, index) => {
+        let res = checkCashtoCodeInnerField(valuesFlattenJson, dict, country)
 
-      vector->Js.Vector.set(index, res)
-    })
+        vector->Js.Vector.set(index, res)
+      })
 
-    let _ = Js.Vector.filterInPlace((. val) => val == true, vector)
+      let _ = Js.Vector.filterInPlace((. val) => val == true, vector)
 
-    if vector->Js.Vector.length === 0 {
-      Dict.set(newDict, "Currency", `Please enter currency`->JSON.Encode.string)
+      if vector->Js.Vector.length === 0 {
+        Dict.set(newDict, "Currency", `Please enter currency`->JSON.Encode.string)
+      }
     }
-  } else {
+  | _ =>
     connectorAccountFields
     ->Dict.keysToArray
     ->Array.forEach(value => {

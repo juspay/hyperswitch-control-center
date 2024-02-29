@@ -288,9 +288,11 @@ module ConnectorConfigurationFields = {
     ~connectorLabelDetailField,
   ) => {
     <div className="flex flex-col">
-      {if connector === Processors(CASHTOCODE) {
+      {switch connector {
+      | Processors(CASHTOCODE) =>
         <CashToCodeMethods connectorAccountFields connector selectedConnector />
-      } else {
+
+      | _ =>
         <RenderConnectorInputFields
           details={connectorAccountFields}
           name={"connector_account_details"}
