@@ -186,7 +186,7 @@ let make = (
           {switch logType {
           | SDK =>
             <p className={`${headerStyle} mt-1 ${isSelected ? "" : "opacity-80"}`}>
-              {apiName->camelCaseToTitle->React.string}
+              {apiName->String.toLowerCase->snakeToTitle->React.string}
             </p>
           | API_EVENTS | WEBHOOKS | CONNECTOR =>
             <p className={`${headerStyle} ${isSelected ? "" : "opacity-80"}`}>

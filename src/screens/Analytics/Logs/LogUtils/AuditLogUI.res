@@ -109,8 +109,8 @@ let make = (~id, ~promiseArr, ~logType: LogTypes.pageType) => {
         setScreenState(_ => PageLoaderWrapper.Error("Failed to Fetch!"))
       } else {
         setScreenState(_ => PageLoaderWrapper.Success)
-        let newLogs = logs->Js.Array2.sortInPlaceWith(LogUtils.sortByCreatedAt)
-        setData(_ => newLogs)
+        logs->Array.sort(sortByCreatedAt)
+        setData(_ => logs)
         switch logs->Array.get(0) {
         | Some(value) => {
             let initialData = value->getDictFromJsonObject

@@ -1,9 +1,9 @@
-let sortByCreatedAt = (log1: JSON.t, log2: JSON.t) => {
+let sortByCreatedAt = (log1, log2) => {
   open LogicUtils
   let getKey = dict => dict->getDictFromJsonObject->getString("created_at", "")->Date.fromString
   let keyA = log1->getKey
   let keyB = log2->getKey
-  compareLogic(keyA, keyB)
+  compareLogic(keyA, keyB)->Belt.Int.toFloat
 }
 
 type flowType =
@@ -115,10 +115,7 @@ let parseSdkResponse = arr => {
     )
     eventDict->Dict.set("customer_device", eventDict->getString("platform", "")->JSON.Encode.string)
     eventDict->Dict.set("sdk_version", eventDict->getString("version", "")->JSON.Encode.string)
-    eventDict->Dict.set(
-      "event_name",
-      updatedEventName->snakeToTitle->snakeToCamel->capitalizeString->JSON.Encode.string,
-    )
+    eventDict->Dict.set("event_name", updatedEventName->JSON.Encode.string)
     eventDict->Dict.set("created_at", timestamp->JSON.Encode.string)
     eventDict->JSON.Encode.object
   })
