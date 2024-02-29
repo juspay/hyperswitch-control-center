@@ -408,19 +408,19 @@ module SidebarNestedSection = {
       }
     })
 
-    let isSectionExpanded_ = if isSectionAutoCollapseEnabled {
+    let isSectionExpanded = if isSectionAutoCollapseEnabled {
       openItem === section.name || isAnySubItemSelected
     } else {
       isSectionExpanded
     }
 
-    let toggleSectionExpansion_ = if isSectionAutoCollapseEnabled {
+    let toggleSectionExpansion = if isSectionAutoCollapseEnabled {
       _ => setOpenItem(prev => {prev == section.name ? "" : section.name})
     } else {
       toggleSectionExpansion
     }
 
-    let isElementShown_ = if isSectionAutoCollapseEnabled {
+    let isElementShown = if isSectionAutoCollapseEnabled {
       openItem == section.name || isAnySubItemSelected
     } else {
       isElementShown
@@ -429,13 +429,13 @@ module SidebarNestedSection = {
     <RenderIf condition={!areAllSubLevelsHidden}>
       <NestedSectionItem
         section
-        isSectionExpanded=isSectionExpanded_
+        isSectionExpanded
         isAnySubItemSelected
         textColor
         cursor
-        toggleSectionExpansion=toggleSectionExpansion_
+        toggleSectionExpansion
         expandedTextColor
-        isElementShown=isElementShown_
+        isElementShown
         isSubLevelItemSelected
         isSideBarExpanded
       />
@@ -497,7 +497,6 @@ let make = (
   let email = HSLocalStorage.getFromMerchantDetails("email")
 
   let (openItem, setOpenItem) = React.useState(_ => "")
-
   let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
   let {getFromSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
