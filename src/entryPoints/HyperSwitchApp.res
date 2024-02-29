@@ -201,7 +201,7 @@ let make = () => {
                   <div className="w-full max-w-fixedPageWidth px-9">
                     <Navbar
                       headerActions={<div className="relative flex items-center gap-4 my-2 ">
-                        <HSwitchGlobalSearchBar />
+                        <GlobalSearchBar />
                         <RenderIf condition={featureFlagDetails.switchMerchant}>
                           <SwitchMerchant userRole={userRole} isAddMerchantEnabled=true />
                         </RenderIf>
