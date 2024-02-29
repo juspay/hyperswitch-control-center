@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.28.0
+
+### Features
+
+- Email from billing 448 ([#454](https://github.com/juspay/hyperswitch-control-center/pull/454)) ([`322220c`](https://github.com/juspay/hyperswitch-control-center/commit/322220c772ad7dcda4d78e09a40703ef8ad63ad1))
+
+### Refactors
+
+- MerchantDetails recoil value from string to typed ([#455](https://github.com/juspay/hyperswitch-control-center/pull/455)) ([`2e461f8`](https://github.com/juspay/hyperswitch-control-center/commit/2e461f823bc84f9f599c2a45558ec999829b73e4))
+
+**Full Changelog:** [`2024.02.27.0...2024.02.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.27.0...2024.02.28.0)
+
+- - -
+
 ## 2024.02.27.0
 
 ### Features
