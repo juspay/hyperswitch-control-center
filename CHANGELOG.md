@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.29.1
+
+### Bug Fixes
+
+- Connector type ([`8037fa5`](https://github.com/juspay/hyperswitch-control-center/commit/8037fa57feeb78740a64809c28c5478f938ddbde))
+
+**Full Changelog:** [`2024.02.29.0...2024.02.29.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.29.0...2024.02.29.1)
+
+- - -
+
 ## 2024.02.29.0
 
 ### Bug Fixes
