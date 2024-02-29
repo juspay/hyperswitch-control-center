@@ -333,7 +333,6 @@ module BusinessProfileRender = {
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-    let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
     let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
     let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
 
@@ -357,7 +356,7 @@ module BusinessProfileRender = {
                 onChange: {
                   ev => {
                     let profileName = (
-                      arrayOfBusinessProfile
+                      businessProfiles
                       ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
                         ele.profile_id === ev->Identity.formReactEventToString
                       )
@@ -374,7 +373,7 @@ module BusinessProfileRender = {
               ~disableSelect=isUpdateFlow,
               ~customStyle="max-h-48",
               ~options={
-                arrayOfBusinessProfile->MerchantAccountUtils.businessProfileNameDropDownOption
+                businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption
               },
               ~buttonText="Select Profile",
               ~placeholder="",

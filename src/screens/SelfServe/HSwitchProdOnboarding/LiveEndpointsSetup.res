@@ -179,8 +179,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
         merchantUpdateBody->MerchantAccountUtils.getBusinessProfilePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post, ())
 
-      let stringifiedResponse = res->JSON.stringify
-      setBusinessProfiles(._ => stringifiedResponse)
+      setBusinessProfiles(._ => res->BusinessProfileMapper.getArrayOfBusinessProfile)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess, ())
       updateLiveEndpoint()->ignore
       setButtonState(_ => Normal)

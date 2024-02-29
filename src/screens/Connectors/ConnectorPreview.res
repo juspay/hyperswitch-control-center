@@ -139,9 +139,8 @@ module ConnectorSummaryGrid = {
   ) => {
     let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
     let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
-    let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
     let currentProfileName =
-      arrayOfBusinessProfile
+      businessProfiles
       ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
         ele.profile_id === connectorInfo.profile_id
       )

@@ -122,20 +122,6 @@ let parseMerchantJson = (merchantDict: merchantPayload) => {
   merchantInfo
 }
 
-let constructWebhookDetailsObject = webhookDetailsDict => {
-  open LogicUtils
-  let webhookDetails = {
-    webhook_version: webhookDetailsDict->getOptionString("webhook_version"),
-    webhook_username: webhookDetailsDict->getOptionString("webhook_username"),
-    webhook_password: webhookDetailsDict->getOptionString("webhook_password"),
-    webhook_url: webhookDetailsDict->getOptionString("webhook_url"),
-    payment_created_enabled: webhookDetailsDict->getOptionBool("payment_created_enabled"),
-    payment_succeeded_enabled: webhookDetailsDict->getOptionBool("payment_succeeded_enabled"),
-    payment_failed_enabled: webhookDetailsDict->getOptionBool("payment_failed_enabled"),
-  }
-  webhookDetails
-}
-
 let getBusinessProfilePayload = (values: JSON.t) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
@@ -349,25 +335,6 @@ let validateMerchantAccountForm = (
   errors->JSON.Encode.object
 }
 
-let businessProfileTypeMapper = values => {
-  open LogicUtils
-  let jsonDict = values->getDictFromJsonObject
-  let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
-  let businessProfile = {
-    merchant_id: jsonDict->getString("merchant_id", ""),
-    profile_id: jsonDict->getString("profile_id", ""),
-    profile_name: jsonDict->getString("profile_name", ""),
-    return_url: jsonDict->getOptionString("return_url"),
-    payment_response_hash_key: jsonDict->getOptionString("payment_response_hash_key"),
-    webhook_details: webhookDetailsDict->constructWebhookDetailsObject,
-  }
-  businessProfile
-}
-
-let convertObjectToType = value => {
-  value->Js.Array2.reverseInPlace->Array.map(businessProfileTypeMapper)
-}
-
 let defaultValueForBusinessProfile = {
   merchant_id: "",
   profile_id: "",
@@ -385,20 +352,8 @@ let defaultValueForBusinessProfile = {
   },
 }
 
-let getArrayOfBusinessProfile = businessProfileValue => {
-  open LogicUtils
-  businessProfileValue->safeParse->getArrayFromJson([])->convertObjectToType
-}
-
 let getValueFromBusinessProfile = businessProfileValue => {
-  open LogicUtils
-  let businessDetails =
-    businessProfileValue
-    ->safeParse
-    ->getArrayFromJson([])
-    ->Js.Array2.reverseInPlace
-    ->convertObjectToType
-  businessDetails->Array.get(0)->Option.getOr(defaultValueForBusinessProfile)
+  businessProfileValue->Array.get(0)->Option.getOr(defaultValueForBusinessProfile)
 }
 
 let businessProfileNameDropDownOption = arrBusinessProfile =>

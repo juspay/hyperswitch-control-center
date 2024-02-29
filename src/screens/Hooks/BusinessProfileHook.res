@@ -7,9 +7,8 @@ let useFetchBusinessProfiles = () => {
     try {
       let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Get, ())
       let res = await fetchDetails(url)
-      let stringifiedResponse = res->JSON.stringify
-      setBusinessProfiles(._ => stringifiedResponse)
-      Nullable.make(stringifiedResponse->MerchantAccountUtils.getValueFromBusinessProfile)
+      setBusinessProfiles(._ => res->BusinessProfileMapper.getArrayOfBusinessProfile)
+      Nullable.make(res->BusinessProfileMapper.getArrayOfBusinessProfile)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -22,7 +21,6 @@ let useFetchBusinessProfiles = () => {
 let useGetBusinessProflile = profileId => {
   HyperswitchAtom.businessProfilesAtom
   ->Recoil.useRecoilValueFromAtom
-  ->MerchantAccountUtils.getArrayOfBusinessProfile
   ->Array.find(profile => profile.profile_id == profileId)
   ->Option.getOr(MerchantAccountUtils.defaultValueForBusinessProfile)
 }
