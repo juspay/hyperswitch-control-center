@@ -2009,6 +2009,12 @@ module InfraSelectBox = {
       }
     }
 
+    let roleNameToDisplay = roleName =>
+      switch roleName {
+      | "iam" => roleName->String.toLocaleUpperCase
+      | _ => roleName->LogicUtils.snakeToTitle
+      }
+
     <div className={`md:max-h-72 overflow-auto font-medium flex flex-wrap gap-y-4 gap-x-2.5`}>
       {transformedOptions
       ->Array.mapWithIndex((option, i) => {
@@ -2028,7 +2034,7 @@ module InfraSelectBox = {
           } else {
             React.null
           }}
-          {React.string(option.label)}
+          {React.string(option.label->roleNameToDisplay)}
         </div>
       })
       ->React.array}
