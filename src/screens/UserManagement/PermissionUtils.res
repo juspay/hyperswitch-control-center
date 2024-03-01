@@ -3,66 +3,68 @@ open UserManagementTypes
 
 let mapPermissionTypeToString = permissionType => {
   switch permissionType {
-  | OperationsView => "OperationsView"
-  | OperationsManage => "OperationsManage"
-  | ConnectorsView => "ConnectorsView"
-  | ConnectorsManage => "ConnectorsManage"
-  | WorkflowsView => "WorkflowsView"
-  | WorkflowsManage => "WorkflowsManage"
-  | AnalyticsView => "AnalyticsView"
-  | UsersView => "UsersView"
-  | UsersManage => "UsersManage"
-  | MerchantDetailsView => "MerchantDetailsView"
-  | MerchantDetailsManage => "MerchantDetailsManage"
-  | OrganizationManage => "OrganizationManage"
+  | OperationsView => "operations_view"
+  | OperationsManage => "operations_manage"
+  | ConnectorsView => "connectors_view"
+  | ConnectorsManage => "connectors_manage"
+  | WorkflowsView => "workflows_view"
+  | WorkflowsManage => "workflows_manage"
+  | AnalyticsView => "analytics_view"
+  | UsersView => "users_view"
+  | UsersManage => "users_manage"
+  | MerchantDetailsView => "merchant_details_view"
+  | MerchantDetailsManage => "merchant_details_manage"
+  | OrganizationManage => "organization_manage"
   | UnknownPermission(val) => val
   }
 }
 
 let mapStringToPermissionType = val => {
   switch val {
-  | "OperationsView" => OperationsView
-  | "OperationsManage" => OperationsManage
-  | "ConnectorsView" => ConnectorsView
-  | "ConnectorsManage" => ConnectorsManage
-  | "WorkflowsView" => WorkflowsView
-  | "WorkflowsManage" => WorkflowsManage
-  | "AnalyticsView" => AnalyticsView
-  | "UsersView" => UsersView
-  | "UsersManage" => UsersManage
-  | "MerchantDetailsView" => MerchantDetailsView
-  | "MerchantDetailsManage" => MerchantDetailsManage
-  | "OrganizationManage" => OrganizationManage
+  | "operations_view" => OperationsView
+  | "operations_manage" => OperationsManage
+  | "connectors_view" => ConnectorsView
+  | "connectors_manage" => ConnectorsManage
+  | "workflows_view" => WorkflowsView
+  | "workflows_manage" => WorkflowsManage
+  | "analytics_view" => AnalyticsView
+  | "users_view" => UsersView
+  | "users_manage" => UsersManage
+  | "merchant_details_view" => MerchantDetailsView
+  | "merchant_details_manage" => MerchantDetailsManage
+  | "organization_manage" => OrganizationManage
   | val => UnknownPermission(val)
   }
 }
 
 let getAccessValue = (~permissionValue: permissionType, ~permissionList) => {
   let isPermissionFound = permissionList->Array.find(ele => {
-    ele === permissionValue
+    Js.log4("permissionListpermissionList", permissionList, permissionValue, ele == permissionValue)
+    ele == permissionValue
   })
 
-  isPermissionFound->Option.isSome ? Access : Access
+  isPermissionFound->Option.isSome ? Access : NoAccess
 }
 
 let defaultValueForPermission = {
-  operationsView: Access,
-  operationsManage: Access,
-  connectorsView: Access,
-  connectorsManage: Access,
-  workflowsView: Access,
-  workflowsManage: Access,
-  analyticsView: Access,
-  usersView: Access,
-  usersManage: Access,
-  merchantDetailsView: Access,
-  merchantDetailsManage: Access,
-  organizationManage: Access,
+  operationsView: NoAccess,
+  operationsManage: NoAccess,
+  connectorsView: NoAccess,
+  connectorsManage: NoAccess,
+  workflowsView: NoAccess,
+  workflowsManage: NoAccess,
+  analyticsView: NoAccess,
+  usersView: NoAccess,
+  usersManage: NoAccess,
+  merchantDetailsView: NoAccess,
+  merchantDetailsManage: NoAccess,
+  organizationManage: NoAccess,
 }
 
 // TODO: Refactor to not call function for every permission
 let getPermissionJson = permissionList => {
-  {
+  Js.log2("permissionListpermissionList-111111", permissionList)
+  let abc = {
     operationsView: getAccessValue(~permissionValue=OperationsView, ~permissionList),
     operationsManage: getAccessValue(~permissionValue=OperationsManage, ~permissionList),
     connectorsView: getAccessValue(~permissionValue=ConnectorsView, ~permissionList),
@@ -76,6 +78,8 @@ let getPermissionJson = permissionList => {
     merchantDetailsManage: getAccessValue(~permissionValue=MerchantDetailsManage, ~permissionList),
     organizationManage: getAccessValue(~permissionValue=OrganizationManage, ~permissionList),
   }
+  Js.log2("abcabcabc", abc)
+  abc
 }
 
 let linkForGetShowLinkViaAccess = (~permission, ~url) => {
