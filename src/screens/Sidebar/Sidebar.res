@@ -98,7 +98,6 @@ module SidebarItem = {
 
     let tabLinklement = switch tabInfo {
     | Link(tabOption) => {
-        Js.log("options")
         let {name, icon, link, access} = tabOption
         let redirectionLink = `${link}${getSearchParamByLink(link)}`
         <RenderIf condition={access !== NoAccess}>

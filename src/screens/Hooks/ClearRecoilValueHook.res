@@ -12,7 +12,7 @@ let useClearRecoilValue = () => {
 
   let clearRecoilValue = () => {
     setMerchantDetailsValue(._ => JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails)
-    setBusinessProfilesAtom(._ => "")
+    setBusinessProfilesAtom(._ => JSON.Encode.null->BusinessProfileMapper.getArrayOfBusinessProfile)
     setConnectorListAtom(._ => "")
     setEnumVariantAtom(._ => "")
     setPaypalAccountStatusAtom(._ => PayPalFlowTypes.Connect_paypal_landing)
