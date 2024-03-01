@@ -117,14 +117,15 @@ let sortPreviouslyConnectedList = arr => {
   Js.Array2.sortInPlaceWith(arr, comparatorFunction)
 }
 
-// let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
-//   json->sortPreviouslyConnectedList
-// }
+let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
+  // json->sortPreviouslyConnectedList
+  LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
+}
 
 let connectorEntity = (path: string, ~permission: AuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    // ~getObjects=getPreviouslyConnectedList,
+    ~getObjects=getPreviouslyConnectedList,
     ~defaultColumns,
     ~getHeading,
     ~getCell,

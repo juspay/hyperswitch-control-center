@@ -19,12 +19,14 @@ let make = (~isPayoutFlow=false) => {
     try {
       let response = await fetchConnectorListResponse()
       let removeFromList = isPayoutFlow ? ConnectorTypes.PayoutConnector : ConnectorTypes.FRMPlayer
-      let connectorsList = response->getProcessorsListFromJson(~removeFromList, ())
-      let previousData = connectorsList->Array.map(ConnectorListMapper.getProcessorPayloadType)
-      setFilteredConnectorData(_ => previousData->Array.map(Nullable.make))
-      setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
+      let connectorsList =
+        response
+        ->ConnectorListMapper.getArrayOfConnectorListPayloadType
+        ->getProcessorsListFromJson(~removeFromList, ())
+      setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
+      setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
       setConfiguredConnectors(_ =>
-        previousData->ConnectorUtils.getConnectorTypeArrayFromListConnectors
+        connectorsList->ConnectorUtils.getConnectorTypeArrayFromListConnectors
       )
       setScreenState(_ => Success)
     } catch {

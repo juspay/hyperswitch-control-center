@@ -265,11 +265,7 @@ let make = (~routingRuleId, ~isActive) => {
 
   let getConnectorsList = () => {
     let arr =
-      connectorList
-      ->ConnectorUtils.getProcessorsListFromJson()
-      ->Array.map(connectorDict => connectorDict->getString("connector_name", ""))
-      ->Array.filter(x => x !== "applepay")
-      ->getUniqueArray
+      connectorList->Array.map(connectorDict => connectorDict.connector_name)->getUniqueArray
     setConnectors(_ => arr)
     setScreenState(_ => Success)
   }
