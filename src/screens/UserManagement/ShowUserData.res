@@ -198,7 +198,7 @@ module UserHeading = {
             | _ => infoValue.status->String.toUpperCase->React.string
             }}
           </div>
-          <RenderIf condition={userPermissionJson.usersWrite === Access}>
+          <RenderIf condition={userPermissionJson.usersManage === Access}>
             <div className="flex items-center gap-2">
               <RenderIf condition={status !== Active}>
                 <Button
@@ -243,7 +243,7 @@ let make = () => {
         ~methodType=Get,
         (),
       )
-      let res = await fetchDetails(url)
+      let res = await fetchDetails(`${url}?groups=true`)
       setRoleData(_ => res)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -256,9 +256,10 @@ let make = () => {
   let getPermissionInfo = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#PERMISSION_INFO, ~methodType=Get, ())
-      let res = await fetchDetails(url)
+      let res = await fetchDetails(`${url}?groups=true`)
       let permissionInfoValue =
         res->LogicUtils.getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
+
       setPermissionInfo(_ => permissionInfoValue)
     } catch {
     | _ => ()
@@ -349,9 +350,10 @@ let make = () => {
             ->Array.mapWithIndex((ele, index) => {
               <RolePermissionValueRenderer
                 key={index->string_of_int}
-                heading={`${ele.module_} module`}
+                heading={`${ele.module_->LogicUtils.snakeToTitle} module`}
                 description={ele.description}
                 readWriteValues={ele.permissions}
+                isPermissionAllowed={ele.isPermissionAllowed}
               />
             })
             ->React.array}

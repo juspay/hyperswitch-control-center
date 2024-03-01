@@ -25,6 +25,7 @@ type getInfoType = {
   module_: string,
   description: string,
   mutable permissions: array<permissions>,
+  mutable isPermissionAllowed: bool,
 }
 
 type integrationDetailsType = {

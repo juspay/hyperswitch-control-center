@@ -76,7 +76,7 @@ let roleType = roleListData =>
 let getArrayOfPermissionData = json => {
   json
   ->LogicUtils.getDictFromJsonObject
-  ->LogicUtils.getArrayFromDict("permissions", [])
+  ->LogicUtils.getArrayFromDict("groups", [])
   ->Array.map(i => i->JSON.Decode.string->Option.getOr(""))
 }
 
@@ -85,15 +85,11 @@ let updatePresentInInfoList = (infoData, permissionsData) => {
   let copyOfPermissionsData = permissionsData->Array.copy
 
   copyOfInfoData->Array.map((infoValItem: ProviderTypes.getInfoType) => {
-    infoValItem.permissions->Array.forEachWithIndex((
-      enumValue: ProviderTypes.permissions,
-      index,
-    ) => {
-      if copyOfPermissionsData->Array.includes(enumValue.enum_name) {
-        enumValue.isPermissionAllowed = true
-      }
-      infoValItem.permissions[index] = enumValue
-    })
+    if copyOfPermissionsData->Array.includes(infoValItem.module_) {
+      infoValItem.isPermissionAllowed = true
+    } else {
+      infoValItem.isPermissionAllowed = false
+    }
     infoValItem
   })
 }
@@ -115,38 +111,20 @@ module RolePermissionValueRenderer = {
     ~heading: string,
     ~description: string,
     ~readWriteValues: array<ProviderTypes.permissions>,
+    ~isPermissionAllowed: bool=false,
   ) => {
     let getReadWriteValue = index => {
       readWriteValues->LogicUtils.getValueFromArray(index, ProviderHelper.getDefaultValueOfEnum)
     }
-    let readValue = getReadWriteValue(0).description
-    let writeValue = getReadWriteValue(1).description
-    let isPermissionAllowedForRead = getReadWriteValue(0).isPermissionAllowed
-    let isPermissionAllowedForWrite = getReadWriteValue(1).isPermissionAllowed
 
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-3">
-        <div className="font-semibold w-1/2"> {heading->React.string} </div>
-        <div className="flex items-center gap-3 w-1/2">
-          <Icon size=14 name={isPermissionAllowedForRead ? "permitted" : "not-permitted"} />
-          <div className="text-base text-hyperswitch_black opacity-50">
-            {readValue->React.string}
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center gap-3">
-        <div className="mt-2 text-base text-hyperswitch_black opacity-50 w-1/2">
+    <div className="flex justify-between">
+      <div className="flex flex-col gap-3 items-start col-span-1">
+        <div className="font-semibold"> {heading->React.string} </div>
+        <div className="text-base text-hyperswitch_black opacity-50 flex-1">
           {description->React.string}
         </div>
-        <UIUtils.RenderIf condition={writeValue->LogicUtils.isNonEmptyString}>
-          <div className="flex items-center gap-3 w-1/2">
-            <Icon size=14 name={isPermissionAllowedForWrite ? "permitted" : "not-permitted"} />
-            <div className="text-base text-hyperswitch_black opacity-50">
-              {writeValue->React.string}
-            </div>
-          </div>
-        </UIUtils.RenderIf>
       </div>
+      <Icon size=22 name={isPermissionAllowed ? "permitted" : "not-permitted"} />
     </div>
   }
 }

@@ -44,7 +44,7 @@ module OrderInfo = {
             </div>
             {getStatus(data)}
             <ACLButton
-              access={userPermissionJson.refundWrite}
+              access={userPermissionJson.operationsManage}
               text="+ Refund"
               onClick={_ => {
                 openRefundModal()
@@ -688,7 +688,7 @@ let make = (~id) => {
         </div>
         <UIUtils.RenderIf condition={showSyncButton()}>
           <ACLButton
-            access={userPermissionJson.paymentRead}
+            access={userPermissionJson.operationsView}
             text="Sync"
             leftIcon={Button.CustomIcon(
               <Icon

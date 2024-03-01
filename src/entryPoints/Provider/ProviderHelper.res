@@ -39,11 +39,12 @@ let itemToObjMapperForEnum = dict => {
 let itemToObjMapperForGetInfo = dict => {
   open LogicUtils
   {
-    module_: getString(dict, "module", ""),
+    module_: getString(dict, "group", ""),
     description: getString(dict, "description", ""),
     permissions: getArrayFromDict(dict, "permissions", [])->Array.map(i =>
       i->getDictFromJsonObject->itemToObjMapperForEnum
     ),
+    isPermissionAllowed: false,
   }
 }
 
