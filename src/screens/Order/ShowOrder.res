@@ -159,6 +159,7 @@ module OrderInfo = {
               Description,
               Shipping,
               Billing,
+              BillingEmail,
               AmountCapturable,
               ErrorCode,
               MandateData,

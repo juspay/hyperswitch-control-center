@@ -61,11 +61,14 @@ module SelectPaymentMethods = {
           enumRecoilUpdateArr->Array.push((body, #SecondProcessorConnected))
         }
 
-        if selectedConnector === Processors(STRIPE) {
-          enumRecoilUpdateArr->Array.push((body, #StripeConnected))
-        } else if selectedConnector === Processors(PAYPAL) {
-          enumRecoilUpdateArr->Array.push((body, #PaypalConnected))
+        {
+          switch selectedConnector {
+          | Processors(STRIPE) => enumRecoilUpdateArr->Array.push((body, #StripeConnected))
+          | Processors(PAYPAL) => enumRecoilUpdateArr->Array.push((body, #PaypalConnected))
+          | _ => ()
+          }
         }
+
         let _ = updateEnumInRecoil(enumRecoilUpdateArr)
       } catch {
       | _ => setButtonState(_ => Button.Normal)

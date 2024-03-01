@@ -34,7 +34,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open MerchantAccountUtils
   let url = RescriptReactRouter.useUrl()
   let id = url.path->List.toArray->Array.get(1)->Option.getOr(profileId)
-  let businessProfileDetails = useGetBusinessProflile(id)
+  let businessProfileDetails = BusinessProfileHook.useGetBusinessProflile(id)
 
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
@@ -43,7 +43,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
-  let fetchBusinessProfiles = MerchantAccountUtils.useFetchBusinessProfiles()
+  let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
 
   let onSubmit = async (values, _) => {
     try {
@@ -51,7 +51,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
       let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Post, ~id=Some(id), ())
       let body = values->getBusinessProfilePayload->JSON.Encode.object
       let res = await updateDetails(url, body, Post, ())
-      let profileTypeInfo = res->businessProfileTypeMapper
+      let profileTypeInfo = res->BusinessProfileMapper.businessProfileTypeMapper
       setProfileInfo(_ => profileTypeInfo)
       showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess, ())
       setScreenState(_ => PageLoaderWrapper.Success)

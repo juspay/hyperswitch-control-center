@@ -28,7 +28,9 @@ let make = (~showModal, ~setShowModal) => {
         ]->getJsonFromArrayOfJson
       let merchantDetails = await updateDetails(accountUrl, body, Post, ())
       let _ = await fetchSwitchMerchantList()
-      setMerchantDetailsValue(._ => merchantDetails->JSON.stringify)
+      setMerchantDetailsValue(._ =>
+        merchantDetails->MerchantAccountDetailsMapper.getMerchantDetails
+      )
       showToast(~message=`Successfully updated business details`, ~toastType=ToastSuccess, ())
       setShowModal(_ => false)
     } catch {

@@ -3,6 +3,45 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.02.29.1
+
+### Bug Fixes
+
+- Connector type ([`8037fa5`](https://github.com/juspay/hyperswitch-control-center/commit/8037fa57feeb78740a64809c28c5478f938ddbde))
+
+**Full Changelog:** [`2024.02.29.0...2024.02.29.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.29.0...2024.02.29.1)
+
+- - -
+
+## 2024.02.29.0
+
+### Bug Fixes
+
+- Clear recoil ([#461](https://github.com/juspay/hyperswitch-control-center/pull/461)) ([`8865a76`](https://github.com/juspay/hyperswitch-control-center/commit/8865a76b8ef9fb83ce63ff02bc557e4b56e6f0d1))
+- Connector type change ([#462](https://github.com/juspay/hyperswitch-control-center/pull/462)) ([`c31de0f`](https://github.com/juspay/hyperswitch-control-center/commit/c31de0f25840e0e930eb80b658f89c564246c424))
+
+### Refactors
+
+- Business recoil value from string to typed ([#458](https://github.com/juspay/hyperswitch-control-center/pull/458)) ([`16655fb`](https://github.com/juspay/hyperswitch-control-center/commit/16655fbcd59fdf27f3e6c07c2cc49c9b3c99b8f1))
+
+**Full Changelog:** [`2024.02.28.0...2024.02.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.28.0...2024.02.29.0)
+
+- - -
+
+## 2024.02.28.0
+
+### Features
+
+- Email from billing 448 ([#454](https://github.com/juspay/hyperswitch-control-center/pull/454)) ([`322220c`](https://github.com/juspay/hyperswitch-control-center/commit/322220c772ad7dcda4d78e09a40703ef8ad63ad1))
+
+### Refactors
+
+- MerchantDetails recoil value from string to typed ([#455](https://github.com/juspay/hyperswitch-control-center/pull/455)) ([`2e461f8`](https://github.com/juspay/hyperswitch-control-center/commit/2e461f823bc84f9f599c2a45558ec999829b73e4))
+
+**Full Changelog:** [`2024.02.27.0...2024.02.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.27.0...2024.02.28.0)
+
+- - -
+
 ## 2024.02.27.0
 
 ### Features

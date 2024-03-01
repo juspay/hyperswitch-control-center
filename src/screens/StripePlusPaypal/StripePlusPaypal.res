@@ -28,8 +28,8 @@ let make = () => {
   }
 
   let handleNavigation = async (~forward: bool) => {
-    if selectedConnector === Processors(STRIPE) {
-      if enums.paypalConnected.processorID->String.length === 0 {
+    switch selectedConnector {
+    | Processors(STRIPE) => if enums.paypalConnected.processorID->String.length === 0 {
         setSelectedConnector(_ => Processors(PAYPAL))
         setConnectorConfigureState(_ => Configure_keys)
         setInitialValues(_ => Dict.make()->JSON.Encode.object)
@@ -42,8 +42,7 @@ let make = () => {
           }
         })
       }
-    } else {
-      setStepInView(_ => TEST_PAYMENT)
+    | _ => setStepInView(_ => TEST_PAYMENT)
     }
   }
 
