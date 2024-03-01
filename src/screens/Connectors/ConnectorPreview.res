@@ -274,8 +274,11 @@ let make = (
   let connectorInfoDict = connectorInfo->LogicUtils.getDictFromJsonObject
   let connectorInfo =
     connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
-
-  let connectorCount = ListHooks.useListCount(~entityName=CONNECTOR)
+  let connectorCount =
+    HyperswitchAtom.connectorListAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer, ())
+  // let connectorCount = ListHooks.useListCount(~entityName=CONNECTOR)->Array.length
   let isFeedbackModalToBeOpen =
     feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
   let redirectPath = switch url.path {

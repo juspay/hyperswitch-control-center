@@ -102,12 +102,12 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
   }
 }
 
-let getArrayDataFromJson = (json, itemToObjMapper: Dict.t<JSON.t> => connectorPayload) => {
-  json
-  ->ConnectorUtils.getProcessorsListFromJson()
-  ->Array.map(itemToObjMapper)
-  ->Array.filter(item => !(item.connector_name->String.includes("apple")))
-}
+// let getArrayDataFromJson = (json, itemToObjMapper: Dict.t<JSON.t> => connectorPayload) => {
+//   json
+//   ->ConnectorUtils.getProcessorsListFromJson()
+//   ->Array.map(itemToObjMapper)
+//   ->Array.filter(item => !(item.connector_name->String.includes("apple")))
+// }
 
 let comparatorFunction = (connector1: connectorPayload, connector2: connectorPayload) => {
   connector1.connector_name->String.localeCompare(connector2.connector_name)->Float.toInt
@@ -117,16 +117,14 @@ let sortPreviouslyConnectedList = arr => {
   Js.Array2.sortInPlaceWith(arr, comparatorFunction)
 }
 
-let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
-  json
-  ->getArrayDataFromJson(ConnectorListMapper.getProcessorPayloadType)
-  ->sortPreviouslyConnectedList
-}
+// let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
+//   json->sortPreviouslyConnectedList
+// }
 
 let connectorEntity = (path: string, ~permission: AuthTypes.authorization) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getPreviouslyConnectedList,
+    // ~getObjects=getPreviouslyConnectedList,
     ~defaultColumns,
     ~getHeading,
     ~getCell,

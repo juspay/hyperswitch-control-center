@@ -1193,10 +1193,9 @@ let getConnectorPaymentMethodDetails = async (
   }
 }
 
-let filterList = (items, ~removeFromList: processors) => {
-  open LogicUtils
+let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList: processors) => {
   items->Array.filter(dict => {
-    let connectorType = dict->getString("connector_type", "")
+    let connectorType = dict.connector_type
     let isPayoutConnector = connectorType == "payout_processor"
     let isConnector = connectorType !== "payment_vas" && !isPayoutConnector
     let isThreeDsAuthenticator = connectorType == "authentication_processor"
@@ -1210,9 +1209,12 @@ let filterList = (items, ~removeFromList: processors) => {
   })
 }
 
-let getProcessorsListFromJson = (json, ~removeFromList: processors=FRMPlayer, ()) => {
-  open LogicUtils
-  json->getArrayFromJson([])->Array.map(getDictFromJsonObject)->filterList(~removeFromList)
+let getProcessorsListFromJson = (
+  connnectorList: array<ConnectorTypes.connectorPayload>,
+  ~removeFromList: processors=FRMPlayer,
+  (),
+) => {
+  connnectorList->filterList(~removeFromList)
 }
 
 let getDisplayNameForConnector = connector =>

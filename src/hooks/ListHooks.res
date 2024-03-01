@@ -1,6 +1,6 @@
 open APIUtils
 let useListCount = (~entityName) => {
-  open ConnectorUtils
+  // open ConnectorUtils
   let fetchDetails = useGetMethod()
   let (count, setCount) = React.useState(() => 0)
 
@@ -11,10 +11,10 @@ let useListCount = (~entityName) => {
       let response = await fetchDetails(getUrl)
       let count = switch entityName {
       | ROUTING => response->getDictFromJsonObject->getArrayFromDict("records", [])->Array.length
-      | CONNECTOR =>
-        response->getObjectArrayFromJson->filterList(~removeFromList=FRMPlayer)->Array.length
-      | FRAUD_RISK_MANAGEMENT =>
-        response->getObjectArrayFromJson->filterList(~removeFromList=Connector)->Array.length
+      // | CONNECTOR =>
+      //   response->getObjectArrayFromJson->filterList(~removeFromList=FRMPlayer)->Array.length
+      // | FRAUD_RISK_MANAGEMENT =>
+      //   response->getObjectArrayFromJson->filterList(~removeFromList=Connector)->Array.length
       | _ => response->getArrayFromJson([])->Array.length
       }
       setCount(_ => count)

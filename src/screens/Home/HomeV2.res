@@ -77,7 +77,7 @@ module QuickStart = {
     let updateEnumInRecoil = EnumVariantHook.useUpdateEnumInRecoil()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let (configureButtonState, setConfigureButtonState) = React.useState(_ => Button.Normal)
-    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+    let typedConnectorValue = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
     let initalEnums =
       HyperswitchAtom.enumVariantAtom->Recoil.useRecoilValueFromAtom->LogicUtils.safeParse
     let typedValueOfEnum = initalEnums->QuickStartUtils.getTypedValueFromDict
@@ -85,8 +85,6 @@ module QuickStart = {
     let setEnumsForPreviouslyConnectedConnectors = async () => {
       try {
         setConfigureButtonState(_ => Button.Loading)
-        let typedConnectorValue =
-          connectorList->ConnectorListMapper.getArrayOfConnectorListPayloadType
 
         if (
           typedValueOfEnum.configurationType->String.length === 0 &&

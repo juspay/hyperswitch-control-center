@@ -210,9 +210,7 @@ module SelectConnectorGrid = {
       ->Recoil.useRecoilValueFromAtom
       ->ConnectorUtils.getProcessorsListFromJson()
       ->Array.map(connectorDict =>
-        connectorDict
-        ->LogicUtils.getString("connector_name", "")
-        ->ConnectorUtils.getConnectorNameTypeFromString()
+        connectorDict.connector_name->ConnectorUtils.getConnectorNameTypeFromString()
       )
     let popularConnectorList = [
       Processors(STRIPE),
