@@ -11,7 +11,7 @@ let make = (~isPayoutFlow=false) => {
   let detailedCardCount = 5
   let showConnectorIcons = configuredConnectors->Array.length > detailedCardCount
   let (searchText, setSearchText) = React.useState(_ => "")
-  let fetchConnectorListResponse = useFetchConnectorList()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 

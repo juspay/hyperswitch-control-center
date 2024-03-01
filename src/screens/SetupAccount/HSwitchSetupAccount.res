@@ -6,7 +6,7 @@ let make = () => {
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let finalTickLottieFile = LottieFiles.useLottieJson("FinalTick.json")
   let (stepCounter, setStepCounter) = React.useState(_ => #INITIALIZE)
-  let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
   let activeBusinessProfile =
     HyperswitchAtom.businessProfilesAtom
