@@ -10,7 +10,7 @@ module RenderedComponent = {
       ) {
         <mark
           key={i->Int.toString}
-          className="border-searched_text_border bg-yellow-searched_text ml-1 font-medium text-fs-14 text-lightgray_background opacity-50">
+          className="border-searched_text_border bg-yellow-searched_text font-medium text-fs-14 text-lightgray_background opacity-50">
           {item->React.string}
         </mark>
       } else {
@@ -35,7 +35,7 @@ module SearchBox = {
       <Icon size=14 name="search" className="mx-2" onClick={openModalOnClickHandler} />
     } else {
       <div
-        className={`flex w-80 inline gap-2 items-center bg-white text-grey-700 text-opacity-30 font-semibold justify-between py-2 px-3 rounded-lg border border-jp-gray-border_gray`}
+        className={`flex w-80 inline gap-2 items-center bg-white text-grey-700 text-opacity-30 font-semibold justify-between py-2 px-3 rounded-lg border border-jp-gray-border_gray hover:cursor-text`}
         onClick={openModalOnClickHandler}>
         <div className="flex gap-2 ">
           <Icon size=14 name="search" />
@@ -50,12 +50,15 @@ module SearchBox = {
 module EmptyResult = {
   @react.component
   let make = (~prefix, ~searchText) => {
-    <div className="flex flex-col w-full h-72 p-2 justify-center items-center gap-1">
-      <img className="w-1/3" src={`${prefix}/icons/globalSearchNoResult.svg`} />
-      <div className="w-1/2 text-wrap text-center break-all">
-        {`No Results for ${searchText}`->React.string}
+    <FramerMotion.Motion.Div
+      layoutId="empty" initial={{y: -50, opacity: 0}} animate={{y: 0, opacity: 1}}>
+      <div className="flex flex-col w-full h-72 p-2 justify-center items-center gap-1">
+        <img className="w-1/3" src={`${prefix}/icons/globalSearchNoResult.svg`} />
+        <div className="w-1/2 text-wrap text-center break-all">
+          {`No Results for " ${searchText} "`->React.string}
+        </div>
       </div>
-    </div>
+    </FramerMotion.Motion.Div>
   }
 }
 
@@ -63,18 +66,12 @@ module OptionsWrapper = {
   open HeadlessUI
   @react.component
   let make = (~children) => {
-    <Transition
-      \"as"="span"
-      leave="transition ease-in duration-100"
-      leaveFrom="opacity-100"
-      leaveTo="opacity-0">
+    <FramerMotion.Motion.Div layoutId="options">
       <Combobox.Options
-        className="w-full overflow-auto text-base rounded-lg max-h-96 focus:outline-none sm:text-sm">
-        {_ => {
-          children
-        }}
+        className="w-full overflow-auto text-base max-h-96 focus:outline-none sm:text-sm">
+        {_ => {children}}
       </Combobox.Options>
-    </Transition>
+    </FramerMotion.Motion.Div>
   }
 }
 
@@ -82,23 +79,22 @@ module OptionWrapper = {
   open HeadlessUI
   @react.component
   let make = (~index, ~value, ~redirectOnSelect, ~children) => {
-    let activeClasses = isActive => {
-      if isActive {
-        "group flex rounded-lg items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-jp-gray-960"
-      } else {
-        "group flex rounded-lg items-center w-full px-2 py-2 text-sm"
-      }
-    }
+    let activeClasses = isActive =>
+      `group flex items-center w-full p-2 text-sm rounded-lg ${isActive
+          ? "bg-gray-100 dark:bg-jp-gray-960"
+          : ""}`
 
-    <Combobox.Option
-      className="flex flex-row border-b dark:border-jp-gray-960 p-2 cursor-pointer"
-      onClick={_ => value->redirectOnSelect}
-      key={index->Int.toString}
-      value>
-      {props => {
-        <div className={props["active"]->activeClasses}> {children} </div>
-      }}
-    </Combobox.Option>
+    <FramerMotion.Motion.Div layoutId={`item-${index->Int.toString}`}>
+      <Combobox.Option
+        className="flex flex-row border-b dark:border-jp-gray-960 p-2 cursor-pointer"
+        onClick={_ => value->redirectOnSelect}
+        key={index->Int.toString}
+        value>
+        {props => {
+          <div className={props["active"]->activeClasses}> {children} </div>
+        }}
+      </Combobox.Option>
+    </FramerMotion.Motion.Div>
   }
 }
 
@@ -112,7 +108,14 @@ module ModalWrapper = {
       paddingClass="pt-24"
       closeOnOutsideClick=true
       bgClass="bg-transparent dark:bg-transparent border-transparent dark:border-transparent shadow-transparent	">
-      {children}
+      <FramerMotion.Motion.Div
+        layoutId="search"
+        key="search"
+        initial={{borderRadius: ["15px", "15px", "15px", "15px"], y: -50}}
+        animate={{borderRadius: ["15px", "15px", "15px", "15px"], y: 0}}
+        className={"flex flex-col bg-white gap-2 overflow-hidden py-2"}>
+        {children}
+      </FramerMotion.Motion.Div>
     </Modal>
   }
 }
@@ -132,7 +135,6 @@ let make = () => {
     (merchentDetails->MerchantAccountUtils.getMerchantDetails).recon_status === Active
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let searchText = searchText->String.trim
-  let searchBoxBorderColor = "border border-transparent"
 
   React.useEffect1(_ => {
     let results = searchText->getMatchedList(hswitchTabs)
@@ -174,75 +176,73 @@ let make = () => {
     setShowModal(_ => true)
   }
 
-  let borderClass = searchResults->Array.length > 0 ? "border-b dark:border-jp-gray-960" : ""
+  let borderClass = searchText->String.length > 0 ? "border-b dark:border-jp-gray-960" : ""
 
   let modalSearchBox =
-    <div className={`flex flex-row relative items-center grow ${borderClass}`}>
-      <div id="leftIcon" className="self-center p-3">
-        <Icon size=14 name="search" />
+    <FramerMotion.Motion.Div layoutId="input" className="h-11 bg-white">
+      <div className={`flex flex-row items-center grow ${borderClass}`}>
+        <div id="leftIcon" className="self-center py-3 pl-5 pr-4">
+          <Icon size=18 name="search" />
+        </div>
+        <Combobox.Input
+          \"as"="input"
+          className="w-full py-3 !text-lg bg-transparent focus:outline-none cursor-default sm:text-sm"
+          autoFocus=true
+          placeholder="Search"
+          autoComplete="off"
+          onChange={event => {
+            setSearchText(_ => event["target"]["value"])
+          }}
+        />
+        <Icon
+          size=16
+          name="times"
+          parentClass="flex justify-end opacity-30"
+          className="mr-5 cursor-pointer"
+          onClick={_ => {
+            setShowModal(_ => false)
+          }}
+        />
       </div>
-      <Combobox.Input
-        \"as"="input"
-        className="relative w-full py-3 text-left bg-transparent focus:outline-none cursor-default sm:text-sm"
-        autoFocus=true
-        placeholder="Search"
-        autoComplete="off"
-        onChange={event => {
-          setSearchText(_ => event["target"]["value"])
-        }}
-      />
-      <Icon
-        size=16
-        name="times"
-        parentClass="flex justify-end opacity-30"
-        className="mr-3 cursor-pointer"
-        onClick={_ => {
-          setShowModal(_ => false)
-        }}
-      />
-    </div>
+    </FramerMotion.Motion.Div>
 
   <div className="w-max">
     <SearchBox openModalOnClickHandler />
     <RenderIf condition={showModal}>
       <ModalWrapper showModal setShowModal>
-        {<div
-          className={`flex flex-col bg-white dark:bg-black gap-2 rounded-lg  ${searchBoxBorderColor}`}>
-          <Combobox className="w-full " onChange={element => element->redirectOnSelect}>
-            {_ => {
-              <div className="relative py-1">
-                {modalSearchBox}
-                <OptionsWrapper>
-                  {searchResults
-                  ->Array.mapWithIndex((ele, i) => {
-                    let elementsArray = ele->getArrayFromDict("elements", [])
-                    <OptionWrapper index={i} value={ele} redirectOnSelect>
-                      {elementsArray
-                      ->Array.mapWithIndex((item, index) => {
-                        let elementValue = item->JSON.Decode.string->Option.getOr("")
-                        <RenderIf
-                          condition={elementValue->isNonEmptyString} key={index->Int.toString}>
-                          <RenderedComponent ele=elementValue searchText />
-                          <RenderIf
-                            condition={index >= 0 && index < elementsArray->Array.length - 1}>
-                            <span className="mx-2 text-lightgray_background opacity-50">
-                              {">"->React.string}
-                            </span>
-                          </RenderIf>
+        <Combobox className="w-full" onChange={element => element->redirectOnSelect}>
+          {_ => {
+            <>
+              {modalSearchBox}
+              <OptionsWrapper>
+                {searchResults
+                ->Array.mapWithIndex((ele, i) => {
+                  let elementsArray = ele->getArrayFromDict("elements", [])
+                  <OptionWrapper index={i} value={ele} redirectOnSelect>
+                    {elementsArray
+                    ->Array.mapWithIndex((item, index) => {
+                      let elementValue = item->JSON.Decode.string->Option.getOr("")
+                      <RenderIf
+                        condition={elementValue->isNonEmptyString} key={index->Int.toString}>
+                        <RenderedComponent ele=elementValue searchText />
+                        <RenderIf condition={index >= 0 && index < elementsArray->Array.length - 1}>
+                          <span className="mx-2 text-lightgray_background opacity-50">
+                            {">"->React.string}
+                          </span>
                         </RenderIf>
-                      })
-                      ->React.array}
-                    </OptionWrapper>
-                  })
-                  ->React.array}
-                </OptionsWrapper>
-              </div>
-            }}
-          </Combobox>
-          <RenderIf condition={searchText->isNonEmptyString && searchResults->Array.length === 0}>
-            <EmptyResult prefix searchText />
-          </RenderIf>
-        </div>}
+                      </RenderIf>
+                    })
+                    ->React.array}
+                  </OptionWrapper>
+                })
+                ->React.array}
+              </OptionsWrapper>
+            </>
+          }}
+        </Combobox>
+        <RenderIf condition={searchText->isNonEmptyString && searchResults->Array.length === 0}>
+          <EmptyResult prefix searchText />
+        </RenderIf>
       </ModalWrapper>
     </RenderIf>
   </div>
