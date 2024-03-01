@@ -7,8 +7,7 @@ let useFetchConnectorList = () => {
     try {
       let url = getURL(~entityName=CONNECTOR, ~methodType=Get, ())
       let res = await fetchDetails(url)
-      let stringifiedResponse = res->JSON.stringify
-      setConnectorList(._ => stringifiedResponse)
+      setConnectorList(._ => res)
       res
     } catch {
     | Exn.Error(e) => {

@@ -94,7 +94,6 @@ module OrderInfo = {
     let connectorList =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
       ->LogicUtils.getObjectArrayFromJson
     <div className="md:flex md:flex-col md:gap-5">
       <UIUtils.RenderIf condition={!isMetadata}>

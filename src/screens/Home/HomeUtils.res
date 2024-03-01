@@ -151,7 +151,6 @@ module CheckoutCard = {
     let connectorList =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
       ->LogicUtils.getObjectArrayFromJson
     let isConfigureConnector = connectorList->Array.length > 0
 

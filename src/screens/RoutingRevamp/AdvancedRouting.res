@@ -399,7 +399,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let currentTabName = Recoil.useRecoilValueFromAtom(HyperswitchAtom.currentTabNameRecoilAtom)
   let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let connectorList = React.useMemo0(() => {
-    connectorListJson->safeParse->ConnectorTableUtils.getArrayOfConnectorListPayloadType
+    connectorListJson->ConnectorTableUtils.getArrayOfConnectorListPayloadType
   })
 
   let getConnectorsList = () => {

@@ -221,8 +221,7 @@ let make = (~routingRuleId, ~isActive) => {
   let (showModal, setShowModal) = React.useState(_ => false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let (connectors, setConnectors) = React.useState(_ => [])
-  let connectorListJson =
-    HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->LogicUtils.safeParse
+  let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
   let activeRoutingDetails = async () => {
     try {
