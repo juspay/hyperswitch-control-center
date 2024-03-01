@@ -1,21 +1,36 @@
 @react.component
 let make = (~refundId, ~paymentId, ~data: RefundEntity.refunds) => {
-  open APIUtils
-  let fetchDetails = useGetMethod(~showErrorToast=false, ())
+  open LogTypes
 
   let refundsLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/api_event_logs?type=Refund&payment_id=${paymentId}&refund_id=${refundId}`
   let webhooksLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/outgoing_webhook_event_logs?&payment_id=${paymentId}&refund_id=${refundId}`
   let connectorLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/connector_event_logs?payment_id=${paymentId}&refund_id=${refundId}`
 
-  let promiseArr = [fetchDetails(refundsLogsUrl), fetchDetails(webhooksLogsUrl)]
+  let urls = [
+    {
+      url: refundsLogsUrl,
+      apiMethod: Get,
+    },
+    {
+      url: webhooksLogsUrl,
+      apiMethod: Get,
+    },
+  ]
 
   switch data.connector->ConnectorUtils.getConnectorNameTypeFromString() {
   | Processors(connector) =>
     if LogUtils.responseMaskingSupportedConectors->Array.includes(connector) {
-      promiseArr->Array.concat([fetchDetails(connectorLogsUrl)])->ignore
+      urls
+      ->Array.concat([
+        {
+          url: connectorLogsUrl,
+          apiMethod: Get,
+        },
+      ])
+      ->ignore
     }
   | _ => ()
   }
 
-  <AuditLogUI id={paymentId} promiseArr logType={#REFUND} />
+  <AuditLogUI id={paymentId} urls logType={#REFUND} />
 }

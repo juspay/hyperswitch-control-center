@@ -1,8 +1,7 @@
 @react.component
 let make = (~paymentId, ~createdAt, ~data: OrderTypes.order) => {
+  open LogTypes
   open APIUtils
-  let fetchDetails = useGetMethod(~showErrorToast=false, ())
-  let fetchPostDetils = useUpdateMethod()
   let apiLogsUrl = getURL(~entityName=PAYMENT_LOGS, ~methodType=Get, ~id=Some(paymentId), ())
   let sdkLogsUrl = getURL(~entityName=SDK_EVENT_LOGS, ~methodType=Post, ~id=Some(paymentId), ())
   let startTime = createdAt->Date.fromString->Date.getTime -. 1000. *. 60. *. 5.
@@ -32,19 +31,36 @@ let make = (~paymentId, ~createdAt, ~data: OrderTypes.order) => {
     (),
   )
 
-  let promiseArr = [
-    fetchDetails(apiLogsUrl),
-    fetchPostDetils(sdkLogsUrl, sdkPostBody, Post, ()),
-    fetchDetails(webhookLogsUrl),
+  let urls = [
+    {
+      url: apiLogsUrl,
+      apiMethod: Get,
+    },
+    {
+      url: sdkLogsUrl,
+      apiMethod: Post,
+      body: sdkPostBody,
+    },
+    {
+      url: webhookLogsUrl,
+      apiMethod: Get,
+    },
   ]
 
   switch data.connector->ConnectorUtils.getConnectorNameTypeFromString() {
   | Processors(connector) =>
     if LogUtils.responseMaskingSupportedConectors->Array.includes(connector) {
-      promiseArr->Array.concat([fetchDetails(connectorLogsUrl)])->ignore
+      urls
+      ->Array.concat([
+        {
+          url: connectorLogsUrl,
+          apiMethod: Get,
+        },
+      ])
+      ->ignore
     }
   | _ => ()
   }
 
-  <AuditLogUI id={paymentId} promiseArr logType={#PAYMENT} />
+  <AuditLogUI id={paymentId} urls logType={#PAYMENT} />
 }

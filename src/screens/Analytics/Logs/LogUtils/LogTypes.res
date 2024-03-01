@@ -102,3 +102,9 @@ let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
     }
   }
 }
+
+type urls = {
+  url: string,
+  apiMethod: Fetch.requestMethod,
+  body?: JSON.t,
+}

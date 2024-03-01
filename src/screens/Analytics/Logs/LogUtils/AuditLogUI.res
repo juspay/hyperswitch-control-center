@@ -63,10 +63,13 @@ module LogDetailsSection = {
 }
 
 @react.component
-let make = (~id, ~promiseArr, ~logType: LogTypes.pageType) => {
+let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
   open LogicUtils
   open LogUtils
   open LogTypes
+  open APIUtils
+  let fetchDetails = useGetMethod(~showErrorToast=false, ())
+  let fetchPostDetils = useUpdateMethod()
   let (data, setData) = React.useState(_ => [])
   let isError = React.useMemo0(() => {ref(false)})
   let (logDetails, setLogDetails) = React.useState(_ => {
@@ -84,6 +87,18 @@ let make = (~id, ~promiseArr, ~logType: LogTypes.pageType) => {
     let logs = []
 
     if !(id->HSwitchOrderUtils.isTestData) {
+      let promiseArr = urls->Array.map(url => {
+        switch url.apiMethod {
+        | Post => {
+            let body = switch url.body {
+            | Some(val) => val
+            | _ => Dict.make()->JSON.Encode.object
+            }
+            fetchPostDetils(url.url, body, Post, ())
+          }
+        | _ => fetchDetails(url.url)
+        }
+      })
       let resArr = await PromiseUtils.allSettledPolyfill(promiseArr)
 
       resArr->Array.forEach(json => {
