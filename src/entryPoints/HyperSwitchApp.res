@@ -332,6 +332,12 @@ let make = () => {
                             <RefundsAnalytics />
                           </FilterContext>
                         </AccessControl>
+                      | list{"analytics-disputes"} =>
+                        <AccessControl permission=userPermissionJson.analytics>
+                          <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
+                            <DisputeAnalytics />
+                          </FilterContext>
+                        </AccessControl>
                       | list{"analytics-user-journey"} =>
                         <AccessControl
                           isEnabled=featureFlagDetails.userJourneyAnalytics
