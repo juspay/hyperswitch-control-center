@@ -172,10 +172,12 @@ module CardRenderer = {
                   ),
                 ]>
                 <div className="flex items-center gap-2">
-                  <div onClick={_ => removeOrAddMethods(value)}>
+                  <div onClick={_ => removeOrAddMethods(value)} className="cursor-pointer">
                     <CheckBoxIcon isSelected={isSelected(value)} />
                   </div>
-                  <p className=p2RegularTextStyle onClick={_ => removeOrAddMethods(value)}>
+                  <p
+                    className={`${p2RegularTextStyle} cursor-pointer`}
+                    onClick={_ => removeOrAddMethods(value)}>
                     {React.string(value.payment_method_type->snakeToTitle)}
                   </p>
                 </div>
