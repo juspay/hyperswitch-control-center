@@ -41,7 +41,7 @@ let generateInitialValuesDict = (~selectedFRMInfo, ~isLiveMode, ()) => {
 }
 
 let parseFRMConfig = json => {
-  json->JSON.Decode.array->Option.getOr([])->ConnectorTableUtils.convertFRMConfigJsonToObj
+  json->JSON.Decode.array->Option.getOr([])->ConnectorListMapper.convertFRMConfigJsonToObj
 }
 
 let getPaymentMethod = paymentMethod => {

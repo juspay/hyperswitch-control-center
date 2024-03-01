@@ -8,7 +8,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
   let isDistribute = isDistributeInput.value->LogicUtils.getBoolFromJson(false)
   let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let connectorList = React.useMemo0(() => {
-    connectorListJson->ConnectorTableUtils.getArrayOfConnectorListPayloadType
+    connectorListJson->ConnectorListMapper.getArrayOfConnectorListPayloadType
   })
 
   React.useEffect1(() => {

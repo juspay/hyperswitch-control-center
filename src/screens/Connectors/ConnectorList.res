@@ -20,8 +20,7 @@ let make = (~isPayoutFlow=false) => {
       let response = await fetchConnectorListResponse()
       let removeFromList = isPayoutFlow ? ConnectorTypes.PayoutConnector : ConnectorTypes.FRMPlayer
       let connectorsList = response->getProcessorsListFromJson(~removeFromList, ())
-      let previousData = connectorsList->Array.map(ConnectorTableUtils.getProcessorPayloadType)
-
+      let previousData = connectorsList->Array.map(ConnectorListMapper.getProcessorPayloadType)
       setFilteredConnectorData(_ => previousData->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
       setConfiguredConnectors(_ =>

@@ -1104,27 +1104,6 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
   ->JSON.Encode.object
 }
 
-// let useFetchConnectorList = () => {
-//   open APIUtils
-//   let fetchDetails = useGetMethod()
-//   let setConnectorList = HyperswitchAtom.connectorListAtom->Recoil.useSetRecoilState
-
-//   async _ => {
-//     try {
-//       let url = getURL(~entityName=CONNECTOR, ~methodType=Get, ())
-//       let res = await fetchDetails(url)
-//       let stringifiedResponse = res->JSON.stringify
-//       setConnectorList(._ => stringifiedResponse)
-//       res
-//     } catch {
-//     | Exn.Error(e) => {
-//         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-//         Exn.raiseError(err)
-//       }
-//     }
-//   }
-// }
-
 let defaultSelectAllCards = (
   pmts: array<paymentMethodEnabled>,
   isUpdateFlow,

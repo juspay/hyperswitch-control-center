@@ -17,7 +17,7 @@ let make = () => {
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
   let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let typedConnectorValue =
-    connectorListJson->ConnectorTableUtils.getArrayOfConnectorListPayloadType
+    connectorListJson->ConnectorListMapper.getArrayOfConnectorListPayloadType
 
   let settingUpConnectorsState = routingRespArray => {
     let profileList =

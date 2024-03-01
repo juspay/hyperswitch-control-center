@@ -64,7 +64,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
   let url = RescriptReactRouter.useUrl()
 
   let showToast = ToastState.useShowToast()
-  let frmInfo = initialValues->getDictFromJsonObject->ConnectorTableUtils.getProcessorPayloadType
+  let frmInfo = initialValues->getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
   let isfrmDisabled = initialValues->getDictFromJsonObject->getBool("disabled", false)
 
   let frmConfigs = switch frmInfo.frm_configs {

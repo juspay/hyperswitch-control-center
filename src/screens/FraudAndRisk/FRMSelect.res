@@ -133,7 +133,7 @@ let make = () => {
 
       if connectorsCount > 0 {
         let frmList = processorsList->FRMUtils.filterList(~removeFromList=Connector, ())
-        let previousData = frmList->Array.map(ConnectorTableUtils.getProcessorPayloadType)
+        let previousData = frmList->Array.map(ConnectorListMapper.getProcessorPayloadType)
         setFilteredFRMData(_ => previousData->Array.map(Nullable.make))
         setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
         let arr =

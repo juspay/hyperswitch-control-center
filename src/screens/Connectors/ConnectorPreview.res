@@ -273,7 +273,7 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let connectorInfoDict = connectorInfo->LogicUtils.getDictFromJsonObject
   let connectorInfo =
-    connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorTableUtils.getProcessorPayloadType
+    connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
 
   let connectorCount = ListHooks.useListCount(~entityName=CONNECTOR)
   let isFeedbackModalToBeOpen =
