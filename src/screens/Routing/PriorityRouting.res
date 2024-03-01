@@ -272,7 +272,6 @@ let make = (~routingRuleId, ~isActive, ~isPayoutFlow=false) => {
       ->Array.map(connectorDict => connectorDict->getString("connector_name", ""))
       ->Array.filter(x => x !== "applepay")
       ->getUniqueArray
-    Js.Console.warn2("HEREERERHEAGKJUBDSJHBDSIU", arr)
     setConnectors(_ => arr)
     setScreenState(_ => Success)
   }
