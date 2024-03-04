@@ -39,7 +39,6 @@ let mapStringToPermissionType = val => {
 
 let getAccessValue = (~permissionValue: permissionType, ~permissionList) => {
   let isPermissionFound = permissionList->Array.find(ele => {
-    Js.log4("permissionListpermissionList", permissionList, permissionValue, ele == permissionValue)
     ele == permissionValue
   })
 
