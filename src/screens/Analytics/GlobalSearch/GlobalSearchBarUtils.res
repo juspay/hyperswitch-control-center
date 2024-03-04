@@ -22,29 +22,30 @@ let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName, 
   })
 }
 
-let getMatchedList = (searchText, tabs) => {
+let getLocalMatchedResults = (searchText, tabs) => {
   open LogicUtils
+  open GlobalSearchTypes
   open SidebarTypes
-  tabs->Array.reduce([], (acc, item) => {
+  let results = tabs->Array.reduce([], (acc, item) => {
     switch item {
-    | Link(obj)
-    | RemoteLink(obj) => {
-        if checkStringStartsWithSubstring(~itemToCheck=obj.name, ~searchText) {
+    | Link(tab)
+    | RemoteLink(tab) => {
+        if checkStringStartsWithSubstring(~itemToCheck=tab.name, ~searchText) {
           let matchedEle =
             [
               (
                 "elements",
-                [""->JSON.Encode.string, obj.name->JSON.Encode.string]->JSON.Encode.array,
+                [""->JSON.Encode.string, tab.name->JSON.Encode.string]->JSON.Encode.array,
               ),
-              ("redirect_link", obj.link->JSON.Encode.string),
+              ("redirect_link", tab.link->JSON.Encode.string),
             ]->Dict.fromArray
           acc->Array.push(matchedEle)
         }
         let matchedSearchValues = matchInSearchOption(
-          obj.searchOptions,
+          tab.searchOptions,
           searchText,
-          obj.name,
-          obj.link,
+          tab.name,
+          tab.link,
           ~sectionName="",
           (),
         )
@@ -55,10 +56,10 @@ let getMatchedList = (searchText, tabs) => {
     | Section(sectionObj) => {
         let sectionSearchedValues = sectionObj.links->Array.reduce([], (insideAcc, item) => {
           switch item {
-          | SubLevelLink(obj) => {
+          | SubLevelLink(tab) => {
               if (
                 checkStringStartsWithSubstring(~itemToCheck=sectionObj.name, ~searchText) ||
-                checkStringStartsWithSubstring(~itemToCheck=obj.name, ~searchText)
+                checkStringStartsWithSubstring(~itemToCheck=tab.name, ~searchText)
               ) {
                 let matchedEle =
                   [
@@ -66,18 +67,18 @@ let getMatchedList = (searchText, tabs) => {
                       "elements",
                       [
                         sectionObj.name->JSON.Encode.string,
-                        obj.name->JSON.Encode.string,
+                        tab.name->JSON.Encode.string,
                       ]->JSON.Encode.array,
                     ),
-                    ("redirect_link", obj.link->JSON.Encode.string),
+                    ("redirect_link", tab.link->JSON.Encode.string),
                   ]->Dict.fromArray
                 insideAcc->Array.push(matchedEle)
               }
               let matchedSearchValues = matchInSearchOption(
-                obj.searchOptions,
+                tab.searchOptions,
                 searchText,
-                obj.name,
-                obj.link,
+                tab.name,
+                tab.link,
                 ~sectionName=sectionObj.name,
                 (),
               )
@@ -88,21 +89,21 @@ let getMatchedList = (searchText, tabs) => {
         acc->Array.concat(sectionSearchedValues)
       }
 
-    | LinkWithTag(obj) => {
-        if checkStringStartsWithSubstring(~itemToCheck=obj.name, ~searchText) {
+    | LinkWithTag(tab) => {
+        if checkStringStartsWithSubstring(~itemToCheck=tab.name, ~searchText) {
           let matchedEle =
             [
-              ("elements", [obj.name->JSON.Encode.string]->JSON.Encode.array),
-              ("redirect_link", obj.link->JSON.Encode.string),
+              ("elements", [tab.name->JSON.Encode.string]->JSON.Encode.array),
+              ("redirect_link", tab.link->JSON.Encode.string),
             ]->Dict.fromArray
           acc->Array.push(matchedEle)
         }
 
         let matchedSearchValues = matchInSearchOption(
-          obj.searchOptions,
+          tab.searchOptions,
           searchText,
-          obj.name,
-          obj.link,
+          tab.name,
+          tab.link,
           ~sectionName="",
           (),
         )
@@ -112,4 +113,9 @@ let getMatchedList = (searchText, tabs) => {
     | Heading(_) | CustomComponent(_) => acc->Array.concat([])
     }
   })
+
+  {
+    section: Local,
+    results,
+  }
 }

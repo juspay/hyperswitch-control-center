@@ -51,7 +51,7 @@ module EmptyResult = {
   @react.component
   let make = (~prefix, ~searchText) => {
     <FramerMotion.Motion.Div
-      layoutId="empty" initial={{y: -50, opacity: 0}} animate={{y: 0, opacity: 1}}>
+      layoutId="empty" initial={{y: -50, opacity: 0.0}} animate={{y: 0, opacity: 1.0}}>
       <div className="flex flex-col w-full h-72 p-2 justify-center items-center gap-1">
         <img className="w-1/3" src={`${prefix}/icons/globalSearchNoResult.svg`} />
         <div className="w-1/2 text-wrap text-center break-all">
@@ -68,7 +68,7 @@ module OptionsWrapper = {
   let make = (~children) => {
     <FramerMotion.Motion.Div layoutId="options">
       <Combobox.Options
-        className="w-full overflow-auto text-base max-h-96 focus:outline-none sm:text-sm">
+        className="w-full overflow-auto text-base max-h-[70vh] focus:outline-none sm:text-sm">
         {_ => {children}}
       </Combobox.Options>
     </FramerMotion.Motion.Div>
@@ -86,7 +86,7 @@ module OptionWrapper = {
 
     <FramerMotion.Motion.Div layoutId={`item-${index->Int.toString}`}>
       <Combobox.Option
-        className="flex flex-row border-b dark:border-jp-gray-960 p-2 cursor-pointer"
+        className="flex flex-row cursor-pointer"
         onClick={_ => value->redirectOnSelect}
         key={index->Int.toString}
         value>
@@ -104,7 +104,7 @@ module ModalWrapper = {
     <Modal
       showModal
       setShowModal
-      modalClass="w-full md:w-2/3 lg:w-4/12 mx-auto"
+      modalClass="w-full lg:w-5/12 xl:w-4/12 mx-auto"
       paddingClass="pt-24"
       closeOnOutsideClick=true
       bgClass="bg-transparent dark:bg-transparent border-transparent dark:border-transparent shadow-transparent	">
@@ -120,8 +120,59 @@ module ModalWrapper = {
   }
 }
 
+module SearchResultsComponent = {
+  open GlobalSearchTypes
+  open LogicUtils
+  open UIUtils
+  @react.component
+  let make = (~searchResults, ~searchText, ~redirectOnSelect) => {
+    <OptionsWrapper>
+      {searchResults
+      ->Array.mapWithIndex((section: resultType, index) => {
+        let borderClass =
+          index === searchResults->Array.length - 1 ? "" : "border-b dark:border-jp-gray-960"
+        <FramerMotion.Motion.Div
+          layoutId={section.section->getSectionHeader} className={`px-3 pt-3 pb-1 ${borderClass}`}>
+          <FramerMotion.Motion.Div
+            initial={{opacity: 0.5}}
+            animate={{opacity: 0.5}}
+            layoutId={`${section.section->getSectionHeader}-${index->Belt.Int.toString}`}
+            className="text-lightgray_background font-bold px-2 pb-1">
+            {section.section->getSectionHeader->String.toUpperCase->React.string}
+          </FramerMotion.Motion.Div>
+          {section.results
+          ->Array.mapWithIndex((ele, i) => {
+            let elementsArray = ele->getArrayFromDict("elements", [])
+
+            <OptionWrapper index={i} value={ele} redirectOnSelect>
+              {elementsArray
+              ->Array.mapWithIndex(
+                (item, index) => {
+                  let elementValue = item->JSON.Decode.string->Option.getOr("")
+                  <RenderIf condition={elementValue->isNonEmptyString} key={index->Int.toString}>
+                    <RenderedComponent ele=elementValue searchText />
+                    <RenderIf condition={index >= 0 && index < elementsArray->Array.length - 1}>
+                      <span className="mx-2 text-lightgray_background opacity-50">
+                        {">"->React.string}
+                      </span>
+                    </RenderIf>
+                  </RenderIf>
+                },
+              )
+              ->React.array}
+            </OptionWrapper>
+          })
+          ->React.array}
+        </FramerMotion.Motion.Div>
+      })
+      ->React.array}
+    </OptionsWrapper>
+  }
+}
+
 @react.component
 let make = () => {
+  open GlobalSearchTypes
   open GlobalSearchBarUtils
   open HeadlessUI
   open LogicUtils
@@ -136,12 +187,6 @@ let make = () => {
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let searchText = searchText->String.trim
 
-  React.useEffect1(_ => {
-    let results = searchText->getMatchedList(hswitchTabs)
-    setSearchResults(_ => results)
-    None
-  }, [searchText])
-
   let redirectOnSelect = element => {
     let redirectLink = element->getString("redirect_link", "")
     if redirectLink->isNonEmptyString {
@@ -149,6 +194,23 @@ let make = () => {
       RescriptReactRouter.push(redirectLink)
     }
   }
+
+  React.useEffect1(_ => {
+    let results = []
+    let localResults: resultType = searchText->getLocalMatchedResults(hswitchTabs)
+
+    if localResults.results->Array.length > 0 {
+      results->Array.push(localResults)
+    }
+
+    setSearchResults(_ => results)
+
+    if searchText->String.length === 0 {
+      setSearchResults(_ => [])
+    }
+
+    None
+  }, [searchText])
 
   React.useEffect1(_ => {
     setSearchText(_ => "")
@@ -178,6 +240,10 @@ let make = () => {
 
   let borderClass = searchText->String.length > 0 ? "border-b dark:border-jp-gray-960" : ""
 
+  let setGlobalSearchText = ReactDebounce.useDebounced(value => {
+    setSearchText(_ => value)
+  }, ~wait=200)
+
   let modalSearchBox =
     <FramerMotion.Motion.Div layoutId="input" className="h-11 bg-white">
       <div className={`flex flex-row items-center grow ${borderClass}`}>
@@ -191,7 +257,7 @@ let make = () => {
           placeholder="Search"
           autoComplete="off"
           onChange={event => {
-            setSearchText(_ => event["target"]["value"])
+            setGlobalSearchText(event["target"]["value"])
           }}
         />
         <Icon
@@ -214,29 +280,7 @@ let make = () => {
           {_ => {
             <>
               {modalSearchBox}
-              <OptionsWrapper>
-                {searchResults
-                ->Array.mapWithIndex((ele, i) => {
-                  let elementsArray = ele->getArrayFromDict("elements", [])
-                  <OptionWrapper index={i} value={ele} redirectOnSelect>
-                    {elementsArray
-                    ->Array.mapWithIndex((item, index) => {
-                      let elementValue = item->JSON.Decode.string->Option.getOr("")
-                      <RenderIf
-                        condition={elementValue->isNonEmptyString} key={index->Int.toString}>
-                        <RenderedComponent ele=elementValue searchText />
-                        <RenderIf condition={index >= 0 && index < elementsArray->Array.length - 1}>
-                          <span className="mx-2 text-lightgray_background opacity-50">
-                            {">"->React.string}
-                          </span>
-                        </RenderIf>
-                      </RenderIf>
-                    })
-                    ->React.array}
-                  </OptionWrapper>
-                })
-                ->React.array}
-              </OptionsWrapper>
+              <SearchResultsComponent searchResults searchText redirectOnSelect />
             </>
           }}
         </Combobox>
