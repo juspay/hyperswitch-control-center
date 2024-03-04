@@ -237,7 +237,7 @@ let payoutRouting = permissionJson => {
   SubLevelLink({
     name: "Payout Routing",
     link: `/payoutrouting`,
-    access: permissionJson.routingRead,
+    access: permissionJson.workflowsView,
     searchOptions: [
       ("Manage default routing configuration", "/default"),
       ("Create new volume based routing", "/volume"),
