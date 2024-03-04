@@ -141,7 +141,13 @@ let make = (~id) => {
               title: "Events and logs",
               renderContent: () => {
                 <LogsWrapper wrapperFor={#REFUND}>
-                  <RefundLogs refundId=id paymentId />
+                  <RefundLogs
+                    refundId=id
+                    paymentId
+                    data={refundData
+                    ->LogicUtils.getDictFromJsonObject
+                    ->RefundEntity.itemToObjMapper}
+                  />
                 </LogsWrapper>
               },
               renderContentOnTop: None,

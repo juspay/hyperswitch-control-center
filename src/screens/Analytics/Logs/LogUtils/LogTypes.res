@@ -1,10 +1,11 @@
 type logType = SDK | API_EVENTS | WEBHOOKS | CONNECTOR
 
-type pageType = [#PAYMENT | #REFUND]
+type pageType = [#PAYMENT | #REFUND | #DISPUTE]
 
 type logDetails = {
   response: string,
   request: string,
+  data: Dict.t<JSON.t>,
 }
 
 type selectedObj = {
@@ -42,6 +43,7 @@ let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
       setLogDetails(_ => {
         response,
         request,
+        data: initialData,
       })
       setSelectedOption(_ => {
         value: 0,
@@ -54,7 +56,7 @@ let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
         ->Dict.toArray
         ->Array.filter(entry => {
           let (key, _) = entry
-          PaymentLogsUtils.filteredKeys->Array.includes(key)->not
+          LogUtils.filteredKeys->Array.includes(key)->not
         })
         ->getJsonFromArrayOfJson
         ->JSON.stringify
@@ -65,6 +67,7 @@ let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
       setLogDetails(_ => {
         response,
         request,
+        data: initialData,
       })
       setSelectedOption(_ => {
         value: 0,
@@ -73,10 +76,11 @@ let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
     }
   | CONNECTOR => {
       let request = initialData->getString("request", "")
-      let response = initialData->getString("response", "")
+      let response = initialData->getString("masked_response", "")
       setLogDetails(_ => {
         response,
         request,
+        data: initialData,
       })
       setSelectedOption(_ => {
         value: 0,
@@ -89,6 +93,7 @@ let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
       setLogDetails(_ => {
         response,
         request,
+        data: initialData,
       })
       setSelectedOption(_ => {
         value: 0,
@@ -96,4 +101,10 @@ let setDefaultValue = (initialData, setLogDetails, setSelectedOption) => {
       })
     }
   }
+}
+
+type urls = {
+  url: string,
+  apiMethod: Fetch.requestMethod,
+  body?: JSON.t,
 }
