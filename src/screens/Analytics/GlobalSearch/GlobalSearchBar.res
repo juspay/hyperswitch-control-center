@@ -111,8 +111,8 @@ module ModalWrapper = {
       <FramerMotion.Motion.Div
         layoutId="search"
         key="search"
-        initial={{borderRadius: ["15px", "15px", "15px", "15px"], y: -50}}
-        animate={{borderRadius: ["15px", "15px", "15px", "15px"], y: 0}}
+        initial={{borderRadius: ["15px", "15px", "15px", "15px"], scale: 0.9}}
+        animate={{borderRadius: ["15px", "15px", "15px", "15px"], scale: 1.0}}
         className={"flex flex-col bg-white gap-2 overflow-hidden py-2"}>
         {children}
       </FramerMotion.Motion.Div>
