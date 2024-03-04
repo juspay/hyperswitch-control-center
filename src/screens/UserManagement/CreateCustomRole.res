@@ -16,19 +16,19 @@ module RenderCustomRoles = {
       }
     }
 
-    <div className="flex justify-between items-center">
-      <div className="flex flex-col gap-3 items-start col-span-1">
-        <div className="font-semibold"> {heading->React.string} </div>
-        <div className="text-base text-hyperswitch_black opacity-50 flex-1">
-          {description->React.string}
-        </div>
-      </div>
-      <div onClick={_ => handleRemoveOrAdd()}>
+    <div className="flex gap-6 items-start">
+      <div onClick={_ => handleRemoveOrAdd()} className="mt-1">
         <CheckBoxIcon
           isSelected={checkboxSelected}
           setIsSelected={_ => setCheckboxSelected(prev => !prev)}
           size={Large}
         />
+      </div>
+      <div className="flex flex-col gap-3 items-start">
+        <div className="font-semibold"> {heading->React.string} </div>
+        <div className="text-base text-hyperswitch_black opacity-50 flex-1">
+          {description->React.string}
+        </div>
       </div>
     </div>
   }
@@ -85,9 +85,11 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
       let arrayVal = groupsAdded->Array.map(JSON.Encode.string)
       body->Dict.set("groups", arrayVal->JSON.Encode.array)
       let _ = await updateDetails(url, body->JSON.Encode.object, Post, ())
+      RescriptReactRouter.replace("/users")
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ => ()
+    | _ =>
+      setScreenState(_ => PageLoaderWrapper.Error("Error Occured! Failed to create custom role."))
     }
     Nullable.null
   }
@@ -108,6 +110,8 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
   React.useEffect0(() => {
     if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
+    } else {
+      setScreenState(_ => PageLoaderWrapper.Success)
     }
     None
   })
@@ -118,8 +122,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
         path=[{title: "Users", link: "/users"}] currentPageTitle="Create custom roles"
       />
       <PageUtils.PageHeading
-        title="Create custom roles"
-        subTitle="An invite will be sent to the email addresses to set up a new account"
+        title="Create custom roles" subTitle="A new custom role will be created"
       />
     </RenderIf>
     <div
@@ -128,7 +131,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
         <Form
           key="invite-user-management"
           initialValues={initialValuesForForm->JSON.Encode.object}
-          validate={values => UserManagementUtils.validateFormForRoles(values, groupsAdded)}
+          validate={values => values->UserManagementUtils.validateFormForRoles}
           onSubmit
           formClass="flex flex-col gap-8">
           <NewCustomRoleInputFields />
