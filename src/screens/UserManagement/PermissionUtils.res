@@ -63,8 +63,7 @@ let defaultValueForPermission = {
 
 // TODO: Refactor to not call function for every permission
 let getPermissionJson = permissionList => {
-  Js.log2("permissionListpermissionList-111111", permissionList)
-  let abc = {
+  {
     operationsView: getAccessValue(~permissionValue=OperationsView, ~permissionList),
     operationsManage: getAccessValue(~permissionValue=OperationsManage, ~permissionList),
     connectorsView: getAccessValue(~permissionValue=ConnectorsView, ~permissionList),
@@ -78,8 +77,6 @@ let getPermissionJson = permissionList => {
     merchantDetailsManage: getAccessValue(~permissionValue=MerchantDetailsManage, ~permissionList),
     organizationManage: getAccessValue(~permissionValue=OrganizationManage, ~permissionList),
   }
-  Js.log2("abcabcabc", abc)
-  abc
 }
 
 let linkForGetShowLinkViaAccess = (~permission, ~url) => {

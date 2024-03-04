@@ -89,7 +89,7 @@ let updatePresentInInfoList = (infoData, permissionsData) => {
   let copyOfInfoData = infoData->Array.copy
   let copyOfPermissionsData = permissionsData->Array.copy
 
-  copyOfInfoData->Array.map((infoValItem: ProviderTypes.getInfoType) => {
+  copyOfInfoData->Array.map((infoValItem: UserManagementTypes.getInfoType) => {
     if copyOfPermissionsData->Array.includes(infoValItem.module_) {
       infoValItem.isPermissionAllowed = true
     } else {
@@ -102,8 +102,8 @@ let updatePresentInInfoList = (infoData, permissionsData) => {
 let defaultPresentInInfoList = infoData => {
   let copyOfInfoData = infoData->Array.copy
 
-  copyOfInfoData->Array.map((infoValItem: ProviderTypes.getInfoType) => {
-    infoValItem.permissions->Array.forEach((enumValue: ProviderTypes.permissions) => {
+  copyOfInfoData->Array.map((infoValItem: UserManagementTypes.getInfoType) => {
+    infoValItem.permissions->Array.forEach((enumValue: UserManagementTypes.permissions) => {
       enumValue.isPermissionAllowed = false
     })
     infoValItem
@@ -115,13 +115,9 @@ module RolePermissionValueRenderer = {
   let make = (
     ~heading: string,
     ~description: string,
-    ~readWriteValues: array<ProviderTypes.permissions>,
+    ~readWriteValues as _: array<UserManagementTypes.permissions>,
     ~isPermissionAllowed: bool=false,
   ) => {
-    let getReadWriteValue = index => {
-      readWriteValues->LogicUtils.getValueFromArray(index, ProviderHelper.getDefaultValueOfEnum)
-    }
-
     <div className="flex justify-between">
       <div className="flex flex-col gap-3 items-start col-span-1">
         <div className="font-semibold"> {heading->React.string} </div>

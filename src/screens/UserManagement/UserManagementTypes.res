@@ -28,3 +28,18 @@ type permissionJson = {
   merchantDetailsManage: authorization,
   organizationManage: authorization,
 }
+
+// TODO : Remove this type definition as no longer used
+type permissions = {
+  description: string,
+  enum_name: string,
+  mutable isPermissionAllowed: bool,
+}
+
+type getInfoType = {
+  module_: string,
+  description: string,
+  // TODO : Remove this type definition as no longer used
+  mutable permissions: array<permissions>,
+  mutable isPermissionAllowed: bool,
+}
