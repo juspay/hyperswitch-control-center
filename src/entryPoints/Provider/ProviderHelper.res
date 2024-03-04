@@ -27,7 +27,7 @@ let getIntegrationDetails: JSON.t => integrationDetailsType = json => {
   json->getDictFromJsonObject->itemToObjMapper
 }
 
-let itemToObjMapperForEnum = dict => {
+let itemToObjMapperForEnum: Js.Dict.t<Js.Json.t> => UserManagementTypes.permissions = dict => {
   open LogicUtils
   {
     enum_name: getString(dict, "enum_name", ""),
@@ -36,18 +36,19 @@ let itemToObjMapperForEnum = dict => {
   }
 }
 
-let itemToObjMapperForGetInfo = dict => {
+let itemToObjMapperForGetInfo: Js.Dict.t<Js.Json.t> => UserManagementTypes.getInfoType = dict => {
   open LogicUtils
   {
-    module_: getString(dict, "module", ""),
+    module_: getString(dict, "group", ""),
     description: getString(dict, "description", ""),
     permissions: getArrayFromDict(dict, "permissions", [])->Array.map(i =>
       i->getDictFromJsonObject->itemToObjMapperForEnum
     ),
+    isPermissionAllowed: false,
   }
 }
 
-let getDefaultValueOfEnum = {
+let getDefaultValueOfEnum: UserManagementTypes.permissions = {
   {
     enum_name: "",
     description: "",

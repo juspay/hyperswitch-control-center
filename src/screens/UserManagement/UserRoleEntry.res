@@ -37,7 +37,7 @@ let make = () => {
   let getPermissionInfo = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#PERMISSION_INFO, ~methodType=Get, ())
-      let res = await fetchDetails(url)
+      let res = await fetchDetails(`${url}?groups=true`)
       setPermissionInfo(_ =>
         res->LogicUtils.getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
       )
@@ -125,7 +125,7 @@ let make = () => {
       <div className="relative">
         <div className="absolute right-0 top-5">
           <ACLButton
-            access={userPermissionJson.usersWrite}
+            access={userPermissionJson.usersManage}
             text={"Invite users"}
             buttonType=Primary
             onClick={_ => {

@@ -91,7 +91,7 @@ module AddEntryBtn = {
       <UIUtils.RenderIf condition=isFromSettings>
         <ACLButton
           text="Add"
-          access={userPermissionJson.merchantAccountWrite}
+          access={userPermissionJson.merchantDetailsManage}
           buttonSize=Small
           buttonType={Primary}
           rightIcon={FontAwesome("plus")}

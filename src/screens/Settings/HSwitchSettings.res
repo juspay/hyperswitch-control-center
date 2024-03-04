@@ -81,7 +81,7 @@ module TileComponent = {
       }
     }
     let accessBasedOnCardName = switch cardName {
-    | #DELETE_SAMPLE_DATA => userPermissionJson.paymentWrite
+    | #DELETE_SAMPLE_DATA => userPermissionJson.operationsManage
     | _ => Access
     }
 

@@ -92,9 +92,9 @@ module AddNewMerchantButton = {
   let make = (~setShowModal) => {
     open HeadlessUI
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-    let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantAccountWrite)
+    let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
     <ACLDiv
-      permission={userPermissionJson.merchantAccountWrite}
+      permission={userPermissionJson.merchantDetailsManage}
       onClick={_ => setShowModal(_ => true)}
       isRelative=false
       contentAlign=Default

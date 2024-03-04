@@ -25,11 +25,11 @@ module CantFindProcessor = {
   @react.component
   let make = (~showRequestConnectorBtn, ~setShowModal) => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-    let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantAccountWrite)
+    let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
 
     <UIUtils.RenderIf condition={showRequestConnectorBtn}>
       <ACLDiv
-        permission=userPermissionJson.merchantAccountWrite
+        permission=userPermissionJson.merchantDetailsManage
         onClick={_ => setShowModal(_ => true)}
         className={`text-blue-900 underline underline-offset-4 font-medium ${cursorStyles}`}>
         {"Can't find the processor of your choice?"->React.string}
@@ -123,7 +123,7 @@ let make = (
                   {connectorInfo.description->React.string}
                 </p>
                 <ACLButton
-                  access={userPermissionJson.merchantConnectorAccountWrite}
+                  access={userPermissionJson.connectorsManage}
                   text="+ Connect"
                   buttonType={Transparent}
                   buttonSize={Small}
@@ -175,13 +175,11 @@ let make = (
           {connectorList
           ->Array.mapWithIndex((connector, i) => {
             let connectorName = connector->getConnectorNameString
-            let cursorStyles = PermissionUtils.cursorStyles(
-              userPermissionJson.merchantConnectorAccountWrite,
-            )
+            let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.connectorsManage)
 
             <ACLDiv
               key={i->string_of_int}
-              permission=userPermissionJson.merchantConnectorAccountWrite
+              permission=userPermissionJson.connectorsManage
               className={`p-2 ${cursorStyles}`}
               noAccessDescription=HSwitchUtils.noAccessControlTextForProcessors
               tooltipWidthClass="w-30"

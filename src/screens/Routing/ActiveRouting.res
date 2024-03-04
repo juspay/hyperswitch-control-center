@@ -70,7 +70,7 @@ module ActionButtons = {
     | ADVANCED =>
       <ACLButton
         text={"Setup"}
-        access={userPermissionJson.routingWrite}
+        access={userPermissionJson.workflowsManage}
         buttonType=Secondary
         buttonSize={Small}
         customButtonStyle="border !border-blue-700 bg-white !text-blue-700"
@@ -82,7 +82,7 @@ module ActionButtons = {
     | DEFAULTFALLBACK =>
       <ACLButton
         text={"Manage"}
-        access={userPermissionJson.routingWrite}
+        access={userPermissionJson.workflowsManage}
         buttonType=Secondary
         customButtonStyle="border !border-blue-700 bg-white !text-blue-700"
         buttonSize={Small}
@@ -95,7 +95,7 @@ module ActionButtons = {
     | COST =>
       <ACLButton
         text={"I'm interested"}
-        access={userPermissionJson.merchantAccountWrite}
+        access={userPermissionJson.merchantDetailsManage}
         buttonType=Secondary
         buttonSize={Small}
         customButtonStyle="!w-fit !px-14"
@@ -154,7 +154,7 @@ module ActiveSection = {
         </div>
         <div className="flex gap-5 pt-6 w-1/4">
           <ACLButton
-            access={userPermissionJson.routingWrite}
+            access={userPermissionJson.workflowsManage}
             text="Manage"
             buttonType=Secondary
             customButtonStyle="w-2/3"

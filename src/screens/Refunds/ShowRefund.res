@@ -120,7 +120,7 @@ let make = (~id) => {
         overriddingStylesTitle={`text-3xl font-semibold`}
       />}>
       <RefundInfo orderDict={refundData->LogicUtils.getDictFromJsonObject} />
-      <UIUtils.RenderIf condition={userPermissionJson.paymentRead !== NoAccess}>
+      <UIUtils.RenderIf condition={userPermissionJson.operationsView !== NoAccess}>
         <LoadedTable
           title="Payment"
           actualData=orderData

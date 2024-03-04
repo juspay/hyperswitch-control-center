@@ -304,7 +304,7 @@ let make = () => {
             </p>
             <ACLButton
               text="Create New"
-              access=userPermissionJson.threeDsDecisionManagerWrite
+              access=userPermissionJson.workflowsManage
               buttonType=Primary
               customButtonStyle="!w-1/6"
               leftIcon=FontAwesome("plus")
