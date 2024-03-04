@@ -68,7 +68,7 @@ module OptionsWrapper = {
   let make = (~children) => {
     <FramerMotion.Motion.Div layoutId="options">
       <Combobox.Options
-        className="w-full overflow-auto text-base max-h-[70vh] focus:outline-none sm:text-sm">
+        className="w-full overflow-auto text-base max-h-[50vh] focus:outline-none sm:text-sm">
         {_ => {children}}
       </Combobox.Options>
     </FramerMotion.Motion.Div>
@@ -141,10 +141,10 @@ module SearchResultsComponent = {
             {section.section->getSectionHeader->String.toUpperCase->React.string}
           </FramerMotion.Motion.Div>
           {section.results
-          ->Array.mapWithIndex((ele, i) => {
-            let elementsArray = ele->getArrayFromDict("elements", [])
+          ->Array.mapWithIndex((item, i) => {
+            let elementsArray = item.texts
 
-            <OptionWrapper index={i} value={ele} redirectOnSelect>
+            <OptionWrapper index={i} value={item} redirectOnSelect>
               {elementsArray
               ->Array.mapWithIndex(
                 (item, index) => {
@@ -188,7 +188,7 @@ let make = () => {
   let searchText = searchText->String.trim
 
   let redirectOnSelect = element => {
-    let redirectLink = element->getString("redirect_link", "")
+    let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("")
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
       RescriptReactRouter.push(redirectLink)

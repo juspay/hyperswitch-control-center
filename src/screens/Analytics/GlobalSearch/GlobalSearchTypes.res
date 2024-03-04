@@ -1,8 +1,13 @@
 type section = Local | PaymentIntents | PaymentAttempts | Refunds | Disputes | Others
 
+type element = {
+  texts: array<JSON.t>,
+  redirect_link: JSON.t,
+}
+
 type resultType = {
   section: section,
-  results: array<Dict.t<JSON.t>>,
+  results: array<element>,
 }
 
 let getSectionHeader = section => {

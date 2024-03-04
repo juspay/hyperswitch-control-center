@@ -1,24 +1,23 @@
 let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName, ()) => {
+  open GlobalSearchTypes
   open LogicUtils
   searchOptions
   ->Option.getOr([])
   ->Array.filter(item => {
-    let (searchKey, _redirection) = item
+    let (searchKey, _) = item
     checkStringStartsWithSubstring(~itemToCheck=searchKey, ~searchText)
   })
   ->Array.map(item => {
     let (searchKey, redirection) = item
-    [
-      (
-        "elements",
-        [
-          sectionName->JSON.Encode.string,
-          name->JSON.Encode.string,
-          searchKey->JSON.Encode.string,
-        ]->JSON.Encode.array,
-      ),
-      ("redirect_link", `${link}${redirection}`->JSON.Encode.string),
-    ]->Dict.fromArray
+
+    {
+      texts: [
+        sectionName->JSON.Encode.string,
+        name->JSON.Encode.string,
+        searchKey->JSON.Encode.string,
+      ],
+      redirect_link: `${link}${redirection}`->JSON.Encode.string,
+    }
   })
 }
 
@@ -31,14 +30,11 @@ let getLocalMatchedResults = (searchText, tabs) => {
     | Link(tab)
     | RemoteLink(tab) => {
         if checkStringStartsWithSubstring(~itemToCheck=tab.name, ~searchText) {
-          let matchedEle =
-            [
-              (
-                "elements",
-                [""->JSON.Encode.string, tab.name->JSON.Encode.string]->JSON.Encode.array,
-              ),
-              ("redirect_link", tab.link->JSON.Encode.string),
-            ]->Dict.fromArray
+          let matchedEle = {
+            texts: [""->JSON.Encode.string, tab.name->JSON.Encode.string],
+            redirect_link: tab.link->JSON.Encode.string,
+          }
+
           acc->Array.push(matchedEle)
         }
         let matchedSearchValues = matchInSearchOption(
@@ -61,17 +57,11 @@ let getLocalMatchedResults = (searchText, tabs) => {
                 checkStringStartsWithSubstring(~itemToCheck=sectionObj.name, ~searchText) ||
                 checkStringStartsWithSubstring(~itemToCheck=tab.name, ~searchText)
               ) {
-                let matchedEle =
-                  [
-                    (
-                      "elements",
-                      [
-                        sectionObj.name->JSON.Encode.string,
-                        tab.name->JSON.Encode.string,
-                      ]->JSON.Encode.array,
-                    ),
-                    ("redirect_link", tab.link->JSON.Encode.string),
-                  ]->Dict.fromArray
+                let matchedEle = {
+                  texts: [sectionObj.name->JSON.Encode.string, tab.name->JSON.Encode.string],
+                  redirect_link: tab.link->JSON.Encode.string,
+                }
+
                 insideAcc->Array.push(matchedEle)
               }
               let matchedSearchValues = matchInSearchOption(
@@ -91,11 +81,11 @@ let getLocalMatchedResults = (searchText, tabs) => {
 
     | LinkWithTag(tab) => {
         if checkStringStartsWithSubstring(~itemToCheck=tab.name, ~searchText) {
-          let matchedEle =
-            [
-              ("elements", [tab.name->JSON.Encode.string]->JSON.Encode.array),
-              ("redirect_link", tab.link->JSON.Encode.string),
-            ]->Dict.fromArray
+          let matchedEle = {
+            texts: [tab.name->JSON.Encode.string],
+            redirect_link: tab.link->JSON.Encode.string,
+          }
+
           acc->Array.push(matchedEle)
         }
 
