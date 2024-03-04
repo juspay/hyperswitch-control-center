@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.03.0
+
+### Bug Fixes
+
+- Cursor changes for clickable label ([#464](https://github.com/juspay/hyperswitch-control-center/pull/464)) ([`4f62325`](https://github.com/juspay/hyperswitch-control-center/commit/4f62325e97c89819f1cb69ef7e444d208b9fa867))
+
+**Full Changelog:** [`2024.02.29.1...2024.03.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.02.29.1...2024.03.03.0)
+
+- - -
+
 ## 2024.02.29.1
 
 ### Bug Fixes

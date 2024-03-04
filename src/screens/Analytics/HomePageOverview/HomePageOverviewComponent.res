@@ -50,9 +50,10 @@ module ConnectorOverview = {
             {`${configuredConnectors->Array.length->Int.toString} Active Processors`->React.string}
           </p>
         </div>
+        // TODO : Check the permission for this
         <ACLButton
           text="+ Add More"
-          access={userPermissionJson.merchantConnectorAccountRead}
+          access={userPermissionJson.connectorsView}
           buttonType={PrimaryOutline}
           customButtonStyle="w-10 !px-3"
           buttonSize={Small}
@@ -225,7 +226,7 @@ let make = () => {
     <p className=headingStyle> {"Overview"->React.string} </p>
     <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-4">
       <ConnectorOverview />
-      <UIUtils.RenderIf condition={userPermissionJson.analytics === Access}>
+      <UIUtils.RenderIf condition={userPermissionJson.analyticsView === Access}>
         <PaymentOverview />
       </UIUtils.RenderIf>
       <UIUtils.RenderIf condition={systemMetrics}>

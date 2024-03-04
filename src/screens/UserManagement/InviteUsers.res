@@ -28,7 +28,7 @@ module InviteEmailForm = {
           ~methodType=Get,
           (),
         )
-        let response = await fetchDetails(roleListUrl)
+        let response = await fetchDetails(`${roleListUrl}?groups=true`)
         let typedResponse: array<UserRoleEntity.roleListResponse> =
           response->getArrayDataFromJson(roleListResponseMapper)
         setRoleListData(_ => typedResponse)
@@ -279,7 +279,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
         ~methodType=Get,
         (),
       )
-      let res = await fetchDetails(url)
+      let res = await fetchDetails(`${url}?groups=true`)
       setRoleDict(prevDict => {
         prevDict->Dict.set(roleTypeValue, res)
         prevDict
@@ -307,7 +307,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   let getPermissionInfo = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#PERMISSION_INFO, ~methodType=Get, ())
-      let res = await fetchDetails(url)
+      let res = await fetchDetails(`${url}?groups=true`)
       let permissionInfoValue = res->getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
 
       setPermissionInfo(_ => permissionInfoValue)
@@ -353,9 +353,10 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
           ->Array.mapWithIndex((ele, index) => {
             <RolePermissionValueRenderer
               key={index->Int.toString}
-              heading={`${ele.module_} module`}
+              heading={`${ele.module_->LogicUtils.snakeToTitle} module`}
               description={ele.description}
               readWriteValues={ele.permissions}
+              isPermissionAllowed={ele.isPermissionAllowed}
             />
           })
           ->React.array}
