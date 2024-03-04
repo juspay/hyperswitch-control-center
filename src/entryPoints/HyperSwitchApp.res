@@ -111,7 +111,6 @@ let make = () => {
       let permissionJson = await fetchPermissions()
 
       if merchantId->isNonEmptyString {
-        // TODO: Reevaluate the condition and change to array type
         if (
           permissionJson.connectorsView === Access ||
           permissionJson.workflowsView === Access ||
@@ -119,8 +118,6 @@ let make = () => {
         ) {
           let _ = await fetchConnectorListResponse()
         }
-
-        // TODO: Reevaluate the condition
 
         let _ = await fetchBusinessProfiles()
         let _ = await fetchMerchantAccountDetails()
@@ -229,7 +226,6 @@ let make = () => {
                       | list{"fraud-risk-management", ...remainingPath} =>
                         <AccessControl
                           isEnabled={featureFlagDetails.frm}
-                          // TODO: Reevaluate the condition and change to array type
                           permission=userPermissionJson.connectorsView>
                           <EntityScaffold
                             entityName="risk-management"
@@ -241,7 +237,6 @@ let make = () => {
                         </AccessControl>
 
                       | list{"connectors", ...remainingPath} =>
-                        // TODO: Reevaluate the condition and change to array type
                         <AccessControl permission=userPermissionJson.connectorsView>
                           <EntityScaffold
                             entityName="Connectors"
@@ -253,7 +248,6 @@ let make = () => {
                         </AccessControl>
 
                       | list{"payoutconnectors", ...remainingPath} =>
-                        // TODO: Reevaluate the condition and change to array type
                         <AccessControl
                           isEnabled={featureFlagDetails.payOut}
                           permission=userPermissionJson.connectorsView>
