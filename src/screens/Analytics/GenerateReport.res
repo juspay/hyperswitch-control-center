@@ -13,7 +13,7 @@ let make = (~entityName) => {
         setReportModal(_ => true)
         mixpanelEvent(~eventName="generate_reports", ())
       }}
-      access={userPermissionJson.paymentWrite}
+      access={userPermissionJson.operationsManage}
       toolTipPosition={Left}
     />
     <UIUtils.RenderIf condition={reportModal}>
