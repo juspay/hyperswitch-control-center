@@ -136,6 +136,7 @@ module ExternalUser = {
     let (selectedMerchantObject, setSelectedMerchantObject) = React.useState(_ =>
       defaultSelectedMerchantType
     )
+    let (arrow, setArrow) = React.useState(_ => false)
 
     let fetchMerchantIDs = () => {
       let filteredSwitchMerchantList = switchMerchantList->Array.filter(ele => ele.is_active)
@@ -162,7 +163,13 @@ module ExternalUser = {
               {buttonProps => {
                 <>
                   {selectedMerchantObject.merchant_name->React.string}
-                  <Icon className="rotate-180 ml-1 mt-1" name="arrow-without-tail" size=15 />
+                  <Icon
+                    className={arrow
+                      ? `rotate-0 transition duration-[250ms] ml-1 mt-1 opacity-60`
+                      : `rotate-180 transition duration-[250ms] ml-1 mt-1 opacity-60`}
+                    name="arrow-without-tail"
+                    size=15
+                  />
                 </>
               }}
             </Menu.Button>
@@ -176,43 +183,50 @@ module ExternalUser = {
               leaveTo="transform opacity-0 scale-95">
               {<Menu.Items
                 className="absolute right-0 z-50 w-fit mt-2 origin-top-right bg-white dark:bg-jp-gray-950 divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                {props => <>
-                  <div className="px-1 py-1 ">
-                    {options
-                    ->Array.mapWithIndex((option, i) =>
-                      <Menu.Item key={i->Int.toString}>
-                        {props =>
-                          <div className="relative">
-                            <button
-                              onClick={_ => option.merchant_id->switchMerchant->ignore}
-                              className={
-                                let activeClasses = if props["active"] {
-                                  "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
-                                } else {
-                                  "group flex rounded-md items-center w-full px-2 py-2 text-sm"
-                                }
-                                `${activeClasses} font-medium`
-                              }>
-                              <div className="mr-5"> {option.merchant_name->React.string} </div>
-                            </button>
-                            <RenderIf
-                              condition={selectedMerchantObject.merchant_name ===
-                                option.merchant_name}>
-                              <Icon
-                                className="absolute top-2 right-2 text-blue-900"
-                                name="check"
-                                size=15
-                              />
-                            </RenderIf>
-                          </div>}
-                      </Menu.Item>
-                    )
-                    ->React.array}
-                  </div>
-                  <RenderIf condition={isAddMerchantEnabled}>
-                    <AddNewMerchantButton setShowModal />
-                  </RenderIf>
-                </>}
+                {props => {
+                  if props["open"] {
+                    setArrow(_ => true)
+                  } else {
+                    setArrow(_ => false)
+                  }
+                  <>
+                    <div className="px-1 py-1 ">
+                      {options
+                      ->Array.mapWithIndex((option, i) =>
+                        <Menu.Item key={i->Int.toString}>
+                          {props =>
+                            <div className="relative">
+                              <button
+                                onClick={_ => option.merchant_id->switchMerchant->ignore}
+                                className={
+                                  let activeClasses = if props["active"] {
+                                    "group flex rounded-md items-center w-full px-2 py-2 text-sm bg-gray-100 dark:bg-black"
+                                  } else {
+                                    "group flex rounded-md items-center w-full px-2 py-2 text-sm"
+                                  }
+                                  `${activeClasses} font-medium`
+                                }>
+                                <div className="mr-5"> {option.merchant_name->React.string} </div>
+                              </button>
+                              <RenderIf
+                                condition={selectedMerchantObject.merchant_name ===
+                                  option.merchant_name}>
+                                <Icon
+                                  className="absolute top-2 right-2 text-blue-900"
+                                  name="check"
+                                  size=15
+                                />
+                              </RenderIf>
+                            </div>}
+                        </Menu.Item>
+                      )
+                      ->React.array}
+                    </div>
+                    <RenderIf condition={isAddMerchantEnabled}>
+                      <AddNewMerchantButton setShowModal />
+                    </RenderIf>
+                  </>
+                }}
               </Menu.Items>}
             </Transition>
           </div>}

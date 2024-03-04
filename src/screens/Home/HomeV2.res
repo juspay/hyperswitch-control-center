@@ -418,7 +418,7 @@ let make = () => {
     <UIUtils.RenderIf condition={featureFlagDetails.acceptInvite}>
       <AcceptInviteHome />
     </UIUtils.RenderIf>
-    <div className="w-full flex flex-col gap-14">
+    <div className="w-full flex flex-col gap-7">
       <QuickStartModule />
       <div>
         {switch isProdIntentCompleted {
