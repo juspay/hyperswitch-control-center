@@ -317,6 +317,10 @@ let make = () => {
                         <AccessControl permission=userPermissionJson.usersManage>
                           <InviteUsers />
                         </AccessControl>
+                      | list{"users", "create-custom-role"} =>
+                        <AccessControl permission=userPermissionJson.usersManage>
+                          <CreateCustomRole />
+                        </AccessControl>
                       | list{"users", ...remainingPath} =>
                         <AccessControl permission=userPermissionJson.usersView>
                           <EntityScaffold

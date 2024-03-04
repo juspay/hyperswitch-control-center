@@ -1,5 +1,5 @@
-type roles = Users | Roles
 open UserRoleEntity
+open RolesEntity
 
 @react.component
 let make = () => {
@@ -9,11 +9,31 @@ let make = () => {
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let (usersData, setUsersData) = React.useState(_ => [])
   let (usersFilterData, setUsersFilterData) = React.useState(_ => [])
+  let (rolesAvailableData, setRolesAvailableData) = React.useState(_ => [])
   let (screenStateUsers, setScreenStateUsers) = React.useState(_ => PageLoaderWrapper.Loading)
   let (userOffset, setUserOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
+  let (tabIndex, setTabIndex) = React.useState(_ => 0)
 
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
+
+  let getRolesAvailable = async () => {
+    setScreenStateUsers(_ => PageLoaderWrapper.Loading)
+    try {
+      let userDataURL = getURL(
+        ~entityName=USER_MANAGEMENT,
+        ~methodType=Get,
+        ~userRoleTypes=ROLE_LIST,
+        (),
+      )
+      let res = await fetchDetails(`${userDataURL}?groups=true`)
+      let rolesData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForRoles)
+      setRolesAvailableData(_ => rolesData->Array.map(Nullable.make))
+      setScreenStateUsers(_ => PageLoaderWrapper.Success)
+    } catch {
+    | _ => setScreenStateUsers(_ => PageLoaderWrapper.Error(""))
+    }
+  }
 
   let getUserData = async () => {
     setScreenStateUsers(_ => PageLoaderWrapper.Loading)
@@ -54,6 +74,11 @@ let make = () => {
     if usersData->Array.length === 0 {
       getUserData()->ignore
     }
+
+    if rolesAvailableData->Array.length == 0 {
+      getRolesAvailable()->ignore
+    }
+
     None
   })
 
@@ -110,11 +135,49 @@ let make = () => {
     {
       title: "Roles",
       renderContent: () =>
-        <DefaultLandingPage
-          title="Coming Soon" height="60vh" overriddingStylesTitle="text-3xl font-semibold"
-        />,
+        <div className="mt-5">
+          <LoadedTable
+            title="Users"
+            hideTitle=true
+            actualData=rolesAvailableData
+            totalResults={rolesAvailableData->Array.length}
+            resultsPerPage=10
+            offset=userOffset
+            setOffset=setUserOffset
+            entity={rolesEntity}
+            currrentFetchCount={rolesAvailableData->Array.length}
+            showSerialNumber=true
+            collapseTableRow=false
+            tableheadingClass="h-12"
+          />
+        </div>,
     },
   ]
+
+  let buttonValueBasedonTab = switch tabIndex->UserManagementUtils.tabIndeToVariantMapper {
+  | Users =>
+    <ACLButton
+      access={userPermissionJson.usersManage}
+      text={"Invite users"}
+      buttonType=Primary
+      onClick={_ => {
+        mixpanelEvent(~eventName="invite_users", ())
+        RescriptReactRouter.push("/users/invite-users")
+      }}
+      customButtonStyle="w-48"
+    />
+  | Roles =>
+    <ACLButton
+      access={userPermissionJson.usersManage}
+      text={"Create custom roles"}
+      buttonType=Primary
+      onClick={_ => {
+        mixpanelEvent(~eventName="invite_users", ())
+        RescriptReactRouter.push("/users/create-custom-role")
+      }}
+      customButtonStyle="w-48"
+    />
+  }
 
   <div className="flex flex-col overflow-y-scroll">
     {<>
@@ -123,18 +186,7 @@ let make = () => {
         subTitle="Manage user roles and invite members of your organisation"
       />
       <div className="relative">
-        <div className="absolute right-0 top-5">
-          <ACLButton
-            access={userPermissionJson.usersManage}
-            text={"Invite users"}
-            buttonType=Primary
-            onClick={_ => {
-              mixpanelEvent(~eventName="invite_users", ())
-              RescriptReactRouter.push("/users/invite-users")
-            }}
-            customButtonStyle="w-48"
-          />
-        </div>
+        <div className="absolute right-0 top-5"> {buttonValueBasedonTab} </div>
         <Tabs
           tabs=tabList
           disableIndicationArrow=true
@@ -142,6 +194,7 @@ let make = () => {
           includeMargin=false
           lightThemeColor="black"
           defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
+          onTitleClick={tabId => setTabIndex(_ => tabId)}
         />
       </div>
     </>}
