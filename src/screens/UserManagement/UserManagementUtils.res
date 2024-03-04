@@ -49,8 +49,13 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
 }
 
 let roleListDataMapper: UserRoleEntity.roleListResponse => SelectBox.dropdownOption = ele => {
+  let roleNameToDisplay = switch ele.role_name {
+  | "iam" => ele.role_name->String.toLocaleUpperCase
+  | _ => ele.role_name->LogicUtils.snakeToTitle
+  }
+
   {
-    label: ele.role_name,
+    label: roleNameToDisplay,
     value: ele.role_id,
   }
 }
