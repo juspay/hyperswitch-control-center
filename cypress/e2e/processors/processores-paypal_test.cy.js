@@ -52,7 +52,7 @@ describe("Processors Create Module", () => {
         .find(".justify-center")
         .click({ force: true });
       cy.get("[data-testid=paymentprocessors]").click({ force: true });
-      const targetValue = "PayPal Test";
+      const targetValue = "paypal_test";
       cy.get("table")
         .find("td")
         .each(($td) => {
