@@ -79,7 +79,7 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
 
   errors->JSON.Encode.object
 }
-let validateFormForRoles = (values, groupsAdded) => {
+let validateFormForRoles = values => {
   let errors = Dict.make()
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
@@ -88,9 +88,6 @@ let validateFormForRoles = (values, groupsAdded) => {
   }
   if valuesDict->getString("role_name", "")->isEmptyString {
     Dict.set(errors, "role_name", "Role name is required"->JSON.Encode.string)
-  }
-  if groupsAdded->Array.length == 0 {
-    Dict.set(errors, "groups", "Modules are required"->JSON.Encode.string)
   }
   errors->JSON.Encode.object
 }

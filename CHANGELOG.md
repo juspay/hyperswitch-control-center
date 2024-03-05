@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.04.0
+
+### Bug Fixes
+
+- Add a mapper to change role names from `snake_case` to `Title Case` ([#468](https://github.com/juspay/hyperswitch-control-center/pull/468)) ([`6593fa2`](https://github.com/juspay/hyperswitch-control-center/commit/6593fa28fea74a28be44f438830ee5a2c3357026))
+- User management api to groups ([#471](https://github.com/juspay/hyperswitch-control-center/pull/471)) ([`452e2c3`](https://github.com/juspay/hyperswitch-control-center/commit/452e2c3c099c74c0c8a32db7ff1f53570ca5ce52))
+
+### Miscellaneous Tasks
+
+- Audit refactor component ([#440](https://github.com/juspay/hyperswitch-control-center/pull/440)) ([`b5513bf`](https://github.com/juspay/hyperswitch-control-center/commit/b5513bf8a5b093c061adacfebe7110f5e809b613))
+
+### Style
+
+- Home page ui ([#463](https://github.com/juspay/hyperswitch-control-center/pull/463)) ([`b48bd5a`](https://github.com/juspay/hyperswitch-control-center/commit/b48bd5af5eb36198aec049ad3f2d1e89aab4c627))
+
+**Full Changelog:** [`2024.03.03.0...2024.03.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.03.0...2024.03.04.0)
+
+- - -
+
 ## 2024.03.03.0
 
 ### Bug Fixes

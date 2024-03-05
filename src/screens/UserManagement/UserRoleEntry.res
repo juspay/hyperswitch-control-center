@@ -1,5 +1,4 @@
 open UserRoleEntity
-open RolesEntity
 
 @react.component
 let make = () => {
@@ -9,31 +8,11 @@ let make = () => {
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let (usersData, setUsersData) = React.useState(_ => [])
   let (usersFilterData, setUsersFilterData) = React.useState(_ => [])
-  let (rolesAvailableData, setRolesAvailableData) = React.useState(_ => [])
   let (screenStateUsers, setScreenStateUsers) = React.useState(_ => PageLoaderWrapper.Loading)
   let (userOffset, setUserOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
-
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
-
-  let getRolesAvailable = async () => {
-    setScreenStateUsers(_ => PageLoaderWrapper.Loading)
-    try {
-      let userDataURL = getURL(
-        ~entityName=USER_MANAGEMENT,
-        ~methodType=Get,
-        ~userRoleTypes=ROLE_LIST,
-        (),
-      )
-      let res = await fetchDetails(`${userDataURL}?groups=true`)
-      let rolesData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForRoles)
-      setRolesAvailableData(_ => rolesData->Array.map(Nullable.make))
-      setScreenStateUsers(_ => PageLoaderWrapper.Success)
-    } catch {
-    | _ => setScreenStateUsers(_ => PageLoaderWrapper.Error(""))
-    }
-  }
 
   let getUserData = async () => {
     setScreenStateUsers(_ => PageLoaderWrapper.Loading)
@@ -70,15 +49,11 @@ let make = () => {
     if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
     }
-
     if usersData->Array.length === 0 {
       getUserData()->ignore
+    } else {
+      setScreenStateUsers(_ => PageLoaderWrapper.Success)
     }
-
-    if rolesAvailableData->Array.length == 0 {
-      getRolesAvailable()->ignore
-    }
-
     None
   })
 
@@ -134,23 +109,7 @@ let make = () => {
     },
     {
       title: "Roles",
-      renderContent: () =>
-        <div className="mt-5">
-          <LoadedTable
-            title="Users"
-            hideTitle=true
-            actualData=rolesAvailableData
-            totalResults={rolesAvailableData->Array.length}
-            resultsPerPage=10
-            offset=userOffset
-            setOffset=setUserOffset
-            entity={rolesEntity}
-            currrentFetchCount={rolesAvailableData->Array.length}
-            showSerialNumber=true
-            collapseTableRow=false
-            tableheadingClass="h-12"
-          />
-        </div>,
+      renderContent: () => <RoleListTableView />,
     },
   ]
 
