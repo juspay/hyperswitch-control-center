@@ -83,25 +83,38 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
 
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (initalValue, setInitialValues) = React.useState(_ => initialValuesForForm)
 
   let paddingClass = isInviteUserFlow ? "p-10" : ""
   let marginClass = isInviteUserFlow ? "mt-5" : ""
-
+  let showToast = ToastState.useShowToast()
   let onSubmit = async (values, _) => {
     try {
       // TODO -  Seperate RoleName & RoleId in Backend. role_name as free text and role_id as snake_text
       setScreenState(_ => PageLoaderWrapper.Loading)
+      let copiedJson = Js.Json.parseExn(Js.Json.stringify(values))
       let url = getURL(~entityName=USERS, ~userType=#CREATE_CUSTOM_ROLE, ~methodType=Post, ())
+
+      let body = copiedJson->getDictFromJsonObject->JSON.Encode.object
       let roleNameValue =
-        values->getDictFromJsonObject->getString("role_name", "")->String.trim->titleToSnake
-      values->getDictFromJsonObject->Dict.set("role_name", roleNameValue->JSON.Encode.string)
-      let body = values->getDictFromJsonObject->JSON.Encode.object
+        body->getDictFromJsonObject->getString("role_name", "")->String.trim->titleToSnake
+      body->getDictFromJsonObject->Dict.set("role_name", roleNameValue->JSON.Encode.string)
       let _ = await updateDetails(url, body, Post, ())
       setScreenState(_ => PageLoaderWrapper.Success)
       RescriptReactRouter.replace("/users")
     } catch {
-    | _ =>
-      setScreenState(_ => PageLoaderWrapper.Error("Error Occured! Failed to create custom role."))
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
+        let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+        let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
+        if errorCode === "UR_35" {
+          setInitialValues(_ => values->LogicUtils.getDictFromJsonObject)
+          setScreenState(_ => PageLoaderWrapper.Success)
+        } else {
+          showToast(~message=errorMessage, ~toastType=ToastError, ())
+          setScreenState(_ => PageLoaderWrapper.Error(err))
+        }
+      }
     }
     Nullable.null
   }
@@ -142,7 +155,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
       <PageLoaderWrapper screenState>
         <Form
           key="invite-user-management"
-          initialValues={initialValuesForForm->JSON.Encode.object}
+          initialValues={initalValue->JSON.Encode.object}
           validate={values => values->UserManagementUtils.validateFormForRoles}
           onSubmit
           formClass="flex flex-col gap-8">
