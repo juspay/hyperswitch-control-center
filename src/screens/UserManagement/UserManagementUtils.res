@@ -89,6 +89,9 @@ let validateFormForRoles = values => {
   if valuesDict->getString("role_name", "")->isEmptyString {
     Dict.set(errors, "role_name", "Role name is required"->JSON.Encode.string)
   }
+  if valuesDict->getString("role_name", "")->String.length > 64 {
+    Dict.set(errors, "role_name", "Role name should be less than 64 characters"->JSON.Encode.string)
+  }
   if valuesDict->getArrayFromDict("groups", [])->Array.length === 0 {
     Dict.set(errors, "groups", "Roles required"->JSON.Encode.string)
   }

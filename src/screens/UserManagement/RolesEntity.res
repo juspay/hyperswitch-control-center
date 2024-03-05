@@ -41,7 +41,7 @@ let getCellForRoles = (data: rolesTableTypes, colType: rolesColTypes): Table.cel
         {data.groups
         ->LogicUtils.getStrArrayFromJsonArray
         ->Array.map(item => `${item->LogicUtils.snakeToTitle}`)
-        ->Array.joinWith(",")
+        ->Array.joinWith(", ")
         ->React.string}
       </div>,
       "",

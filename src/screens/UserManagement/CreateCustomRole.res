@@ -19,23 +19,26 @@ module RenderCustomRoles = {
       setCheckboxSelected(prev => !prev)
     }
 
-    <div className="flex gap-6 items-start">
-      <div className="mt-1">
-        <CheckBoxIcon
-          isSelected={checkboxSelected}
-          setIsSelected={_ => {
-            onClickGroup(groupName)
-          }}
-          size={Large}
-        />
-      </div>
-      <div className="flex flex-col gap-3 items-start">
-        <div className="font-semibold"> {heading->React.string} </div>
-        <div className="text-base text-hyperswitch_black opacity-50 flex-1">
-          {description->React.string}
+    <UIUtils.RenderIf
+      condition={groupName->PermissionUtils.mapStringToPermissionType !== OrganizationManage}>
+      <div className="flex gap-6 items-start">
+        <div className="mt-1">
+          <CheckBoxIcon
+            isSelected={checkboxSelected}
+            setIsSelected={_ => {
+              onClickGroup(groupName)
+            }}
+            size={Large}
+          />
+        </div>
+        <div className="flex flex-col gap-3 items-start">
+          <div className="font-semibold"> {heading->React.string} </div>
+          <div className="text-base text-hyperswitch_black opacity-50 flex-1">
+            {description->React.string}
+          </div>
         </div>
       </div>
-    </div>
+    </UIUtils.RenderIf>
   }
 }
 
@@ -86,10 +89,14 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
 
   let onSubmit = async (values, _) => {
     try {
+      // TODO -  Seperate RoleName & RoleId in Backend. role_name as free text and role_id as snake_text
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=USERS, ~userType=#CREATE_CUSTOM_ROLE, ~methodType=Post, ())
-      let body = values->getDictFromJsonObject
-      let _ = await updateDetails(url, body->JSON.Encode.object, Post, ())
+      let roleNameValue =
+        values->getDictFromJsonObject->getString("role_name", "")->String.trim->titleToSnake
+      values->getDictFromJsonObject->Dict.set("role_name", roleNameValue->JSON.Encode.string)
+      let body = values->getDictFromJsonObject->JSON.Encode.object
+      let _ = await updateDetails(url, body, Post, ())
       setScreenState(_ => PageLoaderWrapper.Success)
       RescriptReactRouter.replace("/users")
     } catch {
@@ -145,7 +152,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
             ->Array.mapWithIndex((ele, index) => {
               <RenderCustomRoles
                 key={index->Int.toString}
-                heading={`${ele.module_->snakeToTitle} module`}
+                heading={`${ele.module_->snakeToTitle}`}
                 description={ele.description}
                 groupName={ele.module_}
               />
