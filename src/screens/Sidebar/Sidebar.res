@@ -331,6 +331,9 @@ module SidebarNestedSection = {
     ~firstPart,
     ~isSideBarExpanded,
     ~setIsSidebarExpanded,
+    ~openItem="",
+    ~setOpenItem=_ => (),
+    ~isSectionAutoCollapseEnabled=false,
   ) => {
     open UIUtils
     let isSubLevelItemSelected = tabInfo => {
@@ -403,6 +406,25 @@ module SidebarNestedSection = {
       | SubLevelLink({access}) => access === NoAccess
       }
     })
+
+    let isSectionExpanded = if isSectionAutoCollapseEnabled {
+      openItem === section.name || isAnySubItemSelected
+    } else {
+      isSectionExpanded
+    }
+
+    let toggleSectionExpansion = if isSectionAutoCollapseEnabled {
+      _ => setOpenItem(prev => {prev == section.name ? "" : section.name})
+    } else {
+      toggleSectionExpansion
+    }
+
+    let isElementShown = if isSectionAutoCollapseEnabled {
+      openItem == section.name || isAnySubItemSelected
+    } else {
+      isElementShown
+    }
+
     <RenderIf condition={!areAllSubLevelsHidden}>
       <NestedSectionItem
         section
@@ -472,10 +494,13 @@ let make = (
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
   let email = HSLocalStorage.getFromMerchantDetails("email")
+
+  let (openItem, setOpenItem) = React.useState(_ => "")
   let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
   let {getFromSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
+
   let minWidthForPinnedState = MatchMedia.useMatchMedia("(min-width: 1280px)")
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
@@ -586,6 +611,9 @@ let make = (
                   firstPart
                   isSideBarExpanded={isExpanded}
                   setIsSidebarExpanded
+                  openItem
+                  setOpenItem
+                  isSectionAutoCollapseEnabled=true
                 />
               </RenderIf>
             | Heading(headingOptions) =>
