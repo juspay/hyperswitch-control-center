@@ -45,6 +45,7 @@ type wasmModule = {
   getKeyType: string => string,
   getAllConnectors: unit => array<string>,
   getVariantValues: string => array<string>,
+  getPayoutVariantValues: string => array<string>,
 }
 
 type gateway = {

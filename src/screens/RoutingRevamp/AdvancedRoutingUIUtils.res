@@ -272,13 +272,15 @@ let metaInput = (id, keyType) =>
 
 module FieldInp = {
   @react.component
-  let make = (~methodKeys, ~prefix, ~onChangeMethod) => {
+  let make = (~methodKeys, ~prefix, ~onChangeMethod, ~isPayoutFlow=false) => {
     let field = ReactFinalForm.useField(`${prefix}.lhs`).input
     let op = ReactFinalForm.useField(`${prefix}.comparison`).input
     let val = ReactFinalForm.useField(`${prefix}.value.value`).input
 
     let convertedValue = React.useMemo0(() => {
-      let keyDescriptionMapper = Window.getDescriptionCategory()->Identity.jsonToAnyType
+      let keyDescriptionMapper = isPayoutFlow
+        ? Window.getPayoutDescriptionCategory()->Identity.jsonToAnyType
+        : Window.getDescriptionCategory()->Identity.jsonToAnyType
       keyDescriptionMapper->LogicUtils.convertMapObjectToDict
     })
 
@@ -350,7 +352,9 @@ module RuleFieldBase = {
       let keyType = getWasmKeyType(wasm, value)
       let keyVariant = keyType->variantTypeMapper
       if keyVariant !== Number || keyVariant !== Metadata_value {
-        let variantValues = getWasmVariantValues(wasm, value)
+        let variantValues = isPayoutFlow
+          ? getWasmPayoutVariantValues(wasm, value)
+          : getWasmVariantValues(wasm, value)
         setVariantValues(_ => variantValues)
       }
       setKeyType(_ => keyType)
@@ -387,7 +391,7 @@ module RuleFieldBase = {
           </UIUtils.RenderIf>
           <div className="-mt-5 p-1">
             <FieldWrapper label="">
-              <FieldInp methodKeys prefix=id onChangeMethod />
+              <FieldInp methodKeys prefix=id onChangeMethod isPayoutFlow />
             </FieldWrapper>
           </div>
           <div className="-mt-5">

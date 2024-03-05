@@ -70,6 +70,17 @@ let getWasmVariantValues = (wasm, value) => {
   }
 }
 
+let getWasmPayoutVariantValues = (wasm, value) => {
+  try {
+    switch wasm {
+    | Some(res) => res.RoutingTypes.getPayoutVariantValues(value)
+    | None => []
+    }
+  } catch {
+  | _ => []
+  }
+}
+
 let variantTypeMapper: string => AdvancedRoutingTypes.variantType = variantType => {
   switch variantType {
   | "number" => Number

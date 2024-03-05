@@ -66,7 +66,13 @@ external getAllConnectors: unit => array<string> = "getAllConnectors"
 external getVariantValues: string => array<string> = "getVariantValues"
 
 @val @scope("window")
+external getPayoutVariantValues: string => array<string> = "getPayoutVariantValues"
+
+@val @scope("window")
 external getDescriptionCategory: unit => JSON.t = "getDescriptionCategory"
+
+@val @scope("window")
+external getPayoutDescriptionCategory: unit => JSON.t = "getPayoutDescriptionCategory"
 
 @val @scope("window")
 open ConnectorTypes

@@ -34,6 +34,14 @@ function getDescriptionCategory() {
   }
 }
 
+function getPayoutDescriptionCategory() {
+  if (wasm) {
+    return wasm.getPayoutDescriptionCategory();
+  } else {
+    return {};
+  }
+}
+
 function getPaymentMethodConfig(connectorName) {
   if (wasm) {
     return wasm.getPaymentMethodConfig(connectorName);
@@ -122,6 +130,14 @@ function getAllConnectors() {
 function getVariantValues(str) {
   if (wasm) {
     return wasm.getVariantValues(str);
+  } else {
+    return [];
+  }
+}
+
+function getPayoutVariantValues(str) {
+  if (wasm) {
+    return wasm.getPayoutVariantValues(str);
   } else {
     return [];
   }
