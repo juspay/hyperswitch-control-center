@@ -15,18 +15,6 @@ type dashboardPageStateTypes = [
   | #QUICK_START
 ]
 
-type permissions = {
-  description: string,
-  enum_name: string,
-  mutable isPermissionAllowed: bool,
-}
-
-type getInfoType = {
-  module_: string,
-  description: string,
-  mutable permissions: array<permissions>,
-}
-
 type integrationDetailsType = {
   pricing_plan: integration,
   connector_integration: integration,
@@ -42,8 +30,10 @@ type contextType = {
   setDashboardPageState: (dashboardPageStateTypes => dashboardPageStateTypes) => unit,
   integrationDetails: integrationDetailsType,
   setIntegrationDetails: (integrationDetailsType => integrationDetailsType) => unit,
-  permissionInfo: array<getInfoType>,
-  setPermissionInfo: (array<getInfoType> => array<getInfoType>) => unit,
+  permissionInfo: array<UserManagementTypes.getInfoType>,
+  setPermissionInfo: (
+    array<UserManagementTypes.getInfoType> => array<UserManagementTypes.getInfoType>
+  ) => unit,
   isProdIntentCompleted: option<bool>,
   setIsProdIntentCompleted: (option<bool> => option<bool>) => unit,
   quickStartPageState: QuickStartTypes.quickStartType,

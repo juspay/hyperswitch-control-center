@@ -1,6 +1,6 @@
 open LogicUtils
 
-type role = Admin | ViewOnly | Operations | Developer | None
+type role = Admin | ViewOnly | Operator | Developer | OrgAdmin | CustomerSupport | IAM | None
 
 type userStatus = Active | InviteSent | None
 
@@ -54,11 +54,14 @@ let getHeadingForUser = (colType: userColTypes) => {
 }
 
 let roleToVariantMapper = role => {
-  switch role->String.toUpperCase {
+  switch role {
   | "ADMIN" => Admin
   | "VIEW ONLY" => ViewOnly
-  | "OPERATIONS" => Operations
+  | "OPERATOR" => Operator
   | "DEVELOPER" => Developer
+  | "ORGANIZATION ADMIN" => OrgAdmin
+  | "CUSTOMER SUPPORT" => CustomerSupport
+  | "IAM" => IAM
   | _ => None
   }
 }
@@ -73,10 +76,13 @@ let statusToVariantMapper = role => {
 
 let getCssMapperForRole = role => {
   switch role {
-  | Admin => "border-blue-500 bg-blue-200"
-  | ViewOnly => "border-light-grey bg-extra-light-grey"
-  | Developer => "border-red bg-red-200"
-  | Operations => "border-green bg-green-200"
+  | OrgAdmin
+  | Admin => "border-blue-300 bg-blue-200"
+  | ViewOnly
+  | Developer
+  | Operator
+  | CustomerSupport
+  | IAM => "border-light-grey bg-extra-light-grey"
   | None => ""
   }
 }
@@ -90,7 +96,8 @@ let getCssMapperForStatus = status => {
 }
 
 let getCellForUser = (data: userTableTypes, colType: userColTypes): Table.cell => {
-  let role = data.role_name->roleToVariantMapper
+  let role_name = data.role_name->LogicUtils.snakeToTitle->String.toUpperCase
+  let role = role_name->roleToVariantMapper
   let status = data.status->statusToVariantMapper
   switch colType {
   | Name => Text(data.name)
@@ -99,7 +106,7 @@ let getCellForUser = (data: userTableTypes, colType: userColTypes): Table.cell =
     CustomCell(
       <div
         className={`w-fit font-semibold text-sm px-3 py-1 rounded-full border-1 ${role->getCssMapperForRole}`}>
-        {data.role_name->String.toUpperCase->React.string}
+        {role_name->React.string}
       </div>,
       "",
     )

@@ -229,10 +229,11 @@ module RecipesAndPlugins = {
     let isStripePlusPayPalCompleted = enumDetails->checkStripePlusPayPal
     let isWooCommercePalCompleted = enumDetails->checkWooCommerce
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-    // TODO :: Need to re-evaluate the condition
+
+    // TODO :: Need to re-evaluate the condition , Check for the permission
     let blockConditionAccessVal =
-      userPermissionJson.merchantConnectorAccountRead === NoAccess &&
-        userPermissionJson.merchantConnectorAccountWrite === NoAccess
+      userPermissionJson.connectorsView === NoAccess &&
+        userPermissionJson.connectorsManage === NoAccess
         ? AuthTypes.NoAccess
         : AuthTypes.Access
 
@@ -312,7 +313,7 @@ module Resources = {
         headerText: "Try a test payment",
         subText: "Experience the Hyperswitch Unified checkout using test credentials",
         redirectLink: "",
-        access: userPermissionJson.paymentWrite,
+        access: userPermissionJson.operationsManage,
       },
       {
         id: "openSource",
@@ -417,7 +418,7 @@ let make = () => {
     <UIUtils.RenderIf condition={featureFlagDetails.acceptInvite}>
       <AcceptInviteHome />
     </UIUtils.RenderIf>
-    <div className="w-full flex flex-col gap-14">
+    <div className="w-full flex flex-col gap-7">
       <QuickStartModule />
       <div>
         {switch isProdIntentCompleted {

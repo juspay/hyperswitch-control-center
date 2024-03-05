@@ -110,7 +110,7 @@ let make = (~isPayoutFlow=false) => {
             setOffset
             entity={ConnectorTableUtils.connectorEntity(
               `${entityPrefix}connectors`,
-              ~permission=userPermissionJson.merchantConnectorAccountWrite,
+              ~permission=userPermissionJson.connectorsManage,
             )}
             currrentFetchCount={filteredConnectorData->Array.length}
             collapseTableRow=false
