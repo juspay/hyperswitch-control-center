@@ -1,26 +1,31 @@
 module RenderCustomRoles = {
   @react.component
-  let make = (~heading, ~description, ~groupName, ~groupsAdded, ~setGroupsAdded) => {
-    // TODO : Refactor to use in the same form
+  let make = (~heading, ~description, ~groupName) => {
+    let groupsInput = ReactFinalForm.useField(`groups`).input
+    let groupsAdded = groupsInput.value->LogicUtils.getStrArryFromJson
     let (checkboxSelected, setCheckboxSelected) = React.useState(_ =>
       groupsAdded->Array.includes(groupName)
     )
-
-    let handleRemoveOrAdd = () => {
+    let onClickGroup = groupName => {
       if !(groupsAdded->Array.includes(groupName)) {
-        groupsAdded->Array.push(groupName)
-        setGroupsAdded(_ => groupsAdded)
+        let _ = groupsAdded->Array.push(groupName)
+        groupsInput.onChange(groupsAdded->Identity.arrayOfGenericTypeToFormReactEvent)
       } else {
-        let filteredValue = groupsAdded->Array.filter(value => {value !== groupName})
-        setGroupsAdded(_ => filteredValue)
+        let arr = groupsInput.value->LogicUtils.getStrArryFromJson
+
+        let filteredValue = arr->Array.filter(value => {value !== groupName})
+        groupsInput.onChange(filteredValue->Identity.arrayOfGenericTypeToFormReactEvent)
       }
+      setCheckboxSelected(prev => !prev)
     }
 
     <div className="flex gap-6 items-start">
-      <div onClick={_ => handleRemoveOrAdd()} className="mt-1">
+      <div className="mt-1">
         <CheckBoxIcon
           isSelected={checkboxSelected}
-          setIsSelected={_ => setCheckboxSelected(prev => !prev)}
+          setIsSelected={_ => {
+            onClickGroup(groupName)
+          }}
           size={Large}
         />
       </div>
@@ -67,7 +72,11 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
 
-  let initialValuesForForm = [("role_scope", "merchant"->JSON.Encode.string)]->Dict.fromArray
+  let initialValuesForForm =
+    [
+      ("role_scope", "merchant"->JSON.Encode.string),
+      ("groups", []->JSON.Encode.array),
+    ]->Dict.fromArray
 
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -75,18 +84,14 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
   let paddingClass = isInviteUserFlow ? "p-10" : ""
   let marginClass = isInviteUserFlow ? "mt-5" : ""
 
-  let (groupsAdded, setGroupsAdded) = React.useState(_ => [])
-
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=USERS, ~userType=#CREATE_CUSTOM_ROLE, ~methodType=Post, ())
-      let body = values->LogicUtils.getDictFromJsonObject
-      let arrayVal = groupsAdded->Array.map(JSON.Encode.string)
-      body->Dict.set("groups", arrayVal->JSON.Encode.array)
+      let body = values->getDictFromJsonObject
       let _ = await updateDetails(url, body->JSON.Encode.object, Post, ())
-      RescriptReactRouter.replace("/users")
       setScreenState(_ => PageLoaderWrapper.Success)
+      RescriptReactRouter.replace("/users")
     } catch {
     | _ =>
       setScreenState(_ => PageLoaderWrapper.Error("Error Occured! Failed to create custom role."))
@@ -135,21 +140,20 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
           onSubmit
           formClass="flex flex-col gap-8">
           <NewCustomRoleInputFields />
+          <div className="flex flex-col justify-between gap-12 show-scrollbar overflow-scroll">
+            {permissionInfo
+            ->Array.mapWithIndex((ele, index) => {
+              <RenderCustomRoles
+                key={index->Int.toString}
+                heading={`${ele.module_->snakeToTitle} module`}
+                description={ele.description}
+                groupName={ele.module_}
+              />
+            })
+            ->React.array}
+          </div>
+          <FormValuesSpy />
         </Form>
-        <div className="flex flex-col justify-between gap-12 show-scrollbar overflow-scroll">
-          {permissionInfo
-          ->Array.mapWithIndex((ele, index) => {
-            <RenderCustomRoles
-              key={index->Int.toString}
-              heading={`${ele.module_->LogicUtils.snakeToTitle} module`}
-              description={ele.description}
-              groupName={ele.module_}
-              groupsAdded
-              setGroupsAdded
-            />
-          })
-          ->React.array}
-        </div>
       </PageLoaderWrapper>
     </div>
   </div>

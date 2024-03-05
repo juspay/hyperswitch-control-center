@@ -3,6 +3,7 @@ open UserRoleEntity
 @react.component
 let make = () => {
   open APIUtils
+  open LogicUtils
   let fetchDetails = useGetMethod()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
@@ -24,7 +25,7 @@ let make = () => {
         (),
       )
       let res = await fetchDetails(userDataURL)
-      let userData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForUser)
+      let userData = res->getArrayDataFromJson(itemToObjMapperForUser)
       setUsersData(_ => userData->Array.map(Nullable.make))
       setUsersFilterData(_ => userData->Array.map(Nullable.make))
       setScreenStateUsers(_ => PageLoaderWrapper.Success)
@@ -37,28 +38,23 @@ let make = () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#PERMISSION_INFO, ~methodType=Get, ())
       let res = await fetchDetails(`${url}?groups=true`)
-      setPermissionInfo(_ =>
-        res->LogicUtils.getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
-      )
+      setPermissionInfo(_ => res->getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo))
+      let _ = await getUserData()
     } catch {
-    | _ => ()
+    | _ => setScreenStateUsers(_ => PageLoaderWrapper.Error(""))
     }
   }
 
   React.useEffect0(() => {
     if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
-    }
-    if usersData->Array.length === 0 {
-      getUserData()->ignore
     } else {
-      setScreenStateUsers(_ => PageLoaderWrapper.Success)
+      getUserData()->ignore
     }
     None
   })
 
   let filterLogicForUsers = ReactDebounce.useDebounced(ob => {
-    open LogicUtils
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
       arr->Array.filter((obj: Nullable.t<userTableTypes>) => {
