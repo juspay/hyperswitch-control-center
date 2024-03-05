@@ -61,6 +61,7 @@ describe("Prod quick start", () => {
     cy.get('input[name="connector_account_details.key1"]').type(
       "adyen_test_cypress_account_id",
     );
+    cy.get('input[name="metadata.endpoint_prefix"]').type("https://adyne.in");
     cy.get('input[name="connector_webhook_details.merchant_secret"]').type(
       "adyen_test_cypress_source_verification",
     );
