@@ -1,3 +1,5 @@
+type userManagementTypes = Users | Roles
+
 type permissionType =
   | OperationsView
   | OperationsManage
