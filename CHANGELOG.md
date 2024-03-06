@@ -3,6 +3,40 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.05.2
+
+### Bug Fixes
+
+- Connector type frm ([#478](https://github.com/juspay/hyperswitch-control-center/pull/478)) ([`3bb3706`](https://github.com/juspay/hyperswitch-control-center/commit/3bb3706a2801397287dab8efef77e353809a9f5f))
+
+**Full Changelog:** [`2024.03.05.1...2024.03.05.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.05.1...2024.03.05.2)
+
+- - -
+
+## 2024.03.05.1
+
+### Miscellaneous Tasks
+
+- Update wasm ([#477](https://github.com/juspay/hyperswitch-control-center/pull/477)) ([`fc1cddd`](https://github.com/juspay/hyperswitch-control-center/commit/fc1cddd5eac251e6b2a8a61bb92e251289ddf16f))
+
+**Full Changelog:** [`2024.03.05.0...2024.03.05.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.05.0...2024.03.05.1)
+
+- - -
+
+## 2024.03.05.0
+
+### Features
+
+- Feat: Create custom role ([#473](https://github.com/juspay/hyperswitch-control-center/pull/473)) ([`d5739ad`](https://github.com/juspay/hyperswitch-control-center/commit/d5739ad8c9c17be479cadd72049c7f561218be5a))
+
+### Style
+
+- Sidebar ui enhancement ([#457](https://github.com/juspay/hyperswitch-control-center/pull/457)) ([`0cdf96d`](https://github.com/juspay/hyperswitch-control-center/commit/0cdf96da2b071ead12665890ee24b45376face80))
+
+**Full Changelog:** [`2024.03.04.0...2024.03.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.04.0...2024.03.05.0)
+
+- - -
+
 ## 2024.03.04.0
 
 ### Bug Fixes

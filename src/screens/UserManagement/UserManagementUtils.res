@@ -19,6 +19,38 @@ let inviteEmail = FormRenderer.makeFieldInfo(
   (),
 )
 
+let createCustomRole = FormRenderer.makeFieldInfo(
+  ~label="Enter custom role name",
+  ~name="role_name",
+  ~customInput=InputFields.textInput(~autoComplete="off", ~autoFocus=false, ()),
+  ~isRequired=true,
+  (),
+)
+
+let roleScope = userRole => {
+  let roleScopeArray = ["Merchant", "Organization"]->Array.map(item => {
+    let option: SelectBox.dropdownOption = {
+      label: item,
+      value: item->String.toLowerCase,
+    }
+    option
+  })
+
+  FormRenderer.makeFieldInfo(
+    ~label="Role Scope ",
+    ~name="role_scope",
+    ~customInput=InputFields.selectInput(
+      ~options=roleScopeArray,
+      ~buttonText="Select Option",
+      ~deselectDisable=true,
+      ~disableSelect=userRole === "org_admin" ? false : true,
+      (),
+    ),
+    ~isRequired=true,
+    (),
+  )
+}
+
 let validateEmptyValue = (key, errors) => {
   switch key {
   | "emailList" => Dict.set(errors, "email", "Please enter Invite mails"->JSON.Encode.string)
@@ -45,6 +77,24 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
     }
   })
 
+  errors->JSON.Encode.object
+}
+let validateFormForRoles = values => {
+  let errors = Dict.make()
+  open LogicUtils
+  let valuesDict = values->getDictFromJsonObject
+  if valuesDict->getString("role_scope", "")->isEmptyString {
+    Dict.set(errors, "role_scope", "Role scope is required"->JSON.Encode.string)
+  }
+  if valuesDict->getString("role_name", "")->isEmptyString {
+    Dict.set(errors, "role_name", "Role name is required"->JSON.Encode.string)
+  }
+  if valuesDict->getString("role_name", "")->String.length > 64 {
+    Dict.set(errors, "role_name", "Role name should be less than 64 characters"->JSON.Encode.string)
+  }
+  if valuesDict->getArrayFromDict("groups", [])->Array.length === 0 {
+    Dict.set(errors, "groups", "Roles required"->JSON.Encode.string)
+  }
   errors->JSON.Encode.object
 }
 
@@ -135,5 +185,13 @@ let roleListResponseMapper: Dict.t<JSON.t> => UserRoleEntity.roleListResponse = 
   {
     role_id: dict->getString("role_id", ""),
     role_name: dict->getString("role_name", ""),
+  }
+}
+
+let tabIndeToVariantMapper = index => {
+  open UserManagementTypes
+  switch index {
+  | 0 => Users
+  | _ => Roles
   }
 }
