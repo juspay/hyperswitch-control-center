@@ -148,15 +148,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
                 }}
               />}
           />
-          <UIUtils.RenderIf condition={tabIndex == 0}>
-            <div>
-              <p
-                className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
-                {"Launching Soon"->React.string}
-              </p>
-              <ActiveRouting.LevelWiseRoutingSection types=[COST] />
-            </div>
-          </UIUtils.RenderIf>
         </div>
       </UIUtils.RenderIf>
     </div>
