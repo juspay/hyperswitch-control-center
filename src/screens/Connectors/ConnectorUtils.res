@@ -362,7 +362,7 @@ let bankOfAmericaInfo = {
 }
 
 let placetopay = {
-  description: "Placetopay",
+  description: "Reliable payment processor facilitating secure transactions online for businesses, ensuring seamless transactions.",
 }
 
 let getConnectorNameString = (connector: processorTypes) =>
