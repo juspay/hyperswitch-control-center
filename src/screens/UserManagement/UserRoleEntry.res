@@ -1,9 +1,9 @@
-type roles = Users | Roles
 open UserRoleEntity
 
 @react.component
 let make = () => {
   open APIUtils
+  open LogicUtils
   let fetchDetails = useGetMethod()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
@@ -12,7 +12,7 @@ let make = () => {
   let (screenStateUsers, setScreenStateUsers) = React.useState(_ => PageLoaderWrapper.Loading)
   let (userOffset, setUserOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
-
+  let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
 
   let getUserData = async () => {
@@ -25,7 +25,7 @@ let make = () => {
         (),
       )
       let res = await fetchDetails(userDataURL)
-      let userData = res->LogicUtils.getArrayDataFromJson(itemToObjMapperForUser)
+      let userData = res->getArrayDataFromJson(itemToObjMapperForUser)
       setUsersData(_ => userData->Array.map(Nullable.make))
       setUsersFilterData(_ => userData->Array.map(Nullable.make))
       setScreenStateUsers(_ => PageLoaderWrapper.Success)
@@ -38,27 +38,23 @@ let make = () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#PERMISSION_INFO, ~methodType=Get, ())
       let res = await fetchDetails(`${url}?groups=true`)
-      setPermissionInfo(_ =>
-        res->LogicUtils.getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo)
-      )
+      setPermissionInfo(_ => res->getArrayDataFromJson(ProviderHelper.itemToObjMapperForGetInfo))
+      let _ = await getUserData()
     } catch {
-    | _ => ()
+    | _ => setScreenStateUsers(_ => PageLoaderWrapper.Error(""))
     }
   }
 
   React.useEffect0(() => {
     if permissionInfo->Array.length === 0 {
       getPermissionInfo()->ignore
-    }
-
-    if usersData->Array.length === 0 {
+    } else {
       getUserData()->ignore
     }
     None
   })
 
   let filterLogicForUsers = ReactDebounce.useDebounced(ob => {
-    open LogicUtils
     let (searchText, arr) = ob
     let filteredList = if searchText->isNonEmptyString {
       arr->Array.filter((obj: Nullable.t<userTableTypes>) => {
@@ -109,12 +105,34 @@ let make = () => {
     },
     {
       title: "Roles",
-      renderContent: () =>
-        <DefaultLandingPage
-          title="Coming Soon" height="60vh" overriddingStylesTitle="text-3xl font-semibold"
-        />,
+      renderContent: () => <RoleListTableView />,
     },
   ]
+
+  let buttonValueBasedonTab = switch tabIndex->UserManagementUtils.tabIndeToVariantMapper {
+  | Users =>
+    <ACLButton
+      access={userPermissionJson.usersManage}
+      text={"Invite users"}
+      buttonType=Primary
+      onClick={_ => {
+        mixpanelEvent(~eventName="invite_users", ())
+        RescriptReactRouter.push("/users/invite-users")
+      }}
+      customButtonStyle="w-48"
+    />
+  | Roles =>
+    <ACLButton
+      access={userPermissionJson.usersManage}
+      text={"Create custom roles"}
+      buttonType=Primary
+      onClick={_ => {
+        mixpanelEvent(~eventName="invite_users", ())
+        RescriptReactRouter.push("/users/create-custom-role")
+      }}
+      customButtonStyle="w-48"
+    />
+  }
 
   <div className="flex flex-col overflow-y-scroll">
     {<>
@@ -123,18 +141,7 @@ let make = () => {
         subTitle="Manage user roles and invite members of your organisation"
       />
       <div className="relative">
-        <div className="absolute right-0 top-5">
-          <ACLButton
-            access={userPermissionJson.usersManage}
-            text={"Invite users"}
-            buttonType=Primary
-            onClick={_ => {
-              mixpanelEvent(~eventName="invite_users", ())
-              RescriptReactRouter.push("/users/invite-users")
-            }}
-            customButtonStyle="w-48"
-          />
-        </div>
+        <div className="absolute right-0 top-5"> {buttonValueBasedonTab} </div>
         <Tabs
           tabs=tabList
           disableIndicationArrow=true
@@ -142,6 +149,7 @@ let make = () => {
           includeMargin=false
           lightThemeColor="black"
           defaultClasses="font-ibm-plex w-max flex flex-auto flex-row items-center justify-center px-6 font-semibold text-body"
+          onTitleClick={tabId => setTabIndex(_ => tabId)}
         />
       </div>
     </>}
