@@ -9,6 +9,7 @@ module TopLeftIcons = {
     | PRIORITY | DEFAULTFALLBACK => <Icon name="fallback" size=25 className="w-11" />
     | VOLUME_SPLIT => <Icon name="processorLevel" size=25 className="w-14" />
     | ADVANCED => <Icon name="parameterLevel" size=25 className="w-20" />
+    | COST => <Icon name="costLevel" size=25 className="w-14" />
     | _ => React.null
     }
   }
@@ -18,6 +19,7 @@ module TopRightIcons = {
   let make = (~routeType: routingType) => {
     switch routeType {
     | VOLUME_SPLIT | PRIORITY => <Icon name="quickSetup" size=25 className="w-28" />
+    | COST => <Icon name="comingSoon" size=35 className="!w-40" />
     | _ => React.null
     }
   }
@@ -88,6 +90,16 @@ module ActionButtons = {
           RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)
           mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
         }}
+      />
+
+    | COST =>
+      <ACLButton
+        text={"I'm interested"}
+        access={userPermissionJson.merchantDetailsManage}
+        buttonType=Secondary
+        buttonSize={Small}
+        customButtonStyle="!w-fit !px-14"
+        onClick={_ => handleSubmitRequest()->ignore}
       />
     | _ => React.null
     }
