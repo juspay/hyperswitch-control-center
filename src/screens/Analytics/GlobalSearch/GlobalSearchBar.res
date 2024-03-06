@@ -182,8 +182,7 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (searchResults, setSearchResults) = React.useState(_ => [])
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
-  let isReconEnabled =
-    (merchentDetails->MerchantAccountUtils.getMerchantDetails).recon_status === Active
+  let isReconEnabled = merchentDetails.recon_status === Active
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let searchText = searchText->String.trim
 
