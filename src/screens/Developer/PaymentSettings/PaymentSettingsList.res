@@ -8,10 +8,7 @@ let make = (
   let (offset, setOffset) = React.useState(_ => 0)
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
-  let businessProfileValues =
-    HyperswitchAtom.businessProfilesAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->MerchantAccountUtils.getArrayOfBusinessProfile
+  let businessProfileValues = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
 
   <UIUtils.RenderIf condition=isFromSettings>
     <div className="relative h-full">
@@ -25,7 +22,7 @@ let make = (
           hideTitle=true
           resultsPerPage=7
           visibleColumns
-          entity={webhookProfileTableEntity(~permission=userPermissionJson.merchantAccountWrite)}
+          entity={webhookProfileTableEntity(~permission=userPermissionJson.merchantDetailsManage)}
           showSerialNumber=true
           actualData={businessProfileValues->Array.map(Nullable.make)}
           totalResults={businessProfileValues->Array.length}

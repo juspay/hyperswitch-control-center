@@ -67,5 +67,6 @@ type userType = [
   | #CREATE_MERCHANT
   | #ACCEPT_INVITE
   | #GET_PERMISSIONS
+  | #CREATE_CUSTOM_ROLE
   | #NONE
 ]

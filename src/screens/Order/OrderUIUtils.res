@@ -41,7 +41,7 @@ module GenerateSampleDataButton = {
 
     <UIUtils.RenderIf condition={sampleData && !previewOnly}>
       <ACLButton
-        access={userPermissionJson.paymentWrite}
+        access={userPermissionJson.operationsManage}
         buttonType={Secondary}
         buttonSize={XSmall}
         text="Generate Sample Data"

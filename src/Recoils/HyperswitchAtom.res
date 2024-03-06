@@ -1,6 +1,12 @@
-let merchantDetailsValueAtom = Recoil.atom(. "merchantDetailsValue", "")
+let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayload> = Recoil.atom(.
+  "merchantDetailsValue",
+  JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
+)
 
-let businessProfilesAtom = Recoil.atom(. "businessProfileDetails", "")
+let businessProfilesAtom = Recoil.atom(.
+  "businessProfileDetails",
+  JSON.Encode.null->BusinessProfileMapper.getArrayOfBusinessProfile,
+)
 
 let connectorListAtom: Recoil.recoilAtom<string> = Recoil.atom(. "connectorListAtom", "")
 
@@ -14,7 +20,7 @@ let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatu
   "paypalAccountStatusAtom",
   PayPalFlowTypes.Connect_paypal_landing,
 )
-let userPermissionAtom: Recoil.recoilAtom<PermissionUtils.permissionJson> = Recoil.atom(.
+let userPermissionAtom: Recoil.recoilAtom<UserManagementTypes.permissionJson> = Recoil.atom(.
   "userPermissionAtom",
   PermissionUtils.defaultValueForPermission,
 )

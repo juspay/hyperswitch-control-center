@@ -122,90 +122,6 @@ let parseMerchantJson = (merchantDict: merchantPayload) => {
   merchantInfo
 }
 
-let constructWebhookDetailsObject = webhookDetailsDict => {
-  open LogicUtils
-  let webhookDetails = {
-    webhook_version: webhookDetailsDict->getOptionString("webhook_version"),
-    webhook_username: webhookDetailsDict->getOptionString("webhook_username"),
-    webhook_password: webhookDetailsDict->getOptionString("webhook_password"),
-    webhook_url: webhookDetailsDict->getOptionString("webhook_url"),
-    payment_created_enabled: webhookDetailsDict->getOptionBool("payment_created_enabled"),
-    payment_succeeded_enabled: webhookDetailsDict->getOptionBool("payment_succeeded_enabled"),
-    payment_failed_enabled: webhookDetailsDict->getOptionBool("payment_failed_enabled"),
-  }
-  webhookDetails
-}
-
-let getMerchantDetails = (values: JSON.t) => {
-  open LogicUtils
-  let valuesDict = values->getDictFromJsonObject
-  let merchantDetails = valuesDict->getObj("merchant_details", Dict.make())
-  let address = merchantDetails->getObj("address", Dict.make())
-
-  let primary_business_details =
-    valuesDict
-    ->getArrayFromDict("primary_business_details", [])
-    ->Array.map(detail => {
-      let detailDict = detail->getDictFromJsonObject
-
-      let info = {
-        business: detailDict->getString("business", ""),
-        country: detailDict->getString("country", ""),
-      }
-
-      info
-    })
-
-  let reconStatusMapper = reconStatus => {
-    switch reconStatus->String.toLowerCase {
-    | "notrequested" => NotRequested
-    | "requested" => Requested
-    | "active" => Active
-    | "disabled" => Disabled
-    | _ => NotRequested
-    }
-  }
-
-  let payload: merchantPayload = {
-    merchant_name: valuesDict->getOptionString("merchant_name"),
-    api_key: valuesDict->getString("api_key", ""),
-    publishable_key: valuesDict->getString("publishable_key", ""),
-    merchant_id: valuesDict->getString("merchant_id", ""),
-    locker_id: valuesDict->getString("locker_id", ""),
-    primary_business_details,
-    merchant_details: {
-      primary_contact_person: merchantDetails->getOptionString("primary_contact_person"),
-      primary_email: merchantDetails->getOptionString("primary_email"),
-      primary_phone: merchantDetails->getOptionString("primary_phone"),
-      secondary_contact_person: merchantDetails->getOptionString("secondary_contact_person"),
-      secondary_email: merchantDetails->getOptionString("secondary_email"),
-      secondary_phone: merchantDetails->getOptionString("secondary_phone"),
-      website: merchantDetails->getOptionString("website"),
-      about_business: merchantDetails->getOptionString("about_business"),
-      address: {
-        line1: address->getOptionString("line1"),
-        line2: address->getOptionString("line2"),
-        line3: address->getOptionString("line3"),
-        city: address->getOptionString("city"),
-        state: address->getOptionString("state"),
-        zip: address->getOptionString("zip"),
-      },
-    },
-    enable_payment_response_hash: getBool(valuesDict, "enable_payment_response_hash", false),
-    sub_merchants_enabled: getBool(valuesDict, "sub_merchants_enabled", false),
-    metadata: valuesDict->getString("metadata", ""),
-    parent_merchant_id: valuesDict->getString("parent_merchant_id", ""),
-    payment_response_hash_key: valuesDict->getOptionString("payment_response_hash_key"),
-    redirect_to_merchant_with_http_post: getBool(
-      valuesDict,
-      "redirect_to_merchant_with_http_post",
-      true,
-    ),
-    recon_status: getString(valuesDict, "recon_status", "")->reconStatusMapper,
-  }
-  payload
-}
-
 let getBusinessProfilePayload = (values: JSON.t) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
@@ -419,25 +335,6 @@ let validateMerchantAccountForm = (
   errors->JSON.Encode.object
 }
 
-let businessProfileTypeMapper = values => {
-  open LogicUtils
-  let jsonDict = values->getDictFromJsonObject
-  let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
-  let businessProfile = {
-    merchant_id: jsonDict->getString("merchant_id", ""),
-    profile_id: jsonDict->getString("profile_id", ""),
-    profile_name: jsonDict->getString("profile_name", ""),
-    return_url: jsonDict->getOptionString("return_url"),
-    payment_response_hash_key: jsonDict->getOptionString("payment_response_hash_key"),
-    webhook_details: webhookDetailsDict->constructWebhookDetailsObject,
-  }
-  businessProfile
-}
-
-let convertObjectToType = value => {
-  value->Js.Array2.reverseInPlace->Array.map(businessProfileTypeMapper)
-}
-
 let defaultValueForBusinessProfile = {
   merchant_id: "",
   profile_id: "",
@@ -455,38 +352,8 @@ let defaultValueForBusinessProfile = {
   },
 }
 
-let getArrayOfBusinessProfile = businessProfileValue => {
-  open LogicUtils
-  businessProfileValue->safeParse->getArrayFromJson([])->convertObjectToType
-}
-
 let getValueFromBusinessProfile = businessProfileValue => {
-  open LogicUtils
-  let businessDetails =
-    businessProfileValue
-    ->safeParse
-    ->getArrayFromJson([])
-    ->Js.Array2.reverseInPlace
-    ->convertObjectToType
-  businessDetails->Array.get(0)->Option.getOr(defaultValueForBusinessProfile)
-}
-
-let useGetBusinessProflile = profileId => {
-  HyperswitchAtom.businessProfilesAtom
-  ->Recoil.useRecoilValueFromAtom
-  ->getArrayOfBusinessProfile
-  ->Array.find(profile => profile.profile_id == profileId)
-  ->Option.getOr(defaultValueForBusinessProfile)
-}
-
-module BusinessProfile = {
-  @react.component
-  let make = (~profile_id: string, ~className="") => {
-    let {profile_name} = useGetBusinessProflile(profile_id)
-    <div className>
-      {(profile_name->LogicUtils.isNonEmptyString ? profile_name : "NA")->React.string}
-    </div>
-  }
+  businessProfileValue->Array.get(0)->Option.getOr(defaultValueForBusinessProfile)
 }
 
 let businessProfileNameDropDownOption = arrBusinessProfile =>
@@ -497,40 +364,3 @@ let businessProfileNameDropDownOption = arrBusinessProfile =>
     }
     obj
   })
-
-let useFetchBusinessProfiles = () => {
-  open APIUtils
-  let fetchDetails = useGetMethod()
-  let setBusinessProfiles = Recoil.useSetRecoilState(HyperswitchAtom.businessProfilesAtom)
-
-  async _ => {
-    try {
-      let url = getURL(~entityName=BUSINESS_PROFILE, ~methodType=Get, ())
-      let res = await fetchDetails(url)
-      let stringifiedResponse = res->JSON.stringify
-      setBusinessProfiles(._ => stringifiedResponse)
-      Nullable.make(stringifiedResponse->getValueFromBusinessProfile)
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
-    }
-  }
-}
-
-let useFetchMerchantDetails = () => {
-  let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
-
-  let fetchDetails = APIUtils.useGetMethod()
-
-  async _ => {
-    try {
-      let accountUrl = APIUtils.getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get, ())
-      let merchantDetailsJSON = await fetchDetails(accountUrl)
-      setMerchantDetailsValue(._ => merchantDetailsJSON->JSON.stringify)
-    } catch {
-    | _ => ()
-    }
-  }
-}

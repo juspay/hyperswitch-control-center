@@ -44,7 +44,7 @@ module OrderInfo = {
             </div>
             {getStatus(data)}
             <ACLButton
-              access={userPermissionJson.refundWrite}
+              access={userPermissionJson.operationsManage}
               text="+ Refund"
               onClick={_ => {
                 openRefundModal()
@@ -159,6 +159,7 @@ module OrderInfo = {
               Description,
               Shipping,
               Billing,
+              BillingEmail,
               AmountCapturable,
               ErrorCode,
               MandateData,
@@ -687,7 +688,7 @@ let make = (~id) => {
         </div>
         <UIUtils.RenderIf condition={showSyncButton()}>
           <ACLButton
-            access={userPermissionJson.paymentRead}
+            access={userPermissionJson.operationsView}
             text="Sync"
             leftIcon={Button.CustomIcon(
               <Icon
@@ -775,7 +776,11 @@ let make = (~id) => {
                 title: "Events and logs",
                 renderContent: () => {
                   <LogsWrapper wrapperFor={#PAYMENT}>
-                    <PaymentLogs paymentId={id} createdAt />
+                    <PaymentLogs
+                      paymentId={id}
+                      createdAt
+                      data={orderData->getDictFromJsonObject->OrderEntity.itemToObjMapper}
+                    />
                   </LogsWrapper>
                 },
                 renderContentOnTop: None,

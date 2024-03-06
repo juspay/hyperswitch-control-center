@@ -288,9 +288,11 @@ module ConnectorConfigurationFields = {
     ~connectorLabelDetailField,
   ) => {
     <div className="flex flex-col">
-      {if connector === Processors(CASHTOCODE) {
+      {switch connector {
+      | Processors(CASHTOCODE) =>
         <CashToCodeMethods connectorAccountFields connector selectedConnector />
-      } else {
+
+      | _ =>
         <RenderConnectorInputFields
           details={connectorAccountFields}
           name={"connector_account_details"}
@@ -333,7 +335,6 @@ module BusinessProfileRender = {
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-    let arrayOfBusinessProfile = businessProfiles->MerchantAccountUtils.getArrayOfBusinessProfile
     let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
     let connectorLabelOnChange = ReactFinalForm.useField(`connector_label`).input.onChange
 
@@ -357,7 +358,7 @@ module BusinessProfileRender = {
                 onChange: {
                   ev => {
                     let profileName = (
-                      arrayOfBusinessProfile
+                      businessProfiles
                       ->Array.find((ele: HSwitchSettingTypes.profileEntity) =>
                         ele.profile_id === ev->Identity.formReactEventToString
                       )
@@ -374,7 +375,7 @@ module BusinessProfileRender = {
               ~disableSelect=isUpdateFlow,
               ~customStyle="max-h-48",
               ~options={
-                arrayOfBusinessProfile->MerchantAccountUtils.businessProfileNameDropDownOption
+                businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption
               },
               ~buttonText="Select Profile",
               ~placeholder="",
@@ -510,7 +511,11 @@ module ConnectorHeaderWrapper = {
           {headerButton}
         </div>
       </div>
-      <UIUtils.RenderIf condition={connectorNameFromType === Processors(BRAINTREE)}>
+      <UIUtils.RenderIf
+        condition={switch connectorNameFromType {
+        | Processors(BRAINTREE) => true
+        | _ => false
+        }}>
         <div className="flex flex-col gap-2 p-2 md:p-10">
           <h1
             className="flex items-center mx-12 leading-6 text-orange-950 bg-orange-100 border w-fit p-2 rounded-md ">

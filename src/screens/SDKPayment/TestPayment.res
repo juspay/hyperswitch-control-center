@@ -19,7 +19,7 @@ let make = (
   let (paymentStatus, setPaymentStatus) = React.useState(_ => INCOMPLETE)
   let (paymentId, setPaymentId) = React.useState(_ => None)
   let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
-  let publishableKey = merchantDetailsValue->getDictFromJsonObject->getString("publishable_key", "")
+  let publishableKey = merchantDetailsValue.publishable_key
   let paymentElementOptions = CheckoutHelper.getOptionReturnUrl(returnUrl)
   let elementOptions = CheckoutHelper.getOption(clientSecret)
   let url = RescriptReactRouter.useUrl()

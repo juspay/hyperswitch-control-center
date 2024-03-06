@@ -172,7 +172,7 @@ let connectorStatusStyle = connectorStatus =>
 
 let getCell = (connector: connectorPayload, colType): Table.cell => {
   switch colType {
-  | Name => Text(connector.connector_name->ConnectorUtils.getDisplayNameForConnector)
+  | Name => Text(connector.connector_name)
   | TestMode => Text(connector.test_mode ? "True" : "False")
   | Disabled =>
     Label({
@@ -189,7 +189,10 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
     )
   | ProfileId => Text(connector.profile_id)
   | ProfileName =>
-    Table.CustomCell(<MerchantAccountUtils.BusinessProfile profile_id={connector.profile_id} />, "")
+    Table.CustomCell(
+      <HelperComponents.BusinessProfileComponent profile_id={connector.profile_id} />,
+      "",
+    )
   | ConnectorLabel => Text(connector.connector_label)
 
   // | Actions =>

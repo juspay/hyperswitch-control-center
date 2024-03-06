@@ -24,9 +24,7 @@ module PublishableKeyArea = {
   @react.component
   let make = () => {
     let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
-    let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
-
-    <HelperComponents.KeyAndCopyArea copyValue={detail.publishable_key} />
+    <HelperComponents.KeyAndCopyArea copyValue={merchantDetailsValue.publishable_key} />
   }
 }
 
@@ -34,10 +32,8 @@ module PaymentResponseHashKeyArea = {
   @react.component
   let make = () => {
     let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
-    let detail = merchantDetailsValue->MerchantAccountUtils.getMerchantDetails
-
     <HelperComponents.KeyAndCopyArea
-      copyValue={detail.payment_response_hash_key->Option.getOr("")}
+      copyValue={merchantDetailsValue.payment_response_hash_key->Option.getOr("")}
     />
   }
 }
