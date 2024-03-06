@@ -30,7 +30,6 @@ let getRoutingTypeName = (routingType: AdvancedRoutingTypes.routing) => {
   | SINGLE => "single"
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"
-  | COST => "cost"
   | PRIORITY => "rank"
   | DEFAULTFALLBACK => "default"
   | NO_ROUTING => ""
