@@ -1244,7 +1244,7 @@ let getProcessorsListFromJson = (json, ~removeFromList: processors=FRMPlayer, ()
   json->getArrayFromJson([])->Array.map(getDictFromJsonObject)->filterList(~removeFromList)
 }
 
-let getDisplayNameForConnector = connector =>
+let getDisplayNameForProcessor = connector =>
   switch connector {
   | ADYEN => "Adyen"
   | CHECKOUT => "Checkout"
@@ -1308,7 +1308,7 @@ let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
 let getDisplayNameForConnector = connector => {
   let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString()
   switch connectorType {
-  | Processors(connector) => connector->getDisplayNameForConnector
+  | Processors(connector) => connector->getDisplayNameForProcessor
   | ThreeDsAuthenticator(threeDsAuthenticator) =>
     threeDsAuthenticator->getDisplayNameForThreedsAuthenticator
   | UnknownConnector(str) => str

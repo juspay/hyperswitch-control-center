@@ -221,23 +221,50 @@ module SelectConnectorGrid = {
       Processors(ADYEN),
       Processors(CHECKOUT),
     ]->Array.filter(connector => {
-      !(typedConnectedConnectorList->Array.includes(connector))
+      let filteredValue = typedConnectedConnectorList->Array.find(item => {
+        QuickStartUtils.filterConnectorFromArray(item, connector)
+      })
+
+      switch filteredValue {
+      | Some(_value) => false
+      | None => true
+      }
     })
-    let remainingConnectorList =
-      connectorList->Array.filter(value =>
-        !(
-          popularConnectorList->Array.includes(value) ||
-            typedConnectedConnectorList->Array.includes(value)
-        )
-      )
+
+    let remainingConnectorList = connectorList->Array.filter(value => {
+      let popularConnectorListValue = popularConnectorList->Array.find(item => {
+        QuickStartUtils.filterConnectorFromArray(item, value)
+      })
+
+      let typedConnectedConnectorListValue = typedConnectedConnectorList->Array.find(item => {
+        QuickStartUtils.filterConnectorFromArray(item, value)
+      })
+
+      switch (popularConnectorListValue, typedConnectedConnectorListValue) {
+      | (None, None) => true
+      | (_, _) => false
+      }
+    })
 
     let headerClass = HSwitchUtils.getTextClass((P1, Medium))
 
     let subheaderText = "text-base font-semibold text-grey-700"
-    let getBlockColor = connector =>
-      selectedConnector === connector
-        ? "border border-blue-700 bg-blue-700 bg-opacity-10 "
-        : "border"
+    let getBlockColor = connector => {
+      switch (selectedConnector, connector) {
+      | (Processors(selectedConnector), Processors(connectorValue))
+        if selectedConnector ===
+          connectorValue => "border border-blue-700 bg-blue-700 bg-opacity-10"
+      | _ => "border"
+      }
+    }
+
+    let iconColor = connector => {
+      switch (selectedConnector, connector) {
+      | (Processors(selectedConnector), Processors(connectorValue))
+        if selectedConnector === connectorValue => "selected"
+      | _ => "nonselected"
+      }
+    }
 
     <div className="flex flex-col gap-12">
       <UIUtils.RenderIf condition={popularConnectorList->Array.length > 0}>
@@ -258,9 +285,7 @@ module SelectConnectorGrid = {
                   </p>
                 </div>
                 <Icon
-                  name={connector === selectedConnector ? "selected" : "nonselected"}
-                  size=20
-                  className="cursor-pointer !text-blue-800"
+                  name={connector->iconColor} size=20 className="cursor-pointer !text-blue-800"
                 />
               </div>
             })

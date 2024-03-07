@@ -705,3 +705,11 @@ let getCurrentStep = dict => {
     #GoLive
   }
 }
+
+let filterConnectorFromArray = (itemValue, filterValue) => {
+  open ConnectorTypes
+  switch (itemValue, filterValue) {
+  | (Processors(itemValue), Processors(filterValue)) if itemValue === filterValue => true
+  | _ => false
+  }
+}
