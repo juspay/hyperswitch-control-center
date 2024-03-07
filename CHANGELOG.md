@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.06.0
+
+### Features
+
+- Added new connector ([#480](https://github.com/juspay/hyperswitch-control-center/pull/480)) ([`d5238fb`](https://github.com/juspay/hyperswitch-control-center/commit/d5238fbabc928e2241fd5ecf0c92b98ffa347512))
+
+### Miscellaneous Tasks
+
+- Remove feature banner ([#479](https://github.com/juspay/hyperswitch-control-center/pull/479)) ([`a6668b7`](https://github.com/juspay/hyperswitch-control-center/commit/a6668b70ccbaff3fcd798db20e6c5258fd5b4ffc))
+
+**Full Changelog:** [`2024.03.05.2...2024.03.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.05.2...2024.03.06.0)
+
+- - -
+
 ## 2024.03.05.2
 
 ### Bug Fixes

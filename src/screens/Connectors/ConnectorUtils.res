@@ -66,6 +66,7 @@ let connectorList: array<connectorTypes> = [
   Processors(WORLDLINE),
   Processors(WORLDPAY),
   Processors(ZEN),
+  Processors(PLACETOPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -360,6 +361,10 @@ let bankOfAmericaInfo = {
   description: "A top financial firm offering banking, investing, and risk solutions to individuals and businesses.",
 }
 
+let placetopay = {
+  description: "Reliable payment processor facilitating secure transactions online for businesses, ensuring seamless transactions.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -413,6 +418,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PROPHETPAY => "prophetpay"
   | BANKOFAMERICA => "bankofamerica"
   | HELCIM => "helcim"
+  | PLACETOPAY => "placetopay"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -484,6 +490,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.C
     | "bankofamerica" => Processors(BANKOFAMERICA)
     | "prophetpay" => Processors(PROPHETPAY)
     | "helcim" => Processors(HELCIM)
+    | "placetopay" => Processors(PLACETOPAY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -548,6 +555,7 @@ let getProcessorInfo = connector => {
   | PROPHETPAY => prophetpayInfo
   | BANKOFAMERICA => bankOfAmericaInfo
   | HELCIM => helcimInfo
+  | PLACETOPAY => placetopay
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -1289,6 +1297,7 @@ let getDisplayNameForConnector = connector =>
   | PROPHETPAY => "Prophet Pay"
   | BANKOFAMERICA => "Bank of America"
   | HELCIM => "Helcim"
+  | PLACETOPAY => "Placetopay"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
