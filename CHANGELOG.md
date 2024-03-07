@@ -9,6 +9,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - Quick start connector selection bug and connector list bug fixes ([#482](https://github.com/juspay/hyperswitch-control-center/pull/482)) ([`2dfb70f`](https://github.com/juspay/hyperswitch-control-center/commit/2dfb70f82d86e240a7d00f57f42e710528e186c3))
 - Cypress test ([#486](https://github.com/juspay/hyperswitch-control-center/pull/486)) ([`15c286f`](https://github.com/juspay/hyperswitch-control-center/commit/15c286f1913fdec55b75f5f115c4271856695403))
+- Fix: Back button function ([#475](https://github.com/juspay/hyperswitch-control-center/pull/475)) ([`345c618`](https://github.com/juspay/hyperswitch-control-center/commit/345c618dda30d4ba9e74b0d13a2fb64c60366f26))
+
+### Miscellaneous Tasks
+
+- Sidebar UI ([#481](https://github.com/juspay/hyperswitch-control-center/pull/481)) ([`180a40a`](https://github.com/juspay/hyperswitch-control-center/commit/180a40a65321ecbdbc7a0392f80dd302718da12d))
+
+**Full Changelog:** [`2024.03.06.0...2024.03.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.06.0...2024.03.07.0)
+
+- - -
+
+## 2024.03.07.0
+
+### Bug Fixes
+
+- Quick start connector selection bug and connector list bug fixes ([#482](https://github.com/juspay/hyperswitch-control-center/pull/482)) ([`2dfb70f`](https://github.com/juspay/hyperswitch-control-center/commit/2dfb70f82d86e240a7d00f57f42e710528e186c3))
+- Cypress test ([#486](https://github.com/juspay/hyperswitch-control-center/pull/486)) ([`15c286f`](https://github.com/juspay/hyperswitch-control-center/commit/15c286f1913fdec55b75f5f115c4271856695403))
 
 ### Miscellaneous Tasks
 
