@@ -32,6 +32,20 @@ describe("Auth Module", () => {
     cy.get("#footer").should("exist");
   });
 
+  it("check auth page back button functioning", () => {
+    cy.visit("http://localhost:9000/");
+    cy.get("#card-foot-text").click();
+    cy.url().should("include", "/login");
+    cy.get("#card-header").should("contain", "Hey there, Welcome back!");
+    cy.get("#card-subtitle").should("contain", "Sign up");
+    cy.get("#forgot-password").click();
+    cy.url().should("include", "/forget-password");
+    cy.get("#card-header").should("contain", "Forgot Password?");
+    cy.go("back");
+    cy.url().should("include", "/login");
+    cy.get("#card-header").should("contain", "Hey there, Welcome back!");
+  });
+
   it("should successfully log in with valid credentials", () => {
     const password = "cypress98#";
     cy.visit("http://localhost:9000/login");

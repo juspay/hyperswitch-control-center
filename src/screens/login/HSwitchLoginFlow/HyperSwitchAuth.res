@@ -252,7 +252,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
             | _ => React.null
             }}
           </div>
-          {note(authType, setAuthType, isMagicLinkEnabled)}
+          <div id="card-foot-text"> {note(authType, setAuthType, isMagicLinkEnabled)} </div>
         </form>
       </>
     }}
