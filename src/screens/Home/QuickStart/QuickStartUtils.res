@@ -706,10 +706,12 @@ let getCurrentStep = dict => {
   }
 }
 
-let filterConnectorFromArray = (itemValue, filterValue) => {
+let existsInArray = (element, connectorList) => {
   open ConnectorTypes
-  switch (itemValue, filterValue) {
-  | (Processors(itemValue), Processors(filterValue)) if itemValue === filterValue => true
-  | _ => false
-  }
+  connectorList->Array.some(e =>
+    switch (e, element) {
+    | (Processors(p1), Processors(p2)) => p1 == p2
+    | (_, _) => false
+    }
+  )
 }

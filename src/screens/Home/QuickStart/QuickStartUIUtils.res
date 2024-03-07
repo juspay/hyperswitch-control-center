@@ -215,35 +215,25 @@ module SelectConnectorGrid = {
         ->LogicUtils.getString("connector_name", "")
         ->ConnectorUtils.getConnectorNameTypeFromString()
       )
-    let popularConnectorList = [
-      Processors(STRIPE),
-      Processors(PAYPAL),
-      Processors(ADYEN),
-      Processors(CHECKOUT),
-    ]->Array.filter(connector => {
-      let filteredValue = typedConnectedConnectorList->Array.find(item => {
-        QuickStartUtils.filterConnectorFromArray(item, connector)
-      })
-
-      switch filteredValue {
-      | Some(_value) => false
-      | None => true
-      }
-    })
+    let popularConnectorList =
+      [
+        Processors(STRIPE),
+        Processors(PAYPAL),
+        Processors(ADYEN),
+        Processors(CHECKOUT),
+      ]->Array.filter(connector =>
+        !QuickStartUtils.existsInArray(connector, typedConnectedConnectorList)
+      )
 
     let remainingConnectorList = connectorList->Array.filter(value => {
-      let popularConnectorListValue = popularConnectorList->Array.find(item => {
-        QuickStartUtils.filterConnectorFromArray(item, value)
-      })
+      let existInPopularConnectorList = QuickStartUtils.existsInArray(value, popularConnectorList)
 
-      let typedConnectedConnectorListValue = typedConnectedConnectorList->Array.find(item => {
-        QuickStartUtils.filterConnectorFromArray(item, value)
-      })
+      let existInTypedConnectorList = QuickStartUtils.existsInArray(
+        value,
+        typedConnectedConnectorList,
+      )
 
-      switch (popularConnectorListValue, typedConnectedConnectorListValue) {
-      | (None, None) => true
-      | (_, _) => false
-      }
+      !(existInPopularConnectorList || existInTypedConnectorList)
     })
 
     let headerClass = HSwitchUtils.getTextClass((P1, Medium))
