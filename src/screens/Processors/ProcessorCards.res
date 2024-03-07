@@ -109,7 +109,8 @@ let make = (
             let connectorInfo = connector->getConnectorInfo
             let size = "w-14 h-14 rounded-sm"
             <AddDataAttributes attributes=[("data-testid", connectorName->String.toLowerCase)]>
-              <div
+              <ACLDiv
+                permission={userPermissionJson.connectorsManage}
                 onClick={_ => handleClick(connectorName)}
                 key={i->string_of_int}
                 className="border p-6 gap-4 bg-white rounded flex flex-col justify-between">
@@ -129,7 +130,7 @@ let make = (
                   buttonSize={Small}
                   textStyle="text-jp-gray-900"
                 />
-              </div>
+              </ACLDiv>
             </AddDataAttributes>
           })
           ->React.array}
