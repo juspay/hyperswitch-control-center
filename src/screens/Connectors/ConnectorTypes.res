@@ -77,6 +77,7 @@ type processorTypes =
   | VOLT
   | PROPHETPAY
   | HELCIM
+  | PLACETOPAY
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO
 
