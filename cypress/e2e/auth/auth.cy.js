@@ -34,6 +34,17 @@ describe("Auth Module", () => {
 
   it("check auth page back button functioning", () => {
     cy.visit("http://localhost:9000/");
+    cy.get("#card-subtitle").click();
+    cy.url().should("include", "/register");
+    cy.get("#card-header").should("contain", "Welcome to Hyperswitch");
+    cy.get("#card-subtitle").should("contain", "Sign in");
+    cy.go("back");
+    cy.url().should("include", "/login");
+    cy.get("#card-header").should("contain", "Hey there, Welcome back!");
+  });
+
+  it("check auth page back button functioning, success only if feature flag enabled for magic link and forgot password", () => {
+    cy.visit("http://localhost:9000/");
     cy.get("#card-foot-text").click();
     cy.url().should("include", "/login");
     cy.get("#card-header").should("contain", "Hey there, Welcome back!");
