@@ -11,6 +11,7 @@ let make = (
   ~contentAlign=?,
   ~justifyClass=?,
   ~tooltipForWidthClass=?,
+  ~dataAttrStr="",
 ) => {
   <ACLToolTip
     access=permission
@@ -21,9 +22,11 @@ let make = (
     ?contentAlign
     ?tooltipWidthClass
     ?justifyClass
-    toolTipFor={<div className onClick={permission === AuthTypes.Access ? onClick : {_ => ()}}>
-      {children}
-    </div>}
+    toolTipFor={<AddDataAttributes attributes=[("data-testid", dataAttrStr)]>
+      <div className onClick={permission === AuthTypes.Access ? onClick : {_ => ()}}>
+        {children}
+      </div>
+    </AddDataAttributes>}
     toolTipPosition={Top}
   />
 }
