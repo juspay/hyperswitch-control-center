@@ -279,7 +279,6 @@ let make = (
     ->Recoil.useRecoilValueFromAtom
     ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer, ())
     ->Array.length
-  // let connectorCount = ListHooks.useListCount(~entityName=CONNECTOR)->Array.length
   let isFeedbackModalToBeOpen =
     feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
   let redirectPath = switch url.path {
