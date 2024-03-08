@@ -102,13 +102,6 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
   }
 }
 
-// let getArrayDataFromJson = (json, itemToObjMapper: Dict.t<JSON.t> => connectorPayload) => {
-//   json
-//   ->ConnectorUtils.getProcessorsListFromJson()
-//   ->Array.map(itemToObjMapper)
-//   ->Array.filter(item => !(item.connector_name->String.includes("apple")))
-// }
-
 let comparatorFunction = (connector1: connectorPayload, connector2: connectorPayload) => {
   connector1.connector_name->String.localeCompare(connector2.connector_name)->Float.toInt
 }
@@ -118,7 +111,6 @@ let sortPreviouslyConnectedList = arr => {
 }
 
 let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
-  // json->sortPreviouslyConnectedList
   LogicUtils.getArrayDataFromJson(json, ConnectorListMapper.getProcessorPayloadType)
 }
 
