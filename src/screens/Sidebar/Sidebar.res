@@ -74,7 +74,7 @@ module SidebarSubOption = {
 
 module SidebarItem = {
   @react.component
-  let make = (~tabInfo, ~isSelected, ~isExpanded) => {
+  let make = (~tabInfo, ~isSelected, ~isExpanded, ~setOpenItem=_ => ()) => {
     open UIUtils
     let sidebarItemRef = React.useRef(Nullable.null)
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
@@ -100,6 +100,12 @@ module SidebarItem = {
     | Link(tabOption) => {
         let {name, icon, link, access} = tabOption
         let redirectionLink = `${link}${getSearchParamByLink(link)}`
+
+        let onSidebarItemClick = _ => {
+          isMobileView ? setIsSidebarExpanded(_ => false) : ()
+          setOpenItem(prev => {prev == name ? "" : name})
+        }
+
         <RenderIf condition={access !== NoAccess}>
           <Link to_=redirectionLink>
             <AddDataAttributes
@@ -108,7 +114,7 @@ module SidebarItem = {
               ]>
               <div
                 ref={sidebarItemRef->ReactDOM.Ref.domRef}
-                onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
+                onClick={onSidebarItemClick}
                 className={`${textColor} relative overflow-hidden flex flex-row items-center rounded-lg cursor-pointer ${selectedClass} p-3 ${isExpanded
                     ? "mx-2"
                     : "mx-1"} hover:bg-light_white my-0.5`}>
@@ -594,7 +600,9 @@ let make = (
             | RemoteLink(record)
             | Link(record) => {
                 let isSelected = linkSelectionCheck(firstPart, record.link)
-                <SidebarItem key={Int.toString(index)} tabInfo isSelected isExpanded={isExpanded} />
+                <SidebarItem
+                  key={Int.toString(index)} tabInfo isSelected isExpanded={isExpanded} setOpenItem
+                />
               }
 
             | LinkWithTag(record) => {

@@ -51,24 +51,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
   let authInitState = isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword
   let (authType, setAuthType) = React.useState(_ => authInitState)
 
-  React.useEffect1(() => {
-    let authInitState = isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword
-    setAuthType(_ => authInitState)
-    None
-  }, [isMagicLinkEnabled])
-
-  React.useEffect1(() => {
-    switch url.path {
-    | list{"user", "verify_email"} => setAuthType(_ => EmailVerify)
-    | list{"user", "login"} =>
-      setAuthType(_ => isMagicLinkEnabled ? MagicLinkVerify : LoginWithPassword)
-    | list{"user", "set_password"} => setAuthType(_ => ResetPassword)
-    | list{"user", "accept_invite_from_email"} => setAuthType(_ => ActivateFromEmail)
-    | list{"register", ..._remainingPath} => setAuthType(_ => SignUP)
-    | _ => ()
-    }
-    None
-  }, [isMagicLinkEnabled])
+  let (actualAuthType, setActualAuthType) = React.useState(_ => authInitState)
 
   React.useEffect1(() => {
     if isLiveMode {
@@ -76,8 +59,27 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
     } else {
       setMode(_ => TestButtonMode)
     }
+
+    switch url.path {
+    | list{"user", "verify_email"} => setActualAuthType(_ => EmailVerify)
+    | list{"login"} =>
+      setActualAuthType(_ => isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword)
+    | list{"user", "set_password"} => setActualAuthType(_ => ResetPassword)
+    | list{"user", "accept_invite_from_email"} => setActualAuthType(_ => ActivateFromEmail)
+    | list{"forget-password"} => setActualAuthType(_ => ForgetPassword)
+    | list{"register"} => setActualAuthType(_ => SignUP)
+    | _ => ()
+    }
+
     None
   }, [url.path])
+
+  React.useEffect1(() => {
+    if authType != actualAuthType {
+      setAuthType(_ => actualAuthType)
+    }
+    None
+  }, [actualAuthType])
 
   React.useEffect1(() => {
     switch (authType, url.path) {
