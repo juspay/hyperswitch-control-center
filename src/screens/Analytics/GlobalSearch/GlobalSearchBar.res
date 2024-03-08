@@ -51,10 +51,10 @@ module EmptyResult = {
   @react.component
   let make = (~prefix, ~searchText) => {
     <FramerMotion.Motion.Div
-      layoutId="empty" initial={{y: -50, opacity: 0.0}} animate={{y: 0, opacity: 1.0}}>
-      <div className="flex flex-col w-full h-72 p-2 justify-center items-center gap-1">
-        <img className="w-1/3" src={`${prefix}/icons/globalSearchNoResult.svg`} />
-        <div className="w-1/2 text-wrap text-center break-all">
+      layoutId="empty" initial={{scale: 0.9, opacity: 0.0}} animate={{scale: 1.0, opacity: 1.0}}>
+      <div className="flex flex-col w-full h-fit p-7 justify-center items-center gap-6">
+        <img className="w-1/9" src={`${prefix}/icons/globalSearchNoResult.svg`} />
+        <div className="w-3/5 text-wrap text-center break-all">
           {`No Results for " ${searchText} "`->React.string}
         </div>
       </div>
@@ -84,17 +84,15 @@ module OptionWrapper = {
           ? "bg-gray-100 dark:bg-jp-gray-960"
           : ""}`
 
-    <FramerMotion.Motion.Div layoutId={`item-${index->Int.toString}`}>
-      <Combobox.Option
-        className="flex flex-row cursor-pointer"
-        onClick={_ => value->redirectOnSelect}
-        key={index->Int.toString}
-        value>
-        {props => {
-          <div className={props["active"]->activeClasses}> {children} </div>
-        }}
-      </Combobox.Option>
-    </FramerMotion.Motion.Div>
+    <Combobox.Option
+      className="flex flex-row cursor-pointer truncate"
+      onClick={_ => value->redirectOnSelect}
+      key={index->Int.toString}
+      value>
+      {props => {
+        <div className={props["active"]->activeClasses}> {children} </div>
+      }}
+    </Combobox.Option>
   }
 }
 
@@ -129,8 +127,7 @@ module SearchResultsComponent = {
     <OptionsWrapper>
       {searchResults
       ->Array.mapWithIndex((section: resultType, index) => {
-        let borderClass =
-          index === searchResults->Array.length - 1 ? "" : "border-b dark:border-jp-gray-960"
+        let borderClass = searchResults->Array.length > 0 ? "" : "border-b dark:border-jp-gray-960"
         <FramerMotion.Motion.Div
           layoutId={section.section->getSectionHeader} className={`px-3 pt-3 pb-1 ${borderClass}`}>
           <FramerMotion.Motion.Div
@@ -178,6 +175,8 @@ let make = () => {
   open LogicUtils
   open UIUtils
   let prefix = useUrlPrefix()
+  let fetchDetails = APIUtils.useUpdateMethod()
+  let (state, setState) = React.useState(_ => Idle)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (searchResults, setSearchResults) = React.useState(_ => [])
@@ -185,6 +184,7 @@ let make = () => {
   let isReconEnabled = merchentDetails.recon_status === Active
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let searchText = searchText->String.trim
+  let loader = LottieFiles.useLottieJson("loader-circle.json")
 
   let redirectOnSelect = element => {
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("")
@@ -194,17 +194,44 @@ let make = () => {
     }
   }
 
+  let getSearchResults = async results => {
+    try {
+      let url = "https://sandbox.hyperswitch.io/analytics/v1/search"
+      let body = [("query", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+      let response = await fetchDetails(url, body, Post, ())
+
+      let values = response->getRemoteResults
+      results->Array.pushMany(values)
+
+      if results->Array.length > 0 {
+        let defaultItem = searchText->getDefaultResult
+
+        let arr = [defaultItem]->Array.concat(results)
+
+        setSearchResults(_ => arr)
+      } else {
+        setSearchResults(_ => [])
+      }
+      setState(_ => Loaded)
+    } catch {
+    | _ => setState(_ => Failed)
+    }
+  }
+
   React.useEffect1(_ => {
     let results = []
-    let localResults: resultType = searchText->getLocalMatchedResults(hswitchTabs)
 
-    if localResults.results->Array.length > 0 {
-      results->Array.push(localResults)
-    }
+    if searchText->String.length > 0 {
+      setState(_ => Loading)
+      let localResults: resultType = searchText->getLocalMatchedResults(hswitchTabs)
 
-    setSearchResults(_ => results)
+      if localResults.results->Array.length > 0 {
+        results->Array.push(localResults)
+      }
 
-    if searchText->String.length === 0 {
+      getSearchResults(results)->ignore
+    } else {
+      setState(_ => Idle)
       setSearchResults(_ => [])
     }
 
@@ -241,14 +268,25 @@ let make = () => {
 
   let setGlobalSearchText = ReactDebounce.useDebounced(value => {
     setSearchText(_ => value)
-  }, ~wait=200)
+  }, ~wait=500)
+
+  let leftIcon = switch state {
+  | Loading =>
+    <div className="w-14 overflow-hidden mr-1">
+      <div className="w-24 -ml-5 ">
+        <Lottie animationData={loader} autoplay=true loop=true />
+      </div>
+    </div>
+  | _ =>
+    <div id="leftIcon" className="self-center py-3 pl-5 pr-4">
+      <Icon size=18 name="search" />
+    </div>
+  }
 
   let modalSearchBox =
     <FramerMotion.Motion.Div layoutId="input" className="h-11 bg-white">
       <div className={`flex flex-row items-center grow ${borderClass}`}>
-        <div id="leftIcon" className="self-center py-3 pl-5 pr-4">
-          <Icon size=18 name="search" />
-        </div>
+        {leftIcon}
         <Combobox.Input
           \"as"="input"
           className="w-full py-3 !text-lg bg-transparent focus:outline-none cursor-default sm:text-sm"
@@ -259,15 +297,14 @@ let make = () => {
             setGlobalSearchText(event["target"]["value"])
           }}
         />
-        <Icon
-          size=16
-          name="times"
-          parentClass="flex justify-end opacity-30"
-          className="mr-5 cursor-pointer"
+        <div
+          className="bg-gray-200 py-1 px-2 rounded-md flex gap-1 items-center mr-5 cursor-pointer ml-2"
           onClick={_ => {
             setShowModal(_ => false)
-          }}
-        />
+          }}>
+          <span className="opacity-50 font-bold text-sm"> {"Esc"->React.string} </span>
+          <Icon size=15 name="times" parentClass="flex justify-end opacity-30" />
+        </div>
       </div>
     </FramerMotion.Motion.Div>
 
@@ -275,17 +312,29 @@ let make = () => {
     <SearchBox openModalOnClickHandler />
     <RenderIf condition={showModal}>
       <ModalWrapper showModal setShowModal>
-        <Combobox className="w-full" onChange={element => element->redirectOnSelect}>
+        <Combobox
+          className="w-full"
+          onChange={element => {
+            element->redirectOnSelect
+          }}>
           {_ => {
             <>
               {modalSearchBox}
-              <SearchResultsComponent searchResults searchText redirectOnSelect />
+              {switch state {
+              | Loading =>
+                <div className="my-14 py-4">
+                  <Loader />
+                </div>
+              | _ =>
+                if searchText->isNonEmptyString && searchResults->Array.length === 0 {
+                  <EmptyResult prefix searchText />
+                } else {
+                  <SearchResultsComponent searchResults searchText redirectOnSelect />
+                }
+              }}
             </>
           }}
         </Combobox>
-        <RenderIf condition={searchText->isNonEmptyString && searchResults->Array.length === 0}>
-          <EmptyResult prefix searchText />
-        </RenderIf>
       </ModalWrapper>
     </RenderIf>
   </div>

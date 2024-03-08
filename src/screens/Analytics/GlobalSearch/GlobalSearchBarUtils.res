@@ -109,3 +109,75 @@ let getLocalMatchedResults = (searchText, tabs) => {
     results,
   }
 }
+
+let getElements = (hits, section) => {
+  open GlobalSearchTypes
+  open LogicUtils
+  switch section {
+  | PaymentAttempts =>
+    hits->Array.map(item => {
+      let value = item->JSON.Decode.object->Option.getOr(Dict.make())
+      let payId = value->getString("payment_id", "")
+      let amount = value->getFloat("amount", 0.0)->Belt.Float.toString
+      let status = value->getString("status", "")
+      let currency = value->getString("currency", "")
+
+      {
+        texts: [payId, amount, status, currency]->Array.map(JSON.Encode.string),
+        redirect_link: ""->JSON.Encode.string,
+      }
+    })
+  | PaymentIntents =>
+    hits->Array.map(item => {
+      let value = item->JSON.Decode.object->Option.getOr(Dict.make())
+      let payId = value->getString("payment_id", "")
+      let amount = value->getFloat("amount", 0.0)->Belt.Float.toString
+      let status = value->getString("status", "")
+      let currency = value->getString("currency", "")
+
+      {
+        texts: [payId, amount, status, currency]->Array.map(JSON.Encode.string),
+        redirect_link: ""->JSON.Encode.string,
+      }
+    })
+
+  | _ => []
+  }
+}
+
+let getRemoteResults = json => {
+  open GlobalSearchTypes
+  open LogicUtils
+  let results = []
+
+  json
+  ->JSON.Decode.array
+  ->Option.getOr([])
+  ->Array.forEach(item => {
+    let value = item->JSON.Decode.object->Option.getOr(Dict.make())
+    let section = value->getString("index", "")->getSectionVariant
+    let hints = value->getArrayFromDict("hits", [])
+
+    if hints->Array.length > 0 {
+      results->Array.push({
+        section,
+        results: hints->getElements(section),
+      })
+    }
+  })
+
+  results
+}
+
+let getDefaultResult = searchText => {
+  open GlobalSearchTypes
+  {
+    section: Default,
+    results: [
+      {
+        texts: ["Show all results for"->JSON.Encode.string, searchText->JSON.Encode.string],
+        redirect_link: "search"->JSON.Encode.string,
+      },
+    ],
+  }
+}
