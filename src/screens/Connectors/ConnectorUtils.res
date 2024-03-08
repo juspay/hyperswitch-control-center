@@ -435,9 +435,9 @@ let getConnectorNameString = (connector: connectorTypes) => {
   }
 }
 
-let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.Connector, ()) => {
+let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.Processor, ()) => {
   switch connectorType {
-  | Connector =>
+  | Processor =>
     switch connector {
     | "adyen" => Processors(ADYEN)
     | "checkout" => Processors(CHECKOUT)
@@ -1201,7 +1201,7 @@ let getConnectorPaymentMethodDetails = async (
   }
 }
 
-let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList: processors) => {
+let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList: connector) => {
   items->Array.filter(dict => {
     let connectorType = dict.connector_type
     let isPayoutConnector = connectorType == "payout_processor"
@@ -1209,7 +1209,7 @@ let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList
     let isThreeDsAuthenticator = connectorType == "authentication_processor"
 
     switch removeFromList {
-    | Connector => !isConnector
+    | Processor => !isConnector
     | FRMPlayer => isConnector
     | PayoutConnector => isPayoutConnector
     | ThreeDsAuthenticator => isThreeDsAuthenticator
@@ -1219,7 +1219,7 @@ let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList
 
 let getProcessorsListFromJson = (
   connnectorList: array<ConnectorTypes.connectorPayload>,
-  ~removeFromList: processors=FRMPlayer,
+  ~removeFromList: connector=FRMPlayer,
   (),
 ) => {
   connnectorList->filterList(~removeFromList)
