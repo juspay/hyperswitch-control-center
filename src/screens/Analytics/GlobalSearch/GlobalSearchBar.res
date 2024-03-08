@@ -190,7 +190,7 @@ let make = () => {
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("")
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
-      RescriptReactRouter.push(redirectLink)
+      redirectLink->RescriptReactRouter.replace
     }
   }
 
