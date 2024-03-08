@@ -655,7 +655,6 @@ let getCellForAboutPayment = (
         connectorList
         ->Array.find(ele => order.merchant_connector_id === ele.merchant_connector_id)
         ->Option.getOr(Dict.make()->ConnectorListMapper.getProcessorPayloadType)
-      // ->getString("connector_label", "")
       Text(connectorLabel.connector_label)
     }
   | CardBrand => Text(order.card_brand)
