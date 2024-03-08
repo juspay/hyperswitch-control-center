@@ -77,17 +77,14 @@ module QuickStart = {
     let updateEnumInRecoil = EnumVariantHook.useUpdateEnumInRecoil()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let (configureButtonState, setConfigureButtonState) = React.useState(_ => Button.Normal)
-    let connectorList =
-      HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->LogicUtils.safeParse
+    let typedConnectorValue = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
     let initalEnums =
       HyperswitchAtom.enumVariantAtom->Recoil.useRecoilValueFromAtom->LogicUtils.safeParse
     let typedValueOfEnum = initalEnums->QuickStartUtils.getTypedValueFromDict
 
     let setEnumsForPreviouslyConnectedConnectors = async () => {
-      open ConnectorTableUtils
       try {
         setConfigureButtonState(_ => Button.Loading)
-        let typedConnectorValue = connectorList->getArrayOfConnectorListPayloadType
 
         if (
           typedValueOfEnum.configurationType->String.length === 0 &&
@@ -96,10 +93,14 @@ module QuickStart = {
         ) {
           if typedConnectorValue->Array.length >= 2 {
             let firstConnectorValue =
-              typedConnectorValue->Array.get(0)->Option.getOr(getProcessorPayloadType(Dict.make()))
+              typedConnectorValue
+              ->Array.get(0)
+              ->Option.getOr(ConnectorListMapper.getProcessorPayloadType(Dict.make()))
 
             let secondConnectorValue =
-              typedConnectorValue->Array.get(1)->Option.getOr(getProcessorPayloadType(Dict.make()))
+              typedConnectorValue
+              ->Array.get(1)
+              ->Option.getOr(ConnectorListMapper.getProcessorPayloadType(Dict.make()))
 
             let bodyOfFirstConnector: QuickStartTypes.processorType = {
               processorID: firstConnectorValue.merchant_connector_id,
@@ -133,7 +134,9 @@ module QuickStart = {
             setQuickStartPageState(_ => ConnectProcessor(CONFIGURE_SMART_ROUTING))
           } else if typedConnectorValue->Array.length === 1 {
             let firstConnectorValue =
-              typedConnectorValue->Array.get(0)->Option.getOr(getProcessorPayloadType(Dict.make()))
+              typedConnectorValue
+              ->Array.get(0)
+              ->Option.getOr(ConnectorListMapper.getProcessorPayloadType(Dict.make()))
 
             let bodyOfFirstConnector: QuickStartTypes.processorType = {
               processorID: firstConnectorValue.merchant_connector_id,

@@ -435,9 +435,9 @@ let getConnectorNameString = (connector: connectorTypes) => {
   }
 }
 
-let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.Connector, ()) => {
+let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.Processor, ()) => {
   switch connectorType {
-  | Connector =>
+  | Processor =>
     switch connector {
     | "adyen" => Processors(ADYEN)
     | "checkout" => Processors(CHECKOUT)
@@ -1112,27 +1112,6 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
   ->JSON.Encode.object
 }
 
-let useFetchConnectorList = () => {
-  open APIUtils
-  let fetchDetails = useGetMethod()
-  let setConnectorList = HyperswitchAtom.connectorListAtom->Recoil.useSetRecoilState
-
-  async _ => {
-    try {
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Get, ())
-      let res = await fetchDetails(url)
-      let stringifiedResponse = res->JSON.stringify
-      setConnectorList(._ => stringifiedResponse)
-      res
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
-    }
-  }
-}
-
 let defaultSelectAllCards = (
   pmts: array<paymentMethodEnabled>,
   isUpdateFlow,
@@ -1222,16 +1201,15 @@ let getConnectorPaymentMethodDetails = async (
   }
 }
 
-let filterList = (items, ~removeFromList: processors) => {
-  open LogicUtils
+let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList: connector) => {
   items->Array.filter(dict => {
-    let connectorType = dict->getString("connector_type", "")
+    let connectorType = dict.connector_type
     let isPayoutConnector = connectorType == "payout_processor"
     let isConnector = connectorType !== "payment_vas" && !isPayoutConnector
     let isThreeDsAuthenticator = connectorType == "authentication_processor"
 
     switch removeFromList {
-    | Connector => !isConnector
+    | Processor => !isConnector
     | FRMPlayer => isConnector
     | PayoutConnector => isPayoutConnector
     | ThreeDsAuthenticator => isThreeDsAuthenticator
@@ -1239,9 +1217,12 @@ let filterList = (items, ~removeFromList: processors) => {
   })
 }
 
-let getProcessorsListFromJson = (json, ~removeFromList: processors=FRMPlayer, ()) => {
-  open LogicUtils
-  json->getArrayFromJson([])->Array.map(getDictFromJsonObject)->filterList(~removeFromList)
+let getProcessorsListFromJson = (
+  connnectorList: array<ConnectorTypes.connectorPayload>,
+  ~removeFromList: connector=FRMPlayer,
+  (),
+) => {
+  connnectorList->filterList(~removeFromList)
 }
 
 let getDisplayNameForProcessor = connector =>
