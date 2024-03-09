@@ -100,7 +100,7 @@ export function getPayoutConnectorConfig(key: string): any;
 * @param {string} key
 * @returns {any}
 */
-export function getThreedsConnectorConfig(key: string): any;
+export function getAuthenticationConnectorConfig(key: string): any;
 /**
 * @param {any} input
 * @param {any} response
@@ -141,7 +141,7 @@ export interface InitOutput {
   readonly getDescriptionCategory: (a: number) => void;
   readonly getConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getPayoutConnectorConfig: (a: number, b: number, c: number) => void;
-  readonly getThreedsConnectorConfig: (a: number, b: number, c: number) => void;
+  readonly getAuthenticationConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getRequestPayload: (a: number, b: number, c: number) => void;
   readonly getResponsePayload: (a: number, b: number) => void;
   readonly parse: (a: number, b: number, c: number) => void;

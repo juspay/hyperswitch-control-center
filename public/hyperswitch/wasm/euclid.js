@@ -561,12 +561,12 @@ export function getPayoutConnectorConfig(key) {
 * @param {string} key
 * @returns {any}
 */
-export function getThreedsConnectorConfig(key) {
+export function getAuthenticationConnectorConfig(key) {
     try {
         const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
         const ptr0 = passStringToWasm0(key, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
         const len0 = WASM_VECTOR_LEN;
-        wasm.getThreedsConnectorConfig(retptr, ptr0, len0);
+        wasm.getAuthenticationConnectorConfig(retptr, ptr0, len0);
         var r0 = getInt32Memory0()[retptr / 4 + 0];
         var r1 = getInt32Memory0()[retptr / 4 + 1];
         var r2 = getInt32Memory0()[retptr / 4 + 2];
