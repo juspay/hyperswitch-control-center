@@ -44,7 +44,7 @@ module OrderInfo = {
             </div>
             {getStatus(data)}
             <ACLButton
-              access={userPermissionJson.refundWrite}
+              access={userPermissionJson.operationsManage}
               text="+ Refund"
               onClick={_ => {
                 openRefundModal()
@@ -91,11 +91,7 @@ module OrderInfo = {
     let order = itemToObjMapper(orderDict)
     let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
-    let connectorList =
-      HyperswitchAtom.connectorListAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->LogicUtils.getObjectArrayFromJson
+    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
     <div className="md:flex md:flex-col md:gap-5">
       <UIUtils.RenderIf condition={!isMetadata}>
         <div className="md:flex md:gap-10 md:items-stretch md:mt-5 mb-10">
@@ -159,6 +155,7 @@ module OrderInfo = {
               Description,
               Shipping,
               Billing,
+              BillingEmail,
               AmountCapturable,
               ErrorCode,
               MandateData,
@@ -687,7 +684,7 @@ let make = (~id) => {
         </div>
         <UIUtils.RenderIf condition={showSyncButton()}>
           <ACLButton
-            access={userPermissionJson.paymentRead}
+            access={userPermissionJson.operationsView}
             text="Sync"
             leftIcon={Button.CustomIcon(
               <Icon
@@ -775,7 +772,11 @@ let make = (~id) => {
                 title: "Events and logs",
                 renderContent: () => {
                   <LogsWrapper wrapperFor={#PAYMENT}>
-                    <PaymentLogs paymentId={id} createdAt />
+                    <PaymentLogs
+                      paymentId={id}
+                      createdAt
+                      data={orderData->getDictFromJsonObject->OrderEntity.itemToObjMapper}
+                    />
                   </LogsWrapper>
                 },
                 renderContentOnTop: None,

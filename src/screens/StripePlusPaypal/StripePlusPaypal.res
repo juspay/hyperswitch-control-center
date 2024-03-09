@@ -28,7 +28,8 @@ let make = () => {
   }
 
   let handleNavigation = async (~forward: bool) => {
-    if selectedConnector === Processors(STRIPE) {
+    switch selectedConnector {
+    | Processors(STRIPE) =>
       if enums.paypalConnected.processorID->String.length === 0 {
         setSelectedConnector(_ => Processors(PAYPAL))
         setConnectorConfigureState(_ => Configure_keys)
@@ -42,8 +43,7 @@ let make = () => {
           }
         })
       }
-    } else {
-      setStepInView(_ => TEST_PAYMENT)
+    | _ => setStepInView(_ => TEST_PAYMENT)
     }
   }
 
@@ -136,7 +136,7 @@ let make = () => {
               <ConnectorPreview.ConnectorSummaryGrid
                 connectorInfo={initialValues
                 ->LogicUtils.getDictFromJsonObject
-                ->ConnectorTableUtils.getProcessorPayloadType}
+                ->ConnectorListMapper.getProcessorPayloadType}
                 connector=connectorName
                 setScreenState={_ => ()}
                 isPayoutFlow=false

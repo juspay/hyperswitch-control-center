@@ -1,207 +1,80 @@
 open AuthTypes
-
-type permissionType =
-  | PaymentRead
-  | PaymentWrite
-  | RefundRead
-  | RefundWrite
-  | ApiKeyRead
-  | ApiKeyWrite
-  | MerchantAccountRead
-  | MerchantAccountWrite
-  | MerchantConnectorAccountRead
-  | MerchantConnectorAccountWrite
-  | ForexRead
-  | RoutingRead
-  | RoutingWrite
-  | DisputeRead
-  | DisputeWrite
-  | MandateRead
-  | MandateWrite
-  | CustomerRead
-  | CustomerWrite
-  | FileRead
-  | FileWrite
-  | Analytics
-  | ThreeDsDecisionManagerWrite
-  | ThreeDsDecisionManagerRead
-  | SurchargeDecisionManagerWrite
-  | SurchargeDecisionManagerRead
-  | UsersRead
-  | UsersWrite
-  | UnknownPermission(string)
-
-type permissionJson = {
-  paymentRead: authorization,
-  paymentWrite: authorization,
-  refundRead: authorization,
-  refundWrite: authorization,
-  apiKeyRead: authorization,
-  apiKeyWrite: authorization,
-  merchantAccountRead: authorization,
-  merchantAccountWrite: authorization,
-  merchantConnectorAccountRead: authorization,
-  merchantConnectorAccountWrite: authorization,
-  forexRead: authorization,
-  routingRead: authorization,
-  routingWrite: authorization,
-  disputeRead: authorization,
-  disputeWrite: authorization,
-  mandateRead: authorization,
-  mandateWrite: authorization,
-  customerRead: authorization,
-  customerWrite: authorization,
-  fileRead: authorization,
-  fileWrite: authorization,
-  analytics: authorization,
-  threeDsDecisionManagerWrite: authorization,
-  threeDsDecisionManagerRead: authorization,
-  surchargeDecisionManagerWrite: authorization,
-  surchargeDecisionManagerRead: authorization,
-  usersRead: authorization,
-  usersWrite: authorization,
-}
+open UserManagementTypes
 
 let mapPermissionTypeToString = permissionType => {
   switch permissionType {
-  | PaymentRead => "PaymentRead"
-  | PaymentWrite => "PaymentWrite"
-  | RefundRead => "RefundRead"
-  | RefundWrite => "RefundWrite"
-  | ApiKeyRead => "ApiKeyRead"
-  | ApiKeyWrite => "ApiKeyWrite"
-  | MerchantAccountRead => "MerchantAccountRead"
-  | MerchantAccountWrite => "MerchantAccountWrite"
-  | MerchantConnectorAccountRead => "MerchantConnectorAccountRead"
-  | MerchantConnectorAccountWrite => "MerchantConnectorAccountWrite"
-  | ForexRead => "ForexRead"
-  | RoutingRead => "RoutingRead"
-  | RoutingWrite => "RoutingWrite"
-  | DisputeRead => "DisputeRead"
-  | DisputeWrite => "DisputeWrite"
-  | MandateRead => "MandateRead"
-  | MandateWrite => "MandateWrite"
-  | CustomerRead => "CustomerRead"
-  | CustomerWrite => "CustomerWrite"
-  | FileRead => "FileRead"
-  | FileWrite => "FileWrite"
-  | Analytics => "Analytics"
-  | ThreeDsDecisionManagerWrite => "ThreeDsDecisionManagerWrite"
-  | ThreeDsDecisionManagerRead => "ThreeDsDecisionManagerRead"
-  | SurchargeDecisionManagerWrite => "SurchargeDecisionManagerWrite"
-  | SurchargeDecisionManagerRead => "SurchargeDecisionManagerRead"
-  | UsersRead => "UsersRead"
-  | UsersWrite => "UsersWrite"
+  | OperationsView => "operations_view"
+  | OperationsManage => "operations_manage"
+  | ConnectorsView => "connectors_view"
+  | ConnectorsManage => "connectors_manage"
+  | WorkflowsView => "workflows_view"
+  | WorkflowsManage => "workflows_manage"
+  | AnalyticsView => "analytics_view"
+  | UsersView => "users_view"
+  | UsersManage => "users_manage"
+  | MerchantDetailsView => "merchant_details_view"
+  | MerchantDetailsManage => "merchant_details_manage"
+  | OrganizationManage => "organization_manage"
   | UnknownPermission(val) => val
   }
 }
 
 let mapStringToPermissionType = val => {
   switch val {
-  | "PaymentRead" => PaymentRead
-  | "PaymentWrite" => PaymentWrite
-  | "RefundRead" => RefundRead
-  | "RefundWrite" => RefundWrite
-  | "ApiKeyRead" => ApiKeyRead
-  | "ApiKeyWrite" => ApiKeyWrite
-  | "MerchantAccountRead" => MerchantAccountRead
-  | "MerchantAccountWrite" => MerchantAccountWrite
-  | "MerchantConnectorAccountRead" => MerchantConnectorAccountRead
-  | "MerchantConnectorAccountWrite" => MerchantConnectorAccountWrite
-  | "ForexRead" => ForexRead
-  | "RoutingRead" => RoutingRead
-  | "RoutingWrite" => RoutingWrite
-  | "DisputeRead" => DisputeRead
-  | "DisputeWrite" => DisputeWrite
-  | "MandateRead" => MandateRead
-  | "MandateWrite" => MandateWrite
-  | "CustomerRead" => CustomerRead
-  | "CustomerWrite" => CustomerWrite
-  | "FileRead" => FileRead
-  | "FileWrite" => FileWrite
-  | "Analytics" => Analytics
-  | "ThreeDsDecisionManagerWrite" => ThreeDsDecisionManagerWrite
-  | "ThreeDsDecisionManagerRead" => ThreeDsDecisionManagerRead
-  | "SurchargeDecisionManagerWrite" => SurchargeDecisionManagerWrite
-  | "SurchargeDecisionManagerRead" => SurchargeDecisionManagerRead
-  | "UsersRead" => UsersRead
-  | "UsersWrite" => UsersWrite
+  | "operations_view" => OperationsView
+  | "operations_manage" => OperationsManage
+  | "connectors_view" => ConnectorsView
+  | "connectors_manage" => ConnectorsManage
+  | "workflows_view" => WorkflowsView
+  | "workflows_manage" => WorkflowsManage
+  | "analytics_view" => AnalyticsView
+  | "users_view" => UsersView
+  | "users_manage" => UsersManage
+  | "merchant_details_view" => MerchantDetailsView
+  | "merchant_details_manage" => MerchantDetailsManage
+  | "organization_manage" => OrganizationManage
   | val => UnknownPermission(val)
   }
 }
 
 let getAccessValue = (~permissionValue: permissionType, ~permissionList) => {
   let isPermissionFound = permissionList->Array.find(ele => {
-    ele === permissionValue
+    ele == permissionValue
   })
 
   isPermissionFound->Option.isSome ? Access : NoAccess
 }
 
 let defaultValueForPermission = {
-  paymentRead: Access,
-  paymentWrite: Access,
-  refundRead: Access,
-  refundWrite: Access,
-  apiKeyRead: Access,
-  apiKeyWrite: Access,
-  merchantAccountRead: Access,
-  merchantAccountWrite: Access,
-  merchantConnectorAccountRead: Access,
-  merchantConnectorAccountWrite: Access,
-  forexRead: Access,
-  routingRead: Access,
-  routingWrite: Access,
-  disputeRead: Access,
-  disputeWrite: Access,
-  mandateRead: Access,
-  mandateWrite: Access,
-  customerRead: Access,
-  customerWrite: Access,
-  fileRead: Access,
-  fileWrite: Access,
-  analytics: Access,
-  threeDsDecisionManagerWrite: Access,
-  threeDsDecisionManagerRead: Access,
-  surchargeDecisionManagerWrite: Access,
-  surchargeDecisionManagerRead: Access,
-  usersRead: Access,
-  usersWrite: Access,
+  operationsView: NoAccess,
+  operationsManage: NoAccess,
+  connectorsView: NoAccess,
+  connectorsManage: NoAccess,
+  workflowsView: NoAccess,
+  workflowsManage: NoAccess,
+  analyticsView: NoAccess,
+  usersView: NoAccess,
+  usersManage: NoAccess,
+  merchantDetailsView: NoAccess,
+  merchantDetailsManage: NoAccess,
+  organizationManage: NoAccess,
 }
 
+// TODO: Refactor to not call function for every permission
 let getPermissionJson = permissionList => {
-  let getAccessValueFromPermission = permissionValue =>
-    getAccessValue(~permissionList, ~permissionValue)
-
   {
-    paymentRead: PaymentRead->getAccessValueFromPermission,
-    paymentWrite: PaymentWrite->getAccessValueFromPermission,
-    refundRead: RefundRead->getAccessValueFromPermission,
-    refundWrite: RefundWrite->getAccessValueFromPermission,
-    apiKeyRead: ApiKeyRead->getAccessValueFromPermission,
-    apiKeyWrite: ApiKeyWrite->getAccessValueFromPermission,
-    merchantAccountRead: MerchantAccountRead->getAccessValueFromPermission,
-    merchantAccountWrite: MerchantAccountWrite->getAccessValueFromPermission,
-    merchantConnectorAccountRead: MerchantConnectorAccountRead->getAccessValueFromPermission,
-    merchantConnectorAccountWrite: MerchantConnectorAccountWrite->getAccessValueFromPermission,
-    forexRead: ForexRead->getAccessValueFromPermission,
-    routingRead: RoutingRead->getAccessValueFromPermission,
-    routingWrite: RoutingWrite->getAccessValueFromPermission,
-    disputeRead: DisputeRead->getAccessValueFromPermission,
-    disputeWrite: DisputeWrite->getAccessValueFromPermission,
-    mandateRead: MandateRead->getAccessValueFromPermission,
-    mandateWrite: MandateWrite->getAccessValueFromPermission,
-    customerRead: CustomerRead->getAccessValueFromPermission,
-    customerWrite: CustomerWrite->getAccessValueFromPermission,
-    fileRead: FileRead->getAccessValueFromPermission,
-    fileWrite: FileWrite->getAccessValueFromPermission,
-    analytics: Analytics->getAccessValueFromPermission,
-    threeDsDecisionManagerWrite: ThreeDsDecisionManagerWrite->getAccessValueFromPermission,
-    threeDsDecisionManagerRead: ThreeDsDecisionManagerRead->getAccessValueFromPermission,
-    surchargeDecisionManagerWrite: SurchargeDecisionManagerWrite->getAccessValueFromPermission,
-    surchargeDecisionManagerRead: SurchargeDecisionManagerRead->getAccessValueFromPermission,
-    usersRead: UsersRead->getAccessValueFromPermission,
-    usersWrite: UsersWrite->getAccessValueFromPermission,
+    operationsView: getAccessValue(~permissionValue=OperationsView, ~permissionList),
+    operationsManage: getAccessValue(~permissionValue=OperationsManage, ~permissionList),
+    connectorsView: getAccessValue(~permissionValue=ConnectorsView, ~permissionList),
+    connectorsManage: getAccessValue(~permissionValue=ConnectorsManage, ~permissionList),
+    workflowsView: getAccessValue(~permissionValue=WorkflowsView, ~permissionList),
+    workflowsManage: getAccessValue(~permissionValue=WorkflowsManage, ~permissionList),
+    analyticsView: getAccessValue(~permissionValue=AnalyticsView, ~permissionList),
+    usersView: getAccessValue(~permissionValue=UsersView, ~permissionList),
+    usersManage: getAccessValue(~permissionValue=UsersManage, ~permissionList),
+    merchantDetailsView: getAccessValue(~permissionValue=MerchantDetailsView, ~permissionList),
+    merchantDetailsManage: getAccessValue(~permissionValue=MerchantDetailsManage, ~permissionList),
+    organizationManage: getAccessValue(~permissionValue=OrganizationManage, ~permissionList),
   }
 }
 

@@ -20,10 +20,10 @@ let make = () => {
     isProdIntentCompleted,
   } = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let fetchBusinessProfiles = MerchantAccountUtils.useFetchBusinessProfiles()
-  let fetchMerchantAccountDetails = MerchantAccountUtils.useFetchMerchantDetails()
+  let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
+  let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
-  let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let enumDetails =
     enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -33,12 +33,13 @@ let make = () => {
   let verificationDays = getFromMerchantDetails("verification")->getIntFromString(-1)
   let merchantId = getFromMerchantDetails("merchant_id")
   let userRole = getFromUserDetails("user_role")
+
   let modeText = featureFlagDetails.isLiveMode ? "Live Mode" : "Test Mode"
   let modeStyles = featureFlagDetails.isLiveMode
     ? "bg-hyperswitch_green_trans border-hyperswitch_green_trans text-hyperswitch_green"
     : "bg-orange-600/80 border-orange-500 text-grey-700"
 
-  let merchantDetailsTypedValue = useMerchantDetailsValue()->MerchantAccountUtils.getMerchantDetails
+  let merchantDetailsTypedValue = useMerchantDetailsValue()
   let isReconEnabled = merchantDetailsTypedValue.recon_status === Active
 
   let hyperSwitchAppSidebars = SidebarValues.useGetSidebarValues(~isReconEnabled)
@@ -88,12 +89,13 @@ let make = () => {
   let fetchPermissions = async () => {
     try {
       let url = getURL(~entityName=USERS, ~userType=#GET_PERMISSIONS, ~methodType=Get, ())
-      let response = await fetchDetails(url)
+      let response = await fetchDetails(`${url}?groups=true`)
       let permissionsValue =
         response->getArrayFromJson([])->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
       let permissionJson =
         permissionsValue->Array.map(ele => ele->mapStringToPermissionType)->getPermissionJson
       setuserPermissionJson(._ => permissionJson)
+      permissionJson
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -106,19 +108,19 @@ let make = () => {
     try {
       let _ = await fetchSwitchMerchantList()
       let _ = await Window.connectorWasmInit()
-      if featureFlagDetails.permissionBasedModule {
-        let _ = await fetchPermissions()
-      }
+      let permissionJson = await fetchPermissions()
 
       if merchantId->isNonEmptyString {
-        if userPermissionJson.merchantConnectorAccountRead === Access {
+        if (
+          permissionJson.connectorsView === Access ||
+          permissionJson.workflowsView === Access ||
+          permissionJson.workflowsManage === Access
+        ) {
           let _ = await fetchConnectorListResponse()
         }
 
-        if userPermissionJson.merchantAccountRead === Access {
-          let _ = await fetchBusinessProfiles()
-          let _ = await fetchMerchantAccountDetails()
-        }
+        let _ = await fetchBusinessProfiles()
+        let _ = await fetchMerchantAccountDetails()
       }
       if featureFlagDetails.quickStart {
         let _ = await fetchInitialEnums()
@@ -224,7 +226,7 @@ let make = () => {
                       | list{"fraud-risk-management", ...remainingPath} =>
                         <AccessControl
                           isEnabled={featureFlagDetails.frm}
-                          permission=userPermissionJson.merchantConnectorAccountRead>
+                          permission=userPermissionJson.connectorsView>
                           <EntityScaffold
                             entityName="risk-management"
                             remainingPath
@@ -233,8 +235,9 @@ let make = () => {
                             renderShow={_ => <FRMConfigure />}
                           />
                         </AccessControl>
+
                       | list{"connectors", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.merchantConnectorAccountRead>
+                        <AccessControl permission=userPermissionJson.connectorsView>
                           <EntityScaffold
                             entityName="Connectors"
                             remainingPath
@@ -243,10 +246,11 @@ let make = () => {
                             renderShow={_ => <ConnectorHome />}
                           />
                         </AccessControl>
+
                       | list{"payoutconnectors", ...remainingPath} =>
                         <AccessControl
                           isEnabled={featureFlagDetails.payOut}
-                          permission=userPermissionJson.merchantConnectorAccountRead>
+                          permission=userPermissionJson.connectorsView>
                           <EntityScaffold
                             entityName="PayoutConnectors"
                             remainingPath
@@ -270,7 +274,7 @@ let make = () => {
                         </AccessControl>
 
                       | list{"payments", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.paymentRead>
+                        <AccessControl permission=userPermissionJson.operationsView>
                           <FilterContext key="payments" index="payments" disableSessionStorage=true>
                             <EntityScaffold
                               entityName="Payments"
@@ -282,7 +286,7 @@ let make = () => {
                           </FilterContext>
                         </AccessControl>
                       | list{"refunds", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.refundRead>
+                        <AccessControl permission=userPermissionJson.operationsView>
                           <FilterContext key="refunds" index="refunds" disableSessionStorage=true>
                             <EntityScaffold
                               entityName="Refunds"
@@ -294,7 +298,7 @@ let make = () => {
                           </FilterContext>
                         </AccessControl>
                       | list{"disputes", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.disputeRead>
+                        <AccessControl permission=userPermissionJson.operationsView>
                           <EntityScaffold
                             entityName="Disputes"
                             remainingPath
@@ -304,7 +308,7 @@ let make = () => {
                           />
                         </AccessControl>
                       | list{"customers", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.customerRead>
+                        <AccessControl permission=userPermissionJson.operationsView>
                           <EntityScaffold
                             entityName="Customers"
                             remainingPath
@@ -314,7 +318,7 @@ let make = () => {
                           />
                         </AccessControl>
                       | list{"routing", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.routingRead>
+                        <AccessControl permission=userPermissionJson.workflowsView>
                           <EntityScaffold
                             entityName="Routing"
                             remainingPath
@@ -323,11 +327,15 @@ let make = () => {
                           />
                         </AccessControl>
                       | list{"users", "invite-users"} =>
-                        <AccessControl permission=userPermissionJson.usersWrite>
+                        <AccessControl permission=userPermissionJson.usersManage>
                           <InviteUsers />
                         </AccessControl>
+                      | list{"users", "create-custom-role"} =>
+                        <AccessControl permission=userPermissionJson.usersManage>
+                          <CreateCustomRole />
+                        </AccessControl>
                       | list{"users", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.usersRead>
+                        <AccessControl permission=userPermissionJson.usersView>
                           <EntityScaffold
                             entityName="UserManagement"
                             remainingPath
@@ -336,13 +344,13 @@ let make = () => {
                           />
                         </AccessControl>
                       | list{"analytics-payments"} =>
-                        <AccessControl permission=userPermissionJson.analytics>
+                        <AccessControl permission=userPermissionJson.analyticsView>
                           <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
                             <PaymentAnalytics />
                           </FilterContext>
                         </AccessControl>
                       | list{"analytics-refunds"} =>
-                        <AccessControl permission=userPermissionJson.analytics>
+                        <AccessControl permission=userPermissionJson.analyticsView>
                           <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
                             <RefundsAnalytics />
                           </FilterContext>
@@ -350,34 +358,34 @@ let make = () => {
                       | list{"analytics-user-journey"} =>
                         <AccessControl
                           isEnabled=featureFlagDetails.userJourneyAnalytics
-                          permission=userPermissionJson.analytics>
+                          permission=userPermissionJson.analyticsView>
                           <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
                             <UserJourneyAnalytics />
                           </FilterContext>
                         </AccessControl>
                       | list{"developer-api-keys"} =>
-                        <AccessControl permission=userPermissionJson.apiKeyRead>
+                        <AccessControl permission=userPermissionJson.merchantDetailsManage>
                           <KeyManagement.KeysManagement />
                         </AccessControl>
                       | list{"developer-system-metrics"} =>
                         <AccessControl
                           isEnabled={userRole->String.includes("internal_") &&
                             featureFlagDetails.systemMetrics}
-                          permission=userPermissionJson.analytics>
+                          permission=userPermissionJson.analyticsView>
                           <FilterContext key="SystemMetrics" index="SystemMetrics">
                             <SystemMetricsAnalytics />
                           </FilterContext>
                         </AccessControl>
+
+                      // TODO : reevaluatet the conditions
                       | list{"payment-settings", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.merchantAccountRead>
-                          <EntityScaffold
-                            entityName="PaymentSettings"
-                            remainingPath
-                            renderList={() => <PaymentSettingsList />}
-                            renderShow={profileId =>
-                              <PaymentSettings webhookOnly=false showFormOnly=false />}
-                          />
-                        </AccessControl>
+                        <EntityScaffold
+                          entityName="PaymentSettings"
+                          remainingPath
+                          renderList={() => <PaymentSettingsList />}
+                          renderShow={profileId =>
+                            <PaymentSettings webhookOnly=false showFormOnly=false />}
+                        />
                       | list{"recon"} =>
                         <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
                           <Recon />
@@ -387,26 +395,26 @@ let make = () => {
                           <SDKPage />
                         </AccessControl>
                       | list{"3ds"} =>
-                        <AccessControl permission=userPermissionJson.threeDsDecisionManagerRead>
+                        <AccessControl permission=userPermissionJson.workflowsView>
                           <HSwitchThreeDS />
                         </AccessControl>
                       | list{"surcharge"} =>
                         <AccessControl
                           isEnabled={featureFlagDetails.surcharge}
-                          permission=userPermissionJson.surchargeDecisionManagerRead>
+                          permission=userPermissionJson.workflowsView>
                           <Surcharge />
                         </AccessControl>
                       | list{"account-settings"} =>
                         <AccessControl
                           isEnabled=featureFlagDetails.sampleData
-                          permission=userPermissionJson.merchantAccountWrite>
+                          permission=userPermissionJson.merchantDetailsManage>
                           <HSwitchSettings />
                         </AccessControl>
                       | list{"account-settings", "profile"} => <HSwitchProfileSettings />
+
+                      // TODO : reevaluate the condition
                       | list{"business-details"} =>
-                        <AccessControl
-                          isEnabled=featureFlagDetails.default
-                          permission=userPermissionJson.merchantAccountRead>
+                        <AccessControl isEnabled=featureFlagDetails.default permission={Access}>
                           <BusinessDetails />
                         </AccessControl>
                       | list{"business-profiles"} =>
@@ -439,9 +447,8 @@ let make = () => {
               <ProdIntentForm />
             </RenderIf>
             <RenderIf
-              condition={featureFlagDetails.permissionBasedModule &&
-              userPermissionJson.merchantAccountWrite === Access &&
-              merchantDetailsTypedValue.merchant_name->Option.isNone}>
+              condition={userPermissionJson.merchantDetailsManage === Access &&
+                merchantDetailsTypedValue.merchant_name->Option.isNone}>
               <CompanyNameModal showModal=companyNameModal setShowModal=setCompanyNameModal />
             </RenderIf>
           </div>

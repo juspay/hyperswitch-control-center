@@ -5,8 +5,7 @@ module SDKConfiguarationFields = {
   @react.component
   let make = (~initialValues: SDKPaymentTypes.paymentType) => {
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
-    let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
-    let disableSelectionForProfile = arrayOfBusinessProfile->HomeUtils.isDefaultBusinessProfile
+    let disableSelectionForProfile = businessProfiles->HomeUtils.isDefaultBusinessProfile
 
     let dropDownOptions = HomeUtils.countries->Array.map((item): SelectBox.dropdownOption => {
       {
@@ -21,7 +20,7 @@ module SDKConfiguarationFields = {
       ~placeholder="",
       ~customInput=InputFields.selectInput(
         ~deselectDisable=true,
-        ~options={arrayOfBusinessProfile->businessProfileNameDropDownOption},
+        ~options={businessProfiles->businessProfileNameDropDownOption},
         ~buttonText="Select Profile",
         ~disableSelect=disableSelectionForProfile,
         ~fullLength=true,

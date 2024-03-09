@@ -48,4 +48,13 @@ describe("Auth Module", () => {
     cy.get('button[type="submit"]').click({ force: true });
     cy.contains("Incorrect email or password").should("be.visible");
   });
+
+  it("should login successfully with email containing spaces", () => {
+    const password = "cypress98#";
+    cy.visit("http://localhost:9000/");
+    cy.get("[data-testid=email]").type(`  ${username}  `);
+    cy.get("[data-testid=password]").type(password);
+    cy.get('button[type="submit"]').click({ force: true });
+    cy.url().should("eq", "http://localhost:9000/home");
+  });
 });

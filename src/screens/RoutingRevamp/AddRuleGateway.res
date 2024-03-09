@@ -6,10 +6,7 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded=false) => {
   let gateWaysType = ReactFinalForm.useField(`${id}.connectorSelection.type`).input
   let isDistributeInput = ReactFinalForm.useField(`${id}.isDistribute`).input
   let isDistribute = isDistributeInput.value->LogicUtils.getBoolFromJson(false)
-  let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-  let connectorList = React.useMemo0(() => {
-    connectorListJson->LogicUtils.safeParse->ConnectorTableUtils.getArrayOfConnectorListPayloadType
-  })
+  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
   React.useEffect1(() => {
     let typeString = if isDistribute {

@@ -75,6 +75,7 @@ type order = {
   payment_token: string,
   shipping: string,
   billing: string,
+  billingEmail: string,
   metadata: Dict.t<JSON.t>,
   email: string,
   name: string,
@@ -232,6 +233,7 @@ type otherDetailsColType =
   | FRMName
   | FRMTransactionType
   | FRMStatus
+  | BillingEmail
 
 type optionObj = {
   urlKey: string,

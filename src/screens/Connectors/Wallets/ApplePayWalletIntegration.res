@@ -22,7 +22,6 @@ module Simplified = {
     ~setApplePayIntegrationSteps,
     ~setVefifiedDomainList,
   ) => {
-    open LogicUtils
     open WalletHelper
     open APIUtils
     open ApplePayWalletIntegrationUtils
@@ -32,7 +31,7 @@ module Simplified = {
     let fetchApi = AuthHooks.useApiFetcher()
     let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
     let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
-    let merchantId = merchantDetailsValue->getDictFromJsonObject->getString("merchant_id", "")
+    let merchantId = merchantDetailsValue.merchant_id
     let prefix = "apple_pay_combined.simplified.session_token_data.initiative_context"
     let inputField =
       <FormRenderer.FieldRenderer

@@ -10,16 +10,12 @@ let make = () => {
   let showPopUp = PopUpState.useShowPopUp()
   let businessProfiles = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
-  let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (gateways, setGateways) = React.useState(() => [])
   let (defaultRoutingResponse, setDefaultRoutingResponse) = React.useState(_ => [])
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
-  let connectorListJson =
-    HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->safeParse
-  let typedConnectorValue =
-    connectorListJson->ConnectorTableUtils.getArrayOfConnectorListPayloadType
+  let typedConnectorValue = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
   let settingUpConnectorsState = routingRespArray => {
     let profileList =
@@ -109,7 +105,7 @@ let make = () => {
         <BasicDetailsForm.BusinessProfileInp
           setProfile={setProfile}
           profile={profile}
-          options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
+          options={businessProfiles->businessProfileNameDropDownOption}
           label="Profile"
         />
       </div>

@@ -341,8 +341,6 @@ let allColumns = [
   Status,
 ]
 
-let ordersMapDefaultCols = Recoil.atom(. "ordersMapDefaultCols", defaultColumns)
-
 let getHeading = (colType: colType) => {
   switch colType {
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID", ~showSort=false, ())
@@ -605,6 +603,8 @@ let getHeadingForOtherDetails = otherDetailsColType => {
       (),
     )
   | FRMStatus => Table.makeHeaderInfo(~key="frm_status", ~title="FRM Message", ~showSort=true, ())
+  | BillingEmail =>
+    Table.makeHeaderInfo(~key="billing_email", ~title="Billing Email", ~showSort=true, ())
   }
 }
 
@@ -641,7 +641,7 @@ let getCellForSummary = (order, summaryColType, _): Table.cell => {
 let getCellForAboutPayment = (
   order,
   aboutPaymentColType: aboutPaymentColType,
-  connectorList,
+  connectorList: array<ConnectorTypes.connectorPayload>,
 ): Table.cell => {
   open HelperComponents
   switch aboutPaymentColType {
@@ -653,17 +653,13 @@ let getCellForAboutPayment = (
   | ConnectorLabel => {
       let connectorLabel =
         connectorList
-        ->Array.find(ele =>
-          order.merchant_connector_id === ele->getString("merchant_connector_id", "")
-        )
-        ->Option.getOr(Dict.make())
-        ->getString("connector_label", "")
-      Text(connectorLabel)
+        ->Array.find(ele => order.merchant_connector_id === ele.merchant_connector_id)
+        ->Option.getOr(Dict.make()->ConnectorListMapper.getProcessorPayloadType)
+      Text(connectorLabel.connector_label)
     }
   | CardBrand => Text(order.card_brand)
   | ProfileId => Text(order.profile_id)
-  | ProfileName =>
-    Table.CustomCell(<MerchantAccountUtils.BusinessProfile profile_id={order.profile_id} />, "")
+  | ProfileName => Table.CustomCell(<BusinessProfileComponent profile_id={order.profile_id} />, "")
   | CaptureMethod => Text(order.capture_method)
   }
 }
@@ -696,6 +692,7 @@ let getCellForOtherDetails = (order, aboutPaymentColType, _): Table.cell => {
   | FRMName => Text(order.frm_message.frm_name)
   | FRMTransactionType => Text(order.frm_message.frm_transaction_type)
   | FRMStatus => Text(order.frm_message.frm_status)
+  | BillingEmail => Text(order.billingEmail)
   }
 }
 
@@ -771,8 +768,6 @@ let getCell = (order, colType: colType): Table.cell => {
     )
   }
 }
-
-let _ = Recoil.atom(. "hyperSwitchOrderDefaultCols", defaultColumns)
 
 let itemToObjMapperForFRMDetails = dict => {
   {
@@ -857,6 +852,7 @@ let itemToObjMapper = dict => {
     ->getDictfromDict("billing")
     ->getDictfromDict("address")
     ->concatValueOfGivenKeysOfDict(addressKeys),
+    billingEmail: dict->getDictfromDict("billing")->getString("email", ""),
     metadata: dict->getJsonObjectFromDict("metadata")->getDictFromJsonObject,
     email: dict->getString("email", ""),
     name: dict->getString("name", ""),

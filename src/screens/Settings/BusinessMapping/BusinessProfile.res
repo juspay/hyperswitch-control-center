@@ -91,7 +91,7 @@ module AddEntryBtn = {
       <UIUtils.RenderIf condition=isFromSettings>
         <ACLButton
           text="Add"
-          access={userPermissionJson.merchantAccountWrite}
+          access={userPermissionJson.merchantDetailsManage}
           buttonSize=Small
           buttonType={Primary}
           rightIcon={FontAwesome("plus")}
@@ -130,12 +130,9 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (updatedProfileId, setUpdatedProfileId) = React.useState(_ => "")
 
-  let businessProfileValues =
-    HyperswitchAtom.businessProfilesAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->MerchantAccountUtils.getArrayOfBusinessProfile
+  let businessProfileValues = HyperswitchAtom.businessProfilesAtom->Recoil.useRecoilValueFromAtom
 
-  let fetchBusinessProfiles = MerchantAccountUtils.useFetchBusinessProfiles()
+  let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
 
   let updateMerchantDetails = async body => {
     try {

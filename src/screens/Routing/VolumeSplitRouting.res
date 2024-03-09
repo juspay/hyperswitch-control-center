@@ -22,10 +22,7 @@ module VolumeRoutingView = {
     let showToast = ToastState.useShowToast()
     let listLength = connectors->Array.length
     let (showModal, setShowModal) = React.useState(_ => false)
-    let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-    let connectorList = React.useMemo0(() => {
-      connectorListJson->safeParse->ConnectorTableUtils.getArrayOfConnectorListPayloadType
-    })
+    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
     let gateways =
       initialValues
@@ -207,12 +204,11 @@ let make = (~routingRuleId, ~isActive) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (pageState, setPageState) = React.useState(() => Create)
   let (connectors, setConnectors) = React.useState(_ => [])
-  let currentTabName = Recoil.useRecoilValueFromAtom(RoutingUtils.currentTabNameRecoilAtom)
+  let currentTabName = Recoil.useRecoilValueFromAtom(HyperswitchAtom.currentTabNameRecoilAtom)
   let showToast = ToastState.useShowToast()
-  let connectorListJson =
-    HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->safeParse
+  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let getConnectorsList = () => {
-    setConnectors(_ => connectorListJson->ConnectorTableUtils.getArrayOfConnectorListPayloadType)
+    setConnectors(_ => connectorList)
   }
 
   let activeRoutingDetails = async () => {

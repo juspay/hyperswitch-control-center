@@ -82,7 +82,6 @@ let make = (
 
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->getValueFromBusinessProfile
-  let arrayOfBusinessProfile = businessProfiles->getArrayOfBusinessProfile
 
   //Need to check if necessary
   let form = ReactFinalForm.useForm()
@@ -135,7 +134,7 @@ let make = (
                 </span>
                 <AddDataAttributes attributes=[("data-text", getStringFromJson(ip3.value, ""))]>
                   <span className="font-semibold">
-                    <MerchantAccountUtils.BusinessProfile
+                    <HelperComponents.BusinessProfileComponent
                       profile_id={profile->Option.getOr(defaultBusinessProfile.profile_id)}
                     />
                   </span>
@@ -153,7 +152,7 @@ let make = (
               <BusinessProfileInp
                 setProfile={setProfile->Option.getOr(_ => ())}
                 profile={profile->Option.getOr(defaultBusinessProfile.profile_id)}
-                options={arrayOfBusinessProfile->businessProfileNameDropDownOption}
+                options={businessProfiles->businessProfileNameDropDownOption}
                 label="Profile"
                 routingType
               />

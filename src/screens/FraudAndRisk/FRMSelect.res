@@ -41,7 +41,7 @@ module NewProcessorCards = {
               </div>
               <ACLButton
                 text="+ Connect"
-                access=userPermissionJson.merchantConnectorAccountWrite
+                access=userPermissionJson.connectorsManage
                 buttonType=Secondary
                 buttonSize=Small
                 onClick={_ => handleClick(frmName)}
@@ -133,7 +133,7 @@ let make = () => {
 
       if connectorsCount > 0 {
         let frmList = processorsList->FRMUtils.filterList(~removeFromList=Connector, ())
-        let previousData = frmList->Array.map(ConnectorTableUtils.getProcessorPayloadType)
+        let previousData = frmList->Array.map(ConnectorListMapper.getProcessorPayloadType)
         setFilteredFRMData(_ => previousData->Array.map(Nullable.make))
         setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
         let arr =
@@ -199,7 +199,7 @@ let make = () => {
           setOffset
           entity={FRMTableUtils.connectorEntity(
             "fraud-risk-management",
-            ~permission={userPermissionJson.merchantConnectorAccountWrite},
+            ~permission={userPermissionJson.connectorsManage},
           )}
           currrentFetchCount={filteredFRMData->Array.length}
           collapseTableRow=false

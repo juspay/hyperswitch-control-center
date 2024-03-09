@@ -68,6 +68,7 @@ let connectorList: array<connectorTypes> = [
   Processors(WORLDLINE),
   Processors(WORLDPAY),
   Processors(ZEN),
+  Processors(PLACETOPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -366,6 +367,10 @@ let bankOfAmericaInfo = {
   description: "A top financial firm offering banking, investing, and risk solutions to individuals and businesses.",
 }
 
+let placetopay = {
+  description: "Reliable payment processor facilitating secure transactions online for businesses, ensuring seamless transactions.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -419,6 +424,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | PROPHETPAY => "prophetpay"
   | BANKOFAMERICA => "bankofamerica"
   | HELCIM => "helcim"
+  | PLACETOPAY => "placetopay"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -435,9 +441,9 @@ let getConnectorNameString = (connector: connectorTypes) => {
   }
 }
 
-let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.Connector, ()) => {
+let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.Processor, ()) => {
   switch connectorType {
-  | Connector =>
+  | Processor =>
     switch connector {
     | "adyen" => Processors(ADYEN)
     | "checkout" => Processors(CHECKOUT)
@@ -490,6 +496,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.C
     | "bankofamerica" => Processors(BANKOFAMERICA)
     | "prophetpay" => Processors(PROPHETPAY)
     | "helcim" => Processors(HELCIM)
+    | "placetopay" => Processors(PLACETOPAY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -554,6 +561,7 @@ let getProcessorInfo = connector => {
   | PROPHETPAY => prophetpayInfo
   | BANKOFAMERICA => bankOfAmericaInfo
   | HELCIM => helcimInfo
+  | PLACETOPAY => placetopay
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -652,8 +660,7 @@ let ignoreFields = (json, id, fields) => {
       let (key, _val) = entry
       !(fields->Array.includes(key))
     })
-    ->Dict.fromArray
-    ->JSON.Encode.object
+    ->LogicUtils.getJsonFromArrayOfJson
   }
 }
 
@@ -862,26 +869,28 @@ let validateConnectorRequiredFields = (
 ) => {
   open LogicUtils
   let newDict = getDictFromJsonObject(errors)
-  if connector === Processors(CASHTOCODE) {
-    let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
+  switch connector {
+  | Processors(CASHTOCODE) => {
+      let dict = connectorAccountFields->getAuthKeyMapFromConnectorAccountFields
 
-    let indexLength = dict->Dict.keysToArray->Array.length
-    let vector = Js.Vector.make(indexLength, false)
+      let indexLength = dict->Dict.keysToArray->Array.length
+      let vector = Js.Vector.make(indexLength, false)
 
-    dict
-    ->Dict.keysToArray
-    ->Array.forEachWithIndex((country, index) => {
-      let res = checkCashtoCodeInnerField(valuesFlattenJson, dict, country)
+      dict
+      ->Dict.keysToArray
+      ->Array.forEachWithIndex((country, index) => {
+        let res = checkCashtoCodeInnerField(valuesFlattenJson, dict, country)
 
-      vector->Js.Vector.set(index, res)
-    })
+        vector->Js.Vector.set(index, res)
+      })
 
-    let _ = Js.Vector.filterInPlace((. val) => val == true, vector)
+      let _ = Js.Vector.filterInPlace((. val) => val == true, vector)
 
-    if vector->Js.Vector.length === 0 {
-      Dict.set(newDict, "Currency", `Please enter currency`->JSON.Encode.string)
+      if vector->Js.Vector.length === 0 {
+        Dict.set(newDict, "Currency", `Please enter currency`->JSON.Encode.string)
+      }
     }
-  } else {
+  | _ =>
     connectorAccountFields
     ->Dict.keysToArray
     ->Array.forEach(value => {
@@ -1109,27 +1118,6 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
   ->JSON.Encode.object
 }
 
-let useFetchConnectorList = () => {
-  open APIUtils
-  let fetchDetails = useGetMethod()
-  let setConnectorList = HyperswitchAtom.connectorListAtom->Recoil.useSetRecoilState
-
-  async _ => {
-    try {
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Get, ())
-      let res = await fetchDetails(url)
-      let stringifiedResponse = res->JSON.stringify
-      setConnectorList(._ => stringifiedResponse)
-      res
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
-    }
-  }
-}
-
 let defaultSelectAllCards = (
   pmts: array<paymentMethodEnabled>,
   isUpdateFlow,
@@ -1219,16 +1207,15 @@ let getConnectorPaymentMethodDetails = async (
   }
 }
 
-let filterList = (items, ~removeFromList: processors) => {
-  open LogicUtils
+let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList: connector) => {
   items->Array.filter(dict => {
-    let connectorType = dict->getString("connector_type", "")
+    let connectorType = dict.connector_type
     let isPayoutConnector = connectorType == "payout_processor"
     let isConnector = connectorType !== "payment_vas" && !isPayoutConnector
     let isThreeDsAuthenticator = connectorType == "authentication_processor"
 
     switch removeFromList {
-    | Connector => !isConnector
+    | Processor => !isConnector
     | FRMPlayer => isConnector
     | PayoutConnector => isPayoutConnector
     | ThreeDsAuthenticator => isThreeDsAuthenticator
@@ -1236,12 +1223,15 @@ let filterList = (items, ~removeFromList: processors) => {
   })
 }
 
-let getProcessorsListFromJson = (json, ~removeFromList: processors=FRMPlayer, ()) => {
-  open LogicUtils
-  json->getArrayFromJson([])->Array.map(getDictFromJsonObject)->filterList(~removeFromList)
+let getProcessorsListFromJson = (
+  connnectorList: array<ConnectorTypes.connectorPayload>,
+  ~removeFromList: connector=FRMPlayer,
+  (),
+) => {
+  connnectorList->filterList(~removeFromList)
 }
 
-let getDisplayNameForConnector = connector =>
+let getDisplayNameForProcessor = connector =>
   switch connector {
   | ADYEN => "Adyen"
   | CHECKOUT => "Checkout"
@@ -1294,6 +1284,7 @@ let getDisplayNameForConnector = connector =>
   | PROPHETPAY => "Prophet Pay"
   | BANKOFAMERICA => "Bank of America"
   | HELCIM => "Helcim"
+  | PLACETOPAY => "Placetopay"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -1304,7 +1295,7 @@ let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
 let getDisplayNameForConnector = connector => {
   let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString()
   switch connectorType {
-  | Processors(connector) => connector->getDisplayNameForConnector
+  | Processors(connector) => connector->getDisplayNameForProcessor
   | ThreeDsAuthenticator(threeDsAuthenticator) =>
     threeDsAuthenticator->getDisplayNameForThreedsAuthenticator
   | UnknownConnector(str) => str

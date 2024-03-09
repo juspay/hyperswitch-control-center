@@ -120,7 +120,7 @@ let make = (~id) => {
         overriddingStylesTitle={`text-3xl font-semibold`}
       />}>
       <RefundInfo orderDict={refundData->LogicUtils.getDictFromJsonObject} />
-      <UIUtils.RenderIf condition={userPermissionJson.paymentRead !== NoAccess}>
+      <UIUtils.RenderIf condition={userPermissionJson.operationsView !== NoAccess}>
         <LoadedTable
           title="Payment"
           actualData=orderData
@@ -141,7 +141,13 @@ let make = (~id) => {
               title: "Events and logs",
               renderContent: () => {
                 <LogsWrapper wrapperFor={#REFUND}>
-                  <RefundLogs refundId=id paymentId />
+                  <RefundLogs
+                    refundId=id
+                    paymentId
+                    data={refundData
+                    ->LogicUtils.getDictFromJsonObject
+                    ->RefundEntity.itemToObjMapper}
+                  />
                 </LogsWrapper>
               },
               renderContentOnTop: None,
