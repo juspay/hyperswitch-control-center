@@ -501,7 +501,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     }
   | ThreeDsAuthenticator =>
     switch connector {
-    | "threedsio" => ThreeDsAuthenticator(THREEDSECUREIO)
+    | "threedsecureio" => ThreeDsAuthenticator(THREEDSECUREIO)
     | _ => UnknownConnector("Not known")
     }
   | _ => UnknownConnector("Not known")
@@ -676,10 +676,11 @@ let mapAuthType = (authType: string) => {
   }
 }
 
-let getConnectorType = (connector, ~isPayoutFlow, ()) => {
+let getConnectorType = (connector: ConnectorTypes.connectorTypes, ~isPayoutFlow, ()) => {
   isPayoutFlow
     ? "payout_processor"
     : switch connector {
+      | ThreeDsAuthenticator(_) => "authentication_processor"
       | UnknownConnector(str) => str
       | _ => "payment_processor"
       }
@@ -770,6 +771,7 @@ let generateInitialValuesDict = (
   ~bodyType,
   ~isPayoutFlow=false,
   ~isLiveMode=false,
+  ~connectorType: ConnectorTypes.connector=ConnectorTypes.Processor,
   (),
 ) => {
   open LogicUtils
@@ -786,7 +788,7 @@ let generateInitialValuesDict = (
   dict->Dict.set(
     "connector_type",
     getConnectorType(
-      connector->getConnectorNameTypeFromString(),
+      connector->getConnectorNameTypeFromString(~connectorType, ()),
       ~isPayoutFlow,
       (),
     )->JSON.Encode.string,
@@ -1292,8 +1294,9 @@ let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
   | THREEDSECUREIO => "3dsecure.io"
   }
 
-let getDisplayNameForConnector = connector => {
-  let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString()
+let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, connector) => {
+  let connectorType =
+    connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType, ())
   switch connectorType {
   | Processors(connector) => connector->getDisplayNameForProcessor
   | ThreeDsAuthenticator(threeDsAuthenticator) =>
@@ -1303,9 +1306,10 @@ let getDisplayNameForConnector = connector => {
 }
 
 let getConnectorTypeArrayFromListConnectors = (
+  ~connectorType=ConnectorTypes.Processor,
   connectorsList: array<ConnectorTypes.connectorPayload>,
 ) => {
   connectorsList->Array.map(connectorDetail =>
-    connectorDetail.connector_name->getConnectorNameTypeFromString()
+    connectorDetail.connector_name->getConnectorNameTypeFromString(~connectorType, ())
   )
 }

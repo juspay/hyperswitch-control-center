@@ -4,7 +4,7 @@ let detailedCardCount = 5
 let make = () => {
   open UIUtils
 
-  let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
@@ -16,9 +16,10 @@ let make = () => {
     try {
       let response = await fetchConnectorListResponse()
       let connectorsList =
-        response->getProcessorsListFromJson(~removeFromList=ConnectorTypes.ThreeDsAuthenticator, ())
-      let previousData = connectorsList->Array.map(ConnectorTableUtils.getProcessorPayloadType)
-      setConfiguredConnectors(_ => previousData)
+        response
+        ->ConnectorListMapper.getArrayOfConnectorListPayloadType
+        ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.ThreeDsAuthenticator, ())
+      setConfiguredConnectors(_ => connectorsList)
       setScreenState(_ => Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -29,7 +30,6 @@ let make = () => {
     getConnectorList()->ignore
     None
   })
-
   <div>
     <PageUtils.PageHeading
       title={"Three Ds Processors"}
@@ -38,11 +38,14 @@ let make = () => {
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-10">
         <ProcessorCards
-          configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors}
+          configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
+            ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
+          )}
           showIcons={showConnectorIcons}
           connectorsAvailableForIntegration=ConnectorUtils.threedsAuthenticatorList
           showTestProcessor=false
           urlPrefix="threeds-processors/new"
+          connectorType=ConnectorTypes.ThreeDsAuthenticator
         />
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
@@ -50,9 +53,9 @@ let make = () => {
             actualData={configuredConnectors->Array.map(Nullable.make)}
             totalResults={configuredConnectors->Array.map(Nullable.make)->Array.length}
             resultsPerPage=20
-            entity={ConnectorTableUtils.connectorEntity(
-              `connectors`,
-              ~permission=userPermissionJson.merchantConnectorAccountWrite,
+            entity={ThreeDsTableEntity.threeDsAuthenticatorEntity(
+              `threeds-processors`,
+              ~permission=userPermissionJson.connectorsManage,
             )}
             offset
             setOffset

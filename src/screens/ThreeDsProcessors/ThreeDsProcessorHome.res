@@ -1,18 +1,50 @@
+module MenuOption = {
+  open HeadlessUI
+  @react.component
+  let make = (~updateStepValue, ~setCurrentStep) => {
+    <Popover \"as"="div" className="relative inline-block text-left">
+      {popoverProps => <>
+        <Popover.Button> {buttonProps => <Icon name="menu-option" size=28 />} </Popover.Button>
+        <Popover.Panel className="absolute z-20 right-5 top-4">
+          {panelProps => {
+            <div
+              id="neglectTopbarTheme"
+              className="relative flex flex-col bg-white py-3 overflow-hidden rounded ring-1 ring-black ring-opacity-5 w-40">
+              {<>
+                <Navbar.MenuOption
+                  text="Update"
+                  onClick={_ => {
+                    panelProps["close"]()
+                    setCurrentStep(_ => updateStepValue)
+                  }}
+                />
+              </>}
+            </div>
+          }}
+        </Popover.Panel>
+      </>}
+    </Popover>
+  }
+}
+
 @react.component
 let make = () => {
   open ThreeDsProcessorTypes
   open ConnectorUtils
   open APIUtils
   let url = RescriptReactRouter.useUrl()
-
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
   let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
   let fetchDetails = useGetMethod()
+  let activeBusinessProfile =
+    Recoil.useRecoilValueFromAtom(
+      HyperswitchAtom.businessProfilesAtom,
+    )->MerchantAccountUtils.getValueFromBusinessProfile
 
   let isUpdateFlow = switch url.path {
   | list{"threeds-processors", "new"} => false
@@ -56,8 +88,7 @@ let make = () => {
   let connectorDetails = React.useMemo1(() => {
     try {
       if connectorName->LogicUtils.isNonEmptyString {
-        let dict = Window.getThreedsConnectorConfig(connectorName)
-        setScreenState(_ => Success)
+        let dict = Window.getAuthenticationConnectorConfig(connectorName)
         dict
       } else {
         Dict.make()->JSON.Encode.object
@@ -82,6 +113,22 @@ let make = () => {
   ) = getConnectorFields(connectorDetails)
 
   React.useEffect1(() => {
+    let initialValuesToDict = initialValues->LogicUtils.getDictFromJsonObject
+
+    if !isUpdateFlow {
+      initialValuesToDict->Dict.set(
+        "profile_id",
+        activeBusinessProfile.profile_id->JSON.Encode.string,
+      )
+      initialValuesToDict->Dict.set(
+        "connector_label",
+        `${connectorName}_${activeBusinessProfile.profile_name}`->JSON.Encode.string,
+      )
+    }
+    None
+  }, [connectorName, activeBusinessProfile.profile_id])
+
+  React.useEffect1(() => {
     if connectorName->LogicUtils.isNonEmptyString {
       getDetails()->ignore
     } else {
@@ -92,19 +139,19 @@ let make = () => {
 
   let onSubmit = async (values, _) => {
     try {
-      let body = generateInitialValuesDict(
-        ~values,
-        ~connector=connectorName,
-        ~bodyType,
-        ~isPayoutFlow=false,
-        ~isLiveMode={false},
-        (),
-      )
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ())
+      let body =
+        generateInitialValuesDict(
+          ~values,
+          ~connector=connectorName,
+          ~bodyType,
+          ~isPayoutFlow=false,
+          ~isLiveMode={false},
+          ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
+          (),
+        )->ignoreFields(connectorID, connectorIgnoredField)
+      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
       let response = await updateAPIHook(connectorUrl, body, Post, ())
       setInitialValues(_ => response)
-
-      Js.log2("inside on submit", body)
       setCurrentStep(_ => Summary)
     } catch {
     | Exn.Error(e) => setCurrentStep(_ => ConfigurationFields)
@@ -127,6 +174,14 @@ let make = () => {
     )
   }
 
+  let summaryPageButton = switch isUpdateFlow {
+  | true => <MenuOption updateStepValue=ConfigurationFields setCurrentStep />
+  | _ =>
+    <Button
+      text="Done" buttonType=Primary onClick={_ => RescriptReactRouter.push("/threeds-processors")}
+    />
+  }
+
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-10 overflow-scroll h-full w-full">
       <BreadCrumbNavigation
@@ -142,20 +197,30 @@ let make = () => {
                 link: "/threeds-processors",
               },
         ]
-        currentPageTitle={connectorName->ConnectorUtils.getDisplayNameForConnector}
+        currentPageTitle={connectorName->ConnectorUtils.getDisplayNameForConnector(
+          ~connectorType=ThreeDsAuthenticator,
+        )}
         cursorStyle="cursor-pointer"
       />
       <div
         className="bg-white rounded-lg border h-3/4 overflow-scroll shadow-boxShadowMultiple show-scrollbar">
         {switch currentStep {
         | ConfigurationFields =>
-          <Form initialValues onSubmit validate={validateMandatoryField}>
+          <Form initialValues={initialValues} onSubmit validate={validateMandatoryField}>
             <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
               connector=connectorName
+              connectorType=ThreeDsAuthenticator
               headerButton={<AddDataAttributes
                 attributes=[("data-testid", "connector-submit-button")]>
                 <FormRenderer.SubmitButton loadingText="Processing..." text="Connect and Proceed" />
               </AddDataAttributes>}>
+              <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
+                <div className="flex flex-col gap-2 p-2 md:px-10">
+                  <ConnectorAccountDetailsHelper.BusinessProfileRender
+                    isUpdateFlow selectedConnector={connectorName}
+                  />
+                </div>
+              </UIUtils.RenderIf>
               <div className={`flex flex-col gap-2 p-2 md:p-10`}>
                 <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
                   connector={connectorName->getConnectorNameTypeFromString()}
@@ -175,15 +240,12 @@ let make = () => {
         | Summary =>
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector=connectorName
-            headerButton={<Button
-              text="Done"
-              buttonType=Primary
-              onClick={_ => RescriptReactRouter.push("/threeds-processors")}
-            />}>
+            connectorType=ThreeDsAuthenticator
+            headerButton={summaryPageButton}>
             <ConnectorPreview.ConnectorSummaryGrid
               connectorInfo={initialValues
               ->LogicUtils.getDictFromJsonObject
-              ->ConnectorTableUtils.getProcessorPayloadType}
+              ->ConnectorListMapper.getProcessorPayloadType}
               connector=connectorName
               setScreenState={_ => ()}
               isPayoutFlow=false

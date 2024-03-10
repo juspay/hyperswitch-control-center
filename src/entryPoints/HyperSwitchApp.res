@@ -261,9 +261,7 @@ let make = () => {
                         </AccessControl>
 
                       | list{"threeds-processors", ...remainingPath} =>
-                        <AccessControl
-                          isEnabled={featureFlagDetails.payOut}
-                          permission=userPermissionJson.merchantConnectorAccountRead>
+                        <AccessControl permission=userPermissionJson.connectorsView>
                           <EntityScaffold
                             entityName="ThreeDsProcessors"
                             remainingPath

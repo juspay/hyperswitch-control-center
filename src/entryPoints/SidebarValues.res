@@ -162,7 +162,7 @@ let threeDsConnector = (~permissionJson) => {
   SubLevelLink({
     name: "Threeds Processors",
     link: "/threeds-processors",
-    access: permissionJson.merchantConnectorAccountRead,
+    access: permissionJson.connectorsView,
     searchOptions: [],
   })
 }

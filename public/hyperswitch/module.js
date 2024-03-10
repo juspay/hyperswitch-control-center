@@ -135,9 +135,9 @@ function payPalCreateAccountWindow() {
 }
 
 
-function getThreedsConnectorConfig(connectorName) {
+function getAuthenticationConnectorConfig(connectorName) {
   if (wasm) {
-    return wasm.getThreedsConnectorConfig(connectorName);
+    return wasm.getAuthenticationConnectorConfig(connectorName);
   } else {
     return {};
   }
