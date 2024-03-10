@@ -1,1 +1,1 @@
-type steps = ConfigurationFields | Summary
+type steps = ConfigurationFields | Summary | Preview

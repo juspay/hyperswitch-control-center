@@ -32,15 +32,19 @@ let make = () => {
   open ThreeDsProcessorTypes
   open ConnectorUtils
   open APIUtils
+  open LogicUtils
+
+  let showToast = ToastState.useShowToast()
   let url = RescriptReactRouter.useUrl()
+  let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
+  let fetchDetails = useGetMethod()
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)
-  let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
-  let fetchDetails = useGetMethod()
+
   let activeBusinessProfile =
     Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.businessProfilesAtom,
@@ -71,7 +75,7 @@ let make = () => {
       let _ = await Window.connectorWasmInit()
       if isUpdateFlow {
         await getConnectorDetails()
-        setCurrentStep(_ => Summary)
+        setCurrentStep(_ => Preview)
       } else {
         setCurrentStep(_ => ConfigurationFields)
       }
@@ -149,12 +153,29 @@ let make = () => {
           ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
           (),
         )->ignoreFields(connectorID, connectorIgnoredField)
-      let connectorUrl = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
+      let connectorUrl = getURL(
+        ~entityName=CONNECTOR,
+        ~methodType=Post,
+        ~id=isUpdateFlow ? Some(connectorID) : None,
+        (),
+      )
       let response = await updateAPIHook(connectorUrl, body, Post, ())
       setInitialValues(_ => response)
       setCurrentStep(_ => Summary)
     } catch {
-    | Exn.Error(e) => setCurrentStep(_ => ConfigurationFields)
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
+        let errorCode = err->safeParse->getDictFromJsonObject->getString("code", "")
+        let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
+
+        if errorCode === "HE_01" {
+          showToast(~message="Connector label already exist!", ~toastType=ToastError, ())
+          setCurrentStep(_ => ConfigurationFields)
+        } else {
+          showToast(~message=errorMessage, ~toastType=ToastError, ())
+          setScreenState(_ => PageLoaderWrapper.Error(err))
+        }
+      }
     }
     Nullable.null
   }
@@ -174,8 +195,8 @@ let make = () => {
     )
   }
 
-  let summaryPageButton = switch isUpdateFlow {
-  | true => <MenuOption updateStepValue=ConfigurationFields setCurrentStep />
+  let summaryPageButton = switch currentStep {
+  | Preview => <MenuOption updateStepValue=ConfigurationFields setCurrentStep />
   | _ =>
     <Button
       text="Done" buttonType=Primary onClick={_ => RescriptReactRouter.push("/threeds-processors")}
@@ -237,7 +258,7 @@ let make = () => {
             <FormValuesSpy />
           </Form>
 
-        | Summary =>
+        | Summary | Preview =>
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper
             connector=connectorName
             connectorType=ThreeDsAuthenticator
