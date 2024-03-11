@@ -355,7 +355,6 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
               key={index->Int.toString}
               heading={`${ele.module_->LogicUtils.snakeToTitle} module`}
               description={ele.description}
-              readWriteValues={ele.permissions}
               isPermissionAllowed={ele.isPermissionAllowed}
             />
           })
