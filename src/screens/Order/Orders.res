@@ -11,11 +11,7 @@ let make = (~previewOnly=false) => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filters, setFilters) = React.useState(_ => None)
   let (paymentModal, setPaymentModal) = React.useState(_ => false)
-  let connectorList =
-    HyperswitchAtom.connectorListAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->safeParse
-    ->getObjectArrayFromJson
+  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let isConfigureConnector = connectorList->Array.length > 0
 
   let (widthClass, heightClass) = React.useMemo1(() => {

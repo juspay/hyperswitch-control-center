@@ -397,10 +397,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let (pageState, setPageState) = React.useState(() => Create)
   let (showModal, setShowModal) = React.useState(_ => false)
   let currentTabName = Recoil.useRecoilValueFromAtom(HyperswitchAtom.currentTabNameRecoilAtom)
-  let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-  let connectorList = React.useMemo0(() => {
-    connectorListJson->safeParse->ConnectorTableUtils.getArrayOfConnectorListPayloadType
-  })
+  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
   let getConnectorsList = () => {
     setConnectors(_ =>
