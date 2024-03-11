@@ -9,7 +9,7 @@ module EmailPasswordForm = {
       <div className="flex flex-col gap-3">
         <FormRenderer.FieldRenderer field=passwordField labelClass fieldWrapperClass />
         <UIUtils.RenderIf condition={forgetPassword}>
-          <AddDataAttributes attributes=[("id", "forgot-password")]>
+          <AddDataAttributes attributes=[("data-testid", "forgot-password")]>
             <label
               className={`not-italic text-[12px] font-semibold font-ibm-plex text-blue-800 cursor-pointer cursor-pointer`}
               onClick={_ => setAuthType(_ => HyperSwitchAuthTypes.ForgetPassword)}>

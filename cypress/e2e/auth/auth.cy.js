@@ -45,11 +45,11 @@ describe("Auth Module", () => {
 
   it("check auth page back button functioning, success only if feature flag enabled for magic link and forgot password", () => {
     cy.visit("http://localhost:9000/");
-    cy.get("#card-foot-text").click();
+    cy.get("[data-testid=card-foot-text]").click();
     cy.url().should("include", "/login");
     cy.get("#card-header").should("contain", "Hey there, Welcome back!");
     cy.get("#card-subtitle").should("contain", "Sign up");
-    cy.get("#forgot-password").click();
+    cy.get("[data-testid=forgot-password]").click();
     cy.url().should("include", "/forget-password");
     cy.get("#card-header").should("contain", "Forgot Password?");
     cy.go("back");
