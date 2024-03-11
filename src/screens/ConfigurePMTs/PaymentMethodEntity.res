@@ -87,7 +87,7 @@ let getCell = (paymentMethodConfig: paymentMethodConfiguration, colType): Table.
   }
 }
 
-let map = (dict, arr) => {
+let itemObjMapper = (dict, arr) => {
   open ConnectorListMapper
   open LogicUtils
   let paymentMethod =
@@ -117,14 +117,12 @@ let map = (dict, arr) => {
 }
 let getPreviouslyConnectedList: JSON.t => array<paymentMethodConfiguration> = json => {
   let arr = []
-
   let _ =
     json
     ->JSON.Decode.array
     ->Option.getOr([])
     ->Belt.Array.keepMap(JSON.Decode.object)
-    ->Array.map(dict => dict->map(arr))
-
+    ->Array.map(dict => dict->itemObjMapper(arr))
   arr
 }
 let paymentMethodEntity = (path: string) => {

@@ -31,7 +31,7 @@ let make = (~isPayoutFlow=false) => {
     />
     <PageLoaderWrapper screenState>
       <LoadedTable
-        title=""
+        title="Configure PMTs"
         actualData=configuredConnectors
         totalResults={configuredConnectors->Array.length}
         resultsPerPage=20
