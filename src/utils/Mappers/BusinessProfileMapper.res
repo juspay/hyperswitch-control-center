@@ -13,11 +13,22 @@ let constructWebhookDetailsObject = webhookDetailsDict => {
   }
   webhookDetails
 }
+let constructAuthConnectorObject = authConnectorDict => {
+  open LogicUtils
+  let authConnectorDetails = {
+    authentication_connectors: authConnectorDict->getOptionalArrayFromDict(
+      "authentication_connectors",
+    ),
+    three_ds_requestor_url: authConnectorDict->getOptionString("three_ds_requestor_url"),
+  }
+  authConnectorDetails
+}
 
 let businessProfileTypeMapper = values => {
   open LogicUtils
   let jsonDict = values->getDictFromJsonObject
   let webhookDetailsDict = jsonDict->getDictfromDict("webhook_details")
+  let authenticationConnectorDetails = jsonDict->getDictfromDict("authentication_connector_details")
   let businessProfile = {
     merchant_id: jsonDict->getString("merchant_id", ""),
     profile_id: jsonDict->getString("profile_id", ""),
@@ -25,6 +36,7 @@ let businessProfileTypeMapper = values => {
     return_url: jsonDict->getOptionString("return_url"),
     payment_response_hash_key: jsonDict->getOptionString("payment_response_hash_key"),
     webhook_details: webhookDetailsDict->constructWebhookDetailsObject,
+    authentication_connector_details: authenticationConnectorDetails->constructAuthConnectorObject,
   }
   businessProfile
 }
