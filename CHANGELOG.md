@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.10.0
+
+### Miscellaneous Tasks
+
+- Connector list type mapping ([#465](https://github.com/juspay/hyperswitch-control-center/pull/465)) ([`5887682`](https://github.com/juspay/hyperswitch-control-center/commit/5887682d661a43d53023f2c67ff4405bfe056efd))
+
+**Full Changelog:** [`2024.03.07.0...2024.03.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.07.0...2024.03.10.0)
+
+- - -
+
 ## 2024.03.07.0
 
 ### Bug Fixes
