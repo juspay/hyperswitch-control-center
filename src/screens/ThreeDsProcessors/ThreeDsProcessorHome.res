@@ -51,7 +51,7 @@ let make = () => {
     )->MerchantAccountUtils.getValueFromBusinessProfile
 
   let isUpdateFlow = switch url.path {
-  | list{"threeds-processors", "new"} => false
+  | list{"threeds-authenticators", "new"} => false
   | _ => true
   }
 
@@ -199,7 +199,9 @@ let make = () => {
   | Preview => <MenuOption updateStepValue=ConfigurationFields setCurrentStep />
   | _ =>
     <Button
-      text="Done" buttonType=Primary onClick={_ => RescriptReactRouter.push("/threeds-processors")}
+      text="Done"
+      buttonType=Primary
+      onClick={_ => RescriptReactRouter.push("/threeds-authenticators")}
     />
   }
 
@@ -210,12 +212,12 @@ let make = () => {
           connectorID === "new"
             ? {
                 title: "Three Ds Processors",
-                link: "/threeds-processors",
+                link: "/threeds-authenticators",
                 warning: `You have not yet completed configuring your ${connectorName->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
               }
             : {
                 title: "Three Ds Processors",
-                link: "/threeds-processors",
+                link: "/threeds-authenticators",
               },
         ]
         currentPageTitle={connectorName->ConnectorUtils.getDisplayNameForConnector(

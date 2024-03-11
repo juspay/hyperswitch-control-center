@@ -160,10 +160,13 @@ let fraudAndRisk = (~permissionJson) => {
 
 let threeDsConnector = (~permissionJson) => {
   SubLevelLink({
-    name: "Threeds Processors",
-    link: "/threeds-processors",
+    name: "Three Ds Authenticators",
+    link: "/threeds-authenticators",
     access: permissionJson.connectorsView,
-    searchOptions: [],
+    searchOptions: [
+      ("Connect 3dsecure.io", "/new?name=threedsecureio"),
+      ("Connect threedsecureio", "/new?name=threedsecureio"),
+    ],
   })
 }
 

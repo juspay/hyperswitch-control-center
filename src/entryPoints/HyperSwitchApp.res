@@ -260,10 +260,10 @@ let make = () => {
                           />
                         </AccessControl>
 
-                      | list{"threeds-processors", ...remainingPath} =>
+                      | list{"threeds-authenticators", ...remainingPath} =>
                         <AccessControl permission=userPermissionJson.connectorsView>
                           <EntityScaffold
-                            entityName="ThreeDsProcessors"
+                            entityName="ThreeDsAuthenticators"
                             remainingPath
                             renderList={() => <ThreeDsConnectorList />}
                             renderNewForm={() => <ThreeDsProcessorHome />}

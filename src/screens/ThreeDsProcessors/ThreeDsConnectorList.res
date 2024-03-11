@@ -32,8 +32,8 @@ let make = () => {
   })
   <div>
     <PageUtils.PageHeading
-      title={"Three Ds Processors"}
-      subTitle={"Connect and manage payout processors for disbursements and settlements"}
+      title={"Three Ds Authenticators"}
+      subTitle={"Connect and manage threeds authenticators for disbursements and settlements"}
     />
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-10">
@@ -44,7 +44,7 @@ let make = () => {
           showIcons={showConnectorIcons}
           connectorsAvailableForIntegration=ConnectorUtils.threedsAuthenticatorList
           showTestProcessor=false
-          urlPrefix="threeds-processors/new"
+          urlPrefix="threeds-authenticators/new"
           connectorType=ConnectorTypes.ThreeDsAuthenticator
         />
         <RenderIf condition={configuredConnectors->Array.length > 0}>
@@ -54,7 +54,7 @@ let make = () => {
             totalResults={configuredConnectors->Array.map(Nullable.make)->Array.length}
             resultsPerPage=20
             entity={ThreeDsTableEntity.threeDsAuthenticatorEntity(
-              `threeds-processors`,
+              `threeds-authenticators`,
               ~permission=userPermissionJson.connectorsManage,
             )}
             offset
