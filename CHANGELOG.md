@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.11.0
+
+### Refactors
+
+- Removed permissions ([#484](https://github.com/juspay/hyperswitch-control-center/pull/484)) ([`fa93405`](https://github.com/juspay/hyperswitch-control-center/commit/fa93405825890b944ea65a788faa94e8fe0f1a17))
+
+**Full Changelog:** [`2024.03.10.0...2024.03.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.10.0...2024.03.11.0)
+
+- - -
+
 ## 2024.03.10.0
 
 ### Miscellaneous Tasks
