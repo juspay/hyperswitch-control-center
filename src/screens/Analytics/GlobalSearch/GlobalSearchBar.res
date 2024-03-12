@@ -199,7 +199,20 @@ let make = () => {
       let url = "https://sandbox.hyperswitch.io/analytics/v1/search"
       let body = [("query", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
       let response = await fetchDetails(url, body, Post, ())
+      let dictFields = [("searchText", searchText->JSON.Encode.string)]
+      results->Array.forEach((item: resultType) => {
+        switch item.section {
+        | Local =>
+          dictFields->Array.push(("local-results", item.results->Identity.genericTypeToJson))
 
+        | _ => ()
+        }
+      })
+      dictFields->Array.push(("remote-results", response))
+      sessionStorage.setItem(.
+        "results",
+        dictFields->Dict.fromArray->JSON.Encode.object->JSON.stringify,
+      )
       let values = response->getRemoteResults
       results->Array.pushMany(values)
 
@@ -298,11 +311,11 @@ let make = () => {
           }}
         />
         <div
-          className="bg-gray-200 py-1 px-2 rounded-md flex gap-1 items-center mr-5 cursor-pointer ml-2"
+          className="bg-gray-200 py-1 px-2 rounded-md flex gap-1 items-center mr-5 cursor-pointer ml-2 opacity-70"
           onClick={_ => {
             setShowModal(_ => false)
           }}>
-          <span className="opacity-50 font-bold text-sm"> {"Esc"->React.string} </span>
+          <span className="opacity-40 font-bold text-sm"> {"Esc"->React.string} </span>
           <Icon size=15 name="times" parentClass="flex justify-end opacity-30" />
         </div>
       </div>
