@@ -68,6 +68,7 @@ module OptionsWrapper = {
   let make = (~children) => {
     <FramerMotion.Motion.Div layoutId="options">
       <Combobox.Options
+        static={true}
         className="w-full overflow-auto text-base max-h-[50vh] focus:outline-none sm:text-sm">
         {_ => {children}}
       </Combobox.Options>
@@ -111,7 +112,7 @@ module ModalWrapper = {
         key="search"
         initial={{borderRadius: ["15px", "15px", "15px", "15px"], scale: 0.9}}
         animate={{borderRadius: ["15px", "15px", "15px", "15px"], scale: 1.0}}
-        className={"flex flex-col bg-white gap-2 overflow-hidden py-2"}>
+        className={"flex flex-col bg-white gap-2 overflow-hidden py-2 !show-scrollbar"}>
         {children}
       </FramerMotion.Motion.Div>
     </Modal>
@@ -127,9 +128,10 @@ module SearchResultsComponent = {
     <OptionsWrapper>
       {searchResults
       ->Array.mapWithIndex((section: resultType, index) => {
-        let borderClass = searchResults->Array.length > 0 ? "" : "border-b dark:border-jp-gray-960"
+        let borderClass =
+          index !== searchResults->Array.length - 1 ? "border-b-1 dark:border-jp-gray-960" : ""
         <FramerMotion.Motion.Div
-          layoutId={section.section->getSectionHeader} className={`px-3 pt-3 pb-1 ${borderClass}`}>
+          layoutId={section.section->getSectionHeader} className={`px-3 mb-3 py-1 ${borderClass}`}>
           <FramerMotion.Motion.Div
             initial={{opacity: 0.5}}
             animate={{opacity: 0.5}}
@@ -187,7 +189,7 @@ let make = () => {
   let loader = LottieFiles.useLottieJson("loader-circle.json")
 
   let redirectOnSelect = element => {
-    let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("")
+    let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("search")
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
       redirectLink->RescriptReactRouter.replace
