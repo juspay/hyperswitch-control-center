@@ -260,6 +260,17 @@ let make = () => {
                           />
                         </AccessControl>
 
+                      | list{"threeds-authenticators", ...remainingPath} =>
+                        <AccessControl permission=userPermissionJson.connectorsView>
+                          <EntityScaffold
+                            entityName="ThreeDsAuthenticators"
+                            remainingPath
+                            renderList={() => <ThreeDsConnectorList />}
+                            renderNewForm={() => <ThreeDsProcessorHome />}
+                            renderShow={_ => <ThreeDsProcessorHome />}
+                          />
+                        </AccessControl>
+
                       | list{"payments", ...remainingPath} =>
                         <AccessControl permission=userPermissionJson.operationsView>
                           <FilterContext key="payments" index="payments" disableSessionStorage=true>
