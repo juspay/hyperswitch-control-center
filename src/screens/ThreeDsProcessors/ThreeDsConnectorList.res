@@ -32,8 +32,8 @@ let make = () => {
   })
   <div>
     <PageUtils.PageHeading
-      title={"Three Ds Authenticators"}
-      subTitle={"Connect and manage threeds authenticators for disbursements and settlements"}
+      title={"3DS Authentication Manager"}
+      subTitle={"Connect and manage 3DS authentication providers to enhance the conversions"}
     />
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-10">

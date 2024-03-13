@@ -356,7 +356,7 @@ let helcimInfo = {
 }
 
 let threedsecuredotioInfo = {
-  description: "Authenticate cardholders with the new improved 3-D Secure 2 and use the previous 3-D Secure 1 as fallback.",
+  description: "A brief description of the connector (100-150 chars) -  A secure, affordable and easy to connect 3DS authentication platform. Improve the user experience during checkout, enhance the conversion rates and stay compliant with the regulations with 3dsecure.io.",
 }
 
 let unknownConnectorInfo = {
