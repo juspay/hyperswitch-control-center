@@ -84,6 +84,9 @@ external getParsedJson: string => JSON.t = "getParsedJson"
 external payPalCreateAccountWindow: unit => unit = "payPalCreateAccountWindow"
 
 @val @scope("window")
+external getAuthenticationConnectorConfig: string => JSON.t = "getAuthenticationConnectorConfig"
+
+@val @scope("window")
 external isSecureContext: bool = "isSecureContext"
 
 module MatchMedia = {

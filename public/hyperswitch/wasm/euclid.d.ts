@@ -97,6 +97,11 @@ export function getConnectorConfig(key: string): any;
 */
 export function getPayoutConnectorConfig(key: string): any;
 /**
+* @param {string} key
+* @returns {any}
+*/
+export function getAuthenticationConnectorConfig(key: string): any;
+/**
 * @param {any} input
 * @param {any} response
 * @returns {any}
@@ -136,6 +141,7 @@ export interface InitOutput {
   readonly getDescriptionCategory: (a: number) => void;
   readonly getConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getPayoutConnectorConfig: (a: number, b: number, c: number) => void;
+  readonly getAuthenticationConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getRequestPayload: (a: number, b: number, c: number) => void;
   readonly getResponsePayload: (a: number, b: number) => void;
   readonly parse: (a: number, b: number, c: number) => void;
