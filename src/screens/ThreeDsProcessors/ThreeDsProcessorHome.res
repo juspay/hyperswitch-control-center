@@ -211,12 +211,12 @@ let make = () => {
         path=[
           connectorID === "new"
             ? {
-                title: "Three Ds Processors",
+                title: "Threeds Authenticators",
                 link: "/threeds-authenticators",
                 warning: `You have not yet completed configuring your ${connectorName->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
               }
             : {
-                title: "Three Ds Processors",
+                title: "Threeds Authenticators",
                 link: "/threeds-authenticators",
               },
         ]
