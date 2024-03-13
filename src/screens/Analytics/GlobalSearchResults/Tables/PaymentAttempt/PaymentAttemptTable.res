@@ -1,6 +1,6 @@
 @react.component
 let make = (~tableData) => {
-  open PaymentIntentEntity
+  open PaymentAttemptEntity
   let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
   let (offset, setOffset) = React.useState(_ => 0)
   let defaultSort: Table.sortedObject = {

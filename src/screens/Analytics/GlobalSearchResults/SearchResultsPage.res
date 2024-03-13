@@ -61,7 +61,7 @@ module RenderSearchResultBody = {
             data->JSON.Decode.object->Option.getOr(Dict.make())
           })
           ->Array.filter(dict => dict->Dict.keysToArray->Array.length > 0)
-          ->Array.map(item => item->PaymentIntentEntity.tableItemToObjMapper->Nullable.make)
+          ->Array.map(item => item->PaymentAttemptEntity.tableItemToObjMapper->Nullable.make)
 
         <PaymentAttemptTable tableData={data} />
       }

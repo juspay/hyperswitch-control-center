@@ -1,4 +1,4 @@
-type paymentIntentObject = {
+type paymentAttemptObject = {
   payment_id: string,
   merchant_id: string,
   status: string,
@@ -23,6 +23,32 @@ type paymentIntentObject = {
   attempt_count: int,
   sign_flag: int,
   timestamp: string,
+  confirm: bool,
+  multiple_capture_count: int,
+  attempt_id: string,
+  save_to_locker: string,
+  connector: string,
+  error_message: string,
+  offer_amount: string,
+  surcharge_amount: string,
+  tax_amount: string,
+  payment_method_id: string,
+  payment_method: string,
+  connector_transaction_id: string,
+  capture_method: string,
+  capture_on: string,
+  authentication_type: string,
+  cancellation_reason: string,
+  amount_to_capture: string,
+  mandate_id: string,
+  payment_method_type: string,
+  payment_experience: string,
+  error_reason: string,
+  amount_capturable: string,
+  merchant_connector_id: string,
+  net_amount: string,
+  unified_code: string,
+  unified_message: string,
 }
 
 type cols =
@@ -50,6 +76,32 @@ type cols =
   | AttemptCount
   | SignFlag
   | Timestamp
+  | Confirm
+  | MultipleCaptureCount
+  | AttemptId
+  | SaveToLocker
+  | Connector
+  | ErrorMessage
+  | OfferAmount
+  | SurchargeAmount
+  | TaxAmount
+  | PaymentMethodId
+  | PaymentMethod
+  | ConnectorTransactionId
+  | CaptureMethod
+  | CaptureOn
+  | AuthenticationType
+  | CancellationReason
+  | AmountToCapture
+  | MandateId
+  | PaymentMethodType
+  | PaymentExperience
+  | ErrorReason
+  | AmountCapturable
+  | MerchantConnectorId
+  | NetAmount
+  | UnifiedCode
+  | UnifiedMessage
 
 let visibleColumns = [
   PaymentId,
@@ -58,10 +110,9 @@ let visibleColumns = [
   Amount,
   Currency,
   CreatedAt,
-  ActiveAttemptId,
-  BusinessCountry,
-  BusinessLabel,
-  AttemptCount,
+  Connector,
+  PaymentMethod,
+  PaymentMethodType,
 ]
 
 let colMapper = (col: cols) => {
@@ -90,10 +141,36 @@ let colMapper = (col: cols) => {
   | AttemptCount => "attempt_count"
   | SignFlag => "sign_flag"
   | Timestamp => "@timestamp"
+  | Confirm => "confirm"
+  | MultipleCaptureCount => "multiple_capture_count"
+  | AttemptId => "attempt_id"
+  | SaveToLocker => "save_to_locker"
+  | Connector => "connector"
+  | ErrorMessage => "error_message"
+  | OfferAmount => "offer_amount"
+  | SurchargeAmount => "surcharge_amount"
+  | TaxAmount => "tax_amount"
+  | PaymentMethodId => "payment_method_id"
+  | PaymentMethod => "payment_method"
+  | ConnectorTransactionId => "connector_transaction_id"
+  | CaptureMethod => "capture_method"
+  | CaptureOn => "capture_on"
+  | AuthenticationType => "authentication_type"
+  | CancellationReason => "cancellation_reason"
+  | AmountToCapture => "amount_to_capture"
+  | MandateId => "mandate_id"
+  | PaymentMethodType => "payment_method_type"
+  | PaymentExperience => "payment_experience"
+  | ErrorReason => "error_reason"
+  | AmountCapturable => "amount_capturable"
+  | MerchantConnectorId => "merchant_connector_id"
+  | NetAmount => "net_amount"
+  | UnifiedCode => "unified_code"
+  | UnifiedMessage => "unified_message"
   }
 }
 
-let tableItemToObjMapper: 'a => paymentIntentObject = dict => {
+let tableItemToObjMapper: 'a => paymentAttemptObject = dict => {
   open LogicUtils
 
   {
@@ -121,10 +198,36 @@ let tableItemToObjMapper: 'a => paymentIntentObject = dict => {
     attempt_count: dict->getInt(AttemptCount->colMapper, 0),
     sign_flag: dict->getInt(SignFlag->colMapper, 0),
     timestamp: dict->getString(Timestamp->colMapper, "NA"),
+    confirm: dict->getBool(Confirm->colMapper, false),
+    multiple_capture_count: dict->getInt(MultipleCaptureCount->colMapper, 0),
+    attempt_id: dict->getString(AttemptId->colMapper, "NA"),
+    save_to_locker: dict->getString(SaveToLocker->colMapper, "NA"),
+    connector: dict->getString(Connector->colMapper, "NA"),
+    error_message: dict->getString(ErrorMessage->colMapper, "NA"),
+    offer_amount: dict->getString(OfferAmount->colMapper, "NA"),
+    surcharge_amount: dict->getString(SurchargeAmount->colMapper, "NA"),
+    tax_amount: dict->getString(TaxAmount->colMapper, "NA"),
+    payment_method_id: dict->getString(PaymentMethodId->colMapper, "NA"),
+    payment_method: dict->getString(PaymentMethod->colMapper, "NA"),
+    connector_transaction_id: dict->getString(ConnectorTransactionId->colMapper, "NA"),
+    capture_method: dict->getString(CaptureMethod->colMapper, "NA"),
+    capture_on: dict->getString(CaptureOn->colMapper, "NA"),
+    authentication_type: dict->getString(AuthenticationType->colMapper, "NA"),
+    cancellation_reason: dict->getString(CancellationReason->colMapper, "NA"),
+    amount_to_capture: dict->getString(AmountToCapture->colMapper, "NA"),
+    mandate_id: dict->getString(MerchantId->colMapper, "NA"),
+    payment_method_type: dict->getString(PaymentMethodType->colMapper, "NA"),
+    payment_experience: dict->getString(PaymentExperience->colMapper, "NA"),
+    error_reason: dict->getString(ErrorReason->colMapper, "NA"),
+    amount_capturable: dict->getString(AmountCapturable->colMapper, "NA"),
+    merchant_connector_id: dict->getString(MerchantConnectorId->colMapper, "NA"),
+    net_amount: dict->getString(NetAmount->colMapper, "NA"),
+    unified_code: dict->getString(UnifiedCode->colMapper, "NA"),
+    unified_message: dict->getString(UnifiedMessage->colMapper, "NA"),
   }
 }
 
-let getObjects: JSON.t => array<paymentIntentObject> = json => {
+let getObjects: JSON.t => array<paymentAttemptObject> = json => {
   open LogicUtils
   json
   ->LogicUtils.getArrayFromJson([])
@@ -194,6 +297,93 @@ let getHeading = colType => {
     Table.makeHeaderInfo(~key, ~title="Sign Flag", ~dataType=TextType, ~showSort=false, ())
   | Timestamp =>
     Table.makeHeaderInfo(~key, ~title="Time Stamp", ~dataType=TextType, ~showSort=false, ())
+  | Confirm => Table.makeHeaderInfo(~key, ~title="Confirm", ~dataType=TextType, ~showSort=false, ())
+  | MultipleCaptureCount =>
+    Table.makeHeaderInfo(
+      ~key,
+      ~title="Multiple Capture Count",
+      ~dataType=TextType,
+      ~showSort=false,
+      (),
+    )
+  | AttemptId =>
+    Table.makeHeaderInfo(~key, ~title="Attempt Id", ~dataType=TextType, ~showSort=false, ())
+  | SaveToLocker =>
+    Table.makeHeaderInfo(~key, ~title="Save To Locker", ~dataType=TextType, ~showSort=false, ())
+  | Connector =>
+    Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=TextType, ~showSort=false, ())
+  | ErrorMessage =>
+    Table.makeHeaderInfo(~key, ~title="Error Message", ~dataType=TextType, ~showSort=false, ())
+  | OfferAmount =>
+    Table.makeHeaderInfo(~key, ~title="Offer Amount", ~dataType=TextType, ~showSort=false, ())
+  | SurchargeAmount =>
+    Table.makeHeaderInfo(~key, ~title="Surcharge Amount", ~dataType=TextType, ~showSort=false, ())
+  | TaxAmount =>
+    Table.makeHeaderInfo(~key, ~title="Tax Amount", ~dataType=TextType, ~showSort=false, ())
+  | PaymentMethodId =>
+    Table.makeHeaderInfo(~key, ~title="Payment Method Id", ~dataType=TextType, ~showSort=false, ())
+  | PaymentMethod =>
+    Table.makeHeaderInfo(~key, ~title="Payment Method", ~dataType=TextType, ~showSort=false, ())
+  | ConnectorTransactionId =>
+    Table.makeHeaderInfo(
+      ~key,
+      ~title="Connector Transaction Id",
+      ~dataType=TextType,
+      ~showSort=false,
+      (),
+    )
+  | CaptureMethod =>
+    Table.makeHeaderInfo(~key, ~title="Capture Method", ~dataType=TextType, ~showSort=false, ())
+  | CaptureOn =>
+    Table.makeHeaderInfo(~key, ~title="Capture On", ~dataType=TextType, ~showSort=false, ())
+  | AuthenticationType =>
+    Table.makeHeaderInfo(
+      ~key,
+      ~title="Authentication Type",
+      ~dataType=TextType,
+      ~showSort=false,
+      (),
+    )
+  | CancellationReason =>
+    Table.makeHeaderInfo(
+      ~key,
+      ~title="Cancellation Reason",
+      ~dataType=TextType,
+      ~showSort=false,
+      (),
+    )
+  | AmountToCapture =>
+    Table.makeHeaderInfo(~key, ~title="Amount To Capture", ~dataType=TextType, ~showSort=false, ())
+  | MandateId =>
+    Table.makeHeaderInfo(~key, ~title="Mandate Id", ~dataType=TextType, ~showSort=false, ())
+  | PaymentMethodType =>
+    Table.makeHeaderInfo(
+      ~key,
+      ~title="Payment Method Type",
+      ~dataType=TextType,
+      ~showSort=false,
+      (),
+    )
+  | PaymentExperience =>
+    Table.makeHeaderInfo(~key, ~title="Payment Experience", ~dataType=TextType, ~showSort=false, ())
+  | ErrorReason =>
+    Table.makeHeaderInfo(~key, ~title="Error Reason", ~dataType=TextType, ~showSort=false, ())
+  | AmountCapturable =>
+    Table.makeHeaderInfo(~key, ~title="Amount Capturable", ~dataType=TextType, ~showSort=false, ())
+  | MerchantConnectorId =>
+    Table.makeHeaderInfo(
+      ~key,
+      ~title="Merchant Connector Id",
+      ~dataType=TextType,
+      ~showSort=false,
+      (),
+    )
+  | NetAmount =>
+    Table.makeHeaderInfo(~key, ~title="Net Amount", ~dataType=TextType, ~showSort=false, ())
+  | UnifiedCode =>
+    Table.makeHeaderInfo(~key, ~title="Unified Code", ~dataType=TextType, ~showSort=false, ())
+  | UnifiedMessage =>
+    Table.makeHeaderInfo(~key, ~title="Unified Message", ~dataType=TextType, ~showSort=false, ())
   }
 }
 
@@ -255,6 +445,32 @@ let getCell = (paymentObj, colType): Table.cell => {
   | AttemptCount => Text(paymentObj.attempt_count->Int.toString)
   | SignFlag => Text(paymentObj.sign_flag->Int.toString)
   | Timestamp => Text(paymentObj.timestamp)
+  | Confirm => Text(paymentObj.confirm->LogicUtils.getStringFromBool)
+  | MultipleCaptureCount => Text(paymentObj.multiple_capture_count->Int.toString)
+  | AttemptId => Text(paymentObj.attempt_id)
+  | SaveToLocker => Text(paymentObj.save_to_locker)
+  | Connector => Text(paymentObj.connector)
+  | ErrorMessage => Text(paymentObj.error_message)
+  | OfferAmount => Text(paymentObj.offer_amount)
+  | SurchargeAmount => Text(paymentObj.surcharge_amount)
+  | TaxAmount => Text(paymentObj.tax_amount)
+  | PaymentMethodId => Text(paymentObj.payment_method_id)
+  | PaymentMethod => Text(paymentObj.payment_method)
+  | ConnectorTransactionId => Text(paymentObj.connector_transaction_id)
+  | CaptureMethod => Text(paymentObj.capture_method)
+  | CaptureOn => Text(paymentObj.capture_on)
+  | AuthenticationType => Text(paymentObj.authentication_type)
+  | CancellationReason => Text(paymentObj.cancellation_reason)
+  | AmountToCapture => Text(paymentObj.amount_to_capture)
+  | MandateId => Text(paymentObj.mandate_id)
+  | PaymentMethodType => Text(paymentObj.payment_method_type)
+  | PaymentExperience => Text(paymentObj.payment_experience)
+  | ErrorReason => Text(paymentObj.error_reason)
+  | AmountCapturable => Text(paymentObj.amount_capturable)
+  | MerchantConnectorId => Text(paymentObj.merchant_connector_id)
+  | NetAmount => Text(paymentObj.net_amount)
+  | UnifiedCode => Text(paymentObj.unified_code)
+  | UnifiedMessage => Text(paymentObj.unified_message)
   }
 }
 

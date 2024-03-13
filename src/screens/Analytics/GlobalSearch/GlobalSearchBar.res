@@ -69,7 +69,7 @@ module OptionsWrapper = {
     <FramerMotion.Motion.Div layoutId="options">
       <Combobox.Options
         static={true}
-        className="w-full overflow-auto text-base max-h-[50vh] focus:outline-none sm:text-sm">
+        className="w-full overflow-auto text-base max-h-[60vh] focus:outline-none sm:text-sm">
         {_ => {children}}
       </Combobox.Options>
     </FramerMotion.Motion.Div>

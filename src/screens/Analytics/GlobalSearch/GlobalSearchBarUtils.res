@@ -132,7 +132,7 @@ let getElements = (hits, section) => {
 
       {
         texts: [payId, amount, status, currency]->Array.map(JSON.Encode.string),
-        redirect_link: ""->JSON.Encode.string,
+        redirect_link: `/payments/${payId}`->JSON.Encode.string,
       }
     })
   | PaymentIntents =>
@@ -145,7 +145,7 @@ let getElements = (hits, section) => {
 
       {
         texts: [payId, amount, status, currency]->Array.map(JSON.Encode.string),
-        redirect_link: ""->JSON.Encode.string,
+        redirect_link: `/payments/${payId}`->JSON.Encode.string,
       }
     })
 
