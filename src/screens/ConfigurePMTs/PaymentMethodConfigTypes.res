@@ -1,0 +1,15 @@
+type paymentMethodConfiguration = {
+  merchant_connector_id: string,
+  connector_name: string,
+  profile_id: string,
+  payment_method: string,
+  payment_method_type: string,
+  card_networks: array<string>,
+  accepted_currencies: option<ConnectorTypes.advancedConfigurationList>,
+  accepted_countries: option<ConnectorTypes.advancedConfigurationList>,
+  minimum_amount: option<int>,
+  maximum_amount: option<int>,
+  recurring_enabled: option<bool>,
+  installment_payment_enabled: option<bool>,
+  payment_experience: option<string>,
+}
