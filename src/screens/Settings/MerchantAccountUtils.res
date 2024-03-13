@@ -305,7 +305,7 @@ let checkValueChange = (~initialDict, ~valuesDict) => {
 
 let validateEmptyValue = (key, errors) => {
   switch key {
-  | ReturnUrl | ThreeDsRequestorUrl =>
+  | ReturnUrl =>
     Dict.set(errors, key->validationFieldsMapper, "Please enter a return url"->JSON.Encode.string)
   | _ => ()
   }
@@ -367,7 +367,6 @@ let validateMerchantAccountForm = (
     if threedsFields->Array.includes(key) {
       let threedsArray = LogicUtils.getArrayFromDict(valuesDict, key->validationFieldsMapper, [])
       let threedsUrl = LogicUtils.getString(valuesDict, key->validationFieldsMapper, "")
-      key->validateEmptyValue(errors)
       key->validateCustom(errors, threedsUrl)
       key->validateEmptyArray(errors, threedsArray)
     } else {
