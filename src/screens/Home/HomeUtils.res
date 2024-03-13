@@ -148,11 +148,8 @@ module CheckoutCard = {
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
     let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
-    let connectorList =
-      HyperswitchAtom.connectorListAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->LogicUtils.getObjectArrayFromJson
+    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+
     let isConfigureConnector = connectorList->Array.length > 0
 
     let handleOnClick = _ => {

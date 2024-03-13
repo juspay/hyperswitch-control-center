@@ -352,7 +352,6 @@ let make = () => {
                 key={index->string_of_int}
                 heading={`${ele.module_->LogicUtils.snakeToTitle} module`}
                 description={ele.description}
-                readWriteValues={ele.permissions}
                 isPermissionAllowed={ele.isPermissionAllowed}
               />
             })

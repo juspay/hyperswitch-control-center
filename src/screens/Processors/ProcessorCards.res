@@ -108,30 +108,30 @@ let make = (
             let connectorName = connector->getConnectorNameString
             let connectorInfo = connector->getConnectorInfo
             let size = "w-14 h-14 rounded-sm"
-            <AddDataAttributes attributes=[("data-testid", connectorName->String.toLowerCase)]>
-              <ACLDiv
-                permission={userPermissionJson.connectorsManage}
-                onClick={_ => handleClick(connectorName)}
-                key={i->string_of_int}
-                className="border p-6 gap-4 bg-white rounded flex flex-col justify-between">
-                <div className="flex flex-col gap-3 items-start">
-                  <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
-                  <p className={`${p1MediumTextStyle} break-all`}>
-                    {connectorName->getDisplayNameForConnector->React.string}
-                  </p>
-                </div>
-                <p className="overflow-hidden text-gray-400 flex-1 line-clamp-3">
-                  {connectorInfo.description->React.string}
+
+            <ACLDiv
+              permission={userPermissionJson.connectorsManage}
+              onClick={_ => handleClick(connectorName)}
+              key={i->string_of_int}
+              className="border p-6 gap-4 bg-white rounded flex flex-col justify-between"
+              dataAttrStr=connectorName>
+              <div className="flex flex-col gap-3 items-start">
+                <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
+                <p className={`${p1MediumTextStyle} break-all`}>
+                  {connectorName->getDisplayNameForConnector->React.string}
                 </p>
-                <ACLButton
-                  access={userPermissionJson.connectorsManage}
-                  text="+ Connect"
-                  buttonType={Transparent}
-                  buttonSize={Small}
-                  textStyle="text-jp-gray-900"
-                />
-              </ACLDiv>
-            </AddDataAttributes>
+              </div>
+              <p className="overflow-hidden text-gray-400 flex-1 line-clamp-3">
+                {connectorInfo.description->React.string}
+              </p>
+              <ACLButton
+                access={userPermissionJson.connectorsManage}
+                text="+ Connect"
+                buttonType={Transparent}
+                buttonSize={Small}
+                textStyle="text-jp-gray-900"
+              />
+            </ACLDiv>
           })
           ->React.array}
         </div>

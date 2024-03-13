@@ -8,7 +8,10 @@ let businessProfilesAtom = Recoil.atom(.
   JSON.Encode.null->BusinessProfileMapper.getArrayOfBusinessProfile,
 )
 
-let connectorListAtom: Recoil.recoilAtom<string> = Recoil.atom(. "connectorListAtom", "")
+let connectorListAtom: Recoil.recoilAtom<array<ConnectorTypes.connectorPayload>> = Recoil.atom(.
+  "connectorListAtom",
+  JSON.Encode.null->ConnectorListMapper.getArrayOfConnectorListPayloadType,
+)
 
 let enumVariantAtom = Recoil.atom(. "enumVariantDetails", "")
 

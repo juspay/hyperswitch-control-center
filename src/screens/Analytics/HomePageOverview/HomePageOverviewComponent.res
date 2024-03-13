@@ -8,11 +8,10 @@ module ConnectorOverview = {
     let connectorsList =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
       ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer, ())
     let configuredConnectors =
       connectorsList->Array.map(paymentMethod =>
-        paymentMethod->LogicUtils.getString("connector_name", "")->getConnectorNameTypeFromString()
+        paymentMethod.connector_name->getConnectorNameTypeFromString()
       )
 
     let getConnectorIconsList = () => {

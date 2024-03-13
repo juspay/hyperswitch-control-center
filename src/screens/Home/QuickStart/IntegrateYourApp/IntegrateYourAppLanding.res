@@ -17,7 +17,7 @@ let make = (~integrateAppValue: integrateApp) => {
   let (buttonState, setButtonState) = React.useState(_ => Button.Normal)
   let currentRoute =
     typedValueOfEnum.integrationMethod.integration_type->textToVariantMapperForBuildHS
-  let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
   let landingButtonGroup = {
     <div className="flex flex-col gap-4 w-full">
