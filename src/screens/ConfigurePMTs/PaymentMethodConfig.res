@@ -1,94 +1,86 @@
+let inputField = (
+  ~name,
+  ~label,
+  ~placeholder,
+  ~isRequired,
+  ~disabled,
+  ~description,
+  ~toolTipPosition: ToolTip.toolTipPosition=ToolTip.Right,
+  (),
+) =>
+  FormRenderer.makeFieldInfo(
+    ~label,
+    ~name,
+    ~description,
+    ~toolTipPosition,
+    ~customInput=InputFields.textInput(~isDisabled=disabled, ()),
+    ~placeholder,
+    ~isRequired,
+    (),
+  )
+
+module PmtConfigInp = {
+  @react.component
+  let make = (~fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+    let enabledList = (fieldsArray[0]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
+    let valueField = (fieldsArray[1]->Option.getOr(ReactFinalForm.fakeFieldRenderProps)).input
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      name: "string",
+      onBlur: _ev => (),
+      onChange: ev => {
+        let value = ev->Identity.formReactEventToArrayOfString
+        if value->Array.length <= 0 {
+          valueField.onChange(
+            None
+            ->Option.map(JSON.Encode.object)
+            ->Option.getOr(Js.Json.null)
+            ->Identity.anyTypeToReactEvent,
+          )
+        } else {
+          enabledList.onChange(value->Identity.anyTypeToReactEvent)
+        }
+      },
+      onFocus: _ev => (),
+      value: enabledList.value,
+      checked: true,
+    }
+    <SelectBox.BaseDropdown
+      allowMultiSelect=true
+      buttonText="Select Value"
+      input
+      options={["US", "GB", "IN"]->SelectBox.makeOptions}
+      hideMultiSelectButtons=true
+      showSelectionAsChips={false}
+    />
+  }
+}
+
+let renderValueInp = (_keyType, fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+  <PmtConfigInp fieldsArray />
+}
+let valueInput = id => {
+  open FormRenderer
+  makeMultiInputFieldInfoOld(
+    ~label="",
+    ~comboCustomInput=renderValueInp(""),
+    ~inputFields=[
+      makeInputFieldInfo(~name=`${id}.accepted_countries.list`, ()),
+      makeInputFieldInfo(~name=`${id}.accepted_countries`, ()),
+    ],
+    (),
+  )
+}
+
 @react.component
 let make = (
   ~paymentMethodConfig: PaymentMethodConfigTypes.paymentMethodConfiguration,
   ~config: string,
 ) => {
-  // open LogicUtils
-
+  open FormRenderer
   let (showPaymentMthdConfigModal, setShowPaymentMthdConfigModal) = React.useState(_ => false)
-  let (initialValues, setInitialValues) = React.useState(_ =>
-    Dict.make()->ConnectorListMapper.getProcessorPayloadType
-  )
+  let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-
-  let encodeAdvanceConfig = (advanceConfig: option<ConnectorTypes.advancedConfigurationList>) => {
-    switch advanceConfig {
-    | Some(config) =>
-      [
-        ("type", JSON.Encode.string(config.type_)),
-        ("list", JSON.Encode.array(config.list->Array.map(Js.Json.string))),
-      ]
-      ->Dict.fromArray
-      ->JSON.Encode.object
-    | None => None->Option.map(JSON.Encode.object)->Option.getOr(Js.Json.null)
-    }
-  }
-  let encodePaymentMethodConfig = (paymentMethodConfig: ConnectorTypes.paymentMethodConfigType) => {
-    [
-      ("payment_method_type", JSON.Encode.string(paymentMethodConfig.payment_method_type)),
-      (
-        "card_networks",
-        JSON.Encode.array(paymentMethodConfig.card_networks->Array.map(Js.Json.string)),
-      ),
-      ("accepted_currencies", paymentMethodConfig.accepted_currencies->encodeAdvanceConfig),
-      ("accepted_countries", paymentMethodConfig.accepted_countries->encodeAdvanceConfig),
-      (
-        "maximum_amount",
-        paymentMethodConfig.maximum_amount->Option.map(JSON.Encode.int)->Option.getOr(Js.Json.null),
-      ),
-      (
-        "minimum_amount",
-        paymentMethodConfig.minimum_amount->Option.map(JSON.Encode.int)->Option.getOr(Js.Json.null),
-      ),
-      (
-        "recurring_enabled",
-        paymentMethodConfig.recurring_enabled
-        ->Option.map(JSON.Encode.bool)
-        ->Option.getOr(Js.Json.null),
-      ),
-      (
-        "installment_payment_enabled",
-        paymentMethodConfig.installment_payment_enabled
-        ->Option.map(JSON.Encode.bool)
-        ->Option.getOr(Js.Json.null),
-      ),
-      (
-        "payment_experience",
-        paymentMethodConfig.payment_experience
-        ->Option.map(JSON.Encode.string)
-        ->Option.getOr(Js.Json.null),
-      ),
-    ]
-    ->Dict.fromArray
-    ->JSON.Encode.object
-  }
-  let encodePaymentMethodEnabled = (
-    paymentMethodRecord: ConnectorTypes.paymentMethodEnabledType,
-  ): Js.Json.t => {
-    let paymentMethodConfig =
-      paymentMethodRecord.payment_method_types
-      ->Array.map(encodePaymentMethodConfig)
-      ->JSON.Encode.array
-    [
-      ("payment_method", JSON.Encode.string(paymentMethodRecord.payment_method)),
-      ("payment_method_types", paymentMethodConfig),
-    ]
-    ->Dict.fromArray
-    ->JSON.Encode.object
-  }
-
-  let encodeMyRecord = (myTypedValue: ConnectorTypes.connectorPayload): Js.Json.t => {
-    let paymentMethodEnabled =
-      myTypedValue.payment_methods_enabled->Array.map(encodePaymentMethodEnabled)->JSON.Encode.array
-    Js.log(paymentMethodEnabled)
-    let dict =
-      [
-        ("connector_type", JSON.Encode.string(myTypedValue.connector_type)),
-        ("payment_methods_enabled", paymentMethodEnabled),
-      ]->Dict.fromArray
-    dict->JSON.Encode.object
-  }
 
   let getProcessorDetails = async () => {
     let data =
@@ -98,11 +90,12 @@ let make = (
       )
       ->Array.get(0)
       ->Option.getOr(Dict.make()->ConnectorListMapper.getProcessorPayloadType)
-    let _ = data->encodeMyRecord
-    setInitialValues(_ => data)
+    let encodeConnectorPayload = data->PaymentMethodConfigUtils.encodeConnectorPayload
+    setInitialValues(_ => encodeConnectorPayload)
+    Js.log2(paymentMethodConfig, "paymentMethodConfig")
     setShowPaymentMthdConfigModal(_ => true)
   }
-
+  let id = `payment_methods_enabled[${paymentMethodConfig.payment_method_index->Int.toString}].payment_method_types[${paymentMethodConfig.payment_method_types_index->Int.toString}]`
   <div>
     <Modal
       showModal={showPaymentMthdConfigModal}
@@ -119,30 +112,30 @@ let make = (
       paddingClass=""
       modalHeading={paymentMethodConfig.payment_method->String.toUpperCase}
       setShowModal={setShowPaymentMthdConfigModal}
-      //   showCloseIcon=false
       modalHeadingDescription="Start by creating your business name"
       modalClass="w-full max-w-lg m-auto !bg-white dark:!bg-jp-gray-lightgray_background">
       <Form
         key="merchant_name-validation"
-        initialValues={Dict.make()->JSON.Encode.object}
+        initialValues
         // onSubmit
         // validate={values => values->validateForm}
       >
         <div className="flex flex-col gap-6 h-full w-full">
-          <div> {"form"->React.string} </div>
-          //   <FormRenderer.DesktopRow>
-          //     <FormRenderer.FieldRenderer
-          //       fieldWrapperClass="w-full"
-          //       field={businessName}
-          //       labelClass="!text-black font-medium !-ml-[0.5px]"
-          //     />
-          //   </FormRenderer.DesktopRow>
-          //   <div className="flex justify-end w-full pr-5 pb-3">
-          //     <FormRenderer.SubmitButton
-          //       text="Start Exploring" buttonSize={Small} disabledParamter=isDisabled
-          //     />
-          //   </div>
+          <FormRenderer.FieldRenderer
+            labelClass="font-semibold !text-hyperswitch_black"
+            field={inputField(
+              ~name=`payment_methods_enabled[${paymentMethodConfig.payment_method_index->Int.toString}].payment_method_types[${paymentMethodConfig.payment_method_types_index->Int.toString}].maximum_amount`,
+              ~label="lable",
+              ~isRequired=false,
+              ~placeholder="placeholder",
+              ~disabled=false,
+              ~description="",
+              (),
+            )}
+          />
+          <FieldRenderer field={valueInput(id)} />
         </div>
+        <FormValuesSpy />
       </Form>
     </Modal>
     <div onClick={_ => getProcessorDetails()->ignore}> {config->React.string} </div>

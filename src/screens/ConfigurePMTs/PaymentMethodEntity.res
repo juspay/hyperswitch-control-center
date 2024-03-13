@@ -4,6 +4,7 @@ type colType =
   | Processor
   | PaymentMethodType
   | PaymentMethod
+  | CardNetwork
   | CountriesAllowed
   | CurrenciesAllowed
 
@@ -12,6 +13,7 @@ let defaultColumns = [
   Processor,
   PaymentMethodType,
   PaymentMethod,
+  CardNetwork,
   CountriesAllowed,
   CurrenciesAllowed,
 ]
@@ -30,6 +32,8 @@ let getHeading = colType => {
       ~showSort=false,
       (),
     )
+  | CardNetwork =>
+    Table.makeHeaderInfo(~key="card_network", ~title="Card Network", ~showSort=false, ())
   | CountriesAllowed =>
     Table.makeHeaderInfo(~key="accepted_countries", ~title="Countries Allowed", ~showSort=false, ())
   | CurrenciesAllowed =>
@@ -52,7 +56,18 @@ let getCell = (paymentMethodConfig: paymentMethodConfiguration, colType): Table.
     )
   | Processor => Text(paymentMethodConfig.connector_name)
   | PaymentMethod => Text(paymentMethodConfig.payment_method)
-  | PaymentMethodType => Text(paymentMethodConfig.payment_method_type)
+  | PaymentMethodType =>
+    Table.CustomCell(
+      <PaymentMethodConfig paymentMethodConfig config={paymentMethodConfig.payment_method_type} />,
+      "",
+    )
+  | CardNetwork =>
+    Table.CustomCell(
+      <PaymentMethodConfig
+        paymentMethodConfig config={paymentMethodConfig.card_networks->Array.toString}
+      />,
+      "",
+    )
   | CountriesAllowed =>
     Table.CustomCell(
       <PaymentMethodConfig
@@ -79,9 +94,11 @@ let itemObjMapper = (dict, mappedArr) => {
     ->Dict.get("payment_methods_enabled")
     ->Option.getOr(Dict.make()->JSON.Encode.object)
     ->getArrayDataFromJson(getPaymentMethodsEnabled)
-  paymentMethod->Array.forEach(item => {
-    item.payment_method_types->Array.forEach(data => {
+  paymentMethod->Array.forEachWithIndex((item, pmIndex) => {
+    item.payment_method_types->Array.forEachWithIndex((data, pmtIndex) => {
       let paymentMethodrecord: paymentMethodConfiguration = {
+        payment_method_index: pmIndex,
+        payment_method_types_index: pmtIndex,
         merchant_connector_id: dict->getString("merchant_connector_id", ""),
         connector_name: dict->getString("connector_name", ""),
         profile_id: dict->getString("profile_id", ""),

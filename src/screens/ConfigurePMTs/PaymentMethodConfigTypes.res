@@ -1,4 +1,6 @@
 type paymentMethodConfiguration = {
+  payment_method_index: int,
+  payment_method_types_index: int,
   merchant_connector_id: string,
   connector_name: string,
   profile_id: string,
