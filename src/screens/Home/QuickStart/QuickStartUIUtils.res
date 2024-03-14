@@ -78,42 +78,44 @@ module VerticalChoiceTile = {
     <div className={`grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-4 ${customLayoutCss}`}>
       {listChoices
       ->Array.mapWithIndex((items, index) => {
-        <div
-          key={index->Int.toString}
-          className={`p-6 flex flex-col gap-8 rounded-md cursor-pointer ${items.variantType->getBlockColor} rounded-md justify-between`}
-          onClick={_ => setChoiceState(_ => items.variantType)}>
-          <div className="flex justify-between items-center">
-            <UIUtils.RenderIf condition={items.leftIcon->Option.isSome}>
+        <AddDataAttributes attributes=[("data-testid", (items.variantType :> string))]>
+          <div
+            key={index->Int.toString}
+            className={`p-6 flex flex-col gap-8 rounded-md cursor-pointer ${items.variantType->getBlockColor} rounded-md justify-between`}
+            onClick={_ => setChoiceState(_ => items.variantType)}>
+            <div className="flex justify-between items-center">
+              <UIUtils.RenderIf condition={items.leftIcon->Option.isSome}>
+                <Icon
+                  name={items.leftIcon->Option.getOr("hyperswitch-short")}
+                  size=40
+                  className="cursor-pointer"
+                />
+              </UIUtils.RenderIf>
               <Icon
-                name={items.leftIcon->Option.getOr("hyperswitch-short")}
-                size=40
-                className="cursor-pointer"
+                name={choiceState === items.variantType ? "selected" : "nonselected"}
+                size=20
+                className="cursor-pointer !text-blue-800"
               />
-            </UIUtils.RenderIf>
-            <Icon
-              name={choiceState === items.variantType ? "selected" : "nonselected"}
-              size=20
-              className="cursor-pointer !text-blue-800"
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <p className=headerTextStyle> {items.displayText->React.string} </p>
-            <p className=descriptionStyle> {items.description->React.string} </p>
-          </div>
-          <UIUtils.RenderIf condition={items.footerTags->Option.isSome}>
-            <div className="flex gap-2 mt-6">
-              {items.footerTags
-              ->Option.getOr([])
-              ->Array.map(value =>
-                <div
-                  className="p-2 text-xs border border-blue-700 border-opacity-30 bg-blue-700 bg-opacity-10 rounded-md">
-                  {value->React.string}
-                </div>
-              )
-              ->React.array}
             </div>
-          </UIUtils.RenderIf>
-        </div>
+            <div className="flex flex-col gap-2">
+              <p className=headerTextStyle> {items.displayText->React.string} </p>
+              <p className=descriptionStyle> {items.description->React.string} </p>
+            </div>
+            <UIUtils.RenderIf condition={items.footerTags->Option.isSome}>
+              <div className="flex gap-2 mt-6">
+                {items.footerTags
+                ->Option.getOr([])
+                ->Array.map(value =>
+                  <div
+                    className="p-2 text-xs border border-blue-700 border-opacity-30 bg-blue-700 bg-opacity-10 rounded-md">
+                    {value->React.string}
+                  </div>
+                )
+                ->React.array}
+              </div>
+            </UIUtils.RenderIf>
+          </div>
+        </AddDataAttributes>
       })
       ->React.array}
     </div>
@@ -139,28 +141,30 @@ module HorizontalChoiceTile = {
     <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8 ${customLayoutCss}`}>
       {listChoices
       ->Array.mapWithIndex((items, index) => {
-        <div
-          key={index->Int.toString}
-          className={`p-6 flex flex-col gap-4 rounded-md cursor-pointer ${items.variantType->getBlockColor} rounded-md`}
-          onClick={_ => setChoiceState(_ => items.variantType)}>
-          <div className="flex justify-between items-center">
-            <div className="flex gap-2 items-center ">
-              <p className=headerTextStyle> {items.displayText->React.string} </p>
+        <AddDataAttributes attributes=[("data-testid", (items.variantType :> string))]>
+          <div
+            key={index->Int.toString}
+            className={`p-6 flex flex-col gap-4 rounded-md cursor-pointer ${items.variantType->getBlockColor} rounded-md`}
+            onClick={_ => setChoiceState(_ => items.variantType)}>
+            <div className="flex justify-between items-center">
+              <div className="flex gap-2 items-center ">
+                <p className=headerTextStyle> {items.displayText->React.string} </p>
+              </div>
+              <Icon
+                name={choiceState === items.variantType ? "selected" : "nonselected"}
+                size=20
+                className="cursor-pointer !text-blue-800"
+              />
             </div>
-            <Icon
-              name={choiceState === items.variantType ? "selected" : "nonselected"}
-              size=20
-              className="cursor-pointer !text-blue-800"
-            />
+            <UIUtils.RenderIf
+              condition={items.imageLink->Option.getOr("")->LogicUtils.isNonEmptyString}>
+              <img alt="" src={items.imageLink->Option.getOr("")} />
+            </UIUtils.RenderIf>
+            <div className="flex gap-2 items-center ">
+              <p className=descriptionStyle> {items.description->React.string} </p>
+            </div>
           </div>
-          <UIUtils.RenderIf
-            condition={items.imageLink->Option.getOr("")->LogicUtils.isNonEmptyString}>
-            <img alt="" src={items.imageLink->Option.getOr("")} />
-          </UIUtils.RenderIf>
-          <div className="flex gap-2 items-center ">
-            <p className=descriptionStyle> {items.description->React.string} </p>
-          </div>
-        </div>
+        </AddDataAttributes>
       })
       ->React.array}
     </div>
@@ -261,20 +265,24 @@ module SelectConnectorGrid = {
             {popularConnectorList
             ->Array.mapWithIndex((connector, index) => {
               let connectorName = connector->ConnectorUtils.getConnectorNameString
-              <div
-                key={index->Int.toString}
-                className={`py-4 px-6 flex gap-4 rounded-md cursor-pointer justify-between items-start ${connector->getBlockColor}`}
-                onClick={_ => setSelectedConnector(_ => connector)}>
-                <div className="flex flex-col gap-2 items-start ">
-                  <GatewayIcon gateway={connectorName->String.toUpperCase} className="w-12 h-12" />
-                  <p className=subheaderText>
-                    {connectorName->ConnectorUtils.getDisplayNameForConnector->React.string}
-                  </p>
+              <AddDataAttributes attributes=[("data-testid", connectorName)]>
+                <div
+                  key={index->Int.toString}
+                  className={`py-4 px-6 flex gap-4 rounded-md cursor-pointer justify-between items-start ${connector->getBlockColor}`}
+                  onClick={_ => setSelectedConnector(_ => connector)}>
+                  <div className="flex flex-col gap-2 items-start ">
+                    <GatewayIcon
+                      gateway={connectorName->String.toUpperCase} className="w-12 h-12"
+                    />
+                    <p className=subheaderText>
+                      {connectorName->ConnectorUtils.getDisplayNameForConnector->React.string}
+                    </p>
+                  </div>
+                  <Icon
+                    name={connector->iconColor} size=20 className="cursor-pointer !text-blue-800"
+                  />
                 </div>
-                <Icon
-                  name={connector->iconColor} size=20 className="cursor-pointer !text-blue-800"
-                />
-              </div>
+              </AddDataAttributes>
             })
             ->React.array}
           </div>
