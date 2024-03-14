@@ -135,5 +135,6 @@ describe("Sandbox quick start", () => {
     fillInputFields("comments", "temp_tax_identification_number");
     clickButton("submit");
     clickButton("goToHome");
+    cy.url().should("eq", "http://localhost:9000/home");
   });
 });
