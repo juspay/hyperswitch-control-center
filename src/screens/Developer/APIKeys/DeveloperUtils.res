@@ -174,6 +174,30 @@ let returnUrl = FormRenderer.makeFieldInfo(
   (),
 )
 
+let authenticationConnectors = connectorList =>
+  FormRenderer.makeFieldInfo(
+    ~label="Authentication Connectors",
+    ~name="authentication_connectors",
+    ~customInput=InputFields.multiSelectInput(
+      ~options=connectorList->SelectBox.makeOptions,
+      ~buttonText="Select Field",
+      ~showSelectionAsChips=false,
+      ~customButtonStyle=`!rounded-md`,
+      (),
+    ),
+    ~isRequired=false,
+    (),
+  )
+
+let threeDsRequestorUrl = FormRenderer.makeFieldInfo(
+  ~label="ThreeDs Requestor URL",
+  ~name="three_ds_requestor_url",
+  ~placeholder="Enter ThreeDs Requestor URL",
+  ~customInput=InputFields.textInput(~autoComplete="off", ()),
+  ~isRequired=false,
+  (),
+)
+
 module ErrorUI = {
   @react.component
   let make = (~text) => {

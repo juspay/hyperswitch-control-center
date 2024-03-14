@@ -61,6 +61,7 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
     webhook_details,
     return_url,
     payment_response_hash_key,
+    authentication_connector_details,
   } = profileRecord
   let profileInfo =
     [
@@ -77,6 +78,15 @@ let parseBussinessProfileJson = (profileRecord: profileEntity) => {
   profileInfo->setOptionBool("payment_succeeded_enabled", webhook_details.payment_succeeded_enabled)
   profileInfo->setOptionBool("payment_failed_enabled", webhook_details.payment_failed_enabled)
   profileInfo->setOptionString("payment_response_hash_key", payment_response_hash_key)
+  profileInfo->setOptionArray(
+    "authentication_connectors",
+    authentication_connector_details.authentication_connectors,
+  )
+  profileInfo->setOptionString(
+    "three_ds_requestor_url",
+    authentication_connector_details.three_ds_requestor_url,
+  )
+
   profileInfo
 }
 
@@ -152,12 +162,27 @@ let getBusinessProfilePayload = (values: JSON.t) => {
     valuesDict->getOptionBool("payment_failed_enabled"),
   )
 
+  let authenticationConnectorDetails = Dict.make()
+  authenticationConnectorDetails->setOptionArray(
+    "authentication_connectors",
+    valuesDict->getOptionalArrayFromDict("authentication_connectors"),
+  )
+  authenticationConnectorDetails->setOptionString(
+    "three_ds_requestor_url",
+    valuesDict->getOptionString("three_ds_requestor_url"),
+  )
+
   let profileDetailsDict = Dict.make()
   profileDetailsDict->setOptionString("return_url", valuesDict->getOptionString("return_url"))
   profileDetailsDict->setOptionDict(
     "webhook_details",
     !(webhookSettingsValue->isEmptyDict) ? Some(webhookSettingsValue) : None,
   )
+  profileDetailsDict->setOptionDict(
+    "authentication_connector_details",
+    !(authenticationConnectorDetails->isEmptyDict) ? Some(authenticationConnectorDetails) : None,
+  )
+
   profileDetailsDict
 }
 
@@ -257,6 +282,8 @@ let validationFieldsMapper = key => {
   | Website => "website"
   | WebhookUrl => "webhook_url"
   | ReturnUrl => "return_url"
+  | AuthetnticationConnectors => "authentication_connectors"
+  | ThreeDsRequestorUrl => "three_ds_requestor_url"
   | UnknownValidateFields(key) => key
   }
 }
@@ -284,6 +311,20 @@ let validateEmptyValue = (key, errors) => {
   }
 }
 
+let validateEmptyArray = (key, errors, arrayValue) => {
+  switch key {
+  | AuthetnticationConnectors =>
+    if arrayValue->Array.length === 0 {
+      Dict.set(
+        errors,
+        key->validationFieldsMapper,
+        "Please select authentication connector"->JSON.Encode.string,
+      )
+    }
+  | _ => ()
+  }
+}
+
 let validateCustom = (key, errors, value) => {
   switch key {
   | PrimaryEmail | SecondaryEmail =>
@@ -302,14 +343,15 @@ let validateCustom = (key, errors, value) => {
         "Please enter valid phone number"->JSON.Encode.string,
       )
     }
-  | Website | WebhookUrl | ReturnUrl =>
+  | Website | WebhookUrl | ReturnUrl | ThreeDsRequestorUrl =>
     if !Js.Re.test_(%re("/^https:\/\//i"), value) || value->String.includes("localhost") {
       Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->JSON.Encode.string)
     }
-
   | _ => ()
   }
 }
+
+let threedsFields = [AuthetnticationConnectors, ThreeDsRequestorUrl]
 
 let validateMerchantAccountForm = (
   ~values: JSON.t,
@@ -322,9 +364,17 @@ let validateMerchantAccountForm = (
   let valuesDict = values->LogicUtils.getDictFromJsonObject
 
   fieldsToValidate->Array.forEach(key => {
-    let value = LogicUtils.getString(valuesDict, key->validationFieldsMapper, "")
-
-    value->String.length <= 0 ? key->validateEmptyValue(errors) : key->validateCustom(errors, value)
+    if threedsFields->Array.includes(key) {
+      let threedsArray = LogicUtils.getArrayFromDict(valuesDict, key->validationFieldsMapper, [])
+      let threedsUrl = LogicUtils.getString(valuesDict, key->validationFieldsMapper, "")
+      key->validateCustom(errors, threedsUrl)
+      key->validateEmptyArray(errors, threedsArray)
+    } else {
+      let value = LogicUtils.getString(valuesDict, key->validationFieldsMapper, "")
+      value->String.length <= 0
+        ? key->validateEmptyValue(errors)
+        : key->validateCustom(errors, value)
+    }
   })
 
   setIsDisabled->Option.mapOr((), disableBtn => {
@@ -349,6 +399,10 @@ let defaultValueForBusinessProfile = {
     payment_created_enabled: None,
     payment_succeeded_enabled: None,
     payment_failed_enabled: None,
+  },
+  authentication_connector_details: {
+    authentication_connectors: None,
+    three_ds_requestor_url: None,
   },
 }
 
