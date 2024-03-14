@@ -1213,8 +1213,9 @@ let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList
   items->Array.filter(dict => {
     let connectorType = dict.connector_type
     let isPayoutConnector = connectorType == "payout_processor"
-    let isConnector = connectorType !== "payment_vas" && !isPayoutConnector
     let isThreeDsAuthenticator = connectorType == "authentication_processor"
+    let isConnector =
+      connectorType !== "payment_vas" && !isPayoutConnector && !isThreeDsAuthenticator
 
     switch removeFromList {
     | Processor => !isConnector

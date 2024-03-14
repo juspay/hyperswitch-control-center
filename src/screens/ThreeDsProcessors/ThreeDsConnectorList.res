@@ -12,13 +12,13 @@ let make = () => {
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
   let getConnectorList = async _ => {
-    open ConnectorUtils
     try {
       let response = await fetchConnectorListResponse()
       let connectorsList =
         response
         ->ConnectorListMapper.getArrayOfConnectorListPayloadType
-        ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.ThreeDsAuthenticator, ())
+        ->Array.filter(item => item.connector_type === "authentication_processor")
+
       setConfiguredConnectors(_ => connectorsList)
       setScreenState(_ => Success)
     } catch {

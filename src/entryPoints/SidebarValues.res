@@ -160,7 +160,7 @@ let fraudAndRisk = (~permissionJson) => {
 
 let threeDsConnector = (~permissionJson) => {
   SubLevelLink({
-    name: "ThreeDs Authenticators",
+    name: "3DS Authenticator",
     link: "/threeds-authenticators",
     access: permissionJson.connectorsView,
     searchOptions: [

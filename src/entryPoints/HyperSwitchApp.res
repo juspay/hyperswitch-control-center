@@ -266,7 +266,7 @@ let make = () => {
                       | list{"threeds-authenticators", ...remainingPath} =>
                         <AccessControl permission=userPermissionJson.connectorsView>
                           <EntityScaffold
-                            entityName="ThreeDsAuthenticators"
+                            entityName="3DS Authenticator"
                             remainingPath
                             renderList={() => <ThreeDsConnectorList />}
                             renderNewForm={() => <ThreeDsProcessorHome />}
