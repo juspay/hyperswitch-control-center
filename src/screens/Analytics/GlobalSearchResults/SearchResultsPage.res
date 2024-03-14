@@ -79,8 +79,14 @@ module SearchResultsComponent = {
     ->Array.mapWithIndex((section: resultType, i) => {
       let borderClass = searchResults->Array.length > 0 ? "" : "border-b dark:border-jp-gray-960"
       <div className={`py-5 ${borderClass}`} key={i->Int.toString}>
-        <div className="text-lightgray_background font-bold pb-1 text-lg pb-2">
-          {section.section->getSectionHeader->React.string}
+        <div className="flex justify-between">
+          <div className="text-lightgray_background font-bold pb-1 text-lg pb-2">
+            {section.section->getSectionHeader->React.string}
+          </div>
+          {switch section.section {
+          | PaymentAttempts | PaymentIntents => <div> {"Show more"->React.string} </div>
+          | _ => React.null
+          }}
         </div>
         <RenderSearchResultBody section />
       </div>
