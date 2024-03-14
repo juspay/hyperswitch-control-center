@@ -3,6 +3,26 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.13.0
+
+### Features
+
+- Added 3ds authenticator ([#444](https://github.com/juspay/hyperswitch-control-center/pull/444)) ([`c8cacc2`](https://github.com/juspay/hyperswitch-control-center/commit/c8cacc26901bd47d4aa5bfe5176bb7cdd6e8963c))
+
+### Bug Fixes
+
+- Wasm changes for 3ds ([#499](https://github.com/juspay/hyperswitch-control-center/pull/499)) ([`8021225`](https://github.com/juspay/hyperswitch-control-center/commit/80212254480a94a0ec600a9d85a204af2e4b3186))
+- Threeds fields addition in payment settings ([#491](https://github.com/juspay/hyperswitch-control-center/pull/491)) ([`0a627e3`](https://github.com/juspay/hyperswitch-control-center/commit/0a627e3eb16b61b590c6446f8cf8d0a2b9c85a06))
+
+### Miscellaneous Tasks
+
+- Add sidebar mixpanel events ([#494](https://github.com/juspay/hyperswitch-control-center/pull/494)) ([`20f0967`](https://github.com/juspay/hyperswitch-control-center/commit/20f0967373044b2b353613e1b5f71441f89b0131))
+- Back button test case ([#488](https://github.com/juspay/hyperswitch-control-center/pull/488)) ([`1ad98f6`](https://github.com/juspay/hyperswitch-control-center/commit/1ad98f6f0e83624dcd98060f0a3a5bce0ad4035c))
+
+**Full Changelog:** [`2024.03.11.0...2024.03.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.11.0...2024.03.13.0)
+
+- - -
+
 ## 2024.03.11.0
 
 ### Refactors

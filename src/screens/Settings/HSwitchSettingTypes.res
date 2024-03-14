@@ -30,6 +30,11 @@ type webhookDetails = {
   payment_failed_enabled: option<bool>,
 }
 
+type authConnectorDetailsType = {
+  authentication_connectors: option<array<JSON.t>>,
+  three_ds_requestor_url: option<string>,
+}
+
 type profileSetting = {
   merchant_id: string,
   merchant_name: string,
@@ -96,6 +101,8 @@ type validationFields =
   | Website
   | WebhookUrl
   | ReturnUrl
+  | AuthetnticationConnectors
+  | ThreeDsRequestorUrl
   | UnknownValidateFields(string)
 
 type formStateType = Preview | Edit
@@ -139,4 +146,5 @@ type profileEntity = {
   return_url: option<string>,
   payment_response_hash_key: option<string>,
   webhook_details: webhookDetails,
+  authentication_connector_details: authConnectorDetailsType,
 }
