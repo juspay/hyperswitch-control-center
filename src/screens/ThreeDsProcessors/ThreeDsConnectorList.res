@@ -17,7 +17,10 @@ let make = () => {
       let connectorsList =
         response
         ->ConnectorListMapper.getArrayOfConnectorListPayloadType
-        ->Array.filter(item => item.connector_type === "authentication_processor")
+        ->Array.filter(item =>
+          item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper ===
+            AuthenticationProcessor
+        )
 
       setConfiguredConnectors(_ => connectorsList)
       setScreenState(_ => Success)

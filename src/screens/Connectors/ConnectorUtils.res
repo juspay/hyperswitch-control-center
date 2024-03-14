@@ -1314,3 +1314,13 @@ let getConnectorTypeArrayFromListConnectors = (
     connectorDetail.connector_name->getConnectorNameTypeFromString(~connectorType, ())
   )
 }
+
+let connectorTypeStringToTypeMapper = connector_type => {
+  switch connector_type {
+  | "payment_processor" => PaymentProcessor
+  | "payment_vas" => PaymentVas
+  | "payout_processor" => PayoutProcessor
+  | "authentication_processor" => AuthenticationProcessor
+  | _ => PaymentProcessor
+  }
+}

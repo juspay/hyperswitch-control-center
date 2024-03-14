@@ -49,7 +49,10 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let threedsConnectorList =
     HyperswitchAtom.connectorListAtom
     ->Recoil.useRecoilValueFromAtom
-    ->Array.filter(item => item.connector_type === "authentication_processor")
+    ->Array.filter(item =>
+      item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper ===
+        AuthenticationProcessor
+    )
 
   let isBusinessProfileHasThreeds = threedsConnectorList->Array.some(item => item.profile_id == id)
 
