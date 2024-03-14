@@ -147,7 +147,8 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
         path=[{title: "Users", link: "/users"}] currentPageTitle="Create custom roles"
       />
       <PageUtils.PageHeading
-        title="Create custom roles" subTitle="A new custom role will be created"
+        title="Create custom role"
+        subTitle="Adjust permissions to create custom roles that match your requirement"
       />
     </RenderIf>
     <div

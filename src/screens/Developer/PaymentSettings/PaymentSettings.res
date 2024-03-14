@@ -32,6 +32,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   open APIUtils
   open HSwitchUtils
   open MerchantAccountUtils
+  open HSwitchSettingTypes
   let url = RescriptReactRouter.useUrl()
   let id = url.path->List.toArray->Array.get(1)->Option.getOr(profileId)
   let businessProfileDetails = BusinessProfileHook.useGetBusinessProflile(id)
@@ -44,6 +45,22 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let bgClass = webhookOnly ? "" : "bg-white dark:bg-jp-gray-lightgray_background"
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
+
+  let threedsConnectorList =
+    HyperswitchAtom.connectorListAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->Array.filter(item => item.connector_type === "authentication_processor")
+
+  let isBusinessProfileHasThreeds = threedsConnectorList->Array.some(item => item.profile_id == id)
+
+  let fieldsToValidate = () => {
+    let defaultFieldsToValidate =
+      [WebhookUrl, ReturnUrl]->Array.filter(urlField => urlField === WebhookUrl || !webhookOnly)
+    if isBusinessProfileHasThreeds {
+      defaultFieldsToValidate->Array.pushMany(threedsFields)
+    }
+    defaultFieldsToValidate
+  }
 
   let onSubmit = async (values, _) => {
     try {
@@ -89,15 +106,10 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
             initialValues={businessProfileDetails->parseBussinessProfileJson->JSON.Encode.object}
             subscription=ReactFinalForm.subscribeToValues
             validate={values => {
-              open HSwitchSettingTypes
               MerchantAccountUtils.validateMerchantAccountForm(
                 ~values,
                 ~setIsDisabled=Some(setIsDisabled),
-                ~fieldsToValidate={
-                  [WebhookUrl, ReturnUrl]->Array.filter(urlField =>
-                    urlField === WebhookUrl || !webhookOnly
-                  )
-                },
+                ~fieldsToValidate={fieldsToValidate()},
                 ~initialData=profileInfo->parseBussinessProfileJson->JSON.Encode.object,
               )
             }}
@@ -142,6 +154,24 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                   )
                   ->React.array}
                 </FormRenderer.DesktopRow>
+                <UIUtils.RenderIf condition={isBusinessProfileHasThreeds}>
+                  <FormRenderer.DesktopRow>
+                    <FormRenderer.FieldRenderer
+                      field={threedsConnectorList
+                      ->Array.map(item => item.connector_name)
+                      ->authenticationConnectors}
+                      errorClass
+                      labelClass="!text-base !text-grey-700 font-semibold"
+                      fieldWrapperClass="max-w-xl"
+                    />
+                    <FormRenderer.FieldRenderer
+                      field={threeDsRequestorUrl}
+                      errorClass
+                      labelClass="!text-base !text-grey-700 font-semibold"
+                      fieldWrapperClass="max-w-xl"
+                    />
+                  </FormRenderer.DesktopRow>
+                </UIUtils.RenderIf>
                 <FormRenderer.DesktopRow>
                   <div className="flex justify-start w-full">
                     <FormRenderer.SubmitButton
