@@ -273,9 +273,12 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let connectorInfoDict = connectorInfo->LogicUtils.getDictFromJsonObject
   let connectorInfo =
-    connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorTableUtils.getProcessorPayloadType
-
-  let connectorCount = ListHooks.useListCount(~entityName=CONNECTOR)
+    connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let connectorCount =
+    HyperswitchAtom.connectorListAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer, ())
+    ->Array.length
   let isFeedbackModalToBeOpen =
     feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
   let redirectPath = switch url.path {

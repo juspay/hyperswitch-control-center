@@ -15,10 +15,7 @@ let make = () => {
   let (gateways, setGateways) = React.useState(() => [])
   let (defaultRoutingResponse, setDefaultRoutingResponse) = React.useState(_ => [])
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
-  let connectorListJson =
-    HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->safeParse
-  let typedConnectorValue =
-    connectorListJson->ConnectorTableUtils.getArrayOfConnectorListPayloadType
+  let typedConnectorValue = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
   let settingUpConnectorsState = routingRespArray => {
     let profileList =

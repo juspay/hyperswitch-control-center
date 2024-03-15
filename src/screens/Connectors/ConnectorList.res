@@ -11,7 +11,7 @@ let make = (~isPayoutFlow=false) => {
   let detailedCardCount = 5
   let showConnectorIcons = configuredConnectors->Array.length > detailedCardCount
   let (searchText, setSearchText) = React.useState(_ => "")
-  let fetchConnectorListResponse = useFetchConnectorList()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -19,13 +19,14 @@ let make = (~isPayoutFlow=false) => {
     try {
       let response = await fetchConnectorListResponse()
       let removeFromList = isPayoutFlow ? ConnectorTypes.PayoutConnector : ConnectorTypes.FRMPlayer
-      let connectorsList = response->getProcessorsListFromJson(~removeFromList, ())
-      let previousData = connectorsList->Array.map(ConnectorTableUtils.getProcessorPayloadType)
-
-      setFilteredConnectorData(_ => previousData->Array.map(Nullable.make))
-      setPreviouslyConnectedData(_ => previousData->Array.map(Nullable.make))
+      let connectorsList =
+        response
+        ->ConnectorListMapper.getArrayOfConnectorListPayloadType
+        ->getProcessorsListFromJson(~removeFromList, ())
+      setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
+      setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
       setConfiguredConnectors(_ =>
-        previousData->ConnectorUtils.getConnectorTypeArrayFromListConnectors
+        connectorsList->ConnectorUtils.getConnectorTypeArrayFromListConnectors
       )
       setScreenState(_ => Success)
     } catch {

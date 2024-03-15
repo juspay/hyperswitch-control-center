@@ -23,7 +23,7 @@ let make = () => {
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
-  let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let enumDetails =
     enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -257,6 +257,17 @@ let make = () => {
                             renderList={() => <ConnectorList isPayoutFlow=true />}
                             renderNewForm={() => <ConnectorHome isPayoutFlow=true />}
                             renderShow={_ => <ConnectorHome isPayoutFlow=true />}
+                          />
+                        </AccessControl>
+
+                      | list{"threeds-authenticators", ...remainingPath} =>
+                        <AccessControl permission=userPermissionJson.connectorsView>
+                          <EntityScaffold
+                            entityName="ThreeDsAuthenticators"
+                            remainingPath
+                            renderList={() => <ThreeDsConnectorList />}
+                            renderNewForm={() => <ThreeDsProcessorHome />}
+                            renderShow={_ => <ThreeDsProcessorHome />}
                           />
                         </AccessControl>
 

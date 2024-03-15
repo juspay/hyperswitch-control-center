@@ -20,6 +20,8 @@ let getStepName = step => {
 
 let payoutConnectorList: array<connectorTypes> = [Processors(ADYEN), Processors(WISE)]
 
+let threedsAuthenticatorList: array<connectorTypes> = [ThreeDsAuthenticator(THREEDSECUREIO)]
+
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(PAYPAL),
@@ -353,6 +355,10 @@ let helcimInfo = {
   description: "Helcim is the easy and affordable solution for small businesses accepting credit card payments.",
 }
 
+let threedsecuredotioInfo = {
+  description: "A brief description of the connector (100-150 chars) -  A secure, affordable and easy to connect 3DS authentication platform. Improve the user experience during checkout, enhance the conversion rates and stay compliant with the regulations with 3dsecure.io.",
+}
+
 let unknownConnectorInfo = {
   description: "unkown connector",
 }
@@ -435,9 +441,9 @@ let getConnectorNameString = (connector: connectorTypes) => {
   }
 }
 
-let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.Connector, ()) => {
+let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.Processor, ()) => {
   switch connectorType {
-  | Connector =>
+  | Processor =>
     switch connector {
     | "adyen" => Processors(ADYEN)
     | "checkout" => Processors(CHECKOUT)
@@ -495,7 +501,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.C
     }
   | ThreeDsAuthenticator =>
     switch connector {
-    | "threedsio" => ThreeDsAuthenticator(THREEDSECUREIO)
+    | "threedsecureio" => ThreeDsAuthenticator(THREEDSECUREIO)
     | _ => UnknownConnector("Not known")
     }
   | _ => UnknownConnector("Not known")
@@ -560,7 +566,7 @@ let getProcessorInfo = connector => {
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
   switch threeDsAuthenticator {
-  | THREEDSECUREIO => helcimInfo
+  | THREEDSECUREIO => threedsecuredotioInfo
   }
 
 let getConnectorInfo = connector => {
@@ -670,10 +676,11 @@ let mapAuthType = (authType: string) => {
   }
 }
 
-let getConnectorType = (connector, ~isPayoutFlow, ()) => {
+let getConnectorType = (connector: ConnectorTypes.connectorTypes, ~isPayoutFlow, ()) => {
   isPayoutFlow
     ? "payout_processor"
     : switch connector {
+      | ThreeDsAuthenticator(_) => "authentication_processor"
       | UnknownConnector(str) => str
       | _ => "payment_processor"
       }
@@ -764,6 +771,7 @@ let generateInitialValuesDict = (
   ~bodyType,
   ~isPayoutFlow=false,
   ~isLiveMode=false,
+  ~connectorType: ConnectorTypes.connector=ConnectorTypes.Processor,
   (),
 ) => {
   open LogicUtils
@@ -780,7 +788,7 @@ let generateInitialValuesDict = (
   dict->Dict.set(
     "connector_type",
     getConnectorType(
-      connector->getConnectorNameTypeFromString(),
+      connector->getConnectorNameTypeFromString(~connectorType, ()),
       ~isPayoutFlow,
       (),
     )->JSON.Encode.string,
@@ -1112,27 +1120,6 @@ let constructConnectorRequestBody = (wasmRequest: wasmRequest, payload: JSON.t) 
   ->JSON.Encode.object
 }
 
-let useFetchConnectorList = () => {
-  open APIUtils
-  let fetchDetails = useGetMethod()
-  let setConnectorList = HyperswitchAtom.connectorListAtom->Recoil.useSetRecoilState
-
-  async _ => {
-    try {
-      let url = getURL(~entityName=CONNECTOR, ~methodType=Get, ())
-      let res = await fetchDetails(url)
-      let stringifiedResponse = res->JSON.stringify
-      setConnectorList(._ => stringifiedResponse)
-      res
-    } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
-    }
-  }
-}
-
 let defaultSelectAllCards = (
   pmts: array<paymentMethodEnabled>,
   isUpdateFlow,
@@ -1222,16 +1209,15 @@ let getConnectorPaymentMethodDetails = async (
   }
 }
 
-let filterList = (items, ~removeFromList: processors) => {
-  open LogicUtils
+let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList: connector) => {
   items->Array.filter(dict => {
-    let connectorType = dict->getString("connector_type", "")
+    let connectorType = dict.connector_type
     let isPayoutConnector = connectorType == "payout_processor"
     let isConnector = connectorType !== "payment_vas" && !isPayoutConnector
     let isThreeDsAuthenticator = connectorType == "authentication_processor"
 
     switch removeFromList {
-    | Connector => !isConnector
+    | Processor => !isConnector
     | FRMPlayer => isConnector
     | PayoutConnector => isPayoutConnector
     | ThreeDsAuthenticator => isThreeDsAuthenticator
@@ -1239,9 +1225,12 @@ let filterList = (items, ~removeFromList: processors) => {
   })
 }
 
-let getProcessorsListFromJson = (json, ~removeFromList: processors=FRMPlayer, ()) => {
-  open LogicUtils
-  json->getArrayFromJson([])->Array.map(getDictFromJsonObject)->filterList(~removeFromList)
+let getProcessorsListFromJson = (
+  connnectorList: array<ConnectorTypes.connectorPayload>,
+  ~removeFromList: connector=FRMPlayer,
+  (),
+) => {
+  connnectorList->filterList(~removeFromList)
 }
 
 let getDisplayNameForProcessor = connector =>
@@ -1305,8 +1294,9 @@ let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
   | THREEDSECUREIO => "3dsecure.io"
   }
 
-let getDisplayNameForConnector = connector => {
-  let connectorType = connector->String.toLowerCase->getConnectorNameTypeFromString()
+let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, connector) => {
+  let connectorType =
+    connector->String.toLowerCase->getConnectorNameTypeFromString(~connectorType, ())
   switch connectorType {
   | Processors(connector) => connector->getDisplayNameForProcessor
   | ThreeDsAuthenticator(threeDsAuthenticator) =>
@@ -1316,9 +1306,10 @@ let getDisplayNameForConnector = connector => {
 }
 
 let getConnectorTypeArrayFromListConnectors = (
+  ~connectorType=ConnectorTypes.Processor,
   connectorsList: array<ConnectorTypes.connectorPayload>,
 ) => {
   connectorsList->Array.map(connectorDetail =>
-    connectorDetail.connector_name->getConnectorNameTypeFromString()
+    connectorDetail.connector_name->getConnectorNameTypeFromString(~connectorType, ())
   )
 }

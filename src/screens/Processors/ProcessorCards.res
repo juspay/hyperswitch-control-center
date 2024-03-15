@@ -45,6 +45,7 @@ let make = (
   ~showIcons: bool,
   ~showTestProcessor: bool,
   ~urlPrefix: string,
+  ~connectorType=ConnectorTypes.Processor,
 ) => {
   open ConnectorUtils
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
@@ -118,7 +119,7 @@ let make = (
               <div className="flex flex-col gap-3 items-start">
                 <GatewayIcon gateway={connectorName->String.toUpperCase} className=size />
                 <p className={`${p1MediumTextStyle} break-all`}>
-                  {connectorName->getDisplayNameForConnector->React.string}
+                  {connectorName->getDisplayNameForConnector(~connectorType)->React.string}
                 </p>
               </div>
               <p className="overflow-hidden text-gray-400 flex-1 line-clamp-3">
@@ -184,7 +185,7 @@ let make = (
               className={`p-2 ${cursorStyles}`}
               noAccessDescription=HSwitchUtils.noAccessControlTextForProcessors
               tooltipWidthClass="w-30"
-              description={connectorName->getDisplayNameForConnector}
+              description={connectorName->getDisplayNameForConnector(~connectorType)}
               onClick={_ => handleClick(connectorName)}>
               <AddDataAttributes attributes=[("data-testid", connectorName->String.toLowerCase)]>
                 <GatewayIcon

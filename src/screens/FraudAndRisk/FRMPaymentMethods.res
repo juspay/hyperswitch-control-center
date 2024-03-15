@@ -289,7 +289,7 @@ module PaymentMethodsRenderer = {
     let frmConfigs = parseFRMConfig(frmConfigInput.value)
     let (connectorConfig, setConnectorConfig) = React.useState(_ => Dict.make())
     let setConfigJson = frmConfigInput.onChange
-    let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
+    let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
     let getConfiguredConnectorDetails = async () => {
       try {
