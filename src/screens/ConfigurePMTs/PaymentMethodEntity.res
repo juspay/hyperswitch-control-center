@@ -13,9 +13,9 @@ let defaultColumns = [
   Processor,
   PaymentMethodType,
   PaymentMethod,
-  CardNetwork,
   CountriesAllowed,
   CurrenciesAllowed,
+  CardNetwork,
 ]
 
 let getHeading = colType => {
@@ -32,8 +32,7 @@ let getHeading = colType => {
       ~showSort=false,
       (),
     )
-  | CardNetwork =>
-    Table.makeHeaderInfo(~key="card_network", ~title="Card Network", ~showSort=false, ())
+
   | CountriesAllowed =>
     Table.makeHeaderInfo(~key="accepted_countries", ~title="Countries Allowed", ~showSort=false, ())
   | CurrenciesAllowed =>
@@ -43,79 +42,108 @@ let getHeading = colType => {
       ~showSort=false,
       (),
     )
+  | CardNetwork =>
+    Table.makeHeaderInfo(~key="card_network", ~title="Card Network", ~showSort=false, ())
   }
 }
+let getCell = (~setReferesh) => {
+  let getPaymentMethodConfigCell = (
+    paymentMethodConfig: paymentMethodConfiguration,
+    colType,
+  ): Table.cell => {
+    open PaymentMethodConfigUtils
+    switch colType {
+    | Profile =>
+      Table.CustomCell(
+        <HelperComponents.BusinessProfileComponent profile_id={paymentMethodConfig.profile_id} />,
+        "",
+      )
+    | Processor =>
+      Table.CustomCell(
+        <PaymentMethodConfig
+          paymentMethodConfig config={paymentMethodConfig.connector_name} setReferesh
+        />,
+        "",
+      )
+    | PaymentMethod =>
+      Table.CustomCell(
+        <PaymentMethodConfig
+          paymentMethodConfig config={paymentMethodConfig.payment_method} setReferesh
+        />,
+        "",
+      )
+    | PaymentMethodType =>
+      Table.CustomCell(
+        <PaymentMethodConfig
+          paymentMethodConfig config={paymentMethodConfig.payment_method_type} setReferesh
+        />,
+        "",
+      )
 
-let getCell = (paymentMethodConfig: paymentMethodConfiguration, colType): Table.cell => {
-  open PaymentMethodConfigUtils
-  switch colType {
-  | Profile =>
-    Table.CustomCell(
-      <HelperComponents.BusinessProfileComponent profile_id={paymentMethodConfig.profile_id} />,
-      "",
-    )
-  | Processor => Text(paymentMethodConfig.connector_name)
-  | PaymentMethod => Text(paymentMethodConfig.payment_method)
-  | PaymentMethodType =>
-    Table.CustomCell(
-      <PaymentMethodConfig paymentMethodConfig config={paymentMethodConfig.payment_method_type} />,
-      "",
-    )
-  | CardNetwork =>
-    Table.CustomCell(
-      <PaymentMethodConfig
-        paymentMethodConfig config={paymentMethodConfig.card_networks->Array.toString}
-      />,
-      "",
-    )
-  | CountriesAllowed =>
-    Table.CustomCell(
-      <PaymentMethodConfig
-        paymentMethodConfig config={paymentMethodConfig.accepted_countries->getAdvanceConfiguration}
-      />,
-      "",
-    )
-  | CurrenciesAllowed =>
-    Table.CustomCell(
-      <PaymentMethodConfig
-        paymentMethodConfig
-        config={paymentMethodConfig.accepted_currencies->getAdvanceConfiguration}
-      />,
-      "",
-    )
+    | CountriesAllowed =>
+      Table.CustomCell(
+        <PaymentMethodConfig
+          paymentMethodConfig
+          config={paymentMethodConfig.accepted_countries->getAdvanceConfiguration}
+          setReferesh
+        />,
+        "",
+      )
+    | CurrenciesAllowed =>
+      Table.CustomCell(
+        <PaymentMethodConfig
+          paymentMethodConfig
+          config={paymentMethodConfig.accepted_currencies->getAdvanceConfiguration}
+          setReferesh
+        />,
+        "",
+      )
+    | CardNetwork =>
+      Table.CustomCell(
+        <PaymentMethodConfig
+          paymentMethodConfig config={paymentMethodConfig.card_networks->Array.toString} setReferesh
+        />,
+        "",
+      )
+    }
   }
+  getPaymentMethodConfigCell
 }
 
 let itemObjMapper = (dict, mappedArr) => {
   open ConnectorListMapper
   open LogicUtils
+
   let paymentMethod =
     dict
     ->Dict.get("payment_methods_enabled")
     ->Option.getOr(Dict.make()->JSON.Encode.object)
     ->getArrayDataFromJson(getPaymentMethodsEnabled)
-  paymentMethod->Array.forEachWithIndex((item, pmIndex) => {
-    item.payment_method_types->Array.forEachWithIndex((data, pmtIndex) => {
-      let paymentMethodrecord: paymentMethodConfiguration = {
-        payment_method_index: pmIndex,
-        payment_method_types_index: pmtIndex,
-        merchant_connector_id: dict->getString("merchant_connector_id", ""),
-        connector_name: dict->getString("connector_name", ""),
-        profile_id: dict->getString("profile_id", ""),
-        payment_method: item.payment_method,
-        payment_method_type: data.payment_method_type,
-        card_networks: data.card_networks,
-        accepted_currencies: data.accepted_currencies,
-        accepted_countries: data.accepted_countries,
-        minimum_amount: data.minimum_amount,
-        maximum_amount: data.maximum_amount,
-        recurring_enabled: data.recurring_enabled,
-        installment_payment_enabled: data.installment_payment_enabled,
-        payment_experience: data.payment_experience,
-      }
-      mappedArr->Array.push(paymentMethodrecord)
+  let connectorType = dict->getString("connector_type", "")
+  if connectorType === "payment_processor" {
+    paymentMethod->Array.forEachWithIndex((item, pmIndex) => {
+      item.payment_method_types->Array.forEachWithIndex((data, pmtIndex) => {
+        let paymentMethodrecord: paymentMethodConfiguration = {
+          payment_method_index: pmIndex,
+          payment_method_types_index: pmtIndex,
+          merchant_connector_id: dict->getString("merchant_connector_id", ""),
+          connector_name: dict->getString("connector_name", ""),
+          profile_id: dict->getString("profile_id", ""),
+          payment_method: item.payment_method,
+          payment_method_type: data.payment_method_type,
+          card_networks: data.card_networks,
+          accepted_currencies: data.accepted_currencies,
+          accepted_countries: data.accepted_countries,
+          minimum_amount: data.minimum_amount,
+          maximum_amount: data.maximum_amount,
+          recurring_enabled: data.recurring_enabled,
+          installment_payment_enabled: data.installment_payment_enabled,
+          payment_experience: data.payment_experience,
+        }
+        mappedArr->Array.push(paymentMethodrecord)
+      })
     })
-  })
+  }
 }
 let getPreviouslyConnectedList: JSON.t => array<paymentMethodConfiguration> = json => {
   let mappedArr = []
@@ -127,21 +155,14 @@ let getPreviouslyConnectedList: JSON.t => array<paymentMethodConfiguration> = js
     ->Array.map(dict => dict->itemObjMapper(mappedArr))
   mappedArr
 }
-let paymentMethodEntity = (path: string) => {
+let paymentMethodEntity = (~setReferesh: unit => promise<unit>) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getPreviouslyConnectedList,
     ~defaultColumns,
     ~getHeading,
-    ~getCell,
+    ~getCell=getCell(~setReferesh),
     ~dataKey="",
-    // ~getShowLink={
-    //   connec =>
-    //     PermissionUtils.linkForGetShowLinkViaAccess(
-    //       ~url=`/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`,
-    //       ~permission,
-    //     )
-    // },
     (),
   )
 }

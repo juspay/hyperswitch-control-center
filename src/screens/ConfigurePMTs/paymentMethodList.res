@@ -6,11 +6,9 @@ let make = (~isPayoutFlow=false) => {
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let (offset, setOffset) = React.useState(_ => 0)
 
-  let getConnectorListAndUpdateState = async () => {
+  let getConnectorListAndUpdateState = React.useCallback0(async () => {
     try {
       let response = await fetchConnectorListResponse()
-      let removeFromList = isPayoutFlow ? ConnectorTypes.PayoutConnector : ConnectorTypes.FRMPlayer
-
       setConfiguredConnectors(_ =>
         response->PaymentMethodEntity.getPreviouslyConnectedList->Array.map(Nullable.make)
       )
@@ -18,7 +16,7 @@ let make = (~isPayoutFlow=false) => {
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
     }
-  }
+  })
 
   React.useEffect1(() => {
     getConnectorListAndUpdateState()->ignore
@@ -37,7 +35,9 @@ let make = (~isPayoutFlow=false) => {
         resultsPerPage=20
         offset
         setOffset
-        entity={PaymentMethodEntity.paymentMethodEntity(`connectors`)}
+        entity={PaymentMethodEntity.paymentMethodEntity(
+          ~setReferesh=getConnectorListAndUpdateState,
+        )}
         currrentFetchCount={configuredConnectors->Array.length}
         collapseTableRow=false
       />
