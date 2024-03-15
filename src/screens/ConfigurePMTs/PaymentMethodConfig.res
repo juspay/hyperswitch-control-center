@@ -73,7 +73,6 @@ let make = (
   ~config: string,
   ~setReferesh: unit => promise<unit>,
 ) => {
-  Js.log("log log")
   open FormRenderer
   let (showPaymentMthdConfigModal, setShowPaymentMthdConfigModal) = React.useState(_ => false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
@@ -94,7 +93,6 @@ let make = (
   let showToast = ToastState.useShowToast()
 
   let getProcessorDetails = async () => {
-    Js.log("llog logo")
     open LogicUtils
     try {
       let data =
