@@ -19,6 +19,8 @@ let make = (~isPayoutFlow=false) => {
     try {
       let response = await fetchConnectorListResponse()
       let removeFromList = isPayoutFlow ? ConnectorTypes.PayoutConnector : ConnectorTypes.FRMPlayer
+
+      // TODO : maintain separate list for multiple types of connectors
       let connectorsList =
         response
         ->ConnectorListMapper.getArrayOfConnectorListPayloadType

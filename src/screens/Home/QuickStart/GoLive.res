@@ -6,7 +6,7 @@ module ProdIntentForm = {
     <div className="flex flex-col gap-12 h-full w-full">
       <FormRenderer.DesktopRow>
         <div className="grid grid-cols-2 gap-5">
-          {formFields
+          {formFieldsForQuickStart
           ->Array.mapWithIndex((column, index) =>
             <FormRenderer.FieldRenderer
               key={index->Int.toString}

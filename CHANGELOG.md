@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.14.0
+
+### Testing
+
+- Test cases for sandbox quickstart ([#497](https://github.com/juspay/hyperswitch-control-center/pull/497)) ([`b19780c`](https://github.com/juspay/hyperswitch-control-center/commit/b19780c444bd640dd0d30d5b01e8b85add15b3ec))
+
+**Full Changelog:** [`2024.03.13.0...2024.03.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.13.0...2024.03.14.0)
+
+- - -
+
 ## 2024.03.13.0
 
 ### Features
