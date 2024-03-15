@@ -71,6 +71,7 @@ Follow these simple steps to set up Hyperswitch on your local machine.
 
 Once the containers are up and running, you can access the application by navigating to http://localhost:9000 in your web browser.
 
+---
 ## Feature Flags
 
 Feature flags allow the users to enable or disable certain functionalities or flows in the control center.
