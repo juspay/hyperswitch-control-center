@@ -1213,8 +1213,9 @@ let filterList = (items: array<ConnectorTypes.connectorPayload>, ~removeFromList
   items->Array.filter(dict => {
     let connectorType = dict.connector_type
     let isPayoutConnector = connectorType == "payout_processor"
-    let isConnector = connectorType !== "payment_vas" && !isPayoutConnector
     let isThreeDsAuthenticator = connectorType == "authentication_processor"
+    let isConnector =
+      connectorType !== "payment_vas" && !isPayoutConnector && !isThreeDsAuthenticator
 
     switch removeFromList {
     | Processor => !isConnector
@@ -1312,4 +1313,14 @@ let getConnectorTypeArrayFromListConnectors = (
   connectorsList->Array.map(connectorDetail =>
     connectorDetail.connector_name->getConnectorNameTypeFromString(~connectorType, ())
   )
+}
+
+let connectorTypeStringToTypeMapper = connector_type => {
+  switch connector_type {
+  | "payment_processor" => PaymentProcessor
+  | "payment_vas" => PaymentVas
+  | "payout_processor" => PayoutProcessor
+  | "authentication_processor" => AuthenticationProcessor
+  | _ => PaymentProcessor
+  }
 }

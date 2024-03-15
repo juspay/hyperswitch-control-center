@@ -183,6 +183,7 @@ let authenticationConnectors = connectorList =>
       ~buttonText="Select Field",
       ~showSelectionAsChips=false,
       ~customButtonStyle=`!rounded-md`,
+      ~fixedDropDownDirection=TopRight,
       (),
     ),
     ~isRequired=false,
@@ -190,9 +191,9 @@ let authenticationConnectors = connectorList =>
   )
 
 let threeDsRequestorUrl = FormRenderer.makeFieldInfo(
-  ~label="ThreeDs Requestor URL",
+  ~label="3DS Requestor URL",
   ~name="three_ds_requestor_url",
-  ~placeholder="Enter ThreeDs Requestor URL",
+  ~placeholder="Enter 3DS Requestor URL",
   ~customInput=InputFields.textInput(~autoComplete="off", ()),
   ~isRequired=false,
   (),
