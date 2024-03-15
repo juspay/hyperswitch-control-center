@@ -16,9 +16,8 @@ module RenderSearchResultBody = {
       section.results
       ->Array.mapWithIndex((item, indx) => {
         let elementsArray = item.texts
-        let borderClass = indx == 0 ? "border-t-1" : ""
         <div
-          className={`p-2 text-sm cursor-pointer hover:bg-gray-100 ${borderClass} border-b-1`}
+          className={`p-2 text-sm cursor-pointer hover:bg-gray-100 -ml-2`}
           key={indx->Int.toString}
           onClick={_ => redirectOnSelect(item)}>
           {elementsArray
@@ -27,7 +26,7 @@ module RenderSearchResultBody = {
             <RenderIf condition={elementValue->isNonEmptyString} key={index->Int.toString}>
               <span
                 key={index->Int.toString}
-                className=" font-medium text-lightgray_background opacity-60">
+                className=" font-medium text-lightgray_background opacity-60 underline underline-offset-4">
                 {elementValue->React.string}
               </span>
               <RenderIf condition={index >= 0 && index < elementsArray->Array.length - 1}>
@@ -51,7 +50,7 @@ module RenderSearchResultBody = {
           ->Array.filter(dict => dict->Dict.keysToArray->Array.length > 0)
           ->Array.map(item => item->PaymentIntentEntity.tableItemToObjMapper->Nullable.make)
 
-        <PaymentIntentTable tableData={data} />
+        <PaymentIntentTable.BaseTable tableData={data} />
       }
     | PaymentAttempts => {
         let data =
@@ -63,7 +62,7 @@ module RenderSearchResultBody = {
           ->Array.filter(dict => dict->Dict.keysToArray->Array.length > 0)
           ->Array.map(item => item->PaymentAttemptEntity.tableItemToObjMapper->Nullable.make)
 
-        <PaymentAttemptTable tableData={data} />
+        <PaymentAttemptTable.BaseTable tableData={data} />
       }
 
     | _ => "Not implemented"->React.string
