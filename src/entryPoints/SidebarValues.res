@@ -417,6 +417,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     userJourneyAnalytics: userJourneyAnalyticsFlag,
     surcharge: isSurchargeEnabled,
     isLiveMode,
+    threedsAuthenticator,
   } = featureFlagDetails
 
   let sidebar = [
@@ -427,7 +428,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~isLiveMode,
       ~isFrmEnabled=frm,
       ~isPayoutsEnabled=payOut,
-      ~isThreedsConnectorEnabled=true,
+      ~isThreedsConnectorEnabled=threedsAuthenticator,
       ~permissionJson,
     ),
     default->analytics(userJourneyAnalyticsFlag, ~permissionJson),
