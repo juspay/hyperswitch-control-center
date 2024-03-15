@@ -24,5 +24,6 @@
   "dispute_evidence_upload": false,
   "paypal_automatic_flow": false,
   "invite_multiple": false,
-  "accept-invite": false
+  "accept-invite": false,
+  "threeds-authenticator": false
 }

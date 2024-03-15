@@ -264,7 +264,9 @@ let make = () => {
                         </AccessControl>
 
                       | list{"threeds-authenticators", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.connectorsView>
+                        <AccessControl
+                          permission=userPermissionJson.connectorsView
+                          isEnabled={featureFlagDetails.threedsAuthenticator}>
                           <EntityScaffold
                             entityName="3DS Authenticator"
                             remainingPath
