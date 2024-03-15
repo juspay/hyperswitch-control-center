@@ -65,9 +65,9 @@ Follow these simple steps to set up Hyperswitch on your local machine.
 ---
 ### Running with Docker
 
-1. docker run -p 9000:9000  -e apiBaseUrl=```your-backend-url``` -e sdkBaseUrl=```your-sdk-url``` juspaydotin/hyperswitch-control-center:latest
+1. ```docker run -p 9000:9000  -e apiBaseUrl=your-backend-url -e sdkBaseUrl=your-sdk-url juspaydotin/hyperswitch-control-center:latest```
 
-## Accessing the Application
+### Accessing the Application
 
 Once the containers are up and running, you can access the application by navigating to http://localhost:9000 in your web browser.
 
