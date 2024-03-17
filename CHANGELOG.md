@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.17.0
+
+### Bug Fixes
+
+- Prod onboarding form and switch merchant dropdown changes ([#500](https://github.com/juspay/hyperswitch-control-center/pull/500)) ([`6afccf6`](https://github.com/juspay/hyperswitch-control-center/commit/6afccf66d35497a515bf393baa6fc62cb0a5fe17))
+
+### Miscellaneous Tasks
+
+- Filter enhancement ([#504](https://github.com/juspay/hyperswitch-control-center/pull/504)) ([`fb5b9b2`](https://github.com/juspay/hyperswitch-control-center/commit/fb5b9b228d49d18bd5d3d5d40cfb9b2535233822))
+- Added feature flag for threeds authenticator ([#507](https://github.com/juspay/hyperswitch-control-center/pull/507)) ([`c2876ab`](https://github.com/juspay/hyperswitch-control-center/commit/c2876ab2c5189cc4b996f4f9a328ff81ce656875))
+- Update readme ([#511](https://github.com/juspay/hyperswitch-control-center/pull/511)) ([`ceadf7a`](https://github.com/juspay/hyperswitch-control-center/commit/ceadf7a085f9af0a7914dad2ca258828c10f7f5b))
+
+**Full Changelog:** [`2024.03.14.0...2024.03.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.14.0...2024.03.17.0)
+
+- - -
+
 ## 2024.03.14.0
 
 ### Testing
