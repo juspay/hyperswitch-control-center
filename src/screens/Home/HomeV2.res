@@ -416,12 +416,9 @@ let make = () => {
   let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <div className="w-full flex flex-col gap-6">
-    <UIUtils.RenderIf condition={featureFlagDetails.acceptInvite}>
-      <AcceptInviteHome />
-    </UIUtils.RenderIf>
+    <AcceptInviteHome />
     <div className="w-full flex flex-col gap-7">
       <QuickStartModule />
       <div>
