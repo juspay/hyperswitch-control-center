@@ -15,3 +15,10 @@ type paymentMethodConfiguration = {
   installment_payment_enabled: option<bool>,
   payment_experience: option<string>,
 }
+
+type paymentMethodConfigFilters = {
+  profileId: option<array<string>>,
+  connectorId: option<array<string>>,
+  paymentMethod: option<array<string>>,
+  paymentMethodType: option<array<string>>,
+}

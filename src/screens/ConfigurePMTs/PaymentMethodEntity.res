@@ -113,39 +113,39 @@ let getCell = (~setReferesh) => {
 let itemObjMapper = (dict, mappedArr) => {
   open ConnectorListMapper
   open LogicUtils
-
   let paymentMethod =
     dict
     ->Dict.get("payment_methods_enabled")
     ->Option.getOr(Dict.make()->JSON.Encode.object)
     ->getArrayDataFromJson(getPaymentMethodsEnabled)
-  let connectorType = dict->getString("connector_type", "")
-  if connectorType === "payment_processor" {
+  if dict->getString("connector_type", "") === "payment_processor" {
     paymentMethod->Array.forEachWithIndex((item, pmIndex) => {
-      item.payment_method_types->Array.forEachWithIndex((data, pmtIndex) => {
-        let paymentMethodrecord: paymentMethodConfiguration = {
-          payment_method_index: pmIndex,
-          payment_method_types_index: pmtIndex,
-          merchant_connector_id: dict->getString("merchant_connector_id", ""),
-          connector_name: dict->getString("connector_name", ""),
-          profile_id: dict->getString("profile_id", ""),
-          payment_method: item.payment_method,
-          payment_method_type: data.payment_method_type,
-          card_networks: data.card_networks,
-          accepted_currencies: data.accepted_currencies,
-          accepted_countries: data.accepted_countries,
-          minimum_amount: data.minimum_amount,
-          maximum_amount: data.maximum_amount,
-          recurring_enabled: data.recurring_enabled,
-          installment_payment_enabled: data.installment_payment_enabled,
-          payment_experience: data.payment_experience,
-        }
-        mappedArr->Array.push(paymentMethodrecord)
-      })
+      PaymentMethodConfigUtils.mapPaymentMethodValues(
+        ~paymentMethod=item,
+        ~dict,
+        ~mappedArr,
+        ~pmIndex,
+        (),
+      )
     })
   }
 }
-let getPreviouslyConnectedList: JSON.t => array<paymentMethodConfiguration> = json => {
+
+let getFilterdConnectorList = (
+  json: JSON.t,
+  filters: PaymentMethodConfigTypes.paymentMethodConfigFilters,
+): array<paymentMethodConfiguration> => {
+  let mappedArr = []
+  let _ =
+    json
+    ->JSON.Decode.array
+    ->Option.getOr([])
+    ->Belt.Array.keepMap(JSON.Decode.object)
+    ->Array.map(dict => dict->PaymentMethodConfigUtils.filterItemObjMapper(mappedArr, filters))
+  mappedArr
+}
+
+let getConnectedList: JSON.t => array<paymentMethodConfiguration> = json => {
   let mappedArr = []
   let _ =
     json
@@ -158,7 +158,7 @@ let getPreviouslyConnectedList: JSON.t => array<paymentMethodConfiguration> = js
 let paymentMethodEntity = (~setReferesh: unit => promise<unit>) => {
   EntityType.makeEntity(
     ~uri=``,
-    ~getObjects=getPreviouslyConnectedList,
+    ~getObjects=getConnectedList,
     ~defaultColumns,
     ~getHeading,
     ~getCell=getCell(~setReferesh),
