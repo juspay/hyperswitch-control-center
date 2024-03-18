@@ -1316,8 +1316,5 @@ let getConnectorTypeArrayFromListConnectors = (
 
 let sortByName = (c1, c2) => {
   open LogicUtils
-  let getName = connector => connector->getConnectorNameString
-  let nameA = c1->getName
-  let nameB = c2->getName
-  compareLogic(nameB, nameA)->Belt.Int.toFloat
+  compareLogic(c2->getConnectorNameString, c1->getConnectorNameString)->Belt.Int.toFloat
 }
