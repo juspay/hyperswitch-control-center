@@ -21,12 +21,10 @@ let make = (~paymentId, ~disputeId, ~data: DisputeTypes.disputes) => {
   | Processors(connector) =>
     if LogUtils.responseMaskingSupportedConectors->Array.includes(connector) {
       urls
-      ->Array.concat([
-        {
-          url: connectorLogsUrl,
-          apiMethod: Get,
-        },
-      ])
+      ->Array.push({
+        url: connectorLogsUrl,
+        apiMethod: Get,
+      })
       ->ignore
     }
   | _ => ()
