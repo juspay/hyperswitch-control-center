@@ -51,7 +51,7 @@ let make = () => {
     )->MerchantAccountUtils.getValueFromBusinessProfile
 
   let isUpdateFlow = switch url.path {
-  | list{"threeds-authenticators", "new"} => false
+  | list{"3ds-authenticators", "new"} => false
   | _ => true
   }
 
@@ -199,9 +199,7 @@ let make = () => {
   | Preview => <MenuOption updateStepValue=ConfigurationFields setCurrentStep />
   | _ =>
     <Button
-      text="Done"
-      buttonType=Primary
-      onClick={_ => RescriptReactRouter.push("/threeds-authenticators")}
+      text="Done" buttonType=Primary onClick={_ => RescriptReactRouter.push("/3ds-authenticators")}
     />
   }
 
@@ -212,12 +210,12 @@ let make = () => {
           connectorID === "new"
             ? {
                 title: "3DS Authenticator",
-                link: "/threeds-authenticators",
+                link: "/3ds-authenticators",
                 warning: `You have not yet completed configuring your ${connectorName->LogicUtils.snakeToTitle} connector. Are you sure you want to go back?`,
               }
             : {
                 title: "3DS Authenticator",
-                link: "/threeds-authenticators",
+                link: "/3ds-authenticators",
               },
         ]
         currentPageTitle={connectorName->ConnectorUtils.getDisplayNameForConnector(

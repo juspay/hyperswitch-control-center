@@ -263,7 +263,7 @@ let make = () => {
                           />
                         </AccessControl>
 
-                      | list{"threeds-authenticators", ...remainingPath} =>
+                      | list{"3ds-authenticators", ...remainingPath} =>
                         <AccessControl
                           permission=userPermissionJson.connectorsView
                           isEnabled={featureFlagDetails.threedsAuthenticator}>
