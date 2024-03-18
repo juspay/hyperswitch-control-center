@@ -424,6 +424,8 @@ let make = () => {
                       | list{"woocommerce"} => determineWooCommerce()
                       | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
                       | list{"search"} => <SearchResultsPage />
+                      | list{"payment-attempts"} => <PaymentAttemptTable />
+                      | list{"payment-intents"} => <PaymentIntentTable />
                       | list{"unauthorized"} => <UnauthorizedPage />
                       | _ =>
                         RescriptReactRouter.replace(`${hyperSwitchFEPrefix}/home`)

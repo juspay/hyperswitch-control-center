@@ -50,7 +50,7 @@ module RenderSearchResultBody = {
           ->Array.filter(dict => dict->Dict.keysToArray->Array.length > 0)
           ->Array.map(item => item->PaymentIntentEntity.tableItemToObjMapper->Nullable.make)
 
-        <PaymentIntentTable.BaseTable tableData={data} />
+        <PaymentIntentTable.PreviewTable tableData={data} />
       }
     | PaymentAttempts => {
         let data =
@@ -62,7 +62,7 @@ module RenderSearchResultBody = {
           ->Array.filter(dict => dict->Dict.keysToArray->Array.length > 0)
           ->Array.map(item => item->PaymentAttemptEntity.tableItemToObjMapper->Nullable.make)
 
-        <PaymentAttemptTable.BaseTable tableData={data} />
+        <PaymentAttemptTable.PreviewTable tableData={data} />
       }
 
     | _ => "Not implemented"->React.string
@@ -83,7 +83,14 @@ module SearchResultsComponent = {
             {section.section->getSectionHeader->React.string}
           </div>
           {switch section.section {
-          | PaymentAttempts | PaymentIntents => <div> {"Show more"->React.string} </div>
+          | PaymentAttempts =>
+            <div onClick={_ => RescriptReactRouter.push("payment-attempts")}>
+              {"Show more"->React.string}
+            </div>
+          | PaymentIntents =>
+            <div onClick={_ => RescriptReactRouter.push("payment-intents")}>
+              {"Show more"->React.string}
+            </div>
           | _ => React.null
           }}
         </div>
