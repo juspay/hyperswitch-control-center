@@ -151,6 +151,9 @@ let make = (
     ~showSearch=true,
     (),
   ) => {
+    if connectorList->Array.length > 0 {
+      connectorList->Array.sort(sortByName)
+    }
     <>
       <AddDataAttributes
         attributes=[("data-testid", heading->LogicUtils.titleToSnake->String.toLowerCase)]>
