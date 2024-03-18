@@ -74,7 +74,7 @@ module SidebarSubOption = {
 
 module SidebarItem = {
   @react.component
-  let make = (~tabInfo, ~isSelected, ~isExpanded) => {
+  let make = (~tabInfo, ~isSelected, ~isExpanded, ~setOpenItem=_ => ()) => {
     open UIUtils
     let sidebarItemRef = React.useRef(Nullable.null)
     let {getSearchParamByLink} = React.useContext(UserPrefContext.userPrefContext)
@@ -100,15 +100,21 @@ module SidebarItem = {
     | Link(tabOption) => {
         let {name, icon, link, access} = tabOption
         let redirectionLink = `${link}${getSearchParamByLink(link)}`
+
+        let onSidebarItemClick = _ => {
+          isMobileView ? setIsSidebarExpanded(_ => false) : ()
+          setOpenItem(prev => {prev == name ? "" : name})
+        }
+
         <RenderIf condition={access !== NoAccess}>
-          <Link to_=redirectionLink>
+          <Link to_=redirectionLink sendMixpanelEvents=true>
             <AddDataAttributes
               attributes=[
                 ("data-testid", name->String.replaceRegExp(%re("/\s/g"), "")->String.toLowerCase),
               ]>
               <div
                 ref={sidebarItemRef->ReactDOM.Ref.domRef}
-                onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
+                onClick={onSidebarItemClick}
                 className={`${textColor} relative overflow-hidden flex flex-row items-center rounded-lg cursor-pointer ${selectedClass} p-3 ${isExpanded
                     ? "mx-2"
                     : "mx-1"} hover:bg-light_white my-0.5`}>
@@ -141,7 +147,7 @@ module SidebarItem = {
         let {name, icon, iconTag, link, access, ?iconStyles, ?iconSize} = tabOption
 
         <RenderIf condition={access !== NoAccess}>
-          <Link to_={`${link}${getSearchParamByLink(link)}`}>
+          <Link to_={`${link}${getSearchParamByLink(link)}`} sendMixpanelEvents=true>
             <div
               onClick={_ => isMobileView ? setIsSidebarExpanded(_ => false) : ()}
               className={`${textColor} flex flex-row items-center cursor-pointer transition duration-300 ${selectedClass} p-3 ${isExpanded
@@ -202,7 +208,7 @@ module NestedSidebarItem = {
           let linkTagPadding = "pl-2"
 
           <RenderIf condition={access !== NoAccess}>
-            <Link to_={`${link}${getSearchParamByLink(link)}`}>
+            <Link to_={`${link}${getSearchParamByLink(link)}`} sendMixpanelEvents=true>
               <AddDataAttributes
                 attributes=[
                   ("data-testid", name->String.replaceRegExp(%re("/\s/g"), "")->String.toLowerCase),
@@ -331,6 +337,9 @@ module SidebarNestedSection = {
     ~firstPart,
     ~isSideBarExpanded,
     ~setIsSidebarExpanded,
+    ~openItem="",
+    ~setOpenItem=_ => (),
+    ~isSectionAutoCollapseEnabled=false,
   ) => {
     open UIUtils
     let isSubLevelItemSelected = tabInfo => {
@@ -403,6 +412,25 @@ module SidebarNestedSection = {
       | SubLevelLink({access}) => access === NoAccess
       }
     })
+
+    let isSectionExpanded = if isSectionAutoCollapseEnabled {
+      openItem === section.name || isAnySubItemSelected
+    } else {
+      isSectionExpanded
+    }
+
+    let toggleSectionExpansion = if isSectionAutoCollapseEnabled {
+      _ => setOpenItem(prev => {prev == section.name ? "" : section.name})
+    } else {
+      toggleSectionExpansion
+    }
+
+    let isElementShown = if isSectionAutoCollapseEnabled {
+      openItem == section.name || isAnySubItemSelected
+    } else {
+      isElementShown
+    }
+
     <RenderIf condition={!areAllSubLevelsHidden}>
       <NestedSectionItem
         section
@@ -472,10 +500,13 @@ let make = (
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
   let email = HSLocalStorage.getFromMerchantDetails("email")
+
+  let (openItem, setOpenItem) = React.useState(_ => "")
   let (_authStatus, setAuthStatus) = React.useContext(AuthInfoProvider.authStatusContext)
   let {getFromSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
   let {isSidebarExpanded, setIsSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
+
   let minWidthForPinnedState = MatchMedia.useMatchMedia("(min-width: 1280px)")
   let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
@@ -569,7 +600,9 @@ let make = (
             | RemoteLink(record)
             | Link(record) => {
                 let isSelected = linkSelectionCheck(firstPart, record.link)
-                <SidebarItem key={Int.toString(index)} tabInfo isSelected isExpanded={isExpanded} />
+                <SidebarItem
+                  key={Int.toString(index)} tabInfo isSelected isExpanded={isExpanded} setOpenItem
+                />
               }
 
             | LinkWithTag(record) => {
@@ -586,6 +619,9 @@ let make = (
                   firstPart
                   isSideBarExpanded={isExpanded}
                   setIsSidebarExpanded
+                  openItem
+                  setOpenItem
+                  isSectionAutoCollapseEnabled=true
                 />
               </RenderIf>
             | Heading(headingOptions) =>

@@ -77,6 +77,7 @@ type processorTypes =
   | VOLT
   | PROPHETPAY
   | HELCIM
+  | PLACETOPAY
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO
 
@@ -219,4 +220,7 @@ type connectorPayload = {
   status: string,
 }
 
-type processors = FRMPlayer | Connector | PayoutConnector | ThreeDsAuthenticator
+type connector = FRMPlayer | Processor | PayoutConnector | ThreeDsAuthenticator
+
+type connectorTypeVariants =
+  PaymentProcessor | PaymentVas | PayoutProcessor | AuthenticationProcessor

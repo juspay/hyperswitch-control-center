@@ -641,7 +641,7 @@ let getCellForSummary = (order, summaryColType, _): Table.cell => {
 let getCellForAboutPayment = (
   order,
   aboutPaymentColType: aboutPaymentColType,
-  connectorList,
+  connectorList: array<ConnectorTypes.connectorPayload>,
 ): Table.cell => {
   open HelperComponents
   switch aboutPaymentColType {
@@ -653,12 +653,9 @@ let getCellForAboutPayment = (
   | ConnectorLabel => {
       let connectorLabel =
         connectorList
-        ->Array.find(ele =>
-          order.merchant_connector_id === ele->getString("merchant_connector_id", "")
-        )
-        ->Option.getOr(Dict.make())
-        ->getString("connector_label", "")
-      Text(connectorLabel)
+        ->Array.find(ele => order.merchant_connector_id === ele.merchant_connector_id)
+        ->Option.getOr(Dict.make()->ConnectorListMapper.getProcessorPayloadType)
+      Text(connectorLabel.connector_label)
     }
   | CardBrand => Text(order.card_brand)
   | ProfileId => Text(order.profile_id)

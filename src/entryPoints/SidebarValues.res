@@ -1,5 +1,5 @@
 open SidebarTypes
-open PermissionUtils
+open UserManagementTypes
 
 // * Custom Component
 
@@ -72,7 +72,7 @@ let payments = permissionJson => {
   SubLevelLink({
     name: "Payments",
     link: `/payments`,
-    access: permissionJson.paymentRead,
+    access: permissionJson.operationsView,
     searchOptions: [("View payment operations", "")],
   })
 }
@@ -81,7 +81,7 @@ let refunds = permissionJson => {
   SubLevelLink({
     name: "Refunds",
     link: `/refunds`,
-    access: permissionJson.refundRead,
+    access: permissionJson.operationsView,
     searchOptions: [("View refund operations", "")],
   })
 }
@@ -90,7 +90,7 @@ let disputes = permissionJson => {
   SubLevelLink({
     name: "Disputes",
     link: `/disputes`,
-    access: permissionJson.disputeRead,
+    access: permissionJson.operationsView,
     searchOptions: [("View dispute operations", "")],
   })
 }
@@ -99,7 +99,7 @@ let customers = permissionJson => {
   SubLevelLink({
     name: "Customers",
     link: `/customers`,
-    access: permissionJson.customerRead,
+    access: permissionJson.operationsView,
     searchOptions: [("View customers", "")],
   })
 }
@@ -120,11 +120,12 @@ let operations = (isOperationsEnabled, ~permissionJson) => {
     : emptyComponent
 }
 
+// TODO : need to re-revaluate the permission
 let paymentProcessor = (isLiveMode, permissionJson) => {
   SubLevelLink({
     name: "Payment Processors",
     link: `/connectors`,
-    access: permissionJson.merchantConnectorAccountRead,
+    access: permissionJson.connectorsView,
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
       ~processorList=isLiveMode
         ? ConnectorUtils.connectorListForLive
@@ -134,11 +135,12 @@ let paymentProcessor = (isLiveMode, permissionJson) => {
   })
 }
 
+// TODO : need to re-revaluate the permission
 let payoutConnectors = (~permissionJson) => {
   SubLevelLink({
     name: "Payout Processors",
     link: `/payoutconnectors`,
-    access: permissionJson.merchantConnectorAccountRead,
+    access: permissionJson.connectorsView,
     searchOptions: HSwitchUtils.getSearchOptionsForProcessors(
       ~processorList=ConnectorUtils.payoutConnectorList,
       ~getNameFromString=ConnectorUtils.getConnectorNameString,
@@ -146,12 +148,25 @@ let payoutConnectors = (~permissionJson) => {
   })
 }
 
+// TODO : need to re-revaluate the permission
 let fraudAndRisk = (~permissionJson) => {
   SubLevelLink({
     name: "Fraud & Risk",
     link: `/fraud-risk-management`,
-    access: permissionJson.merchantConnectorAccountRead,
+    access: permissionJson.connectorsView,
     searchOptions: [],
+  })
+}
+
+let threeDsConnector = (~permissionJson) => {
+  SubLevelLink({
+    name: "3DS Authenticator",
+    link: "/threeds-authenticators",
+    access: permissionJson.connectorsView,
+    searchOptions: [
+      ("Connect 3dsecure.io", "/new?name=threedsecureio"),
+      ("Connect threedsecureio", "/new?name=threedsecureio"),
+    ],
   })
 }
 
@@ -160,12 +175,16 @@ let connectors = (
   ~isLiveMode,
   ~isFrmEnabled,
   ~isPayoutsEnabled,
+  ~isThreedsConnectorEnabled,
   ~permissionJson,
 ) => {
   let connectorLinkArray = [paymentProcessor(isLiveMode, permissionJson)]
 
   if isPayoutsEnabled {
     connectorLinkArray->Array.push(payoutConnectors(~permissionJson))->ignore
+  }
+  if isThreedsConnectorEnabled {
+    connectorLinkArray->Array.push(threeDsConnector(~permissionJson))->ignore
   }
 
   if isFrmEnabled {
@@ -216,7 +235,7 @@ let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag, ~permissionJson) 
     ? Section({
         name: "Analytics",
         icon: "analytics",
-        showSection: permissionJson.analytics === Access,
+        showSection: permissionJson.analyticsView === Access,
         links: userJourneyAnalyticsFlag
           ? [paymentAnalytcis, refundAnalytics, disputeAnalytcis, userJourneyAnalytics]
           : [paymentAnalytcis, refundAnalytics, disputeAnalytcis],
@@ -227,7 +246,7 @@ let routing = permissionJson => {
   SubLevelLink({
     name: "Routing",
     link: `/routing`,
-    access: permissionJson.routingRead,
+    access: permissionJson.workflowsView,
     searchOptions: [
       ("Manage default routing configuration", "/default"),
       ("Create new volume based routing", "/volume"),
@@ -241,7 +260,7 @@ let threeDs = permissionJson => {
   SubLevelLink({
     name: "3DS Decision Manager",
     link: `/3ds`,
-    access: permissionJson.threeDsDecisionManagerRead,
+    access: permissionJson.workflowsView,
     searchOptions: [("Configure 3ds", "")],
   })
 }
@@ -249,7 +268,7 @@ let surcharge = permissionJson => {
   SubLevelLink({
     name: "Surcharge",
     link: `/surcharge`,
-    access: permissionJson.surchargeDecisionManagerRead,
+    access: permissionJson.workflowsView,
     searchOptions: [("Add Surcharge", "")],
   })
 }
@@ -273,7 +292,7 @@ let userManagement = permissionJson => {
   SubLevelLink({
     name: "Team",
     link: `/users`,
-    access: permissionJson.usersRead,
+    access: permissionJson.usersView,
     searchOptions: [("View team management", "")],
   })
 }
@@ -284,7 +303,7 @@ let accountSettings = permissionJson => {
   SubLevelLink({
     name: "Account Settings",
     link: `/account-settings`,
-    access: permissionJson.merchantAccountWrite,
+    access: permissionJson.merchantDetailsManage,
     searchOptions: [
       ("View profile", "/profile"),
       ("Change password", "/profile"),
@@ -293,28 +312,30 @@ let accountSettings = permissionJson => {
   })
 }
 
-let businessDetails = permissionJson => {
+// TODO : need to re-revaluate the permission
+let businessDetails = () => {
   SubLevelLink({
     name: "Business Details",
     link: `/business-details`,
-    access: permissionJson.merchantAccountRead,
+    access: Access,
     searchOptions: [("Configure business details", "")],
   })
 }
 
-let businessProfiles = permissionJson => {
+// TODO : need to re-revaluate the permission
+let businessProfiles = () => {
   SubLevelLink({
     name: "Business Profiles",
     link: `/business-profiles`,
-    access: permissionJson.merchantAccountRead,
+    access: Access,
     searchOptions: [("Configure business profiles", "")],
   })
 }
 let settings = (~isSampleDataEnabled, ~isBusinessProfileEnabled, ~permissionJson) => {
-  let settingsLinkArray = [businessDetails(permissionJson)]
+  let settingsLinkArray = [businessDetails()]
 
   if isBusinessProfileEnabled {
-    settingsLinkArray->Array.push(businessProfiles(permissionJson))->ignore
+    settingsLinkArray->Array.push(businessProfiles())->ignore
   }
   if isSampleDataEnabled {
     settingsLinkArray->Array.push(accountSettings(permissionJson))->ignore
@@ -333,7 +354,7 @@ let apiKeys = permissionJson => {
   SubLevelLink({
     name: "API Keys",
     link: `/developer-api-keys`,
-    access: permissionJson.apiKeyRead,
+    access: permissionJson.merchantDetailsManage,
     searchOptions: [("View API Keys", "")],
   })
 }
@@ -342,17 +363,18 @@ let systemMetric = permissionJson => {
   SubLevelLink({
     name: "System Metrics",
     link: `/developer-system-metrics`,
-    access: permissionJson.analytics,
+    access: permissionJson.analyticsView,
     iconTag: "betaTag",
     searchOptions: [("View System Metrics", "")],
   })
 }
 
-let paymentSettings = permissionJson => {
+// TODO : need to re-revaluate the permission
+let paymentSettings = () => {
   SubLevelLink({
     name: "Payment Settings",
     link: `/payment-settings`,
-    access: permissionJson.merchantAccountRead,
+    access: Access,
     searchOptions: [("View payment settings", ""), ("View webhooks", ""), ("View return url", "")],
   })
 }
@@ -360,7 +382,7 @@ let paymentSettings = permissionJson => {
 let developers = (isDevelopersEnabled, userRole, systemMetrics, ~permissionJson) => {
   let isInternalUser = userRole->String.includes("internal_")
   let apiKeys = apiKeys(permissionJson)
-  let paymentSettings = paymentSettings(permissionJson)
+  let paymentSettings = paymentSettings()
   let systemMetric = systemMetric(permissionJson)
 
   isDevelopersEnabled
@@ -402,13 +424,20 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     userJourneyAnalytics: userJourneyAnalyticsFlag,
     surcharge: isSurchargeEnabled,
     isLiveMode,
+    threedsAuthenticator,
   } = featureFlagDetails
 
   let sidebar = [
     productionAccess->productionAccessComponent,
     default->home,
     default->operations(~permissionJson),
-    default->connectors(~isLiveMode, ~isFrmEnabled=frm, ~isPayoutsEnabled=payOut, ~permissionJson),
+    default->connectors(
+      ~isLiveMode,
+      ~isFrmEnabled=frm,
+      ~isPayoutsEnabled=payOut,
+      ~isThreedsConnectorEnabled=threedsAuthenticator,
+      ~permissionJson,
+    ),
     default->analytics(userJourneyAnalyticsFlag, ~permissionJson),
     default->workflow(isSurchargeEnabled, ~permissionJson),
     recon->reconTag(isReconEnabled),

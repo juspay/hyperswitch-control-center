@@ -19,6 +19,38 @@ let inviteEmail = FormRenderer.makeFieldInfo(
   (),
 )
 
+let createCustomRole = FormRenderer.makeFieldInfo(
+  ~label="Enter custom role name",
+  ~name="role_name",
+  ~customInput=InputFields.textInput(~autoComplete="off", ~autoFocus=false, ()),
+  ~isRequired=true,
+  (),
+)
+
+let roleScope = userRole => {
+  let roleScopeArray = ["Merchant", "Organization"]->Array.map(item => {
+    let option: SelectBox.dropdownOption = {
+      label: item,
+      value: item->String.toLowerCase,
+    }
+    option
+  })
+
+  FormRenderer.makeFieldInfo(
+    ~label="Role Scope ",
+    ~name="role_scope",
+    ~customInput=InputFields.selectInput(
+      ~options=roleScopeArray,
+      ~buttonText="Select Option",
+      ~deselectDisable=true,
+      ~disableSelect=userRole === "org_admin" ? false : true,
+      (),
+    ),
+    ~isRequired=true,
+    (),
+  )
+}
+
 let validateEmptyValue = (key, errors) => {
   switch key {
   | "emailList" => Dict.set(errors, "email", "Please enter Invite mails"->JSON.Encode.string)
@@ -47,10 +79,33 @@ let validateForm = (values, ~fieldsToValidate: array<string>) => {
 
   errors->JSON.Encode.object
 }
+let validateFormForRoles = values => {
+  let errors = Dict.make()
+  open LogicUtils
+  let valuesDict = values->getDictFromJsonObject
+  if valuesDict->getString("role_scope", "")->isEmptyString {
+    Dict.set(errors, "role_scope", "Role scope is required"->JSON.Encode.string)
+  }
+  if valuesDict->getString("role_name", "")->isEmptyString {
+    Dict.set(errors, "role_name", "Role name is required"->JSON.Encode.string)
+  }
+  if valuesDict->getString("role_name", "")->String.length > 64 {
+    Dict.set(errors, "role_name", "Role name should be less than 64 characters"->JSON.Encode.string)
+  }
+  if valuesDict->getArrayFromDict("groups", [])->Array.length === 0 {
+    Dict.set(errors, "groups", "Roles required"->JSON.Encode.string)
+  }
+  errors->JSON.Encode.object
+}
 
 let roleListDataMapper: UserRoleEntity.roleListResponse => SelectBox.dropdownOption = ele => {
+  let roleNameToDisplay = switch ele.role_name {
+  | "iam" => ele.role_name->String.toLocaleUpperCase
+  | _ => ele.role_name->LogicUtils.snakeToTitle
+  }
+
   {
-    label: ele.role_name,
+    label: roleNameToDisplay,
     value: ele.role_id,
   }
 }
@@ -76,7 +131,7 @@ let roleType = roleListData =>
 let getArrayOfPermissionData = json => {
   json
   ->LogicUtils.getDictFromJsonObject
-  ->LogicUtils.getArrayFromDict("permissions", [])
+  ->LogicUtils.getArrayFromDict("groups", [])
   ->Array.map(i => i->JSON.Decode.string->Option.getOr(""))
 }
 
@@ -84,16 +139,12 @@ let updatePresentInInfoList = (infoData, permissionsData) => {
   let copyOfInfoData = infoData->Array.copy
   let copyOfPermissionsData = permissionsData->Array.copy
 
-  copyOfInfoData->Array.map((infoValItem: ProviderTypes.getInfoType) => {
-    infoValItem.permissions->Array.forEachWithIndex((
-      enumValue: ProviderTypes.permissions,
-      index,
-    ) => {
-      if copyOfPermissionsData->Array.includes(enumValue.enum_name) {
-        enumValue.isPermissionAllowed = true
-      }
-      infoValItem.permissions[index] = enumValue
-    })
+  copyOfInfoData->Array.map((infoValItem: UserManagementTypes.getInfoType) => {
+    if copyOfPermissionsData->Array.includes(infoValItem.module_) {
+      infoValItem.isPermissionAllowed = true
+    } else {
+      infoValItem.isPermissionAllowed = false
+    }
     infoValItem
   })
 }
@@ -101,52 +152,23 @@ let updatePresentInInfoList = (infoData, permissionsData) => {
 let defaultPresentInInfoList = infoData => {
   let copyOfInfoData = infoData->Array.copy
 
-  copyOfInfoData->Array.map((infoValItem: ProviderTypes.getInfoType) => {
-    infoValItem.permissions->Array.forEach((enumValue: ProviderTypes.permissions) => {
-      enumValue.isPermissionAllowed = false
-    })
+  copyOfInfoData->Array.map((infoValItem: UserManagementTypes.getInfoType) => {
+    infoValItem.isPermissionAllowed = false
     infoValItem
   })
 }
 
 module RolePermissionValueRenderer = {
   @react.component
-  let make = (
-    ~heading: string,
-    ~description: string,
-    ~readWriteValues: array<ProviderTypes.permissions>,
-  ) => {
-    let getReadWriteValue = index => {
-      readWriteValues->LogicUtils.getValueFromArray(index, ProviderHelper.getDefaultValueOfEnum)
-    }
-    let readValue = getReadWriteValue(0).description
-    let writeValue = getReadWriteValue(1).description
-    let isPermissionAllowedForRead = getReadWriteValue(0).isPermissionAllowed
-    let isPermissionAllowedForWrite = getReadWriteValue(1).isPermissionAllowed
-
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-3">
-        <div className="font-semibold w-1/2"> {heading->React.string} </div>
-        <div className="flex items-center gap-3 w-1/2">
-          <Icon size=14 name={isPermissionAllowedForRead ? "permitted" : "not-permitted"} />
-          <div className="text-base text-hyperswitch_black opacity-50">
-            {readValue->React.string}
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center gap-3">
-        <div className="mt-2 text-base text-hyperswitch_black opacity-50 w-1/2">
+  let make = (~heading: string, ~description: string, ~isPermissionAllowed: bool=false) => {
+    <div className="flex justify-between">
+      <div className="flex flex-col gap-3 items-start col-span-1">
+        <div className="font-semibold"> {heading->React.string} </div>
+        <div className="text-base text-hyperswitch_black opacity-50 flex-1">
           {description->React.string}
         </div>
-        <UIUtils.RenderIf condition={writeValue->LogicUtils.isNonEmptyString}>
-          <div className="flex items-center gap-3 w-1/2">
-            <Icon size=14 name={isPermissionAllowedForWrite ? "permitted" : "not-permitted"} />
-            <div className="text-base text-hyperswitch_black opacity-50">
-              {writeValue->React.string}
-            </div>
-          </div>
-        </UIUtils.RenderIf>
       </div>
+      <Icon size=22 name={isPermissionAllowed ? "permitted" : "not-permitted"} />
     </div>
   }
 }
@@ -156,5 +178,13 @@ let roleListResponseMapper: Dict.t<JSON.t> => UserRoleEntity.roleListResponse = 
   {
     role_id: dict->getString("role_id", ""),
     role_name: dict->getString("role_name", ""),
+  }
+}
+
+let tabIndeToVariantMapper = index => {
+  open UserManagementTypes
+  switch index {
+  | 0 => Users
+  | _ => Roles
   }
 }

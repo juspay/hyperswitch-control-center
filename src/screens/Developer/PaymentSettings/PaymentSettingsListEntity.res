@@ -40,6 +40,9 @@ let itemToObjMapper = dict => {
     webhook_details: dict
     ->getObj("webhook_details", Dict.make())
     ->BusinessProfileMapper.constructWebhookDetailsObject,
+    authentication_connector_details: dict
+    ->getObj("webhook_details", Dict.make())
+    ->BusinessProfileMapper.constructAuthConnectorObject,
   }
 }
 

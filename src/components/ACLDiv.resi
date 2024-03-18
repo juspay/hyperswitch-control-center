@@ -11,4 +11,5 @@ let make: (
   ~contentAlign: ToolTip.contentPosition=?,
   ~justifyClass: string=?,
   ~tooltipForWidthClass: string=?,
+  ~dataAttrStr: string=?,
 ) => React.element

@@ -289,7 +289,7 @@ module PaymentMethodsRenderer = {
     let frmConfigs = parseFRMConfig(frmConfigInput.value)
     let (connectorConfig, setConnectorConfig) = React.useState(_ => Dict.make())
     let setConfigJson = frmConfigInput.onChange
-    let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
+    let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
     let getConfiguredConnectorDetails = async () => {
       try {
@@ -299,6 +299,7 @@ module PaymentMethodsRenderer = {
           ->getArrayFromJson([])
           ->Array.map(getDictFromJsonObject)
           ->FRMUtils.filterList(~removeFromList=FRMPlayer, ())
+          ->FRMUtils.filterList(~removeFromList=ThreedsAuthenticator, ())
           ->getConnectorConfig
 
         let updateFRMConfig =

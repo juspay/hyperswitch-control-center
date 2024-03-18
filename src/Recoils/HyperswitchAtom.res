@@ -8,7 +8,10 @@ let businessProfilesAtom = Recoil.atom(.
   JSON.Encode.null->BusinessProfileMapper.getArrayOfBusinessProfile,
 )
 
-let connectorListAtom: Recoil.recoilAtom<string> = Recoil.atom(. "connectorListAtom", "")
+let connectorListAtom: Recoil.recoilAtom<array<ConnectorTypes.connectorPayload>> = Recoil.atom(.
+  "connectorListAtom",
+  JSON.Encode.null->ConnectorListMapper.getArrayOfConnectorListPayloadType,
+)
 
 let enumVariantAtom = Recoil.atom(. "enumVariantDetails", "")
 
@@ -20,7 +23,7 @@ let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatu
   "paypalAccountStatusAtom",
   PayPalFlowTypes.Connect_paypal_landing,
 )
-let userPermissionAtom: Recoil.recoilAtom<PermissionUtils.permissionJson> = Recoil.atom(.
+let userPermissionAtom: Recoil.recoilAtom<UserManagementTypes.permissionJson> = Recoil.atom(.
   "userPermissionAtom",
   PermissionUtils.defaultValueForPermission,
 )
