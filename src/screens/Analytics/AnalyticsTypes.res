@@ -118,29 +118,29 @@ type refundsSingleStateSeries = {
 }
 
 type disputeColType =
-  | DisputeStatusMetric
+  | Connector
+  | DisputeStage
   | TotalAmountDisputed
   | TotalDisputeLostAmount
   | NoCol
 
-let defaultDisputeColumns = [DisputeStatusMetric, TotalAmountDisputed, TotalDisputeLostAmount]
+let defaultDisputeColumns = [Connector, DisputeStage]
 
-let allDisputeColumns = [DisputeStatusMetric, TotalAmountDisputed, TotalDisputeLostAmount]
+let allDisputeColumns = [TotalAmountDisputed, TotalDisputeLostAmount]
 
 type disputeTableType = {
-  dispute_status_metric: float,
+  connector: string,
+  dispute_stage: string,
   total_amount_disputed: float,
   total_dispute_lost_amount: float,
 }
 
 type disputeSingleStateType = {
-  dispute_status_metric: float,
   total_amount_disputed: float,
   total_dispute_lost_amount: float,
 }
 
 type disputeSingleSeriesState = {
-  dispute_status_metric: float,
   total_amount_disputed: float,
   total_dispute_lost_amount: float,
   time_series: string,

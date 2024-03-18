@@ -11,7 +11,8 @@ let makeInputFieldInfo = FormRenderer.makeInputFieldInfo
 
 let colMapper = (col: disputeColType) => {
   switch col {
-  | DisputeStatusMetric => "dispute_status_metric"
+  | Connector => "connector"
+  | DisputeStage => "dispute_stage"
   | TotalAmountDisputed => "total_amount_disputed"
   | TotalDisputeLostAmount => "total_dispute_lost_amount"
   | NoCol => ""
@@ -20,9 +21,10 @@ let colMapper = (col: disputeColType) => {
 
 let reverseColMapper = (column: string) => {
   switch column {
-  | "dispute_status_metric" => DisputeStatusMetric
   | "total_amount_disputed" => TotalAmountDisputed
   | "total_dispute_lost_amount" => TotalDisputeLostAmount
+  | "connector" => Connector
+  | "dispute_stage" => DisputeStage
   | _ => NoCol
   }
 }
@@ -41,7 +43,8 @@ let distribution =
 
 let tableItemToObjMapper: Dict.t<JSON.t> => disputeTableType = dict => {
   {
-    dispute_status_metric: dict->getFloat(DisputeStatusMetric->colMapper, 0.0),
+    connector: dict->getString(Connector->colMapper, "Other"),
+    dispute_stage: dict->getString(DisputeStage->colMapper, "Other"),
     total_amount_disputed: dict->getFloat(TotalAmountDisputed->colMapper, 0.0),
     total_dispute_lost_amount: dict->getFloat(TotalDisputeLostAmount->colMapper, 0.0),
   }
@@ -54,14 +57,10 @@ let getUpdatedHeading = (
   let getHeading = colType => {
     let key = colType->colMapper
     switch colType {
-    | DisputeStatusMetric =>
-      Table.makeHeaderInfo(
-        ~key,
-        ~title="Dispute Status Metric",
-        ~dataType=NumericType,
-        ~showSort=false,
-        (),
-      )
+    | Connector =>
+      Table.makeHeaderInfo(~key, ~title="Connector", ~dataType=NumericType, ~showSort=false, ())
+    | DisputeStage =>
+      Table.makeHeaderInfo(~key, ~title="Dispute Stage", ~dataType=NumericType, ~showSort=false, ())
     | TotalAmountDisputed =>
       Table.makeHeaderInfo(
         ~key,
@@ -90,12 +89,12 @@ let getCell = (disputeTable: disputeTableType, colType): Table.cell => {
   }
 
   switch colType {
-  | DisputeStatusMetric =>
-    Numeric(disputeTable.dispute_status_metric /. 100.00, usaNumberAbbreviation)
   | TotalAmountDisputed =>
     Numeric(disputeTable.total_amount_disputed /. 100.00, usaNumberAbbreviation)
   | TotalDisputeLostAmount =>
     Numeric(disputeTable.total_dispute_lost_amount /. 100.00, usaNumberAbbreviation)
+  | Connector => Text(disputeTable.connector)
+  | DisputeStage => Text(disputeTable.dispute_stage)
   | NoCol => Text("")
   }
 }
@@ -123,13 +122,11 @@ let disputeTableEntity = EntityType.makeEntity(
 )
 
 let singleStateInitialValue = {
-  dispute_status_metric: 0.0,
   total_amount_disputed: 0.0,
   total_dispute_lost_amount: 0.0,
 }
 
 let singleStateSeriesInitialValue = {
-  dispute_status_metric: 0.0,
   total_amount_disputed: 0.0,
   total_dispute_lost_amount: 0.0,
   time_series: "",
@@ -139,7 +136,6 @@ let singleStateItemToObjMapper = json => {
   json
   ->JSON.Decode.object
   ->Option.map(dict => {
-    dispute_status_metric: dict->getFloat("dispute_status_metric", 0.0),
     total_amount_disputed: dict->getFloat("total_amount_disputed", 0.0),
     total_dispute_lost_amount: dict->getFloat("total_dispute_lost_amount", 0.0),
   })
@@ -152,7 +148,6 @@ let singleStateSeriesItemToObjMapper = json => {
   json
   ->JSON.Decode.object
   ->Option.map(dict => {
-    dispute_status_metric: dict->getFloat("dispute_status_metric", 0.0),
     total_amount_disputed: dict->getFloat("total_amount_disputed", 0.0),
     total_dispute_lost_amount: dict->getFloat("total_dispute_lost_amount", 0.0),
     time_series: dict->getString("time_bucket", ""),
@@ -174,14 +169,13 @@ let timeSeriesObjMapper = json =>
   json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
 
 type colT =
-  | DisputeStatusMetric
   | TotalAmountDisputed
   | TotalDisputeLostAmount
 
 let getColumns: unit => array<DynamicSingleStat.columns<colT>> = () => [
   {
     sectionName: "",
-    columns: [DisputeStatusMetric, TotalAmountDisputed, TotalDisputeLostAmount],
+    columns: [TotalAmountDisputed, TotalDisputeLostAmount],
   },
 ]
 
@@ -202,11 +196,6 @@ let constructData = (
   singlestatTimeseriesData: array<AnalyticsTypes.disputeSingleSeriesState>,
 ) => {
   switch key {
-  | "dispute_status_metric" =>
-    singlestatTimeseriesData->Array.map(ob => (
-      ob.time_series->DateTimeUtils.parseAsFloat,
-      ob.dispute_status_metric /. 100.00,
-    ))
   | "total_amount_disputed" =>
     singlestatTimeseriesData->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
@@ -229,26 +218,9 @@ let getStatData = (
   _mode,
 ) => {
   switch colType {
-  | DisputeStatusMetric => {
-      title: `Dispute Status Metric`,
-      tooltipText: `Dispute Status Metric`,
-      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
-        singleStatData.dispute_status_metric /. 100.00,
-        deltaTimestampData.currentSr,
-      ),
-      value: singleStatData.dispute_status_metric /. 100.00,
-      delta: {
-        Js.Float.fromString(
-          Float.toFixedWithPrecision(singleStatData.dispute_status_metric /. 100.00, ~digits=2),
-        )
-      },
-      data: constructData("dispute_status_metric", timeSeriesData),
-      statType: "Volume",
-      showDelta: false,
-    }
   | TotalAmountDisputed => {
       title: `Total Amount Disputed`,
-      tooltipText: "Total Amount Disputed",
+      tooltipText: "Total amount that is disputed",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.total_amount_disputed /. 100.00,
         deltaTimestampData.currentSr,
@@ -265,7 +237,7 @@ let getStatData = (
     }
   | TotalDisputeLostAmount => {
       title: `Total Dispute Lost Amount`,
-      tooltipText: "Total Dispute Lost Amount",
+      tooltipText: "Total amount lost due to a dispute",
       deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
         singleStatData.total_dispute_lost_amount /. 100.00,
         deltaTimestampData.currentSr,
@@ -299,14 +271,6 @@ let getSingleStatEntity = (metrics, connector_success_rate) => {
 }
 
 let metricsConfig: array<LineChartUtils.metricsConfig> = [
-  {
-    metric_name_db: "dispute_status_metric",
-    metric_label: "Dispute Status Metric",
-    metric_type: Amount,
-    thresholdVal: None,
-    step_up_threshold: None,
-    legendOption: (Average, Overall),
-  },
   {
     metric_name_db: "total_amount_disputed",
     metric_label: "Total Amount Disputed",

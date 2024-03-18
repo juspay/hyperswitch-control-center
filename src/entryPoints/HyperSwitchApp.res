@@ -359,7 +359,7 @@ let make = () => {
                           </FilterContext>
                         </AccessControl>
                       | list{"analytics-disputes"} =>
-                        <AccessControl permission=userPermissionJson.analytics>
+                        <AccessControl permission=userPermissionJson.analyticsView>
                           <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
                             <DisputeAnalytics />
                           </FilterContext>

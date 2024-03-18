@@ -68,7 +68,6 @@ let make = () => {
       endTimeFilterKey
       initialFilters=initialFilterFields
       initialFixedFilters=initialFixedFilterFields
-      distributionArray={[distribution]->Some}
     />
   </PageLoaderWrapper>
 }
