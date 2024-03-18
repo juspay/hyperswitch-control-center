@@ -208,11 +208,11 @@ let paymentAnalytcis = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
-let disputeAnalytcis = SubLevelLink({
+let disputeAnalytics = SubLevelLink({
   name: "Disputes",
   link: `/analytics-disputes`,
   access: Access,
-  searchOptions: [("View analytics", "")],
+  searchOptions: [("View Dispute analytics", "")],
 })
 
 let refundAnalytics = SubLevelLink({
@@ -237,8 +237,8 @@ let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag, ~permissionJson) 
         icon: "analytics",
         showSection: permissionJson.analyticsView === Access,
         links: userJourneyAnalyticsFlag
-          ? [paymentAnalytcis, refundAnalytics, disputeAnalytcis, userJourneyAnalytics]
-          : [paymentAnalytcis, refundAnalytics, disputeAnalytcis],
+          ? [paymentAnalytcis, refundAnalytics, disputeAnalytics, userJourneyAnalytics]
+          : [paymentAnalytcis, refundAnalytics, disputeAnalytics],
       })
     : emptyComponent
 }

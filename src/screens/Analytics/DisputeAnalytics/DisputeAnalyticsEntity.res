@@ -37,9 +37,7 @@ let distribution =
   [
     ("distributionFor", "dispute_error_message"->JSON.Encode.string),
     ("distributionCardinality", "TOP_5"->JSON.Encode.string),
-  ]
-  ->Dict.fromArray
-  ->JSON.Encode.object
+  ]->LogicUtils.getJsonFromArrayOfJson
 
 let tableItemToObjMapper: Dict.t<JSON.t> => disputeTableType = dict => {
   {
