@@ -12,6 +12,7 @@ let make = (
   open PageLoaderWrapper
   open LogicUtils
   let _showAdvancedConfiguration = false
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let (paymentMethodsEnabled, setPaymentMethods) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->getPaymentMethodEnabled
   )
@@ -41,7 +42,10 @@ let make = (
     None
   }, [connector])
 
+  let mixpanelEventName = isUpdateFlow ? "processor_step2_onUpdate" : "processor_step2"
+
   let onSubmit = async () => {
+    mixpanelEvent(~eventName=mixpanelEventName, ())
     try {
       setScreenState(_ => Loading)
       let obj: ConnectorTypes.wasmRequest = {
