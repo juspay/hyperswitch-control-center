@@ -10,7 +10,7 @@ type contentType = Headers(string) | Unknown
 
 let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ()) => {
   let hyperSwitchToken = LocalStorage.getItem("login")->Nullable.toOption
-  let isMixpanel = uri->String.includes("firebase")
+  let isMixpanel = uri->String.includes("mixpanel")
 
   let headerObj = if isMixpanel {
     [
@@ -22,7 +22,6 @@ let getHeaders = (~uri, ~headers, ~contentType=Headers("application/json"), ()) 
     | Some(token) => {
         headers->Dict.set("authorization", `Bearer ${token}`)
         headers->Dict.set("api-key", `hyperswitch`)
-        headers->Dict.set("x-feature", `router-custom`)
         headers
       }
     | None => headers
