@@ -43,20 +43,27 @@ let make = (~isPayoutFlow=false) => {
 
   let applyFilter = async () => {
     setScreenState(_ => Loading)
-    await HyperSwitchUtils.delay(500)
     let res = connectorResponse->getFilterdConnectorList(allFilters)
     setFiltersConnectors(_ => res)
+    await HyperSwitchUtils.delay(500)
     setScreenState(_ => Success)
   }
 
   React.useEffect1(() => {
-    applyFilter()->ignore
+    let {connectorId, profileId, paymentMethod, paymentMethodType} = allFilters
+    if (
+      connectorId->Option.isSome ||
+      profileId->Option.isSome ||
+      paymentMethod->Option.isSome ||
+      paymentMethodType->Option.isSome
+    ) {
+      applyFilter()->ignore
+    }
     None
   }, [allFilters])
 
   let handleClearFilter = async () => {
     setScreenState(_ => Loading)
-
     RescriptReactRouter.replace(`/configure-pmts`)
     await HyperSwitchUtils.delay(500)
     let dict = Dict.make()->pmtConfigFilter
@@ -64,7 +71,6 @@ let make = (~isPayoutFlow=false) => {
     setFiltersConnectors(_ => res)
     setScreenState(_ => Success)
   }
-
   <div>
     <PageUtils.PageHeading
       title={`Configure PMTs at Checkout`}
@@ -78,10 +84,7 @@ let make = (~isPayoutFlow=false) => {
           localFilters=[]
           remoteOptions=[]
           localOptions=[]
-          defaultFilters={
-            let dict = Dict.make()
-            JSON.Encode.object(dict)
-          }
+          defaultFilters={Dict.make()->JSON.Encode.object}
           refreshFilters=false
           clearFilters={() => handleClearFilter()->ignore}
           hideFiltersDefaultValue=false
