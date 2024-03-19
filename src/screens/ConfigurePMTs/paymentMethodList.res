@@ -1,29 +1,31 @@
 @react.component
 let make = (~isPayoutFlow=false) => {
-  open LogicUtils
-  open FormRenderer
+  open PaymentMethodConfigUtils
+  open PaymentMethodEntity
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
+  let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (connectorResponse, setConnectorResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
   )
   let filters = UrlUtils.useGetFilterDictFromUrl("")
   let (filteredConnectors, setFiltersConnectors) = React.useState(_ =>
-    Dict.make()->JSON.Encode.object->PaymentMethodEntity.getConnectedList
+    Dict.make()->JSON.Encode.object->getConnectedList
   )
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ =>
-    Dict.make()->JSON.Encode.object->PaymentMethodEntity.getConnectedList
+    Dict.make()->JSON.Encode.object->getConnectedList
   )
-  let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  // let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let (offset, setOffset) = React.useState(_ => 0)
   let allFilters: PaymentMethodConfigTypes.paymentMethodConfigFilters = React.useMemo1(() => {
-    filters->PaymentMethodConfigUtils.pmtConfigFilter
+    filters->pmtConfigFilter
   }, [filters])
   let getConnectorListAndUpdateState = React.useCallback0(async () => {
     try {
+      setScreenState(_ => Loading)
       let response = await fetchConnectorListResponse()
-      let configuredConnectors = response->PaymentMethodEntity.getConnectedList
-      let filterdValue = response->PaymentMethodEntity.getFilterdConnectorList(allFilters)
+      let configuredConnectors = response->getConnectedList
+      let filterdValue = response->getFilterdConnectorList(allFilters)
       setFiltersConnectors(_ => filterdValue)
       setConnectorResponse(_ => response)
       setConfiguredConnectors(_ => configuredConnectors)
@@ -39,97 +41,30 @@ let make = (~isPayoutFlow=false) => {
     None
   }, [isPayoutFlow])
 
-  React.useEffect1(() => {
-    let res = connectorResponse->PaymentMethodEntity.getFilterdConnectorList(allFilters)
+  let applyFilter = async () => {
+    setScreenState(_ => Loading)
+    await HyperSwitchUtils.delay(500)
+    let res = connectorResponse->getFilterdConnectorList(allFilters)
     setFiltersConnectors(_ => res)
+    setScreenState(_ => Success)
+  }
+
+  React.useEffect1(() => {
+    applyFilter()->ignore
     None
   }, [allFilters])
 
-  let handleClearFilter = _ => {
+  let handleClearFilter = async () => {
+    setScreenState(_ => Loading)
+
     RescriptReactRouter.replace(`/configure-pmts`)
-    let dict = Dict.make()->PaymentMethodConfigUtils.pmtConfigFilter
-    let res = connectorResponse->PaymentMethodEntity.getFilterdConnectorList(dict)
+    await HyperSwitchUtils.delay(500)
+    let dict = Dict.make()->pmtConfigFilter
+    let res = connectorResponse->getFilterdConnectorList(dict)
     setFiltersConnectors(_ => res)
+    setScreenState(_ => Success)
   }
 
-  let initialFilters: array<EntityType.initialFilters<'t>> = [
-    {
-      field: makeFieldInfo(
-        ~label="Prfofile",
-        ~name="profileId",
-        ~subHeading="",
-        ~description="",
-        ~customInput=InputFields.multiSelectInput(
-          ~options=configuredConnectors
-          ->Array.map(ele => ele.profile_id)
-          ->getUniqueArray
-          ->SelectBox.makeOptions,
-          ~buttonText="Select Profile",
-          ~showSelectionAsChips=false,
-          (),
-        ),
-        (),
-      ),
-      localFilter: None,
-    },
-    {
-      field: makeFieldInfo(
-        ~label="Connector",
-        ~name="connectorId",
-        ~subHeading="",
-        ~description="",
-        ~customInput=InputFields.multiSelectInput(
-          ~options=configuredConnectors
-          ->Array.map(ele => ele.merchant_connector_id)
-          ->getUniqueArray
-          ->SelectBox.makeOptions,
-          ~buttonText="Select Connector",
-          ~showSelectionAsChips=false,
-          (),
-        ),
-        (),
-      ),
-      localFilter: None,
-    },
-    {
-      field: makeFieldInfo(
-        ~label="Payment Method",
-        ~name="paymentMethod",
-        ~subHeading="",
-        ~description="",
-        ~customInput=InputFields.multiSelectInput(
-          ~options=configuredConnectors
-          ->Array.map(ele => ele.payment_method)
-          ->getUniqueArray
-          ->SelectBox.makeOptions,
-          ~buttonText="Select Payment Method",
-          ~showSelectionAsChips=false,
-          (),
-        ),
-        (),
-      ),
-      localFilter: None,
-    },
-    {
-      field: makeFieldInfo(
-        ~label="Payment Method Type",
-        ~name="paymentMethodType",
-        ~subHeading="",
-        ~description="",
-        ~customInput=InputFields.multiSelectInput(
-          ~options=configuredConnectors
-          ->Array.map(ele => ele.payment_method_type)
-          ->getUniqueArray
-          ->SelectBox.makeOptions,
-          ~buttonText="Select Payment Method Type",
-          ~showSelectionAsChips=false,
-          (),
-        ),
-        (),
-      ),
-      localFilter: None,
-    },
-  ]
   <div>
     <PageUtils.PageHeading
       title={`Configure PMTs at Checkout`}
@@ -138,7 +73,7 @@ let make = (~isPayoutFlow=false) => {
     <PageLoaderWrapper screenState>
       <div>
         <RemoteFilter
-          remoteFilters=initialFilters
+          remoteFilters={configuredConnectors->initialFilters(businessProfiles)}
           requiredSearchFieldsList=[]
           localFilters=[]
           remoteOptions=[]
@@ -148,7 +83,7 @@ let make = (~isPayoutFlow=false) => {
             JSON.Encode.object(dict)
           }
           refreshFilters=false
-          clearFilters={handleClearFilter}
+          clearFilters={() => handleClearFilter()->ignore}
           hideFiltersDefaultValue=false
           autoApply=false
         />

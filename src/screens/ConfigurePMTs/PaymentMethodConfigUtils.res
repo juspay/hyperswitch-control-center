@@ -1,8 +1,17 @@
+let dropdownClassName = (options: array<SelectBox.dropdownOption>) =>
+  options->Array.length > 5 ? "h-80" : "h-full"
+
 let getAdvanceConfiguration = (
   advanceConfiguration: option<ConnectorTypes.advancedConfigurationList>,
 ) => {
   let config = switch advanceConfiguration {
-  | Some(obj) => obj.list->Array.toString
+  | Some(obj) => {
+      let firstThree = obj.list->Array.slice(~start=0, ~end=3)->Array.toString
+      let restCount = obj.list->Array.length - 3
+      obj.list->Array.length > 3
+        ? `${firstThree}, +${Belt.Int.toString(restCount)} more`
+        : firstThree
+    }
   | None => ""
   }
   config
@@ -157,7 +166,7 @@ let filterItemObjMapper = (
     ->Dict.get("payment_methods_enabled")
     ->Option.getOr(Dict.make()->JSON.Encode.object)
     ->getArrayDataFromJson(getPaymentMethodsEnabled)
-  let merchantConnectorId = dict->getString("merchant_connector_id", "")
+  let merchantConnectorId = dict->getString("connector_name", "")
   let profileId = dict->getString("profile_id", "")
 
   if dict->getString("connector_type", "") === "payment_processor" {
@@ -248,4 +257,89 @@ let filterItemObjMapper = (
       }
     }
   }
+}
+
+let initialFilters = (
+  configuredConnectors: array<PaymentMethodConfigTypes.paymentMethodConfiguration>,
+  businessProfiles,
+): array<EntityType.initialFilters<'t>> => {
+  open FormRenderer
+  open LogicUtils
+
+  [
+    {
+      field: makeFieldInfo(
+        ~label="Prfofile",
+        ~name="profileId",
+        ~subHeading="",
+        ~description="",
+        ~customInput=InputFields.multiSelectInput(
+          ~options={businessProfiles->MerchantAccountUtils.businessProfileNameDropDownOption},
+          ~buttonText="Select Profile",
+          ~showSelectionAsChips=false,
+          (),
+        ),
+        (),
+      ),
+      localFilter: None,
+    },
+    {
+      field: makeFieldInfo(
+        ~label="Connector",
+        ~name="connectorId",
+        ~subHeading="",
+        ~description="",
+        ~customInput=InputFields.multiSelectInput(
+          ~options=configuredConnectors
+          ->Array.map(ele => ele.connector_name)
+          ->getUniqueArray
+          ->SelectBox.makeOptions,
+          ~buttonText="Select Connector",
+          ~showSelectionAsChips=false,
+          (),
+        ),
+        (),
+      ),
+      localFilter: None,
+    },
+    {
+      field: makeFieldInfo(
+        ~label="Payment Method",
+        ~name="paymentMethod",
+        ~subHeading="",
+        ~description="",
+        ~customInput=InputFields.multiSelectInput(
+          ~options=configuredConnectors
+          ->Array.map(ele => ele.payment_method)
+          ->getUniqueArray
+          ->SelectBox.makeOptions,
+          ~buttonText="Select Payment Method",
+          ~showSelectionAsChips=false,
+          (),
+        ),
+        (),
+      ),
+      localFilter: None,
+    },
+    {
+      field: makeFieldInfo(
+        ~label="Payment Method Type",
+        ~name="paymentMethodType",
+        ~subHeading="",
+        ~description="",
+        ~customInput=InputFields.multiSelectInput(
+          ~options=configuredConnectors
+          ->Array.map(ele => ele.payment_method_type)
+          ->getUniqueArray
+          ->SelectBox.makeOptions,
+          ~buttonText="Select Payment Method Type",
+          ~showSelectionAsChips=false,
+          ~dropdownClassName={"h-72"},
+          (),
+        ),
+        (),
+      ),
+      localFilter: None,
+    },
+  ]
 }
