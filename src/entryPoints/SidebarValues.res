@@ -160,8 +160,8 @@ let fraudAndRisk = (~permissionJson) => {
 
 let threeDsConnector = (~permissionJson) => {
   SubLevelLink({
-    name: "ThreeDs Authenticators",
-    link: "/threeds-authenticators",
+    name: "3DS Authenticator",
+    link: "/3ds-authenticators",
     access: permissionJson.connectorsView,
     searchOptions: [
       ("Connect 3dsecure.io", "/new?name=threedsecureio"),
@@ -417,6 +417,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     userJourneyAnalytics: userJourneyAnalyticsFlag,
     surcharge: isSurchargeEnabled,
     isLiveMode,
+    threedsAuthenticator,
   } = featureFlagDetails
 
   let sidebar = [
@@ -427,7 +428,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~isLiveMode,
       ~isFrmEnabled=frm,
       ~isPayoutsEnabled=payOut,
-      ~isThreedsConnectorEnabled=true,
+      ~isThreedsConnectorEnabled=threedsAuthenticator,
       ~permissionJson,
     ),
     default->analytics(userJourneyAnalyticsFlag, ~permissionJson),

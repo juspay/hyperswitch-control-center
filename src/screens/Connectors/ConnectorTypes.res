@@ -221,3 +221,6 @@ type connectorPayload = {
 }
 
 type connector = FRMPlayer | Processor | PayoutConnector | ThreeDsAuthenticator
+
+type connectorTypeVariants =
+  PaymentProcessor | PaymentVas | PayoutProcessor | AuthenticationProcessor

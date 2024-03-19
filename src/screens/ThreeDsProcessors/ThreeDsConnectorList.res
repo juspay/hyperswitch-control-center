@@ -12,13 +12,16 @@ let make = () => {
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
   let getConnectorList = async _ => {
-    open ConnectorUtils
     try {
       let response = await fetchConnectorListResponse()
       let connectorsList =
         response
         ->ConnectorListMapper.getArrayOfConnectorListPayloadType
-        ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.ThreeDsAuthenticator, ())
+        ->Array.filter(item =>
+          item.connector_type->ConnectorUtils.connectorTypeStringToTypeMapper ===
+            AuthenticationProcessor
+        )
+
       setConfiguredConnectors(_ => connectorsList)
       setScreenState(_ => Success)
     } catch {
@@ -44,7 +47,7 @@ let make = () => {
           showIcons={showConnectorIcons}
           connectorsAvailableForIntegration=ConnectorUtils.threedsAuthenticatorList
           showTestProcessor=false
-          urlPrefix="threeds-authenticators/new"
+          urlPrefix="3ds-authenticators/new"
           connectorType=ConnectorTypes.ThreeDsAuthenticator
         />
         <RenderIf condition={configuredConnectors->Array.length > 0}>
@@ -54,7 +57,7 @@ let make = () => {
             totalResults={configuredConnectors->Array.map(Nullable.make)->Array.length}
             resultsPerPage=20
             entity={ThreeDsTableEntity.threeDsAuthenticatorEntity(
-              `threeds-authenticators`,
+              `3ds-authenticators`,
               ~permission=userPermissionJson.connectorsManage,
             )}
             offset

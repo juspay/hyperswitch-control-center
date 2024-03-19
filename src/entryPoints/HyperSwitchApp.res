@@ -206,7 +206,10 @@ let make = () => {
                       headerActions={<div className="relative flex items-center gap-4 my-2 ">
                         <GlobalSearchBar />
                         <RenderIf condition={featureFlagDetails.switchMerchant}>
-                          <SwitchMerchant userRole={userRole} isAddMerchantEnabled=true />
+                          <SwitchMerchant
+                            userRole={userRole}
+                            isAddMerchantEnabled={userRole === "org_admin" ? true : false}
+                          />
                         </RenderIf>
                         <div
                           className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
@@ -260,10 +263,12 @@ let make = () => {
                           />
                         </AccessControl>
 
-                      | list{"threeds-authenticators", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.connectorsView>
+                      | list{"3ds-authenticators", ...remainingPath} =>
+                        <AccessControl
+                          permission=userPermissionJson.connectorsView
+                          isEnabled={featureFlagDetails.threedsAuthenticator}>
                           <EntityScaffold
-                            entityName="ThreeDsAuthenticators"
+                            entityName="3DS Authenticator"
                             remainingPath
                             renderList={() => <ThreeDsConnectorList />}
                             renderNewForm={() => <ThreeDsProcessorHome />}

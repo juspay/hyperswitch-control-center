@@ -299,6 +299,7 @@ module PaymentMethodsRenderer = {
           ->getArrayFromJson([])
           ->Array.map(getDictFromJsonObject)
           ->FRMUtils.filterList(~removeFromList=FRMPlayer, ())
+          ->FRMUtils.filterList(~removeFromList=ThreedsAuthenticator, ())
           ->getConnectorConfig
 
         let updateFRMConfig =
