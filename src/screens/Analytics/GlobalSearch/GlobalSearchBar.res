@@ -25,6 +25,34 @@ module RenderedComponent = {
   }
 }
 
+module ShowMoreLink = {
+  open GlobalSearchTypes
+  @react.component
+  let make = (~section: resultType, ~cleanUpFunction=() => {()}, ~textStyleClass="") => {
+    switch section.section {
+    | Local | Default => React.null
+    | _ =>
+      <div
+        onClick={_ => {
+          let link = switch section.section {
+          | PaymentAttempts => "payment-attempts"
+          | PaymentIntents => "payment-intents"
+          | Refunds => "refunds-global"
+          | _ => ""
+          }
+
+          link->RescriptReactRouter.push
+          cleanUpFunction()
+        }}
+        className={`font-medium cursor-pointer underline underline-offset-2 ${textStyleClass}`}>
+        {`View ${section.total_results->Int.toString} result${section.total_results > 1
+            ? "s"
+            : ""}`->React.string}
+      </div>
+    }
+  }
+}
+
 module SearchBox = {
   @react.component
   let make = (~openModalOnClickHandler) => {
@@ -124,7 +152,7 @@ module SearchResultsComponent = {
   open LogicUtils
   open UIUtils
   @react.component
-  let make = (~searchResults, ~searchText, ~redirectOnSelect) => {
+  let make = (~searchResults, ~searchText, ~redirectOnSelect, ~setShowModal) => {
     <OptionsWrapper>
       {searchResults
       ->Array.mapWithIndex((section: resultType, index) => {
@@ -136,8 +164,15 @@ module SearchResultsComponent = {
             initial={{opacity: 0.5}}
             animate={{opacity: 0.5}}
             layoutId={`${section.section->getSectionHeader}-${index->Belt.Int.toString}`}
-            className="text-lightgray_background font-bold px-2 pb-1">
-            {section.section->getSectionHeader->String.toUpperCase->React.string}
+            className="text-lightgray_background  px-2 pb-1 flex justify-between">
+            <div className="font-bold">
+              {section.section->getSectionHeader->String.toUpperCase->React.string}
+            </div>
+            <div>
+              <ShowMoreLink
+                section cleanUpFunction={() => {setShowModal(_ => false)}} textStyleClass="text-xs"
+              />
+            </div>
           </FramerMotion.Motion.Div>
           {section.results
           ->Array.mapWithIndex((item, i) => {
@@ -176,6 +211,7 @@ let make = () => {
   open HeadlessUI
   open LogicUtils
   open UIUtils
+  let url = RescriptReactRouter.useUrl()
   let prefix = useUrlPrefix()
   let fetchDetails = APIUtils.useUpdateMethod()
   let (state, setState) = React.useState(_ => Idle)
@@ -187,12 +223,18 @@ let make = () => {
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let searchText = searchText->String.trim
   let loader = LottieFiles.useLottieJson("loader-circle.json")
+  let path = url.path
 
   let redirectOnSelect = element => {
-    let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("search")
+    let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("")
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
-      redirectLink->RescriptReactRouter.replace
+      let link = if path->List.length > 1 {
+        `/${redirectLink}`
+      } else {
+        redirectLink
+      }
+      link->RescriptReactRouter.push
     }
   }
 
@@ -344,7 +386,7 @@ let make = () => {
                 if searchText->isNonEmptyString && searchResults->Array.length === 0 {
                   <EmptyResult prefix searchText />
                 } else {
-                  <SearchResultsComponent searchResults searchText redirectOnSelect />
+                  <SearchResultsComponent searchResults searchText redirectOnSelect setShowModal />
                 }
               }}
             </>

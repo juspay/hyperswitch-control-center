@@ -21,6 +21,7 @@ let getSearchresults = json => {
     results->Array.push({
       section: Local,
       results: localResults,
+      total_results: results->Array.length,
     })
   }
 
@@ -39,10 +40,13 @@ let getSearchresults = json => {
         }
       })
 
+    let total_results = valueDict->getInt("count", remoteResults->Array.length)
+
     if remoteResults->Array.length > 0 {
       results->Array.push({
         section: valueDict->getString("index", "")->GlobalSearchTypes.getSectionVariant,
         results: remoteResults,
+        total_results,
       })
     }
   })

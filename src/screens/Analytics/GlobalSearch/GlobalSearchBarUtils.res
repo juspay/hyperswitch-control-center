@@ -115,6 +115,7 @@ let getLocalMatchedResults = (searchText, tabs) => {
   {
     section: Local,
     results,
+    total_results: results->Array.length,
   }
 }
 
@@ -185,11 +186,13 @@ let getRemoteResults = json => {
     let value = item->JSON.Decode.object->Option.getOr(Dict.make())
     let section = value->getString("index", "")->getSectionVariant
     let hints = value->getArrayFromDict("hits", [])
+    let total_results = value->getInt("count", hints->Array.length)
 
     if hints->Array.length > 0 {
       results->Array.push({
         section,
         results: hints->getElements(section),
+        total_results,
       })
     }
   })
@@ -204,8 +207,9 @@ let getDefaultResult = searchText => {
     results: [
       {
         texts: ["Show all results for"->JSON.Encode.string, searchText->JSON.Encode.string],
-        redirect_link: "search"->JSON.Encode.string,
+        redirect_link: `search?query=${searchText}`->JSON.Encode.string,
       },
     ],
+    total_results: 1,
   }
 }

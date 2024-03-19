@@ -8,6 +8,7 @@ type element = {
 type resultType = {
   section: section,
   results: array<element>,
+  total_results: int,
 }
 
 let getSectionHeader = section => {

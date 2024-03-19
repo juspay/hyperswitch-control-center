@@ -93,21 +93,9 @@ module SearchResultsComponent = {
           <div className="text-lightgray_background font-bold pb-1 text-lg pb-2">
             {section.section->getSectionHeader->React.string}
           </div>
-          {switch section.section {
-          | PaymentAttempts =>
-            <div onClick={_ => RescriptReactRouter.push("payment-attempts")}>
-              {"Show more"->React.string}
-            </div>
-          | PaymentIntents =>
-            <div onClick={_ => RescriptReactRouter.push("payment-intents")}>
-              {"Show more"->React.string}
-            </div>
-          | Refunds =>
-            <div onClick={_ => RescriptReactRouter.push("refunds-global")}>
-              {"Show more"->React.string}
-            </div>
-          | _ => React.null
-          }}
+          <GlobalSearchBar.ShowMoreLink
+            section textStyleClass="text-sm pt-2 font-medium text-blue-900"
+          />
         </div>
         <RenderSearchResultBody section />
       </div>
@@ -121,12 +109,12 @@ let make = () => {
   open GlobalSearchBarUtils
   open LogicUtils
   open SearchResultsPageUtils
-
+  let url = RescriptReactRouter.useUrl()
   let prefix = useUrlPrefix()
   let (searchText, setSearchText) = React.useState(_ => "")
   let (searchResults, setSearchResults) = React.useState(_ => [])
 
-  React.useEffect0(() => {
+  React.useEffect1(() => {
     switch sessionStorage.getItem(. "results")->Nullable.toOption {
     | Some(value) => {
         let (results, text) = value->getSearchresults
@@ -137,7 +125,7 @@ let make = () => {
     }
 
     None
-  })
+  }, [url])
 
   <div>
     <PageUtils.PageHeading title="Search results" />
