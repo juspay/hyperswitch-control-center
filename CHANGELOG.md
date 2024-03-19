@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.19.0
+
+### Bug Fixes
+
+- Disputes show counter button condition change ([#522](https://github.com/juspay/hyperswitch-control-center/pull/522)) ([`aec0a47`](https://github.com/juspay/hyperswitch-control-center/commit/aec0a476c2fd025c11c6d6266d2bdd87a908b2e4))
+
+**Full Changelog:** [`2024.03.18.0...2024.03.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.18.0...2024.03.19.0)
+
+- - -
+
 ## 2024.03.18.0
 
 ### Bug Fixes
