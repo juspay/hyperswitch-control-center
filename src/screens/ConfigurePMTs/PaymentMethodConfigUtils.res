@@ -106,16 +106,16 @@ let pmtConfigFilter = (dict): PaymentMethodConfigTypes.paymentMethodConfigFilter
 
 let mapPaymentMethodTypeValues = (
   paymentMethodType: ConnectorTypes.paymentMethodConfigType,
-  dict,
+  connectorPayload: ConnectorTypes.connectorPayload,
   pmIndex: int,
   pmtIndex: int,
   paymentMethod: string,
 ): PaymentMethodConfigTypes.paymentMethodConfiguration => {
   payment_method_index: pmIndex,
   payment_method_types_index: pmtIndex,
-  merchant_connector_id: dict->LogicUtils.getString("merchant_connector_id", ""),
-  connector_name: dict->LogicUtils.getString("connector_name", ""),
-  profile_id: dict->LogicUtils.getString("profile_id", ""),
+  merchant_connector_id: connectorPayload.merchant_connector_id,
+  connector_name: connectorPayload.connector_name,
+  profile_id: connectorPayload.profile_id,
   payment_method: paymentMethod,
   payment_method_type: paymentMethodType.payment_method_type,
   card_networks: paymentMethodType.card_networks,
@@ -129,132 +129,81 @@ let mapPaymentMethodTypeValues = (
 }
 
 let mapPaymentMethodValues = (
-  ~paymentMethod: ConnectorTypes.paymentMethodEnabledType,
-  ~dict,
+  ~connectorPayload: ConnectorTypes.connectorPayload,
   ~mappedArr,
   ~pmIndex: int,
   ~filters=Dict.make()->pmtConfigFilter,
   (),
 ) => {
-  paymentMethod.payment_method_types->Array.forEachWithIndex((data, pmtIndex) => {
-    let paymentMethod = paymentMethod.payment_method
+  let pm =
+    connectorPayload.payment_methods_enabled[pmIndex]->Option.getOr(
+      Dict.make()->ConnectorListMapper.getPaymentMethodsEnabled,
+    )
+  // Js.log(res)
+  pm.payment_method_types->Array.forEachWithIndex((data, pmtIndex) => {
+    let paymentMethod = pm.payment_method
 
     switch filters.paymentMethodType {
     | Some(pmtsType) =>
       if pmtsType->Array.includes(data.payment_method_type) {
         mappedArr->Array.push(
-          data->mapPaymentMethodTypeValues(dict, pmIndex, pmtIndex, paymentMethod),
+          data->mapPaymentMethodTypeValues(connectorPayload, pmIndex, pmtIndex, paymentMethod),
         )
       }
     | None =>
       mappedArr->Array.push(
-        data->mapPaymentMethodTypeValues(dict, pmIndex, pmtIndex, paymentMethod),
+        data->mapPaymentMethodTypeValues(connectorPayload, pmIndex, pmtIndex, paymentMethod),
       )
     }
   })
 }
-// Need to enhance more
+
+let paymentMethodFilter = (
+  filters: PaymentMethodConfigTypes.paymentMethodConfigFilters,
+  connectorPayload: ConnectorTypes.connectorPayload,
+  mappedArr,
+) => {
+  connectorPayload.payment_methods_enabled->Array.forEachWithIndex((item, pmIndex) => {
+    switch filters.paymentMethod {
+    | Some(methods) =>
+      if methods->Array.includes(item.payment_method) {
+        mapPaymentMethodValues(~connectorPayload, ~mappedArr, ~pmIndex, ~filters, ())
+      }
+    | None => mapPaymentMethodValues(~connectorPayload, ~mappedArr, ~pmIndex, ~filters, ())
+    }
+  })
+}
+
+let connectorIdFilter = (
+  filters: PaymentMethodConfigTypes.paymentMethodConfigFilters,
+  connectorPayload: ConnectorTypes.connectorPayload,
+  mappedArr,
+) => {
+  switch filters.connectorId {
+  | Some(ids) =>
+    if ids->Array.includes(connectorPayload.connector_name) {
+      filters->paymentMethodFilter(connectorPayload, mappedArr)
+    }
+  | None => filters->paymentMethodFilter(connectorPayload, mappedArr)
+  }
+}
+
 let filterItemObjMapper = (
   dict,
   mappedArr,
   filters: PaymentMethodConfigTypes.paymentMethodConfigFilters,
 ) => {
   open ConnectorListMapper
-  open LogicUtils
-  let paymentMethod =
-    dict
-    ->Dict.get("payment_methods_enabled")
-    ->Option.getOr(Dict.make()->JSON.Encode.object)
-    ->getArrayDataFromJson(getPaymentMethodsEnabled)
-  let merchantConnectorId = dict->getString("connector_name", "")
-  let profileId = dict->getString("profile_id", "")
+  let connectorPayload = dict->getProcessorPayloadType
+  let {profile_id, connector_type} = connectorPayload
 
-  if dict->getString("connector_type", "") === "payment_processor" {
+  if connector_type->ConnectorUtils.connectorTypeStringToTypeMapper === PaymentProcessor {
     switch filters.profileId {
     | Some(profileIds) =>
-      if profileIds->Array.includes(profileId) {
-        switch filters.connectorId {
-        | Some(ids) =>
-          if ids->Array.includes(merchantConnectorId) {
-            paymentMethod->Array.forEachWithIndex((item, pmIndex) => {
-              switch filters.paymentMethod {
-              | Some(methods) =>
-                if methods->Array.includes(item.payment_method) {
-                  mapPaymentMethodValues(
-                    ~paymentMethod=item,
-                    ~dict,
-                    ~mappedArr,
-                    ~pmIndex,
-                    ~filters,
-                    (),
-                  )
-                }
-              | None =>
-                mapPaymentMethodValues(
-                  ~paymentMethod=item,
-                  ~dict,
-                  ~mappedArr,
-                  ~pmIndex,
-                  ~filters,
-                  (),
-                )
-              }
-            })
-          }
-        | None =>
-          paymentMethod->Array.forEachWithIndex((item, pmIndex) => {
-            switch filters.paymentMethod {
-            | Some(methods) =>
-              if methods->Array.includes(item.payment_method) {
-                mapPaymentMethodValues(
-                  ~paymentMethod=item,
-                  ~dict,
-                  ~mappedArr,
-                  ~pmIndex,
-                  ~filters,
-                  (),
-                )
-              }
-            | None =>
-              mapPaymentMethodValues(~paymentMethod=item, ~dict, ~mappedArr, ~pmIndex, ~filters, ())
-            }
-          })
-        }
+      if profileIds->Array.includes(profile_id) {
+        filters->connectorIdFilter(connectorPayload, mappedArr)
       }
-    | None =>
-      switch filters.connectorId {
-      | Some(ids) =>
-        if ids->Array.includes(merchantConnectorId) {
-          paymentMethod->Array.forEachWithIndex((item, pmIndex) => {
-            switch filters.paymentMethod {
-            | Some(methods) =>
-              if methods->Array.includes(item.payment_method) {
-                mapPaymentMethodValues(
-                  ~paymentMethod=item,
-                  ~dict,
-                  ~mappedArr,
-                  ~pmIndex,
-                  ~filters,
-                  (),
-                )
-              }
-            | None =>
-              mapPaymentMethodValues(~paymentMethod=item, ~dict, ~mappedArr, ~pmIndex, ~filters, ())
-            }
-          })
-        }
-      | None =>
-        paymentMethod->Array.forEachWithIndex((item, pmIndex) => {
-          switch filters.paymentMethod {
-          | Some(methods) =>
-            if methods->Array.includes(item.payment_method) {
-              mapPaymentMethodValues(~paymentMethod=item, ~dict, ~mappedArr, ~pmIndex, ~filters, ())
-            }
-          | None =>
-            mapPaymentMethodValues(~paymentMethod=item, ~dict, ~mappedArr, ~pmIndex, ~filters, ())
-          }
-        })
-      }
+    | None => filters->connectorIdFilter(connectorPayload, mappedArr)
     }
   }
 }
