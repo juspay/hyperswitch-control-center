@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.18.0
+
+### Bug Fixes
+
+- 3ds-url-fix ([#514](https://github.com/juspay/hyperswitch-control-center/pull/514)) ([`5cba46b`](https://github.com/juspay/hyperswitch-control-center/commit/5cba46b61251f30527a7c6cb79d6bac20a3618ce))
+- Prod onboarding screen fix ([#520](https://github.com/juspay/hyperswitch-control-center/pull/520)) ([`11d355c`](https://github.com/juspay/hyperswitch-control-center/commit/11d355c668602250834a5fb9e7faba10d5dcc8d8))
+
+**Full Changelog:** [`2024.03.17.0...2024.03.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.17.0...2024.03.18.0)
+
+- - -
+
 ## 2024.03.17.0
 
 ### Bug Fixes
