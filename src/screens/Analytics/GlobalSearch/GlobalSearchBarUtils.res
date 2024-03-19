@@ -126,12 +126,14 @@ let getElements = (hits, section) => {
     hits->Array.map(item => {
       let value = item->JSON.Decode.object->Option.getOr(Dict.make())
       let payId = value->getString("payment_id", "")
-      let amount = value->getFloat("amount", 0.0)->Belt.Float.toString
+      let amount = `${value->getFloat("amount", 0.0)->Belt.Float.toString} ${value->getString(
+          "currency",
+          "",
+        )}`
       let status = value->getString("status", "")
-      let currency = value->getString("currency", "")
 
       {
-        texts: [payId, amount, status, currency]->Array.map(JSON.Encode.string),
+        texts: [payId, amount, status]->Array.map(JSON.Encode.string),
         redirect_link: `/payments/${payId}`->JSON.Encode.string,
       }
     })
@@ -139,13 +141,31 @@ let getElements = (hits, section) => {
     hits->Array.map(item => {
       let value = item->JSON.Decode.object->Option.getOr(Dict.make())
       let payId = value->getString("payment_id", "")
-      let amount = value->getFloat("amount", 0.0)->Belt.Float.toString
+      let amount = `${value->getFloat("amount", 0.0)->Belt.Float.toString} ${value->getString(
+          "currency",
+          "",
+        )}`
       let status = value->getString("status", "")
-      let currency = value->getString("currency", "")
 
       {
-        texts: [payId, amount, status, currency]->Array.map(JSON.Encode.string),
+        texts: [payId, amount, status]->Array.map(JSON.Encode.string),
         redirect_link: `/payments/${payId}`->JSON.Encode.string,
+      }
+    })
+
+  | Refunds =>
+    hits->Array.map(item => {
+      let value = item->JSON.Decode.object->Option.getOr(Dict.make())
+      let refId = value->getString("refund_id", "")
+      let amount = `${value->getFloat("total_amount", 0.0)->Belt.Float.toString} ${value->getString(
+          "currency",
+          "",
+        )}`
+      let status = value->getString("refund_status", "")
+
+      {
+        texts: [refId, amount, status]->Array.map(JSON.Encode.string),
+        redirect_link: `/refunds/${refId}`->JSON.Encode.string,
       }
     })
 

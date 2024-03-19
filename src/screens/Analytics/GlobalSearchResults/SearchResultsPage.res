@@ -64,7 +64,18 @@ module RenderSearchResultBody = {
 
         <PaymentAttemptTable.PreviewTable tableData={data} />
       }
+    | Refunds => {
+        let data =
+          section.results
+          ->Array.map(item => {
+            let data = item.texts->Array.get(0)->Option.getOr(Dict.make()->JSON.Encode.object)
+            data->JSON.Decode.object->Option.getOr(Dict.make())
+          })
+          ->Array.filter(dict => dict->Dict.keysToArray->Array.length > 0)
+          ->Array.map(item => item->RefundsTableEntity.tableItemToObjMapper->Nullable.make)
 
+        <RefundsTable.PreviewTable tableData={data} />
+      }
     | _ => "Not implemented"->React.string
     }
   }
@@ -89,6 +100,10 @@ module SearchResultsComponent = {
             </div>
           | PaymentIntents =>
             <div onClick={_ => RescriptReactRouter.push("payment-intents")}>
+              {"Show more"->React.string}
+            </div>
+          | Refunds =>
+            <div onClick={_ => RescriptReactRouter.push("refunds-global")}>
               {"Show more"->React.string}
             </div>
           | _ => React.null
