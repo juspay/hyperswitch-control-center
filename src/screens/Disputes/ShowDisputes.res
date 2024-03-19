@@ -78,7 +78,7 @@ module Details = {
         </div>
         <RenderIf
           condition={disputeEvidenceUpload &&
-          connectorSupportCounterDispute->Array.includes(connectorTypeFromName) &&
+          ConnectorUtils.existsInArray(connectorTypeFromName, connectorSupportCounterDispute) &&
           data.dispute_status->disputeStatusVariantMapper === DisputeOpened &&
           disputeEvidenceStatus === Landing}>
           <UploadEvidenceForDisputes
@@ -92,7 +92,7 @@ module Details = {
       <div className="h-px w-full bg-grey-200 opacity-30" />
       <RenderIf
         condition={disputeEvidenceUpload &&
-        connectorSupportCounterDispute->Array.includes(connectorTypeFromName) &&
+        ConnectorUtils.existsInArray(connectorTypeFromName, connectorSupportCounterDispute) &&
         showDisputeInfoStatus->Array.includes(data.dispute_status->disputeStatusVariantMapper)}>
         <UploadEvidenceForDisputes.DisputesInfoBarComponent
           disputeEvidenceStatus

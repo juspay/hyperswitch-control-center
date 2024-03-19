@@ -158,17 +158,33 @@ let fraudAndRisk = (~permissionJson) => {
   })
 }
 
+let threeDsConnector = (~permissionJson) => {
+  SubLevelLink({
+    name: "3DS Authenticator",
+    link: "/3ds-authenticators",
+    access: permissionJson.connectorsView,
+    searchOptions: [
+      ("Connect 3dsecure.io", "/new?name=threedsecureio"),
+      ("Connect threedsecureio", "/new?name=threedsecureio"),
+    ],
+  })
+}
+
 let connectors = (
   isConnectorsEnabled,
   ~isLiveMode,
   ~isFrmEnabled,
   ~isPayoutsEnabled,
+  ~isThreedsConnectorEnabled,
   ~permissionJson,
 ) => {
   let connectorLinkArray = [paymentProcessor(isLiveMode, permissionJson)]
 
   if isPayoutsEnabled {
     connectorLinkArray->Array.push(payoutConnectors(~permissionJson))->ignore
+  }
+  if isThreedsConnectorEnabled {
+    connectorLinkArray->Array.push(threeDsConnector(~permissionJson))->ignore
   }
 
   if isFrmEnabled {
@@ -401,13 +417,20 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     userJourneyAnalytics: userJourneyAnalyticsFlag,
     surcharge: isSurchargeEnabled,
     isLiveMode,
+    threedsAuthenticator,
   } = featureFlagDetails
 
   let sidebar = [
     productionAccess->productionAccessComponent,
     default->home,
     default->operations(~permissionJson),
-    default->connectors(~isLiveMode, ~isFrmEnabled=frm, ~isPayoutsEnabled=payOut, ~permissionJson),
+    default->connectors(
+      ~isLiveMode,
+      ~isFrmEnabled=frm,
+      ~isPayoutsEnabled=payOut,
+      ~isThreedsConnectorEnabled=threedsAuthenticator,
+      ~permissionJson,
+    ),
     default->analytics(userJourneyAnalyticsFlag, ~permissionJson),
     default->workflow(isSurchargeEnabled, ~permissionJson),
     recon->reconTag(isReconEnabled),

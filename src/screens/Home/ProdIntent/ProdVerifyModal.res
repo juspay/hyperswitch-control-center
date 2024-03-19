@@ -33,6 +33,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
 
   let onSubmit = (values, _) => {
     setScreenState(_ => PageLoaderWrapper.Loading)
+    Window._open("https://calendly.com/bernard-eugine/hyperswitch")
     updateProdDetails(values)
   }
 
@@ -80,7 +81,7 @@ let make = (~showModal, ~setShowModal, ~initialValues=Dict.make(), ~getProdVerif
                 </FormRenderer.DesktopRow>
                 <div className="flex justify-end w-full pr-5 pb-3">
                   <FormRenderer.SubmitButton
-                    disabledParamter=isSubmitBtnDisabled text="Submit" buttonSize={Small}
+                    disabledParamter=isSubmitBtnDisabled text="Book a call" buttonSize={Small}
                   />
                 </div>
               </div>
