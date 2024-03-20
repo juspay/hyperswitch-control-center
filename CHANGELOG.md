@@ -3,6 +3,41 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.19.1
+
+### Features
+
+- Dispute analytics ([#470](https://github.com/juspay/hyperswitch-control-center/pull/470)) ([`090eb00`](https://github.com/juspay/hyperswitch-control-center/commit/090eb00d7186fd0d4449c3a23ba33e073ed5487e))
+
+### Miscellaneous Tasks
+
+- Added mixpanel events for connector flow ([#521](https://github.com/juspay/hyperswitch-control-center/pull/521)) ([`4ecac71`](https://github.com/juspay/hyperswitch-control-center/commit/4ecac71bc93703426619488323d529bddbcbd20f))
+
+**Full Changelog:** [`2024.03.19.0...2024.03.19.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.19.0...2024.03.19.1)
+
+- - -
+
+## 2024.03.19.0
+
+### Bug Fixes
+
+- Disputes show counter button condition change ([#522](https://github.com/juspay/hyperswitch-control-center/pull/522)) ([`aec0a47`](https://github.com/juspay/hyperswitch-control-center/commit/aec0a476c2fd025c11c6d6266d2bdd87a908b2e4))
+
+**Full Changelog:** [`2024.03.18.0...2024.03.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.18.0...2024.03.19.0)
+
+- - -
+
+## 2024.03.18.0
+
+### Bug Fixes
+
+- 3ds-url-fix ([#514](https://github.com/juspay/hyperswitch-control-center/pull/514)) ([`5cba46b`](https://github.com/juspay/hyperswitch-control-center/commit/5cba46b61251f30527a7c6cb79d6bac20a3618ce))
+- Prod onboarding screen fix ([#520](https://github.com/juspay/hyperswitch-control-center/pull/520)) ([`11d355c`](https://github.com/juspay/hyperswitch-control-center/commit/11d355c668602250834a5fb9e7faba10d5dcc8d8))
+
+**Full Changelog:** [`2024.03.17.0...2024.03.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.17.0...2024.03.18.0)
+
+- - -
+
 ## 2024.03.17.0
 
 ### Bug Fixes

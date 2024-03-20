@@ -106,6 +106,7 @@ let make = (~initialValues, ~currentStep, ~setCurrentStep) => {
             disableConnector={disableFRM}
             isConnectorDisabled={isfrmDisabled}
             pageName={url.path->LogicUtils.getListHead}
+            connector={frmInfo.connector_name}
           />
         </div>
       | _ =>

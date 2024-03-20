@@ -49,6 +49,7 @@ let make = (
   ~setProcessorModal: (bool => bool) => unit=_ => (),
 ) => {
   open ConnectorUtils
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
@@ -62,6 +63,7 @@ let make = (
   let searchRef = React.useRef(Nullable.null)
 
   let handleClick = connectorName => {
+    mixpanelEvent(~eventName=`connect_processor_${connectorName}`, ())
     RescriptReactRouter.push(`${urlPrefix}?name=${connectorName}`)
   }
   let unConfiguredConnectorsCount = unConfiguredConnectors->Array.length
