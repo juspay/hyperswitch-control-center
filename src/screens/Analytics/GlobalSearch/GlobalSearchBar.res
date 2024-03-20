@@ -205,7 +205,7 @@ let make = () => {
 
   let getSearchResults = async results => {
     try {
-      let url = "https://integ-api.hyperswitch.io/analytics/v1/search"
+      let url = APIUtils.getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
       let body = [("query", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
       let response = await fetchDetails(url, body, Post, ())
       let dictFields = [("searchText", searchText->JSON.Encode.string)]
