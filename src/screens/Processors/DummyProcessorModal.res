@@ -3,7 +3,7 @@ open ProcessorCards
 open ConnectorUtils
 
 @react.component
-let make = (~processorModal, ~setProcessorModal) => {
+let make = (~processorModal, ~setProcessorModal, ~showIcons) => {
   let searchRef = React.useRef(Nullable.null)
 
   let (searchedConnector, setSearchedConnector) = React.useState(_ => "")
@@ -15,7 +15,7 @@ let make = (~processorModal, ~setProcessorModal) => {
 
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
-  let (showModal, setShowModal) = React.useState(_ => false)
+  let (_, setShowModal) = React.useState(_ => false)
 
   let urlPrefix = "connectors/new"
 
@@ -111,19 +111,107 @@ let make = (~processorModal, ~setProcessorModal) => {
     </>
   }
 
+  let iconsConnectors = (
+    connectorList: array<ConnectorTypes.connectorTypes>,
+    heading,
+    showRequestConnectorBtn,
+    ~showSearch=true,
+    ~showDummyConnectorButton=false,
+    (),
+  ) => {
+    <>
+      <AddDataAttributes
+        attributes=[("data-testid", heading->LogicUtils.titleToSnake->String.toLowerCase)]>
+        <h2
+          className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+          {heading->React.string}
+        </h2>
+      </AddDataAttributes>
+      <div className="flex w-full justify-between">
+        <RenderIf condition={showSearch}>
+          <input
+            {...DOMUtils.domProps({
+              "data-testid": "search-processor",
+            })}
+            ref={searchRef->ReactDOM.Ref.domRef}
+            type_="text"
+            value=searchedConnector
+            onChange=handleSearch
+            placeholder="Search a processor"
+            className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
+          />
+        </RenderIf>
+        <RenderIf condition={showDummyConnectorButton}>
+          <ACLButton
+            access={userPermissionJson.connectorsManage}
+            text="+ Connect a Dummy Processor"
+            buttonType={Transparent}
+            buttonSize={Small}
+            textStyle="text-jp-gray-900"
+            onClick={_ => {
+              setProcessorModal(_ => true)
+            }}
+          />
+        </RenderIf>
+        <CantFindProcessor showRequestConnectorBtn setShowModal />
+      </div>
+      <RenderIf condition={connectorList->Array.length > 0}>
+        <div className="bg-white rounded-md flex gap-2 flex-wrap p-4 border">
+          {connectorList
+          ->Array.mapWithIndex((connector, i) => {
+            let connectorName = connector->getConnectorNameString
+            let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.connectorsManage)
+
+            <ACLDiv
+              key={i->string_of_int}
+              permission=userPermissionJson.connectorsManage
+              className={`p-2 ${cursorStyles}`}
+              noAccessDescription=HSwitchUtils.noAccessControlTextForProcessors
+              tooltipWidthClass="w-30"
+              description={connectorName->getDisplayNameForConnector(
+                ~connectorType=ConnectorTypes.Processor,
+              )}
+              onClick={_ => handleClick(connectorName)}>
+              <AddDataAttributes attributes=[("data-testid", connectorName->String.toLowerCase)]>
+                <GatewayIcon
+                  gateway={connectorName->String.toUpperCase} className="w-14 h-14 rounded-sm"
+                />
+              </AddDataAttributes>
+            </ACLDiv>
+          })
+          ->React.array}
+        </div>
+      </RenderIf>
+      <RequestConnector connectorList setShowModal />
+    </>
+  }
+
   <Modal
     modalHeading="Connect a Dummy Processor"
     showModal=processorModal
     setShowModal=setProcessorModal
     modalClass="w-1/2 m-auto">
-    {featureFlagDetails.testProcessors
-    ->ConnectorUtils.dummyConnectorList
-    ->descriptedConnectors(
-      "Connect a test processor",
-      false,
-      ~showSearch=false,
-      ~showDummyConnectorButton=false,
-      (),
-    )}
+    <RenderIf condition={showIcons}>
+      {featureFlagDetails.testProcessors
+      ->ConnectorUtils.dummyConnectorList
+      ->iconsConnectors(
+        "Connect a test processor",
+        false,
+        ~showSearch=false,
+        ~showDummyConnectorButton=false,
+        (),
+      )}
+    </RenderIf>
+    <RenderIf condition={!showIcons}>
+      {featureFlagDetails.testProcessors
+      ->ConnectorUtils.dummyConnectorList
+      ->descriptedConnectors(
+        "Connect a test processor",
+        false,
+        ~showSearch=false,
+        ~showDummyConnectorButton=false,
+        (),
+      )}
+    </RenderIf>
   </Modal>
 }

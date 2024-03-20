@@ -130,7 +130,6 @@ let make = (~isPayoutFlow=false) => {
               configuredConnectors
               showIcons={showConnectorIcons}
               connectorsAvailableForIntegration
-              showTestProcessor={!isPayoutFlow}
               urlPrefix
               setProcessorModal
             />
@@ -169,14 +168,13 @@ let make = (~isPayoutFlow=false) => {
               configuredConnectors
               showIcons={showConnectorIcons}
               connectorsAvailableForIntegration
-              showTestProcessor={!isPayoutFlow}
               urlPrefix
               setProcessorModal
             />
           </RenderIf>
         </div>
         <RenderIf condition={processorModal}>
-          <DummyProcessorModal processorModal setProcessorModal />
+          <DummyProcessorModal processorModal setProcessorModal showIcons={showConnectorIcons} />
         </RenderIf>
       </div>
     </PageLoaderWrapper>

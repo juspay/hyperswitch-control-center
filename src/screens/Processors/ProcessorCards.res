@@ -43,7 +43,6 @@ let make = (
   ~connectorsAvailableForIntegration: array<ConnectorTypes.connectorTypes>,
   ~configuredConnectors: array<ConnectorTypes.connectorTypes>,
   ~showIcons: bool,
-  ~showTestProcessor: bool,
   ~urlPrefix: string,
   ~connectorType=ConnectorTypes.Processor,
   ~setProcessorModal: (bool => bool) => unit=_ => (),
@@ -51,7 +50,6 @@ let make = (
   open ConnectorUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let unConfiguredConnectors =
     connectorsAvailableForIntegration->Array.filter(total =>
