@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.19.1
+
+### Features
+
+- Dispute analytics ([#470](https://github.com/juspay/hyperswitch-control-center/pull/470)) ([`090eb00`](https://github.com/juspay/hyperswitch-control-center/commit/090eb00d7186fd0d4449c3a23ba33e073ed5487e))
+
+### Miscellaneous Tasks
+
+- Added mixpanel events for connector flow ([#521](https://github.com/juspay/hyperswitch-control-center/pull/521)) ([`4ecac71`](https://github.com/juspay/hyperswitch-control-center/commit/4ecac71bc93703426619488323d529bddbcbd20f))
+
+**Full Changelog:** [`2024.03.19.0...2024.03.19.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.19.0...2024.03.19.1)
+
+- - -
+
 ## 2024.03.19.0
 
 ### Bug Fixes
