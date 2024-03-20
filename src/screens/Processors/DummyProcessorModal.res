@@ -28,7 +28,7 @@ let make = (~processorModal, ~setProcessorModal, ~showIcons) => {
   let descriptedConnectors = (
     connectorList: array<ConnectorTypes.connectorTypes>,
     heading,
-    showRequestConnectorBtn,
+    ~showRequestConnectorBtn,
     ~showSearch=true,
     ~showDummyConnectorButton=true,
     (),
@@ -62,9 +62,7 @@ let make = (~processorModal, ~setProcessorModal, ~showIcons) => {
             buttonType={Transparent}
             buttonSize={Small}
             textStyle="text-jp-gray-900"
-            // onClick={_ => {
-            //   setProcessorModal(_ => true)
-            // }}
+            onClick={_ => setProcessorModal(_ => true)}
           />
         </RenderIf>
         <CantFindProcessor showRequestConnectorBtn setShowModal />
@@ -114,7 +112,7 @@ let make = (~processorModal, ~setProcessorModal, ~showIcons) => {
   let iconsConnectors = (
     connectorList: array<ConnectorTypes.connectorTypes>,
     heading,
-    showRequestConnectorBtn,
+    ~showRequestConnectorBtn,
     ~showSearch=true,
     ~showDummyConnectorButton=false,
     (),
@@ -196,7 +194,7 @@ let make = (~processorModal, ~setProcessorModal, ~showIcons) => {
       ->ConnectorUtils.dummyConnectorList
       ->iconsConnectors(
         "Connect a test processor",
-        false,
+        ~showRequestConnectorBtn=false,
         ~showSearch=false,
         ~showDummyConnectorButton=false,
         (),
@@ -207,7 +205,7 @@ let make = (~processorModal, ~setProcessorModal, ~showIcons) => {
       ->ConnectorUtils.dummyConnectorList
       ->descriptedConnectors(
         "Connect a test processor",
-        false,
+        ~showRequestConnectorBtn=false,
         ~showSearch=false,
         ~showDummyConnectorButton=false,
         (),

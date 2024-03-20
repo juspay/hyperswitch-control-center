@@ -74,7 +74,7 @@ let make = (
   let descriptedConnectors = (
     connectorList: array<ConnectorTypes.connectorTypes>,
     heading,
-    showRequestConnectorBtn,
+    ~showRequestConnectorBtn,
     ~showSearch=true,
     ~showDummyConnectorButton=false,
     (),
@@ -108,10 +108,7 @@ let make = (
             buttonType={Transparent}
             buttonSize={Small}
             textStyle="text-jp-gray-900"
-            onClick={_ => {
-              {Js.log("onclickkk ")}
-              setProcessorModal(_ => true)
-            }}
+            onClick={_ => setProcessorModal(_ => true)}
           />
         </RenderIf>
         <CantFindProcessor showRequestConnectorBtn setShowModal />
@@ -159,7 +156,7 @@ let make = (
   let iconsConnectors = (
     connectorList: array<ConnectorTypes.connectorTypes>,
     heading,
-    showRequestConnectorBtn,
+    ~showRequestConnectorBtn,
     ~showSearch=true,
     ~showDummyConnectorButton=false,
     (),
@@ -193,9 +190,7 @@ let make = (
             buttonType={Transparent}
             buttonSize={Small}
             textStyle="text-jp-gray-900"
-            onClick={_ => {
-              setProcessorModal(_ => true)
-            }}
+            onClick={_ => setProcessorModal(_ => true)}
           />
         </RenderIf>
         <CantFindProcessor showRequestConnectorBtn setShowModal />
@@ -240,35 +235,22 @@ let make = (
   }
   <RenderIf condition={unConfiguredConnectorsCount > 0}>
     <div className="flex flex-col gap-4">
-      {if showIcons {
-        <>
-          {connectorListFiltered->iconsConnectors(
-            "Connect a new processor",
-            true,
-            ~showDummyConnectorButton=true,
-            (),
-          )}
-          // {<RenderIf condition={featureFlagDetails.testProcessors && showTestProcessor}>
-          //   {featureFlagDetails.testProcessors
-          //   ->dummyConnectorList
-          //   ->iconsConnectors("Connect a test processor", false, ~showSearch=false, ())}
-          // </RenderIf>}
-        </>
-      } else {
-        <>
-          // <RenderIf condition={featureFlagDetails.testProcessors && showTestProcessor}>
-          //   {featureFlagDetails.testProcessors
-          //   ->dummyConnectorList
-          //   ->descriptedConnectors("Connect a test processor", false, ~showSearch=false, ())}
-          // </RenderIf>
-          {connectorListFiltered->descriptedConnectors(
-            "Connect a new processor",
-            true,
-            ~showDummyConnectorButton=true,
-            (),
-          )}
-        </>
-      }}
+      <RenderIf condition={showIcons}>
+        {connectorListFiltered->iconsConnectors(
+          "Connect a new processor",
+          ~showRequestConnectorBtn=true,
+          ~showDummyConnectorButton=true,
+          (),
+        )}
+      </RenderIf>
+      <RenderIf condition={!showIcons}>
+        {connectorListFiltered->descriptedConnectors(
+          "Connect a new processor",
+          ~showRequestConnectorBtn=true,
+          ~showDummyConnectorButton=true,
+          (),
+        )}
+      </RenderIf>
     </div>
     <RenderIf condition={showModal}>
       <HSwitchFeedBackModal

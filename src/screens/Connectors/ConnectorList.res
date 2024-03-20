@@ -15,7 +15,7 @@ let make = (~isPayoutFlow=false) => {
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  let h2OptionalTextStyle = HSwitchUtils.getTextClass((H2, Optional))
+  let textStyle = HSwitchUtils.getTextClass((H2, Optional))
   let subtextStyle = `${HSwitchUtils.getTextClass((P1, Regular))} text-grey-700 opacity-50`
 
   let getConnectorListAndUpdateState = async () => {
@@ -64,7 +64,6 @@ let make = (~isPayoutFlow=false) => {
 
   let entityPrefix = isPayoutFlow ? "payout" : ""
   let urlPrefix = isPayoutFlow ? "payoutconnectors/new" : "connectors/new"
-  let buttonText = "Connect Now"
   let isMobileView = MatchMedia.useMobileChecker()
 
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
@@ -75,14 +74,12 @@ let make = (~isPayoutFlow=false) => {
 
   let (processorModal, setProcessorModal) = React.useState(_ => false)
 
-  Js.log2("processorModal", processorModal)
-
   <div>
     <RenderIf condition={configuredConnectors->Array.length == 0}>
       <div className="flex flex-col md:flex-row pt-10 border rounded-md bg-white gap-4">
         <div className="flex flex-col justify-evenly gap-8 pl-10 pb-10 pr-2 md:pr-0">
           <div className="flex flex-col gap-2">
-            <p className={h2OptionalTextStyle}>
+            <p className={textStyle}>
               {"No Test Credentials? Connect a Dummy Processor"->React.string}
             </p>
             <p className={subtextStyle}>
@@ -90,7 +87,7 @@ let make = (~isPayoutFlow=false) => {
             </p>
           </div>
           <Button
-            text=buttonText
+            text="Connect Now"
             buttonType={Primary}
             customButtonStyle="group w-1/5"
             rightIcon={CustomIcon(
@@ -101,11 +98,11 @@ let make = (~isPayoutFlow=false) => {
             }}
           />
         </div>
-        <UIUtils.RenderIf condition={!isMobileView}>
+        <RenderIf condition={!isMobileView}>
           <div className="h-30 md:w-[43rem] flex justify-end">
             <img src="/assets/QuickStartImage.svg" />
           </div>
-        </UIUtils.RenderIf>
+        </RenderIf>
       </div>
     </RenderIf>
     <PageUtils.PageHeading
