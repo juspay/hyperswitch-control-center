@@ -65,7 +65,7 @@ module CheckListSection = {
             name={value->getIndexFromVariant < pageView->getIndexFromVariant
               ? "green-check"
               : "nonselected"}
-            size=14
+            size=20
           />
           <p
             key={index->Int.toString}
