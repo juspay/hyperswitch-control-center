@@ -568,7 +568,7 @@ let make = (
       | Disabled => ""
       | _ =>
         if showBorder {
-          `${borderWidth} border-blue-850`
+          `${borderWidth} `
         } else {
           ""
         }

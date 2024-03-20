@@ -27,6 +27,7 @@ type featureFlag = {
   inviteMultiple: bool,
   acceptInvite: bool,
   threedsAuthenticator: bool,
+  whiteLabel: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -61,6 +62,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     inviteMultiple: dict->getBool("invite_multiple", false),
     acceptInvite: dict->getBool("accept-invite", false),
     threedsAuthenticator: dict->getBool("threeds-authenticator", false),
+    whiteLabel: dict->getBool("white-label", false),
   }
   typedFeatureFlag
 }

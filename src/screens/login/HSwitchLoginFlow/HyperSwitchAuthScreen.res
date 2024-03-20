@@ -5,7 +5,8 @@ module AuthPage = {
   open HyperSwitchAuth
   @react.component
   let make = (~authType, ~setAuthType, ~setAuthStatus, ~mode, ~setMode) => {
-    let {testLiveToggle} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {testLiveToggle, whiteLabel} =
+      HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let screen =
       <div
         className="h-full flex flex-col items-center justify-between overflow-scoll text-grey-0 w-full mobile:w-30-rem">
@@ -24,13 +25,17 @@ module AuthPage = {
               <HyperSwitchAuth setAuthStatus authType setAuthType />
             </div>
           </Div>
-          <Div
-            layoutId="footer-links"
-            className="justify-center text-sm mobile:text-base flex flex-col mobile:flex-row mobile:gap-3 items-center w-full max-w-xl text-center">
-            <TermsAndCondition />
-          </Div>
+          <UIUtils.RenderIf condition={!whiteLabel}>
+            <Div
+              layoutId="footer-links"
+              className="justify-center text-sm mobile:text-base flex flex-col mobile:flex-row mobile:gap-3 items-center w-full max-w-xl text-center">
+              <TermsAndCondition />
+            </Div>
+          </UIUtils.RenderIf>
         </div>
-        <PageFooterSection />
+        <UIUtils.RenderIf condition={!whiteLabel}>
+          <PageFooterSection />
+        </UIUtils.RenderIf>
       </div>
 
     <HSwitchUtils.BackgroundImageWrapper

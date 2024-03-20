@@ -126,7 +126,7 @@ let make = () => {
         let _ = await fetchInitialEnums()
       }
 
-      if featureFlagDetails.isLiveMode {
+      if featureFlagDetails.isLiveMode && !featureFlagDetails.whiteLabel {
         getAgreementEnum()->ignore
       } else {
         setDashboardPageState(_ => #HOME)
@@ -204,6 +204,11 @@ let make = () => {
                   <div className="w-full max-w-fixedPageWidth px-9">
                     <Navbar
                       headerActions={<div className="relative flex items-center gap-4 my-2 ">
+                        // <div>
+                        <img
+                          src={`https://www.zurich.com.br/-/media/project/zwp/shared/zurich-logo-blue.svg`}
+                        />
+                        // </div>
                         <HSwitchGlobalSearchBar />
                         <RenderIf condition={featureFlagDetails.switchMerchant}>
                           <SwitchMerchant

@@ -24,7 +24,7 @@ let make = (
   let iconImagePath = switch logoVariant {
   | Icon => `/assets/${iconFolder}/hyperswitchLogoIcon.svg`
   | Text => `/assets/${iconFolder}/hyperswitchLogoText.svg`
-  | IconWithText => `/assets/${iconFolder}/hyperswitchLogoIconWithText.svg`
+  | IconWithText => `https://www.zurich.com.br/-/media/project/zwp/shared/zurich-logo-blue.svg`
   }
 
   <div className={`${logoClass}`} onClick={handleClickEvent}>
