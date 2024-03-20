@@ -46,6 +46,7 @@ let make = (
   ~showTestProcessor: bool,
   ~urlPrefix: string,
   ~connectorType=ConnectorTypes.Processor,
+  ~setProcessorModal: (bool => bool) => unit=_ => (),
 ) => {
   open ConnectorUtils
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
@@ -75,6 +76,7 @@ let make = (
     heading,
     showRequestConnectorBtn,
     ~showSearch=true,
+    ~showDummyConnectorButton=false,
     (),
   ) => {
     <>
@@ -98,6 +100,19 @@ let make = (
               id="search-processor"
             />
           </AddDataAttributes>
+        </RenderIf>
+        <RenderIf condition={showDummyConnectorButton}>
+          <ACLButton
+            access={userPermissionJson.connectorsManage}
+            text="+ Connect a Dummy Processor"
+            buttonType={Transparent}
+            buttonSize={Small}
+            textStyle="text-jp-gray-900"
+            onClick={_ => {
+              {Js.log("onclickkk ")}
+              setProcessorModal(_ => true)
+            }}
+          />
         </RenderIf>
         <CantFindProcessor showRequestConnectorBtn setShowModal />
       </div>
@@ -146,6 +161,7 @@ let make = (
     heading,
     showRequestConnectorBtn,
     ~showSearch=true,
+    ~showDummyConnectorButton=false,
     (),
   ) => {
     <>
@@ -168,6 +184,18 @@ let make = (
             onChange=handleSearch
             placeholder="Search a processor"
             className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
+          />
+        </RenderIf>
+        <RenderIf condition={showDummyConnectorButton}>
+          <ACLButton
+            access={userPermissionJson.connectorsManage}
+            text="+ Connect a Dummy Processor"
+            buttonType={Transparent}
+            buttonSize={Small}
+            textStyle="text-jp-gray-900"
+            onClick={_ => {
+              setProcessorModal(_ => true)
+            }}
           />
         </RenderIf>
         <CantFindProcessor showRequestConnectorBtn setShowModal />
@@ -214,21 +242,31 @@ let make = (
     <div className="flex flex-col gap-4">
       {if showIcons {
         <>
-          {connectorListFiltered->iconsConnectors("Connect a new processor", true, ())}
-          {<RenderIf condition={featureFlagDetails.testProcessors && showTestProcessor}>
-            {featureFlagDetails.testProcessors
-            ->dummyConnectorList
-            ->iconsConnectors("Connect a test processor", false, ~showSearch=false, ())}
-          </RenderIf>}
+          {connectorListFiltered->iconsConnectors(
+            "Connect a new processor",
+            true,
+            ~showDummyConnectorButton=true,
+            (),
+          )}
+          // {<RenderIf condition={featureFlagDetails.testProcessors && showTestProcessor}>
+          //   {featureFlagDetails.testProcessors
+          //   ->dummyConnectorList
+          //   ->iconsConnectors("Connect a test processor", false, ~showSearch=false, ())}
+          // </RenderIf>}
         </>
       } else {
         <>
-          <RenderIf condition={featureFlagDetails.testProcessors && showTestProcessor}>
-            {featureFlagDetails.testProcessors
-            ->dummyConnectorList
-            ->descriptedConnectors("Connect a test processor", false, ~showSearch=false, ())}
-          </RenderIf>
-          {connectorListFiltered->descriptedConnectors("Connect a new processor", true, ())}
+          // <RenderIf condition={featureFlagDetails.testProcessors && showTestProcessor}>
+          //   {featureFlagDetails.testProcessors
+          //   ->dummyConnectorList
+          //   ->descriptedConnectors("Connect a test processor", false, ~showSearch=false, ())}
+          // </RenderIf>
+          {connectorListFiltered->descriptedConnectors(
+            "Connect a new processor",
+            true,
+            ~showDummyConnectorButton=true,
+            (),
+          )}
         </>
       }}
     </div>

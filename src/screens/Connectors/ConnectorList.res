@@ -15,6 +15,9 @@ let make = (~isPayoutFlow=false) => {
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
+  let h2OptionalTextStyle = HSwitchUtils.getTextClass((H2, Optional))
+  let subtextStyle = `${HSwitchUtils.getTextClass((P1, Regular))} text-grey-700 opacity-50`
+
   let getConnectorListAndUpdateState = async () => {
     try {
       let response = await fetchConnectorListResponse()
@@ -61,6 +64,8 @@ let make = (~isPayoutFlow=false) => {
 
   let entityPrefix = isPayoutFlow ? "payout" : ""
   let urlPrefix = isPayoutFlow ? "payoutconnectors/new" : "connectors/new"
+  let buttonText = "Connect Now"
+  let isMobileView = MatchMedia.useMobileChecker()
 
   let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
     ? connectorListForLive
@@ -68,7 +73,41 @@ let make = (~isPayoutFlow=false) => {
     ? payoutConnectorList
     : connectorList
 
+  let (processorModal, setProcessorModal) = React.useState(_ => false)
+
+  Js.log2("processorModal", processorModal)
+
   <div>
+    <RenderIf condition={configuredConnectors->Array.length == 0}>
+      <div className="flex flex-col md:flex-row pt-10 border rounded-md bg-white gap-4">
+        <div className="flex flex-col justify-evenly gap-8 pl-10 pb-10 pr-2 md:pr-0">
+          <div className="flex flex-col gap-2">
+            <p className={h2OptionalTextStyle}>
+              {"No Test Credentials? Connect a Dummy Processor"->React.string}
+            </p>
+            <p className={subtextStyle}>
+              {"Start simulating payments and refunds with a dummy processor setup."->React.string}
+            </p>
+          </div>
+          <Button
+            text=buttonText
+            buttonType={Primary}
+            customButtonStyle="group w-1/5"
+            rightIcon={CustomIcon(
+              <Icon name="thin-right-arrow" size=20 className="cursor-pointer" />,
+            )}
+            onClick={_ => {
+              setProcessorModal(_ => true)
+            }}
+          />
+        </div>
+        <UIUtils.RenderIf condition={!isMobileView}>
+          <div className="h-30 md:w-[43rem] flex justify-end">
+            <img src="/assets/QuickStartImage.svg" />
+          </div>
+        </UIUtils.RenderIf>
+      </div>
+    </RenderIf>
     <PageUtils.PageHeading
       title={isPayoutFlow ? "Payout Processors" : `Payment Processors`}
       subTitle={isPayoutFlow
@@ -84,49 +123,60 @@ let make = (~isPayoutFlow=false) => {
           feedbackVia="connected_a_connector"
         />
       </RenderIf>
-      <div className="flex flex-col gap-10">
-        <RenderIf condition={showConnectorIcons}>
-          <ProcessorCards
-            configuredConnectors
-            showIcons={showConnectorIcons}
-            connectorsAvailableForIntegration
-            showTestProcessor={!isPayoutFlow}
-            urlPrefix
-          />
-        </RenderIf>
-        <RenderIf condition={configuredConnectors->Array.length > 0}>
-          <LoadedTable
-            title="Previously Connected"
-            actualData=filteredConnectorData
-            totalResults={filteredConnectorData->Array.length}
-            filters={<TableSearchFilter
-              data={previouslyConnectedData}
-              filterLogic
-              placeholder="Search Processor or Country or Business Label"
-              customSearchBarWrapperWidth="w-full lg:w-1/3"
-              customInputBoxWidth="w-full"
-              searchVal=searchText
-              setSearchVal=setSearchText
-            />}
-            resultsPerPage=20
-            offset
-            setOffset
-            entity={ConnectorTableUtils.connectorEntity(
-              `${entityPrefix}connectors`,
-              ~permission=userPermissionJson.connectorsManage,
-            )}
-            currrentFetchCount={filteredConnectorData->Array.length}
-            collapseTableRow=false
-          />
-        </RenderIf>
-        <RenderIf condition={!showConnectorIcons}>
-          <ProcessorCards
-            configuredConnectors
-            showIcons={showConnectorIcons}
-            connectorsAvailableForIntegration
-            showTestProcessor={!isPayoutFlow}
-            urlPrefix
-          />
+      <div className="flex flex-col gap-10 border-2 border-red-500">
+        <div className="border-2 border-green-900">
+          <RenderIf condition={showConnectorIcons}>
+            <ProcessorCards
+              configuredConnectors
+              showIcons={showConnectorIcons}
+              connectorsAvailableForIntegration
+              showTestProcessor={!isPayoutFlow}
+              urlPrefix
+              setProcessorModal
+            />
+          </RenderIf>
+        </div>
+        <div className="border-2 border-red-500">
+          <RenderIf condition={configuredConnectors->Array.length > 0}>
+            <LoadedTable
+              title="Previously Connected"
+              actualData=filteredConnectorData
+              totalResults={filteredConnectorData->Array.length}
+              filters={<TableSearchFilter
+                data={previouslyConnectedData}
+                filterLogic
+                placeholder="Search Processor or Country or Business Label"
+                customSearchBarWrapperWidth="w-full lg:w-1/3"
+                customInputBoxWidth="w-full"
+                searchVal=searchText
+                setSearchVal=setSearchText
+              />}
+              resultsPerPage=20
+              offset
+              setOffset
+              entity={ConnectorTableUtils.connectorEntity(
+                `${entityPrefix}connectors`,
+                ~permission=userPermissionJson.connectorsManage,
+              )}
+              currrentFetchCount={filteredConnectorData->Array.length}
+              collapseTableRow=false
+            />
+          </RenderIf>
+        </div>
+        <div className="border-2 border-yellow-500">
+          <RenderIf condition={!showConnectorIcons}>
+            <ProcessorCards
+              configuredConnectors
+              showIcons={showConnectorIcons}
+              connectorsAvailableForIntegration
+              showTestProcessor={!isPayoutFlow}
+              urlPrefix
+              setProcessorModal
+            />
+          </RenderIf>
+        </div>
+        <RenderIf condition={processorModal}>
+          <DummyProcessorModal processorModal setProcessorModal />
         </RenderIf>
       </div>
     </PageLoaderWrapper>
