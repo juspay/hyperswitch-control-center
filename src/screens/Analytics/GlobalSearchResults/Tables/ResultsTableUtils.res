@@ -55,7 +55,7 @@ let getData = async (
   filters->Dict.set("query", query->JSON.Encode.string)
 
   try {
-    let url = APIUtils.getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ~id=Some(path), ())
+    let url = `https://integ-api.hyperswitch.io/analytics/v1/search/${path}`
     let res = await updateDetails(url, filters->JSON.Encode.object, Fetch.Post, ())
     let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("hits", [])
     let total = res->getDictFromJsonObject->getInt("count", 0)

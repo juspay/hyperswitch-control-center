@@ -235,7 +235,7 @@ let getDefaultResult = searchText => {
     results: [
       {
         texts: ["Show all results for"->JSON.Encode.string, searchText->JSON.Encode.string],
-        redirect_link: `search?query=${searchText}`->JSON.Encode.string,
+        redirect_link: `/search?query=${searchText}`->JSON.Encode.string,
       },
     ],
     total_results: 1,

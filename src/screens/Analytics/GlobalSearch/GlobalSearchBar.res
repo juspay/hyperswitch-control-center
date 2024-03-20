@@ -183,7 +183,6 @@ let make = () => {
   open HeadlessUI
   open LogicUtils
   open UIUtils
-  let url = RescriptReactRouter.useUrl()
   let prefix = useUrlPrefix()
   let fetchDetails = APIUtils.useUpdateMethod()
   let (state, setState) = React.useState(_ => Idle)
@@ -197,21 +196,16 @@ let make = () => {
   let loader = LottieFiles.useLottieJson("loader-circle.json")
 
   let redirectOnSelect = element => {
-    let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("search")
+    let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
-      let link = if url.path->List.length > 1 {
-        `/${redirectLink}`
-      } else {
-        redirectLink
-      }
-      link->RescriptReactRouter.push
+      redirectLink->RescriptReactRouter.push
     }
   }
 
   let getSearchResults = async results => {
     try {
-      let url = APIUtils.getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
+      let url = "https://integ-api.hyperswitch.io/analytics/v1/search"
       let body = [("query", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
       let response = await fetchDetails(url, body, Post, ())
       let dictFields = [("searchText", searchText->JSON.Encode.string)]
