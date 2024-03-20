@@ -58,7 +58,8 @@ module RenderSearchResultBody = {
       <PaymentAttemptTable.PreviewTable
         tableData={PaymentAttemptEntity.tableItemToObjMapper->getTablePreviewData}
       />
-    | Refunds => <RefundsTable.PreviewTable
+    | Refunds =>
+      <RefundsTable.PreviewTable
         tableData={RefundsTableEntity.tableItemToObjMapper->getTablePreviewData}
       />
     | Others | Default => "Not implemented"->React.string
