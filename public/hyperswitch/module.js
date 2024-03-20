@@ -157,3 +157,11 @@ function payPalCreateAccountWindow() {
     }
   })(document, "script", "paypal-js");
 }
+
+function getAuthenticationConnectorConfig(connectorName) {
+  if (wasm) {
+    return wasm.getAuthenticationConnectorConfig(connectorName);
+  } else {
+    return {};
+  }
+}

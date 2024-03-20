@@ -705,13 +705,3 @@ let getCurrentStep = dict => {
     #GoLive
   }
 }
-
-let existsInArray = (element, connectorList) => {
-  open ConnectorTypes
-  connectorList->Array.some(e =>
-    switch (e, element) {
-    | (Processors(p1), Processors(p2)) => p1 == p2
-    | (_, _) => false
-    }
-  )
-}

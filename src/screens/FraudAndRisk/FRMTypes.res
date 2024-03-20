@@ -19,7 +19,7 @@ type frmInfo = {
   connectorFields: array<frmIntegrationField>,
 }
 
-type filterType = Connector | FRMPlayer
+type filterType = Connector | FRMPlayer | ThreedsAuthenticator
 
 type frmPaymentMethodsSectionType = FlowType | ActionType
 

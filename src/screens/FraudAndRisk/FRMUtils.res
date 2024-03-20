@@ -41,7 +41,7 @@ let generateInitialValuesDict = (~selectedFRMInfo, ~isLiveMode, ()) => {
 }
 
 let parseFRMConfig = json => {
-  json->JSON.Decode.array->Option.getOr([])->ConnectorTableUtils.convertFRMConfigJsonToObj
+  json->JSON.Decode.array->Option.getOr([])->ConnectorListMapper.convertFRMConfigJsonToObj
 }
 
 let getPaymentMethod = paymentMethod => {
@@ -114,10 +114,12 @@ let filterList = (items, ~removeFromList, ()) => {
   open LogicUtils
   items->Array.filter(dict => {
     let isConnector = dict->getString("connector_type", "") !== "payment_vas"
+    let isThreedsConnector = dict->getString("connector_type", "") !== "authentication_processor"
 
     switch removeFromList {
     | Connector => !isConnector
     | FRMPlayer => isConnector
+    | ThreedsAuthenticator => isThreedsConnector
     }
   })
 }

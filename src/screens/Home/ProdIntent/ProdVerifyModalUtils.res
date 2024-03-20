@@ -119,7 +119,9 @@ let getFormField = columnType => {
   }
 }
 
-let formFields = [BusinessName, Country, Website, POCName, POCemail, BusinessTAN]
+let formFields = [Country, POCemail]
+
+let formFieldsForQuickStart = [BusinessName, Country, Website, POCName, POCemail, BusinessTAN]
 
 let validateCustom = (key, errors, value) => {
   switch key {
@@ -160,13 +162,35 @@ let getBody = (values: JSON.t) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
 
-  [
-    (POCemail->getStringFromVariant, valuesDict->getJsonString(POCemail)),
-    (IsCompleted->getStringFromVariant, true->JSON.Encode.bool),
-    (BusinessName->getStringFromVariant, valuesDict->getJsonString(BusinessName)),
-    (Country->getStringFromVariant, valuesDict->getJsonString(Country)),
-    (Website->getStringFromVariant, valuesDict->getJsonString(Website)),
-    (POCName->getStringFromVariant, valuesDict->getJsonString(POCName)),
-    (BusinessTAN->getStringFromVariant, valuesDict->getJsonString(BusinessTAN)),
-  ]->Dict.fromArray
+  let prodOnboardingpayload = Dict.make()
+
+  prodOnboardingpayload->setOptionString(
+    POCemail->getStringFromVariant,
+    valuesDict->getOptionString(POCemail->getStringFromVariant),
+  )
+  prodOnboardingpayload->setOptionBool(IsCompleted->getStringFromVariant, Some(true))
+
+  prodOnboardingpayload->setOptionString(
+    BusinessName->getStringFromVariant,
+    valuesDict->getOptionString(BusinessName->getStringFromVariant),
+  )
+
+  prodOnboardingpayload->setOptionString(
+    Country->getStringFromVariant,
+    valuesDict->getOptionString(Country->getStringFromVariant),
+  )
+  prodOnboardingpayload->setOptionString(
+    Website->getStringFromVariant,
+    valuesDict->getOptionString(Website->getStringFromVariant),
+  )
+
+  prodOnboardingpayload->setOptionString(
+    POCName->getStringFromVariant,
+    valuesDict->getOptionString(POCName->getStringFromVariant),
+  )
+  prodOnboardingpayload->setOptionString(
+    BusinessTAN->getStringFromVariant,
+    valuesDict->getOptionString(BusinessTAN->getStringFromVariant),
+  )
+  prodOnboardingpayload
 }

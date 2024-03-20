@@ -77,7 +77,9 @@ module MenuOption = {
     ~disableConnector,
     ~isConnectorDisabled,
     ~pageName="connector",
+    ~connector,
   ) => {
+    let mixpanelEvent = MixpanelHook.useSendEvent()
     let showPopUp = PopUpState.useShowPopUp()
     let openConfirmationPopUp = _ => {
       showPopUp({
@@ -109,6 +111,7 @@ module MenuOption = {
                   text="Update"
                   onClick={_ => {
                     panelProps["close"]()
+                    mixpanelEvent(~eventName=`processor_update_${connector}`, ())
                     setCurrentStep(_ => updateStepValue)
                   }}
                 />
@@ -268,14 +271,18 @@ let make = (
   let url = RescriptReactRouter.useUrl()
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let {setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let connectorInfoDict = connectorInfo->LogicUtils.getDictFromJsonObject
   let connectorInfo =
-    connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorTableUtils.getProcessorPayloadType
-
-  let connectorCount = ListHooks.useListCount(~entityName=CONNECTOR)
+    connectorInfo->LogicUtils.getDictFromJsonObject->ConnectorListMapper.getProcessorPayloadType
+  let connectorCount =
+    HyperswitchAtom.connectorListAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer, ())
+    ->Array.length
   let isFeedbackModalToBeOpen =
     feedback && !isUpdateFlow && connectorCount <= HSwitchUtils.feedbackModalOpenCountForConnectors
   let redirectPath = switch url.path {
@@ -305,6 +312,8 @@ let make = (
     | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-800"
     | _ => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
     }
+
+  let mixpanelEventName = isUpdateFlow ? "processor_step3_onUpdate" : "processor_step3"
 
   <PageLoaderWrapper screenState>
     <div>
@@ -345,7 +354,8 @@ let make = (
                     isUpdateFlow
                     setInitialValues
                   />
-                | (_, _) => <MenuOption setCurrentStep disableConnector isConnectorDisabled />
+                | (_, _) =>
+                  <MenuOption setCurrentStep disableConnector isConnectorDisabled connector />
                 }}
               </UIUtils.RenderIf>
             </div>
@@ -353,6 +363,7 @@ let make = (
           | _ =>
             <Button
               onClick={_ => {
+                mixpanelEvent(~eventName=mixpanelEventName, ())
                 if isFeedbackModalToBeOpen {
                   setShowFeedbackModal(_ => true)
                 }

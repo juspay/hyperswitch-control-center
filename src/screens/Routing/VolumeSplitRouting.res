@@ -23,10 +23,10 @@ module VolumeRoutingView = {
     let showToast = ToastState.useShowToast()
     let listLength = connectors->Array.length
     let (showModal, setShowModal) = React.useState(_ => false)
-    let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-    let connectorList = React.useMemo0(() => {
-      connectorListJson->safeParse->ConnectorTableUtils.getArrayOfConnectorListPayloadType
-    })->filterConnectorList(~retainInList=isPayoutFlow ? PayoutConnector : PaymentConnector)
+    let connectorList =
+      HyperswitchAtom.connectorListAtom
+      ->Recoil.useRecoilValueFromAtom
+      ->filterConnectorList(~retainInList=isPayoutFlow ? PayoutConnector : PaymentConnector)
 
     let gateways =
       initialValues
@@ -219,15 +219,14 @@ let make = (~routingRuleId, ~isActive, ~isPayoutFlow=false) => {
   let (connectors, setConnectors) = React.useState(_ => [])
   let currentTabName = Recoil.useRecoilValueFromAtom(HyperswitchAtom.currentTabNameRecoilAtom)
   let showToast = ToastState.useShowToast()
-  let connectorListJson =
-    HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->safeParse
-  let getConnectorsList = () => {
-    open RoutingUtils
-    setConnectors(_ =>
-      connectorListJson
-      ->ConnectorTableUtils.getArrayOfConnectorListPayloadType
-      ->filterConnectorList(~retainInList=isPayoutFlow ? PayoutConnector : PaymentConnector)
+  let connectorList =
+    HyperswitchAtom.connectorListAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->RoutingUtils.filterConnectorList(
+      ~retainInList=isPayoutFlow ? PayoutConnector : PaymentConnector,
     )
+  let getConnectorsList = () => {
+    setConnectors(_ => connectorList)
   }
 
   let activeRoutingDetails = async () => {

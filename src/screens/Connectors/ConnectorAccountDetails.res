@@ -6,6 +6,7 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   open ConnectorAccountDetailsHelper
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastState.useShowToast()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
   let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -222,10 +223,14 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
   let handleShowModal = () => {
     setShowModal(_ => true)
   }
+
+  let mixpanelEventName = isUpdateFlow ? "processor_step1_onUpdate" : "processor_step1"
+
   <PageLoaderWrapper screenState>
     <Form
       initialValues={updatedInitialVal}
-      onSubmit={(values, _) =>
+      onSubmit={(values, _) => {
+        mixpanelEvent(~eventName=mixpanelEventName, ())
         onSubmit(
           ~values,
           ~onSubmitVerify,
@@ -234,7 +239,8 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
           ~verifyDone,
           ~isVerifyConnector,
           ~isVerifyConnectorFeatureEnabled=featureFlagDetails.verifyConnector,
-        )}
+        )
+      }}
       validate={validateMandatoryField}
       formClass="flex flex-col ">
       <ConnectorHeaderWrapper

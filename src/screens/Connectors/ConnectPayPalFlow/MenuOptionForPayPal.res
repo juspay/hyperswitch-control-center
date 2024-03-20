@@ -17,7 +17,7 @@ let make = (
   let deleteTrackingDetails = PayPalFlowUtils.useDeleteTrackingDetails()
   let updateConnectorAccountDetails = PayPalFlowUtils.useDeleteConnectorAccountDetails()
   let setSetupAccountStatus = Recoil.useSetRecoilState(HyperswitchAtom.paypalAccountStatusAtom)
-  let connectorInfo = connectorInfoDict->ConnectorTableUtils.getProcessorPayloadType
+  let connectorInfo = connectorInfoDict->ConnectorListMapper.getProcessorPayloadType
 
   let openConfirmationPopUp = _ => {
     showPopUp({

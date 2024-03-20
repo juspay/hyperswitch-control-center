@@ -354,7 +354,7 @@ let make = () => {
             <ConnectorPreview.ConnectorSummaryGrid
               connectorInfo={initialValues
               ->LogicUtils.getDictFromJsonObject
-              ->ConnectorTableUtils.getProcessorPayloadType}
+              ->ConnectorListMapper.getProcessorPayloadType}
               connector=connectorName
               setScreenState={_ => ()}
               isPayoutFlow=false

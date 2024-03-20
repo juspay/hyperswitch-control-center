@@ -6,7 +6,7 @@ let make = () => {
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let finalTickLottieFile = LottieFiles.useLottieJson("FinalTick.json")
   let (stepCounter, setStepCounter) = React.useState(_ => #INITIALIZE)
-  let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
 
   let activeBusinessProfile =
     HyperswitchAtom.businessProfilesAtom
@@ -41,7 +41,7 @@ let make = () => {
       let stripeTestRes =
         (await updateDetails(url, stripeTestBody, Post, ()))
         ->getDictFromJsonObject
-        ->ConnectorTableUtils.getProcessorPayloadType
+        ->ConnectorListMapper.getProcessorPayloadType
 
       let paypalTestBody = constructBody(
         ~connectorName="paypal_test",
@@ -51,7 +51,7 @@ let make = () => {
       let payPalTestRes =
         (await updateDetails(url, paypalTestBody, Post, ()))
         ->getDictFromJsonObject
-        ->ConnectorTableUtils.getProcessorPayloadType
+        ->ConnectorListMapper.getProcessorPayloadType
       let _ = await fetchConnectorListResponse()
       setStepCounter(_ => #CONNECTORS_CONFIGURED)
 

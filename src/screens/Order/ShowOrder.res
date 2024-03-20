@@ -91,11 +91,7 @@ module OrderInfo = {
     let order = itemToObjMapper(orderDict)
     let paymentStatus = order.status
     let headingStyles = "font-bold text-lg mb-5"
-    let connectorList =
-      HyperswitchAtom.connectorListAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->LogicUtils.getObjectArrayFromJson
+    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
     <div className="md:flex md:flex-col md:gap-5">
       <UIUtils.RenderIf condition={!isMetadata}>
         <div className="md:flex md:gap-10 md:items-stretch md:mt-5 mb-10">

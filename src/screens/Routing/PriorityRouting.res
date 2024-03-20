@@ -222,8 +222,10 @@ let make = (~routingRuleId, ~isActive, ~isPayoutFlow=false) => {
   let (showModal, setShowModal) = React.useState(_ => false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let (connectors, setConnectors) = React.useState(_ => [])
-  let connectorListJson =
-    HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->LogicUtils.safeParse
+  let connectorList =
+    HyperswitchAtom.connectorListAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->filterConnectorList(~retainInList=isPayoutFlow ? PayoutConnector : PaymentConnector)
 
   let activeRoutingDetails = async () => {
     try {
@@ -267,11 +269,7 @@ let make = (~routingRuleId, ~isActive, ~isPayoutFlow=false) => {
 
   let getConnectorsList = () => {
     let arr =
-      connectorListJson
-      ->filterConnectorListJson(~retainInList=isPayoutFlow ? PayoutConnector : PaymentConnector)
-      ->Array.map(connectorDict => connectorDict->getString("connector_name", ""))
-      ->Array.filter(x => x !== "applepay")
-      ->getUniqueArray
+      connectorList->Array.map(connectorDict => connectorDict.connector_name)->getUniqueArray
     setConnectors(_ => arr)
     setScreenState(_ => Success)
   }

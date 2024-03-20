@@ -41,7 +41,7 @@ let make = (
   let gatewayName = name => {
     let res =
       connectorList
-      ->Option.getOr([Dict.make()->ConnectorTableUtils.getProcessorPayloadType])
+      ->Option.getOr([Dict.make()->ConnectorListMapper.getProcessorPayloadType])
       ->ConnectorTableUtils.getConnectorObjectFromListViaId(name)
     res.connector_name
   }

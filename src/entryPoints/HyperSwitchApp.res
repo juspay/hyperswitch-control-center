@@ -23,7 +23,7 @@ let make = () => {
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
-  let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let enumDetails =
     enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -206,7 +206,10 @@ let make = () => {
                       headerActions={<div className="relative flex items-center gap-4 my-2 ">
                         <HSwitchGlobalSearchBar />
                         <RenderIf condition={featureFlagDetails.switchMerchant}>
-                          <SwitchMerchant userRole={userRole} isAddMerchantEnabled=true />
+                          <SwitchMerchant
+                            userRole={userRole}
+                            isAddMerchantEnabled={userRole === "org_admin" ? true : false}
+                          />
                         </RenderIf>
                         <div
                           className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
@@ -259,6 +262,7 @@ let make = () => {
                             renderShow={_ => <ConnectorHome isPayoutFlow=true />}
                           />
                         </AccessControl>
+
                       | list{"payoutrouting", ...remainingPath} =>
                         <AccessControl
                           isEnabled={featureFlagDetails.payOut}
@@ -271,6 +275,20 @@ let make = () => {
                               <RoutingConfigure isPayoutFlow=true routingType />}
                           />
                         </AccessControl>
+
+                      | list{"3ds-authenticators", ...remainingPath} =>
+                        <AccessControl
+                          permission=userPermissionJson.connectorsView
+                          isEnabled={featureFlagDetails.threedsAuthenticator}>
+                          <EntityScaffold
+                            entityName="3DS Authenticator"
+                            remainingPath
+                            renderList={() => <ThreeDsConnectorList />}
+                            renderNewForm={() => <ThreeDsProcessorHome />}
+                            renderShow={_ => <ThreeDsProcessorHome />}
+                          />
+                        </AccessControl>
+
                       | list{"payments", ...remainingPath} =>
                         <AccessControl permission=userPermissionJson.operationsView>
                           <FilterContext key="payments" index="payments" disableSessionStorage=true>
@@ -351,6 +369,12 @@ let make = () => {
                         <AccessControl permission=userPermissionJson.analyticsView>
                           <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
                             <RefundsAnalytics />
+                          </FilterContext>
+                        </AccessControl>
+                      | list{"analytics-disputes"} =>
+                        <AccessControl permission=userPermissionJson.analyticsView>
+                          <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
+                            <DisputeAnalytics />
                           </FilterContext>
                         </AccessControl>
                       | list{"analytics-user-journey"} =>
