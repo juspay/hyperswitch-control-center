@@ -44,10 +44,10 @@ let getPaymentMethodTypes = dict => {
   open ConnectorUtils
   {
     payment_method_type: dict->getString("payment_method_type", ""),
-    payment_experience: dict->getOptionString("payment_method_type"),
+    payment_experience: dict->getOptionString("payment_experience"),
     card_networks: dict->getStrArrayFromDict("card_networks", []),
     accepted_countries: dict->getDictfromDict("accepted_countries")->acceptedValues,
-    accepted_currencies: dict->getDictfromDict("accepted_countries")->acceptedValues,
+    accepted_currencies: dict->getDictfromDict("accepted_currencies")->acceptedValues,
     minimum_amount: dict->getOptionInt("minimum_amount"),
     maximum_amount: dict->getOptionInt("maximum_amount"),
     recurring_enabled: dict->getOptionBool("recurring_enabled"),
