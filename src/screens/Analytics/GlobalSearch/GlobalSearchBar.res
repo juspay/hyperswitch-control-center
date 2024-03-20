@@ -25,34 +25,6 @@ module RenderedComponent = {
   }
 }
 
-module ShowMoreLink = {
-  open GlobalSearchTypes
-  @react.component
-  let make = (~section: resultType, ~cleanUpFunction=() => {()}, ~textStyleClass="") => {
-    switch section.section {
-    | Local | Default => React.null
-    | _ =>
-      <div
-        onClick={_ => {
-          let link = switch section.section {
-          | PaymentAttempts => "payment-attempts"
-          | PaymentIntents => "payment-intents"
-          | Refunds => "refunds-global"
-          | _ => ""
-          }
-
-          link->RescriptReactRouter.push
-          cleanUpFunction()
-        }}
-        className={`font-medium cursor-pointer underline underline-offset-2 ${textStyleClass}`}>
-        {`View ${section.total_results->Int.toString} result${section.total_results > 1
-            ? "s"
-            : ""}`->React.string}
-      </div>
-    }
-  }
-}
-
 module SearchBox = {
   @react.component
   let make = (~openModalOnClickHandler) => {
@@ -97,7 +69,7 @@ module OptionsWrapper = {
     <FramerMotion.Motion.Div layoutId="options">
       <Combobox.Options
         static={true}
-        className="w-full overflow-auto text-base max-h-[60vh] focus:outline-none sm:text-sm">
+        className="w-full overflow-auto text-base max-h-60vh focus:outline-none sm:text-sm">
         {_ => {children}}
       </Combobox.Options>
     </FramerMotion.Motion.Div>
@@ -108,10 +80,10 @@ module OptionWrapper = {
   open HeadlessUI
   @react.component
   let make = (~index, ~value, ~redirectOnSelect, ~children) => {
-    let activeClasses = isActive =>
-      `group flex items-center w-full p-2 text-sm rounded-lg ${isActive
-          ? "bg-gray-100 dark:bg-jp-gray-960"
-          : ""}`
+    let activeClasses = isActive => {
+      let borderClass = isActive ? "bg-gray-100 dark:bg-jp-gray-960" : ""
+      `group flex items-center w-full p-2 text-sm rounded-lg ${borderClass}`
+    }
 
     <Combobox.Option
       className="flex flex-row cursor-pointer truncate"
@@ -131,10 +103,10 @@ module ModalWrapper = {
     <Modal
       showModal
       setShowModal
-      modalClass="w-full lg:w-5/12 xl:w-4/12 mx-auto"
+      modalClass="w-full md:w-7/12 lg:w-6/12 xl:w-6/12 2xl:w-4/12 mx-auto"
       paddingClass="pt-24"
       closeOnOutsideClick=true
-      bgClass="bg-transparent dark:bg-transparent border-transparent dark:border-transparent shadow-transparent	">
+      bgClass="bg-transparent dark:bg-transparent border-transparent dark:border-transparent shadow-transparent">
       <FramerMotion.Motion.Div
         layoutId="search"
         key="search"
@@ -169,7 +141,7 @@ module SearchResultsComponent = {
               {section.section->getSectionHeader->String.toUpperCase->React.string}
             </div>
             <div>
-              <ShowMoreLink
+              <GlobalSearchBarUtils.ShowMoreLink
                 section cleanUpFunction={() => {setShowModal(_ => false)}} textStyleClass="text-xs"
               />
             </div>
@@ -223,13 +195,12 @@ let make = () => {
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let searchText = searchText->String.trim
   let loader = LottieFiles.useLottieJson("loader-circle.json")
-  let path = url.path
 
   let redirectOnSelect = element => {
-    let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("")
+    let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("search")
     if redirectLink->isNonEmptyString {
       setShowModal(_ => false)
-      let link = if path->List.length > 1 {
+      let link = if url.path->List.length > 1 {
         `/${redirectLink}`
       } else {
         redirectLink
@@ -240,7 +211,7 @@ let make = () => {
 
   let getSearchResults = async results => {
     try {
-      let url = "https://sandbox.hyperswitch.io/analytics/v1/search"
+      let url = APIUtils.getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
       let body = [("query", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
       let response = await fetchDetails(url, body, Post, ())
       let dictFields = [("searchText", searchText->JSON.Encode.string)]

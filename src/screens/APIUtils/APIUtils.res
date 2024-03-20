@@ -126,6 +126,15 @@ let getURL = (
       }
     | _ => ""
     }
+  | GLOBAL_SEARCH =>
+    switch methodType {
+    | Post =>
+      switch id {
+      | Some(topic) => `analytics/v1/search/${topic}`
+      | None => `analytics/v1/search`
+      }
+    | _ => ""
+    }
   | ANALYTICS_REFUNDS
   | ANALYTICS_PAYMENTS
   | ANALYTICS_USER_JOURNEY

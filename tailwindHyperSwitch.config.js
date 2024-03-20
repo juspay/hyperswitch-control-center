@@ -67,6 +67,7 @@ module.exports = {
       },
       maxHeight: {
         "25-rem": "25rem",
+        "60vh": "60vh",
       },
       maxWidth: {
         fixedPageWidth: "82.75rem",

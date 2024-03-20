@@ -1,60 +1,3 @@
-let setData = (offset, setOffset, total, data, setTotalCount, setTableData, setScreenState) => {
-  let arr = Array.make(~length=offset, Dict.make())
-  if total <= offset {
-    setOffset(_ => 0)
-  }
-
-  if total > 0 {
-    let dataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
-
-    let orderData =
-      arr->Array.concat(dataDictArr)->Array.map(PaymentIntentEntity.tableItemToObjMapper)
-
-    let list = orderData->Array.map(Nullable.make)
-    setTotalCount(_ => total)
-    setTableData(_ => list)
-    setScreenState(_ => PageLoaderWrapper.Success)
-  } else {
-    setScreenState(_ => PageLoaderWrapper.Custom)
-  }
-}
-
-let getData = async (
-  ~updateDetails: (
-    string,
-    JSON.t,
-    Fetch.requestMethod,
-    ~bodyFormData: Fetch.formData=?,
-    ~headers: Dict.t<'a>=?,
-    ~contentType: AuthHooks.contentType=?,
-    unit,
-  ) => promise<JSON.t>,
-  ~setTableData,
-  ~setScreenState,
-  ~setOffset,
-  ~setTotalCount,
-  ~offset,
-  ~query,
-) => {
-  open LogicUtils
-  setScreenState(_ => PageLoaderWrapper.Loading)
-  let filters = Dict.make()
-  filters->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
-  filters->Dict.set("count", 10->Int.toFloat->JSON.Encode.float)
-  filters->Dict.set("query", query->JSON.Encode.string)
-
-  try {
-    let url = "https://sandbox.hyperswitch.io/analytics/v1/search/payment_intents"
-    let res = await updateDetails(url, filters->JSON.Encode.object, Fetch.Post, ())
-    let data = res->LogicUtils.getDictFromJsonObject->LogicUtils.getArrayFromDict("hits", [])
-    let total = res->getDictFromJsonObject->getInt("count", 0)
-
-    setData(offset, setOffset, total, data, setTotalCount, setTableData, setScreenState)
-  } catch {
-  | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
-  }
-}
-
 module PreviewTable = {
   @react.component
   let make = (~tableData) => {
@@ -64,7 +7,7 @@ module PreviewTable = {
       key: "",
       order: Table.INC,
     }
-
+    open ResultsTableUtils
     <LoadedTable
       visibleColumns
       title=" "
@@ -103,7 +46,7 @@ let make = () => {
   let heightClass = ""
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
-  let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
+  let pageDetail = pageDetailDict->Dict.get("payment_intents")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
 
   React.useEffect0(() => {
@@ -121,7 +64,7 @@ let make = () => {
 
   React.useEffect2(() => {
     if searchText->String.length > 0 {
-      getData(
+      ResultsTableUtils.getData(
         ~updateDetails,
         ~setTableData=setData,
         ~setScreenState,
@@ -129,17 +72,18 @@ let make = () => {
         ~setTotalCount,
         ~offset,
         ~query={searchText},
+        ~path="payment_intents",
+        ~mapper=tableItemToObjMapper,
       )->ignore
     }
 
     None
   }, (offset, searchText))
 
-  let customTitleStyle = ""
-
+  open ResultsTableUtils
   <ErrorBoundary>
     <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
-      <PageUtils.PageHeading title="Payment Intent" customTitleStyle />
+      <PageUtils.PageHeading title="Payment Intent" />
       <PageLoaderWrapper screenState>
         <LoadedTable
           visibleColumns

@@ -11,6 +11,16 @@ module RenderSearchResultBody = {
       }
     }
 
+    let getTablePreviewData = mapper => {
+      section.results
+      ->Array.map(item => {
+        let data = item.texts->Array.get(0)->Option.getOr(Dict.make()->JSON.Encode.object)
+        data->JSON.Decode.object->Option.getOr(Dict.make())
+      })
+      ->Array.filter(dict => dict->Dict.keysToArray->Array.length > 0)
+      ->Array.map(item => item->mapper->Nullable.make)
+    }
+
     switch section.section {
     | Local =>
       section.results
@@ -40,43 +50,18 @@ module RenderSearchResultBody = {
         </div>
       })
       ->React.array
-    | PaymentIntents => {
-        let data =
-          section.results
-          ->Array.map(item => {
-            let data = item.texts->Array.get(0)->Option.getOr(Dict.make()->JSON.Encode.object)
-            data->JSON.Decode.object->Option.getOr(Dict.make())
-          })
-          ->Array.filter(dict => dict->Dict.keysToArray->Array.length > 0)
-          ->Array.map(item => item->PaymentIntentEntity.tableItemToObjMapper->Nullable.make)
-
-        <PaymentIntentTable.PreviewTable tableData={data} />
-      }
-    | PaymentAttempts => {
-        let data =
-          section.results
-          ->Array.map(item => {
-            let data = item.texts->Array.get(0)->Option.getOr(Dict.make()->JSON.Encode.object)
-            data->JSON.Decode.object->Option.getOr(Dict.make())
-          })
-          ->Array.filter(dict => dict->Dict.keysToArray->Array.length > 0)
-          ->Array.map(item => item->PaymentAttemptEntity.tableItemToObjMapper->Nullable.make)
-
-        <PaymentAttemptTable.PreviewTable tableData={data} />
-      }
-    | Refunds => {
-        let data =
-          section.results
-          ->Array.map(item => {
-            let data = item.texts->Array.get(0)->Option.getOr(Dict.make()->JSON.Encode.object)
-            data->JSON.Decode.object->Option.getOr(Dict.make())
-          })
-          ->Array.filter(dict => dict->Dict.keysToArray->Array.length > 0)
-          ->Array.map(item => item->RefundsTableEntity.tableItemToObjMapper->Nullable.make)
-
-        <RefundsTable.PreviewTable tableData={data} />
-      }
-    | _ => "Not implemented"->React.string
+    | PaymentIntents =>
+      <PaymentIntentTable.PreviewTable
+        tableData={PaymentIntentEntity.tableItemToObjMapper->getTablePreviewData}
+      />
+    | PaymentAttempts =>
+      <PaymentAttemptTable.PreviewTable
+        tableData={PaymentAttemptEntity.tableItemToObjMapper->getTablePreviewData}
+      />
+    | Refunds => <RefundsTable.PreviewTable
+        tableData={RefundsTableEntity.tableItemToObjMapper->getTablePreviewData}
+      />
+    | Others | Default => "Not implemented"->React.string
     }
   }
 }
@@ -93,7 +78,7 @@ module SearchResultsComponent = {
           <div className="text-lightgray_background font-bold pb-1 text-lg pb-2">
             {section.section->getSectionHeader->React.string}
           </div>
-          <GlobalSearchBar.ShowMoreLink
+          <GlobalSearchBarUtils.ShowMoreLink
             section textStyleClass="text-sm pt-2 font-medium text-blue-900"
           />
         </div>

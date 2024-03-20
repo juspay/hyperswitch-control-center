@@ -1,5 +1,3 @@
-let tableBorderClass = "border-collapse border border-jp-gray-940 border-solid border-2 border-opacity-30 dark:border-jp-gray-dark_table_border_color dark:border-opacity-30"
-
 type paymentIntentObject = {
   payment_id: string,
   merchant_id: string,

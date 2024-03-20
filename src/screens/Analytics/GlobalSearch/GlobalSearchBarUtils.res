@@ -6,6 +6,36 @@ type sessionStorage = {
 
 @val external sessionStorage: sessionStorage = "sessionStorage"
 
+module ShowMoreLink = {
+  open GlobalSearchTypes
+  @react.component
+  let make = (~section: resultType, ~cleanUpFunction=() => {()}, ~textStyleClass="") => {
+    let linkText = `View ${section.total_results->Int.toString} result${section.total_results > 1
+        ? "s"
+        : ""}`
+
+    switch section.section {
+    | Local | Default | Others => React.null
+    | PaymentAttempts | PaymentIntents | Refunds =>
+      <div
+        onClick={_ => {
+          let link = switch section.section {
+          | PaymentAttempts => "payment-attempts"
+          | PaymentIntents => "payment-intents"
+          | Refunds => "refunds-global"
+          | Local | Others | Default => ""
+          }
+
+          link->RescriptReactRouter.push
+          cleanUpFunction()
+        }}
+        className={`font-medium cursor-pointer underline underline-offset-2 ${textStyleClass}`}>
+        {linkText->React.string}
+      </div>
+    }
+  }
+}
+
 let matchInSearchOption = (searchOptions, searchText, name, link, ~sectionName, ()) => {
   open GlobalSearchTypes
   open LogicUtils
@@ -122,16 +152,23 @@ let getLocalMatchedResults = (searchText, tabs) => {
 let getElements = (hits, section) => {
   open GlobalSearchTypes
   open LogicUtils
+
+  let getAmount = (value, amountKey, currencyKey) =>
+    `${value->getFloat(amountKey, 0.0)->Belt.Float.toString} ${value->getString(currencyKey, "")}`
+
+  let getValues = item => {
+    let value = item->JSON.Decode.object->Option.getOr(Dict.make())
+    let payId = value->getString("payment_id", "")
+    let amount = value->getAmount("amount", "currency")
+    let status = value->getString("status", "")
+
+    (payId, amount, status)
+  }
+
   switch section {
   | PaymentAttempts =>
     hits->Array.map(item => {
-      let value = item->JSON.Decode.object->Option.getOr(Dict.make())
-      let payId = value->getString("payment_id", "")
-      let amount = `${value->getFloat("amount", 0.0)->Belt.Float.toString} ${value->getString(
-          "currency",
-          "",
-        )}`
-      let status = value->getString("status", "")
+      let (payId, amount, status) = item->getValues
 
       {
         texts: [payId, amount, status]->Array.map(JSON.Encode.string),
@@ -140,13 +177,7 @@ let getElements = (hits, section) => {
     })
   | PaymentIntents =>
     hits->Array.map(item => {
-      let value = item->JSON.Decode.object->Option.getOr(Dict.make())
-      let payId = value->getString("payment_id", "")
-      let amount = `${value->getFloat("amount", 0.0)->Belt.Float.toString} ${value->getString(
-          "currency",
-          "",
-        )}`
-      let status = value->getString("status", "")
+      let (payId, amount, status) = item->getValues
 
       {
         texts: [payId, amount, status]->Array.map(JSON.Encode.string),
@@ -158,10 +189,7 @@ let getElements = (hits, section) => {
     hits->Array.map(item => {
       let value = item->JSON.Decode.object->Option.getOr(Dict.make())
       let refId = value->getString("refund_id", "")
-      let amount = `${value->getFloat("total_amount", 0.0)->Belt.Float.toString} ${value->getString(
-          "currency",
-          "",
-        )}`
+      let amount = value->getAmount("total_amount", "currency")
       let status = value->getString("refund_status", "")
 
       {
@@ -170,7 +198,7 @@ let getElements = (hits, section) => {
       }
     })
 
-  | _ => []
+  | Local | Others | Default => []
   }
 }
 
