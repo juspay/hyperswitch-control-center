@@ -2,10 +2,11 @@
 let make = (
   ~loadingText="Loading...",
   ~children=React.null,
-  ~slow=false,
+  ~slow=true,
   ~customSpinnerIconColor: string="",
   ~loadingTextColor="",
 ) => {
+  let {whiteLabel} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let loaderLottieFile = LottieFiles.useLottieJson("hyperswitch_loader.json")
 
   let animationType = if slow {
@@ -33,9 +34,18 @@ let make = (
       <div className="w-20 h-16">
         <React.Suspense fallback={loader}>
           <ErrorBoundary>
-            <div className="scale-400 pt-px">
-              <Lottie animationData={loaderLottieFile} autoplay=true loop=true />
-            </div>
+            <UIUtils.RenderIf condition={whiteLabel}>
+              <div className="flex flex-col py-16 text-center items-center">
+                <div className={`animate-spin mb-10`}>
+                  <Icon name="spinner" size=20 />
+                </div>
+              </div>
+            </UIUtils.RenderIf>
+            <UIUtils.RenderIf condition={!whiteLabel}>
+              <div className="scale-400 pt-px">
+                <Lottie animationData={loaderLottieFile} autoplay=true loop=true />
+              </div>
+            </UIUtils.RenderIf>
           </ErrorBoundary>
         </React.Suspense>
       </div>
