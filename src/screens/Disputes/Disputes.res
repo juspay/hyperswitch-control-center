@@ -6,7 +6,7 @@ let make = () => {
   let (disputesData, setDisputesData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let fetchDetails = useGetMethod()
-
+  let {whiteLabel} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let getDisputesList = async () => {
     try {
       setScreenState(_ => Loading)
@@ -36,17 +36,19 @@ let make = () => {
 
   let customUI =
     <>
-      <div
-        className="flex border items-start border-blue-800 text-sm rounded-md gap-2 px-4 py-3 mt-5">
-        <Icon name="info-vacent" className="text-blue-900 mt-1" size=18 />
-        <p>
-          {"Missing disputes? Disputes might not be supported for your payment processor or might not yet have been integrated with hyperswitch. Please check the"->React.string}
-          <a href="https://hyperswitch.io/pm-list" target="_blank" className="text-blue-900">
-            {" feature matrix "->React.string}
-          </a>
-          {"for your processor."->React.string}
-        </p>
-      </div>
+      <UIUtils.RenderIf condition={!whiteLabel}>
+        <div
+          className="flex border items-start border-blue-800 text-sm rounded-md gap-2 px-4 py-3 mt-5">
+          <Icon name="info-vacent" className="text-blue-900 mt-1" size=18 />
+          <p>
+            {"Missing disputes? Disputes might not be supported for your payment processor or might not yet have been integrated with hyperswitch. Please check the"->React.string}
+            <a href="https://hyperswitch.io/pm-list" target="_blank" className="text-blue-900">
+              {" feature matrix "->React.string}
+            </a>
+            {"for your processor."->React.string}
+          </p>
+        </div>
+      </UIUtils.RenderIf>
       <HelperComponents.BluredTableComponent
         infoText="No disputes as of now." moduleName=" " showRedirectCTA=false
       />

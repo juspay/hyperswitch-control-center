@@ -363,7 +363,7 @@ module Attempts = {
       <div className="flex border items-start border-blue-800 text-sm rounded-md gap-2 px-4 py-3">
         <Icon name="info-vacent" className="text-blue-900 mt-1" size=18 />
         <span>
-          {`You can validate the information shown here by cross checking the hyperswitch payment attempt identifier (Attempt ID) in your payment processor portal.`->React.string}
+          {`You can validate the information shown here by cross checking the payment attempt identifier (Attempt ID) in your payment processor portal.`->React.string}
         </span>
       </div>
       <p className="font-bold text-fs-16 text-jp-gray-900"> {"Payment Attempts"->React.string} </p>

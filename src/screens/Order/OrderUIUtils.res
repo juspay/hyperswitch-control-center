@@ -62,7 +62,7 @@ module NoData = {
         ? isLiveMode
             ? "There are no payments as of now."
             : "There are no payments as of now. Try making a test payment and visualise the checkout experience."
-        : "Connect to a connector like Stripe, Adyen or Hyperswitch provided test connector to make your first payment."}
+        : "Connect to a payment processor to make your first payment"}
       buttonText={isConfigureConnector ? "Make a payment" : "Connect a connector"}
       moduleName=""
       paymentModal

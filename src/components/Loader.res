@@ -6,7 +6,8 @@ let make = (
   ~customSpinnerIconColor: string="",
   ~loadingTextColor="",
 ) => {
-  let {whiteLabel} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  // let {whiteLabel} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let whiteLabel = true
   let loaderLottieFile = LottieFiles.useLottieJson("hyperswitch_loader.json")
 
   let animationType = if slow {
