@@ -45,7 +45,7 @@ let make = (
   ~showIcons: bool,
   ~urlPrefix: string,
   ~connectorType=ConnectorTypes.Processor,
-  ~setProcessorModal: (bool => bool) => unit=_ => (),
+  ~setProcessorModal=_ => (),
 ) => {
   open ConnectorUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
