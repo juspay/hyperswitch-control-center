@@ -203,12 +203,8 @@ let make = () => {
                 <div className="border-b shadow hyperswitch_box_shadow ">
                   <div className="w-full max-w-fixedPageWidth px-9">
                     <Navbar
-                      headerActions={<div className="relative flex items-center gap-4 my-2 ">
-                        // <div>
-                        <img
-                          src={`https://www.zurich.com.br/-/media/project/zwp/shared/zurich-logo-blue.svg`}
-                        />
-                        // </div>
+                      headerActions={<div
+                        className="relative flex items-center gap-4 my-2 justify-between">
                         <HSwitchGlobalSearchBar />
                         <RenderIf condition={featureFlagDetails.switchMerchant}>
                           <SwitchMerchant
@@ -221,6 +217,9 @@ let make = () => {
                           {modeText->React.string}
                         </div>
                       </div>}
+                      headerLeftActions={<img
+                        src={`https://www.zurich.com.br/-/media/project/zwp/shared/zurich-logo-blue.svg`}
+                      />}
                     />
                   </div>
                 </div>
