@@ -171,7 +171,14 @@ let make = (~isPayoutFlow=false) => {
           </RenderIf>
         </div>
         <RenderIf condition={processorModal}>
-          <DummyProcessorModal processorModal setProcessorModal showIcons={showConnectorIcons} />
+          <DummyProcessorModal
+            processorModal
+            setProcessorModal
+            showIcons={showConnectorIcons}
+            urlPrefix
+            configuredConnectors
+            connectorsAvailableForIntegration
+          />
         </RenderIf>
       </div>
     </PageLoaderWrapper>

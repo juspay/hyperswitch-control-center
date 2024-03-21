@@ -42,10 +42,12 @@ module CantFindProcessor = {
 let make = (
   ~connectorsAvailableForIntegration: array<ConnectorTypes.connectorTypes>,
   ~configuredConnectors: array<ConnectorTypes.connectorTypes>,
+  ~showAllConnectors=true,
   ~showIcons: bool,
   ~urlPrefix: string,
   ~connectorType=ConnectorTypes.Processor,
   ~setProcessorModal=_ => (),
+  ~showTestProcessor=false,
 ) => {
   open ConnectorUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -234,28 +236,57 @@ let make = (
     }
   }
   <RenderIf condition={unConfiguredConnectorsCount > 0}>
-    <div className="flex flex-col gap-4">
+    <RenderIf condition={showAllConnectors}>
+      <div className="flex flex-col gap-4">
+        <RenderIf condition={showIcons}>
+          {connectorListFiltered->iconsConnectors(
+            "Connect a new processor",
+            ~showRequestConnectorBtn=true,
+            ~showDummyConnectorButton=true,
+            (),
+          )}
+        </RenderIf>
+        <RenderIf condition={!showIcons}>
+          {connectorListFiltered->descriptedConnectors(
+            "Connect a new processor",
+            ~showRequestConnectorBtn=true,
+            ~showDummyConnectorButton=true,
+            (),
+          )}
+        </RenderIf>
+      </div>
+      <RenderIf condition={showModal}>
+        <HSwitchFeedBackModal
+          modalHeading="Request a processor"
+          setShowModal
+          showModal
+          modalType={RequestConnectorModal}
+        />
+      </RenderIf>
+    </RenderIf>
+    <RenderIf condition={showTestProcessor}>
       <RenderIf condition={showIcons}>
-        {connectorListFiltered->iconsConnectors(
-          "Connect a new processor",
-          ~showRequestConnectorBtn=true,
-          ~showDummyConnectorButton=true,
+        {showTestProcessor
+        ->dummyConnectorList
+        ->iconsConnectors(
+          "Connect a test processor",
+          ~showRequestConnectorBtn=false,
+          ~showSearch=false,
+          ~showDummyConnectorButton=false,
           (),
         )}
       </RenderIf>
       <RenderIf condition={!showIcons}>
-        {connectorListFiltered->descriptedConnectors(
-          "Connect a new processor",
-          ~showRequestConnectorBtn=true,
-          ~showDummyConnectorButton=true,
+        {showTestProcessor
+        ->dummyConnectorList
+        ->descriptedConnectors(
+          "Connect a test processor",
+          ~showRequestConnectorBtn=false,
+          ~showSearch=false,
+          ~showDummyConnectorButton=false,
           (),
         )}
       </RenderIf>
-    </div>
-    <RenderIf condition={showModal}>
-      <HSwitchFeedBackModal
-        modalHeading="Request a processor" setShowModal showModal modalType={RequestConnectorModal}
-      />
     </RenderIf>
   </RenderIf>
 }
