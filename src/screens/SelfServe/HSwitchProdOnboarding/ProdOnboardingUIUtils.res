@@ -9,7 +9,7 @@ module WarningBlock = {
     | None => <p className={`${subTextStyle} !opacity-100`}> {warningText->React.string} </p>
     }
     <div
-      className="flex gap-2 bg-orange-200 w-fit p-4 border rounded-md border-orange-500 items-center">
+      className="flex gap-2 bg-orange-100 w-fit p-4 border rounded-md border-orange-500 items-center">
       <Icon name="warning-outlined" size=25 />
       {warningSection}
     </div>

@@ -211,7 +211,7 @@ let note = (authType, setAuthType, isMagicLinkEnabled) => {
         setAuthType(_ => authType)
         path->RescriptReactRouter.push
       }}
-      className="text-sm text-center text-blue-900 cursor-pointer hover:underline underline-offset-2">
+      className="text-sm text-center text-blue-500 cursor-pointer hover:underline underline-offset-2">
       {btnText->React.string}
     </div>
   }
@@ -250,7 +250,7 @@ let note = (authType, setAuthType, isMagicLinkEnabled) => {
             }
             setAuthType(_ => backState)
           }}
-          className="text-sm text-center text-blue-900 hover:underline underline-offset-2 cursor-pointer w-fit">
+          className="text-sm text-center text-blue-500 hover:underline underline-offset-2 cursor-pointer w-fit">
           {"Cancel"->React.string}
         </div>
       </div>
@@ -379,7 +379,7 @@ module Header = {
             path->RescriptReactRouter.push
           }}
           id="card-subtitle"
-          className="font-semibold text-blue-900 cursor-pointer">
+          className="font-semibold text-blue-500 cursor-pointer">
           {sufix->React.string}
         </div>
       </div>

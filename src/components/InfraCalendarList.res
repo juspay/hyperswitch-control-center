@@ -66,7 +66,7 @@ module YearItem = {
 
     <li
       className={`p-2 ${year === tempYear->Float.toInt
-          ? "bg-blue-950 text-white"
+          ? "bg-blue-600 text-white"
           : "dark:hover:bg-jp-gray-900 hover:bg-jp-gray-100"} cursor-pointer bg-opacity-100`}
       value={year->Int.toString}
       ref={yearRef->ReactDOM.Ref.domRef}
@@ -120,7 +120,7 @@ module MonthItem = {
       }}
       ref={monthRef->ReactDOM.Ref.domRef}
       className={`p-2 px-4 ${index === tempMonth->Float.toInt
-          ? "bg-blue-950 text-white"
+          ? "bg-blue-600 text-white"
           : "dark:hover:bg-jp-gray-900 hover:bg-jp-gray-100"}  cursor-pointer`}>
       {mon->getMonthInStr->String.replaceRegExp(%re("/,/g"), "")->React.string}
     </li>

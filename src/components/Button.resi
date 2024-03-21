@@ -16,8 +16,6 @@ type buttonType =
   | BrownButton
   | GreyButton
   | DarkBlueSecondary
-  | ArdraPagination
-  | UpiPaginator
   | DarkPurple
   | Dropdown
   | LightBlue

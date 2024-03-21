@@ -360,8 +360,8 @@ module Attempts = {
     }
 
     <div className="flex flex-col gap-4">
-      <div className="flex border items-start border-blue-800 text-sm rounded-md gap-2 px-4 py-3">
-        <Icon name="info-vacent" className="text-blue-900 mt-1" size=18 />
+      <div className="flex border items-start border-blue-500 text-sm rounded-md gap-2 px-4 py-3">
+        <Icon name="info-vacent" className="text-blue-500 mt-1" size=18 />
         <span>
           {`You can validate the information shown here by cross checking the hyperswitch payment attempt identifier (Attempt ID) in your payment processor portal.`->React.string}
         </span>
@@ -586,7 +586,7 @@ module FraudRiskBanner = {
         />
       </div>
       <div
-        className="text-blue-700 font-semibold text-fs-16 cursor-pointer"
+        className="text-blue-500 font-semibold text-fs-16 cursor-pointer"
         onClick={_ => {
           refElement.current
           ->Nullable.toOption

@@ -109,7 +109,7 @@ module AddNewMerchantButton = {
               } else {
                 "group flex rounded-md items-center px-2 py-2 text-sm"
               }
-              `${activeClasses} text-blue-900 flex gap-2 font-medium w-56`
+              `${activeClasses} text-blue-500 flex gap-2 font-medium w-56`
             }>
             <Icon name="plus-circle" size=15 />
             {"Add a new merchant"->React.string}
@@ -212,7 +212,7 @@ module ExternalUser = {
                                 condition={selectedMerchantObject.merchant_name ===
                                   option.merchant_name}>
                                 <Icon
-                                  className="absolute top-2 right-2 text-blue-900"
+                                  className="absolute top-2 right-2 text-blue-500"
                                   name="check"
                                   size=15
                                 />

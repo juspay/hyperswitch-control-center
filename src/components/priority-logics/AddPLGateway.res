@@ -9,7 +9,7 @@ module GatewayView = {
         <div
           key={Int.toString(index)}
           className="my-2 h-6 md:h-8 flex items-center rounded-md  border border-jp-gray-500 dark:border-jp-gray-960 font-medium
-                            text-blue-800 hover:text-blue-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200
+                            text-blue-500 hover:text-blue-500 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200
                             dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1">
           {React.string(ruleGateway.connector.connector)}
           <UIUtils.RenderIf condition={ruleGateway.split !== 0}>

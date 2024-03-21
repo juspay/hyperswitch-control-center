@@ -11,7 +11,7 @@ module EmailPasswordForm = {
         <UIUtils.RenderIf condition={forgetPassword}>
           <AddDataAttributes attributes=[("data-testid", "forgot-password")]>
             <label
-              className={`not-italic text-[12px] font-semibold font-ibm-plex text-blue-800 cursor-pointer cursor-pointer`}
+              className={`not-italic text-[12px] font-semibold font-ibm-plex text-blue-500 cursor-pointer cursor-pointer`}
               onClick={_ => setAuthType(_ => HyperSwitchAuthTypes.ForgetPassword)}>
               {"Forgot Password?"->React.string}
             </label>

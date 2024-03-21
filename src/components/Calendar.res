@@ -168,7 +168,7 @@ module TableRow = {
 
             let textColor =
               today == renderingDate
-                ? "text-blue-800"
+                ? "text-blue-500"
                 : "text-jp-gray-900 text-opacity-75 dark:text-opacity-75"
             let classN = if obj->isEmptyString || hSelf.highlightSelf {
               `h-9 p-0 w-9 font-semibold font-fira-code text-center ${textColor}  dark:text-jp-gray-text_darktheme  ${dayClass}`
@@ -177,7 +177,7 @@ module TableRow = {
             }
             let c2 =
               obj->isNonEmptyString && hSelf.highlightSelf
-                ? "h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white rounded-full"
+                ? "h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white rounded-full"
                 : "h-full w-full"
 
             let shouldHighlight = (startDate, endDate, obj, month, year) => {
@@ -188,14 +188,14 @@ module TableRow = {
                 if endDate->isNonEmptyString {
                   let parsedEndDate = getDate(String.split(endDate, "-"))
                   z == parsedStartDate
-                    ? `h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white rounded-l-lg `
+                    ? `h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white rounded-l-lg `
                     : z == parsedEndDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white rounded-r-lg "
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white rounded-r-lg "
                     : z > parsedStartDate && z < parsedEndDate
                     ? "h-full w-full flex flex-1 justify-center items-center bg-blue-100  dark:bg-gray-700 dark:bg-opacity-100 text-gray-600 dark:text-gray-400"
                     : "h-full w-full"
                 } else if z == parsedStartDate {
-                  `h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white rounded-lg ${changeHighlightCellStyle}`
+                  `h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white rounded-lg ${changeHighlightCellStyle}`
                 } else if (
                   hoverdDate->isNonEmptyString &&
                   endDate->isEmptyString &&

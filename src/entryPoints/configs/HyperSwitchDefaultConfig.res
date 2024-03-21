@@ -21,14 +21,14 @@ let config: UIConfig.t = {
     border: {
       borderFirstWidthClass: "border focus:border-r",
       borderLastWidthClass: "border  focus:border-l",
-      borderPrimaryOutlineBorderStyleClass: "border-1 border-blue-800",
+      borderPrimaryOutlineBorderStyleClass: "border-1 border-blue-500",
       borderSecondaryLoadingBorderStyleClass: "border-border_gray",
       borderSecondaryBorderStyleClass: "border-border_gray border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100",
     },
     backgroundColor: {
-      primaryNormal: "bg-blue-900 hover:bg-blue-primary_hover focus:outline-none",
-      primaryDisabled: "bg-blue-700 opacity-60 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50",
-      primaryNoHover: "bg-blue-900 hover:bg-blue-primary_hover focus:outline-none dark:text-opacity-50 text-opacity-50",
+      primaryNormal: "bg-blue-500 hover:bg-blue-600 focus:outline-none",
+      primaryDisabled: "bg-blue-500 opacity-60 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50",
+      primaryNoHover: "bg-blue-500 hover:bg-blue-600 focus:outline-none dark:text-opacity-50 text-opacity-50",
       primaryOutline: "mix-blend-normal",
       paginationNormal: "border-left-1 opacity-80 border-right-1 font-normal border-left-1 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 focus:outline-none",
       paginationLoading: "border-left-1 border-right-1 font-normal border-left-1 bg-jp-gray-200 dark:bg-jp-gray-800 dark:bg-opacity-10",
@@ -44,7 +44,7 @@ let config: UIConfig.t = {
       defaultPagination: "rounded-md",
     },
     textColor: {
-      primaryOutline: "text-blue-800",
+      primaryOutline: "text-blue-500",
     },
   },
 }

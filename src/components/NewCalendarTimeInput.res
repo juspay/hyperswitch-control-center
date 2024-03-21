@@ -11,7 +11,7 @@ module CustomInputBox = {
     ~autoFocus=false,
     ~widthClass="w-full",
     ~fontClassName="text-jp-gray-900 text-body text-opacity-75",
-    ~borderClass="h-10 pl-4 border-2 border-jp-gray-700 dark:border-jp-gray-800 border-opacity-25 focus:border-opacity-100 focus:border-blue-800 dark:focus:border-blue-800 rounded-md",
+    ~borderClass="h-10 pl-4 border-2 border-jp-gray-700 dark:border-jp-gray-800 border-opacity-25 focus:border-opacity-100 focus:border-blue-500 dark:focus:border-blue-500 rounded-md",
     ~maxLength=100,
     ~setVal,
   ) => {
@@ -216,7 +216,7 @@ let make = (
           input=inputFromDate
           fontClassName=textBoxClass
           placeholder="09:00 AM"
-          borderClass="h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-jp-gray-700 border-opacity-75 focus:border-opacity-100 focus:border-blue-800 dark:focus:border-blue-800"
+          borderClass="h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-jp-gray-700 border-opacity-75 focus:border-opacity-100 focus:border-blue-500 dark:focus:border-blue-500"
           setVal=setFromTimeDropdown
         />
       </div>
@@ -228,7 +228,7 @@ let make = (
           input=inputtoDate
           fontClassName=textBoxClass
           placeholder="11:00 PM"
-          borderClass="h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-jp-gray-700 border-opacity-75 focus:border-opacity-100 focus:border-blue-800 dark:focus:border-blue-800"
+          borderClass="h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-jp-gray-700 border-opacity-75 focus:border-opacity-100 focus:border-blue-500 dark:focus:border-blue-500"
           setVal=setToTimeDropdown
         />
       </div>

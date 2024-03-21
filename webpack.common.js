@@ -31,11 +31,12 @@ module.exports = (appName = "hyperswitch", publicPath = "auto") => {
                 postcssOptions: {
                   plugins: [
                     [
-                      tailwindcss(
-                        appName == "hyperswitch"
-                          ? "./tailwindHyperSwitch.config.js"
-                          : "./tailwindMain.config.js",
-                      ),
+                      // tailwindcss(
+                      //   appName == "hyperswitch"
+                      //     ? "./tailwindHyperSwitch.config.js"
+                      //     : "./tailwindMain.config.js",
+                      // ),
+                      tailwindcss("./tailwind.config.js"),
                     ],
                   ],
                 },

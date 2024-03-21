@@ -104,7 +104,7 @@ let make = (~errors: array<AnalyticsTypes.error_message_type>) => {
   <>
     {if errors->Array.length > 0 {
       <div
-        className="underline underline-offset-4 font-medium cursor-pointer text-blue-900"
+        className="underline underline-offset-4 font-medium cursor-pointer text-blue-500"
         onClick={_ => setShowModal(_ => !showModal)}>
         {getCellText->React.string}
       </div>
