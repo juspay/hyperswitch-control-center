@@ -11,6 +11,7 @@ let make = (~isPayoutFlow=false) => {
   let detailedCardCount = 5
   let showConnectorIcons = configuredConnectors->Array.length > detailedCardCount
   let (searchText, setSearchText) = React.useState(_ => "")
+  let (processorModal, setProcessorModal) = React.useState(_ => false)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -72,8 +73,6 @@ let make = (~isPayoutFlow=false) => {
     ? payoutConnectorList
     : connectorList
 
-  let (processorModal, setProcessorModal) = React.useState(_ => false)
-
   <div>
     <RenderIf condition={configuredConnectors->Array.length == 0}>
       <div className="flex flex-col md:flex-row pt-10 border rounded-md bg-white gap-4">
@@ -120,67 +119,61 @@ let make = (~isPayoutFlow=false) => {
           feedbackVia="connected_a_connector"
         />
       </RenderIf>
-      <div className="flex flex-col gap-10 border-2 border-red-500">
-        <div className="border-2 border-green-900">
-          <RenderIf condition={showConnectorIcons}>
-            <ProcessorCards
-              configuredConnectors
-              showIcons={showConnectorIcons}
-              connectorsAvailableForIntegration
-              urlPrefix
-              setProcessorModal
-            />
-          </RenderIf>
-        </div>
-        <div className="border-2 border-red-500">
-          <RenderIf condition={configuredConnectors->Array.length > 0}>
-            <LoadedTable
-              title="Previously Connected"
-              actualData=filteredConnectorData
-              totalResults={filteredConnectorData->Array.length}
-              filters={<TableSearchFilter
-                data={previouslyConnectedData}
-                filterLogic
-                placeholder="Search Processor or Country or Business Label"
-                customSearchBarWrapperWidth="w-full lg:w-1/3"
-                customInputBoxWidth="w-full"
-                searchVal=searchText
-                setSearchVal=setSearchText
-              />}
-              resultsPerPage=20
-              offset
-              setOffset
-              entity={ConnectorTableUtils.connectorEntity(
-                `${entityPrefix}connectors`,
-                ~permission=userPermissionJson.connectorsManage,
-              )}
-              currrentFetchCount={filteredConnectorData->Array.length}
-              collapseTableRow=false
-            />
-          </RenderIf>
-        </div>
-        <div className="border-2 border-yellow-500">
-          <RenderIf condition={!showConnectorIcons}>
-            <ProcessorCards
-              configuredConnectors
-              showIcons={showConnectorIcons}
-              connectorsAvailableForIntegration
-              urlPrefix
-              setProcessorModal
-            />
-          </RenderIf>
-        </div>
-        <RenderIf condition={processorModal}>
-          <DummyProcessorModal
-            processorModal
-            setProcessorModal
-            showIcons={showConnectorIcons}
-            urlPrefix
+      <div className="flex flex-col gap-10">
+        <RenderIf condition={showConnectorIcons}>
+          <ProcessorCards
             configuredConnectors
+            showIcons={showConnectorIcons}
             connectorsAvailableForIntegration
+            urlPrefix
+            setProcessorModal
           />
         </RenderIf>
       </div>
+      <RenderIf condition={configuredConnectors->Array.length > 0}>
+        <LoadedTable
+          title="Previously Connected"
+          actualData=filteredConnectorData
+          totalResults={filteredConnectorData->Array.length}
+          filters={<TableSearchFilter
+            data={previouslyConnectedData}
+            filterLogic
+            placeholder="Search Processor or Country or Business Label"
+            customSearchBarWrapperWidth="w-full lg:w-1/3"
+            customInputBoxWidth="w-full"
+            searchVal=searchText
+            setSearchVal=setSearchText
+          />}
+          resultsPerPage=20
+          offset
+          setOffset
+          entity={ConnectorTableUtils.connectorEntity(
+            `${entityPrefix}connectors`,
+            ~permission=userPermissionJson.connectorsManage,
+          )}
+          currrentFetchCount={filteredConnectorData->Array.length}
+          collapseTableRow=false
+        />
+      </RenderIf>
+      <RenderIf condition={!showConnectorIcons}>
+        <ProcessorCards
+          configuredConnectors
+          showIcons={showConnectorIcons}
+          connectorsAvailableForIntegration
+          urlPrefix
+          setProcessorModal
+        />
+      </RenderIf>
+      <RenderIf condition={processorModal}>
+        <DummyProcessorModal
+          processorModal
+          setProcessorModal
+          showIcons={showConnectorIcons}
+          urlPrefix
+          configuredConnectors
+          connectorsAvailableForIntegration
+        />
+      </RenderIf>
     </PageLoaderWrapper>
   </div>
 }
