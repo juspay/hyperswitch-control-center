@@ -106,8 +106,8 @@ let make = () => {
 
   let setUpDashboard = async () => {
     try {
+      Window.connectorWasmInit()->ignore
       let _ = await fetchSwitchMerchantList()
-      let _ = await Window.connectorWasmInit()
       let permissionJson = await fetchPermissions()
 
       if merchantId->isNonEmptyString {
