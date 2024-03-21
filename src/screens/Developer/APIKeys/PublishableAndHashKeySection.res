@@ -19,7 +19,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Error(Exn.message(e)->Option.getOr("Error")))
     }
   }
-
+  let showToast = ToastState.useShowToast()
   React.useEffect0(() => {
     getMerchantDetails()->ignore
     None

@@ -84,7 +84,7 @@ let make = (
   | SDK =>
     switch statusCode {
     | "INFO" => "blue-100"
-    | "ERROR" => "red-200"
+    | "ERROR" => "red-100"
     | "WARNING" => "yellow-100"
     | _ => "gray-100"
     }

@@ -360,7 +360,7 @@ module ColoredTextCell = {
     | LabelOrange => "text-status-text-orange"
     | LabelGray => "text-grey-500"
     | LabelYellow => "text-yellow-400"
-    | LabelDarkGreen => "text-green-800"
+    | LabelDarkGreen => "text-green-700"
     | LabelDarkRed => "text-red-700"
     | LabelBrown => "text-yellow-800"
     | LabelLightBlue => "text-sky-300"
@@ -638,7 +638,7 @@ module DeltaColumn = {
       ("", textColor, "", "", "bg-jp-2-gray-30")
     } else if delta < 0. {
       let textColor = "text-red-980"
-      ("", textColor, "text-jp-2-red-200", "arrow-down", "bg-jp-2-red-50")
+      ("", textColor, "text-jp-2-red-100", "arrow-down", "bg-jp-2-red-100")
     } else {
       let textColor = "text-green-950"
       ("+", textColor, "text-jp-2-green-300", "arrow-up", "bg-jp-2-green-50")

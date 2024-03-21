@@ -8,25 +8,13 @@ module.exports = {
       "inter-style": '"Inter"',
     },
     extend: {
+      screens: {
+        mobile: "28.125rem",
+        tablet: "93.75rem",
+        desktop: "118.75rem",
+      },
       scale: {
         400: "4",
-      },
-      width: {
-        pageWidth11: "75rem",
-        fixedPageWidth: "75.5rem",
-        standardPageWidth: "67.5rem",
-      },
-      boxShadow: {
-        generic_shadow: "0 2px 5px 0 rgba(0, 0, 0, 0.12)",
-        generic_shadow_dark: "0px 2px 5px 0 rgba(0, 0, 0, 0.78)",
-        side_shadow: "0 4px 4px rgba(0, 0, 0, 0.25)",
-        hyperswitch_box_shadow: "0 2px 8px 0px rgba(0,0,0,0.08)",
-        checklistShadow: "-2px -4px 12px 0px rgba(0,0,0,0.11)",
-        sidebarShadow: "0 -2px 12px 0 rgba(0, 0, 0, 0.06)",
-        connectorTagShadow: "0px 1px 4px 2px rgba(0, 0, 0, 0.06)",
-        boxShadowMultiple:
-          "2px -2px 24px 0px rgba(0, 0, 0, 0.04), -2px 2px 24px 0px rgba(0, 0, 0, 0.02)",
-        homePageBoxShadow: "0px 2px 16px 2px rgba(51, 51, 51, 0.16)",
       },
       height: {
         "1.1-rem": "1.125rem",
@@ -52,8 +40,32 @@ module.exports = {
       maxHeight: {
         "25-rem": "25rem",
       },
+      width: {
+        100: "25rem",
+        133: "35rem",
+        200: "58rem",
+        "1.1-rem": "1.125rem",
+        "77-rem": "77rem",
+        "30-rem": "30rem",
+        pageWidth11: "75rem",
+        fixedPageWidth: "75.5rem",
+        standardPageWidth: "67.5rem",
+      },
       maxWidth: {
         fixedPageWidth: "82.75rem",
+      },
+
+      boxShadow: {
+        generic_shadow: "0 2px 5px 0 rgba(0, 0, 0, 0.12)",
+        generic_shadow_dark: "0px 2px 5px 0 rgba(0, 0, 0, 0.78)",
+        side_shadow: "0 4px 4px rgba(0, 0, 0, 0.25)",
+        hyperswitch_box_shadow: "0 2px 8px 0px rgba(0,0,0,0.08)",
+        checklistShadow: "-2px -4px 12px 0px rgba(0,0,0,0.11)",
+        sidebarShadow: "0 -2px 12px 0 rgba(0, 0, 0, 0.06)",
+        connectorTagShadow: "0px 1px 4px 2px rgba(0, 0, 0, 0.06)",
+        boxShadowMultiple:
+          "2px -2px 24px 0px rgba(0, 0, 0, 0.04), -2px 2px 24px 0px rgba(0, 0, 0, 0.02)",
+        homePageBoxShadow: "0px 2px 16px 2px rgba(51, 51, 51, 0.16)",
       },
       fontSize: {
         "fs-10": "10px",
@@ -80,6 +92,7 @@ module.exports = {
           info_blue_background: "#F6F8FA",
         },
         grey: {
+          0: "#FEFEFE",
           200: "#B9BABC",
           700: "#151A1F",
           900: "#333333",
@@ -89,6 +102,7 @@ module.exports = {
           600: "#B8D1B4",
           700: "#6CB851",
           950: "#79A779",
+          960: "#3A833A",
           success_page_bg: "#E8FDF2",
           accepted_green_800: "#39934F",
         },
@@ -103,7 +117,11 @@ module.exports = {
         },
         red: {
           100: "#F9EDED",
+          800: "#C04141",
+          900: "#DA0E0F",
+          950: "#F04849",
           960: "#EF6969",
+          980: "#FC5454",
           failed_page_bg: "#FDEDE8",
         },
         "sidebar-blue": "#242F48",
@@ -211,3 +229,4 @@ module.exports = {
 
 // remove
 // bg-ardra
+// remove infra
