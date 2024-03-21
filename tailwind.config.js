@@ -8,6 +8,64 @@ module.exports = {
       "inter-style": '"Inter"',
     },
     extend: {
+      scale: {
+        400: "4",
+      },
+      width: {
+        pageWidth11: "75rem",
+        fixedPageWidth: "75.5rem",
+        standardPageWidth: "67.5rem",
+      },
+      boxShadow: {
+        generic_shadow: "0 2px 5px 0 rgba(0, 0, 0, 0.12)",
+        generic_shadow_dark: "0px 2px 5px 0 rgba(0, 0, 0, 0.78)",
+        side_shadow: "0 4px 4px rgba(0, 0, 0, 0.25)",
+        hyperswitch_box_shadow: "0 2px 8px 0px rgba(0,0,0,0.08)",
+        checklistShadow: "-2px -4px 12px 0px rgba(0,0,0,0.11)",
+        sidebarShadow: "0 -2px 12px 0 rgba(0, 0, 0, 0.06)",
+        connectorTagShadow: "0px 1px 4px 2px rgba(0, 0, 0, 0.06)",
+        boxShadowMultiple:
+          "2px -2px 24px 0px rgba(0, 0, 0, 0.04), -2px 2px 24px 0px rgba(0, 0, 0, 0.02)",
+        homePageBoxShadow: "0px 2px 16px 2px rgba(51, 51, 51, 0.16)",
+      },
+      height: {
+        "1.1-rem": "1.125rem",
+        "5-rem": "5rem",
+        "6-rem": "6rem",
+        "7-rem": "7rem",
+        "8-rem": "8rem",
+        "12.5-rem": "12.5rem",
+        "25-rem": "25rem",
+        "30-rem": "30rem",
+        "35-rem": "35rem",
+        "40-rem": "40rem",
+        "45-rem": "45rem",
+        "48-rem": "48rem",
+        "50-rem": "50rem",
+        "93-per": "93%",
+        "80-vh": "80vh",
+        "30-vh": "30vh",
+        "40-vh": "40vh",
+        "75-vh": "75vh",
+        onBordingSupplier: "calc(100vh - 300px)",
+      },
+      maxHeight: {
+        "25-rem": "25rem",
+      },
+      maxWidth: {
+        fixedPageWidth: "82.75rem",
+      },
+      fontSize: {
+        "fs-10": "10px",
+        "fs-11": "11px",
+        "fs-13": "13px",
+        "fs-14": "14px",
+        "fs-16": "16px",
+        "fs-18": "18px",
+        "fs-20": "20px",
+        "fs-24": "24px",
+        "fs-28": "28px",
+      },
       colors: {
         blue: {
           100: "#F1F2F4",
@@ -122,6 +180,33 @@ module.exports = {
       },
     },
   },
+  plugins: [
+    plugin(function ({ addUtilities }) {
+      const newUtilities = {
+        "*::-webkit-scrollbar": {
+          display: "none", // chrome and other
+        },
+        "*": {
+          scrollbarWidth: "none", // firefox
+        },
+        ".show-scrollbar::-webkit-scrollbar": {
+          display: "block",
+          overflow: "scroll",
+          height: "4px",
+          width: "8px",
+        },
+        ".show-scrollbar::-webkit-scrollbar-thumb": {
+          display: "block",
+          borderRadius: "20rem",
+          backgroundColor: "#8A8C8F",
+        },
+        ".show-scrollbar::-webkit-scrollbar-track": {
+          backgroundColor: "#FFFFFFF",
+        },
+      };
+      addUtilities(newUtilities);
+    }),
+  ],
 };
 
 // remove
