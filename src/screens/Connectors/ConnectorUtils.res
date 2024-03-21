@@ -827,6 +827,9 @@ let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) =>
 let getMetaDataRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(BLUESNAP), "merchant_id") => false
+  | (Processors(CHECKOUT), "acquirer_bin") => false
+  | (Processors(CHECKOUT), "acquirer_merchant_id") => false
+
   | _ => true
   }
 }
