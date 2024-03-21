@@ -144,11 +144,13 @@ module DisputesInfo = {
   @react.component
   let make = (~orderDict, ~setDisputeData) => {
     let disputesData = DisputesEntity.itemToObjMapper(orderDict)
+    let connectorName = disputesData.connector->ConnectorUtils.getConnectorNameTypeFromString()
 
-    let showNoteComponentCondition =
-      DisputesUtils.connectorsSupportEvidenceUpload->Array.includes(
-        disputesData.connector->ConnectorUtils.getConnectorNameTypeFromString(),
-      )
+    let showNoteComponentCondition = ConnectorUtils.existsInArray(
+      connectorName,
+      DisputesUtils.connectorsSupportEvidenceUpload,
+    )
+
     <>
       <div className={`font-bold text-fs-16 dark:text-white dark:text-opacity-75 mt-4 mb-4`}>
         {"Summary"->React.string}
