@@ -177,9 +177,6 @@ module UploadDisputeEvidenceModal = {
       <div className="h-px w-full bg-grey-900 opacity-20" />
       <div className="flex flex-1 justify-end gap-4 pt-5 pb-3 px-6">
         <Button
-          buttonType={Secondary} text="Go Back" buttonSize={Small} customButtonStyle="!py-3 !px-2.5"
-        />
-        <Button
           buttonType={Primary}
           text="Attach Evidence"
           buttonSize={Small}

@@ -113,6 +113,19 @@ export function getRequestPayload(input: any, response: any): any;
 */
 export function getResponsePayload(input: any): any;
 /**
+* @returns {any}
+*/
+export function getAllPayoutKeys(): any;
+/**
+* @param {string} key
+* @returns {any}
+*/
+export function getPayoutVariantValues(key: string): any;
+/**
+* @returns {any}
+*/
+export function getPayoutDescriptionCategory(): any;
+/**
 *
 * Function exposed as `wasm` function in js `parse`. Allowing use to extend the functionality and
 * usage for web
@@ -144,6 +157,9 @@ export interface InitOutput {
   readonly getAuthenticationConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getRequestPayload: (a: number, b: number, c: number) => void;
   readonly getResponsePayload: (a: number, b: number) => void;
+  readonly getAllPayoutKeys: (a: number) => void;
+  readonly getPayoutVariantValues: (a: number, b: number, c: number) => void;
+  readonly getPayoutDescriptionCategory: (a: number) => void;
   readonly parse: (a: number, b: number, c: number) => void;
   readonly parseToString: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_0: (a: number, b: number) => number;
