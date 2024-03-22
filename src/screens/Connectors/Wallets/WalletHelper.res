@@ -6,7 +6,7 @@ module Heading = {
         <Icon name={"applepay"} size=56 />
         <div>
           <div className="flex items-center gap-4">
-            <div className="leading-tight font-semibold  font-semibold text-fs-18">
+            <div className="leading-tight   font-semibold text-fs-18">
               {"Apple Pay"->React.string}
             </div>
             <div
@@ -17,7 +17,7 @@ module Heading = {
               <div> {"Test Mode"->React.string} </div>
             </div>
           </div>
-          <div className={`opacity-50 mt-2 text-sm text-hyperswitch_black opacity-50  font-normal`}>
+          <div className={` mt-2 text-sm text-hyperswitch_black opacity-50  font-normal`}>
             {"Choose Configuration Method"->React.string}
           </div>
         </div>
@@ -31,7 +31,7 @@ module CustomTag = {
   @react.component
   let make = (~tagText="", ~tagSize=5, ~tagLeftIcon=None, ~tagCustomStyle="") => {
     <div
-      className={`flex items-center gap-1 shadow shadow-connectorTagShadow border rounded-full px-2 py-1 ${tagCustomStyle}`}>
+      className={`flex items-center gap-1  shadow-connectorTagShadow border rounded-full px-2 py-1 ${tagCustomStyle}`}>
       {switch tagLeftIcon {
       | Some(icon) =>
         <div>
@@ -116,8 +116,7 @@ module SimplifiedHelper = {
           <div>
             <p className={"font-medium text-base text-blue-500"}> {heading->React.string} </p>
             <UIUtils.RenderIf condition={subText->Option.isSome}>
-              <p
-                className={`opacity-50 mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
+              <p className={`mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
                 {subText->Option.getOr("")->React.string}
               </p>
             </UIUtils.RenderIf>

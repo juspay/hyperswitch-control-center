@@ -430,7 +430,7 @@ module VerifyConnectorModal = {
         <div className="flex flex-col mb-2 p-2 m-2">
           <div className="flex p-3">
             <img
-              className="w-12 h-12 my-auto border-gray-100 w-fit mt-0"
+              className="h-12 my-auto border-gray-100 w-fit mt-0"
               src={`/icons/warning.svg`}
               alt="warning"
             />
@@ -502,7 +502,7 @@ module ConnectorHeaderWrapper = {
             condition={connectorsWithIntegrationSteps->Array.includes(connectorNameFromType) &&
               conditionForIntegrationSteps}>
             <a
-              className={`flex cursor-pointer px-4 py-3 flex text-sm text-blue-500 items-center mx-4`}
+              className={`cursor-pointer px-4 py-3 flex text-sm text-blue-500 items-center mx-4`}
               target="_blank"
               onClick={_ => setShowModalFunction()}>
               {React.string("View integration steps")}
