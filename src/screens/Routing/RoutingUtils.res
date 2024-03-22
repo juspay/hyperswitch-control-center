@@ -258,3 +258,31 @@ let getRecordsObject = json => {
   | _ => []
   }
 }
+
+let filter = (connector_type, ~retainInList) => {
+  let paymentRegex = %re("/(payout_processor|payment_vas)/ig")
+  switch retainInList {
+  | PaymentConnector => Js.Re.exec_(paymentRegex, connector_type)->Option.isNone
+  | FRMPlayer => connector_type === "payment_vas"
+  | PayoutConnector => connector_type === "payout_processor"
+  }
+}
+
+let filterConnectorList = (items, ~retainInList) => {
+  open ConnectorTypes
+  items->Array.filter(connector => connector.connector_type->filter(~retainInList))
+}
+
+let filterConnectorListJson = (json, ~retainInList) => {
+  json
+  ->getArrayFromJson([])
+  ->Array.map(getDictFromJsonObject)
+  ->Array.filter(dict => dict->getString("connector_type", "")->filter(~retainInList))
+}
+
+let filterConnectorListCoreJson = (json, ~retainInList) => {
+  json
+  ->Array.map(getDictFromJsonObject)
+  ->Array.filter(dict => dict->getString("connector_type", "")->filter(~retainInList))
+  ->Array.map(JSON.Encode.object)
+}

@@ -263,6 +263,19 @@ let make = () => {
                           />
                         </AccessControl>
 
+                      | list{"payoutrouting", ...remainingPath} =>
+                        <AccessControl
+                          isEnabled={featureFlagDetails.payOut}
+                          permission=userPermissionJson.workflowsView>
+                          <EntityScaffold
+                            entityName="PayoutRouting"
+                            remainingPath
+                            renderList={() => <RoutingStack isPayoutFlow=true remainingPath />}
+                            renderShow={routingType =>
+                              <RoutingConfigure isPayoutFlow=true routingType />}
+                          />
+                        </AccessControl>
+
                       | list{"3ds-authenticators", ...remainingPath} =>
                         <AccessControl
                           permission=userPermissionJson.connectorsView

@@ -33,6 +33,7 @@ let getURL = (
   | VERIFY_APPLE_PAY => `verify/apple_pay`
   | PAYPAL_ONBOARDING => `connector_onboarding`
   | SURCHARGE => `routing/decision/surcharge`
+  | PAYOUT_DEFAULT_FALLBACK => `routing/payouts/default`
   | CUSTOMERS =>
     switch methodType {
     | Get =>
@@ -71,6 +72,20 @@ let getURL = (
       switch id {
       | Some(routing_id) => `routing/${routing_id}/activate`
       | _ => `routing`
+      }
+    | _ => ""
+    }
+  | PAYOUT_ROUTING =>
+    switch methodType {
+    | Get | Put =>
+      switch id {
+      | Some(routingId) => `routing/${routingId}`
+      | _ => `routing/payouts`
+      }
+    | Post =>
+      switch id {
+      | Some(routing_id) => `routing/payouts/${routing_id}/activate`
+      | _ => `routing/payouts`
       }
     | _ => ""
     }

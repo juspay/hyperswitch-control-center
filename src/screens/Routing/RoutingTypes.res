@@ -41,9 +41,11 @@ type modalObj = (routingType, string) => modalValue
 
 type wasmModule = {
   getAllKeys: unit => array<string>,
+  getAllPayoutKeys: unit => array<string>,
   getKeyType: string => string,
   getAllConnectors: unit => array<string>,
   getVariantValues: string => array<string>,
+  getPayoutVariantValues: string => array<string>,
 }
 
 type gateway = {
@@ -70,3 +72,5 @@ type historyData = {
 }
 
 type value = {"type": JSON.t, "value": JSON.t}
+
+type filterType = PaymentConnector | FRMPlayer | PayoutConnector

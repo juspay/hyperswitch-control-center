@@ -1,7 +1,7 @@
 open HistoryEntity
 module HistoryTable = {
   @react.component
-  let make = (~records, ~activeRoutingIds: array<string>) => {
+  let make = (~records, ~activeRoutingIds: array<string>, ~isPayoutFlow=false) => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let (offset, setOffset) = React.useState(_ => 0)
 
@@ -9,7 +9,11 @@ module HistoryTable = {
       title="History"
       hideTitle=true
       actualData=records
-      entity={historyEntity(activeRoutingIds, ~permission=userPermissionJson.workflowsManage)}
+      entity={historyEntity(
+        activeRoutingIds,
+        ~permission=userPermissionJson.workflowsManage,
+        ~isPayoutFlow,
+      )}
       resultsPerPage=10
       showSerialNumber=true
       totalResults={records->Array.length}
@@ -44,6 +48,6 @@ module BreadCrumbWrapper = {
 }
 
 @react.component
-let make = (~records, ~activeRoutingIds: array<string>) => {
-  <HistoryTable records activeRoutingIds />
+let make = (~records, ~activeRoutingIds: array<string>, ~isPayoutFlow=false) => {
+  <HistoryTable records activeRoutingIds isPayoutFlow />
 }
