@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.21.0
+
+### Bug Fixes
+
+- Upload evidence modal fix ([#525](https://github.com/juspay/hyperswitch-control-center/pull/525)) ([`59cd028`](https://github.com/juspay/hyperswitch-control-center/commit/59cd028fca25e7858ea40ede40cd88f9d2eba165))
+
+### Miscellaneous Tasks
+
+- Wasm cache issue ([#529](https://github.com/juspay/hyperswitch-control-center/pull/529)) ([`1444555`](https://github.com/juspay/hyperswitch-control-center/commit/14445551e65491282994714c808313fc63a4050d))
+- Update checkout optional fields ([#530](https://github.com/juspay/hyperswitch-control-center/pull/530)) ([`5ff2544`](https://github.com/juspay/hyperswitch-control-center/commit/5ff25441027f9610e9c346b51dc1fd3e6dc6bd1c))
+
+**Full Changelog:** [`2024.03.19.1...2024.03.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.19.1...2024.03.21.0)
+
+- - -
+
 ## 2024.03.19.1
 
 ### Features
