@@ -118,6 +118,9 @@ module Location = {
   external reload: unit => unit = "reload"
 
   @val @scope(("window", "location"))
+  external hardReload: bool => unit = "reload"
+
+  @val @scope(("window", "location"))
   external replace: string => unit = "replace"
 
   @val @scope(("window", "location"))

@@ -827,6 +827,9 @@ let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) =>
 let getMetaDataRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(BLUESNAP), "merchant_id") => false
+  | (Processors(CHECKOUT), "acquirer_bin") => false
+  | (Processors(CHECKOUT), "acquirer_merchant_id") => false
+
   | _ => true
   }
 }
@@ -1328,4 +1331,14 @@ let connectorTypeStringToTypeMapper = connector_type => {
 let sortByName = (c1, c2) => {
   open LogicUtils
   compareLogic(c2->getConnectorNameString, c1->getConnectorNameString)->Belt.Int.toFloat
+}
+
+let existsInArray = (element, connectorList) => {
+  open ConnectorTypes
+  connectorList->Array.some(e =>
+    switch (e, element) {
+    | (Processors(p1), Processors(p2)) => p1 == p2
+    | (_, _) => false
+    }
+  )
 }

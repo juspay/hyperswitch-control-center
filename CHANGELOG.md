@@ -3,6 +3,45 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.21.0
+
+### Bug Fixes
+
+- Upload evidence modal fix ([#525](https://github.com/juspay/hyperswitch-control-center/pull/525)) ([`59cd028`](https://github.com/juspay/hyperswitch-control-center/commit/59cd028fca25e7858ea40ede40cd88f9d2eba165))
+
+### Miscellaneous Tasks
+
+- Wasm cache issue ([#529](https://github.com/juspay/hyperswitch-control-center/pull/529)) ([`1444555`](https://github.com/juspay/hyperswitch-control-center/commit/14445551e65491282994714c808313fc63a4050d))
+- Update checkout optional fields ([#530](https://github.com/juspay/hyperswitch-control-center/pull/530)) ([`5ff2544`](https://github.com/juspay/hyperswitch-control-center/commit/5ff25441027f9610e9c346b51dc1fd3e6dc6bd1c))
+
+**Full Changelog:** [`2024.03.19.1...2024.03.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.19.1...2024.03.21.0)
+
+- - -
+
+## 2024.03.19.1
+
+### Features
+
+- Dispute analytics ([#470](https://github.com/juspay/hyperswitch-control-center/pull/470)) ([`090eb00`](https://github.com/juspay/hyperswitch-control-center/commit/090eb00d7186fd0d4449c3a23ba33e073ed5487e))
+
+### Miscellaneous Tasks
+
+- Added mixpanel events for connector flow ([#521](https://github.com/juspay/hyperswitch-control-center/pull/521)) ([`4ecac71`](https://github.com/juspay/hyperswitch-control-center/commit/4ecac71bc93703426619488323d529bddbcbd20f))
+
+**Full Changelog:** [`2024.03.19.0...2024.03.19.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.19.0...2024.03.19.1)
+
+- - -
+
+## 2024.03.19.0
+
+### Bug Fixes
+
+- Disputes show counter button condition change ([#522](https://github.com/juspay/hyperswitch-control-center/pull/522)) ([`aec0a47`](https://github.com/juspay/hyperswitch-control-center/commit/aec0a476c2fd025c11c6d6266d2bdd87a908b2e4))
+
+**Full Changelog:** [`2024.03.18.0...2024.03.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.18.0...2024.03.19.0)
+
+- - -
+
 ## 2024.03.18.0
 
 ### Bug Fixes
