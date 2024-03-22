@@ -260,3 +260,7 @@ module.exports = {
 };
 
 // clean jp-gray
+// refactor colors object
+// Check whether HyperSwitchDefaultConfig is used
+// use Primar and seconday color for button
+// we used use UIConfigs value as placeholder in the button
