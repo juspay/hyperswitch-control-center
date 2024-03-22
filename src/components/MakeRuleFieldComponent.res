@@ -51,7 +51,7 @@ module CompressedView = {
       | Array(arr) => arr->Array.joinWithUnsafe(", ")
       | String(str) => str
       | Number(num) => num->Float.toString
-      | Object(obj) => obj->LogicUtils.getString("value", "")
+      | Object(obj) => obj->getString("value", "")
       | _ => ""
       }
 
