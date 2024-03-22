@@ -63,15 +63,17 @@ Follow these simple steps to set up Hyperswitch on your local machine.
 7. Access the application in your browser at http://localhost:9000.
 
 ---
+
 ### Running with Docker
 
-1. ```docker run -p 9000:9000  -e apiBaseUrl=your-backend-url -e sdkBaseUrl=your-sdk-url juspaydotin/hyperswitch-control-center:latest```
+1. `docker run -p 9000:9000  -e apiBaseUrl=your-backend-url -e sdkBaseUrl=your-sdk-url juspaydotin/hyperswitch-control-center:latest`
 
 ### Accessing the Application
 
 Once the containers are up and running, you can access the application by navigating to http://localhost:9000 in your web browser.
 
 ---
+
 ## Feature Flags
 
 Feature flags allow the users to enable or disable certain functionalities or flows in the control center.
