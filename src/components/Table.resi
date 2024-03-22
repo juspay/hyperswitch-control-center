@@ -12,8 +12,6 @@ type labelColor = TableUtils.labelColor =
   | LabelBrown
   | LabelLightBlue
   | LabelWhite
-  | LabelLightOrange
-  | LabelLightGray
   | LabelViolet
   | LabelLightGreen
   | LabelLightRed

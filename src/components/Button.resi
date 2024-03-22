@@ -12,14 +12,10 @@ type buttonType =
   | Delete
   | Transparent
   | SelectTransparent
-  | DarkBluePrimary
-  | BrownButton
-  | GreyButton
-  | DarkBlueSecondary
+
   | DarkPurple
   | Dropdown
-  | LightBlue
-  | ArdraDefaultBlue
+
 type buttonSize = Large | Medium | Small | XSmall
 type iconType =
   | FontAwesome(string)
@@ -36,7 +32,6 @@ type badgeColor =
   | BadgeYellow
   | BadgeDarkGreen
   | BadgeDarkRed
-  | BadgeBrown
   | NoBadge
 type badge = {value: string, color: badgeColor}
 let getBGColor: (

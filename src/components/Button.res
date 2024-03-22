@@ -12,15 +12,9 @@ type buttonType =
   | Delete
   | Transparent
   | SelectTransparent
-  | DarkBluePrimary
-  | BrownButton
-  | GreyButton
-  | DarkBlueSecondary
 
   | DarkPurple
   | Dropdown
-  | LightBlue
-  | ArdraDefaultBlue
 
 type buttonSize = Large | Medium | Small | XSmall
 
@@ -39,7 +33,7 @@ type badgeColor =
   | BadgeYellow
   | BadgeDarkGreen
   | BadgeDarkRed
-  | BadgeBrown
+
   | NoBadge
 type badge = {
   value: string,
@@ -176,24 +170,7 @@ let getBGColor = (
     | Disabled => "bg-gray-100   hover:bg-blue-200 focus:outline-none"
     | NoHover => "bg-gray-100   hover:bg-blue-200 focus:outline-none"
     }
-  | DarkBluePrimary =>
-    switch buttonState {
-    | Focused
-    | Normal => "bg-ardra-primary-100  hover:bg-ardra-primary-200  dark:bg-black focus:outline-none"
-    | Loading => "bg-ardra-primary-100  hover:bg-ardra-primary-200 focus:outline-none"
-    | Disabled => "bg-ardra-secondary-200  hover:bg-ardra-secondary-200 focus:outline-none"
-    | NoHover => "bg-ardra-primary-100  hover:bg-ardra-primary-200 focus:outline-none"
-    }
-  | BrownButton => "bg-ardra-brown"
-  | GreyButton => "bg-ardra-secondary-400"
-  | DarkBlueSecondary =>
-    switch buttonState {
-    | Focused
-    | Normal => "bg-jp-gray-200  hover:bg-jp-gray-300  dark:bg-black focus:outline-none"
-    | Loading => "bg-jp-gray-200  hover:bg-jp-gray-300  dark:bg-black focus:outline-none"
-    | Disabled => "bg-ardra-secondary-200  hover:bg-ardra-secondary-200 focus:outline-none"
-    | NoHover => "bg-ardra-primary-100  hover:bg-ardra-primary-200 focus:outline-none"
-    }
+
   | DarkPurple =>
     switch buttonState {
     | Focused
@@ -201,22 +178,6 @@ let getBGColor = (
     | Loading => "bg-[#4F54EF] dark:bg-black focus:outline-none"
     | Disabled => "bg-[#4F54EF] dark:bg-black focus:outline-none"
     | NoHover => "bg-[#4F54EF] dark:bg-black focus:outline-none"
-    }
-  | LightBlue =>
-    switch buttonState {
-    | Focused
-    | Normal => "bg-ardra-light-blue border-ardra-approve-text dark:bg-black focus:outline-none"
-    | Loading => "bg-ardra-light-blue border-ardra-approve-text focus:outline-none"
-    | Disabled => "bg-ardra-light-blue border-ardra-approve-text dark:bg-black focus:outline-none"
-    | NoHover => "bg-ardra-light-blue border-ardra-approve-text focus:outline-none"
-    }
-  | ArdraDefaultBlue =>
-    switch buttonState {
-    | Focused
-    | Normal => "primary-gradient dark:bg-black focus:outline-none"
-    | Loading => "primary-gradient dark:bg-black focus:outline-none"
-    | Disabled => "bg-jp-2-light-gray-600  dark:bg-black focus:outline-none"
-    | NoHover => "primary-gradient focus:outline-none"
     }
   }
 
@@ -274,13 +235,8 @@ let getTextColor = (
     | Loading => "text-jp-gray-800 hover:text-black dark:text-jp-gray-text_darktheme dark:text-opacity-75"
     | _ => "text-jp-gray-800 hover:text-black dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75"
     }
-  | DarkBluePrimary => "text-white"
-  | BrownButton => "text-white"
-  | GreyButton => "text-black"
-  | DarkBlueSecondary => "text-ardra-primary-100"
+
   | DarkPurple => "text-white"
-  | LightBlue => "text-ardra-approve-text"
-  | ArdraDefaultBlue => "text-white"
 
   | _ =>
     switch buttonState {
@@ -394,7 +350,6 @@ let make = (
     | BadgeYellow => "bg-blue-table_yellow"
     | BadgeDarkGreen => "bg-green-700"
     | BadgeDarkRed => "bg-red-400"
-    | BadgeBrown => "bg-ardra-brown"
     | NoBadge => "hidden"
     }
   }

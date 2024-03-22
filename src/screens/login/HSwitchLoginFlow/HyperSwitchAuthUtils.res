@@ -3,7 +3,7 @@ open HyperSwitchAuthTypes
 module TermsAndCondition = {
   @react.component
   let make = () => {
-    <div id="tc-text" className="text-center text-sm text-infra-gray-300">
+    <div id="tc-text" className="text-center text-sm text-gray-300">
       {"By continuing, you agree to our "->React.string}
       <a
         className="underline cursor-pointer"

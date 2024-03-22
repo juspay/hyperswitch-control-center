@@ -94,6 +94,7 @@ module.exports = {
         grey: {
           0: "#FEFEFE",
           200: "#B9BABC",
+          300: "#CCCCCC",
           700: "#151A1F",
           900: "#333333",
         },
@@ -116,12 +117,14 @@ module.exports = {
           warning_text_orange: "#EEA236",
         },
         red: {
+          DEFAULT: "#FF0000",
           100: "#F9EDED",
           800: "#C04141",
           900: "#DA0E0F",
           950: "#F04849",
           960: "#EF6969",
           980: "#FC5454",
+          990: "#F97F77",
           failed_page_bg: "#FDEDE8",
         },
         "sidebar-blue": "#242F48",
@@ -190,14 +193,28 @@ module.exports = {
         light_white: "#FFFFFF0D",
         unselected_white: "#9197A3",
       },
-      "infra-gray": {
-        300: "#CCCCCC",
-      },
-      "infra-red": {
-        900: "#F97F77",
-      },
     },
   },
+  // plugins: [
+  //   plugin(function ({ addVariant, addUtilities }) {
+  //     addVariant('red', ({ modifySelectors, separator }) => {
+  //       modifySelectors(({ className }) => {
+  //         return `.red${separator}${className}`;
+  //       });
+  //     });
+
+  //     const newUtilities = {
+  //       '@layer components': {
+  //         ':is(.red .red\\:bg-red)': {
+  //           '--tw-bg-opacity': '1',
+  //           'background-color': 'rgb(255 0 0 / var(--tw-bg-opacity))',
+  //         },
+  //       },
+  //     };
+  //     addUtilities(newUtilities, ['responsive', 'hover', 'red']);
+  //   })
+  // ],
+
   plugins: [
     plugin(function ({ addUtilities }) {
       const newUtilities = {
@@ -224,9 +241,22 @@ module.exports = {
       };
       addUtilities(newUtilities);
     }),
+    plugin(function ({ addVariant, addUtilities, e }) {
+      addVariant("red", ({ modifySelectors, separator }) => {
+        modifySelectors(({ className }) => {
+          return `.red${separator}${className}`;
+        });
+      });
+      const newUtilities = {
+        ".red .red\\:bg-red": {
+          "--tw-bg-opacity": "1",
+          "background-color": "rgb(255 0 0 / var(--tw-bg-opacity))",
+        },
+      };
+
+      addUtilities(newUtilities, ["responsive", "hover"]);
+    }),
   ],
 };
 
-// remove
-// bg-ardra
-// remove infra
+// clean jp-gray

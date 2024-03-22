@@ -42,8 +42,6 @@ type labelColor =
   | LabelBrown
   | LabelLightBlue
   | LabelWhite
-  | LabelLightOrange
-  | LabelLightGray
   | LabelViolet
   | LabelLightGreen
   | LabelLightRed
@@ -250,8 +248,6 @@ module LabelCell = {
     | LabelBrown => "bg-brown-600 bg-opacity-50"
     | LabelLightBlue => "bg-blue-500 bg-opacity-50"
     | LabelWhite => "bg-white border border-jp-gray-300"
-    | LabelLightOrange => "bg-ardra-warning bg-opacity-50"
-    | LabelLightGray => "bg-ardra-secondary-200 bg-opacity-50"
     | LabelViolet => "bg-violet-500"
     | LabelLightGreen => "bg-green-700  dark:bg-opacity-50"
     | LabelLightRed => "bg-red-400 dark:bg-opacity-50"
@@ -261,7 +257,6 @@ module LabelCell = {
     | LabelGray => "text-jp-gray-900"
     | LabelYellow => "text-jp-gray-900"
     | LabelWhite => "text-jp-gray-700"
-    | LabelLightOrange => "text-jp-gray-900"
     | _ => "text-white"
     }
 
@@ -312,8 +307,6 @@ module NewLabelCell = {
     | LabelBrown => "bg-brown-600 bg-opacity-50"
     | LabelLightBlue => "bg-blue-500 bg-opacity-50"
     | LabelWhite => "bg-white border border-jp-gray-300"
-    | LabelLightOrange => "bg-ardra-warning bg-opacity-50"
-    | LabelLightGray => "bg-ardra-secondary-200 bg-opacity-50"
     | LabelViolet => "bg-violet-500"
     | LabelLightGreen => "bg-green-700 dark:bg-opacity-50"
     | LabelLightRed => "bg-red-400 dark:bg-opacity-50"
@@ -365,8 +358,6 @@ module ColoredTextCell = {
     | LabelBrown => "text-yellow-800"
     | LabelLightBlue => "text-sky-300"
     | LabelWhite => "text-jp-gray-500"
-    | LabelLightOrange => "text-ardra-warning"
-    | LabelLightGray => "text-ardra-secondary-200"
     | LabelViolet => "bg-violet-500"
     | LabelLightGreen => "bg-green-700"
     | LabelLightRed => "bg-red-400"
