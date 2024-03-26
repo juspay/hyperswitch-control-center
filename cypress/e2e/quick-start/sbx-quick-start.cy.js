@@ -110,6 +110,7 @@ describe("Sandbox quick start", () => {
     customComponentButtonType("DefaultFallback");
     clickButton("proceed");
     clickButton("skipThisStep");
+    cy.wait(3000);
     clickButton("iWantToIntegrateHyperswitchIntoMyApp");
 
     // integrate to my app flow
