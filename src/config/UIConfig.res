@@ -9,6 +9,7 @@ module ButtonConfig = {
     primaryDisabled: string,
     primaryNoHover: string,
     primaryOutline: string,
+    primaryLoading: string,
     paginationNormal: string,
     paginationLoading: string,
     paginationDisabled: string,
@@ -87,8 +88,9 @@ let defaultUIConfig: t = {
     },
     backgroundColor: {
       primaryNormal: "bg-blue-500 hover:shadow hover:shadow-blue-500/50 hover:from-blue-500 hover:to-blue-500 focus:outline-none",
-      primaryDisabled: "bg-jp-gray-300 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50",
+      primaryDisabled: "bg-blue-500 opacity-60 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50",
       primaryNoHover: "bg-blue-500 hover:shadow hover:shadow-blue-500/50 hover:from-blue-500 hover:to-blue-500 focus:outline-none",
+      primaryLoading: "bg-blue-500",
       primaryOutline: "mix-blend-normal bg-[rgba(0,153,255,0.08)]",
       paginationNormal: "border-left-1 border-right-1 font-normal border-left-1 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none",
       paginationLoading: "border-left-1 border-right-1 font-normal border-left-1 bg-jp-gray-200 dark:bg-jp-gray-800 dark:bg-opacity-10",

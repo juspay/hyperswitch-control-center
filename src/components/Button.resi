@@ -34,14 +34,6 @@ type badgeColor =
   | BadgeDarkRed
   | NoBadge
 type badge = {value: string, color: badgeColor}
-let getBGColor: (
-  ~buttonType: buttonType,
-  ~buttonState: buttonState,
-  ~showBorder: bool,
-  ~isDropdownOpen: bool=?,
-  ~isPhoneDropdown: bool=?,
-  unit,
-) => string
 let useGetBgColor: (
   ~buttonType: buttonType,
   ~buttonState: buttonState,
