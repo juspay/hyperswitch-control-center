@@ -58,7 +58,7 @@ describe("Sandbox quick start", () => {
     cy.get(`[data-dropdown-value="${dropdownValue}"]`).click();
   }
 
-  it("should successfully setup quickstart flow", () => {
+  it.only("should successfully setup quickstart flow", () => {
     cy.url().should("eq", "http://localhost:9000/home");
     fillInputFields("merchant_name", "quick_start_flow_test");
     clickButton("startExploring");
@@ -111,6 +111,9 @@ describe("Sandbox quick start", () => {
     clickButton("proceed");
     clickButton("skipThisStep");
     cy.wait(3000);
+    cy.contains(
+      "Configuration is complete. You can now start integrating with us!",
+    );
     clickButton("iWantToIntegrateHyperswitchIntoMyApp");
 
     // integrate to my app flow
