@@ -3,8 +3,12 @@ external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
 
 module ActiveRulePreview = {
   open LogicUtils
+  open APIUtils
   @react.component
-  let make = (~initialRule) => {
+  let make = (~initialRule, ~setInitialRule) => {
+    let updateDetails = useUpdateMethod()
+    let showPopUp = PopUpState.useShowPopUp()
+    let showToast = ToastState.useShowToast()
     let ruleInfo = initialRule->Option.getOr(Dict.make())
     let name = ruleInfo->getString("name", "")
     let description = ruleInfo->getString("description", "")
@@ -15,23 +19,59 @@ module ActiveRulePreview = {
       ->getDictFromJsonObject
       ->AdvancedRoutingUtils.ruleInfoTypeMapper
 
-    <UIUtils.RenderIf condition={initialRule->Option.isSome}>
-      <div className="relative flex flex-col gap-6 w-full border p-6 bg-white rounded-md">
-        <div
-          className="absolute top-0 right-0 bg-green-800 text-white py-2 px-4 rounded-bl font-semibold">
-          {"ACTIVE"->React.string}
-        </div>
-        <div className="flex flex-col gap-2 ">
+    let deleteCurrentThreedsRule = async () => {
+      try {
+        let url = getURL(~entityName=THREE_DS, ~methodType=Delete, ())
+        let _ = await updateDetails(url, Dict.make()->Js.Json.object_, Delete, ())
+        showToast(
+          ~message="Successfully deleted current active 3ds rule",
+          ~toastType=ToastSuccess,
+          (),
+        )
+        setInitialRule(_ => None)
+      } catch {
+      | _ =>
+        showToast(~message="Failed to delete current active 3ds rule.", ~toastType=ToastError, ())
+      }
+    }
+
+    let handleDeletePopup = () =>
+      showPopUp({
+        popUpType: (Warning, WithIcon),
+        heading: "Confirm delete?",
+        description: React.string(
+          "Are you sure you want to delete currently active 3DS rule? Deleting the rule will remove its associated settings and configurations, potentially affecting functionality.",
+        ),
+        handleConfirm: {text: "Confirm", onClick: _ => deleteCurrentThreedsRule()->ignore},
+      })
+
+    <div className="relative flex flex-col gap-6 w-full border p-6 bg-white rounded-md">
+      <div
+        className="absolute top-0 right-0 bg-green-800 text-white py-2 px-4 rounded-bl font-semibold">
+        {"ACTIVE"->React.string}
+      </div>
+      <div className="flex flex-col gap-2 ">
+        <div className="flex gap-4 items-center ">
           <p className="text-xl font-semibold text-grey-700">
             {name->capitalizeString->React.string}
           </p>
-          <p className="text-base font-normal text-grey-700 opacity-50">
-            {description->React.string}
-          </p>
+          <ToolTip
+            description="Delete existing 3ds rule"
+            toolTipFor={<Icon
+              name="delete"
+              size=20
+              className="text-jp-gray-700 hover:text-jp-gray-900 dark:hover:text-white cursor-pointer"
+              onClick={_ => handleDeletePopup()}
+            />}
+            toolTipPosition=ToolTip.Top
+          />
         </div>
-        <RulePreviewer ruleInfo isFrom3ds=true />
+        <p className="text-base font-normal text-grey-700 opacity-50">
+          {description->React.string}
+        </p>
       </div>
-    </UIUtils.RenderIf>
+      <RulePreviewer ruleInfo isFrom3ds=true />
+    </div>
   }
 }
 
@@ -294,7 +334,9 @@ let make = () => {
         </div>
       | LANDING =>
         <div className="flex flex-col gap-6">
-          <ActiveRulePreview initialRule />
+          <UIUtils.RenderIf condition={initialRule->Option.isSome}>
+            <ActiveRulePreview initialRule setInitialRule />
+          </UIUtils.RenderIf>
           <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
             <p className="text-base font-semibold text-grey-700">
               {"Configure 3DS Rule"->React.string}
