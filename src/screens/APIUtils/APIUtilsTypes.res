@@ -60,7 +60,6 @@ type userType = [
   | #PERMISSION_INFO
   | #MERCHANT_DATA
   | #USER_DATA
-  | #INVITE
   | #USER_DELETE
   | #UPDATE_ROLE
   | #INVITE_MULTIPLE
