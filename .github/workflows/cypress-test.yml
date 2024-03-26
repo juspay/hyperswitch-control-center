@@ -14,14 +14,14 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.AUTO_RELEASE_PAT }}
 
-      # - name: Clear Docker cache
-      #   run: |
-      #     docker builder prune -af
+      - name: Clear Docker cache
+        run: |
+          docker builder prune -af
 
-      # - name: Execute Shell Script
-      #   run: |
-      #     chmod +x cypress/start_hyperswitch.sh
-      #     sh cypress/start_hyperswitch.sh
+      - name: Execute Shell Script
+        run: |
+          chmod +x cypress/start_hyperswitch.sh
+          sh cypress/start_hyperswitch.sh
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -31,13 +31,13 @@ jobs:
       - name: Install dependencies
         run: npm install --force
 
-      # - name: Make Curl Request
-      #   run: |
-      #     # Replace the URL with your actual endpoint
-      #     response=$(curl --location --request GET 'http://localhost:8080/health')
+      - name: Make Curl Request
+        run: |
+          # Replace the URL with your actual endpoint
+          response=$(curl --location --request GET 'http://localhost:8080/health')
 
-      #     echo "Response:"
-      #     echo "$response"
+          echo "Response:"
+          echo "$response"
 
       - name: Cypress run
         uses: cypress-io/github-action@v6

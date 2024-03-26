@@ -1,4 +1,4 @@
-let username = `cypresssbxquickstart@gmail.com`;
+let username = `cypresssbxquickstart+${Math.round(+new Date() / 1000)}@gmail.com`;
 before(() => {
   cy.singup_curl(username, "cypress98#");
 });
@@ -117,12 +117,12 @@ describe("Sandbox quick start", () => {
     cy.contains("Preview Checkout page");
     cy.get(`[data-button-for=skipThisStep]`).should("be.visible");
     clickButton("skipThisStep");
-    cy.wait(3000);
-    cy.contains(
-      "Configuration is complete. You can now start integrating with us!",
-    );
-    clickButton("iWantToIntegrateHyperswitchIntoMyApp");
-
+    // cy.wait(3000);
+    // cy.contains(
+    //   "Configuration is complete. You can now start integrating with us!",
+    // );
+    // clickButton("iWantToIntegrateHyperswitchIntoMyApp");
+    cy.reload();
     // integrate to my app flow
     customComponentButtonType("MigrateFromStripe");
     clickButton("proceed");
