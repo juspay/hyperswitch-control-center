@@ -58,7 +58,7 @@ describe("Sandbox quick start", () => {
     cy.get(`[data-dropdown-value="${dropdownValue}"]`).click();
   }
 
-  it.only("should successfully setup quickstart flow", () => {
+  it("should successfully setup quickstart flow", () => {
     cy.url().should("eq", "http://localhost:9000/home");
     fillInputFields("merchant_name", "quick_start_flow_test");
     cy.contains("Quick Start");
