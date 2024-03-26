@@ -106,8 +106,8 @@ let make = () => {
 
   let setUpDashboard = async () => {
     try {
+      Window.connectorWasmInit()->ignore
       let _ = await fetchSwitchMerchantList()
-      let _ = await Window.connectorWasmInit()
       let permissionJson = await fetchPermissions()
 
       if merchantId->isNonEmptyString {
@@ -263,7 +263,7 @@ let make = () => {
                           />
                         </AccessControl>
 
-                      | list{"threeds-authenticators", ...remainingPath} =>
+                      | list{"3ds-authenticators", ...remainingPath} =>
                         <AccessControl
                           permission=userPermissionJson.connectorsView
                           isEnabled={featureFlagDetails.threedsAuthenticator}>
@@ -356,6 +356,12 @@ let make = () => {
                         <AccessControl permission=userPermissionJson.analyticsView>
                           <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
                             <RefundsAnalytics />
+                          </FilterContext>
+                        </AccessControl>
+                      | list{"analytics-disputes"} =>
+                        <AccessControl permission=userPermissionJson.analyticsView>
+                          <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
+                            <DisputeAnalytics />
                           </FilterContext>
                         </AccessControl>
                       | list{"analytics-user-journey"} =>

@@ -126,7 +126,11 @@ let getURL = (
       }
     | _ => ""
     }
-  | ANALYTICS_REFUNDS | ANALYTICS_PAYMENTS | ANALYTICS_USER_JOURNEY | ANALYTICS_SYSTEM_METRICS =>
+  | ANALYTICS_REFUNDS
+  | ANALYTICS_PAYMENTS
+  | ANALYTICS_USER_JOURNEY
+  | ANALYTICS_SYSTEM_METRICS
+  | ANALYTICS_DISPUTES =>
     switch methodType {
     | Get =>
       switch id {
@@ -161,7 +165,6 @@ let getURL = (
     | #USER_DATA => `${userUrl}/data`
     | #MERCHANT_DATA => `${userUrl}/data`
     | #INVITE_MULTIPLE
-    | #INVITE
     | #RESEND_INVITE =>
       `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
     | #CONNECT_ACCOUNT => `${userUrl}/connect_account`

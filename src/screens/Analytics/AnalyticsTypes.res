@@ -117,6 +117,35 @@ type refundsSingleStateSeries = {
   refund_processed_amount: float,
 }
 
+type disputeColType =
+  | Connector
+  | DisputeStage
+  | TotalAmountDisputed
+  | TotalDisputeLostAmount
+  | NoCol
+
+let defaultDisputeColumns = [Connector, DisputeStage]
+
+let allDisputeColumns = [TotalAmountDisputed, TotalDisputeLostAmount]
+
+type disputeTableType = {
+  connector: string,
+  dispute_stage: string,
+  total_amount_disputed: float,
+  total_dispute_lost_amount: float,
+}
+
+type disputeSingleStateType = {
+  total_amount_disputed: float,
+  total_dispute_lost_amount: float,
+}
+
+type disputeSingleSeriesState = {
+  total_amount_disputed: float,
+  total_dispute_lost_amount: float,
+  time_series: string,
+}
+
 type paymentColType =
   | SuccessRate
   | Count

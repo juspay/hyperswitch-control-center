@@ -223,13 +223,13 @@ module SelectConnectorGrid = {
         Processors(ADYEN),
         Processors(CHECKOUT),
       ]->Array.filter(connector =>
-        !QuickStartUtils.existsInArray(connector, typedConnectedConnectorList)
+        !ConnectorUtils.existsInArray(connector, typedConnectedConnectorList)
       )
 
     let remainingConnectorList = connectorList->Array.filter(value => {
-      let existInPopularConnectorList = QuickStartUtils.existsInArray(value, popularConnectorList)
+      let existInPopularConnectorList = ConnectorUtils.existsInArray(value, popularConnectorList)
 
-      let existInTypedConnectorList = QuickStartUtils.existsInArray(
+      let existInTypedConnectorList = ConnectorUtils.existsInArray(
         value,
         typedConnectedConnectorList,
       )
