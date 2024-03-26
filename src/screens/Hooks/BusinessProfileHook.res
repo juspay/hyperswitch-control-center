@@ -11,8 +11,9 @@ let useFetchBusinessProfiles = () => {
       Nullable.make(res->BusinessProfileMapper.getArrayOfBusinessProfile)
     } catch {
     | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
+        let _ = GenericCatch.handleCatch(~error=e, ())
+
+        Nullable.make(JSON.Encode.null->BusinessProfileMapper.getArrayOfBusinessProfile)
       }
     }
   }

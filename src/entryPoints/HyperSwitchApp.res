@@ -46,6 +46,11 @@ let make = () => {
 
   sessionExpired := false
 
+  let getAgreementEnumCatch = () => {
+    setDashboardPageState(_ => #HOME)
+    setScreenState(_ => PageLoaderWrapper.Success)
+  }
+
   let getAgreementEnum = async () => {
     try {
       let url = #ProductionAgreement->ProdOnboardingUtils.getProdOnboardingUrl
@@ -65,9 +70,9 @@ let make = () => {
         setDashboardPageState(_ => #AGREEMENT_SIGNATURE)
       }
     } catch {
-    | _ =>
-      setDashboardPageState(_ => #HOME)
-      setScreenState(_ => PageLoaderWrapper.Success)
+    | Exn.Error(e) => {
+        let _ = GenericCatch.handleCatch(~error=e, ~callbackFun=getAgreementEnumCatch, ())
+      }
     }
   }
 
@@ -80,8 +85,8 @@ let make = () => {
       responseValueDict
     } catch {
     | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
+        let _ = GenericCatch.handleCatch(~error=e, ())
+        Dict.make()
       }
     }
   }
@@ -98,10 +103,19 @@ let make = () => {
       permissionJson
     } catch {
     | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
+        let _ = GenericCatch.handleCatch(~error=e, ())
+        JSON.Encode.null
+        ->getArrayFromJson([])
+        ->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
+        ->Array.map(ele => ele->mapStringToPermissionType)
+        ->getPermissionJson
       }
     }
+  }
+
+  let setUpDashboardCatch = () => {
+    setDashboardPageState(_ => #HOME)
+    setScreenState(_ => PageLoaderWrapper.Error(""))
   }
 
   let setUpDashboard = async () => {
@@ -134,9 +148,9 @@ let make = () => {
 
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | _ =>
-      setDashboardPageState(_ => #HOME)
-      setScreenState(_ => PageLoaderWrapper.Error(""))
+    | Exn.Error(e) => {
+        let _ = GenericCatch.handleCatch(~error=e, ~callbackFun=setUpDashboardCatch, ())
+      }
     }
   }
 
