@@ -23,8 +23,8 @@ module DisputesNoteComponent = {
     }
 
     <div
-      className="flex border items-start border-blue-800 text-sm rounded-md gap-2 px-4 py-3 mt-5">
-      <Icon name="info-vacent" className="text-blue-900 mt-1" size=18 />
+      className="flex border items-start border-blue-500 text-sm rounded-md gap-2 px-4 py-3 mt-5">
+      <Icon name="info-vacent" className="text-blue-500 mt-1" size=18 />
       <span>
         {"Coming soon! You would soon be able to upload evidences against disputes directly from your Hyperswitch dashboard. Until then, please use Hyperswitch dashboard to track any changes in dispute status while uploading evidences from your relevant connector "->React.string}
         {dashboardLink}
@@ -71,7 +71,7 @@ module Details = {
           {getStatus(data)}
           <RenderIf condition={data.dispute_status->disputeStatusVariantMapper === DisputeOpened}>
             <div
-              className="border text-orange-950 bg-orange-200 text-sm px-2 py-1 rounded-md font-semibold">
+              className="border text-orange-950 bg-orange-100 text-sm px-2 py-1 rounded-md font-semibold">
               {`${daysToRespond->Float.toString} days to respond`->React.string}
             </div>
           </RenderIf>

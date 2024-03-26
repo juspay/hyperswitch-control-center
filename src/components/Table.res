@@ -389,7 +389,7 @@ module TableHeadingCell = {
           : ""}`
     }
     let tableHeadingTextClass = if isHighchartLegend {
-      "text-fs-11 dark:text-blue-650 text-jp-gray-900 text-opacity-80 dark:text-opacity-100 font-medium not-italic whitespace-nowrap text-ellipsis overflow-x-hidden "
+      "text-fs-11 dark:text-blue-300 text-jp-gray-900 text-opacity-80 dark:text-opacity-100 font-medium not-italic whitespace-nowrap text-ellipsis overflow-x-hidden "
     } else {
       `${fontWeight} ${fontSize} ${tableHeadingTextClass}`
     }

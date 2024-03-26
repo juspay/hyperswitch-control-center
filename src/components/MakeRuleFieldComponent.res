@@ -71,7 +71,7 @@ module CompressedView = {
     | Some((logical, field, operator, value, key)) =>
       <div className="flex flex-wrap items-center gap-4">
         {if !isFirst {
-          <TextView str=logical fontColor="text-blue-800" fontWeight="font-semibold" />
+          <TextView str=logical fontColor="text-blue-500" fontWeight="font-semibold" />
         } else {
           React.null
         }}

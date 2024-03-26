@@ -163,7 +163,7 @@ let make = (
 
   let buttonStyle =
     tabIndex === tabs->Array.length - 1
-      ? "!border !border-blue-700 !rounded-md bg-white !text-blue-700"
+      ? "!border !border-blue-500 !rounded-md bg-white !text-blue-500"
       : "!rounded-md"
   let requestedPlatform = getRequestedPlatforms()
   <div className="w-full h-full flex flex-col bg-white">
@@ -239,7 +239,7 @@ let make = (
                 {"Explore our detailed developer documentation on our"->React.string}
               </p>
               <p
-                className="text-base font-semibold text-blue-700 cursor-pointer underline"
+                className="text-base font-semibold text-blue-500 cursor-pointer underline"
                 onClick={_ => handleDeveloperDocs()}>
                 {"Developer Docs"->React.string}
               </p>

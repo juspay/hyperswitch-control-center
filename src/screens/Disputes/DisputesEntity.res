@@ -41,11 +41,11 @@ let getStatus = dispute => {
   | DisputeOpened
   | DisputeCancelled
   | DisputeChallenged =>
-    <div className={`${fixedCss} bg-blue-800 bg-opacity-50`}>
+    <div className={`${fixedCss} bg-blue-500 bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | _ =>
-    <div className={`${fixedCss} bg-blue-800 bg-opacity-50`}>
+    <div className={`${fixedCss} bg-blue-500 bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   }

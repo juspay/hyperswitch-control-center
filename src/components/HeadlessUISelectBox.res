@@ -98,7 +98,7 @@ let make = (
                                     className={option.customTextStyle->Belt.Option.getWithDefault(
                                       "",
                                     )}>
-                                    <span className={selected ? "text-blue-800 font-semibold" : ""}>
+                                    <span className={selected ? "text-blue-500 font-semibold" : ""}>
                                       {React.string(option.label)}
                                     </span>
                                   </div>
@@ -178,7 +178,7 @@ let make = (
                               }}
                               <AddDataAttributes attributes=[("data-options", option.label)]>
                                 <div className={option.customTextStyle->Option.getOr("")}>
-                                  <span className={selected ? "text-blue-800 font-semibold" : ""}>
+                                  <span className={selected ? "text-blue-500 font-semibold" : ""}>
                                     {React.string(option.label)}
                                   </span>
                                 </div>

@@ -13,7 +13,7 @@ module GatewayView = {
         }
         <div
           key={Int.toString(index)}
-          className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 dark:border-jp-gray-960 font-medium text-blue-800 hover:text-blue-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1">
+          className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 dark:border-jp-gray-960 font-medium text-blue-500 hover:text-blue-500 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1">
           {connectorStr->React.string}
           <UIUtils.RenderIf condition={percent->Option.isSome}>
             <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
@@ -31,7 +31,7 @@ module ThreedsTypeView = {
   @react.component
   let make = (~threeDsType) => {
     <div
-      className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium text-blue-800 hover:text-blue-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1">
+      className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium text-blue-500 hover:text-blue-500 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1">
       {threeDsType->LogicUtils.capitalizeString->React.string}
     </div>
   }
@@ -41,7 +41,7 @@ module SurchargeCompressedView = {
   @react.component
   let make = (~surchargeType, ~surchargeTypeValue, ~surchargePercentage) => {
     <div
-      className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium text-blue-800 hover:text-blue-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1">
+      className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium text-blue-500 hover:text-blue-500 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1">
       {`${surchargeType} -> ${surchargeTypeValue->Float.toString} | Tax on Surcharge -> ${surchargePercentage
         ->Option.getOr(0.0)
         ->Float.toString}`
@@ -56,7 +56,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
   open LogicUtils
 
   <div
-    className=" bg-white border border-jp-gray-600 flex flex-col divide-y  divide-jp-gray-600  border-jp-gray-600 ">
+    className=" bg-white border  flex flex-col divide-y  divide-jp-gray-600  border-jp-gray-600 ">
     <AddDataAttributes attributes=[("data-component", "rulePreviewer")]>
       <div>
         <div className="flex flex-col divide-y  divide-jp-gray-600  border-t  border-b">
@@ -114,7 +114,7 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
                     <div key={Int.toString(index)} className="flex flex-wrap items-center gap-2">
                       <UIUtils.RenderIf condition={index !== 0}>
                         <MakeRuleFieldComponent.TextView
-                          str=logical fontColor="text-blue-800" fontWeight="font-semibold"
+                          str=logical fontColor="text-blue-500" fontWeight="font-semibold"
                         />
                       </UIUtils.RenderIf>
                       <MakeRuleFieldComponent.TextView str=field />
