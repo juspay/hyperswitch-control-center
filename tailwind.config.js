@@ -195,26 +195,6 @@ module.exports = {
       },
     },
   },
-  // plugins: [
-  //   plugin(function ({ addVariant, addUtilities }) {
-  //     addVariant('red', ({ modifySelectors, separator }) => {
-  //       modifySelectors(({ className }) => {
-  //         return `.red${separator}${className}`;
-  //       });
-  //     });
-
-  //     const newUtilities = {
-  //       '@layer components': {
-  //         ':is(.red .red\\:bg-red)': {
-  //           '--tw-bg-opacity': '1',
-  //           'background-color': 'rgb(255 0 0 / var(--tw-bg-opacity))',
-  //         },
-  //       },
-  //     };
-  //     addUtilities(newUtilities, ['responsive', 'hover', 'red']);
-  //   })
-  // ],
-
   plugins: [
     plugin(function ({ addUtilities }) {
       const newUtilities = {
@@ -261,6 +241,5 @@ module.exports = {
 
 // clean jp-gray
 // refactor colors object
-// Check whether HyperSwitchDefaultConfig is used
 // use Primar and seconday color for button
-// we used use UIConfigs value as placeholder in the button
+// we should use UIConfigs value as placeholder in the button
