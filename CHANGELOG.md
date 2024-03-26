@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.26.0
+
+### Bug Fixes
+
+- Added delete 3ds rule ([#534](https://github.com/juspay/hyperswitch-control-center/pull/534)) ([`6951b43`](https://github.com/juspay/hyperswitch-control-center/commit/6951b438c203a61f2a206e935e48e94baa43f838))
+- Rule based routing on click of ruleno warning fix ([#531](https://github.com/juspay/hyperswitch-control-center/pull/531)) ([`d9bc3c8`](https://github.com/juspay/hyperswitch-control-center/commit/d9bc3c83dfb7169c2d98ad23383af287d00c56fb))
+
+### Miscellaneous Tasks
+
+- Invite-multiple feature flag removal ([#516](https://github.com/juspay/hyperswitch-control-center/pull/516)) ([`161c20f`](https://github.com/juspay/hyperswitch-control-center/commit/161c20faaf17f3239eaf40db6b6f6837cd4f90f5))
+- Clean tailwind config ([#533](https://github.com/juspay/hyperswitch-control-center/pull/533)) ([`beaf529`](https://github.com/juspay/hyperswitch-control-center/commit/beaf52919124d129f4308bfa3b68b784a76269d8))
+
+**Full Changelog:** [`2024.03.21.0...2024.03.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.21.0...2024.03.26.0)
+
+- - -
+
 ## 2024.03.21.0
 
 ### Bug Fixes
