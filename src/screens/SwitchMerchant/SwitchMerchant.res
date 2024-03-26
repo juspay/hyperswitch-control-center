@@ -284,7 +284,6 @@ let make = (~userRole, ~isAddMerchantEnabled=false) => {
       let token = HyperSwitchAuthUtils.parseResponseJson(
         ~json=res,
         ~email=responseDict->LogicUtils.getString("email", ""),
-        ~isAcceptInvite=true,
       )
       LocalStorage.setItem("login", token)
       HSwitchUtils.setMerchantDetails("merchant_id", switchedMerchantId->JSON.Encode.string)

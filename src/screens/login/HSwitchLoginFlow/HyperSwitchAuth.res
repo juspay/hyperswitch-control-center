@@ -53,7 +53,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     try {
       let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post, ())
-      let token = parseResponseJson(~json=res, ~email, ~isAcceptInvite=true)
+      let token = parseResponseJson(~json=res, ~email)
 
       // home
       if !(token->isEmptyString) {

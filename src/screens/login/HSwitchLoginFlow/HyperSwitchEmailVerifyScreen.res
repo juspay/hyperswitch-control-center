@@ -12,7 +12,7 @@ let make = (~setAuthType, ~setAuthStatus) => {
       let url = getURL(~entityName=USERS, ~methodType=Post, ~userType={#VERIFY_EMAILV2}, ())
       let res = await updateDetails(url, body, Post, ())
       let email = res->JSON.Decode.object->Option.getOr(Dict.make())->getString("email", "")
-      let token = HyperSwitchAuthUtils.parseResponseJson(~json=res, ~email, ~isAcceptInvite=true)
+      let token = HyperSwitchAuthUtils.parseResponseJson(~json=res, ~email)
       await HyperSwitchUtils.delay(1000)
       if !(token->isEmptyString) && !(email->isEmptyString) {
         setAuthStatus(LoggedIn(HyperSwitchAuthTypes.getDummyAuthInfoForToken(token)))
