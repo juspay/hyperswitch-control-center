@@ -192,7 +192,7 @@ module CardRenderer = {
             selectedWallet.payment_method_type->getPaymentMethodTypeFromString === GooglePay}>
           <Modal
             modalHeading={`Additional Details to enable ${selectedWallet.payment_method_type->LogicUtils.snakeToTitle}`}
-            headerTextClass="text-blue-800 font-bold text-xl"
+            headerTextClass="text-blue-500 font-bold text-xl"
             showModal={showWalletConfigurationModal}
             setShowModal={setShowWalletConfigurationModal}
             paddingClass=""

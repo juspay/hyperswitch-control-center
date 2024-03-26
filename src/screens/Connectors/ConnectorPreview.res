@@ -309,7 +309,7 @@ let make = (
 
   let connectorStatusStyle = connectorStatus =>
     switch connectorStatus {
-    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-800"
+    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-700"
     | _ => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
     }
 

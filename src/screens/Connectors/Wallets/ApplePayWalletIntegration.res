@@ -241,8 +241,7 @@ module Landing = {
         className="p-6 m-2 cursor-pointer"
         onClick={_e => setApplePayIntegrationType(_ => #simplified)}>
         <Card heading="Web Domain" isSelected={appleIntegrationType === #simplified}>
-          <div
-            className={`opacity-50 mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
+          <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
             {"Get Apple Pay enabled on your web domains by hosting a verification file, that’s it."->React.string}
           </div>
           <div className="flex gap-2 mt-4">
@@ -254,8 +253,7 @@ module Landing = {
       <div
         className="p-6 m-2 cursor-pointer" onClick={_e => setApplePayIntegrationType(_ => #manual)}>
         <Card heading="iOS Certificate" isSelected={appleIntegrationType === #manual}>
-          <div
-            className={`opacity-50 mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
+          <div className={` mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
             <CustomSubText />
           </div>
           <div className="flex gap-2 mt-4">

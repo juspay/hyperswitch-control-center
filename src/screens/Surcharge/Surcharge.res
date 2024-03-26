@@ -12,7 +12,7 @@ module ActiveRulePreview = {
     <UIUtils.RenderIf condition={initialRule->Option.isSome}>
       <div className="relative flex flex-col gap-6 w-full border p-6 bg-white rounded-md">
         <div
-          className="absolute top-0 right-0 bg-green-800 text-white py-2 px-4 rounded-bl font-semibold">
+          className="absolute top-0 right-0 bg-green-700 text-white py-2 px-4 rounded-bl font-semibold">
           {"ACTIVE"->React.string}
         </div>
         <div className="flex flex-col gap-2 ">

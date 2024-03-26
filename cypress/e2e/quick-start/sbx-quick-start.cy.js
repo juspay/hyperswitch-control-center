@@ -1,4 +1,4 @@
-let username = `cypressquickstart+${Math.round(+new Date() / 1000)}@gmail.com`;
+let username = `cypresssbxquickstart+${Math.round(+new Date() / 1000)}@gmail.com`;
 before(() => {
   cy.singup_curl(username, "cypress98#");
 });
@@ -61,8 +61,13 @@ describe("Sandbox quick start", () => {
   it("should successfully setup quickstart flow", () => {
     cy.url().should("eq", "http://localhost:9000/home");
     fillInputFields("merchant_name", "quick_start_flow_test");
+    cy.contains("Quick Start");
+    cy.contains(
+      "Configure and start using Hyperswitch to get an overview of our offerings and how hyperswitch can help you control your payments",
+    );
     clickButton("startExploring");
     clickButton("getStartedNow");
+    cy.contains("How would you like to configure Hyperswitch?");
     customComponentButtonType("MultipleProcessorWithSmartRouting");
     clickButton("proceed");
 
@@ -109,9 +114,13 @@ describe("Sandbox quick start", () => {
     // configure default routing
     customComponentButtonType("DefaultFallback");
     clickButton("proceed");
+    cy.contains("Preview Checkout page");
+    cy.get(`[data-button-for=skipThisStep]`).should("be.visible");
     clickButton("skipThisStep");
+    cy.contains(
+      "Configuration is complete. You can now start integrating with us!",
+    );
     clickButton("iWantToIntegrateHyperswitchIntoMyApp");
-
     // integrate to my app flow
     customComponentButtonType("MigrateFromStripe");
     clickButton("proceed");

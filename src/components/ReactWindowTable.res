@@ -361,7 +361,7 @@ module ReactWindowTableComponent = {
               key={Int.toString(i)}
               className={` ${cellWidth} ${borderClass} justify-between items-center  bg-white dark:bg-jp-gray-darkgray_background text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 whitespace-pre select-none ${roundedClass} ${tableheadingClass}`}>
               <div
-                className={`flex flex-row ${cellWidth} pl-2 py-4 bg-gradient-to-b from-jp-gray-450 to-jp-gray-350 dark:from-jp-gray-950  dark:to-jp-gray-950 text-jp-gray-900`}>
+                className={`flex flex-row ${cellWidth} pl-2 py-4 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950  dark:to-jp-gray-950 text-jp-gray-900`}>
                 <div className="">
                   <div className="flex flex-row">
                     <div className="font-bold text-fs-13"> {React.string(item.title)} </div>

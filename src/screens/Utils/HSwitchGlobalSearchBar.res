@@ -195,7 +195,7 @@ let make = () => {
   let searchBoxBorderColor =
     arr->Array.length > 0
       ? "border border-transparent"
-      : "border border-blue-700 rounded-md !shadow-[0_0_8px_2px_rgba(0,_112,_255,_0.2)]"
+      : "border border-blue-500 rounded-md !shadow-[0_0_8px_2px_rgba(0,_112,_255,_0.2)]"
   let openModalOnClickHandler = _ => {
     setShowModal(_ => true)
   }

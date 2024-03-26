@@ -46,7 +46,7 @@ module Render = {
                 "If the 'Handle card information directly' toggle cannot be turned on, please refer to this ",
               )}
               <a
-                className="text-blue-900 underline"
+                className="text-blue-500 underline"
                 href="https://support.stripe.com/questions/enabling-access-to-raw-card-data-apis"
                 target="_blank">
                 {React.string("link")}
@@ -134,7 +134,7 @@ module Render = {
             <span className="font-bold"> {React.string("\"API credentials\"")} </span>
             {React.string(" tab ")}
             <a
-              className="text-blue-900 underline"
+              className="text-blue-500 underline"
               href="https://developer.paypal.com/dashboard/applications/sandbox"
               target="_blank">
               {React.string("here")}
@@ -158,7 +158,7 @@ module Render = {
     }
     <Modal
       modalHeading={`Steps to integrate ${connector->LogicUtils.snakeToTitle}`}
-      headerTextClass="text-blue-800 font-bold text-xl"
+      headerTextClass="text-blue-500 font-bold text-xl"
       showModal
       setShowModal
       paddingClass=""
