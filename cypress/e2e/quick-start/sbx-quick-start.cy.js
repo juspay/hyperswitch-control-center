@@ -117,12 +117,10 @@ describe("Sandbox quick start", () => {
     cy.contains("Preview Checkout page");
     cy.get(`[data-button-for=skipThisStep]`).should("be.visible");
     clickButton("skipThisStep");
-    // cy.wait(3000);
-    // cy.contains(
-    //   "Configuration is complete. You can now start integrating with us!",
-    // );
-    // clickButton("iWantToIntegrateHyperswitchIntoMyApp");
-    cy.reload();
+    cy.contains(
+      "Configuration is complete. You can now start integrating with us!",
+    );
+    clickButton("iWantToIntegrateHyperswitchIntoMyApp");
     // integrate to my app flow
     customComponentButtonType("MigrateFromStripe");
     clickButton("proceed");
