@@ -117,35 +117,35 @@ describe("Sandbox quick start", () => {
     cy.contains("Preview Checkout page");
     cy.get(`[data-button-for=skipThisStep]`).should("be.visible");
     clickButton("skipThisStep");
-    // cy.wait(3000);
-    // cy.contains(
-    //   "Configuration is complete. You can now start integrating with us!",
-    // );
-    // clickButton("iWantToIntegrateHyperswitchIntoMyApp");
+    cy.wait(3000);
+    cy.contains(
+      "Configuration is complete. You can now start integrating with us!",
+    );
+    clickButton("iWantToIntegrateHyperswitchIntoMyApp");
 
-    // // integrate to my app flow
-    // customComponentButtonType("MigrateFromStripe");
-    // clickButton("proceed");
-    // clickButton("downloadAPIKey");
-    // clickButton("proceed");
-    // clickButton("proceed");
-    // clickButton("proceed");
-    // clickButton("proceed");
-    // clickButton("complete");
+    // integrate to my app flow
+    customComponentButtonType("MigrateFromStripe");
+    clickButton("proceed");
+    clickButton("downloadAPIKey");
+    clickButton("proceed");
+    clickButton("proceed");
+    clickButton("proceed");
+    clickButton("proceed");
+    clickButton("complete");
 
-    // // prod intent form
-    // clickButton("getProductionAccess");
-    // fillInputFields("legal_business_name", "temp_business_name");
-    // selectDropDownOption("Select Country", "Albania");
-    // fillInputFields("business_website", "https://google.com");
-    // fillInputFields("poc_name", "temp_poc_name");
-    // fillInputFields(
-    //   "poc_email",
-    //   `cypressquickstart+${Math.round(+new Date() / 1000)}@gmail.com`,
-    // );
-    // fillInputFields("comments", "temp_tax_identification_number");
-    // clickButton("submit");
-    // clickButton("goToHome");
-    // cy.url().should("eq", "http://localhost:9000/home");
+    // prod intent form
+    clickButton("getProductionAccess");
+    fillInputFields("legal_business_name", "temp_business_name");
+    selectDropDownOption("Select Country", "Albania");
+    fillInputFields("business_website", "https://google.com");
+    fillInputFields("poc_name", "temp_poc_name");
+    fillInputFields(
+      "poc_email",
+      `cypressquickstart+${Math.round(+new Date() / 1000)}@gmail.com`,
+    );
+    fillInputFields("comments", "temp_tax_identification_number");
+    clickButton("submit");
+    clickButton("goToHome");
+    cy.url().should("eq", "http://localhost:9000/home");
   });
 });
