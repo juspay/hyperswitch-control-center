@@ -45,15 +45,25 @@ module CompressedView = {
   let make = (~id, ~isFirst) => {
     open LogicUtils
     let conditionInput = ReactFinalForm.useField(id).input
+
+    let displayForValue = value =>
+      switch value->JSON.Classify.classify {
+      | Array(arr) => arr->Array.joinWithUnsafe(", ")
+      | String(str) => str
+      | Number(num) => num->Float.toString
+      | Object(obj) => obj->getString("value", "")
+      | _ => ""
+      }
+
     let condition =
       conditionInput.value
       ->JSON.Decode.object
       ->Option.flatMap(dict => {
         Some(
-          dict->getString("logical.operator", ""),
-          dict->getString("real_field", ""),
-          dict->getString("operator", ""),
-          dict->getOptionStrArrayFromDict("value")->Option.getOr([dict->getString("value", "")]),
+          dict->getString("logical", ""),
+          dict->getString("lhs", ""),
+          dict->getString("comparison", ""),
+          dict->getDictfromDict("value")->getJsonObjectFromDict("value")->displayForValue,
           dict->getDictfromDict("metadata")->getOptionString("key"),
         )
       })
@@ -71,7 +81,7 @@ module CompressedView = {
         | None => React.null
         }}
         <TextView str=operator fontColor="text-red-500" fontWeight="font-semibold" />
-        <TextView str={value->Array.filter(ele => ele->isNonEmptyString)->Array.joinWith(", ")} />
+        <TextView str={value} />
       </div>
     | None => React.null
     }

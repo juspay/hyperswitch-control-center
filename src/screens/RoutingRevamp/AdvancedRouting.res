@@ -7,7 +7,7 @@ external toWasm: Dict.t<JSON.t> => RoutingTypes.wasmModule = "%identity"
 
 module Add3DSCondition = {
   @react.component
-  let make = (~isFirst, ~id) => {
+  let make = (~isFirst, ~id, ~isExpanded, ~threeDsType) => {
     let classStyle = "flex justify-center relative py-2 h-fit min-w-min hover:bg-jp-2-light-gray-100 focus:outline-none  rounded-md items-center border-2 border-border_gray border-opacity-50 text-jp-2-light-gray-1200 px-4 transition duration-[250ms] ease-out-[cubic-bezier(0.33, 1, 0.68, 1)] overflow-hidden"
 
     let options: array<SelectBox.dropdownOption> = [
@@ -15,31 +15,35 @@ module Add3DSCondition = {
       {value: "no_three_ds", label: "No 3DS"},
     ]
 
-    <div className="flex flex-row ml-2">
-      <UIUtils.RenderIf condition={!isFirst}>
-        <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
-      </UIUtils.RenderIf>
-      <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
-        <div className="flex flex-wrap gap-4 -mt-2">
-          <div className=classStyle> {"Auth type"->React.string} </div>
-          <div className=classStyle> {"= is Equal to"->React.string} </div>
-          <FormRenderer.FieldRenderer
-            field={FormRenderer.makeFieldInfo(
-              ~label="",
-              ~name=`${id}.connectorSelection.override_3ds`,
-              ~customInput=InputFields.selectInput(
-                ~options,
-                ~buttonText="Select Field",
-                ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
-                ~deselectDisable=true,
+    if isExpanded {
+      <div className="flex flex-row ml-2">
+        <UIUtils.RenderIf condition={!isFirst}>
+          <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
+        </UIUtils.RenderIf>
+        <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
+          <div className="flex flex-wrap gap-4 -mt-2">
+            <div className=classStyle> {"Auth type"->React.string} </div>
+            <div className=classStyle> {"= is Equal to"->React.string} </div>
+            <FormRenderer.FieldRenderer
+              field={FormRenderer.makeFieldInfo(
+                ~label="",
+                ~name=`${id}.connectorSelection.override_3ds`,
+                ~customInput=InputFields.selectInput(
+                  ~options,
+                  ~buttonText="Select Field",
+                  ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
+                  ~deselectDisable=true,
+                  (),
+                ),
                 (),
-              ),
-              (),
-            )}
-          />
+              )}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    } else {
+      <RulePreviewer.ThreedsTypeView threeDsType />
+    }
   }
 }
 
@@ -53,7 +57,14 @@ module AddSurchargeCondition = {
   ]
 
   @react.component
-  let make = (~isFirst, ~id) => {
+  let make = (
+    ~isFirst,
+    ~id,
+    ~isExpanded,
+    ~surchargeType,
+    ~surchargeTypeValue,
+    ~surchargePercentage,
+  ) => {
     let (surchargeValueType, setSurchargeValueType) = React.useState(_ => "")
     let surchargeTypeInput = ReactFinalForm.useField(
       `${id}.connectorSelection.surcharge_details.surcharge.type`,
@@ -69,55 +80,67 @@ module AddSurchargeCondition = {
       None
     }, [surchargeTypeInput.value])
 
-    <div className="flex flex-row ml-2">
-      <UIUtils.RenderIf condition={!isFirst}>
-        <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
-      </UIUtils.RenderIf>
-      <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
-        <div className="flex flex-wrap gap-4">
-          <div className=classStyle> {"Surcharge is"->React.string} </div>
-          <FormRenderer.FieldRenderer
-            field={FormRenderer.makeFieldInfo(
-              ~label="",
-              ~name=`${id}.connectorSelection.surcharge_details.surcharge.type`,
-              ~customInput=InputFields.selectInput(
-                ~options,
-                ~buttonText="Select Surcharge Type",
-                ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
-                ~deselectDisable=true,
-                (),
-              ),
-              (),
-            )}
-          />
-          <FormRenderer.FieldRenderer
-            field={FormRenderer.makeFieldInfo(
-              ~label="",
-              ~name=`${id}.connectorSelection.surcharge_details.surcharge.value.${surchargeValueType}`,
-              ~customInput=InputFields.numericTextInput(~customStyle="!-mt-5", ~precision=2, ()),
-              (),
-            )}
-          />
+    {
+      if isExpanded {
+        <div className="flex flex-row ml-2">
+          <UIUtils.RenderIf condition={!isFirst}>
+            <div className="w-8 h-10 border-jp-gray-700 ml-10 border-dashed border-b border-l " />
+          </UIUtils.RenderIf>
+          <div className="flex flex-col gap-6 mt-6 mb-4 pt-0.5">
+            <div className="flex flex-wrap gap-4">
+              <div className=classStyle> {"Surcharge is"->React.string} </div>
+              <FormRenderer.FieldRenderer
+                field={FormRenderer.makeFieldInfo(
+                  ~label="",
+                  ~name=`${id}.connectorSelection.surcharge_details.surcharge.type`,
+                  ~customInput=InputFields.selectInput(
+                    ~options,
+                    ~buttonText="Select Surcharge Type",
+                    ~customButtonStyle=`!-mt-5 ${classStyle} !rounded-md`,
+                    ~deselectDisable=true,
+                    (),
+                  ),
+                  (),
+                )}
+              />
+              <FormRenderer.FieldRenderer
+                field={FormRenderer.makeFieldInfo(
+                  ~label="",
+                  ~name=`${id}.connectorSelection.surcharge_details.surcharge.value.${surchargeValueType}`,
+                  ~customInput=InputFields.numericTextInput(
+                    ~customStyle="!-mt-5",
+                    ~precision=2,
+                    (),
+                  ),
+                  (),
+                )}
+              />
+            </div>
+            <div className="flex flex-wrap gap-4">
+              <div className=classStyle> {"Tax on Surcharge"->React.string} </div>
+              <FormRenderer.FieldRenderer
+                field={FormRenderer.makeFieldInfo(
+                  ~label="",
+                  ~name=`${id}.connectorSelection.surcharge_details.tax_on_surcharge.percentage`,
+                  ~customInput=InputFields.numericTextInput(
+                    ~precision=2,
+                    ~customStyle="!-mt-5",
+                    ~rightIcon=<Icon name="percent" size=16 />,
+                    ~rightIconCustomStyle="-ml-7 -mt-5",
+                    (),
+                  ),
+                  (),
+                )}
+              />
+            </div>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-4">
-          <div className=classStyle> {"Tax on Surcharge"->React.string} </div>
-          <FormRenderer.FieldRenderer
-            field={FormRenderer.makeFieldInfo(
-              ~label="",
-              ~name=`${id}.connectorSelection.surcharge_details.tax_on_surcharge.percentage`,
-              ~customInput=InputFields.numericTextInput(
-                ~precision=2,
-                ~customStyle="!-mt-5",
-                ~rightIcon=<Icon name="percent" size=16 />,
-                ~rightIconCustomStyle="-ml-7 -mt-5",
-                (),
-              ),
-              (),
-            )}
-          />
-        </div>
-      </div>
-    </div>
+      } else {
+        <RulePreviewer.SurchargeCompressedView
+          surchargeType surchargeTypeValue surchargePercentage
+        />
+      }
+    }
   }
 }
 module Wrapper = {
@@ -146,6 +169,31 @@ module Wrapper = {
     let gateWaysInput = ReactFinalForm.useField(`${id}.connectorSelection.data`).input
     let name = ReactFinalForm.useField(`${id}.name`).input
     let conditionsInput = ReactFinalForm.useField(`${id}.statements`).input
+    let threeDsType =
+      ReactFinalForm.useField(
+        `${id}.connectorSelection.override_3ds`,
+      ).input.value->getStringFromJson("")
+
+    let surchargeType =
+      ReactFinalForm.useField(
+        `${id}.connectorSelection.surcharge_details.surcharge.type`,
+      ).input.value->getStringFromJson("")
+    let surchargePercentage =
+      ReactFinalForm.useField(
+        `${id}.connectorSelection.surcharge_details.tax_on_surcharge.percentage`,
+      ).input.value->getOptionFloatFromJson
+    let surchargeValue =
+      ReactFinalForm.useField(
+        `${id}.connectorSelection.surcharge_details.surcharge.value`,
+      ).input.value->getDictFromJsonObject
+
+    let surchargePercent = surchargeValue->getFloat("percentage", 0.0)
+    let surchargeAmount = surchargeValue->getFloat("amount", 0.0)
+    let surchargeTypeValue = if surchargeAmount > 0.0 {
+      surchargeAmount
+    } else {
+      surchargePercent
+    }
 
     let areValidConditions =
       conditionsInput.value
@@ -155,14 +203,27 @@ module Wrapper = {
       )
 
     let handleClickExpand = _ => {
-      let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Array.length > 0
-
-      if gatewayArrPresent && areValidConditions {
-        setIsExpanded(p => !p)
-      } else if gatewayArrPresent {
-        showToast(~toastType=ToastWarning, ~message="Invalid Conditions", ~autoClose=true, ())
+      if isFrom3ds {
+        if threeDsType->String.length > 0 {
+          setIsExpanded(p => !p)
+        } else {
+          showToast(~toastType=ToastWarning, ~message="Auth type not selected", ~autoClose=true, ())
+        }
+      } else if isFromSurcharge {
+        if surchargeTypeValue > 0.0 {
+          setIsExpanded(p => !p)
+        } else {
+          showToast(~toastType=ToastWarning, ~message="Invalid condition", ~autoClose=true, ())
+        }
       } else {
-        showToast(~toastType=ToastWarning, ~message="No Gateway Selected", ~autoClose=true, ())
+        let gatewayArrPresent = gateWaysInput.value->getArrayFromJson([])->Array.length > 0
+        if gatewayArrPresent && areValidConditions {
+          setIsExpanded(p => !p)
+        } else if gatewayArrPresent {
+          showToast(~toastType=ToastWarning, ~message="Invalid Conditions", ~autoClose=true, ())
+        } else {
+          showToast(~toastType=ToastWarning, ~message="No Gateway Selected", ~autoClose=true, ())
+        }
       }
     }
 
@@ -268,10 +329,12 @@ module Wrapper = {
           <AddRuleGateway id gatewayOptions isExpanded isFirst />
         </UIUtils.RenderIf>
         <UIUtils.RenderIf condition={isFrom3ds}>
-          <Add3DSCondition isFirst id />
+          <Add3DSCondition isFirst id isExpanded threeDsType />
         </UIUtils.RenderIf>
         <UIUtils.RenderIf condition={isFromSurcharge}>
-          <AddSurchargeCondition isFirst id />
+          <AddSurchargeCondition
+            isFirst id isExpanded surchargeType surchargeTypeValue surchargePercentage
+          />
         </UIUtils.RenderIf>
       </div>
     </div>

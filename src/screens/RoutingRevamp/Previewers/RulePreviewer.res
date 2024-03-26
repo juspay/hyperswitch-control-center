@@ -27,12 +27,36 @@ module GatewayView = {
   }
 }
 
+module ThreedsTypeView = {
+  @react.component
+  let make = (~threeDsType) => {
+    <div
+      className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium text-blue-500 hover:text-blue-500 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1">
+      {threeDsType->LogicUtils.capitalizeString->React.string}
+    </div>
+  }
+}
+
+module SurchargeCompressedView = {
+  @react.component
+  let make = (~surchargeType, ~surchargeTypeValue, ~surchargePercentage) => {
+    <div
+      className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium text-blue-500 hover:text-blue-500 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1">
+      {`${surchargeType} -> ${surchargeTypeValue->Float.toString} | Tax on Surcharge -> ${surchargePercentage
+        ->Option.getOr(0.0)
+        ->Float.toString}`
+      ->LogicUtils.capitalizeString
+      ->React.string}
+    </div>
+  }
+}
+
 @react.component
 let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) => {
   open LogicUtils
 
   <div
-    className=" bg-white border border-jp-gray-600 flex flex-col divide-y  divide-jp-gray-600  border-jp-gray-600 ">
+    className=" bg-white border  flex flex-col divide-y  divide-jp-gray-600  border-jp-gray-600 ">
     <AddDataAttributes attributes=[("data-component", "rulePreviewer")]>
       <div>
         <div className="flex flex-col divide-y  divide-jp-gray-600  border-t  border-b">
@@ -112,23 +136,17 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
                   <Icon size=14 name="arrow-right" className="mx-4 text-jp-gray-700" />
                 </UIUtils.RenderIf>
                 <UIUtils.RenderIf condition={isFrom3ds}>
-                  <div
-                    className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium text-blue-500 hover:text-blue-500 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1">
-                    {threeDsType->LogicUtils.capitalizeString->React.string}
-                  </div>
+                  <ThreedsTypeView threeDsType />
                 </UIUtils.RenderIf>
                 <UIUtils.RenderIf condition={!isFrom3ds}>
                   <GatewayView gateways={rule.connectorSelection.data->Option.getOr([])} />
                 </UIUtils.RenderIf>
                 <UIUtils.RenderIf condition={isFromSurcharge}>
-                  <div
-                    className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium text-blue-500 hover:text-blue-500 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1">
-                    {`${surchargeType.surcharge.\"type"} -> ${surchargeTypeValue->Float.toString} | Tax on Surcharge -> ${surchargeType.tax_on_surcharge.percentage
-                      ->Option.getOr(0.0)
-                      ->Float.toString}`
-                    ->LogicUtils.capitalizeString
-                    ->React.string}
-                  </div>
+                  <SurchargeCompressedView
+                    surchargeType={surchargeType.surcharge.\"type"}
+                    surchargeTypeValue
+                    surchargePercentage={surchargeType.tax_on_surcharge.percentage}
+                  />
                 </UIUtils.RenderIf>
               </div>
             </div>
