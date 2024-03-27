@@ -188,11 +188,11 @@ let compareLogic = (firstValue, secondValue) => {
   let (temp1, _) = firstValue
   let (temp2, _) = secondValue
   if temp1 == temp2 {
-    0
+    0.
   } else if temp1 > temp2 {
-    -1
+    -1.
   } else {
-    1
+    1.
   }
 }
 
@@ -208,7 +208,7 @@ let constructData = (key, singlestatTimeseriesData: array<refundsSingleStateSeri
       ->Js.Date.valueOf,
       ob.refund_success_rate,
     ))
-    ->Js.Array2.sortInPlaceWith(compareLogic)
+    ->Array.toSorted(compareLogic)
   | "refund_count" =>
     singlestatTimeseriesData
     ->Array.map(ob => (
@@ -219,7 +219,7 @@ let constructData = (key, singlestatTimeseriesData: array<refundsSingleStateSeri
       ->Js.Date.valueOf,
       ob.refund_count->Int.toFloat,
     ))
-    ->Js.Array2.sortInPlaceWith(compareLogic)
+    ->Array.toSorted(compareLogic)
   | "refund_success_count" =>
     singlestatTimeseriesData
     ->Array.map(ob => (
@@ -230,7 +230,7 @@ let constructData = (key, singlestatTimeseriesData: array<refundsSingleStateSeri
       ->Js.Date.valueOf,
       ob.refund_success_count->Int.toFloat,
     ))
-    ->Js.Array2.sortInPlaceWith(compareLogic)
+    ->Array.toSorted(compareLogic)
   | "refund_processed_amount" =>
     singlestatTimeseriesData
     ->Array.map(ob => (
@@ -241,7 +241,7 @@ let constructData = (key, singlestatTimeseriesData: array<refundsSingleStateSeri
       ->Js.Date.valueOf,
       ob.refund_processed_amount /. 100.00,
     ))
-    ->Js.Array2.sortInPlaceWith(compareLogic)
+    ->Array.toSorted(compareLogic)
   | _ => []
   }
 }

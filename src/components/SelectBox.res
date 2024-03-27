@@ -478,11 +478,11 @@ module BaseSelect = {
       options->Array.filter(item => saneValue->Array.includes(item.value))
     })
 
-    let options = options->Js.Array2.sortInPlaceWith((item1, item2) => {
+    let options = options->Array.toSorted((item1, item2) => {
       let item1Index = initialSelectedOptions->Array.findIndex(item => item.label === item1.label)
       let item2Index = initialSelectedOptions->Array.findIndex(item => item.label === item2.label)
 
-      item1Index <= item2Index ? 1 : -1
+      item1Index <= item2Index ? 1. : -1.
     })
 
     let transformedOptions = useTransformed(options)
@@ -576,15 +576,15 @@ module BaseSelect = {
     let textIconPresent = options->Array.some(op => op.icon->Option.getOr(NoIcon) !== NoIcon)
 
     let _ = if sortingBasedOnDisabled {
-      options->Js.Array2.sortInPlaceWith((m1, m2) => {
+      options->Array.toSorted((m1, m2) => {
         let m1Disabled = m1.isDisabled->Option.getOr(false)
         let m2Disabled = m2.isDisabled->Option.getOr(false)
         if m1Disabled === m2Disabled {
-          0
+          0.
         } else if m1Disabled {
-          1
+          1.
         } else {
-          -1
+          -1.
         }
       })
     } else {
@@ -1176,11 +1176,11 @@ let getHashMappedOptionValues = (options: array<dropdownOptionWithoutOptional>) 
 let getSortedKeys = hashMappedOptions => {
   hashMappedOptions
   ->Dict.keysToArray
-  ->Js.Array2.sortInPlaceWith((a, b) => {
+  ->Array.toSorted((a, b) => {
     switch (a, b) {
-    | ("-", _) => 1
-    | (_, "-") => -1
-    | (_, _) => String.compare(a, b)->Float.toInt
+    | ("-", _) => 1.
+    | (_, "-") => -1.
+    | (_, _) => String.compare(a, b)
     }
   })
 }

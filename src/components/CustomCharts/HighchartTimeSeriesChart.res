@@ -612,9 +612,7 @@ module LineChart1D = {
                   let positions = NumericUtils.pretty([lower_bound, upper_bound], 5)
 
                   let positionArr =
-                    Array.concat(positions, [threshold])->Js.Array2.sortInPlaceWith(
-                      numericArraySortComperator,
-                    )
+                    Array.concat(positions, [threshold])->Array.toSorted(numericArraySortComperator)
                   positionArr
                 }
 
