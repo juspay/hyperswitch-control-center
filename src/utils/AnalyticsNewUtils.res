@@ -329,8 +329,8 @@ let getFilterBody = (
             ])->JSON.Encode.object,
           ),
         ])
-        let filterValueArr = Js.Array2.sliceFrom(filterValueArr->Array.copy, 2)
-        let andAndOr = Js.Array2.sliceFrom(andAndOr->Array.copy, 1)
+        let filterValueArr = filterValueArr->Array.copy->Array.sliceToEnd(~start=2)
+        let andAndOr = andAndOr->Array.copy->Array.sliceToEnd(~start=1)
 
         filterValueArr->Array.forEachWithIndex((item, index) => {
           let complextFilterDictCopy = complexFilterDict->Dict.toArray->Array.copy->Dict.fromArray

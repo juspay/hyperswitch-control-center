@@ -8,7 +8,7 @@ while Date.make()->Js.Date.getFullYear->Float.toInt >= startYear.contents {
   years->Array.push(startYear.contents)->ignore
   startYear := startYear.contents + 1
 }
-years->Js.Array2.reverseInPlace->ignore
+years->Array.reverse
 
 let months: array<InfraCalendar.month> = [
   Jan,
