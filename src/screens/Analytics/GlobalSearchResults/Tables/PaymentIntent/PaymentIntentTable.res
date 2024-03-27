@@ -81,31 +81,30 @@ let make = () => {
   }, (offset, searchText))
 
   open ResultsTableUtils
-  <ErrorBoundary>
-    <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
-      <PageUtils.PageHeading title="Payment Intent" />
-      <PageLoaderWrapper screenState>
-        <LoadedTable
-          visibleColumns
-          title=" "
-          hideTitle=true
-          actualData=data
-          entity=tableEntity
-          resultsPerPage=10
-          showSerialNumber=true
-          totalResults={totalCount}
-          offset
-          setOffset
-          currrentFetchCount={data->Array.length}
-          tableLocalFilter=false
-          tableheadingClass=tableBorderClass
-          tableBorderClass
-          ignoreHeaderBg=true
-          tableDataBorderClass=tableBorderClass
-          isAnalyticsModule=false
-          showResultsPerPageSelector=false
-        />
-      </PageLoaderWrapper>
-    </div>
-  </ErrorBoundary>
+
+  <div className={`flex flex-col mx-auto h-full ${widthClass} ${heightClass} min-h-[50vh]`}>
+    <PageUtils.PageHeading title="Payment Intent" />
+    <PageLoaderWrapper screenState>
+      <LoadedTable
+        visibleColumns
+        title=" "
+        hideTitle=true
+        actualData=data
+        entity=tableEntity
+        resultsPerPage=10
+        showSerialNumber=true
+        totalResults={totalCount}
+        offset
+        setOffset
+        currrentFetchCount={data->Array.length}
+        tableLocalFilter=false
+        tableheadingClass=tableBorderClass
+        tableBorderClass
+        ignoreHeaderBg=true
+        tableDataBorderClass=tableBorderClass
+        isAnalyticsModule=false
+        showResultsPerPageSelector=false
+      />
+    </PageLoaderWrapper>
+  </div>
 }

@@ -82,7 +82,7 @@ let colMapper = (col: cols) => {
   }
 }
 
-let tableItemToObjMapper: 'a => refundsObject = dict => {
+let tableItemToObjMapper: Dict.t<JSON.t> => refundsObject = dict => {
   open LogicUtils
 
   {

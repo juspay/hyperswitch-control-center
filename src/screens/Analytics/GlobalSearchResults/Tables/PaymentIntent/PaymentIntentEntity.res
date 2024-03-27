@@ -92,7 +92,7 @@ let colMapper = (col: cols) => {
   }
 }
 
-let tableItemToObjMapper: 'a => paymentIntentObject = dict => {
+let tableItemToObjMapper: Dict.t<JSON.t> => paymentIntentObject = dict => {
   open LogicUtils
 
   {

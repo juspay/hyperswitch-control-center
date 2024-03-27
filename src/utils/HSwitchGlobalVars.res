@@ -28,7 +28,7 @@ let netlifyUrl = Netlify->getHostURLFromVariant
 
 let isHyperSwitchDashboard = GlobalVars.dashboardAppName === #hyperswitch
 
-let hyperSwitchApiPrefix = "https://sandbox.hyperswitch.io"
+let hyperSwitchApiPrefix = Window.env.apiBaseUrl->Option.getOr("/api")
 
 let dashboardUrl = switch hostType {
 | Live => Live->getHostURLFromVariant

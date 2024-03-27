@@ -79,7 +79,7 @@ let colMapper = (col: cols) => {
   }
 }
 
-let tableItemToObjMapper: 'a => disputesObject = dict => {
+let tableItemToObjMapper: Dict.t<JSON.t> => disputesObject = dict => {
   open LogicUtils
   {
     dispute_id: dict->getString(DisputeId->colMapper, "NA"),
