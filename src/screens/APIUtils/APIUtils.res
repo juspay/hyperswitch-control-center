@@ -179,9 +179,7 @@ let getURL = (
     | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`
     | #USER_DELETE => `${userUrl}/user/delete`
     | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
-    | #SIGNIN
     | #SIGNUP
-    | #VERIFY_EMAIL
     | #SIGNOUT
     | #RESET_PASSWORD
     | #SET_METADATA

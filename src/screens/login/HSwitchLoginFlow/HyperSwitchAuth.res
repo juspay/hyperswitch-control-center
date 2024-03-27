@@ -14,7 +14,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (email, setEmail) = React.useState(_ => "")
-  let {magicLink: isMagicLinkEnabled, forgetPassword, acceptInvite} =
+  let {magicLink: isMagicLinkEnabled, forgetPassword} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let handleAuthError = e => {
@@ -53,7 +53,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     try {
       let url = getURL(~entityName=USERS, ~userType, ~methodType=Post, ())
       let res = await updateDetails(url, body, Post, ())
-      let token = parseResponseJson(~json=res, ~email, ~isAcceptInvite=acceptInvite)
+      let token = parseResponseJson(~json=res, ~email)
 
       // home
       if !(token->isEmptyString) {
@@ -70,7 +70,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
 
   let openPlayground = _ => {
     let body = getEmailPasswordBody(playgroundUserEmail, playgroundUserPassword, country)
-    getUserWithEmailPassword(body, playgroundUserEmail, #SIGNIN)->ignore
+    getUserWithEmailPassword(body, playgroundUserEmail, #SIGNINV2)->ignore
     HSLocalStorage.setIsPlaygroundInLocalStorage(true)
   }
 
@@ -148,9 +148,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
         | (_, LoginWithPassword) => {
             let password = getString(valuesDict, "password", "")
             let body = getEmailPasswordBody(email, password, country)
-            acceptInvite
-              ? getUserWithEmailPassword(body, email, #SIGNINV2)
-              : getUserWithEmailPassword(body, email, #SIGNIN)
+            getUserWithEmailPassword(body, email, #SIGNINV2)
           }
         | (_, ResetPassword) => {
             let queryDict = url.search->getDictFromUrlSearchParams
