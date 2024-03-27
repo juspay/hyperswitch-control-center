@@ -79,7 +79,7 @@ let make = (
           <p>
             {"For the complete API schema, refer "->React.string}
             <span
-              className="text-blue-700 underline cursor-pointer"
+              className="text-blue-500 underline cursor-pointer"
               onClick={_ =>
                 Window._open(
                   "https://api-reference.hyperswitch.io/docs/hyperswitch-api-reference/60bae82472db8-payments-create",

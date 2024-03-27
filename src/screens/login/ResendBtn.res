@@ -8,7 +8,7 @@ let make = (~callBackFun) => {
     callBackFun()
     setSeconds(_ => 30)
   }
-  let disabledColor = isDisabled ? "text-jp-gray-700" : "text-blue-800"
+  let disabledColor = isDisabled ? "text-jp-gray-700" : "text-blue-500"
 
   React.useEffect0(() => {
     let intervalId = Js.Global.setInterval(() => setSeconds(p => p > 0 ? p - 1 : p), 1000)
@@ -32,7 +32,7 @@ let make = (~callBackFun) => {
       {"Send again."->React.string}
     </a>
     <UIUtils.RenderIf condition={isDisabled}>
-      <div className="text-blue-700">
+      <div className="text-blue-500">
         {`(${mod(seconds, 60)->Int.toString}sec)`->React.string}
       </div>
     </UIUtils.RenderIf>

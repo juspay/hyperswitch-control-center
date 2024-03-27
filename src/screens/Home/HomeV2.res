@@ -18,16 +18,16 @@ module HomePageHorizontalStepper = {
 
     let getStepperStyle = index => {
       if index < step {
-        "bg-white border-blue-700"
+        "bg-white border-blue-500"
       } else if index === step {
-        "bg-blue-700 text-white border-transparent"
+        "bg-blue-500 text-white border-transparent"
       } else {
         "border-gray-500 text-gray-500"
       }
     }
     let getProgressBarStyle = index => {
       if index < step {
-        "bg-blue-700  w-full"
+        "bg-blue-500  w-full"
       } else {
         ""
       }

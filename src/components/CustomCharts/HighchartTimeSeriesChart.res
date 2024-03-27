@@ -360,9 +360,9 @@ module LineChart1D = {
                     <Icon name="sad-tear" className="text-red-500" size=18 />
                   </div>
                 } else if transactionTable.current < 40. {
-                  <Icon name="sad-tear" className="text-red-300" size=18 />
+                  <Icon name="sad-tear" className="text-red-100" size=18 />
                 } else if transactionTable.current < 50. {
-                  <Icon name="sad-tear" className="text-red-200" size=18 />
+                  <Icon name="sad-tear" className="text-red-100" size=18 />
                 } else if transactionTable.current < 60. {
                   <Icon name="smile" className="text-green-200" size=18 />
                 } else if transactionTable.current < 90. {

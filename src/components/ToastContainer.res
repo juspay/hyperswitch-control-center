@@ -22,8 +22,8 @@ module ToastHeading = {
     let toastColorClasses = switch toastProps.toastType {
     | ToastError => "bg-red-960 border-red-960 rounded-md"
     | ToastWarning => "bg-orange-950 border-orange-950 rounded-md"
-    | ToastInfo => "bg-blue-950 border-blue-950 rounded-md"
-    | ToastSuccess => "bg-green-800 border-green-800 rounded-md"
+    | ToastInfo => "bg-blue-600 border-blue-600 rounded-md"
+    | ToastSuccess => "bg-green-700 border-green-700 rounded-md"
     }
 
     let toastIconName = switch toastProps.toastType {
