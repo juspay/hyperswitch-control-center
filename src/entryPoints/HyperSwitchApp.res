@@ -438,6 +438,7 @@ let make = () => {
                       | list{"payment-attempts"} => <PaymentAttemptTable />
                       | list{"payment-intents"} => <PaymentIntentTable />
                       | list{"refunds-global"} => <RefundsTable />
+                      | list{"dispute-global"} => <DisputeTable />
                       | list{"unauthorized"} => <UnauthorizedPage />
                       | _ =>
                         RescriptReactRouter.replace(`${hyperSwitchFEPrefix}/home`)

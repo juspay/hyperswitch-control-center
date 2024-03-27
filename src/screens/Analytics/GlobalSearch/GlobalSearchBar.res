@@ -35,7 +35,7 @@ module SearchBox = {
       <Icon size=14 name="search" className="mx-2" onClick={openModalOnClickHandler} />
     } else {
       <div
-        className={`flex w-80 inline gap-2 items-center bg-white text-grey-700 text-opacity-30 font-semibold justify-between py-2 px-3 rounded-lg border border-jp-gray-border_gray hover:cursor-text`}
+        className={`flex w-80 gap-2 items-center bg-white text-grey-700 text-opacity-30 font-semibold justify-between py-2 px-3 rounded-lg border border-jp-gray-border_gray hover:cursor-text`}
         onClick={openModalOnClickHandler}>
         <div className="flex gap-2 ">
           <Icon size=14 name="search" />
@@ -69,7 +69,7 @@ module OptionsWrapper = {
     <FramerMotion.Motion.Div layoutId="options">
       <Combobox.Options
         static={true}
-        className="w-full overflow-auto text-base max-h-60vh focus:outline-none sm:text-sm">
+        className="w-full overflow-auto text-base max-h-[60vh] focus:outline-none sm:text-sm">
         {_ => {children}}
       </Combobox.Options>
     </FramerMotion.Motion.Div>

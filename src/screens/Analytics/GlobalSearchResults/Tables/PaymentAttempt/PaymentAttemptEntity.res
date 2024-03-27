@@ -109,7 +109,6 @@ let visibleColumns = [
   Status,
   Amount,
   Currency,
-  CreatedAt,
   Connector,
   PaymentMethod,
   PaymentMethodType,

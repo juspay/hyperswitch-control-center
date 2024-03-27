@@ -51,15 +51,7 @@ type cols =
   | SignFlag
   | Timestamp
 
-let visibleColumns = [
-  RefundId,
-  PaymentId,
-  Connector,
-  TotalAmount,
-  Currency,
-  CreatedAt,
-  Refundstatus,
-]
+let visibleColumns = [RefundId, PaymentId, Connector, TotalAmount, Currency, Refundstatus]
 
 let colMapper = (col: cols) => {
   switch col {
@@ -214,38 +206,38 @@ let getHeading = colType => {
   }
 }
 
-let getCell = (paymentObj, colType): Table.cell => {
-  let orderStatus = paymentObj.refund_status->HSwitchOrderUtils.statusVariantMapper
+let getCell = (refundsObj, colType): Table.cell => {
+  let refundStatus = refundsObj.refund_status->HSwitchOrderUtils.statusVariantMapper
 
   switch colType {
-  | InternalReferenceId => Text(paymentObj.internal_reference_id)
-  | RefundId => Text(paymentObj.refund_id)
-  | PaymentId => Text(paymentObj.payment_id)
-  | MerchantId => Text(paymentObj.merchant_id)
-  | ConnectorTransactionId => Text(paymentObj.connector_transaction_id)
-  | Connector => Text(paymentObj.connector)
-  | ConnectorRefundId => Text(paymentObj.connector_refund_id)
-  | ExternalReferenceId => Text(paymentObj.external_reference_id)
-  | RefundType => Text(paymentObj.refund_type)
+  | InternalReferenceId => Text(refundsObj.internal_reference_id)
+  | RefundId => Text(refundsObj.refund_id)
+  | PaymentId => Text(refundsObj.payment_id)
+  | MerchantId => Text(refundsObj.merchant_id)
+  | ConnectorTransactionId => Text(refundsObj.connector_transaction_id)
+  | Connector => Text(refundsObj.connector)
+  | ConnectorRefundId => Text(refundsObj.connector_refund_id)
+  | ExternalReferenceId => Text(refundsObj.external_reference_id)
+  | RefundType => Text(refundsObj.refund_type)
   | TotalAmount =>
     CustomCell(
       <OrderEntity.CurrencyCell
-        amount={(paymentObj.total_amount /. 100.0)->Float.toString} currency={paymentObj.currency}
+        amount={(refundsObj.total_amount /. 100.0)->Float.toString} currency={refundsObj.currency}
       />,
       "",
     )
-  | Currency => Text(paymentObj.currency)
+  | Currency => Text(refundsObj.currency)
   | RefundAmount =>
     CustomCell(
       <OrderEntity.CurrencyCell
-        amount={(paymentObj.refund_amount /. 100.0)->Float.toString} currency={paymentObj.currency}
+        amount={(refundsObj.refund_amount /. 100.0)->Float.toString} currency={refundsObj.currency}
       />,
       "",
     )
   | Refundstatus =>
     Label({
-      title: paymentObj.refund_status->String.toUpperCase,
-      color: switch orderStatus {
+      title: refundsObj.refund_status->String.toUpperCase,
+      color: switch refundStatus {
       | Succeeded
       | PartiallyCaptured =>
         LabelGreen
@@ -260,17 +252,17 @@ let getCell = (paymentObj, colType): Table.cell => {
       | _ => LabelLightBlue
       },
     })
-  | SentToGateway => Text(paymentObj.sent_to_gateway->LogicUtils.getStringFromBool)
-  | RefundErrorMessage => Text(paymentObj.refund_error_message)
-  | RefundArn => Text(paymentObj.refund_arn)
-  | CreatedAt => Text(paymentObj.created_at->Int.toString)
-  | ModifiedAt => Text(paymentObj.modified_at->Int.toString)
-  | Description => Text(paymentObj.description)
-  | AttemptId => Text(paymentObj.attempt_id)
-  | RefundReason => Text(paymentObj.refund_reason)
-  | RefundErrorCode => Text(paymentObj.refund_error_code)
-  | SignFlag => Text(paymentObj.sign_flag->Int.toString)
-  | Timestamp => Text(paymentObj.timestamp)
+  | SentToGateway => Text(refundsObj.sent_to_gateway->LogicUtils.getStringFromBool)
+  | RefundErrorMessage => Text(refundsObj.refund_error_message)
+  | RefundArn => Text(refundsObj.refund_arn)
+  | CreatedAt => Text(refundsObj.created_at->Int.toString)
+  | ModifiedAt => Text(refundsObj.modified_at->Int.toString)
+  | Description => Text(refundsObj.description)
+  | AttemptId => Text(refundsObj.attempt_id)
+  | RefundReason => Text(refundsObj.refund_reason)
+  | RefundErrorCode => Text(refundsObj.refund_error_code)
+  | SignFlag => Text(refundsObj.sign_flag->Int.toString)
+  | Timestamp => Text(refundsObj.timestamp)
   }
 }
 
@@ -283,6 +275,6 @@ let tableEntity = EntityType.makeEntity(
   ~allColumns=visibleColumns,
   ~getCell,
   ~getHeading,
-  ~getShowLink={order => `/payments/${order.payment_id}`},
+  ~getShowLink={refund => `/refunds/${refund.refund_id}`},
   (),
 )

@@ -57,7 +57,6 @@ let visibleColumns = [
   Status,
   Amount,
   Currency,
-  CreatedAt,
   ActiveAttemptId,
   BusinessCountry,
   BusinessLabel,

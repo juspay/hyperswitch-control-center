@@ -16,13 +16,14 @@ module ShowMoreLink = {
 
     switch section.section {
     | Local | Default | Others => React.null
-    | PaymentAttempts | PaymentIntents | Refunds =>
+    | PaymentAttempts | PaymentIntents | Refunds | Disputes =>
       <div
         onClick={_ => {
           let link = switch section.section {
           | PaymentAttempts => "payment-attempts"
           | PaymentIntents => "payment-intents"
           | Refunds => "refunds-global"
+          | Disputes => "dispute-global"
           | Local | Others | Default => ""
           }
 
@@ -197,7 +198,18 @@ let getElements = (hits, section) => {
         redirect_link: `/refunds/${refId}`->JSON.Encode.string,
       }
     })
+  | Disputes =>
+    hits->Array.map(item => {
+      let value = item->JSON.Decode.object->Option.getOr(Dict.make())
+      let disId = value->getString("dispute_id", "")
+      let amount = value->getAmount("dispute_amount", "currency")
+      let status = value->getString("dispute_status", "")
 
+      {
+        texts: [disId, amount, status]->Array.map(JSON.Encode.string),
+        redirect_link: `/disputes/${disId}`->JSON.Encode.string,
+      }
+    })
   | Local | Others | Default => []
   }
 }

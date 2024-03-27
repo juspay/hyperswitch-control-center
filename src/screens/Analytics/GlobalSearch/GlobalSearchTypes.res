@@ -1,4 +1,4 @@
-type section = Local | PaymentIntents | PaymentAttempts | Refunds | Others | Default
+type section = Local | PaymentIntents | PaymentAttempts | Refunds | Disputes | Others | Default
 
 type element = {
   texts: array<JSON.t>,
@@ -18,6 +18,7 @@ let getSectionHeader = section => {
   | PaymentAttempts => "Payment Attempts"
   | Refunds => "Refunds"
   | Others => "Others"
+  | Disputes => "Disputes"
   | Default => ""
   }
 }
@@ -27,6 +28,7 @@ let getSectionVariant = string => {
   | "payment_attempts" => PaymentAttempts
   | "payment_intents" => PaymentIntents
   | "refunds" => Refunds
+  | "disputes" => Disputes
   | _ => Local
   }
 }
