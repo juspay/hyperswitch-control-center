@@ -144,6 +144,8 @@ let htmlInitialize = `async function initialize() {
     theme: "midnight",
   };
 
+  const hyper = Hyper(YOUR_PUBLISHABLE_KEY);
+
   widgets = hyper.widgets({ appearance, clientSecret });
 
   var unifiedCheckoutOptions = {

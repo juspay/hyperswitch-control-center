@@ -90,7 +90,7 @@ let parseSdkResponse = arr => {
   let sourceMapper = source => {
     switch source {
     | "ORCA-LOADER" => "HYPERLOADER"
-    | "ORCA-PAYMENTS-PAGE"
+    | "ORCA-PAYMENT-PAGE"
     | "STRIPE_PAYMENT_SHEET" => "PAYMENT_SHEET"
     | other => other
     }
