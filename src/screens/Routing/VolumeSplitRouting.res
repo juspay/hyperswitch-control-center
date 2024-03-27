@@ -259,7 +259,7 @@ let make = (~routingRuleId, ~isActive) => {
     let dict = values->getDictFromJsonObject
     let validateGateways = dict => {
       let gateways = dict->getArrayFromDict("data", [])
-      if gateways->Js.Array2.length === 0 {
+      if gateways->Array.length === 0 {
         Some("Need atleast 1 Gateway")
       } else {
         let distributionPercentages = gateways->Belt.Array.keepMap(json => {
