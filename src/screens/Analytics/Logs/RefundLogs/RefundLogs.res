@@ -1,5 +1,5 @@
 @react.component
-let make = (~refundId, ~paymentId, ~data: RefundEntity.refunds) => {
+let make = (~refundId, ~paymentId) => {
   open LogTypes
 
   let refundsLogsUrl = `${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/api_event_logs?type=Refund&payment_id=${paymentId}&refund_id=${refundId}`
@@ -15,22 +15,11 @@ let make = (~refundId, ~paymentId, ~data: RefundEntity.refunds) => {
       url: webhooksLogsUrl,
       apiMethod: Get,
     },
+    {
+      url: connectorLogsUrl,
+      apiMethod: Get,
+    },
   ]
-
-  switch data.connector->ConnectorUtils.getConnectorNameTypeFromString() {
-  | Processors(connector) =>
-    if LogUtils.responseMaskingSupportedConectors->Array.includes(connector) {
-      urls
-      ->Array.concat([
-        {
-          url: connectorLogsUrl,
-          apiMethod: Get,
-        },
-      ])
-      ->ignore
-    }
-  | _ => ()
-  }
 
   <AuditLogUI id={paymentId} urls logType={#REFUND} />
 }

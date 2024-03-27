@@ -1,7 +1,7 @@
 let headerTextStyle = "text-xl font-semibold text-grey-700"
 let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
 let dividerColor = "bg-grey-700 bg-opacity-20 h-px w-full"
-let highlightedText = "text-base font-normal text-blue-700 underline"
+let highlightedText = "text-base font-normal text-blue-500 underline"
 
 module ReplaceAPIKey = {
   @react.component

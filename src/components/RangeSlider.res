@@ -68,14 +68,14 @@ let make = (
 
   let inputClassname = (hasError, isFocused) => {
     let bg = hasError
-      ? "bg-jp-2-red-50"
+      ? "bg-jp-2-red-100"
       : `${isFocused
             ? "bg-jp-2-light-primary-200"
             : "focus:bg-jp-2-light-primary-200 hover:bg-jp-2-light-gray-100"}`
     `w-max numberInput outline-none p-1 ${bg} `
   }
 
-  let bgClass = isMinFocused || isMaxFocused ? "bg-blue-800" : "bg-jp-2-light-gray-2000"
+  let bgClass = isMinFocused || isMaxFocused ? "bg-blue-500" : "bg-jp-2-light-gray-2000"
   <div className="relative pt-1 w-max">
     <div className={`h-1 rounded relative bg-gray-200`} style={ReactDOMStyle.make(~width, ())}>
       <div

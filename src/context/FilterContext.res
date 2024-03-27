@@ -56,7 +56,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
         let currentDictArr =
           dict
           ->Dict.toArray
-          ->Js.Array2.filter(
+          ->Array.filter(
             item => {
               let (_, value) = item
               !(value->isEmptyString)

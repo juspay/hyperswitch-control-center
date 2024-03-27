@@ -3,7 +3,7 @@ open HyperSwitchAuthTypes
 module TermsAndCondition = {
   @react.component
   let make = () => {
-    <div id="tc-text" className="text-center text-sm text-infra-gray-300">
+    <div id="tc-text" className="text-center text-sm text-gray-300">
       {"By continuing, you agree to our "->React.string}
       <a
         className="underline cursor-pointer"
@@ -127,7 +127,7 @@ let getEmailBody = (email, ~country=?, ()) => {
   fields->Dict.fromArray->JSON.Encode.object
 }
 
-let parseResponseJson = (~json, ~email, ~isAcceptInvite) => {
+let parseResponseJson = (~json, ~email) => {
   open HSwitchUtils
   open LogicUtils
   let valuesDict = json->JSON.Decode.object->Option.getOr(Dict.make())
@@ -138,16 +138,13 @@ let parseResponseJson = (~json, ~email, ~isAcceptInvite) => {
   | None => JSON.Encode.null
   }
 
-  // * Setting all local storage values
-  if isAcceptInvite {
-    if flowType->Option.isSome && flowType->flowTypeStrToVariantMapper === MERCHANT_SELECT {
-      LocalStorage.setItem(
-        "accept_invite_data",
-        valuesDict->getArrayFromDict("merchants", [])->JSON.stringifyAny->Option.getOr(""),
-      )
-    }
-    setUserDetails("flow_type", flowTypeVal)
+  if flowType->Option.isSome && flowType->flowTypeStrToVariantMapper === MERCHANT_SELECT {
+    LocalStorage.setItem(
+      "accept_invite_data",
+      valuesDict->getArrayFromDict("merchants", [])->JSON.stringifyAny->Option.getOr(""),
+    )
   }
+  setUserDetails("flow_type", flowTypeVal)
 
   setMerchantDetails("merchant_id", valuesDict->getString("merchant_id", "")->JSON.Encode.string)
   setMerchantDetails("email", email->JSON.Encode.string)
@@ -211,7 +208,7 @@ let note = (authType, setAuthType, isMagicLinkEnabled) => {
         setAuthType(_ => authType)
         path->RescriptReactRouter.push
       }}
-      className="text-sm text-center text-blue-900 cursor-pointer hover:underline underline-offset-2">
+      className="text-sm text-center text-blue-500 cursor-pointer hover:underline underline-offset-2">
       {btnText->React.string}
     </div>
   }
@@ -250,7 +247,7 @@ let note = (authType, setAuthType, isMagicLinkEnabled) => {
             }
             setAuthType(_ => backState)
           }}
-          className="text-sm text-center text-blue-900 hover:underline underline-offset-2 cursor-pointer w-fit">
+          className="text-sm text-center text-blue-500 hover:underline underline-offset-2 cursor-pointer w-fit">
           {"Cancel"->React.string}
         </div>
       </div>
@@ -379,7 +376,7 @@ module Header = {
             path->RescriptReactRouter.push
           }}
           id="card-subtitle"
-          className="font-semibold text-blue-900 cursor-pointer">
+          className="font-semibold text-blue-500 cursor-pointer">
           {sufix->React.string}
         </div>
       </div>

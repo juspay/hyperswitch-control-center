@@ -178,7 +178,7 @@ module NoData = {
           buttonSize={Small}
           onClick={_ => RescriptReactRouter.push("/home")}
           buttonType=Secondary
-          customButtonStyle={`!bg-blue-800 mt-3`}
+          customButtonStyle={`!bg-blue-500 mt-3`}
           textStyle={`!text-white`}
         />
       </NoDataFound>

@@ -207,7 +207,7 @@ module CashToCodeSelectBox = {
       ->React.array}
       <Modal
         modalHeading={`Additional Details to enable`}
-        headerTextClass="text-blue-800 font-bold text-xl"
+        headerTextClass="text-blue-500 font-bold text-xl"
         showModal={showWalletConfigurationModal}
         setShowModal={setShowWalletConfigurationModal}
         paddingClass=""
@@ -342,7 +342,7 @@ module BusinessProfileRender = {
 
     let hereTextStyle = isUpdateFlow
       ? "text-grey-700 opacity-50 cursor-not-allowed"
-      : "text-blue-900  cursor-pointer"
+      : "text-blue-500  cursor-pointer"
 
     <>
       <FormRenderer.FieldRenderer
@@ -430,7 +430,7 @@ module VerifyConnectorModal = {
         <div className="flex flex-col mb-2 p-2 m-2">
           <div className="flex p-3">
             <img
-              className="w-12 h-12 my-auto border-gray-100 w-fit mt-0"
+              className="h-12 my-auto border-gray-100 w-fit mt-0"
               src={`/icons/warning.svg`}
               alt="warning"
             />
@@ -444,7 +444,7 @@ module VerifyConnectorModal = {
                 {`Received the following error from ${connector->LogicUtils.snakeToTitle}:`->React.string}
               </div>
               <div
-                className="whitespace-pre-line break-all flex flex-col gap-1 p-4 ml-6 text-base dark:text-jp-gray-text_darktheme dark:text-opacity-50 bg-red-50 rounded-md font-semibold">
+                className="whitespace-pre-line break-all flex flex-col gap-1 p-4 ml-6 text-base dark:text-jp-gray-text_darktheme dark:text-opacity-50 bg-red-100 rounded-md font-semibold">
                 {`${verifyErrorMessage->Option.getOr("")}`->React.string}
               </div>
               <UIUtils.RenderIf condition={suggestedActionExists}>
@@ -502,7 +502,7 @@ module ConnectorHeaderWrapper = {
             condition={connectorsWithIntegrationSteps->Array.includes(connectorNameFromType) &&
               conditionForIntegrationSteps}>
             <a
-              className={`flex cursor-pointer px-4 py-3 flex text-sm text-blue-900 items-center mx-4`}
+              className={`cursor-pointer px-4 py-3 flex text-sm text-blue-500 items-center mx-4`}
               target="_blank"
               onClick={_ => setShowModalFunction()}>
               {React.string("View integration steps")}

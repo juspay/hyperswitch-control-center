@@ -61,7 +61,7 @@ let make = (
   let statusCodeTextColor = switch logType {
   | SDK =>
     switch statusCode {
-    | "INFO" => "blue-700"
+    | "INFO" => "blue-500"
     | "ERROR" => "red-400"
     | "WARNING" => "yellow-800"
     | _ => "gray-700 opacity-50"
@@ -84,7 +84,7 @@ let make = (
   | SDK =>
     switch statusCode {
     | "INFO" => "blue-100"
-    | "ERROR" => "red-200"
+    | "ERROR" => "red-100"
     | "WARNING" => "yellow-100"
     | _ => "gray-100"
     }
@@ -108,7 +108,7 @@ let make = (
     ? switch logType {
       | SDK =>
         switch statusCode {
-        | "INFO" => "blue-700"
+        | "INFO" => "blue-500"
         | "ERROR" => "red-400"
         | "WARNING" => "yellow-300"
         | _ => "gray-700 opacity-50"
@@ -131,7 +131,7 @@ let make = (
     ? switch logType {
       | SDK =>
         switch statusCode {
-        | "INFO" => "blue-700"
+        | "INFO" => "blue-500"
         | "ERROR" => "red-400"
         | "WARNING" => "orange-500"
         | _ => "gray-600"
@@ -151,7 +151,7 @@ let make = (
       }
     : "gray-200"
 
-  let borderClass = isSelected ? "border border-blue-700 rounded-md" : "border border-transparent"
+  let borderClass = isSelected ? "border border-blue-500 rounded-md" : "border border-transparent"
 
   <div className="flex items-start gap-4">
     <div className="flex flex-col items-center h-full">

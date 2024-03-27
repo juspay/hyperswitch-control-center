@@ -25,7 +25,7 @@ let make = (
 
   let divider = arrowDivider
   let fontWeight = "font-semibold"
-  let textClass = "text-blue-800"
+  let textClass = "text-blue-500"
   let parentGapClass = "gap-2"
   let childGapClass = ""
   let flexDirection = is_reverse ? "flex-wrap flex-row-reverse" : "flex-wrap flex-row"

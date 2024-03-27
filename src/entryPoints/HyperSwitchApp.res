@@ -195,7 +195,7 @@ let make = () => {
             <div className="flex relative overflow-auto h-screen ">
               <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
               <div
-                className="flex relative flex-col flex-1 overflow-hidden bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
+                className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
                 <RenderIf condition={verificationDays > 0}>
                   <DelayedVerificationBanner verificationDays={verificationDays} />
                 </RenderIf>

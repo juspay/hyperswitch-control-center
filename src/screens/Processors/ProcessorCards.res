@@ -31,7 +31,7 @@ module CantFindProcessor = {
       <ACLDiv
         permission=userPermissionJson.merchantDetailsManage
         onClick={_ => setShowModal(_ => true)}
-        className={`text-blue-900 underline underline-offset-4 font-medium ${cursorStyles}`}>
+        className={`text-blue-500 underline underline-offset-4 font-medium ${cursorStyles}`}>
         {"Can't find the processor of your choice?"->React.string}
       </ACLDiv>
     </UIUtils.RenderIf>
