@@ -24,7 +24,6 @@ type featureFlag = {
   surcharge: bool,
   disputeEvidenceUpload: bool,
   paypalAutomaticFlow: bool,
-  acceptInvite: bool,
   threedsAuthenticator: bool,
 }
 
@@ -57,7 +56,6 @@ let featureFlagType = (featureFlags: JSON.t) => {
     surcharge: dict->getBool("surcharge", false),
     disputeEvidenceUpload: dict->getBool("dispute_evidence_upload", false),
     paypalAutomaticFlow: dict->getBool("paypal_automatic_flow", false),
-    acceptInvite: dict->getBool("accept-invite", false),
     threedsAuthenticator: dict->getBool("threeds-authenticator", false),
   }
   typedFeatureFlag

@@ -23,6 +23,5 @@
   "surcharge": false,
   "dispute_evidence_upload": false,
   "paypal_automatic_flow": false,
-  "accept-invite": false,
   "threeds-authenticator": false
 }

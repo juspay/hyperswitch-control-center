@@ -128,9 +128,3 @@ let parseSdkResponse = arr => {
 
   logsArr
 }
-
-let responseMaskingSupportedConectors: array<ConnectorTypes.processorTypes> = [
-  BAMBORA,
-  BANKOFAMERICA,
-  BITPAY,
-]

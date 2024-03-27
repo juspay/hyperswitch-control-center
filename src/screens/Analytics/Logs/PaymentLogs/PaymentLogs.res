@@ -1,5 +1,5 @@
 @react.component
-let make = (~paymentId, ~createdAt, ~data: OrderTypes.order) => {
+let make = (~paymentId, ~createdAt) => {
   open LogTypes
   open APIUtils
   let apiLogsUrl = getURL(~entityName=PAYMENT_LOGS, ~methodType=Get, ~id=Some(paymentId), ())
@@ -45,22 +45,11 @@ let make = (~paymentId, ~createdAt, ~data: OrderTypes.order) => {
       url: webhookLogsUrl,
       apiMethod: Get,
     },
+    {
+      url: connectorLogsUrl,
+      apiMethod: Get,
+    },
   ]
-
-  switch data.connector->ConnectorUtils.getConnectorNameTypeFromString() {
-  | Processors(connector) =>
-    if LogUtils.responseMaskingSupportedConectors->Array.includes(connector) {
-      urls
-      ->Array.concat([
-        {
-          url: connectorLogsUrl,
-          apiMethod: Get,
-        },
-      ])
-      ->ignore
-    }
-  | _ => ()
-  }
 
   <AuditLogUI id={paymentId} urls logType={#PAYMENT} />
 }

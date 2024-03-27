@@ -3,7 +3,7 @@ open LogicUtils
 type rolesTableTypes = {
   role_name: string,
   role_scope: string,
-  groups: array<Js.Json.t>,
+  groups: array<JSON.t>,
 }
 
 type rolesColTypes =

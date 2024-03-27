@@ -27,7 +27,7 @@ let getIntegrationDetails: JSON.t => integrationDetailsType = json => {
   json->getDictFromJsonObject->itemToObjMapper
 }
 
-let itemToObjMapperForGetInfo: Js.Dict.t<Js.Json.t> => UserManagementTypes.getInfoType = dict => {
+let itemToObjMapperForGetInfo: Dict.t<JSON.t> => UserManagementTypes.getInfoType = dict => {
   open LogicUtils
   {
     module_: getString(dict, "group", ""),
