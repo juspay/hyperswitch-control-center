@@ -74,17 +74,17 @@ module RenderSearchResultBody = {
 module SearchResultsComponent = {
   open GlobalSearchTypes
   @react.component
-  let make = (~searchResults) => {
+  let make = (~searchResults, ~searchText) => {
     searchResults
     ->Array.mapWithIndex((section: resultType, i) => {
       let borderClass = searchResults->Array.length > 0 ? "" : "border-b dark:border-jp-gray-960"
       <div className={`py-5 ${borderClass}`} key={i->Int.toString}>
         <div className="flex justify-between">
-          <div className="text-lightgray_background font-bold pb-1 text-lg pb-2">
+          <div className="text-lightgray_background font-bold  text-lg pb-2">
             {section.section->getSectionHeader->React.string}
           </div>
           <GlobalSearchBarUtils.ShowMoreLink
-            section textStyleClass="text-sm pt-2 font-medium text-blue-900"
+            section textStyleClass="text-sm pt-2 font-medium text-blue-900" searchText
           />
         </div>
         <RenderSearchResultBody section />
@@ -98,19 +98,91 @@ module SearchResultsComponent = {
 let make = () => {
   open LogicUtils
   open SearchResultsPageUtils
-  //let url = RescriptReactRouter.useUrl()
+  open GlobalSearchTypes
+  open GlobalSearchBarUtils
+  let fetchDetails = APIUtils.useUpdateMethod()
+  let url = RescriptReactRouter.useUrl()
   let prefix = useUrlPrefix()
+  let (state, setState) = React.useState(_ => Idle)
+  let (searchText, setSearchText) = React.useState(_ => "")
+  let (searchResults, setSearchResults) = React.useState(_ => [])
   let globalSearchResult = GlobalSearchBarUtils.globalSeacrchAtom->Recoil.useRecoilValueFromAtom
-  let (searchResults, searchText) = globalSearchResult->getSearchresults
+  let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
+  let isReconEnabled = merchentDetails.recon_status === Active
+  let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
+  let query = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
 
-  Js.log2(">>", globalSearchResult)
+  let getSearchResults = async results => {
+    try {
+      let url = APIUtils.getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
+      let body = [("query", query->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+      let response = await fetchDetails(url, body, Post, ())
+
+      let local_results = []
+      results->Array.forEach((item: resultType) => {
+        switch item.section {
+        | Local => local_results->Array.pushMany(item.results)
+        | _ => ()
+        }
+      })
+
+      let remote_results = response->parseResponse
+
+      let data = {
+        local_results,
+        remote_results,
+        searchText: query,
+      }
+
+      let (results, text) = data->getSearchresults
+
+      setSearchResults(_ => results)
+      setSearchText(_ => text)
+
+      setState(_ => Loaded)
+    } catch {
+    | _ => setState(_ => Failed)
+    }
+  }
+
+  React.useEffect2(() => {
+    let (results, text) = globalSearchResult->getSearchresults
+
+    if text->isNonEmptyString {
+      setSearchResults(_ => results)
+      setSearchText(_ => text)
+      setState(_ => Loaded)
+    } else if query->isNonEmptyString {
+      let results = []
+      setState(_ => Loading)
+      let localResults: resultType = query->GlobalSearchBarUtils.getLocalMatchedResults(hswitchTabs)
+
+      if localResults.results->Array.length > 0 {
+        results->Array.push(localResults)
+      }
+
+      getSearchResults(results)->ignore
+    } else {
+      setState(_ => Idle)
+      setSearchResults(_ => [])
+    }
+
+    None
+  }, (query, url.search))
 
   <div>
     <PageUtils.PageHeading title="Search results" />
-    {if searchResults->Array.length === 0 {
-      <GlobalSearchBar.EmptyResult prefix searchText />
-    } else {
-      <SearchResultsComponent searchResults />
+    {switch state {
+    | Loading =>
+      <div className="my-14 py-4">
+        <Loader />
+      </div>
+    | _ =>
+      if searchResults->Array.length === 0 {
+        <GlobalSearchBar.EmptyResult prefix searchText />
+      } else {
+        <SearchResultsComponent searchResults searchText={query} />
+      }
     }}
   </div>
 }

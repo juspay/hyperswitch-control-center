@@ -47,7 +47,7 @@ let make = () => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("refunds")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {searchText} = GlobalSearchBarUtils.globalSeacrchAtom->Recoil.useRecoilValueFromAtom
+  let searchText = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("query", "")
 
   React.useEffect2(() => {
     if searchText->String.length > 0 {
@@ -62,6 +62,8 @@ let make = () => {
         ~path="refunds",
         ~mapper=tableItemToObjMapper,
       )->ignore
+    } else {
+      setScreenState(_ => PageLoaderWrapper.Success)
     }
 
     None

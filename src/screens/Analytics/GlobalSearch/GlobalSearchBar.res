@@ -142,7 +142,10 @@ module SearchResultsComponent = {
             </div>
             <div>
               <GlobalSearchBarUtils.ShowMoreLink
-                section cleanUpFunction={() => {setShowModal(_ => false)}} textStyleClass="text-xs"
+                section
+                cleanUpFunction={() => {setShowModal(_ => false)}}
+                textStyleClass="text-xs"
+                searchText
               />
             </div>
           </FramerMotion.Motion.Div>

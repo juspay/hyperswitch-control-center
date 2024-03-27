@@ -3,14 +3,19 @@ let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Reco
   {
     GlobalSearchTypes.local_results: [],
     remote_results: [],
-    searchText: "hello",
+    searchText: "",
   },
 )
 
 module ShowMoreLink = {
   open GlobalSearchTypes
   @react.component
-  let make = (~section: resultType, ~cleanUpFunction=() => {()}, ~textStyleClass="") => {
+  let make = (
+    ~section: resultType,
+    ~cleanUpFunction=() => {()},
+    ~textStyleClass="",
+    ~searchText,
+  ) => {
     let linkText = `View ${section.total_results->Int.toString} result${section.total_results > 1
         ? "s"
         : ""}`
@@ -21,10 +26,10 @@ module ShowMoreLink = {
       <div
         onClick={_ => {
           let link = switch section.section {
-          | PaymentAttempts => "payment-attempts"
-          | PaymentIntents => "payment-intents"
-          | Refunds => "refunds-global"
-          | Disputes => "dispute-global"
+          | PaymentAttempts => `payment-attempts?query=${searchText}`
+          | PaymentIntents => `payment-intents?query=${searchText}`
+          | Refunds => `refunds-global?query=${searchText}`
+          | Disputes => `dispute-global?query=${searchText}`
           | Local | Others | Default => ""
           }
 
