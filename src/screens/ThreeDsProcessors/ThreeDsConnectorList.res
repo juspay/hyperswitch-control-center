@@ -46,7 +46,6 @@ let make = () => {
           )}
           showIcons={showConnectorIcons}
           connectorsAvailableForIntegration=ConnectorUtils.threedsAuthenticatorList
-          showTestProcessor=false
           urlPrefix="3ds-authenticators/new"
           connectorType=ConnectorTypes.ThreeDsAuthenticator
         />
