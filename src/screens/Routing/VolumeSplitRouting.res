@@ -267,8 +267,8 @@ let make = (~routingRuleId, ~isActive) => {
         })
         let distributionPercentageSum =
           distributionPercentages->Array.reduce(0., (sum, distribution) => sum +. distribution)
-        let hasZero = distributionPercentages->Js.Array2.some(ele => ele === 0.)
-        let isDistributeChecked = !(distributionPercentages->Js.Array2.some(ele => ele === 100.0))
+        let hasZero = distributionPercentages->Array.some(ele => ele === 0.)
+        let isDistributeChecked = !(distributionPercentages->Array.some(ele => ele === 100.0))
 
         let isNotValid =
           isDistributeChecked &&
