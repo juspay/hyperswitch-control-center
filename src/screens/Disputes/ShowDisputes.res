@@ -216,8 +216,8 @@ let make = (~id) => {
             {
               title: "Events and logs",
               renderContent: () => {
-                <LogsWrapper wrapperFor={#REFUND}>
-                  <DisputeLogs disputeId=id paymentId data={data->DisputesEntity.itemToObjMapper} />
+                <LogsWrapper wrapperFor={#DISPUTE}>
+                  <DisputeLogs disputeId=id paymentId />
                 </LogsWrapper>
               },
               renderContentOnTop: None,
