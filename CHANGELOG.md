@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.27.0
+
+### Miscellaneous Tasks
+
+- Enabled audit log for all connectors ([#538](https://github.com/juspay/hyperswitch-control-center/pull/538)) ([`52544b3`](https://github.com/juspay/hyperswitch-control-center/commit/52544b3694548e4e7ac7a9a0b0a0b9a851f7f00d))
+- Core changes ([#539](https://github.com/juspay/hyperswitch-control-center/pull/539)) ([`a7a3060`](https://github.com/juspay/hyperswitch-control-center/commit/a7a306071290424428b24cf338ef166a6e611a28))
+
+**Full Changelog:** [`2024.03.26.0...2024.03.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.26.0...2024.03.27.0)
+
+- - -
+
 ## 2024.03.26.0
 
 ### Bug Fixes
