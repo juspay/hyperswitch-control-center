@@ -96,26 +96,14 @@ module SearchResultsComponent = {
 
 @react.component
 let make = () => {
-  open GlobalSearchBarUtils
   open LogicUtils
   open SearchResultsPageUtils
-  let url = RescriptReactRouter.useUrl()
+  //let url = RescriptReactRouter.useUrl()
   let prefix = useUrlPrefix()
-  let (searchText, setSearchText) = React.useState(_ => "")
-  let (searchResults, setSearchResults) = React.useState(_ => [])
+  let globalSearchResult = GlobalSearchBarUtils.globalSeacrchAtom->Recoil.useRecoilValueFromAtom
+  let (searchResults, searchText) = globalSearchResult->getSearchresults
 
-  React.useEffect1(() => {
-    switch sessionStorage.getItem(. "results")->Nullable.toOption {
-    | Some(value) => {
-        let (results, text) = value->getSearchresults
-        setSearchText(_ => text)
-        setSearchResults(_ => results)
-      }
-    | None => ()
-    }
-
-    None
-  }, [url])
+  Js.log2(">>", globalSearchResult)
 
   <div>
     <PageUtils.PageHeading title="Search results" />

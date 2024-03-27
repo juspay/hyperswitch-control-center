@@ -1,10 +1,11 @@
-type sessionStorage = {
-  getItem: (. string) => Nullable.t<string>,
-  setItem: (. string, string) => unit,
-  removeItem: (. string) => unit,
-}
-
-@val external sessionStorage: sessionStorage = "sessionStorage"
+let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Recoil.atom(.
+  "globalSearch",
+  {
+    GlobalSearchTypes.local_results: [],
+    remote_results: [],
+    searchText: "hello",
+  },
+)
 
 module ShowMoreLink = {
   open GlobalSearchTypes
@@ -252,4 +253,20 @@ let getDefaultResult = searchText => {
     ],
     total_results: 1,
   }
+}
+
+let parseResponse = response => {
+  open GlobalSearchTypes
+  open LogicUtils
+  response
+  ->getArrayFromJson([])
+  ->Array.map(json => {
+    let item = json->getDictFromJsonObject
+
+    {
+      count: item->getInt("count", 0),
+      hits: item->getArrayFromDict("hits", []),
+      index: item->getString("index", ""),
+    }
+  })
 }

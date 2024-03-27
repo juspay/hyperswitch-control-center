@@ -36,32 +36,18 @@ module PreviewTable = {
 @react.component
 let make = () => {
   open APIUtils
-  open LogicUtils
   open PaymentAttemptEntity
   let updateDetails = useUpdateMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (data, setData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
-  let (searchText, setSearchText) = React.useState(_ => "")
   let widthClass = "w-full"
   let heightClass = ""
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-
-  React.useEffect0(() => {
-    switch GlobalSearchBarUtils.sessionStorage.getItem(. "results")->Nullable.toOption {
-    | Some(value) => {
-        let valueDict = value->JSON.parseExn->JSON.Decode.object->Option.getOr(Dict.make())
-        let searchText = valueDict->getString("searchText", "")
-        setSearchText(_ => searchText)
-      }
-    | None => ()
-    }
-
-    None
-  })
+  let {searchText} = GlobalSearchBarUtils.globalSeacrchAtom->Recoil.useRecoilValueFromAtom
 
   React.useEffect2(() => {
     if searchText->String.length > 0 {

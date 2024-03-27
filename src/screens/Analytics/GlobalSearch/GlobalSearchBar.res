@@ -184,6 +184,7 @@ let make = () => {
   open LogicUtils
   open UIUtils
   let prefix = useUrlPrefix()
+  let setGLobalSearchResults = GlobalSearchBarUtils.globalSeacrchAtom->Recoil.useSetRecoilState
   let fetchDetails = APIUtils.useUpdateMethod()
   let (state, setState) = React.useState(_ => Idle)
   let (showModal, setShowModal) = React.useState(_ => false)
@@ -208,20 +209,23 @@ let make = () => {
       let url = APIUtils.getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
       let body = [("query", searchText->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
       let response = await fetchDetails(url, body, Post, ())
-      let dictFields = [("searchText", searchText->JSON.Encode.string)]
+
+      let local_results = []
       results->Array.forEach((item: resultType) => {
         switch item.section {
-        | Local =>
-          dictFields->Array.push(("local-results", item.results->Identity.genericTypeToJson))
-
+        | Local => local_results->Array.pushMany(item.results)
         | _ => ()
         }
       })
-      dictFields->Array.push(("remote-results", response))
-      sessionStorage.setItem(.
-        "results",
-        dictFields->Dict.fromArray->JSON.Encode.object->JSON.stringify,
-      )
+
+      let remote_results = response->parseResponse
+
+      setGLobalSearchResults(._ => {
+        local_results,
+        remote_results,
+        searchText,
+      })
+
       let values = response->getRemoteResults
       results->Array.pushMany(values)
 

@@ -33,4 +33,16 @@ let getSectionVariant = string => {
   }
 }
 
+type remoteResult = {
+  count: int,
+  hits: array<JSON.t>,
+  index: string,
+}
+
+type defaultResult = {
+  local_results: array<element>,
+  remote_results: array<remoteResult>,
+  searchText: string,
+}
+
 type state = Loading | Loaded | Failed | Idle
