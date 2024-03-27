@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.27.1
+
+### Miscellaneous Tasks
+
+- Feature flag removal of accept-invite ([#518](https://github.com/juspay/hyperswitch-control-center/pull/518)) ([`fe91351`](https://github.com/juspay/hyperswitch-control-center/commit/fe913518e5c60585b21b6b04ae18bb5773fe839e))
+
+**Full Changelog:** [`2024.03.27.0...2024.03.27.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.27.0...2024.03.27.1)
+
+- - -
+
 ## 2024.03.27.0
 
 ### Miscellaneous Tasks
