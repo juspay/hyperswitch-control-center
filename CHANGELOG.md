@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.28.0
+
+### Features
+
+- Global search ([#523](https://github.com/juspay/hyperswitch-control-center/pull/523)) ([`0108cc5`](https://github.com/juspay/hyperswitch-control-center/commit/0108cc5bb4118b7f63cb420048428672a68801de))
+
+### Miscellaneous Tasks
+
+- Js.changes ([#544](https://github.com/juspay/hyperswitch-control-center/pull/544)) ([`76c6d87`](https://github.com/juspay/hyperswitch-control-center/commit/76c6d87779c5cc29b63972c9086fdcefe58bd9a9))
+- Custom testId for buttons ([#545](https://github.com/juspay/hyperswitch-control-center/pull/545)) ([`a53c4f9`](https://github.com/juspay/hyperswitch-control-center/commit/a53c4f9e6637bbdd3d9a3a94db85e7b6e5e0e2a2))
+
+**Full Changelog:** [`2024.03.27.2...2024.03.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.27.2...2024.03.28.0)
+
+- - -
+
 ## 2024.03.27.2
 
 ### Miscellaneous Tasks
