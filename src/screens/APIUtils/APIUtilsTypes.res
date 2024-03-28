@@ -38,6 +38,7 @@ type entityName =
   | CUSTOMERS
   | ACCEPT_DISPUTE
   | DISPUTES_ATTACH_EVIDENCE
+  | GLOBAL_SEARCH
 
 type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 
