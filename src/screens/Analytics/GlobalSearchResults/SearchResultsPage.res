@@ -106,15 +106,15 @@ let make = () => {
   let (state, setState) = React.useState(_ => Idle)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (searchResults, setSearchResults) = React.useState(_ => [])
-  let globalSearchResult = GlobalSearchBarUtils.globalSeacrchAtom->Recoil.useRecoilValueFromAtom
+  let globalSearchResult = HyperswitchAtom.globalSeacrchAtom->Recoil.useRecoilValueFromAtom
   let merchentDetails = HSwitchUtils.useMerchantDetailsValue()
   let isReconEnabled = merchentDetails.recon_status === Active
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let query = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
   // TODO: need to add feature flag here
-  let isShowRemoteResults =
+  let isShowRemoteResults = !(
     HSLocalStorage.getFromUserDetails("user_role")->String.includes("internal_")
-
+  )
   let getSearchResults = async results => {
     try {
       let url = APIUtils.getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())

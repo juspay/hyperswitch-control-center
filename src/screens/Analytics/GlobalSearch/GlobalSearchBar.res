@@ -187,7 +187,7 @@ let make = () => {
   open LogicUtils
   open UIUtils
   let prefix = useUrlPrefix()
-  let setGLobalSearchResults = GlobalSearchBarUtils.globalSeacrchAtom->Recoil.useSetRecoilState
+  let setGLobalSearchResults = HyperswitchAtom.globalSeacrchAtom->Recoil.useSetRecoilState
   let fetchDetails = APIUtils.useUpdateMethod()
   let (state, setState) = React.useState(_ => Idle)
   let (showModal, setShowModal) = React.useState(_ => false)
@@ -199,8 +199,9 @@ let make = () => {
   let searchText = searchText->String.trim
   let loader = LottieFiles.useLottieJson("loader-circle.json")
   // TODO: need to add feature flag here
-  let isShowRemoteResults =
+  let isShowRemoteResults = !(
     HSLocalStorage.getFromUserDetails("user_role")->String.includes("internal_")
+  )
 
   let redirectOnSelect = element => {
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")

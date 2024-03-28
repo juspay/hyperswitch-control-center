@@ -1,12 +1,3 @@
-let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Recoil.atom(.
-  "globalSearch",
-  {
-    GlobalSearchTypes.local_results: [],
-    remote_results: [],
-    searchText: "",
-  },
-)
-
 module ShowMoreLink = {
   open GlobalSearchTypes
   @react.component
