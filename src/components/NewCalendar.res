@@ -90,7 +90,7 @@ module TableRow = {
               | Some(limit) =>
                 if startDate->isNonEmptyString {
                   date->Date.getTime -. startDate->Date.fromString->Date.getTime <
-                    ((limit->Js.Int.toFloat -. 1.) *. 24. *. 60. *. 60. -. 60.) *. 1000.
+                    ((limit->Int.toFloat -. 1.) *. 24. *. 60. *. 60. -. 60.) *. 1000.
                 } else {
                   true
                 }

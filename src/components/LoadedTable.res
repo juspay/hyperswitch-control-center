@@ -469,7 +469,7 @@ let make = (
                   convertStrCellToFloat(dataType, x.title)
                 | DeltaPercentage(num, _) | Currency(num, _) | Numeric(num, _) =>
                   convertFloatCellToStr(dataType, num)
-                | Progress(num) => convertFloatCellToStr(dataType, num->Js.Int.toFloat)
+                | Progress(num) => convertFloatCellToStr(dataType, num->Int.toFloat)
                 | StartEndDate(_) | InputField(_) | TrimmedText(_) | DropDown(_) =>
                   convertStrCellToFloat(dataType, "")
                 }

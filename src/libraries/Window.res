@@ -168,7 +168,7 @@ type date = {getTimezoneOffset: (. unit) => float}
 
 @new external date: unit => date = "Date"
 let date = date()
-let timeZoneOffset = date.getTimezoneOffset(.)->Js.Float.toString
+let timeZoneOffset = date.getTimezoneOffset(.)->Float.toString
 
 type options = {timeZone: string}
 type dateTimeFormat = {resolvedOptions: (. unit) => options}
