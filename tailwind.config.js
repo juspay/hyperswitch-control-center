@@ -79,6 +79,11 @@ module.exports = {
         "fs-28": "28px",
       },
       colors: {
+        primary: {
+          DEFAULT: "#006DF9", // Default primary color
+          hover: "#005ED6",
+          custom: "#006DF9", // Custom primary color
+        },
         blue: {
           100: "#F1F2F4",
           200: "#DAECFF",

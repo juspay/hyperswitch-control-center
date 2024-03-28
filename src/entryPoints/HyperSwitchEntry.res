@@ -7,8 +7,6 @@ module HyperSwitchEntryComponent = {
     let name = getFromUserDetails("name")
     let url = RescriptReactRouter.useUrl()
     let (_zone, setZone) = React.useContext(UserTimeZoneProvider.userTimeContext)
-    // let (_zone, setZone) = React.useContext(ConfigContext.make)
-    let globalConfig = React.useContext(ConfigContext.configContext)
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom

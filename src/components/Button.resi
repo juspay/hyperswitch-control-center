@@ -42,14 +42,7 @@ let useGetBgColor: (
   ~isPhoneDropdown: bool=?,
   unit,
 ) => string
-let getTextColor: (
-  ~buttonType: buttonType,
-  ~buttonState: buttonState,
-  ~showBorder: bool,
-  ~isDropdownOpen: bool=?,
-  ~isPhoneDropdown: bool=?,
-  unit,
-) => string
+
 let useGetTextColor: (
   ~buttonType: buttonType,
   ~buttonState: buttonState,

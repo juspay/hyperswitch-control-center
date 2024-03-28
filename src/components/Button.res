@@ -185,21 +185,23 @@ let useGetBgColor = (
   }
 }
 
-let getTextColor = (
+let useGetTextColor = (
   ~buttonType,
   ~buttonState,
   ~showBorder,
   ~isDropdownOpen=false,
   ~isPhoneDropdown=false,
   (),
-) =>
+) => {
+  let globalConfig = React.useContext(ConfigContext.configContext)
+  let textConfig = globalConfig.button.textColor
   switch buttonType {
   | Primary =>
     switch buttonState {
-    | Disabled => "text-jp-gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-25"
-    | _ => "text-white"
+    | Disabled => textConfig.primaryDisabled
+    | _ => textConfig.primaryNormal
     }
-  | PrimaryOutline => "text-blue-500"
+  | PrimaryOutline => textConfig.primaryOutline
 
   | FilterAdd => "text-blue-500"
   | Delete => "text-white"
@@ -241,16 +243,6 @@ let getTextColor = (
     | _ => "text-jp-gray-900 text-opacity-50 hover:text-opacity-100 dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75"
     }
   }
-
-let useGetTextColor = (
-  ~buttonType,
-  ~buttonState,
-  ~showBorder,
-  ~isDropdownOpen=false,
-  ~isPhoneDropdown=false,
-  (),
-) => {
-  getTextColor(~buttonType, ~buttonState, ~showBorder, ~isDropdownOpen, ~isPhoneDropdown, ())
 }
 
 @react.component
