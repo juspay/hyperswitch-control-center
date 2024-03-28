@@ -5,7 +5,7 @@ let reorder = (currentState, startIndex, endIndex) => {
   if startIndex !== endIndex {
     let oldStateArray = Array.copy(currentState)
     let removed = Js.Array.removeCountInPlace(~pos=startIndex, ~count=1, oldStateArray)
-    let _ = Js.Array.spliceInPlace(~pos=endIndex, ~remove=0, ~add=removed, oldStateArray)
+    oldStateArray->Array.splice(~start=endIndex, ~remove=0, ~insert=removed)
     (oldStateArray, true)
   } else {
     (currentState, false)
