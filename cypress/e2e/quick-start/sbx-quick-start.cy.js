@@ -1,4 +1,6 @@
-let username = `cypresssbxquickstart+${Math.round(+new Date() / 1000)}@gmail.com`;
+let username = `cypresssbxquickstart+${Math.round(
+  +new Date() / 1000,
+)}@gmail.com`;
 before(() => {
   cy.singup_curl(username, "cypress98#");
 });
