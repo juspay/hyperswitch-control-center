@@ -72,10 +72,10 @@ module ListItem = {
         ? [text]
         : {
             switch Js.String2.match_(text, regex("\\b", searchString)) {
-            | Some(r) => Js.Array2.sliceFrom(r, 1)->Belt.Array.keepMap(x => x)
+            | Some(r) => r->Array.sliceToEnd(~start=1)->Belt.Array.keepMap(x => x)
             | None =>
               switch Js.String2.match_(text, regex("_", searchString)) {
-              | Some(a) => Js.Array2.sliceFrom(a, 1)->Belt.Array.keepMap(x => x)
+              | Some(a) => a->Array.sliceToEnd(~start=1)->Belt.Array.keepMap(x => x)
               | None => [text]
               }
             }
@@ -1586,7 +1586,7 @@ module BaseDropdown = {
       }
       setShowDropDown(_ => !showDropDown)
       setIsGrowDown(_ => true)
-      let _id = Js.Global.setTimeout(() => setIsGrowDown(_ => false), 250)
+      let _id = setTimeout(() => setIsGrowDown(_ => false), 250)
       if isInitialRender {
         setIsInitialRender(_ => false)
       }

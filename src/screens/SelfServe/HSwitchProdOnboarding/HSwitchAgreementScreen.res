@@ -29,7 +29,7 @@ let make = () => {
 
   let downloadPDF = () => {
     let currentDate =
-      Js.Date.now()
+      Date.now()
       ->Js.Date.fromFloat
       ->Date.toISOString
       ->TimeZoneHook.formattedISOString("YYYY-MM-DD HH:mm:ss")

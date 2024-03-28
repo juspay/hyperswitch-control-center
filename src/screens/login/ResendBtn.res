@@ -11,9 +11,9 @@ let make = (~callBackFun) => {
   let disabledColor = isDisabled ? "text-jp-gray-700" : "text-blue-500"
 
   React.useEffect0(() => {
-    let intervalId = Js.Global.setInterval(() => setSeconds(p => p > 0 ? p - 1 : p), 1000)
+    let intervalId = setInterval(() => setSeconds(p => p > 0 ? p - 1 : p), 1000)
     let cleanup = () => {
-      Js.Global.clearInterval(intervalId)
+      clearInterval(intervalId)
     }
     Some(cleanup)
   })

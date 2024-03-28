@@ -61,7 +61,7 @@ let make = (
                         }
                         let disabledClass = option.isDisabled ? "disabled cursor-not-allowed" : ""
 
-                        <Menu.Item key={index->Js.Int.toString}>
+                        <Menu.Item key={index->Int.toString}>
                           {props => {
                             let isCloseIcon = props["active"] && deSelectAllowed
 

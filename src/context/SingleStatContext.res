@@ -193,7 +193,7 @@ let make = (
       }
       setSingleStatTime(_ => {
         let a: timeObj = {
-          apiStartTime: Js.Date.now(),
+          apiStartTime: Date.now(),
           apiEndTime: 0.,
         }
         a
@@ -206,7 +206,7 @@ let make = (
         setIndividualSingleStatTime(
           prev => {
             let individualTime = prev->Dict.toArray->Dict.fromArray
-            individualTime->Dict.set(index->Int.toString, Js.Date.now())
+            individualTime->Dict.set(index->Int.toString, Date.now())
             individualTime
           },
         )
@@ -435,8 +435,8 @@ let make = (
                 let individualTime = prev->Dict.toArray->Dict.fromArray
                 individualTime->Dict.set(
                   index->Int.toString,
-                  Js.Date.now() -.
-                  individualTime->Dict.get(index->Int.toString)->Option.getOr(Js.Date.now()),
+                  Date.now() -.
+                  individualTime->Dict.get(index->Int.toString)->Option.getOr(Date.now()),
                 )
                 individualTime
               },
@@ -445,7 +445,7 @@ let make = (
               setSingleStatTime(
                 prev => {
                   ...prev,
-                  apiEndTime: Js.Date.now(),
+                  apiEndTime: Date.now(),
                 },
               )
             }

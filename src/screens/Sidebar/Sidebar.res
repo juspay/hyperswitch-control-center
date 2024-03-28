@@ -357,7 +357,7 @@ module SidebarNestedSection = {
       if isSectionExpanded {
         setIsElementShown(_ => true)
       } else if isElementShown {
-        let _ = Js.Global.setTimeout(() => {
+        let _ = setTimeout(() => {
           setIsElementShown(_ => false)
         }, 200)
       }
@@ -376,7 +376,7 @@ module SidebarNestedSection = {
     let toggleSectionExpansion = React.useCallback4(_ev => {
       if !isSideBarExpanded {
         setIsSidebarExpanded(_ => true)
-        Js.Global.setTimeout(() => {
+        setTimeout(() => {
           setIsSectionExpanded(_ => true)
         }, 200)->ignore
       } else if isAnySubItemSelected {

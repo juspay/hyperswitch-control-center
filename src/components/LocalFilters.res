@@ -98,7 +98,7 @@ let make = (
   )
   let (checkedFilters, setCheckedFilters) = React.useState(_ => [])
   let url = RescriptReactRouter.useUrl()
-  let searchParams = disableURIdecode ? url.search : url.search->Js.Global.decodeURI
+  let searchParams = disableURIdecode ? url.search : url.search->decodeURI
   let (initialValueJson, setInitialValueJson) = React.useState(_ => JSON.Encode.object(Dict.make()))
   let remoteFiltersJson = RemoteFiltersUtils.getInitialValuesFromUrl(
     ~searchParams,
