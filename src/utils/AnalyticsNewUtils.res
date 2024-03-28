@@ -102,7 +102,7 @@ let getFilterBody = (
       let filterValueArr =
         value
         ->Array.mapWithIndex((item, _index) => {
-          if Js.String.match_(%re("/ != /gi"), item)->Option.isSome {
+          if item->String.match(%re("/ != /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ != /gi"), "@@")
               ->String.split("@@")
@@ -124,7 +124,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ > /gi"), item)->Option.isSome {
+          } else if String.match(item, %re("/ > /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ > /gi"), "@@")
               ->String.split("@@")
@@ -146,7 +146,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ < /gi"), item)->Option.isSome {
+          } else if item->String.match(%re("/ < /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ < /gi"), "@@")
               ->String.split("@@")
@@ -168,7 +168,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ >= /gi"), item)->Option.isSome {
+          } else if item->String.match(%re("/ >= /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ >= /gi"), "@@")
               ->String.split("@@")
@@ -190,7 +190,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ <= /gi"), item)->Option.isSome {
+          } else if item->String.match(%re("/ <= /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ <= /gi"), "@@")
               ->String.split("@@")
@@ -212,7 +212,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ = /gi"), item)->Option.isSome {
+          } else if item->String.match(%re("/ = /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ = /gi"), "@@")
               ->String.split("@@")
@@ -234,7 +234,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ IN /gi"), item)->Option.isSome {
+          } else if item->String.match(%re("/ IN /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ IN /gi"), "@@")
               ->String.split("@@")
@@ -260,7 +260,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ NOT IN /gi"), item)->Option.isSome {
+          } else if item->String.match(%re("/ NOT IN /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ NOT IN /gi"), "@@")
               ->String.split("@@")
@@ -286,7 +286,7 @@ let getFilterBody = (
             } else {
               None
             }
-          } else if Js.String.match_(%re("/ LIKE /gi"), item)->Option.isSome {
+          } else if item->String.match(%re("/ LIKE /gi"))->Option.isSome {
             let value =
               String.replaceRegExp(item, %re("/ LIKE /gi"), "@@")
               ->String.split("@@")

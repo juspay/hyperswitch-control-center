@@ -301,7 +301,7 @@ let make = (
       let newDefaultFilter =
         defaultFilters->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
 
-      Dict.set(newDefaultFilter, "offset", rowFetched->Js.Int.toFloat->JSON.Encode.float)
+      Dict.set(newDefaultFilter, "offset", rowFetched->Int.toFloat->JSON.Encode.float)
       setDefaultFilters(_ => newDefaultFilter->JSON.Encode.object)
     }
   }

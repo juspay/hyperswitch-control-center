@@ -170,8 +170,8 @@ module TooltipWrapper = {
     }
 
     ReactDOMStyle.make(
-      ~top=`${toolTipTopPosition->Js.Float.toString}%`,
-      ~left=`${toolTipLeftPosition->Js.Float.toString}%`,
+      ~top=`${toolTipTopPosition->Float.toString}%`,
+      ~left=`${toolTipLeftPosition->Float.toString}%`,
       (),
     )
   }
