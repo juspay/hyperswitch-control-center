@@ -139,10 +139,10 @@ let removeDuplicates = (arr: array<chartData<'a>>) => {
 }
 
 let calculateOpacity = (~length, ~originalOpacity) => {
-  let reducedOpacity = originalOpacity *. Math.pow(0.4, ~exp=length->Js.Int.toFloat /. 13.0)
+  let reducedOpacity = originalOpacity *. Math.pow(0.4, ~exp=length->Int.toFloat /. 13.0)
   // Calculate the reduced opacity based on the formula: originalOpacity * (0.4 ^ (length / 13))
 
-  Math.max(reducedOpacity, 0.0)->Js.Float.toString
+  Math.max(reducedOpacity, 0.0)->Float.toString
 }
 
 type dropDownMetricType = Latency | Volume | Rate | Amount | Traffic // traffic string can be any column which is of type Volume, Amount
@@ -608,7 +608,7 @@ let tooltipFormatter = (
       xAxisMapInfo->Dict.get(x)->Option.getOr([])
     } else {
       let x = points->getFloat("x", 0.)
-      xAxisMapInfo->Dict.get(x->Js.Float.toString)->Option.getOr([])
+      xAxisMapInfo->Dict.get(x->Float.toString)->Option.getOr([])
     }
 
     let onCursorName = series->getString("name", "")

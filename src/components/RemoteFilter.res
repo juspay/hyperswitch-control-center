@@ -578,7 +578,7 @@ let make = (
   let (clearFilterAfterRefresh, setClearFilterAfterRefresh) = React.useState(_ => false)
   let (count, setCount) = React.useState(_ => initalCount)
 
-  let searchParams = disableURIdecode ? query : query->Js.Global.decodeURI
+  let searchParams = disableURIdecode ? query : query->decodeURI
 
   let isMobileView = MatchMedia.useMobileChecker()
 
