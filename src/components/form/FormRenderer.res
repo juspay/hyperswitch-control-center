@@ -398,7 +398,7 @@ module ComboFieldsRenderer3 = {
       } else {
         let inputField = inputFields[0]->Option.getOr(makeInputFieldInfo(~name="", ()))
 
-        let restInputFields = Js.Array2.sliceFrom(inputFields, 1)
+        let restInputFields = inputFields->Array.sliceToEnd(~start=1)
 
         <ReactFinalForm.Field
           name=inputField.name
