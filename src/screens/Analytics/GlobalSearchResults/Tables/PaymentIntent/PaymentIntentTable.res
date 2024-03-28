@@ -1,12 +1,23 @@
 module PreviewTable = {
   @react.component
-  let make = (~tableData) => {
+  let make = (~data) => {
+    open GlobalSearchTypes
     open PaymentIntentEntity
     let (offset, setOffset) = React.useState(_ => 0)
     let defaultSort: Table.sortedObject = {
       key: "",
       order: Table.INC,
     }
+
+    let tableData =
+      data
+      ->Array.map(item => {
+        let data = item.texts->Array.get(0)->Option.getOr(Dict.make()->JSON.Encode.object)
+        data->JSON.Decode.object->Option.getOr(Dict.make())
+      })
+      ->Array.filter(dict => dict->Dict.keysToArray->Array.length > 0)
+      ->Array.map(item => item->tableItemToObjMapper->Nullable.make)
+
     open ResultsTableUtils
     <LoadedTable
       visibleColumns

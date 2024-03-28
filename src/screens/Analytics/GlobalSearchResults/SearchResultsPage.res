@@ -11,16 +11,6 @@ module RenderSearchResultBody = {
       }
     }
 
-    let getTablePreviewData = mapper => {
-      section.results
-      ->Array.map(item => {
-        let data = item.texts->Array.get(0)->Option.getOr(Dict.make()->JSON.Encode.object)
-        data->JSON.Decode.object->Option.getOr(Dict.make())
-      })
-      ->Array.filter(dict => dict->Dict.keysToArray->Array.length > 0)
-      ->Array.map(item => item->mapper->Nullable.make)
-    }
-
     switch section.section {
     | Local =>
       section.results
@@ -50,22 +40,10 @@ module RenderSearchResultBody = {
         </div>
       })
       ->React.array
-    | PaymentIntents =>
-      <PaymentIntentTable.PreviewTable
-        tableData={PaymentIntentEntity.tableItemToObjMapper->getTablePreviewData}
-      />
-    | PaymentAttempts =>
-      <PaymentAttemptTable.PreviewTable
-        tableData={PaymentAttemptEntity.tableItemToObjMapper->getTablePreviewData}
-      />
-    | Refunds =>
-      <RefundsTable.PreviewTable
-        tableData={RefundsTableEntity.tableItemToObjMapper->getTablePreviewData}
-      />
-    | Disputes =>
-      <DisputeTable.PreviewTable
-        tableData={DisputeTableEntity.tableItemToObjMapper->getTablePreviewData}
-      />
+    | PaymentIntents => <PaymentIntentTable.PreviewTable data={section.results} />
+    | PaymentAttempts => <PaymentAttemptTable.PreviewTable data={section.results} />
+    | Refunds => <RefundsTable.PreviewTable data={section.results} />
+    | Disputes => <DisputeTable.PreviewTable data={section.results} />
     | Others | Default => "Not implemented"->React.string
     }
   }
