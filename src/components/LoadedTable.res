@@ -82,7 +82,7 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
     }
   }
   let sortedArrayByOrder = {
-    let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
+    let _ = originalData->Array.toSorted((i1, i2) => {
       let item1 = i1->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       let item2 = i2->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       // flatten items and get data
@@ -101,22 +101,22 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
       let value2 = getValue(val2)
       if value1 === ""->JSON.Encode.string || value2 === ""->JSON.Encode.string {
         if value1 === value2 {
-          0
+          0.
         } else if value2 === ""->JSON.Encode.string {
-          sortOrder === DEC ? 1 : -1
+          sortOrder === DEC ? 1. : -1.
         } else if sortOrder === DEC {
-          -1
+          -1.
         } else {
-          1
+          1.
         }
       } else if value1 === value2 {
-        0
+        0.
       } else if value1 > value2 {
-        sortOrder === DEC ? 1 : -1
+        sortOrder === DEC ? 1. : -1.
       } else if sortOrder === DEC {
-        -1
+        -1.
       } else {
-        1
+        1.
       }
     })
     originalData

@@ -595,7 +595,7 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
     }
   }
   let sortedArrayByOrder = {
-    let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
+    let _ = originalData->Array.toSorted((i1, i2) => {
       let item1 = i1->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       let item2 = i2->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       // flatten items and get data
@@ -607,13 +607,13 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
       let value1 = getValue(val1)
       let value2 = getValue(val2)
       if value1 === value2 {
-        0
+        0.
       } else if value1 > value2 {
-        sortOrder === DEC ? 1 : -1
+        sortOrder === DEC ? 1. : -1.
       } else if sortOrder === DEC {
-        -1
+        -1.
       } else {
-        1
+        1.
       }
     })
     originalData
@@ -840,7 +840,7 @@ let make = (
               let newArr =
                 filterValueArray
                 ->Array.map(item => item->JSON.Decode.float->Option.getOr(0.))
-                ->Js.Array2.sortInPlaceWith(LogicUtils.numericArraySortComperator)
+                ->Array.toSorted(LogicUtils.numericArraySortComperator)
               let lengthOfArr = newArr->Array.length
 
               if lengthOfArr >= 2 {

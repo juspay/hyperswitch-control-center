@@ -70,18 +70,18 @@ let constructData = (
   | "latency" =>
     singlestatTimeseriesData
     ->Array.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.latency))
-    ->Js.Array2.sortInPlaceWith(compareLogic)
+    ->Array.toSorted(compareLogic)
   | "api_count" =>
     singlestatTimeseriesData
     ->Array.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.api_count->Int.toFloat))
-    ->Js.Array2.sortInPlaceWith(compareLogic)
+    ->Array.toSorted(compareLogic)
   | "status_code_count" =>
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.status_code_count->Int.toFloat,
     ))
-    ->Js.Array2.sortInPlaceWith(compareLogic)
+    ->Array.toSorted(compareLogic)
   | _ => []
   }
 }

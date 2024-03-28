@@ -77,11 +77,11 @@ let compareLogic = (firstValue, secondValue) => {
   let (temp1, _) = firstValue
   let (temp2, _) = secondValue
   if temp1 == temp2 {
-    0
+    0.
   } else if temp1 > temp2 {
-    -1
+    -1.
   } else {
-    1
+    1.
   }
 }
 
@@ -93,14 +93,14 @@ let constructData = (key, singlestatTimeseriesData) => {
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.payment_attempts->Int.toFloat,
     ))
-    ->Js.Array2.sortInPlaceWith(compareLogic)
+    ->Array.toSorted(compareLogic)
   | "conversion_rate" =>
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       100. *. ob.payment_attempts->Int.toFloat /. ob.sdk_rendered_count->Int.toFloat,
     ))
-    ->Js.Array2.sortInPlaceWith(compareLogic)
+    ->Array.toSorted(compareLogic)
   | "drop_out_rate" =>
     singlestatTimeseriesData->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,

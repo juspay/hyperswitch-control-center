@@ -26,11 +26,11 @@ let make = (
     let positionInHeader = headingDict->LogicUtils.getInt(getHeading(a).title, 0)
     let positionInHeading = headingDict->LogicUtils.getInt(getHeading(b).title, 0)
     if positionInHeader < positionInHeading {
-      -1
+      -1.
     } else if positionInHeader > positionInHeading {
-      1
+      1.
     } else {
-      0
+      0.
     }
   }
 
@@ -55,7 +55,7 @@ let make = (
 
     let headers = values->Belt.Array.keepMap(getHeadingCol)
     let headers = orderdColumnBasedOnDefaultCol
-      ? headers->Array.copy->Js.Array2.sortInPlaceWith(sortByOrderOderedArr)
+      ? headers->Array.copy->Array.toSorted(sortByOrderOderedArr)
       : headers
 
     setColumns(_ => headers)
