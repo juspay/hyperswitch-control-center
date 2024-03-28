@@ -111,6 +111,9 @@ let make = () => {
   let isReconEnabled = merchentDetails.recon_status === Active
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let query = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
+  // TODO: need to add feature flag here
+  let isShowRemoteResults =
+    HSLocalStorage.getFromUserDetails("user_role")->String.includes("internal_")
 
   let getSearchResults = async results => {
     try {
@@ -161,7 +164,16 @@ let make = () => {
         results->Array.push(localResults)
       }
 
-      getSearchResults(results)->ignore
+      if isShowRemoteResults {
+        getSearchResults(results)->ignore
+      } else {
+        if results->Array.length > 0 {
+          setSearchResults(_ => results)
+        } else {
+          setSearchResults(_ => [])
+        }
+        setState(_ => Loaded)
+      }
     } else {
       setState(_ => Idle)
       setSearchResults(_ => [])

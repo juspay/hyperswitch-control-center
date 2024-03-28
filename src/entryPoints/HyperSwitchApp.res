@@ -435,10 +435,22 @@ let make = () => {
                       | list{"woocommerce"} => determineWooCommerce()
                       | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
                       | list{"search"} => <SearchResultsPage />
-                      | list{"payment-attempts"} => <PaymentAttemptTable />
-                      | list{"payment-intents"} => <PaymentIntentTable />
-                      | list{"refunds-global"} => <RefundsTable />
-                      | list{"dispute-global"} => <DisputeTable />
+                      | list{"payment-attempts"} =>
+                        <AccessControl permission=userPermissionJson.operationsView>
+                          <PaymentAttemptTable />
+                        </AccessControl>
+                      | list{"payment-intents"} =>
+                        <AccessControl permission=userPermissionJson.operationsView>
+                          <PaymentIntentTable />
+                        </AccessControl>
+                      | list{"refunds-global"} =>
+                        <AccessControl permission=userPermissionJson.operationsView>
+                          <RefundsTable />
+                        </AccessControl>
+                      | list{"dispute-global"} =>
+                        <AccessControl permission=userPermissionJson.operationsView>
+                          <DisputeTable />
+                        </AccessControl>
                       | list{"unauthorized"} => <UnauthorizedPage />
                       | _ =>
                         RescriptReactRouter.replace(`${hyperSwitchFEPrefix}/home`)

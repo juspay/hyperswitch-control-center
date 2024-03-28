@@ -198,6 +198,9 @@ let make = () => {
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let searchText = searchText->String.trim
   let loader = LottieFiles.useLottieJson("loader-circle.json")
+  // TODO: need to add feature flag here
+  let isShowRemoteResults =
+    HSLocalStorage.getFromUserDetails("user_role")->String.includes("internal_")
 
   let redirectOnSelect = element => {
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
@@ -258,7 +261,20 @@ let make = () => {
         results->Array.push(localResults)
       }
 
-      getSearchResults(results)->ignore
+      if isShowRemoteResults {
+        getSearchResults(results)->ignore
+      } else {
+        if results->Array.length > 0 {
+          let defaultItem = searchText->getDefaultResult
+
+          let arr = [defaultItem]->Array.concat(results)
+
+          setSearchResults(_ => arr)
+        } else {
+          setSearchResults(_ => [])
+        }
+        setState(_ => Loaded)
+      }
     } else {
       setState(_ => Idle)
       setSearchResults(_ => [])
