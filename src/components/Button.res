@@ -632,8 +632,6 @@ let make = (
     )}`
   let customJustifyStyle = customButtonStyle->String.includes("justify") ? "" : "justify-center"
 
-  Js.log2("dataTestId", dataTestId)
-
   <AddDataAttributes attributes=[(dataAttrKey, dataAttrStr), ("data-testid", dataTestId)]>
     <button
       type_
