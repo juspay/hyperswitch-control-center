@@ -127,7 +127,7 @@ let make = (
   let (tableDataLoading, setTableDataLoading) = React.useState(() => false)
   let fetchApi = AuthHooks.useApiFetcher()
   let url = RescriptReactRouter.useUrl()
-  let searchParams = disableURIdecode ? url.search : url.search->Js.Global.decodeURI
+  let searchParams = disableURIdecode ? url.search : url.search->decodeURI
   let (refreshData, _setRefreshData) = React.useContext(RefreshStateContext.refreshStateContext)
   let (offset, setOffset) = React.useState(() => 0)
   let remoteFilters = initialFilters->Array.filter(item => item.localFilter->Option.isNone)

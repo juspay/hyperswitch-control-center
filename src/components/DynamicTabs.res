@@ -481,7 +481,7 @@ let make = (
       updateTabNameWith(Dict.fromArray([("tabName", `[${getValueFromArrayTab(newTab, 0)}]`)]))
       setActiveTab(getValueFromArrayTab(newTab, 0))
 
-      Js.Global.setTimeout(_ => {
+      setTimeout(_ => {
         lastTabRef.current
         ->Nullable.toOption
         ->Option.forEach(input =>
@@ -544,7 +544,7 @@ let make = (
                 let ref = if i == 0 {
                   firstTabRef->ReactDOM.Ref.domRef->Some
                 } else {
-                  Js.Global.setTimeout(_ => {
+                  setTimeout(_ => {
                     setTabScroll(
                       firstTabRef,
                       lastTabRef,

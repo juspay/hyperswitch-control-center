@@ -1586,7 +1586,7 @@ module BaseDropdown = {
       }
       setShowDropDown(_ => !showDropDown)
       setIsGrowDown(_ => true)
-      let _id = Js.Global.setTimeout(() => setIsGrowDown(_ => false), 250)
+      let _id = setTimeout(() => setIsGrowDown(_ => false), 250)
       if isInitialRender {
         setIsInitialRender(_ => false)
       }
