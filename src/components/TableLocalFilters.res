@@ -57,9 +57,9 @@ module RangeSliderLocalFilter = {
       (),
     )
 
-    let min = minVal->Js.Float.toString
+    let min = minVal->Float.toString
 
-    let max = maxVal->Js.Float.toString
+    let max = maxVal->Float.toString
 
     <div className="flex relative flex-row flex-wrap">
       <div className="flex relative flex-row flex-wrap w-full">
