@@ -175,7 +175,7 @@ module TestPayment = {
       updateTestPaymentEnum()->ignore
     }
     React.useEffect0(() => {
-      setKey(_ => Js.Date.now()->Js.Float.toString)
+      setKey(_ => Date.now()->Float.toString)
       None
     })
 

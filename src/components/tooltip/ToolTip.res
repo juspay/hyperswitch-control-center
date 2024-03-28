@@ -35,7 +35,7 @@ module TooltipMainWrapper = {
     let handleMouseOver = _evt => {
       if !visibleOnClick {
         switch timeoutRef.current {
-        | Some(timerId) => Js.Global.clearTimeout(timerId)
+        | Some(timerId) => clearTimeout(timerId)
         | None => ()
         }
         setIsToolTipVisible(_ => true)
@@ -45,7 +45,7 @@ module TooltipMainWrapper = {
     let handleClick = _evt => {
       if visibleOnClick {
         switch timeoutRef.current {
-        | Some(timerId) => Js.Global.clearTimeout(timerId)
+        | Some(timerId) => clearTimeout(timerId)
         | None => ()
         }
         setIsToolTipVisible(_ => true)
@@ -54,7 +54,7 @@ module TooltipMainWrapper = {
 
     let handleMouseOut = _evt => {
       if hoverOnToolTip {
-        timeoutRef.current = Js.Global.setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
             setIsToolTipVisible(_ => false)
           }, 200)->Some
       } else {
@@ -170,8 +170,8 @@ module TooltipWrapper = {
     }
 
     ReactDOMStyle.make(
-      ~top=`${toolTipTopPosition->Js.Float.toString}%`,
-      ~left=`${toolTipLeftPosition->Js.Float.toString}%`,
+      ~top=`${toolTipTopPosition->Float.toString}%`,
+      ~left=`${toolTipLeftPosition->Float.toString}%`,
       (),
     )
   }

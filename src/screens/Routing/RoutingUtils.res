@@ -5,9 +5,9 @@ external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
 let defaultThreeDsObjectValue: routingOutputType = {
   override_3ds: "three_ds",
 }
-let currentTimeInUTC = Js.Date.fromFloat(Js.Date.now())->Js.Date.toUTCString
+let currentTimeInUTC = Js.Date.fromFloat(Date.now())->Js.Date.toUTCString
 let getCurrentUTCTime = () => {
-  let currentDate = Js.Date.now()->Js.Date.fromFloat
+  let currentDate = Date.now()->Js.Date.fromFloat
   let month = currentDate->Js.Date.getUTCMonth +. 1.0
   let day = currentDate->Js.Date.getUTCDate
   let currMonth = month < 10.0 ? `0${month->Float.toString}` : month->Float.toString
