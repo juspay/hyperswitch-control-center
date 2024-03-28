@@ -48,6 +48,7 @@ let make = () => {
   open APIUtils
   open PaymentIntentEntity
   let updateDetails = useUpdateMethod()
+  let fetchTableData = ResultsTableUtils.useGetData()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (data, setData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
@@ -59,19 +60,41 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let searchText = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("query", "")
 
-  React.useEffect2(() => {
-    if searchText->String.length > 0 {
-      ResultsTableUtils.getData(
+  let getData = async () => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
+
+    try {
+      let (data, total) = await fetchTableData(
         ~updateDetails,
-        ~setTableData=setData,
-        ~setScreenState,
-        ~setOffset,
-        ~setTotalCount,
         ~offset,
         ~query={searchText},
         ~path="payment_intents",
-        ~mapper=tableItemToObjMapper,
-      )->ignore
+      )
+
+      let arr = Array.make(~length=offset, Dict.make())
+      if total <= offset {
+        setOffset(_ => 0)
+      }
+
+      if total > 0 {
+        let dataDictArr = data->Belt.Array.keepMap(JSON.Decode.object)
+        let orderData = arr->Array.concat(dataDictArr)->Array.map(tableItemToObjMapper)
+        let list = orderData->Array.map(Nullable.make)
+
+        setTotalCount(_ => total)
+        setData(_ => list)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))
+    }
+  }
+
+  React.useEffect2(() => {
+    if searchText->String.length > 0 {
+      getData()->ignore
     } else {
       setScreenState(_ => PageLoaderWrapper.Success)
     }
