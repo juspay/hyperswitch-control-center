@@ -23,7 +23,7 @@ module LogicalOps = {
           key={i->Int.toString}
           text
           onClick={_ => onChange(text)}
-          textStyle={active ? "text-blue-800" : ""}
+          textStyle={active ? "text-blue-500" : ""}
           textWeight={active ? "font-semibold" : "font-medium"}
           customButtonStyle={active ? "shadow-inner px-0" : "px-0"}
           buttonType={active ? SecondaryFilled : Secondary}

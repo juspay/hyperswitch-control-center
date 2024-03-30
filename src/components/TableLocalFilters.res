@@ -57,9 +57,9 @@ module RangeSliderLocalFilter = {
       (),
     )
 
-    let min = minVal->Js.Float.toString
+    let min = minVal->Float.toString
 
-    let max = maxVal->Js.Float.toString
+    let max = maxVal->Float.toString
 
     <div className="flex relative flex-row flex-wrap">
       <div className="flex relative flex-row flex-wrap w-full">
@@ -219,7 +219,7 @@ module TextFilterCell = {
     <div className="flex">
       <TextInput
         input=localInput
-        customStyle="flex justify-center h-10 flex flex-row items-center  text-opacity-50 hover:text-opacity-100  dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75 rounded-md border-jp-gray-500 dark:border-jp-gray-960 to-jp-gray-350 dark:from-jp-gray-lightgray_background dark:to-jp-gray-lightgray_background hover:shadow dark:text-jp-gray-text_darktheme dark:text-opacity-50 px-2  w-full justify-between "
+        customStyle="flex justify-center h-10 flex flex-row items-center  text-opacity-50 hover:text-opacity-100  dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75 rounded-md border-jp-gray-500 dark:border-jp-gray-960 to-jp-gray-200 dark:from-jp-gray-lightgray_background dark:to-jp-gray-lightgray_background hover:shadow dark:text-jp-gray-text_darktheme dark:text-opacity-50 px-2  w-full justify-between "
         placeholder="All"
         isDisabled=false
         inputMode="text"

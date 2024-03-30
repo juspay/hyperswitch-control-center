@@ -8,7 +8,7 @@ let make = (~selectedConnector, ~setSelectedConnector, ~pageView, ~setPageView) 
     open ConnectorTypes
     switch (selectedConnector, connector) {
     | (Processors(selectedConnector), Processors(connector))
-      if selectedConnector === connector => "border border-blue-700 bg-blue-700 bg-opacity-10 "
+      if selectedConnector === connector => "border border-blue-500 bg-blue-500 bg-opacity-10 "
     | (_, _) => "border"
     }
   }
@@ -60,7 +60,7 @@ let make = (~selectedConnector, ~setSelectedConnector, ~pageView, ~setPageView) 
                   <Icon
                     name={connector->selectedIconColor}
                     size=20
-                    className="cursor-pointer !text-blue-800"
+                    className="cursor-pointer !text-blue-500"
                   />
                 </div>
                 <p className=connectorNameStyle>

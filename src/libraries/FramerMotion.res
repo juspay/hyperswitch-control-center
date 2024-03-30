@@ -17,7 +17,7 @@ type animate = {
   borderRadius?: array<string>,
   y?: int,
   x?: int,
-  opacity?: int,
+  opacity?: float,
   backgroundPosition?: array<string>,
   height?: string,
   width?: string,
@@ -65,9 +65,9 @@ module TransitionComponent = {
     <AnimatePresence mode="wait">
       <Motion.Div
         key={id}
-        initial={{y: 10, opacity: 0}}
-        animate={{y: 0, opacity: 1}}
-        exit={{y: -10, opacity: 0}}
+        initial={{y: 10, opacity: 0.0}}
+        animate={{y: 0, opacity: 1.0}}
+        exit={{y: -10, opacity: 0.0}}
         transition={{duration: duration}}
         className>
         {children}

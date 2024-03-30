@@ -6,7 +6,7 @@ module Heading = {
         <Icon name={"applepay"} size=56 />
         <div>
           <div className="flex items-center gap-4">
-            <div className="leading-tight font-semibold  font-semibold text-fs-18">
+            <div className="leading-tight   font-semibold text-fs-18">
               {"Apple Pay"->React.string}
             </div>
             <div
@@ -17,7 +17,7 @@ module Heading = {
               <div> {"Test Mode"->React.string} </div>
             </div>
           </div>
-          <div className={`opacity-50 mt-2 text-sm text-hyperswitch_black opacity-50  font-normal`}>
+          <div className={` mt-2 text-sm text-hyperswitch_black opacity-50  font-normal`}>
             {"Choose Configuration Method"->React.string}
           </div>
         </div>
@@ -31,7 +31,7 @@ module CustomTag = {
   @react.component
   let make = (~tagText="", ~tagSize=5, ~tagLeftIcon=None, ~tagCustomStyle="") => {
     <div
-      className={`flex items-center gap-1 shadow shadow-connectorTagShadow border rounded-full px-2 py-1 ${tagCustomStyle}`}>
+      className={`flex items-center gap-1  shadow-connectorTagShadow border rounded-full px-2 py-1 ${tagCustomStyle}`}>
       {switch tagLeftIcon {
       | Some(icon) =>
         <div>
@@ -50,7 +50,7 @@ module InfoCard = {
   @react.component
   let make = (~children, ~customInfoStyle="") => {
     <div
-      className={`rounded border bg-blue-970 border-blue-960 dark:border-blue-960 relative flex w-full p-6 `}>
+      className={`rounded border bg-blue-800 border-blue-700 dark:border-blue-700 relative flex w-full p-6 `}>
       <Icon className=customInfoStyle name="info-circle-unfilled" size=16 />
       <div> {children} </div>
     </div>
@@ -63,12 +63,12 @@ module Card = {
     <>
       <div
         className={`relative w-full p-6 rounded flex flex-col justify-between border ${isSelected
-            ? "bg-light_blue_bg border-blue-800 dark:border-blue-800"
+            ? "bg-light_blue_bg border-blue-500 dark:border-blue-500"
             : ""}`}>
         <div className="flex justify-between">
           <div
             className={`leading-tight font-semibold text-fs-18 ${isSelected
-                ? "text-blue-800"
+                ? "text-blue-500"
                 : "text-hyperswitch_black"} `}>
             {heading->React.string}
           </div>
@@ -105,7 +105,7 @@ module SimplifiedHelper = {
     ~subText=None,
   ) => {
     let bgColor = "bg-white"
-    let stepColor = "bg-blue-700 text-white py-px px-2"
+    let stepColor = "bg-blue-500 text-white py-px px-2"
 
     <div className={`flex flex-col py-8 px-6 gap-3 ${bgColor} cursor-pointer`}>
       <div className={"flex justify-between "}>
@@ -114,10 +114,9 @@ module SimplifiedHelper = {
             <p className={`${stepColor} font-medium`}> {stepNumber->React.string} </p>
           </div>
           <div>
-            <p className={"font-medium text-base text-blue-800"}> {heading->React.string} </p>
+            <p className={"font-medium text-base text-blue-500"}> {heading->React.string} </p>
             <UIUtils.RenderIf condition={subText->Option.isSome}>
-              <p
-                className={`opacity-50 mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
+              <p className={`mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
                 {subText->Option.getOr("")->React.string}
               </p>
             </UIUtils.RenderIf>

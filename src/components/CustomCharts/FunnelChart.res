@@ -165,7 +165,7 @@ let make = (
                   <div
                     className={`transition ease-in-out duration-300 font-medium text-base ${hoverIndex ===
                         i->Float.fromInt
-                        ? "text-blue-900 scale-110"
+                        ? "text-blue-500 scale-110"
                         : "text-jp-gray-800 dark:text-dark_theme"}`}>
                     {metric.metric_label->React.string}
                   </div>

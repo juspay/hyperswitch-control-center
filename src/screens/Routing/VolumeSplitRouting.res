@@ -282,7 +282,7 @@ let make = (~routingRuleId, ~isActive, ~isPayoutFlow=false) => {
     let dict = values->getDictFromJsonObject
     let validateGateways = dict => {
       let gateways = dict->getArrayFromDict("data", [])
-      if gateways->Js.Array2.length === 0 {
+      if gateways->Array.length === 0 {
         Some("Need atleast 1 Gateway")
       } else {
         let distributionPercentages = gateways->Belt.Array.keepMap(json => {
@@ -290,8 +290,8 @@ let make = (~routingRuleId, ~isActive, ~isPayoutFlow=false) => {
         })
         let distributionPercentageSum =
           distributionPercentages->Array.reduce(0., (sum, distribution) => sum +. distribution)
-        let hasZero = distributionPercentages->Js.Array2.some(ele => ele === 0.)
-        let isDistributeChecked = !(distributionPercentages->Js.Array2.some(ele => ele === 100.0))
+        let hasZero = distributionPercentages->Array.some(ele => ele === 0.)
+        let isDistributeChecked = !(distributionPercentages->Array.some(ele => ele === 100.0))
 
         let isNotValid =
           isDistributeChecked &&

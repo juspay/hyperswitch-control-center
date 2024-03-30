@@ -83,7 +83,7 @@ let getCheckboxText = connectorName => {
   }
 }
 
-let highlightedText = "text-base font-normal text-blue-700 underline"
+let highlightedText = "text-base font-normal text-blue-500 underline"
 let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
 let getWarningBlockForConnector = connectorName => {
   open ConnectorTypes

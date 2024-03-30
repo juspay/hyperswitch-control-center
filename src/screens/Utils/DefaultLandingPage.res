@@ -34,7 +34,7 @@ let make = (
           buttonSize={Large}
           onClick={_ => onClickHandler()}
           buttonType=Secondary
-          customButtonStyle={`!bg-blue-800`}
+          customButtonStyle={`!bg-blue-500`}
           textStyle={`!text-[#FFFFFF]`}
         />
       </div>

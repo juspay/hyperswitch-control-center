@@ -3,6 +3,68 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.03.28.0
+
+### Features
+
+- Global search ([#523](https://github.com/juspay/hyperswitch-control-center/pull/523)) ([`0108cc5`](https://github.com/juspay/hyperswitch-control-center/commit/0108cc5bb4118b7f63cb420048428672a68801de))
+
+### Miscellaneous Tasks
+
+- Js.changes ([#544](https://github.com/juspay/hyperswitch-control-center/pull/544)) ([`76c6d87`](https://github.com/juspay/hyperswitch-control-center/commit/76c6d87779c5cc29b63972c9086fdcefe58bd9a9))
+- Custom testId for buttons ([#545](https://github.com/juspay/hyperswitch-control-center/pull/545)) ([`a53c4f9`](https://github.com/juspay/hyperswitch-control-center/commit/a53c4f9e6637bbdd3d9a3a94db85e7b6e5e0e2a2))
+
+**Full Changelog:** [`2024.03.27.2...2024.03.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.27.2...2024.03.28.0)
+
+- - -
+
+## 2024.03.27.2
+
+### Miscellaneous Tasks
+
+- Core changes ([#541](https://github.com/juspay/hyperswitch-control-center/pull/541)) ([`ac07f2e`](https://github.com/juspay/hyperswitch-control-center/commit/ac07f2e842cd42cc7ee693b06b4d50076b8525d1))
+
+**Full Changelog:** [`2024.03.27.1...2024.03.27.2`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.27.1...2024.03.27.2)
+
+- - -
+
+## 2024.03.27.1
+
+### Miscellaneous Tasks
+
+- Feature flag removal of accept-invite ([#518](https://github.com/juspay/hyperswitch-control-center/pull/518)) ([`fe91351`](https://github.com/juspay/hyperswitch-control-center/commit/fe913518e5c60585b21b6b04ae18bb5773fe839e))
+
+**Full Changelog:** [`2024.03.27.0...2024.03.27.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.27.0...2024.03.27.1)
+
+- - -
+
+## 2024.03.27.0
+
+### Miscellaneous Tasks
+
+- Enabled audit log for all connectors ([#538](https://github.com/juspay/hyperswitch-control-center/pull/538)) ([`52544b3`](https://github.com/juspay/hyperswitch-control-center/commit/52544b3694548e4e7ac7a9a0b0a0b9a851f7f00d))
+- Core changes ([#539](https://github.com/juspay/hyperswitch-control-center/pull/539)) ([`a7a3060`](https://github.com/juspay/hyperswitch-control-center/commit/a7a306071290424428b24cf338ef166a6e611a28))
+
+**Full Changelog:** [`2024.03.26.0...2024.03.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.26.0...2024.03.27.0)
+
+- - -
+
+## 2024.03.26.0
+
+### Bug Fixes
+
+- Added delete 3ds rule ([#534](https://github.com/juspay/hyperswitch-control-center/pull/534)) ([`6951b43`](https://github.com/juspay/hyperswitch-control-center/commit/6951b438c203a61f2a206e935e48e94baa43f838))
+- Rule based routing on click of ruleno warning fix ([#531](https://github.com/juspay/hyperswitch-control-center/pull/531)) ([`d9bc3c8`](https://github.com/juspay/hyperswitch-control-center/commit/d9bc3c83dfb7169c2d98ad23383af287d00c56fb))
+
+### Miscellaneous Tasks
+
+- Invite-multiple feature flag removal ([#516](https://github.com/juspay/hyperswitch-control-center/pull/516)) ([`161c20f`](https://github.com/juspay/hyperswitch-control-center/commit/161c20faaf17f3239eaf40db6b6f6837cd4f90f5))
+- Clean tailwind config ([#533](https://github.com/juspay/hyperswitch-control-center/pull/533)) ([`beaf529`](https://github.com/juspay/hyperswitch-control-center/commit/beaf52919124d129f4308bfa3b68b784a76269d8))
+
+**Full Changelog:** [`2024.03.21.0...2024.03.26.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.21.0...2024.03.26.0)
+
+- - -
+
 ## 2024.03.21.0
 
 ### Bug Fixes

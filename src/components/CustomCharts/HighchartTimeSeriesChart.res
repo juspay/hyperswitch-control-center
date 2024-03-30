@@ -360,9 +360,9 @@ module LineChart1D = {
                     <Icon name="sad-tear" className="text-red-500" size=18 />
                   </div>
                 } else if transactionTable.current < 40. {
-                  <Icon name="sad-tear" className="text-red-300" size=18 />
+                  <Icon name="sad-tear" className="text-red-100" size=18 />
                 } else if transactionTable.current < 50. {
-                  <Icon name="sad-tear" className="text-red-200" size=18 />
+                  <Icon name="sad-tear" className="text-red-100" size=18 />
                 } else if transactionTable.current < 60. {
                   <Icon name="smile" className="text-green-200" size=18 />
                 } else if transactionTable.current < 90. {
@@ -427,7 +427,7 @@ module LineChart1D = {
     let {isSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
     React.useEffect1(() => {
-      Js.Global.setTimeout(_ => {
+      setTimeout(_ => {
         DOMUtils.window->DOMUtils.dispatchEvent(DOMUtils.event("resize"))
       }, 150)->ignore
       None

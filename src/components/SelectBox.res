@@ -72,10 +72,10 @@ module ListItem = {
         ? [text]
         : {
             switch Js.String2.match_(text, regex("\\b", searchString)) {
-            | Some(r) => Js.Array2.sliceFrom(r, 1)->Belt.Array.keepMap(x => x)
+            | Some(r) => r->Array.sliceToEnd(~start=1)->Belt.Array.keepMap(x => x)
             | None =>
               switch Js.String2.match_(text, regex("_", searchString)) {
-              | Some(a) => Js.Array2.sliceFrom(a, 1)->Belt.Array.keepMap(x => x)
+              | Some(a) => a->Array.sliceToEnd(~start=1)->Belt.Array.keepMap(x => x)
               | None => [text]
               }
             }
@@ -164,11 +164,11 @@ module ListItem = {
     }
     let textGap = ""
 
-    let selectedNoBadgeColor = "bg-blue-800"
+    let selectedNoBadgeColor = "bg-blue-500"
     let optionIconStroke = ""
 
     let optionTextSize = !isDropDown && optionSize === Large ? "text-fs-16" : "text-base"
-    let searchMatchTextColor = "dark:text-blue-800 text-blue-800"
+    let searchMatchTextColor = "dark:text-blue-500 text-blue-500"
     let optionDescPadding = if optionSize === Small {
       showToggle ? "pl-12" : "pl-7"
     } else if showToggle {
@@ -748,7 +748,7 @@ module BaseSelect = {
             onClick={selectAll(noOfSelected !== options->Array.length)}
             className={`flex ${isHorizontal
                 ? "flex-col"
-                : "flex-row"} justify-between pr-4 pl-5 pt-6 pb-1 text-base font-semibold text-blue-800 cursor-pointer`}>
+                : "flex-row"} justify-between pr-4 pl-5 pt-6 pb-1 text-base font-semibold text-blue-500 cursor-pointer`}>
             {"SELECT ALL"->React.string}
             <CheckBoxIcon isSelected={noOfSelected === options->Array.length} />
           </div>
@@ -782,7 +782,7 @@ module BaseSelect = {
                       ),
                     ]>
                     <div
-                      className={`font-semibold text-blue-800 ${disabledClass} ${customSelectAllStyle}`}
+                      className={`font-semibold text-blue-500 ${disabledClass} ${customSelectAllStyle}`}
                       onClick={_ => {
                         toggleSelectAll(!isChooseAllToggleSelected)
                       }}>
@@ -1586,7 +1586,7 @@ module BaseDropdown = {
       }
       setShowDropDown(_ => !showDropDown)
       setIsGrowDown(_ => true)
-      let _id = Js.Global.setTimeout(() => setIsGrowDown(_ => false), 250)
+      let _id = setTimeout(() => setIsGrowDown(_ => false), 250)
       if isInitialRender {
         setIsInitialRender(_ => false)
       }
@@ -2049,7 +2049,7 @@ module ChipFilterSelectBox = {
     let transformedOptions = useTransformed(options)
 
     let initalClassName = " m-2 bg-gray-200 dark:text-gray-800 border-jp-gray-800 inline-block text-s px-2 py-1 rounded-2xl"
-    let passedClassName = "flex items-center m-2 bg-blue-600 dark:text-gray-800 border-gray-300 inline-block text-s px-2 py-1 rounded-2xl"
+    let passedClassName = "flex items-center m-2 bg-blue-400 dark:text-gray-800 border-gray-300 inline-block text-s px-2 py-1 rounded-2xl"
     let newInputSelect = input->ffInputToSelectInput
     let values = newInputSelect.value
     let saneValue = React.useMemo1(() => {
