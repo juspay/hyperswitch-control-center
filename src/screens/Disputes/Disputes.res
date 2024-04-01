@@ -52,10 +52,14 @@ let make = () => {
       />
     </>
 
+  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
   <div>
     <PageUtils.PageHeading title="Disputes" subTitle="View and manage all disputes" />
     <div className="flex w-full justify-end pb-3 gap-3">
-      <GenerateReport entityName={DISPUTE_REPORT} />
+      <UIUtils.RenderIf condition={generateReport}>
+        <GenerateReport entityName={DISPUTE_REPORT} />
+      </UIUtils.RenderIf>
     </div>
     <PageLoaderWrapper screenState customUI>
       <div className="flex flex-col gap-4">

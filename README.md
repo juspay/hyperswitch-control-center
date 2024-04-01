@@ -84,6 +84,10 @@ The FeatureFlag.json file can be found under config/FeatueFlag.json. By default,
 
 ### Feature flag descriptions
 
+#### Generate report
+
+The `generate_report` feature flag controls the ability to generate detailed reports on payments, refunds, and disputes. When enabled, this allows users to pull reports covering the previous 6 months of transaction data. The reports can provide insights into trends, identify issues, and inform business decisions.
+
 #### Mixpanel
 
 The `mixpanel` feature flag controls the collection and transmission of anonymous usage data to Mixpanel for analytics. When enabled, the dashboard will automatically send information about user actions and events to Mixpanel without collecting any personally identifiable information via REST API.
@@ -91,6 +95,10 @@ The `mixpanel` feature flag controls the collection and transmission of anonymou
 #### Feedback
 
 The `feedback` feature flag enables the ability for users to provide direct product feedback from within the dashboard. When enabled, a feedback modal will be available in the UI that allows users to rate features, report bugs, and suggest improvements. Disabling this flag will remove the feedback modal and prevent collection of any user data.
+
+#### Test Processors
+
+The `test_processors` feature flag allows enabling sandbox/test payment processors for testing purposes. When enabled, developers and testers can add test payment processors like Stripe Test or PayPal Test to trial payment flows without touching live transactions or making processor API calls.
 
 #### Recon
 

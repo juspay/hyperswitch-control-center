@@ -50,7 +50,7 @@ let make = (
   open ConnectorUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-  let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let unConfiguredConnectors =
     connectorsAvailableForIntegration->Array.filter(total =>
@@ -217,16 +217,16 @@ let make = (
       {if showIcons {
         <>
           {connectorListFiltered->iconsConnectors("Connect a new processor", true, ())}
-          {<RenderIf condition={!isLiveMode && showTestProcessor}>
-            {!isLiveMode
+          {<RenderIf condition={featureFlagDetails.testProcessors && showTestProcessor}>
+            {featureFlagDetails.testProcessors
             ->dummyConnectorList
             ->iconsConnectors("Connect a test processor", false, ~showSearch=false, ())}
           </RenderIf>}
         </>
       } else {
         <>
-          <RenderIf condition={!isLiveMode && showTestProcessor}>
-            {!isLiveMode
+          <RenderIf condition={featureFlagDetails.testProcessors && showTestProcessor}>
+            {featureFlagDetails.testProcessors
             ->dummyConnectorList
             ->descriptedConnectors("Connect a test processor", false, ~showSearch=false, ())}
           </RenderIf>

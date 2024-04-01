@@ -95,7 +95,8 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
       }
     }
     if (
-      connectorTypeFromName->checkIsDummyConnector(!featureFlagDetails.isLiveMode) && !isUpdateFlow
+      connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors) &&
+        !isUpdateFlow
     ) {
       let apiKeyDict = [("api_key", "test_key"->JSON.Encode.string)]->Dict.fromArray
       initialValuesToDict->Dict.set("connector_account_details", apiKeyDict->JSON.Encode.object)
