@@ -585,6 +585,7 @@ module SubmitButton = {
     ~textStyle=?,
     ~textWeight=?,
     ~customHeightClass=?,
+    ~dataTestId=?,
   ) => {
     let dict = Dict.make()
     [
@@ -662,6 +663,7 @@ module SubmitButton = {
         ?customPaddingClass
         ?textStyle
         ?textWeight
+        ?dataTestId
       />
 
     let buttonState: Button.buttonState =
@@ -688,6 +690,7 @@ module SubmitButton = {
           ?buttonSize
           ?customHeightClass
           ?textStyle
+          ?dataTestId
         />
       </>
 

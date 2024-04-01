@@ -308,6 +308,7 @@ let make = (
   ~showTooltip=false,
   ~tooltipText=?,
   ~toolTipPosition=ToolTip.Top,
+  ~dataTestId="",
 ) => {
   let parentRef = React.useRef(Nullable.null)
   let dummyRef = React.useRef(Nullable.null)
@@ -631,7 +632,7 @@ let make = (
     )}`
   let customJustifyStyle = customButtonStyle->String.includes("justify") ? "" : "justify-center"
 
-  <AddDataAttributes attributes=[(dataAttrKey, dataAttrStr)]>
+  <AddDataAttributes attributes=[(dataAttrKey, dataAttrStr), ("data-testid", dataTestId)]>
     <button
       type_
       disabled=dis

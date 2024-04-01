@@ -204,7 +204,7 @@ let make = () => {
                   <div className="w-full max-w-fixedPageWidth px-9">
                     <Navbar
                       headerActions={<div className="relative flex items-center gap-4 my-2 ">
-                        <HSwitchGlobalSearchBar />
+                        <GlobalSearchBar />
                         <RenderIf condition={featureFlagDetails.switchMerchant}>
                           <SwitchMerchant
                             userRole={userRole}
@@ -434,6 +434,23 @@ let make = () => {
                       | list{"quick-start"} => determineQuickStartPageState()
                       | list{"woocommerce"} => determineWooCommerce()
                       | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
+                      | list{"search"} => <SearchResultsPage />
+                      | list{"payment-attempts"} =>
+                        <AccessControl permission=userPermissionJson.operationsView>
+                          <PaymentAttemptTable />
+                        </AccessControl>
+                      | list{"payment-intents"} =>
+                        <AccessControl permission=userPermissionJson.operationsView>
+                          <PaymentIntentTable />
+                        </AccessControl>
+                      | list{"refunds-global"} =>
+                        <AccessControl permission=userPermissionJson.operationsView>
+                          <RefundsTable />
+                        </AccessControl>
+                      | list{"dispute-global"} =>
+                        <AccessControl permission=userPermissionJson.operationsView>
+                          <DisputeTable />
+                        </AccessControl>
                       | list{"unauthorized"} => <UnauthorizedPage />
                       | _ =>
                         RescriptReactRouter.replace(`${hyperSwitchFEPrefix}/home`)
