@@ -67,7 +67,9 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
     | list{"user", "set_password"} => setActualAuthType(_ => ResetPassword)
     | list{"user", "accept_invite_from_email"} => setActualAuthType(_ => ActivateFromEmail)
     | list{"forget-password"} => setActualAuthType(_ => ForgetPassword)
-    | list{"register"} => setActualAuthType(_ => SignUP)
+    | list{"register"} =>
+      // In Live mode users are not allowed to singup directly
+      !isLiveMode ? setActualAuthType(_ => SignUP) : "login"->RescriptReactRouter.push
     | _ => ()
     }
 
