@@ -210,6 +210,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
               mixpanelEvent(~eventName=`quickstart_landing`, ())
               handleConnectorChoiceClick()->ignore
             }}
+            dataTestId="configurationType"
             buttonSize=Small
             buttonState
           />}
@@ -278,6 +279,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
               }}
               buttonSize=Small
               buttonState
+              dataTestId="smartRoutingProceed"
             />}
           />
         </div>

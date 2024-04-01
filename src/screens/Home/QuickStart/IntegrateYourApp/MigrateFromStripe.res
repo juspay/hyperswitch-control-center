@@ -46,6 +46,7 @@ let make = (
     <Button
       buttonType={Primary}
       text={isLastStep ? "Complete" : "Proceed"}
+      dataTestId={`${(currentStep->getPolyMorphicVariantOfMigrateFromStripe :> string)}_button`}
       onClick={_ => {
         if isLastStep {
           mixpanelEvent(~eventName=`quickstart_integration_completed`, ())

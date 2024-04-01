@@ -28,6 +28,7 @@ let make = (~integrateAppValue: integrateApp) => {
           mixpanelEvent(~eventName=`quickstart_integration_landing`, ())
           setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
         }}
+        dataTestId="integrateiIntoYourApp"
       />
       <Button
         text="Go to Home"
@@ -112,6 +113,7 @@ let make = (~integrateAppValue: integrateApp) => {
                 handleIntegration()->ignore
               }}
               buttonSize=Small
+              dataTestId="integrateHyperswitch"
             />}
           />
         </div>
