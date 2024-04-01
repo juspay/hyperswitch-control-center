@@ -72,8 +72,9 @@ let valueInput = (inputArg: valueInput) => {
 @react.component
 let make = (
   ~paymentMethodConfig: PaymentMethodConfigTypes.paymentMethodConfiguration,
-  ~config: string,
+  ~config: string="",
   ~setReferesh: unit => promise<unit>,
+  ~element: React.element=?,
 ) => {
   open FormRenderer
   let (showPaymentMthdConfigModal, setShowPaymentMthdConfigModal) = React.useState(_ => false)
@@ -97,6 +98,7 @@ let make = (
   let getProcessorDetails = async () => {
     open LogicUtils
     try {
+      let paymentMethoConfigUrl = getURL(~entityName=PAYMENT_METHOD_CONFIG, ~methodType=Get, ())
       let data =
         connectorList
         ->Array.filter(item =>
@@ -106,7 +108,7 @@ let make = (
         ->Option.getOr(Dict.make()->ConnectorListMapper.getProcessorPayloadType)
       let encodeConnectorPayload = data->PaymentMethodConfigUtils.encodeConnectorPayload
       let res = await fetchDetails(
-        `http://localhost:8080/configs/?connector=${connector_name}&paymentMethodType=${payment_method_type}`,
+        `${paymentMethoConfigUrl}?connector=${connector_name}&paymentMethodType=${payment_method_type}`,
       )
       let countries =
         res
@@ -137,12 +139,7 @@ let make = (
       setInitialValues(_ => encodeConnectorPayload)
       setShowPaymentMthdConfigModal(_ => true)
     } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Something went wrong")
-        let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
-        showToast(~message=errorMessage, ~toastType=ToastError, ())
-        setShowPaymentMthdConfigModal(_ => true)
-      }
+    | _ => setShowPaymentMthdConfigModal(_ => false)
     }
   }
 
@@ -169,20 +166,13 @@ let make = (
     <Modal
       childClass="p-0"
       showModal={showPaymentMthdConfigModal}
-      showModalHeadingIconName={paymentMethodConfig.connector_name->String.toUpperCase}
-      customIcon={Some(
-        <GatewayIcon
-          gateway={paymentMethodConfig.connector_name->String.toUpperCase} className="w-12 h-12"
-        />,
-      )}
       modalHeadingDescriptionElement={<div
         className="text-md font-medium leading-7 opacity-50 mt-1 w-full">
         {"Configure PMTs"->React.string}
       </div>}
       paddingClass=""
-      modalHeading={paymentMethodConfig.payment_method->String.toUpperCase}
+      modalHeading={paymentMethodConfig.payment_method_type->String.toUpperCase}
       setShowModal={setShowPaymentMthdConfigModal}
-      modalHeadingDescription="Start by creating your business name"
       modalClass="w-full max-w-lg m-auto !bg-white dark:!bg-jp-gray-lightgray_background">
       <Form key="pmts-configuration" initialValues onSubmit={onSubmit}>
         <div className="p-5">
@@ -210,8 +200,11 @@ let make = (
         // <FormValuesSpy />
       </Form>
     </Modal>
-    <div onClick={_ => getProcessorDetails()->ignore}>
-      {config->String.length > 0 ? config->React.string : "NA"->React.string}
+    <div className="cursor-pointer" onClick={_ => getProcessorDetails()->ignore}>
+      {switch element {
+      | Some(component) => component
+      | _ => config->String.length > 0 ? config->React.string : "NA"->React.string
+      }}
     </div>
   </div>
 }

@@ -3,16 +3,21 @@ let dropdownClassName = (options: array<SelectBox.dropdownOption>) =>
 
 let getAdvanceConfiguration = (
   advanceConfiguration: option<ConnectorTypes.advancedConfigurationList>,
-) => {
+): React.element => {
   let config = switch advanceConfiguration {
   | Some(obj) => {
       let firstThree = obj.list->Array.slice(~start=0, ~end=3)->Array.toString
       let restCount = obj.list->Array.length - 3
       obj.list->Array.length > 3
-        ? `${firstThree}, +${Belt.Int.toString(restCount)} more`
-        : firstThree
+        ? <div>
+            {`${firstThree},`->React.string}
+            <span className="text-blue-811">
+              {`+${Belt.Int.toString(restCount)} more`->React.string}
+            </span>
+          </div>
+        : <div> {firstThree->React.string} </div>
     }
-  | None => ""
+  | None => "NA"->React.string
   }
   config
 }

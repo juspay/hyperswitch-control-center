@@ -229,6 +229,7 @@ let getURL = (
     | _ => `disputes/evidence`
     }
   | PAYMENT | SETTINGS => ""
+  | PAYMENT_METHOD_CONFIG => `payment_methods/filter`
   }
   `${HSwitchGlobalVars.hyperSwitchApiPrefix}/${endpoint}`
 }

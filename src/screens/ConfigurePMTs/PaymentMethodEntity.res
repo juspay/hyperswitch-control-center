@@ -55,7 +55,13 @@ let getCell = (~setReferesh) => {
     switch colType {
     | Profile =>
       Table.CustomCell(
-        <HelperComponents.BusinessProfileComponent profile_id={paymentMethodConfig.profile_id} />,
+        <PaymentMethodConfig
+          paymentMethodConfig
+          element={<HelperComponents.BusinessProfileComponent
+            profile_id={paymentMethodConfig.profile_id}
+          />}
+          setReferesh
+        />,
         "",
       )
     | Processor =>
@@ -84,7 +90,7 @@ let getCell = (~setReferesh) => {
       Table.CustomCell(
         <PaymentMethodConfig
           paymentMethodConfig
-          config={paymentMethodConfig.accepted_countries->getAdvanceConfiguration}
+          element={paymentMethodConfig.accepted_countries->getAdvanceConfiguration}
           setReferesh
         />,
         "",
@@ -93,7 +99,7 @@ let getCell = (~setReferesh) => {
       Table.CustomCell(
         <PaymentMethodConfig
           paymentMethodConfig
-          config={paymentMethodConfig.accepted_currencies->getAdvanceConfiguration}
+          element={paymentMethodConfig.accepted_currencies->getAdvanceConfiguration}
           setReferesh
         />,
         "",

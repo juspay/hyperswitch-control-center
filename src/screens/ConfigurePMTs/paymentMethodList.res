@@ -93,7 +93,7 @@ let make = (~isPayoutFlow=false) => {
       </div>
       <div>
         <LoadedTable
-          title="Configure PMTs"
+          title=" "
           actualData={filteredConnectors->Array.map(Nullable.make)}
           totalResults={filteredConnectors->Array.length}
           resultsPerPage=20
