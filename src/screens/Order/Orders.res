@@ -22,7 +22,6 @@ let make = (~previewOnly=false) => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Orders")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchOrders = () => {
     if !previewOnly {
@@ -107,9 +106,7 @@ let make = (~previewOnly=false) => {
           <div className="flex-1"> {filtersUI} </div>
         </UIUtils.RenderIf>
         <div className="flex justify-end gap-3">
-          <UIUtils.RenderIf condition={generateReport}>
-            <GenerateReport entityName={PAYMENT_REPORT} />
-          </UIUtils.RenderIf>
+          <GenerateReport entityName={PAYMENT_REPORT} />
           <GenerateSampleDataButton previewOnly getOrdersList={fetchOrders} />
           <PortalCapture key={`OrdersCustomizeColumn`} name={`OrdersCustomizeColumn`} />
         </div>

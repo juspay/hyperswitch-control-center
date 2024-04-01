@@ -508,7 +508,6 @@ let make = (
   ~distributionArray=None,
   ~generateReportType: option<APIUtilsTypes.entityName>=?,
 ) => {
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let analyticsType = moduleName->getAnalyticsType
   let {filterValue, updateExistingKeys, filterValueJson} = React.useContext(
     FilterContext.filterContext,
@@ -700,12 +699,10 @@ let make = (
       <div>
         <div className="flex items-center justify-between">
           <PageUtils.PageHeading title=pageTitle subTitle=pageSubTitle />
-          <UIUtils.RenderIf condition={generateReport}>
-            {switch generateReportType {
-            | Some(entityName) => <GenerateReport entityName />
-            | None => React.null
-            }}
-          </UIUtils.RenderIf>
+          {switch generateReportType {
+          | Some(entityName) => <GenerateReport entityName />
+          | None => React.null
+          }}
         </div>
         <div className="mt-2 -ml-1"> topFilterUi </div>
         <div>

@@ -48,8 +48,6 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
-  let {generateReport} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
   <ErrorBoundary>
     <div className="min-h-[50vh]">
       <PageUtils.PageHeading title="Refunds" subTitle="View and manage all refunds" />
@@ -68,9 +66,7 @@ let make = () => {
             setOffset
           />
         </div>
-        <UIUtils.RenderIf condition={generateReport}>
-          <GenerateReport entityName={REFUND_REPORT} />
-        </UIUtils.RenderIf>
+        <GenerateReport entityName={REFUND_REPORT} />
         <PortalCapture key={`RefundsCustomizeColumn`} name={`RefundsCustomizeColumn`} />
       </div>
       <PageLoaderWrapper screenState customUI>
