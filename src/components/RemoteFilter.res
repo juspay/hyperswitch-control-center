@@ -91,7 +91,7 @@ module ModalUI = {
             | None => React.null
             }}
             <FormRenderer.FieldsRenderer
-              fields={fieldsFromOption->Js.Array2.sliceFrom(4)}
+              fields={fieldsFromOption->Array.sliceToEnd(~start=4)}
               fieldWrapperClass="w-1/3 !min-w-[200px] p-4 -my-4"
             />
           </div>
@@ -578,7 +578,7 @@ let make = (
   let (clearFilterAfterRefresh, setClearFilterAfterRefresh) = React.useState(_ => false)
   let (count, setCount) = React.useState(_ => initalCount)
 
-  let searchParams = disableURIdecode ? query : query->Js.Global.decodeURI
+  let searchParams = disableURIdecode ? query : query->decodeURI
 
   let isMobileView = MatchMedia.useMobileChecker()
 

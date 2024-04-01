@@ -46,14 +46,14 @@ let make = (
 
   let maxsliderVal = React.useMemo1(() => {
     switch maxSlide.value->JSON.Decode.float {
-    | Some(num) => Math.ceil(num)->Js.Float.toString
+    | Some(num) => Math.ceil(num)->Float.toString
     | None => "0"
     }
   }, [maxSlide.value])
 
   let minsliderVal = React.useMemo1(() => {
     switch minSlide.value->JSON.Decode.float {
-    | Some(num) => Math.floor(num)->Js.Float.toString
+    | Some(num) => Math.floor(num)->Float.toString
     | None => "0"
     }
   }, [minSlide.value])
@@ -68,14 +68,14 @@ let make = (
 
   let inputClassname = (hasError, isFocused) => {
     let bg = hasError
-      ? "bg-jp-2-red-50"
+      ? "bg-jp-2-red-100"
       : `${isFocused
             ? "bg-jp-2-light-primary-200"
             : "focus:bg-jp-2-light-primary-200 hover:bg-jp-2-light-gray-100"}`
     `w-max numberInput outline-none p-1 ${bg} `
   }
 
-  let bgClass = isMinFocused || isMaxFocused ? "bg-blue-800" : "bg-jp-2-light-gray-2000"
+  let bgClass = isMinFocused || isMaxFocused ? "bg-blue-500" : "bg-jp-2-light-gray-2000"
   <div className="relative pt-1 w-max">
     <div className={`h-1 rounded relative bg-gray-200`} style={ReactDOMStyle.make(~width, ())}>
       <div
@@ -84,11 +84,11 @@ let make = (
           ~width=((maxsliderVal->LogicUtils.getFloatFromString(0.) -.
             minsliderVal->LogicUtils.getFloatFromString(0.)) *.
           100. /.
-          diff)->Js.Float.toString ++ "%",
+          diff)->Float.toString ++ "%",
           ~left=((minsliderVal->LogicUtils.getFloatFromString(0.) -. min) *. 100. /. diff)
-            ->Js.Float.toString ++ "%",
+            ->Float.toString ++ "%",
           ~right=((max -. maxsliderVal->LogicUtils.getFloatFromString(0.)) *. 100. /. diff)
-            ->Js.Float.toString ++ "%",
+            ->Float.toString ++ "%",
           (),
         )}
       />

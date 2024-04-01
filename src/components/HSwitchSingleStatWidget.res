@@ -22,15 +22,15 @@ let make = (
 
   let sortedData = React.useMemo1(() => {
     data
-    ->Js.Array2.sortInPlaceWith((item1, item2) => {
+    ->Array.toSorted((item1, item2) => {
       let (x1, _y1) = item1
       let (x2, _y2) = item2
       if x1 > x2 {
-        -1
+        -1.
       } else if x1 == x2 {
-        0
+        0.
       } else {
-        1
+        1.
       }
     })
     ->Array.map(item => {

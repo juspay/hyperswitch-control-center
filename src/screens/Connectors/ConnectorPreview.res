@@ -41,7 +41,7 @@ module DeleteConnectorMenu = {
       try {
         let connectorID = connectorInfo.merchant_connector_id
         let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
-        let _ = await updateDetails(url, Dict.make()->Js.Json.object_, Delete, ())
+        let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete, ())
         RescriptReactRouter.push("/connectors")
       } catch {
       | _ => ()
@@ -309,7 +309,7 @@ let make = (
 
   let connectorStatusStyle = connectorStatus =>
     switch connectorStatus {
-    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-800"
+    | false => "border bg-green-600 bg-opacity-40 border-green-700 text-green-700"
     | _ => "border bg-red-600 bg-opacity-40 border-red-400 text-red-500"
     }
 

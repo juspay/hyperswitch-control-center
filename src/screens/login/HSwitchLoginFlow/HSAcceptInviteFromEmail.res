@@ -7,18 +7,13 @@ let make = (~setAuthType, ~setAuthStatus) => {
   let updateDetails = useUpdateMethod()
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
   let {setIsSidebarDetails} = React.useContext(SidebarProvider.defaultContext)
-  let {acceptInvite} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let acceptInviteFormEmail = async body => {
     try {
       let url = getURL(~entityName=USERS, ~methodType=Post, ~userType=#ACCEPT_INVITE_FROM_EMAIL, ())
       let res = await updateDetails(url, body, Post, ())
       let email = res->JSON.Decode.object->Option.getOr(Dict.make())->getString("email", "")
-      let token = HyperSwitchAuthUtils.parseResponseJson(
-        ~json=res,
-        ~email,
-        ~isAcceptInvite=acceptInvite,
-      )
+      let token = HyperSwitchAuthUtils.parseResponseJson(~json=res, ~email)
 
       if !(token->isEmptyString) && !(email->isEmptyString) {
         setAuthStatus(LoggedIn(getDummyAuthInfoForToken(token)))

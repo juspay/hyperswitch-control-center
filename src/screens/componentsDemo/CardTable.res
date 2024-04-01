@@ -94,7 +94,7 @@ module CardDetails = {
           ->React.array
         }
         {if isAnalyticsModule {
-          <div className="flex justify-end text-blue-800 cursor-pointer" onClick=showMore>
+          <div className="flex justify-end text-blue-500 cursor-pointer" onClick=showMore>
             {if itemArray->Array.length > size {
               show ? React.string("More") : React.string("Less")
             } else {
