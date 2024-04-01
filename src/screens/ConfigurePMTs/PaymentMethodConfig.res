@@ -74,9 +74,10 @@ let make = (
   ~paymentMethodConfig: PaymentMethodConfigTypes.paymentMethodConfiguration,
   ~config: string="",
   ~setReferesh: unit => promise<unit>,
-  ~element: React.element=?,
+  ~element: option<React.element>=?,
 ) => {
   open FormRenderer
+  let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
   let (showPaymentMthdConfigModal, setShowPaymentMthdConfigModal) = React.useState(_ => false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currencies, setCurrencies) = React.useState(_ => [])
@@ -200,11 +201,14 @@ let make = (
         // <FormValuesSpy />
       </Form>
     </Modal>
-    <div className="cursor-pointer" onClick={_ => getProcessorDetails()->ignore}>
+    <ACLDiv
+      permission=permissionJson.connectorsManage
+      className="cursor-pointer"
+      onClick={_ => getProcessorDetails()->ignore}>
       {switch element {
       | Some(component) => component
       | _ => config->String.length > 0 ? config->React.string : "NA"->React.string
       }}
-    </div>
+    </ACLDiv>
   </div>
 }
