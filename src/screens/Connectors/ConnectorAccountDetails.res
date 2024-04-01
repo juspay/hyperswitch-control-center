@@ -238,7 +238,6 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
           ~setVerifyDone,
           ~verifyDone,
           ~isVerifyConnector,
-          ~isVerifyConnectorFeatureEnabled=featureFlagDetails.verifyConnector,
         )
       }}
       validate={validateMandatoryField}
@@ -249,17 +248,12 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow, ~
           <FormRenderer.SubmitButton loadingText="Processing..." text=buttonText />
         </AddDataAttributes>}
         handleShowModal>
-        <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
-          <div className="flex flex-col gap-2 p-2 md:px-10">
-            <ConnectorAccountDetailsHelper.BusinessProfileRender
-              isUpdateFlow selectedConnector={connector}
-            />
-          </div>
-        </UIUtils.RenderIf>
-        <div
-          className={`flex flex-col gap-2 p-2 md:${featureFlagDetails.businessProfile
-              ? "px-10"
-              : "p-10"}`}>
+        <div className="flex flex-col gap-2 p-2 md:px-10">
+          <ConnectorAccountDetailsHelper.BusinessProfileRender
+            isUpdateFlow selectedConnector={connector}
+          />
+        </div>
+        <div className={`flex flex-col gap-2 p-2 md:px-10`}>
           <div className="grid grid-cols-2 flex-1">
             <ConnectorConfigurationFields
               connector={connectorTypeFromName}

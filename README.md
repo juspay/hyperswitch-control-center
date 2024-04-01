@@ -88,21 +88,9 @@ The FeatureFlag.json file can be found under config/FeatueFlag.json. By default,
 
 The `generate_report` feature flag controls the ability to generate detailed reports on payments, refunds, and disputes. When enabled, this allows users to pull reports covering the previous 6 months of transaction data. The reports can provide insights into trends, identify issues, and inform business decisions.
 
-#### Business profile
-
-The `business_profile` feature flag enables the ability to create multiple business profiles within a single organisation account. Each business profile can have its own settings, connectors, and payment routing configuration from other profiles. This allows large enterprises to manage different lines of business, subsidiaries, or geographic regions under one umbrella account while keeping the data and workflows separate.
-
 #### Mixpanel
 
 The `mixpanel` feature flag controls the collection and transmission of anonymous usage data to Mixpanel for analytics. When enabled, the dashboard will automatically send information about user actions and events to Mixpanel without collecting any personally identifiable information via REST API.
-
-#### MixpanelSDK
-
-The `mixpanel_sdk` feature flag controls the collection and transmission of anonymous usage data to Mixpanel for analytics. When enabled, the dashboard will automatically send information about user actions and events to Mixpanel without collecting any personally identifiable information via it's SDK.
-
-#### Verify Connector
-
-The `verify_connector` feature flag enables connector validation when adding new payment processors. When enabled, this will perform a test API call to the processor after entering credentials to verify connectivity. This helps catch any issues with the integration or credentials before attempting to process live payments.
 
 #### Feedback
 
@@ -136,10 +124,6 @@ The `system_metrics` feature flag unlocks access to system monitoring and metric
 
 The `audit_trail` feature flag enables access to payment and refund audit logs within the dashboard. When turned on, users can view detailed trails showing the history of transactions including status changes, approvals, edits, and more.
 
-#### Switch Merchant
-
-The `switch_merchant` feature flag allows organizations to create and manage multiple merchant accounts within a single dashboard instance. When enabled, users can set up and configure separate merchants for different business lines, products, or brands. Users can switch between merchant profiles which have independent settings, connectors, and reporting.
-
 #### Test Live Toggle
 
 The `test_live_toggle` feature flag enables users to toggle between test and live modes when signing in. When enabled, users will see an option during sign-in to actively switch between test and live environments.
@@ -148,13 +132,9 @@ The `test_live_toggle` feature flag enables users to toggle between test and liv
 
 The `is_live_mode` feature flag enables the live mode - that the user is accessing. When enabled, it will show a visual indicator within the dashboard signaling whether the user is currently in a test environment or live production environment.
 
-#### Magic Link
+#### Email
 
-The `magic_link` feature flag enables user sign-in and sign-up using magic links instead of passwords. When enabled, users can request a magic link via email that logs them into their account or creates a new account if they are signing up.
-
-#### Production Access
-
-The `production_access` feature flag enables a flow for users to request live production access. When enabled, it shows a modal or call-to-action allowing users to indicate interest in taking their account live and processing real payments.
+The `email` feature flag enables user sign-in and sign-up using magic links instead of passwords. When enabled, users can request a magic link via email that logs them into their account or creates a new account if they are signing up.
 
 #### Quick Start
 
