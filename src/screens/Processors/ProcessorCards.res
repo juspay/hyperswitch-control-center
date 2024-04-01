@@ -269,7 +269,7 @@ let make = (
         {showTestProcessor
         ->dummyConnectorList
         ->iconsConnectors(
-          "Connect a test processor",
+          "",
           ~showRequestConnectorBtn=false,
           ~showSearch=false,
           ~showDummyConnectorButton=false,
@@ -280,7 +280,7 @@ let make = (
         {showTestProcessor
         ->dummyConnectorList
         ->descriptedConnectors(
-          "Connect a test processor",
+          "",
           ~showRequestConnectorBtn=false,
           ~showSearch=false,
           ~showDummyConnectorButton=false,
