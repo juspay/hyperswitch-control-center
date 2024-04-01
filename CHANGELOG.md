@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.01.0
+
+### Bug Fixes
+
+- Audit log scroll fix ([#542](https://github.com/juspay/hyperswitch-control-center/pull/542)) ([`6670bee`](https://github.com/juspay/hyperswitch-control-center/commit/6670beee0fb96ecf10b871452d5e420074293c26))
+- Fix: removed unused file, sdk source mapper fix - audit trail, integr… ([#526](https://github.com/juspay/hyperswitch-control-center/pull/526)) ([`f9234a2`](https://github.com/juspay/hyperswitch-control-center/commit/f9234a2a590a0a2f415b50a2f366f366ef216825))
+
+### Miscellaneous Tasks
+
+- Js.Array2 core changes for sorted function ([#540](https://github.com/juspay/hyperswitch-control-center/pull/540)) ([`4f78c80`](https://github.com/juspay/hyperswitch-control-center/commit/4f78c8011945f3ce25175bdb8cb47635ce45e2d8))
+- Remove unused feature flags ([#547](https://github.com/juspay/hyperswitch-control-center/pull/547)) ([`2035945`](https://github.com/juspay/hyperswitch-control-center/commit/2035945f3cb014c2bd3d5df925b0cfef127a1814))
+- Global search feature flag ([#550](https://github.com/juspay/hyperswitch-control-center/pull/550)) ([`1911539`](https://github.com/juspay/hyperswitch-control-center/commit/1911539d5f3c9eedfeaced49fdfb32bd45631d9f))
+- Sorting processor list ([#493](https://github.com/juspay/hyperswitch-control-center/pull/493)) ([`13ee22f`](https://github.com/juspay/hyperswitch-control-center/commit/13ee22ffd443fe52f0ead8337b8e768d3789fee4))
+
+**Full Changelog:** [`2024.03.28.0...2024.04.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.03.28.0...2024.04.01.0)
+
+- - -
+
 ## 2024.03.28.0
 
 ### Features
