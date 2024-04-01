@@ -433,19 +433,27 @@ let make = () => {
                       | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
                       | list{"search"} => <SearchResultsPage />
                       | list{"payment-attempts"} =>
-                        <AccessControl permission=userPermissionJson.operationsView>
+                        <AccessControl
+                          isEnabled={featureFlagDetails.globalSearch}
+                          permission=userPermissionJson.operationsView>
                           <PaymentAttemptTable />
                         </AccessControl>
                       | list{"payment-intents"} =>
-                        <AccessControl permission=userPermissionJson.operationsView>
+                        <AccessControl
+                          isEnabled={featureFlagDetails.globalSearch}
+                          permission=userPermissionJson.operationsView>
                           <PaymentIntentTable />
                         </AccessControl>
                       | list{"refunds-global"} =>
-                        <AccessControl permission=userPermissionJson.operationsView>
+                        <AccessControl
+                          isEnabled={featureFlagDetails.globalSearch}
+                          permission=userPermissionJson.operationsView>
                           <RefundsTable />
                         </AccessControl>
                       | list{"dispute-global"} =>
-                        <AccessControl permission=userPermissionJson.operationsView>
+                        <AccessControl
+                          isEnabled={featureFlagDetails.globalSearch}
+                          permission=userPermissionJson.operationsView>
                           <DisputeTable />
                         </AccessControl>
                       | list{"unauthorized"} => <UnauthorizedPage />
