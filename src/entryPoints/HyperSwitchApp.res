@@ -205,12 +205,10 @@ let make = () => {
                     <Navbar
                       headerActions={<div className="relative flex items-center gap-4 my-2 ">
                         <GlobalSearchBar />
-                        <RenderIf condition={featureFlagDetails.switchMerchant}>
-                          <SwitchMerchant
-                            userRole={userRole}
-                            isAddMerchantEnabled={userRole === "org_admin" ? true : false}
-                          />
-                        </RenderIf>
+                        <SwitchMerchant
+                          userRole={userRole}
+                          isAddMerchantEnabled={userRole === "org_admin" ? true : false}
+                        />
                         <div
                           className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
                           {modeText->React.string}
@@ -427,8 +425,7 @@ let make = () => {
                           <BusinessDetails />
                         </AccessControl>
                       | list{"business-profiles"} =>
-                        <AccessControl
-                          isEnabled=featureFlagDetails.businessProfile permission=Access>
+                        <AccessControl permission=Access>
                           <BusinessProfile />
                         </AccessControl>
                       | list{"quick-start"} => determineQuickStartPageState()
@@ -468,8 +465,7 @@ let make = () => {
                 setShowModal={setShowFeedbackModal}
               />
             </RenderIf>
-            <RenderIf
-              condition={featureFlagDetails.productionAccess || featureFlagDetails.quickStart}>
+            <RenderIf condition={!featureFlagDetails.isLiveMode || featureFlagDetails.quickStart}>
               <ProdIntentForm />
             </RenderIf>
             <RenderIf

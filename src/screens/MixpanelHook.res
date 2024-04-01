@@ -73,16 +73,5 @@ let useSendEvent = () => {
     if featureFlagDetails.mixpanel {
       trackApi(~email={email->parseEmail}, ~merchantId, ~description, ~event={eventName})->ignore
     }
-    if featureFlagDetails.mixpanelSdk {
-      MixPanel.track(
-        eventName,
-        {
-          "email": email->parseEmail,
-          "merchantId": merchantId,
-          "environment": environment,
-          "description": description,
-        },
-      )
-    }
   }
 }
