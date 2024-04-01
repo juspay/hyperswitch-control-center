@@ -1,6 +1,6 @@
 let parseFilterString = queryString => {
   queryString
-  ->Js.Global.decodeURI
+  ->decodeURI
   ->String.split("&")
   ->Belt.Array.keepMap(str => {
     let arr = str->String.split("=")

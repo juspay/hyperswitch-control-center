@@ -7,7 +7,7 @@ let make = (~children) => {
   let popUp = switch activePopUp {
   | Some(popUp) => {
       let handleConfirm = ev => {
-        setOpenPopUp(.prevArr => prevArr->Js.Array2.sliceFrom(1))
+        setOpenPopUp(.prevArr => prevArr->Array.sliceToEnd(~start=1))
         switch popUp.handleConfirm.onClick {
         | Some(onClick) => onClick(ev)
         | None => ()
@@ -15,7 +15,7 @@ let make = (~children) => {
       }
 
       let handlePopUp = ev => {
-        setOpenPopUp(.prevArr => prevArr->Js.Array2.sliceFrom(1))
+        setOpenPopUp(.prevArr => prevArr->Array.sliceToEnd(~start=1))
         switch popUp.handleCancel {
         | Some(fn) =>
           switch fn.onClick {
@@ -27,7 +27,7 @@ let make = (~children) => {
       }
 
       let handleCancel = ev => {
-        setOpenPopUp(.prevArr => prevArr->Js.Array2.sliceFrom(1))
+        setOpenPopUp(.prevArr => prevArr->Array.sliceToEnd(~start=1))
         switch popUp.handleCancel {
         | Some(fn) =>
           switch fn.onClick {

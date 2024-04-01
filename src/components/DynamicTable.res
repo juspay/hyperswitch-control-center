@@ -127,7 +127,7 @@ let make = (
   let (tableDataLoading, setTableDataLoading) = React.useState(() => false)
   let fetchApi = AuthHooks.useApiFetcher()
   let url = RescriptReactRouter.useUrl()
-  let searchParams = disableURIdecode ? url.search : url.search->Js.Global.decodeURI
+  let searchParams = disableURIdecode ? url.search : url.search->decodeURI
   let (refreshData, _setRefreshData) = React.useContext(RefreshStateContext.refreshStateContext)
   let (offset, setOffset) = React.useState(() => 0)
   let remoteFilters = initialFilters->Array.filter(item => item.localFilter->Option.isNone)
@@ -301,7 +301,7 @@ let make = (
       let newDefaultFilter =
         defaultFilters->JSON.Decode.object->Option.getOr(Dict.make())->Dict.toArray->Dict.fromArray
 
-      Dict.set(newDefaultFilter, "offset", rowFetched->Js.Int.toFloat->JSON.Encode.float)
+      Dict.set(newDefaultFilter, "offset", rowFetched->Int.toFloat->JSON.Encode.float)
       setDefaultFilters(_ => newDefaultFilter->JSON.Encode.object)
     }
   }

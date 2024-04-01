@@ -751,7 +751,7 @@ let make = (
     | Some(fitlerRows) =>
       switch isFrozen {
       | true => Some(fitlerRows->Array.slice(~start=0, ~end=frozenUpto))
-      | false => Some(fitlerRows->Js.Array2.sliceFrom(frozenUpto))
+      | false => Some(fitlerRows->Array.sliceToEnd(~start=frozenUpto))
       }
     | None => None
     }
@@ -793,7 +793,7 @@ let make = (
     | Some(fitlerRows) => {
         let filterRows = switch isFrozen {
         | true => fitlerRows->Array.slice(~start=0, ~end=frozenUpto)
-        | false => fitlerRows->Js.Array2.sliceFrom(frozenUpto)
+        | false => fitlerRows->Array.sliceToEnd(~start=frozenUpto)
         }
 
         <TableFilterRow
@@ -819,9 +819,9 @@ let make = (
     row->Array.slice(~start=0, ~end=frozenUpto)
   })
 
-  let remainingHeading = heading->Js.Array2.sliceFrom(frozenUpto)
+  let remainingHeading = heading->Array.sliceToEnd(~start=frozenUpto)
   let remaingRow = rowInfo->Array.map(row => {
-    row->Js.Array2.sliceFrom(frozenUpto)
+    row->Array.sliceToEnd(~start=frozenUpto)
   })
 
   let frozenTableWidthClass = isMobileView ? "w-48" : "w-auto"

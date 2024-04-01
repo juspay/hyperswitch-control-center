@@ -398,7 +398,7 @@ module ComboFieldsRenderer3 = {
       } else {
         let inputField = inputFields[0]->Option.getOr(makeInputFieldInfo(~name="", ()))
 
-        let restInputFields = Js.Array2.sliceFrom(inputFields, 1)
+        let restInputFields = inputFields->Array.sliceToEnd(~start=1)
 
         <ReactFinalForm.Field
           name=inputField.name
@@ -585,6 +585,7 @@ module SubmitButton = {
     ~textStyle=?,
     ~textWeight=?,
     ~customHeightClass=?,
+    ~dataTestId=?,
   ) => {
     let dict = Dict.make()
     [
@@ -662,6 +663,7 @@ module SubmitButton = {
         ?customPaddingClass
         ?textStyle
         ?textWeight
+        ?dataTestId
       />
 
     let buttonState: Button.buttonState =
@@ -688,6 +690,7 @@ module SubmitButton = {
           ?buttonSize
           ?customHeightClass
           ?textStyle
+          ?dataTestId
         />
       </>
 

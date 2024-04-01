@@ -1,9 +1,9 @@
 let getCurrentDetailedUTCTime = () => {
-  Js.Date.fromFloat(Js.Date.now())->Js.Date.toUTCString
+  Js.Date.fromFloat(Date.now())->Js.Date.toUTCString
 }
 
 let getCurrentShortUTCTime = () => {
-  let currentDate = Js.Date.now()->Js.Date.fromFloat
+  let currentDate = Date.now()->Js.Date.fromFloat
   let currMonth = currentDate->Js.Date.getUTCMonth->Float.toString
   let currDay = currentDate->Js.Date.getUTCDate->Float.toString
   let currYear = currentDate->Js.Date.getUTCFullYear->Float.toString

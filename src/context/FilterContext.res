@@ -83,7 +83,7 @@ let make = (~index: string, ~children, ~disableSessionStorage=false) => {
     let removeKeys = (arr: array<string>) => {
       setfilterDict(prev => {
         let updatedDict =
-          prev->Dict.toArray->Js.Array2.copy->Dict.fromArray->DictionaryUtils.deleteKeys(arr)
+          prev->Dict.toArray->Array.copy->Dict.fromArray->DictionaryUtils.deleteKeys(arr)
         let dict = if DictionaryUtils.equalDicts(updatedDict, prev) {
           prev
         } else {

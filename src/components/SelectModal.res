@@ -27,7 +27,7 @@ let make = (
     | -1 => setValues(_ => arr)
     | _ =>
       if arr->Array.length > maxSelection {
-        let temp = arr->Js.Array2.sliceFrom(arr->Array.length - maxSelection)
+        let temp = arr->Array.sliceToEnd(~start=arr->Array.length - maxSelection)
         setValues(_ => temp)
       } else {
         setValues(_ => arr)

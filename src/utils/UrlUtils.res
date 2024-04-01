@@ -6,7 +6,7 @@ let useGetFilterDictFromUrl = prefix => {
     if url.search->LogicUtils.isNonEmptyString {
       let searcParamsToDict =
         url.search
-        ->Js.Global.decodeURI
+        ->decodeURI
         ->String.split("&")
         ->Array.map(str => {
           let arr = str->String.split("=")
