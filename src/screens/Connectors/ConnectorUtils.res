@@ -1330,7 +1330,7 @@ let connectorTypeStringToTypeMapper = connector_type => {
 
 let sortByName = (c1, c2) => {
   open LogicUtils
-  compareLogic(c2->getConnectorNameString, c1->getConnectorNameString)->Belt.Int.toFloat
+  compareLogic(c2->getConnectorNameString, c1->getConnectorNameString)
 }
 
 let existsInArray = (element, connectorList) => {
