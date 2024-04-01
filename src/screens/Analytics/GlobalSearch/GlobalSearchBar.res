@@ -198,10 +198,9 @@ let make = () => {
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let searchText = searchText->String.trim
   let loader = LottieFiles.useLottieJson("loader-circle.json")
-  // TODO: need to add feature flag here
-  let isShowRemoteResults = !(
-    HSLocalStorage.getFromUserDetails("user_role")->String.includes("internal_")
-  )
+  let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let isShowRemoteResults = globalSearch && permissionJson.operationsView === Access
 
   let redirectOnSelect = element => {
     let redirectLink = element.redirect_link->JSON.Decode.string->Option.getOr("/search")
