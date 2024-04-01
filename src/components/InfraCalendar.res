@@ -100,7 +100,7 @@ module TableRow = {
                 : `cursor-pointer h-12 w-12 text-center font-fira-code font-medium dark:text-jp-gray-text_darktheme text-opacity-75 dark:hover:bg-opacity-100 ${dayClass} p-0 pb-1`
             let c2 =
               obj->isNonEmptyString && hSelf.highlightSelf
-                ? "h-full w-full cursor-pointer flex border flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-opacity-100 rounded-full"
+                ? "h-full w-full cursor-pointer flex border flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-opacity-100 rounded-full"
                 : "h-full w-full"
 
             let shouldHighlight = (startDate, endDate, obj, month, year) => {
@@ -121,16 +121,16 @@ module TableRow = {
                 if endDate->isNonEmptyString {
                   let parsedEndDate = getDate(String.split(endDate, "-"))
                   z == parsedStartDate && z == parsedEndDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white dark:hover:text-jp-gray-text_darktheme rounded-full"
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white dark:hover:text-jp-gray-text_darktheme rounded-full"
                     : z == parsedStartDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white dark:hover:text-jp-gray-text_darktheme rounded-l-full "
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white dark:hover:text-jp-gray-text_darktheme rounded-l-full "
                     : z == parsedEndDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 dark:bg-opacity-100 text-white dark:hover:text-jp-gray-text_darktheme rounded-r-full "
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 dark:bg-opacity-100 text-white dark:hover:text-jp-gray-text_darktheme rounded-r-full "
                     : z > parsedStartDate && z < parsedEndDate
-                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 text-white dark:hover:text-jp-gray-text_darktheme dark:bg-opacity-100"
+                    ? "h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 text-white dark:hover:text-jp-gray-text_darktheme dark:bg-opacity-100"
                     : "h-full w-full"
                 } else if z == parsedStartDate {
-                  "h-full w-full flex flex-1 justify-center items-center bg-blue-800 bg-opacity-100 dark:bg-blue-800 text-white dark:hover:text-jp-gray-text_darktheme dark:bg-opacity-100 rounded-full"
+                  "h-full w-full flex flex-1 justify-center items-center bg-blue-500 bg-opacity-100 dark:bg-blue-500 text-white dark:hover:text-jp-gray-text_darktheme dark:bg-opacity-100 rounded-full"
                 } else {
                   "h-full w-full"
                 }

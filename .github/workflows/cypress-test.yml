@@ -45,6 +45,7 @@ jobs:
           install: false
           build: npm run build:test
           start: npm run test:start
+          # spec: cypress/e2e/quick-start/sbx-quick-start.cy.js
 
       - name: Check Coverage Thresholds
         run: |

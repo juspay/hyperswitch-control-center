@@ -17,7 +17,7 @@ module StripSendingCreditCard = {
         <div className="inline gap-1">
           {`Click `->React.string}
           <a
-            className="inline text-blue-900 underline"
+            className="inline text-blue-500 underline"
             href="https://dashboard.stripe.com/settings/integration"
             target="_blank">
             {React.string("here")}
@@ -39,7 +39,7 @@ module StripeInvalidAPIKey = {
         <div className="inline gap-1">
           {`Please use a secret API key. Click `->React.string}
           <a
-            className="inline text-blue-900 underline"
+            className="inline text-blue-500 underline"
             href="https://dashboard.stripe.com/test/apikeys"
             target="_blank">
             {React.string("here")}
@@ -61,7 +61,7 @@ module PaypalClientAuthenticationFalied = {
         <div className="inline gap-1">
           {`Please use the correct credentials. Click `->React.string}
           <a
-            className="inline text-blue-900 underline"
+            className="inline text-blue-500 underline"
             href="https://developer.paypal.com/dashboard/applications/sandbox"
             target="_blank">
             {React.string("here")}

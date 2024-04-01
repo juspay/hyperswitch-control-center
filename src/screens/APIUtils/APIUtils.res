@@ -126,6 +126,15 @@ let getURL = (
       }
     | _ => ""
     }
+  | GLOBAL_SEARCH =>
+    switch methodType {
+    | Post =>
+      switch id {
+      | Some(topic) => `analytics/v1/search/${topic}`
+      | None => `analytics/v1/search`
+      }
+    | _ => ""
+    }
   | ANALYTICS_REFUNDS
   | ANALYTICS_PAYMENTS
   | ANALYTICS_USER_JOURNEY
@@ -165,7 +174,6 @@ let getURL = (
     | #USER_DATA => `${userUrl}/data`
     | #MERCHANT_DATA => `${userUrl}/data`
     | #INVITE_MULTIPLE
-    | #INVITE
     | #RESEND_INVITE =>
       `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
     | #CONNECT_ACCOUNT => `${userUrl}/connect_account`
@@ -180,9 +188,7 @@ let getURL = (
     | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`
     | #USER_DELETE => `${userUrl}/user/delete`
     | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
-    | #SIGNIN
     | #SIGNUP
-    | #VERIFY_EMAIL
     | #SIGNOUT
     | #RESET_PASSWORD
     | #SET_METADATA

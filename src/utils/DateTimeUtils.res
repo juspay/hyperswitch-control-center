@@ -76,7 +76,7 @@ let parseAsFloat = (dateStr: string) => {
 }
 
 let toUtc = (datetime: Date.t) => {
-  let offset = Js.Date.getTimezoneOffset(Js.Date.now()->Js.Date.fromFloat)->Int.fromFloat
+  let offset = Js.Date.getTimezoneOffset(Date.now()->Js.Date.fromFloat)->Int.fromFloat
   (datetime->DayJs.getDayJsForJsDate).add(. offset, "minute").toDate(.)
 }
 

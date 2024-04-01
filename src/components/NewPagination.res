@@ -35,32 +35,17 @@ let make = (~resultsPerPage, ~totalResults, ~currentPage, ~paginate, ~btnCount=4
     {pageNumbers
     ->Array.filter(nonEmpty)
     ->Array.mapWithIndex((number, idx) => {
-      let isSelected = number == currentPage
-      if isSelected {
-        <div className="p-2">
-          <Button
-            key={idx->Int.toString}
-            text={number->Int.toString}
-            buttonType={UpiPaginator}
-            onClick={_evt => paginate(number)}
-            customButtonStyle="rounded-[4px] w-[39px] h-[36px] border-[1px] border-[#3674E0]"
-            textStyle="text-[#0E111E] text-[14px]"
-            textWeight="font-light"
-          />
-        </div>
-      } else {
-        <div className="p-2">
-          <Button
-            key={idx->Int.toString}
-            text={number->Int.toString}
-            onClick={_evt => paginate(number)}
-            buttonType={Pill}
-            customButtonStyle="rounded-[4px] w-[39px] h-[36px]"
-            textStyle="text-[#0E111E] text-[14px]"
-            textWeight="font-light"
-          />
-        </div>
-      }
+      <div className="p-2">
+        <Button
+          key={idx->Int.toString}
+          text={number->Int.toString}
+          onClick={_evt => paginate(number)}
+          buttonType={Pill}
+          customButtonStyle="rounded-[4px] w-[39px] h-[36px]"
+          textStyle="text-[#0E111E] text-[14px]"
+          textWeight="font-light"
+        />
+      </div>
     })
     ->React.array}
     {if currentPage < Array.length(pageNumbers) {

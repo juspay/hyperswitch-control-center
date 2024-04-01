@@ -474,11 +474,11 @@ let getStatus = order => {
   | RequiresCustomerAction
   | RequiresConfirmation
   | RequiresPaymentMethod =>
-    <div className={`${fixedStatusCss} bg-blue-800 bg-opacity-50`}>
+    <div className={`${fixedStatusCss} bg-blue-500 bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | _ =>
-    <div className={`${fixedStatusCss} bg-blue-800 bg-opacity-50`}>
+    <div className={`${fixedStatusCss} bg-blue-500 bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   }

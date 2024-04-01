@@ -68,7 +68,7 @@ module VerticalChoiceTile = {
     ~customLayoutCss,
   ) => {
     let getBlockColor = value =>
-      choiceState === value ? "border border-blue-700 bg-blue-700 bg-opacity-10 " : "border"
+      choiceState === value ? "border border-blue-500 bg-blue-500 bg-opacity-10 " : "border"
     let headerTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700`
     let descriptionStyle = `${HSwitchUtils.getTextClass((
         P2,
@@ -94,7 +94,7 @@ module VerticalChoiceTile = {
               <Icon
                 name={choiceState === items.variantType ? "selected" : "nonselected"}
                 size=20
-                className="cursor-pointer !text-blue-800"
+                className="cursor-pointer !text-blue-500"
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -107,7 +107,7 @@ module VerticalChoiceTile = {
                 ->Option.getOr([])
                 ->Array.map(value =>
                   <div
-                    className="p-2 text-xs border border-blue-700 border-opacity-30 bg-blue-700 bg-opacity-10 rounded-md">
+                    className="p-2 text-xs border border-blue-500 border-opacity-30 bg-blue-500 bg-opacity-10 rounded-md">
                     {value->React.string}
                   </div>
                 )
@@ -131,7 +131,7 @@ module HorizontalChoiceTile = {
     ~customLayoutCss,
   ) => {
     let getBlockColor = value =>
-      choiceState === value ? "border border-blue-700 bg-blue-700 bg-opacity-10 " : "border"
+      choiceState === value ? "border border-blue-500 bg-blue-500 bg-opacity-10 " : "border"
     let headerTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700`
     let descriptionStyle = `${HSwitchUtils.getTextClass((
         P2,
@@ -153,7 +153,7 @@ module HorizontalChoiceTile = {
               <Icon
                 name={choiceState === items.variantType ? "selected" : "nonselected"}
                 size=20
-                className="cursor-pointer !text-blue-800"
+                className="cursor-pointer !text-blue-500"
               />
             </div>
             <UIUtils.RenderIf
@@ -244,7 +244,7 @@ module SelectConnectorGrid = {
       switch (selectedConnector, connector) {
       | (Processors(selectedConnector), Processors(connectorValue))
         if selectedConnector ===
-          connectorValue => "border border-blue-700 bg-blue-700 bg-opacity-10"
+          connectorValue => "border border-blue-500 bg-blue-500 bg-opacity-10"
       | _ => "border"
       }
     }
@@ -279,7 +279,7 @@ module SelectConnectorGrid = {
                     </p>
                   </div>
                   <Icon
-                    name={connector->iconColor} size=20 className="cursor-pointer !text-blue-800"
+                    name={connector->iconColor} size=20 className="cursor-pointer !text-blue-500"
                   />
                 </div>
               </AddDataAttributes>
@@ -308,7 +308,7 @@ module SelectConnectorGrid = {
                 <Icon
                   name={connector === selectedConnector ? "selected" : "nonselected"}
                   size=20
-                  className="cursor-pointer !text-blue-800"
+                  className="cursor-pointer !text-blue-500"
                 />
               </div>
             </div>
