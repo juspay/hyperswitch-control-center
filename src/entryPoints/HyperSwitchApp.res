@@ -23,7 +23,7 @@ let make = () => {
   let fetchBusinessProfiles = BusinessProfileHook.useFetchBusinessProfiles()
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
-  let fetchConnectorListResponse = ConnectorUtils.useFetchConnectorList()
+  let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
   let enumDetails =
     enumVariantAtom->Recoil.useRecoilValueFromAtom->safeParse->QuickStartUtils.getTypedValueFromDict
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -120,8 +120,8 @@ let make = () => {
 
   let setUpDashboard = async () => {
     try {
+      Window.connectorWasmInit()->ignore
       let _ = await fetchSwitchMerchantList()
-      let _ = await Window.connectorWasmInit()
       let permissionJson = await fetchPermissions()
 
       if merchantId->isNonEmptyString {
@@ -209,7 +209,7 @@ let make = () => {
             <div className="flex relative overflow-auto h-screen ">
               <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
               <div
-                className="flex relative flex-col flex-1 overflow-hidden bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
+                className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
                 <RenderIf condition={verificationDays > 0}>
                   <DelayedVerificationBanner verificationDays={verificationDays} />
                 </RenderIf>
@@ -218,9 +218,12 @@ let make = () => {
                   <div className="w-full max-w-fixedPageWidth px-9">
                     <Navbar
                       headerActions={<div className="relative flex items-center gap-4 my-2 ">
-                        <HSwitchGlobalSearchBar />
+                        <GlobalSearchBar />
                         <RenderIf condition={featureFlagDetails.switchMerchant}>
-                          <SwitchMerchant userRole={userRole} isAddMerchantEnabled=true />
+                          <SwitchMerchant
+                            userRole={userRole}
+                            isAddMerchantEnabled={userRole === "org_admin" ? true : false}
+                          />
                         </RenderIf>
                         <div
                           className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
@@ -271,6 +274,19 @@ let make = () => {
                             renderList={() => <ConnectorList isPayoutFlow=true />}
                             renderNewForm={() => <ConnectorHome isPayoutFlow=true />}
                             renderShow={_ => <ConnectorHome isPayoutFlow=true />}
+                          />
+                        </AccessControl>
+
+                      | list{"3ds-authenticators", ...remainingPath} =>
+                        <AccessControl
+                          permission=userPermissionJson.connectorsView
+                          isEnabled={featureFlagDetails.threedsAuthenticator}>
+                          <EntityScaffold
+                            entityName="3DS Authenticator"
+                            remainingPath
+                            renderList={() => <ThreeDsConnectorList />}
+                            renderNewForm={() => <ThreeDsProcessorHome />}
+                            renderShow={_ => <ThreeDsProcessorHome />}
                           />
                         </AccessControl>
 
@@ -356,6 +372,12 @@ let make = () => {
                             <RefundsAnalytics />
                           </FilterContext>
                         </AccessControl>
+                      | list{"analytics-disputes"} =>
+                        <AccessControl permission=userPermissionJson.analyticsView>
+                          <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
+                            <DisputeAnalytics />
+                          </FilterContext>
+                        </AccessControl>
                       | list{"analytics-user-journey"} =>
                         <AccessControl
                           isEnabled=featureFlagDetails.userJourneyAnalytics
@@ -426,6 +448,23 @@ let make = () => {
                       | list{"quick-start"} => determineQuickStartPageState()
                       | list{"woocommerce"} => determineWooCommerce()
                       | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
+                      | list{"search"} => <SearchResultsPage />
+                      | list{"payment-attempts"} =>
+                        <AccessControl permission=userPermissionJson.operationsView>
+                          <PaymentAttemptTable />
+                        </AccessControl>
+                      | list{"payment-intents"} =>
+                        <AccessControl permission=userPermissionJson.operationsView>
+                          <PaymentIntentTable />
+                        </AccessControl>
+                      | list{"refunds-global"} =>
+                        <AccessControl permission=userPermissionJson.operationsView>
+                          <RefundsTable />
+                        </AccessControl>
+                      | list{"dispute-global"} =>
+                        <AccessControl permission=userPermissionJson.operationsView>
+                          <DisputeTable />
+                        </AccessControl>
                       | list{"unauthorized"} => <UnauthorizedPage />
                       | _ =>
                         RescriptReactRouter.replace(`${hyperSwitchFEPrefix}/home`)

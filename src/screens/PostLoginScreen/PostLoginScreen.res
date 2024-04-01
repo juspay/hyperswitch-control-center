@@ -28,7 +28,7 @@ module SurveyComponent = {
             ~buttonText="options",
             ~customStyle="p-2.5 border rounded-md text-fs-18 w-11/12 flex gap-2 !overflow-visible",
             ~baseComponentCustomStyle="flex flex-col gap-4 md:!min-h-[30rem]",
-            ~customSelectStyle="bg-blue-700 bg-opacity-5 border-blue-700",
+            ~customSelectStyle="bg-blue-500 bg-opacity-5 border-blue-500",
             ~fill="#006DF9",
             (),
           ),
@@ -148,9 +148,9 @@ let make = () => {
             <Form onSubmit initialValues={initialValueDict} formClass="!w-full">
               <FramerMotion.Motion.Div
                 key={currentStep->Int.toString}
-                initial={{opacity: 0, x: xPositionBasedOnDirection}}
-                animate={{opacity: 1, x: 0}}
-                exit={{opacity: 0, x: -100}}
+                initial={{opacity: 0.0, x: xPositionBasedOnDirection}}
+                animate={{opacity: 1.0, x: 0}}
+                exit={{opacity: 0.0, x: -100}}
                 transition={{duration: 0.3}}
                 className="flex flex-col flex-wrap bg-white p-8 !rounded-md !shadow-[0_4px_9px_0_rgba(0,0,0,_0.12)] carousel-item">
                 <SurveyComponent

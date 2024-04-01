@@ -121,7 +121,7 @@ let roleType = roleListData =>
     ~customInput=InputFields.infraSelectInput(
       ~options=roleOptions(roleListData),
       ~allowMultiSelect=false,
-      ~selectedClass="border border-blue-750",
+      ~selectedClass="border border-blue-500",
       (),
     ),
     ~isRequired=true,
@@ -153,21 +153,14 @@ let defaultPresentInInfoList = infoData => {
   let copyOfInfoData = infoData->Array.copy
 
   copyOfInfoData->Array.map((infoValItem: UserManagementTypes.getInfoType) => {
-    infoValItem.permissions->Array.forEach((enumValue: UserManagementTypes.permissions) => {
-      enumValue.isPermissionAllowed = false
-    })
+    infoValItem.isPermissionAllowed = false
     infoValItem
   })
 }
 
 module RolePermissionValueRenderer = {
   @react.component
-  let make = (
-    ~heading: string,
-    ~description: string,
-    ~readWriteValues as _: array<UserManagementTypes.permissions>,
-    ~isPermissionAllowed: bool=false,
-  ) => {
+  let make = (~heading: string, ~description: string, ~isPermissionAllowed: bool=false) => {
     <div className="flex justify-between">
       <div className="flex flex-col gap-3 items-start col-span-1">
         <div className="font-semibold"> {heading->React.string} </div>

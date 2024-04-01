@@ -18,16 +18,16 @@ module HomePageHorizontalStepper = {
 
     let getStepperStyle = index => {
       if index < step {
-        "bg-white border-blue-700"
+        "bg-white border-blue-500"
       } else if index === step {
-        "bg-blue-700 text-white border-transparent"
+        "bg-blue-500 text-white border-transparent"
       } else {
         "border-gray-500 text-gray-500"
       }
     }
     let getProgressBarStyle = index => {
       if index < step {
-        "bg-blue-700  w-full"
+        "bg-blue-500  w-full"
       } else {
         ""
       }
@@ -77,17 +77,14 @@ module QuickStart = {
     let updateEnumInRecoil = EnumVariantHook.useUpdateEnumInRecoil()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let (configureButtonState, setConfigureButtonState) = React.useState(_ => Button.Normal)
-    let connectorList =
-      HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->LogicUtils.safeParse
+    let typedConnectorValue = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
     let initalEnums =
       HyperswitchAtom.enumVariantAtom->Recoil.useRecoilValueFromAtom->LogicUtils.safeParse
     let typedValueOfEnum = initalEnums->QuickStartUtils.getTypedValueFromDict
 
     let setEnumsForPreviouslyConnectedConnectors = async () => {
-      open ConnectorTableUtils
       try {
         setConfigureButtonState(_ => Button.Loading)
-        let typedConnectorValue = connectorList->getArrayOfConnectorListPayloadType
 
         if (
           typedValueOfEnum.configurationType->String.length === 0 &&
@@ -96,10 +93,14 @@ module QuickStart = {
         ) {
           if typedConnectorValue->Array.length >= 2 {
             let firstConnectorValue =
-              typedConnectorValue->Array.get(0)->Option.getOr(getProcessorPayloadType(Dict.make()))
+              typedConnectorValue
+              ->Array.get(0)
+              ->Option.getOr(ConnectorListMapper.getProcessorPayloadType(Dict.make()))
 
             let secondConnectorValue =
-              typedConnectorValue->Array.get(1)->Option.getOr(getProcessorPayloadType(Dict.make()))
+              typedConnectorValue
+              ->Array.get(1)
+              ->Option.getOr(ConnectorListMapper.getProcessorPayloadType(Dict.make()))
 
             let bodyOfFirstConnector: QuickStartTypes.processorType = {
               processorID: firstConnectorValue.merchant_connector_id,
@@ -133,7 +134,9 @@ module QuickStart = {
             setQuickStartPageState(_ => ConnectProcessor(CONFIGURE_SMART_ROUTING))
           } else if typedConnectorValue->Array.length === 1 {
             let firstConnectorValue =
-              typedConnectorValue->Array.get(0)->Option.getOr(getProcessorPayloadType(Dict.make()))
+              typedConnectorValue
+              ->Array.get(0)
+              ->Option.getOr(ConnectorListMapper.getProcessorPayloadType(Dict.make()))
 
             let bodyOfFirstConnector: QuickStartTypes.processorType = {
               processorID: firstConnectorValue.merchant_connector_id,
@@ -341,6 +344,7 @@ module Resources = {
         mixpanelEvent(~eventName=`dev_docs`, ())
         "https://hyperswitch.io/docs"->Window._open
       } else if item.id === "tryTheDemo" {
+        mixpanelEvent(~eventName=`test_payment`, ())
         RescriptReactRouter.replace("/sdk")
       }
     }
@@ -412,12 +416,9 @@ let make = () => {
   let {isProdIntentCompleted} = React.useContext(GlobalProvider.defaultContext)
   let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
   let typedEnumValue = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <div className="w-full flex flex-col gap-6">
-    <UIUtils.RenderIf condition={featureFlagDetails.acceptInvite}>
-      <AcceptInviteHome />
-    </UIUtils.RenderIf>
+    <AcceptInviteHome />
     <div className="w-full flex flex-col gap-7">
       <QuickStartModule />
       <div>

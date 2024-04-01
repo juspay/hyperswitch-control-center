@@ -10,7 +10,7 @@ let getArrayDataFromJson = (json, itemToObjMapper) => {
 let getPreviouslyConnectedList: JSON.t => array<ConnectorTypes.connectorPayload> = json => {
   getArrayDataFromJson(
     json,
-    ConnectorTableUtils.getProcessorPayloadType,
+    ConnectorListMapper.getProcessorPayloadType,
   )->ConnectorTableUtils.sortPreviouslyConnectedList
 }
 

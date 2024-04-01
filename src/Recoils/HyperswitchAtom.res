@@ -8,7 +8,10 @@ let businessProfilesAtom = Recoil.atom(.
   JSON.Encode.null->BusinessProfileMapper.getArrayOfBusinessProfile,
 )
 
-let connectorListAtom: Recoil.recoilAtom<string> = Recoil.atom(. "connectorListAtom", "")
+let connectorListAtom: Recoil.recoilAtom<array<ConnectorTypes.connectorPayload>> = Recoil.atom(.
+  "connectorListAtom",
+  JSON.Encode.null->ConnectorListMapper.getArrayOfConnectorListPayloadType,
+)
 
 let enumVariantAtom = Recoil.atom(. "enumVariantDetails", "")
 
@@ -30,3 +33,12 @@ let switchMerchantListAtom: Recoil.recoilAtom<
 > = Recoil.atom(. "switchMerchantListAtom", [SwitchMerchantUtils.defaultValue])
 
 let currentTabNameRecoilAtom = Recoil.atom(. "currentTabName", "ActiveTab")
+
+let globalSeacrchAtom: Recoil.recoilAtom<GlobalSearchTypes.defaultResult> = Recoil.atom(.
+  "globalSearch",
+  {
+    GlobalSearchTypes.local_results: [],
+    remote_results: [],
+    searchText: "",
+  },
+)

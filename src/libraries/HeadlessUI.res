@@ -503,7 +503,7 @@ module SelectBoxHeadlessUI = {
                               <Icon className="align-middle" size=12 name=iconName />
                             | _ => React.null
                             }}
-                            <span className={selected ? "text-blue-800 font-semibold" : ""}>
+                            <span className={selected ? "text-blue-500 font-semibold" : ""}>
                               {React.string(option.label)}
                             </span>
                           </div>

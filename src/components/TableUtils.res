@@ -42,8 +42,6 @@ type labelColor =
   | LabelBrown
   | LabelLightBlue
   | LabelWhite
-  | LabelLightOrange
-  | LabelLightGray
   | LabelViolet
   | LabelLightGreen
   | LabelLightRed
@@ -196,7 +194,7 @@ module ProgressCell = {
   let make = (~progressPercentage) => {
     <div className="w-full bg-gray-200 rounded-full">
       <div
-        className="bg-green-800 text font-medium text-blue-100 text-left pl-5 p-0.5 leading-none rounded-full"
+        className="bg-green-700 text font-medium text-blue-100 text-left pl-5 p-0.5 leading-none rounded-full"
         style={ReactDOM.Style.make(~width=`${Int.toString(progressPercentage)}%`, ())}>
         {React.string(Int.toString(progressPercentage) ++ "%")}
       </div>
@@ -241,17 +239,15 @@ module LabelCell = {
     let borderColor = switch labelColor {
     | LabelGreen => `bg-green-950 ${bgOpacity} dark:bg-opacity-50`
     | LabelRed => `bg-red-960 ${bgOpacity} dark:bg-opacity-50`
-    | LabelBlue => "bg-blue-800 dark:bg-opacity-50"
+    | LabelBlue => "bg-blue-500 dark:bg-opacity-50"
     | LabelGray => "bg-blue-table_gray"
     | LabelOrange => `bg-orange-950 ${bgOpacity} dark:bg-opacity-50`
     | LabelYellow => "bg-blue-table_yellow"
-    | LabelDarkGreen => "bg-green-800"
+    | LabelDarkGreen => "bg-green-700"
     | LabelDarkRed => "bg-red-400"
     | LabelBrown => "bg-brown-600 bg-opacity-50"
-    | LabelLightBlue => "bg-blue-800 bg-opacity-50"
+    | LabelLightBlue => "bg-blue-500 bg-opacity-50"
     | LabelWhite => "bg-white border border-jp-gray-300"
-    | LabelLightOrange => "bg-ardra-warning bg-opacity-50"
-    | LabelLightGray => "bg-ardra-secondary-200 bg-opacity-50"
     | LabelViolet => "bg-violet-500"
     | LabelLightGreen => "bg-green-700  dark:bg-opacity-50"
     | LabelLightRed => "bg-red-400 dark:bg-opacity-50"
@@ -261,7 +257,6 @@ module LabelCell = {
     | LabelGray => "text-jp-gray-900"
     | LabelYellow => "text-jp-gray-900"
     | LabelWhite => "text-jp-gray-700"
-    | LabelLightOrange => "text-jp-gray-900"
     | _ => "text-white"
     }
 
@@ -303,17 +298,15 @@ module NewLabelCell = {
     let _borderColor = switch labelColor {
     | LabelGreen => "bg-green-950 dark:bg-opacity-50"
     | LabelRed => "bg-red-960 dark:bg-opacity-50"
-    | LabelBlue => "bg-blue-800 dark:bg-opacity-50"
+    | LabelBlue => "bg-blue-500 dark:bg-opacity-50"
     | LabelGray => "bg-blue-table_gray"
     | LabelOrange => "bg-orange-950 dark:bg-opacity-50"
     | LabelYellow => "bg-blue-table_yellow"
-    | LabelDarkGreen => "bg-green-800"
+    | LabelDarkGreen => "bg-green-700"
     | LabelDarkRed => "bg-red-400"
     | LabelBrown => "bg-brown-600 bg-opacity-50"
-    | LabelLightBlue => "bg-blue-800 bg-opacity-50"
+    | LabelLightBlue => "bg-blue-500 bg-opacity-50"
     | LabelWhite => "bg-white border border-jp-gray-300"
-    | LabelLightOrange => "bg-ardra-warning bg-opacity-50"
-    | LabelLightGray => "bg-ardra-secondary-200 bg-opacity-50"
     | LabelViolet => "bg-violet-500"
     | LabelLightGreen => "bg-green-700 dark:bg-opacity-50"
     | LabelLightRed => "bg-red-400 dark:bg-opacity-50"
@@ -360,13 +353,11 @@ module ColoredTextCell = {
     | LabelOrange => "text-status-text-orange"
     | LabelGray => "text-grey-500"
     | LabelYellow => "text-yellow-400"
-    | LabelDarkGreen => "text-green-800"
+    | LabelDarkGreen => "text-green-700"
     | LabelDarkRed => "text-red-700"
     | LabelBrown => "text-yellow-800"
     | LabelLightBlue => "text-sky-300"
     | LabelWhite => "text-jp-gray-500"
-    | LabelLightOrange => "text-ardra-warning"
-    | LabelLightGray => "text-ardra-secondary-200"
     | LabelViolet => "bg-violet-500"
     | LabelLightGreen => "bg-green-700"
     | LabelLightRed => "bg-red-400"
@@ -467,7 +458,7 @@ module LinkCell = {
 
     <div className="flex flex-row items-center" onMouseOver={mouseOver} onMouseOut={mouseOut}>
       <div
-        className={"whitespace-pre text-sm font-fira-code dark:text-opacity-75 text-right p-1 text-blue-900 text-ellipsis overflow-hidden"}>
+        className={"whitespace-pre text-sm font-fira-code dark:text-opacity-75 text-right p-1 text-blue-500 text-ellipsis overflow-hidden"}>
         <a href=data target="_blank" onClick=preventEvent> {React.string(trimData)} </a>
       </div>
       <div className=visibility>
@@ -600,7 +591,7 @@ module TrimmedText = {
           </div>
         </AddDataAttributes>
         {if !hideShowMore {
-          <div className={"text-blue-800 cursor-pointer"} onClick={_ => setshow(show => !show)}>
+          <div className={"text-blue-500 cursor-pointer"} onClick={_ => setshow(show => !show)}>
             {show ? React.string("More") : React.string("Less")}
           </div>
         } else {
@@ -638,7 +629,7 @@ module DeltaColumn = {
       ("", textColor, "", "", "bg-jp-2-gray-30")
     } else if delta < 0. {
       let textColor = "text-red-980"
-      ("", textColor, "text-jp-2-red-200", "arrow-down", "bg-jp-2-red-50")
+      ("", textColor, "text-jp-2-red-100", "arrow-down", "bg-jp-2-red-100")
     } else {
       let textColor = "text-green-950"
       ("+", textColor, "text-jp-2-green-300", "arrow-up", "bg-jp-2-green-50")

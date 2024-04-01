@@ -148,11 +148,8 @@ module CheckoutCard = {
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
     let clearRecoilValue = ClearRecoilValueHook.useClearRecoilValue()
 
-    let connectorList =
-      HyperswitchAtom.connectorListAtom
-      ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
-      ->LogicUtils.getObjectArrayFromJson
+    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+
     let isConfigureConnector = connectorList->Array.length > 0
 
     let handleOnClick = _ => {
@@ -334,7 +331,7 @@ module DevResources = {
 }
 
 let getGreeting = () => {
-  let dateTime = Js.Date.now()
+  let dateTime = Date.now()
   let hours = Js.Date.fromFloat(dateTime)->Js.Date.getHours->Int.fromFloat
 
   if hours < 12 {
@@ -348,7 +345,7 @@ let getGreeting = () => {
 
 let homepageStepperItems = ["Configure control center", "Integrate into your app", "Go Live"]
 
-let responseDataMapper = (res: JSON.t, mapper: (Dict.t<JSON.t>, string) => Js.Json.t) => {
+let responseDataMapper = (res: JSON.t, mapper: (Dict.t<JSON.t>, string) => JSON.t) => {
   open LogicUtils
   let arrayFromJson = res->getArrayFromJson([])
   let resDict = Dict.make()

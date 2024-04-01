@@ -73,7 +73,7 @@ module ActionButtons = {
         access={userPermissionJson.workflowsManage}
         buttonType=Secondary
         buttonSize={Small}
-        customButtonStyle="border !border-blue-700 bg-white !text-blue-700"
+        customButtonStyle="border !border-blue-500 bg-white !text-blue-500"
         onClick={_ => {
           RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)
           mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
@@ -84,7 +84,7 @@ module ActionButtons = {
         text={"Manage"}
         access={userPermissionJson.workflowsManage}
         buttonType=Secondary
-        customButtonStyle="border !border-blue-700 bg-white !text-blue-700"
+        customButtonStyle="border !border-blue-500 bg-white !text-blue-500"
         buttonSize={Small}
         onClick={_ => {
           RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)
@@ -125,7 +125,7 @@ module ActiveSection = {
       className="relative flex flex-col flex-wrap bg-white border rounded w-full px-6 py-10 gap-12">
       <div>
         <div
-          className="absolute top-0 left-0 bg-green-800 text-white py-2 px-4 rounded-br font-semibold">
+          className="absolute top-0 left-0 bg-green-700 text-white py-2 px-4 rounded-br font-semibold">
           {"ACTIVE"->React.string}
         </div>
         <div className="flex flex-col my-6 pt-4 gap-2">

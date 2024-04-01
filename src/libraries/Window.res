@@ -86,6 +86,9 @@ external payPalCreateAccountWindow: unit => unit = "payPalCreateAccountWindow"
 @val @scope("window")
 external isSecureContext: bool = "isSecureContext"
 
+@val @scope("window")
+external getAuthenticationConnectorConfig: string => JSON.t = "getAuthenticationConnectorConfig"
+
 module MatchMedia = {
   type matchEvent = {
     matches: bool,
@@ -113,6 +116,9 @@ module Location = {
 
   @val @scope(("window", "location"))
   external reload: unit => unit = "reload"
+
+  @val @scope(("window", "location"))
+  external hardReload: bool => unit = "reload"
 
   @val @scope(("window", "location"))
   external replace: string => unit = "replace"
@@ -162,7 +168,7 @@ type date = {getTimezoneOffset: (. unit) => float}
 
 @new external date: unit => date = "Date"
 let date = date()
-let timeZoneOffset = date.getTimezoneOffset(.)->Js.Float.toString
+let timeZoneOffset = date.getTimezoneOffset(.)->Float.toString
 
 type options = {timeZone: string}
 type dateTimeFormat = {resolvedOptions: (. unit) => options}

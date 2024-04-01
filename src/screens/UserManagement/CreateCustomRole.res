@@ -92,7 +92,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
     try {
       // TODO -  Seperate RoleName & RoleId in Backend. role_name as free text and role_id as snake_text
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let copiedJson = Js.Json.parseExn(Js.Json.stringify(values))
+      let copiedJson = JSON.parseExn(JSON.stringify(values))
       let url = getURL(~entityName=USERS, ~userType=#CREATE_CUSTOM_ROLE, ~methodType=Post, ())
 
       let body = copiedJson->getDictFromJsonObject->JSON.Encode.object
@@ -147,7 +147,8 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => ()) => {
         path=[{title: "Users", link: "/users"}] currentPageTitle="Create custom roles"
       />
       <PageUtils.PageHeading
-        title="Create custom roles" subTitle="A new custom role will be created"
+        title="Create custom role"
+        subTitle="Adjust permissions to create custom roles that match your requirement"
       />
     </RenderIf>
     <div

@@ -22,10 +22,7 @@ module VolumeRoutingView = {
     let showToast = ToastState.useShowToast()
     let listLength = connectors->Array.length
     let (showModal, setShowModal) = React.useState(_ => false)
-    let connectorListJson = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-    let connectorList = React.useMemo0(() => {
-      connectorListJson->safeParse->ConnectorTableUtils.getArrayOfConnectorListPayloadType
-    })
+    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
     let gateways =
       initialValues
@@ -209,10 +206,9 @@ let make = (~routingRuleId, ~isActive) => {
   let (connectors, setConnectors) = React.useState(_ => [])
   let currentTabName = Recoil.useRecoilValueFromAtom(HyperswitchAtom.currentTabNameRecoilAtom)
   let showToast = ToastState.useShowToast()
-  let connectorListJson =
-    HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->safeParse
+  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let getConnectorsList = () => {
-    setConnectors(_ => connectorListJson->ConnectorTableUtils.getArrayOfConnectorListPayloadType)
+    setConnectors(_ => connectorList)
   }
 
   let activeRoutingDetails = async () => {
@@ -263,7 +259,7 @@ let make = (~routingRuleId, ~isActive) => {
     let dict = values->getDictFromJsonObject
     let validateGateways = dict => {
       let gateways = dict->getArrayFromDict("data", [])
-      if gateways->Js.Array2.length === 0 {
+      if gateways->Array.length === 0 {
         Some("Need atleast 1 Gateway")
       } else {
         let distributionPercentages = gateways->Belt.Array.keepMap(json => {
@@ -271,8 +267,8 @@ let make = (~routingRuleId, ~isActive) => {
         })
         let distributionPercentageSum =
           distributionPercentages->Array.reduce(0., (sum, distribution) => sum +. distribution)
-        let hasZero = distributionPercentages->Js.Array2.some(ele => ele === 0.)
-        let isDistributeChecked = !(distributionPercentages->Js.Array2.some(ele => ele === 100.0))
+        let hasZero = distributionPercentages->Array.some(ele => ele === 0.)
+        let isDistributeChecked = !(distributionPercentages->Array.some(ele => ele === 100.0))
 
         let isNotValid =
           isDistributeChecked &&

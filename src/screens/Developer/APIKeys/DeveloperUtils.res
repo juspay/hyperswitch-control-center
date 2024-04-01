@@ -174,6 +174,31 @@ let returnUrl = FormRenderer.makeFieldInfo(
   (),
 )
 
+let authenticationConnectors = connectorList =>
+  FormRenderer.makeFieldInfo(
+    ~label="Authentication Connectors",
+    ~name="authentication_connectors",
+    ~customInput=InputFields.multiSelectInput(
+      ~options=connectorList->SelectBox.makeOptions,
+      ~buttonText="Select Field",
+      ~showSelectionAsChips=false,
+      ~customButtonStyle=`!rounded-md`,
+      ~fixedDropDownDirection=TopRight,
+      (),
+    ),
+    ~isRequired=false,
+    (),
+  )
+
+let threeDsRequestorUrl = FormRenderer.makeFieldInfo(
+  ~label="3DS Requestor URL",
+  ~name="three_ds_requestor_url",
+  ~placeholder="Enter 3DS Requestor URL",
+  ~customInput=InputFields.textInput(~autoComplete="off", ()),
+  ~isRequired=false,
+  (),
+)
+
 module ErrorUI = {
   @react.component
   let make = (~text) => {
@@ -198,7 +223,7 @@ module SuccessUI = {
   let make = (~downloadFun, ~apiKey) => {
     <div>
       <div className="flex p-5">
-        <Icon className="align-middle fill-blue-950 self-center" size=40 name="info-circle" />
+        <Icon className="align-middle fill-blue-600 self-center" size=40 name="info-circle" />
         <div className="text-jp-gray-900 ml-4">
           <div
             className="font-bold text-xl px-2 dark:text-jp-gray-text_darktheme dark:text-opacity-75">

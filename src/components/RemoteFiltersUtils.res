@@ -180,7 +180,7 @@ let getInitialValuesFromUrl = (
       let keyStartIndex = String.lastIndexOf(splitArray[0]->Option.getOr(""), "-") + 1
       let key = String.sliceToEnd(splitArray[0]->Option.getOr(""), ~start=keyStartIndex)
       Array.push(keyList, key)->ignore
-      splitArray->Js.Array2.shift->ignore
+      splitArray->Array.shift->ignore
       let value = splitArray->Array.joinWith("=")
       Array.push(valueList, value)->ignore
 

@@ -97,6 +97,11 @@ export function getConnectorConfig(key: string): any;
 */
 export function getPayoutConnectorConfig(key: string): any;
 /**
+* @param {string} key
+* @returns {any}
+*/
+export function getAuthenticationConnectorConfig(key: string): any;
+/**
 * @param {any} input
 * @param {any} response
 * @returns {any}
@@ -107,6 +112,19 @@ export function getRequestPayload(input: any, response: any): any;
 * @returns {any}
 */
 export function getResponsePayload(input: any): any;
+/**
+* @returns {any}
+*/
+export function getAllPayoutKeys(): any;
+/**
+* @param {string} key
+* @returns {any}
+*/
+export function getPayoutVariantValues(key: string): any;
+/**
+* @returns {any}
+*/
+export function getPayoutDescriptionCategory(): any;
 /**
 *
 * Function exposed as `wasm` function in js `parse`. Allowing use to extend the functionality and
@@ -136,8 +154,12 @@ export interface InitOutput {
   readonly getDescriptionCategory: (a: number) => void;
   readonly getConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getPayoutConnectorConfig: (a: number, b: number, c: number) => void;
+  readonly getAuthenticationConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getRequestPayload: (a: number, b: number, c: number) => void;
   readonly getResponsePayload: (a: number, b: number) => void;
+  readonly getAllPayoutKeys: (a: number) => void;
+  readonly getPayoutVariantValues: (a: number, b: number, c: number) => void;
+  readonly getPayoutDescriptionCategory: (a: number) => void;
   readonly parse: (a: number, b: number, c: number) => void;
   readonly parseToString: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_0: (a: number, b: number) => number;

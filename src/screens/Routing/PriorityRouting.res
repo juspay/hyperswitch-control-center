@@ -151,7 +151,7 @@ module SimpleRoutingView = {
             ${index !== 0 ? "border-t" : ""} ${style}`}>
                 <div className="flex flex-row items-center gap-4 ml-2">
                   <Icon name="grip-vertical" size=14 className={"cursor-pointer"} />
-                  <div className="px-1.5 rounded-full bg-blue-800 text-white font-semibold text-sm">
+                  <div className="px-1.5 rounded-full bg-blue-500 text-white font-semibold text-sm">
                     {React.string(Int.toString(index + 1))}
                   </div>
                   <div> {React.string(gateway)} </div>
@@ -221,8 +221,7 @@ let make = (~routingRuleId, ~isActive) => {
   let (showModal, setShowModal) = React.useState(_ => false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let (connectors, setConnectors) = React.useState(_ => [])
-  let connectorListJson =
-    HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom->LogicUtils.safeParse
+  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
   let activeRoutingDetails = async () => {
     try {
@@ -266,11 +265,7 @@ let make = (~routingRuleId, ~isActive) => {
 
   let getConnectorsList = () => {
     let arr =
-      connectorListJson
-      ->ConnectorUtils.getProcessorsListFromJson()
-      ->Array.map(connectorDict => connectorDict->getString("connector_name", ""))
-      ->Array.filter(x => x !== "applepay")
-      ->getUniqueArray
+      connectorList->Array.map(connectorDict => connectorDict.connector_name)->getUniqueArray
     setConnectors(_ => arr)
     setScreenState(_ => Success)
   }

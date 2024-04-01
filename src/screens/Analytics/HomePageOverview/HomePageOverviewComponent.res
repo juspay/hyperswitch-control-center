@@ -8,11 +8,10 @@ module ConnectorOverview = {
     let connectorsList =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom
-      ->LogicUtils.safeParse
       ->getProcessorsListFromJson(~removeFromList=ConnectorTypes.FRMPlayer, ())
     let configuredConnectors =
       connectorsList->Array.map(paymentMethod =>
-        paymentMethod->LogicUtils.getString("connector_name", "")->getConnectorNameTypeFromString()
+        paymentMethod.connector_name->getConnectorNameTypeFromString()
       )
 
     let getConnectorIconsList = () => {
@@ -33,7 +32,7 @@ module ConnectorOverview = {
           ? icons->Array.concat([
               <div
                 key="concat-number"
-                className={`w-12 h-12 flex items-center justify-center text-white font-medium rounded-full border-3 border-white -ml-3 z-0 bg-blue-900`}>
+                className={`w-12 h-12 flex items-center justify-center text-white font-medium rounded-full border-3 border-white -ml-3 z-0 bg-blue-500`}>
                 {`+${(configuredConnectors->Array.length - 3)->Int.toString}`->React.string}
               </div>,
             ])
@@ -203,7 +202,7 @@ module OverviewInfo = {
 
     <UIUtils.RenderIf condition={sampleData}>
       <div className="flex bg-white border rounded-md gap-2 px-9 py-3">
-        <Icon name="info-vacent" className="text-blue-900" size=20 />
+        <Icon name="info-vacent" className="text-blue-500" size=20 />
         <span>
           {"To view more points on the above graph, you need to make payments or"->React.string}
         </span>
