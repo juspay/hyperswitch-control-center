@@ -137,7 +137,7 @@ module BasicDetailsSection = {
           {(userName->String.length === 0 ? "--" : userName)->React.string}
         </p>
       </div>
-      <UIUtils.RenderIf condition={!isPlayground && featureFlagDetails.magicLink}>
+      <UIUtils.RenderIf condition={!isPlayground && featureFlagDetails.email}>
         <ResetPassword />
       </UIUtils.RenderIf>
     </div>

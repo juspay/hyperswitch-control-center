@@ -6,7 +6,7 @@ module InviteEmailForm = {
     open APIUtils
     open UIUtils
     let fetchDetails = useGetMethod()
-    let {magicLink} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (roleListData, setRoleListData) = React.useState(_ => [])
 
     let role =
@@ -59,7 +59,7 @@ module InviteEmailForm = {
           </div>
           <div className="absolute top-10 right-5">
             <FormRenderer.SubmitButton
-              text={magicLink ? "Send Invite" : "Add User"} loadingText="Loading..."
+              text={email ? "Send Invite" : "Add User"} loadingText="Loading..."
             />
           </div>
         </div>
@@ -89,7 +89,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
   | None => "merchant_view_only"
   }
 
-  let {magicLink} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {permissionInfo, setPermissionInfo} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (roleTypeValue, setRoleTypeValue) = React.useState(_ => defaultRole)
@@ -104,7 +104,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
 
   let inviteListOfUsersWithInviteMultiple = async values => {
     let url = getURL(~entityName=USERS, ~userType=#INVITE_MULTIPLE, ~methodType=Post, ())
-    if !magicLink {
+    if !email {
       setLoaderForInviteUsers(_ => true)
     }
     let valDict = values->getDictFromJsonObject
@@ -125,7 +125,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
     let response = await updateDetails(url, body, Post, ())
     let decodedResponse = response->getArrayFromJson([])
 
-    if !magicLink {
+    if !email {
       let invitedUserData =
         decodedResponse
         ->Array.mapWithIndex((ele, index) => {
@@ -176,7 +176,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
       )
     } else {
       (
-        magicLink
+        email
           ? `Invite(s) sent successfully via Email`
           : `The user accounts have been successfully created. The file with their credentials has been downloaded.`,
         ToastState.ToastSuccess,
@@ -297,7 +297,7 @@ let make = (~isInviteUserFlow=true, ~setNewRoleSelected=_ => (), ~currentRole=?)
         </div>
       </PageLoaderWrapper>
     </div>
-    <RenderIf condition={!magicLink}>
+    <RenderIf condition={!email}>
       <LoaderModal
         showModal={loaderForInviteUsers}
         setShowModal={setLoaderForInviteUsers}

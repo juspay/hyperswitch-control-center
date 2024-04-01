@@ -1078,10 +1078,9 @@ let onSubmit = async (
   ~setVerifyDone,
   ~verifyDone,
   ~isVerifyConnector,
-  ~isVerifyConnectorFeatureEnabled,
 ) => {
   setVerifyDone(_ => Loading)
-  if isVerifyConnectorFeatureEnabled && verifyDone === NoAttempt && isVerifyConnector {
+  if verifyDone === NoAttempt && isVerifyConnector {
     onSubmitVerify(values)->ignore
   } else {
     onSubmitMain(values)->ignore
