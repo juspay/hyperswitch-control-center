@@ -331,7 +331,7 @@ let businessProfiles = () => {
     searchOptions: [("Configure business profiles", "")],
   })
 }
-<<<<<<< HEAD
+
 let configurePMTs = () => {
   SubLevelLink({
     name: "Configure PMTs",
@@ -340,12 +340,8 @@ let configurePMTs = () => {
     searchOptions: [("Configure payment methods", "")],
   })
 }
-let settings = (~isSampleDataEnabled, ~isBusinessProfileEnabled, ~permissionJson) => {
-  let settingsLinkArray = [businessDetails(), configurePMTs()]
-=======
 let settings = (~isSampleDataEnabled, ~permissionJson) => {
-  let settingsLinkArray = [businessDetails(), businessProfiles()]
->>>>>>> 2035945f3cb014c2bd3d5df925b0cfef127a1814
+  let settingsLinkArray = [businessDetails(), businessProfiles(), configurePMTs()]
 
   if isSampleDataEnabled {
     settingsLinkArray->Array.push(accountSettings(permissionJson))->ignore
