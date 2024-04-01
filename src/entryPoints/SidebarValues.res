@@ -420,10 +420,11 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     surcharge: isSurchargeEnabled,
     isLiveMode,
     threedsAuthenticator,
+    quickStart,
   } = featureFlagDetails
 
   let sidebar = [
-    productionAccessComponent(!isLiveMode),
+    productionAccessComponent(quickStart),
     default->home,
     default->operations(~permissionJson),
     default->connectors(
