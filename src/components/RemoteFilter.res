@@ -91,7 +91,7 @@ module ModalUI = {
             | None => React.null
             }}
             <FormRenderer.FieldsRenderer
-              fields={fieldsFromOption->Js.Array2.sliceFrom(4)}
+              fields={fieldsFromOption->Array.sliceToEnd(~start=4)}
               fieldWrapperClass="w-1/3 !min-w-[200px] p-4 -my-4"
             />
           </div>

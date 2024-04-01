@@ -121,7 +121,7 @@ let roleType = roleListData =>
     ~customInput=InputFields.infraSelectInput(
       ~options=roleOptions(roleListData),
       ~allowMultiSelect=false,
-      ~selectedClass="border border-blue-750",
+      ~selectedClass="border border-blue-500",
       (),
     ),
     ~isRequired=true,

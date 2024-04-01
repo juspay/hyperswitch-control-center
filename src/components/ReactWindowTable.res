@@ -361,7 +361,7 @@ module ReactWindowTableComponent = {
               key={Int.toString(i)}
               className={` ${cellWidth} ${borderClass} justify-between items-center  bg-white dark:bg-jp-gray-darkgray_background text-opacity-75 dark:text-jp-gray-text_darktheme dark:text-opacity-75 whitespace-pre select-none ${roundedClass} ${tableheadingClass}`}>
               <div
-                className={`flex flex-row ${cellWidth} pl-2 py-4 bg-gradient-to-b from-jp-gray-450 to-jp-gray-350 dark:from-jp-gray-950  dark:to-jp-gray-950 text-jp-gray-900`}>
+                className={`flex flex-row ${cellWidth} pl-2 py-4 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950  dark:to-jp-gray-950 text-jp-gray-900`}>
                 <div className="">
                   <div className="flex flex-row">
                     <div className="font-bold text-fs-13"> {React.string(item.title)} </div>
@@ -595,7 +595,7 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
     }
   }
   let sortedArrayByOrder = {
-    let _ = originalData->Js.Array2.sortInPlaceWith((i1, i2) => {
+    let _ = originalData->Array.toSorted((i1, i2) => {
       let item1 = i1->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       let item2 = i2->JSON.stringifyAny->Option.getOr("")->LogicUtils.safeParse
       // flatten items and get data
@@ -607,13 +607,13 @@ let sortArray = (originalData, key, sortOrder: Table.sortOrder) => {
       let value1 = getValue(val1)
       let value2 = getValue(val2)
       if value1 === value2 {
-        0
+        0.
       } else if value1 > value2 {
-        sortOrder === DEC ? 1 : -1
+        sortOrder === DEC ? 1. : -1.
       } else if sortOrder === DEC {
-        -1
+        -1.
       } else {
-        1
+        1.
       }
     })
     originalData
@@ -817,7 +817,7 @@ let make = (
                       convertStrCellToFloat(dataType, x.title)
                     | DeltaPercentage(num, _) | Currency(num, _) | Numeric(num, _) =>
                       convertFloatCellToStr(dataType, num)
-                    | Progress(num) => convertFloatCellToStr(dataType, num->Js.Int.toFloat)
+                    | Progress(num) => convertFloatCellToStr(dataType, num->Int.toFloat)
                     | StartEndDate(_) | InputField(_) | TrimmedText(_) | DropDown(_) =>
                       convertStrCellToFloat(dataType, "")
                     }
@@ -840,7 +840,7 @@ let make = (
               let newArr =
                 filterValueArray
                 ->Array.map(item => item->JSON.Decode.float->Option.getOr(0.))
-                ->Js.Array2.sortInPlaceWith(LogicUtils.numericArraySortComperator)
+                ->Array.toSorted(LogicUtils.numericArraySortComperator)
               let lengthOfArr = newArr->Array.length
 
               if lengthOfArr >= 2 {

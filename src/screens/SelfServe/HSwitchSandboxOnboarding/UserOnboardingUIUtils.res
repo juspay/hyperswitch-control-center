@@ -7,8 +7,8 @@ module ProgressBar = {
   let make = (~tabs, ~tabIndex) => {
     let defaultStyle = currentIndex => {
       currentIndex < tabIndex + 1
-        ? "bg-blue-700 h-1.5 w-full"
-        : "bg-blue-700 opacity-10 h-1.5 w-full"
+        ? "bg-blue-500 h-1.5 w-full"
+        : "bg-blue-500 opacity-10 h-1.5 w-full"
     }
     <div className="flex w-full">
       {tabs
@@ -637,7 +637,7 @@ let getTabsForIntegration = (
             customUi={<p className="text-base font-normal py-2 flex gap-2">
               {"For the complete API schema, refer "->React.string}
               <p
-                className="text-blue-700 underline cursor-pointer"
+                className="text-blue-500 underline cursor-pointer"
                 onClick={_ =>
                   Window._open(
                     "https://api-reference.hyperswitch.io/docs/hyperswitch-api-reference/60bae82472db8-payments-create",

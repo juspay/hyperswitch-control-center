@@ -77,7 +77,7 @@ let statusToVariantMapper = role => {
 let getCssMapperForRole = role => {
   switch role {
   | OrgAdmin
-  | Admin => "border-blue-300 bg-blue-200"
+  | Admin => "border-blue-200 bg-blue-200"
   | ViewOnly
   | Developer
   | Operator

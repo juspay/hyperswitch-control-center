@@ -48,13 +48,13 @@ module SDKConfiguarationFields = {
         InputFields.numericTextInput(
           ~input={
             ...input,
-            value: (initialValues.amount /. 100.00)->Js.Float.toString->JSON.Encode.string,
+            value: (initialValues.amount /. 100.00)->Float.toString->JSON.Encode.string,
             onChange: {
               ev => {
                 let eventValueToFloat =
                   ev->Identity.formReactEventToString->LogicUtils.getFloatFromString(0.00)
                 let valInCents =
-                  (eventValueToFloat *. 100.00)->Js.Float.toString->Identity.stringToFormReactEvent
+                  (eventValueToFloat *. 100.00)->Float.toString->Identity.stringToFormReactEvent
                 input.onChange(valInCents)
               }
             },
@@ -115,7 +115,7 @@ let make = () => {
   }
 
   let onSubmit = (values, _) => {
-    setKey(_ => Js.Date.now()->Js.Float.toString)
+    setKey(_ => Date.now()->Float.toString)
     setInitialValues(_ => values->SDKPaymentUtils.getTypedValueForPayment)
     setIsSDKOpen(_ => true)
     RescriptReactRouter.push("/sdk")

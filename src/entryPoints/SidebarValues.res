@@ -161,7 +161,7 @@ let fraudAndRisk = (~permissionJson) => {
 let threeDsConnector = (~permissionJson) => {
   SubLevelLink({
     name: "3DS Authenticator",
-    link: "/threeds-authenticators",
+    link: "/3ds-authenticators",
     access: permissionJson.connectorsView,
     searchOptions: [
       ("Connect 3dsecure.io", "/new?name=threedsecureio"),
@@ -208,6 +208,13 @@ let paymentAnalytcis = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
+let disputeAnalytics = SubLevelLink({
+  name: "Disputes",
+  link: `/analytics-disputes`,
+  access: Access,
+  searchOptions: [("View Dispute analytics", "")],
+})
+
 let refundAnalytics = SubLevelLink({
   name: "Refunds",
   link: `/analytics-refunds`,
@@ -230,8 +237,8 @@ let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag, ~permissionJson) 
         icon: "analytics",
         showSection: permissionJson.analyticsView === Access,
         links: userJourneyAnalyticsFlag
-          ? [paymentAnalytcis, refundAnalytics, userJourneyAnalytics]
-          : [paymentAnalytcis, refundAnalytics],
+          ? [paymentAnalytcis, refundAnalytics, disputeAnalytics, userJourneyAnalytics]
+          : [paymentAnalytcis, refundAnalytics, disputeAnalytics],
       })
     : emptyComponent
 }
