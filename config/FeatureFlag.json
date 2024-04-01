@@ -1,7 +1,7 @@
 {
   "test_live_toggle": false,
-  "is_live_mode": false,
-  "email": false,
+  "is_live_mode": true,
+  "email": true,
   "quick_start": true,
   "audit_trail": false,
   "system_metrics": false,
