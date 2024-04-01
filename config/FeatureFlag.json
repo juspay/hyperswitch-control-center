@@ -9,7 +9,7 @@
   "frm": false,
   "payout": true,
   "recon": false,
-  "test_processors": false,
+  "test_processors": true,
   "feedback": false,
   "mixpanel": false,
   "generate_report": false,
