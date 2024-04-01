@@ -134,8 +134,6 @@ The `is_live_mode` feature flag enables the live mode - that the user is accessi
 
 #### Email
 
-// TODO - need to discuss the description with Deepak
-
 The `email` feature flag enables user sign-in and sign-up using magic links instead of passwords. When enabled, users can request a magic link via email that logs them into their account or creates a new account if they are signing up.
 
 #### Quick Start
