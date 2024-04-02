@@ -75,7 +75,8 @@ let make = (~isPayoutFlow=false) => {
 
   <div>
     <PageLoaderWrapper screenState>
-      <RenderIf condition={configuredConnectors->Array.length == 0}>
+      <RenderIf
+        condition={configuredConnectors->Array.length == 0 && urlPrefix == "connectors/new"}>
         <div className="flex flex-col md:flex-row pt-10 border rounded-md bg-white gap-4">
           <div className="flex flex-col justify-evenly gap-8 pl-10 pb-10 pr-2 md:pr-0">
             <div className="flex flex-col gap-2">
