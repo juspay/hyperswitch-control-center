@@ -499,12 +499,12 @@ let make = (
       | Disabled => ""
       | _ =>
         if showBorder {
-          `${borderWidth} ${button.border.borderPrimaryOutlineBorderStyleClass}`
+          `${borderWidth}`
         } else {
           ""
         }
       }
-    | PrimaryOutline => `border-2 ${button.border.borderPrimaryOutlineBorderStyleClass}`
+    | PrimaryOutline => `border-2`
     | Dropdown
     | Secondary =>
       showBorder

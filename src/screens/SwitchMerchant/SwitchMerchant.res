@@ -93,6 +93,7 @@ module AddNewMerchantButton = {
     open HeadlessUI
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
+    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
     <ACLDiv
       permission={userPermissionJson.merchantDetailsManage}
       onClick={_ => setShowModal(_ => true)}
@@ -109,7 +110,7 @@ module AddNewMerchantButton = {
               } else {
                 "group flex rounded-md items-center px-2 py-2 text-sm"
               }
-              `${activeClasses} text-blue-500 flex gap-2 font-medium w-56`
+              `${activeClasses} ${textColor.primaryNormal} flex gap-2 font-medium w-56`
             }>
             <Icon name="plus-circle" size=15 />
             {"Add a new merchant"->React.string}
@@ -124,6 +125,7 @@ module ExternalUser = {
   let make = (~switchMerchant, ~isAddMerchantEnabled) => {
     open UIUtils
     let defaultMerchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
+    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
     let switchMerchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.switchMerchantListAtom)
     let merchantDetailsTypedValue = HSwitchUtils.useMerchantDetailsValue()
     let defaultSelectedMerchantType = {
@@ -212,7 +214,7 @@ module ExternalUser = {
                                 condition={selectedMerchantObject.merchant_name ===
                                   option.merchant_name}>
                                 <Icon
-                                  className="absolute top-2 right-2 text-blue-500"
+                                  className={`absolute top-2 right-2 ${textColor.primaryNormal}`}
                                   name="check"
                                   size=15
                                 />

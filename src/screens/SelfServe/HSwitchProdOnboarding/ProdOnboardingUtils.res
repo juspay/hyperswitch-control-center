@@ -83,7 +83,10 @@ let getCheckboxText = connectorName => {
   }
 }
 
-let highlightedText = "text-base font-normal text-blue-500 underline"
+let useHighlightedText = () => {
+  let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+  `text-base font-normal ${textColor.primaryNormal} underline`
+}
 let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
 let getWarningBlockForConnector = connectorName => {
   open ConnectorTypes
@@ -98,7 +101,7 @@ let getWarningBlockForConnector = connectorName => {
           <a
             href="https://support.stripe.com/contact/email?body=I+would+like+to+request+that+Stripe+enable+raw+card+data+APIs+for+my+account&question=other&subject=Request+to+enable+raw+card+data+APIs&topic=other"
             target="_blank"
-            className={`${highlightedText} cursor-pointer`}>
+            className={`${useHighlightedText()} cursor-pointer`}>
             {`here`->React.string}
           </a>
         </span>
@@ -106,7 +109,7 @@ let getWarningBlockForConnector = connectorName => {
     )
   | Processors(ADYEN) =>
     Some(<>
-      <p className=highlightedText> {"Download"->React.string} </p>
+      <p className={useHighlightedText()}> {"Download"->React.string} </p>
       <p className={`${subTextStyle} !opacity-100`}>
         {`and submit our PCI Certificates to Adyen's support team to enable raw cards`->React.string}
       </p>
@@ -116,18 +119,18 @@ let getWarningBlockForConnector = connectorName => {
       <p className={`${subTextStyle} !opacity-100`}>
         {`Enable Raw Cards: To enable full card processing on your account, drop an email to`->React.string}
       </p>
-      <p className=highlightedText> {`support@checkout.com`->React.string} </p>
+      <p className={useHighlightedText()}> {`support@checkout.com`->React.string} </p>
     </>)
   | Processors(BLUESNAP) =>
     Some(<>
-      <p className=highlightedText> {"Download"->React.string} </p>
+      <p className={useHighlightedText()}> {"Download"->React.string} </p>
       <p className={`${subTextStyle} !opacity-100`}>
         {`and upload the PCI DSS Certificates`->React.string}
       </p>
       <a
         href="https://www.securitymetrics.com/pcidss/bluesnap"
         target="_blank"
-        className=highlightedText>
+        className={useHighlightedText()}>
         {`here`->React.string}
       </a>
     </>)

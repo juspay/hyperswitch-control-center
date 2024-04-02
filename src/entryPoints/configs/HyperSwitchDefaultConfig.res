@@ -22,7 +22,7 @@ let config: UIConfig.t = {
     border: {
       borderFirstWidthClass: "border focus:border-r",
       borderLastWidthClass: "border  focus:border-l",
-      borderPrimaryOutlineBorderStyleClass: "border-1 border-primary",
+      borderPrimaryOutlineBorderStyleClass: "border-1",
       borderSecondaryLoadingBorderStyleClass: "border-border_gray",
       borderSecondaryBorderStyleClass: "border-border_gray border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100",
     },
