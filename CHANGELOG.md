@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.02.0
+
+### Bug Fixes
+
+- Days to respond in show disputes issue ([#553](https://github.com/juspay/hyperswitch-control-center/pull/553)) ([`ac356c5`](https://github.com/juspay/hyperswitch-control-center/commit/ac356c502fa7e87bb40a93708fca6f064c61133d))
+
+### Miscellaneous Tasks
+
+- Payout wasm changes ([#552](https://github.com/juspay/hyperswitch-control-center/pull/552)) ([`a110ba0`](https://github.com/juspay/hyperswitch-control-center/commit/a110ba0d74286ace2f3819f5a02cc9dfd48db297))
+- Added feature flag for disputes ([#557](https://github.com/juspay/hyperswitch-control-center/pull/557)) ([`1afc1e0`](https://github.com/juspay/hyperswitch-control-center/commit/1afc1e045ae11c1f5bb89b41d44d08ab830f7403))
+
+**Full Changelog:** [`2024.04.01.0...2024.04.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.01.0...2024.04.02.0)
+
+- - -
+
 ## 2024.04.01.0
 
 ### Bug Fixes
