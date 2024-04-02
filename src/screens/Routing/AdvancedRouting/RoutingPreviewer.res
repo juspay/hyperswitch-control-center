@@ -3,6 +3,7 @@ open RoutingTypes
 module SimplePreview = {
   @react.component
   let make = (~gateways) => {
+    let {backgroundColor} = React.useContext(ConfigContext.configContext)
     <UIUtils.RenderIf condition={gateways->Array.length > 0}>
       <div
         className="w-full mb-6 p-4 px-6 bg-white dark:bg-jp-gray-lightgray_background rounded-md border border-jp-gray-600 dark:border-jp-gray-850">
@@ -13,7 +14,8 @@ module SimplePreview = {
             <div
               className="h-12 flex flex-row items-center gap-4
              text-jp-gray-900 dark:text-jp-gray-text_darktheme px-3 ">
-              <div className="px-1.5 rounded-full bg-blue-500 text-white font-semibold text-sm">
+              <div
+                className={`px-1.5 rounded-full ${backgroundColor} text-white font-semibold text-sm`}>
                 {React.string(Int.toString(i + 1))}
               </div>
               <div> {React.string(item)} </div>

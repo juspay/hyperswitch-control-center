@@ -5,10 +5,11 @@ open LogicUtils
 module ProgressBar = {
   @react.component
   let make = (~tabs, ~tabIndex) => {
+    let {backgroundColor} = React.useContext(ConfigContext.configContext)
     let defaultStyle = currentIndex => {
       currentIndex < tabIndex + 1
-        ? "bg-blue-500 h-1.5 w-full"
-        : "bg-blue-500 opacity-10 h-1.5 w-full"
+        ? `${backgroundColor} h-1.5 w-full`
+        : `${backgroundColor} opacity-10 h-1.5 w-full`
     }
     <div className="flex w-full">
       {tabs

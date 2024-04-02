@@ -159,7 +159,7 @@ module ExternalUser = {
         {menuProps =>
           <div>
             <Menu.Button
-              className="inline-flex whitespace-pre leading-5 justify-center text-sm font-medium px-4 py-2 font-medium rounded-md hover:bg-opacity-80 bg-white border">
+              className="inline-flex whitespace-pre leading-5 justify-center text-sm  px-4 py-2 font-medium rounded-md hover:bg-opacity-80 bg-white border">
               {buttonProps => {
                 <>
                   {selectedMerchantObject.merchant_name->React.string}

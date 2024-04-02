@@ -104,8 +104,9 @@ module SimplifiedHelper = {
     ~stepNumber="1",
     ~subText=None,
   ) => {
+    let {backgroundColor} = React.useContext(ConfigContext.configContext)
     let bgColor = "bg-white"
-    let stepColor = "bg-blue-500 text-white py-px px-2"
+    let stepColor = `${backgroundColor} text-white py-px px-2`
 
     <div className={`flex flex-col py-8 px-6 gap-3 ${bgColor} cursor-pointer`}>
       <div className={"flex justify-between "}>

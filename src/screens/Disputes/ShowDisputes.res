@@ -68,7 +68,7 @@ module Details = {
           <p className="flex font-bold text-3xl gap-2">
             {amountValue(data.amount, data.currency->String.toUpperCase)->React.string}
           </p>
-          {getStatus(data)}
+          {useGetStatus(data)}
           <RenderIf
             condition={data.dispute_status->disputeStatusVariantMapper === DisputeOpened &&
               data.challenge_required_by->isNonEmptyString}>

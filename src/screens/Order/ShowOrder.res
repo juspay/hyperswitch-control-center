@@ -42,7 +42,7 @@ module OrderInfo = {
                 tooltipWidthClass="w-fit"
               />
             </div>
-            {getStatus(data)}
+            {useGetStatus(data)}
             <ACLButton
               access={userPermissionJson.operationsManage}
               text="+ Refund"

@@ -57,9 +57,15 @@ module ButtonConfig = {
   }
 }
 
-type t = {button: ButtonConfig.t}
+module FontConfig = {
+  type textColor = {primaryNormal: string}
+  type t = {textColor: textColor}
+}
+
+type t = {button: ButtonConfig.t, font: FontConfig.t, backgroundColor: string}
 
 let defaultUIConfig: t = {
+  backgroundColor: "bg-primary",
   button: {
     height: {
       medium: "h-fit",
@@ -109,6 +115,11 @@ let defaultUIConfig: t = {
       primaryNormal: "text-white",
       primaryOutline: "text-blue-800",
       primaryDisabled: "text-jp-gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-25",
+    },
+  },
+  font: {
+    textColor: {
+      primaryNormal: "text-white",
     },
   },
 }

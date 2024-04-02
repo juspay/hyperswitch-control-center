@@ -67,8 +67,9 @@ module VerticalChoiceTile = {
     ~setChoiceState,
     ~customLayoutCss,
   ) => {
+    let {backgroundColor} = React.useContext(ConfigContext.configContext)
     let getBlockColor = value =>
-      choiceState === value ? "border border-blue-500 bg-blue-500 bg-opacity-10 " : "border"
+      choiceState === value ? `border border-blue-500 ${backgroundColor} bg-opacity-10 ` : "border"
     let headerTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700`
     let descriptionStyle = `${HSwitchUtils.getTextClass((
         P2,
@@ -107,7 +108,7 @@ module VerticalChoiceTile = {
                 ->Option.getOr([])
                 ->Array.map(value =>
                   <div
-                    className="p-2 text-xs border border-blue-500 border-opacity-30 bg-blue-500 bg-opacity-10 rounded-md">
+                    className={`p-2 text-xs border border-blue-500 border-opacity-30 ${backgroundColor} bg-opacity-10 rounded-md`}>
                     {value->React.string}
                   </div>
                 )
@@ -130,8 +131,9 @@ module HorizontalChoiceTile = {
     ~setChoiceState,
     ~customLayoutCss,
   ) => {
+    let {backgroundColor} = React.useContext(ConfigContext.configContext)
     let getBlockColor = value =>
-      choiceState === value ? "border border-blue-500 bg-blue-500 bg-opacity-10 " : "border"
+      choiceState === value ? `border border-blue-500 ${backgroundColor} bg-opacity-10 ` : "border"
     let headerTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700`
     let descriptionStyle = `${HSwitchUtils.getTextClass((
         P2,
@@ -209,6 +211,7 @@ module SelectConnectorGrid = {
   @react.component
   let make = (~selectedConnector, ~setSelectedConnector, ~connectorList) => {
     open ConnectorTypes
+    let {backgroundColor} = React.useContext(ConfigContext.configContext)
     let typedConnectedConnectorList =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom
@@ -243,8 +246,8 @@ module SelectConnectorGrid = {
     let getBlockColor = connector => {
       switch (selectedConnector, connector) {
       | (Processors(selectedConnector), Processors(connectorValue))
-        if selectedConnector ===
-          connectorValue => "border border-blue-500 bg-blue-500 bg-opacity-10"
+        if selectedConnector === connectorValue =>
+        `border border-blue-500 ${backgroundColor} bg-opacity-10`
       | _ => "border"
       }
     }
