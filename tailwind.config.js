@@ -80,8 +80,8 @@ module.exports = {
       },
       colors: {
         primary: {
-          DEFAULT: "#006DF9", // Default primary color
-          hover: "#005ED6",
+          DEFAULT: "#2167ae", // Default primary color
+          hover: "#5495cf",
           custom: "#006DF9", // Custom primary color
         },
         blue: {

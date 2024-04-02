@@ -295,6 +295,7 @@ let make = (
   ~toolTipPosition=ToolTip.Top,
   ~dataTestId="",
 ) => {
+  let {button} = React.useContext(ConfigContext.configContext)
   let parentRef = React.useRef(Nullable.null)
   let dummyRef = React.useRef(Nullable.null)
   let buttonRef = disableRipple ? dummyRef : parentRef
@@ -498,12 +499,12 @@ let make = (
       | Disabled => ""
       | _ =>
         if showBorder {
-          `${borderWidth} border-blue-500`
+          `${borderWidth} ${button.border.borderPrimaryOutlineBorderStyleClass}`
         } else {
           ""
         }
       }
-    | PrimaryOutline => "border-2 border-blue-500"
+    | PrimaryOutline => `border-2 ${button.border.borderPrimaryOutlineBorderStyleClass}`
     | Dropdown
     | Secondary =>
       showBorder

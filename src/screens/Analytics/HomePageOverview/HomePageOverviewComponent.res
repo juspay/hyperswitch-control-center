@@ -4,6 +4,7 @@ module ConnectorOverview = {
   @react.component
   let make = () => {
     open ConnectorUtils
+    let {backgroundColor} = React.useContext(ConfigContext.configContext)
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let connectorsList =
       HyperswitchAtom.connectorListAtom
@@ -32,7 +33,7 @@ module ConnectorOverview = {
           ? icons->Array.concat([
               <div
                 key="concat-number"
-                className={`w-12 h-12 flex items-center justify-center text-white font-medium rounded-full border-3 border-white -ml-3 z-0 bg-blue-500`}>
+                className={`w-12 h-12 flex items-center justify-center text-white font-medium rounded-full border-3 border-white -ml-3 z-0 ${backgroundColor}`}>
                 {`+${(configuredConnectors->Array.length - 3)->Int.toString}`->React.string}
               </div>,
             ])
