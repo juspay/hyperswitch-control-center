@@ -35,7 +35,7 @@ let isoStringToCustomTimezone = isoString => {
   let timeZoneYear = Js.Date.getFullYear(timezoneConverted)
   let timeZoneMonth = Js.Date.getMonth(timezoneConverted)
   let timeZoneDate = Js.Date.getDate(timezoneConverted)
-  let timeZoneHour = Js.Date.getHours(timezoneConverted)
+  let timeZoneHour = Date.getHours(timezoneConverted)->Int.toFloat
   let timeZoneMinute = Js.Date.getMinutes(timezoneConverted)
   let timeZoneSecond = Js.Date.getSeconds(timezoneConverted)
   let customDateTime: dateTime = {

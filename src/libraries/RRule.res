@@ -43,9 +43,8 @@ let isScheduled: (scheduleRuleRecipe, Date.t, Date.t, Date.t) => bool = (
   currentTime,
 ) => {
   //check if date in date blacklist
-  let getDay = date => {
-    Float.toInt(Js.Date.getDay(date))
-  }
+  let getDay = date => Date.getDay(date)
+
   let byDay = switch recipe.recurrence {
   | Some(recur) =>
     switch recur.byDay {
@@ -130,8 +129,7 @@ let isScheduled: (scheduleRuleRecipe, Date.t, Date.t, Date.t) => bool = (
       ~date=1.0,
       (),
     )
-    let offsetDate =
-      Int.fromFloat(Js.Date.getDate(date)) + Int.fromFloat(Js.Date.getDay(firstWeekDay)) - 1
+    let offsetDate = Int.fromFloat(Js.Date.getDate(date)) + Date.getDay(firstWeekDay) - 1
     Math.Int.floor(Float.fromInt(offsetDate / 7)) + 1
   }
   let byWeek = switch recipe.recurrence {

@@ -456,9 +456,10 @@ let make = (
     let updatedMonth = months->Array.get(newMonth)->Option.getOr(Jan)
     // get first day
 
-    let firstDay = Js.Date.getDay(
-      Js.Date.makeWithYM(~year=Int.toFloat(newYear), ~month=getMonthInFloat(updatedMonth), ()),
-    )
+    let firstDay =
+      Date.getDay(
+        Date.makeWithYM(~year=newYear, ~month=getMonthInFloat(updatedMonth)->Float.toInt),
+      )->Int.toFloat
 
     // get Days in month
     let daysInMonth = switch updatedMonth {

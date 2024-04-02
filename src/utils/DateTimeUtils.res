@@ -27,7 +27,7 @@ let makeStartOfDayDate = date => {
   Js.Date.fromFloat(date)
 }
 let getStartOfWeek = (dayJs: Date.t, startOfday: days) => {
-  let day = Js.Date.getDay(dayJs)
+  let day = Date.getDay(dayJs)->Int.toFloat
   let startWeekDay = daysArr->Array.indexOf(startOfday)->Int.toFloat
   let diff = (day < startWeekDay ? 7. : 0.) +. day -. startWeekDay
   Js.Date.setDate(cloneDate(dayJs), Js.Date.getDate(dayJs) -. diff)
@@ -38,8 +38,8 @@ let getStartOfWeek = (dayJs: Date.t, startOfday: days) => {
 
 let utcToIST = timeStr => {
   let isEU = false
-  let updatedHour = Js.Date.getHours(timeStr) +. 5.0
-  let updatedMin = Js.Date.getMinutes(timeStr) +. 30.0
+  let updatedHour = (Date.getHours(timeStr) + 5)->Int.toFloat
+  let updatedMin = (Date.getMinutes(timeStr) + 30)->Int.toFloat
 
   let istTime = Js.Date.setHoursM(timeStr, ~hours=updatedHour, ~minutes=updatedMin, ())
   if isEU {
@@ -51,8 +51,8 @@ let utcToIST = timeStr => {
 
 let utcToISTDate = timeStr => {
   let isEU = false
-  let updatedHour = Js.Date.getHours(timeStr) +. 5.0
-  let updatedMin = Js.Date.getMinutes(timeStr) +. 30.0
+  let updatedHour = (Date.getHours(timeStr) + 5)->Int.toFloat
+  let updatedMin = (Date.getMinutes(timeStr) + 30)->Int.toFloat
 
   let istTime = Js.Date.setHoursM(timeStr, ~hours=updatedHour, ~minutes=updatedMin, ())
   if isEU {
@@ -68,7 +68,7 @@ let parseAsFloat = (dateStr: string) => {
     ~year=date->Js.Date.getFullYear,
     ~month=date->Js.Date.getMonth,
     ~date=date->Js.Date.getDate,
-    ~hours=date->Js.Date.getHours,
+    ~hours=date->Date.getHours->Int.toFloat,
     ~minutes=date->Js.Date.getMinutes,
     ~seconds=date->Js.Date.getSeconds,
     (),

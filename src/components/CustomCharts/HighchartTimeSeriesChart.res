@@ -112,8 +112,8 @@ module LineChart1D = {
                   `0${xAxis
                     ->Js.Date.fromFloat
                     ->DateTimeUtils.toUtc
-                    ->Js.Date.getHours
-                    ->Float.toString}:00`
+                    ->Date.getHours
+                    ->Int.toString}:00`
                   ->String.sliceToEnd(~start=-5)
                   ->JSON.Encode.string
                 } else if "run_month" === groupKey {
@@ -125,7 +125,7 @@ module LineChart1D = {
                   ->JSON.Encode.string
                 } else if "run_week" === groupKey {
                   switch DateTimeUtils.daysArr[
-                    xAxis->Js.Date.fromFloat->DateTimeUtils.toUtc->Js.Date.getDay->Float.toInt
+                    xAxis->Js.Date.fromFloat->DateTimeUtils.toUtc->Date.getDay
                   ] {
                   | Some(ele) => DateTimeUtils.dayMapper(ele)
                   | None => ""

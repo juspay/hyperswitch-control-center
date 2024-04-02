@@ -330,9 +330,10 @@ let make = (
     }
   }
   // get first day
-  let firstDay = Js.Date.getDay(
-    Js.Date.makeWithYM(~year=Int.toFloat(year), ~month=getMonthInFloat(month), ()),
-  )
+  let firstDay =
+    Date.getDay(
+      Js.Date.makeWithYM(~year=Int.toFloat(year), ~month=getMonthInFloat(month), ()),
+    )->Int.toFloat
   // get Days in month
   let daysInMonth = switch month {
   | Jan => 31

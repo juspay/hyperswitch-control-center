@@ -59,7 +59,7 @@ let make = (
     if statType === "Amount" {
       value->indianShortNum
     } else if statType === "Rate" || statType === "NegativeRate" {
-      value->Js.Float.isNaN ? "-" : value->percentFormat
+      value->Float.isNaN ? "-" : value->percentFormat
     } else if statType === "Volume" {
       value->indianShortNum
     } else if statType === "Latency" {

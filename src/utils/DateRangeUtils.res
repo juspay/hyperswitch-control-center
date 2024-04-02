@@ -82,7 +82,7 @@ let getPredefinedStartAndEndDate = (
       String.make(customDate->Js.Date.getFullYear),
       String.make(customDate->Js.Date.getMonth +. 1.0),
       String.make(customDate->Js.Date.getDate),
-      String.make(customDate->Js.Date.getHours),
+      String.make(customDate->Date.getHours),
       String.make(customDate->Js.Date.getMinutes),
       String.make(customDate->Js.Date.getSeconds),
     )->Date.fromString
