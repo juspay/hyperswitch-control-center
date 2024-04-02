@@ -2,7 +2,6 @@ open RoutingTypes
 open RoutingUtils
 @react.component
 let make = (~routingType) => {
-  let baseUrlForRedirection = "/routing"
   let url = RescriptReactRouter.useUrl()
   let (currentRouting, setCurrentRouting) = React.useState(() => NO_ROUTING)
   let (id, setId) = React.useState(() => None)
@@ -11,7 +10,9 @@ let make = (~routingType) => {
   let connectorList =
     HyperswitchAtom.connectorListAtom
     ->Recoil.useRecoilValueFromAtom
-    ->filterConnectorList(~retainInList=PaymentConnector)
+    ->filterConnectorList(~retainInList=PayoutConnector)
+
+  let baseUrlForRedirection = "/payoutrouting"
 
   React.useEffect1(() => {
     let searchParams = url.search
@@ -35,13 +36,14 @@ let make = (~routingType) => {
 
   <div className="flex flex-col overflow-auto gap-2">
     <PageUtils.PageHeading title="Smart routing configuration" />
-    <History.BreadCrumbWrapper pageTitle={getContent(currentRouting).heading} baseLink={"/routing"}>
+    <History.BreadCrumbWrapper
+      pageTitle={getContent(currentRouting).heading} baseLink={"/payoutrouting"}>
       {switch currentRouting {
       | PRIORITY =>
         <PriorityRouting routingRuleId=id isActive connectorList baseUrlForRedirection />
       | VOLUME_SPLIT =>
         <VolumeSplitRouting
-          routingRuleId=id isActive connectorList urlEntityName=ROUTING baseUrlForRedirection
+          routingRuleId=id isActive connectorList urlEntityName=PAYOUT_ROUTING baseUrlForRedirection
         />
       | ADVANCED =>
         <AdvancedRouting
@@ -49,10 +51,11 @@ let make = (~routingType) => {
           isActive
           setCurrentRouting
           connectorList
-          urlEntityName=ROUTING
+          urlEntityName=PAYOUT_ROUTING
           baseUrlForRedirection
         />
-      | DEFAULTFALLBACK => <DefaultRouting urlEntityName=DEFAULT_FALLBACK baseUrlForRedirection />
+      | DEFAULTFALLBACK =>
+        <DefaultRouting urlEntityName=PAYOUT_DEFAULT_FALLBACK baseUrlForRedirection />
       | _ => <> </>
       }}
     </History.BreadCrumbWrapper>

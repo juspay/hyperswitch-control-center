@@ -26,7 +26,7 @@ module TopRightIcons = {
 }
 module ActionButtons = {
   @react.component
-  let make = (~routeType: routingType, ~isPayoutFlow=false) => {
+  let make = (~routeType: routingType, ~onRedirectBaseUrl) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let showToast = ToastState.useShowToast()
     let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
@@ -75,9 +75,7 @@ module ActionButtons = {
         buttonSize={Small}
         customButtonStyle="border !border-blue-500 bg-white !text-blue-500"
         onClick={_ => {
-          RescriptReactRouter.push(
-            `${isPayoutFlow ? "payout" : ""}routing/${routingTypeName(routeType)}`,
-          )
+          RescriptReactRouter.push(`${onRedirectBaseUrl}/${routingTypeName(routeType)}`)
           mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
         }}
       />
@@ -89,9 +87,7 @@ module ActionButtons = {
         customButtonStyle="border !border-blue-500 bg-white !text-blue-500"
         buttonSize={Small}
         onClick={_ => {
-          RescriptReactRouter.push(
-            `${isPayoutFlow ? "payout" : ""}routing/${routingTypeName(routeType)}`,
-          )
+          RescriptReactRouter.push(`${onRedirectBaseUrl}/${routingTypeName(routeType)}`)
           mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
         }}
       />
@@ -112,7 +108,7 @@ module ActionButtons = {
 
 module ActiveSection = {
   @react.component
-  let make = (~activeRouting, ~activeRoutingId, ~isPayoutFlow=false) => {
+  let make = (~activeRouting, ~activeRoutingId, ~onRedirectBaseUrl) => {
     open LogicUtils
     let activeRoutingType =
       activeRouting->getDictFromJsonObject->getString("kind", "")->routingTypeMapper
@@ -167,11 +163,11 @@ module ActiveSection = {
               switch activeRoutingType {
               | DEFAULTFALLBACK =>
                 RescriptReactRouter.push(
-                  `${isPayoutFlow ? "payout" : ""}routing/${routingTypeName(activeRoutingType)}`,
+                  `${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`,
                 )
               | _ =>
                 RescriptReactRouter.push(
-                  `${isPayoutFlow ? "payout" : ""}routing/${routingTypeName(
+                  `${onRedirectBaseUrl}/${routingTypeName(
                       activeRoutingType,
                     )}?id=${activeRoutingId}&isActive=true`,
                 )
@@ -186,7 +182,7 @@ module ActiveSection = {
 
 module LevelWiseRoutingSection = {
   @react.component
-  let make = (~types: array<routingType>, ~isPayoutFlow=false) => {
+  let make = (~types: array<routingType>, ~onRedirectBaseUrl) => {
     <div className="flex flex-col flex-wrap  rounded w-full py-6 gap-5">
       <div className="flex flex-wrap justify-evenly gap-9 items-stretch">
         {types
@@ -208,7 +204,7 @@ module LevelWiseRoutingSection = {
                 </p>
               </div>
             </div>
-            <ActionButtons routeType=value isPayoutFlow />
+            <ActionButtons routeType=value onRedirectBaseUrl />
           </div>
         )
         ->React.array}
@@ -218,12 +214,14 @@ module LevelWiseRoutingSection = {
 }
 
 @react.component
-let make = (~routingType: array<JSON.t>, ~isPayoutFlow=false) => {
+let make = (~routingType: array<JSON.t>) => {
   <div className="mt-4 flex flex-col gap-6">
     {routingType
     ->Array.mapWithIndex((ele, i) => {
       let id = ele->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
-      <ActiveSection key={i->Int.toString} activeRouting={ele} activeRoutingId={id} isPayoutFlow />
+      <ActiveSection
+        key={i->Int.toString} activeRouting={ele} activeRoutingId={id} onRedirectBaseUrl="routing"
+      />
     })
     ->React.array}
   </div>

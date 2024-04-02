@@ -268,9 +268,8 @@ let make = () => {
                           <EntityScaffold
                             entityName="PayoutRouting"
                             remainingPath
-                            renderList={() => <RoutingStack isPayoutFlow=true remainingPath />}
-                            renderShow={routingType =>
-                              <RoutingConfigure isPayoutFlow=true routingType />}
+                            renderList={() => <PayoutRoutingStack remainingPath />}
+                            renderShow={routingType => <PayoutRoutingConfigure routingType />}
                           />
                         </AccessControl>
 

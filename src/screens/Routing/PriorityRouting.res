@@ -16,7 +16,7 @@ module SimpleRoutingView = {
     ~connectors,
     ~setFormState,
     ~isActive,
-    ~isPayoutFlow=false,
+    ~baseUrlForRedirection,
   ) => {
     let nameFromForm = ReactFinalForm.useField(`name`).input.value
     let descriptionFromForm = ReactFinalForm.useField(`description`).input.value
@@ -54,7 +54,7 @@ module SimpleRoutingView = {
           ~toastType=ToastState.ToastSuccess,
           (),
         )
-        RescriptReactRouter.replace(`${isPayoutFlow ? "/payout" : "/"}routing`)
+        RescriptReactRouter.replace(baseUrlForRedirection)
         setScreenState(_ => Success)
       } catch {
       | Exn.Error(e) =>
@@ -72,7 +72,7 @@ module SimpleRoutingView = {
           ~toastType=ToastState.ToastSuccess,
           (),
         )
-        RescriptReactRouter.replace(`${isPayoutFlow ? "/payout" : "/"}routing`)
+        RescriptReactRouter.replace(baseUrlForRedirection)
         setScreenState(_ => Success)
       } catch {
       | Exn.Error(e) =>
@@ -212,7 +212,12 @@ module SimpleRoutingView = {
   }
 }
 @react.component
-let make = (~routingRuleId, ~isActive, ~isPayoutFlow=false) => {
+let make = (
+  ~routingRuleId,
+  ~isActive,
+  ~connectorList: array<ConnectorTypes.connectorPayload>,
+  ~baseUrlForRedirection,
+) => {
   open LogicUtils
   let fetchDetails = useGetMethod()
   let (formState, setFormState) = React.useState(_ => CreateConfig)
@@ -222,10 +227,6 @@ let make = (~routingRuleId, ~isActive, ~isPayoutFlow=false) => {
   let (showModal, setShowModal) = React.useState(_ => false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let (connectors, setConnectors) = React.useState(_ => [])
-  let connectorList =
-    HyperswitchAtom.connectorListAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->filterConnectorList(~retainInList=isPayoutFlow ? PayoutConnector : PaymentConnector)
 
   let activeRoutingDetails = async () => {
     try {
@@ -305,7 +306,7 @@ let make = (~routingRuleId, ~isActive, ~isPayoutFlow=false) => {
                 setFormState
                 routingId=routingRuleId
                 isActive
-                isPayoutFlow
+                baseUrlForRedirection
               />
             } else {
               React.null

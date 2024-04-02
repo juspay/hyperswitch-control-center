@@ -83,7 +83,10 @@ let getHistoryRules: JSON.t => array<historyData> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let historyEntity = (activeRoutingIds: array<string>, ~permission: AuthTypes.authorization) => {
+let payoutHistoryEntity = (
+  activeRoutingIds: array<string>,
+  ~permission: AuthTypes.authorization,
+) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getHistoryRules,
@@ -95,7 +98,7 @@ let historyEntity = (activeRoutingIds: array<string>, ~permission: AuthTypes.aut
     ~getShowLink={
       value => {
         PermissionUtils.linkForGetShowLinkViaAccess(
-          ~url=`routing/${value.kind
+          ~url=`/payoutrouting/${value.kind
             ->routingTypeMapper
             ->routingTypeName}?id=${value.id}${activeRoutingIds->Array.includes(value.id)
               ? "&isActive=true"

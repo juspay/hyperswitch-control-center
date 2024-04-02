@@ -24,7 +24,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
         title: "Manage rules",
         renderContent: () => {
           records->Array.length > 0
-            ? <History records activeRoutingIds />
+            ? <PayoutHistoryTable records activeRoutingIds />
             : <DefaultLandingPage
                 height="90%"
                 title="No Routing Rule Configured!"
@@ -35,7 +35,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
       },
       {
         title: "Active configuration",
-        renderContent: () => <ActiveRouting routingType />,
+        renderContent: () => <PayoutCurrentActiveRouting routingType />,
       },
     ]
   })
@@ -43,7 +43,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let fetchRoutingRecords = async activeIds => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let routingUrl = `${getURL(~entityName=ROUTING, ~methodType=Get, ())}?limit=100`
+      let routingUrl = `${getURL(~entityName=PAYOUT_ROUTING, ~methodType=Get, ())}?limit=100`
       let routingJson = await fetchDetails(routingUrl)
       let configuredRules = routingJson->RoutingUtils.getRecordsObject
 
@@ -60,13 +60,13 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
       let sortedHistoryRecords =
         recordsData
-        ->Array.toSorted((item1, item2) => {
+        ->Js.Array2.sortInPlaceWith((item1, item2) => {
           if activeIds->Array.includes(item1.id) {
-            -1.
+            -1
           } else if activeIds->Array.includes(item2.id) {
-            1.
+            1
           } else {
-            0.
+            0
           }
         })
         ->Array.map(Nullable.make)
@@ -86,7 +86,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
     open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let activeRoutingUrl = `${getURL(~entityName=ROUTING, ~methodType=Get, ())}/active`
+      let activeRoutingUrl = `${getURL(~entityName=PAYOUT_ROUTING, ~methodType=Get, ())}/active`
       let routingJson = await fetchDetails(activeRoutingUrl)
 
       let routingArr = routingJson->getArrayFromJson([])
@@ -124,11 +124,11 @@ let make = (~remainingPath, ~previewOnly=false) => {
     <div className={`${widthClass} ${marginClass} gap-2.5`}>
       <div className="flex flex-col gap-6">
         <PageUtils.PageHeading
-          title="Smart routing configuration"
+          title="Payout routing configuration"
           subTitle="Smart routing stack helps you to increase success rates and reduce costs by optimising your payment traffic across the various processors in the most customised yet reliable way. Set it up based on the preferred level of control"
         />
         <ActiveRouting.LevelWiseRoutingSection
-          types=[VOLUME_SPLIT, ADVANCED, DEFAULTFALLBACK] onRedirectBaseUrl="routing"
+          types=[VOLUME_SPLIT, ADVANCED, DEFAULTFALLBACK] onRedirectBaseUrl="payoutrouting"
         />
       </div>
       <UIUtils.RenderIf condition={!previewOnly}>

@@ -286,3 +286,12 @@ let filterConnectorListCoreJson = (json, ~retainInList) => {
   ->Array.filter(dict => dict->getString("connector_type", "")->filter(~retainInList))
   ->Array.map(JSON.Encode.object)
 }
+
+let urlToVariantMapper = (url: RescriptReactRouter.url) => {
+  switch url.path {
+  | list{"payoutrouting", _} => PayoutRouting
+  | list{"3ds", _} => ThreedsRouting
+  | list{"surcharge", _} => SurchargeRouting
+  | _ => Routing
+  }
+}
