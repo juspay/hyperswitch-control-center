@@ -9151,4 +9151,9 @@ License)
       </clipPath>
     </defs>
   </symbol>
+  <symbol id="clear_filter_img" viewBox="0 0 10 8">
+    <path d="M9.91992 6.40039H2.47992V7.84039H9.91992V6.40039Z" fill="#354052" fill-opacity="0.5"></path>
+    <path d="M8.71997 3.28027H1.27997V4.72027H8.71997V3.28027Z" fill="#354052" fill-opacity="0.5"></path>
+    <path d="M7.52002 0.160156H0.080019V1.60016H7.52002V0.160156Z" fill="#354052" fill-opacity="0.5"></path>
+  </symbol>
 </svg>
