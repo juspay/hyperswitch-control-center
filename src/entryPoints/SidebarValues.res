@@ -230,15 +230,28 @@ let userJourneyAnalytics = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
-let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag, ~permissionJson) => {
+let analytics = (
+  isAnalyticsEnabled,
+  userJourneyAnalyticsFlag,
+  disputeAnalyticsFlag,
+  ~permissionJson,
+) => {
+  let links = [paymentAnalytcis, refundAnalytics]
+
+  if userJourneyAnalyticsFlag {
+    links->Array.push(userJourneyAnalytics)
+  }
+
+  if disputeAnalyticsFlag {
+    links->Array.push(disputeAnalytics)
+  }
+
   isAnalyticsEnabled
     ? Section({
         name: "Analytics",
         icon: "analytics",
         showSection: permissionJson.analyticsView === Access,
-        links: userJourneyAnalyticsFlag
-          ? [paymentAnalytcis, refundAnalytics, disputeAnalytics, userJourneyAnalytics]
-          : [paymentAnalytcis, refundAnalytics, disputeAnalytics],
+        links,
       })
     : emptyComponent
 }
@@ -331,12 +344,9 @@ let businessProfiles = () => {
     searchOptions: [("Configure business profiles", "")],
   })
 }
-let settings = (~isSampleDataEnabled, ~isBusinessProfileEnabled, ~permissionJson) => {
-  let settingsLinkArray = [businessDetails()]
+let settings = (~isSampleDataEnabled, ~permissionJson) => {
+  let settingsLinkArray = [businessDetails(), businessProfiles()]
 
-  if isBusinessProfileEnabled {
-    settingsLinkArray->Array.push(businessProfiles())->ignore
-  }
   if isSampleDataEnabled {
     settingsLinkArray->Array.push(accountSettings(permissionJson))->ignore
   }
@@ -413,22 +423,22 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
   let {
-    productionAccess,
     frm,
     payOut,
     recon,
     default,
     sampleData,
-    businessProfile,
     systemMetrics,
     userJourneyAnalytics: userJourneyAnalyticsFlag,
     surcharge: isSurchargeEnabled,
     isLiveMode,
     threedsAuthenticator,
+    quickStart,
+    disputeAnalytics,
   } = featureFlagDetails
 
   let sidebar = [
-    productionAccess->productionAccessComponent,
+    productionAccessComponent(quickStart),
     default->home,
     default->operations(~permissionJson),
     default->connectors(
@@ -438,15 +448,11 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~isThreedsConnectorEnabled=threedsAuthenticator,
       ~permissionJson,
     ),
-    default->analytics(userJourneyAnalyticsFlag, ~permissionJson),
+    default->analytics(userJourneyAnalyticsFlag, disputeAnalytics, ~permissionJson),
     default->workflow(isSurchargeEnabled, ~permissionJson),
     recon->reconTag(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),
-    settings(
-      ~isBusinessProfileEnabled=businessProfile,
-      ~isSampleDataEnabled=sampleData,
-      ~permissionJson,
-    ),
+    settings(~isSampleDataEnabled=sampleData, ~permissionJson),
   ]
   sidebar
 }

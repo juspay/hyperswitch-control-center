@@ -89,10 +89,9 @@ let make = () => {
   let isReconEnabled = merchentDetails.recon_status === Active
   let hswitchTabs = SidebarValues.useGetSidebarValues(~isReconEnabled)
   let query = UrlUtils.useGetFilterDictFromUrl("")->getString("query", "")
-  // TODO: need to add feature flag here
-  let isShowRemoteResults = !(
-    HSLocalStorage.getFromUserDetails("user_role")->String.includes("internal_")
-  )
+  let {globalSearch} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let isShowRemoteResults = globalSearch && permissionJson.operationsView === Access
   let getSearchResults = async results => {
     try {
       let url = APIUtils.getURL(~entityName=GLOBAL_SEARCH, ~methodType=Post, ())
