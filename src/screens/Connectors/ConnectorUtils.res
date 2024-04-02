@@ -1078,10 +1078,9 @@ let onSubmit = async (
   ~setVerifyDone,
   ~verifyDone,
   ~isVerifyConnector,
-  ~isVerifyConnectorFeatureEnabled,
 ) => {
   setVerifyDone(_ => Loading)
-  if isVerifyConnectorFeatureEnabled && verifyDone === NoAttempt && isVerifyConnector {
+  if verifyDone === NoAttempt && isVerifyConnector {
     onSubmitVerify(values)->ignore
   } else {
     onSubmitMain(values)->ignore
@@ -1326,6 +1325,11 @@ let connectorTypeStringToTypeMapper = connector_type => {
   | "authentication_processor" => AuthenticationProcessor
   | _ => PaymentProcessor
   }
+}
+
+let sortByName = (c1, c2) => {
+  open LogicUtils
+  compareLogic(c2->getConnectorNameString, c1->getConnectorNameString)
 }
 
 let existsInArray = (element, connectorList) => {

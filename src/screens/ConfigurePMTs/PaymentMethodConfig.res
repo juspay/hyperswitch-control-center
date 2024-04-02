@@ -82,7 +82,7 @@ let make = (
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currencies, setCurrencies) = React.useState(_ => [])
   let (countries, setCountries) = React.useState(_ => [])
-
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let {
     payment_method_index,
     payment_method_types_index,
@@ -94,11 +94,12 @@ let make = (
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
-  let showToast = ToastState.useShowToast()
 
   let getProcessorDetails = async () => {
     open LogicUtils
     try {
+      setShowPaymentMthdConfigModal(_ => true)
+      setScreenState(_ => Loading)
       let paymentMethoConfigUrl = getURL(~entityName=PAYMENT_METHOD_CONFIG, ~methodType=Get, ())
       let data =
         connectorList
@@ -138,69 +139,67 @@ let make = (
       setCurrencies(_ => currencies)
 
       setInitialValues(_ => encodeConnectorPayload)
-      setShowPaymentMthdConfigModal(_ => true)
+      setScreenState(_ => Success)
     } catch {
-    | _ => setShowPaymentMthdConfigModal(_ => false)
+    | _ => setScreenState(_ => Error("Something went wrong"))
     }
   }
 
   let onSubmit = async (values, _) => {
-    open LogicUtils
     try {
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(merchant_connector_id), ())
       let _ = await updateDetails(url, values, Post, ())
       let _ = await setReferesh()
       setShowPaymentMthdConfigModal(_ => false)
     } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Something went wrong")
-        let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
-        showToast(~message=errorMessage, ~toastType=ToastError, ())
-        setShowPaymentMthdConfigModal(_ => true)
-      }
+    | _ => setShowPaymentMthdConfigModal(_ => false)
     }
     Nullable.null
   }
   let id = `payment_methods_enabled[${payment_method_index->Int.toString}].payment_method_types[${payment_method_types_index->Int.toString}]`
 
   <>
-    <Modal
-      childClass="p-0"
-      showModal={showPaymentMthdConfigModal}
-      modalHeadingDescriptionElement={<div
-        className="text-md font-medium leading-7 opacity-50 mt-1 w-full">
-        {"Configure PMTs"->React.string}
-      </div>}
-      paddingClass=""
-      modalHeading={paymentMethodConfig.payment_method_type->String.toUpperCase}
-      setShowModal={setShowPaymentMthdConfigModal}
-      modalClass="w-full max-w-lg m-auto !bg-white">
-      <Form key="pmts-configuration" initialValues onSubmit={onSubmit}>
-        <div className="p-5">
-          <FieldRenderer
-            field={valueInput({
-              name1: `${id}.accepted_countries.list`,
-              name2: `${id}.accepted_countries`,
-              label: `Countries`,
-              options: countries,
-            })}
-          />
-          <FieldRenderer
-            field={valueInput({
-              name1: `${id}.accepted_currencies.list`,
-              name2: `${id}.accepted_currencies`,
-              label: `Currencies`,
-              options: currencies,
-            })}
-          />
-        </div>
-        <hr className="w-full" />
-        <div className="flex justify-end w-full pr-5 pb-3 mt-5">
-          <FormRenderer.SubmitButton loadingText="Processing..." text="Submit" />
-        </div>
-        // <FormValuesSpy />
-      </Form>
-    </Modal>
+    <UIUtils.RenderIf condition={showPaymentMthdConfigModal}>
+      <Modal
+        childClass="p-0"
+        showModal={showPaymentMthdConfigModal}
+        modalHeadingDescriptionElement={<div
+          className="text-md font-medium leading-7 opacity-50 mt-1 w-full">
+          {"Configure PMTs"->React.string}
+        </div>}
+        paddingClass=""
+        modalHeading={paymentMethodConfig.payment_method_type->String.toUpperCase}
+        setShowModal={setShowPaymentMthdConfigModal}
+        modalClass="w-full max-w-lg m-auto !bg-white">
+        <PageLoaderWrapper screenState sectionHeight="h-30-vh">
+          <Form key="pmts-configuration" initialValues onSubmit={onSubmit}>
+            <div className="p-5">
+              <FieldRenderer
+                field={valueInput({
+                  name1: `${id}.accepted_countries.list`,
+                  name2: `${id}.accepted_countries`,
+                  label: `Countries`,
+                  options: countries,
+                })}
+              />
+              <FieldRenderer
+                field={valueInput({
+                  name1: `${id}.accepted_currencies.list`,
+                  name2: `${id}.accepted_currencies`,
+                  label: `Currencies`,
+                  options: currencies,
+                })}
+              />
+            </div>
+            <hr className="w-full" />
+            <div className="flex justify-end w-full pr-5 pb-3 mt-5">
+              <FormRenderer.SubmitButton loadingText="Processing..." text="Submit" />
+            </div>
+            // <FormValuesSpy />
+          </Form>
+        </PageLoaderWrapper>
+      </Modal>
+    </UIUtils.RenderIf>
     <ACLDiv
       permission=permissionJson.connectorsManage
       className="cursor-pointer"
