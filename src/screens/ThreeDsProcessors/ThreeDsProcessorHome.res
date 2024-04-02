@@ -39,7 +39,6 @@ let make = () => {
   let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
   let fetchDetails = useGetMethod()
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
@@ -235,13 +234,11 @@ let make = () => {
                 attributes=[("data-testid", "connector-submit-button")]>
                 <FormRenderer.SubmitButton loadingText="Processing..." text="Connect and Proceed" />
               </AddDataAttributes>}>
-              <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
-                <div className="flex flex-col gap-2 p-2 md:px-10">
-                  <ConnectorAccountDetailsHelper.BusinessProfileRender
-                    isUpdateFlow selectedConnector={connectorName}
-                  />
-                </div>
-              </UIUtils.RenderIf>
+              <div className="flex flex-col gap-2 p-2 md:px-10">
+                <ConnectorAccountDetailsHelper.BusinessProfileRender
+                  isUpdateFlow selectedConnector={connectorName}
+                />
+              </div>
               <div className={`flex flex-col gap-2 p-2 md:p-10`}>
                 <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
                   connector={connectorName->getConnectorNameTypeFromString()}

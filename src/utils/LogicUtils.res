@@ -472,11 +472,11 @@ let checkEmptyJson = json => {
 
 let numericArraySortComperator = (a, b) => {
   if a < b {
-    -1
+    -1.
   } else if a > b {
-    1
+    1.
   } else {
-    0
+    0.
   }
 }
 
@@ -578,11 +578,11 @@ let compareLogic = (firstValue, secondValue) => {
   let temp1 = firstValue
   let temp2 = secondValue
   if temp1 == temp2 {
-    0
+    0.
   } else if temp1 > temp2 {
-    -1
+    -1.
   } else {
-    1
+    1.
   }
 }
 

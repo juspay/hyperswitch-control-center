@@ -772,11 +772,7 @@ let make = (~id) => {
                 title: "Events and logs",
                 renderContent: () => {
                   <LogsWrapper wrapperFor={#PAYMENT}>
-                    <PaymentLogs
-                      paymentId={id}
-                      createdAt
-                      data={orderData->getDictFromJsonObject->OrderEntity.itemToObjMapper}
-                    />
+                    <PaymentLogs paymentId={id} createdAt />
                   </LogsWrapper>
                 },
                 renderContentOnTop: None,

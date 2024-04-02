@@ -347,11 +347,11 @@ let compareLogic = (firstValue, secondValue) => {
   let (temp1, _) = firstValue
   let (temp2, _) = secondValue
   if temp1 == temp2 {
-    0
+    0.
   } else if temp1 > temp2 {
-    -1
+    -1.
   } else {
-    1
+    1.
   }
 }
 
@@ -363,32 +363,32 @@ let constructData = (
   | "payment_success_rate" =>
     singlestatTimeseriesData
     ->Array.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.payment_success_rate))
-    ->Js.Array2.sortInPlaceWith(compareLogic)
+    ->Array.toSorted(compareLogic)
   | "payment_count" =>
     singlestatTimeseriesData
     ->Array.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.payment_count->Int.toFloat))
-    ->Js.Array2.sortInPlaceWith(compareLogic)
+    ->Array.toSorted(compareLogic)
   | "payment_success_count" =>
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.payment_success_count->Int.toFloat,
     ))
-    ->Js.Array2.sortInPlaceWith(compareLogic)
+    ->Array.toSorted(compareLogic)
   | "payment_processed_amount" =>
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.payment_processed_amount /. 100.00,
     ))
-    ->Js.Array2.sortInPlaceWith(compareLogic)
+    ->Array.toSorted(compareLogic)
   | "payment_avg_ticket_size" =>
     singlestatTimeseriesData
     ->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.payment_avg_ticket_size /. 100.00,
     ))
-    ->Js.Array2.sortInPlaceWith(compareLogic)
+    ->Array.toSorted(compareLogic)
   | "retries_count" =>
     singlestatTimeseriesData->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
@@ -400,11 +400,11 @@ let constructData = (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.retries_amount_processe /. 100.00,
     ))
-    ->Js.Array2.sortInPlaceWith(compareLogic)
+    ->Array.toSorted(compareLogic)
   | "connector_success_rate" =>
     singlestatTimeseriesData
     ->Array.map(ob => (ob.time_series->DateTimeUtils.parseAsFloat, ob.connector_success_rate))
-    ->Js.Array2.sortInPlaceWith(compareLogic)
+    ->Array.toSorted(compareLogic)
   | _ => []
   }
 }

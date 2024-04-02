@@ -221,7 +221,7 @@ module ControlCenter = {
             leftIcon=Some("connector")
           />
           <img
-            className="inline-block absolute right-5 bottom-5 hidden lg:block"
+            className="inline-block absolute right-5 bottom-5  lg:block"
             src="/assets/connectorsList.svg"
           />
           <CardFooter>
@@ -331,7 +331,7 @@ module DevResources = {
 }
 
 let getGreeting = () => {
-  let dateTime = Js.Date.now()
+  let dateTime = Date.now()
   let hours = Js.Date.fromFloat(dateTime)->Js.Date.getHours->Int.fromFloat
 
   if hours < 12 {
@@ -345,7 +345,7 @@ let getGreeting = () => {
 
 let homepageStepperItems = ["Configure control center", "Integrate into your app", "Go Live"]
 
-let responseDataMapper = (res: JSON.t, mapper: (Dict.t<JSON.t>, string) => Js.Json.t) => {
+let responseDataMapper = (res: JSON.t, mapper: (Dict.t<JSON.t>, string) => JSON.t) => {
   open LogicUtils
   let arrayFromJson = res->getArrayFromJson([])
   let resDict = Dict.make()

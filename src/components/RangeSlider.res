@@ -46,14 +46,14 @@ let make = (
 
   let maxsliderVal = React.useMemo1(() => {
     switch maxSlide.value->JSON.Decode.float {
-    | Some(num) => Math.ceil(num)->Js.Float.toString
+    | Some(num) => Math.ceil(num)->Float.toString
     | None => "0"
     }
   }, [maxSlide.value])
 
   let minsliderVal = React.useMemo1(() => {
     switch minSlide.value->JSON.Decode.float {
-    | Some(num) => Math.floor(num)->Js.Float.toString
+    | Some(num) => Math.floor(num)->Float.toString
     | None => "0"
     }
   }, [minSlide.value])
@@ -84,11 +84,11 @@ let make = (
           ~width=((maxsliderVal->LogicUtils.getFloatFromString(0.) -.
             minsliderVal->LogicUtils.getFloatFromString(0.)) *.
           100. /.
-          diff)->Js.Float.toString ++ "%",
+          diff)->Float.toString ++ "%",
           ~left=((minsliderVal->LogicUtils.getFloatFromString(0.) -. min) *. 100. /. diff)
-            ->Js.Float.toString ++ "%",
+            ->Float.toString ++ "%",
           ~right=((max -. maxsliderVal->LogicUtils.getFloatFromString(0.)) *. 100. /. diff)
-            ->Js.Float.toString ++ "%",
+            ->Float.toString ++ "%",
           (),
         )}
       />

@@ -8,13 +8,13 @@ module ToastHeading = {
         toastDuration
       }
       let timeout = {
-        Js.Global.setTimeout(() => {
+        setTimeout(() => {
           hideToast(toastProps.toastKey)
         }, duration)
       }
       Some(
         () => {
-          Js.Global.clearTimeout(timeout)
+          clearTimeout(timeout)
         },
       )
     }, (hideToast, toastProps))

@@ -58,7 +58,7 @@ let useSendEvent = () => {
       let _ = await fetchApi(
         `${dashboardUrl}/mixpanel/track`,
         ~method_=Fetch.Post,
-        ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->Js.Global.encodeURI}`,
+        ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
         (),
       )
     } catch {
@@ -72,17 +72,6 @@ let useSendEvent = () => {
 
     if featureFlagDetails.mixpanel {
       trackApi(~email={email->parseEmail}, ~merchantId, ~description, ~event={eventName})->ignore
-    }
-    if featureFlagDetails.mixpanelSdk {
-      MixPanel.track(
-        eventName,
-        {
-          "email": email->parseEmail,
-          "merchantId": merchantId,
-          "environment": environment,
-          "description": description,
-        },
-      )
     }
   }
 }
