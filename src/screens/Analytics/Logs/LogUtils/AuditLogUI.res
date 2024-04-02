@@ -3,13 +3,6 @@ module LogDetailsSection = {
   open LogicUtils
   @react.component
   let make = (~logDetails) => {
-    let showToast = ToastState.useShowToast()
-
-    let handleOnClickCopy = (~parsedValue) => {
-      Clipboard.writeText(parsedValue)
-      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
-    }
-
     let isValidNonEmptyValue = value => {
       switch value->JSON.Classify.classify {
       | Bool(_) | String(_) | Number(_) | Object(_) => true

@@ -14,8 +14,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let (email, setEmail) = React.useState(_ => "")
-  let {magicLink: isMagicLinkEnabled, forgetPassword} =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagValues = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let handleAuthError = e => {
     let error = e->parseErrorMessage
@@ -130,7 +129,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
       logMixpanelEvents(email)
 
       let _ = await (
-        switch (isMagicLinkEnabled, authType) {
+        switch (featureFlagValues.email, authType) {
         | (true, SignUP) | (true, LoginWithEmail) => {
             let body = getEmailBody(email, ~country, ())
             getUserWithEmail(body)
@@ -158,7 +157,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
             setResetPassword(body)
           }
         | _ =>
-          switch (forgetPassword, authType) {
+          switch (featureFlagValues.email, authType) {
           | (true, ForgetPassword) =>
             let body = email->getEmailBody()
 
@@ -221,12 +220,15 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
           onSubmit={handleSubmit}
           className={`flex flex-col justify-evenly gap-5 h-full w-full !overflow-visible text-grey-600`}>
           {switch authType {
-          | LoginWithPassword => <EmailPasswordForm setAuthType forgetPassword />
-          | ForgetPassword => forgetPassword ? <EmailForm /> : React.null
+          | LoginWithPassword => <EmailPasswordForm setAuthType />
+          | ForgetPassword =>
+            <UIUtils.RenderIf condition={featureFlagValues.email}>
+              <EmailForm />
+            </UIUtils.RenderIf>
           | LoginWithEmail
           | ResendVerifyEmail
           | SignUP =>
-            isMagicLinkEnabled ? <EmailForm /> : <EmailPasswordForm setAuthType forgetPassword />
+            featureFlagValues.email ? <EmailForm /> : <EmailPasswordForm setAuthType />
           | ResetPassword => <ResetPasswordForm />
           | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
             <ResendBtn callBackFun={resendEmail} />
@@ -251,7 +253,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
             }}
           </div>
           <AddDataAttributes attributes=[("data-testid", "card-foot-text")]>
-            <div> {note(authType, setAuthType, isMagicLinkEnabled)} </div>
+            <div> {note(authType, setAuthType, featureFlagValues.email)} </div>
           </AddDataAttributes>
         </form>
       </>
