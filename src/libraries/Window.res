@@ -89,6 +89,15 @@ external isSecureContext: bool = "isSecureContext"
 @val @scope("window")
 external getAuthenticationConnectorConfig: string => JSON.t = "getAuthenticationConnectorConfig"
 
+@val @scope("window")
+external getAllPayoutKeys: unit => array<string> = "getAllPayoutKeys"
+
+@val @scope("window")
+external getPayoutVariantValues: string => array<string> = "getPayoutVariantValues"
+
+@val @scope("window")
+external getPayoutDescriptionCategory: unit => JSON.t = "getPayoutDescriptionCategory"
+
 module MatchMedia = {
   type matchEvent = {
     matches: bool,
@@ -168,7 +177,7 @@ type date = {getTimezoneOffset: (. unit) => float}
 
 @new external date: unit => date = "Date"
 let date = date()
-let timeZoneOffset = date.getTimezoneOffset(.)->Js.Float.toString
+let timeZoneOffset = date.getTimezoneOffset(.)->Float.toString
 
 type options = {timeZone: string}
 type dateTimeFormat = {resolvedOptions: (. unit) => options}

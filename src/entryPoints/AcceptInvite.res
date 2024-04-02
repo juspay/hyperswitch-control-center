@@ -13,7 +13,6 @@ let make = () => {
   let (merchantData, setMerchantData) = React.useState(_ => [])
   let merchantDataJsonFromLocalStorage =
     LocalStorage.getItem("accept_invite_data")->getValFromNullableValue("")->safeParse
-  let {acceptInvite} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let logoutUser = () => {
     LocalStorage.clear()
@@ -75,11 +74,7 @@ let make = () => {
         ]->getJsonFromArrayOfJson
       let res = await updateDetails(url, body, Post, ())
       let email = HSLocalStorage.getFromMerchantDetails("email")
-      let token = HyperSwitchAuthUtils.parseResponseJson(
-        ~json=res,
-        ~email,
-        ~isAcceptInvite=acceptInvite,
-      )
+      let token = HyperSwitchAuthUtils.parseResponseJson(~json=res, ~email)
       LocalStorage.setItem("login", token)
       LocalStorage.removeItem("accept_invite_data")
       setUserDetails("flow_type", "dashboard_entry"->JSON.Encode.string)

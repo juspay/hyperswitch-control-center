@@ -145,7 +145,7 @@ type statSentiment = Positive | Negative | Neutral
 
 let (startTimeFilterKey, endTimeFilterKey, optFilterKey) = ("startTime", "endTime", "opt")
 let getDateCreatedObject = () => {
-  let currentDate = Js.Date.now()
+  let currentDate = Date.now()
   let filterCreatedDict = Dict.make()
   let currentTimestamp = currentDate->Js.Date.fromFloat->Date.toISOString
   let dateFormat = "YYYY-MM-DDTHH:mm:[00][Z]"

@@ -148,9 +148,9 @@ let make = () => {
             <Form onSubmit initialValues={initialValueDict} formClass="!w-full">
               <FramerMotion.Motion.Div
                 key={currentStep->Int.toString}
-                initial={{opacity: 0, x: xPositionBasedOnDirection}}
-                animate={{opacity: 1, x: 0}}
-                exit={{opacity: 0, x: -100}}
+                initial={{opacity: 0.0, x: xPositionBasedOnDirection}}
+                animate={{opacity: 1.0, x: 0}}
+                exit={{opacity: 0.0, x: -100}}
                 transition={{duration: 0.3}}
                 className="flex flex-col flex-wrap bg-white p-8 !rounded-md !shadow-[0_4px_9px_0_rgba(0,0,0,_0.12)] carousel-item">
                 <SurveyComponent

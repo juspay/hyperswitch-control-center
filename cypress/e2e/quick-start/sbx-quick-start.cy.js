@@ -1,4 +1,6 @@
-let username = `cypresssbxquickstart+${Math.round(+new Date() / 1000)}@gmail.com`;
+let username = `cypresssbxquickstart+${Math.round(
+  +new Date() / 1000,
+)}@gmail.com`;
 before(() => {
   cy.singup_curl(username, "cypress98#");
 });
@@ -8,10 +10,8 @@ beforeEach(() => {
     body: {
       test_live_toggle: false,
       is_live_mode: false,
-      magic_link: false,
-      production_access: false,
+      email: false,
       quick_start: true,
-      switch_merchant: true,
       audit_trail: false,
       system_metrics: false,
       sample_data: false,
@@ -20,12 +20,8 @@ beforeEach(() => {
       recon: false,
       test_processors: true,
       feedback: false,
-      verify_connector: false,
       mixpanel: false,
-      mixpanel_sdk: false,
-      business_profile: false,
       generate_report: false,
-      forgot_password: false,
       user_journey_analytics: false,
       surcharge: false,
       permission_based_module: false,

@@ -127,7 +127,7 @@ let getEmailBody = (email, ~country=?, ()) => {
   fields->Dict.fromArray->JSON.Encode.object
 }
 
-let parseResponseJson = (~json, ~email, ~isAcceptInvite) => {
+let parseResponseJson = (~json, ~email) => {
   open HSwitchUtils
   open LogicUtils
   let valuesDict = json->JSON.Decode.object->Option.getOr(Dict.make())
@@ -138,16 +138,13 @@ let parseResponseJson = (~json, ~email, ~isAcceptInvite) => {
   | None => JSON.Encode.null
   }
 
-  // * Setting all local storage values
-  if isAcceptInvite {
-    if flowType->Option.isSome && flowType->flowTypeStrToVariantMapper === MERCHANT_SELECT {
-      LocalStorage.setItem(
-        "accept_invite_data",
-        valuesDict->getArrayFromDict("merchants", [])->JSON.stringifyAny->Option.getOr(""),
-      )
-    }
-    setUserDetails("flow_type", flowTypeVal)
+  if flowType->Option.isSome && flowType->flowTypeStrToVariantMapper === MERCHANT_SELECT {
+    LocalStorage.setItem(
+      "accept_invite_data",
+      valuesDict->getArrayFromDict("merchants", [])->JSON.stringifyAny->Option.getOr(""),
+    )
   }
+  setUserDetails("flow_type", flowTypeVal)
 
   setMerchantDetails("merchant_id", valuesDict->getString("merchant_id", "")->JSON.Encode.string)
   setMerchantDetails("email", email->JSON.Encode.string)
@@ -337,7 +334,7 @@ module Header = {
   @react.component
   let make = (~authType, ~setAuthType, ~email) => {
     let form = ReactFinalForm.useForm()
-    let {magicLink: isMagicLinkEnabled, isLiveMode} =
+    let {email: isMagicLinkEnabled, isLiveMode} =
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let headerStyle = switch authType {
     | MagicLinkEmailSent

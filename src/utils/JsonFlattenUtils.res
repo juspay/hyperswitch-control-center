@@ -54,7 +54,7 @@ let rec setNested = (dict, keys, value) => {
         subDict
       }
     }
-    let remainingKeys = keys->Js.Array2.sliceFrom(1)
+    let remainingKeys = keys->Array.sliceToEnd(~start=1)
     setNested(subDict, remainingKeys, value)
   }
 }

@@ -139,10 +139,10 @@ let removeDuplicates = (arr: array<chartData<'a>>) => {
 }
 
 let calculateOpacity = (~length, ~originalOpacity) => {
-  let reducedOpacity = originalOpacity *. Math.pow(0.4, ~exp=length->Js.Int.toFloat /. 13.0)
+  let reducedOpacity = originalOpacity *. Math.pow(0.4, ~exp=length->Int.toFloat /. 13.0)
   // Calculate the reduced opacity based on the formula: originalOpacity * (0.4 ^ (length / 13))
 
-  Math.max(reducedOpacity, 0.0)->Js.Float.toString
+  Math.max(reducedOpacity, 0.0)->Float.toString
 }
 
 type dropDownMetricType = Latency | Volume | Rate | Amount | Traffic // traffic string can be any column which is of type Volume, Amount
@@ -211,11 +211,11 @@ let chartDataSortBasedOnTime = (
   let (timeb, _, _) = b
 
   if time < timeb {
-    -1
+    -1.
   } else if time > timeb {
-    1
+    1.
   } else {
-    0
+    0.
   }
 }
 
@@ -224,22 +224,22 @@ let sortBasedOnTimeLegend = (a: (string, float), b: (string, float)) => {
   let (timeb, _) = b
 
   if time < timeb {
-    -1
+    -1.
   } else if time > timeb {
-    1
+    1.
   } else {
-    0
+    0.
   }
 }
 
 let sortBasedOnArr = arr => {
   let func = (a: legendTableData, b: legendTableData) => {
     if arr->Array.indexOf(a.groupByName) < arr->Array.indexOf(b.groupByName) {
-      -1
+      -1.
     } else if arr->Array.indexOf(a.groupByName) > arr->Array.indexOf(b.groupByName) {
-      1
+      1.
     } else {
-      0
+      0.
     }
   }
   func
@@ -320,8 +320,8 @@ let timeSeriesDataMaker = (
           value *. 100. /. groupedByTime->Dict.get(key->Float.toString)->Option.getOr(1.)
         (key, trafficValue, secondryMetrix)
       })
-      ->Js.Array2.sortInPlaceWith(chartDataSortBasedOnTime)
-    | _ => value->Js.Array2.sortInPlaceWith(chartDataSortBasedOnTime)
+      ->Array.toSorted(chartDataSortBasedOnTime)
+    | _ => value->Array.toSorted(chartDataSortBasedOnTime)
     }
     let color = switch colors->Array.find(item => item.name == key) {
     | Some(val) => val.color
@@ -383,7 +383,7 @@ let getLegendDataForCurrentMetrix = (
     ->Dict.toArray
     ->Array.map(item => {
       let (key, value) = item
-      (key, value->Js.Array2.sortInPlaceWith(sortBasedOnTimeLegend))
+      (key, value->Array.toSorted(sortBasedOnTimeLegend))
     })
   let currentValueOverallSum =
     currentAvgSortedDict
@@ -398,7 +398,7 @@ let getLegendDataForCurrentMetrix = (
     ->Dict.toArray
     ->Array.map(item => {
       let (key, value) = item
-      let sortedValueBasedOnTime = value->Js.Array2.sortInPlaceWith(sortBasedOnTimeLegend)
+      let sortedValueBasedOnTime = value->Array.toSorted(sortBasedOnTimeLegend)
       let arrLen = sortedValueBasedOnTime->Array.length
       let (_, currentVal) = sortedValueBasedOnTime->Array.get(arrLen - 1)->Option.getOr(("", 1.0))
 
@@ -436,7 +436,7 @@ let getLegendDataForCurrentMetrix = (
     ->Dict.toArray
     ->Array.map(item => {
       let (metricsName, value) = item
-      let sortedValueBasedOnTime = value->Js.Array2.sortInPlaceWith(sortBasedOnTimeLegend)
+      let sortedValueBasedOnTime = value->Array.toSorted(sortBasedOnTimeLegend)
       let arrLen = sortedValueBasedOnTime->Array.length
       let (_, currentVal) = sortedValueBasedOnTime[arrLen - 1]->Option.getOr(("", 0.))
       // the avg stat won't work correct for Sr case have to find another way or avoid using the avg for Sr
@@ -469,7 +469,7 @@ let getLegendDataForCurrentMetrix = (
   let sortBasedOnArr = sortBasedOnArr(orderedDims)
 
   currentAvgDict
-  ->Js.Array2.sortInPlaceWith(sortBasedOnArr)
+  ->Array.toSorted(sortBasedOnArr)
   ->Array.mapWithIndex((item, index) => {
     {...item, index}
   })
@@ -608,7 +608,7 @@ let tooltipFormatter = (
       xAxisMapInfo->Dict.get(x)->Option.getOr([])
     } else {
       let x = points->getFloat("x", 0.)
-      xAxisMapInfo->Dict.get(x->Js.Float.toString)->Option.getOr([])
+      xAxisMapInfo->Dict.get(x->Float.toString)->Option.getOr([])
     }
 
     let onCursorName = series->getString("name", "")
@@ -759,11 +759,11 @@ let chartDataMaker = (~filterNull=false, rawData, groupKey, metric) => {
     let (_key, val1) = obj1
     let (_key, val2) = obj2
     if val1 > val2 {
-      -1
+      -1.
     } else if val1 === val2 {
-      0
+      0.
     } else {
-      1
+      1.
     }
   }
   rawData
@@ -780,5 +780,5 @@ let chartDataMaker = (~filterNull=false, rawData, groupKey, metric) => {
       dataPointDict->getString(metric, "")->Js.Float.fromString,
     )
   })
-  ->Js.Array2.sortInPlaceWith(sortDescending)
+  ->Array.toSorted(sortDescending)
 }

@@ -427,7 +427,7 @@ module LineChart1D = {
     let {isSidebarExpanded} = React.useContext(SidebarProvider.defaultContext)
 
     React.useEffect1(() => {
-      Js.Global.setTimeout(_ => {
+      setTimeout(_ => {
         DOMUtils.window->DOMUtils.dispatchEvent(DOMUtils.event("resize"))
       }, 150)->ignore
       None
@@ -612,9 +612,7 @@ module LineChart1D = {
                   let positions = NumericUtils.pretty([lower_bound, upper_bound], 5)
 
                   let positionArr =
-                    Array.concat(positions, [threshold])->Js.Array2.sortInPlaceWith(
-                      numericArraySortComperator,
-                    )
+                    Array.concat(positions, [threshold])->Array.toSorted(numericArraySortComperator)
                   positionArr
                 }
 

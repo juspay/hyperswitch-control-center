@@ -103,11 +103,11 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
 }
 
 let comparatorFunction = (connector1: connectorPayload, connector2: connectorPayload) => {
-  connector1.connector_name->String.localeCompare(connector2.connector_name)->Float.toInt
+  connector1.connector_name->String.localeCompare(connector2.connector_name)
 }
 
 let sortPreviouslyConnectedList = arr => {
-  Js.Array2.sortInPlaceWith(arr, comparatorFunction)
+  Array.toSorted(arr, comparatorFunction)
 }
 
 let getPreviouslyConnectedList: JSON.t => array<connectorPayload> = json => {
