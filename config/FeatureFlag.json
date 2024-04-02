@@ -18,5 +18,6 @@
   "dispute_evidence_upload": false,
   "paypal_automatic_flow": false,
   "threeds-authenticator": false,
-  "global_search": false
+  "global_search": false,
+  "dispute_analytics": false
 }

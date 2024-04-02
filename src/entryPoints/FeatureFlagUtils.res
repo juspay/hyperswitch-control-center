@@ -20,6 +20,7 @@ type featureFlag = {
   paypalAutomaticFlow: bool,
   threedsAuthenticator: bool,
   globalSearch: bool,
+  disputeAnalytics: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -47,6 +48,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     paypalAutomaticFlow: dict->getBool("paypal_automatic_flow", false),
     threedsAuthenticator: dict->getBool("threeds-authenticator", false),
     globalSearch: dict->getBool("global_search", false),
+    disputeAnalytics: dict->getBool("dispute_analytics", false),
   }
   typedFeatureFlag
 }
