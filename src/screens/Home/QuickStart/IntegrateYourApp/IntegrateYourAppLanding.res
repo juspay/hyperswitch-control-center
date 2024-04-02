@@ -28,7 +28,7 @@ let make = (~integrateAppValue: integrateApp) => {
           mixpanelEvent(~eventName=`quickstart_integration_landing`, ())
           setQuickStartPageState(_ => IntegrateApp(CHOOSE_INTEGRATION))
         }}
-        dataTestId="integrateiIntoYourApp"
+        dataTestId="integrateIntoYourApp"
       />
       <Button
         text="Go to Home"
