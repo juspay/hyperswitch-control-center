@@ -15,11 +15,12 @@ module CheckListSection = {
     ~getConnectorDetails,
     ~setPreviewState,
   ) => {
+    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
     let {backgroundColor} = React.useContext(ConfigContext.configContext)
     let stepColor =
       checkListItems->Array.includes(pageView)
         ? `${backgroundColor} text-white py-px px-2 rounded-md`
-        : `${backgroundColor} bg-opacity-20 text-blue-500 py-px px-2 rounded-md`
+        : `${backgroundColor} bg-opacity-20  ${textColor.primaryNormal} py-px px-2 rounded-md`
     let bgColor = checkListItems->Array.includes(pageView) ? "bg-white" : "bg-jp-gray-light_gray_bg"
     let selectedItemColor = indexVal =>
       indexVal->getIndexFromVariant === pageView->getIndexFromVariant

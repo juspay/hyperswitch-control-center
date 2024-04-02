@@ -344,6 +344,7 @@ module Wrapper = {
 module RuleBasedUI = {
   @react.component
   let make = (~gatewayOptions, ~wasm, ~initialRule, ~pageState, ~setCurrentRouting) => {
+    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
     let rulesJsonPath = `algorithm.data.rules`
     let ruleInput = ReactFinalForm.useField(rulesJsonPath).input
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
@@ -429,7 +430,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
           {"In case the above rule fails, the routing will follow fallback routing. You can configure it"->React.string}
         </p>
         <p
-          className="text-blue-500 cursor-pointer"
+          className={`${textColor.primaryNormal} cursor-pointer`}
           onClick={_ => {
             setCurrentRouting(_ => RoutingTypes.DEFAULTFALLBACK)
             RescriptReactRouter.push("/routing/default")

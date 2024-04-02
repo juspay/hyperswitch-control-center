@@ -432,6 +432,7 @@ module MoneyCell = {
 module LinkCell = {
   @react.component
   let make = (~data, ~trimLength=?) => {
+    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
     let (showCopy, setShowCopy) = React.useState(() => false)
     let isMobileView = MatchMedia.useMobileChecker()
 
@@ -458,7 +459,7 @@ module LinkCell = {
 
     <div className="flex flex-row items-center" onMouseOver={mouseOver} onMouseOut={mouseOut}>
       <div
-        className={"whitespace-pre text-sm font-fira-code dark:text-opacity-75 text-right p-1 text-blue-500 text-ellipsis overflow-hidden"}>
+        className={`whitespace-pre text-sm font-fira-code dark:text-opacity-75 text-right p-1 ${textColor.primaryNormal} text-ellipsis overflow-hidden`}>
         <a href=data target="_blank" onClick=preventEvent> {React.string(trimData)} </a>
       </div>
       <div className=visibility>
@@ -581,6 +582,7 @@ module EllipsisText = {
 module TrimmedText = {
   @react.component
   let make = (~text, ~width, ~highlightText="", ~hideShowMore=false) => {
+    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
     let (show, setshow) = React.useState(_ => true)
     let breakWords = hideShowMore ? "" : "whitespace-nowrap text-ellipsis overflow-x-hidden"
     if text->String.length > 40 {
@@ -591,7 +593,9 @@ module TrimmedText = {
           </div>
         </AddDataAttributes>
         {if !hideShowMore {
-          <div className={"text-blue-500 cursor-pointer"} onClick={_ => setshow(show => !show)}>
+          <div
+            className={`${textColor.primaryNormal} cursor-pointer`}
+            onClick={_ => setshow(show => !show)}>
             {show ? React.string("More") : React.string("Less")}
           </div>
         } else {

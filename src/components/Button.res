@@ -295,7 +295,6 @@ let make = (
   ~toolTipPosition=ToolTip.Top,
   ~dataTestId="",
 ) => {
-  let {button} = React.useContext(ConfigContext.configContext)
   let parentRef = React.useRef(Nullable.null)
   let dummyRef = React.useRef(Nullable.null)
   let buttonRef = disableRipple ? dummyRef : parentRef
@@ -629,7 +628,7 @@ let make = (
           e->ReactEvent.Keyboard.preventDefault
         }
       }}
-      className={`flex group ${customJustifyStyle} ${relativeClass} ${heightClass} ${conditionalButtonStyles} items-center ${borderStyle}  ${textColor} ${cursorType} ${paddingClass} ${lengthStyle} ${customButtonStyle}  ${customTextOverFlowClass}`}
+      className={`flex group ${customButtonStyle} ${customJustifyStyle} ${relativeClass} ${heightClass} ${conditionalButtonStyles} items-center ${borderStyle}   ${cursorType} ${paddingClass} ${lengthStyle}   ${customTextOverFlowClass} ${textColor}`}
       onClick=handleClick>
       {if buttonState == Loading {
         <span className={iconPadding}>

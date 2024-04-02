@@ -253,7 +253,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
             }}
           </div>
           <AddDataAttributes attributes=[("data-testid", "card-foot-text")]>
-            <div> {note(authType, setAuthType, featureFlagValues.email)} </div>
+            <div> {useNote(authType, setAuthType, featureFlagValues.email)} </div>
           </AddDataAttributes>
         </form>
       </>

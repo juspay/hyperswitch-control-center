@@ -1,4 +1,5 @@
 let config: UIConfig.t = {
+  primaryColor: "primary",
   backgroundColor: "bg-primary",
   button: {
     height: {
@@ -54,6 +55,16 @@ let config: UIConfig.t = {
   font: {
     textColor: {
       primaryNormal: "text-primary",
+    },
+  },
+  shadow: {
+    shadowColor: {
+      primaryNormal: "focus:shadow-primary",
+    },
+  },
+  border: {
+    borderColor: {
+      primaryNormal: "focus:border-primary",
     },
   },
 }

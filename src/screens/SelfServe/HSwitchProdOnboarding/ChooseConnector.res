@@ -4,6 +4,7 @@ let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
 let subheaderText = "text-base font-semibold text-grey-700"
 @react.component
 let make = (~selectedConnector, ~setSelectedConnector, ~pageView, ~setPageView) => {
+  let {font: {textColor}} = React.useContext(ConfigContext.configContext)
   let {backgroundColor} = React.useContext(ConfigContext.configContext)
   let getBlockColor = connector => {
     open ConnectorTypes
@@ -61,7 +62,7 @@ let make = (~selectedConnector, ~setSelectedConnector, ~pageView, ~setPageView) 
                   <Icon
                     name={connector->selectedIconColor}
                     size=20
-                    className="cursor-pointer !text-blue-500"
+                    className={`cursor-pointer !${textColor.primaryNormal}`}
                   />
                 </div>
                 <p className=connectorNameStyle>

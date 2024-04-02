@@ -67,7 +67,7 @@ module VerticalChoiceTile = {
     ~setChoiceState,
     ~customLayoutCss,
   ) => {
-    let {backgroundColor} = React.useContext(ConfigContext.configContext)
+    let {backgroundColor, font: {textColor}} = React.useContext(ConfigContext.configContext)
     let getBlockColor = value =>
       choiceState === value ? `border border-blue-500 ${backgroundColor} bg-opacity-10 ` : "border"
     let headerTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700`
@@ -95,7 +95,7 @@ module VerticalChoiceTile = {
               <Icon
                 name={choiceState === items.variantType ? "selected" : "nonselected"}
                 size=20
-                className="cursor-pointer !text-blue-500"
+                className={`cursor-pointer !${textColor.primaryNormal}`}
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -131,7 +131,7 @@ module HorizontalChoiceTile = {
     ~setChoiceState,
     ~customLayoutCss,
   ) => {
-    let {backgroundColor} = React.useContext(ConfigContext.configContext)
+    let {backgroundColor, font: {textColor}} = React.useContext(ConfigContext.configContext)
     let getBlockColor = value =>
       choiceState === value ? `border border-blue-500 ${backgroundColor} bg-opacity-10 ` : "border"
     let headerTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700`
@@ -155,7 +155,7 @@ module HorizontalChoiceTile = {
               <Icon
                 name={choiceState === items.variantType ? "selected" : "nonselected"}
                 size=20
-                className="cursor-pointer !text-blue-500"
+                className={`cursor-pointer !${textColor.primaryNormal}`}
               />
             </div>
             <UIUtils.RenderIf
@@ -211,7 +211,8 @@ module SelectConnectorGrid = {
   @react.component
   let make = (~selectedConnector, ~setSelectedConnector, ~connectorList) => {
     open ConnectorTypes
-    let {backgroundColor} = React.useContext(ConfigContext.configContext)
+
+    let {backgroundColor, font: {textColor}} = React.useContext(ConfigContext.configContext)
     let typedConnectedConnectorList =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom
@@ -282,7 +283,9 @@ module SelectConnectorGrid = {
                     </p>
                   </div>
                   <Icon
-                    name={connector->iconColor} size=20 className="cursor-pointer !text-blue-500"
+                    name={connector->iconColor}
+                    size=20
+                    className={`cursor-pointer !${textColor.primaryNormal}`}
                   />
                 </div>
               </AddDataAttributes>
@@ -311,7 +314,7 @@ module SelectConnectorGrid = {
                 <Icon
                   name={connector === selectedConnector ? "selected" : "nonselected"}
                   size=20
-                  className="cursor-pointer !text-blue-500"
+                  className={`cursor-pointer !${textColor.primaryNormal}`}
                 />
               </div>
             </div>

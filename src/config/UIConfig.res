@@ -61,8 +61,23 @@ module FontConfig = {
   type textColor = {primaryNormal: string}
   type t = {textColor: textColor}
 }
+module ShadowConfig = {
+  type shadowColor = {primaryNormal: string}
+  type t = {shadowColor: shadowColor}
+}
+module BorderConfig = {
+  type borderColor = {primaryNormal: string}
+  type t = {borderColor: borderColor}
+}
 
-type t = {button: ButtonConfig.t, font: FontConfig.t, backgroundColor: string}
+type t = {
+  button: ButtonConfig.t,
+  font: FontConfig.t,
+  backgroundColor: string,
+  primaryColor: string,
+  shadow: ShadowConfig.t,
+  border: BorderConfig.t,
+}
 
 let defaultUIConfig: t = {
   backgroundColor: "bg-primary",
@@ -122,4 +137,15 @@ let defaultUIConfig: t = {
       primaryNormal: "text-white",
     },
   },
+  shadow: {
+    shadowColor: {
+      primaryNormal: "shadow-primary",
+    },
+  },
+  border: {
+    borderColor: {
+      primaryNormal: "shadow-primary",
+    },
+  },
+  primaryColor: "primary",
 }

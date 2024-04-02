@@ -60,6 +60,7 @@ module InfoCard = {
 module Card = {
   @react.component
   let make = (~heading="", ~isSelected=false, ~children: React.element) => {
+    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
     <>
       <div
         className={`relative w-full p-6 rounded flex flex-col justify-between border ${isSelected
@@ -68,7 +69,7 @@ module Card = {
         <div className="flex justify-between">
           <div
             className={`leading-tight font-semibold text-fs-18 ${isSelected
-                ? "text-blue-500"
+                ? `${textColor.primaryNormal}`
                 : "text-hyperswitch_black"} `}>
             {heading->React.string}
           </div>
@@ -104,7 +105,7 @@ module SimplifiedHelper = {
     ~stepNumber="1",
     ~subText=None,
   ) => {
-    let {backgroundColor} = React.useContext(ConfigContext.configContext)
+    let {backgroundColor, font: {textColor}} = React.useContext(ConfigContext.configContext)
     let bgColor = "bg-white"
     let stepColor = `${backgroundColor} text-white py-px px-2`
 
@@ -115,7 +116,9 @@ module SimplifiedHelper = {
             <p className={`${stepColor} font-medium`}> {stepNumber->React.string} </p>
           </div>
           <div>
-            <p className={"font-medium text-base text-blue-500"}> {heading->React.string} </p>
+            <p className={`font-medium text-base ${textColor.primaryNormal}`}>
+              {heading->React.string}
+            </p>
             <UIUtils.RenderIf condition={subText->Option.isSome}>
               <p className={`mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
                 {subText->Option.getOr("")->React.string}

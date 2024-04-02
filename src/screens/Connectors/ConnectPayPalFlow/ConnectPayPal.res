@@ -67,7 +67,7 @@ module ManualSetupScreen = {
 module LandingScreen = {
   @react.component
   let make = (~configuartionType, ~setConfigurationType) => {
-    let {backgroundColor} = React.useContext(ConfigContext.configContext)
+    let {backgroundColor, font: {textColor}} = React.useContext(ConfigContext.configContext)
     let getBlockColor = value =>
       configuartionType === value
         ? `border border-blue-500 ${backgroundColor} bg-opacity-10 `
@@ -92,7 +92,7 @@ module LandingScreen = {
                 <Icon
                   name={configuartionType === items.variantType ? "selected" : "nonselected"}
                   size=20
-                  className="cursor-pointer !text-blue-500"
+                  className={`cursor-pointer !${textColor.primaryNormal}`}
                 />
               </div>
               <div className="flex gap-2 items-center ">

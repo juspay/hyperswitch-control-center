@@ -89,7 +89,7 @@ module.exports = {
           200: "#DAECFF",
           300: "#BED4F0",
           400: "#006DF9CC",
-          500: "#006DF9",
+          500: "#2167ae",
           600: "#005ED6",
           700: "#66A9FF",
           800: "#F5F9FF",
@@ -129,7 +129,6 @@ module.exports = {
           950: "#F04849",
           960: "#EF6969",
           980: "#FC5454",
-          990: "#F97F77",
           failed_page_bg: "#FDEDE8",
         },
         "sidebar-blue": "#242F48",
@@ -226,21 +225,21 @@ module.exports = {
       };
       addUtilities(newUtilities);
     }),
-    plugin(function ({ addVariant, addUtilities, e }) {
-      addVariant("red", ({ modifySelectors, separator }) => {
-        modifySelectors(({ className }) => {
-          return `.red${separator}${className}`;
-        });
-      });
-      const newUtilities = {
-        ".red .red\\:bg-red": {
-          "--tw-bg-opacity": "1",
-          "background-color": "rgb(255 0 0 / var(--tw-bg-opacity))",
-        },
-      };
+    // plugin(function ({ addVariant, addUtilities, e }) {
+    //   addVariant("red", ({ modifySelectors, separator }) => {
+    //     modifySelectors(({ className }) => {
+    //       return `.red${separator}${className}`;
+    //     });
+    //   });
+    //   const newUtilities = {
+    //     ".red .red\\:bg-red": {
+    //       "--tw-bg-opacity": "1",
+    //       "background-color": "rgb(255 0 0 / var(--tw-bg-opacity))",
+    //     },
+    //   };
 
-      addUtilities(newUtilities, ["responsive", "hover"]);
-    }),
+    //   addUtilities(newUtilities, ["responsive", "hover"]);
+    // }),
   ],
 };
 

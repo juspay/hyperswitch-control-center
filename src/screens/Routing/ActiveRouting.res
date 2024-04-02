@@ -27,6 +27,7 @@ module TopRightIcons = {
 module ActionButtons = {
   @react.component
   let make = (~routeType: routingType) => {
+    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let showToast = ToastState.useShowToast()
     let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
@@ -73,7 +74,7 @@ module ActionButtons = {
         access={userPermissionJson.workflowsManage}
         buttonType=Secondary
         buttonSize={Small}
-        customButtonStyle="border !border-blue-500 bg-white !text-blue-500"
+        customButtonStyle={`border !border-blue-500 bg-white ${textColor.primaryNormal}`}
         onClick={_ => {
           RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)
           mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
@@ -84,7 +85,7 @@ module ActionButtons = {
         text={"Manage"}
         access={userPermissionJson.workflowsManage}
         buttonType=Secondary
-        customButtonStyle="border !border-blue-500 bg-white !text-blue-500"
+        customButtonStyle={`border !border-blue-500 bg-white ${textColor.primaryNormal}`}
         buttonSize={Small}
         onClick={_ => {
           RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)

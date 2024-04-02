@@ -181,6 +181,7 @@ module OverviewInfo = {
   open APIUtils
   @react.component
   let make = () => {
+    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
@@ -203,7 +204,7 @@ module OverviewInfo = {
 
     <UIUtils.RenderIf condition={sampleData}>
       <div className="flex bg-white border rounded-md gap-2 px-9 py-3">
-        <Icon name="info-vacent" className="text-blue-500" size=20 />
+        <Icon name="info-vacent" className={`${textColor.primaryNormal}`} size=20 />
         <span>
           {"To view more points on the above graph, you need to make payments or"->React.string}
         </span>

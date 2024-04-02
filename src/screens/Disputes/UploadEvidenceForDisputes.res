@@ -11,6 +11,7 @@ module EvidenceUploadForm = {
   @react.component
   let make = (~uploadEvidenceType, ~index, ~fileUploadedDict, ~setFileUploadedDict) => {
     open LogicUtils
+    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
     let handleBrowseChange = (event, uploadEvidenceType) => {
       let target = ReactEvent.Form.target(event)
       let fileDict =
@@ -33,7 +34,7 @@ module EvidenceUploadForm = {
       </div>
       {if fileUploadedDict->Dict.get(uploadEvidenceType)->Option.isNone {
         <label>
-          <p className="text-blue-500 underline cursor-pointer">
+          <p className={`${textColor.primaryNormal} underline cursor-pointer`}>
             {"Upload"->React.string}
             <input
               key={Int.toString(index)}
@@ -207,7 +208,7 @@ module DisputesInfoBarComponent = {
     open LogicUtils
     open DisputesUtils
     open PageLoaderWrapper
-
+    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
     let fetchDetails = useGetMethod()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
@@ -281,7 +282,7 @@ module DisputesInfoBarComponent = {
                     Window._open(
                       "https://docs.hyperswitch.io/features/merchant-controls/disputes",
                     )}>
-                  <p className={`${p1MediumText}  text-blue-500`}>
+                  <p className={`${p1MediumText}  ${textColor.primaryNormal}`}>
                     {"Learn how to respond"->React.string}
                   </p>
                   <Icon
