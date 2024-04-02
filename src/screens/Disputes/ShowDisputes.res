@@ -69,7 +69,9 @@ module Details = {
             {amountValue(data.amount, data.currency->String.toUpperCase)->React.string}
           </p>
           {getStatus(data)}
-          <RenderIf condition={data.dispute_status->disputeStatusVariantMapper === DisputeOpened}>
+          <RenderIf
+            condition={data.dispute_status->disputeStatusVariantMapper === DisputeOpened &&
+              data.challenge_required_by->String.length > 0}>
             <div
               className="border text-orange-950 bg-orange-100 text-sm px-2 py-1 rounded-md font-semibold">
               {`${daysToRespond->Float.toString} days to respond`->React.string}
