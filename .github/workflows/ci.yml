@@ -22,3 +22,6 @@ jobs:
 
       - name: "Build"
         run: npm run re:build
+
+      - name: "Test Hooks"
+        run: npm run lint:hooks
