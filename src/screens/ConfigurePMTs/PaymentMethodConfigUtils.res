@@ -3,7 +3,7 @@ let dropdownClassName = (options: array<SelectBox.dropdownOption>) =>
 
 let getAdvanceConfiguration = (
   advanceConfiguration: option<ConnectorTypes.advancedConfigurationList>,
-): React.element => {
+) => {
   let config = switch advanceConfiguration {
   | Some(obj) => {
       let firstThree = obj.list->Array.slice(~start=0, ~end=3)->Array.toString
@@ -12,7 +12,7 @@ let getAdvanceConfiguration = (
         ? <div>
             {`${firstThree},`->React.string}
             <span className="text-blue-811">
-              {`+${Belt.Int.toString(restCount)} more`->React.string}
+              {`+${Int.toString(restCount)} more`->React.string}
             </span>
           </div>
         : <div> {firstThree->React.string} </div>
@@ -27,11 +27,11 @@ let encodeAdvanceConfig = (advanceConfig: option<ConnectorTypes.advancedConfigur
   | Some(config) =>
     [
       ("type", JSON.Encode.string(config.type_)),
-      ("list", JSON.Encode.array(config.list->Array.map(Js.Json.string))),
+      ("list", JSON.Encode.array(config.list->Array.map(JSON.Encode.string))),
     ]
     ->Dict.fromArray
     ->JSON.Encode.object
-  | None => None->Option.map(JSON.Encode.object)->Option.getOr(Js.Json.null)
+  | None => None->Option.map(JSON.Encode.object)->Option.getOr(JSON.Encode.null)
   }
 }
 let encodePaymentMethodConfig = (paymentMethodConfig: ConnectorTypes.paymentMethodConfigType) => {
@@ -39,43 +39,43 @@ let encodePaymentMethodConfig = (paymentMethodConfig: ConnectorTypes.paymentMeth
     ("payment_method_type", JSON.Encode.string(paymentMethodConfig.payment_method_type)),
     (
       "card_networks",
-      JSON.Encode.array(paymentMethodConfig.card_networks->Array.map(Js.Json.string)),
+      JSON.Encode.array(paymentMethodConfig.card_networks->Array.map(JSON.Encode.string)),
     ),
     ("accepted_currencies", paymentMethodConfig.accepted_currencies->encodeAdvanceConfig),
     ("accepted_countries", paymentMethodConfig.accepted_countries->encodeAdvanceConfig),
     (
       "maximum_amount",
-      paymentMethodConfig.maximum_amount->Option.map(JSON.Encode.int)->Option.getOr(Js.Json.null),
+      paymentMethodConfig.maximum_amount
+      ->Option.map(JSON.Encode.int)
+      ->Option.getOr(JSON.Encode.null),
     ),
     (
       "minimum_amount",
-      paymentMethodConfig.minimum_amount->Option.map(JSON.Encode.int)->Option.getOr(Js.Json.null),
+      paymentMethodConfig.minimum_amount
+      ->Option.map(JSON.Encode.int)
+      ->Option.getOr(JSON.Encode.null),
     ),
     (
       "recurring_enabled",
       paymentMethodConfig.recurring_enabled
       ->Option.map(JSON.Encode.bool)
-      ->Option.getOr(Js.Json.null),
+      ->Option.getOr(JSON.Encode.null),
     ),
     (
       "installment_payment_enabled",
       paymentMethodConfig.installment_payment_enabled
       ->Option.map(JSON.Encode.bool)
-      ->Option.getOr(Js.Json.null),
+      ->Option.getOr(JSON.Encode.null),
     ),
     (
       "payment_experience",
       paymentMethodConfig.payment_experience
       ->Option.map(JSON.Encode.string)
-      ->Option.getOr(Js.Json.null),
+      ->Option.getOr(JSON.Encode.null),
     ),
-  ]
-  ->Dict.fromArray
-  ->JSON.Encode.object
+  ]->LogicUtils.getJsonFromArrayOfJson
 }
-let encodePaymentMethodEnabled = (
-  paymentMethodRecord: ConnectorTypes.paymentMethodEnabledType,
-): Js.Json.t => {
+let encodePaymentMethodEnabled = (paymentMethodRecord: ConnectorTypes.paymentMethodEnabledType) => {
   let paymentMethodConfig =
     paymentMethodRecord.payment_method_types
     ->Array.map(encodePaymentMethodConfig)
@@ -83,20 +83,16 @@ let encodePaymentMethodEnabled = (
   [
     ("payment_method", JSON.Encode.string(paymentMethodRecord.payment_method)),
     ("payment_method_types", paymentMethodConfig),
-  ]
-  ->Dict.fromArray
-  ->JSON.Encode.object
+  ]->LogicUtils.getJsonFromArrayOfJson
 }
 
-let encodeConnectorPayload = (myTypedValue: ConnectorTypes.connectorPayload): Js.Json.t => {
+let encodeConnectorPayload = (typedValue: ConnectorTypes.connectorPayload) => {
   let paymentMethodEnabled =
-    myTypedValue.payment_methods_enabled->Array.map(encodePaymentMethodEnabled)->JSON.Encode.array
-  let dict =
-    [
-      ("connector_type", JSON.Encode.string(myTypedValue.connector_type)),
-      ("payment_methods_enabled", paymentMethodEnabled),
-    ]->Dict.fromArray
-  dict->JSON.Encode.object
+    typedValue.payment_methods_enabled->Array.map(encodePaymentMethodEnabled)->JSON.Encode.array
+  [
+    ("connector_type", JSON.Encode.string(typedValue.connector_type)),
+    ("payment_methods_enabled", paymentMethodEnabled),
+  ]->LogicUtils.getJsonFromArrayOfJson
 }
 
 let pmtConfigFilter = (dict): PaymentMethodConfigTypes.paymentMethodConfigFilters => {
@@ -144,7 +140,6 @@ let mapPaymentMethodValues = (
     connectorPayload.payment_methods_enabled[pmIndex]->Option.getOr(
       Dict.make()->ConnectorListMapper.getPaymentMethodsEnabled,
     )
-  // Js.log(res)
   pm.payment_method_types->Array.forEachWithIndex((data, pmtIndex) => {
     let paymentMethod = pm.payment_method
 

@@ -23,6 +23,8 @@ let payoutConnectorList: array<connectorTypes> = [Processors(ADYEN), Processors(
 let threedsAuthenticatorList: array<connectorTypes> = [ThreeDsAuthenticator(THREEDSECUREIO)]
 
 let connectorList: array<connectorTypes> = [
+  Processors(STRIPE),
+  Processors(PAYPAL),
   Processors(ACI),
   Processors(ADYEN),
   Processors(AIRWALLEX),
@@ -54,21 +56,19 @@ let connectorList: array<connectorTypes> = [
   Processors(NUVEI),
   Processors(OPENNODE),
   Processors(PAYME),
-  Processors(PAYPAL),
   Processors(PAYU),
-  Processors(PLACETOPAY),
   Processors(POWERTRANZ),
   Processors(PROPHETPAY),
   Processors(RAPYD),
   Processors(SHIFT4),
   Processors(STAX),
-  Processors(STRIPE),
   Processors(TRUSTPAY),
   Processors(TSYS),
   Processors(VOLT),
   Processors(WORLDLINE),
   Processors(WORLDPAY),
   Processors(ZEN),
+  Processors(PLACETOPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -1078,9 +1078,10 @@ let onSubmit = async (
   ~setVerifyDone,
   ~verifyDone,
   ~isVerifyConnector,
+  ~isVerifyConnectorFeatureEnabled,
 ) => {
   setVerifyDone(_ => Loading)
-  if verifyDone === NoAttempt && isVerifyConnector {
+  if isVerifyConnectorFeatureEnabled && verifyDone === NoAttempt && isVerifyConnector {
     onSubmitVerify(values)->ignore
   } else {
     onSubmitMain(values)->ignore
@@ -1325,11 +1326,6 @@ let connectorTypeStringToTypeMapper = connector_type => {
   | "authentication_processor" => AuthenticationProcessor
   | _ => PaymentProcessor
   }
-}
-
-let sortByName = (c1, c2) => {
-  open LogicUtils
-  compareLogic(c2->getConnectorNameString, c1->getConnectorNameString)
 }
 
 let existsInArray = (element, connectorList) => {

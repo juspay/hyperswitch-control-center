@@ -17,7 +17,7 @@ module PmtConfigInp = {
           valueField.onChange(
             None
             ->Option.map(JSON.Encode.object)
-            ->Option.getOr(Js.Json.null)
+            ->Option.getOr(JSON.Encode.null)
             ->Identity.anyTypeToReactEvent,
           )
         } else {
@@ -163,7 +163,7 @@ let make = (
   }
   let id = `payment_methods_enabled[${payment_method_index->Int.toString}].payment_method_types[${payment_method_types_index->Int.toString}]`
 
-  <div>
+  <>
     <Modal
       childClass="p-0"
       showModal={showPaymentMthdConfigModal}
@@ -174,7 +174,7 @@ let make = (
       paddingClass=""
       modalHeading={paymentMethodConfig.payment_method_type->String.toUpperCase}
       setShowModal={setShowPaymentMthdConfigModal}
-      modalClass="w-full max-w-lg m-auto !bg-white dark:!bg-jp-gray-lightgray_background">
+      modalClass="w-full max-w-lg m-auto !bg-white">
       <Form key="pmts-configuration" initialValues onSubmit={onSubmit}>
         <div className="p-5">
           <FieldRenderer
@@ -207,8 +207,8 @@ let make = (
       onClick={_ => getProcessorDetails()->ignore}>
       {switch element {
       | Some(component) => component
-      | _ => config->String.length > 0 ? config->React.string : "NA"->React.string
+      | _ => config->LogicUtils.isNonEmptyString ? config->React.string : "NA"->React.string
       }}
     </ACLDiv>
-  </div>
+  </>
 }
