@@ -230,15 +230,28 @@ let userJourneyAnalytics = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
-let analytics = (isAnalyticsEnabled, userJourneyAnalyticsFlag, ~permissionJson) => {
+let analytics = (
+  isAnalyticsEnabled,
+  userJourneyAnalyticsFlag,
+  disputeAnalyticsFlag,
+  ~permissionJson,
+) => {
+  let links = [paymentAnalytcis, refundAnalytics]
+
+  if userJourneyAnalyticsFlag {
+    links->Array.push(userJourneyAnalytics)
+  }
+
+  if disputeAnalyticsFlag {
+    links->Array.push(disputeAnalytics)
+  }
+
   isAnalyticsEnabled
     ? Section({
         name: "Analytics",
         icon: "analytics",
         showSection: permissionJson.analyticsView === Access,
-        links: userJourneyAnalyticsFlag
-          ? [paymentAnalytcis, refundAnalytics, disputeAnalytics, userJourneyAnalytics]
-          : [paymentAnalytcis, refundAnalytics, disputeAnalytics],
+        links,
       })
     : emptyComponent
 }
@@ -421,6 +434,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     isLiveMode,
     threedsAuthenticator,
     quickStart,
+    disputeAnalytics,
   } = featureFlagDetails
 
   let sidebar = [
@@ -434,7 +448,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~isThreedsConnectorEnabled=threedsAuthenticator,
       ~permissionJson,
     ),
-    default->analytics(userJourneyAnalyticsFlag, ~permissionJson),
+    default->analytics(userJourneyAnalyticsFlag, disputeAnalytics, ~permissionJson),
     default->workflow(isSurchargeEnabled, ~permissionJson),
     recon->reconTag(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),
