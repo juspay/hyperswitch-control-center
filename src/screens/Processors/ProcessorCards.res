@@ -107,7 +107,7 @@ let make = (
               />
             </AddDataAttributes>
           </RenderIf>
-          <RenderIf condition={showDummyConnectorButton}>
+          <RenderIf condition={showDummyConnectorButton && urlPrefix == "connectors/new"}>
             <ACLButton
               access={userPermissionJson.connectorsManage}
               text="+ Connect a Dummy Processor"
@@ -196,7 +196,7 @@ let make = (
               className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border mr-4`}
             />
           </RenderIf>
-          <RenderIf condition={showDummyConnectorButton}>
+          <RenderIf condition={showDummyConnectorButton && urlPrefix == "connectors/new"}>
             <ACLButton
               access={userPermissionJson.connectorsManage}
               text="+ Connect a Dummy Processor"
