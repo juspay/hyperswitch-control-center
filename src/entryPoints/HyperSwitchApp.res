@@ -219,12 +219,10 @@ let make = () => {
                     <Navbar
                       headerActions={<div className="relative flex items-center gap-4 my-2 ">
                         <GlobalSearchBar />
-                        <RenderIf condition={featureFlagDetails.switchMerchant}>
-                          <SwitchMerchant
-                            userRole={userRole}
-                            isAddMerchantEnabled={userRole === "org_admin" ? true : false}
-                          />
-                        </RenderIf>
+                        <SwitchMerchant
+                          userRole={userRole}
+                          isAddMerchantEnabled={userRole === "org_admin" ? true : false}
+                        />
                         <div
                           className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
                           {modeText->React.string}
@@ -373,7 +371,9 @@ let make = () => {
                           </FilterContext>
                         </AccessControl>
                       | list{"analytics-disputes"} =>
-                        <AccessControl permission=userPermissionJson.analyticsView>
+                        <AccessControl
+                          isEnabled={featureFlagDetails.disputeAnalytics}
+                          permission=userPermissionJson.analyticsView>
                           <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
                             <DisputeAnalytics />
                           </FilterContext>
@@ -441,8 +441,7 @@ let make = () => {
                           <BusinessDetails />
                         </AccessControl>
                       | list{"business-profiles"} =>
-                        <AccessControl
-                          isEnabled=featureFlagDetails.businessProfile permission=Access>
+                        <AccessControl permission=Access>
                           <BusinessProfile />
                         </AccessControl>
                       | list{"quick-start"} => determineQuickStartPageState()
@@ -450,19 +449,27 @@ let make = () => {
                       | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
                       | list{"search"} => <SearchResultsPage />
                       | list{"payment-attempts"} =>
-                        <AccessControl permission=userPermissionJson.operationsView>
+                        <AccessControl
+                          isEnabled={featureFlagDetails.globalSearch}
+                          permission=userPermissionJson.operationsView>
                           <PaymentAttemptTable />
                         </AccessControl>
                       | list{"payment-intents"} =>
-                        <AccessControl permission=userPermissionJson.operationsView>
+                        <AccessControl
+                          isEnabled={featureFlagDetails.globalSearch}
+                          permission=userPermissionJson.operationsView>
                           <PaymentIntentTable />
                         </AccessControl>
                       | list{"refunds-global"} =>
-                        <AccessControl permission=userPermissionJson.operationsView>
+                        <AccessControl
+                          isEnabled={featureFlagDetails.globalSearch}
+                          permission=userPermissionJson.operationsView>
                           <RefundsTable />
                         </AccessControl>
                       | list{"dispute-global"} =>
-                        <AccessControl permission=userPermissionJson.operationsView>
+                        <AccessControl
+                          isEnabled={featureFlagDetails.globalSearch}
+                          permission=userPermissionJson.operationsView>
                           <DisputeTable />
                         </AccessControl>
                       | list{"unauthorized"} => <UnauthorizedPage />
@@ -482,8 +489,7 @@ let make = () => {
                 setShowModal={setShowFeedbackModal}
               />
             </RenderIf>
-            <RenderIf
-              condition={featureFlagDetails.productionAccess || featureFlagDetails.quickStart}>
+            <RenderIf condition={!featureFlagDetails.isLiveMode || featureFlagDetails.quickStart}>
               <ProdIntentForm />
             </RenderIf>
             <RenderIf

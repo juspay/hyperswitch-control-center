@@ -221,7 +221,7 @@ module ControlCenter = {
             leftIcon=Some("connector")
           />
           <img
-            className="inline-block absolute right-5 bottom-5 hidden lg:block"
+            className="inline-block absolute right-5 bottom-5  lg:block"
             src="/assets/connectorsList.svg"
           />
           <CardFooter>
