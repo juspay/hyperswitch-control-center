@@ -334,7 +334,7 @@ module Header = {
   @react.component
   let make = (~authType, ~setAuthType, ~email) => {
     let form = ReactFinalForm.useForm()
-    let {magicLink: isMagicLinkEnabled, isLiveMode} =
+    let {email: isMagicLinkEnabled, isLiveMode} =
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let headerStyle = switch authType {
     | MagicLinkEmailSent

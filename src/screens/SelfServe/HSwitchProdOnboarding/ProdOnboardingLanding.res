@@ -160,7 +160,6 @@ let make = () => {
   let urlPush = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/prod-onboarding?${routerUrl.search}`
 
   let userRole = HSLocalStorage.getFromUserDetails("user_role")
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let getSetupCompleteEnum = (prodEnums: ProdOnboardingTypes.prodOnboading) => {
     open LogicUtils
@@ -259,11 +258,9 @@ let make = () => {
       <div
         className={`bg-hyperswitch_background flex items-center h-screen w-full overflow-scroll ${centerItems}`}>
         <div className={`flex flex-col ${getCssOnView}`}>
-          <UIUtils.RenderIf condition={featureFlagDetails.switchMerchant}>
-            <div className={`flex justify-end w-full pb-5`}>
-              <SwitchMerchant userRole={userRole} />
-            </div>
-          </UIUtils.RenderIf>
+          <div className={`flex justify-end w-full pb-5`}>
+            <SwitchMerchant userRole={userRole} />
+          </div>
           <div className={`h-[52rem] overflow-scroll bg-white rounded-md w-full border`}>
             {switch previewState {
             | Some(previewVariant) =>

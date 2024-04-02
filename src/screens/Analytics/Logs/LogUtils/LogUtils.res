@@ -3,7 +3,7 @@ let sortByCreatedAt = (log1, log2) => {
   let getKey = dict => dict->getDictFromJsonObject->getString("created_at", "")->Date.fromString
   let keyA = log1->getKey
   let keyB = log2->getKey
-  compareLogic(keyA, keyB)->Belt.Int.toFloat
+  compareLogic(keyA, keyB)
 }
 
 type flowType =
@@ -90,7 +90,7 @@ let parseSdkResponse = arr => {
   let sourceMapper = source => {
     switch source {
     | "ORCA-LOADER" => "HYPERLOADER"
-    | "ORCA-PAYMENTS-PAGE"
+    | "ORCA-PAYMENT-PAGE"
     | "STRIPE_PAYMENT_SHEET" => "PAYMENT_SHEET"
     | other => other
     }

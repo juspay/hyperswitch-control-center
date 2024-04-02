@@ -3,13 +3,6 @@ module LogDetailsSection = {
   open LogicUtils
   @react.component
   let make = (~logDetails) => {
-    let showToast = ToastState.useShowToast()
-
-    let handleOnClickCopy = (~parsedValue) => {
-      Clipboard.writeText(parsedValue)
-      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess, ())
-    }
-
     let isValidNonEmptyValue = value => {
       switch value->JSON.Classify.classify {
       | Bool(_) | String(_) | Number(_) | Object(_) => true
@@ -30,15 +23,9 @@ module LogDetailsSection = {
           <span className="w-2/5"> {key->snakeToTitle->React.string} </span>
           <span
             className="w-3/5 overflow-scroll cursor-pointer relative hover:bg-gray-50 p-1 rounded">
-            <div
-              onClick={_ => handleOnClickCopy(~parsedValue=value->JSON.stringify)}
-              className="w-full h-full absolute top-0 flex justify-end opacity-0 hover:opacity-100 p-1">
-              <div className="cursor-pointer">
-                <Icon name="copy-code" />
-              </div>
-            </div>
             <ReactSyntaxHighlighter.SyntaxHighlighter
               wrapLines={true}
+              wrapLongLines=true
               style={ReactSyntaxHighlighter.lightfair}
               language="json"
               showLineNumbers={false}

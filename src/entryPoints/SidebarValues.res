@@ -348,12 +348,9 @@ let businessProfiles = () => {
     searchOptions: [("Configure business profiles", "")],
   })
 }
-let settings = (~isSampleDataEnabled, ~isBusinessProfileEnabled, ~permissionJson) => {
-  let settingsLinkArray = [businessDetails()]
+let settings = (~isSampleDataEnabled, ~permissionJson) => {
+  let settingsLinkArray = [businessDetails(), businessProfiles()]
 
-  if isBusinessProfileEnabled {
-    settingsLinkArray->Array.push(businessProfiles())->ignore
-  }
   if isSampleDataEnabled {
     settingsLinkArray->Array.push(accountSettings(permissionJson))->ignore
   }
@@ -430,22 +427,21 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
   let permissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
   let {
-    productionAccess,
     frm,
     payOut,
     recon,
     default,
     sampleData,
-    businessProfile,
     systemMetrics,
     userJourneyAnalytics: userJourneyAnalyticsFlag,
     surcharge: isSurchargeEnabled,
     isLiveMode,
     threedsAuthenticator,
+    quickStart,
   } = featureFlagDetails
 
   let sidebar = [
-    productionAccess->productionAccessComponent,
+    productionAccessComponent(quickStart),
     default->home,
     default->operations(~permissionJson),
     default->connectors(
@@ -459,11 +455,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     default->workflow(isSurchargeEnabled, ~permissionJson),
     recon->reconTag(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),
-    settings(
-      ~isBusinessProfileEnabled=businessProfile,
-      ~isSampleDataEnabled=sampleData,
-      ~permissionJson,
-    ),
+    settings(~isSampleDataEnabled=sampleData, ~permissionJson),
   ]
   sidebar
 }

@@ -14,7 +14,6 @@ module ConnectorDetailsForm = {
     ~verifyErrorMessage,
     ~checkboxText,
   ) => {
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (showVerifyModal, setShowVerifyModal) = React.useState(_ => false)
 
     let (
@@ -37,13 +36,11 @@ module ConnectorDetailsForm = {
     )
 
     <div className="flex flex-col gap-6">
-      <UIUtils.RenderIf condition={featureFlagDetails.businessProfile}>
-        <div>
-          <ConnectorAccountDetailsHelper.BusinessProfileRender
-            isUpdateFlow=false selectedConnector={connectorName}
-          />
-        </div>
-      </UIUtils.RenderIf>
+      <div>
+        <ConnectorAccountDetailsHelper.BusinessProfileRender
+          isUpdateFlow=false selectedConnector={connectorName}
+        />
+      </div>
       <ConnectorAccountDetailsHelper.ConnectorConfigurationFields
         connectorAccountFields
         connector={connectorVariant}
@@ -350,7 +347,6 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
       ~setVerifyDone,
       ~verifyDone,
       ~isVerifyConnector,
-      ~isVerifyConnectorFeatureEnabled=featureFlagDetails.verifyConnector,
     )->ignore
   }
 
