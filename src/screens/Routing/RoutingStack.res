@@ -49,9 +49,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
       let recordsData =
         configuredRules
-        ->JSON.Encode.array
-        ->JSON.Decode.array
-        ->Option.getOr([])
         ->Belt.Array.keepMap(JSON.Decode.object)
         ->Array.map(HistoryEntity.itemToObjMapper)
 
