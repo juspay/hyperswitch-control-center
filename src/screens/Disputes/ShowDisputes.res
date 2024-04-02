@@ -48,7 +48,7 @@ module Details = {
   ) => {
     open DisputeTypes
     open DisputesUtils
-
+    open LogicUtils
     open UIUtils
 
     let connectorTypeFromName = data.connector->ConnectorUtils.getConnectorNameTypeFromString()
@@ -56,7 +56,7 @@ module Details = {
     let (uploadEvidenceModal, setUploadEvidenceModal) = React.useState(_ => false)
     let (fileUploadedDict, setFileUploadedDict) = React.useState(_ => Dict.make())
     let (disputeEvidenceStatus, setDisputeEvidenceStatus) = React.useState(_ => Landing)
-    let daysToRespond = LogicUtils.getDaysDiffForDates(
+    let daysToRespond = getDaysDiffForDates(
       ~startDate=Date.now(),
       ~endDate=data.challenge_required_by->DateTimeUtils.parseAsFloat,
     )
@@ -69,7 +69,9 @@ module Details = {
             {amountValue(data.amount, data.currency->String.toUpperCase)->React.string}
           </p>
           {getStatus(data)}
-          <RenderIf condition={data.dispute_status->disputeStatusVariantMapper === DisputeOpened}>
+          <RenderIf
+            condition={data.dispute_status->disputeStatusVariantMapper === DisputeOpened &&
+              data.challenge_required_by->isNonEmptyString}>
             <div
               className="border text-orange-950 bg-orange-100 text-sm px-2 py-1 rounded-md font-semibold">
               {`${daysToRespond->Float.toString} days to respond`->React.string}
