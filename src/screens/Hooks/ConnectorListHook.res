@@ -10,10 +10,7 @@ let useFetchConnectorList = () => {
       setConnectorList(._ => res->ConnectorListMapper.getArrayOfConnectorListPayloadType)
       res
     } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
+    | Exn.Error(e) => GenericCatch.handleCatch(~error=e, ())
     }
   }
 }

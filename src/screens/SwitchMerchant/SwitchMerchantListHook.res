@@ -10,10 +10,7 @@ let useFetchSwitchMerchantList = () => {
       let typedValueOfResponse = res->SwitchMerchantUtils.convertListResponseToTypedResponse
       setSwitchMerchantListAtom(._ => typedValueOfResponse)
     } catch {
-    | Exn.Error(e) => {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        Exn.raiseError(err)
-      }
+    | Exn.Error(e) => GenericCatch.handleCatch(~error=e, ())
     }
   }
 }
