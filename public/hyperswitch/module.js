@@ -165,3 +165,27 @@ function getAuthenticationConnectorConfig(connectorName) {
     return {};
   }
 }
+
+function getPayoutDescriptionCategory() {
+  if (wasm) {
+    return wasm.getPayoutDescriptionCategory();
+  } else {
+    return {};
+  }
+}
+
+function getAllPayoutKeys() {
+  if (wasm) {
+    return wasm.getAllPayoutKeys();
+  } else {
+    return [];
+  }
+}
+
+function getPayoutVariantValues(str) {
+  if (wasm) {
+    return wasm.getPayoutVariantValues(str);
+  } else {
+    return [];
+  }
+}
