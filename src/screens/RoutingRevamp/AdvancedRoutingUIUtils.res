@@ -273,12 +273,16 @@ let metaInput = (id, keyType) =>
 module FieldInp = {
   @react.component
   let make = (~methodKeys, ~prefix, ~onChangeMethod) => {
+    let url = RescriptReactRouter.useUrl()
     let field = ReactFinalForm.useField(`${prefix}.lhs`).input
     let op = ReactFinalForm.useField(`${prefix}.comparison`).input
     let val = ReactFinalForm.useField(`${prefix}.value.value`).input
 
     let convertedValue = React.useMemo0(() => {
-      let keyDescriptionMapper = Window.getDescriptionCategory()->Identity.jsonToAnyType
+      let keyDescriptionMapper = switch url->RoutingUtils.urlToVariantMapper {
+      | PayoutRouting => Window.getPayoutDescriptionCategory()->Identity.jsonToAnyType
+      | _ => Window.getDescriptionCategory()->Identity.jsonToAnyType
+      }
       keyDescriptionMapper->LogicUtils.convertMapObjectToDict
     })
 
@@ -332,6 +336,7 @@ module FieldInp = {
 module RuleFieldBase = {
   @react.component
   let make = (~isFirst, ~id, ~isExpanded, ~onClick, ~wasm, ~isFrom3ds, ~isFromSurcharge) => {
+    let url = RescriptReactRouter.useUrl()
     let (hover, setHover) = React.useState(_ => false)
     let (keyType, setKeyType) = React.useState(_ => "")
     let (variantValues, setVariantValues) = React.useState(_ => [])
@@ -341,7 +346,10 @@ module RuleFieldBase = {
       let keyType = getWasmKeyType(wasm, value)
       let keyVariant = keyType->variantTypeMapper
       if keyVariant !== Number || keyVariant !== Metadata_value {
-        let variantValues = getWasmVariantValues(wasm, value)
+        let variantValues = switch url->RoutingUtils.urlToVariantMapper {
+        | PayoutRouting => getWasmPayoutVariantValues(wasm, value)
+        | _ => getWasmVariantValues(wasm, value)
+        }
         setVariantValues(_ => variantValues)
       }
       setKeyType(_ => keyType)
@@ -361,7 +369,10 @@ module RuleFieldBase = {
       } else if isFromSurcharge {
         Window.getSurchargeKeys()
       } else {
-        Window.getAllKeys()
+        switch url->RoutingUtils.urlToVariantMapper {
+        | PayoutRouting => Window.getAllPayoutKeys()
+        | _ => Window.getAllKeys()
+        }
       }
     })
 

@@ -269,6 +269,20 @@ let routing = permissionJson => {
   })
 }
 
+let payoutRouting = permissionJson => {
+  SubLevelLink({
+    name: "Payout Routing",
+    link: `/payoutrouting`,
+    access: permissionJson.workflowsView,
+    searchOptions: [
+      ("Manage default routing configuration", "/default"),
+      ("Create new volume based routing", "/volume"),
+      ("Create new rule based routing", "/rule"),
+      ("Manage smart routing", ""),
+    ],
+  })
+}
+
 let threeDs = permissionJson => {
   SubLevelLink({
     name: "3DS Decision Manager",
@@ -286,17 +300,27 @@ let surcharge = permissionJson => {
   })
 }
 
-let workflow = (isWorkflowEnabled, isSurchargeEnabled, ~permissionJson) => {
+let workflow = (isWorkflowEnabled, isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled) => {
   let routing = routing(permissionJson)
   let threeDs = threeDs(permissionJson)
+  let payoutRouting = payoutRouting(permissionJson)
   let surcharge = surcharge(permissionJson)
+
+  let defaultWorkFlow = [routing, threeDs]
+
+  if isSurchargeEnabled {
+    defaultWorkFlow->Array.push(surcharge)->ignore
+  }
+  if isPayoutEnabled {
+    defaultWorkFlow->Array.push(payoutRouting)->ignore
+  }
 
   isWorkflowEnabled
     ? Section({
         name: "Workflow",
         icon: "3ds",
         showSection: true,
-        links: isSurchargeEnabled ? [routing, threeDs, surcharge] : [routing, threeDs],
+        links: defaultWorkFlow,
       })
     : emptyComponent
 }
@@ -449,7 +473,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~permissionJson,
     ),
     default->analytics(userJourneyAnalyticsFlag, disputeAnalytics, ~permissionJson),
-    default->workflow(isSurchargeEnabled, ~permissionJson),
+    default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),
     recon->reconTag(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),
     settings(~isSampleDataEnabled=sampleData, ~permissionJson),
