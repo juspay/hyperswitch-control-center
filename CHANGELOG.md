@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.03.1
+
+### Bug Fixes
+
+- Billwerk icon addition ([#562](https://github.com/juspay/hyperswitch-control-center/pull/562)) ([`930a7ec`](https://github.com/juspay/hyperswitch-control-center/commit/930a7ecc11c30dc8e830cfb89fde99d5b83a43e6))
+
+**Full Changelog:** [`2024.04.03.0...2024.04.03.1`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.03.0...2024.04.03.1)
+
+- - -
+
 ## 2024.04.03.0
 
 ### Features
