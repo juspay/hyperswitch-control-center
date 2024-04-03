@@ -27,10 +27,8 @@ let operatorMapper: string => AdvancedRoutingTypes.operator = value => {
 
 let getRoutingTypeName = (routingType: AdvancedRoutingTypes.routing) => {
   switch routingType {
-  | SINGLE => "single"
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"
-  | COST => "cost"
   | PRIORITY => "rank"
   | DEFAULTFALLBACK => "default"
   | NO_ROUTING => ""

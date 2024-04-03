@@ -9,7 +9,6 @@ module TopLeftIcons = {
     | PRIORITY | DEFAULTFALLBACK => <Icon name="fallback" size=25 className="w-11" />
     | VOLUME_SPLIT => <Icon name="processorLevel" size=25 className="w-14" />
     | ADVANCED => <Icon name="parameterLevel" size=25 className="w-20" />
-    | COST => <Icon name="costLevel" size=25 className="w-14" />
     | _ => React.null
     }
   }
@@ -19,7 +18,6 @@ module TopRightIcons = {
   let make = (~routeType: routingType) => {
     switch routeType {
     | VOLUME_SPLIT | PRIORITY => <Icon name="quickSetup" size=25 className="w-28" />
-    | COST => <Icon name="comingSoon" size=35 className="!w-40" />
     | _ => React.null
     }
   }
@@ -28,41 +26,7 @@ module ActionButtons = {
   @react.component
   let make = (~routeType: routingType, ~onRedirectBaseUrl) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let showToast = ToastState.useShowToast()
-    let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-
-    let handleSubmitRequest = async _ => {
-      try {
-        let requestedBody =
-          [
-            ("rating", 5.0->JSON.Encode.float),
-            ("category", "Routing request"->JSON.Encode.string),
-            ("feedbacks", `Request for Cost based Routing`->JSON.Encode.string),
-          ]
-          ->LogicUtils.getJsonFromArrayOfJson
-          ->HSwitchUtils.getBodyForFeedBack()
-          ->JSON.Encode.object
-
-        let feedbackUrl = APIUtils.getURL(
-          ~entityName=USERS,
-          ~userType=#USER_DATA,
-          ~methodType=Post,
-          (),
-        )
-        let body = [("Feedback", requestedBody)]->LogicUtils.getJsonFromArrayOfJson
-        let _ = await updateDetails(feedbackUrl, body, Post, ())
-        showToast(
-          ~toastType=ToastSuccess,
-          ~message="Request submitted successfully!",
-          ~autoClose=false,
-          (),
-        )
-      } catch {
-      | Exn.Error(_e) =>
-        showToast(~message="Failed to submit request !", ~toastType=ToastState.ToastError, ())
-      }
-    }
 
     switch routeType {
     | PRIORITY
@@ -92,15 +56,6 @@ module ActionButtons = {
         }}
       />
 
-    | COST =>
-      <ACLButton
-        text={"I'm interested"}
-        access={userPermissionJson.merchantDetailsManage}
-        buttonType=Secondary
-        buttonSize={Small}
-        customButtonStyle="!w-fit !px-14"
-        onClick={_ => handleSubmitRequest()->ignore}
-      />
     | _ => React.null
     }
   }

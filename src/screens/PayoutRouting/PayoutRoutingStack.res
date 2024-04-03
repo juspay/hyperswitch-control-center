@@ -1,6 +1,6 @@
-open APIUtils
 @react.component
 let make = (~remainingPath, ~previewOnly=false) => {
+  open APIUtils
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
   let pathVar = url.path->List.toArray->Array.joinWith("/")
@@ -69,8 +69,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
         ->Array.map(Nullable.make)
 
       setRecords(_ => sortedHistoryRecords)
-      setScreenState(_ => PageLoaderWrapper.Success)
-
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) =>

@@ -1,7 +1,9 @@
-open RoutingTypes
-open RoutingUtils
 @react.component
 let make = (~routingType) => {
+  open LogicUtils
+  open RoutingTypes
+  open RoutingUtils
+
   let url = RescriptReactRouter.useUrl()
   let (currentRouting, setCurrentRouting) = React.useState(() => NO_ROUTING)
   let (id, setId) = React.useState(() => None)
@@ -16,7 +18,7 @@ let make = (~routingType) => {
 
   React.useEffect1(() => {
     let searchParams = url.search
-    let filtersFromUrl = LogicUtils.getDictFromUrlSearchParams(searchParams)->Dict.get("id")
+    let filtersFromUrl = getDictFromUrlSearchParams(searchParams)->Dict.get("id")
     setId(_ => filtersFromUrl)
     switch routingType->String.toLowerCase {
     | "rank" => setCurrentRouting(_ => PRIORITY)
@@ -26,10 +28,10 @@ let make = (~routingType) => {
     | _ => setCurrentRouting(_ => NO_ROUTING)
     }
     let isActive =
-      LogicUtils.getDictFromUrlSearchParams(searchParams)
+      getDictFromUrlSearchParams(searchParams)
       ->Dict.get("isActive")
       ->Option.getOr("")
-      ->LogicUtils.getBoolFromString(false)
+      ->getBoolFromString(false)
     setIsActive(_ => isActive)
     None
   }, [url.search])
@@ -56,7 +58,7 @@ let make = (~routingType) => {
         />
       | DEFAULTFALLBACK =>
         <DefaultRouting urlEntityName=PAYOUT_DEFAULT_FALLBACK baseUrlForRedirection />
-      | _ => <> </>
+      | _ => React.null
       }}
     </History.BreadCrumbWrapper>
   </div>

@@ -19,11 +19,9 @@ let getCurrentUTCTime = () => {
 
 let routingTypeMapper = routingType => {
   switch routingType {
-  | "single" => SINGLE
   | "priority" => PRIORITY
   | "volume_split" => VOLUME_SPLIT
   | "advanced" => ADVANCED
-  | "cost" => COST
   | "default" => DEFAULTFALLBACK
   | _ => NO_ROUTING
   }
@@ -31,10 +29,8 @@ let routingTypeMapper = routingType => {
 
 let routingTypeName = routingType => {
   switch routingType {
-  | SINGLE => "single"
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"
-  | COST => "cost"
   | PRIORITY => "rank"
   | DEFAULTFALLBACK => "default"
   | NO_ROUTING => ""
@@ -109,10 +105,6 @@ let getContent = routetype =>
   | ADVANCED => {
       heading: "Rule Based Configuration",
       subHeading: "Route traffic across processors with advanced logic rules on the basis of various payment parameters",
-    }
-  | COST => {
-      heading: "Cost Based Configuration",
-      subHeading: "Helps you optimise your overall payment costs with a single click by leveraging the differential processing fees across various processors",
     }
   | _ => {
       heading: "",

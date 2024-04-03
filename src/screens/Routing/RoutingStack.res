@@ -70,8 +70,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
       setRecords(_ => sortedHistoryRecords)
       setScreenState(_ => PageLoaderWrapper.Success)
-
-      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
