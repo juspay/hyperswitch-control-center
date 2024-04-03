@@ -286,7 +286,7 @@ module NestedSectionItem = {
               ? "border-white"
               : "border-transparent"} hover:bg-light_white`}
           onClick=toggleSectionExpansion>
-          <div className="flex flex-row items-center select-none min-w-max flex items-center gap-5">
+          <div className="flex-row items-center select-none min-w-max flex  gap-5">
             {if isSideBarExpanded {
               <div className=iconOuterClass>
                 <Icon size={getIconSize("medium")} name={section.icon} className=iconColor />
