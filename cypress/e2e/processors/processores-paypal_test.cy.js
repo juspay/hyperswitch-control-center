@@ -16,19 +16,19 @@ describe("Processors Create Module", () => {
     cy.get("[data-testid=paymentprocessors]").click({ force: true });
 
     cy.get("[data-testid=connect_a_test_processor]").contains(
-      "Connect a test processor",
+      "Connect a test processor"
     );
     cy.get("[data-testid=paypal_test]").click({ force: true });
     cy.get('input[name="connector_account_details.api_key"]').clear();
     cy.get('input[name="connector_label"]').clear();
 
     cy.get('input[name="connector_account_details.api_key"]').type(
-      "paypal_test_cypress_api_key",
+      "paypal_test_cypress_api_key"
     );
     cy.get('input[name="connector_label"]').type("paypal_test_cypress_label");
     cy.get("[data-button-for=connectAndProceed]").click({ force: true });
     cy.contains(
-      "NOTE:Please verify if the payment methods are turned on at the processor end as well.",
+      "NOTE:Please verify if the payment methods are turned on at the processor end as well."
     ).should("be.visible");
     cy.get("[data-testid=credit_mastercard]").click();
     cy.get("[data-testid=debit_select_all]")
@@ -86,10 +86,10 @@ describe("Processors Create Module", () => {
     cy.url().should("eq", "http://localhost:9000/connectors");
     cy.contains("Processors").should("be.visible");
     cy.contains(
-      "Connect and manage payment processors to enable payment acceptance",
+      "Connect a test processor and get started with testing your payments"
     ).should("be.visible");
     cy.get("[data-testid=connect_a_new_processor]").contains(
-      "Connect a new processor",
+      "Connect a new processor"
     );
     cy.get("[data-testid=search-processor]")
       .type("stripe", { force: true })

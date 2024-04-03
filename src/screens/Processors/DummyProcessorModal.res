@@ -17,6 +17,7 @@ let make = (
       modalHeading="Connect a Dummy Processor"
       showModal=processorModal
       setShowModal=setProcessorModal
+      closeOnOutsideClick=true
       modalClass="w-1/2 m-auto">
       <ProcessorCards
         connectorsAvailableForIntegration

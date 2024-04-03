@@ -77,12 +77,14 @@ let make = (~isPayoutFlow=false) => {
     <PageLoaderWrapper screenState>
       <RenderIf
         condition={configuredConnectors->Array.length == 0 && urlPrefix == "connectors/new"}>
-        <div className="flex flex-col md:flex-row pt-10 border rounded-md bg-white gap-4">
-          <div className="flex flex-col justify-evenly gap-8 pl-10 pb-10 pr-2 md:pr-0">
-            <div className="flex flex-col gap-2">
-              <p className={textStyle}>
-                {"No Test Credentials? Connect a Dummy Processor"->React.string}
-              </p>
+        <div
+          className="flex flex-col md:flex-row border rounded-md bg-white gap-4 shadow-generic_shadow">
+          <div className="flex flex-col justify-evenly gap-6 pl-10 pb-10 pt-10 pr-2 md:pr-0">
+            <div className="flex flex-col gap-2.5">
+              <div>
+                <p className={textStyle}> {"No Test Credentials?"->React.string} </p>
+                <p className={textStyle}> {"Connect a Dummy Processor"->React.string} </p>
+              </div>
               <p className={subtextStyle}>
                 {"Start simulating payments and refunds with a dummy processor setup."->React.string}
               </p>
@@ -100,8 +102,8 @@ let make = (~isPayoutFlow=false) => {
             />
           </div>
           <RenderIf condition={!isMobileView}>
-            <div className="h-30 md:w-[43rem] flex justify-end">
-              <img src="/assets/QuickStartImage.svg" />
+            <div className="h-30 md:w-[37rem] flex justify-end">
+              <img src="/assets/DummyConnectorImage.svg" />
             </div>
           </RenderIf>
         </div>
@@ -110,7 +112,7 @@ let make = (~isPayoutFlow=false) => {
         title={isPayoutFlow ? "Payout Processors" : `Payment Processors`}
         subTitle={isPayoutFlow
           ? "Connect and manage payout processors for disbursements and settlements"
-          : "Connect and manage payment processors to enable payment acceptance"}
+          : "Connect a test processor and get started with testing your payments"}
       />
       <RenderIf condition={showFeedbackModal}>
         <HSwitchFeedBackModal
@@ -133,7 +135,7 @@ let make = (~isPayoutFlow=false) => {
       </div>
       <RenderIf condition={configuredConnectors->Array.length > 0}>
         <LoadedTable
-          title="Previously Connected"
+          title="Connected Processors"
           actualData=filteredConnectorData
           totalResults={filteredConnectorData->Array.length}
           filters={<TableSearchFilter

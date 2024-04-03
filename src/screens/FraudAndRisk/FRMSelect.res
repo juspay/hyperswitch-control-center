@@ -182,7 +182,7 @@ let make = () => {
       </RenderIf>
       <RenderIf condition={configuredFRMs->Array.length > 0}>
         <LoadedTable
-          title="Previously Connected"
+          title="Connected Processors"
           actualData=filteredFRMData
           totalResults={filteredFRMData->Array.length}
           filters={<TableSearchFilter

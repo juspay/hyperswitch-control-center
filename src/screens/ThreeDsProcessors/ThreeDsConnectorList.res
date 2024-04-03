@@ -51,7 +51,7 @@ let make = () => {
         />
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
-            title="Previously Connected"
+            title="Connected Processors"
             actualData={configuredConnectors->Array.map(Nullable.make)}
             totalResults={configuredConnectors->Array.map(Nullable.make)->Array.length}
             resultsPerPage=20

@@ -25,15 +25,23 @@ module CantFindProcessor = {
   @react.component
   let make = (~showRequestConnectorBtn, ~setShowModal) => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-    let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
 
     <UIUtils.RenderIf condition={showRequestConnectorBtn}>
-      <ACLDiv
-        permission=userPermissionJson.merchantDetailsManage
+      <ACLButton
+        access={userPermissionJson.merchantDetailsManage}
+        text="Request a Processor"
+        buttonType={Transparent}
+        buttonSize={Small}
+        textStyle="text-jp-gray-900"
         onClick={_ => setShowModal(_ => true)}
-        className={`text-blue-500 underline underline-offset-4 font-medium ${cursorStyles}`}>
-        {"Can't find the processor of your choice?"->React.string}
-      </ACLDiv>
+        leftIcon={CustomIcon(
+          <Icon
+            name="new-window"
+            size=16
+            className="text-jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
+          />,
+        )}
+      />
     </UIUtils.RenderIf>
   }
 }
@@ -92,35 +100,38 @@ let make = (
           {heading->React.string}
         </h2>
       </AddDataAttributes>
-      <div className="flex w-full">
-        <div className="flex w-3/5 justify-start">
-          <RenderIf condition={showSearch}>
-            <AddDataAttributes attributes=[("data-testid", "search-processor")]>
-              <input
-                ref={searchRef->ReactDOM.Ref.domRef}
-                type_="text"
-                value=searchedConnector
-                onChange=handleSearch
-                placeholder="Search a processor"
-                className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border mr-4`}
-                id="search-processor"
-              />
-            </AddDataAttributes>
-          </RenderIf>
-          <RenderIf condition={showDummyConnectorButton && urlPrefix == "connectors/new"}>
-            <ACLButton
-              access={userPermissionJson.connectorsManage}
-              text="+ Connect a Dummy Processor"
-              buttonType={Transparent}
-              buttonSize={Small}
-              textStyle="text-jp-gray-900"
-              onClick={_ => setProcessorModal(_ => true)}
+      <div className="flex w-full justify-start gap-4">
+        <RenderIf condition={showSearch}>
+          <AddDataAttributes attributes=[("data-testid", "search-processor")]>
+            <input
+              ref={searchRef->ReactDOM.Ref.domRef}
+              type_="text"
+              value=searchedConnector
+              onChange=handleSearch
+              placeholder="Search a processor"
+              className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border`}
+              id="search-processor"
             />
-          </RenderIf>
-        </div>
-        <div className="flex w-2/5 justify-end">
-          <CantFindProcessor showRequestConnectorBtn setShowModal />
-        </div>
+          </AddDataAttributes>
+        </RenderIf>
+        <RenderIf condition={showDummyConnectorButton && urlPrefix == "connectors/new"}>
+          <ACLButton
+            access={userPermissionJson.connectorsManage}
+            leftIcon={CustomIcon(
+              <Icon
+                name="plus"
+                size=12
+                className="text-jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
+              />,
+            )}
+            text="Connect a Dummy Processor"
+            buttonType={Transparent}
+            buttonSize={Small}
+            textStyle="text-jp-gray-900"
+            onClick={_ => setProcessorModal(_ => true)}
+          />
+        </RenderIf>
+        <CantFindProcessor showRequestConnectorBtn setShowModal />
       </div>
       <RenderIf condition={connectorList->Array.length > 0}>
         <div
@@ -133,7 +144,7 @@ let make = (
 
             <ACLDiv
               permission={userPermissionJson.connectorsManage}
-              onClick={_ => handleClick(connectorName)}
+              onClick={_ => ()}
               key={i->string_of_int}
               className="border p-6 gap-4 bg-white rounded flex flex-col justify-between"
               dataAttrStr=connectorName>
@@ -149,6 +160,7 @@ let make = (
               <ACLButton
                 access={userPermissionJson.connectorsManage}
                 text="+ Connect"
+                onClick={_ => handleClick(connectorName)}
                 buttonType={Transparent}
                 buttonSize={Small}
                 textStyle="text-jp-gray-900"
@@ -181,35 +193,38 @@ let make = (
           {heading->React.string}
         </h2>
       </AddDataAttributes>
-      <div className="flex w-full">
-        <div className="flex w-3/5 justify-start">
-          <RenderIf condition={showSearch}>
-            <input
-              {...DOMUtils.domProps({
-                "data-testid": "search-processor",
-              })}
-              ref={searchRef->ReactDOM.Ref.domRef}
-              type_="text"
-              value=searchedConnector
-              onChange=handleSearch
-              placeholder="Search a processor"
-              className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border mr-4`}
-            />
-          </RenderIf>
-          <RenderIf condition={showDummyConnectorButton && urlPrefix == "connectors/new"}>
-            <ACLButton
-              access={userPermissionJson.connectorsManage}
-              text="+ Connect a Dummy Processor"
-              buttonType={Transparent}
-              buttonSize={Small}
-              textStyle="text-jp-gray-900"
-              onClick={_ => setProcessorModal(_ => true)}
-            />
-          </RenderIf>
-        </div>
-        <div className="flex w-2/5 justify-end">
-          <CantFindProcessor showRequestConnectorBtn setShowModal />
-        </div>
+      <div className="flex w-full justify-start gap-4">
+        <RenderIf condition={showSearch}>
+          <input
+            {...DOMUtils.domProps({
+              "data-testid": "search-processor",
+            })}
+            ref={searchRef->ReactDOM.Ref.domRef}
+            type_="text"
+            value=searchedConnector
+            onChange=handleSearch
+            placeholder="Search a processor"
+            className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border mr-4`}
+          />
+        </RenderIf>
+        <RenderIf condition={showDummyConnectorButton && urlPrefix == "connectors/new"}>
+          <ACLButton
+            access={userPermissionJson.connectorsManage}
+            leftIcon={CustomIcon(
+              <Icon
+                name="plus"
+                size=12
+                className="text-jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
+              />,
+            )}
+            text="Connect a Dummy Processor"
+            buttonType={Transparent}
+            buttonSize={Small}
+            textStyle="text-jp-gray-900"
+            onClick={_ => setProcessorModal(_ => true)}
+          />
+        </RenderIf>
+        <CantFindProcessor showRequestConnectorBtn setShowModal />
       </div>
       <RenderIf condition={connectorList->Array.length > 0}>
         <div className="bg-white rounded-md flex gap-2 flex-wrap p-4 border">
