@@ -115,10 +115,10 @@ module SetupWebhookUser = {
 let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.previewStates>) => {
   open APIUtils
   open ProdOnboardingTypes
+  let {font: {textColor}} = React.useContext(ConfigContext.configContext)
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let merchantDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantDetailsValueAtom)
-
   let publishablekeyMerchant = merchantDetails.publishable_key
   let paymentResponseHashKey = merchantDetails.payment_response_hash_key->Option.getOr("")
 
@@ -230,7 +230,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
           {"Not integrated with Hyperswitch yet? Visit our"->React.string}
         </p>
         <p
-          className={`${ProdOnboardingUtils.useHighlightedText()} cursor-pointer`}
+          className={`text-base font-normal ${textColor.primaryNormal} underline cursor-pointer`}
           onClick={_ => Window._open("https://hyperswitch.io/docs")}>
           {"Developer Docs"->React.string}
         </p>
