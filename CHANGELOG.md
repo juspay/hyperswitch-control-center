@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.03.0
+
+### Features
+
+- Feat: payout routing changes ([#551](https://github.com/juspay/hyperswitch-control-center/pull/551)) ([`66d98cb`](https://github.com/juspay/hyperswitch-control-center/commit/66d98cb0b5da0feed856b6c8737ba942b1194dc0))
+- Feat: accept country and currency while configuring a connector ([#495](https://github.com/juspay/hyperswitch-control-center/pull/495)) ([`9c1b389`](https://github.com/juspay/hyperswitch-control-center/commit/9c1b389d6c2661147a146b9bee7ca79cdf38f7d9))
+
+### Bug Fixes
+
+- Billwerk connector addition ([#561](https://github.com/juspay/hyperswitch-control-center/pull/561)) ([`c577c6c`](https://github.com/juspay/hyperswitch-control-center/commit/c577c6ce5bcac2a6e1a8bdcc21a34ee8b6011f43))
+
+**Full Changelog:** [`2024.04.02.0...2024.04.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.02.0...2024.04.03.0)
+
+- - -
+
 ## 2024.04.02.0
 
 ### Bug Fixes
