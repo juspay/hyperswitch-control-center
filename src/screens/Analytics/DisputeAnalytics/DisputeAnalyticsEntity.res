@@ -15,6 +15,10 @@ let colMapper = (col: disputeColType) => {
   | DisputeStage => "dispute_stage"
   | TotalAmountDisputed => "total_amount_disputed"
   | TotalDisputeLostAmount => "total_dispute_lost_amount"
+  | DisputesChallenged => "disputes_challenged"
+  | DisputesWon => "disputes_won"
+  | DisputesLost => "disputes_lost"
+  | TotalDispute => "total_dispute"
   | NoCol => ""
   }
 }
@@ -25,6 +29,10 @@ let reverseColMapper = (column: string) => {
   | "total_dispute_lost_amount" => TotalDisputeLostAmount
   | "connector" => Connector
   | "dispute_stage" => DisputeStage
+  | "disputes_challenged" => DisputesChallenged
+  | "disputes_won" => DisputesWon
+  | "disputes_lost" => DisputesLost
+  | "total_dispute" => TotalDispute
   | _ => NoCol
   }
 }
@@ -45,6 +53,10 @@ let tableItemToObjMapper: Dict.t<JSON.t> => disputeTableType = dict => {
     dispute_stage: dict->getString(DisputeStage->colMapper, "Other"),
     total_amount_disputed: dict->getFloat(TotalAmountDisputed->colMapper, 0.0),
     total_dispute_lost_amount: dict->getFloat(TotalDisputeLostAmount->colMapper, 0.0),
+    disputes_challenged: dict->getInt(DisputesChallenged->colMapper, 0),
+    disputes_won: dict->getInt(DisputesWon->colMapper, 0),
+    disputes_lost: dict->getInt(DisputesLost->colMapper, 0),
+    total_dispute: dict->getInt(TotalDispute->colMapper, 0),
   }
 }
 
@@ -75,6 +87,20 @@ let getUpdatedHeading = (
         ~showSort=false,
         (),
       )
+    | DisputesChallenged =>
+      Table.makeHeaderInfo(
+        ~key,
+        ~title="Disputes Challenged",
+        ~dataType=NumericType,
+        ~showSort=false,
+        (),
+      )
+    | DisputesWon =>
+      Table.makeHeaderInfo(~key, ~title="Disputes Won", ~dataType=NumericType, ~showSort=false, ())
+    | DisputesLost =>
+      Table.makeHeaderInfo(~key, ~title="Disputes Lost", ~dataType=NumericType, ~showSort=false, ())
+    | TotalDispute =>
+      Table.makeHeaderInfo(~key, ~title="Total Dispute", ~dataType=NumericType, ~showSort=false, ())
     | NoCol => Table.makeHeaderInfo(~key, ~title="", ~showSort=false, ())
     }
   }
@@ -93,6 +119,11 @@ let getCell = (disputeTable: disputeTableType, colType): Table.cell => {
     Numeric(disputeTable.total_dispute_lost_amount /. 100.00, usaNumberAbbreviation)
   | Connector => Text(disputeTable.connector)
   | DisputeStage => Text(disputeTable.dispute_stage)
+  | DisputesChallenged =>
+    Numeric(disputeTable.disputes_challenged->Int.toFloat, usaNumberAbbreviation)
+  | DisputesWon => Numeric(disputeTable.disputes_won->Int.toFloat, usaNumberAbbreviation)
+  | DisputesLost => Numeric(disputeTable.disputes_lost->Int.toFloat, usaNumberAbbreviation)
+  | TotalDispute => Numeric(disputeTable.total_dispute->Int.toFloat, usaNumberAbbreviation)
   | NoCol => Text("")
   }
 }
@@ -122,11 +153,19 @@ let disputeTableEntity = EntityType.makeEntity(
 let singleStateInitialValue = {
   total_amount_disputed: 0.0,
   total_dispute_lost_amount: 0.0,
+  disputes_challenged: 0,
+  disputes_won: 0,
+  disputes_lost: 0,
+  total_dispute: 0,
 }
 
 let singleStateSeriesInitialValue = {
   total_amount_disputed: 0.0,
   total_dispute_lost_amount: 0.0,
+  disputes_challenged: 0,
+  disputes_won: 0,
+  disputes_lost: 0,
+  total_dispute: 0,
   time_series: "",
 }
 
@@ -136,6 +175,10 @@ let singleStateItemToObjMapper = json => {
   ->Option.map(dict => {
     total_amount_disputed: dict->getFloat("total_amount_disputed", 0.0),
     total_dispute_lost_amount: dict->getFloat("total_dispute_lost_amount", 0.0),
+    disputes_challenged: dict->getInt("disputes_challenged", 0),
+    disputes_won: dict->getInt("disputes_won", 0),
+    disputes_lost: dict->getInt("disputes_lost", 0),
+    total_dispute: dict->getInt("total_dispute", 0),
   })
   ->Option.getOr({
     singleStateInitialValue
@@ -148,6 +191,10 @@ let singleStateSeriesItemToObjMapper = json => {
   ->Option.map(dict => {
     total_amount_disputed: dict->getFloat("total_amount_disputed", 0.0),
     total_dispute_lost_amount: dict->getFloat("total_dispute_lost_amount", 0.0),
+    disputes_challenged: dict->getInt("disputes_challenged", 0),
+    disputes_won: dict->getInt("disputes_won", 0),
+    disputes_lost: dict->getInt("disputes_lost", 0),
+    total_dispute: dict->getInt("total_dispute", 0),
     time_series: dict->getString("time_bucket", ""),
   })
   ->Option.getOr({
@@ -169,11 +216,22 @@ let timeSeriesObjMapper = json =>
 type colT =
   | TotalAmountDisputed
   | TotalDisputeLostAmount
+  | DisputesChallenged
+  | DisputesWon
+  | DisputesLost
+  | TotalDispute
 
 let getColumns: unit => array<DynamicSingleStat.columns<colT>> = () => [
   {
     sectionName: "",
-    columns: [TotalAmountDisputed, TotalDisputeLostAmount],
+    columns: [
+      TotalAmountDisputed,
+      TotalDisputeLostAmount,
+      DisputesChallenged,
+      DisputesWon,
+      DisputesLost,
+      TotalDispute,
+    ],
   },
 ]
 
@@ -203,6 +261,26 @@ let constructData = (
     singlestatTimeseriesData->Array.map(ob => (
       ob.time_series->DateTimeUtils.parseAsFloat,
       ob.total_dispute_lost_amount /. 100.00,
+    ))
+  | "disputes_challenged" =>
+    singlestatTimeseriesData->Array.map(ob => (
+      ob.time_series->DateTimeUtils.parseAsFloat,
+      ob.disputes_challenged->Int.toFloat,
+    ))
+  | "disputes_won" =>
+    singlestatTimeseriesData->Array.map(ob => (
+      ob.time_series->DateTimeUtils.parseAsFloat,
+      ob.disputes_won->Int.toFloat,
+    ))
+  | "disputes_lost" =>
+    singlestatTimeseriesData->Array.map(ob => (
+      ob.time_series->DateTimeUtils.parseAsFloat,
+      ob.disputes_lost->Int.toFloat,
+    ))
+  | "total_dispute" =>
+    singlestatTimeseriesData->Array.map(ob => (
+      ob.time_series->DateTimeUtils.parseAsFloat,
+      ob.total_dispute->Int.toFloat,
     ))
   | _ => []
   }
@@ -250,6 +328,74 @@ let getStatData = (
       statType: "Volume",
       showDelta: false,
     }
+  | DisputesChallenged => {
+      title: "Disputes Challenged",
+      tooltipText: "Total number of disputes challenged",
+      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+        singleStatData.disputes_challenged->Int.toFloat,
+        deltaTimestampData.currentSr,
+      ),
+      value: singleStatData.disputes_challenged->Int.toFloat,
+      delta: {
+        Js.Float.fromString(
+          Float.toFixedWithPrecision(singleStatData.disputes_challenged->Int.toFloat, ~digits=2),
+        )
+      },
+      data: constructData("disputes_challenged", timeSeriesData),
+      statType: "Volume",
+      showDelta: false,
+    }
+  | DisputesWon => {
+      title: `Disputes Won`,
+      tooltipText: "Total number of disputes challenged and won",
+      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+        singleStatData.disputes_won->Int.toFloat,
+        deltaTimestampData.currentSr,
+      ),
+      value: singleStatData.disputes_won->Int.toFloat,
+      delta: {
+        Js.Float.fromString(
+          Float.toFixedWithPrecision(singleStatData.disputes_won->Int.toFloat, ~digits=2),
+        )
+      },
+      data: constructData("disputes_won", timeSeriesData),
+      statType: "Volume",
+      showDelta: false,
+    }
+  | DisputesLost => {
+      title: `Disputes Lost`,
+      tooltipText: "Total number of disputes lost",
+      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+        singleStatData.disputes_lost->Int.toFloat,
+        deltaTimestampData.currentSr,
+      ),
+      value: singleStatData.disputes_lost->Int.toFloat,
+      delta: {
+        Js.Float.fromString(
+          Float.toFixedWithPrecision(singleStatData.disputes_lost->Int.toFloat, ~digits=2),
+        )
+      },
+      data: constructData("disputes_lost", timeSeriesData),
+      statType: "Volume",
+      showDelta: false,
+    }
+  | TotalDispute => {
+      title: "Total Dispute",
+      tooltipText: "Total number of disputes",
+      deltaTooltipComponent: AnalyticsUtils.singlestatDeltaTooltipFormat(
+        singleStatData.total_dispute->Int.toFloat,
+        deltaTimestampData.currentSr,
+      ),
+      value: singleStatData.total_dispute->Int.toFloat,
+      delta: {
+        Js.Float.fromString(
+          Float.toFixedWithPrecision(singleStatData.total_dispute->Int.toFloat, ~digits=2),
+        )
+      },
+      data: constructData("total_dispute", timeSeriesData),
+      statType: "Volume",
+      showDelta: false,
+    }
   }
 }
 
@@ -281,6 +427,38 @@ let metricsConfig: array<LineChartUtils.metricsConfig> = [
     metric_name_db: "total_dispute_lost_amount",
     metric_label: "Total Dispute Lost Amount",
     metric_type: Amount,
+    thresholdVal: None,
+    step_up_threshold: None,
+    legendOption: (Average, Overall),
+  },
+  {
+    metric_name_db: "disputes_challenged",
+    metric_label: "Disputes Challenged",
+    metric_type: Volume,
+    thresholdVal: None,
+    step_up_threshold: None,
+    legendOption: (Current, Overall),
+  },
+  {
+    metric_name_db: "disputes_won",
+    metric_label: "Disputes Won",
+    metric_type: Volume,
+    thresholdVal: None,
+    step_up_threshold: None,
+    legendOption: (Average, Overall),
+  },
+  {
+    metric_name_db: "disputes_lost",
+    metric_label: "Disputes Lost",
+    metric_type: Volume,
+    thresholdVal: None,
+    step_up_threshold: None,
+    legendOption: (Current, Overall),
+  },
+  {
+    metric_name_db: "total_dispute",
+    metric_label: "Total Dispute",
+    metric_type: Volume,
     thresholdVal: None,
     step_up_threshold: None,
     legendOption: (Average, Overall),

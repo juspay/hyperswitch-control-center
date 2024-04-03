@@ -122,27 +122,50 @@ type disputeColType =
   | DisputeStage
   | TotalAmountDisputed
   | TotalDisputeLostAmount
+  | DisputesChallenged
+  | DisputesWon
+  | DisputesLost
+  | TotalDispute
   | NoCol
 
 let defaultDisputeColumns = [Connector, DisputeStage]
 
-let allDisputeColumns = [TotalAmountDisputed, TotalDisputeLostAmount]
+let allDisputeColumns = [
+  TotalAmountDisputed,
+  TotalDisputeLostAmount,
+  DisputesChallenged,
+  DisputesWon,
+  DisputesLost,
+  TotalDispute,
+]
 
 type disputeTableType = {
   connector: string,
   dispute_stage: string,
   total_amount_disputed: float,
   total_dispute_lost_amount: float,
+  disputes_challenged: int,
+  disputes_won: int,
+  disputes_lost: int,
+  total_dispute: int,
 }
 
 type disputeSingleStateType = {
   total_amount_disputed: float,
   total_dispute_lost_amount: float,
+  disputes_challenged: int,
+  disputes_won: int,
+  disputes_lost: int,
+  total_dispute: int,
 }
 
 type disputeSingleSeriesState = {
   total_amount_disputed: float,
   total_dispute_lost_amount: float,
+  disputes_challenged: int,
+  disputes_won: int,
+  disputes_lost: int,
+  total_dispute: int,
   time_series: string,
 }
 
