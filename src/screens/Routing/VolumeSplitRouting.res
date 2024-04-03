@@ -17,12 +17,14 @@ module VolumeRoutingView = {
     ~setFormState,
     ~initialValues,
     ~onSubmit,
+    ~urlEntityName,
+    ~connectorList,
+    ~baseUrlForRedirection,
   ) => {
     let updateDetails = useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
     let listLength = connectors->Array.length
     let (showModal, setShowModal) = React.useState(_ => false)
-    let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
     let gateways =
       initialValues
@@ -33,10 +35,15 @@ module VolumeRoutingView = {
     let handleActivateConfiguration = async activatingId => {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
+        let activateRuleURL = getURL(
+          ~entityName=urlEntityName,
+          ~methodType=Post,
+          ~id=activatingId,
+          (),
+        )
         let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
         showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
-        RescriptReactRouter.replace(`/routing?`)
+        RescriptReactRouter.replace(`${baseUrlForRedirection}?`)
         setScreenState(_ => Success)
       } catch {
       | Exn.Error(e) =>
@@ -44,7 +51,7 @@ module VolumeRoutingView = {
         | Some(message) =>
           if message->String.includes("IR_16") {
             showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
-            RescriptReactRouter.replace(`/routing`)
+            RescriptReactRouter.replace(baseUrlForRedirection)
             setScreenState(_ => Success)
           } else {
             showToast(
@@ -62,11 +69,15 @@ module VolumeRoutingView = {
     let handleDeactivateConfiguration = async _ => {
       try {
         setScreenState(_ => Loading)
-        let deactivateRoutingURL = `${getURL(~entityName=ROUTING, ~methodType=Post, ())}/deactivate`
+        let deactivateRoutingURL = `${getURL(
+            ~entityName=urlEntityName,
+            ~methodType=Post,
+            (),
+          )}/deactivate`
         let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
         let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
         showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
-        RescriptReactRouter.replace(`/routing?`)
+        RescriptReactRouter.replace(`${baseUrlForRedirection}?`)
         setScreenState(_ => Success)
       } catch {
       | Exn.Error(e) =>
@@ -193,7 +204,13 @@ module VolumeRoutingView = {
 }
 
 @react.component
-let make = (~routingRuleId, ~isActive) => {
+let make = (
+  ~routingRuleId,
+  ~isActive,
+  ~connectorList: array<ConnectorTypes.connectorPayload>,
+  ~urlEntityName,
+  ~baseUrlForRedirection,
+) => {
   let updateDetails = useUpdateMethod(~showErrorToast=false, ())
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
@@ -206,13 +223,12 @@ let make = (~routingRuleId, ~isActive) => {
   let (connectors, setConnectors) = React.useState(_ => [])
   let currentTabName = Recoil.useRecoilValueFromAtom(HyperswitchAtom.currentTabNameRecoilAtom)
   let showToast = ToastState.useShowToast()
-  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let getConnectorsList = () => {
     setConnectors(_ => connectorList)
   }
 
   let activeRoutingDetails = async () => {
-    let routingUrl = getURL(~entityName=ROUTING, ~methodType=Get, ~id=routingRuleId, ())
+    let routingUrl = getURL(~entityName=urlEntityName, ~methodType=Get, ~id=routingRuleId, ())
     let routingJson = await fetchDetails(routingUrl)
     let routingJsonToDict = routingJson->getDictFromJsonObject
     setFormState(_ => ViewConfig)
@@ -293,7 +309,7 @@ let make = (~routingRuleId, ~isActive) => {
   let onSubmit = async (values, isSaveRule) => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let updateUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
+      let updateUrl = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=None, ())
       let res = await updateDetails(updateUrl, values, Post, ())
       showToast(
         ~message="Successfully Created a new Configuration !",
@@ -344,6 +360,9 @@ let make = (~routingRuleId, ~isActive) => {
             profile
             setFormState
             onSubmit
+            urlEntityName
+            connectorList
+            baseUrlForRedirection
           />
         </UIUtils.RenderIf>
         <FormValuesSpy />

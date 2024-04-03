@@ -30,6 +30,7 @@ type processorTypes =
   | CHECKOUT
   | BRAINTREE
   | BANKOFAMERICA
+  | BILLWERK
   | AUTHORIZEDOTNET
   | STRIPE
   | KLARNA

@@ -16,6 +16,7 @@ module SimpleRoutingView = {
     ~connectors,
     ~setFormState,
     ~isActive,
+    ~baseUrlForRedirection,
   ) => {
     let {backgroundColor} = React.useContext(ConfigContext.configContext)
     let nameFromForm = ReactFinalForm.useField(`name`).input.value
@@ -54,7 +55,7 @@ module SimpleRoutingView = {
           ~toastType=ToastState.ToastSuccess,
           (),
         )
-        RescriptReactRouter.replace(`/routing`)
+        RescriptReactRouter.replace(baseUrlForRedirection)
         setScreenState(_ => Success)
       } catch {
       | Exn.Error(e) =>
@@ -72,7 +73,7 @@ module SimpleRoutingView = {
           ~toastType=ToastState.ToastSuccess,
           (),
         )
-        RescriptReactRouter.replace(`/routing`)
+        RescriptReactRouter.replace(baseUrlForRedirection)
         setScreenState(_ => Success)
       } catch {
       | Exn.Error(e) =>
@@ -213,7 +214,12 @@ module SimpleRoutingView = {
   }
 }
 @react.component
-let make = (~routingRuleId, ~isActive) => {
+let make = (
+  ~routingRuleId,
+  ~isActive,
+  ~connectorList: array<ConnectorTypes.connectorPayload>,
+  ~baseUrlForRedirection,
+) => {
   open LogicUtils
   let fetchDetails = useGetMethod()
   let (formState, setFormState) = React.useState(_ => CreateConfig)
@@ -223,7 +229,6 @@ let make = (~routingRuleId, ~isActive) => {
   let (showModal, setShowModal) = React.useState(_ => false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make())
   let (connectors, setConnectors) = React.useState(_ => [])
-  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
   let activeRoutingDetails = async () => {
     try {
@@ -303,6 +308,7 @@ let make = (~routingRuleId, ~isActive) => {
                 setFormState
                 routingId=routingRuleId
                 isActive
+                baseUrlForRedirection
               />
             } else {
               React.null
