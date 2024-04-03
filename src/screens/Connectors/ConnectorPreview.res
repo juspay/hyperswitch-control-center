@@ -228,6 +228,19 @@ module ConnectorSummaryGrid = {
       <div className="grid grid-cols-4  my-12">
         <h4 className="text-lg font-semibold"> {"PMTs"->React.string} </h4>
         <div className="flex flex-col gap-6 col-span-3">
+          <div
+            className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
+            <Icon name="info-vacent" size=18 />
+            <p>
+              {"Improve conversion rate by conditionally managing PMTs visibilityon checkout . Visit Settings >"->React.string}
+              <a
+                onClick={_ => RescriptReactRouter.push("/configure-pmts")}
+                target="_blank"
+                className="text-blue-500 underline cursor-pointer">
+                {"Configure PMTs at Checkout"->React.string}
+              </a>
+            </p>
+          </div>
           {connectorInfo.payment_methods_enabled
           ->Array.mapWithIndex((field, index) => {
             <InfoField

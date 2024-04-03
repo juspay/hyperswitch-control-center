@@ -368,8 +368,17 @@ let businessProfiles = () => {
     searchOptions: [("Configure business profiles", "")],
   })
 }
+
+let configurePMTs = permissionJson => {
+  SubLevelLink({
+    name: "Configure PMTs",
+    link: `/configure-pmts`,
+    access: permissionJson.connectorsView,
+    searchOptions: [("Configure payment methods", "Configure country currency")],
+  })
+}
 let settings = (~isSampleDataEnabled, ~permissionJson) => {
-  let settingsLinkArray = [businessDetails(), businessProfiles()]
+  let settingsLinkArray = [businessDetails(), businessProfiles(), configurePMTs(permissionJson)]
 
   if isSampleDataEnabled {
     settingsLinkArray->Array.push(accountSettings(permissionJson))->ignore
