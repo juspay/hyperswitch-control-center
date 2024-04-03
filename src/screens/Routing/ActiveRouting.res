@@ -139,10 +139,9 @@ module ActiveSection = {
           <UIUtils.RenderIf condition={profileId->isNonEmptyString}>
             <div className="flex gap-2">
               <HelperComponents.BusinessProfileComponent
-                profile_id={profileId}
-                className="text-lightgray_background text-base opacity-50 text-sm"
+                profile_id={profileId} className="text-lightgray_background  opacity-50 text-sm"
               />
-              <p className="text-lightgray_background text-base opacity-50 text-sm">
+              <p className="text-lightgray_background  opacity-50 text-sm">
                 {`: ${profileId}`->React.string}
               </p>
             </div>
