@@ -23,6 +23,7 @@ export function getResponsePayload(a: number, b: number): void;
 export function getAllPayoutKeys(a: number): void;
 export function getPayoutVariantValues(a: number, b: number, c: number): void;
 export function getPayoutDescriptionCategory(a: number): void;
+export function ring_core_0_17_8_bn_mul_mont(a: number, b: number, c: number, d: number, e: number, f: number): void;
 export function parse(a: number, b: number, c: number): void;
 export function parseToString(a: number, b: number, c: number): void;
 export function __wbindgen_export_0(a: number, b: number): number;

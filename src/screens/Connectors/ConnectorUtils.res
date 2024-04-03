@@ -373,7 +373,7 @@ let placetopayInfo = {
 }
 
 let billwerkInfo = {
-  description: "Reliable payment processor facilitating secure transactions online for businesses, ensuring seamless transactions.",
+  description: "Billwerk+ Pay is an acquirer independent payment gateway that helps you get the best acquirer rates, select a wide variety of payment methods.",
 }
 
 let getConnectorNameString = (connector: processorTypes) =>
