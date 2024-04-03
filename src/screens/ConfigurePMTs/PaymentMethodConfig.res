@@ -49,13 +49,8 @@ let renderValueInp = (
 ) => {
   <PmtConfigInp options fieldsArray />
 }
-type valueInput = {
-  label: string,
-  name1: string,
-  name2: string,
-  options: array<SelectBox.dropdownOption>,
-}
-let valueInput = (inputArg: valueInput) => {
+
+let valueInput = (inputArg: PaymentMethodConfigTypes.valueInput) => {
   open FormRenderer
   makeMultiInputFieldInfoOld(
     ~label=`${inputArg.label}`,
@@ -106,8 +101,7 @@ let make = (
         ->Array.filter(item =>
           item.merchant_connector_id === paymentMethodConfig.merchant_connector_id
         )
-        ->Array.get(0)
-        ->Option.getOr(Dict.make()->ConnectorListMapper.getProcessorPayloadType)
+        ->getValueFromArray(0, Dict.make()->ConnectorListMapper.getProcessorPayloadType)
       let encodeConnectorPayload = data->PaymentMethodConfigUtils.encodeConnectorPayload
       let res = await fetchDetails(
         `${paymentMethoConfigUrl}?connector=${connector_name}&paymentMethodType=${payment_method_type}`,

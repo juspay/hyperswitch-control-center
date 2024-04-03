@@ -337,7 +337,7 @@ let configurePMTs = permissionJson => {
     name: "Configure PMTs",
     link: `/configure-pmts`,
     access: permissionJson.connectorsView,
-    searchOptions: [("Configure payment methods", "")],
+    searchOptions: [("Configure payment methods", "Configure country currency")],
   })
 }
 let settings = (~isSampleDataEnabled, ~permissionJson) => {

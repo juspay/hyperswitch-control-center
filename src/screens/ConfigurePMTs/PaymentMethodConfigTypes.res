@@ -22,3 +22,10 @@ type paymentMethodConfigFilters = {
   paymentMethod: option<array<string>>,
   paymentMethodType: option<array<string>>,
 }
+
+type valueInput = {
+  label: string,
+  name1: string,
+  name2: string,
+  options: array<SelectBox.dropdownOption>,
+}
