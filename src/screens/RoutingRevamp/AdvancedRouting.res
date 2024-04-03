@@ -351,6 +351,7 @@ module RuleBasedUI = {
     ~setCurrentRouting,
     ~baseUrlForRedirection,
   ) => {
+    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
     let rulesJsonPath = `algorithm.data.rules`
     let ruleInput = ReactFinalForm.useField(rulesJsonPath).input
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
