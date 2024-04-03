@@ -23,12 +23,15 @@ let payoutConnectorList: array<connectorTypes> = [Processors(ADYEN), Processors(
 let threedsAuthenticatorList: array<connectorTypes> = [ThreeDsAuthenticator(THREEDSECUREIO)]
 
 let connectorList: array<connectorTypes> = [
+  Processors(STRIPE),
+  Processors(PAYPAL),
   Processors(ACI),
   Processors(ADYEN),
   Processors(AIRWALLEX),
   Processors(AUTHORIZEDOTNET),
   Processors(BANKOFAMERICA),
   Processors(BAMBORA),
+  Processors(BILLWERK),
   Processors(BITPAY),
   Processors(BLUESNAP),
   Processors(BRAINTREE),
@@ -54,21 +57,19 @@ let connectorList: array<connectorTypes> = [
   Processors(NUVEI),
   Processors(OPENNODE),
   Processors(PAYME),
-  Processors(PAYPAL),
   Processors(PAYU),
-  Processors(PLACETOPAY),
   Processors(POWERTRANZ),
   Processors(PROPHETPAY),
   Processors(RAPYD),
   Processors(SHIFT4),
   Processors(STAX),
-  Processors(STRIPE),
   Processors(TRUSTPAY),
   Processors(TSYS),
   Processors(VOLT),
   Processors(WORLDLINE),
   Processors(WORLDPAY),
   Processors(ZEN),
+  Processors(PLACETOPAY),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -367,8 +368,12 @@ let bankOfAmericaInfo = {
   description: "A top financial firm offering banking, investing, and risk solutions to individuals and businesses.",
 }
 
-let placetopay = {
+let placetopayInfo = {
   description: "Reliable payment processor facilitating secure transactions online for businesses, ensuring seamless transactions.",
+}
+
+let billwerkInfo = {
+  description: "Billwerk+ Pay is an acquirer independent payment gateway that helps you get the best acquirer rates, select a wide variety of payment methods.",
 }
 
 let getConnectorNameString = (connector: processorTypes) =>
@@ -425,6 +430,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | BANKOFAMERICA => "bankofamerica"
   | HELCIM => "helcim"
   | PLACETOPAY => "placetopay"
+  | BILLWERK => "billwerk"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -497,6 +503,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "prophetpay" => Processors(PROPHETPAY)
     | "helcim" => Processors(HELCIM)
     | "placetopay" => Processors(PLACETOPAY)
+    | "billwerk" => Processors(BILLWERK)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -561,7 +568,8 @@ let getProcessorInfo = connector => {
   | PROPHETPAY => prophetpayInfo
   | BANKOFAMERICA => bankOfAmericaInfo
   | HELCIM => helcimInfo
-  | PLACETOPAY => placetopay
+  | PLACETOPAY => placetopayInfo
+  | BILLWERK => billwerkInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -1241,6 +1249,7 @@ let getDisplayNameForProcessor = connector =>
   | ADYEN => "Adyen"
   | CHECKOUT => "Checkout"
   | BRAINTREE => "Braintree"
+  | BILLWERK => "Billwerk"
   | AUTHORIZEDOTNET => "Authorize.net"
   | STRIPE => "Stripe"
   | KLARNA => "Klarna"

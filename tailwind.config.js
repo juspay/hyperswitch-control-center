@@ -88,6 +88,8 @@ module.exports = {
           600: "#005ED6",
           700: "#66A9FF",
           800: "#F5F9FF",
+          810: "#B9D3F8",
+          811: "#0069FD",
           background_blue: "#EAEEF9",
           info_blue_background: "#F6F8FA",
         },

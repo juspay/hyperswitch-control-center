@@ -1,4 +1,4 @@
-type routing = SINGLE | PRIORITY | VOLUME_SPLIT | ADVANCED | COST | DEFAULTFALLBACK | NO_ROUTING
+type routing = PRIORITY | VOLUME_SPLIT | ADVANCED | DEFAULTFALLBACK | NO_ROUTING
 type variantType = Number | Enum_variant | Metadata_value | String_value | UnknownVariant(string)
 type pageState = Preview | Create | Edit
 type formState = CreateConfig | EditConfig | EditReplica | ViewConfig
