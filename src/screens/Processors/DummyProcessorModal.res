@@ -18,7 +18,7 @@ let make = (
       showModal=processorModal
       setShowModal=setProcessorModal
       closeOnOutsideClick=true
-      modalClass="w-1/2 m-auto">
+      modalClass={`w-1/2 ${showIcons ? "max-w-sm" : "max-w-xl"} m-auto`}>
       <ProcessorCards
         connectorsAvailableForIntegration
         configuredConnectors

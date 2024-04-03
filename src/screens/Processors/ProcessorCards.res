@@ -83,7 +83,6 @@ let make = (
 
   let descriptedConnectors = (
     connectorList: array<ConnectorTypes.connectorTypes>,
-    heading,
     ~showRequestConnectorBtn,
     ~showSearch=true,
     ~showDummyConnectorButton=false,
@@ -93,13 +92,6 @@ let make = (
       connectorList->Array.sort(sortByName)
     }
     <>
-      <AddDataAttributes
-        attributes=[("data-testid", heading->LogicUtils.titleToSnake->String.toLowerCase)]>
-        <h2
-          className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
-          {heading->React.string}
-        </h2>
-      </AddDataAttributes>
       <div className="flex w-full justify-start gap-4">
         <RenderIf condition={showSearch}>
           <AddDataAttributes attributes=[("data-testid", "search-processor")]>
@@ -135,7 +127,9 @@ let make = (
       </div>
       <RenderIf condition={connectorList->Array.length > 0}>
         <div
-          className="grid gap-x-5 gap-y-6 2xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 grid-cols-1 mb-5">
+          className={`grid gap-x-5 gap-y-6 ${showDummyConnectorButton
+              ? "2xl:grid-cols-4 lg:grid-cols-3"
+              : ""} md:grid-cols-2 grid-cols-1 mb-5`}>
           {connectorList
           ->Array.mapWithIndex((connector: ConnectorTypes.connectorTypes, i) => {
             let connectorName = connector->getConnectorNameString
@@ -176,7 +170,6 @@ let make = (
 
   let iconsConnectors = (
     connectorList: array<ConnectorTypes.connectorTypes>,
-    heading,
     ~showRequestConnectorBtn,
     ~showSearch=true,
     ~showDummyConnectorButton=false,
@@ -186,13 +179,6 @@ let make = (
       connectorList->Array.sort(sortByName)
     }
     <>
-      <AddDataAttributes
-        attributes=[("data-testid", heading->LogicUtils.titleToSnake->String.toLowerCase)]>
-        <h2
-          className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
-          {heading->React.string}
-        </h2>
-      </AddDataAttributes>
       <div className="flex w-full justify-start gap-4">
         <RenderIf condition={showSearch}>
           <input
@@ -269,7 +255,6 @@ let make = (
       <div className="flex flex-col gap-4">
         <RenderIf condition={showIcons}>
           {connectorListFiltered->iconsConnectors(
-            "Connect a new processor",
             ~showRequestConnectorBtn=true,
             ~showDummyConnectorButton=true,
             (),
@@ -277,7 +262,6 @@ let make = (
         </RenderIf>
         <RenderIf condition={!showIcons}>
           {connectorListFiltered->descriptedConnectors(
-            "Connect a new processor",
             ~showRequestConnectorBtn=true,
             ~showDummyConnectorButton=true,
             (),
@@ -298,7 +282,6 @@ let make = (
         {showTestProcessor
         ->dummyConnectorList
         ->iconsConnectors(
-          "",
           ~showRequestConnectorBtn=false,
           ~showSearch=false,
           ~showDummyConnectorButton=false,
@@ -309,7 +292,6 @@ let make = (
         {showTestProcessor
         ->dummyConnectorList
         ->descriptedConnectors(
-          "",
           ~showRequestConnectorBtn=false,
           ~showSearch=false,
           ~showDummyConnectorButton=false,
