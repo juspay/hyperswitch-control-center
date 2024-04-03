@@ -343,7 +343,14 @@ module Wrapper = {
 
 module RuleBasedUI = {
   @react.component
-  let make = (~gatewayOptions, ~wasm, ~initialRule, ~pageState, ~setCurrentRouting) => {
+  let make = (
+    ~gatewayOptions,
+    ~wasm,
+    ~initialRule,
+    ~pageState,
+    ~setCurrentRouting,
+    ~baseUrlForRedirection,
+  ) => {
     let rulesJsonPath = `algorithm.data.rules`
     let ruleInput = ReactFinalForm.useField(rulesJsonPath).input
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
@@ -432,7 +439,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
           className="text-blue-500 cursor-pointer"
           onClick={_ => {
             setCurrentRouting(_ => RoutingTypes.DEFAULTFALLBACK)
-            RescriptReactRouter.push("/routing/default")
+            RescriptReactRouter.replace(`${baseUrlForRedirection}/default`)
           }}>
           {"here"->React.string}
         </p>
@@ -442,7 +449,15 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
 }
 
 @react.component
-let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
+let make = (
+  ~routingRuleId,
+  ~isActive,
+  ~setCurrentRouting,
+  ~connectorList: array<ConnectorTypes.connectorPayload>,
+  ~urlEntityName,
+  ~baseUrlForRedirection,
+) => {
+  let url = RescriptReactRouter.useUrl()
   let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
   let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
   let (profile, setProfile) = React.useState(_ => defaultBusinessProfile.profile_id)
@@ -460,7 +475,6 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let (pageState, setPageState) = React.useState(() => Create)
   let (showModal, setShowModal) = React.useState(_ => false)
   let currentTabName = Recoil.useRecoilValueFromAtom(HyperswitchAtom.currentTabNameRecoilAtom)
-  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
 
   let getConnectorsList = () => {
     setConnectors(_ =>
@@ -470,7 +484,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
 
   let activeRoutingDetails = async () => {
     try {
-      let routingUrl = getURL(~entityName=ROUTING, ~methodType=Get, ~id=routingRuleId, ())
+      let routingUrl = getURL(~entityName=urlEntityName, ~methodType=Get, ~id=routingRuleId, ())
       let routingJson = await fetchDetails(routingUrl)
       let schemaValue = routingJson->getDictFromJsonObject
       let rulesValue = schemaValue->getObj("algorithm", Dict.make())->getDictfromDict("data")
@@ -601,10 +615,15 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let handleActivateConfiguration = async activatingId => {
     try {
       setScreenState(_ => Loading)
-      let activateRuleURL = getURL(~entityName=ROUTING, ~methodType=Post, ~id=activatingId, ())
+      let activateRuleURL = getURL(
+        ~entityName=urlEntityName,
+        ~methodType=Post,
+        ~id=activatingId,
+        (),
+      )
       let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
       showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
-      RescriptReactRouter.replace(`/routing?`)
+      RescriptReactRouter.replace(`${baseUrlForRedirection}?`)
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -612,7 +631,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       | Some(message) =>
         if message->String.includes("IR_16") {
           showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
-          RescriptReactRouter.replace(`/routing`)
+          RescriptReactRouter.replace(baseUrlForRedirection)
           setScreenState(_ => Success)
         } else {
           showToast(
@@ -629,11 +648,15 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
   let handleDeactivateConfiguration = async _ => {
     try {
       setScreenState(_ => Loading)
-      let deactivateRoutingURL = `${getURL(~entityName=ROUTING, ~methodType=Post, ())}/deactivate`
+      let deactivateRoutingURL = `${getURL(
+          ~entityName=urlEntityName,
+          ~methodType=Post,
+          (),
+        )}/deactivate`
       let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
       let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
       showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
-      RescriptReactRouter.replace(`/routing?`)
+      RescriptReactRouter.replace(`${baseUrlForRedirection}?`)
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -690,7 +713,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
         },
       }
 
-      let getActivateUrl = getURL(~entityName=ROUTING, ~methodType=Post, ~id=None, ())
+      let getActivateUrl = getURL(~entityName=urlEntityName, ~methodType=Post, ~id=None, ())
       let response = await updateDetails(
         getActivateUrl,
         payload->Identity.genericTypeToJson,
@@ -706,7 +729,7 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
       setScreenState(_ => Success)
       setShowModal(_ => false)
       if isSaveRule {
-        RescriptReactRouter.replace(`/routing`)
+        RescriptReactRouter.replace(baseUrlForRedirection)
       }
       Nullable.make(response)
     } catch {
@@ -719,8 +742,14 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
     }
   }
 
+  let connectorType = switch url->RoutingUtils.urlToVariantMapper {
+  | PayoutRouting => RoutingTypes.PayoutConnector
+  | _ => RoutingTypes.PaymentConnector
+  }
+
   let connectorOptions = React.useMemo2(() => {
     connectors
+    ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
     ->Array.filter(item => item.profile_id === profile)
     ->Array.map((item): SelectBox.dropdownOption => {
       {
@@ -746,7 +775,12 @@ let make = (~routingRuleId, ~isActive, ~setCurrentRouting) => {
                 <UIUtils.RenderIf condition={formState != CreateConfig}>
                   <div className="mb-5">
                     <RuleBasedUI
-                      gatewayOptions=connectorOptions wasm initialRule pageState setCurrentRouting
+                      gatewayOptions=connectorOptions
+                      wasm
+                      initialRule
+                      pageState
+                      setCurrentRouting
+                      baseUrlForRedirection
                     />
                     {switch pageState {
                     | Preview =>

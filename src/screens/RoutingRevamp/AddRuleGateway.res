@@ -2,11 +2,21 @@ external anyToEnum: 'a => AdvancedRoutingTypes.connectorSelectionData = "%identi
 
 @react.component
 let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
+  let url = RescriptReactRouter.useUrl()
   let gateWaysInput = ReactFinalForm.useField(`${id}.connectorSelection.data`).input
   let gateWaysType = ReactFinalForm.useField(`${id}.connectorSelection.type`).input
   let isDistributeInput = ReactFinalForm.useField(`${id}.isDistribute`).input
   let isDistribute = isDistributeInput.value->LogicUtils.getBoolFromJson(false)
-  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+
+  let connectorType = switch url->RoutingUtils.urlToVariantMapper {
+  | PayoutRouting => RoutingTypes.PayoutConnector
+  | _ => RoutingTypes.PaymentConnector
+  }
+
+  let connectorList =
+    HyperswitchAtom.connectorListAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->RoutingUtils.filterConnectorList(~retainInList=connectorType)
 
   React.useEffect1(() => {
     let typeString = if isDistribute {

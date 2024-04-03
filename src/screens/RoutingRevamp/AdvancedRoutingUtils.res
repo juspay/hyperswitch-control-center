@@ -27,10 +27,8 @@ let operatorMapper: string => AdvancedRoutingTypes.operator = value => {
 
 let getRoutingTypeName = (routingType: AdvancedRoutingTypes.routing) => {
   switch routingType {
-  | SINGLE => "single"
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"
-  | COST => "cost"
   | PRIORITY => "rank"
   | DEFAULTFALLBACK => "default"
   | NO_ROUTING => ""
@@ -63,6 +61,17 @@ let getWasmVariantValues = (wasm, value) => {
   try {
     switch wasm {
     | Some(res) => res.RoutingTypes.getVariantValues(value)
+    | None => []
+    }
+  } catch {
+  | _ => []
+  }
+}
+
+let getWasmPayoutVariantValues = (wasm, value) => {
+  try {
+    switch wasm {
+    | Some(res) => res.RoutingTypes.getPayoutVariantValues(value)
     | None => []
     }
   } catch {
