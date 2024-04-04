@@ -21,6 +21,7 @@ type featureFlag = {
   threedsAuthenticator: bool,
   globalSearch: bool,
   disputeAnalytics: bool,
+  configurePmts: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -49,6 +50,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     threedsAuthenticator: dict->getBool("threeds-authenticator", false),
     globalSearch: dict->getBool("global_search", false),
     disputeAnalytics: dict->getBool("dispute_analytics", false),
+    configurePmts: dict->getBool("configure_pmts", false),
   }
   typedFeatureFlag
 }

@@ -444,7 +444,9 @@ let make = () => {
                         </AccessControl>
 
                       | list{"configure-pmts", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.connectorsView>
+                        <AccessControl
+                          permission=userPermissionJson.connectorsView
+                          isEnabled={featureFlagDetails.configurePmts}>
                           <EntityScaffold
                             entityName="ConfigurePMTs"
                             remainingPath
