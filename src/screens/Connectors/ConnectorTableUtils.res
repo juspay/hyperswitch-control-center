@@ -78,7 +78,8 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
       </div>,
       "",
     )
-  | ProfileId => Text(connector.profile_id)
+  | ProfileId =>
+    CustomCell(<HelperComponents.CopyTextCustomComp displayValue=connector.profile_id />, "")
   | ProfileName =>
     Table.CustomCell(
       <HelperComponents.BusinessProfileComponent profile_id={connector.profile_id} />,
