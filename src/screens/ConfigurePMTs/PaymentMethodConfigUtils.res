@@ -17,7 +17,7 @@ let getAdvanceConfiguration = (
           </div>
         : <div> {firstThree->React.string} </div>
     }
-  | None => "NA"->React.string
+  | None => "Default"->React.string
   }
   config
 }
