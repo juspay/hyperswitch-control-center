@@ -14,7 +14,6 @@ let make = (
 
   let useUrl =
     <use
-      // fill=customIconColor
       className={`fill-current ${customIconColor}`}
       xlinkHref={`${urlPrefix}/icons/solid.svg#${name}`}
     />

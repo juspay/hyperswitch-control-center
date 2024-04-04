@@ -1,5 +1,11 @@
 @react.component
-let make = (~isSelected, ~size: CheckBoxIcon.size=Small, ~fill="#0EB025", ~isDisabled=false) => {
+let make = (
+  ~isSelected,
+  ~size: CheckBoxIcon.size=Small,
+  ~fill="#0EB025",
+  ~customIconColor="",
+  ~isDisabled=false,
+) => {
   <AddDataAttributes attributes=[("data-radio", LogicUtils.getStringFromBool(isSelected))]>
     {if isSelected {
       <svg
