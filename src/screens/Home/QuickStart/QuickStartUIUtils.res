@@ -67,9 +67,13 @@ module VerticalChoiceTile = {
     ~setChoiceState,
     ~customLayoutCss,
   ) => {
-    let {backgroundColor, font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {backgroundColor, font: {textColor}, border: {borderColor}} = React.useContext(
+      ConfigContext.configContext,
+    )
     let getBlockColor = value =>
-      choiceState === value ? `border border-blue-500 ${backgroundColor} bg-opacity-10 ` : "border"
+      choiceState === value
+        ? `${borderColor.primaryNormal} ${backgroundColor} bg-opacity-10 `
+        : "border"
     let headerTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700`
     let descriptionStyle = `${HSwitchUtils.getTextClass((
         P2,
@@ -108,7 +112,7 @@ module VerticalChoiceTile = {
                 ->Option.getOr([])
                 ->Array.map(value =>
                   <div
-                    className={`p-2 text-xs border border-blue-500 border-opacity-30 ${backgroundColor} bg-opacity-10 rounded-md`}>
+                    className={`p-2 text-xs border ${borderColor.primaryNormal} border-opacity-30 ${backgroundColor} bg-opacity-10 rounded-md`}>
                     {value->React.string}
                   </div>
                 )
@@ -131,9 +135,13 @@ module HorizontalChoiceTile = {
     ~setChoiceState,
     ~customLayoutCss,
   ) => {
-    let {backgroundColor, font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {backgroundColor, font: {textColor}, border: {borderColor}} = React.useContext(
+      ConfigContext.configContext,
+    )
     let getBlockColor = value =>
-      choiceState === value ? `border border-blue-500 ${backgroundColor} bg-opacity-10 ` : "border"
+      choiceState === value
+        ? `${borderColor.primaryNormal} ${backgroundColor} bg-opacity-10 `
+        : "border"
     let headerTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700`
     let descriptionStyle = `${HSwitchUtils.getTextClass((
         P2,
@@ -212,7 +220,9 @@ module SelectConnectorGrid = {
   let make = (~selectedConnector, ~setSelectedConnector, ~connectorList) => {
     open ConnectorTypes
 
-    let {backgroundColor, font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {backgroundColor, font: {textColor}, border: {borderColor}} = React.useContext(
+      ConfigContext.configContext,
+    )
     let typedConnectedConnectorList =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom
@@ -248,7 +258,7 @@ module SelectConnectorGrid = {
       switch (selectedConnector, connector) {
       | (Processors(selectedConnector), Processors(connectorValue))
         if selectedConnector === connectorValue =>
-        `border border-blue-500 ${backgroundColor} bg-opacity-10`
+        `${borderColor.primaryNormal} ${backgroundColor} bg-opacity-10`
       | _ => "border"
       }
     }

@@ -309,7 +309,7 @@ module Attempts = {
   open OrderEntity
   @react.component
   let make = (~orderDict) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {font: {textColor}, border: {borderColor}} = React.useContext(ConfigContext.configContext)
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
 
@@ -361,7 +361,8 @@ module Attempts = {
     }
 
     <div className="flex flex-col gap-4">
-      <div className="flex border items-start border-blue-500 text-sm rounded-md gap-2 px-4 py-3">
+      <div
+        className={`flex  items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3`}>
         <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
         <span>
           {`You can validate the information shown here by cross checking the hyperswitch payment attempt identifier (Attempt ID) in your payment processor portal.`->React.string}

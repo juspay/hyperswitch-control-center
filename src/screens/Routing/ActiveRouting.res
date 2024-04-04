@@ -25,7 +25,7 @@ module TopRightIcons = {
 module ActionButtons = {
   @react.component
   let make = (~routeType: routingType, ~onRedirectBaseUrl) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {font: {textColor}, border: {borderColor}} = React.useContext(ConfigContext.configContext)
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
@@ -38,7 +38,7 @@ module ActionButtons = {
         access={userPermissionJson.workflowsManage}
         buttonType=Secondary
         buttonSize={Small}
-        customButtonStyle={`border !border-blue-500 bg-white ${textColor.primaryNormal}`}
+        customButtonStyle={` !${borderColor.primaryNormal} bg-white ${textColor.primaryNormal}`}
         onClick={_ => {
           RescriptReactRouter.push(`${onRedirectBaseUrl}/${routingTypeName(routeType)}`)
           mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
@@ -49,7 +49,7 @@ module ActionButtons = {
         text={"Manage"}
         access={userPermissionJson.workflowsManage}
         buttonType=Secondary
-        customButtonStyle={`border !border-blue-500 bg-white ${textColor.primaryNormal}`}
+        customButtonStyle={`!${borderColor.primaryNormal} bg-white ${textColor.primaryNormal}`}
         buttonSize={Small}
         onClick={_ => {
           RescriptReactRouter.push(`${onRedirectBaseUrl}/${routingTypeName(routeType)}`)

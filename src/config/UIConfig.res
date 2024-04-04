@@ -62,11 +62,11 @@ module FontConfig = {
   type t = {textColor: textColor}
 }
 module ShadowConfig = {
-  type shadowColor = {primaryNormal: string}
+  type shadowColor = {primaryNormal: string, primaryFocused: string}
   type t = {shadowColor: shadowColor}
 }
 module BorderConfig = {
-  type borderColor = {primaryNormal: string}
+  type borderColor = {primaryNormal: string, primaryFocused: string}
   type t = {borderColor: borderColor}
 }
 
@@ -139,12 +139,14 @@ let defaultUIConfig: t = {
   },
   shadow: {
     shadowColor: {
-      primaryNormal: "shadow-primary",
+      primaryNormal: "focus:shadow-primary",
+      primaryFocused: "focus:shadow-primary",
     },
   },
   border: {
     borderColor: {
-      primaryNormal: "shadow-primary",
+      primaryNormal: "focus:border-primary",
+      primaryFocused: "focus:border-primary",
     },
   },
   primaryColor: "primary",

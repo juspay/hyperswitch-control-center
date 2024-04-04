@@ -208,7 +208,7 @@ module DisputesInfoBarComponent = {
     open LogicUtils
     open DisputesUtils
     open PageLoaderWrapper
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {font: {textColor}, border: {borderColor}} = React.useContext(ConfigContext.configContext)
     let fetchDetails = useGetMethod()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
@@ -262,7 +262,7 @@ module DisputesInfoBarComponent = {
 
     <PageLoaderWrapper screenState>
       <div
-        className="border w-full rounded-md border-blue-500 border-opacity-40 bg-blue-info_blue_background p-6 flex gap-6">
+        className={`${borderColor.primaryNormal} w-full rounded-md  border-opacity-40 bg-blue-info_blue_background p-6 flex gap-6`}>
         <div className="flex gap-3 items-start justify-start">
           <Icon name="note-icon" size=22 />
           {switch disputeStatus {

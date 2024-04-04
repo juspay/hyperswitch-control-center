@@ -60,11 +60,13 @@ let config: UIConfig.t = {
   shadow: {
     shadowColor: {
       primaryNormal: "focus:shadow-primary",
+      primaryFocused: "focus:shadow-primary",
     },
   },
   border: {
     borderColor: {
-      primaryNormal: "focus:border-primary",
+      primaryNormal: "border border-primary",
+      primaryFocused: "focus:border-primary",
     },
   },
 }

@@ -3,7 +3,7 @@ type cardFlowDirection = LEFT | RIGHT
 module SurveyComponent = {
   @react.component
   let make = (~currentStep, ~setCurrentStep, ~currentQuestionDict, ~setCarouselDirection) => {
-    let {backgroundColor} = React.useContext(ConfigContext.configContext)
+    let {backgroundColor, border: {borderColor}} = React.useContext(ConfigContext.configContext)
     let currentQuestionValue =
       ReactFinalForm.useField(currentQuestionDict.key).input.value->LogicUtils.getStringFromJson("")
     let isNextButtonEnabled = currentQuestionValue->LogicUtils.isNonEmptyString
@@ -29,7 +29,7 @@ module SurveyComponent = {
             ~buttonText="options",
             ~customStyle="p-2.5 border rounded-md text-fs-18 w-11/12 flex gap-2 !overflow-visible",
             ~baseComponentCustomStyle="flex flex-col gap-4 md:!min-h-[30rem]",
-            ~customSelectStyle=`${backgroundColor} bg-opacity-5 border-blue-500`,
+            ~customSelectStyle=`${backgroundColor} bg-opacity-5 ${borderColor.primaryNormal}`,
             ~fill="#006DF9",
             (),
           ),

@@ -60,11 +60,11 @@ module InfoCard = {
 module Card = {
   @react.component
   let make = (~heading="", ~isSelected=false, ~children: React.element) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {font: {textColor}, border: {borderColor}} = React.useContext(ConfigContext.configContext)
     <>
       <div
-        className={`relative w-full p-6 rounded flex flex-col justify-between border ${isSelected
-            ? "bg-light_blue_bg border-blue-500 dark:border-blue-500"
+        className={`relative w-full p-6 rounded flex flex-col justify-between  ${isSelected
+            ? `bg-light_blue_bg ${borderColor.primaryNormal} dark: ${borderColor.primaryNormal}`
             : ""}`}>
         <div className="flex justify-between">
           <div

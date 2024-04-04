@@ -4,13 +4,14 @@ let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
 let subheaderText = "text-base font-semibold text-grey-700"
 @react.component
 let make = (~selectedConnector, ~setSelectedConnector, ~pageView, ~setPageView) => {
-  let {font: {textColor}} = React.useContext(ConfigContext.configContext)
-  let {backgroundColor} = React.useContext(ConfigContext.configContext)
+  let {backgroundColor, font: {textColor}, border: {borderColor}} = React.useContext(
+    ConfigContext.configContext,
+  )
   let getBlockColor = connector => {
     open ConnectorTypes
     switch (selectedConnector, connector) {
     | (Processors(selectedConnector), Processors(connector)) if selectedConnector === connector =>
-      `border border-blue-500 ${backgroundColor} bg-opacity-10 `
+      `border ${borderColor.primaryNormal} ${backgroundColor} bg-opacity-10 `
     | (_, _) => "border"
     }
   }

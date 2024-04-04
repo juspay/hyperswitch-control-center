@@ -18,6 +18,7 @@ let make = (
   ~isHomePage=false,
 ) => {
   open Identity
+
   let (updateKey, setUpdateKey) = React.useState(_ => false)
 
   let sortedData = React.useMemo1(() => {
