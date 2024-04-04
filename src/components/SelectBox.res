@@ -478,7 +478,7 @@ module BaseSelect = {
       options->Array.filter(item => saneValue->Array.includes(item.value))
     })
 
-    let options = options->Array.toSorted((item1, item2) => {
+    options->Array.sort((item1, item2) => {
       let item1Index = initialSelectedOptions->Array.findIndex(item => item.label === item1.label)
       let item2Index = initialSelectedOptions->Array.findIndex(item => item.label === item2.label)
 
