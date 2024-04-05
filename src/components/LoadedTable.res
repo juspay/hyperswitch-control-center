@@ -766,7 +766,7 @@ let make = (
         ? ""
         : `${isMinHeightRequired ? noScrollbar ? "" : "overflow-x-scroll" : "overflow-scroll"}`
     let loadedTable =
-      <div className={`no-scrollbar ${scrollBarClass}`}>
+      <div className={`no-scrollbar ${scrollBarClass} border border-blue-700`}>
         {switch dataView {
         | Table => {
             let children =
@@ -906,17 +906,19 @@ let make = (
       </DesktopView>
     </div>
 
-  let customizeColumsButtons =
-    <div className=filterBottomPadding>
-      {switch clearFormattedDataButton {
-      | Some(clearFormattedDataButton) =>
-        <div className={`flex flex-row mobile:gap-7 desktop:gap-10`}>
-          clearFormattedDataButton
-          <Portal to={""}> rightTitleElement </Portal>
-        </div>
-      | _ => <Portal to={""}> rightTitleElement </Portal>
-      }}
-    </div>
+  let customizeColumsButtons = {
+    switch clearFormattedDataButton {
+    | Some(clearFormattedDataButton) =>
+      <div className={`flex flex-row mobile:gap-7 desktop:gap-10 ${filterBottomPadding}`}>
+        clearFormattedDataButton
+        <Portal to={""}> rightTitleElement </Portal>
+      </div>
+    | _ =>
+      <div className={`${rightTitleElement != React.null ? filterBottomPadding : ""}`}>
+        <Portal to={""}> rightTitleElement </Portal>
+      </div>
+    }
+  }
 
   let addDataAttributesClass = if isHighchartLegend {
     `visibility: hidden`
