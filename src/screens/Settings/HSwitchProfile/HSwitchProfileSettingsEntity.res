@@ -40,7 +40,7 @@ let getCell = (item: switchMerchantListResponse, colType): Table.cell => {
   }
 }
 
-let profileTableEntity = (~permission: AuthTypes.authorization) =>
+let merchantTableEntity = () =>
   EntityType.makeEntity(
     ~uri="",
     ~getObjects=getItems,
@@ -49,8 +49,5 @@ let profileTableEntity = (~permission: AuthTypes.authorization) =>
     ~getHeading,
     ~dataKey="",
     ~getCell,
-    ~getShowLink={
-      profile => PermissionUtils.linkForGetShowLinkViaAccess(~url="", ~permission)
-    },
     (),
   )

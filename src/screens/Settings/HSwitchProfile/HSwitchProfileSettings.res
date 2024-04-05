@@ -40,14 +40,20 @@ module MerchantDetailsSection = {
     )
 
     React.useEffect0(() => {
-      fetchSwitchMerchantList()->ignore
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let _ = fetchSwitchMerchantList()
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Custom)
+      }
       None
     })
 
     Js.log2("switchMerchantListValue", switchMerchantListValue)
 
     let (offset, setOffset) = React.useState(_ => 0)
-    let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+    // let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
     <PageLoaderWrapper screenState sectionHeight="h-40-vh">
       <div>
@@ -73,7 +79,7 @@ module MerchantDetailsSection = {
           hideTitle=true
           resultsPerPage=7
           visibleColumns
-          entity={profileTableEntity(~permission=userPermissionJson.merchantDetailsManage)}
+          entity={merchantTableEntity()}
           actualData={switchMerchantListValue->Array.map(Nullable.make)}
           totalResults={switchMerchantListValue->Array.length}
           offset
@@ -149,6 +155,8 @@ module BasicDetailsSection = {
     let subTitleClass = "text-hyperswitch_black opacity-50 text-base font-semibold break-all"
     let sectionHeadingClass = "font-semibold text-fs-18"
     let userName = getFromUserDetails("name")
+    let userTitle = LogicUtils.userNameToTitle(userName)
+
     let isPlayground = HSLocalStorage.getIsPlaygroundFromLocalStorage()
 
     let getMerchantInfoValue = value => {
@@ -165,7 +173,7 @@ module BasicDetailsSection = {
         <div className="flex gap-10 items-center">
           <p className=titleClass> {"Name:"->React.string} </p>
           <p className=subTitleClass>
-            {(userName->String.length === 0 ? "--" : userName)->React.string}
+            {(userName->String.length === 0 ? "--" : userTitle)->React.string}
           </p>
         </div>
         <hr />

@@ -766,7 +766,7 @@ let make = (
         ? ""
         : `${isMinHeightRequired ? noScrollbar ? "" : "overflow-x-scroll" : "overflow-scroll"}`
     let loadedTable =
-      <div className={`no-scrollbar ${scrollBarClass} border border-blue-700`}>
+      <div className={`no-scrollbar ${scrollBarClass}`}>
         {switch dataView {
         | Table => {
             let children =
