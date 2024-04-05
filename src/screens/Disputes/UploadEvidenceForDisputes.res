@@ -289,7 +289,7 @@ module DisputesInfoBarComponent = {
                     name="thin-right-arrow"
                     size=20
                     className="group-hover:scale-125 transition duration-200 ease-in-out"
-                    customIconColor="#006DF9"
+                    customIconColor={textColor.primaryNormal}
                   />
                 </div>
               </div>

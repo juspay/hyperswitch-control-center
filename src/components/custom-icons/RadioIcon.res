@@ -1,16 +1,10 @@
 @react.component
-let make = (
-  ~isSelected,
-  ~size: CheckBoxIcon.size=Small,
-  ~fill="#0EB025",
-  ~customIconColor="",
-  ~isDisabled=false,
-) => {
+let make = (~isSelected, ~size: CheckBoxIcon.size=Small, ~fill="#0EB025", ~isDisabled=false) => {
   <AddDataAttributes attributes=[("data-radio", LogicUtils.getStringFromBool(isSelected))]>
     {if isSelected {
       <svg
         width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="16" height="16" rx="8" fill />
+        <rect width="16" height="16" rx="8" className={`fill-current ${fill}`} fill />
         <path
           fillRule="evenodd"
           clipRule="evenodd"

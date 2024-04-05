@@ -15,8 +15,8 @@ module CheckListSection = {
     ~getConnectorDetails,
     ~setPreviewState,
   ) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
-    let {backgroundColor} = React.useContext(ConfigContext.configContext)
+    let {font: {textColor}, backgroundColor} = React.useContext(ConfigContext.configContext)
+
     let stepColor =
       checkListItems->Array.includes(pageView)
         ? `${backgroundColor} text-white py-px px-2 rounded-md`

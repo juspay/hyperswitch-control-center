@@ -18,7 +18,7 @@ let make = (
   ~isHomePage=false,
 ) => {
   open Identity
-
+  let {font: {textColor}} = React.useContext(ConfigContext.configContext)
   let (updateKey, setUpdateKey) = React.useState(_ => false)
 
   let sortedData = React.useMemo1(() => {
@@ -72,7 +72,7 @@ let make = (
     }
   }
 
-  let strokeColor = "#006DF9"
+  let strokeColor = textColor.primaryNormal
 
   let options = React.useMemo2((): Highcharts.options<float> => {
     {
@@ -157,6 +157,7 @@ let make = (
           data: sortedData,
           legendIndex: 0,
           connectNulls: false,
+          className: `fill-current ${strokeColor}`,
         },
       ],
     }

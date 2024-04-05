@@ -74,7 +74,7 @@ module Card = {
             {heading->React.string}
           </div>
           <div>
-            <RadioIcon isSelected fill="#006DF9" />
+            <RadioIcon isSelected fill={`${textColor.primaryNormal}`} />
           </div>
         </div>
         {children}
