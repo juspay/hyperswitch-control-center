@@ -44,8 +44,6 @@ let getRefundCell = (refunds: refunds, refundsColType: refundsColType): Table.ce
 }
 
 let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.cell => {
-  open HelperComponents
-
   switch attemptColType {
   | Amount =>
     CustomCell(
@@ -55,7 +53,8 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
       "",
     )
   | Currency => Text(attempt.currency)
-  | Connector => CustomCell(<ConnectorCustomCell connectorName=attempt.connector />, "")
+  | Connector =>
+    CustomCell(<HelperComponents.ConnectorCustomCell connectorName=attempt.connector />, "")
   | Status =>
     Label({
       title: attempt.status->String.toUpperCase,
@@ -608,7 +607,6 @@ let getHeadingForOtherDetails = otherDetailsColType => {
 }
 
 let getCellForSummary = (order, summaryColType, _): Table.cell => {
-  open HelperComponents
   switch summaryColType {
   | Created => Date(order.created)
   | NetAmount =>

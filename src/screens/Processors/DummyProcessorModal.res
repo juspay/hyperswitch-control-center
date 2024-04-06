@@ -4,7 +4,6 @@ open ProcessorCards
 let make = (
   ~processorModal,
   ~setProcessorModal,
-  ~showIcons,
   ~urlPrefix,
   ~configuredConnectors,
   ~connectorsAvailableForIntegration,
@@ -18,12 +17,11 @@ let make = (
       showModal=processorModal
       setShowModal=setProcessorModal
       closeOnOutsideClick=true
-      modalClass={`w-1/2 ${showIcons ? "max-w-sm" : "max-w-xl"} m-auto`}>
+      modalClass="w-1/2 max-w-xl m-auto">
       <ProcessorCards
         connectorsAvailableForIntegration
         configuredConnectors
         showTestProcessor
-        showIcons
         urlPrefix
         showAllConnectors=false
         connectorType=ConnectorTypes.Processor

@@ -51,7 +51,6 @@ let make = (
   ~connectorsAvailableForIntegration: array<ConnectorTypes.connectorTypes>,
   ~configuredConnectors: array<ConnectorTypes.connectorTypes>,
   ~showAllConnectors=true,
-  ~showIcons: bool,
   ~urlPrefix: string,
   ~connectorType=ConnectorTypes.Processor,
   ~setProcessorModal=_ => (),
@@ -168,79 +167,6 @@ let make = (
     </>
   }
 
-  let iconsConnectors = (
-    connectorList: array<ConnectorTypes.connectorTypes>,
-    ~showRequestConnectorBtn,
-    ~showSearch=true,
-    ~showDummyConnectorButton=false,
-    (),
-  ) => {
-    if connectorList->Array.length > 0 {
-      connectorList->Array.sort(sortByName)
-    }
-    <>
-      <div className="flex w-full justify-start gap-4">
-        <RenderIf condition={showSearch}>
-          <input
-            {...DOMUtils.domProps({
-              "data-testid": "search-processor",
-            })}
-            ref={searchRef->ReactDOM.Ref.domRef}
-            type_="text"
-            value=searchedConnector
-            onChange=handleSearch
-            placeholder="Search a processor"
-            className={`rounded-md px-4 py-2 focus:outline-none w-1/3 border mr-4`}
-          />
-        </RenderIf>
-        <RenderIf condition={showDummyConnectorButton && urlPrefix == "connectors/new"}>
-          <ACLButton
-            access={userPermissionJson.connectorsManage}
-            leftIcon={CustomIcon(
-              <Icon
-                name="plus"
-                size=12
-                className="text-jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
-              />,
-            )}
-            text="Connect a Dummy Processor"
-            buttonType={Transparent}
-            buttonSize={Small}
-            textStyle="text-jp-gray-900"
-            onClick={_ => setProcessorModal(_ => true)}
-          />
-        </RenderIf>
-        <CantFindProcessor showRequestConnectorBtn setShowModal />
-      </div>
-      <RenderIf condition={connectorList->Array.length > 0}>
-        <div className="bg-white rounded-md flex gap-2 flex-wrap p-4 border">
-          {connectorList
-          ->Array.mapWithIndex((connector, i) => {
-            let connectorName = connector->getConnectorNameString
-            let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.connectorsManage)
-
-            <ACLDiv
-              key={i->string_of_int}
-              permission=userPermissionJson.connectorsManage
-              className={`p-2 ${cursorStyles}`}
-              noAccessDescription=HSwitchUtils.noAccessControlTextForProcessors
-              tooltipWidthClass="w-30"
-              description={connectorName->getDisplayNameForConnector(~connectorType)}
-              onClick={_ => handleClick(connectorName)}>
-              <AddDataAttributes attributes=[("data-testid", connectorName->String.toLowerCase)]>
-                <GatewayIcon
-                  gateway={connectorName->String.toUpperCase} className="w-14 h-14 rounded-sm"
-                />
-              </AddDataAttributes>
-            </ACLDiv>
-          })
-          ->React.array}
-        </div>
-      </RenderIf>
-      <RequestConnector connectorList setShowModal />
-    </>
-  }
-
   let connectorListFiltered = {
     if searchedConnector->LogicUtils.isNonEmptyString {
       connectorsAvailableForIntegration->Array.filter(item =>
@@ -253,20 +179,11 @@ let make = (
   <RenderIf condition={unConfiguredConnectorsCount > 0}>
     <RenderIf condition={showAllConnectors}>
       <div className="flex flex-col gap-4">
-        <RenderIf condition={showIcons}>
-          {connectorListFiltered->iconsConnectors(
-            ~showRequestConnectorBtn=true,
-            ~showDummyConnectorButton=true,
-            (),
-          )}
-        </RenderIf>
-        <RenderIf condition={!showIcons}>
-          {connectorListFiltered->descriptedConnectors(
-            ~showRequestConnectorBtn=true,
-            ~showDummyConnectorButton=true,
-            (),
-          )}
-        </RenderIf>
+        {connectorListFiltered->descriptedConnectors(
+          ~showRequestConnectorBtn=true,
+          ~showDummyConnectorButton=true,
+          (),
+        )}
       </div>
       <RenderIf condition={showModal}>
         <HSwitchFeedBackModal
@@ -278,26 +195,14 @@ let make = (
       </RenderIf>
     </RenderIf>
     <RenderIf condition={showTestProcessor}>
-      <RenderIf condition={showIcons}>
-        {showTestProcessor
-        ->dummyConnectorList
-        ->iconsConnectors(
-          ~showRequestConnectorBtn=false,
-          ~showSearch=false,
-          ~showDummyConnectorButton=false,
-          (),
-        )}
-      </RenderIf>
-      <RenderIf condition={!showIcons}>
-        {showTestProcessor
-        ->dummyConnectorList
-        ->descriptedConnectors(
-          ~showRequestConnectorBtn=false,
-          ~showSearch=false,
-          ~showDummyConnectorButton=false,
-          (),
-        )}
-      </RenderIf>
+      {showTestProcessor
+      ->dummyConnectorList
+      ->descriptedConnectors(
+        ~showRequestConnectorBtn=false,
+        ~showSearch=false,
+        ~showDummyConnectorButton=false,
+        (),
+      )}
     </RenderIf>
   </RenderIf>
 }

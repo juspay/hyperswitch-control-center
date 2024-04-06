@@ -8,8 +8,6 @@ let make = (~isPayoutFlow=false) => {
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
-  let detailedCardCount = 5
-  let showConnectorIcons = configuredConnectors->Array.length > detailedCardCount
   let (searchText, setSearchText) = React.useState(_ => "")
   let (processorModal, setProcessorModal) = React.useState(_ => false)
   let fetchConnectorListResponse = ConnectorListHook.useFetchConnectorList()
@@ -123,15 +121,6 @@ let make = (~isPayoutFlow=false) => {
             feedbackVia="connected_a_connector"
           />
         </RenderIf>
-        <RenderIf condition={showConnectorIcons}>
-          <ProcessorCards
-            configuredConnectors
-            showIcons={showConnectorIcons}
-            connectorsAvailableForIntegration
-            urlPrefix
-            setProcessorModal
-          />
-        </RenderIf>
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
             title="Connected Processors"
@@ -157,20 +146,13 @@ let make = (~isPayoutFlow=false) => {
             collapseTableRow=false
           />
         </RenderIf>
-        <RenderIf condition={!showConnectorIcons}>
-          <ProcessorCards
-            configuredConnectors
-            showIcons={showConnectorIcons}
-            connectorsAvailableForIntegration
-            urlPrefix
-            setProcessorModal
-          />
-        </RenderIf>
+        <ProcessorCards
+          configuredConnectors connectorsAvailableForIntegration urlPrefix setProcessorModal
+        />
         <RenderIf condition={processorModal}>
           <DummyProcessorModal
             processorModal
             setProcessorModal
-            showIcons={showConnectorIcons}
             urlPrefix
             configuredConnectors
             connectorsAvailableForIntegration
