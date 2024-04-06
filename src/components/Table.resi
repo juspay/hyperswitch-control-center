@@ -1,5 +1,5 @@
 let regex: string => Js.Re.t
-let highlightedText: (string, string) => React.element
+let highlightedText: (Js.String.t, string) => React.element
 type labelColor = TableUtils.labelColor =
   | LabelGreen
   | LabelRed
@@ -15,18 +15,26 @@ type labelColor = TableUtils.labelColor =
   | LabelViolet
   | LabelLightGreen
   | LabelLightRed
-
-type filterDataType = TableUtils.filterDataType =
-  | Float(float, float)
-  | String
-  | DateTime
-external jsonToStr: JSON.t => string = "%identity"
+type filterDataType = TableUtils.filterDataType = Float(float, float) | String | DateTime
+type disableField = TableUtils.disableField = {key: string, values: array<string>}
+type customiseColumnConfig = TableUtils.customiseColumnConfig = {
+  showDropDown: bool,
+  customizeColumnUi: React.element,
+}
+type selectAllSubmitActions = TableUtils.selectAllSubmitActions = {
+  btnText: string,
+  showMultiSelectCheckBox: bool,
+  onClick: array<RescriptCore.JSON.t> => unit,
+  disableParam: disableField,
+}
+type hideItem = TableUtils.hideItem = {key: string, value: string}
+external jsonToStr: RescriptCore.JSON.t => string = "%identity"
 type textAlign = TableUtils.textAlign = Left | Right
 type fontBold = bool
 type labelMargin = string
 type sortOrder = TableUtils.sortOrder = INC | DEC | NONE
-type multipleSelectRows = TableUtils.multipleSelectRows = ALL | PARTIAL
 type sortedObject = TableUtils.sortedObject = {key: string, order: sortOrder}
+type multipleSelectRows = TableUtils.multipleSelectRows = ALL | PARTIAL
 type filterObject = TableUtils.filterObject = {
   key: string,
   options: array<string>,
@@ -36,7 +44,7 @@ let getSortOrderString: sortOrder => string
 type label = TableUtils.label = {title: string, color: labelColor, showIcon?: bool}
 type currency = string
 type filterRow = TableUtils.filterRow =
-  | DropDownFilter(string, array<JSON.t>)
+  | DropDownFilter(string, array<RescriptCore.JSON.t>)
   | TextFilter(string)
   | Range(string, float, float)
 type cell = TableUtils.cell =
@@ -51,6 +59,7 @@ type cell = TableUtils.cell =
   | Link(string)
   | Progress(int)
   | CustomCell(React.element, string)
+  | DisplayCopyCell(string)
   | TrimmedText(string, string)
   | DeltaPercentage(float, float)
   | DropDown(string)
@@ -94,11 +103,12 @@ let makeHeaderInfo: (
   ~customWidth: string=?,
   unit,
 ) => header
-let dateFormat: (string, string) => string
 let getCell: string => cell
 module ProgressCell = TableUtils.ProgressCell
 let getTextAlignmentClass: textAlign => string
+module BaseComponentMethod = TableUtils.BaseComponentMethod
 module LabelCell = TableUtils.LabelCell
+module NewLabelCell = TableUtils.NewLabelCell
 module ColoredTextCell = TableUtils.ColoredTextCell
 module Numeric = TableUtils.Numeric
 module MoneyCell = TableUtils.MoneyCell
@@ -110,6 +120,7 @@ module TrimmedText = TableUtils.TrimmedText
 module TableFilterCell = TableUtils.TableFilterCell
 module DeltaColumn = TableUtils.DeltaColumn
 module TableCell = TableUtils.TableCell
+module NewTableCell = TableUtils.NewTableCell
 type rowType = TableUtils.rowType = Filter | Row
 let getTableCellValue: cell => string
 module SortIcons = TableUtils.SortIcons
@@ -117,123 +128,119 @@ module HeaderActions = TableUtils.HeaderActions
 module TableFilterRow: {
   @react.component
   let make: (
-    ~item: array<filterRow>,
-    ~removeVerticalLines: bool,
-    ~removeHorizontalLines: bool,
-    ~evenVertivalLines: bool,
-    ~tableDataBorderClass: string,
-    ~customFilterRowStyle: string,
-    ~showCheckbox: bool,
-  ) => React.element
+  ~item: array<filterRow>,
+  ~removeVerticalLines: bool,
+  ~removeHorizontalLines: bool,
+  ~evenVertivalLines: bool,
+  ~tableDataBorderClass: string,
+  ~customFilterRowStyle: string,
+  ~showCheckbox: bool,
+) => React.element
 }
 module TableRow: {
   @react.component
   let make: (
-    ~title: string,
-    ~item: array<cell>,
-    ~rowIndex: int,
-    ~onRowClick: option<int => unit>,
-    ~onRowDoubleClick: option<int => unit>,
-    ~onRowClickPresent: bool,
-    ~offset: int,
-    ~removeVerticalLines: bool,
-    ~removeHorizontalLines: bool,
-    ~evenVertivalLines: bool,
-    ~highlightEnabledFieldsArray: array<int>,
-    ~tableDataBorderClass: string=?,
-    ~collapseTableRow: bool=?,
-    ~expandedRow: unit => React.element,
-    ~onMouseEnter: option<int => unit>,
-    ~onMouseLeave: option<int => unit>,
-    ~highlightText: string,
-    ~clearFormatting: bool=?,
-    ~rowHeightClass: string=?,
-    ~rowCustomClass: string=?,
-    ~fixedWidthClass: string,
-    ~isHighchartLegend: bool=?,
-    ~labelMargin: string=?,
-    ~isEllipsisTextRelative: bool=?,
-    ~customMoneyStyle: string=?,
-    ~ellipseClass: string=?,
-    ~selectedRowColor: string=?,
-    ~lastColClass: string=?,
-    ~fixLastCol: bool=?,
-    ~alignCellContent: string=?,
-    ~customCellColor: string=?,
-  ) => React.element
+  ~title: string,
+  ~item: array<cell>,
+  ~rowIndex: int,
+  ~onRowClick: option<int => unit>,
+  ~onRowDoubleClick: option<int => unit>,
+  ~onRowClickPresent: bool,
+  ~offset: int,
+  ~removeVerticalLines: bool,
+  ~removeHorizontalLines: bool,
+  ~evenVertivalLines: bool,
+  ~highlightEnabledFieldsArray: array<int>,
+  ~tableDataBorderClass: string=?,
+  ~collapseTableRow: bool=?,
+  ~expandedRow: unit => React.element,
+  ~onMouseEnter: option<int => unit>,
+  ~onMouseLeave: option<int => unit>,
+  ~highlightText: string,
+  ~clearFormatting: bool=?,
+  ~rowHeightClass: string=?,
+  ~rowCustomClass: string=?,
+  ~fixedWidthClass: string,
+  ~isHighchartLegend: bool=?,
+  ~labelMargin: TableUtils.labelMargin=?,
+  ~isEllipsisTextRelative: bool=?,
+  ~customMoneyStyle: string=?,
+  ~ellipseClass: string=?,
+  ~selectedRowColor: string=?,
+  ~lastColClass: string=?,
+  ~fixLastCol: bool=?,
+  ~alignCellContent: string=?,
+  ~customCellColor: string=?,
+) => React.element
 }
 module SortAction: {
   @react.component
   let make: (
-    ~item: TableUtils.header,
-    ~sortedObj: option<TableUtils.sortedObject>,
-    ~setSortedObj: option<('a => option<sortedObject>) => unit>,
-    ~sortIconSize: int,
-    ~isLastCol: bool=?,
-    ~filterRow: option<filterRow>,
-  ) => React.element
+  ~item: TableUtils.header,
+  ~sortedObj: option<TableUtils.sortedObject>,
+  ~setSortedObj: option<('a => option<sortedObject>) => unit>,
+  ~sortIconSize: int,
+  ~isLastCol: bool=?,
+  ~filterRow: option<filterRow>,
+) => React.element
 }
 module TableHeadingCell: {
   @react.component
   let make: (
-    ~item: header,
-    ~index: int,
-    ~headingArray: array<'a>,
-    ~isHighchartLegend: bool,
-    ~frozenUpto: int,
-    ~heightHeadingClass: string,
-    ~tableheadingClass: string,
-    ~sortedObj: option<TableUtils.sortedObject>,
-    ~setSortedObj: option<('b => option<sortedObject>) => unit>,
-    ~filterObj: option<array<filterObject>>,
-    ~fixedWidthClass: string,
-    ~setFilterObj: option<(array<filterObject> => array<filterObject>) => unit>,
-    ~headingCenter: bool,
-    ~filterIcon: React.element=?,
-    ~filterDropdownClass: string=?,
-    ~filterDropdownMaxHeight: string=?,
-    ~selectAllCheckBox: option<TableUtils.multipleSelectRows>,
-    ~setSelectAllCheckBox: option<
-      (option<TableUtils.multipleSelectRows> => option<TableUtils.multipleSelectRows>) => unit,
-    >,
-    ~isFrozen: bool=?,
-    ~lastHeadingClass: string=?,
-    ~fixLastCol: bool=?,
-    ~headerCustomBgColor: string=?,
-    ~filterRow: option<filterRow>,
-    ~customizeColumnNewTheme: TableUtils.customiseColumnConfig=?,
-    ~tableHeadingTextClass: string=?,
-  ) => React.element
+  ~item: header,
+  ~index: int,
+  ~headingArray: array<'a>,
+  ~isHighchartLegend: bool,
+  ~frozenUpto: int,
+  ~heightHeadingClass: string,
+  ~tableheadingClass: string,
+  ~sortedObj: option<TableUtils.sortedObject>,
+  ~setSortedObj: option<('b => option<sortedObject>) => unit>,
+  ~filterObj: option<array<filterObject>>,
+  ~fixedWidthClass: string,
+  ~setFilterObj: option<(array<filterObject> => array<filterObject>) => unit>,
+  ~headingCenter: bool,
+  ~filterIcon: React.element=?,
+  ~filterDropdownClass: string=?,
+  ~filterDropdownMaxHeight: string=?,
+  ~selectAllCheckBox: option<multipleSelectRows>,
+  ~setSelectAllCheckBox: option<('c => option<multipleSelectRows>) => unit>,
+  ~isFrozen: bool=?,
+  ~lastHeadingClass: string=?,
+  ~fixLastCol: bool=?,
+  ~headerCustomBgColor: string=?,
+  ~filterRow: option<filterRow>,
+  ~customizeColumnNewTheme: customiseColumnConfig=?,
+  ~tableHeadingTextClass: string=?,
+) => React.element
 }
 module TableHeadingRow: {
   @react.component
   let make: (
-    ~headingArray: array<header>,
-    ~isHighchartLegend: bool,
-    ~frozenUpto: int,
-    ~heightHeadingClass: string,
-    ~tableheadingClass: string,
-    ~sortedObj: option<TableUtils.sortedObject>,
-    ~setSortedObj: option<('a => option<sortedObject>) => unit>,
-    ~filterObj: option<array<filterObject>>,
-    ~fixedWidthClass: string,
-    ~setFilterObj: option<(array<filterObject> => array<filterObject>) => unit>,
-    ~headingCenter: bool,
-    ~filterIcon: React.element=?,
-    ~filterDropdownClass: string=?,
-    ~selectAllCheckBox: option<TableUtils.multipleSelectRows>,
-    ~setSelectAllCheckBox: option<
-      (option<TableUtils.multipleSelectRows> => option<TableUtils.multipleSelectRows>) => unit,
-    >,
-    ~isFrozen: bool=?,
-    ~lastHeadingClass: string=?,
-    ~fixLastCol: bool=?,
-    ~headerCustomBgColor: string=?,
-    ~filterDropdownMaxHeight: string=?,
-    ~columnFilterRow: option<array<filterRow>>,
-    ~customizeColumnNewTheme: TableUtils.customiseColumnConfig=?,
-    ~tableHeadingTextClass: string=?,
-  ) => React.element
+  ~headingArray: array<header>,
+  ~isHighchartLegend: bool,
+  ~frozenUpto: int,
+  ~heightHeadingClass: string,
+  ~tableheadingClass: string,
+  ~sortedObj: option<TableUtils.sortedObject>,
+  ~setSortedObj: option<('a => option<sortedObject>) => unit>,
+  ~filterObj: option<array<filterObject>>,
+  ~fixedWidthClass: string,
+  ~setFilterObj: option<(array<filterObject> => array<filterObject>) => unit>,
+  ~headingCenter: bool,
+  ~filterIcon: React.element=?,
+  ~filterDropdownClass: string=?,
+  ~selectAllCheckBox: option<multipleSelectRows>,
+  ~setSelectAllCheckBox: option<('b => option<multipleSelectRows>) => unit>,
+  ~isFrozen: bool=?,
+  ~lastHeadingClass: string=?,
+  ~fixLastCol: bool=?,
+  ~headerCustomBgColor: string=?,
+  ~filterDropdownMaxHeight: string=?,
+  ~columnFilterRow: option<array<filterRow>>,
+  ~customizeColumnNewTheme: customiseColumnConfig=?,
+  ~tableHeadingTextClass: string=?,
+) => React.element
 }
 @react.component
 let make: (
@@ -258,9 +265,9 @@ let make: (
   ~tableBorderClass: string=?,
   ~tableDataBorderClass: string=?,
   ~collapseTableRow: bool=?,
-  ~getRowDetails: Nullable.t<'b> => React.element=?,
-  ~actualData: array<Nullable.t<'b>>=?,
-  ~onExpandClickData: 'onExpandClickData=?,
+  ~getRowDetails: RescriptCore.Nullable.t<'b> => React.element=?,
+  ~actualData: array<RescriptCore.Nullable.t<'b>>=?,
+  ~onExpandClickData: 'c=?,
   ~onMouseEnter: int => unit=?,
   ~onMouseLeave: int => unit=?,
   ~highlightText: string=?,
@@ -277,10 +284,10 @@ let make: (
   ~filterDropdownClass: string=?,
   ~showHeading: bool=?,
   ~maxTableHeight: string=?,
-  ~labelMargin: string=?,
+  ~labelMargin: TableUtils.labelMargin=?,
   ~customFilterRowStyle: string=?,
   ~selectAllCheckBox: multipleSelectRows=?,
-  ~setSelectAllCheckBox: (option<multipleSelectRows> => option<multipleSelectRows>) => unit=?,
+  ~setSelectAllCheckBox: ('d => option<multipleSelectRows>) => unit=?,
   ~isEllipsisTextRelative: bool=?,
   ~customMoneyStyle: string=?,
   ~ellipseClass: string=?,
@@ -293,7 +300,7 @@ let make: (
   ~alignCellContent: string=?,
   ~minTableHeightClass: string=?,
   ~filterDropdownMaxHeight: string=?,
-  ~customizeColumnNewTheme: TableUtils.customiseColumnConfig=?,
+  ~customizeColumnNewTheme: customiseColumnConfig=?,
   ~customCellColor: string=?,
   ~customBorderClass: string=?,
   ~showborderColor: bool=?,

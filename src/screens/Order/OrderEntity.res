@@ -74,10 +74,9 @@ let getAttemptCell = (attempt: attempts, attemptColType: attemptColType): Table.
     })
   | PaymentMethod => Text(attempt.payment_method)
   | PaymentMethodType => Text(attempt.payment_method_type)
-  | AttemptId => CustomCell(<CopyTextCustomComp displayValue=attempt.attempt_id />, "")
+  | AttemptId => DisplayCopyCell(attempt.attempt_id)
   | ErrorMessage => Text(attempt.error_message)
-  | ConnectorTransactionID =>
-    CustomCell(<CopyTextCustomComp displayValue=attempt.connector_transaction_id />, "")
+  | ConnectorTransactionID => DisplayCopyCell(attempt.connector_transaction_id)
   | CaptureMethod => Text(attempt.capture_method)
   | AuthenticationType => Text(attempt.authentication_type)
   | CancellationReason => Text(attempt.cancellation_reason)
@@ -620,7 +619,7 @@ let getCellForSummary = (order, summaryColType, _): Table.cell => {
       "",
     )
   | LastUpdated => Date(order.last_updated)
-  | PaymentId => CustomCell(<CopyTextCustomComp displayValue=order.payment_id />, "")
+  | PaymentId => DisplayCopyCell(order.payment_id)
   | Currency => Text(order.currency)
   | AmountReceived =>
     CustomCell(
@@ -633,8 +632,7 @@ let getCellForSummary = (order, summaryColType, _): Table.cell => {
   | OrderQuantity => Text(order.order_quantity)
   | ProductName => Text(order.product_name)
   | ErrorMessage => Text(order.error_message)
-  | ConnectorTransactionID =>
-    CustomCell(<CopyTextCustomComp displayValue=order.connector_transaction_id />, "")
+  | ConnectorTransactionID => DisplayCopyCell(order.connector_transaction_id)
   }
 }
 
