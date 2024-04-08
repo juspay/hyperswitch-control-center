@@ -360,7 +360,7 @@ module TableHeadingCell = {
     let headerBgColor =
       headerCustomBgColor->Option.isSome
         ? headerCustomBgColor->Option.getOr("")
-        : "bg-gray-50 dark:bg-jp-gray-darkgray_background"
+        : "bg-offset_white dark:bg-jp-gray-darkgray_background"
     let paddingClass = "px-4 py-3"
     let roundedClass = if isFirstCol {
       "rounded-tl"
@@ -384,7 +384,7 @@ module TableHeadingCell = {
       let heightHeadingClass2 = frozenUpto == 0 ? "" : heightHeadingClass
       `tableHeader ${lastColProp} ${item.customWidth->Option.getOr(
           "",
-        )} justify-between items-center bg-white ${headerTextClass} whitespace-pre select-none ${headerBgColor} ${paddingClass} ${roundedClass} ${heightHeadingClass2} ${tableheadingClass} ${isLastCol
+        )} justify-between items-center ${headerTextClass} whitespace-pre select-none ${headerBgColor} ${paddingClass} ${roundedClass} ${heightHeadingClass2} ${tableheadingClass} ${isLastCol
           ? lastHeadingClass
           : ""}`
     }
