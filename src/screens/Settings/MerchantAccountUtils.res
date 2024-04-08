@@ -344,7 +344,7 @@ let validateCustom = (key, errors, value) => {
       )
     }
   | Website | WebhookUrl | ReturnUrl | ThreeDsRequestorUrl =>
-    if !Js.Re.test_(%re("/^https:\/\//i"), value) || value->String.includes("localhost") {
+    if !Js.Re.test_(%re("/^(http|https):\/\//i"), value) || value->String.includes("localhost") {
       Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->JSON.Encode.string)
     }
   | _ => ()
