@@ -59,6 +59,7 @@ let make = (
   open ConnectorUtils
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let unConfiguredConnectors =
     connectorsAvailableForIntegration->Array.filter(total =>
@@ -105,7 +106,10 @@ let make = (
             />
           </AddDataAttributes>
         </RenderIf>
-        <RenderIf condition={showDummyConnectorButton && urlPrefix == "connectors/new"}>
+        <RenderIf
+          condition={!featureFlagDetails.isLiveMode &&
+          showDummyConnectorButton &&
+          urlPrefix == "connectors/new"}>
           <ACLButton
             access={userPermissionJson.connectorsManage}
             leftIcon={CustomIcon(

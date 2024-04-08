@@ -17,6 +17,8 @@ let make = (~isPayoutFlow=false) => {
   let textStyle = HSwitchUtils.getTextClass((H2, Optional))
   let subtextStyle = `${HSwitchUtils.getTextClass((P1, Regular))} text-grey-700 opacity-50`
 
+  // Js.log2("filteredConnectorData", filteredConnectorData)
+
   let getConnectorListAndUpdateState = async () => {
     try {
       let response = await fetchConnectorListResponse()
@@ -27,6 +29,7 @@ let make = (~isPayoutFlow=false) => {
         response
         ->ConnectorListMapper.getArrayOfConnectorListPayloadType
         ->getProcessorsListFromJson(~removeFromList, ())
+      // Js.log2("connectorsList", connectorsList)
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
       setConfiguredConnectors(_ =>
@@ -75,7 +78,9 @@ let make = (~isPayoutFlow=false) => {
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-10">
         <RenderIf
-          condition={configuredConnectors->Array.length == 0 && urlPrefix == "connectors/new"}>
+          condition={!featureFlagDetails.isLiveMode &&
+          configuredConnectors->Array.length == 0 &&
+          urlPrefix == "connectors/new"}>
           <div
             className="flex flex-col md:flex-row border rounded-md bg-white gap-4 shadow-generic_shadow">
             <div className="flex flex-col justify-evenly gap-6 pl-10 pb-10 pt-10 pr-2 md:pr-0">
