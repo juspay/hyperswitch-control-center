@@ -61,6 +61,7 @@ let make = () => {
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (uid, setUid) = React.useState(() => None)
   let (merchantInfo, setMerchantInfo) = React.useState(() => Dict.make())
   let (formState, setFormState) = React.useState(_ => Preview)
@@ -139,6 +140,7 @@ let make = () => {
             ~fieldsToValidate=[PrimaryPhone, PrimaryEmail, Website, SecondaryEmail, SecondaryPhone],
             ~setIsDisabled=Some(setIsDisabled),
             ~initialData={merchantInfo->JSON.Encode.object},
+            ~isLiveMode=featureFlagDetails.isLiveMode,
           )
         }}>
         <div

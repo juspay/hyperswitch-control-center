@@ -325,7 +325,7 @@ let validateEmptyArray = (key, errors, arrayValue) => {
   }
 }
 
-let validateCustom = (key, errors, value) => {
+let validateCustom = (key, errors, value, isLiveMode) => {
   switch key {
   | PrimaryEmail | SecondaryEmail =>
     if value->HSwitchUtils.isValidEmail {
@@ -343,10 +343,16 @@ let validateCustom = (key, errors, value) => {
         "Please enter valid phone number"->JSON.Encode.string,
       )
     }
-  | Website | WebhookUrl | ReturnUrl | ThreeDsRequestorUrl =>
-    if !Js.Re.test_(%re("/^https:\/\//i"), value) || value->String.includes("localhost") {
-      Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->JSON.Encode.string)
+  | Website | WebhookUrl | ReturnUrl | ThreeDsRequestorUrl => {
+      let regexUrl = isLiveMode
+        ? Js.Re.test_(%re("/^https:\/\//i"), value)
+        : Js.Re.test_(%re("/^(http|https):\/\//i"), value)
+
+      if !regexUrl || value->String.includes("localhost") {
+        Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->JSON.Encode.string)
+      }
     }
+
   | _ => ()
   }
 }
@@ -358,6 +364,7 @@ let validateMerchantAccountForm = (
   ~fieldsToValidate: array<validationFields>,
   ~setIsDisabled,
   ~initialData,
+  ~isLiveMode,
 ) => {
   let errors = Dict.make()
   let initialDict = initialData->LogicUtils.getDictFromJsonObject
@@ -367,13 +374,13 @@ let validateMerchantAccountForm = (
     if threedsFields->Array.includes(key) {
       let threedsArray = LogicUtils.getArrayFromDict(valuesDict, key->validationFieldsMapper, [])
       let threedsUrl = LogicUtils.getString(valuesDict, key->validationFieldsMapper, "")
-      key->validateCustom(errors, threedsUrl)
+      key->validateCustom(errors, threedsUrl, isLiveMode)
       key->validateEmptyArray(errors, threedsArray)
     } else {
       let value = LogicUtils.getString(valuesDict, key->validationFieldsMapper, "")
       value->String.length <= 0
         ? key->validateEmptyValue(errors)
-        : key->validateCustom(errors, value)
+        : key->validateCustom(errors, value, isLiveMode)
     }
   })
 
