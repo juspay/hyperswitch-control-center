@@ -384,7 +384,7 @@ module TableHeadingCell = {
       let heightHeadingClass2 = frozenUpto == 0 ? "" : heightHeadingClass
       `tableHeader ${lastColProp} ${item.customWidth->Option.getOr(
           "",
-        )} justify-between items-center ${headerTextClass} whitespace-pre select-none ${headerBgColor} ${paddingClass} ${roundedClass} ${heightHeadingClass2} ${tableheadingClass} ${isLastCol
+        )} justify-between items-center bg-white ${headerTextClass} whitespace-pre select-none ${headerBgColor} ${paddingClass} ${roundedClass} ${heightHeadingClass2} ${tableheadingClass} ${isLastCol
           ? lastHeadingClass
           : ""}`
     }
