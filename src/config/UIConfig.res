@@ -70,6 +70,11 @@ module BorderConfig = {
   type t = {borderColor: borderColor}
 }
 
+module SidebarConfig = {
+  type backgroundColor = {primaryNormal: string}
+  type t = {backgroundColor: backgroundColor}
+}
+
 type t = {
   button: ButtonConfig.t,
   font: FontConfig.t,
@@ -77,6 +82,7 @@ type t = {
   primaryColor: string,
   shadow: ShadowConfig.t,
   border: BorderConfig.t,
+  sidebarColor: SidebarConfig.t,
 }
 
 let defaultUIConfig: t = {
@@ -150,4 +156,9 @@ let defaultUIConfig: t = {
     },
   },
   primaryColor: "primary",
+  sidebarColor: {
+    backgroundColor: {
+      primaryNormal: "bg-primary-sidebar",
+    },
+  },
 }

@@ -69,4 +69,9 @@ let config: UIConfig.t = {
       primaryFocused: "focus:border-primary",
     },
   },
+  sidebarColor: {
+    backgroundColor: {
+      primaryNormal: "bg-primary-sidebar",
+    },
+  },
 }

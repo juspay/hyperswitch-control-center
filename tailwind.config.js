@@ -82,6 +82,7 @@ module.exports = {
         primary: {
           DEFAULT: "#2167ae", // Default primary color
           hover: "#5495cf",
+          sidebar: "#27356B",
           custom: "#006DF9", // Custom primary color
         },
         blue: {
@@ -133,7 +134,6 @@ module.exports = {
           980: "#FC5454",
           failed_page_bg: "#FDEDE8",
         },
-        "sidebar-blue": "#242F48",
         "profile-sidebar-blue": "#16488F",
         "status-green": "#36AF47",
         "popover-background": "#334264",
@@ -227,21 +227,21 @@ module.exports = {
       };
       addUtilities(newUtilities);
     }),
-    // plugin(function ({ addVariant, addUtilities, e }) {
-    //   addVariant("red", ({ modifySelectors, separator }) => {
-    //     modifySelectors(({ className }) => {
-    //       return `.red${separator}${className}`;
-    //     });
-    //   });
-    //   const newUtilities = {
-    //     ".red .red\\:bg-red": {
-    //       "--tw-bg-opacity": "1",
-    //       "background-color": "rgb(255 0 0 / var(--tw-bg-opacity))",
-    //     },
-    //   };
+    plugin(function ({ addVariant, addUtilities, e }) {
+      addVariant("red", ({ modifySelectors, separator }) => {
+        modifySelectors(({ className }) => {
+          return `.red${separator}${className}`;
+        });
+      });
+      const newUtilities = {
+        ".red .red\\:bg-red": {
+          "--tw-bg-opacity": "1",
+          "background-color": "rgb(255 0 0 / var(--tw-bg-opacity))",
+        },
+      };
 
-    //   addUtilities(newUtilities, ["responsive", "hover"]);
-    // }),
+      addUtilities(newUtilities, ["responsive", "hover"]);
+    }),
   ],
 };
 
