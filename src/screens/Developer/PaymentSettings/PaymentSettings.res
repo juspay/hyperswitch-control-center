@@ -36,7 +36,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
   let url = RescriptReactRouter.useUrl()
   let id = url.path->List.toArray->Array.get(1)->Option.getOr(profileId)
   let businessProfileDetails = BusinessProfileHook.useGetBusinessProflile(id)
-
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastState.useShowToast()
   let updateDetails = useUpdateMethod()
   let (isDisabled, setIsDisabled) = React.useState(_ => false)
@@ -114,6 +114,7 @@ let make = (~webhookOnly=false, ~showFormOnly=false, ~profileId="") => {
                 ~setIsDisabled=Some(setIsDisabled),
                 ~fieldsToValidate={fieldsToValidate()},
                 ~initialData=profileInfo->parseBussinessProfileJson->JSON.Encode.object,
+                ~isLiveMode=featureFlagDetails.isLiveMode,
               )
             }}
             onSubmit
