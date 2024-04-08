@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.04.0
+
+### Bug Fixes
+
+- Billwerk-icon change ([#563](https://github.com/juspay/hyperswitch-control-center/pull/563)) ([`e047482`](https://github.com/juspay/hyperswitch-control-center/commit/e047482f72d3b6e51ba5092d84d9b6aa35fe87e9))
+- Configure pmts page issue fix ([#564](https://github.com/juspay/hyperswitch-control-center/pull/564)) ([`0e61f85`](https://github.com/juspay/hyperswitch-control-center/commit/0e61f8588628913b3820f8fcb37ff1f4da22e5ca))
+
+**Full Changelog:** [`2024.04.03.1...2024.04.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.03.1...2024.04.04.0)
+
+- - -
+
 ## 2024.04.03.1
 
 ### Bug Fixes
