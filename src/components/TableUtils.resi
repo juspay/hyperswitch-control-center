@@ -103,23 +103,23 @@ module BaseComponentMethod: {
 module LabelCell: {
   @react.component
   let make: (
-  ~labelColor: labelColor,
-  ~text: Js.String.t,
-  ~labelMargin: string=?,
-  ~highlightText: string=?,
-  ~fontStyle: string=?,
-  ~showIcon: bool=?,
-) => React.element
+    ~labelColor: labelColor,
+    ~text: Js.String.t,
+    ~labelMargin: string=?,
+    ~highlightText: string=?,
+    ~fontStyle: string=?,
+    ~showIcon: bool=?,
+  ) => React.element
 }
 module NewLabelCell: {
   @react.component
   let make: (
-  ~labelColor: labelColor,
-  ~text: string,
-  ~labelMargin: string=?,
-  ~highlightText: string=?,
-  ~fontStyle: string=?,
-) => React.element
+    ~labelColor: labelColor,
+    ~text: string,
+    ~labelMargin: string=?,
+    ~highlightText: string=?,
+    ~fontStyle: string=?,
+  ) => React.element
 }
 module ColoredTextCell: {
   @react.component
@@ -133,13 +133,13 @@ module MoneyCell: {
   let getAmountValue: (float, string) => string
   @react.component
   let make: (
-  ~amount: float,
-  ~currency: string,
-  ~isCard: bool=?,
-  ~textAlign: textAlign=?,
-  ~fontBold: bool=?,
-  ~customMoneyStyle: string=?,
-) => React.element
+    ~amount: float,
+    ~currency: string,
+    ~isCard: bool=?,
+    ~textAlign: textAlign=?,
+    ~fontBold: bool=?,
+    ~customMoneyStyle: string=?,
+  ) => React.element
 }
 module LinkCell: {
   @react.component
@@ -148,13 +148,13 @@ module LinkCell: {
 module DateCell: {
   @react.component
   let make: (
-  ~timestamp: string,
-  ~isCard: bool=?,
-  ~textStyle: string=?,
-  ~textAlign: textAlign=?,
-  ~customDateStyle: string=?,
-  ~hideTime: bool=?,
-) => React.element
+    ~timestamp: string,
+    ~isCard: bool=?,
+    ~textStyle: string=?,
+    ~textAlign: textAlign=?,
+    ~customDateStyle: string=?,
+    ~hideTime: bool=?,
+  ) => React.element
 }
 module StartEndDateCell: {
   @react.component
@@ -163,24 +163,24 @@ module StartEndDateCell: {
 module EllipsisText: {
   @react.component
   let make: (
-  ~text: Js.String.t,
-  ~width: string,
-  ~highlightText: string=?,
-  ~isEllipsisTextRelative: bool=?,
-  ~ellipseClass: string=?,
-  ~ellipsisIdentifier: string=?,
-  ~ellipsisThreshold: int=?,
-  ~toolTipPosition: ToolTip.toolTipPosition=?,
-) => React.element
+    ~text: Js.String.t,
+    ~width: string,
+    ~highlightText: string=?,
+    ~isEllipsisTextRelative: bool=?,
+    ~ellipseClass: string=?,
+    ~ellipsisIdentifier: string=?,
+    ~ellipsisThreshold: int=?,
+    ~toolTipPosition: ToolTip.toolTipPosition=?,
+  ) => React.element
 }
 module TrimmedText: {
   @react.component
   let make: (
-  ~text: Js.String.t,
-  ~width: string,
-  ~highlightText: string=?,
-  ~hideShowMore: bool=?,
-) => React.element
+    ~text: Js.String.t,
+    ~width: string,
+    ~highlightText: string=?,
+    ~hideShowMore: bool=?,
+  ) => React.element
 }
 module TableFilterCell: {
   @react.component
@@ -193,34 +193,34 @@ module DeltaColumn: {
 module TableCell: {
   @react.component
   let make: (
-  ~cell: cell,
-  ~textAlign: textAlign=?,
-  ~fontBold: bool=?,
-  ~labelMargin: labelMargin=?,
-  ~customMoneyStyle: string=?,
-  ~customDateStyle: string=?,
-  ~highlightText: string=?,
-  ~hideShowMore: bool=?,
-  ~clearFormatting: bool=?,
-  ~fontStyle: string=?,
-  ~isEllipsisTextRelative: bool=?,
-  ~ellipseClass: string=?,
-) => React.element
+    ~cell: cell,
+    ~textAlign: textAlign=?,
+    ~fontBold: bool=?,
+    ~labelMargin: labelMargin=?,
+    ~customMoneyStyle: string=?,
+    ~customDateStyle: string=?,
+    ~highlightText: string=?,
+    ~hideShowMore: bool=?,
+    ~clearFormatting: bool=?,
+    ~fontStyle: string=?,
+    ~isEllipsisTextRelative: bool=?,
+    ~ellipseClass: string=?,
+  ) => React.element
 }
 module NewTableCell: {
   @react.component
   let make: (
-  ~cell: cell,
-  ~textAlign: textAlign=?,
-  ~fontBold: bool=?,
-  ~labelMargin: labelMargin=?,
-  ~customMoneyStyle: string=?,
-  ~customDateStyle: string=?,
-  ~highlightText: string=?,
-  ~hideShowMore: bool=?,
-  ~clearFormatting: bool=?,
-  ~fontStyle: string=?,
-) => React.element
+    ~cell: cell,
+    ~textAlign: textAlign=?,
+    ~fontBold: bool=?,
+    ~labelMargin: labelMargin=?,
+    ~customMoneyStyle: string=?,
+    ~customDateStyle: string=?,
+    ~highlightText: string=?,
+    ~hideShowMore: bool=?,
+    ~clearFormatting: bool=?,
+    ~fontStyle: string=?,
+  ) => React.element
 }
 type rowType = Filter | Row
 let getTableCellValue: cell => string
@@ -231,11 +231,11 @@ module SortIcons: {
 module HeaderActions: {
   @react.component
   let make: (
-  ~order: sortOrder,
-  ~actionOptions: array<SelectBox.dropdownOption>=?,
-  ~onChange: ReactEvent.Form.t => unit,
-  ~filterRow: option<filterRow>,
-  ~isLastCol: bool=?,
-  ~filterKey: string,
-) => React.element
+    ~order: sortOrder,
+    ~actionOptions: array<SelectBox.dropdownOption>=?,
+    ~onChange: ReactEvent.Form.t => unit,
+    ~filterRow: option<filterRow>,
+    ~isLastCol: bool=?,
+    ~filterKey: string,
+  ) => React.element
 }

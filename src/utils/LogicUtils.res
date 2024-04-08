@@ -660,7 +660,4 @@ let getValFromNullableValue = (val, default) => {
   val->getOptionalFromNullable->Option.getOr(default)
 }
 
-let dateFormat = (timestamp, format) => {
-  let readableTimestamp = (timestamp->DayJs.getDayJsForString).format(. format)
-  readableTimestamp
-}
+let dateFormat = (timestamp, format) => (timestamp->DayJs.getDayJsForString).format(. format)
