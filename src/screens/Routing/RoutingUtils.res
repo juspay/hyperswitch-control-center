@@ -19,11 +19,9 @@ let getCurrentUTCTime = () => {
 
 let routingTypeMapper = routingType => {
   switch routingType {
-  | "single" => SINGLE
   | "priority" => PRIORITY
   | "volume_split" => VOLUME_SPLIT
   | "advanced" => ADVANCED
-  | "cost" => COST
   | "default" => DEFAULTFALLBACK
   | _ => NO_ROUTING
   }
@@ -31,10 +29,8 @@ let routingTypeMapper = routingType => {
 
 let routingTypeName = routingType => {
   switch routingType {
-  | SINGLE => "single"
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"
-  | COST => "cost"
   | PRIORITY => "rank"
   | DEFAULTFALLBACK => "default"
   | NO_ROUTING => ""
@@ -109,10 +105,6 @@ let getContent = routetype =>
   | ADVANCED => {
       heading: "Rule Based Configuration",
       subHeading: "Route traffic across processors with advanced logic rules on the basis of various payment parameters",
-    }
-  | COST => {
-      heading: "Cost Based Configuration",
-      subHeading: "Helps you optimise your overall payment costs with a single click by leveraging the differential processing fees across various processors",
     }
   | _ => {
       heading: "",
@@ -256,5 +248,42 @@ let getRecordsObject = json => {
   | Object(jsonDict) => jsonDict->getArrayFromDict("records", [])
   | Array(jsonArray) => jsonArray
   | _ => []
+  }
+}
+
+let filter = (connector_type, ~retainInList) => {
+  let paymentRegex = %re("/(payout_processor|payment_vas)/ig")
+  switch retainInList {
+  | PaymentConnector => Js.Re.exec_(paymentRegex, connector_type)->Option.isNone
+  | FRMPlayer => connector_type === "payment_vas"
+  | PayoutConnector => connector_type === "payout_processor"
+  }
+}
+
+let filterConnectorList = (items, ~retainInList) => {
+  open ConnectorTypes
+  items->Array.filter(connector => connector.connector_type->filter(~retainInList))
+}
+
+let filterConnectorListJson = (json, ~retainInList) => {
+  json
+  ->getArrayFromJson([])
+  ->Array.map(getDictFromJsonObject)
+  ->Array.filter(dict => dict->getString("connector_type", "")->filter(~retainInList))
+}
+
+let filterConnectorListCoreJson = (json, ~retainInList) => {
+  json
+  ->Array.map(getDictFromJsonObject)
+  ->Array.filter(dict => dict->getString("connector_type", "")->filter(~retainInList))
+  ->Array.map(JSON.Encode.object)
+}
+
+let urlToVariantMapper = (url: RescriptReactRouter.url) => {
+  switch url.path {
+  | list{"payoutrouting", _} => PayoutRouting
+  | list{"3ds", _} => ThreedsRouting
+  | list{"surcharge", _} => SurchargeRouting
+  | _ => Routing
   }
 }

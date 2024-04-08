@@ -9,7 +9,6 @@ module TopLeftIcons = {
     | PRIORITY | DEFAULTFALLBACK => <Icon name="fallback" size=25 className="w-11" />
     | VOLUME_SPLIT => <Icon name="processorLevel" size=25 className="w-14" />
     | ADVANCED => <Icon name="parameterLevel" size=25 className="w-20" />
-    | COST => <Icon name="costLevel" size=25 className="w-14" />
     | _ => React.null
     }
   }
@@ -19,50 +18,15 @@ module TopRightIcons = {
   let make = (~routeType: routingType) => {
     switch routeType {
     | VOLUME_SPLIT | PRIORITY => <Icon name="quickSetup" size=25 className="w-28" />
-    | COST => <Icon name="comingSoon" size=35 className="!w-40" />
     | _ => React.null
     }
   }
 }
 module ActionButtons = {
   @react.component
-  let make = (~routeType: routingType) => {
+  let make = (~routeType: routingType, ~onRedirectBaseUrl) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let showToast = ToastState.useShowToast()
-    let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false, ())
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
-
-    let handleSubmitRequest = async _ => {
-      try {
-        let requestedBody =
-          [
-            ("rating", 5.0->JSON.Encode.float),
-            ("category", "Routing request"->JSON.Encode.string),
-            ("feedbacks", `Request for Cost based Routing`->JSON.Encode.string),
-          ]
-          ->LogicUtils.getJsonFromArrayOfJson
-          ->HSwitchUtils.getBodyForFeedBack()
-          ->JSON.Encode.object
-
-        let feedbackUrl = APIUtils.getURL(
-          ~entityName=USERS,
-          ~userType=#USER_DATA,
-          ~methodType=Post,
-          (),
-        )
-        let body = [("Feedback", requestedBody)]->LogicUtils.getJsonFromArrayOfJson
-        let _ = await updateDetails(feedbackUrl, body, Post, ())
-        showToast(
-          ~toastType=ToastSuccess,
-          ~message="Request submitted successfully!",
-          ~autoClose=false,
-          (),
-        )
-      } catch {
-      | Exn.Error(_e) =>
-        showToast(~message="Failed to submit request !", ~toastType=ToastState.ToastError, ())
-      }
-    }
 
     switch routeType {
     | PRIORITY
@@ -75,7 +39,7 @@ module ActionButtons = {
         buttonSize={Small}
         customButtonStyle="border !border-blue-500 bg-white !text-blue-500"
         onClick={_ => {
-          RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)
+          RescriptReactRouter.push(`${onRedirectBaseUrl}/${routingTypeName(routeType)}`)
           mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
         }}
       />
@@ -87,20 +51,11 @@ module ActionButtons = {
         customButtonStyle="border !border-blue-500 bg-white !text-blue-500"
         buttonSize={Small}
         onClick={_ => {
-          RescriptReactRouter.push(`routing/${routingTypeName(routeType)}`)
+          RescriptReactRouter.push(`${onRedirectBaseUrl}/${routingTypeName(routeType)}`)
           mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
         }}
       />
 
-    | COST =>
-      <ACLButton
-        text={"I'm interested"}
-        access={userPermissionJson.merchantDetailsManage}
-        buttonType=Secondary
-        buttonSize={Small}
-        customButtonStyle="!w-fit !px-14"
-        onClick={_ => handleSubmitRequest()->ignore}
-      />
     | _ => React.null
     }
   }
@@ -108,7 +63,7 @@ module ActionButtons = {
 
 module ActiveSection = {
   @react.component
-  let make = (~activeRouting, ~activeRoutingId) => {
+  let make = (~activeRouting, ~activeRoutingId, ~onRedirectBaseUrl) => {
     open LogicUtils
     let activeRoutingType =
       activeRouting->getDictFromJsonObject->getString("kind", "")->routingTypeMapper
@@ -162,10 +117,12 @@ module ActiveSection = {
             onClick={_ => {
               switch activeRoutingType {
               | DEFAULTFALLBACK =>
-                RescriptReactRouter.push(`routing/${routingTypeName(activeRoutingType)}`)
+                RescriptReactRouter.push(
+                  `${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`,
+                )
               | _ =>
                 RescriptReactRouter.push(
-                  `routing/${routingTypeName(
+                  `${onRedirectBaseUrl}/${routingTypeName(
                       activeRoutingType,
                     )}?id=${activeRoutingId}&isActive=true`,
                 )
@@ -180,7 +137,7 @@ module ActiveSection = {
 
 module LevelWiseRoutingSection = {
   @react.component
-  let make = (~types: array<routingType>) => {
+  let make = (~types: array<routingType>, ~onRedirectBaseUrl) => {
     <div className="flex flex-col flex-wrap  rounded w-full py-6 gap-5">
       <div className="flex flex-wrap justify-evenly gap-9 items-stretch">
         {types
@@ -202,7 +159,7 @@ module LevelWiseRoutingSection = {
                 </p>
               </div>
             </div>
-            <ActionButtons routeType=value />
+            <ActionButtons routeType=value onRedirectBaseUrl />
           </div>
         )
         ->React.array}
@@ -217,7 +174,9 @@ let make = (~routingType: array<JSON.t>) => {
     {routingType
     ->Array.mapWithIndex((ele, i) => {
       let id = ele->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
-      <ActiveSection key={i->Int.toString} activeRouting={ele} activeRoutingId={id} />
+      <ActiveSection
+        key={i->Int.toString} activeRouting={ele} activeRoutingId={id} onRedirectBaseUrl="routing"
+      />
     })
     ->React.array}
   </div>
