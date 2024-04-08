@@ -34,6 +34,7 @@ function getDescriptionCategory() {
   }
 }
 
+
 function getPaymentMethodConfig(connectorName) {
   if (wasm) {
     return wasm.getPaymentMethodConfig(connectorName);
@@ -94,6 +95,7 @@ function getAllKeys() {
     return [];
   }
 }
+
 
 function getKeyType(str) {
   if (wasm) {

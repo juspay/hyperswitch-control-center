@@ -539,6 +539,7 @@ let make = (
   ~disableURIdecode=false,
   ~revampedFilter=false,
 ) => {
+  let url = RescriptReactRouter.useUrl()
   let {query} = React.useContext(FilterContext.filterContext)
   let alreadySelectedFiltersUserpref = `remote_filters_selected_keys_${tableName->Option.getOr("")}`
   let {addConfig} = React.useContext(UserPrefContext.userPrefContext)
@@ -578,7 +579,7 @@ let make = (
   let (clearFilterAfterRefresh, setClearFilterAfterRefresh) = React.useState(_ => false)
   let (count, setCount) = React.useState(_ => initalCount)
 
-  let searchParams = disableURIdecode ? query : query->decodeURI
+  let searchParams = disableURIdecode ? query : url.search->decodeURI
 
   let isMobileView = MatchMedia.useMobileChecker()
 
@@ -587,7 +588,6 @@ let make = (
   let countSelectedFilters = React.useMemo1(() => {
     Dict.keysToArray(initialValueJson->JSON.Decode.object->Option.getOr(Dict.make()))->Array.length
   }, [initialValueJson])
-
   let hideFiltersInit = switch hideFiltersDefaultValue {
   | Some(value) => value
   | _ => true

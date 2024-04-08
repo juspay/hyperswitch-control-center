@@ -261,6 +261,18 @@ let make = () => {
                           />
                         </AccessControl>
 
+                      | list{"payoutrouting", ...remainingPath} =>
+                        <AccessControl
+                          isEnabled={featureFlagDetails.payOut}
+                          permission=userPermissionJson.workflowsView>
+                          <EntityScaffold
+                            entityName="PayoutRouting"
+                            remainingPath
+                            renderList={() => <PayoutRoutingStack remainingPath />}
+                            renderShow={routingType => <PayoutRoutingConfigure routingType />}
+                          />
+                        </AccessControl>
+
                       | list{"3ds-authenticators", ...remainingPath} =>
                         <AccessControl
                           permission=userPermissionJson.connectorsView
@@ -429,6 +441,19 @@ let make = () => {
                       | list{"business-profiles"} =>
                         <AccessControl permission=Access>
                           <BusinessProfile />
+                        </AccessControl>
+
+                      | list{"configure-pmts", ...remainingPath} =>
+                        <AccessControl
+                          permission=userPermissionJson.connectorsView
+                          isEnabled={featureFlagDetails.configurePmts}>
+                          <EntityScaffold
+                            entityName="ConfigurePMTs"
+                            remainingPath
+                            renderList={() => <PaymentMethodList />}
+                            renderShow={profileId =>
+                              <PaymentSettings webhookOnly=false showFormOnly=false />}
+                          />
                         </AccessControl>
                       | list{"quick-start"} => determineQuickStartPageState()
                       | list{"woocommerce"} => determineWooCommerce()

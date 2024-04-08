@@ -160,6 +160,7 @@ export interface InitOutput {
   readonly getAllPayoutKeys: (a: number) => void;
   readonly getPayoutVariantValues: (a: number, b: number, c: number) => void;
   readonly getPayoutDescriptionCategory: (a: number) => void;
+  readonly ring_core_0_17_8_bn_mul_mont: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
   readonly parse: (a: number, b: number, c: number) => void;
   readonly parseToString: (a: number, b: number, c: number) => void;
   readonly __wbindgen_export_0: (a: number, b: number) => number;
