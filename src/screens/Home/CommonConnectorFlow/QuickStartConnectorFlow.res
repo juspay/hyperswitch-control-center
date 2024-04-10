@@ -159,6 +159,7 @@ let make = (
             handleConnectorSubmit()
           }}
           buttonSize=Small
+          dataTestId="connectorConnectChoice"
         />}
         backButton={<Button
           buttonType={PrimaryOutline}
@@ -196,6 +197,7 @@ let make = (
           customButtonStyle="rounded-md"
           buttonType={Primary}
           onClick={_ => handleSummaryProceed()}
+          dataTestId={`${connectorName}_connectorSummary`}
         />}>
         <ConnectorPreview.ConnectorSummaryGrid
           connectorInfo={initialValues

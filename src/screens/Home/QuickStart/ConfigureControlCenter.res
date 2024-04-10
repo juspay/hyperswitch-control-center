@@ -13,6 +13,7 @@ let make = () => {
           setDashboardPageState(_ => #HOME)
           RescriptReactRouter.replace("/home")
         }}
+        dataTestId="redirectToHome"
       />
     </div>
   }

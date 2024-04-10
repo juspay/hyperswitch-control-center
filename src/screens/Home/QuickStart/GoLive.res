@@ -94,6 +94,7 @@ let make = (~goLive) => {
             mixpanelEvent(~eventName="quickstart_get_production_access_landing", ())
             setQuickStartPageState(_ => GoLive(GO_LIVE))
           }}
+          dataTestId="productionAccessForm"
         />
       </UIUtils.RenderIf>
       <Button
@@ -128,7 +129,10 @@ let make = (~goLive) => {
             headerText="Provide Business Details"
             headerLeftIcon="hyperswitch-logo-short"
             nextButton={<FormRenderer.SubmitButton
-              disabledParamter=isSubmitBtnDisabled text="Submit" buttonSize={Small}
+              disabledParamter=isSubmitBtnDisabled
+              text="Submit"
+              buttonSize={Small}
+              dataTestId="businessDetailsSubmit"
             />}
             backButton={<Button
               buttonType={PrimaryOutline}

@@ -37,6 +37,7 @@ module SelectProcessor = {
           RescriptReactRouter.replace(`/${url.path->LogicUtils.getListHead}?name=${connectorName}`)
         }}
         buttonSize=Small
+        dataTestId="connectorSelection"
       />}
       backButton={<Button
         buttonType={PrimaryOutline}
@@ -144,7 +145,10 @@ module ConfigureProcessor = {
         />}
         backButton
         nextButton={<FormRenderer.SubmitButton
-          loadingText="Processing..." text="Proceed" buttonSize={Small}
+          loadingText="Processing..."
+          text="Proceed"
+          buttonSize={Small}
+          dataTestId="connectorConfigSubmit"
         />}>
         <SetupConnectorCredentials.ConnectorDetailsForm
           connectorName
@@ -266,6 +270,7 @@ module SelectPaymentMethods = {
         customButtonStyle="rounded-md"
         buttonType={Primary}
         onClick={_ => onSubmitMain()->ignore}
+        dataTestId="connectorPaymentMethodsSubmit"
       />}
       backButton={<Button
         buttonType={PrimaryOutline}

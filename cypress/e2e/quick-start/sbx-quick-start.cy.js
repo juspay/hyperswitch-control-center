@@ -1,7 +1,9 @@
 let username = `cypresssbxquickstart+${Math.round(
   +new Date() / 1000,
 )}@gmail.com`;
+
 before(() => {
+  cy.viewport("macbook-16");
   cy.singup_curl(username, "cypress98#");
 });
 beforeEach(() => {
@@ -65,31 +67,51 @@ describe("Sandbox quick start", () => {
     clickButton("getStartedNow");
     cy.contains("How would you like to configure Hyperswitch?");
     customComponentButtonType("MultipleProcessorWithSmartRouting");
-    clickButton("proceed");
+    cy.contains("How would you like to configure Hyperswitch?").should(
+      "be.visible",
+    );
+    customComponentButtonType("configurationType");
 
     // to connect stripe
+    cy.contains("Select Processor").should("be.visible");
     customComponentButtonType("stripe");
-    clickButton("proceed");
+    customComponentButtonType("connectorSelection");
+
+    cy.contains("Connect Stripe").should("be.visible");
+    cy.contains("I have Stripe API keys").should("be.visible");
     customComponentButtonType("ConnectorApiKeys");
-    clickButton("proceed");
+    customComponentButtonType("connectorConnectChoice");
+
+    cy.contains("Connect Stripe").should("be.visible");
     fillInputFields(
       "connector_account_details.api_key",
       "sk_test_stripe_dummy_api_key",
     );
+
     fillInputFields(
       "connector_webhook_details.merchant_secret",
       "stripe_dummy_source_verification_keys",
     );
-    clickButton("proceed");
-    clickButton("proceed");
-    clickButton("proceed");
-    clickButton("proceed");
+    customComponentButtonType("connectorConfigSubmit");
+    cy.contains("Connect payment methods").should("be.visible");
+    cy.get("[data-testid=credit_select_all]")
+      .children("div:first")
+      .should("have.attr", "data-bool-value")
+      .and("match", /on/i);
+    customComponentButtonType("connectorPaymentMethodsSubmit");
+    cy.contains("Stripe").should("be.visible");
+    customComponentButtonType("stripe_connectorSummary");
 
-    // to connect paypal
+    // connect paypal
+    cy.contains("Select Processor").should("be.visible");
     customComponentButtonType("paypal");
-    clickButton("proceed");
+    customComponentButtonType("connectorSelection");
+
+    cy.contains("Connect PayPal").should("be.visible");
+    cy.contains("I have PayPal API keys").should("be.visible");
     customComponentButtonType("ConnectorApiKeys");
-    clickButton("proceed");
+    customComponentButtonType("connectorConnectChoice");
+    cy.contains("Connect PayPal").should("be.visible");
     fillInputFields(
       "connector_account_details.api_key",
       "sk_test_paypal_dummy_api_key",
@@ -102,44 +124,85 @@ describe("Sandbox quick start", () => {
       "connector_webhook_details.merchant_secret",
       "paypal_dummy_source_verification_keys",
     );
-    clickButton("proceed");
-    clickButton("proceed");
-    clickButton("proceed");
-    clickButton("proceed");
+    customComponentButtonType("connectorConfigSubmit");
+    cy.contains("Connect payment methods").should("be.visible");
+    cy.get("[data-testid=credit_select_all]")
+      .children("div:first")
+      .should("have.attr", "data-bool-value")
+      .and("match", /on/i);
+    customComponentButtonType("connectorPaymentMethodsSubmit");
+    cy.contains("PayPal").should("be.visible");
+    customComponentButtonType("paypal_connectorSummary");
 
     // configure default routing
-    customComponentButtonType("DefaultFallback");
-    clickButton("proceed");
+    cy.contains("Configure Smart Routing").should("be.visible");
+    cy.get("[data-testid=horizontal-tile]").children().should("have.length", 2);
+    cy.get(`[data-testid=DefaultFallback]`)
+      .contains("Fallback routing (active - passive)")
+      .should("exist")
+      .click({ force: true });
+    customComponentButtonType("smartRoutingProceed");
     cy.contains("Preview Checkout page");
     cy.get(`[data-button-for=skipThisStep]`).should("be.visible");
     clickButton("skipThisStep");
+
+    // Integrate your app
     cy.contains(
       "Configuration is complete. You can now start integrating with us!",
-    );
-    clickButton("iWantToIntegrateHyperswitchIntoMyApp");
-    // integrate to my app flow
-    customComponentButtonType("MigrateFromStripe");
-    clickButton("proceed");
-    clickButton("downloadAPIKey");
-    clickButton("proceed");
-    clickButton("proceed");
-    clickButton("proceed");
-    clickButton("proceed");
-    clickButton("complete");
+    ).should("be.visible");
+    customComponentButtonType("integrateIntoYourApp");
+    cy.contains("How would you like to integrate?").should("be.visible");
+    cy.get("[data-testid=vertical-tile]").children().should("have.length", 2);
+    cy.get(`[data-testid=MigrateFromStripe]`)
+      .contains("Quick Integration for Stripe users")
+      .should("exist")
+      .click({ force: true });
+    customComponentButtonType("integrateHyperswitch");
 
-    // prod intent form
-    clickButton("getProductionAccess");
+    // migrate from stripe steps
+    cy.contains("Download Test API Key").should("be.visible");
+    cy.contains(
+      "API key once misplaced cannot be restored. If misplaced, please re-generate a new key from Dashboard > Developers.",
+    ).should("be.visible");
+    customComponentButtonType("downloadAPiKey");
+    customComponentButtonType("DownloadTestAPIKeyStripe_button");
+
+    cy.contains("Install Dependencies").should("be.visible");
+    cy.get(`[data-editor="Monaco Editor"]`).should("exist");
+    customComponentButtonType("InstallDeps_button");
+    cy.contains("Replace API Key").should("be.visible");
+    cy.contains("Publishable Key").should("be.visible");
+    cy.get(`[data-editor="Difference code editor"]`).should("exist");
+    customComponentButtonType("ReplaceAPIKeys_button");
+    cy.contains("Reconfigure Checkout Form").should("be.visible");
+    cy.contains("Publishable Key").should("be.visible");
+    cy.get(`[data-editor="Difference code editor"]`).should("exist");
+    customComponentButtonType("ReconfigureCheckout_button");
+    cy.contains("Load Hyperswitch Checkout").should("be.visible");
+    cy.contains("Publishable Key").should("be.visible");
+    cy.get(`[data-editor="Difference code editor"]`).should("exist");
+    customComponentButtonType("LoadCheckout_button");
+
+    // prod onboarding
+    cy.contains(
+      "You have successfully completed Integration (Test Mode)",
+    ).should("be.visible");
+    customComponentButtonType("productionAccessForm");
+    cy.contains("Provide Business Details").should("be.visible");
+    cy.contains(
+      "We require some information to verify your business. Once verified, you'll be able to access production environment and go live!",
+    ).should("be.visible");
     fillInputFields("legal_business_name", "temp_business_name");
     selectDropDownOption("Select Country", "Albania");
     fillInputFields("business_website", "https://google.com");
     fillInputFields("poc_name", "temp_poc_name");
-    fillInputFields(
-      "poc_email",
-      `cypressquickstart+${Math.round(+new Date() / 1000)}@gmail.com`,
-    );
+    fillInputFields("poc_email", username);
     fillInputFields("comments", "temp_tax_identification_number");
-    clickButton("submit");
-    clickButton("goToHome");
+    customComponentButtonType("businessDetailsSubmit");
+    cy.contains("Yay! you have successfully completed the setup!").should(
+      "be.visible",
+    );
+    customComponentButtonType("redirectToHome");
     cy.url().should("eq", "http://localhost:9000/home");
   });
 });
