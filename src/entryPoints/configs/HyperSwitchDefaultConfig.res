@@ -1,7 +1,7 @@
 let getUIConfigs = (
   ~primaryColor="blue-500",
   ~primaryHover="blue-600",
-  ~sidebarColor="blue-900",
+  ~sidebarColor="sidebar-blue",
   (),
 ): UIConfigTypes.t => {
   primaryColor: `${primaryColor}`,

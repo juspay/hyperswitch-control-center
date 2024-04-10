@@ -137,6 +137,7 @@ module.exports = {
           980: "#FC5454",
           failed_page_bg: "#FDEDE8",
         },
+        "sidebar-blue": "#242F48",
         "profile-sidebar-blue": "#16488F",
         "status-green": "#36AF47",
         "popover-background": "#334264",
