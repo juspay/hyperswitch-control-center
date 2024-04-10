@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.08.0
+
+### Bug Fixes
+
+- Return url and webhook url regex change ([#569](https://github.com/juspay/hyperswitch-control-center/pull/569)) ([`57a2f11`](https://github.com/juspay/hyperswitch-control-center/commit/57a2f11a61bc1f46811b220c11e4a5a116a63ced))
+
+**Full Changelog:** [`2024.04.04.0...2024.04.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.04.0...2024.04.08.0)
+
+- - -
+
 ## 2024.04.04.0
 
 ### Bug Fixes
