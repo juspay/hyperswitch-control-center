@@ -345,10 +345,10 @@ let validateCustom = (key, errors, value, isLiveMode) => {
     }
   | Website | WebhookUrl | ReturnUrl | ThreeDsRequestorUrl => {
       let regexUrl = isLiveMode
-        ? Js.Re.test_(%re("/^https:\/\//i"), value)
+        ? Js.Re.test_(%re("/^https:\/\//i"), value) || value->String.includes("localhost")
         : Js.Re.test_(%re("/^(http|https):\/\//i"), value)
 
-      if !regexUrl || value->String.includes("localhost") {
+      if !regexUrl {
         Dict.set(errors, key->validationFieldsMapper, "Please Enter Valid URL"->JSON.Encode.string)
       }
     }
