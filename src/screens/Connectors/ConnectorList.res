@@ -25,6 +25,7 @@ let make = (~isPayoutFlow=false) => {
         response
         ->ConnectorListMapper.getArrayOfConnectorListPayloadType
         ->getProcessorsListFromJson(~removeFromList, ())
+      connectorsList->Array.reverse
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
       setConfiguredConnectors(_ =>
