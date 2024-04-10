@@ -93,7 +93,7 @@ module AddNewMerchantButton = {
     open HeadlessUI
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {uiConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <ACLDiv
       permission={userPermissionJson.merchantDetailsManage}
       onClick={_ => setShowModal(_ => true)}
@@ -125,7 +125,7 @@ module ExternalUser = {
   let make = (~switchMerchant, ~isAddMerchantEnabled) => {
     open UIUtils
     let defaultMerchantId = HSLocalStorage.getFromMerchantDetails("merchant_id")
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {uiConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let switchMerchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.switchMerchantListAtom)
     let merchantDetailsTypedValue = HSwitchUtils.useMerchantDetailsValue()
     let defaultSelectedMerchantType = {

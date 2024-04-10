@@ -31,7 +31,7 @@ module CardRenderer = {
     ~setMetaData,
     ~connector,
   ) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {uiConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
     let selectedAll = isSelectedAll(paymentMethodsEnabled, provider, paymentMethod)

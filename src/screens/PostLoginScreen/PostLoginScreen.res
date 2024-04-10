@@ -3,7 +3,7 @@ type cardFlowDirection = LEFT | RIGHT
 module SurveyComponent = {
   @react.component
   let make = (~currentStep, ~setCurrentStep, ~currentQuestionDict, ~setCarouselDirection) => {
-    let {backgroundColor, border: {borderColor}, font: {textColor}} = React.useContext(
+    let {uiConfig: {backgroundColor, border: {borderColor}, font: {textColor}}} = React.useContext(
       ConfigContext.configContext,
     )
     let currentQuestionValue =

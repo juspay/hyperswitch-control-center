@@ -5,7 +5,7 @@ open LogicUtils
 module ProgressBar = {
   @react.component
   let make = (~tabs, ~tabIndex) => {
-    let {backgroundColor} = React.useContext(ConfigContext.configContext)
+    let {uiConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
     let defaultStyle = currentIndex => {
       currentIndex < tabIndex + 1
         ? `${backgroundColor} h-1.5 w-full`
@@ -563,7 +563,7 @@ module Section = {
 module CreatePayment = {
   @react.component
   let make = (~currentRoute, ~tabIndex, ~defaultEditorStyle, ~backEndLang, ~theme) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {uiConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <TabsContentWrapper
       currentRoute
       tabIndex

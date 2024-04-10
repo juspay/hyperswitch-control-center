@@ -5,7 +5,7 @@ module InviteEmailForm = {
     open LogicUtils
     open APIUtils
     open UIUtils
-    let {border: {borderColor}} = React.useContext(ConfigContext.configContext)
+    let {uiConfig: {border: {borderColor}}} = React.useContext(ConfigContext.configContext)
     let fetchDetails = useGetMethod()
     let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (roleListData, setRoleListData) = React.useState(_ => [])

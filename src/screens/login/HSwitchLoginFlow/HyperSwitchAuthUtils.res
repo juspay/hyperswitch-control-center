@@ -202,7 +202,7 @@ let validateForm = (values: JSON.t, keys: array<string>) => {
 
 let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
   open UIUtils
-  let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+  let {uiConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let getFooterLinkComponent = (~btnText, ~authType, ~path) => {
     <div
       onClick={_ => {
@@ -334,7 +334,7 @@ module ToggleLiveTestMode = {
 module Header = {
   @react.component
   let make = (~authType, ~setAuthType, ~email) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {uiConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let form = ReactFinalForm.useForm()
     let {email: isMagicLinkEnabled, isLiveMode} =
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom

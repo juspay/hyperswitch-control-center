@@ -4,7 +4,7 @@ let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
 let subheaderText = "text-base font-semibold text-grey-700"
 @react.component
 let make = (~selectedConnector, ~setSelectedConnector, ~pageView, ~setPageView) => {
-  let {backgroundColor, font: {textColor}, border: {borderColor}} = React.useContext(
+  let {uiConfig: {backgroundColor, font: {textColor}, border: {borderColor}}} = React.useContext(
     ConfigContext.configContext,
   )
   let getBlockColor = connector => {

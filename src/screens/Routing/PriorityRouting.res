@@ -18,7 +18,7 @@ module SimpleRoutingView = {
     ~isActive,
     ~baseUrlForRedirection,
   ) => {
-    let {backgroundColor} = React.useContext(ConfigContext.configContext)
+    let {uiConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
     let nameFromForm = ReactFinalForm.useField(`name`).input.value
     let descriptionFromForm = ReactFinalForm.useField(`description`).input.value
     let modalObj = RoutingUtils.getModalObj(PRIORITY, "priority")

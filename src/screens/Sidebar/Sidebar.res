@@ -496,7 +496,7 @@ let make = (
   ~verticalOffset="120px",
 ) => {
   open UIUtils
-  let {sidebarColor: {backgroundColor}} = React.useContext(ConfigContext.configContext)
+  let {uiConfig: {sidebarColor: {backgroundColor}}} = React.useContext(ConfigContext.configContext)
   let fetchApi = AuthHooks.useApiFetcher()
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)

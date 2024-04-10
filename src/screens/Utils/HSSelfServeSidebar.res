@@ -15,7 +15,9 @@ type sidebarOption = {
 @react.component
 let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
-  let {font: {textColor}, backgroundColor} = React.useContext(ConfigContext.configContext)
+  let {uiConfig: {font: {textColor}, backgroundColor}} = React.useContext(
+    ConfigContext.configContext,
+  )
   let handleBackButton = _ => {
     setDashboardPageState(_ => #HOME)
     RescriptReactRouter.replace("/home")

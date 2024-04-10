@@ -234,7 +234,7 @@ module LabelCell = {
     ~fontStyle="font-ibm-plex",
     ~showIcon=true,
   ) => {
-    let {backgroundColor} = React.useContext(ConfigContext.configContext)
+    let {uiConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
     let isMobileView = MatchMedia.useMobileChecker()
     let bgOpacity = isMobileView ? "bg-opacity-12 dark:!bg-opacity-12" : ""
     let borderColor = switch labelColor {
@@ -433,7 +433,7 @@ module MoneyCell = {
 module LinkCell = {
   @react.component
   let make = (~data, ~trimLength=?) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {uiConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let (showCopy, setShowCopy) = React.useState(() => false)
     let isMobileView = MatchMedia.useMobileChecker()
 
@@ -583,7 +583,7 @@ module EllipsisText = {
 module TrimmedText = {
   @react.component
   let make = (~text, ~width, ~highlightText="", ~hideShowMore=false) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {uiConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let (show, setshow) = React.useState(_ => true)
     let breakWords = hideShowMore ? "" : "whitespace-nowrap text-ellipsis overflow-x-hidden"
     if text->String.length > 40 {

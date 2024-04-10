@@ -67,7 +67,7 @@ module VerticalChoiceTile = {
     ~setChoiceState,
     ~customLayoutCss,
   ) => {
-    let {backgroundColor, font: {textColor}, border: {borderColor}} = React.useContext(
+    let {uiConfig: {backgroundColor, font: {textColor}, border: {borderColor}}} = React.useContext(
       ConfigContext.configContext,
     )
     let getBlockColor = value =>
@@ -135,7 +135,7 @@ module HorizontalChoiceTile = {
     ~setChoiceState,
     ~customLayoutCss,
   ) => {
-    let {backgroundColor, font: {textColor}, border: {borderColor}} = React.useContext(
+    let {uiConfig: {backgroundColor, font: {textColor}, border: {borderColor}}} = React.useContext(
       ConfigContext.configContext,
     )
     let getBlockColor = value =>
@@ -220,7 +220,7 @@ module SelectConnectorGrid = {
   let make = (~selectedConnector, ~setSelectedConnector, ~connectorList) => {
     open ConnectorTypes
 
-    let {backgroundColor, font: {textColor}, border: {borderColor}} = React.useContext(
+    let {uiConfig: {backgroundColor, font: {textColor}, border: {borderColor}}} = React.useContext(
       ConfigContext.configContext,
     )
     let typedConnectedConnectorList =

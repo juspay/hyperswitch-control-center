@@ -4,7 +4,7 @@ open HomeUtils
 module HomePageHorizontalStepper = {
   @react.component
   let make = (~stepperItemsArray: array<string>, ~className="") => {
-    let {backgroundColor, border: {borderColor}, font: {textColor}} = React.useContext(
+    let {uiConfig: {backgroundColor, border: {borderColor}, font: {textColor}}} = React.useContext(
       ConfigContext.configContext,
     )
     let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)

@@ -92,5 +92,4 @@ module HyperSwitchEntryComponent = {
   }
 }
 
-let uiConfig: UIConfig.t = HyperSwitchDefaultConfig.config
-EntryPointUtils.renderDashboardApp(<HyperSwitchEntryComponent />, ~uiConfig)
+EntryPointUtils.renderDashboardApp(<HyperSwitchEntryComponent />)

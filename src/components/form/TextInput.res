@@ -38,7 +38,9 @@ let make = (
   ~phoneInput=false,
   ~removeValidationCheck=false,
 ) => {
-  let {shadow: {shadowColor}, border: {borderColor}} = React.useContext(ConfigContext.configContext)
+  let {uiConfig: {shadow: {shadowColor}, border: {borderColor}}} = React.useContext(
+    ConfigContext.configContext,
+  )
   let showPopUp = PopUpState.useShowPopUp()
   let isInValid = try {
     let {meta} = ReactFinalForm.useField(input.name)

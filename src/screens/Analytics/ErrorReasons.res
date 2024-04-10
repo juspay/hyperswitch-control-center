@@ -70,7 +70,7 @@ let tableEntity = EntityType.makeEntity(
 
 @react.component
 let make = (~errors: array<AnalyticsTypes.error_message_type>) => {
-  let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+  let {uiConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (offset, setOffset) = React.useState(_ => 0)
   let defaultSort: Table.sortedObject = {

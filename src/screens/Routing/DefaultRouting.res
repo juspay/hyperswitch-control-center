@@ -15,7 +15,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
   let (defaultRoutingResponse, setDefaultRoutingResponse) = React.useState(_ => [])
   let modalObj = RoutingUtils.getModalObj(DEFAULTFALLBACK, "default")
   let typedConnectorValue = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
-  let {backgroundColor} = React.useContext(ConfigContext.configContext)
+  let {uiConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
   let settingUpConnectorsState = routingRespArray => {
     let profileList =
       routingRespArray->Array.filter(value =>

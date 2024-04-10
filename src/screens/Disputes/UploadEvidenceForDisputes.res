@@ -11,7 +11,7 @@ module EvidenceUploadForm = {
   @react.component
   let make = (~uploadEvidenceType, ~index, ~fileUploadedDict, ~setFileUploadedDict) => {
     open LogicUtils
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {uiConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let handleBrowseChange = (event, uploadEvidenceType) => {
       let target = ReactEvent.Form.target(event)
       let fileDict =
@@ -208,7 +208,9 @@ module DisputesInfoBarComponent = {
     open LogicUtils
     open DisputesUtils
     open PageLoaderWrapper
-    let {font: {textColor}, border: {borderColor}} = React.useContext(ConfigContext.configContext)
+    let {uiConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
+      ConfigContext.configContext,
+    )
     let fetchDetails = useGetMethod()
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()

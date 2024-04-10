@@ -4,7 +4,7 @@ let labelClass = "!text-black !font-medium"
 module EmailPasswordForm = {
   @react.component
   let make = (~setAuthType) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {uiConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     <div className="flex flex-col gap-3">

@@ -89,7 +89,7 @@ let make = (
   ~startTimeStr,
   ~endTimeStr,
 ) => {
-  let {border: {borderColor}} = React.useContext(ConfigContext.configContext)
+  let {uiConfig: {border: {borderColor}}} = React.useContext(ConfigContext.configContext)
   let todayDateTime = DayJs.getDayJs()
   let time = todayDateTime.format(. "hh:mm:ss a")
 

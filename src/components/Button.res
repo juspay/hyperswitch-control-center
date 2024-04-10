@@ -48,7 +48,7 @@ let useGetBgColor = (
   ~isPhoneDropdown=false,
   (),
 ) => {
-  let globalConfig = React.useContext(ConfigContext.configContext)
+  let {uiConfig: globalConfig} = React.useContext(ConfigContext.configContext)
   let buttonConfig = globalConfig.button.backgroundColor
   switch buttonType {
   | Primary =>
@@ -193,7 +193,7 @@ let useGetTextColor = (
   ~isPhoneDropdown=false,
   (),
 ) => {
-  let globalConfig = React.useContext(ConfigContext.configContext)
+  let {uiConfig: globalConfig} = React.useContext(ConfigContext.configContext)
   let textConfig = globalConfig.button.textColor
   switch buttonType {
   | Primary =>
