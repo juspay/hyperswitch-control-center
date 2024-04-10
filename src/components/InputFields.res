@@ -476,3 +476,48 @@ let passwordMatchField = (
 ) => {
   <PasswordStrengthInput input placeholder displayStatus=false ?leftIcon />
 }
+
+let checkboxInput = (
+  ~isHorizontal=false,
+  ~options: array<SelectBox.dropdownOption>,
+  ~optionSize: CheckBoxIcon.size=Small,
+  ~isSelectedStateMinus=false,
+  ~disableSelect=false,
+  ~buttonText="",
+  ~maxHeight=?,
+  ~searchable=?,
+  ~searchInputPlaceHolder=?,
+  ~dropdownCustomWidth=?,
+  ~customSearchStyle="bg-jp-gray-100 dark:bg-jp-gray-950 p-2",
+  ~customLabelStyle=?,
+  ~customMarginStyle="mx-3 py-2 gap-2",
+  ~customStyle="",
+  ~checkboxDimension="",
+  ~wrapBasis="",
+  (),
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder as _,
+) => {
+  <SelectBox
+    input
+    options
+    optionSize
+    isSelectedStateMinus
+    disableSelect
+    allowMultiSelect=true
+    isDropDown=false
+    showSelectAll=false
+    buttonText
+    isHorizontal
+    ?maxHeight
+    ?searchable
+    ?searchInputPlaceHolder
+    ?dropdownCustomWidth
+    customSearchStyle
+    ?customLabelStyle
+    customMarginStyle
+    customStyle
+    checkboxDimension
+    wrapBasis
+  />
+}

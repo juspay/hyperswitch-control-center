@@ -3,6 +3,30 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.10.0
+
+### Bug Fixes
+
+- Webhook url and return url regex change ([#572](https://github.com/juspay/hyperswitch-control-center/pull/572)) ([`09e1ca3`](https://github.com/juspay/hyperswitch-control-center/commit/09e1ca30c3814c0b6ebba4dee27d4a5bb93e6038))
+
+### Miscellaneous Tasks
+
+- Checkbox input type added ([#567](https://github.com/juspay/hyperswitch-control-center/pull/567)) ([`d5a22c0`](https://github.com/juspay/hyperswitch-control-center/commit/d5a22c0446567b6b3086ae5478d37ac4e6fdfe1e))
+
+**Full Changelog:** [`2024.04.08.0...2024.04.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.08.0...2024.04.10.0)
+
+- - -
+
+## 2024.04.08.0
+
+### Bug Fixes
+
+- Return url and webhook url regex change ([#569](https://github.com/juspay/hyperswitch-control-center/pull/569)) ([`57a2f11`](https://github.com/juspay/hyperswitch-control-center/commit/57a2f11a61bc1f46811b220c11e4a5a116a63ced))
+
+**Full Changelog:** [`2024.04.04.0...2024.04.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.04.0...2024.04.08.0)
+
+- - -
+
 ## 2024.04.04.0
 
 ### Bug Fixes
