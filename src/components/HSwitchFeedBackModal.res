@@ -78,10 +78,10 @@ let make = (
         <div className="flex flex-col justify-center">
           {modalFormFields}
           <div className="flex justify-end gap-3 p-1 mt-4">
-            <FormRenderer.SubmitButton text=submitBtnText />
             <Button
               buttonType=Button.Secondary onClick={_ => setShowModal(_ => false)} text="Cancel"
             />
+            <FormRenderer.SubmitButton text=submitBtnText />
           </div>
         </div>
       </LabelVisibilityContext>

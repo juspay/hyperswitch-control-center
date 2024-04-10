@@ -83,6 +83,7 @@ let make = (
 
   let descriptedConnectors = (
     connectorList: array<ConnectorTypes.connectorTypes>,
+    ~heading: string,
     ~showRequestConnectorBtn,
     ~showSearch=true,
     ~showDummyConnectorButton=false,
@@ -92,6 +93,10 @@ let make = (
       connectorList->Array.sort(sortByName)
     }
     <>
+      <h2
+        className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+        {heading->React.string}
+      </h2>
       <div className="flex w-full justify-start gap-4">
         <RenderIf condition={showSearch}>
           <AddDataAttributes attributes=[("data-testid", "search-processor")]>
@@ -108,6 +113,7 @@ let make = (
         </RenderIf>
         <RenderIf
           condition={!featureFlagDetails.isLiveMode &&
+          configuredConnectors->Array.length > 0 &&
           showDummyConnectorButton &&
           urlPrefix == "connectors/new"}>
           <ACLButton
@@ -115,7 +121,7 @@ let make = (
             leftIcon={CustomIcon(
               <Icon
                 name="plus"
-                size=12
+                size=16
                 className="text-jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
               />,
             )}
@@ -156,11 +162,18 @@ let make = (
               </p>
               <ACLButton
                 access={userPermissionJson.connectorsManage}
-                text="+ Connect"
+                text="Connect"
                 onClick={_ => handleClick(connectorName)}
                 buttonType={Transparent}
                 buttonSize={Small}
                 textStyle="text-jp-gray-900"
+                leftIcon={CustomIcon(
+                  <Icon
+                    name="plus"
+                    size=16
+                    className="text-jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
+                  />,
+                )}
               />
             </ACLDiv>
           })
@@ -184,6 +197,7 @@ let make = (
     <RenderIf condition={showAllConnectors}>
       <div className="flex flex-col gap-4">
         {connectorListFiltered->descriptedConnectors(
+          ~heading="Connect a new processor",
           ~showRequestConnectorBtn=true,
           ~showDummyConnectorButton=true,
           (),
@@ -202,6 +216,7 @@ let make = (
       {showTestProcessor
       ->dummyConnectorList
       ->descriptedConnectors(
+        ~heading="",
         ~showRequestConnectorBtn=false,
         ~showSearch=false,
         ~showDummyConnectorButton=false,

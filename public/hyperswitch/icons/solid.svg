@@ -3667,10 +3667,29 @@ License)
       d="M320,32a32,32,0,0,0-64,0v96h64Zm48,128H16A16,16,0,0,0,0,176v32a16,16,0,0,0,16,16H32v32A160.07,160.07,0,0,0,160,412.8V512h64V412.8A160.07,160.07,0,0,0,352,256V224h16a16,16,0,0,0,16-16V176A16,16,0,0,0,368,160ZM128,32a32,32,0,0,0-64,0v96h64Z"
     ></path>
   </symbol>
-  <symbol id="plus" viewBox="0 0 448 512">
-    <path
-      d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-    ></path>
+  <symbol
+    id="plus"
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <mask
+      id="mask0_18047_6102"
+      style="mask-type: alpha"
+      maskUnits="userSpaceOnUse"
+      x="0"
+      y="0"
+      width="17"
+      height="16"
+    >
+      <rect x="0.375" width="16" height="16" fill="#D9D9D9" />
+    </mask>
+    <g mask="url(#mask0_18047_6102)">
+      <path
+        d="M7.87533 8.49932H4.04199V7.49935H7.87533V3.66602H8.87529V7.49935H12.7086V8.49932H8.87529V12.3327H7.87533V8.49932Z"
+        fill="#333333"
+      />
+    </g>
   </symbol>
   <symbol id="plus-circle" viewBox="0 0 512 512">
     <path
@@ -9187,4 +9206,29 @@ License)
       fill-opacity="0.5"
     ></path>
   </symbol>
+    id="plus"
+    width="17"
+    height="16"
+    viewBox="0 0 17 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <mask
+      id="mask0_18047_6102"
+      style="mask-type: alpha"
+      maskUnits="userSpaceOnUse"
+      x="0"
+      y="0"
+      width="17"
+      height="16"
+    >
+      <rect x="0.375" width="16" height="16" fill="#D9D9D9" />
+    </mask>
+    <g mask="url(#mask0_18047_6102)">
+      <path
+        d="M7.87533 8.49932H4.04199V7.49935H7.87533V3.66602H8.87529V7.49935H12.7086V8.49932H8.87529V12.3327H7.87533V8.49932Z"
+        fill="#333333"
+      />
+    </g>
+  </symbol> -->
 </svg>

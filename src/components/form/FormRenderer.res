@@ -211,7 +211,7 @@ module FieldWrapper = {
     let labelTextClass =
       labelTextStyleClass->LogicUtils.isNonEmptyString
         ? labelTextStyleClass
-        : "text-fs-13 text-jp-gray-900 text-opacity-50 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1"
+        : "text-fs-13 text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-50 ml-1"
 
     <AddDataAttributes attributes=[("data-component-field-wrapper", `field-${dataId}`)]>
       <div className={fieldWrapperClass}>

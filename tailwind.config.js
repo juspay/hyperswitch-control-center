@@ -11,6 +11,7 @@ module.exports = {
       screens: {
         mobile: "28.125rem",
         tablet: "93.75rem",
+        laptop: "67.5rem",
         desktop: "118.75rem",
       },
       scale: {

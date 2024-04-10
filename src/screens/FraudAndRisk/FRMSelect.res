@@ -40,11 +40,18 @@ module NewProcessorCards = {
                 {frmInfo.description->React.string}
               </div>
               <ACLButton
-                text="+ Connect"
+                text="Connect"
                 access=userPermissionJson.connectorsManage
                 buttonType=Secondary
                 buttonSize=Small
                 onClick={_ => handleClick(frmName)}
+                leftIcon={CustomIcon(
+                  <Icon
+                    name="plus"
+                    size=16
+                    className="text-jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
+                  />,
+                )}
               />
             </CardUtils.CardLayout>
           })
