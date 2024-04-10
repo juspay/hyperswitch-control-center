@@ -17,8 +17,6 @@ let make = (~isPayoutFlow=false) => {
   let textStyle = HSwitchUtils.getTextClass((H2, Optional))
   let subtextStyle = `${HSwitchUtils.getTextClass((P1, Regular))} text-grey-700 opacity-50`
 
-  // Js.log2("filteredConnectorData", filteredConnectorData)
-
   let getConnectorListAndUpdateState = async () => {
     try {
       let response = await fetchConnectorListResponse()
@@ -29,7 +27,7 @@ let make = (~isPayoutFlow=false) => {
         response
         ->ConnectorListMapper.getArrayOfConnectorListPayloadType
         ->getProcessorsListFromJson(~removeFromList, ())
-      // Js.log2("connectorsList", connectorsList)
+      connectorsList->Array.reverse
       setFilteredConnectorData(_ => connectorsList->Array.map(Nullable.make))
       setPreviouslyConnectedData(_ => connectorsList->Array.map(Nullable.make))
       setConfiguredConnectors(_ =>
