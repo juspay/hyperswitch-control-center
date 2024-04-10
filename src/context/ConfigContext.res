@@ -3,7 +3,7 @@ type uiconfig = {
   setUIConfig: (UIConfigTypes.t => UIConfigTypes.t) => unit,
 }
 let defaultConfig = {
-  uiConfig: UIConfig.defaultUIConfig,
+  uiConfig: HyperSwitchDefaultConfig.getUIConfigs(),
   setUIConfig: _ => (),
 }
 let configContext = React.createContext(defaultConfig)
@@ -14,6 +14,6 @@ module Provider = {
 
 @react.component
 let make = (~children) => {
-  let (uiConfig, setUIConfig) = React.useState(_ => UIConfig.defaultUIConfig)
+  let (uiConfig, setUIConfig) = React.useState(_ => HyperSwitchDefaultConfig.getUIConfigs())
   <Provider value={uiConfig, setUIConfig}> children </Provider>
 }

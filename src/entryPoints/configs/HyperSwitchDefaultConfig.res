@@ -1,7 +1,7 @@
 let getUIConfigs = (
-  ~primaryColor="primary",
-  ~sidebarColor="primary-sidebar",
-  ~primaryHover="primary-hover",
+  ~primaryColor="blue-500",
+  ~primaryHover="blue-600",
+  ~sidebarColor="blue-900",
   (),
 ): UIConfigTypes.t => {
   primaryColor: `${primaryColor}`,
@@ -74,7 +74,7 @@ let getUIConfigs = (
       primaryFocused: `focus:border-${primaryColor}`,
     },
   },
-  sidebarColor: {
+  sidebar: {
     backgroundColor: {
       primaryNormal: `bg-${sidebarColor}`,
     },

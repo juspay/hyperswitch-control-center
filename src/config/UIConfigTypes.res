@@ -82,5 +82,5 @@ type t = {
   primaryColor: string,
   shadow: ShadowConfig.t,
   border: BorderConfig.t,
-  sidebarColor: SidebarConfig.t,
+  sidebar: SidebarConfig.t,
 }

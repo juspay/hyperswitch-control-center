@@ -81,12 +81,12 @@ module.exports = {
         "fs-28": "28px",
       },
       colors: {
-        primary: {
-          DEFAULT: "#2167ae", // Default primary color
-          hover: "#5495cf",
-          sidebar: "#27356B",
-          custom: "#006DF9", // Custom primary color
-        },
+        // primary: {
+        //   DEFAULT: "#2167ae", // Default primary color
+        //   hover: "#5495cf",
+        //   sidebar: "#27356B",
+        //   custom: "#006DF9", // Custom primary color
+        // },
         blue: {
           100: "#F1F2F4",
           200: "#DAECFF",
@@ -98,6 +98,7 @@ module.exports = {
           800: "#F5F9FF",
           810: "#B9D3F8",
           811: "#0069FD",
+          900: "#27356B",
           background_blue: "#EAEEF9",
           info_blue_background: "#F6F8FA",
         },
