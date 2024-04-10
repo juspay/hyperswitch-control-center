@@ -1,6 +1,6 @@
 type uiconfig = {
-  uiConfig: UIConfig.t,
-  setUIConfig: (UIConfig.t => UIConfig.t) => unit,
+  uiConfig: UIConfigTypes.t,
+  setUIConfig: (UIConfigTypes.t => UIConfigTypes.t) => unit,
 }
 let defaultConfig = {
   uiConfig: UIConfig.defaultUIConfig,

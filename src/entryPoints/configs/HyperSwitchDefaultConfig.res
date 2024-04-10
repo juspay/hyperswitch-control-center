@@ -1,6 +1,11 @@
-let config: UIConfig.t = {
-  primaryColor: "primary",
-  backgroundColor: "bg-primary",
+let getUIConfigs = (
+  ~primaryColor="primary",
+  ~sidebarColor="primary-sidebar",
+  ~primaryHover="primary-hover",
+  (),
+): UIConfigTypes.t => {
+  primaryColor: `${primaryColor}`,
+  backgroundColor: `bg-${primaryColor}`,
   button: {
     height: {
       medium: "h-fit",
@@ -28,10 +33,10 @@ let config: UIConfig.t = {
       borderSecondaryBorderStyleClass: "border-border_gray border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100",
     },
     backgroundColor: {
-      primaryNormal: "bg-primary hover:bg-primary-hover focus:outline-none",
-      primaryDisabled: "bg-primary opacity-60 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50",
-      primaryNoHover: "bg-primary hover:bg-primary-hover focus:outline-none dark:text-opacity-50 text-opacity-50",
-      primaryLoading: "bg-primary",
+      primaryNormal: `bg-${primaryColor} hover:bg-${primaryHover} focus:outline-none`,
+      primaryDisabled: `bg-${primaryColor} opacity-60 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50`,
+      primaryNoHover: `bg-${primaryColor} hover:bg-${primaryHover} focus:outline-none dark:text-opacity-50 text-opacity-50`,
+      primaryLoading: `bg-${primaryColor}`,
       primaryOutline: "mix-blend-normal",
       paginationNormal: "border-left-1 opacity-80 border-right-1 font-normal border-left-1 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 focus:outline-none",
       paginationLoading: "border-left-1 border-right-1 font-normal border-left-1 bg-jp-gray-200 dark:bg-jp-gray-800 dark:bg-opacity-10",
@@ -54,24 +59,24 @@ let config: UIConfig.t = {
   },
   font: {
     textColor: {
-      primaryNormal: "text-primary",
+      primaryNormal: `text-${primaryColor}`,
     },
   },
   shadow: {
     shadowColor: {
-      primaryNormal: "focus:shadow-primary",
-      primaryFocused: "focus:shadow-primary",
+      primaryNormal: `focus:shadow-${primaryColor}`,
+      primaryFocused: `focus:shadow-${primaryColor}`,
     },
   },
   border: {
     borderColor: {
-      primaryNormal: "border border-primary",
-      primaryFocused: "focus:border-primary",
+      primaryNormal: `border border-${primaryColor}`,
+      primaryFocused: `focus:border-${primaryColor}`,
     },
   },
   sidebarColor: {
     backgroundColor: {
-      primaryNormal: "bg-primary-sidebar",
+      primaryNormal: `bg-${sidebarColor}`,
     },
   },
 }
