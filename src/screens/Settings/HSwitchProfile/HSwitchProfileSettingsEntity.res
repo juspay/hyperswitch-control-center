@@ -3,13 +3,12 @@ open SwitchMerchantUtils
 type columns =
   | MerchantName
   | RoleName
-  | Actions
 
-let visibleColumns = [MerchantName, RoleName, Actions]
+let visibleColumns = [MerchantName, RoleName]
 
-let defaultColumns = [MerchantName, RoleName, Actions]
+let defaultColumns = [MerchantName, RoleName]
 
-let allColumns = [MerchantName, RoleName, Actions]
+let allColumns = [MerchantName, RoleName]
 
 let itemToObjMapper = dict => {
   open LogicUtils
@@ -31,7 +30,6 @@ let getHeading = colType => {
   switch colType {
   | MerchantName => Table.makeHeaderInfo(~key="merchant_name", ~title="Merchant Name", ())
   | RoleName => Table.makeHeaderInfo(~key="role", ~title="Role", ())
-  | Actions => Table.makeHeaderInfo(~key="actions", ~title="Actions", ())
   }
 }
 
@@ -46,7 +44,6 @@ let getCell = (item: switchMerchantListResponse, colType): Table.cell => {
       </div>,
       "",
     )
-  | Actions => CustomCell(<Icon name="plus" className="text-jp-gray-700" size=12 />, "")
   }
 }
 

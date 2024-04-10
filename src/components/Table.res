@@ -360,7 +360,7 @@ module TableHeadingCell = {
     let headerBgColor =
       headerCustomBgColor->Option.isSome
         ? headerCustomBgColor->Option.getOr("")
-        : "bg-gray-50 dark:bg-jp-gray-darkgray_background"
+        : "bg-offset_white dark:bg-jp-gray-darkgray_background"
     let paddingClass = "px-4 py-3"
     let roundedClass = if isFirstCol {
       "rounded-tl"
