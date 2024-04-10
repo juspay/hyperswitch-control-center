@@ -238,3 +238,25 @@ let passwordMatchField: (
   ~leftIcon: React.element=?,
   unit,
 ) => React.element
+
+let checkboxInput: (
+  ~isHorizontal: bool=?,
+  ~options: array<SelectBox.dropdownOption>,
+  ~optionSize: CheckBoxIcon.size=?,
+  ~isSelectedStateMinus: bool=?,
+  ~disableSelect: bool=?,
+  ~buttonText: string=?,
+  ~maxHeight: string=?,
+  ~searchable: bool=?,
+  ~searchInputPlaceHolder: string=?,
+  ~dropdownCustomWidth: string=?,
+  ~customSearchStyle: string=?,
+  ~customLabelStyle: string=?,
+  ~customMarginStyle: string=?,
+  ~customStyle: string=?,
+  ~checkboxDimension: string=?,
+  ~wrapBasis: string=?,
+  unit,
+  ~input: ReactFinalForm.fieldRenderPropsInput,
+  ~placeholder: 'a,
+) => React.element
