@@ -93,10 +93,13 @@ let make = (
       connectorList->Array.sort(sortByName)
     }
     <>
-      <h2
-        className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
-        {heading->React.string}
-      </h2>
+      <AddDataAttributes
+        attributes=[("data-testid", heading->LogicUtils.titleToSnake->String.toLowerCase)]>
+        <h2
+          className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
+          {heading->React.string}
+        </h2>
+      </AddDataAttributes>
       <div className="flex w-full justify-start gap-4">
         <RenderIf condition={showSearch}>
           <AddDataAttributes attributes=[("data-testid", "search-processor")]>
