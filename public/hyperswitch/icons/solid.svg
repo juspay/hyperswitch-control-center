@@ -9205,30 +9205,4 @@ License)
       fill="#354052"
       fill-opacity="0.5"
     ></path>
-  </symbol>
-    id="plus"
-    width="17"
-    height="16"
-    viewBox="0 0 17 16"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <mask
-      id="mask0_18047_6102"
-      style="mask-type: alpha"
-      maskUnits="userSpaceOnUse"
-      x="0"
-      y="0"
-      width="17"
-      height="16"
-    >
-      <rect x="0.375" width="16" height="16" fill="#D9D9D9" />
-    </mask>
-    <g mask="url(#mask0_18047_6102)">
-      <path
-        d="M7.87533 8.49932H4.04199V7.49935H7.87533V3.66602H8.87529V7.49935H12.7086V8.49932H8.87529V12.3327H7.87533V8.49932Z"
-        fill="#333333"
-      />
-    </g>
-  </symbol> -->
 </svg>
