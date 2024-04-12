@@ -40,7 +40,7 @@ let getCell = (item: switchMerchantListResponse, colType): Table.cell => {
     CustomCell(
       <div className="flex flex-row gap-2">
         <Icon name="user" className="text-jp-gray-700" size=12 />
-        <span> {"role"->React.string} </span>
+        <span> {item.role_name->React.string} </span>
       </div>,
       "",
     )

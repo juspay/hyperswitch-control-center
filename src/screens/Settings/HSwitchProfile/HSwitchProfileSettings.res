@@ -2,37 +2,8 @@ module MerchantDetailsSection = {
   @react.component
   let make = () => {
     open HSwitchProfileSettingsEntity
-
-    // let fetchDetails = APIUtils.useGetMethod()
-    // let (merchantInfo, setMerchantInfo) = React.useState(_ => Dict.make())
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-    // let titleClass = "text-hyperswitch_black text-base w-1/5"
-    // let subTitleClass = "text-hyperswitch_black opacity-50 text-base font-semibold "
     let sectionHeadingClass = "font-semibold text-fs-18"
-
-    // let getMerchantDetails = async () => {
-    //   try {
-    //     setScreenState(_ => PageLoaderWrapper.Loading)
-    //     let accountUrl = APIUtils.getURL(~entityName=MERCHANT_ACCOUNT, ~methodType=Get, ())
-    //     let merchantDetailsJSON = await fetchDetails(accountUrl)
-    //     let merchantInfoDict = merchantDetailsJSON->LogicUtils.getDictFromJsonObject
-    //     let requiredInfo =
-    //       [
-    //         (
-    //           "merchant_id",
-    //           merchantInfoDict->LogicUtils.getString("merchant_id", "")->JSON.Encode.string,
-    //         ),
-    //         (
-    //           "merchant_name",
-    //           merchantInfoDict->LogicUtils.getString("merchant_name", "")->JSON.Encode.string,
-    //         ),
-    //       ]->Dict.fromArray
-    //     setMerchantInfo(_ => requiredInfo)
-    //     setScreenState(_ => PageLoaderWrapper.Success)
-    //   } catch {
-    //   | Exn.Error(_) => setScreenState(_ => PageLoaderWrapper.Custom)
-    //   }
-    // }
 
     let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
     let switchMerchantListValue = Recoil.useRecoilValueFromAtom(
@@ -50,30 +21,13 @@ module MerchantDetailsSection = {
       None
     })
 
-    Js.log2("switchMerchantListValue", switchMerchantListValue)
-
     let (offset, setOffset) = React.useState(_ => 0)
-    // let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
     <PageLoaderWrapper screenState sectionHeight="h-40-vh">
       <div>
         <div className="border bg-gray-50 rounded-t-lg border-b-0 w-full px-10 py-6">
           <p className=sectionHeadingClass> {"Merchant Info"->React.string} </p>
         </div>
-        // <div className="flex flex-col bg-white border border-t-0 rounded-b-lg w-full">
-        // <div className="flex gap-10 ">
-        //   <p className=titleClass> {"Merchant Name"->React.string} </p>
-        //   <p className=subTitleClass>
-        //     {merchantInfo->LogicUtils.getString("merchant_name", "")->React.string}
-        //   </p>
-        // </div>
-        // <div className="flex gap-10 ">
-        //   <p className=titleClass> {"Merchant Id"->React.string} </p>
-        //   <p className=subTitleClass>
-        //     {merchantInfo->LogicUtils.getString("merchant_id", "")->React.string}
-        //   </p>
-        // </div>
-        // <div>
         <LoadedTable
           title="Merchant Info"
           hideTitle=true
@@ -86,8 +40,6 @@ module MerchantDetailsSection = {
           setOffset
           currrentFetchCount={switchMerchantListValue->Array.length}
         />
-        // </div>
-        // </div>
       </div>
     </PageLoaderWrapper>
   }

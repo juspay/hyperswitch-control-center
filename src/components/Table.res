@@ -878,7 +878,6 @@ let make = (
   let nonFrozenTable = {
     <table id="table" className=tableBorderClass>
       <UIUtils.RenderIf condition=showHeading>
-        // heading
         {renderTableHeadingRow(remainingHeading, false, false, `${lastHeadingClass}`)}
       </UIUtils.RenderIf>
       <tbody>
