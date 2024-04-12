@@ -12,7 +12,7 @@ let defaultValue = {
   merchant_name: "",
   is_active: false,
   role_id: "",
-  role_name: "role",
+  role_name: "",
   org_id: "",
 }
 
