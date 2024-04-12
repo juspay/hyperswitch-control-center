@@ -196,7 +196,7 @@ let make = (
     </UIUtils.RenderIf>
     <ACLDiv
       permission=permissionJson.connectorsManage
-      className="cursor-pointer"
+      className="cursor-pointer w-150"
       onClick={_ => getProcessorDetails()->ignore}>
       {switch element {
       | Some(component) => component

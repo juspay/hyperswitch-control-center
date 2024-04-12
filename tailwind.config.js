@@ -44,9 +44,11 @@ module.exports = {
         100: "25rem",
         133: "35rem",
         200: "58rem",
+        150: "9.375rem",
         "1.1-rem": "1.125rem",
         "77-rem": "77rem",
         "30-rem": "30rem",
+
         pageWidth11: "75rem",
         fixedPageWidth: "75.5rem",
         standardPageWidth: "67.5rem",
