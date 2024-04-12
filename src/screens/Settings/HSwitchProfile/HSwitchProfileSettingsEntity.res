@@ -17,7 +17,7 @@ let itemToObjMapper = dict => {
     merchant_name: getString(dict, "merchant_name", ""),
     is_active: getBool(dict, "is_active", false),
     role_id: getString(dict, "role_id", ""),
-    role_name: getString(dict, "role_name", "ROLENAME"),
+    role_name: getString(dict, "role_name", ""),
     org_id: getString(dict, "org_id", ""),
   }
 }
