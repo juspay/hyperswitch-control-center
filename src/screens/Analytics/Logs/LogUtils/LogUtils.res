@@ -122,7 +122,7 @@ let parseSdkResponse = arr => {
   let logsArr = sdkLogsArray->Array.filter(sdkLog => {
     let eventDict = sdkLog->getDictFromJsonObject
     let eventName = eventDict->getString("event_name", "")
-    let filteredEventNames = ["StripeElementsCalled"]
+    let filteredEventNames = ["OrcaElementsCalled"]
     filteredEventNames->Array.includes(eventName)->not
   })
 
