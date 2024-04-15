@@ -253,6 +253,10 @@ external appendStyle: customStyle => unit = "appendStyle"
 type boundingClient = {x: int, y: int, width: int, height: int}
 @send external getBoundingClientRect: Dom.element => boundingClient = "getBoundingClientRect"
 
-type env = {apiBaseUrl?: string, sdkBaseUrl?: string, mixpanelToken?: string}
+type env = {
+  mutable apiBaseUrl?: string,
+  mutable sdkBaseUrl?: string,
+  mutable mixpanelToken?: string,
+}
 @val @scope("window")
 external env: env = "_env_"

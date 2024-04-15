@@ -2,7 +2,8 @@ const path = require("path");
 const webpack = require("webpack");
 const { merge } = require("webpack-merge");
 const common = require("./webpack.common.js");
-const configScripts = import("./src/server/config.mjs");
+const featureFlag = import("./src/server/featureflagconfig.mjs");
+const config = import("./src/server/config.mjs");
 
 const appName = process.env.appName;
 const integ = process.env.integ;
@@ -12,7 +13,20 @@ let proxy = {};
 
 let configMiddleware = (req, res, next) => {
   if (req.path == "/config/merchant-access" && req.method == "POST") {
-    configScripts
+    featureFlag
+      .then((result) => {
+        result.featureFlagConfigHandler(req, res, false);
+      })
+      .catch((error) => {
+        console.log(error, "error");
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.end("Internal Server Error");
+      });
+    return;
+  }
+
+  if (req.path == "/config/merchant-config" && req.method == "GET") {
+    config
       .then((result) => {
         result.configHandler(req, res, false);
       })
@@ -23,6 +37,7 @@ let configMiddleware = (req, res, next) => {
       });
     return;
   }
+
   next();
 };
 

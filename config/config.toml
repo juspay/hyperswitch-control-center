@@ -1,0 +1,7 @@
+[endpoints]
+api_url="https://app.hyperswitch.io"
+sdk_url=""
+[default]
+primary_color="#006DF9"
+primary_hover_color="#005ED6"
+sidebar_color="#242F48"

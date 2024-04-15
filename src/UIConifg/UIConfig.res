@@ -140,7 +140,7 @@ let defaultUIConfig: t = {
   },
   font: {
     textColor: {
-      primaryNormal: "text-white",
+      primaryNormal: "text-primary",
     },
   },
   shadow: {
