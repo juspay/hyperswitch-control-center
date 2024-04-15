@@ -72,8 +72,8 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
   let fetchDetails = useGetMethod()
 
   let isUpdateFlow = switch url.path {
-  | list{"connectors", "new"} => false
-  | list{"payoutconnectors", "new"} => false
+  | list{"dashboard", "connectors", "new"} => false
+  | list{"dashboard", "payoutconnectors", "new"} => false
   | _ => true
   }
 

@@ -281,9 +281,9 @@ let filterConnectorListCoreJson = (json, ~retainInList) => {
 
 let urlToVariantMapper = (url: RescriptReactRouter.url) => {
   switch url.path {
-  | list{"payoutrouting", _} => PayoutRouting
-  | list{"3ds", _} => ThreedsRouting
-  | list{"surcharge", _} => SurchargeRouting
+  | list{"dashboard", "payoutrouting", _} => PayoutRouting
+  | list{"dashboard", "3ds", _} => ThreedsRouting
+  | list{"dashboard", "surcharge", _} => SurchargeRouting
   | _ => Routing
   }
 }

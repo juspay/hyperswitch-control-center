@@ -16,7 +16,7 @@ let make = () => {
   let initStep = PaymentMethods
 
   let isUpdateFlow = switch url.path {
-  | list{"fraud-risk-management", "new"} => false
+  | list{"dashboard", "fraud-risk-management", "new"} => false
   | _ => true
   }
 

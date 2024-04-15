@@ -61,13 +61,14 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
     }
 
     switch url.path {
-    | list{"user", "verify_email"} => setActualAuthType(_ => EmailVerify)
-    | list{"login"} =>
+    | list{"dashboard", "user", "verify_email"} => setActualAuthType(_ => EmailVerify)
+    | list{"dashboard", "login"} =>
       setActualAuthType(_ => isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword)
-    | list{"user", "set_password"} => setActualAuthType(_ => ResetPassword)
-    | list{"user", "accept_invite_from_email"} => setActualAuthType(_ => ActivateFromEmail)
-    | list{"forget-password"} => setActualAuthType(_ => ForgetPassword)
-    | list{"register"} =>
+    | list{"dashboard", "user", "set_password"} => setActualAuthType(_ => ResetPassword)
+    | list{"dashboard", "user", "accept_invite_from_email"} =>
+      setActualAuthType(_ => ActivateFromEmail)
+    | list{"dashboard", "forget-password"} => setActualAuthType(_ => ForgetPassword)
+    | list{"dashboard", "register"} =>
       // In Live mode users are not allowed to singup directly
       !isLiveMode ? setActualAuthType(_ => SignUP) : "login"->RescriptReactRouter.push
     | _ => ()
