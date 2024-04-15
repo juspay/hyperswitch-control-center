@@ -155,7 +155,7 @@ let make = (
   ~tabNames: array<string>,
   ~updateUrlWith=?,
   ~showCustomFilter=true,
-  ~customViewTop=React.null,
+  ~customLeftView=React.null,
   ~filterButtonStyle="",
   ~moduleName="",
   ~customFilterKey="",
@@ -218,7 +218,7 @@ let make = (
   }
 
   <div className="flex-1 ml-1">
-    <RemoteFilter
+    <Filter
       defaultFilters
       fixedFilters=initialFixedFilters
       requiredSearchFieldsList=[]
@@ -235,8 +235,8 @@ let make = (
       tooltipStyling=""
       showClearFilterButton=true
       defaultFilterKeys
-      customView=customFilters
-      customViewTop
+      customRightView=customFilters
+      customLeftView
       ?updateUrlWith
       clearFilters
       filterFieldsPortalName

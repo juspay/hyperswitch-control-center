@@ -526,8 +526,8 @@ let make = (
   ~tooltipStyling="",
   ~showClearFilterButton=false,
   ~defaultFilterKeys=[],
-  ~customView=React.null,
-  ~customViewTop=React.null,
+  ~customRightView=React.null,
+  ~customLeftView=React.null,
   ~updateUrlWith=?,
   ~clearFilters=?,
   ~showClearFilter=true,
@@ -902,6 +902,7 @@ let make = (
       {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
         <div>
           <div className={`flex flex-wrap flex-1 ${verticalGap}`}>
+            {customLeftView}
             <UIUtils.RenderIf condition={fixedFilters->Array.length > 0}>
               <FormRenderer.FieldsRenderer
                 fields={fixedFilters->Array.map(item => item.field)}
@@ -913,7 +914,6 @@ let make = (
             <UIUtils.RenderIf condition={hideFilters && isFilterSection}>
               <PortalCapture key={`customizedColumn-${title}`} name={`customizedColumn-${title}`} />
             </UIUtils.RenderIf>
-            {customViewTop}
             <UIUtils.RenderIf condition={showFiltersBtn}>
               {if !revampedFilter {
                 <ToolTip
@@ -1005,7 +1005,7 @@ let make = (
                         />
                       </div>}
                     </Modal>
-                    {customView}
+                    {customRightView}
                   </Portal>
                 </>
               }}
@@ -1071,7 +1071,7 @@ let make = (
                       React.null
                     }}
                   </div>
-                  {!hideFilters ? customView : React.null}
+                  {!hideFilters ? customRightView : React.null}
                   <ApplyFilterButton
                     autoApply
                     totalFilters

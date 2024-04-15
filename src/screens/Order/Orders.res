@@ -114,26 +114,26 @@ let make = (~previewOnly=false) => {
           <PortalCapture key={`OrdersCustomizeColumn`} name={`OrdersCustomizeColumn`} />
         </div>
       </div>
-      <PageLoaderWrapper screenState customUI>
-        <LoadedTableWithCustomColumns
-          title="Orders"
-          actualData=orderData
-          entity={OrderEntity.orderEntity}
-          resultsPerPage=10
-          showSerialNumber=true
-          totalResults={previewOnly ? orderData->Array.length : totalCount}
-          offset
-          setOffset
-          currrentFetchCount={orderData->Array.length}
-          customColumnMapper=TableAtoms.ordersMapDefaultCols
-          defaultColumns={OrderEntity.defaultColumns}
-          showSerialNumberInCustomizeColumns=false
-          sortingBasedOnDisabled=false
-          hideTitle=true
-          previewOnly
-          showResultsPerPageSelector=false
-        />
-      </PageLoaderWrapper>
+      // <PageLoaderWrapper screenState customUI>
+      //   <LoadedTableWithCustomColumns
+      //     title="Orders"
+      //     actualData=orderData
+      //     entity={OrderEntity.orderEntity}
+      //     resultsPerPage=10
+      //     showSerialNumber=true
+      //     totalResults={previewOnly ? orderData->Array.length : totalCount}
+      //     offset
+      //     setOffset
+      //     currrentFetchCount={orderData->Array.length}
+      //     customColumnMapper=TableAtoms.ordersMapDefaultCols
+      //     defaultColumns={OrderEntity.defaultColumns}
+      //     showSerialNumberInCustomizeColumns=false
+      //     sortingBasedOnDisabled=false
+      //     hideTitle=true
+      //     previewOnly
+      //     showResultsPerPageSelector=false
+      //   />
+      // </PageLoaderWrapper>
     </div>
   </ErrorBoundary>
 }

@@ -341,7 +341,7 @@ let make = (
           }}
           <UIUtils.RenderIf condition=showRemoteFilter>
             <LabelVisibilityContext showLabel=false>
-              <RemoteFilter
+              <Filter
                 defaultFilters=entity.defaultFilters
                 requiredSearchFieldsList=entity.requiredSearchFieldsList
                 setOffset

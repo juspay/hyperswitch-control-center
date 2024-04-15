@@ -170,7 +170,7 @@ module RemoteTableFilters = {
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->JSON.Encode.string}
 
-    let customViewTop = <SearchBarFilter placeholder setSearchVal searchVal />
+    let customLeftView = <SearchBarFilter placeholder setSearchVal searchVal />
 
     React.useEffect0(() => {
       if filterValueJson->Dict.keysToArray->Array.length === 0 {
@@ -244,9 +244,9 @@ module RemoteTableFilters = {
 
     switch filterDataJson {
     | Some(_) =>
-      <RemoteFilter
+      <Filter
         key="0"
-        customViewTop
+        customLeftView
         defaultFilters
         fixedFilters={initialFixedFilter()}
         requiredSearchFieldsList=[]
@@ -265,9 +265,9 @@ module RemoteTableFilters = {
         hideFiltersDefaultValue
       />
     | _ =>
-      <RemoteFilter
+      <Filter
         key="1"
-        customViewTop
+        customLeftView
         defaultFilters
         fixedFilters={initialFixedFilter()}
         requiredSearchFieldsList=[]

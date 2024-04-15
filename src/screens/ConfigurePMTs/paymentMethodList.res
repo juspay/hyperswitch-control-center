@@ -77,7 +77,7 @@ let make = (~isPayoutFlow=false) => {
     />
     <PageLoaderWrapper screenState>
       <div>
-        <RemoteFilter
+        <Filter
           remoteFilters={configuredConnectors->initialFilters(businessProfiles)}
           requiredSearchFieldsList=[]
           localFilters=[]
