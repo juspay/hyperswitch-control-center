@@ -21,8 +21,8 @@ let surchargeRules: AdvancedRoutingTypes.rule = {
 }
 
 let buildInitialSurchargeValue: threeDsRoutingType = {
-  name: `Surcharge -${DateTimeUtils.getCurrentUTCTime()}`,
-  description: `This is a new Surcharge created at ${DateTimeUtils.currentTimeInUTC}`,
+  name: `Surcharge -${RoutingUtils.getCurrentUTCTime()}`,
+  description: `This is a new Surcharge created at ${RoutingUtils.currentTimeInUTC}`,
   algorithm: {
     rules: [surchargeRules],
     defaultSelection: {

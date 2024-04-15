@@ -35,8 +35,8 @@ let rules: AdvancedRoutingTypes.rule = {
 }
 
 let buildInitial3DSValue: threeDsRoutingType = {
-  name: `3DS Rule-${DateTimeUtils.getCurrentUTCTime()}`,
-  description: `This is a Three-Ds Rule created at ${DateTimeUtils.currentTimeInUTC}`,
+  name: `3DS Rule-${RoutingUtils.getCurrentUTCTime()}`,
+  description: `This is a Three-Ds Rule created at ${RoutingUtils.currentTimeInUTC}`,
   algorithm: {
     rules: [rules],
     defaultSelection: {

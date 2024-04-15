@@ -209,16 +209,3 @@ let timeOptions = [
   "11:30 pm",
   "11:45 pm",
 ]
-
-let currentTimeInUTC = Js.Date.fromFloat(Date.now())->Js.Date.toUTCString
-
-let getCurrentUTCTime = (~separator=?, ()) => {
-  let currentDate = Date.now()->Js.Date.fromFloat
-  let month = currentDate->Js.Date.getUTCMonth +. 1.0
-  let day = currentDate->Js.Date.getUTCDate
-  let currMonth = month < 10.0 ? `0${month->Float.toString}` : month->Float.toString
-  let currDay = day < 10.0 ? `0${day->Float.toString}` : day->Float.toString
-  let currYear = currentDate->Js.Date.getUTCFullYear->Float.toString
-
-  `${currYear}${separator->Option.getOr("-")}${currMonth}${separator->Option.getOr("-")}${currDay}`
-}
