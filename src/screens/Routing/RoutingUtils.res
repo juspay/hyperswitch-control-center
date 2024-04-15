@@ -5,17 +5,6 @@ external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
 let defaultThreeDsObjectValue: routingOutputType = {
   override_3ds: "three_ds",
 }
-let currentTimeInUTC = Js.Date.fromFloat(Date.now())->Js.Date.toUTCString
-let getCurrentUTCTime = () => {
-  let currentDate = Date.now()->Js.Date.fromFloat
-  let month = currentDate->Js.Date.getUTCMonth +. 1.0
-  let day = currentDate->Js.Date.getUTCDate
-  let currMonth = month < 10.0 ? `0${month->Float.toString}` : month->Float.toString
-  let currDay = day < 10.0 ? `0${day->Float.toString}` : day->Float.toString
-  let currYear = currentDate->Js.Date.getUTCFullYear->Float.toString
-
-  `${currYear}-${currMonth}-${currDay}`
-}
 
 let routingTypeMapper = routingType => {
   switch routingType {
@@ -151,11 +140,11 @@ let constructNameDescription = routingType => {
   Dict.fromArray([
     (
       "name",
-      `${routingText->capitalizeString} Based Routing-${getCurrentUTCTime()}`->JSON.Encode.string,
+      `${routingText->capitalizeString} Based Routing-${DateTimeUtils.getCurrentUTCTime()}`->JSON.Encode.string,
     ),
     (
       "description",
-      `This is a ${routingText} based routing created at ${currentTimeInUTC}`->JSON.Encode.string,
+      `This is a ${routingText} based routing created at ${DateTimeUtils.currentTimeInUTC}`->JSON.Encode.string,
     ),
   ])
 }
