@@ -69,6 +69,7 @@ let connectorList: array<connectorTypes> = [
   Processors(WORLDLINE),
   Processors(WORLDPAY),
   Processors(ZEN),
+  Processors(ZSL),
   Processors(PLACETOPAY),
 ]
 
@@ -376,6 +377,10 @@ let billwerkInfo = {
   description: "Billwerk+ Pay is an acquirer independent payment gateway that helps you get the best acquirer rates, select a wide variety of payment methods.",
 }
 
+let zslInfo = {
+  description: "It is a payment processor that enables businesses to accept payments securely through local bank transfers.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ADYEN => "adyen"
@@ -431,6 +436,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | HELCIM => "helcim"
   | PLACETOPAY => "placetopay"
   | BILLWERK => "billwerk"
+  | ZSL => "zsl"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -504,6 +510,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "helcim" => Processors(HELCIM)
     | "placetopay" => Processors(PLACETOPAY)
     | "billwerk" => Processors(BILLWERK)
+    | "zsl" => Processors(ZSL)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -570,6 +577,7 @@ let getProcessorInfo = connector => {
   | HELCIM => helcimInfo
   | PLACETOPAY => placetopayInfo
   | BILLWERK => billwerkInfo
+  | ZSL => zslInfo
   }
 }
 let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
@@ -1299,6 +1307,7 @@ let getDisplayNameForProcessor = connector =>
   | BANKOFAMERICA => "Bank of America"
   | HELCIM => "Helcim"
   | PLACETOPAY => "Placetopay"
+  | ZSL => "ZSL"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
