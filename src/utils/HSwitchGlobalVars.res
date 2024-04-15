@@ -17,7 +17,7 @@ let getHostURLFromVariant = (host: hostType) => {
   | Live => "https://live.hyperswitch.io"
   | Sandbox => "https://app.hyperswitch.io"
   | Netlify => `https://${hostName}`
-  | Local => `${Window.Location.origin}`
+  | Local => `${Window.Location.origin}/dashboard`
   }
 }
 
