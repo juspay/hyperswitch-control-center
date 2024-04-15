@@ -4,9 +4,9 @@ open HomeUtils
 module HomePageHorizontalStepper = {
   @react.component
   let make = (~stepperItemsArray: array<string>, ~className="") => {
-    let {
-      globalUIConfig: {backgroundColor, border: {borderColor}, font: {textColor}},
-    } = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {backgroundColor, border: {borderColor}}} = React.useContext(
+      ConfigContext.configContext,
+    )
     let enumDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.enumVariantAtom)
     let typedValueOfEnum = enumDetails->LogicUtils.safeParse->QuickStartUtils.getTypedValueFromDict
 
@@ -21,7 +21,7 @@ module HomePageHorizontalStepper = {
 
     let getStepperStyle = index => {
       if index < step {
-        `bg-white ${borderColor.primaryNormal}`
+        `bg-white border ${borderColor.primaryNormal}`
       } else if index === step {
         `${backgroundColor} text-white border-transparent`
       } else {
@@ -46,7 +46,7 @@ module HomePageHorizontalStepper = {
             <span
               className={`h-6 w-7 flex items-center justify-center rounded-md font-semibold ${index->getStepperStyle} ${getTextStyle}`}>
               <UIUtils.RenderIf condition={index < step}>
-                <Icon name="check" size=12 customIconColor={textColor.primaryNormal} />
+                <Icon name="check" size=12 className="text-blue-500" />
               </UIUtils.RenderIf>
               <UIUtils.RenderIf condition={index >= step}>
                 {(index + 1)->Int.toString->React.string}
