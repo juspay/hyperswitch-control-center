@@ -1,3 +1,18 @@
+///////////////////////////////////////////////////////////////////////////////
+
+///  ***Reference***  ///
+/// https://github.com/fbrill/dynamic-colors-in-tailwind/blob/main/utils/index.js///
+
+///////////////////////////////////////////////////////////////////////////////
+function withOpacity(variableName) {
+  return ({ opacityValue }) => {
+    console.log(opacityValue, variableName, "opacityValue");
+    if (opacityValue !== undefined) {
+      return `rgba(var(${variableName}), ${opacityValue})`;
+    }
+    return `rgb(var(${variableName}))`;
+  };
+}
 const plugin = require("tailwindcss/plugin");
 
 module.exports = {
@@ -81,6 +96,12 @@ module.exports = {
         "fs-28": "28px",
       },
       colors: {
+        primary: {
+          DEFAULT: withOpacity("--color-primary"), // Default primary color
+          hover: withOpacity("--color-hover"),
+          sidebar: withOpacity("--color-sidebar"),
+          custom: "#006DF9", // Custom primary color
+        },
         blue: {
           100: "#F1F2F4",
           200: "#DAECFF",
@@ -128,10 +149,8 @@ module.exports = {
           950: "#F04849",
           960: "#EF6969",
           980: "#FC5454",
-          990: "#F97F77",
           failed_page_bg: "#FDEDE8",
         },
-        "sidebar-blue": "#242F48",
         "profile-sidebar-blue": "#16488F",
         "status-green": "#36AF47",
         "popover-background": "#334264",

@@ -707,13 +707,12 @@ module SubmitButton = {
           `${key->LogicUtils.snakeToTitle}: ${value}`
         })
         ->Array.joinWith("\n")
-      let tooltipStyle = hasError ? "bg-red-990" : ""
+
       if showToolTip && !avoidDisable {
         <ToolTip
           description
           toolTipFor=button
           toolTipPosition
-          customStyle=tooltipStyle
           tooltipPositioning
           tooltipWidthClass
           height=tooltipForHeight

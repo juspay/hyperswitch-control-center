@@ -62,6 +62,7 @@ module ListItem = {
     ~textEllipsisForDropDownOptions=false,
     ~textColorClass="",
   ) => {
+    let {globalUIConfig: {font}} = React.useContext(ConfigContext.configContext)
     let labelText = switch labelValue->String.length {
     | 0 => text
     | _ => labelValue
@@ -168,7 +169,7 @@ module ListItem = {
     let optionIconStroke = ""
 
     let optionTextSize = !isDropDown && optionSize === Large ? "text-fs-16" : "text-base"
-    let searchMatchTextColor = "dark:text-blue-500 text-blue-500"
+    let searchMatchTextColor = `dark:${font.textColor.primaryNormal} ${font.textColor.primaryNormal}`
     let optionDescPadding = if optionSize === Small {
       showToggle ? "pl-12" : "pl-7"
     } else if showToggle {
@@ -460,6 +461,7 @@ module BaseSelect = {
     ~wrapBasis="",
     ~preservedAppliedOptions=[],
   ) => {
+    let {globalUIConfig: {font}} = React.useContext(ConfigContext.configContext)
     let (searchString, setSearchString) = React.useState(() => "")
     let maxHeight = if maxHeight->String.includes("72") {
       "md:max-h-66.5"
@@ -748,7 +750,7 @@ module BaseSelect = {
             onClick={selectAll(noOfSelected !== options->Array.length)}
             className={`flex ${isHorizontal
                 ? "flex-col"
-                : "flex-row"} justify-between pr-4 pl-5 pt-6 pb-1 text-base font-semibold text-blue-500 cursor-pointer`}>
+                : "flex-row"} justify-between pr-4 pl-5 pt-6 pb-1 text-base font-semibold ${font.textColor.primaryNormal} cursor-pointer`}>
             {"SELECT ALL"->React.string}
             <CheckBoxIcon isSelected={noOfSelected === options->Array.length} />
           </div>
@@ -782,7 +784,7 @@ module BaseSelect = {
                       ),
                     ]>
                     <div
-                      className={`font-semibold text-blue-500 ${disabledClass} ${customSelectAllStyle}`}
+                      className={`font-semibold ${font.textColor.primaryNormal} ${disabledClass} ${customSelectAllStyle}`}
                       onClick={_ => {
                         toggleSelectAll(!isChooseAllToggleSelected)
                       }}>

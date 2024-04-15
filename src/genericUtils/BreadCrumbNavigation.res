@@ -19,13 +19,13 @@ let make = (
   ~commonTextClass="",
   ~linkTextClass="",
 ) => {
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let prefix = LogicUtils.useUrlPrefix()
   let showPopUp = PopUpState.useShowPopUp()
   let pathLength = path->Array.length
-
   let divider = arrowDivider
   let fontWeight = "font-semibold"
-  let textClass = "text-blue-500"
+  let textClass = `${textColor.primaryNormal}`
   let parentGapClass = "gap-2"
   let childGapClass = ""
   let flexDirection = is_reverse ? "flex-wrap flex-row-reverse" : "flex-wrap flex-row"

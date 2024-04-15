@@ -5,6 +5,7 @@ open FormRenderer
 module LogicalOps = {
   @react.component
   let make = (~id) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let logicalOpsInput = ReactFinalForm.useField(`${id}.logical`).input
 
     React.useEffect0(() => {
@@ -23,7 +24,7 @@ module LogicalOps = {
           key={i->Int.toString}
           text
           onClick={_ => onChange(text)}
-          textStyle={active ? "text-blue-500" : ""}
+          textStyle={active ? `${textColor.primaryNormal}` : ""}
           textWeight={active ? "font-semibold" : "font-medium"}
           customButtonStyle={active ? "shadow-inner px-0" : "px-0"}
           buttonType={active ? SecondaryFilled : Secondary}

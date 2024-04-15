@@ -1,3 +1,28 @@
+let getAccessibleColor = hex => {
+  let color = if hex->String.replaceRegExp(%re("/\./g"), "")->String.length !== 6 {
+    `${hex->String.replaceRegExp(%re("/\./g"), "")}${hex->String.replaceRegExp(%re("/\./g"), "")}`
+  } else {
+    hex->String.replaceRegExp(%re("/\./g"), "")
+  }
+  let r = color->String.substring(~start=0, ~end=2)->Int.fromString(~radix=16)->Option.getOr(0)
+  let g = color->String.substring(~start=2, ~end=2)->Int.fromString(~radix=16)->Option.getOr(0)
+  let b = color->String.substring(~start=4, ~end=2)->Int.fromString(~radix=16)->Option.getOr(0)
+  let yiq = (r * 299 + g * 587 + b * 114) / 1000
+  yiq >= 128 ? "#000000" : "#FFFFFF"
+}
+
+let getRGBColor = (hex, \"type") => {
+  let color = if hex->String.replaceRegExp(%re("/\./g"), "")->String.length !== 6 {
+    `${hex->String.replaceRegExp(%re("/\./g"), "")}${hex->String.replaceRegExp(%re("/\./g"), "")}`
+  } else {
+    hex->String.replaceRegExp(%re("/\./g"), "")
+  }
+  let r = color->String.substring(~start=0, ~end=2)->Int.fromString(~radix=16)->Option.getOr(0)
+  let g = color->String.substring(~start=2, ~end=2)->Int.fromString(~radix=16)->Option.getOr(0)
+  let b = color->String.substring(~start=4, ~end=2)->Int.fromString(~radix=16)->Option.getOr(0)
+  `--color-${\"type"}: ${Belt.Int.toString(r)}, ${Belt.Int.toString(g)}, ${Belt.Int.toString(b)};`
+}
+
 module HyperSwitchEntryComponent = {
   @react.component
   let make = () => {
@@ -12,6 +37,16 @@ module HyperSwitchEntryComponent = {
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     React.useEffect0(() => {
       HSiwtchTimeZoneUtils.getUserTimeZone()->setZone
+      None
+    })
+
+    React.useEffect0(() => {
+      let customStyle: Window.customStyle = {
+        primaryColor: "#22c55e",
+        primaryHover: "#facc15",
+        sidebar: "#b91c1c",
+      }
+      let _ = Window.appendStyle(customStyle)
       None
     })
 
@@ -93,4 +128,4 @@ module HyperSwitchEntryComponent = {
 }
 
 let uiConfig: UIConfig.t = HyperSwitchDefaultConfig.config
-EntryPointUtils.renderDashboardApp(<HyperSwitchEntryComponent />, ~uiConfig)
+EntryPointUtils.renderDashboardApp(<HyperSwitchEntryComponent />)

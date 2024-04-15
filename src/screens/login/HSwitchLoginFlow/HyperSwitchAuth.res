@@ -206,7 +206,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
     }
     None
   })
-
+  let note = useNote(authType, setAuthType, featureFlagValues.email)
   <ReactFinalForm.Form
     key="auth"
     initialValues
@@ -253,7 +253,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit, ~authType, 
             }}
           </div>
           <AddDataAttributes attributes=[("data-testid", "card-foot-text")]>
-            <div> {note(authType, setAuthType, featureFlagValues.email)} </div>
+            <div> {note} </div>
           </AddDataAttributes>
         </form>
       </>

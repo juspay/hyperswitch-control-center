@@ -496,6 +496,9 @@ let make = (
   ~verticalOffset="120px",
 ) => {
   open UIUtils
+  let {globalUIConfig: {sidebarColor: {backgroundColor}}} = React.useContext(
+    ConfigContext.configContext,
+  )
   let fetchApi = AuthHooks.useApiFetcher()
   let isMobileView = MatchMedia.useMobileChecker()
   let sideBarRef = React.useRef(Nullable.null)
@@ -566,7 +569,8 @@ let make = (
     )
   }
 
-  <div className={`bg-sidebar-blue flex group border-r border-jp-gray-500 relative`}>
+  <div
+    className={`${backgroundColor.primaryNormal} flex group border-r border-jp-gray-500 relative`}>
     <div
       ref={sideBarRef->ReactDOM.Ref.domRef}
       className={`flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
@@ -578,7 +582,7 @@ let make = (
       onMouseLeave={_ => onMouseHoverLeaveEvent()}>
       <div
         ref={sideBarRef->ReactDOM.Ref.domRef}
-        className={`bg-sidebar-blue flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
+        className={`${backgroundColor.primaryNormal} flex h-full flex-col transition-all duration-100 ${sidebarClass} relative inset-0`}
         style={ReactDOMStyle.make(~width=sidebarWidth, ())}>
         <div className="flex items-center justify-between p-1 mr-2">
           <div

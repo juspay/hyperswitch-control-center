@@ -37,6 +37,7 @@ type seriesLine<'a> = {
   connectNulls?: bool,
   dataLabels?: dataLabels,
   showInLegend?: bool,
+  className?: string,
 }
 
 type series2<'t> = {"type": string, "name": string, "data": array<'t>}
