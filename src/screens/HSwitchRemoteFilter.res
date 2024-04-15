@@ -104,10 +104,10 @@ let useSetInitialFilters = (~updateExistingKeys, ~startTimeFilterKey, ~endTimeFi
 module SearchBarFilter = {
   @react.component
   let make = (~placeholder, ~setSearchVal, ~searchVal) => {
-    let (searchValBase, setSearchValBase) = React.useState(_ => "")
+    let (baseValue, setBaseValue) = React.useState(_ => "")
     let onChange = ev => {
       let value = ReactEvent.Form.target(ev)["value"]
-      setSearchValBase(_ => value)
+      setBaseValue(_ => value)
     }
 
     React.useEffect1(() => {
@@ -115,38 +115,37 @@ module SearchBarFilter = {
         let keyPressed = event->ReactEvent.Keyboard.key
 
         if keyPressed == "Enter" {
-          setSearchVal(_ => searchValBase)
+          setSearchVal(_ => baseValue)
         }
       }
       Window.addEventListener("keydown", onKeyPress)
       Some(() => Window.removeEventListener("keydown", onKeyPress))
-    }, [searchValBase])
+    }, [baseValue])
 
     React.useEffect1(() => {
-      if searchValBase->String.length < 1 && searchVal->LogicUtils.isNonEmptyString {
-        setSearchVal(_ => searchValBase)
+      if baseValue->String.length === 0 && searchVal->LogicUtils.isNonEmptyString {
+        setSearchVal(_ => baseValue)
       }
       None
-    }, [searchValBase])
+    }, [baseValue])
 
     let inputSearch: ReactFinalForm.fieldRenderPropsInput = {
       name: "name",
       onBlur: _ev => (),
       onChange,
       onFocus: _ev => (),
-      value: searchValBase->JSON.Encode.string,
+      value: baseValue->JSON.Encode.string,
       checked: true,
     }
 
-    <div className="w-1/3 flex items-center">
-      {InputFields.textInput(~input=inputSearch, ~placeholder, ~customStyle=`w-full`, ())}
-      <Button
-        leftIcon={FontAwesome("search")}
-        buttonType={Secondary}
-        onClick={_ => {
-          setSearchVal(_ => searchValBase)
-        }}
-      />
+    <div className="w-1/3">
+      {InputFields.textInput(
+        ~input=inputSearch,
+        ~placeholder,
+        ~customStyle="rounded-lg",
+        ~customPaddingClass="px-3",
+        (),
+      )}
     </div>
   }
 }
