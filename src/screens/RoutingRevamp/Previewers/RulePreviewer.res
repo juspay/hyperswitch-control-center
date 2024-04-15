@@ -4,6 +4,7 @@ open AdvancedRoutingUtils
 module GatewayView = {
   @react.component
   let make = (~gateways) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <div className="flex flex-wrap gap-4 items-center">
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {
@@ -13,7 +14,7 @@ module GatewayView = {
         }
         <div
           key={Int.toString(index)}
-          className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 dark:border-jp-gray-960 font-medium text-blue-500 hover:text-blue-500 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1">
+          className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 dark:border-jp-gray-960 font-medium ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1`}>
           {connectorStr->React.string}
           <UIUtils.RenderIf condition={percent->Option.isSome}>
             <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
@@ -30,8 +31,9 @@ module GatewayView = {
 module ThreedsTypeView = {
   @react.component
   let make = (~threeDsType) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <div
-      className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium text-blue-500 hover:text-blue-500 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1">
+      className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1`}>
       {threeDsType->LogicUtils.capitalizeString->React.string}
     </div>
   }
@@ -40,8 +42,9 @@ module ThreedsTypeView = {
 module SurchargeCompressedView = {
   @react.component
   let make = (~surchargeType, ~surchargeTypeValue, ~surchargePercentage) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <div
-      className="my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium text-blue-500 hover:text-blue-500 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1">
+      className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium  ${textColor.primaryNormal} hover: ${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1`}>
       {`${surchargeType} -> ${surchargeTypeValue->Float.toString} | Tax on Surcharge -> ${surchargePercentage
         ->Option.getOr(0.0)
         ->Float.toString}`
@@ -54,7 +57,7 @@ module SurchargeCompressedView = {
 @react.component
 let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) => {
   open LogicUtils
-
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   <div
     className=" bg-white border  flex flex-col divide-y  divide-jp-gray-600  border-jp-gray-600 ">
     <AddDataAttributes attributes=[("data-component", "rulePreviewer")]>
@@ -114,7 +117,9 @@ let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) 
                     <div key={Int.toString(index)} className="flex flex-wrap items-center gap-2">
                       <UIUtils.RenderIf condition={index !== 0}>
                         <MakeRuleFieldComponent.TextView
-                          str=logical fontColor="text-blue-500" fontWeight="font-semibold"
+                          str=logical
+                          fontColor={`${textColor.primaryNormal}`}
+                          fontWeight="font-semibold"
                         />
                       </UIUtils.RenderIf>
                       <MakeRuleFieldComponent.TextView str=field />

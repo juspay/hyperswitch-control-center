@@ -1,7 +1,6 @@
 let headerTextStyle = "text-xl font-semibold text-grey-700"
 let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
 let dividerColor = "bg-grey-700 bg-opacity-20 h-px w-full"
-let highlightedText = "text-base font-normal text-blue-500 underline"
 
 module ReplaceAPIKey = {
   @react.component
@@ -116,10 +115,10 @@ module SetupWebhookUser = {
 let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.previewStates>) => {
   open APIUtils
   open ProdOnboardingTypes
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let merchantDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantDetailsValueAtom)
-
   let publishablekeyMerchant = merchantDetails.publishable_key
   let paymentResponseHashKey = merchantDetails.payment_response_hash_key->Option.getOr("")
 
@@ -231,7 +230,7 @@ let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.p
           {"Not integrated with Hyperswitch yet? Visit our"->React.string}
         </p>
         <p
-          className={`${highlightedText} cursor-pointer`}
+          className={`text-base font-normal ${textColor.primaryNormal} underline cursor-pointer`}
           onClick={_ => Window._open("https://hyperswitch.io/docs")}>
           {"Developer Docs"->React.string}
         </p>

@@ -10,6 +10,7 @@ module SuggestedAction = {
 module StripSendingCreditCard = {
   @react.component
   let make = () => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <>
       <SuggestedAction />
       <div
@@ -17,7 +18,7 @@ module StripSendingCreditCard = {
         <div className="inline gap-1">
           {`Click `->React.string}
           <a
-            className="inline text-blue-500 underline"
+            className={`inline ${textColor.primaryNormal} underline`}
             href="https://dashboard.stripe.com/settings/integration"
             target="_blank">
             {React.string("here")}
@@ -32,6 +33,7 @@ module StripSendingCreditCard = {
 module StripeInvalidAPIKey = {
   @react.component
   let make = () => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <>
       <SuggestedAction />
       <div
@@ -39,7 +41,7 @@ module StripeInvalidAPIKey = {
         <div className="inline gap-1">
           {`Please use a secret API key. Click `->React.string}
           <a
-            className="inline text-blue-500 underline"
+            className={`inline ${textColor.primaryNormal} underline`}
             href="https://dashboard.stripe.com/test/apikeys"
             target="_blank">
             {React.string("here")}
@@ -54,6 +56,7 @@ module StripeInvalidAPIKey = {
 module PaypalClientAuthenticationFalied = {
   @react.component
   let make = () => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <>
       <SuggestedAction />
       <div
@@ -61,7 +64,7 @@ module PaypalClientAuthenticationFalied = {
         <div className="inline gap-1">
           {`Please use the correct credentials. Click `->React.string}
           <a
-            className="inline text-blue-500 underline"
+            className={`inline ${textColor.primaryNormal} underline`}
             href="https://developer.paypal.com/dashboard/applications/sandbox"
             target="_blank">
             {React.string("here")}

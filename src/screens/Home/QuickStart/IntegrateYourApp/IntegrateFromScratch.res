@@ -12,6 +12,7 @@ let make = (
   ~setPlatform,
   ~markAsDone,
 ) => {
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let (currentStep, setCurrentStep) = React.useState(_ => DownloadTestAPIKey)
   let {setQuickStartPageState} = React.useContext(GlobalProvider.defaultContext)
   let isLastStep = currentStep === DisplayPaymentConfirmation
@@ -79,7 +80,7 @@ let make = (
           <p>
             {"For the complete API schema, refer "->React.string}
             <span
-              className="text-blue-500 underline cursor-pointer"
+              className={`${textColor.primaryNormal} underline cursor-pointer`}
               onClick={_ =>
                 Window._open(
                   "https://api-reference.hyperswitch.io/docs/hyperswitch-api-reference/60bae82472db8-payments-create",

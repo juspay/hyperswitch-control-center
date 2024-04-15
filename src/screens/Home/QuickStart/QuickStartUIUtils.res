@@ -67,8 +67,13 @@ module VerticalChoiceTile = {
     ~setChoiceState,
     ~customLayoutCss,
   ) => {
+    let {
+      globalUIConfig: {backgroundColor, font: {textColor}, border: {borderColor}},
+    } = React.useContext(ConfigContext.configContext)
     let getBlockColor = value =>
-      choiceState === value ? "border border-blue-500 bg-blue-500 bg-opacity-10 " : "border"
+      choiceState === value
+        ? `${borderColor.primaryNormal} ${backgroundColor} bg-opacity-10 `
+        : "border"
     let headerTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700`
     let descriptionStyle = `${HSwitchUtils.getTextClass((
         P2,
@@ -94,7 +99,7 @@ module VerticalChoiceTile = {
               <Icon
                 name={choiceState === items.variantType ? "selected" : "nonselected"}
                 size=20
-                className="cursor-pointer !text-blue-500"
+                className={`cursor-pointer !${textColor.primaryNormal}`}
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -107,7 +112,7 @@ module VerticalChoiceTile = {
                 ->Option.getOr([])
                 ->Array.map(value =>
                   <div
-                    className="p-2 text-xs border border-blue-500 border-opacity-30 bg-blue-500 bg-opacity-10 rounded-md">
+                    className={`p-2 text-xs border ${borderColor.primaryNormal} border-opacity-30 ${backgroundColor} bg-opacity-10 rounded-md`}>
                     {value->React.string}
                   </div>
                 )
@@ -130,8 +135,13 @@ module HorizontalChoiceTile = {
     ~setChoiceState,
     ~customLayoutCss,
   ) => {
+    let {
+      globalUIConfig: {backgroundColor, font: {textColor}, border: {borderColor}},
+    } = React.useContext(ConfigContext.configContext)
     let getBlockColor = value =>
-      choiceState === value ? "border border-blue-500 bg-blue-500 bg-opacity-10 " : "border"
+      choiceState === value
+        ? `${borderColor.primaryNormal} ${backgroundColor} bg-opacity-10 `
+        : "border"
     let headerTextStyle = `${HSwitchUtils.getTextClass((P1, Medium))} text-grey-700`
     let descriptionStyle = `${HSwitchUtils.getTextClass((
         P2,
@@ -153,7 +163,7 @@ module HorizontalChoiceTile = {
               <Icon
                 name={choiceState === items.variantType ? "selected" : "nonselected"}
                 size=20
-                className="cursor-pointer !text-blue-500"
+                className={`cursor-pointer !${textColor.primaryNormal}`}
               />
             </div>
             <UIUtils.RenderIf
@@ -209,6 +219,10 @@ module SelectConnectorGrid = {
   @react.component
   let make = (~selectedConnector, ~setSelectedConnector, ~connectorList) => {
     open ConnectorTypes
+
+    let {
+      globalUIConfig: {backgroundColor, font: {textColor}, border: {borderColor}},
+    } = React.useContext(ConfigContext.configContext)
     let typedConnectedConnectorList =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom
@@ -243,8 +257,8 @@ module SelectConnectorGrid = {
     let getBlockColor = connector => {
       switch (selectedConnector, connector) {
       | (Processors(selectedConnector), Processors(connectorValue))
-        if selectedConnector ===
-          connectorValue => "border border-blue-500 bg-blue-500 bg-opacity-10"
+        if selectedConnector === connectorValue =>
+        `${borderColor.primaryNormal} ${backgroundColor} bg-opacity-10`
       | _ => "border"
       }
     }
@@ -279,7 +293,9 @@ module SelectConnectorGrid = {
                     </p>
                   </div>
                   <Icon
-                    name={connector->iconColor} size=20 className="cursor-pointer !text-blue-500"
+                    name={connector->iconColor}
+                    size=20
+                    className={`cursor-pointer !${textColor.primaryNormal}`}
                   />
                 </div>
               </AddDataAttributes>
@@ -308,7 +324,7 @@ module SelectConnectorGrid = {
                 <Icon
                   name={connector === selectedConnector ? "selected" : "nonselected"}
                   size=20
-                  className="cursor-pointer !text-blue-500"
+                  className={`cursor-pointer !${textColor.primaryNormal}`}
                 />
               </div>
             </div>

@@ -15,6 +15,9 @@ type sidebarOption = {
 @react.component
 let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
   let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
+  let {globalUIConfig: {font: {textColor}, backgroundColor}} = React.useContext(
+    ConfigContext.configContext,
+  )
   let handleBackButton = _ => {
     setDashboardPageState(_ => #HOME)
     RescriptReactRouter.replace("/home")
@@ -30,7 +33,9 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
   <div className="w-[288px] xl:w-[364px] h-screen bg-white shadow-sm shrink-0">
     <div className="p-6 flex flex-col gap-3">
       <div className="text-xl font-semibold"> {heading->React.string} </div>
-      <div className="text-blue-500 flex gap-3 cursor-pointer" onClick={handleBackButton}>
+      <div
+        className={`${textColor.primaryNormal} flex gap-3 cursor-pointer`}
+        onClick={handleBackButton}>
         <Icon name="back-to-home-icon" />
         {"Exit to Homepage"->React.string}
       </div>
@@ -39,7 +44,7 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
       <span> {`${completedPercentage->Int.toString}% Completed`->React.string} </span>
       <div className="h-2 bg-gray-200">
         <div
-          className={"h-full bg-blue-500"}
+          className={`h-full ${backgroundColor}`}
           style={ReactDOMStyle.make(~width=`${completedPercentage->Int.toString}%`, ())}
         />
       </div>
@@ -47,9 +52,15 @@ let make = (~heading, ~sidebarOptions: array<sidebarOption>=[]) => {
     {sidebarOptions
     ->Array.mapWithIndex((sidebarOption, i) => {
       let (icon, indexBackground, indexColor, background, textColor) = switch sidebarOption.status {
-      | COMPLETED => ("green-check", "bg-blue-500", "text-white", "", "")
-      | PENDING => ("lock-icon", "bg-blue-200", "text-blue-500", "bg-jp-gray-light_gray_bg", "")
-      | ONGOING => ("", "bg-blue-500", "text-white", "", "text-blue-500")
+      | COMPLETED => ("green-check", backgroundColor, "text-white", "", "")
+      | PENDING => (
+          "lock-icon",
+          "bg-blue-200",
+          textColor.primaryNormal,
+          "bg-jp-gray-light_gray_bg",
+          "",
+        )
+      | ONGOING => ("", backgroundColor, "text-white", "", textColor.primaryNormal)
       }
 
       let onClick = _ => {

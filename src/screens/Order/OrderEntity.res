@@ -456,7 +456,8 @@ let getHeading = (colType: colType) => {
   }
 }
 
-let getStatus = order => {
+let useGetStatus = order => {
+  let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
   let orderStatusLabel = order.status->String.toUpperCase
   let fixedStatusCss = "text-sm text-white font-bold px-3 py-2 rounded-md"
   switch order.status->HSwitchOrderUtils.statusVariantMapper {
@@ -474,11 +475,11 @@ let getStatus = order => {
   | RequiresCustomerAction
   | RequiresConfirmation
   | RequiresPaymentMethod =>
-    <div className={`${fixedStatusCss} bg-blue-500 bg-opacity-50`}>
+    <div className={`${fixedStatusCss} ${backgroundColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | _ =>
-    <div className={`${fixedStatusCss} bg-blue-500 bg-opacity-50`}>
+    <div className={`${fixedStatusCss} ${backgroundColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   }

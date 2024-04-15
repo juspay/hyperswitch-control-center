@@ -1,7 +1,7 @@
 %%raw(`require("tailwindcss/tailwind.css")`)
 module ContextWrapper = {
   @react.component
-  let make = (~children, ~uiConfig) => {
+  let make = (~children) => {
     let loader =
       <div className={`h-screen w-scrren flex justify-center items-center`}>
         <Loader />
@@ -19,7 +19,7 @@ module ContextWrapper = {
                       <UserTimeZoneProvider>
                         <SidebarProvider>
                           <ModalContainer>
-                            <ConfigContext value=uiConfig> children </ConfigContext>
+                            <ConfigContext> children </ConfigContext>
                           </ModalContainer>
                         </SidebarProvider>
                       </UserTimeZoneProvider>
@@ -35,7 +35,7 @@ module ContextWrapper = {
   }
 }
 
-let renderDashboardApp = (~uiConfig, children) => {
+let renderDashboardApp = children => {
   switch ReactDOM.querySelector("#app") {
   | Some(container) =>
     open ReactDOM.Client
@@ -44,7 +44,7 @@ let renderDashboardApp = (~uiConfig, children) => {
     let root = createRoot(container)
     root->render(
       <div className={`h-screen overflow-hidden flex flex-col font-inter-style`}>
-        <ContextWrapper uiConfig> children </ContextWrapper>
+        <ContextWrapper> children </ContextWrapper>
       </div>,
     )
   | None => ()
