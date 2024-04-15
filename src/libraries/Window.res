@@ -241,6 +241,15 @@ module FcWidget = {
 @val @scope("window")
 external fcWidget: 'a = "fcWidget"
 
+type customStyle = {
+  primaryColor: string,
+  primaryHover: string,
+  sidebar: string,
+}
+
+@val @scope("window")
+external appendStyle: customStyle => unit = "appendStyle"
+
 type boundingClient = {x: int, y: int, width: int, height: int}
 @send external getBoundingClientRect: Dom.element => boundingClient = "getBoundingClientRect"
 

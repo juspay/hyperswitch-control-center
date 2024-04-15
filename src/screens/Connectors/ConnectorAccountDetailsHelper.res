@@ -164,6 +164,7 @@ module CashToCodeSelectBox = {
     ~selectedConnector,
   ) => {
     open LogicUtils
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (country, setSelectedCountry) = React.useState(_ => "")
@@ -207,7 +208,7 @@ module CashToCodeSelectBox = {
       ->React.array}
       <Modal
         modalHeading={`Additional Details to enable`}
-        headerTextClass="text-blue-500 font-bold text-xl"
+        headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
         showModal={showWalletConfigurationModal}
         setShowModal={setShowWalletConfigurationModal}
         paddingClass=""
@@ -333,6 +334,7 @@ module ConnectorConfigurationFields = {
 module BusinessProfileRender = {
   @react.component
   let make = (~isUpdateFlow: bool, ~selectedConnector) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let {setDashboardPageState} = React.useContext(GlobalProvider.defaultContext)
     let businessProfiles = Recoil.useRecoilValueFromAtom(HyperswitchAtom.businessProfilesAtom)
     let defaultBusinessProfile = businessProfiles->MerchantAccountUtils.getValueFromBusinessProfile
@@ -342,7 +344,7 @@ module BusinessProfileRender = {
 
     let hereTextStyle = isUpdateFlow
       ? "text-grey-700 opacity-50 cursor-not-allowed"
-      : "text-blue-500  cursor-pointer"
+      : `${textColor.primaryNormal}  cursor-pointer`
 
     <>
       <FormRenderer.FieldRenderer
@@ -484,6 +486,7 @@ module ConnectorHeaderWrapper = {
     ~connectorType=ConnectorTypes.Processor,
   ) => {
     open ConnectorUtils
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let connectorNameFromType = connector->getConnectorNameTypeFromString()
     let setShowModalFunction = switch handleShowModal {
     | Some(func) => func
@@ -502,7 +505,7 @@ module ConnectorHeaderWrapper = {
             condition={connectorsWithIntegrationSteps->Array.includes(connectorNameFromType) &&
               conditionForIntegrationSteps}>
             <a
-              className={`cursor-pointer px-4 py-3 flex text-sm text-blue-500 items-center mx-4`}
+              className={`cursor-pointer px-4 py-3 flex text-sm ${textColor.primaryNormal} items-center mx-4`}
               target="_blank"
               onClick={_ => setShowModalFunction()}>
               {React.string("View integration steps")}

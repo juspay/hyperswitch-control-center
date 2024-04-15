@@ -114,14 +114,14 @@ let roleOptions: array<UserRoleEntity.roleListResponse> => array<
   SelectBox.dropdownOption,
 > = roleListData => roleListData->Array.map(roleListDataMapper)
 
-let roleType = roleListData =>
+let roleType = (roleListData, boderColor) =>
   FormRenderer.makeFieldInfo(
     ~label="Choose a role",
     ~name="roleType",
     ~customInput=InputFields.infraSelectInput(
       ~options=roleOptions(roleListData),
       ~allowMultiSelect=false,
-      ~selectedClass="border border-blue-500",
+      ~selectedClass={boderColor},
       (),
     ),
     ~isRequired=true,

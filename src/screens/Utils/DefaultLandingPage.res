@@ -30,12 +30,7 @@ let make = (
     <RenderIf condition={isButton}>
       <div className="mt-7">
         <Button
-          text={buttonText}
-          buttonSize={Large}
-          onClick={_ => onClickHandler()}
-          buttonType=Secondary
-          customButtonStyle={`!bg-blue-500`}
-          textStyle={`!text-[#FFFFFF]`}
+          text={buttonText} buttonSize={Large} onClick={_ => onClickHandler()} buttonType={Primary}
         />
       </div>
     </RenderIf>

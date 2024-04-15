@@ -60,20 +60,23 @@ module InfoCard = {
 module Card = {
   @react.component
   let make = (~heading="", ~isSelected=false, ~children: React.element) => {
+    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
+      ConfigContext.configContext,
+    )
     <>
       <div
-        className={`relative w-full p-6 rounded flex flex-col justify-between border ${isSelected
-            ? "bg-light_blue_bg border-blue-500 dark:border-blue-500"
+        className={`relative w-full p-6 rounded flex flex-col justify-between  ${isSelected
+            ? `bg-light_blue_bg ${borderColor.primaryNormal} dark: ${borderColor.primaryNormal}`
             : ""}`}>
         <div className="flex justify-between">
           <div
             className={`leading-tight font-semibold text-fs-18 ${isSelected
-                ? "text-blue-500"
+                ? `${textColor.primaryNormal}`
                 : "text-hyperswitch_black"} `}>
             {heading->React.string}
           </div>
           <div>
-            <RadioIcon isSelected fill="#006DF9" />
+            <RadioIcon isSelected fill={`${textColor.primaryNormal}`} />
           </div>
         </div>
         {children}
@@ -104,8 +107,11 @@ module SimplifiedHelper = {
     ~stepNumber="1",
     ~subText=None,
   ) => {
+    let {globalUIConfig: {backgroundColor, font: {textColor}}} = React.useContext(
+      ConfigContext.configContext,
+    )
     let bgColor = "bg-white"
-    let stepColor = "bg-blue-500 text-white py-px px-2"
+    let stepColor = `${backgroundColor} text-white py-px px-2`
 
     <div className={`flex flex-col py-8 px-6 gap-3 ${bgColor} cursor-pointer`}>
       <div className={"flex justify-between "}>
@@ -114,7 +120,9 @@ module SimplifiedHelper = {
             <p className={`${stepColor} font-medium`}> {stepNumber->React.string} </p>
           </div>
           <div>
-            <p className={"font-medium text-base text-blue-500"}> {heading->React.string} </p>
+            <p className={`font-medium text-base ${textColor.primaryNormal}`}>
+              {heading->React.string}
+            </p>
             <UIUtils.RenderIf condition={subText->Option.isSome}>
               <p className={`mt-2 text-base text-hyperswitch_black opacity-50 font-normal`}>
                 {subText->Option.getOr("")->React.string}

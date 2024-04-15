@@ -40,24 +40,27 @@ type badge = {
   color: badgeColor,
 }
 
-let getBGColor = (
+let useGetBgColor = (
   ~buttonType,
   ~buttonState,
   ~showBorder,
   ~isDropdownOpen=false,
   ~isPhoneDropdown=false,
   (),
-) =>
+) => {
+  let config = React.useContext(ConfigContext.configContext)
+  let buttonConfig = config.globalUIConfig.button.backgroundColor
   switch buttonType {
   | Primary =>
     switch buttonState {
     | Focused
-    | Normal => "bg-blue-500 hover:bg-blue-600 focus:outline-none"
-    | Loading => "bg-blue-500"
-    | Disabled => "bg-blue-500 opacity-60 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50"
-    | NoHover => "bg-blue-500 hover:bg-blue-600 focus:outline-none dark:text-opacity-50 text-opacity-50"
+    | Normal =>
+      buttonConfig.primaryNormal
+    | Loading => buttonConfig.primaryLoading
+    | Disabled => buttonConfig.primaryDisabled
+    | NoHover => buttonConfig.primaryNoHover
     }
-  | PrimaryOutline => "mix-blend-normal"
+  | PrimaryOutline => buttonConfig.primaryOutline
 
   | SecondaryFilled =>
     switch buttonState {
@@ -180,8 +183,9 @@ let getBGColor = (
     | NoHover => "bg-[#4F54EF] dark:bg-black focus:outline-none"
     }
   }
+}
 
-let useGetBgColor = (
+let useGetTextColor = (
   ~buttonType,
   ~buttonState,
   ~showBorder,
@@ -189,24 +193,15 @@ let useGetBgColor = (
   ~isPhoneDropdown=false,
   (),
 ) => {
-  getBGColor(~buttonType, ~buttonState, ~showBorder, ~isDropdownOpen, ~isPhoneDropdown, ())
-}
-
-let getTextColor = (
-  ~buttonType,
-  ~buttonState,
-  ~showBorder,
-  ~isDropdownOpen=false,
-  ~isPhoneDropdown=false,
-  (),
-) =>
+  let config = React.useContext(ConfigContext.configContext)
+  let textConfig = config.globalUIConfig.button.textColor
   switch buttonType {
   | Primary =>
     switch buttonState {
-    | Disabled => "text-jp-gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-25"
-    | _ => "text-white"
+    | Disabled => textConfig.primaryDisabled
+    | _ => textConfig.primaryNormal
     }
-  | PrimaryOutline => "text-blue-500"
+  | PrimaryOutline => textConfig.primaryOutline
 
   | FilterAdd => "text-blue-500"
   | Delete => "text-white"
@@ -248,16 +243,6 @@ let getTextColor = (
     | _ => "text-jp-gray-900 text-opacity-50 hover:text-opacity-100 dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme dark:hover:text-opacity-75"
     }
   }
-
-let useGetTextColor = (
-  ~buttonType,
-  ~buttonState,
-  ~showBorder,
-  ~isDropdownOpen=false,
-  ~isPhoneDropdown=false,
-  (),
-) => {
-  getTextColor(~buttonType, ~buttonState, ~showBorder, ~isDropdownOpen, ~isPhoneDropdown, ())
 }
 
 @react.component
@@ -513,12 +498,12 @@ let make = (
       | Disabled => ""
       | _ =>
         if showBorder {
-          `${borderWidth} border-blue-500`
+          `${borderWidth}`
         } else {
           ""
         }
       }
-    | PrimaryOutline => "border-2 border-blue-500"
+    | PrimaryOutline => `border-2`
     | Dropdown
     | Secondary =>
       showBorder
@@ -643,7 +628,7 @@ let make = (
           e->ReactEvent.Keyboard.preventDefault
         }
       }}
-      className={`flex group ${customJustifyStyle} ${relativeClass} ${heightClass} ${conditionalButtonStyles} items-center ${borderStyle}  ${textColor} ${cursorType} ${paddingClass} ${lengthStyle} ${customButtonStyle}  ${customTextOverFlowClass}`}
+      className={`flex group ${customButtonStyle} ${customJustifyStyle} ${relativeClass} ${heightClass} ${conditionalButtonStyles} items-center ${borderStyle}   ${cursorType} ${paddingClass} ${lengthStyle}   ${customTextOverFlowClass} ${textColor}`}
       onClick=handleClick>
       {if buttonState == Loading {
         <span className={iconPadding}>

@@ -107,6 +107,9 @@ module TableWrapper = {
     ~weeklyTableMetricsCols,
     ~distributionArray=None,
   ) => {
+    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
+      ConfigContext.configContext,
+    )
     let customFilter = Recoil.useRecoilValueFromAtom(AnalyticsAtoms.customFilterAtom)
     let {filterValueJson} = React.useContext(FilterContext.filterContext)
     let filterValueDict = filterValueJson
@@ -363,8 +366,8 @@ module TableWrapper = {
       ? <>
           <UIUtils.RenderIf condition={tableData->Array.length > 0}>
             <div
-              className="flex border items-start border-blue-500 text-sm rounded-md gap-2 px-4 py-3 mt-7">
-              <Icon name="info-vacent" className="text-blue-500 mt-1" size=18 />
+              className={`flex items-start ${borderColor.primaryNormal} text-sm rounded-md gap-2 px-4 py-3 mt-7`}>
+              <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
               {"'Other' denotes those incomplete or failed payments with no assigned values for the corresponding parameters due to reasons like customer drop-offs, technical failures, etc."->React.string}
             </div>
           </UIUtils.RenderIf>

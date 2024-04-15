@@ -5,6 +5,7 @@ module InviteEmailForm = {
     open LogicUtils
     open APIUtils
     open UIUtils
+    let {globalUIConfig: {border: {borderColor}}} = React.useContext(ConfigContext.configContext)
     let fetchDetails = useGetMethod()
     let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (roleListData, setRoleListData) = React.useState(_ => [])
@@ -66,7 +67,7 @@ module InviteEmailForm = {
       </RenderIf>
       <FormRenderer.FieldRenderer
         fieldWrapperClass={`w-full ${isEmailTextInputVisible ? "mt-5" : ""}`}
-        field={roleType(roleListData)}
+        field={roleType(roleListData, borderColor.primaryNormal)}
         errorClass
         labelClass="!text-black !font-semibold"
       />

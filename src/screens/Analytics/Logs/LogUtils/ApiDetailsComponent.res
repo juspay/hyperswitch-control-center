@@ -12,6 +12,7 @@ let make = (
   ~nameToURLMapper,
   ~filteredKeys=[],
 ) => {
+  let {globalUIConfig: {border: {borderColor}}} = React.useContext(ConfigContext.configContext)
   let headerStyle = "text-sm font-medium text-gray-700 break-all"
   let logType = dataDict->getLogType
   let apiName = switch logType {
@@ -151,7 +152,9 @@ let make = (
       }
     : "gray-200"
 
-  let borderClass = isSelected ? "border border-blue-500 rounded-md" : "border border-transparent"
+  let borderClass = isSelected
+    ? `${borderColor.primaryNormal} rounded-md`
+    : "border border-transparent"
 
   <div className="flex items-start gap-4">
     <div className="flex flex-col items-center h-full">
