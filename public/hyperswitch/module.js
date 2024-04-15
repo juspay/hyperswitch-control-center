@@ -210,8 +210,16 @@ function appendStyle(customStyle) {
 
 }
 `
-  let style = document.createElement("style")
+  let style;
+
+  if (document.getElementById("custom-style")) {
+    style = document.getElementById("custom-style")
+  } else {
+    style = document.createElement("style")
+  }
+  // let style = document.createElement("style")
   let text = document.createTextNode(cssVariables)
+  style.setAttribute("id", "custom-style")
   style.appendChild(text)
   document.head.appendChild(style)
 }
