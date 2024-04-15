@@ -128,3 +128,10 @@ let parseSdkResponse = arr => {
 
   logsArr
 }
+
+let apiNameMapper = apiName => {
+  switch apiName {
+  | "PSync" => "Payments Sync"
+  | _ => apiName
+  }
+}
