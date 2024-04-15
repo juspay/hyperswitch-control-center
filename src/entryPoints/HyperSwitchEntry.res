@@ -74,7 +74,7 @@ module HyperSwitchEntryComponent = {
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | Exn.Error(e) =>
-        let _ = GenericCatch.handleCatch(~error=e, ~callbackFun=featureFlagDetailsCatch, ())
+        GenericCatch.handleCatch(~error=e, ~callbackFun=featureFlagDetailsCatch, ())->ignore
       }
     }
 

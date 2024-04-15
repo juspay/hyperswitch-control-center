@@ -70,9 +70,8 @@ let make = () => {
         setDashboardPageState(_ => #AGREEMENT_SIGNATURE)
       }
     } catch {
-    | Exn.Error(e) => {
-        let _ = GenericCatch.handleCatch(~error=e, ~callbackFun=getAgreementEnumCatch, ())
-      }
+    | Exn.Error(e) =>
+      GenericCatch.handleCatch(~error=e, ~callbackFun=getAgreementEnumCatch, ())->ignore
     }
   }
 
@@ -84,10 +83,7 @@ let make = () => {
       setQuickStartPageState(_ => pageStateToSet->QuickStartUtils.enumToVarinatMapper)
       responseValueDict
     } catch {
-    | Exn.Error(e) => {
-        let _ = GenericCatch.handleCatch(~error=e, ())
-        Dict.make()
-      }
+    | Exn.Error(e) => GenericCatch.handleCatch(~error=e, ())
     }
   }
 
@@ -102,14 +98,7 @@ let make = () => {
       setuserPermissionJson(._ => permissionJson)
       permissionJson
     } catch {
-    | Exn.Error(e) => {
-        let _ = GenericCatch.handleCatch(~error=e, ())
-        JSON.Encode.null
-        ->getArrayFromJson([])
-        ->Array.map(ele => ele->JSON.Decode.string->Option.getOr(""))
-        ->Array.map(ele => ele->mapStringToPermissionType)
-        ->getPermissionJson
-      }
+    | Exn.Error(e) => GenericCatch.handleCatch(~error=e, ())
     }
   }
 
@@ -148,9 +137,7 @@ let make = () => {
 
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
-    | Exn.Error(e) => {
-        let _ = GenericCatch.handleCatch(~error=e, ~callbackFun=setUpDashboardCatch, ())
-      }
+    | Exn.Error(e) => GenericCatch.handleCatch(~error=e, ~callbackFun=setUpDashboardCatch, ())
     }
   }
 
