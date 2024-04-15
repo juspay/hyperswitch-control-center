@@ -701,10 +701,12 @@ let make = (
                           text="Profile"
                         />
                         <MenuOption onClick={handleLogout} text="Sign out" />
-                        <span
-                          className="px-4 py-3 flex text-sm w-full text-offset_white bg-popover-background">
-                          {`App ${HSwitchGlobalVars.hyperSwitchAppVersion}`->React.string}
-                        </span>
+                        <RenderIf condition={HSwitchGlobalVars.hyperSwitchAppVersion != ""}>
+                          <span
+                            className="px-4 py-3 flex text-sm w-full text-offset_white bg-popover-background">
+                            {`App ${HSwitchGlobalVars.hyperSwitchAppVersion}`->React.string}
+                          </span>
+                        </RenderIf>
                       </div>
                     }}
                   </Popover.Panel>

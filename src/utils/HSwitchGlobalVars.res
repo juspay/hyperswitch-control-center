@@ -1,6 +1,6 @@
 @val external appVersion: string = "appVersion"
 
-let hyperSwitchAppVersion = Window.env.versionNumber->Option.getOr("2024.04.10.0")
+let hyperSwitchAppVersion = Window.env.versionNumber->Option.getOr("")
 
 let mixpanelToken = Window.env.mixpanelToken->Option.getOr("mixpanel-token")
 
