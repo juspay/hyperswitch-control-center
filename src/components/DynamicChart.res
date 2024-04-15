@@ -260,7 +260,6 @@ let useChartFetch = (~setStatusDict) => {
     ->Promise.all
     ->thenResolve(dataArr => {
       let data = dataArr->Belt.Array.keepMap(item => item)
-
       setState(data)
     })
     ->catch(_err => resolve())

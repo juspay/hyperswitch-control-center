@@ -230,9 +230,18 @@ let userJourneyAnalytics = SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
+let authenticationAnalytics = SubLevelLink({
+  name: "Authentication",
+  link: `/analytics-authentication`,
+  access: Access,
+  iconTag: "betaTag",
+  searchOptions: [("View analytics", "")],
+})
+
 let analytics = (
   isAnalyticsEnabled,
   userJourneyAnalyticsFlag,
+  authenticationAnalyticsFlag,
   disputeAnalyticsFlag,
   ~permissionJson,
 ) => {
@@ -240,6 +249,10 @@ let analytics = (
 
   if userJourneyAnalyticsFlag {
     links->Array.push(userJourneyAnalytics)
+  }
+
+  if authenticationAnalyticsFlag {
+    links->Array.push(authenticationAnalytics)
   }
 
   if disputeAnalyticsFlag {
@@ -466,6 +479,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     sampleData,
     systemMetrics,
     userJourneyAnalytics: userJourneyAnalyticsFlag,
+    authenticationAnalytics: authenticationAnalyticsFlag,
     surcharge: isSurchargeEnabled,
     isLiveMode,
     threedsAuthenticator,
@@ -485,7 +499,12 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
       ~isThreedsConnectorEnabled=threedsAuthenticator,
       ~permissionJson,
     ),
-    default->analytics(userJourneyAnalyticsFlag, disputeAnalytics, ~permissionJson),
+    default->analytics(
+      userJourneyAnalyticsFlag,
+      authenticationAnalyticsFlag,
+      disputeAnalytics,
+      ~permissionJson,
+    ),
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),
     recon->reconTag(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),

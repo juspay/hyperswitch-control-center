@@ -21,6 +21,7 @@ beforeEach(() => {
       mixpanel: false,
       generate_report: false,
       user_journey_analytics: false,
+      authentication_analytics: false,
       surcharge: false,
       permission_based_module: false,
       dispute_evidence_upload: false,
@@ -49,15 +50,11 @@ describe("Prod quick start", () => {
     cy.get("[data-button-for='accept&Proceed']").click({ force: true });
     cy.get("[data-testid=adyen]").click();
     cy.get("[data-button-for='proceed']").click({ force: true });
-    cy.get('input[name="connector_account_details.api_key"]').type(
-      "adyen_test_cypress_api_key",
-    );
-    cy.get('input[name="connector_account_details.key1"]').type(
-      "adyen_test_cypress_account_id",
-    );
+    cy.get('input[name="connector_account_details.api_key"]').type("adyen_test_cypress_api_key");
+    cy.get('input[name="connector_account_details.key1"]').type("adyen_test_cypress_account_id");
     cy.get('input[name="metadata.endpoint_prefix"]').type("https://adyne.in");
     cy.get('input[name="connector_webhook_details.merchant_secret"]').type(
-      "adyen_test_cypress_source_verification",
+      "adyen_test_cypress_source_verification"
     );
     cy.get("[data-selected-checkbox=NotSelected]").click({ force: true });
     cy.get("[data-button-for=back]").should("exist");
@@ -74,34 +71,26 @@ describe("Prod quick start", () => {
   it("should successfully configure live endpoints", () => {
     cy.get("[data-button-for='accept&Proceed']").click({ force: true });
     cy.contains("Replace API keys & Live Endpoints");
-    cy.contains(
-      "Point your application's client and server to our live environment",
-    );
+    cy.contains("Point your application's client and server to our live environment");
     cy.contains("Live Domain");
-    cy.contains(
-      "Configure this base url in your application for all server-server calls",
-    );
+    cy.contains("Configure this base url in your application for all server-server calls");
     cy.contains("Publishable Key");
     cy.contains(
-      "Use this key to authenticate all calls from your application's client to Hyperswitch SDK",
+      "Use this key to authenticate all calls from your application's client to Hyperswitch SDK"
     );
     cy.contains("API Key");
     cy.contains(
-      "Use this key to authenticate all API requests from your application's server to Hyperswitch server",
+      "Use this key to authenticate all API requests from your application's server to Hyperswitch server"
     );
     cy.get("[data-button-for=createAndDownloadAPIKey]").click({ force: true });
     cy.get("[data-button-for=connectAndProceed]").click({ force: true });
     cy.contains("Setup Webhooks On Your End");
-    cy.contains(
-      "Create webhook endpoints to allow us to receive and notify you of payment events",
-    );
+    cy.contains("Create webhook endpoints to allow us to receive and notify you of payment events");
     cy.contains("Merchant Webhook Endpoint");
-    cy.contains(
-      "Provide the endpoint where you would want us to send live payment events",
-    );
+    cy.contains("Provide the endpoint where you would want us to send live payment events");
     cy.contains("Payment Response Hash Key");
     cy.contains(
-      "Download the provided key to authenticate and verify live events sent by Hyperswitch. Learn more",
+      "Download the provided key to authenticate and verify live events sent by Hyperswitch. Learn more"
     );
     cy.get('input[name="webhookEndpoint"]').type("https://google.com");
     cy.get("[data-button-for=connectAndProceed]").click({ force: true });

@@ -171,6 +171,7 @@ type metricsConfig = {
   secondryMetrics?: secondryMetrics,
   disabled?: bool,
   description?: string,
+  data_transformation_func?: Dict.t<JSON.t> => Dict.t<JSON.t>,
 }
 type legendTableData = {
   groupByName: string,

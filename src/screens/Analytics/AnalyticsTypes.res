@@ -40,13 +40,14 @@ type chartOption = {
   avg: float,
 }
 
-type analyticsType = PAYMENT | REFUND | USER_JOURNEY | UNKNOWN
+type analyticsType = PAYMENT | REFUND | USER_JOURNEY | AUTHENTICATION | UNKNOWN
 
 let getAnalyticsType = moduleName => {
   switch moduleName {
   | "Payments" => PAYMENT
   | "Refunds" => REFUND
   | "UserJourney" | "UserJourneyBar" | "UserJourneyFunnel" => USER_JOURNEY
+  | "Authentication" | "AuthenticationBar" | "AuthenticationFunnel" => AUTHENTICATION
   | _ => UNKNOWN
   }
 }
@@ -56,6 +57,7 @@ let getModuleName = analyticsType => {
   | PAYMENT => "Payments"
   | REFUND => "Refunds"
   | USER_JOURNEY => "UserJourney"
+  | AUTHENTICATION => "Authentication"
   | UNKNOWN => ""
   }
 }
@@ -223,6 +225,27 @@ type paymentTableType = {
   authentication_type: string,
   refund_status: string,
   weekly_payment_success_rate: string,
+}
+
+type authenticationSingleStat = {
+  authentication_unsuccessful_count: int,
+  three_ds_challenge_flow_count: int,
+  three_ds_frictionless_flow_count: int,
+  three_ds_method_invoked_count: int,
+  three_ds_method_skipped_count: int,
+  three_ds_method_successful_count: int,
+  three_ds_method_unsuccessful_count: int,
+}
+
+type authenticationSingleStatSeries = {
+  authentication_unsuccessful_count: int,
+  three_ds_challenge_flow_count: int,
+  three_ds_frictionless_flow_count: int,
+  three_ds_method_invoked_count: int,
+  three_ds_method_skipped_count: int,
+  three_ds_method_successful_count: int,
+  three_ds_method_unsuccessful_count: int,
+  time_series: string,
 }
 
 type userJourneysSingleStat = {

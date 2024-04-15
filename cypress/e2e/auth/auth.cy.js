@@ -62,6 +62,7 @@ describe("Auth Module", () => {
         mixpanel: false,
         generate_report: false,
         user_journey_analytics: false,
+        authentication_analytics: false,
         surcharge: false,
         permission_based_module: false,
         dispute_evidence_upload: false,

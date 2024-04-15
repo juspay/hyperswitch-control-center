@@ -1,4 +1,4 @@
-open UserJourneyAnalyticsEntity
+open AuthenticationAnalyticsEntity
 
 open APIUtils
 open HSAnalyticsUtils
@@ -14,7 +14,7 @@ let make = () => {
     open LogicUtils
     try {
       let infoUrl = getURL(
-        ~entityName=ANALYTICS_USER_JOURNEY,
+        ~entityName=ANALYTICS_AUTHENTICATION,
         ~methodType=Get,
         ~id=Some(domain),
         (),
@@ -29,7 +29,7 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
-  let getUserJourneysData = async () => {
+  let getAuthenticationsData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       await loadInfo()
@@ -41,7 +41,7 @@ let make = () => {
   }
 
   React.useEffect0(() => {
-    getUserJourneysData()->ignore
+    getAuthenticationsData()->ignore
     None
   })
 
@@ -56,8 +56,8 @@ let make = () => {
     a
   })
 
-  let title = "Know your users"
-  let subTitle = "User analytics is a level deeper into payment analytics and aims at providing you a wholesome understanding of the end users and their usage patterns."
+  let title = "Authentication analytics"
+  let subTitle = "Authentication analytics is a level deeper into payment analytics and aims at providing you a wholesome understanding of the end users and their usage patterns."
 
   <div>
     <PageLoaderWrapper screenState customUI={<NoData title subTitle />}>
@@ -65,14 +65,14 @@ let make = () => {
         pageTitle=title
         pageSubTitle=subTitle
         filterUri={`${HSwitchGlobalVars.hyperSwitchApiPrefix}/analytics/v1/filters/${domain}`}
-        key="UserJourneyAnalytics"
-        moduleName="UserJourney"
+        key="AuthenticationAnalytics"
+        moduleName="Authentication"
         deltaMetrics={getStringListFromArrayDict(metrics)}
         chartEntity={
-          default: paymentChartEntity(tabKeys),
-          userPieChart: userChartEntity(tabKeys),
-          userBarChart: userBarChartEntity(tabKeys),
-          userFunnelChart: userJourneyFunnelChartEntity(tabKeys),
+          default: commonAuthenticationChartEntity(tabKeys),
+          userPieChart: authenticationChartEntity(tabKeys),
+          userBarChart: authenticationBarChartEntity(tabKeys),
+          userFunnelChart: authenticationFunnelChartEntity(tabKeys),
         }
         tabKeys
         tabValues

@@ -155,7 +155,7 @@ let make = (
           name: "Sample",
           data: sortedData,
           legendIndex: 0,
-          connectNulls: false,
+          connectNulls: true,
         },
       ],
     }
