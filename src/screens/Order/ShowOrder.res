@@ -309,7 +309,9 @@ module Attempts = {
   open OrderEntity
   @react.component
   let make = (~orderDict) => {
-    let {font: {textColor}, border: {borderColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
+      ConfigContext.configContext,
+    )
     let expand = -1
     let (expandedRowIndexArray, setExpandedRowIndexArray) = React.useState(_ => [-1])
 
@@ -576,7 +578,7 @@ module FraudRiskBannerDetails = {
 module FraudRiskBanner = {
   @react.component
   let make = (~frmMessage: frmMessage, ~refElement: React.ref<Js.nullable<Dom.element>>) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <div
       className="flex justify-between items-center w-full  p-4 rounded-md bg-white border border-[#C04141]/50 ">
       <div className="flex gap-2">

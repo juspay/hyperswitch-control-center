@@ -10,7 +10,7 @@ module SuggestedAction = {
 module StripSendingCreditCard = {
   @react.component
   let make = () => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <>
       <SuggestedAction />
       <div
@@ -33,7 +33,7 @@ module StripSendingCreditCard = {
 module StripeInvalidAPIKey = {
   @react.component
   let make = () => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <>
       <SuggestedAction />
       <div
@@ -56,7 +56,7 @@ module StripeInvalidAPIKey = {
 module PaypalClientAuthenticationFalied = {
   @react.component
   let make = () => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <>
       <SuggestedAction />
       <div

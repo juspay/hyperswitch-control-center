@@ -5,7 +5,7 @@ open FormRenderer
 module LogicalOps = {
   @react.component
   let make = (~id) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let logicalOpsInput = ReactFinalForm.useField(`${id}.logical`).input
 
     React.useEffect0(() => {

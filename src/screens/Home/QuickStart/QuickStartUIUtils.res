@@ -67,9 +67,9 @@ module VerticalChoiceTile = {
     ~setChoiceState,
     ~customLayoutCss,
   ) => {
-    let {backgroundColor, font: {textColor}, border: {borderColor}} = React.useContext(
-      ConfigContext.configContext,
-    )
+    let {
+      globalUIConfig: {backgroundColor, font: {textColor}, border: {borderColor}},
+    } = React.useContext(ConfigContext.configContext)
     let getBlockColor = value =>
       choiceState === value
         ? `${borderColor.primaryNormal} ${backgroundColor} bg-opacity-10 `
@@ -135,9 +135,9 @@ module HorizontalChoiceTile = {
     ~setChoiceState,
     ~customLayoutCss,
   ) => {
-    let {backgroundColor, font: {textColor}, border: {borderColor}} = React.useContext(
-      ConfigContext.configContext,
-    )
+    let {
+      globalUIConfig: {backgroundColor, font: {textColor}, border: {borderColor}},
+    } = React.useContext(ConfigContext.configContext)
     let getBlockColor = value =>
       choiceState === value
         ? `${borderColor.primaryNormal} ${backgroundColor} bg-opacity-10 `
@@ -220,9 +220,9 @@ module SelectConnectorGrid = {
   let make = (~selectedConnector, ~setSelectedConnector, ~connectorList) => {
     open ConnectorTypes
 
-    let {backgroundColor, font: {textColor}, border: {borderColor}} = React.useContext(
-      ConfigContext.configContext,
-    )
+    let {
+      globalUIConfig: {backgroundColor, font: {textColor}, border: {borderColor}},
+    } = React.useContext(ConfigContext.configContext)
     let typedConnectedConnectorList =
       HyperswitchAtom.connectorListAtom
       ->Recoil.useRecoilValueFromAtom

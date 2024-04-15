@@ -18,7 +18,7 @@ let make = (
   ~isHomePage=false,
 ) => {
   open Identity
-  let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let (updateKey, setUpdateKey) = React.useState(_ => false)
 
   let sortedData = React.useMemo1(() => {

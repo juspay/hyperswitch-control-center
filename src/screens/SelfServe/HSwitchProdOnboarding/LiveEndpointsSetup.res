@@ -115,7 +115,7 @@ module SetupWebhookUser = {
 let make = (~pageView, ~setPageView, ~previewState: option<ProdOnboardingTypes.previewStates>) => {
   open APIUtils
   open ProdOnboardingTypes
-  let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let updateDetails = useUpdateMethod()
   let showToast = ToastState.useShowToast()
   let merchantDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantDetailsValueAtom)

@@ -25,7 +25,9 @@ module TopRightIcons = {
 module ActionButtons = {
   @react.component
   let make = (~routeType: routingType, ~onRedirectBaseUrl) => {
-    let {font: {textColor}, border: {borderColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
+      ConfigContext.configContext,
+    )
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 

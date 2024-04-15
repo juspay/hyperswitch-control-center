@@ -8,7 +8,7 @@ let make = (
   ~moduleName,
   ~description,
 ) => {
-  let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let isMobileView = MatchMedia.useMobileChecker()
   let (size, widthClass, flexDirectionClass) = React.useMemo1(() => {
     isMobileView ? (0.16, "w-full", "flex-col") : (size, "w-1/2", "flex-row")

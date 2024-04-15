@@ -3,7 +3,7 @@ type gateway = AdvancedRoutingTypes.volumeSplitConnectorSelectionData
 module GatewayView = {
   @react.component
   let make = (~gateways: array<gateway>) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <div className="flex flex-wrap gap-4 items-center">
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {

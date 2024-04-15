@@ -3,9 +3,9 @@ type customUIConfig = {
   updateGlobalConfig: Window.customStyle => unit,
 }
 let defaultGlobalConfig: Window.customStyle = {
-  primaryColor: "#f59e0b",
-  primaryHover: "#fcd34d",
-  sidebar: "#b91c1c",
+  primaryColor: "#006DF9",
+  primaryHover: "#005ED6",
+  sidebar: "#242F48",
 }
 
 let customUIConfig = {

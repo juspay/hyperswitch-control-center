@@ -60,7 +60,9 @@ module InfoCard = {
 module Card = {
   @react.component
   let make = (~heading="", ~isSelected=false, ~children: React.element) => {
-    let {font: {textColor}, border: {borderColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
+      ConfigContext.configContext,
+    )
     <>
       <div
         className={`relative w-full p-6 rounded flex flex-col justify-between  ${isSelected
@@ -105,7 +107,9 @@ module SimplifiedHelper = {
     ~stepNumber="1",
     ~subText=None,
   ) => {
-    let {backgroundColor, font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {backgroundColor, font: {textColor}}} = React.useContext(
+      ConfigContext.configContext,
+    )
     let bgColor = "bg-white"
     let stepColor = `${backgroundColor} text-white py-px px-2`
 

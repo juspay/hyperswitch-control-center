@@ -44,7 +44,7 @@ module CompressedView = {
   @react.component
   let make = (~id, ~isFirst) => {
     open LogicUtils
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let conditionInput = ReactFinalForm.useField(id).input
 
     let displayForValue = value =>

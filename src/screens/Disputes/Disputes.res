@@ -2,7 +2,9 @@ open APIUtils
 open PageLoaderWrapper
 @react.component
 let make = () => {
-  let {font: {textColor}, border: {borderColor}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
+    ConfigContext.configContext,
+  )
   let (screenState, setScreenState) = React.useState(_ => Loading)
   let (disputesData, setDisputesData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)

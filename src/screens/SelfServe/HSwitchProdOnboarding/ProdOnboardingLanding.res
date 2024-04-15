@@ -15,7 +15,9 @@ module CheckListSection = {
     ~getConnectorDetails,
     ~setPreviewState,
   ) => {
-    let {font: {textColor}, backgroundColor} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}, backgroundColor}} = React.useContext(
+      ConfigContext.configContext,
+    )
 
     let stepColor =
       checkListItems->Array.includes(pageView)
@@ -86,7 +88,7 @@ module CheckListSection = {
 module ProgressBar = {
   @react.component
   let make = (~progressState) => {
-    let {backgroundColor} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
     <div className={`${backgroundColor} bg-opacity-20 h-1.5 w-full`}>
       <div
         className={`h-full ${backgroundColor}`}

@@ -159,7 +159,7 @@ module Wrapper = {
     ~isFrom3ds=false,
     ~isFromSurcharge=false,
   ) => {
-    let {border: {borderColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {border: {borderColor}}} = React.useContext(ConfigContext.configContext)
     let showToast = ToastState.useShowToast()
     let isMobileView = MatchMedia.useMobileChecker()
     let (isExpanded, setIsExpanded) = React.useState(_ => true)
@@ -352,7 +352,7 @@ module RuleBasedUI = {
     ~setCurrentRouting,
     ~baseUrlForRedirection,
   ) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let rulesJsonPath = `algorithm.data.rules`
     let ruleInput = ReactFinalForm.useField(rulesJsonPath).input
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))

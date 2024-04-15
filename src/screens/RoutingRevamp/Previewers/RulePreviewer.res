@@ -4,7 +4,7 @@ open AdvancedRoutingUtils
 module GatewayView = {
   @react.component
   let make = (~gateways) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <div className="flex flex-wrap gap-4 items-center">
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {
@@ -31,7 +31,7 @@ module GatewayView = {
 module ThreedsTypeView = {
   @react.component
   let make = (~threeDsType) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <div
       className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1`}>
       {threeDsType->LogicUtils.capitalizeString->React.string}
@@ -42,7 +42,7 @@ module ThreedsTypeView = {
 module SurchargeCompressedView = {
   @react.component
   let make = (~surchargeType, ~surchargeTypeValue, ~surchargePercentage) => {
-    let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <div
       className={`my-2 h-6 md:h-8 flex items-center rounded-md border border-jp-gray-500 font-medium  ${textColor.primaryNormal} hover: ${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200  focus:outline-none px-2 gap-1`}>
       {`${surchargeType} -> ${surchargeTypeValue->Float.toString} | Tax on Surcharge -> ${surchargePercentage
@@ -57,7 +57,7 @@ module SurchargeCompressedView = {
 @react.component
 let make = (~ruleInfo: algorithmData, ~isFrom3ds=false, ~isFromSurcharge=false) => {
   open LogicUtils
-  let {font: {textColor}} = React.useContext(ConfigContext.configContext)
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   <div
     className=" bg-white border  flex flex-col divide-y  divide-jp-gray-600  border-jp-gray-600 ">
     <AddDataAttributes attributes=[("data-component", "rulePreviewer")]>
