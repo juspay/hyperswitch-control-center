@@ -703,7 +703,7 @@ let make = (
                         <MenuOption onClick={handleLogout} text="Sign out" />
                         <span
                           className="px-4 py-3 flex text-sm w-full text-offset_white bg-popover-background">
-                          {`App v. ${HSwitchGlobalVars.hyperSwitchAppVersion}`->React.string}
+                          {`App ${HSwitchGlobalVars.hyperSwitchAppVersion}`->React.string}
                         </span>
                       </div>
                     }}
