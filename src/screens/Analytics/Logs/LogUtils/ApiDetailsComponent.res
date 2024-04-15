@@ -12,12 +12,14 @@ let make = (
   ~nameToURLMapper,
   ~filteredKeys=[],
 ) => {
+  let {globalUIConfig: {border: {borderColor}}} = React.useContext(ConfigContext.configContext)
   let headerStyle = "text-sm font-medium text-gray-700 break-all"
   let logType = dataDict->getLogType
   let apiName = switch logType {
   | API_EVENTS => dataDict->getString("api_flow", "default value")->camelCaseToTitle
   | SDK => dataDict->getString("event_name", "default value")
-  | CONNECTOR => dataDict->getString("flow", "default value")->camelCaseToTitle
+  | CONNECTOR =>
+    dataDict->getString("flow", "default value")->LogUtils.apiNameMapper->camelCaseToTitle
   | WEBHOOKS => dataDict->getString("event_type", "default value")->snakeToTitle
   }->nameToURLMapper
   let createdTime = dataDict->getString("created_at", "00000")
@@ -90,12 +92,12 @@ let make = (
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "green-200"
+    | "200" => "green-50"
     | "500" | _ => "gray-100"
     }
   | API_EVENTS | CONNECTOR =>
     switch statusCode {
-    | "200" => "green-200"
+    | "200" => "green-50"
     | "500" => "gray-100"
     | "400" => "orange-100"
     | _ => "gray-100"
@@ -151,7 +153,9 @@ let make = (
       }
     : "gray-200"
 
-  let borderClass = isSelected ? "border border-blue-500 rounded-md" : "border border-transparent"
+  let borderClass = isSelected
+    ? `${borderColor.primaryNormal} rounded-md`
+    : "border border-transparent"
 
   <div className="flex items-start gap-4">
     <div className="flex flex-col items-center h-full">

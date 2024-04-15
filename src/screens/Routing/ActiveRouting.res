@@ -25,6 +25,9 @@ module TopRightIcons = {
 module ActionButtons = {
   @react.component
   let make = (~routeType: routingType, ~onRedirectBaseUrl) => {
+    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
+      ConfigContext.configContext,
+    )
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
@@ -37,7 +40,7 @@ module ActionButtons = {
         access={userPermissionJson.workflowsManage}
         buttonType=Secondary
         buttonSize={Small}
-        customButtonStyle="border !border-blue-500 bg-white !text-blue-500"
+        customButtonStyle={` !${borderColor.primaryNormal} bg-white ${textColor.primaryNormal}`}
         onClick={_ => {
           RescriptReactRouter.push(`${onRedirectBaseUrl}/${routingTypeName(routeType)}`)
           mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
@@ -48,7 +51,7 @@ module ActionButtons = {
         text={"Manage"}
         access={userPermissionJson.workflowsManage}
         buttonType=Secondary
-        customButtonStyle="border !border-blue-500 bg-white !text-blue-500"
+        customButtonStyle={`!${borderColor.primaryNormal} bg-white ${textColor.primaryNormal}`}
         buttonSize={Small}
         onClick={_ => {
           RescriptReactRouter.push(`${onRedirectBaseUrl}/${routingTypeName(routeType)}`)
@@ -93,10 +96,9 @@ module ActiveSection = {
           <UIUtils.RenderIf condition={profileId->isNonEmptyString}>
             <div className="flex gap-2">
               <HelperComponents.BusinessProfileComponent
-                profile_id={profileId}
-                className="text-lightgray_background text-base opacity-50 text-sm"
+                profile_id={profileId} className="text-lightgray_background  opacity-50 text-sm"
               />
-              <p className="text-lightgray_background text-base opacity-50 text-sm">
+              <p className="text-lightgray_background  opacity-50 text-sm">
                 {`: ${profileId}`->React.string}
               </p>
             </div>

@@ -10,7 +10,7 @@ module LogDetailsSection = {
       }
     }
 
-    <div className="border-b-1 border-border-light-grey pb-3">
+    <div className="border-b-2 border-border-light-grey pb-3 px-5 py-3">
       {logDetails.data
       ->Dict.toArray
       ->Array.filter(item => {
@@ -169,20 +169,22 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
     <UIUtils.RenderIf
       condition={logDetails.response->isNonEmptyString || logDetails.request->isNonEmptyString}>
       <div
-        className="flex flex-col gap-4 border-l-1 border-border-light-grey show-scrollbar scroll-smooth overflow-scroll px-5 py-3 w-3/5">
+        className="flex flex-col gap-4 border-l-2 border-border-light-grey show-scrollbar scroll-smooth overflow-scroll  w-3/5">
         <LogDetailsSection logDetails />
-        <UIUtils.RenderIf
-          condition={logDetails.request->isNonEmptyString &&
-            selectedOption.optionType !== WEBHOOKS}>
-          <PrettyPrintJson
-            jsonToDisplay=logDetails.request
-            headerText={requestHeader->Some}
-            maxHeightClass={logDetails.response->String.length > 0 ? "max-h-25-rem" : ""}
-          />
-        </UIUtils.RenderIf>
-        <UIUtils.RenderIf condition={logDetails.response->isNonEmptyString}>
-          <PrettyPrintJson jsonToDisplay={logDetails.response} headerText />
-        </UIUtils.RenderIf>
+        <div className="px-5 py-3">
+          <UIUtils.RenderIf
+            condition={logDetails.request->isNonEmptyString &&
+              selectedOption.optionType !== WEBHOOKS}>
+            <PrettyPrintJson
+              jsonToDisplay=logDetails.request
+              headerText={requestHeader->Some}
+              maxHeightClass={logDetails.response->String.length > 0 ? "max-h-25-rem" : ""}
+            />
+          </UIUtils.RenderIf>
+          <UIUtils.RenderIf condition={logDetails.response->isNonEmptyString}>
+            <PrettyPrintJson jsonToDisplay={logDetails.response} headerText />
+          </UIUtils.RenderIf>
+        </div>
       </div>
     </UIUtils.RenderIf>
 

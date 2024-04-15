@@ -24,6 +24,7 @@ module RequestConnector = {
 module CantFindProcessor = {
   @react.component
   let make = (~showRequestConnectorBtn, ~setShowModal) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let cursorStyles = PermissionUtils.cursorStyles(userPermissionJson.merchantDetailsManage)
 
@@ -31,7 +32,7 @@ module CantFindProcessor = {
       <ACLDiv
         permission=userPermissionJson.merchantDetailsManage
         onClick={_ => setShowModal(_ => true)}
-        className={`text-blue-500 underline underline-offset-4 font-medium ${cursorStyles}`}>
+        className={`${textColor.primaryNormal} underline underline-offset-4 font-medium ${cursorStyles}`}>
         {"Can't find the processor of your choice?"->React.string}
       </ACLDiv>
     </UIUtils.RenderIf>

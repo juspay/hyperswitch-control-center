@@ -43,6 +43,7 @@ module CardDetails = {
     ~isBorderEnabled=true,
     ~isAnalyticsModule,
   ) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let onCardClick = _ev => {
       switch onRowClick {
       | Some(fn) => fn(rowIndex + offset)
@@ -74,7 +75,7 @@ module CardDetails = {
                   <p className="mt-2 md:inline inline-block w-1/2 ">
                     {React.string(label.title)}
                   </p>
-                  <div className="md:inline flex justify-end inline-block w-1/2 break-all">
+                  <div className="md:inline flex justify-end  w-1/2 break-all">
                     <ItemValue key cell />
                   </div>
                 </div>
@@ -94,7 +95,9 @@ module CardDetails = {
           ->React.array
         }
         {if isAnalyticsModule {
-          <div className="flex justify-end text-blue-500 cursor-pointer" onClick=showMore>
+          <div
+            className={`flex justify-end ${textColor.primaryNormal} cursor-pointer`}
+            onClick=showMore>
             {if itemArray->Array.length > size {
               show ? React.string("More") : React.string("Less")
             } else {

@@ -31,6 +31,7 @@ module CardRenderer = {
     ~setMetaData,
     ~connector,
   ) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let (showWalletConfigurationModal, setShowWalletConfigurationModal) = React.useState(_ => false)
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
     let selectedAll = isSelectedAll(paymentMethodsEnabled, provider, paymentMethod)
@@ -192,7 +193,7 @@ module CardRenderer = {
             selectedWallet.payment_method_type->getPaymentMethodTypeFromString === GooglePay}>
           <Modal
             modalHeading={`Additional Details to enable ${selectedWallet.payment_method_type->LogicUtils.snakeToTitle}`}
-            headerTextClass="text-blue-500 font-bold text-xl"
+            headerTextClass={`${textColor.primaryNormal} font-bold text-xl`}
             showModal={showWalletConfigurationModal}
             setShowModal={setShowWalletConfigurationModal}
             paddingClass=""

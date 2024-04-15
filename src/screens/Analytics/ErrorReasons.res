@@ -70,9 +70,9 @@ let tableEntity = EntityType.makeEntity(
 
 @react.component
 let make = (~errors: array<AnalyticsTypes.error_message_type>) => {
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let (showModal, setShowModal) = React.useState(_ => false)
   let (offset, setOffset) = React.useState(_ => 0)
-
   let defaultSort: Table.sortedObject = {
     key: "",
     order: Table.INC,
@@ -104,7 +104,7 @@ let make = (~errors: array<AnalyticsTypes.error_message_type>) => {
   <>
     {if errors->Array.length > 0 {
       <div
-        className="underline underline-offset-4 font-medium cursor-pointer text-blue-500"
+        className={`underline underline-offset-4 font-medium cursor-pointer ${textColor.primaryNormal}`}
         onClick={_ => setShowModal(_ => !showModal)}>
         {getCellText->React.string}
       </div>

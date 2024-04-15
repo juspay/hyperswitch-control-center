@@ -89,6 +89,7 @@ let make = (
   ~startTimeStr,
   ~endTimeStr,
 ) => {
+  let {globalUIConfig: {border: {borderColor}}} = React.useContext(ConfigContext.configContext)
   let todayDateTime = DayJs.getDayJs()
   let time = todayDateTime.format(. "hh:mm:ss a")
 
@@ -216,7 +217,7 @@ let make = (
           input=inputFromDate
           fontClassName=textBoxClass
           placeholder="09:00 AM"
-          borderClass="h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-jp-gray-700 border-opacity-75 focus:border-opacity-100 focus:border-blue-500 dark:focus:border-blue-500"
+          borderClass={`h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-jp-gray-700 border-opacity-75 focus:border-opacity-100 ${borderColor.primaryFocused} dark:${borderColor.primaryFocused}`}
           setVal=setFromTimeDropdown
         />
       </div>
@@ -228,7 +229,7 @@ let make = (
           input=inputtoDate
           fontClassName=textBoxClass
           placeholder="11:00 PM"
-          borderClass="h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-jp-gray-700 border-opacity-75 focus:border-opacity-100 focus:border-blue-500 dark:focus:border-blue-500"
+          borderClass={`h-10 pl-1 border-b border-jp-gray-lightmode_steelgray dark:border-jp-gray-700 border-opacity-75 focus:border-opacity-100 ${borderColor.primaryFocused} dark:${borderColor.primaryFocused}`}
           setVal=setToTimeDropdown
         />
       </div>

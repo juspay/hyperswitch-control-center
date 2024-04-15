@@ -108,6 +108,7 @@ let make = (
 ) => {
   open UserOnboardingUtils
   open UserOnboardingTypes
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let (tabIndex, setTabIndex) = React.useState(_ => 0)
   let (frontEndLang, setFrontEndLang) = React.useState(_ =>
     currentRoute === SampleProjects ? #ChooseLanguage : #ReactJs
@@ -163,7 +164,7 @@ let make = (
 
   let buttonStyle =
     tabIndex === tabs->Array.length - 1
-      ? "!border !border-blue-500 !rounded-md bg-white !text-blue-500"
+      ? `!border !rounded-md bg-white !${textColor.primaryNormal}`
       : "!rounded-md"
   let requestedPlatform = getRequestedPlatforms()
   <div className="w-full h-full flex flex-col bg-white">
@@ -239,7 +240,7 @@ let make = (
                 {"Explore our detailed developer documentation on our"->React.string}
               </p>
               <p
-                className="text-base font-semibold text-blue-500 cursor-pointer underline"
+                className={`text-base font-semibold ${textColor.primaryNormal} cursor-pointer underline`}
                 onClick={_ => handleDeveloperDocs()}>
                 {"Developer Docs"->React.string}
               </p>

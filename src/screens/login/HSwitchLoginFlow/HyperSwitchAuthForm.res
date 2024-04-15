@@ -4,6 +4,7 @@ let labelClass = "!text-black !font-medium"
 module EmailPasswordForm = {
   @react.component
   let make = (~setAuthType) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     <div className="flex flex-col gap-3">
@@ -13,7 +14,7 @@ module EmailPasswordForm = {
         <UIUtils.RenderIf condition={email}>
           <AddDataAttributes attributes=[("data-testid", "forgot-password")]>
             <label
-              className={`not-italic text-[12px] font-semibold font-ibm-plex text-blue-500 cursor-pointer`}
+              className={`not-italic text-[12px] font-semibold font-ibm-plex ${textColor.primaryNormal} cursor-pointer`}
               onClick={_ => setAuthType(_ => HyperSwitchAuthTypes.ForgetPassword)}>
               {"Forgot Password?"->React.string}
             </label>
