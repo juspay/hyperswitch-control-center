@@ -378,7 +378,7 @@ let billwerkInfo = {
 }
 
 let zslInfo = {
-  description: "Billwerk+ Pay is an acquirer independent payment gateway that helps you get the best acquirer rates, select a wide variety of payment methods.",
+  description: "It is a payment processor that enables businesses to accept payments securely through local bank transfers.",
 }
 
 let getConnectorNameString = (connector: processorTypes) =>
