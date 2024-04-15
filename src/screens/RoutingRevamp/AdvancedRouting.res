@@ -159,6 +159,7 @@ module Wrapper = {
     ~isFrom3ds=false,
     ~isFromSurcharge=false,
   ) => {
+    let {globalUIConfig: {border: {borderColor}}} = React.useContext(ConfigContext.configContext)
     let showToast = ToastState.useShowToast()
     let isMobileView = MatchMedia.useMobileChecker()
     let (isExpanded, setIsExpanded) = React.useState(_ => true)
@@ -309,7 +310,7 @@ module Wrapper = {
         </UIUtils.RenderIf>
         <div
           onClick={handleClickExpand}
-          className="cursor-pointer flex flex-row gap-2 items-center justify-between p-2 bg-blue-100 dark:bg-jp-gray-970 rounded-full border border-blue-500 dark:border-blue-500">
+          className={`cursor-pointer flex flex-row gap-2 items-center justify-between p-2 bg-blue-100 dark:bg-jp-gray-970 rounded-full border ${borderColor.primaryNormal} dark:${borderColor.primaryNormal}`}>
           <div className="font-semibold pl-2 text-sm md:text-base"> {React.string(heading)} </div>
           <Icon name={isExpanded ? "angle-up" : "angle-down"} size={isMobileView ? 14 : 16} />
         </div>
@@ -321,7 +322,7 @@ module Wrapper = {
         ${flex} 
             p-4 py-6 bg-gray-50 dark:bg-jp-gray-lightgray_background rounded-md border 
             ${border} 
-            border-blue-500`}>
+            ${borderColor.primaryNormal}`}>
         <UIUtils.RenderIf condition={!isFirst}>
           <AdvancedRoutingUIUtils.MakeRuleField id isExpanded wasm isFrom3ds isFromSurcharge />
         </UIUtils.RenderIf>
@@ -351,6 +352,7 @@ module RuleBasedUI = {
     ~setCurrentRouting,
     ~baseUrlForRedirection,
   ) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let rulesJsonPath = `algorithm.data.rules`
     let ruleInput = ReactFinalForm.useField(rulesJsonPath).input
     let (rules, setRules) = React.useState(_ => ruleInput.value->getArrayFromJson([]))
@@ -436,7 +438,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
           {"In case the above rule fails, the routing will follow fallback routing. You can configure it"->React.string}
         </p>
         <p
-          className="text-blue-500 cursor-pointer"
+          className={`${textColor.primaryNormal} cursor-pointer`}
           onClick={_ => {
             setCurrentRouting(_ => RoutingTypes.DEFAULTFALLBACK)
             RescriptReactRouter.replace(`${baseUrlForRedirection}/default`)

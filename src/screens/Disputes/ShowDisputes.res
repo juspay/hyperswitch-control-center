@@ -3,6 +3,9 @@ module DisputesNoteComponent = {
   open ConnectorUtils
   @react.component
   let make = (~disputesData: DisputeTypes.disputes) => {
+    let {globalUIConfig: {font: {textColor}, border: {borderColor}}} = React.useContext(
+      ConfigContext.configContext,
+    )
     let connectorTypeFromName = disputesData.connector->getConnectorNameTypeFromString()
     let dashboardLink = {
       switch connectorTypeFromName {
@@ -23,8 +26,8 @@ module DisputesNoteComponent = {
     }
 
     <div
-      className="flex border items-start border-blue-500 text-sm rounded-md gap-2 px-4 py-3 mt-5">
-      <Icon name="info-vacent" className="text-blue-500 mt-1" size=18 />
+      className={`${borderColor.primaryNormal} flex  items-start  text-sm rounded-md gap-2 px-4 py-3 mt-5`}>
+      <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
       <span>
         {"Coming soon! You would soon be able to upload evidences against disputes directly from your Hyperswitch dashboard. Until then, please use Hyperswitch dashboard to track any changes in dispute status while uploading evidences from your relevant connector "->React.string}
         {dashboardLink}
@@ -68,7 +71,7 @@ module Details = {
           <p className="flex font-bold text-3xl gap-2">
             {amountValue(data.amount, data.currency->String.toUpperCase)->React.string}
           </p>
-          {getStatus(data)}
+          {useGetStatus(data)}
           <RenderIf
             condition={data.dispute_status->disputeStatusVariantMapper === DisputeOpened &&
               data.challenge_required_by->isNonEmptyString}>

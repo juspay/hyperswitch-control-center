@@ -12,6 +12,7 @@ let preRequisiteList = [
 module PayPalCreateNewAccountModal = {
   @react.component
   let make = (~butttonDisplayText, ~actionUrl, ~setScreenState) => {
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
     let initializePayPalWindow = () => {
       try {
         Window.payPalCreateAccountWindow()
@@ -31,7 +32,7 @@ module PayPalCreateNewAccountModal = {
 
     <AddDataAttributes attributes=[("data-paypal-button", "true")]>
       <a
-        className="!w-fit rounded-md bg-blue-500 text-white px-4  h-fit border py-3 flex items-center justify-center gap-2"
+        className={`!w-fit rounded-md ${backgroundColor} text-white px-4  h-fit border py-3 flex items-center justify-center gap-2`}
         href={`${actionUrl}&displayMode=minibrowser`}
         target="PPFrame">
         {butttonDisplayText->React.string}
@@ -66,8 +67,13 @@ module ManualSetupScreen = {
 module LandingScreen = {
   @react.component
   let make = (~configuartionType, ~setConfigurationType) => {
+    let {
+      globalUIConfig: {backgroundColor, font: {textColor}, border: {borderColor}},
+    } = React.useContext(ConfigContext.configContext)
     let getBlockColor = value =>
-      configuartionType === value ? "border border-blue-500 bg-blue-500 bg-opacity-10 " : "border"
+      configuartionType === value
+        ? `${borderColor.primaryNormal} ${backgroundColor} bg-opacity-10 `
+        : "border"
 
     <div className="flex flex-col gap-10">
       <div className="flex flex-col gap-4">
@@ -88,7 +94,7 @@ module LandingScreen = {
                 <Icon
                   name={configuartionType === items.variantType ? "selected" : "nonselected"}
                   size=20
-                  className="cursor-pointer !text-blue-500"
+                  className={`cursor-pointer !${textColor.primaryNormal}`}
                 />
               </div>
               <div className="flex gap-2 items-center ">

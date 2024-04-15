@@ -44,6 +44,7 @@ module CompressedView = {
   @react.component
   let make = (~id, ~isFirst) => {
     open LogicUtils
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let conditionInput = ReactFinalForm.useField(id).input
 
     let displayForValue = value =>
@@ -71,7 +72,9 @@ module CompressedView = {
     | Some((logical, field, operator, value, key)) =>
       <div className="flex flex-wrap items-center gap-4">
         {if !isFirst {
-          <TextView str=logical fontColor="text-blue-500" fontWeight="font-semibold" />
+          <TextView
+            str=logical fontColor={`${textColor.primaryNormal}`} fontWeight="font-semibold"
+          />
         } else {
           React.null
         }}

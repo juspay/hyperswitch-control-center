@@ -12,7 +12,11 @@ let make = (
 ) => {
   let urlPrefix = ""
 
-  let useUrl = <use fill=customIconColor xlinkHref={`${urlPrefix}/icons/solid.svg#${name}`} />
+  let useUrl =
+    <use
+      className={`fill-current ${customIconColor}`}
+      xlinkHref={`${urlPrefix}/icons/solid.svg#${name}`}
+    />
 
   let otherClasses = switch className {
   | Some(str) => str

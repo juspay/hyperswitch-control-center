@@ -18,6 +18,7 @@ module SimpleRoutingView = {
     ~isActive,
     ~baseUrlForRedirection,
   ) => {
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
     let nameFromForm = ReactFinalForm.useField(`name`).input.value
     let descriptionFromForm = ReactFinalForm.useField(`description`).input.value
     let modalObj = RoutingUtils.getModalObj(PRIORITY, "priority")
@@ -152,7 +153,8 @@ module SimpleRoutingView = {
             ${index !== 0 ? "border-t" : ""} ${style}`}>
                 <div className="flex flex-row items-center gap-4 ml-2">
                   <Icon name="grip-vertical" size=14 className={"cursor-pointer"} />
-                  <div className="px-1.5 rounded-full bg-blue-500 text-white font-semibold text-sm">
+                  <div
+                    className={`px-1.5 rounded-full ${backgroundColor} text-white font-semibold text-sm`}>
                     {React.string(Int.toString(index + 1))}
                   </div>
                   <div> {React.string(gateway)} </div>

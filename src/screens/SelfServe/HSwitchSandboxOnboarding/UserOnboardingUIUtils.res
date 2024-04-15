@@ -5,10 +5,11 @@ open LogicUtils
 module ProgressBar = {
   @react.component
   let make = (~tabs, ~tabIndex) => {
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
     let defaultStyle = currentIndex => {
       currentIndex < tabIndex + 1
-        ? "bg-blue-500 h-1.5 w-full"
-        : "bg-blue-500 opacity-10 h-1.5 w-full"
+        ? `${backgroundColor} h-1.5 w-full`
+        : `${backgroundColor} opacity-10 h-1.5 w-full`
     }
     <div className="flex w-full">
       {tabs
@@ -559,6 +560,46 @@ module Section = {
   }
 }
 
+module CreatePayment = {
+  @react.component
+  let make = (~currentRoute, ~tabIndex, ~defaultEditorStyle, ~backEndLang, ~theme) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
+    <TabsContentWrapper
+      currentRoute
+      tabIndex
+      customUi={<p className="text-base font-normal py-2 flex gap-2">
+        {"For the complete API schema, refer "->React.string}
+        <p
+          className={`${textColor.primaryNormal} underline cursor-pointer`}
+          onClick={_ =>
+            Window._open(
+              "https://api-reference.hyperswitch.io/docs/hyperswitch-api-reference/60bae82472db8-payments-create",
+            )}>
+          {"API docs"->React.string}
+        </p>
+      </p>}>
+      <div className=defaultEditorStyle>
+        <UIUtils.RenderIf condition={backEndLang->getInstallDependencies->isNonEmptyString}>
+          <ShowCodeEditor
+            value={backEndLang->getInstallDependencies}
+            theme
+            headerText="Installation"
+            langauge=backEndLang
+          />
+          <div className="w-full h-px bg-jp-gray-700" />
+        </UIUtils.RenderIf>
+        <ShowCodeEditor
+          value={backEndLang->getCreateAPayment}
+          theme
+          headerText="Request"
+          customHeight="25vh"
+          langauge=backEndLang
+        />
+      </div>
+    </TabsContentWrapper>
+  }
+}
+
 let getTabsForIntegration = (
   ~currentRoute,
   ~tabIndex,
@@ -573,6 +614,7 @@ let getTabsForIntegration = (
   // let {integrationDetails, setIntegrationDetails, dashboardPageState} = React.useContext(
   //   GlobalProvider.defaultContext,
   // )
+
   switch currentRoute {
   | MigrateFromStripe => [
       {
@@ -631,39 +673,7 @@ let getTabsForIntegration = (
       {
         title: "2. Create a Payment",
         renderContent: () =>
-          <TabsContentWrapper
-            currentRoute
-            tabIndex
-            customUi={<p className="text-base font-normal py-2 flex gap-2">
-              {"For the complete API schema, refer "->React.string}
-              <p
-                className="text-blue-500 underline cursor-pointer"
-                onClick={_ =>
-                  Window._open(
-                    "https://api-reference.hyperswitch.io/docs/hyperswitch-api-reference/60bae82472db8-payments-create",
-                  )}>
-                {"API docs"->React.string}
-              </p>
-            </p>}>
-            <div className=defaultEditorStyle>
-              <UIUtils.RenderIf condition={backEndLang->getInstallDependencies->isNonEmptyString}>
-                <ShowCodeEditor
-                  value={backEndLang->getInstallDependencies}
-                  theme
-                  headerText="Installation"
-                  langauge=backEndLang
-                />
-                <div className="w-full h-px bg-jp-gray-700" />
-              </UIUtils.RenderIf>
-              <ShowCodeEditor
-                value={backEndLang->getCreateAPayment}
-                theme
-                headerText="Request"
-                customHeight="25vh"
-                langauge=backEndLang
-              />
-            </div>
-          </TabsContentWrapper>,
+          <CreatePayment currentRoute tabIndex defaultEditorStyle backEndLang theme />,
       },
       {
         title: "3. Display Checkout Page",
