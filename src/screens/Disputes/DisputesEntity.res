@@ -127,9 +127,9 @@ let getCell = (disputesData, colType): Table.cell => {
   open DisputesUtils
   open HelperComponents
   switch colType {
-  | DisputeId => CustomCell(<CopyTextCustomComp displayValue=disputesData.dispute_id />, "")
-  | PaymentId => CustomCell(<CopyTextCustomComp displayValue=disputesData.payment_id />, "")
-  | AttemptId => CustomCell(<CopyTextCustomComp displayValue=disputesData.attempt_id />, "")
+  | DisputeId => DisplayCopyCell(disputesData.dispute_id)
+  | PaymentId => DisplayCopyCell(disputesData.payment_id)
+  | AttemptId => DisplayCopyCell(disputesData.attempt_id)
   | Amount => Text(amountValue(disputesData.amount, disputesData.currency))
   | Currency => Text(disputesData.currency)
   | DisputeStage =>
