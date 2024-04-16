@@ -39,7 +39,7 @@ let make = () => {
   let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
   let fetchDetails = useGetMethod()
   let connectorName = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
+  let connectorID = url.path->List.toArray->Array.get(2)->Option.getOr("")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let (currentStep, setCurrentStep) = React.useState(_ => ConfigurationFields)

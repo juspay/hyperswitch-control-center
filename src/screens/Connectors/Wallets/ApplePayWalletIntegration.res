@@ -29,7 +29,7 @@ module Simplified = {
     let updateAPIHook = useUpdateMethod(~showErrorToast=false, ())
     let showToast = ToastState.useShowToast()
     let fetchApi = AuthHooks.useApiFetcher()
-    let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
+    let connectorID = url.path->List.toArray->Array.get(2)->Option.getOr("")
     let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
     let merchantId = merchantDetailsValue.merchant_id
     let prefix = "apple_pay_combined.simplified.session_token_data.initiative_context"
