@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.15.0
+
+### Features
+
+- Zsl processor addition ([#578](https://github.com/juspay/hyperswitch-control-center/pull/578)) ([`f2403b0`](https://github.com/juspay/hyperswitch-control-center/commit/f2403b01fca06a2318ba062b6479ee1c2314d2d6))
+
+### Miscellaneous Tasks
+
+- Tailwind mutlitenancy config ([#577](https://github.com/juspay/hyperswitch-control-center/pull/577)) ([`0935d74`](https://github.com/juspay/hyperswitch-control-center/commit/0935d7451ab4dfd33fe8dd6595a1c631c28e00b1))
+- Audit log ui fixes ([#582](https://github.com/juspay/hyperswitch-control-center/pull/582)) ([`bedbcb2`](https://github.com/juspay/hyperswitch-control-center/commit/bedbcb216793409d7082b8b926c10d9c8f57c37b))
+
+**Full Changelog:** [`2024.04.10.0...2024.04.15.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.10.0...2024.04.15.0)
+
+- - -
+
 ## 2024.04.10.0
 
 ### Bug Fixes

@@ -18,7 +18,8 @@ let make = (
   let apiName = switch logType {
   | API_EVENTS => dataDict->getString("api_flow", "default value")->camelCaseToTitle
   | SDK => dataDict->getString("event_name", "default value")
-  | CONNECTOR => dataDict->getString("flow", "default value")->camelCaseToTitle
+  | CONNECTOR =>
+    dataDict->getString("flow", "default value")->LogUtils.apiNameMapper->camelCaseToTitle
   | WEBHOOKS => dataDict->getString("event_type", "default value")->snakeToTitle
   }->nameToURLMapper
   let createdTime = dataDict->getString("created_at", "00000")
@@ -91,12 +92,12 @@ let make = (
     }
   | WEBHOOKS =>
     switch statusCode {
-    | "200" => "green-200"
+    | "200" => "green-50"
     | "500" | _ => "gray-100"
     }
   | API_EVENTS | CONNECTOR =>
     switch statusCode {
-    | "200" => "green-200"
+    | "200" => "green-50"
     | "500" => "gray-100"
     | "400" => "orange-100"
     | _ => "gray-100"
