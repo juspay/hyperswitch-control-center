@@ -34,7 +34,7 @@ module GetProductionAccess = {
           {productionAccessString->React.string}
         </div>
         <UIUtils.RenderIf condition={!isProdIntent}>
-          <Icon name="thin-right-arrow" customIconColor="white" size=20 />
+          <Icon name="thin-right-arrow" customIconColor="text-white" size=20 />
         </UIUtils.RenderIf>
       </div>
     | None =>
@@ -377,11 +377,14 @@ let configurePMTs = permissionJson => {
     searchOptions: [("Configure payment methods", "Configure country currency")],
   })
 }
-let settings = (~isSampleDataEnabled, ~permissionJson) => {
-  let settingsLinkArray = [businessDetails(), businessProfiles(), configurePMTs(permissionJson)]
+let settings = (~isSampleDataEnabled, ~isConfigurePmtsEnabled, ~permissionJson) => {
+  let settingsLinkArray = [businessDetails(), businessProfiles()]
 
   if isSampleDataEnabled {
     settingsLinkArray->Array.push(accountSettings(permissionJson))->ignore
+  }
+  if isConfigurePmtsEnabled {
+    settingsLinkArray->Array.push(configurePMTs(permissionJson))->ignore
   }
   settingsLinkArray->Array.push(userManagement(permissionJson))->ignore
 
@@ -468,6 +471,7 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     threedsAuthenticator,
     quickStart,
     disputeAnalytics,
+    configurePmts,
   } = featureFlagDetails
 
   let sidebar = [
@@ -485,7 +489,11 @@ let useGetSidebarValues = (~isReconEnabled: bool) => {
     default->workflow(isSurchargeEnabled, ~permissionJson, ~isPayoutEnabled=payOut),
     recon->reconTag(isReconEnabled),
     default->developers(userRole, systemMetrics, ~permissionJson),
-    settings(~isSampleDataEnabled=sampleData, ~permissionJson),
+    settings(
+      ~isSampleDataEnabled=sampleData,
+      ~isConfigurePmtsEnabled=configurePmts,
+      ~permissionJson,
+    ),
   ]
   sidebar
 }

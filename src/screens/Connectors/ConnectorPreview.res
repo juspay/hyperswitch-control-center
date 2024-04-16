@@ -232,7 +232,7 @@ module ConnectorSummaryGrid = {
             className="flex border items-start bg-blue-800 border-blue-810 text-sm rounded-md gap-2 px-4 py-3">
             <Icon name="info-vacent" size=18 />
             <p>
-              {"Improve conversion rate by conditionally managing PMTs visibilityon checkout . Visit Settings >"->React.string}
+              {"Improve conversion rate by conditionally managing PMTs visibility on checkout . Visit Settings >"->React.string}
               <a
                 onClick={_ => RescriptReactRouter.push("/configure-pmts")}
                 target="_blank"

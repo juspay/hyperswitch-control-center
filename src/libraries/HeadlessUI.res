@@ -447,6 +447,7 @@ module SelectBoxHeadlessUI = {
     ~deSelectAllowed=true,
     ~dropdownWidth="w-52",
   ) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let transformedOptions = SelectBox.useTransformed(options)
     let dropdownPositionClass = switch dropdownPosition {
     | Left => "right-0"
@@ -503,7 +504,10 @@ module SelectBoxHeadlessUI = {
                               <Icon className="align-middle" size=12 name=iconName />
                             | _ => React.null
                             }}
-                            <span className={selected ? "text-blue-500 font-semibold" : ""}>
+                            <span
+                              className={selected
+                                ? `${textColor.primaryNormal} font-semibold`
+                                : ""}>
                               {React.string(option.label)}
                             </span>
                           </div>

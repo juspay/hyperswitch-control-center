@@ -21,7 +21,7 @@ module RefundInfo = {
           <div className="font-bold text-4xl m-3">
             {`${(data.amount /. 100.00)->Float.toString} ${data.currency} `->React.string}
           </div>
-          {getStatus(data)}
+          {useGetStatus(data)}
         </div>
         <FormRenderer.DesktopRow>
           <div

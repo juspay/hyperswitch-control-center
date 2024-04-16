@@ -19,5 +19,6 @@
   "paypal_automatic_flow": false,
   "threeds-authenticator": false,
   "global_search": false,
-  "dispute_analytics": false
+  "dispute_analytics": false,
+  "configure_pmts": false
 }

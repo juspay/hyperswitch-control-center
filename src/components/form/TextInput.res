@@ -38,6 +38,9 @@ let make = (
   ~phoneInput=false,
   ~removeValidationCheck=false,
 ) => {
+  let {globalUIConfig: {shadow: {shadowColor}, border: {borderColor}}} = React.useContext(
+    ConfigContext.configContext,
+  )
   let showPopUp = PopUpState.useShowPopUp()
   let isInValid = try {
     let {meta} = ReactFinalForm.useField(input.name)
@@ -136,7 +139,7 @@ let make = (
 
   let borderClass = isInValid
     ? "border-red-500 focus:border-red-500  dark:border-red-500 dark:hover:border-red-500 dark:focus:border-red-500 focus:shadow-text_input_shadow focus:shadow-red-500"
-    : "border-jp-gray-lightmode_steelgray focus:border-blue-500 dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:focus:border-blue-500 focus:shadow-text_input_shadow focus:shadow-blue-500"
+    : `border-jp-gray-lightmode_steelgray ${borderColor.primaryFocused} dark:border-jp-gray-960 dark:hover:border-jp-gray-960 dark:${borderColor.primaryFocused} focus:shadow-text_input_shadow ${shadowColor.primaryFocused}`
 
   let dashboardClass = customDashboardClass->Option.getOr("h-10 text-sm font-semibold")
   let rightPaddingClass = if description->LogicUtils.isNonEmptyString || isInValid {

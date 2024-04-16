@@ -8,6 +8,7 @@ let make = (
   ~moduleName,
   ~description,
 ) => {
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let isMobileView = MatchMedia.useMobileChecker()
   let (size, widthClass, flexDirectionClass) = React.useMemo1(() => {
     isMobileView ? (0.16, "w-full", "flex-col") : (size, "w-1/2", "flex-row")
@@ -160,12 +161,12 @@ let make = (
                 let paddingTop = `${(size *. 3.4 *. 1.4)->Float.toString}rem`
                 <div
                   key={`${i->Int.toString}funnelStageDesc`}
-                  className={`flex flex-row gap-4 h-full items-center w-max items-start`}
+                  className={`flex flex-row gap-4 h-full items-center w-max `}
                   style={ReactDOMStyle.make(~marginBottom, ~paddingTop, ())}>
                   <div
                     className={`transition ease-in-out duration-300 font-medium text-base ${hoverIndex ===
                         i->Float.fromInt
-                        ? "text-blue-500 scale-110"
+                        ? `${textColor.primaryNormal} scale-110`
                         : "text-jp-gray-800 dark:text-dark_theme"}`}>
                     {metric.metric_label->React.string}
                   </div>

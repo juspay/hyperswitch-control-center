@@ -3,6 +3,56 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.15.0
+
+### Features
+
+- Zsl processor addition ([#578](https://github.com/juspay/hyperswitch-control-center/pull/578)) ([`f2403b0`](https://github.com/juspay/hyperswitch-control-center/commit/f2403b01fca06a2318ba062b6479ee1c2314d2d6))
+
+### Miscellaneous Tasks
+
+- Tailwind mutlitenancy config ([#577](https://github.com/juspay/hyperswitch-control-center/pull/577)) ([`0935d74`](https://github.com/juspay/hyperswitch-control-center/commit/0935d7451ab4dfd33fe8dd6595a1c631c28e00b1))
+- Audit log ui fixes ([#582](https://github.com/juspay/hyperswitch-control-center/pull/582)) ([`bedbcb2`](https://github.com/juspay/hyperswitch-control-center/commit/bedbcb216793409d7082b8b926c10d9c8f57c37b))
+
+**Full Changelog:** [`2024.04.10.0...2024.04.15.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.10.0...2024.04.15.0)
+
+- - -
+
+## 2024.04.10.0
+
+### Bug Fixes
+
+- Webhook url and return url regex change ([#572](https://github.com/juspay/hyperswitch-control-center/pull/572)) ([`09e1ca3`](https://github.com/juspay/hyperswitch-control-center/commit/09e1ca30c3814c0b6ebba4dee27d4a5bb93e6038))
+
+### Miscellaneous Tasks
+
+- Checkbox input type added ([#567](https://github.com/juspay/hyperswitch-control-center/pull/567)) ([`d5a22c0`](https://github.com/juspay/hyperswitch-control-center/commit/d5a22c0446567b6b3086ae5478d37ac4e6fdfe1e))
+
+**Full Changelog:** [`2024.04.08.0...2024.04.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.08.0...2024.04.10.0)
+
+- - -
+
+## 2024.04.08.0
+
+### Bug Fixes
+
+- Return url and webhook url regex change ([#569](https://github.com/juspay/hyperswitch-control-center/pull/569)) ([`57a2f11`](https://github.com/juspay/hyperswitch-control-center/commit/57a2f11a61bc1f46811b220c11e4a5a116a63ced))
+
+**Full Changelog:** [`2024.04.04.0...2024.04.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.04.0...2024.04.08.0)
+
+- - -
+
+## 2024.04.04.0
+
+### Bug Fixes
+
+- Billwerk-icon change ([#563](https://github.com/juspay/hyperswitch-control-center/pull/563)) ([`e047482`](https://github.com/juspay/hyperswitch-control-center/commit/e047482f72d3b6e51ba5092d84d9b6aa35fe87e9))
+- Configure pmts page issue fix ([#564](https://github.com/juspay/hyperswitch-control-center/pull/564)) ([`0e61f85`](https://github.com/juspay/hyperswitch-control-center/commit/0e61f8588628913b3820f8fcb37ff1f4da22e5ca))
+
+**Full Changelog:** [`2024.04.03.1...2024.04.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.03.1...2024.04.04.0)
+
+- - -
+
 ## 2024.04.03.1
 
 ### Bug Fixes

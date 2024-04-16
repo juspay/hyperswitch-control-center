@@ -3,12 +3,13 @@ module ButtonConfig = {
     default: string,
     defaultPagination: string,
   }
-  type textColor = {primaryOutline: string}
+  type textColor = {primaryOutline: string, primaryNormal: string, primaryDisabled: string}
   type bGcolor = {
     primaryNormal: string,
     primaryDisabled: string,
     primaryNoHover: string,
     primaryOutline: string,
+    primaryLoading: string,
     paginationNormal: string,
     paginationLoading: string,
     paginationDisabled: string,
@@ -56,55 +57,108 @@ module ButtonConfig = {
   }
 }
 
-type t = {button: ButtonConfig.t}
+module FontConfig = {
+  type textColor = {primaryNormal: string}
+  type t = {textColor: textColor}
+}
+module ShadowConfig = {
+  type shadowColor = {primaryNormal: string, primaryFocused: string}
+  type t = {shadowColor: shadowColor}
+}
+module BorderConfig = {
+  type borderColor = {primaryNormal: string, primaryFocused: string}
+  type t = {borderColor: borderColor}
+}
+
+module SidebarConfig = {
+  type backgroundColor = {primaryNormal: string}
+  type t = {backgroundColor: backgroundColor}
+}
+
+type t = {
+  button: ButtonConfig.t,
+  font: FontConfig.t,
+  backgroundColor: string,
+  primaryColor: string,
+  shadow: ShadowConfig.t,
+  border: BorderConfig.t,
+  sidebarColor: SidebarConfig.t,
+}
 
 let defaultUIConfig: t = {
+  backgroundColor: "bg-primary",
   button: {
     height: {
-      medium: "h-12",
-      xSmall: "h-8",
-      small: "h-10",
+      medium: "h-fit",
+      xSmall: "h-fit",
+      small: "h-fit",
     },
     padding: {
-      xSmall: "px-1",
-      smallPagination: "px-2",
-      smallDropdown: "px-2",
-      small: "px-2",
-      medium: "px-3",
-      mediumPagination: "px-3",
-      large: "",
-      xSmallText: "px-3",
-      smallText: "px-2",
+      xSmall: "py-3 px-4",
+      small: "py-3 px-4",
+      smallPagination: "py-3 px-4 mr-1",
+      smallDropdown: "py-3 px-4",
+      medium: "py-3 px-4",
+      mediumPagination: "py-3 px-4 mr-1",
+      large: "py-3 px-4",
+      xSmallText: "px-1",
+      smallText: "px-1",
       mediumText: "px-1",
-      largeText: "px-4",
+      largeText: "px-1",
     },
     border: {
-      borderFirstWidthClass: "border border-r-0 focus:border-r",
-      borderLastWidthClass: "border border-l-0 focus:border-l",
-      borderPrimaryOutlineBorderStyleClass: "border-[1px] border-[#0099FF]",
-      borderSecondaryLoadingBorderStyleClass: "border-jp-gray-950 border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100",
-      borderSecondaryBorderStyleClass: "border-jp-gray-950 border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100",
+      borderFirstWidthClass: "border focus:border-r",
+      borderLastWidthClass: "border  focus:border-l",
+      borderPrimaryOutlineBorderStyleClass: "border-1 border-blue-800",
+      borderSecondaryLoadingBorderStyleClass: "border-border_gray",
+      borderSecondaryBorderStyleClass: "border-border_gray border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100",
     },
     backgroundColor: {
-      primaryNormal: "bg-blue-500 hover:shadow hover:shadow-blue-500/50 hover:from-blue-500 hover:to-blue-500 focus:outline-none",
-      primaryDisabled: "bg-jp-gray-300 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50",
-      primaryNoHover: "bg-blue-500 hover:shadow hover:shadow-blue-500/50 hover:from-blue-500 hover:to-blue-500 focus:outline-none",
-      primaryOutline: "mix-blend-normal bg-[rgba(0,153,255,0.08)]",
-      paginationNormal: "border-left-1 border-right-1 font-normal border-left-1 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none",
+      primaryNormal: "bg-primary hover:bg-primary-hover focus:outline-none",
+      primaryDisabled: "bg-primary opacity-60 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50",
+      primaryNoHover: "bg-primary hover:bg-primary-hover focus:outline-none dark:text-opacity-50 text-opacity-50",
+      primaryLoading: "bg-primary",
+      primaryOutline: "mix-blend-normal",
+      paginationNormal: "border-left-1 opacity-80 border-right-1 font-normal border-left-1 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 focus:outline-none",
       paginationLoading: "border-left-1 border-right-1 font-normal border-left-1 bg-jp-gray-200 dark:bg-jp-gray-800 dark:bg-opacity-10",
       paginationDisabled: "border-left-1 border-right-1 font-normal border-left-1 bg-jp-gray-300 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50",
-      paginationNoHover: "border-left-1 border-right-1 font-normal border-left-1 text-jp-gray-900 text-opacity-75 hover:text-jp-gray-900 bg-gradient-to-b from-jp-gray-250 to-jp-gray-300 dark:from-jp-gray-900 dark:to-jp-gray-950 dark:text-jp-gray-text_darktheme dark:text-opacity-75",
-      dropdownDisabled: "focus:outline-none dark:active:shadow-none",
-      secondaryNormal: "bg-white text-jp-gray-900 text-opacity-75 hover:shadow hover:text-jp-gray-900 hover:text-opacity-75 dark:bg-jp-gray-darkgray_background dark:hover:bg-jp-gray-950 dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none",
-      secondaryLoading: "bg-white dark:bg-jp-gray-darkgray_background",
-      secondaryNoHover: "bg-white text-jp-gray-900 text-opacity-50 hover:shadow hover:text-opacity-75 dark:bg-jp-gray-darkgray_background dark:text-jp-gray-text_darktheme focus:outline-none dark:text-opacity-50 ",
+      paginationNoHover: "bg-white border-left-1 border-right-1 font-normal text-jp-gray-900 text-opacity-75 hover:text-jp-gray-900 dark:text-jp-gray-text_darktheme dark:text-opacity-75",
+      dropdownDisabled: "bg-gray-200 dark:bg-jp-gray-950 dark:bg-opacity-50 border dark:border-jp-gray-disabled_border dark:border-opacity-50",
+      secondaryNormal: "bg-jp-gray-button_gray text-jp-gray-900 text-opacity-75 hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  dark:bg-jp-gray-darkgray_background  dark:text-jp-gray-text_darktheme dark:text-opacity-50 focus:outline-none",
+      secondaryLoading: "bg-jp-gray-button_gray  dark:bg-jp-gray-darkgray_background",
+      secondaryNoHover: "bg-jp-gray-button_gray text-jp-gray-900 text-opacity-50  hover:bg-jp-gray-secondary_hover hover:text-jp-gray-890  dark:bg-jp-gray-darkgray_background dark:text-jp-gray-text_darktheme focus:outline-none dark:text-opacity-50 ",
     },
     borderRadius: {
-      default: "rounded-md",
-      defaultPagination: "",
+      default: "rounded",
+      defaultPagination: "rounded-md",
     },
     textColor: {
-      primaryOutline: "text-[#0099FF]",
+      primaryNormal: "text-white",
+      primaryOutline: "text-blue-800",
+      primaryDisabled: "text-jp-gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-25",
+    },
+  },
+  font: {
+    textColor: {
+      primaryNormal: "text-primary",
+    },
+  },
+  shadow: {
+    shadowColor: {
+      primaryNormal: "focus:shadow-primary",
+      primaryFocused: "focus:shadow-primary",
+    },
+  },
+  border: {
+    borderColor: {
+      primaryNormal: "focus:border-primary",
+      primaryFocused: "focus:border-primary",
+    },
+  },
+  primaryColor: "primary",
+  sidebarColor: {
+    backgroundColor: {
+      primaryNormal: "bg-primary-sidebar",
     },
   },
 }

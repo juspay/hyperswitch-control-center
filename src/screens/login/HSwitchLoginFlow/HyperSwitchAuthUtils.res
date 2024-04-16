@@ -200,15 +200,16 @@ let validateForm = (values: JSON.t, keys: array<string>) => {
   errors->JSON.Encode.object
 }
 
-let note = (authType, setAuthType, isMagicLinkEnabled) => {
+let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
   open UIUtils
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let getFooterLinkComponent = (~btnText, ~authType, ~path) => {
     <div
       onClick={_ => {
         setAuthType(_ => authType)
         path->RescriptReactRouter.push
       }}
-      className="text-sm text-center text-blue-500 cursor-pointer hover:underline underline-offset-2">
+      className={`text-sm text-center ${textColor.primaryNormal} cursor-pointer hover:underline underline-offset-2`}>
       {btnText->React.string}
     </div>
   }
@@ -247,7 +248,7 @@ let note = (authType, setAuthType, isMagicLinkEnabled) => {
             }
             setAuthType(_ => backState)
           }}
-          className="text-sm text-center text-blue-500 hover:underline underline-offset-2 cursor-pointer w-fit">
+          className={`text-sm text-center ${textColor.primaryNormal} hover:underline underline-offset-2 cursor-pointer w-fit`}>
           {"Cancel"->React.string}
         </div>
       </div>
@@ -333,6 +334,7 @@ module ToggleLiveTestMode = {
 module Header = {
   @react.component
   let make = (~authType, ~setAuthType, ~email) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let form = ReactFinalForm.useForm()
     let {email: isMagicLinkEnabled, isLiveMode} =
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -376,7 +378,7 @@ module Header = {
             path->RescriptReactRouter.push
           }}
           id="card-subtitle"
-          className="font-semibold text-blue-500 cursor-pointer">
+          className={`font-semibold ${textColor.primaryNormal} cursor-pointer`}>
           {sufix->React.string}
         </div>
       </div>

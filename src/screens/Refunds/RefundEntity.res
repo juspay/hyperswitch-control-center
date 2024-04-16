@@ -48,7 +48,8 @@ let allColumns = [
   RefundStatus,
 ]
 
-let getStatus = order => {
+let useGetStatus = order => {
+  let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
   let orderStatusLabel = order.status->String.toUpperCase
   let fixedCss = "text-sm text-white font-bold p-1.5 rounded-lg"
   switch order.status->statusVariantMapper {
@@ -64,11 +65,11 @@ let getStatus = order => {
   | Processing
   | RequiresCustomerAction
   | RequiresPaymentMethod =>
-    <div className={`${fixedCss} bg-blue-500 bg-opacity-50`}>
+    <div className={`${fixedCss} ${backgroundColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   | _ =>
-    <div className={`${fixedCss} bg-blue-500 bg-opacity-50`}>
+    <div className={`${fixedCss} ${backgroundColor} bg-opacity-50`}>
       {orderStatusLabel->React.string}
     </div>
   }

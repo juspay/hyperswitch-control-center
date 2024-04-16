@@ -304,8 +304,8 @@ let make = (~selectedConnector, ~pageView, ~setPageView, ~setConnectorID) => {
     | _ => ""
     }
 
+  let warningBlock = connectorVariant->ProdOnboardingUtils.useGetWarningBlockForConnector
   let getComponentToRender = () => {
-    let warningBlock = connectorVariant->ProdOnboardingUtils.getWarningBlockForConnector
     switch pageView {
     | SETUP_CREDS =>
       <>

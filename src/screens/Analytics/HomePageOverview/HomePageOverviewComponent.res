@@ -4,6 +4,7 @@ module ConnectorOverview = {
   @react.component
   let make = () => {
     open ConnectorUtils
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let connectorsList =
       HyperswitchAtom.connectorListAtom
@@ -32,7 +33,7 @@ module ConnectorOverview = {
           ? icons->Array.concat([
               <div
                 key="concat-number"
-                className={`w-12 h-12 flex items-center justify-center text-white font-medium rounded-full border-3 border-white -ml-3 z-0 bg-blue-500`}>
+                className={`w-12 h-12 flex items-center justify-center text-white font-medium rounded-full border-3 border-white -ml-3 z-0 ${backgroundColor}`}>
                 {`+${(configuredConnectors->Array.length - 3)->Int.toString}`->React.string}
               </div>,
             ])
@@ -180,6 +181,7 @@ module OverviewInfo = {
   open APIUtils
   @react.component
   let make = () => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let {sampleData} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let updateDetails = useUpdateMethod()
     let showToast = ToastState.useShowToast()
@@ -202,7 +204,7 @@ module OverviewInfo = {
 
     <UIUtils.RenderIf condition={sampleData}>
       <div className="flex bg-white border rounded-md gap-2 px-9 py-3">
-        <Icon name="info-vacent" className="text-blue-500" size=20 />
+        <Icon name="info-vacent" className={`${textColor.primaryNormal}`} size=20 />
         <span>
           {"To view more points on the above graph, you need to make payments or"->React.string}
         </span>
