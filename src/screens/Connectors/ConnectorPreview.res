@@ -42,7 +42,7 @@ module DeleteConnectorMenu = {
         let connectorID = connectorInfo.merchant_connector_id
         let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
         let _ = await updateDetails(url, Dict.make()->JSON.Encode.object, Delete, ())
-        RescriptReactRouter.push("/connectors")
+        RescriptReactRouter.push(`${HSwitchGlobalVars.dashboardBasePath}/connectors`)
       } catch {
       | _ => ()
       }
@@ -234,7 +234,8 @@ module ConnectorSummaryGrid = {
             <p>
               {"Improve conversion rate by conditionally managing PMTs visibility on checkout . Visit Settings >"->React.string}
               <a
-                onClick={_ => RescriptReactRouter.push("/configure-pmts")}
+                onClick={_ =>
+                  RescriptReactRouter.push(`${HSwitchGlobalVars.dashboardBasePath}/configure-pmts`)}
                 target="_blank"
                 className="text-blue-500 underline cursor-pointer">
                 {"Configure PMTs at Checkout"->React.string}
@@ -314,7 +315,7 @@ let make = (
       let url = getURL(~entityName=CONNECTOR, ~methodType=Post, ~id=Some(connectorID), ())
       let _ = await updateDetails(url, disableConnectorPayload->JSON.Encode.object, Post, ())
       showToast(~message=`Successfully Saved the Changes`, ~toastType=ToastSuccess, ())
-      RescriptReactRouter.push("/connectors")
+      RescriptReactRouter.push(`${HSwitchGlobalVars.dashboardBasePath}/connectors`)
     } catch {
     | Exn.Error(_) => showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError, ())
     }
@@ -380,7 +381,7 @@ let make = (
                 if isFeedbackModalToBeOpen {
                   setShowFeedbackModal(_ => true)
                 }
-                RescriptReactRouter.push(redirectPath)
+                RescriptReactRouter.push(`${HSwitchGlobalVars.dashboardBasePath}${redirectPath}`)
               }}
               text="Done"
               buttonType={Primary}

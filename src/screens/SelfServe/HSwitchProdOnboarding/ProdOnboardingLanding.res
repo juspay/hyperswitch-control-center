@@ -163,7 +163,7 @@ let make = () => {
 
   let getCssOnView = "xl:w-77-rem  mx-7 xl:ml-[7rem]"
   let centerItems = pageView === SETUP_COMPLETED ? "justify-center" : ""
-  let urlPush = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/prod-onboarding?${routerUrl.search}`
+  let urlPush = `${HSwitchGlobalVars.dashboardBasePath}/prod-onboarding?${routerUrl.search}`
 
   let userRole = HSLocalStorage.getFromUserDetails("user_role")
 

@@ -230,7 +230,7 @@ module ControlCenter = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                RescriptReactRouter.push("/connectors")
+                RescriptReactRouter.push(`${HSwitchGlobalVars.dashboardBasePath}/connectors`)
               }}
             />
           </CardFooter>
@@ -249,7 +249,9 @@ module ControlCenter = {
               buttonType={Secondary}
               buttonSize={Small}
               onClick={_ => {
-                RescriptReactRouter.push("/developer-api-keys")
+                RescriptReactRouter.push(
+                  `${HSwitchGlobalVars.dashboardBasePath}/developer-api-keys`,
+                )
               }}
             />
           </CardFooter>

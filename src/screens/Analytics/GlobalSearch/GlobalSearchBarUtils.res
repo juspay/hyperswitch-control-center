@@ -24,7 +24,7 @@ module ShowMoreLink = {
           | Local | Others | Default => ""
           }
 
-          link->RescriptReactRouter.push
+          `${HSwitchGlobalVars.dashboardBasePath}${link}`->RescriptReactRouter.push
           cleanUpFunction()
         }}
         className={`font-medium cursor-pointer underline underline-offset-2 ${textStyleClass}`}>

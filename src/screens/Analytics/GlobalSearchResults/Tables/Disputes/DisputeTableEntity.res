@@ -267,6 +267,6 @@ let tableEntity = EntityType.makeEntity(
   ~allColumns=visibleColumns,
   ~getCell,
   ~getHeading,
-  ~getShowLink={dispute => `/disputes/${dispute.dispute_id}`},
+  ~getShowLink={dispute => `${HSwitchGlobalVars.dashboardBasePath}/disputes/${dispute.dispute_id}`},
   (),
 )

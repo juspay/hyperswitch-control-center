@@ -1,5 +1,7 @@
 @val external appVersion: string = "appVersion"
 
+let dashboardBasePath = "/dashboard"
+
 let mixpanelToken = Window.env.mixpanelToken->Option.getOr("mixpanel-token")
 
 type hostType = Live | Sandbox | Local | Netlify
@@ -17,7 +19,7 @@ let getHostURLFromVariant = (host: hostType) => {
   | Live => "https://live.hyperswitch.io"
   | Sandbox => "https://app.hyperswitch.io"
   | Netlify => `https://${hostName}`
-  | Local => `${Window.Location.origin}/dashboard`
+  | Local => `${Window.Location.origin}${dashboardBasePath}`
   }
 }
 

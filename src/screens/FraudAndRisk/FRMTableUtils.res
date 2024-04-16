@@ -25,7 +25,7 @@ let connectorEntity = (path: string, ~permission: AuthTypes.authorization) => {
     ~getShowLink={
       connec =>
         PermissionUtils.linkForGetShowLinkViaAccess(
-          ~url=`/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`,
+          ~url=`${HSwitchGlobalVars.dashboardBasePath}/${path}/${connec.merchant_connector_id}?name=${connec.connector_name}`,
           ~permission,
         )
     },

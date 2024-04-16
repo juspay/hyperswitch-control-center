@@ -272,7 +272,7 @@ let handleLogout = async (
   setIsSidebarExpanded(_ => false)
   clearRecoilValue()
   LocalStorage.clear()
-  RescriptReactRouter.push("/login")
+  RescriptReactRouter.push(`${HSwitchGlobalVars.dashboardBasePath}/login`)
 }
 
 let responseHandler = async (
@@ -308,7 +308,7 @@ let responseHandler = async (
         | 401 =>
           if !sessionExpired.contents {
             showToast(~toastType=ToastWarning, ~message="Session Expired", ~autoClose=false, ())
-            RescriptReactRouter.push("/login")
+            RescriptReactRouter.push(`${HSwitchGlobalVars.dashboardBasePath}/login`)
             sessionExpired := true
           }
 

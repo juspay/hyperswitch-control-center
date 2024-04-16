@@ -168,7 +168,7 @@ module QuickStart = {
         }
         setConfigureButtonState(_ => Button.Normal)
         setDashboardPageState(_ => #QUICK_START)
-        RescriptReactRouter.push("/quick-start")
+        RescriptReactRouter.push(`${HSwitchGlobalVars.dashboardBasePath}/quick-start`)
       } catch {
       | _ => setConfigureButtonState(_ => Button.Normal)
       }
@@ -252,7 +252,7 @@ module RecipesAndPlugins = {
           className={boxCssHover(~ishoverStyleRequired=!isStripePlusPayPalCompleted, ())}
           onClick={_ => {
             mixpanelEvent(~eventName=`stripe_plus_paypal`, ())
-            RescriptReactRouter.push("stripe-plus-paypal")
+            RescriptReactRouter.push(`${HSwitchGlobalVars.dashboardBasePath}/stripe-plus-paypal`)
           }}>
           <div className="flex items-center gap-2">
             <p className=cardHeaderTextStyle> {"Use PayPal with Stripe"->React.string} </p>
@@ -280,7 +280,7 @@ module RecipesAndPlugins = {
           className={boxCssHover(~ishoverStyleRequired=!isWooCommercePalCompleted, ())}
           onClick={_ => {
             mixpanelEvent(~eventName=`woocommerce`, ())
-            RescriptReactRouter.push("woocommerce")
+            RescriptReactRouter.push(`${HSwitchGlobalVars.dashboardBasePath}/woocommerce`)
           }}>
           <div className="flex items-center gap-2">
             <p className=cardHeaderTextStyle> {"WooCommerce plugin"->React.string} </p>

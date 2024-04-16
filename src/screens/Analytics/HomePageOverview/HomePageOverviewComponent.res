@@ -58,7 +58,7 @@ module ConnectorOverview = {
           customButtonStyle="w-10 !px-3"
           buttonSize={Small}
           onClick={_ => {
-            "/connectors"->RescriptReactRouter.push
+            `${HSwitchGlobalVars.dashboardBasePath}/connectors`->RescriptReactRouter.push
           }}
         />
       </div>

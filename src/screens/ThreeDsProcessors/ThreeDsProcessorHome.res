@@ -198,7 +198,10 @@ let make = () => {
   | Preview => <MenuOption updateStepValue=ConfigurationFields setCurrentStep />
   | _ =>
     <Button
-      text="Done" buttonType=Primary onClick={_ => RescriptReactRouter.push("/3ds-authenticators")}
+      text="Done"
+      buttonType=Primary
+      onClick={_ =>
+        RescriptReactRouter.push(`${HSwitchGlobalVars.dashboardBasePath}/3ds-authenticators`)}
     />
   }
 

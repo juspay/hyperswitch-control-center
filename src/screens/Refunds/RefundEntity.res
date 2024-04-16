@@ -175,6 +175,8 @@ let refundEntity = EntityType.makeEntity(
   ~getHeading,
   ~getCell,
   ~dataKey="",
-  ~getShowLink={refundData => `/refunds/${refundData.refund_id}`},
+  ~getShowLink={
+    refundData => `${HSwitchGlobalVars.dashboardBasePath}/refunds/${refundData.refund_id}`
+  },
   (),
 )

@@ -42,7 +42,11 @@ module ActionButtons = {
         buttonSize={Small}
         customButtonStyle={` !${borderColor.primaryNormal} bg-white ${textColor.primaryNormal}`}
         onClick={_ => {
-          RescriptReactRouter.push(`${onRedirectBaseUrl}/${routingTypeName(routeType)}`)
+          RescriptReactRouter.push(
+            `${HSwitchGlobalVars.dashboardBasePath}/${onRedirectBaseUrl}/${routingTypeName(
+                routeType,
+              )}`,
+          )
           mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
         }}
       />
@@ -54,7 +58,11 @@ module ActionButtons = {
         customButtonStyle={`!${borderColor.primaryNormal} bg-white ${textColor.primaryNormal}`}
         buttonSize={Small}
         onClick={_ => {
-          RescriptReactRouter.push(`${onRedirectBaseUrl}/${routingTypeName(routeType)}`)
+          RescriptReactRouter.push(
+            `${HSwitchGlobalVars.dashboardBasePath}/${onRedirectBaseUrl}/${routingTypeName(
+                routeType,
+              )}`,
+          )
           mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
         }}
       />
@@ -120,11 +128,13 @@ module ActiveSection = {
               switch activeRoutingType {
               | DEFAULTFALLBACK =>
                 RescriptReactRouter.push(
-                  `${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`,
+                  `${HSwitchGlobalVars.dashboardBasePath}/${onRedirectBaseUrl}/${routingTypeName(
+                      activeRoutingType,
+                    )}`,
                 )
               | _ =>
                 RescriptReactRouter.push(
-                  `${onRedirectBaseUrl}/${routingTypeName(
+                  `${HSwitchGlobalVars.dashboardBasePath}/${onRedirectBaseUrl}/${routingTypeName(
                       activeRoutingType,
                     )}?id=${activeRoutingId}&isActive=true`,
                 )

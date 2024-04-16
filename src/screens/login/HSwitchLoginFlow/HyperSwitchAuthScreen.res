@@ -70,7 +70,9 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
     | list{"dashboard", "forget-password"} => setActualAuthType(_ => ForgetPassword)
     | list{"dashboard", "register"} =>
       // In Live mode users are not allowed to singup directly
-      !isLiveMode ? setActualAuthType(_ => SignUP) : "login"->RescriptReactRouter.push
+      !isLiveMode
+        ? setActualAuthType(_ => SignUP)
+        : `${HSwitchGlobalVars.dashboardBasePath}/login`->RescriptReactRouter.push
     | _ => ()
     }
 
@@ -97,11 +99,13 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
     | (LoginWithPassword | LoginWithEmail, _) =>
       `${HSwitchGlobalVars.hyperSwitchFEPrefix}/login`->RescriptReactRouter.replace
     | (SignUP, list{"register", ..._}) => () // to prevent duplicate push
-    | (SignUP, _) => "register"->RescriptReactRouter.push
+    | (SignUP, _) => `${HSwitchGlobalVars.dashboardBasePath}/register`->RescriptReactRouter.push
     | (ForgetPassword | ForgetPasswordEmailSent, list{"forget-password", ..._}) => () // to prevent duplicate push
-    | (ForgetPassword | ForgetPasswordEmailSent, _) => "forget-password"->RescriptReactRouter.push
+    | (ForgetPassword | ForgetPasswordEmailSent, _) =>
+      `${HSwitchGlobalVars.dashboardBasePath}/forget-password`->RescriptReactRouter.push
     | (ResendVerifyEmail | ResendVerifyEmailSent, list{"resend-mail", ..._}) => () // to prevent duplicate push
-    | (ResendVerifyEmail | ResendVerifyEmailSent, _) => "resend-mail"->RescriptReactRouter.push
+    | (ResendVerifyEmail | ResendVerifyEmailSent, _) =>
+      `${HSwitchGlobalVars.dashboardBasePath}/resend-mail`->RescriptReactRouter.push
     | _ => ()
     }
     None

@@ -69,6 +69,8 @@ let customersEntity = EntityType.makeEntity(
   ~getHeading,
   ~getCell,
   ~dataKey="",
-  ~getShowLink={customerData => `/customers/${customerData.customer_id}`},
+  ~getShowLink={
+    customerData => `${HSwitchGlobalVars.dashboardBasePath}/customers/${customerData.customer_id}`
+  },
   (),
 )

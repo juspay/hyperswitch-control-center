@@ -482,6 +482,6 @@ let tableEntity = EntityType.makeEntity(
   ~allColumns=visibleColumns,
   ~getCell,
   ~getHeading,
-  ~getShowLink={order => `/payments/${order.payment_id}`},
+  ~getShowLink={order => `${HSwitchGlobalVars.dashboardBasePath}/payments/${order.payment_id}`},
   (),
 )

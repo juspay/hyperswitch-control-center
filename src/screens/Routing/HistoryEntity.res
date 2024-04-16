@@ -95,7 +95,7 @@ let historyEntity = (activeRoutingIds: array<string>, ~permission: AuthTypes.aut
     ~getShowLink={
       value => {
         PermissionUtils.linkForGetShowLinkViaAccess(
-          ~url=`routing/${value.kind
+          ~url=`${HSwitchGlobalVars.dashboardBasePath}/routing/${value.kind
             ->routingTypeMapper
             ->routingTypeName}?id=${value.id}${activeRoutingIds->Array.includes(value.id)
               ? "&isActive=true"

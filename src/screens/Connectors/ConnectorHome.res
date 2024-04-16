@@ -207,7 +207,7 @@ let make = (~isPayoutFlow=false, ~showStepIndicator=true, ~showBreadCrumb=true) 
       overriddingStylesSubtitle="!text-sm text-grey-700 opacity-50 !w-3/4"
       subtitle="We apologize for the inconvenience, but it seems like we encountered a hiccup while processing your request."
       onClickHandler={_ => {
-        RescriptReactRouter.push("/connectors")
+        RescriptReactRouter.push(`${HSwitchGlobalVars.dashboardBasePath}/connectors`)
         setScreenState(_ => PageLoaderWrapper.Success)
       }}
       isButton=true

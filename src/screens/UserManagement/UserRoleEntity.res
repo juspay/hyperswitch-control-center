@@ -135,6 +135,7 @@ let userEntity = EntityType.makeEntity(
   ~getHeading=getHeadingForUser,
   ~getCell=getCellForUser,
   ~dataKey="",
-  ~getShowLink=userId => `/users/details?email=${userId.email}`,
+  ~getShowLink=userId =>
+    `${HSwitchGlobalVars.dashboardBasePath}/users/details?email=${userId.email}`,
   (),
 )
