@@ -705,7 +705,8 @@ let make = (
                           text="Profile"
                         />
                         <MenuOption onClick={handleLogout} text="Sign out" />
-                        <RenderIf condition={HSwitchGlobalVars.hyperSwitchAppVersion != ""}>
+                        <RenderIf
+                          condition={HSwitchGlobalVars.hyperSwitchAppVersion->LogicUtils.isNonEmptyString}>
                           <span
                             className="px-4 py-3 flex text-sm w-full text-offset_white bg-popover-background">
                             {`App ${HSwitchGlobalVars.hyperSwitchAppVersion}`->React.string}
