@@ -12,19 +12,6 @@ let port = 9000;
 let proxy = {};
 
 let configMiddleware = (req, res, next) => {
-  if (req.path == "/config/merchant-access" && req.method == "POST") {
-    featureFlag
-      .then((result) => {
-        result.featureFlagConfigHandler(req, res, false);
-      })
-      .catch((error) => {
-        console.log(error, "error");
-        res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end(error);
-      });
-    return;
-  }
-
   if (req.path == "/config/merchant-config" && req.method == "GET") {
     config
       .then((result) => {

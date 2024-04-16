@@ -1,33 +1,8 @@
-let getAccessibleColor = hex => {
-  let color = if hex->String.replaceRegExp(%re("/\./g"), "")->String.length !== 6 {
-    `${hex->String.replaceRegExp(%re("/\./g"), "")}${hex->String.replaceRegExp(%re("/\./g"), "")}`
-  } else {
-    hex->String.replaceRegExp(%re("/\./g"), "")
-  }
-  let r = color->String.substring(~start=0, ~end=2)->Int.fromString(~radix=16)->Option.getOr(0)
-  let g = color->String.substring(~start=2, ~end=2)->Int.fromString(~radix=16)->Option.getOr(0)
-  let b = color->String.substring(~start=4, ~end=2)->Int.fromString(~radix=16)->Option.getOr(0)
-  let yiq = (r * 299 + g * 587 + b * 114) / 1000
-  yiq >= 128 ? "#000000" : "#FFFFFF"
-}
-
-let getRGBColor = (hex, \"type") => {
-  let color = if hex->String.replaceRegExp(%re("/\./g"), "")->String.length !== 6 {
-    `${hex->String.replaceRegExp(%re("/\./g"), "")}${hex->String.replaceRegExp(%re("/\./g"), "")}`
-  } else {
-    hex->String.replaceRegExp(%re("/\./g"), "")
-  }
-  let r = color->String.substring(~start=0, ~end=2)->Int.fromString(~radix=16)->Option.getOr(0)
-  let g = color->String.substring(~start=2, ~end=2)->Int.fromString(~radix=16)->Option.getOr(0)
-  let b = color->String.substring(~start=4, ~end=2)->Int.fromString(~radix=16)->Option.getOr(0)
-  `--color-${\"type"}: ${Belt.Int.toString(r)}, ${Belt.Int.toString(g)}, ${Belt.Int.toString(b)};`
-}
-
 module HyperSwitchEntryComponent = {
   @react.component
   let make = () => {
     open HSLocalStorage
-    let postDetails = APIUtils.useUpdateMethod()
+    let fetchDetails = APIUtils.useGetMethod()
     let email = getFromMerchantDetails("email")
     let name = getFromUserDetails("name")
     let url = RescriptReactRouter.useUrl()
@@ -35,18 +10,13 @@ module HyperSwitchEntryComponent = {
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let defaultGlobalConfig: Window.customStyle = {
+      primaryColor: "#006DF9",
+      primaryHover: "#005ED6",
+      sidebar: "#242F48",
+    }
     React.useEffect0(() => {
       HSiwtchTimeZoneUtils.getUserTimeZone()->setZone
-      None
-    })
-
-    React.useEffect0(() => {
-      let customStyle: Window.customStyle = {
-        primaryColor: "#22c55e",
-        primaryHover: "#facc15",
-        sidebar: "#b91c1c",
-      }
-      let _ = Window.appendStyle(customStyle)
       None
     })
 
@@ -94,28 +64,57 @@ module HyperSwitchEntryComponent = {
       None
     }, [url.path])
 
-    let fetchFeatureFlags = async () => {
+    let configTheme = (uiConfg: JSON.t) => {
+      open LogicUtils
+      let dict = uiConfg->getDictFromJsonObject->getDictfromDict("theme")
+      let {primaryColor, primaryHover, sidebar} = defaultGlobalConfig
+      let value: Window.customStyle = {
+        primaryColor: dict->getString("primary_color", primaryColor),
+        primaryHover: dict->getString("primary_hover_color", primaryHover),
+        sidebar: dict->getString("sidebar_color", sidebar),
+      }
+      Window.appendStyle(value)
+    }
+
+    let configURL = (urlConfig: JSON.t) => {
+      open LogicUtils
+      let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoint")
+      let value: Window.env = {
+        apiBaseUrl: dict->getString("api_url", ""),
+        sdkBaseUrl: dict->getString("sdk_url", ""),
+        mixpanelToken: dict->getString("mixpanelToken", ""),
+      }
+      Window.env.apiBaseUrl = value.apiBaseUrl
+      Window.env.sdkBaseUrl = value.sdkBaseUrl
+      Window.env.mixpanelToken = value.mixpanelToken
+    }
+
+    let fetchConfig = async () => {
       try {
-        let url = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/config/merchant-access`
-        let typedResponse =
-          (
-            await postDetails(url, Dict.make()->JSON.Encode.object, Post, ())
-          )->FeatureFlagUtils.featureFlagType
-        setFeatureFlag(._ => typedResponse)
+        open LogicUtils
+        let domain =
+          url.search->getDictFromUrlSearchParams->Dict.get("domain")->Option.getOr("default")
+        let apiURL = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/config/merchant-config?domain=${domain}`
+        let res = await fetchDetails(apiURL)
+        let featureFlags = res->FeatureFlagUtils.featureFlagType
+        let _ = res->configTheme
+        let _ = res->configURL
+        setFeatureFlag(._ => featureFlags)
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
-      | Exn.Error(e) =>
-        let err = Exn.message(e)->Option.getOr("Something went wrong!")
-        setScreenState(_ => PageLoaderWrapper.Error(err))
+      | _ => setScreenState(_ => Custom)
       }
     }
 
     React.useEffect0(() => {
-      fetchFeatureFlags()->ignore
+      let _ = fetchConfig()
       None
     })
 
-    <PageLoaderWrapper screenState sectionHeight="h-screen">
+    <PageLoaderWrapper
+      screenState
+      sectionHeight="h-screen"
+      customUI={<NoDataFound message="Oops! Missing config" renderType=NotFound />}>
       <div className="text-black">
         <HyperSwitchAuthWrapper>
           <GlobalProvider>

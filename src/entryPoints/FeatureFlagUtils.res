@@ -26,7 +26,7 @@ type featureFlag = {
 
 let featureFlagType = (featureFlags: JSON.t) => {
   open LogicUtils
-  let dict = featureFlags->getDictFromJsonObject
+  let dict = featureFlags->getDictFromJsonObject->getDictfromDict("features")
   let typedFeatureFlag: featureFlag = {
     default: dict->getBool("default", true),
     testLiveToggle: dict->getBool("test_live_toggle", false),
