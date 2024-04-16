@@ -179,344 +179,347 @@ let make = () => {
 
     React.null
   }
-
-  <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen">
-    <div>
-      {switch dashboardPageState {
-      | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
-      | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
-      | #INTEGRATION_DOC => <UserOnboarding />
-      | #AGREEMENT_SIGNATURE => <HSwitchAgreementScreen />
-      | #PROD_ONBOARDING => <ProdOnboardingLanding />
-      | #QUICK_START => <ConfigureControlCenter />
-      | #HOME =>
-        <div className="relative">
-          <div className={`h-screen flex flex-col`}>
-            <div className="flex relative overflow-auto h-screen ">
-              <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
-              <div
-                className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
-                <RenderIf condition={verificationDays > 0}>
-                  <DelayedVerificationBanner verificationDays={verificationDays} />
-                </RenderIf>
-                // TODO : To be removed after new navbar design
-                <div className="border-b shadow hyperswitch_box_shadow ">
-                  <div className="w-full max-w-fixedPageWidth px-9">
-                    <Navbar
-                      headerActions={<div className="relative flex items-center gap-4 my-2 ">
-                        <GlobalSearchBar />
-                        <SwitchMerchant
-                          userRole={userRole}
-                          isAddMerchantEnabled={userRole === "org_admin" ? true : false}
-                        />
-                        <div
-                          className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
-                          {modeText->React.string}
-                        </div>
-                      </div>}
-                    />
-                  </div>
-                </div>
+  <>
+    <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen">
+      <div>
+        {switch dashboardPageState {
+        | #POST_LOGIN_QUES_NOT_DONE => <PostLoginScreen />
+        | #AUTO_CONNECTOR_INTEGRATION => <HSwitchSetupAccount />
+        | #INTEGRATION_DOC => <UserOnboarding />
+        | #AGREEMENT_SIGNATURE => <HSwitchAgreementScreen />
+        | #PROD_ONBOARDING => <ProdOnboardingLanding />
+        | #QUICK_START => <ConfigureControlCenter />
+        | #HOME =>
+          <div className="relative">
+            <div className={`h-screen flex flex-col`}>
+              <div className="flex relative overflow-auto h-screen ">
+                <Sidebar path={url.path} sidebars={hyperSwitchAppSidebars} />
                 <div
-                  className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
+                  className="flex relative flex-col flex-1  bg-hyperswitch_background dark:bg-black overflow-scroll md:overflow-x-hidden">
+                  <RenderIf condition={verificationDays > 0}>
+                    <DelayedVerificationBanner verificationDays={verificationDays} />
+                  </RenderIf>
+                  // TODO : To be removed after new navbar design
+                  <div className="border-b shadow hyperswitch_box_shadow ">
+                    <div className="w-full max-w-fixedPageWidth px-9">
+                      <Navbar
+                        headerActions={<div className="relative flex items-center gap-4 my-2 ">
+                          <GlobalSearchBar />
+                          <SwitchMerchant
+                            userRole={userRole}
+                            isAddMerchantEnabled={userRole === "org_admin" ? true : false}
+                          />
+                          <div
+                            className={`px-4 py-2 rounded whitespace-nowrap text-fs-13 ${modeStyles} font-semibold`}>
+                            {modeText->React.string}
+                          </div>
+                        </div>}
+                      />
+                    </div>
+                  </div>
                   <div
-                    className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
-                    <ErrorBoundary>
-                      {switch url.path {
-                      | list{"home"} => featureFlagDetails.quickStart ? <HomeV2 /> : <Home />
-                      | list{"fraud-risk-management", ...remainingPath} =>
-                        <AccessControl
-                          isEnabled={featureFlagDetails.frm}
-                          permission=userPermissionJson.connectorsView>
-                          <EntityScaffold
-                            entityName="risk-management"
-                            remainingPath
-                            renderList={() => <FRMSelect />}
-                            renderNewForm={() => <FRMConfigure />}
-                            renderShow={_ => <FRMConfigure />}
-                          />
-                        </AccessControl>
-
-                      | list{"connectors", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.connectorsView>
-                          <EntityScaffold
-                            entityName="Connectors"
-                            remainingPath
-                            renderList={() => <ConnectorList />}
-                            renderNewForm={() => <ConnectorHome />}
-                            renderShow={_ => <ConnectorHome />}
-                          />
-                        </AccessControl>
-
-                      | list{"payoutconnectors", ...remainingPath} =>
-                        <AccessControl
-                          isEnabled={featureFlagDetails.payOut}
-                          permission=userPermissionJson.connectorsView>
-                          <EntityScaffold
-                            entityName="PayoutConnectors"
-                            remainingPath
-                            renderList={() => <ConnectorList isPayoutFlow=true />}
-                            renderNewForm={() => <ConnectorHome isPayoutFlow=true />}
-                            renderShow={_ => <ConnectorHome isPayoutFlow=true />}
-                          />
-                        </AccessControl>
-
-                      | list{"payoutrouting", ...remainingPath} =>
-                        <AccessControl
-                          isEnabled={featureFlagDetails.payOut}
-                          permission=userPermissionJson.workflowsView>
-                          <EntityScaffold
-                            entityName="PayoutRouting"
-                            remainingPath
-                            renderList={() => <PayoutRoutingStack remainingPath />}
-                            renderShow={routingType => <PayoutRoutingConfigure routingType />}
-                          />
-                        </AccessControl>
-
-                      | list{"3ds-authenticators", ...remainingPath} =>
-                        <AccessControl
-                          permission=userPermissionJson.connectorsView
-                          isEnabled={featureFlagDetails.threedsAuthenticator}>
-                          <EntityScaffold
-                            entityName="3DS Authenticator"
-                            remainingPath
-                            renderList={() => <ThreeDsConnectorList />}
-                            renderNewForm={() => <ThreeDsProcessorHome />}
-                            renderShow={_ => <ThreeDsProcessorHome />}
-                          />
-                        </AccessControl>
-
-                      | list{"payments", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.operationsView>
-                          <FilterContext key="payments" index="payments" disableSessionStorage=true>
+                    className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
+                    <div
+                      className="p-6 md:px-16 md:pb-16 pt-[4rem] flex flex-col gap-10 max-w-fixedPageWidth">
+                      <ErrorBoundary>
+                        {switch url.path {
+                        | list{"home"} => featureFlagDetails.quickStart ? <HomeV2 /> : <Home />
+                        | list{"fraud-risk-management", ...remainingPath} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.frm}
+                            permission=userPermissionJson.connectorsView>
                             <EntityScaffold
-                              entityName="Payments"
+                              entityName="risk-management"
+                              remainingPath
+                              renderList={() => <FRMSelect />}
+                              renderNewForm={() => <FRMConfigure />}
+                              renderShow={_ => <FRMConfigure />}
+                            />
+                          </AccessControl>
+
+                        | list{"connectors", ...remainingPath} =>
+                          <AccessControl permission=userPermissionJson.connectorsView>
+                            <EntityScaffold
+                              entityName="Connectors"
+                              remainingPath
+                              renderList={() => <ConnectorList />}
+                              renderNewForm={() => <ConnectorHome />}
+                              renderShow={_ => <ConnectorHome />}
+                            />
+                          </AccessControl>
+
+                        | list{"payoutconnectors", ...remainingPath} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.payOut}
+                            permission=userPermissionJson.connectorsView>
+                            <EntityScaffold
+                              entityName="PayoutConnectors"
+                              remainingPath
+                              renderList={() => <ConnectorList isPayoutFlow=true />}
+                              renderNewForm={() => <ConnectorHome isPayoutFlow=true />}
+                              renderShow={_ => <ConnectorHome isPayoutFlow=true />}
+                            />
+                          </AccessControl>
+
+                        | list{"payoutrouting", ...remainingPath} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.payOut}
+                            permission=userPermissionJson.workflowsView>
+                            <EntityScaffold
+                              entityName="PayoutRouting"
+                              remainingPath
+                              renderList={() => <PayoutRoutingStack remainingPath />}
+                              renderShow={routingType => <PayoutRoutingConfigure routingType />}
+                            />
+                          </AccessControl>
+
+                        | list{"3ds-authenticators", ...remainingPath} =>
+                          <AccessControl
+                            permission=userPermissionJson.connectorsView
+                            isEnabled={featureFlagDetails.threedsAuthenticator}>
+                            <EntityScaffold
+                              entityName="3DS Authenticator"
+                              remainingPath
+                              renderList={() => <ThreeDsConnectorList />}
+                              renderNewForm={() => <ThreeDsProcessorHome />}
+                              renderShow={_ => <ThreeDsProcessorHome />}
+                            />
+                          </AccessControl>
+
+                        | list{"payments", ...remainingPath} =>
+                          <AccessControl permission=userPermissionJson.operationsView>
+                            <FilterContext
+                              key="payments" index="payments" disableSessionStorage=true>
+                              <EntityScaffold
+                                entityName="Payments"
+                                remainingPath
+                                access=Access
+                                renderList={() => <Orders />}
+                                renderShow={id => <ShowOrder id />}
+                              />
+                            </FilterContext>
+                          </AccessControl>
+                        | list{"refunds", ...remainingPath} =>
+                          <AccessControl permission=userPermissionJson.operationsView>
+                            <FilterContext key="refunds" index="refunds" disableSessionStorage=true>
+                              <EntityScaffold
+                                entityName="Refunds"
+                                remainingPath
+                                access=Access
+                                renderList={() => <Refund />}
+                                renderShow={id => <ShowRefund id />}
+                              />
+                            </FilterContext>
+                          </AccessControl>
+                        | list{"disputes", ...remainingPath} =>
+                          <AccessControl permission=userPermissionJson.operationsView>
+                            <EntityScaffold
+                              entityName="Disputes"
                               remainingPath
                               access=Access
-                              renderList={() => <Orders />}
-                              renderShow={id => <ShowOrder id />}
+                              renderList={() => <Disputes />}
+                              renderShow={id => <ShowDisputes id />}
                             />
-                          </FilterContext>
-                        </AccessControl>
-                      | list{"refunds", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.operationsView>
-                          <FilterContext key="refunds" index="refunds" disableSessionStorage=true>
+                          </AccessControl>
+                        | list{"customers", ...remainingPath} =>
+                          <AccessControl permission=userPermissionJson.operationsView>
                             <EntityScaffold
-                              entityName="Refunds"
+                              entityName="Customers"
                               remainingPath
                               access=Access
-                              renderList={() => <Refund />}
-                              renderShow={id => <ShowRefund id />}
+                              renderList={() => <Customers />}
+                              renderShow={id => <ShowCustomers id />}
                             />
-                          </FilterContext>
-                        </AccessControl>
-                      | list{"disputes", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.operationsView>
-                          <EntityScaffold
-                            entityName="Disputes"
-                            remainingPath
-                            access=Access
-                            renderList={() => <Disputes />}
-                            renderShow={id => <ShowDisputes id />}
-                          />
-                        </AccessControl>
-                      | list{"customers", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.operationsView>
-                          <EntityScaffold
-                            entityName="Customers"
-                            remainingPath
-                            access=Access
-                            renderList={() => <Customers />}
-                            renderShow={id => <ShowCustomers id />}
-                          />
-                        </AccessControl>
-                      | list{"routing", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.workflowsView>
-                          <EntityScaffold
-                            entityName="Routing"
-                            remainingPath
-                            renderList={() => <RoutingStack remainingPath />}
-                            renderShow={routingType => <RoutingConfigure routingType />}
-                          />
-                        </AccessControl>
-                      | list{"users", "invite-users"} =>
-                        <AccessControl permission=userPermissionJson.usersManage>
-                          <InviteUsers />
-                        </AccessControl>
-                      | list{"users", "create-custom-role"} =>
-                        <AccessControl permission=userPermissionJson.usersManage>
-                          <CreateCustomRole />
-                        </AccessControl>
-                      | list{"users", ...remainingPath} =>
-                        <AccessControl permission=userPermissionJson.usersView>
-                          <EntityScaffold
-                            entityName="UserManagement"
-                            remainingPath
-                            renderList={_ => <UserRoleEntry />}
-                            renderShow={_ => <ShowUserData />}
-                          />
-                        </AccessControl>
-                      | list{"analytics-payments"} =>
-                        <AccessControl permission=userPermissionJson.analyticsView>
-                          <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
-                            <PaymentAnalytics />
-                          </FilterContext>
-                        </AccessControl>
-                      | list{"analytics-refunds"} =>
-                        <AccessControl permission=userPermissionJson.analyticsView>
-                          <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
-                            <RefundsAnalytics />
-                          </FilterContext>
-                        </AccessControl>
-                      | list{"analytics-disputes"} =>
-                        <AccessControl
-                          isEnabled={featureFlagDetails.disputeAnalytics}
-                          permission=userPermissionJson.analyticsView>
-                          <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
-                            <DisputeAnalytics />
-                          </FilterContext>
-                        </AccessControl>
-                      | list{"analytics-user-journey"} =>
-                        <AccessControl
-                          isEnabled=featureFlagDetails.userJourneyAnalytics
-                          permission=userPermissionJson.analyticsView>
-                          <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
-                            <UserJourneyAnalytics />
-                          </FilterContext>
-                        </AccessControl>
-                      | list{"developer-api-keys"} =>
-                        <AccessControl permission=userPermissionJson.merchantDetailsManage>
-                          <KeyManagement.KeysManagement />
-                        </AccessControl>
-                      | list{"developer-system-metrics"} =>
-                        <AccessControl
-                          isEnabled={userRole->String.includes("internal_") &&
-                            featureFlagDetails.systemMetrics}
-                          permission=userPermissionJson.analyticsView>
-                          <FilterContext key="SystemMetrics" index="SystemMetrics">
-                            <SystemMetricsAnalytics />
-                          </FilterContext>
-                        </AccessControl>
+                          </AccessControl>
+                        | list{"routing", ...remainingPath} =>
+                          <AccessControl permission=userPermissionJson.workflowsView>
+                            <EntityScaffold
+                              entityName="Routing"
+                              remainingPath
+                              renderList={() => <RoutingStack remainingPath />}
+                              renderShow={routingType => <RoutingConfigure routingType />}
+                            />
+                          </AccessControl>
+                        | list{"users", "invite-users"} =>
+                          <AccessControl permission=userPermissionJson.usersManage>
+                            <InviteUsers />
+                          </AccessControl>
+                        | list{"users", "create-custom-role"} =>
+                          <AccessControl permission=userPermissionJson.usersManage>
+                            <CreateCustomRole />
+                          </AccessControl>
+                        | list{"users", ...remainingPath} =>
+                          <AccessControl permission=userPermissionJson.usersView>
+                            <EntityScaffold
+                              entityName="UserManagement"
+                              remainingPath
+                              renderList={_ => <UserRoleEntry />}
+                              renderShow={_ => <ShowUserData />}
+                            />
+                          </AccessControl>
+                        | list{"analytics-payments"} =>
+                          <AccessControl permission=userPermissionJson.analyticsView>
+                            <FilterContext key="PaymentsAnalytics" index="PaymentsAnalytics">
+                              <PaymentAnalytics />
+                            </FilterContext>
+                          </AccessControl>
+                        | list{"analytics-refunds"} =>
+                          <AccessControl permission=userPermissionJson.analyticsView>
+                            <FilterContext key="PaymentsRefunds" index="PaymentsRefunds">
+                              <RefundsAnalytics />
+                            </FilterContext>
+                          </AccessControl>
+                        | list{"analytics-disputes"} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.disputeAnalytics}
+                            permission=userPermissionJson.analyticsView>
+                            <FilterContext key="DisputeAnalytics" index="DisputeAnalytics">
+                              <DisputeAnalytics />
+                            </FilterContext>
+                          </AccessControl>
+                        | list{"analytics-user-journey"} =>
+                          <AccessControl
+                            isEnabled=featureFlagDetails.userJourneyAnalytics
+                            permission=userPermissionJson.analyticsView>
+                            <FilterContext key="UserJourneyAnalytics" index="UserJourneyAnalytics">
+                              <UserJourneyAnalytics />
+                            </FilterContext>
+                          </AccessControl>
+                        | list{"developer-api-keys"} =>
+                          <AccessControl permission=userPermissionJson.merchantDetailsManage>
+                            <KeyManagement.KeysManagement />
+                          </AccessControl>
+                        | list{"developer-system-metrics"} =>
+                          <AccessControl
+                            isEnabled={userRole->String.includes("internal_") &&
+                              featureFlagDetails.systemMetrics}
+                            permission=userPermissionJson.analyticsView>
+                            <FilterContext key="SystemMetrics" index="SystemMetrics">
+                              <SystemMetricsAnalytics />
+                            </FilterContext>
+                          </AccessControl>
 
-                      // TODO : reevaluatet the conditions
-                      | list{"payment-settings", ...remainingPath} =>
-                        <EntityScaffold
-                          entityName="PaymentSettings"
-                          remainingPath
-                          renderList={() => <PaymentSettingsList />}
-                          renderShow={profileId =>
-                            <PaymentSettings webhookOnly=false showFormOnly=false />}
-                        />
-                      | list{"recon"} =>
-                        <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
-                          <Recon />
-                        </AccessControl>
-                      | list{"sdk"} =>
-                        <AccessControl isEnabled={!featureFlagDetails.isLiveMode} permission=Access>
-                          <SDKPage />
-                        </AccessControl>
-                      | list{"3ds"} =>
-                        <AccessControl permission=userPermissionJson.workflowsView>
-                          <HSwitchThreeDS />
-                        </AccessControl>
-                      | list{"surcharge"} =>
-                        <AccessControl
-                          isEnabled={featureFlagDetails.surcharge}
-                          permission=userPermissionJson.workflowsView>
-                          <Surcharge />
-                        </AccessControl>
-                      | list{"account-settings"} =>
-                        <AccessControl
-                          isEnabled=featureFlagDetails.sampleData
-                          permission=userPermissionJson.merchantDetailsManage>
-                          <HSwitchSettings />
-                        </AccessControl>
-                      | list{"account-settings", "profile"} => <HSwitchProfileSettings />
-
-                      // TODO : reevaluate the condition
-                      | list{"business-details"} =>
-                        <AccessControl isEnabled=featureFlagDetails.default permission={Access}>
-                          <BusinessDetails />
-                        </AccessControl>
-                      | list{"business-profiles"} =>
-                        <AccessControl permission=Access>
-                          <BusinessProfile />
-                        </AccessControl>
-
-                      | list{"configure-pmts", ...remainingPath} =>
-                        <AccessControl
-                          permission=userPermissionJson.connectorsView
-                          isEnabled={featureFlagDetails.configurePmts}>
+                        // TODO : reevaluatet the conditions
+                        | list{"payment-settings", ...remainingPath} =>
                           <EntityScaffold
-                            entityName="ConfigurePMTs"
+                            entityName="PaymentSettings"
                             remainingPath
-                            renderList={() => <PaymentMethodList />}
+                            renderList={() => <PaymentSettingsList />}
                             renderShow={profileId =>
                               <PaymentSettings webhookOnly=false showFormOnly=false />}
                           />
-                        </AccessControl>
-                      | list{"quick-start"} => determineQuickStartPageState()
-                      | list{"woocommerce"} => determineWooCommerce()
-                      | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
-                      | list{"search"} => <SearchResultsPage />
-                      | list{"payment-attempts"} =>
-                        <AccessControl
-                          isEnabled={featureFlagDetails.globalSearch}
-                          permission=userPermissionJson.operationsView>
-                          <PaymentAttemptTable />
-                        </AccessControl>
-                      | list{"payment-intents"} =>
-                        <AccessControl
-                          isEnabled={featureFlagDetails.globalSearch}
-                          permission=userPermissionJson.operationsView>
-                          <PaymentIntentTable />
-                        </AccessControl>
-                      | list{"refunds-global"} =>
-                        <AccessControl
-                          isEnabled={featureFlagDetails.globalSearch}
-                          permission=userPermissionJson.operationsView>
-                          <RefundsTable />
-                        </AccessControl>
-                      | list{"dispute-global"} =>
-                        <AccessControl
-                          isEnabled={featureFlagDetails.globalSearch}
-                          permission=userPermissionJson.operationsView>
-                          <DisputeTable />
-                        </AccessControl>
-                      | list{"unauthorized"} => <UnauthorizedPage />
-                      | _ =>
-                        RescriptReactRouter.replace(`${hyperSwitchFEPrefix}/home`)
-                        <Home />
-                      }}
-                    </ErrorBoundary>
+                        | list{"recon"} =>
+                          <AccessControl isEnabled=featureFlagDetails.recon permission=Access>
+                            <Recon />
+                          </AccessControl>
+                        | list{"sdk"} =>
+                          <AccessControl
+                            isEnabled={!featureFlagDetails.isLiveMode} permission=Access>
+                            <SDKPage />
+                          </AccessControl>
+                        | list{"3ds"} =>
+                          <AccessControl permission=userPermissionJson.workflowsView>
+                            <HSwitchThreeDS />
+                          </AccessControl>
+                        | list{"surcharge"} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.surcharge}
+                            permission=userPermissionJson.workflowsView>
+                            <Surcharge />
+                          </AccessControl>
+                        | list{"account-settings"} =>
+                          <AccessControl
+                            isEnabled=featureFlagDetails.sampleData
+                            permission=userPermissionJson.merchantDetailsManage>
+                            <HSwitchSettings />
+                          </AccessControl>
+                        | list{"account-settings", "profile"} => <HSwitchProfileSettings />
+
+                        // TODO : reevaluate the condition
+                        | list{"business-details"} =>
+                          <AccessControl isEnabled=featureFlagDetails.default permission={Access}>
+                            <BusinessDetails />
+                          </AccessControl>
+                        | list{"business-profiles"} =>
+                          <AccessControl permission=Access>
+                            <BusinessProfile />
+                          </AccessControl>
+
+                        | list{"configure-pmts", ...remainingPath} =>
+                          <AccessControl
+                            permission=userPermissionJson.connectorsView
+                            isEnabled={featureFlagDetails.configurePmts}>
+                            <EntityScaffold
+                              entityName="ConfigurePMTs"
+                              remainingPath
+                              renderList={() => <PaymentMethodList />}
+                              renderShow={profileId =>
+                                <PaymentSettings webhookOnly=false showFormOnly=false />}
+                            />
+                          </AccessControl>
+                        | list{"quick-start"} => determineQuickStartPageState()
+                        | list{"woocommerce"} => determineWooCommerce()
+                        | list{"stripe-plus-paypal"} => determineStripePlusPayPal()
+                        | list{"search"} => <SearchResultsPage />
+                        | list{"payment-attempts"} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.globalSearch}
+                            permission=userPermissionJson.operationsView>
+                            <PaymentAttemptTable />
+                          </AccessControl>
+                        | list{"payment-intents"} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.globalSearch}
+                            permission=userPermissionJson.operationsView>
+                            <PaymentIntentTable />
+                          </AccessControl>
+                        | list{"refunds-global"} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.globalSearch}
+                            permission=userPermissionJson.operationsView>
+                            <RefundsTable />
+                          </AccessControl>
+                        | list{"dispute-global"} =>
+                          <AccessControl
+                            isEnabled={featureFlagDetails.globalSearch}
+                            permission=userPermissionJson.operationsView>
+                            <DisputeTable />
+                          </AccessControl>
+                        | list{"unauthorized"} => <UnauthorizedPage />
+                        | _ =>
+                          RescriptReactRouter.replace(`${hyperSwitchFEPrefix}/home`)
+                          <Home />
+                        }}
+                      </ErrorBoundary>
+                    </div>
                   </div>
                 </div>
               </div>
+              <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
+                <HSwitchFeedBackModal
+                  modalHeading="We'd love to hear from you!"
+                  showModal={showFeedbackModal}
+                  setShowModal={setShowFeedbackModal}
+                />
+              </RenderIf>
+              <RenderIf condition={!featureFlagDetails.isLiveMode || featureFlagDetails.quickStart}>
+                <ProdIntentForm />
+              </RenderIf>
+              <RenderIf
+                condition={userPermissionJson.merchantDetailsManage === Access &&
+                  merchantDetailsTypedValue.merchant_name->Option.isNone}>
+                <CompanyNameModal showModal=companyNameModal setShowModal=setCompanyNameModal />
+              </RenderIf>
             </div>
-            <RenderIf condition={showFeedbackModal && featureFlagDetails.feedback}>
-              <HSwitchFeedBackModal
-                modalHeading="We'd love to hear from you!"
-                showModal={showFeedbackModal}
-                setShowModal={setShowFeedbackModal}
-              />
-            </RenderIf>
-            <RenderIf condition={!featureFlagDetails.isLiveMode || featureFlagDetails.quickStart}>
-              <ProdIntentForm />
-            </RenderIf>
-            <RenderIf
-              condition={userPermissionJson.merchantDetailsManage === Access &&
-                merchantDetailsTypedValue.merchant_name->Option.isNone}>
-              <CompanyNameModal showModal=companyNameModal setShowModal=setCompanyNameModal />
-            </RenderIf>
           </div>
-        </div>
-      | #WOOCOMMERCE_FLOW => <WooCommerce />
-      | #DEFAULT =>
-        <div className="h-screen flex justify-center items-center">
-          <Loader />
-        </div>
-      | #STRIPE_PLUS_PAYPAL => <StripePlusPaypal />
-      }}
-    </div>
-  </PageLoaderWrapper>
+        | #WOOCOMMERCE_FLOW => <WooCommerce />
+        | #DEFAULT =>
+          <div className="h-screen flex justify-center items-center">
+            <Loader />
+          </div>
+        | #STRIPE_PLUS_PAYPAL => <StripePlusPaypal />
+        }}
+      </div>
+    </PageLoaderWrapper>
+  </>
 }

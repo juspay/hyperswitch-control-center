@@ -4,11 +4,14 @@ let subTextStyle = "text-base font-normal text-grey-700 opacity-50"
 let subheaderText = "text-base font-semibold text-grey-700"
 @react.component
 let make = (~selectedConnector, ~setSelectedConnector, ~pageView, ~setPageView) => {
+  let {
+    globalUIConfig: {backgroundColor, font: {textColor}, border: {borderColor}},
+  } = React.useContext(ConfigContext.configContext)
   let getBlockColor = connector => {
     open ConnectorTypes
     switch (selectedConnector, connector) {
-    | (Processors(selectedConnector), Processors(connector))
-      if selectedConnector === connector => "border border-blue-500 bg-blue-500 bg-opacity-10 "
+    | (Processors(selectedConnector), Processors(connector)) if selectedConnector === connector =>
+      `border ${borderColor.primaryNormal} ${backgroundColor} bg-opacity-10 `
     | (_, _) => "border"
     }
   }
@@ -60,7 +63,7 @@ let make = (~selectedConnector, ~setSelectedConnector, ~pageView, ~setPageView) 
                   <Icon
                     name={connector->selectedIconColor}
                     size=20
-                    className="cursor-pointer !text-blue-500"
+                    className={`cursor-pointer !${textColor.primaryNormal}`}
                   />
                 </div>
                 <p className=connectorNameStyle>

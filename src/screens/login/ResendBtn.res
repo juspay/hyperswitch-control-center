@@ -1,5 +1,6 @@
 @react.component
 let make = (~callBackFun) => {
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let (seconds, setSeconds) = React.useState(_ => 30)
 
   let isDisabled = seconds > 0
@@ -8,7 +9,7 @@ let make = (~callBackFun) => {
     callBackFun()
     setSeconds(_ => 30)
   }
-  let disabledColor = isDisabled ? "text-jp-gray-700" : "text-blue-500"
+  let disabledColor = isDisabled ? "text-jp-gray-700" : textColor.primaryNormal
 
   React.useEffect0(() => {
     let intervalId = setInterval(() => setSeconds(p => p > 0 ? p - 1 : p), 1000)
@@ -32,7 +33,7 @@ let make = (~callBackFun) => {
       {"Send again."->React.string}
     </a>
     <UIUtils.RenderIf condition={isDisabled}>
-      <div className="text-blue-500">
+      <div className={`${textColor.primaryNormal}`}>
         {`(${mod(seconds, 60)->Int.toString}sec)`->React.string}
       </div>
     </UIUtils.RenderIf>

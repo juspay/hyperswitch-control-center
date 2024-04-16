@@ -234,19 +234,20 @@ module LabelCell = {
     ~fontStyle="font-ibm-plex",
     ~showIcon=true,
   ) => {
+    let {globalUIConfig: {backgroundColor}} = React.useContext(ConfigContext.configContext)
     let isMobileView = MatchMedia.useMobileChecker()
     let bgOpacity = isMobileView ? "bg-opacity-12 dark:!bg-opacity-12" : ""
     let borderColor = switch labelColor {
     | LabelGreen => `bg-green-950 ${bgOpacity} dark:bg-opacity-50`
     | LabelRed => `bg-red-960 ${bgOpacity} dark:bg-opacity-50`
-    | LabelBlue => "bg-blue-500 dark:bg-opacity-50"
+    | LabelBlue => `${backgroundColor} dark:bg-opacity-50`
     | LabelGray => "bg-blue-table_gray"
     | LabelOrange => `bg-orange-950 ${bgOpacity} dark:bg-opacity-50`
     | LabelYellow => "bg-blue-table_yellow"
     | LabelDarkGreen => "bg-green-700"
     | LabelDarkRed => "bg-red-400"
     | LabelBrown => "bg-brown-600 bg-opacity-50"
-    | LabelLightBlue => "bg-blue-500 bg-opacity-50"
+    | LabelLightBlue => `${backgroundColor} bg-opacity-50`
     | LabelWhite => "bg-white border border-jp-gray-300"
     | LabelViolet => "bg-violet-500"
     | LabelLightGreen => "bg-green-700  dark:bg-opacity-50"
@@ -432,6 +433,7 @@ module MoneyCell = {
 module LinkCell = {
   @react.component
   let make = (~data, ~trimLength=?) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let (showCopy, setShowCopy) = React.useState(() => false)
     let isMobileView = MatchMedia.useMobileChecker()
 
@@ -458,7 +460,7 @@ module LinkCell = {
 
     <div className="flex flex-row items-center" onMouseOver={mouseOver} onMouseOut={mouseOut}>
       <div
-        className={"whitespace-pre text-sm font-fira-code dark:text-opacity-75 text-right p-1 text-blue-500 text-ellipsis overflow-hidden"}>
+        className={`whitespace-pre text-sm font-fira-code dark:text-opacity-75 text-right p-1 ${textColor.primaryNormal} text-ellipsis overflow-hidden`}>
         <a href=data target="_blank" onClick=preventEvent> {React.string(trimData)} </a>
       </div>
       <div className=visibility>
@@ -581,6 +583,7 @@ module EllipsisText = {
 module TrimmedText = {
   @react.component
   let make = (~text, ~width, ~highlightText="", ~hideShowMore=false) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     let (show, setshow) = React.useState(_ => true)
     let breakWords = hideShowMore ? "" : "whitespace-nowrap text-ellipsis overflow-x-hidden"
     if text->String.length > 40 {
@@ -591,7 +594,9 @@ module TrimmedText = {
           </div>
         </AddDataAttributes>
         {if !hideShowMore {
-          <div className={"text-blue-500 cursor-pointer"} onClick={_ => setshow(show => !show)}>
+          <div
+            className={`${textColor.primaryNormal} cursor-pointer`}
+            onClick={_ => setshow(show => !show)}>
             {show ? React.string("More") : React.string("Less")}
           </div>
         } else {

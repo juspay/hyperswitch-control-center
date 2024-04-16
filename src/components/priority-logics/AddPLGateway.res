@@ -3,14 +3,15 @@ type gateway = AdvancedRoutingTypes.volumeSplitConnectorSelectionData
 module GatewayView = {
   @react.component
   let make = (~gateways: array<gateway>) => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
     <div className="flex flex-wrap gap-4 items-center">
       {gateways
       ->Array.mapWithIndex((ruleGateway, index) => {
         <div
           key={Int.toString(index)}
-          className="my-2 h-6 md:h-8 flex items-center rounded-md  border border-jp-gray-500 dark:border-jp-gray-960 font-medium
-                            text-blue-500 hover:text-blue-500 bg-gradient-to-b from-jp-gray-250 to-jp-gray-200
-                            dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1">
+          className={`my-2 h-6 md:h-8 flex items-center rounded-md  border border-jp-gray-500 dark:border-jp-gray-960 font-medium
+                            ${textColor.primaryNormal} hover:${textColor.primaryNormal} bg-gradient-to-b from-jp-gray-250 to-jp-gray-200
+                            dark:from-jp-gray-950 dark:to-jp-gray-950 focus:outline-none px-2 gap-1`}>
           {React.string(ruleGateway.connector.connector)}
           <UIUtils.RenderIf condition={ruleGateway.split !== 0}>
             <span className="text-jp-gray-700 dark:text-jp-gray-600 ml-1">
@@ -165,9 +166,9 @@ let make = (
               <div className="flex flex-row" key>
                 <div
                   className="w-min flex flex-row items-center justify-around gap-2 h-10 rounded-md  border border-jp-gray-500 dark:border-jp-gray-960
-               text-jp-gray-900 text-opacity-75 hover:text-opacity-100 dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme
-               dark:hover:text-opacity-75 text-jp-gray-900 text-opacity-50 hover:text-jp-gray-900 bg-gradient-to-b
-               from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 dark:text-jp-gray-text_darktheme
+               text-jp-gray-900  hover:text-opacity-100 dark:text-jp-gray-text_darktheme dark:hover:text-jp-gray-text_darktheme
+               dark:hover:text-opacity-75  text-opacity-50 hover:text-jp-gray-900 bg-gradient-to-b
+               from-jp-gray-250 to-jp-gray-200 dark:from-jp-gray-950 dark:to-jp-gray-950 
                dark:text-opacity-50 focus:outline-none px-1 ">
                   <NewThemeUtils.Badge number={i + 1} />
                   <div> {item.connector.connector->React.string} </div>

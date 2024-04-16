@@ -167,6 +167,7 @@ let make = (
   ~refreshFilters=true,
 ) => {
   open LogicUtils
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let localFilters = initialFilters->Array.filter(item => item.localFilter->Option.isSome)
   let remoteOptions = options->Array.filter(item => item.localFilter->Option.isNone)
   let defaultFilters = ""->JSON.Encode.string
@@ -189,7 +190,7 @@ let make = (
           showBorder=false
           buttonSize=Small
           leftIcon={CustomIcon(<Icon name="add_custom_img" size=14 />)}
-          textStyle="text-blue-500"
+          textStyle={`${textColor.primaryNormal}`}
           onClick={_ev => setShowModal(_ => true)}
         />
       </div>

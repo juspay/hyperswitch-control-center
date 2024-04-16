@@ -25,6 +25,7 @@ let make = (
   ~textClass="text-sm",
   ~closeListOnClick=false,
 ) => {
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ConfigContext.configContext)
   let dropdownPositionClass = switch dropdownPosition {
   | Left => "right-0"
   | _ => "left-0"
@@ -98,7 +99,10 @@ let make = (
                                     className={option.customTextStyle->Belt.Option.getWithDefault(
                                       "",
                                     )}>
-                                    <span className={selected ? "text-blue-500 font-semibold" : ""}>
+                                    <span
+                                      className={selected
+                                        ? `${textColor.primaryNormal} font-semibold`
+                                        : ""}>
                                       {React.string(option.label)}
                                     </span>
                                   </div>
@@ -178,7 +182,10 @@ let make = (
                               }}
                               <AddDataAttributes attributes=[("data-options", option.label)]>
                                 <div className={option.customTextStyle->Option.getOr("")}>
-                                  <span className={selected ? "text-blue-500 font-semibold" : ""}>
+                                  <span
+                                    className={selected
+                                      ? `${textColor.primaryNormal} font-semibold`
+                                      : ""}>
                                     {React.string(option.label)}
                                   </span>
                                 </div>

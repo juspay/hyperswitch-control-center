@@ -34,7 +34,7 @@ module GetProductionAccess = {
           {productionAccessString->React.string}
         </div>
         <UIUtils.RenderIf condition={!isProdIntent}>
-          <Icon name="thin-right-arrow" customIconColor="white" size=20 />
+          <Icon name="thin-right-arrow" customIconColor="text-white" size=20 />
         </UIUtils.RenderIf>
       </div>
     | None =>

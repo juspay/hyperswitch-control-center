@@ -79,6 +79,7 @@ type processorTypes =
   | PROPHETPAY
   | HELCIM
   | PLACETOPAY
+  | ZSL
 
 type threeDsAuthenticatorTypes = THREEDSECUREIO
 
