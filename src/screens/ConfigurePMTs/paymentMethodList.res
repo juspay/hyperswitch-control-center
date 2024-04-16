@@ -35,7 +35,7 @@ let make = (~isPayoutFlow=false) => {
   })
 
   React.useEffect1(() => {
-    RescriptReactRouter.replace(`${HSwitchGlobalVars.dashboardBasePath}/dashboard/configure-pmts`)
+    RescriptReactRouter.replace(`${HSwitchGlobalVars.dashboardBasePath}/configure-pmts`)
     getConnectorListAndUpdateState()->ignore
     None
   }, [isPayoutFlow])
