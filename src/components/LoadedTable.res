@@ -458,6 +458,7 @@ let make = (
               | Some(rows) =>
                 let value = switch entity.getCell(rows, item) {
                 | CustomCell(_, str)
+                | DisplayCopyCell(str)
                 | EllipsisText(str, _)
                 | Link(str)
                 | Date(str)
