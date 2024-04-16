@@ -94,23 +94,25 @@ module HyperSwitchEntryComponent = {
       None
     }, [url.path])
 
-    // let fetchFeatureFlags = async () => {
-    //   try {
-    //     let url = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/config/merchant-access`
-    //     let typedResponse =
-    //       (
-    //         await postDetails(url, Dict.make()->JSON.Encode.object, Post, ())
-    //       )->FeatureFlagUtils.featureFlagType
-    //     setFeatureFlag(._ => typedResponse)
-    //     setScreenState(_ => PageLoaderWrapper.Success)
-    //   } catch {
-    //   | Exn.Error(e) =>
-    //     let err = Exn.message(e)->Option.getOr("Something went wrong!")
-    //     setScreenState(_ => PageLoaderWrapper.Error(err))
-    //   }
-    // }
+    let fetchFeatureFlags = async () => {
+      try {
+        let url = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/config/merchant-access`
+        let typedResponse =
+          (
+            await postDetails(url, Dict.make()->JSON.Encode.object, Post, ())
+          )->FeatureFlagUtils.featureFlagType
+        setFeatureFlag(._ => typedResponse)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | Exn.Error(e) =>
+        let err = Exn.message(e)->Option.getOr("Something went wrong!")
+        setScreenState(_ => PageLoaderWrapper.Error(err))
+      }
+    }
 
     React.useEffect0(() => {
+      setScreenState(_ => PageLoaderWrapper.Success)
+
       // fetchFeatureFlags()->ignore
       None
     })

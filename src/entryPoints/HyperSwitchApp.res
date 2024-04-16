@@ -136,6 +136,7 @@ let make = () => {
     } catch {
     | _ =>
       setDashboardPageState(_ => #HOME)
+      Js.log("came inside catch")
       setScreenState(_ => PageLoaderWrapper.Error(""))
     }
   }
