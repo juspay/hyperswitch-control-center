@@ -20,7 +20,7 @@ let configMiddleware = (req, res, next) => {
       .catch((error) => {
         console.log(error, "error");
         res.writeHead(500, { "Content-Type": "text/plain" });
-        res.end("Internal Server Error");
+        res.end(error);
       });
     return;
   }

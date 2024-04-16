@@ -1,7 +1,7 @@
-import { error } from "console";
 import * as Fs from "fs";
-import fetch from "node-fetch";
-
+import toml from "@iarna/toml";
+// const { overrideConfigWithEnv } = import("./src/server/config.mjs");
+import { overrideConfigWithEnv } from "./config.mjs";
 const errorHandler = (res) => {
   res.writeHead(500, { "Content-Type": "text/plain" });
   res.end("Internal Server Error");
@@ -11,10 +11,9 @@ const featureFlagConfigHandler = (
   _req,
   res,
   is_deployed = false,
-  configPath = "dist/server/config/FeatureFlag.json",
+  configPath = "dist/server/config/config.toml",
 ) => {
-  let configFile = is_deployed ? configPath : "config/FeatureFlag.json";
-
+  let configFile = is_deployed ? configPath : "config/config.toml";
   try {
     Fs.readFile(configFile, { encoding: "utf8" }, (err, data) => {
       if (err) {
@@ -22,12 +21,23 @@ const featureFlagConfigHandler = (
         errorHandler(res);
         return;
       }
-      let featureFlagConfig = JSON.parse(data);
+      let config;
+      try {
+        config = toml.parse(data);
+      } catch (error) {
+        console.log(error);
+        errorHandler(res);
+        return;
+      }
+      let merchantConfig = overrideConfigWithEnv(
+        config["features"],
+        "features",
+      );
       res.writeHead(200, {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
       });
-      res.write(JSON.stringify(featureFlagConfig));
+      res.write(JSON.stringify(merchantConfig));
       res.end();
     });
   } catch (error) {

@@ -1,26 +1,21 @@
 import * as Fs from "fs";
 import toml from "@iarna/toml";
 
-// Function to read TOML file
-function readConfigFromFile(filePath) {
-  try {
-    const data = fs.readFileSync(filePath, "utf8");
-    return toml.parse(data);
-  } catch (err) {
-    console.error("Error reading TOML file:", err);
-    return {};
-  }
-}
-
 // Function to override config values from environment variables
-function overrideConfigWithEnv(config) {
+const overrideConfigWithEnv = (config, prefix) => {
   for (let key in config) {
-    if (process.env[key]) {
+    if (
+      prefix !== undefined &&
+      prefix.length > 0 &&
+      process.env[`${prefix}__${key}`]
+    ) {
+      config[key] = process.env[`${prefix}__${key}`];
+    } else if (process.env[key]) {
       config[key] = process.env[key];
     }
   }
   return config;
-}
+};
 const errorHandler = (res) => {
   res.writeHead(500, { "Content-Type": "text/plain" });
   res.end("Internal Server Error");
@@ -34,7 +29,6 @@ const configHandler = (
   configPath = "dist/server/config/config.toml",
 ) => {
   let configFile = is_deployed ? configPath : "config/config.toml";
-
   try {
     let { domain = "default" } = req.query;
     Fs.readFile(configFile, { encoding: "utf8" }, (err, data) => {
@@ -58,9 +52,9 @@ const configHandler = (
         config[domain] != undefined &&
         Object.keys(config[domain]).length > 0
       ) {
-        merchantConfig = config[domain];
+        merchantConfig = overrideConfigWithEnv(config[domain], domain);
       } else {
-        merchantConfig;
+        overrideConfigWithEnv(merchantConfig, "default");
       }
       res.writeHead(200, {
         "Content-Type": "application/json",
@@ -75,4 +69,4 @@ const configHandler = (
   }
 };
 
-export { configHandler };
+export { configHandler, overrideConfigWithEnv };
