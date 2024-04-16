@@ -204,7 +204,8 @@ let getURL = (
     | #USER_DELETE => `${userUrl}/user/delete`
     | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
     | #SIGNUP
-    | #SIGNOUT
+    | #SIGNOUT =>
+      `${userUrl}/signout`
     | #RESET_PASSWORD
     | #SET_METADATA
     | #VERIFY_EMAIL_REQUEST
@@ -252,7 +253,7 @@ let getURL = (
 let sessionExpired = ref(false)
 
 let handleLogout = async (
-  ~fetchApi as _: (
+  ~fetchApi: (
     string,
     ~bodyStr: string=?,
     ~bodyFormData: option<Fetch.formData>=?,
@@ -266,8 +267,8 @@ let handleLogout = async (
   ~setIsSidebarExpanded,
   ~clearRecoilValue,
 ) => {
-  // let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
-  // let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
+  let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
+  let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
   setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
   setIsSidebarExpanded(_ => false)
   clearRecoilValue()
