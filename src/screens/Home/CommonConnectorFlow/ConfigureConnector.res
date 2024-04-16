@@ -176,7 +176,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
       }
       let _ = await PaymentType(paymentBody)->usePostEnumDetails(#TestPayment)
       setQuickStartPageState(_ => IntegrateApp(LANDING))
-      RescriptReactRouter.replace("/quick-start")
+      RescriptReactRouter.replace(`${HSwitchGlobalVars.dashboardBasePath}/quick-start`)
       if paymentId->Option.isSome {
         mixpanelEvent(~eventName=`quickstart_checkout_pay`, ())
       } else {
@@ -218,7 +218,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
             text="Exit to Homepage"
             onClick={_ => {
               setDashboardPageState(_ => #HOME)
-              RescriptReactRouter.replace("/home")
+              RescriptReactRouter.replace(`${HSwitchGlobalVars.dashboardBasePath}/home`)
             }}
             buttonSize=Small
           />}

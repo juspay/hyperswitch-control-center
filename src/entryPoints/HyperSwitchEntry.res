@@ -82,9 +82,9 @@ module HyperSwitchEntryComponent = {
 
     React.useEffect1(() => {
       switch url.path {
-      | list{"dashboard", "user", "verify_email"} => "verify_email"->setPageName
-      | list{"dashboard", "user", "set_password"} => "set_password"->setPageName
-      | list{"dashboard", "user", "login"} => "magic_link_verify"->setPageName
+      | list{"user", "verify_email"} => "verify_email"->setPageName
+      | list{"user", "set_password"} => "set_password"->setPageName
+      | list{"user", "login"} => "magic_link_verify"->setPageName
       | _ =>
         switch List.head(url.path) {
         | Some(pageTitle) => pageTitle->setPageName

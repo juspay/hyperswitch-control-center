@@ -311,7 +311,9 @@ let make = (
       let connectorId = res->getDictFromJsonObject->getString("merchant_connector_id", "")
       setConnectorId(_ => connectorId)
       setScreenState(_ => Success)
-      RescriptReactRouter.replace(`/connectors/${connectorId}?name=paypal`)
+      RescriptReactRouter.replace(
+        `${HSwitchGlobalVars.dashboardBasePath}/connectors/${connectorId}?name=paypal`,
+      )
     } catch {
     | Exn.Error(e) =>
       switch Exn.message(e) {

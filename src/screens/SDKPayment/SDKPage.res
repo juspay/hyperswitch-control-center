@@ -109,7 +109,8 @@ let make = () => {
 
   let onProceed = async (~paymentId) => {
     switch paymentId {
-    | Some(val) => RescriptReactRouter.replace(`/payments/${val}`)
+    | Some(val) =>
+      RescriptReactRouter.replace(`${HSwitchGlobalVars.dashboardBasePath}/payments/${val}`)
     | None => ()
     }
   }

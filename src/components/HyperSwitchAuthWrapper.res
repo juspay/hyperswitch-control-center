@@ -15,11 +15,11 @@ let make = (~children) => {
 
   React.useEffect0(() => {
     switch url.path {
-    | list{"dashboard", "user", "verify_email"}
-    | list{"dashboard", "user", "set_password"}
-    | list{"dashboard", "user", "accept_invite_from_email"}
-    | list{"dashboard", "user", "login"}
-    | list{"dashboard", "register"} =>
+    | list{"user", "verify_email"}
+    | list{"user", "set_password"}
+    | list{"user", "accept_invite_from_email"}
+    | list{"user", "login"}
+    | list{"register"} =>
       setAuthStatus(LoggedOut)
     | _ =>
       switch LocalStorage.getItem("login")->Nullable.toOption {

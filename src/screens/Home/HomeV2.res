@@ -348,7 +348,7 @@ module Resources = {
         "https://hyperswitch.io/docs"->Window._open
       } else if item.id === "tryTheDemo" {
         mixpanelEvent(~eventName=`test_payment`, ())
-        RescriptReactRouter.replace("/sdk")
+        RescriptReactRouter.replace(`${HSwitchGlobalVars.dashboardBasePath}/sdk`)
       }
     }
 

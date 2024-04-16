@@ -399,14 +399,12 @@ module LandingPageTileForIntegrateDocs = {
     let redirect = () => {
       if customRedirection->Option.isSome {
         RescriptReactRouter.replace(
-          `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${customRedirection->Option.getOr(
+          `${HSwitchGlobalVars.dashboardBasePath}/${customRedirection->Option.getOr(
               "",
             )}?type=${url}`,
         )
       } else {
-        RescriptReactRouter.replace(
-          `${HSwitchGlobalVars.hyperSwitchFEPrefix}/onboarding?type=${url}`,
-        )
+        RescriptReactRouter.replace(`${HSwitchGlobalVars.dashboardBasePath}/onboarding?type=${url}`)
       }
     }
     let skipAndContinue = async () => {

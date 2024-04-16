@@ -699,7 +699,7 @@ let make = (
                           onClick={_ => {
                             panelProps["close"]()
                             RescriptReactRouter.replace(
-                              `${HSwitchGlobalVars.hyperSwitchFEPrefix}/account-settings/profile`,
+                              `${HSwitchGlobalVars.dashboardBasePath}/account-settings/profile`,
                             )
                           }}
                           text="Profile"

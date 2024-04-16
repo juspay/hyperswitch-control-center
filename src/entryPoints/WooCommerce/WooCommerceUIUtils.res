@@ -21,7 +21,9 @@ module SelectProcessor = {
         }}
         onClick={_ => {
           setConnectorConfigureState(_ => Configure_keys)
-          RescriptReactRouter.replace(`/${url.path->LogicUtils.getListHead}?name=${connectorName}`)
+          RescriptReactRouter.replace(
+            `${HSwitchGlobalVars.dashboardBasePath}/${url.path->LogicUtils.getListHead}?name=${connectorName}`,
+          )
         }}
         buttonSize=Small
       />}>

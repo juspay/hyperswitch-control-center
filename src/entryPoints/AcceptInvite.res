@@ -35,10 +35,10 @@ let make = () => {
 
   React.useEffect1(() => {
     if flowType === MERCHANT_SELECT {
-      RescriptReactRouter.replace("/accept-invite")
+      RescriptReactRouter.replace(`${HSwitchGlobalVars.dashboardBasePath}/accept-invite`)
     } else {
       setDashboardPageState(_ => #HOME)
-      RescriptReactRouter.replace("/home")
+      RescriptReactRouter.replace(`${HSwitchGlobalVars.dashboardBasePath}/home`)
     }
     None
   }, [flowType])

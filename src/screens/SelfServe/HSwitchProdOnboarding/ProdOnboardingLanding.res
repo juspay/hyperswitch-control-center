@@ -215,7 +215,9 @@ let make = () => {
       let connectorName = json->getDictFromJsonObject->getString("connector_name", "")
       setInitialValues(_ => json)
       setPreviewState(_ => Some(headerVariant->ProdOnboardingUtils.getPreviewState))
-      RescriptReactRouter.replace(`prod-onboarding?name=${connectorName}`)
+      RescriptReactRouter.replace(
+        `${HSwitchGlobalVars.dashboardBasePath}/prod-onboarding?name=${connectorName}`,
+      )
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))
     }

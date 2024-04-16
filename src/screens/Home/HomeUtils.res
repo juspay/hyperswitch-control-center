@@ -176,7 +176,7 @@ module CheckoutCard = {
         })
       } else {
         mixpanelEvent(~eventName=`try_test_payment`, ())
-        RescriptReactRouter.replace("/sdk")
+        RescriptReactRouter.replace(`${HSwitchGlobalVars.dashboardBasePath}/sdk`)
       }
     }
 

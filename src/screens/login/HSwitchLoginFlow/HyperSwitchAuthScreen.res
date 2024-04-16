@@ -61,14 +61,13 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
     }
 
     switch url.path {
-    | list{"dashboard", "user", "verify_email"} => setActualAuthType(_ => EmailVerify)
-    | list{"dashboard", "login"} =>
+    | list{"user", "verify_email"} => setActualAuthType(_ => EmailVerify)
+    | list{"login"} =>
       setActualAuthType(_ => isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword)
-    | list{"dashboard", "user", "set_password"} => setActualAuthType(_ => ResetPassword)
-    | list{"dashboard", "user", "accept_invite_from_email"} =>
-      setActualAuthType(_ => ActivateFromEmail)
-    | list{"dashboard", "forget-password"} => setActualAuthType(_ => ForgetPassword)
-    | list{"dashboard", "register"} =>
+    | list{"user", "set_password"} => setActualAuthType(_ => ResetPassword)
+    | list{"user", "accept_invite_from_email"} => setActualAuthType(_ => ActivateFromEmail)
+    | list{"forget-password"} => setActualAuthType(_ => ForgetPassword)
+    | list{"register"} =>
       // In Live mode users are not allowed to singup directly
       !isLiveMode
         ? setActualAuthType(_ => SignUP)
@@ -97,7 +96,7 @@ let make = (~setAuthStatus: HyperSwitchAuthTypes.authStatus => unit) => {
         | list{"register", ..._},
       ) => () // to prevent duplicate push
     | (LoginWithPassword | LoginWithEmail, _) =>
-      `${HSwitchGlobalVars.hyperSwitchFEPrefix}/login`->RescriptReactRouter.replace
+      `${HSwitchGlobalVars.dashboardBasePath}/login`->RescriptReactRouter.replace
     | (SignUP, list{"register", ..._}) => () // to prevent duplicate push
     | (SignUP, _) => `${HSwitchGlobalVars.dashboardBasePath}/register`->RescriptReactRouter.push
     | (ForgetPassword | ForgetPasswordEmailSent, list{"forget-password", ..._}) => () // to prevent duplicate push

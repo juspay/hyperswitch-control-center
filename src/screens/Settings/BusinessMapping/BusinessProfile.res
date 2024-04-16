@@ -72,7 +72,9 @@ module AddEntryBtn = {
               buttonType=Primary
               onClick={_ => {
                 if updatedProfileId->LogicUtils.isNonEmptyString {
-                  RescriptReactRouter.replace(`/payment-settings/${updatedProfileId}`)
+                  RescriptReactRouter.replace(
+                    `${HSwitchGlobalVars.dashboardBasePath}/payment-settings/${updatedProfileId}`,
+                  )
                   setModalState(_ => Edit)
                 }
               }}
