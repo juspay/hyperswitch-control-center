@@ -3667,10 +3667,31 @@ License)
       d="M320,32a32,32,0,0,0-64,0v96h64Zm48,128H16A16,16,0,0,0,0,176v32a16,16,0,0,0,16,16H32v32A160.07,160.07,0,0,0,160,412.8V512h64V412.8A160.07,160.07,0,0,0,352,256V224h16a16,16,0,0,0,16-16V176A16,16,0,0,0,368,160ZM128,32a32,32,0,0,0-64,0v96h64Z"
     ></path>
   </symbol>
-  <symbol id="plus" viewBox="0 0 448 512">
-    <path
-      d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-    ></path>
+  <symbol
+    id="plus"
+    width="17"
+    height="16"
+    viewBox="0 0 17 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <mask
+      id="mask0_18047_6102"
+      style="mask-type: alpha"
+      maskUnits="userSpaceOnUse"
+      x="0"
+      y="0"
+      width="17"
+      height="16"
+    >
+      <rect x="0.375" width="16" height="16" fill="#D9D9D9" />
+    </mask>
+    <g mask="url(#mask0_18047_6102)">
+      <path
+        d="M7.87533 8.49932H4.04199V7.49935H7.87533V3.66602H8.87529V7.49935H12.7086V8.49932H8.87529V12.3327H7.87533V8.49932Z"
+        fill="#333333"
+      />
+    </g>
   </symbol>
   <symbol id="plus-circle" viewBox="0 0 512 512">
     <path
@@ -9151,9 +9172,40 @@ License)
       </clipPath>
     </defs>
   </symbol>
+  <symbol id="new-window" viewBox="0 0 16 16" fill="none">
+    <mask
+      id="mask0_17892_19486"
+      style="mask-type: alpha"
+      maskUnits="userSpaceOnUse"
+      x="0"
+      y="0"
+      width="16"
+      height="16"
+    >
+      <rect width="16" height="16" fill="#D9D9D9" />
+    </mask>
+    <g mask="url(#mask0_17892_19486)">
+      <path
+        d="M3.33333 14C2.96667 14 2.65278 13.8694 2.39167 13.6083C2.13056 13.3472 2 13.0333 2 12.6667V3.33333C2 2.96667 2.13056 2.65278 2.39167 2.39167C2.65278 2.13056 2.96667 2 3.33333 2H7.33333V3.33333H3.33333V12.6667H12.6667V8.66667H14V12.6667C14 13.0333 13.8694 13.3472 13.6083 13.6083C13.3472 13.8694 13.0333 14 12.6667 14H3.33333ZM10.6667 7.33333V5.33333H8.66667V4H10.6667V2H12V4H14V5.33333H12V7.33333H10.6667Z"
+        fill="#1C1B1F"
+      />
+    </g>
+  </symbol>
   <symbol id="clear_filter_img" viewBox="0 0 10 8">
-    <path d="M9.91992 6.40039H2.47992V7.84039H9.91992V6.40039Z" fill="#354052" fill-opacity="0.5"></path>
-    <path d="M8.71997 3.28027H1.27997V4.72027H8.71997V3.28027Z" fill="#354052" fill-opacity="0.5"></path>
-    <path d="M7.52002 0.160156H0.080019V1.60016H7.52002V0.160156Z" fill="#354052" fill-opacity="0.5"></path>
+    <path
+      d="M9.91992 6.40039H2.47992V7.84039H9.91992V6.40039Z"
+      fill="#354052"
+      fill-opacity="0.5"
+    ></path>
+    <path
+      d="M8.71997 3.28027H1.27997V4.72027H8.71997V3.28027Z"
+      fill="#354052"
+      fill-opacity="0.5"
+    ></path>
+    <path
+      d="M7.52002 0.160156H0.080019V1.60016H7.52002V0.160156Z"
+      fill="#354052"
+      fill-opacity="0.5"
+    ></path>
   </symbol>
 </svg>

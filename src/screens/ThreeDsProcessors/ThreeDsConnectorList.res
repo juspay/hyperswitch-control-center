@@ -1,5 +1,3 @@
-let detailedCardCount = 5
-
 @react.component
 let make = () => {
   open UIUtils
@@ -8,7 +6,6 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
-  let showConnectorIcons = configuredConnectors->Array.length > detailedCardCount
   let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
 
   let getConnectorList = async _ => {
@@ -44,15 +41,13 @@ let make = () => {
           configuredConnectors={configuredConnectors->ConnectorUtils.getConnectorTypeArrayFromListConnectors(
             ~connectorType=ConnectorTypes.ThreeDsAuthenticator,
           )}
-          showIcons={showConnectorIcons}
           connectorsAvailableForIntegration=ConnectorUtils.threedsAuthenticatorList
-          showTestProcessor=false
           urlPrefix="3ds-authenticators/new"
           connectorType=ConnectorTypes.ThreeDsAuthenticator
         />
         <RenderIf condition={configuredConnectors->Array.length > 0}>
           <LoadedTable
-            title="Previously Connected"
+            title="Connected Processors"
             actualData={configuredConnectors->Array.map(Nullable.make)}
             totalResults={configuredConnectors->Array.map(Nullable.make)->Array.length}
             resultsPerPage=20

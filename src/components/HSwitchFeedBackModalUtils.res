@@ -36,9 +36,9 @@ let selectFeedbackType = makeFieldInfo(
 )
 
 let connectorNameField = makeFieldInfo(
-  ~label="Connector Name",
+  ~label="Processor Name",
   ~name="connector_name",
-  ~placeholder="Enter a connector name",
+  ~placeholder="Enter a processor name",
   ~customInput=InputFields.textInput(),
   (),
 )
