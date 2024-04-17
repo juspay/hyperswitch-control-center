@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.16.0
+
+### Miscellaneous Tasks
+
+- Dummy processor flow ([#527](https://github.com/juspay/hyperswitch-control-center/pull/527)) ([`321e080`](https://github.com/juspay/hyperswitch-control-center/commit/321e08013df672280c0f53d4b30479da46581d6b))
+
+**Full Changelog:** [`2024.04.15.0...2024.04.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.15.0...2024.04.16.0)
+
+- - -
+
 ## 2024.04.15.0
 
 ### Features
