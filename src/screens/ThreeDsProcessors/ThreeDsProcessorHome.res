@@ -50,7 +50,7 @@ let make = () => {
     )->MerchantAccountUtils.getValueFromBusinessProfile
 
   let isUpdateFlow = switch url.path {
-  | list{"dashboard", "3ds-authenticators", "new"} => false
+  | list{_, "3ds-authenticators", "new"} => false
   | _ => true
   }
 
