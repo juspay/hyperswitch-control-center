@@ -61,14 +61,13 @@ let serverHandler: Http.serverHandler = (request, response) => {
     ->String.replaceRegExp(%re("/^\/\//"), "/")
     ->String.replaceRegExp(%re("/^\/v4\//"), "/")
 
-  // if path === "/dashboard/config/merchant-access" && request.method === "POST" {
-  //   let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/FeatureFlag.json")
-  //   Promise.make((resolve, _reject) => {
-  //     configHandler(request, response, true, path)
-  //     ()->resolve(. _)
-  //   })
-  // }
-  if path === "/health" && request.method === "GET" {
+  if path === "/dashboard/config/merchant-access" && request.method === "POST" {
+    let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/FeatureFlag.json")
+    Promise.make((resolve, _reject) => {
+      configHandler(request, response, true, path)
+      ()->resolve(. _)
+    })
+  } else if path === "/health" && request.method === "GET" {
     Promise.make((resolve, _reject) => {
       healthHandler(request, response)
       ()->resolve(. _)

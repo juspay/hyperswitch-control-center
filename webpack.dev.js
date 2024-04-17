@@ -11,18 +11,18 @@ let port = 9000;
 let proxy = {};
 
 let configMiddleware = (req, res, next) => {
-  // if (req.path == "dashboard/config/merchant-access" && req.method == "POST") {
-  //   configScripts
-  //     .then((result) => {
-  //       result.configHandler(req, res, false);
-  //     })
-  //     .catch((error) => {
-  //       console.log(error, "error");
-  //       res.writeHead(500, { "Content-Type": "text/plain" });
-  //       res.end("Internal Server Error");
-  //     });
-  //   return;
-  // }
+  if (req.path == "dashboard/config/merchant-access" && req.method == "POST") {
+    configScripts
+      .then((result) => {
+        result.configHandler(req, res, false);
+      })
+      .catch((error) => {
+        console.log(error, "error");
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.end("Internal Server Error");
+      });
+    return;
+  }
   next();
 };
 

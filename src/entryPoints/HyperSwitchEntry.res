@@ -113,7 +113,7 @@ module HyperSwitchEntryComponent = {
     React.useEffect0(() => {
       setScreenState(_ => PageLoaderWrapper.Success)
 
-      // fetchFeatureFlags()->ignore
+      fetchFeatureFlags()->ignore
       None
     })
 
