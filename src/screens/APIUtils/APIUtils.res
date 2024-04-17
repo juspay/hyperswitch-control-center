@@ -204,8 +204,7 @@ let getURL = (
     | #USER_DELETE => `${userUrl}/user/delete`
     | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
     | #SIGNUP
-    | #SIGNOUT =>
-      `${userUrl}/signout`
+    | #SIGNOUT
     | #RESET_PASSWORD
     | #SET_METADATA
     | #VERIFY_EMAIL_REQUEST
@@ -268,7 +267,11 @@ let handleLogout = async (
   ~clearRecoilValue,
 ) => {
   let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
-  let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
+  try {
+    let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
+  } catch {
+  | _ => Promise.resolve()->ignore
+  }
   setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
   setIsSidebarExpanded(_ => false)
   clearRecoilValue()
