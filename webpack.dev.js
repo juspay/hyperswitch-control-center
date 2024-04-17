@@ -11,7 +11,7 @@ let port = 9000;
 let proxy = {};
 
 let configMiddleware = (req, res, next) => {
-  if (req.path == "/dashboard/config/merchant-access" && req.method == "POST") {
+  if (req.path.includes("/config/merchant-access") && req.method == "POST") {
     configScripts
       .then((result) => {
         result.configHandler(req, res, false);
