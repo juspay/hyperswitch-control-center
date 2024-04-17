@@ -134,7 +134,7 @@ let defaultUIConfig: t = {
     },
     textColor: {
       primaryNormal: "text-white",
-      primaryOutline: "text-blue-800",
+      primaryOutline: "text-primary",
       primaryDisabled: "text-jp-gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-25",
     },
   },
@@ -151,7 +151,7 @@ let defaultUIConfig: t = {
   },
   border: {
     borderColor: {
-      primaryNormal: "border-primary",
+      primaryNormal: "border border-primary",
       primaryFocused: "focus:border-primary",
     },
   },
