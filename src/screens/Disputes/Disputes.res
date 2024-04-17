@@ -40,7 +40,7 @@ let make = () => {
   let customUI =
     <>
       <div
-        className={`${borderColor.primaryNormal}flex  items-start  text-sm rounded-md gap-2 px-4 py-3 mt-5`}>
+        className={`${borderColor.primaryNormal} flex  items-start  text-sm rounded-md gap-2 px-4 py-3 mt-5`}>
         <Icon name="info-vacent" className={`${textColor.primaryNormal} mt-1`} size=18 />
         <p>
           {"Missing disputes? Disputes might not be supported for your payment processor or might not yet have been integrated with hyperswitch. Please check the"->React.string}
