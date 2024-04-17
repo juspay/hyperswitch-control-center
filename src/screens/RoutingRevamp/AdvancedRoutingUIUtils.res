@@ -229,6 +229,7 @@ let renderMetaInput = (keyType, fieldsArray: array<ReactFinalForm.fieldRenderPro
 }
 
 let operatorInput = (id, keyType) => {
+  Js.log(keyType)
   makeMultiInputFieldInfoOld(
     ~label="",
     ~comboCustomInput=renderOperatorInp(keyType),
