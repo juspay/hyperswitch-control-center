@@ -86,7 +86,7 @@ describe("Processors Create Module", () => {
     cy.url().should("eq", "http://localhost:9000/connectors");
     cy.contains("Processors").should("be.visible");
     cy.contains(
-      "Connect and manage payment processors to enable payment acceptance",
+      "Connect a test processor and get started with testing your payments",
     ).should("be.visible");
     cy.get("[data-testid=connect_a_new_processor]").contains(
       "Connect a new processor",
