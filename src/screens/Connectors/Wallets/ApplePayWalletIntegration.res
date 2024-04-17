@@ -13,6 +13,55 @@ module HostURL = {
   }
 }
 
+module MerchantBussinessCountry = {
+  @react.component
+  let make = (~fieldsArray: array<ReactFinalForm.fieldRenderProps>, ~options) => {
+    let defaultInput: ReactFinalForm.fieldRenderProps = {
+      input: ReactFinalForm.makeInputRecord(""->JSON.Encode.string, _e => ()),
+      meta: ReactFinalForm.makeCustomError(None),
+    }
+    let operator = (fieldsArray->Array.get(0)->Option.getOr(defaultInput)).input
+    let input: ReactFinalForm.fieldRenderPropsInput = {
+      name: "string",
+      onBlur: _ev => (),
+      onChange: ev => {
+        let value = ev->Identity.formReactEventToString
+        operator.onChange(value->Identity.anyTypeToReactEvent)
+      },
+      onFocus: _ev => (),
+      value: operator.value,
+      checked: true,
+    }
+
+    <SelectBox.BaseDropdown
+      allowMultiSelect=false
+      buttonText="Select Operator"
+      input
+      options
+      hideMultiSelectButtons=true
+      customButtonStyle="w-full"
+      fullLength=true
+    />
+  }
+}
+
+let renderCountryInp = (options, fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
+  <MerchantBussinessCountry fieldsArray options />
+}
+
+let countryInput = (~id, ~options) => {
+  open FormRenderer
+  makeMultiInputFieldInfoOld(
+    ~label="Merchant Business Country",
+    ~comboCustomInput=renderCountryInp(options),
+    ~inputFields=[
+      makeInputFieldInfo(~name=`${id}`, ()),
+      makeInputFieldInfo(~name=`${id}.default`, ()),
+    ],
+    (),
+  )
+}
+
 module Simplified = {
   @react.component
   let make = (
@@ -21,6 +70,7 @@ module Simplified = {
     ~update,
     ~setApplePayIntegrationSteps,
     ~setVefifiedDomainList,
+    ~merchantBusinessCountry,
   ) => {
     open WalletHelper
     open APIUtils
@@ -32,23 +82,32 @@ module Simplified = {
     let connectorID = url.path->List.toArray->Array.get(1)->Option.getOr("")
     let merchantDetailsValue = HSwitchUtils.useMerchantDetailsValue()
     let merchantId = merchantDetailsValue.merchant_id
-    let prefix = "apple_pay_combined.simplified.session_token_data.initiative_context"
+    let namePrefix = `apple_pay_combined.simplified.session_token_data`
     let inputField =
-      <FormRenderer.FieldRenderer
-        field={FormRenderer.makeFieldInfo(
-          ~label="",
-          ~name={prefix},
-          ~placeholder="eg. example.com",
-          ~customInput=InputFields.textInput(
-            ~customStyle="w-64",
-            ~autoComplete="off",
-            ~autoFocus=true,
+      [
+        <FormRenderer.FieldRenderer
+          labelClass="font-semibold !text-hyperswitch_black"
+          field={FormRenderer.makeFieldInfo(
+            ~label="Domain Name",
+            ~name={`${namePrefix}.initiative_context`},
+            ~placeholder="eg. example.com",
+            ~customInput=InputFields.textInput(
+              ~customStyle="w-64",
+              ~autoComplete="off",
+              ~autoFocus=true,
+              (),
+            ),
             (),
-          ),
-          (),
-        )}
-      />
-
+          )}
+        />,
+        <FormRenderer.FieldRenderer
+          labelClass="font-semibold !text-hyperswitch_black"
+          field={countryInput(
+            ~id={`${namePrefix}.merchant_business_country`},
+            ~options=merchantBusinessCountry,
+          )}
+        />,
+      ]->React.array
     let downloadApplePayCert = () => {
       open Promise
       fetchApi(HSwitchGlobalVars.urlToDownloadApplePayCertificate, ~method_=Get, ())
@@ -127,7 +186,7 @@ module Simplified = {
           "Host the downloaded verification file at your sandbox domain in the following location :-",
         )
         stepNumber="3"
-        customElement=Some(<HostURL prefix />)
+        customElement=Some(<HostURL prefix={`${namePrefix}.initiative_context`} />)
       />
       <div className="w-full flex gap-2 justify-end p-6">
         <Button
@@ -152,32 +211,42 @@ module Manual = {
     ~update,
     ~setApplePayIntegrationSteps,
     ~setVefifiedDomainList,
+    ~merchantBusinessCountry,
   ) => {
     open WalletHelper
     open LogicUtils
     open ApplePayWalletIntegrationUtils
-
+    open FormRenderer
     let configurationFields =
       metadataInputs->getDictfromDict("apple_pay")->getDictfromDict("session_token_data")
-
+    let namePrefix = `apple_pay_combined.manual.session_token_data`
     let fields = {
       configurationFields
       ->Dict.keysToArray
       ->Array.mapWithIndex((field, index) => {
-        let label = configurationFields->getString(field, "")
-        <div key={index->Int.toString}>
-          <FormRenderer.FieldRenderer
+        switch field->customApplePlayFields {
+        | #merchant_business_country =>
+          <FieldRenderer
             labelClass="font-semibold !text-hyperswitch_black"
-            field={FormRenderer.makeFieldInfo(
-              ~label,
-              ~name={`apple_pay_combined.manual.session_token_data.${field}`},
-              ~placeholder={`Enter ${label->snakeToTitle}`},
-              ~customInput=InputFields.textInput(),
-              ~isRequired=true,
-              (),
-            )}
+            field={countryInput(~id={`${namePrefix}.${field}`}, ~options=merchantBusinessCountry)}
           />
-        </div>
+        | _ => {
+            let label = configurationFields->getString(field, "")
+            <div key={index->Int.toString}>
+              <FormRenderer.FieldRenderer
+                labelClass="font-semibold !text-hyperswitch_black"
+                field={FormRenderer.makeFieldInfo(
+                  ~label,
+                  ~name={`${namePrefix}.${field}`},
+                  ~placeholder={`Enter ${label->snakeToTitle}`},
+                  ~customInput=InputFields.textInput(),
+                  ~isRequired=true,
+                  (),
+                )}
+              />
+            </div>
+          }
+        }
       })
       ->React.array
     }
@@ -351,40 +420,96 @@ module Verified = {
 }
 
 @react.component
-let make = (~metadataInputs, ~update, ~metaData, ~setShowWalletConfigurationModal) => {
+let make = (~metadataInputs, ~update, ~metaData, ~setShowWalletConfigurationModal, ~connector) => {
   open ApplePayWalletIntegrationTypes
-
+  open APIUtils
   open WalletHelper
   let (appleIntegrationType, setApplePayIntegrationType) = React.useState(_ => #simplified)
   let (applePayIntegrationStep, setApplePayIntegrationSteps) = React.useState(_ => Landing)
   let (verifiedDomainList, setVefifiedDomainList) = React.useState(_ => [])
-  <div>
-    <Heading />
-    {switch applePayIntegrationStep {
-    | Landing =>
-      <Landing
-        setApplePayIntegrationType
-        setShowWalletConfigurationModal
-        setApplePayIntegrationSteps
-        appleIntegrationType
-      />
-    | Configure =>
-      switch appleIntegrationType {
-      | #simplified =>
-        <Simplified
-          metadataInputs metaData update setApplePayIntegrationSteps setVefifiedDomainList
+  let (merchantBusinessCountry, setMerchantBusinessCountry) = React.useState(_ => [])
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let fetchDetails = useGetMethod()
+  let getProcessorDetails = async () => {
+    open LogicUtils
+    try {
+      setScreenState(_ => Loading)
+      let paymentMethoConfigUrl = getURL(~entityName=PAYMENT_METHOD_CONFIG, ~methodType=Get, ())
+      let res = await fetchDetails(
+        `${paymentMethoConfigUrl}?connector=${connector}&paymentMethodType=apple_pay`,
+      )
+      let countries =
+        res
+        ->getDictFromJsonObject
+        ->getArrayFromDict("countries", [])
+        ->Array.map(item => {
+          let dict = item->getDictFromJsonObject
+          let a: SelectBox.dropdownOption = {
+            label: dict->getString("name", ""),
+            value: dict->getString("code", ""),
+          }
+          a
+        })
+
+      setMerchantBusinessCountry(_ => countries)
+      setScreenState(_ => Success)
+    } catch {
+    | _ => setScreenState(_ => Success)
+    }
+  }
+
+  React.useEffect0(() => {
+    getProcessorDetails()->ignore
+    None
+  })
+  <PageLoaderWrapper
+    screenState={screenState}
+    customLoader={<div className="mt-60 w-scrren flex flex-col justify-center items-center">
+      <div className={`animate-spin mb-1`}>
+        <Icon name="spinner" size=20 />
+      </div>
+    </div>}
+    sectionHeight="!h-screen">
+    <div>
+      <Heading />
+      {switch applePayIntegrationStep {
+      | Landing =>
+        <Landing
+          setApplePayIntegrationType
+          setShowWalletConfigurationModal
+          setApplePayIntegrationSteps
+          appleIntegrationType
         />
-      | #manual =>
-        <Manual metadataInputs metaData update setApplePayIntegrationSteps setVefifiedDomainList />
-      }
-    | Verify =>
-      <Verified
-        verifiedDomainList
-        setApplePayIntegrationType
-        setShowWalletConfigurationModal
-        setApplePayIntegrationSteps
-        appleIntegrationType
-      />
-    }}
-  </div>
+      | Configure =>
+        switch appleIntegrationType {
+        | #simplified =>
+          <Simplified
+            metadataInputs
+            metaData
+            update
+            setApplePayIntegrationSteps
+            setVefifiedDomainList
+            merchantBusinessCountry
+          />
+        | #manual =>
+          <Manual
+            metadataInputs
+            metaData
+            update
+            setApplePayIntegrationSteps
+            setVefifiedDomainList
+            merchantBusinessCountry
+          />
+        }
+      | Verify =>
+        <Verified
+          verifiedDomainList
+          setApplePayIntegrationType
+          setShowWalletConfigurationModal
+          setApplePayIntegrationSteps
+          appleIntegrationType
+        />
+      }}
+    </div>
+  </PageLoaderWrapper>
 }

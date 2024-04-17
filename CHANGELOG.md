@@ -3,6 +3,35 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2024.04.17.0
+
+### Features
+
+- Signout api call ([#583](https://github.com/juspay/hyperswitch-control-center/pull/583)) ([`f03f33f`](https://github.com/juspay/hyperswitch-control-center/commit/f03f33f6795ebad0db0cfb283e9b1dd6d56eb0c7))
+
+### Bug Fixes
+
+- Ui button css changes ([#584](https://github.com/juspay/hyperswitch-control-center/pull/584)) ([`627c8f4`](https://github.com/juspay/hyperswitch-control-center/commit/627c8f4a3a35ef6524e9ade0be6952b523c38647))
+- Css changes ([#586](https://github.com/juspay/hyperswitch-control-center/pull/586)) ([`0522921`](https://github.com/juspay/hyperswitch-control-center/commit/05229216a28cb3c8f551a294852147873a24a081))
+
+### Miscellaneous Tasks
+
+- Support merchant business country apple pay ([#587](https://github.com/juspay/hyperswitch-control-center/pull/587)) ([`0c4c6ad`](https://github.com/juspay/hyperswitch-control-center/commit/0c4c6adffea7ca0ba80e4e4e66810c8ce647c932))
+
+**Full Changelog:** [`2024.04.16.0...2024.04.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.16.0...2024.04.17.0)
+
+- - -
+
+## 2024.04.16.0
+
+### Miscellaneous Tasks
+
+- Dummy processor flow ([#527](https://github.com/juspay/hyperswitch-control-center/pull/527)) ([`321e080`](https://github.com/juspay/hyperswitch-control-center/commit/321e08013df672280c0f53d4b30479da46581d6b))
+
+**Full Changelog:** [`2024.04.15.0...2024.04.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2024.04.15.0...2024.04.16.0)
+
+- - -
+
 ## 2024.04.15.0
 
 ### Features
