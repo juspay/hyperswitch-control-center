@@ -87,14 +87,8 @@ module Simplified = {
       [
         <FormRenderer.FieldRenderer
           labelClass="font-semibold !text-hyperswitch_black"
-          field={countryInput(
-            ~id={`${namePrefix}.merchant_business_country`},
-            ~options=merchantBusinessCountry,
-          )}
-        />,
-        <FormRenderer.FieldRenderer
           field={FormRenderer.makeFieldInfo(
-            ~label="",
+            ~label="Domain Name",
             ~name={`${namePrefix}.initiative_context`},
             ~placeholder="eg. example.com",
             ~customInput=InputFields.textInput(
@@ -104,6 +98,13 @@ module Simplified = {
               (),
             ),
             (),
+          )}
+        />,
+        <FormRenderer.FieldRenderer
+          labelClass="font-semibold !text-hyperswitch_black"
+          field={countryInput(
+            ~id={`${namePrefix}.merchant_business_country`},
+            ~options=merchantBusinessCountry,
           )}
         />,
       ]->React.array
