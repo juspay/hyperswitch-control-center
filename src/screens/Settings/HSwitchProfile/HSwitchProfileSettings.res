@@ -2,7 +2,8 @@ module MerchantDetailsSection = {
   @react.component
   let make = () => {
     open HSwitchProfileSettingsEntity
-    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+    let (offset, setOffset) = React.useState(_ => 0)
     let sectionHeadingClass = "font-semibold text-fs-18"
 
     let fetchSwitchMerchantList = SwitchMerchantListHook.useFetchSwitchMerchantList()
@@ -12,7 +13,6 @@ module MerchantDetailsSection = {
 
     React.useEffect0(() => {
       try {
-        setScreenState(_ => PageLoaderWrapper.Loading)
         let _ = fetchSwitchMerchantList()
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
@@ -20,8 +20,6 @@ module MerchantDetailsSection = {
       }
       None
     })
-
-    let (offset, setOffset) = React.useState(_ => 0)
 
     <PageLoaderWrapper screenState sectionHeight="h-40-vh">
       <div>
@@ -33,7 +31,7 @@ module MerchantDetailsSection = {
           hideTitle=true
           resultsPerPage=7
           visibleColumns
-          entity={merchantTableEntity()}
+          entity={merchantTableEntity}
           actualData={switchMerchantListValue->Array.map(Nullable.make)}
           totalResults={switchMerchantListValue->Array.length}
           offset

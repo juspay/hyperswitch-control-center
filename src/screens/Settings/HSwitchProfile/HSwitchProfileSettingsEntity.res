@@ -22,9 +22,7 @@ let itemToObjMapper = dict => {
   }
 }
 
-let getItems: JSON.t => array<switchMerchantListResponse> = json => {
-  LogicUtils.getArrayDataFromJson(json, itemToObjMapper)
-}
+let getItems = json => LogicUtils.getArrayDataFromJson(json, itemToObjMapper)
 
 let getHeading = colType => {
   switch colType {
@@ -47,14 +45,13 @@ let getCell = (item: switchMerchantListResponse, colType): Table.cell => {
   }
 }
 
-let merchantTableEntity = () =>
-  EntityType.makeEntity(
-    ~uri="",
-    ~getObjects=getItems,
-    ~defaultColumns,
-    ~allColumns,
-    ~getHeading,
-    ~dataKey="",
-    ~getCell,
-    (),
-  )
+let merchantTableEntity = EntityType.makeEntity(
+  ~uri="",
+  ~getObjects=getItems,
+  ~defaultColumns,
+  ~allColumns,
+  ~getHeading,
+  ~dataKey="",
+  ~getCell,
+  (),
+)
