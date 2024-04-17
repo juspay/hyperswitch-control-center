@@ -151,7 +151,7 @@ let defaultUIConfig: t = {
   },
   border: {
     borderColor: {
-      primaryNormal: "border-primary",
+      primaryNormal: "border border-primary",
       primaryFocused: "focus:border-primary",
     },
   },
