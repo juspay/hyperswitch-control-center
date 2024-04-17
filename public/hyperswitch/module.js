@@ -34,7 +34,6 @@ function getDescriptionCategory() {
   }
 }
 
-
 function getPaymentMethodConfig(connectorName) {
   if (wasm) {
     return wasm.getPaymentMethodConfig(connectorName);
@@ -95,7 +94,6 @@ function getAllKeys() {
     return [];
   }
 }
-
 
 function getKeyType(str) {
   if (wasm) {
@@ -169,39 +167,38 @@ function getPayoutVariantValues(str) {
 }
 
 const getAccessibleColor = (hex) => {
-  let color = hex.replace(/#/g, "")
+  let color = hex.replace(/#/g, "");
   // if shorthand notation is passed in
   if (color.length !== 6) {
-    color = `${color}${color}`
+    color = `${color}${color}`;
   }
   // rgb values
-  var r = parseInt(color.substr(0, 2), 16)
-  var g = parseInt(color.substr(2, 2), 16)
-  var b = parseInt(color.substr(4, 2), 16)
-  var yiq = (r * 299 + g * 587 + b * 114) / 1000
-  return yiq >= 128 ? "#000000" : "#FFFFFF"
-}
+  var r = parseInt(color.substr(0, 2), 16);
+  var g = parseInt(color.substr(2, 2), 16);
+  var b = parseInt(color.substr(4, 2), 16);
+  var yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq >= 128 ? "#000000" : "#FFFFFF";
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Change hex color into RGB
 ///////////////////////////////////////////////////////////////////////////////
 const getRGBColor = (hex, type) => {
-  let color = hex.replace(/#/g, "")
+  let color = hex.replace(/#/g, "");
   // if shorthand notation is passed in
   if (color.length !== 6) {
-    color = `${color}${color}`
+    color = `${color}${color}`;
   }
   // rgb values
-  var r = parseInt(color.substr(0, 2), 16)
-  var g = parseInt(color.substr(2, 2), 16)
-  var b = parseInt(color.substr(4, 2), 16)
+  var r = parseInt(color.substr(0, 2), 16);
+  var g = parseInt(color.substr(2, 2), 16);
+  var b = parseInt(color.substr(4, 2), 16);
 
-  return `--color-${type}: ${r}, ${g}, ${b};`
-}
-
+  return `--color-${type}: ${r}, ${g}, ${b};`;
+};
 
 function appendStyle(customStyle) {
-  let { primaryColor, primaryHover, sidebar } = customStyle
+  let { primaryColor, primaryHover, sidebar } = customStyle;
   let cssVariables = `
 :root {
   ${getRGBColor(primaryColor, "primary")}
@@ -209,17 +206,17 @@ function appendStyle(customStyle) {
  ${getRGBColor(sidebar, "sidebar")}
 
 }
-`
+`;
   let style;
 
   if (document.getElementById("custom-style")) {
-    style = document.getElementById("custom-style")
+    style = document.getElementById("custom-style");
   } else {
-    style = document.createElement("style")
+    style = document.createElement("style");
   }
   // let style = document.createElement("style")
-  let text = document.createTextNode(cssVariables)
-  style.setAttribute("id", "custom-style")
-  style.appendChild(text)
-  document.head.appendChild(style)
+  let text = document.createTextNode(cssVariables);
+  style.setAttribute("id", "custom-style");
+  style.appendChild(text);
+  document.head.appendChild(style);
 }

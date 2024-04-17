@@ -63,7 +63,8 @@ let connectorStatusStyle = connectorStatus =>
 
 let getCell = (connector: connectorPayload, colType): Table.cell => {
   switch colType {
-  | Name => Text(connector.connector_name)
+  | Name =>
+    CustomCell(<HelperComponents.ConnectorCustomCell connectorName=connector.connector_name />, "")
   | TestMode => Text(connector.test_mode ? "True" : "False")
   | Disabled =>
     Label({
@@ -78,7 +79,7 @@ let getCell = (connector: connectorPayload, colType): Table.cell => {
       </div>,
       "",
     )
-  | ProfileId => Text(connector.profile_id)
+  | ProfileId => DisplayCopyCell(connector.profile_id)
   | ProfileName =>
     Table.CustomCell(
       <HelperComponents.BusinessProfileComponent profile_id={connector.profile_id} />,

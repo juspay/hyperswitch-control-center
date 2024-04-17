@@ -1,5 +1,4 @@
 open LogicUtils
-open HelperComponents
 open HSwitchOrderUtils
 
 type refunds = {
@@ -121,9 +120,9 @@ let getCell = (refundData, colType): Table.cell => {
   | Currency => Text(refundData.currency)
   | ErrorCode => Text(refundData.error_code)
   | ErrorMessage => Text(refundData.error_message)
-  | PaymentId => CustomCell(<CopyTextCustomComp displayValue=refundData.payment_id />, "")
+  | PaymentId => DisplayCopyCell(refundData.payment_id)
   | RefundReason => Text(refundData.reason)
-  | RefundId => CustomCell(<CopyTextCustomComp displayValue=refundData.refund_id />, "")
+  | RefundId => DisplayCopyCell(refundData.refund_id)
   | RefundStatus =>
     Label({
       title: refundData.status->String.toUpperCase,

@@ -140,18 +140,18 @@ let defaultUIConfig: t = {
   },
   font: {
     textColor: {
-      primaryNormal: "text-white",
+      primaryNormal: "text-primary",
     },
   },
   shadow: {
     shadowColor: {
-      primaryNormal: "focus:shadow-primary",
+      primaryNormal: "shadow-primary",
       primaryFocused: "focus:shadow-primary",
     },
   },
   border: {
     borderColor: {
-      primaryNormal: "focus:border-primary",
+      primaryNormal: "border-primary",
       primaryFocused: "focus:border-primary",
     },
   },

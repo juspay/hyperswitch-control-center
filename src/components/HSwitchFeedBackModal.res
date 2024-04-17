@@ -62,7 +62,7 @@ let make = (
 
   let submitBtnText = switch modalType {
   | FeedBackModal => "Send"
-  | RequestConnectorModal => "Send a Request"
+  | RequestConnectorModal => "Submit Request"
   }
 
   <Modal
@@ -72,16 +72,16 @@ let make = (
     setShowModal
     borderBottom=true
     closeOnOutsideClick=true
-    modalClass="w-full max-w-xl mx-auto my-8 dark:!bg-jp-gray-lightgray_background pb-3">
+    modalClass="w-full max-w-xl m-auto dark:!bg-jp-gray-lightgray_background pb-3">
     <Form onSubmit validate={values => values->validateFields(~modalType)}>
       <LabelVisibilityContext showLabel>
         <div className="flex flex-col justify-center">
           {modalFormFields}
           <div className="flex justify-end gap-3 p-1 mt-4">
-            <FormRenderer.SubmitButton text=submitBtnText />
             <Button
               buttonType=Button.Secondary onClick={_ => setShowModal(_ => false)} text="Cancel"
             />
+            <FormRenderer.SubmitButton text=submitBtnText />
           </div>
         </div>
       </LabelVisibilityContext>
