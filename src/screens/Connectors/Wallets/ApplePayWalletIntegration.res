@@ -35,7 +35,7 @@ module MerchantBussinessCountry = {
 
     <SelectBox.BaseDropdown
       allowMultiSelect=false
-      buttonText="Select Operator"
+      buttonText="Select Country"
       input
       options
       hideMultiSelectButtons=true
