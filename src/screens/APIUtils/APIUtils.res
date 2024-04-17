@@ -266,17 +266,17 @@ let handleLogout = async (
   ~setIsSidebarExpanded,
   ~clearRecoilValue,
 ) => {
-  let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
-  setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
-  setIsSidebarExpanded(_ => false)
-  clearRecoilValue()
-  RescriptReactRouter.push("/login")
   try {
+    let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
     let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
+    setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
+    setIsSidebarExpanded(_ => false)
+    clearRecoilValue()
+    RescriptReactRouter.push("/login")
+    LocalStorage.clear()
   } catch {
-  | _ => Promise.resolve()->ignore
+  | _ => LocalStorage.clear()
   }
-  LocalStorage.clear()
 }
 
 let responseHandler = async (
