@@ -2,7 +2,7 @@ module NewProcessorCards = {
   open FRMTypes
   open FRMInfo
   @react.component
-  let make = (~configuredFRMs: array<frmName>, ~showIcons: bool) => {
+  let make = (~configuredFRMs: array<frmName>) => {
     let userPermissionJson = Recoil.useRecoilValueFromAtom(HyperswitchAtom.userPermissionAtom)
     let frmAvailableForIntegration = frmList
     let unConfiguredFRMs =
@@ -40,40 +40,20 @@ module NewProcessorCards = {
                 {frmInfo.description->React.string}
               </div>
               <ACLButton
-                text="+ Connect"
+                text="Connect"
                 access=userPermissionJson.connectorsManage
                 buttonType=Secondary
                 buttonSize=Small
                 onClick={_ => handleClick(frmName)}
+                leftIcon={CustomIcon(
+                  <Icon
+                    name="plus"
+                    size=16
+                    className="text-jp-gray-900 fill-opacity-50 dark:jp-gray-text_darktheme"
+                  />,
+                )}
               />
             </CardUtils.CardLayout>
-          })
-          ->React.array}
-        </div>
-      </>
-    }
-
-    let iconsFRMs = (frmList, heading) => {
-      <>
-        <h2
-          className="font-bold text-xl text-black text-opacity-75 dark:text-white dark:text-opacity-75">
-          {heading->React.string}
-        </h2>
-        <div className="flex gap-2 flex-wrap">
-          {frmList
-          ->Array.mapWithIndex((frm, i) => {
-            let frmName = frm->getFRMNameString
-            let size = "w-14 h-14 rounded-full"
-            <ToolTip
-              key={i->Int.toString}
-              description={frmName->LogicUtils.capitalizeString}
-              toolTipFor={<div
-                className="bg-white p-2 cursor-pointer" onClick={_ => handleClick(frmName)}>
-                <GatewayIcon gateway={frmName->String.toUpperCase} className=size />
-              </div>}
-              toolTipPosition={Top}
-              tooltipWidthClass="w-30"
-            />
           })
           ->React.array}
         </div>
@@ -84,11 +64,7 @@ module NewProcessorCards = {
 
     <UIUtils.RenderIf condition={unConfiguredFRMCount > 0}>
       <div className="flex flex-col gap-4">
-        {if showIcons {
-          frmAvailableForIntegration->iconsFRMs(headerText)
-        } else {
-          frmAvailableForIntegration->descriptedFRMs(headerText)
-        }}
+        {frmAvailableForIntegration->descriptedFRMs(headerText)}
       </div>
     </UIUtils.RenderIf>
   }
@@ -107,9 +83,7 @@ let make = () => {
   let (previouslyConnectedData, setPreviouslyConnectedData) = React.useState(_ => [])
   let (filteredFRMData, setFilteredFRMData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
-  let detailedCardCount = 5
   let (searchText, setSearchText) = React.useState(_ => "")
-  let showFRMIcons = configuredFRMs->Array.length > detailedCardCount
 
   let customUI =
     <HelperComponents.BluredTableComponent
@@ -177,12 +151,9 @@ let make = () => {
         title="Fraud & Risk Management"
         subTitle="Connect and configure processors to screen transactions and mitigate fraud"
       />
-      <RenderIf condition={showFRMIcons}>
-        <NewProcessorCards configuredFRMs showIcons={showFRMIcons} />
-      </RenderIf>
       <RenderIf condition={configuredFRMs->Array.length > 0}>
         <LoadedTable
-          title="Previously Connected"
+          title="Connected Processors"
           actualData=filteredFRMData
           totalResults={filteredFRMData->Array.length}
           filters={<TableSearchFilter
@@ -205,9 +176,7 @@ let make = () => {
           collapseTableRow=false
         />
       </RenderIf>
-      <RenderIf condition={!showFRMIcons}>
-        <NewProcessorCards configuredFRMs showIcons={showFRMIcons} />
-      </RenderIf>
+      <NewProcessorCards configuredFRMs />
       <RenderIf condition={!isMobileView}>
         <img className="w-full max-w-[1400px] mb-10" src="/assets/frmBanner.svg" />
       </RenderIf>
