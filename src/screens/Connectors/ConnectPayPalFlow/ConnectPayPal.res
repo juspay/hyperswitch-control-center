@@ -154,7 +154,7 @@ module RedirectionToPayPalFlow = {
   let make = (~getPayPalStatus, ~profileId) => {
     open APIUtils
     open PayPalFlowTypes
-
+    open HSwitchGlobalVars
     let url = RescriptReactRouter.useUrl()
     let path = url.path->List.toArray->Array.joinWith("/")
     let connectorId = url.path->List.toArray->LogicUtils.getValueFromArray(2, "")
@@ -166,8 +166,8 @@ module RedirectionToPayPalFlow = {
       open LogicUtils
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let returnURL = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${path}?name=paypal&is_back=true&is_simplified_paypal=true&profile_id=${profileId}`
-
+        let fePrefix = hyperSwitchFEPrefix->String.replace(dashboardBasePath, "")
+        let returnURL = `${fePrefix}/${path}?name=paypal&is_back=true&is_simplified_paypal=true&profile_id=${profileId}`
         let body = PayPalFlowUtils.generatePayPalBody(
           ~connectorId={connectorId},
           ~returnUrl=Some(returnURL),

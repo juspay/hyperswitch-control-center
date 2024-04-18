@@ -180,7 +180,6 @@ let make = () => {
 
     React.null
   }
-  Js.log2("rescriptRouterUrl", url.path)
   <>
     <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen">
       <div>
