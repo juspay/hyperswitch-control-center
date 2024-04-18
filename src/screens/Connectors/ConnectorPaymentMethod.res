@@ -26,19 +26,29 @@ let make = (
     setPaymentMethods(_ => value->Array.copy)
   }
 
+  let setPaymentMethodDetails = async () => {
+    try {
+      setScreenState(_ => Loading)
+      let _ =
+        initialValues->getConnectorPaymentMethodDetails(
+          setPaymentMethods,
+          setMetaData,
+          isUpdateFlow,
+          isPayoutFlow,
+          connector,
+          updateDetails,
+        )
+      setScreenState(_ => Success)
+    } catch {
+    | Exn.Error(e) => {
+        let err = Exn.message(e)->Option.getOr("Something went wrong")
+        setScreenState(_ => PageLoaderWrapper.Error(err))
+      }
+    }
+  }
+
   React.useEffect1(() => {
-    setScreenState(_ => Loading)
-    initialValues
-    ->getConnectorPaymentMethodDetails(
-      setPaymentMethods,
-      setMetaData,
-      setScreenState,
-      isUpdateFlow,
-      isPayoutFlow,
-      connector,
-      updateDetails,
-    )
-    ->ignore
+    setPaymentMethodDetails()->ignore
     None
   }, [connector])
 

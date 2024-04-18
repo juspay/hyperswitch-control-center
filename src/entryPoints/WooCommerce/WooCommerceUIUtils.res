@@ -132,7 +132,6 @@ module SelectPaymentMethods = {
       ->ConnectorUtils.getConnectorPaymentMethodDetails(
         setPaymentMethods,
         setMetaData,
-        _ => (),
         false,
         false,
         connectorName,

@@ -1194,7 +1194,6 @@ let getConnectorPaymentMethodDetails = async (
   initialValues,
   setPaymentMethods,
   setMetaData,
-  setScreenState,
   isUpdateFlow,
   isPayoutFlow,
   connector,
@@ -1211,7 +1210,6 @@ let getConnectorPaymentMethodDetails = async (
       ->getPaymentMethodEnabled
     setPaymentMethods(_ => paymentMethodEnabled)
     setMetaData(_ => metaData)
-    setScreenState(_ => PageLoaderWrapper.Success)
     defaultSelectAllCards(
       paymentMethodEnabled,
       isUpdateFlow,
@@ -1222,7 +1220,7 @@ let getConnectorPaymentMethodDetails = async (
   } catch {
   | Exn.Error(e) => {
       let err = Exn.message(e)->Option.getOr("Something went wrong")
-      setScreenState(_ => PageLoaderWrapper.Error(err))
+      Exn.raiseError(err)
     }
   }
 }

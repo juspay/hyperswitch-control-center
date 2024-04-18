@@ -32,6 +32,7 @@ let make = (
   ~portalStyle="",
   ~homeLink="/",
   ~popOverPanelCustomClass="",
+  ~headerLeftActions=?,
 ) => {
   let isMobileView = MatchMedia.useMobileChecker()
   let (showModal, setShowModal) = React.useState(_ => false)
@@ -59,6 +60,10 @@ let make = (
     <div id="navbar" className={`w-full mx-auto`}>
       <div
         className={`flex flex-row items-start justify-between min-h-16 items-center ${customHeight}`}>
+        {switch headerLeftActions {
+        | Some(actions) => actions
+        | None => React.null
+        }}
         <div className={`flex flex-wrap ml-5 justify-between items-center w-full`}>
           <PortalCapture key=leftPortalName name=leftPortalName customStyle={`${portalStyle}`} />
           <div className="flex flex-row place-content-centerx">

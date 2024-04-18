@@ -22,6 +22,7 @@ type featureFlag = {
   globalSearch: bool,
   disputeAnalytics: bool,
   configurePmts: bool,
+  whiteLabel: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -47,10 +48,11 @@ let featureFlagType = (featureFlags: JSON.t) => {
     surcharge: dict->getBool("surcharge", false),
     disputeEvidenceUpload: dict->getBool("dispute_evidence_upload", false),
     paypalAutomaticFlow: dict->getBool("paypal_automatic_flow", false),
-    threedsAuthenticator: dict->getBool("threeds-authenticator", false),
+    threedsAuthenticator: dict->getBool("threeds_authenticator", false),
     globalSearch: dict->getBool("global_search", false),
     disputeAnalytics: dict->getBool("dispute_analytics", false),
     configurePmts: dict->getBool("configure_pmts", false),
+    whiteLabel: dict->getBool("white_label", false),
   }
   typedFeatureFlag
 }

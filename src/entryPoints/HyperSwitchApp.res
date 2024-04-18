@@ -214,6 +214,9 @@ let make = () => {
                             {modeText->React.string}
                           </div>
                         </div>}
+                        headerLeftActions={<img
+                          src={`https://www.zurich.com.br/-/media/project/zwp/shared/zurich-logo-blue.svg`}
+                        />}
                       />
                     </div>
                   </div>

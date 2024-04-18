@@ -242,7 +242,6 @@ module SelectPaymentMethods = {
       ->getConnectorPaymentMethodDetails(
         setPaymentMethods,
         setMetaData,
-        _ => (),
         false,
         false,
         connectorName,
