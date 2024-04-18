@@ -138,7 +138,7 @@ let initialFixedFilter = () => [
       localFilter: None,
       field: FormRenderer.makeMultiInputFieldInfo(
         ~label="",
-        ~comboCustomInput=InputFields.dateRangeField(
+        ~comboCustomInput=InputFields.filterDateRangeField(
           ~startKey=startTimeFilterKey,
           ~endKey=endTimeFilterKey,
           ~format="YYYY-MM-DDTHH:mm:ss[Z]",

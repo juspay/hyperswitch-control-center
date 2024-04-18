@@ -194,6 +194,26 @@ let singleDatePickerInput: (
   ~fullLength: bool=?,
   unit,
 ) => React.element
+let filterDateRangeField: (
+  ~startKey: string,
+  ~endKey: string,
+  ~format: string,
+  ~disablePastDates: bool=?,
+  ~disableFutureDates: bool=?,
+  ~showTime: bool=?,
+  ~predefinedDays: array<DateRangeUtils.customDateRange>=?,
+  ~disableApply: bool=?,
+  ~numMonths: int=?,
+  ~dateRangeLimit: int=?,
+  ~removeFilterOption: bool=?,
+  ~optFieldKey: string=?,
+  ~showSeconds: bool=?,
+  ~hideDate: bool=?,
+  ~selectStandardTime: bool=?,
+  ~customButtonStyle: string=?,
+  ~isTooltipVisible: bool=?,
+  unit,
+) => comboCustomInputRecord
 let dateRangeField: (
   ~startKey: string,
   ~endKey: string,

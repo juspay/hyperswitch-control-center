@@ -901,7 +901,7 @@ let make = (
       <AutoSubmitter showModal autoApply submit=onSubmit defaultFilterKeys />
       {<AddDataAttributes attributes=[("data-filter", "remoteFilters")]>
         <div>
-          <div className={`flex flex-wrap flex-1 ${verticalGap}`}>
+          <div className={`flex gap-2 items-center flex-wrap ${verticalGap}`}>
             {customLeftView}
             <UIUtils.RenderIf condition={fixedFilters->Array.length > 0}>
               <FormRenderer.FieldsRenderer
@@ -920,7 +920,7 @@ let make = (
                   description={!hideFilters
                     ? "Hide filters control panel(this will not clear the filters)"
                     : "Apply filters from exhaustive list of dimensions"}
-                  toolTipFor={<div className={`my-1 mx-2 ${tooltipStyling} showFilterButton`}>
+                  toolTipFor={<div className={`my-1 ${tooltipStyling} showFilterButton`}>
                     <Button
                       text={isMobileView ? "" : hideFilters ? "Show Filters" : "Hide Filters"}
                       buttonType=SecondaryFilled

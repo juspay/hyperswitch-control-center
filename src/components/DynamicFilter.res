@@ -162,7 +162,6 @@ let make = (
   ~filterFieldsPortalName="navbarSecondRow",
   ~filtersDisplayOption=true,
   ~showSelectFiltersSearch=false,
-  ~revampedFilter=false,
   ~hideFiltersDefaultValue=?,
   ~refreshFilters=true,
 ) => {
@@ -244,7 +243,6 @@ let make = (
       showFiltersBtn=filtersDisplayOption
       showSelectFiltersSearch
       tableName=moduleName
-      revampedFilter
       ?hideFiltersDefaultValue
     />
   </div>
