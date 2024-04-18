@@ -252,7 +252,7 @@ let getURL = (
 let sessionExpired = ref(false)
 
 let handleLogout = async (
-  ~fetchApi as _: (
+  ~fetchApi: (
     string,
     ~bodyStr: string=?,
     ~bodyFormData: option<Fetch.formData>=?,
@@ -266,13 +266,17 @@ let handleLogout = async (
   ~setIsSidebarExpanded,
   ~clearRecoilValue,
 ) => {
-  // let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
-  // let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
-  setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
-  setIsSidebarExpanded(_ => false)
-  clearRecoilValue()
-  LocalStorage.clear()
-  RescriptReactRouter.push("/login")
+  try {
+    setAuthStatus(HyperSwitchAuthTypes.LoggedOut)
+    setIsSidebarExpanded(_ => false)
+    clearRecoilValue()
+    RescriptReactRouter.push("/login")
+    let logoutUrl = getURL(~entityName=USERS, ~methodType=Post, ~userType=#SIGNOUT, ())
+    let _ = await fetchApi(logoutUrl, ~method_=Fetch.Post, ())
+    LocalStorage.clear()
+  } catch {
+  | _ => LocalStorage.clear()
+  }
 }
 
 let responseHandler = async (
