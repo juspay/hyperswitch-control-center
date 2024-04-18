@@ -122,6 +122,7 @@ module Wallets = {
       })
       ->React.array
     }
+    Js.log(configurationFields->Dict.keysToArray)
     <div>
       {switch (
         method.payment_method_type->getPaymentMethodTypeFromString,
@@ -130,15 +131,22 @@ module Wallets = {
       | (ApplePay, Processors(STRIPE))
       | (ApplePay, Processors(BANKOFAMERICA))
       | (ApplePay, Processors(CYBERSOURCE)) =>
-        <ApplePayWalletIntegration metadataInputs update metaData setShowWalletConfigurationModal />
+        <ApplePayWalletIntegration
+          metadataInputs update metaData setShowWalletConfigurationModal connector
+        />
       | _ =>
-        <Form initialValues={metaData} onSubmit validate>
-          {fields}
-          <FormRenderer.SubmitButton
-            text="Proceed" showToolTip=true buttonSize=Button.Large customSumbitButtonStyle="w-full"
-          />
-          <FormValuesSpy />
-        </Form>
+        <UIUtils.RenderIf condition={configurationFields->Dict.keysToArray->Array.length > 0}>
+          <Form initialValues={metaData} onSubmit validate>
+            {fields}
+            <FormRenderer.SubmitButton
+              text="Proceed"
+              showToolTip=true
+              buttonSize=Button.Large
+              customSumbitButtonStyle="w-full"
+            />
+            <FormValuesSpy />
+          </Form>
+        </UIUtils.RenderIf>
       }}
     </div>
   }

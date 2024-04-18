@@ -71,3 +71,12 @@ let constructVerifyApplePayReq = (values, connectorID) => {
   }
   (body, domainName)
 }
+
+type customApplePayFields = [#merchant_business_country | #other]
+
+let customApplePlayFields = field => {
+  switch field {
+  | "merchant_business_country" => #merchant_business_country
+  | _ => #other
+  }
+}
