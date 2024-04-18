@@ -169,7 +169,6 @@ module Base = {
     ~hideDate=false,
     ~selectStandardTime=false,
     ~buttonType=?,
-    ~customButtonStyle=?,
     ~buttonText="",
     ~allowedDateRange=?,
     ~textStyle=?,
@@ -625,9 +624,7 @@ module Base = {
       None
     }, (startDate, endDate, localStartDate, localEndDate))
 
-    let btnStyle = customButtonStyle->Option.getOr("")
-
-    let customStyleForBtn = btnStyle->isNonEmptyString ? btnStyle : ""
+    let customStyleForBtn = "rounded-lg"
 
     let timeVisibilityClass = showTime ? "block" : "hidden"
 
@@ -696,7 +693,7 @@ module Base = {
     }
 
     let buttonType: option<Button.buttonType> = buttonType
-    let calendarIcon = "calendar"
+
     let arrowIconSize = 14
     let strokeColor = if disable {
       "stroke-jp-2-light-gray-600"
@@ -846,7 +843,7 @@ module Base = {
           <div ref={dateRangeRef->ReactDOM.Ref.domRef}>
             <Button
               text={isMobileView && textHideInMobileView ? "" : buttonText}
-              leftIcon={FontAwesome(calendarIcon)}
+              leftIcon={CustomIcon(<Icon name="calendar-filter" size=22 />)}
               rightIcon={CustomIcon(iconElement)}
               buttonSize=XSmall
               isDropdownOpen=isDropdownExpandedActual
@@ -911,7 +908,6 @@ let make = (
   ~hideDate=false,
   ~allowedDateRange=?,
   ~selectStandardTime=false,
-  ~customButtonStyle=?,
   ~buttonText="",
   ~textStyle=?,
   ~standardTimeToday=false,
@@ -943,7 +939,6 @@ let make = (
     showSeconds
     hideDate
     selectStandardTime
-    ?customButtonStyle
     buttonText
     ?allowedDateRange
     ?textStyle

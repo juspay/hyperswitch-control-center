@@ -210,7 +210,6 @@ let filterDateRangeField: (
   ~showSeconds: bool=?,
   ~hideDate: bool=?,
   ~selectStandardTime: bool=?,
-  ~customButtonStyle: string=?,
   ~isTooltipVisible: bool=?,
   unit,
 ) => comboCustomInputRecord

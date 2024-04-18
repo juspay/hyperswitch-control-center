@@ -458,7 +458,7 @@ let make = (
     (),
   )
 
-  let defaultRoundedClass = "rounded-md"
+  let defaultRoundedClass = "rounded"
 
   let {isFirst, isLast} = React.useContext(ButtonGroupContext.buttonGroupContext)
   let roundedClass = {
