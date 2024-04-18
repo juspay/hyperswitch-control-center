@@ -510,8 +510,7 @@ let make = (
         ? switch buttonState {
           | Disabled => ""
           | Loading => `${borderWidth} border-border_gray`
-          | _ =>
-            `${borderWidth} border-border_gray border-opacity-20 dark:border-jp-gray-960 dark:border-opacity-100`
+          | _ => `${borderWidth} border-border_gray dark:border-jp-gray-960 dark:border-opacity-100`
           }
         : switch buttonState {
           | Disabled => ""

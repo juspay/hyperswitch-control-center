@@ -806,6 +806,7 @@ let make = (
                     let dataType = heading.dataType
                     let value = switch entity.getCell(rows, item) {
                     | CustomCell(_, str)
+                    | DisplayCopyCell(str)
                     | EllipsisText(str, _)
                     | Link(str)
                     | Date(str)

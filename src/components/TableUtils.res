@@ -124,6 +124,7 @@ type cell =
   | Link(string)
   | Progress(int)
   | CustomCell(React.element, string)
+  | DisplayCopyCell(string)
   | TrimmedText(string, string)
   | DeltaPercentage(float, float)
   | DropDown(string)
@@ -181,10 +182,6 @@ let makeHeaderInfo = (
   }
 }
 
-let dateFormat = (timestamp, format) => {
-  let readableTimestamp = (timestamp->DayJs.getDayJsForString).format(. format)
-  readableTimestamp
-}
 let getCell = (item): cell => {
   Text(item)
 }
@@ -719,6 +716,7 @@ module TableCell = {
     | Link(ele) => <LinkCell data=ele trimLength=55 />
     | Progress(percent) => <ProgressCell progressPercentage=percent />
     | CustomCell(ele, _) => ele
+    | DisplayCopyCell(string) => <HelperComponents.CopyTextCustomComp displayValue=string />
     | DeltaPercentage(value, delta) => <DeltaColumn value delta />
     | Numeric(num, mapper) => <Numeric num mapper clearFormatting />
     | ColoredText(x) => <ColoredTextCell labelColor=x.color text=x.title />
@@ -769,6 +767,7 @@ module NewTableCell = {
     | Link(ele) => <LinkCell data=ele trimLength=55 />
     | Progress(percent) => <ProgressCell progressPercentage=percent />
     | CustomCell(ele, _) => ele
+    | DisplayCopyCell(string) => <HelperComponents.CopyTextCustomComp displayValue=string />
     | DeltaPercentage(value, delta) => <DeltaColumn value delta />
     | Numeric(num, mapper) => <Numeric num mapper clearFormatting />
     | ColoredText(x) => <ColoredTextCell labelColor=x.color text=x.title />
@@ -787,6 +786,7 @@ let getTableCellValue = cell => {
   | Currency(val, _) => val->Float.toString
   | Link(str) => str
   | CustomCell(_, value) => value
+  | DisplayCopyCell(str) => str
   | EllipsisText(x, _) => x
   | DeltaPercentage(x, _) | Numeric(x, _) => x->Float.toString
   | ColoredText(x) => x.title

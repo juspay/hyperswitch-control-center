@@ -134,24 +134,24 @@ let defaultUIConfig: t = {
     },
     textColor: {
       primaryNormal: "text-white",
-      primaryOutline: "text-blue-800",
+      primaryOutline: "text-primary",
       primaryDisabled: "text-jp-gray-600 dark:text-jp-gray-text_darktheme dark:text-opacity-25",
     },
   },
   font: {
     textColor: {
-      primaryNormal: "text-white",
+      primaryNormal: "text-primary",
     },
   },
   shadow: {
     shadowColor: {
-      primaryNormal: "focus:shadow-primary",
+      primaryNormal: "shadow-primary",
       primaryFocused: "focus:shadow-primary",
     },
   },
   border: {
     borderColor: {
-      primaryNormal: "focus:border-primary",
+      primaryNormal: "border border-primary",
       primaryFocused: "focus:border-primary",
     },
   },

@@ -189,7 +189,7 @@ let make = (
         )
         let timestamp = TimeZoneHook.formattedISOString(dateTimeCheck, format)
         setDate(_ => timestamp)
-        input.onChange(timestamp->Table.dateFormat(format)->Identity.stringToFormReactEvent)
+        input.onChange(timestamp->dateFormat(format)->Identity.stringToFormReactEvent)
       }
     },
     onFocus: _ev => (),
