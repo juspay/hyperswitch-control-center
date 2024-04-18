@@ -58,6 +58,7 @@ let countryInput = (~id, ~options) => {
       makeInputFieldInfo(~name=`${id}`, ()),
       makeInputFieldInfo(~name=`${id}.default`, ()),
     ],
+    ~isRequired=true,
     (),
   )
 }
@@ -88,6 +89,7 @@ module Simplified = {
         <FormRenderer.FieldRenderer
           labelClass="font-semibold !text-hyperswitch_black"
           field={FormRenderer.makeFieldInfo(
+            ~isRequired=true,
             ~label="Domain Name",
             ~name={`${namePrefix}.initiative_context`},
             ~placeholder="eg. example.com",
@@ -162,7 +164,8 @@ module Simplified = {
     }
 
     <Form
-      validate={values => validate(values, ["initiative_context"], #simplified)}
+      validate={values =>
+        validate(values, ["initiative_context", "merchant_business_country"], #simplified)}
       onSubmit
       initialValues={metaData}>
       <SimplifiedHelper
