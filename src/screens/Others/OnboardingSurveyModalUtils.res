@@ -162,7 +162,7 @@ let constructOnboardingSurveyBody = values => {
   let hyperswitchValue = dictFromJson->getDictfromDict("hyperswitch")
   let filterOutOtherKeys =
     hyperswitchValue->Dict.keysToArray->Array.filter(value => value->String.includes("otherstring"))
-  let _ = filterOutOtherKeys->Array.map(otherKey => hyperswitchValue->Dict.delete(otherKey))
+  filterOutOtherKeys->Array.forEach(otherKey => hyperswitchValue->Dict.delete(otherKey))
   hyperswitchValue
 }
 

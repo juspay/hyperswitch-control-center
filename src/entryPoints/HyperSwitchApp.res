@@ -98,11 +98,8 @@ let make = () => {
       let firstValueFromArray = res->getArrayFromJson([])->getValueFromArray(0, JSON.Encode.null)
       let onboardingDetailsFilled =
         firstValueFromArray->getDictFromJsonObject->getDictfromDict("OnboardingSurvey")
-      if onboardingDetailsFilled->Dict.keysToArray->Array.length === 0 {
-        setCompanyNameModal(_ => true)
-      } else {
-        setCompanyNameModal(_ => false)
-      }
+      let val = onboardingDetailsFilled->Dict.keysToArray->Array.length === 0
+      setCompanyNameModal(_ => val)
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
