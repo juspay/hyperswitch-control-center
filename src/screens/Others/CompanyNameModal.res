@@ -53,9 +53,11 @@ let make = (~showModal, ~setShowModal) => {
 
   let updateUserName = async values => {
     try {
+      let userName = values->getDictFromJsonObject->getString("user_name", "")
       let url = getURL(~entityName=USERS, ~userType=#USER_UPDATE, ~methodType=Post, ())
       let body = values->constructUserUpdateBody
       let _ = await updateDetails(url, body, Post, ())
+      HSwitchUtils.setUserDetails("name", userName->JSON.Encode.string)
     } catch {
     | _ => {
         showToast(~message=`Failed to update onboarding survey`, ~toastType=ToastError, ())
