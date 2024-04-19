@@ -203,6 +203,7 @@ let getURL = (
     | #ACCEPT_INVITE => `${userUrl}/user/invite/accept`
     | #USER_DELETE => `${userUrl}/user/delete`
     | #UPDATE_ROLE => `${userUrl}/user/${(userType :> string)->String.toLowerCase}`
+    | #UPDATE_MERCHANT => `${userUrl}/update`
     | #SIGNUP
     | #SIGNOUT
     | #RESET_PASSWORD

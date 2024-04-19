@@ -1,6 +1,8 @@
 module MerchantDetailsSection = {
   @react.component
   let make = () => {
+    open APIUtils
+    open LogicUtils
     open HSwitchProfileSettingsEntity
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
     let (offset, setOffset) = React.useState(_ => 0)
@@ -11,8 +13,25 @@ module MerchantDetailsSection = {
       HyperswitchAtom.switchMerchantListAtom,
     )
 
+    let updateDetails = useUpdateMethod()
+
+    let updateMerchant = async () => {
+      try {
+        let url = getURL(~entityName=USERS, ~userType=#UPDATE_MERCHANT, ~methodType=Post, ())
+        let body =
+          [
+            ("name", "gitanjli"->JSON.Encode.string),
+            ("preferred_merchant_id", "git c"->JSON.Encode.string),
+          ]->getJsonFromArrayOfJson
+        let _ = await updateDetails(url, body, Post, ())
+      } catch {
+      | _ => Js.log("failed to update merchant")
+      }
+    }
+
     React.useEffect0(() => {
       try {
+        updateMerchant()->ignore
         let _ = fetchSwitchMerchantList()
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
