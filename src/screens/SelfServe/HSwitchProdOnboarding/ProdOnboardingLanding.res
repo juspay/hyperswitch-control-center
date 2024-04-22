@@ -171,7 +171,7 @@ let make = () => {
     open LogicUtils
     if prodEnums.setupComplete {
       setDashboardPageState(_ => #HOME)
-      let baseUrlPath = `${HSwitchGlobalVars.hyperSwitchFEPrefix}/${routerUrl.path
+      let baseUrlPath = `${HSwitchGlobalVars.getHostURLFromVariant}/${routerUrl.path
         ->List.toArray
         ->Array.joinWith("/")}`
       routerUrl.search->isNonEmptyString

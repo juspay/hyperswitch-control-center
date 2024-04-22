@@ -166,7 +166,7 @@ module RedirectionToPayPalFlow = {
       open LogicUtils
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let fePrefix = hyperSwitchFEPrefix->String.replace(dashboardBasePath, "")
+        let fePrefix = getHostURLFromVariant->String.replace(dashboardBasePath, "")
         let returnURL = `${fePrefix}/${path}?name=paypal&is_back=true&is_simplified_paypal=true&profile_id=${profileId}`
         let body = PayPalFlowUtils.generatePayPalBody(
           ~connectorId={connectorId},

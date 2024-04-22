@@ -307,7 +307,7 @@ let make = (~connectProcessorValue: connectProcessor) => {
             />}>
             <TestPayment
               initialValues={activeBusinessProfile->SDKPaymentUtils.initialValueForForm}
-              returnUrl={`${HSwitchGlobalVars.hyperSwitchFEPrefix}/quick-start`}
+              returnUrl={`${HSwitchGlobalVars.getHostURLFromVariant}/quick-start`}
               onProceed={updateTestPaymentEnum}
               keyValue=key
               sdkWidth="w-full"
