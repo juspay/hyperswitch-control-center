@@ -73,14 +73,6 @@ let serverHandler: Http.serverHandler = (request, response) => {
   if path === "/config/merchant-config" && request.method === "GET" {
     let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/config.toml")
     Promise.make((resolve, _reject) => {
-      let domain = switch String.split("?")(request.url.toString(.)) {
-      | [_path, queryString] =>
-        switch String.split("=")(queryString) {
-        | [_param, domainValue] => domainValue
-        | _ => "default" // Handle if domain parameter is missing
-        }
-      | _ => "default" // Handle if URL format is unexpected
-      }
       configHandler(request, response, true, domain, path)
       ()->resolve(. _)
     })

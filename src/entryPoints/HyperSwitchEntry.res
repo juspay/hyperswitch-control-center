@@ -87,7 +87,7 @@ module HyperSwitchEntryComponent = {
       None
     })
 
-    React.useEffect2(() => {
+    React.useEffect3(() => {
       MixPanel.init(
         Window.env.mixpanelToken,
         {
