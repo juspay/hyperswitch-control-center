@@ -49,7 +49,8 @@ let make = (
             handleConfirm: {
               text: "Yes, go back",
               onClick: {
-                _ => RescriptReactRouter.push(`${HSwitchGlobalVars.dashboardBasePath}${crumb.link}`)
+                _ =>
+                  RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=crumb.link))
               },
             },
             handleCancel: {

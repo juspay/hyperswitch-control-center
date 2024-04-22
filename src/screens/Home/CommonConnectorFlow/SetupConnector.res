@@ -35,7 +35,9 @@ module SelectProcessor = {
           setConnectorConfigureState(_ => Select_configuration_type)
           mixpanelEvent(~eventName=`quickstart_select_processor`, ())
           RescriptReactRouter.replace(
-            `${HSwitchGlobalVars.dashboardBasePath}/${url.path->LogicUtils.getListHead}?name=${connectorName}`,
+            HSwitchGlobalVars.appendDashboardPath(
+              ~url=`/${url.path->LogicUtils.getListHead}?name=${connectorName}`,
+            ),
           )
         }}
         buttonSize=Small

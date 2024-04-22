@@ -34,7 +34,7 @@ let make = (~integrateAppValue: integrateApp) => {
         buttonType={Secondary}
         onClick={_ => {
           setDashboardPageState(_ => #HOME)
-          RescriptReactRouter.replace(`${HSwitchGlobalVars.dashboardBasePath}/home`)
+          RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/home"))
         }}
       />
     </div>

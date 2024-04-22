@@ -110,7 +110,7 @@ let make = () => {
   let onProceed = async (~paymentId) => {
     switch paymentId {
     | Some(val) =>
-      RescriptReactRouter.replace(`${HSwitchGlobalVars.dashboardBasePath}/payments/${val}`)
+      RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url=`/payments/${val}`))
     | None => ()
     }
   }
@@ -119,7 +119,7 @@ let make = () => {
     setKey(_ => Date.now()->Float.toString)
     setInitialValues(_ => values->SDKPaymentUtils.getTypedValueForPayment)
     setIsSDKOpen(_ => true)
-    RescriptReactRouter.push(`${HSwitchGlobalVars.dashboardBasePath}/sdk`)
+    RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/sdk"))
     Nullable.null->Promise.resolve
   }
 

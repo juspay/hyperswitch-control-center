@@ -275,6 +275,8 @@ let tableEntity = EntityType.makeEntity(
   ~allColumns=visibleColumns,
   ~getCell,
   ~getHeading,
-  ~getShowLink={refund => `${HSwitchGlobalVars.dashboardBasePath}/refunds/${refund.refund_id}`},
+  ~getShowLink={
+    refund => HSwitchGlobalVars.appendDashboardPath(~url=`/refunds/${refund.refund_id}`)
+  },
   (),
 )

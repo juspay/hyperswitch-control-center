@@ -71,14 +71,16 @@ module TileComponent = {
         }
       } else {
         switch redirectUrl {
-        | Some(url) => RescriptReactRouter.push(`${HSwitchGlobalVars.dashboardBasePath}/${url}`)
+        | Some(url) =>
+          RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url=`/${url}`))
         | None =>
           switch redirect {
           | Some(redirect) =>
             RescriptReactRouter.push(
-              `${HSwitchGlobalVars.dashboardBasePath}/settings?type=${redirect}`,
+              HSwitchGlobalVars.appendDashboardPath(~url=`/settings?type=${redirect}`),
             )
-          | None => RescriptReactRouter.push(`${HSwitchGlobalVars.dashboardBasePath}/settings`)
+          | None =>
+            RescriptReactRouter.push(HSwitchGlobalVars.appendDashboardPath(~url="/settings"))
           }
         }
       }

@@ -78,7 +78,7 @@ let make = (~urlEntityName, ~baseUrlForRedirection) => {
         await updateDetails(defaultFallbackUpdateUrl, defaultPayload->JSON.Encode.array, Post, ())
       )->ignore
       RescriptReactRouter.replace(
-        `${HSwitchGlobalVars.dashboardBasePath}${baseUrlForRedirection}/default`,
+        HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}/default`),
       )
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {

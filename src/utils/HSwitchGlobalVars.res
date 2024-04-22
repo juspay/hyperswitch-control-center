@@ -1,6 +1,13 @@
 @val external appVersion: string = "appVersion"
 
-let dashboardBasePath = "/dashboard"
+let dashboardBasePath = Some("/dashboard")
+
+let appendDashboardPath = (~url) => {
+  switch dashboardBasePath {
+  | Some(dashboardBaseUrl) => `${dashboardBaseUrl}${url}`
+  | None => url
+  }
+}
 
 let mixpanelToken = Window.env.mixpanelToken->Option.getOr("mixpanel-token")
 
@@ -14,7 +21,7 @@ let hostType = switch hostName {
 | _ => hostName->String.includes("netlify") ? Netlify : Local
 }
 
-let getHostURLFromVariant = `${Window.Location.origin}${dashboardBasePath}`
+let getHostURLFromVariant = `${Window.Location.origin}${appendDashboardPath(~url="")}`
 
 let isHyperSwitchDashboard = GlobalVars.dashboardAppName === #hyperswitch
 

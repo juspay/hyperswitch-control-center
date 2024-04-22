@@ -163,7 +163,7 @@ let make = () => {
 
   let getCssOnView = "xl:w-77-rem  mx-7 xl:ml-[7rem]"
   let centerItems = pageView === SETUP_COMPLETED ? "justify-center" : ""
-  let urlPush = `${HSwitchGlobalVars.dashboardBasePath}/prod-onboarding?${routerUrl.search}`
+  let urlPush = HSwitchGlobalVars.appendDashboardPath(~url=`/prod-onboarding?${routerUrl.search}`)
 
   let userRole = HSLocalStorage.getFromUserDetails("user_role")
 
@@ -216,7 +216,7 @@ let make = () => {
       setInitialValues(_ => json)
       setPreviewState(_ => Some(headerVariant->ProdOnboardingUtils.getPreviewState))
       RescriptReactRouter.replace(
-        `${HSwitchGlobalVars.dashboardBasePath}/prod-onboarding?name=${connectorName}`,
+        HSwitchGlobalVars.appendDashboardPath(~url=`/prod-onboarding?name=${connectorName}`),
       )
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error(""))

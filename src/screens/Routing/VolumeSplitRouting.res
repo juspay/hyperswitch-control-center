@@ -44,7 +44,7 @@ module VolumeRoutingView = {
         let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
         showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(
-          `${HSwitchGlobalVars.dashboardBasePath}${baseUrlForRedirection}?`,
+          HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
         )
         setScreenState(_ => Success)
       } catch {
@@ -54,7 +54,7 @@ module VolumeRoutingView = {
           if message->String.includes("IR_16") {
             showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
             RescriptReactRouter.replace(
-              `${HSwitchGlobalVars.dashboardBasePath}${baseUrlForRedirection}`,
+              HSwitchGlobalVars.appendDashboardPath(~url=baseUrlForRedirection),
             )
             setScreenState(_ => Success)
           } else {
@@ -82,7 +82,7 @@ module VolumeRoutingView = {
         let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
         showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
         RescriptReactRouter.replace(
-          `${HSwitchGlobalVars.dashboardBasePath}${baseUrlForRedirection}?`,
+          HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
         )
         setScreenState(_ => Success)
       } catch {
@@ -324,7 +324,7 @@ let make = (
       )
       setScreenState(_ => Success)
       if isSaveRule {
-        RescriptReactRouter.replace(`${HSwitchGlobalVars.dashboardBasePath}/routing`)
+        RescriptReactRouter.replace(HSwitchGlobalVars.appendDashboardPath(~url="/routing"))
       }
       Nullable.make(res)
     } catch {

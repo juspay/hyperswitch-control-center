@@ -166,7 +166,7 @@ module RedirectionToPayPalFlow = {
       open LogicUtils
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
-        let fePrefix = getHostURLFromVariant->String.replace(dashboardBasePath, "")
+        let fePrefix = getHostURLFromVariant->String.replace(appendDashboardPath(~url=""), "")
         let returnURL = `${fePrefix}/${path}?name=paypal&is_back=true&is_simplified_paypal=true&profile_id=${profileId}`
         let body = PayPalFlowUtils.generatePayPalBody(
           ~connectorId={connectorId},
@@ -312,7 +312,7 @@ let make = (
       setConnectorId(_ => connectorId)
       setScreenState(_ => Success)
       RescriptReactRouter.replace(
-        `${HSwitchGlobalVars.dashboardBasePath}/connectors/${connectorId}?name=paypal`,
+        HSwitchGlobalVars.appendDashboardPath(~url=`/connectors/${connectorId}?name=paypal`),
       )
     } catch {
     | Exn.Error(e) =>

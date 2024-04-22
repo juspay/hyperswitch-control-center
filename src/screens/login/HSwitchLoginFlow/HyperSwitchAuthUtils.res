@@ -207,7 +207,7 @@ let useNote = (authType, setAuthType, isMagicLinkEnabled) => {
     <div
       onClick={_ => {
         setAuthType(_ => authType)
-        `${HSwitchGlobalVars.dashboardBasePath}${path}`->RescriptReactRouter.push
+        HSwitchGlobalVars.appendDashboardPath(~url=path)->RescriptReactRouter.push
       }}
       className={`text-sm text-center ${textColor.primaryNormal} cursor-pointer hover:underline underline-offset-2`}>
       {btnText->React.string}
@@ -365,7 +365,7 @@ module Header = {
             form.resetFieldState("email")
             form.reset(JSON.Encode.object(Dict.make())->Nullable.make)
             setAuthType(_ => authType)
-            `${HSwitchGlobalVars.dashboardBasePath}${path}`->RescriptReactRouter.push
+            HSwitchGlobalVars.appendDashboardPath(~url=path)->RescriptReactRouter.push
           }}
           id="card-subtitle"
           className={`font-semibold ${textColor.primaryNormal} cursor-pointer`}>

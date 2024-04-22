@@ -56,7 +56,7 @@ module SimpleRoutingView = {
           (),
         )
         RescriptReactRouter.replace(
-          `${HSwitchGlobalVars.dashboardBasePath}${baseUrlForRedirection}`,
+          HSwitchGlobalVars.appendDashboardPath(~url=baseUrlForRedirection),
         )
         setScreenState(_ => Success)
       } catch {
@@ -76,7 +76,7 @@ module SimpleRoutingView = {
           (),
         )
         RescriptReactRouter.replace(
-          `${HSwitchGlobalVars.dashboardBasePath}${baseUrlForRedirection}`,
+          HSwitchGlobalVars.appendDashboardPath(~url=baseUrlForRedirection),
         )
         setScreenState(_ => Success)
       } catch {

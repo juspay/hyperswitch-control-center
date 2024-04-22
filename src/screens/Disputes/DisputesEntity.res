@@ -202,7 +202,8 @@ let disputesEntity = EntityType.makeEntity(
   ~getCell,
   ~dataKey="",
   ~getShowLink={
-    disputesData => `${HSwitchGlobalVars.dashboardBasePath}/disputes/${disputesData.dispute_id}`
+    disputesData =>
+      HSwitchGlobalVars.appendDashboardPath(~url=`/disputes/${disputesData.dispute_id}`)
   },
   (),
 )

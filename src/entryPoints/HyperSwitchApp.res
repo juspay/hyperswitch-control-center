@@ -156,7 +156,7 @@ let make = () => {
 
   let determineStripePlusPayPal = () => {
     enumDetails->checkStripePlusPayPal
-      ? RescriptReactRouter.replace(`${dashboardBasePath}/home`)
+      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
       : setDashboardPageState(_ => #STRIPE_PLUS_PAYPAL)
 
     React.null
@@ -164,7 +164,7 @@ let make = () => {
 
   let determineWooCommerce = () => {
     enumDetails->checkWooCommerce
-      ? RescriptReactRouter.replace(`${dashboardBasePath}/home`)
+      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
       : setDashboardPageState(_ => #WOOCOMMERCE_FLOW)
 
     React.null
@@ -174,7 +174,7 @@ let make = () => {
     isProdIntentCompleted->Option.getOr(false) &&
     enumDetails.integrationCompleted &&
     !(enumDetails.testPayment.payment_id->isEmptyString)
-      ? RescriptReactRouter.replace(`${dashboardBasePath}/home`)
+      ? RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
       : setDashboardPageState(_ => #QUICK_START)
 
     React.null
@@ -485,7 +485,7 @@ let make = () => {
                           </AccessControl>
                         | list{_, "unauthorized"} => <UnauthorizedPage />
                         | _ =>
-                          RescriptReactRouter.replace(`${dashboardBasePath}/home`)
+                          RescriptReactRouter.replace(appendDashboardPath(~url="/home"))
                           <Home />
                         }}
                       </ErrorBoundary>

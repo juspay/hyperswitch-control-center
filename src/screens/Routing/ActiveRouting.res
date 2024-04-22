@@ -43,9 +43,9 @@ module ActionButtons = {
         customButtonStyle={` !${borderColor.primaryNormal} bg-white ${textColor.primaryNormal}`}
         onClick={_ => {
           RescriptReactRouter.push(
-            `${HSwitchGlobalVars.dashboardBasePath}/${onRedirectBaseUrl}/${routingTypeName(
-                routeType,
-              )}`,
+            HSwitchGlobalVars.appendDashboardPath(
+              ~url=`/${onRedirectBaseUrl}/${routingTypeName(routeType)}`,
+            ),
           )
           mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
         }}
@@ -59,9 +59,9 @@ module ActionButtons = {
         buttonSize={Small}
         onClick={_ => {
           RescriptReactRouter.push(
-            `${HSwitchGlobalVars.dashboardBasePath}/${onRedirectBaseUrl}/${routingTypeName(
-                routeType,
-              )}`,
+            HSwitchGlobalVars.appendDashboardPath(
+              ~url=`/${onRedirectBaseUrl}/${routingTypeName(routeType)}`,
+            ),
           )
           mixpanelEvent(~eventName=`routing_setup_${routeType->routingTypeName}`, ())
         }}
@@ -128,15 +128,17 @@ module ActiveSection = {
               switch activeRoutingType {
               | DEFAULTFALLBACK =>
                 RescriptReactRouter.push(
-                  `${HSwitchGlobalVars.dashboardBasePath}/${onRedirectBaseUrl}/${routingTypeName(
-                      activeRoutingType,
-                    )}`,
+                  HSwitchGlobalVars.appendDashboardPath(
+                    ~url=`/${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`,
+                  ),
                 )
               | _ =>
                 RescriptReactRouter.push(
-                  `${HSwitchGlobalVars.dashboardBasePath}/${onRedirectBaseUrl}/${routingTypeName(
-                      activeRoutingType,
-                    )}?id=${activeRoutingId}&isActive=true`,
+                  HSwitchGlobalVars.appendDashboardPath(
+                    ~url=`/${onRedirectBaseUrl}/${routingTypeName(
+                        activeRoutingType,
+                      )}?id=${activeRoutingId}&isActive=true`,
+                  ),
                 )
               }
             }}

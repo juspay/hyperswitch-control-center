@@ -442,7 +442,7 @@ For example: If card_type = credit && amount > 100, route 60% to Stripe and 40% 
           onClick={_ => {
             setCurrentRouting(_ => RoutingTypes.DEFAULTFALLBACK)
             RescriptReactRouter.replace(
-              `${HSwitchGlobalVars.dashboardBasePath}${baseUrlForRedirection}/default`,
+              HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}/default`),
             )
           }}>
           {"here"->React.string}
@@ -627,7 +627,9 @@ let make = (
       )
       let _ = await updateDetails(activateRuleURL, Dict.make()->JSON.Encode.object, Post, ())
       showToast(~message="Successfully Activated !", ~toastType=ToastState.ToastSuccess, ())
-      RescriptReactRouter.replace(`${HSwitchGlobalVars.dashboardBasePath}${baseUrlForRedirection}?`)
+      RescriptReactRouter.replace(
+        HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
+      )
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -636,7 +638,7 @@ let make = (
         if message->String.includes("IR_16") {
           showToast(~message="Algorithm is activated!", ~toastType=ToastState.ToastSuccess, ())
           RescriptReactRouter.replace(
-            `${HSwitchGlobalVars.dashboardBasePath}${baseUrlForRedirection}`,
+            HSwitchGlobalVars.appendDashboardPath(~url=baseUrlForRedirection),
           )
           setScreenState(_ => Success)
         } else {
@@ -662,7 +664,9 @@ let make = (
       let body = [("profile_id", profile->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object
       let _ = await updateDetails(deactivateRoutingURL, body, Post, ())
       showToast(~message="Successfully Deactivated !", ~toastType=ToastState.ToastSuccess, ())
-      RescriptReactRouter.replace(`${HSwitchGlobalVars.dashboardBasePath}${baseUrlForRedirection}?`)
+      RescriptReactRouter.replace(
+        HSwitchGlobalVars.appendDashboardPath(~url=`${baseUrlForRedirection}?`),
+      )
       setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
@@ -736,7 +740,7 @@ let make = (
       setShowModal(_ => false)
       if isSaveRule {
         RescriptReactRouter.replace(
-          `${HSwitchGlobalVars.dashboardBasePath}${baseUrlForRedirection}`,
+          HSwitchGlobalVars.appendDashboardPath(~url=baseUrlForRedirection),
         )
       }
       Nullable.make(response)

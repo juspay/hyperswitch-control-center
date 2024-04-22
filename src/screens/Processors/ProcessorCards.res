@@ -73,7 +73,7 @@ let make = (
   let handleClick = connectorName => {
     mixpanelEvent(~eventName=`connect_processor_${connectorName}`, ())
     RescriptReactRouter.push(
-      `${HSwitchGlobalVars.dashboardBasePath}/${urlPrefix}?name=${connectorName}`,
+      HSwitchGlobalVars.appendDashboardPath(~url=`/${urlPrefix}?name=${connectorName}`),
     )
   }
   let unConfiguredConnectorsCount = unConfiguredConnectors->Array.length
